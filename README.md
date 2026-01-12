@@ -10,6 +10,9 @@
 3. Run the installer.
 4. Launch `XAUUSD Calendar Agent` from the Start menu.
 
+## Uninstall (Windows)
+- Uninstall from Windows “Apps & features” / “Installed apps”.
+
 ## Docs & FAQ
 - [Calendar Utilities](scripts/calendar/README.md#calendar-utilities)
 - [News collection & analysis](scripts/news/README.md)

@@ -46,3 +46,84 @@ Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: no
 Type: filesandordirs; Name: "{app}\*"
 Type: dirifempty; Name: "{app}"
 Type: filesandordirs; Name: "{userappdata}\XAUUSDCalendar"
+
+[Code]
+// Ensure uninstall can remove the installed binary even if the app is still running.
+function IsProcessRunningByImageName(const ImageName: string): Boolean;
+var
+  ResultCode: Integer;
+  TaskListOut: string;
+  Contents: AnsiString;
+begin
+  Result := False;
+  TaskListOut := ExpandConstant('{tmp}\xauusd_tasklist.txt');
+
+  Exec(
+    ExpandConstant('{cmd}'),
+    '/C tasklist /FI "IMAGENAME eq ' + ImageName + '" /NH > "' + TaskListOut + '"',
+    '',
+    SW_HIDE,
+    ewWaitUntilTerminated,
+    ResultCode
+  );
+
+  if ResultCode <> 0 then begin
+    Log('tasklist failed with code ' + IntToStr(ResultCode));
+    Exit;
+  end;
+
+  if (not LoadStringFromFile(TaskListOut, Contents)) then begin
+    Log('Failed to read tasklist output: ' + TaskListOut);
+    Exit;
+  end;
+
+  Result := Pos(Lowercase(ImageName), Lowercase(string(Contents))) > 0;
+end;
+
+procedure ForceCloseAppForUninstall();
+var
+  ResultCode: Integer;
+  ImageName: string;
+  Attempt: Integer;
+begin
+  ImageName := ExpandConstant('{#MyAppExeName}');
+
+  if not IsProcessRunningByImageName(ImageName) then begin
+    Exit;
+  end;
+
+  Exec(
+    ExpandConstant('{sys}\taskkill.exe'),
+    '/F /IM "' + ImageName + '" /T',
+    '',
+    SW_HIDE,
+    ewWaitUntilTerminated,
+    ResultCode
+  );
+
+  if ResultCode <> 0 then begin
+    Log('taskkill failed with code ' + IntToStr(ResultCode));
+  end;
+
+  for Attempt := 1 to 30 do begin
+    if not IsProcessRunningByImageName(ImageName) then begin
+      Exit;
+    end;
+    Sleep(500);
+  end;
+
+  MsgBox(
+    'Uninstall cannot continue because "' + ImageName + '" is still running.' + #13#10 +
+    'Please close it and try again.',
+    mbError,
+    MB_OK
+  );
+  Abort;
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  if CurUninstallStep = usUninstall then begin
+    ForceCloseAppForUninstall();
+  end;
+end;
