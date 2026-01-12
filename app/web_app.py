@@ -221,6 +221,8 @@ def main() -> None:
     )
     backend.set_window(window)
     exit_event = threading.Event()
+    window_loaded = threading.Event()
+    pending_hide_to_tray = threading.Event()
     tray = TrayController(backend, icon_path, exit_event)
     tray.start(window)
     ipc_stop = threading.Event()
@@ -254,6 +256,9 @@ def main() -> None:
         if exit_event.is_set():
             return True
         if tray.icon:
+            if not window_loaded.is_set():
+                pending_hide_to_tray.set()
+                return False
             window.hide()
             tray.show()
             return False
@@ -261,6 +266,25 @@ def main() -> None:
 
     try:
         window.events.closing += on_closing
+    except Exception:  # noqa: BLE001
+        pass
+    try:
+
+        def on_loaded(*_args) -> None:
+            window_loaded.set()
+            if exit_event.is_set():
+                return
+            if tray.icon and pending_hide_to_tray.is_set():
+                try:
+                    window.hide()
+                except Exception:  # noqa: BLE001
+                    return
+                try:
+                    tray.show()
+                except Exception:  # noqa: BLE001
+                    return
+
+        window.events.loaded += on_loaded
     except Exception:  # noqa: BLE001
         pass
     try:
