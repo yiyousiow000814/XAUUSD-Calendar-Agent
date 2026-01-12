@@ -301,6 +301,39 @@ const computeActivityMorphClip = async (page) => {
   return { x, y, width, height };
 };
 
+const assertCenteredInViewport = async (page, selector, label, tolerancePx = 22) => {
+  const viewport = page.viewportSize();
+  if (!viewport) return;
+  const locator = page.locator(selector).first();
+  const box = await locator.boundingBox();
+  if (!box) {
+    throw new Error(`${label} not visible`);
+  }
+  const centerX = box.x + box.width / 2;
+  const centerY = box.y + box.height / 2;
+  const targetX = viewport.width / 2;
+  const targetY = viewport.height / 2;
+  const dx = Math.abs(centerX - targetX);
+  const dy = Math.abs(centerY - targetY);
+  if (dx > tolerancePx || dy > tolerancePx) {
+    throw new Error(`${label} not centered (dx=${dx.toFixed(1)} dy=${dy.toFixed(1)})`);
+  }
+};
+
+const assertBackdropBlurred = async (page, selector, label) => {
+  const locator = page.locator(selector).first();
+  if (!(await locator.count())) {
+    throw new Error(`${label} not found`);
+  }
+  const blur = await locator.evaluate((el) => {
+    const style = window.getComputedStyle(el);
+    return style.backdropFilter || style.webkitBackdropFilter || "";
+  });
+  if (!blur || blur === "none" || !blur.includes("blur(")) {
+    throw new Error(`${label} is not blurred (backdropFilter=${JSON.stringify(blur)})`);
+  }
+};
+
 const setTheme = async (page, mode, scheme) => {
   await page.emulateMedia({
     ...(scheme ? { colorScheme: scheme } : {}),
@@ -1077,6 +1110,9 @@ const main = async () => {
       bypassCSP: true,
       ...(colorScheme ? { colorScheme } : {})
     });
+    await context.addInitScript(() => {
+      window.__UI_CHECK_RUNTIME__ = true;
+    });
     await context.addInitScript(({ mode, scheme }) => {
       const resolved =
         mode === "system"
@@ -1773,11 +1809,93 @@ const main = async () => {
       })
       .catch(() => null);
 
+    await runCheck(theme.key, "Alert modal shows centered + blurred backdrop", async () => {
+      await page.evaluate(() =>
+        window.__ui_check__?.showAlertModal?.({
+          title: "GitHub Token",
+          message: "Token verified.\n\nUpdating data...",
+          tone: "info"
+        })
+      );
+      await page.waitForSelector("[data-qa='qa:modal:alert']", { timeout: 1200 });
+      await page.waitForFunction(
+        () => document.querySelector("[data-qa='qa:modal:alert']")?.classList.contains("open"),
+        null,
+        { timeout: 1500 }
+      );
+      await page.waitForTimeout(260);
+      await assertCenteredInViewport(page, "[data-qa='qa:modal:alert']", "Alert modal");
+      await assertBackdropBlurred(page, "[data-qa='qa:modal-backdrop:alert']", "Alert backdrop");
+      await assertHasTransition(page, "[data-qa='qa:modal:alert']", "Alert modal");
+      await assertHasTransition(page, "[data-qa='qa:modal-backdrop:alert']", "Alert backdrop");
+      const enterFrames = await captureFrames(page, "alert", theme.key, "info-enter");
+      enterFrames.forEach((frame, index) =>
+        artifacts.push({
+          scenario: "alert",
+          theme: theme.key,
+          state: `info-enter-frame-${index}`,
+          path: frame
+        })
+      );
+      artifacts.push({
+        scenario: "alert",
+        theme: theme.key,
+        state: "info-open",
+        path: await captureState(page, "alert", theme.key, "info-open")
+      });
+      await page.evaluate(() => window.__ui_check__?.hideAlertModal?.());
+      const exitFrames = await captureFrames(page, "alert", theme.key, "info-exit");
+      exitFrames.forEach((frame, index) =>
+        artifacts.push({
+          scenario: "alert",
+          theme: theme.key,
+          state: `info-exit-frame-${index}`,
+          path: frame
+        })
+      );
+      await page.waitForTimeout(240);
+      await page
+        .waitForSelector("[data-qa='qa:modal-backdrop:alert']", { state: "hidden", timeout: 1500 })
+        .catch(() => null);
+    });
+
+    await runCheck(theme.key, "Alert modal error tone shows centered", async () => {
+      await page.evaluate(() =>
+        window.__ui_check__?.showAlertModal?.({
+          title: "GitHub Token",
+          message: "Token Invalid.\n\nPlease check github_token in config.json",
+          tone: "error"
+        })
+      );
+      await page.waitForSelector("[data-qa='qa:modal:alert']", { timeout: 1200 });
+      await page.waitForFunction(
+        () => document.querySelector("[data-qa='qa:modal:alert']")?.classList.contains("open"),
+        null,
+        { timeout: 1500 }
+      );
+      await page.waitForTimeout(260);
+      await assertCenteredInViewport(page, "[data-qa='qa:modal:alert']", "Alert modal");
+      artifacts.push({
+        scenario: "alert",
+        theme: theme.key,
+        state: "error-open",
+        path: await captureState(page, "alert", theme.key, "error-open")
+      });
+      await page.evaluate(() => window.__ui_check__?.hideAlertModal?.());
+      await page.waitForTimeout(240);
+      await page
+        .waitForSelector("[data-qa='qa:modal-backdrop:alert']", { state: "hidden", timeout: 1500 })
+        .catch(() => null);
+    });
+
     const smallContext = await browser.newContext({
       viewport: { width: 960, height: 640 },
       userAgent: "XAUUSDCalendar/1.0",
       bypassCSP: true,
       ...(colorScheme ? { colorScheme } : {})
+    });
+    await smallContext.addInitScript(() => {
+      window.__UI_CHECK_RUNTIME__ = true;
     });
     await smallContext.addInitScript(({ mode, scheme }) => {
       const resolved =

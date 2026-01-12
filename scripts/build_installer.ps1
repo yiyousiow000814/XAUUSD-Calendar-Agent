@@ -51,7 +51,7 @@ if ($LASTEXITCODE -ne 0) {
     Write-Error $hint
 }
 
-$appVersion = cmd /c 'python -c "import sys; sys.path.insert(0, ''app''); from agent.version import APP_VERSION; print(APP_VERSION)"' 2>nul
+$appVersion = cmd /c 'python -c "import sys; sys.path.insert(0, ''app''); from agent.version import APP_VERSION; print(APP_VERSION)" 2>nul'
 if ($LASTEXITCODE -ne 0) {
     throw "Failed to read app version (python exited with code $LASTEXITCODE)."
 }

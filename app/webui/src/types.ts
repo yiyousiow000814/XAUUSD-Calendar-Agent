@@ -8,6 +8,13 @@ export type FilterOption = "ALL" | "INFO" | "WARN" | "ERROR";
 
 export type ToastType = "success" | "error" | "info";
 
+export type UiModal = {
+  id: string;
+  title: string;
+  message: string;
+  tone: "info" | "error";
+};
+
 export type EventItem = {
   time: string;
   cur: string;
@@ -38,6 +45,7 @@ export type Snapshot = {
   logs: LogEntry[];
   version: string;
   restartInSeconds?: number;
+  modal?: UiModal | null;
 };
 
 export type Settings = {

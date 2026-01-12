@@ -40,13 +40,13 @@ class RepoMixin:
             try:
                 if any(repo_path.iterdir()):
                     self._append_notice(
-                        "Sync repo path is not a git repo. Choose an empty folder."
+                        "Selected folder is not a Git repository. Please choose an empty folder."
                     )
                     return None
                 repo_path.rmdir()
             except OSError:
                 self._append_notice(
-                    "Sync repo path is not a git repo. Choose an empty folder."
+                    "Selected folder is not a Git repository. Please choose an empty folder."
                 )
                 return None
         repo_path.parent.mkdir(parents=True, exist_ok=True)

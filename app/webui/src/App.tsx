@@ -1,8 +1,10 @@
 ﻿import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { useCallback } from "react";
 import { backend, isWebview } from "./api";
 import type { FilterOption, Settings, Snapshot, ToastType } from "./types";
 import { ActivityDrawer } from "./components/ActivityDrawer";
 import { ActivityLog } from "./components/ActivityLog";
+import { AlertModal } from "./components/AlertModal";
 import { AppBar } from "./components/AppBar";
 import { Footer } from "./components/Footer";
 import { HistoryPanel } from "./components/HistoryPanel";
@@ -71,7 +73,23 @@ type SyncRepoWarningContext = {
   canReset: boolean;
 };
 
+type AlertContext = {
+  id: string;
+  title: string;
+  message: string;
+  tone: "info" | "error";
+};
+
 export default function App() {
+  const isUiCheckRuntime = useMemo(() => {
+    try {
+      return Boolean(
+        (window as unknown as { __UI_CHECK_RUNTIME__?: boolean }).__UI_CHECK_RUNTIME__
+      );
+    } catch {
+      return false;
+    }
+  }, []);
   const [snapshot, setSnapshot] = useState<Snapshot>(emptySnapshot);
   const [restartCountdown, setRestartCountdown] = useState<number>(0);
   const [restartPillState, setRestartPillState] = useState<"hidden" | "visible" | "closing">(
@@ -112,6 +130,12 @@ export default function App() {
   const [syncRepoWarningContext, setSyncRepoWarningContext] = useState<SyncRepoWarningContext | null>(
     null
   );
+  const [alertOpen, setAlertOpen] = useState<boolean>(false);
+  const [alertClosing, setAlertClosing] = useState<boolean>(false);
+  const [alertEntering, setAlertEntering] = useState<boolean>(false);
+  const [alertCountdown, setAlertCountdown] = useState<number>(0);
+  const [alertCountdownArmed, setAlertCountdownArmed] = useState<boolean>(false);
+  const [alertContext, setAlertContext] = useState<AlertContext | null>(null);
   const [syncRepoTask, setSyncRepoTask] = useState<{
     active: boolean;
     phase: string;
@@ -172,7 +196,10 @@ export default function App() {
   const eventRetryTimerRef = useRef<number | null>(null);
   const hasManualCurrencyRef = useRef(false);
   const refreshInFlightRef = useRef(false);
+  const refreshRef = useRef<() => Promise<void>>(async () => {});
   const hasLoadedUiPrefsRef = useRef(false);
+  const activeAlertIdRef = useRef<string>("");
+  const dismissedAlertIdRef = useRef<string>("");
 
   const refresh = async () => {
     if (refreshInFlightRef.current) return;
@@ -218,6 +245,20 @@ export default function App() {
         backendSyncRepoPathRef.current = prefs.syncRepoPath || "";
       }
       setSnapshot(data);
+      const modal = data.modal;
+      if (
+        modal &&
+        modal.id &&
+        modal.id !== activeAlertIdRef.current &&
+        modal.id !== dismissedAlertIdRef.current
+      ) {
+        openAlertModal({
+          id: modal.id,
+          title: modal.title || "Notice",
+          message: modal.message || "",
+          tone: modal.tone || "info"
+        });
+      }
       if (!settingsOpenRef.current) {
         if (prefs) {
           setSettings(prefs);
@@ -299,6 +340,10 @@ export default function App() {
       refreshInFlightRef.current = false;
     }
   };
+
+  useEffect(() => {
+    refreshRef.current = refresh;
+  });
 
   const appendLogEntry = (message: string, level: string) => {
     const timestamp = new Date();
@@ -398,6 +443,36 @@ export default function App() {
     setSyncRepoWarningEntering(true);
   };
 
+  const closeAlertModal = useCallback(() => {
+    const id = activeAlertIdRef.current;
+    if (id) {
+      void backend.dismissModal(id);
+    }
+    if (id) {
+      dismissedAlertIdRef.current = id;
+    }
+    activeAlertIdRef.current = "";
+    setAlertClosing(true);
+    window.setTimeout(() => {
+      setAlertOpen(false);
+      setAlertClosing(false);
+      setAlertEntering(false);
+      setAlertContext(null);
+      setAlertCountdown(0);
+      setAlertCountdownArmed(false);
+    }, 240);
+  }, []);
+
+  const openAlertModal = useCallback((context: AlertContext) => {
+    activeAlertIdRef.current = context.id;
+    setAlertContext(context);
+    setAlertOpen(true);
+    setAlertClosing(false);
+    setAlertEntering(true);
+    setAlertCountdown(5);
+    setAlertCountdownArmed(false);
+  }, []);
+
   const refreshUpdateState = async () => {
     try {
       const next = await backend.getUpdateState();
@@ -451,12 +526,77 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (initState !== "ready") return;
-    const interval = window.setInterval(() => {
-      void refresh();
-    }, 45000);
-    return () => window.clearInterval(interval);
-  }, [initState]);
+    if (isUiCheckRuntime) return;
+
+    const handler = (event: Event) => {
+      const detail = (event as CustomEvent).detail as
+        | {
+            id?: string;
+            title?: string;
+            message?: string;
+            tone?: "info" | "error";
+          }
+        | undefined;
+
+      const id = (detail?.id || "").trim();
+      if (!id) return;
+      if (id === dismissedAlertIdRef.current) return;
+      if (id === activeAlertIdRef.current) return;
+
+      openAlertModal({
+        id,
+        title: detail?.title || "Notice",
+        message: detail?.message || "",
+        tone: detail?.tone === "error" ? "error" : "info"
+      });
+    };
+
+    window.addEventListener("xauusd:modal", handler as EventListener);
+    return () => {
+      window.removeEventListener("xauusd:modal", handler as EventListener);
+    };
+  }, [isUiCheckRuntime, openAlertModal]);
+
+  useEffect(() => {
+    if (initState !== "ready" || isUiCheckRuntime) return;
+    let timer: number | null = null;
+    let cancelled = false;
+
+    const schedule = () => {
+      if (cancelled) return;
+      const focused = document.visibilityState === "visible" && document.hasFocus();
+      const delay = focused ? 1200 : 8000;
+      timer = window.setTimeout(() => {
+        void refreshRef.current();
+        schedule();
+      }, delay);
+    };
+
+    schedule();
+
+    return () => {
+      cancelled = true;
+      if (timer) window.clearTimeout(timer);
+    };
+  }, [initState, isUiCheckRuntime]);
+
+  useEffect(() => {
+    if (initState !== "ready" || isUiCheckRuntime) return;
+    const onFocus = () => {
+      void refreshRef.current();
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        void refreshRef.current();
+      }
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [initState, isUiCheckRuntime]);
 
   useEffect(() => {
     const stopTimers = () => {
@@ -1374,6 +1514,84 @@ export default function App() {
   }, [syncRepoWarningOpen]);
 
   useEffect(() => {
+    if (!alertOpen || !alertEntering) return;
+    let raf1 = 0;
+    let raf2 = 0;
+    raf1 = window.requestAnimationFrame(() => {
+      raf2 = window.requestAnimationFrame(() => setAlertEntering(false));
+    });
+    return () => {
+      window.cancelAnimationFrame(raf1);
+      window.cancelAnimationFrame(raf2);
+    };
+  }, [alertOpen, alertEntering]);
+
+  useEffect(() => {
+    if (!alertOpen) return;
+    const alertContextId = alertContext?.id || "";
+
+    const reset = () => {
+      setAlertCountdown(5);
+      setAlertCountdownArmed(false);
+    };
+
+    const onFocus = () => reset();
+    const onBlur = () => setAlertCountdownArmed(false);
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        reset();
+      } else {
+        setAlertCountdownArmed(false);
+      }
+    };
+    const onPointerMove = () => {
+      if (activeAlertIdRef.current !== alertContextId) return;
+      if (document.visibilityState !== "visible" || !document.hasFocus()) return;
+      setAlertCountdownArmed((prev) => {
+        if (prev) return prev;
+        setAlertCountdown(5);
+        return true;
+      });
+    };
+
+    window.addEventListener("focus", onFocus);
+    window.addEventListener("blur", onBlur);
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("mousemove", onPointerMove);
+
+    const timer = window.setInterval(() => {
+      if (activeAlertIdRef.current !== alertContextId) {
+        window.clearInterval(timer);
+        return;
+      }
+      if (
+        document.visibilityState !== "visible" ||
+        !document.hasFocus() ||
+        !alertCountdownArmed
+      ) {
+        return;
+      }
+      setAlertCountdown((prev) => {
+        if (prev <= 1) {
+          closeAlertModal();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("blur", onBlur);
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("mousemove", onPointerMove);
+    };
+  }, [alertOpen, alertCountdownArmed, closeAlertModal, alertContext?.id]);
+
+  useEffect(() => {
     if (!settingsOpen || !pendingPathsScrollRef.current) return;
     if (resetTimerRef.current) {
       window.clearTimeout(resetTimerRef.current);
@@ -1632,6 +1850,8 @@ export default function App() {
         appendLog?: (message: string, level?: string) => void;
         refresh?: () => void;
         refreshUpdateState?: () => Promise<void>;
+        showAlertModal?: (payload: { title?: string; message?: string; tone?: "info" | "error" }) => void;
+        hideAlertModal?: () => void;
         showSyncRepoWarning?: (payload: {
           mode?: SyncRepoWarningMode;
           status?: string;
@@ -1668,6 +1888,18 @@ export default function App() {
       },
       refreshUpdateState: () => {
         return refreshUpdateState();
+      },
+      showAlertModal: (payload) => {
+        dismissedAlertIdRef.current = "";
+        openAlertModal({
+          id: `ui-check-alert-${Date.now()}`,
+          title: payload?.title ?? "Notice",
+          message: payload?.message ?? "Token detected and verified.",
+          tone: payload?.tone ?? "info"
+        });
+      },
+      hideAlertModal: () => {
+        closeAlertModal();
       },
       showSyncRepoWarning: (payload) => {
         openSyncRepoWarningModal({
@@ -2096,6 +2328,17 @@ export default function App() {
           pushToast("success", "Uninstall completed");
           closeUninstall();
         }}
+      />
+
+      <AlertModal
+        isOpen={alertOpen}
+        isClosing={alertClosing}
+        isEntering={alertEntering}
+        title={alertContext?.title || "Notice"}
+        message={alertContext?.message || ""}
+        tone={alertContext?.tone || "info"}
+        secondsRemaining={alertCountdown}
+        onClose={closeAlertModal}
       />
 
       <ActivityDrawer

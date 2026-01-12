@@ -3,7 +3,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from agent.config import get_update_dir
+from agent.config import get_github_token, get_update_dir
 from agent.updater import download_update, fetch_github_release
 from agent.version import APP_VERSION
 
@@ -47,7 +47,8 @@ class UpdateMixin:
             return
         self._set_update_ui(self._UPDATE_CTA_CHECK, "Checking...")
         asset_name = self.state.get("github_release_asset_name", "") or None
-        info = fetch_github_release(repo, asset_name=asset_name)
+        token = get_github_token(self.state)
+        info = fetch_github_release(repo, asset_name=asset_name, token=token)
 
         if not info.ok:
             self._set_update_ui(self._UPDATE_CTA_CHECK, info.message)
@@ -83,14 +84,15 @@ class UpdateMixin:
     def _download_and_apply_update(self, download_url: str, version: str) -> None:
         self._append_notice(f"Downloading update {version}")
         try:
-            target = download_update(download_url, get_update_dir())
+            token = get_github_token(self.state)
+            target = download_update(download_url, get_update_dir(), token=token)
         except Exception as exc:  # noqa: BLE001
             self._append_notice(f"Update download failed: {exc}")
             self._set_update_ui(self._UPDATE_CTA_UPDATE, f"Update failed: {exc}")
             return
         if version:
             self._notify_user(APP_TITLE, f"Update {version} downloaded, restarting")
-        self._append_notice("Update downloaded, applying now")
+        self._append_notice("Update downloaded. Applying now…")
         self.root.after(0, lambda: self._apply_update_now(target))
 
     def _set_update_ui(self, button_text: str, status: str) -> None:
@@ -108,7 +110,7 @@ class UpdateMixin:
             return
         self.update_in_progress = True
         if not getattr(sys, "frozen", False):
-            self._append_notice("Auto update is available in the EXE build only")
+            self._append_notice("Auto update is available only in the EXE build")
             self.update_in_progress = False
             return
 

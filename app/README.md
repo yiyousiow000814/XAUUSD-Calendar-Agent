@@ -42,6 +42,16 @@ apply it automatically.
 The app checks for updates on startup. Periodic checks can be enabled by setting
 `auto_update_interval_minutes` to a value greater than 0.
 
+### Private Repos (GitHub Token)
+If `github_repo` is private, provide a GitHub token so the app can access:
+- Releases (`/releases/latest`) for update checks
+- Repo archive (`/archive/refs/heads/<branch>.zip`) for calendar downloads in installed mode
+
+Supported inputs:
+- Config key: `github_token`
+
+If the default branch is not `main`, set `github_branch` accordingly.
+
 ## Notes
 - The sync is a mirror: files removed from the repo output are removed from the output dir.
 - All timestamps shown in the UI are `DD-MM-YYYY HH:MM`.

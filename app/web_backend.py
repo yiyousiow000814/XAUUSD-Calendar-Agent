@@ -17,6 +17,7 @@ from agent.calendar_update import update_calendar_from_github
 from agent.config import (
     get_config_path,
     get_default_repo_path,
+    get_github_token,
     get_legacy_config_path,
     get_log_dir,
     get_repo_dir,
@@ -44,7 +45,12 @@ from agent.git_ops import (
 from agent.logger import setup_logger
 from agent.scheduler import create_startup_task, remove_startup_task
 from agent.sync import mirror_sync
-from agent.updater import download_update, fetch_github_release
+from agent.updater import (
+    check_github_repo_access,
+    download_update,
+    fetch_github_branch_head_sha,
+    fetch_github_release,
+)
 from agent.version import APP_VERSION
 
 try:
@@ -94,6 +100,7 @@ class WebAgentBackend:
             "pastEvents": [],
             "logs": [],
             "version": APP_VERSION,
+            "modal": None,
         }
         self._snapshot_rebuild_lock = threading.Lock()
         self._snapshot_rebuild_in_progress = False
@@ -120,8 +127,14 @@ class WebAgentBackend:
         self._background_started_lock = threading.Lock()
         self._background_started = False
         self._background_start_timer: threading.Timer | None = None
+        self._config_watch_timer: threading.Timer | None = None
+        self._last_seen_github_token = ""
+        self._github_token_action_in_progress = False
+        self._ui_modal: dict | None = None
+        self._ui_modal_id_counter = 0
         self._request_calendar_refresh("startup")
         self._request_snapshot_rebuild("startup")
+        self._start_config_watch()
 
     def _start_background_tasks_once(self, reason: str = "") -> None:
         with self._background_started_lock:
@@ -156,6 +169,109 @@ class WebAgentBackend:
             self._background_start_timer = threading.Timer(8.0, start_later)
             self._background_start_timer.daemon = True
             self._background_start_timer.start()
+
+    def _start_config_watch(self) -> None:
+        if self._config_watch_timer:
+            return
+        self._last_seen_github_token = get_github_token(None)
+        interval_seconds = 0.35
+
+        def tick() -> None:
+            if self._shutdown_event.is_set():
+                return
+            try:
+                current = get_github_token(None)
+                if current != self._last_seen_github_token:
+                    self._last_seen_github_token = current
+                    if not current:
+                        self.state["github_token"] = ""
+                    else:
+                        self._on_github_token_changed(current)
+            except Exception:  # noqa: BLE001
+                pass
+            self._config_watch_timer = threading.Timer(interval_seconds, tick)
+            self._config_watch_timer.daemon = True
+            self._config_watch_timer.start()
+
+        self._config_watch_timer = threading.Timer(interval_seconds, tick)
+        self._config_watch_timer.daemon = True
+        self._config_watch_timer.start()
+
+    def _emit_modal_event(self, modal: dict) -> None:
+        window = getattr(self, "window", None)
+        if not window:
+            return
+        try:
+            payload = json.dumps(modal, ensure_ascii=False)
+            window.evaluate_js(
+                'window.dispatchEvent(new CustomEvent("xauusd:modal", { detail: '
+                + payload
+                + " }));"
+            )
+        except Exception:  # noqa: BLE001
+            return
+
+    def _set_ui_modal(self, title: str, message: str, tone: str = "info") -> None:
+        self._ui_modal_id_counter += 1
+        self._ui_modal = {
+            "id": f"modal-{self._ui_modal_id_counter}",
+            "title": title,
+            "message": message,
+            "tone": tone,
+        }
+        self._request_snapshot_rebuild("ui-modal")
+        self._emit_modal_event(dict(self._ui_modal))
+
+    def dismiss_modal(self, payload: dict | None = None) -> dict:
+        payload = payload or {}
+        modal_id = (payload.get("id") or "").strip()
+        if not modal_id:
+            return {"ok": False, "message": "Missing id"}
+        if self._ui_modal and self._ui_modal.get("id") == modal_id:
+            self._ui_modal = None
+            self._request_snapshot_rebuild("ui-modal-dismiss")
+        return {"ok": True}
+
+    def _on_github_token_changed(self, token: str) -> None:
+        if self._github_token_action_in_progress:
+            return
+        repo = (self.state.get("github_repo") or "").strip()
+        if not repo:
+            return
+
+        def runner() -> None:
+            self._github_token_action_in_progress = True
+            try:
+                self._set_ui_modal(
+                    "GitHub Token",
+                    "Verifying token...",
+                    tone="info",
+                )
+                ok, message = check_github_repo_access(repo, token=token)
+                if not ok:
+                    self._append_notice(
+                        f"GitHub token detected but invalid: {message}", level="ERROR"
+                    )
+                    self._set_ui_modal(
+                        "GitHub Token",
+                        "Token Invalid.\n\nPlease check github_token in config.json",
+                        tone="error",
+                    )
+                    return
+                self.state["github_token"] = token
+                save_config(self.state)
+                self._append_notice("GitHub token detected and verified", level="INFO")
+                self._set_ui_modal(
+                    "GitHub Token",
+                    "Token verified.\n\nUpdating data...",
+                    tone="info",
+                )
+                self._pull_calendar_only(force=True, reason="token-change")
+                self._check_updates_task(quiet=False)
+            finally:
+                self._github_token_action_in_progress = False
+
+        self._run_task(runner, "GitHub token detected")
 
     @staticmethod
     def _clamp_split_ratio(value: float) -> float:
@@ -251,6 +367,7 @@ class WebAgentBackend:
             "pastEvents": past_events,
             "logs": logs,
             "version": APP_VERSION,
+            "modal": dict(self._ui_modal) if self._ui_modal else None,
         }
         with self._snapshot_lock:
             self._snapshot_cache.update(payload)
@@ -574,7 +691,7 @@ class WebAgentBackend:
         uninstall_cmd = self._find_uninstaller()
         if not uninstall_cmd:
             self._append_notice(
-                "Uninstaller not found; cleanup completed", level="WARN"
+                "Uninstaller not found. Cleanup completed.", level="WARN"
             )
             return {
                 "ok": False,
@@ -882,6 +999,10 @@ class WebAgentBackend:
                 self.log_entries = self.log_entries[:200]
         self._request_snapshot_rebuild("append_notice")
 
+    @staticmethod
+    def _calendar_refreshed_message(files: int, reason: str = "") -> str:
+        return "Events updated to latest"
+
     def _run_task(self, func, label: str) -> None:
         def wrapper() -> None:
             if self._shutdown_event.is_set():
@@ -902,8 +1023,6 @@ class WebAgentBackend:
             with self._update_lock:
                 self._update_phase = "idle"
                 self._update_message = "Update channel not configured"
-            if not quiet:
-                self._append_notice("Update channel not configured", level="WARN")
             return {
                 "ok": False,
                 "message": "Update channel not configured",
@@ -911,14 +1030,14 @@ class WebAgentBackend:
             }
 
         info = fetch_github_release(
-            repo, asset_name=self.state.get("github_release_asset_name") or None
+            repo,
+            asset_name=self.state.get("github_release_asset_name") or None,
+            token=get_github_token(self.state),
         )
         if not info.ok:
             with self._update_lock:
                 self._update_phase = "idle"
                 self._update_message = info.message
-            if not quiet:
-                self._append_notice(info.message, level="WARN")
             return {"ok": False, "message": info.message, "updateAvailable": False}
 
         current_version = APP_VERSION
@@ -931,16 +1050,12 @@ class WebAgentBackend:
                 self._update_available_version = ""
                 self._update_download_url = ""
                 self._update_download_target = None
-            if not quiet:
-                self._append_notice("Up to date", level="INFO")
             return {"ok": True, "message": "Up to date", "updateAvailable": False}
 
         if not info.download_url:
             with self._update_lock:
                 self._update_phase = "idle"
                 self._update_message = "Release missing download URL"
-            if not quiet:
-                self._append_notice("Release missing download URL", level="WARN")
             return {
                 "ok": False,
                 "message": "Release missing download URL",
@@ -952,7 +1067,7 @@ class WebAgentBackend:
             self._update_message = f"Update available: {info.version}"
             self._update_available_version = info.version or ""
             self._update_download_url = info.download_url or ""
-        if not quiet:
+        if (not self.state.get("auto_update_enabled", False)) and (not quiet):
             self._append_notice(f"Update available: {info.version}", level="INFO")
         return {
             "ok": True,
@@ -982,7 +1097,10 @@ class WebAgentBackend:
         self._append_notice(f"Downloading update {version}", level="INFO")
         try:
             target = download_update(
-                download_url, get_update_dir(), progress_callback=on_progress
+                download_url,
+                get_update_dir(),
+                progress_callback=on_progress,
+                token=get_github_token(self.state),
             )
         except Exception as exc:  # noqa: BLE001
             self._append_notice(f"Update download failed: {exc}", level="ERROR")
@@ -1022,7 +1140,7 @@ class WebAgentBackend:
             self._update_phase = "restarting"
             self._update_message = "Restarting..."
 
-        self._append_notice("Installing downloaded update", level="INFO")
+        self._append_notice("Installing update…", level="INFO")
         self._apply_update_now(Path(target))
 
     def shutdown(self) -> None:
@@ -1416,14 +1534,14 @@ class WebAgentBackend:
             try:
                 if any(repo_path.iterdir()):
                     self._append_notice(
-                        "Sync repo path is not a git repo. Choose an empty folder.",
+                        "Selected folder is not a Git repository. Please choose an empty folder.",
                         level="WARN",
                     )
                     return None
                 repo_path.rmdir()
             except OSError:
                 self._append_notice(
-                    "Sync repo path is not a git repo. Choose an empty folder.",
+                    "Selected folder is not a Git repository. Please choose an empty folder.",
                     level="WARN",
                 )
                 return None
@@ -1775,7 +1893,7 @@ class WebAgentBackend:
                     return
                 if not self._is_safe_sync_repo_target(resolved):
                     self._append_notice(
-                        "Refusing to reset/clone into Main Path", level="ERROR"
+                        "Reset/clone blocked: target path is not allowed", level="ERROR"
                     )
                     self._update_sync_repo_task("error", 0.0, "Unsafe sync repo path")
                     return
@@ -1836,7 +1954,7 @@ class WebAgentBackend:
                         return False
 
                 if reset_first:
-                    self._append_notice("Sync repo reset requested", level="WARN")
+                    self._append_notice("Sync reset started", level="WARN")
                     self._update_sync_repo_task(
                         "resetting", 0.05, "Clearing sync repo folder"
                     )
@@ -1878,7 +1996,7 @@ class WebAgentBackend:
                                 level="ERROR",
                             )
                         self._append_notice(
-                            "Sync repo reset failed: folder is in use. Close any apps using it and retry.",
+                            "Sync reset failed: folder is in use. Close any apps using it and try again.",
                             level="ERROR",
                         )
                         self._update_sync_repo_task("error", 0.0, "Folder is in use")
@@ -1931,7 +2049,7 @@ class WebAgentBackend:
                 calendar_root = resolved / "data" / "Economic_Calendar"
                 if not calendar_root.exists():
                     self._append_notice(
-                        "Sync repo clone incomplete: calendar data missing. Please retry Reset & Clone.",
+                        "Sync incomplete: calendar data missing. Please retry Reset & Clone.",
                         level="ERROR",
                     )
                     self._update_sync_repo_task("error", 0.0, "Clone incomplete")
@@ -1966,11 +2084,14 @@ class WebAgentBackend:
     def _maybe_pull_and_sync(self) -> None:
         if self._shutdown_event.is_set():
             return
+        if not self.state.get("enable_sync_repo", False):
+            self._maybe_refresh_calendar_only()
+            return
         repo_path = self._resolve_repo_path()
         if not repo_path:
             if self.state.get("enable_sync_repo", False):
                 return
-            self._append_notice("Repo path not set", level="WARN")
+            self._append_notice("Repository path not configured", level="WARN")
             return
         if not (repo_path / ".git").exists():
             install_dir = (
@@ -1978,7 +2099,7 @@ class WebAgentBackend:
             )
             if not install_dir or not self._is_installed_dir(install_dir):
                 self._append_notice(
-                    "Pull skipped: this copy is not installed via Setup.exe",
+                    "Update skipped: this installation does not support auto-update",
                     level="WARN",
                 )
                 return
@@ -1990,14 +2111,17 @@ class WebAgentBackend:
                     days=self.state.get("auto_pull_days", 1)
                 )
             if not stale:
-                self._append_notice("Calendar already up to date", level="INFO")
+                self._append_notice("Calendar is up to date", level="INFO")
                 return
 
             repo = (self.state.get("github_repo") or "").strip()
+            branch = (self.state.get("github_branch") or "main").strip() or "main"
             if not repo:
                 self._append_notice("GitHub repo not configured", level="WARN")
                 return
-            result = update_calendar_from_github(repo, "main", install_dir)
+            result = update_calendar_from_github(
+                repo, branch, install_dir, token=get_github_token(self.state)
+            )
             if not result.ok:
                 self._append_notice(result.message, level="ERROR")
                 return
@@ -2005,7 +2129,7 @@ class WebAgentBackend:
             self.state["last_pull_at"] = to_iso_time(datetime.now())
             save_config(self.state)
             self._append_notice(
-                f"Calendar updated (+{result.files} files)", level="INFO"
+                self._calendar_refreshed_message(result.files), level="INFO"
             )
             if self.state.get("auto_sync_after_pull", True) and self._get_output_dir():
                 self._sync_only()
@@ -2028,7 +2152,7 @@ class WebAgentBackend:
         head = get_head_sha(repo_path)
         origin = get_origin_sha(repo_path)
         if not head.ok or not origin.ok:
-            self._append_notice("Failed to read git state", level="ERROR")
+            self._append_notice("Failed to read Git repository state", level="ERROR")
             return
 
         needs_pull = head.output.strip() != origin.output.strip()
@@ -2040,6 +2164,9 @@ class WebAgentBackend:
     def _pull_and_sync(self) -> None:
         if self._shutdown_event.is_set():
             return
+        if not self.state.get("enable_sync_repo", False):
+            self._pull_calendar_only(force=True)
+            return
         repo_path = self._resolve_repo_path()
         if not repo_path:
             return
@@ -2049,22 +2176,25 @@ class WebAgentBackend:
             )
             if not install_dir or not self._is_installed_dir(install_dir):
                 self._append_notice(
-                    "Pull skipped: this copy is not installed via Setup.exe",
+                    "Update skipped: this installation does not support auto-update",
                     level="WARN",
                 )
                 return
             repo = (self.state.get("github_repo") or "").strip()
+            branch = (self.state.get("github_branch") or "main").strip() or "main"
             if not repo:
                 self._append_notice("GitHub repo not configured", level="WARN")
                 return
-            result = update_calendar_from_github(repo, "main", install_dir)
+            result = update_calendar_from_github(
+                repo, branch, install_dir, token=get_github_token(self.state)
+            )
             if not result.ok:
                 self._append_notice(result.message, level="ERROR")
                 return
             self.state["last_pull_at"] = to_iso_time(datetime.now())
             save_config(self.state)
             self._append_notice(
-                f"Calendar updated (+{result.files} files)", level="INFO"
+                self._calendar_refreshed_message(result.files), level="INFO"
             )
             if self.state.get("auto_sync_after_pull", True):
                 output_dir = self._get_output_dir()
@@ -2072,7 +2202,8 @@ class WebAgentBackend:
                     self._sync_only()
                 else:
                     self._append_notice(
-                        "Auto sync skipped: output dir not set", level="WARN"
+                        "Auto sync skipped: output directory not configured",
+                        level="WARN",
                     )
             self._refresh_calendar_data()
             return
@@ -2080,7 +2211,7 @@ class WebAgentBackend:
         if not result.ok:
             self._append_notice(f"Pull failed: {result.output}", level="ERROR")
             return
-        self._append_notice("Pull completed", level="INFO")
+        self._append_notice("Data update completed", level="INFO")
         self._track_successful_repo(repo_path)
 
         sha = get_head_sha(repo_path)
@@ -2096,7 +2227,7 @@ class WebAgentBackend:
                 self._sync_only()
             else:
                 self._append_notice(
-                    "Auto sync skipped: output dir not set", level="WARN"
+                    "Auto sync skipped: output directory not configured", level="WARN"
                 )
         self._refresh_calendar_data()
 
@@ -2108,14 +2239,16 @@ class WebAgentBackend:
         if not repo_path:
             return
         if not output_dir:
-            self._append_notice("Output dir not set", level="WARN")
+            self._append_notice("Output directory not configured", level="WARN")
             return
 
         src_dir = repo_path / "data" / "Economic_Calendar"
         try:
             result = mirror_sync(src_dir, output_dir)
         except FileNotFoundError:
-            self._append_notice("Calendar source not found in repo", level="ERROR")
+            self._append_notice(
+                "Calendar source not found in repository", level="ERROR"
+            )
             return
         self._write_output_dir_marker(output_dir)
         self._track_successful_repo(repo_path)
@@ -2125,6 +2258,65 @@ class WebAgentBackend:
         )
         self.state["last_sync_at"] = to_iso_time(datetime.now())
         save_config(self.state)
+        self._refresh_calendar_data()
+
+    def _maybe_refresh_calendar_only(self) -> None:
+        last_pull = parse_iso_time(self.state.get("last_pull_at", ""))
+        stale = True
+        if last_pull:
+            stale = datetime.now() - last_pull > timedelta(
+                days=self.state.get("auto_pull_days", 1)
+            )
+        if not stale:
+            self._append_notice("Calendar is up to date", level="INFO")
+            return
+        self._pull_calendar_only(force=False, reason="auto")
+
+    def _pull_calendar_only(self, force: bool, reason: str = "") -> None:
+        repo_path = self._get_main_repo_path()
+        if not repo_path:
+            self._append_notice("Repository path not configured", level="WARN")
+            return
+        repo = (self.state.get("github_repo") or "").strip()
+        branch = (self.state.get("github_branch") or "main").strip() or "main"
+        if not repo:
+            self._append_notice("GitHub repo not configured", level="WARN")
+            return
+        token = get_github_token(self.state)
+        sha_ok, sha_message, sha = fetch_github_branch_head_sha(
+            repo, branch, token=token
+        )
+        if not sha_ok:
+            self._append_notice(sha_message, level="ERROR")
+            return
+
+        calendar_dir = repo_path / "data" / "Economic_Calendar"
+        has_local_calendar = False
+        try:
+            has_local_calendar = calendar_dir.exists() and any(calendar_dir.iterdir())
+        except OSError:
+            has_local_calendar = False
+
+        if sha and sha == (self.state.get("last_pull_sha") or "").strip():
+            if (not force) and has_local_calendar:
+                self.state["last_pull_at"] = to_iso_time(datetime.now())
+                save_config(self.state)
+                self._append_notice("Calendar is up to date", level="INFO")
+                self._refresh_calendar_data()
+                return
+        result = update_calendar_from_github(repo, branch, repo_path, token=token)
+        if not result.ok:
+            self._append_notice(result.message, level="ERROR")
+            return
+        self.state["last_pull_at"] = to_iso_time(datetime.now())
+        self.state["last_pull_sha"] = sha
+        save_config(self.state)
+        self._append_notice(
+            self._calendar_refreshed_message(result.files, reason=reason),
+            level="INFO",
+        )
+        if self.state.get("auto_sync_after_pull", True) and self._get_output_dir():
+            self._sync_only()
         self._refresh_calendar_data()
 
     def _get_output_dir(self) -> Path | None:
@@ -2178,17 +2370,19 @@ class WebAgentBackend:
             return
         self._append_notice(f"Downloading update {version}", level="INFO")
         try:
-            target = download_update(download_url, get_update_dir())
+            target = download_update(
+                download_url, get_update_dir(), token=get_github_token(self.state)
+            )
         except Exception as exc:  # noqa: BLE001
             self._append_notice(f"Update download failed: {exc}", level="ERROR")
             return
-        self._append_notice("Update downloaded, applying now", level="INFO")
+        self._append_notice("Update downloaded. Applying now…", level="INFO")
         self._apply_update_now(target)
 
     def _apply_update_now(self, pending_path: Path) -> None:
         if not getattr(sys, "frozen", False):
             self._append_notice(
-                "Auto update is available in the EXE build only", level="WARN"
+                "Auto update is available only in the EXE build", level="WARN"
             )
             return
         asset_name = (self.state.get("github_release_asset_name") or "").lower()

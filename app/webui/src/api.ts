@@ -66,6 +66,7 @@ type BackendApi = {
   set_output_dir: (path: string) => ApiResult<{ ok: boolean }>;
   set_currency: (value: string) => ApiResult<{ ok: boolean }>;
   clear_logs: () => ApiResult<{ ok: boolean }>;
+  dismiss_modal?: (payload: { id: string }) => ApiResult<{ ok: boolean }>;
 };
 
 const DESKTOP_USER_AGENT_TOKEN = "XAUUSDCalendar/";
@@ -221,7 +222,8 @@ const baseMockSnapshot: Snapshot = {
     { time: "04-01-2026 07:02", message: "Calendar snapshot loaded", level: "INFO" }
   ],
   // Browser-only mock: the real app version is provided by the desktop backend (APP_VERSION).
-  version: "0.0.0"
+  version: "0.0.0",
+  modal: null
 };
 
 const getMockSnapshot = () =>
@@ -605,5 +607,12 @@ export const backend = {
       return { ok: true };
     }
     return api.clear_logs();
+  },
+  dismissModal: async (id: string) => {
+    const api = await withApi();
+    if (!api || !hasMethod(api, "dismiss_modal")) {
+      return { ok: true };
+    }
+    return api.dismiss_modal({ id });
   }
 };

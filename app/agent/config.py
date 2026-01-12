@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -73,7 +74,9 @@ def get_default_config() -> dict:
         "auto_update_enabled": True,
         "auto_update_interval_minutes": 60,
         "github_repo": "yiyousiow000814/xauusd-news-information-and-predictions",
+        "github_branch": "main",
         "github_release_asset_name": "Setup.exe",
+        "github_token": "",
         "run_on_startup": True,
         "settings_auto_save": True,
         "theme_preference": "system",
@@ -86,13 +89,36 @@ def get_default_config() -> dict:
     }
 
 
+def get_github_token(config: dict | None = None) -> str:
+    if config:
+        value = (config.get("github_token") or "").strip()
+        if value:
+            return value
+    path = get_config_path()
+    try:
+        if not path.exists():
+            return ""
+    except OSError:
+        return ""
+    try:
+        with path.open("r", encoding="utf-8") as handle:
+            data = json.load(handle)
+        if isinstance(data, dict):
+            value = (data.get("github_token") or "").strip()
+            return value
+    except (OSError, json.JSONDecodeError):
+        return ""
+    return ""
+
+
 def _ensure_parent(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
 
 
 def load_config() -> dict:
     path = get_config_path()
-    config = get_default_config()
+    defaults = get_default_config()
+    config = dict(defaults)
     candidates = [
         path,
         get_legacy_config_path(),
@@ -113,9 +139,24 @@ def load_config() -> dict:
             continue
 
     config.pop("version", None)
+    config.pop("github_token_hint", None)
 
-    # Ensure the config exists so future runs have a stable location.
+    # Ensure the config exists so future runs have a stable location, and also
+    # backfill new default keys into existing configs.
+    should_persist = False
     if not path.exists():
+        should_persist = True
+    else:
+        try:
+            with path.open("r", encoding="utf-8") as handle:
+                existing = json.load(handle)
+            if not isinstance(existing, dict):
+                existing = {}
+        except (OSError, json.JSONDecodeError):
+            existing = {}
+        if any(key not in existing for key in defaults):
+            should_persist = True
+    if should_persist:
         save_config(config)
     return config
 
@@ -124,8 +165,57 @@ def save_config(config: dict) -> None:
     path = get_config_path()
     try:
         _ensure_parent(path)
-        with path.open("w", encoding="utf-8") as handle:
-            json.dump(config, handle, indent=2, ensure_ascii=True)
+        merged: dict = {}
+        existing: dict = {}
+        if path.exists():
+            payload = None
+            decode_error_stats: list[tuple[int, int]] = []
+            last_text = ""
+            for attempt in range(6):
+                try:
+                    stat = path.stat()
+                    text = path.read_text(encoding="utf-8")
+                    last_text = text
+                except OSError:
+                    return
+
+                try:
+                    payload = json.loads(text) if text.strip() else {}
+                    break
+                except json.JSONDecodeError:
+                    decode_error_stats.append((stat.st_mtime_ns, stat.st_size))
+                    if attempt < 5:
+                        time.sleep(0.05)
+
+            if payload is None:
+                stable = bool(decode_error_stats) and len(set(decode_error_stats)) == 1
+                if not stable:
+                    return
+                try:
+                    stamp = datetime.now().strftime("%Y%m%d%H%M%S")
+                    backup = path.parent / f"{path.name}.corrupt-{stamp}"
+                    backup.write_text(last_text, encoding="utf-8")
+                except OSError:
+                    pass
+                payload = {}
+
+            if isinstance(payload, dict):
+                existing = payload
+                merged.update(existing)
+        merged.update(config)
+        for key in ("github_token",):
+            incoming = (config.get(key) or "").strip()
+            if incoming:
+                continue
+            preserved = (existing.get(key) or "").strip()
+            if preserved:
+                merged[key] = preserved
+
+        merged.pop("github_token_hint", None)
+        tmp_path = path.parent / f"{path.name}.tmp-{os.getpid()}"
+        with tmp_path.open("w", encoding="utf-8") as handle:
+            json.dump(merged, handle, indent=2, ensure_ascii=True)
+        os.replace(tmp_path, path)
     except OSError:
         # If the install folder is moved/locked while running, avoid crashing the app.
         return

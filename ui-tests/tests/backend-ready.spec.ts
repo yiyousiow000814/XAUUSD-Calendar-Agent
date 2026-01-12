@@ -2,6 +2,9 @@ import { expect, test } from "@playwright/test";
 
 test("desktop runtime waits for backend instead of rendering mock events", async ({ browser }) => {
   const context = await browser.newContext({ userAgent: "XAUUSDCalendar/1.0" });
+  await context.addInitScript(() => {
+    window.__UI_CHECK_RUNTIME__ = true;
+  });
   const page = await context.newPage();
 
   await page.addInitScript(() => {
