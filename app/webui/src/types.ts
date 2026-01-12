@@ -44,6 +44,7 @@ export type Snapshot = {
   pastEvents: PastEventItem[];
   logs: LogEntry[];
   version: string;
+  calendarStatus?: "loading" | "loaded" | "empty" | "error";
   restartInSeconds?: number;
   modal?: UiModal | null;
 };

@@ -37,6 +37,7 @@ const emptySnapshot: Snapshot = {
   repoPath: "",
   currency: "USD",
   currencyOptions: defaultCurrencyOptions,
+  calendarStatus: "loading",
   events: [],
   pastEvents: [],
   logs: [],
@@ -149,7 +150,9 @@ export default function App() {
   const syncRepoDisplayStartRef = useRef<number | null>(null);
   const syncRepoDisplayTimerRef = useRef<number | null>(null);
   const syncRepoDisplayFinishTimerRef = useRef<number | null>(null);
-  const [initState, setInitState] = useState<"loading" | "ready" | "error">("loading");
+  const [initState, setInitState] = useState<"loading" | "ready" | "error">(
+    isUiCheckRuntime ? "loading" : "ready"
+  );
   const [initError, setInitError] = useState<string>("");
   const initOverlayHoldAppliedRef = useRef(false);
   const [connecting, setConnecting] = useState<boolean>(isWebview());
@@ -313,7 +316,7 @@ export default function App() {
         // Ignore.
       }
 
-      if (!initOverlayHoldAppliedRef.current) {
+      if (isUiCheckRuntime && !initOverlayHoldAppliedRef.current) {
         initOverlayHoldAppliedRef.current = true;
         const holdMs = Number(
           (window as unknown as { __ui_check__?: { holdInitOverlayMs?: number } }).__ui_check__
@@ -2121,6 +2124,7 @@ export default function App() {
           <div className="split-pane">
             <NextEvents
               events={snapshot.events}
+              loading={snapshot.calendarStatus === "loading"}
               currency={currency}
               currencyOptions={currencyOptions}
               onCurrencyChange={handleCurrency}
@@ -2129,7 +2133,11 @@ export default function App() {
           </div>
           <div className="split-divider" onMouseDown={startSplitDrag} data-qa="qa:split:divider" />
           <div className="split-pane">
-            <HistoryPanel events={snapshot.pastEvents} impactTone={impactTone} />
+            <HistoryPanel
+              events={snapshot.pastEvents}
+              loading={snapshot.calendarStatus === "loading"}
+              impactTone={impactTone}
+            />
           </div>
         </div>
       </main>

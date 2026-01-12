@@ -5,6 +5,7 @@ import "./NextEvents.css";
 
 type NextEventsProps = {
   events: EventItem[];
+  loading?: boolean;
   currency: string;
   currencyOptions: string[];
   onCurrencyChange: (value: string) => void;
@@ -26,6 +27,7 @@ const impactHoverLabel: Record<string, string> = {
 
 export function NextEvents({
   events,
+  loading = false,
   currency,
   currencyOptions,
   onCurrencyChange,
@@ -33,6 +35,7 @@ export function NextEvents({
 }: NextEventsProps) {
   const [query, setQuery] = useState("");
   const [impactFilter, setImpactFilter] = useState<string[]>(impactOptions);
+  const showSkeleton = loading && events.length === 0;
 
   const renderTime = (value: string) => {
     const [datePart, timePart] = value.split(" ");
@@ -119,13 +122,43 @@ export function NextEvents({
         </div>
       </div>
       <div className="events-body">
-        <div className="events-list" data-qa="qa:list:next-events">
-          {filtered.length === 0 ? (
+        <div
+          className="events-list"
+          data-qa="qa:list:next-events"
+          aria-busy={showSkeleton ? true : undefined}
+        >
+          {showSkeleton ? (
+            Array.from({ length: 7 }).map((_, index) => (
+              <div
+                className="event-row skeleton"
+                key={`skeleton-${index}`}
+                data-qa="qa:row:next-event:skeleton"
+              >
+                <span className="event-time mono">
+                  <span className="event-date skeleton-block" style={{ width: "72px" }} />
+                  <span className="event-clock skeleton-block" style={{ width: "38px" }} />
+                </span>
+                <div className="event-main">
+                  <div className="event-title">
+                    <span className="event-impact skeleton-dot" aria-hidden="true" />
+                    <span
+                      className="event-name skeleton-block"
+                      style={{ width: `${52 + (index % 3) * 16}%` }}
+                    />
+                  </div>
+                  <div className="event-meta">
+                    <span className="event-cur mono skeleton-block" style={{ width: "34px" }} />
+                  </div>
+                </div>
+                <span className="event-countdown mono align-right skeleton-block" style={{ width: "54px" }} />
+              </div>
+            ))
+          ) : filtered.length === 0 ? (
             <div className="event-row empty" data-qa="qa:row:next-event:empty">
               <span className="event-time mono">--</span>
               <div className="event-main">
                 <div className="event-title">
-                  <span className="event-name">No upcoming events</span>
+                  <span className="event-name">{loading ? "Loading events…" : "No upcoming events"}</span>
                 </div>
                 <div className="event-meta">
                   <span className="event-cur">--</span>

@@ -260,6 +260,82 @@
   display: none;
 }
 
+.event-row.skeleton {
+  border-color: rgba(255, 255, 255, 0.06);
+  background: color-mix(in oklab, var(--table-row-bg) 76%, transparent);
+  pointer-events: none;
+}
+
+[data-theme="light"] .event-row.skeleton {
+  border-color: rgba(18, 20, 26, 0.1);
+}
+
+.event-row.skeleton::before {
+  display: none;
+}
+
+.skeleton-block {
+  position: relative;
+  display: inline-block;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--skeleton);
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+.skeleton-block::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.22) 50%,
+    transparent 100%
+  );
+  animation: skeleton-shimmer 1400ms ease-in-out infinite;
+}
+
+[data-theme="light"] .skeleton-block::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    transparent 100%
+  );
+}
+
+.skeleton-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--skeleton);
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 100%
+  );
+  animation: skeleton-shimmer 1400ms ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  to {
+    transform: translateX(120%);
+  }
+}
+
 .event-time {
   display: flex;
   flex-direction: column;

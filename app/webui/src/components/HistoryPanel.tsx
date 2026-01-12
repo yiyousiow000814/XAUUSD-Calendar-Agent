@@ -14,6 +14,7 @@ type HistoryGroup = {
 
 type HistoryPanelProps = {
   events: PastEventItem[];
+  loading?: boolean;
   impactTone: (impact: string) => string;
 };
 
@@ -49,9 +50,10 @@ const rangeToMs = (range: HistoryRange) => {
   return 30 * 24 * 60 * 60 * 1000;
 };
 
-export function HistoryPanel({ events, impactTone }: HistoryPanelProps) {
+export function HistoryPanel({ events, loading = false, impactTone }: HistoryPanelProps) {
   const [range, setRange] = useState<HistoryRange>("7d");
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const showSkeleton = loading && events.length === 0;
 
   const groups = useMemo<HistoryGroup[]>(() => {
     const cutoff = Date.now() - rangeToMs(range);
@@ -146,8 +148,46 @@ export function HistoryPanel({ events, impactTone }: HistoryPanelProps) {
         </div>
       </div>
       <div className="history-body">
-        {groups.length === 0 ? (
-          <div className="history-empty">No past events yet.</div>
+        {showSkeleton ? (
+          <div className="history-skeleton" data-qa="qa:history:skeleton" aria-busy="true">
+            {Array.from({ length: 2 }).map((_, groupIndex) => (
+              <div className="history-group history-skeleton-group" key={`skeleton-group-${groupIndex}`}>
+                <div className="history-group-header history-skeleton-header">
+                  <div className="history-skeleton-lines">
+                    <span className="history-skeleton-line" style={{ width: "110px" }} />
+                    <span className="history-skeleton-line" style={{ width: "70px" }} />
+                  </div>
+                  <div className="history-badges">
+                    <span className="history-pill history-skeleton-pill" style={{ width: "88px" }} />
+                    <span className="history-pill history-pill-impact history-skeleton-pill" style={{ width: "44px" }} />
+                  </div>
+                </div>
+                <div className="history-items">
+                  {Array.from({ length: 5 }).map((__, index) => (
+                    <div
+                      className="history-item history-event history-skeleton-item"
+                      key={`skeleton-item-${groupIndex}-${index}`}
+                    >
+                      <span className="history-time mono history-skeleton-line" style={{ width: "44px" }} />
+                      <span className="history-impact" aria-hidden="true">
+                        <span className="history-impact-dot history-skeleton-dot" />
+                      </span>
+                      <span className="history-event-name">
+                        <span className="history-event-cur mono history-skeleton-line" style={{ width: "34px" }} />
+                        <span
+                          className="history-event-title history-skeleton-line"
+                          style={{ width: `${46 + (index % 3) * 16}%` }}
+                        />
+                      </span>
+                      <span className="history-event-value mono history-skeleton-line" style={{ width: "50px" }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : groups.length === 0 ? (
+          <div className="history-empty">{loading ? "Loading history…" : "No past events yet."}</div>
         ) : (
           groups.map((group) => {
             const isCollapsed = collapsed.has(group.key);

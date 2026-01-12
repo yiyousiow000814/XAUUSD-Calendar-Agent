@@ -66,11 +66,13 @@ SYNC_REPO_GIT_PID_PREFIX = "sync-repo-clone"
 
 class WebAgentBackend:
     def __init__(self) -> None:
+        init_started = time.perf_counter()
         self.state = load_config()
         if not self.state.get("settings_auto_save", True):
             self.state["settings_auto_save"] = True
             save_config(self.state)
         self.logger = setup_logger(self.state.get("debug", False))
+        self.logger.info("Backend init started")
         self.log_entries: list[dict] = []
         self.calendar_events: list[dict] = []
         self.currency = "USD"
@@ -78,6 +80,7 @@ class WebAgentBackend:
         self._lock = threading.Lock()
         self._shutdown_event = threading.Event()
         self._calendar_last_loaded: datetime | None = None
+        self._calendar_status = "loading"
         self._calendar_refresh_lock = threading.Lock()
         self._calendar_refresh_in_progress = False
         self._calendar_proc_lock = threading.Lock()
@@ -132,9 +135,13 @@ class WebAgentBackend:
         self._github_token_action_in_progress = False
         self._ui_modal: dict | None = None
         self._ui_modal_id_counter = 0
-        self._request_calendar_refresh("startup")
+        self._snapshot_cache["calendarStatus"] = self._calendar_status
         self._request_snapshot_rebuild("startup")
-        self._start_config_watch()
+        self._request_calendar_refresh("startup")
+        self.logger.info(
+            "Backend init complete in %.0fms",
+            (time.perf_counter() - init_started) * 1000,
+        )
 
     def _start_background_tasks_once(self, reason: str = "") -> None:
         with self._background_started_lock:
@@ -142,12 +149,15 @@ class WebAgentBackend:
                 return
             self._background_started = True
         self._append_notice("Boot complete", level="INFO")
-        self._request_calendar_refresh(f"startup:{reason}".strip(":"))
+        if self._calendar_status != "loaded":
+            self._request_calendar_refresh(f"startup:{reason}".strip(":"))
         self._run_task(self._maybe_pull_and_sync, "Startup check")
         self._run_task(lambda: self._update_check(manual=False), "Startup update check")
         self._start_auto_update_loop()
+        self._start_config_watch()
 
     def frontend_boot_complete(self) -> dict:
+        self.logger.info("Frontend boot complete")
         with self._background_started_lock:
             if self._background_started:
                 return {"ok": True}
@@ -368,6 +378,7 @@ class WebAgentBackend:
             "logs": logs,
             "version": APP_VERSION,
             "modal": dict(self._ui_modal) if self._ui_modal else None,
+            "calendarStatus": self._calendar_status,
         }
         with self._snapshot_lock:
             self._snapshot_cache.update(payload)
@@ -1199,21 +1210,26 @@ class WebAgentBackend:
             if self._calendar_refresh_in_progress:
                 return
             self._calendar_refresh_in_progress = True
+            self._calendar_status = "loading"
+            self._request_snapshot_rebuild("calendar-loading")
 
         def runner() -> None:
             try:
                 repo_path = self._resolve_calendar_repo_path()
                 if not repo_path:
+                    self._calendar_status = "empty"
                     self.calendar_events = []
                     self._calendar_last_loaded = datetime.now()
                     self._request_snapshot_rebuild("calendar-empty")
                     return
                 events = self._load_calendar_events_external(repo_path)
+                self._calendar_status = "loaded"
                 self.calendar_events = events
                 self._calendar_last_loaded = datetime.now()
                 self._request_snapshot_rebuild("calendar-loaded")
             except Exception as exc:  # noqa: BLE001
                 self.logger.exception("Calendar refresh failed (%s)", reason)
+                self._calendar_status = "error"
                 self._append_notice(f"Calendar refresh failed: {exc}", level="ERROR")
                 self.calendar_events = []
                 self._calendar_last_loaded = datetime.now()

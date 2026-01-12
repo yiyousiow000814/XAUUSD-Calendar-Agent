@@ -262,6 +262,122 @@
   white-space: nowrap;
 }
 
+.history-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.history-skeleton-group {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="light"] .history-skeleton-group {
+  border-color: rgba(18, 20, 26, 0.12);
+}
+
+.history-skeleton-header {
+  cursor: default;
+}
+
+.history-skeleton-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.history-skeleton-line {
+  position: relative;
+  display: inline-block;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--skeleton);
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+.history-skeleton-line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.22) 50%,
+    transparent 100%
+  );
+  animation: skeleton-shimmer 1400ms ease-in-out infinite;
+}
+
+[data-theme="light"] .history-skeleton-line::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    transparent 100%
+  );
+}
+
+.history-skeleton-pill {
+  background: var(--skeleton);
+  border-color: rgba(255, 255, 255, 0.06);
+  position: relative;
+  overflow: hidden;
+  color: transparent;
+}
+
+[data-theme="light"] .history-skeleton-pill {
+  border-color: rgba(18, 20, 26, 0.12);
+}
+
+.history-skeleton-pill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.22) 50%,
+    transparent 100%
+  );
+  animation: skeleton-shimmer 1400ms ease-in-out infinite;
+}
+
+[data-theme="light"] .history-skeleton-pill::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    transparent 100%
+  );
+}
+
+.history-skeleton-dot {
+  background: var(--skeleton);
+  position: relative;
+  overflow: hidden;
+}
+
+.history-skeleton-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 100%
+  );
+  animation: skeleton-shimmer 1400ms ease-in-out infinite;
+}
+
+.history-skeleton-item {
+  pointer-events: none;
+}
+
 .history-event-value {
   text-align: right;
   font-weight: 600;
