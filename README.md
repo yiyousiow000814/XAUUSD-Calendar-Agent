@@ -1,6 +1,6 @@
 <h1 align="center">XAUUSD calendar agent</h1>
 
-<p align="center">A Windows app for viewing an economic calendar.</p>
+<p align="center">A Windows app for viewing economic events.</p>
 
 ![XAUUSD Calendar Agent](docs/images/theme-toggle__dark__hover_board.png)
 
