@@ -1,0 +1,689 @@
+import argparse
+import os
+import re
+import time
+from datetime import datetime, timedelta
+from pathlib import Path
+
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+from openpyxl.styles import Alignment, PatternFill
+from openpyxl.utils import get_column_letter
+
+# Base folder to store generated artifacts under the repository's data directory
+REPO_ROOT = Path(__file__).resolve().parents[2]
+BASE_DATA_DIR = REPO_ROOT / "data"
+_DEFAULT_CALENDAR_DIR = BASE_DATA_DIR / "Economic_Calendar"
+CALENDAR_OUTPUT_DIR = Path(os.getenv("CALENDAR_OUTPUT_DIR", str(_DEFAULT_CALENDAR_DIR)))
+if not CALENDAR_OUTPUT_DIR.is_absolute():
+    CALENDAR_OUTPUT_DIR = REPO_ROOT / CALENDAR_OUTPUT_DIR
+YEARLY_OUTPUT_DIR = CALENDAR_OUTPUT_DIR
+
+_URL_TOKEN_RE = re.compile(r"(?:https?://|www\\.)\\S+", re.IGNORECASE)
+_DOMAIN_TOKEN_RE = re.compile(
+    r"\\b(?:[A-Za-z0-9-]{2,63}\\.)+[A-Za-z]{2,24}\\b", re.IGNORECASE
+)
+
+
+def _sanitize_text_value(value: object) -> object:
+    if not isinstance(value, str):
+        return value
+    cleaned = _URL_TOKEN_RE.sub("", value)
+    cleaned = _DOMAIN_TOKEN_RE.sub("", cleaned)
+    cleaned = re.sub(r"\\s{2,}", " ", cleaned).strip()
+    return cleaned
+
+
+def _load_dotenv(path: Path) -> None:
+    if not path.exists():
+        return
+    for raw_line in path.read_text(encoding="utf-8-sig").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip()
+        if (value.startswith('"') and value.endswith('"')) or (
+            value.startswith("'") and value.endswith("'")
+        ):
+            value = value[1:-1]
+        if not key:
+            continue
+        if os.environ.get(key, "").strip():
+            continue
+        os.environ[key] = value
+
+
+_load_dotenv(REPO_ROOT / ".env")
+_load_dotenv(REPO_ROOT / "user-data" / ".env")
+
+
+def _load_env_from_text_file(var_name: str, default_path: Path) -> None:
+    if os.environ.get(var_name, "").strip():
+        return
+
+    file_path = os.getenv(f"{var_name}_FILE")
+    path = Path(file_path).expanduser() if file_path else default_path
+    if not path.exists():
+        return
+
+    for raw_line in path.read_text(encoding="utf-8-sig").splitlines():
+        value = raw_line.lstrip("\ufeff").strip()
+        if not value or value.startswith("#"):
+            continue
+        if value.startswith("-"):
+            value = value[1:].strip()
+        if value:
+            os.environ[var_name] = value
+            return
+
+
+_load_env_from_text_file(
+    "CALENDAR_API_ENDPOINT", REPO_ROOT / "user-data" / "CALENDAR_API_ENDPOINT.txt"
+)
+_load_env_from_text_file(
+    "CALENDAR_REFERER", REPO_ROOT / "user-data" / "CALENDAR_REFERER.txt"
+)
+
+ECON_CALENDAR_ENDPOINT = os.getenv("CALENDAR_API_ENDPOINT", "").strip()
+if not ECON_CALENDAR_ENDPOINT:
+    raise SystemExit(
+        "Missing CALENDAR_API_ENDPOINT. Provide it via environment variable or "
+        "user-data/CALENDAR_API_ENDPOINT.txt."
+    )
+
+CALENDAR_REFERER = os.getenv("CALENDAR_REFERER", "").strip()
+if not CALENDAR_REFERER:
+    raise SystemExit(
+        "Missing CALENDAR_REFERER. Provide it via environment variable or "
+        "user-data/CALENDAR_REFERER.txt."
+    )
+ECON_CALENDAR_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+    "X-Requested-With": "XMLHttpRequest",
+    "Referer": CALENDAR_REFERER,
+}
+DEFAULT_IMPORTANCE = (1, 2, 3)
+# Calendar provider timezone id for GMT+08:00 (Singapore/Kuala Lumpur). The value
+# can be overridden via the ``CALENDAR_TIMEZONE_ID`` environment variable.
+_timezone_raw = (os.getenv("CALENDAR_TIMEZONE_ID") or "").strip()
+try:
+    DEFAULT_TIMEZONE_ID = int(_timezone_raw or "178")
+except ValueError:
+    print(
+        f"[WARNING] Invalid CALENDAR_TIMEZONE_ID={_timezone_raw!r}; falling back to 178."
+    )
+    DEFAULT_TIMEZONE_ID = 178
+ECON_CALENDAR_PAGE_SIZE = 200
+ECON_CALENDAR_RETRY_DELAY = 1
+_delay_raw = (os.getenv("CALENDAR_DAY_DELAY") or "").strip()
+try:
+    DAY_REQUEST_DELAY = float(_delay_raw or "0")
+except ValueError:
+    print(f"[WARNING] Invalid CALENDAR_DAY_DELAY={_delay_raw!r}; falling back to 0.")
+    DAY_REQUEST_DELAY = 0.0
+
+
+def enforce_backup_limit(directory, limit=15):
+    """Keep only the most recent `limit` backup files in `directory`."""
+    try:
+        backups = [
+            os.path.join(directory, name)
+            for name in os.listdir(directory)
+            if os.path.isfile(os.path.join(directory, name))
+        ]
+        if len(backups) < limit:
+            return
+
+        backups.sort(key=os.path.getmtime)
+        excess = len(backups) - limit + 1
+        for obsolete_path in backups[:excess]:
+            try:
+                os.remove(obsolete_path)
+                print(f"[INFO] Removed obsolete backup: {obsolete_path}")
+            except OSError as exc:
+                print(f"[WARNING] Failed to delete backup {obsolete_path}: {exc}")
+    except FileNotFoundError:
+        # Directory may not exist yet; nothing to prune.
+        return
+
+
+def export_yearly_breakdown(df, website_prefix, file_name, changed_years=None):
+    """Write per-year snapshots under the data directory.
+
+    When ``changed_years`` is provided, only the specified years are refreshed to
+    avoid touching historical files unnecessarily.
+    """
+    if df.empty or "Date" not in df.columns:
+        return
+
+    YEARLY_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Parse the Date column to datetime for reliable grouping
+    working_df = df.copy()
+    working_df["Date"] = pd.to_datetime(working_df["Date"], errors="coerce")
+    working_df = working_df.dropna(subset=["Date"])
+
+    if working_df.empty:
+        return
+
+    available_years = {
+        int(year) for year in working_df["Date"].dt.year.dropna().unique()
+    }
+    if changed_years is not None:
+        normalized_years = {int(year) for year in changed_years}
+        target_years = sorted(available_years & normalized_years)
+        if not target_years:
+            return
+    else:
+        target_years = sorted(available_years)
+
+    target_set = set(target_years)
+
+    for year, group in working_df.groupby(working_df["Date"].dt.year):
+        year_int = int(year)
+        if year_int not in target_set:
+            continue
+        year_dir = YEARLY_OUTPUT_DIR / str(year_int)
+        year_dir.mkdir(parents=True, exist_ok=True)
+
+        export_df = group.sort_values("Date").copy()
+        export_df["Date"] = export_df["Date"].dt.strftime("%Y-%m-%d")
+        export_df = sort_calendar_dataframe(export_df)
+
+        excel_path = year_dir / f"{year_int}_calendar.xlsx"
+        csv_path = year_dir / f"{year_int}_calendar.csv"
+        json_path = year_dir / f"{year_int}_calendar.json"
+
+        with pd.ExcelWriter(excel_path, engine="openpyxl") as writer:
+            export_df.to_excel(writer, index=False, sheet_name="Data")
+
+        export_df.to_csv(csv_path, index=False)
+        export_df.to_json(json_path, orient="records", indent=4)
+
+        print(
+            f"[INFO] Yearly export generated for {year_int}: {excel_path}, {csv_path}, {json_path}"
+        )
+
+
+def day_range(start_date: datetime, end_date: datetime):
+    """Yield (start, end) datetimes for each day between the boundaries."""
+    current = start_date
+    one_day = timedelta(days=1)
+    while current <= end_date:
+        yield current, current
+        current += one_day
+
+
+def sort_calendar_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    """Sort ``df`` by date and the semantic meaning of the ``Time`` column."""
+
+    if df.empty or "Date" not in df.columns or "Time" not in df.columns:
+        return df
+
+    working = df.copy()
+
+    working["_sort_date"] = pd.to_datetime(working["Date"], errors="coerce")
+    time_str = working["Time"].fillna("").astype(str).str.strip()
+
+    working["_is_all_day"] = time_str.str.lower() == "all day"
+    working["_time_parsed"] = pd.to_datetime(time_str, format="%H:%M", errors="coerce")
+
+    working["_sort_bucket"] = 2  # textual placeholders (e.g. Tentative/TBA)
+    working.loc[working["_is_all_day"], "_sort_bucket"] = 0
+    working.loc[working["_time_parsed"].notna(), "_sort_bucket"] = 1
+    working.loc[
+        time_str.eq("") | time_str.str.lower().isin(["nan", "none"]), "_sort_bucket"
+    ] = 3
+
+    tie_breakers = [
+        column
+        for column in ["Event", "Cur.", "Imp.", "Actual", "Forecast", "Previous"]
+        if column in working.columns
+    ]
+
+    sort_columns = ["_sort_date", "_sort_bucket", "_time_parsed", "Time", *tie_breakers]
+    ascending_flags = [True] * len(sort_columns)
+
+    working.sort_values(
+        by=sort_columns,
+        ascending=ascending_flags,
+        inplace=True,
+        kind="stable",
+    )
+
+    working.drop(
+        columns=["_sort_date", "_sort_bucket", "_time_parsed", "_is_all_day"],
+        inplace=True,
+        errors="ignore",
+    )
+
+    return working
+
+
+COLUMN_WIDTH_OVERRIDES = {
+    "Date": 9.71,
+    "Day": 10.71,
+    "Time": 4.86,
+    "Cur.": 4.57,
+    "Imp.": 7.71,
+    "Event": 50.0,
+    "Actual": 8.57,
+    "Forecast": 8.57,
+    "Previous": 8.57,
+}
+
+KEY_COLUMNS = ["Date", "Time", "Cur.", "Event"]
+
+
+def merge_calendar_frames(
+    existing_df: pd.DataFrame, new_df: pd.DataFrame
+) -> pd.DataFrame:
+    working = pd.concat([existing_df, new_df], ignore_index=True, sort=False)
+    working.replace(["nan", "NaN", "None"], pd.NA, inplace=True)
+    if "Time" in working.columns:
+        working["Time"] = working["Time"].fillna("").astype(str).str.strip()
+    else:
+        working["Time"] = ""
+
+    for col_name in working.columns:
+        if working[col_name].dtype == object:
+            working[col_name] = working[col_name].map(_sanitize_text_value)
+
+    working["Date_dt"] = pd.to_datetime(working.get("Date"), errors="coerce")
+    working = working.dropna(subset=["Date_dt"])  # type: ignore[arg-type]
+
+    working["non_missing_count"] = working.count(axis=1)
+    working = working.sort_values(by="non_missing_count", ascending=False)
+    working = working.drop_duplicates(subset=KEY_COLUMNS, keep="first")
+    working.drop(columns=["non_missing_count"], inplace=True)
+
+    working["Date"] = working["Date_dt"].dt.strftime("%Y-%m-%d")
+    working["Day"] = working["Date_dt"].dt.strftime("%A")
+    working.drop(columns=["Date_dt"], inplace=True)
+
+    working = sort_calendar_dataframe(working)
+    return working.reset_index(drop=True)
+
+
+def write_calendar_outputs(df: pd.DataFrame, excel_path: Path) -> None:
+    excel_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with pd.ExcelWriter(excel_path, engine="openpyxl") as writer:
+        df.to_excel(writer, index=False, sheet_name="Data")
+        worksheet = writer.sheets["Data"]
+
+        for col_idx, col_name in enumerate(df.columns, start=1):
+            column_letter = get_column_letter(col_idx)
+            max_text_length = df[col_name].astype(str).map(len).max() or 0
+            override_width = COLUMN_WIDTH_OVERRIDES.get(col_name)
+            col_width = (
+                override_width
+                if override_width is not None
+                else max(max_text_length + 2, 15)
+            )
+
+            cell_alignment = (
+                Alignment(horizontal="left")
+                if col_name == "Event"
+                else Alignment(horizontal="center")
+            )
+
+            worksheet.column_dimensions[column_letter].width = col_width
+            for cell in worksheet[column_letter]:
+                cell.alignment = cell_alignment
+
+        worksheet.freeze_panes = "A2"
+
+        highlight_fill = PatternFill(
+            start_color="FFD700", end_color="FFD700", fill_type="solid"
+        )
+        previous_date = None
+        for row_idx, row in enumerate(df.itertuples(), start=2):
+            current_row_date = row.Date
+            if current_row_date != previous_date:
+                for col_idx in range(1, len(df.columns) + 1):
+                    worksheet.cell(row=row_idx, column=col_idx).fill = highlight_fill
+                previous_date = current_row_date
+
+    df.to_csv(excel_path.with_suffix(".csv"), index=False)
+    df.to_json(excel_path.with_suffix(".json"), orient="records", indent=4)
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Fetch economic calendar data via HTTP API."
+    )
+    parser.add_argument(
+        "--start-date",
+        type=str,
+        help="Start date in YYYY-MM-DD. Overrides --start-year when provided.",
+    )
+    parser.add_argument(
+        "--end-date",
+        type=str,
+        help="End date in YYYY-MM-DD. Overrides --end-year when provided.",
+    )
+    parser.add_argument(
+        "--start-year",
+        type=int,
+        help="Start year (defaults to current year if not provided).",
+    )
+    parser.add_argument(
+        "--end-year",
+        type=int,
+        help="End year (defaults to start year when omitted).",
+    )
+    return parser.parse_args()
+
+
+def resolve_date_range(args):
+    if args.start_date or args.end_date:
+        if not (args.start_date and args.end_date):
+            raise ValueError(
+                "Both --start-date and --end-date must be provided together."
+            )
+        start_date = datetime.strptime(args.start_date, "%Y-%m-%d")
+        end_date = datetime.strptime(args.end_date, "%Y-%m-%d")
+    else:
+        current_year = datetime.now().year
+        start_year = args.start_year or current_year
+        end_year = args.end_year or start_year
+        start_date = datetime(start_year, 1, 1)
+        end_date = datetime(end_year, 12, 31)
+
+    if end_date < start_date:
+        raise ValueError("End date must be on or after start date.")
+
+    return start_date, end_date
+
+
+def parse_calendar_html(html_snippet):
+    """Parse calendar HTML snippet into structured rows."""
+    headers = ["Time", "Cur.", "Imp.", "Event", "Actual", "Forecast", "Previous"]
+    rows = []
+    soup = BeautifulSoup(html_snippet, "html.parser")
+    for tr in soup.find_all("tr"):
+        the_day_cell = tr.find("td", class_="theDay")
+        if the_day_cell:
+            date_value = the_day_cell.get_text(strip=True)
+            rows.append([date_value] + [""] * (len(headers) - 1))
+            continue
+
+        if not tr.get("id", "").startswith("eventRowId_"):
+            continue
+
+        columns = tr.find_all("td")
+        if not columns:
+            continue
+
+        time_value = columns[0].get_text(" ", strip=True) if len(columns) > 0 else ""
+
+        currency_value = (
+            columns[1].get_text(" ", strip=True) if len(columns) > 1 else ""
+        )
+
+        impact_value = ""
+        if len(columns) > 2:
+            impact_td = columns[2]
+            full_stars = len(impact_td.select("i.grayFullBullishIcon"))
+            if full_stars:
+                impact_value = {1: "Low", 2: "Medium", 3: "High"}.get(full_stars, "")
+            else:
+                impact_value = impact_td.get_text(" ", strip=True)
+
+        event_value = columns[3].get_text(" ", strip=True) if len(columns) > 3 else ""
+        actual_value = columns[4].get_text(" ", strip=True) if len(columns) > 4 else ""
+        forecast_value = (
+            columns[5].get_text(" ", strip=True) if len(columns) > 5 else ""
+        )
+        previous_value = (
+            columns[6].get_text(" ", strip=True) if len(columns) > 6 else ""
+        )
+
+        row = [
+            time_value,
+            currency_value,
+            impact_value,
+            event_value,
+            actual_value,
+            forecast_value,
+            previous_value,
+        ]
+
+        while len(row) < len(headers):
+            row.append("")
+
+        rows.append(row[: len(headers)])
+
+    return headers, rows
+
+
+def fetch_calendar_range(start_date: datetime, end_date: datetime):
+    """Fetch calendar data from the calendar provider without Selenium."""
+    session = requests.Session()
+    headers = ["Time", "Cur.", "Imp.", "Event", "Actual", "Forecast", "Previous"]
+    all_rows = []
+
+    for chunk_start, chunk_end in day_range(start_date, end_date):
+        offset = 0
+        total_rows_for_chunk = 0
+        last_time_scope = None
+
+        while True:
+            payload = {
+                "importance[]": list(DEFAULT_IMPORTANCE),
+                "timeZone": DEFAULT_TIMEZONE_ID,
+                "timeFilter": "timeRemain",
+                "currentTab": "custom",
+                "dateFrom": chunk_start.strftime("%Y-%m-%d"),
+                "dateTo": chunk_end.strftime("%Y-%m-%d"),
+                "submitFilters": 1,
+                "limit_from": offset,
+            }
+
+            if last_time_scope is not None:
+                payload["last_time_scope"] = last_time_scope
+
+            for attempt in range(3):
+                response = session.post(
+                    ECON_CALENDAR_ENDPOINT,
+                    headers=ECON_CALENDAR_HEADERS,
+                    data=payload,
+                    timeout=60,
+                )
+                if response.status_code == 200:
+                    break
+                wait_time = 2**attempt
+                print(
+                    f"[WARNING] Calendar request failed with status {response.status_code}. "
+                    f"Retrying in {wait_time} seconds..."
+                )
+                time.sleep(wait_time)
+            else:
+                raise RuntimeError(
+                    f"Failed to fetch data for {chunk_start:%Y-%m-%d} to {chunk_end:%Y-%m-%d}"
+                )
+
+            payload_json = response.json()
+            payload_headers, chunk_rows = parse_calendar_html(
+                payload_json.get("data", "")
+            )
+
+            if not chunk_rows:
+                if offset == 0:
+                    print(
+                        f"[INFO] No rows returned for {chunk_start:%Y-%m-%d} to "
+                        f"{chunk_end:%Y-%m-%d}."
+                    )
+                break
+
+            all_rows.extend(chunk_rows)
+            headers = payload_headers
+
+            rows_in_response = int(payload_json.get("rows_num", 0) or 0)
+            total_rows_for_chunk += rows_in_response
+            last_time_scope = payload_json.get("last_time_scope")
+            print(
+                f"[INFO] Retrieved {len(chunk_rows)} rows for "
+                f"{chunk_start:%Y-%m-%d} to {chunk_end:%Y-%m-%d} (offset={offset})."
+            )
+
+            if (
+                rows_in_response < ECON_CALENDAR_PAGE_SIZE
+                or not payload_json.get("bind_scroll_handler", False)
+                or last_time_scope is None
+            ):
+                break
+
+            offset += rows_in_response
+            time.sleep(ECON_CALENDAR_RETRY_DELAY)
+
+        if total_rows_for_chunk == 0:
+            print(
+                f"[INFO] No data accumulated for {chunk_start:%Y-%m-%d} to "
+                f"{chunk_end:%Y-%m-%d}."
+            )
+
+        if DAY_REQUEST_DELAY > 0:
+            time.sleep(DAY_REQUEST_DELAY)
+
+    return headers, all_rows
+
+
+def save_data(headers, data, file_name="usd_calendar_month.xlsx", source_url=""):
+    """Persist calendar data per year without maintaining a master workbook."""
+    if not data:
+        print("[INFO] No data received. Skipping save operation.")
+        return
+
+    print("\n--- Saving Data ---")
+
+    CALENDAR_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    YEARLY_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    headers = ["Date", "Day"] + headers
+    processed_data = []
+    current_date = None
+
+    for row in data:
+        if (
+            len(row) > 0
+            and row[0].strip()
+            and all(col.strip() == "" for col in row[1:])
+        ):
+            try:
+                date_candidate = row[0].strip()
+                current_date = datetime.strptime(date_candidate, "%A, %B %d, %Y")
+                current_day = current_date.strftime("%A")
+            except ValueError:
+                current_date = None
+                current_day = None
+        else:
+            if current_date:
+                processed_data.append(
+                    [current_date.strftime("%Y-%m-%d"), current_day] + row
+                )
+            else:
+                processed_data.append(["", ""] + row)
+
+    df = pd.DataFrame(processed_data, columns=headers)
+
+    while df.columns[0].strip() == "" and df.iloc[:, 0].replace("", None).isna().all():
+        df.drop(df.columns[0], axis=1, inplace=True)
+
+    while (
+        df.columns[-1].strip() == "" and df.iloc[:, -1].replace("", None).isna().all()
+    ):
+        df.drop(df.columns[-1], axis=1, inplace=True)
+
+    df.replace(["nan", "NaN", "None"], pd.NA, inplace=True)
+    df["Date_dt"] = pd.to_datetime(df["Date"], errors="coerce")
+    df = df.dropna(subset=["Date_dt"]).copy()
+
+    if df.empty:
+        print("[WARNING] No valid dated rows found after parsing. Skipping save.")
+        return
+
+    df["Day"] = df["Date_dt"].dt.strftime("%A")
+    df["Time"] = df["Time"].fillna("").astype(str).str.strip()
+
+    years_to_process = sorted(df["Date_dt"].dt.year.unique())
+
+    for year in years_to_process:
+        year_mask = df["Date_dt"].dt.year == year
+        year_df = df.loc[year_mask].drop(columns=["Date_dt"]).copy()
+        year_dir = os.path.join(YEARLY_OUTPUT_DIR, str(year))
+        os.makedirs(year_dir, exist_ok=True)
+
+        excel_path = Path(year_dir) / f"{year}_calendar.xlsx"
+
+        if excel_path.exists():
+            existing_df = pd.read_excel(excel_path, sheet_name="Data")
+        else:
+            existing_df = pd.DataFrame(columns=year_df.columns)
+
+        for col in year_df.columns:
+            if col not in existing_df.columns:
+                existing_df[col] = pd.NA
+
+        existing_df = existing_df[year_df.columns]
+
+        combined_df = merge_calendar_frames(existing_df, year_df)
+
+        combined_sorted = sort_calendar_dataframe(combined_df.copy()).reset_index(
+            drop=True
+        )
+
+        existing_sorted = (
+            sort_calendar_dataframe(existing_df.copy())
+            .reindex(columns=combined_sorted.columns)
+            .reset_index(drop=True)
+        )
+
+        existing_norm = existing_sorted.fillna("").astype(str)
+        combined_norm = combined_sorted.fillna("").astype(str)
+
+        if existing_norm.equals(combined_norm):
+            print(f"[INFO] Year {year} unchanged; skipping write.")
+            continue
+
+        write_calendar_outputs(combined_sorted, excel_path)
+
+        print(f"[SUCCESS] Year {year} exports written to {excel_path.parent}")
+
+
+def main():
+    """Main script steps using the HTTP calendar endpoint."""
+    args = parse_args()
+
+    try:
+        start_date, end_date = resolve_date_range(args)
+
+        print(
+            f"[INFO] Fetching economic calendar data from {start_date:%Y-%m-%d} "
+            f"to {end_date:%Y-%m-%d} via HTTP API."
+        )
+
+        headers, data = fetch_calendar_range(start_date, end_date)
+
+        if not data:
+            print("[WARNING] No data fetched. Skipping save operation.")
+            return
+
+        save_data(
+            headers,
+            data,
+            file_name="usd_calendar_month.xlsx",
+            source_url=CALENDAR_REFERER,
+        )
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+
+if __name__ == "__main__":
+    main()

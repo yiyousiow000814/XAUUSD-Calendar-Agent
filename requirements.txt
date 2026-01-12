@@ -1,0 +1,13 @@
+feedparser==6.0.11
+newspaper3k==0.2.8
+pandas==2.3.0
+numpy==2.3.0
+schedule==1.2.2
+lxml_html_clean==0.4.2
+requests==2.32.4
+cloudscraper==1.2.71
+transformers==4.39.3
+torch==2.2.2
+beautifulsoup4==4.12.3
+textblob==0.19.0
+openpyxl>=3.1.2

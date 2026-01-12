@@ -1,0 +1,171 @@
+.log-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 360px;
+  max-height: 360px;
+}
+
+.log-card.compact {
+  min-height: 0;
+}
+
+.log-card.compact .log-body {
+  min-height: 200px;
+  max-height: 320px;
+}
+
+.log-body {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 6px;
+  min-height: 220px;
+}
+
+.log-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.log-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+
+.log-table .pill {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  min-width: 52px;
+  justify-content: center;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  text-transform: uppercase;
+}
+
+.level-info {
+  background: rgba(52, 96, 150, 0.7);
+  border-color: rgba(134, 201, 255, 0.55);
+  color: #f1f7ff;
+}
+
+.level-warn {
+  background: rgba(246, 180, 80, 0.22);
+  border-color: rgba(246, 180, 80, 0.4);
+  color: #f6b450;
+}
+
+.level-error {
+  background: rgba(242, 106, 91, 0.2);
+  border-color: rgba(242, 106, 91, 0.4);
+  color: #f26a5b;
+}
+
+.log-time {
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.log-card.drawer .card-header {
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.log-card.drawer .hint {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  white-space: nowrap;
+}
+
+.log-card.drawer .controls {
+  gap: 8px;
+}
+
+.log-card.drawer {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  min-height: 0;
+  max-height: none;
+}
+
+.log-card.drawer .log-body {
+  min-height: 0;
+  max-height: none;
+  padding-right: 4px;
+}
+
+.log-card.drawer .log-table .table-row {
+  grid-template-columns: 44px 54px 1fr;
+  gap: 10px;
+  padding: 8px 8px;
+  border-radius: 10px;
+  background: rgba(13, 16, 24, 0.35);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.log-card.drawer .log-table .table-row span:last-child {
+  white-space: normal;
+  line-height: 1.35;
+  font-size: 13px;
+  font-weight: 520;
+  letter-spacing: 0.005em;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.log-card.drawer .table {
+  gap: 8px;
+}
+
+.log-card.drawer .log-table .pill {
+  padding: 3px 8px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  min-width: 42px;
+}
+
+.log-new {
+  animation: log-in var(--motion-med) var(--motion-ease);
+}
+
+@keyframes log-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+[data-theme="light"] .level-info {
+  color: #3b6ea1;
+  border-color: rgba(134, 201, 255, 0.6);
+  background: rgba(134, 201, 255, 0.2);
+}
+
+[data-theme="light"] .level-warn {
+  color: #3b2500;
+  border-color: rgba(174, 108, 24, 0.45);
+  background: rgba(255, 197, 120, 0.7);
+}
+
+[data-theme="light"] .level-error {
+  color: #6c1b14;
+  border-color: rgba(200, 72, 61, 0.4);
+  background: rgba(242, 106, 91, 0.2);
+}
+
+[data-theme="light"] .log-card.drawer .log-table .table-row {
+  background: rgba(255, 255, 255, 0.82);
+  border-color: rgba(18, 20, 26, 0.08);
+}

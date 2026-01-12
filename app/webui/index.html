@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>XAUUSD Calendar Agent</title>
+    <script>
+      (function () {
+        try {
+          var pref = localStorage.getItem("themePreference") || "dark";
+          var resolved =
+            pref === "system"
+              ? window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? "dark"
+                : "light"
+              : pref;
+          document.documentElement.dataset.theme = resolved;
+          document.documentElement.style.setProperty(
+            "--boot-bg",
+            resolved === "light" ? "#f7f5f2" : "#0b0d10"
+          );
+          document.documentElement.style.setProperty(
+            "--boot-text",
+            resolved === "light" ? "#1d1f24" : "#e9e6df"
+          );
+        } catch (e) {
+          // Ignore theme bootstrap failures.
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root">
+      <div
+        style="
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--boot-text, #e9e6df);
+          background: var(--boot-bg, #0b0d10);
+          font-family: Segoe UI, system-ui, sans-serif;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          font-size: 12px;
+        "
+      >
+        Loading interface...
+      </div>
+    </div>
+    <script>
+      window.__APP_BOOTSTRAPPED__ = false;
+      const root = document.getElementById("root");
+      const showError = (message) => {
+        if (!root) return;
+        root.innerHTML = `
+          <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0b0d10;color:#f3b0a7;font-family:Segoe UI,system-ui,sans-serif;">
+            <div style="max-width:520px;padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.08);background:rgba(15,18,26,0.95);text-align:center;">
+              <div style="font-size:12px;text-transform:uppercase;letter-spacing:0.2em;margin-bottom:12px;">UI Failed to Load</div>
+              <div style="font-size:13px;color:#d9d9d9;margin-bottom:16px;">${message}</div>
+              <button style="padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.2);background:#f6b450;color:#1a0f05;cursor:pointer;" onclick="location.reload()">Retry</button>
+            </div>
+          </div>
+        `;
+      };
+      window.addEventListener("error", (event) => {
+        showError(event.message || "Unknown error");
+      });
+      window.setTimeout(() => {
+        if (!window.__APP_BOOTSTRAPPED__) {
+          showError("App bootstrap timeout. The UI bundle may have failed to load.");
+        }
+      }, 5000);
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

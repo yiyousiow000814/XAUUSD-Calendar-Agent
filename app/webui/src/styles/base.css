@@ -1,0 +1,1379 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  color-scheme: dark;
+  font-family: "Segoe UI Variable", "Segoe UI", "Bahnschrift", system-ui, sans-serif;
+  --bg: #11151c;
+  --bg-soft: #1a202a;
+  --bg-spot-a: rgba(134, 201, 255, 0.2);
+  --bg-spot-b: rgba(243, 154, 183, 0.15);
+  --bg-sweep-0: #11151c;
+  --bg-sweep-1: #1a202a;
+  --bg-sweep-2: #11151c;
+  --glow-spot-a: rgba(246, 180, 80, 0.18);
+  --glow-spot-b: rgba(134, 201, 255, 0.12);
+  --panel: rgba(28, 34, 44, 0.92);
+  --panel-border: rgba(255, 255, 255, 0.06);
+  --panel-inner: rgba(255, 255, 255, 0.05);
+  --panel-glow: rgba(246, 180, 80, 0.12);
+  --skeleton: rgba(255, 255, 255, 0.1);
+  --text: #f4f3ee;
+  --muted: #b2b6c2;
+  --accent: #f6b450;
+  --accent-2: #86c9ff;
+  --accent-3: #f39ab7;
+  --btn-primary-bg: #f6b450;
+  --btn-primary-text: #1a0f05;
+  --btn-primary-grad-0: rgba(246, 180, 80, 0.9);
+  --btn-primary-grad-1: rgba(243, 154, 183, 0.85);
+  --btn-primary-border: rgba(246, 180, 80, 0.35);
+  --btn-primary-shadow: rgba(246, 180, 80, 0.22);
+  --btn-primary-shadow-hover: rgba(246, 180, 80, 0.28);
+  --btn-danger-bg: #4a1a16;
+  --btn-danger-border: rgba(242, 106, 91, 0.5);
+  --btn-danger-text: #ffe1dc;
+  --control-bg: rgba(24, 30, 40, 0.85);
+  --control-border-hover: rgba(255, 255, 255, 0.2);
+  --control-shadow-hover: rgba(5, 8, 14, 0.35);
+  --card-border-hover: rgba(255, 255, 255, 0.12);
+  --table-row-bg: rgba(13, 16, 24, 0.55);
+  --table-row-border: rgba(255, 255, 255, 0.04);
+  --table-head-bg: rgba(24, 30, 40, 0.6);
+  --table-head-border: rgba(255, 255, 255, 0.06);
+  --segmented-bg: rgba(255, 255, 255, 0.04);
+  --segmented-border: rgba(255, 255, 255, 0.08);
+  --spinner-border: rgba(255, 255, 255, 0.35);
+  --spinner-border-top: rgba(255, 255, 255, 0.95);
+  --spinner-accent-border: rgba(246, 180, 80, 0.7);
+  --spinner-accent-border-top: rgba(246, 180, 80, 1);
+  --switch-track-bg: rgba(255, 255, 255, 0.08);
+  --switch-track-border: rgba(255, 255, 255, 0.16);
+  --switch-track-bg-checked: rgba(134, 201, 255, 0.35);
+  --switch-track-border-checked: rgba(134, 201, 255, 0.6);
+  --appbar-bg: rgba(16, 20, 28, 0.72);
+  --appbar-shadow-outer: rgba(6, 10, 16, 0.44);
+  --appbar-glow-a: rgba(246, 180, 80, 0.12);
+  --appbar-glow-b: rgba(134, 201, 255, 0.1);
+  --appbar-sheen-0: rgba(255, 255, 255, 0.06);
+  --appbar-sheen-1: rgba(0, 0, 0, 0);
+  --appbar-line: rgba(255, 255, 255, 0.08);
+  --appbar-eyebrow: rgba(246, 180, 80, 0.95);
+  --appbar-group-bg: rgba(10, 12, 18, 0.28);
+  --appbar-group-grad-0: rgba(255, 255, 255, 0.06);
+  --appbar-group-grad-1: rgba(255, 255, 255, 0.02);
+  --appbar-group-border: rgba(255, 255, 255, 0.08);
+  --appbar-group-shadow: rgba(0, 0, 0, 0.12);
+  --appbar-btn-text: rgba(244, 243, 238, 0.86);
+  --appbar-btn-bg: rgba(16, 20, 28, 0.58);
+  --appbar-btn-grad-0: rgba(22, 28, 38, 0.78);
+  --appbar-btn-grad-1: rgba(16, 20, 28, 0.58);
+  --appbar-btn-border: rgba(255, 255, 255, 0.1);
+  --appbar-btn-border-hover: rgba(255, 255, 255, 0.14);
+  --appbar-btn-bg-hover: rgba(16, 20, 28, 0.6);
+  --appbar-btn-grad-0-hover: rgba(28, 34, 44, 0.8);
+  --appbar-btn-grad-1-hover: rgba(16, 20, 28, 0.6);
+  --appbar-primary-text: rgba(26, 15, 5, 0.96);
+  --appbar-primary-bg: rgba(246, 180, 80, 1);
+  --appbar-primary-grad-0: rgba(246, 180, 80, 0.92);
+  --appbar-primary-grad-1: rgba(246, 180, 80, 0.72);
+  --appbar-primary-border: rgba(246, 180, 80, 0.35);
+  --appbar-primary-inset: rgba(255, 255, 255, 0.35);
+  --appbar-primary-bg-hover: rgba(246, 180, 80, 0.92);
+  --appbar-primary-grad-0-hover: rgba(246, 180, 80, 0.96);
+  --appbar-primary-grad-1-hover: rgba(246, 180, 80, 0.76);
+  --appbar-primary-border-hover: rgba(246, 180, 80, 0.45);
+  --appbar-primary-inset-hover: rgba(255, 255, 255, 0.38);
+  --appbar-success-text: rgba(241, 255, 250, 0.92);
+  --appbar-success-bg: rgba(87, 209, 163, 0.2);
+  --appbar-success-grad-0: rgba(87, 209, 163, 0.42);
+  --appbar-success-grad-1: rgba(87, 209, 163, 0.2);
+  --appbar-success-border: rgba(87, 209, 163, 0.35);
+  --appbar-error-text: rgba(255, 242, 241, 0.92);
+  --appbar-error-bg: rgba(242, 106, 91, 0.16);
+  --appbar-error-grad-0: rgba(242, 106, 91, 0.36);
+  --appbar-error-grad-1: rgba(242, 106, 91, 0.16);
+  --appbar-error-border: rgba(242, 106, 91, 0.35);
+  --appbar-meta-bg-0: rgba(18, 22, 30, 0.62);
+  --appbar-meta-bg-1: rgba(14, 17, 24, 0.52);
+  --appbar-meta-border: rgba(255, 255, 255, 0.06);
+  --appbar-meta-shadow: rgba(255, 255, 255, 0.05);
+  --appbar-meta-divider: rgba(255, 255, 255, 0.07);
+  --pill-border: rgba(255, 255, 255, 0.1);
+  --pill-bg-0: rgba(24, 30, 40, 0.65);
+  --pill-bg-1: rgba(18, 22, 30, 0.52);
+  --pill-shadow: rgba(255, 255, 255, 0.04);
+  --pill-border-hover: rgba(255, 255, 255, 0.18);
+  --pill-bg-0-hover: rgba(28, 34, 44, 0.72);
+  --pill-bg-1-hover: rgba(18, 22, 30, 0.54);
+  --pill-shadow-hover: rgba(255, 255, 255, 0.05);
+  --pill-attention-value: rgba(246, 180, 80, 0.95);
+  --pill-attention-border: rgba(246, 180, 80, 0.5);
+  --pill-attention-shadow-0: rgba(246, 180, 80, 0.18);
+  --pill-attention-shadow-1: rgba(246, 180, 80, 0.08);
+  --pill-attention-bg-0: rgba(246, 180, 80, 0.14);
+  --pill-attention-bg-1: rgba(18, 22, 30, 0.5);
+  --icon-btn-border: rgba(255, 255, 255, 0.06);
+  --icon-btn-bg-0: rgba(24, 30, 40, 0.62);
+  --icon-btn-bg-1: rgba(18, 22, 30, 0.46);
+  --icon-btn-inset: rgba(255, 255, 255, 0.05);
+  --icon-btn-elevated: rgba(0, 0, 0, 0);
+  --icon-btn-border-hover: rgba(255, 255, 255, 0.16);
+  --icon-btn-bg-0-hover: rgba(28, 34, 44, 0.68);
+  --icon-btn-bg-1-hover: rgba(18, 22, 30, 0.5);
+  --icon-btn-inset-hover: rgba(255, 255, 255, 0.06);
+  --icon-btn-elevated-hover: rgba(6, 10, 16, 0.32);
+  --select-active-bg: rgba(40, 72, 120, 0.6);
+  --select-active-text: #eef5ff;
+  --success: #57d1a3;
+  --warn: #f6b450;
+  --danger: #f26a5b;
+  --grid: rgba(255, 255, 255, 0.06);
+  --shadow: 0 30px 80px rgba(8, 12, 18, 0.5);
+  --motion-fast: 180ms;
+  --motion-med: 220ms;
+  --motion-slow: 260ms;
+  --motion-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --theme-duration: 1050ms;
+  --theme-ease: cubic-bezier(0.32, 0, 0.68, 1);
+  --theme-vt-old: none;
+  --theme-vt-new: none;
+}
+
+:root.theme-vt {
+  --theme-vt-old: theme-vt-old;
+  --theme-vt-new: theme-vt-new;
+}
+
+@property --bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #11151c;
+}
+
+@property --bg-soft {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #1a202a;
+}
+
+@property --bg-spot-a {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(134, 201, 255, 0.2);
+}
+
+@property --bg-spot-b {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(243, 154, 183, 0.15);
+}
+
+@property --bg-sweep-0 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #11151c;
+}
+
+@property --bg-sweep-1 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #1a202a;
+}
+
+@property --bg-sweep-2 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #11151c;
+}
+
+@property --glow-spot-a {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(246, 180, 80, 0.18);
+}
+
+@property --glow-spot-b {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(134, 201, 255, 0.12);
+}
+
+@property --panel {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(28, 34, 44, 0.92);
+}
+
+@property --panel-border {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(255, 255, 255, 0.06);
+}
+
+@property --panel-inner {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(255, 255, 255, 0.05);
+}
+
+@property --panel-glow {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(246, 180, 80, 0.12);
+}
+
+@property --text {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #f4f3ee;
+}
+
+@property --muted {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #b2b6c2;
+}
+
+@property --accent {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #f6b450;
+}
+
+@property --accent-2 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #86c9ff;
+}
+
+@property --accent-3 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #f39ab7;
+}
+
+@property --btn-primary-bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #f6b450;
+}
+
+@property --btn-primary-text {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #1a0f05;
+}
+
+@property --select-active-bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(40, 72, 120, 0.6);
+}
+
+@property --select-active-text {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #eef5ff;
+}
+
+@property --success {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #57d1a3;
+}
+
+@property --warn {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #f6b450;
+}
+
+@property --danger {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #f26a5b;
+}
+
+@property --grid {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(255, 255, 255, 0.06);
+}
+
+@property --btn-primary-grad-0 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(246, 180, 80, 0.9);
+}
+
+@property --btn-primary-grad-1 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(243, 154, 183, 0.85);
+}
+
+@property --btn-primary-border {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(246, 180, 80, 0.35);
+}
+
+@property --btn-primary-shadow {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(246, 180, 80, 0.22);
+}
+
+@property --btn-primary-shadow-hover {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(246, 180, 80, 0.28);
+}
+
+@property --btn-danger-bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #4a1a16;
+}
+
+@property --btn-danger-border {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(242, 106, 91, 0.5);
+}
+
+@property --btn-danger-text {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ffe1dc;
+}
+
+@property --control-bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(24, 30, 40, 0.85);
+}
+
+@property --control-border-hover {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(255, 255, 255, 0.2);
+}
+
+@property --control-shadow-hover {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(5, 8, 14, 0.35);
+}
+
+@property --card-border-hover {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(255, 255, 255, 0.12);
+}
+
+@property --table-row-bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(13, 16, 24, 0.55);
+}
+
+@property --table-row-border {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(255, 255, 255, 0.04);
+}
+
+@property --table-head-bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(24, 30, 40, 0.6);
+}
+
+@property --table-head-border {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(255, 255, 255, 0.06);
+}
+
+@property --segmented-bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(255, 255, 255, 0.04);
+}
+
+@property --segmented-border {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(255, 255, 255, 0.08);
+}
+
+@property --spinner-border {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(255, 255, 255, 0.35);
+}
+
+@property --spinner-border-top {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(255, 255, 255, 0.95);
+}
+
+@property --spinner-accent-border {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(246, 180, 80, 0.7);
+}
+
+@property --spinner-accent-border-top {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(246, 180, 80, 1);
+}
+
+@property --switch-track-bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(255, 255, 255, 0.08);
+}
+
+@property --switch-track-border {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(255, 255, 255, 0.16);
+}
+
+@property --switch-track-bg-checked {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(134, 201, 255, 0.35);
+}
+
+@property --switch-track-border-checked {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(134, 201, 255, 0.6);
+}
+
+@property --appbar-glow-a {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(246, 180, 80, 0.12);
+}
+
+@property --appbar-glow-b {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(134, 201, 255, 0.1);
+}
+
+@property --appbar-sheen-0 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(255, 255, 255, 0.06);
+}
+
+@property --appbar-sheen-1 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(0, 0, 0, 0);
+}
+
+@property --appbar-group-grad-0 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(255, 255, 255, 0.06);
+}
+
+@property --appbar-group-grad-1 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(255, 255, 255, 0.02);
+}
+
+@property --appbar-btn-grad-0 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(22, 28, 38, 0.78);
+}
+
+@property --appbar-btn-grad-1 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(16, 20, 28, 0.58);
+}
+
+@property --appbar-btn-grad-0-hover {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(28, 34, 44, 0.8);
+}
+
+@property --appbar-btn-grad-1-hover {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(16, 20, 28, 0.6);
+}
+
+@property --appbar-primary-grad-0 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(246, 180, 80, 0.92);
+}
+
+@property --appbar-primary-grad-1 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(246, 180, 80, 0.72);
+}
+
+@property --appbar-primary-grad-0-hover {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(246, 180, 80, 0.96);
+}
+
+@property --appbar-primary-grad-1-hover {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(246, 180, 80, 0.76);
+}
+
+@property --appbar-success-grad-0 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(87, 209, 163, 0.42);
+}
+
+@property --appbar-success-grad-1 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(87, 209, 163, 0.2);
+}
+
+@property --appbar-error-grad-0 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(242, 106, 91, 0.36);
+}
+
+@property --appbar-error-grad-1 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(242, 106, 91, 0.16);
+}
+
+@property --appbar-meta-bg-0 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(18, 22, 30, 0.62);
+}
+
+@property --appbar-meta-bg-1 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(14, 17, 24, 0.52);
+}
+
+@property --pill-bg-0 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(24, 30, 40, 0.65);
+}
+
+@property --pill-bg-1 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(18, 22, 30, 0.52);
+}
+
+@property --pill-bg-0-hover {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(28, 34, 44, 0.72);
+}
+
+@property --pill-bg-1-hover {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(18, 22, 30, 0.54);
+}
+
+@property --pill-attention-bg-0 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(246, 180, 80, 0.14);
+}
+
+@property --pill-attention-bg-1 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(18, 22, 30, 0.5);
+}
+
+@property --icon-btn-bg-0 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(24, 30, 40, 0.62);
+}
+
+@property --icon-btn-bg-1 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(18, 22, 30, 0.46);
+}
+
+@property --icon-btn-bg-0-hover {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(28, 34, 44, 0.68);
+}
+
+@property --icon-btn-bg-1-hover {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(18, 22, 30, 0.5);
+}
+
+/* Theme transitions are intentionally animated in both Web + Desktop builds. */
+:root.theme-transition {
+  transition:
+      --bg var(--theme-duration) var(--theme-ease),
+      --bg-soft var(--theme-duration) var(--theme-ease),
+      --bg-spot-a var(--theme-duration) var(--theme-ease),
+      --bg-spot-b var(--theme-duration) var(--theme-ease),
+      --bg-sweep-0 var(--theme-duration) var(--theme-ease),
+      --bg-sweep-1 var(--theme-duration) var(--theme-ease),
+      --bg-sweep-2 var(--theme-duration) var(--theme-ease),
+      --glow-spot-a var(--theme-duration) var(--theme-ease),
+      --glow-spot-b var(--theme-duration) var(--theme-ease),
+      --panel var(--theme-duration) var(--theme-ease),
+      --panel-border var(--theme-duration) var(--theme-ease),
+      --panel-inner var(--theme-duration) var(--theme-ease),
+      --panel-glow var(--theme-duration) var(--theme-ease),
+      --text var(--theme-duration) var(--theme-ease),
+      --muted var(--theme-duration) var(--theme-ease),
+      --accent var(--theme-duration) var(--theme-ease),
+      --accent-2 var(--theme-duration) var(--theme-ease),
+      --accent-3 var(--theme-duration) var(--theme-ease),
+      --btn-primary-bg var(--theme-duration) var(--theme-ease),
+      --btn-primary-text var(--theme-duration) var(--theme-ease),
+      --btn-primary-grad-0 var(--theme-duration) var(--theme-ease),
+      --btn-primary-grad-1 var(--theme-duration) var(--theme-ease),
+      --btn-primary-border var(--theme-duration) var(--theme-ease),
+      --btn-primary-shadow var(--theme-duration) var(--theme-ease),
+      --btn-primary-shadow-hover var(--theme-duration) var(--theme-ease),
+      --btn-danger-bg var(--theme-duration) var(--theme-ease),
+      --btn-danger-border var(--theme-duration) var(--theme-ease),
+      --btn-danger-text var(--theme-duration) var(--theme-ease),
+      --control-bg var(--theme-duration) var(--theme-ease),
+      --control-border-hover var(--theme-duration) var(--theme-ease),
+      --control-shadow-hover var(--theme-duration) var(--theme-ease),
+      --card-border-hover var(--theme-duration) var(--theme-ease),
+      --table-row-bg var(--theme-duration) var(--theme-ease),
+      --table-row-border var(--theme-duration) var(--theme-ease),
+      --table-head-bg var(--theme-duration) var(--theme-ease),
+      --table-head-border var(--theme-duration) var(--theme-ease),
+      --segmented-bg var(--theme-duration) var(--theme-ease),
+      --segmented-border var(--theme-duration) var(--theme-ease),
+      --spinner-border var(--theme-duration) var(--theme-ease),
+      --spinner-border-top var(--theme-duration) var(--theme-ease),
+      --spinner-accent-border var(--theme-duration) var(--theme-ease),
+      --spinner-accent-border-top var(--theme-duration) var(--theme-ease),
+      --switch-track-bg var(--theme-duration) var(--theme-ease),
+      --switch-track-border var(--theme-duration) var(--theme-ease),
+      --switch-track-bg-checked var(--theme-duration) var(--theme-ease),
+      --switch-track-border-checked var(--theme-duration) var(--theme-ease),
+      --appbar-glow-a var(--theme-duration) var(--theme-ease),
+      --appbar-glow-b var(--theme-duration) var(--theme-ease),
+      --appbar-sheen-0 var(--theme-duration) var(--theme-ease),
+      --appbar-sheen-1 var(--theme-duration) var(--theme-ease),
+      --appbar-group-grad-0 var(--theme-duration) var(--theme-ease),
+      --appbar-group-grad-1 var(--theme-duration) var(--theme-ease),
+      --appbar-btn-grad-0 var(--theme-duration) var(--theme-ease),
+      --appbar-btn-grad-1 var(--theme-duration) var(--theme-ease),
+      --appbar-btn-grad-0-hover var(--theme-duration) var(--theme-ease),
+      --appbar-btn-grad-1-hover var(--theme-duration) var(--theme-ease),
+      --appbar-primary-grad-0 var(--theme-duration) var(--theme-ease),
+      --appbar-primary-grad-1 var(--theme-duration) var(--theme-ease),
+      --appbar-primary-grad-0-hover var(--theme-duration) var(--theme-ease),
+      --appbar-primary-grad-1-hover var(--theme-duration) var(--theme-ease),
+      --appbar-success-grad-0 var(--theme-duration) var(--theme-ease),
+      --appbar-success-grad-1 var(--theme-duration) var(--theme-ease),
+      --appbar-error-grad-0 var(--theme-duration) var(--theme-ease),
+      --appbar-error-grad-1 var(--theme-duration) var(--theme-ease),
+      --appbar-meta-bg-0 var(--theme-duration) var(--theme-ease),
+      --appbar-meta-bg-1 var(--theme-duration) var(--theme-ease),
+      --pill-bg-0 var(--theme-duration) var(--theme-ease),
+      --pill-bg-1 var(--theme-duration) var(--theme-ease),
+      --pill-bg-0-hover var(--theme-duration) var(--theme-ease),
+      --pill-bg-1-hover var(--theme-duration) var(--theme-ease),
+      --pill-attention-bg-0 var(--theme-duration) var(--theme-ease),
+      --pill-attention-bg-1 var(--theme-duration) var(--theme-ease),
+      --icon-btn-bg-0 var(--theme-duration) var(--theme-ease),
+      --icon-btn-bg-1 var(--theme-duration) var(--theme-ease),
+      --icon-btn-bg-0-hover var(--theme-duration) var(--theme-ease),
+      --icon-btn-bg-1-hover var(--theme-duration) var(--theme-ease),
+      --select-active-bg var(--theme-duration) var(--theme-ease),
+      --select-active-text var(--theme-duration) var(--theme-ease),
+      --success var(--theme-duration) var(--theme-ease),
+      --warn var(--theme-duration) var(--theme-ease),
+      --danger var(--theme-duration) var(--theme-ease),
+      --grid var(--theme-duration) var(--theme-ease);
+}
+
+:root.theme-transition * {
+  transition-property: background-color, background, color, border-color, box-shadow,
+    text-decoration-color, fill, stroke, outline-color, opacity, transform, filter,
+    backdrop-filter;
+  transition-duration: var(--theme-duration) !important;
+  transition-timing-function: var(--theme-ease) !important;
+  transition-delay: 0ms !important;
+}
+
+:root.theme-transition *::before,
+:root.theme-transition *::after {
+  transition-duration: var(--theme-duration) !important;
+  transition-timing-function: var(--theme-ease) !important;
+  transition-delay: 0ms !important;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--theme-duration);
+  animation-timing-function: var(--theme-ease);
+  transform-origin: var(--theme-vt-x, 50%) var(--theme-vt-y, 50%);
+}
+
+::view-transition-old(root) {
+  animation-name: var(--theme-vt-old);
+}
+
+::view-transition-new(root) {
+  animation-name: var(--theme-vt-new);
+  animation-timing-function: linear;
+  will-change: clip-path;
+}
+
+@keyframes theme-vt-old {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes theme-vt-new {
+  0%,
+  7% {
+    clip-path: circle(0vmax at var(--theme-vt-x, 50%) var(--theme-vt-y, 50%));
+    opacity: 1;
+  }
+  100% {
+    clip-path: circle(160vmax at var(--theme-vt-x, 50%) var(--theme-vt-y, 50%));
+    opacity: 1;
+  }
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  scrollbar-width: none;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f4f2ee;
+  --bg-soft: #ece7e0;
+  --bg-spot-a: rgba(160, 200, 255, 0.45);
+  --bg-spot-b: rgba(255, 189, 214, 0.35);
+  --bg-sweep-0: #f7f5f2;
+  --bg-sweep-1: #eef1f7;
+  --bg-sweep-2: #f2f0f4;
+  --glow-spot-a: rgba(246, 180, 80, 0.08);
+  --glow-spot-b: rgba(134, 201, 255, 0.08);
+  --panel: rgba(255, 255, 255, 0.92);
+  --panel-border: rgba(18, 20, 26, 0.08);
+  --panel-inner: rgba(18, 20, 26, 0.05);
+  --panel-glow: rgba(246, 180, 80, 0.08);
+  --skeleton: rgba(18, 20, 26, 0.14);
+  --text: #1d1f24;
+  --muted: #4b515c;
+  --accent: #8a4f10;
+  --accent-2: #1e4b8f;
+  --accent-3: #d9698a;
+  --btn-primary-bg: #d28e33;
+  --btn-primary-text: #1a0f05;
+  --btn-primary-grad-0: rgba(255, 236, 214, 0.92);
+  --btn-primary-grad-1: rgba(228, 171, 104, 0.42);
+  --btn-primary-border: rgba(228, 171, 104, 0.65);
+  --btn-primary-shadow: rgba(228, 171, 104, 0.2);
+  --btn-primary-shadow-hover: rgba(210, 142, 51, 0.28);
+  --btn-danger-bg: #fde8e6;
+  --btn-danger-border: rgba(200, 72, 61, 0.45);
+  --btn-danger-text: #6c1b14;
+  --control-bg: rgba(255, 255, 255, 0.9);
+  --control-border-hover: rgba(18, 20, 26, 0.18);
+  --control-shadow-hover: rgba(30, 32, 40, 0.14);
+  --card-border-hover: rgba(18, 20, 26, 0.14);
+  --table-row-bg: rgba(255, 255, 255, 0.75);
+  --table-row-border: rgba(18, 20, 26, 0.08);
+  --table-head-bg: rgba(255, 255, 255, 0.6);
+  --table-head-border: rgba(18, 20, 26, 0.1);
+  --segmented-bg: rgba(255, 255, 255, 0.85);
+  --segmented-border: rgba(18, 20, 26, 0.1);
+  --spinner-border: rgba(18, 20, 26, 0.6);
+  --spinner-border-top: rgba(18, 20, 26, 0.95);
+  --spinner-accent-border: rgba(210, 142, 51, 0.85);
+  --spinner-accent-border-top: rgba(210, 142, 51, 1);
+  --switch-track-bg: rgba(18, 20, 26, 0.06);
+  --switch-track-border: rgba(18, 20, 26, 0.12);
+  --switch-track-bg-checked: rgba(30, 75, 143, 0.25);
+  --switch-track-border-checked: rgba(30, 75, 143, 0.4);
+  --appbar-bg: rgba(255, 255, 255, 0.82);
+  --appbar-shadow-outer: rgba(30, 32, 40, 0.1);
+  --appbar-glow-a: rgba(30, 75, 143, 0.18);
+  --appbar-glow-b: rgba(217, 105, 138, 0.14);
+  --appbar-sheen-0: rgba(255, 255, 255, 0.85);
+  --appbar-sheen-1: rgba(255, 255, 255, 0.35);
+  --appbar-line: rgba(255, 255, 255, 0.75);
+  --appbar-eyebrow: rgba(18, 20, 26, 0.72);
+  --appbar-group-bg: rgba(255, 255, 255, 0.6);
+  --appbar-group-grad-0: rgba(255, 255, 255, 0.75);
+  --appbar-group-grad-1: rgba(255, 255, 255, 0.3);
+  --appbar-group-border: rgba(18, 20, 26, 0.14);
+  --appbar-group-shadow: rgba(255, 255, 255, 0.8);
+  --appbar-btn-text: rgba(18, 20, 26, 0.92);
+  --appbar-btn-bg: rgba(255, 255, 255, 0.78);
+  --appbar-btn-grad-0: rgba(255, 255, 255, 0.78);
+  --appbar-btn-grad-1: rgba(255, 255, 255, 0.78);
+  --appbar-btn-border: rgba(18, 20, 26, 0.12);
+  --appbar-btn-border-hover: rgba(18, 20, 26, 0.16);
+  --appbar-btn-bg-hover: rgba(255, 255, 255, 0.92);
+  --appbar-btn-grad-0-hover: rgba(255, 255, 255, 0.92);
+  --appbar-btn-grad-1-hover: rgba(255, 255, 255, 0.92);
+  --appbar-primary-text: rgba(26, 15, 5, 0.96);
+  --appbar-primary-bg: rgba(210, 142, 51, 0.16);
+  --appbar-primary-grad-0: rgba(210, 142, 51, 0.32);
+  --appbar-primary-grad-1: rgba(210, 142, 51, 0.16);
+  --appbar-primary-border: rgba(210, 142, 51, 0.45);
+  --appbar-primary-inset: rgba(255, 255, 255, 0.65);
+  --appbar-primary-bg-hover: rgba(210, 142, 51, 0.18);
+  --appbar-primary-grad-0-hover: rgba(210, 142, 51, 0.36);
+  --appbar-primary-grad-1-hover: rgba(210, 142, 51, 0.18);
+  --appbar-primary-border-hover: rgba(210, 142, 51, 0.55);
+  --appbar-primary-inset-hover: rgba(255, 255, 255, 0.68);
+  --appbar-success-text: rgba(18, 20, 26, 0.92);
+  --appbar-success-bg: rgba(31, 157, 120, 0.1);
+  --appbar-success-grad-0: rgba(31, 157, 120, 0.2);
+  --appbar-success-grad-1: rgba(31, 157, 120, 0.1);
+  --appbar-success-border: rgba(31, 157, 120, 0.35);
+  --appbar-error-text: rgba(18, 20, 26, 0.92);
+  --appbar-error-bg: rgba(200, 72, 61, 0.1);
+  --appbar-error-grad-0: rgba(200, 72, 61, 0.2);
+  --appbar-error-grad-1: rgba(200, 72, 61, 0.1);
+  --appbar-error-border: rgba(200, 72, 61, 0.32);
+  --appbar-meta-bg-0: rgba(255, 255, 255, 0.92);
+  --appbar-meta-bg-1: rgba(248, 247, 245, 0.78);
+  --appbar-meta-border: rgba(18, 20, 26, 0.12);
+  --appbar-meta-shadow: rgba(18, 20, 26, 0.04);
+  --appbar-meta-divider: rgba(18, 20, 26, 0.12);
+  --pill-border: rgba(18, 20, 26, 0.14);
+  --pill-bg-0: rgba(255, 255, 255, 0.94);
+  --pill-bg-1: rgba(248, 247, 245, 0.76);
+  --pill-shadow: rgba(255, 255, 255, 0.72);
+  --pill-border-hover: rgba(18, 20, 26, 0.18);
+  --pill-bg-0-hover: rgba(255, 255, 255, 0.98);
+  --pill-bg-1-hover: rgba(248, 247, 245, 0.78);
+  --pill-shadow-hover: rgba(255, 255, 255, 0.75);
+  --pill-attention-value: rgba(176, 98, 19, 0.95);
+  --pill-attention-border: rgba(210, 142, 51, 0.5);
+  --pill-attention-shadow-0: rgba(210, 142, 51, 0.18);
+  --pill-attention-shadow-1: rgba(210, 142, 51, 0.1);
+  --pill-attention-bg-0: rgba(210, 142, 51, 0.12);
+  --pill-attention-bg-1: rgba(255, 255, 255, 0.76);
+  --icon-btn-border: rgba(18, 20, 26, 0.14);
+  --icon-btn-bg-0: rgba(255, 255, 255, 0.92);
+  --icon-btn-bg-1: rgba(255, 255, 255, 0.92);
+  --icon-btn-inset: rgba(255, 255, 255, 0.7);
+  --icon-btn-elevated: rgba(30, 32, 40, 0.1);
+  --icon-btn-border-hover: rgba(18, 20, 26, 0.18);
+  --icon-btn-bg-0-hover: rgba(255, 255, 255, 0.98);
+  --icon-btn-bg-1-hover: rgba(255, 255, 255, 0.98);
+  --icon-btn-inset-hover: rgba(255, 255, 255, 0.75);
+  --icon-btn-elevated-hover: rgba(30, 32, 40, 0.14);
+  --select-active-bg: #e8f0ff;
+  --select-active-text: #1d1f24;
+  --success: #1f9d78;
+  --warn: #d28e33;
+  --danger: #c8483d;
+  --grid: rgba(0, 0, 0, 0.08);
+  --shadow: 0 30px 80px rgba(30, 32, 40, 0.12);
+}
+
+body {
+  background:
+    radial-gradient(circle at 10% 10%, var(--bg-spot-a), transparent 40%),
+    radial-gradient(circle at 90% 0%, var(--bg-spot-b), transparent 38%),
+    linear-gradient(180deg, var(--bg-sweep-0) 0%, var(--bg-sweep-1) 60%, var(--bg-sweep-2) 100%);
+  background-color: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.app {
+  min-height: 100%;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+body.modal-open {
+  overflow: hidden;
+}
+
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 20%, var(--glow-spot-a), transparent 45%),
+    radial-gradient(circle at 85% 15%, var(--glow-spot-b), transparent 40%);
+  opacity: 0.6;
+  transition: opacity var(--motion-slow) var(--motion-ease);
+}
+
+[data-theme="light"] body::before {
+  opacity: 0.25;
+}
+
+[data-theme="light"] body {
+  background:
+    radial-gradient(circle at 10% 10%, var(--bg-spot-a), transparent 42%),
+    radial-gradient(circle at 85% 0%, var(--bg-spot-b), transparent 40%),
+    linear-gradient(180deg, var(--bg-sweep-0) 0%, var(--bg-sweep-1) 45%, var(--bg-sweep-2) 100%);
+  background-color: var(--bg);
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-radial-gradient(
+    circle at 0 0,
+    rgba(0, 0, 0, 0.12) 0,
+    rgba(0, 0, 0, 0.12) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: 0.04;
+  mix-blend-mode: soft-light;
+}
+
+#root {
+  min-height: 100vh;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.app {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.card {
+  background: var(--panel);
+  border-radius: 20px;
+  border: 1px solid var(--panel-border);
+  padding: 22px 22px 20px;
+  box-shadow: 0 16px 40px rgba(10, 12, 18, 0.35), inset 0 0 0 1px var(--panel-inner);
+  transition: transform var(--motion-med) var(--motion-ease),
+    box-shadow var(--motion-med) var(--motion-ease),
+    border-color var(--motion-med) var(--motion-ease);
+}
+
+.card:hover {
+  border-color: var(--card-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 22px 52px rgba(10, 12, 18, 0.45), inset 0 0 0 1px var(--panel-inner);
+}
+
+.card.card-select-open:hover {
+  border-color: var(--panel-border);
+  transform: none;
+  box-shadow: 0 16px 40px rgba(10, 12, 18, 0.35), inset 0 0 0 1px var(--panel-inner);
+}
+
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.card-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  line-height: 1.2;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+.single-line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.note {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.btn {
+  background: var(--control-bg);
+  border: 1px solid var(--panel-border);
+  color: var(--text);
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease),
+    background var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease),
+    opacity var(--motion-fast) var(--motion-ease);
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  border-color: var(--control-border-hover);
+  box-shadow: 0 12px 28px var(--control-shadow-hover);
+}
+
+.btn:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.btn.primary {
+  background: linear-gradient(120deg, var(--btn-primary-grad-0), var(--btn-primary-grad-1));
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  font-weight: 600;
+  border-color: var(--btn-primary-border);
+  box-shadow: 0 0 0 1px var(--btn-primary-border), 0 12px 28px var(--btn-primary-shadow);
+}
+
+.btn.primary:hover {
+  box-shadow: 0 0 0 1px var(--btn-primary-border), 0 16px 34px var(--btn-primary-shadow-hover);
+}
+
+.btn.ghost {
+  background: transparent;
+  border-color: var(--segmented-border);
+}
+
+.btn.danger {
+  background: var(--btn-danger-bg);
+  border-color: var(--btn-danger-border);
+  color: var(--btn-danger-text);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: opacity var(--motion-fast) var(--motion-ease);
+}
+
+.btn[data-qa-state="loading"] .btn-label,
+.btn[data-qa-state="success"] .btn-label,
+.btn[data-qa-state="error"] .btn-label {
+  opacity: 0.95;
+}
+
+.table {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 120px 160px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--table-row-bg);
+  border: 1px solid var(--table-row-border);
+  transition: transform var(--motion-fast) var(--motion-ease),
+    background var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease);
+}
+
+.table-row.empty {
+  opacity: 0.6;
+}
+
+.table-head {
+  background: var(--table-head-bg);
+  border-color: var(--table-head-border);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.align-right {
+  text-align: right;
+}
+
+.mono {
+  font-family: "JetBrains Mono", "SFMono-Regular", "Consolas", monospace;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+input,
+select {
+  width: 100%;
+  background: var(--control-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 11px 12px;
+  color: var(--text);
+  font-size: 14px;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: rgba(134, 201, 255, 0.4);
+  box-shadow: 0 0 0 2px rgba(134, 201, 255, 0.2);
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.toggle input {
+  accent-color: var(--accent);
+}
+
+.switch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.switch input {
+  display: none;
+}
+
+.switch .switch-track {
+  width: 42px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--switch-track-bg);
+  border: 1px solid var(--switch-track-border);
+  position: relative;
+  transition: background var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease);
+}
+
+.switch .switch-track::after {
+  content: "";
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  background: #ffffff;
+  transition: transform var(--motion-fast) var(--motion-ease),
+    background var(--motion-fast) var(--motion-ease);
+}
+
+.switch input:checked + .switch-track {
+  background: var(--switch-track-bg-checked);
+  border-color: var(--switch-track-border-checked);
+}
+
+.switch input:checked + .switch-track::after {
+  transform: translateX(20px);
+  background: #ffffff;
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  background: var(--segmented-bg);
+  border: 1px solid var(--segmented-border);
+  border-radius: 14px;
+  padding: 4px;
+  gap: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.segmented[data-count="2"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.segmented::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  height: calc(100% - 8px);
+  width: calc((100% - 8px) / 3);
+  background: var(--select-active-bg);
+  border-radius: 10px;
+  transition: transform var(--motion-med) var(--motion-ease),
+    background var(--motion-med) var(--motion-ease);
+  transform: translateX(0);
+}
+
+.segmented[data-count="2"]::before {
+  width: calc((100% - 8px) / 2);
+}
+
+.segmented[data-value="dark"]::before {
+  transform: translateX(100%);
+}
+
+.segmented[data-value="system"]::before {
+  transform: translateX(200%);
+}
+
+.segment {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease);
+  position: relative;
+  z-index: 1;
+}
+
+.segment.active {
+  color: var(--select-active-text);
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--spinner-border);
+  border-top-color: var(--spinner-border-top);
+  animation: spin 0.8s linear infinite;
+}
+
+.spinner.accent {
+  border-color: var(--spinner-accent-border);
+  border-top-color: var(--spinner-accent-border-top);
+}
+
+.btn.primary .spinner.accent {
+  border-color: rgba(26, 15, 5, 0.55);
+  border-top-color: rgba(26, 15, 5, 0.9);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1100px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}

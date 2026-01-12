@@ -1,0 +1,2603 @@
+import { spawn } from "node:child_process";
+import { promises as fs } from "node:fs";
+import * as net from "node:net";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { chromium } from "@playwright/test";
+import { PNG } from "pngjs";
+import {
+  assertAutosaveShift,
+  assertBaseline,
+  assertContrast,
+  assertDropdownMenu,
+  assertEventsLoaded,
+  assertHistoryNoOverflow,
+  assertImpactFilterNotStarved,
+  assertImpactTooltips,
+  assertNextEventsControlsCentered,
+  assertSearchInputVisibility,
+  assertHistoryScrollable,
+  assertNoPageScroll,
+  assertHasTransition,
+  assertModalHeaderBlend,
+  assertModalScroll,
+  assertNoShadowClipping,
+  assertOpacityTransition,
+  assertTransformTransition,
+  assertPathButtonAlignment,
+  assertSectionRhythm,
+  assertSelectVisibility,
+  assertSpinnerAnim,
+  assertThemeIcons
+} from "./ui-check/assertions.mjs";
+import { generateReport } from "./ui-check/report.mjs";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(__dirname, "..", "..");
+const artifactsRoot = path.resolve(repoRoot, "artifacts", "ui-check");
+const snapshotsDir = path.join(artifactsRoot, "snapshots");
+const framesDir = path.join(artifactsRoot, "frames");
+const videoDir = path.join(artifactsRoot, "video");
+const reportPath = path.join(artifactsRoot, "report.html");
+let baseURL = process.env.UI_BASE_URL || "http://127.0.0.1:4173";
+let shouldStartServer = !process.env.UI_BASE_URL;
+const defaultPort = 4183;
+
+const ensureDir = async (dir) => {
+  await fs.mkdir(dir, { recursive: true });
+};
+
+const clearDir = async (dir) => {
+  try {
+    const entries = await fs.readdir(dir);
+    const rmWithRetries = async (target, attempts = 4) => {
+      let lastErr = null;
+      for (let attempt = 0; attempt < attempts; attempt += 1) {
+        try {
+          await fs.rm(target, { recursive: true, force: true });
+          return;
+        } catch (err) {
+          lastErr = err;
+          const code = err?.code;
+          if (code === "EBUSY" || code === "EPERM" || code === "EACCES") {
+            await new Promise((r) => setTimeout(r, 120 * (attempt + 1)));
+            continue;
+          }
+          throw err;
+        }
+      }
+
+      const code = lastErr?.code;
+      if (code === "EBUSY" || code === "EPERM" || code === "EACCES") {
+        console.warn(`WARN clearDir: skipped locked entry: ${target} (${code})`);
+        return;
+      }
+      throw lastErr;
+    };
+
+    await Promise.all(entries.map((entry) => rmWithRetries(path.join(dir, entry))));
+  } catch (err) {
+    if (err?.code !== "ENOENT") {
+      throw err;
+    }
+  }
+};
+
+const sanitize = (value) => value.replace(/[^a-zA-Z0-9_-]+/g, "_");
+
+const run = (command, args, options) =>
+  new Promise((resolve, reject) => {
+    const child = spawn(command, args, { shell: true, stdio: "inherit", ...options });
+    child.on("exit", (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`${command} exited with ${code}`));
+      }
+    });
+  });
+
+const waitForPort = (port) =>
+  new Promise((resolve, reject) => {
+    const start = Date.now();
+    const tick = () => {
+      const socket = net.connect(port, "127.0.0.1");
+      socket.on("connect", () => {
+        socket.end();
+        resolve();
+      });
+      socket.on("error", () => {
+        socket.destroy();
+        if (Date.now() - start > 30000) {
+          reject(new Error("UI preview timeout"));
+        } else {
+          setTimeout(tick, 500);
+        }
+      });
+    };
+    tick();
+  });
+
+const canConnect = (port) =>
+  new Promise((resolve) => {
+    const socket = net.connect({ port, host: "127.0.0.1" });
+    const timer = setTimeout(() => {
+      socket.destroy();
+      resolve(false);
+    }, 200);
+    socket.once("connect", () => {
+      clearTimeout(timer);
+      socket.end();
+      resolve(true);
+    });
+    socket.once("error", () => {
+      clearTimeout(timer);
+      resolve(false);
+    });
+  });
+
+const isPortFree = async (port) => {
+  if (await canConnect(port)) {
+    return false;
+  }
+  return new Promise((resolve) => {
+    const server = net.createServer();
+    server.once("error", () => {
+      resolve(false);
+    });
+    server.once("listening", () => {
+      server.close(() => resolve(true));
+    });
+    server.listen(port, "127.0.0.1");
+  });
+};
+
+const startServer = async (port) => {
+  const server = spawn(
+    "npm",
+    [
+      "--prefix",
+      "app/webui",
+      "run",
+      "preview",
+      "--",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      String(port),
+      "--strictPort"
+    ],
+    { cwd: repoRoot, shell: true, stdio: "inherit" }
+  );
+  await waitForPort(port);
+  return server;
+};
+
+const stopServer = async (server) => {
+  if (!server?.pid) return;
+  if (process.platform === "win32") {
+    await new Promise((resolve) => {
+      const killer = spawn("taskkill", ["/PID", String(server.pid), "/T", "/F"], {
+        shell: true,
+        stdio: "ignore"
+      });
+      killer.on("exit", () => resolve());
+      killer.on("error", () => resolve());
+    });
+    return;
+  }
+  try {
+    server.kill("SIGTERM");
+  } catch {
+    // ignore
+  }
+};
+
+const pickPort = async (start, count = 6) => {
+  for (let i = 0; i < count; i += 1) {
+    const port = start + i;
+    const free = await isPortFree(port);
+    if (free) return port;
+  }
+  return start;
+};
+
+const captureState = async (page, scenario, theme, state, options = {}) => {
+  const fileName = `${sanitize(scenario)}__${sanitize(theme)}__${sanitize(state)}.png`;
+  const filePath = path.join(snapshotsDir, fileName);
+  if (options.element) {
+    await options.element.screenshot({ path: filePath });
+  } else if (options.clip) {
+    await page.screenshot({ path: filePath, clip: options.clip });
+  } else {
+    await page.screenshot({ path: filePath, fullPage: true });
+  }
+  return filePath;
+};
+
+const captureFrames = async (page, scenario, theme, state, count = 4, gapMs = 80) => {
+  const files = [];
+  for (let i = 0; i < count; i += 1) {
+    const fileName = `${sanitize(scenario)}__${sanitize(theme)}__${sanitize(state)}__frame${i}.png`;
+    const filePath = path.join(framesDir, fileName);
+    await page.screenshot({ path: filePath, fullPage: true });
+    files.push(filePath);
+    await page.waitForTimeout(gapMs);
+  }
+  return files;
+};
+
+const captureClipFramesAtTimes = async ({
+  page,
+  scenario,
+  theme,
+  statePrefix,
+  clip,
+  sampleTimes,
+  probeSelector,
+  probes
+}) => {
+  const start = Date.now();
+  const framePaths = [];
+  for (const ms of sampleTimes) {
+    const remaining = ms - (Date.now() - start);
+    if (remaining > 0) await page.waitForTimeout(remaining);
+    const fileName = `${sanitize(scenario)}__${sanitize(theme)}__${sanitize(statePrefix)}__t${String(ms).padStart(3, "0")}ms.png`;
+    const filePath = path.join(framesDir, fileName);
+    const capturedAt = Date.now() - start;
+    const transform = probeSelector
+      ? await page.evaluate((sel) => {
+          const node = document.querySelector(sel);
+          if (!node) return null;
+          return window.getComputedStyle(node).transform;
+        }, probeSelector)
+      : null;
+    const probeRect = probeSelector
+      ? await page.evaluate((sel) => {
+          const node = document.querySelector(sel);
+          if (!node) return null;
+          const rect = node.getBoundingClientRect();
+          return { width: rect.width, height: rect.height };
+        }, probeSelector)
+      : null;
+    const probeValues = Array.isArray(probes) && probes.length
+      ? await page.evaluate((items) => {
+          const read = (item) => {
+            if (!item || !item.selector || !item.property) return null;
+            const node = document.querySelector(item.selector);
+            if (!node) return null;
+            const style = window.getComputedStyle(node);
+            if (item.property === "--var") {
+              return style.getPropertyValue(item.name || "").trim();
+            }
+            return style[item.property] ?? null;
+          };
+          return items.map((item) => ({ name: item.name, value: read(item) }));
+        }, probes)
+      : null;
+    await page.screenshot({ path: filePath, clip });
+    framePaths.push({
+      ms,
+      actualMs: Math.max(0, Math.round(capturedAt)),
+      path: filePath,
+      transform,
+      rect: probeRect,
+      probes: probeValues
+    });
+  }
+  return framePaths;
+};
+
+const computeActivityMorphClip = async (page) => {
+  const viewport = page.viewportSize();
+  if (!viewport) return null;
+  const pad = 24;
+  const drawerWidth = Math.min(420, Math.round(viewport.width * 0.92));
+  const drawerHeight = Math.min(Math.round(viewport.height * 0.64), 520);
+  const x = Math.max(0, viewport.width - pad - drawerWidth - 16);
+  const y = Math.max(0, viewport.height - pad - drawerHeight - 24);
+  const width = Math.max(1, viewport.width - x);
+  const height = Math.max(1, viewport.height - y);
+  return { x, y, width, height };
+};
+
+const setTheme = async (page, mode, scheme) => {
+  await page.emulateMedia({
+    ...(scheme ? { colorScheme: scheme } : {}),
+    reducedMotion: "no-preference"
+  });
+  await page.evaluate((theme) => {
+    const resolved =
+      theme === "system"
+        ? window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light"
+        : theme;
+    try {
+      localStorage.setItem("theme", theme);
+      localStorage.setItem("themePreference", theme);
+    } catch {
+      // ignore
+    }
+    document.documentElement.dataset.theme = resolved;
+    window.__ui_check__?.setThemePreference?.(theme, theme === "system");
+  }, mode);
+  await page.waitForFunction(
+    () => {
+      const root = document.documentElement;
+      return (
+        !root.classList.contains("theme-vt") && !root.classList.contains("theme-transition")
+      );
+    },
+    { timeout: 3000 }
+  );
+};
+
+const assertInitOverlaySkeletonContrast = async (page, themeKey) =>
+  page.evaluate((key) => {
+    const overlay = document.querySelector("[data-qa='qa:overlay:init']");
+    if (!overlay) {
+      throw new Error("Init overlay not present");
+    }
+    const spans = Array.from(
+      document.querySelectorAll("[data-qa='qa:card:init'] .status-skeleton span")
+    );
+    if (spans.length !== 3) {
+      throw new Error(`Expected 3 skeleton lines, got ${spans.length}`);
+    }
+    const parseRgba = (value) => {
+      const parts = value.match(/[\d.]+/g);
+      if (!parts || parts.length < 3) return null;
+      return {
+        r: Number(parts[0]),
+        g: Number(parts[1]),
+        b: Number(parts[2]),
+        a: parts[3] ? Number(parts[3]) : 1
+      };
+    };
+    const bg = parseRgba(window.getComputedStyle(spans[0]).backgroundColor);
+    if (!bg) {
+      throw new Error("Unable to parse skeleton background color");
+    }
+    const isLight = key.includes("light");
+    if (isLight) {
+      if (bg.a < 0.1) throw new Error(`Skeleton alpha too low for light theme: ${bg.a}`);
+      if (bg.r > 120 || bg.g > 120 || bg.b > 120) {
+        throw new Error(
+          `Skeleton color too bright for light theme: rgba(${bg.r},${bg.g},${bg.b},${bg.a})`
+        );
+      }
+    } else {
+      if (bg.a < 0.07) throw new Error(`Skeleton alpha too low for dark theme: ${bg.a}`);
+      if (bg.r < 200 || bg.g < 200 || bg.b < 200) {
+        throw new Error(
+          `Skeleton color too dim for dark theme: rgba(${bg.r},${bg.g},${bg.b},${bg.a})`
+        );
+      }
+    }
+    return true;
+  }, themeKey);
+
+const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
+  page.evaluate(([themeMode, shouldDispatch]) => {
+    // Test-only mock: the real app version is owned by the desktop backend (APP_VERSION).
+    const snapshot = {
+      lastPull: "Not yet",
+      lastSync: "Not yet",
+      outputDir: "",
+      repoPath: "",
+      currency: "USD",
+      currencyOptions: ["ALL", "USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "NZD"],
+      restartInSeconds: 0,
+      events: [
+        { time: "05-01-2026 01:30", cur: "USD", impact: "High", event: "CPI (YoY)", countdown: "18h 27m" },
+        { time: "05-01-2026 02:00", cur: "USD", impact: "High", event: "Core CPI (YoY)", countdown: "18h 57m" },
+        { time: "05-01-2026 02:30", cur: "USD", impact: "High", event: "FOMC Statement", countdown: "19h 27m" },
+        { time: "05-01-2026 03:00", cur: "USD", impact: "High", event: "Fed Press Conference", countdown: "19h 57m" },
+        { time: "05-01-2026 03:30", cur: "EUR", impact: "Medium", event: "ECB Minutes", countdown: "20h 27m" },
+        { time: "05-01-2026 04:00", cur: "GBP", impact: "Medium", event: "Retail Sales", countdown: "20h 57m" },
+        { time: "05-01-2026 04:30", cur: "JPY", impact: "Medium", event: "Industrial Production", countdown: "21h 27m" },
+        { time: "05-01-2026 05:00", cur: "AUD", impact: "Medium", event: "Employment Change", countdown: "21h 57m" },
+        { time: "05-01-2026 05:30", cur: "USD", impact: "Low", event: "MBA Mortgage Applications", countdown: "22h 27m" },
+        { time: "05-01-2026 06:00", cur: "EUR", impact: "Low", event: "German Trade Balance", countdown: "22h 57m" },
+        { time: "05-01-2026 06:30", cur: "GBP", impact: "Low", event: "UK Manufacturing Output", countdown: "23h 27m" },
+        { time: "05-01-2026 07:00", cur: "CAD", impact: "Low", event: "Housing Starts", countdown: "23h 57m" }
+      ],
+      pastEvents: [
+        { time: "04-01-2026 12:30", cur: "USD", impact: "High", event: "Nonfarm Payrolls", actual: "--", forecast: "--", previous: "--" },
+        { time: "04-01-2026 14:00", cur: "USD", impact: "Medium", event: "ISM PMI", actual: "--", forecast: "--", previous: "--" }
+      ],
+      logs: [],
+      version: "0.0.0"
+    };
+
+    const settings = {
+      autoSyncAfterPull: true,
+      autoUpdateEnabled: true,
+      runOnStartup: true,
+      debug: false,
+      autoSave: true,
+      enableSystemTheme: themeMode === "system",
+      theme: themeMode,
+      enableSyncRepo: false,
+      syncRepoPath: "",
+      repoPath: "",
+      logPath: "",
+      removeLogs: true,
+      removeOutput: false,
+      removeSyncRepos: true,
+      uninstallConfirm: ""
+    };
+
+    const defaultUpdateState = () => ({
+      ok: true,
+      phase: "idle",
+      message: "",
+      availableVersion: "",
+      progress: 0,
+      lastCheckedAt: "05-01-2026 12:34"
+    });
+
+    const getUpdateState = () => window.__MOCK_UPDATE_STATE__ || defaultUpdateState();
+    const setUpdateState = (next) => {
+      window.__MOCK_UPDATE_STATE__ = { ...defaultUpdateState(), ...getUpdateState(), ...next };
+      return window.__MOCK_UPDATE_STATE__;
+    };
+
+    window.pywebview = {
+      api: {
+        get_snapshot: () => Promise.resolve(window.__desktop_snapshot__),
+        get_settings: () => Promise.resolve(settings),
+        save_settings: () => Promise.resolve({ ok: true }),
+        get_update_state: () => Promise.resolve(setUpdateState({})),
+        check_updates: () => {
+          setUpdateState({
+            phase: "available",
+            message: "Update available: 9.9.9",
+            availableVersion: "9.9.9",
+            progress: 0,
+            lastCheckedAt: "05-01-2026 12:34"
+          });
+          return Promise.resolve({ ok: true });
+        },
+        update_now: () => {
+          setUpdateState({
+            phase: "downloading",
+            message: "Downloading...",
+            progress: 0,
+            lastCheckedAt: "05-01-2026 12:34"
+          });
+          return Promise.resolve({ ok: true });
+        },
+        open_log: () => Promise.resolve({ ok: true }),
+        open_path: () => Promise.resolve({ ok: true }),
+        add_log: () => Promise.resolve({ ok: true }),
+        browse_sync_repo: () => Promise.resolve({ ok: true, path: "" }),
+        set_sync_repo_path: () => Promise.resolve({ ok: true }),
+        uninstall: () => Promise.resolve({ ok: true }),
+        pull_now: () => Promise.resolve({ ok: true }),
+        sync_now: () => Promise.resolve({ ok: true }),
+        browse_output_dir: () => Promise.resolve({ ok: true, path: "" }),
+        set_output_dir: () => Promise.resolve({ ok: true }),
+        set_currency: () => Promise.resolve({ ok: true }),
+        clear_logs: () => Promise.resolve({ ok: true })
+      }
+    };
+    window.__desktop_snapshot__ = snapshot;
+    if (shouldDispatch) {
+      window.dispatchEvent(new Event("pywebviewready"));
+    }
+    return true;
+  }, [mode, dispatchReadyEvent]);
+
+const pressElement = async (page, locator) => {
+  const box = await locator.boundingBox();
+  if (!box) return;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.waitForTimeout(80);
+  await page.mouse.up();
+};
+
+const assertDropdownStableOnHover = async (page, trigger, name) => {
+  const menu = page.locator(".select-menu").first();
+  const before = await menu.boundingBox();
+  if (!before) {
+    throw new Error(`Dropdown menu missing before hover for ${name}`);
+  }
+  const cardBox = await trigger.evaluate((el) => {
+    const card = el.closest(".card");
+    if (!card) return null;
+    const rect = card.getBoundingClientRect();
+    return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+  });
+  if (cardBox) {
+    await page.mouse.move(
+      cardBox.x + cardBox.width / 2,
+      cardBox.y + Math.min(40, cardBox.height / 2)
+    );
+    await page.waitForTimeout(120);
+  }
+  const after = await menu.boundingBox();
+  if (!after) {
+    throw new Error(`Dropdown menu missing after hover for ${name}`);
+  }
+  const delta =
+    Math.max(Math.abs(before.x - after.x), Math.abs(before.y - after.y)) || 0;
+  if (delta > 2) {
+    throw new Error(`Dropdown moved on hover (${name}): ${delta.toFixed(1)}px`);
+  }
+};
+
+const assertThemeToggle = async (page) => {
+  const before = await page.evaluate(() => ({
+    theme: document.documentElement.dataset.theme,
+    mode: document
+      .querySelector("[data-qa*='qa:action:theme']")
+      ?.getAttribute("data-theme-mode")
+  }));
+  const toggle = page.locator("[data-qa*='qa:action:theme']").first();
+  if (await toggle.count()) {
+    await page.evaluate(() => {
+      const btn = document.querySelector("[data-qa*='qa:action:theme']");
+      btn?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+  }
+  await page.waitForFunction(
+    ({ theme, mode }) => {
+      const nextTheme = document.documentElement.dataset.theme;
+      const nextMode = document
+        .querySelector("[data-qa*='qa:action:theme']")
+        ?.getAttribute("data-theme-mode");
+      return nextTheme !== theme || nextMode !== mode;
+    },
+    before,
+    { timeout: 1000 }
+  );
+  const after = await page.evaluate(() => ({
+    theme: document.documentElement.dataset.theme,
+    mode: document
+      .querySelector("[data-qa*='qa:action:theme']")
+      ?.getAttribute("data-theme-mode")
+  }));
+  if (before.theme === after.theme && before.mode === after.mode) {
+    throw new Error("Theme toggle did not change theme or mode");
+  }
+};
+
+const assertThemeTransitionSynchronized = async (page, themeKey) => {
+  await page.waitForFunction(
+    () => ["dark", "light"].includes(document.documentElement.dataset.theme || ""),
+    { timeout: 1000 }
+  );
+  const parseCssDurationMs = (value) => {
+    const trimmed = String(value || "").trim();
+    if (!trimmed) return null;
+    if (trimmed.endsWith("ms")) {
+      const ms = Number(trimmed.slice(0, -2));
+      return Number.isFinite(ms) ? ms : null;
+    }
+    if (trimmed.endsWith("s")) {
+      const s = Number(trimmed.slice(0, -1));
+      return Number.isFinite(s) ? s * 1000 : null;
+    }
+    const ms = Number(trimmed);
+    return Number.isFinite(ms) ? ms : null;
+  };
+  const beforeThemeShot = path.join(
+    framesDir,
+    `${sanitize("theme-transition")}__${sanitize(themeKey)}__before.png`
+  );
+  const beforeInfo = await page.evaluate(() => ({
+    theme: document.documentElement.dataset.theme,
+    bg: window.getComputedStyle(document.documentElement).getPropertyValue("--bg").trim(),
+    panel: window.getComputedStyle(document.documentElement).getPropertyValue("--panel").trim()
+  }));
+  await page.screenshot({ path: beforeThemeShot });
+
+  const startTheme = await page.evaluate(() => document.documentElement.dataset.theme);
+  const desiredTheme = startTheme === "dark" ? "light" : "dark";
+  const supportsViewTransition = await page.evaluate(
+    () => typeof document.startViewTransition === "function"
+  );
+
+  await page.evaluate((theme) => {
+    window.__ui_check__?.setThemePreference?.(theme, false);
+  }, startTheme);
+  await page.waitForTimeout(120);
+
+  const themeDurationRaw = await page.evaluate(() =>
+    window.getComputedStyle(document.documentElement).getPropertyValue("--theme-duration")
+  );
+  const durationMsFallback = 950;
+  const durationMsParsed = parseCssDurationMs(themeDurationRaw);
+  const durationMs =
+    durationMsParsed !== null && durationMsParsed >= 200 && durationMsParsed <= 4000
+      ? durationMsParsed
+      : durationMsFallback;
+
+  await page.waitForFunction(() => !!window.__ui_check__, null, { timeout: 4000 });
+  const start = Date.now();
+  const toggled = await page.evaluate(() => {
+    if (window.__ui_check__?.toggleTheme) {
+      window.__ui_check__.toggleTheme();
+      return true;
+    }
+    const btn = document.querySelector("[data-qa*='qa:action:theme']");
+    if (!btn) return false;
+    btn.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    return true;
+  });
+  if (!toggled) {
+    throw new Error("Theme toggle trigger missing");
+  }
+
+  await page.waitForFunction(
+    (targetTheme) => document.documentElement.dataset.theme === targetTheme,
+    desiredTheme,
+    { timeout: durationMs + 2000 }
+  );
+  const flipStart = Date.now();
+
+  // Give the UI a moment to apply theme transition origin vars before sampling.
+  await page.waitForTimeout(16);
+  const origin = await page.evaluate(() => {
+    const root = document.documentElement;
+    const style = window.getComputedStyle(root);
+    const dpr = window.devicePixelRatio || 1;
+    const parse = (value, size) => {
+      const raw = String(value || "").trim();
+      if (!raw) return null;
+      if (raw.endsWith("px")) {
+        const px = Number.parseFloat(raw.slice(0, -2));
+        return Number.isFinite(px) ? px : null;
+      }
+      if (raw.endsWith("%")) {
+        const pct = Number.parseFloat(raw.slice(0, -1));
+        return Number.isFinite(pct) ? (pct / 100) * size : null;
+      }
+      const px = Number.parseFloat(raw);
+      return Number.isFinite(px) ? px : null;
+    };
+    const x =
+      parse(style.getPropertyValue("--theme-vt-x"), window.innerWidth) ?? window.innerWidth / 2;
+    const y =
+      parse(style.getPropertyValue("--theme-vt-y"), window.innerHeight) ?? window.innerHeight / 2;
+    return { x: x * dpr, y: y * dpr };
+  });
+
+  const waitFromFlip = async (ms) => {
+    const remaining = ms - (Date.now() - flipStart);
+    if (remaining > 0) await page.waitForTimeout(remaining);
+  };
+
+  // Keep the report lightweight: we only need a few early frames to confirm the
+  // transition starts, plus a couple of mid/late frames to prove it progresses
+  // and is not instantaneous.
+  const denseEarly = [0, 24, 48, 72];
+  const midFractions = [0.5, 0.9].map((t) => Math.round(durationMs * t));
+  const sampleTimes = Array.from(new Set([...denseEarly, ...midFractions]))
+    .filter((ms) => ms >= 0 && ms <= durationMs)
+    .sort((a, b) => a - b);
+  const framePaths = [];
+  for (const ms of sampleTimes) {
+    await waitFromFlip(ms);
+    const fileName = `${sanitize("theme-transition")}__${sanitize(themeKey)}__t${String(ms).padStart(3, "0")}ms.png`;
+    const filePath = path.join(framesDir, fileName);
+    const capturedAt = Date.now() - start;
+    await page.screenshot({ path: filePath });
+    framePaths.push({ ms, actualMs: Math.max(0, Math.round(capturedAt)), path: filePath });
+  }
+
+  await waitFromFlip(Math.round(durationMs + Math.min(380, durationMs * 0.35)));
+  const afterThemeShot = path.join(
+    framesDir,
+    `${sanitize("theme-transition")}__${sanitize(themeKey)}__after.png`
+  );
+  const afterInfo = await page.evaluate(() => ({
+    theme: document.documentElement.dataset.theme,
+    bg: window.getComputedStyle(document.documentElement).getPropertyValue("--bg").trim(),
+    panel: window.getComputedStyle(document.documentElement).getPropertyValue("--panel").trim()
+  }));
+  await page.screenshot({ path: afterThemeShot });
+
+  const readPng = async (filePath) => PNG.sync.read(await fs.readFile(filePath));
+  const pixelAt = (png, x, y) => {
+    const ix = Math.max(0, Math.min(png.width - 1, Math.round(x)));
+    const iy = Math.max(0, Math.min(png.height - 1, Math.round(y)));
+    const offset = (iy * png.width + ix) * 4;
+    return [png.data[offset], png.data[offset + 1], png.data[offset + 2], png.data[offset + 3]];
+  };
+  const dist = (a, b) => Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]);
+
+  const startPng = await readPng(beforeThemeShot);
+  const endPng = await readPng(afterThemeShot);
+  const width = Math.min(startPng.width, endPng.width);
+  const height = Math.min(startPng.height, endPng.height);
+
+  const points = [];
+  const cols = 10;
+  const rows = 7;
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      const u = (col + 0.5) / cols;
+      const v = (row + 0.5) / rows;
+      const x = (0.12 + u * 0.76) * width;
+      const y = (0.12 + v * 0.78) * height;
+      const denom = dist(pixelAt(startPng, x, y), pixelAt(endPng, x, y));
+      if (denom >= 18) {
+        points.push({
+          x,
+          y,
+          denom,
+          d: Math.hypot(x - origin.x, y - origin.y)
+        });
+      }
+    }
+  }
+
+  if (points.length < 26) {
+    throw new Error(
+      `Theme transition probe too small (points=${points.length}, before=${JSON.stringify(
+        beforeInfo
+      )}, after=${JSON.stringify(afterInfo)})`
+    );
+  }
+
+  const orderedPoints = points.slice().sort((a, b) => a.d - b.d);
+  const metrics = [];
+
+  for (const frame of framePaths) {
+    const framePng = await readPng(frame.path);
+    const progresses = orderedPoints.map((point) => {
+      const cur = dist(pixelAt(startPng, point.x, point.y), pixelAt(framePng, point.x, point.y));
+      const value = point.denom ? cur / point.denom : 0;
+      return Math.max(0, Math.min(1, value));
+    });
+
+    const avg = progresses.reduce((sum, value) => sum + value, 0) / progresses.length;
+    const t = frame.actualMs ?? frame.ms;
+    metrics.push({ t, avg });
+
+    if (!supportsViewTransition) {
+      const nearStart = progresses.filter((value) => value <= 0.12).length / progresses.length;
+      const nearEnd = progresses.filter((value) => value >= 0.88).length / progresses.length;
+      const wipeLike = nearStart >= 0.18 && nearEnd >= 0.18;
+
+      const inWindow = t >= Math.round(durationMs * 0.08) && t <= Math.round(durationMs * 0.95);
+      if (wipeLike && inWindow) {
+        const states = progresses
+          .map((value) => (value <= 0.12 ? -1 : value >= 0.88 ? 1 : 0))
+          .filter((state) => state !== 0);
+        if (states.length >= 8) {
+          let flips = 0;
+          for (let i = 1; i < states.length; i += 1) {
+            if (states[i] !== states[i - 1]) flips += 1;
+          }
+          if (flips > 1) {
+            throw new Error(`Theme transition island detected at t=${t}ms (flips=${flips})`);
+          }
+        }
+      }
+    }
+  }
+
+  const nearest = (target) =>
+    metrics.reduce(
+      (best, cur) => (Math.abs(cur.t - target) < Math.abs(best.t - target) ? cur : best),
+      metrics[0]
+    );
+
+  const avgMid = nearest(Math.round(durationMs * 0.5))?.avg ?? 0;
+  if (avgMid < 0.03) {
+    throw new Error(`Theme transition shows no mid-flight progress (avg@50%=${avgMid.toFixed(2)})`);
+  }
+
+  const doneAt = metrics.find((m) => m.avg >= 0.93)?.t ?? null;
+  if (doneAt !== null && doneAt < Math.round(durationMs * 0.55)) {
+    throw new Error(`Theme transition finishes too early (avg>=0.93 at ${doneAt}ms)`);
+  }
+
+  const clipTopDiff = async (aPath, bPath, clipHeight = 720) => {
+    const aPng = PNG.sync.read(await fs.readFile(aPath));
+    const bPng = PNG.sync.read(await fs.readFile(bPath));
+    const width = Math.min(aPng.width, bPng.width);
+    const height = Math.min(aPng.height, bPng.height, clipHeight);
+    const aCrop = new PNG({ width, height });
+    const bCrop = new PNG({ width, height });
+    PNG.bitblt(aPng, aCrop, 0, 0, width, height, 0, 0);
+    PNG.bitblt(bPng, bCrop, 0, 0, width, height, 0, 0);
+
+    let sum = 0;
+    for (let i = 0; i < aCrop.data.length; i += 4) {
+      sum += Math.abs(aCrop.data[i] - bCrop.data[i]);
+      sum += Math.abs(aCrop.data[i + 1] - bCrop.data[i + 1]);
+      sum += Math.abs(aCrop.data[i + 2] - bCrop.data[i + 2]);
+    }
+    const denom = width * height * 3 * 255;
+    const mad = denom ? sum / denom : 0;
+    return { mad };
+  };
+
+  const ordered = framePaths
+    .slice()
+    .sort((a, b) => (a.actualMs ?? a.ms) - (b.actualMs ?? b.ms));
+  const ratios = [];
+  for (let i = 1; i < ordered.length; i += 1) {
+    const prev = ordered[i - 1];
+    const cur = ordered[i];
+    const { mad } = await clipTopDiff(prev.path, cur.path);
+    ratios.push({ from: prev.actualMs ?? prev.ms, to: cur.actualMs ?? cur.ms, mad });
+  }
+
+  const significant = ratios.filter((r) => r.mad > 0.0012);
+  if (significant.length < 2) {
+    throw new Error(
+      `Theme transition looks instantaneous in screenshots (sigFrames=${significant.length}, mads=${ratios
+        .map((r) => r.mad.toFixed(4))
+        .join(", ")})`
+    );
+  }
+
+  const lastSig = significant[significant.length - 1];
+  if (lastSig.to < Math.round(durationMs * 0.45)) {
+    throw new Error(
+      `Theme transition finishes too early in screenshots (lastChange=${lastSig.to}ms, duration=${durationMs}ms)`
+    );
+  }
+
+  return framePaths;
+};
+
+const main = async () => {
+  await ensureDir(artifactsRoot);
+  await ensureDir(snapshotsDir);
+  await ensureDir(framesDir);
+  await ensureDir(videoDir);
+  await clearDir(snapshotsDir);
+  await clearDir(framesDir);
+  await clearDir(videoDir);
+  await fs.rm(reportPath, { force: true });
+
+  const checkResults = [];
+  const runCheck = async (themeKey, name, fn) => {
+    try {
+      await fn();
+      checkResults.push({ theme: themeKey, name, status: "PASS" });
+      console.log(`PASS [${themeKey}] ${name}`);
+    } catch (err) {
+      checkResults.push({ theme: themeKey, name, status: "FAIL", error: err?.message });
+      console.error(`FAIL [${themeKey}] ${name}: ${err?.message || err}`);
+      throw err;
+    }
+  };
+  const skipCheck = (themeKey, name, reason) => {
+    checkResults.push({ theme: themeKey, name, status: "SKIP", error: reason });
+    console.log(`SKIP [${themeKey}] ${name}: ${reason}`);
+  };
+
+  const sampleTransition = async (page, selector, samples = 4, gapMs = 60) => {
+    const values = [];
+    for (let i = 0; i < samples; i += 1) {
+      const entry = await page.evaluate((sel) => {
+        const node = document.querySelector(sel);
+        if (!node) return null;
+        const style = window.getComputedStyle(node);
+        return { opacity: Number(style.opacity), transform: style.transform };
+      }, selector);
+      values.push(entry);
+      await page.waitForTimeout(gapMs);
+    }
+    const valid = values.filter(Boolean);
+    const opacities = valid.map((v) => v.opacity);
+    const transforms = valid.map((v) => v.transform);
+    const changed =
+      new Set(opacities.map((v) => String(v))).size > 1 ||
+      new Set(transforms).size > 1;
+    return { values: valid, changed };
+  };
+
+  const measureModalScroll = async (page) =>
+    page.evaluate(() => {
+      const body = document.querySelector("[data-qa*='qa:modal-body:settings']");
+      const outerBefore = document.documentElement.scrollTop || document.body.scrollTop;
+      const modalBefore = body ? body.scrollTop : 0;
+      if (body) {
+        body.scrollTop = 0;
+      }
+      const outerAfter = document.documentElement.scrollTop || document.body.scrollTop;
+      if (body) {
+        body.scrollTop = Math.min(120, body.scrollHeight);
+      }
+      const modalAfter = body ? body.scrollTop : 0;
+      return { outerBefore, outerAfter, modalBefore, modalAfter };
+    });
+
+  const measureAutosaveShift = async (page) => {
+    const before = await page.evaluate(() => {
+      const nodes = Array.from(
+        document.querySelectorAll(".modal-subtitle, .modal-header *, .section-title")
+      );
+      return nodes.slice(0, 12).map((node) => {
+        const rect = node.getBoundingClientRect();
+        return { top: rect.top, left: rect.left };
+      });
+    });
+    const wasChecked = await page.evaluate(() => {
+      const input = document.querySelector(
+        "[data-qa*='qa:control:auto-update-enabled'] input[type='checkbox']"
+      );
+      return input ? input.checked : false;
+    });
+    await page.evaluate(() => {
+      const input = document.querySelector(
+        "[data-qa*='qa:control:auto-update-enabled'] input[type='checkbox']"
+      );
+      if (!input) return false;
+      input.checked = !input.checked;
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+      return true;
+    });
+    await page.waitForTimeout(700);
+    const after = await page.evaluate(() => {
+      const nodes = Array.from(
+        document.querySelectorAll(".modal-subtitle, .modal-header *, .section-title")
+      );
+      return nodes.slice(0, 12).map((node) => {
+        const rect = node.getBoundingClientRect();
+        return { top: rect.top, left: rect.left };
+      });
+    });
+    await page.evaluate((checked) => {
+      const input = document.querySelector(
+        "[data-qa*='qa:control:auto-update-enabled'] input[type='checkbox']"
+      );
+      if (!input) return;
+      if (input.checked !== checked) {
+        input.checked = checked;
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    }, wasChecked);
+    let maxDelta = 0;
+    for (let i = 0; i < Math.min(before.length, after.length); i += 1) {
+      const delta = Math.abs(after[i].top - before[i].top);
+      if (delta > maxDelta) maxDelta = delta;
+    }
+    return maxDelta;
+  };
+
+  const measureSelectVisibility = async (page) =>
+    page.evaluate(() => {
+      const toRgb = (value) => {
+        const parts = value.match(/[\d.]+/g);
+        if (!parts || parts.length < 3) return [0, 0, 0, 0];
+        return [
+          Number(parts[0]),
+          Number(parts[1]),
+          Number(parts[2]),
+          parts[3] ? Number(parts[3]) : 1
+        ];
+      };
+      const luminance = (r, g, b) => {
+        const srgb = [r, g, b].map((v) => {
+          const c = v / 255;
+          return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+        });
+        return 0.2126 * srgb[0] + 0.7152 * srgb[1] + 0.0722 * srgb[2];
+      };
+      const contrast = (fg, bg) => {
+        const l1 = luminance(fg[0], fg[1], fg[2]);
+        const l2 = luminance(bg[0], bg[1], bg[2]);
+        const bright = Math.max(l1, l2);
+        const dark = Math.min(l1, l2);
+        return (bright + 0.05) / (dark + 0.05);
+      };
+      const trigger = document.querySelector(".select-trigger");
+      if (!trigger) return null;
+      const caret = trigger.querySelector(".select-caret");
+      const triggerStyle = window.getComputedStyle(trigger);
+      const caretStyle = caret ? window.getComputedStyle(caret) : null;
+      const bg = toRgb(triggerStyle.backgroundColor);
+      const border = toRgb(triggerStyle.borderColor);
+      const borderRatio = contrast(border, bg);
+      const caretRatio = caretStyle ? contrast(toRgb(caretStyle.borderRightColor), bg) : 0;
+      const caretVisible =
+        !!caret &&
+        caretStyle &&
+        caretStyle.opacity !== "0" &&
+        caretStyle.display !== "none";
+      return {
+        caretVisible,
+        borderRatio: Number(borderRatio.toFixed(2)),
+        caretRatio: Number(caretRatio.toFixed(2))
+      };
+    });
+
+  const measureShadowClipping = async (page) => {
+    const closeButton = page.locator(".modal .btn").first();
+    if (await closeButton.count()) {
+      await closeButton.hover();
+      await page.waitForTimeout(60);
+    }
+    return page.evaluate(() => {
+      const buttons = Array.from(document.querySelectorAll(".modal .btn"));
+      for (const btn of buttons) {
+        const style = window.getComputedStyle(btn);
+        if (!style.boxShadow || style.boxShadow === "none") continue;
+        let node = btn.parentElement;
+        while (node && !node.classList.contains("modal")) {
+          const nodeStyle = window.getComputedStyle(node);
+          if (["hidden", "clip", "auto", "scroll"].includes(nodeStyle.overflow)) {
+            const btnRect = btn.getBoundingClientRect();
+            const nodeRect = node.getBoundingClientRect();
+            const nearEdge =
+              btnRect.left < nodeRect.left + 2 ||
+              btnRect.right > nodeRect.right - 2 ||
+              btnRect.top < nodeRect.top + 2 ||
+              btnRect.bottom > nodeRect.bottom - 2;
+            if (nearEdge) {
+              return { pass: false, reason: `ancestor overflow=${nodeStyle.overflow}` };
+            }
+          }
+          node = node.parentElement;
+        }
+      }
+      return { pass: true, reason: "no clipping detected" };
+    });
+  };
+
+  let server;
+  if (shouldStartServer) {
+    await run("npm", ["--prefix", "app/webui", "run", "build"], { cwd: repoRoot });
+    const port = await pickPort(defaultPort);
+    baseURL = `http://127.0.0.1:${port}`;
+    try {
+      server = await startServer(port);
+    } catch (err) {
+      console.warn("UI server failed to start, continuing with existing baseURL.");
+    }
+  }
+
+  const artifacts = [];
+
+  const browser = await chromium.launch();
+  const themes = [
+    { key: "dark", mode: "dark" },
+    { key: "light", mode: "light" },
+    { key: "system-dark", mode: "system", scheme: "dark" },
+    { key: "system-light", mode: "system", scheme: "light" }
+  ];
+
+  const runTheme = async (theme) => {
+    const colorScheme = theme.mode === "system" ? theme.scheme : theme.mode;
+    const context = await browser.newContext({
+      viewport: { width: 1280, height: 720 },
+      recordVideo: { dir: videoDir },
+      userAgent: "XAUUSDCalendar/1.0",
+      bypassCSP: true,
+      ...(colorScheme ? { colorScheme } : {})
+    });
+    await context.addInitScript(({ mode, scheme }) => {
+      const resolved =
+        mode === "system"
+          ? scheme ||
+            (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light")
+          : mode;
+      try {
+        localStorage.setItem("theme", mode);
+        localStorage.setItem("themePreference", mode);
+      } catch {
+        // ignore
+      }
+      document.documentElement.dataset.theme = resolved;
+      window.__ui_check__ = window.__ui_check__ || {};
+      window.__ui_check__.holdInitOverlayMs = 1500;
+    }, theme);
+    const page = await context.newPage();
+    const video = page.video();
+    await page.goto(baseURL, { waitUntil: "domcontentloaded" });
+    const initOverlay = page.locator("[data-qa='qa:overlay:init']").first();
+    await Promise.all([
+      page.waitForSelector("[data-qa='qa:app-shell']", { timeout: 10000 }),
+      initOverlay.waitFor({ state: "attached", timeout: 2000 }).catch(() => null)
+    ]);
+    try {
+      const initCard = page.locator("[data-qa='qa:card:init']").first();
+      artifacts.push({
+        scenario: "init-overlay",
+        theme: theme.key,
+        state: "loading",
+        path: await captureState(page, "init-overlay", theme.key, "loading", { element: initCard })
+      });
+      await runCheck(theme.key, "Init overlay skeleton contrast", () =>
+        assertInitOverlaySkeletonContrast(page, theme.key)
+      );
+    } catch (err) {
+      skipCheck(theme.key, "Init overlay skeleton contrast", "Overlay not visible");
+    }
+    await page.waitForTimeout(900);
+    await injectDesktopBackend(page, theme.mode, false);
+    await initOverlay.waitFor({ state: "detached", timeout: 10000 });
+    await page.waitForTimeout(500);
+    await setTheme(page, theme.mode, theme.scheme);
+    await page.waitForTimeout(200);
+
+    artifacts.push({
+      scenario: "startup",
+      theme: theme.key,
+      state: "ready",
+      path: await captureState(page, "startup", theme.key, "ready")
+    });
+
+    await page.evaluate(() => {
+      if (!window.__desktop_snapshot__) return;
+      window.__desktop_snapshot__.restartInSeconds = 5;
+    });
+    await page.evaluate(() => window.__ui_check__?.refresh?.());
+    await page.waitForTimeout(120);
+    const restartPill = page.locator("[data-qa='qa:restart-countdown']").first();
+    if (await restartPill.count()) {
+      const frames = await captureFrames(page, "restart-countdown", theme.key, "enter");
+      frames.forEach((frame, index) =>
+        artifacts.push({
+          scenario: "restart-countdown",
+          theme: theme.key,
+          state: `enter__frame${index}`,
+          path: frame
+        })
+      );
+      artifacts.push({
+        scenario: "restart-countdown",
+        theme: theme.key,
+        state: "visible",
+        path: await captureState(page, "restart-countdown", theme.key, "visible", {
+          element: restartPill
+        })
+      });
+      await runCheck(theme.key, "Restart countdown pill visible", async () => {
+        if (!(await restartPill.isVisible())) {
+          throw new Error("Restart countdown pill not visible");
+        }
+      });
+      await runCheck(theme.key, "Restart countdown transition presence", async () => {
+        const animationName = await restartPill.evaluate((el) => {
+          const styles = window.getComputedStyle(el);
+          return styles.animationName || "";
+        });
+        if (!animationName || animationName === "none") {
+          throw new Error("Restart countdown pill missing enter animation");
+        }
+      });
+    }
+
+    const historyCard = page.locator("[data-qa='qa:card:history']").first();
+    if (await historyCard.count()) {
+      artifacts.push({
+        scenario: "history",
+        theme: theme.key,
+        state: "open",
+        path: await captureState(page, "history", theme.key, "open", { element: historyCard })
+      });
+    }
+
+    await runCheck(theme.key, "Theme icon semantics", () => assertThemeIcons(page, theme.key));
+    await runCheck(theme.key, "Text contrast", () => assertContrast(page));
+    await runCheck(theme.key, "Select visibility", () => assertSelectVisibility(page));
+    await runCheck(theme.key, "CTA baseline alignment", () =>
+      assertBaseline(page, ".appbar-actions .btn, .appbar-actions .pill-link")
+    );
+    await runCheck(theme.key, "Page scrollbars hidden", () => assertNoPageScroll(page));
+    await runCheck(theme.key, "Events list completeness", () => assertEventsLoaded(page));
+    await runCheck(theme.key, "Next Events controls centered", () =>
+      assertNextEventsControlsCentered(page)
+    );
+    await runCheck(theme.key, "Search input visibility", () => assertSearchInputVisibility(page));
+    await runCheck(theme.key, "Impact filter not starved", () =>
+      assertImpactFilterNotStarved(page)
+    );
+    await runCheck(theme.key, "Impact tooltips", () => assertImpactTooltips(page));
+    const eventsCard = page.locator("[data-qa='qa:card:next-events']").first();
+    const impactButtons = page.locator("[data-qa='qa:filter:impact'] button.impact-toggle");
+    const impactStates = ["low", "mid", "high"];
+    if ((await eventsCard.count()) && (await impactButtons.count()) === impactStates.length) {
+      for (let index = 0; index < impactStates.length; index += 1) {
+        await impactButtons.nth(index).hover();
+        await page.waitForTimeout(180);
+        artifacts.push({
+          scenario: "impact-tooltip",
+          theme: theme.key,
+          state: impactStates[index],
+          path: await captureState(page, "impact-tooltip", theme.key, impactStates[index], {
+            element: eventsCard
+          })
+        });
+      }
+    }
+    await runCheck(theme.key, "History scrolls when overflow", () => assertHistoryScrollable(page));
+    await page.evaluate(() => window.__ui_check__?.setSplitRatio?.(0.75));
+    await page.waitForTimeout(120);
+    await runCheck(theme.key, "History does not overflow when narrow", () => assertHistoryNoOverflow(page));
+    const themeBefore = await page.evaluate(() => ({
+      theme: document.documentElement.dataset.theme,
+      mode: document
+        .querySelector("[data-qa*='qa:action:theme']")
+        ?.getAttribute("data-theme-mode")
+    }));
+    const themeToggleBtn = page.locator("[data-qa*='qa:action:theme']").first();
+    await themeToggleBtn.hover();
+    artifacts.push({
+      scenario: "theme-toggle",
+      theme: theme.key,
+      state: "hover",
+      path: await captureState(page, "theme-toggle", theme.key, "hover")
+    });
+    await runCheck(theme.key, "Theme toggle interaction", () => assertThemeToggle(page));
+    await setTheme(page, theme.mode, theme.scheme);
+    await page.waitForTimeout(120);
+    if (theme.key.startsWith("system")) {
+      skipCheck(theme.key, "Theme transition synchronized", "System themes skipped");
+    } else {
+      let transitionFrames = [];
+      await runCheck(theme.key, "Theme transition synchronized", async () => {
+        transitionFrames = await assertThemeTransitionSynchronized(page, theme.key);
+      });
+       transitionFrames.forEach((frame) => {
+         artifacts.push({
+           scenario: "theme-transition",
+           theme: theme.key,
+           state: `t${String(frame.ms).padStart(3, "0")}ms`,
+           label: `t=${frame.ms}ms (actual ~${frame.actualMs ?? "?"}ms)`,
+           path: frame.path
+         });
+       });
+     }
+    await page.waitForTimeout(120);
+    const themeAfterToggle = await page.evaluate(() => ({
+      theme: document.documentElement.dataset.theme,
+      mode: document
+        .querySelector("[data-qa*='qa:action:theme']")
+        ?.getAttribute("data-theme-mode")
+    }));
+    artifacts.push({
+      scenario: "theme-toggle",
+      theme: theme.key,
+      state: "after-toggle",
+      label: `after-toggle (${themeBefore.mode ?? themeBefore.theme}→${themeAfterToggle.mode ?? themeAfterToggle.theme})`,
+      path: await captureState(page, "theme-toggle", theme.key, "after-toggle")
+    });
+    await setTheme(page, theme.mode, theme.scheme);
+    await page.waitForTimeout(200);
+    await runCheck(theme.key, "Theme stability after data refresh", async () => {
+      await page.evaluate(() => window.__ui_check__?.refresh?.());
+      await page.waitForTimeout(600);
+      const after = await page.evaluate(() => ({
+        theme: document.documentElement.dataset.theme,
+        mode: document
+          .querySelector("[data-qa*='qa:action:theme']")
+          ?.getAttribute("data-theme-mode")
+      }));
+      if (after.theme !== themeBefore.theme || after.mode !== themeBefore.mode) {
+        throw new Error("Theme changed after refresh");
+      }
+    });
+
+    const layoutWidthBefore = await page.evaluate(() => {
+      const appbar = document.querySelector(".appbar");
+      const app = document.querySelector(".app");
+      const rect = (appbar ?? app)?.getBoundingClientRect();
+      return rect ? rect.width : 0;
+    });
+    const settingsTrigger = page.locator("[data-qa*='qa:modal-trigger:settings']").first();
+    await settingsTrigger.click();
+    await page.waitForSelector("[data-qa*='qa:modal:settings']", { timeout: 1000 });
+    await runCheck(theme.key, "Modal transition presence", () =>
+      assertHasTransition(page, "[data-qa*='qa:modal:settings']", "Settings modal")
+    );
+    await runCheck(theme.key, "Backdrop transition presence", () =>
+      assertHasTransition(page, "[data-qa*='qa:modal-backdrop:settings']", "Modal backdrop")
+    );
+    await runCheck(theme.key, "Modal transition sampling", () =>
+      assertOpacityTransition(page, "[data-qa*='qa:modal:settings']", "Settings modal")
+    );
+    const enterMetrics = await sampleTransition(page, "[data-qa*='qa:modal:settings']");
+    await page.waitForTimeout(160);
+    artifacts.push({
+      scenario: "settings",
+      theme: theme.key,
+      state: "open",
+      path: await captureState(page, "settings", theme.key, "open")
+    });
+
+    const syncRepoSection = page.locator("[data-qa='qa:section:sync-repo']").first();
+    if (await syncRepoSection.count()) {
+      await syncRepoSection.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(120);
+    }
+
+    const syncRepoToggle = page.locator("[data-qa='qa:control:enable-sync-repo']").first();
+    if (await syncRepoToggle.count()) {
+      const input = syncRepoToggle.locator("input[type='checkbox']").first();
+      const checked = await input.isChecked().catch(() => false);
+      if (!checked) {
+        await syncRepoToggle.click({ force: true });
+        await page.waitForTimeout(180);
+      }
+    }
+
+    const syncRepoInput = page.locator("[data-qa='qa:section:sync-repo'] input.path-input").first();
+    if (await syncRepoInput.count()) {
+      await syncRepoInput.fill("C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\XAUUSDCalendar\\\\repo");
+      await page.waitForTimeout(160);
+    }
+
+    await page.evaluate(() => {
+      window.__ui_check__ = window.__ui_check__ || {};
+      window.__ui_check__.mockProbeSyncRepo = {
+        status: "git-not-clean",
+        ready: false,
+        needsConfirmation: true,
+        canUseAsIs: false,
+        canReset: true,
+        message: "Sync repo contains extra files",
+        path: "C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\XAUUSDCalendar\\\\repo"
+      };
+    });
+    await page.waitForTimeout(240);
+    const syncRepoNote = page.locator("[data-qa='qa:note:sync-repo']").first();
+    if (await syncRepoNote.count()) {
+      await syncRepoNote.waitFor({ state: "visible", timeout: 1500 }).catch(() => null);
+      artifacts.push({
+        scenario: "sync-repo",
+        theme: theme.key,
+        state: "settings-note",
+        path: await captureState(page, "sync-repo", theme.key, "settings-note", {
+          element: (await syncRepoSection.count()) ? syncRepoSection : syncRepoNote
+        })
+      });
+    }
+
+    await page.evaluate(() => {
+      window.__ui_check__ = window.__ui_check__ || {};
+      window.__ui_check__.mockProbeSyncRepo = {
+        status: "empty",
+        ready: false,
+        needsConfirmation: false,
+        canUseAsIs: false,
+        canReset: true,
+        message: "Folder will be cloned automatically after you close Settings.",
+        path: "C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\XAUUSDCalendar\\\\repo"
+      };
+    });
+    await page.waitForTimeout(220);
+    const syncRepoNoteAuto = page.locator("[data-qa='qa:note:sync-repo'][data-tone='info']").first();
+    if (await syncRepoNoteAuto.count()) {
+      await runCheck(theme.key, "Sync repo auto-clone note has no Review button", async () => {
+        const hasReview = await syncRepoNoteAuto
+          .locator("[data-qa='qa:action:sync-repo-review']")
+          .count();
+        if (hasReview) {
+          throw new Error("Review button should not appear for info notes");
+        }
+      });
+      artifacts.push({
+        scenario: "sync-repo",
+        theme: theme.key,
+        state: "settings-note-auto-clone",
+        path: await captureState(page, "sync-repo", theme.key, "settings-note-auto-clone", {
+          element: (await syncRepoSection.count()) ? syncRepoSection : syncRepoNoteAuto
+        })
+      });
+    }
+
+    await page.evaluate(() => {
+      window.__ui_check__?.setSyncRepoTask?.({
+        active: true,
+        phase: "cloning",
+        progress: 0.42,
+        message: "Cloning...",
+        path: "C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\XAUUSDCalendar\\\\repo"
+      });
+    });
+    await page.waitForTimeout(220);
+    const syncRepoNoteCloning = page.locator("[data-qa='qa:note:sync-repo'][data-tone='info']").first();
+    if (await syncRepoNoteCloning.count()) {
+      await runCheck(theme.key, "Sync repo cloning note has no Review button", async () => {
+        const hasReview = await syncRepoNoteCloning
+          .locator("[data-qa='qa:action:sync-repo-review']")
+          .count();
+        if (hasReview) {
+          throw new Error("Review button should not appear for info notes");
+        }
+      });
+      artifacts.push({
+        scenario: "sync-repo",
+        theme: theme.key,
+        state: "settings-note-cloning",
+        path: await captureState(page, "sync-repo", theme.key, "settings-note-cloning", {
+          element: (await syncRepoSection.count()) ? syncRepoSection : syncRepoNoteCloning
+        })
+      });
+    }
+    await page.evaluate(() => {
+      window.__ui_check__?.setSyncRepoTask?.({
+        active: false
+      });
+    });
+    await page.waitForTimeout(120);
+
+    const syncRepoToggleOff = page.locator("[data-qa='qa:control:enable-sync-repo']").first();
+    if (await syncRepoToggleOff.count()) {
+      const input = syncRepoToggleOff.locator("input[type='checkbox']").first();
+      const checked = await input.isChecked().catch(() => false);
+      if (checked) {
+        await syncRepoToggleOff.click({ force: true });
+        await page.waitForTimeout(180);
+      }
+    }
+
+    await page.evaluate(() => {
+      window.__ui_check__ = window.__ui_check__ || {};
+      window.__ui_check__.mockProbeSyncRepo = null;
+    });
+    const enterFrames = await captureFrames(page, "settings", theme.key, "enter");
+    enterFrames.forEach((frame, index) =>
+      artifacts.push({
+        scenario: "settings",
+        theme: theme.key,
+        state: `enter-frame-${index}`,
+        path: frame
+      })
+    );
+    await runCheck(theme.key, "Modal header blend", () => assertModalHeaderBlend(page));
+    await runCheck(theme.key, "Section rhythm spacing", () => assertSectionRhythm(page));
+    await runCheck(theme.key, "Paths button alignment", () => assertPathButtonAlignment(page));
+    await runCheck(theme.key, "Shadow clipping", () => assertNoShadowClipping(page));
+    await runCheck(theme.key, "Autosave transition presence", () =>
+      assertHasTransition(page, ".modal-subtitle", "Autosave status")
+    );
+    await runCheck(theme.key, "Modal scroll ownership", () => assertModalScroll(page));
+    await runCheck(theme.key, "Modal open width stable", async () => {
+      const layoutWidthAfter = await page.evaluate(() => {
+        const appbar = document.querySelector(".appbar");
+        const app = document.querySelector(".app");
+        const rect = (appbar ?? app)?.getBoundingClientRect();
+        return rect ? rect.width : 0;
+      });
+      if (!layoutWidthBefore || !layoutWidthAfter) {
+        throw new Error("Unable to measure layout width for modal shift check");
+      }
+      if (Math.abs(layoutWidthAfter - layoutWidthBefore) > 1) {
+        throw new Error("Layout width changed when modal opened");
+      }
+    });
+    await runCheck(theme.key, "Page scrollbars hidden (modal open)", () =>
+      assertNoPageScroll(page)
+    );
+    // Autosave shift measured separately for summary.
+    const modalBody = page.locator("[data-qa*='qa:modal-body:settings']").first();
+    const modalScroll = await measureModalScroll(page);
+    const autosaveShiftMax = await measureAutosaveShift(page);
+    const selectVisibility = await measureSelectVisibility(page);
+    const shadowClip = await measureShadowClipping(page);
+
+    const updateAction = page.locator("[data-qa*='qa:action:update']").first();
+    if (await updateAction.count()) {
+      const ensureUpdatesVisible = async () => {
+        try {
+          await updateAction.scrollIntoViewIfNeeded();
+        } catch {
+          // ignore
+        }
+        if (await modalBody.count()) {
+          await modalBody.evaluate((el) => {
+            el.scrollTop = 0;
+          });
+          await page.waitForTimeout(80);
+        }
+      };
+      const setUpdateState = async (next, expectedPhase) => {
+        await page.evaluate((payload) => {
+          window.__MOCK_UPDATE_STATE__ = payload;
+        }, next);
+        await page.evaluate(() => window.__ui_check__?.refreshUpdateState?.());
+        if (expectedPhase) {
+          try {
+            await page.waitForFunction(
+              (phase) => {
+                const el = document.querySelector("[data-qa*='qa:action:update']");
+                const state = el?.getAttribute("data-qa-state") ?? "";
+                return state === phase;
+              },
+              expectedPhase,
+              { timeout: 1500 }
+            );
+          } catch {
+            // Ignore if state propagates slowly; snapshot still useful.
+          }
+        }
+      };
+
+      if (await modalBody.count()) {
+        await modalBody.evaluate((el) => {
+          el.scrollTop = 0;
+        });
+        await page.waitForTimeout(80);
+      }
+      await ensureUpdatesVisible();
+      await setUpdateState(
+        {
+          ok: true,
+          phase: "idle",
+          message: "",
+          availableVersion: "",
+          progress: 0
+        },
+        "idle"
+      );
+      await page.waitForTimeout(120);
+      await updateAction.click();
+      await page.waitForTimeout(140);
+      await setUpdateState(
+        {
+          ok: true,
+          phase: "checking",
+          message: "Checking...",
+          availableVersion: "",
+          progress: 0
+        },
+        "checking"
+      );
+      await page.waitForTimeout(260);
+      await ensureUpdatesVisible();
+      artifacts.push({
+        scenario: "updates",
+        theme: theme.key,
+        state: "checking",
+        path: await captureState(page, "updates", theme.key, "checking")
+      });
+      await setUpdateState(
+        {
+          ok: true,
+          phase: "idle",
+          message: "Up to date",
+          availableVersion: "",
+          progress: 0
+        },
+        "idle"
+      );
+      await page.waitForTimeout(180);
+      await ensureUpdatesVisible();
+      artifacts.push({
+        scenario: "updates",
+        theme: theme.key,
+        state: "up-to-date",
+        path: await captureState(page, "updates", theme.key, "up-to-date")
+      });
+      await setUpdateState(
+        {
+          ok: true,
+          phase: "error",
+          message: "Update check failed",
+          availableVersion: "",
+          progress: 0
+        },
+        "error"
+      );
+      await page.waitForTimeout(140);
+      artifacts.push({
+        scenario: "updates",
+        theme: theme.key,
+        state: "failure",
+        path: await captureState(page, "updates", theme.key, "failure")
+      });
+
+      await setUpdateState(
+        {
+          ok: true,
+          phase: "idle",
+          message: "",
+          availableVersion: "",
+          progress: 0
+        },
+        "idle"
+      );
+      await page.waitForTimeout(120);
+
+      await updateAction.click();
+      await setUpdateState(
+        {
+          ok: true,
+          phase: "available",
+          message: "Update available: 9.9.9",
+          availableVersion: "9.9.9",
+          progress: 0
+        },
+        "available"
+      );
+      await page.waitForTimeout(140);
+      await ensureUpdatesVisible();
+      artifacts.push({
+        scenario: "updates",
+        theme: theme.key,
+        state: "available",
+        path: await captureState(page, "updates", theme.key, "available")
+      });
+
+      await updateAction.click();
+      await page.waitForTimeout(120);
+      await setUpdateState(
+        {
+          ok: true,
+          phase: "downloading",
+          message: "Downloading...",
+          availableVersion: "9.9.9",
+          progress: 0.42
+        },
+        "downloading"
+      );
+      await page.waitForTimeout(260);
+      await ensureUpdatesVisible();
+      artifacts.push({
+        scenario: "updates",
+        theme: theme.key,
+        state: "downloading",
+        path: await captureState(page, "updates", theme.key, "downloading")
+      });
+
+      await setUpdateState(
+        {
+          ok: true,
+          phase: "downloaded",
+          message: "Download complete",
+          availableVersion: "9.9.9",
+          progress: 1
+        },
+        "downloaded"
+      );
+      await page.waitForTimeout(180);
+      await ensureUpdatesVisible();
+      artifacts.push({
+        scenario: "updates",
+        theme: theme.key,
+        state: "downloaded",
+        path: await captureState(page, "updates", theme.key, "downloaded")
+      });
+
+      await setUpdateState(
+        {
+          ok: true,
+          phase: "idle",
+          message: "",
+          availableVersion: "",
+          progress: 0
+        },
+        "idle"
+      );
+      await page.waitForTimeout(80);
+    }
+    if (await modalBody.count()) {
+      await modalBody.evaluate((el) => {
+        el.scrollTop = el.scrollHeight;
+      });
+      await page.waitForTimeout(200);
+      artifacts.push({
+        scenario: "settings",
+        theme: theme.key,
+        state: "bottom",
+        path: await captureState(page, "settings", theme.key, "bottom")
+      });
+    }
+    const uninstallTrigger = page.locator("[data-qa*='qa:modal-trigger:uninstall']").first();
+    if (await uninstallTrigger.count()) {
+      await uninstallTrigger.click();
+      await page.waitForTimeout(160);
+      const uninstallFrames = await captureFrames(page, "uninstall", theme.key, "enter");
+      uninstallFrames.forEach((frame, index) =>
+        artifacts.push({
+          scenario: "uninstall",
+          theme: theme.key,
+          state: `enter-frame-${index}`,
+          path: frame
+        })
+      );
+      const uninstallModal = page.locator("[data-qa*='qa:modal:uninstall']").first();
+      if (await uninstallModal.count()) {
+        artifacts.push({
+          scenario: "uninstall",
+          theme: theme.key,
+          state: "open",
+          path: await captureState(page, "uninstall", theme.key, "open", { element: uninstallModal })
+        });
+      }
+
+      await runCheck(theme.key, "Uninstall confirm enables CTA", async () => {
+        const confirmInput = page.locator("[data-qa='qa:uninstall:confirm-input']").first();
+        const confirmButton = page.locator("[data-qa='qa:uninstall:confirm-button']").first();
+        if (!(await confirmInput.count()) || !(await confirmButton.count())) {
+          throw new Error("Uninstall confirm controls not found");
+        }
+        await confirmInput.fill("");
+        await page.waitForTimeout(60);
+        if (!(await confirmButton.isDisabled())) {
+          throw new Error("Uninstall button should be disabled without confirmation");
+        }
+        await confirmInput.fill("uninstall");
+        await page.waitForTimeout(60);
+        if (await confirmButton.isDisabled()) {
+          throw new Error("Uninstall button should be enabled for case-insensitive confirmation");
+        }
+        await confirmInput.fill(" UNINSTALL ");
+        await page.waitForTimeout(60);
+        if (await confirmButton.isDisabled()) {
+          throw new Error("Uninstall button should ignore surrounding whitespace");
+        }
+        await confirmInput.fill("");
+      });
+
+      const uninstallClose = page.locator("[data-qa*='qa:modal-close:uninstall']").first();
+      if (await uninstallClose.count()) {
+        await uninstallClose.click();
+        await page.waitForTimeout(200);
+        const uninstallExit = await captureFrames(page, "uninstall", theme.key, "exit");
+        uninstallExit.forEach((frame, index) =>
+          artifacts.push({
+            scenario: "uninstall",
+            theme: theme.key,
+            state: `exit-frame-${index}`,
+            path: frame
+          })
+        );
+      }
+    }
+    const closeBtn = page.locator("[data-qa*='qa:modal-close:settings']").first();
+    if (await closeBtn.count()) {
+      await closeBtn.click({ force: true });
+    }
+    const exitMetrics = await sampleTransition(page, ".modal");
+    await page.waitForTimeout(320);
+    const exitFrames = await captureFrames(page, "settings", theme.key, "exit");
+    exitFrames.forEach((frame, index) =>
+      artifacts.push({
+        scenario: "settings",
+        theme: theme.key,
+        state: `exit-frame-${index}`,
+        path: frame
+      })
+    );
+    await page
+      .waitForSelector("[data-qa*='qa:modal-backdrop:settings']", {
+        state: "hidden",
+        timeout: 2500
+      })
+      .catch(() => null);
+
+    const smallContext = await browser.newContext({
+      viewport: { width: 960, height: 640 },
+      userAgent: "XAUUSDCalendar/1.0",
+      bypassCSP: true,
+      ...(colorScheme ? { colorScheme } : {})
+    });
+    await smallContext.addInitScript(({ mode, scheme }) => {
+      const resolved =
+        mode === "system"
+          ? scheme ||
+            (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light")
+          : mode;
+      try {
+        localStorage.setItem("theme", mode);
+        localStorage.setItem("themePreference", mode);
+      } catch {
+        // ignore
+      }
+      document.documentElement.dataset.theme = resolved;
+      window.__ui_check__ = window.__ui_check__ || {};
+      window.__ui_check__.holdInitOverlayMs = 1500;
+    }, theme);
+    const smallPage = await smallContext.newPage();
+    await smallPage.goto(baseURL, { waitUntil: "domcontentloaded" });
+    const smallInitOverlay = smallPage.locator("[data-qa='qa:overlay:init']").first();
+    await Promise.all([
+      smallPage.waitForSelector("[data-qa='qa:app-shell']", { timeout: 10000 }),
+      smallInitOverlay.waitFor({ state: "attached", timeout: 2000 }).catch(() => null)
+    ]);
+    await injectDesktopBackend(smallPage, theme.mode);
+    await smallInitOverlay.waitFor({ state: "detached", timeout: 10000 });
+    await smallPage.waitForTimeout(300);
+    await setTheme(smallPage, theme.mode, theme.scheme);
+    const smallSettingsTrigger = smallPage
+      .locator("[data-qa*='qa:modal-trigger:settings']")
+      .first();
+    await smallSettingsTrigger.click();
+    const smallSettingsModal = smallPage.locator("[data-qa*='qa:modal:settings']").first();
+    await smallSettingsModal.waitFor({ state: "visible", timeout: 4000 });
+    await smallPage.waitForTimeout(160);
+    artifacts.push({
+      scenario: "settings",
+      theme: theme.key,
+      state: "open-small",
+      path: await captureState(smallPage, "settings", theme.key, "open-small")
+    });
+    await runCheck(theme.key, "Modal scroll ownership (small)", () =>
+      assertModalScroll(smallPage)
+    );
+    const smallModalBody = smallPage.locator("[data-qa*='qa:modal-body:settings']").first();
+    if (await smallModalBody.count()) {
+      await smallModalBody.evaluate((el) => {
+        el.scrollTop = el.scrollHeight;
+      });
+      await smallPage.waitForTimeout(200);
+      artifacts.push({
+        scenario: "settings",
+        theme: theme.key,
+        state: "bottom-small",
+        path: await captureState(smallPage, "settings", theme.key, "bottom-small")
+      });
+    }
+    await smallContext.close();
+
+    const selectTriggers = page.locator(".select-trigger");
+    const triggerCount = await selectTriggers.count();
+    for (let i = 0; i < triggerCount; i += 1) {
+      const selectTrigger = selectTriggers.nth(i);
+      const name = await selectTrigger.evaluate((el, index) => {
+        const root = el.closest(".select");
+        const qa = root?.getAttribute("data-qa");
+        if (qa && qa.includes("qa:select:")) {
+          return qa.replace("qa:select:", "");
+        }
+        return `select-${index}`;
+      }, i);
+      await selectTrigger.evaluate((el) => {
+        el.scrollIntoView({ block: "start", behavior: "auto" });
+      });
+      await page.waitForTimeout(120);
+      await selectTrigger.hover();
+      await selectTrigger.click();
+      await page.waitForTimeout(150);
+      artifacts.push({
+        scenario: `dropdown-${name}`,
+        theme: theme.key,
+        state: "open",
+        path: await captureState(page, `dropdown-${name}`, theme.key, "open")
+      });
+      const selectMenu = page.locator(".select-menu");
+      if (await selectMenu.count()) {
+        await selectMenu.first().hover({ force: true });
+        await page.waitForTimeout(120);
+        artifacts.push({
+          scenario: `dropdown-${name}`,
+          theme: theme.key,
+          state: "hover",
+          path: await captureState(page, `dropdown-${name}`, theme.key, "hover")
+        });
+      }
+      await runCheck(theme.key, `Dropdown transition presence (${name})`, () =>
+        assertHasTransition(page, ".select-menu", "Dropdown menu")
+      );
+      await runCheck(theme.key, `Dropdown menu layout (${name})`, () =>
+        assertDropdownMenu(page, name)
+      );
+      await runCheck(theme.key, `Dropdown hover stability (${name})`, () =>
+        assertDropdownStableOnHover(page, selectTrigger, name)
+      );
+      await selectTrigger.click();
+    }
+
+    const activityFab = page.locator("[data-qa*='qa:action:activity-fab']").first();
+    if (await activityFab.count()) {
+      await activityFab.click();
+      await page.waitForTimeout(200);
+      const drawerSelects = page.locator("[data-qa='qa:drawer:activity'] .select-trigger");
+      const drawerCount = await drawerSelects.count();
+      for (let i = 0; i < drawerCount; i += 1) {
+        const selectTrigger = drawerSelects.nth(i);
+        const name = await selectTrigger.evaluate((el, index) => {
+          const root = el.closest(".select");
+          const qa = root?.getAttribute("data-qa");
+          if (qa && qa.includes("qa:select:")) {
+            return qa.replace("qa:select:", "");
+          }
+          return `select-${index}`;
+        }, i);
+        await selectTrigger.hover();
+        await selectTrigger.click();
+        await page.waitForTimeout(150);
+        artifacts.push({
+          scenario: `dropdown-${name}`,
+          theme: theme.key,
+          state: "open",
+          path: await captureState(page, `dropdown-${name}`, theme.key, "open")
+        });
+        const selectMenu = page.locator(".select-menu");
+        if (await selectMenu.count()) {
+          await selectMenu.first().hover({ force: true });
+          await page.waitForTimeout(120);
+          artifacts.push({
+            scenario: `dropdown-${name}`,
+            theme: theme.key,
+            state: "hover",
+            path: await captureState(page, `dropdown-${name}`, theme.key, "hover")
+          });
+        }
+        await runCheck(theme.key, `Dropdown transition presence (${name})`, () =>
+          assertHasTransition(page, ".select-menu", "Dropdown menu")
+        );
+        await runCheck(theme.key, `Dropdown menu layout (${name})`, () =>
+          assertDropdownMenu(page, name)
+        );
+        await runCheck(theme.key, `Dropdown hover stability (${name})`, () =>
+          assertDropdownStableOnHover(page, selectTrigger, name)
+        );
+        await selectTrigger.click();
+      }
+      const activityClose = page.locator("[data-qa='qa:drawer:activity-close']").first();
+      if (await activityClose.count()) {
+        await activityClose.click();
+        await page.waitForTimeout(200);
+      }
+    }
+
+    const pullButton = page.locator("[data-qa*='qa:action:pull']").first();
+    await pullButton.hover();
+    artifacts.push({
+      scenario: "actions",
+      theme: theme.key,
+      state: "pull-hover",
+      path: await captureState(page, "actions", theme.key, "pull-hover")
+    });
+    await pressElement(page, pullButton);
+    artifacts.push({
+      scenario: "actions",
+      theme: theme.key,
+      state: "pull-press",
+      path: await captureState(page, "actions", theme.key, "pull-press")
+    });
+    await pullButton.click();
+    await page.waitForTimeout(120);
+    artifacts.push({
+      scenario: "actions",
+      theme: theme.key,
+      state: "pull-loading",
+      path: await captureState(page, "actions", theme.key, "pull-loading")
+    });
+    await runCheck(theme.key, "Pull spinner animation", () =>
+      assertSpinnerAnim(page, "[data-qa*='qa:spinner:pull']", "Pull")
+    );
+    const toast = page.locator(".toast").first();
+    if (await toast.count()) {
+      await runCheck(theme.key, "Toast transition presence", () =>
+        assertHasTransition(page, ".toast", "Toast")
+      );
+    } else {
+      skipCheck(theme.key, "Toast transition presence", "Toast not present");
+    }
+    await page.waitForTimeout(1600);
+    artifacts.push({
+      scenario: "actions",
+      theme: theme.key,
+      state: "pull-success",
+      path: await captureState(page, "actions", theme.key, "pull-success")
+    });
+
+    const syncButton = page.locator("[data-qa*='qa:action:sync']").first();
+    await syncButton.hover();
+    artifacts.push({
+      scenario: "actions",
+      theme: theme.key,
+      state: "sync-hover",
+      path: await captureState(page, "actions", theme.key, "sync-hover")
+    });
+    await pressElement(page, syncButton);
+    artifacts.push({
+      scenario: "actions",
+      theme: theme.key,
+      state: "sync-press",
+      path: await captureState(page, "actions", theme.key, "sync-press")
+    });
+    await syncButton.click();
+    await page.waitForTimeout(120);
+    artifacts.push({
+      scenario: "actions",
+      theme: theme.key,
+      state: "sync-loading",
+      path: await captureState(page, "actions", theme.key, "sync-loading")
+    });
+    await runCheck(theme.key, "Sync spinner animation", () =>
+      assertSpinnerAnim(page, "[data-qa*='qa:spinner:sync']", "Sync")
+    );
+    if (await toast.count()) {
+      await runCheck(theme.key, "Toast transition presence (sync)", () =>
+        assertHasTransition(page, ".toast", "Toast")
+      );
+    } else {
+      skipCheck(theme.key, "Toast transition presence (sync)", "Toast not present");
+    }
+    await page.waitForTimeout(1600);
+    artifacts.push({
+      scenario: "actions",
+      theme: theme.key,
+      state: "sync-success",
+      path: await captureState(page, "actions", theme.key, "sync-success")
+    });
+
+    await page.evaluate(() => {});
+    await page.waitForTimeout(300);
+    await page.evaluate(() => {
+      window.__ui_check__?.appendLog?.("Boot complete", "INFO");
+      window.__ui_check__?.appendLog?.("Scheduler started", "INFO");
+    });
+    await page.waitForTimeout(160);
+    const previousMorphOverrides = await page.evaluate(() => {
+      const u = window.__ui_check__;
+      if (!u) return { motionScale: undefined, morphDelayMs: undefined };
+      return { motionScale: u.motionScale, morphDelayMs: u.morphDelayMs };
+    });
+    await page.evaluate(() => {
+      if (!window.__ui_check__) return;
+      window.__ui_check__.motionScale = 2.0;
+      window.__ui_check__.morphDelayMs = 0;
+    });
+    const activityFabLate = page.locator("[data-qa*='qa:action:activity-fab']").first();
+    if (await activityFabLate.count()) {
+      const clip = await computeActivityMorphClip(page);
+      if (clip) {
+        artifacts.push({
+          scenario: "activity-morph",
+          theme: theme.key,
+          state: "before",
+          path: await captureState(page, "activity-morph", theme.key, "before", { clip })
+        });
+      }
+      await page.evaluate(() => {
+        document
+          .querySelector("[data-qa*='qa:action:activity-fab']")
+          ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      });
+      await page.waitForSelector("[data-qa='qa:drawer:activity']", {
+        state: "attached",
+        timeout: 2000
+      });
+      if (clip) {
+        const sampleTimes = [
+          0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 420, 480, 560, 640, 720, 800, 880, 960
+        ];
+        const frames = await captureClipFramesAtTimes({
+          page,
+          scenario: "activity-morph",
+          theme: theme.key,
+          statePrefix: "open",
+          clip,
+          sampleTimes,
+          probeSelector: "[data-qa='qa:drawer:activity']",
+          probes: [
+            {
+              name: "contentOpacity",
+              selector: "[data-qa='qa:drawer:activity'] .activity-drawer-content",
+              property: "opacity"
+            },
+            {
+              name: "pillOpacity",
+              selector: "[data-qa='qa:drawer:activity'] .activity-drawer-pill-ghost",
+              property: "opacity"
+            },
+            {
+              name: "radius",
+              selector: "[data-qa='qa:drawer:activity']",
+              property: "borderTopLeftRadius"
+            }
+          ]
+        });
+        await runCheck(theme.key, "Activity morph open shows transform change", async () => {
+          const transforms = frames
+            .map((frame) => frame.transform)
+            .filter((value) => typeof value === "string" && value.length);
+          if (new Set(transforms).size < 2) {
+            throw new Error(`Transform did not change during open (samples=${JSON.stringify(transforms)})`);
+          }
+        });
+        await runCheck(theme.key, "Activity morph open starts revealing content early", async () => {
+          const frame = frames.find((item) => item.ms === 240);
+          if (!frame?.probes) throw new Error("Missing probes for t=240ms");
+          const opacity = frame.probes.find((p) => p?.name === "contentOpacity")?.value;
+          const value = Number.parseFloat(String(opacity ?? ""));
+          if (!Number.isFinite(value) || value < 0.05) {
+            throw new Error(`Content not visible by t=240ms (opacity=${JSON.stringify(opacity)})`);
+          }
+        });
+        await runCheck(theme.key, "Activity morph open radius changes mid-flight", async () => {
+          const early = frames.find((item) => item.ms === 0)?.probes?.find((p) => p?.name === "radius")?.value;
+          const mid = frames.find((item) => item.ms === 120)?.probes?.find((p) => p?.name === "radius")?.value;
+          const late = frames.find((item) => item.ms === 880)?.probes?.find((p) => p?.name === "radius")?.value;
+          const earlyTransform = frames.find((item) => item.ms === 0)?.transform ?? null;
+          const midTransform = frames.find((item) => item.ms === 120)?.transform ?? null;
+          const lateTransform = frames.find((item) => item.ms === 880)?.transform ?? null;
+          const earlyHeight = frames.find((item) => item.ms === 0)?.rect?.height ?? null;
+          const midHeight = frames.find((item) => item.ms === 120)?.rect?.height ?? null;
+          const lateHeight = frames.find((item) => item.ms === 880)?.rect?.height ?? null;
+          const toPx = (v) => {
+            const s = String(v || "").trim();
+            const m = s.match(/[\d.]+/);
+            return m ? Number(m[0]) : NaN;
+          };
+          const scaleFromTransform = (value) => {
+            const v = String(value || "").trim();
+            if (!v || v === "none") return { sx: 1, sy: 1 };
+            const matrix2d = v.match(/matrix\(([^)]+)\)/);
+            if (!matrix2d) return { sx: 1, sy: 1 };
+            const parts = matrix2d[1].split(",").map((p) => Number.parseFloat(p.trim()));
+            if (parts.length < 6 || parts.some((n) => !Number.isFinite(n))) return { sx: 1, sy: 1 };
+            const [a, b, c, d] = parts;
+            const sx = Math.sqrt(a * a + b * b);
+            const sy = Math.sqrt(c * c + d * d);
+            return { sx: sx || 1, sy: sy || 1 };
+          };
+          const eScale = scaleFromTransform(earlyTransform);
+          const mScale = scaleFromTransform(midTransform);
+          const lScale = scaleFromTransform(lateTransform);
+
+          const eRadiusScreen = toPx(early) * eScale.sx;
+          const mRadiusScreen = toPx(mid) * mScale.sx;
+          const lRadiusScreen = toPx(late) * lScale.sx;
+          const eH = Number(earlyHeight);
+          const mH = Number(midHeight);
+          const lH = Number(lateHeight);
+
+          if (![eRadiusScreen, mRadiusScreen, lRadiusScreen].every((n) => Number.isFinite(n))) {
+            throw new Error(`Radius probe parse failed (early=${early}, mid=${mid}, late=${late})`);
+          }
+          if (![eH, mH, lH].every((n) => Number.isFinite(n) && n > 0)) {
+            throw new Error(`Rect height probe failed (early=${earlyHeight}, mid=${midHeight}, late=${lateHeight})`);
+          }
+
+          const eRoundness = eRadiusScreen / (eH / 2);
+          const mRoundness = mRadiusScreen / (mH / 2);
+          const lRoundness = lRadiusScreen / (lH / 2);
+          if (![eRoundness, mRoundness, lRoundness].every((n) => Number.isFinite(n) && n > 0)) {
+            throw new Error(
+              `Roundness calc failed (early=${eRoundness}, mid=${mRoundness}, late=${lRoundness})`
+            );
+          }
+          if (!(mRoundness < eRoundness && mRoundness > lRoundness)) {
+            throw new Error(
+              `Roundness not transitioning (early=${eRoundness.toFixed(3)}, mid=${mRoundness.toFixed(3)}, late=${lRoundness.toFixed(3)})`
+            );
+          }
+        });
+        await runCheck(theme.key, "Activity morph open starts from pill transform", async () => {
+          const first = frames.find((frame) => typeof frame.transform === "string")?.transform ?? null;
+          if (!first) throw new Error("Missing transform sample at t=0");
+          if (first === "none" || first === "matrix(1, 0, 0, 1, 0, 0)") {
+            throw new Error(`Expected non-identity transform at open start, got ${JSON.stringify(first)}`);
+          }
+        });
+        frames.forEach((frame) =>
+          artifacts.push({
+            scenario: "activity-morph",
+            theme: theme.key,
+            state: `open__t${String(frame.ms).padStart(3, "0")}ms`,
+            label: `t=${frame.ms}ms (actual ~${frame.actualMs ?? "?"}ms)`,
+            path: frame.path
+          })
+        );
+      }
+      await page.waitForTimeout(40);
+    }
+    const activityDrawer = page.locator("[data-qa='qa:drawer:activity']").first();
+    if (await activityDrawer.count()) {
+      await runCheck(theme.key, "Activity drawer does not animate only first log on open", async () => {
+        const newCount = await page.locator(".log-new").count();
+        if (newCount) {
+          throw new Error(`Unexpected log-new rows on open: ${newCount}`);
+        }
+      });
+      artifacts.push({
+        scenario: "activity-log",
+        theme: theme.key,
+        state: "new-entry",
+        path: await captureState(page, "activity-log", theme.key, "new-entry", {
+          element: activityDrawer
+        })
+      });
+    }
+
+    const activityClose = page.locator("[data-qa='qa:drawer:activity-close']").first();
+    if (await activityClose.count()) {
+      const clip = await computeActivityMorphClip(page);
+      await page.evaluate(() => {
+        document
+          .querySelector("[data-qa='qa:drawer:activity-close']")
+          ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      });
+      if (clip) {
+        const sampleTimes = [
+          0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 420, 480, 560, 640, 720, 820
+        ];
+        const frames = await captureClipFramesAtTimes({
+          page,
+          scenario: "activity-morph",
+          theme: theme.key,
+          statePrefix: "close",
+          clip,
+          sampleTimes,
+          probeSelector: "[data-qa='qa:drawer:activity']",
+          probes: [
+            {
+              name: "contentOpacity",
+              selector: "[data-qa='qa:drawer:activity'] .activity-drawer-content",
+              property: "opacity"
+            },
+            {
+              name: "pillOpacity",
+              selector: "[data-qa='qa:drawer:activity'] .activity-drawer-pill-ghost",
+              property: "opacity"
+            },
+            {
+              name: "radius",
+              selector: "[data-qa='qa:drawer:activity']",
+              property: "borderTopLeftRadius"
+            }
+          ]
+        });
+        await runCheck(theme.key, "Activity morph close shows transform change", async () => {
+          const transforms = frames
+            .map((frame) => frame.transform)
+            .filter((value) => typeof value === "string" && value.length);
+          if (new Set(transforms).size < 2) {
+            throw new Error(`Transform did not change during close (samples=${JSON.stringify(transforms)})`);
+          }
+        });
+        frames.forEach((frame) =>
+          artifacts.push({
+            scenario: "activity-morph",
+            theme: theme.key,
+            state: `close__t${String(frame.ms).padStart(3, "0")}ms`,
+            label: `t=${frame.ms}ms (actual ~${frame.actualMs ?? "?"}ms)`,
+            path: frame.path
+          })
+        );
+      }
+      await page.waitForTimeout(680);
+      await runCheck(theme.key, "Activity pill returns after close", async () => {
+        const ok = await page.evaluate(() => {
+          const pill = document.querySelector("[data-qa*='qa:action:activity-fab']");
+          if (!pill) return false;
+          const style = window.getComputedStyle(pill);
+          if (style.display === "none" || style.visibility === "hidden") return false;
+          return Number.parseFloat(style.opacity || "1") > 0.7;
+        });
+        if (!ok) {
+          throw new Error("Activity pill not visible after close");
+        }
+      });
+    }
+
+    await page.evaluate((previous) => {
+      if (!window.__ui_check__) return;
+      const restore = (key) => {
+        if (previous && Object.prototype.hasOwnProperty.call(previous, key)) {
+          const value = previous[key];
+          if (typeof value === "undefined") {
+            delete window.__ui_check__[key];
+          } else {
+            window.__ui_check__[key] = value;
+          }
+        } else {
+          delete window.__ui_check__[key];
+        }
+      };
+      restore("motionScale");
+      restore("morphDelayMs");
+    }, previousMorphOverrides);
+
+    await page.evaluate(() => {
+      window.__ui_check__?.setSyncRepoTask?.({
+        active: true,
+        phase: "cloning",
+        progress: 0.42,
+        message: "Cloning...",
+        path: "C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\XAUUSDCalendar\\\\repo"
+      });
+      window.__ui_check__?.appendLog?.("Sync repo reset requested", "WARN");
+    });
+    await page.waitForFunction(() => {
+      const ring = document.querySelector(".activity-count-ring");
+      if (!ring) return false;
+      const style = window.getComputedStyle(ring);
+      return style.display !== "none" && style.visibility !== "hidden" && Number(style.opacity || "1") > 0.1;
+    });
+
+    const activityFabProgress = page.locator("[data-qa*='qa:action:activity-fab']").first();
+    if (await activityFabProgress.count()) {
+      await runCheck(theme.key, "Sync repo progress ring visible", async () => {
+        const ok = await page.evaluate(() => {
+          const ring = document.querySelector(".activity-count-ring");
+          if (!ring) return false;
+          const style = window.getComputedStyle(ring);
+          return style.display !== "none" && style.visibility !== "hidden" && Number(style.opacity || "1") > 0.1;
+        });
+        if (!ok) {
+          throw new Error("Progress ring not visible");
+        }
+      });
+      artifacts.push({
+        scenario: "sync-repo",
+        theme: theme.key,
+        state: "progress-pill",
+        path: await captureState(page, "sync-repo", theme.key, "progress-pill", {
+          element: activityFabProgress
+        })
+      });
+
+      await activityFabProgress.click();
+      const activityDrawerProgress = page.locator("[data-qa='qa:drawer:activity']").first();
+      if (await activityDrawerProgress.count()) {
+        await page.waitForFunction(() => {
+          const drawer = document.querySelector("[data-qa='qa:drawer:activity']");
+          if (!drawer) return false;
+          const style = window.getComputedStyle(drawer);
+          if (style.display === "none" || style.visibility === "hidden") return false;
+          const transform = style.transform || "none";
+          const content = drawer.querySelector(".activity-drawer-content");
+          const opacity = content ? Number.parseFloat(window.getComputedStyle(content).opacity || "1") : 1;
+          const settled = transform === "none" || transform === "matrix(1, 0, 0, 1, 0, 0)";
+          return settled && Number.isFinite(opacity) && opacity > 0.9;
+        });
+        artifacts.push({
+          scenario: "sync-repo",
+          theme: theme.key,
+          state: "activity-progress-logs",
+          path: await captureState(page, "sync-repo", theme.key, "activity-progress-logs", {
+            element: activityDrawerProgress
+          })
+        });
+        const close = page.locator("[data-qa='qa:drawer:activity-close']").first();
+        if (await close.count()) {
+          await close.click();
+          await page.waitForSelector("[data-qa='qa:drawer:activity']", {
+            state: "detached",
+            timeout: 4000
+          });
+        }
+      }
+    }
+
+    await page.evaluate(() => {
+      window.__ui_check__?.showSyncRepoWarning?.({
+        mode: "settings-close",
+        status: "git-expected-usable",
+        message: "Existing sync repo looks usable",
+        path: "C:\\\\sync-repo\\\\xauusd",
+        details: "",
+        canUseAsIs: true,
+        canReset: true
+      });
+    });
+    await page.waitForTimeout(80);
+    await runCheck(theme.key, "Sync repo warning transition (usable)", () =>
+      assertOpacityTransition(page, "[data-qa='qa:modal-backdrop:sync-repo-warning']", "Sync repo warning")
+    );
+    await runCheck(theme.key, "Sync repo warning has transition", () =>
+      assertHasTransition(page, "[data-qa='qa:modal:sync-repo-warning']", "Sync repo warning modal")
+    );
+    const syncRepoWarningModal = page.locator("[data-qa='qa:modal:sync-repo-warning']").first();
+    if (await syncRepoWarningModal.count()) {
+      artifacts.push({
+        scenario: "sync-repo",
+        theme: theme.key,
+        state: "warning-usable",
+        path: await captureState(page, "sync-repo", theme.key, "warning-usable", {
+          element: syncRepoWarningModal
+        })
+      });
+      const cancel = page.locator("[data-qa='qa:sync-repo-warning:cancel']").first();
+      if (await cancel.count()) {
+        await cancel.click();
+        await page.waitForTimeout(260);
+      }
+    }
+
+    await page.evaluate(() => {
+      window.__ui_check__?.showSyncRepoWarning?.({
+        mode: "settings-close",
+        status: "git-not-clean",
+        message: "Sync repo contains local changes",
+        path: "C:\\\\sync-repo\\\\xauusd",
+        details: "",
+        canUseAsIs: false,
+        canReset: true
+      });
+    });
+    await page.waitForTimeout(80);
+    const syncRepoWarningModalDirty = page.locator("[data-qa='qa:modal:sync-repo-warning']").first();
+    if (await syncRepoWarningModalDirty.count()) {
+      artifacts.push({
+        scenario: "sync-repo",
+        theme: theme.key,
+        state: "warning-not-clean",
+        path: await captureState(page, "sync-repo", theme.key, "warning-not-clean", {
+          element: syncRepoWarningModalDirty
+        })
+      });
+      const cancel = page.locator("[data-qa='qa:sync-repo-warning:cancel']").first();
+      if (await cancel.count()) {
+        await cancel.click();
+        await page.waitForTimeout(260);
+      }
+    }
+
+    await page.evaluate(() => {
+      window.__ui_check__?.showSyncRepoWarning?.({
+        mode: "settings-close",
+        status: "git-origin-mismatch",
+        message: "Git repo detected, but origin does not match the configured sync repo",
+        path: "C:\\\\sync-repo\\\\other",
+        details: "",
+        canUseAsIs: false,
+        canReset: true
+      });
+    });
+    await page.waitForTimeout(80);
+    await runCheck(theme.key, "Sync repo warning transition (other)", () =>
+      assertOpacityTransition(page, "[data-qa='qa:modal-backdrop:sync-repo-warning']", "Sync repo warning")
+    );
+    const syncRepoWarningModalOther = page.locator("[data-qa='qa:modal:sync-repo-warning']").first();
+    if (await syncRepoWarningModalOther.count()) {
+      artifacts.push({
+        scenario: "sync-repo",
+        theme: theme.key,
+        state: "warning-other",
+        path: await captureState(page, "sync-repo", theme.key, "warning-other", {
+          element: syncRepoWarningModalOther
+        })
+      });
+      const cancel = page.locator("[data-qa='qa:sync-repo-warning:cancel']").first();
+      if (await cancel.count()) {
+        await cancel.click();
+        await page.waitForTimeout(260);
+      }
+    }
+
+    await page.evaluate(() => {
+      window.__ui_check__?.showSyncRepoWarning?.({
+        mode: "settings-close",
+        status: "unsafe",
+        message: "Sync repo overlaps Main Path. Choose a separate folder.",
+        path: "C:\\\\path\\\\to\\\\main",
+        details: "",
+        canUseAsIs: false,
+        canReset: false
+      });
+    });
+    await page.waitForTimeout(80);
+    const syncRepoWarningModalUnsafe = page.locator("[data-qa='qa:modal:sync-repo-warning']").first();
+    if (await syncRepoWarningModalUnsafe.count()) {
+      artifacts.push({
+        scenario: "sync-repo",
+        theme: theme.key,
+        state: "warning-unsafe",
+        path: await captureState(page, "sync-repo", theme.key, "warning-unsafe", {
+          element: syncRepoWarningModalUnsafe
+        })
+      });
+      const cancel = page.locator("[data-qa='qa:sync-repo-warning:cancel']").first();
+      if (await cancel.count()) {
+        await cancel.click();
+        await page.waitForTimeout(260);
+      }
+    }
+
+    await page.evaluate(() => {
+      window.__ui_check__?.showSyncRepoWarning?.({
+        mode: "settings-close",
+        status: "non-git-nonempty",
+        message: "Folder contains files",
+        path: "C:\\\\sync-repo\\\\junk",
+        details: "",
+        canUseAsIs: false,
+        canReset: true
+      });
+    });
+    await page.waitForTimeout(80);
+    const syncRepoWarningModalNonGit = page.locator("[data-qa='qa:modal:sync-repo-warning']").first();
+    if (await syncRepoWarningModalNonGit.count()) {
+      artifacts.push({
+        scenario: "sync-repo",
+        theme: theme.key,
+        state: "warning-non-git",
+        path: await captureState(page, "sync-repo", theme.key, "warning-non-git", {
+          element: syncRepoWarningModalNonGit
+        })
+      });
+      const cancel = page.locator("[data-qa='qa:sync-repo-warning:cancel']").first();
+      if (await cancel.count()) {
+        await cancel.click();
+        await page.waitForTimeout(260);
+      }
+    }
+
+    await page.evaluate(() => {
+      window.__ui_check__?.showSyncRepoWarning?.({
+        mode: "settings-close",
+        status: "git-unusable",
+        message: "Git metadata detected, but the repo is not usable",
+        path: "C:\\\\sync-repo\\\\broken",
+        details: "fatal: not a git repository (or any of the parent directories): .git\n\nExpected: yiyousiow000814/xauusd-news-information-and-predictions",
+        canUseAsIs: false,
+        canReset: true
+      });
+    });
+    await page.waitForTimeout(80);
+    const syncRepoWarningModalUnusable = page.locator("[data-qa='qa:modal:sync-repo-warning']").first();
+    if (await syncRepoWarningModalUnusable.count()) {
+      artifacts.push({
+        scenario: "sync-repo",
+        theme: theme.key,
+        state: "warning-git-unusable",
+        path: await captureState(page, "sync-repo", theme.key, "warning-git-unusable", {
+          element: syncRepoWarningModalUnusable
+        })
+      });
+      const cancel = page.locator("[data-qa='qa:sync-repo-warning:cancel']").first();
+      if (await cancel.count()) {
+        await cancel.click();
+        await page.waitForTimeout(260);
+      }
+    }
+
+    themeResults.push({
+      theme: theme.key,
+      modalEnter: enterMetrics,
+      modalExit: exitMetrics,
+      modalScroll,
+      autosaveShiftMax,
+      selectVisibility,
+      shadowClip
+    });
+
+    await context.close();
+    if (video) {
+      try {
+        const videoPath = await video.path();
+        const target = path.join(videoDir, `${sanitize(theme.key)}.webm`);
+        await fs.rm(target, { force: true });
+        await fs.rename(videoPath, target);
+      } catch {
+        // ignore video rename failures
+      }
+    }
+
+  };
+
+  const themeResults = [];
+  for (const theme of themes) {
+    await runTheme(theme);
+  }
+
+  await browser.close();
+  await stopServer(server);
+
+  const videos = (await fs.readdir(videoDir))
+    .filter((file) => file.endsWith(".webm"))
+    .map((file) => path.join(videoDir, file));
+
+  await generateReport(artifacts, videos, { artifactsRoot, reportPath });
+
+  const summary = checkResults.reduce(
+    (acc, item) => {
+      acc[item.status] = (acc[item.status] || 0) + 1;
+      return acc;
+    },
+    {}
+  );
+  console.log("UI-CHECK SUMMARY", summary);
+  console.log("UI-CHECK METRICS", JSON.stringify(themeResults, null, 2));
+};
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

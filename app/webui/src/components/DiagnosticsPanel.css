@@ -1,0 +1,14 @@
+.diagnostics {
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(20, 24, 32, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 12px;
+  color: var(--muted);
+  display: grid;
+  gap: 4px;
+  z-index: 300;
+}

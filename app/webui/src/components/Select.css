@@ -1,0 +1,188 @@
+.select {
+  position: relative;
+}
+
+.select.open {
+  z-index: 40;
+}
+
+.select-trigger {
+  background: rgba(24, 30, 40, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  height: 38px;
+  padding: 0 36px 0 14px;
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  position: relative;
+  transition: background var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease);
+}
+
+.select-trigger:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.select-trigger:focus-visible {
+  outline: none;
+  border-color: rgba(134, 201, 255, 0.5);
+  box-shadow: 0 0 0 2px rgba(134, 201, 255, 0.2);
+}
+
+.select-caret {
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid rgba(255, 255, 255, 0.8);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.8);
+  transform: translateY(calc(-50% - 1px)) rotate(45deg);
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transition: transform var(--motion-fast) var(--motion-ease);
+}
+
+.select.open .select-caret {
+  transform: translateY(calc(-50% - 1px)) rotate(-135deg);
+}
+
+.select-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  min-width: 0;
+  box-sizing: border-box;
+  background: rgba(20, 24, 32, 0.98);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: grid;
+  gap: 4px;
+  padding: 6px 6px 10px;
+  max-height: 320px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-padding-bottom: 10px;
+  overscroll-behavior: contain;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-6px);
+  transition: opacity var(--motion-fast) var(--motion-ease),
+    transform var(--motion-fast) var(--motion-ease);
+  z-index: 180;
+}
+
+.select-menu::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.select-menu {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.select-menu.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.select-menu::before,
+.select-menu::after {
+  content: "";
+  position: sticky;
+  left: 0;
+  right: 0;
+  height: 16px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--motion-fast) var(--motion-ease);
+}
+
+.select-menu::before {
+  top: 0;
+  background: linear-gradient(180deg, rgba(20, 24, 32, 0.95), rgba(20, 24, 32, 0));
+}
+
+.select-menu::after {
+  bottom: 0;
+  background: linear-gradient(0deg, rgba(20, 24, 32, 0.95), rgba(20, 24, 32, 0));
+}
+
+.select-menu[data-scroll="middle"]::before,
+.select-menu[data-scroll="middle"]::after {
+  opacity: 1;
+}
+
+.select-menu[data-scroll="top"]::after {
+  opacity: 1;
+}
+
+.select-menu[data-scroll="bottom"]::before {
+  opacity: 1;
+}
+
+[data-theme="light"] .select-menu::before {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0));
+}
+
+[data-theme="light"] .select-menu::after {
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0));
+}
+
+.select-item {
+  border: none;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.select-item:hover,
+.select-item.active {
+  background: var(--select-active-bg);
+  color: var(--select-active-text);
+}
+
+.select-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+}
+
+[data-theme="light"] .select-trigger {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(18, 20, 26, 0.16);
+  color: var(--text);
+}
+
+[data-theme="light"] .select-menu {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(18, 20, 26, 0.1);
+}
+
+[data-theme="light"] .select-trigger:hover {
+  border-color: rgba(18, 20, 26, 0.42);
+}
+
+[data-theme="light"] .select-trigger:focus-visible {
+  border-color: rgba(30, 75, 143, 0.45);
+  box-shadow: 0 0 0 2px rgba(30, 75, 143, 0.2);
+}
+
+[data-theme="light"] .select-caret {
+  border-right-color: rgba(18, 20, 26, 0.82);
+  border-bottom-color: rgba(18, 20, 26, 0.82);
+}

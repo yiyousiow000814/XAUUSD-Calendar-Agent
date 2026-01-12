@@ -1,0 +1,30 @@
+.modal-confirm .toggle {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  column-gap: 12px;
+  row-gap: 4px;
+  align-items: start;
+  padding: 6px 0;
+}
+
+.modal-confirm .toggle input {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  padding: 0;
+  background: transparent;
+  border-radius: 4px;
+  accent-color: var(--accent);
+  flex: 0 0 auto;
+}
+
+.modal-confirm .toggle-label {
+  color: var(--text);
+  line-height: 1.4;
+  align-self: center;
+}
+
+.modal-confirm .field input {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}

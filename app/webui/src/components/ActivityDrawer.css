@@ -1,0 +1,169 @@
+.activity-backdrop {
+  position: fixed;
+  inset: 0;
+  opacity: 1;
+  isolation: isolate;
+  z-index: 140;
+}
+
+.activity-backdrop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 7, 10, 0.35);
+  backdrop-filter: blur(0);
+  opacity: 0;
+  transition: opacity 420ms cubic-bezier(0.2, 1, 0.2, 1),
+    backdrop-filter 420ms cubic-bezier(0.2, 1, 0.2, 1);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.activity-backdrop.open {
+  opacity: 1;
+}
+
+.activity-backdrop.closing {
+  opacity: 1;
+}
+
+.activity-backdrop.open::before {
+  opacity: 1;
+  backdrop-filter: blur(10px);
+}
+
+.activity-backdrop.closing::before {
+  opacity: 0;
+  backdrop-filter: blur(0);
+}
+
+.activity-drawer {
+  position: absolute;
+  right: var(--app-pad, 24px);
+  bottom: var(--app-pad, 24px);
+  z-index: 1;
+  width: min(420px, 92vw);
+  height: min(64vh, 520px);
+  border-radius: 20px;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  opacity: 1;
+  transform: none;
+  overflow: hidden;
+  contain: layout paint;
+  isolation: isolate;
+  --activity-morph-panel-opacity: 1;
+  --activity-morph-pill-opacity: 0;
+  --activity-morph-pill-bg-default: rgba(20, 24, 32, 0.8);
+  --activity-morph-pill-border-default: var(--panel-border);
+  --activity-morph-pill-shadow-default: 0 18px 36px rgba(8, 10, 14, 0.4),
+    inset 0 0 0 1px var(--panel-inner);
+}
+
+.activity-drawer::before,
+.activity-drawer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-sizing: border-box;
+  transform: translateZ(0);
+}
+
+.activity-drawer::before {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 24px 60px rgba(8, 10, 14, 0.5), inset 0 0 0 1px var(--panel-inner);
+  opacity: var(--activity-morph-panel-opacity);
+  z-index: 0;
+}
+
+.activity-drawer::after {
+  background: var(--activity-morph-pill-bg, var(--activity-morph-pill-bg-default));
+  border: 1px solid var(--activity-morph-pill-border, var(--activity-morph-pill-border-default));
+  box-shadow: var(
+    --activity-morph-pill-shadow,
+    var(--activity-morph-pill-shadow-default)
+  );
+  opacity: var(--activity-morph-pill-opacity);
+  z-index: 1;
+}
+
+.activity-drawer.open {
+  opacity: 1;
+}
+
+.activity-drawer-body {
+  flex: 1;
+  overflow: hidden;
+  padding: 14px;
+  position: relative;
+  z-index: 2;
+}
+
+.activity-drawer-pill-ghost {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text);
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0;
+  white-space: nowrap;
+  user-select: none;
+  line-height: 1;
+  text-rendering: geometricPrecision;
+}
+
+.activity-drawer-content {
+  height: 100%;
+}
+
+.activity-drawer .log-card {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.activity-drawer .log-body {
+  min-height: 0;
+  max-height: none;
+  padding-right: 4px;
+}
+
+[data-theme="light"] .activity-backdrop {
+  opacity: 1;
+}
+
+[data-theme="light"] .activity-backdrop::before {
+  background: rgba(245, 245, 249, 0.45);
+}
+
+[data-theme="light"] .activity-drawer::before {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(18, 20, 26, 0.12);
+  box-shadow: 0 24px 60px rgba(30, 32, 40, 0.12), inset 0 0 0 1px var(--panel-inner);
+}
+
+[data-theme="light"] .activity-drawer::after {
+  --activity-morph-pill-bg-default: rgba(255, 255, 255, 0.9);
+  --activity-morph-pill-border-default: rgba(18, 20, 26, 0.18);
+  --activity-morph-pill-shadow-default: 0 18px 32px rgba(30, 32, 40, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+}

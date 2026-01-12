@@ -1,0 +1,40 @@
+# Ignore large or generated data directories
+data/*
+!data/Economic_Calendar/
+!data/Economic_Calendar/**
+data/Economic_Calendar/backup/
+data/XAUUSD_1m_data/
+
+# Legacy Windows path
+xauusd-news-information-and-predictions\\data
+
+# Ignore Python cache directories
+scripts/calendar/__pycache__/
+
+scripts/calendar/workflow/__pycache__/
+
+# Generic Python caches
+**/__pycache__/
+*.py[cod]
+
+app/webui/dist/
+app/webui/node_modules/
+ui-tests/node_modules/
+ui-tests/artifacts/
+ui-tests/playwright-report/
+node_modules/
+
+# Local UI/self-check artifacts
+artifacts/
+
+# Local per-install user data (config/logs/repo cache)
+user-data/*
+!user-data/.gitkeep
+
+# Local developer environment variables (do not commit)
+.env
+.env.*
+
+# Installer / desktop build artifacts (publish via GitHub Releases, do not commit)
+Setup.exe
+XAUUSD Calendar Agent.exe
