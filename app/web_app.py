@@ -12,8 +12,10 @@ from web_backend import WebAgentBackend
 try:
     import pystray
     from PIL import Image
+    from pystray._util import win32 as pystray_win32
 except Exception:  # noqa: BLE001
     pystray = None
+    pystray_win32 = None
     Image = None
 
 APP_TITLE = "XAUUSD Calendar Agent"
@@ -106,13 +108,52 @@ class TrayController:
             return
         self.window = window
         image = Image.open(self.icon_path)
+        wm_lbutton_dblclk = 0x0203
+
+        def open_window() -> None:
+            try:
+                window.show()
+            except Exception:  # noqa: BLE001
+                return
+            try:
+                window.restore()
+            except Exception:  # noqa: BLE001
+                pass
+            try:
+                window.bring_to_front()
+            except Exception:  # noqa: BLE001
+                pass
+
         menu = pystray.Menu(
-            pystray.MenuItem("Open", lambda icon, item: window.show()),
+            pystray.MenuItem("Open", lambda icon, item: open_window()),
             pystray.MenuItem("Pull Now", lambda icon, item: self.backend.pull_now()),
             pystray.MenuItem("Sync Now", lambda icon, item: self.backend.sync_now()),
             pystray.MenuItem("Exit", lambda icon, item: self.request_exit()),
         )
         self.icon = pystray.Icon(APP_TITLE, image, APP_TITLE, menu)
+        if (
+            sys.platform.startswith("win")
+            and pystray_win32
+            and hasattr(self.icon, "_message_handlers")
+        ):
+            original_notify = self.icon._message_handlers.get(pystray_win32.WM_NOTIFY)
+
+            def on_notify(wparam, lparam):  # type: ignore[no-untyped-def]
+                try:
+                    if lparam == wm_lbutton_dblclk:
+                        open_window()
+                        return
+                    if lparam == pystray_win32.WM_LBUTTONUP:
+                        if original_notify:
+                            return original_notify(wparam, lparam)
+                        return None
+                    if original_notify:
+                        return original_notify(wparam, lparam)
+                    return None
+                except Exception:  # noqa: BLE001
+                    return None
+
+            self.icon._message_handlers[pystray_win32.WM_NOTIFY] = on_notify
         self.thread = threading.Thread(target=self.icon.run, daemon=True)
         self.thread.start()
 

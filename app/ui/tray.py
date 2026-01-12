@@ -4,8 +4,10 @@ import threading
 try:
     import pystray
     from PIL import Image
+    from pystray._util import win32 as pystray_win32
 except Exception:  # noqa: BLE001
     pystray = None
+    pystray_win32 = None
     Image = None
 
 from .constants import APP_ICON, APP_TITLE, get_asset_path
@@ -64,6 +66,7 @@ class TrayMixin:
     def _ensure_tray(self) -> None:
         if self.tray_icon:
             return
+        wm_lbutton_dblclk = 0x0203
         icon_path = get_asset_path(APP_ICON)
         try:
             image = Image.open(icon_path)
@@ -78,5 +81,30 @@ class TrayMixin:
             pystray.MenuItem("Exit", self._exit_app),
         )
         self.tray_icon = pystray.Icon(APP_TITLE, image, APP_TITLE, menu)
+        if (
+            sys.platform.startswith("win")
+            and pystray_win32
+            and hasattr(self.tray_icon, "_message_handlers")
+        ):
+            original_notify = self.tray_icon._message_handlers.get(
+                pystray_win32.WM_NOTIFY
+            )
+
+            def on_notify(wparam, lparam):  # type: ignore[no-untyped-def]
+                try:
+                    if lparam == wm_lbutton_dblclk:
+                        self._show_window()
+                        return
+                    if lparam == pystray_win32.WM_LBUTTONUP:
+                        if original_notify:
+                            return original_notify(wparam, lparam)
+                        return None
+                    if original_notify:
+                        return original_notify(wparam, lparam)
+                    return None
+                except Exception:  # noqa: BLE001
+                    return None
+
+            self.tray_icon._message_handlers[pystray_win32.WM_NOTIFY] = on_notify
         self.tray_thread = threading.Thread(target=self.tray_icon.run, daemon=True)
         self.tray_thread.start()
