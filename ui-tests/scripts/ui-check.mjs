@@ -1428,6 +1428,20 @@ const main = async () => {
       path: await captureState(page, "settings", theme.key, "open")
     });
 
+    const timezoneSection = page.locator("[data-qa='qa:section:calendar-timezone']").first();
+    if (await timezoneSection.count()) {
+      await timezoneSection.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(140);
+      artifacts.push({
+        scenario: "settings",
+        theme: theme.key,
+        state: "calendar-timezone",
+        path: await captureState(page, "settings", theme.key, "calendar-timezone", {
+          element: timezoneSection
+        })
+      });
+    }
+
     const syncRepoSection = page.locator("[data-qa='qa:section:sync-repo']").first();
     if (await syncRepoSection.count()) {
       await syncRepoSection.scrollIntoViewIfNeeded();
@@ -2021,6 +2035,21 @@ const main = async () => {
       state: "open-small",
       path: await captureState(smallPage, "settings", theme.key, "open-small")
     });
+    const smallTimezoneSection = smallPage
+      .locator("[data-qa='qa:section:calendar-timezone']")
+      .first();
+    if (await smallTimezoneSection.count()) {
+      await smallTimezoneSection.scrollIntoViewIfNeeded();
+      await smallPage.waitForTimeout(140);
+      artifacts.push({
+        scenario: "settings",
+        theme: theme.key,
+        state: "calendar-timezone-small",
+        path: await captureState(smallPage, "settings", theme.key, "calendar-timezone-small", {
+          element: smallTimezoneSection
+        })
+      });
+    }
     await runCheck(theme.key, "Modal scroll ownership (small)", () =>
       assertModalScroll(smallPage)
     );

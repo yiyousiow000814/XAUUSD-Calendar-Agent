@@ -279,6 +279,8 @@ let mockSettings: Settings = {
   splitRatio: 0.66,
   enableSystemTheme: false,
   theme: "dark",
+  calendarTimezoneMode: "utc",
+  calendarUtcOffsetMinutes: 0,
   enableSyncRepo: false,
   syncRepoPath: "",
   repoPath: "",

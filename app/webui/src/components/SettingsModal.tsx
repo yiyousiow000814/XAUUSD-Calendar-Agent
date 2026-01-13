@@ -1,5 +1,37 @@
+import { useMemo } from "react";
 import type { Settings } from "../types";
+import { Select } from "./Select";
 import "./SettingsModal.css";
+
+const formatUtcOffset = (offsetMinutes: number) => {
+  const sign = offsetMinutes >= 0 ? "+" : "-";
+  const minutesAbs = Math.abs(offsetMinutes);
+  const hours = Math.floor(minutesAbs / 60);
+  const mins = minutesAbs % 60;
+  const hourLabel = String(hours).padStart(2, "0");
+  if (mins) {
+    return `UTC${sign}${hourLabel}:${String(mins).padStart(2, "0")}`;
+  }
+  return `UTC${sign}${hourLabel}`;
+};
+
+const utcOffsetOptions: number[] = (() => {
+  const result = new Set<number>();
+  for (let hours = 0; hours <= 14; hours += 1) {
+    result.add(hours * 60);
+    if (hours) {
+      result.add(hours * 60 + 30);
+    }
+  }
+  for (let hours = 0; hours <= 12; hours += 1) {
+    result.add(-(hours * 60));
+    if (hours) {
+      result.add(-(hours * 60 + 30));
+    }
+  }
+  [5, 8, 12].forEach((hours) => result.add(hours * 60 + 45));
+  return Array.from(result).sort((a, b) => a - b);
+})();
 
 type SettingsModalProps = {
   isOpen: boolean;
@@ -27,6 +59,8 @@ type SettingsModalProps = {
   onUpdateNow: () => void;
   onRunOnStartup: (value: boolean) => void;
   onDebugToggle: (value: boolean) => void;
+  onCalendarTimezoneModeChange: (value: Settings["calendarTimezoneMode"]) => void;
+  onCalendarUtcOffsetMinutesChange: (value: number) => void;
   onCopyLog: () => void;
   onOpenLog: () => void;
   onEnableSyncRepo: (value: boolean) => void;
@@ -66,6 +100,8 @@ export function SettingsModal({
   onUpdateNow,
   onRunOnStartup,
   onDebugToggle,
+  onCalendarTimezoneModeChange,
+  onCalendarUtcOffsetMinutesChange,
   onCopyLog,
   onOpenLog,
   onEnableSyncRepo,
@@ -92,6 +128,24 @@ export function SettingsModal({
   const updateOnClick = updateLabelMode === "update" || updateLabelMode === "install" ? onUpdateNow : onCheckUpdates;
   const showProgress = updatePhase === "downloading";
   const lastCheckedLabel = updateLastCheckedAt || "Not yet";
+  const followSystemTimezone = settings.calendarTimezoneMode === "system";
+  const utcOffsetValue = Number.isFinite(settings.calendarUtcOffsetMinutes)
+    ? settings.calendarUtcOffsetMinutes
+    : 0;
+  const systemOffsetMinutes = (() => {
+    try {
+      return -new Date().getTimezoneOffset();
+    } catch {
+      return 0;
+    }
+  })();
+  const effectiveOffsetMinutes = followSystemTimezone ? systemOffsetMinutes : utcOffsetValue;
+  const offsetOptions = useMemo(() => {
+    const options = new Set(utcOffsetOptions);
+    options.add(systemOffsetMinutes);
+    options.add(utcOffsetValue);
+    return Array.from(options).sort((a, b) => a - b);
+  }, [systemOffsetMinutes, utcOffsetValue]);
   const updateNote = (() => {
     if (updatePhase === "error") {
       return { tone: "error", text: updateMessage || "Update failed" };
@@ -243,6 +297,44 @@ export function SettingsModal({
               <span className="switch-track" aria-hidden="true" />
               <span>Run on startup</span>
             </label>
+          </div>
+          <div className="section" data-qa="qa:section:calendar-timezone">
+            <div className="section-title">Calendar time</div>
+            <label className="switch">
+              <input
+                type="checkbox"
+                checked={followSystemTimezone}
+                onChange={(event) =>
+                  onCalendarTimezoneModeChange(event.target.checked ? "system" : "utc")
+                }
+              />
+              <span className="switch-track" aria-hidden="true" />
+              <span>Follow system time zone</span>
+            </label>
+            <div className="path-row path-card">
+              <div>
+                <div className="path-label">Display time zone</div>
+                <p className="path-helper">Times are converted from calendar source (UTC+8).</p>
+                <div className={`timezone-row${followSystemTimezone ? " disabled" : ""}`}>
+                  <Select
+                    value={String(effectiveOffsetMinutes)}
+                    options={offsetOptions.map((minutes) => ({
+                      value: String(minutes),
+                      label: formatUtcOffset(minutes)
+                    }))}
+                    onChange={(value) => {
+                      const parsed = Number(value);
+                      if (!Number.isFinite(parsed)) {
+                        onCalendarUtcOffsetMinutesChange(0);
+                        return;
+                      }
+                      onCalendarUtcOffsetMinutesChange(parsed);
+                    }}
+                    qa="qa:select:calendar-utc-offset"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
           <div className="section">
             <div className="section-title">Debug logging</div>

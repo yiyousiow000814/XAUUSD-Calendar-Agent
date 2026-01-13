@@ -26,8 +26,7 @@ const normalizeCurrencyOptions = (options: string[]) => {
   }
   const seen = new Set(normalized);
   const ordered = defaultCurrencyOptions.filter((item) => seen.has(item));
-  const extras = normalized.filter((item) => !ordered.includes(item));
-  return [...ordered, ...extras];
+  return ordered.length >= 2 ? ordered : defaultCurrencyOptions;
 };
 
 const emptySnapshot: Snapshot = {
@@ -54,6 +53,8 @@ const emptySettings: Settings = {
   splitRatio: 0.66,
   enableSystemTheme: true,
   theme: "system",
+  calendarTimezoneMode: "utc",
+  calendarUtcOffsetMinutes: 0,
   enableSyncRepo: false,
   syncRepoPath: "",
   repoPath: "",
@@ -2441,6 +2442,24 @@ export default function App() {
         onDebugToggle={(value) =>
           setSettings((prev) => {
             const next = { ...prev, debug: value };
+            if (prev.autoSave) {
+              persistSettingsAutosafe(next);
+            }
+            return next;
+          })
+        }
+        onCalendarTimezoneModeChange={(value) =>
+          setSettings((prev) => {
+            const next = { ...prev, calendarTimezoneMode: value };
+            if (prev.autoSave) {
+              persistSettingsAutosafe(next);
+            }
+            return next;
+          })
+        }
+        onCalendarUtcOffsetMinutesChange={(value) =>
+          setSettings((prev) => {
+            const next = { ...prev, calendarUtcOffsetMinutes: value };
             if (prev.autoSave) {
               persistSettingsAutosafe(next);
             }

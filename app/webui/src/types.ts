@@ -62,6 +62,8 @@ export type Settings = {
   splitRatio: number;
   enableSystemTheme: boolean;
   theme: "system" | "dark" | "light";
+  calendarTimezoneMode: "utc" | "system";
+  calendarUtcOffsetMinutes: number;
   enableSyncRepo: boolean;
   syncRepoPath: string;
   repoPath: string;

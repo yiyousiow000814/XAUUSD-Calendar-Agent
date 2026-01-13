@@ -1,6 +1,8 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
+
+from .timezone import CALENDAR_SOURCE_UTC_OFFSET_MINUTES, utc_offset_minutes_to_tzinfo
 
 
 def load_calendar_events(repo_path: str) -> list[dict]:
@@ -62,11 +64,14 @@ def load_calendar_events(repo_path: str) -> list[dict]:
                 time_val = datetime.min.time()
         else:
             time_val = datetime.min.time()
-        dt = datetime.combine(date_val, time_val)
+        dt_source = datetime.combine(date_val, time_val).replace(
+            tzinfo=utc_offset_minutes_to_tzinfo(CALENDAR_SOURCE_UTC_OFFSET_MINUTES)
+        )
+        dt_utc = dt_source.astimezone(timezone.utc)
 
         events.append(
             {
-                "dt": dt,
+                "dt_utc": dt_utc,
                 "time_label": time_label,
                 "event": event_raw,
                 "currency": currency_raw.upper(),

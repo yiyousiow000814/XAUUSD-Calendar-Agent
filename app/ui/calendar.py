@@ -1,11 +1,25 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from agent.config import parse_iso_time, to_display_time
+from agent.timezone import (
+    CALENDAR_SOURCE_UTC_OFFSET_MINUTES,
+    clamp_utc_offset_minutes,
+    get_system_utc_offset_minutes,
+    utc_offset_minutes_to_tzinfo,
+)
 
 
 class CalendarMixin:
+
+    def _effective_calendar_utc_offset_minutes(self) -> int:
+        mode = (self.state.get("calendar_timezone_mode") or "utc").strip().lower()
+        if mode == "system":
+            return clamp_utc_offset_minutes(get_system_utc_offset_minutes())
+        return clamp_utc_offset_minutes(
+            int(self.state.get("calendar_utc_offset_minutes", 0))
+        )
 
     def _refresh_times(self) -> None:
         def _update() -> None:
@@ -36,7 +50,7 @@ class CalendarMixin:
         self.calendar_timer_id = self.root.after(60000, self._schedule_calendar_tick)
 
     def _load_calendar_events(self, repo_path: Path) -> list[dict]:
-        now = datetime.now()
+        now_utc = datetime.now(timezone.utc)
         calendar_root = repo_path / "data" / "Economic_Calendar"
         if not calendar_root.exists():
             return []
@@ -47,7 +61,7 @@ class CalendarMixin:
         if not year_dirs:
             return []
         years = sorted(set(year_dirs))
-        current_year = now.year
+        current_year = datetime.now().year
         candidates = [y for y in years if y in (current_year, current_year + 1)]
         if not candidates:
             candidates = [years[-1]]
@@ -88,19 +102,22 @@ class CalendarMixin:
                     time_val = datetime.min.time()
             else:
                 time_val = datetime.min.time()
-            dt = datetime.combine(date_val, time_val)
-            if dt < now:
+            dt_source = datetime.combine(date_val, time_val).replace(
+                tzinfo=utc_offset_minutes_to_tzinfo(CALENDAR_SOURCE_UTC_OFFSET_MINUTES)
+            )
+            dt_utc = dt_source.astimezone(timezone.utc)
+            if dt_utc < now_utc:
                 continue
             events.append(
                 {
-                    "dt": dt,
+                    "dt_utc": dt_utc,
                     "time_label": time_label,
                     "event": event_raw,
                     "currency": currency_raw.upper(),
                     "importance": importance_raw,
                 }
             )
-        events.sort(key=lambda item: item["dt"])
+        events.sort(key=lambda item: item["dt_utc"])
         return events
 
     def _update_currency_options(self, events: list[dict]) -> None:
@@ -116,8 +133,8 @@ class CalendarMixin:
         if self.currency_var.get() not in options:
             self.currency_var.set("USD" if "USD" in options else "ALL")
 
-    def _format_countdown(self, target: datetime) -> str:
-        delta = target - datetime.now()
+    def _format_countdown(self, target_utc: datetime) -> str:
+        delta = target_utc - datetime.now(timezone.utc)
         if delta.total_seconds() <= 0:
             return "Now"
         minutes = int(delta.total_seconds() // 60)
@@ -132,6 +149,10 @@ class CalendarMixin:
             if not hasattr(self, "calendar_list"):
                 return
             selected = self.currency_var.get().strip().upper()
+            tz = utc_offset_minutes_to_tzinfo(
+                self._effective_calendar_utc_offset_minutes()
+            )
+            source_tz = utc_offset_minutes_to_tzinfo(CALENDAR_SOURCE_UTC_OFFSET_MINUTES)
             for item in self.calendar_list.get_children():
                 self.calendar_list.delete(item)
             if not events:
@@ -146,17 +167,19 @@ class CalendarMixin:
                 currency = event.get("currency", "").upper()
                 if selected != "ALL" and currency != selected:
                     continue
-                dt = event["dt"]
+                dt_utc = event["dt_utc"]
                 time_label = event["time_label"]
                 event_name = event["event"]
                 importance = event.get("importance", "")
-                time_text = dt.strftime("%d-%m-%Y %H:%M")
+                dt_display = dt_utc.astimezone(tz)
+                time_text = dt_display.strftime("%d-%m-%Y %H:%M")
                 label = time_label.strip()
+                source_date = dt_utc.astimezone(source_tz).strftime("%d-%m-%Y")
                 if label.lower() == "all day":
-                    time_text = f"{dt.strftime('%d-%m-%Y')} All Day"
-                elif label:
-                    time_text = f"{dt.strftime('%d-%m-%Y')} {label}"
-                countdown = self._format_countdown(dt)
+                    time_text = f"{source_date} All Day"
+                elif label and ":" not in label:
+                    time_text = f"{dt_display.strftime('%d-%m-%Y')} {label}"
+                countdown = self._format_countdown(dt_utc)
                 tag = None
                 if importance:
                     imp_key = importance.lower()

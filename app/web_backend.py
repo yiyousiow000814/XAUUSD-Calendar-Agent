@@ -6,7 +6,7 @@ import sys
 import threading
 import time
 from concurrent.futures import ProcessPoolExecutor, TimeoutError
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from hashlib import sha1
 from pathlib import Path
 from typing import Iterable
@@ -45,6 +45,12 @@ from agent.git_ops import (
 from agent.logger import setup_logger
 from agent.scheduler import create_startup_task, remove_startup_task
 from agent.sync import mirror_sync
+from agent.timezone import (
+    CALENDAR_SOURCE_UTC_OFFSET_MINUTES,
+    clamp_utc_offset_minutes,
+    get_system_utc_offset_minutes,
+    utc_offset_minutes_to_tzinfo,
+)
 from agent.updater import (
     check_github_repo_access,
     download_update,
@@ -88,6 +94,7 @@ class WebAgentBackend:
         self._render_cache_lock = threading.Lock()
         self._render_cache_loaded_at: datetime | None = None
         self._render_cache_currency: str = ""
+        self._render_cache_tz_offset_minutes: int | None = None
         self._render_cache_currency_options: list[str] = []
         self._render_cache_events: list[dict] = []
         self._render_cache_past_events: list[dict] = []
@@ -320,11 +327,13 @@ class WebAgentBackend:
     ) -> tuple[list[str], list[dict], list[dict]]:
         loaded_at = self._calendar_last_loaded
         currency = (self.currency or "USD").upper()
+        tz_offset_minutes = self._effective_calendar_utc_offset_minutes()
         with self._render_cache_lock:
             if (
                 loaded_at
                 and self._render_cache_loaded_at == loaded_at
                 and self._render_cache_currency == currency
+                and self._render_cache_tz_offset_minutes == tz_offset_minutes
             ):
                 return (
                     list(self._render_cache_currency_options),
@@ -337,6 +346,7 @@ class WebAgentBackend:
         with self._render_cache_lock:
             self._render_cache_loaded_at = loaded_at
             self._render_cache_currency = currency
+            self._render_cache_tz_offset_minutes = tz_offset_minutes
             self._render_cache_currency_options = list(currency_options)
             self._render_cache_events = list(events)
             self._render_cache_past_events = list(past_events)
@@ -421,6 +431,12 @@ class WebAgentBackend:
         split_ratio = self._clamp_split_ratio(
             float(self.state.get("split_ratio", 0.66))
         )
+        tz_mode = (self.state.get("calendar_timezone_mode") or "utc").strip().lower()
+        if tz_mode not in ("utc", "system"):
+            tz_mode = "utc"
+        manual_offset = clamp_utc_offset_minutes(
+            int(self.state.get("calendar_utc_offset_minutes", 0))
+        )
         return {
             "autoSyncAfterPull": bool(self.state.get("auto_sync_after_pull", True)),
             "autoUpdateEnabled": bool(self.state.get("auto_update_enabled", True)),
@@ -438,6 +454,8 @@ class WebAgentBackend:
             "removeOutput": False,
             "removeSyncRepos": True,
             "uninstallConfirm": "",
+            "calendarTimezoneMode": tz_mode,
+            "calendarUtcOffsetMinutes": manual_offset,
         }
 
     def get_sync_repo_task(self) -> dict:
@@ -602,6 +620,21 @@ class WebAgentBackend:
         if not enable_system_theme and theme == "system":
             theme = "dark"
 
+        tz_mode = (payload.get("calendarTimezoneMode") or "").strip().lower()
+        if not tz_mode:
+            tz_mode = (
+                (self.state.get("calendar_timezone_mode") or "utc").strip().lower()
+            )
+        if tz_mode not in ("utc", "system"):
+            tz_mode = "utc"
+        tz_offset_raw = payload.get(
+            "calendarUtcOffsetMinutes", self.state.get("calendar_utc_offset_minutes", 0)
+        )
+        try:
+            tz_offset = clamp_utc_offset_minutes(int(tz_offset_raw))
+        except (TypeError, ValueError):
+            tz_offset = 0
+
         self.state["auto_sync_after_pull"] = auto_sync
         self.state["auto_update_enabled"] = auto_update
         self.state["run_on_startup"] = run_on_startup
@@ -611,12 +644,22 @@ class WebAgentBackend:
         self.state["enable_system_theme"] = enable_system_theme
         self.state["enable_sync_repo"] = enable_sync_repo
         self.state["split_ratio"] = split_ratio
+        self.state["calendar_timezone_mode"] = tz_mode
+        self.state["calendar_utc_offset_minutes"] = tz_offset
         save_config(self.state)
         self.logger = setup_logger(debug)
         self._apply_startup_setting(run_on_startup)
         if debug and not previous_debug:
             self._append_notice("Debug logging enabled", level="INFO")
         return {"ok": True}
+
+    def _effective_calendar_utc_offset_minutes(self) -> int:
+        mode = (self.state.get("calendar_timezone_mode") or "utc").strip().lower()
+        if mode == "system":
+            return clamp_utc_offset_minutes(get_system_utc_offset_minutes())
+        return clamp_utc_offset_minutes(
+            int(self.state.get("calendar_utc_offset_minutes", 0))
+        )
 
     def open_log(self) -> dict:
         log_file = get_log_dir() / "app.log"
@@ -1376,10 +1419,13 @@ class WebAgentBackend:
                     time_val = datetime.min.time()
             else:
                 time_val = datetime.min.time()
-            dt = datetime.combine(date_val, time_val)
+            dt_source = datetime.combine(date_val, time_val).replace(
+                tzinfo=utc_offset_minutes_to_tzinfo(CALENDAR_SOURCE_UTC_OFFSET_MINUTES)
+            )
+            dt_utc = dt_source.astimezone(timezone.utc)
             events.append(
                 {
-                    "dt": dt,
+                    "dt_utc": dt_utc,
                     "time_label": time_label,
                     "event": event_raw,
                     "currency": currency_raw.upper(),
@@ -1389,7 +1435,7 @@ class WebAgentBackend:
                     "previous": (item.get("Previous") or "").strip(),
                 }
             )
-        events.sort(key=lambda item: item["dt"])
+        events.sort(key=lambda item: item["dt_utc"])
         return events
 
     def _currency_options(self, events: list[dict]) -> list[str]:
@@ -1401,8 +1447,8 @@ class WebAgentBackend:
         options.append("ALL")
         return options
 
-    def _format_countdown(self, target: datetime) -> str:
-        delta = target - datetime.now()
+    def _format_countdown(self, target_utc: datetime) -> str:
+        delta = target_utc - datetime.now(timezone.utc)
         if delta.total_seconds() <= 0:
             return "Now"
         minutes = int(delta.total_seconds() // 60)
@@ -1412,24 +1458,35 @@ class WebAgentBackend:
             return f"{days}d {hours}h"
         return f"{hours}h {mins}m"
 
-    def _format_time_text(self, dt: datetime, time_label: str) -> str:
-        time_text = dt.strftime("%d-%m-%Y %H:%M")
+    def _format_time_text(
+        self,
+        dt_display: datetime,
+        time_label: str,
+        source_date_label: str | None = None,
+    ) -> str:
+        time_text = dt_display.strftime("%d-%m-%Y %H:%M")
         label = time_label.strip()
         if label.lower() == "all day":
-            return f"{dt.strftime('%d-%m-%Y')} All Day"
-        if label:
-            return f"{dt.strftime('%d-%m-%Y')} {label}"
+            date_label = source_date_label or dt_display.strftime("%d-%m-%Y")
+            return f"{date_label} All Day"
+        if label and ":" not in label:
+            return f"{dt_display.strftime('%d-%m-%Y')} {label}"
         return time_text
 
     def _render_next_events(self, events: list[dict], currency: str) -> list[dict]:
-        now = datetime.now()
+        now_utc = datetime.now(timezone.utc)
         selected = (currency or "USD").strip().upper()
         if not events:
             return []
+        tz = utc_offset_minutes_to_tzinfo(self._effective_calendar_utc_offset_minutes())
+        source_tz = utc_offset_minutes_to_tzinfo(CALENDAR_SOURCE_UTC_OFFSET_MINUTES)
         rendered = []
-        for event in sorted(events, key=lambda item: item["dt"]):
-            dt = event["dt"]
-            if dt < now:
+        candidates = [
+            event for event in events if isinstance(event.get("dt_utc"), datetime)
+        ]
+        for event in sorted(candidates, key=lambda item: item["dt_utc"]):
+            dt_utc: datetime = event["dt_utc"]
+            if dt_utc < now_utc:
                 continue
             event_currency = event.get("currency", "").upper()
             if selected != "ALL" and event_currency != selected:
@@ -1437,14 +1494,18 @@ class WebAgentBackend:
             time_label = event["time_label"]
             event_name = event["event"]
             importance = event.get("importance", "")
-            time_text = self._format_time_text(dt, time_label)
+            dt_display = dt_utc.astimezone(tz)
+            source_date = dt_utc.astimezone(source_tz).strftime("%d-%m-%Y")
+            time_text = self._format_time_text(
+                dt_display, time_label, source_date_label=source_date
+            )
             rendered.append(
                 {
                     "time": time_text,
                     "cur": event_currency or "--",
                     "impact": importance or "--",
                     "event": event_name,
-                    "countdown": self._format_countdown(dt),
+                    "countdown": self._format_countdown(dt_utc),
                 }
             )
             if len(rendered) >= 240:
@@ -1452,23 +1513,32 @@ class WebAgentBackend:
         return rendered
 
     def _render_past_events(self, events: list[dict], currency: str) -> list[dict]:
-        now = datetime.now()
-        cutoff = now - timedelta(days=31)
+        now_utc = datetime.now(timezone.utc)
+        cutoff = now_utc - timedelta(days=31)
         selected = (currency or "USD").strip().upper()
         if not events:
             return []
+        tz = utc_offset_minutes_to_tzinfo(self._effective_calendar_utc_offset_minutes())
+        source_tz = utc_offset_minutes_to_tzinfo(CALENDAR_SOURCE_UTC_OFFSET_MINUTES)
         rendered = []
-        for event in sorted(events, key=lambda item: item["dt"], reverse=True):
-            dt = event["dt"]
-            if dt >= now or dt < cutoff:
+        candidates = [
+            event for event in events if isinstance(event.get("dt_utc"), datetime)
+        ]
+        for event in sorted(candidates, key=lambda item: item["dt_utc"], reverse=True):
+            dt_utc: datetime = event["dt_utc"]
+            if dt_utc >= now_utc or dt_utc < cutoff:
                 continue
             event_currency = event.get("currency", "").upper()
             if selected != "ALL" and event_currency != selected:
                 continue
             time_label = event.get("time_label", "")
+            dt_display = dt_utc.astimezone(tz)
+            source_date = dt_utc.astimezone(source_tz).strftime("%d-%m-%Y")
             rendered.append(
                 {
-                    "time": self._format_time_text(dt, time_label),
+                    "time": self._format_time_text(
+                        dt_display, time_label, source_date_label=source_date
+                    ),
                     "cur": event_currency or "--",
                     "impact": (event.get("importance") or "--").strip() or "--",
                     "event": (event.get("event") or "").strip(),

@@ -86,6 +86,8 @@ def get_default_config() -> dict:
         "output_dir_history": [],
         "successful_repo_paths": [],
         "created_paths": [],
+        "calendar_timezone_mode": "utc",
+        "calendar_utc_offset_minutes": 0,
     }
 
 

@@ -2,6 +2,7 @@ from tkinter import BooleanVar, StringVar, Tk
 
 from agent.config import load_config
 from agent.logger import setup_logger
+from agent.timezone import clamp_utc_offset_minutes, format_utc_offset_label
 from agent.version import APP_VERSION
 from ui.calendar import CalendarMixin
 from ui.layout import LayoutMixin
@@ -65,6 +66,14 @@ class App(
         self.startup_var = BooleanVar(value=self.state.get("run_on_startup", True))
         self.auto_update_var = BooleanVar(
             value=self.state.get("auto_update_enabled", False)
+        )
+        tz_mode = (self.state.get("calendar_timezone_mode") or "utc").strip().lower()
+        self.calendar_follow_system_var = BooleanVar(value=tz_mode == "system")
+        offset_minutes = clamp_utc_offset_minutes(
+            int(self.state.get("calendar_utc_offset_minutes", 0))
+        )
+        self.calendar_utc_offset_label_var = StringVar(
+            value=format_utc_offset_label(offset_minutes)
         )
 
         self._build_ui()

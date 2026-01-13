@@ -6,6 +6,12 @@ from tkinter import Toplevel, filedialog, messagebox, ttk
 from agent.config import get_log_dir, save_config
 from agent.logger import setup_logger
 from agent.scheduler import create_startup_task, remove_startup_task
+from agent.timezone import (
+    SUPPORTED_UTC_OFFSET_MINUTES,
+    clamp_utc_offset_minutes,
+    format_utc_offset_label,
+    parse_utc_offset_label,
+)
 
 from .constants import APP_TITLE, UI_COLORS
 
@@ -92,12 +98,35 @@ class SettingsMixin:
             self.output_var,
             self.auto_sync_var,
             self.auto_update_var,
+            self.calendar_follow_system_var,
+            self.calendar_utc_offset_label_var,
         ):
             variable.trace_add("write", self._on_setting_changed)
         self.currency_var.trace_add("write", self._on_currency_changed)
 
     def _on_setting_changed(self, *_args) -> None:
+        self._apply_calendar_tz_controls()
         self._schedule_settings_autosave()
+
+    @staticmethod
+    def _calendar_tz_offset_options() -> list[str]:
+        return [
+            format_utc_offset_label(minutes)
+            for minutes in sorted(SUPPORTED_UTC_OFFSET_MINUTES)
+        ]
+
+    def _apply_calendar_tz_controls(self) -> None:
+        combo = getattr(self, "calendar_tz_combo", None)
+        if not combo:
+            return
+        try:
+            combo.configure(
+                state=(
+                    "disabled" if self.calendar_follow_system_var.get() else "readonly"
+                )
+            )
+        except Exception:
+            return
 
     def _schedule_settings_autosave(self) -> None:
         if self._autosave_after_id is not None:
@@ -113,6 +142,10 @@ class SettingsMixin:
         self._autosave_after_id = None
         self._save_settings(notify=False)
         self._save_paths(notify=False)
+        try:
+            self._update_calendar_view(self.calendar_events)
+        except Exception:
+            pass
         self._set_settings_status("Saved (auto save)")
 
     def _set_settings_status(self, text: str) -> None:
@@ -257,11 +290,34 @@ class SettingsMixin:
             variable=self.debug_var,
             command=self._toggle_debug,
         ).grid(row=7, column=0, sticky="w", padx=20, pady=(0, 6))
+        ttk.Label(system, text="Calendar time", style="Muted.TLabel").grid(
+            row=8, column=0, sticky="w", padx=20, pady=(10, 4)
+        )
+        ttk.Checkbutton(
+            system,
+            text="Follow system time zone",
+            variable=self.calendar_follow_system_var,
+        ).grid(row=9, column=0, sticky="w", padx=20, pady=(0, 6))
+        tz_row = ttk.Frame(system, style="Card.TFrame")
+        tz_row.grid(row=10, column=0, sticky="ew", padx=20, pady=(0, 12))
+        tz_row.columnconfigure(1, weight=1)
+        ttk.Label(tz_row, text="UTC Offset", style="Muted.TLabel").grid(
+            row=0, column=0, sticky="w"
+        )
+        self.calendar_tz_combo = ttk.Combobox(
+            tz_row,
+            textvariable=self.calendar_utc_offset_label_var,
+            values=self._calendar_tz_offset_options(),
+            width=12,
+            state="readonly",
+        )
+        self.calendar_tz_combo.grid(row=0, column=1, sticky="w", padx=(12, 0))
+        self._apply_calendar_tz_controls()
         ttk.Button(system, text="Open Logs", command=self._open_logs).grid(
-            row=8, column=0, sticky="w", padx=20, pady=(0, 12)
+            row=11, column=0, sticky="w", padx=20, pady=(0, 12)
         )
         ttk.Button(system, text="Uninstall", command=self._uninstall_app).grid(
-            row=9, column=0, sticky="w", padx=20, pady=(0, 16)
+            row=12, column=0, sticky="w", padx=20, pady=(0, 16)
         )
 
         footer = ttk.Frame(container, style="Root.TFrame")
@@ -271,5 +327,13 @@ class SettingsMixin:
 
     def _save_settings(self, notify: bool = True) -> None:
         self.state["auto_update_enabled"] = self.auto_update_var.get()
+        self.state["calendar_timezone_mode"] = (
+            "system" if self.calendar_follow_system_var.get() else "utc"
+        )
+        offset_label = self.calendar_utc_offset_label_var.get()
+        parsed = parse_utc_offset_label(offset_label)
+        if parsed is None:
+            parsed = 0
+        self.state["calendar_utc_offset_minutes"] = clamp_utc_offset_minutes(parsed)
         save_config(self.state)
         self._schedule_update_check()
