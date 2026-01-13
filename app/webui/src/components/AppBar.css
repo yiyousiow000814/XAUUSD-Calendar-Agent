@@ -216,6 +216,10 @@
   justify-content: center;
 }
 
+.meta-block:first-child {
+  padding-left: 6px;
+}
+
 .meta-box::after {
   content: "";
   position: absolute;

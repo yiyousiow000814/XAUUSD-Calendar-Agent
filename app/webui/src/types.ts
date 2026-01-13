@@ -36,6 +36,8 @@ export type PastEventItem = {
 export type Snapshot = {
   lastPull: string;
   lastSync: string;
+  lastPullAt?: string;
+  lastSyncAt?: string;
   outputDir: string;
   repoPath: string;
   currency: string;
@@ -44,6 +46,8 @@ export type Snapshot = {
   pastEvents: PastEventItem[];
   logs: LogEntry[];
   version: string;
+  pullActive?: boolean;
+  syncActive?: boolean;
   calendarStatus?: "loading" | "loaded" | "empty" | "error";
   restartInSeconds?: number;
   modal?: UiModal | null;

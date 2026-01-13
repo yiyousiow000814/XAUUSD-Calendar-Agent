@@ -1020,20 +1020,17 @@ body::after {
   border: 1px solid var(--panel-border);
   padding: 22px 22px 20px;
   box-shadow: 0 16px 40px rgba(10, 12, 18, 0.35), inset 0 0 0 1px var(--panel-inner);
-  transition: transform var(--motion-med) var(--motion-ease),
-    box-shadow var(--motion-med) var(--motion-ease),
+  transition: box-shadow var(--motion-med) var(--motion-ease),
     border-color var(--motion-med) var(--motion-ease);
 }
 
 .card:hover {
   border-color: var(--card-border-hover);
-  transform: translateY(-2px);
   box-shadow: 0 22px 52px rgba(10, 12, 18, 0.45), inset 0 0 0 1px var(--panel-inner);
 }
 
 .card.card-select-open:hover {
   border-color: var(--panel-border);
-  transform: none;
   box-shadow: 0 16px 40px rgba(10, 12, 18, 0.35), inset 0 0 0 1px var(--panel-inner);
 }
 

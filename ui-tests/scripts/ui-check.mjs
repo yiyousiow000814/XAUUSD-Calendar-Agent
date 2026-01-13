@@ -85,6 +85,26 @@ const clearDir = async (dir) => {
 
 const sanitize = (value) => value.replace(/[^a-zA-Z0-9_-]+/g, "_");
 
+const screenshotMad = (aBuffer, bBuffer) => {
+  const aPng = PNG.sync.read(aBuffer);
+  const bPng = PNG.sync.read(bBuffer);
+  const width = Math.min(aPng.width, bPng.width);
+  const height = Math.min(aPng.height, bPng.height);
+  const aCrop = new PNG({ width, height });
+  const bCrop = new PNG({ width, height });
+  PNG.bitblt(aPng, aCrop, 0, 0, width, height, 0, 0);
+  PNG.bitblt(bPng, bCrop, 0, 0, width, height, 0, 0);
+
+  let sum = 0;
+  for (let i = 0; i < aCrop.data.length; i += 4) {
+    sum += Math.abs(aCrop.data[i] - bCrop.data[i]);
+    sum += Math.abs(aCrop.data[i + 1] - bCrop.data[i + 1]);
+    sum += Math.abs(aCrop.data[i + 2] - bCrop.data[i + 2]);
+  }
+  const denom = width * height * 3 * 255;
+  return denom ? sum / denom : 0;
+};
+
 const run = (command, args, options) =>
   new Promise((resolve, reject) => {
     const child = spawn(command, args, { shell: true, stdio: "inherit", ...options });
@@ -417,10 +437,14 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
     const snapshot = {
       lastPull: "Not yet",
       lastSync: "Not yet",
+      lastPullAt: "",
+      lastSyncAt: "",
       outputDir: "",
       repoPath: "",
       currency: "USD",
       currencyOptions: ["ALL", "USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "NZD"],
+      pullActive: false,
+      syncActive: false,
       restartInSeconds: 0,
       events: [
         { time: "05-01-2026 01:30", cur: "USD", impact: "High", event: "CPI (YoY)", countdown: "18h 27m" },
@@ -478,6 +502,18 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
       return window.__MOCK_UPDATE_STATE__;
     };
 
+    const formatDisplayTime = (date) => {
+      const pad = (value) => String(value).padStart(2, "0");
+      return `${pad(date.getDate())}-${pad(date.getMonth() + 1)}-${date.getFullYear()} ${pad(
+        date.getHours()
+      )}:${pad(date.getMinutes())}`;
+    };
+
+    const setSnapshot = (next) => {
+      window.__desktop_snapshot__ = next;
+      return next;
+    };
+
     window.pywebview = {
       api: {
         get_snapshot: () => Promise.resolve(window.__desktop_snapshot__),
@@ -509,8 +545,51 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
         browse_sync_repo: () => Promise.resolve({ ok: true, path: "" }),
         set_sync_repo_path: () => Promise.resolve({ ok: true }),
         uninstall: () => Promise.resolve({ ok: true }),
-        pull_now: () => Promise.resolve({ ok: true }),
-        sync_now: () => Promise.resolve({ ok: true }),
+        pull_now: () => {
+          const startedAt = formatDisplayTime(new Date());
+          const baseline = window.__desktop_snapshot__;
+          setSnapshot({
+            ...baseline,
+            pullActive: true,
+            logs: [{ time: startedAt, message: "Manual pull started", level: "INFO" }, ...(baseline.logs || [])]
+          });
+          window.setTimeout(() => {
+            const finishedAt = formatDisplayTime(new Date());
+            const current = window.__desktop_snapshot__;
+            setSnapshot({
+              ...current,
+              pullActive: false,
+              lastPullAt: new Date().toISOString(),
+              lastPull: finishedAt,
+              logs: [
+                { time: finishedAt, message: "Data update completed", level: "INFO" },
+                ...(current.logs || [])
+              ]
+            });
+          }, 450);
+          return Promise.resolve({ ok: true });
+        },
+        sync_now: () => {
+          const startedAt = formatDisplayTime(new Date());
+          const baseline = window.__desktop_snapshot__;
+          setSnapshot({
+            ...baseline,
+            syncActive: true,
+            logs: [{ time: startedAt, message: "Manual sync started", level: "INFO" }, ...(baseline.logs || [])]
+          });
+          window.setTimeout(() => {
+            const finishedAt = formatDisplayTime(new Date());
+            const current = window.__desktop_snapshot__;
+            setSnapshot({
+              ...current,
+              syncActive: false,
+              lastSyncAt: new Date().toISOString(),
+              lastSync: finishedAt,
+              logs: [{ time: finishedAt, message: "Sync completed", level: "INFO" }, ...(current.logs || [])]
+            });
+          }, 450);
+          return Promise.resolve({ ok: true });
+        },
         browse_output_dir: () => Promise.resolve({ ok: true, path: "" }),
         set_output_dir: () => Promise.resolve({ ok: true }),
         set_currency: () => Promise.resolve({ ok: true }),
@@ -2062,6 +2141,61 @@ const main = async () => {
       }
     }
 
+    await runCheck(theme.key, "History hover shadow settles smoothly", async () => {
+      const historyCard = page.locator("[data-qa='qa:card:history']").first();
+      const fab = page.locator("[data-qa*='qa:action:activity-fab']").first();
+      if (!(await historyCard.count()) || !(await fab.count())) return true;
+      const viewport = page.viewportSize();
+      const rect = await fab.boundingBox();
+      if (!viewport || !rect) return true;
+
+      await historyCard.hover({ force: true });
+      await page.waitForTimeout(180);
+      await page.mouse.move(24, viewport.height - 24);
+
+      const sampleX = rect.x + Math.min(28, rect.width * 0.25);
+      const sampleY = rect.y + rect.height * 0.55;
+      const clip = {
+        x: Math.max(0, Math.min(viewport.width - 40, Math.round(sampleX - 20))),
+        y: Math.max(0, Math.min(viewport.height - 26, Math.round(sampleY - 13))),
+        width: 40,
+        height: 26
+      };
+
+      await page.waitForTimeout(360);
+      const earlyBuf = await page.screenshot({ clip });
+      await page.waitForTimeout(980);
+      const lateBuf = await page.screenshot({ clip });
+
+      const mad = screenshotMad(earlyBuf, lateBuf);
+      if (mad > 0.003) {
+        const earlyPath = path.join(
+          framesDir,
+          `${sanitize("history-hover-shadow")}__${sanitize(theme.key)}__t360ms.png`
+        );
+        const latePath = path.join(
+          framesDir,
+          `${sanitize("history-hover-shadow")}__${sanitize(theme.key)}__t1340ms.png`
+        );
+        await fs.writeFile(earlyPath, earlyBuf);
+        await fs.writeFile(latePath, lateBuf);
+        artifacts.push({
+          scenario: "history-hover-shadow",
+          theme: theme.key,
+          state: "t360ms",
+          path: earlyPath
+        });
+        artifacts.push({
+          scenario: "history-hover-shadow",
+          theme: theme.key,
+          state: "t1340ms",
+          path: latePath
+        });
+        throw new Error(`Late shadow change detected (mad=${mad.toFixed(4)})`);
+      }
+      return true;
+    });
+
     const pullButton = page.locator("[data-qa*='qa:action:pull']").first();
     await pullButton.hover();
     artifacts.push({
@@ -2102,6 +2236,25 @@ const main = async () => {
       theme: theme.key,
       state: "pull-success",
       path: await captureState(page, "actions", theme.key, "pull-success")
+    });
+    await runCheck(theme.key, "Pull success state sanity", async () => {
+      const result = await page.evaluate(() => {
+        const btn = document.querySelector("[data-qa*='qa:action:pull']");
+        const state = btn?.getAttribute("data-qa-state") || "";
+        const label = (btn?.textContent || "").trim();
+        const failedToast = Array.from(document.querySelectorAll(".toast")).some((node) =>
+          (node.textContent || "").includes("Pull failed")
+        );
+        if (failedToast) return { ok: false, reason: 'Toast shows "Pull failed" during pull-success capture' };
+        if (state === "error" || label.includes("Pull failed")) {
+          return { ok: false, reason: `Pull button in error state during pull-success capture (state=${state})` };
+        }
+        return { ok: true };
+      });
+      if (!result.ok) {
+        throw new Error(result.reason);
+      }
+      return true;
     });
 
     const syncButton = page.locator("[data-qa*='qa:action:sync']").first();

@@ -135,10 +135,14 @@ const waitForBackendApi = (timeoutMs = 30000) =>
 const baseMockSnapshot: Snapshot = {
   lastPull: "04-01-2026 06:51",
   lastSync: "Not yet",
+  lastPullAt: "2026-01-04T06:51:00",
+  lastSyncAt: "",
   outputDir: "",
   repoPath: "",
   currency: "USD",
   currencyOptions: ["ALL", "USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "NZD"],
+  pullActive: false,
+  syncActive: false,
   restartInSeconds: 0,
   events: [
     {
@@ -229,6 +233,21 @@ const baseMockSnapshot: Snapshot = {
 const getMockSnapshot = () =>
   ((window as unknown as { __MOCK_SNAPSHOT__?: Snapshot }).__MOCK_SNAPSHOT__ ??
     baseMockSnapshot) as Snapshot;
+
+const formatDisplayTime = (date: Date) => {
+  const pad = (value: number) => String(value).padStart(2, "0");
+  const dd = pad(date.getDate());
+  const mm = pad(date.getMonth() + 1);
+  const yyyy = String(date.getFullYear());
+  const hh = pad(date.getHours());
+  const min = pad(date.getMinutes());
+  return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
+};
+
+const setMockSnapshot = (next: Snapshot) => {
+  (window as unknown as { __MOCK_SNAPSHOT__?: Snapshot }).__MOCK_SNAPSHOT__ = next;
+  return next;
+};
 
 const baseMockUpdateState: UpdateState = {
   ok: true,
@@ -554,6 +573,27 @@ export const backend = {
       if (isWebview()) {
         throw new Error("Desktop backend unavailable");
       }
+      const baseline = getMockSnapshot();
+      const startedAt = formatDisplayTime(new Date());
+      setMockSnapshot({
+        ...baseline,
+        pullActive: true,
+        logs: [{ time: startedAt, message: "Manual pull started", level: "INFO" }, ...baseline.logs]
+      });
+      window.setTimeout(() => {
+        const current = getMockSnapshot();
+        const finishedAt = formatDisplayTime(new Date());
+        setMockSnapshot({
+          ...current,
+          pullActive: false,
+          lastPullAt: new Date().toISOString(),
+          lastPull: finishedAt,
+          logs: [
+            { time: finishedAt, message: "Data update completed", level: "INFO" },
+            ...current.logs
+          ]
+        });
+      }, 700);
       return { ok: true };
     }
     return api.pull_now();
@@ -564,6 +604,24 @@ export const backend = {
       if (isWebview()) {
         throw new Error("Desktop backend unavailable");
       }
+      const baseline = getMockSnapshot();
+      const startedAt = formatDisplayTime(new Date());
+      setMockSnapshot({
+        ...baseline,
+        syncActive: true,
+        logs: [{ time: startedAt, message: "Manual sync started", level: "INFO" }, ...baseline.logs]
+      });
+      window.setTimeout(() => {
+        const current = getMockSnapshot();
+        const finishedAt = formatDisplayTime(new Date());
+        setMockSnapshot({
+          ...current,
+          syncActive: false,
+          lastSyncAt: new Date().toISOString(),
+          lastSync: finishedAt,
+          logs: [{ time: finishedAt, message: "Sync completed", level: "INFO" }, ...current.logs]
+        });
+      }, 700);
       return { ok: true };
     }
     return api.sync_now();

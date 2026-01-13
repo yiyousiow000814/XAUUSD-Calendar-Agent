@@ -95,6 +95,8 @@ class WebAgentBackend:
         self._snapshot_cache: dict = {
             "lastPull": "Not yet",
             "lastSync": "Not yet",
+            "lastPullAt": self.state.get("last_pull_at", ""),
+            "lastSyncAt": self.state.get("last_sync_at", ""),
             "outputDir": self.state.get("output_dir", ""),
             "repoPath": "",
             "currency": self.currency,
@@ -104,6 +106,8 @@ class WebAgentBackend:
             "logs": [],
             "version": APP_VERSION,
             "modal": None,
+            "pullActive": False,
+            "syncActive": False,
         }
         self._snapshot_rebuild_lock = threading.Lock()
         self._snapshot_rebuild_in_progress = False
@@ -127,6 +131,9 @@ class WebAgentBackend:
         self._sync_repo_last_notice_ts: float | None = None
         self._sync_repo_task_cancel_event: threading.Event | None = None
         self._sync_repo_git_pid: int | None = None
+        self._task_lock = threading.Lock()
+        self._manual_pull_active = False
+        self._manual_sync_active = False
         self._background_started_lock = threading.Lock()
         self._background_started = False
         self._background_start_timer: threading.Timer | None = None
@@ -366,9 +373,14 @@ class WebAgentBackend:
         currency_options, events, past_events = self._get_rendered_snapshot_payload()
         with self._lock:
             logs = list(self.log_entries)
+        with self._task_lock:
+            pull_active = self._manual_pull_active
+            sync_active = self._manual_sync_active
         payload = {
             "lastPull": to_display_time(last_pull),
             "lastSync": to_display_time(last_sync),
+            "lastPullAt": self.state.get("last_pull_at", ""),
+            "lastSyncAt": self.state.get("last_sync_at", ""),
             "outputDir": self.state.get("output_dir", ""),
             "repoPath": str(repo_path) if repo_path else "",
             "currency": self.currency,
@@ -379,6 +391,8 @@ class WebAgentBackend:
             "version": APP_VERSION,
             "modal": dict(self._ui_modal) if self._ui_modal else None,
             "calendarStatus": self._calendar_status,
+            "pullActive": pull_active,
+            "syncActive": sync_active,
         }
         with self._snapshot_lock:
             self._snapshot_cache.update(payload)
@@ -921,11 +935,33 @@ class WebAgentBackend:
         return {"ok": True}
 
     def pull_now(self) -> dict:
-        self._run_task(self._pull_and_sync, "Manual pull")
+        def task() -> None:
+            with self._task_lock:
+                self._manual_pull_active = True
+            self._request_snapshot_rebuild("pull-active")
+            try:
+                self._pull_and_sync()
+            finally:
+                with self._task_lock:
+                    self._manual_pull_active = False
+                self._request_snapshot_rebuild("pull-inactive")
+
+        self._run_task(task, "Manual pull")
         return {"ok": True}
 
     def sync_now(self) -> dict:
-        self._run_task(self._sync_only, "Manual sync")
+        def task() -> None:
+            with self._task_lock:
+                self._manual_sync_active = True
+            self._request_snapshot_rebuild("sync-active")
+            try:
+                self._sync_only()
+            finally:
+                with self._task_lock:
+                    self._manual_sync_active = False
+                self._request_snapshot_rebuild("sync-inactive")
+
+        self._run_task(task, "Manual sync")
         return {"ok": True}
 
     def clear_logs(self) -> dict:

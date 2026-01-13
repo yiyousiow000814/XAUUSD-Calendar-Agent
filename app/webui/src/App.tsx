@@ -199,14 +199,15 @@ export default function App() {
   const eventRetryTimerRef = useRef<number | null>(null);
   const hasManualCurrencyRef = useRef(false);
   const refreshInFlightRef = useRef(false);
-  const refreshRef = useRef<() => Promise<void>>(async () => {});
+  const refreshRef = useRef<() => Promise<Snapshot | null>>(async () => null);
   const hasLoadedUiPrefsRef = useRef(false);
   const activeAlertIdRef = useRef<string>("");
   const dismissedAlertIdRef = useRef<string>("");
 
-  const refresh = async () => {
-    if (refreshInFlightRef.current) return;
+  const refresh = async (): Promise<Snapshot | null> => {
+    if (refreshInFlightRef.current) return null;
     refreshInFlightRef.current = true;
+    let resolvedSnapshot: Snapshot | null = null;
     try {
       let data = await backend.getSnapshot();
       let prefs: Settings | null = null;
@@ -248,6 +249,7 @@ export default function App() {
         backendSyncRepoPathRef.current = prefs.syncRepoPath || "";
       }
       setSnapshot(data);
+      resolvedSnapshot = data;
       const modal = data.modal;
       if (
         modal &&
@@ -339,9 +341,11 @@ export default function App() {
       backend
         .addLog({ message: `Frontend init error: ${message}`, level: "ERROR" })
         .catch(() => {});
+      resolvedSnapshot = null;
     } finally {
       refreshInFlightRef.current = false;
     }
+    return resolvedSnapshot;
   };
 
   useEffect(() => {
@@ -862,36 +866,236 @@ export default function App() {
     }, 2200);
   };
 
+  const logKey = (entry?: Snapshot["logs"][number]) => {
+    if (!entry) return "";
+    return `${entry.time}|${entry.level}|${entry.message}`;
+  };
+
+  const takeNewLogEntries = (nextLogs: Snapshot["logs"], baselineHeadKey: string) => {
+    if (!baselineHeadKey) return nextLogs;
+    const idx = nextLogs.findIndex((entry) => logKey(entry) === baselineHeadKey);
+    if (idx === -1) return nextLogs;
+    return nextLogs.slice(0, idx);
+  };
+
   const handlePull = async () => {
+    const loadingStartedAt = Date.now();
     setPullState("loading");
+    const baselineLastPull = snapshot.lastPull;
+    const baselineLastPullAt = snapshot.lastPullAt || "";
+    const baselineHeadKey = logKey(snapshot.logs[0]);
+    await new Promise((resolve) => window.setTimeout(resolve, 0));
+    const ensureMinLoading = async () => {
+      const minMs = 360;
+      const elapsed = Date.now() - loadingStartedAt;
+      const remaining = minMs - elapsed;
+      if (remaining > 0) {
+        await new Promise((resolve) => window.setTimeout(resolve, remaining));
+      }
+    };
     try {
-      await backend.pullNow();
-      window.setTimeout(() => {
+      const result = await backend.pullNow();
+      if (!result.ok) {
+        throw new Error("Pull failed");
+      }
+
+      const start = Date.now();
+      const timeoutMs = 120000;
+      let delayMs = 240;
+      let sawActive = false;
+      let completed = false;
+      let ok = false;
+      let sawErrorLog = false;
+      let sawAnyLog = false;
+      let sawSuccessLog = false;
+
+      while (Date.now() - start < timeoutMs) {
+        const next = await refresh();
+        const nextPullActive = typeof next?.pullActive === "boolean" ? next.pullActive : null;
+        const nextLastPull = next?.lastPull ?? null;
+        const nextLastPullAt = next?.lastPullAt ?? null;
+        const nextLogs = next?.logs ?? [];
+        const newEntries = takeNewLogEntries(nextLogs, baselineHeadKey);
+        if (newEntries.length) {
+          sawAnyLog = true;
+          if (
+            newEntries.some((entry) => {
+              const level = (entry.level || "").toUpperCase();
+              const message = (entry.message || "").toLowerCase();
+              return level === "ERROR" || message.includes("pull failed") || message.includes("failed");
+            })
+          ) {
+            sawErrorLog = true;
+          }
+          if (
+            newEntries.some((entry) => {
+              const message = (entry.message || "").toLowerCase();
+              return (
+                message.includes("events updated to latest") ||
+                message.includes("data update completed") ||
+                message.includes("repo already up to date") ||
+                message.includes("calendar is up to date")
+              );
+            })
+          ) {
+            sawSuccessLog = true;
+          }
+        }
+
+        if (nextPullActive === true) {
+          sawActive = true;
+        }
+
+        if (baselineLastPullAt && nextLastPullAt && nextLastPullAt !== baselineLastPullAt) {
+          completed = true;
+          ok = true;
+        } else if (!baselineLastPullAt && nextLastPull && nextLastPull !== baselineLastPull) {
+          completed = true;
+          ok = true;
+        } else if (sawSuccessLog) {
+          completed = true;
+          ok = true;
+        } else if (sawErrorLog) {
+          completed = true;
+          ok = false;
+        } else if (sawActive && nextPullActive === false) {
+          completed = true;
+          ok = false;
+        }
+
+        if (completed) break;
+        await new Promise((resolve) => window.setTimeout(resolve, delayMs));
+        delayMs = Math.min(1200, Math.round(delayMs * 1.25));
+      }
+
+      if (completed && ok) {
+        await ensureMinLoading();
         setPullState("success");
-        refresh();
         window.setTimeout(() => setPullState("idle"), 1700);
-      }, 1400);
-    } catch (err) {
+        return;
+      }
+
+      await ensureMinLoading();
       setPullState("error");
-      pushToast("error", "Pull failed");
+      if (!completed && !sawAnyLog) {
+        appendLogEntry("Pull timed out waiting for completion status", "ERROR");
+      }
+      window.setTimeout(() => setPullState("idle"), 1700);
+    } catch (err) {
+      await ensureMinLoading();
+      setPullState("error");
       window.setTimeout(() => setPullState("idle"), 1700);
     }
   };
 
   const handleSync = async () => {
+    const loadingStartedAt = Date.now();
     setSyncState("loading");
+    const baselineLastSync = snapshot.lastSync;
+    const baselineLastSyncAt = snapshot.lastSyncAt || "";
+    const baselineHeadKey = logKey(snapshot.logs[0]);
+    await new Promise((resolve) => window.setTimeout(resolve, 0));
+    const ensureMinLoading = async () => {
+      const minMs = 360;
+      const elapsed = Date.now() - loadingStartedAt;
+      const remaining = minMs - elapsed;
+      if (remaining > 0) {
+        await new Promise((resolve) => window.setTimeout(resolve, remaining));
+      }
+    };
     try {
-      await backend.syncNow();
-      window.setTimeout(() => {
+      const result = await backend.syncNow();
+      if (!result.ok) {
+        throw new Error("Sync failed");
+      }
+
+      const start = Date.now();
+      const timeoutMs = 120000;
+      let delayMs = 240;
+      let sawActive = false;
+      let completed = false;
+      let ok = false;
+      let sawErrorLog = false;
+      let sawAnyLog = false;
+      let sawSuccessLog = false;
+
+      while (Date.now() - start < timeoutMs) {
+        const next = await refresh();
+        const nextSyncActive = typeof next?.syncActive === "boolean" ? next.syncActive : null;
+        const nextLastSync = next?.lastSync ?? null;
+        const nextLastSyncAt = next?.lastSyncAt ?? null;
+        const nextLogs = next?.logs ?? [];
+        const newEntries = takeNewLogEntries(nextLogs, baselineHeadKey);
+        if (newEntries.length) {
+          sawAnyLog = true;
+          if (
+            newEntries.some((entry) => {
+              const level = (entry.level || "").toUpperCase();
+              const message = (entry.message || "").toLowerCase();
+              return level === "ERROR" || message.includes("sync failed") || message.includes("failed");
+            })
+          ) {
+            sawErrorLog = true;
+          }
+          if (
+            newEntries.some((entry) => {
+              const message = (entry.message || "").toLowerCase();
+              return (
+                message.includes("sync ok") ||
+                message.includes("sync completed")
+              );
+            })
+          ) {
+            sawSuccessLog = true;
+          }
+        }
+
+        if (nextSyncActive === true) {
+          sawActive = true;
+        }
+
+        if (baselineLastSyncAt && nextLastSyncAt && nextLastSyncAt !== baselineLastSyncAt) {
+          completed = true;
+          ok = true;
+        } else if (!baselineLastSyncAt && nextLastSync && nextLastSync !== baselineLastSync) {
+          completed = true;
+          ok = true;
+        } else if (sawSuccessLog) {
+          completed = true;
+          ok = true;
+        } else if (sawErrorLog) {
+          completed = true;
+          ok = false;
+        } else if (sawActive && nextSyncActive === false) {
+          completed = true;
+          ok = false;
+        }
+
+        if (completed) break;
+        await new Promise((resolve) => window.setTimeout(resolve, delayMs));
+        delayMs = Math.min(1200, Math.round(delayMs * 1.25));
+      }
+
+      if (completed && ok) {
+        await ensureMinLoading();
         setSyncState("success");
-        refresh();
         window.setTimeout(() => {
           setSyncState("idle");
         }, 1700);
-      }, 1400);
-    } catch (err) {
+        return;
+      }
+
+      await ensureMinLoading();
       setSyncState("error");
-      pushToast("error", "Sync failed");
+      if (!completed && !sawAnyLog) {
+        appendLogEntry("Sync timed out waiting for completion status", "ERROR");
+      }
+      window.setTimeout(() => {
+        setSyncState("idle");
+      }, 1700);
+    } catch (err) {
+      await ensureMinLoading();
+      setSyncState("error");
       window.setTimeout(() => {
         setSyncState("idle");
       }, 1700);
@@ -2148,17 +2352,18 @@ export default function App() {
         </div>
       </main>
 
-      <Footer version={snapshot.version} />
-
-      <button
-        className={`activity-fab${activityOpen ? " hidden" : ""}`}
-        type="button"
-        onClick={openActivity}
-        ref={activityFabRef}
-        data-qa="qa:action:activity-fab"
-      >
-        {activityPillContent}
-      </button>
+      <div className="footer-row">
+        <Footer version={snapshot.version} />
+        <button
+          className={`activity-fab${activityOpen ? " hidden" : ""}`}
+          type="button"
+          onClick={openActivity}
+          ref={activityFabRef}
+          data-qa="qa:action:activity-fab"
+        >
+          {activityPillContent}
+        </button>
+      </div>
 
       <SettingsModal
         isOpen={settingsOpen}
