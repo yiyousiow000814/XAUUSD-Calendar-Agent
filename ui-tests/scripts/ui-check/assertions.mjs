@@ -392,8 +392,8 @@ export const assertHistoryNoOverflow = async (page) => {
     const rect = card.getBoundingClientRect();
     const controls = card.querySelector(".history-controls");
     const collapse = card.querySelector("[data-qa*='qa:action:history-collapse']");
-    const value = card.querySelector(".history-event-value");
-    const nodes = [controls, collapse, value].filter(Boolean);
+    const indicator = card.querySelector(".history-trend");
+    const nodes = [controls, collapse, indicator].filter(Boolean);
     const offenders = nodes
       .map((node) => {
         const r = node.getBoundingClientRect();

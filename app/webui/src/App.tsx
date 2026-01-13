@@ -1961,14 +1961,20 @@ export default function App() {
             const impact = idx % 7 === 0 ? "High" : idx % 3 === 0 ? "Medium" : "Low";
             const cur =
               idx % 4 === 0 ? "USD" : idx % 4 === 1 ? "EUR" : idx % 4 === 2 ? "GBP" : "JPY";
+            const base = (dayIndex * 0.3 + idx * 0.4) % 4;
+            const previousValue = (base - 2).toFixed(1);
+            const delta = idx % 3 === 0 ? 0.6 : idx % 3 === 1 ? 0 : -0.6;
+            const actualValue = (base - 2 + delta).toFixed(1);
+            const includeActual = idx % 5 !== 4;
+            const includePrevious = idx % 7 !== 6;
             return {
               time: `${dd}-${mm}-${yyyy} ${hh}:${min}`,
               cur,
               impact,
               event: `Mock Past Event ${dayIndex + 1}.${idx + 1}`,
-              actual: idx % 2 === 0 ? `${(Math.random() * 5 - 2.5).toFixed(1)}` : "--",
+              actual: includeActual ? actualValue : "--",
               forecast: "--",
-              previous: "--"
+              previous: includePrevious ? previousValue : "--"
             };
           });
         });

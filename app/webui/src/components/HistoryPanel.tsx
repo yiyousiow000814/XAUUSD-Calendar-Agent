@@ -18,6 +18,137 @@ type HistoryPanelProps = {
   impactTone: (impact: string) => string;
 };
 
+type HistoryTrend = "up" | "flat" | "down" | "tba" | "na";
+
+const isMissingValue = (value: string | null | undefined) => {
+  const normalized = (value ?? "").trim().toLowerCase();
+  return (
+    normalized.length === 0 ||
+    normalized === "--" ||
+    normalized === "—" ||
+    normalized === "-" ||
+    normalized === "tba" ||
+    normalized === "n/a" ||
+    normalized === "na" ||
+    normalized === "null"
+  );
+};
+
+const parseComparableNumber = (rawValue: string) => {
+  if (isMissingValue(rawValue)) return null;
+  const cleaned = rawValue
+    .trim()
+    .replaceAll(",", "")
+    .replaceAll("%", "")
+    .replaceAll(" ", "");
+
+  const match = cleaned.match(/^([+-]?\d+(?:\.\d+)?)([kmb])?$/i);
+  if (!match) return null;
+
+  const base = Number(match[1]);
+  if (!Number.isFinite(base)) return null;
+
+  const suffix = match[2]?.toLowerCase();
+  if (suffix === "k") return base * 1_000;
+  if (suffix === "m") return base * 1_000_000;
+  if (suffix === "b") return base * 1_000_000_000;
+  return base;
+};
+
+const getTrend = (actual: string, forecast: string, previous: string): HistoryTrend => {
+  const actualValue = parseComparableNumber(actual);
+  const previousValue = parseComparableNumber(previous);
+  if (actualValue !== null && previousValue !== null) {
+    if (actualValue > previousValue) return "up";
+    if (actualValue < previousValue) return "down";
+    return "flat";
+  }
+
+  const actualMissing = isMissingValue(actual);
+  if (actualMissing) {
+    const signalExists = !isMissingValue(forecast) || !isMissingValue(previous);
+    return signalExists ? "tba" : "na";
+  }
+
+  return "na";
+};
+
+const formatTrendLabel = (trend: HistoryTrend) => {
+  if (trend === "up") return "Up";
+  if (trend === "down") return "Down";
+  if (trend === "flat") return "Flat";
+  if (trend === "tba") return "TBA";
+  return "Not available";
+};
+
+function TrendIcon({ trend }: { trend: Exclude<HistoryTrend, "tba"> }) {
+  const strokeWidth = 1.85;
+  if (trend === "flat") {
+    return (
+      <svg
+        className="history-trend-icon"
+        width="14"
+        height="14"
+        viewBox="0 0 16 16"
+        fill="none"
+        aria-hidden="true"
+      >
+        <path
+          d="M3.25 8H12.2M12.2 8L9.8 5.6M12.2 8L9.8 10.4"
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+
+  if (trend === "up") {
+    return (
+      <svg
+        className="history-trend-icon"
+        width="14"
+        height="14"
+        viewBox="0 0 16 16"
+        fill="none"
+        aria-hidden="true"
+      >
+        <path
+          d="M3.5 11.9L12.2 3.8M12.2 3.8V7.05M12.2 3.8H8.95"
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+
+  if (trend === "na") {
+    return null;
+  }
+
+  return (
+    <svg
+      className="history-trend-icon"
+      width="14"
+      height="14"
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M3.5 4.1L12.2 12.2M12.2 12.2V8.95M12.2 12.2H8.95"
+        stroke="currentColor"
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 const parseEventDate = (value: string) => {
   const [datePart, timePart] = value.split(" ");
   if (!datePart) return null;
@@ -179,7 +310,7 @@ export function HistoryPanel({ events, loading = false, impactTone }: HistoryPan
                           style={{ width: `${46 + (index % 3) * 16}%` }}
                         />
                       </span>
-                      <span className="history-event-value mono history-skeleton-line" style={{ width: "50px" }} />
+                      <span className="history-trend history-trend-tba history-skeleton-pill" style={{ width: "50px" }} />
                     </div>
                   ))}
                 </div>
@@ -216,23 +347,40 @@ export function HistoryPanel({ events, loading = false, impactTone }: HistoryPan
                 </button>
                 {!isCollapsed && (
                   <div className="history-items">
-                    {group.items.map((item, index) => (
-                      <div className="history-item history-event" key={`${group.key}-${index}`}>
-                        <span className="history-time mono">
-                          {item.time.split(" ")[1] || item.time}
-                        </span>
-                        <span className="history-impact" aria-label={item.impact}>
-                          <span className={`history-impact-dot ${impactTone(item.impact)}`} />
-                        </span>
-                        <span className="history-event-name">
-                          <span className="history-event-cur mono">{item.cur}</span>
-                          <span className="history-event-title">{item.event}</span>
-                        </span>
-                        <span className="history-event-value mono">
-                          {item.actual || item.forecast || item.previous || "—"}
-                        </span>
-                      </div>
-                    ))}
+                    {group.items.map((item, index) => {
+                      const trend = getTrend(item.actual, item.forecast, item.previous);
+                      const trendText = formatTrendLabel(trend);
+                      const title =
+                        trend === "tba"
+                          ? "Actual: TBA"
+                          : trend === "na"
+                            ? "Actual: —"
+                            : `Actual trend: ${trendText}`;
+
+                      return (
+                        <div className="history-item history-event" key={`${group.key}-${index}`}>
+                          <span className="history-time mono">
+                            {item.time.split(" ")[1] || item.time}
+                          </span>
+                          <span className="history-impact" aria-label={item.impact}>
+                            <span className={`history-impact-dot ${impactTone(item.impact)}`} />
+                          </span>
+                          <span className="history-event-name">
+                            <span className="history-event-cur mono">{item.cur}</span>
+                            <span className="history-event-title">{item.event}</span>
+                          </span>
+                          <span
+                            className={`history-trend history-trend-${trend}`}
+                            aria-label={trend === "na" ? "Actual: not available" : `Actual trend: ${trendText}`}
+                            title={title}
+                          >
+                            {trend === "tba" ? <span className="history-trend-label">TBA</span> : null}
+                            {trend === "na" ? <span className="history-trend-label">—</span> : null}
+                            {trend !== "tba" && trend !== "na" ? <TrendIcon trend={trend} /> : null}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>

@@ -437,8 +437,9 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
         { time: "05-01-2026 07:00", cur: "CAD", impact: "Low", event: "Housing Starts", countdown: "23h 57m" }
       ],
       pastEvents: [
-        { time: "04-01-2026 12:30", cur: "USD", impact: "High", event: "Nonfarm Payrolls", actual: "--", forecast: "--", previous: "--" },
-        { time: "04-01-2026 14:00", cur: "USD", impact: "Medium", event: "ISM PMI", actual: "--", forecast: "--", previous: "--" }
+        { time: "04-01-2026 12:30", cur: "USD", impact: "High", event: "Nonfarm Payrolls", actual: "1.8", forecast: "--", previous: "1.2" },
+        { time: "04-01-2026 14:00", cur: "USD", impact: "Medium", event: "ISM PMI", actual: "49.0", forecast: "--", previous: "49.0" },
+        { time: "04-01-2026 16:00", cur: "USD", impact: "Low", event: "Jobless Claims", actual: "210K", forecast: "--", previous: "225K" }
       ],
       logs: [],
       version: "0.0.0"
@@ -1210,6 +1211,8 @@ const main = async () => {
 
     const historyCard = page.locator("[data-qa='qa:card:history']").first();
     if (await historyCard.count()) {
+      await page.evaluate(() => window.__ui_check__?.seedHistoryOverflow?.(2, 7));
+      await page.waitForTimeout(180);
       artifacts.push({
         scenario: "history",
         theme: theme.key,
