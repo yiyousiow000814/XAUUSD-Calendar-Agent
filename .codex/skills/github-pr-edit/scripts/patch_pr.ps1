@@ -24,7 +24,15 @@ Param(
 $ErrorActionPreference = "Stop"
 
 function Get-GitHubToken {
-  $token = ($env:GITHUB_TOKEN ?? $env:GH_TOKEN ?? "").Trim()
+  $token = ""
+  if ($env:GITHUB_TOKEN) {
+    $token = $env:GITHUB_TOKEN
+  }
+  elseif ($env:GH_TOKEN) {
+    $token = $env:GH_TOKEN
+  }
+
+  $token = $token.Trim()
   if ($token) {
     return $token
   }

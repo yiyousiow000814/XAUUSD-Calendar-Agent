@@ -5,13 +5,20 @@ description: Edit GitHub PR title/body (and optionally comments) reliably on Win
 
 # GitHub PR Edit (Title/Body/Comments)
 
-Use this skill when you need to update a PR title/body (or add/edit a comment) and `gh` is missing or API calls intermittently fail due to authentication.
+Edit PR title/body/comments on Windows. Use `gh` when available; otherwise use the GitHub REST API.
 
 ## Before You Start
 
 - Identify:
   - `owner` and `repo` (e.g. `yiyousiow000814/xauusd-news-information-and-predictions`)
   - PR number (e.g. `111`)
+- If using `gh`, confirm it is available and authenticated:
+
+```powershell
+gh --version
+gh auth status
+```
+
 - If the repo is private, **unauthenticated GitHub API requests often return `404 Not Found`**. Treat `404` as “likely unauthorized” unless you are sure the repo/PR does not exist.
 
 ## Option A (Preferred): GitHub CLI (`gh`)

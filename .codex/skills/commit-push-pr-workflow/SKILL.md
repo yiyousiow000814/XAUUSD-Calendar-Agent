@@ -76,9 +76,12 @@ rm -f /tmp/commit_msg.txt
 
 - Default to a draft PR.
 
-### Option A: GitHub CLI (if installed)
+### Option A: GitHub CLI (`gh`)
 
 ```powershell
+gh --version
+gh auth status
+
 @'
 Summary:
 - ...
