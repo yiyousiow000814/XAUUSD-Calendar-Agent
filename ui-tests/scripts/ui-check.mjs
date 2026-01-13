@@ -340,6 +340,39 @@ const assertCenteredInViewport = async (page, selector, label, tolerancePx = 22)
   }
 };
 
+const assertFooterClock = async (page) => {
+  const clock = page.locator("[data-qa='qa:status:bottom-clock']").first();
+  await clock.waitFor({ state: "visible", timeout: 4000 });
+  const text = (await clock.innerText()).replace(/\s+/g, " ").trim();
+  const match = text.match(/^(\d{2}:\d{2}:\d{2})\s+(UTC[+-]\d{2}(?::\d{2})?)$/);
+  if (!match) {
+    throw new Error(`Bottom clock text unexpected: ${JSON.stringify(text)}`);
+  }
+  const hour = Number(match[1].slice(0, 2));
+  if (!Number.isFinite(hour) || hour < 0 || hour > 23) {
+    throw new Error(`Bottom clock hour out of range: ${JSON.stringify(match[1])}`);
+  }
+
+  const viewport = page.viewportSize();
+  const clockBox = await clock.boundingBox();
+  if (!viewport || !clockBox) return;
+  const clockCenterX = clockBox.x + clockBox.width / 2;
+  const dx = Math.abs(clockCenterX - viewport.width / 2);
+  if (dx > 28) {
+    throw new Error(`Bottom clock not centered (dx=${dx.toFixed(1)})`);
+  }
+
+  const activity = page.locator("[data-qa='qa:action:activity-fab']").first();
+  const activityBox = await activity.boundingBox();
+  if (!activityBox) return;
+  const clockCenterY = clockBox.y + clockBox.height / 2;
+  const activityCenterY = activityBox.y + activityBox.height / 2;
+  const dy = Math.abs(clockCenterY - activityCenterY);
+  if (dy > 6) {
+    throw new Error(`Footer row items not aligned (dy=${dy.toFixed(1)})`);
+  }
+};
+
 const assertBackdropBlurred = async (page, selector, label) => {
   const locator = page.locator(selector).first();
   if (!(await locator.count())) {
@@ -1306,6 +1339,7 @@ const main = async () => {
     await runCheck(theme.key, "CTA baseline alignment", () =>
       assertBaseline(page, ".appbar-actions .btn, .appbar-actions .pill-link")
     );
+    await runCheck(theme.key, "Bottom clock centered 24h", () => assertFooterClock(page));
     await runCheck(theme.key, "Page scrollbars hidden", () => assertNoPageScroll(page));
     await runCheck(theme.key, "Events list completeness", () => assertEventsLoaded(page));
     await runCheck(theme.key, "Next Events controls centered", () =>

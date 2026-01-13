@@ -1,0 +1,22 @@
+.clock-pill {
+  padding: 2px 10px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.18em;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.clock-pill .clock-time {
+  font-variant-numeric: tabular-nums;
+}
+
+.clock-pill .clock-zone {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+}

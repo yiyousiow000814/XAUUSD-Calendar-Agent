@@ -110,21 +110,30 @@
   transform: translateX(-50%) scale(0.98);
 }
 
-.footer-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
-  position: fixed;
-  left: var(--app-pad);
-  right: var(--app-pad);
-  bottom: 10px;
-  z-index: 240;
-}
+  .footer-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 16px;
+    position: fixed;
+    left: var(--app-pad);
+    right: var(--app-pad);
+    bottom: 10px;
+    z-index: 240;
+  }
+  
+  .footer-row .footer {
+    flex: 0 0 auto;
+    justify-self: start;
+  }
 
-.footer-row .footer {
-  flex: 0 0 auto;
-}
+  .footer-row .clock-pill {
+    justify-self: center;
+  }
+
+  .footer-row .activity-fab {
+    justify-self: end;
+  }
 
 .activity-fab {
   border-radius: 999px;

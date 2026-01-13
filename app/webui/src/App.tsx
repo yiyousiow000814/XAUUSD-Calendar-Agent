@@ -6,6 +6,7 @@ import { ActivityDrawer } from "./components/ActivityDrawer";
 import { ActivityLog } from "./components/ActivityLog";
 import { AlertModal } from "./components/AlertModal";
 import { AppBar } from "./components/AppBar";
+import { BottomClock } from "./components/BottomClock";
 import { Footer } from "./components/Footer";
 import { HistoryPanel } from "./components/HistoryPanel";
 import { InitOverlay } from "./components/InitOverlay";
@@ -2355,6 +2356,10 @@ export default function App() {
 
       <div className="footer-row">
         <Footer version={snapshot.version} />
+        <BottomClock
+          calendarTimezoneMode={settings.calendarTimezoneMode}
+          calendarUtcOffsetMinutes={settings.calendarUtcOffsetMinutes}
+        />
         <button
           className={`activity-fab${activityOpen ? " hidden" : ""}`}
           type="button"
