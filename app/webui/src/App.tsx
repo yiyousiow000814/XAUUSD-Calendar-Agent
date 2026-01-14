@@ -54,7 +54,7 @@ const emptySettings: Settings = {
   splitRatio: 0.66,
   enableSystemTheme: true,
   theme: "system",
-  calendarTimezoneMode: "utc",
+  calendarTimezoneMode: "system",
   calendarUtcOffsetMinutes: 0,
   enableSyncRepo: false,
   syncRepoPath: "",

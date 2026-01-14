@@ -67,7 +67,7 @@ class App(
         self.auto_update_var = BooleanVar(
             value=self.state.get("auto_update_enabled", False)
         )
-        tz_mode = (self.state.get("calendar_timezone_mode") or "utc").strip().lower()
+        tz_mode = (self.state.get("calendar_timezone_mode") or "system").strip().lower()
         self.calendar_follow_system_var = BooleanVar(value=tz_mode == "system")
         offset_minutes = clamp_utc_offset_minutes(
             int(self.state.get("calendar_utc_offset_minutes", 0))

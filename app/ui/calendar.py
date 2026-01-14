@@ -14,7 +14,7 @@ from agent.timezone import (
 class CalendarMixin:
 
     def _effective_calendar_utc_offset_minutes(self) -> int:
-        mode = (self.state.get("calendar_timezone_mode") or "utc").strip().lower()
+        mode = (self.state.get("calendar_timezone_mode") or "system").strip().lower()
         if mode == "system":
             return clamp_utc_offset_minutes(get_system_utc_offset_minutes())
         return clamp_utc_offset_minutes(

@@ -431,9 +431,9 @@ class WebAgentBackend:
         split_ratio = self._clamp_split_ratio(
             float(self.state.get("split_ratio", 0.66))
         )
-        tz_mode = (self.state.get("calendar_timezone_mode") or "utc").strip().lower()
+        tz_mode = (self.state.get("calendar_timezone_mode") or "system").strip().lower()
         if tz_mode not in ("utc", "system"):
-            tz_mode = "utc"
+            tz_mode = "system"
         manual_offset = clamp_utc_offset_minutes(
             int(self.state.get("calendar_utc_offset_minutes", 0))
         )
@@ -623,10 +623,10 @@ class WebAgentBackend:
         tz_mode = (payload.get("calendarTimezoneMode") or "").strip().lower()
         if not tz_mode:
             tz_mode = (
-                (self.state.get("calendar_timezone_mode") or "utc").strip().lower()
+                (self.state.get("calendar_timezone_mode") or "system").strip().lower()
             )
         if tz_mode not in ("utc", "system"):
-            tz_mode = "utc"
+            tz_mode = "system"
         tz_offset_raw = payload.get(
             "calendarUtcOffsetMinutes", self.state.get("calendar_utc_offset_minutes", 0)
         )
@@ -654,7 +654,7 @@ class WebAgentBackend:
         return {"ok": True}
 
     def _effective_calendar_utc_offset_minutes(self) -> int:
-        mode = (self.state.get("calendar_timezone_mode") or "utc").strip().lower()
+        mode = (self.state.get("calendar_timezone_mode") or "system").strip().lower()
         if mode == "system":
             return clamp_utc_offset_minutes(get_system_utc_offset_minutes())
         return clamp_utc_offset_minutes(
