@@ -60,24 +60,45 @@
 
 .history-range.segmented {
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
 }
 
 [data-theme="light"] .history-range.segmented {
   background: rgba(18, 20, 26, 0.06);
 }
 
-.history-range::before {
-  display: none;
+.history-range.segmented::before {
+  width: calc((100% - 8px) / 4);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+  transform: translateX(0);
+}
+
+.history-range.segmented[data-value="7d"]::before {
+  transform: translateX(100%);
+}
+
+.history-range.segmented[data-value="14d"]::before {
+  transform: translateX(200%);
+}
+
+.history-range.segmented[data-value="30d"]::before {
+  transform: translateX(300%);
 }
 
 .history-range .segment.active {
-  background: var(--select-active-bg);
   border-radius: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
 }
 
 .history-range .segment {
   padding: 5px 8px;
   font-size: 10.5px;
+  border: none;
+}
+
+[data-theme="light"] .history-range.segmented::before {
+  box-shadow: inset 0 0 0 1px rgba(18, 20, 26, 0.12);
 }
 
 .history-actions {
