@@ -201,6 +201,21 @@ test("Settings visibility contract", async ({ page }) => {
     await trigger.click();
     const modal = page.locator(modalSelector).first();
     await expect(modal).toBeVisible();
+
+    const activityFab = page.locator('[data-qa="qa:action:activity-fab"]').first();
+    if ((await activityFab.count()) > 0) {
+      const coveredByModal = await page.evaluate(() => {
+        const el = document.querySelector('[data-qa="qa:action:activity-fab"]') as HTMLElement | null;
+        if (!el) return true;
+        const rect = el.getBoundingClientRect();
+        const x = Math.max(0, Math.min(window.innerWidth - 1, rect.left + rect.width / 2));
+        const y = Math.max(0, Math.min(window.innerHeight - 1, rect.top + rect.height / 2));
+        const top = document.elementFromPoint(x, y) as HTMLElement | null;
+        if (!top) return true;
+        return top !== el && !top.closest?.('[data-qa="qa:action:activity-fab"]');
+      });
+      expect(coveredByModal).toBeTruthy();
+    }
     const failures = await checkContrast(page, { scopeSelector: modalSelector, sampleLimit: 120 });
     expect(
       failures,
