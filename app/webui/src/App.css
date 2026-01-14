@@ -47,7 +47,6 @@
   padding: 0;
   background: transparent;
 }
-
 .split-divider::before {
   content: "";
   width: 6px;

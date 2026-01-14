@@ -3,6 +3,8 @@ import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
+_EXCLUDED_RELATIVE_FILES = {".xauusd_calendar_agent_managed_output"}
+
 
 @dataclass
 class SyncResult:
@@ -52,6 +54,8 @@ def mirror_sync(src_dir: Path, dst_dir: Path) -> SyncResult:
 
     deleted = 0
     for rel, dst_path in dst_files.items():
+        if rel in _EXCLUDED_RELATIVE_FILES:
+            continue
         if rel not in src_files:
             try:
                 dst_path.unlink()

@@ -14,6 +14,10 @@
   overflow: hidden;
 }
 
+.modal-backdrop.positioning {
+  visibility: hidden;
+}
+
 .modal-backdrop.open {
   opacity: 1;
   backdrop-filter: blur(12px);

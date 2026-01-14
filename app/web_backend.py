@@ -21,10 +21,12 @@ from agent.config import (
     get_legacy_config_path,
     get_log_dir,
     get_repo_dir,
+    get_selected_output_dir_last_sync_at,
     get_update_dir,
     load_config,
     parse_iso_time,
     save_config,
+    set_output_dir_last_sync_at,
     to_display_time,
     to_iso_time,
 )
@@ -99,11 +101,13 @@ class WebAgentBackend:
         self._render_cache_events: list[dict] = []
         self._render_cache_past_events: list[dict] = []
         self._snapshot_lock = threading.Lock()
+        selected_last_sync_at = get_selected_output_dir_last_sync_at(self.state)
+        selected_last_sync = parse_iso_time(selected_last_sync_at)
         self._snapshot_cache: dict = {
             "lastPull": "Not yet",
-            "lastSync": "Not yet",
+            "lastSync": to_display_time(selected_last_sync),
             "lastPullAt": self.state.get("last_pull_at", ""),
-            "lastSyncAt": self.state.get("last_sync_at", ""),
+            "lastSyncAt": selected_last_sync_at,
             "outputDir": self.state.get("output_dir", ""),
             "repoPath": "",
             "currency": self.currency,
@@ -378,7 +382,8 @@ class WebAgentBackend:
 
     def _rebuild_snapshot_cache(self, reason: str = "") -> None:
         last_pull = parse_iso_time(self.state.get("last_pull_at", ""))
-        last_sync = parse_iso_time(self.state.get("last_sync_at", ""))
+        selected_last_sync_at = get_selected_output_dir_last_sync_at(self.state)
+        last_sync = parse_iso_time(selected_last_sync_at)
         repo_path = self._get_main_repo_path()
         currency_options, events, past_events = self._get_rendered_snapshot_payload()
         with self._lock:
@@ -390,7 +395,7 @@ class WebAgentBackend:
             "lastPull": to_display_time(last_pull),
             "lastSync": to_display_time(last_sync),
             "lastPullAt": self.state.get("last_pull_at", ""),
-            "lastSyncAt": self.state.get("last_sync_at", ""),
+            "lastSyncAt": selected_last_sync_at,
             "outputDir": self.state.get("output_dir", ""),
             "repoPath": str(repo_path) if repo_path else "",
             "currency": self.currency,
@@ -776,19 +781,35 @@ class WebAgentBackend:
             output_dir = (self.state.get("output_dir") or "").strip()
             if output_dir:
                 path = Path(output_dir)
-                marker = path / OUTPUT_DIR_MARKER_FILENAME
-                if (
+                managed_dir = path / "data" / "Economic_Calendar"
+                managed_marker = managed_dir / OUTPUT_DIR_MARKER_FILENAME
+                legacy_marker = path / OUTPUT_DIR_MARKER_FILENAME
+                can_remove = (
                     path.exists()
                     and path.is_dir()
-                    and marker.is_file()
+                    and managed_dir.exists()
+                    and managed_dir.is_dir()
+                    and (managed_marker.is_file() or legacy_marker.is_file())
                     and not self._is_path_root_dir(path)
-                ):
-                    shutil.rmtree(path, ignore_errors=True)
-                else:
+                )
+                if not can_remove:
                     self._append_notice(
-                        f"Skipped deleting output dir (not managed): {output_dir}",
+                        f"Skipped deleting managed calendar dir (not managed): {output_dir}",
                         level="WARN",
                     )
+                else:
+                    shutil.rmtree(managed_dir, ignore_errors=True)
+                    # Best-effort cleanup of empty parent folders we created.
+                    try:
+                        parent = managed_dir.parent
+                        if (
+                            parent.exists()
+                            and parent.is_dir()
+                            and not any(parent.iterdir())
+                        ):
+                            parent.rmdir()
+                    except OSError:
+                        pass
 
         if remove_sync_repos:
             self._cleanup_managed_sync_repos(
@@ -958,23 +979,18 @@ class WebAgentBackend:
         path = result[0]
         self.state["output_dir"] = path
         save_config(self.state)
+        self._request_snapshot_rebuild("output-dir:browse")
         return {"ok": True, "path": path}
 
     def set_output_dir(self, path: str) -> dict:
         value = (path or "").strip()
-        output_dir_created = False
-        if value:
-            try:
-                output_dir_created = not Path(value).exists()
-            except OSError:
-                output_dir_created = False
         self.state["output_dir"] = value
         if value:
             self._ensure_dir(value)
-            if output_dir_created:
-                self._write_output_dir_marker(Path(value))
+            # Marker is written into the managed subdirectory after the first successful sync.
             self._track_path("output_dir_history", value)
         save_config(self.state)
+        self._request_snapshot_rebuild("output-dir:set")
         return {"ok": True}
 
     def pull_now(self) -> dict:
@@ -2368,20 +2384,23 @@ class WebAgentBackend:
             return
 
         src_dir = repo_path / "data" / "Economic_Calendar"
+        managed_dir = output_dir / "data" / "Economic_Calendar"
         try:
-            result = mirror_sync(src_dir, output_dir)
+            result = mirror_sync(src_dir, managed_dir)
         except FileNotFoundError:
             self._append_notice(
                 "Calendar source not found in repository", level="ERROR"
             )
             return
-        self._write_output_dir_marker(output_dir)
+        self._write_output_dir_marker(managed_dir)
         self._track_successful_repo(repo_path)
         self._append_notice(
             f"Sync ok: +{result.copied} / -{result.deleted} / = {result.skipped}",
             level="INFO",
         )
-        self.state["last_sync_at"] = to_iso_time(datetime.now())
+        now = to_iso_time(datetime.now())
+        self.state["last_sync_at"] = now
+        set_output_dir_last_sync_at(self.state, output_dir, now)
         save_config(self.state)
         self._refresh_calendar_data()
 
@@ -2457,7 +2476,11 @@ class WebAgentBackend:
             marker_path = output_dir / OUTPUT_DIR_MARKER_FILENAME
             if marker_path.exists():
                 return
-            payload = {"managedBy": APP_TITLE, "createdAt": to_iso_time(datetime.now())}
+            payload = {
+                "managedBy": APP_TITLE,
+                "scope": "data/Economic_Calendar",
+                "createdAt": to_iso_time(datetime.now()),
+            }
             marker_path.write_text(
                 json.dumps(payload, ensure_ascii=False), encoding="utf-8"
             )

@@ -59,6 +59,7 @@ def get_default_config() -> dict:
         "repo_path": get_default_repo_path(),
         "sync_repo_path": "",
         "output_dir": "",
+        "output_dir_last_sync_at": {},
         "enable_sync_repo": False,
         "sync_repo_confirmed_path": "",
         "sync_repo_confirmed_repo": "",
@@ -121,6 +122,7 @@ def load_config() -> dict:
     path = get_config_path()
     defaults = get_default_config()
     config = dict(defaults)
+    migrated_output_sync = False
     candidates = [
         path,
         get_legacy_config_path(),
@@ -143,6 +145,19 @@ def load_config() -> dict:
     config.pop("version", None)
     config.pop("github_token_hint", None)
 
+    output_dir = (config.get("output_dir") or "").strip()
+    legacy_last_sync_at = (config.get("last_sync_at") or "").strip()
+    mapping = config.get("output_dir_last_sync_at")
+    if not isinstance(mapping, dict):
+        mapping = {}
+        config["output_dir_last_sync_at"] = mapping
+        migrated_output_sync = True
+    if output_dir and legacy_last_sync_at:
+        key = normalize_path_key(output_dir)
+        if not (mapping.get(key) or "").strip():
+            mapping[key] = legacy_last_sync_at
+            migrated_output_sync = True
+
     # Ensure the config exists so future runs have a stable location, and also
     # backfill new default keys into existing configs.
     should_persist = False
@@ -158,6 +173,8 @@ def load_config() -> dict:
             existing = {}
         if any(key not in existing for key in defaults):
             should_persist = True
+    if migrated_output_sync:
+        should_persist = True
     if should_persist:
         save_config(config)
     return config
@@ -227,6 +244,57 @@ def to_display_time(dt: datetime | None) -> str:
     if not dt:
         return "Not yet"
     return dt.strftime("%d-%m-%Y %H:%M")
+
+
+def normalize_path_key(value: str | Path) -> str:
+    raw = str(value).strip()
+    if not raw:
+        return ""
+    try:
+        raw = str(Path(raw).expanduser())
+    except Exception:  # noqa: BLE001
+        pass
+    return os.path.normcase(os.path.normpath(raw))
+
+
+def get_output_dir_last_sync_at(config: dict, output_dir: str | Path | None) -> str:
+    if not output_dir:
+        return ""
+    raw = str(output_dir).strip()
+    if not raw:
+        return ""
+    mapping = config.get("output_dir_last_sync_at")
+    if not isinstance(mapping, dict):
+        return ""
+    key = normalize_path_key(raw)
+    if not key:
+        return ""
+    value = (mapping.get(key) or "").strip()
+    return value
+
+
+def set_output_dir_last_sync_at(
+    config: dict, output_dir: str | Path | None, value: str
+) -> None:
+    raw = str(output_dir).strip() if output_dir else ""
+    stamp = (value or "").strip()
+    if not raw or not stamp:
+        return
+    mapping = config.get("output_dir_last_sync_at")
+    if not isinstance(mapping, dict):
+        mapping = {}
+        config["output_dir_last_sync_at"] = mapping
+    key = normalize_path_key(raw)
+    if not key:
+        return
+    mapping[key] = stamp
+
+
+def get_selected_output_dir_last_sync_at(config: dict) -> str:
+    output_dir = (config.get("output_dir") or "").strip()
+    if not output_dir:
+        return ""
+    return get_output_dir_last_sync_at(config, output_dir)
 
 
 def parse_iso_time(value: str) -> datetime | None:

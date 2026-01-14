@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Settings } from "../types";
 import { Select } from "./Select";
 import "./SettingsModal.css";
@@ -42,7 +42,9 @@ type SettingsModalProps = {
   syncRepoNote?: { tone: "info" | "warn" | "error"; text: string } | null;
   onResolveSyncRepo?: () => void;
   savingMessage: string;
-  pathsRef: React.RefObject<HTMLDivElement>;
+  pathsRef: React.MutableRefObject<HTMLDivElement | null>;
+  scrollToPathsOnOpen?: boolean;
+  onPathsScrollHandled?: () => void;
   updatePhase: string;
   updateMessage: string;
   updateProgress: number;
@@ -84,6 +86,8 @@ export function SettingsModal({
   onResolveSyncRepo,
   savingMessage,
   pathsRef,
+  scrollToPathsOnOpen,
+  onPathsScrollHandled,
   updatePhase,
   updateMessage,
   updateProgress,
@@ -115,6 +119,34 @@ export function SettingsModal({
   onOpenUninstall
 }: SettingsModalProps) {
   if (!isOpen) return null;
+
+  const [pathsPositioning, setPathsPositioning] = useState<boolean>(() =>
+    Boolean(scrollToPathsOnOpen)
+  );
+
+  useEffect(() => {
+    if (!pathsPositioning) return;
+    const timer = window.setTimeout(() => setPathsPositioning(false), 420);
+    return () => window.clearTimeout(timer);
+  }, [pathsPositioning]);
+
+  const handlePathsRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      pathsRef.current = node;
+      if (!node) return;
+      if (scrollToPathsOnOpen) {
+        const scrollParent = node.closest(".modal-body");
+        if (scrollParent instanceof HTMLElement) {
+          scrollParent.scrollTop = Math.max(0, node.offsetTop - 24);
+        } else {
+          node.scrollIntoView({ behavior: "auto", block: "start" });
+        }
+        onPathsScrollHandled?.();
+      }
+      setPathsPositioning(false);
+    },
+    [pathsRef, scrollToPathsOnOpen, onPathsScrollHandled]
+  );
 
   const updateLabelMode =
     updatePhase === "checking"
@@ -163,11 +195,15 @@ export function SettingsModal({
 
   return (
     <div
-      className={`modal-backdrop${isClosing ? " closing" : isEntering ? "" : " open"}`}
+      className={`modal-backdrop${isClosing ? " closing" : isEntering ? "" : " open"}${
+        pathsPositioning ? " positioning" : ""
+      }`}
       data-qa="qa:modal-backdrop:settings"
     >
       <div
-        className={`modal modal-settings${isClosing ? " closing" : isEntering ? "" : " open"}`}
+        className={`modal modal-settings${isClosing ? " closing" : isEntering ? "" : " open"}${
+          pathsPositioning ? " positioning" : ""
+        }`}
         data-qa="qa:modal:settings"
       >
         <div className="modal-header" data-qa="qa:modal-header:settings">
@@ -360,7 +396,7 @@ export function SettingsModal({
               </div>
             </div>
           </div>
-          <div className="section" ref={pathsRef}>
+          <div className="section" ref={handlePathsRef}>
             <div className="section-title">Paths & Repos</div>
             <div className="path-row path-card" data-qa="qa:path:main">
               <div>

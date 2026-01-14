@@ -107,7 +107,8 @@ class TrayController:
         if not pystray or not Image or not self.icon_path.exists():
             return
         self.window = window
-        image = Image.open(self.icon_path)
+        with Image.open(self.icon_path) as handle:
+            image = handle.copy()
         wm_lbutton_dblclk = 0x0203
 
         def open_window() -> None:
@@ -255,13 +256,37 @@ def main() -> None:
     def on_closing(*_args) -> bool:
         if exit_event.is_set():
             return True
-        if tray.icon:
+        tray_ready = (
+            tray.icon is not None and tray.thread is not None and tray.thread.is_alive()
+        )
+        if tray_ready:
             if not window_loaded.is_set():
                 pending_hide_to_tray.set()
                 return False
-            window.hide()
-            tray.show()
+            try:
+                window.hide()
+            except Exception:  # noqa: BLE001
+                exit_event.set()
+                try:
+                    backend.shutdown()
+                except Exception:  # noqa: BLE001
+                    pass
+                return True
+            try:
+                tray.show()
+            except Exception:  # noqa: BLE001
+                exit_event.set()
+                try:
+                    backend.shutdown()
+                except Exception:  # noqa: BLE001
+                    pass
+                return True
             return False
+        exit_event.set()
+        try:
+            backend.shutdown()
+        except Exception:  # noqa: BLE001
+            pass
         return True
 
     try:
@@ -288,7 +313,20 @@ def main() -> None:
     except Exception:  # noqa: BLE001
         pass
     try:
-        window.events.closed += lambda *_args: tray.stop()
+
+        def on_closed(*_args) -> None:
+            exit_event.set()
+            try:
+                backend.shutdown()
+            except Exception:  # noqa: BLE001
+                pass
+            try:
+                tray.stop()
+            except Exception:  # noqa: BLE001
+                pass
+            ipc_stop.set()
+
+        window.events.closed += on_closed
     except Exception:  # noqa: BLE001
         pass
 
@@ -312,8 +350,11 @@ def main() -> None:
                 lock_handle.close()
             except Exception:  # noqa: BLE001
                 pass
-        if exit_event.is_set():
-            sys.exit(0)
+        if tray.thread:
+            try:
+                tray.thread.join(timeout=1.5)
+            except Exception:  # noqa: BLE001
+                pass
 
 
 if __name__ == "__main__":

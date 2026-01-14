@@ -164,6 +164,11 @@ export default function App() {
   const [syncState, setSyncState] = useState<"idle" | "loading" | "success" | "error">(
     "idle"
   );
+  const [syncTargetPulse, setSyncTargetPulse] = useState<number>(0);
+  const [syncTargetNudgeFlash, setSyncTargetNudgeFlash] = useState<boolean>(false);
+  const [syncTargetNudgeActive, setSyncTargetNudgeActive] = useState<boolean>(false);
+  const syncTargetNudgeTimerRef = useRef<number | null>(null);
+  const syncTargetNudgeFlashTimersRef = useRef<number[]>([]);
   const [savingState, setSavingState] = useState<"idle" | "saving" | "saved" | "error">(
     "idle"
   );
@@ -174,7 +179,6 @@ export default function App() {
   const [latestLogId, setLatestLogId] = useState<string>("");
   const prefersDark = useRef<MediaQueryList | null>(null);
   const saveTimerRef = useRef<number | null>(null);
-  const resetTimerRef = useRef<number | null>(null);
   const splitRatioSaveTimerRef = useRef<number | null>(null);
   const themeTransitionTimerRef = useRef<number | null>(null);
   const themeSwapTimerRef = useRef<number | null>(null);
@@ -840,6 +844,15 @@ export default function App() {
     return () => timers.forEach((timer) => window.clearTimeout(timer));
   }, [updateState.phase]);
 
+  useEffect(() => {
+    return () => {
+      syncTargetNudgeFlashTimersRef.current.forEach((timer) => window.clearTimeout(timer));
+      syncTargetNudgeFlashTimersRef.current = [];
+      if (syncTargetNudgeTimerRef.current) window.clearTimeout(syncTargetNudgeTimerRef.current);
+      syncTargetNudgeTimerRef.current = null;
+    };
+  }, []);
+
   const filteredLogs = useMemo(() => {
     if (filter === "ALL") return snapshot.logs;
     return snapshot.logs.filter((log) => log.level === filter);
@@ -991,6 +1004,32 @@ export default function App() {
   };
 
   const handleSync = async () => {
+    if (!outputDir.trim()) {
+      setSyncState("idle");
+      setSyncTargetPulse((value) => value + 1);
+      setSyncTargetNudgeActive(true);
+      syncTargetNudgeFlashTimersRef.current.forEach((timer) => window.clearTimeout(timer));
+      syncTargetNudgeFlashTimersRef.current = [];
+
+      setSyncTargetNudgeFlash(false);
+      const schedule = (ms: number, next: boolean) => {
+        const timer = window.setTimeout(() => setSyncTargetNudgeFlash(next), ms);
+        syncTargetNudgeFlashTimersRef.current.push(timer);
+      };
+      // Two quick flashes: ON → OFF → ON → OFF.
+      schedule(0, true);
+      schedule(240, false);
+      schedule(520, true);
+      schedule(760, false);
+
+      if (syncTargetNudgeTimerRef.current) window.clearTimeout(syncTargetNudgeTimerRef.current);
+      syncTargetNudgeTimerRef.current = window.setTimeout(() => {
+        syncTargetNudgeTimerRef.current = null;
+        setSyncTargetNudgeFlash(false);
+        setSyncTargetNudgeActive(false);
+      }, 900);
+      return;
+    }
     const loadingStartedAt = Date.now();
     setSyncState("loading");
     const baselineLastSync = snapshot.lastSync;
@@ -1438,25 +1477,6 @@ export default function App() {
     });
   };
 
-  const smoothScrollTo = (container: HTMLElement, target: number, duration = 650) => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      container.scrollTop = target;
-      return;
-    }
-    const start = container.scrollTop;
-    const delta = target - start;
-    const startTime = performance.now();
-    const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
-    const step = (now: number) => {
-      const elapsed = Math.min(1, (now - startTime) / duration);
-      container.scrollTop = start + delta * easeOut(elapsed);
-      if (elapsed < 1) {
-        requestAnimationFrame(step);
-      }
-    };
-    requestAnimationFrame(step);
-  };
-
   const openPathsInSettings = () => {
     pendingPathsScrollRef.current = true;
     openSettings();
@@ -1801,36 +1821,7 @@ export default function App() {
   }, [alertOpen, alertCountdownArmed, closeAlertModal, alertContext?.id]);
 
   useEffect(() => {
-    if (!settingsOpen || !pendingPathsScrollRef.current) return;
-    if (resetTimerRef.current) {
-      window.clearTimeout(resetTimerRef.current);
-    }
-    const start = performance.now();
-    const attempt = () => {
-      const target = pathsRef.current;
-      if (!target) {
-        if (performance.now() - start < 600) {
-          requestAnimationFrame(attempt);
-        }
-        return;
-      }
-      const scrollParent = target.closest(".modal-body");
-      if (scrollParent instanceof HTMLElement && target instanceof HTMLElement) {
-        scrollParent.scrollTop = 0;
-        smoothScrollTo(scrollParent, Math.max(0, target.offsetTop - 24), 700);
-      } else {
-        target.scrollIntoView({
-          behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-            ? "auto"
-            : "smooth",
-          block: "center"
-        });
-      }
-      pendingPathsScrollRef.current = false;
-    };
-    resetTimerRef.current = window.setTimeout(() => {
-      requestAnimationFrame(attempt);
-    }, 120);
+    if (!settingsOpen) pendingPathsScrollRef.current = false;
   }, [settingsOpen]);
 
   useEffect(() => {
@@ -2078,6 +2069,7 @@ export default function App() {
           message?: string;
           path?: string;
         }) => void;
+        setOutputDir?: (path: string) => Promise<void>;
         setThemePreference?: (theme: Settings["theme"], enableSystemTheme?: boolean) => void;
         seedHistoryOverflow?: (days?: number, itemsPerDay?: number) => void;
         seedNextEventsImpactOverflow?: (
@@ -2094,6 +2086,16 @@ export default function App() {
       appendLog: (message: string, level = "INFO") => appendLogEntry(message, level),
       refresh: () => {
         refresh();
+      },
+      setOutputDir: async (value: string) => {
+        dirtyOutputDirRef.current = true;
+        setOutputDir(value);
+        try {
+          await backend.setOutputDir(value);
+        } catch {
+          return;
+        }
+        await refresh();
       },
       refreshUpdateState: () => {
         return refreshUpdateState();
@@ -2311,6 +2313,9 @@ export default function App() {
       <AppBar
         snapshot={snapshot}
         outputDir={outputDir}
+        syncTargetPulse={syncTargetPulse}
+        syncTargetNudgeFlash={syncTargetNudgeFlash}
+        syncDisabled={syncTargetNudgeActive}
         connecting={connecting}
         pullState={pullState}
         syncState={syncState}
@@ -2381,6 +2386,10 @@ export default function App() {
         onResolveSyncRepo={handleSyncRepoReview}
         savingMessage={savingMessage}
         pathsRef={pathsRef}
+        scrollToPathsOnOpen={pendingPathsScrollRef.current}
+        onPathsScrollHandled={() => {
+          pendingPathsScrollRef.current = false;
+        }}
         updatePhase={updateState.phase}
         updateMessage={updateState.message}
         updateProgress={updateState.progress}

@@ -2,7 +2,11 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from agent.config import parse_iso_time, to_display_time
+from agent.config import (
+    get_selected_output_dir_last_sync_at,
+    parse_iso_time,
+    to_display_time,
+)
 from agent.timezone import (
     CALENDAR_SOURCE_UTC_OFFSET_MINUTES,
     clamp_utc_offset_minutes,
@@ -24,7 +28,7 @@ class CalendarMixin:
     def _refresh_times(self) -> None:
         def _update() -> None:
             last_pull = parse_iso_time(self.state.get("last_pull_at", ""))
-            last_sync = parse_iso_time(self.state.get("last_sync_at", ""))
+            last_sync = parse_iso_time(get_selected_output_dir_last_sync_at(self.state))
             self.last_pull_var.set(to_display_time(last_pull))
             self.last_sync_var.set(to_display_time(last_sync))
 

@@ -9,6 +9,7 @@ from agent.config import (
     get_github_token,
     parse_iso_time,
     save_config,
+    set_output_dir_last_sync_at,
     to_iso_time,
 )
 from agent.git_ops import fetch_origin, get_head_sha, get_origin_sha, pull_origin_main
@@ -259,8 +260,9 @@ class SyncMixin:
             return
 
         src_dir = repo_path / "data" / "Economic_Calendar"
+        managed_dir = output_dir / "data" / "Economic_Calendar"
         try:
-            result = mirror_sync(src_dir, output_dir)
+            result = mirror_sync(src_dir, managed_dir)
         except FileNotFoundError:
             self._append_notice("Calendar source not found in repository")
             return
@@ -268,7 +270,9 @@ class SyncMixin:
         self._append_notice(
             f"Sync ok: +{result.copied} / -{result.deleted} / = {result.skipped}"
         )
-        self.state["last_sync_at"] = to_iso_time(datetime.now())
+        now = to_iso_time(datetime.now())
+        self.state["last_sync_at"] = now
+        set_output_dir_last_sync_at(self.state, output_dir, now)
         save_config(self.state)
         self._refresh_times()
         self._refresh_calendar_data()

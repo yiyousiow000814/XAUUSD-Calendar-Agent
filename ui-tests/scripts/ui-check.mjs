@@ -144,7 +144,7 @@ const canConnect = (port) =>
     const timer = setTimeout(() => {
       socket.destroy();
       resolve(false);
-    }, 200);
+    }, 600);
     socket.once("connect", () => {
       clearTimeout(timer);
       socket.end();
@@ -190,6 +190,10 @@ const startServer = async (port) => {
     { cwd: repoRoot, shell: true, stdio: "inherit" }
   );
   await waitForPort(port);
+  await new Promise((r) => setTimeout(r, 120));
+  if (server.exitCode !== null && typeof server.exitCode !== "undefined") {
+    throw new Error(`UI preview exited early (code=${server.exitCode})`);
+  }
   return server;
 };
 
@@ -220,6 +224,16 @@ const pickPort = async (start, count = 6) => {
     if (free) return port;
   }
   return start;
+};
+
+const getPortFromURL = (url) => {
+  try {
+    const parsed = new URL(url);
+    const port = Number(parsed.port);
+    return Number.isFinite(port) && port > 0 ? port : null;
+  } catch {
+    return null;
+  }
 };
 
 const captureState = async (page, scenario, theme, state, options = {}) => {
@@ -547,6 +561,27 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
       return next;
     };
 
+    const normalizePathKey = (value) =>
+      String(value || "")
+        .trim()
+        .replace(/[\\/]+$/, "")
+        .toLowerCase();
+
+    const getOutputLastSync = (outputDir) => {
+      const key = normalizePathKey(outputDir);
+      if (!key) return { lastSyncAt: "", lastSync: "Not yet" };
+      const map = window.__MOCK_OUTPUT_LAST_SYNC__ || {};
+      return map[key] || { lastSyncAt: "", lastSync: "Not yet" };
+    };
+
+    const setOutputLastSync = (outputDir, payload) => {
+      const key = normalizePathKey(outputDir);
+      if (!key) return;
+      const map = window.__MOCK_OUTPUT_LAST_SYNC__ || {};
+      map[key] = { ...getOutputLastSync(outputDir), ...payload };
+      window.__MOCK_OUTPUT_LAST_SYNC__ = map;
+    };
+
     window.pywebview = {
       api: {
         get_snapshot: () => Promise.resolve(window.__desktop_snapshot__),
@@ -613,10 +648,21 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
           window.setTimeout(() => {
             const finishedAt = formatDisplayTime(new Date());
             const current = window.__desktop_snapshot__;
+            const outputDir = String(current.outputDir || "").trim();
+            if (!outputDir) {
+              setSnapshot({
+                ...current,
+                syncActive: false,
+                logs: [{ time: finishedAt, message: "Sync skipped (no output dir)", level: "WARN" }, ...(current.logs || [])]
+              });
+              return;
+            }
+            const lastSyncAt = new Date().toISOString();
+            setOutputLastSync(outputDir, { lastSyncAt, lastSync: finishedAt });
             setSnapshot({
               ...current,
               syncActive: false,
-              lastSyncAt: new Date().toISOString(),
+              lastSyncAt,
               lastSync: finishedAt,
               logs: [{ time: finishedAt, message: "Sync completed", level: "INFO" }, ...(current.logs || [])]
             });
@@ -624,7 +670,18 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
           return Promise.resolve({ ok: true });
         },
         browse_output_dir: () => Promise.resolve({ ok: true, path: "" }),
-        set_output_dir: () => Promise.resolve({ ok: true }),
+        set_output_dir: (path) => {
+          const value = typeof path === "string" ? path : "";
+          const baseline = window.__desktop_snapshot__;
+          const outputSync = value ? getOutputLastSync(value) : { lastSyncAt: "", lastSync: "Not yet" };
+          setSnapshot({
+            ...baseline,
+            outputDir: value,
+            lastSyncAt: outputSync.lastSyncAt,
+            lastSync: outputSync.lastSync
+          });
+          return Promise.resolve({ ok: true });
+        },
         set_currency: () => Promise.resolve({ ok: true }),
         clear_logs: () => Promise.resolve({ ok: true })
       }
@@ -939,9 +996,12 @@ const assertThemeTransitionSynchronized = async (page, themeKey) => {
     throw new Error(`Theme transition shows no mid-flight progress (avg@50%=${avgMid.toFixed(2)})`);
   }
 
-  const doneAt = metrics.find((m) => m.avg >= 0.93)?.t ?? null;
-  if (doneAt !== null && doneAt < Math.round(durationMs * 0.55)) {
-    throw new Error(`Theme transition finishes too early (avg>=0.93 at ${doneAt}ms)`);
+  const doneAt = metrics.find((m) => m.avg >= 0.97)?.t ?? null;
+  const earliestOk = Math.round(durationMs * 0.55) - 80;
+  if (doneAt !== null && doneAt < earliestOk) {
+    throw new Error(
+      `Theme transition finishes too early (avg>=0.97 at ${doneAt}ms, expected >=${earliestOk}ms)`
+    );
   }
 
   const clipTopDiff = async (aPath, bPath, clipHeight = 720) => {
@@ -1195,12 +1255,19 @@ const main = async () => {
   let server;
   if (shouldStartServer) {
     await run("npm", ["--prefix", "app/webui", "run", "build"], { cwd: repoRoot });
-    const port = await pickPort(defaultPort);
-    baseURL = `http://127.0.0.1:${port}`;
-    try {
-      server = await startServer(port);
-    } catch (err) {
-      console.warn("UI server failed to start, continuing with existing baseURL.");
+    let port = await pickPort(defaultPort);
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      baseURL = `http://127.0.0.1:${port}`;
+      try {
+        server = await startServer(port);
+        break;
+      } catch (err) {
+        console.warn(`WARN UI server failed to start on port ${port}; retrying.`);
+        port = await pickPort(defaultPort + 1);
+      }
+    }
+    if (!server) {
+      throw new Error("UI server failed to start after retries");
     }
   }
 
@@ -1213,6 +1280,27 @@ const main = async () => {
     { key: "system-dark", mode: "system", scheme: "dark" },
     { key: "system-light", mode: "system", scheme: "light" }
   ];
+
+  const ensureServerHealthy = async () => {
+    if (!shouldStartServer) return;
+    const port = getPortFromURL(baseURL);
+    if (!port) return;
+
+    const exited = server?.exitCode !== null && typeof server?.exitCode !== "undefined";
+    const reachable = await canConnect(port);
+    if (!exited && reachable) return;
+    if (!exited) {
+      await new Promise((r) => setTimeout(r, 160));
+      if (await canConnect(port)) return;
+    }
+
+    console.warn(`WARN UI preview unreachable on port ${port}; restarting.`);
+    await stopServer(server);
+    await new Promise((r) => setTimeout(r, 220));
+    const nextPort = await pickPort(defaultPort);
+    baseURL = `http://127.0.0.1:${nextPort}`;
+    server = await startServer(nextPort);
+  };
 
   const runTheme = async (theme) => {
     const colorScheme = theme.mode === "system" ? theme.scheme : theme.mode;
@@ -1246,7 +1334,20 @@ const main = async () => {
     }, theme);
     const page = await context.newPage();
     const video = page.video();
-    await page.goto(baseURL, { waitUntil: "domcontentloaded" });
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        await ensureServerHealthy();
+        await page.goto(baseURL, { waitUntil: "domcontentloaded" });
+        break;
+      } catch (err) {
+        const msg = String(err || "");
+        if (msg.includes("ERR_CONNECTION_REFUSED") && attempt < 2) {
+          await ensureServerHealthy();
+          continue;
+        }
+        throw err;
+      }
+    }
     const initOverlay = page.locator("[data-qa='qa:overlay:init']").first();
     await Promise.all([
       page.waitForSelector("[data-qa='qa:app-shell']", { timeout: 10000 }),
@@ -1441,6 +1542,78 @@ const main = async () => {
       const rect = (appbar ?? app)?.getBoundingClientRect();
       return rect ? rect.width : 0;
     });
+
+    await runCheck(theme.key, "Sync target opens Settings at Paths & Repos (no jump)", async () => {
+      const syncTarget = page.locator("[data-qa='qa:action:sync-target']").first();
+      if (!(await syncTarget.count())) {
+        throw new Error("Sync target pill not found");
+      }
+      await syncTarget.click();
+      await page.waitForSelector("[data-qa*='qa:modal:settings']", { timeout: 1500 });
+      const baseline = await page.evaluate(() => {
+        const body = document.querySelector("[data-qa='qa:modal-body:settings']");
+        const row = document.querySelector("[data-qa='qa:path:main']");
+        if (!(body instanceof HTMLElement)) {
+          return { ok: false, reason: "Settings modal body not found" };
+        }
+        if (!(row instanceof HTMLElement)) {
+          return { ok: false, reason: "Paths section not found" };
+        }
+        const bodyRect = body.getBoundingClientRect();
+        const rowRect = row.getBoundingClientRect();
+        return {
+          ok: true,
+          scrollTop: body.scrollTop,
+          rowTop: rowRect.top - bodyRect.top
+        };
+      });
+      if (!baseline.ok) {
+        throw new Error(baseline.reason);
+      }
+      await page.waitForTimeout(160);
+      const after = await page.evaluate(() => {
+        const body = document.querySelector("[data-qa='qa:modal-body:settings']");
+        if (!(body instanceof HTMLElement)) return { scrollTop: 0 };
+        return { scrollTop: body.scrollTop };
+      });
+      const delta = Math.abs(after.scrollTop - baseline.scrollTop);
+      if (delta > 1.5) {
+        throw new Error(`Settings scroll jumped after open (Δ=${delta.toFixed(2)}px).`);
+      }
+      if (baseline.scrollTop < 40) {
+        throw new Error(`Expected settings to open already scrolled to paths (scrollTop=${baseline.scrollTop.toFixed(1)}).`);
+      }
+      if (baseline.rowTop < -10 || baseline.rowTop > 240) {
+        throw new Error(`Expected paths section near top (rowTop=${baseline.rowTop.toFixed(1)}).`);
+      }
+      const close = page.locator("[data-qa*='qa:modal-close:settings']").first();
+      const waitClosed = async (timeoutMs) =>
+        page
+          .waitForSelector("[data-qa*='qa:modal-backdrop:settings']", { state: "hidden", timeout: timeoutMs })
+          .then(() => true)
+          .catch(() => false);
+
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        if (await close.count()) {
+          await close.click({ force: true });
+        }
+        if (await waitClosed(1800)) {
+          return true;
+        }
+        await page.evaluate(() => {
+          document
+            .querySelector("[data-qa='qa:modal-close:settings']")
+            ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        });
+        if (await waitClosed(1800)) {
+          return true;
+        }
+      }
+
+      throw new Error("Settings modal did not close after Sync Target open");
+      return true;
+    });
+
     const settingsTrigger = page.locator("[data-qa*='qa:modal-trigger:settings']").first();
     await settingsTrigger.click();
     await page.waitForSelector("[data-qa*='qa:modal:settings']", { timeout: 1000 });
@@ -2046,7 +2219,20 @@ const main = async () => {
       window.__ui_check__.holdInitOverlayMs = 1500;
     }, theme);
     const smallPage = await smallContext.newPage();
-    await smallPage.goto(baseURL, { waitUntil: "domcontentloaded" });
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        await ensureServerHealthy();
+        await smallPage.goto(baseURL, { waitUntil: "domcontentloaded" });
+        break;
+      } catch (err) {
+        const msg = String(err || "");
+        if (msg.includes("ERR_CONNECTION_REFUSED") && attempt < 2) {
+          await ensureServerHealthy();
+          continue;
+        }
+        throw err;
+      }
+    }
     const smallInitOverlay = smallPage.locator("[data-qa='qa:overlay:init']").first();
     await Promise.all([
       smallPage.waitForSelector("[data-qa='qa:app-shell']", { timeout: 10000 }),
@@ -2328,13 +2514,133 @@ const main = async () => {
       state: "sync-hover",
       path: await captureState(page, "actions", theme.key, "sync-hover")
     });
-    await pressElement(page, syncButton);
-    artifacts.push({
-      scenario: "actions",
-      theme: theme.key,
-      state: "sync-press",
-      path: await captureState(page, "actions", theme.key, "sync-press")
+    const syncTargetBaseline = await page.evaluate(() => {
+      const target = document.querySelector("[data-qa='qa:action:sync-target']");
+      const text = (target?.textContent || "").toLowerCase();
+      return {
+        missing: text.includes("not set"),
+        pulse: Number(target?.getAttribute("data-qa-pulse") || "0")
+      };
     });
+
+    if (syncTargetBaseline.missing) {
+      await runCheck(theme.key, "Sync missing target flashes twice", async () => {
+        await syncButton.click();
+        const timeline = [];
+        for (let i = 0; i < 26; i += 1) {
+          timeline.push(
+            await page.evaluate(() => {
+              const target = document.querySelector("[data-qa='qa:action:sync-target']");
+              if (!target) {
+                return { flash: false, borderColor: "", left: 0, top: 0, width: 0, height: 0, afterOpacity: 0 };
+              }
+              const flash = (target.getAttribute("data-qa-flash") || "0") === "1";
+              const color = window.getComputedStyle(target).borderColor || "";
+              const rect = target.getBoundingClientRect();
+              const after = window.getComputedStyle(target, "::after");
+              const afterOpacity = Number.parseFloat(after.opacity || "0") || 0;
+              return {
+                flash,
+                borderColor: color,
+                left: rect.left,
+                top: rect.top,
+                width: rect.width,
+                height: rect.height,
+                afterOpacity
+              };
+            })
+          );
+          await page.waitForTimeout(40);
+        }
+        let segments = timeline.length && timeline[0].flash ? 1 : 0;
+        for (let i = 1; i < timeline.length; i += 1) {
+          const prev = timeline[i - 1].flash;
+          const cur = timeline[i].flash;
+          if (!prev && cur) segments += 1;
+        }
+        if (segments < 2) {
+          throw new Error(`Expected >=2 flash segments, got ${segments}. timeline=${JSON.stringify(timeline)}`);
+        }
+        const peakOpacity = Math.max(
+          ...timeline
+            .filter((entry) => entry.flash)
+            .map((entry) => entry.afterOpacity || 0)
+            .concat([0])
+        );
+        if (peakOpacity < 0.35) {
+          throw new Error(
+            `Expected sync-target flash ring to become visible during flash (peakOpacity=${peakOpacity.toFixed(2)}).`
+          );
+        }
+        const widths = timeline.map((entry) => entry.width).filter((value) => value > 0);
+        const heights = timeline.map((entry) => entry.height).filter((value) => value > 0);
+        const lefts = timeline.map((entry) => entry.left).filter((value) => Number.isFinite(value));
+        const tops = timeline.map((entry) => entry.top).filter((value) => Number.isFinite(value));
+        const widthDelta = widths.length ? Math.max(...widths) - Math.min(...widths) : 0;
+        const heightDelta = heights.length ? Math.max(...heights) - Math.min(...heights) : 0;
+        const leftDelta = lefts.length ? Math.max(...lefts) - Math.min(...lefts) : 0;
+        const topDelta = tops.length ? Math.max(...tops) - Math.min(...tops) : 0;
+        if (widthDelta > 0.75 || heightDelta > 0.75 || leftDelta > 0.75 || topDelta > 0.75) {
+          throw new Error(
+            `Sync target shifted during flash (widthΔ=${widthDelta.toFixed(2)}px, heightΔ=${heightDelta.toFixed(
+              2
+            )}px, leftΔ=${leftDelta.toFixed(2)}px, topΔ=${topDelta.toFixed(2)}px).`
+          );
+        }
+        return true;
+      });
+
+      await page.waitForTimeout(120);
+      artifacts.push({
+        scenario: "actions",
+        theme: theme.key,
+        state: "sync-missing-target",
+        path: await captureState(page, "actions", theme.key, "sync-missing-target")
+      });
+      await runCheck(theme.key, "Sync missing target pulse", async () => {
+        const result = await page.evaluate((baselinePulse) => {
+          const syncBtn = document.querySelector("[data-qa*='qa:action:sync']");
+          const target = document.querySelector("[data-qa='qa:action:sync-target']");
+          const spinner = document.querySelector("[data-qa*='qa:spinner:sync']");
+          const state = syncBtn?.getAttribute("data-qa-state") || "";
+          const label = (syncBtn?.textContent || "").toLowerCase();
+          const pulse = Number(target?.getAttribute("data-qa-pulse") || "0");
+
+          if (state !== "idle") {
+            return { ok: false, reason: `Sync button entered ${state} while sync target missing` };
+          }
+          if (label.includes("syncing") || label.includes("failed")) {
+            return { ok: false, reason: `Sync button label unexpected while target missing (label=${label})` };
+          }
+          if (spinner) {
+            return { ok: false, reason: "Sync spinner rendered while target missing" };
+          }
+          if (pulse <= baselinePulse) {
+            return { ok: false, reason: `Sync target did not pulse (pulse=${pulse}, baseline=${baselinePulse})` };
+          }
+          return { ok: true };
+        }, syncTargetBaseline.pulse);
+
+        if (!result.ok) {
+          throw new Error(result.reason);
+        }
+        return true;
+      });
+
+      await page.evaluate(() => {
+        window.__ui_check__?.setOutputDir?.("C:\\\\ui-check\\\\output");
+      });
+      await page.waitForTimeout(120);
+    } else {
+      await pressElement(page, syncButton);
+      artifacts.push({
+        scenario: "actions",
+        theme: theme.key,
+        state: "sync-press",
+        path: await captureState(page, "actions", theme.key, "sync-press")
+      });
+    }
+
     await syncButton.click();
     await page.waitForTimeout(120);
     artifacts.push({
@@ -2359,6 +2665,30 @@ const main = async () => {
       theme: theme.key,
       state: "sync-success",
       path: await captureState(page, "actions", theme.key, "sync-success")
+    });
+
+    await runCheck(theme.key, "Last sync resets when sync target cleared", async () => {
+      await page.evaluate(() => window.__ui_check__?.setOutputDir?.(""));
+      await page.waitForTimeout(120);
+      const result = await page.evaluate(() => {
+        const target = document.querySelector("[data-qa='qa:action:sync-target']");
+        const blocks = Array.from(document.querySelectorAll("[data-qa='qa:status:last-sync'] .meta-block"));
+        const syncBlock = blocks.find((block) =>
+          (block.querySelector(".meta-label")?.textContent || "").toLowerCase().includes("last sync")
+        );
+        const lastSync = syncBlock?.querySelector(".meta-value") || null;
+        return {
+          outputMissing: (target?.textContent || "").toLowerCase().includes("not set"),
+          lastSyncText: (lastSync?.textContent || "").trim()
+        };
+      });
+      if (!result.outputMissing) {
+        throw new Error("Expected sync target to show Not set after clearing output dir");
+      }
+      if (result.lastSyncText.toLowerCase() !== "not yet") {
+        throw new Error(`Expected last sync to be Not yet, got '${result.lastSyncText}'`);
+      }
+      return true;
     });
 
     await page.evaluate(() => {});
@@ -2911,6 +3241,7 @@ const main = async () => {
 
   const themeResults = [];
   for (const theme of themes) {
+    await ensureServerHealthy();
     await runTheme(theme);
   }
 

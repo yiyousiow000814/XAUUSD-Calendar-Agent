@@ -4,6 +4,9 @@ import "./AppBar.css";
 type AppBarProps = {
   snapshot: Snapshot;
   outputDir: string;
+  syncTargetPulse: number;
+  syncTargetNudgeFlash: boolean;
+  syncDisabled: boolean;
   connecting: boolean;
   pullState: "idle" | "loading" | "success" | "error";
   syncState: "idle" | "loading" | "success" | "error";
@@ -19,6 +22,9 @@ type AppBarProps = {
 export function AppBar({
   snapshot,
   outputDir,
+  syncTargetPulse,
+  syncTargetNudgeFlash,
+  syncDisabled,
   connecting,
   pullState,
   syncState,
@@ -30,6 +36,16 @@ export function AppBar({
   onToggleTheme,
   onOpenPaths
 }: AppBarProps) {
+  const hasTarget = outputDir.trim().length > 0;
+  const shouldFlash = !hasTarget && syncTargetNudgeFlash;
+  const displayTarget = hasTarget
+    ? outputDir
+        .trim()
+        .replace(/[\\/]+$/, "")
+        .split(/[/\\]/)
+        .filter(Boolean)
+        .slice(-1)[0] || outputDir.trim()
+    : "Not set";
   return (
     <header className="appbar" data-qa="qa:appbar">
       <div className="appbar-brand">
@@ -62,7 +78,7 @@ export function AppBar({
           <button
             className="btn btn-compact"
             onClick={onSync}
-            disabled={connecting || syncState === "loading"}
+            disabled={connecting || syncState === "loading" || syncDisabled}
             data-qa="qa:action:sync qa:action:async"
             data-qa-state={syncState}
           >
@@ -82,14 +98,21 @@ export function AppBar({
           </button>
         </div>
         <button
-          className={`pill-link appbar-pill${outputDir ? "" : " attention"}`}
+          className={`pill-link appbar-pill${hasTarget ? "" : " attention"}${
+            shouldFlash ? " sync-target-flash" : ""
+          }`}
           onClick={onOpenPaths}
           data-qa="qa:action:sync-target"
+          data-qa-pulse={syncTargetPulse}
+          data-qa-flash={shouldFlash ? "1" : "0"}
         >
           <span className="pill-label">Sync Target</span>
           <span className="pill-sep">:</span>
-          <span className={`pill-value${outputDir ? "" : " attention"}`}>
-            {outputDir || "Not set"}
+          <span
+            className="pill-value attention"
+            title={hasTarget ? outputDir : ""}
+          >
+            {displayTarget}
           </span>
         </button>
       </div>

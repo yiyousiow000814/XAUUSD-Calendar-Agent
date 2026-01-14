@@ -116,6 +116,10 @@
   --pill-attention-shadow-1: rgba(246, 180, 80, 0.08);
   --pill-attention-bg-0: rgba(246, 180, 80, 0.14);
   --pill-attention-bg-1: rgba(18, 22, 30, 0.5);
+  --pill-nudge-border: rgba(246, 180, 80, 0.84);
+  --pill-nudge-ring-0: rgba(246, 180, 80, 0.28);
+  --pill-nudge-ring-1: rgba(246, 180, 80, 0.42);
+  --pill-nudge-glow: rgba(246, 180, 80, 0.26);
   --icon-btn-border: rgba(255, 255, 255, 0.06);
   --icon-btn-bg-0: rgba(24, 30, 40, 0.62);
   --icon-btn-bg-1: rgba(18, 22, 30, 0.46);
@@ -901,6 +905,10 @@ body {
   --pill-attention-shadow-1: rgba(210, 142, 51, 0.1);
   --pill-attention-bg-0: rgba(210, 142, 51, 0.12);
   --pill-attention-bg-1: rgba(255, 255, 255, 0.76);
+  --pill-nudge-border: rgba(210, 142, 51, 0.74);
+  --pill-nudge-ring-0: rgba(210, 142, 51, 0.22);
+  --pill-nudge-ring-1: rgba(210, 142, 51, 0.36);
+  --pill-nudge-glow: rgba(210, 142, 51, 0.22);
   --icon-btn-border: rgba(18, 20, 26, 0.14);
   --icon-btn-bg-0: rgba(255, 255, 255, 0.92);
   --icon-btn-bg-1: rgba(255, 255, 255, 0.92);

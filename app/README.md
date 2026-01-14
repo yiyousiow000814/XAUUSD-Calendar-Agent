@@ -5,7 +5,7 @@ Lightweight desktop agent to keep `data/Economic_Calendar` synced with the lates
 
 ## Features
 - Pulls `origin/main` on startup when the repo is stale (> 1 day) or has new commits.
-- Mirrors `data/Economic_Calendar` to the chosen output directory (add/replace/delete).
+- Mirrors `data/Economic_Calendar` to `<output_dir>\\data\\Economic_Calendar` (add/replace/delete).
 - Shows last pull/sync time and a live activity log.
 - Optional startup task via Windows Task Scheduler.
 - Closing the window minimizes the app to the system tray.

@@ -249,6 +249,29 @@ const setMockSnapshot = (next: Snapshot) => {
   return next;
 };
 
+const normalizeMockPathKey = (value: string) =>
+  String(value || "")
+    .trim()
+    .replace(/[\\/]+$/, "")
+    .toLowerCase();
+
+const getMockOutputLastSync = (outputDir: string) => {
+  const key = normalizeMockPathKey(outputDir);
+  const map =
+    (window as unknown as { __MOCK_OUTPUT_LAST_SYNC__?: Record<string, { lastSyncAt: string; lastSync: string }> })
+      .__MOCK_OUTPUT_LAST_SYNC__ ?? {};
+  return map[key] || { lastSyncAt: "", lastSync: "Not yet" };
+};
+
+const setMockOutputLastSync = (outputDir: string, payload: { lastSyncAt: string; lastSync: string }) => {
+  const key = normalizeMockPathKey(outputDir);
+  if (!key) return;
+  const win = window as unknown as {
+    __MOCK_OUTPUT_LAST_SYNC__?: Record<string, { lastSyncAt: string; lastSync: string }>;
+  };
+  win.__MOCK_OUTPUT_LAST_SYNC__ = { ...(win.__MOCK_OUTPUT_LAST_SYNC__ ?? {}), [key]: payload };
+};
+
 const baseMockUpdateState: UpdateState = {
   ok: true,
   phase: "idle",
@@ -616,10 +639,21 @@ export const backend = {
       window.setTimeout(() => {
         const current = getMockSnapshot();
         const finishedAt = formatDisplayTime(new Date());
+        const outputDir = String(current.outputDir || "").trim();
+        if (!outputDir) {
+          setMockSnapshot({
+            ...current,
+            syncActive: false,
+            logs: [{ time: finishedAt, message: "Sync skipped (no output dir)", level: "WARN" }, ...current.logs]
+          });
+          return;
+        }
+        const lastSyncAt = new Date().toISOString();
+        setMockOutputLastSync(outputDir, { lastSyncAt, lastSync: finishedAt });
         setMockSnapshot({
           ...current,
           syncActive: false,
-          lastSyncAt: new Date().toISOString(),
+          lastSyncAt,
           lastSync: finishedAt,
           logs: [{ time: finishedAt, message: "Sync completed", level: "INFO" }, ...current.logs]
         });
@@ -644,6 +678,10 @@ export const backend = {
       if (isWebview()) {
         throw new Error("Desktop backend unavailable");
       }
+      const value = String(path || "");
+      const baseline = getMockSnapshot();
+      const sync = value ? getMockOutputLastSync(value) : { lastSyncAt: "", lastSync: "Not yet" };
+      setMockSnapshot({ ...baseline, outputDir: value, lastSyncAt: sync.lastSyncAt, lastSync: sync.lastSync });
       return { ok: true };
     }
     return api.set_output_dir(path);
