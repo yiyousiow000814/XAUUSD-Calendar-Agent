@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { EventItem } from "../types";
 import { Select } from "./Select";
 import "./NextEvents.css";
@@ -13,6 +13,7 @@ type NextEventsProps = {
 };
 
 const impactOptions = ["Low", "Medium", "High"];
+const impactFilterStorageKey = "xauusd:nextEvents:impactFilter";
 const impactShortLabel: Record<string, string> = {
   Low: "L",
   Medium: "M",
@@ -34,8 +35,30 @@ export function NextEvents({
   impactTone
 }: NextEventsProps) {
   const [query, setQuery] = useState("");
-  const [impactFilter, setImpactFilter] = useState<string[]>(impactOptions);
+  const [impactFilter, setImpactFilter] = useState<string[]>(() => {
+    try {
+      if (typeof window === "undefined") return impactOptions;
+      const raw = window.localStorage.getItem(impactFilterStorageKey);
+      if (!raw) return impactOptions;
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return impactOptions;
+      return parsed
+        .map((value) => String(value))
+        .filter((value) => impactOptions.includes(value));
+    } catch {
+      return impactOptions;
+    }
+  });
   const showSkeleton = loading && events.length === 0;
+
+  useEffect(() => {
+    try {
+      if (typeof window === "undefined") return;
+      window.localStorage.setItem(impactFilterStorageKey, JSON.stringify(impactFilter));
+    } catch {
+      // Ignore storage errors.
+    }
+  }, [impactFilter]);
 
   const renderTime = (value: string) => {
     const [datePart, timePart] = value.split(" ");

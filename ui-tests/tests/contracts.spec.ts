@@ -30,6 +30,7 @@ const spinnerSelector = "[data-qa*='qa:spinner:'], [data-testid*='qa:spinner:']"
 const transitionSelector = "[data-qa*='qa:transition:'], [data-testid*='qa:transition:']";
 
 const rootSelector = "[data-qa='qa:app-shell'], [data-testid='qa:app-shell']";
+const impactFilterStorageKey = "xauusd:nextEvents:impactFilter";
 
 const openModal = async (page: Page, trigger: Locator) => {
   await trigger.click();
@@ -61,6 +62,20 @@ test.beforeEach(async ({ page }) => {
   await ensureAppShell(page);
 });
 
+test.afterEach(async ({ page }) => {
+  await page
+    .evaluate((key) => {
+      try {
+        window.localStorage.removeItem(key);
+      } catch {
+        // Ignore storage errors.
+      }
+    }, impactFilterStorageKey)
+    .catch(() => {
+      // Ignore cleanup failures (e.g. navigation errors).
+    });
+});
+
 test("Blank page guard", async ({ page }) => {
   const root = page.locator(rootSelector);
   await expect(root).toBeVisible();
@@ -88,6 +103,35 @@ test("Next Events impact filter tooltip contract", async ({ page }) => {
     });
     expect(opacity).toBeGreaterThan(0.85);
   }
+});
+
+test("Next Events impact filter remembers selection", async ({ page }) => {
+  const filter = page.locator("[data-qa='qa:filter:impact']").first();
+  test.skip((await filter.count()) === 0, "No impact filter found");
+
+  await page.evaluate((key) => {
+    window.localStorage.setItem(key, JSON.stringify(["Medium", "High"]));
+  }, impactFilterStorageKey);
+
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await ensureAppShell(page);
+
+  const buttons = page.locator("[data-qa='qa:filter:impact'] button.impact-toggle");
+  await expect(buttons).toHaveCount(3);
+  await expect(buttons.nth(0)).not.toHaveClass(/active/);
+  await expect(buttons.nth(1)).toHaveClass(/active/);
+  await expect(buttons.nth(2)).toHaveClass(/active/);
+
+  await buttons.nth(0).click();
+  await expect.poll(async () => {
+    return page.evaluate((key) => window.localStorage.getItem(key) || "", impactFilterStorageKey);
+  }).toContain("Low");
+
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await ensureAppShell(page);
+  await expect(buttons.nth(0)).toHaveClass(/active/);
+  await expect(buttons.nth(1)).toHaveClass(/active/);
+  await expect(buttons.nth(2)).toHaveClass(/active/);
 });
 
 test("Currency select caret padding contract", async ({ page }) => {
