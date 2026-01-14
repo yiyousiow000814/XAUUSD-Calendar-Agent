@@ -12,6 +12,10 @@ type HistoryGroup = {
   items: PastEventItem[];
 };
 
+type HistoryRow =
+  | { type: "year"; key: string; year: number }
+  | { type: "group"; key: string; group: HistoryGroup };
+
 type HistoryPanelProps = {
   events: PastEventItem[];
   loading?: boolean;
@@ -171,6 +175,9 @@ const getRelativeLabel = (date: Date) => {
   if (diffDays <= 0) return "Today";
   if (diffDays === 1) return "Yesterday";
   if (diffDays <= 7) return "Last week";
+  if (diffDays <= 14) return "2 weeks ago";
+  if (diffDays <= 21) return "3 weeks ago";
+  if (diffDays <= 28) return "4 weeks ago";
   return "";
 };
 
@@ -186,7 +193,7 @@ export function HistoryPanel({ events, loading = false, impactTone }: HistoryPan
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const showSkeleton = loading && events.length === 0;
 
-  const groups = useMemo<HistoryGroup[]>(() => {
+  const view = useMemo(() => {
     const cutoff = Date.now() - rangeToMs(range);
     const parsed = events
       .map((entry) => ({
@@ -200,6 +207,7 @@ export function HistoryPanel({ events, loading = false, impactTone }: HistoryPan
 
     parsed.sort((a, b) => b.date.getTime() - a.date.getTime());
 
+    const includeYear = new Set(parsed.map((item) => item.date.getFullYear())).size > 1;
     const grouped = new Map<string, HistoryGroup>();
     parsed.forEach(({ entry, date }) => {
       const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
@@ -217,8 +225,25 @@ export function HistoryPanel({ events, loading = false, impactTone }: HistoryPan
       grouped.get(key)?.items.push(entry);
     });
 
-    return Array.from(grouped.values()).sort((a, b) => b.date.getTime() - a.date.getTime());
+    const groups = Array.from(grouped.values()).sort((a, b) => b.date.getTime() - a.date.getTime());
+    const rows: HistoryRow[] = [];
+    if (includeYear) {
+      let currentYear: number | null = null;
+      groups.forEach((group) => {
+        const year = group.date.getFullYear();
+        if (year !== currentYear) {
+          currentYear = year;
+          rows.push({ type: "year", key: `year-${year}`, year });
+        }
+        rows.push({ type: "group", key: `group-${group.key}`, group });
+      });
+    } else {
+      groups.forEach((group) => rows.push({ type: "group", key: `group-${group.key}`, group }));
+    }
+    return { groups, rows };
   }, [events, range]);
+  const groups = view.groups;
+  const rows = view.rows;
 
   const toggleGroup = (key: string) => {
     setCollapsed((prev) => {
@@ -320,26 +345,38 @@ export function HistoryPanel({ events, loading = false, impactTone }: HistoryPan
         ) : groups.length === 0 ? (
           <div className="history-empty">{loading ? "Loading history…" : "No past events yet."}</div>
         ) : (
-          groups.map((group) => {
+          rows.map((row) => {
+            if (row.type === "year") {
+              return (
+                <div className="history-year" key={row.key} data-qa="qa:separator:history-year">
+                  {row.year}
+                </div>
+              );
+            }
+
+            const group = row.group;
             const isCollapsed = collapsed.has(group.key);
             const highCount = group.items.filter((item) =>
               item.impact.toLowerCase().includes("high")
             ).length;
             return (
-              <div className="history-group" key={group.key} data-qa="qa:group:history-day">
+              <div className="history-group" key={row.key} data-qa="qa:group:history-day">
                 <button
                   type="button"
                   className="history-group-header"
                   onClick={() => toggleGroup(group.key)}
                   data-collapsed={isCollapsed}
                 >
-                  <div>
+                  <div className="history-group-meta">
                     <span className="history-day">{group.label}</span>
                     {group.subLabel ? <span className="history-sub">{group.subLabel}</span> : null}
                   </div>
                   <div className="history-badges">
                     <span className="history-pill">{group.items.length} events</span>
-                    <span className="history-pill history-pill-impact" aria-label={`${highCount} high impact`}>
+                    <span
+                      className="history-pill history-pill-impact"
+                      aria-label={`${highCount} high impact`}
+                    >
                       <span className="history-pill-dot impact-high" aria-hidden="true" />
                       <span className="history-pill-value">{highCount}</span>
                     </span>
@@ -371,7 +408,9 @@ export function HistoryPanel({ events, loading = false, impactTone }: HistoryPan
                           </span>
                           <span
                             className={`history-trend history-trend-${trend}`}
-                            aria-label={trend === "na" ? "Actual: not available" : `Actual trend: ${trendText}`}
+                            aria-label={
+                              trend === "na" ? "Actual: not available" : `Actual trend: ${trendText}`
+                            }
                             title={title}
                           >
                             {trend === "tba" ? <span className="history-trend-label">TBA</span> : null}

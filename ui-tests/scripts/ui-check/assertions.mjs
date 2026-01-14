@@ -647,21 +647,33 @@ export const assertTransformTransition = async (page, selector, label) => {
 };
 
 export const assertSpinnerAnim = async (page, selector, label) => {
-  const sample = async () =>
+  const sampleTransform = async () =>
     page.evaluate((sel) => {
       const node = document.querySelector(sel);
       if (!node) return null;
       const style = window.getComputedStyle(node);
-      return { transform: style.transform };
+      return style.transform || "";
     }, selector);
-  const first = await sample();
-  await page.waitForTimeout(120);
-  const second = await sample();
-  if (!first || !second) {
+
+  const transforms = [];
+  const start = Date.now();
+  const timeoutMs = 900;
+  while (Date.now() - start < timeoutMs) {
+    const value = await sampleTransform();
+    if (value) {
+      transforms.push(value);
+      if (transforms.length >= 6) break;
+    }
+    await page.waitForTimeout(90);
+  }
+
+  if (transforms.length < 2) {
     throw new Error(`${label} spinner missing`);
   }
-  if (first.transform === second.transform) {
-    throw new Error(`${label} spinner not animating`);
+
+  const changed = transforms.some((value, index) => index > 0 && value !== transforms[index - 1]);
+  if (!changed) {
+    throw new Error(`${label} spinner not animating (samples=${JSON.stringify(transforms)})`);
   }
 };
 

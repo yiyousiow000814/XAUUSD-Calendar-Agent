@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from .timezone import CALENDAR_SOURCE_UTC_OFFSET_MINUTES, utc_offset_minutes_to_tzinfo
@@ -21,7 +21,9 @@ def load_calendar_events(repo_path: str) -> list[dict]:
 
     years = sorted(set(year_dirs))
     current_year = now.year
-    candidates = [y for y in years if y in (current_year, current_year + 1)]
+    oldest_needed_year = (now - timedelta(days=31)).year
+    wanted_years = {current_year, current_year + 1, oldest_needed_year}
+    candidates = [y for y in years if y in wanted_years]
     if not candidates:
         candidates = [years[-1]]
 

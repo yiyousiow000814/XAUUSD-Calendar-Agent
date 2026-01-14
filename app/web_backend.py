@@ -1379,7 +1379,9 @@ class WebAgentBackend:
             return []
         years = sorted(set(year_dirs))
         current_year = now.year
-        candidates = [y for y in years if y in (current_year, current_year + 1)]
+        oldest_needed_year = (now - timedelta(days=31)).year
+        wanted_years = {current_year, current_year + 1, oldest_needed_year}
+        candidates = [y for y in years if y in wanted_years]
         if not candidates:
             candidates = [years[-1]]
         items: list[dict] = []
@@ -1518,6 +1520,7 @@ class WebAgentBackend:
         selected = (currency or "USD").strip().upper()
         if not events:
             return []
+        max_items = 6000 if selected == "ALL" else 300
         tz = utc_offset_minutes_to_tzinfo(self._effective_calendar_utc_offset_minutes())
         source_tz = utc_offset_minutes_to_tzinfo(CALENDAR_SOURCE_UTC_OFFSET_MINUTES)
         rendered = []
@@ -1547,7 +1550,7 @@ class WebAgentBackend:
                     "previous": (event.get("previous") or "").strip(),
                 }
             )
-            if len(rendered) >= 300:
+            if len(rendered) >= max_items:
                 break
         return rendered
 

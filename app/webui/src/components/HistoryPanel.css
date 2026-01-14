@@ -162,6 +162,23 @@
   background: rgba(255, 255, 255, 0.03);
 }
 
+.history-year {
+  padding: 10px 12px 6px;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.history-group-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  min-width: 0;
+}
+
 .history-day {
   font-weight: 600;
   font-size: 14px;
@@ -173,6 +190,7 @@
   text-transform: uppercase;
   letter-spacing: 0.18em;
   color: var(--muted);
+  display: block;
 }
 
 .history-badges {
