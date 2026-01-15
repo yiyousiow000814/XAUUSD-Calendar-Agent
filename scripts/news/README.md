@@ -1,60 +1,53 @@
-# 新闻采集与分析
+[English](README.md) | [中文](README.zh-CN.md)
 
-## 快速运行
+# News Collection & Analysis
+
+This folder contains scripts for collecting and analyzing news that may influence `XAUUSD`.
+
+## Quick Run
 ```bash
 python scripts/news/news_fetcher.py
 ```
 
-## 配置
-仓库不内置任何默认来源。
+## Configuration
+This repository does not ship with any default data sources.
 
-- `user-data/NEWS_RSS_FEEDS.txt`：一行一个 RSS URL（允许前缀 `- `）。当前版本的 `XAUUSD Calendar Agent` 不会读取该文件；该文件用于新闻脚本（见下方 Docs）。
+- `user-data/NEWS_RSS_FEEDS.txt`: one RSS URL per line (a leading `- ` is allowed).
+  - The current `XAUUSD Calendar Agent` app does not read this file.
+  - This file is used by the news scripts in this folder.
 
-示例：
+Example:
 ```text
 https://example.com/rss
 - https://another.example.com/feed.xml
 ```
 
-## 已完成的新闻功能
-- 定时抓取主要新闻站点和 RSS 源，支援全天候运行；
-- 使用本地 `Jan-v1-4B` 模型过滤矛盾或不可信资讯；
-- 生成基础情绪评分，并作为后续特征的输入。
+## Implemented Features
+- Scheduled crawling of RSS feeds and selected news sites (for long-running operation).
+- Filtering contradictory / unreliable items using the local `Jan-v1-4B` model.
+- Basic sentiment scoring for downstream features.
 
-## 新闻开发计划（摘录）
-- 优化 `Jan-v1-4B` 的推理效率，并逐步重构加载流程；
-- 提取关键词、生成特征汇总，输出每日/每周摘要；
-- 统计高频关键词，支撑后续 RAG 问答；
-- 将情绪结果与 XAU/USD 价格对齐，追踪走势与驱动力；
-- 建立预测模块，输出上涨/震荡/下跌概率与置信区间；
-- 分类保存新闻、生成专题 summary、触发 WhatsApp/Email 推送等。
+## Roadmap
+### Done
+- Crawling: periodic collection from multiple sites and RSS feeds.
+- Unreliable info filtering: local `Jan-v1-4B` checks for contradictions and filters suspicious items.
+- Sentiment scoring: produces sentiment values for downstream features.
 
-## 新闻功能进度
-**已完成**
-- **网络爬取**：定时抓取多家新闻站点和 RSS 源。
-- **不可信信息过滤**：以本地 `Jan-v1-4B` 模型识别矛盾资讯，过滤潜在假新闻。
-- **情感分析**：使用本地模型计算新闻情绪分值。
+### In Progress (Full List)
+- `Jan` model optimization: reduce local inference cost and refactor the loading pipeline.
+- Keyword extraction and feature aggregation: produce daily/weekly summaries.
+- Keyword frequency statistics: support later RAG retrieval.
+- Sentiment ↔ price alignment: link sentiment to `XAUUSD` moves and track drivers.
+- Prediction module: output up/flat/down probabilities with confidence intervals and key drivers.
+- News organization: categorize news, generate topic summaries, and trigger WhatsApp/Email notifications.
+- Persistence: write crawl results and indicators into a database for tracking.
+- Visualization: chart price and sentiment trends.
+- Logging and alerting: record runtime status and alert on failures.
+- Automated news summaries: periodic summaries for specific topics.
+- Timezone normalization and source de-duplication: store all timestamps in UTC+8 and remove duplicates.
+- Topic and sentiment label taxonomy: multi-level tags with uncertainty signals.
+- Compliance/copyright: store only embeddable or full-text RSS content and display an “information only” notice.
+- Internationalization and accessibility: bilingual fields and accessible UI.
 
-**开发中（节选）**
-- **Jan 模型优化**：降低本地推理成本，重构加载流程。
-- **关键词提取与特征汇聚**：汇总多维度特征，生成分析报告。
-- **关键词频次统计**：记录高频词，供 RAG 检索使用。
-- **情绪与价格关联分析**：将情绪与 XAU/USD 价格拼接，预测次日方向。
-- **预测模块**：输出上涨/震荡/下跌概率与置信区间，列出关键驱动因子。
-- **新闻整理与经济日历**：自动分类新闻并整合经济数据。
-- **经济事件日历融合**：同步经济事件来源，构建事件时间轴。
-- **RAG 问答系统**：提供新闻相关的检索增强问答。
-- **自动更新网页**：展示新闻列表、预测与报告的实时信息。
-- **网页问答与动态界面**：支持 `/summary`、`/event FOMC` 等指令并呈现多维预测。
-- **紧急消息提醒**：在重大新闻触发 WhatsApp 通知。
-- **WhatsApp 问答**：通过 WhatsApp 查询最新新闻与预测。
-- **WhatsApp 与邮件推送**：发送每日 PDF/HTML 日刊，控制长度并支持附图。
-- **持久化存储**：将抓取结果与指标写入数据库，便于追踪。
-- **可视化展示**：用图表呈现价格与情绪走势。
-- **日志与告警**：记录运行状态并在异常时报警。
-- **自动化新闻总结**：定期汇总特定主题（例如“特朗普 24 小时内动态”）。
-- **时区统一与同源去重**：所有时间转为 UTC+8，并去除重复资讯。
-- **主题与情绪标签体系**：建立三级标签，结合零样本 NLI 扩展以及熵衡量不确定度。
-- **法规与版权声明**：仅保存可嵌入或全文 RSS 的内容，在页面底部标注“资讯仅供参考”。
-- **国际化与可访问性**：提供中英文接口，标题自动翻译并保存双语字段。
-
+## Notes
+- The repository does not include any RSS/news sources by default; provide your own legally accessible sources.

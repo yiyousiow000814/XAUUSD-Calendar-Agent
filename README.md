@@ -1,19 +1,27 @@
 <h1 align="center">XAUUSD calendar agent</h1>
 
-<p align="center">A Windows app for viewing economic events.</p>
+<p align="center">A Windows desktop application for tracking and visualizing economic events.</p>
 
 ![XAUUSD Calendar Agent](docs/images/theme-toggle__dark__hover_board.png)
 
 ## Quick Start (Windows)
-1. Open GitHub Releases.
+
+### Prerequisites
+- Windows 10 or later
+- Data source with properly formatted economic calendar JSON files
+  
+### Installation
+1. Navigate to the [Releases](https://github.com/yiyousiow000814/xauusd-news-information-and-predictions/releases) page.
 2. Download `Setup.exe`.
 3. Run the installer.
-4. Launch `XAUUSD Calendar Agent` from the Start menu.
+4. Follow the installation wizard prompts.
+5. Launch `XAUUSD Calendar Agent` from the Start menu or desktop shortcut.
 
 ## Uninstall (Windows)
 - Uninstall from Windows “Apps & features” / “Installed apps”.
 
 ## Docs & FAQ
+- [Getting Started](docs/getting-started.md)
 - [Calendar Utilities](scripts/calendar/README.md#calendar-utilities)
 - [News collection & analysis](scripts/news/README.md)
 
