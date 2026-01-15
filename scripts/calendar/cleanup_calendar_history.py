@@ -1,4 +1,5 @@
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -7,7 +8,7 @@ import pandas as pd
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
-from scripts.calendar import economic_calendar_fetcher as fetcher  # noqa: E402
+from scripts.calendar import calendar_processing as processing  # noqa: E402
 
 
 def parse_args() -> argparse.Namespace:
@@ -27,8 +28,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--calendar-dir",
         type=str,
-        default=str(fetcher.CALENDAR_OUTPUT_DIR),
-        help="Calendar output directory (defaults to CALENDAR_OUTPUT_DIR).",
+        default="",
+        help="Calendar output directory (defaults to env CALENDAR_OUTPUT_DIR or data/Economic_Calendar).",
     )
     parser.add_argument(
         "--dry-run",
@@ -82,7 +83,7 @@ def clean_year(calendar_dir: Path, year: int, *, dry_run: bool) -> bool:
         return False
 
     existing_df = _ensure_key_columns(existing_df)
-    merged = fetcher.merge_calendar_frames(
+    merged = processing.merge_calendar_frames(
         existing_df, pd.DataFrame(columns=existing_df.columns)
     )
 
@@ -97,15 +98,21 @@ def clean_year(calendar_dir: Path, year: int, *, dry_run: bool) -> bool:
         return changed
 
     excel_path = year_dir / f"{year}_calendar.xlsx"
-    fetcher.write_calendar_outputs(merged, excel_path)
+    processing.write_calendar_outputs(merged, excel_path)
     return True
 
 
 def main() -> None:
     args = parse_args()
-    calendar_dir = Path(args.calendar_dir)
-    if not calendar_dir.is_absolute():
-        calendar_dir = fetcher.REPO_ROOT / calendar_dir
+    calendar_dir_raw = (args.calendar_dir or "").strip()
+    if not calendar_dir_raw:
+        calendar_dir_raw = (os.getenv("CALENDAR_OUTPUT_DIR") or "").strip()
+    if not calendar_dir_raw:
+        calendar_dir = REPO_ROOT / "data" / "Economic_Calendar"
+    else:
+        calendar_dir = Path(calendar_dir_raw)
+        if not calendar_dir.is_absolute():
+            calendar_dir = REPO_ROOT / calendar_dir
 
     available_years: list[int] = []
     if calendar_dir.exists():

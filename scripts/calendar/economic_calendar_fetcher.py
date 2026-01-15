@@ -13,6 +13,8 @@ from bs4 import BeautifulSoup
 from openpyxl.styles import Alignment, PatternFill
 from openpyxl.utils import get_column_letter
 
+from scripts.calendar import calendar_processing as processing
+
 # Base folder to store generated artifacts under the repository's data directory
 REPO_ROOT = Path(__file__).resolve().parents[2]
 BASE_DATA_DIR = REPO_ROOT / "data"
@@ -310,7 +312,7 @@ def export_yearly_breakdown(df, website_prefix, file_name, changed_years=None):
 
         export_df = group.sort_values("Date").copy()
         export_df["Date"] = export_df["Date"].dt.strftime("%Y-%m-%d")
-        export_df = sort_calendar_dataframe(export_df)
+        export_df = processing.sort_calendar_dataframe(export_df)
 
         excel_path = year_dir / f"{year_int}_calendar.xlsx"
         csv_path = year_dir / f"{year_int}_calendar.csv"
@@ -643,7 +645,7 @@ def merge_calendar_frames(
     working["Day"] = working["Date_dt"].dt.strftime("%A")
     working.drop(columns=["Date_dt"], inplace=True)
 
-    working = sort_calendar_dataframe(working)
+    working = processing.sort_calendar_dataframe(working)
     return working.reset_index(drop=True)
 
 
@@ -1045,14 +1047,14 @@ def save_data(headers, data, file_name="usd_calendar_month.xlsx", source_url="")
 
         existing_df = existing_df[year_df.columns]
 
-        combined_df = merge_calendar_frames(existing_df, year_df)
+        combined_df = processing.merge_calendar_frames(existing_df, year_df)
 
-        combined_sorted = sort_calendar_dataframe(combined_df.copy()).reset_index(
-            drop=True
-        )
+        combined_sorted = processing.sort_calendar_dataframe(
+            combined_df.copy()
+        ).reset_index(drop=True)
 
         existing_sorted = (
-            sort_calendar_dataframe(existing_df.copy())
+            processing.sort_calendar_dataframe(existing_df.copy())
             .reindex(columns=combined_sorted.columns)
             .reset_index(drop=True)
         )
@@ -1064,7 +1066,7 @@ def save_data(headers, data, file_name="usd_calendar_month.xlsx", source_url="")
             print(f"[INFO] Year {year} unchanged; skipping write.")
             continue
 
-        write_calendar_outputs(combined_sorted, excel_path)
+        processing.write_calendar_outputs(combined_sorted, excel_path)
 
         print(f"[SUCCESS] Year {year} exports written to {excel_path.parent}")
 
