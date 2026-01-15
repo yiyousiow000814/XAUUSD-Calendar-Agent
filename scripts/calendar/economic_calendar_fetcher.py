@@ -336,6 +336,18 @@ def day_range(start_date: datetime, end_date: datetime):
         current += one_day
 
 
+def chunk_date_range(start_date: datetime, end_date: datetime, chunk_days: int):
+    """Yield inclusive (start, end) windows covering the date range."""
+    if chunk_days <= 0:
+        raise ValueError("chunk_days must be a positive integer.")
+
+    current = start_date
+    while current <= end_date:
+        chunk_end = min(end_date, current + timedelta(days=chunk_days - 1))
+        yield current, chunk_end
+        current = chunk_end + timedelta(days=1)
+
+
 def sort_calendar_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     """Sort ``df`` by date and the semantic meaning of the ``Time`` column."""
 
@@ -656,7 +668,17 @@ def fetch_calendar_range(start_date: datetime, end_date: datetime):
     headers = ["Time", "Cur.", "Imp.", "Event", "Actual", "Forecast", "Previous"]
     all_rows = []
 
-    for chunk_start, chunk_end in day_range(start_date, end_date):
+    _chunk_days_raw = (os.getenv("CALENDAR_RANGE_CHUNK_DAYS") or "").strip()
+    try:
+        chunk_days = int(_chunk_days_raw or "14")
+    except ValueError:
+        print(
+            f"[WARNING] Invalid CALENDAR_RANGE_CHUNK_DAYS={_chunk_days_raw!r}; "
+            "falling back to 14."
+        )
+        chunk_days = 14
+
+    for chunk_start, chunk_end in chunk_date_range(start_date, end_date, chunk_days):
         try:
             offset = 0
             total_rows_for_chunk = 0
