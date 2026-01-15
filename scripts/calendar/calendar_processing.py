@@ -66,6 +66,12 @@ def _is_missing_token(value: object, *, missing_tokens: set[str]) -> bool:
     return text.lower() in missing_tokens
 
 
+def _normalize_value_token(value: object, *, missing_tokens: set[str]) -> str:
+    if _is_missing_token(value, missing_tokens=missing_tokens):
+        return ""
+    return str(value).strip()
+
+
 def _choose_canonical_time(times: list[float]) -> float | None:
     if not times:
         return None
@@ -236,6 +242,127 @@ def _apply_fuzzy_time_dedup(
     return pd.DataFrame(kept_rows).reset_index(drop=True)
 
 
+def _apply_update_slot_dedup(
+    df: pd.DataFrame,
+    *,
+    threshold_minutes: int,
+) -> pd.DataFrame:
+    """Merge near-duplicate "update slot" rows.
+
+    Some events appear twice on the same day with the same Forecast/Previous:
+    - Earlier row: Actual missing (UI shows TBA)
+    - Later row: Actual filled
+    If the times are close enough, keep the row with Actual and merge any
+    missing values from the other row, then drop the duplicate.
+    """
+    if df.empty or threshold_minutes <= 0:
+        return df
+
+    required = {"Date", "Cur.", "Event", "Time", "Actual", "Forecast", "Previous"}
+    if any(col not in df.columns for col in required):
+        return df
+
+    working = df.copy()
+    missing_tokens = {"tba", "tentative", "n/a", "na"}
+
+    keep_mask = pd.Series(True, index=working.index)
+    # Group by Cur./Event so we can merge across adjacent-day updates
+    # (e.g. 23:30 placeholder then 00:30 actual).
+    for _, group in working.groupby(["Cur.", "Event"], dropna=False, sort=False):
+        if len(group) < 2:
+            continue
+
+        timed = group.copy()
+        timed["_time_minutes"] = timed["Time"].map(_parse_time_minutes)
+        timed["_date_value"] = pd.to_datetime(timed["Date"], errors="coerce").dt.date
+        timed = timed[
+            timed["_time_minutes"].notna() & timed["_date_value"].notna()
+        ].copy()
+        if len(timed) < 2:
+            continue
+
+        timed["_ts_minutes"] = (
+            timed["_date_value"].map(lambda d: d.toordinal()) * (24 * 60)
+            + timed["_time_minutes"]
+        )
+        timed.sort_values(by="_ts_minutes", inplace=True, kind="mergesort")
+        indices = timed.index.tolist()
+
+        for i, idx_i in enumerate(indices):
+            if not keep_mask.get(idx_i, False):
+                continue
+            row_i = working.loc[idx_i]
+            ts_i = timed.loc[idx_i, "_ts_minutes"]
+            if not isinstance(ts_i, float) or pd.isna(ts_i):
+                continue
+
+            for idx_j in indices[i + 1 :]:
+                if not keep_mask.get(idx_j, False):
+                    continue
+                ts_j = timed.loc[idx_j, "_ts_minutes"]
+                if not isinstance(ts_j, float) or pd.isna(ts_j):
+                    continue
+                if ts_j - ts_i > threshold_minutes:
+                    break
+
+                row_j = working.loc[idx_j]
+
+                prev_i = _normalize_value_token(
+                    row_i.get("Previous"), missing_tokens=missing_tokens
+                )
+                prev_j = _normalize_value_token(
+                    row_j.get("Previous"), missing_tokens=missing_tokens
+                )
+                fc_i = _normalize_value_token(
+                    row_i.get("Forecast"), missing_tokens=missing_tokens
+                )
+                fc_j = _normalize_value_token(
+                    row_j.get("Forecast"), missing_tokens=missing_tokens
+                )
+                # Treat missing forecast/previous as compatible, but if both
+                # sides have values they must match.
+                if prev_i and prev_j and prev_i != prev_j:
+                    continue
+                if fc_i and fc_j and fc_i != fc_j:
+                    continue
+
+                actual_i_missing = _is_missing_token(
+                    row_i.get("Actual"), missing_tokens=missing_tokens
+                )
+                actual_j_missing = _is_missing_token(
+                    row_j.get("Actual"), missing_tokens=missing_tokens
+                )
+                if actual_i_missing == actual_j_missing:
+                    continue
+
+                if actual_i_missing and not actual_j_missing:
+                    keep_idx, drop_idx = idx_j, idx_i
+                else:
+                    keep_idx, drop_idx = idx_i, idx_j
+
+                keep_row = working.loc[keep_idx].copy()
+                drop_row = working.loc[drop_idx]
+                for col in working.columns:
+                    if col in {"_time_minutes"}:
+                        continue
+                    if _is_missing_token(
+                        keep_row.get(col), missing_tokens=missing_tokens
+                    ) and not _is_missing_token(
+                        drop_row.get(col), missing_tokens=missing_tokens
+                    ):
+                        keep_row[col] = drop_row.get(col)
+
+                working.loc[keep_idx] = keep_row
+                keep_mask[drop_idx] = False
+
+                if drop_idx == idx_i:
+                    row_i = working.loc[keep_idx]
+                    ts_i = ts_j
+                    idx_i = keep_idx
+
+    return working.loc[keep_mask].copy()
+
+
 def merge_calendar_frames(
     existing_df: pd.DataFrame, new_df: pd.DataFrame
 ) -> pd.DataFrame:
@@ -287,6 +414,18 @@ def merge_calendar_frames(
         group_columns=["Date", "Cur.", "Event"],
         threshold_minutes=fuzzy_minutes,
     )
+
+    _update_raw = (os.getenv("CALENDAR_UPDATE_SLOT_DEDUP_MINUTES") or "").strip()
+    try:
+        update_minutes = int(_update_raw or "60")
+    except ValueError:
+        print(
+            f"[WARNING] Invalid CALENDAR_UPDATE_SLOT_DEDUP_MINUTES={_update_raw!r}; "
+            "falling back to 60."
+        )
+        update_minutes = 60
+
+    working = _apply_update_slot_dedup(working, threshold_minutes=update_minutes)
     working.drop(columns=["completeness_score"], inplace=True)
 
     _snap_raw = (os.getenv("CALENDAR_TIME_SNAP_THRESHOLD_MINUTES") or "").strip()
