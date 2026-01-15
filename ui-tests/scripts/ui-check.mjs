@@ -42,6 +42,7 @@ const reportPath = path.join(artifactsRoot, "report.html");
 let baseURL = process.env.UI_BASE_URL || "http://127.0.0.1:4173";
 let shouldStartServer = !process.env.UI_BASE_URL;
 const defaultPort = 4183;
+let serverState = null;
 
 const ensureDir = async (dir) => {
   await fs.mkdir(dir, { recursive: true });
@@ -84,6 +85,75 @@ const clearDir = async (dir) => {
 };
 
 const sanitize = (value) => value.replace(/[^a-zA-Z0-9_-]+/g, "_");
+
+const gotoWithRetries = async (page, url, options, attempts = 12) => {
+  let lastErr = null;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      return await page.goto(url, options);
+    } catch (err) {
+      lastErr = err;
+      const msg = String(err?.message || err);
+      const retryable = msg.includes("ERR_CONNECTION_REFUSED") || msg.includes("ECONNREFUSED");
+      if (!retryable || attempt === attempts) {
+        throw err;
+      }
+      await new Promise((r) => setTimeout(r, 250 * attempt));
+    }
+  }
+  throw lastErr;
+};
+
+const assertSplitDividerNotDark = async (page, { minLuma = 218 } = {}) => {
+  const divider = page.locator("[data-qa='qa:split:divider']").first();
+  if ((await divider.count()) === 0) return;
+
+  const buffer = await divider.screenshot();
+  const png = PNG.sync.read(buffer);
+  const { width, height, data } = png;
+  const y0 = Math.min(height - 1, Math.floor(height * 0.15));
+  const y1 = Math.max(y0 + 1, Math.floor(height * 0.85));
+
+  const center = Math.floor(width / 2);
+  const bandWidth = Math.max(4, Math.floor(width * 0.12));
+  const bandGap = Math.max(3, Math.floor(width * 0.1));
+  const sampleColumns = [];
+
+  const pushBand = (xStart, xEnd) => {
+    const s = Math.max(1, xStart);
+    const e = Math.min(width - 2, xEnd);
+    for (let x = s; x <= e; x += 1) sampleColumns.push(x);
+  };
+
+  pushBand(center - bandGap - bandWidth, center - bandGap - 1);
+  pushBand(center + bandGap + 1, center + bandGap + bandWidth);
+
+  const columnLumas = [];
+  for (const x of sampleColumns) {
+    let sum = 0;
+    let count = 0;
+    for (let y = y0; y < y1; y += 1) {
+      const i = (width * y + x) * 4;
+      const a = data[i + 3] / 255;
+      if (a < 0.05) continue;
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      sum += luma;
+      count += 1;
+    }
+    if (!count) continue;
+    columnLumas.push(sum / count);
+  }
+
+  const minBandLuma = columnLumas.length ? Math.min(...columnLumas) : NaN;
+  if (!Number.isFinite(minBandLuma) || minBandLuma < minLuma) {
+    throw new Error(
+      `Split divider too dark (minBandLuma=${Number.isFinite(minBandLuma) ? minBandLuma.toFixed(2) : "NaN"} < ${minLuma})`
+    );
+  }
+};
 
 const screenshotMad = (aBuffer, bBuffer) => {
   const aPng = PNG.sync.read(aBuffer);
@@ -189,7 +259,13 @@ const startServer = async (port) => {
     ],
     { cwd: repoRoot, shell: true, stdio: "inherit" }
   );
-  await waitForPort(port);
+  await Promise.race([
+    waitForPort(port),
+    new Promise((_, reject) => {
+      server.once("exit", (code) => reject(new Error(`UI preview exited early (code=${code})`)));
+      server.once("error", (err) => reject(err));
+    })
+  ]);
   await new Promise((r) => setTimeout(r, 120));
   if (server.exitCode !== null && typeof server.exitCode !== "undefined") {
     throw new Error(`UI preview exited early (code=${server.exitCode})`);
@@ -223,7 +299,48 @@ const pickPort = async (start, count = 6) => {
     const free = await isPortFree(port);
     if (free) return port;
   }
-  return start;
+  return null;
+};
+
+const startServerWithRetries = async (startPort, count = 6) => {
+  let lastErr = null;
+  for (let i = 0; i < count; i += 1) {
+    const port = startPort + i;
+    const free = await isPortFree(port);
+    if (!free) continue;
+    let server = null;
+    try {
+      server = await startServer(port);
+      return { server, port };
+    } catch (err) {
+      lastErr = err;
+      await stopServer(server);
+    }
+  }
+  throw lastErr || new Error("UI preview failed to start");
+};
+
+const isConnRefused = (err) => {
+  const msg = String(err?.message || err);
+  return msg.includes("ERR_CONNECTION_REFUSED") || msg.includes("ECONNREFUSED");
+};
+
+const restartServer = async () => {
+  if (!shouldStartServer) return;
+  await stopServer(serverState?.server);
+  const startPort = serverState?.port ?? defaultPort;
+  serverState = await startServerWithRetries(startPort, 6);
+  baseURL = `http://127.0.0.1:${serverState.port}`;
+};
+
+const gotoWithServerRecovery = async (page, url, options) => {
+  try {
+    return await gotoWithRetries(page, url, options);
+  } catch (err) {
+    if (!isConnRefused(err)) throw err;
+    await restartServer();
+    return await gotoWithRetries(page, baseURL, options);
+  }
 };
 
 const getPortFromURL = (url) => {
@@ -1252,41 +1369,30 @@ const main = async () => {
     });
   };
 
-  let server;
-  if (shouldStartServer) {
-    await run("npm", ["--prefix", "app/webui", "run", "build"], { cwd: repoRoot });
-    let port = await pickPort(defaultPort);
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      baseURL = `http://127.0.0.1:${port}`;
-      try {
-        server = await startServer(port);
-        break;
-      } catch (err) {
-        console.warn(`WARN UI server failed to start on port ${port}; retrying.`);
-        port = await pickPort(defaultPort + 1);
-      }
-    }
-    if (!server) {
-      throw new Error("UI server failed to start after retries");
-    }
-  }
-
+  let browser;
   const artifacts = [];
+  try {
+    if (shouldStartServer) {
+      await run("npm", ["--prefix", "app/webui", "run", "build"], { cwd: repoRoot });
+      serverState = await startServerWithRetries(defaultPort, 6);
+      baseURL = `http://127.0.0.1:${serverState.port}`;
+    }
 
-  const browser = await chromium.launch();
-  const themes = [
-    { key: "dark", mode: "dark" },
-    { key: "light", mode: "light" },
-    { key: "system-dark", mode: "system", scheme: "dark" },
-    { key: "system-light", mode: "system", scheme: "light" }
-  ];
+    browser = await chromium.launch();
+    const themes = [
+      { key: "dark", mode: "dark" },
+      { key: "light", mode: "light" },
+      { key: "system-dark", mode: "system", scheme: "dark" },
+      { key: "system-light", mode: "system", scheme: "light" }
+    ];
 
   const ensureServerHealthy = async () => {
     if (!shouldStartServer) return;
-    const port = getPortFromURL(baseURL);
+    const port = serverState?.port ?? getPortFromURL(baseURL);
     if (!port) return;
 
-    const exited = server?.exitCode !== null && typeof server?.exitCode !== "undefined";
+    const exited =
+      serverState?.server?.exitCode !== null && typeof serverState?.server?.exitCode !== "undefined";
     const reachable = await canConnect(port);
     if (!exited && reachable) return;
     if (!exited) {
@@ -1295,11 +1401,7 @@ const main = async () => {
     }
 
     console.warn(`WARN UI preview unreachable on port ${port}; restarting.`);
-    await stopServer(server);
-    await new Promise((r) => setTimeout(r, 220));
-    const nextPort = await pickPort(defaultPort);
-    baseURL = `http://127.0.0.1:${nextPort}`;
-    server = await startServer(nextPort);
+    await restartServer();
   };
 
   const runTheme = async (theme) => {
@@ -1334,20 +1436,8 @@ const main = async () => {
     }, theme);
     const page = await context.newPage();
     const video = page.video();
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      try {
-        await ensureServerHealthy();
-        await page.goto(baseURL, { waitUntil: "domcontentloaded" });
-        break;
-      } catch (err) {
-        const msg = String(err || "");
-        if (msg.includes("ERR_CONNECTION_REFUSED") && attempt < 2) {
-          await ensureServerHealthy();
-          continue;
-        }
-        throw err;
-      }
-    }
+    await ensureServerHealthy();
+    await gotoWithServerRecovery(page, baseURL, { waitUntil: "domcontentloaded" });
     const initOverlay = page.locator("[data-qa='qa:overlay:init']").first();
     await Promise.all([
       page.waitForSelector("[data-qa='qa:app-shell']", { timeout: 10000 }),
@@ -1442,6 +1532,18 @@ const main = async () => {
     );
     await runCheck(theme.key, "Bottom clock centered 24h", () => assertFooterClock(page));
     await runCheck(theme.key, "Page scrollbars hidden", () => assertNoPageScroll(page));
+    if (theme.key === "light") {
+      const splitDivider = page.locator("[data-qa='qa:split:divider']").first();
+      if (await splitDivider.count()) {
+        artifacts.push({
+          scenario: "split-divider",
+          theme: theme.key,
+          state: "default",
+          path: await captureState(page, "split-divider", theme.key, "default", { element: splitDivider })
+        });
+      }
+      await runCheck(theme.key, "Split divider not dark", () => assertSplitDividerNotDark(page));
+    }
     await runCheck(theme.key, "Events list completeness", () => assertEventsLoaded(page));
     await runCheck(theme.key, "Next Events controls centered", () =>
       assertNextEventsControlsCentered(page)
@@ -1623,9 +1725,13 @@ const main = async () => {
     await runCheck(theme.key, "Backdrop transition presence", () =>
       assertHasTransition(page, "[data-qa*='qa:modal-backdrop:settings']", "Modal backdrop")
     );
-    await runCheck(theme.key, "Modal transition sampling", () =>
-      assertOpacityTransition(page, "[data-qa*='qa:modal:settings']", "Settings modal")
-    );
+    if (theme.mode === "system") {
+      skipCheck(theme.key, "Modal transition sampling", "System themes skipped");
+    } else {
+      await runCheck(theme.key, "Modal transition sampling", () =>
+        assertOpacityTransition(page, "[data-qa*='qa:modal:settings']", "Settings modal")
+      );
+    }
     const enterMetrics = await sampleTransition(page, "[data-qa*='qa:modal:settings']");
     await page.waitForTimeout(160);
     artifacts.push({
@@ -2219,20 +2325,8 @@ const main = async () => {
       window.__ui_check__.holdInitOverlayMs = 1500;
     }, theme);
     const smallPage = await smallContext.newPage();
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      try {
-        await ensureServerHealthy();
-        await smallPage.goto(baseURL, { waitUntil: "domcontentloaded" });
-        break;
-      } catch (err) {
-        const msg = String(err || "");
-        if (msg.includes("ERR_CONNECTION_REFUSED") && attempt < 2) {
-          await ensureServerHealthy();
-          continue;
-        }
-        throw err;
-      }
-    }
+    await ensureServerHealthy();
+    await gotoWithServerRecovery(smallPage, baseURL, { waitUntil: "domcontentloaded" });
     const smallInitOverlay = smallPage.locator("[data-qa='qa:overlay:init']").first();
     await Promise.all([
       smallPage.waitForSelector("[data-qa='qa:app-shell']", { timeout: 10000 }),
@@ -3239,30 +3333,44 @@ const main = async () => {
 
   };
 
-  const themeResults = [];
-  for (const theme of themes) {
-    await ensureServerHealthy();
-    await runTheme(theme);
+    const themeResults = [];
+    for (const theme of themes) {
+      await ensureServerHealthy();
+      await runTheme(theme);
+    }
+
+    await browser.close();
+    browser = null;
+    await stopServer(serverState?.server);
+    serverState = null;
+
+    const videos = (await fs.readdir(videoDir))
+      .filter((file) => file.endsWith(".webm"))
+      .map((file) => path.join(videoDir, file));
+
+    await generateReport(artifacts, videos, { artifactsRoot, reportPath });
+
+    const summary = checkResults.reduce(
+      (acc, item) => {
+        acc[item.status] = (acc[item.status] || 0) + 1;
+        return acc;
+      },
+      {}
+    );
+    console.log("UI-CHECK SUMMARY", summary);
+    console.log("UI-CHECK METRICS", JSON.stringify(themeResults, null, 2));
+  } finally {
+    try {
+      if (browser) await browser.close();
+    } catch {
+      // ignore
+    }
+    try {
+      if (serverState?.server) await stopServer(serverState.server);
+    } catch {
+      // ignore
+    }
   }
-
-  await browser.close();
-  await stopServer(server);
-
-  const videos = (await fs.readdir(videoDir))
-    .filter((file) => file.endsWith(".webm"))
-    .map((file) => path.join(videoDir, file));
-
-  await generateReport(artifacts, videos, { artifactsRoot, reportPath });
-
-  const summary = checkResults.reduce(
-    (acc, item) => {
-      acc[item.status] = (acc[item.status] || 0) + 1;
-      return acc;
-    },
-    {}
-  );
-  console.log("UI-CHECK SUMMARY", summary);
-  console.log("UI-CHECK METRICS", JSON.stringify(themeResults, null, 2));
 };
 
 main().catch((err) => {

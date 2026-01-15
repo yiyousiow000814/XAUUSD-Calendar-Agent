@@ -9,6 +9,8 @@ exclude =
     artifacts,
     dist,
     installer,
+    node_modules,
+    app/webui/node_modules,
     ui-tests/node_modules,
     ui-tests/.playwright,
     ui-tests/.cache
