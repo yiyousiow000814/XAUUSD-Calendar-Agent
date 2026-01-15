@@ -981,7 +981,7 @@ def save_data(
     file_name="usd_calendar_month.xlsx",
     source_url="",
     *,
-    prune_existing_in_range: bool = True,
+    prune_existing_in_range: bool = False,
 ):
     """Persist calendar data per year without maintaining a master workbook."""
     if not data:

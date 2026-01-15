@@ -22,7 +22,7 @@
 python scripts/calendar/economic_calendar_fetcher.py --start-date 2025-01-01 --end-date 2025-01-07
 ```
 说明：
-- 抓取区间视为权威：会覆盖（替换）区间内已有事件，用于处理事件改名/取消等情况。
+- 默认会把新抓取的数据合并进现有导出，不会删除抓取区间内的旧记录。
 - JSON 会将缺失值统一规范为 `null`，减少反复抓取导致的无意义 diff。
 
 输出文件位于仓库根目录 `data/Economic_Calendar/<年份>/<年份>_calendar.(xlsx|csv|json)`。GitHub Actions 工作流也会调用同一脚本，确保远端 `data/` 始终保持最新。
