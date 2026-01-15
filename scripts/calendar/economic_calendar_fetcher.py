@@ -409,6 +409,60 @@ COLUMN_WIDTH_OVERRIDES = {
 KEY_COLUMNS = ["Date", "Time", "Cur.", "Event"]
 
 
+def _parse_time_minutes(value: object) -> float | None:
+    if not isinstance(value, str):
+        return None
+    text = value.strip()
+    try:
+        parsed = datetime.strptime(text, "%H:%M")
+    except ValueError:
+        return None
+    return float(parsed.hour * 60 + parsed.minute)
+
+
+def _apply_fuzzy_time_dedup(
+    df: pd.DataFrame,
+    *,
+    group_columns: list[str],
+    threshold_minutes: int,
+) -> pd.DataFrame:
+    if df.empty or threshold_minutes <= 0:
+        return df
+
+    if any(col not in df.columns for col in group_columns):
+        return df
+
+    working = df.copy()
+    working["_time_minutes"] = working.get("Time", "").map(_parse_time_minutes)
+
+    kept_indices: list[int] = []
+    for _, group in working.groupby(group_columns, dropna=False, sort=False):
+        if len(group) == 1:
+            kept_indices.append(int(group.index[0]))
+            continue
+
+        group_sorted = group.sort_values(
+            by=["completeness_score"],
+            ascending=False,
+            kind="mergesort",
+        )
+        kept_times: list[float] = []
+        for idx, row in group_sorted.iterrows():
+            candidate_time = row.get("_time_minutes")
+            if isinstance(candidate_time, float) and kept_times:
+                if any(
+                    abs(candidate_time - t) <= threshold_minutes for t in kept_times
+                ):
+                    continue
+            kept_indices.append(int(idx))
+            if isinstance(candidate_time, float):
+                kept_times.append(candidate_time)
+
+    result = working.loc[sorted(set(kept_indices))].copy()
+    result.drop(columns=["_time_minutes"], inplace=True)
+    return result
+
+
 def merge_calendar_frames(
     existing_df: pd.DataFrame, new_df: pd.DataFrame
 ) -> pd.DataFrame:
@@ -426,10 +480,36 @@ def merge_calendar_frames(
     working["Date_dt"] = pd.to_datetime(working.get("Date"), errors="coerce")
     working = working.dropna(subset=["Date_dt"])  # type: ignore[arg-type]
 
-    working["non_missing_count"] = working.count(axis=1)
-    working = working.sort_values(by="non_missing_count", ascending=False)
+    missing_tokens = {"tba", "tentative", "n/a", "na"}
+    completeness = pd.Series(0, index=working.index, dtype="int64")
+    for col_name in working.columns:
+        col = working[col_name]
+        present = col.notna()
+        if col.dtype == object:
+            text = col.astype(str).str.strip()
+            present &= text.ne("") & ~text.str.lower().isin(missing_tokens)
+        completeness += present.astype("int64")
+
+    working["completeness_score"] = completeness
+    working = working.sort_values(by="completeness_score", ascending=False)
     working = working.drop_duplicates(subset=KEY_COLUMNS, keep="first")
-    working.drop(columns=["non_missing_count"], inplace=True)
+
+    _fuzzy_raw = (os.getenv("CALENDAR_EVENT_TIME_FUZZY_DEDUP_MINUTES") or "").strip()
+    try:
+        fuzzy_minutes = int(_fuzzy_raw or "2")
+    except ValueError:
+        print(
+            f"[WARNING] Invalid CALENDAR_EVENT_TIME_FUZZY_DEDUP_MINUTES={_fuzzy_raw!r}; "
+            "falling back to 2."
+        )
+        fuzzy_minutes = 2
+
+    working = _apply_fuzzy_time_dedup(
+        working,
+        group_columns=["Date", "Cur.", "Event"],
+        threshold_minutes=fuzzy_minutes,
+    )
+    working.drop(columns=["completeness_score"], inplace=True)
 
     working["Date"] = working["Date_dt"].dt.strftime("%Y-%m-%d")
     working["Day"] = working["Date_dt"].dt.strftime("%A")
