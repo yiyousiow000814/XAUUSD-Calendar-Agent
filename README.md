@@ -26,7 +26,8 @@
 - [News collection & analysis](scripts/news/README.md)
 
 ## License
-Non-commercial use only. See [LICENSE](LICENSE).
+Personal, non-commercial research use by Individuals only. No redistribution and
+no public sharing/promotion. See [LICENSE](LICENSE).
 
 ## Usage Notice
 > [!IMPORTANT]

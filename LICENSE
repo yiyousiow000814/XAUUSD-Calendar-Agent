@@ -1,58 +1,124 @@
-Non-Commercial Use License
+Personal Research Non-Commercial License (No Public Sharing)
 
 Copyright (c) 2025 yiyousiow000814
 All rights reserved.
 
-Permission is hereby granted to any individual person obtaining a copy
-of this software and associated documentation files (the "Software"),
-to use, copy, and modify the Software solely for non-commercial purposes,
-subject to the terms and conditions of this License.
+This is a source-available license. It is not an open source license.
 
-This License does not grant any rights to organizations, companies,
-institutions, or other legal entities.
+Permission is hereby granted, free of charge, to any natural person (an
+"Individual") obtaining a copy of this software and associated documentation
+files (the "Software"), to use, copy, and modify the Software solely for
+Personal, Non-Commercial Research (as defined below), subject to the terms and
+conditions of this License.
 
-1. Non-Commercial Use
+This License does not grant any rights to any organization, company,
+institution, government entity, or other legal entity (each an
+"Organization"). Organizations may not use the Software for any purpose without
+prior written permission from the copyright holder.
 
-The Software may be used only for non-commercial purposes by individuals.
-Non-commercial use means use that is not intended for, or directed toward,
-commercial advantage, economic benefit, or organizational activities.
+1. Definitions
 
-Any use of the Software that directly or indirectly benefits a business,
-organization, or institution shall be considered commercial use and is
-prohibited without prior written permission from the copyright holder.
+"Personal, Non-Commercial Research" means use by an Individual:
+(a) for personal study, experimentation, or research; and
+(b) not for any Commercial Purpose; and
+(c) not on behalf of, under the direction or control of, or as part of the
+    activities of any Organization.
 
-2. Restrictions
+"Commercial Purpose" means any use that is primarily intended for or directed
+toward commercial advantage or monetary compensation, including (without
+limitation):
+(a) use in connection with providing services to others;
+(b) use in a product or service that is sold, licensed, or otherwise monetized;
+(c) use to support or operate the business activities of an Organization; and
+(d) use to generate revenue, fees, advertising income, or other economic
+    benefit.
 
-Without prior written permission from the copyright holder, you may not:
+"Public Sharing" means making the Software (or any portion, copy, or modified
+version of it) available to the public or to persons beyond those you directly
+and privately communicate with, including (without limitation) posting or
+uploading it to:
+(a) social media or content platforms (e.g., Facebook, Instagram, Xiaohongshu,
+    Reddit);
+(b) forums, public chat rooms, or public file-sharing services;
+(c) public code hosting services (e.g., GitHub/GitLab) or package registries;
+(d) app stores, download sites, or any publicly accessible website.
 
-(a) use the Software for any commercial purpose;
-(b) use the Software within or for the benefit of any organization,
-    company, or institution;
-(c) distribute, sublicense, sell, rent, lease, or otherwise transfer
-    the Software or modified versions thereof to any third party;
-(d) remove or alter any copyright or license notices included with
-    the Software.
+"Public Promotion" means publicly advertising, promoting, or marketing the
+Software, including by posting its name, links, screenshots, or descriptions of
+the Software on any publicly accessible platform, website, or service
+(including those listed under Public Sharing).
 
-3. Ownership
+"Private Recommendation" means telling another Individual about the Software
+through a private, person-to-person channel (e.g., email or direct message)
+and, if desired, sending them a link to an official download/source location
+provided by the copyright holder, without providing any copy of the Software
+yourself.
 
-The Software is licensed, not sold. All rights, title, and interest in
-and to the Software remain exclusively with the copyright holder.
+2. Permitted Use
 
-4. Termination
+Subject to this License, you may:
+(a) use the Software for Personal, Non-Commercial Research;
+(b) make and keep copies of the Software as reasonably necessary for that use;
+    and
+(c) modify the Software for that use.
 
-This License is automatically terminated if you fail to comply with any
-of its terms. Upon termination, you must immediately cease all use of the
-Software and destroy all copies in your possession or control.
+3. Restrictions
 
-5. Disclaimer of Warranty
+Except for the limited Private Recommendation in Section 4, you may not:
+(a) use the Software for any Commercial Purpose;
+(b) use the Software on behalf of, under the direction or control of, or within
+    the activities of any Organization;
+(c) share, publish, distribute, or otherwise provide the Software or any
+    modified version (in source or binary form) to any third party, whether
+    publicly or privately;
+(d) engage in Public Promotion;
+(e) sell, license, sublicense, rent, lease, or otherwise transfer the Software
+    or any modified version;
+(f) remove or alter any copyright or license notices included with the
+    Software.
+
+4. Private Recommendation
+
+You may privately recommend the Software to another Individual (Private
+Recommendation). Private Recommendation is permitted only if:
+(a) it is made through a private, person-to-person channel; and
+(b) it does not involve sharing any copy of the Software (or any modified
+    version) in any form.
+
+For clarity: Public Sharing and Public Promotion are prohibited.
+
+5. Patent License
+
+To the extent the copyright holder owns or controls patent claims that are
+necessarily infringed by exercising the rights granted in this License, the
+copyright holder grants you a non-exclusive, worldwide, royalty-free,
+non-transferable, non-sublicensable patent license to make, use, copy, and
+modify the Software solely for Personal, Non-Commercial Research.
+
+If you (or any Organization you control) initiate patent litigation alleging
+that the Software infringes a patent, the patent license granted in this
+Section terminates automatically as of the date such litigation is filed.
+
+6. Ownership
+
+The Software is licensed, not sold. All rights not expressly granted are
+reserved.
+
+7. Termination
+
+This License is automatically terminated if you fail to comply with any of its
+terms. Upon termination, you must immediately cease all use of the Software
+and destroy all copies in your possession or control.
+
+8. Disclaimer of Warranty
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
 
-6. Limitation of Liability
+9. Limitation of Liability
 
 IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR
-OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE,
-ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING
+FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+IN THE SOFTWARE.
