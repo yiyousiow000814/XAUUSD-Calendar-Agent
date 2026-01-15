@@ -420,6 +420,54 @@ def _parse_time_minutes(value: object) -> float | None:
     return float(parsed.hour * 60 + parsed.minute)
 
 
+def _format_time_minutes(minutes: float) -> str:
+    total = int(round(minutes))
+    total = max(0, min(total, 23 * 60 + 59))
+    hour = total // 60
+    minute = total % 60
+    return f"{hour:02d}:{minute:02d}"
+
+
+def _is_missing_token(value: object, *, missing_tokens: set[str]) -> bool:
+    if value is None:
+        return True
+    if isinstance(value, float) and pd.isna(value):
+        return True
+    text = str(value).strip()
+    if not text:
+        return True
+    return text.lower() in missing_tokens
+
+
+def _choose_canonical_time(times: list[float]) -> float | None:
+    if not times:
+        return None
+
+    def score(t: float) -> tuple[int, int, float]:
+        minute = int(round(t)) % 60
+        is_hour_or_half = 1 if minute in {0, 30} else 0
+        is_quarter = 1 if minute in {0, 15, 30, 45} else 0
+        return (is_hour_or_half, is_quarter, t)
+
+    return max(times, key=score)
+
+
+def _snap_time_to_canonical_minutes(minutes: float, *, threshold_minutes: int) -> float:
+    if threshold_minutes <= 0:
+        return minutes
+    if pd.isna(minutes):
+        return minutes
+    rounded = int(round(minutes))
+    if rounded < 0 or rounded > 23 * 60 + 59:
+        return minutes
+
+    canonical = list(range(0, 24 * 60, 5))
+    nearest = min(canonical, key=lambda m: abs(m - rounded))
+    if abs(nearest - rounded) <= threshold_minutes:
+        return float(nearest)
+    return minutes
+
+
 def _apply_fuzzy_time_dedup(
     df: pd.DataFrame,
     *,
@@ -435,32 +483,89 @@ def _apply_fuzzy_time_dedup(
     working = df.copy()
     working["_time_minutes"] = working.get("Time", "").map(_parse_time_minutes)
 
-    kept_indices: list[int] = []
+    missing_tokens = {"tba", "tentative", "n/a", "na"}
+
+    kept_rows: list[pd.Series] = []
     for _, group in working.groupby(group_columns, dropna=False, sort=False):
         if len(group) == 1:
-            kept_indices.append(int(group.index[0]))
+            row = group.iloc[0].copy()
+            row.drop(labels=["_time_minutes"], inplace=True)
+            kept_rows.append(row)
             continue
 
-        group_sorted = group.sort_values(
-            by=["completeness_score"],
-            ascending=False,
-            kind="mergesort",
-        )
-        kept_times: list[float] = []
-        for idx, row in group_sorted.iterrows():
-            candidate_time = row.get("_time_minutes")
-            if isinstance(candidate_time, float) and kept_times:
-                if any(
-                    abs(candidate_time - t) <= threshold_minutes for t in kept_times
-                ):
-                    continue
-            kept_indices.append(int(idx))
-            if isinstance(candidate_time, float):
-                kept_times.append(candidate_time)
+        timed = group[group["_time_minutes"].notna()].copy()
+        untimed = group[group["_time_minutes"].isna()].copy()
 
-    result = working.loc[sorted(set(kept_indices))].copy()
-    result.drop(columns=["_time_minutes"], inplace=True)
-    return result
+        if timed.empty:
+            for _, row in group.iterrows():
+                row = row.copy()
+                row.drop(labels=["_time_minutes"], inplace=True)
+                kept_rows.append(row)
+            continue
+
+        timed = timed.sort_values(by="_time_minutes", kind="mergesort")
+        clusters: list[list[int]] = []
+        current: list[int] = []
+        last_time: float | None = None
+        for idx, row in timed.iterrows():
+            t = row["_time_minutes"]
+            if not isinstance(t, float):
+                continue
+            if last_time is None or abs(t - last_time) <= threshold_minutes:
+                current.append(int(idx))
+            else:
+                clusters.append(current)
+                current = [int(idx)]
+            last_time = t
+        if current:
+            clusters.append(current)
+
+        for cluster in clusters:
+            cluster_df = timed.loc[cluster].copy()
+            # choose the row with highest completeness_score
+            best_idx = int(
+                cluster_df.sort_values(
+                    by=["completeness_score"],
+                    ascending=False,
+                    kind="mergesort",
+                ).index[0]
+            )
+            best_row = cluster_df.loc[best_idx].copy()
+
+            canonical_time = _choose_canonical_time(
+                [
+                    float(x)
+                    for x in cluster_df["_time_minutes"].tolist()
+                    if isinstance(x, float)
+                ]
+            )
+            if canonical_time is not None:
+                best_row["Time"] = _format_time_minutes(canonical_time)
+
+            # fill missing values from other rows in the cluster
+            for _, candidate in cluster_df.iterrows():
+                if int(candidate.name) == best_idx:
+                    continue
+                for col_name in cluster_df.columns:
+                    if col_name in {"_time_minutes"}:
+                        continue
+                    if _is_missing_token(
+                        best_row.get(col_name), missing_tokens=missing_tokens
+                    ) and not _is_missing_token(
+                        candidate.get(col_name), missing_tokens=missing_tokens
+                    ):
+                        best_row[col_name] = candidate.get(col_name)
+
+            best_row.drop(labels=["_time_minutes"], inplace=True)
+            kept_rows.append(best_row)
+
+        for _, row in untimed.iterrows():
+            row = row.copy()
+            row.drop(labels=["_time_minutes"], inplace=True)
+            kept_rows.append(row)
+
+    result = pd.DataFrame(kept_rows)
+    return result.reset_index(drop=True)
 
 
 def merge_calendar_frames(
@@ -480,8 +585,8 @@ def merge_calendar_frames(
     working["Date_dt"] = pd.to_datetime(working.get("Date"), errors="coerce")
     working = working.dropna(subset=["Date_dt"])  # type: ignore[arg-type]
 
-    missing_tokens = {"tba", "tentative", "n/a", "na"}
     completeness = pd.Series(0, index=working.index, dtype="int64")
+    missing_tokens = {"tba", "tentative", "n/a", "na"}
     for col_name in working.columns:
         col = working[col_name]
         present = col.notna()
@@ -510,6 +615,29 @@ def merge_calendar_frames(
         threshold_minutes=fuzzy_minutes,
     )
     working.drop(columns=["completeness_score"], inplace=True)
+
+    _snap_raw = (os.getenv("CALENDAR_TIME_SNAP_THRESHOLD_MINUTES") or "").strip()
+    try:
+        snap_threshold = int(_snap_raw or "2")
+    except ValueError:
+        print(
+            f"[WARNING] Invalid CALENDAR_TIME_SNAP_THRESHOLD_MINUTES={_snap_raw!r}; "
+            "falling back to 2."
+        )
+        snap_threshold = 2
+
+    if snap_threshold > 0 and "Time" in working.columns:
+        minutes = working["Time"].map(_parse_time_minutes)
+        working["Time"] = [
+            (
+                _format_time_minutes(
+                    _snap_time_to_canonical_minutes(m, threshold_minutes=snap_threshold)
+                )
+                if isinstance(m, float) and not pd.isna(m)
+                else t
+            )
+            for t, m in zip(working["Time"].tolist(), minutes.tolist())
+        ]
 
     working["Date"] = working["Date_dt"].dt.strftime("%Y-%m-%d")
     working["Day"] = working["Date_dt"].dt.strftime("%A")
