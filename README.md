@@ -21,6 +21,9 @@
 Non-commercial use only. See [LICENSE](LICENSE).
 
 ## Usage Notice
-- This project does not include or distribute any data sources, feeds, or APIs. Users are responsible for configuring and using their own legally accessible data sources.
-- Users are solely responsible for ensuring that their use of this project complies with applicable laws and any third-party terms.
-- This project provides technical and implementation examples only. The author assumes no responsibility for how the project is used.
+> [!IMPORTANT]
+> - **Educational use only.** This repository and its releases (including EXE builds) are provided for educational and research purposes only.
+> - **No data or keys included.** We do not include or distribute any data sources, feeds, endpoints, or API keys. You must configure and use your own legally accessible data sources.
+> - **Follow laws and third-party terms.** You are solely responsible for ensuring that your use complies with applicable laws and all third-party terms (including any website Terms of Service).
+> - **No bypassing restrictions.** Do not use this project to bypass access controls, rate limits, paywalls, or other restrictions.
+> - **No advice.** This project provides technical and implementation examples only and does not constitute legal, financial, or trading advice. Use at your own risk.
