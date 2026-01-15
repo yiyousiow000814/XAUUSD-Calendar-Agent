@@ -33,6 +33,13 @@ limitation):
 (d) use to generate revenue, fees, advertising income, or other economic
     benefit.
 
+"Official GitHub Repository" means the GitHub repository designated by the
+copyright holder as the official source location for the Software, currently
+yiyousiow000814/XAUUSD-Calendar-Agent.
+
+"GitHub Fork" means a fork of the Official GitHub Repository created using
+GitHub's standard fork functionality.
+
 "Public Sharing" means making the Software (or any portion, copy, or modified
 version of it) available to the public or to persons beyond those you directly
 and privately communicate with, including (without limitation) posting or
@@ -43,10 +50,18 @@ uploading it to:
 (c) public code hosting services (e.g., GitHub/GitLab) or package registries;
 (d) app stores, download sites, or any publicly accessible website.
 
+For clarity: Public Sharing does not include accessing the Software via the
+Official GitHub Repository on GitHub, including creating or maintaining a
+GitHub Fork on GitHub, solely for Personal, Non-Commercial Research.
+
 "Public Promotion" means publicly advertising, promoting, or marketing the
 Software, including by posting its name, links, screenshots, or descriptions of
 the Software on any publicly accessible platform, website, or service
 (including those listed under Public Sharing).
+
+For clarity: Public Promotion does not include creating or maintaining a
+GitHub Fork on GitHub solely for Personal, Non-Commercial Research, so long as
+you do not advertise or market it.
 
 "Private Recommendation" means telling another Individual about the Software
 through a private, person-to-person channel (e.g., email or direct message)
@@ -61,16 +76,20 @@ Subject to this License, you may:
 (b) make and keep copies of the Software as reasonably necessary for that use;
     and
 (c) modify the Software for that use.
+(d) access the Software via the Official GitHub Repository on GitHub and create
+    and maintain a GitHub Fork on GitHub solely for that use.
 
 3. Restrictions
 
-Except for the limited Private Recommendation in Section 4, you may not:
+Except for the limited GitHub permission in Section 2 and the limited Private
+Recommendation in Section 4, you may not:
 (a) use the Software for any Commercial Purpose;
 (b) use the Software on behalf of, under the direction or control of, or within
     the activities of any Organization;
 (c) share, publish, distribute, or otherwise provide the Software or any
     modified version (in source or binary form) to any third party, whether
-    publicly or privately;
+    publicly or privately. For clarity, this includes any redistribution,
+    republication, or packaging of the Software outside GitHub;
 (d) engage in Public Promotion;
 (e) sell, license, sublicense, rent, lease, or otherwise transfer the Software
     or any modified version;
