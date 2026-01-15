@@ -16777,7 +16777,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-03,Friday,17:40,EUR,Medium,ECB President Lagarde Speaks,,,
 2025-10-03,Friday,18:00,EUR,Low,German Car Registration (YoY)  (Sep),,,5.0%
 2025-10-03,Friday,18:00,EUR,Low,PPI (MoM)  (Aug),,-0.1%,0.4%
-2025-10-03,Friday,18:00,EUR,Low,PPI (YoY)  (Aug),,-0.4%,0.2%
 2025-10-03,Friday,18:05,USD,Medium,FOMC Member Williams Speaks,,,
 2025-10-03,Friday,18:25,EUR,Low,French Car Registration (YoY)  (Sep),1.0%,,2.2%
 2025-10-03,Friday,19:30,INR,Low,Bank Loan Growth,10.4%,,10.3%
@@ -16855,8 +16854,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-06,Monday,10:00,VND,Low,Vietnamese Retail Sales (YoY)  (Sep),11.3%,,10.6%
 2025-10-06,Monday,11:30,THB,Low,CPI (YoY)  (Sep),-0.72%,-0.60%,-0.79%
 2025-10-06,Monday,11:30,THB,Low,Core CPI (YoY)  (Sep),0.65%,0.76%,0.81%
-2025-10-06,Monday,12:00,THB,Low,CPI (YoY)  (Sep),,,-0.79%
-2025-10-06,Monday,12:00,THB,Low,Core CPI (YoY)  (Sep),,,0.81%
 2025-10-06,Monday,13:00,EUR,Low,Estonian Industrial Production (MoM)  (Aug),1.50%,,-5.60%
 2025-10-06,Monday,13:00,EUR,Low,Estonian Industrial Production (YoY)  (Aug),1.20%,,0.70%
 2025-10-06,Monday,13:00,INR,Low,Manufacturing & Services PMI  (Sep),61.00,61.90,62.90
@@ -16926,7 +16923,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-07,Tuesday,07:45,BHD,Low,GDP (YoY)  (Q2),2.50%,,2.70%
 2025-10-07,Tuesday,07:50,JPY,Low,Foreign Reserves (USD)  (Sep),"1,341.3B",,"1,324.2B"
 2025-10-07,Tuesday,08:30,AUD,Low,ANZ Job Advertisements (MoM)  (Sep),-3.3%,,-0.3%
-2025-10-07,Tuesday,08:30,AUD,Low,Westpac Consumer Sentiment  (Oct),,,-3.1%
 2025-10-07,Tuesday,09:00,PHP,Low,CPI (MoM)  (Sep),0.0%,,0.6%
 2025-10-07,Tuesday,09:00,PHP,Low,CPI (YoY)  (Sep),1.7%,2.0%,1.5%
 2025-10-07,Tuesday,09:00,PHP,Low,Core CPI (YoY)  (Sep),2.6%,,2.7%
@@ -16969,7 +16965,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-07,Tuesday,16:30,HKD,Low,Foreign Reserves (USD)  (Sep),,,421.60B
 2025-10-07,Tuesday,16:40,EUR,Low,Spanish 12-Month Letras Auction,2.006%,,1.986%
 2025-10-07,Tuesday,16:40,EUR,Low,Spanish 6-Month Letras Auction,1.937%,,1.958%
-2025-10-07,Tuesday,17:00,GBP,Medium,Mortgage Rate (GBP)  (Sep),,,6.86%
 2025-10-07,Tuesday,17:00,PHP,Low,FX Reserves USD  (Sep),,,105.90B
 2025-10-07,Tuesday,17:00,SGD,Low,Foreign Reserves USD (MoM)  (Sep),393.1B,,391.3B
 2025-10-07,Tuesday,17:30,EUR,Low,German 5-Year Bobl Auction,2.310%,,2.290%
@@ -17000,7 +16995,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-07,Tuesday,21:30,KES,Low,Interest Rate Decision  (Oct),9.25%,,9.50%
 2025-10-07,Tuesday,22:00,CAD,Low,Ivey PMI n.s.a  (Sep),61.6,,50.0
 2025-10-07,Tuesday,22:00,CAD,Medium,Ivey PMI  (Sep),59.8,51.2,50.1
-2025-10-07,Tuesday,22:00,KES,Low,Interest Rate Decision  (Oct),,,9.50%
 2025-10-07,Tuesday,22:00,USD,Medium,FOMC Member Bostic Speaks,,,
 2025-10-07,Tuesday,22:05,USD,Medium,FOMC Member Bowman Speaks,,,
 2025-10-07,Tuesday,22:10,USD,Low,IBD/TIPP Economic Optimism  (Oct),48.3,49.3,48.7
@@ -17021,14 +17015,12 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-08,Wednesday,00:00,CNY,Low,FX Reserves (USD)  (Sep),,,3.322T
 2025-10-08,Wednesday,00:00,EUR,Medium,German Buba President Nagel Speaks,,,
 2025-10-08,Wednesday,00:00,RUB,Low,Budget Balance % of GDP  (Sep),,,-1.90%
-2025-10-08,Wednesday,00:00,UAH,Low,Foreign Reserves (USD)  (Sep),,,46.00B
 2025-10-08,Wednesday,00:00,USD,Medium,Atlanta Fed GDPNow  (Q3),3.8%,3.8%,3.8%
 2025-10-08,Wednesday,00:00,USD,Medium,EIA Short-Term Energy Outlook,,,
 2025-10-08,Wednesday,00:10,EUR,Medium,ECB President Lagarde Speaks,,,
 2025-10-08,Wednesday,01:00,EGP,Low,Current Account (USD)  (Q2),-15M,,-13M
 2025-10-08,Wednesday,01:00,EUR,Low,Car Registration (YoY)  (Sep),,,-10.90%
 2025-10-08,Wednesday,01:00,USD,Medium,3-Year Note Auction,3.576%,,3.485%
-2025-10-08,Wednesday,01:00,USD,Medium,Atlanta Fed GDPNow  (Q3),,3.8%,3.8%
 2025-10-08,Wednesday,03:00,USD,Medium,Consumer Credit  (Aug),0.36B,12.90B,18.05B
 2025-10-08,Wednesday,04:30,USD,Medium,API Weekly Crude Oil Stock,2.780M,2.250M,-3.674M
 2025-10-08,Wednesday,06:30,UAH,Low,Foreign Reserves (USD)  (Sep),,,46.00B
@@ -17373,8 +17365,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-13,Monday,14:00,EUR,Low,German WPI (YoY)  (Sep),1.2%,,0.7%
 2025-10-13,Monday,14:00,RON,Low,CPI (YoY)  (Sep),9.9%,10.1%,9.9%
 2025-10-13,Monday,15:00,TRY,Low,Current Account (USD)  (Aug),5.46B,5.30B,1.70B
-2025-10-13,Monday,17:30,EUR,Low,German 12-Month Bubill Auction,,,1.938%
-2025-10-13,Monday,17:50,EUR,Low,German 12-Month Bubill Auction,,,1.938%
 2025-10-13,Monday,18:00,EUR,Low,German 12-Month Bubill Auction,1.870%,,1.938%
 2025-10-13,Monday,18:00,RSD,Low,CPI (MoM)  (Sep),-1.60%,0.10%,0.20%
 2025-10-13,Monday,18:00,RSD,Low,CPI (YoY)  (Sep),2.90%,4.65%,4.70%
@@ -17448,7 +17438,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-14,Tuesday,17:00,EUR,Medium,German ZEW Current Conditions  (Oct),-80.0,-75.0,-76.4
 2025-10-14,Tuesday,17:00,EUR,Medium,German ZEW Economic Sentiment  (Oct),39.3,41.2,37.3
 2025-10-14,Tuesday,17:00,EUR,Medium,ZEW Economic Sentiment  (Oct),22.7,30.2,26.1
-2025-10-14,Tuesday,17:00,ZAR,Low,Gold Production (YoY)  (Aug),,,-0.4%
 2025-10-14,Tuesday,17:00,ZAR,Low,Mining Production  (Aug),,,4.4%
 2025-10-14,Tuesday,17:10,EUR,Low,Italian 15-Year BTP Auction,3.87%,,4.03%
 2025-10-14,Tuesday,17:10,EUR,Low,Italian 3-Year BTP Auction,2.36%,,2.44%
@@ -17490,9 +17479,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-15,Wednesday,03:00,ARS,Low,National CPI (MoM)  (Sep),,,1.90%
 2025-10-15,Wednesday,03:25,USD,Medium,Fed Waller Speaks,,,
 2025-10-15,Wednesday,03:30,USD,Low,Fed Collins Speaks,,,
-2025-10-15,Wednesday,07:55,KRW,Low,Exports (YoY)  (Sep),,12.7%,1.2%
-2025-10-15,Wednesday,07:55,KRW,Low,Imports (YoY)  (Sep),,8.2%,-4.1%
-2025-10-15,Wednesday,07:55,KRW,Low,Trade Balance  (Sep),,9.56B,6.51B
 2025-10-15,Wednesday,08:00,AUD,Low,MI Leading Index (MoM)  (Sep),-0.0%,,-0.1%
 2025-10-15,Wednesday,08:00,KRW,Low,Exports (YoY)  (Sep),12.6%,12.7%,1.2%
 2025-10-15,Wednesday,08:00,KRW,Low,Imports (YoY)  (Sep),8.2%,8.2%,-4.1%
@@ -17544,9 +17530,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-15,Wednesday,16:00,PLN,Low,CPI (MoM)  (Sep),0.0%,0.0%,0.0%
 2025-10-15,Wednesday,16:00,PLN,Low,CPI (YoY)  (Sep),2.9%,2.9%,2.9%
 2025-10-15,Wednesday,16:00,TRY,Low,Budget balance  (Sep),-309.60B,,96.70B
-2025-10-15,Wednesday,16:30,INR,Low,Exports (USD)  (Sep),,,35.10B
-2025-10-15,Wednesday,16:30,INR,Low,Imports (USD)  (Sep),,,61.59B
-2025-10-15,Wednesday,16:30,INR,Low,Trade Balance  (Sep),,,-26.49B
 2025-10-15,Wednesday,17:00,CNY,Low,Chinese Total Social Financing  (Sep),"3,530.0B","3,320.0B","2,570.0B"
 2025-10-15,Wednesday,17:00,CNY,Low,M2 Money Stock (YoY)  (Sep),8.4%,8.5%,8.8%
 2025-10-15,Wednesday,17:00,CNY,Low,Outstanding Loan Growth (YoY)  (Sep),6.6%,6.7%,6.8%
@@ -17588,7 +17571,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-15,Wednesday,20:30,CAD,Low,Manufacturing Sales (MoM)  (Aug),-1.0%,-1.5%,2.2%
 2025-10-15,Wednesday,20:30,CAD,Low,New Motor Vehicle Sales (MoM)  (Aug),167.0K,,179.8K
 2025-10-15,Wednesday,20:30,CAD,Medium,Wholesale Sales (MoM)  (Aug),-1.2%,-1.3%,1.7%
-2025-10-15,Wednesday,20:30,UAH,Low,Trade Balance YTD (USD)  (Aug),,,-22.6B
 2025-10-15,Wednesday,20:30,USD,High,CPI (MoM)  (Sep),,0.3%,0.4%
 2025-10-15,Wednesday,20:30,USD,High,CPI (YoY)  (Sep),,,2.9%
 2025-10-15,Wednesday,20:30,USD,High,Core CPI (MoM)  (Sep),,0.3%,0.3%
@@ -17607,7 +17589,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-15,Wednesday,23:00,COP,Low,Industrial Production (YoY)  (Aug),1.0%,,5.8%
 2025-10-15,Wednesday,23:00,COP,Low,Retail Sales (YoY)  (Aug),12.4%,14.0%,17.9%
 2025-10-15,Wednesday,23:00,GBP,Low,BoE Breeden Speaks,,,
-2025-10-15,Wednesday,23:00,PEN,Low,GDP (YoY)  (Aug),,,3.41%
 2025-10-15,Wednesday,23:00,PEN,Low,Unemployment Rate  (Sep),5.7%,,6.0%
 2025-10-15,Wednesday,23:00,USD,Low,Cleveland CPI (MoM)  (Sep),,,0.3%
 2025-10-15,Wednesday,23:30,ILS,Low,CPI (MoM)  (Sep),-0.6%,-0.3%,0.7%
@@ -17678,7 +17659,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-16,Thursday,18:00,USD,Low,IMF Meetings,,,
 2025-10-16,Thursday,18:10,GBP,Medium,NIESR Monthly GDP Tracker,0.3%,,0.3%
 2025-10-16,Thursday,18:15,GHS,Low,PPI (YoY)  (Sep),,,3.00%
-2025-10-16,Thursday,19:00,GBP,Medium,NIESR Monthly GDP Tracker,,,0.3%
 2025-10-16,Thursday,19:00,ILS,Low,M1 Money Supply (YoY)  (Sep),,,-4.9%
 2025-10-16,Thursday,19:30,INR,Low,M3 Money Supply,,,9.2%
 2025-10-16,Thursday,19:30,TRY,Low,Gross FX Reserves,87.34B,,87.03B
@@ -17751,7 +17731,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-17,Friday,04:30,USD,Medium,API Weekly Crude Oil Stock,,0.120M,2.780M
 2025-10-17,Friday,04:30,USD,Medium,Fed's Balance Sheet,"6,596B",,"6,591B"
 2025-10-17,Friday,04:35,ARS,Low,Budget Balance  (Sep),697M,,"1,557M"
-2025-10-17,Friday,04:40,ARS,Low,Budget Balance  (Sep),,,"1,557M"
 2025-10-17,Friday,05:00,KRW,Low,Export Price Index (YoY)  (Sep),2.2%,,-1.1%
 2025-10-17,Friday,05:00,KRW,Low,Import Price Index (YoY)  (Sep),0.6%,,-2.2%
 2025-10-17,Friday,06:00,USD,Medium,FOMC Member Kashkari Speaks,,,
@@ -17830,7 +17809,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-17,Friday,22:00,USD,Medium,Retail Inventories Ex Auto  (Aug),,0.3%,0.3%
 2025-10-18,Saturday,00:00,USD,Medium,Atlanta Fed GDPNow  (Q3),3.9%,3.8%,3.8%
 2025-10-18,Saturday,00:30,GBP,Low,BoE Breeden Speaks,,,
-2025-10-18,Saturday,01:00,USD,Medium,Atlanta Fed GDPNow  (Q3),,,
 2025-10-18,Saturday,01:00,USD,Medium,U.S. Baker Hughes Oil Rig Count,418,417,418
 2025-10-18,Saturday,01:00,USD,Medium,U.S. Baker Hughes Total Rig Count,548,,547
 2025-10-18,Saturday,03:00,AED,Low,M3 Money Supply (YoY)  (Aug),,,13.90%
@@ -17857,7 +17835,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-20,Monday,07:00,GBP,Low,Rightmove House Price Index (YoY)  (Oct),0.1%,,-0.1%
 2025-10-20,Monday,09:00,CNY,Medium,China Loan Prime Rate 5Y  (Oct),3.50%,3.50%,3.50%
 2025-10-20,Monday,09:00,CNY,Medium,PBoC Loan Prime Rate,3.00%,3.00%,3.00%
-2025-10-20,Monday,09:15,CNY,Medium,PBoC Loan Prime Rate,,3.00%,3.00%
 2025-10-20,Monday,09:30,CNY,Low,House Prices (YoY)  (Sep),-2.2%,,-2.5%
 2025-10-20,Monday,10:00,CNY,High,GDP (YoY)  (Q3),4.8%,4.7%,5.2%
 2025-10-20,Monday,10:00,CNY,Low,Chinese Retail Sales YTD  (YoY)  (Sep),3.48%,,3.67%
@@ -17871,8 +17848,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-20,Monday,10:00,CNY,Medium,NBS Press Conference,,,
 2025-10-20,Monday,13:00,EUR,Low,Estonian PPI (MoM)  (Sep),0.5%,,1.6%
 2025-10-20,Monday,13:00,EUR,Low,Estonian PPI (YoY)  (Sep),0.5%,,-1.6%
-2025-10-20,Monday,14:00,EUR,Low,German PPI (YoY)  (Sep),,,-2.2%
-2025-10-20,Monday,14:00,EUR,Medium,German PPI (MoM)  (Sep),,,-0.5%
 2025-10-20,Monday,15:00,EUR,Low,German PPI (YoY)  (Sep),-1.7%,,-2.2%
 2025-10-20,Monday,15:00,EUR,Low,Slovak Current Account  (Aug),-352.0M,,-547.2M
 2025-10-20,Monday,15:00,EUR,Medium,German PPI (MoM)  (Sep),-0.1%,0.1%,-0.5%
@@ -18054,7 +18029,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-23,Thursday,09:00,KRW,Low,Bank of Korea Monetary Policy Board’s Policy Setting Meeting Dates (MoM),,,
 2025-10-23,Thursday,09:00,KRW,Low,Interest Rate Decision  (Oct),2.50%,2.50%,2.50%
 2025-10-23,Thursday,11:00,IDR,Low,M2 Money Supply (YoY)  (Sep),8.00%,,7.60%
-2025-10-23,Thursday,12:00,IDR,Low,M2 Money Supply (YoY)  (Sep),,,7.60%
 2025-10-23,Thursday,12:30,EUR,Low,Dutch Consumer Confidence  (Oct),-27.0,,-32.0
 2025-10-23,Thursday,13:00,PHP,Low,Budget Balance  (Sep),-248.1B,,-84.8B
 2025-10-23,Thursday,13:00,SGD,Low,CPI (MoM)  (Sep),0.40%,,0.50%
@@ -18218,8 +18192,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-27,Monday,15:00,DKK,Low,M3 Money Supply  (Sep),"1,982.9B",,"1,995.8B"
 2025-10-27,Monday,15:00,DKK,Low,Retail Sales (YoY)  (Sep),3.5%,,2.6%
 2025-10-27,Monday,15:00,EUR,Low,Lithuania Retail Sales (MoM)  (Sep),,,0.8%
-2025-10-27,Monday,15:00,EUR,Low,Lithuania Retail Sales (YoY)  (Sep),,,5.5%
-2025-10-27,Monday,15:00,EUR,Low,M3 Money Supply  (Sep),,,30.1B
 2025-10-27,Monday,15:00,NOK,Low,Credit Indicator (YoY)  (Sep),3.8%,,4.0%
 2025-10-27,Monday,15:00,NOK,Low,M3 Money Supply  (Sep),"3,401.8B",,"3,444.5B"
 2025-10-27,Monday,15:00,SEK,Low,Household Lending Growth (YoY)  (Sep),2.8%,,2.7%
@@ -18227,7 +18199,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-27,Monday,15:00,TRY,Low,Capacity Utilization  (Oct),74.2%,,74.0%
 2025-10-27,Monday,15:00,TRY,Low,Manufacturing Confidence  (Oct),100.8,,100.2
 2025-10-27,Monday,15:00,TRY,Low,Unemployment Rate (MoM)  (Sep),8.6%,,8.6%
-2025-10-27,Monday,16:00,EUR,Low,Private Sector Loans (YoY)  (Sep),,,2.5%
 2025-10-27,Monday,16:00,TWD,Low,Unemployment Rate  (Sep),3.35%,,3.35%
 2025-10-27,Monday,16:15,AUD,Low,RBA Gov Bullock Speaks,,,
 2025-10-27,Monday,16:15,EUR,Medium,ECB's Elderson Speaks,,,
@@ -18263,9 +18234,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-27,Monday,20:30,USD,Low,Durables Excluding Defense (MoM)  (Sep),,1.9%,-2.5%
 2025-10-27,Monday,20:30,USD,Low,Goods Orders Non Defense Ex Air (MoM)  (Sep),,,0.8%
 2025-10-27,Monday,20:30,USD,Medium,Core Durable Goods Orders (MoM)  (Sep),,,1.1%
-2025-10-27,Monday,21:00,EUR,Low,French 12-Month BTF Auction,,,2.020%
-2025-10-27,Monday,21:00,EUR,Low,French 3-Month BTF Auction,,,1.987%
-2025-10-27,Monday,21:00,EUR,Low,French 6-Month BTF Auction,,,2.015%
 2025-10-27,Monday,22:00,EUR,Low,French 12-Month BTF Auction,2.053%,,2.020%
 2025-10-27,Monday,22:00,EUR,Low,French 3-Month BTF Auction,2.011%,,1.987%
 2025-10-27,Monday,22:00,EUR,Low,French 6-Month BTF Auction,2.015%,,2.015%
@@ -18451,7 +18419,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-30,Thursday,10:00,SGD,Low,Unemployment Rate  (Q3),2.0%,,2.0%
 2025-10-30,Thursday,10:30,JPY,Low,BOJ Gov Ueda Speaks,,,
 2025-10-30,Thursday,10:30,JPY,Medium,BoJ Monetary Policy Statement,,,
-2025-10-30,Thursday,10:30,SGD,Low,Unemployment Rate  (Q3),,,2.0%
 2025-10-30,Thursday,11:00,JPY,High,BoJ Interest Rate Decision,0.50%,0.50%,0.50%
 2025-10-30,Thursday,11:00,JPY,Medium,BoJ Outlook Report (YoY),,,
 2025-10-30,Thursday,12:00,THB,Low,Industrial Production (YoY)  (Sep),1.02%,-2.00%,-4.36%
@@ -18518,7 +18485,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-30,Thursday,17:30,EUR,Low,Portuguese GDP (YoY)  (Q3),2.4%,,1.8%
 2025-10-30,Thursday,17:30,ZAR,Low,PPI (MoM)  (Sep),-0.1%,,0.3%
 2025-10-30,Thursday,17:30,ZAR,Low,PPI (YoY)  (Sep),2.3%,2.6%,2.1%
-2025-10-30,Thursday,18:00,BWP,Low,Interest Rate Decision,,,1.90%
 2025-10-30,Thursday,18:00,EUR,Low,Business Climate  (Oct),-0.46,,-0.73
 2025-10-30,Thursday,18:00,EUR,Low,Business and Consumer Survey  (Oct),96.8,95.7,95.6
 2025-10-30,Thursday,18:00,EUR,Low,Consumer Confidence  (Oct),-14.2,-14.2,-14.9
@@ -18630,7 +18596,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-31,Friday,15:00,EUR,Medium,German Retail Sales (MoM)  (Sep),0.2%,0.2%,-0.5%
 2025-10-31,Friday,15:00,GBP,Medium,Nationwide HPI (MoM)  (Oct),0.3%,0.0%,0.5%
 2025-10-31,Friday,15:00,GBP,Medium,Nationwide HPI (YoY)  (Oct),2.4%,2.3%,2.2%
-2025-10-31,Friday,15:00,HUF,Low,PPI (YoY)  (Sep),,,2.3%
 2025-10-31,Friday,15:00,MYR,Low,Money Supply (YoY)  (Sep),4.4%,,4.1%
 2025-10-31,Friday,15:00,NOK,Low,Unemployment Rate n.s.a.  (Oct),2.00%,2.10%,2.10%
 2025-10-31,Friday,15:00,THB,Low,Current account  (Sep),1.900B,,-1.500B
@@ -18665,7 +18630,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-10-31,Friday,16:30,HKD,Low,GDP (YoY)  (Q3),3.8%,,3.1%
 2025-10-31,Friday,16:30,HKD,Low,M3 Money Supply  (Sep),4.5%,,4.0%
 2025-10-31,Friday,16:30,HKD,Low,Retail Sales (YoY)  (Sep),5.9%,,3.8%
-2025-10-31,Friday,16:30,UGX,Low,CPI (YoY)  (Oct),,,4.0%
 2025-10-31,Friday,17:00,CZK,Low,M3 Money Supply  (Sep),4.3%,,3.8%
 2025-10-31,Friday,17:00,EUR,Low,Baden Wuerttemberg CPI (MoM)  (Oct),,,0.2%
 2025-10-31,Friday,17:00,EUR,Low,Baden Wuerttemberg CPI (YoY)  (Oct),,,2.7%
@@ -18738,7 +18702,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-01,Saturday,08:00,KRW,Low,Imports (YoY)  (Oct),-1.5%,-1.4%,8.2%
 2025-11-01,Saturday,08:00,KRW,Low,Trade Balance  (Oct),6.06B,2.98B,9.53B
 2025-11-01,Saturday,14:00,RUB,Low,S&P Global Manufacturing PMI  (Oct),48.0,,48.2
-2025-11-01,Saturday,17:00,PEN,Low,CPI (MoM)  (Oct),,,0.01%
 2025-11-01,Saturday,17:50,PEN,Low,CPI (MoM)  (Oct),-0.10%,,0.01%
 2025-11-02,Sunday,04:00,ARS,Low,Tax Revenue  (Oct),,,"15,445.00B"
 2025-11-02,Sunday,04:55,PEN,Low,CPI (MoM)  (Oct),-0.10%,,0.01%
@@ -18822,7 +18785,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-03,Monday,20:00,ZAR,Low,Total Vehicle Sales  (Oct),55.96K,,54.69K
 2025-11-03,Monday,20:00,ZAR,Low,Total Vehicle Sales (YoY)  (Oct),16.00%,,24.30%
 2025-11-03,Monday,20:30,ZAR,Low,Total Vehicle Sales  (Oct),,,54.70K
-2025-11-03,Monday,20:30,ZAR,Low,Total Vehicle Sales (YoY)  (Oct),,,24.30%
 2025-11-03,Monday,21:00,BRL,Low,S&P Global Manufacturing PMI  (Oct),48.2,,46.5
 2025-11-03,Monday,21:00,CZK,Low,Budget Balance  (Oct),-183.100B,,-153.900B
 2025-11-03,Monday,21:00,SGD,Low,S&P Global Manufacturing PMI  (Oct),50.0,,50.1
@@ -18856,7 +18818,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-04,Tuesday,03:00,USD,Low,Fed Governor Cook Speaks,,,
 2025-11-04,Tuesday,03:00,USD,Low,Loan Officer Survey,,,
 2025-11-04,Tuesday,03:50,ARS,Low,Tax Revenue  (Oct),"16,166.00B",,"15,445.00B"
-2025-11-04,Tuesday,04:00,ARS,Low,Tax Revenue  (Oct),,,"15,445.00B"
 2025-11-04,Tuesday,07:00,KRW,Low,CPI (MoM)  (Oct),0.3%,0.0%,0.5%
 2025-11-04,Tuesday,07:00,KRW,Low,CPI (YoY)  (Oct),2.4%,2.1%,2.1%
 2025-11-04,Tuesday,08:00,USD,Low,Total Vehicle Sales  (Oct),15.30M,15.60M,16.40M
@@ -18867,10 +18828,8 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-04,Tuesday,12:30,AUD,Medium,RBA Monetary Policy Statement,,,
 2025-11-04,Tuesday,13:00,INR,Low,S&P Global Manufacturing PMI  (Oct),,58.4,57.7
 2025-11-04,Tuesday,15:00,RON,Low,PPI (YoY)  (Sep),6.13%,,3.21%
-2025-11-04,Tuesday,15:00,TRY,Low,Exports  (Oct),,,22.60B
 2025-11-04,Tuesday,15:00,TRY,Low,Trade Balance,,,
 2025-11-04,Tuesday,15:00,TRY,Low,Trade Balance  (Oct),,,-6.90B
-2025-11-04,Tuesday,15:00,TRY,Low,Trade Ministry Trade Balance  (Oct),,,
 2025-11-04,Tuesday,15:40,EUR,Medium,ECB President Lagarde Speaks,,,
 2025-11-04,Tuesday,15:45,EUR,Low,French Government Budget Balance  (Sep),-155.4B,,-157.5B
 2025-11-04,Tuesday,16:00,EUR,Low,French Car Registration (YoY)  (Oct),,,1.0%
@@ -18880,8 +18839,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-04,Tuesday,16:00,TRY,Low,Trade Ministry Trade Balance  (Oct),-7.40B,,-4.17B
 2025-11-04,Tuesday,17:00,BRL,Medium,IPC-Fipe Inflation Index (MoM)  (Oct),0.27%,,0.65%
 2025-11-04,Tuesday,17:15,TRY,Low,Trade Balance  (Oct),-7.40B,,-6.90B
-2025-11-04,Tuesday,17:40,EUR,Low,Spanish 12-Month Letras Auction,,,2.006%
-2025-11-04,Tuesday,17:40,EUR,Low,Spanish 6-Month Letras Auction,,,1.937%
 2025-11-04,Tuesday,18:00,EUR,Low,Spanish 12-Month Letras Auction,1.990%,,2.006%
 2025-11-04,Tuesday,18:00,EUR,Low,Spanish 6-Month Letras Auction,1.944%,,1.937%
 2025-11-04,Tuesday,18:00,EUR,Medium,ECB President Lagarde Speaks,,,
@@ -18916,7 +18873,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-04,Tuesday,23:00,USD,Low,Milk Auctions,"3,768.0",,"3,881.0"
 2025-11-04,Tuesday,23:00,USD,Low,Total Vehicle Sales  (Oct),,15.60M,16.40M
 2025-11-04,Tuesday,23:00,USD,Medium,Factory Orders (MoM),,1.4%,-1.3%
-2025-11-04,Tuesday,23:10,USD,Low,IBD/TIPP Economic Optimism  (Nov),,48.1,48.3
 2025-11-05,Wednesday,All Day,,Holiday,India - Guru Nanak Jayanti,,,
 2025-11-05,Wednesday,All Day,,Holiday,Sri Lanka - Ill Full Moon Poya Day,,,
 2025-11-05,Wednesday,00:00,DKK,Low,Currency Reserves  (Oct),675.50B,,678.60B
@@ -18928,7 +18884,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-05,Wednesday,01:00,EUR,Low,Car Registration (YoY)  (Oct),,,-0.50%
 2025-11-05,Wednesday,01:00,EUR,Low,Italian Car Registration (YoY)  (Oct),,,4.2%
 2025-11-05,Wednesday,01:00,EUR,Medium,German Buba President Nagel Speaks,,,
-2025-11-05,Wednesday,01:00,USD,Low,IBD/TIPP Economic Optimism  (Nov),,48.1,48.3
 2025-11-05,Wednesday,01:00,USD,Low,OPEC Crude Oil Production Algeria (Barrel),0.96M,,0.96M
 2025-11-05,Wednesday,01:00,USD,Low,OPEC Crude Oil Production Congo (Barrel),0.26M,,0.26M
 2025-11-05,Wednesday,01:00,USD,Low,OPEC Crude Oil Production Gabon (Barrel),0.23M,,0.23M
@@ -18971,8 +18926,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-05,Wednesday,11:35,JPY,Medium,10-Year JGB Auction,1.658%,,1.635%
 2025-11-05,Wednesday,12:00,IDR,Low,GDP (QoQ)  (Q3),1.43%,1.40%,4.04%
 2025-11-05,Wednesday,12:00,IDR,Low,GDP (YoY)  (Q3),5.04%,5.00%,5.12%
-2025-11-05,Wednesday,12:00,THB,Low,CPI (YoY)  (Oct),,,-0.72%
-2025-11-05,Wednesday,12:00,THB,Low,Core CPI (YoY)  (Oct),,,0.65%
 2025-11-05,Wednesday,12:15,AED,Low,S&P Global Composite PMI  (Oct),53.8,,54.2
 2025-11-05,Wednesday,13:00,SGD,Low,Retail Sales (MoM)  (Sep),-1.4%,,0.7%
 2025-11-05,Wednesday,13:00,SGD,Low,Retail Sales (YoY)  (Sep),2.8%,,5.3%
@@ -19010,7 +18963,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-05,Wednesday,18:00,EUR,Low,PPI (MoM)  (Sep),-0.1%,0.0%,-0.4%
 2025-11-05,Wednesday,18:00,EUR,Low,PPI (YoY)  (Sep),-0.2%,-0.2%,-0.6%
 2025-11-05,Wednesday,18:00,EUR,Medium,German Buba President Nagel Speaks,,,
-2025-11-05,Wednesday,18:00,GHS,Low,CPI (YoY)  (Oct),,,9.40%
 2025-11-05,Wednesday,18:00,NOK,Low,House Price Index (YoY)  (Oct),5.80%,,5.50%
 2025-11-05,Wednesday,19:00,EUR,Low,Irish Unemployment  (Oct),5.0%,,5.1%
 2025-11-05,Wednesday,19:00,EUR,Low,Portuguese Unemployment Rate  (Q3),5.8%,,5.9%
@@ -19034,10 +18986,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-05,Wednesday,22:00,EUR,Low,Consumer Confidence  (Nov),,,-14.2
 2025-11-05,Wednesday,22:00,PLN,Medium,Interest Rate Decision  (Nov),4.25%,4.25%,4.50%
 2025-11-05,Wednesday,22:00,USD,High,ISM Non-Manufacturing PMI  (Oct),,51.0,50.8
-2025-11-05,Wednesday,22:00,USD,High,ISM Non-Manufacturing Prices  (Oct),,,69.4
-2025-11-05,Wednesday,22:00,USD,Low,ISM Non-Manufacturing Business Activity  (Oct),,,49.9
-2025-11-05,Wednesday,22:00,USD,Low,ISM Non-Manufacturing New Orders  (Oct),,,50.4
-2025-11-05,Wednesday,22:00,USD,Medium,ISM Non-Manufacturing Employment  (Oct),,,47.2
 2025-11-05,Wednesday,22:30,CAD,Low,Services PMI  (Oct),50.50,,46.30
 2025-11-05,Wednesday,22:45,USD,High,S&P Global Services PMI  (Oct),54.8,55.2,54.2
 2025-11-05,Wednesday,22:45,USD,Medium,S&P Global Composite PMI  (Oct),54.6,54.8,53.9
@@ -19123,9 +19071,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-06,Thursday,17:00,NOK,Medium,Interest Rate Decision,4.00%,4.00%,4.00%
 2025-11-06,Thursday,17:00,RUB,Low,Russian Forex Intervention  (Nov),-2.7B,,-13.9B
 2025-11-06,Thursday,17:30,GBP,Medium,S&P Global Construction PMI  (Oct),44.1,46.7,46.2
-2025-11-06,Thursday,17:40,EUR,Low,Spanish 10-Year Obligacion Auction,,,3.085%
-2025-11-06,Thursday,17:40,EUR,Low,Spanish 7-Year Obligacion Auction,,,2.716%
-2025-11-06,Thursday,17:40,EUR,Medium,Spanish 15-Year Obligacion Auction,,,3.671%
 2025-11-06,Thursday,17:50,EUR,Low,French 10-Year OAT Auction,3.43%,,3.51%
 2025-11-06,Thursday,18:00,EUR,Low,Retail Sales (MoM)  (Sep),-0.1%,0.2%,-0.1%
 2025-11-06,Thursday,18:00,EUR,Low,Retail Sales (YoY)  (Sep),1.0%,1.0%,1.6%
@@ -19149,7 +19094,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-06,Thursday,20:30,CAD,Medium,Trade Balance  (Sep),,,-6.32B
 2025-11-06,Thursday,20:30,EUR,Medium,German Buba President Nagel Speaks,,,
 2025-11-06,Thursday,20:30,GBP,Medium,BoE Gov Bailey Speaks,,,
-2025-11-06,Thursday,20:30,USD,Low,Challenger Job Cuts  (Oct),,,54.064K
 2025-11-06,Thursday,21:00,BRL,Low,Auto Production (MoM)  (Oct),,,-1.5%
 2025-11-06,Thursday,21:00,BRL,Low,Auto Sales (MoM)  (Oct),,,7.9%
 2025-11-06,Thursday,21:00,KWD,Low,Bank Lending (YoY)  (Sep),,,6.55%
@@ -19195,8 +19139,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-07,Friday,09:00,PHP,Low,GDP (YoY)  (Q3),4.0%,5.2%,5.5%
 2025-11-07,Friday,09:00,PHP,Low,Industrial Production (YoY)  (Sep),2.4%,,1.6%
 2025-11-07,Friday,10:00,IDR,Low,Motorbike Sales (YoY)  (Oct),,,7.30%
-2025-11-07,Friday,10:00,PHP,Low,GDP (QoQ)  (Q3),,,1.5%
-2025-11-07,Friday,10:00,PHP,Low,GDP (YoY)  (Q3),,,5.5%
 2025-11-07,Friday,11:00,CNY,Low,Exports  (Oct),-0.80M,,8.40M
 2025-11-07,Friday,11:00,CNY,Low,Imports  (Oct),1.40M,,7.50M
 2025-11-07,Friday,11:00,CNY,Low,Trade Balance  (Oct),640.49B,705.00B,645.47B
@@ -19251,8 +19193,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-07,Friday,17:00,SGD,Low,Foreign Reserves USD (MoM)  (Oct),392.2B,,393.1B
 2025-11-07,Friday,17:30,GBP,Medium,Mortgage Rate (GBP)  (Oct),6.78%,,6.78%
 2025-11-07,Friday,18:00,EUR,Low,German Car Registration (YoY),,,12.8%
-2025-11-07,Friday,18:00,GBP,Medium,Mortgage Rate (GBP)  (Oct),,,6.78%
-2025-11-07,Friday,18:00,MUR,Low,CPI (YoY)  (Oct),,,4.40%
 2025-11-07,Friday,19:00,AOA,Low,CPI (MoM)  (Oct),,,1.08%
 2025-11-07,Friday,19:00,AOA,Low,CPI (YoY)  (Oct),,,18.24%
 2025-11-07,Friday,19:00,BRL,Low,IGP-DI Inflation Index (MoM)  (Oct),-0.03%,,0.36%
@@ -19361,7 +19301,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-10,Monday,18:00,EUR,Low,Greek Industrial Production (YoY)  (Sep),6.8%,,-2.8%
 2025-11-10,Monday,18:00,EUR,Low,Spanish Consumer Confidence  (Oct),,,81.5
 2025-11-10,Monday,18:00,HUF,Low,Budget Balance  (Oct),-339.0B,,-303.2B
-2025-11-10,Monday,18:00,UGX,Low,Interest Rate Decision,,,9.75%
 2025-11-10,Monday,18:30,UGX,Low,Interest Rate Decision,9.75%,,9.75%
 2025-11-10,Monday,19:00,EGP,Low,Foreign Reserves (USD)  (Oct),50.07B,,49.53B
 2025-11-10,Monday,19:00,EUR,Low,Latvian CPI (MoM)  (Oct),0.40%,,0.20%
@@ -19373,7 +19312,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-10,Monday,19:25,BRL,Low,BCB Focus Market Readout,,,
 2025-11-10,Monday,20:00,RWF,Low,CPI (YoY)  (Oct),7.10%,,7.30%
 2025-11-10,Monday,20:45,EGP,Low,Core CPI (YoY)  (Oct),12.10%,,11.30%
-2025-11-10,Monday,21:30,EGP,Low,Core CPI (YoY)  (Oct),,,11.30%
 2025-11-10,Monday,21:30,UAH,Low,CPI (MoM)  (Oct),0.9%,,0.3%
 2025-11-10,Monday,21:30,UAH,Low,CPI (YoY)  (Oct),10.9%,,11.9%
 2025-11-10,Monday,21:30,USD,Medium,FOMC Member Daly Speaks,,,
@@ -19465,7 +19403,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-12,Wednesday,07:00,KRW,Low,Unemployment Rate  (Oct),2.6%,,2.5%
 2025-11-12,Wednesday,07:50,JPY,Low,M2 Money Stock (YoY),1.6%,1.8%,1.5%
 2025-11-12,Wednesday,07:50,JPY,Low,M3 Money Supply  (Oct),"2,235.2B",,"2,229.2B"
-2025-11-12,Wednesday,08:00,JPY,Low,Reuters Tankan Index  (Nov),,,8
 2025-11-12,Wednesday,08:30,AUD,Low,Invest Housing Finance (MoM)  (Q3),17.6%,4.0%,2.6%
 2025-11-12,Wednesday,08:30,AUD,Medium,Home Loans (MoM)  (Q3),4.7%,2.5%,2.2%
 2025-11-12,Wednesday,11:00,KRW,Low,M2 Money supply  (Sep),7.20%,,6.80%
@@ -19501,7 +19438,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-12,Wednesday,18:10,EUR,Low,Italian 12-Month BOT Auction,2.063%,,2.050%
 2025-11-12,Wednesday,18:30,EUR,Low,German 30-Year Bund Auction,3.260%,,3.170%
 2025-11-12,Wednesday,18:30,INR,Medium,CPI (YoY)  (Oct),0.25%,0.48%,1.44%
-2025-11-12,Wednesday,18:30,MUR,Low,Interest Rate Decision  (Q4),,,4.50%
 2025-11-12,Wednesday,18:45,EUR,Medium,ECB's Schnabel Speaks,,,
 2025-11-12,Wednesday,19:00,EUR,Low,Portuguese CPI (MoM)  (Oct),0.0%,0.0%,0.9%
 2025-11-12,Wednesday,19:00,EUR,Low,Portuguese CPI (YoY)  (Oct),2.3%,2.3%,2.4%
@@ -19510,7 +19446,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-12,Wednesday,19:40,EUR,Medium,ECB's De Guindos Speaks,,,
 2025-11-12,Wednesday,20:00,BRL,Low,Brazilian Service Sector Growth (MoM)  (Sep),0.6%,,0.2%
 2025-11-12,Wednesday,20:00,BRL,Low,Brazilian Service Sector Growth (YoY)  (Sep),4.1%,,2.5%
-2025-11-12,Wednesday,20:00,RON,Low,Interest Rate Decision,,,6.50%
 2025-11-12,Wednesday,20:00,USD,Low,MBA 30-Year Mortgage Rate,6.34%,,6.31%
 2025-11-12,Wednesday,20:00,USD,Low,MBA Mortgage Applications (WoW),0.6%,,-1.9%
 2025-11-12,Wednesday,20:00,USD,Low,MBA Purchase Index,172.7,,163.3
@@ -19594,10 +19529,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-13,Thursday,16:00,EUR,Low,Slovak CPI (YoY)  (Oct),3.7%,3.7%,4.3%
 2025-11-13,Thursday,16:00,EUR,Low,Slovak Core CPI (MoM)  (Oct),0.1%,0.1%,0.1%
 2025-11-13,Thursday,16:00,EUR,Low,Slovak Core CPI (YoY)  (Oct),3.0%,,3.6%
-2025-11-13,Thursday,16:30,CNY,Low,Chinese Total Social Financing  (Oct),,"1,230.0B","3,530.0B"
-2025-11-13,Thursday,16:30,CNY,Low,M2 Money Stock (YoY)  (Oct),,8.1%,8.4%
-2025-11-13,Thursday,16:30,CNY,Low,Outstanding Loan Growth (YoY)  (Oct),,6.6%,6.6%
-2025-11-13,Thursday,16:30,CNY,Medium,New Loans  (Oct),,460.0B,"1,290.0B"
 2025-11-13,Thursday,17:00,CNY,Low,Chinese Total Social Financing  (Oct),810.0B,"1,230.0B","3,530.0B"
 2025-11-13,Thursday,17:00,CNY,Low,M2 Money Stock (YoY)  (Oct),8.2%,8.1%,8.4%
 2025-11-13,Thursday,17:00,CNY,Low,Outstanding Loan Growth (YoY)  (Oct),6.5%,6.6%,6.6%
@@ -19614,9 +19545,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-13,Thursday,18:00,EUR,Low,Industrial Production (YoY)  (Sep),1.2%,2.1%,1.2%
 2025-11-13,Thursday,18:00,EUR,Medium,German Buba Vice President Buch Speaks,,,
 2025-11-13,Thursday,18:00,EUR,Medium,Industrial Production (MoM)  (Sep),0.2%,0.7%,-1.1%
-2025-11-13,Thursday,18:10,EUR,Low,Italian 3-Year BTP Auction,,,2.36%
-2025-11-13,Thursday,18:10,EUR,Low,Italian 30-Year BTP Auction,,,4.260%
-2025-11-13,Thursday,18:10,EUR,Low,Italian 7-Year BTP Auction,,,3.05%
 2025-11-13,Thursday,19:00,EUR,Low,France Thomson Reuters IPSOS PCSI  (Nov),38.94,,40.61
 2025-11-13,Thursday,19:00,EUR,Low,Germany Thomson Reuters IPSOS PCSI  (Nov),46.47,,45.75
 2025-11-13,Thursday,19:00,EUR,Low,Irish CPI (MoM)  (Oct),0.5%,,-0.2%
@@ -19709,7 +19637,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-14,Friday,12:00,MYR,Medium,GDP (YoY)  (Q3),5.2%,5.2%,4.4%
 2025-11-14,Friday,12:00,THB,Low,Consumer Confidence  (Oct),51.9,,50.7
 2025-11-14,Friday,12:30,JPY,Low,Tertiary Industry Activity Index  (Sep),5.00,,-3.90
-2025-11-14,Friday,12:30,THB,Low,Consumer Confidence  (Oct),,,50.7
 2025-11-14,Friday,13:30,EUR,Low,Dutch GDP (QoQ)  (Q3),,0.4%,0.2%
 2025-11-14,Friday,13:30,EUR,Low,Dutch GDP (YoY)  (Q3),,1.6%,1.7%
 2025-11-14,Friday,13:30,EUR,Low,Dutch Trade Balance  (Sep),,,7.74B
@@ -19891,7 +19818,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-17,Monday,17:30,AOA,Low,FX Reserve  (Oct),,,15.2B
 2025-11-17,Monday,18:00,CNY,Low,FDI  (Oct),,,-10.40%
 2025-11-17,Monday,18:00,EUR,Medium,EU Economic Forecasts,,,
-2025-11-17,Monday,18:30,EUR,Low,German 12-Month Bubill Auction,,,1.870%
 2025-11-17,Monday,19:00,EUR,Low,German 12-Month Bubill Auction,1.937%,,1.870%
 2025-11-17,Monday,19:00,EUR,Low,German Buba Monthly Report,,,
 2025-11-17,Monday,19:00,EUR,Low,Spanish Consumer Confidence  (Oct),,,81.5
@@ -20033,7 +19959,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-19,Wednesday,15:20,IDR,Low,Loans (YoY)  (Oct),7.36%,,7.70%
 2025-11-19,Wednesday,15:30,IDR,Low,Deposit Facility Rate  (Nov),3.75%,,3.75%
 2025-11-19,Wednesday,15:30,IDR,Low,Lending Facility Rate  (Nov),5.50%,5.50%,5.50%
-2025-11-19,Wednesday,15:30,IDR,Low,Loans (YoY)  (Oct),,,7.70%
 2025-11-19,Wednesday,15:30,IDR,Medium,Interest Rate Decision,4.75%,4.75%,4.75%
 2025-11-19,Wednesday,16:00,EUR,Low,Austrian CPI (MoM)  (Oct),0.39%,0.40%,-0.23%
 2025-11-19,Wednesday,16:00,EUR,Low,Austrian CPI (YoY)  (Oct),4.03%,4.00%,4.00%
@@ -20069,7 +19994,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-19,Wednesday,19:00,EUR,Low,Resi Prop Prices (MoM)  (Sep),0.90%,,1.00%
 2025-11-19,Wednesday,19:00,EUR,Low,Resi Prop Prices (YoY)  (Sep),7.60%,,7.40%
 2025-11-19,Wednesday,19:00,EUR,Low,Spanish Consumer Confidence  (Oct),,,81.5
-2025-11-19,Wednesday,19:00,GHS,Low,PPI (YoY)  (Oct),,,3.20%
 2025-11-19,Wednesday,19:00,ZAR,Low,Retail Sales (YoY)  (Sep),3.1%,,2.2%
 2025-11-19,Wednesday,19:30,EUR,Medium,German Buba Vice President Buch Speaks,,,
 2025-11-19,Wednesday,20:00,CNY,Low,FDI  (Oct),,,-10.40%
@@ -20147,7 +20071,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-20,Thursday,08:30,AUD,Low,Reserve Assets Total  (Oct),110.6B,,108.0B
 2025-11-20,Thursday,09:00,CNY,Medium,China Loan Prime Rate 5Y  (Nov),3.50%,3.50%,3.50%
 2025-11-20,Thursday,09:00,CNY,Medium,PBoC Loan Prime Rate,3.00%,3.00%,3.00%
-2025-11-20,Thursday,09:15,CNY,Medium,PBoC Loan Prime Rate,,3.00%,3.00%
 2025-11-20,Thursday,11:00,IDR,Low,Balance of Payments (EUR)  (Q3),-6.4B,,-6.7B
 2025-11-20,Thursday,11:00,IDR,Low,Current Account % of GDP  (Q3),1.10%,,-0.80%
 2025-11-20,Thursday,13:30,EUR,Low,Dutch Consumer Confidence  (Nov),-21.0,,-27.0
@@ -20169,7 +20092,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-20,Thursday,17:00,EUR,Low,Greek Current Account (YoY)  (Sep),-0.409B,,1.097B
 2025-11-20,Thursday,17:00,EUR,Low,Slovak Unemployment Rate  (Oct),,5.0%,5.0%
 2025-11-20,Thursday,17:00,EUR,Low,Spanish Trade Balance  (Sep),-6.00B,,-6.00B
-2025-11-20,Thursday,17:40,EUR,Low,Spanish 10-Year Obligacion Auction,,,3.111%
 2025-11-20,Thursday,17:40,EUR,Low,Spanish 3-Year Bonos Auction,,,2.212%
 2025-11-20,Thursday,17:40,EUR,Low,Spanish 30-Year Obligacion Auction,4.038%,,4.074%
 2025-11-20,Thursday,17:40,EUR,Low,Spanish 5-Year Bonos Auction,,,2.443%
@@ -20244,8 +20166,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-21,Friday,00:30,EGP,Low,Overnight Lending Rate,22.00%,21.50%,22.00%
 2025-11-21,Friday,00:30,USD,Low,4-Week Bill Auction,3.890%,,3.900%
 2025-11-21,Friday,00:30,USD,Low,8-Week Bill Auction,3.850%,,3.835%
-2025-11-21,Friday,01:00,EGP,Low,Interest Rate Decision,,20.50%,21.00%
-2025-11-21,Friday,01:00,EGP,Low,Overnight Lending Rate,,21.50%,22.00%
 2025-11-21,Friday,01:40,USD,Low,Fed Goolsbee Speaks,,,
 2025-11-21,Friday,02:00,COP,Low,Interest Rate Decision  (Nov),,9.25%,9.25%
 2025-11-21,Friday,02:00,USD,Medium,10-Year TIPS Auction,1.843%,,1.734%
@@ -20281,7 +20201,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-21,Friday,08:30,JPY,Medium,au Jibun Bank Services PMI  (Nov),53.1,,53.1
 2025-11-21,Friday,10:00,NZD,Low,Credit Card Spending (YoY)  (Oct),1.4%,,0.3%
 2025-11-21,Friday,11:00,IDR,Low,M2 Money Supply (YoY)  (Oct),7.70%,,8.00%
-2025-11-21,Friday,12:00,IDR,Low,M2 Money Supply (YoY)  (Oct),,,8.00%
 2025-11-21,Friday,12:00,MYR,Low,CPI (MoM)  (Oct),-0.10%,,0.20%
 2025-11-21,Friday,12:00,MYR,Medium,CPI (YoY)  (Oct),1.3%,1.5%,1.5%
 2025-11-21,Friday,13:00,INR,Low,Manufacturing & Services PMI  (Nov),59.90,60.00,60.40
@@ -20421,7 +20340,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-24,Monday,20:00,MXN,Low,1st Half-Month CPI  (Nov),0.47%,0.42%,0.28%
 2025-11-24,Monday,20:00,MXN,Low,1st Half-Month Core CPI  (Nov),0.04%,0.06%,0.18%
 2025-11-24,Monday,20:45,EUR,Medium,ECB's Elderson Speaks,,,
-2025-11-24,Monday,21:00,EUR,Low,Belgium NBB Business Climate  (Nov),,-8.7,-9.1
 2025-11-24,Monday,21:30,CAD,Low,Corporate Profits (QoQ),,,-1.7%
 2025-11-24,Monday,21:30,CAD,Low,Manufacturing Sales (MoM)  (Oct),-1.1%,,3.3%
 2025-11-24,Monday,21:30,USD,Low,Chicago Fed National Activity  (Oct),,,-0.12
@@ -20518,7 +20436,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-25,Tuesday,22:15,USD,Medium,Industrial Production (YoY)  (Sep),,,0.87%
 2025-11-25,Tuesday,23:00,MXN,Low,Current Account % of GDP  (Q3),0.50%,,0.00%
 2025-11-25,Tuesday,23:00,MXN,Low,Current Account (USD)  (Q3),"2,325M",,"-1,791M"
-2025-11-25,Tuesday,23:00,NGN,Low,Interest Rate Decision,,,27.00%
 2025-11-25,Tuesday,23:00,USD,High,CB Consumer Confidence  (Nov),88.7,93.5,95.5
 2025-11-25,Tuesday,23:00,USD,Low,Pending Home Sales Index  (Oct),76.3,,74.9
 2025-11-25,Tuesday,23:00,USD,Low,Richmond Manufacturing Index  (Nov),-15,-5,-4
@@ -20533,7 +20450,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-26,Wednesday,00:00,USD,Medium,Atlanta Fed GDPNow  (Q4),4.0%,4.2%,4.2%
 2025-11-26,Wednesday,00:30,USD,Low,52-Week Bill Auction,3.460%,,3.445%
 2025-11-26,Wednesday,00:30,USD,Low,Chicago Fed National Activity  (Oct),,,-0.12
-2025-11-26,Wednesday,01:00,USD,Medium,Atlanta Fed GDPNow  (Q4),,4.2%,4.2%
 2025-11-26,Wednesday,02:00,USD,Low,M2 Money Supply (MoM)  (Oct),22.30T,,22.21T
 2025-11-26,Wednesday,02:00,USD,Medium,5-Year Note Auction,3.562%,,3.625%
 2025-11-26,Wednesday,03:00,ARS,Low,Economic Activity (YoY)  (Sep),,2.1%,2.4%
@@ -20560,7 +20476,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-26,Wednesday,04:30,USD,Medium,CFTC Nasdaq 100 speculative net positions,,,41.0K
 2025-11-26,Wednesday,04:30,USD,Medium,CFTC S&P 500 speculative net positions,,,-136.7K
 2025-11-26,Wednesday,05:00,KRW,Low,Manufacturing BSI Index,70,,68
-2025-11-26,Wednesday,05:30,USD,Medium,API Weekly Crude Oil Stock,,,4.400M
 2025-11-26,Wednesday,06:30,USD,Medium,API Weekly Crude Oil Stock,-1.900M,,4.400M
 2025-11-26,Wednesday,07:50,JPY,Low,Corporate Services Price Index (CSPI) (YoY),2.7%,2.7%,3.1%
 2025-11-26,Wednesday,08:30,AUD,Low,CPI Index Number  (Oct),99.99,,100.00
@@ -20592,7 +20507,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-26,Wednesday,17:20,EUR,Medium,German Buba Mauderer Speaks,,,
 2025-11-26,Wednesday,18:00,GBP,High,Autumn Forecast Statement,,,
 2025-11-26,Wednesday,18:10,EUR,Low,Italian 6-Month BOT Auction,2.036%,,1.974%
-2025-11-26,Wednesday,18:30,EUR,Medium,German 10-Year Bund Auction,,,2.620%
 2025-11-26,Wednesday,18:30,NGN,Low,GDP (YoY)  (Q3),,,4.23%
 2025-11-26,Wednesday,18:50,EUR,Medium,German 10-Year Bund Auction,2.670%,,2.620%
 2025-11-26,Wednesday,19:00,GHS,Low,Prime Interest Rate (MoM)  (Nov),18.00%,,21.50%
@@ -20658,14 +20572,11 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-27,Thursday,00:30,USD,Low,4-Week Bill Auction,3.905%,,3.890%
 2025-11-27,Thursday,00:30,USD,Low,8-Week Bill Auction,3.840%,,3.850%
 2025-11-27,Thursday,00:30,USD,Low,Chicago Fed National Activity  (Oct),,,-0.12
-2025-11-27,Thursday,00:30,USD,Medium,Atlanta Fed GDPNow  (Q4),,4.0%,4.0%
 2025-11-27,Thursday,01:00,EUR,Medium,ECB President Lagarde Speaks,,,
 2025-11-27,Thursday,01:00,USD,Low,Natural Gas Storage,-11B,-5B,-14B
 2025-11-27,Thursday,01:00,USD,Medium,7-Year Note Auction,3.781%,,3.790%
-2025-11-27,Thursday,01:00,USD,Medium,Atlanta Fed GDPNow  (Q4),,,
 2025-11-27,Thursday,01:30,BRL,Low,Foreign Exchange Flows,0.020B,,-1.219B
 2025-11-27,Thursday,01:30,USD,Medium,Atlanta Fed GDPNow  (Q4),3.9%,4.0%,4.0%
-2025-11-27,Thursday,02:00,USD,Medium,7-Year Note Auction,,,3.790%
 2025-11-27,Thursday,02:00,USD,Medium,U.S. Baker Hughes Oil Rig Count,407,,419
 2025-11-27,Thursday,02:00,USD,Medium,U.S. Baker Hughes Total Rig Count,544,,554
 2025-11-27,Thursday,03:00,ARS,Low,Retail Sales (YoY)  (Sep),23.8%,,25.1%
@@ -20687,7 +20598,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-11-27,Thursday,13:30,EUR,Low,Dutch Business Confidence  (Nov),-1.7,,-0.8
 2025-11-27,Thursday,14:00,EUR,Low,Finnish Consumer Confidence  (Nov),-6.5,,-7.6
 2025-11-27,Thursday,14:00,EUR,Low,Finnish Industrial Confidence  (Nov),-6,,-4
-2025-11-27,Thursday,14:00,NOK,Low,Unemployment Rate  (Oct),,,4.8%
 2025-11-27,Thursday,15:00,DKK,Low,M3 Money Supply  (Oct),"2,021.4B",,"1,982.9B"
 2025-11-27,Thursday,15:00,DKK,Low,Retail Sales (YoY)  (Oct),4.9%,,3.3%
 2025-11-27,Thursday,15:00,EUR,Low,Lithuania Retail Sales (MoM)  (Oct),3.7%,,-6.3%
@@ -21009,8 +20919,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-01,Monday,16:45,EUR,Medium,HCOB Italy Manufacturing PMI  (Nov),50.6,50.1,49.9
 2025-12-01,Monday,16:50,EUR,Medium,HCOB France Manufacturing PMI  (Nov),47.8,47.8,48.8
 2025-12-01,Monday,16:55,EUR,Medium,HCOB Germany Manufacturing PMI  (Nov),48.2,48.4,49.6
-2025-12-01,Monday,17:00,EUR,Low,Austrian Unemployment Change  (Nov),,,310.5K
-2025-12-01,Monday,17:00,EUR,Low,Austrian Unemployment Rate  (Nov),,,7.2%
 2025-12-01,Monday,17:00,EUR,Low,S&P Global Greece Manufacturing PMI  (Nov),52.7,,53.5
 2025-12-01,Monday,17:00,EUR,Medium,HCOB Eurozone Manufacturing PMI  (Nov),49.6,49.7,50.0
 2025-12-01,Monday,17:00,NOK,Low,Manufacturing PMI  (Nov),53.0,,48.2
@@ -21066,7 +20974,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-02,Tuesday,00:30,USD,Low,6-Month Bill Auction,3.635%,,3.670%
 2025-12-02,Tuesday,00:30,USD,Medium,Atlanta Fed GDPNow  (Q4),3.9%,3.9%,3.9%
 2025-12-02,Tuesday,00:45,UAH,Low,Current Account (USD)  (Oct),-26.900B,,-24.844B
-2025-12-02,Tuesday,01:00,USD,Medium,Atlanta Fed GDPNow  (Q4),,3.9%,3.9%
 2025-12-02,Tuesday,02:30,UAH,Low,Current Account (USD)  (Oct),,,-24.900B
 2025-12-02,Tuesday,03:00,MXN,Low,Fiscal Balance  (Oct),,,-198.11B
 2025-12-02,Tuesday,05:05,ARS,Low,Tax Revenue  (Nov),"15,598.00B",,"16,166.00B"
@@ -21106,7 +21013,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-02,Tuesday,17:30,CHF,Medium,Manufacturing PMI  (Nov),,48.6,48.2
 2025-12-02,Tuesday,17:30,ZAR,Low,GDP (YoY)  (Q3),2.1%,,0.9%
 2025-12-02,Tuesday,17:30,ZAR,Medium,GDP Annualized (QoQ)  (Q3),0.5%,,0.9%
-2025-12-02,Tuesday,17:40,EUR,Low,Spanish 12-Month Letras Auction,,,1.990%
 2025-12-02,Tuesday,18:00,EUR,High,CPI (YoY)  (Nov),2.2%,2.1%,2.1%
 2025-12-02,Tuesday,18:00,EUR,Low,"CPI, n.s.a  (Nov)",129.35,,129.70
 2025-12-02,Tuesday,18:00,EUR,Low,Core CPI (MoM)  (Nov),-0.5%,,0.3%
@@ -21142,7 +21048,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-02,Tuesday,23:10,USD,Low,IBD/TIPP Economic Optimism,47.9,44.1,43.9
 2025-12-03,Wednesday,00:00,DKK,Low,Currency Reserves  (Nov),659.70B,,675.50B
 2025-12-03,Wednesday,01:00,EUR,Low,Car Registration (YoY)  (Nov),,,-6.80%
-2025-12-03,Wednesday,01:00,EUR,Low,Italian Car Registration (YoY)  (Nov),,,-0.5%
 2025-12-03,Wednesday,02:00,EUR,Low,Italian Car Registration (YoY)  (Nov),0.0%,,-0.5%
 2025-12-03,Wednesday,03:00,ARS,Low,Tax Revenue  (Nov),,,"16,166.00B"
 2025-12-03,Wednesday,04:30,AUD,Medium,CFTC AUD speculative net positions,-65.8K,,-59.6K
@@ -21285,7 +21190,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-04,Thursday,00:00,RUB,Medium,Unemployment Rate  (Oct),2.2%,2.2%,2.2%
 2025-12-04,Thursday,00:30,EUR,Low,Car Registration (YoY)  (Nov),-11.80%,,-6.80%
 2025-12-04,Thursday,00:30,EUR,Low,Irish Exchequer Returns  (Nov),10.400B,,-0.900B
-2025-12-04,Thursday,01:00,EUR,Low,Car Registration (YoY)  (Nov),,,-6.80%
 2025-12-04,Thursday,01:00,GBP,Medium,BoE MPC Member Mann Speaks,,,
 2025-12-04,Thursday,01:30,BRL,Low,Foreign Exchange Flows,-4.129B,,-1.219B
 2025-12-04,Thursday,02:30,PLN,Medium,Interest Rate Decision  (Dec),,4.00%,4.25%
@@ -21309,7 +21213,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-04,Thursday,15:00,SEK,Low,Current Account  (Q3),93.2B,,98.0B
 2025-12-04,Thursday,15:00,SEK,Medium,CPI (MoM)  (Nov),-0.4%,,0.3%
 2025-12-04,Thursday,15:00,SEK,Medium,CPI (YoY)  (Nov),0.3%,0.6%,0.9%
-2025-12-04,Thursday,15:00,TRY,Low,Exports  (Nov),,,24.00B
 2025-12-04,Thursday,15:00,TRY,Low,Trade Balance  (Nov),,,-6.90B
 2025-12-04,Thursday,15:30,HUF,Low,Retail Sales (YoY)  (Oct),3.1%,,3.0%
 2025-12-04,Thursday,15:30,THB,Low,Currency Swaps (USD),24.0B,,23.9B
@@ -21338,7 +21241,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-04,Thursday,17:30,CHF,Medium,Manufacturing PMI  (Nov),,48.6,48.2
 2025-12-04,Thursday,17:30,GBP,Medium,S&P Global Construction PMI  (Nov),39.4,44.5,44.1
 2025-12-04,Thursday,17:40,EUR,Low,Spanish 6-Month Letras Auction,,,1.944%
-2025-12-04,Thursday,18:00,BWP,Low,Interest Rate Decision,,,3.50%
 2025-12-04,Thursday,18:00,EUR,Low,French 10-Year OAT Auction,3.38%,,3.43%
 2025-12-04,Thursday,18:00,EUR,Low,French 30-Year OAT Auction,4.37%,,4.09%
 2025-12-04,Thursday,18:00,EUR,Low,Greek Quarterly Unemployment Rate  (Q3),8.2%,,8.6%
@@ -21381,12 +21283,10 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-04,Thursday,23:00,USD,Low,Factory orders ex transportation (MoM)  (Sep),0.2%,,-0.1%
 2025-12-04,Thursday,23:00,USD,Medium,Factory Orders (MoM)  (Sep),0.2%,,1.3%
 2025-12-04,Thursday,23:30,USD,Low,Natural Gas Storage,-12B,-18B,-11B
-2025-12-04,Thursday,23:30,USD,Medium,Atlanta Fed GDPNow  (Q4),,3.9%,3.9%
 2025-12-05,Friday,All Day,,Holiday,Thailand - H.M. the Late King's Birthday,,,
 2025-12-05,Friday,00:00,USD,Medium,Atlanta Fed GDPNow  (Q4),3.8%,3.9%,3.9%
 2025-12-05,Friday,00:30,USD,Low,4-Week Bill Auction,3.680%,,3.905%
 2025-12-05,Friday,00:30,USD,Low,8-Week Bill Auction,3.620%,,3.840%
-2025-12-05,Friday,00:30,USD,Medium,Atlanta Fed GDPNow  (Q4),,3.9%,3.9%
 2025-12-05,Friday,01:00,USD,Low,OPEC Crude Oil Production Algeria (Barrel),0.96M,,0.96M
 2025-12-05,Friday,01:00,USD,Low,OPEC Crude Oil Production Congo (Barrel),0.26M,,0.26M
 2025-12-05,Friday,01:00,USD,Low,OPEC Crude Oil Production Gabon (Barrel),0.23M,,0.23M
@@ -21399,7 +21299,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-05,Friday,01:00,USD,Low,OPEC Crude oil Production Saudi Arabia (Barrel),9.95M,,9.90M
 2025-12-05,Friday,01:00,USD,Low,OPEC Crude oil Production UAE (Barrel),3.37M,,3.36M
 2025-12-05,Friday,01:00,USD,Low,OPEC Crude oil Production Venezuela (Barrel),0.95M,,0.93M
-2025-12-05,Friday,01:00,USD,Medium,Atlanta Fed GDPNow  (Q4),,,
 2025-12-05,Friday,01:00,USD,Medium,FOMC Member Bowman Speaks,,,
 2025-12-05,Friday,02:00,BRL,Low,Trade Balance  (Nov),5.84B,5.70B,6.57B
 2025-12-05,Friday,02:00,EUR,Medium,ECB's De Guindos Speaks,,,
@@ -21437,8 +21336,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-05,Friday,15:00,THB,Low,Currency Swaps (USD),24.0B,,23.9B
 2025-12-05,Friday,15:00,THB,Low,Foreign Reserves (USD),274.7B,,270.3B
 2025-12-05,Friday,15:30,HUF,Low,Industrial Output (YoY)  (Oct),-2.7%,,1.3%
-2025-12-05,Friday,15:30,THB,Low,Currency Swaps (USD),,,23.9B
-2025-12-05,Friday,15:30,THB,Low,Foreign Reserves (USD),,,270.3B
 2025-12-05,Friday,15:45,EUR,Low,French Current Account  (Oct),1.10B,,-1.60B
 2025-12-05,Friday,15:45,EUR,Low,French Exports  (Oct),51.7B,,52.0B
 2025-12-05,Friday,15:45,EUR,Low,French Imports  (Oct),55.6B,,58.3B
@@ -21516,7 +21413,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-05,Friday,23:00,USD,Medium,PCE price index (MoM)  (Sep),0.3%,0.3%,0.3%
 2025-12-05,Friday,23:00,USD,Medium,Personal Spending (MoM)  (Sep),0.3%,0.3%,0.5%
 2025-12-05,Friday,23:10,EUR,Medium,ECB's Lane Speaks,,,
-2025-12-06,Saturday,00:00,USD,Medium,Atlanta Fed GDPNow  (Q4),,3.8%,3.8%
 2025-12-06,Saturday,00:20,EUR,Medium,German Buba Mauderer Speaks,,,
 2025-12-06,Saturday,01:00,USD,Medium,Atlanta Fed GDPNow  (Q4),3.5%,3.8%,3.8%
 2025-12-06,Saturday,02:00,USD,Medium,U.S. Baker Hughes Oil Rig Count,413,409,407
@@ -21577,7 +21473,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-08,Monday,07:50,JPY,Medium,GDP Annualized (QoQ)  (Q3),-2.3%,-1.8%,2.1%
 2025-12-08,Monday,07:50,JPY,Medium,GDP Price Index (YoY)  (Q3),3.4%,2.8%,3.3%
 2025-12-08,Monday,09:00,IDR,Low,Motorbike Sales (YoY)  (Nov),2.10%,,8.40%
-2025-12-08,Monday,10:00,IDR,Low,Motorbike Sales (YoY)  (Nov),,,8.40%
 2025-12-08,Monday,11:00,CNY,Low,Exports  (Nov),5.70M,,-0.80M
 2025-12-08,Monday,11:00,CNY,Low,Imports  (Nov),1.70M,,1.40M
 2025-12-08,Monday,11:00,CNY,Low,Trade Balance  (Nov),792.57B,670.00B,640.49B
@@ -21603,7 +21498,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-08,Monday,17:00,SGD,Low,Foreign Reserves USD (MoM)  (Nov),400.0B,,392.2B
 2025-12-08,Monday,17:30,EUR,Low,Sentix Investor Confidence  (Dec),-6.2,-6.2,-7.4
 2025-12-08,Monday,18:00,EUR,Low,Latvian Current Account % of GDP  (Q3),,,-4.50%
-2025-12-08,Monday,18:00,HUF,Low,Budget Balance  (Nov),,,-339.0B
 2025-12-08,Monday,19:00,AOA,Low,CPI (MoM)  (Nov),,,0.93%
 2025-12-08,Monday,19:00,AOA,Low,CPI (YoY)  (Nov),,,17.43%
 2025-12-08,Monday,19:00,CAD,Low,Leading Index (MoM)  (Nov),0.20%,,0.22%
@@ -21615,8 +21509,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-08,Monday,19:25,BRL,Low,BCB Focus Market Readout,,,
 2025-12-08,Monday,21:00,BRL,Low,Auto Production (MoM)  (Nov),-11.6%,,1.8%
 2025-12-08,Monday,21:00,BRL,Low,Auto Sales (MoM)  (Nov),-8.5%,,7.2%
-2025-12-08,Monday,22:00,BRL,Low,Auto Production (MoM)  (Nov),,,1.8%
-2025-12-08,Monday,22:00,BRL,Low,Auto Sales (MoM)  (Nov),,,7.2%
 2025-12-08,Monday,22:00,EUR,Low,French 12-Month BTF Auction,2.148%,,2.101%
 2025-12-08,Monday,22:00,EUR,Low,French 3-Month BTF Auction,2.088%,,2.069%
 2025-12-08,Monday,22:00,EUR,Low,French 6-Month BTF Auction,2.103%,,2.091%
@@ -21654,7 +21546,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-09,Tuesday,09:00,PHP,Low,Philippines Foreign Direct Investment (USD)  (Sep),,,0.50B
 2025-12-09,Tuesday,11:00,IDR,Low,Consumer Confidence  (Nov),124.0,,121.2
 2025-12-09,Tuesday,11:30,AUD,High,RBA Interest Rate Decision  (Dec),3.60%,3.60%,3.60%
-2025-12-09,Tuesday,11:35,JPY,Low,5-Year JGB Auction,,,1.245%
 2025-12-09,Tuesday,12:10,JPY,Low,5-Year JGB Auction,1.435%,,1.245%
 2025-12-09,Tuesday,12:30,AUD,Medium,RBA Rate Statement,,,
 2025-12-09,Tuesday,13:30,EUR,Low,CPI (MoM)  (Nov),-0.80%,,0.30%
@@ -21681,7 +21572,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-09,Tuesday,17:00,CZK,Low,FX Reserves (EUR)  (Nov),149.250B,,148.800B
 2025-12-09,Tuesday,17:00,CZK,Low,FX Reserves (USD)  (Nov),172.6B,,171.9B
 2025-12-09,Tuesday,17:00,JPY,Low,BOJ Gov Ueda Speaks,,,
-2025-12-09,Tuesday,17:40,EUR,Low,Spanish 3-Month Letras Auction,,,1.908%
 2025-12-09,Tuesday,18:00,EUR,Low,Greek CPI (YoY)  (Nov),2.4%,,2.0%
 2025-12-09,Tuesday,18:00,EUR,Low,Greek HICP (YoY)  (Nov),2.8%,,1.6%
 2025-12-09,Tuesday,18:00,EUR,Low,Spanish 3-Month Letras Auction,1.974%,,1.908%
@@ -21752,10 +21642,8 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-10,Wednesday,11:00,IDR,Low,Retail Sales (YoY)  (Oct),4.3%,,3.7%
 2025-12-10,Wednesday,11:15,PHP,Low,Philippines Foreign Direct Investment (USD)  (Sep),0.30B,,0.50B
 2025-12-10,Wednesday,12:00,IDR,Low,Car Sales (YoY)  (Nov),-0.80%,,-4.37%
-2025-12-10,Wednesday,12:00,IDR,Low,Retail Sales (YoY)  (Oct),,,3.7%
 2025-12-10,Wednesday,12:00,MYR,Low,Unemployment Rate  (Oct),3.0%,,3.0%
 2025-12-10,Wednesday,13:30,EUR,Low,Dutch Manufacturing Production (MoM)  (Oct),0.2%,,-0.3%
-2025-12-10,Wednesday,14:00,EGP,Low,CPI (YoY)  (Nov),,13.10%,12.50%
 2025-12-10,Wednesday,14:00,EUR,Low,Estonian Current Account % of GDP  (Q3),-1.10%,,0.40%
 2025-12-10,Wednesday,14:00,EUR,Low,Estonian Trade Balance  (Oct),-323.1M,,-300.5M
 2025-12-10,Wednesday,14:00,EUR,Low,Finnish Industry Output (YoY)  (Oct),2.3%,,-1.4%
@@ -21787,7 +21675,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-10,Wednesday,16:50,MZN,Low,CPI (YoY)  (Nov),4.38%,,4.83%
 2025-12-10,Wednesday,17:00,EUR,Low,Italian Industrial Production (MoM)  (Oct),-1.0%,-0.3%,2.7%
 2025-12-10,Wednesday,17:00,EUR,Low,Italian Industrial Production (YoY)  (Oct),-0.3%,0.2%,1.4%
-2025-12-10,Wednesday,17:30,MZN,Low,CPI (YoY)  (Nov),,,4.83%
 2025-12-10,Wednesday,18:00,EUR,Low,Greek Industrial Production (YoY)  (Oct),6.4%,,7.3%
 2025-12-10,Wednesday,18:10,EUR,Low,Italian 12-Month BOT Auction,2.181%,,2.063%
 2025-12-10,Wednesday,18:30,GBP,Low,10-Year Treasury Gilt Auction,4.613%,,4.608%
@@ -21851,10 +21738,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-11,Thursday,03:00,USD,Medium,Interest Rate Projection - 3rd Yr  (Q4),3.1%,,3.1%
 2025-12-11,Thursday,03:00,USD,Medium,Interest Rate Projection - Current  (Q4),3.6%,,3.6%
 2025-12-11,Thursday,03:00,USD,Medium,Interest Rate Projection - Longer  (Q4),3.0%,,3.0%
-2025-12-11,Thursday,03:30,AED,Low,Interest Rate Decision,,,3.90%
-2025-12-11,Thursday,03:30,BHD,Low,Interest Rate Decision,,,4.75%
-2025-12-11,Thursday,03:30,KWD,Low,Interest Rate Decision,,,3.75%
-2025-12-11,Thursday,03:30,QAR,Low,Interest Rate Decision (MoM),,,4.60%
 2025-12-11,Thursday,03:30,SAR,Low,Interest Rate Decision (MoM),4.25%,,4.50%
 2025-12-11,Thursday,03:30,USD,High,FOMC Press Conference,,,
 2025-12-11,Thursday,04:00,EGP,Low,Core CPI (YoY)  (Nov),,12.40%,12.10%
@@ -21873,7 +21756,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-11,Thursday,10:30,SGD,Low,Unemployment Rate  (Q3),2.0%,2.0%,2.0%
 2025-12-11,Thursday,13:00,SEK,Low,Unemployment Rate  (Nov),6.7%,,6.8%
 2025-12-11,Thursday,14:30,PHP,Low,Interest Rate Decision,4.50%,4.50%,4.75%
-2025-12-11,Thursday,15:00,PHP,Low,Interest Rate Decision,,4.50%,4.75%
 2025-12-11,Thursday,15:00,SEK,Low,CPIF (CPI at constant interest rates) (MoM)  (Nov),-0.2%,-0.2%,-0.3%
 2025-12-11,Thursday,15:00,SEK,Low,CPIF (CPI at constant interest rates) (YoY)  (Nov),2.3%,2.3%,2.3%
 2025-12-11,Thursday,15:00,SEK,Low,CPIF Ex Energy MoM (MoM)  (Nov),-0.60%,,-0.60%
@@ -21895,7 +21777,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-11,Thursday,17:50,GBP,Medium,BoE Gov Bailey Speaks,,,
 2025-12-11,Thursday,18:00,EUR,Medium,Eurogroup Meetings,,,
 2025-12-11,Thursday,18:10,EUR,Low,Italian 3-Year BTP Auction,2.58%,,2.38%
-2025-12-11,Thursday,18:30,EUR,Low,Italian 3-Year BTP Auction,,,2.38%
 2025-12-11,Thursday,18:30,EUR,Low,Italian 7-Year BTP Auction,,,3.00%
 2025-12-11,Thursday,19:00,EUR,Low,France Thomson Reuters IPSOS PCSI  (Dec),40.46,,38.94
 2025-12-11,Thursday,19:00,EUR,Low,Germany Thomson Reuters IPSOS PCSI  (Dec),46.44,,46.47
@@ -21949,7 +21830,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-12,Friday,All Day,,Holiday,Mexico - Bank Holiday,,,
 2025-12-12,Friday,00:30,USD,Low,4-Week Bill Auction,3.610%,,3.680%
 2025-12-12,Friday,00:30,USD,Low,8-Week Bill Auction,3.610%,,3.620%
-2025-12-12,Friday,01:00,USD,High,30-Year Bond Auction,,,4.694%
 2025-12-12,Friday,01:05,UAH,Low,Interest Rate Decision,,,15.50%
 2025-12-12,Friday,02:00,USD,High,30-Year Bond Auction,4.773%,,4.694%
 2025-12-12,Friday,03:00,ARS,Low,CPI (MoM)  (Nov),2.5%,2.4%,2.4%
@@ -22008,10 +21888,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-12,Friday,15:45,EUR,Low,French HICP (YoY)  (Nov),0.8%,0.8%,0.8%
 2025-12-12,Friday,15:45,EUR,Medium,French CPI (MoM)  (Nov),-0.2%,-0.1%,0.1%
 2025-12-12,Friday,15:45,EUR,Medium,French HICP (MoM)  (Nov),-0.2%,-0.2%,0.1%
-2025-12-12,Friday,16:00,CNY,Low,Chinese Total Social Financing  (Nov),,,810.0B
-2025-12-12,Friday,16:00,CNY,Low,M2 Money Stock (YoY)  (Nov),,,8.2%
-2025-12-12,Friday,16:00,CNY,Low,Outstanding Loan Growth (YoY)  (Nov),,,6.5%
-2025-12-12,Friday,16:00,CNY,Medium,New Loans  (Nov),,,220.0B
 2025-12-12,Friday,16:00,EUR,Low,Core CPI (YoY)  (Nov),2.6%,2.6%,2.5%
 2025-12-12,Friday,16:00,EUR,Low,Spanish CPI (MoM)  (Nov),0.2%,0.2%,0.7%
 2025-12-12,Friday,16:00,EUR,Low,Spanish HICP (MoM)  (Nov),0.0%,0.0%,0.5%
@@ -22232,7 +22108,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-16,Tuesday,17:30,GBP,Medium,S&P Global Composite PMI  (Dec),52.1,51.6,51.2
 2025-12-16,Tuesday,17:30,GBP,Medium,S&P Global Manufacturing PMI  (Dec),51.2,50.3,50.2
 2025-12-16,Tuesday,17:30,GBP,Medium,S&P Global Services PMI  (Dec),52.1,51.6,51.3
-2025-12-16,Tuesday,18:00,AOA,Low,FX Reserve  (Nov),,,15.3B
 2025-12-16,Tuesday,18:00,EUR,Low,Italian Trade Balance  (Oct),4.156B,3.210B,2.968B
 2025-12-16,Tuesday,18:00,EUR,Low,Italian Trade Balance EU  (Oct),-1.31B,,-0.07B
 2025-12-16,Tuesday,18:00,EUR,Medium,German ZEW Current Conditions  (Dec),-81.0,-80.0,-78.7
@@ -22295,7 +22170,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-17,Wednesday,All Day,,Holiday,Bahrain - National Day,,,
 2025-12-17,Wednesday,00:35,ARS,Low,Budget Balance  (Nov),"2,128M",,824M
 2025-12-17,Wednesday,01:00,USD,Medium,Atlanta Fed GDPNow  (Q4),3.5%,3.5%,3.5%
-2025-12-17,Wednesday,01:05,ARS,Low,Budget Balance  (Nov),,,824M
 2025-12-17,Wednesday,01:30,CAD,Medium,BoC Gov Macklem Speaks,,,
 2025-12-17,Wednesday,01:45,CAD,Medium,BoC Gov Macklem Speaks,,,
 2025-12-17,Wednesday,03:00,ARS,Low,GDP (YoY)  (Q3),3.3%,3.5%,6.3%
@@ -22335,7 +22209,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-17,Wednesday,07:50,JPY,Medium,Adjusted Trade Balance,0.06T,-0.20T,0.07T
 2025-12-17,Wednesday,07:50,JPY,Medium,Exports (YoY)  (Nov),6.1%,4.8%,3.6%
 2025-12-17,Wednesday,07:50,JPY,Medium,Trade Balance  (Nov),322.2B,71.2B,-226.1B
-2025-12-17,Wednesday,08:00,AUD,Low,MI Leading Index (MoM)  (Nov),,,0.1%
 2025-12-17,Wednesday,08:00,USD,Low,Fed Goolsbee Speaks,,,
 2025-12-17,Wednesday,08:30,SGD,Low,Non-Oil Exports (MoM)  (Nov),6.60%,,8.80%
 2025-12-17,Wednesday,08:30,SGD,Low,Non-Oil Exports (YoY)  (Nov),11.60%,,21.70%
@@ -22444,7 +22317,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-18,Thursday,15:45,EUR,Low,French Business Survey  (Dec),102,98,98
 2025-12-18,Thursday,16:00,TWD,Low,M2 Money Supply  (Nov),5.11%,,4.84%
 2025-12-18,Thursday,16:00,TWD,Medium,Interest Rate  (Q4),2.000%,2.000%,2.000%
-2025-12-18,Thursday,16:20,TWD,Low,M2 Money Supply  (Nov),,,4.84%
 2025-12-18,Thursday,16:20,TWD,Low,M3 Money Supply  (Nov),"66,761.7B",,"66,725.5B"
 2025-12-18,Thursday,16:30,SEK,Low,Swedish Monetary Policy Meeting Minutes,,,
 2025-12-18,Thursday,16:30,SEK,Medium,Interest Rate Decision,1.75%,1.75%,1.75%
@@ -22578,8 +22450,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-19,Friday,15:30,THB,Low,Foreign Reserves (USD),277.5B,,275.8B
 2025-12-19,Friday,15:45,EUR,Low,French PPI (MoM)  (Nov),1.1%,,0.0%
 2025-12-19,Friday,15:45,EUR,Low,PPI (YoY)  (Nov),-3.30%,,-0.80%
-2025-12-19,Friday,16:00,EUR,Low,Current Account  (Oct),,19.6B,23.1B
-2025-12-19,Friday,16:00,EUR,Low,Current Account n.s.a.  (Oct),,,38.1B
 2025-12-19,Friday,16:00,EUR,Low,Slovak Current Account  (Oct),-197.0M,,106.0M
 2025-12-19,Friday,16:00,SEK,Low,Business Confidence  (Dec),107.40,,105.80
 2025-12-19,Friday,16:00,SEK,Low,Consumer Confidence  (Dec),95.8,,95.7
@@ -22682,8 +22552,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-22,Monday,All Day,,Holiday,Zimbabwe - Unity Day,,,
 2025-12-22,Monday,09:00,CNY,Medium,China Loan Prime Rate 5Y  (Dec),3.50%,3.50%,3.50%
 2025-12-22,Monday,09:00,CNY,Medium,PBoC Loan Prime Rate,3.00%,3.00%,3.00%
-2025-12-22,Monday,09:15,CNY,Medium,PBoC Loan Prime Rate,,3.00%,3.00%
-2025-12-22,Monday,11:00,IDR,Low,M2 Money Supply (YoY)  (Nov),,,7.70%
 2025-12-22,Monday,12:00,IDR,Low,M2 Money Supply (YoY)  (Nov),8.30%,,7.70%
 2025-12-22,Monday,12:00,MYR,Low,CPI (MoM)  (Nov),0.00%,,-0.10%
 2025-12-22,Monday,12:00,MYR,Medium,CPI (YoY)  (Nov),1.4%,1.5%,1.3%
@@ -22895,7 +22763,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-24,Wednesday,00:00,CAD,Low,Budget Balance (YoY)  (Oct),-18.37B,,-16.09B
 2025-12-24,Wednesday,00:00,USD,Medium,Atlanta Fed GDPNow  (Q4),3.0%,3.5%,3.5%
 2025-12-24,Wednesday,00:30,USD,Low,52-Week Bill Auction,3.380%,,3.460%
-2025-12-24,Wednesday,00:30,USD,Medium,Atlanta Fed GDPNow  (Q4),,3.5%,3.5%
 2025-12-24,Wednesday,02:00,USD,Low,M2 Money Supply (MoM),,,22.30T
 2025-12-24,Wednesday,02:00,USD,Low,M2 Money Supply (MoM)  (Nov),22.30T,,22.30T
 2025-12-24,Wednesday,02:00,USD,Medium,5-Year Note Auction,3.747%,,3.562%
@@ -22978,7 +22845,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-24,Wednesday,23:30,USD,Low,Gasoline Inventories,,,4.808M
 2025-12-24,Wednesday,23:30,USD,Low,Gasoline Production,,,0.033M
 2025-12-24,Wednesday,23:30,USD,Low,Heating Oil Stockpiles,,,0.267M
-2025-12-24,Wednesday,23:30,USD,Medium,7-Year Note Auction,,,3.781%
 2025-12-24,Wednesday,23:30,USD,Medium,Atlanta Fed GDPNow  (Q4),,,
 2025-12-24,Wednesday,23:30,USD,Medium,Cushing Crude Oil Inventories,,,-0.742M
 2025-12-24,Wednesday,Tentative,ZMK,Low,CPI (MoM)  (Dec),,,0.7%
@@ -23158,7 +23024,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-26,Friday,19:30,INR,Low,Bank Loan Growth,,,11.5%
 2025-12-26,Friday,19:30,INR,Low,Deposit Growth,,,10.2%
 2025-12-26,Friday,19:30,INR,Low,"FX Reserves, USD",693.32B,,688.95B
-2025-12-26,Friday,23:25,RUB,Medium,GDP Monthly (YoY)  (Nov),,,1.6%
 2025-12-27,Saturday,00:00,RUB,Low,Business Confidence  (Dec),-0.3,,-2.1
 2025-12-27,Saturday,00:00,RUB,Low,Russian Real Wage Growth (YoY)  (Oct),6.1%,3.3%,4.7%
 2025-12-27,Saturday,00:00,RUB,Medium,GDP Monthly (YoY)  (Nov),0.1%,,1.6%
@@ -23316,7 +23181,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-31,Wednesday,00:30,RUB,Medium,CPI (MoM)  (Dec),,,0.4%
 2025-12-31,Wednesday,00:30,RUB,Medium,CPI (YoY)  (Dec),,,6.6%
 2025-12-31,Wednesday,01:00,BRL,Low,CAGED Net Payroll Jobs  (Nov),85.86K,75.00K,85.15K
-2025-12-31,Wednesday,01:30,BRL,Low,CAGED Net Payroll Jobs  (Nov),,75.00K,85.15K
 2025-12-31,Wednesday,02:00,MXN,Low,Fiscal Balance  (Nov),"-1,083.10B",,-779.60B
 2025-12-31,Wednesday,02:00,USD,Medium,U.S. Baker Hughes Oil Rig Count,412,,409
 2025-12-31,Wednesday,02:00,USD,Medium,U.S. Baker Hughes Total Rig Count,546,,545
@@ -23342,7 +23206,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2025-12-31,Wednesday,15:00,TRY,Low,Trade Balance  (Nov),-7.98B,-7.80B,-7.58B
 2025-12-31,Wednesday,16:00,CHF,Low,Official Reserves Assets  (Nov),852.4B,,844.9B
 2025-12-31,Wednesday,16:00,HKD,Low,M3 Money Supply  (Nov),4.5%,,3.5%
-2025-12-31,Wednesday,16:30,HKD,Low,M3 Money Supply  (Nov),,,3.5%
 2025-12-31,Wednesday,16:30,UGX,Low,CPI (YoY)  (Dec),3.1%,,3.1%
 2025-12-31,Wednesday,17:00,CZK,Low,M3 Money Supply  (Nov),4.1%,,3.8%
 2025-12-31,Wednesday,17:00,PLN,Low,CPI (MoM)  (Dec),0.0%,,0.1%
