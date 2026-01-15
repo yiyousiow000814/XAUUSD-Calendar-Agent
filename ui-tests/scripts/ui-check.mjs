@@ -13,6 +13,7 @@ import {
   assertEventsLoaded,
   assertHistoryNoOverflow,
   assertImpactFilterNotStarved,
+  assertHistoryRespectsImpactFilter,
   assertImpactTooltips,
   assertNextEventsControlsCentered,
   assertSearchInputVisibility,
@@ -1553,6 +1554,9 @@ const main = async () => {
       assertImpactFilterNotStarved(page)
     );
     await runCheck(theme.key, "Impact tooltips", () => assertImpactTooltips(page));
+    await runCheck(theme.key, "History respects impact filter", () =>
+      assertHistoryRespectsImpactFilter(page)
+    );
     const eventsCard = page.locator("[data-qa='qa:card:next-events']").first();
     const impactButtons = page.locator("[data-qa='qa:filter:impact'] button.impact-toggle");
     const impactStates = ["low", "mid", "high"];

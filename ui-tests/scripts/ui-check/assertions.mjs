@@ -775,17 +775,16 @@ export const assertImpactFilterNotStarved = async (page) => {
   await page.evaluate(() => window.__ui_check__?.seedNextEventsImpactOverflow?.(45, 12, 10));
   await page.waitForTimeout(140);
 
-  await page.evaluate(() => {
-    const container = document.querySelector("[data-qa*='qa:filter:impact']");
-    if (!container) return;
-    const buttons = Array.from(container.querySelectorAll("button"));
-    const byLabel = (label) =>
-      buttons.find((btn) => (btn.textContent || "").trim().toLowerCase() === label.toLowerCase());
-    const low = byLabel("Low");
-    const medium = byLabel("Medium");
-    if (low?.classList.contains("active")) low.click();
-    if (medium?.classList.contains("active")) medium.click();
-  });
+  const lowBtn = page.locator("[data-qa*='qa:filter:impact'] button[aria-label='Low Impact']").first();
+  const mediumBtn = page.locator("[data-qa*='qa:filter:impact'] button[aria-label='Medium Impact']").first();
+  if (await lowBtn.count()) {
+    const active = await lowBtn.evaluate((el) => el.classList.contains("active"));
+    if (active) await lowBtn.click();
+  }
+  if (await mediumBtn.count()) {
+    const active = await mediumBtn.evaluate((el) => el.classList.contains("active"));
+    if (active) await mediumBtn.click();
+  }
 
   await page.waitForTimeout(160);
   const highCount = await page.evaluate(() => {
@@ -796,17 +795,69 @@ export const assertImpactFilterNotStarved = async (page) => {
     throw new Error(`High impact view too sparse after filter (count=${highCount})`);
   }
 
-  await page.evaluate(() => {
-    const container = document.querySelector("[data-qa*='qa:filter:impact']");
-    if (!container) return;
-    const buttons = Array.from(container.querySelectorAll("button"));
-    const byLabel = (label) =>
-      buttons.find((btn) => (btn.textContent || "").trim().toLowerCase() === label.toLowerCase());
-    const low = byLabel("Low");
-    const medium = byLabel("Medium");
-    if (low && !low.classList.contains("active")) low.click();
-    if (medium && !medium.classList.contains("active")) medium.click();
+  if (await lowBtn.count()) {
+    const active = await lowBtn.evaluate((el) => el.classList.contains("active"));
+    if (!active) await lowBtn.click();
+  }
+  if (await mediumBtn.count()) {
+    const active = await mediumBtn.evaluate((el) => el.classList.contains("active"));
+    if (!active) await mediumBtn.click();
+  }
+  await page.waitForTimeout(120);
+};
+
+export const assertHistoryRespectsImpactFilter = async (page) => {
+  await page.evaluate(() => window.__ui_check__?.seedHistoryOverflow?.(6, 7));
+  await page.waitForTimeout(180);
+
+  const beforeCount = await page.evaluate(() => {
+    const history = document.querySelector("[data-qa='qa:card:history']");
+    if (!history) return 0;
+    return history.querySelectorAll(".history-item.history-event").length;
   });
+  if (beforeCount < 6) {
+    throw new Error(`History sample too small to validate impact filter (count=${beforeCount})`);
+  }
+
+  const lowBtn = page.locator("[data-qa*='qa:filter:impact'] button[aria-label='Low Impact']").first();
+  const mediumBtn = page.locator("[data-qa*='qa:filter:impact'] button[aria-label='Medium Impact']").first();
+  if (await lowBtn.count()) {
+    const active = await lowBtn.evaluate((el) => el.classList.contains("active"));
+    if (active) await lowBtn.click();
+  }
+  if (await mediumBtn.count()) {
+    const active = await mediumBtn.evaluate((el) => el.classList.contains("active"));
+    if (active) await mediumBtn.click();
+  }
+
+  await page.waitForTimeout(160);
+
+  const after = await page.evaluate(() => {
+    const history = document.querySelector("[data-qa='qa:card:history']");
+    if (!history) return { count: 0, ok: false, reason: "history missing" };
+    const items = Array.from(history.querySelectorAll(".history-item.history-event"));
+    const impacts = items
+      .map((item) => item.querySelector(".history-impact")?.getAttribute("aria-label") || "")
+      .map((value) => value.toLowerCase());
+    const ok = impacts.every((value) => value.includes("high"));
+    return { count: items.length, ok, reason: ok ? "" : `non-high impacts: ${impacts.join(", ")}` };
+  });
+
+  if (!after.ok) {
+    throw new Error(`History impact filter mismatch: ${after.reason}`);
+  }
+  if (after.count <= 0 || after.count >= beforeCount) {
+    throw new Error(`History impact filter did not reduce results (${beforeCount} -> ${after.count})`);
+  }
+
+  if (await lowBtn.count()) {
+    const active = await lowBtn.evaluate((el) => el.classList.contains("active"));
+    if (!active) await lowBtn.click();
+  }
+  if (await mediumBtn.count()) {
+    const active = await mediumBtn.evaluate((el) => el.classList.contains("active"));
+    if (!active) await mediumBtn.click();
+  }
   await page.waitForTimeout(120);
 };
 

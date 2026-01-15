@@ -19,6 +19,8 @@ import { impactTone, levelTone } from "./utils/ui";
 import "./App.css";
 
 const defaultCurrencyOptions = ["ALL", "USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "NZD"];
+const impactOptions = ["Low", "Medium", "High"];
+const impactFilterStorageKey = "xauusd:nextEvents:impactFilter";
 
 const normalizeCurrencyOptions = (options: string[]) => {
   const normalized = options.map((value) => value.toUpperCase());
@@ -110,6 +112,20 @@ export default function App() {
   const [filter, setFilter] = useState<FilterOption>("ALL");
   const [outputDir, setOutputDir] = useState<string>("");
   const [currency, setCurrency] = useState<string>("USD");
+  const [impactFilter, setImpactFilter] = useState<string[]>(() => {
+    try {
+      if (typeof window === "undefined") return impactOptions;
+      const raw = window.localStorage.getItem(impactFilterStorageKey);
+      if (!raw) return impactOptions;
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return impactOptions;
+      return parsed
+        .map((value) => String(value))
+        .filter((value) => impactOptions.includes(value));
+    } catch {
+      return impactOptions;
+    }
+  });
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
   const [settingsClosing, setSettingsClosing] = useState<boolean>(false);
   const [settingsEntering, setSettingsEntering] = useState<boolean>(false);
@@ -1975,6 +1991,15 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    try {
+      if (typeof window === "undefined") return;
+      window.localStorage.setItem(impactFilterStorageKey, JSON.stringify(impactFilter));
+    } catch {
+      // Ignore storage errors.
+    }
+  }, [impactFilter]);
+
+  useEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     prefersDark.current = media;
     const handler = () => {
@@ -2346,6 +2371,8 @@ export default function App() {
               currencyOptions={currencyOptions}
               onCurrencyChange={handleCurrency}
               impactTone={impactTone}
+              impactFilter={impactFilter}
+              onImpactFilterChange={setImpactFilter}
             />
           </div>
           <div className="split-divider" onMouseDown={startSplitDrag} data-qa="qa:split:divider" />
@@ -2354,6 +2381,7 @@ export default function App() {
               events={snapshot.pastEvents}
               loading={snapshot.calendarStatus === "loading"}
               impactTone={impactTone}
+              impactFilter={impactFilter}
             />
           </div>
         </div>

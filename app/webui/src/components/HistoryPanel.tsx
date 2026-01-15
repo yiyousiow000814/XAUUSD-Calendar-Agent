@@ -20,6 +20,7 @@ type HistoryPanelProps = {
   events: PastEventItem[];
   loading?: boolean;
   impactTone: (impact: string) => string;
+  impactFilter: string[];
 };
 
 type HistoryTrend = "up" | "flat" | "down" | "tba" | "na";
@@ -188,19 +189,25 @@ const rangeToMs = (range: HistoryRange) => {
   return 30 * 24 * 60 * 60 * 1000;
 };
 
-export function HistoryPanel({ events, loading = false, impactTone }: HistoryPanelProps) {
+export function HistoryPanel({ events, loading = false, impactTone, impactFilter }: HistoryPanelProps) {
   const [range, setRange] = useState<HistoryRange>("7d");
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const showSkeleton = loading && events.length === 0;
 
   const view = useMemo(() => {
     const cutoff = Date.now() - rangeToMs(range);
+    const normalizedImpactFilter = impactFilter.map((value) => value.toLowerCase());
     const parsed = events
       .map((entry) => ({
         entry,
         date: parseEventDate(entry.time)
       }))
-      .filter((item) => item.date && item.date.getTime() >= cutoff) as {
+      .filter((item) => {
+        if (!item.date || item.date.getTime() < cutoff) return false;
+        if (normalizedImpactFilter.length === 0) return true;
+        const impact = item.entry.impact.toLowerCase();
+        return normalizedImpactFilter.some((selected) => impact.includes(selected));
+      }) as {
       entry: PastEventItem;
       date: Date;
     }[];
@@ -241,7 +248,7 @@ export function HistoryPanel({ events, loading = false, impactTone }: HistoryPan
       groups.forEach((group) => rows.push({ type: "group", key: `group-${group.key}`, group }));
     }
     return { groups, rows };
-  }, [events, range]);
+  }, [events, range, impactFilter]);
   const groups = view.groups;
   const rows = view.rows;
 
