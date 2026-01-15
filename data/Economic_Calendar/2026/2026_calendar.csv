@@ -1110,7 +1110,8 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-15,Thursday,08:00,KRW,Low,Exports (YoY)  (Dec),13.3%,13.4%,8.4%
 2026-01-15,Thursday,08:00,KRW,Low,Imports (YoY)  (Dec),4.6%,4.6%,1.1%
 2026-01-15,Thursday,08:00,KRW,Low,Trade Balance  (Dec),12.17B,12.18B,9.74B
-2026-01-15,Thursday,08:30,AUD,Low,Reserve Assets Total  (Dec),,,"113,131.0B"
+2026-01-15,Thursday,08:30,AUD,Low,Reserve Assets Total  (Dec),113.9B,,113.1B
+2026-01-15,Thursday,09:00,KRW,Low,Bank of Korea Monetary Policy Board’s Policy Setting Meeting Dates,,,
 2026-01-15,Thursday,09:00,KRW,Low,Bank of Korea Monetary Policy Board’s Policy Setting Meeting Dates (MoM),,,
 2026-01-15,Thursday,09:00,KRW,Low,Interest Rate Decision  (Jan),,2.50%,2.50%
 2026-01-15,Thursday,13:00,SEK,Low,Unemployment Rate  (Dec),,,6.7%
