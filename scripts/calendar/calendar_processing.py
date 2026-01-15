@@ -84,7 +84,9 @@ def _normalize_missing_text_values(
             continue
         text = working[col_name].astype(str).str.strip()
         is_missing = (
-            working[col_name].isna() | text.eq("") | text.str.lower().isin(missing_tokens)
+            working[col_name].isna()
+            | text.eq("")
+            | text.str.lower().isin(missing_tokens)
         )
         working.loc[is_missing, col_name] = pd.NA
         working.loc[~is_missing, col_name] = text.loc[~is_missing]
@@ -426,7 +428,9 @@ def merge_calendar_frames(
         if working[col_name].dtype == object:
             working[col_name] = working[col_name].map(_sanitize_text_value)
 
-    working = _normalize_missing_text_values(working, missing_tokens=MISSING_VALUE_TOKENS)
+    working = _normalize_missing_text_values(
+        working, missing_tokens=MISSING_VALUE_TOKENS
+    )
 
     working["Date_dt"] = pd.to_datetime(working.get("Date"), errors="coerce")
     working = working.dropna(subset=["Date_dt"])  # type: ignore[arg-type]
