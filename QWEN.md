@@ -92,7 +92,7 @@ To avoid literal `\n` appearing on GitHub, follow these conventions:
 
 - **Language Requirements**: Descriptions and comments default to Simplified Chinese; titles must stay in English. Automatically generated Codex replies (reviews or regular comments) should also be in Chinese unless the request starts with `[EN]`.
 - Use `--body-file` or standard input for multi-line content. Avoid `--body` with escaped newlines.
-- Recommended pattern using a here document:
+- Recommended pattern using a here document (Bash/Zsh):
 
   ```bash
   # Add a new comment
@@ -109,6 +109,33 @@ To avoid literal `\n` appearing on GitHub, follow these conventions:
   gh pr comment <number> --edit-last -F - <<'EOF'
   ...multi-line content...
   EOF
+  ```
+
+- PowerShell note: do not type `EOF` when using stdin; end interactive input with `Ctrl+Z` then `Enter`, otherwise `EOF` becomes literal text in the PR body/comment.
+
+- PowerShell equivalent patterns:
+
+  ```powershell
+  # Add a new comment
+  @'
+  Summary:
+  - line 1
+  - line 2
+
+  Notes:
+  - more lines
+  '@ | gh pr comment <number> -F -
+
+  # Edit your most recent comment
+  @'
+  ...multi-line content...
+  '@ | gh pr comment <number> --edit-last -F -
+
+  # Update PR description
+  @'
+  # Keep the title unchanged; update only the body
+  <markdown body>
+  '@ | gh pr edit <number> --body-file -
   ```
 
 - Updating the PR description:
