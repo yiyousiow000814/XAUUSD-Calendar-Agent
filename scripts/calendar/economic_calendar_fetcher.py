@@ -13,10 +13,16 @@ from bs4 import BeautifulSoup
 from openpyxl.styles import Alignment, PatternFill
 from openpyxl.utils import get_column_letter
 
-from scripts.calendar import calendar_processing as processing
+# When executing this file via `python scripts/calendar/economic_calendar_fetcher.py`,
+# Python sets sys.path[0] to `scripts/calendar`, so `import scripts...` fails unless
+# we add the repository root explicitly.
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from scripts.calendar import calendar_processing as processing  # noqa: E402
 
 # Base folder to store generated artifacts under the repository's data directory
-REPO_ROOT = Path(__file__).resolve().parents[2]
 BASE_DATA_DIR = REPO_ROOT / "data"
 _DEFAULT_CALENDAR_DIR = BASE_DATA_DIR / "Economic_Calendar"
 CALENDAR_OUTPUT_DIR = Path(os.getenv("CALENDAR_OUTPUT_DIR", str(_DEFAULT_CALENDAR_DIR)))
