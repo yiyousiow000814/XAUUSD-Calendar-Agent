@@ -30,8 +30,14 @@ Non-commercial use only. See [LICENSE](LICENSE).
 
 ## Usage Notice
 > [!IMPORTANT]
-> - **Educational use only.** This repository and its releases (including EXE builds) are provided for educational and research purposes only.
+> - **Educational / research use only.** This repository and its releases (including EXE builds) are provided for educational and research purposes only.
+>
 > - **No data or keys included.** We do not include or distribute any data sources, feeds, endpoints, or API keys. You must configure and use your own legally accessible data sources.
-> - **Follow laws and third-party terms.** You are solely responsible for ensuring that your use complies with applicable laws and all third-party terms (including any website Terms of Service).
+>
+> - **Compliance required.** You are solely responsible for ensuring your use complies with applicable laws and regulations, and any third-party terms (including website Terms of Service and data provider terms).
+>
 > - **No bypassing restrictions.** Do not use this project to bypass access controls, rate limits, paywalls, or other restrictions.
-> - **No advice.** This project provides technical and implementation examples only and does not constitute legal, financial, or trading advice. Use at your own risk.
+>
+> - **No advice.** This project provides technical and implementation examples only. Any information produced by this software is for reference only and does not constitute legal, financial, trading, or investment advice. Consult qualified professionals before making decisions.
+>
+> - **Use at your own risk.** The author assumes no responsibility for how the project is used.
