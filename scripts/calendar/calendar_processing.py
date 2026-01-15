@@ -241,10 +241,15 @@ def merge_calendar_frames(
 ) -> pd.DataFrame:
     working = pd.concat([existing_df, new_df], ignore_index=True, sort=False)
     working.replace(["nan", "NaN", "None"], pd.NA, inplace=True)
-    if "Time" in working.columns:
-        working["Time"] = working["Time"].fillna("").astype(str).str.strip()
-    else:
-        working["Time"] = ""
+
+    # Normalize key fields to avoid duplicates differing only by NA vs "".
+    # Some provider rows (e.g., holidays) may omit `Cur.`; pandas writes NA as
+    # blank in CSV, which can reintroduce exact duplicates across runs.
+    for col_name in KEY_COLUMNS:
+        if col_name in working.columns:
+            working[col_name] = working[col_name].fillna("").astype(str).str.strip()
+        else:
+            working[col_name] = ""
 
     for col_name in working.columns:
         if working[col_name].dtype == object:
