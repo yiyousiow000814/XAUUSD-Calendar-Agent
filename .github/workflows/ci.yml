@@ -26,7 +26,7 @@ permissions:
 jobs:
   pr_gate:
     name: PR Gate
-    if: github.repository == 'yiyousiow000814/xauusd-news-information-and-predictions' && (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && !startsWith(github.event.pull_request.head.ref, 'chore/release-prepare-')))
+    if: github.repository == 'yiyousiow000814/XAUUSD-Calendar-Agent' && (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && !startsWith(github.event.pull_request.head.ref, 'chore/release-prepare-')))
     runs-on: ubuntu-latest
     steps:
       - name: PR Gate no-op
@@ -79,7 +79,7 @@ jobs:
 
   changes:
     needs: pr_gate
-    if: github.repository == 'yiyousiow000814/xauusd-news-information-and-predictions' && (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && !startsWith(github.event.pull_request.head.ref, 'chore/release-prepare-')))
+    if: github.repository == 'yiyousiow000814/XAUUSD-Calendar-Agent' && (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && !startsWith(github.event.pull_request.head.ref, 'chore/release-prepare-')))
     runs-on: ubuntu-latest
     outputs:
       run_ci: ${{ steps.filter.outputs.run_ci }}
@@ -115,7 +115,7 @@ jobs:
           echo "run_ci=$run_ci" >> "$GITHUB_OUTPUT"
   lint:
     needs: changes
-    if: github.repository == 'yiyousiow000814/xauusd-news-information-and-predictions' && needs.changes.outputs.run_ci == 'true' && (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && !startsWith(github.event.pull_request.head.ref, 'chore/release-prepare-')))
+    if: github.repository == 'yiyousiow000814/XAUUSD-Calendar-Agent' && needs.changes.outputs.run_ci == 'true' && (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && !startsWith(github.event.pull_request.head.ref, 'chore/release-prepare-')))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -155,7 +155,7 @@ jobs:
       - changes
       - lint
     # Full build runs only when the PR is not a draft.
-    if: github.repository == 'yiyousiow000814/xauusd-news-information-and-predictions' && needs.changes.outputs.run_ci == 'true' && (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && !startsWith(github.event.pull_request.head.ref, 'chore/release-prepare-'))) && (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
+    if: github.repository == 'yiyousiow000814/XAUUSD-Calendar-Agent' && needs.changes.outputs.run_ci == 'true' && (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && !startsWith(github.event.pull_request.head.ref, 'chore/release-prepare-'))) && (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
     strategy:
       matrix:
         os:

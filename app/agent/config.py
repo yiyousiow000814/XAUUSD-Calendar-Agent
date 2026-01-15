@@ -74,7 +74,7 @@ def get_default_config() -> dict:
         "last_pull_sha": "",
         "auto_update_enabled": True,
         "auto_update_interval_minutes": 60,
-        "github_repo": "yiyousiow000814/xauusd-news-information-and-predictions",
+        "github_repo": "yiyousiow000814/XAUUSD-Calendar-Agent",
         "github_branch": "main",
         "github_release_asset_name": "Setup.exe",
         "github_token": "",

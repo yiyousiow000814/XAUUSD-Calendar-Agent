@@ -6,7 +6,7 @@ data/Economic_Calendar/backup/
 data/XAUUSD_1m_data/
 
 # Legacy Windows path
-xauusd-news-information-and-predictions\\data
+XAUUSD-Calendar-Agent\\data
 
 # Ignore Python cache directories
 scripts/calendar/__pycache__/

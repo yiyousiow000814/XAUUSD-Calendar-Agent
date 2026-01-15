@@ -11,7 +11,7 @@
 - Data source with properly formatted economic calendar JSON files
   
 ### Installation
-1. Navigate to the [Releases](https://github.com/yiyousiow000814/xauusd-news-information-and-predictions/releases) page.
+1. Navigate to the [Releases](https://github.com/yiyousiow000814/XAUUSD-Calendar-Agent/releases) page.
 2. Download `Setup.exe`.
 3. Run the installer.
 4. Follow the installation wizard prompts.

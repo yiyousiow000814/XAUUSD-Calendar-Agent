@@ -3290,7 +3290,7 @@ const main = async () => {
         status: "git-unusable",
         message: "Git metadata detected, but the repo is not usable",
         path: "C:\\\\sync-repo\\\\broken",
-        details: "fatal: not a git repository (or any of the parent directories): .git\n\nExpected: yiyousiow000814/xauusd-news-information-and-predictions",
+        details: "fatal: not a git repository (or any of the parent directories): .git\n\nExpected: yiyousiow000814/XAUUSD-Calendar-Agent",
         canUseAsIs: false,
         canReset: true
       });

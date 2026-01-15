@@ -10,7 +10,7 @@ Edit PR title/body/comments on Windows. Use `gh` when available; otherwise use t
 ## Before You Start
 
 - Identify:
-  - `owner` and `repo` (e.g. `yiyousiow000814/xauusd-news-information-and-predictions`)
+  - `owner` and `repo` (e.g. `yiyousiow000814/XAUUSD-Calendar-Agent`)
   - PR number (e.g. `111`)
 - If using `gh`, confirm it is available and authenticated:
 
