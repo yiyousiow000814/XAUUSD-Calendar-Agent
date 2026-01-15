@@ -156,13 +156,14 @@
 
   .footer-row .activity-fab {
     justify-self: end;
+    margin-bottom: 2px;
   }
 
 .activity-fab {
   border-radius: 999px;
   padding: 8px 14px;
-  border: 1px solid var(--panel-border);
-  background: rgba(20, 24, 32, 0.8);
+  border: 1px solid var(--pill-border);
+  background: linear-gradient(180deg, var(--pill-bg-0), var(--pill-bg-1));
   color: var(--text);
   font-size: 12px;
   line-height: 1;
@@ -172,7 +173,8 @@
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  box-shadow: 0 18px 36px rgba(8, 10, 14, 0.4), inset 0 0 0 1px var(--panel-inner);
+  /* Keep the idle state subtle; avoid reading like a primary CTA. */
+  box-shadow: inset 0 0 0 1px var(--pill-shadow);
   transition: transform var(--motion-fast) var(--motion-ease),
     box-shadow var(--motion-fast) var(--motion-ease),
     border-color var(--motion-fast) var(--motion-ease);
@@ -184,10 +186,18 @@
   pointer-events: none;
 }
 
+.activity-fab.zero {
+  opacity: 0.9;
+}
+
+.activity-fab.zero:hover {
+  opacity: 1;
+}
+
 .activity-fab:hover {
   transform: translateY(-1px);
-  border-color: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 22px 44px rgba(8, 10, 14, 0.45), inset 0 0 0 1px var(--panel-inner);
+  border-color: var(--pill-border-hover);
+  box-shadow: 0 8px 14px rgba(8, 10, 14, 0.16), inset 0 0 0 1px var(--pill-shadow-hover);
 }
 
 .activity-count {
@@ -198,16 +208,27 @@
   border: 1px solid rgba(134, 201, 255, 0.55);
   color: #f6fbff;
   font-size: 11px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  line-height: 1;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  display: grid;
+  place-items: center;
   position: relative;
   isolation: isolate;
+}
+
+.activity-count.zero {
+  /* A zero count should read as "status" rather than "CTA". */
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.82);
 }
 
 .activity-count-value {
   position: relative;
   z-index: 2;
+  grid-area: 1 / 1;
 }
 
 .activity-count-ring {
@@ -349,16 +370,22 @@
 }
 
 [data-theme="light"] .activity-fab {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(18, 20, 26, 0.18);
+  background: linear-gradient(180deg, var(--pill-bg-0), var(--pill-bg-1));
+  border-color: rgba(18, 20, 26, 0.1);
   color: rgba(18, 20, 26, 0.95);
-  box-shadow: 0 18px 32px rgba(30, 32, 40, 0.18), inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
 }
 
 [data-theme="light"] .activity-count {
   background: rgba(30, 75, 143, 0.55);
   border-color: rgba(30, 75, 143, 0.6);
   color: #f6fbff;
+}
+
+[data-theme="light"] .activity-count.zero {
+  background: rgba(18, 20, 26, 0.06);
+  border-color: rgba(18, 20, 26, 0.1);
+  color: rgba(18, 20, 26, 0.68);
 }
 
 .activity-stack {

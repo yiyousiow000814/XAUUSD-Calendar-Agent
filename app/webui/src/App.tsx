@@ -2303,7 +2303,9 @@ export default function App() {
     <>
       Activity
       <span
-        className={`activity-count${syncRepoTask.active ? " progress" : ""}`}
+        className={`activity-count${syncRepoTask.active ? " progress" : ""}${
+          snapshot.logs.length === 0 ? " zero" : ""
+        }`}
         data-qa="qa:status:activity-count"
         aria-label={
           syncRepoDisplayActive
@@ -2394,7 +2396,9 @@ export default function App() {
           calendarUtcOffsetMinutes={settings.calendarUtcOffsetMinutes}
         />
         <button
-          className={`activity-fab${activityOpen ? " hidden" : ""}`}
+          className={`activity-fab${activityOpen ? " hidden" : ""}${
+            snapshot.logs.length === 0 ? " zero" : ""
+          }`}
           type="button"
           onClick={openActivity}
           ref={activityFabRef}

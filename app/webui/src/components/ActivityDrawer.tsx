@@ -82,7 +82,7 @@ export function ActivityDrawer({
         : 0;
 
     const baseMotion = prefersReducedMotion
-      ? { openMs: 260, closeMs: 240, overshoot: 1.02 }
+      ? { openMs: 260, closeMs: 260, overshoot: 1.02 }
       : { openMs: 600, closeMs: 520, overshoot: 1.12 };
 
     const motion = {
@@ -277,13 +277,15 @@ export function ActivityDrawer({
         bodyInner.style.transformOrigin = "top left";
         bodyInner.style.transform = `scale(${(1 / origin.sx).toFixed(6)}, ${(1 / origin.sy).toFixed(6)})`;
 
-        content.style.willChange = "opacity, transform";
+        content.style.willChange = "opacity, transform, filter";
         content.style.opacity = "0";
         content.style.transform = "translateY(10px)";
+        content.style.filter = prefersReducedMotion ? "none" : "blur(5px)";
 
         if (pill) {
-          pill.style.willChange = "opacity, transform";
+          pill.style.willChange = "opacity, transform, filter";
           pill.style.opacity = "1";
+          pill.style.filter = prefersReducedMotion ? "none" : "blur(2px)";
           setPillTransform(origin.sx, origin.sy);
         }
         if (externalPill) {
@@ -327,12 +329,20 @@ export function ActivityDrawer({
             if (pill) {
               const pillOpacity = clamp(1 - materialP, 0, 1);
               pill.style.opacity = pillOpacity.toFixed(3);
+              if (!prefersReducedMotion) {
+                // Keep the pill a touch softer during the early morph.
+                pill.style.filter = `blur(${(pillOpacity * 2).toFixed(2)}px)`;
+              }
             }
 
-            const contentRaw = clamp((raw - 0.09) / 0.32, 0, 1);
+            // Keep early frames from reading "too crisp" while the drawer is still small.
+            const contentRaw = clamp((raw - 0.12) / 0.36, 0, 1);
             const contentP = easeOutCubic(contentRaw);
             content.style.opacity = contentP.toFixed(3);
             content.style.transform = `translateY(${((1 - contentP) * 10).toFixed(2)}px)`;
+            if (!prefersReducedMotion) {
+              content.style.filter = `blur(${((1 - contentP) * 5).toFixed(2)}px)`;
+            }
           },
           () => {
             cancelTweenRef.current = null;
@@ -361,11 +371,13 @@ export function ActivityDrawer({
               content.style.willChange = "";
               content.style.opacity = "";
               content.style.transform = "";
+              content.style.filter = "";
               if (pill) {
                 pill.style.willChange = "";
                 pill.style.opacity = "";
                 pill.style.transformOrigin = "";
                 pill.style.transform = "";
+                pill.style.filter = "";
                 pill.style.padding = "";
                 pill.style.gap = "";
                 pill.style.borderWidth = "";
@@ -402,10 +414,12 @@ export function ActivityDrawer({
         drawer.style.setProperty("--activity-morph-pill-opacity", "0");
         bodyInner.style.willChange = "transform";
         bodyInner.style.transformOrigin = "top left";
-        content.style.willChange = "opacity, transform";
+        content.style.willChange = "opacity, transform, filter";
+        content.style.filter = "";
         if (pill) {
-          pill.style.willChange = "opacity, transform";
+          pill.style.willChange = "opacity, transform, filter";
           pill.style.opacity = "0";
+          pill.style.filter = "";
           setPillTransform(1, 1);
         }
         if (externalPill) {
@@ -438,11 +452,6 @@ export function ActivityDrawer({
           motion.closeMs,
           (raw) => {
             const shellRaw = clamp(raw, 0, 1);
-            const contentFadeRaw = clamp((shellRaw - 0.08) / 0.62, 0, 1);
-            const contentFadeP = easeInOutCubic(contentFadeRaw);
-            const contentOpacity = 1 - contentFadeP;
-            content.style.opacity = contentOpacity.toFixed(3);
-            content.style.transform = `translateY(${(contentFadeP * 10).toFixed(2)}px)`;
             const p = easeInOutCubic(shellRaw);
 
             const translateX = origin.dx * p;
@@ -456,8 +465,22 @@ export function ActivityDrawer({
             drawer.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) scale(${scaleX}, ${scaleY})`;
             setShellRadius(radiusScreen, scaleX, scaleY);
 
-            const ghostRaw = clamp((contentFadeP - 0.58) / 0.42, 0, 1);
+            const contentFadeRaw = clamp((shellRaw - 0.08) / 0.62, 0, 1);
+            const contentFadeP = easeInOutCubic(contentFadeRaw);
+            // Bring the pill back only after the drawer is past ~50% collapsed,
+            // then gradually sharpen as it approaches the final capsule size.
+            // Keep the external pill hidden longer to avoid a "double pill" during the handoff.
+            const ghostRaw = clamp((shellRaw - 0.5) / 0.5, 0, 1);
             const ghostP = easeOutCubic(ghostRaw);
+
+            // Avoid a "double header" (pill label + blurred content title) once the pill is back in view.
+            const contentOpacity = (1 - contentFadeP) * (1 - ghostP);
+            content.style.opacity = contentOpacity.toFixed(3);
+            content.style.transform = `translateY(${(contentFadeP * 10).toFixed(2)}px)`;
+            if (!prefersReducedMotion) {
+              content.style.filter = `blur(${(contentFadeP * 4 * (1 - ghostP)).toFixed(2)}px)`;
+            }
+
             drawer.style.setProperty("--activity-morph-panel-opacity", (1 - ghostP).toFixed(3));
             drawer.style.setProperty("--activity-morph-pill-opacity", ghostP.toFixed(3));
 
@@ -470,9 +493,18 @@ export function ActivityDrawer({
 
             setPillTransform(scaleX, scaleY);
             if (pill) {
-              const handoffRaw = clamp((shellRaw - 0.92) / 0.08, 0, 1);
+              const handoffRaw = clamp((shellRaw - 0.9) / 0.1, 0, 1);
               const handoffP = easeOutCubic(handoffRaw);
-              pill.style.opacity = (ghostP * (1 - handoffP)).toFixed(3);
+              // Fade and sharpen the pill gradually so it doesn't read "too crisp" early in the close.
+              // Keep the pill label faint/soft early in the close (e.g. around t=120ms),
+              // and let it sharpen closer to the final capsule size.
+              const pillCrispRaw = clamp((ghostP - 0.35) / 0.65, 0, 1);
+              const pillCrispP = easeOutCubic(pillCrispRaw);
+              const pillOpacity = ghostP * (1 - handoffP) * (0.15 + 0.85 * pillCrispP);
+              pill.style.opacity = pillOpacity.toFixed(3);
+              if (!prefersReducedMotion) {
+                pill.style.filter = `blur(${((1 - pillCrispP) * 5).toFixed(2)}px)`;
+              }
               if (externalPill) {
                 externalPill.style.visibility = handoffP > 0.02 ? "visible" : "hidden";
                 externalPill.style.opacity = handoffP.toFixed(3);
@@ -486,10 +518,12 @@ export function ActivityDrawer({
             drawer.style.willChange = "";
             bodyInner.style.willChange = "";
             content.style.willChange = "";
+            content.style.filter = "";
             drawer.style.removeProperty("--activity-clip-radius");
             setBackdrop(0);
             if (pill) {
               pill.style.willChange = "";
+              pill.style.filter = "";
             }
             if (externalPill) {
               externalPill.style.willChange = "";
