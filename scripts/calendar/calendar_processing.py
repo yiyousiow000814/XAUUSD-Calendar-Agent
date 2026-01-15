@@ -26,6 +26,7 @@ COLUMN_WIDTH_OVERRIDES = {
 
 KEY_COLUMNS = ["Date", "Time", "Cur.", "Event"]
 MISSING_VALUE_TOKENS = {"tba", "tentative", "n/a", "na"}
+VALUE_COLUMNS = ["Actual", "Forecast", "Previous"]
 
 
 def _sanitize_text_value(value: object) -> object:
@@ -90,6 +91,42 @@ def _normalize_missing_text_values(
         )
         working.loc[is_missing, col_name] = pd.NA
         working.loc[~is_missing, col_name] = text.loc[~is_missing]
+    return working
+
+
+def _format_number_for_compare(value: float) -> str:
+    # Avoid "113.0" vs "113" churn when reading back from Excel.
+    if float(value).is_integer():
+        return str(int(value))
+    return format(float(value), "g")
+
+
+def _normalize_value_for_compare(value: object, *, missing_tokens: set[str]) -> str:
+    if value is None or pd.isna(value):
+        return ""
+    if isinstance(value, (int, float)):
+        return _format_number_for_compare(float(value))
+    text = str(value).strip()
+    if not text:
+        return ""
+    if text.lower() in missing_tokens:
+        return ""
+    return text
+
+
+def normalize_calendar_frame_for_compare(df: pd.DataFrame) -> pd.DataFrame:
+    """Return a fully-string DataFrame suitable for stable equality checks."""
+    working = df.copy()
+    working.replace(["nan", "NaN", "None"], pd.NA, inplace=True)
+    for col_name in working.columns:
+        if col_name in KEY_COLUMNS:
+            working[col_name] = working[col_name].fillna("").astype(str).str.strip()
+            continue
+        series = working[col_name]
+        working[col_name] = [
+            _normalize_value_for_compare(v, missing_tokens=MISSING_VALUE_TOKENS)
+            for v in series.tolist()
+        ]
     return working
 
 
@@ -427,6 +464,22 @@ def merge_calendar_frames(
     for col_name in working.columns:
         if working[col_name].dtype == object:
             working[col_name] = working[col_name].map(_sanitize_text_value)
+
+    # Keep value columns as text to avoid Excel re-read type churn.
+    for col_name in VALUE_COLUMNS:
+        if col_name not in working.columns:
+            continue
+        working[col_name] = [
+            (
+                pd.NA
+                if _normalize_value_for_compare(v, missing_tokens=MISSING_VALUE_TOKENS)
+                == ""
+                else _normalize_value_for_compare(
+                    v, missing_tokens=MISSING_VALUE_TOKENS
+                )
+            )
+            for v in working[col_name].tolist()
+        ]
 
     working = _normalize_missing_text_values(
         working, missing_tokens=MISSING_VALUE_TOKENS

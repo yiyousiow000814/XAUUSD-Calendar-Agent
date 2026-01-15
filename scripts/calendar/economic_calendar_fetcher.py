@@ -1054,35 +1054,37 @@ def save_data(
         else:
             existing_df = pd.DataFrame(columns=year_df.columns)
 
-        if prune_existing_in_range and not year_df.empty and "Date" in year_df.columns:
-            year_dates = pd.to_datetime(year_df["Date"], errors="coerce")
-            if year_dates.notna().any():
-                start_date = year_dates.min().strftime("%Y-%m-%d")
-                end_date = year_dates.max().strftime("%Y-%m-%d")
-                existing_df = processing.prune_calendar_frame_by_date_range(
-                    existing_df, start_date=start_date, end_date=end_date
-                )
-
         for col in year_df.columns:
             if col not in existing_df.columns:
                 existing_df[col] = pd.NA
 
         existing_df = existing_df[year_df.columns]
 
-        combined_df = processing.merge_calendar_frames(existing_df, year_df)
+        existing_df_compare = existing_df.copy()
+        existing_df_merge = existing_df
+        if prune_existing_in_range and not year_df.empty and "Date" in year_df.columns:
+            year_dates = pd.to_datetime(year_df["Date"], errors="coerce")
+            if year_dates.notna().any():
+                start_date = year_dates.min().strftime("%Y-%m-%d")
+                end_date = year_dates.max().strftime("%Y-%m-%d")
+                existing_df_merge = processing.prune_calendar_frame_by_date_range(
+                    existing_df_merge, start_date=start_date, end_date=end_date
+                )
+
+        combined_df = processing.merge_calendar_frames(existing_df_merge, year_df)
 
         combined_sorted = processing.sort_calendar_dataframe(
             combined_df.copy()
         ).reset_index(drop=True)
 
         existing_sorted = (
-            processing.sort_calendar_dataframe(existing_df.copy())
+            processing.sort_calendar_dataframe(existing_df_compare.copy())
             .reindex(columns=combined_sorted.columns)
             .reset_index(drop=True)
         )
 
-        existing_norm = existing_sorted.fillna("").astype(str)
-        combined_norm = combined_sorted.fillna("").astype(str)
+        existing_norm = processing.normalize_calendar_frame_for_compare(existing_sorted)
+        combined_norm = processing.normalize_calendar_frame_for_compare(combined_sorted)
 
         if existing_norm.equals(combined_norm):
             print(f"[INFO] Year {year} unchanged; skipping write.")
