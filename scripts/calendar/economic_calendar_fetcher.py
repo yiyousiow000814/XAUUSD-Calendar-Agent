@@ -975,7 +975,14 @@ def fetch_calendar_range(start_date: datetime, end_date: datetime):
     return headers, all_rows
 
 
-def save_data(headers, data, file_name="usd_calendar_month.xlsx", source_url=""):
+def save_data(
+    headers,
+    data,
+    file_name="usd_calendar_month.xlsx",
+    source_url="",
+    *,
+    prune_existing_in_range: bool = True,
+):
     """Persist calendar data per year without maintaining a master workbook."""
     if not data:
         print("[INFO] No data received. Skipping save operation.")
@@ -1047,6 +1054,15 @@ def save_data(headers, data, file_name="usd_calendar_month.xlsx", source_url="")
         else:
             existing_df = pd.DataFrame(columns=year_df.columns)
 
+        if prune_existing_in_range and not year_df.empty and "Date" in year_df.columns:
+            year_dates = pd.to_datetime(year_df["Date"], errors="coerce")
+            if year_dates.notna().any():
+                start_date = year_dates.min().strftime("%Y-%m-%d")
+                end_date = year_dates.max().strftime("%Y-%m-%d")
+                existing_df = processing.prune_calendar_frame_by_date_range(
+                    existing_df, start_date=start_date, end_date=end_date
+                )
+
         for col in year_df.columns:
             if col not in existing_df.columns:
                 existing_df[col] = pd.NA
@@ -1102,6 +1118,7 @@ def main():
                 exc.partial_rows,
                 file_name="usd_calendar_month.xlsx",
                 source_url=CALENDAR_REFERER,
+                prune_existing_in_range=False,
             )
         sys.exit(1)
     except Exception as exc:

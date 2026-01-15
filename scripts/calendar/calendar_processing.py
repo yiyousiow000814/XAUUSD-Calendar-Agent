@@ -25,6 +25,7 @@ COLUMN_WIDTH_OVERRIDES = {
 }
 
 KEY_COLUMNS = ["Date", "Time", "Cur.", "Event"]
+MISSING_VALUE_TOKENS = {"tba", "tentative", "n/a", "na"}
 
 
 def _sanitize_text_value(value: object) -> object:
@@ -64,6 +65,45 @@ def _is_missing_token(value: object, *, missing_tokens: set[str]) -> bool:
     if not text:
         return True
     return text.lower() in missing_tokens
+
+
+def _normalize_missing_text_values(
+    df: pd.DataFrame, *, missing_tokens: set[str]
+) -> pd.DataFrame:
+    """Normalize missing tokens for non-key text columns.
+
+    We keep KEY_COLUMNS as normalized strings (they are used for identity), but
+    treat empty strings / provider placeholders as missing for the remaining
+    fields so JSON exports are stable (missing -> null) across fetch runs.
+    """
+    working = df.copy()
+    for col_name in working.columns:
+        if col_name in KEY_COLUMNS:
+            continue
+        if working[col_name].dtype != object:
+            continue
+        text = working[col_name].astype(str).str.strip()
+        is_missing = (
+            working[col_name].isna() | text.eq("") | text.str.lower().isin(missing_tokens)
+        )
+        working.loc[is_missing, col_name] = pd.NA
+        working.loc[~is_missing, col_name] = text.loc[~is_missing]
+    return working
+
+
+def prune_calendar_frame_by_date_range(
+    df: pd.DataFrame, *, start_date: str, end_date: str
+) -> pd.DataFrame:
+    """Drop rows whose Date falls within [start_date, end_date] (inclusive)."""
+    if df.empty or "Date" not in df.columns:
+        return df.copy()
+    start_dt = pd.to_datetime(start_date, errors="coerce")
+    end_dt = pd.to_datetime(end_date, errors="coerce")
+    if pd.isna(start_dt) or pd.isna(end_dt):
+        return df.copy()
+    date_dt = pd.to_datetime(df["Date"], errors="coerce")
+    in_range = date_dt.notna() & (date_dt >= start_dt) & (date_dt <= end_dt)
+    return df.loc[~in_range].copy()
 
 
 def _normalize_value_token(value: object, *, missing_tokens: set[str]) -> str:
@@ -366,7 +406,11 @@ def _apply_update_slot_dedup(
 def merge_calendar_frames(
     existing_df: pd.DataFrame, new_df: pd.DataFrame
 ) -> pd.DataFrame:
-    working = pd.concat([existing_df, new_df], ignore_index=True, sort=False)
+    existing_tagged = existing_df.copy()
+    existing_tagged["_source_rank"] = 0
+    new_tagged = new_df.copy()
+    new_tagged["_source_rank"] = 1
+    working = pd.concat([existing_tagged, new_tagged], ignore_index=True, sort=False)
     working.replace(["nan", "NaN", "None"], pd.NA, inplace=True)
 
     # Normalize key fields to avoid duplicates differing only by NA vs "".
@@ -382,21 +426,27 @@ def merge_calendar_frames(
         if working[col_name].dtype == object:
             working[col_name] = working[col_name].map(_sanitize_text_value)
 
+    working = _normalize_missing_text_values(working, missing_tokens=MISSING_VALUE_TOKENS)
+
     working["Date_dt"] = pd.to_datetime(working.get("Date"), errors="coerce")
     working = working.dropna(subset=["Date_dt"])  # type: ignore[arg-type]
 
     completeness = pd.Series(0, index=working.index, dtype="int64")
-    missing_tokens = {"tba", "tentative", "n/a", "na"}
     for col_name in working.columns:
         col = working[col_name]
         present = col.notna()
         if col.dtype == object:
             text = col.astype(str).str.strip()
-            present &= text.ne("") & ~text.str.lower().isin(missing_tokens)
+            present &= text.ne("") & ~text.str.lower().isin(MISSING_VALUE_TOKENS)
         completeness += present.astype("int64")
 
     working["completeness_score"] = completeness
-    working = working.sort_values(by="completeness_score", ascending=False)
+    # Stable ordering: prefer more complete rows, then prefer new fetch data.
+    working = working.sort_values(
+        by=["completeness_score", "_source_rank"],
+        ascending=[False, False],
+        kind="mergesort",
+    )
     working = working.drop_duplicates(subset=KEY_COLUMNS, keep="first")
 
     _fuzzy_raw = (os.getenv("CALENDAR_EVENT_TIME_FUZZY_DEDUP_MINUTES") or "").strip()
@@ -426,7 +476,7 @@ def merge_calendar_frames(
         update_minutes = 60
 
     working = _apply_update_slot_dedup(working, threshold_minutes=update_minutes)
-    working.drop(columns=["completeness_score"], inplace=True)
+    working.drop(columns=["completeness_score", "_source_rank"], inplace=True)
 
     _snap_raw = (os.getenv("CALENDAR_TIME_SNAP_THRESHOLD_MINUTES") or "").strip()
     try:
