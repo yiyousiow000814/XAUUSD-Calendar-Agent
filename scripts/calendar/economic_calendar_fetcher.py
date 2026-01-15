@@ -975,7 +975,14 @@ def fetch_calendar_range(start_date: datetime, end_date: datetime):
     return headers, all_rows
 
 
-def save_data(headers, data, file_name="usd_calendar_month.xlsx", source_url=""):
+def save_data(
+    headers,
+    data,
+    file_name="usd_calendar_month.xlsx",
+    source_url="",
+    *,
+    prune_existing_in_range: bool = True,
+):
     """Persist calendar data per year without maintaining a master workbook."""
     if not data:
         print("[INFO] No data received. Skipping save operation.")
@@ -1053,20 +1060,31 @@ def save_data(headers, data, file_name="usd_calendar_month.xlsx", source_url="")
 
         existing_df = existing_df[year_df.columns]
 
-        combined_df = processing.merge_calendar_frames(existing_df, year_df)
+        existing_df_compare = existing_df.copy()
+        existing_df_merge = existing_df
+        if prune_existing_in_range and not year_df.empty and "Date" in year_df.columns:
+            year_dates = pd.to_datetime(year_df["Date"], errors="coerce")
+            if year_dates.notna().any():
+                start_date = year_dates.min().strftime("%Y-%m-%d")
+                end_date = year_dates.max().strftime("%Y-%m-%d")
+                existing_df_merge = processing.prune_calendar_frame_by_date_range(
+                    existing_df_merge, start_date=start_date, end_date=end_date
+                )
+
+        combined_df = processing.merge_calendar_frames(existing_df_merge, year_df)
 
         combined_sorted = processing.sort_calendar_dataframe(
             combined_df.copy()
         ).reset_index(drop=True)
 
         existing_sorted = (
-            processing.sort_calendar_dataframe(existing_df.copy())
+            processing.sort_calendar_dataframe(existing_df_compare.copy())
             .reindex(columns=combined_sorted.columns)
             .reset_index(drop=True)
         )
 
-        existing_norm = existing_sorted.fillna("").astype(str)
-        combined_norm = combined_sorted.fillna("").astype(str)
+        existing_norm = processing.normalize_calendar_frame_for_compare(existing_sorted)
+        combined_norm = processing.normalize_calendar_frame_for_compare(combined_sorted)
 
         if existing_norm.equals(combined_norm):
             print(f"[INFO] Year {year} unchanged; skipping write.")
@@ -1102,6 +1120,7 @@ def main():
                 exc.partial_rows,
                 file_name="usd_calendar_month.xlsx",
                 source_url=CALENDAR_REFERER,
+                prune_existing_in_range=False,
             )
         sys.exit(1)
     except Exception as exc:

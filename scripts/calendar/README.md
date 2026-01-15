@@ -27,6 +27,10 @@ This folder contains scripts and workflows for:
 python scripts/calendar/economic_calendar_fetcher.py --start-date 2025-01-01 --end-date 2025-01-07
 ```
 
+Notes:
+- The fetched date range is treated as authoritative: existing events within that range are replaced (handles renamed/cancelled events).
+- JSON exports normalize missing values to `null` to keep diffs stable across runs.
+
 Outputs are written to:
 - `data/Economic_Calendar/<year>/<year>_calendar.json`
 - `data/Economic_Calendar/<year>/<year>_calendar.csv`
