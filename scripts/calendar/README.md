@@ -28,7 +28,7 @@ python scripts/calendar/economic_calendar_fetcher.py --start-date 2025-01-01 --e
 ```
 
 Notes:
-- The fetched date range is treated as authoritative: existing events within that range are replaced (handles renamed/cancelled events).
+- By default, the fetcher merges new rows into existing exports without deleting existing rows inside the date window.
 - JSON exports normalize missing values to `null` to keep diffs stable across runs.
 
 Outputs are written to:
