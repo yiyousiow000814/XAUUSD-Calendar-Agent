@@ -1,6 +1,8 @@
 import argparse
 import os
+import random
 import re
+import sys
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -119,12 +121,128 @@ except ValueError:
     DEFAULT_TIMEZONE_ID = 178
 ECON_CALENDAR_PAGE_SIZE = 200
 ECON_CALENDAR_RETRY_DELAY = 1
-_delay_raw = (os.getenv("CALENDAR_DAY_DELAY") or "").strip()
+_http_attempts_raw = (os.getenv("CALENDAR_HTTP_MAX_ATTEMPTS") or "").strip()
 try:
-    DAY_REQUEST_DELAY = float(_delay_raw or "0")
+    HTTP_MAX_ATTEMPTS = int(_http_attempts_raw or "3")
 except ValueError:
-    print(f"[WARNING] Invalid CALENDAR_DAY_DELAY={_delay_raw!r}; falling back to 0.")
-    DAY_REQUEST_DELAY = 0.0
+    print(
+        f"[WARNING] Invalid CALENDAR_HTTP_MAX_ATTEMPTS={_http_attempts_raw!r}; "
+        "falling back to 3."
+    )
+    HTTP_MAX_ATTEMPTS = 3
+
+_cooldown_raw = (os.getenv("CALENDAR_HTTP_RATE_LIMIT_COOLDOWN_SECONDS") or "").strip()
+try:
+    HTTP_RATE_LIMIT_COOLDOWN_SECONDS = int(_cooldown_raw or "320")
+except ValueError:
+    print(
+        f"[WARNING] Invalid CALENDAR_HTTP_RATE_LIMIT_COOLDOWN_SECONDS={_cooldown_raw!r}; "
+        "falling back to 320."
+    )
+    HTTP_RATE_LIMIT_COOLDOWN_SECONDS = 320
+
+_cooldowns_raw = (os.getenv("CALENDAR_HTTP_RATE_LIMIT_MAX_COOLDOWNS") or "").strip()
+try:
+    HTTP_RATE_LIMIT_MAX_COOLDOWNS = int(_cooldowns_raw or "0")
+except ValueError:
+    print(
+        f"[WARNING] Invalid CALENDAR_HTTP_RATE_LIMIT_MAX_COOLDOWNS={_cooldowns_raw!r}; "
+        "falling back to 0."
+    )
+    HTTP_RATE_LIMIT_MAX_COOLDOWNS = 0
+
+_day_delay_raw = (os.getenv("CALENDAR_DAY_DELAY_SECONDS") or "").strip() or (
+    os.getenv("CALENDAR_DAY_DELAY") or ""
+).strip()
+DAY_DELAY_SECONDS = None
+if _day_delay_raw:
+    try:
+        DAY_DELAY_SECONDS = float(_day_delay_raw)
+    except ValueError:
+        print(
+            f"[WARNING] Invalid CALENDAR_DAY_DELAY_SECONDS={_day_delay_raw!r}; "
+            "disabling fixed day delay."
+        )
+
+_day_delay_min_raw = (os.getenv("CALENDAR_DAY_DELAY_MIN_SECONDS") or "").strip()
+try:
+    DAY_DELAY_MIN_SECONDS = float(_day_delay_min_raw or "1")
+except ValueError:
+    print(
+        f"[WARNING] Invalid CALENDAR_DAY_DELAY_MIN_SECONDS={_day_delay_min_raw!r}; "
+        "falling back to 1."
+    )
+    DAY_DELAY_MIN_SECONDS = 1.0
+
+_day_delay_max_raw = (os.getenv("CALENDAR_DAY_DELAY_MAX_SECONDS") or "").strip()
+try:
+    DAY_DELAY_MAX_SECONDS = float(_day_delay_max_raw or "3")
+except ValueError:
+    print(
+        f"[WARNING] Invalid CALENDAR_DAY_DELAY_MAX_SECONDS={_day_delay_max_raw!r}; "
+        "falling back to 3."
+    )
+    DAY_DELAY_MAX_SECONDS = 3.0
+
+
+_jitter_min_raw = (os.getenv("CALENDAR_HTTP_JITTER_MIN_SECONDS") or "").strip()
+try:
+    HTTP_JITTER_MIN_SECONDS = float(_jitter_min_raw or "0.8")
+except ValueError:
+    print(
+        f"[WARNING] Invalid CALENDAR_HTTP_JITTER_MIN_SECONDS={_jitter_min_raw!r}; "
+        "falling back to 0.8."
+    )
+    HTTP_JITTER_MIN_SECONDS = 0.8
+
+_jitter_max_raw = (os.getenv("CALENDAR_HTTP_JITTER_MAX_SECONDS") or "").strip()
+try:
+    HTTP_JITTER_MAX_SECONDS = float(_jitter_max_raw or "1.5")
+except ValueError:
+    print(
+        f"[WARNING] Invalid CALENDAR_HTTP_JITTER_MAX_SECONDS={_jitter_max_raw!r}; "
+        "falling back to 1.5."
+    )
+    HTTP_JITTER_MAX_SECONDS = 1.5
+
+
+def _sleep_request_jitter() -> None:
+    if HTTP_JITTER_MAX_SECONDS <= 0:
+        return
+    low = max(0.0, min(HTTP_JITTER_MIN_SECONDS, HTTP_JITTER_MAX_SECONDS))
+    high = max(0.0, max(HTTP_JITTER_MIN_SECONDS, HTTP_JITTER_MAX_SECONDS))
+    if high <= 0:
+        return
+    time.sleep(random.uniform(low, high))
+
+
+def _sleep_day_delay() -> None:
+    if DAY_DELAY_SECONDS is not None:
+        if DAY_DELAY_SECONDS > 0:
+            time.sleep(DAY_DELAY_SECONDS)
+        return
+
+    low = max(0.0, min(DAY_DELAY_MIN_SECONDS, DAY_DELAY_MAX_SECONDS))
+    high = max(0.0, max(DAY_DELAY_MIN_SECONDS, DAY_DELAY_MAX_SECONDS))
+    if high <= 0:
+        return
+    time.sleep(random.uniform(low, high))
+
+
+class CalendarFetchError(RuntimeError):
+    def __init__(
+        self,
+        message: str,
+        failed_start: datetime,
+        failed_end: datetime,
+        partial_headers: list[str],
+        partial_rows: list[list[str]],
+    ) -> None:
+        super().__init__(message)
+        self.failed_start = failed_start
+        self.failed_end = failed_end
+        self.partial_headers = partial_headers
+        self.partial_rows = partial_rows
 
 
 def enforce_backup_limit(directory, limit=15):
@@ -462,6 +580,76 @@ def parse_calendar_html(html_snippet):
     return headers, rows
 
 
+def _post_calendar_with_retries(
+    session: requests.Session,
+    payload: dict,
+    chunk_start: datetime,
+    chunk_end: datetime,
+):
+    cooldowns_used = 0
+    session_resets_used = 0
+    _reset_raw = (os.getenv("CALENDAR_HTTP_MAX_SESSION_RESETS") or "").strip()
+    try:
+        max_session_resets = int(_reset_raw or "1")
+    except ValueError:
+        print(
+            f"[WARNING] Invalid CALENDAR_HTTP_MAX_SESSION_RESETS={_reset_raw!r}; "
+            "falling back to 1."
+        )
+        max_session_resets = 1
+
+    while True:
+        last_status = None
+        for attempt in range(HTTP_MAX_ATTEMPTS):
+            _sleep_request_jitter()
+            response = session.post(
+                ECON_CALENDAR_ENDPOINT,
+                headers=ECON_CALENDAR_HEADERS,
+                data=payload,
+                timeout=60,
+            )
+            if response.status_code == 200:
+                return response
+
+            last_status = response.status_code
+            wait_time = 2**attempt
+            print(
+                f"[WARNING] Calendar request failed with status {response.status_code}. "
+                f"Retrying in {wait_time} seconds..."
+            )
+            time.sleep(wait_time)
+
+        if last_status == 429 and cooldowns_used < HTTP_RATE_LIMIT_MAX_COOLDOWNS:
+            cooldowns_used += 1
+            print(
+                f"[WARNING] Calendar rate limit persisted (429) for "
+                f"{chunk_start:%Y-%m-%d} to {chunk_end:%Y-%m-%d}. "
+                f"Cooling down for {HTTP_RATE_LIMIT_COOLDOWN_SECONDS} seconds "
+                f"({cooldowns_used}/{HTTP_RATE_LIMIT_MAX_COOLDOWNS})..."
+            )
+            time.sleep(HTTP_RATE_LIMIT_COOLDOWN_SECONDS)
+            continue
+
+        if last_status == 429 and session_resets_used < max_session_resets:
+            session_resets_used += 1
+            print(
+                f"[WARNING] Calendar rate limit persisted (429) for "
+                f"{chunk_start:%Y-%m-%d} to {chunk_end:%Y-%m-%d}. "
+                "Resetting HTTP session and retrying "
+                f"({session_resets_used}/{max_session_resets})..."
+            )
+            try:
+                session.close()
+            except Exception:
+                pass
+            session = requests.Session()
+            continue
+
+        raise RuntimeError(
+            f"Failed to fetch data for {chunk_start:%Y-%m-%d} to {chunk_end:%Y-%m-%d}"
+        )
+
+
 def fetch_calendar_range(start_date: datetime, end_date: datetime):
     """Fetch calendar data from the calendar provider without Selenium."""
     session = requests.Session()
@@ -469,87 +657,82 @@ def fetch_calendar_range(start_date: datetime, end_date: datetime):
     all_rows = []
 
     for chunk_start, chunk_end in day_range(start_date, end_date):
-        offset = 0
-        total_rows_for_chunk = 0
-        last_time_scope = None
+        try:
+            offset = 0
+            total_rows_for_chunk = 0
+            last_time_scope = None
 
-        while True:
-            payload = {
-                "importance[]": list(DEFAULT_IMPORTANCE),
-                "timeZone": DEFAULT_TIMEZONE_ID,
-                "timeFilter": "timeRemain",
-                "currentTab": "custom",
-                "dateFrom": chunk_start.strftime("%Y-%m-%d"),
-                "dateTo": chunk_end.strftime("%Y-%m-%d"),
-                "submitFilters": 1,
-                "limit_from": offset,
-            }
+            while True:
+                payload = {
+                    "importance[]": list(DEFAULT_IMPORTANCE),
+                    "timeZone": DEFAULT_TIMEZONE_ID,
+                    "timeFilter": "timeRemain",
+                    "currentTab": "custom",
+                    "dateFrom": chunk_start.strftime("%Y-%m-%d"),
+                    "dateTo": chunk_end.strftime("%Y-%m-%d"),
+                    "submitFilters": 1,
+                    "limit_from": offset,
+                }
 
-            if last_time_scope is not None:
-                payload["last_time_scope"] = last_time_scope
+                if last_time_scope is not None:
+                    payload["last_time_scope"] = last_time_scope
 
-            for attempt in range(3):
-                response = session.post(
-                    ECON_CALENDAR_ENDPOINT,
-                    headers=ECON_CALENDAR_HEADERS,
-                    data=payload,
-                    timeout=60,
+                response = _post_calendar_with_retries(
+                    session,
+                    payload,
+                    chunk_start=chunk_start,
+                    chunk_end=chunk_end,
                 )
-                if response.status_code == 200:
+
+                payload_json = response.json()
+                payload_headers, chunk_rows = parse_calendar_html(
+                    payload_json.get("data", "")
+                )
+
+                if not chunk_rows:
+                    if offset == 0:
+                        print(
+                            f"[INFO] No rows returned for {chunk_start:%Y-%m-%d} to "
+                            f"{chunk_end:%Y-%m-%d}."
+                        )
                     break
-                wait_time = 2**attempt
+
+                all_rows.extend(chunk_rows)
+                headers = payload_headers
+
+                rows_in_response = int(payload_json.get("rows_num", 0) or 0)
+                total_rows_for_chunk += rows_in_response
+                last_time_scope = payload_json.get("last_time_scope")
                 print(
-                    f"[WARNING] Calendar request failed with status {response.status_code}. "
-                    f"Retrying in {wait_time} seconds..."
-                )
-                time.sleep(wait_time)
-            else:
-                raise RuntimeError(
-                    f"Failed to fetch data for {chunk_start:%Y-%m-%d} to {chunk_end:%Y-%m-%d}"
+                    f"[INFO] Retrieved {len(chunk_rows)} rows for "
+                    f"{chunk_start:%Y-%m-%d} to {chunk_end:%Y-%m-%d} (offset={offset})."
                 )
 
-            payload_json = response.json()
-            payload_headers, chunk_rows = parse_calendar_html(
-                payload_json.get("data", "")
-            )
+                if (
+                    rows_in_response < ECON_CALENDAR_PAGE_SIZE
+                    or not payload_json.get("bind_scroll_handler", False)
+                    or last_time_scope is None
+                ):
+                    break
 
-            if not chunk_rows:
-                if offset == 0:
-                    print(
-                        f"[INFO] No rows returned for {chunk_start:%Y-%m-%d} to "
-                        f"{chunk_end:%Y-%m-%d}."
-                    )
-                break
+                offset += rows_in_response
+                time.sleep(ECON_CALENDAR_RETRY_DELAY)
 
-            all_rows.extend(chunk_rows)
-            headers = payload_headers
+            if total_rows_for_chunk == 0:
+                print(
+                    f"[INFO] No data accumulated for {chunk_start:%Y-%m-%d} to "
+                    f"{chunk_end:%Y-%m-%d}."
+                )
 
-            rows_in_response = int(payload_json.get("rows_num", 0) or 0)
-            total_rows_for_chunk += rows_in_response
-            last_time_scope = payload_json.get("last_time_scope")
-            print(
-                f"[INFO] Retrieved {len(chunk_rows)} rows for "
-                f"{chunk_start:%Y-%m-%d} to {chunk_end:%Y-%m-%d} (offset={offset})."
-            )
-
-            if (
-                rows_in_response < ECON_CALENDAR_PAGE_SIZE
-                or not payload_json.get("bind_scroll_handler", False)
-                or last_time_scope is None
-            ):
-                break
-
-            offset += rows_in_response
-            time.sleep(ECON_CALENDAR_RETRY_DELAY)
-
-        if total_rows_for_chunk == 0:
-            print(
-                f"[INFO] No data accumulated for {chunk_start:%Y-%m-%d} to "
-                f"{chunk_end:%Y-%m-%d}."
-            )
-
-        if DAY_REQUEST_DELAY > 0:
-            time.sleep(DAY_REQUEST_DELAY)
+            _sleep_day_delay()
+        except Exception as exc:
+            raise CalendarFetchError(
+                str(exc),
+                failed_start=chunk_start,
+                failed_end=chunk_end,
+                partial_headers=headers,
+                partial_rows=all_rows,
+            ) from exc
 
     return headers, all_rows
 
@@ -660,29 +843,47 @@ def main():
     """Main script steps using the HTTP calendar endpoint."""
     args = parse_args()
 
+    start_date, end_date = resolve_date_range(args)
+
+    print(
+        f"[INFO] Fetching economic calendar data from {start_date:%Y-%m-%d} "
+        f"to {end_date:%Y-%m-%d} via HTTP API."
+    )
+
     try:
-        start_date, end_date = resolve_date_range(args)
-
-        print(
-            f"[INFO] Fetching economic calendar data from {start_date:%Y-%m-%d} "
-            f"to {end_date:%Y-%m-%d} via HTTP API."
-        )
-
         headers, data = fetch_calendar_range(start_date, end_date)
+    except CalendarFetchError as exc:
+        print(f"[ERROR] {exc}")
+        if exc.partial_rows:
+            print(
+                f"[WARNING] Saving {len(exc.partial_rows)} rows fetched before "
+                f"failure at {exc.failed_start:%Y-%m-%d}..{exc.failed_end:%Y-%m-%d}."
+            )
+            save_data(
+                exc.partial_headers,
+                exc.partial_rows,
+                file_name="usd_calendar_month.xlsx",
+                source_url=CALENDAR_REFERER,
+            )
+        sys.exit(1)
+    except Exception as exc:
+        print(f"[ERROR] {exc}")
+        sys.exit(1)
 
-        if not data:
-            print("[WARNING] No data fetched. Skipping save operation.")
-            return
+    if not data:
+        print("[WARNING] No data fetched. Skipping save operation.")
+        return
 
+    try:
         save_data(
             headers,
             data,
             file_name="usd_calendar_month.xlsx",
             source_url=CALENDAR_REFERER,
         )
-
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    except Exception as exc:
+        print(f"[ERROR] Failed to save calendar data: {exc}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
