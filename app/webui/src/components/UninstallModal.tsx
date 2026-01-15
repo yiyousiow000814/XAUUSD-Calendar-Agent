@@ -71,7 +71,7 @@ export function UninstallModal({
               checked={settings.removeSyncRepos}
               onChange={(event) => onRemoveSyncRepos(event.target.checked)}
             />
-            <span className="toggle-label">Remove all sync repo folders</span>
+            <span className="toggle-label">Remove all temporary path folders</span>
           </label>
           <label className="field">
             <span>Type UNINSTALL to confirm</span>

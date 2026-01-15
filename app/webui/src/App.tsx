@@ -729,7 +729,7 @@ export default function App() {
           openSyncRepoWarningModal({
             mode: "startup",
             status: probe.status,
-            message: probe.message || "Sync repo needs confirmation",
+            message: probe.message || "Temporary Path needs confirmation",
             path: probe.path || startupSyncRepoPathRef.current || "",
             details: formatSyncRepoDetails(probe.details),
             canUseAsIs: Boolean(probe.canUseAsIs),
@@ -794,7 +794,7 @@ export default function App() {
     if (taskForThisPath) {
       setSyncRepoNote({
         tone: "info",
-        text: "Sync repo is cloning. Check Activity for progress."
+        text: "Temporary Path is being prepared. Check Activity for progress."
       });
       return;
     }
@@ -816,14 +816,14 @@ export default function App() {
         if (probe.status === "unsafe") {
           setSyncRepoNote({
             tone: "error",
-            text: probe.message || "Sync Repo path overlaps Main Path. Choose a separate folder."
+            text: probe.message || "Temporary Path overlaps Main Path. Choose a separate folder."
           });
           return;
         }
         if (probe.needsConfirmation) {
           setSyncRepoNote({
             tone: "warn",
-            text: "Action required: click Review to resolve Sync Repo."
+            text: "Action required: click Review to resolve Temporary Path."
           });
           return;
         }
@@ -1432,7 +1432,7 @@ export default function App() {
         openSyncRepoWarningModal({
           mode: "settings-close",
           status: probe.status,
-          message: probe.message || "Sync repo needs confirmation",
+          message: probe.message || "Temporary Path needs confirmation",
           path: probe.path || settings.syncRepoPath || "",
           details: formatSyncRepoDetails(probe.details),
           canUseAsIs: Boolean(probe.canUseAsIs),
@@ -1563,7 +1563,7 @@ export default function App() {
           openSyncRepoWarningModal({
             mode: "settings-close",
             status: probe.status,
-            message: probe.message || "Sync repo needs confirmation",
+            message: probe.message || "Temporary Path needs confirmation",
             path: probe.path || effectiveSyncRepoPath || "",
             details: formatSyncRepoDetails(probe.details),
             canUseAsIs: Boolean(probe.canUseAsIs),
@@ -1667,7 +1667,7 @@ export default function App() {
     const context = syncRepoWarningContext;
     const path = (context?.path || settings.syncRepoPath || "").trim();
     if (!context || !path) {
-      pushToast("error", "Sync repo path is empty");
+      pushToast("error", "Temporary Path is empty");
       return;
     }
     const writePath = async () => {
@@ -1700,7 +1700,7 @@ export default function App() {
     const context = syncRepoWarningContext;
     const path = (context?.path || settings.syncRepoPath || "").trim();
     if (!context || !path) {
-      pushToast("error", "Sync repo path is empty");
+      pushToast("error", "Temporary Path is empty");
       return;
     }
     const result = await backend.syncRepoUseAsIs(path);
@@ -1718,7 +1718,7 @@ export default function App() {
       const ok = await persistSettings({ ...settings, enableSyncRepo: true, syncRepoPath: path });
       if (!ok) return;
     }
-    pushToast("success", "Sync repo confirmed");
+    pushToast("success", "Temporary Path confirmed");
     await refresh();
     if (context.mode === "settings-close") {
       closeSettingsModal();
@@ -2141,7 +2141,7 @@ export default function App() {
         openSyncRepoWarningModal({
           mode: payload?.mode ?? "settings-close",
           status: payload?.status ?? "git-other",
-          message: payload?.message ?? "Sync repo needs confirmation",
+          message: payload?.message ?? "Temporary Path needs confirmation",
           path: payload?.path ?? "C:\\\\path\\\\to\\\\sync-repo",
           details: payload?.details,
           canUseAsIs: Boolean(payload?.canUseAsIs),
@@ -2307,7 +2307,7 @@ export default function App() {
         data-qa="qa:status:activity-count"
         aria-label={
           syncRepoDisplayActive
-            ? `Sync repo progress ${Math.round(syncRepoDisplayProgress * 100)}%`
+            ? `Temporary Path progress ${Math.round(syncRepoDisplayProgress * 100)}%`
             : "Activity count"
         }
       >
@@ -2536,24 +2536,24 @@ export default function App() {
         mode={syncRepoWarningContext?.mode ?? "settings-close"}
         title={
           syncRepoWarningContext?.status === "git-origin-mismatch"
-            ? "Sync Repo folder has a different git origin"
+            ? "Temporary Path folder has a different git origin"
           : syncRepoWarningContext?.status === "git-not-clean"
-              ? "Sync Repo folder contains local changes"
+              ? "Temporary Path folder contains local changes"
           : syncRepoWarningContext?.status === "git-not-main"
-              ? "Sync Repo folder is not on branch main"
+              ? "Temporary Path folder is not on branch main"
           : syncRepoWarningContext?.status === "git-verify-failed"
-              ? "Sync Repo could not be verified"
+              ? "Temporary Path could not be verified"
           : syncRepoWarningContext?.status === "non-git-nonempty"
-              ? "Sync Repo folder contains files"
+              ? "Temporary Path folder contains files"
               : syncRepoWarningContext?.status === "git-origin-missing"
-                ? "Sync Repo git origin is missing"
+                ? "Temporary Path git origin is missing"
                 : syncRepoWarningContext?.status === "git-unusable"
-                  ? "Sync Repo git metadata is not usable"
+                  ? "Temporary Path git metadata is not usable"
                   : syncRepoWarningContext?.status === "unsafe"
-                    ? "Sync Repo folder is unsafe"
-                    : "Confirm Sync Repo folder"
+                    ? "Temporary Path folder is unsafe"
+                    : "Confirm Temporary Path folder"
         }
-        message={syncRepoWarningContext?.message || "Sync repo needs confirmation"}
+        message={syncRepoWarningContext?.message || "Temporary Path needs confirmation"}
         path={syncRepoWarningContext?.path || ""}
         details={syncRepoWarningContext?.details}
         canUseAsIs={Boolean(syncRepoWarningContext?.canUseAsIs)}
@@ -2656,7 +2656,7 @@ export default function App() {
           {syncRepoDisplayActive ? (
             <div className="sync-repo-progress" data-qa="qa:sync-repo:progress">
               <div className="sync-repo-progress-header">
-                <div className="sync-repo-progress-title">Sync Repo</div>
+                <div className="sync-repo-progress-title">Temporary Path</div>
                 <div className="sync-repo-progress-percent">
                   {Math.round(Math.max(0, Math.min(1, syncRepoDisplayProgress)) * 100)}%
                 </div>

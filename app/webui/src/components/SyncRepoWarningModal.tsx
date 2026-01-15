@@ -47,7 +47,7 @@ export function SyncRepoWarningModal({
         data-qa="qa:modal:sync-repo-warning"
         role="dialog"
         aria-modal="true"
-        aria-label="Sync repo warning"
+        aria-label="Temporary path warning"
       >
         <div className="modal-header" data-qa="qa:modal-header:sync-repo-warning">
           <div className="sync-repo-warning-title">
@@ -75,7 +75,7 @@ export function SyncRepoWarningModal({
             </div>
           ) : null}
           <p className="sync-repo-warning-footer-note">
-            Reset only affects the Sync Repo folder and never touches Main Path.
+            Reset only affects the Temporary Path folder and never touches Main Path.
           </p>
         </div>
         <div className="modal-footer" data-qa="qa:modal-footer:sync-repo-warning">

@@ -411,7 +411,7 @@ export function SettingsModal({
               <div className="path-block" data-qa="qa:section:sync-repo">
               <div className="path-block-header">
                 <div>
-                  <div className="path-label">Sync Repo (Working Copy)</div>
+                  <div className="path-label">Temporary Path (Working Copy)</div>
                   {settings.enableSyncRepo ? (
                     <p className="path-helper">
                       Pull/sync happens here, so Main Path is never overwritten. Changes apply when you close Settings.
@@ -437,7 +437,7 @@ export function SettingsModal({
                     className="path-input"
                     type="text"
                     value={settings.syncRepoPath}
-                    placeholder="Select or paste a working copy path"
+                    placeholder="Select or paste a temporary path"
                     onChange={(event) => onSyncRepoChange(event.target.value)}
                     onBlur={onSyncRepoBlur}
                   />
@@ -456,7 +456,7 @@ export function SettingsModal({
                 </div>
               ) : (
                 <p className="path-note">
-                  Off by default. Turn it on only when you need a separate working copy.
+                  Off by default. Turn it on only when you need a temporary working copy.
                 </p>
                 )}
               {syncRepoNote?.text ? (
@@ -484,7 +484,7 @@ export function SettingsModal({
             </div>
             <div className="path-row path-card" data-qa="qa:path:output">
               <div>
-                <div className="path-label">Calendar output</div>
+                <div className="path-label">Sync Output (Calendar Output)</div>
                 <p className="path-helper">Sync targets this folder.</p>
                 <div className="path-input-row">
                   <input
