@@ -298,24 +298,38 @@ _load_env_from_text_file(
 )
 
 ECON_CALENDAR_ENDPOINT = os.getenv("CALENDAR_API_ENDPOINT", "").strip()
-if not ECON_CALENDAR_ENDPOINT:
-    raise SystemExit(
-        "Missing CALENDAR_API_ENDPOINT. Provide it via environment variable or "
-        "user-data/CALENDAR_API_ENDPOINT.txt."
-    )
-
 CALENDAR_REFERER = os.getenv("CALENDAR_REFERER", "").strip()
-if not CALENDAR_REFERER:
-    raise SystemExit(
-        "Missing CALENDAR_REFERER. Provide it via environment variable or "
-        "user-data/CALENDAR_REFERER.txt."
-    )
-ECON_CALENDAR_HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
-    "X-Requested-With": "XMLHttpRequest",
-    "Referer": CALENDAR_REFERER,
-}
+
+
+def _require_calendar_http_config() -> tuple[str, dict[str, str], str]:
+    """Return (endpoint, headers, referer) or raise with a clear message.
+
+    Tests import this module without provider secrets, so we validate lazily
+    right before issuing HTTP requests instead of at import time.
+    """
+    endpoint = os.getenv("CALENDAR_API_ENDPOINT", "").strip()
+    if not endpoint:
+        raise SystemExit(
+            "Missing CALENDAR_API_ENDPOINT. Provide it via environment variable or "
+            "user-data/CALENDAR_API_ENDPOINT.txt."
+        )
+
+    referer = os.getenv("CALENDAR_REFERER", "").strip()
+    if not referer:
+        raise SystemExit(
+            "Missing CALENDAR_REFERER. Provide it via environment variable or "
+            "user-data/CALENDAR_REFERER.txt."
+        )
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+        "X-Requested-With": "XMLHttpRequest",
+        "Referer": referer,
+    }
+    return endpoint, headers, referer
+
+
 DEFAULT_IMPORTANCE = (1, 2, 3)
 # Calendar provider timezone id for GMT+08:00 (Singapore/Kuala Lumpur). The value
 # can be overridden via the ``CALENDAR_TIMEZONE_ID`` environment variable.
@@ -1174,9 +1188,10 @@ def _post_calendar_with_retries(
             _log_http_stats(
                 f"POST {chunk_start:%Y-%m-%d}..{chunk_end:%Y-%m-%d} offset={payload.get('limit_from')} attempt={attempt + 1}",
             )
+            endpoint, headers, _ = _require_calendar_http_config()
             response = session.post(
-                ECON_CALENDAR_ENDPOINT,
-                headers=ECON_CALENDAR_HEADERS,
+                endpoint,
+                headers=headers,
                 data=payload,
                 timeout=60,
             )
@@ -1536,6 +1551,7 @@ def main():
         headers, data, pagination_refetch_days = fetch_calendar_range(
             start_date, end_date, session=session
         )
+        _, _, referer = _require_calendar_http_config()
         headers, data = _refetch_anomalous_days(
             session=session,
             start_date=start_date,
@@ -1547,6 +1563,7 @@ def main():
     except CalendarFetchError as exc:
         print(f"[ERROR] {exc}")
         if exc.partial_rows:
+            _, _, referer = _require_calendar_http_config()
             print(
                 f"[WARNING] Saving {len(exc.partial_rows)} rows fetched before "
                 f"failure at {exc.failed_start:%Y-%m-%d}..{exc.failed_end:%Y-%m-%d}."
@@ -1555,7 +1572,7 @@ def main():
                 exc.partial_headers,
                 exc.partial_rows,
                 file_name="usd_calendar_month.xlsx",
-                source_url=CALENDAR_REFERER,
+                source_url=referer,
                 prune_existing_in_range=False,
             )
         sys.exit(1)
@@ -1572,7 +1589,7 @@ def main():
             headers,
             data,
             file_name="usd_calendar_month.xlsx",
-            source_url=CALENDAR_REFERER,
+            source_url=referer,
             prune_existing_in_range=resolve_prune_existing_in_range(args),
         )
     except Exception as exc:
