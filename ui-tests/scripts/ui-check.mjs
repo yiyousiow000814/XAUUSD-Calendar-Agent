@@ -2813,7 +2813,7 @@ const main = async () => {
     });
     await page.evaluate(() => {
       if (!window.__ui_check__) return;
-      window.__ui_check__.motionScale = 2.0;
+      window.__ui_check__.motionScale = 1.0;
       window.__ui_check__.morphDelayMs = 0;
     });
     const activityFabLate = page.locator("[data-qa*='qa:action:activity-fab']").first();

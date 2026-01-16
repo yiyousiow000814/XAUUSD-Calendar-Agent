@@ -886,3 +886,26 @@
   border-color: rgba(18, 20, 26, 0.08);
   background: rgba(248, 249, 252, 0.55);
 }
+
+/* Desktop runtime: keep modals fully opaque (avoid seeing underlying UI text through). */
+:root[data-runtime="desktop"][data-theme="dark"] .modal,
+:root[data-runtime="desktop"][data-theme="dark"] .toast,
+:root[data-runtime="desktop"][data-theme="dark"] .diagnostics {
+  background: rgb(28, 34, 44);
+}
+
+:root[data-runtime="desktop"][data-theme="light"] .modal,
+:root[data-runtime="desktop"][data-theme="light"] .toast,
+:root[data-runtime="desktop"][data-theme="light"] .diagnostics {
+  background: rgb(255, 255, 255);
+}
+
+:root[data-runtime="desktop"][data-theme="dark"] .modal-header {
+  background: rgb(28, 34, 44);
+  background-image: none;
+}
+
+:root[data-runtime="desktop"][data-theme="light"] .modal-header {
+  background: rgb(255, 255, 255);
+  background-image: none;
+}
