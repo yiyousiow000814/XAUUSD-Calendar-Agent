@@ -1,4 +1,5 @@
 import argparse
+import collections
 import os
 import random
 import re
@@ -21,6 +22,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.calendar import calendar_processing as processing  # noqa: E402
+from scripts.calendar import calendar_pruning  # noqa: E402
 
 # Base folder to store generated artifacts under the repository's data directory
 BASE_DATA_DIR = REPO_ROOT / "data"
@@ -128,7 +130,76 @@ except ValueError:
     )
     DEFAULT_TIMEZONE_ID = 178
 ECON_CALENDAR_PAGE_SIZE = 200
-ECON_CALENDAR_RETRY_DELAY = 1
+_page_delay_min_raw = (os.getenv("CALENDAR_PAGE_DELAY_MIN_SECONDS") or "").strip()
+_page_delay_max_raw = (os.getenv("CALENDAR_PAGE_DELAY_MAX_SECONDS") or "").strip()
+_page_delay_raw = (os.getenv("CALENDAR_PAGE_DELAY_SECONDS") or "").strip()
+
+PAGE_DELAY_MIN_SECONDS = 5.0
+PAGE_DELAY_MAX_SECONDS = 7.0
+if _page_delay_min_raw or _page_delay_max_raw:
+    try:
+        PAGE_DELAY_MIN_SECONDS = float(_page_delay_min_raw or "5")
+        PAGE_DELAY_MAX_SECONDS = float(_page_delay_max_raw or "7")
+    except ValueError:
+        print(
+            f"[WARNING] Invalid CALENDAR_PAGE_DELAY_MIN_SECONDS/CALENDAR_PAGE_DELAY_MAX_SECONDS="
+            f"{_page_delay_min_raw!r}/{_page_delay_max_raw!r}; falling back to 5..7."
+        )
+        PAGE_DELAY_MIN_SECONDS = 5.0
+        PAGE_DELAY_MAX_SECONDS = 7.0
+elif _page_delay_raw:
+    # Backward compatible fixed delay.
+    try:
+        PAGE_DELAY_MIN_SECONDS = PAGE_DELAY_MAX_SECONDS = float(_page_delay_raw)
+    except ValueError:
+        print(
+            f"[WARNING] Invalid CALENDAR_PAGE_DELAY_SECONDS={_page_delay_raw!r}; "
+            "falling back to 5..7."
+        )
+        PAGE_DELAY_MIN_SECONDS = 5.0
+        PAGE_DELAY_MAX_SECONDS = 7.0
+
+PAGE_DELAY_MIN_SECONDS = max(0.0, min(PAGE_DELAY_MIN_SECONDS, PAGE_DELAY_MAX_SECONDS))
+PAGE_DELAY_MAX_SECONDS = max(PAGE_DELAY_MIN_SECONDS, PAGE_DELAY_MAX_SECONDS)
+
+_guard_ratio_raw = (os.getenv("CALENDAR_PRUNE_GUARD_RATIO") or "").strip()
+try:
+    PRUNE_GUARD_RATIO = float(_guard_ratio_raw or "0.6")
+except ValueError:
+    print(
+        f"[WARNING] Invalid CALENDAR_PRUNE_GUARD_RATIO={_guard_ratio_raw!r}; "
+        "falling back to 0.6."
+    )
+    PRUNE_GUARD_RATIO = 0.6
+
+_guard_min_raw = (os.getenv("CALENDAR_PRUNE_GUARD_MIN_NEW_NONHOLIDAY") or "").strip()
+try:
+    PRUNE_GUARD_MIN_NEW_NONHOLIDAY = int(_guard_min_raw or "5")
+except ValueError:
+    print(
+        f"[WARNING] Invalid CALENDAR_PRUNE_GUARD_MIN_NEW_NONHOLIDAY={_guard_min_raw!r}; "
+        "falling back to 5."
+    )
+    PRUNE_GUARD_MIN_NEW_NONHOLIDAY = 5
+
+_min_interval_raw = (os.getenv("CALENDAR_HTTP_MIN_INTERVAL_SECONDS") or "").strip()
+try:
+    HTTP_MIN_INTERVAL_SECONDS = float(_min_interval_raw or "0")
+except ValueError:
+    print(
+        f"[WARNING] Invalid CALENDAR_HTTP_MIN_INTERVAL_SECONDS={_min_interval_raw!r}; "
+        "falling back to 0."
+    )
+    HTTP_MIN_INTERVAL_SECONDS = 0.0
+
+HTTP_STATS_ENABLED = (os.getenv("CALENDAR_HTTP_STATS") or "").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
+_REQUEST_TIMES = collections.deque(maxlen=5000)  # monotonic seconds
+_LAST_REQUEST_AT: float | None = None
 _http_attempts_raw = (os.getenv("CALENDAR_HTTP_MAX_ATTEMPTS") or "").strip()
 try:
     HTTP_MAX_ATTEMPTS = int(_http_attempts_raw or "3")
@@ -222,6 +293,47 @@ def _sleep_request_jitter() -> None:
     if high <= 0:
         return
     time.sleep(random.uniform(low, high))
+
+
+def _sleep_min_interval() -> None:
+    if HTTP_MIN_INTERVAL_SECONDS <= 0:
+        return
+    now = time.monotonic()
+    if _LAST_REQUEST_AT is None:
+        return
+    elapsed = now - _LAST_REQUEST_AT
+    remaining = HTTP_MIN_INTERVAL_SECONDS - elapsed
+    if remaining > 0:
+        time.sleep(remaining)
+
+
+def _record_request() -> None:
+    global _LAST_REQUEST_AT
+    now = time.monotonic()
+    _LAST_REQUEST_AT = now
+    _REQUEST_TIMES.append(now)
+
+
+def _requests_in_last(seconds: int) -> int:
+    if seconds <= 0:
+        return 0
+    cutoff = time.monotonic() - float(seconds)
+    # Deque is ordered; count from left until cutoff.
+    count = 0
+    for ts in reversed(_REQUEST_TIMES):
+        if ts < cutoff:
+            break
+        count += 1
+    return count
+
+
+def _log_http_stats(prefix: str, *, status: int | None = None) -> None:
+    if not HTTP_STATS_ENABLED and status != 429:
+        return
+    last_60 = _requests_in_last(60)
+    last_300 = _requests_in_last(300)
+    extra = f" status={status}" if status is not None else ""
+    print(f"[HTTP] {prefix}: last_60s={last_60} last_5m={last_300}{extra}")
 
 
 def _sleep_day_delay() -> None:
@@ -352,6 +464,18 @@ def chunk_date_range(start_date: datetime, end_date: datetime, chunk_days: int):
     current = start_date
     while current <= end_date:
         chunk_end = min(end_date, current + timedelta(days=chunk_days - 1))
+        # Adaptive chunking: when a 4-day window is entirely weekdays, shrink it to
+        # 3 days to reduce the chance of hitting pagination (offset=200+) on busy
+        # weekday clusters while keeping overall request count reasonable.
+        if chunk_days == 4 and chunk_end > current:
+            days = (chunk_end - current).days + 1
+            if days == 4:
+                all_weekdays = all(
+                    (current + timedelta(days=delta)).weekday() < 5
+                    for delta in range(days)
+                )
+                if all_weekdays:
+                    chunk_end = chunk_end - timedelta(days=1)
         yield current, chunk_end
         current = chunk_end + timedelta(days=1)
 
@@ -723,6 +847,23 @@ def parse_args():
         type=int,
         help="End year (defaults to start year when omitted).",
     )
+    parser.add_argument(
+        "--prune-existing-in-range",
+        dest="prune_existing_in_range",
+        action="store_true",
+        help=(
+            "Treat the fetched date window as authoritative by pruning existing rows "
+            "inside the window before merging. A per-day guard prevents accidental "
+            "data loss when upstream results are incomplete."
+        ),
+    )
+    parser.add_argument(
+        "--no-prune-existing-in-range",
+        dest="prune_existing_in_range",
+        action="store_false",
+        help="Disable pruning existing rows inside the fetched date window.",
+    )
+    parser.set_defaults(prune_existing_in_range=None)
     return parser.parse_args()
 
 
@@ -829,7 +970,12 @@ def _post_calendar_with_retries(
     while True:
         last_status = None
         for attempt in range(HTTP_MAX_ATTEMPTS):
+            _sleep_min_interval()
             _sleep_request_jitter()
+            _record_request()
+            _log_http_stats(
+                f"POST {chunk_start:%Y-%m-%d}..{chunk_end:%Y-%m-%d} offset={payload.get('limit_from')} attempt={attempt + 1}",
+            )
             response = session.post(
                 ECON_CALENDAR_ENDPOINT,
                 headers=ECON_CALENDAR_HEADERS,
@@ -837,9 +983,17 @@ def _post_calendar_with_retries(
                 timeout=60,
             )
             if response.status_code == 200:
+                _log_http_stats(
+                    f"OK {chunk_start:%Y-%m-%d}..{chunk_end:%Y-%m-%d} offset={payload.get('limit_from')}",
+                    status=200,
+                )
                 return response
 
             last_status = response.status_code
+            _log_http_stats(
+                f"ERR {chunk_start:%Y-%m-%d}..{chunk_end:%Y-%m-%d} offset={payload.get('limit_from')}",
+                status=last_status,
+            )
             wait_time = 2**attempt
             print(
                 f"[WARNING] Calendar request failed with status {response.status_code}. "
@@ -886,13 +1040,15 @@ def fetch_calendar_range(start_date: datetime, end_date: datetime):
 
     _chunk_days_raw = (os.getenv("CALENDAR_RANGE_CHUNK_DAYS") or "").strip()
     try:
-        chunk_days = int(_chunk_days_raw or "14")
+        # Smaller chunks reduce pagination depth and lower the risk of partial windows
+        # under rate limits. Override via CALENDAR_RANGE_CHUNK_DAYS when needed.
+        chunk_days = int(_chunk_days_raw or "4")
     except ValueError:
         print(
             f"[WARNING] Invalid CALENDAR_RANGE_CHUNK_DAYS={_chunk_days_raw!r}; "
-            "falling back to 14."
+            "falling back to 4."
         )
-        chunk_days = 14
+        chunk_days = 4
 
     for chunk_start, chunk_end in chunk_date_range(start_date, end_date, chunk_days):
         try:
@@ -946,15 +1102,26 @@ def fetch_calendar_range(start_date: datetime, end_date: datetime):
                     f"{chunk_start:%Y-%m-%d} to {chunk_end:%Y-%m-%d} (offset={offset})."
                 )
 
-                if (
-                    rows_in_response < ECON_CALENDAR_PAGE_SIZE
-                    or not payload_json.get("bind_scroll_handler", False)
-                    or last_time_scope is None
-                ):
+                bind_scroll = bool(payload_json.get("bind_scroll_handler", False))
+                if rows_in_response < ECON_CALENDAR_PAGE_SIZE:
+                    if HTTP_STATS_ENABLED:
+                        print(
+                            f"[INFO] Paging stop: rows_num={rows_in_response} < {ECON_CALENDAR_PAGE_SIZE}"
+                        )
+                    break
+                if not bind_scroll:
+                    if HTTP_STATS_ENABLED:
+                        print("[INFO] Paging stop: bind_scroll_handler=false")
+                    break
+                if last_time_scope is None:
+                    if HTTP_STATS_ENABLED:
+                        print("[INFO] Paging stop: last_time_scope missing")
                     break
 
                 offset += rows_in_response
-                time.sleep(ECON_CALENDAR_RETRY_DELAY)
+                time.sleep(
+                    random.uniform(PAGE_DELAY_MIN_SECONDS, PAGE_DELAY_MAX_SECONDS)
+                )
 
             if total_rows_for_chunk == 0:
                 print(
@@ -1067,9 +1234,34 @@ def save_data(
             if year_dates.notna().any():
                 start_date = year_dates.min().strftime("%Y-%m-%d")
                 end_date = year_dates.max().strftime("%Y-%m-%d")
-                existing_df_merge = processing.prune_calendar_frame_by_date_range(
-                    existing_df_merge, start_date=start_date, end_date=end_date
+                # Guard against upstream/API anomalies: prune per-day only when
+                # the newly fetched window looks reasonably complete.
+                safe_prune_days, skipped_prune_days = (
+                    calendar_pruning.compute_safe_prune_days(
+                        existing_df_compare,
+                        year_df,
+                        start_date,
+                        end_date,
+                        guard_ratio=PRUNE_GUARD_RATIO,
+                        guard_min_new_nonholiday=PRUNE_GUARD_MIN_NEW_NONHOLIDAY,
+                    )
                 )
+                for day in sorted(skipped_prune_days):
+                    print(
+                        f"[WARNING] Skipping prune for {day}: {skipped_prune_days[day]}"
+                    )
+
+                if safe_prune_days:
+                    date_str = existing_df_merge.get("Date")
+                    if date_str is not None:
+                        before_rows = len(existing_df_merge)
+                        mask = date_str.fillna("").astype(str).isin(safe_prune_days)
+                        existing_df_merge = existing_df_merge.loc[~mask].copy()
+                        pruned_rows = before_rows - len(existing_df_merge)
+                        print(
+                            f"[INFO] Pruned {pruned_rows} existing rows inside "
+                            f"{start_date}..{end_date} (safe_days={len(safe_prune_days)})."
+                        )
 
         combined_df = processing.merge_calendar_frames(existing_df_merge, year_df)
 
@@ -1093,6 +1285,19 @@ def save_data(
         processing.write_calendar_outputs(combined_sorted, excel_path)
 
         print(f"[SUCCESS] Year {year} exports written to {excel_path.parent}")
+
+
+def resolve_prune_existing_in_range(args) -> bool:
+    """Resolve pruning toggle from args/env with a safe default."""
+    if getattr(args, "prune_existing_in_range", None) is not None:
+        return bool(args.prune_existing_in_range)
+    env_raw = (os.getenv("CALENDAR_PRUNE_EXISTING_IN_RANGE") or "").strip().lower()
+    if env_raw in {"0", "false", "no", "off"}:
+        return False
+    if env_raw in {"1", "true", "yes", "on"}:
+        return True
+    # Default: enabled, but protected by per-day prune guard.
+    return True
 
 
 def main():
@@ -1137,6 +1342,7 @@ def main():
             data,
             file_name="usd_calendar_month.xlsx",
             source_url=CALENDAR_REFERER,
+            prune_existing_in_range=resolve_prune_existing_in_range(args),
         )
     except Exception as exc:
         print(f"[ERROR] Failed to save calendar data: {exc}")
