@@ -47,6 +47,181 @@ def _sanitize_text_value(value: object) -> object:
     return cleaned
 
 
+def _rows_to_dataframe(headers: list[str], data: list[list[str]]) -> pd.DataFrame:
+    """Convert raw HTML-parsed rows into a normalized dated DataFrame."""
+    if not data:
+        return pd.DataFrame(columns=["Date", "Day", *headers])
+
+    frame_headers = ["Date", "Day"] + headers
+    processed_data: list[list[object]] = []
+    current_date: datetime | None = None
+    current_day: str | None = None
+
+    for row in data:
+        if (
+            len(row) > 0
+            and str(row[0]).strip()
+            and all(str(col).strip() == "" for col in row[1:])
+        ):
+            try:
+                date_candidate = str(row[0]).strip()
+                current_date = datetime.strptime(date_candidate, "%A, %B %d, %Y")
+                current_day = current_date.strftime("%A")
+            except ValueError:
+                current_date = None
+                current_day = None
+            continue
+
+        if current_date:
+            processed_data.append(
+                [current_date.strftime("%Y-%m-%d"), current_day] + row
+            )
+        else:
+            processed_data.append(["", ""] + row)
+
+    df = pd.DataFrame(processed_data, columns=frame_headers)
+    df.replace(["nan", "NaN", "None"], pd.NA, inplace=True)
+    df["Date_dt"] = pd.to_datetime(df["Date"], errors="coerce")
+    df = df.dropna(subset=["Date_dt"]).copy()
+    if df.empty:
+        return df
+
+    df["Day"] = df["Date_dt"].dt.strftime("%A")
+    df["Time"] = df["Time"].fillna("").astype(str).str.strip()
+    return df.drop(columns=["Date_dt"]).reset_index(drop=True)
+
+
+def _day_counts_for_compare(df: pd.DataFrame) -> tuple[dict[str, int], dict[str, int]]:
+    """Return (total_rows_by_day, non_holiday_rows_by_day) for df."""
+    if df.empty or "Date" not in df.columns:
+        return {}, {}
+
+    dates = df["Date"].fillna("").astype(str)
+    total = dates.value_counts().to_dict()  # type: ignore[call-arg]
+    total_counts = {str(k): int(v) for k, v in total.items()}
+
+    imp = df.get("Imp.", pd.Series([""] * len(df))).fillna("").astype(str)
+    non_holiday = imp.str.strip().str.lower().ne("holiday")
+    non_holiday_total = dates[non_holiday].value_counts().to_dict()  # type: ignore[call-arg]
+    non_holiday_counts = {str(k): int(v) for k, v in non_holiday_total.items()}
+
+    return total_counts, non_holiday_counts
+
+
+def _load_existing_year_dataframe(
+    year: int, expected_columns: list[str]
+) -> pd.DataFrame:
+    year_dir = CALENDAR_OUTPUT_DIR / str(year)
+    excel_path = year_dir / f"{year}_calendar.xlsx"
+    if not excel_path.exists():
+        return pd.DataFrame(columns=expected_columns)
+
+    existing_df = pd.read_excel(excel_path, sheet_name="Data")
+    for col in expected_columns:
+        if col not in existing_df.columns:
+            existing_df[col] = pd.NA
+    return existing_df[expected_columns].copy()
+
+
+def _refetch_anomalous_days(
+    *,
+    session: requests.Session,
+    start_date: datetime,
+    end_date: datetime,
+    headers: list[str],
+    data: list[list[str]],
+) -> tuple[list[str], list[list[str]]]:
+    """Refetch severe anomaly days (e.g., missing entire day) one day at a time.
+
+    This protects against pagination/rate-limit anomalies where the upstream API
+    returns an incomplete window but still responds with 200.
+    """
+    enabled = (os.getenv("CALENDAR_REFETCH_ANOMALIES") or "").strip().lower()
+    if enabled in {"0", "false", "no", "off"}:
+        return headers, data
+
+    max_days_raw = (os.getenv("CALENDAR_REFETCH_MAX_DAYS") or "").strip()
+    try:
+        max_days = int(max_days_raw or "5")
+    except ValueError:
+        max_days = 5
+
+    df_new = _rows_to_dataframe(headers, data)
+    if df_new.empty:
+        return headers, data
+    new_total, new_non_holiday = _day_counts_for_compare(df_new)
+
+    window_days = pd.date_range(start_date, end_date).strftime("%Y-%m-%d")
+    existing_frames: list[pd.DataFrame] = []
+    for year in sorted(set(pd.date_range(start_date, end_date).year.tolist())):
+        existing_frames.append(
+            _load_existing_year_dataframe(year, df_new.columns.tolist())
+        )
+    df_old = (
+        pd.concat(existing_frames, ignore_index=True, sort=False)
+        if existing_frames
+        else pd.DataFrame()
+    )
+    old_total, old_non_holiday = _day_counts_for_compare(df_old)
+
+    anomalies: list[str] = []
+    for day in window_days:
+        old_t = int(old_total.get(day, 0))
+        new_t = int(new_total.get(day, 0))
+        old_nh = int(old_non_holiday.get(day, 0))
+        new_nh = int(new_non_holiday.get(day, 0))
+
+        # Severe anomalies only: missing the entire day, or missing all non-holiday
+        # rows when we previously had non-holiday rows.
+        if old_t > 0 and new_t == 0:
+            anomalies.append(day)
+            continue
+        if old_nh > 0 and new_nh == 0:
+            anomalies.append(day)
+
+    anomalies = sorted(set(anomalies))
+    if not anomalies:
+        return headers, data
+
+    if max_days > 0:
+        anomalies = anomalies[:max_days]
+
+    print(
+        f"[WARNING] Detected {len(anomalies)} anomalous day(s) in the fetched window; "
+        "refetching each day individually."
+    )
+
+    combined_rows = list(data)
+    for idx, day in enumerate(anomalies, start=1):
+        day_dt = datetime.strptime(day, "%Y-%m-%d")
+        payload = {
+            "importance[]": list(DEFAULT_IMPORTANCE),
+            "timeZone": DEFAULT_TIMEZONE_ID,
+            "timeFilter": "timeRemain",
+            "currentTab": "custom",
+            "dateFrom": day,
+            "dateTo": day,
+            "submitFilters": 1,
+            "limit_from": 0,
+        }
+        response = _post_calendar_with_retries(
+            session, payload, chunk_start=day_dt, chunk_end=day_dt
+        )
+        payload_json = response.json()
+        payload_headers, day_rows = parse_calendar_html(payload_json.get("data", ""))
+        if day_rows:
+            combined_rows.extend(day_rows)
+            headers = payload_headers
+            print(f"[INFO] Refetched {len(day_rows)} rows for {day} (1-day retry).")
+        else:
+            print(f"[WARNING] 1-day retry returned no rows for {day}.")
+
+        if idx < len(anomalies):
+            time.sleep(random.uniform(PAGE_DELAY_MIN_SECONDS, PAGE_DELAY_MAX_SECONDS))
+
+    return headers, combined_rows
+
+
 def _load_dotenv(path: Path) -> None:
     if not path.exists():
         return
@@ -1032,9 +1207,12 @@ def _post_calendar_with_retries(
         )
 
 
-def fetch_calendar_range(start_date: datetime, end_date: datetime):
+def fetch_calendar_range(
+    start_date: datetime, end_date: datetime, *, session: requests.Session | None = None
+):
     """Fetch calendar data from the calendar provider without Selenium."""
-    session = requests.Session()
+    if session is None:
+        session = requests.Session()
     headers = ["Time", "Cur.", "Imp.", "Event", "Actual", "Forecast", "Previous"]
     all_rows = []
 
@@ -1312,7 +1490,15 @@ def main():
     )
 
     try:
-        headers, data = fetch_calendar_range(start_date, end_date)
+        session = requests.Session()
+        headers, data = fetch_calendar_range(start_date, end_date, session=session)
+        headers, data = _refetch_anomalous_days(
+            session=session,
+            start_date=start_date,
+            end_date=end_date,
+            headers=headers,
+            data=data,
+        )
     except CalendarFetchError as exc:
         print(f"[ERROR] {exc}")
         if exc.partial_rows:

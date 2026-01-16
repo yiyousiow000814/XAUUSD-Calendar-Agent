@@ -27,6 +27,7 @@ python scripts/calendar/economic_calendar_fetcher.py --start-date 2025-01-01 --e
 - 如遇 429，可通过设置 `CALENDAR_HTTP_MIN_INTERVAL_SECONDS`（例如 `2`）并增大翻页间隔（例如 `CALENDAR_PAGE_DELAY_MIN_SECONDS=5`、`CALENDAR_PAGE_DELAY_MAX_SECONDS=7`）来降低请求频率。
 - 如果仍出现“窗口不完整”，可调小单次抓取的 chunk 天数：`CALENDAR_RANGE_CHUNK_DAYS`（默认 `4`）。
 - 当 `CALENDAR_RANGE_CHUNK_DAYS=4` 时，若某个 4 天 chunk 全部是工作日（weekday），会自动缩成 3 天，以降低忙碌工作日导致的翻页深度与风险。
+- 若仍出现“某一天整天消失”等明显异常，可设置 `CALENDAR_REFETCH_ANOMALIES=1`，自动对异常日期逐日重试抓取。
 - 若要排查限流与翻页终止原因，可设置 `CALENDAR_HTTP_STATS=1` 输出请求速率统计与翻页停止原因。
 - 如需关闭窗口内 prune，可设置 `CALENDAR_PRUNE_EXISTING_IN_RANGE=0` 或传 `--no-prune-existing-in-range`。
 

@@ -33,6 +33,7 @@ Notes:
 - To reduce 429 rate limits, set `CALENDAR_HTTP_MIN_INTERVAL_SECONDS` (for example `2`) and increase the pagination delay (for example `CALENDAR_PAGE_DELAY_MIN_SECONDS=5` and `CALENDAR_PAGE_DELAY_MAX_SECONDS=7`).
 - If you still see incomplete windows, reduce the range chunk size via `CALENDAR_RANGE_CHUNK_DAYS` (default `4`).
 - When `CALENDAR_RANGE_CHUNK_DAYS=4`, the fetcher automatically shrinks an all-weekday 4-day chunk to 3 days to reduce pagination depth on busy weekday clusters.
+- If a fetched window still looks incomplete (for example a day disappears), enable `CALENDAR_REFETCH_ANOMALIES=1` to automatically retry missing days one at a time.
 - To troubleshoot rate limiting and paging, set `CALENDAR_HTTP_STATS=1` to print request rate stats and paging stop reasons.
 - To disable pruning, set `CALENDAR_PRUNE_EXISTING_IN_RANGE=0` or pass `--no-prune-existing-in-range`.
 
