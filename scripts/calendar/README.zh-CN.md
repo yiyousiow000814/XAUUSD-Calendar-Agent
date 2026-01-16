@@ -24,6 +24,8 @@ python scripts/calendar/economic_calendar_fetcher.py --start-date 2025-01-01 --e
 说明：
 - 默认会把新抓取的数据合并进现有导出，不会删除抓取区间内的旧记录。
 - JSON 会将缺失值统一规范为 `null`，减少反复抓取导致的无意义 diff。
+- 如遇 429，可通过设置 `CALENDAR_HTTP_MIN_INTERVAL_SECONDS`（例如 `2`）并/或增大 `CALENDAR_HTTP_JITTER_MIN_SECONDS` / `CALENDAR_HTTP_JITTER_MAX_SECONDS` 来降低请求频率。
+- 若要排查限流与翻页终止原因，可设置 `CALENDAR_HTTP_STATS=1` 输出请求速率统计与翻页停止原因。
 
 输出文件位于仓库根目录 `data/Economic_Calendar/<年份>/<年份>_calendar.(xlsx|csv|json)`。GitHub Actions 工作流也会调用同一脚本，确保远端 `data/` 始终保持最新。
 
