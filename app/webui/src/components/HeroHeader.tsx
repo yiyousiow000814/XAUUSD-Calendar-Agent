@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { Settings, Snapshot } from "../types";
 import "./HeroHeader.css";
+import { ActionButtons } from "./ActionButtons";
 
 type HeroHeaderProps = {
   snapshot: Snapshot;
@@ -149,48 +150,14 @@ export function HeroHeader({
             Economic calendar sync, pull automation, and mirror delivery.
           </p>
           <div className="hero-cta" data-qa="qa:toolbar:header">
-            <button
-              className="btn primary"
-              onClick={onPull}
-              disabled={connecting || pullState === "loading"}
-              data-qa="qa:action:pull qa:action:async"
-              data-qa-state={pullState}
-            >
-              <span className="btn-label">
-                {pullState === "loading" ? (
-                  <>
-                  <span className="spinner accent" data-qa="qa:spinner:pull" /> Pulling...
-                  </>
-                ) : pullState === "success" ? (
-                  "Pulled"
-                ) : pullState === "error" ? (
-                  "Pull failed"
-                ) : (
-                  "Pull Now"
-                )}
-              </span>
-            </button>
-            <button
-              className="btn"
-              onClick={onSync}
-              disabled={connecting || syncState === "loading"}
-              data-qa="qa:action:sync qa:action:async"
-              data-qa-state={syncState}
-            >
-              <span className="btn-label">
-                {syncState === "loading" ? (
-                  <>
-                  <span className="spinner accent" data-qa="qa:spinner:sync" /> Syncing...
-                  </>
-                ) : syncState === "success" ? (
-                  "Synced"
-                ) : syncState === "error" ? (
-                  "Sync failed"
-                ) : (
-                  "Sync Now"
-                )}
-              </span>
-            </button>
+            <ActionButtons
+              variant="hero"
+              connecting={connecting}
+              pullState={pullState}
+              syncState={syncState}
+              onPull={onPull}
+              onSync={onSync}
+            />
             <button
               className={`pill-link${outputDir ? "" : " attention"}`}
               onClick={onOpenPaths}
