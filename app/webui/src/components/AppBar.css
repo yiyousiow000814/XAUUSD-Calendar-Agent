@@ -10,8 +10,8 @@
   background: var(--appbar-bg);
   border: 1px solid var(--panel-border);
   box-shadow: 0 22px 60px var(--appbar-shadow-outer), inset 0 0 0 1px var(--panel-inner);
-  backdrop-filter: blur(14px) saturate(1.25);
-  -webkit-backdrop-filter: blur(14px) saturate(1.25);
+  backdrop-filter: var(--ui-backdrop-appbar);
+  -webkit-backdrop-filter: var(--ui-backdrop-appbar);
   position: sticky;
   top: 0;
   z-index: 50;

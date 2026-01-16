@@ -2,7 +2,8 @@
   position: fixed;
   inset: 0;
   background: rgba(5, 7, 10, 0.72);
-  backdrop-filter: blur(0);
+  backdrop-filter: var(--ui-backdrop-modal-closed);
+  -webkit-backdrop-filter: var(--ui-backdrop-modal-closed);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -20,7 +21,8 @@
 
 .modal-backdrop.open {
   opacity: 1;
-  backdrop-filter: blur(12px);
+  backdrop-filter: var(--ui-backdrop-modal-open);
+  -webkit-backdrop-filter: var(--ui-backdrop-modal-open);
 }
 
 .modal-backdrop.closing {
@@ -81,7 +83,8 @@
     rgba(24, 30, 40, 0.24) 65%,
     rgba(24, 30, 40, 0) 100%
   );
-  backdrop-filter: blur(12px);
+  backdrop-filter: var(--ui-backdrop-modal-header);
+  -webkit-backdrop-filter: var(--ui-backdrop-modal-header);
   z-index: 1;
 }
 
@@ -864,7 +867,8 @@
     rgba(248, 249, 252, 0.14) 68%,
     rgba(248, 249, 252, 0) 100%
   );
-  backdrop-filter: blur(12px);
+  backdrop-filter: var(--ui-backdrop-modal-header);
+  -webkit-backdrop-filter: var(--ui-backdrop-modal-header);
 }
 
 [data-theme="light"] .log-path code {

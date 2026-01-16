@@ -19,6 +19,7 @@ import {
   assertSearchInputVisibility,
   assertHistoryScrollable,
   assertNoPageScroll,
+  assertDesktopCrispMode,
   assertHasTransition,
   assertModalHeaderBlend,
   assertModalScroll,
@@ -514,6 +515,14 @@ const assertBackdropBlurred = async (page, selector, label) => {
     const style = window.getComputedStyle(el);
     return style.backdropFilter || style.webkitBackdropFilter || "";
   });
+  const runtime = await page.evaluate(() => document.documentElement.dataset.runtime || "");
+  if (runtime === "desktop") {
+    // Desktop mode disables backdrop-filter to keep text crisp and avoid moire artifacts.
+    if (blur && blur !== "none") {
+      throw new Error(`${label} should not be blurred in desktop mode (backdropFilter=${JSON.stringify(blur)})`);
+    }
+    return;
+  }
   if (!blur || blur === "none" || !blur.includes("blur(")) {
     throw new Error(`${label} is not blurred (backdropFilter=${JSON.stringify(blur)})`);
   }
@@ -1526,6 +1535,7 @@ const main = async () => {
     }
 
     await runCheck(theme.key, "Theme icon semantics", () => assertThemeIcons(page, theme.key));
+    await runCheck(theme.key, "Desktop crisp mode", () => assertDesktopCrispMode(page));
     await runCheck(theme.key, "Text contrast", () => assertContrast(page));
     await runCheck(theme.key, "Select visibility", () => assertSelectVisibility(page));
     await runCheck(theme.key, "CTA baseline alignment", () =>
