@@ -58,7 +58,19 @@ def compute_safe_prune_days(
                 safe_prune_days.add(day)
             continue
 
-        min_expected = max(int(old_n * guard_ratio), guard_min_new_nonholiday)
+        # If the new window has at least as many non-holiday rows as the existing
+        # exports for this day, treat it as safe regardless of the global floor.
+        # This avoids surprising skips when `old_n < guard_min_new_nonholiday`.
+        if new_n >= old_n:
+            safe_prune_days.add(day)
+            continue
+
+        # For small historical counts, the absolute floor should not exceed the
+        # historical baseline; otherwise a day can never be "safe" unless the
+        # upstream adds extra rows.
+        min_expected = max(
+            int(old_n * guard_ratio), min(guard_min_new_nonholiday, old_n)
+        )
         if new_n < min_expected:
             skipped[day] = (
                 f"new_non_holiday={new_n} < expected_min={min_expected} "
