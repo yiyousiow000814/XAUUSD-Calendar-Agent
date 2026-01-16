@@ -30,8 +30,9 @@ python scripts/calendar/economic_calendar_fetcher.py --start-date 2025-01-01 --e
 Notes:
 - By default, the fetcher merges new rows into existing exports without deleting existing rows inside the date window.
 - JSON exports normalize missing values to `null` to keep diffs stable across runs.
-- To reduce 429 rate limits, set `CALENDAR_HTTP_MIN_INTERVAL_SECONDS` (for example `2`) and/or increase `CALENDAR_HTTP_JITTER_MIN_SECONDS` / `CALENDAR_HTTP_JITTER_MAX_SECONDS`.
+- To reduce 429 rate limits, set `CALENDAR_HTTP_MIN_INTERVAL_SECONDS` (for example `2`) and increase the pagination delay (for example `CALENDAR_PAGE_DELAY_MIN_SECONDS=5` and `CALENDAR_PAGE_DELAY_MAX_SECONDS=7`).
 - To troubleshoot rate limiting and paging, set `CALENDAR_HTTP_STATS=1` to print request rate stats and paging stop reasons.
+- If you enable pruning inside the date window, the prune guard (`CALENDAR_PRUNE_GUARD_RATIO`, `CALENDAR_PRUNE_GUARD_MIN_NEW_NONHOLIDAY`) prevents accidental data loss when upstream results are incomplete.
 
 Outputs are written to:
 - `data/Economic_Calendar/<year>/<year>_calendar.json`

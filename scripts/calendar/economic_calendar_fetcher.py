@@ -129,15 +129,57 @@ except ValueError:
     )
     DEFAULT_TIMEZONE_ID = 178
 ECON_CALENDAR_PAGE_SIZE = 200
+_page_delay_min_raw = (os.getenv("CALENDAR_PAGE_DELAY_MIN_SECONDS") or "").strip()
+_page_delay_max_raw = (os.getenv("CALENDAR_PAGE_DELAY_MAX_SECONDS") or "").strip()
 _page_delay_raw = (os.getenv("CALENDAR_PAGE_DELAY_SECONDS") or "").strip()
+
+PAGE_DELAY_MIN_SECONDS = 5.0
+PAGE_DELAY_MAX_SECONDS = 7.0
+if _page_delay_min_raw or _page_delay_max_raw:
+    try:
+        PAGE_DELAY_MIN_SECONDS = float(_page_delay_min_raw or "5")
+        PAGE_DELAY_MAX_SECONDS = float(_page_delay_max_raw or "7")
+    except ValueError:
+        print(
+            f"[WARNING] Invalid CALENDAR_PAGE_DELAY_MIN_SECONDS/CALENDAR_PAGE_DELAY_MAX_SECONDS="
+            f"{_page_delay_min_raw!r}/{_page_delay_max_raw!r}; falling back to 5..7."
+        )
+        PAGE_DELAY_MIN_SECONDS = 5.0
+        PAGE_DELAY_MAX_SECONDS = 7.0
+elif _page_delay_raw:
+    # Backward compatible fixed delay.
+    try:
+        PAGE_DELAY_MIN_SECONDS = PAGE_DELAY_MAX_SECONDS = float(_page_delay_raw)
+    except ValueError:
+        print(
+            f"[WARNING] Invalid CALENDAR_PAGE_DELAY_SECONDS={_page_delay_raw!r}; "
+            "falling back to 5..7."
+        )
+        PAGE_DELAY_MIN_SECONDS = 5.0
+        PAGE_DELAY_MAX_SECONDS = 7.0
+
+PAGE_DELAY_MIN_SECONDS = max(0.0, min(PAGE_DELAY_MIN_SECONDS, PAGE_DELAY_MAX_SECONDS))
+PAGE_DELAY_MAX_SECONDS = max(PAGE_DELAY_MIN_SECONDS, PAGE_DELAY_MAX_SECONDS)
+
+_guard_ratio_raw = (os.getenv("CALENDAR_PRUNE_GUARD_RATIO") or "").strip()
 try:
-    ECON_CALENDAR_RETRY_DELAY = float(_page_delay_raw or "1")
+    PRUNE_GUARD_RATIO = float(_guard_ratio_raw or "0.6")
 except ValueError:
     print(
-        f"[WARNING] Invalid CALENDAR_PAGE_DELAY_SECONDS={_page_delay_raw!r}; "
-        "falling back to 1."
+        f"[WARNING] Invalid CALENDAR_PRUNE_GUARD_RATIO={_guard_ratio_raw!r}; "
+        "falling back to 0.6."
     )
-    ECON_CALENDAR_RETRY_DELAY = 1.0
+    PRUNE_GUARD_RATIO = 0.6
+
+_guard_min_raw = (os.getenv("CALENDAR_PRUNE_GUARD_MIN_NEW_NONHOLIDAY") or "").strip()
+try:
+    PRUNE_GUARD_MIN_NEW_NONHOLIDAY = int(_guard_min_raw or "5")
+except ValueError:
+    print(
+        f"[WARNING] Invalid CALENDAR_PRUNE_GUARD_MIN_NEW_NONHOLIDAY={_guard_min_raw!r}; "
+        "falling back to 5."
+    )
+    PRUNE_GUARD_MIN_NEW_NONHOLIDAY = 5
 
 _min_interval_raw = (os.getenv("CALENDAR_HTTP_MIN_INTERVAL_SECONDS") or "").strip()
 try:
@@ -1045,7 +1087,9 @@ def fetch_calendar_range(start_date: datetime, end_date: datetime):
                     break
 
                 offset += rows_in_response
-                time.sleep(ECON_CALENDAR_RETRY_DELAY)
+                time.sleep(
+                    random.uniform(PAGE_DELAY_MIN_SECONDS, PAGE_DELAY_MAX_SECONDS)
+                )
 
             if total_rows_for_chunk == 0:
                 print(
@@ -1158,9 +1202,54 @@ def save_data(
             if year_dates.notna().any():
                 start_date = year_dates.min().strftime("%Y-%m-%d")
                 end_date = year_dates.max().strftime("%Y-%m-%d")
-                existing_df_merge = processing.prune_calendar_frame_by_date_range(
-                    existing_df_merge, start_date=start_date, end_date=end_date
-                )
+                # Guard against upstream/API anomalies: prune per-day only when
+                # the newly fetched window looks reasonably complete.
+                window_days = pd.date_range(start_date, end_date).strftime("%Y-%m-%d")
+                existing_days = existing_df_compare.copy()
+                new_days = year_df.copy()
+
+                def non_holiday_counts(frame: pd.DataFrame) -> dict[str, int]:
+                    if frame.empty or "Date" not in frame.columns:
+                        return {}
+                    dates = frame["Date"].fillna("").astype(str)
+                    imp = (
+                        frame.get("Imp.", pd.Series([""] * len(frame)))
+                        .fillna("")
+                        .astype(str)
+                    )
+                    non_holiday = imp.str.strip().str.lower().ne("holiday")
+                    counts = (
+                        dates[non_holiday].value_counts().to_dict()  # type: ignore[call-arg]
+                    )
+                    return {str(k): int(v) for k, v in counts.items()}
+
+                old_counts = non_holiday_counts(existing_days)
+                new_counts = non_holiday_counts(new_days)
+
+                safe_prune_days: set[str] = set()
+                for day in window_days:
+                    old_n = int(old_counts.get(day, 0))
+                    new_n = int(new_counts.get(day, 0))
+                    if old_n <= 0:
+                        safe_prune_days.add(day)
+                        continue
+                    min_expected = max(
+                        int(old_n * PRUNE_GUARD_RATIO), PRUNE_GUARD_MIN_NEW_NONHOLIDAY
+                    )
+                    if new_n < min_expected:
+                        print(
+                            f"[WARNING] Skipping prune for {day}: "
+                            f"new_non_holiday={new_n} < expected_min={min_expected} "
+                            f"(old_non_holiday={old_n})."
+                        )
+                        continue
+                    safe_prune_days.add(day)
+
+                if safe_prune_days:
+                    date_str = existing_df_merge.get("Date")
+                    if date_str is not None:
+                        mask = date_str.fillna("").astype(str).isin(safe_prune_days)
+                        existing_df_merge = existing_df_merge.loc[~mask].copy()
 
         combined_df = processing.merge_calendar_frames(existing_df_merge, year_df)
 
