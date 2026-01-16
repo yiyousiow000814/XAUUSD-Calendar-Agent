@@ -168,14 +168,15 @@ export function HeroHeader({
               <span className="btn-label">
                 {pullState === "loading" ? (
                   <>
-                    <span className="spinner accent" data-qa="qa:spinner:pull" /> Pulling...
+                    <span className="spinner accent" data-qa="qa:spinner:pull" />
+                    <span className="btn-label-text">Pulling...</span>
                   </>
                 ) : pullState === "success" ? (
-                  "Pulled"
+                  <span className="btn-label-text">Pulled</span>
                 ) : pullState === "error" ? (
-                  "Pull failed"
+                  <span className="btn-label-text">Pull failed</span>
                 ) : (
-                  "Pull Now"
+                  <span className="btn-label-text">Pull Now</span>
                 )}
               </span>
             </button>
@@ -190,14 +191,15 @@ export function HeroHeader({
               <span className="btn-label">
                 {syncState === "loading" ? (
                   <>
-                    <span className="spinner accent" data-qa="qa:spinner:sync" /> Syncing...
+                    <span className="spinner accent" data-qa="qa:spinner:sync" />
+                    <span className="btn-label-text">Syncing...</span>
                   </>
                 ) : syncState === "success" ? (
-                  "Synced"
+                  <span className="btn-label-text">Synced</span>
                 ) : syncState === "error" ? (
-                  "Sync failed"
+                  <span className="btn-label-text">Sync failed</span>
                 ) : (
-                  "Sync Now"
+                  <span className="btn-label-text">Sync Now</span>
                 )}
               </span>
             </button>
