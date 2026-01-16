@@ -24,19 +24,11 @@ export function useAutoWidthTransition<T extends HTMLElement>(
     }
     element.style.width = "";
 
-    const prefersReducedMotion =
-      typeof window !== "undefined" &&
-      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    const isPyWebviewApp =
-      typeof navigator !== "undefined" && navigator.userAgent.includes("XAUUSDCalendar/");
-    const effectiveReducedMotion = prefersReducedMotion && !isPyWebviewApp;
-
     const nextWidth = element.getBoundingClientRect().width;
     const previousWidth = previousWidthRef.current;
     previousWidthRef.current = nextWidth;
 
     if (
-      effectiveReducedMotion ||
       previousWidth === null ||
       Math.abs(previousWidth - nextWidth) < 0.5
     ) {
