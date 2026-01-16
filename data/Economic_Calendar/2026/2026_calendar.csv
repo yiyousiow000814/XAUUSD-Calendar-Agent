@@ -1256,9 +1256,10 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-16,Friday,22:15,USD,Low,Manufacturing Production (MoM)  (Dec),,-0.2%,0.0%
 2026-01-16,Friday,22:15,USD,Medium,Industrial Production (MoM)  (Dec),,0.1%,0.2%
 2026-01-16,Friday,22:15,USD,Medium,Industrial Production (YoY)  (Dec),,,2.52%
+2026-01-16,Friday,23:00,PEN,Low,Trade Balance  (Nov),,,"4,233M"
 2026-01-16,Friday,23:00,USD,Low,NAHB Housing Market Index  (Jan),,40,39
-2026-01-17,Saturday,00:00,RUB,Medium,CPI (MoM)  (Dec),,,0.4%
-2026-01-17,Saturday,00:00,RUB,Medium,CPI (YoY)  (Dec),,,6.6%
+2026-01-17,Saturday,00:00,RUB,Medium,CPI (MoM)  (Dec),,0.5%,0.4%
+2026-01-17,Saturday,00:00,RUB,Medium,CPI (YoY)  (Dec),,5.8%,6.6%
 2026-01-17,Saturday,00:00,USD,Medium,FOMC Member Bowman Speaks,,,
 2026-01-17,Saturday,02:00,USD,Medium,U.S. Baker Hughes Oil Rig Count,,,409
 2026-01-17,Saturday,02:00,USD,Medium,U.S. Baker Hughes Total Rig Count,,,542

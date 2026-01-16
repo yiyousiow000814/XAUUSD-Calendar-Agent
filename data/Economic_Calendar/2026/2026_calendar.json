@@ -13830,6 +13830,17 @@
         "Date":"2026-01-16",
         "Day":"Friday",
         "Time":"23:00",
+        "Cur.":"PEN",
+        "Imp.":"Low",
+        "Event":"Trade Balance  (Nov)",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"4,233M"
+    },
+    {
+        "Date":"2026-01-16",
+        "Day":"Friday",
+        "Time":"23:00",
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"NAHB Housing Market Index  (Jan)",
@@ -13845,7 +13856,7 @@
         "Imp.":"Medium",
         "Event":"CPI (MoM)  (Dec)",
         "Actual":null,
-        "Forecast":null,
+        "Forecast":"0.5%",
         "Previous":"0.4%"
     },
     {
@@ -13856,7 +13867,7 @@
         "Imp.":"Medium",
         "Event":"CPI (YoY)  (Dec)",
         "Actual":null,
-        "Forecast":null,
+        "Forecast":"5.8%",
         "Previous":"6.6%"
     },
     {
