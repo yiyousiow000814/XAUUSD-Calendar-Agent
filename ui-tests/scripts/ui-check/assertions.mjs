@@ -413,15 +413,38 @@ export const assertHistoryNoOverflow = async (page) => {
 
 export const assertModalHeaderBlend = async (page) => {
   const result = await page.evaluate(() => {
+    const parseRgba = (value) => {
+      const match = String(value || "").match(/rgba?\\(([^)]+)\\)/);
+      if (!match) return null;
+      const parts = match[1].split(",").map((p) => p.trim());
+      const r = Number(parts[0]);
+      const g = Number(parts[1]);
+      const b = Number(parts[2]);
+      const a = parts[3] ? Number(parts[3]) : 1;
+      if (![r, g, b, a].every((n) => Number.isFinite(n))) return null;
+      return { r, g, b, a };
+    };
+
     const header = document.querySelector(".modal-header");
     const body = document.querySelector(".modal-body");
-    if (!header || !body) return { ok: false, reason: "modal header missing" };
+    const modal = header?.closest(".modal") || document.querySelector(".modal");
+    if (!header || !body || !modal) return { ok: false, reason: "modal header missing" };
+
     const headerStyle = window.getComputedStyle(header);
     const bodyStyle = window.getComputedStyle(body);
+    const modalStyle = window.getComputedStyle(modal);
+
     return {
       ok: true,
-      bg: headerStyle.backgroundColor,
-      bgImage: headerStyle.backgroundImage,
+      theme: document.documentElement?.getAttribute("data-theme") || "",
+      headerBg: headerStyle.backgroundColor,
+      headerBgImage: headerStyle.backgroundImage,
+      modalBg: modalStyle.backgroundColor,
+      modalBgImage: modalStyle.backgroundImage,
+      bodyBg: bodyStyle.backgroundColor,
+      headerBgParsed: parseRgba(headerStyle.backgroundColor),
+      modalBgParsed: parseRgba(modalStyle.backgroundColor),
+      bodyBgParsed: parseRgba(bodyStyle.backgroundColor),
       headerPad: parseFloat(headerStyle.paddingLeft || "0"),
       bodyPad: parseFloat(bodyStyle.paddingLeft || "0")
     };
@@ -429,19 +452,34 @@ export const assertModalHeaderBlend = async (page) => {
   if (!result.ok) {
     throw new Error(result.reason);
   }
-  const match = result.bg.match(/rgba?\\(([^)]+)\\)/);
-  if (match && result.bgImage === "none") {
-    const parts = match[1].split(",").map((p) => p.trim());
-    const [r, g, b, a] = [
-      Number(parts[0]),
-      Number(parts[1]),
-      Number(parts[2]),
-      parts[3] ? Number(parts[3]) : 1
-    ];
-    if (a >= 0.95 && r >= 245 && g >= 245 && b >= 245) {
-      throw new Error("Modal header uses solid white background");
+
+  // Dark theme intentionally uses a header gradient. Light theme must be a single,
+  // uniform surface (header == body == modal) to avoid a visible two-tone strip.
+  if (result.modalBgImage && result.modalBgImage !== "none") {
+    throw new Error(`Modal background image must be none (got=${result.modalBgImage})`);
+  }
+
+  if (result.theme === "light") {
+    if (result.headerBgImage && result.headerBgImage !== "none") {
+      throw new Error(`Modal header background image must be none in light theme (got=${result.headerBgImage})`);
+    }
+    if (result.modalBg !== result.headerBg) {
+      throw new Error(`Modal header background mismatch (header=${result.headerBg}, modal=${result.modalBg})`);
+    }
+    if (result.bodyBg !== result.headerBg) {
+      throw new Error(`Modal body background mismatch (header=${result.headerBg}, body=${result.bodyBg})`);
+    }
+    if (result.headerBgParsed && result.headerBgParsed.a < 0.999) {
+      throw new Error(`Modal header background must be opaque (alpha=${result.headerBgParsed.a})`);
+    }
+    if (result.modalBgParsed && result.modalBgParsed.a < 0.999) {
+      throw new Error(`Modal background must be opaque (alpha=${result.modalBgParsed.a})`);
+    }
+    if (result.bodyBgParsed && result.bodyBgParsed.a < 0.999) {
+      throw new Error(`Modal body background must be opaque (alpha=${result.bodyBgParsed.a})`);
     }
   }
+
   if (Math.abs(result.headerPad - result.bodyPad) > 1) {
     throw new Error("Modal header padding not aligned with body grid");
   }

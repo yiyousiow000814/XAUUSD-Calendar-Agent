@@ -207,9 +207,13 @@ def main() -> None:
         raise FileNotFoundError(f"UI not found: {index_path}")
 
     icon_path = get_asset_path(APP_ICON)
+
+    # WebView2 can cache file:// resources (including CSS) across app upgrades if the URL stays constant.
+    # Bust the cache using the bundled index.html mtime so UI updates always take effect after reinstall.
+    ui_cache_bust = int(index_path.stat().st_mtime)
     window = webview.create_window(
         APP_TITLE,
-        url=index_path.as_uri(),
+        url=f"{index_path.as_uri()}?v={ui_cache_bust}",
         width=1440,
         height=900,
         min_size=(1200, 760),

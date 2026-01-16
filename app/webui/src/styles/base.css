@@ -737,22 +737,6 @@
       --grid var(--theme-duration) var(--theme-ease);
 }
 
-:root.theme-transition * {
-  transition-property: background-color, background, color, border-color, box-shadow,
-    text-decoration-color, fill, stroke, outline-color, opacity, transform, filter,
-    backdrop-filter;
-  transition-duration: var(--theme-duration) !important;
-  transition-timing-function: var(--theme-ease) !important;
-  transition-delay: 0ms !important;
-}
-
-:root.theme-transition *::before,
-:root.theme-transition *::after {
-  transition-duration: var(--theme-duration) !important;
-  transition-timing-function: var(--theme-ease) !important;
-  transition-delay: 0ms !important;
-}
-
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: var(--theme-duration);

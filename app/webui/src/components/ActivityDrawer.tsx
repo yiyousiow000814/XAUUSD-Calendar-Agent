@@ -69,21 +69,24 @@ export function ActivityDrawer({
       window.setTimeout(() => callback(), 0);
     };
 
-    const uiCheck = (window as any).__ui_check__ as
-      | { motionScale?: number; morphDelayMs?: number }
-      | undefined;
+    const uiCheckRuntime =
+      typeof window !== "undefined" && (window as { __UI_CHECK_RUNTIME__?: boolean }).__UI_CHECK_RUNTIME__ === true;
+    const uiCheck = uiCheckRuntime
+      ? ((window as { __ui_check__?: { motionScale?: number; morphDelayMs?: number } }).__ui_check__ ?? undefined)
+      : undefined;
     const motionScale =
-      typeof uiCheck?.motionScale === "number" && Number.isFinite(uiCheck.motionScale)
+      uiCheckRuntime && typeof uiCheck?.motionScale === "number" && Number.isFinite(uiCheck.motionScale)
         ? Math.max(0.2, uiCheck.motionScale)
         : 1;
     const morphDelayMs =
-      typeof uiCheck?.morphDelayMs === "number" && Number.isFinite(uiCheck.morphDelayMs)
+      uiCheckRuntime && typeof uiCheck?.morphDelayMs === "number" && Number.isFinite(uiCheck.morphDelayMs)
         ? Math.max(0, uiCheck.morphDelayMs)
         : 0;
 
+    // Default motion targets: desktop should feel snappy.
     const baseMotion = prefersReducedMotion
-      ? { openMs: 260, closeMs: 260, overshoot: 1.02 }
-      : { openMs: 600, closeMs: 520, overshoot: 1.12 };
+      ? { openMs: 220, closeMs: 220, overshoot: 1.02 }
+      : { openMs: 420, closeMs: 360, overshoot: 1.1 };
 
     const motion = {
       openMs: Math.round(baseMotion.openMs * motionScale),

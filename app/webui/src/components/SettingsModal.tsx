@@ -120,6 +120,32 @@ export function SettingsModal({
 }: SettingsModalProps) {
   if (!isOpen) return null;
 
+  const uiDebug = useMemo(() => {
+    try {
+      const script = document.querySelector("script[type='module'][src*='assets/index-']") as
+        | HTMLScriptElement
+        | null;
+      const css = document.querySelector("link[rel='stylesheet'][href*='assets/index-']") as HTMLLinkElement | null;
+      const parse = (url: string) => {
+        const match = url.match(/assets\/index-([A-Za-z0-9_-]+)\.(?:js|css)(?:\?.*)?$/);
+        return match?.[1] || "";
+      };
+      const jsId = script?.src ? parse(script.src) : "";
+      const cssId = css?.href ? parse(css.href) : "";
+      const uiCheckRuntime =
+        typeof window !== "undefined" &&
+        (window as { __UI_CHECK_RUNTIME__?: boolean }).__UI_CHECK_RUNTIME__ === true;
+
+      return {
+        jsId: jsId ? jsId.slice(0, 10) : "",
+        cssId: cssId ? cssId.slice(0, 10) : "",
+        uiCheckRuntime
+      };
+    } catch {
+      return { jsId: "", cssId: "", uiCheckRuntime: false };
+    }
+  }, []);
+
   const [pathsPositioning, setPathsPositioning] = useState<boolean>(() =>
     Boolean(scrollToPathsOnOpen)
   );
@@ -212,6 +238,12 @@ export function SettingsModal({
             <div className="modal-subtitle" data-qa="qa:status:autosave">
               Auto-save enabled{savingMessage ? ` · ${savingMessage}` : ""}
             </div>
+            {settings.debug ? (
+              <div className="modal-subtitle" data-qa="qa:debug:ui-build">
+                UI build {uiDebug.jsId || "?"}/{uiDebug.cssId || "?"}
+                {uiDebug.uiCheckRuntime ? " · ui-check" : ""}
+              </div>
+            ) : null}
           </div>
           <button className="btn ghost" onClick={onClose} data-qa="qa:modal-close:settings">
             Close
