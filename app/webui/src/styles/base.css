@@ -763,8 +763,8 @@
   --ui-backdrop-appbar: none;
   --ui-backdrop-tooltip: none;
   --ui-backdrop-overlay: none;
-  --ui-backdrop-modal-closed: none;
-  --ui-backdrop-modal-open: none;
+  --ui-backdrop-modal-closed: blur(0);
+  --ui-backdrop-modal-open: blur(10px);
   --ui-backdrop-modal-header: none;
   --ui-backdrop-restart-pill: none;
 }

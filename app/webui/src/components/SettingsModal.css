@@ -15,6 +15,12 @@
   overflow: hidden;
 }
 
+:root[data-runtime="desktop"] .modal-backdrop {
+  /* Avoid showing underlying text during the first frames of the fade-in.
+     The blur itself is cheap enough because modals are not always-on. */
+  transition: opacity var(--motion-med) var(--motion-ease);
+}
+
 .modal-backdrop.positioning {
   visibility: hidden;
 }
