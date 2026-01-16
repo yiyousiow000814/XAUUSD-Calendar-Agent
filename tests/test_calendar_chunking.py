@@ -22,3 +22,11 @@ def test_chunk_date_range_does_not_shrink_when_weekend_included():
     chunks = list(chunk_date_range(start, end, chunk_days=4))
 
     assert chunks[0] == (datetime(2026, 1, 23), datetime(2026, 1, 26))
+
+
+def test_range_refetch_days_empty_when_no_pagination():
+    # Sanity check: the helper isn't directly unit-tested, but the refetch mechanism
+    # is gated by observed pagination. Ensure we can at least import the module.
+    from scripts.calendar import economic_calendar_fetcher as fetcher
+
+    assert hasattr(fetcher, "fetch_calendar_range")

@@ -130,6 +130,7 @@ def _refetch_anomalous_days(
     end_date: datetime,
     headers: list[str],
     data: list[list[str]],
+    force_days: set[str] | None = None,
 ) -> tuple[list[str], list[list[str]]]:
     """Refetch severe anomaly days (e.g., missing entire day) one day at a time.
 
@@ -142,9 +143,10 @@ def _refetch_anomalous_days(
 
     max_days_raw = (os.getenv("CALENDAR_REFETCH_MAX_DAYS") or "").strip()
     try:
-        max_days = int(max_days_raw or "5")
+        # 0 means unlimited.
+        max_days = int(max_days_raw or "0")
     except ValueError:
-        max_days = 5
+        max_days = 0
 
     df_new = _rows_to_dataframe(headers, data)
     if df_new.empty:
@@ -179,7 +181,11 @@ def _refetch_anomalous_days(
         if old_nh > 0 and new_nh == 0:
             anomalies.append(day)
 
-    anomalies = sorted(set(anomalies))
+    combined_anomalies = set(anomalies)
+    if force_days:
+        combined_anomalies.update(force_days)
+
+    anomalies = sorted(combined_anomalies)
     if not anomalies:
         return headers, data
 
@@ -1208,13 +1214,19 @@ def _post_calendar_with_retries(
 
 
 def fetch_calendar_range(
-    start_date: datetime, end_date: datetime, *, session: requests.Session | None = None
-):
+    start_date: datetime,
+    end_date: datetime,
+    *,
+    session: requests.Session | None = None,
+) -> tuple[list[str], list[list[str]], set[str]]:
     """Fetch calendar data from the calendar provider without Selenium."""
     if session is None:
         session = requests.Session()
     headers = ["Time", "Cur.", "Imp.", "Event", "Actual", "Forecast", "Previous"]
     all_rows = []
+    # Days to refetch when we hit pagination (offset>=200). Pagination is where
+    # we've historically observed partial windows (e.g., missing entire days).
+    pagination_refetch_days: set[str] = set()
 
     _chunk_days_raw = (os.getenv("CALENDAR_RANGE_CHUNK_DAYS") or "").strip()
     try:
@@ -1233,6 +1245,7 @@ def fetch_calendar_range(
             offset = 0
             total_rows_for_chunk = 0
             last_time_scope = None
+            first_page_last_day: str | None = None
 
             while True:
                 payload = {
@@ -1280,6 +1293,26 @@ def fetch_calendar_range(
                     f"{chunk_start:%Y-%m-%d} to {chunk_end:%Y-%m-%d} (offset={offset})."
                 )
 
+                # If the first page indicates pagination (offset will advance to 200),
+                # record the last day visible on the first page and force refetch for
+                # that day and the remaining days in this chunk.
+                if (
+                    offset == 0
+                    and rows_in_response >= ECON_CALENDAR_PAGE_SIZE
+                    and first_page_last_day is None
+                ):
+                    page_df = _rows_to_dataframe(headers, chunk_rows)
+                    if not page_df.empty and "Date" in page_df.columns:
+                        first_page_last_day = str(page_df["Date"].max())
+                        try:
+                            last_dt = datetime.strptime(first_page_last_day, "%Y-%m-%d")
+                            for day in pd.date_range(last_dt, chunk_end).strftime(
+                                "%Y-%m-%d"
+                            ):
+                                pagination_refetch_days.add(str(day))
+                        except ValueError:
+                            first_page_last_day = None
+
                 bind_scroll = bool(payload_json.get("bind_scroll_handler", False))
                 if rows_in_response < ECON_CALENDAR_PAGE_SIZE:
                     if HTTP_STATS_ENABLED:
@@ -1317,7 +1350,7 @@ def fetch_calendar_range(
                 partial_rows=all_rows,
             ) from exc
 
-    return headers, all_rows
+    return headers, all_rows, pagination_refetch_days
 
 
 def save_data(
@@ -1491,13 +1524,16 @@ def main():
 
     try:
         session = requests.Session()
-        headers, data = fetch_calendar_range(start_date, end_date, session=session)
+        headers, data, pagination_refetch_days = fetch_calendar_range(
+            start_date, end_date, session=session
+        )
         headers, data = _refetch_anomalous_days(
             session=session,
             start_date=start_date,
             end_date=end_date,
             headers=headers,
             data=data,
+            force_days=pagination_refetch_days,
         )
     except CalendarFetchError as exc:
         print(f"[ERROR] {exc}")
