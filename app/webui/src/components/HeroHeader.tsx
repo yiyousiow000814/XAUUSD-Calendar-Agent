@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { Settings, Snapshot } from "../types";
 import "./HeroHeader.css";
+import { useAutoWidthTransition } from "../utils/useAutoWidthTransition";
 
 type HeroHeaderProps = {
   snapshot: Snapshot;
@@ -35,6 +36,13 @@ export function HeroHeader({
   onOpenPaths,
   logPanel
 }: HeroHeaderProps) {
+  const pullButtonRef = useAutoWidthTransition<HTMLButtonElement>([pullState], {
+    durationMs: 220
+  });
+  const syncButtonRef = useAutoWidthTransition<HTMLButtonElement>([syncState], {
+    durationMs: 220
+  });
+
   return (
     <header className="hero" data-qa="qa:header:main">
       <div className="hero-toolbar" data-qa="qa:toolbar:global">
@@ -155,11 +163,12 @@ export function HeroHeader({
               disabled={connecting || pullState === "loading"}
               data-qa="qa:action:pull qa:action:async"
               data-qa-state={pullState}
+              ref={pullButtonRef}
             >
               <span className="btn-label">
                 {pullState === "loading" ? (
                   <>
-                  <span className="spinner accent" data-qa="qa:spinner:pull" /> Pulling...
+                    <span className="spinner accent" data-qa="qa:spinner:pull" /> Pulling...
                   </>
                 ) : pullState === "success" ? (
                   "Pulled"
@@ -176,11 +185,12 @@ export function HeroHeader({
               disabled={connecting || syncState === "loading"}
               data-qa="qa:action:sync qa:action:async"
               data-qa-state={syncState}
+              ref={syncButtonRef}
             >
               <span className="btn-label">
                 {syncState === "loading" ? (
                   <>
-                  <span className="spinner accent" data-qa="qa:spinner:sync" /> Syncing...
+                    <span className="spinner accent" data-qa="qa:spinner:sync" /> Syncing...
                   </>
                 ) : syncState === "success" ? (
                   "Synced"

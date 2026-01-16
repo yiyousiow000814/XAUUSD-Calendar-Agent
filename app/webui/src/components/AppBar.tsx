@@ -1,5 +1,6 @@
 import type { Snapshot } from "../types";
 import "./AppBar.css";
+import { useAutoWidthTransition } from "../utils/useAutoWidthTransition";
 
 type AppBarProps = {
   snapshot: Snapshot;
@@ -46,6 +47,13 @@ export function AppBar({
         .filter(Boolean)
         .slice(-1)[0] || outputDir.trim()
     : "Not set";
+  const pullButtonRef = useAutoWidthTransition<HTMLButtonElement>([pullState], {
+    durationMs: 220
+  });
+  const syncButtonRef = useAutoWidthTransition<HTMLButtonElement>([syncState], {
+    durationMs: 220
+  });
+
   return (
     <header className="appbar" data-qa="qa:appbar">
       <div className="appbar-brand">
@@ -60,18 +68,20 @@ export function AppBar({
             disabled={connecting || pullState === "loading"}
             data-qa="qa:action:pull qa:action:async"
             data-qa-state={pullState}
+            ref={pullButtonRef}
           >
             <span className="btn-label">
               {pullState === "loading" ? (
                 <>
-                  <span className="spinner accent" data-qa="qa:spinner:pull" /> Pulling...
+                  <span className="spinner accent" data-qa="qa:spinner:pull" />
+                  <span className="btn-label-text">Pulling...</span>
                 </>
               ) : pullState === "success" ? (
-                "Pulled"
+                <span className="btn-label-text">Pulled</span>
               ) : pullState === "error" ? (
-                "Pull failed"
+                <span className="btn-label-text">Pull failed</span>
               ) : (
-                "Pull"
+                <span className="btn-label-text">Pull</span>
               )}
             </span>
           </button>
@@ -81,18 +91,20 @@ export function AppBar({
             disabled={connecting || syncState === "loading" || syncDisabled}
             data-qa="qa:action:sync qa:action:async"
             data-qa-state={syncState}
+            ref={syncButtonRef}
           >
             <span className="btn-label">
               {syncState === "loading" ? (
                 <>
-                  <span className="spinner accent" data-qa="qa:spinner:sync" /> Syncing...
+                  <span className="spinner accent" data-qa="qa:spinner:sync" />
+                  <span className="btn-label-text">Syncing...</span>
                 </>
               ) : syncState === "success" ? (
-                "Synced"
+                <span className="btn-label-text">Synced</span>
               ) : syncState === "error" ? (
-                "Sync failed"
+                <span className="btn-label-text">Sync failed</span>
               ) : (
-                "Sync"
+                <span className="btn-label-text">Sync</span>
               )}
             </span>
           </button>
