@@ -43,8 +43,7 @@ export function ActionButtons({
   const syncButtonRef = useAutoWidthTransition<HTMLButtonElement>([syncState]);
 
   const pullDisabled = connecting || pullState === "loading";
-  const syncDisabledComputed =
-    connecting || syncState === "loading" || (variant === "appbar" && syncDisabled);
+  const syncDisabledComputed = connecting || syncState === "loading" || syncDisabled;
 
   return (
     <Fragment>
@@ -97,4 +96,3 @@ export function ActionButtons({
     </Fragment>
   );
 }
-

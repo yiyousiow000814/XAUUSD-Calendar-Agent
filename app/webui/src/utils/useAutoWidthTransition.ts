@@ -13,16 +13,25 @@ export function useAutoWidthTransition<T extends HTMLElement>(
   const elementRef = useRef<T>(null);
   const previousWidthRef = useRef<number | null>(null);
   const animationRef = useRef<Animation | null>(null);
+  const baseInlineWidthRef = useRef<string>("");
+  const wroteInlineWidthRef = useRef<boolean>(false);
 
   useLayoutEffect(() => {
     const element = elementRef.current;
     if (!element) return;
 
+    if (wroteInlineWidthRef.current) {
+      element.style.width = baseInlineWidthRef.current;
+      wroteInlineWidthRef.current = false;
+    }
+
     if (animationRef.current) {
       animationRef.current.cancel();
       animationRef.current = null;
     }
-    element.style.width = "";
+
+    const originalInlineWidth = element.style.width;
+    baseInlineWidthRef.current = originalInlineWidth;
 
     const nextWidth = element.getBoundingClientRect().width;
     const previousWidth = previousWidthRef.current;
@@ -35,10 +44,9 @@ export function useAutoWidthTransition<T extends HTMLElement>(
       return;
     }
 
-    const originalInlineWidth = element.style.width;
-
+    // Intentionally animate only on shrink to avoid the label-outpacing-width
+    // issue during expansion (label becomes longer before the control widens).
     if (nextWidth > previousWidth) {
-      element.style.width = originalInlineWidth;
       return () => {
         element.style.width = originalInlineWidth;
       };
@@ -46,13 +54,13 @@ export function useAutoWidthTransition<T extends HTMLElement>(
 
     const easing = "cubic-bezier(0.2, 0.85, 0.2, 1)";
     if (typeof element.animate !== "function") {
-      element.style.width = originalInlineWidth;
       return () => {
         element.style.width = originalInlineWidth;
       };
     }
 
     element.style.width = `${previousWidth}px`;
+    wroteInlineWidthRef.current = true;
     element.getBoundingClientRect();
 
     const animation = element.animate(
@@ -76,6 +84,7 @@ export function useAutoWidthTransition<T extends HTMLElement>(
         // ignore
       }
       element.style.width = originalInlineWidth;
+      wroteInlineWidthRef.current = false;
     };
 
     animation.onfinish = finalize;
@@ -85,6 +94,7 @@ export function useAutoWidthTransition<T extends HTMLElement>(
       animationRef.current?.cancel();
       animationRef.current = null;
       element.style.width = originalInlineWidth;
+      wroteInlineWidthRef.current = false;
     };
   }, [...deps, durationMs]);
 
