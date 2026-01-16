@@ -12,7 +12,8 @@ export function useAutoWidthTransition<T extends HTMLElement>(
   const { durationMs = 220 } = options;
   const elementRef = useRef<T>(null);
   const previousWidthRef = useRef<number | null>(null);
-  const animationRef = useRef<Animation | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  const transitionCleanupRef = useRef<(() => void) | null>(null);
   const baseInlineWidthRef = useRef<string>("");
   const wroteInlineWidthRef = useRef<boolean>(false);
 
@@ -20,14 +21,17 @@ export function useAutoWidthTransition<T extends HTMLElement>(
     const element = elementRef.current;
     if (!element) return;
 
+    transitionCleanupRef.current?.();
+    transitionCleanupRef.current = null;
+
+    if (animationFrameRef.current !== null) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+
     if (wroteInlineWidthRef.current) {
       element.style.width = baseInlineWidthRef.current;
       wroteInlineWidthRef.current = false;
-    }
-
-    if (animationRef.current) {
-      animationRef.current.cancel();
-      animationRef.current = null;
     }
 
     const originalInlineWidth = element.style.width;
@@ -53,48 +57,57 @@ export function useAutoWidthTransition<T extends HTMLElement>(
     }
 
     const easing = "cubic-bezier(0.2, 0.85, 0.2, 1)";
-    if (typeof element.animate !== "function") {
-      return () => {
-        element.style.width = originalInlineWidth;
-      };
-    }
+    const originalInlineTransition = element.style.transition;
+    const originalInlineWillChange = element.style.willChange;
 
     element.style.width = `${previousWidth}px`;
     wroteInlineWidthRef.current = true;
     element.getBoundingClientRect();
 
-    const animation = element.animate(
-      [{ width: `${previousWidth}px` }, { width: `${nextWidth}px` }],
-      { duration: durationMs, easing, fill: "forwards" }
-    );
-    animationRef.current = animation;
-
     let finalized = false;
-    const finalize = () => {
+    function finalize() {
       if (finalized) return;
       finalized = true;
-      if (animationRef.current === animation) {
-        animationRef.current = null;
-      }
-      animation.onfinish = null;
-      animation.oncancel = null;
-      try {
-        animation.cancel();
-      } catch {
-        // ignore
-      }
+
+      element.removeEventListener("transitionend", onTransitionEnd);
+      element.removeEventListener("transitioncancel", onTransitionEnd);
+
+      element.style.transition = originalInlineTransition;
+      element.style.willChange = originalInlineWillChange;
       element.style.width = originalInlineWidth;
       wroteInlineWidthRef.current = false;
-    };
+      transitionCleanupRef.current = null;
 
-    animation.onfinish = finalize;
-    animation.oncancel = finalize;
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+    }
+
+    function onTransitionEnd(event: TransitionEvent) {
+      if (event.target !== element) return;
+      if (event.propertyName !== "width") return;
+      finalize();
+    }
+
+    element.addEventListener("transitionend", onTransitionEnd);
+    element.addEventListener("transitioncancel", onTransitionEnd);
+
+    const widthTransition = `width ${durationMs}ms ${easing}`;
+    element.style.transition = originalInlineTransition
+      ? `${originalInlineTransition}, ${widthTransition}`
+      : widthTransition;
+    element.style.willChange = "width";
+
+    animationFrameRef.current = requestAnimationFrame(() => {
+      animationFrameRef.current = null;
+      element.style.width = `${nextWidth}px`;
+    });
+
+    transitionCleanupRef.current = finalize;
 
     return () => {
-      animationRef.current?.cancel();
-      animationRef.current = null;
-      element.style.width = originalInlineWidth;
-      wroteInlineWidthRef.current = false;
+      finalize();
     };
   }, [...deps, durationMs]);
 
