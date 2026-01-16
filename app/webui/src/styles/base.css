@@ -746,6 +746,29 @@
   transition-delay: 0ms !important;
 }
 
+:root {
+  --ui-grain-opacity: 0.04;
+  --ui-backdrop-appbar: blur(14px) saturate(1.25);
+  --ui-backdrop-tooltip: blur(10px) saturate(1.25);
+  --ui-backdrop-overlay: blur(12px);
+  --ui-backdrop-modal-closed: blur(0);
+  --ui-backdrop-modal-open: blur(12px);
+  --ui-backdrop-modal-header: blur(12px);
+  --ui-backdrop-restart-pill: blur(10px);
+}
+
+/* Desktop (pywebview/WebView2) favors crisp text over glass effects. */
+:root[data-runtime="desktop"] {
+  --ui-grain-opacity: 0;
+  --ui-backdrop-appbar: none;
+  --ui-backdrop-tooltip: none;
+  --ui-backdrop-overlay: none;
+  --ui-backdrop-modal-closed: blur(0);
+  --ui-backdrop-modal-open: blur(10px);
+  --ui-backdrop-modal-header: blur(10px);
+  --ui-backdrop-restart-pill: none;
+}
+
 :root.theme-transition *::before,
 :root.theme-transition *::after {
   transition-duration: var(--theme-duration) !important;
@@ -947,7 +970,7 @@ body {
     linear-gradient(180deg, var(--bg-sweep-0) 0%, var(--bg-sweep-1) 60%, var(--bg-sweep-2) 100%);
   background-color: var(--bg);
   color: var(--text);
-  min-height: 100vh;
+  min-height: 100%;
   scrollbar-width: none;
 }
 
@@ -1004,12 +1027,19 @@ body::after {
     transparent 1px,
     transparent 3px
   );
-  opacity: 0.04;
+  opacity: var(--ui-grain-opacity);
   mix-blend-mode: soft-light;
 }
 
+/* Avoid high-frequency overlays in WebView2 to prevent moire during window drag. */
+:root[data-runtime="desktop"] body::after {
+  content: none;
+  background-image: none;
+  mix-blend-mode: normal;
+}
+
 #root {
-  min-height: 100vh;
+  min-height: 100%;
   height: 100%;
   width: 100%;
   overflow: hidden;

@@ -5,7 +5,8 @@
   align-items: center;
   justify-content: center;
   background: rgba(5, 7, 10, 0.6);
-  backdrop-filter: blur(12px);
+  backdrop-filter: var(--ui-backdrop-overlay);
+  -webkit-backdrop-filter: var(--ui-backdrop-overlay);
   z-index: 250;
   animation: overlay-in var(--motion-med) var(--motion-ease);
 }

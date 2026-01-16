@@ -900,3 +900,47 @@ export const assertNoPageScroll = async (page) => {
     );
   }
 };
+
+export const assertDesktopCrispMode = async (page) => {
+  const state = await page.evaluate(() => {
+    const runtime = document.documentElement.dataset.runtime || "";
+    const appbar = document.querySelector(".appbar");
+    const appbarStyle = appbar ? window.getComputedStyle(appbar) : null;
+    const appbarBackdrop = appbarStyle?.backdropFilter || "";
+    const appbarWebkitBackdrop = appbarStyle?.webkitBackdropFilter || "";
+
+    const after = window.getComputedStyle(document.body, "::after");
+    return {
+      runtime,
+      appbarBackdrop,
+      appbarWebkitBackdrop,
+      grainContent: after.content,
+      grainOpacity: after.opacity
+    };
+  });
+
+  if (state.runtime !== "desktop") {
+    throw new Error(`Desktop runtime hint missing (runtime='${state.runtime || "(empty)"}')`);
+  }
+
+  const norm = (value) => String(value || "").trim().toLowerCase();
+  const appbarBackdrop = norm(state.appbarBackdrop);
+  const appbarWebkitBackdrop = norm(state.appbarWebkitBackdrop);
+  if (appbarBackdrop && appbarBackdrop !== "none") {
+    throw new Error(`Expected appbar backdrop-filter disabled (got '${state.appbarBackdrop}')`);
+  }
+  if (appbarWebkitBackdrop && appbarWebkitBackdrop !== "none") {
+    throw new Error(
+      `Expected appbar -webkit-backdrop-filter disabled (got '${state.appbarWebkitBackdrop}')`
+    );
+  }
+
+  const grainContent = norm(state.grainContent);
+  const grainOpacity = Number.parseFloat(state.grainOpacity);
+  const grainOff = grainContent === "none" || (Number.isFinite(grainOpacity) && grainOpacity <= 0.001);
+  if (!grainOff) {
+    throw new Error(
+      `Expected grain overlay disabled (content='${state.grainContent}', opacity='${state.grainOpacity}')`
+    );
+  }
+};

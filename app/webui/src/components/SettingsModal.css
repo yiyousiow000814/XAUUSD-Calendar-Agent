@@ -2,7 +2,8 @@
   position: fixed;
   inset: 0;
   background: rgba(5, 7, 10, 0.72);
-  backdrop-filter: blur(0);
+  backdrop-filter: var(--ui-backdrop-modal-closed);
+  -webkit-backdrop-filter: var(--ui-backdrop-modal-closed);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -14,13 +15,20 @@
   overflow: hidden;
 }
 
+:root[data-runtime="desktop"] .modal-backdrop {
+  /* Avoid showing underlying text during the first frames of the fade-in.
+     The blur itself is cheap enough because modals are not always-on. */
+  transition: opacity var(--motion-med) var(--motion-ease);
+}
+
 .modal-backdrop.positioning {
   visibility: hidden;
 }
 
 .modal-backdrop.open {
   opacity: 1;
-  backdrop-filter: blur(12px);
+  backdrop-filter: var(--ui-backdrop-modal-open);
+  -webkit-backdrop-filter: var(--ui-backdrop-modal-open);
 }
 
 .modal-backdrop.closing {
@@ -35,7 +43,7 @@
   padding: 0;
   box-shadow: 0 24px 50px rgba(0, 0, 0, 0.4);
   opacity: 0;
-  transform: translateY(10px) scale(0.98);
+  transform: translate3d(0, 10px, 0);
   transition: opacity var(--motion-slow) var(--motion-ease),
     transform var(--motion-slow) var(--motion-ease);
   display: flex;
@@ -50,12 +58,12 @@
 
 .modal.open {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: translate3d(0, 0, 0);
 }
 
 .modal.closing {
   opacity: 0;
-  transform: translateY(10px) scale(0.98);
+  transform: translate3d(0, 10px, 0);
 }
 
 .modal-settings {
@@ -81,7 +89,8 @@
     rgba(24, 30, 40, 0.24) 65%,
     rgba(24, 30, 40, 0) 100%
   );
-  backdrop-filter: blur(12px);
+  backdrop-filter: var(--ui-backdrop-modal-header);
+  -webkit-backdrop-filter: var(--ui-backdrop-modal-header);
   z-index: 1;
 }
 
@@ -864,7 +873,8 @@
     rgba(248, 249, 252, 0.14) 68%,
     rgba(248, 249, 252, 0) 100%
   );
-  backdrop-filter: blur(12px);
+  backdrop-filter: var(--ui-backdrop-modal-header);
+  -webkit-backdrop-filter: var(--ui-backdrop-modal-header);
 }
 
 [data-theme="light"] .log-path code {
@@ -881,4 +891,27 @@
 [data-theme="light"] .path-card {
   border-color: rgba(18, 20, 26, 0.08);
   background: rgba(248, 249, 252, 0.55);
+}
+
+/* Desktop runtime: keep modals fully opaque (avoid seeing underlying UI text through). */
+:root[data-runtime="desktop"][data-theme="dark"] .modal,
+:root[data-runtime="desktop"][data-theme="dark"] .toast,
+:root[data-runtime="desktop"][data-theme="dark"] .diagnostics {
+  background: rgb(28, 34, 44);
+}
+
+:root[data-runtime="desktop"][data-theme="light"] .modal,
+:root[data-runtime="desktop"][data-theme="light"] .toast,
+:root[data-runtime="desktop"][data-theme="light"] .diagnostics {
+  background: rgb(255, 255, 255);
+}
+
+:root[data-runtime="desktop"][data-theme="dark"] .modal-header {
+  background: rgb(28, 34, 44);
+  background-image: none;
+}
+
+:root[data-runtime="desktop"][data-theme="light"] .modal-header {
+  background: rgb(255, 255, 255);
+  background-image: none;
 }

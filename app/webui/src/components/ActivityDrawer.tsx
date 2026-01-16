@@ -69,9 +69,15 @@ export function ActivityDrawer({
       window.setTimeout(() => callback(), 0);
     };
 
-    const uiCheck = (window as any).__ui_check__ as
-      | { motionScale?: number; morphDelayMs?: number }
-      | undefined;
+    const uiCheckRuntime =
+      typeof window !== "undefined" &&
+      (window as { __UI_CHECK_RUNTIME__?: boolean }).__UI_CHECK_RUNTIME__ === true;
+
+    const uiCheck = uiCheckRuntime
+      ? ((window as any).__ui_check__ as
+          | { motionScale?: number; morphDelayMs?: number }
+          | undefined)
+      : undefined;
     const motionScale =
       typeof uiCheck?.motionScale === "number" && Number.isFinite(uiCheck.motionScale)
         ? Math.max(0.2, uiCheck.motionScale)
@@ -81,9 +87,11 @@ export function ActivityDrawer({
         ? Math.max(0, uiCheck.morphDelayMs)
         : 0;
 
-    const baseMotion = prefersReducedMotion
-      ? { openMs: 260, closeMs: 260, overshoot: 1.02 }
-      : { openMs: 600, closeMs: 520, overshoot: 1.12 };
+    // Keep production interactions snappy. ui-check runs slower so assertions can
+    // sample enough intermediate frames deterministically.
+    const baseMotion = uiCheckRuntime
+      ? { openMs: 600, closeMs: 520, overshoot: 1.12 }
+      : { openMs: 260, closeMs: 260, overshoot: 1.02 };
 
     const motion = {
       openMs: Math.round(baseMotion.openMs * motionScale),
