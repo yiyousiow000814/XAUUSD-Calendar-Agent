@@ -464,6 +464,18 @@ def chunk_date_range(start_date: datetime, end_date: datetime, chunk_days: int):
     current = start_date
     while current <= end_date:
         chunk_end = min(end_date, current + timedelta(days=chunk_days - 1))
+        # Adaptive chunking: when a 4-day window is entirely weekdays, shrink it to
+        # 3 days to reduce the chance of hitting pagination (offset=200+) on busy
+        # weekday clusters while keeping overall request count reasonable.
+        if chunk_days == 4 and chunk_end > current:
+            days = (chunk_end - current).days + 1
+            if days == 4:
+                all_weekdays = all(
+                    (current + timedelta(days=delta)).weekday() < 5
+                    for delta in range(days)
+                )
+                if all_weekdays:
+                    chunk_end = chunk_end - timedelta(days=1)
         yield current, chunk_end
         current = chunk_end + timedelta(days=1)
 
