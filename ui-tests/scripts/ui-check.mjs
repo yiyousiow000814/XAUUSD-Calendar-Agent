@@ -1535,6 +1535,55 @@ const main = async () => {
     );
     await runCheck(theme.key, "Bottom clock centered 24h", () => assertFooterClock(page));
     await runCheck(theme.key, "Page scrollbars hidden", () => assertNoPageScroll(page));
+    await runCheck(theme.key, "Footer stable during viewport resize", async () => {
+      const footer = page.locator(".footer-row").first();
+      if (!(await footer.count())) {
+        throw new Error("Footer row not found");
+      }
+      const base = page.viewportSize();
+      if (!base) {
+        throw new Error("Viewport size unavailable");
+      }
+
+      const sizes = [
+        { width: 1280, height: 720 },
+        { width: 1240, height: 718 },
+        { width: 1180, height: 712 },
+        { width: 1120, height: 706 },
+        { width: 1060, height: 698 },
+        { width: 1000, height: 690 },
+        { width: 960, height: 680 },
+        { width: 1020, height: 694 },
+        { width: 1280, height: 720 }
+      ];
+
+      for (const size of sizes) {
+        await page.setViewportSize(size);
+        await page.waitForTimeout(80);
+        const { ok, reason } = await page.evaluate(() => {
+          const footerEl = document.querySelector(".footer-row");
+          if (!(footerEl instanceof HTMLElement)) return { ok: false, reason: "footer missing" };
+          const rect = footerEl.getBoundingClientRect();
+          const viewportH = window.innerHeight;
+          // CSS anchors footer to bottom: 10px; allow < 1px tolerance for rounding/compositing.
+          const bottomOffset = viewportH - (rect.top + rect.height);
+          const delta = Math.abs(bottomOffset - 10);
+          if (delta > 0.9) {
+            return {
+              ok: false,
+              reason: `footer bottom offset drifted (offset=${bottomOffset.toFixed(2)}px, Δ=${delta.toFixed(2)}px)`
+            };
+          }
+          return { ok: true, reason: "" };
+        });
+        if (!ok) {
+          throw new Error(reason);
+        }
+      }
+
+      // Restore in case a future refactor changes the loop.
+      await page.setViewportSize(base);
+    });
     if (theme.key === "light") {
       const splitDivider = page.locator("[data-qa='qa:split:divider']").first();
       if (await splitDivider.count()) {
