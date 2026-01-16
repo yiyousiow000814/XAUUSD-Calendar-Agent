@@ -1650,6 +1650,11 @@ const main = async () => {
       const rect = (appbar ?? app)?.getBoundingClientRect();
       return rect ? rect.width : 0;
     });
+    const layoutHeightBefore = await page.evaluate(() => {
+      const app = document.querySelector(".app");
+      const rect = app?.getBoundingClientRect();
+      return rect ? rect.height : 0;
+    });
 
     await runCheck(theme.key, "Sync target opens Settings at Paths & Repos (no jump)", async () => {
       const syncTarget = page.locator("[data-qa='qa:action:sync-target']").first();
@@ -1745,6 +1750,19 @@ const main = async () => {
       theme: theme.key,
       state: "open",
       path: await captureState(page, "settings", theme.key, "open")
+    });
+    await runCheck(theme.key, "Settings open does not snap layout size", async () => {
+      // The Settings modal should not cause a 1px app shell resize "snap" after it settles.
+      await page.waitForTimeout(260);
+      const afterHeight = await page.evaluate(() => {
+        const app = document.querySelector(".app");
+        const rect = app?.getBoundingClientRect();
+        return rect ? rect.height : 0;
+      });
+      const delta = Math.abs(afterHeight - layoutHeightBefore);
+      if (delta > 0.6) {
+        throw new Error(`App height changed after opening Settings (Δ=${delta.toFixed(2)}px).`);
+      }
     });
 
     const timezoneSection = page.locator("[data-qa='qa:section:calendar-timezone']").first();
