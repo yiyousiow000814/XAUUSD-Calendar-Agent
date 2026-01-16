@@ -1,6 +1,6 @@
 import type { Snapshot } from "../types";
 import "./AppBar.css";
-import { useAutoWidthTransition } from "../utils/useAutoWidthTransition";
+import { ActionButtons } from "./ActionButtons";
 
 type AppBarProps = {
   snapshot: Snapshot;
@@ -47,12 +47,6 @@ export function AppBar({
         .filter(Boolean)
         .slice(-1)[0] || outputDir.trim()
     : "Not set";
-  const pullButtonRef = useAutoWidthTransition<HTMLButtonElement>([pullState], {
-    durationMs: 220
-  });
-  const syncButtonRef = useAutoWidthTransition<HTMLButtonElement>([syncState], {
-    durationMs: 220
-  });
 
   return (
     <header className="appbar" data-qa="qa:appbar">
@@ -62,52 +56,15 @@ export function AppBar({
       </div>
       <div className="appbar-actions" data-qa="qa:toolbar:header">
         <div className="appbar-btn-group" data-qa="qa:group:actions">
-          <button
-            className="btn primary btn-compact"
-            onClick={onPull}
-            disabled={connecting || pullState === "loading"}
-            data-qa="qa:action:pull qa:action:async"
-            data-qa-state={pullState}
-            ref={pullButtonRef}
-          >
-            <span className="btn-label">
-              {pullState === "loading" ? (
-                <>
-                  <span className="spinner accent" data-qa="qa:spinner:pull" />
-                  <span className="btn-label-text">Pulling...</span>
-                </>
-              ) : pullState === "success" ? (
-                <span className="btn-label-text">Pulled</span>
-              ) : pullState === "error" ? (
-                <span className="btn-label-text">Pull failed</span>
-              ) : (
-                <span className="btn-label-text">Pull</span>
-              )}
-            </span>
-          </button>
-          <button
-            className="btn btn-compact"
-            onClick={onSync}
-            disabled={connecting || syncState === "loading" || syncDisabled}
-            data-qa="qa:action:sync qa:action:async"
-            data-qa-state={syncState}
-            ref={syncButtonRef}
-          >
-            <span className="btn-label">
-              {syncState === "loading" ? (
-                <>
-                  <span className="spinner accent" data-qa="qa:spinner:sync" />
-                  <span className="btn-label-text">Syncing...</span>
-                </>
-              ) : syncState === "success" ? (
-                <span className="btn-label-text">Synced</span>
-              ) : syncState === "error" ? (
-                <span className="btn-label-text">Sync failed</span>
-              ) : (
-                <span className="btn-label-text">Sync</span>
-              )}
-            </span>
-          </button>
+          <ActionButtons
+            variant="appbar"
+            connecting={connecting}
+            pullState={pullState}
+            syncState={syncState}
+            syncDisabled={syncDisabled}
+            onPull={onPull}
+            onSync={onSync}
+          />
         </div>
         <button
           className={`pill-link appbar-pill${hasTarget ? "" : " attention"}${

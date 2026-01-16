@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { Settings, Snapshot } from "../types";
 import "./HeroHeader.css";
-import { useAutoWidthTransition } from "../utils/useAutoWidthTransition";
+import { ActionButtons } from "./ActionButtons";
 
 type HeroHeaderProps = {
   snapshot: Snapshot;
@@ -36,13 +36,6 @@ export function HeroHeader({
   onOpenPaths,
   logPanel
 }: HeroHeaderProps) {
-  const pullButtonRef = useAutoWidthTransition<HTMLButtonElement>([pullState], {
-    durationMs: 220
-  });
-  const syncButtonRef = useAutoWidthTransition<HTMLButtonElement>([syncState], {
-    durationMs: 220
-  });
-
   return (
     <header className="hero" data-qa="qa:header:main">
       <div className="hero-toolbar" data-qa="qa:toolbar:global">
@@ -157,52 +150,14 @@ export function HeroHeader({
             Economic calendar sync, pull automation, and mirror delivery.
           </p>
           <div className="hero-cta" data-qa="qa:toolbar:header">
-            <button
-              className="btn primary"
-              onClick={onPull}
-              disabled={connecting || pullState === "loading"}
-              data-qa="qa:action:pull qa:action:async"
-              data-qa-state={pullState}
-              ref={pullButtonRef}
-            >
-              <span className="btn-label">
-                {pullState === "loading" ? (
-                  <>
-                    <span className="spinner accent" data-qa="qa:spinner:pull" />
-                    <span className="btn-label-text">Pulling...</span>
-                  </>
-                ) : pullState === "success" ? (
-                  <span className="btn-label-text">Pulled</span>
-                ) : pullState === "error" ? (
-                  <span className="btn-label-text">Pull failed</span>
-                ) : (
-                  <span className="btn-label-text">Pull Now</span>
-                )}
-              </span>
-            </button>
-            <button
-              className="btn"
-              onClick={onSync}
-              disabled={connecting || syncState === "loading"}
-              data-qa="qa:action:sync qa:action:async"
-              data-qa-state={syncState}
-              ref={syncButtonRef}
-            >
-              <span className="btn-label">
-                {syncState === "loading" ? (
-                  <>
-                    <span className="spinner accent" data-qa="qa:spinner:sync" />
-                    <span className="btn-label-text">Syncing...</span>
-                  </>
-                ) : syncState === "success" ? (
-                  <span className="btn-label-text">Synced</span>
-                ) : syncState === "error" ? (
-                  <span className="btn-label-text">Sync failed</span>
-                ) : (
-                  <span className="btn-label-text">Sync Now</span>
-                )}
-              </span>
-            </button>
+            <ActionButtons
+              variant="hero"
+              connecting={connecting}
+              pullState={pullState}
+              syncState={syncState}
+              onPull={onPull}
+              onSync={onSync}
+            />
             <button
               className={`pill-link${outputDir ? "" : " attention"}`}
               onClick={onOpenPaths}
