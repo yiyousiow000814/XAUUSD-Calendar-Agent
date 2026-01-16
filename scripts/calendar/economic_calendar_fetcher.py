@@ -1028,13 +1028,15 @@ def fetch_calendar_range(start_date: datetime, end_date: datetime):
 
     _chunk_days_raw = (os.getenv("CALENDAR_RANGE_CHUNK_DAYS") or "").strip()
     try:
-        chunk_days = int(_chunk_days_raw or "14")
+        # Smaller chunks reduce pagination depth and lower the risk of partial windows
+        # under rate limits. Override via CALENDAR_RANGE_CHUNK_DAYS when needed.
+        chunk_days = int(_chunk_days_raw or "4")
     except ValueError:
         print(
             f"[WARNING] Invalid CALENDAR_RANGE_CHUNK_DAYS={_chunk_days_raw!r}; "
-            "falling back to 14."
+            "falling back to 4."
         )
-        chunk_days = 14
+        chunk_days = 4
 
     for chunk_start, chunk_end in chunk_date_range(start_date, end_date, chunk_days):
         try:
