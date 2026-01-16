@@ -22,11 +22,11 @@
 python scripts/calendar/economic_calendar_fetcher.py --start-date 2025-01-01 --end-date 2025-01-07
 ```
 说明：
-- 默认会把新抓取的数据合并进现有导出，不会删除抓取区间内的旧记录。
+- 默认把“抓取到的日期窗口”视为权威：会在合并前先删除该窗口内的旧记录；同时按“逐日覆盖率阈值”做 prune guard，避免上游结果不完整时误删数据。
 - JSON 会将缺失值统一规范为 `null`，减少反复抓取导致的无意义 diff。
 - 如遇 429，可通过设置 `CALENDAR_HTTP_MIN_INTERVAL_SECONDS`（例如 `2`）并增大翻页间隔（例如 `CALENDAR_PAGE_DELAY_MIN_SECONDS=5`、`CALENDAR_PAGE_DELAY_MAX_SECONDS=7`）来降低请求频率。
 - 若要排查限流与翻页终止原因，可设置 `CALENDAR_HTTP_STATS=1` 输出请求速率统计与翻页停止原因。
-- 若启用“抓取窗口内删除旧记录”，建议同时保留 prune guard（`CALENDAR_PRUNE_GUARD_RATIO`、`CALENDAR_PRUNE_GUARD_MIN_NEW_NONHOLIDAY`），避免上游返回不完整时误删历史数据。
+- 如需关闭窗口内 prune，可设置 `CALENDAR_PRUNE_EXISTING_IN_RANGE=0` 或传 `--no-prune-existing-in-range`。
 
 输出文件位于仓库根目录 `data/Economic_Calendar/<年份>/<年份>_calendar.(xlsx|csv|json)`。GitHub Actions 工作流也会调用同一脚本，确保远端 `data/` 始终保持最新。
 

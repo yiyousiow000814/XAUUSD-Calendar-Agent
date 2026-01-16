@@ -22,6 +22,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.calendar import calendar_processing as processing  # noqa: E402
+from scripts.calendar import calendar_pruning  # noqa: E402
 
 # Base folder to store generated artifacts under the repository's data directory
 BASE_DATA_DIR = REPO_ROOT / "data"
@@ -834,6 +835,23 @@ def parse_args():
         type=int,
         help="End year (defaults to start year when omitted).",
     )
+    parser.add_argument(
+        "--prune-existing-in-range",
+        dest="prune_existing_in_range",
+        action="store_true",
+        help=(
+            "Treat the fetched date window as authoritative by pruning existing rows "
+            "inside the window before merging. A per-day guard prevents accidental "
+            "data loss when upstream results are incomplete."
+        ),
+    )
+    parser.add_argument(
+        "--no-prune-existing-in-range",
+        dest="prune_existing_in_range",
+        action="store_false",
+        help="Disable pruning existing rows inside the fetched date window.",
+    )
+    parser.set_defaults(prune_existing_in_range=None)
     return parser.parse_args()
 
 
@@ -1204,52 +1222,32 @@ def save_data(
                 end_date = year_dates.max().strftime("%Y-%m-%d")
                 # Guard against upstream/API anomalies: prune per-day only when
                 # the newly fetched window looks reasonably complete.
-                window_days = pd.date_range(start_date, end_date).strftime("%Y-%m-%d")
-                existing_days = existing_df_compare.copy()
-                new_days = year_df.copy()
-
-                def non_holiday_counts(frame: pd.DataFrame) -> dict[str, int]:
-                    if frame.empty or "Date" not in frame.columns:
-                        return {}
-                    dates = frame["Date"].fillna("").astype(str)
-                    imp = (
-                        frame.get("Imp.", pd.Series([""] * len(frame)))
-                        .fillna("")
-                        .astype(str)
+                safe_prune_days, skipped_prune_days = (
+                    calendar_pruning.compute_safe_prune_days(
+                        existing_df_compare,
+                        year_df,
+                        start_date,
+                        end_date,
+                        guard_ratio=PRUNE_GUARD_RATIO,
+                        guard_min_new_nonholiday=PRUNE_GUARD_MIN_NEW_NONHOLIDAY,
                     )
-                    non_holiday = imp.str.strip().str.lower().ne("holiday")
-                    counts = (
-                        dates[non_holiday].value_counts().to_dict()  # type: ignore[call-arg]
+                )
+                for day in sorted(skipped_prune_days):
+                    print(
+                        f"[WARNING] Skipping prune for {day}: {skipped_prune_days[day]}"
                     )
-                    return {str(k): int(v) for k, v in counts.items()}
-
-                old_counts = non_holiday_counts(existing_days)
-                new_counts = non_holiday_counts(new_days)
-
-                safe_prune_days: set[str] = set()
-                for day in window_days:
-                    old_n = int(old_counts.get(day, 0))
-                    new_n = int(new_counts.get(day, 0))
-                    if old_n <= 0:
-                        safe_prune_days.add(day)
-                        continue
-                    min_expected = max(
-                        int(old_n * PRUNE_GUARD_RATIO), PRUNE_GUARD_MIN_NEW_NONHOLIDAY
-                    )
-                    if new_n < min_expected:
-                        print(
-                            f"[WARNING] Skipping prune for {day}: "
-                            f"new_non_holiday={new_n} < expected_min={min_expected} "
-                            f"(old_non_holiday={old_n})."
-                        )
-                        continue
-                    safe_prune_days.add(day)
 
                 if safe_prune_days:
                     date_str = existing_df_merge.get("Date")
                     if date_str is not None:
+                        before_rows = len(existing_df_merge)
                         mask = date_str.fillna("").astype(str).isin(safe_prune_days)
                         existing_df_merge = existing_df_merge.loc[~mask].copy()
+                        pruned_rows = before_rows - len(existing_df_merge)
+                        print(
+                            f"[INFO] Pruned {pruned_rows} existing rows inside "
+                            f"{start_date}..{end_date} (safe_days={len(safe_prune_days)})."
+                        )
 
         combined_df = processing.merge_calendar_frames(existing_df_merge, year_df)
 
@@ -1273,6 +1271,19 @@ def save_data(
         processing.write_calendar_outputs(combined_sorted, excel_path)
 
         print(f"[SUCCESS] Year {year} exports written to {excel_path.parent}")
+
+
+def resolve_prune_existing_in_range(args) -> bool:
+    """Resolve pruning toggle from args/env with a safe default."""
+    if getattr(args, "prune_existing_in_range", None) is not None:
+        return bool(args.prune_existing_in_range)
+    env_raw = (os.getenv("CALENDAR_PRUNE_EXISTING_IN_RANGE") or "").strip().lower()
+    if env_raw in {"0", "false", "no", "off"}:
+        return False
+    if env_raw in {"1", "true", "yes", "on"}:
+        return True
+    # Default: enabled, but protected by per-day prune guard.
+    return True
 
 
 def main():
@@ -1317,6 +1328,7 @@ def main():
             data,
             file_name="usd_calendar_month.xlsx",
             source_url=CALENDAR_REFERER,
+            prune_existing_in_range=resolve_prune_existing_in_range(args),
         )
     except Exception as exc:
         print(f"[ERROR] Failed to save calendar data: {exc}")
