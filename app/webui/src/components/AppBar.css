@@ -94,9 +94,26 @@
   font-size: 13px;
   font-weight: 650;
   letter-spacing: 0.01em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   box-shadow: none;
   border: 1px solid transparent;
   background: transparent;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.appbar-btn-group .btn .btn-label {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.appbar-btn-group .btn .btn-label-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .appbar-btn-group .btn + .btn {

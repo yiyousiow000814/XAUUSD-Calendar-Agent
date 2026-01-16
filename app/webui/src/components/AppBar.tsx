@@ -1,5 +1,6 @@
 import type { Snapshot } from "../types";
 import "./AppBar.css";
+import { ActionButtons } from "./ActionButtons";
 
 type AppBarProps = {
   snapshot: Snapshot;
@@ -46,6 +47,7 @@ export function AppBar({
         .filter(Boolean)
         .slice(-1)[0] || outputDir.trim()
     : "Not set";
+
   return (
     <header className="appbar" data-qa="qa:appbar">
       <div className="appbar-brand">
@@ -54,48 +56,15 @@ export function AppBar({
       </div>
       <div className="appbar-actions" data-qa="qa:toolbar:header">
         <div className="appbar-btn-group" data-qa="qa:group:actions">
-          <button
-            className="btn primary btn-compact"
-            onClick={onPull}
-            disabled={connecting || pullState === "loading"}
-            data-qa="qa:action:pull qa:action:async"
-            data-qa-state={pullState}
-          >
-            <span className="btn-label">
-              {pullState === "loading" ? (
-                <>
-                  <span className="spinner accent" data-qa="qa:spinner:pull" /> Pulling...
-                </>
-              ) : pullState === "success" ? (
-                "Pulled"
-              ) : pullState === "error" ? (
-                "Pull failed"
-              ) : (
-                "Pull"
-              )}
-            </span>
-          </button>
-          <button
-            className="btn btn-compact"
-            onClick={onSync}
-            disabled={connecting || syncState === "loading" || syncDisabled}
-            data-qa="qa:action:sync qa:action:async"
-            data-qa-state={syncState}
-          >
-            <span className="btn-label">
-              {syncState === "loading" ? (
-                <>
-                  <span className="spinner accent" data-qa="qa:spinner:sync" /> Syncing...
-                </>
-              ) : syncState === "success" ? (
-                "Synced"
-              ) : syncState === "error" ? (
-                "Sync failed"
-              ) : (
-                "Sync"
-              )}
-            </span>
-          </button>
+          <ActionButtons
+            variant="appbar"
+            connecting={connecting}
+            pullState={pullState}
+            syncState={syncState}
+            syncDisabled={syncDisabled}
+            onPull={onPull}
+            onSync={onSync}
+          />
         </div>
         <button
           className={`pill-link appbar-pill${hasTarget ? "" : " attention"}${
