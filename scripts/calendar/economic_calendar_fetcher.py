@@ -91,6 +91,23 @@ def _rows_to_dataframe(headers: list[str], data: list[list[str]]) -> pd.DataFram
     return df.drop(columns=["Date_dt"]).reset_index(drop=True)
 
 
+def _pagination_tail_days_from_first_page(
+    *, headers: list[str], first_page_rows: list[list[str]], chunk_end: datetime
+) -> set[str]:
+    """Return days to refetch when pagination occurs (based on first-page last day)."""
+    page_df = _rows_to_dataframe(headers, first_page_rows)
+    if page_df.empty or "Date" not in page_df.columns:
+        return set()
+
+    first_page_last_day = str(page_df["Date"].max())
+    try:
+        last_dt = datetime.strptime(first_page_last_day, "%Y-%m-%d")
+    except ValueError:
+        return set()
+
+    return {str(day) for day in pd.date_range(last_dt, chunk_end).strftime("%Y-%m-%d")}
+
+
 def _day_counts_for_compare(df: pd.DataFrame) -> tuple[dict[str, int], dict[str, int]]:
     """Return (total_rows_by_day, non_holiday_rows_by_day) for df."""
     if df.empty or "Date" not in df.columns:
@@ -1245,7 +1262,7 @@ def fetch_calendar_range(
             offset = 0
             total_rows_for_chunk = 0
             last_time_scope = None
-            first_page_last_day: str | None = None
+            first_page_rows: list[list[str]] | None = None
 
             while True:
                 payload = {
@@ -1293,26 +1310,6 @@ def fetch_calendar_range(
                     f"{chunk_start:%Y-%m-%d} to {chunk_end:%Y-%m-%d} (offset={offset})."
                 )
 
-                # If the first page indicates pagination (offset will advance to 200),
-                # record the last day visible on the first page and force refetch for
-                # that day and the remaining days in this chunk.
-                if (
-                    offset == 0
-                    and rows_in_response >= ECON_CALENDAR_PAGE_SIZE
-                    and first_page_last_day is None
-                ):
-                    page_df = _rows_to_dataframe(headers, chunk_rows)
-                    if not page_df.empty and "Date" in page_df.columns:
-                        first_page_last_day = str(page_df["Date"].max())
-                        try:
-                            last_dt = datetime.strptime(first_page_last_day, "%Y-%m-%d")
-                            for day in pd.date_range(last_dt, chunk_end).strftime(
-                                "%Y-%m-%d"
-                            ):
-                                pagination_refetch_days.add(str(day))
-                        except ValueError:
-                            first_page_last_day = None
-
                 bind_scroll = bool(payload_json.get("bind_scroll_handler", False))
                 if rows_in_response < ECON_CALENDAR_PAGE_SIZE:
                     if HTTP_STATS_ENABLED:
@@ -1328,6 +1325,18 @@ def fetch_calendar_range(
                     if HTTP_STATS_ENABLED:
                         print("[INFO] Paging stop: last_time_scope missing")
                     break
+
+                # Confirm pagination will happen (we passed the scroll/time-scope gates),
+                # then schedule a 1-day retry for the chunk tail based on the first page.
+                if offset == 0 and rows_in_response >= ECON_CALENDAR_PAGE_SIZE:
+                    first_page_rows = list(chunk_rows)
+                    pagination_refetch_days.update(
+                        _pagination_tail_days_from_first_page(
+                            headers=headers,
+                            first_page_rows=first_page_rows,
+                            chunk_end=chunk_end,
+                        )
+                    )
 
                 offset += rows_in_response
                 time.sleep(
