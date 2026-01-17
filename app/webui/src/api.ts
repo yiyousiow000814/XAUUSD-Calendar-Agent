@@ -299,6 +299,7 @@ let mockSettings: Settings = {
   runOnStartup: true,
   autostartLaunchMode: "tray",
   closeBehavior: "exit",
+  traySupported: true,
   debug: false,
   autoSave: true,
   splitRatio: 0.66,

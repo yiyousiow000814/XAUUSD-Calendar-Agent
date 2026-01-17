@@ -127,6 +127,7 @@ export function SettingsModal({
   const [pathsPositioning, setPathsPositioning] = useState<boolean>(() =>
     Boolean(scrollToPathsOnOpen)
   );
+  const traySupported = Boolean(settings.traySupported);
 
   useEffect(() => {
     if (!pathsPositioning) return;
@@ -347,10 +348,19 @@ export function SettingsModal({
                 <div className="timezone-row">
                   <Select
                     value={settings.autostartLaunchMode}
-                    options={[
-                      { value: "tray", label: "Minimize to tray" },
-                      { value: "show", label: "Show window" }
-                    ]}
+                    options={(() => {
+                      const base = [{ value: "show", label: "Show window" }];
+                      if (traySupported) {
+                        return [{ value: "tray", label: "Minimize to tray" }, ...base];
+                      }
+                      if (settings.autostartLaunchMode === "tray") {
+                        return [
+                          { value: "tray", label: "Minimize to tray (tray unsupported)" },
+                          ...base
+                        ];
+                      }
+                      return base;
+                    })()}
                     onChange={(value) => {
                       const next = value === "show" || value === "tray" ? value : "tray";
                       onAutostartLaunchModeChange(next);
@@ -358,6 +368,9 @@ export function SettingsModal({
                     qa="qa:select:autostart-launch-mode"
                   />
                 </div>
+                {!traySupported ? (
+                  <p className="path-note">Tray options require system tray support.</p>
+                ) : null}
               </div>
             </div>
             <div className="path-row path-card" data-qa="qa:control:close-behavior">
@@ -367,10 +380,19 @@ export function SettingsModal({
                 <div className="timezone-row">
                   <Select
                     value={settings.closeBehavior}
-                    options={[
-                      { value: "exit", label: "Exit app" },
-                      { value: "tray", label: "Minimize to tray" }
-                    ]}
+                    options={(() => {
+                      const base = [{ value: "exit", label: "Exit app" }];
+                      if (traySupported) {
+                        return [...base, { value: "tray", label: "Minimize to tray" }];
+                      }
+                      if (settings.closeBehavior === "tray") {
+                        return [
+                          ...base,
+                          { value: "tray", label: "Minimize to tray (tray unsupported)" }
+                        ];
+                      }
+                      return base;
+                    })()}
                     onChange={(value) => {
                       const next = value === "exit" || value === "tray" ? value : "exit";
                       onCloseBehaviorChange(next);
@@ -378,6 +400,9 @@ export function SettingsModal({
                     qa="qa:select:close-behavior"
                   />
                 </div>
+                {!traySupported ? (
+                  <p className="path-note">Tray options require system tray support.</p>
+                ) : null}
               </div>
             </div>
           </div>

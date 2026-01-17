@@ -213,6 +213,7 @@ def main() -> None:
 
     icon_path = get_asset_path(APP_ICON)
     tray_supported = bool(pystray and Image and icon_path.exists())
+    backend.set_tray_supported(tray_supported)
     autostart_launch_mode = (
         (backend.state.get("autostart_launch_mode") or "tray").strip().lower()
     )
@@ -221,20 +222,38 @@ def main() -> None:
     should_hide_on_autostart = bool(
         args.autostart and tray_supported and autostart_launch_mode == "tray"
     )
-    window = webview.create_window(
-        APP_TITLE,
-        url=index_path.as_uri(),
-        width=1440,
-        height=900,
-        min_size=(1200, 760),
-        text_select=True,
-        resizable=True,
-        confirm_close=False,
-        background_color="#0b0d10",
-        frameless=False,
-        js_api=backend,
-        hidden=should_hide_on_autostart,
-    )
+    try:
+        window = webview.create_window(
+            APP_TITLE,
+            url=index_path.as_uri(),
+            width=1440,
+            height=900,
+            min_size=(1200, 760),
+            text_select=True,
+            resizable=True,
+            confirm_close=False,
+            background_color="#0b0d10",
+            frameless=False,
+            js_api=backend,
+            hidden=should_hide_on_autostart,
+        )
+    except TypeError:
+        # Older/broken pywebview installs may not support `hidden`.
+        # Fall back to a normal window instead of crashing at startup.
+        should_hide_on_autostart = False
+        window = webview.create_window(
+            APP_TITLE,
+            url=index_path.as_uri(),
+            width=1440,
+            height=900,
+            min_size=(1200, 760),
+            text_select=True,
+            resizable=True,
+            confirm_close=False,
+            background_color="#0b0d10",
+            frameless=False,
+            js_api=backend,
+        )
     backend.set_window(window)
     exit_event = threading.Event()
     window_loaded = threading.Event()

@@ -59,6 +59,7 @@ export type Settings = {
   runOnStartup: boolean;
   autostartLaunchMode: "tray" | "show";
   closeBehavior: "exit" | "tray";
+  traySupported: boolean;
   debug: boolean;
   autoSave: boolean;
   splitRatio: number;

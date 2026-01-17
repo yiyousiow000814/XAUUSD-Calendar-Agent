@@ -45,7 +45,7 @@ from agent.git_ops import (
     terminate_process_tree,
 )
 from agent.logger import setup_logger
-from agent.scheduler import create_startup_task, remove_startup_task
+from agent.scheduler import TASK_NAME, create_startup_task, remove_startup_task
 from agent.sync import mirror_sync
 from agent.timezone import (
     CALENDAR_SOURCE_UTC_OFFSET_MINUTES,
@@ -81,6 +81,7 @@ class WebAgentBackend:
             save_config(self.state)
         self.logger = setup_logger(self.state.get("debug", False))
         self.logger.info("Backend init started")
+        self.tray_supported = False
         self.log_entries: list[dict] = []
         self.calendar_events: list[dict] = []
         self.currency = "USD"
@@ -156,10 +157,51 @@ class WebAgentBackend:
         self._snapshot_cache["calendarStatus"] = self._calendar_status
         self._request_snapshot_rebuild("startup")
         self._request_calendar_refresh("startup")
+        self._ensure_startup_task_command()
         self.logger.info(
             "Backend init complete in %.0fms",
             (time.perf_counter() - init_started) * 1000,
         )
+
+    def set_tray_supported(self, supported: bool) -> None:
+        # Runtime capability; do not persist to config.json.
+        self.tray_supported = bool(supported)
+
+    def _ensure_startup_task_command(self) -> None:
+        """
+        Ensure the Windows Run entry is updated to the current start command.
+
+        Existing installs may have a Run entry without `--autostart`, so the user's
+        autostart launch preference would not apply until the entry is rewritten.
+        """
+        if not sys.platform.startswith("win") or not winreg:
+            return
+        if not bool(self.state.get("run_on_startup", True)):
+            return
+        expected = self._build_start_command().strip()
+        if not expected:
+            return
+        current = ""
+        try:
+            with winreg.OpenKey(  # type: ignore[attr-defined]
+                winreg.HKEY_CURRENT_USER,  # type: ignore[attr-defined]
+                r"Software\Microsoft\Windows\CurrentVersion\Run",
+                0,
+                winreg.KEY_READ,  # type: ignore[attr-defined]
+            ) as key:
+                value, _kind = winreg.QueryValueEx(key, TASK_NAME)  # type: ignore[attr-defined]
+                current = str(value or "").strip()
+        except FileNotFoundError:
+            current = ""
+        except OSError as exc:
+            # Avoid failing startup just because the registry cannot be read.
+            self.logger.warning("Startup entry read failed: %s", exc)
+            return
+        if current == expected:
+            return
+        result = create_startup_task(expected)
+        if not result.ok:
+            self._append_notice(f"{result.message}: {result.output}", level="WARN")
 
     def _start_background_tasks_once(self, reason: str = "") -> None:
         with self._background_started_lock:
@@ -456,6 +498,7 @@ class WebAgentBackend:
             "runOnStartup": bool(self.state.get("run_on_startup", True)),
             "autostartLaunchMode": autostart_launch_mode,
             "closeBehavior": close_behavior,
+            "traySupported": bool(getattr(self, "tray_supported", False)),
             "debug": bool(self.state.get("debug", False)),
             "autoSave": True,
             "enableSystemTheme": enable_system_theme,
