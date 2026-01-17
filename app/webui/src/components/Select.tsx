@@ -102,7 +102,8 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
       const maxHeight = Math.min(320, Math.max(0, spaceBelow));
       setMenuStyle({
         maxHeight: `${maxHeight}px`,
-        width: `${Math.round(rect.width)}px`
+        // Avoid rounding; fractional CSS pixels happen with zoom/DPI and can make the menu look wider.
+        width: `${rect.width}px`
       });
     };
     updateMenu();
