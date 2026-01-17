@@ -51,14 +51,19 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
     if (!menu || !scroller) return;
 
     const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
+    const blurredRef = { current: new Set<HTMLElement>() };
+    let rafId: number | null = null;
+    let scheduled = false;
 
     // Create a real "frosted/blurred" edge by blurring the items themselves near the
     // top/bottom scroll edges (instead of relying on backdrop-filter overlays, which
     // can look like a hard-cut band in some environments).
     const applyEdgeBlur = (mode: "none" | "top" | "middle" | "bottom") => {
-      const fadePx = 44;
-      const maxBlurPx = 3.4;
-      const maxFade = 0.55;
+      // Keep the effect subtle. Large blur radius + wide fade zone looks "muddy",
+      // and can smear too much when the user scrolls quickly.
+      const fadePx = 30;
+      const maxBlurPx = 2.2;
+      const maxFade = 0.34;
 
       const enableTop = mode === "middle" || mode === "bottom";
       const enableBottom = mode === "middle" || mode === "top";
@@ -68,65 +73,100 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
 
       // Avoid layout work if no edge effect is expected.
       if (!enableTop && !enableBottom) {
-        for (const item of items) {
+        for (const item of blurredRef.current) {
           item.style.filter = "";
           item.style.opacity = "";
         }
+        blurredRef.current.clear();
         return;
       }
 
+      // Only touch visible items near the edges; this avoids heavy DOM reads/writes,
+      // and prevents a "whole block" looking blurred while scrolling fast.
+      const nextBlurred = new Set<HTMLElement>();
       const scrollerRect = scroller.getBoundingClientRect();
+      const edgeTop = scrollerRect.top + fadePx;
+      const edgeBottom = scrollerRect.bottom - fadePx;
+
       for (const item of items) {
         const rect = item.getBoundingClientRect();
-        const topDist = rect.top - scrollerRect.top;
-        const bottomDist = scrollerRect.bottom - rect.bottom;
-        const topProgress = enableTop ? clamp01((fadePx - topDist) / fadePx) : 0;
-        const bottomProgress = enableBottom ? clamp01((fadePx - bottomDist) / fadePx) : 0;
-        const progress = Math.max(topProgress, bottomProgress);
-
-        if (progress <= 0.001) {
-          item.style.filter = "";
-          item.style.opacity = "";
+        // Skip items that are far from the viewport of the scroller.
+        if (rect.bottom < scrollerRect.top - fadePx || rect.top > scrollerRect.bottom + fadePx) {
           continue;
         }
 
-        const blur = (progress * maxBlurPx).toFixed(2);
-        const opacity = (1 - progress * maxFade).toFixed(3);
+        const topDist = rect.top - scrollerRect.top;
+        const bottomDist = scrollerRect.bottom - rect.bottom;
+        const isNearTop = enableTop && rect.top < edgeTop;
+        const isNearBottom = enableBottom && rect.bottom > edgeBottom;
+        if (!isNearTop && !isNearBottom) {
+          continue;
+        }
+
+        const topProgress = isNearTop ? clamp01((fadePx - topDist) / fadePx) : 0;
+        const bottomProgress = isNearBottom ? clamp01((fadePx - bottomDist) / fadePx) : 0;
+        const progress = Math.max(topProgress, bottomProgress);
+        // Ease-in so most of the list stays crisp; only the last ~10-15px looks blurred.
+        const eased = Math.pow(progress, 1.6);
+
+        const blur = (eased * maxBlurPx).toFixed(2);
+        const opacity = (1 - eased * maxFade).toFixed(3);
         item.style.filter = `blur(${blur}px)`;
         item.style.opacity = opacity;
+        nextBlurred.add(item);
       }
+
+      for (const item of blurredRef.current) {
+        if (nextBlurred.has(item)) continue;
+        item.style.filter = "";
+        item.style.opacity = "";
+      }
+      blurredRef.current = nextBlurred;
     };
 
-    const updateScrollState = () => {
-      if (scroller.scrollHeight <= scroller.clientHeight + 1) {
-        menu.dataset.scroll = "none";
-        setScrollState("none");
-        applyEdgeBlur("none");
-        return;
-      }
+    let lastMode: "none" | "top" | "middle" | "bottom" = "none";
+
+    const computeMode = () => {
+      if (scroller.scrollHeight <= scroller.clientHeight + 1) return "none";
       const atTop = scroller.scrollTop <= 1;
-      const atBottom =
-        scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 1;
-      if (atTop) {
-        menu.dataset.scroll = "top";
-        setScrollState("top");
-        applyEdgeBlur("top");
-      } else if (atBottom) {
-        menu.dataset.scroll = "bottom";
-        setScrollState("bottom");
-        applyEdgeBlur("bottom");
-      } else {
-        menu.dataset.scroll = "middle";
-        setScrollState("middle");
-        applyEdgeBlur("middle");
-      }
+      const atBottom = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 1;
+      if (atTop) return "top";
+      if (atBottom) return "bottom";
+      return "middle";
     };
-    updateScrollState();
-    scroller.addEventListener("scroll", updateScrollState);
-    window.addEventListener("resize", updateScrollState);
+
+    const syncUpdateMode = () => {
+      const mode = computeMode();
+      lastMode = mode;
+      // Keep the DOM attribute updated synchronously so tests and other code can
+      // read a correct state immediately after a scroll event.
+      if (menu.dataset.scroll !== mode) {
+        menu.dataset.scroll = mode;
+      }
+      setScrollState(mode);
+    };
+
+    const scheduleBlurUpdate = () => {
+      if (scheduled) return;
+      scheduled = true;
+      rafId = window.requestAnimationFrame(() => {
+        scheduled = false;
+        applyEdgeBlur(lastMode);
+      });
+    };
+
+    const onScrollOrResize = () => {
+      syncUpdateMode();
+      scheduleBlurUpdate();
+    };
+
+    onScrollOrResize();
+    scroller.addEventListener("scroll", onScrollOrResize);
+    window.addEventListener("resize", onScrollOrResize);
     return () => {
-      scroller.removeEventListener("scroll", updateScrollState);
-      window.removeEventListener("resize", updateScrollState);
+      scroller.removeEventListener("scroll", onScrollOrResize);
+      window.removeEventListener("resize", onScrollOrResize);
+      if (rafId !== null) window.cancelAnimationFrame(rafId);
       applyEdgeBlur("none");
     };
   }, [open, options.length]);
