@@ -1826,6 +1826,25 @@ const main = async () => {
           element: timezoneSection
         })
       });
+
+      const tzSelectTrigger = timezoneSection
+        .locator("[data-qa='qa:select:calendar-utc-offset'] .select-trigger")
+        .first();
+      if (await tzSelectTrigger.count()) {
+        await tzSelectTrigger.click({ force: true });
+        await page.waitForTimeout(160);
+        artifacts.push({
+          scenario: "dropdown-calendar-utc-offset",
+          theme: theme.key,
+          state: "open",
+          path: await captureState(page, "dropdown-calendar-utc-offset", theme.key, "open")
+        });
+        await runCheck(theme.key, "Dropdown menu layout (calendar-utc-offset)", () =>
+          assertDropdownMenu(page, "calendar-utc-offset")
+        );
+        await tzSelectTrigger.click({ force: true });
+        await page.waitForTimeout(120);
+      }
     }
 
     const syncRepoSection = page.locator("[data-qa='qa:section:sync-repo']").first();

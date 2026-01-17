@@ -30,6 +30,7 @@ from agent.config import (
     to_display_time,
     to_iso_time,
 )
+from agent.currency_options import CURRENCY_OPTIONS
 from agent.git_ops import (
     clone_repo_with_progress_into_dir,
     fetch_origin,
@@ -1529,13 +1530,7 @@ class WebAgentBackend:
         return events
 
     def _currency_options(self, events: list[dict]) -> list[str]:
-        currencies = {
-            event.get("currency", "") for event in events if event.get("currency")
-        }
-        options = ["USD"]
-        options.extend(sorted(currency for currency in currencies if currency != "USD"))
-        options.append("ALL")
-        return options
+        return list(CURRENCY_OPTIONS)
 
     def _format_countdown(self, target_utc: datetime) -> str:
         delta = target_utc - datetime.now(timezone.utc)

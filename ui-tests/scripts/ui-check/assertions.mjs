@@ -686,19 +686,28 @@ export const assertDropdownMenu = async (page, name) => {
     if (!trigger || !menu) {
       return { ok: false, reason: "select menu not open" };
     }
+
+    // Verify menu doesn't introduce large internal "dead space" above/below items.
+    // This catches layout regressions where decorative overlays participate in layout.
+    menu.scrollTop = 0;
+    menu.dispatchEvent(new Event("scroll"));
     const triggerRect = trigger.getBoundingClientRect();
     const menuRect = menu.getBoundingClientRect();
     const footerRect = footer ? footer.getBoundingClientRect() : null;
-    const item = menu.querySelector(".select-item");
-    const itemRect = item ? item.getBoundingClientRect() : null;
+    const items = Array.from(menu.querySelectorAll(".select-item"));
+    const firstItemRect = items[0]?.getBoundingClientRect() ?? null;
     const menuStyle = window.getComputedStyle(menu);
     const viewportBottom = window.innerHeight;
     const viewportRight = window.innerWidth;
-    const visibleItems = itemRect ? Math.floor(menuRect.height / itemRect.height) : 0;
+    const visibleItems = firstItemRect ? Math.floor(menuRect.height / firstItemRect.height) : 0;
     const scrollable = menu.scrollHeight > menu.clientHeight + 1;
     const scrollState = menu.getAttribute("data-scroll");
+    const topGap = firstItemRect ? firstItemRect.top - menuRect.top : null;
+
     menu.scrollTop = menu.scrollHeight;
     menu.dispatchEvent(new Event("scroll"));
+    const lastItemRect = items.length ? items[items.length - 1].getBoundingClientRect() : null;
+    const bottomGap = lastItemRect ? menuRect.bottom - lastItemRect.bottom : null;
     const scrollStateBottom = menu.getAttribute("data-scroll");
     return {
       ok: true,
@@ -715,6 +724,8 @@ export const assertDropdownMenu = async (page, name) => {
       scrollable,
       scrollState,
       scrollStateBottom,
+      topGap,
+      bottomGap,
       overscrollBehavior: menuStyle.overscrollBehaviorY
     };
   });
@@ -739,6 +750,14 @@ export const assertDropdownMenu = async (page, name) => {
   if (result.visibleItems < 3) {
     throw new Error(`Dropdown visible items too few for ${name}`);
   }
+  if (result.topGap !== null && result.topGap > 18) {
+    throw new Error(`Dropdown menu has excessive top spacing for ${name} (topGap=${result.topGap})`);
+  }
+  if (result.bottomGap !== null && result.bottomGap > 18) {
+    throw new Error(
+      `Dropdown menu has excessive bottom spacing for ${name} (bottomGap=${result.bottomGap})`
+    );
+  }
   if (result.overscrollBehavior !== "contain" && result.overscrollBehavior !== "none") {
     throw new Error(`Dropdown overscroll not contained for ${name}`);
   }
@@ -747,6 +766,52 @@ export const assertDropdownMenu = async (page, name) => {
   }
   if (result.scrollable && result.scrollStateBottom !== "bottom") {
     throw new Error(`Dropdown scroll indicator not updating at bottom for ${name}`);
+  }
+  if (!result.scrollable) return;
+
+  // Validate the scroll "cloud" indicators. Because opacity animates, apply a small
+  // delay after scroll events before reading computed styles.
+  const readCloud = async (target) => {
+    await page.evaluate((mode) => {
+      const menu = document.querySelector(".select-menu.open");
+      if (!(menu instanceof HTMLElement)) return;
+      if (mode === "top") {
+        menu.scrollTop = 0;
+      } else {
+        menu.scrollTop = menu.scrollHeight;
+      }
+      menu.dispatchEvent(new Event("scroll"));
+    }, target);
+    await page.waitForTimeout(160);
+    return page.evaluate(() => {
+      const menu = document.querySelector(".select-menu.open");
+      if (!(menu instanceof HTMLElement)) return null;
+      const before = Number(window.getComputedStyle(menu, "::before").opacity || 0);
+      const after = Number(window.getComputedStyle(menu, "::after").opacity || 0);
+      return { before, after };
+    });
+  };
+
+  const top = await readCloud("top");
+  if (!top) throw new Error(`Dropdown menu missing for ${name}`);
+  if (top.after < 0.35) {
+    throw new Error(`Dropdown missing bottom scroll hint at top for ${name} (afterTop=${top.after})`);
+  }
+  if (top.before > 0.25) {
+    throw new Error(`Dropdown has unexpected top scroll hint at top for ${name} (beforeTop=${top.before})`);
+  }
+
+  const bottom = await readCloud("bottom");
+  if (!bottom) throw new Error(`Dropdown menu missing for ${name}`);
+  if (bottom.before < 0.35) {
+    throw new Error(
+      `Dropdown missing top scroll hint at bottom for ${name} (beforeBottom=${bottom.before})`
+    );
+  }
+  if (bottom.after > 0.25) {
+    throw new Error(
+      `Dropdown has unexpected bottom scroll hint at bottom for ${name} (afterBottom=${bottom.after})`
+    );
   }
 };
 

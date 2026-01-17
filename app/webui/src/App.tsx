@@ -15,21 +15,17 @@ import { SettingsModal } from "./components/SettingsModal";
 import { SyncRepoWarningModal, type SyncRepoWarningMode } from "./components/SyncRepoWarningModal";
 import { ToastStack } from "./components/ToastStack";
 import { UninstallModal } from "./components/UninstallModal";
+import { CURRENCY_OPTIONS } from "./constants/currencyOptions";
 import { impactTone, levelTone } from "./utils/ui";
 import "./App.css";
 
-const defaultCurrencyOptions = ["ALL", "USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "NZD"];
+const defaultCurrencyOptions = Array.from(CURRENCY_OPTIONS);
 const impactOptions = ["Low", "Medium", "High"];
 const impactFilterStorageKey = "xauusd:nextEvents:impactFilter";
 
 const normalizeCurrencyOptions = (options: string[]) => {
-  const normalized = options.map((value) => value.toUpperCase());
-  if (normalized.length < 3) {
-    return defaultCurrencyOptions;
-  }
-  const seen = new Set(normalized);
-  const ordered = defaultCurrencyOptions.filter((item) => seen.has(item));
-  return ordered.length >= 2 ? ordered : defaultCurrencyOptions;
+  void options;
+  return defaultCurrencyOptions;
 };
 
 const emptySnapshot: Snapshot = {
