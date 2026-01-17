@@ -297,6 +297,8 @@ let mockSettings: Settings = {
   autoSyncAfterPull: true,
   autoUpdateEnabled: true,
   runOnStartup: true,
+  autostartLaunchMode: "tray",
+  closeBehavior: "exit",
   debug: false,
   autoSave: true,
   splitRatio: 0.66,

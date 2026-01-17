@@ -193,6 +193,11 @@ def main() -> None:
     multiprocessing.freeze_support()
     parser = argparse.ArgumentParser()
     parser.add_argument("--debug", action="store_true")
+    parser.add_argument(
+        "--autostart",
+        action="store_true",
+        help="Indicates the app was launched via the Windows startup entry.",
+    )
     args = parser.parse_args()
 
     lock_handle = acquire_single_instance_lock()
@@ -207,6 +212,15 @@ def main() -> None:
         raise FileNotFoundError(f"UI not found: {index_path}")
 
     icon_path = get_asset_path(APP_ICON)
+    tray_supported = bool(pystray and Image and icon_path.exists())
+    autostart_launch_mode = (
+        (backend.state.get("autostart_launch_mode") or "tray").strip().lower()
+    )
+    if autostart_launch_mode not in ("tray", "show"):
+        autostart_launch_mode = "tray"
+    should_hide_on_autostart = bool(
+        args.autostart and tray_supported and autostart_launch_mode == "tray"
+    )
     window = webview.create_window(
         APP_TITLE,
         url=index_path.as_uri(),
@@ -219,6 +233,7 @@ def main() -> None:
         background_color="#0b0d10",
         frameless=False,
         js_api=backend,
+        hidden=should_hide_on_autostart,
     )
     backend.set_window(window)
     exit_event = threading.Event()
@@ -227,6 +242,8 @@ def main() -> None:
     tray = TrayController(backend, icon_path, exit_event)
     tray.start(window)
     ipc_stop = threading.Event()
+    if should_hide_on_autostart:
+        pending_hide_to_tray.set()
 
     def start_ipc_listener() -> None:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
@@ -256,10 +273,13 @@ def main() -> None:
     def on_closing(*_args) -> bool:
         if exit_event.is_set():
             return True
+        close_behavior = (backend.state.get("close_behavior") or "exit").strip().lower()
+        if close_behavior not in ("exit", "tray"):
+            close_behavior = "exit"
         tray_ready = (
             tray.icon is not None and tray.thread is not None and tray.thread.is_alive()
         )
-        if tray_ready:
+        if tray_ready and close_behavior == "tray":
             if not window_loaded.is_set():
                 pending_hide_to_tray.set()
                 return False

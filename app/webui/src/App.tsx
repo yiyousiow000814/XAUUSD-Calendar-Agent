@@ -51,6 +51,8 @@ const emptySettings: Settings = {
   autoSyncAfterPull: true,
   autoUpdateEnabled: true,
   runOnStartup: true,
+  autostartLaunchMode: "tray",
+  closeBehavior: "exit",
   debug: false,
   autoSave: true,
   splitRatio: 0.66,
@@ -2479,6 +2481,24 @@ export default function App() {
         onRunOnStartup={(value) =>
           setSettings((prev) => {
             const next = { ...prev, runOnStartup: value };
+            if (prev.autoSave) {
+              persistSettingsAutosafe(next);
+            }
+            return next;
+          })
+        }
+        onAutostartLaunchModeChange={(value) =>
+          setSettings((prev) => {
+            const next = { ...prev, autostartLaunchMode: value };
+            if (prev.autoSave) {
+              persistSettingsAutosafe(next);
+            }
+            return next;
+          })
+        }
+        onCloseBehaviorChange={(value) =>
+          setSettings((prev) => {
+            const next = { ...prev, closeBehavior: value };
             if (prev.autoSave) {
               persistSettingsAutosafe(next);
             }
