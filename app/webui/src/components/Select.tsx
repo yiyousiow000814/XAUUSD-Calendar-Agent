@@ -50,8 +50,6 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
     const scroller = scrollRef.current;
     if (!menu || !scroller) return;
 
-    const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
-
     let lastMode: "none" | "top" | "middle" | "bottom" = "none";
 
     const computeMode = () => {
@@ -61,23 +59,6 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
       if (atTop) return "top";
       if (atBottom) return "bottom";
       return "middle";
-    };
-
-    const updateCloudVars = () => {
-      const maxScroll = Math.max(0, scroller.scrollHeight - scroller.clientHeight);
-      if (maxScroll <= 1) {
-        menu.style.setProperty("--select-cloud-top-opacity", "0");
-        menu.style.setProperty("--select-cloud-bottom-opacity", "0");
-        return;
-      }
-
-      // Smooth fade near edges; keep it capped so it reads as an affordance, not fog.
-      const fadePx = 34;
-      const topStrength = clamp01(scroller.scrollTop / fadePx);
-      const bottomStrength = clamp01((maxScroll - scroller.scrollTop) / fadePx);
-      const cap = 0.92;
-      menu.style.setProperty("--select-cloud-top-opacity", (topStrength * cap).toFixed(3));
-      menu.style.setProperty("--select-cloud-bottom-opacity", (bottomStrength * cap).toFixed(3));
     };
 
     const syncUpdateMode = () => {
@@ -94,7 +75,6 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
     };
 
     const onScrollOrResize = () => {
-      updateCloudVars();
       syncUpdateMode();
     };
 
@@ -108,8 +88,6 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
       if (menu.dataset.scroll !== "none") {
         menu.dataset.scroll = "none";
       }
-      menu.style.removeProperty("--select-cloud-top-opacity");
-      menu.style.removeProperty("--select-cloud-bottom-opacity");
     };
   }, [open, options.length]);
 
@@ -132,6 +110,7 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
 
   useLayoutEffect(() => {
     if (!open) return;
+    let raf: number | null = null;
     const updateMenu = () => {
       if (!rootRef.current) return;
       const trigger = triggerRef.current ?? rootRef.current;
@@ -142,7 +121,42 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
       const footer = document.querySelector(".footer");
       const footerTop = footer ? footer.getBoundingClientRect().top - 8 : bottomLimit;
       const spaceBelow = Math.max(0, Math.min(bottomLimit, footerTop) - top);
-      const maxHeight = Math.min(320, Math.max(0, spaceBelow));
+      let maxHeight = Math.min(320, Math.max(0, spaceBelow));
+
+      // If the dropdown would scroll, make the menu height show a consistent "half item"
+      // at the bottom. This creates a strong scroll affordance without a blur overlay.
+      const scroller = scrollRef.current;
+      if (scroller && maxHeight > 0) {
+        const items = scroller.querySelectorAll<HTMLElement>(".select-item");
+        if (items.length >= 2) {
+          const item0 = items[0];
+          const item1 = items[1];
+          const itemHeight = item0.offsetHeight;
+          const rowStep = Math.max(0, item1.offsetTop - item0.offsetTop); // includes gap
+          const style = window.getComputedStyle(scroller);
+          const padTop = Number.parseFloat(style.paddingTop) || 0;
+          const padBottom = Number.parseFloat(style.paddingBottom) || 0;
+          const gap = Math.max(0, rowStep - itemHeight);
+          const totalContent =
+            padTop +
+            padBottom +
+            items.length * itemHeight +
+            Math.max(0, items.length - 1) * gap;
+
+          if (totalContent > maxHeight + 1 && rowStep > 0 && itemHeight > 0) {
+            const k = Math.max(
+              2,
+              Math.floor((maxHeight - padTop - padBottom - itemHeight / 2) / rowStep)
+            );
+            if (k < items.length) {
+              const peekHeight = padTop + padBottom + k * rowStep + itemHeight / 2;
+              if (peekHeight > 0 && peekHeight <= maxHeight) {
+                maxHeight = peekHeight;
+              }
+            }
+          }
+        }
+      }
       setMenuStyle({
         maxHeight: `${maxHeight}px`,
         // Avoid rounding; fractional CSS pixels happen with zoom/DPI and can make the menu look wider.
@@ -150,8 +164,12 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
       });
     };
     updateMenu();
+    // The first layout pass can run before grid gaps settle in some environments.
+    // Re-run once on the next frame to lock in the intended half-item peek height.
+    raf = window.requestAnimationFrame(updateMenu);
     window.addEventListener("resize", updateMenu);
     return () => {
+      if (raf !== null) window.cancelAnimationFrame(raf);
       window.removeEventListener("resize", updateMenu);
     };
   }, [open, options.length]);

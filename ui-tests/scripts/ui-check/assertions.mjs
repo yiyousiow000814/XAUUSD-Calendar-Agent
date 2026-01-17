@@ -778,9 +778,9 @@ export const assertDropdownMenu = async (page, name) => {
   }
   if (!result.scrollable) return;
 
-  // Validate the fixed "cloud" indicators (pseudo elements). Because opacity animates,
-  // apply a small delay after scroll events before reading computed styles.
-  const readCloud = async (target) => {
+  // Validate the scroll affordance: when scrollable, the menu height should clip
+  // about half an item at the edge to hint that more content exists.
+  const readPeek = async (target) => {
     await page.evaluate((mode) => {
       const menu = document.querySelector(".select-menu.open");
       const scroller = menu?.querySelector(".select-menu-scroll");
@@ -796,62 +796,65 @@ export const assertDropdownMenu = async (page, name) => {
     await page.waitForTimeout(160);
     return page.evaluate(() => {
       const menu = document.querySelector(".select-menu.open");
-      if (!(menu instanceof HTMLElement)) return null;
-      const beforeStyle = window.getComputedStyle(menu, "::before");
-      const afterStyle = window.getComputedStyle(menu, "::after");
-      const before = Number(beforeStyle.opacity || 0);
-      const after = Number(afterStyle.opacity || 0);
+      const scroller = menu?.querySelector(".select-menu-scroll");
+      if (!(menu instanceof HTMLElement) || !(scroller instanceof HTMLElement)) return null;
+      const scrollerRect = scroller.getBoundingClientRect();
+      const items = Array.from(scroller.querySelectorAll(".select-item"));
+      const firstRect = items[0]?.getBoundingClientRect() ?? null;
+      const itemHeight = firstRect?.height ?? 0;
+
+      const clippedTop = items
+        .map((el) => ({ el, rect: el.getBoundingClientRect() }))
+        .find((item) => item.rect.top < scrollerRect.top - 1 && item.rect.bottom > scrollerRect.top + 2);
+      const clippedBottom = items
+        .map((el) => ({ el, rect: el.getBoundingClientRect() }))
+        .find(
+          (item) => item.rect.bottom > scrollerRect.bottom + 1 && item.rect.top < scrollerRect.bottom - 2
+        );
+
+      const topClipPx = clippedTop ? scrollerRect.top - clippedTop.rect.top : 0;
+      const bottomClipPx = clippedBottom ? clippedBottom.rect.bottom - scrollerRect.bottom : 0;
       return {
-        before,
-        after,
-        beforeLeft: beforeStyle.left,
-        beforeRight: beforeStyle.right,
-        beforeTop: beforeStyle.top,
-        afterLeft: afterStyle.left,
-        afterRight: afterStyle.right,
-        afterBottom: afterStyle.bottom,
-        beforeMask: beforeStyle.webkitMaskImage || beforeStyle.maskImage,
-        afterMask: afterStyle.webkitMaskImage || afterStyle.maskImage
+        scrollState: menu.getAttribute("data-scroll") || "",
+        itemHeight,
+        topClipItemHeight: clippedTop?.rect.height ?? 0,
+        bottomClipItemHeight: clippedBottom?.rect.height ?? 0,
+        topClipPx,
+        bottomClipPx
       };
     });
   };
 
-  const top = await readCloud("top");
+  const top = await readPeek("top");
   if (!top) throw new Error(`Dropdown menu missing for ${name}`);
-  if (top.after < 0.35) {
-    throw new Error(`Dropdown missing bottom scroll hint at top for ${name} (afterTop=${top.after})`);
+  if (top.scrollState !== "top") {
+    throw new Error(`Dropdown scroll indicator mismatch at top for ${name} (state=${top.scrollState})`);
   }
-  if (top.before > 0.25) {
-    throw new Error(`Dropdown has unexpected top scroll hint at top for ${name} (beforeTop=${top.before})`);
-  }
-  if (top.afterLeft !== "0px" || top.afterRight !== "0px") {
-    throw new Error(
-      `Dropdown bottom hint not hugging frame for ${name} (left=${top.afterLeft} right=${top.afterRight})`
-    );
-  }
-  if (typeof top.afterMask === "string" && !top.afterMask.includes("gradient")) {
-    throw new Error(`Dropdown bottom hint missing mask fade for ${name} (mask=${top.afterMask})`);
+  if (top.itemHeight > 0) {
+    const denom = top.bottomClipItemHeight || top.itemHeight;
+    const ratio = denom > 0 ? top.bottomClipPx / denom : 0;
+    if (top.bottomClipPx <= 2 || ratio < 0.3 || ratio > 0.7) {
+      throw new Error(
+        `Dropdown missing half-item peek at top for ${name} (clipPx=${top.bottomClipPx.toFixed(1)} ratio=${ratio.toFixed(2)})`
+      );
+    }
   }
 
-  const bottom = await readCloud("bottom");
+  const bottom = await readPeek("bottom");
   if (!bottom) throw new Error(`Dropdown menu missing for ${name}`);
-  if (bottom.before < 0.35) {
+  if (bottom.scrollState !== "bottom") {
     throw new Error(
-      `Dropdown missing top scroll hint at bottom for ${name} (beforeBottom=${bottom.before})`
+      `Dropdown scroll indicator mismatch at bottom for ${name} (state=${bottom.scrollState})`
     );
   }
-  if (bottom.after > 0.25) {
-    throw new Error(
-      `Dropdown has unexpected bottom scroll hint at bottom for ${name} (afterBottom=${bottom.after})`
-    );
-  }
-  if (bottom.beforeLeft !== "0px" || bottom.beforeRight !== "0px") {
-    throw new Error(
-      `Dropdown top hint not hugging frame for ${name} (left=${bottom.beforeLeft} right=${bottom.beforeRight})`
-    );
-  }
-  if (typeof bottom.beforeMask === "string" && !bottom.beforeMask.includes("gradient")) {
-    throw new Error(`Dropdown top hint missing mask fade for ${name} (mask=${bottom.beforeMask})`);
+  if (bottom.itemHeight > 0) {
+    const denom = bottom.topClipItemHeight || bottom.itemHeight;
+    const ratio = denom > 0 ? bottom.topClipPx / denom : 0;
+    if (bottom.topClipPx <= 2 || ratio < 0.3 || ratio > 0.7) {
+      throw new Error(
+        `Dropdown missing half-item peek at bottom for ${name} (clipPx=${bottom.topClipPx.toFixed(1)} ratio=${ratio.toFixed(2)})`
+      );
+    }
   }
 };
 
