@@ -2,8 +2,10 @@ import argparse
 import multiprocessing
 import os
 import socket
+import subprocess
 import sys
 import threading
+import time
 from pathlib import Path
 
 import webview
@@ -22,6 +24,104 @@ APP_TITLE = "XAUUSD Calendar Agent"
 APP_ICON = "assets/xauusd.ico"
 IPC_HOST = "127.0.0.1"
 IPC_PORT = 48732
+
+
+def terminate_webview_descendants(timeout_s: float = 2.0) -> None:
+    """
+    Best-effort cleanup for PyInstaller onefile builds.
+
+    When the app exits very early, WebView2 processes may still hold open handles
+    in the PyInstaller extraction directory, which can trigger:
+      "Failed to remove temporary directory: ...\\_MEIxxxxx"
+    """
+    if not sys.platform.startswith("win"):
+        return
+
+    try:
+        creationflags = subprocess.CREATE_NO_WINDOW
+    except Exception:  # noqa: BLE001
+        creationflags = 0
+
+    try:
+        script = (
+            "Get-CimInstance Win32_Process | "
+            "Select-Object ProcessId,ParentProcessId,Name | "
+            "ConvertTo-Json -Compress"
+        )
+        result = subprocess.run(
+            ["powershell", "-NoProfile", "-Command", script],
+            check=False,
+            capture_output=True,
+            text=True,
+            creationflags=creationflags,
+        )
+        if result.returncode != 0:
+            return
+        raw = (result.stdout or "").strip()
+        if not raw:
+            return
+        import json  # local import to keep startup light
+
+        data = json.loads(raw)
+    except Exception:  # noqa: BLE001
+        return
+
+    items = data if isinstance(data, list) else [data]
+    parents: dict[int, int] = {}
+    names: dict[int, str] = {}
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        try:
+            pid = int(item.get("ProcessId"))
+            ppid = int(item.get("ParentProcessId") or 0)
+        except Exception:  # noqa: BLE001
+            continue
+        parents[pid] = ppid
+        names[pid] = str(item.get("Name") or "")
+
+    root_pid = os.getpid()
+    # Collect all descendants.
+    descendants: set[int] = set()
+    frontier = [root_pid]
+    while frontier:
+        current = frontier.pop()
+        for pid, ppid in parents.items():
+            if ppid != current or pid in descendants or pid == root_pid:
+                continue
+            descendants.add(pid)
+            frontier.append(pid)
+
+    targets = {"msedgewebview2.exe", "msedge.exe", "webviewhost.exe"}
+    to_kill = [pid for pid in descendants if names.get(pid, "").lower() in targets]
+    if not to_kill:
+        return
+
+    deadline = time.time() + max(0.2, float(timeout_s))
+    for pid in to_kill:
+        try:
+            subprocess.run(
+                ["taskkill", "/PID", str(pid), "/T", "/F"],
+                check=False,
+                capture_output=True,
+                text=True,
+                creationflags=creationflags,
+            )
+        except Exception:  # noqa: BLE001
+            continue
+
+    # Give Windows a moment to tear down the process tree and release file locks.
+    while time.time() < deadline:
+        remaining = []
+        for pid in to_kill:
+            try:
+                os.kill(pid, 0)
+            except OSError:
+                continue
+            remaining.append(pid)
+        if not remaining:
+            return
+        time.sleep(0.05)
 
 
 def patch_pywebview_winforms_move_resize() -> None:
@@ -258,6 +358,7 @@ def main() -> None:
     exit_event = threading.Event()
     window_loaded = threading.Event()
     pending_hide_to_tray = threading.Event()
+    pending_exit = threading.Event()
     tray = TrayController(backend, icon_path, exit_event)
     tray.start(window)
     ipc_stop = threading.Event()
@@ -295,10 +396,18 @@ def main() -> None:
         close_behavior = (backend.state.get("close_behavior") or "exit").strip().lower()
         if close_behavior not in ("exit", "tray"):
             close_behavior = "exit"
+        if close_behavior == "exit" and not window_loaded.is_set():
+            # Avoid exiting before WebView2 fully spins up; early exits can leave
+            # file locks behind in PyInstaller's _MEI folder.
+            pending_exit.set()
+            return False
         tray_ready = (
             tray.icon is not None and tray.thread is not None and tray.thread.is_alive()
         )
-        if tray_ready and close_behavior == "tray":
+        if close_behavior == "tray" and tray_supported:
+            if not tray_ready:
+                pending_hide_to_tray.set()
+                return False
             if not window_loaded.is_set():
                 pending_hide_to_tray.set()
                 return False
@@ -347,6 +456,16 @@ def main() -> None:
                     tray.show()
                 except Exception:  # noqa: BLE001
                     return
+            if pending_exit.is_set():
+                exit_event.set()
+                try:
+                    backend.shutdown()
+                except Exception:  # noqa: BLE001
+                    pass
+                try:
+                    window.destroy()
+                except Exception:  # noqa: BLE001
+                    return
 
         window.events.loaded += on_loaded
     except Exception:  # noqa: BLE001
@@ -382,6 +501,7 @@ def main() -> None:
             func=None,
         )
     finally:
+        terminate_webview_descendants()
         tray.stop()
         ipc_stop.set()
         if lock_handle and hasattr(lock_handle, "close"):
