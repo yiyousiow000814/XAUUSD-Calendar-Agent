@@ -20,6 +20,7 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
   const selected = options.find((item) => item.value === value);
 
   useEffect(() => {
@@ -46,45 +47,105 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
   useEffect(() => {
     if (!open) return;
     const menu = menuRef.current;
-    if (!menu) return;
-    const updateScrollState = () => {
-      if (menu.scrollHeight <= menu.clientHeight + 1) {
-        menu.dataset.scroll = "none";
-        setScrollState("none");
+    const scroller = scrollRef.current;
+    if (!menu || !scroller) return;
+
+    const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
+
+    // Create a real "frosted/blurred" edge by blurring the items themselves near the
+    // top/bottom scroll edges (instead of relying on backdrop-filter overlays, which
+    // can look like a hard-cut band in some environments).
+    const applyEdgeBlur = (mode: "none" | "top" | "middle" | "bottom") => {
+      const fadePx = 44;
+      const maxBlurPx = 3.4;
+      const maxFade = 0.55;
+
+      const enableTop = mode === "middle" || mode === "bottom";
+      const enableBottom = mode === "middle" || mode === "top";
+
+      const items = Array.from(scroller.querySelectorAll<HTMLButtonElement>(".select-item"));
+      if (!items.length) return;
+
+      // Avoid layout work if no edge effect is expected.
+      if (!enableTop && !enableBottom) {
+        for (const item of items) {
+          item.style.filter = "";
+          item.style.opacity = "";
+        }
         return;
       }
-      const atTop = menu.scrollTop <= 1;
-      const atBottom = menu.scrollTop + menu.clientHeight >= menu.scrollHeight - 1;
+
+      const scrollerRect = scroller.getBoundingClientRect();
+      for (const item of items) {
+        const rect = item.getBoundingClientRect();
+        const topDist = rect.top - scrollerRect.top;
+        const bottomDist = scrollerRect.bottom - rect.bottom;
+        const topProgress = enableTop ? clamp01((fadePx - topDist) / fadePx) : 0;
+        const bottomProgress = enableBottom ? clamp01((fadePx - bottomDist) / fadePx) : 0;
+        const progress = Math.max(topProgress, bottomProgress);
+
+        if (progress <= 0.001) {
+          item.style.filter = "";
+          item.style.opacity = "";
+          continue;
+        }
+
+        const blur = (progress * maxBlurPx).toFixed(2);
+        const opacity = (1 - progress * maxFade).toFixed(3);
+        item.style.filter = `blur(${blur}px)`;
+        item.style.opacity = opacity;
+      }
+    };
+
+    const updateScrollState = () => {
+      if (scroller.scrollHeight <= scroller.clientHeight + 1) {
+        menu.dataset.scroll = "none";
+        setScrollState("none");
+        applyEdgeBlur("none");
+        return;
+      }
+      const atTop = scroller.scrollTop <= 1;
+      const atBottom =
+        scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 1;
       if (atTop) {
         menu.dataset.scroll = "top";
         setScrollState("top");
+        applyEdgeBlur("top");
       } else if (atBottom) {
         menu.dataset.scroll = "bottom";
         setScrollState("bottom");
+        applyEdgeBlur("bottom");
       } else {
         menu.dataset.scroll = "middle";
         setScrollState("middle");
+        applyEdgeBlur("middle");
       }
     };
     updateScrollState();
-    menu.addEventListener("scroll", updateScrollState);
-    return () => menu.removeEventListener("scroll", updateScrollState);
+    scroller.addEventListener("scroll", updateScrollState);
+    window.addEventListener("resize", updateScrollState);
+    return () => {
+      scroller.removeEventListener("scroll", updateScrollState);
+      window.removeEventListener("resize", updateScrollState);
+      applyEdgeBlur("none");
+    };
   }, [open, options.length]);
 
   useEffect(() => {
     if (!open) return;
-    const menu = menuRef.current;
-    if (!menu) return;
+    const scroller = scrollRef.current;
+    if (!scroller) return;
     const onWheel = (event: WheelEvent) => {
-      if (!menu.contains(event.target as Node)) return;
-      const atTop = menu.scrollTop <= 0;
-      const atBottom = menu.scrollTop + menu.clientHeight >= menu.scrollHeight - 1;
+      if (!scroller.contains(event.target as Node)) return;
+      const atTop = scroller.scrollTop <= 0;
+      const atBottom =
+        scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 1;
       if ((event.deltaY < 0 && atTop) || (event.deltaY > 0 && atBottom)) {
         event.preventDefault();
       }
     };
-    menu.addEventListener("wheel", onWheel, { passive: false });
-    return () => menu.removeEventListener("wheel", onWheel);
+    scroller.addEventListener("wheel", onWheel, { passive: false });
+    return () => scroller.removeEventListener("wheel", onWheel);
   }, [open]);
 
   useLayoutEffect(() => {
@@ -135,7 +196,8 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
           style={menuStyle}
           data-scroll={scrollState}
         >
-          <div className="select-menu-inner">
+          <div className="select-menu-border" aria-hidden="true" />
+          <div className="select-menu-scroll" ref={scrollRef}>
             {options.map((option) => (
               <button
                 className={`select-item${option.value === value ? " active" : ""}`}

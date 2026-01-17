@@ -682,33 +682,38 @@ export const assertDropdownMenu = async (page, name) => {
     const select = document.querySelector(".select.open");
     const trigger = select?.querySelector(".select-trigger");
     const menu = document.querySelector(".select-menu.open");
+    const scroller = menu?.querySelector(".select-menu-scroll");
     const footer = document.querySelector(".footer");
-    if (!trigger || !menu) {
+    if (!trigger || !menu || !(scroller instanceof HTMLElement)) {
       return { ok: false, reason: "select menu not open" };
     }
 
     // Verify menu doesn't introduce large internal "dead space" above/below items.
     // This catches layout regressions where decorative overlays participate in layout.
-    menu.scrollTop = 0;
-    menu.dispatchEvent(new Event("scroll"));
+    scroller.scrollTop = 0;
+    scroller.dispatchEvent(new Event("scroll"));
     const triggerRect = trigger.getBoundingClientRect();
     const menuRect = menu.getBoundingClientRect();
+    const scrollerRect = scroller.getBoundingClientRect();
     const footerRect = footer ? footer.getBoundingClientRect() : null;
     const items = Array.from(menu.querySelectorAll(".select-item"));
     const firstItemRect = items[0]?.getBoundingClientRect() ?? null;
-    const menuStyle = window.getComputedStyle(menu);
+    const scrollerStyle = window.getComputedStyle(scroller);
     const viewportBottom = window.innerHeight;
     const viewportRight = window.innerWidth;
     const visibleItems = firstItemRect ? Math.floor(menuRect.height / firstItemRect.height) : 0;
-    const scrollable = menu.scrollHeight > menu.clientHeight + 1;
+    const scrollable = scroller.scrollHeight > scroller.clientHeight + 1;
     const scrollState = menu.getAttribute("data-scroll");
-    const topGap = firstItemRect ? firstItemRect.top - menuRect.top : null;
+    const topGap = firstItemRect ? firstItemRect.top - scrollerRect.top : null;
 
-    menu.scrollTop = menu.scrollHeight;
-    menu.dispatchEvent(new Event("scroll"));
+    scroller.scrollTop = scroller.scrollHeight;
+    scroller.dispatchEvent(new Event("scroll"));
     const lastItemRect = items.length ? items[items.length - 1].getBoundingClientRect() : null;
-    const bottomGap = lastItemRect ? menuRect.bottom - lastItemRect.bottom : null;
+    const bottomGap = lastItemRect ? scrollerRect.bottom - lastItemRect.bottom : null;
     const scrollStateBottom = menu.getAttribute("data-scroll");
+
+    // Outer menu should remain non-scrollable so the "cloud" hint stays fixed.
+    const menuScrollTop = menu.scrollTop;
     return {
       ok: true,
       top: menuRect.top,
@@ -718,15 +723,16 @@ export const assertDropdownMenu = async (page, name) => {
       triggerBottom: triggerRect.bottom,
       viewportBottom,
       viewportRight,
-      scrollWidth: menu.scrollWidth,
-      clientWidth: menu.clientWidth,
+      scrollWidth: scroller.scrollWidth,
+      clientWidth: scroller.clientWidth,
       visibleItems,
       scrollable,
       scrollState,
       scrollStateBottom,
       topGap,
       bottomGap,
-      overscrollBehavior: menuStyle.overscrollBehaviorY
+      menuScrollTop,
+      overscrollBehavior: scrollerStyle.overscrollBehaviorY
     };
   });
   if (!result.ok) {
@@ -767,50 +773,107 @@ export const assertDropdownMenu = async (page, name) => {
   if (result.scrollable && result.scrollStateBottom !== "bottom") {
     throw new Error(`Dropdown scroll indicator not updating at bottom for ${name}`);
   }
+  if (result.menuScrollTop !== 0) {
+    throw new Error(`Dropdown outer menu should not scroll for ${name} (scrollTop=${result.menuScrollTop})`);
+  }
   if (!result.scrollable) return;
 
-  // Validate the scroll "cloud" indicators. Because opacity animates, apply a small
-  // delay after scroll events before reading computed styles.
-  const readCloud = async (target) => {
+  // Validate the scroll edge affordance. We blur items near the scroll edges to create
+  // a gradual "cloud" that disappears when reaching top/bottom.
+  const readEdgeBlur = async (target) => {
     await page.evaluate((mode) => {
       const menu = document.querySelector(".select-menu.open");
-      if (!(menu instanceof HTMLElement)) return;
+      const scroller = menu?.querySelector(".select-menu-scroll");
+      if (!(menu instanceof HTMLElement) || !(scroller instanceof HTMLElement)) return;
+      const maxScroll = Math.max(0, scroller.scrollHeight - scroller.clientHeight);
       if (mode === "top") {
-        menu.scrollTop = 0;
+        scroller.scrollTop = 0;
+      } else if (mode === "bottom") {
+        scroller.scrollTop = maxScroll;
       } else {
-        menu.scrollTop = menu.scrollHeight;
+        scroller.scrollTop = Math.round(maxScroll * 0.55);
       }
-      menu.dispatchEvent(new Event("scroll"));
+      scroller.dispatchEvent(new Event("scroll"));
     }, target);
-    await page.waitForTimeout(160);
+    await page.waitForTimeout(180);
     return page.evaluate(() => {
       const menu = document.querySelector(".select-menu.open");
-      if (!(menu instanceof HTMLElement)) return null;
-      const before = Number(window.getComputedStyle(menu, "::before").opacity || 0);
-      const after = Number(window.getComputedStyle(menu, "::after").opacity || 0);
-      return { before, after };
+      const scroller = menu?.querySelector(".select-menu-scroll");
+      if (!(menu instanceof HTMLElement) || !(scroller instanceof HTMLElement)) return null;
+
+      const parseBlur = (filter) => {
+        if (!filter || filter === "none") return 0;
+        const match = filter.match(/blur\(([-0-9.]+)px\)/);
+        return match ? Number(match[1]) : 0;
+      };
+
+      const scrollerRect = scroller.getBoundingClientRect();
+      const items = Array.from(scroller.querySelectorAll(".select-item"));
+      const visible = items
+        .map((el) => ({ el, rect: el.getBoundingClientRect() }))
+        .filter((item) => item.rect.bottom > scrollerRect.top + 2 && item.rect.top < scrollerRect.bottom - 2);
+      const topEl = visible[0]?.el ?? null;
+      const bottomEl = visible.length ? visible[visible.length - 1].el : null;
+      if (!(topEl instanceof HTMLElement) || !(bottomEl instanceof HTMLElement)) return null;
+
+      const topStyle = window.getComputedStyle(topEl);
+      const bottomStyle = window.getComputedStyle(bottomEl);
+      return {
+        scrollState: menu.getAttribute("data-scroll") || "",
+        topFilter: topStyle.filter || "",
+        bottomFilter: bottomStyle.filter || "",
+        topBlur: parseBlur(topStyle.filter),
+        topOpacity: Number(topStyle.opacity || 1),
+        bottomBlur: parseBlur(bottomStyle.filter),
+        bottomOpacity: Number(bottomStyle.opacity || 1)
+      };
     });
   };
 
-  const top = await readCloud("top");
-  if (!top) throw new Error(`Dropdown menu missing for ${name}`);
-  if (top.after < 0.35) {
-    throw new Error(`Dropdown missing bottom scroll hint at top for ${name} (afterTop=${top.after})`);
+  const atTop = await readEdgeBlur("top");
+  if (!atTop) throw new Error(`Dropdown menu missing for ${name}`);
+  if (atTop.scrollState !== "top") {
+    throw new Error(`Dropdown scroll indicator mismatch at top for ${name} (state=${atTop.scrollState})`);
   }
-  if (top.before > 0.25) {
-    throw new Error(`Dropdown has unexpected top scroll hint at top for ${name} (beforeTop=${top.before})`);
-  }
-
-  const bottom = await readCloud("bottom");
-  if (!bottom) throw new Error(`Dropdown menu missing for ${name}`);
-  if (bottom.before < 0.35) {
+  if (atTop.bottomBlur < 0.35 || atTop.bottomOpacity > 0.98) {
     throw new Error(
-      `Dropdown missing top scroll hint at bottom for ${name} (beforeBottom=${bottom.before})`
+      `Dropdown missing bottom edge blur at top for ${name} (filter="${atTop.bottomFilter}" blur=${atTop.bottomBlur.toFixed(2)} opacity=${atTop.bottomOpacity.toFixed(2)})`
     );
   }
-  if (bottom.after > 0.25) {
+  if (atTop.topBlur > 0.2 || atTop.topOpacity < 0.9) {
     throw new Error(
-      `Dropdown has unexpected bottom scroll hint at bottom for ${name} (afterBottom=${bottom.after})`
+      `Dropdown unexpected top edge blur at top for ${name} (filter="${atTop.topFilter}" blur=${atTop.topBlur.toFixed(2)} opacity=${atTop.topOpacity.toFixed(2)})`
+    );
+  }
+
+  const atMiddle = await readEdgeBlur("middle");
+  if (!atMiddle) throw new Error(`Dropdown menu missing for ${name}`);
+  if (atMiddle.scrollState !== "middle") {
+    throw new Error(
+      `Dropdown scroll indicator mismatch at middle for ${name} (state=${atMiddle.scrollState})`
+    );
+  }
+  if (atMiddle.topBlur < 0.25 || atMiddle.bottomBlur < 0.25) {
+    throw new Error(
+      `Dropdown missing dual-edge blur at middle for ${name} (topFilter="${atMiddle.topFilter}" bottomFilter="${atMiddle.bottomFilter}" topBlur=${atMiddle.topBlur.toFixed(2)} bottomBlur=${atMiddle.bottomBlur.toFixed(2)})`
+    );
+  }
+
+  const atBottom = await readEdgeBlur("bottom");
+  if (!atBottom) throw new Error(`Dropdown menu missing for ${name}`);
+  if (atBottom.scrollState !== "bottom") {
+    throw new Error(
+      `Dropdown scroll indicator mismatch at bottom for ${name} (state=${atBottom.scrollState})`
+    );
+  }
+  if (atBottom.topBlur < 0.35 || atBottom.topOpacity > 0.98) {
+    throw new Error(
+      `Dropdown missing top edge blur at bottom for ${name} (filter="${atBottom.topFilter}" blur=${atBottom.topBlur.toFixed(2)} opacity=${atBottom.topOpacity.toFixed(2)})`
+    );
+  }
+  if (atBottom.bottomBlur > 0.2 || atBottom.bottomOpacity < 0.9) {
+    throw new Error(
+      `Dropdown unexpected bottom edge blur at bottom for ${name} (filter="${atBottom.bottomFilter}" blur=${atBottom.bottomBlur.toFixed(2)} opacity=${atBottom.bottomOpacity.toFixed(2)})`
     );
   }
 };
