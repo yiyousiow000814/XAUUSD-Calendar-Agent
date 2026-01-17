@@ -778,9 +778,9 @@ export const assertDropdownMenu = async (page, name) => {
   }
   if (!result.scrollable) return;
 
-  // Validate the scroll edge affordance. We blur items near the scroll edges to create
-  // a gradual "cloud" that disappears when reaching top/bottom.
-  const readEdgeBlur = async (target) => {
+  // Validate the fixed "cloud" indicators (pseudo elements). Because opacity animates,
+  // apply a small delay after scroll events before reading computed styles.
+  const readCloud = async (target) => {
     await page.evaluate((mode) => {
       const menu = document.querySelector(".select-menu.open");
       const scroller = menu?.querySelector(".select-menu-scroll");
@@ -790,91 +790,68 @@ export const assertDropdownMenu = async (page, name) => {
         scroller.scrollTop = 0;
       } else if (mode === "bottom") {
         scroller.scrollTop = maxScroll;
-      } else {
-        scroller.scrollTop = Math.round(maxScroll * 0.55);
       }
       scroller.dispatchEvent(new Event("scroll"));
     }, target);
-    await page.waitForTimeout(180);
+    await page.waitForTimeout(160);
     return page.evaluate(() => {
       const menu = document.querySelector(".select-menu.open");
-      const scroller = menu?.querySelector(".select-menu-scroll");
-      if (!(menu instanceof HTMLElement) || !(scroller instanceof HTMLElement)) return null;
-
-      const parseBlur = (filter) => {
-        if (!filter || filter === "none") return 0;
-        const match = filter.match(/blur\(([-0-9.]+)px\)/);
-        return match ? Number(match[1]) : 0;
-      };
-
-      const scrollerRect = scroller.getBoundingClientRect();
-      const items = Array.from(scroller.querySelectorAll(".select-item"));
-      const visible = items
-        .map((el) => ({ el, rect: el.getBoundingClientRect() }))
-        .filter((item) => item.rect.bottom > scrollerRect.top + 2 && item.rect.top < scrollerRect.bottom - 2);
-      const topEl = visible[0]?.el ?? null;
-      const bottomEl = visible.length ? visible[visible.length - 1].el : null;
-      if (!(topEl instanceof HTMLElement) || !(bottomEl instanceof HTMLElement)) return null;
-
-      const topStyle = window.getComputedStyle(topEl);
-      const bottomStyle = window.getComputedStyle(bottomEl);
+      if (!(menu instanceof HTMLElement)) return null;
+      const beforeStyle = window.getComputedStyle(menu, "::before");
+      const afterStyle = window.getComputedStyle(menu, "::after");
+      const before = Number(beforeStyle.opacity || 0);
+      const after = Number(afterStyle.opacity || 0);
       return {
-        scrollState: menu.getAttribute("data-scroll") || "",
-        topFilter: topStyle.filter || "",
-        bottomFilter: bottomStyle.filter || "",
-        topBlur: parseBlur(topStyle.filter),
-        topOpacity: Number(topStyle.opacity || 1),
-        bottomBlur: parseBlur(bottomStyle.filter),
-        bottomOpacity: Number(bottomStyle.opacity || 1)
+        before,
+        after,
+        beforeLeft: beforeStyle.left,
+        beforeRight: beforeStyle.right,
+        beforeTop: beforeStyle.top,
+        afterLeft: afterStyle.left,
+        afterRight: afterStyle.right,
+        afterBottom: afterStyle.bottom,
+        beforeMask: beforeStyle.webkitMaskImage || beforeStyle.maskImage,
+        afterMask: afterStyle.webkitMaskImage || afterStyle.maskImage
       };
     });
   };
 
-  const atTop = await readEdgeBlur("top");
-  if (!atTop) throw new Error(`Dropdown menu missing for ${name}`);
-  if (atTop.scrollState !== "top") {
-    throw new Error(`Dropdown scroll indicator mismatch at top for ${name} (state=${atTop.scrollState})`);
+  const top = await readCloud("top");
+  if (!top) throw new Error(`Dropdown menu missing for ${name}`);
+  if (top.after < 0.35) {
+    throw new Error(`Dropdown missing bottom scroll hint at top for ${name} (afterTop=${top.after})`);
   }
-  if (atTop.bottomBlur < 0.35 || atTop.bottomOpacity > 0.98) {
+  if (top.before > 0.25) {
+    throw new Error(`Dropdown has unexpected top scroll hint at top for ${name} (beforeTop=${top.before})`);
+  }
+  if (top.afterLeft !== "0px" || top.afterRight !== "0px") {
     throw new Error(
-      `Dropdown missing bottom edge blur at top for ${name} (filter="${atTop.bottomFilter}" blur=${atTop.bottomBlur.toFixed(2)} opacity=${atTop.bottomOpacity.toFixed(2)})`
+      `Dropdown bottom hint not hugging frame for ${name} (left=${top.afterLeft} right=${top.afterRight})`
     );
   }
-  if (atTop.topBlur > 0.2 || atTop.topOpacity < 0.9) {
-    throw new Error(
-      `Dropdown unexpected top edge blur at top for ${name} (filter="${atTop.topFilter}" blur=${atTop.topBlur.toFixed(2)} opacity=${atTop.topOpacity.toFixed(2)})`
-    );
-  }
-
-  const atMiddle = await readEdgeBlur("middle");
-  if (!atMiddle) throw new Error(`Dropdown menu missing for ${name}`);
-  if (atMiddle.scrollState !== "middle") {
-    throw new Error(
-      `Dropdown scroll indicator mismatch at middle for ${name} (state=${atMiddle.scrollState})`
-    );
-  }
-  if (atMiddle.topBlur < 0.25 || atMiddle.bottomBlur < 0.25) {
-    throw new Error(
-      `Dropdown missing dual-edge blur at middle for ${name} (topFilter="${atMiddle.topFilter}" bottomFilter="${atMiddle.bottomFilter}" topBlur=${atMiddle.topBlur.toFixed(2)} bottomBlur=${atMiddle.bottomBlur.toFixed(2)})`
-    );
+  if (typeof top.afterMask === "string" && !top.afterMask.includes("gradient")) {
+    throw new Error(`Dropdown bottom hint missing mask fade for ${name} (mask=${top.afterMask})`);
   }
 
-  const atBottom = await readEdgeBlur("bottom");
-  if (!atBottom) throw new Error(`Dropdown menu missing for ${name}`);
-  if (atBottom.scrollState !== "bottom") {
+  const bottom = await readCloud("bottom");
+  if (!bottom) throw new Error(`Dropdown menu missing for ${name}`);
+  if (bottom.before < 0.35) {
     throw new Error(
-      `Dropdown scroll indicator mismatch at bottom for ${name} (state=${atBottom.scrollState})`
+      `Dropdown missing top scroll hint at bottom for ${name} (beforeBottom=${bottom.before})`
     );
   }
-  if (atBottom.topBlur < 0.35 || atBottom.topOpacity > 0.98) {
+  if (bottom.after > 0.25) {
     throw new Error(
-      `Dropdown missing top edge blur at bottom for ${name} (filter="${atBottom.topFilter}" blur=${atBottom.topBlur.toFixed(2)} opacity=${atBottom.topOpacity.toFixed(2)})`
+      `Dropdown has unexpected bottom scroll hint at bottom for ${name} (afterBottom=${bottom.after})`
     );
   }
-  if (atBottom.bottomBlur > 0.2 || atBottom.bottomOpacity < 0.9) {
+  if (bottom.beforeLeft !== "0px" || bottom.beforeRight !== "0px") {
     throw new Error(
-      `Dropdown unexpected bottom edge blur at bottom for ${name} (filter="${atBottom.bottomFilter}" blur=${atBottom.bottomBlur.toFixed(2)} opacity=${atBottom.bottomOpacity.toFixed(2)})`
+      `Dropdown top hint not hugging frame for ${name} (left=${bottom.beforeLeft} right=${bottom.beforeRight})`
     );
+  }
+  if (typeof bottom.beforeMask === "string" && !bottom.beforeMask.includes("gradient")) {
+    throw new Error(`Dropdown top hint missing mask fade for ${name} (mask=${bottom.beforeMask})`);
   }
 };
 

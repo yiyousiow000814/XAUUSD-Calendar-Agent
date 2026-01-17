@@ -111,6 +111,68 @@
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
 }
 
+.select-menu::before,
+.select-menu::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 52px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--motion-fast) var(--motion-ease);
+  z-index: 2;
+  /* Fixed "cloud": blur whatever scrolls underneath, fade out via mask. */
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+}
+
+.select-menu::before {
+  top: 0;
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+  background: rgba(20, 24, 32, 0.12);
+  opacity: var(--select-cloud-top-opacity, 0);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.82) 34%,
+    rgba(0, 0, 0, 0.2) 72%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.82) 34%,
+    rgba(0, 0, 0, 0.2) 72%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+.select-menu::after {
+  bottom: 0;
+  border-bottom-left-radius: 14px;
+  border-bottom-right-radius: 14px;
+  background: rgba(20, 24, 32, 0.12);
+  opacity: var(--select-cloud-bottom-opacity, 0);
+  -webkit-mask-image: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.82) 34%,
+    rgba(0, 0, 0, 0.2) 72%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.82) 34%,
+    rgba(0, 0, 0, 0.2) 72%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+/* Cloud visibility is driven by JS-updated CSS variables to avoid state "jumps". */
+
 .select-item {
   border: none;
   background: transparent;
@@ -121,9 +183,6 @@
   cursor: pointer;
   font-size: 13px;
   line-height: 1.25;
-  will-change: filter, opacity;
-  transition: filter var(--motion-fast) var(--motion-ease),
-    opacity var(--motion-fast) var(--motion-ease);
 }
 
 .select-item:hover,
@@ -154,6 +213,11 @@
 
 [data-theme="light"] .select-menu-border {
   box-shadow: 0 0 0 1px rgba(18, 20, 26, 0.1) inset;
+}
+
+[data-theme="light"] .select-menu::before,
+[data-theme="light"] .select-menu::after {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 [data-theme="light"] .select-trigger:hover {

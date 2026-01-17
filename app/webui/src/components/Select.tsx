@@ -51,78 +51,6 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
     if (!menu || !scroller) return;
 
     const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
-    const blurredRef = { current: new Set<HTMLElement>() };
-    let rafId: number | null = null;
-    let scheduled = false;
-
-    // Create a real "frosted/blurred" edge by blurring the items themselves near the
-    // top/bottom scroll edges (instead of relying on backdrop-filter overlays, which
-    // can look like a hard-cut band in some environments).
-    const applyEdgeBlur = (mode: "none" | "top" | "middle" | "bottom") => {
-      // Keep the effect subtle. Large blur radius + wide fade zone looks "muddy",
-      // and can smear too much when the user scrolls quickly.
-      const fadePx = 30;
-      const maxBlurPx = 2.2;
-      const maxFade = 0.34;
-
-      const enableTop = mode === "middle" || mode === "bottom";
-      const enableBottom = mode === "middle" || mode === "top";
-
-      const items = Array.from(scroller.querySelectorAll<HTMLButtonElement>(".select-item"));
-      if (!items.length) return;
-
-      // Avoid layout work if no edge effect is expected.
-      if (!enableTop && !enableBottom) {
-        for (const item of blurredRef.current) {
-          item.style.filter = "";
-          item.style.opacity = "";
-        }
-        blurredRef.current.clear();
-        return;
-      }
-
-      // Only touch visible items near the edges; this avoids heavy DOM reads/writes,
-      // and prevents a "whole block" looking blurred while scrolling fast.
-      const nextBlurred = new Set<HTMLElement>();
-      const scrollerRect = scroller.getBoundingClientRect();
-      const edgeTop = scrollerRect.top + fadePx;
-      const edgeBottom = scrollerRect.bottom - fadePx;
-
-      for (const item of items) {
-        const rect = item.getBoundingClientRect();
-        // Skip items that are far from the viewport of the scroller.
-        if (rect.bottom < scrollerRect.top - fadePx || rect.top > scrollerRect.bottom + fadePx) {
-          continue;
-        }
-
-        const topDist = rect.top - scrollerRect.top;
-        const bottomDist = scrollerRect.bottom - rect.bottom;
-        const isNearTop = enableTop && rect.top < edgeTop;
-        const isNearBottom = enableBottom && rect.bottom > edgeBottom;
-        if (!isNearTop && !isNearBottom) {
-          continue;
-        }
-
-        const topProgress = isNearTop ? clamp01((fadePx - topDist) / fadePx) : 0;
-        const bottomProgress = isNearBottom ? clamp01((fadePx - bottomDist) / fadePx) : 0;
-        const progress = Math.max(topProgress, bottomProgress);
-        // Ease-in so most of the list stays crisp; only the last ~10-15px looks blurred.
-        const eased = Math.pow(progress, 1.6);
-
-        const blur = (eased * maxBlurPx).toFixed(2);
-        const opacity = (1 - eased * maxFade).toFixed(3);
-        item.style.filter = `blur(${blur}px)`;
-        item.style.opacity = opacity;
-        nextBlurred.add(item);
-      }
-
-      for (const item of blurredRef.current) {
-        if (nextBlurred.has(item)) continue;
-        item.style.filter = "";
-        item.style.opacity = "";
-      }
-      blurredRef.current = nextBlurred;
-    };
 
     let lastMode: "none" | "top" | "middle" | "bottom" = "none";
 
@@ -135,9 +63,28 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
       return "middle";
     };
 
+    const updateCloudVars = () => {
+      const maxScroll = Math.max(0, scroller.scrollHeight - scroller.clientHeight);
+      if (maxScroll <= 1) {
+        menu.style.setProperty("--select-cloud-top-opacity", "0");
+        menu.style.setProperty("--select-cloud-bottom-opacity", "0");
+        return;
+      }
+
+      // Smooth fade near edges; keep it capped so it reads as an affordance, not fog.
+      const fadePx = 34;
+      const topStrength = clamp01(scroller.scrollTop / fadePx);
+      const bottomStrength = clamp01((maxScroll - scroller.scrollTop) / fadePx);
+      const cap = 0.92;
+      menu.style.setProperty("--select-cloud-top-opacity", (topStrength * cap).toFixed(3));
+      menu.style.setProperty("--select-cloud-bottom-opacity", (bottomStrength * cap).toFixed(3));
+    };
+
     const syncUpdateMode = () => {
       const mode = computeMode();
-      lastMode = mode;
+      if (mode !== lastMode) {
+        lastMode = mode;
+      }
       // Keep the DOM attribute updated synchronously so tests and other code can
       // read a correct state immediately after a scroll event.
       if (menu.dataset.scroll !== mode) {
@@ -146,18 +93,9 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
       setScrollState(mode);
     };
 
-    const scheduleBlurUpdate = () => {
-      if (scheduled) return;
-      scheduled = true;
-      rafId = window.requestAnimationFrame(() => {
-        scheduled = false;
-        applyEdgeBlur(lastMode);
-      });
-    };
-
     const onScrollOrResize = () => {
+      updateCloudVars();
       syncUpdateMode();
-      scheduleBlurUpdate();
     };
 
     onScrollOrResize();
@@ -166,8 +104,12 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
     return () => {
       scroller.removeEventListener("scroll", onScrollOrResize);
       window.removeEventListener("resize", onScrollOrResize);
-      if (rafId !== null) window.cancelAnimationFrame(rafId);
-      applyEdgeBlur("none");
+      // Ensure no stale state is left behind on unmount.
+      if (menu.dataset.scroll !== "none") {
+        menu.dataset.scroll = "none";
+      }
+      menu.style.removeProperty("--select-cloud-top-opacity");
+      menu.style.removeProperty("--select-cloud-bottom-opacity");
     };
   }, [open, options.length]);
 
