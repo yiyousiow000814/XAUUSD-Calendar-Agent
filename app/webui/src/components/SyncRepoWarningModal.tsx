@@ -36,6 +36,7 @@ export function SyncRepoWarningModal({
   onReset
 }: SyncRepoWarningModalProps) {
   if (!isOpen) return null;
+  const showFooterCancel = canReset || canUseAsIs;
 
   return (
     <div
@@ -79,9 +80,11 @@ export function SyncRepoWarningModal({
           </p>
         </div>
         <div className="modal-footer" data-qa="qa:modal-footer:sync-repo-warning">
-          <button className="btn ghost" onClick={onCancel} data-qa="qa:sync-repo-warning:cancel">
-            Cancel
-          </button>
+          {showFooterCancel ? (
+            <button className="btn ghost" onClick={onCancel} data-qa="qa:sync-repo-warning:cancel">
+              Cancel
+            </button>
+          ) : null}
           {canReset ? (
             <button className="btn danger" onClick={onReset} data-qa="qa:sync-repo-warning:reset">
               {resetLabel}

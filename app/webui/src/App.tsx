@@ -805,6 +805,15 @@ export default function App() {
       setSyncRepoNote(null);
       return;
     }
+    if (!currentPath) {
+      // When the Temporary Path field is empty, do not probe using backend defaults.
+      // Probing here can surface "unsafe overlaps" for an implicit path the user never chose.
+      setSyncRepoNote({
+        tone: "info",
+        text: "Choose a Temporary Path folder to enable Dev mode."
+      });
+      return;
+    }
 
     let cancelled = false;
 
@@ -1425,6 +1434,7 @@ export default function App() {
   };
 
   const handleSyncRepoReview = async () => {
+    if (!(settings.syncRepoPath || "").trim()) return;
     try {
       const probe = await backend.probeSyncRepo({
         enableSyncRepo: true,
@@ -1521,18 +1531,37 @@ export default function App() {
   };
 
   const handleSettingsClose = async () => {
+    const trimmedSyncRepoPath = (settings.syncRepoPath || "").trim();
+    const savedSyncRepoEnabled = Boolean(savedSettings.enableSyncRepo);
+
+    // If the user tries to enable Dev sync without explicitly choosing a Temporary Path,
+    // avoid probing/backfilling a hidden default path.
+    if (settings.enableSyncRepo && !trimmedSyncRepoPath && !savedSyncRepoEnabled) {
+      pushToast("info", "Temporary Path is empty. Dev mode was not enabled.");
+      closeSettingsModal();
+      return;
+    }
+    // If Dev sync is already enabled, require an explicit path before closing.
+    if (settings.enableSyncRepo && !trimmedSyncRepoPath && savedSyncRepoEnabled) {
+      pushToast("error", "Choose a Temporary Path folder or disable Dev mode.");
+      return;
+    }
+
     const shouldSaveEnableSyncRepo =
       settings.enableSyncRepo !== savedSettings.enableSyncRepo;
     const shouldSaveSyncRepo =
       settings.enableSyncRepo && settings.syncRepoPath !== savedSettings.syncRepoPath;
     const shouldSaveOutput = outputDir !== snapshot.outputDir;
     const shouldSaveSettings = !settings.autoSave && hasSettingsChanges(savedSettings, settings);
-    const shouldProbeSyncRepo = settings.enableSyncRepo && (shouldSaveEnableSyncRepo || shouldSaveSyncRepo);
+    const shouldProbeSyncRepo =
+      settings.enableSyncRepo &&
+      Boolean(trimmedSyncRepoPath) &&
+      (shouldSaveEnableSyncRepo || shouldSaveSyncRepo);
     const hasAnyChanges = shouldSaveEnableSyncRepo || shouldSaveSyncRepo || shouldSaveOutput || shouldSaveSettings;
 
     if (!hasAnyChanges) {
       closeSettingsModal();
-      if (settings.enableSyncRepo) {
+      if (settings.enableSyncRepo && Boolean(trimmedSyncRepoPath)) {
         try {
           const probe = await backend.probeSyncRepo({
             enableSyncRepo: true,

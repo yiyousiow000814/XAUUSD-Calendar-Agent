@@ -1844,6 +1844,36 @@ const main = async () => {
       }
     }
 
+    // If the Temporary Path input is empty, the UI should not probe using a hidden backend default
+    // (which can surface "overlaps main path" errors for a path the user never chose).
+    await page.evaluate(() => {
+      window.__ui_check__ = window.__ui_check__ || {};
+      window.__ui_check__.mockProbeSyncRepo = {
+        status: "unsafe",
+        ready: false,
+        needsConfirmation: false,
+        canUseAsIs: false,
+        canReset: false,
+        message: "Sync repo overlaps Main Path. Choose a separate folder.",
+        path: "C:\\\\path\\\\to\\\\main"
+      };
+    });
+    await page.waitForTimeout(220);
+    await runCheck(theme.key, "Sync repo empty path does not show overlaps warning", async () => {
+      const errorNote = page.locator("[data-qa='qa:note:sync-repo'][data-tone='error']").first();
+      if (await errorNote.count()) {
+        throw new Error("Overlaps warning should not appear when Temporary Path is empty");
+      }
+      const infoNote = page.locator("[data-qa='qa:note:sync-repo'][data-tone='info']").first();
+      if (!(await infoNote.count())) {
+        throw new Error("Expected info note when Temporary Path is empty");
+      }
+      const hasReview = await infoNote.locator("[data-qa='qa:action:sync-repo-review']").count();
+      if (hasReview) {
+        throw new Error("Review button should not appear when Temporary Path is empty");
+      }
+    });
+
     const syncRepoInput = page.locator("[data-qa='qa:section:sync-repo'] input.path-input").first();
     if (await syncRepoInput.count()) {
       await syncRepoInput.fill("C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\XAUUSDCalendar\\\\repo");
@@ -3317,7 +3347,7 @@ const main = async () => {
           element: syncRepoWarningModalUnsafe
         })
       });
-      const cancel = page.locator("[data-qa='qa:sync-repo-warning:cancel']").first();
+      const cancel = page.locator("[data-qa='qa:sync-repo-warning:cancel-x']").first();
       if (await cancel.count()) {
         await cancel.click();
         await page.waitForTimeout(260);
