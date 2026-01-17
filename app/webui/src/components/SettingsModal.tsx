@@ -60,6 +60,8 @@ type SettingsModalProps = {
   onCheckUpdates: () => void;
   onUpdateNow: () => void;
   onRunOnStartup: (value: boolean) => void;
+  onAutostartLaunchModeChange: (value: Settings["autostartLaunchMode"]) => void;
+  onCloseBehaviorChange: (value: Settings["closeBehavior"]) => void;
   onDebugToggle: (value: boolean) => void;
   onCalendarTimezoneModeChange: (value: Settings["calendarTimezoneMode"]) => void;
   onCalendarUtcOffsetMinutesChange: (value: number) => void;
@@ -103,6 +105,8 @@ export function SettingsModal({
   onCheckUpdates,
   onUpdateNow,
   onRunOnStartup,
+  onAutostartLaunchModeChange,
+  onCloseBehaviorChange,
   onDebugToggle,
   onCalendarTimezoneModeChange,
   onCalendarUtcOffsetMinutesChange,
@@ -123,6 +127,7 @@ export function SettingsModal({
   const [pathsPositioning, setPathsPositioning] = useState<boolean>(() =>
     Boolean(scrollToPathsOnOpen)
   );
+  const traySupported = Boolean(settings.traySupported);
 
   useEffect(() => {
     if (!pathsPositioning) return;
@@ -273,6 +278,27 @@ export function SettingsModal({
             </div>
           </div>
           <div className="section">
+            <div className="section-title">Automation</div>
+            <label className="switch">
+              <input
+                type="checkbox"
+                checked={settings.autoSyncAfterPull}
+                onChange={(event) => onAutoSyncAfterPull(event.target.checked)}
+              />
+              <span className="switch-track" aria-hidden="true" />
+              <span>Auto sync after pull</span>
+            </label>
+            <label className="switch" data-qa="qa:control:auto-update-enabled">
+              <input
+                type="checkbox"
+                checked={settings.autoUpdateEnabled}
+                onChange={(event) => onAutoUpdateEnabled(event.target.checked)}
+              />
+              <span className="switch-track" aria-hidden="true" />
+              <span>Auto update enabled</span>
+            </label>
+          </div>
+          <div className="section">
             <div className="section-title">Theme</div>
             <label className="switch">
               <input
@@ -305,26 +331,8 @@ export function SettingsModal({
             </div>
           </div>
           <div className="section">
-            <div className="section-title">Automation</div>
-            <label className="switch">
-              <input
-                type="checkbox"
-                checked={settings.autoSyncAfterPull}
-                onChange={(event) => onAutoSyncAfterPull(event.target.checked)}
-              />
-              <span className="switch-track" aria-hidden="true" />
-              <span>Auto sync after pull</span>
-            </label>
-            <label className="switch" data-qa="qa:control:auto-update-enabled">
-              <input
-                type="checkbox"
-                checked={settings.autoUpdateEnabled}
-                onChange={(event) => onAutoUpdateEnabled(event.target.checked)}
-              />
-              <span className="switch-track" aria-hidden="true" />
-              <span>Auto update enabled</span>
-            </label>
-            <label className="switch">
+            <div className="section-title">Startup & Window</div>
+            <label className="switch" data-qa="qa:control:run-on-startup">
               <input
                 type="checkbox"
                 checked={settings.runOnStartup}
@@ -333,6 +341,70 @@ export function SettingsModal({
               <span className="switch-track" aria-hidden="true" />
               <span>Run on startup</span>
             </label>
+            <div className="path-row path-card" data-qa="qa:control:autostart-launch-mode">
+              <div>
+                <div className="path-label">Autostart launch</div>
+                <p className="path-helper">When Windows starts the app automatically.</p>
+                <div className="timezone-row">
+                  <Select
+                    value={settings.autostartLaunchMode}
+                    options={(() => {
+                      const base = [{ value: "show", label: "Show window" }];
+                      if (traySupported) {
+                        return [{ value: "tray", label: "Minimize to tray" }, ...base];
+                      }
+                      if (settings.autostartLaunchMode === "tray") {
+                        return [
+                          { value: "tray", label: "Minimize to tray (tray unsupported)" },
+                          ...base
+                        ];
+                      }
+                      return base;
+                    })()}
+                    onChange={(value) => {
+                      const next = value === "show" || value === "tray" ? value : "tray";
+                      onAutostartLaunchModeChange(next);
+                    }}
+                    qa="qa:select:autostart-launch-mode"
+                  />
+                </div>
+                {!traySupported ? (
+                  <p className="path-note">Tray options require system tray support.</p>
+                ) : null}
+              </div>
+            </div>
+            <div className="path-row path-card" data-qa="qa:control:close-behavior">
+              <div>
+                <div className="path-label">Close button</div>
+                <p className="path-helper">What happens on window close (X / Alt+F4).</p>
+                <div className="timezone-row">
+                  <Select
+                    value={settings.closeBehavior}
+                    options={(() => {
+                      const base = [{ value: "exit", label: "Exit app" }];
+                      if (traySupported) {
+                        return [...base, { value: "tray", label: "Minimize to tray" }];
+                      }
+                      if (settings.closeBehavior === "tray") {
+                        return [
+                          ...base,
+                          { value: "tray", label: "Minimize to tray (tray unsupported)" }
+                        ];
+                      }
+                      return base;
+                    })()}
+                    onChange={(value) => {
+                      const next = value === "exit" || value === "tray" ? value : "exit";
+                      onCloseBehaviorChange(next);
+                    }}
+                    qa="qa:select:close-behavior"
+                  />
+                </div>
+                {!traySupported ? (
+                  <p className="path-note">Tray options require system tray support.</p>
+                ) : null}
+              </div>
+            </div>
           </div>
           <div className="section" data-qa="qa:section:calendar-timezone">
             <div className="section-title">Calendar time</div>

@@ -57,6 +57,9 @@ export type Settings = {
   autoSyncAfterPull: boolean;
   autoUpdateEnabled: boolean;
   runOnStartup: boolean;
+  autostartLaunchMode: "tray" | "show";
+  closeBehavior: "exit" | "tray";
+  traySupported: boolean;
   debug: boolean;
   autoSave: boolean;
   splitRatio: number;

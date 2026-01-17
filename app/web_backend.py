@@ -45,7 +45,7 @@ from agent.git_ops import (
     terminate_process_tree,
 )
 from agent.logger import setup_logger
-from agent.scheduler import create_startup_task, remove_startup_task
+from agent.scheduler import TASK_NAME, create_startup_task, remove_startup_task
 from agent.sync import mirror_sync
 from agent.timezone import (
     CALENDAR_SOURCE_UTC_OFFSET_MINUTES,
@@ -81,6 +81,7 @@ class WebAgentBackend:
             save_config(self.state)
         self.logger = setup_logger(self.state.get("debug", False))
         self.logger.info("Backend init started")
+        self.tray_supported = False
         self.log_entries: list[dict] = []
         self.calendar_events: list[dict] = []
         self.currency = "USD"
@@ -156,10 +157,51 @@ class WebAgentBackend:
         self._snapshot_cache["calendarStatus"] = self._calendar_status
         self._request_snapshot_rebuild("startup")
         self._request_calendar_refresh("startup")
+        self._ensure_startup_task_command()
         self.logger.info(
             "Backend init complete in %.0fms",
             (time.perf_counter() - init_started) * 1000,
         )
+
+    def set_tray_supported(self, supported: bool) -> None:
+        # Runtime capability; do not persist to config.json.
+        self.tray_supported = bool(supported)
+
+    def _ensure_startup_task_command(self) -> None:
+        """
+        Ensure the Windows Run entry is updated to the current start command.
+
+        Existing installs may have a Run entry without `--autostart`, so the user's
+        autostart launch preference would not apply until the entry is rewritten.
+        """
+        if not sys.platform.startswith("win") or not winreg:
+            return
+        if not bool(self.state.get("run_on_startup", True)):
+            return
+        expected = self._build_start_command().strip()
+        if not expected:
+            return
+        current = ""
+        try:
+            with winreg.OpenKey(  # type: ignore[attr-defined]
+                winreg.HKEY_CURRENT_USER,  # type: ignore[attr-defined]
+                r"Software\Microsoft\Windows\CurrentVersion\Run",
+                0,
+                winreg.KEY_READ,  # type: ignore[attr-defined]
+            ) as key:
+                value, _kind = winreg.QueryValueEx(key, TASK_NAME)  # type: ignore[attr-defined]
+                current = str(value or "").strip()
+        except FileNotFoundError:
+            current = ""
+        except OSError as exc:
+            # Avoid failing startup just because the registry cannot be read.
+            self.logger.warning("Startup entry read failed: %s", exc)
+            return
+        if current == expected:
+            return
+        result = create_startup_task(expected)
+        if not result.ok:
+            self._append_notice(f"{result.message}: {result.output}", level="WARN")
 
     def _start_background_tasks_once(self, reason: str = "") -> None:
         with self._background_started_lock:
@@ -442,10 +484,21 @@ class WebAgentBackend:
         manual_offset = clamp_utc_offset_minutes(
             int(self.state.get("calendar_utc_offset_minutes", 0))
         )
+        autostart_launch_mode = (
+            (self.state.get("autostart_launch_mode") or "tray").strip().lower()
+        )
+        if autostart_launch_mode not in ("tray", "show"):
+            autostart_launch_mode = "tray"
+        close_behavior = (self.state.get("close_behavior") or "exit").strip().lower()
+        if close_behavior not in ("exit", "tray"):
+            close_behavior = "exit"
         return {
             "autoSyncAfterPull": bool(self.state.get("auto_sync_after_pull", True)),
             "autoUpdateEnabled": bool(self.state.get("auto_update_enabled", True)),
             "runOnStartup": bool(self.state.get("run_on_startup", True)),
+            "autostartLaunchMode": autostart_launch_mode,
+            "closeBehavior": close_behavior,
+            "traySupported": bool(getattr(self, "tray_supported", False)),
             "debug": bool(self.state.get("debug", False)),
             "autoSave": True,
             "enableSystemTheme": enable_system_theme,
@@ -613,6 +666,23 @@ class WebAgentBackend:
         auto_sync = bool(payload.get("autoSyncAfterPull", True))
         auto_update = bool(payload.get("autoUpdateEnabled", True))
         run_on_startup = bool(payload.get("runOnStartup", True))
+        autostart_launch_mode = (
+            (payload.get("autostartLaunchMode") or "").strip().lower()
+        )
+        if not autostart_launch_mode:
+            autostart_launch_mode = (
+                (self.state.get("autostart_launch_mode") or "tray").strip().lower()
+            )
+        if autostart_launch_mode not in ("tray", "show"):
+            autostart_launch_mode = "tray"
+
+        close_behavior = (payload.get("closeBehavior") or "").strip().lower()
+        if not close_behavior:
+            close_behavior = (
+                (self.state.get("close_behavior") or "exit").strip().lower()
+            )
+        if close_behavior not in ("exit", "tray"):
+            close_behavior = "exit"
         debug = bool(payload.get("debug", False))
         auto_save = True
         enable_sync_repo = bool(payload.get("enableSyncRepo", False))
@@ -643,6 +713,8 @@ class WebAgentBackend:
         self.state["auto_sync_after_pull"] = auto_sync
         self.state["auto_update_enabled"] = auto_update
         self.state["run_on_startup"] = run_on_startup
+        self.state["autostart_launch_mode"] = autostart_launch_mode
+        self.state["close_behavior"] = close_behavior
         self.state["debug"] = debug
         self.state["settings_auto_save"] = auto_save
         self.state["theme_preference"] = theme
@@ -1611,10 +1683,10 @@ class WebAgentBackend:
     def _build_start_command(self) -> str:
         if getattr(sys, "frozen", False):
             exe_path = Path(sys.executable)
-            return f'"{exe_path}"'
+            return f'"{exe_path}" --autostart'
         python_path = Path(sys.executable)
         script_path = Path(__file__).resolve().parent / "web_app.py"
-        return f'"{python_path}" "{script_path}"'
+        return f'"{python_path}" "{script_path}" --autostart'
 
     def _get_main_repo_path(self) -> Path | None:
         raw = (self.state.get("repo_path") or "").strip()

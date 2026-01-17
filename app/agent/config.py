@@ -79,6 +79,12 @@ def get_default_config() -> dict:
         "github_release_asset_name": "Setup.exe",
         "github_token": "",
         "run_on_startup": True,
+        # Autostart launch mode is only applied when the process is started via the
+        # Windows Run entry (we pass `--autostart` in the startup command).
+        # Values: "tray" | "show"
+        "autostart_launch_mode": "tray",
+        # Window close behavior (X / Alt+F4). Values: "exit" | "tray"
+        "close_behavior": "exit",
         "settings_auto_save": True,
         "theme_preference": "system",
         "split_ratio": 0.66,
