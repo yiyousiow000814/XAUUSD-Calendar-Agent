@@ -101,7 +101,8 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
       const spaceBelow = Math.max(0, Math.min(bottomLimit, footerTop) - top);
       const maxHeight = Math.min(320, Math.max(0, spaceBelow));
       setMenuStyle({
-        maxHeight: `${maxHeight}px`
+        maxHeight: `${maxHeight}px`,
+        width: `${Math.round(rect.width)}px`
       });
     };
     updateMenu();
@@ -133,19 +134,21 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
           style={menuStyle}
           data-scroll={scrollState}
         >
-          {options.map((option) => (
-            <button
-              className={`select-item${option.value === value ? " active" : ""}`}
-              type="button"
-              key={option.value}
-              onClick={() => {
-                onChange(option.value);
-                setOpen(false);
-              }}
-            >
-              {option.label}
-            </button>
-          ))}
+          <div className="select-menu-inner">
+            {options.map((option) => (
+              <button
+                className={`select-item${option.value === value ? " active" : ""}`}
+                type="button"
+                key={option.value}
+                onClick={() => {
+                  onChange(option.value);
+                  setOpen(false);
+                }}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
         </div>
       ) : null}
     </div>

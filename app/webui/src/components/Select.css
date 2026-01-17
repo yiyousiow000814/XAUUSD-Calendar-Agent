@@ -1,5 +1,6 @@
 .select {
   position: relative;
+  display: inline-block;
 }
 
 .select.open {
@@ -54,14 +55,13 @@
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
-  right: 0;
+  right: auto;
+  width: 100%;
   min-width: 0;
   box-sizing: border-box;
   background: rgba(20, 24, 32, 0.98);
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  display: grid;
-  gap: 4px;
   padding: 6px;
   max-height: 320px;
   overflow-y: auto;
@@ -76,22 +76,27 @@
   z-index: 180;
 }
 
-.select-menu[data-scroll="none"] {
+.select-menu-inner {
+  display: grid;
+  gap: 4px;
+}
+
+.select-menu[data-scroll="none"] .select-menu-inner {
   -webkit-mask-image: none;
   mask-image: none;
 }
 
-.select-menu[data-scroll="top"] {
+.select-menu[data-scroll="top"] .select-menu-inner {
   -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 78%, rgba(0, 0, 0, 0) 100%);
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 78%, rgba(0, 0, 0, 0) 100%);
 }
 
-.select-menu[data-scroll="bottom"] {
+.select-menu[data-scroll="bottom"] .select-menu-inner {
   -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 78%, rgba(0, 0, 0, 0) 100%);
   mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 78%, rgba(0, 0, 0, 0) 100%);
 }
 
-.select-menu[data-scroll="middle"] {
+.select-menu[data-scroll="middle"] .select-menu-inner {
   -webkit-mask-image: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 0) 0%,
@@ -128,8 +133,8 @@
 .select-menu::after {
   content: "";
   position: absolute;
-  left: 0;
-  right: 0;
+  left: 6px;
+  right: 6px;
   height: 18px;
   pointer-events: none;
   opacity: 0;
@@ -141,7 +146,7 @@
 }
 
 .select-menu::before {
-  top: 0;
+  top: 6px;
   border-top-left-radius: 14px;
   border-top-right-radius: 14px;
   background: linear-gradient(
@@ -154,7 +159,7 @@
 }
 
 .select-menu::after {
-  bottom: 0;
+  bottom: 6px;
   border-bottom-left-radius: 14px;
   border-bottom-right-radius: 14px;
   background: linear-gradient(
