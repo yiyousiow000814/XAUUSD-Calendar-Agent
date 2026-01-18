@@ -814,12 +814,21 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
   }, [mode, dispatchReadyEvent]);
 
 const pressElement = async (page, locator) => {
+  // Hold :active without triggering a click. Caller should `await release()` after
+  // taking a screenshot, then perform an explicit click once.
   const box = await locator.boundingBox();
-  if (!box) return;
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  if (!box) return async () => {};
+
+  const cx = box.x + box.width / 2;
+  const cy = box.y + box.height / 2;
+  await page.mouse.move(cx, cy);
   await page.mouse.down();
-  await page.waitForTimeout(80);
-  await page.mouse.up();
+
+  return async () => {
+    // Releasing outside the element avoids generating an implicit click.
+    await page.mouse.move(cx, cy + Math.max(24, box.height));
+    await page.mouse.up();
+  };
 };
 
 const assertDropdownStableOnHover = async (page, trigger, name) => {
@@ -2693,13 +2702,15 @@ const main = async () => {
       state: "pull-hover",
       path: await captureState(page, "actions", theme.key, "pull-hover")
     });
-    await pressElement(page, pullButton);
+    const releasePull = await pressElement(page, pullButton);
+    await page.waitForTimeout(80);
     artifacts.push({
       scenario: "actions",
       theme: theme.key,
       state: "pull-press",
       path: await captureState(page, "actions", theme.key, "pull-press")
     });
+    await releasePull();
     await pullButton.click();
     await page.waitForTimeout(120);
     artifacts.push({
@@ -2719,7 +2730,16 @@ const main = async () => {
     } else {
       skipCheck(theme.key, "Toast transition presence", "Toast not present");
     }
-    await page.waitForTimeout(1600);
+    // Pull can finish very quickly in ui-check (mocked/fast backend), so a fixed
+    // timeout may miss the brief success state and capture an "idle" button.
+    await page.waitForFunction(
+      () => {
+        const btn = document.querySelector("[data-qa*='qa:action:pull']");
+        return (btn?.getAttribute("data-qa-state") || "") === "success";
+      },
+      null,
+      { timeout: 6000 }
+    );
     artifacts.push({
       scenario: "actions",
       theme: theme.key,
@@ -2745,6 +2765,19 @@ const main = async () => {
       }
       return true;
     });
+
+    // Let the pull button return to idle (it auto-resets after the success flash) so
+    // downstream layout-sensitive checks (e.g. sync-target flash) aren't affected by
+    // the pull button width transition.
+    await page.waitForFunction(
+      () => {
+        const btn = document.querySelector("[data-qa*='qa:action:pull']");
+        return (btn?.getAttribute("data-qa-state") || "") === "idle";
+      },
+      null,
+      { timeout: 6000 }
+    );
+    await page.waitForTimeout(200);
 
     const syncButton = page.locator("[data-qa*='qa:action:sync']").first();
     await syncButton.hover();
@@ -2872,16 +2905,22 @@ const main = async () => {
       });
       await page.waitForTimeout(120);
     } else {
-      await pressElement(page, syncButton);
+      const releaseSync = await pressElement(page, syncButton);
+      await page.waitForTimeout(80);
       artifacts.push({
         scenario: "actions",
         theme: theme.key,
         state: "sync-press",
         path: await captureState(page, "actions", theme.key, "sync-press")
       });
+      await releaseSync();
+      await syncButton.click();
     }
 
-    await syncButton.click();
+    if (syncTargetBaseline.missing) {
+      // Start an actual sync after a target is set.
+      await syncButton.click();
+    }
     await page.waitForTimeout(120);
     artifacts.push({
       scenario: "actions",
@@ -2899,7 +2938,15 @@ const main = async () => {
     } else {
       skipCheck(theme.key, "Toast transition presence (sync)", "Toast not present");
     }
-    await page.waitForTimeout(1600);
+    // Same as pull: wait for the success state instead of relying on a fixed delay.
+    await page.waitForFunction(
+      () => {
+        const btn = document.querySelector("[data-qa*='qa:action:sync']");
+        return (btn?.getAttribute("data-qa-state") || "") === "success";
+      },
+      null,
+      { timeout: 6000 }
+    );
     artifacts.push({
       scenario: "actions",
       theme: theme.key,
