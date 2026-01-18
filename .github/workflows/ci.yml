@@ -109,6 +109,10 @@ jobs:
                 run_ci=true
                 break
                 ;;
+              app/agent/currency_options.py|app/webui/src/constants/currencyOptions.ts)
+                run_ci=true
+                break
+                ;;
             esac
           done
 
