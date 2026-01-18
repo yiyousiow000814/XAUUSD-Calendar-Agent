@@ -41,9 +41,37 @@ export function NextEvents({
   const showSkeleton = loading && events.length === 0;
   const rowRefs = useRef(new Map<string, HTMLDivElement>());
   const prevRects = useRef(new Map<string, DOMRect>());
+  const prevFilterSignature = useRef("");
 
   const getItemKey = (item: EventItem) =>
     item.id || `${item.time}|${item.cur}|${item.impact}|${item.event}`;
+
+  const filterSignature = useMemo(() => {
+    const impacts = [...impactFilter].sort().join(",");
+    return `${currency}|${impacts}`;
+  }, [currency, impactFilter]);
+
+  const parseCountdownMinutes = (value: string) => {
+    const text = (value || "").trim().toLowerCase();
+    if (!text) return null;
+    if (text === "current") return null;
+
+    const hmMatch = text.match(/(\d+)\s*h\s*(\d+)\s*m/);
+    if (hmMatch) {
+      return Number(hmMatch[1]) * 60 + Number(hmMatch[2]);
+    }
+
+    const mMatch = text.match(/(^|\s)(\d+)\s*m($|\s)/);
+    if (mMatch) return Number(mMatch[2]);
+
+    return null;
+  };
+
+  const getMinuteKeyFromTime = (value: string) => {
+    const [datePart, timePart] = String(value || "").split(" ");
+    if (!datePart || !timePart) return "";
+    return `${datePart} ${timePart.slice(0, 5)}`;
+  };
 
   useLayoutEffect(() => {
     if (showSkeleton) return;
@@ -51,6 +79,41 @@ export function NextEvents({
     if (typeof window === "undefined") return;
 
     const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const currentMinuteCounts = new Map<string, number>();
+    const eligibleKeys = new Set<string>();
+
+    // Only animate vertical movement for Current and "about-to-be-current" (<= 1 minute).
+    // Everything else should reorder instantly (e.g. impact filter toggles).
+    events.forEach((item) => {
+      const key = getItemKey(item);
+      const isCurrent =
+        item.state === "current" || String(item.countdown || "").toLowerCase() === "current";
+      if (!isCurrent) return;
+      const minuteKey = getMinuteKeyFromTime(item.time);
+      if (!minuteKey) return;
+      currentMinuteCounts.set(minuteKey, (currentMinuteCounts.get(minuteKey) || 0) + 1);
+      eligibleKeys.add(key);
+    });
+
+    events.forEach((item) => {
+      const key = getItemKey(item);
+      const isCurrent =
+        item.state === "current" || String(item.countdown || "").toLowerCase() === "current";
+      if (isCurrent) {
+        const minuteKey = getMinuteKeyFromTime(item.time);
+        if (minuteKey && (currentMinuteCounts.get(minuteKey) || 0) > 1) {
+          // Multiple Current items with the same scheduled minute: don't animate shuffling.
+          eligibleKeys.delete(key);
+        }
+        return;
+      }
+
+      const minutes = parseCountdownMinutes(item.countdown);
+      if (minutes !== null && minutes <= 1 && minutes >= 0) {
+        eligibleKeys.add(key);
+      }
+    });
+
     const newRects = new Map<string, DOMRect>();
 
     rowRefs.current.forEach((el, key) => {
@@ -61,6 +124,12 @@ export function NextEvents({
     const prev = prevRects.current;
     prevRects.current = newRects;
 
+    if (prevFilterSignature.current && prevFilterSignature.current !== filterSignature) {
+      prevFilterSignature.current = filterSignature;
+      return;
+    }
+    prevFilterSignature.current = filterSignature;
+
     if (prefersReducedMotion) return;
     if (!prev.size || !newRects.size) return;
 
@@ -69,6 +138,7 @@ export function NextEvents({
       if (!prevRect) return;
       const dy = prevRect.top - rect.top;
       if (Math.abs(dy) < 1) return;
+      if (!eligibleKeys.has(key)) return;
 
       const el = rowRefs.current.get(key);
       if (!el) return;
@@ -77,16 +147,18 @@ export function NextEvents({
       el.style.transition = "transform 0ms";
       el.style.transform = `translateY(${dy}px)`;
       el.style.willChange = "transform";
+      el.dataset.flipAnim = "1";
 
       window.requestAnimationFrame(() => {
         el.style.transition = "transform var(--motion-med) var(--motion-ease)";
         el.style.transform = "";
         window.setTimeout(() => {
           if (el.style.willChange === "transform") el.style.willChange = "";
+          if (el.dataset.flipAnim) delete el.dataset.flipAnim;
         }, 360);
       });
     });
-  }, [events, query, showSkeleton]);
+  }, [events, query, showSkeleton, filterSignature]);
 
   const renderTime = (value: string) => {
     const [datePart, timePart] = value.split(" ");

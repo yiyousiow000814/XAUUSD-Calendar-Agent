@@ -919,6 +919,29 @@ const runCurrentTimelineDemo = async (page) => {
   if ((await nextCard.count()) === 0 || (await historyCard.count()) === 0) return;
 
   const wait = async (ms) => page.waitForTimeout(ms);
+  const waitForNoFlipAnim = async (ms = 520) => {
+    const started = Date.now();
+    while (Date.now() - started < ms) {
+      const count = await page.evaluate(
+        () => document.querySelectorAll("[data-qa='qa:row:next-event'][data-flip-anim]").length
+      );
+      if (count) {
+        throw new Error(`Unexpected Next Events FLIP animation detected (${count})`);
+      }
+      await wait(60);
+    }
+  };
+  const waitForFlipAnim = async (ms = 520) => {
+    const started = Date.now();
+    while (Date.now() - started < ms) {
+      const count = await page.evaluate(
+        () => document.querySelectorAll("[data-qa='qa:row:next-event'][data-flip-anim]").length
+      );
+      if (count) return;
+      await wait(40);
+    }
+    throw new Error("Expected Next Events FLIP animation, but none was detected");
+  };
 
   const setSnapshot = async (payload) => {
     await page.evaluate((next) => {
@@ -940,60 +963,104 @@ const runCurrentTimelineDemo = async (page) => {
     cur,
     impact,
     event: name,
-    countdown: "2m",
+    countdown: "12m",
     state: "upcoming"
   });
 
   const evtA = mk("demo-current-a", "09:00", "Current demo A", "High");
-  const evtB = mk("demo-current-b", "09:01", "Current demo B", "High");
+  // Same scheduled time as A: turning this into Current should not cause reorder animation.
+  const evtB = mk("demo-current-b", "09:00", "Current demo B", "Medium");
+  // > 1 minute later: this becoming Current should slide to the top.
   const evtC = mk("demo-current-c", "09:02", "Current demo C", "High");
+  const evtD = mk("demo-current-d", "09:10", "Current demo D", "Low");
+  const evtE = mk("demo-current-e", "09:20", "Current demo E", "Low");
 
-  // Baseline: three upcoming events.
-  await setSnapshot({ events: [evtA, evtB, evtC] });
+  // Baseline: upcoming events only (no Current/soon-Current).
+  await setSnapshot({ events: [evtA, evtB, evtC, evtD, evtE], pastEvents: [] });
   await wait(900);
 
-  // A becomes Current.
+  // Impact filter toggles must not trigger "slide" animations when no Current/soon items exist.
+  const activeImpactToggles = page.locator("button.impact-toggle.active");
+  while (await activeImpactToggles.count()) {
+    await activeImpactToggles.first().click();
+    await wait(120);
+  }
+  await waitForNoFlipAnim();
+
+  const impactButtons = page.locator("[data-qa='qa:filter:impact'] button.impact-toggle");
+  if ((await impactButtons.count()) >= 3) {
+    // Toggle L, M, H and ensure we never animate row shuffles.
+    await impactButtons.nth(0).click();
+    await wait(220);
+    await waitForNoFlipAnim();
+    await impactButtons.nth(1).click();
+    await wait(220);
+    await waitForNoFlipAnim();
+    await impactButtons.nth(2).click();
+    await wait(220);
+    await waitForNoFlipAnim();
+
+    // Reset back to no filter for the Current sequence.
+    while (await activeImpactToggles.count()) {
+      await activeImpactToggles.first().click();
+      await wait(120);
+    }
+    await waitForNoFlipAnim();
+  }
+
+  // A becomes Current (B shares the same time, but stays upcoming).
   await setSnapshot({
     events: [
       { ...evtA, state: "current", countdown: "Current" },
-      { ...evtB, state: "upcoming", countdown: "1m" },
-      { ...evtC, state: "upcoming", countdown: "2m" }
+      { ...evtB, state: "upcoming", countdown: "12m" },
+      { ...evtC, state: "upcoming", countdown: "2m" },
+      { ...evtD, state: "upcoming", countdown: "1h 00m" },
+      { ...evtE, state: "upcoming", countdown: "2h 00m" }
     ]
   });
-  await wait(1500);
+  await wait(1300);
 
-  // B becomes Current and slides to top (A remains Current).
+  // B becomes Current at the same scheduled time as A: do NOT animate reorder shuffles.
   await setSnapshot({
     events: [
-      { ...evtB, state: "current", countdown: "Current" },
       { ...evtA, state: "current", countdown: "Current" },
-      { ...evtC, state: "upcoming", countdown: "1m" }
-    ]
-  });
-  await wait(1500);
-
-  // C becomes Current and slides to top (multiple Current visible).
-  await setSnapshot({
-    events: [
-      { ...evtC, state: "current", countdown: "Current" },
       { ...evtB, state: "current", countdown: "Current" },
-      { ...evtA, state: "current", countdown: "Current" }
+      { ...evtC, state: "upcoming", countdown: "2m" },
+      { ...evtD, state: "upcoming", countdown: "1h 00m" },
+      { ...evtE, state: "upcoming", countdown: "2h 00m" }
     ]
   });
-  await wait(1700);
+  await wait(800);
+  await waitForNoFlipAnim();
 
-  // Simulate "3 minutes later": oldest current (A) moves to History, disappears from Next Events.
+  // C becomes Current (> 1 minute later) and slides to the top.
+  // D is "soon current" (1m) and is also allowed to animate movement.
   await setSnapshot({
     events: [
       { ...evtC, state: "current", countdown: "Current" },
-      { ...evtB, state: "current", countdown: "Current" }
+      { ...evtA, state: "current", countdown: "Current" },
+      { ...evtB, state: "current", countdown: "Current" },
+      { ...evtD, state: "upcoming", countdown: "1m" },
+      { ...evtE, state: "upcoming", countdown: "2h 00m" }
+    ]
+  });
+  await waitForFlipAnim();
+  await wait(1400);
+
+  // Simulate "3 minutes later": oldest current (B at the bottom) moves to History.
+  await setSnapshot({
+    events: [
+      { ...evtC, state: "current", countdown: "Current" },
+      { ...evtA, state: "current", countdown: "Current" },
+      { ...evtD, state: "upcoming", countdown: "59m" },
+      { ...evtE, state: "upcoming", countdown: "1h 59m" }
     ],
     pastEvents: [
       {
         time: `${baseDate} 09:00`,
         cur: "USD",
         impact: "High",
-        event: "Current demo A",
+        event: "Current demo B",
         actual: "--",
         forecast: "--",
         previous: "--"
