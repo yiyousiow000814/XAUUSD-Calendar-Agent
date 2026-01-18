@@ -41,6 +41,36 @@ verification. Outputs go to `artifacts/ui-check/`.
 npm run ui:check
 ```
 
+Optional: control the theme-parallel worker count (defaults to 2 or theme count):
+
+```
+set UI_CHECK_WORKERS=2
+npm run ui:check
+```
+
+Optional: cap animation-heavy checks concurrency (defaults to 2):
+
+```
+set UI_CHECK_ANIM_WORKERS=2
+npm run ui:check
+```
+
+Optional: run each theme in an isolated process (separate servers, merged report):
+
+```
+set UI_CHECK_ISOLATED=1
+set UI_CHECK_WORKERS=4
+set UI_CHECK_PORT_BASE=4183
+npm run ui:check
+```
+
+Disable isolation (runs all themes in a single process):
+
+```
+set UI_CHECK_ISOLATED=0
+npm run ui:check
+```
+
 `ui-watch` watches front-end changes and re-runs `ui-check` automatically.
 
 ```
