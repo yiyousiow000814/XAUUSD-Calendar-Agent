@@ -161,7 +161,9 @@
   box-shadow: inset 0 1px 0 var(--appbar-primary-inset-hover);
 }
 
-.appbar-btn-group .btn[data-qa-state="success"] {
+.appbar-btn-group .btn[data-qa-state="success"],
+.appbar-btn-group .btn[data-qa-state="success"]:hover,
+.appbar-btn-group .btn[data-qa-state="success"]:active {
   background-color: var(--appbar-success-bg);
   background-image:
     linear-gradient(180deg, var(--appbar-success-grad-0), var(--appbar-success-grad-1));
@@ -169,7 +171,9 @@
   color: var(--appbar-success-text);
 }
 
-.appbar-btn-group .btn[data-qa-state="error"] {
+.appbar-btn-group .btn[data-qa-state="error"],
+.appbar-btn-group .btn[data-qa-state="error"]:hover,
+.appbar-btn-group .btn[data-qa-state="error"]:active {
   background-color: var(--appbar-error-bg);
   background-image:
     linear-gradient(180deg, var(--appbar-error-grad-0), var(--appbar-error-grad-1));
