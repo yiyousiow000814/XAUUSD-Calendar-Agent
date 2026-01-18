@@ -16,6 +16,7 @@
   color: var(--text);
   font-size: 13px;
   display: inline-flex;
+  width: 100%;
   align-items: center;
   gap: 10px;
   cursor: pointer;

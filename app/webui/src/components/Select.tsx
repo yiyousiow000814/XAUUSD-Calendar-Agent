@@ -17,6 +17,7 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
     "none"
   );
   const [menuStyle, setMenuStyle] = useState<CSSProperties>({});
+  const [selectWidth, setSelectWidth] = useState<number | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -129,6 +130,49 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
       // If the dropdown would scroll, make the menu height show a consistent "half item"
       // at the bottom. This creates a strong scroll affordance without a blur overlay.
       const scroller = scrollRef.current;
+
+      // Keep the select width stable based on the longest option label, so switching to a
+      // shorter label doesn't make other options wrap (e.g. "Minimize to tray").
+      let width = rect.width;
+      if (scroller && options.length > 0) {
+        const sampleItem = scroller.querySelector<HTMLElement>(".select-item");
+        if (sampleItem) {
+          const itemStyle = window.getComputedStyle(sampleItem);
+          const itemPadLeft = Number.parseFloat(itemStyle.paddingLeft) || 0;
+          const itemPadRight = Number.parseFloat(itemStyle.paddingRight) || 0;
+          const font = itemStyle.font;
+
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          if (ctx && font) {
+            ctx.font = font;
+            const maxTextWidth = options.reduce((acc, option) => {
+              const text = option.label || option.value;
+              return Math.max(acc, ctx.measureText(text).width);
+            }, 0);
+
+            const scrollerStyle = window.getComputedStyle(scroller);
+            const scrollerPadLeft = Number.parseFloat(scrollerStyle.paddingLeft) || 0;
+            const scrollerPadRight = Number.parseFloat(scrollerStyle.paddingRight) || 0;
+
+            const menuNeeded = maxTextWidth + itemPadLeft + itemPadRight + scrollerPadLeft + scrollerPadRight;
+            const triggerStyle = window.getComputedStyle(trigger);
+            const triggerPadLeft = Number.parseFloat(triggerStyle.paddingLeft) || 0;
+            const triggerPadRight = Number.parseFloat(triggerStyle.paddingRight) || 0;
+            const triggerNeeded = maxTextWidth + triggerPadLeft + triggerPadRight;
+
+            width = Math.max(width, menuNeeded, triggerNeeded);
+          }
+        }
+      }
+
+      // Clamp to viewport so we don't create horizontal overflow in narrow windows.
+      const viewportCap = Math.max(0, window.innerWidth - rect.left - 16);
+      if (viewportCap > 0) {
+        width = Math.min(width, viewportCap);
+      }
+      width = Math.max(0, Math.ceil(width));
+
       if (scroller && maxHeight > 0) {
         const items = scroller.querySelectorAll<HTMLElement>(".select-item");
         if (items.length >= 2) {
@@ -163,8 +207,9 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
       setMenuStyle({
         maxHeight: `${maxHeight}px`,
         // Avoid rounding; fractional CSS pixels happen with zoom/DPI and can make the menu look wider.
-        width: `${rect.width}px`
+        width: `${width}px`
       });
+      setSelectWidth((prev) => (prev !== null && Math.abs(prev - width) < 1 ? prev : width));
     };
     updateMenu();
     // The first layout pass can run before grid gaps settle in some environments.
@@ -182,6 +227,7 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
       className={`select${open ? " open" : ""}`}
       ref={rootRef}
       data-qa={qa}
+      style={selectWidth ? { width: `${selectWidth}px` } : undefined}
     >
       <button
         className="select-trigger"

@@ -860,6 +860,58 @@ export const assertDropdownMenu = async (page, name) => {
   }
 };
 
+export const assertDropdownNoWrap = async (page, name) => {
+  const result = await page.evaluate(() => {
+    const select = document.querySelector(".select.open");
+    const trigger = select?.querySelector(".select-trigger");
+    const menu = document.querySelector(".select-menu.open");
+    const scroller = menu?.querySelector(".select-menu-scroll");
+    if (!trigger || !menu || !(scroller instanceof HTMLElement)) {
+      return { ok: false, reason: "select menu not open" };
+    }
+
+    const triggerRect = trigger.getBoundingClientRect();
+    const menuRect = menu.getBoundingClientRect();
+    const items = Array.from(scroller.querySelectorAll(".select-item")).map((el) => {
+      const rect = el.getBoundingClientRect();
+      return { text: (el.textContent || "").trim(), height: rect.height };
+    });
+
+    return {
+      ok: true,
+      triggerWidth: triggerRect.width,
+      menuWidth: menuRect.width,
+      items
+    };
+  });
+
+  if (!result.ok) {
+    throw new Error(`Dropdown menu missing for ${name}`);
+  }
+
+  if (result.menuWidth + 1 < result.triggerWidth) {
+    throw new Error(
+      `Dropdown menu narrower than trigger for ${name} (menu=${result.menuWidth.toFixed(1)} trigger=${result.triggerWidth.toFixed(1)})`
+    );
+  }
+
+  const heights = result.items.map((item) => item.height).filter((h) => Number.isFinite(h) && h > 0);
+  if (heights.length < 2) return;
+
+  heights.sort((a, b) => a - b);
+  const baseline = heights[Math.floor(heights.length / 2)];
+  const max = heights[heights.length - 1];
+  // If any option wraps to multiple lines, its row height will jump significantly.
+  if (max - baseline > 6) {
+    const offenders = result.items
+      .filter((item) => item.height > baseline + 6)
+      .map((item) => `${item.text}(${item.height.toFixed(1)}px)`);
+    throw new Error(
+      `Dropdown options wrapped for ${name} (baseline=${baseline.toFixed(1)}px offenders=${offenders.join(", ")})`
+    );
+  }
+};
+
 export const assertEventsLoaded = async (page) => {
   await page
     .waitForFunction(
