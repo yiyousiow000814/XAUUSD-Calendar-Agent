@@ -23,7 +23,6 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 concurrency:
   group: release-${{ github.ref }}
@@ -39,7 +38,6 @@ jobs:
       version: ${{ steps.sync.outputs.version }}
       needs_update: ${{ steps.sync.outputs.needs_update }}
       dry_run: ${{ steps.sync.outputs.dry_run }}
-      branch: ${{ steps.sync.outputs.branch }}
       base_sha: ${{ steps.base.outputs.base_sha }}
       resolved_sha: ${{ steps.finalize.outputs.resolved_sha }}
     steps:
@@ -77,9 +75,6 @@ jobs:
             print(f"Unsupported tag format: {tag}", file=sys.stderr)
             sys.exit(1)
 
-          safe_tag = re.sub(r"[^0-9A-Za-z._-]+", "-", tag)
-          branch = f"chore/release-prepare-{safe_tag}"
-
           path = "app/agent/version.py"
           with open(path, "r", encoding="utf-8") as f:
             text = f.read()
@@ -100,7 +95,6 @@ jobs:
           with open(out_path, "a", encoding="utf-8") as out:
             out.write(f"tag={tag}\n")
             out.write(f"version={version}\n")
-            out.write(f"branch={branch}\n")
             out.write(f"needs_update={'true' if needs_update else 'false'}\n")
             out.write(f"dry_run={'true' if dry_run else 'false'}\n")
 
@@ -111,15 +105,24 @@ jobs:
           print(f"dry_run={dry_run}")
           PY
 
-      - name: Update APP_VERSION, move tag, push branch (if needed)
+      - name: Update APP_VERSION, move tag, push main (if needed)
         if: steps.sync.outputs.needs_update == 'true' && steps.sync.outputs.dry_run != 'true'
         env:
-          BRANCH: ${{ steps.sync.outputs.branch }}
           TAG: ${{ steps.sync.outputs.tag }}
           VERSION: ${{ steps.sync.outputs.version }}
           BASE_SHA: ${{ steps.base.outputs.base_sha }}
         run: |
           set -euo pipefail
+
+          git fetch origin main --prune
+          main_sha="$(git rev-parse "origin/main")"
+          if [ "${main_sha}" != "${BASE_SHA}" ]; then
+            echo "Refusing to update main automatically because origin/main != tag commit."
+            echo "origin/main=${main_sha}"
+            echo "tag_commit=${BASE_SHA}"
+            echo "Push the tag from the latest main commit, then re-run."
+            exit 1
+          fi
 
           git checkout --detach "${BASE_SHA}"
 
@@ -150,10 +153,10 @@ jobs:
             git for-each-ref "refs/tags/${TAG}" --format='%(contents)' > "${tag_message_file}" || true
           fi
 
-          git switch -C "${BRANCH}" "${BASE_SHA}"
+          git switch -C main "${BASE_SHA}"
           git add app/agent/version.py
-          git commit -m "chore: sync APP_VERSION to tag ${TAG}"
-          git push -u origin "${BRANCH}" --force-with-lease
+          git commit -m "chore: release ${TAG}"
+          git push origin HEAD:main
 
           if [ "${tag_type}" = "tag" ]; then
             git tag -a -f "${TAG}" -F "${tag_message_file}"
@@ -161,78 +164,6 @@ jobs:
             git tag -f "${TAG}"
           fi
           git push origin "refs/tags/${TAG}" --force
-
-      - name: Create or update PR (if needed)
-        if: steps.sync.outputs.needs_update == 'true' && steps.sync.outputs.dry_run != 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          OWNER: ${{ github.repository_owner }}
-          REPO: ${{ github.event.repository.name }}
-          BRANCH: ${{ steps.sync.outputs.branch }}
-          TAG: ${{ steps.sync.outputs.tag }}
-          VERSION: ${{ steps.sync.outputs.version }}
-        run: |
-          python - <<'PY'
-          import json
-          import os
-          import urllib.parse
-          import urllib.request
-
-          token = os.environ["GH_TOKEN"]
-          owner = os.environ["OWNER"]
-          repo = os.environ["REPO"]
-          branch = os.environ["BRANCH"]
-          tag = os.environ["TAG"]
-          version = os.environ["VERSION"]
-
-          base = "main"
-          head = f"{owner}:{branch}"
-
-          def request(method: str, url: str, payload=None):
-            data = None
-            if payload is not None:
-              data = json.dumps(payload).encode("utf-8")
-            req = urllib.request.Request(url, data=data, method=method)
-            req.add_header("Authorization", f"Bearer {token}")
-            req.add_header("Accept", "application/vnd.github+json")
-            req.add_header("User-Agent", "release-workflow")
-            if data is not None:
-              req.add_header("Content-Type", "application/json; charset=utf-8")
-            with urllib.request.urlopen(req) as resp:
-              return json.loads(resp.read().decode("utf-8"))
-
-          query = urllib.parse.urlencode({"head": head, "state": "open"})
-          existing = request(
-            "GET",
-            f"https://api.github.com/repos/{owner}/{repo}/pulls?{query}",
-          )
-          if existing:
-            print(f"PR already exists: {existing[0].get('html_url')}")
-            raise SystemExit(0)
-
-          title = f"chore(release): sync APP_VERSION to {version} ({tag})"
-          body = (
-            "Summary:\n"
-            f"- Tag {tag} detected; updated `app/agent/version.py` so `APP_VERSION` == `{version}`.\n"
-            f"- Re-pointed tag {tag} to the version-sync commit to keep the release source consistent.\n\n"
-            "Notes:\n"
-            "- This PR is created automatically by `.github/workflows/release.yml`.\n"
-            "- Merge this PR into `main` to keep `APP_VERSION` in sync with the release tag.\n"
-          )
-          payload = {
-            "title": title,
-            "head": branch,
-            "base": base,
-            "body": body,
-            "draft": False,
-          }
-          pr = request(
-            "POST",
-            f"https://api.github.com/repos/{owner}/{repo}/pulls",
-            payload,
-          )
-          print(f"Created PR: {pr.get('html_url')}")
-          PY
 
       - name: Finalize resolved SHA
         id: finalize
