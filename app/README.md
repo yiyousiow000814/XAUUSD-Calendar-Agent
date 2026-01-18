@@ -25,7 +25,7 @@ Recommended: build an installer so users only run a setup file.
 
 ```powershell
 pip install -r requirements-app.txt
-.\scripts\build_installer.ps1
+.\app\installer\build_installer.ps1
 ```
 
 The installer will be written to `Setup.exe` in the repo root.

@@ -35,9 +35,9 @@ This document mirrors `AGENTS.md` and adds Qwen-specific tips.
 ## Codex Execution Policy
 - Avoid running commands that generate binary artifacts. When unavoidable, remove the binaries immediately and exclude them from commits.
 - `Setup.exe` and `XAUUSD Calendar Agent.exe` are build outputs. They must remain gitignored and must never be committed.
-- After completing the verification checklist for a task (format/lint/tests as applicable), run `scripts/build_installer.ps1` to regenerate the installer executables locally.
+- After completing the verification checklist for a task (format/lint/tests as applicable), run `app/installer/build_installer.ps1` to regenerate the installer executables locally.
 - Publish installer executables via GitHub Releases assets, not in the repository.
-- If `scripts/build_installer.ps1` fails due to the app being open or files being locked, force close the running app/process and re-run the build immediately.
+- If `app/installer/build_installer.ps1` fails due to the app being open or files being locked, force close the running app/process and re-run the build immediately.
 
 ## Clipboard Screenshots
 - Pasted images named `codex-clipboard-*.png` are saved in `%TEMP%` (e.g., `%USERPROFILE%\AppData\Local\Temp`) rather than root `/temp`.

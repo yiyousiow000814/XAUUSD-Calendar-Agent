@@ -3,7 +3,7 @@
 #define MyAppName "XAUUSD Calendar Agent"
 #define MyAppDirName "XAUUSDCalendarAgent"
 #define MyAppExeName "XAUUSD Calendar Agent.exe"
-; Version is injected by `scripts/build_installer.ps1` from `app/agent/version.py`.
+; Version is injected by `app/installer/build_installer.ps1` from `app/agent/version.py`.
 #ifndef MyAppVersion
 #define MyAppVersion "0.0.0"
 #endif
