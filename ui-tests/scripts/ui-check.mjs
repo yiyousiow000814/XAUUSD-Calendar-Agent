@@ -1044,7 +1044,30 @@ const runCurrentTimelineDemo = async (page) => {
       { ...evtE, state: "upcoming", countdown: "2h 00m" }
     ]
   });
+  const allowedFlipIds = new Set([
+    "demo-current-a",
+    "demo-current-b",
+    "demo-current-c",
+    "demo-current-d"
+  ]);
   await waitForFlipAnim();
+  await page.waitForTimeout(60);
+  await page.evaluate((allowed) => {
+    const active = Array.from(
+      document.querySelectorAll("[data-qa='qa:row:next-event'][data-flip-anim]")
+    )
+      .map((node) => node.getAttribute("data-qa-row-id") || "")
+      .filter(Boolean);
+
+    if (!active.length) {
+      throw new Error("Expected at least one FLIP row during current demo, found none");
+    }
+
+    const unexpected = active.filter((id) => !allowed.includes(id));
+    if (unexpected.length) {
+      throw new Error(`Unexpected FLIP rows during current demo: ${unexpected.join(", ")}`);
+    }
+  }, Array.from(allowedFlipIds));
   await wait(1400);
 
   // Simulate "3 minutes later": oldest current (B at the bottom) moves to History.

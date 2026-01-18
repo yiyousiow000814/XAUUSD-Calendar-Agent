@@ -67,19 +67,12 @@ export function NextEvents({
     return null;
   };
 
-  const getMinuteKeyFromTime = (value: string) => {
-    const [datePart, timePart] = String(value || "").split(" ");
-    if (!datePart || !timePart) return "";
-    return `${datePart} ${timePart.slice(0, 5)}`;
-  };
-
   useLayoutEffect(() => {
     if (showSkeleton) return;
     if (query.trim()) return;
     if (typeof window === "undefined") return;
 
     const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    const currentMinuteCounts = new Map<string, number>();
     const eligibleKeys = new Set<string>();
 
     // Only animate vertical movement for Current and "about-to-be-current" (<= 1 minute).
@@ -89,9 +82,6 @@ export function NextEvents({
       const isCurrent =
         item.state === "current" || String(item.countdown || "").toLowerCase() === "current";
       if (!isCurrent) return;
-      const minuteKey = getMinuteKeyFromTime(item.time);
-      if (!minuteKey) return;
-      currentMinuteCounts.set(minuteKey, (currentMinuteCounts.get(minuteKey) || 0) + 1);
       eligibleKeys.add(key);
     });
 
@@ -99,14 +89,7 @@ export function NextEvents({
       const key = getItemKey(item);
       const isCurrent =
         item.state === "current" || String(item.countdown || "").toLowerCase() === "current";
-      if (isCurrent) {
-        const minuteKey = getMinuteKeyFromTime(item.time);
-        if (minuteKey && (currentMinuteCounts.get(minuteKey) || 0) > 1) {
-          // Multiple Current items with the same scheduled minute: don't animate shuffling.
-          eligibleKeys.delete(key);
-        }
-        return;
-      }
+      if (isCurrent) return;
 
       const minutes = parseCountdownMinutes(item.countdown);
       if (minutes !== null && minutes <= 1 && minutes >= 0) {
