@@ -1,4 +1,5 @@
 import type { Settings, Snapshot } from "./types";
+import { CURRENCY_OPTIONS } from "./constants/currencyOptions";
 
 type ApiResult<T> = Promise<T>;
 
@@ -140,7 +141,7 @@ const baseMockSnapshot: Snapshot = {
   outputDir: "",
   repoPath: "",
   currency: "USD",
-  currencyOptions: ["ALL", "USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "NZD"],
+  currencyOptions: Array.from(CURRENCY_OPTIONS),
   pullActive: false,
   syncActive: false,
   restartInSeconds: 0,

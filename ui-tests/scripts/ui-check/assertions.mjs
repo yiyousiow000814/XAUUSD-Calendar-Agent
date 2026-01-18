@@ -682,24 +682,38 @@ export const assertDropdownMenu = async (page, name) => {
     const select = document.querySelector(".select.open");
     const trigger = select?.querySelector(".select-trigger");
     const menu = document.querySelector(".select-menu.open");
+    const scroller = menu?.querySelector(".select-menu-scroll");
     const footer = document.querySelector(".footer");
-    if (!trigger || !menu) {
+    if (!trigger || !menu || !(scroller instanceof HTMLElement)) {
       return { ok: false, reason: "select menu not open" };
     }
+
+    // Verify menu doesn't introduce large internal "dead space" above/below items.
+    // This catches layout regressions where decorative overlays participate in layout.
+    scroller.scrollTop = 0;
+    scroller.dispatchEvent(new Event("scroll"));
     const triggerRect = trigger.getBoundingClientRect();
     const menuRect = menu.getBoundingClientRect();
+    const scrollerRect = scroller.getBoundingClientRect();
     const footerRect = footer ? footer.getBoundingClientRect() : null;
-    const item = menu.querySelector(".select-item");
-    const itemRect = item ? item.getBoundingClientRect() : null;
-    const menuStyle = window.getComputedStyle(menu);
+    const items = Array.from(menu.querySelectorAll(".select-item"));
+    const firstItemRect = items[0]?.getBoundingClientRect() ?? null;
+    const scrollerStyle = window.getComputedStyle(scroller);
     const viewportBottom = window.innerHeight;
     const viewportRight = window.innerWidth;
-    const visibleItems = itemRect ? Math.floor(menuRect.height / itemRect.height) : 0;
-    const scrollable = menu.scrollHeight > menu.clientHeight + 1;
+    const visibleItems = firstItemRect ? Math.floor(menuRect.height / firstItemRect.height) : 0;
+    const scrollable = scroller.scrollHeight > scroller.clientHeight + 1;
     const scrollState = menu.getAttribute("data-scroll");
-    menu.scrollTop = menu.scrollHeight;
-    menu.dispatchEvent(new Event("scroll"));
+    const topGap = firstItemRect ? firstItemRect.top - scrollerRect.top : null;
+
+    scroller.scrollTop = scroller.scrollHeight;
+    scroller.dispatchEvent(new Event("scroll"));
+    const lastItemRect = items.length ? items[items.length - 1].getBoundingClientRect() : null;
+    const bottomGap = lastItemRect ? scrollerRect.bottom - lastItemRect.bottom : null;
     const scrollStateBottom = menu.getAttribute("data-scroll");
+
+    // Outer menu should remain non-scrollable so the "cloud" hint stays fixed.
+    const menuScrollTop = menu.scrollTop;
     return {
       ok: true,
       top: menuRect.top,
@@ -709,13 +723,16 @@ export const assertDropdownMenu = async (page, name) => {
       triggerBottom: triggerRect.bottom,
       viewportBottom,
       viewportRight,
-      scrollWidth: menu.scrollWidth,
-      clientWidth: menu.clientWidth,
+      scrollWidth: scroller.scrollWidth,
+      clientWidth: scroller.clientWidth,
       visibleItems,
       scrollable,
       scrollState,
       scrollStateBottom,
-      overscrollBehavior: menuStyle.overscrollBehaviorY
+      topGap,
+      bottomGap,
+      menuScrollTop,
+      overscrollBehavior: scrollerStyle.overscrollBehaviorY
     };
   });
   if (!result.ok) {
@@ -739,6 +756,14 @@ export const assertDropdownMenu = async (page, name) => {
   if (result.visibleItems < 3) {
     throw new Error(`Dropdown visible items too few for ${name}`);
   }
+  if (result.topGap !== null && result.topGap > 18) {
+    throw new Error(`Dropdown menu has excessive top spacing for ${name} (topGap=${result.topGap})`);
+  }
+  if (result.bottomGap !== null && result.bottomGap > 18) {
+    throw new Error(
+      `Dropdown menu has excessive bottom spacing for ${name} (bottomGap=${result.bottomGap})`
+    );
+  }
   if (result.overscrollBehavior !== "contain" && result.overscrollBehavior !== "none") {
     throw new Error(`Dropdown overscroll not contained for ${name}`);
   }
@@ -747,6 +772,143 @@ export const assertDropdownMenu = async (page, name) => {
   }
   if (result.scrollable && result.scrollStateBottom !== "bottom") {
     throw new Error(`Dropdown scroll indicator not updating at bottom for ${name}`);
+  }
+  if (result.menuScrollTop !== 0) {
+    throw new Error(`Dropdown outer menu should not scroll for ${name} (scrollTop=${result.menuScrollTop})`);
+  }
+  if (!result.scrollable) return;
+
+  // Validate the scroll affordance: when scrollable, the menu height should clip
+  // about half an item at the edge to hint that more content exists.
+  const readPeek = async (target) => {
+    await page.evaluate((mode) => {
+      const menu = document.querySelector(".select-menu.open");
+      const scroller = menu?.querySelector(".select-menu-scroll");
+      if (!(menu instanceof HTMLElement) || !(scroller instanceof HTMLElement)) return;
+      const maxScroll = Math.max(0, scroller.scrollHeight - scroller.clientHeight);
+      if (mode === "top") {
+        scroller.scrollTop = 0;
+      } else if (mode === "bottom") {
+        scroller.scrollTop = maxScroll;
+      }
+      scroller.dispatchEvent(new Event("scroll"));
+    }, target);
+    await page.waitForTimeout(160);
+    return page.evaluate(() => {
+      const menu = document.querySelector(".select-menu.open");
+      const scroller = menu?.querySelector(".select-menu-scroll");
+      if (!(menu instanceof HTMLElement) || !(scroller instanceof HTMLElement)) return null;
+      const scrollerRect = scroller.getBoundingClientRect();
+      const items = Array.from(scroller.querySelectorAll(".select-item"));
+      const firstRect = items[0]?.getBoundingClientRect() ?? null;
+      const itemHeight = firstRect?.height ?? 0;
+
+      const clippedTop = items
+        .map((el) => ({ el, rect: el.getBoundingClientRect() }))
+        .find((item) => item.rect.top < scrollerRect.top && item.rect.bottom > scrollerRect.top + 1);
+      const clippedBottom = items
+        .map((el) => ({ el, rect: el.getBoundingClientRect() }))
+        .find(
+          (item) => item.rect.bottom > scrollerRect.bottom && item.rect.top < scrollerRect.bottom - 1
+        );
+
+      const topClipPx = clippedTop ? scrollerRect.top - clippedTop.rect.top : 0;
+      const bottomClipPx = clippedBottom ? clippedBottom.rect.bottom - scrollerRect.bottom : 0;
+      return {
+        scrollState: menu.getAttribute("data-scroll") || "",
+        itemHeight,
+        topClipItemHeight: clippedTop?.rect.height ?? 0,
+        bottomClipItemHeight: clippedBottom?.rect.height ?? 0,
+        topClipPx,
+        bottomClipPx
+      };
+    });
+  };
+
+  const top = await readPeek("top");
+  if (!top) throw new Error(`Dropdown menu missing for ${name}`);
+  if (top.scrollState !== "top") {
+    throw new Error(`Dropdown scroll indicator mismatch at top for ${name} (state=${top.scrollState})`);
+  }
+  if (top.itemHeight > 0) {
+    const denom = top.bottomClipItemHeight || top.itemHeight;
+    const ratio = denom > 0 ? top.bottomClipPx / denom : 0;
+    // Be tolerant of DPI/rounding differences: assert there's a meaningful clip,
+    // not a fully hidden/fully visible row.
+    if (top.bottomClipPx <= 3 || top.bottomClipPx >= denom - 3 || ratio < 0.18 || ratio > 0.82) {
+      throw new Error(
+        `Dropdown missing half-item peek at top for ${name} (clipPx=${top.bottomClipPx.toFixed(1)} ratio=${ratio.toFixed(2)})`
+      );
+    }
+  }
+
+  const bottom = await readPeek("bottom");
+  if (!bottom) throw new Error(`Dropdown menu missing for ${name}`);
+  if (bottom.scrollState !== "bottom") {
+    throw new Error(
+      `Dropdown scroll indicator mismatch at bottom for ${name} (state=${bottom.scrollState})`
+    );
+  }
+  if (bottom.itemHeight > 0) {
+    const denom = bottom.topClipItemHeight || bottom.itemHeight;
+    const ratio = denom > 0 ? bottom.topClipPx / denom : 0;
+    if (bottom.topClipPx <= 3 || bottom.topClipPx >= denom - 3 || ratio < 0.18 || ratio > 0.82) {
+      throw new Error(
+        `Dropdown missing half-item peek at bottom for ${name} (clipPx=${bottom.topClipPx.toFixed(1)} ratio=${ratio.toFixed(2)})`
+      );
+    }
+  }
+};
+
+export const assertDropdownNoWrap = async (page, name) => {
+  const result = await page.evaluate(() => {
+    const select = document.querySelector(".select.open");
+    const trigger = select?.querySelector(".select-trigger");
+    const menu = document.querySelector(".select-menu.open");
+    const scroller = menu?.querySelector(".select-menu-scroll");
+    if (!trigger || !menu || !(scroller instanceof HTMLElement)) {
+      return { ok: false, reason: "select menu not open" };
+    }
+
+    const triggerRect = trigger.getBoundingClientRect();
+    const menuRect = menu.getBoundingClientRect();
+    const items = Array.from(scroller.querySelectorAll(".select-item")).map((el) => {
+      const rect = el.getBoundingClientRect();
+      return { text: (el.textContent || "").trim(), height: rect.height };
+    });
+
+    return {
+      ok: true,
+      triggerWidth: triggerRect.width,
+      menuWidth: menuRect.width,
+      items
+    };
+  });
+
+  if (!result.ok) {
+    throw new Error(`Dropdown menu missing for ${name}`);
+  }
+
+  if (result.menuWidth + 1 < result.triggerWidth) {
+    throw new Error(
+      `Dropdown menu narrower than trigger for ${name} (menu=${result.menuWidth.toFixed(1)} trigger=${result.triggerWidth.toFixed(1)})`
+    );
+  }
+
+  const heights = result.items.map((item) => item.height).filter((h) => Number.isFinite(h) && h > 0);
+  if (heights.length < 2) return;
+
+  heights.sort((a, b) => a - b);
+  const baseline = heights[Math.floor(heights.length / 2)];
+  const max = heights[heights.length - 1];
+  // If any option wraps to multiple lines, its row height will jump significantly.
+  if (max - baseline > 6) {
+    const offenders = result.items
+      .filter((item) => item.height > baseline + 6)
+      .map((item) => `${item.text}(${item.height.toFixed(1)}px)`);
+    throw new Error(
+      `Dropdown options wrapped for ${name} (baseline=${baseline.toFixed(1)}px offenders=${offenders.join(", ")})`
+    );
   }
 };
 

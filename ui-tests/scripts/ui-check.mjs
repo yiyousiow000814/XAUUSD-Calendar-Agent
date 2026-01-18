@@ -9,6 +9,7 @@ import {
   assertAutosaveShift,
   assertBaseline,
   assertContrast,
+  assertDropdownNoWrap,
   assertDropdownMenu,
   assertEventsLoaded,
   assertHistoryNoOverflow,
@@ -1814,6 +1815,29 @@ const main = async () => {
       }
     });
 
+    const closeBehaviorControl = page.locator("[data-qa='qa:control:close-behavior']").first();
+    if (await closeBehaviorControl.count()) {
+      await closeBehaviorControl.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(140);
+
+      const closeBehaviorTrigger = closeBehaviorControl.locator(".select-trigger").first();
+      if (await closeBehaviorTrigger.count()) {
+        await closeBehaviorTrigger.click({ force: true });
+        await page.waitForTimeout(160);
+        artifacts.push({
+          scenario: "dropdown-close-behavior",
+          theme: theme.key,
+          state: "open",
+          path: await captureState(page, "dropdown-close-behavior", theme.key, "open")
+        });
+        await runCheck(theme.key, "Dropdown options do not wrap (close-behavior)", () =>
+          assertDropdownNoWrap(page, "close-behavior")
+        );
+        await closeBehaviorTrigger.click({ force: true });
+        await page.waitForTimeout(120);
+      }
+    }
+
     const timezoneSection = page.locator("[data-qa='qa:section:calendar-timezone']").first();
     if (await timezoneSection.count()) {
       await timezoneSection.scrollIntoViewIfNeeded();
@@ -1826,6 +1850,25 @@ const main = async () => {
           element: timezoneSection
         })
       });
+
+      const tzSelectTrigger = timezoneSection
+        .locator("[data-qa='qa:select:calendar-utc-offset'] .select-trigger")
+        .first();
+      if (await tzSelectTrigger.count()) {
+        await tzSelectTrigger.click({ force: true });
+        await page.waitForTimeout(160);
+        artifacts.push({
+          scenario: "dropdown-calendar-utc-offset",
+          theme: theme.key,
+          state: "open",
+          path: await captureState(page, "dropdown-calendar-utc-offset", theme.key, "open")
+        });
+        await runCheck(theme.key, "Dropdown menu layout (calendar-utc-offset)", () =>
+          assertDropdownMenu(page, "calendar-utc-offset")
+        );
+        await tzSelectTrigger.click({ force: true });
+        await page.waitForTimeout(120);
+      }
     }
 
     const syncRepoSection = page.locator("[data-qa='qa:section:sync-repo']").first();
