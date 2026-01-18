@@ -1592,6 +1592,10 @@ class WebAgentBackend:
                 -dt_utc.timestamp() if is_current else dt_utc.timestamp(),
             )
 
+        # Ensure event IDs are unique within the rendered list, even if multiple
+        # rows share the same "stable signature" (time/currency/title/etc.).
+        seen_event_ids: dict[str, int] = {}
+
         for event in sorted(visible, key=_sort_key):
             dt_utc: datetime = event["dt_utc"]
             event_currency = event.get("currency", "").upper()
@@ -1606,8 +1610,22 @@ class WebAgentBackend:
                 dt_display, time_label, source_date_label=source_date
             )
             is_current = dt_utc <= now_utc and (now_utc - dt_utc) <= grace_window
-            raw_id = f"{dt_utc.isoformat()}|{event_currency}|{event_name}"
-            event_id = f"evt-{hashlib.sha1(raw_id.encode('utf-8')).hexdigest()[:16]}"
+            # Use a stable signature for React keys (avoid including Actual/Forecast/Previous
+            # which can change over time). If duplicates still exist, add a deterministic
+            # suffix to keep keys unique.
+            raw_id = "|".join(
+                [
+                    dt_utc.isoformat(),
+                    event_currency,
+                    (time_label or "").strip(),
+                    (importance or "").strip(),
+                    (event_name or "").strip(),
+                ]
+            )
+            digest = hashlib.sha1(raw_id.encode("utf-8")).hexdigest()
+            seq = seen_event_ids.get(digest, 0) + 1
+            seen_event_ids[digest] = seq
+            event_id = f"evt-{digest}" if seq == 1 else f"evt-{digest}-{seq}"
             rendered.append(
                 {
                     "id": event_id,

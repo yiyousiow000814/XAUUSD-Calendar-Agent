@@ -54,13 +54,8 @@ export function ActivityDrawer({
       hasNotifiedClosedRef.current = false;
     }
 
-    const prefersReducedMotion = (() => {
-      try {
-        return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      } catch {
-        return false;
-      }
-    })();
+    // We intentionally ignore prefers-reduced-motion so desktop + ui-check behavior stays consistent.
+    const prefersReducedMotion = false;
 
     const notifyClosed = () => {
       const callback = onClosedRef.current;

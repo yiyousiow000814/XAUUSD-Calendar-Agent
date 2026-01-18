@@ -346,14 +346,6 @@ export const assertCurrentEventHeartbeat = async (page) => {
 
 export const assertNextEventsReorderAnim = async (page, rowId) => {
   const result = await page.evaluate(async (id) => {
-    const prefersReducedMotion =
-      typeof window !== "undefined" &&
-      window.matchMedia &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (prefersReducedMotion) {
-      return { ok: true, skipped: true, reason: "prefers-reduced-motion" };
-    }
-
     const refresh = window.__ui_check__?.refresh;
     if (typeof refresh !== "function") {
       return { ok: false, reason: "__ui_check__.refresh missing" };

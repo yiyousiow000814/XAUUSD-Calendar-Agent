@@ -364,13 +364,6 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .pill-link.sync-target-flash::after {
-    animation: none;
-    opacity: 1;
-  }
-}
-
 .btn-compact {
   padding: 9px 14px;
   min-height: var(--appbar-control-height);

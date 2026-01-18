@@ -42,42 +42,30 @@ export function NextEvents({
   const rowRefs = useRef(new Map<string, HTMLDivElement>());
   const prevRects = useRef(new Map<string, DOMRect>());
   const prevFilterSignature = useRef("");
-  const pulseEpochMsRef = useRef<number>(Date.now());
-  const pulseDelayMsByKeyRef = useRef(new Map<string, number>());
+  const prevCurrentSignature = useRef("");
+  const [pulseGen, setPulseGen] = useState(0);
 
   const getItemKey = (item: EventItem) =>
     item.id || `${item.time}|${item.cur}|${item.impact}|${item.event}`;
 
-  // Keep all Current pulse animations in sync by aligning them to a shared epoch.
-  // For each item that *becomes* Current, we compute and store a negative delay
-  // so its animation phase matches (now - epoch) % duration.
-  const currentPulseDelayMsByKey = useMemo(() => {
-    const epoch = pulseEpochMsRef.current;
-    const durationMs = 2000;
-    const now = Date.now();
-    const map = pulseDelayMsByKeyRef.current;
-
-    const currentKeys = new Set<string>();
-    events.forEach((item) => {
-      const isCurrent =
-        item.state === "current" || String(item.countdown || "").toLowerCase() === "current";
-      if (!isCurrent) return;
-      currentKeys.add(getItemKey(item));
-    });
-
-    // Drop stored delays for items that are no longer Current.
-    Array.from(map.keys()).forEach((key) => {
-      if (!currentKeys.has(key)) map.delete(key);
-    });
-
-    // Assign delay for newly Current items.
-    currentKeys.forEach((key) => {
-      if (map.has(key)) return;
-      map.set(key, -((now - epoch) % durationMs));
-    });
-
-    return map;
+  const currentSignature = useMemo(() => {
+    const keys = events
+      .filter(
+        (item) =>
+          item.state === "current" || String(item.countdown || "").toLowerCase() === "current"
+      )
+      .map(getItemKey)
+      .sort();
+    return keys.join("|");
   }, [events]);
+
+  useLayoutEffect(() => {
+    if (prevCurrentSignature.current === currentSignature) return;
+    prevCurrentSignature.current = currentSignature;
+    // Force a synchronized restart for all Current pulse animations whenever the
+    // set of Current items changes (new Current appears / disappears).
+    setPulseGen((value) => (value === 0 ? 1 : 0));
+  }, [currentSignature]);
 
   const filterSignature = useMemo(() => {
     const impacts = [...impactFilter].sort().join(",");
@@ -105,7 +93,6 @@ export function NextEvents({
     if (query.trim()) return;
     if (typeof window === "undefined") return;
 
-    const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     const eligibleKeys = new Set<string>();
 
     // Only animate vertical movement for Current and "about-to-be-current" (<= 1 minute).
@@ -146,7 +133,6 @@ export function NextEvents({
     }
     prevFilterSignature.current = filterSignature;
 
-    if (prefersReducedMotion) return;
     if (!prev.size || !newRects.size) return;
 
     newRects.forEach((rect, key) => {
@@ -308,18 +294,13 @@ export function NextEvents({
             filtered.map((item: EventItem) => {
               const key = getItemKey(item);
               const isCurrent = item.state === "current" || item.countdown.toLowerCase() === "current";
-              const pulseDelay = isCurrent ? currentPulseDelayMsByKey.get(key) : undefined;
               return (
                 <div
                   className={`event-row ${impactTone(item.impact)}${isCurrent ? " current" : ""}`}
                   key={key}
                   data-qa="qa:row:next-event"
                   data-qa-row-id={key}
-                  style={
-                    isCurrent && typeof pulseDelay === "number"
-                      ? ({ ["--current-pulse-delay" as any]: `${pulseDelay}ms` } as any)
-                      : undefined
-                  }
+                  data-pulse-gen={isCurrent ? pulseGen : undefined}
                   ref={(el) => {
                     if (el) {
                       rowRefs.current.set(key, el);

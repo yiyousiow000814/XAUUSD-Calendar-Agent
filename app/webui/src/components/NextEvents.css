@@ -405,8 +405,15 @@
   opacity: 0;
   transform: scale(0.45);
   /* One steady pulse per cycle (EKG-like), not double-beat. */
-  animation: current-heartbeat 2000ms var(--motion-ease) infinite;
+  animation-name: current-heartbeat;
+  animation-duration: 2000ms;
+  animation-timing-function: var(--motion-ease);
+  animation-iteration-count: infinite;
   animation-delay: var(--current-pulse-delay, 0ms);
+}
+
+.event-row.current[data-pulse-gen="1"] .event-impact::after {
+  animation-name: current-heartbeat-alt;
 }
 
 [data-theme="dark"] .event-row.current .event-impact::after {
@@ -416,6 +423,25 @@
 }
 
 @keyframes current-heartbeat {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  18% {
+    opacity: 0.55;
+    transform: scale(0.82);
+  }
+  44% {
+    opacity: 0;
+    transform: scale(1.25);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.25);
+  }
+}
+
+@keyframes current-heartbeat-alt {
   0% {
     opacity: 0;
     transform: scale(0.5);
