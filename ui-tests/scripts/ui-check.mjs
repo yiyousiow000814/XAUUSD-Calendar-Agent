@@ -1897,12 +1897,12 @@ const main = async () => {
         needsConfirmation: false,
         canUseAsIs: false,
         canReset: false,
-        message: "Sync repo overlaps Main Path. Choose a separate folder.",
+        message: "Temporary Path overlaps Main Path. Choose a separate folder.",
         path: "C:\\\\path\\\\to\\\\main"
       };
     });
     await page.waitForTimeout(220);
-    await runCheck(theme.key, "Sync repo empty path does not show overlaps warning", async () => {
+    await runCheck(theme.key, "Temporary Path empty path does not show overlaps warning", async () => {
       const errorNote = page.locator("[data-qa='qa:note:sync-repo'][data-tone='error']").first();
       if (await errorNote.count()) {
         throw new Error("Overlaps warning should not appear when Temporary Path is empty");
@@ -1931,7 +1931,7 @@ const main = async () => {
         needsConfirmation: true,
         canUseAsIs: false,
         canReset: true,
-        message: "Sync repo contains extra files",
+        message: "Temporary Path contains extra files",
         path: "C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\XAUUSDCalendar\\\\repo"
       };
     });
@@ -1964,7 +1964,7 @@ const main = async () => {
     await page.waitForTimeout(220);
     const syncRepoNoteAuto = page.locator("[data-qa='qa:note:sync-repo'][data-tone='info']").first();
     if (await syncRepoNoteAuto.count()) {
-      await runCheck(theme.key, "Sync repo auto-clone note has no Review button", async () => {
+      await runCheck(theme.key, "Temporary Path auto-clone note has no Review button", async () => {
         const hasReview = await syncRepoNoteAuto
           .locator("[data-qa='qa:action:sync-repo-review']")
           .count();
@@ -1994,7 +1994,7 @@ const main = async () => {
     await page.waitForTimeout(220);
     const syncRepoNoteCloning = page.locator("[data-qa='qa:note:sync-repo'][data-tone='info']").first();
     if (await syncRepoNoteCloning.count()) {
-      await runCheck(theme.key, "Sync repo cloning note has no Review button", async () => {
+      await runCheck(theme.key, "Temporary Path cloning note has no Review button", async () => {
         const hasReview = await syncRepoNoteCloning
           .locator("[data-qa='qa:action:sync-repo-review']")
           .count();
@@ -3208,7 +3208,7 @@ const main = async () => {
         message: "Cloning...",
         path: "C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\XAUUSDCalendar\\\\repo"
       });
-      window.__ui_check__?.appendLog?.("Sync repo reset requested", "WARN");
+      window.__ui_check__?.appendLog?.("Temporary Path reset requested", "WARN");
     });
     await page.waitForFunction(() => {
       const ring = document.querySelector(".activity-count-ring");
@@ -3219,7 +3219,7 @@ const main = async () => {
 
     const activityFabProgress = page.locator("[data-qa*='qa:action:activity-fab']").first();
     if (await activityFabProgress.count()) {
-      await runCheck(theme.key, "Sync repo progress ring visible", async () => {
+      await runCheck(theme.key, "Temporary Path progress ring visible", async () => {
         const ok = await page.evaluate(() => {
           const ring = document.querySelector(".activity-count-ring");
           if (!ring) return false;
@@ -3276,19 +3276,19 @@ const main = async () => {
       window.__ui_check__?.showSyncRepoWarning?.({
         mode: "settings-close",
         status: "git-expected-usable",
-        message: "Existing sync repo looks usable",
-        path: "C:\\\\sync-repo\\\\xauusd",
+        message: "Existing Temporary Path looks usable",
+        path: "C:\\\\temp-path\\\\xauusd",
         details: "",
         canUseAsIs: true,
         canReset: true
       });
     });
     await page.waitForTimeout(80);
-    await runCheck(theme.key, "Sync repo warning transition (usable)", () =>
-      assertOpacityTransition(page, "[data-qa='qa:modal-backdrop:sync-repo-warning']", "Sync repo warning")
+    await runCheck(theme.key, "Temporary Path warning transition (usable)", () =>
+      assertOpacityTransition(page, "[data-qa='qa:modal-backdrop:sync-repo-warning']", "Temporary Path warning")
     );
-    await runCheck(theme.key, "Sync repo warning has transition", () =>
-      assertHasTransition(page, "[data-qa='qa:modal:sync-repo-warning']", "Sync repo warning modal")
+    await runCheck(theme.key, "Temporary Path warning has transition", () =>
+      assertHasTransition(page, "[data-qa='qa:modal:sync-repo-warning']", "Temporary Path warning modal")
     );
     const syncRepoWarningModal = page.locator("[data-qa='qa:modal:sync-repo-warning']").first();
     if (await syncRepoWarningModal.count()) {
@@ -3311,8 +3311,8 @@ const main = async () => {
       window.__ui_check__?.showSyncRepoWarning?.({
         mode: "settings-close",
         status: "git-not-clean",
-        message: "Sync repo contains local changes",
-        path: "C:\\\\sync-repo\\\\xauusd",
+        message: "Temporary Path folder contains local changes",
+        path: "C:\\\\temp-path\\\\xauusd",
         details: "",
         canUseAsIs: false,
         canReset: true
@@ -3340,16 +3340,16 @@ const main = async () => {
       window.__ui_check__?.showSyncRepoWarning?.({
         mode: "settings-close",
         status: "git-origin-mismatch",
-        message: "Git repo detected, but origin does not match the configured sync repo",
-        path: "C:\\\\sync-repo\\\\other",
+        message: "Git repo detected, but origin does not match the configured Temporary Path repo",
+        path: "C:\\\\temp-path\\\\other",
         details: "",
         canUseAsIs: false,
         canReset: true
       });
     });
     await page.waitForTimeout(80);
-    await runCheck(theme.key, "Sync repo warning transition (other)", () =>
-      assertOpacityTransition(page, "[data-qa='qa:modal-backdrop:sync-repo-warning']", "Sync repo warning")
+    await runCheck(theme.key, "Temporary Path warning transition (other)", () =>
+      assertOpacityTransition(page, "[data-qa='qa:modal-backdrop:sync-repo-warning']", "Temporary Path warning")
     );
     const syncRepoWarningModalOther = page.locator("[data-qa='qa:modal:sync-repo-warning']").first();
     if (await syncRepoWarningModalOther.count()) {
@@ -3372,7 +3372,7 @@ const main = async () => {
       window.__ui_check__?.showSyncRepoWarning?.({
         mode: "settings-close",
         status: "unsafe",
-        message: "Sync repo overlaps Main Path. Choose a separate folder.",
+        message: "Temporary Path overlaps Main Path. Choose a separate folder.",
         path: "C:\\\\path\\\\to\\\\main",
         details: "",
         canUseAsIs: false,

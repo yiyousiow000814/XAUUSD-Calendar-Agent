@@ -2172,7 +2172,7 @@ export default function App() {
           mode: payload?.mode ?? "settings-close",
           status: payload?.status ?? "git-other",
           message: payload?.message ?? "Temporary Path needs confirmation",
-          path: payload?.path ?? "C:\\\\path\\\\to\\\\sync-repo",
+          path: payload?.path ?? "C:\\\\path\\\\to\\\\temp-path",
           details: payload?.details,
           canUseAsIs: Boolean(payload?.canUseAsIs),
           canReset: payload?.canReset ?? true

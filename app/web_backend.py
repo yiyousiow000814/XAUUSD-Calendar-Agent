@@ -551,16 +551,16 @@ class WebAgentBackend:
         ).strip()
         repo_slug = normalize_repo_slug((self.state.get("github_repo") or "").strip())
         if not raw_path:
-            return {"ok": False, "message": "Sync repo path is empty"}
+            return {"ok": False, "message": "Temporary Path is empty"}
         path = Path(raw_path)
         probe = self._probe_sync_repo(path, repo_slug, auto_start=False)
         if not probe.get("canUseAsIs"):
             return {
                 "ok": False,
-                "message": probe.get("message") or "Sync repo not usable",
+                "message": probe.get("message") or "Temporary Path not usable",
             }
         self._set_sync_repo_confirmation(path, repo_slug, mode="use-as-is")
-        self._append_notice("Sync repo confirmed (use as-is)", level="INFO")
+        self._append_notice("Temporary Path confirmed (use as-is)", level="INFO")
         return {"ok": True}
 
     def sync_repo_reset(self, payload: dict | None = None) -> dict:
@@ -570,7 +570,7 @@ class WebAgentBackend:
         ).strip()
         repo_slug = normalize_repo_slug((self.state.get("github_repo") or "").strip())
         if not raw_path:
-            return {"ok": False, "message": "Sync repo path is empty"}
+            return {"ok": False, "message": "Temporary Path is empty"}
         if not repo_slug:
             return {"ok": False, "message": "GitHub repo not configured"}
         path = Path(raw_path)
@@ -591,14 +591,14 @@ class WebAgentBackend:
                     if self._sync_repo_task_active:
                         return {
                             "ok": False,
-                            "message": "Unable to stop existing sync repo operation; please retry",
+                            "message": "Unable to stop existing Temporary Path operation; please retry",
                         }
         probe = self._probe_sync_repo(path, repo_slug, auto_start=False)
         if not probe.get("canReset"):
             return {"ok": False, "message": probe.get("message") or "Reset not allowed"}
         started = self._start_sync_repo_clone(path, repo_slug, reset_first=True)
         if not started:
-            return {"ok": False, "message": "Sync repo operation already running"}
+            return {"ok": False, "message": "Temporary Path operation already running"}
         return {"ok": True}
 
     def _terminate_sync_repo_pid_file(self, path: Path, reason: str) -> None:
@@ -659,7 +659,9 @@ class WebAgentBackend:
                 terminate_process_tree(pid)
             except Exception:  # noqa: BLE001
                 pass
-        self._append_notice(f"Sync repo operation canceled: {reason}", level="WARN")
+        self._append_notice(
+            f"Temporary Path operation canceled: {reason}", level="WARN"
+        )
         return True
 
     def save_settings(self, payload: dict) -> dict:
@@ -1708,11 +1710,12 @@ class WebAgentBackend:
                 return sync_path
             if probe.get("action") == "auto-clone-started":
                 self._append_sync_repo_notice_once(
-                    "Sync repo is being prepared (clone in progress).", level="INFO"
+                    "Temporary Path is being prepared (clone in progress).",
+                    level="INFO",
                 )
             elif probe.get("needsConfirmation"):
                 self._append_sync_repo_notice_once(
-                    "Sync repo needs confirmation. Open Settings, then close it to review options.",
+                    "Temporary Path needs confirmation. Open Settings, then close it to review options.",
                     level="WARN",
                 )
             return None
@@ -1834,7 +1837,7 @@ class WebAgentBackend:
                 "canUseAsIs": False,
                 "canReset": False,
                 "path": "",
-                "message": "Sync repo disabled",
+                "message": "Temporary Path disabled",
                 "taskActive": task_active,
                 "taskPath": task_path,
             }
@@ -1849,7 +1852,7 @@ class WebAgentBackend:
                 "canUseAsIs": False,
                 "canReset": False,
                 "path": resolved,
-                "message": "Sync repo overlaps Main Path. Choose a separate folder.",
+                "message": "Temporary Path overlaps Main Path. Choose a separate folder.",
                 "taskActive": False,
                 "taskPath": "",
             }
@@ -1873,7 +1876,7 @@ class WebAgentBackend:
                 "canUseAsIs": False,
                 "canReset": False,
                 "path": resolved,
-                "message": "Sync repo operation in progress",
+                "message": "Temporary Path operation in progress",
                 "taskActive": True,
                 "taskPath": task_path,
                 "action": "in-progress",
@@ -1887,7 +1890,7 @@ class WebAgentBackend:
                 "canUseAsIs": False,
                 "canReset": False,
                 "path": resolved,
-                "message": "Sync repo path is not a folder",
+                "message": "Temporary Path is not a folder",
                 "taskActive": False,
                 "taskPath": "",
             }
@@ -1926,12 +1929,12 @@ class WebAgentBackend:
                         details["error"] = origin_slug.output
                     elif origin_slug.output.strip().lower() != expected_repo:
                         status = "git-origin-mismatch"
-                        message = "Git repo detected, but origin does not match the configured sync repo"
+                        message = "Git repo detected, but origin does not match the configured Temporary Path repo"
                         needs_confirmation = True
                         details["origin"] = origin_slug.output.strip()
                         details["expectedRepo"] = expected_repo
                     else:
-                        # Origin matches the configured sync repo. Ensure this folder is actually
+                        # Origin matches the configured repo. Ensure this folder is actually
                         # safe to use as a working copy for GitHub main.
                         needs_confirmation = True
                         details["origin"] = origin_slug.output.strip()
@@ -1959,7 +1962,7 @@ class WebAgentBackend:
                         calendar_root = path / "data" / "Economic_Calendar"
                         if not calendar_root.exists():
                             status = "git-unusable"
-                            message = "Sync repo is missing calendar data"
+                            message = "Temporary Path is missing calendar data"
                         else:
                             status_out = get_status_porcelain(path)
                             if not status_out.ok:
@@ -1968,7 +1971,7 @@ class WebAgentBackend:
                                 details["error"] = status_out.output
                             elif has_legacy_temp or status_out.output.strip():
                                 status = "git-not-clean"
-                                message = "Sync repo contains extra files"
+                                message = "Temporary Path contains extra files"
                             else:
                                 # Keep probe fast and UI-friendly: do not fetch on probe.
                                 head_branch = get_head_branch(path)
@@ -1995,10 +1998,10 @@ class WebAgentBackend:
                                     details["error"] = head_branch.output
                                 elif head_branch.output.strip() != "main":
                                     status = "git-not-main"
-                                    message = "Sync repo is not on branch main"
+                                    message = "Temporary Path is not on branch main"
                                 else:
                                     status = "git-expected-usable"
-                                    message = "Existing sync repo looks usable"
+                                    message = "Existing Temporary Path looks usable"
                                     can_use_as_is = True
                                     if (
                                         head.ok
@@ -2026,7 +2029,7 @@ class WebAgentBackend:
             needs_confirmation = False
             ready = True
             can_use_as_is = True
-            message = "Sync repo confirmed and ready"
+            message = "Temporary Path confirmed and ready"
 
         if status in ("missing", "empty") and auto_start:
             if not can_reset:
@@ -2084,7 +2087,7 @@ class WebAgentBackend:
             self._sync_repo_task_active = True
             self._sync_repo_task_phase = "resetting" if reset_first else "cloning"
             self._sync_repo_task_progress = 0.0
-            self._sync_repo_task_message = "Preparing sync repo"
+            self._sync_repo_task_message = "Preparing Temporary Path"
             self._sync_repo_task_path = str(self._safe_resolve(path))
             self._sync_repo_task_cancel_event = cancel_event
             self._sync_repo_git_pid = None
@@ -2103,7 +2106,7 @@ class WebAgentBackend:
                     self._append_notice(
                         "Reset/clone blocked: target path is not allowed", level="ERROR"
                     )
-                    self._update_sync_repo_task("error", 0.0, "Unsafe sync repo path")
+                    self._update_sync_repo_task("error", 0.0, "Unsafe Temporary Path")
                     return
 
                 def _on_rmtree_error(func, target, exc_info) -> None:  # noqa: ANN001
@@ -2162,18 +2165,20 @@ class WebAgentBackend:
                         return False
 
                 if reset_first:
-                    self._append_notice("Sync reset started", level="WARN")
+                    self._append_notice("Temporary Path reset started", level="WARN")
                     self._update_sync_repo_task(
-                        "resetting", 0.05, "Clearing sync repo folder"
+                        "resetting", 0.05, "Clearing Temporary Path folder"
                     )
                 else:
-                    self._append_notice("Sync repo clone started", level="INFO")
+                    self._append_notice("Temporary Path clone started", level="INFO")
 
                 try:
                     resolved.parent.mkdir(parents=True, exist_ok=True)
                     resolved.mkdir(parents=True, exist_ok=True)
                 except Exception as exc:  # noqa: BLE001
-                    self._append_notice(f"Sync repo clone failed: {exc}", level="ERROR")
+                    self._append_notice(
+                        f"Temporary Path clone failed: {exc}", level="ERROR"
+                    )
                     self._update_sync_repo_task("error", 0.0, "Clone failed")
                     return
 
@@ -2192,7 +2197,7 @@ class WebAgentBackend:
                             "killed="
                         ):
                             self._append_notice(
-                                f"Stopped git clone processes for sync repo: {kill_result.output}",
+                                f"Stopped git clone processes for Temporary Path: {kill_result.output}",
                                 level="WARN",
                             )
                         ok = clear_dir_contents_strict(resolved, attempts=8)
@@ -2200,11 +2205,11 @@ class WebAgentBackend:
                         sample = ", ".join(last_clear_failures[:3])
                         if sample:
                             self._append_notice(
-                                f"Sync repo reset failed (examples still locked): {sample}",
+                                f"Temporary Path reset failed (examples still locked): {sample}",
                                 level="ERROR",
                             )
                         self._append_notice(
-                            "Sync reset failed: folder is in use. Close any apps using it and try again.",
+                            "Temporary Path reset failed: folder is in use. Close any apps using it and try again.",
                             level="ERROR",
                         )
                         self._update_sync_repo_task("error", 0.0, "Folder is in use")
@@ -2242,7 +2247,7 @@ class WebAgentBackend:
                         self._update_sync_repo_task("error", 0.0, "Canceled")
                         return
                     self._append_notice(
-                        f"Sync repo clone failed: {result.output}", level="ERROR"
+                        f"Temporary Path clone failed: {result.output}", level="ERROR"
                     )
                     self._update_sync_repo_task("error", 0.0, "Clone failed")
                     if reset_first:
@@ -2252,12 +2257,12 @@ class WebAgentBackend:
                             pass
                     return
 
-                self._append_notice("Sync repo clone completed", level="INFO")
+                self._append_notice("Temporary Path clone completed", level="INFO")
                 self._track_successful_repo(resolved)
                 calendar_root = resolved / "data" / "Economic_Calendar"
                 if not calendar_root.exists():
                     self._append_notice(
-                        "Sync incomplete: calendar data missing. Please retry Reset & Clone.",
+                        "Temporary Path incomplete: calendar data missing. Please retry Reset & Clone.",
                         level="ERROR",
                     )
                     self._update_sync_repo_task("error", 0.0, "Clone incomplete")
