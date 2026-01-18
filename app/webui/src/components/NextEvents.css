@@ -373,8 +373,13 @@
   height: 6px;
   border-radius: 999px;
   background: var(--event-impact);
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--event-impact) 16%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--event-impact) 18%, transparent);
   flex: 0 0 auto;
+}
+
+[data-theme="dark"] .event-impact {
+  /* Make the halo readable even when not Current (especially for red/yellow). */
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--event-impact) 30%, transparent);
 }
 
 .event-row.current .event-impact {
