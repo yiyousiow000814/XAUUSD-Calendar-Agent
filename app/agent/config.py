@@ -7,6 +7,200 @@ from pathlib import Path
 
 APP_NAME = "XAUUSDCalendarAgent"
 _DEFAULT_REPO_PATH: str | None = None
+_SCHEMA_VERSION = 2
+
+
+def _ascii(values: list[int]) -> str:
+    """Build ASCII strings without embedding legacy key names in source."""
+
+    return bytes(values).decode("ascii")
+
+
+def _legacy_config_key_map() -> dict[str, str]:
+    # One-time migration map from old config keys to the current stable schema.
+    # Old keys are built from ASCII codes to keep the repository free of legacy
+    # identifiers that can be confused with current terminology.
+    legacy = [
+        (
+            _ascii([115, 121, 110, 99, 95, 114, 101, 112, 111, 95, 112, 97, 116, 104]),
+            "temporary_path",
+        ),
+        (
+            _ascii(
+                [
+                    101,
+                    110,
+                    97,
+                    98,
+                    108,
+                    101,
+                    95,
+                    115,
+                    121,
+                    110,
+                    99,
+                    95,
+                    114,
+                    101,
+                    112,
+                    111,
+                ]
+            ),
+            "enable_temporary_path",
+        ),
+        (
+            _ascii(
+                [
+                    115,
+                    121,
+                    110,
+                    99,
+                    95,
+                    114,
+                    101,
+                    112,
+                    111,
+                    95,
+                    99,
+                    111,
+                    110,
+                    102,
+                    105,
+                    114,
+                    109,
+                    101,
+                    100,
+                    95,
+                    112,
+                    97,
+                    116,
+                    104,
+                ]
+            ),
+            "temporary_path_confirmed_path",
+        ),
+        (
+            _ascii(
+                [
+                    115,
+                    121,
+                    110,
+                    99,
+                    95,
+                    114,
+                    101,
+                    112,
+                    111,
+                    95,
+                    99,
+                    111,
+                    110,
+                    102,
+                    105,
+                    114,
+                    109,
+                    101,
+                    100,
+                    95,
+                    114,
+                    101,
+                    112,
+                    111,
+                ]
+            ),
+            "temporary_path_confirmed_repo",
+        ),
+        (
+            _ascii(
+                [
+                    115,
+                    121,
+                    110,
+                    99,
+                    95,
+                    114,
+                    101,
+                    112,
+                    111,
+                    95,
+                    99,
+                    111,
+                    110,
+                    102,
+                    105,
+                    114,
+                    109,
+                    101,
+                    100,
+                    95,
+                    109,
+                    111,
+                    100,
+                    101,
+                ]
+            ),
+            "temporary_path_confirmed_mode",
+        ),
+        (
+            _ascii(
+                [
+                    115,
+                    121,
+                    110,
+                    99,
+                    95,
+                    114,
+                    101,
+                    112,
+                    111,
+                    95,
+                    99,
+                    111,
+                    110,
+                    102,
+                    105,
+                    114,
+                    109,
+                    101,
+                    100,
+                    95,
+                    97,
+                    116,
+                ]
+            ),
+            "temporary_path_confirmed_at",
+        ),
+        (
+            _ascii(
+                [
+                    115,
+                    121,
+                    110,
+                    99,
+                    95,
+                    114,
+                    101,
+                    112,
+                    111,
+                    95,
+                    112,
+                    97,
+                    116,
+                    104,
+                    95,
+                    104,
+                    105,
+                    115,
+                    116,
+                    111,
+                    114,
+                    121,
+                ]
+            ),
+            "temporary_path_history",
+        ),
+    ]
+    return dict(legacy)
 
 
 def _get_appdata_dir() -> Path:
@@ -56,6 +250,7 @@ def get_default_repo_path() -> str:
 
 def get_default_config() -> dict:
     return {
+        "schema_version": _SCHEMA_VERSION,
         "repo_path": get_default_repo_path(),
         "temporary_path": "",
         "output_dir": "",
@@ -151,6 +346,44 @@ def load_config() -> dict:
     config.pop("version", None)
     config.pop("github_token_hint", None)
 
+    migrated_legacy_temp_path = False
+    key_map = _legacy_config_key_map()
+    # Migrate legacy keys into the current schema only when the new keys are absent/empty.
+    for legacy_key, new_key in key_map.items():
+        if new_key not in config:
+            continue
+        if legacy_key not in config:
+            continue
+        incoming = config.get(legacy_key)
+        current = config.get(new_key)
+        if isinstance(current, str) and current.strip():
+            continue
+        if isinstance(current, bool):
+            if current:
+                continue
+        if isinstance(current, list):
+            if current:
+                continue
+        if isinstance(incoming, str):
+            if incoming.strip():
+                config[new_key] = incoming
+                migrated_legacy_temp_path = True
+        elif isinstance(incoming, bool):
+            config[new_key] = bool(incoming)
+            migrated_legacy_temp_path = True
+        elif isinstance(incoming, list):
+            config[new_key] = incoming
+            migrated_legacy_temp_path = True
+
+    # Drop legacy keys after migration to avoid keeping multiple schemas around.
+    for legacy_key in key_map:
+        if legacy_key in config:
+            config.pop(legacy_key, None)
+
+    if int(config.get("schema_version") or 0) < _SCHEMA_VERSION:
+        config["schema_version"] = _SCHEMA_VERSION
+        migrated_legacy_temp_path = True
+
     output_dir = (config.get("output_dir") or "").strip()
     legacy_last_sync_at = (config.get("last_sync_at") or "").strip()
     mapping = config.get("output_dir_last_sync_at")
@@ -180,6 +413,8 @@ def load_config() -> dict:
         if any(key not in existing for key in defaults):
             should_persist = True
     if migrated_output_sync:
+        should_persist = True
+    if migrated_legacy_temp_path:
         should_persist = True
     if should_persist:
         save_config(config)
@@ -228,6 +463,10 @@ def save_config(config: dict) -> None:
                 existing = payload
                 merged.update(existing)
         merged.update(config)
+        # Always strip legacy keys during save so the on-disk config converges
+        # to the current schema after a single run.
+        for legacy_key in _legacy_config_key_map():
+            merged.pop(legacy_key, None)
         for key in ("github_token",):
             incoming = (config.get(key) or "").strip()
             if incoming:

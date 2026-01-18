@@ -70,7 +70,7 @@ except Exception:  # noqa: BLE001
 APP_TITLE = "XAUUSD Calendar Agent"
 AUTO_UPDATE_INTERVAL_MINUTES = 60
 OUTPUT_DIR_MARKER_FILENAME = ".xauusd_calendar_agent_managed_output"
-TEMPORARY_PATH_GIT_PID_PREFIX = "temporary-path-clone"
+GIT_PID_PREFIX = "repo-clone"
 
 
 class WebAgentBackend:
@@ -604,41 +604,60 @@ class WebAgentBackend:
         return {"ok": True}
 
     def _terminate_temporary_path_pid_file(self, path: Path, reason: str) -> None:
-        pid_path = self._temporary_path_pid_file(path)
-        try:
-            if not pid_path.exists():
-                return
-        except OSError:
+        pid_files = self._temporary_path_pid_files(path)
+        if not pid_files:
             return
-        try:
-            content = pid_path.read_text(encoding="utf-8").strip()
-        except OSError:
-            content = ""
-        pid: int | None = None
-        if content:
+
+        stopped: list[int] = []
+        for pid_path in pid_files:
             try:
-                pid = int(content.splitlines()[0].strip())
-            except Exception:  # noqa: BLE001
-                pid = None
-        if pid:
+                content = pid_path.read_text(encoding="utf-8").strip()
+            except OSError:
+                content = ""
+            pid: int | None = None
+            if content:
+                try:
+                    pid = int(content.splitlines()[0].strip())
+                except Exception:  # noqa: BLE001
+                    pid = None
+            if pid:
+                try:
+                    terminate_process_tree(pid)
+                except Exception:  # noqa: BLE001
+                    pass
+                stopped.append(pid)
             try:
-                terminate_process_tree(pid)
-            except Exception:  # noqa: BLE001
+                pid_path.unlink(missing_ok=True)
+            except OSError:
                 pass
-        try:
-            pid_path.unlink(missing_ok=True)
-        except OSError:
-            pass
-        if pid:
+
+        if stopped:
             self._append_notice(
-                f"Stopped previous git clone process (pid file): {pid} ({reason})",
+                f"Stopped previous git clone process (pid file): {stopped[0]} ({reason})",
                 level="WARN",
             )
 
-    def _temporary_path_pid_file(self, path: Path) -> Path:
+    def _temporary_path_pid_suffix(self, path: Path) -> str:
         resolved = str(self._safe_resolve(path))
         digest = sha1(resolved.encode("utf-8", errors="ignore")).hexdigest()[:16]
-        return get_log_dir() / f"{TEMPORARY_PATH_GIT_PID_PREFIX}-{digest}.pid"
+        return f"-{digest}.pid"
+
+    def _temporary_path_pid_file(self, path: Path) -> Path:
+        # Keep the prefix stable and generic so renames of "Temporary Path" do not
+        # require PID file migrations.
+        return (
+            get_log_dir() / f"{GIT_PID_PREFIX}{self._temporary_path_pid_suffix(path)}"
+        )
+
+    def _temporary_path_pid_files(self, path: Path) -> list[Path]:
+        # Be prefix-agnostic to remain compatible across renames: any PID file ending
+        # with this path digest is considered a match.
+        suffix = self._temporary_path_pid_suffix(path)
+        log_dir = get_log_dir()
+        try:
+            return sorted(log_dir.glob(f"*{suffix}"))
+        except OSError:
+            return []
 
     def _cancel_temporary_path_task(self, reason: str) -> bool:
         with self._temporary_path_task_lock:
