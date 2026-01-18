@@ -399,7 +399,8 @@
   z-index: -1;
   opacity: 0;
   transform: scale(0.45);
-  animation: current-heartbeat 1300ms var(--motion-ease) infinite;
+  /* One steady pulse per cycle (EKG-like), not double-beat. */
+  animation: current-heartbeat 2200ms var(--motion-ease) infinite;
 }
 
 [data-theme="dark"] .event-row.current .event-impact::after {
@@ -411,27 +412,19 @@
 @keyframes current-heartbeat {
   0% {
     opacity: 0;
-    transform: scale(0.45);
+    transform: scale(0.5);
   }
-  12% {
-    opacity: 0.62;
-    transform: scale(0.8);
+  18% {
+    opacity: 0.55;
+    transform: scale(0.82);
   }
-  26% {
+  44% {
     opacity: 0;
-    transform: scale(1.6);
-  }
-  38% {
-    opacity: 0.46;
-    transform: scale(0.85);
-  }
-  54% {
-    opacity: 0;
-    transform: scale(1.75);
+    transform: scale(1.25);
   }
   100% {
     opacity: 0;
-    transform: scale(1.75);
+    transform: scale(1.25);
   }
 }
 
