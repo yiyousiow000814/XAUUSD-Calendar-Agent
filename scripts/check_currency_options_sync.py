@@ -13,7 +13,6 @@ import re
 import sys
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PY_PATH = REPO_ROOT / "app" / "agent" / "currency_options.py"
 TS_PATH = REPO_ROOT / "app" / "webui" / "src" / "constants" / "currencyOptions.ts"
@@ -54,7 +53,9 @@ def read_ts_list(path: Path) -> list[str]:
         raise ValueError("CURRENCY_OPTIONS export not found in TS file")
     # Take a local slice around the array literal to keep parsing simple.
     slice_text = text[start : start + 20_000]
-    m = re.search(r"export const CURRENCY_OPTIONS\s*=\s*\[(.*?)\]\s*as const", slice_text, re.S)
+    m = re.search(
+        r"export const CURRENCY_OPTIONS\s*=\s*\[(.*?)\]\s*as const", slice_text, re.S
+    )
     if not m:
         raise ValueError("Could not locate CURRENCY_OPTIONS array literal in TS file")
     body = m.group(1)
@@ -81,7 +82,10 @@ def main() -> int:
         # Also show the first index where ordering diverges.
         for i, (a, b) in enumerate(zip(py, ts)):
             if a != b:
-                print(f"Order diverges at index {i}: python={a!r} ts={b!r}", file=sys.stderr)
+                print(
+                    f"Order diverges at index {i}: python={a!r} ts={b!r}",
+                    file=sys.stderr,
+                )
                 break
         return 1
 
