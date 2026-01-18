@@ -98,9 +98,6 @@ export default function App() {
   }, []);
   const [snapshot, setSnapshot] = useState<Snapshot>(emptySnapshot);
   const [restartCountdown, setRestartCountdown] = useState<number>(0);
-  const [restartPillState, setRestartPillState] = useState<"hidden" | "visible" | "closing">(
-    "hidden"
-  );
   const [updateState, setUpdateState] = useState<{
     phase: string;
     message: string;
@@ -195,6 +192,14 @@ export default function App() {
   >([]);
   const [latestLogId, setLatestLogId] = useState<string>("");
   const prefersDark = useRef<MediaQueryList | null>(null);
+  const uiLastInputAtRef = useRef<number>(Date.now());
+  const uiStateSendTimerRef = useRef<number | null>(null);
+  const uiStateHeartbeatRef = useRef<number | null>(null);
+  const uiStateLastSentRef = useRef<{
+    visible: boolean;
+    focused: boolean;
+    lastInputAt: number;
+  } | null>(null);
   const saveTimerRef = useRef<number | null>(null);
   const splitRatioSaveTimerRef = useRef<number | null>(null);
   const themeTransitionTimerRef = useRef<number | null>(null);
@@ -763,21 +768,6 @@ export default function App() {
   }, [snapshot.restartInSeconds]);
 
   useEffect(() => {
-    if (restartCountdown > 0) {
-      setRestartPillState("visible");
-      return;
-    }
-    setRestartPillState((prev) => {
-      if (prev !== "visible") return prev;
-      return "closing";
-    });
-    const timer = window.setTimeout(() => {
-      setRestartPillState((prev) => (prev === "closing" ? "hidden" : prev));
-    }, 240);
-    return () => window.clearTimeout(timer);
-  }, [restartCountdown]);
-
-  useEffect(() => {
     if (!settingsOpen) {
       stopUpdatePolling();
       setTemporaryPathNote(null);
@@ -1167,6 +1157,12 @@ export default function App() {
         setSyncState("idle");
       }, 1700);
     }
+  };
+
+  const handleOpenReleaseNotes = () => {
+    backend
+      .openUrl("https://github.com/yiyousiow000814/XAUUSD-Calendar-Agent/releases")
+      .catch(() => {});
   };
 
   const handleCheckUpdates = async () => {
@@ -2006,6 +2002,75 @@ export default function App() {
     return () => window.removeEventListener("pywebviewready", handler);
   }, []);
 
+  const sendUiState = useCallback((force: boolean) => {
+    if (!isWebview()) return;
+    const visible = typeof document !== "undefined" ? document.visibilityState === "visible" : true;
+    const focused = typeof document !== "undefined" ? document.hasFocus() : true;
+    const payload = { visible, focused, lastInputAt: uiLastInputAtRef.current };
+    const last = uiStateLastSentRef.current;
+    if (
+      !force &&
+      last &&
+      last.visible === payload.visible &&
+      last.focused === payload.focused &&
+      last.lastInputAt === payload.lastInputAt
+    ) {
+      return;
+    }
+    uiStateLastSentRef.current = payload;
+    backend.setUiState(payload).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!isWebview()) return;
+
+    const scheduleSend = (force: boolean) => {
+      if (uiStateSendTimerRef.current) return;
+      uiStateSendTimerRef.current = window.setTimeout(() => {
+        uiStateSendTimerRef.current = null;
+        sendUiState(force);
+      }, 250);
+    };
+
+    const markInput = () => {
+      uiLastInputAtRef.current = Date.now();
+      scheduleSend(false);
+    };
+
+    const handleVisibility = () => scheduleSend(true);
+    const handleFocus = () => scheduleSend(true);
+
+    const inputEvents: (keyof WindowEventMap)[] = [
+      "pointerdown",
+      "keydown",
+      "wheel",
+      "mousemove",
+      "touchstart"
+    ];
+    inputEvents.forEach((name) => window.addEventListener(name, markInput, { passive: true }));
+    document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("blur", handleFocus);
+
+    scheduleSend(true);
+    uiStateHeartbeatRef.current = window.setInterval(() => scheduleSend(false), 15000);
+
+    return () => {
+      inputEvents.forEach((name) => window.removeEventListener(name, markInput));
+      document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("blur", handleFocus);
+      if (uiStateSendTimerRef.current) {
+        window.clearTimeout(uiStateSendTimerRef.current);
+        uiStateSendTimerRef.current = null;
+      }
+      if (uiStateHeartbeatRef.current) {
+        window.clearInterval(uiStateHeartbeatRef.current);
+        uiStateHeartbeatRef.current = null;
+      }
+    };
+  }, [sendUiState]);
+
   useEffect(() => {
     allowThemeAnimationRef.current = true;
     return () => {
@@ -2126,6 +2191,7 @@ export default function App() {
         }) => void;
         setOutputDir?: (path: string) => Promise<void>;
         setThemePreference?: (theme: Settings["theme"], enableSystemTheme?: boolean) => void;
+        setRestartInSeconds?: (seconds: number) => void;
         seedHistoryOverflow?: (days?: number, itemsPerDay?: number) => void;
         seedNextEventsImpactOverflow?: (
           lowFirst?: number,
@@ -2141,6 +2207,9 @@ export default function App() {
       appendLog: (message: string, level = "INFO") => appendLogEntry(message, level),
       refresh: () => {
         refresh();
+      },
+      setRestartInSeconds: (seconds: number) => {
+        setSnapshot((prev) => ({ ...prev, restartInSeconds: seconds }));
       },
       setOutputDir: async (value: string) => {
         dirtyOutputDirRef.current = true;
@@ -2334,7 +2403,11 @@ export default function App() {
   );
   const activityPillContent = (
     <>
-      Activity
+      <span className="activity-label" data-qa="qa:status:activity-label">
+        {restartCountdown > 0
+          ? `Updating ${Math.max(0, restartCountdown)}s…`
+          : "Activity"}
+      </span>
       <span
         className={`activity-count${temporaryPathTask.active ? " progress" : ""}${
           snapshot.logs.length === 0 ? " zero" : ""
@@ -2460,6 +2533,7 @@ export default function App() {
         updateProgress={updateState.progress}
         updateLastCheckedAt={updateState.lastCheckedAt}
         appVersion={snapshot.version}
+        onOpenReleaseNotes={handleOpenReleaseNotes}
         onClose={handleSettingsClose}
         onSave={handleSettingsSave}
         onCancel={handleSettingsCancel}
@@ -2733,15 +2807,6 @@ export default function App() {
           ) : null}
         </div>
       </ActivityDrawer>
-
-      {restartPillState !== "hidden" ? (
-        <div
-          className={`restart-countdown${restartPillState === "closing" ? " closing" : ""}`}
-          data-qa="qa:restart-countdown"
-        >
-          Restarting in {Math.max(0, restartCountdown)}s…
-        </div>
-      ) : null}
 
       <ToastStack toasts={toasts} />
     </div>

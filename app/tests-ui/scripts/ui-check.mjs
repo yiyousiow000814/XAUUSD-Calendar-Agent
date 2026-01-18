@@ -2095,43 +2095,22 @@ const main = async () => {
       path: await captureState(page, "startup", theme.key, "ready")
     });
 
-    await page.evaluate(() => {
-      if (!window.__desktop_snapshot__) return;
-      window.__desktop_snapshot__.restartInSeconds = 5;
-    });
-    await page.evaluate(() => window.__ui_check__?.refresh?.());
+    await page.evaluate(() => window.__ui_check__?.setRestartInSeconds?.(5));
     await page.waitForTimeout(120);
-    const restartPill = page.locator("[data-qa='qa:restart-countdown']").first();
-    if (await restartPill.count()) {
-      const frames = await captureFrames(page, "restart-countdown", theme.key, "enter");
-      frames.forEach((frame, index) =>
-        artifacts.push({
-          scenario: "restart-countdown",
-          theme: theme.key,
-          state: `enter__frame${index}`,
-          path: frame
-        })
-      );
+    const activityLabel = page.locator("[data-qa='qa:status:activity-label']").first();
+    if (await activityLabel.count()) {
       artifacts.push({
-        scenario: "restart-countdown",
+        scenario: "update-countdown",
         theme: theme.key,
         state: "visible",
-        path: await captureState(page, "restart-countdown", theme.key, "visible", {
-          element: restartPill
+        path: await captureState(page, "update-countdown", theme.key, "visible", {
+          element: activityLabel
         })
       });
-      await runCheck(theme.key, "Restart countdown pill visible", async () => {
-        if (!(await restartPill.isVisible())) {
-          throw new Error("Restart countdown pill not visible");
-        }
-      });
-      await runCheck(theme.key, "Restart countdown transition presence", async () => {
-        const animationName = await restartPill.evaluate((el) => {
-          const styles = window.getComputedStyle(el);
-          return styles.animationName || "";
-        });
-        if (!animationName || animationName === "none") {
-          throw new Error("Restart countdown pill missing enter animation");
+      await runCheck(theme.key, "Update countdown shown in Activity pill", async () => {
+        const text = (await activityLabel.innerText()).trim();
+        if (!text.toLowerCase().includes("updating")) {
+          throw new Error(`Expected Activity label to mention updating, got: ${text}`);
         }
       });
     }
