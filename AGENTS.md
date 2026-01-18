@@ -41,7 +41,7 @@
 - Pasted images named `codex-clipboard-*.png` are saved in `%TEMP%` (e.g., `%USERPROFILE%\AppData\Local\Temp`) rather than root `/temp`.
 - If a request includes clipboard screenshots, open them with the image viewer tool before responding and explicitly note in the response that they were reviewed.
 - When a UI issue is found via images or ui-check artifacts, expand ui-check coverage (new assertions, screenshots, or multi-step scenarios) so the issue becomes detectable in future runs. Keep improving the subjective review loop based on those artifacts.
-- For each UI change, run `npm run ui:check` and generate a fresh `artifacts/ui-check/report.html`.
+- For each UI change, run `npm run ui:check` and generate a fresh `app/ui-testing/artifacts/ui-check/report.html`.
 - After each UI change, randomly sample 5 Light/Dark `ui-check` images and review them one by one; if any issue is found, fix it, re-run `ui:check`, then randomly sample another 5 Light/Dark images and repeat until no issues remain. System Light/Dark can be skipped unless a discrepancy is suspected.
 
 ## UI Maintainability

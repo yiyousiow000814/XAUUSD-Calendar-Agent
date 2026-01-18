@@ -1,5 +1,5 @@
 {
-  "name": "ui-tests",
+  "name": "ui-testing",
   "private": true,
   "type": "module",
   "scripts": {
@@ -19,6 +19,6 @@
     "typescript": "^5.6.3"
   },
   "dependencies": {
-    "xauusd-calendar-agent": "file:.."
+    "xauusd-calendar-agent": "file:../.."
   }
 }

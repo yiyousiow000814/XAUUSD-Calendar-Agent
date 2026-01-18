@@ -2,7 +2,7 @@
 
 This project uses Playwright-based UI self-checks that auto-discover components tagged with
 `data-qa` or `data-testid` tokens. Tags must follow the `qa:` prefix convention. See
-`ui-tests/docs/QA_TAGGING.md` for the tagging rules.
+`app/ui-testing/docs/QA_TAGGING.md` for the tagging rules.
 
 ## Quick start
 
@@ -10,7 +10,7 @@ This project uses Playwright-based UI self-checks that auto-discover components 
 
 ```
 npm --prefix app/webui install
-npm --prefix ui-tests install
+npm --prefix app/ui-testing install
 ```
 
 2) Run the UI regression suite (starts preview server by default):
@@ -19,7 +19,7 @@ npm --prefix ui-tests install
 npm run ui:test
 ```
 
-3) First run will generate `ui-tests/artifacts/current`. Promote to baseline:
+3) First run will generate `app/ui-testing/artifacts/current`. Promote to baseline:
 
 ```
 npm run ui:update-baseline
@@ -35,7 +35,7 @@ npm run ui:report
 
 `ui-check` runs an interactive scenario suite for every theme (dark/light/system). Each
 scenario is captured per-theme with side-by-side report rows, plus video frames for motion
-verification. Outputs go to `artifacts/ui-check/`.
+verification. Outputs go to `app/ui-testing/artifacts/ui-check/`.
 
 ```
 npm run ui:check
@@ -80,7 +80,7 @@ npm run ui:watch
 ## Mandatory visual review checklist (per UI change)
 
 After every UI change, run `npm run ui:check` and review the evidence in
-`artifacts/ui-check/report.html` plus videos (or multi-frame sampling if video review is
+`app/ui-testing/artifacts/ui-check/report.html` plus videos (or multi-frame sampling if video review is
 not possible). These items are mandatory:
 
 1) Icon semantics (Settings = gear; Theme icon matches light/dark/system).
@@ -126,11 +126,11 @@ npm run ui:test
 
 ## Artifacts
 
-- `ui-tests/artifacts/baseline` - approved baseline screenshots
-- `ui-tests/artifacts/current`  - current run screenshots
-- `ui-tests/artifacts/diff`     - diffs when mismatch occurs
-- `ui-tests/playwright-report`  - HTML report
-- `artifacts/ui-check`           - interactive check snapshots/video/report
+- `app/ui-testing/artifacts/baseline` - approved baseline screenshots
+- `app/ui-testing/artifacts/current`  - current run screenshots
+- `app/ui-testing/artifacts/diff`     - diffs when mismatch occurs
+- `app/ui-testing/playwright-report`  - HTML report
+- `app/ui-testing/artifacts/ui-check` - interactive check snapshots/video/report
 
 ## What the suite checks
 

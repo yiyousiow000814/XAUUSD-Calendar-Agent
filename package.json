@@ -2,10 +2,10 @@
   "name": "xauusd-calendar-agent",
   "private": true,
   "scripts": {
-    "ui:test": "npm --prefix ui-tests run test",
-    "ui:update-baseline": "npm --prefix ui-tests run update-baseline",
-    "ui:report": "npm --prefix ui-tests run report",
-    "ui:check": "npm --prefix ui-tests run ui-check",
-    "ui:watch": "npm --prefix ui-tests run ui-watch"
+    "ui:test": "npm --prefix app/ui-testing run test",
+    "ui:update-baseline": "npm --prefix app/ui-testing run update-baseline",
+    "ui:report": "npm --prefix app/ui-testing run report",
+    "ui:check": "npm --prefix app/ui-testing run ui-check",
+    "ui:watch": "npm --prefix app/ui-testing run ui-watch"
   }
 }

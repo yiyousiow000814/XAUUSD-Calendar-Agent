@@ -28,7 +28,7 @@ pip install -r requirements-app.txt
 .\scripts\build_installer.ps1
 ```
 
-The installer will be under `installer\\output\\Setup-XAUUSD-Calendar-Agent.exe`.
+The installer will be written to `Setup.exe` in the repo root.
 
 ## Update Channel
 The agent checks GitHub Releases by default.

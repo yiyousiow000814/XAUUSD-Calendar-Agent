@@ -1,7 +1,10 @@
 import { cpSync, existsSync, mkdirSync, rmSync } from "node:fs";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const root = resolve(process.cwd(), "ui-tests", "artifacts");
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const repoRoot = resolve(__dirname, "..", "..", "..");
+const root = resolve(repoRoot, "app", "ui-testing", "artifacts");
 const current = resolve(root, "current");
 const baseline = resolve(root, "baseline");
 const diff = resolve(root, "diff");
@@ -21,4 +24,4 @@ if (existsSync(diff)) {
 mkdirSync(baseline, { recursive: true });
 cpSync(current, baseline, { recursive: true });
 
-console.log("Baseline updated from ui-tests/artifacts/current.");
+console.log("Baseline updated from app/ui-testing/artifacts/current.");

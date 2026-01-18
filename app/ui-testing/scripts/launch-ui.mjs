@@ -19,7 +19,7 @@ const startServer = () => {
   const script = mode === "dev" ? "dev" : "preview";
   const args = [
     "--prefix",
-    "../app/webui",
+    "../webui",
     "run",
     script,
     "--",
@@ -38,7 +38,7 @@ const startServer = () => {
 
 const main = async () => {
   if (mode !== "dev") {
-    await run("npm", ["--prefix", "../app/webui", "run", "build"]);
+    await run("npm", ["--prefix", "../webui", "run", "build"]);
   }
   startServer();
 };

@@ -16,9 +16,9 @@ AppVersion={#MyAppVersion}
 AppPublisher={#MyPublisher}
 DefaultDirName={localappdata}\{#MyAppDirName}
 DefaultGroupName={#MyAppName}
-OutputDir=..
+OutputDir=..\..
 OutputBaseFilename=Setup
-SetupIconFile=..\app\assets\setup_installer.ico
+SetupIconFile=..\assets\setup_installer.ico
 WizardStyle=modern
 Compression=lzma
 SolidCompression=yes
@@ -30,8 +30,8 @@ RestartApplications=no
 Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Additional icons"
 
 [Files]
-Source: "..\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\data\Economic_Calendar\*"; DestDir: "{app}\data\Economic_Calendar"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\..\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\data\Economic_Calendar\*"; DestDir: "{app}\data\Economic_Calendar"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
