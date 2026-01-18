@@ -12,7 +12,7 @@ let queued = false;
 const runCheck = () =>
   new Promise((resolve, reject) => {
     const child = spawn("node", ["scripts/ui-check.mjs"], {
-      cwd: path.join(repoRoot, "app", "ui-testing"),
+      cwd: path.join(repoRoot, "app", "tests-ui"),
       shell: true,
       stdio: "inherit"
     });
@@ -45,8 +45,8 @@ const schedule = () => {
 const watchPaths = [
   path.join(repoRoot, "app", "webui", "src"),
   path.join(repoRoot, "app", "webui", "index.html"),
-  path.join(repoRoot, "app", "ui-testing", "specs"),
-  path.join(repoRoot, "app", "ui-testing", "helpers")
+  path.join(repoRoot, "app", "tests-ui", "specs"),
+  path.join(repoRoot, "app", "tests-ui", "helpers")
 ];
 
 const watcher = chokidar.watch(watchPaths, {

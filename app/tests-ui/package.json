@@ -1,5 +1,5 @@
 {
-  "name": "ui-testing",
+  "name": "tests-ui",
   "private": true,
   "type": "module",
   "scripts": {

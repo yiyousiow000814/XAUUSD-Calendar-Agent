@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, "..", "..", "..");
-const root = resolve(repoRoot, "app", "ui-testing", "artifacts");
+const root = resolve(repoRoot, "app", "tests-ui", "artifacts");
 const current = resolve(root, "current");
 const baseline = resolve(root, "baseline");
 const diff = resolve(root, "diff");
@@ -24,4 +24,4 @@ if (existsSync(diff)) {
 mkdirSync(baseline, { recursive: true });
 cpSync(current, baseline, { recursive: true });
 
-console.log("Baseline updated from app/ui-testing/artifacts/current.");
+console.log("Baseline updated from app/tests-ui/artifacts/current.");

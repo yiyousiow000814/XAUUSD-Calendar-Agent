@@ -46,9 +46,9 @@ const resolveArtifactsRoot = () => {
   }
   const tag = process.env.UI_CHECK_OUTPUT_TAG;
   if (tag) {
-    return path.resolve(repoRoot, "app", "ui-testing", "artifacts", "ui-check", tag);
+    return path.resolve(repoRoot, "app", "tests-ui", "artifacts", "ui-check", tag);
   }
-  return path.resolve(repoRoot, "app", "ui-testing", "artifacts", "ui-check");
+  return path.resolve(repoRoot, "app", "tests-ui", "artifacts", "ui-check");
 };
 const artifactsRoot = resolveArtifactsRoot();
 const snapshotsDir = path.join(artifactsRoot, "snapshots");
@@ -1710,7 +1710,7 @@ const main = async () => {
   const runIsolatedThemes = async (themeList) => {
     const baseArtifactsRoot = process.env.UI_CHECK_OUTPUT_DIR
       ? path.resolve(process.env.UI_CHECK_OUTPUT_DIR)
-      : path.resolve(repoRoot, "app", "ui-testing", "artifacts", "ui-check");
+      : path.resolve(repoRoot, "app", "tests-ui", "artifacts", "ui-check");
     const baseReportPath = path.join(baseArtifactsRoot, "report.html");
     await ensureDir(baseArtifactsRoot);
     await clearDir(baseArtifactsRoot);
@@ -2193,7 +2193,7 @@ const main = async () => {
           if (delta > 0.9) {
             return {
               ok: false,
-              reason: `footer bottom offset drifted (offset=${bottomOffset.toFixed(2)}px, Î”=${delta.toFixed(2)}px)`
+              reason: `footer bottom offset drifted (offset=${bottomOffset.toFixed(2)}px, delta=${delta.toFixed(2)}px)`
             };
           }
           return { ok: true, reason: "" };
@@ -2309,7 +2309,7 @@ const main = async () => {
       scenario: "theme-toggle",
       theme: theme.key,
       state: "after-toggle",
-      label: `after-toggle (${themeBefore.mode ?? themeBefore.theme}â†’${themeAfterToggle.mode ?? themeAfterToggle.theme})`,
+      label: `after-toggle (${themeBefore.mode ?? themeBefore.theme}->${themeAfterToggle.mode ?? themeAfterToggle.theme})`,
       path: await captureState(page, "theme-toggle", theme.key, "after-toggle")
     });
     await setTheme(page, theme.mode, theme.scheme);
@@ -2375,7 +2375,7 @@ const main = async () => {
       });
       const delta = Math.abs(after.scrollTop - baseline.scrollTop);
       if (delta > 1.5) {
-        throw new Error(`Settings scroll jumped after open (Î”=${delta.toFixed(2)}px).`);
+        throw new Error(`Settings scroll jumped after open (delta=${delta.toFixed(2)}px).`);
       }
       if (baseline.scrollTop < 40) {
         throw new Error(`Expected settings to open already scrolled to paths (scrollTop=${baseline.scrollTop.toFixed(1)}).`);
@@ -2445,7 +2445,7 @@ const main = async () => {
       });
       const delta = Math.abs(afterHeight - layoutHeightBefore);
       if (delta > 0.6) {
-        throw new Error(`App height changed after opening Settings (Î”=${delta.toFixed(2)}px).`);
+        throw new Error(`App height changed after opening Settings (delta=${delta.toFixed(2)}px).`);
       }
     });
 
@@ -3485,9 +3485,9 @@ const main = async () => {
           const topDelta = tops.length ? Math.max(...tops) - Math.min(...tops) : 0;
           if (widthDelta > 0.75 || heightDelta > 0.75 || leftDelta > 0.75 || topDelta > 0.75) {
             throw new Error(
-              `Sync target shifted during flash (widthÎ”=${widthDelta.toFixed(2)}px, heightÎ”=${heightDelta.toFixed(
+              `Sync target shifted during flash (widthDelta=${widthDelta.toFixed(2)}px, heightDelta=${heightDelta.toFixed(
                 2
-              )}px, leftÎ”=${leftDelta.toFixed(2)}px, topÎ”=${topDelta.toFixed(2)}px).`
+              )}px, leftDelta=${leftDelta.toFixed(2)}px, topDelta=${topDelta.toFixed(2)}px).`
             );
           }
           return true;
