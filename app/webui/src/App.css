@@ -180,6 +180,22 @@
     border-color var(--motion-fast) var(--motion-ease);
 }
 
+.activity-label {
+  max-width: 92px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: max-width var(--motion-fast) var(--motion-ease),
+    opacity var(--motion-fast) var(--motion-ease);
+}
+
+.activity-label.notice {
+  max-width: 260px;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.96;
+}
+
 .activity-fab.hidden {
   opacity: 0;
   visibility: hidden;

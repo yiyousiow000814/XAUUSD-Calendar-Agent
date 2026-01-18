@@ -194,6 +194,12 @@ export default function App() {
     { id: number; type: ToastType; message: string; closing?: boolean }[]
   >([]);
   const [latestLogId, setLatestLogId] = useState<string>("");
+  const [activityNotice, setActivityNotice] = useState<string>("");
+  const activityNoticeQueueRef = useRef<string[]>([]);
+  const activityNoticeTimerRef = useRef<number | null>(null);
+  const activityNoticeRunningRef = useRef(false);
+  const activityNoticeMultiRef = useRef(false);
+  const lastNoticedLogIdRef = useRef<string>("");
   const prefersDark = useRef<MediaQueryList | null>(null);
   const saveTimerRef = useRef<number | null>(null);
   const splitRatioSaveTimerRef = useRef<number | null>(null);
@@ -1978,6 +1984,54 @@ export default function App() {
     }
   }, [snapshot.logs, latestLogId]);
 
+  const flushNextActivityNotice = useCallback(() => {
+    const next = activityNoticeQueueRef.current.shift();
+    if (!next) {
+      activityNoticeRunningRef.current = false;
+      activityNoticeMultiRef.current = false;
+      setActivityNotice("");
+      return;
+    }
+
+    setActivityNotice(next);
+    const holdMs = activityNoticeMultiRef.current ? 1000 : 2000;
+    activityNoticeTimerRef.current = window.setTimeout(() => {
+      activityNoticeTimerRef.current = null;
+      flushNextActivityNotice();
+    }, holdMs);
+  }, []);
+
+  useEffect(() => {
+    if (!latestLogId) return;
+    const previous = lastNoticedLogIdRef.current;
+    lastNoticedLogIdRef.current = latestLogId;
+    if (!previous) return;
+    if (previous === latestLogId) return;
+    const top = snapshot.logs[0];
+    if (!top) return;
+
+    const message = `${top.level}: ${top.message}`.trim();
+    activityNoticeQueueRef.current.push(message);
+    if (activityNoticeQueueRef.current.length > 1) {
+      activityNoticeMultiRef.current = true;
+    }
+    if (activityNoticeRunningRef.current) return;
+
+    activityNoticeRunningRef.current = true;
+    activityNoticeMultiRef.current = activityNoticeQueueRef.current.length > 1;
+    flushNextActivityNotice();
+  }, [latestLogId, snapshot.logs, flushNextActivityNotice]);
+
+  useEffect(
+    () => () => {
+      if (activityNoticeTimerRef.current) {
+        window.clearTimeout(activityNoticeTimerRef.current);
+        activityNoticeTimerRef.current = null;
+      }
+    },
+    []
+  );
+
   useEffect(() => {
     if (initState !== "ready") return;
     if (snapshot.events.length > 1) {
@@ -2334,7 +2388,9 @@ export default function App() {
   );
   const activityPillContent = (
     <>
-      Activity
+      <span className={`activity-label${activityNotice ? " notice" : ""}`}>
+        {activityNotice || "Activity"}
+      </span>
       <span
         className={`activity-count${temporaryPathTask.active ? " progress" : ""}${
           snapshot.logs.length === 0 ? " zero" : ""
