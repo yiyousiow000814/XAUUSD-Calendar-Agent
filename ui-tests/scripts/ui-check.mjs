@@ -16,6 +16,9 @@ import {
   assertImpactFilterNotStarved,
   assertHistoryRespectsImpactFilter,
   assertImpactTooltips,
+  assertCurrentEventBadge,
+  assertCurrentEventHeartbeat,
+  assertNextEventsReorderAnim,
   assertNextEventsControlsCentered,
   assertSearchInputVisibility,
   assertHistoryScrollable,
@@ -614,18 +617,114 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
       syncActive: false,
       restartInSeconds: 0,
       events: [
-        { time: "05-01-2026 01:30", cur: "USD", impact: "High", event: "CPI (YoY)", countdown: "18h 27m" },
-        { time: "05-01-2026 02:00", cur: "USD", impact: "High", event: "Core CPI (YoY)", countdown: "18h 57m" },
-        { time: "05-01-2026 02:30", cur: "USD", impact: "High", event: "FOMC Statement", countdown: "19h 27m" },
-        { time: "05-01-2026 03:00", cur: "USD", impact: "High", event: "Fed Press Conference", countdown: "19h 57m" },
-        { time: "05-01-2026 03:30", cur: "EUR", impact: "Medium", event: "ECB Minutes", countdown: "20h 27m" },
-        { time: "05-01-2026 04:00", cur: "GBP", impact: "Medium", event: "Retail Sales", countdown: "20h 57m" },
-        { time: "05-01-2026 04:30", cur: "JPY", impact: "Medium", event: "Industrial Production", countdown: "21h 27m" },
-        { time: "05-01-2026 05:00", cur: "AUD", impact: "Medium", event: "Employment Change", countdown: "21h 57m" },
-        { time: "05-01-2026 05:30", cur: "USD", impact: "Low", event: "MBA Mortgage Applications", countdown: "22h 27m" },
-        { time: "05-01-2026 06:00", cur: "EUR", impact: "Low", event: "German Trade Balance", countdown: "22h 57m" },
-        { time: "05-01-2026 06:30", cur: "GBP", impact: "Low", event: "UK Manufacturing Output", countdown: "23h 27m" },
-        { time: "05-01-2026 07:00", cur: "CAD", impact: "Low", event: "Housing Starts", countdown: "23h 57m" }
+        {
+          id: "evt-2026-01-05-0130-usd-cpi-yoy",
+          state: "upcoming",
+          time: "05-01-2026 01:30",
+          cur: "USD",
+          impact: "High",
+          event: "CPI (YoY)",
+          countdown: "18h 27m"
+        },
+        {
+          id: "evt-2026-01-05-0200-usd-core-cpi-yoy",
+          state: "upcoming",
+          time: "05-01-2026 02:00",
+          cur: "USD",
+          impact: "High",
+          event: "Core CPI (YoY)",
+          countdown: "18h 57m"
+        },
+        {
+          id: "evt-2026-01-05-0230-usd-fomc-statement",
+          state: "upcoming",
+          time: "05-01-2026 02:30",
+          cur: "USD",
+          impact: "High",
+          event: "FOMC Statement",
+          countdown: "19h 27m"
+        },
+        {
+          id: "evt-2026-01-05-0300-usd-fed-press-conference",
+          state: "upcoming",
+          time: "05-01-2026 03:00",
+          cur: "USD",
+          impact: "High",
+          event: "Fed Press Conference",
+          countdown: "19h 57m"
+        },
+        {
+          id: "evt-2026-01-05-0330-eur-ecb-minutes",
+          state: "upcoming",
+          time: "05-01-2026 03:30",
+          cur: "EUR",
+          impact: "Medium",
+          event: "ECB Minutes",
+          countdown: "20h 27m"
+        },
+        {
+          id: "evt-2026-01-05-0400-gbp-retail-sales",
+          state: "upcoming",
+          time: "05-01-2026 04:00",
+          cur: "GBP",
+          impact: "Medium",
+          event: "Retail Sales",
+          countdown: "20h 57m"
+        },
+        {
+          id: "evt-2026-01-05-0430-jpy-industrial-production",
+          state: "upcoming",
+          time: "05-01-2026 04:30",
+          cur: "JPY",
+          impact: "Medium",
+          event: "Industrial Production",
+          countdown: "21h 27m"
+        },
+        {
+          id: "evt-2026-01-05-0500-aud-employment-change",
+          state: "upcoming",
+          time: "05-01-2026 05:00",
+          cur: "AUD",
+          impact: "Medium",
+          event: "Employment Change",
+          countdown: "21h 57m"
+        },
+        {
+          id: "evt-2026-01-05-0530-usd-mba-mortgage-applications",
+          state: "upcoming",
+          time: "05-01-2026 05:30",
+          cur: "USD",
+          impact: "Low",
+          event: "MBA Mortgage Applications",
+          countdown: "22h 27m"
+        },
+        {
+          id: "evt-2026-01-05-0600-eur-german-trade-balance",
+          state: "upcoming",
+          time: "05-01-2026 06:00",
+          cur: "EUR",
+          impact: "Low",
+          event: "German Trade Balance",
+          countdown: "22h 57m"
+        },
+        {
+          id: "evt-2026-01-05-0630-gbp-uk-manufacturing-output",
+          state: "upcoming",
+          time: "05-01-2026 06:30",
+          cur: "GBP",
+          impact: "Low",
+          event: "UK Manufacturing Output",
+          countdown: "23h 27m"
+        },
+        {
+          id: "evt-2026-01-05-0700-cad-housing-starts",
+          state: "upcoming",
+          time: "05-01-2026 07:00",
+          cur: "CAD",
+          impact: "Low",
+          event: "Housing Starts",
+          countdown: "23h 57m"
+        }
       ],
       pastEvents: [
         { time: "04-01-2026 12:30", cur: "USD", impact: "High", event: "Nonfarm Payrolls", actual: "1.8", forecast: "--", previous: "1.2" },
@@ -812,6 +911,234 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
     }
     return true;
   }, [mode, dispatchReadyEvent]);
+
+const runCurrentTimelineDemo = async (page) => {
+  // Visible timeline for the theme video: multiple "Current" items, reorder to top,
+  // then the oldest current disappears from Next Events and appears in History.
+  const nextCard = page.locator("[data-qa='qa:card:next-events']").first();
+  const historyCard = page.locator("[data-qa='qa:card:history']").first();
+  if ((await nextCard.count()) === 0 || (await historyCard.count()) === 0) return;
+
+  const wait = async (ms) => page.waitForTimeout(ms);
+  const waitForNoFlipAnim = async (ms = 520) => {
+    const started = Date.now();
+    while (Date.now() - started < ms) {
+      const count = await page.evaluate(
+        () => document.querySelectorAll("[data-qa='qa:row:next-event'][data-flip-anim]").length
+      );
+      if (count) {
+        throw new Error(`Unexpected Next Events FLIP animation detected (${count})`);
+      }
+      await wait(60);
+    }
+  };
+  const waitForFlipAnim = async (ms = 520) => {
+    const started = Date.now();
+    while (Date.now() - started < ms) {
+      const count = await page.evaluate(
+        () => document.querySelectorAll("[data-qa='qa:row:next-event'][data-flip-anim]").length
+      );
+      if (count) return;
+      await wait(40);
+    }
+    throw new Error("Expected Next Events FLIP animation, but none was detected");
+  };
+
+  const setSnapshot = async (payload) => {
+    await page.evaluate((next) => {
+      const snap = window.__desktop_snapshot__ || {};
+      window.__desktop_snapshot__ = { ...snap, ...next };
+    }, payload);
+    await page.evaluate(() => window.__ui_check__?.refresh?.());
+  };
+
+  const baseDate = await page.evaluate(() => {
+    const pad = (value) => String(value).padStart(2, "0");
+    const date = new Date();
+    return `${pad(date.getDate())}-${pad(date.getMonth() + 1)}-${date.getFullYear()}`;
+  });
+
+  const mk = (id, clock, name, impact, cur = "USD") => ({
+    id,
+    time: `${baseDate} ${clock}`,
+    cur,
+    impact,
+    event: name,
+    countdown: "12m",
+    state: "upcoming"
+  });
+
+  const evtA = mk("demo-current-a", "09:00", "Current demo A", "High");
+  // Same scheduled time as A: turning this into Current should not cause reorder animation.
+  const evtB = mk("demo-current-b", "09:00", "Current demo B", "Medium");
+  // > 1 minute later: this becoming Current should slide to the top.
+  const evtC = mk("demo-current-c", "09:02", "Current demo C", "High");
+  const evtD = mk("demo-current-d", "09:10", "Current demo D", "Low");
+  const evtE = mk("demo-current-e", "09:20", "Current demo E", "Low");
+
+  // Baseline: upcoming events only (no Current/soon-Current).
+  await setSnapshot({ events: [evtA, evtB, evtC, evtD, evtE], pastEvents: [] });
+  await wait(900);
+
+  // Impact filter toggles must not trigger "slide" animations when no Current/soon items exist.
+  const activeImpactToggles = page.locator("button.impact-toggle.active");
+  while (await activeImpactToggles.count()) {
+    await activeImpactToggles.first().click();
+    await wait(120);
+  }
+  await waitForNoFlipAnim();
+
+  const impactButtons = page.locator("[data-qa='qa:filter:impact'] button.impact-toggle");
+  if ((await impactButtons.count()) >= 3) {
+    // Toggle L, M, H and ensure we never animate row shuffles.
+    await impactButtons.nth(0).click();
+    await wait(220);
+    await waitForNoFlipAnim();
+    await impactButtons.nth(1).click();
+    await wait(220);
+    await waitForNoFlipAnim();
+    await impactButtons.nth(2).click();
+    await wait(220);
+    await waitForNoFlipAnim();
+
+    // Reset back to no filter for the Current sequence.
+    while (await activeImpactToggles.count()) {
+      await activeImpactToggles.first().click();
+      await wait(120);
+    }
+    await waitForNoFlipAnim();
+  }
+
+  // A becomes Current (B shares the same time, but stays upcoming).
+  await setSnapshot({
+    events: [
+      { ...evtA, state: "current", countdown: "Current" },
+      { ...evtB, state: "upcoming", countdown: "12m" },
+      { ...evtC, state: "upcoming", countdown: "2m" },
+      { ...evtD, state: "upcoming", countdown: "1h 00m" },
+      { ...evtE, state: "upcoming", countdown: "2h 00m" }
+    ]
+  });
+  await wait(1300);
+
+  // B becomes Current at the same scheduled time as A: do NOT animate reorder shuffles.
+  await setSnapshot({
+    events: [
+      { ...evtA, state: "current", countdown: "Current" },
+      { ...evtB, state: "current", countdown: "Current" },
+      { ...evtC, state: "upcoming", countdown: "2m" },
+      { ...evtD, state: "upcoming", countdown: "1h 00m" },
+      { ...evtE, state: "upcoming", countdown: "2h 00m" }
+    ]
+  });
+  await wait(800);
+  await waitForNoFlipAnim();
+  await page.evaluate(async () => {
+    const sleep = (ms) => new Promise((r) => window.setTimeout(r, ms));
+    const getImpactOpacity = (row) => {
+      const impact = row.querySelector(".event-impact");
+      if (!(impact instanceof HTMLElement)) return null;
+      const after = window.getComputedStyle(impact, "::after");
+      const opacity = Number.parseFloat(after.opacity || "0");
+      return Number.isFinite(opacity) ? opacity : null;
+    };
+
+    const rows = Array.from(
+      document.querySelectorAll("[data-qa='qa:row:next-event'].current")
+    );
+    if (rows.length < 2) throw new Error(`Expected >=2 current rows, got ${rows.length}`);
+
+    // The stored delays can differ (because they were applied at different times),
+    // but the *pulse phase* should be in sync. Sample over ~1 cycle and validate
+    // both rows match when the pulse is visible.
+    const maxWindowMs = 2300;
+    const stepMs = 60;
+    const threshold = 0.08;
+    const diffTolerance = 0.08;
+
+    let sawPulse = false;
+    for (let elapsed = 0; elapsed < maxWindowMs; elapsed += stepMs) {
+      const a = getImpactOpacity(rows[0]);
+      const b = getImpactOpacity(rows[1]);
+      if (a === null || b === null) throw new Error("Unable to read pulse opacity");
+
+      const peak = Math.max(a, b);
+      if (peak >= threshold) {
+        sawPulse = true;
+        const diff = Math.abs(a - b);
+        if (diff > diffTolerance) {
+          throw new Error(`Pulse out of sync (opacity A=${a.toFixed(3)} B=${b.toFixed(3)})`);
+        }
+        break;
+      }
+      await sleep(stepMs);
+    }
+
+    if (!sawPulse) {
+      // Non-fatal-ish, but we want a deterministic check in CI.
+      throw new Error("Unable to sample a visible pulse within one cycle");
+    }
+  });
+
+  // C becomes Current (> 1 minute later) and slides to the top.
+  // D is "soon current" (1m) and is also allowed to animate movement.
+  await setSnapshot({
+    events: [
+      { ...evtC, state: "current", countdown: "Current" },
+      { ...evtA, state: "current", countdown: "Current" },
+      { ...evtB, state: "current", countdown: "Current" },
+      { ...evtD, state: "upcoming", countdown: "1m" },
+      { ...evtE, state: "upcoming", countdown: "2h 00m" }
+    ]
+  });
+  const allowedFlipIds = new Set([
+    "demo-current-a",
+    "demo-current-b",
+    "demo-current-c",
+    "demo-current-d"
+  ]);
+  await waitForFlipAnim();
+  await page.waitForTimeout(60);
+  await page.evaluate((allowed) => {
+    const active = Array.from(
+      document.querySelectorAll("[data-qa='qa:row:next-event'][data-flip-anim]")
+    )
+      .map((node) => node.getAttribute("data-qa-row-id") || "")
+      .filter(Boolean);
+
+    if (!active.length) {
+      throw new Error("Expected at least one FLIP row during current demo, found none");
+    }
+
+    const unexpected = active.filter((id) => !allowed.includes(id));
+    if (unexpected.length) {
+      throw new Error(`Unexpected FLIP rows during current demo: ${unexpected.join(", ")}`);
+    }
+  }, Array.from(allowedFlipIds));
+  await wait(1400);
+
+  // Simulate "3 minutes later": oldest current (B at the bottom) moves to History.
+  await setSnapshot({
+    events: [
+      { ...evtC, state: "current", countdown: "Current" },
+      { ...evtA, state: "current", countdown: "Current" },
+      { ...evtD, state: "upcoming", countdown: "59m" },
+      { ...evtE, state: "upcoming", countdown: "1h 59m" }
+    ],
+    pastEvents: [
+      {
+        time: `${baseDate} 09:00`,
+        cur: "USD",
+        impact: "High",
+        event: "Current demo B",
+        actual: "--",
+        forecast: "--",
+        previous: "--"
+      }
+    ]
+  });
+  await wait(2200);
+};
 
 const pressElement = async (page, locator) => {
   // Hold :active without triggering a click. Caller should `await release()` after
@@ -1646,6 +1973,20 @@ const main = async () => {
       await runCheck(theme.key, "Split divider not dark", () => assertSplitDividerNotDark(page));
     }
     await runCheck(theme.key, "Events list completeness", () => assertEventsLoaded(page));
+    const eventsCard = page.locator("[data-qa='qa:card:next-events']").first();
+    await runCheck(theme.key, "Next Events reorder animation", () =>
+      assertNextEventsReorderAnim(page, "evt-2026-01-05-0700-cad-housing-starts")
+    );
+    if (await eventsCard.count()) {
+      artifacts.push({
+        scenario: "current-event",
+        theme: theme.key,
+        state: "active",
+        path: await captureState(page, "current-event", theme.key, "active", { element: eventsCard })
+      });
+    }
+    await runCheck(theme.key, "Current event badge", () => assertCurrentEventBadge(page));
+    await runCheck(theme.key, "Current event heartbeat", () => assertCurrentEventHeartbeat(page));
     await runCheck(theme.key, "Next Events controls centered", () =>
       assertNextEventsControlsCentered(page)
     );
@@ -1657,7 +1998,6 @@ const main = async () => {
     await runCheck(theme.key, "History respects impact filter", () =>
       assertHistoryRespectsImpactFilter(page)
     );
-    const eventsCard = page.locator("[data-qa='qa:card:next-events']").first();
     const impactButtons = page.locator("[data-qa='qa:filter:impact'] button.impact-toggle");
     const impactStates = ["low", "mid", "high"];
     if ((await eventsCard.count()) && (await impactButtons.count()) === impactStates.length) {
@@ -3550,6 +3890,9 @@ const main = async () => {
         await page.waitForTimeout(260);
       }
     }
+
+    // Capture a visible Current lifecycle in the theme webm (reorder + move to history).
+    await runCurrentTimelineDemo(page);
 
     themeResults.push({
       theme: theme.key,

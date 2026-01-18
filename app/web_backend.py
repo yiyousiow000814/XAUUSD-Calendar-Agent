@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import shutil
@@ -1583,6 +1584,7 @@ class WebAgentBackend:
 
     def _render_next_events(self, events: list[dict], currency: str) -> list[dict]:
         now_utc = datetime.now(timezone.utc)
+        grace_window = timedelta(minutes=3)
         selected = (currency or "USD").strip().upper()
         if not events:
             return []
@@ -1592,10 +1594,28 @@ class WebAgentBackend:
         candidates = [
             event for event in events if isinstance(event.get("dt_utc"), datetime)
         ]
-        for event in sorted(candidates, key=lambda item: item["dt_utc"]):
+        visible: list[dict] = []
+        for event in candidates:
             dt_utc: datetime = event["dt_utc"]
-            if dt_utc < now_utc:
+            if dt_utc < now_utc - grace_window:
                 continue
+            visible.append(event)
+
+        def _sort_key(item: dict) -> tuple[int, float]:
+            dt_utc: datetime = item["dt_utc"]
+            is_current = dt_utc <= now_utc
+            # Current items first (newest first), then upcoming (soonest first).
+            return (
+                0 if is_current else 1,
+                -dt_utc.timestamp() if is_current else dt_utc.timestamp(),
+            )
+
+        # Ensure event IDs are unique within the rendered list, even if multiple
+        # rows share the same "stable signature" (time/currency/title/etc.).
+        seen_event_ids: dict[str, int] = {}
+
+        for event in sorted(visible, key=_sort_key):
+            dt_utc: datetime = event["dt_utc"]
             event_currency = event.get("currency", "").upper()
             if selected != "ALL" and event_currency != selected:
                 continue
@@ -1607,13 +1627,34 @@ class WebAgentBackend:
             time_text = self._format_time_text(
                 dt_display, time_label, source_date_label=source_date
             )
+            is_current = dt_utc <= now_utc and (now_utc - dt_utc) <= grace_window
+            # Use a stable signature for React keys (avoid including Actual/Forecast/Previous
+            # which can change over time). If duplicates still exist, add a deterministic
+            # suffix to keep keys unique.
+            raw_id = "|".join(
+                [
+                    dt_utc.isoformat(),
+                    event_currency,
+                    (time_label or "").strip(),
+                    (importance or "").strip(),
+                    (event_name or "").strip(),
+                ]
+            )
+            digest = hashlib.sha1(raw_id.encode("utf-8")).hexdigest()
+            seq = seen_event_ids.get(digest, 0) + 1
+            seen_event_ids[digest] = seq
+            event_id = f"evt-{digest}" if seq == 1 else f"evt-{digest}-{seq}"
             rendered.append(
                 {
+                    "id": event_id,
+                    "state": "current" if is_current else "upcoming",
                     "time": time_text,
                     "cur": event_currency or "--",
                     "impact": importance or "--",
                     "event": event_name,
-                    "countdown": self._format_countdown(dt_utc),
+                    "countdown": (
+                        "Current" if is_current else self._format_countdown(dt_utc)
+                    ),
                 }
             )
             if len(rendered) >= 240:

@@ -147,6 +147,8 @@ const baseMockSnapshot: Snapshot = {
   restartInSeconds: 0,
   events: [
     {
+      id: "mock-evt-1",
+      state: "upcoming",
       time: "05-01-2026 01:30",
       cur: "USD",
       impact: "Medium",
@@ -154,6 +156,8 @@ const baseMockSnapshot: Snapshot = {
       countdown: "18h 27m"
     },
     {
+      id: "mock-evt-2",
+      state: "upcoming",
       time: "05-01-2026 03:10",
       cur: "USD",
       impact: "Low",
@@ -161,6 +165,8 @@ const baseMockSnapshot: Snapshot = {
       countdown: "20h 05m"
     },
     {
+      id: "mock-evt-3",
+      state: "upcoming",
       time: "05-01-2026 04:00",
       cur: "EUR",
       impact: "High",
@@ -168,6 +174,8 @@ const baseMockSnapshot: Snapshot = {
       countdown: "21h 00m"
     },
     {
+      id: "mock-evt-4",
+      state: "upcoming",
       time: "05-01-2026 06:30",
       cur: "GBP",
       impact: "Low",

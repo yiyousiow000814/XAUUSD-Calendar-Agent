@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { EventItem } from "../types";
 import { Select } from "./Select";
 import "./NextEvents.css";
@@ -39,6 +39,128 @@ export function NextEvents({
 }: NextEventsProps) {
   const [query, setQuery] = useState("");
   const showSkeleton = loading && events.length === 0;
+  const rowRefs = useRef(new Map<string, HTMLDivElement>());
+  const prevRects = useRef(new Map<string, DOMRect>());
+  const prevFilterSignature = useRef("");
+  const prevCurrentSignature = useRef("");
+  const [pulseGen, setPulseGen] = useState(0);
+
+  const getItemKey = (item: EventItem) =>
+    item.id || `${item.time}|${item.cur}|${item.impact}|${item.event}`;
+
+  const currentSignature = useMemo(() => {
+    const keys = events
+      .filter(
+        (item) =>
+          item.state === "current" || String(item.countdown || "").toLowerCase() === "current"
+      )
+      .map(getItemKey)
+      .sort();
+    return keys.join("|");
+  }, [events]);
+
+  useLayoutEffect(() => {
+    if (prevCurrentSignature.current === currentSignature) return;
+    prevCurrentSignature.current = currentSignature;
+    // Force a synchronized restart for all Current pulse animations whenever the
+    // set of Current items changes (new Current appears / disappears).
+    setPulseGen((value) => (value === 0 ? 1 : 0));
+  }, [currentSignature]);
+
+  const filterSignature = useMemo(() => {
+    const impacts = [...impactFilter].sort().join(",");
+    return `${currency}|${impacts}`;
+  }, [currency, impactFilter]);
+
+  const parseCountdownMinutes = (value: string) => {
+    const text = (value || "").trim().toLowerCase();
+    if (!text) return null;
+    if (text === "current") return null;
+
+    const hmMatch = text.match(/(\d+)\s*h\s*(\d+)\s*m/);
+    if (hmMatch) {
+      return Number(hmMatch[1]) * 60 + Number(hmMatch[2]);
+    }
+
+    const mMatch = text.match(/(^|\s)(\d+)\s*m($|\s)/);
+    if (mMatch) return Number(mMatch[2]);
+
+    return null;
+  };
+
+  useLayoutEffect(() => {
+    if (showSkeleton) return;
+    if (query.trim()) return;
+    if (typeof window === "undefined") return;
+
+    const eligibleKeys = new Set<string>();
+
+    // Only animate vertical movement for Current and "about-to-be-current" (<= 1 minute).
+    // Everything else should reorder instantly (e.g. impact filter toggles).
+    events.forEach((item) => {
+      const key = getItemKey(item);
+      const isCurrent =
+        item.state === "current" || String(item.countdown || "").toLowerCase() === "current";
+      if (!isCurrent) return;
+      eligibleKeys.add(key);
+    });
+
+    events.forEach((item) => {
+      const key = getItemKey(item);
+      const isCurrent =
+        item.state === "current" || String(item.countdown || "").toLowerCase() === "current";
+      if (isCurrent) return;
+
+      const minutes = parseCountdownMinutes(item.countdown);
+      if (minutes !== null && minutes <= 1 && minutes >= 0) {
+        eligibleKeys.add(key);
+      }
+    });
+
+    const newRects = new Map<string, DOMRect>();
+
+    rowRefs.current.forEach((el, key) => {
+      if (!el) return;
+      newRects.set(key, el.getBoundingClientRect());
+    });
+
+    const prev = prevRects.current;
+    prevRects.current = newRects;
+
+    if (prevFilterSignature.current && prevFilterSignature.current !== filterSignature) {
+      prevFilterSignature.current = filterSignature;
+      return;
+    }
+    prevFilterSignature.current = filterSignature;
+
+    if (!prev.size || !newRects.size) return;
+
+    newRects.forEach((rect, key) => {
+      const prevRect = prev.get(key);
+      if (!prevRect) return;
+      const dy = prevRect.top - rect.top;
+      if (Math.abs(dy) < 1) return;
+      if (!eligibleKeys.has(key)) return;
+
+      const el = rowRefs.current.get(key);
+      if (!el) return;
+
+      // FLIP: invert, then play (smoothly slide to the new position).
+      el.style.transition = "transform 0ms";
+      el.style.transform = `translateY(${dy}px)`;
+      el.style.willChange = "transform";
+      el.dataset.flipAnim = "1";
+
+      window.requestAnimationFrame(() => {
+        el.style.transition = "transform var(--motion-med) var(--motion-ease)";
+        el.style.transform = "";
+        window.setTimeout(() => {
+          if (el.style.willChange === "transform") el.style.willChange = "";
+          if (el.dataset.flipAnim) delete el.dataset.flipAnim;
+        }, 360);
+      });
+    });
+  }, [events, query, showSkeleton, filterSignature]);
 
   const renderTime = (value: string) => {
     const [datePart, timePart] = value.split(" ");
@@ -169,25 +291,43 @@ export function NextEvents({
               <span className="event-countdown mono align-right">--</span>
             </div>
           ) : (
-            filtered.map((item: EventItem, index) => (
-              <div
-                className={`event-row ${impactTone(item.impact)}`}
-                key={`${item.time}-${index}`}
-                data-qa="qa:row:next-event"
-              >
-                {renderTime(item.time)}
-                <div className="event-main">
-                  <div className="event-title">
-                    <span className="event-impact" aria-hidden="true" />
-                    <span className="event-name">{item.event}</span>
+            filtered.map((item: EventItem) => {
+              const key = getItemKey(item);
+              const isCurrent = item.state === "current" || item.countdown.toLowerCase() === "current";
+              return (
+                <div
+                  className={`event-row ${impactTone(item.impact)}${isCurrent ? " current" : ""}`}
+                  key={key}
+                  data-qa="qa:row:next-event"
+                  data-qa-row-id={key}
+                  data-pulse-gen={isCurrent ? pulseGen : undefined}
+                  ref={(el) => {
+                    if (el) {
+                      rowRefs.current.set(key, el);
+                      return;
+                    }
+                    rowRefs.current.delete(key);
+                  }}
+                >
+                  {renderTime(item.time)}
+                  <div className="event-main">
+                    <div className="event-title">
+                      <span className="event-impact" aria-hidden="true" />
+                      <span className="event-name">{item.event}</span>
+                    </div>
+                    <div className="event-meta">
+                      <span className="event-cur mono">{item.cur}</span>
+                    </div>
                   </div>
-                  <div className="event-meta">
-                    <span className="event-cur mono">{item.cur}</span>
-                  </div>
+                  <span
+                    className={`event-countdown mono align-right${isCurrent ? " current" : ""}`}
+                    data-qa={isCurrent ? "qa:status:current" : undefined}
+                  >
+                    {isCurrent ? "Current" : item.countdown}
+                  </span>
                 </div>
-                <span className="event-countdown mono align-right">{item.countdown}</span>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>

@@ -2273,7 +2273,10 @@ export default function App() {
         const pushEvent = (minutesAhead: number, impact: string, suffix: string) => {
           const date = new Date(now);
           date.setMinutes(now.getMinutes() + minutesAhead);
+          const id = `mock-next-${impact.toLowerCase()}-${minutesAhead}-${suffix}`;
           rendered.push({
+            id,
+            state: "upcoming",
             time: makeTime(date),
             cur: "USD",
             impact,
