@@ -1708,7 +1708,9 @@ const main = async () => {
   }
 
   const runIsolatedThemes = async (themeList) => {
-    const baseArtifactsRoot = path.resolve(repoRoot, "artifacts", "ui-check");
+    const baseArtifactsRoot = process.env.UI_CHECK_OUTPUT_DIR
+      ? path.resolve(process.env.UI_CHECK_OUTPUT_DIR)
+      : path.resolve(repoRoot, "artifacts", "ui-check");
     const baseReportPath = path.join(baseArtifactsRoot, "report.html");
     await ensureDir(baseArtifactsRoot);
     await clearDir(baseArtifactsRoot);
@@ -1722,17 +1724,21 @@ const main = async () => {
     const errors = await runWithPool(jobs, workerCount, async ({ theme, index }) => {
       await new Promise((resolve, reject) => {
         const port = basePort + index * 10;
+        const childEnv = {
+          ...process.env,
+          UI_CHECK_THEME: theme.key,
+          UI_CHECK_OUTPUT_TAG: theme.key,
+          UI_CHECK_WORKERS: "1",
+          UI_CHECK_SKIP_REPORT: "1",
+          UI_CHECK_PORT: String(port)
+        };
+        if (process.env.UI_CHECK_OUTPUT_DIR) {
+          childEnv.UI_CHECK_OUTPUT_DIR = path.join(baseArtifactsRoot, theme.key);
+        }
         const child = spawn("node", [path.join(__dirname, "ui-check.mjs")], {
           cwd: repoRoot,
           stdio: "inherit",
-          env: {
-            ...process.env,
-            UI_CHECK_THEME: theme.key,
-            UI_CHECK_OUTPUT_TAG: theme.key,
-            UI_CHECK_WORKERS: "1",
-            UI_CHECK_SKIP_REPORT: "1",
-            UI_CHECK_PORT: String(port)
-          }
+          env: childEnv
         });
         child.on("exit", (code) => {
           if (code === 0) {
