@@ -831,6 +831,45 @@ const pressElement = async (page, locator) => {
   };
 };
 
+const readActionButtonState = async (page, selector) =>
+  page.evaluate((sel) => {
+    const btn = document.querySelector(sel);
+    const state = (btn?.getAttribute("data-qa-state") || "").trim();
+    const label = (btn?.textContent || "").trim();
+    const toasts = Array.from(document.querySelectorAll(".toast")).map((node) => {
+      const text = (node.textContent || "").trim();
+      const type =
+        node.classList.contains("success") ||
+        node.getAttribute("data-type") === "success"
+          ? "success"
+          : node.classList.contains("error") ||
+              node.getAttribute("data-type") === "error"
+            ? "error"
+            : "info";
+      return { type, text };
+    });
+    return { state, label, toasts };
+  }, selector);
+
+const waitForActionCompletion = async (page, selector, { timeoutMs = 6000 } = {}) => {
+  const start = Date.now();
+  let last = await readActionButtonState(page, selector);
+
+  // Wait until the state machine settles into a terminal state. We treat both
+  // success and error as terminal; idle is considered terminal too because the
+  // UI auto-resets after the brief success/error flash.
+  while (Date.now() - start < timeoutMs) {
+    last = await readActionButtonState(page, selector);
+    if (["success", "error", "idle"].includes(last.state)) {
+      return { ...last, timedOut: false };
+    }
+    await page.waitForTimeout(90);
+  }
+
+  last = await readActionButtonState(page, selector);
+  return { ...last, timedOut: true };
+};
+
 const assertDropdownStableOnHover = async (page, trigger, name) => {
   const menu = page.locator(".select-menu").first();
   const before = await menu.boundingBox();
@@ -2730,38 +2769,34 @@ const main = async () => {
     } else {
       skipCheck(theme.key, "Toast transition presence", "Toast not present");
     }
-    // Pull can finish very quickly in ui-check (mocked/fast backend), so a fixed
-    // timeout may miss the brief success state and capture an "idle" button.
-    await page.waitForFunction(
-      () => {
-        const btn = document.querySelector("[data-qa*='qa:action:pull']");
-        return (btn?.getAttribute("data-qa-state") || "") === "success";
-      },
-      null,
-      { timeout: 6000 }
-    );
+
+    const pullCompletion = await waitForActionCompletion(page, "[data-qa*='qa:action:pull']");
+    const pullStateLabel =
+      pullCompletion.state === "success"
+        ? "pull-success"
+        : pullCompletion.state === "error"
+          ? "pull-error"
+          : pullCompletion.timedOut
+            ? "pull-timeout"
+            : "pull-final";
+
     artifacts.push({
       scenario: "actions",
       theme: theme.key,
-      state: "pull-success",
-      path: await captureState(page, "actions", theme.key, "pull-success")
+      state: pullStateLabel,
+      path: await captureState(page, "actions", theme.key, pullStateLabel)
     });
-    await runCheck(theme.key, "Pull success state sanity", async () => {
-      const result = await page.evaluate(() => {
-        const btn = document.querySelector("[data-qa*='qa:action:pull']");
-        const state = btn?.getAttribute("data-qa-state") || "";
-        const label = (btn?.textContent || "").trim();
-        const failedToast = Array.from(document.querySelectorAll(".toast")).some((node) =>
-          (node.textContent || "").includes("Pull failed")
+
+    await runCheck(theme.key, "Pull completes with success", async () => {
+      if (pullCompletion.state !== "success") {
+        const toastSummary = (pullCompletion.toasts || [])
+          .map((t) => `${t.type}:${t.text}`)
+          .slice(0, 3)
+          .join(" | ");
+        throw new Error(
+          `Pull did not reach success (state=${pullCompletion.state || "?"}, timedOut=${pullCompletion.timedOut}) ` +
+            `(label='${pullCompletion.label || ""}', toasts='${toastSummary}')`
         );
-        if (failedToast) return { ok: false, reason: 'Toast shows "Pull failed" during pull-success capture' };
-        if (state === "error" || label.includes("Pull failed")) {
-          return { ok: false, reason: `Pull button in error state during pull-success capture (state=${state})` };
-        }
-        return { ok: true };
-      });
-      if (!result.ok) {
-        throw new Error(result.reason);
       }
       return true;
     });
@@ -2938,20 +2973,34 @@ const main = async () => {
     } else {
       skipCheck(theme.key, "Toast transition presence (sync)", "Toast not present");
     }
-    // Same as pull: wait for the success state instead of relying on a fixed delay.
-    await page.waitForFunction(
-      () => {
-        const btn = document.querySelector("[data-qa*='qa:action:sync']");
-        return (btn?.getAttribute("data-qa-state") || "") === "success";
-      },
-      null,
-      { timeout: 6000 }
-    );
+
+    const syncCompletion = await waitForActionCompletion(page, "[data-qa*='qa:action:sync']");
+    const syncStateLabel =
+      syncCompletion.state === "success"
+        ? "sync-success"
+        : syncCompletion.state === "error"
+          ? "sync-error"
+          : syncCompletion.timedOut
+            ? "sync-timeout"
+            : "sync-final";
     artifacts.push({
       scenario: "actions",
       theme: theme.key,
-      state: "sync-success",
-      path: await captureState(page, "actions", theme.key, "sync-success")
+      state: syncStateLabel,
+      path: await captureState(page, "actions", theme.key, syncStateLabel)
+    });
+    await runCheck(theme.key, "Sync completes with success", async () => {
+      if (syncCompletion.state !== "success") {
+        const toastSummary = (syncCompletion.toasts || [])
+          .map((t) => `${t.type}:${t.text}`)
+          .slice(0, 3)
+          .join(" | ");
+        throw new Error(
+          `Sync did not reach success (state=${syncCompletion.state || "?"}, timedOut=${syncCompletion.timedOut}) ` +
+            `(label='${syncCompletion.label || ""}', toasts='${toastSummary}')`
+        );
+      }
+      return true;
     });
 
     await runCheck(theme.key, "Last sync resets when sync target cleared", async () => {
