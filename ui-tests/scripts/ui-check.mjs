@@ -1781,7 +1781,9 @@ const main = async () => {
     }
   };
 
-  if (process.env.UI_CHECK_ISOLATED === "1" && !requestedTheme) {
+  const useIsolated =
+    !requestedTheme && (process.env.UI_CHECK_ISOLATED || "").trim().toLowerCase() !== "0";
+  if (useIsolated) {
     await runIsolatedThemes(themes);
     return;
   }

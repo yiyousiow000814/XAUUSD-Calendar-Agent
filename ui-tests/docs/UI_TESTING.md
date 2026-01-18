@@ -64,6 +64,13 @@ set UI_CHECK_PORT_BASE=4183
 npm run ui:check
 ```
 
+Disable isolation (runs all themes in a single process):
+
+```
+set UI_CHECK_ISOLATED=0
+npm run ui:check
+```
+
 `ui-watch` watches front-end changes and re-runs `ui-check` automatically.
 
 ```
