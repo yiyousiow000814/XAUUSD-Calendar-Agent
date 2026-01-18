@@ -24,8 +24,28 @@ const impactOptions = ["Low", "Medium", "High"];
 const impactFilterStorageKey = "xauusd:nextEvents:impactFilter";
 
 const normalizeCurrencyOptions = (options: string[]) => {
-  void options;
-  return defaultCurrencyOptions;
+  // Design decision: keep a stable, curated currency list so the UI remains
+  // predictable even on first-run or when no events are loaded yet.
+  //
+  // We still accept backend-provided values for forward compatibility: if the
+  // backend introduces new currency codes, we append them deterministically.
+  const raw = Array.isArray(options) ? options : [];
+  const cleaned = raw
+    .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+    .map((value) => value.trim().toUpperCase());
+  const unique = Array.from(new Set(cleaned));
+  const known = new Set(defaultCurrencyOptions);
+  const extras = unique.filter((code) => code !== "ALL" && !known.has(code));
+  extras.sort();
+
+  if (import.meta.env.DEV && extras.length > 0) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[currencyOptions] backend returned unknown codes; appended to UI list: ${extras.join(", ")}`
+    );
+  }
+
+  return extras.length ? [...defaultCurrencyOptions, ...extras] : defaultCurrencyOptions;
 };
 
 const emptySnapshot: Snapshot = {

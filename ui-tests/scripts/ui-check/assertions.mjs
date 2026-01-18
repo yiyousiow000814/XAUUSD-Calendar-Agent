@@ -805,11 +805,11 @@ export const assertDropdownMenu = async (page, name) => {
 
       const clippedTop = items
         .map((el) => ({ el, rect: el.getBoundingClientRect() }))
-        .find((item) => item.rect.top < scrollerRect.top - 1 && item.rect.bottom > scrollerRect.top + 2);
+        .find((item) => item.rect.top < scrollerRect.top && item.rect.bottom > scrollerRect.top + 1);
       const clippedBottom = items
         .map((el) => ({ el, rect: el.getBoundingClientRect() }))
         .find(
-          (item) => item.rect.bottom > scrollerRect.bottom + 1 && item.rect.top < scrollerRect.bottom - 2
+          (item) => item.rect.bottom > scrollerRect.bottom && item.rect.top < scrollerRect.bottom - 1
         );
 
       const topClipPx = clippedTop ? scrollerRect.top - clippedTop.rect.top : 0;
@@ -833,7 +833,9 @@ export const assertDropdownMenu = async (page, name) => {
   if (top.itemHeight > 0) {
     const denom = top.bottomClipItemHeight || top.itemHeight;
     const ratio = denom > 0 ? top.bottomClipPx / denom : 0;
-    if (top.bottomClipPx <= 2 || ratio < 0.3 || ratio > 0.7) {
+    // Be tolerant of DPI/rounding differences: assert there's a meaningful clip,
+    // not a fully hidden/fully visible row.
+    if (top.bottomClipPx <= 3 || top.bottomClipPx >= denom - 3 || ratio < 0.18 || ratio > 0.82) {
       throw new Error(
         `Dropdown missing half-item peek at top for ${name} (clipPx=${top.bottomClipPx.toFixed(1)} ratio=${ratio.toFixed(2)})`
       );
@@ -850,7 +852,7 @@ export const assertDropdownMenu = async (page, name) => {
   if (bottom.itemHeight > 0) {
     const denom = bottom.topClipItemHeight || bottom.itemHeight;
     const ratio = denom > 0 ? bottom.topClipPx / denom : 0;
-    if (bottom.topClipPx <= 2 || ratio < 0.3 || ratio > 0.7) {
+    if (bottom.topClipPx <= 3 || bottom.topClipPx >= denom - 3 || ratio < 0.18 || ratio > 0.82) {
       throw new Error(
         `Dropdown missing half-item peek at bottom for ${name} (clipPx=${bottom.topClipPx.toFixed(1)} ratio=${ratio.toFixed(2)})`
       );

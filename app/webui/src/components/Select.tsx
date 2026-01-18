@@ -63,15 +63,17 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
 
     const syncUpdateMode = () => {
       const mode = computeMode();
-      if (mode !== lastMode) {
-        lastMode = mode;
-      }
       // Keep the DOM attribute updated synchronously so tests and other code can
       // read a correct state immediately after a scroll event.
       if (menu.dataset.scroll !== mode) {
         menu.dataset.scroll = mode;
       }
-      setScrollState(mode);
+      // Avoid re-rendering on every scroll event; only update React state when
+      // the semantic mode actually changes.
+      if (mode !== lastMode) {
+        lastMode = mode;
+        setScrollState(mode);
+      }
     };
 
     const onScrollOrResize = () => {
@@ -88,6 +90,7 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
       if (menu.dataset.scroll !== "none") {
         menu.dataset.scroll = "none";
       }
+      setScrollState("none");
     };
   }, [open, options.length]);
 
