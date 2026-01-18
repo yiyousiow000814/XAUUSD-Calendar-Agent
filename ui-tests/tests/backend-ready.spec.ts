@@ -31,12 +31,12 @@ test("desktop runtime waits for backend instead of rendering mock events", async
       autoSave: true,
       enableSystemTheme: false,
       theme: "dark",
-      syncRepoPath: "",
+      temporaryPath: "",
       repoPath: "",
       logPath: "",
       removeLogs: true,
       removeOutput: false,
-      removeSyncRepos: true,
+      removeTemporaryPaths: true,
       uninstallConfirm: ""
     };
 

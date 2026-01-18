@@ -397,7 +397,7 @@
   min-height: 0;
 }
 
-.sync-repo-progress {
+.temporary-path-progress {
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(13, 16, 24, 0.35);
@@ -405,27 +405,27 @@
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
 }
 
-.sync-repo-progress-header {
+.temporary-path-progress-header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 10px;
 }
 
-.sync-repo-progress-title {
+.temporary-path-progress-title {
   font-size: 12px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
 }
 
-.sync-repo-progress-percent {
+.temporary-path-progress-percent {
   font-size: 12px;
   font-weight: 700;
   color: rgba(134, 201, 255, 0.95);
 }
 
-.sync-repo-progress-bar {
+.temporary-path-progress-bar {
   margin-top: 10px;
   height: 10px;
   border-radius: 999px;
@@ -434,7 +434,7 @@
   position: relative;
 }
 
-.sync-repo-progress-fill {
+.temporary-path-progress-fill {
   height: 100%;
   width: 0%;
   border-radius: 999px;
@@ -443,7 +443,7 @@
   transition: width var(--motion-med) var(--motion-ease);
 }
 
-.sync-repo-progress-message {
+.temporary-path-progress-message {
   margin-top: 8px;
   font-size: 13px;
   color: var(--text);
@@ -453,13 +453,13 @@
   white-space: nowrap;
 }
 
-[data-theme="light"] .sync-repo-progress {
+[data-theme="light"] .temporary-path-progress {
   background: rgba(255, 255, 255, 0.82);
   border-color: rgba(18, 20, 26, 0.08);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
 }
 
-[data-theme="light"] .sync-repo-progress-bar {
+[data-theme="light"] .temporary-path-progress-bar {
   background: rgba(18, 20, 26, 0.08);
 }
 

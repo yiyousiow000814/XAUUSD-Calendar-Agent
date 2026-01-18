@@ -39,8 +39,8 @@ type SettingsModalProps = {
   isEntering: boolean;
   settings: Settings;
   outputDir: string;
-  syncRepoNote?: { tone: "info" | "warn" | "error"; text: string } | null;
-  onResolveSyncRepo?: () => void;
+  temporaryPathNote?: { tone: "info" | "warn" | "error"; text: string } | null;
+  onResolveTemporaryPath?: () => void;
   savingMessage: string;
   pathsRef: React.MutableRefObject<HTMLDivElement | null>;
   scrollToPathsOnOpen?: boolean;
@@ -67,10 +67,10 @@ type SettingsModalProps = {
   onCalendarUtcOffsetMinutesChange: (value: number) => void;
   onCopyLog: () => void;
   onOpenLog: () => void;
-  onEnableSyncRepo: (value: boolean) => void;
-  onSyncRepoChange: (value: string) => void;
-  onSyncRepoBlur: () => void;
-  onSyncRepoBrowse: () => void;
+  onEnableTemporaryPath: (value: boolean) => void;
+  onTemporaryPathChange: (value: string) => void;
+  onTemporaryPathBlur: () => void;
+  onTemporaryPathBrowse: () => void;
   onOpenPath: (path: string) => void;
   onOutputDirChange: (value: string) => void;
   onOutputDirBlur: () => void;
@@ -84,8 +84,8 @@ export function SettingsModal({
   isEntering,
   settings,
   outputDir,
-  syncRepoNote,
-  onResolveSyncRepo,
+  temporaryPathNote,
+  onResolveTemporaryPath,
   savingMessage,
   pathsRef,
   scrollToPathsOnOpen,
@@ -112,10 +112,10 @@ export function SettingsModal({
   onCalendarUtcOffsetMinutesChange,
   onCopyLog,
   onOpenLog,
-  onEnableSyncRepo,
-  onSyncRepoChange,
-  onSyncRepoBlur,
-  onSyncRepoBrowse,
+  onEnableTemporaryPath,
+  onTemporaryPathChange,
+  onTemporaryPathBlur,
+  onTemporaryPathBrowse,
   onOpenPath,
   onOutputDirChange,
   onOutputDirBlur,
@@ -479,12 +479,12 @@ export function SettingsModal({
                 </div>
               </div>
             </div>
-            <div className="path-row path-card" data-qa="qa:path:sync-repo">
-              <div className="path-block" data-qa="qa:section:sync-repo">
+            <div className="path-row path-card" data-qa="qa:path:temporary-path">
+              <div className="path-block" data-qa="qa:section:temporary-path">
               <div className="path-block-header">
                 <div>
                   <div className="path-label">Temporary Path (Working Copy)</div>
-                  {settings.enableSyncRepo ? (
+                  {settings.enableTemporaryPath ? (
                     <p className="path-helper">
                       Pull/sync happens here, so Main Path is never overwritten. Changes apply when you close Settings.
                     </p>
@@ -492,35 +492,35 @@ export function SettingsModal({
                 </div>
                 <label
                   className="switch switch-compact"
-                  data-qa="qa:control:enable-sync-repo"
+                  data-qa="qa:control:enable-temporary-path"
                 >
                   <input
                     type="checkbox"
-                    checked={settings.enableSyncRepo}
-                    onChange={(event) => onEnableSyncRepo(event.target.checked)}
+                    checked={settings.enableTemporaryPath}
+                    onChange={(event) => onEnableTemporaryPath(event.target.checked)}
                   />
                   <span className="switch-track" aria-hidden="true" />
                   <span>Dev</span>
                 </label>
               </div>
-              {settings.enableSyncRepo ? (
+              {settings.enableTemporaryPath ? (
                 <div className="path-input-row">
                   <input
                     className="path-input"
                     type="text"
-                    value={settings.syncRepoPath}
+                    value={settings.temporaryPath}
                     placeholder="Select or paste a temporary path"
-                    onChange={(event) => onSyncRepoChange(event.target.value)}
-                    onBlur={onSyncRepoBlur}
+                    onChange={(event) => onTemporaryPathChange(event.target.value)}
+                    onBlur={onTemporaryPathBlur}
                   />
                   <div className="path-actions inline">
-                    <button className="btn ghost" onClick={onSyncRepoBrowse}>
+                    <button className="btn ghost" onClick={onTemporaryPathBrowse}>
                       Browse
                     </button>
                     <button
                       className="btn ghost"
-                      onClick={() => onOpenPath(settings.syncRepoPath)}
-                      disabled={!settings.syncRepoPath}
+                      onClick={() => onOpenPath(settings.temporaryPath)}
+                      disabled={!settings.temporaryPath}
                     >
                       Open
                     </button>
@@ -531,20 +531,20 @@ export function SettingsModal({
                   Off by default. Turn it on only when you need a temporary working copy.
                 </p>
                 )}
-              {syncRepoNote?.text ? (
+              {temporaryPathNote?.text ? (
                 <div
-                  className="sync-repo-note"
-                  data-qa="qa:note:sync-repo"
-                  data-tone={syncRepoNote.tone}
+                  className="temporary-path-note"
+                  data-qa="qa:note:temporary-path"
+                  data-tone={temporaryPathNote.tone}
                 >
-                  <div className="sync-repo-note-row">
-                    <span>{syncRepoNote.text}</span>
-                    {onResolveSyncRepo && syncRepoNote.tone !== "info" ? (
+                  <div className="temporary-path-note-row">
+                    <span>{temporaryPathNote.text}</span>
+                    {onResolveTemporaryPath && temporaryPathNote.tone !== "info" ? (
                       <button
                         type="button"
                         className="btn ghost btn-compact"
-                        onClick={onResolveSyncRepo}
-                        data-qa="qa:action:sync-repo-review"
+                        onClick={onResolveTemporaryPath}
+                        data-qa="qa:action:temporary-path-review"
                       >
                         Review
                       </button>

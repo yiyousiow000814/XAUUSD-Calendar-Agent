@@ -9,7 +9,7 @@ type UninstallModalProps = {
   onClose: () => void;
   onRemoveLogs: (value: boolean) => void;
   onRemoveOutput: (value: boolean) => void;
-  onRemoveSyncRepos: (value: boolean) => void;
+  onRemoveTemporaryPaths: (value: boolean) => void;
   onConfirmChange: (value: string) => void;
   onConfirm: () => void;
 };
@@ -22,7 +22,7 @@ export function UninstallModal({
   onClose,
   onRemoveLogs,
   onRemoveOutput,
-  onRemoveSyncRepos,
+  onRemoveTemporaryPaths,
   onConfirmChange,
   onConfirm
 }: UninstallModalProps) {
@@ -68,8 +68,8 @@ export function UninstallModal({
           <label className="toggle">
             <input
               type="checkbox"
-              checked={settings.removeSyncRepos}
-              onChange={(event) => onRemoveSyncRepos(event.target.checked)}
+              checked={settings.removeTemporaryPaths}
+              onChange={(event) => onRemoveTemporaryPaths(event.target.checked)}
             />
             <span className="toggle-label">Remove all temporary path folders</span>
           </label>

@@ -67,12 +67,12 @@ export type Settings = {
   theme: "system" | "dark" | "light";
   calendarTimezoneMode: "utc" | "system";
   calendarUtcOffsetMinutes: number;
-  enableSyncRepo: boolean;
-  syncRepoPath: string;
+  enableTemporaryPath: boolean;
+  temporaryPath: string;
   repoPath: string;
   logPath: string;
   removeLogs: boolean;
   removeOutput: boolean;
-  removeSyncRepos: boolean;
+  removeTemporaryPaths: boolean;
   uninstallConfirm: string;
 };

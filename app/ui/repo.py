@@ -13,7 +13,7 @@ class RepoMixin:
         return Path(value)
 
     def _resolve_repo_path(self) -> Path | None:
-        sync_value = self.sync_repo_var.get().strip()
+        sync_value = self.temporary_path_var.get().strip()
         repo_value = self.repo_var.get().strip()
         if sync_value:
             return self._ensure_git_repo(Path(sync_value))
@@ -23,8 +23,8 @@ class RepoMixin:
             if (repo_path / ".git").exists() or calendar_root.exists():
                 return repo_path
             managed = get_repo_dir()
-            self.sync_repo_var.set(str(managed))
-            self.state["sync_repo_path"] = str(managed)
+            self.temporary_path_var.set(str(managed))
+            self.state["temporary_path"] = str(managed)
             save_config(self.state)
             return self._ensure_git_repo(managed)
         return None

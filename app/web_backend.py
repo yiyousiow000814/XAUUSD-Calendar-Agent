@@ -70,7 +70,7 @@ except Exception:  # noqa: BLE001
 APP_TITLE = "XAUUSD Calendar Agent"
 AUTO_UPDATE_INTERVAL_MINUTES = 60
 OUTPUT_DIR_MARKER_FILENAME = ".xauusd_calendar_agent_managed_output"
-SYNC_REPO_GIT_PID_PREFIX = "sync-repo-clone"
+TEMPORARY_PATH_GIT_PID_PREFIX = "temporary-path-clone"
 
 
 class WebAgentBackend:
@@ -135,15 +135,15 @@ class WebAgentBackend:
         self._update_downloaded_bytes = 0
         self._update_total_bytes: int | None = None
         self._update_in_progress = False
-        self._sync_repo_task_lock = threading.Lock()
-        self._sync_repo_task_active = False
-        self._sync_repo_task_phase = "idle"
-        self._sync_repo_task_progress = 0.0
-        self._sync_repo_task_message = ""
-        self._sync_repo_task_path = ""
-        self._sync_repo_last_notice_ts: float | None = None
-        self._sync_repo_task_cancel_event: threading.Event | None = None
-        self._sync_repo_git_pid: int | None = None
+        self._temporary_path_task_lock = threading.Lock()
+        self._temporary_path_task_active = False
+        self._temporary_path_task_phase = "idle"
+        self._temporary_path_task_progress = 0.0
+        self._temporary_path_task_message = ""
+        self._temporary_path_task_path = ""
+        self._temporary_path_last_notice_ts: float | None = None
+        self._temporary_path_task_cancel_event: threading.Event | None = None
+        self._temporary_path_git_pid: int | None = None
         self._task_lock = threading.Lock()
         self._manual_pull_active = False
         self._manual_sync_active = False
@@ -504,69 +504,71 @@ class WebAgentBackend:
             "autoSave": True,
             "enableSystemTheme": enable_system_theme,
             "theme": theme_pref,
-            "enableSyncRepo": bool(self.state.get("enable_sync_repo", False)),
-            "syncRepoPath": self.state.get("sync_repo_path", ""),
+            "enableTemporaryPath": bool(self.state.get("enable_temporary_path", False)),
+            "temporaryPath": self.state.get("temporary_path", ""),
             "repoPath": str(repo_path) if repo_path else "",
             "logPath": str(log_file),
             "splitRatio": split_ratio,
             "removeLogs": True,
             "removeOutput": False,
-            "removeSyncRepos": True,
+            "removeTemporaryPaths": True,
             "uninstallConfirm": "",
             "calendarTimezoneMode": tz_mode,
             "calendarUtcOffsetMinutes": manual_offset,
         }
 
-    def get_sync_repo_task(self) -> dict:
-        with self._sync_repo_task_lock:
+    def get_temporary_path_task(self) -> dict:
+        with self._temporary_path_task_lock:
             return {
                 "ok": True,
-                "active": self._sync_repo_task_active,
-                "phase": self._sync_repo_task_phase,
-                "progress": float(self._sync_repo_task_progress),
-                "message": self._sync_repo_task_message,
-                "path": self._sync_repo_task_path,
+                "active": self._temporary_path_task_active,
+                "phase": self._temporary_path_task_phase,
+                "progress": float(self._temporary_path_task_progress),
+                "message": self._temporary_path_task_message,
+                "path": self._temporary_path_task_path,
             }
 
-    def probe_sync_repo(self, payload: dict | None = None) -> dict:
+    def probe_temporary_path(self, payload: dict | None = None) -> dict:
         payload = payload or {}
-        enable_sync_repo = bool(
-            payload.get("enableSyncRepo", self.state.get("enable_sync_repo", False))
+        enable_temporary_path = bool(
+            payload.get(
+                "enableTemporaryPath", self.state.get("enable_temporary_path", False)
+            )
         )
         raw_path = (
-            payload.get("syncRepoPath") or self.state.get("sync_repo_path") or ""
+            payload.get("temporaryPath") or self.state.get("temporary_path") or ""
         ).strip()
         auto_start = bool(payload.get("autoStart", True))
         repo_slug = normalize_repo_slug((self.state.get("github_repo") or "").strip())
-        if enable_sync_repo and not raw_path:
+        if enable_temporary_path and not raw_path:
             raw_path = str(get_repo_dir())
         path = Path(raw_path) if raw_path else None
-        probe = self._probe_sync_repo(path, repo_slug, auto_start=auto_start)
+        probe = self._probe_temporary_path(path, repo_slug, auto_start=auto_start)
         return {"ok": True, **probe}
 
-    def sync_repo_use_as_is(self, payload: dict | None = None) -> dict:
+    def temporary_path_use_as_is(self, payload: dict | None = None) -> dict:
         payload = payload or {}
         raw_path = (
-            payload.get("syncRepoPath") or self.state.get("sync_repo_path") or ""
+            payload.get("temporaryPath") or self.state.get("temporary_path") or ""
         ).strip()
         repo_slug = normalize_repo_slug((self.state.get("github_repo") or "").strip())
         if not raw_path:
             return {"ok": False, "message": "Temporary Path is empty"}
         path = Path(raw_path)
-        probe = self._probe_sync_repo(path, repo_slug, auto_start=False)
+        probe = self._probe_temporary_path(path, repo_slug, auto_start=False)
         if not probe.get("canUseAsIs"):
             return {
                 "ok": False,
                 "message": probe.get("message") or "Temporary Path not usable",
             }
-        self._set_sync_repo_confirmation(path, repo_slug, mode="use-as-is")
+        self._set_temporary_path_confirmation(path, repo_slug, mode="use-as-is")
         self._append_notice("Temporary Path confirmed (use as-is)", level="INFO")
         return {"ok": True}
 
-    def sync_repo_reset(self, payload: dict | None = None) -> dict:
+    def temporary_path_reset(self, payload: dict | None = None) -> dict:
         payload = payload or {}
         raw_path = (
-            payload.get("syncRepoPath") or self.state.get("sync_repo_path") or ""
+            payload.get("temporaryPath") or self.state.get("temporary_path") or ""
         ).strip()
         repo_slug = normalize_repo_slug((self.state.get("github_repo") or "").strip())
         if not raw_path:
@@ -574,35 +576,35 @@ class WebAgentBackend:
         if not repo_slug:
             return {"ok": False, "message": "GitHub repo not configured"}
         path = Path(raw_path)
-        self._terminate_sync_repo_pid_file(path, reason="Reset & Clone")
-        with self._sync_repo_task_lock:
-            task_active = self._sync_repo_task_active
+        self._terminate_temporary_path_pid_file(path, reason="Reset & Clone")
+        with self._temporary_path_task_lock:
+            task_active = self._temporary_path_task_active
         if task_active:
-            canceled = self._cancel_sync_repo_task("Reset & Clone requested")
+            canceled = self._cancel_temporary_path_task("Reset & Clone requested")
             if canceled:
                 deadline = time.time() + 3.0
                 while time.time() < deadline:
-                    with self._sync_repo_task_lock:
-                        active = self._sync_repo_task_active
+                    with self._temporary_path_task_lock:
+                        active = self._temporary_path_task_active
                     if not active:
                         break
                     time.sleep(0.05)
-                with self._sync_repo_task_lock:
-                    if self._sync_repo_task_active:
+                with self._temporary_path_task_lock:
+                    if self._temporary_path_task_active:
                         return {
                             "ok": False,
                             "message": "Unable to stop existing Temporary Path operation; please retry",
                         }
-        probe = self._probe_sync_repo(path, repo_slug, auto_start=False)
+        probe = self._probe_temporary_path(path, repo_slug, auto_start=False)
         if not probe.get("canReset"):
             return {"ok": False, "message": probe.get("message") or "Reset not allowed"}
-        started = self._start_sync_repo_clone(path, repo_slug, reset_first=True)
+        started = self._start_temporary_path_clone(path, repo_slug, reset_first=True)
         if not started:
             return {"ok": False, "message": "Temporary Path operation already running"}
         return {"ok": True}
 
-    def _terminate_sync_repo_pid_file(self, path: Path, reason: str) -> None:
-        pid_path = self._sync_repo_pid_file(path)
+    def _terminate_temporary_path_pid_file(self, path: Path, reason: str) -> None:
+        pid_path = self._temporary_path_pid_file(path)
         try:
             if not pid_path.exists():
                 return
@@ -633,23 +635,23 @@ class WebAgentBackend:
                 level="WARN",
             )
 
-    def _sync_repo_pid_file(self, path: Path) -> Path:
+    def _temporary_path_pid_file(self, path: Path) -> Path:
         resolved = str(self._safe_resolve(path))
         digest = sha1(resolved.encode("utf-8", errors="ignore")).hexdigest()[:16]
-        return get_log_dir() / f"{SYNC_REPO_GIT_PID_PREFIX}-{digest}.pid"
+        return get_log_dir() / f"{TEMPORARY_PATH_GIT_PID_PREFIX}-{digest}.pid"
 
-    def _cancel_sync_repo_task(self, reason: str) -> bool:
-        with self._sync_repo_task_lock:
-            if not self._sync_repo_task_active:
+    def _cancel_temporary_path_task(self, reason: str) -> bool:
+        with self._temporary_path_task_lock:
+            if not self._temporary_path_task_active:
                 return False
-            cancel_event = self._sync_repo_task_cancel_event
-            pid = self._sync_repo_git_pid
-            task_path = self._sync_repo_task_path
+            cancel_event = self._temporary_path_task_cancel_event
+            pid = self._temporary_path_git_pid
+            task_path = self._temporary_path_task_path
             if cancel_event:
                 cancel_event.set()
         if task_path:
             try:
-                self._terminate_sync_repo_pid_file(
+                self._terminate_temporary_path_pid_file(
                     Path(task_path), reason=f"Cancel ({reason})"
                 )
             except Exception:  # noqa: BLE001
@@ -688,7 +690,7 @@ class WebAgentBackend:
             close_behavior = "exit"
         debug = bool(payload.get("debug", False))
         auto_save = True
-        enable_sync_repo = bool(payload.get("enableSyncRepo", False))
+        enable_temporary_path = bool(payload.get("enableTemporaryPath", False))
         split_ratio_raw = payload.get("splitRatio", self.state.get("split_ratio", 0.66))
         split_ratio = self._clamp_split_ratio(float(split_ratio_raw))
         theme = (payload.get("theme") or "system").lower()
@@ -722,7 +724,7 @@ class WebAgentBackend:
         self.state["settings_auto_save"] = auto_save
         self.state["theme_preference"] = theme
         self.state["enable_system_theme"] = enable_system_theme
-        self.state["enable_sync_repo"] = enable_sync_repo
+        self.state["enable_temporary_path"] = enable_temporary_path
         self.state["split_ratio"] = split_ratio
         self.state["calendar_timezone_mode"] = tz_mode
         self.state["calendar_utc_offset_minutes"] = tz_offset
@@ -771,10 +773,10 @@ class WebAgentBackend:
         self._request_snapshot_rebuild("add_log")
         return {"ok": True}
 
-    def browse_sync_repo(self) -> dict:
+    def browse_temporary_path(self) -> dict:
         if not self.window:
             return {"ok": False, "message": "Window not ready"}
-        start_dir = (self.state.get("sync_repo_path") or "").strip()
+        start_dir = (self.state.get("temporary_path") or "").strip()
         directory = ""
         if start_dir:
             path = Path(start_dir)
@@ -788,14 +790,14 @@ class WebAgentBackend:
         if not result:
             return {"ok": False}
         path = result[0]
-        return self.set_sync_repo_path(path)
+        return self.set_temporary_path(path)
 
-    def set_sync_repo_path(self, path: str) -> dict:
+    def set_temporary_path(self, path: str) -> dict:
         value = (path or "").strip()
-        self.state["sync_repo_path"] = value
+        self.state["temporary_path"] = value
         if value:
             self._ensure_dir(value)
-            self._track_path("sync_repo_path_history", value)
+            self._track_path("temporary_path_history", value)
         save_config(self.state)
         return {"ok": True, "path": value}
 
@@ -805,7 +807,7 @@ class WebAgentBackend:
             return {"ok": False, "message": "Confirmation required"}
         remove_logs = bool(payload.get("removeLogs", True))
         remove_output = bool(payload.get("removeOutput", False))
-        remove_sync_repos = bool(payload.get("removeSyncRepos", True))
+        remove_temporary_paths = bool(payload.get("removeTemporaryPaths", True))
 
         for path in (get_config_path(), get_legacy_config_path(), get_update_dir()):
             try:
@@ -886,10 +888,10 @@ class WebAgentBackend:
                     except OSError:
                         pass
 
-        if remove_sync_repos:
-            self._cleanup_managed_sync_repos(
+        if remove_temporary_paths:
+            self._cleanup_managed_temporary_paths(
                 [
-                    self.state.get("sync_repo_path", ""),
+                    self.state.get("temporary_path", ""),
                     *self.state.get("successful_repo_paths", []),
                 ]
             )
@@ -966,7 +968,7 @@ class WebAgentBackend:
             or parent_resolved in child_resolved.parents
         )
 
-    def _cleanup_managed_sync_repos(self, paths: Iterable[str]) -> None:
+    def _cleanup_managed_temporary_paths(self, paths: Iterable[str]) -> None:
         managed_root = get_repo_dir()
         for path_str in paths:
             value = (path_str or "").strip()
@@ -1357,13 +1359,13 @@ class WebAgentBackend:
 
     def _resolve_calendar_repo_path(self) -> Path | None:
         main_path = self._get_main_repo_path()
-        if self.state.get("enable_sync_repo", False):
-            sync_value = (self.state.get("sync_repo_path") or "").strip()
+        if self.state.get("enable_temporary_path", False):
+            sync_value = (self.state.get("temporary_path") or "").strip()
             if sync_value:
                 repo_slug = normalize_repo_slug(
                     (self.state.get("github_repo") or "").strip()
                 )
-                probe = self._probe_sync_repo(
+                probe = self._probe_temporary_path(
                     Path(sync_value), repo_slug, auto_start=True
                 )
                 if probe.get("ready"):
@@ -1690,31 +1692,33 @@ class WebAgentBackend:
         return Path(raw) if raw else None
 
     def _resolve_repo_path(self) -> Path | None:
-        enable_sync_repo = bool(self.state.get("enable_sync_repo", False))
+        enable_temporary_path = bool(self.state.get("enable_temporary_path", False))
         sync_value = (
-            self.state.get("sync_repo_path", "").strip() if enable_sync_repo else ""
+            self.state.get("temporary_path", "").strip()
+            if enable_temporary_path
+            else ""
         )
         repo_value = self.state.get("repo_path", "").strip()
-        if enable_sync_repo:
+        if enable_temporary_path:
             if not sync_value:
                 managed = get_repo_dir()
                 sync_value = str(managed)
-                self.state["sync_repo_path"] = sync_value
+                self.state["temporary_path"] = sync_value
                 save_config(self.state)
             repo_slug = normalize_repo_slug(
                 (self.state.get("github_repo") or "").strip()
             )
             sync_path = Path(sync_value)
-            probe = self._probe_sync_repo(sync_path, repo_slug, auto_start=True)
+            probe = self._probe_temporary_path(sync_path, repo_slug, auto_start=True)
             if probe.get("ready"):
                 return sync_path
             if probe.get("action") == "auto-clone-started":
-                self._append_sync_repo_notice_once(
+                self._append_temporary_path_notice_once(
                     "Temporary Path is being prepared (clone in progress).",
                     level="INFO",
                 )
             elif probe.get("needsConfirmation"):
-                self._append_sync_repo_notice_once(
+                self._append_temporary_path_notice_once(
                     "Temporary Path needs confirmation. Open Settings, then close it to review options.",
                     level="WARN",
                 )
@@ -1726,10 +1730,10 @@ class WebAgentBackend:
                 return repo_path
             managed = get_repo_dir()
             if (
-                enable_sync_repo
-                and not (self.state.get("sync_repo_path") or "").strip()
+                enable_temporary_path
+                and not (self.state.get("temporary_path") or "").strip()
             ):
-                self.state["sync_repo_path"] = str(managed)
+                self.state["temporary_path"] = str(managed)
                 save_config(self.state)
             return self._ensure_git_repo(managed)
         return None
@@ -1767,11 +1771,16 @@ class WebAgentBackend:
         self._track_successful_repo(repo_path)
         return repo_path
 
-    def _append_sync_repo_notice_once(self, message: str, level: str = "INFO") -> None:
+    def _append_temporary_path_notice_once(
+        self, message: str, level: str = "INFO"
+    ) -> None:
         now = time.time()
-        if self._sync_repo_last_notice_ts and now - self._sync_repo_last_notice_ts < 20:
+        if (
+            self._temporary_path_last_notice_ts
+            and now - self._temporary_path_last_notice_ts < 20
+        ):
             return
-        self._sync_repo_last_notice_ts = now
+        self._temporary_path_last_notice_ts = now
         self._append_notice(message, level=level)
 
     @staticmethod
@@ -1781,7 +1790,7 @@ class WebAgentBackend:
         except Exception:  # noqa: BLE001
             return path
 
-    def _is_safe_sync_repo_target(self, path: Path) -> bool:
+    def _is_safe_temporary_path_target(self, path: Path) -> bool:
         main_path_raw = get_default_repo_path()
         if not main_path_raw:
             return True
@@ -1799,13 +1808,13 @@ class WebAgentBackend:
             pass
         return True
 
-    def _is_sync_repo_confirmed(self, path: Path, repo_slug: str) -> bool:
-        confirmed_path = (self.state.get("sync_repo_confirmed_path") or "").strip()
+    def _is_temporary_path_confirmed(self, path: Path, repo_slug: str) -> bool:
+        confirmed_path = (self.state.get("temporary_path_confirmed_path") or "").strip()
         confirmed_repo = (
-            (self.state.get("sync_repo_confirmed_repo") or "").strip().lower()
+            (self.state.get("temporary_path_confirmed_repo") or "").strip().lower()
         )
         confirmed_mode = (
-            (self.state.get("sync_repo_confirmed_mode") or "").strip().lower()
+            (self.state.get("temporary_path_confirmed_mode") or "").strip().lower()
         )
         if not confirmed_path or not confirmed_repo or not confirmed_mode:
             return False
@@ -1814,21 +1823,21 @@ class WebAgentBackend:
         resolved = str(self._safe_resolve(path))
         return resolved == confirmed_path and confirmed_mode in ("use-as-is", "reset")
 
-    def _set_sync_repo_confirmation(
+    def _set_temporary_path_confirmation(
         self, path: Path, repo_slug: str, mode: str
     ) -> None:
-        self.state["sync_repo_confirmed_path"] = str(self._safe_resolve(path))
-        self.state["sync_repo_confirmed_repo"] = (repo_slug or "").strip().lower()
-        self.state["sync_repo_confirmed_mode"] = (mode or "").strip().lower()
-        self.state["sync_repo_confirmed_at"] = to_iso_time(datetime.now())
+        self.state["temporary_path_confirmed_path"] = str(self._safe_resolve(path))
+        self.state["temporary_path_confirmed_repo"] = (repo_slug or "").strip().lower()
+        self.state["temporary_path_confirmed_mode"] = (mode or "").strip().lower()
+        self.state["temporary_path_confirmed_at"] = to_iso_time(datetime.now())
         save_config(self.state)
 
-    def _probe_sync_repo(
+    def _probe_temporary_path(
         self, path: Path | None, repo_slug: str, auto_start: bool
     ) -> dict:
-        with self._sync_repo_task_lock:
-            task_active = self._sync_repo_task_active
-            task_path = self._sync_repo_task_path
+        with self._temporary_path_task_lock:
+            task_active = self._temporary_path_task_active
+            task_path = self._temporary_path_task_path
         if not path:
             return {
                 "status": "disabled",
@@ -1842,7 +1851,7 @@ class WebAgentBackend:
                 "taskPath": task_path,
             }
         resolved = str(self._safe_resolve(path))
-        can_reset = self._is_safe_sync_repo_target(path)
+        can_reset = self._is_safe_temporary_path_target(path)
         expected_repo = (repo_slug or "").strip().lower()
         if not can_reset:
             return {
@@ -2024,7 +2033,7 @@ class WebAgentBackend:
         if (
             needs_confirmation
             and status == "git-expected-usable"
-            and self._is_sync_repo_confirmed(path, expected_repo)
+            and self._is_temporary_path_confirmed(path, expected_repo)
         ):
             needs_confirmation = False
             ready = True
@@ -2044,7 +2053,7 @@ class WebAgentBackend:
                     "taskActive": False,
                     "taskPath": "",
                 }
-            started = self._start_sync_repo_clone(
+            started = self._start_temporary_path_clone(
                 path, expected_repo, reset_first=False
             )
             if started:
@@ -2077,36 +2086,38 @@ class WebAgentBackend:
             "taskPath": "",
         }
 
-    def _start_sync_repo_clone(
+    def _start_temporary_path_clone(
         self, path: Path, repo_slug: str, reset_first: bool
     ) -> bool:
         cancel_event = threading.Event()
-        with self._sync_repo_task_lock:
-            if self._sync_repo_task_active:
+        with self._temporary_path_task_lock:
+            if self._temporary_path_task_active:
                 return False
-            self._sync_repo_task_active = True
-            self._sync_repo_task_phase = "resetting" if reset_first else "cloning"
-            self._sync_repo_task_progress = 0.0
-            self._sync_repo_task_message = "Preparing Temporary Path"
-            self._sync_repo_task_path = str(self._safe_resolve(path))
-            self._sync_repo_task_cancel_event = cancel_event
-            self._sync_repo_git_pid = None
+            self._temporary_path_task_active = True
+            self._temporary_path_task_phase = "resetting" if reset_first else "cloning"
+            self._temporary_path_task_progress = 0.0
+            self._temporary_path_task_message = "Preparing Temporary Path"
+            self._temporary_path_task_path = str(self._safe_resolve(path))
+            self._temporary_path_task_cancel_event = cancel_event
+            self._temporary_path_git_pid = None
 
         repo_url = f"https://github.com/{repo_slug}.git"
 
         def runner() -> None:
             try:
-                resolved = Path(self._sync_repo_task_path)
-                pid_file = self._sync_repo_pid_file(resolved)
+                resolved = Path(self._temporary_path_task_path)
+                pid_file = self._temporary_path_pid_file(resolved)
                 last_clear_failures: list[str] = []
                 if cancel_event.is_set():
-                    self._update_sync_repo_task("error", 0.0, "Canceled")
+                    self._update_temporary_path_task("error", 0.0, "Canceled")
                     return
-                if not self._is_safe_sync_repo_target(resolved):
+                if not self._is_safe_temporary_path_target(resolved):
                     self._append_notice(
                         "Reset/clone blocked: target path is not allowed", level="ERROR"
                     )
-                    self._update_sync_repo_task("error", 0.0, "Unsafe Temporary Path")
+                    self._update_temporary_path_task(
+                        "error", 0.0, "Unsafe Temporary Path"
+                    )
                     return
 
                 def _on_rmtree_error(func, target, exc_info) -> None:  # noqa: ANN001
@@ -2166,7 +2177,7 @@ class WebAgentBackend:
 
                 if reset_first:
                     self._append_notice("Temporary Path reset started", level="WARN")
-                    self._update_sync_repo_task(
+                    self._update_temporary_path_task(
                         "resetting", 0.05, "Clearing Temporary Path folder"
                     )
                 else:
@@ -2179,15 +2190,17 @@ class WebAgentBackend:
                     self._append_notice(
                         f"Temporary Path clone failed: {exc}", level="ERROR"
                     )
-                    self._update_sync_repo_task("error", 0.0, "Clone failed")
+                    self._update_temporary_path_task("error", 0.0, "Clone failed")
                     return
 
                 if cancel_event.is_set():
-                    self._update_sync_repo_task("error", 0.0, "Canceled")
+                    self._update_temporary_path_task("error", 0.0, "Canceled")
                     return
 
                 if reset_first:
-                    self._terminate_sync_repo_pid_file(resolved, reason="Reset & Clone")
+                    self._terminate_temporary_path_pid_file(
+                        resolved, reason="Reset & Clone"
+                    )
                     ok = clear_dir_contents_strict(resolved)
                     if not ok:
                         kill_result = terminate_git_clone_processes_by_repo_url(
@@ -2212,18 +2225,20 @@ class WebAgentBackend:
                             "Temporary Path reset failed: folder is in use. Close any apps using it and try again.",
                             level="ERROR",
                         )
-                        self._update_sync_repo_task("error", 0.0, "Folder is in use")
+                        self._update_temporary_path_task(
+                            "error", 0.0, "Folder is in use"
+                        )
                         return
 
-                self._update_sync_repo_task("cloning", 0.1, "Cloning repo")
+                self._update_temporary_path_task("cloning", 0.1, "Cloning repo")
 
                 def on_progress(percent: int, line: str) -> None:
                     progress = 0.1 + (max(0, min(100, percent)) / 100.0) * 0.85
-                    self._update_sync_repo_task("cloning", progress, "Cloning...")
+                    self._update_temporary_path_task("cloning", progress, "Cloning...")
 
                 def on_process(process: subprocess.Popen) -> None:
-                    with self._sync_repo_task_lock:
-                        self._sync_repo_git_pid = (
+                    with self._temporary_path_task_lock:
+                        self._temporary_path_git_pid = (
                             int(process.pid) if process.pid else None
                         )
                     try:
@@ -2236,20 +2251,20 @@ class WebAgentBackend:
                 result = clone_repo_with_progress_into_dir(
                     repo_url, resolved, on_progress=on_progress, on_process=on_process
                 )
-                with self._sync_repo_task_lock:
-                    self._sync_repo_git_pid = None
+                with self._temporary_path_task_lock:
+                    self._temporary_path_git_pid = None
                 try:
                     pid_file.unlink(missing_ok=True)
                 except OSError:
                     pass
                 if not result.ok:
                     if cancel_event.is_set():
-                        self._update_sync_repo_task("error", 0.0, "Canceled")
+                        self._update_temporary_path_task("error", 0.0, "Canceled")
                         return
                     self._append_notice(
                         f"Temporary Path clone failed: {result.output}", level="ERROR"
                     )
-                    self._update_sync_repo_task("error", 0.0, "Clone failed")
+                    self._update_temporary_path_task("error", 0.0, "Clone failed")
                     if reset_first:
                         try:
                             clear_dir_contents_strict(resolved, attempts=2)
@@ -2265,44 +2280,46 @@ class WebAgentBackend:
                         "Temporary Path incomplete: calendar data missing. Please retry Reset & Clone.",
                         level="ERROR",
                     )
-                    self._update_sync_repo_task("error", 0.0, "Clone incomplete")
+                    self._update_temporary_path_task("error", 0.0, "Clone incomplete")
                     try:
                         clear_dir_contents_strict(resolved, attempts=2)
                     except Exception:  # noqa: BLE001
                         pass
                     return
 
-                self._set_sync_repo_confirmation(resolved, repo_slug, mode="reset")
+                self._set_temporary_path_confirmation(resolved, repo_slug, mode="reset")
                 self.calendar_events = self._load_calendar_events(resolved)
                 self._calendar_last_loaded = datetime.now()
-                self._update_sync_repo_task("ready", 1.0, "Ready")
+                self._update_temporary_path_task("ready", 1.0, "Ready")
             finally:
-                with self._sync_repo_task_lock:
-                    self._sync_repo_task_active = False
-                    self._sync_repo_task_cancel_event = None
-                    self._sync_repo_git_pid = None
-                    if self._sync_repo_task_phase not in ("ready", "error"):
-                        self._sync_repo_task_phase = "idle"
+                with self._temporary_path_task_lock:
+                    self._temporary_path_task_active = False
+                    self._temporary_path_task_cancel_event = None
+                    self._temporary_path_git_pid = None
+                    if self._temporary_path_task_phase not in ("ready", "error"):
+                        self._temporary_path_task_phase = "idle"
 
         thread = threading.Thread(target=runner, daemon=True)
         thread.start()
         return True
 
-    def _update_sync_repo_task(self, phase: str, progress: float, message: str) -> None:
-        with self._sync_repo_task_lock:
-            self._sync_repo_task_phase = phase
-            self._sync_repo_task_progress = max(0.0, min(1.0, float(progress)))
-            self._sync_repo_task_message = message
+    def _update_temporary_path_task(
+        self, phase: str, progress: float, message: str
+    ) -> None:
+        with self._temporary_path_task_lock:
+            self._temporary_path_task_phase = phase
+            self._temporary_path_task_progress = max(0.0, min(1.0, float(progress)))
+            self._temporary_path_task_message = message
 
     def _maybe_pull_and_sync(self) -> None:
         if self._shutdown_event.is_set():
             return
-        if not self.state.get("enable_sync_repo", False):
+        if not self.state.get("enable_temporary_path", False):
             self._maybe_refresh_calendar_only()
             return
         repo_path = self._resolve_repo_path()
         if not repo_path:
-            if self.state.get("enable_sync_repo", False):
+            if self.state.get("enable_temporary_path", False):
                 return
             self._append_notice("Repository path not configured", level="WARN")
             return
@@ -2377,7 +2394,7 @@ class WebAgentBackend:
     def _pull_and_sync(self) -> None:
         if self._shutdown_event.is_set():
             return
-        if not self.state.get("enable_sync_repo", False):
+        if not self.state.get("enable_temporary_path", False):
             self._pull_calendar_only(force=True)
             return
         repo_path = self._resolve_repo_path()

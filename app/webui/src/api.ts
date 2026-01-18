@@ -19,7 +19,7 @@ type BackendApi = {
   get_settings: () => ApiResult<Settings>;
   save_settings: (payload: Settings) => ApiResult<{ ok: boolean }>;
   frontend_boot_complete?: () => ApiResult<{ ok: boolean }>;
-  get_sync_repo_task: () => ApiResult<{
+  get_temporary_path_task: () => ApiResult<{
     ok: boolean;
     active: boolean;
     phase: string;
@@ -27,9 +27,9 @@ type BackendApi = {
     message: string;
     path: string;
   }>;
-  probe_sync_repo: (payload: {
-    enableSyncRepo: boolean;
-    syncRepoPath: string;
+  probe_temporary_path: (payload: {
+    enableTemporaryPath: boolean;
+    temporaryPath: string;
     autoStart?: boolean;
   }) => ApiResult<{
     ok: boolean;
@@ -45,21 +45,21 @@ type BackendApi = {
     taskActive?: boolean;
     taskPath?: string;
   }>;
-  sync_repo_use_as_is: (payload: { syncRepoPath: string }) => ApiResult<{ ok: boolean; message?: string }>;
-  sync_repo_reset: (payload: { syncRepoPath: string }) => ApiResult<{ ok: boolean; message?: string }>;
+  temporary_path_use_as_is: (payload: { temporaryPath: string }) => ApiResult<{ ok: boolean; message?: string }>;
+  temporary_path_reset: (payload: { temporaryPath: string }) => ApiResult<{ ok: boolean; message?: string }>;
   get_update_state: () => ApiResult<UpdateState>;
   check_updates: () => ApiResult<{ ok: boolean; message?: string }>;
   update_now: () => ApiResult<{ ok: boolean; message?: string }>;
   open_log: () => ApiResult<{ ok: boolean; message?: string }>;
   open_path: (path: string) => ApiResult<{ ok: boolean; message?: string }>;
   add_log: (payload: { message: string; level?: string }) => ApiResult<{ ok: boolean }>;
-  browse_sync_repo: () => ApiResult<{ ok: boolean; path?: string }>;
-  set_sync_repo_path: (path: string) => ApiResult<{ ok: boolean }>;
+  browse_temporary_path: () => ApiResult<{ ok: boolean; path?: string }>;
+  set_temporary_path: (path: string) => ApiResult<{ ok: boolean }>;
   uninstall: (payload: {
     confirm: string;
     removeLogs: boolean;
     removeOutput: boolean;
-    removeSyncRepos: boolean;
+    removeTemporaryPaths: boolean;
   }) => ApiResult<{ ok: boolean; message?: string }>;
   pull_now: () => ApiResult<{ ok: boolean }>;
   sync_now: () => ApiResult<{ ok: boolean }>;
@@ -308,13 +308,13 @@ let mockSettings: Settings = {
   theme: "dark",
   calendarTimezoneMode: "system",
   calendarUtcOffsetMinutes: 0,
-  enableSyncRepo: false,
-  syncRepoPath: "",
+  enableTemporaryPath: false,
+  temporaryPath: "",
   repoPath: "",
   logPath: "C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\XAUUSDCalendar\\\\logs\\\\app.log",
   removeLogs: true,
   removeOutput: false,
-  removeSyncRepos: true,
+  removeTemporaryPaths: true,
   uninstallConfirm: ""
 };
 
@@ -486,56 +486,56 @@ export const backend = {
     }
     return api.add_log(payload);
   },
-  browseSyncRepo: async () => {
+  browseTemporaryPath: async () => {
     const api = await withApi();
-    if (!api || !hasMethod(api, "browse_sync_repo")) {
+    if (!api || !hasMethod(api, "browse_temporary_path")) {
       if (isWebview()) {
         throw new Error("Desktop backend unavailable");
       }
       return { ok: true, path: "" };
     }
-    return api.browse_sync_repo();
+    return api.browse_temporary_path();
   },
-  setSyncRepoPath: async (path: string) => {
+  setTemporaryPathPath: async (path: string) => {
     const api = await withApi();
-    if (!api || !hasMethod(api, "set_sync_repo_path")) {
+    if (!api || !hasMethod(api, "set_temporary_path")) {
       if (isWebview()) {
         throw new Error("Desktop backend unavailable");
       }
       return { ok: true };
     }
-    return api.set_sync_repo_path(path);
+    return api.set_temporary_path(path);
   },
-  getSyncRepoTask: async () => {
+  getTemporaryPathTask: async () => {
     const api = await withApi();
-    if (!api || !hasMethod(api, "get_sync_repo_task")) {
+    if (!api || !hasMethod(api, "get_temporary_path_task")) {
       if (isWebview()) {
         throw new Error("Desktop backend unavailable");
       }
       return { ok: true, active: false, phase: "idle", progress: 0, message: "", path: "" };
     }
-    return api.get_sync_repo_task();
+    return api.get_temporary_path_task();
   },
-  probeSyncRepo: async (payload: { enableSyncRepo: boolean; syncRepoPath: string; autoStart?: boolean }) => {
+  probeTemporaryPath: async (payload: { enableTemporaryPath: boolean; temporaryPath: string; autoStart?: boolean }) => {
     const api = await withApi();
-    if (!api || !hasMethod(api, "probe_sync_repo")) {
+    if (!api || !hasMethod(api, "probe_temporary_path")) {
       if (isWebview()) {
         throw new Error("Desktop backend unavailable");
       }
       const uiCheck = (
         window as unknown as {
           __ui_check__?: {
-            mockProbeSyncRepo?:
+            mockProbeTemporaryPath?:
               | Record<string, unknown>
-              | ((payload: { enableSyncRepo: boolean; syncRepoPath: string; autoStart?: boolean }) => unknown);
+              | ((payload: { enableTemporaryPath: boolean; temporaryPath: string; autoStart?: boolean }) => unknown);
           };
         }
       ).__ui_check__;
-      if (uiCheck?.mockProbeSyncRepo) {
+      if (uiCheck?.mockProbeTemporaryPath) {
         const mocked =
-          typeof uiCheck.mockProbeSyncRepo === "function"
-            ? uiCheck.mockProbeSyncRepo(payload)
-            : uiCheck.mockProbeSyncRepo;
+          typeof uiCheck.mockProbeTemporaryPath === "function"
+            ? uiCheck.mockProbeTemporaryPath(payload)
+            : uiCheck.mockProbeTemporaryPath;
         return {
           ok: true,
           status: "mock",
@@ -543,7 +543,7 @@ export const backend = {
           needsConfirmation: false,
           canUseAsIs: false,
           canReset: false,
-          path: payload.syncRepoPath || "",
+          path: payload.temporaryPath || "",
           message: "",
           ...(mocked as Record<string, unknown>)
         };
@@ -555,37 +555,37 @@ export const backend = {
         needsConfirmation: false,
         canUseAsIs: false,
         canReset: false,
-        path: payload.syncRepoPath || "",
+        path: payload.temporaryPath || "",
         message: ""
       };
     }
-    return api.probe_sync_repo(payload);
+    return api.probe_temporary_path(payload);
   },
-  syncRepoUseAsIs: async (syncRepoPath: string) => {
+  temporaryPathUseAsIs: async (temporaryPath: string) => {
     const api = await withApi();
-    if (!api || !hasMethod(api, "sync_repo_use_as_is")) {
+    if (!api || !hasMethod(api, "temporary_path_use_as_is")) {
       if (isWebview()) {
         throw new Error("Desktop backend unavailable");
       }
       return { ok: true };
     }
-    return api.sync_repo_use_as_is({ syncRepoPath });
+    return api.temporary_path_use_as_is({ temporaryPath });
   },
-  syncRepoReset: async (syncRepoPath: string) => {
+  temporaryPathReset: async (temporaryPath: string) => {
     const api = await withApi();
-    if (!api || !hasMethod(api, "sync_repo_reset")) {
+    if (!api || !hasMethod(api, "temporary_path_reset")) {
       if (isWebview()) {
         throw new Error("Desktop backend unavailable");
       }
       return { ok: true };
     }
-    return api.sync_repo_reset({ syncRepoPath });
+    return api.temporary_path_reset({ temporaryPath });
   },
   uninstall: async (payload: {
     confirm: string;
     removeLogs: boolean;
     removeOutput: boolean;
-    removeSyncRepos: boolean;
+    removeTemporaryPaths: boolean;
   }) => {
     const api = await withApi();
     if (!api || !hasMethod(api, "uninstall")) {
