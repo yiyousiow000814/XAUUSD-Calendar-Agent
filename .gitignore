@@ -19,9 +19,9 @@ scripts/calendar/workflow/__pycache__/
 
 app/webui/dist/
 app/webui/node_modules/
-ui-tests/node_modules/
-ui-tests/artifacts/
-ui-tests/playwright-report/
+app/tests-ui/node_modules/
+app/tests-ui/artifacts/
+app/tests-ui/playwright-report/
 node_modules/
 
 # Local UI/self-check artifacts

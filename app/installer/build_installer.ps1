@@ -10,7 +10,7 @@ $data = Join-Path $RepoRoot "app\assets"
 $webuiRoot = Join-Path $RepoRoot "app\webui"
 $webuiDist = Join-Path $webuiRoot "dist"
 $buildRoot = Join-Path $env:TEMP "xauusd_build"
-$issPath = Join-Path $RepoRoot "installer\XAUUSDCalendarAgent.iss"
+$issPath = Join-Path $RepoRoot "app\installer\XAUUSDCalendarAgent.iss"
 $appRequirements = Join-Path $RepoRoot "requirements-app.txt"
 
 New-Item -ItemType Directory -Force -Path $buildRoot | Out-Null
@@ -92,7 +92,7 @@ pyinstaller --onefile --noconsole --name "XAUUSD Calendar Agent" `
     --distpath $RepoRoot `
     --workpath (Join-Path $buildRoot "build") `
     --specpath (Join-Path $buildRoot "spec") `
-    (Join-Path $RepoRoot "app\web_app.py")
+    (Join-Path $RepoRoot "app\\web_app.py")
 
 if ($LASTEXITCODE -ne 0) {
     Remove-Item -Recurse -Force $buildRoot -ErrorAction SilentlyContinue
@@ -104,10 +104,10 @@ Remove-Item -Recurse -Force $buildRoot
 $pf86 = [Environment]::GetFolderPath("ProgramFilesX86")
 $pf = [Environment]::GetFolderPath("ProgramFiles")
 $isccCandidates = @(
-    (Join-Path $pf86 "Inno Setup 6\ISCC.exe"),
-    (Join-Path $pf "Inno Setup 6\ISCC.exe"),
-    "C:\Program Files (x86)\Inno Setup 6\ISCC.exe",
-    "C:\Program Files\Inno Setup 6\ISCC.exe"
+    (Join-Path $pf86 "Inno Setup 6\\ISCC.exe"),
+    (Join-Path $pf "Inno Setup 6\\ISCC.exe"),
+    "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe",
+    "C:\\Program Files\\Inno Setup 6\\ISCC.exe"
 )
 $iscc = $isccCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
 if (-not $iscc) {

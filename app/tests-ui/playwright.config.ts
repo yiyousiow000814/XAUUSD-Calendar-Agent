@@ -4,7 +4,7 @@ const baseURL = process.env.UI_BASE_URL || "http://127.0.0.1:4173";
 const shouldStartServer = !process.env.UI_BASE_URL;
 
 export default defineConfig({
-  testDir: "./tests",
+  testDir: "./specs",
   timeout: 60000,
   expect: { timeout: 10000 },
   outputDir: "./artifacts/test-results",

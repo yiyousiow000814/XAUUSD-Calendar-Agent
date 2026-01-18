@@ -199,7 +199,7 @@ jobs:
       - name: Build installer
         shell: pwsh
         run: |
-          .\scripts\build_installer.ps1 -RepoRoot (Resolve-Path ".")
+          .\app\installer\build_installer.ps1 -RepoRoot (Resolve-Path ".")
           if (-not (Test-Path "Setup.exe")) {
             throw "Setup.exe not found after build."
           }

@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+﻿import { spawn } from "node:child_process";
 import { promises as fs } from "node:fs";
 import * as net from "node:net";
 import path from "node:path";
@@ -39,16 +39,16 @@ import {
 import { generateReport } from "./ui-check/report.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(__dirname, "..", "..");
+const repoRoot = path.resolve(__dirname, "..", "..", "..");
 const resolveArtifactsRoot = () => {
   if (process.env.UI_CHECK_OUTPUT_DIR) {
     return path.resolve(process.env.UI_CHECK_OUTPUT_DIR);
   }
   const tag = process.env.UI_CHECK_OUTPUT_TAG;
   if (tag) {
-    return path.resolve(repoRoot, "artifacts", "ui-check", tag);
+    return path.resolve(repoRoot, "app", "tests-ui", "artifacts", "ui-check", tag);
   }
-  return path.resolve(repoRoot, "artifacts", "ui-check");
+  return path.resolve(repoRoot, "app", "tests-ui", "artifacts", "ui-check");
 };
 const artifactsRoot = resolveArtifactsRoot();
 const snapshotsDir = path.join(artifactsRoot, "snapshots");
@@ -1710,7 +1710,7 @@ const main = async () => {
   const runIsolatedThemes = async (themeList) => {
     const baseArtifactsRoot = process.env.UI_CHECK_OUTPUT_DIR
       ? path.resolve(process.env.UI_CHECK_OUTPUT_DIR)
-      : path.resolve(repoRoot, "artifacts", "ui-check");
+      : path.resolve(repoRoot, "app", "tests-ui", "artifacts", "ui-check");
     const baseReportPath = path.join(baseArtifactsRoot, "report.html");
     await ensureDir(baseArtifactsRoot);
     await clearDir(baseArtifactsRoot);
@@ -2193,7 +2193,7 @@ const main = async () => {
           if (delta > 0.9) {
             return {
               ok: false,
-              reason: `footer bottom offset drifted (offset=${bottomOffset.toFixed(2)}px, Δ=${delta.toFixed(2)}px)`
+              reason: `footer bottom offset drifted (offset=${bottomOffset.toFixed(2)}px, delta=${delta.toFixed(2)}px)`
             };
           }
           return { ok: true, reason: "" };
@@ -2309,7 +2309,7 @@ const main = async () => {
       scenario: "theme-toggle",
       theme: theme.key,
       state: "after-toggle",
-      label: `after-toggle (${themeBefore.mode ?? themeBefore.theme}→${themeAfterToggle.mode ?? themeAfterToggle.theme})`,
+      label: `after-toggle (${themeBefore.mode ?? themeBefore.theme}->${themeAfterToggle.mode ?? themeAfterToggle.theme})`,
       path: await captureState(page, "theme-toggle", theme.key, "after-toggle")
     });
     await setTheme(page, theme.mode, theme.scheme);
@@ -2375,7 +2375,7 @@ const main = async () => {
       });
       const delta = Math.abs(after.scrollTop - baseline.scrollTop);
       if (delta > 1.5) {
-        throw new Error(`Settings scroll jumped after open (Δ=${delta.toFixed(2)}px).`);
+        throw new Error(`Settings scroll jumped after open (delta=${delta.toFixed(2)}px).`);
       }
       if (baseline.scrollTop < 40) {
         throw new Error(`Expected settings to open already scrolled to paths (scrollTop=${baseline.scrollTop.toFixed(1)}).`);
@@ -2445,7 +2445,7 @@ const main = async () => {
       });
       const delta = Math.abs(afterHeight - layoutHeightBefore);
       if (delta > 0.6) {
-        throw new Error(`App height changed after opening Settings (Δ=${delta.toFixed(2)}px).`);
+        throw new Error(`App height changed after opening Settings (delta=${delta.toFixed(2)}px).`);
       }
     });
 
@@ -3485,9 +3485,9 @@ const main = async () => {
           const topDelta = tops.length ? Math.max(...tops) - Math.min(...tops) : 0;
           if (widthDelta > 0.75 || heightDelta > 0.75 || leftDelta > 0.75 || topDelta > 0.75) {
             throw new Error(
-              `Sync target shifted during flash (widthΔ=${widthDelta.toFixed(2)}px, heightΔ=${heightDelta.toFixed(
+              `Sync target shifted during flash (widthDelta=${widthDelta.toFixed(2)}px, heightDelta=${heightDelta.toFixed(
                 2
-              )}px, leftΔ=${leftDelta.toFixed(2)}px, topΔ=${topDelta.toFixed(2)}px).`
+              )}px, leftDelta=${leftDelta.toFixed(2)}px, topDelta=${topDelta.toFixed(2)}px).`
             );
           }
           return true;
@@ -4239,3 +4239,5 @@ main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
+
+

@@ -4,7 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(__dirname, "..", "..");
+const repoRoot = path.resolve(__dirname, "..", "..", "..");
 
 let running = false;
 let queued = false;
@@ -12,7 +12,7 @@ let queued = false;
 const runCheck = () =>
   new Promise((resolve, reject) => {
     const child = spawn("node", ["scripts/ui-check.mjs"], {
-      cwd: path.join(repoRoot, "ui-tests"),
+      cwd: path.join(repoRoot, "app", "tests-ui"),
       shell: true,
       stdio: "inherit"
     });
@@ -45,8 +45,8 @@ const schedule = () => {
 const watchPaths = [
   path.join(repoRoot, "app", "webui", "src"),
   path.join(repoRoot, "app", "webui", "index.html"),
-  path.join(repoRoot, "ui-tests", "tests"),
-  path.join(repoRoot, "ui-tests", "helpers")
+  path.join(repoRoot, "app", "tests-ui", "specs"),
+  path.join(repoRoot, "app", "tests-ui", "helpers")
 ];
 
 const watcher = chokidar.watch(watchPaths, {

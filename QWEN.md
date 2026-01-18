@@ -35,15 +35,15 @@ This document mirrors `AGENTS.md` and adds Qwen-specific tips.
 ## Codex Execution Policy
 - Avoid running commands that generate binary artifacts. When unavoidable, remove the binaries immediately and exclude them from commits.
 - `Setup.exe` and `XAUUSD Calendar Agent.exe` are build outputs. They must remain gitignored and must never be committed.
-- After completing the verification checklist for a task (format/lint/tests as applicable), run `scripts/build_installer.ps1` to regenerate the installer executables locally.
+- After completing the verification checklist for a task (format/lint/tests as applicable), run `app/installer/build_installer.ps1` to regenerate the installer executables locally.
 - Publish installer executables via GitHub Releases assets, not in the repository.
-- If `scripts/build_installer.ps1` fails due to the app being open or files being locked, force close the running app/process and re-run the build immediately.
+- If `app/installer/build_installer.ps1` fails due to the app being open or files being locked, force close the running app/process and re-run the build immediately.
 
 ## Clipboard Screenshots
 - Pasted images named `codex-clipboard-*.png` are saved in `%TEMP%` (e.g., `%USERPROFILE%\AppData\Local\Temp`) rather than root `/temp`.
 - If a request includes clipboard screenshots, open them with the image viewer tool before responding and explicitly note in the response that they were reviewed.
 - When a UI issue is found via images or ui-check artifacts, expand ui-check coverage (new assertions, screenshots, or multi-step scenarios) so the issue becomes detectable in future runs. Keep improving the subjective review loop based on those artifacts.
-- For each UI change, run `npm run ui:check` and generate a fresh `artifacts/ui-check/report.html`.
+- For each UI change, run `npm run ui:check` and generate a fresh `app/tests-ui/artifacts/ui-check/report.html`.
 - After each UI change, randomly sample 5 Light/Dark `ui-check` images and review them one by one; if any issue is found, fix it, re-run `ui:check`, then randomly sample another 5 Light/Dark images and repeat until no issues remain. System Light/Dark can be skipped unless a discrepancy is suspected.
 
 ## UI Maintainability
