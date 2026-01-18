@@ -15,6 +15,9 @@ import {
   assertImpactFilterNotStarved,
   assertHistoryRespectsImpactFilter,
   assertImpactTooltips,
+  assertCurrentEventBadge,
+  assertCurrentEventHeartbeat,
+  assertNextEventsReorderAnim,
   assertNextEventsControlsCentered,
   assertSearchInputVisibility,
   assertHistoryScrollable,
@@ -613,18 +616,114 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
       syncActive: false,
       restartInSeconds: 0,
       events: [
-        { time: "05-01-2026 01:30", cur: "USD", impact: "High", event: "CPI (YoY)", countdown: "18h 27m" },
-        { time: "05-01-2026 02:00", cur: "USD", impact: "High", event: "Core CPI (YoY)", countdown: "18h 57m" },
-        { time: "05-01-2026 02:30", cur: "USD", impact: "High", event: "FOMC Statement", countdown: "19h 27m" },
-        { time: "05-01-2026 03:00", cur: "USD", impact: "High", event: "Fed Press Conference", countdown: "19h 57m" },
-        { time: "05-01-2026 03:30", cur: "EUR", impact: "Medium", event: "ECB Minutes", countdown: "20h 27m" },
-        { time: "05-01-2026 04:00", cur: "GBP", impact: "Medium", event: "Retail Sales", countdown: "20h 57m" },
-        { time: "05-01-2026 04:30", cur: "JPY", impact: "Medium", event: "Industrial Production", countdown: "21h 27m" },
-        { time: "05-01-2026 05:00", cur: "AUD", impact: "Medium", event: "Employment Change", countdown: "21h 57m" },
-        { time: "05-01-2026 05:30", cur: "USD", impact: "Low", event: "MBA Mortgage Applications", countdown: "22h 27m" },
-        { time: "05-01-2026 06:00", cur: "EUR", impact: "Low", event: "German Trade Balance", countdown: "22h 57m" },
-        { time: "05-01-2026 06:30", cur: "GBP", impact: "Low", event: "UK Manufacturing Output", countdown: "23h 27m" },
-        { time: "05-01-2026 07:00", cur: "CAD", impact: "Low", event: "Housing Starts", countdown: "23h 57m" }
+        {
+          id: "evt-2026-01-05-0130-usd-cpi-yoy",
+          state: "upcoming",
+          time: "05-01-2026 01:30",
+          cur: "USD",
+          impact: "High",
+          event: "CPI (YoY)",
+          countdown: "18h 27m"
+        },
+        {
+          id: "evt-2026-01-05-0200-usd-core-cpi-yoy",
+          state: "upcoming",
+          time: "05-01-2026 02:00",
+          cur: "USD",
+          impact: "High",
+          event: "Core CPI (YoY)",
+          countdown: "18h 57m"
+        },
+        {
+          id: "evt-2026-01-05-0230-usd-fomc-statement",
+          state: "upcoming",
+          time: "05-01-2026 02:30",
+          cur: "USD",
+          impact: "High",
+          event: "FOMC Statement",
+          countdown: "19h 27m"
+        },
+        {
+          id: "evt-2026-01-05-0300-usd-fed-press-conference",
+          state: "upcoming",
+          time: "05-01-2026 03:00",
+          cur: "USD",
+          impact: "High",
+          event: "Fed Press Conference",
+          countdown: "19h 57m"
+        },
+        {
+          id: "evt-2026-01-05-0330-eur-ecb-minutes",
+          state: "upcoming",
+          time: "05-01-2026 03:30",
+          cur: "EUR",
+          impact: "Medium",
+          event: "ECB Minutes",
+          countdown: "20h 27m"
+        },
+        {
+          id: "evt-2026-01-05-0400-gbp-retail-sales",
+          state: "upcoming",
+          time: "05-01-2026 04:00",
+          cur: "GBP",
+          impact: "Medium",
+          event: "Retail Sales",
+          countdown: "20h 57m"
+        },
+        {
+          id: "evt-2026-01-05-0430-jpy-industrial-production",
+          state: "upcoming",
+          time: "05-01-2026 04:30",
+          cur: "JPY",
+          impact: "Medium",
+          event: "Industrial Production",
+          countdown: "21h 27m"
+        },
+        {
+          id: "evt-2026-01-05-0500-aud-employment-change",
+          state: "upcoming",
+          time: "05-01-2026 05:00",
+          cur: "AUD",
+          impact: "Medium",
+          event: "Employment Change",
+          countdown: "21h 57m"
+        },
+        {
+          id: "evt-2026-01-05-0530-usd-mba-mortgage-applications",
+          state: "upcoming",
+          time: "05-01-2026 05:30",
+          cur: "USD",
+          impact: "Low",
+          event: "MBA Mortgage Applications",
+          countdown: "22h 27m"
+        },
+        {
+          id: "evt-2026-01-05-0600-eur-german-trade-balance",
+          state: "upcoming",
+          time: "05-01-2026 06:00",
+          cur: "EUR",
+          impact: "Low",
+          event: "German Trade Balance",
+          countdown: "22h 57m"
+        },
+        {
+          id: "evt-2026-01-05-0630-gbp-uk-manufacturing-output",
+          state: "upcoming",
+          time: "05-01-2026 06:30",
+          cur: "GBP",
+          impact: "Low",
+          event: "UK Manufacturing Output",
+          countdown: "23h 27m"
+        },
+        {
+          id: "evt-2026-01-05-0700-cad-housing-starts",
+          state: "upcoming",
+          time: "05-01-2026 07:00",
+          cur: "CAD",
+          impact: "Low",
+          event: "Housing Starts",
+          countdown: "23h 57m"
+        }
       ],
       pastEvents: [
         { time: "04-01-2026 12:30", cur: "USD", impact: "High", event: "Nonfarm Payrolls", actual: "1.8", forecast: "--", previous: "1.2" },
@@ -1597,6 +1696,20 @@ const main = async () => {
       await runCheck(theme.key, "Split divider not dark", () => assertSplitDividerNotDark(page));
     }
     await runCheck(theme.key, "Events list completeness", () => assertEventsLoaded(page));
+    const eventsCard = page.locator("[data-qa='qa:card:next-events']").first();
+    await runCheck(theme.key, "Next Events reorder animation", () =>
+      assertNextEventsReorderAnim(page, "evt-2026-01-05-0700-cad-housing-starts")
+    );
+    if (await eventsCard.count()) {
+      artifacts.push({
+        scenario: "current-event",
+        theme: theme.key,
+        state: "active",
+        path: await captureState(page, "current-event", theme.key, "active", { element: eventsCard })
+      });
+    }
+    await runCheck(theme.key, "Current event badge", () => assertCurrentEventBadge(page));
+    await runCheck(theme.key, "Current event heartbeat", () => assertCurrentEventHeartbeat(page));
     await runCheck(theme.key, "Next Events controls centered", () =>
       assertNextEventsControlsCentered(page)
     );
@@ -1608,7 +1721,6 @@ const main = async () => {
     await runCheck(theme.key, "History respects impact filter", () =>
       assertHistoryRespectsImpactFilter(page)
     );
-    const eventsCard = page.locator("[data-qa='qa:card:next-events']").first();
     const impactButtons = page.locator("[data-qa='qa:filter:impact'] button.impact-toggle");
     const impactStates = ["low", "mid", "high"];
     if ((await eventsCard.count()) && (await impactButtons.count()) === impactStates.length) {

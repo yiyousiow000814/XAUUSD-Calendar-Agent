@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { EventItem } from "../types";
 import { Select } from "./Select";
 import "./NextEvents.css";
@@ -39,6 +39,54 @@ export function NextEvents({
 }: NextEventsProps) {
   const [query, setQuery] = useState("");
   const showSkeleton = loading && events.length === 0;
+  const rowRefs = useRef(new Map<string, HTMLDivElement>());
+  const prevRects = useRef(new Map<string, DOMRect>());
+
+  const getItemKey = (item: EventItem) =>
+    item.id || `${item.time}|${item.cur}|${item.impact}|${item.event}`;
+
+  useLayoutEffect(() => {
+    if (showSkeleton) return;
+    if (query.trim()) return;
+    if (typeof window === "undefined") return;
+
+    const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const newRects = new Map<string, DOMRect>();
+
+    rowRefs.current.forEach((el, key) => {
+      if (!el) return;
+      newRects.set(key, el.getBoundingClientRect());
+    });
+
+    const prev = prevRects.current;
+    prevRects.current = newRects;
+
+    if (prefersReducedMotion) return;
+    if (!prev.size || !newRects.size) return;
+
+    newRects.forEach((rect, key) => {
+      const prevRect = prev.get(key);
+      if (!prevRect) return;
+      const dy = prevRect.top - rect.top;
+      if (Math.abs(dy) < 1) return;
+
+      const el = rowRefs.current.get(key);
+      if (!el) return;
+
+      // FLIP: invert, then play (smoothly slide to the new position).
+      el.style.transition = "transform 0ms";
+      el.style.transform = `translateY(${dy}px)`;
+      el.style.willChange = "transform";
+
+      window.requestAnimationFrame(() => {
+        el.style.transition = "transform var(--motion-med) var(--motion-ease)";
+        el.style.transform = "";
+        window.setTimeout(() => {
+          if (el.style.willChange === "transform") el.style.willChange = "";
+        }, 360);
+      });
+    });
+  }, [events, query, showSkeleton]);
 
   const renderTime = (value: string) => {
     const [datePart, timePart] = value.split(" ");
@@ -169,25 +217,42 @@ export function NextEvents({
               <span className="event-countdown mono align-right">--</span>
             </div>
           ) : (
-            filtered.map((item: EventItem, index) => (
-              <div
-                className={`event-row ${impactTone(item.impact)}`}
-                key={`${item.time}-${index}`}
-                data-qa="qa:row:next-event"
-              >
-                {renderTime(item.time)}
-                <div className="event-main">
-                  <div className="event-title">
-                    <span className="event-impact" aria-hidden="true" />
-                    <span className="event-name">{item.event}</span>
+            filtered.map((item: EventItem) => {
+              const key = getItemKey(item);
+              const isCurrent = item.state === "current" || item.countdown.toLowerCase() === "current";
+              return (
+                <div
+                  className={`event-row ${impactTone(item.impact)}${isCurrent ? " current" : ""}`}
+                  key={key}
+                  data-qa="qa:row:next-event"
+                  data-qa-row-id={key}
+                  ref={(el) => {
+                    if (el) {
+                      rowRefs.current.set(key, el);
+                      return;
+                    }
+                    rowRefs.current.delete(key);
+                  }}
+                >
+                  {renderTime(item.time)}
+                  <div className="event-main">
+                    <div className="event-title">
+                      <span className="event-impact" aria-hidden="true" />
+                      <span className="event-name">{item.event}</span>
+                    </div>
+                    <div className="event-meta">
+                      <span className="event-cur mono">{item.cur}</span>
+                    </div>
                   </div>
-                  <div className="event-meta">
-                    <span className="event-cur mono">{item.cur}</span>
-                  </div>
+                  <span
+                    className={`event-countdown mono align-right${isCurrent ? " current" : ""}`}
+                    data-qa={isCurrent ? "qa:status:current" : undefined}
+                  >
+                    {isCurrent ? "Current" : item.countdown}
+                  </span>
                 </div>
-                <span className="event-countdown mono align-right">{item.countdown}</span>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>

@@ -16,6 +16,8 @@ export type UiModal = {
 };
 
 export type EventItem = {
+  id: string;
+  state?: "upcoming" | "current";
   time: string;
   cur: string;
   impact: string;

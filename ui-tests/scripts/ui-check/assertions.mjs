@@ -291,6 +291,159 @@ export const assertNextEventsControlsCentered = async (page) => {
   }
 };
 
+export const assertCurrentEventBadge = async (page) => {
+  const result = await page.evaluate(() => {
+    const badge = document.querySelector("[data-qa='qa:status:current']");
+    if (!badge) return { ok: false, reason: "current badge missing" };
+    const text = (badge.textContent || "").trim();
+    const style = window.getComputedStyle(badge);
+    return {
+      ok: true,
+      text,
+      color: style.color,
+      opacity: Number.parseFloat(style.opacity || "1")
+    };
+  });
+
+  if (!result.ok) {
+    throw new Error(`Current badge missing: ${result.reason}`);
+  }
+  if (result.text !== "Current") {
+    throw new Error(`Current badge text mismatch: expected \"Current\", got \"${result.text}\"`);
+  }
+  if (result.opacity < 0.8) {
+    throw new Error(`Current badge too faint (opacity=${result.opacity})`);
+  }
+};
+
+export const assertCurrentEventHeartbeat = async (page) => {
+  const result = await page.evaluate(() => {
+    const impact = document.querySelector(
+      "[data-qa='qa:card:next-events'] .event-row.current .event-impact"
+    );
+    if (!impact) return { ok: false, reason: "current impact dot missing" };
+    const after = window.getComputedStyle(impact, "::after");
+    return {
+      ok: true,
+      animationName: after.animationName,
+      animationDuration: after.animationDuration
+    };
+  });
+
+  if (!result.ok) {
+    throw new Error(`Current heartbeat missing: ${result.reason}`);
+  }
+  if (!result.animationName || result.animationName === "none") {
+    throw new Error(`Current heartbeat animation missing (name=${result.animationName})`);
+  }
+  if (!String(result.animationName).includes("current-heartbeat")) {
+    throw new Error(`Unexpected heartbeat animation: ${result.animationName}`);
+  }
+  if (!result.animationDuration || result.animationDuration === "0s") {
+    throw new Error(`Current heartbeat animation duration invalid: ${result.animationDuration}`);
+  }
+};
+
+export const assertNextEventsReorderAnim = async (page, rowId) => {
+  const result = await page.evaluate(async (id) => {
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) {
+      return { ok: true, skipped: true, reason: "prefers-reduced-motion" };
+    }
+
+    const refresh = window.__ui_check__?.refresh;
+    if (typeof refresh !== "function") {
+      return { ok: false, reason: "__ui_check__.refresh missing" };
+    }
+
+    const getRow = () =>
+      document.querySelector(
+        `[data-qa='qa:row:next-event'][data-qa-row-id='${CSS.escape(String(id))}']`
+      );
+
+    const setEvents = (events) => {
+      const snap = window.__desktop_snapshot__ || {};
+      window.__desktop_snapshot__ = { ...snap, events };
+    };
+
+    const waitFrame = () => new Promise((r) => requestAnimationFrame(() => r()));
+
+    const baselineEvents = (window.__desktop_snapshot__?.events || []).slice();
+    if (!baselineEvents.length) return { ok: false, reason: "no baseline events" };
+
+    // Ensure the target row is at the bottom first.
+    const targetIndex = baselineEvents.findIndex((evt) => evt?.id === id);
+    if (targetIndex < 0) return { ok: false, reason: `rowId not found in snapshot: ${id}` };
+    const reorderedBaseline = baselineEvents
+      .slice(0, targetIndex)
+      .concat(baselineEvents.slice(targetIndex + 1), [baselineEvents[targetIndex]]);
+    setEvents(reorderedBaseline);
+    refresh();
+    await waitFrame();
+    await waitFrame();
+
+    // Move it to the top and mark current; this should trigger a FLIP transform transition.
+    const target = {
+      ...reorderedBaseline[reorderedBaseline.length - 1],
+      state: "current",
+      countdown: "Current"
+    };
+    const nextEvents = [target, ...reorderedBaseline.slice(0, -1)];
+    setEvents(nextEvents);
+    refresh();
+
+    const samples = [];
+    for (let index = 0; index < 12; index += 1) {
+      await waitFrame();
+      const row = getRow();
+      if (!row) {
+        samples.push({ frame: index, missing: true });
+        continue;
+      }
+      const style = window.getComputedStyle(row);
+      samples.push({
+        frame: index,
+        transform: style.transform,
+        transitionProperty: style.transitionProperty,
+        transitionDuration: style.transitionDuration
+      });
+    }
+
+    const sawTransform = samples.some(
+      (s) =>
+        s &&
+        !s.missing &&
+        typeof s.transform === "string" &&
+        s.transform !== "none" &&
+        s.transform !== "matrix(1, 0, 0, 1, 0, 0)"
+    );
+    const sawTransition = samples.some(
+      (s) =>
+        s &&
+        !s.missing &&
+        typeof s.transitionProperty === "string" &&
+        s.transitionProperty.includes("transform") &&
+        typeof s.transitionDuration === "string" &&
+        s.transitionDuration !== "0s"
+    );
+
+    if (!sawTransform || !sawTransition) {
+      return { ok: false, reason: "no transform transition sampled", samples };
+    }
+
+    return { ok: true };
+  }, rowId);
+
+  if (!result.ok) {
+    throw new Error(
+      `Next Events reorder animation missing: ${result.reason || "unknown"}\n${JSON.stringify(result)}`
+    );
+  }
+};
+
 export const assertSearchInputVisibility = async (page) => {
   const result = await page.evaluate(() => {
     const card = document.querySelector("[data-qa='qa:card:next-events']");
