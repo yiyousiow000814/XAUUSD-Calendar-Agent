@@ -406,6 +406,7 @@
   transform: scale(0.45);
   /* One steady pulse per cycle (EKG-like), not double-beat. */
   animation: current-heartbeat 2000ms var(--motion-ease) infinite;
+  animation-delay: var(--current-pulse-delay, 0ms);
 }
 
 [data-theme="dark"] .event-row.current .event-impact::after {

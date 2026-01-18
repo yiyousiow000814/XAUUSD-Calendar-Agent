@@ -42,9 +42,42 @@ export function NextEvents({
   const rowRefs = useRef(new Map<string, HTMLDivElement>());
   const prevRects = useRef(new Map<string, DOMRect>());
   const prevFilterSignature = useRef("");
+  const pulseEpochMsRef = useRef<number>(Date.now());
+  const pulseDelayMsByKeyRef = useRef(new Map<string, number>());
 
   const getItemKey = (item: EventItem) =>
     item.id || `${item.time}|${item.cur}|${item.impact}|${item.event}`;
+
+  // Keep all Current pulse animations in sync by aligning them to a shared epoch.
+  // For each item that *becomes* Current, we compute and store a negative delay
+  // so its animation phase matches (now - epoch) % duration.
+  const currentPulseDelayMsByKey = useMemo(() => {
+    const epoch = pulseEpochMsRef.current;
+    const durationMs = 2000;
+    const now = Date.now();
+    const map = pulseDelayMsByKeyRef.current;
+
+    const currentKeys = new Set<string>();
+    events.forEach((item) => {
+      const isCurrent =
+        item.state === "current" || String(item.countdown || "").toLowerCase() === "current";
+      if (!isCurrent) return;
+      currentKeys.add(getItemKey(item));
+    });
+
+    // Drop stored delays for items that are no longer Current.
+    Array.from(map.keys()).forEach((key) => {
+      if (!currentKeys.has(key)) map.delete(key);
+    });
+
+    // Assign delay for newly Current items.
+    currentKeys.forEach((key) => {
+      if (map.has(key)) return;
+      map.set(key, -((now - epoch) % durationMs));
+    });
+
+    return map;
+  }, [events]);
 
   const filterSignature = useMemo(() => {
     const impacts = [...impactFilter].sort().join(",");
@@ -275,12 +308,18 @@ export function NextEvents({
             filtered.map((item: EventItem) => {
               const key = getItemKey(item);
               const isCurrent = item.state === "current" || item.countdown.toLowerCase() === "current";
+              const pulseDelay = isCurrent ? currentPulseDelayMsByKey.get(key) : undefined;
               return (
                 <div
                   className={`event-row ${impactTone(item.impact)}${isCurrent ? " current" : ""}`}
                   key={key}
                   data-qa="qa:row:next-event"
                   data-qa-row-id={key}
+                  style={
+                    isCurrent && typeof pulseDelay === "number"
+                      ? ({ ["--current-pulse-delay" as any]: `${pulseDelay}ms` } as any)
+                      : undefined
+                  }
                   ref={(el) => {
                     if (el) {
                       rowRefs.current.set(key, el);

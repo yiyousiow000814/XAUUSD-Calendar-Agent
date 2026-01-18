@@ -1032,6 +1032,52 @@ const runCurrentTimelineDemo = async (page) => {
   });
   await wait(800);
   await waitForNoFlipAnim();
+  await page.evaluate(async () => {
+    const sleep = (ms) => new Promise((r) => window.setTimeout(r, ms));
+    const getImpactOpacity = (row) => {
+      const impact = row.querySelector(".event-impact");
+      if (!(impact instanceof HTMLElement)) return null;
+      const after = window.getComputedStyle(impact, "::after");
+      const opacity = Number.parseFloat(after.opacity || "0");
+      return Number.isFinite(opacity) ? opacity : null;
+    };
+
+    const rows = Array.from(
+      document.querySelectorAll("[data-qa='qa:row:next-event'].current")
+    );
+    if (rows.length < 2) throw new Error(`Expected >=2 current rows, got ${rows.length}`);
+
+    // The stored delays can differ (because they were applied at different times),
+    // but the *pulse phase* should be in sync. Sample over ~1 cycle and validate
+    // both rows match when the pulse is visible.
+    const maxWindowMs = 2300;
+    const stepMs = 60;
+    const threshold = 0.08;
+    const diffTolerance = 0.08;
+
+    let sawPulse = false;
+    for (let elapsed = 0; elapsed < maxWindowMs; elapsed += stepMs) {
+      const a = getImpactOpacity(rows[0]);
+      const b = getImpactOpacity(rows[1]);
+      if (a === null || b === null) throw new Error("Unable to read pulse opacity");
+
+      const peak = Math.max(a, b);
+      if (peak >= threshold) {
+        sawPulse = true;
+        const diff = Math.abs(a - b);
+        if (diff > diffTolerance) {
+          throw new Error(`Pulse out of sync (opacity A=${a.toFixed(3)} B=${b.toFixed(3)})`);
+        }
+        break;
+      }
+      await sleep(stepMs);
+    }
+
+    if (!sawPulse) {
+      // Non-fatal-ish, but we want a deterministic check in CI.
+      throw new Error("Unable to sample a visible pulse within one cycle");
+    }
+  });
 
   // C becomes Current (> 1 minute later) and slides to the top.
   // D is "soon current" (1m) and is also allowed to animate movement.
