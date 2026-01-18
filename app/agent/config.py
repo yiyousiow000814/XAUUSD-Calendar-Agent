@@ -7,6 +7,7 @@ from pathlib import Path
 
 APP_NAME = "XAUUSDCalendarAgent"
 _DEFAULT_REPO_PATH: str | None = None
+_SCHEMA_VERSION = 2
 
 
 def _get_appdata_dir() -> Path:
@@ -56,15 +57,16 @@ def get_default_repo_path() -> str:
 
 def get_default_config() -> dict:
     return {
+        "schema_version": _SCHEMA_VERSION,
         "repo_path": get_default_repo_path(),
-        "sync_repo_path": "",
+        "temporary_path": "",
         "output_dir": "",
         "output_dir_last_sync_at": {},
-        "enable_sync_repo": False,
-        "sync_repo_confirmed_path": "",
-        "sync_repo_confirmed_repo": "",
-        "sync_repo_confirmed_mode": "",
-        "sync_repo_confirmed_at": "",
+        "enable_temporary_path": False,
+        "temporary_path_confirmed_path": "",
+        "temporary_path_confirmed_repo": "",
+        "temporary_path_confirmed_mode": "",
+        "temporary_path_confirmed_at": "",
         "auto_pull_days": 1,
         "check_interval_minutes": 360,
         "auto_sync_after_pull": True,
@@ -89,7 +91,7 @@ def get_default_config() -> dict:
         "theme_preference": "system",
         "split_ratio": 0.66,
         "repo_path_history": [],
-        "sync_repo_path_history": [],
+        "temporary_path_history": [],
         "output_dir_history": [],
         "successful_repo_paths": [],
         "created_paths": [],

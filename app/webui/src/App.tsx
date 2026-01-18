@@ -12,7 +12,7 @@ import { HistoryPanel } from "./components/HistoryPanel";
 import { InitOverlay } from "./components/InitOverlay";
 import { NextEvents } from "./components/NextEvents";
 import { SettingsModal } from "./components/SettingsModal";
-import { SyncRepoWarningModal, type SyncRepoWarningMode } from "./components/SyncRepoWarningModal";
+import { TemporaryPathWarningModal, type TemporaryPathWarningMode } from "./components/TemporaryPathWarningModal";
 import { ToastStack } from "./components/ToastStack";
 import { UninstallModal } from "./components/UninstallModal";
 import { CURRENCY_OPTIONS } from "./constants/currencyOptions";
@@ -59,18 +59,18 @@ const emptySettings: Settings = {
   theme: "system",
   calendarTimezoneMode: "system",
   calendarUtcOffsetMinutes: 0,
-  enableSyncRepo: false,
-  syncRepoPath: "",
+  enableTemporaryPath: false,
+  temporaryPath: "",
   repoPath: "",
   logPath: "",
   removeLogs: true,
   removeOutput: false,
-  removeSyncRepos: true,
+  removeTemporaryPaths: true,
   uninstallConfirm: ""
 };
 
-type SyncRepoWarningContext = {
-  mode: SyncRepoWarningMode;
+type TemporaryPathWarningContext = {
+  mode: TemporaryPathWarningMode;
   status: string;
   message: string;
   path: string;
@@ -140,14 +140,14 @@ export default function App() {
   const [uninstallOpen, setUninstallOpen] = useState<boolean>(false);
   const [uninstallClosing, setUninstallClosing] = useState<boolean>(false);
   const [uninstallEntering, setUninstallEntering] = useState<boolean>(false);
-  const [syncRepoNote, setSyncRepoNote] = useState<{
+  const [temporaryPathNote, setTemporaryPathNote] = useState<{
     tone: "info" | "warn" | "error";
     text: string;
   } | null>(null);
-  const [syncRepoWarningOpen, setSyncRepoWarningOpen] = useState<boolean>(false);
-  const [syncRepoWarningClosing, setSyncRepoWarningClosing] = useState<boolean>(false);
-  const [syncRepoWarningEntering, setSyncRepoWarningEntering] = useState<boolean>(false);
-  const [syncRepoWarningContext, setSyncRepoWarningContext] = useState<SyncRepoWarningContext | null>(
+  const [temporaryPathWarningOpen, setTemporaryPathWarningOpen] = useState<boolean>(false);
+  const [temporaryPathWarningClosing, setTemporaryPathWarningClosing] = useState<boolean>(false);
+  const [temporaryPathWarningEntering, setTemporaryPathWarningEntering] = useState<boolean>(false);
+  const [temporaryPathWarningContext, setTemporaryPathWarningContext] = useState<TemporaryPathWarningContext | null>(
     null
   );
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
@@ -156,19 +156,19 @@ export default function App() {
   const [alertCountdown, setAlertCountdown] = useState<number>(0);
   const [alertCountdownArmed, setAlertCountdownArmed] = useState<boolean>(false);
   const [alertContext, setAlertContext] = useState<AlertContext | null>(null);
-  const [syncRepoTask, setSyncRepoTask] = useState<{
+  const [temporaryPathTask, setTemporaryPathTask] = useState<{
     active: boolean;
     phase: string;
     progress: number;
     message: string;
     path: string;
   }>({ active: false, phase: "idle", progress: 0, message: "", path: "" });
-  const [syncRepoDisplayActive, setSyncRepoDisplayActive] = useState(false);
-  const [syncRepoDisplayProgress, setSyncRepoDisplayProgress] = useState(0);
-  const [syncRepoDisplayMessage, setSyncRepoDisplayMessage] = useState("");
-  const syncRepoDisplayStartRef = useRef<number | null>(null);
-  const syncRepoDisplayTimerRef = useRef<number | null>(null);
-  const syncRepoDisplayFinishTimerRef = useRef<number | null>(null);
+  const [temporaryPathDisplayActive, setTemporaryPathDisplayActive] = useState(false);
+  const [temporaryPathDisplayProgress, setTemporaryPathDisplayProgress] = useState(0);
+  const [temporaryPathDisplayMessage, setTemporaryPathDisplayMessage] = useState("");
+  const temporaryPathDisplayStartRef = useRef<number | null>(null);
+  const temporaryPathDisplayTimerRef = useRef<number | null>(null);
+  const temporaryPathDisplayFinishTimerRef = useRef<number | null>(null);
   const [initState, setInitState] = useState<"loading" | "ready" | "error">(
     isUiCheckRuntime ? "loading" : "ready"
   );
@@ -208,16 +208,16 @@ export default function App() {
   const settingsRef = useRef<Settings>(emptySettings);
   const savedSettingsRef = useRef<Settings>(emptySettings);
   const settingsOpenRef = useRef(false);
-  const dirtySyncRepoRef = useRef(false);
+  const dirtyTemporaryPathRef = useRef(false);
   const dirtyOutputDirRef = useRef(false);
-  const backendSyncRepoPathRef = useRef("");
+  const backendTemporaryPathPathRef = useRef("");
   const hasLoadedSettingsRef = useRef(false);
   const updatePollTimerRef = useRef<number | null>(null);
-  const syncRepoTaskPollTimerRef = useRef<number | null>(null);
-  const syncRepoStartupProbeDoneRef = useRef(false);
-  const startupSyncRepoEnabledRef = useRef(false);
-  const startupSyncRepoPathRef = useRef("");
-  const startupSyncRepoCapturedRef = useRef(false);
+  const temporaryPathTaskPollTimerRef = useRef<number | null>(null);
+  const temporaryPathStartupProbeDoneRef = useRef(false);
+  const startupTemporaryPathEnabledRef = useRef(false);
+  const startupTemporaryPathPathRef = useRef("");
+  const startupTemporaryPathCapturedRef = useRef(false);
   const eventRetryRef = useRef(0);
   const eventRetryTimerRef = useRef<number | null>(null);
   const hasManualCurrencyRef = useRef(false);
@@ -238,10 +238,10 @@ export default function App() {
         prefs = await backend.getSettings();
       }
       if (!hasLoadedSettingsRef.current && prefs) {
-        if (!startupSyncRepoCapturedRef.current) {
-          startupSyncRepoCapturedRef.current = true;
-          startupSyncRepoEnabledRef.current = Boolean(prefs.enableSyncRepo);
-          startupSyncRepoPathRef.current = prefs.syncRepoPath || "";
+        if (!startupTemporaryPathCapturedRef.current) {
+          startupTemporaryPathCapturedRef.current = true;
+          startupTemporaryPathEnabledRef.current = Boolean(prefs.enableTemporaryPath);
+          startupTemporaryPathPathRef.current = prefs.temporaryPath || "";
         }
         hasLoadedSettingsRef.current = true;
       }
@@ -269,7 +269,7 @@ export default function App() {
       }
 
       if (prefs) {
-        backendSyncRepoPathRef.current = prefs.syncRepoPath || "";
+        backendTemporaryPathPathRef.current = prefs.temporaryPath || "";
       }
       setSnapshot(data);
       resolvedSnapshot = data;
@@ -305,10 +305,10 @@ export default function App() {
             repoPath: prefs?.repoPath ?? prev.repoPath,
             logPath: prefs?.logPath ?? prev.logPath
           };
-          if (!dirtySyncRepoRef.current) {
+          if (!dirtyTemporaryPathRef.current) {
             if (prefs) {
-              next.syncRepoPath = prefs.syncRepoPath;
-              next.enableSyncRepo = prefs.enableSyncRepo;
+              next.temporaryPath = prefs.temporaryPath;
+              next.enableTemporaryPath = prefs.enableTemporaryPath;
             }
           }
           return next;
@@ -320,9 +320,9 @@ export default function App() {
       setCurrency(nextCurrency);
       setConnecting(false);
       try {
-        const task = await backend.getSyncRepoTask();
+        const task = await backend.getTemporaryPathTask();
         if (task && task.ok) {
-          setSyncRepoTask({
+          setTemporaryPathTask({
             active: Boolean(task.active),
             phase: task.phase || "idle",
             progress: typeof task.progress === "number" ? task.progress : 0,
@@ -330,11 +330,11 @@ export default function App() {
             path: task.path || ""
           });
           if (task.active) {
-            if (!syncRepoTaskPollTimerRef.current) {
-              startSyncRepoTaskPolling();
+            if (!temporaryPathTaskPollTimerRef.current) {
+              startTemporaryPathTaskPolling();
             }
           } else {
-            stopSyncRepoTaskPolling();
+            stopTemporaryPathTaskPolling();
           }
         }
       } catch {
@@ -389,7 +389,7 @@ export default function App() {
     }));
   };
 
-  const formatSyncRepoDetails = (details?: Record<string, unknown>) => {
+  const formatTemporaryPathDetails = (details?: Record<string, unknown>) => {
     if (!details) return undefined;
 
     const asTrimmedString = (value: unknown) => (typeof value === "string" ? value.trim() : "");
@@ -422,18 +422,18 @@ export default function App() {
     }
   };
 
-  const stopSyncRepoTaskPolling = () => {
-    if (syncRepoTaskPollTimerRef.current) {
-      window.clearInterval(syncRepoTaskPollTimerRef.current);
-      syncRepoTaskPollTimerRef.current = null;
+  const stopTemporaryPathTaskPolling = () => {
+    if (temporaryPathTaskPollTimerRef.current) {
+      window.clearInterval(temporaryPathTaskPollTimerRef.current);
+      temporaryPathTaskPollTimerRef.current = null;
     }
   };
 
-  const refreshSyncRepoTask = async () => {
+  const refreshTemporaryPathTask = async () => {
     try {
-      const next = await backend.getSyncRepoTask();
+      const next = await backend.getTemporaryPathTask();
       if (!next || !next.ok) return;
-      setSyncRepoTask({
+      setTemporaryPathTask({
         active: Boolean(next.active),
         phase: next.phase || "idle",
         progress: typeof next.progress === "number" ? next.progress : 0,
@@ -441,36 +441,36 @@ export default function App() {
         path: next.path || ""
       });
       if (!next.active) {
-        stopSyncRepoTaskPolling();
+        stopTemporaryPathTaskPolling();
       }
     } catch {
       // Ignore transient backend errors.
     }
   };
 
-  const startSyncRepoTaskPolling = () => {
-    stopSyncRepoTaskPolling();
-    void refreshSyncRepoTask();
-    syncRepoTaskPollTimerRef.current = window.setInterval(() => {
-      void refreshSyncRepoTask();
+  const startTemporaryPathTaskPolling = () => {
+    stopTemporaryPathTaskPolling();
+    void refreshTemporaryPathTask();
+    temporaryPathTaskPollTimerRef.current = window.setInterval(() => {
+      void refreshTemporaryPathTask();
     }, 180);
   };
 
-  const closeSyncRepoWarningModal = () => {
-    setSyncRepoWarningClosing(true);
+  const closeTemporaryPathWarningModal = () => {
+    setTemporaryPathWarningClosing(true);
     window.setTimeout(() => {
-      setSyncRepoWarningOpen(false);
-      setSyncRepoWarningClosing(false);
-      setSyncRepoWarningEntering(false);
-      setSyncRepoWarningContext(null);
+      setTemporaryPathWarningOpen(false);
+      setTemporaryPathWarningClosing(false);
+      setTemporaryPathWarningEntering(false);
+      setTemporaryPathWarningContext(null);
     }, 240);
   };
 
-  const openSyncRepoWarningModal = (context: SyncRepoWarningContext) => {
-    setSyncRepoWarningContext(context);
-    setSyncRepoWarningOpen(true);
-    setSyncRepoWarningClosing(false);
-    setSyncRepoWarningEntering(true);
+  const openTemporaryPathWarningModal = (context: TemporaryPathWarningContext) => {
+    setTemporaryPathWarningContext(context);
+    setTemporaryPathWarningOpen(true);
+    setTemporaryPathWarningClosing(false);
+    setTemporaryPathWarningEntering(true);
   };
 
   const closeAlertModal = useCallback(() => {
@@ -551,7 +551,7 @@ export default function App() {
     });
     return () => {
       window.cancelAnimationFrame(boot);
-      stopSyncRepoTaskPolling();
+      stopTemporaryPathTaskPolling();
     };
   }, []);
 
@@ -630,109 +630,109 @@ export default function App() {
 
   useEffect(() => {
     const stopTimers = () => {
-      if (syncRepoDisplayTimerRef.current) {
-        window.clearInterval(syncRepoDisplayTimerRef.current);
-        syncRepoDisplayTimerRef.current = null;
+      if (temporaryPathDisplayTimerRef.current) {
+        window.clearInterval(temporaryPathDisplayTimerRef.current);
+        temporaryPathDisplayTimerRef.current = null;
       }
-      if (syncRepoDisplayFinishTimerRef.current) {
-        window.clearInterval(syncRepoDisplayFinishTimerRef.current);
-        syncRepoDisplayFinishTimerRef.current = null;
+      if (temporaryPathDisplayFinishTimerRef.current) {
+        window.clearInterval(temporaryPathDisplayFinishTimerRef.current);
+        temporaryPathDisplayFinishTimerRef.current = null;
       }
     };
 
     const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
-    const backendProgress = clamp01(syncRepoTask.progress);
+    const backendProgress = clamp01(temporaryPathTask.progress);
 
-    if (syncRepoTask.active) {
-      if (!syncRepoDisplayStartRef.current) {
-        syncRepoDisplayStartRef.current = Date.now();
+    if (temporaryPathTask.active) {
+      if (!temporaryPathDisplayStartRef.current) {
+        temporaryPathDisplayStartRef.current = Date.now();
       }
       stopTimers();
-      setSyncRepoDisplayActive(true);
-      setSyncRepoDisplayMessage(syncRepoTask.message || "Cloning...");
-      setSyncRepoDisplayProgress((prev) => Math.max(prev, backendProgress, 0.08));
+      setTemporaryPathDisplayActive(true);
+      setTemporaryPathDisplayMessage(temporaryPathTask.message || "Cloning...");
+      setTemporaryPathDisplayProgress((prev) => Math.max(prev, backendProgress, 0.08));
 
-      if (!syncRepoDisplayTimerRef.current) {
-        syncRepoDisplayTimerRef.current = window.setInterval(() => {
-          setSyncRepoDisplayProgress((prev) => {
+      if (!temporaryPathDisplayTimerRef.current) {
+        temporaryPathDisplayTimerRef.current = window.setInterval(() => {
+          setTemporaryPathDisplayProgress((prev) => {
             const base = Math.max(prev, backendProgress);
             if (base >= 0.9) return base;
             const next = base + 0.00115;
             return Math.min(0.9, next);
           });
-          if (!syncRepoTask.message) {
-            setSyncRepoDisplayMessage("Cloning...");
+          if (!temporaryPathTask.message) {
+            setTemporaryPathDisplayMessage("Cloning...");
           }
         }, 180);
       }
       return stopTimers;
     }
 
-    if (!syncRepoDisplayActive) {
+    if (!temporaryPathDisplayActive) {
       stopTimers();
-      syncRepoDisplayStartRef.current = null;
-      setSyncRepoDisplayProgress(0);
-      setSyncRepoDisplayMessage("");
+      temporaryPathDisplayStartRef.current = null;
+      setTemporaryPathDisplayProgress(0);
+      setTemporaryPathDisplayMessage("");
       return stopTimers;
     }
 
     stopTimers();
 
-    const finishing = syncRepoTask.phase === "ready";
+    const finishing = temporaryPathTask.phase === "ready";
     if (!finishing) {
-      syncRepoDisplayStartRef.current = null;
-      setSyncRepoDisplayActive(false);
-      setSyncRepoDisplayProgress(0);
-      setSyncRepoDisplayMessage("");
+      temporaryPathDisplayStartRef.current = null;
+      setTemporaryPathDisplayActive(false);
+      setTemporaryPathDisplayProgress(0);
+      setTemporaryPathDisplayMessage("");
       return stopTimers;
     }
 
     const start = Date.now();
-    const startProgress = syncRepoDisplayProgress;
-    setSyncRepoDisplayMessage("Finalizing...");
-    syncRepoDisplayFinishTimerRef.current = window.setInterval(() => {
+    const startProgress = temporaryPathDisplayProgress;
+    setTemporaryPathDisplayMessage("Finalizing...");
+    temporaryPathDisplayFinishTimerRef.current = window.setInterval(() => {
       const elapsed = Date.now() - start;
       const t = Math.max(0, Math.min(1, elapsed / 1000));
       const easeOut = 1 - Math.pow(1 - t, 3);
       const next = startProgress + (1 - startProgress) * easeOut;
-      setSyncRepoDisplayProgress(next);
+      setTemporaryPathDisplayProgress(next);
       if (t >= 1) {
         stopTimers();
         window.setTimeout(() => {
-          syncRepoDisplayStartRef.current = null;
-          setSyncRepoDisplayActive(false);
-          setSyncRepoDisplayProgress(0);
-          setSyncRepoDisplayMessage("");
+          temporaryPathDisplayStartRef.current = null;
+          setTemporaryPathDisplayActive(false);
+          setTemporaryPathDisplayProgress(0);
+          setTemporaryPathDisplayMessage("");
         }, 220);
       }
     }, 16);
 
     return stopTimers;
-  }, [syncRepoTask.active, syncRepoTask.phase, syncRepoTask.progress, syncRepoTask.message, syncRepoDisplayActive, syncRepoDisplayProgress]);
+  }, [temporaryPathTask.active, temporaryPathTask.phase, temporaryPathTask.progress, temporaryPathTask.message, temporaryPathDisplayActive, temporaryPathDisplayProgress]);
 
   useEffect(() => {
     if (initState !== "ready") return;
-    if (syncRepoStartupProbeDoneRef.current) return;
-    if (!startupSyncRepoCapturedRef.current) return;
-    if (!startupSyncRepoEnabledRef.current) return;
-    syncRepoStartupProbeDoneRef.current = true;
+    if (temporaryPathStartupProbeDoneRef.current) return;
+    if (!startupTemporaryPathCapturedRef.current) return;
+    if (!startupTemporaryPathEnabledRef.current) return;
+    temporaryPathStartupProbeDoneRef.current = true;
     (async () => {
       try {
-        const probe = await backend.probeSyncRepo({
-          enableSyncRepo: true,
-          syncRepoPath: startupSyncRepoPathRef.current,
+        const probe = await backend.probeTemporaryPath({
+          enableTemporaryPath: true,
+          temporaryPath: startupTemporaryPathPathRef.current,
           autoStart: true
         });
         if (probe.action === "auto-clone-started" || probe.taskActive) {
-          startSyncRepoTaskPolling();
+          startTemporaryPathTaskPolling();
         }
         if (probe.needsConfirmation) {
-          openSyncRepoWarningModal({
+          openTemporaryPathWarningModal({
             mode: "startup",
             status: probe.status,
             message: probe.message || "Temporary Path needs confirmation",
-            path: probe.path || startupSyncRepoPathRef.current || "",
-            details: formatSyncRepoDetails(probe.details),
+            path: probe.path || startupTemporaryPathPathRef.current || "",
+            details: formatTemporaryPathDetails(probe.details),
             canUseAsIs: Boolean(probe.canUseAsIs),
             canReset: Boolean(probe.canReset)
           });
@@ -780,7 +780,7 @@ export default function App() {
   useEffect(() => {
     if (!settingsOpen) {
       stopUpdatePolling();
-      setSyncRepoNote(null);
+      setTemporaryPathNote(null);
       return;
     }
     void refreshUpdateState();
@@ -789,18 +789,27 @@ export default function App() {
 
   useEffect(() => {
     if (!settingsOpen) return;
-    const currentPath = (settings.syncRepoPath || "").trim().toLowerCase();
-    const taskPath = (syncRepoTask.path || "").trim().toLowerCase();
-    const taskForThisPath = Boolean(syncRepoTask.active && currentPath && taskPath === currentPath);
+    const currentPath = (settings.temporaryPath || "").trim().toLowerCase();
+    const taskPath = (temporaryPathTask.path || "").trim().toLowerCase();
+    const taskForThisPath = Boolean(temporaryPathTask.active && currentPath && taskPath === currentPath);
     if (taskForThisPath) {
-      setSyncRepoNote({
+      setTemporaryPathNote({
         tone: "info",
         text: "Temporary Path is being prepared. Check Activity for progress."
       });
       return;
     }
-    if (!settings.enableSyncRepo) {
-      setSyncRepoNote(null);
+    if (!settings.enableTemporaryPath) {
+      setTemporaryPathNote(null);
+      return;
+    }
+    if (!currentPath) {
+      // When the Temporary Path field is empty, do not probe using backend defaults.
+      // Probing here can surface "unsafe overlaps" for an implicit path the user never chose.
+      setTemporaryPathNote({
+        tone: "info",
+        text: "Choose a Temporary Path folder to enable Dev mode."
+      });
       return;
     }
 
@@ -808,44 +817,44 @@ export default function App() {
 
     (async () => {
       try {
-        const probe = await backend.probeSyncRepo({
-          enableSyncRepo: true,
-          syncRepoPath: settings.syncRepoPath,
+        const probe = await backend.probeTemporaryPath({
+          enableTemporaryPath: true,
+          temporaryPath: settings.temporaryPath,
           autoStart: false
         });
         if (cancelled) return;
         if (probe.status === "unsafe") {
-          setSyncRepoNote({
+          setTemporaryPathNote({
             tone: "error",
             text: probe.message || "Temporary Path overlaps Main Path. Choose a separate folder."
           });
           return;
         }
         if (probe.needsConfirmation) {
-          setSyncRepoNote({
+          setTemporaryPathNote({
             tone: "warn",
             text: "Action required: click Review to resolve Temporary Path."
           });
           return;
         }
         if (probe.status === "missing" || probe.status === "empty") {
-          setSyncRepoNote({
+          setTemporaryPathNote({
             tone: "info",
             text: "Folder will be cloned automatically after you close Settings."
           });
           return;
         }
-        setSyncRepoNote(null);
+        setTemporaryPathNote(null);
       } catch {
         if (cancelled) return;
-        setSyncRepoNote(null);
+        setTemporaryPathNote(null);
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [settingsOpen, settings.enableSyncRepo, settings.syncRepoPath, syncRepoTask.active, syncRepoTask.path]);
+  }, [settingsOpen, settings.enableTemporaryPath, settings.temporaryPath, temporaryPathTask.active, temporaryPathTask.path]);
 
   useEffect(() => {
     if (updateState.phase !== "restarting") return;
@@ -1372,7 +1381,7 @@ export default function App() {
       setSavingMessage("Saved");
       setSavedSettings((prev) => ({
         ...payload,
-        syncRepoPath: backendSyncRepoPathRef.current || prev.syncRepoPath
+        temporaryPath: backendTemporaryPathPathRef.current || prev.temporaryPath
       }));
       window.setTimeout(() => {
         setSavingState("idle");
@@ -1400,10 +1409,10 @@ export default function App() {
   };
 
   const handleSettingsSave = async () => {
-    if (settings.syncRepoPath && settings.syncRepoPath !== savedSettings.syncRepoPath) {
-      if (settings.enableSyncRepo) {
-        await backend.setSyncRepoPath(settings.syncRepoPath);
-        backendSyncRepoPathRef.current = settings.syncRepoPath;
+    if (settings.temporaryPath && settings.temporaryPath !== savedSettings.temporaryPath) {
+      if (settings.enableTemporaryPath) {
+        await backend.setTemporaryPathPath(settings.temporaryPath);
+        backendTemporaryPathPathRef.current = settings.temporaryPath;
       }
     }
     if (outputDir && outputDir !== snapshot.outputDir) {
@@ -1422,20 +1431,21 @@ export default function App() {
     closeSettingsModal();
   };
 
-  const handleSyncRepoReview = async () => {
+  const handleTemporaryPathReview = async () => {
+    if (!(settings.temporaryPath || "").trim()) return;
     try {
-      const probe = await backend.probeSyncRepo({
-        enableSyncRepo: true,
-        syncRepoPath: settings.syncRepoPath,
+      const probe = await backend.probeTemporaryPath({
+        enableTemporaryPath: true,
+        temporaryPath: settings.temporaryPath,
         autoStart: false
       });
       if (probe.needsConfirmation) {
-        openSyncRepoWarningModal({
+        openTemporaryPathWarningModal({
           mode: "settings-close",
           status: probe.status,
           message: probe.message || "Temporary Path needs confirmation",
-          path: probe.path || settings.syncRepoPath || "",
-          details: formatSyncRepoDetails(probe.details),
+          path: probe.path || settings.temporaryPath || "",
+          details: formatTemporaryPathDetails(probe.details),
           canUseAsIs: Boolean(probe.canUseAsIs),
           canReset: Boolean(probe.canReset)
         });
@@ -1474,23 +1484,23 @@ export default function App() {
 
   // Auto-save is always enabled.
 
-  const handleSyncRepoBrowse = async () => {
-    const result = await backend.browseSyncRepo();
+  const handleTemporaryPathBrowse = async () => {
+    const result = await backend.browseTemporaryPath();
     if (result.ok && result.path) {
-      dirtySyncRepoRef.current = true;
-      setSettings((prev) => ({ ...prev, syncRepoPath: result.path }));
+      dirtyTemporaryPathRef.current = true;
+      setSettings((prev) => ({ ...prev, temporaryPath: result.path }));
     }
   };
 
   const persistSettingsAutosafe = (payload: Settings) => {
-    if (!dirtySyncRepoRef.current) {
+    if (!dirtyTemporaryPathRef.current) {
       return persistSettings(payload);
     }
     const baseline = savedSettingsRef.current;
     return persistSettings({
       ...payload,
-      enableSyncRepo: baseline.enableSyncRepo,
-      syncRepoPath: baseline.syncRepoPath
+      enableTemporaryPath: baseline.enableTemporaryPath,
+      temporaryPath: baseline.temporaryPath
     });
   };
 
@@ -1500,7 +1510,7 @@ export default function App() {
   };
 
   const openSettings = () => {
-    dirtySyncRepoRef.current = false;
+    dirtyTemporaryPathRef.current = false;
     dirtyOutputDirRef.current = false;
     setSettings(savedSettings);
     setOutputDir(snapshot.outputDir || "");
@@ -1519,26 +1529,45 @@ export default function App() {
   };
 
   const handleSettingsClose = async () => {
-    const shouldSaveEnableSyncRepo =
-      settings.enableSyncRepo !== savedSettings.enableSyncRepo;
-    const shouldSaveSyncRepo =
-      settings.enableSyncRepo && settings.syncRepoPath !== savedSettings.syncRepoPath;
+    const trimmedTemporaryPathPath = (settings.temporaryPath || "").trim();
+    const savedTemporaryPathEnabled = Boolean(savedSettings.enableTemporaryPath);
+
+    // If the user tries to enable Dev sync without explicitly choosing a Temporary Path,
+    // avoid probing/backfilling a hidden default path.
+    if (settings.enableTemporaryPath && !trimmedTemporaryPathPath && !savedTemporaryPathEnabled) {
+      pushToast("info", "Temporary Path is empty. Dev mode was not enabled.");
+      closeSettingsModal();
+      return;
+    }
+    // If Dev sync is already enabled, require an explicit path before closing.
+    if (settings.enableTemporaryPath && !trimmedTemporaryPathPath && savedTemporaryPathEnabled) {
+      pushToast("error", "Choose a Temporary Path folder or disable Dev mode.");
+      return;
+    }
+
+    const shouldSaveEnableTemporaryPath =
+      settings.enableTemporaryPath !== savedSettings.enableTemporaryPath;
+    const shouldSaveTemporaryPath =
+      settings.enableTemporaryPath && settings.temporaryPath !== savedSettings.temporaryPath;
     const shouldSaveOutput = outputDir !== snapshot.outputDir;
     const shouldSaveSettings = !settings.autoSave && hasSettingsChanges(savedSettings, settings);
-    const shouldProbeSyncRepo = settings.enableSyncRepo && (shouldSaveEnableSyncRepo || shouldSaveSyncRepo);
-    const hasAnyChanges = shouldSaveEnableSyncRepo || shouldSaveSyncRepo || shouldSaveOutput || shouldSaveSettings;
+    const shouldProbeTemporaryPath =
+      settings.enableTemporaryPath &&
+      Boolean(trimmedTemporaryPathPath) &&
+      (shouldSaveEnableTemporaryPath || shouldSaveTemporaryPath);
+    const hasAnyChanges = shouldSaveEnableTemporaryPath || shouldSaveTemporaryPath || shouldSaveOutput || shouldSaveSettings;
 
     if (!hasAnyChanges) {
       closeSettingsModal();
-      if (settings.enableSyncRepo) {
+      if (settings.enableTemporaryPath && Boolean(trimmedTemporaryPathPath)) {
         try {
-          const probe = await backend.probeSyncRepo({
-            enableSyncRepo: true,
-            syncRepoPath: settings.syncRepoPath,
+          const probe = await backend.probeTemporaryPath({
+            enableTemporaryPath: true,
+            temporaryPath: settings.temporaryPath,
             autoStart: true
           });
           if (probe.action === "auto-clone-started" || probe.taskActive) {
-            startSyncRepoTaskPolling();
+            startTemporaryPathTaskPolling();
           }
         } catch {
           // Ignore probe failures on close.
@@ -1548,56 +1577,56 @@ export default function App() {
     }
 
     try {
-      const closeImmediately = shouldProbeSyncRepo;
+      const closeImmediately = shouldProbeTemporaryPath;
       if (closeImmediately) {
         closeSettingsModal();
       }
 
-      let effectiveSyncRepoPath = settings.syncRepoPath;
-      if (shouldProbeSyncRepo) {
-        const probe = await backend.probeSyncRepo({
-          enableSyncRepo: true,
-          syncRepoPath: effectiveSyncRepoPath,
+      let effectiveTemporaryPathPath = settings.temporaryPath;
+      if (shouldProbeTemporaryPath) {
+        const probe = await backend.probeTemporaryPath({
+          enableTemporaryPath: true,
+          temporaryPath: effectiveTemporaryPathPath,
           autoStart: true
         });
         if (probe.needsConfirmation) {
-          openSyncRepoWarningModal({
+          openTemporaryPathWarningModal({
             mode: "settings-close",
             status: probe.status,
             message: probe.message || "Temporary Path needs confirmation",
-            path: probe.path || effectiveSyncRepoPath || "",
-            details: formatSyncRepoDetails(probe.details),
+            path: probe.path || effectiveTemporaryPathPath || "",
+            details: formatTemporaryPathDetails(probe.details),
             canUseAsIs: Boolean(probe.canUseAsIs),
             canReset: Boolean(probe.canReset)
           });
           return;
         }
-        if (!effectiveSyncRepoPath && probe.path) {
-          effectiveSyncRepoPath = probe.path;
+        if (!effectiveTemporaryPathPath && probe.path) {
+          effectiveTemporaryPathPath = probe.path;
         }
         if (probe.action === "auto-clone-started" || probe.taskActive) {
-          startSyncRepoTaskPolling();
+          startTemporaryPathTaskPolling();
         }
       }
 
-      const shouldWriteSyncRepoPath =
-        settings.enableSyncRepo &&
-        Boolean(effectiveSyncRepoPath) &&
-        effectiveSyncRepoPath !== savedSettings.syncRepoPath;
-      if (shouldWriteSyncRepoPath) {
-        await backend.setSyncRepoPath(effectiveSyncRepoPath);
-        backendSyncRepoPathRef.current = effectiveSyncRepoPath;
+      const shouldWriteTemporaryPathPath =
+        settings.enableTemporaryPath &&
+        Boolean(effectiveTemporaryPathPath) &&
+        effectiveTemporaryPathPath !== savedSettings.temporaryPath;
+      if (shouldWriteTemporaryPathPath) {
+        await backend.setTemporaryPathPath(effectiveTemporaryPathPath);
+        backendTemporaryPathPathRef.current = effectiveTemporaryPathPath;
       }
       if (shouldSaveOutput) {
         await backend.setOutputDir(outputDir);
       }
 
-      if (shouldSaveEnableSyncRepo || shouldSaveSettings) {
-        const ok = await persistSettings({ ...settings, syncRepoPath: effectiveSyncRepoPath });
+      if (shouldSaveEnableTemporaryPath || shouldSaveSettings) {
+        const ok = await persistSettings({ ...settings, temporaryPath: effectiveTemporaryPathPath });
         if (!ok) return;
       } else {
         // Keep local "saved" state aligned when we saved paths only.
-        setSavedSettings({ ...settings, syncRepoPath: effectiveSyncRepoPath });
+        setSavedSettings({ ...settings, temporaryPath: effectiveTemporaryPathPath });
         setSavingState("saved");
         setSavingMessage("Saved");
         window.setTimeout(() => {
@@ -1655,68 +1684,68 @@ export default function App() {
     }, 240);
   };
 
-  const handleSyncRepoWarningCancel = async () => {
-    const context = syncRepoWarningContext;
+  const handleTemporaryPathWarningCancel = async () => {
+    const context = temporaryPathWarningContext;
     if (!context) {
-      closeSyncRepoWarningModal();
+      closeTemporaryPathWarningModal();
       return;
     }
-    closeSyncRepoWarningModal();
+    closeTemporaryPathWarningModal();
   };
 
-  const handleSyncRepoWarningReset = async () => {
-    const context = syncRepoWarningContext;
-    const path = (context?.path || settings.syncRepoPath || "").trim();
+  const handleTemporaryPathWarningReset = async () => {
+    const context = temporaryPathWarningContext;
+    const path = (context?.path || settings.temporaryPath || "").trim();
     if (!context || !path) {
       pushToast("error", "Temporary Path is empty");
       return;
     }
     const writePath = async () => {
       try {
-        await backend.setSyncRepoPath(path);
-        backendSyncRepoPathRef.current = path;
+        await backend.setTemporaryPathPath(path);
+        backendTemporaryPathPathRef.current = path;
       } catch {
         // Ignore.
       }
     };
     await writePath();
-    const result = await backend.syncRepoReset(path);
+    const result = await backend.temporaryPathReset(path);
     if (!result.ok) {
       pushToast("error", result.message || "Reset failed");
       return;
     }
-    startSyncRepoTaskPolling();
+    startTemporaryPathTaskPolling();
     if (context.mode === "settings-close") {
-      const ok = await persistSettings({ ...settings, enableSyncRepo: true, syncRepoPath: path });
+      const ok = await persistSettings({ ...settings, enableTemporaryPath: true, temporaryPath: path });
       if (!ok) return;
       await refresh();
       closeSettingsModal();
     } else {
       await refresh();
     }
-    closeSyncRepoWarningModal();
+    closeTemporaryPathWarningModal();
   };
 
-  const handleSyncRepoWarningUseAsIs = async () => {
-    const context = syncRepoWarningContext;
-    const path = (context?.path || settings.syncRepoPath || "").trim();
+  const handleTemporaryPathWarningUseAsIs = async () => {
+    const context = temporaryPathWarningContext;
+    const path = (context?.path || settings.temporaryPath || "").trim();
     if (!context || !path) {
       pushToast("error", "Temporary Path is empty");
       return;
     }
-    const result = await backend.syncRepoUseAsIs(path);
+    const result = await backend.temporaryPathUseAsIs(path);
     if (!result.ok) {
       pushToast("error", result.message || "Use As-Is failed");
       return;
     }
     try {
-      await backend.setSyncRepoPath(path);
-      backendSyncRepoPathRef.current = path;
+      await backend.setTemporaryPathPath(path);
+      backendTemporaryPathPathRef.current = path;
     } catch {
       // Ignore.
     }
     if (context.mode === "settings-close") {
-      const ok = await persistSettings({ ...settings, enableSyncRepo: true, syncRepoPath: path });
+      const ok = await persistSettings({ ...settings, enableTemporaryPath: true, temporaryPath: path });
       if (!ok) return;
     }
     pushToast("success", "Temporary Path confirmed");
@@ -1724,7 +1753,7 @@ export default function App() {
     if (context.mode === "settings-close") {
       closeSettingsModal();
     }
-    closeSyncRepoWarningModal();
+    closeTemporaryPathWarningModal();
   };
 
   const startSplitDrag = (event: ReactMouseEvent<HTMLDivElement>) => {
@@ -1747,17 +1776,17 @@ export default function App() {
   }, [settingsOpen]);
 
   useEffect(() => {
-    if (!syncRepoWarningOpen) return;
+    if (!temporaryPathWarningOpen) return;
     let raf1 = 0;
     let raf2 = 0;
     raf1 = window.requestAnimationFrame(() => {
-      raf2 = window.requestAnimationFrame(() => setSyncRepoWarningEntering(false));
+      raf2 = window.requestAnimationFrame(() => setTemporaryPathWarningEntering(false));
     });
     return () => {
       window.cancelAnimationFrame(raf1);
       window.cancelAnimationFrame(raf2);
     };
-  }, [syncRepoWarningOpen]);
+  }, [temporaryPathWarningOpen]);
 
   useEffect(() => {
     if (!alertOpen || !alertEntering) return;
@@ -2078,8 +2107,8 @@ export default function App() {
         refreshUpdateState?: () => Promise<void>;
         showAlertModal?: (payload: { title?: string; message?: string; tone?: "info" | "error" }) => void;
         hideAlertModal?: () => void;
-        showSyncRepoWarning?: (payload: {
-          mode?: SyncRepoWarningMode;
+        showTemporaryPathWarning?: (payload: {
+          mode?: TemporaryPathWarningMode;
           status?: string;
           message?: string;
           path?: string;
@@ -2087,8 +2116,8 @@ export default function App() {
           canUseAsIs?: boolean;
           canReset?: boolean;
         }) => void;
-        hideSyncRepoWarning?: () => void;
-        setSyncRepoTask?: (payload: {
+        hideTemporaryPathWarning?: () => void;
+        setTemporaryPathTask?: (payload: {
           active?: boolean;
           phase?: string;
           progress?: number;
@@ -2138,22 +2167,22 @@ export default function App() {
       hideAlertModal: () => {
         closeAlertModal();
       },
-      showSyncRepoWarning: (payload) => {
-        openSyncRepoWarningModal({
+      showTemporaryPathWarning: (payload) => {
+        openTemporaryPathWarningModal({
           mode: payload?.mode ?? "settings-close",
           status: payload?.status ?? "git-other",
           message: payload?.message ?? "Temporary Path needs confirmation",
-          path: payload?.path ?? "C:\\\\path\\\\to\\\\sync-repo",
+          path: payload?.path ?? "C:\\\\path\\\\to\\\\temp-path",
           details: payload?.details,
           canUseAsIs: Boolean(payload?.canUseAsIs),
           canReset: payload?.canReset ?? true
         });
       },
-      hideSyncRepoWarning: () => {
-        closeSyncRepoWarningModal();
+      hideTemporaryPathWarning: () => {
+        closeTemporaryPathWarningModal();
       },
-      setSyncRepoTask: (payload) => {
-        setSyncRepoTask((prev) => ({
+      setTemporaryPathTask: (payload) => {
+        setTemporaryPathTask((prev) => ({
           active: payload?.active ?? prev.active,
           phase: payload?.phase ?? prev.phase,
           progress: typeof payload?.progress === "number" ? payload.progress : prev.progress,
@@ -2304,17 +2333,17 @@ export default function App() {
     <>
       Activity
       <span
-        className={`activity-count${syncRepoTask.active ? " progress" : ""}${
+        className={`activity-count${temporaryPathTask.active ? " progress" : ""}${
           snapshot.logs.length === 0 ? " zero" : ""
         }`}
         data-qa="qa:status:activity-count"
         aria-label={
-          syncRepoDisplayActive
-            ? `Temporary Path progress ${Math.round(syncRepoDisplayProgress * 100)}%`
+          temporaryPathDisplayActive
+            ? `Temporary Path progress ${Math.round(temporaryPathDisplayProgress * 100)}%`
             : "Activity count"
         }
       >
-        {syncRepoDisplayActive ? (
+        {temporaryPathDisplayActive ? (
           <svg className="activity-count-ring" viewBox="0 0 36 36" aria-hidden="true">
             <circle className="ring-bg" cx="18" cy="18" r="16" pathLength="100" />
             <circle
@@ -2325,7 +2354,7 @@ export default function App() {
               pathLength="100"
               strokeDasharray={`${Math.max(
                 0,
-                Math.min(100, syncRepoDisplayProgress * 100)
+                Math.min(100, temporaryPathDisplayProgress * 100)
               )} 100`}
             />
           </svg>
@@ -2415,8 +2444,8 @@ export default function App() {
         isEntering={settingsEntering}
         settings={settings}
         outputDir={outputDir}
-        syncRepoNote={syncRepoNote}
-        onResolveSyncRepo={handleSyncRepoReview}
+        temporaryPathNote={temporaryPathNote}
+        onResolveTemporaryPath={handleTemporaryPathReview}
         savingMessage={savingMessage}
         pathsRef={pathsRef}
         scrollToPathsOnOpen={pendingPathsScrollRef.current}
@@ -2451,10 +2480,10 @@ export default function App() {
             return next;
           })
         }
-        onEnableSyncRepo={(value) =>
+        onEnableTemporaryPath={(value) =>
           setSettings((prev) => {
-            dirtySyncRepoRef.current = true;
-            return { ...prev, enableSyncRepo: value };
+            dirtyTemporaryPathRef.current = true;
+            return { ...prev, enableTemporaryPath: value };
           })
         }
         onAutoSyncAfterPull={(value) =>
@@ -2533,15 +2562,15 @@ export default function App() {
         }
         onCopyLog={handleCopyLog}
         onOpenLog={handleOpenLog}
-        onSyncRepoChange={(value) =>
+        onTemporaryPathChange={(value) =>
           setSettings((prev) => {
-            dirtySyncRepoRef.current = true;
-            const next = { ...prev, syncRepoPath: value };
+            dirtyTemporaryPathRef.current = true;
+            const next = { ...prev, temporaryPath: value };
             return next;
           })
         }
-        onSyncRepoBlur={() => {}}
-        onSyncRepoBrowse={handleSyncRepoBrowse}
+        onTemporaryPathBlur={() => {}}
+        onTemporaryPathBrowse={handleTemporaryPathBrowse}
         onOpenPath={handleOpenPath}
         onOutputDirChange={(value) => {
           dirtyOutputDirRef.current = true;
@@ -2552,38 +2581,38 @@ export default function App() {
         onOpenUninstall={openUninstall}
       />
 
-      <SyncRepoWarningModal
-        isOpen={syncRepoWarningOpen}
-        isClosing={syncRepoWarningClosing}
-        isEntering={syncRepoWarningEntering}
-        mode={syncRepoWarningContext?.mode ?? "settings-close"}
+      <TemporaryPathWarningModal
+        isOpen={temporaryPathWarningOpen}
+        isClosing={temporaryPathWarningClosing}
+        isEntering={temporaryPathWarningEntering}
+        mode={temporaryPathWarningContext?.mode ?? "settings-close"}
         title={
-          syncRepoWarningContext?.status === "git-origin-mismatch"
+          temporaryPathWarningContext?.status === "git-origin-mismatch"
             ? "Temporary Path folder has a different git origin"
-          : syncRepoWarningContext?.status === "git-not-clean"
+          : temporaryPathWarningContext?.status === "git-not-clean"
               ? "Temporary Path folder contains local changes"
-          : syncRepoWarningContext?.status === "git-not-main"
+          : temporaryPathWarningContext?.status === "git-not-main"
               ? "Temporary Path folder is not on branch main"
-          : syncRepoWarningContext?.status === "git-verify-failed"
+          : temporaryPathWarningContext?.status === "git-verify-failed"
               ? "Temporary Path could not be verified"
-          : syncRepoWarningContext?.status === "non-git-nonempty"
+          : temporaryPathWarningContext?.status === "non-git-nonempty"
               ? "Temporary Path folder contains files"
-              : syncRepoWarningContext?.status === "git-origin-missing"
+              : temporaryPathWarningContext?.status === "git-origin-missing"
                 ? "Temporary Path git origin is missing"
-                : syncRepoWarningContext?.status === "git-unusable"
+                : temporaryPathWarningContext?.status === "git-unusable"
                   ? "Temporary Path git metadata is not usable"
-                  : syncRepoWarningContext?.status === "unsafe"
+                  : temporaryPathWarningContext?.status === "unsafe"
                     ? "Temporary Path folder is unsafe"
                     : "Confirm Temporary Path folder"
         }
-        message={syncRepoWarningContext?.message || "Temporary Path needs confirmation"}
-        path={syncRepoWarningContext?.path || ""}
-        details={syncRepoWarningContext?.details}
-        canUseAsIs={Boolean(syncRepoWarningContext?.canUseAsIs)}
-        canReset={Boolean(syncRepoWarningContext?.canReset)}
-        onCancel={handleSyncRepoWarningCancel}
-        onUseAsIs={handleSyncRepoWarningUseAsIs}
-        onReset={handleSyncRepoWarningReset}
+        message={temporaryPathWarningContext?.message || "Temporary Path needs confirmation"}
+        path={temporaryPathWarningContext?.path || ""}
+        details={temporaryPathWarningContext?.details}
+        canUseAsIs={Boolean(temporaryPathWarningContext?.canUseAsIs)}
+        canReset={Boolean(temporaryPathWarningContext?.canReset)}
+        onCancel={handleTemporaryPathWarningCancel}
+        onUseAsIs={handleTemporaryPathWarningUseAsIs}
+        onReset={handleTemporaryPathWarningReset}
       />
 
       <UninstallModal
@@ -2604,10 +2633,10 @@ export default function App() {
             removeOutput: value
           }))
         }
-        onRemoveSyncRepos={(value) =>
+        onRemoveTemporaryPaths={(value) =>
           setSettings((prev) => ({
             ...prev,
-            removeSyncRepos: value
+            removeTemporaryPaths: value
           }))
         }
         onConfirmChange={(value) =>
@@ -2622,7 +2651,7 @@ export default function App() {
             confirm,
             removeLogs: settings.removeLogs,
             removeOutput: settings.removeOutput,
-            removeSyncRepos: settings.removeSyncRepos
+            removeTemporaryPaths: settings.removeTemporaryPaths
           });
           if (!result.ok) {
             pushToast("error", result.message || "Uninstall failed");
@@ -2676,26 +2705,26 @@ export default function App() {
               </button>
             }
           />
-          {syncRepoDisplayActive ? (
-            <div className="sync-repo-progress" data-qa="qa:sync-repo:progress">
-              <div className="sync-repo-progress-header">
-                <div className="sync-repo-progress-title">Temporary Path</div>
-                <div className="sync-repo-progress-percent">
-                  {Math.round(Math.max(0, Math.min(1, syncRepoDisplayProgress)) * 100)}%
+          {temporaryPathDisplayActive ? (
+            <div className="temporary-path-progress" data-qa="qa:temporary-path:progress">
+              <div className="temporary-path-progress-header">
+                <div className="temporary-path-progress-title">Temporary Path</div>
+                <div className="temporary-path-progress-percent">
+                  {Math.round(Math.max(0, Math.min(1, temporaryPathDisplayProgress)) * 100)}%
                 </div>
               </div>
-              <div className="sync-repo-progress-bar" aria-hidden="true">
+              <div className="temporary-path-progress-bar" aria-hidden="true">
                 <div
-                  className="sync-repo-progress-fill"
+                  className="temporary-path-progress-fill"
                   style={{
                     width: `${Math.round(
-                      Math.max(0, Math.min(1, syncRepoDisplayProgress)) * 100
+                      Math.max(0, Math.min(1, temporaryPathDisplayProgress)) * 100
                     )}%`
                   }}
                 />
               </div>
-              <div className="sync-repo-progress-message">
-                {syncRepoDisplayMessage || syncRepoTask.message || "Working..."}
+              <div className="temporary-path-progress-message">
+                {temporaryPathDisplayMessage || temporaryPathTask.message || "Working..."}
               </div>
             </div>
           ) : null}

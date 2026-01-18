@@ -41,7 +41,7 @@ class App(
         self.update_timer_id = None
 
         self.repo_var = StringVar(value=self.state.get("repo_path", ""))
-        self.sync_repo_var = StringVar(value=self.state.get("sync_repo_path", ""))
+        self.temporary_path_var = StringVar(value=self.state.get("temporary_path", ""))
         self.output_var = StringVar(value=self.state.get("output_dir", ""))
         self.last_pull_var = StringVar(value="Not yet")
         self.last_sync_var = StringVar(value="Not yet")

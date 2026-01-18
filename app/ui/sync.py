@@ -50,7 +50,7 @@ class SyncMixin:
         self.root.after(delay_ms, periodic)
 
     def _maybe_pull_and_sync(self) -> None:
-        if not self.state.get("enable_sync_repo", False):
+        if not self.state.get("enable_temporary_path", False):
             self._maybe_refresh_calendar_only()
             return
         repo_path = self._resolve_repo_path()
@@ -125,7 +125,7 @@ class SyncMixin:
             self._append_notice("Repo already up to date")
 
     def _pull_and_sync(self) -> None:
-        if not self.state.get("enable_sync_repo", False):
+        if not self.state.get("enable_temporary_path", False):
             self._pull_calendar_only(force=True)
             return
         repo_path = self._resolve_repo_path()

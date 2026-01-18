@@ -20,14 +20,14 @@ class SettingsMixin:
 
     def _save_paths(self, notify: bool = True) -> None:
         repo_path = self.repo_var.get().strip()
-        sync_repo_path = self.sync_repo_var.get().strip()
+        temporary_path = self.temporary_path_var.get().strip()
         output_dir = self.output_var.get().strip()
         self.state["repo_path"] = repo_path
-        self.state["sync_repo_path"] = sync_repo_path
+        self.state["temporary_path"] = temporary_path
         self.state["output_dir"] = output_dir
-        self._ensure_dir(sync_repo_path)
+        self._ensure_dir(temporary_path)
         self._track_path("repo_path_history", repo_path)
-        self._track_path("sync_repo_path_history", sync_repo_path)
+        self._track_path("temporary_path_history", temporary_path)
         self._track_path("output_dir_history", output_dir)
         save_config(self.state)
         self._set_settings_status("Saved (auto save)")
@@ -80,21 +80,21 @@ class SettingsMixin:
             self.output_var.set(path)
             self._save_paths()
 
-    def _browse_sync_repo(self) -> None:
-        initial = self.sync_repo_var.get().strip()
+    def _browse_temporary_path(self) -> None:
+        initial = self.temporary_path_var.get().strip()
         if not initial:
             initial = self.repo_var.get().strip()
         path = filedialog.askdirectory(
             initialdir=initial if initial and Path(initial).exists() else None
         )
         if path:
-            self.sync_repo_var.set(path)
+            self.temporary_path_var.set(path)
             self._save_paths()
 
     def _register_settings_traces(self) -> None:
         for variable in (
             self.repo_var,
-            self.sync_repo_var,
+            self.temporary_path_var,
             self.output_var,
             self.auto_sync_var,
             self.auto_update_var,
@@ -266,10 +266,10 @@ class SettingsMixin:
         sync_row = ttk.Frame(system, style="Card.TFrame")
         sync_row.grid(row=4, column=0, sticky="ew", padx=20, pady=(0, 12))
         sync_row.columnconfigure(0, weight=1)
-        ttk.Entry(sync_row, textvariable=self.sync_repo_var).grid(
+        ttk.Entry(sync_row, textvariable=self.temporary_path_var).grid(
             row=0, column=0, sticky="ew"
         )
-        ttk.Button(sync_row, text="Browse", command=self._browse_sync_repo).grid(
+        ttk.Button(sync_row, text="Browse", command=self._browse_temporary_path).grid(
             row=0, column=1, padx=(10, 0)
         )
 

@@ -1,0 +1,59 @@
+.modal-temporary-path-warning .temporary-path-warning-title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.modal-temporary-path-warning .temporary-path-warning-subtitle {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.modal-temporary-path-warning .temporary-path-warning-path,
+.modal-temporary-path-warning .temporary-path-warning-details {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(10, 12, 16, 0.28);
+}
+
+.modal-temporary-path-warning .temporary-path-warning-path .path-label,
+.modal-temporary-path-warning .temporary-path-warning-details .path-label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.modal-temporary-path-warning .temporary-path-warning-path .path-value,
+.modal-temporary-path-warning .temporary-path-warning-details .path-value {
+  margin-top: 6px;
+  color: var(--text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.modal-temporary-path-warning .temporary-path-warning-details .path-value.details-pre {
+  white-space: pre-wrap;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+}
+
+.modal-temporary-path-warning .temporary-path-warning-footer-note {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+[data-theme="light"] .modal-temporary-path-warning .temporary-path-warning-path,
+[data-theme="light"] .modal-temporary-path-warning .temporary-path-warning-details {
+  border-color: rgba(18, 20, 26, 0.1);
+  background: rgba(255, 255, 255, 0.6);
+}

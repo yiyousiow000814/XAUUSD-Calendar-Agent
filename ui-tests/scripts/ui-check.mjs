@@ -644,13 +644,13 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
       autoSave: true,
       enableSystemTheme: themeMode === "system",
       theme: themeMode,
-      enableSyncRepo: false,
-      syncRepoPath: "",
+      enableTemporaryPath: false,
+      temporaryPath: "",
       repoPath: "",
       logPath: "",
       removeLogs: true,
       removeOutput: false,
-      removeSyncRepos: true,
+      removeTemporaryPaths: true,
       uninstallConfirm: ""
     };
 
@@ -730,8 +730,8 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
         open_log: () => Promise.resolve({ ok: true }),
         open_path: () => Promise.resolve({ ok: true }),
         add_log: () => Promise.resolve({ ok: true }),
-        browse_sync_repo: () => Promise.resolve({ ok: true, path: "" }),
-        set_sync_repo_path: () => Promise.resolve({ ok: true }),
+        browse_temporary_path: () => Promise.resolve({ ok: true, path: "" }),
+        set_temporary_path: () => Promise.resolve({ ok: true }),
         uninstall: () => Promise.resolve({ ok: true }),
         pull_now: () => {
           const startedAt = formatDisplayTime(new Date());
@@ -1871,57 +1871,87 @@ const main = async () => {
       }
     }
 
-    const syncRepoSection = page.locator("[data-qa='qa:section:sync-repo']").first();
-    if (await syncRepoSection.count()) {
-      await syncRepoSection.scrollIntoViewIfNeeded();
+    const temporaryPathSection = page.locator("[data-qa='qa:section:temporary-path']").first();
+    if (await temporaryPathSection.count()) {
+      await temporaryPathSection.scrollIntoViewIfNeeded();
       await page.waitForTimeout(120);
     }
 
-    const syncRepoToggle = page.locator("[data-qa='qa:control:enable-sync-repo']").first();
-    if (await syncRepoToggle.count()) {
-      const input = syncRepoToggle.locator("input[type='checkbox']").first();
+    const temporaryPathToggle = page.locator("[data-qa='qa:control:enable-temporary-path']").first();
+    if (await temporaryPathToggle.count()) {
+      const input = temporaryPathToggle.locator("input[type='checkbox']").first();
       const checked = await input.isChecked().catch(() => false);
       if (!checked) {
-        await syncRepoToggle.click({ force: true });
+        await temporaryPathToggle.click({ force: true });
         await page.waitForTimeout(180);
       }
     }
 
-    const syncRepoInput = page.locator("[data-qa='qa:section:sync-repo'] input.path-input").first();
-    if (await syncRepoInput.count()) {
-      await syncRepoInput.fill("C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\XAUUSDCalendar\\\\repo");
+    // If the Temporary Path input is empty, the UI should not probe using a hidden backend default
+    // (which can surface "overlaps main path" errors for a path the user never chose).
+    await page.evaluate(() => {
+      window.__ui_check__ = window.__ui_check__ || {};
+      window.__ui_check__.mockProbeTemporaryPath = {
+        status: "unsafe",
+        ready: false,
+        needsConfirmation: false,
+        canUseAsIs: false,
+        canReset: false,
+        message: "Temporary Path overlaps Main Path. Choose a separate folder.",
+        path: "C:\\\\path\\\\to\\\\main"
+      };
+    });
+    await page.waitForTimeout(220);
+    await runCheck(theme.key, "Temporary Path empty path does not show overlaps warning", async () => {
+      const errorNote = page.locator("[data-qa='qa:note:temporary-path'][data-tone='error']").first();
+      if (await errorNote.count()) {
+        throw new Error("Overlaps warning should not appear when Temporary Path is empty");
+      }
+      const infoNote = page.locator("[data-qa='qa:note:temporary-path'][data-tone='info']").first();
+      if (!(await infoNote.count())) {
+        throw new Error("Expected info note when Temporary Path is empty");
+      }
+      const hasReview = await infoNote.locator("[data-qa='qa:action:temporary-path-review']").count();
+      if (hasReview) {
+        throw new Error("Review button should not appear when Temporary Path is empty");
+      }
+    });
+
+    const temporaryPathInput = page.locator("[data-qa='qa:section:temporary-path'] input.path-input").first();
+    if (await temporaryPathInput.count()) {
+      await temporaryPathInput.fill("C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\XAUUSDCalendar\\\\repo");
       await page.waitForTimeout(160);
     }
 
     await page.evaluate(() => {
       window.__ui_check__ = window.__ui_check__ || {};
-      window.__ui_check__.mockProbeSyncRepo = {
+      window.__ui_check__.mockProbeTemporaryPath = {
         status: "git-not-clean",
         ready: false,
         needsConfirmation: true,
         canUseAsIs: false,
         canReset: true,
-        message: "Sync repo contains extra files",
+        message: "Temporary Path contains extra files",
         path: "C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\XAUUSDCalendar\\\\repo"
       };
     });
     await page.waitForTimeout(240);
-    const syncRepoNote = page.locator("[data-qa='qa:note:sync-repo']").first();
-    if (await syncRepoNote.count()) {
-      await syncRepoNote.waitFor({ state: "visible", timeout: 1500 }).catch(() => null);
+    const temporaryPathNote = page.locator("[data-qa='qa:note:temporary-path']").first();
+    if (await temporaryPathNote.count()) {
+      await temporaryPathNote.waitFor({ state: "visible", timeout: 1500 }).catch(() => null);
       artifacts.push({
-        scenario: "sync-repo",
+        scenario: "temporary-path",
         theme: theme.key,
         state: "settings-note",
-        path: await captureState(page, "sync-repo", theme.key, "settings-note", {
-          element: (await syncRepoSection.count()) ? syncRepoSection : syncRepoNote
+        path: await captureState(page, "temporary-path", theme.key, "settings-note", {
+          element: (await temporaryPathSection.count()) ? temporaryPathSection : temporaryPathNote
         })
       });
     }
 
     await page.evaluate(() => {
       window.__ui_check__ = window.__ui_check__ || {};
-      window.__ui_check__.mockProbeSyncRepo = {
+      window.__ui_check__.mockProbeTemporaryPath = {
         status: "empty",
         ready: false,
         needsConfirmation: false,
@@ -1932,28 +1962,28 @@ const main = async () => {
       };
     });
     await page.waitForTimeout(220);
-    const syncRepoNoteAuto = page.locator("[data-qa='qa:note:sync-repo'][data-tone='info']").first();
-    if (await syncRepoNoteAuto.count()) {
-      await runCheck(theme.key, "Sync repo auto-clone note has no Review button", async () => {
-        const hasReview = await syncRepoNoteAuto
-          .locator("[data-qa='qa:action:sync-repo-review']")
+    const temporaryPathNoteAuto = page.locator("[data-qa='qa:note:temporary-path'][data-tone='info']").first();
+    if (await temporaryPathNoteAuto.count()) {
+      await runCheck(theme.key, "Temporary Path auto-clone note has no Review button", async () => {
+        const hasReview = await temporaryPathNoteAuto
+          .locator("[data-qa='qa:action:temporary-path-review']")
           .count();
         if (hasReview) {
           throw new Error("Review button should not appear for info notes");
         }
       });
       artifacts.push({
-        scenario: "sync-repo",
+        scenario: "temporary-path",
         theme: theme.key,
         state: "settings-note-auto-clone",
-        path: await captureState(page, "sync-repo", theme.key, "settings-note-auto-clone", {
-          element: (await syncRepoSection.count()) ? syncRepoSection : syncRepoNoteAuto
+        path: await captureState(page, "temporary-path", theme.key, "settings-note-auto-clone", {
+          element: (await temporaryPathSection.count()) ? temporaryPathSection : temporaryPathNoteAuto
         })
       });
     }
 
     await page.evaluate(() => {
-      window.__ui_check__?.setSyncRepoTask?.({
+      window.__ui_check__?.setTemporaryPathTask?.({
         active: true,
         phase: "cloning",
         progress: 0.42,
@@ -1962,45 +1992,45 @@ const main = async () => {
       });
     });
     await page.waitForTimeout(220);
-    const syncRepoNoteCloning = page.locator("[data-qa='qa:note:sync-repo'][data-tone='info']").first();
-    if (await syncRepoNoteCloning.count()) {
-      await runCheck(theme.key, "Sync repo cloning note has no Review button", async () => {
-        const hasReview = await syncRepoNoteCloning
-          .locator("[data-qa='qa:action:sync-repo-review']")
+    const temporaryPathNoteCloning = page.locator("[data-qa='qa:note:temporary-path'][data-tone='info']").first();
+    if (await temporaryPathNoteCloning.count()) {
+      await runCheck(theme.key, "Temporary Path cloning note has no Review button", async () => {
+        const hasReview = await temporaryPathNoteCloning
+          .locator("[data-qa='qa:action:temporary-path-review']")
           .count();
         if (hasReview) {
           throw new Error("Review button should not appear for info notes");
         }
       });
       artifacts.push({
-        scenario: "sync-repo",
+        scenario: "temporary-path",
         theme: theme.key,
         state: "settings-note-cloning",
-        path: await captureState(page, "sync-repo", theme.key, "settings-note-cloning", {
-          element: (await syncRepoSection.count()) ? syncRepoSection : syncRepoNoteCloning
+        path: await captureState(page, "temporary-path", theme.key, "settings-note-cloning", {
+          element: (await temporaryPathSection.count()) ? temporaryPathSection : temporaryPathNoteCloning
         })
       });
     }
     await page.evaluate(() => {
-      window.__ui_check__?.setSyncRepoTask?.({
+      window.__ui_check__?.setTemporaryPathTask?.({
         active: false
       });
     });
     await page.waitForTimeout(120);
 
-    const syncRepoToggleOff = page.locator("[data-qa='qa:control:enable-sync-repo']").first();
-    if (await syncRepoToggleOff.count()) {
-      const input = syncRepoToggleOff.locator("input[type='checkbox']").first();
+    const temporaryPathToggleOff = page.locator("[data-qa='qa:control:enable-temporary-path']").first();
+    if (await temporaryPathToggleOff.count()) {
+      const input = temporaryPathToggleOff.locator("input[type='checkbox']").first();
       const checked = await input.isChecked().catch(() => false);
       if (checked) {
-        await syncRepoToggleOff.click({ force: true });
+        await temporaryPathToggleOff.click({ force: true });
         await page.waitForTimeout(180);
       }
     }
 
     await page.evaluate(() => {
       window.__ui_check__ = window.__ui_check__ || {};
-      window.__ui_check__.mockProbeSyncRepo = null;
+      window.__ui_check__.mockProbeTemporaryPath = null;
     });
     const enterFrames = await captureFrames(page, "settings", theme.key, "enter");
     enterFrames.forEach((frame, index) =>
@@ -3171,14 +3201,14 @@ const main = async () => {
     }, previousMorphOverrides);
 
     await page.evaluate(() => {
-      window.__ui_check__?.setSyncRepoTask?.({
+      window.__ui_check__?.setTemporaryPathTask?.({
         active: true,
         phase: "cloning",
         progress: 0.42,
         message: "Cloning...",
         path: "C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\XAUUSDCalendar\\\\repo"
       });
-      window.__ui_check__?.appendLog?.("Sync repo reset requested", "WARN");
+      window.__ui_check__?.appendLog?.("Temporary Path reset requested", "WARN");
     });
     await page.waitForFunction(() => {
       const ring = document.querySelector(".activity-count-ring");
@@ -3189,7 +3219,7 @@ const main = async () => {
 
     const activityFabProgress = page.locator("[data-qa*='qa:action:activity-fab']").first();
     if (await activityFabProgress.count()) {
-      await runCheck(theme.key, "Sync repo progress ring visible", async () => {
+      await runCheck(theme.key, "Temporary Path progress ring visible", async () => {
         const ok = await page.evaluate(() => {
           const ring = document.querySelector(".activity-count-ring");
           if (!ring) return false;
@@ -3201,10 +3231,10 @@ const main = async () => {
         }
       });
       artifacts.push({
-        scenario: "sync-repo",
+        scenario: "temporary-path",
         theme: theme.key,
         state: "progress-pill",
-        path: await captureState(page, "sync-repo", theme.key, "progress-pill", {
+        path: await captureState(page, "temporary-path", theme.key, "progress-pill", {
           element: activityFabProgress
         })
       });
@@ -3224,10 +3254,10 @@ const main = async () => {
           return settled && Number.isFinite(opacity) && opacity > 0.9;
         });
         artifacts.push({
-          scenario: "sync-repo",
+          scenario: "temporary-path",
           theme: theme.key,
           state: "activity-progress-logs",
-          path: await captureState(page, "sync-repo", theme.key, "activity-progress-logs", {
+          path: await captureState(page, "temporary-path", theme.key, "activity-progress-logs", {
             element: activityDrawerProgress
           })
         });
@@ -3243,34 +3273,34 @@ const main = async () => {
     }
 
     await page.evaluate(() => {
-      window.__ui_check__?.showSyncRepoWarning?.({
+      window.__ui_check__?.showTemporaryPathWarning?.({
         mode: "settings-close",
         status: "git-expected-usable",
-        message: "Existing sync repo looks usable",
-        path: "C:\\\\sync-repo\\\\xauusd",
+        message: "Existing Temporary Path looks usable",
+        path: "C:\\\\temp-path\\\\xauusd",
         details: "",
         canUseAsIs: true,
         canReset: true
       });
     });
     await page.waitForTimeout(80);
-    await runCheck(theme.key, "Sync repo warning transition (usable)", () =>
-      assertOpacityTransition(page, "[data-qa='qa:modal-backdrop:sync-repo-warning']", "Sync repo warning")
+    await runCheck(theme.key, "Temporary Path warning transition (usable)", () =>
+      assertOpacityTransition(page, "[data-qa='qa:modal-backdrop:temporary-path-warning']", "Temporary Path warning")
     );
-    await runCheck(theme.key, "Sync repo warning has transition", () =>
-      assertHasTransition(page, "[data-qa='qa:modal:sync-repo-warning']", "Sync repo warning modal")
+    await runCheck(theme.key, "Temporary Path warning has transition", () =>
+      assertHasTransition(page, "[data-qa='qa:modal:temporary-path-warning']", "Temporary Path warning modal")
     );
-    const syncRepoWarningModal = page.locator("[data-qa='qa:modal:sync-repo-warning']").first();
-    if (await syncRepoWarningModal.count()) {
+    const temporaryPathWarningModal = page.locator("[data-qa='qa:modal:temporary-path-warning']").first();
+    if (await temporaryPathWarningModal.count()) {
       artifacts.push({
-        scenario: "sync-repo",
+        scenario: "temporary-path",
         theme: theme.key,
         state: "warning-usable",
-        path: await captureState(page, "sync-repo", theme.key, "warning-usable", {
-          element: syncRepoWarningModal
+        path: await captureState(page, "temporary-path", theme.key, "warning-usable", {
+          element: temporaryPathWarningModal
         })
       });
-      const cancel = page.locator("[data-qa='qa:sync-repo-warning:cancel']").first();
+      const cancel = page.locator("[data-qa='qa:temporary-path-warning:cancel']").first();
       if (await cancel.count()) {
         await cancel.click();
         await page.waitForTimeout(260);
@@ -3278,28 +3308,28 @@ const main = async () => {
     }
 
     await page.evaluate(() => {
-      window.__ui_check__?.showSyncRepoWarning?.({
+      window.__ui_check__?.showTemporaryPathWarning?.({
         mode: "settings-close",
         status: "git-not-clean",
-        message: "Sync repo contains local changes",
-        path: "C:\\\\sync-repo\\\\xauusd",
+        message: "Temporary Path folder contains local changes",
+        path: "C:\\\\temp-path\\\\xauusd",
         details: "",
         canUseAsIs: false,
         canReset: true
       });
     });
     await page.waitForTimeout(80);
-    const syncRepoWarningModalDirty = page.locator("[data-qa='qa:modal:sync-repo-warning']").first();
-    if (await syncRepoWarningModalDirty.count()) {
+    const temporaryPathWarningModalDirty = page.locator("[data-qa='qa:modal:temporary-path-warning']").first();
+    if (await temporaryPathWarningModalDirty.count()) {
       artifacts.push({
-        scenario: "sync-repo",
+        scenario: "temporary-path",
         theme: theme.key,
         state: "warning-not-clean",
-        path: await captureState(page, "sync-repo", theme.key, "warning-not-clean", {
-          element: syncRepoWarningModalDirty
+        path: await captureState(page, "temporary-path", theme.key, "warning-not-clean", {
+          element: temporaryPathWarningModalDirty
         })
       });
-      const cancel = page.locator("[data-qa='qa:sync-repo-warning:cancel']").first();
+      const cancel = page.locator("[data-qa='qa:temporary-path-warning:cancel']").first();
       if (await cancel.count()) {
         await cancel.click();
         await page.waitForTimeout(260);
@@ -3307,31 +3337,31 @@ const main = async () => {
     }
 
     await page.evaluate(() => {
-      window.__ui_check__?.showSyncRepoWarning?.({
+      window.__ui_check__?.showTemporaryPathWarning?.({
         mode: "settings-close",
         status: "git-origin-mismatch",
-        message: "Git repo detected, but origin does not match the configured sync repo",
-        path: "C:\\\\sync-repo\\\\other",
+        message: "Git repo detected, but origin does not match the configured Temporary Path repo",
+        path: "C:\\\\temp-path\\\\other",
         details: "",
         canUseAsIs: false,
         canReset: true
       });
     });
     await page.waitForTimeout(80);
-    await runCheck(theme.key, "Sync repo warning transition (other)", () =>
-      assertOpacityTransition(page, "[data-qa='qa:modal-backdrop:sync-repo-warning']", "Sync repo warning")
+    await runCheck(theme.key, "Temporary Path warning transition (other)", () =>
+      assertOpacityTransition(page, "[data-qa='qa:modal-backdrop:temporary-path-warning']", "Temporary Path warning")
     );
-    const syncRepoWarningModalOther = page.locator("[data-qa='qa:modal:sync-repo-warning']").first();
-    if (await syncRepoWarningModalOther.count()) {
+    const temporaryPathWarningModalOther = page.locator("[data-qa='qa:modal:temporary-path-warning']").first();
+    if (await temporaryPathWarningModalOther.count()) {
       artifacts.push({
-        scenario: "sync-repo",
+        scenario: "temporary-path",
         theme: theme.key,
         state: "warning-other",
-        path: await captureState(page, "sync-repo", theme.key, "warning-other", {
-          element: syncRepoWarningModalOther
+        path: await captureState(page, "temporary-path", theme.key, "warning-other", {
+          element: temporaryPathWarningModalOther
         })
       });
-      const cancel = page.locator("[data-qa='qa:sync-repo-warning:cancel']").first();
+      const cancel = page.locator("[data-qa='qa:temporary-path-warning:cancel']").first();
       if (await cancel.count()) {
         await cancel.click();
         await page.waitForTimeout(260);
@@ -3339,10 +3369,10 @@ const main = async () => {
     }
 
     await page.evaluate(() => {
-      window.__ui_check__?.showSyncRepoWarning?.({
+      window.__ui_check__?.showTemporaryPathWarning?.({
         mode: "settings-close",
         status: "unsafe",
-        message: "Sync repo overlaps Main Path. Choose a separate folder.",
+        message: "Temporary Path overlaps Main Path. Choose a separate folder.",
         path: "C:\\\\path\\\\to\\\\main",
         details: "",
         canUseAsIs: false,
@@ -3350,17 +3380,17 @@ const main = async () => {
       });
     });
     await page.waitForTimeout(80);
-    const syncRepoWarningModalUnsafe = page.locator("[data-qa='qa:modal:sync-repo-warning']").first();
-    if (await syncRepoWarningModalUnsafe.count()) {
+    const temporaryPathWarningModalUnsafe = page.locator("[data-qa='qa:modal:temporary-path-warning']").first();
+    if (await temporaryPathWarningModalUnsafe.count()) {
       artifacts.push({
-        scenario: "sync-repo",
+        scenario: "temporary-path",
         theme: theme.key,
         state: "warning-unsafe",
-        path: await captureState(page, "sync-repo", theme.key, "warning-unsafe", {
-          element: syncRepoWarningModalUnsafe
+        path: await captureState(page, "temporary-path", theme.key, "warning-unsafe", {
+          element: temporaryPathWarningModalUnsafe
         })
       });
-      const cancel = page.locator("[data-qa='qa:sync-repo-warning:cancel']").first();
+      const cancel = page.locator("[data-qa='qa:temporary-path-warning:cancel-x']").first();
       if (await cancel.count()) {
         await cancel.click();
         await page.waitForTimeout(260);
@@ -3368,28 +3398,28 @@ const main = async () => {
     }
 
     await page.evaluate(() => {
-      window.__ui_check__?.showSyncRepoWarning?.({
+      window.__ui_check__?.showTemporaryPathWarning?.({
         mode: "settings-close",
         status: "non-git-nonempty",
         message: "Folder contains files",
-        path: "C:\\\\sync-repo\\\\junk",
+        path: "C:\\\\temporary-path\\\\junk",
         details: "",
         canUseAsIs: false,
         canReset: true
       });
     });
     await page.waitForTimeout(80);
-    const syncRepoWarningModalNonGit = page.locator("[data-qa='qa:modal:sync-repo-warning']").first();
-    if (await syncRepoWarningModalNonGit.count()) {
+    const temporaryPathWarningModalNonGit = page.locator("[data-qa='qa:modal:temporary-path-warning']").first();
+    if (await temporaryPathWarningModalNonGit.count()) {
       artifacts.push({
-        scenario: "sync-repo",
+        scenario: "temporary-path",
         theme: theme.key,
         state: "warning-non-git",
-        path: await captureState(page, "sync-repo", theme.key, "warning-non-git", {
-          element: syncRepoWarningModalNonGit
+        path: await captureState(page, "temporary-path", theme.key, "warning-non-git", {
+          element: temporaryPathWarningModalNonGit
         })
       });
-      const cancel = page.locator("[data-qa='qa:sync-repo-warning:cancel']").first();
+      const cancel = page.locator("[data-qa='qa:temporary-path-warning:cancel']").first();
       if (await cancel.count()) {
         await cancel.click();
         await page.waitForTimeout(260);
@@ -3397,28 +3427,28 @@ const main = async () => {
     }
 
     await page.evaluate(() => {
-      window.__ui_check__?.showSyncRepoWarning?.({
+      window.__ui_check__?.showTemporaryPathWarning?.({
         mode: "settings-close",
         status: "git-unusable",
         message: "Git metadata detected, but the repo is not usable",
-        path: "C:\\\\sync-repo\\\\broken",
+        path: "C:\\\\temporary-path\\\\broken",
         details: "fatal: not a git repository (or any of the parent directories): .git\n\nExpected: yiyousiow000814/XAUUSD-Calendar-Agent",
         canUseAsIs: false,
         canReset: true
       });
     });
     await page.waitForTimeout(80);
-    const syncRepoWarningModalUnusable = page.locator("[data-qa='qa:modal:sync-repo-warning']").first();
-    if (await syncRepoWarningModalUnusable.count()) {
+    const temporaryPathWarningModalUnusable = page.locator("[data-qa='qa:modal:temporary-path-warning']").first();
+    if (await temporaryPathWarningModalUnusable.count()) {
       artifacts.push({
-        scenario: "sync-repo",
+        scenario: "temporary-path",
         theme: theme.key,
         state: "warning-git-unusable",
-        path: await captureState(page, "sync-repo", theme.key, "warning-git-unusable", {
-          element: syncRepoWarningModalUnusable
+        path: await captureState(page, "temporary-path", theme.key, "warning-git-unusable", {
+          element: temporaryPathWarningModalUnusable
         })
       });
-      const cancel = page.locator("[data-qa='qa:sync-repo-warning:cancel']").first();
+      const cancel = page.locator("[data-qa='qa:temporary-path-warning:cancel']").first();
       if (await cancel.count()) {
         await cancel.click();
         await page.waitForTimeout(260);
