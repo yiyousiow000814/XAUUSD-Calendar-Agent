@@ -15,6 +15,7 @@ This document mirrors `AGENTS.md` and adds Qwen-specific tips.
 - **Known Issues Format**: Use numbered lists (e.g., `1. item`), not bullet lists (e.g., `- item`).
 - **Evidence Requirement**: Every conclusion must be backed by reproducible commands or scrape steps. Describe the original state (A), the change you made, and the resulting state (B).
 - **GitHub Language Convention**: PR and issue titles stay in English. Descriptions and regular comments default to Simplified Chinese, unless the request explicitly begins with `[EN]`.
+- **PR Comment Policy**: Do not create PR comments unless the user explicitly asks for them.
 - **Check**: PR review verifies English in `AGENTS.md` and Simplified Chinese default in bot replies.
 - **Docs/Comments Tone**: Avoid historical/comparative notes (e.g., "previously...", "no longer...", "used to..."); describe current behavior directly.
 - **Git/GitHub Operations**: Assume credentials exist. If a command fails, rely on the terminal output for next steps rather than re-confirming access.
