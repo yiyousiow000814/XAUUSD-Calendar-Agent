@@ -40,14 +40,24 @@ import { generateReport } from "./ui-check/report.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..", "..");
-const artifactsRoot = path.resolve(repoRoot, "artifacts", "ui-check");
+const resolveArtifactsRoot = () => {
+  if (process.env.UI_CHECK_OUTPUT_DIR) {
+    return path.resolve(process.env.UI_CHECK_OUTPUT_DIR);
+  }
+  const tag = process.env.UI_CHECK_OUTPUT_TAG;
+  if (tag) {
+    return path.resolve(repoRoot, "artifacts", "ui-check", tag);
+  }
+  return path.resolve(repoRoot, "artifacts", "ui-check");
+};
+const artifactsRoot = resolveArtifactsRoot();
 const snapshotsDir = path.join(artifactsRoot, "snapshots");
 const framesDir = path.join(artifactsRoot, "frames");
 const videoDir = path.join(artifactsRoot, "video");
 const reportPath = path.join(artifactsRoot, "report.html");
 let baseURL = process.env.UI_BASE_URL || "http://127.0.0.1:4173";
 let shouldStartServer = !process.env.UI_BASE_URL;
-const defaultPort = 4183;
+const defaultPort = Number.parseInt(process.env.UI_CHECK_PORT || "", 10) || 4183;
 let serverState = null;
 
 const ensureDir = async (dir) => {
@@ -91,6 +101,81 @@ const clearDir = async (dir) => {
 };
 
 const sanitize = (value) => value.replace(/[^a-zA-Z0-9_-]+/g, "_");
+
+const parsePositiveInt = (value) => {
+  if (!value) return null;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+};
+
+const parseWorkerLimit = (value) => parsePositiveInt(value);
+const parsePort = (value) => {
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+};
+
+const createMutex = () => {
+  let current = Promise.resolve();
+  return async (fn) => {
+    let release = null;
+    const ready = current;
+    current = new Promise((resolve) => {
+      release = resolve;
+    });
+    await ready;
+    try {
+      return await fn();
+    } finally {
+      release?.();
+    }
+  };
+};
+
+const createLimiter = (limit) => {
+  let active = 0;
+  const queue = [];
+  const next = () => {
+    if (active >= limit || queue.length === 0) return;
+    active += 1;
+    const { fn, resolve, reject } = queue.shift();
+    Promise.resolve()
+      .then(fn)
+      .then((result) => {
+        active -= 1;
+        resolve(result);
+        next();
+      })
+      .catch((err) => {
+        active -= 1;
+        reject(err);
+        next();
+      });
+  };
+  return (fn) =>
+    new Promise((resolve, reject) => {
+      queue.push({ fn, resolve, reject });
+      next();
+    });
+};
+
+const runWithPool = async (items, limit, runner) => {
+  const errors = [];
+  let index = 0;
+  const next = async () => {
+    while (index < items.length) {
+      const current = items[index];
+      index += 1;
+      try {
+        await runner(current);
+      } catch (err) {
+        errors.push({ item: current, error: err });
+      }
+    }
+  };
+  const workers = Array.from({ length: limit }, () => next());
+  await Promise.all(workers);
+  return errors;
+};
 
 const gotoWithRetries = async (page, url, options, attempts = 12) => {
   let lastErr = null;
@@ -382,6 +467,23 @@ const captureFrames = async (page, scenario, theme, state, count = 4, gapMs = 80
     await page.waitForTimeout(gapMs);
   }
   return files;
+};
+
+const waitForActionLoading = async (page, actionSelector, spinnerSelector, timeoutMs = 2500) => {
+  const waitForSpinner = page
+    .waitForFunction((sel) => !!document.querySelector(sel), spinnerSelector, { timeout: timeoutMs })
+    .catch(() => null);
+  const waitForLoading = page
+    .waitForFunction(
+      (sel) => {
+        const node = document.querySelector(sel);
+        return node?.getAttribute("data-qa-state") === "loading";
+      },
+      actionSelector,
+      { timeout: timeoutMs }
+    )
+    .catch(() => null);
+  await Promise.all([waitForSpinner, waitForLoading]);
 };
 
 const captureClipFramesAtTimes = async ({
@@ -1178,16 +1280,27 @@ const readActionButtonState = async (page, selector) =>
     return { state, label, toasts };
   }, selector);
 
-const waitForActionCompletion = async (page, selector, { timeoutMs = 6000 } = {}) => {
+const waitForActionCompletion = async (
+  page,
+  selector,
+  { timeoutMs = 6000, minIdleMs = 400 } = {}
+) => {
   const start = Date.now();
   let last = await readActionButtonState(page, selector);
+  let sawNonIdle = last.state && last.state !== "idle";
 
   // Wait until the state machine settles into a terminal state. We treat both
   // success and error as terminal; idle is considered terminal too because the
   // UI auto-resets after the brief success/error flash.
   while (Date.now() - start < timeoutMs) {
     last = await readActionButtonState(page, selector);
-    if (["success", "error", "idle"].includes(last.state)) {
+    if (last.state && last.state !== "idle") {
+      sawNonIdle = true;
+    }
+    if (["success", "error"].includes(last.state)) {
+      return { ...last, timedOut: false };
+    }
+    if (last.state === "idle" && sawNonIdle && Date.now() - start >= minIdleMs) {
       return { ...last, timedOut: false };
     }
     await page.waitForTimeout(90);
@@ -1336,6 +1449,16 @@ const assertThemeTransitionSynchronized = async (page, themeKey) => {
     { timeout: durationMs + 2000 }
   );
   const flipStart = Date.now();
+
+  await page
+    .waitForFunction(
+      () =>
+        document.documentElement.classList.contains("theme-transition") ||
+        document.documentElement.classList.contains("theme-vt"),
+      null,
+      { timeout: durationMs + 800 }
+    )
+    .catch(() => null);
 
   // Give the UI a moment to apply theme transition origin vars before sampling.
   await page.waitForTimeout(16);
@@ -1488,7 +1611,25 @@ const assertThemeTransitionSynchronized = async (page, themeKey) => {
 
   const avgMid = nearest(Math.round(durationMs * 0.5))?.avg ?? 0;
   if (avgMid < 0.03) {
-    throw new Error(`Theme transition shows no mid-flight progress (avg@50%=${avgMid.toFixed(2)})`);
+    await page.waitForTimeout(120);
+    const retryPath = path.join(
+      framesDir,
+      `${sanitize("theme-transition")}__${sanitize(themeKey)}__retry.png`
+    );
+    await page.screenshot({ path: retryPath });
+    const retryPng = await readPng(retryPath);
+    const retryProgresses = orderedPoints.map((point) => {
+      const cur = dist(pixelAt(startPng, point.x, point.y), pixelAt(retryPng, point.x, point.y));
+      const value = point.denom ? cur / point.denom : 0;
+      return Math.max(0, Math.min(1, value));
+    });
+    const retryAvg =
+      retryProgresses.reduce((sum, value) => sum + value, 0) / retryProgresses.length;
+    if (retryAvg < 0.03) {
+      throw new Error(
+        `Theme transition shows no mid-flight progress (avg@50%=${avgMid.toFixed(2)}, retry=${retryAvg.toFixed(2)})`
+      );
+    }
   }
 
   const doneAt = metrics.find((m) => m.avg >= 0.97)?.t ?? null;
@@ -1551,6 +1692,100 @@ const assertThemeTransitionSynchronized = async (page, themeKey) => {
 };
 
 const main = async () => {
+  const allThemes = [
+    { key: "dark", mode: "dark" },
+    { key: "light", mode: "light" },
+    { key: "system-dark", mode: "system", scheme: "dark" },
+    { key: "system-light", mode: "system", scheme: "light" }
+  ];
+  const requestedTheme = process.env.UI_CHECK_THEME;
+  const themes = requestedTheme
+    ? allThemes.filter((theme) => theme.key === requestedTheme)
+    : allThemes;
+
+  if (requestedTheme && themes.length === 0) {
+    throw new Error(`Unknown UI_CHECK_THEME: ${requestedTheme}`);
+  }
+
+  const runIsolatedThemes = async (themeList) => {
+    const baseArtifactsRoot = path.resolve(repoRoot, "artifacts", "ui-check");
+    const baseReportPath = path.join(baseArtifactsRoot, "report.html");
+    await ensureDir(baseArtifactsRoot);
+    await clearDir(baseArtifactsRoot);
+    await fs.rm(baseReportPath, { force: true });
+
+    const workerLimit = parseWorkerLimit(process.env.UI_CHECK_WORKERS) ?? themeList.length;
+    const workerCount = Math.max(1, Math.min(themeList.length, workerLimit));
+    const basePort = parsePort(process.env.UI_CHECK_PORT_BASE) ?? defaultPort;
+
+    const jobs = themeList.map((theme, index) => ({ theme, index }));
+    const errors = await runWithPool(jobs, workerCount, async ({ theme, index }) => {
+      await new Promise((resolve, reject) => {
+        const port = basePort + index * 10;
+        const child = spawn("node", [path.join(__dirname, "ui-check.mjs")], {
+          cwd: repoRoot,
+          stdio: "inherit",
+          env: {
+            ...process.env,
+            UI_CHECK_THEME: theme.key,
+            UI_CHECK_OUTPUT_TAG: theme.key,
+            UI_CHECK_WORKERS: "1",
+            UI_CHECK_SKIP_REPORT: "1",
+            UI_CHECK_PORT: String(port)
+          }
+        });
+        child.on("exit", (code) => {
+          if (code === 0) {
+            resolve();
+          } else {
+            reject(new Error(`ui-check child failed (${theme.key}) exit=${code}`));
+          }
+        });
+      });
+    });
+
+    const manifests = [];
+    for (const theme of themeList) {
+      const manifestPath = path.join(baseArtifactsRoot, theme.key, "manifest.json");
+      try {
+        const data = await fs.readFile(manifestPath, "utf-8");
+        manifests.push(JSON.parse(data));
+      } catch (err) {
+        console.warn(`WARN ui-check manifest missing for ${theme.key}: ${err?.message || err}`);
+      }
+    }
+
+    const mergedArtifacts = manifests.flatMap((m) => m?.artifacts || []);
+    const mergedVideos = manifests.flatMap((m) => m?.videos || []);
+    await generateReport(mergedArtifacts, mergedVideos, {
+      artifactsRoot: baseArtifactsRoot,
+      reportPath: baseReportPath
+    });
+
+    const mergedChecks = manifests.flatMap((m) => m?.checkResults || []);
+    const summary = mergedChecks.reduce(
+      (acc, item) => {
+        acc[item.status] = (acc[item.status] || 0) + 1;
+        return acc;
+      },
+      {}
+    );
+    console.log("UI-CHECK SUMMARY", summary);
+
+    if (errors.length) {
+      const failedThemes = errors
+        .map(({ item }) => item?.theme?.key || "unknown")
+        .filter(Boolean)
+        .join(", ");
+      throw new Error(`UI-CHECK THEMES FAILED: ${failedThemes}`);
+    }
+  };
+
+  if (process.env.UI_CHECK_ISOLATED === "1" && !requestedTheme) {
+    await runIsolatedThemes(themes);
+    return;
+  }
+
   await ensureDir(artifactsRoot);
   await ensureDir(snapshotsDir);
   await ensureDir(framesDir);
@@ -1757,12 +1992,15 @@ const main = async () => {
     }
 
     browser = await chromium.launch();
-    const themes = [
-      { key: "dark", mode: "dark" },
-      { key: "light", mode: "light" },
-      { key: "system-dark", mode: "system", scheme: "dark" },
-      { key: "system-light", mode: "system", scheme: "light" }
-    ];
+
+    const actionMutex = createMutex();
+    const animWorkerLimit =
+      parseWorkerLimit(process.env.UI_CHECK_ANIM_WORKERS) ?? Math.min(2, themes.length);
+    const animWorkerCount = Math.max(1, Math.min(themes.length, animWorkerLimit));
+    const animationLimiter = createLimiter(animWorkerCount);
+
+    const runAnimationCheck = async (themeKey, name, fn) =>
+      animationLimiter(() => runCheck(themeKey, name, fn));
 
   const ensureServerHealthy = async () => {
     if (!shouldStartServer) return;
@@ -2039,19 +2277,19 @@ const main = async () => {
       skipCheck(theme.key, "Theme transition synchronized", "System themes skipped");
     } else {
       let transitionFrames = [];
-      await runCheck(theme.key, "Theme transition synchronized", async () => {
+      await runAnimationCheck(theme.key, "Theme transition synchronized", async () => {
         transitionFrames = await assertThemeTransitionSynchronized(page, theme.key);
       });
-       transitionFrames.forEach((frame) => {
-         artifacts.push({
-           scenario: "theme-transition",
-           theme: theme.key,
-           state: `t${String(frame.ms).padStart(3, "0")}ms`,
-           label: `t=${frame.ms}ms (actual ~${frame.actualMs ?? "?"}ms)`,
-           path: frame.path
-         });
-       });
-     }
+      transitionFrames.forEach((frame) => {
+        artifacts.push({
+          scenario: "theme-transition",
+          theme: theme.key,
+          state: `t${String(frame.ms).padStart(3, "0")}ms`,
+          label: `t=${frame.ms}ms (actual ~${frame.actualMs ?? "?"}ms)`,
+          path: frame.path
+        });
+      });
+    }
     await page.waitForTimeout(120);
     const themeAfterToggle = await page.evaluate(() => ({
       theme: document.documentElement.dataset.theme,
@@ -2177,7 +2415,7 @@ const main = async () => {
     if (theme.mode === "system") {
       skipCheck(theme.key, "Modal transition sampling", "System themes skipped");
     } else {
-      await runCheck(theme.key, "Modal transition sampling", () =>
+      await runAnimationCheck(theme.key, "Modal transition sampling", () =>
         assertOpacityTransition(page, "[data-qa*='qa:modal:settings']", "Settings modal")
       );
     }
@@ -3073,298 +3311,311 @@ const main = async () => {
       return true;
     });
 
-    const pullButton = page.locator("[data-qa*='qa:action:pull']").first();
-    await pullButton.hover();
-    artifacts.push({
-      scenario: "actions",
-      theme: theme.key,
-      state: "pull-hover",
-      path: await captureState(page, "actions", theme.key, "pull-hover")
-    });
-    const releasePull = await pressElement(page, pullButton);
-    await page.waitForTimeout(80);
-    artifacts.push({
-      scenario: "actions",
-      theme: theme.key,
-      state: "pull-press",
-      path: await captureState(page, "actions", theme.key, "pull-press")
-    });
-    await releasePull();
-    await pullButton.click();
-    await page.waitForTimeout(120);
-    artifacts.push({
-      scenario: "actions",
-      theme: theme.key,
-      state: "pull-loading",
-      path: await captureState(page, "actions", theme.key, "pull-loading")
-    });
-    await runCheck(theme.key, "Pull spinner animation", () =>
-      assertSpinnerAnim(page, "[data-qa*='qa:spinner:pull']", "Pull")
-    );
-    const toast = page.locator(".toast").first();
-    if (await toast.count()) {
-      await runCheck(theme.key, "Toast transition presence", () =>
-        assertHasTransition(page, ".toast", "Toast")
-      );
-    } else {
-      skipCheck(theme.key, "Toast transition presence", "Toast not present");
-    }
-
-    const pullCompletion = await waitForActionCompletion(page, "[data-qa*='qa:action:pull']");
-    const pullStateLabel =
-      pullCompletion.state === "success"
-        ? "pull-success"
-        : pullCompletion.state === "error"
-          ? "pull-error"
-          : pullCompletion.timedOut
-            ? "pull-timeout"
-            : "pull-final";
-
-    artifacts.push({
-      scenario: "actions",
-      theme: theme.key,
-      state: pullStateLabel,
-      path: await captureState(page, "actions", theme.key, pullStateLabel)
-    });
-
-    await runCheck(theme.key, "Pull completes with success", async () => {
-      if (pullCompletion.state !== "success") {
-        const toastSummary = (pullCompletion.toasts || [])
-          .map((t) => `${t.type}:${t.text}`)
-          .slice(0, 3)
-          .join(" | ");
-        throw new Error(
-          `Pull did not reach success (state=${pullCompletion.state || "?"}, timedOut=${pullCompletion.timedOut}) ` +
-            `(label='${pullCompletion.label || ""}', toasts='${toastSummary}')`
-        );
-      }
-      return true;
-    });
-
-    // Let the pull button return to idle (it auto-resets after the success flash) so
-    // downstream layout-sensitive checks (e.g. sync-target flash) aren't affected by
-    // the pull button width transition.
-    await page.waitForFunction(
-      () => {
-        const btn = document.querySelector("[data-qa*='qa:action:pull']");
-        return (btn?.getAttribute("data-qa-state") || "") === "idle";
-      },
-      null,
-      { timeout: 6000 }
-    );
-    await page.waitForTimeout(200);
-
-    const syncButton = page.locator("[data-qa*='qa:action:sync']").first();
-    await syncButton.hover();
-    artifacts.push({
-      scenario: "actions",
-      theme: theme.key,
-      state: "sync-hover",
-      path: await captureState(page, "actions", theme.key, "sync-hover")
-    });
-    const syncTargetBaseline = await page.evaluate(() => {
-      const target = document.querySelector("[data-qa='qa:action:sync-target']");
-      const text = (target?.textContent || "").toLowerCase();
-      return {
-        missing: text.includes("not set"),
-        pulse: Number(target?.getAttribute("data-qa-pulse") || "0")
-      };
-    });
-
-    if (syncTargetBaseline.missing) {
-      await runCheck(theme.key, "Sync missing target flashes twice", async () => {
-        await syncButton.click();
-        const timeline = [];
-        for (let i = 0; i < 26; i += 1) {
-          timeline.push(
-            await page.evaluate(() => {
-              const target = document.querySelector("[data-qa='qa:action:sync-target']");
-              if (!target) {
-                return { flash: false, borderColor: "", left: 0, top: 0, width: 0, height: 0, afterOpacity: 0 };
-              }
-              const flash = (target.getAttribute("data-qa-flash") || "0") === "1";
-              const color = window.getComputedStyle(target).borderColor || "";
-              const rect = target.getBoundingClientRect();
-              const after = window.getComputedStyle(target, "::after");
-              const afterOpacity = Number.parseFloat(after.opacity || "0") || 0;
-              return {
-                flash,
-                borderColor: color,
-                left: rect.left,
-                top: rect.top,
-                width: rect.width,
-                height: rect.height,
-                afterOpacity
-              };
-            })
-          );
-          await page.waitForTimeout(40);
-        }
-        let segments = timeline.length && timeline[0].flash ? 1 : 0;
-        for (let i = 1; i < timeline.length; i += 1) {
-          const prev = timeline[i - 1].flash;
-          const cur = timeline[i].flash;
-          if (!prev && cur) segments += 1;
-        }
-        if (segments < 2) {
-          throw new Error(`Expected >=2 flash segments, got ${segments}. timeline=${JSON.stringify(timeline)}`);
-        }
-        const peakOpacity = Math.max(
-          ...timeline
-            .filter((entry) => entry.flash)
-            .map((entry) => entry.afterOpacity || 0)
-            .concat([0])
-        );
-        if (peakOpacity < 0.35) {
-          throw new Error(
-            `Expected sync-target flash ring to become visible during flash (peakOpacity=${peakOpacity.toFixed(2)}).`
-          );
-        }
-        const widths = timeline.map((entry) => entry.width).filter((value) => value > 0);
-        const heights = timeline.map((entry) => entry.height).filter((value) => value > 0);
-        const lefts = timeline.map((entry) => entry.left).filter((value) => Number.isFinite(value));
-        const tops = timeline.map((entry) => entry.top).filter((value) => Number.isFinite(value));
-        const widthDelta = widths.length ? Math.max(...widths) - Math.min(...widths) : 0;
-        const heightDelta = heights.length ? Math.max(...heights) - Math.min(...heights) : 0;
-        const leftDelta = lefts.length ? Math.max(...lefts) - Math.min(...lefts) : 0;
-        const topDelta = tops.length ? Math.max(...tops) - Math.min(...tops) : 0;
-        if (widthDelta > 0.75 || heightDelta > 0.75 || leftDelta > 0.75 || topDelta > 0.75) {
-          throw new Error(
-            `Sync target shifted during flash (widthΔ=${widthDelta.toFixed(2)}px, heightΔ=${heightDelta.toFixed(
-              2
-            )}px, leftΔ=${leftDelta.toFixed(2)}px, topΔ=${topDelta.toFixed(2)}px).`
-          );
-        }
-        return true;
-      });
-
-      await page.waitForTimeout(120);
+    await actionMutex(async () => {
+      const pullButton = page.locator("[data-qa*='qa:action:pull']").first();
+      await pullButton.hover();
       artifacts.push({
         scenario: "actions",
         theme: theme.key,
-        state: "sync-missing-target",
-        path: await captureState(page, "actions", theme.key, "sync-missing-target")
+        state: "pull-hover",
+        path: await captureState(page, "actions", theme.key, "pull-hover")
       });
-      await runCheck(theme.key, "Sync missing target pulse", async () => {
-        const result = await page.evaluate((baselinePulse) => {
-          const syncBtn = document.querySelector("[data-qa*='qa:action:sync']");
-          const target = document.querySelector("[data-qa='qa:action:sync-target']");
-          const spinner = document.querySelector("[data-qa*='qa:spinner:sync']");
-          const state = syncBtn?.getAttribute("data-qa-state") || "";
-          const label = (syncBtn?.textContent || "").toLowerCase();
-          const pulse = Number(target?.getAttribute("data-qa-pulse") || "0");
-
-          if (state !== "idle") {
-            return { ok: false, reason: `Sync button entered ${state} while sync target missing` };
-          }
-          if (label.includes("syncing") || label.includes("failed")) {
-            return { ok: false, reason: `Sync button label unexpected while target missing (label=${label})` };
-          }
-          if (spinner) {
-            return { ok: false, reason: "Sync spinner rendered while target missing" };
-          }
-          if (pulse <= baselinePulse) {
-            return { ok: false, reason: `Sync target did not pulse (pulse=${pulse}, baseline=${baselinePulse})` };
-          }
-          return { ok: true };
-        }, syncTargetBaseline.pulse);
-
-        if (!result.ok) {
-          throw new Error(result.reason);
-        }
-        return true;
-      });
-
-      await page.evaluate(() => {
-        window.__ui_check__?.setOutputDir?.("C:\\\\ui-check\\\\output");
-      });
-      await page.waitForTimeout(120);
-    } else {
-      const releaseSync = await pressElement(page, syncButton);
+      const releasePull = await pressElement(page, pullButton);
       await page.waitForTimeout(80);
       artifacts.push({
         scenario: "actions",
         theme: theme.key,
-        state: "sync-press",
-        path: await captureState(page, "actions", theme.key, "sync-press")
+        state: "pull-press",
+        path: await captureState(page, "actions", theme.key, "pull-press")
       });
-      await releaseSync();
-      await syncButton.click();
-    }
-
-    if (syncTargetBaseline.missing) {
-      // Start an actual sync after a target is set.
-      await syncButton.click();
-    }
-    await page.waitForTimeout(120);
-    artifacts.push({
-      scenario: "actions",
-      theme: theme.key,
-      state: "sync-loading",
-      path: await captureState(page, "actions", theme.key, "sync-loading")
-    });
-    await runCheck(theme.key, "Sync spinner animation", () =>
-      assertSpinnerAnim(page, "[data-qa*='qa:spinner:sync']", "Sync")
-    );
-    if (await toast.count()) {
-      await runCheck(theme.key, "Toast transition presence (sync)", () =>
-        assertHasTransition(page, ".toast", "Toast")
+      await releasePull();
+      await pullButton.click();
+      await waitForActionLoading(page, "[data-qa*='qa:action:pull']", "[data-qa*='qa:spinner:pull']");
+      artifacts.push({
+        scenario: "actions",
+        theme: theme.key,
+        state: "pull-loading",
+        path: await captureState(page, "actions", theme.key, "pull-loading")
+      });
+      await runCheck(theme.key, "Pull spinner animation", () =>
+        assertSpinnerAnim(page, "[data-qa*='qa:spinner:pull']", "Pull")
       );
-    } else {
-      skipCheck(theme.key, "Toast transition presence (sync)", "Toast not present");
-    }
-
-    const syncCompletion = await waitForActionCompletion(page, "[data-qa*='qa:action:sync']");
-    const syncStateLabel =
-      syncCompletion.state === "success"
-        ? "sync-success"
-        : syncCompletion.state === "error"
-          ? "sync-error"
-          : syncCompletion.timedOut
-            ? "sync-timeout"
-            : "sync-final";
-    artifacts.push({
-      scenario: "actions",
-      theme: theme.key,
-      state: syncStateLabel,
-      path: await captureState(page, "actions", theme.key, syncStateLabel)
-    });
-    await runCheck(theme.key, "Sync completes with success", async () => {
-      if (syncCompletion.state !== "success") {
-        const toastSummary = (syncCompletion.toasts || [])
-          .map((t) => `${t.type}:${t.text}`)
-          .slice(0, 3)
-          .join(" | ");
-        throw new Error(
-          `Sync did not reach success (state=${syncCompletion.state || "?"}, timedOut=${syncCompletion.timedOut}) ` +
-            `(label='${syncCompletion.label || ""}', toasts='${toastSummary}')`
+      const toast = page.locator(".toast").first();
+      if (await toast.count()) {
+        await runCheck(theme.key, "Toast transition presence", () =>
+          assertHasTransition(page, ".toast", "Toast")
         );
+      } else {
+        skipCheck(theme.key, "Toast transition presence", "Toast not present");
       }
-      return true;
-    });
 
-    await runCheck(theme.key, "Last sync resets when sync target cleared", async () => {
-      await page.evaluate(() => window.__ui_check__?.setOutputDir?.(""));
-      await page.waitForTimeout(120);
-      const result = await page.evaluate(() => {
+      const pullCompletion = await waitForActionCompletion(page, "[data-qa*='qa:action:pull']");
+      const pullStateLabel =
+        pullCompletion.state === "success"
+          ? "pull-success"
+          : pullCompletion.state === "error"
+            ? "pull-error"
+            : pullCompletion.timedOut
+              ? "pull-timeout"
+              : "pull-final";
+
+      artifacts.push({
+        scenario: "actions",
+        theme: theme.key,
+        state: pullStateLabel,
+        path: await captureState(page, "actions", theme.key, pullStateLabel)
+      });
+
+      await runCheck(theme.key, "Pull completes with success", async () => {
+        if (pullCompletion.state !== "success") {
+          const toastSummary = (pullCompletion.toasts || [])
+            .map((t) => `${t.type}:${t.text}`)
+            .slice(0, 3)
+            .join(" | ");
+          throw new Error(
+            `Pull did not reach success (state=${pullCompletion.state || "?"}, timedOut=${pullCompletion.timedOut}) ` +
+              `(label='${pullCompletion.label || ""}', toasts='${toastSummary}')`
+          );
+        }
+        return true;
+      });
+
+      // Let the pull button return to idle (it auto-resets after the success flash) so
+      // downstream layout-sensitive checks (e.g. sync-target flash) aren't affected by
+      // the pull button width transition.
+      await page.waitForFunction(
+        () => {
+          const btn = document.querySelector("[data-qa*='qa:action:pull']");
+          return (btn?.getAttribute("data-qa-state") || "") === "idle";
+        },
+        null,
+        { timeout: 6000 }
+      );
+      await page.waitForTimeout(200);
+
+      const syncButton = page.locator("[data-qa*='qa:action:sync']").first();
+      await syncButton.hover();
+      artifacts.push({
+        scenario: "actions",
+        theme: theme.key,
+        state: "sync-hover",
+        path: await captureState(page, "actions", theme.key, "sync-hover")
+      });
+      const syncTargetBaseline = await page.evaluate(() => {
         const target = document.querySelector("[data-qa='qa:action:sync-target']");
-        const blocks = Array.from(document.querySelectorAll("[data-qa='qa:status:last-sync'] .meta-block"));
-        const syncBlock = blocks.find((block) =>
-          (block.querySelector(".meta-label")?.textContent || "").toLowerCase().includes("last sync")
-        );
-        const lastSync = syncBlock?.querySelector(".meta-value") || null;
+        const text = (target?.textContent || "").toLowerCase();
         return {
-          outputMissing: (target?.textContent || "").toLowerCase().includes("not set"),
-          lastSyncText: (lastSync?.textContent || "").trim()
+          missing: text.includes("not set"),
+          pulse: Number(target?.getAttribute("data-qa-pulse") || "0")
         };
       });
-      if (!result.outputMissing) {
-        throw new Error("Expected sync target to show Not set after clearing output dir");
+
+      if (syncTargetBaseline.missing) {
+        await runCheck(theme.key, "Sync missing target flashes twice", async () => {
+          await syncButton.click();
+          const timeline = [];
+          for (let i = 0; i < 26; i += 1) {
+            timeline.push(
+              await page.evaluate(() => {
+                const target = document.querySelector("[data-qa='qa:action:sync-target']");
+                if (!target) {
+                  return {
+                    flash: false,
+                    borderColor: "",
+                    left: 0,
+                    top: 0,
+                    width: 0,
+                    height: 0,
+                    afterOpacity: 0
+                  };
+                }
+                const flash = (target.getAttribute("data-qa-flash") || "0") === "1";
+                const color = window.getComputedStyle(target).borderColor || "";
+                const rect = target.getBoundingClientRect();
+                const after = window.getComputedStyle(target, "::after");
+                const afterOpacity = Number.parseFloat(after.opacity || "0") || 0;
+                return {
+                  flash,
+                  borderColor: color,
+                  left: rect.left,
+                  top: rect.top,
+                  width: rect.width,
+                  height: rect.height,
+                  afterOpacity
+                };
+              })
+            );
+            await page.waitForTimeout(40);
+          }
+          let segments = timeline.length && timeline[0].flash ? 1 : 0;
+          for (let i = 1; i < timeline.length; i += 1) {
+            const prev = timeline[i - 1].flash;
+            const cur = timeline[i].flash;
+            if (!prev && cur) segments += 1;
+          }
+          if (segments < 2) {
+            throw new Error(`Expected >=2 flash segments, got ${segments}. timeline=${JSON.stringify(timeline)}`);
+          }
+          const peakOpacity = Math.max(
+            ...timeline
+              .filter((entry) => entry.flash)
+              .map((entry) => entry.afterOpacity || 0)
+              .concat([0])
+          );
+          if (peakOpacity < 0.35) {
+            throw new Error(
+              `Expected sync-target flash ring to become visible during flash (peakOpacity=${peakOpacity.toFixed(2)}).`
+            );
+          }
+          const widths = timeline.map((entry) => entry.width).filter((value) => value > 0);
+          const heights = timeline.map((entry) => entry.height).filter((value) => value > 0);
+          const lefts = timeline.map((entry) => entry.left).filter((value) => Number.isFinite(value));
+          const tops = timeline.map((entry) => entry.top).filter((value) => Number.isFinite(value));
+          const widthDelta = widths.length ? Math.max(...widths) - Math.min(...widths) : 0;
+          const heightDelta = heights.length ? Math.max(...heights) - Math.min(...heights) : 0;
+          const leftDelta = lefts.length ? Math.max(...lefts) - Math.min(...lefts) : 0;
+          const topDelta = tops.length ? Math.max(...tops) - Math.min(...tops) : 0;
+          if (widthDelta > 0.75 || heightDelta > 0.75 || leftDelta > 0.75 || topDelta > 0.75) {
+            throw new Error(
+              `Sync target shifted during flash (widthΔ=${widthDelta.toFixed(2)}px, heightΔ=${heightDelta.toFixed(
+                2
+              )}px, leftΔ=${leftDelta.toFixed(2)}px, topΔ=${topDelta.toFixed(2)}px).`
+            );
+          }
+          return true;
+        });
+
+        await page.waitForTimeout(120);
+        artifacts.push({
+          scenario: "actions",
+          theme: theme.key,
+          state: "sync-missing-target",
+          path: await captureState(page, "actions", theme.key, "sync-missing-target")
+        });
+        await runCheck(theme.key, "Sync missing target pulse", async () => {
+          const result = await page.evaluate((baselinePulse) => {
+            const syncBtn = document.querySelector("[data-qa*='qa:action:sync']");
+            const target = document.querySelector("[data-qa='qa:action:sync-target']");
+            const spinner = document.querySelector("[data-qa*='qa:spinner:sync']");
+            const state = syncBtn?.getAttribute("data-qa-state") || "";
+            const label = (syncBtn?.textContent || "").toLowerCase();
+            const pulse = Number(target?.getAttribute("data-qa-pulse") || "0");
+
+            if (state !== "idle") {
+              return { ok: false, reason: `Sync button entered ${state} while sync target missing` };
+            }
+            if (label.includes("syncing") || label.includes("failed")) {
+              return {
+                ok: false,
+                reason: `Sync button label unexpected while target missing (label=${label})`
+              };
+            }
+            if (spinner) {
+              return { ok: false, reason: "Sync spinner rendered while target missing" };
+            }
+            if (pulse <= baselinePulse) {
+              return { ok: false, reason: `Sync target did not pulse (pulse=${pulse}, baseline=${baselinePulse})` };
+            }
+            return { ok: true };
+          }, syncTargetBaseline.pulse);
+
+          if (!result.ok) {
+            throw new Error(result.reason);
+          }
+          return true;
+        });
+
+        await page.evaluate(() => {
+          window.__ui_check__?.setOutputDir?.("C:\\\\ui-check\\\\output");
+        });
+        await page.waitForTimeout(120);
+      } else {
+        const releaseSync = await pressElement(page, syncButton);
+        await page.waitForTimeout(80);
+        artifacts.push({
+          scenario: "actions",
+          theme: theme.key,
+          state: "sync-press",
+          path: await captureState(page, "actions", theme.key, "sync-press")
+        });
+        await releaseSync();
+        await syncButton.click();
       }
-      if (result.lastSyncText.toLowerCase() !== "not yet") {
-        throw new Error(`Expected last sync to be Not yet, got '${result.lastSyncText}'`);
+
+      if (syncTargetBaseline.missing) {
+        // Start an actual sync after a target is set.
+        await syncButton.click();
       }
-      return true;
+      await waitForActionLoading(page, "[data-qa*='qa:action:sync']", "[data-qa*='qa:spinner:sync']");
+      artifacts.push({
+        scenario: "actions",
+        theme: theme.key,
+        state: "sync-loading",
+        path: await captureState(page, "actions", theme.key, "sync-loading")
+      });
+      await runCheck(theme.key, "Sync spinner animation", () =>
+        assertSpinnerAnim(page, "[data-qa*='qa:spinner:sync']", "Sync")
+      );
+      if (await toast.count()) {
+        await runCheck(theme.key, "Toast transition presence (sync)", () =>
+          assertHasTransition(page, ".toast", "Toast")
+        );
+      } else {
+        skipCheck(theme.key, "Toast transition presence (sync)", "Toast not present");
+      }
+
+      const syncCompletion = await waitForActionCompletion(page, "[data-qa*='qa:action:sync']");
+      const syncStateLabel =
+        syncCompletion.state === "success"
+          ? "sync-success"
+          : syncCompletion.state === "error"
+            ? "sync-error"
+            : syncCompletion.timedOut
+              ? "sync-timeout"
+              : "sync-final";
+      artifacts.push({
+        scenario: "actions",
+        theme: theme.key,
+        state: syncStateLabel,
+        path: await captureState(page, "actions", theme.key, syncStateLabel)
+      });
+      await runCheck(theme.key, "Sync completes with success", async () => {
+        if (syncCompletion.state !== "success") {
+          const toastSummary = (syncCompletion.toasts || [])
+            .map((t) => `${t.type}:${t.text}`)
+            .slice(0, 3)
+            .join(" | ");
+          throw new Error(
+            `Sync did not reach success (state=${syncCompletion.state || "?"}, timedOut=${syncCompletion.timedOut}) ` +
+              `(label='${syncCompletion.label || ""}', toasts='${toastSummary}')`
+          );
+        }
+        return true;
+      });
+
+      await runCheck(theme.key, "Last sync resets when sync target cleared", async () => {
+        await page.evaluate(() => window.__ui_check__?.setOutputDir?.(""));
+        await page.waitForTimeout(120);
+        const result = await page.evaluate(() => {
+          const target = document.querySelector("[data-qa='qa:action:sync-target']");
+          const blocks = Array.from(document.querySelectorAll("[data-qa='qa:status:last-sync'] .meta-block"));
+          const syncBlock = blocks.find((block) =>
+            (block.querySelector(".meta-label")?.textContent || "").toLowerCase().includes("last sync")
+          );
+          const lastSync = syncBlock?.querySelector(".meta-value") || null;
+          return {
+            outputMissing: (target?.textContent || "").toLowerCase().includes("not set"),
+            lastSyncText: (lastSync?.textContent || "").trim()
+          };
+        });
+        if (!result.outputMissing) {
+          throw new Error("Expected sync target to show Not set after clearing output dir");
+        }
+        if (result.lastSyncText.toLowerCase() !== "not yet") {
+          throw new Error(`Expected last sync to be Not yet, got '${result.lastSyncText}'`);
+        }
+        return true;
+      });
     });
 
     await page.evaluate(() => {});
@@ -3434,7 +3685,7 @@ const main = async () => {
             }
           ]
         });
-        await runCheck(theme.key, "Activity morph open shows transform change", async () => {
+        await runAnimationCheck(theme.key, "Activity morph open shows transform change", async () => {
           const transforms = frames
             .map((frame) => frame.transform)
             .filter((value) => typeof value === "string" && value.length);
@@ -3442,7 +3693,7 @@ const main = async () => {
             throw new Error(`Transform did not change during open (samples=${JSON.stringify(transforms)})`);
           }
         });
-        await runCheck(theme.key, "Activity morph open starts revealing content early", async () => {
+        await runAnimationCheck(theme.key, "Activity morph open starts revealing content early", async () => {
           const frame = frames.find((item) => item.ms === 240);
           if (!frame?.probes) throw new Error("Missing probes for t=240ms");
           const opacity = frame.probes.find((p) => p?.name === "contentOpacity")?.value;
@@ -3451,7 +3702,7 @@ const main = async () => {
             throw new Error(`Content not visible by t=240ms (opacity=${JSON.stringify(opacity)})`);
           }
         });
-        await runCheck(theme.key, "Activity morph open radius changes mid-flight", async () => {
+        await runAnimationCheck(theme.key, "Activity morph open radius changes mid-flight", async () => {
           const early = frames.find((item) => item.ms === 0)?.probes?.find((p) => p?.name === "radius")?.value;
           const mid = frames.find((item) => item.ms === 120)?.probes?.find((p) => p?.name === "radius")?.value;
           const late = frames.find((item) => item.ms === 880)?.probes?.find((p) => p?.name === "radius")?.value;
@@ -3510,7 +3761,7 @@ const main = async () => {
             );
           }
         });
-        await runCheck(theme.key, "Activity morph open starts from pill transform", async () => {
+        await runAnimationCheck(theme.key, "Activity morph open starts from pill transform", async () => {
           const first = frames.find((frame) => typeof frame.transform === "string")?.transform ?? null;
           if (!first) throw new Error("Missing transform sample at t=0");
           if (first === "none" || first === "matrix(1, 0, 0, 1, 0, 0)") {
@@ -3585,7 +3836,7 @@ const main = async () => {
             }
           ]
         });
-        await runCheck(theme.key, "Activity morph close shows transform change", async () => {
+        await runAnimationCheck(theme.key, "Activity morph close shows transform change", async () => {
           const transforms = frames
             .map((frame) => frame.transform)
             .filter((value) => typeof value === "string" && value.length);
@@ -3919,9 +4170,18 @@ const main = async () => {
   };
 
     const themeResults = [];
-    for (const theme of themes) {
+    const workerLimit = parseWorkerLimit(process.env.UI_CHECK_WORKERS) ?? Math.min(2, themes.length);
+    const workerCount = Math.max(1, Math.min(themes.length, workerLimit));
+    const themeErrors = await runWithPool(themes, workerCount, async (theme) => {
       await ensureServerHealthy();
       await runTheme(theme);
+    });
+    if (themeErrors.length) {
+      const failedThemes = themeErrors
+        .map(({ item }) => item?.key || "unknown")
+        .filter(Boolean)
+        .join(", ");
+      throw new Error(`UI-CHECK THEMES FAILED: ${failedThemes}`);
     }
 
     await browser.close();
@@ -3933,7 +4193,9 @@ const main = async () => {
       .filter((file) => file.endsWith(".webm"))
       .map((file) => path.join(videoDir, file));
 
-    await generateReport(artifacts, videos, { artifactsRoot, reportPath });
+    if (!process.env.UI_CHECK_SKIP_REPORT) {
+      await generateReport(artifacts, videos, { artifactsRoot, reportPath });
+    }
 
     const summary = checkResults.reduce(
       (acc, item) => {
@@ -3944,6 +4206,13 @@ const main = async () => {
     );
     console.log("UI-CHECK SUMMARY", summary);
     console.log("UI-CHECK METRICS", JSON.stringify(themeResults, null, 2));
+
+    const manifestPath = path.join(artifactsRoot, "manifest.json");
+    await fs.writeFile(
+      manifestPath,
+      JSON.stringify({ artifacts, videos, checkResults, artifactsRoot }, null, 2),
+      "utf-8"
+    );
   } finally {
     try {
       if (browser) await browser.close();

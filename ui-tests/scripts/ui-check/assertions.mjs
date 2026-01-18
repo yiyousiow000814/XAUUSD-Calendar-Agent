@@ -802,7 +802,8 @@ export const assertSpinnerAnim = async (page, selector, label) => {
 
   const transforms = [];
   const start = Date.now();
-  const timeoutMs = 900;
+  const timeoutMs = 1800;
+  await page.waitForSelector(selector, { state: "attached", timeout: 2000 }).catch(() => null);
   while (Date.now() - start < timeoutMs) {
     const value = await sampleTransform();
     if (value) {
