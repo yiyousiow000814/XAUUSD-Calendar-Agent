@@ -911,6 +911,98 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
     return true;
   }, [mode, dispatchReadyEvent]);
 
+const runCurrentTimelineDemo = async (page) => {
+  // Visible timeline for the theme video: multiple "Current" items, reorder to top,
+  // then the oldest current disappears from Next Events and appears in History.
+  const nextCard = page.locator("[data-qa='qa:card:next-events']").first();
+  const historyCard = page.locator("[data-qa='qa:card:history']").first();
+  if ((await nextCard.count()) === 0 || (await historyCard.count()) === 0) return;
+
+  const wait = async (ms) => page.waitForTimeout(ms);
+
+  const setSnapshot = async (payload) => {
+    await page.evaluate((next) => {
+      const snap = window.__desktop_snapshot__ || {};
+      window.__desktop_snapshot__ = { ...snap, ...next };
+    }, payload);
+    await page.evaluate(() => window.__ui_check__?.refresh?.());
+  };
+
+  const baseDate = await page.evaluate(() => {
+    const pad = (value) => String(value).padStart(2, "0");
+    const date = new Date();
+    return `${pad(date.getDate())}-${pad(date.getMonth() + 1)}-${date.getFullYear()}`;
+  });
+
+  const mk = (id, clock, name, impact, cur = "USD") => ({
+    id,
+    time: `${baseDate} ${clock}`,
+    cur,
+    impact,
+    event: name,
+    countdown: "2m",
+    state: "upcoming"
+  });
+
+  const evtA = mk("demo-current-a", "09:00", "Current demo A", "High");
+  const evtB = mk("demo-current-b", "09:01", "Current demo B", "High");
+  const evtC = mk("demo-current-c", "09:02", "Current demo C", "High");
+
+  // Baseline: three upcoming events.
+  await setSnapshot({ events: [evtA, evtB, evtC] });
+  await wait(900);
+
+  // A becomes Current.
+  await setSnapshot({
+    events: [
+      { ...evtA, state: "current", countdown: "Current" },
+      { ...evtB, state: "upcoming", countdown: "1m" },
+      { ...evtC, state: "upcoming", countdown: "2m" }
+    ]
+  });
+  await wait(1500);
+
+  // B becomes Current and slides to top (A remains Current).
+  await setSnapshot({
+    events: [
+      { ...evtB, state: "current", countdown: "Current" },
+      { ...evtA, state: "current", countdown: "Current" },
+      { ...evtC, state: "upcoming", countdown: "1m" }
+    ]
+  });
+  await wait(1500);
+
+  // C becomes Current and slides to top (multiple Current visible).
+  await setSnapshot({
+    events: [
+      { ...evtC, state: "current", countdown: "Current" },
+      { ...evtB, state: "current", countdown: "Current" },
+      { ...evtA, state: "current", countdown: "Current" }
+    ]
+  });
+  await wait(1700);
+
+  // Simulate "3 minutes later": oldest current (A) moves to History, disappears from Next Events.
+  await setSnapshot({
+    events: [
+      { ...evtC, state: "current", countdown: "Current" },
+      { ...evtB, state: "current", countdown: "Current" }
+    ],
+    pastEvents: [
+      {
+        time: `${baseDate} 09:00`,
+        cur: "USD",
+        impact: "High",
+        event: "Current demo A",
+        actual: "--",
+        forecast: "--",
+        previous: "--"
+      }
+    ]
+  });
+  await wait(2200);
+};
+
 const pressElement = async (page, locator) => {
   const box = await locator.boundingBox();
   if (!box) return;
@@ -3493,6 +3585,9 @@ const main = async () => {
         await page.waitForTimeout(260);
       }
     }
+
+    // Capture a visible Current lifecycle in the theme webm (reorder + move to history).
+    await runCurrentTimelineDemo(page);
 
     themeResults.push({
       theme: theme.key,
