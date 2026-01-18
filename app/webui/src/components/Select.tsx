@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import "./Select.css";
 
@@ -23,6 +23,10 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
   const menuRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const selected = options.find((item) => item.value === value);
+  const optionsKey = useMemo(
+    () => options.map((option) => `${option.value}\u001f${option.label}`).join("\u001e"),
+    [options]
+  );
 
   useEffect(() => {
     const handler = (event: MouseEvent) => {
@@ -93,7 +97,7 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
       }
       setScrollState("none");
     };
-  }, [open, options.length]);
+  }, [open, optionsKey]);
 
   useEffect(() => {
     if (!open) return;
@@ -220,7 +224,7 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
       if (raf !== null) window.cancelAnimationFrame(raf);
       window.removeEventListener("resize", updateMenu);
     };
-  }, [open, options.length]);
+  }, [open, optionsKey]);
 
   return (
     <div
