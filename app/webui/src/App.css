@@ -183,13 +183,23 @@
 .activity-label {
   display: inline-block;
   max-width: 92px;
-  width: 92px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   transition: width var(--motion-fast) var(--motion-ease),
     max-width var(--motion-fast) var(--motion-ease),
     opacity var(--motion-fast) var(--motion-ease);
+}
+
+.activity-label-measure {
+  position: absolute;
+  visibility: hidden;
+  pointer-events: none;
+  white-space: nowrap;
+  max-width: none;
+  width: auto;
+  height: 0;
+  overflow: hidden;
 }
 
 .activity-label.notice {

@@ -201,7 +201,8 @@ export default function App() {
   const [activityHover, setActivityHover] = useState(false);
   const activityHoverTimerRef = useRef<number | null>(null);
   const activityLabelRef = useRef<HTMLSpanElement | null>(null);
-  const [activityLabelWidth, setActivityLabelWidth] = useState<number>(92);
+  const activityLabelMeasureRef = useRef<HTMLSpanElement | null>(null);
+  const [activityLabelWidth, setActivityLabelWidth] = useState<number>(72);
   const activityNoticePulseTimerRef = useRef<number | null>(null);
   const activityNoticeQueueRef = useRef<ActivityNotice[]>([]);
   const activityNoticeTimerRef = useRef<number | null>(null);
@@ -2516,18 +2517,16 @@ export default function App() {
   }, [settingsOpen]);
 
   useEffect(() => {
-    const el = activityLabelRef.current;
+    const el = activityLabelMeasureRef.current ?? activityLabelRef.current;
     if (!el) return;
 
-    // Reset to the compact width when no notice is active.
-    if (!activityNotice?.text) {
-      setActivityLabelWidth(92);
-      return;
-    }
+    const isNotice = Boolean(activityNotice?.text);
+    const minWidth = isNotice ? 92 : 54;
+    const maxWidth = isNotice ? 260 : 92;
 
     // Use the rendered element's scrollWidth so we get the natural width even when truncated.
     window.requestAnimationFrame(() => {
-      const width = Math.max(92, Math.min(260, Math.ceil(el.scrollWidth)));
+      const width = Math.max(minWidth, Math.min(maxWidth, Math.ceil(el.scrollWidth)));
       setActivityLabelWidth(width);
     });
   }, [activityNotice?.text]);
@@ -2540,6 +2539,13 @@ export default function App() {
   );
   const activityPillContent = (
     <>
+      <span
+        className="activity-label-measure"
+        ref={activityLabelMeasureRef}
+        aria-hidden="true"
+      >
+        {activityNotice?.text || "Activity"}
+      </span>
       <span
         ref={activityLabelRef}
         style={{ width: `${activityLabelWidth}px` }}
@@ -2601,7 +2607,7 @@ export default function App() {
     activityHoverTimerRef.current = window.setTimeout(() => {
       activityHoverTimerRef.current = null;
       setActivityHover(true);
-    }, 1500);
+    }, 1000);
   };
 
   const handleActivityHoverLeave = () => {
