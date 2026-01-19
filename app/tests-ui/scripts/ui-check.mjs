@@ -2109,6 +2109,17 @@ const main = async () => {
       path: await captureState(page, "startup", theme.key, "ready")
     });
 
+    await runCheck(theme.key, "Activity pill label not truncated at idle", async () => {
+      const ok = await page.evaluate(() => {
+        const label = document.querySelector("[data-qa='qa:action:activity-fab'] .activity-label");
+        if (!label) return false;
+        const text = (label.textContent || "").trim();
+        if (text !== "Activity") return false;
+        return label.scrollWidth <= label.clientWidth + 1;
+      });
+      if (!ok) throw new Error("Activity label appears truncated or unexpected at idle");
+    });
+
     await page.evaluate(() => {
       if (!window.__desktop_snapshot__) return;
       window.__desktop_snapshot__.restartInSeconds = 5;

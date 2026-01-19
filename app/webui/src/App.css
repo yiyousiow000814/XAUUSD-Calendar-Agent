@@ -196,10 +196,11 @@
   visibility: hidden;
   pointer-events: none;
   white-space: nowrap;
-  max-width: none;
-  width: auto;
+  max-width: none !important;
+  width: auto !important;
   height: 0;
   overflow: hidden;
+  transition: none !important;
 }
 
 .activity-label.notice {

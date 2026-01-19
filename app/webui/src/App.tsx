@@ -202,7 +202,7 @@ export default function App() {
   const activityHoverTimerRef = useRef<number | null>(null);
   const activityLabelRef = useRef<HTMLSpanElement | null>(null);
   const activityLabelMeasureRef = useRef<HTMLSpanElement | null>(null);
-  const [activityLabelWidth, setActivityLabelWidth] = useState<number>(72);
+  const [activityLabelWidth, setActivityLabelWidth] = useState<number>(92);
   const activityNoticePulseTimerRef = useRef<number | null>(null);
   const activityNoticeQueueRef = useRef<ActivityNotice[]>([]);
   const activityNoticeTimerRef = useRef<number | null>(null);
@@ -2521,7 +2521,7 @@ export default function App() {
     if (!el) return;
 
     const isNotice = Boolean(activityNotice?.text);
-    const minWidth = isNotice ? 92 : 54;
+    const minWidth = 92;
     const maxWidth = isNotice ? 260 : 92;
 
     // Use the rendered element's scrollWidth so we get the natural width even when truncated.
@@ -2540,7 +2540,9 @@ export default function App() {
   const activityPillContent = (
     <>
       <span
-        className="activity-label-measure"
+        className={`activity-label activity-label-measure${
+          activityNotice ? ` notice notice-${activityNotice.tone}` : ""
+        }`}
         ref={activityLabelMeasureRef}
         aria-hidden="true"
       >
@@ -2548,7 +2550,7 @@ export default function App() {
       </span>
       <span
         ref={activityLabelRef}
-        style={{ width: `${activityLabelWidth}px` }}
+        style={activityNotice ? { width: `${activityLabelWidth}px` } : undefined}
         className={`activity-label${
           activityNotice
             ? ` notice notice-${activityNotice.tone}${activityNoticePulse ? " pulse" : ""}`
