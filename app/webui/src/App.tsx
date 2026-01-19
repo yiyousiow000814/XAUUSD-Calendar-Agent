@@ -1691,6 +1691,12 @@ export default function App() {
 
   const openActivity = () => {
     if (activityOpen) return;
+    // If the user is clicking into Activity, hide the hover preview immediately.
+    if (activityHoverTimerRef.current) {
+      window.clearTimeout(activityHoverTimerRef.current);
+      activityHoverTimerRef.current = null;
+    }
+    setActivityHover(false);
     if (activityFabRef.current) {
       setActivityOriginRect(activityFabRef.current.getBoundingClientRect());
     }
@@ -2518,7 +2524,7 @@ export default function App() {
 
   useEffect(() => {
     const isNotice = Boolean(activityNotice?.text);
-    const minWidth = 92;
+    const minWidth = isNotice ? 92 : 0;
     const maxWidth = isNotice ? 260 : 92;
 
     const el = activityLabelMeasureRef.current ?? activityLabelRef.current;
@@ -2561,7 +2567,7 @@ export default function App() {
       </span>
       <span
         ref={activityLabelRef}
-        style={activityNotice ? { width: `${activityLabelWidth}px` } : undefined}
+        style={{ width: `${activityLabelWidth}px` }}
         className={`activity-label${
           activityNotice
             ? ` notice notice-${activityNotice.tone}${activityNoticePulse ? " pulse" : ""}`
