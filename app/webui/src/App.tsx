@@ -198,10 +198,12 @@ export default function App() {
   type ActivityNotice = { text: string; tone: ActivityNoticeTone };
   const [activityNotice, setActivityNotice] = useState<ActivityNotice | null>(null);
   const [activityNoticePulse, setActivityNoticePulse] = useState(false);
+  const [activityLabelText, setActivityLabelText] = useState("Activity");
   const [activityHover, setActivityHover] = useState(false);
   const activityHoverTimerRef = useRef<number | null>(null);
   const activityLabelRef = useRef<HTMLSpanElement | null>(null);
   const activityLabelMeasureRef = useRef<HTMLSpanElement | null>(null);
+  const activityLabelSwapTimerRef = useRef<number | null>(null);
   const [activityLabelWidth, setActivityLabelWidth] = useState<number>(92);
   const activityNoticePulseTimerRef = useRef<number | null>(null);
   const activityNoticeQueueRef = useRef<ActivityNotice[]>([]);
@@ -2045,6 +2047,7 @@ export default function App() {
       activityNoticePendingFlushRef.current = true;
       activityNoticeRunningRef.current = false;
       setActivityNotice(null);
+      setActivityLabelText("Activity");
       return;
     }
 
@@ -2052,11 +2055,23 @@ export default function App() {
     if (!next) {
       activityNoticeRunningRef.current = false;
       setActivityNotice(null);
+      setActivityLabelText("Activity");
       return;
     }
 
     setActivityNotice(next);
     triggerActivityNoticePulse();
+
+    // Avoid showing a truncated notice during the initial width transition (most visible in webm).
+    // We expand first, then swap the text in once the label width has started moving.
+    if (activityLabelSwapTimerRef.current) {
+      window.clearTimeout(activityLabelSwapTimerRef.current);
+      activityLabelSwapTimerRef.current = null;
+    }
+    activityLabelSwapTimerRef.current = window.setTimeout(() => {
+      activityLabelSwapTimerRef.current = null;
+      setActivityLabelText(next.text);
+    }, 140);
     const holdMs = activityNoticeQueueRef.current.length > 0 ? 1000 : 2000;
     activityNoticeTimerRef.current = window.setTimeout(() => {
       activityNoticeTimerRef.current = null;
@@ -2084,7 +2099,12 @@ export default function App() {
       window.clearTimeout(activityNoticeTimerRef.current);
       activityNoticeTimerRef.current = null;
     }
+    if (activityLabelSwapTimerRef.current) {
+      window.clearTimeout(activityLabelSwapTimerRef.current);
+      activityLabelSwapTimerRef.current = null;
+    }
     setActivityNotice(null);
+    setActivityLabelText("Activity");
   }, []);
 
   const resumeActivityNotices = useCallback(() => {
@@ -2153,6 +2173,10 @@ export default function App() {
       if (activityNoticePulseTimerRef.current) {
         window.clearTimeout(activityNoticePulseTimerRef.current);
         activityNoticePulseTimerRef.current = null;
+      }
+      if (activityLabelSwapTimerRef.current) {
+        window.clearTimeout(activityLabelSwapTimerRef.current);
+        activityLabelSwapTimerRef.current = null;
       }
       if (activityHoverTimerRef.current) {
         window.clearTimeout(activityHoverTimerRef.current);
@@ -2581,7 +2605,7 @@ export default function App() {
             : ""
         }`}
       >
-        {activityNotice?.text || "Activity"}
+        {activityNotice ? activityLabelText : "Activity"}
       </span>
       <span
         className={`activity-count${temporaryPathTask.active ? " progress" : ""}${
