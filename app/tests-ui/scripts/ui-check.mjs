@@ -57,7 +57,8 @@ const videoDir = path.join(artifactsRoot, "video");
 const reportPath = path.join(artifactsRoot, "report.html");
 // Playwright recordVideo is flaky on some Windows setups (tiny/zoomed captures).
 // Keep it opt-in so the default ui-check artifacts stay reliable.
-const enableVideo = process.env.UI_CHECK_VIDEO === "1";
+// Default on; can be disabled with UI_CHECK_VIDEO=0.
+const enableVideo = (process.env.UI_CHECK_VIDEO || "1").trim() !== "0";
 let baseURL = process.env.UI_BASE_URL || "http://127.0.0.1:4173";
 let shouldStartServer = !process.env.UI_BASE_URL;
 const defaultPort = Number.parseInt(process.env.UI_CHECK_PORT || "", 10) || 4183;

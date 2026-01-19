@@ -1,5 +1,5 @@
 ﻿import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
-import { useCallback } from "react";
+import { useCallback, useLayoutEffect } from "react";
 import { backend, isWebview } from "./api";
 import type { FilterOption, Settings, Snapshot, ToastType } from "./types";
 import { ActivityDrawer } from "./components/ActivityDrawer";
@@ -2522,7 +2522,9 @@ export default function App() {
     settingsOpenRef.current = settingsOpen;
   }, [settingsOpen]);
 
-  useEffect(() => {
+  // Measure in a layout effect so the width is updated before paint (prevents 1-frame truncation,
+  // which is especially noticeable in ui-check webm capture).
+  useLayoutEffect(() => {
     const isNotice = Boolean(activityNotice?.text);
     const minWidth = isNotice ? 92 : 0;
     const maxWidth = isNotice ? 260 : 92;
@@ -2540,12 +2542,17 @@ export default function App() {
       setActivityLabelWidth(width);
     };
 
-    // Ensure styles/classes are applied before measuring.
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => {
+    measure();
+
+    // Font loading can change text metrics; re-measure once fonts are ready.
+    const fontsReady = (document as unknown as { fonts?: { ready?: Promise<unknown> } }).fonts?.ready;
+    if (fontsReady && typeof fontsReady.then === "function") {
+      const expected = activityNotice?.text || "";
+      fontsReady.then(() => {
+        if ((activityNotice?.text || "") !== expected) return;
         measure();
       });
-    });
+    }
   }, [activityNotice?.text]);
 
   const resolvedTheme = getResolvedTheme();
