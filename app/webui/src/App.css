@@ -294,8 +294,8 @@
 html[data-theme="light"] .activity-hover {
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.34) 0%,
-    rgba(255, 255, 255, 0.18) 100%
+    rgba(255, 255, 255, 0.26) 0%,
+    rgba(255, 255, 255, 0.12) 100%
   );
   border-color: rgba(18, 20, 26, 0.08);
   box-shadow: 0 12px 28px rgba(24, 28, 40, 0.10);
