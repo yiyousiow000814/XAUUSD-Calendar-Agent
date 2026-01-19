@@ -250,7 +250,6 @@
 
 .activity-hover {
   position: absolute;
-  isolation: isolate;
   right: 0;
   bottom: calc(100% + 10px);
   width: min(360px, 62vw);
@@ -258,49 +257,27 @@
   border-radius: 14px;
   background: linear-gradient(
     180deg,
-    rgba(20, 24, 32, 0.22) 0%,
-    rgba(20, 24, 32, 0.12) 100%
+    rgba(20, 24, 32, 0.34) 0%,
+    rgba(20, 24, 32, 0.22) 100%
   );
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16);
-  backdrop-filter: blur(30px) saturate(1.4);
-  -webkit-backdrop-filter: blur(30px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(22px) saturate(1.35);
+  -webkit-backdrop-filter: blur(22px) saturate(1.35);
   color: var(--text);
   text-transform: none;
   letter-spacing: 0;
   z-index: 220;
 }
 
-.activity-hover::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  z-index: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.10) 0%,
-    rgba(255, 255, 255, 0.02) 100%
-  );
-}
-
-.activity-hover-title,
-.activity-hover-list {
-  position: relative;
-  z-index: 1;
-}
-
 html[data-theme="light"] .activity-hover {
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.34) 0%,
-    rgba(255, 255, 255, 0.18) 100%
+    rgba(255, 255, 255, 0.58) 0%,
+    rgba(255, 255, 255, 0.42) 100%
   );
-  border-color: rgba(18, 20, 26, 0.08);
-  box-shadow: 0 12px 28px rgba(24, 28, 40, 0.10);
-  backdrop-filter: blur(30px) saturate(1.75) brightness(1.03);
-  -webkit-backdrop-filter: blur(30px) saturate(1.75) brightness(1.03);
+  border-color: rgba(18, 20, 26, 0.10);
+  box-shadow: 0 10px 26px rgba(24, 28, 40, 0.10);
 }
 
 .activity-hover-title {
