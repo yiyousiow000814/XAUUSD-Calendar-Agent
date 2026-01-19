@@ -4270,6 +4270,14 @@ const main = async () => {
         );
       });
 
+      // Give the hover tooltip something to refract so the glass effect is visible in artifacts.
+      await demoPage.addStyleTag({
+        content: `
+          html, body { background: radial-gradient(900px 520px at 65% 35%, rgba(134,201,255,0.16), rgba(0,0,0,0)) !important; }
+          .app { background: transparent !important; }
+        `
+      });
+
       if (viewport) {
         const clipRight = {
           x: Math.max(0, viewport.width - 560),
@@ -4435,6 +4443,40 @@ const main = async () => {
         const hoverTooltip = demoPage.locator("[data-qa='qa:tooltip:activity-notice']").first();
         await hoverTooltip.waitFor({ state: "visible", timeout: 4000 }).catch(() => null);
         if (await hoverTooltip.count()) {
+          await runCheck(theme.key, "Activity hover uses frosted-glass styling", async () => {
+            const state = await demoPage.evaluate(() => {
+              const node = document.querySelector("[data-qa='qa:tooltip:activity-notice']");
+              if (!node) return null;
+              const style = window.getComputedStyle(node);
+              const backdrop = style.backdropFilter || (style.webkitBackdropFilter || "");
+              const bg = style.backgroundImage || "";
+              const border = style.borderTopColor || "";
+              return { backdrop, bg, border };
+            });
+            if (!state) throw new Error("Missing hover tooltip for glass check");
+
+            const blurMatch = /blur\((\d+(?:\.\d+)?)px\)/.exec(state.backdrop || "");
+            const blurPx = blurMatch ? Number(blurMatch[1]) : 0;
+            if (!Number.isFinite(blurPx) || blurPx < 24) {
+              throw new Error(`Expected backdrop blur >= 24px, got ${JSON.stringify(state.backdrop)}`);
+            }
+
+            const alphas = Array.from(
+              state.bg.matchAll(
+                /rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*(\d+(?:\.\d+)?)\s*\)/g
+              )
+            ).map((m) => Number(m[1]));
+            const maxAlpha = alphas.length ? Math.max(...alphas) : null;
+            if (maxAlpha === null) {
+              throw new Error(`Expected rgba(...) stops in background-image, got ${JSON.stringify(state.bg)}`);
+            }
+
+            const limit = theme.key.includes("light") ? 0.42 : 0.36;
+            if (maxAlpha > limit) {
+              throw new Error(`Expected hover background alpha <= ${limit}, got ${maxAlpha}`);
+            }
+          });
+
           artifacts.push({
             scenario: "activity-pill-hover",
             theme: theme.key,
