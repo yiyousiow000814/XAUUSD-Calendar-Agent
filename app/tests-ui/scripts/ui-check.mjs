@@ -55,6 +55,10 @@ const snapshotsDir = path.join(artifactsRoot, "snapshots");
 const framesDir = path.join(artifactsRoot, "frames");
 const videoDir = path.join(artifactsRoot, "video");
 const reportPath = path.join(artifactsRoot, "report.html");
+// Playwright recordVideo is flaky on some Windows setups (tiny/zoomed captures).
+// Keep it opt-in so the default ui-check artifacts stay reliable.
+// Default on; can be disabled with UI_CHECK_VIDEO=0.
+const enableVideo = (process.env.UI_CHECK_VIDEO || "1").trim() !== "0";
 let baseURL = process.env.UI_BASE_URL || "http://127.0.0.1:4173";
 let shouldStartServer = !process.env.UI_BASE_URL;
 const defaultPort = Number.parseInt(process.env.UI_CHECK_PORT || "", 10) || 4183;
@@ -457,14 +461,28 @@ const captureState = async (page, scenario, theme, state, options = {}) => {
   return filePath;
 };
 
-const captureFrames = async (page, scenario, theme, state, count = 4, gapMs = 80) => {
+const captureFrames = async (page, scenario, theme, state, options = 4, gapMs = 80) => {
+  // Backwards-compatible signature:
+  // - captureFrames(page, scenario, theme, state, count?, gapMs?)
+  // - captureFrames(page, scenario, theme, state, { count, gapMs, clip, element }?)
+  const opts =
+    typeof options === "number"
+      ? { count: options, gapMs, clip: null, element: null }
+      : { count: 4, gapMs: 80, clip: null, element: null, ...(options || {}) };
+
   const files = [];
-  for (let i = 0; i < count; i += 1) {
+  for (let i = 0; i < opts.count; i += 1) {
     const fileName = `${sanitize(scenario)}__${sanitize(theme)}__${sanitize(state)}__frame${i}.png`;
     const filePath = path.join(framesDir, fileName);
-    await page.screenshot({ path: filePath, fullPage: true });
+    if (opts.element) {
+      await opts.element.screenshot({ path: filePath });
+    } else if (opts.clip) {
+      await page.screenshot({ path: filePath, clip: opts.clip });
+    } else {
+      await page.screenshot({ path: filePath, fullPage: true });
+    }
     files.push(filePath);
-    await page.waitForTimeout(gapMs);
+    await page.waitForTimeout(opts.gapMs);
   }
   return files;
 };
@@ -1797,10 +1815,12 @@ const main = async () => {
   await ensureDir(artifactsRoot);
   await ensureDir(snapshotsDir);
   await ensureDir(framesDir);
-  await ensureDir(videoDir);
   await clearDir(snapshotsDir);
   await clearDir(framesDir);
-  await clearDir(videoDir);
+  if (enableVideo) {
+    await ensureDir(videoDir);
+    await clearDir(videoDir);
+  }
   await fs.rm(reportPath, { force: true });
 
   const checkResults = [];
@@ -1992,6 +2012,7 @@ const main = async () => {
 
   let browser;
   const artifacts = [];
+  const activityPillDiagnostics = [];
   try {
     if (shouldStartServer) {
       await run("npm", ["--prefix", "app/webui", "run", "build"], { cwd: repoRoot });
@@ -2032,7 +2053,13 @@ const main = async () => {
     const colorScheme = theme.mode === "system" ? theme.scheme : theme.mode;
     const context = await browser.newContext({
       viewport: { width: 1280, height: 720 },
-      recordVideo: { dir: videoDir },
+      ...(enableVideo
+        ? {
+            // Explicit size prevents occasional Windows/Chromium capture issues (tiny viewport inside the video).
+            recordVideo: { dir: videoDir, size: { width: 1280, height: 720 } },
+            deviceScaleFactor: 1
+          }
+        : {}),
       userAgent: "XAUUSDCalendar/1.0",
       bypassCSP: true,
       ...(colorScheme ? { colorScheme } : {})
@@ -2059,7 +2086,7 @@ const main = async () => {
       window.__ui_check__.holdInitOverlayMs = 1500;
     }, theme);
     const page = await context.newPage();
-    const video = page.video();
+    const video = enableVideo ? page.video() : null;
     await ensureServerHealthy();
     await gotoWithServerRecovery(page, baseURL, { waitUntil: "domcontentloaded" });
     const initOverlay = page.locator("[data-qa='qa:overlay:init']").first();
@@ -2088,6 +2115,25 @@ const main = async () => {
     await setTheme(page, theme.mode, theme.scheme);
     await page.waitForTimeout(200);
 
+    await page
+      .evaluate(() => (document.fonts?.ready ? document.fonts.ready : null))
+      .catch(() => null);
+    const activityIdleReady = await page
+      .waitForFunction(
+        () => {
+          const label = document.querySelector(
+            "[data-qa='qa:action:activity-fab'] .activity-label:not(.activity-label-measure)"
+          );
+          if (!label) return false;
+          const text = (label.textContent || "").trim();
+          if (text !== "Activity") return false;
+          return label.scrollWidth <= label.clientWidth + 1;
+        },
+        { timeout: 4000 }
+      )
+      .then(() => true)
+      .catch(() => false);
+
     artifacts.push({
       scenario: "startup",
       theme: theme.key,
@@ -2095,22 +2141,51 @@ const main = async () => {
       path: await captureState(page, "startup", theme.key, "ready")
     });
 
-    await page.evaluate(() => window.__ui_check__?.setRestartInSeconds?.(5));
+    await runCheck(theme.key, "Activity pill label not truncated at idle", async () => {
+      if (activityIdleReady) return;
+      const state = await page.evaluate(() => window.__ui_check__?.getActivityNoticeState?.());
+      throw new Error(
+        `Activity label appears truncated or unexpected at idle (state=${JSON.stringify(state)})`
+      );
+    });
+
+    await page.evaluate(() => {
+      if (!window.__desktop_snapshot__) return;
+      window.__desktop_snapshot__.restartInSeconds = 5;
+    });
+    await page.evaluate(() => window.__ui_check__?.refresh?.());
     await page.waitForTimeout(120);
-    const activityLabel = page.locator("[data-qa='qa:status:activity-label']").first();
-    if (await activityLabel.count()) {
+    const restartPill = page.locator("[data-qa='qa:restart-countdown']").first();
+    if (await restartPill.count()) {
+      const frames = await captureFrames(page, "restart-countdown", theme.key, "enter");
+      frames.forEach((frame, index) =>
+        artifacts.push({
+          scenario: "restart-countdown",
+          theme: theme.key,
+          state: `enter__frame${index}`,
+          path: frame
+        })
+      );
       artifacts.push({
-        scenario: "update-countdown",
+        scenario: "restart-countdown",
         theme: theme.key,
         state: "visible",
-        path: await captureState(page, "update-countdown", theme.key, "visible", {
-          element: activityLabel
+        path: await captureState(page, "restart-countdown", theme.key, "visible", {
+          element: restartPill
         })
       });
-      await runCheck(theme.key, "Update countdown shown in Activity pill", async () => {
-        const text = (await activityLabel.innerText()).trim();
-        if (!text.toLowerCase().includes("updating")) {
-          throw new Error(`Expected Activity label to mention updating, got: ${text}`);
+      await runCheck(theme.key, "Restart countdown pill visible", async () => {
+        if (!(await restartPill.isVisible())) {
+          throw new Error("Restart countdown pill not visible");
+        }
+      });
+      await runCheck(theme.key, "Restart countdown transition presence", async () => {
+        const animationName = await restartPill.evaluate((el) => {
+          const styles = window.getComputedStyle(el);
+          return styles.animationName || "";
+        });
+        if (!animationName || animationName === "none") {
+          throw new Error("Restart countdown pill missing enter animation");
         }
       });
     }
@@ -3854,6 +3929,30 @@ const main = async () => {
           throw new Error("Activity pill not visible after close");
         }
       });
+      await runCheck(theme.key, "Activity pill short notice not truncated after close", async () => {
+        await page.evaluate(() => window.__ui_check__?.appendLog?.("Boot complete", "INFO"));
+        const ok = await page
+          .waitForFunction(
+            () => {
+              const label = document.querySelector(
+                "[data-qa='qa:action:activity-fab'] .activity-label:not(.activity-label-measure)"
+              );
+              if (!label) return false;
+              const text = (label.textContent || "").trim();
+              if (!text.includes("Boot complete")) return false;
+              return label.scrollWidth <= label.clientWidth + 1;
+            },
+            { timeout: 8000 }
+          )
+          .then(() => true)
+          .catch(() => false);
+        if (!ok) {
+          const state = await page.evaluate(() => window.__ui_check__?.getActivityNoticeState?.());
+          throw new Error(
+            `Activity short notice appears truncated after close (state=${JSON.stringify(state)})`
+          );
+        }
+      });
     }
 
     await page.evaluate((previous) => {
@@ -4129,6 +4228,353 @@ const main = async () => {
       }
     }
 
+    // Activity pill notice preview: queue multiple notices (including long ERROR) and
+    // verify notices are suppressed during theme transitions.
+    try {
+      const demoContext = await browser.newContext({
+        viewport: { width: 1280, height: 720 },
+        userAgent: "XAUUSDCalendar/1.0",
+        bypassCSP: true,
+        ...(colorScheme ? { colorScheme } : {})
+      });
+      await demoContext.addInitScript(() => {
+        window.__UI_CHECK_RUNTIME__ = true;
+      });
+      await demoContext.addInitScript(({ mode, scheme }) => {
+        const resolved =
+          mode === "system"
+            ? scheme ||
+              (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? "dark"
+                : "light")
+            : mode;
+        try {
+          localStorage.setItem("theme", mode);
+          localStorage.setItem("themePreference", mode);
+        } catch {
+          // ignore
+        }
+        document.documentElement.dataset.theme = resolved;
+        window.__ui_check__ = window.__ui_check__ || {};
+        window.__ui_check__.holdInitOverlayMs = 1500;
+      }, theme);
+
+      const demoPage = await demoContext.newPage();
+      const demoVideo = demoPage.video();
+      await ensureServerHealthy();
+      await gotoWithServerRecovery(demoPage, baseURL, { waitUntil: "domcontentloaded" });
+      await demoPage.waitForSelector("[data-qa='qa:app-shell']", { timeout: 10000 });
+      await injectDesktopBackend(demoPage, theme.mode, false);
+
+      const fab = demoPage.locator("[data-qa='qa:action:activity-fab']").first();
+      await fab.waitFor({ state: "visible", timeout: 8000 });
+      const box = await fab.boundingBox();
+      const viewport = demoPage.viewportSize();
+      const clip =
+        box && viewport
+          ? (() => {
+              const pad = 18;
+              const x = Math.max(0, Math.floor(box.x - pad));
+              const y = Math.max(0, Math.floor(box.y - pad));
+              const width = Math.min(viewport.width - x, Math.ceil(box.width + pad * 2));
+              const height = Math.min(viewport.height - y, Math.ceil(box.height + pad * 2));
+              return { x, y, width: Math.max(1, width), height: Math.max(1, height) };
+            })()
+          : null;
+
+      // Keep the demo short and make the theme transition easy to see in the webm.
+      await demoPage.evaluate(() => {
+        document.documentElement.style.setProperty("--theme-duration", "650ms");
+      });
+      await demoPage.waitForTimeout(120);
+
+      await demoPage.evaluate(() => window.__ui_check__?.toggleTheme?.());
+      await demoPage
+        .waitForFunction(
+          () => {
+            const root = document.documentElement;
+            return root.classList.contains("theme-transition") || root.classList.contains("theme-vt");
+          },
+          { timeout: 1600 }
+        )
+        .catch(() => null);
+
+      await demoPage.evaluate(() => {
+        const ui = window.__ui_check__;
+        ui?.appendLog?.("Events updated to latest", "INFO");
+        ui?.appendLog?.("Events updated to latest", "INFO");
+        ui?.appendLog?.("Boot complete", "INFO");
+        ui?.appendLog?.("Scheduler started", "INFO");
+        ui?.appendLog?.(
+          "Pull failed: ECONNRESET while reading https://example.invalid/api/calendar?currency=XAUUSD (retry later)",
+          "ERROR"
+        );
+      });
+
+      if (viewport) {
+        const clipRight = {
+          x: Math.max(0, viewport.width - 560),
+          y: 0,
+          width: Math.min(560, viewport.width),
+          height: viewport.height
+        };
+        const frames = await captureFrames(
+          demoPage,
+          "activity-pill-notice-demo",
+          theme.key,
+          "theme-then-notices",
+          { count: 22, gapMs: 120, clip: clipRight }
+        );
+        if (frames.length) {
+          artifacts.push({
+            scenario: "activity-pill-notice-demo",
+            theme: theme.key,
+            state: "theme-then-notices",
+            label: "Theme transition then notice flush",
+            path: frames[0],
+            frames,
+            frameGapMs: 120
+          });
+        }
+      }
+
+      await runCheck(theme.key, "Activity pill notice stays suppressed during theme transition", async () => {
+        const state = await demoPage.evaluate(() => {
+          const root = document.documentElement;
+          const anim = root.classList.contains("theme-transition") || root.classList.contains("theme-vt");
+          const label = document.querySelector("[data-qa='qa:action:activity-fab'] .activity-label");
+          return { anim, text: (label?.textContent || "").trim() };
+        });
+        if (state.anim && state.text !== "Activity") {
+          throw new Error(`Expected Activity label while theme animating, got ${JSON.stringify(state.text)}`);
+        }
+      });
+
+      await demoPage
+        .waitForFunction(
+          () => {
+            const root = document.documentElement;
+            return !root.classList.contains("theme-transition") && !root.classList.contains("theme-vt");
+          },
+          { timeout: 4000 }
+        )
+        .catch(() => null);
+      await demoPage
+        .waitForFunction(
+          () => {
+            const label = document.querySelector("[data-qa='qa:action:activity-fab'] .activity-label");
+            return (label?.textContent || "").trim() !== "Activity";
+          },
+          { timeout: 6000 }
+        )
+        .catch(() => null);
+
+      if (clip) {
+        const captureActivityNoticeDiagnostics = async (label) => {
+          try {
+            const diag = await demoPage.evaluate(
+              () => window.__ui_check__?.getActivityNoticeState?.()
+            );
+            if (diag) {
+              activityPillDiagnostics.push({ theme: theme.key, label, ...diag });
+            }
+          } catch {
+            // ignore diagnostics capture failures
+          }
+        };
+
+        const frames = await captureFrames(demoPage, "activity-pill-notice", theme.key, "carousel", {
+          count: 12,
+          gapMs: 220,
+          clip
+        });
+        if (frames.length) {
+          artifacts.push({
+            scenario: "activity-pill-notice",
+            theme: theme.key,
+            state: "carousel",
+            label: "Queued notices (info + short info + long error)",
+            path: frames[0],
+            frames,
+            frameGapMs: 220
+          });
+        }
+
+        await runCheck(theme.key, "Activity pill short notice not truncated", async () => {
+          // Re-append a short message right before asserting so fast carousels (no theme transition)
+          // cannot advance past it before the check starts.
+          await demoPage.evaluate(() => window.__ui_check__?.appendLog?.("Boot complete", "INFO"));
+          const ok = await demoPage
+            .waitForFunction(
+              () => {
+                const label = document.querySelector(
+                  "[data-qa='qa:action:activity-fab'] .activity-label:not(.activity-label-measure)"
+                );
+                if (!label) return false;
+                const text = (label.textContent || "").trim();
+                if (!text.includes("Boot complete")) return false;
+                // If ellipsis is applied, scrollWidth will exceed clientWidth.
+                return label.scrollWidth <= label.clientWidth + 1;
+              },
+              { timeout: 8000 }
+            )
+            .then(() => true)
+            .catch(() => false);
+          if (!ok) {
+            const text = await demoPage.evaluate(() => {
+              const label = document.querySelector(
+                "[data-qa='qa:action:activity-fab'] .activity-label:not(.activity-label-measure)"
+              );
+              return { text: (label?.textContent || "").trim(), sw: label?.scrollWidth, cw: label?.clientWidth };
+            });
+            throw new Error(`Expected 'Boot complete' notice to fit without truncation. Got ${JSON.stringify(text)}`);
+          }
+        });
+
+        // Capture a static state for a short message so report.html makes this easy to verify.
+        await demoPage.evaluate(() => window.__ui_check__?.appendLog?.("Boot complete", "INFO"));
+        const sawBoot = await demoPage
+          .waitForFunction(
+            () => {
+              const label = document.querySelector(
+                "[data-qa='qa:action:activity-fab'] .activity-label:not(.activity-label-measure)"
+              );
+              return (label?.textContent || "").trim().includes("Boot complete");
+            },
+            { timeout: 2000 }
+          )
+          .then(() => true)
+          .catch(() => false);
+        if (sawBoot) {
+          artifacts.push({
+            scenario: "activity-pill-notice",
+            theme: theme.key,
+            state: "short-info",
+            label: "Short info message fits without truncation",
+            path: await captureState(demoPage, "activity-pill-notice", theme.key, "short-info", { clip })
+          });
+          await captureActivityNoticeDiagnostics("short-info");
+        }
+
+        // Force a dedicated long-error capture after the carousel frames, so the static state is reliable.
+        await demoPage.evaluate(() => {
+          const ui = window.__ui_check__;
+          ui?.appendLog?.(
+            "Pull failed: ECONNRESET while reading https://example.invalid/api/calendar?currency=XAUUSD (retry later)",
+            "ERROR"
+          );
+        });
+        const sawError = await demoPage
+          .waitForFunction(
+            () => {
+              const label = document.querySelector(
+                "[data-qa='qa:action:activity-fab'] .activity-label"
+              );
+              return (label?.textContent || "").trim().startsWith("ERROR:");
+            },
+            { timeout: 6000 }
+          )
+          .then(() => true)
+          .catch(() => false);
+        if (sawError) {
+          artifacts.push({
+            scenario: "activity-pill-notice",
+            theme: theme.key,
+            state: "long-error",
+            label: "Long error preview truncation",
+            path: await captureState(demoPage, "activity-pill-notice", theme.key, "long-error", { clip })
+          });
+          await captureActivityNoticeDiagnostics("long-error");
+        }
+
+        let sawShortAfterLong = false;
+        if (sawError) {
+          await runCheck(
+            theme.key,
+            "Activity pill short notice shrinks after long notice",
+            async () => {
+              await demoPage.evaluate(() => window.__ui_check__?.appendLog?.("Boot complete", "INFO"));
+              const ok = await demoPage
+                .waitForFunction(
+                  () => {
+                    const label = document.querySelector(
+                      "[data-qa='qa:action:activity-fab'] .activity-label:not(.activity-label-measure)"
+                    );
+                    if (!label) return false;
+                    const text = (label.textContent || "").trim();
+                    if (!text.includes("Boot complete")) return false;
+                    const slack = label.clientWidth - label.scrollWidth;
+                    return label.scrollWidth <= label.clientWidth + 1 && slack <= 12;
+                  },
+                  { timeout: 8000 }
+                )
+                .then(() => true)
+                .catch(() => false);
+              if (!ok) {
+                const state = await demoPage.evaluate(
+                  () => window.__ui_check__?.getActivityNoticeState?.()
+                );
+                throw new Error(
+                  `Short notice failed to shrink after long notice (state=${JSON.stringify(state)})`
+                );
+              }
+              sawShortAfterLong = true;
+            }
+          );
+        }
+
+        if (sawShortAfterLong) {
+          artifacts.push({
+            scenario: "activity-pill-notice",
+            theme: theme.key,
+            state: "short-info-after-long",
+            label: "Short info after long notice stays tight",
+            path: await captureState(demoPage, "activity-pill-notice", theme.key, "short-info-after-long", {
+              clip
+            })
+          });
+          await captureActivityNoticeDiagnostics("short-info-after-long");
+        }
+
+        const sawIdle = await demoPage
+          .waitForFunction(
+            () => {
+              const label = document.querySelector(
+                "[data-qa='qa:action:activity-fab'] .activity-label:not(.activity-label-measure)"
+              );
+              return (label?.textContent || "").trim() === "Activity";
+            },
+            { timeout: 4000 }
+          )
+          .then(() => true)
+          .catch(() => false);
+        if (sawIdle) {
+          await captureActivityNoticeDiagnostics("idle-after-notice");
+          await demoPage.waitForTimeout(480);
+          await captureActivityNoticeDiagnostics("idle-after-notice-settled");
+        }
+
+        await demoPage.evaluate(() => window.__ui_check__?.setActivityHover?.(true));
+        const hoverTooltip = demoPage.locator("[data-qa='qa:tooltip:activity-notice']").first();
+        await hoverTooltip.waitFor({ state: "visible", timeout: 4000 }).catch(() => null);
+        if (await hoverTooltip.count()) {
+          artifacts.push({
+            scenario: "activity-pill-hover",
+            theme: theme.key,
+            state: "open",
+            label: "Hover preview shows recent notices",
+            path: await captureState(demoPage, "activity-pill-hover", theme.key, "open", {
+              element: hoverTooltip
+            })
+          });
+        }
+      }
+
+      await demoContext.close();
+    } catch {
+      // ignore activity-pill-notice demo failures (main UI check should still complete)
+    }
+
     // Capture a visible Current lifecycle in the theme webm (reorder + move to history).
     await runCurrentTimelineDemo(page);
 
@@ -4143,7 +4589,7 @@ const main = async () => {
     });
 
     await context.close();
-    if (video) {
+    if (enableVideo && video) {
       try {
         const videoPath = await video.path();
         const target = path.join(videoDir, `${sanitize(theme.key)}.webm`);
@@ -4176,9 +4622,17 @@ const main = async () => {
     await stopServer(serverState?.server);
     serverState = null;
 
-    const videos = (await fs.readdir(videoDir))
-      .filter((file) => file.endsWith(".webm"))
-      .map((file) => path.join(videoDir, file));
+    const videos = enableVideo
+      ? (await fs.readdir(videoDir))
+          .filter((file) => file.endsWith(".webm"))
+          .map((file) => path.join(videoDir, file))
+      : [];
+
+    if (activityPillDiagnostics.length) {
+      const diagnosticsPath = path.join(artifactsRoot, "activity-pill-diagnostics.json");
+      await fs.writeFile(diagnosticsPath, JSON.stringify(activityPillDiagnostics, null, 2));
+      console.log("ACTIVITY PILL DIAGNOSTICS", JSON.stringify(activityPillDiagnostics, null, 2));
+    }
 
     if (!process.env.UI_CHECK_SKIP_REPORT) {
       await generateReport(artifacts, videos, { artifactsRoot, reportPath });
