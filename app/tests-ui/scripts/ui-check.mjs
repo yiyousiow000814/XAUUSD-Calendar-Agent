@@ -2046,7 +2046,9 @@ const main = async () => {
     const colorScheme = theme.mode === "system" ? theme.scheme : theme.mode;
     const context = await browser.newContext({
       viewport: { width: 1280, height: 720 },
-      recordVideo: { dir: videoDir },
+      // Explicit size prevents occasional Windows/Chromium capture issues (tiny viewport inside the video).
+      recordVideo: { dir: videoDir, size: { width: 1280, height: 720 } },
+      deviceScaleFactor: 1,
       userAgent: "XAUUSDCalendar/1.0",
       bypassCSP: true,
       ...(colorScheme ? { colorScheme } : {})
