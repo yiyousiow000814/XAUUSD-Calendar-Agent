@@ -2012,6 +2012,7 @@ const main = async () => {
 
   let browser;
   const artifacts = [];
+  const activityPillDiagnostics = [];
   try {
     if (shouldStartServer) {
       await run("npm", ["--prefix", "app/webui", "run", "build"], { cwd: repoRoot });
@@ -2114,6 +2115,25 @@ const main = async () => {
     await setTheme(page, theme.mode, theme.scheme);
     await page.waitForTimeout(200);
 
+    await page
+      .evaluate(() => (document.fonts?.ready ? document.fonts.ready : null))
+      .catch(() => null);
+    const activityIdleReady = await page
+      .waitForFunction(
+        () => {
+          const label = document.querySelector(
+            "[data-qa='qa:action:activity-fab'] .activity-label:not(.activity-label-measure)"
+          );
+          if (!label) return false;
+          const text = (label.textContent || "").trim();
+          if (text !== "Activity") return false;
+          return label.scrollWidth <= label.clientWidth + 1;
+        },
+        { timeout: 4000 }
+      )
+      .then(() => true)
+      .catch(() => false);
+
     artifacts.push({
       scenario: "startup",
       theme: theme.key,
@@ -2122,14 +2142,11 @@ const main = async () => {
     });
 
     await runCheck(theme.key, "Activity pill label not truncated at idle", async () => {
-      const ok = await page.evaluate(() => {
-        const label = document.querySelector("[data-qa='qa:action:activity-fab'] .activity-label");
-        if (!label) return false;
-        const text = (label.textContent || "").trim();
-        if (text !== "Activity") return false;
-        return label.scrollWidth <= label.clientWidth + 1;
-      });
-      if (!ok) throw new Error("Activity label appears truncated or unexpected at idle");
+      if (activityIdleReady) return;
+      const state = await page.evaluate(() => window.__ui_check__?.getActivityNoticeState?.());
+      throw new Error(
+        `Activity label appears truncated or unexpected at idle (state=${JSON.stringify(state)})`
+      );
     });
 
     await page.evaluate(() => {
@@ -3912,6 +3929,30 @@ const main = async () => {
           throw new Error("Activity pill not visible after close");
         }
       });
+      await runCheck(theme.key, "Activity pill short notice not truncated after close", async () => {
+        await page.evaluate(() => window.__ui_check__?.appendLog?.("Boot complete", "INFO"));
+        const ok = await page
+          .waitForFunction(
+            () => {
+              const label = document.querySelector(
+                "[data-qa='qa:action:activity-fab'] .activity-label:not(.activity-label-measure)"
+              );
+              if (!label) return false;
+              const text = (label.textContent || "").trim();
+              if (!text.includes("Boot complete")) return false;
+              return label.scrollWidth <= label.clientWidth + 1;
+            },
+            { timeout: 8000 }
+          )
+          .then(() => true)
+          .catch(() => false);
+        if (!ok) {
+          const state = await page.evaluate(() => window.__ui_check__?.getActivityNoticeState?.());
+          throw new Error(
+            `Activity short notice appears truncated after close (state=${JSON.stringify(state)})`
+          );
+        }
+      });
     }
 
     await page.evaluate((previous) => {
@@ -4329,6 +4370,19 @@ const main = async () => {
         .catch(() => null);
 
       if (clip) {
+        const captureActivityNoticeDiagnostics = async (label) => {
+          try {
+            const diag = await demoPage.evaluate(
+              () => window.__ui_check__?.getActivityNoticeState?.()
+            );
+            if (diag) {
+              activityPillDiagnostics.push({ theme: theme.key, label, ...diag });
+            }
+          } catch {
+            // ignore diagnostics capture failures
+          }
+        };
+
         const frames = await captureFrames(demoPage, "activity-pill-notice", theme.key, "carousel", {
           count: 12,
           gapMs: 220,
@@ -4399,6 +4453,7 @@ const main = async () => {
             label: "Short info message fits without truncation",
             path: await captureState(demoPage, "activity-pill-notice", theme.key, "short-info", { clip })
           });
+          await captureActivityNoticeDiagnostics("short-info");
         }
 
         // Force a dedicated long-error capture after the carousel frames, so the static state is reliable.
@@ -4429,6 +4484,74 @@ const main = async () => {
             label: "Long error preview truncation",
             path: await captureState(demoPage, "activity-pill-notice", theme.key, "long-error", { clip })
           });
+          await captureActivityNoticeDiagnostics("long-error");
+        }
+
+        let sawShortAfterLong = false;
+        if (sawError) {
+          await runCheck(
+            theme.key,
+            "Activity pill short notice shrinks after long notice",
+            async () => {
+              await demoPage.evaluate(() => window.__ui_check__?.appendLog?.("Boot complete", "INFO"));
+              const ok = await demoPage
+                .waitForFunction(
+                  () => {
+                    const label = document.querySelector(
+                      "[data-qa='qa:action:activity-fab'] .activity-label:not(.activity-label-measure)"
+                    );
+                    if (!label) return false;
+                    const text = (label.textContent || "").trim();
+                    if (!text.includes("Boot complete")) return false;
+                    const slack = label.clientWidth - label.scrollWidth;
+                    return label.scrollWidth <= label.clientWidth + 1 && slack <= 12;
+                  },
+                  { timeout: 8000 }
+                )
+                .then(() => true)
+                .catch(() => false);
+              if (!ok) {
+                const state = await demoPage.evaluate(
+                  () => window.__ui_check__?.getActivityNoticeState?.()
+                );
+                throw new Error(
+                  `Short notice failed to shrink after long notice (state=${JSON.stringify(state)})`
+                );
+              }
+              sawShortAfterLong = true;
+            }
+          );
+        }
+
+        if (sawShortAfterLong) {
+          artifacts.push({
+            scenario: "activity-pill-notice",
+            theme: theme.key,
+            state: "short-info-after-long",
+            label: "Short info after long notice stays tight",
+            path: await captureState(demoPage, "activity-pill-notice", theme.key, "short-info-after-long", {
+              clip
+            })
+          });
+          await captureActivityNoticeDiagnostics("short-info-after-long");
+        }
+
+        const sawIdle = await demoPage
+          .waitForFunction(
+            () => {
+              const label = document.querySelector(
+                "[data-qa='qa:action:activity-fab'] .activity-label:not(.activity-label-measure)"
+              );
+              return (label?.textContent || "").trim() === "Activity";
+            },
+            { timeout: 4000 }
+          )
+          .then(() => true)
+          .catch(() => false);
+        if (sawIdle) {
+          await captureActivityNoticeDiagnostics("idle-after-notice");
+          await demoPage.waitForTimeout(480);
+          await captureActivityNoticeDiagnostics("idle-after-notice-settled");
         }
 
         await demoPage.evaluate(() => window.__ui_check__?.setActivityHover?.(true));
@@ -4504,6 +4627,12 @@ const main = async () => {
           .filter((file) => file.endsWith(".webm"))
           .map((file) => path.join(videoDir, file))
       : [];
+
+    if (activityPillDiagnostics.length) {
+      const diagnosticsPath = path.join(artifactsRoot, "activity-pill-diagnostics.json");
+      await fs.writeFile(diagnosticsPath, JSON.stringify(activityPillDiagnostics, null, 2));
+      console.log("ACTIVITY PILL DIAGNOSTICS", JSON.stringify(activityPillDiagnostics, null, 2));
+    }
 
     if (!process.env.UI_CHECK_SKIP_REPORT) {
       await generateReport(artifacts, videos, { artifactsRoot, reportPath });

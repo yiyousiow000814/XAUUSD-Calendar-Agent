@@ -198,11 +198,42 @@ export default function App() {
   type ActivityNotice = { text: string; tone: ActivityNoticeTone };
   const [activityNotice, setActivityNotice] = useState<ActivityNotice | null>(null);
   const [activityNoticePulse, setActivityNoticePulse] = useState(false);
+  const activityNoticeRef = useRef<ActivityNotice | null>(null);
+  const [activityLabelText, setActivityLabelText] = useState("Activity");
+  const [activityLabelTone, setActivityLabelTone] = useState<ActivityNoticeTone>("info");
+  const [activityLabelIsNotice, setActivityLabelIsNotice] = useState(false);
+  const [activityLabelWidthMode, setActivityLabelWidthMode] = useState<"notice" | "idle">(
+    "idle"
+  );
+  const activityLabelTextRef = useRef("Activity");
+  const activityLabelIsNoticeRef = useRef(false);
+  const activityLabelWidthModeRef = useRef<"notice" | "idle">("idle");
+  const activityLabelClearTimerRef = useRef<number | null>(null);
   const [activityHover, setActivityHover] = useState(false);
   const activityHoverTimerRef = useRef<number | null>(null);
   const activityLabelRef = useRef<HTMLSpanElement | null>(null);
   const activityLabelMeasureRef = useRef<HTMLSpanElement | null>(null);
   const [activityLabelWidth, setActivityLabelWidth] = useState<number>(92);
+  const activityLabelWidthRef = useRef(92);
+  const activityLabelIdleRafRef = useRef<number | null>(null);
+  const activityOpenIntentRef = useRef(false);
+  const activityHoverBlockUntilRef = useRef(0);
+  const activityPointerDownRef = useRef(false);
+  const activityPointerDownTimerRef = useRef<number | null>(null);
+  type ActivityPillSnapshot = {
+    text: string;
+    tone: ActivityNoticeTone;
+    isNotice: boolean;
+    width: number;
+    pulse: boolean;
+    logCount: number;
+    tempTaskActive: boolean;
+    tempDisplayActive: boolean;
+    tempDisplayProgress: number;
+  };
+  const [activityPillSnapshot, setActivityPillSnapshot] = useState<ActivityPillSnapshot | null>(
+    null
+  );
   const activityNoticePulseTimerRef = useRef<number | null>(null);
   const activityNoticeQueueRef = useRef<ActivityNotice[]>([]);
   const activityNoticeTimerRef = useRef<number | null>(null);
@@ -212,6 +243,7 @@ export default function App() {
   const activityNoticeBootstrappedRef = useRef(false);
   const lastActivityNoticeHeadKeyRef = useRef<string>("");
   const lastActivityNoticeLogCountRef = useRef(0);
+  const activityLabelReleaseDelayMs = 200;
   const themeAnimationTokenRef = useRef(0);
   const themeAnimationResumeTimerRef = useRef<number | null>(null);
   const prefersDark = useRef<MediaQueryList | null>(null);
@@ -1691,21 +1723,33 @@ export default function App() {
 
   const openActivity = () => {
     if (activityOpen) return;
-    // If the user is clicking into Activity, hide the hover preview immediately.
-    if (activityHoverTimerRef.current) {
-      window.clearTimeout(activityHoverTimerRef.current);
-      activityHoverTimerRef.current = null;
-    }
-    setActivityHover(false);
+    activityOpenIntentRef.current = true;
+    blockActivityHover();
     if (activityFabRef.current) {
       setActivityOriginRect(activityFabRef.current.getBoundingClientRect());
     }
     setActivityOpen(true);
     setActivityClosing(false);
     setActivityEntering(true);
+    window.requestAnimationFrame(() => {
+      activityOpenIntentRef.current = false;
+    });
   };
 
   const closeActivity = () => {
+    if (!activityClosing) {
+      setActivityPillSnapshot({
+        text: activityLabelText,
+        tone: activityLabelTone,
+        isNotice: activityLabelIsNotice,
+        width: activityLabelWidth,
+        pulse: activityNoticePulse,
+        logCount: snapshot.logs.length,
+        tempTaskActive: temporaryPathTask.active,
+        tempDisplayActive: temporaryPathDisplayActive,
+        tempDisplayProgress: temporaryPathDisplayProgress
+      });
+    }
     if (activityFabRef.current) {
       setActivityOriginRect(activityFabRef.current.getBoundingClientRect());
     }
@@ -1716,6 +1760,7 @@ export default function App() {
     setActivityOpen(false);
     setActivityClosing(false);
     setActivityEntering(false);
+    setActivityPillSnapshot(null);
   };
 
   const openUninstall = () => {
@@ -2084,6 +2129,15 @@ export default function App() {
       window.clearTimeout(activityNoticeTimerRef.current);
       activityNoticeTimerRef.current = null;
     }
+    if (activityLabelClearTimerRef.current) {
+      window.clearTimeout(activityLabelClearTimerRef.current);
+      activityLabelClearTimerRef.current = null;
+    }
+    if (activityLabelWidthModeRef.current !== "idle") {
+      setActivityLabelWidthMode("idle");
+    }
+    setActivityLabelText("Activity");
+    setActivityLabelIsNotice(false);
     setActivityNotice(null);
   }, []);
 
@@ -2154,9 +2208,17 @@ export default function App() {
         window.clearTimeout(activityNoticePulseTimerRef.current);
         activityNoticePulseTimerRef.current = null;
       }
+      if (activityLabelClearTimerRef.current) {
+        window.clearTimeout(activityLabelClearTimerRef.current);
+        activityLabelClearTimerRef.current = null;
+      }
       if (activityHoverTimerRef.current) {
         window.clearTimeout(activityHoverTimerRef.current);
         activityHoverTimerRef.current = null;
+      }
+      if (activityPointerDownTimerRef.current) {
+        window.clearTimeout(activityPointerDownTimerRef.current);
+        activityPointerDownTimerRef.current = null;
       }
       if (themeAnimationResumeTimerRef.current) {
         window.clearTimeout(themeAnimationResumeTimerRef.current);
@@ -2321,6 +2383,34 @@ export default function App() {
           mediumLater?: number,
           highLater?: number
         ) => void;
+        getActivityNoticeState?: () => {
+          noticeText: string;
+          isNotice: boolean;
+          widthState: number;
+          labelWidthStyle: string;
+          labelRectWidth: number | null;
+          labelClientWidth: number | null;
+          labelScrollWidth: number | null;
+          labelText: string;
+          labelOffsetWidth: number | null;
+          labelComputedWidth: string;
+          labelComputedMinWidth: string;
+          labelComputedMaxWidth: string;
+          labelDisplay: string;
+          labelFlex: string;
+          labelWhiteSpace: string;
+          labelClassName: string;
+          labelStyleMinWidth: string;
+          labelStyleMaxWidth: string;
+          buttonRectWidth: number | null;
+          buttonClientWidth: number | null;
+          buttonOffsetWidth: number | null;
+          buttonComputedWidth: string;
+          buttonComputedMinWidth: string;
+          buttonComputedMaxWidth: string;
+          buttonDisplay: string;
+          wrapRectWidth: number | null;
+        };
         getSettings?: () => Settings;
         toggleTheme?: () => void;
         setSplitRatio?: (value: number) => void;
@@ -2501,6 +2591,49 @@ export default function App() {
           events: rendered
         }));
       },
+      getActivityNoticeState: () => {
+        const notice = activityNoticeRef.current;
+        const label = document.querySelector(
+          "[data-qa='qa:action:activity-fab'] .activity-label:not(.activity-label-measure)"
+        ) as HTMLElement | null;
+        const button = label?.closest(
+          "[data-qa='qa:action:activity-fab']"
+        ) as HTMLElement | null;
+        const wrap = button?.closest(".activity-fab-wrap") as HTMLElement | null;
+        const labelStyle = label ? window.getComputedStyle(label) : null;
+        const buttonStyle = button ? window.getComputedStyle(button) : null;
+        const rectWidth = label ? label.getBoundingClientRect().width : null;
+        const buttonRectWidth = button ? button.getBoundingClientRect().width : null;
+        const wrapRectWidth = wrap ? wrap.getBoundingClientRect().width : null;
+        return {
+          noticeText: notice?.text || "",
+          isNotice: activityLabelIsNoticeRef.current,
+          widthState: activityLabelWidthRef.current,
+          labelWidthStyle: label?.style?.width || "",
+          labelRectWidth: rectWidth === null ? null : Math.round(rectWidth),
+          labelClientWidth: label ? label.clientWidth : null,
+          labelScrollWidth: label ? label.scrollWidth : null,
+          labelText: (label?.textContent || "").trim(),
+          labelOffsetWidth: label ? label.offsetWidth : null,
+          labelComputedWidth: labelStyle?.width || "",
+          labelComputedMinWidth: labelStyle?.minWidth || "",
+          labelComputedMaxWidth: labelStyle?.maxWidth || "",
+          labelDisplay: labelStyle?.display || "",
+          labelFlex: labelStyle?.flex || "",
+          labelWhiteSpace: labelStyle?.whiteSpace || "",
+          labelClassName: label?.className || "",
+          labelStyleMinWidth: label?.style?.minWidth || "",
+          labelStyleMaxWidth: label?.style?.maxWidth || "",
+          buttonRectWidth: buttonRectWidth === null ? null : Math.round(buttonRectWidth),
+          buttonClientWidth: button ? button.clientWidth : null,
+          buttonOffsetWidth: button ? button.offsetWidth : null,
+          buttonComputedWidth: buttonStyle?.width || "",
+          buttonComputedMinWidth: buttonStyle?.minWidth || "",
+          buttonComputedMaxWidth: buttonStyle?.maxWidth || "",
+          buttonDisplay: buttonStyle?.display || "",
+          wrapRectWidth: wrapRectWidth === null ? null : Math.round(wrapRectWidth)
+        };
+      },
       getSettings: () => settingsRef.current,
       toggleTheme: () => toggleTheme(),
       setSplitRatio: (value) => {
@@ -2522,38 +2655,150 @@ export default function App() {
     settingsOpenRef.current = settingsOpen;
   }, [settingsOpen]);
 
-  // Measure in a layout effect so the width is updated before paint (prevents 1-frame truncation,
-  // which is especially noticeable in ui-check webm capture).
+  useEffect(() => {
+    activityNoticeRef.current = activityNotice;
+  }, [activityNotice]);
+
   useLayoutEffect(() => {
-    const isNotice = Boolean(activityNotice?.text);
+    activityLabelTextRef.current = activityLabelText;
+  }, [activityLabelText]);
+
+  useLayoutEffect(() => {
+    activityLabelIsNoticeRef.current = activityLabelIsNotice;
+  }, [activityLabelIsNotice]);
+
+  useLayoutEffect(() => {
+    activityLabelWidthModeRef.current = activityLabelWidthMode;
+  }, [activityLabelWidthMode]);
+
+  useEffect(() => {
+    if (activityNotice?.text) {
+      if (activityLabelClearTimerRef.current) {
+        window.clearTimeout(activityLabelClearTimerRef.current);
+        activityLabelClearTimerRef.current = null;
+      }
+      if (activityLabelWidthModeRef.current !== "notice") {
+        setActivityLabelWidthMode("notice");
+      }
+      setActivityLabelText(activityNotice.text);
+      setActivityLabelTone(activityNotice.tone ?? "info");
+      setActivityLabelIsNotice(true);
+      return;
+    }
+
+    if (activityNoticeSuppressedRef.current) {
+      if (activityLabelClearTimerRef.current) {
+        window.clearTimeout(activityLabelClearTimerRef.current);
+        activityLabelClearTimerRef.current = null;
+      }
+      setActivityLabelText("Activity");
+      setActivityLabelIsNotice(false);
+      setActivityLabelWidthMode("idle");
+      return;
+    }
+
+    if (activityLabelTextRef.current === "Activity") {
+      setActivityLabelIsNotice(false);
+      setActivityLabelWidthMode("idle");
+      return;
+    }
+
+    if (activityLabelClearTimerRef.current) {
+      window.clearTimeout(activityLabelClearTimerRef.current);
+    }
+    activityLabelClearTimerRef.current = window.setTimeout(() => {
+      activityLabelClearTimerRef.current = null;
+      setActivityLabelText("Activity");
+      setActivityLabelIsNotice(false);
+      setActivityLabelWidthMode("idle");
+    }, activityLabelReleaseDelayMs);
+  }, [activityNotice?.text, activityLabelReleaseDelayMs]);
+
+  useEffect(() => {
+    activityLabelWidthRef.current = activityLabelWidth;
+  }, [activityLabelWidth]);
+
+  const measureActivityLabelWidth = useCallback((mode: "notice" | "idle") => {
+    const isNotice = mode === "notice";
     const minWidth = isNotice ? 92 : 0;
     const maxWidth = isNotice ? 260 : 92;
 
     const el = activityLabelMeasureRef.current ?? activityLabelRef.current;
+    const label = activityLabelRef.current;
     if (!el) return;
 
-    // scrollWidth can be unreliable when the element is offscreen/hidden depending on layout.
-    // Using layout width from getBoundingClientRect is more stable for short messages.
-    const measure = () => {
-      const rect = el.getBoundingClientRect();
-      // Add a small pad to avoid edge-case ellipsis due to fractional rounding.
-      const raw = rect.width + 4;
-      const width = Math.max(minWidth, Math.min(maxWidth, Math.ceil(raw)));
-      setActivityLabelWidth(width);
+    // Combine layout and scroll metrics to avoid under-measuring narrow labels.
+    const getMetrics = (node: HTMLElement | null) => {
+      if (!node) return 0;
+      const rect = node.getBoundingClientRect();
+      const value = Math.max(rect.width, node.scrollWidth, node.offsetWidth);
+      return Number.isFinite(value) ? value : 0;
     };
-
-    measure();
-
-    // Font loading can change text metrics; re-measure once fonts are ready.
-    const fontsReady = (document as unknown as { fonts?: { ready?: Promise<unknown> } }).fonts?.ready;
-    if (fontsReady && typeof fontsReady.then === "function") {
-      const expected = activityNotice?.text || "";
-      fontsReady.then(() => {
-        if ((activityNotice?.text || "") !== expected) return;
-        measure();
-      });
+    let metrics = getMetrics(el);
+    if (metrics <= 0 && label && label !== el) {
+      metrics = getMetrics(label);
     }
-  }, [activityNotice?.text]);
+    if (!Number.isFinite(metrics) || metrics <= 0) return;
+    // Add a small pad to avoid edge-case ellipsis due to fractional rounding.
+    const padding = isNotice ? 4 : 5;
+    const raw = metrics + padding;
+    const width = Math.max(minWidth, Math.min(maxWidth, Math.ceil(raw)));
+    setActivityLabelWidth(width);
+  }, []);
+
+  const scheduleActivityLabelFontRemeasure = useCallback(
+    (mode: "notice" | "idle", expectedText: string) => {
+      // Font loading can change text metrics; re-measure once fonts are ready.
+      const fontsReady = (document as unknown as { fonts?: { ready?: Promise<unknown> } }).fonts?.ready;
+      if (fontsReady && typeof fontsReady.then === "function") {
+        fontsReady.then(() => {
+          if (activityLabelWidthModeRef.current !== mode) return;
+          if (activityLabelTextRef.current !== expectedText) return;
+          measureActivityLabelWidth(mode);
+        });
+      }
+    },
+    [measureActivityLabelWidth]
+  );
+
+  // Measure notice labels before paint to avoid a truncated first frame in ui-check/webm captures.
+  useLayoutEffect(() => {
+    if (activityLabelWidthMode !== "notice") return;
+    measureActivityLabelWidth("notice");
+    scheduleActivityLabelFontRemeasure("notice", activityLabelText);
+  }, [
+    activityLabelWidthMode,
+    activityLabelText,
+    measureActivityLabelWidth,
+    scheduleActivityLabelFontRemeasure
+  ]);
+
+  // Measure idle labels after paint so the pill width can animate back to "Activity".
+  useEffect(() => {
+    if (activityLabelWidthMode !== "idle") return;
+    const expectedText = activityLabelText;
+    if (activityLabelIdleRafRef.current) {
+      window.cancelAnimationFrame(activityLabelIdleRafRef.current);
+    }
+    activityLabelIdleRafRef.current = window.requestAnimationFrame(() => {
+      activityLabelIdleRafRef.current = null;
+      if (activityLabelWidthModeRef.current !== "idle") return;
+      if (activityLabelTextRef.current !== expectedText) return;
+      measureActivityLabelWidth("idle");
+      scheduleActivityLabelFontRemeasure("idle", expectedText);
+    });
+    return () => {
+      if (activityLabelIdleRafRef.current) {
+        window.cancelAnimationFrame(activityLabelIdleRafRef.current);
+        activityLabelIdleRafRef.current = null;
+      }
+    };
+  }, [
+    activityLabelWidthMode,
+    activityLabelText,
+    measureActivityLabelWidth,
+    scheduleActivityLabelFontRemeasure
+  ]);
 
   const resolvedTheme = getResolvedTheme();
   const themeMode = settings.enableSystemTheme ? settings.theme : resolvedTheme;
@@ -2561,40 +2806,60 @@ export default function App() {
     () => normalizeCurrencyOptions(snapshot.currencyOptions),
     [snapshot.currencyOptions]
   );
-  const activityPillContent = (
+  const activityLabelMeasureText =
+    activityLabelWidthMode === "notice" ? activityLabelText : "Activity";
+  const activityLabelMeasureIsNotice = activityLabelWidthMode === "notice";
+  const pillSnapshot = activityClosing ? activityPillSnapshot : null;
+  const pillLabelText = pillSnapshot?.text ?? activityLabelText;
+  const pillLabelTone = pillSnapshot?.tone ?? activityLabelTone;
+  const pillLabelIsNotice = pillSnapshot?.isNotice ?? activityLabelIsNotice;
+  const pillLabelWidth = pillSnapshot?.width ?? activityLabelWidth;
+  const pillLabelPulse = pillSnapshot?.pulse ?? activityNoticePulse;
+  const pillLogCount = pillSnapshot?.logCount ?? snapshot.logs.length;
+  const pillTempTaskActive = pillSnapshot?.tempTaskActive ?? temporaryPathTask.active;
+  const pillTempDisplayActive =
+    pillSnapshot?.tempDisplayActive ?? temporaryPathDisplayActive;
+  const pillTempDisplayProgress =
+    pillSnapshot?.tempDisplayProgress ?? temporaryPathDisplayProgress;
+  const renderActivityPillContent = (attachRefs: boolean) => (
     <>
       <span
-        className={`activity-label activity-label-measure${
-          activityNotice ? ` notice notice-${activityNotice.tone}` : ""
-        }`}
-        ref={activityLabelMeasureRef}
-        aria-hidden="true"
-      >
-        {activityNotice?.text || "Activity"}
-      </span>
-      <span
-        ref={activityLabelRef}
-        style={{ width: `${activityLabelWidth}px` }}
+        ref={attachRefs ? activityLabelRef : null}
+        style={{
+          width: `${pillLabelWidth}px`,
+          maxWidth: `${pillLabelWidth}px`
+        }}
         className={`activity-label${
-          activityNotice
-            ? ` notice notice-${activityNotice.tone}${activityNoticePulse ? " pulse" : ""}`
+          pillLabelIsNotice
+            ? ` notice notice-${pillLabelTone}${pillLabelPulse ? " pulse" : ""}`
             : ""
         }`}
       >
-        {activityNotice?.text || "Activity"}
+        {pillLabelText}
       </span>
+      {attachRefs ? (
+        <span
+          className={`activity-label activity-label-measure${
+            activityLabelMeasureIsNotice ? ` notice notice-${activityLabelTone}` : ""
+          }`}
+          ref={activityLabelMeasureRef}
+          aria-hidden="true"
+        >
+          {activityLabelMeasureText}
+        </span>
+      ) : null}
       <span
-        className={`activity-count${temporaryPathTask.active ? " progress" : ""}${
-          snapshot.logs.length === 0 ? " zero" : ""
+        className={`activity-count${pillTempTaskActive ? " progress" : ""}${
+          pillLogCount === 0 ? " zero" : ""
         }`}
         data-qa="qa:status:activity-count"
         aria-label={
-          temporaryPathDisplayActive
-            ? `Temporary Path progress ${Math.round(temporaryPathDisplayProgress * 100)}%`
+          pillTempDisplayActive
+            ? `Temporary Path progress ${Math.round(pillTempDisplayProgress * 100)}%`
             : "Activity count"
         }
       >
-        {temporaryPathDisplayActive ? (
+        {pillTempDisplayActive ? (
           <svg className="activity-count-ring" viewBox="0 0 36 36" aria-hidden="true">
             <circle className="ring-bg" cx="18" cy="18" r="16" pathLength="100" />
             <circle
@@ -2605,15 +2870,17 @@ export default function App() {
               pathLength="100"
               strokeDasharray={`${Math.max(
                 0,
-                Math.min(100, temporaryPathDisplayProgress * 100)
+                Math.min(100, pillTempDisplayProgress * 100)
               )} 100`}
             />
           </svg>
         ) : null}
-        <span className="activity-count-value">{snapshot.logs.length}</span>
+        <span className="activity-count-value">{pillLogCount}</span>
       </span>
     </>
   );
+  const activityPillContent = renderActivityPillContent(true);
+  const activityPillGhostContent = renderActivityPillContent(false);
 
   const activityHoverItems = useMemo(() => {
     const entries = snapshot.logs.slice(0, 5);
@@ -2625,24 +2892,53 @@ export default function App() {
     });
   }, [snapshot.logs]);
 
-  const handleActivityHoverEnter = () => {
+  const showActivityHover = (delayMs = 800) => {
+    if (activityOpen || activityOpenIntentRef.current) return;
+    if (activityPointerDownRef.current) return;
+    if (Date.now() < activityHoverBlockUntilRef.current) return;
     if (activityHoverTimerRef.current) {
       window.clearTimeout(activityHoverTimerRef.current);
       activityHoverTimerRef.current = null;
     }
+    if (!activityHoverItems.length) return;
+    if (delayMs <= 0) {
+      setActivityHover(true);
+      return;
+    }
     activityHoverTimerRef.current = window.setTimeout(() => {
       activityHoverTimerRef.current = null;
       setActivityHover(true);
-    }, 800);
+    }, delayMs);
   };
 
-  const handleActivityHoverLeave = () => {
+  const hideActivityHover = () => {
     if (activityHoverTimerRef.current) {
       window.clearTimeout(activityHoverTimerRef.current);
       activityHoverTimerRef.current = null;
     }
     setActivityHover(false);
   };
+
+  const blockActivityHover = useCallback((durationMs = 900) => {
+    activityHoverBlockUntilRef.current = Date.now() + durationMs;
+    if (activityHoverTimerRef.current) {
+      window.clearTimeout(activityHoverTimerRef.current);
+      activityHoverTimerRef.current = null;
+    }
+    setActivityHover(false);
+  }, []);
+
+  const markActivityPointerDown = useCallback(() => {
+    activityPointerDownRef.current = true;
+    if (activityPointerDownTimerRef.current) {
+      window.clearTimeout(activityPointerDownTimerRef.current);
+      activityPointerDownTimerRef.current = null;
+    }
+    activityPointerDownTimerRef.current = window.setTimeout(() => {
+      activityPointerDownTimerRef.current = null;
+      activityPointerDownRef.current = false;
+    }, 400);
+  }, []);
 
   return (
     <div className="app" data-qa="qa:app-shell">
@@ -2705,24 +3001,44 @@ export default function App() {
           calendarTimezoneMode={settings.calendarTimezoneMode}
           calendarUtcOffsetMinutes={settings.calendarUtcOffsetMinutes}
         />
-        <div
-          className="activity-fab-wrap"
-          onMouseEnter={handleActivityHoverEnter}
-          onMouseLeave={handleActivityHoverLeave}
-        >
-          <button
-            className={`activity-fab${activityOpen ? " hidden" : ""}${
-              snapshot.logs.length === 0 ? " zero" : ""
-            }`}
-            type="button"
-            onClick={openActivity}
-            ref={activityFabRef}
-            data-qa="qa:action:activity-fab"
+          <div
+            className={`activity-fab-wrap${activityOpen ? " disabled" : ""}`}
+            onPointerDownCapture={() => {
+              markActivityPointerDown();
+              blockActivityHover();
+            }}
+            onMouseEnter={() => showActivityHover()}
+            onMouseLeave={hideActivityHover}
+          >
+            <button
+              className={`activity-fab${activityOpen ? " hidden" : ""}${
+                snapshot.logs.length === 0 ? " zero" : ""
+              }`}
+              type="button"
+              onClick={openActivity}
+              ref={activityFabRef}
+              data-qa="qa:action:activity-fab"
+              aria-describedby={activityHoverItems.length ? "activity-hover-tooltip" : undefined}
+              onFocus={() => {
+                if (
+                  !activityOpenIntentRef.current &&
+                  !activityPointerDownRef.current &&
+                  Date.now() >= activityHoverBlockUntilRef.current
+                ) {
+                  showActivityHover(0);
+                }
+              }}
+            onBlur={hideActivityHover}
           >
             {activityPillContent}
           </button>
           {activityHover && activityHoverItems.length ? (
-            <div className="activity-hover" data-qa="qa:tooltip:activity-notice" role="tooltip">
+            <div
+              className="activity-hover"
+              data-qa="qa:tooltip:activity-notice"
+              role="tooltip"
+              id="activity-hover-tooltip"
+            >
               <div className="activity-hover-title">Notices</div>
               <div className="activity-hover-list">
                 {activityHoverItems.map((item, idx) => (
@@ -2980,7 +3296,7 @@ export default function App() {
         isClosing={activityClosing}
         isEntering={activityEntering}
         originRect={activityOriginRect}
-        pillContent={activityPillContent}
+        pillContent={activityPillGhostContent}
         externalPillRef={activityFabRef}
         onClose={closeActivity}
         onClosed={handleActivityClosed}

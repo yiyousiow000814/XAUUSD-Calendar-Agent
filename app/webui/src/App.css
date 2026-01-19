@@ -182,7 +182,10 @@
 
 .activity-label {
   display: inline-block;
+  flex: 0 0 auto;
+  min-width: 0;
   max-width: 92px;
+  text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -196,8 +199,13 @@
   position: fixed;
   left: -9999px;
   top: -9999px;
+  display: inline-block;
   visibility: hidden;
   pointer-events: none;
+  font-size: 12px;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
   white-space: nowrap;
   max-width: none !important;
   width: auto !important;
@@ -246,6 +254,10 @@
   position: relative;
   display: inline-flex;
   justify-self: end;
+}
+
+.activity-fab-wrap.disabled {
+  pointer-events: none;
 }
 
 .activity-hover {
