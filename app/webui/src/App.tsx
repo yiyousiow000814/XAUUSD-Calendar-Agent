@@ -2517,17 +2517,28 @@ export default function App() {
   }, [settingsOpen]);
 
   useEffect(() => {
-    const el = activityLabelMeasureRef.current ?? activityLabelRef.current;
-    if (!el) return;
-
     const isNotice = Boolean(activityNotice?.text);
     const minWidth = 92;
     const maxWidth = isNotice ? 260 : 92;
 
-    // Use the rendered element's scrollWidth so we get the natural width even when truncated.
-    window.requestAnimationFrame(() => {
-      const width = Math.max(minWidth, Math.min(maxWidth, Math.ceil(el.scrollWidth)));
+    const el = activityLabelMeasureRef.current ?? activityLabelRef.current;
+    if (!el) return;
+
+    // scrollWidth can be unreliable when the element is offscreen/hidden depending on layout.
+    // Using layout width from getBoundingClientRect is more stable for short messages.
+    const measure = () => {
+      const rect = el.getBoundingClientRect();
+      // Add a small pad to avoid edge-case ellipsis due to fractional rounding.
+      const raw = rect.width + 4;
+      const width = Math.max(minWidth, Math.min(maxWidth, Math.ceil(raw)));
       setActivityLabelWidth(width);
+    };
+
+    // Ensure styles/classes are applied before measuring.
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        measure();
+      });
     });
   }, [activityNotice?.text]);
 
@@ -2609,7 +2620,7 @@ export default function App() {
     activityHoverTimerRef.current = window.setTimeout(() => {
       activityHoverTimerRef.current = null;
       setActivityHover(true);
-    }, 1000);
+    }, 800);
   };
 
   const handleActivityHoverLeave = () => {

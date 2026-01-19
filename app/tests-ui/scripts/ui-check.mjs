@@ -4250,6 +4250,8 @@ const main = async () => {
         const ui = window.__ui_check__;
         ui?.appendLog?.("Events updated to latest", "INFO");
         ui?.appendLog?.("Events updated to latest", "INFO");
+        ui?.appendLog?.("Boot complete", "INFO");
+        ui?.appendLog?.("Scheduler started", "INFO");
         ui?.appendLog?.(
           "Pull failed: ECONNRESET while reading https://example.invalid/api/calendar?currency=XAUUSD (retry later)",
           "ERROR"
@@ -4325,10 +4327,65 @@ const main = async () => {
             scenario: "activity-pill-notice",
             theme: theme.key,
             state: "carousel",
-            label: "Queued notices (2x info + long error)",
+            label: "Queued notices (info + short info + long error)",
             path: frames[0],
             frames,
             frameGapMs: 220
+          });
+        }
+
+        await runCheck(theme.key, "Activity pill short notice not truncated", async () => {
+          // Re-append a short message right before asserting so fast carousels (no theme transition)
+          // cannot advance past it before the check starts.
+          await demoPage.evaluate(() => window.__ui_check__?.appendLog?.("Boot complete", "INFO"));
+          const ok = await demoPage
+            .waitForFunction(
+              () => {
+                const label = document.querySelector(
+                  "[data-qa='qa:action:activity-fab'] .activity-label:not(.activity-label-measure)"
+                );
+                if (!label) return false;
+                const text = (label.textContent || "").trim();
+                if (!text.includes("Boot complete")) return false;
+                // If ellipsis is applied, scrollWidth will exceed clientWidth.
+                return label.scrollWidth <= label.clientWidth + 1;
+              },
+              { timeout: 8000 }
+            )
+            .then(() => true)
+            .catch(() => false);
+          if (!ok) {
+            const text = await demoPage.evaluate(() => {
+              const label = document.querySelector(
+                "[data-qa='qa:action:activity-fab'] .activity-label:not(.activity-label-measure)"
+              );
+              return { text: (label?.textContent || "").trim(), sw: label?.scrollWidth, cw: label?.clientWidth };
+            });
+            throw new Error(`Expected 'Boot complete' notice to fit without truncation. Got ${JSON.stringify(text)}`);
+          }
+        });
+
+        // Capture a static state for a short message so report.html makes this easy to verify.
+        await demoPage.evaluate(() => window.__ui_check__?.appendLog?.("Boot complete", "INFO"));
+        const sawBoot = await demoPage
+          .waitForFunction(
+            () => {
+              const label = document.querySelector(
+                "[data-qa='qa:action:activity-fab'] .activity-label:not(.activity-label-measure)"
+              );
+              return (label?.textContent || "").trim().includes("Boot complete");
+            },
+            { timeout: 2000 }
+          )
+          .then(() => true)
+          .catch(() => false);
+        if (sawBoot) {
+          artifacts.push({
+            scenario: "activity-pill-notice",
+            theme: theme.key,
+            state: "short-info",
+            label: "Short info message fits without truncation",
+            path: await captureState(demoPage, "activity-pill-notice", theme.key, "short-info", { clip })
           });
         }
 

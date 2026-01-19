@@ -192,14 +192,17 @@
 }
 
 .activity-label-measure {
-  position: absolute;
+  /* Offscreen, but still layouted so width measurement is reliable. */
+  position: fixed;
+  left: -9999px;
+  top: -9999px;
   visibility: hidden;
   pointer-events: none;
   white-space: nowrap;
   max-width: none !important;
   width: auto !important;
-  height: 0;
-  overflow: hidden;
+  height: auto;
+  overflow: visible;
   transition: none !important;
 }
 
@@ -252,9 +255,9 @@
   width: min(360px, 62vw);
   padding: 10px 12px;
   border-radius: 14px;
-  background: rgba(20, 24, 32, 0.56);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
+  background: rgba(20, 24, 32, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   color: var(--text);
@@ -264,9 +267,9 @@
 }
 
 html[data-theme="light"] .activity-hover {
-  background: rgba(255, 255, 255, 0.74);
+  background: rgba(255, 255, 255, 0.68);
   border-color: rgba(18, 20, 26, 0.10);
-  box-shadow: 0 14px 32px rgba(24, 28, 40, 0.12);
+  box-shadow: 0 10px 26px rgba(24, 28, 40, 0.10);
 }
 
 .activity-hover-title {
