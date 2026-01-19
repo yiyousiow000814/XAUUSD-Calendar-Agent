@@ -181,11 +181,14 @@
 }
 
 .activity-label {
+  display: inline-block;
   max-width: 92px;
+  width: 92px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  transition: max-width var(--motion-fast) var(--motion-ease),
+  transition: width var(--motion-fast) var(--motion-ease),
+    max-width var(--motion-fast) var(--motion-ease),
     opacity var(--motion-fast) var(--motion-ease);
 }
 
@@ -196,10 +199,121 @@
   opacity: 0.96;
 }
 
+.activity-label.notice.notice-error {
+  color: var(--danger);
+}
+
+.activity-label.notice.pulse {
+  animation: activity-notice-pulse 520ms var(--motion-ease);
+}
+
+@keyframes activity-notice-pulse {
+  0% {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0.96;
+    transform: translateY(0);
+  }
+}
+
 .activity-fab.hidden {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
+}
+
+.activity-fab-wrap {
+  position: relative;
+  display: inline-flex;
+  justify-self: end;
+}
+
+.activity-hover {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
+  width: min(360px, 62vw);
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(20, 24, 32, 0.56);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: var(--text);
+  text-transform: none;
+  letter-spacing: 0;
+  z-index: 220;
+}
+
+html[data-theme="light"] .activity-hover {
+  background: rgba(255, 255, 255, 0.74);
+  border-color: rgba(18, 20, 26, 0.10);
+  box-shadow: 0 14px 32px rgba(24, 28, 40, 0.12);
+}
+
+.activity-hover-title {
+  font-size: 11px;
+  color: rgba(166, 169, 179, 0.95);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 8px;
+}
+
+.activity-hover-list {
+  display: grid;
+  gap: 8px;
+}
+
+.activity-hover-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.activity-hover-level {
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(134, 201, 255, 0.35);
+  background: rgba(30, 75, 143, 0.3);
+  color: rgba(246, 251, 255, 0.95);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.activity-hover-row.tone-error .activity-hover-level {
+  border-color: rgba(242, 106, 91, 0.38);
+  background: rgba(242, 106, 91, 0.16);
+  color: rgba(255, 236, 233, 0.98);
+}
+
+html[data-theme="light"] .activity-hover-level {
+  background: rgba(30, 75, 143, 0.08);
+  border-color: rgba(30, 75, 143, 0.22);
+  color: rgba(18, 20, 26, 0.86);
+}
+
+html[data-theme="light"] .activity-hover-row.tone-error .activity-hover-level {
+  background: rgba(200, 72, 61, 0.08);
+  border-color: rgba(200, 72, 61, 0.22);
+  color: rgba(108, 27, 20, 0.92);
+}
+
+.activity-hover-message {
+  font-size: 12px;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.95;
 }
 
 .activity-fab.zero {

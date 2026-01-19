@@ -194,12 +194,25 @@ export default function App() {
     { id: number; type: ToastType; message: string; closing?: boolean }[]
   >([]);
   const [latestLogId, setLatestLogId] = useState<string>("");
-  const [activityNotice, setActivityNotice] = useState<string>("");
-  const activityNoticeQueueRef = useRef<string[]>([]);
+  type ActivityNoticeTone = "info" | "error";
+  type ActivityNotice = { text: string; tone: ActivityNoticeTone };
+  const [activityNotice, setActivityNotice] = useState<ActivityNotice | null>(null);
+  const [activityNoticePulse, setActivityNoticePulse] = useState(false);
+  const [activityHover, setActivityHover] = useState(false);
+  const activityHoverTimerRef = useRef<number | null>(null);
+  const activityLabelRef = useRef<HTMLSpanElement | null>(null);
+  const [activityLabelWidth, setActivityLabelWidth] = useState<number>(92);
+  const activityNoticePulseTimerRef = useRef<number | null>(null);
+  const activityNoticeQueueRef = useRef<ActivityNotice[]>([]);
   const activityNoticeTimerRef = useRef<number | null>(null);
   const activityNoticeRunningRef = useRef(false);
-  const activityNoticeMultiRef = useRef(false);
-  const lastNoticedLogIdRef = useRef<string>("");
+  const activityNoticeSuppressedRef = useRef(false);
+  const activityNoticePendingFlushRef = useRef(false);
+  const activityNoticeBootstrappedRef = useRef(false);
+  const lastActivityNoticeHeadKeyRef = useRef<string>("");
+  const lastActivityNoticeLogCountRef = useRef(0);
+  const themeAnimationTokenRef = useRef(0);
+  const themeAnimationResumeTimerRef = useRef<number | null>(null);
   const prefersDark = useRef<MediaQueryList | null>(null);
   const saveTimerRef = useRef<number | null>(null);
   const splitRatioSaveTimerRef = useRef<number | null>(null);
@@ -1304,6 +1317,9 @@ export default function App() {
       return ms;
     })();
 
+    const themeToken = (themeAnimationTokenRef.current += 1);
+    suspendActivityNotices();
+
     if (themeTransitionTimerRef.current) {
       window.clearTimeout(themeTransitionTimerRef.current);
       themeTransitionTimerRef.current = null;
@@ -1312,6 +1328,19 @@ export default function App() {
       window.clearTimeout(themeSwapTimerRef.current);
       themeSwapTimerRef.current = null;
     }
+    if (themeAnimationResumeTimerRef.current) {
+      window.clearTimeout(themeAnimationResumeTimerRef.current);
+      themeAnimationResumeTimerRef.current = null;
+    }
+
+    const resumeNoticesIfCurrent = () => {
+      if (themeToken !== themeAnimationTokenRef.current) return;
+      if (themeAnimationResumeTimerRef.current) {
+        window.clearTimeout(themeAnimationResumeTimerRef.current);
+        themeAnimationResumeTimerRef.current = null;
+      }
+      resumeActivityNotices();
+    };
 
     const startViewTransition = (document as unknown as { startViewTransition?: unknown })
       .startViewTransition as ((callback: () => void) => { finished: Promise<void> }) | undefined;
@@ -1323,10 +1352,12 @@ export default function App() {
       });
       transition.finished.finally(() => {
         root.classList.remove("theme-vt");
+        resumeNoticesIfCurrent();
       });
       themeTransitionTimerRef.current = window.setTimeout(() => {
         root.classList.remove("theme-vt");
         themeTransitionTimerRef.current = null;
+        resumeNoticesIfCurrent();
       }, durationMs + 240);
       return;
     }
@@ -1337,7 +1368,12 @@ export default function App() {
     themeTransitionTimerRef.current = window.setTimeout(() => {
       root.classList.remove("theme-transition");
       themeTransitionTimerRef.current = null;
+      resumeNoticesIfCurrent();
     }, durationMs + 240);
+
+    themeAnimationResumeTimerRef.current = window.setTimeout(() => {
+      resumeNoticesIfCurrent();
+    }, durationMs + 360);
   };
 
   const toggleTheme = () => {
@@ -1984,49 +2020,140 @@ export default function App() {
     }
   }, [snapshot.logs, latestLogId]);
 
+  const triggerActivityNoticePulse = useCallback(() => {
+    if (activityNoticePulseTimerRef.current) {
+      window.clearTimeout(activityNoticePulseTimerRef.current);
+      activityNoticePulseTimerRef.current = null;
+    }
+    setActivityNoticePulse(false);
+    window.requestAnimationFrame(() => setActivityNoticePulse(true));
+    activityNoticePulseTimerRef.current = window.setTimeout(() => {
+      activityNoticePulseTimerRef.current = null;
+      setActivityNoticePulse(false);
+    }, 520);
+  }, []);
+
   const flushNextActivityNotice = useCallback(() => {
+    if (activityNoticeSuppressedRef.current) {
+      activityNoticePendingFlushRef.current = true;
+      activityNoticeRunningRef.current = false;
+      setActivityNotice(null);
+      return;
+    }
+
     const next = activityNoticeQueueRef.current.shift();
     if (!next) {
       activityNoticeRunningRef.current = false;
-      activityNoticeMultiRef.current = false;
-      setActivityNotice("");
+      setActivityNotice(null);
       return;
     }
 
     setActivityNotice(next);
-    const holdMs = activityNoticeMultiRef.current ? 1000 : 2000;
+    triggerActivityNoticePulse();
+    const holdMs = activityNoticeQueueRef.current.length > 0 ? 1000 : 2000;
     activityNoticeTimerRef.current = window.setTimeout(() => {
       activityNoticeTimerRef.current = null;
       flushNextActivityNotice();
     }, holdMs);
+  }, [triggerActivityNoticePulse]);
+
+  const enqueueActivityNotice = useCallback(
+    (notice: ActivityNotice) => {
+      activityNoticeQueueRef.current.push(notice);
+      activityNoticePendingFlushRef.current = true;
+      if (activityNoticeSuppressedRef.current) return;
+      if (activityNoticeRunningRef.current) return;
+      activityNoticeRunningRef.current = true;
+      flushNextActivityNotice();
+    },
+    [flushNextActivityNotice]
+  );
+
+  const suspendActivityNotices = useCallback(() => {
+    activityNoticeSuppressedRef.current = true;
+    activityNoticePendingFlushRef.current = true;
+    activityNoticeRunningRef.current = false;
+    if (activityNoticeTimerRef.current) {
+      window.clearTimeout(activityNoticeTimerRef.current);
+      activityNoticeTimerRef.current = null;
+    }
+    setActivityNotice(null);
   }, []);
 
-  useEffect(() => {
-    if (!latestLogId) return;
-    const previous = lastNoticedLogIdRef.current;
-    lastNoticedLogIdRef.current = latestLogId;
-    if (!previous) return;
-    if (previous === latestLogId) return;
-    const top = snapshot.logs[0];
-    if (!top) return;
-
-    const message = `${top.level}: ${top.message}`.trim();
-    activityNoticeQueueRef.current.push(message);
-    if (activityNoticeQueueRef.current.length > 1) {
-      activityNoticeMultiRef.current = true;
-    }
+  const resumeActivityNotices = useCallback(() => {
+    activityNoticeSuppressedRef.current = false;
+    if (!activityNoticePendingFlushRef.current) return;
+    activityNoticePendingFlushRef.current = false;
+    if (!activityNoticeQueueRef.current.length) return;
     if (activityNoticeRunningRef.current) return;
-
     activityNoticeRunningRef.current = true;
-    activityNoticeMultiRef.current = activityNoticeQueueRef.current.length > 1;
     flushNextActivityNotice();
-  }, [latestLogId, snapshot.logs, flushNextActivityNotice]);
+  }, [flushNextActivityNotice]);
+
+  useEffect(() => {
+    const nextCount = snapshot.logs.length;
+    const headKey = snapshot.logs.length ? logKey(snapshot.logs[0]) : "";
+
+    if (!activityNoticeBootstrappedRef.current) {
+      // Establish a baseline immediately so the first logs arriving later (e.g. 0 -> 2)
+      // still count as "new" and trigger a notice burst.
+      activityNoticeBootstrappedRef.current = true;
+      lastActivityNoticeHeadKeyRef.current = headKey;
+      lastActivityNoticeLogCountRef.current = nextCount;
+      return;
+    }
+
+    if (!snapshot.logs.length) {
+      lastActivityNoticeHeadKeyRef.current = "";
+      lastActivityNoticeLogCountRef.current = 0;
+      return;
+    }
+
+    const baselineHeadKey = lastActivityNoticeHeadKeyRef.current;
+    const baselineCount = lastActivityNoticeLogCountRef.current;
+
+    const delta = nextCount - baselineCount;
+    let newEntries = [];
+    if (delta > 0) {
+      // Most log writes append to the head; use the length delta so identical entries still trigger.
+      newEntries = snapshot.logs.slice(0, delta);
+    } else if (baselineHeadKey && baselineHeadKey !== headKey) {
+      // Fall back to key-based diff for refreshes that may rotate/truncate logs.
+      newEntries = takeNewLogEntries(snapshot.logs, baselineHeadKey);
+    }
+
+    if (!newEntries.length) return;
+
+    lastActivityNoticeHeadKeyRef.current = headKey;
+    lastActivityNoticeLogCountRef.current = nextCount;
+
+    // Render notices oldest->newest; keep the burst bounded so report runs stay readable.
+    const ordered = [...newEntries].reverse();
+    const limited = ordered.length > 8 ? ordered.slice(-8) : ordered;
+    for (const entry of limited) {
+      const level = (entry.level || "INFO").toUpperCase();
+      const tone: ActivityNoticeTone = level === "ERROR" ? "error" : "info";
+      enqueueActivityNotice({ text: `${level}: ${entry.message}`.trim(), tone });
+    }
+  }, [snapshot.logs, enqueueActivityNotice]);
 
   useEffect(
     () => () => {
       if (activityNoticeTimerRef.current) {
         window.clearTimeout(activityNoticeTimerRef.current);
         activityNoticeTimerRef.current = null;
+      }
+      if (activityNoticePulseTimerRef.current) {
+        window.clearTimeout(activityNoticePulseTimerRef.current);
+        activityNoticePulseTimerRef.current = null;
+      }
+      if (activityHoverTimerRef.current) {
+        window.clearTimeout(activityHoverTimerRef.current);
+        activityHoverTimerRef.current = null;
+      }
+      if (themeAnimationResumeTimerRef.current) {
+        window.clearTimeout(themeAnimationResumeTimerRef.current);
+        themeAnimationResumeTimerRef.current = null;
       }
     },
     []
@@ -2159,6 +2286,7 @@ export default function App() {
         appendLog?: (message: string, level?: string) => void;
         refresh?: () => void;
         refreshUpdateState?: () => Promise<void>;
+        setActivityHover?: (active: boolean) => void;
         showAlertModal?: (payload: { title?: string; message?: string; tone?: "info" | "error" }) => void;
         hideAlertModal?: () => void;
         showTemporaryPathWarning?: (payload: {
@@ -2195,6 +2323,13 @@ export default function App() {
       appendLog: (message: string, level = "INFO") => appendLogEntry(message, level),
       refresh: () => {
         refresh();
+      },
+      setActivityHover: (active) => {
+        if (activityHoverTimerRef.current) {
+          window.clearTimeout(activityHoverTimerRef.current);
+          activityHoverTimerRef.current = null;
+        }
+        setActivityHover(Boolean(active));
       },
       setOutputDir: async (value: string) => {
         dirtyOutputDirRef.current = true;
@@ -2380,6 +2515,23 @@ export default function App() {
     settingsOpenRef.current = settingsOpen;
   }, [settingsOpen]);
 
+  useEffect(() => {
+    const el = activityLabelRef.current;
+    if (!el) return;
+
+    // Reset to the compact width when no notice is active.
+    if (!activityNotice?.text) {
+      setActivityLabelWidth(92);
+      return;
+    }
+
+    // Use the rendered element's scrollWidth so we get the natural width even when truncated.
+    window.requestAnimationFrame(() => {
+      const width = Math.max(92, Math.min(260, Math.ceil(el.scrollWidth)));
+      setActivityLabelWidth(width);
+    });
+  }, [activityNotice?.text]);
+
   const resolvedTheme = getResolvedTheme();
   const themeMode = settings.enableSystemTheme ? settings.theme : resolvedTheme;
   const currencyOptions = useMemo(
@@ -2388,8 +2540,16 @@ export default function App() {
   );
   const activityPillContent = (
     <>
-      <span className={`activity-label${activityNotice ? " notice" : ""}`}>
-        {activityNotice || "Activity"}
+      <span
+        ref={activityLabelRef}
+        style={{ width: `${activityLabelWidth}px` }}
+        className={`activity-label${
+          activityNotice
+            ? ` notice notice-${activityNotice.tone}${activityNoticePulse ? " pulse" : ""}`
+            : ""
+        }`}
+      >
+        {activityNotice?.text || "Activity"}
       </span>
       <span
         className={`activity-count${temporaryPathTask.active ? " progress" : ""}${
@@ -2422,6 +2582,35 @@ export default function App() {
       </span>
     </>
   );
+
+  const activityHoverItems = useMemo(() => {
+    const entries = snapshot.logs.slice(0, 5);
+    if (!entries.length) return [];
+    return entries.map((entry) => {
+      const level = (entry.level || "INFO").toUpperCase();
+      const tone: ActivityNoticeTone = level === "ERROR" ? "error" : "info";
+      return { tone, level, message: entry.message || "" };
+    });
+  }, [snapshot.logs]);
+
+  const handleActivityHoverEnter = () => {
+    if (activityHoverTimerRef.current) {
+      window.clearTimeout(activityHoverTimerRef.current);
+      activityHoverTimerRef.current = null;
+    }
+    activityHoverTimerRef.current = window.setTimeout(() => {
+      activityHoverTimerRef.current = null;
+      setActivityHover(true);
+    }, 1500);
+  };
+
+  const handleActivityHoverLeave = () => {
+    if (activityHoverTimerRef.current) {
+      window.clearTimeout(activityHoverTimerRef.current);
+      activityHoverTimerRef.current = null;
+    }
+    setActivityHover(false);
+  };
 
   return (
     <div className="app" data-qa="qa:app-shell">
@@ -2484,17 +2673,39 @@ export default function App() {
           calendarTimezoneMode={settings.calendarTimezoneMode}
           calendarUtcOffsetMinutes={settings.calendarUtcOffsetMinutes}
         />
-        <button
-          className={`activity-fab${activityOpen ? " hidden" : ""}${
-            snapshot.logs.length === 0 ? " zero" : ""
-          }`}
-          type="button"
-          onClick={openActivity}
-          ref={activityFabRef}
-          data-qa="qa:action:activity-fab"
+        <div
+          className="activity-fab-wrap"
+          onMouseEnter={handleActivityHoverEnter}
+          onMouseLeave={handleActivityHoverLeave}
         >
-          {activityPillContent}
-        </button>
+          <button
+            className={`activity-fab${activityOpen ? " hidden" : ""}${
+              snapshot.logs.length === 0 ? " zero" : ""
+            }`}
+            type="button"
+            onClick={openActivity}
+            ref={activityFabRef}
+            data-qa="qa:action:activity-fab"
+          >
+            {activityPillContent}
+          </button>
+          {activityHover && activityHoverItems.length ? (
+            <div className="activity-hover" data-qa="qa:tooltip:activity-notice" role="tooltip">
+              <div className="activity-hover-title">Notices</div>
+              <div className="activity-hover-list">
+                {activityHoverItems.map((item, idx) => (
+                  <div
+                    key={`${item.level}-${idx}`}
+                    className={`activity-hover-row tone-${item.tone}`}
+                  >
+                    <span className="activity-hover-level">{item.level}</span>
+                    <span className="activity-hover-message">{item.message}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <SettingsModal

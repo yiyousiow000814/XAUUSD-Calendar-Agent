@@ -457,14 +457,28 @@ const captureState = async (page, scenario, theme, state, options = {}) => {
   return filePath;
 };
 
-const captureFrames = async (page, scenario, theme, state, count = 4, gapMs = 80) => {
+const captureFrames = async (page, scenario, theme, state, options = 4, gapMs = 80) => {
+  // Backwards-compatible signature:
+  // - captureFrames(page, scenario, theme, state, count?, gapMs?)
+  // - captureFrames(page, scenario, theme, state, { count, gapMs, clip, element }?)
+  const opts =
+    typeof options === "number"
+      ? { count: options, gapMs, clip: null, element: null }
+      : { count: 4, gapMs: 80, clip: null, element: null, ...(options || {}) };
+
   const files = [];
-  for (let i = 0; i < count; i += 1) {
+  for (let i = 0; i < opts.count; i += 1) {
     const fileName = `${sanitize(scenario)}__${sanitize(theme)}__${sanitize(state)}__frame${i}.png`;
     const filePath = path.join(framesDir, fileName);
-    await page.screenshot({ path: filePath, fullPage: true });
+    if (opts.element) {
+      await opts.element.screenshot({ path: filePath });
+    } else if (opts.clip) {
+      await page.screenshot({ path: filePath, clip: opts.clip });
+    } else {
+      await page.screenshot({ path: filePath, fullPage: true });
+    }
     files.push(filePath);
-    await page.waitForTimeout(gapMs);
+    await page.waitForTimeout(opts.gapMs);
   }
   return files;
 };
@@ -4148,6 +4162,214 @@ const main = async () => {
         await cancel.click();
         await page.waitForTimeout(260);
       }
+    }
+
+    // Activity pill notice preview: queue multiple notices (including long ERROR) and
+    // verify notices are suppressed during theme transitions.
+    try {
+      const demoContext = await browser.newContext({
+        viewport: { width: 1280, height: 720 },
+        userAgent: "XAUUSDCalendar/1.0",
+        bypassCSP: true,
+        ...(colorScheme ? { colorScheme } : {})
+      });
+      await demoContext.addInitScript(() => {
+        window.__UI_CHECK_RUNTIME__ = true;
+      });
+      await demoContext.addInitScript(({ mode, scheme }) => {
+        const resolved =
+          mode === "system"
+            ? scheme ||
+              (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? "dark"
+                : "light")
+            : mode;
+        try {
+          localStorage.setItem("theme", mode);
+          localStorage.setItem("themePreference", mode);
+        } catch {
+          // ignore
+        }
+        document.documentElement.dataset.theme = resolved;
+        window.__ui_check__ = window.__ui_check__ || {};
+        window.__ui_check__.holdInitOverlayMs = 1500;
+      }, theme);
+
+      const demoPage = await demoContext.newPage();
+      const demoVideo = demoPage.video();
+      await ensureServerHealthy();
+      await gotoWithServerRecovery(demoPage, baseURL, { waitUntil: "domcontentloaded" });
+      await demoPage.waitForSelector("[data-qa='qa:app-shell']", { timeout: 10000 });
+      await injectDesktopBackend(demoPage, theme.mode, false);
+
+      const fab = demoPage.locator("[data-qa='qa:action:activity-fab']").first();
+      await fab.waitFor({ state: "visible", timeout: 8000 });
+      const box = await fab.boundingBox();
+      const viewport = demoPage.viewportSize();
+      const clip =
+        box && viewport
+          ? (() => {
+              const pad = 18;
+              const x = Math.max(0, Math.floor(box.x - pad));
+              const y = Math.max(0, Math.floor(box.y - pad));
+              const width = Math.min(viewport.width - x, Math.ceil(box.width + pad * 2));
+              const height = Math.min(viewport.height - y, Math.ceil(box.height + pad * 2));
+              return { x, y, width: Math.max(1, width), height: Math.max(1, height) };
+            })()
+          : null;
+
+      // Keep the demo short and make the theme transition easy to see in the webm.
+      await demoPage.evaluate(() => {
+        document.documentElement.style.setProperty("--theme-duration", "650ms");
+      });
+      await demoPage.waitForTimeout(120);
+
+      await demoPage.evaluate(() => window.__ui_check__?.toggleTheme?.());
+      await demoPage
+        .waitForFunction(
+          () => {
+            const root = document.documentElement;
+            return root.classList.contains("theme-transition") || root.classList.contains("theme-vt");
+          },
+          { timeout: 1600 }
+        )
+        .catch(() => null);
+
+      await demoPage.evaluate(() => {
+        const ui = window.__ui_check__;
+        ui?.appendLog?.("Events updated to latest", "INFO");
+        ui?.appendLog?.("Events updated to latest", "INFO");
+        ui?.appendLog?.(
+          "Pull failed: ECONNRESET while reading https://example.invalid/api/calendar?currency=XAUUSD (retry later)",
+          "ERROR"
+        );
+      });
+
+      if (viewport) {
+        const clipRight = {
+          x: Math.max(0, viewport.width - 560),
+          y: 0,
+          width: Math.min(560, viewport.width),
+          height: viewport.height
+        };
+        const frames = await captureFrames(
+          demoPage,
+          "activity-pill-notice-demo",
+          theme.key,
+          "theme-then-notices",
+          { count: 22, gapMs: 120, clip: clipRight }
+        );
+        if (frames.length) {
+          artifacts.push({
+            scenario: "activity-pill-notice-demo",
+            theme: theme.key,
+            state: "theme-then-notices",
+            label: "Theme transition then notice flush",
+            path: frames[0],
+            frames,
+            frameGapMs: 120
+          });
+        }
+      }
+
+      await runCheck(theme.key, "Activity pill notice stays suppressed during theme transition", async () => {
+        const state = await demoPage.evaluate(() => {
+          const root = document.documentElement;
+          const anim = root.classList.contains("theme-transition") || root.classList.contains("theme-vt");
+          const label = document.querySelector("[data-qa='qa:action:activity-fab'] .activity-label");
+          return { anim, text: (label?.textContent || "").trim() };
+        });
+        if (state.anim && state.text !== "Activity") {
+          throw new Error(`Expected Activity label while theme animating, got ${JSON.stringify(state.text)}`);
+        }
+      });
+
+      await demoPage
+        .waitForFunction(
+          () => {
+            const root = document.documentElement;
+            return !root.classList.contains("theme-transition") && !root.classList.contains("theme-vt");
+          },
+          { timeout: 4000 }
+        )
+        .catch(() => null);
+      await demoPage
+        .waitForFunction(
+          () => {
+            const label = document.querySelector("[data-qa='qa:action:activity-fab'] .activity-label");
+            return (label?.textContent || "").trim() !== "Activity";
+          },
+          { timeout: 6000 }
+        )
+        .catch(() => null);
+
+      if (clip) {
+        const frames = await captureFrames(demoPage, "activity-pill-notice", theme.key, "carousel", {
+          count: 12,
+          gapMs: 220,
+          clip
+        });
+        if (frames.length) {
+          artifacts.push({
+            scenario: "activity-pill-notice",
+            theme: theme.key,
+            state: "carousel",
+            label: "Queued notices (2x info + long error)",
+            path: frames[0],
+            frames,
+            frameGapMs: 220
+          });
+        }
+
+        // Force a dedicated long-error capture after the carousel frames, so the static state is reliable.
+        await demoPage.evaluate(() => {
+          const ui = window.__ui_check__;
+          ui?.appendLog?.(
+            "Pull failed: ECONNRESET while reading https://example.invalid/api/calendar?currency=XAUUSD (retry later)",
+            "ERROR"
+          );
+        });
+        const sawError = await demoPage
+          .waitForFunction(
+            () => {
+              const label = document.querySelector(
+                "[data-qa='qa:action:activity-fab'] .activity-label"
+              );
+              return (label?.textContent || "").trim().startsWith("ERROR:");
+            },
+            { timeout: 6000 }
+          )
+          .then(() => true)
+          .catch(() => false);
+        if (sawError) {
+          artifacts.push({
+            scenario: "activity-pill-notice",
+            theme: theme.key,
+            state: "long-error",
+            label: "Long error preview truncation",
+            path: await captureState(demoPage, "activity-pill-notice", theme.key, "long-error", { clip })
+          });
+        }
+
+        await demoPage.evaluate(() => window.__ui_check__?.setActivityHover?.(true));
+        const hoverTooltip = demoPage.locator("[data-qa='qa:tooltip:activity-notice']").first();
+        await hoverTooltip.waitFor({ state: "visible", timeout: 4000 }).catch(() => null);
+        if (await hoverTooltip.count()) {
+          artifacts.push({
+            scenario: "activity-pill-hover",
+            theme: theme.key,
+            state: "open",
+            label: "Hover preview shows recent notices",
+            path: await captureState(demoPage, "activity-pill-hover", theme.key, "open", {
+              element: hoverTooltip
+            })
+          });
+        }
+      }
+
+      await demoContext.close();
+    } catch {
+      // ignore activity-pill-notice demo failures (main UI check should still complete)
     }
 
     // Capture a visible Current lifecycle in the theme webm (reorder + move to history).
