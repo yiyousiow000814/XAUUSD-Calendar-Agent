@@ -55,6 +55,9 @@ const snapshotsDir = path.join(artifactsRoot, "snapshots");
 const framesDir = path.join(artifactsRoot, "frames");
 const videoDir = path.join(artifactsRoot, "video");
 const reportPath = path.join(artifactsRoot, "report.html");
+// Playwright recordVideo is flaky on some Windows setups (tiny/zoomed captures).
+// Keep it opt-in so the default ui-check artifacts stay reliable.
+const enableVideo = process.env.UI_CHECK_VIDEO === "1";
 let baseURL = process.env.UI_BASE_URL || "http://127.0.0.1:4173";
 let shouldStartServer = !process.env.UI_BASE_URL;
 const defaultPort = Number.parseInt(process.env.UI_CHECK_PORT || "", 10) || 4183;
@@ -1811,10 +1814,12 @@ const main = async () => {
   await ensureDir(artifactsRoot);
   await ensureDir(snapshotsDir);
   await ensureDir(framesDir);
-  await ensureDir(videoDir);
   await clearDir(snapshotsDir);
   await clearDir(framesDir);
-  await clearDir(videoDir);
+  if (enableVideo) {
+    await ensureDir(videoDir);
+    await clearDir(videoDir);
+  }
   await fs.rm(reportPath, { force: true });
 
   const checkResults = [];
@@ -2046,9 +2051,13 @@ const main = async () => {
     const colorScheme = theme.mode === "system" ? theme.scheme : theme.mode;
     const context = await browser.newContext({
       viewport: { width: 1280, height: 720 },
-      // Explicit size prevents occasional Windows/Chromium capture issues (tiny viewport inside the video).
-      recordVideo: { dir: videoDir, size: { width: 1280, height: 720 } },
-      deviceScaleFactor: 1,
+      ...(enableVideo
+        ? {
+            // Explicit size prevents occasional Windows/Chromium capture issues (tiny viewport inside the video).
+            recordVideo: { dir: videoDir, size: { width: 1280, height: 720 } },
+            deviceScaleFactor: 1
+          }
+        : {}),
       userAgent: "XAUUSDCalendar/1.0",
       bypassCSP: true,
       ...(colorScheme ? { colorScheme } : {})
@@ -2075,7 +2084,7 @@ const main = async () => {
       window.__ui_check__.holdInitOverlayMs = 1500;
     }, theme);
     const page = await context.newPage();
-    const video = page.video();
+    const video = enableVideo ? page.video() : null;
     await ensureServerHealthy();
     await gotoWithServerRecovery(page, baseURL, { waitUntil: "domcontentloaded" });
     const initOverlay = page.locator("[data-qa='qa:overlay:init']").first();
@@ -4456,7 +4465,7 @@ const main = async () => {
     });
 
     await context.close();
-    if (video) {
+    if (enableVideo && video) {
       try {
         const videoPath = await video.path();
         const target = path.join(videoDir, `${sanitize(theme.key)}.webm`);
@@ -4489,9 +4498,11 @@ const main = async () => {
     await stopServer(serverState?.server);
     serverState = null;
 
-    const videos = (await fs.readdir(videoDir))
-      .filter((file) => file.endsWith(".webm"))
-      .map((file) => path.join(videoDir, file));
+    const videos = enableVideo
+      ? (await fs.readdir(videoDir))
+          .filter((file) => file.endsWith(".webm"))
+          .map((file) => path.join(videoDir, file))
+      : [];
 
     if (!process.env.UI_CHECK_SKIP_REPORT) {
       await generateReport(artifacts, videos, { artifactsRoot, reportPath });

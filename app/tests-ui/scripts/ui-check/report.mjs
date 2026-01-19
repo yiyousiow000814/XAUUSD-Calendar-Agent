@@ -101,7 +101,11 @@ export const generateReport = async (items, videos, { artifactsRoot, reportPath 
         </div>`
       )
       .join("")}
+    ${
+      videos.length
+        ? `
     <h2>Videos</h2>
+    <p class="muted">Note: WebM capture is opt-in. Enable with UI_CHECK_VIDEO=1. On some Windows setups recordVideo can appear cropped/zoomed; the frame-based GIF previews are the reliable source of truth.</p>
     <div class="group">
       ${videos
         .map((video) => {
@@ -115,7 +119,9 @@ export const generateReport = async (items, videos, { artifactsRoot, reportPath 
             </div>`;
         })
         .join("")}
-    </div>
+    </div>`
+        : ""
+    }
     <script>
       (() => {
         const nodes = Array.from(document.querySelectorAll('.anim'));
