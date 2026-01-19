@@ -4271,16 +4271,9 @@ const main = async () => {
       });
 
       // Give the hover tooltip something to refract so the glass effect is visible in artifacts.
-      // Use strong, multi-hue blobs so even subtle translucency reads as "glass" in screenshots.
       await demoPage.addStyleTag({
         content: `
-          html, body {
-            background:
-              radial-gradient(520px 320px at 18% 22%, rgba(255, 178, 120, 0.32), rgba(255, 178, 120, 0) 70%),
-              radial-gradient(620px 380px at 78% 28%, rgba(134, 201, 255, 0.34), rgba(134, 201, 255, 0) 72%),
-              radial-gradient(720px 520px at 62% 86%, rgba(255, 140, 210, 0.22), rgba(255, 140, 210, 0) 70%),
-              linear-gradient(135deg, rgba(10, 12, 16, 0.92), rgba(10, 12, 16, 0.78)) !important;
-          }
+          html, body { background: radial-gradient(900px 520px at 65% 35%, rgba(134,201,255,0.16), rgba(0,0,0,0)) !important; }
           .app { background: transparent !important; }
         `
       });
@@ -4484,27 +4477,13 @@ const main = async () => {
             }
           });
 
-          const hoverBox = await hoverTooltip.boundingBox().catch(() => null);
-          const hoverViewport = demoPage.viewportSize();
-          const hoverClip =
-            hoverBox && hoverViewport
-              ? (() => {
-                  const pad = 22;
-                  const x = Math.max(0, Math.floor(hoverBox.x - pad));
-                  const y = Math.max(0, Math.floor(hoverBox.y - pad));
-                  const width = Math.min(hoverViewport.width - x, Math.ceil(hoverBox.width + pad * 2));
-                  const height = Math.min(hoverViewport.height - y, Math.ceil(hoverBox.height + pad * 2));
-                  return { x, y, width: Math.max(1, width), height: Math.max(1, height) };
-                })()
-              : null;
-
           artifacts.push({
             scenario: "activity-pill-hover",
             theme: theme.key,
             state: "open",
-            label: "Hover preview shows recent notices (glass)",
+            label: "Hover preview shows recent notices",
             path: await captureState(demoPage, "activity-pill-hover", theme.key, "open", {
-              clip: hoverClip ?? clip
+              element: hoverTooltip
             })
           });
         }
