@@ -103,9 +103,6 @@ export default function App() {
   const canOpenReleaseNotes = isWebview();
   const [snapshot, setSnapshot] = useState<Snapshot>(emptySnapshot);
   const [restartCountdown, setRestartCountdown] = useState<number>(0);
-  const [restartPillState, setRestartPillState] = useState<"hidden" | "visible" | "closing">(
-    "hidden"
-  );
   const [updateState, setUpdateState] = useState<{
     phase: string;
     message: string;
@@ -898,21 +895,6 @@ export default function App() {
     }, 250);
     return () => window.clearInterval(timer);
   }, [snapshot.restartInSeconds]);
-
-  useEffect(() => {
-    if (restartCountdown > 0) {
-      setRestartPillState("visible");
-      return;
-    }
-    setRestartPillState((prev) => {
-      if (prev !== "visible") return prev;
-      return "closing";
-    });
-    const timer = window.setTimeout(() => {
-      setRestartPillState((prev) => (prev === "closing" ? "hidden" : prev));
-    }, 240);
-    return () => window.clearTimeout(timer);
-  }, [restartCountdown]);
 
   useEffect(() => {
     if (!settingsOpen) {
@@ -2770,6 +2752,20 @@ export default function App() {
   }, [activityLabelWidthMode]);
 
   useEffect(() => {
+    if (restartCountdown > 0) {
+      if (activityLabelClearTimerRef.current) {
+        window.clearTimeout(activityLabelClearTimerRef.current);
+        activityLabelClearTimerRef.current = null;
+      }
+      if (activityLabelWidthModeRef.current !== "notice") {
+        setActivityLabelWidthMode("notice");
+      }
+      setActivityLabelText(`Restarting in ${Math.max(0, restartCountdown)}s…`);
+      setActivityLabelTone("info");
+      setActivityLabelIsNotice(true);
+      return;
+    }
+
     if (activityNotice?.text) {
       if (activityLabelClearTimerRef.current) {
         window.clearTimeout(activityLabelClearTimerRef.current);
@@ -2810,7 +2806,7 @@ export default function App() {
       setActivityLabelIsNotice(false);
       setActivityLabelWidthMode("idle");
     }, activityLabelReleaseDelayMs);
-  }, [activityNotice?.text, activityLabelReleaseDelayMs]);
+  }, [activityNotice?.text, activityLabelReleaseDelayMs, restartCountdown]);
 
   useEffect(() => {
     activityLabelWidthRef.current = activityLabelWidth;
@@ -2905,12 +2901,22 @@ export default function App() {
     [snapshot.currencyOptions]
   );
   const activityLabelMeasureText =
-    activityLabelWidthMode === "notice" ? activityLabelText : "Activity";
+    restartCountdown > 0
+      ? `Restarting in ${Math.max(0, restartCountdown)}s…`
+      : activityLabelWidthMode === "notice"
+        ? activityLabelText
+        : "Activity";
   const activityLabelMeasureIsNotice = activityLabelWidthMode === "notice";
   const pillSnapshot = activityClosing ? activityPillSnapshot : null;
-  const pillLabelText = pillSnapshot?.text ?? activityLabelText;
-  const pillLabelTone = pillSnapshot?.tone ?? activityLabelTone;
-  const pillLabelIsNotice = pillSnapshot?.isNotice ?? activityLabelIsNotice;
+  const pillLabelText =
+    pillSnapshot?.text ??
+    (restartCountdown > 0
+      ? `Restarting in ${Math.max(0, restartCountdown)}s…`
+      : activityLabelText);
+  const pillLabelTone =
+    pillSnapshot?.tone ?? (restartCountdown > 0 ? "info" : activityLabelTone);
+  const pillLabelIsNotice =
+    pillSnapshot?.isNotice ?? (restartCountdown > 0 ? true : activityLabelIsNotice);
   const pillLabelWidth = pillSnapshot?.width ?? activityLabelWidth;
   const pillLabelPulse = pillSnapshot?.pulse ?? activityNoticePulse;
   const pillLogCount = pillSnapshot?.logCount ?? snapshot.logs.length;
@@ -3447,15 +3453,6 @@ export default function App() {
           ) : null}
         </div>
       </ActivityDrawer>
-
-      {restartPillState !== "hidden" ? (
-        <div
-          className={`restart-countdown${restartPillState === "closing" ? " closing" : ""}`}
-          data-qa="qa:restart-countdown"
-        >
-          Restarting in {Math.max(0, restartCountdown)}s…
-        </div>
-      ) : null}
 
       <ToastStack toasts={toasts} />
     </div>

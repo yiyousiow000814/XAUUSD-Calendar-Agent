@@ -143,6 +143,8 @@ class WebAgentBackend:
         self._update_downloaded_bytes = 0
         self._update_total_bytes: int | None = None
         self._update_in_progress = False
+        self._update_install_prepared = False
+        self._update_install_script_path: str | None = None
         self._ui_state_lock = threading.Lock()
         self._ui_state_seen_at: datetime | None = None
         self._ui_visible = True
@@ -1230,6 +1232,8 @@ class WebAgentBackend:
             self._update_downloaded_bytes = 0
             self._update_total_bytes = None
             self._update_in_progress = False
+            self._update_install_prepared = False
+            self._update_install_script_path = None
         self._run_task(
             lambda: self._check_updates_task(quiet=False), "Manual update check"
         )
@@ -1259,7 +1263,10 @@ class WebAgentBackend:
                     "message": result.get("message") or "No update available",
                 }
 
-        self._run_task(self._download_update_task, "Update now")
+        self._run_task(
+            lambda: self._download_update_task(start_install_on_download=True),
+            "Update now",
+        )
         return {"ok": True}
 
     def _append_notice(self, message: str, level: str = "INFO") -> None:
@@ -1348,7 +1355,7 @@ class WebAgentBackend:
             "version": info.version,
         }
 
-    def _download_update_task(self) -> None:
+    def _download_update_task(self, start_install_on_download: bool = False) -> None:
         with self._update_lock:
             if self._update_in_progress:
                 return
@@ -1360,6 +1367,8 @@ class WebAgentBackend:
             self._update_download_target = None
             self._update_downloaded_bytes = 0
             self._update_total_bytes = None
+            self._update_install_prepared = False
+            self._update_install_script_path = None
 
         def on_progress(downloaded: int, total: int | None) -> None:
             with self._update_lock:
@@ -1398,6 +1407,8 @@ class WebAgentBackend:
             self._update_in_progress = False
 
         self._append_notice("Update downloaded, ready to install", level="INFO")
+        if start_install_on_download:
+            self._prepare_update_install(Path(target))
 
     def _install_update_task(self) -> None:
         with self._update_lock:
@@ -1413,7 +1424,7 @@ class WebAgentBackend:
             self._update_message = "Restarting..."
 
         self._append_notice("Installing update…", level="INFO")
-        self._apply_update_now(Path(target))
+        self._apply_update_now(Path(target), request_exit=True)
 
     def shutdown(self) -> None:
         self._shutdown_event.set()
@@ -2817,23 +2828,21 @@ class WebAgentBackend:
         if ready:
             self._install_update_task()
 
-    def _apply_update_now(self, pending_path: Path) -> None:
+    def _prepare_update_install(self, pending_path: Path) -> None:
         if not getattr(sys, "frozen", False):
             self._append_notice(
                 "Auto update is available only in the EXE build", level="WARN"
             )
             return
+        with self._update_lock:
+            if self._update_install_prepared and self._update_install_script_path:
+                return
+
         asset_name = (self.state.get("github_release_asset_name") or "").lower()
         is_setup = asset_name == "setup.exe" or asset_name.startswith("setup")
-
-        exe_path = Path(sys.executable)
-        script_path = pending_path.parent / f"apply_update_{os.getpid()}.cmd"
         launch_args = " --start-hidden" if self._update_restart_hidden_once else ""
+        script_path = pending_path.parent / f"apply_update_{os.getpid()}.cmd"
         if is_setup:
-            restart_delay_seconds = 5
-            self._restart_deadline = datetime.now() + timedelta(
-                seconds=restart_delay_seconds
-            )
             script = (
                 "@echo off\n"
                 f"set PID={os.getpid()}\n"
@@ -2850,6 +2859,7 @@ class WebAgentBackend:
                 'del "%~f0"\n'
             )
         else:
+            exe_path = Path(sys.executable)
             script = (
                 "@echo off\n"
                 f"set PID={os.getpid()}\n"
@@ -2869,7 +2879,26 @@ class WebAgentBackend:
             ["cmd", "/c", str(script_path)],
             creationflags=creationflags,
         )
+        with self._update_lock:
+            self._update_install_prepared = True
+            self._update_install_script_path = str(script_path)
+
+    def _apply_update_now(self, pending_path: Path, *, request_exit: bool) -> None:
+        if not getattr(sys, "frozen", False):
+            self._append_notice(
+                "Auto update is available only in the EXE build", level="WARN"
+            )
+            return
+        self._prepare_update_install(pending_path)
+        if not request_exit:
+            return
+        asset_name = (self.state.get("github_release_asset_name") or "").lower()
+        is_setup = asset_name == "setup.exe" or asset_name.startswith("setup")
         if is_setup:
+            restart_delay_seconds = 5
+            self._restart_deadline = datetime.now() + timedelta(
+                seconds=restart_delay_seconds
+            )
             threading.Timer(
                 restart_delay_seconds, lambda: self._request_exit(force=True)
             ).start()

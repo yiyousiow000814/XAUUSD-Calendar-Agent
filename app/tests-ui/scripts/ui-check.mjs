@@ -2151,42 +2151,43 @@ const main = async () => {
 
     await page.evaluate(() => {
       if (!window.__desktop_snapshot__) return;
-      window.__desktop_snapshot__.restartInSeconds = 5;
+      window.__desktop_snapshot__ = {
+        ...window.__desktop_snapshot__,
+        restartInSeconds: 5
+      };
     });
     await page.evaluate(() => window.__ui_check__?.refresh?.());
     await page.waitForTimeout(120);
     const restartPill = page.locator("[data-qa='qa:restart-countdown']").first();
-    if (await restartPill.count()) {
-      const frames = await captureFrames(page, "restart-countdown", theme.key, "enter");
-      frames.forEach((frame, index) =>
-        artifacts.push({
-          scenario: "restart-countdown",
-          theme: theme.key,
-          state: `enter__frame${index}`,
-          path: frame
-        })
-      );
+    const activityRestartLabel = page.locator(
+      "[data-qa='qa:action:activity-fab'] .activity-label:not(.activity-label-measure)"
+    );
+    await runCheck(theme.key, "Restart countdown shown in activity pill", async () => {
+      if (!(await activityRestartLabel.count())) {
+        throw new Error("Activity pill label not found");
+      }
+      await page.waitForFunction((selector) => {
+        const el = document.querySelector(selector);
+        return el ? /Restarting in 5s/i.test(el.textContent || "") : false;
+      }, "[data-qa='qa:action:activity-fab'] .activity-label:not(.activity-label-measure)");
+      const labelText = (await activityRestartLabel.first().innerText()).trim();
+      if (!/Restarting in 5s/i.test(labelText)) {
+        throw new Error(`Activity pill label missing restart countdown: ${labelText}`);
+      }
+    });
+    await runCheck(theme.key, "Restart countdown banner hidden", async () => {
+      if (await restartPill.count()) {
+        throw new Error("Restart countdown banner should be hidden");
+      }
+    });
+    if (await activityRestartLabel.count()) {
       artifacts.push({
         scenario: "restart-countdown",
         theme: theme.key,
-        state: "visible",
-        path: await captureState(page, "restart-countdown", theme.key, "visible", {
-          element: restartPill
+        state: "activity-pill",
+        path: await captureState(page, "restart-countdown", theme.key, "activity-pill", {
+          element: activityRestartLabel.first()
         })
-      });
-      await runCheck(theme.key, "Restart countdown pill visible", async () => {
-        if (!(await restartPill.isVisible())) {
-          throw new Error("Restart countdown pill not visible");
-        }
-      });
-      await runCheck(theme.key, "Restart countdown transition presence", async () => {
-        const animationName = await restartPill.evaluate((el) => {
-          const styles = window.getComputedStyle(el);
-          return styles.animationName || "";
-        });
-        if (!animationName || animationName === "none") {
-          throw new Error("Restart countdown pill missing enter animation");
-        }
       });
     }
 
