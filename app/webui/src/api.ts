@@ -54,6 +54,7 @@ type BackendApi = {
   open_log: () => ApiResult<{ ok: boolean; message?: string }>;
   open_path: (path: string) => ApiResult<{ ok: boolean; message?: string }>;
   open_url?: (url: string) => ApiResult<{ ok: boolean; message?: string }>;
+  open_release_notes?: () => ApiResult<{ ok: boolean; message?: string }>;
   add_log: (payload: { message: string; level?: string }) => ApiResult<{ ok: boolean }>;
   browse_temporary_path: () => ApiResult<{ ok: boolean; path?: string }>;
   set_temporary_path: (path: string) => ApiResult<{ ok: boolean }>;
@@ -507,6 +508,16 @@ export const backend = {
       return { ok: true };
     }
     return api.open_url(url);
+  },
+  openReleaseNotes: async () => {
+    const api = await withApi();
+    if (!api || !hasMethod(api, "open_release_notes")) {
+      if (isWebview()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return { ok: false, message: "Release notes not available" };
+    }
+    return api.open_release_notes();
   },
   addLog: async (payload: { message: string; level?: string }) => {
     const api = await withApi();

@@ -828,6 +828,17 @@ class WebAgentBackend:
             return {"ok": False, "message": "Failed to open URL"}
         return {"ok": True}
 
+    def open_release_notes(self) -> dict:
+        repo = (self.state.get("github_repo") or "").strip()
+        if not repo:
+            return {"ok": False, "message": "GitHub repo is not configured"}
+        version = (self._update_available_version or "").strip()
+        if version:
+            url = f"https://github.com/{repo}/releases/tag/v{version}"
+        else:
+            url = f"https://github.com/{repo}/releases"
+        return self.open_url(url)
+
     def add_log(self, payload: dict) -> dict:
         message = (payload.get("message") or "").strip()
         level = (payload.get("level") or "INFO").strip().upper()

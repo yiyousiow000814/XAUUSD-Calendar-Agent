@@ -1539,6 +1539,19 @@ export default function App() {
     pushToast("info", "Opening log");
   };
 
+  const handleOpenReleaseNotes = async () => {
+    try {
+      const result = await backend.openReleaseNotes();
+      if (!result.ok) {
+        pushToast("error", result.message || "Failed to open release notes");
+        return;
+      }
+      pushToast("info", "Opening release notes");
+    } catch (err) {
+      pushToast("error", err instanceof Error ? err.message : "Failed to open release notes");
+    }
+  };
+
   const handleCopyLog = async () => {
     try {
       await navigator.clipboard.writeText(settings.logPath);
@@ -3094,12 +3107,13 @@ export default function App() {
         }}
         updatePhase={updateState.phase}
         updateMessage={updateState.message}
-        updateProgress={updateState.progress}
-        updateLastCheckedAt={updateState.lastCheckedAt}
-        appVersion={snapshot.version}
-        onClose={handleSettingsClose}
-        onSave={handleSettingsSave}
-        onCancel={handleSettingsCancel}
+          updateProgress={updateState.progress}
+          updateLastCheckedAt={updateState.lastCheckedAt}
+          appVersion={snapshot.version}
+          onOpenReleaseNotes={handleOpenReleaseNotes}
+          onClose={handleSettingsClose}
+          onSave={handleSettingsSave}
+          onCancel={handleSettingsCancel}
         onThemeChange={(value) =>
           setSettings((prev) => {
             const next = { ...prev, theme: value };
