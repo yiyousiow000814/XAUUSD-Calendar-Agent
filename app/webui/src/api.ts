@@ -19,6 +19,7 @@ type BackendApi = {
   get_settings: () => ApiResult<Settings>;
   save_settings: (payload: Settings) => ApiResult<{ ok: boolean }>;
   frontend_boot_complete?: () => ApiResult<{ ok: boolean }>;
+  set_ui_state?: (payload: { visible: boolean; focused: boolean; lastInputAt: number }) => ApiResult<{ ok: boolean }>;
   get_temporary_path_task: () => ApiResult<{
     ok: boolean;
     active: boolean;
@@ -52,6 +53,8 @@ type BackendApi = {
   update_now: () => ApiResult<{ ok: boolean; message?: string }>;
   open_log: () => ApiResult<{ ok: boolean; message?: string }>;
   open_path: (path: string) => ApiResult<{ ok: boolean; message?: string }>;
+  open_url?: (url: string) => ApiResult<{ ok: boolean; message?: string }>;
+  open_release_notes?: () => ApiResult<{ ok: boolean; message?: string }>;
   add_log: (payload: { message: string; level?: string }) => ApiResult<{ ok: boolean }>;
   browse_temporary_path: () => ApiResult<{ ok: boolean; path?: string }>;
   set_temporary_path: (path: string) => ApiResult<{ ok: boolean }>;
@@ -464,6 +467,13 @@ export const backend = {
     }
     return api.frontend_boot_complete();
   },
+  setUiState: async (payload: { visible: boolean; focused: boolean; lastInputAt: number }) => {
+    const api = await withApi();
+    if (!api || !hasMethod(api, "set_ui_state")) {
+      return Promise.resolve({ ok: true });
+    }
+    return api.set_ui_state(payload);
+  },
   openLog: async () => {
     const api = await withApi();
     if (!api || !hasMethod(api, "open_log")) {
@@ -483,6 +493,31 @@ export const backend = {
       return { ok: true };
     }
     return api.open_path(path);
+  },
+  openUrl: async (url: string) => {
+    const api = await withApi();
+    if (!api || !hasMethod(api, "open_url")) {
+      if (isWebview()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      try {
+        window.open(url, "_blank", "noreferrer");
+      } catch {
+        // ignore
+      }
+      return { ok: true };
+    }
+    return api.open_url(url);
+  },
+  openReleaseNotes: async () => {
+    const api = await withApi();
+    if (!api || !hasMethod(api, "open_release_notes")) {
+      if (isWebview()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return { ok: false, message: "Release notes not available" };
+    }
+    return api.open_release_notes();
   },
   addLog: async (payload: { message: string; level?: string }) => {
     const api = await withApi();

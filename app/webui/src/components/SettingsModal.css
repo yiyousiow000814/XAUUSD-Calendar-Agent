@@ -457,11 +457,29 @@
   transform: translateY(-1px);
   margin-left: 10px;
   max-width: 360px;
-  pointer-events: none;
+  pointer-events: auto;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
   flex: 0 1 auto;
+}
+
+.link-button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.link-button:hover {
+  opacity: 0.96;
 }
 
 .update-note[data-tone="info"] {

@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { PastEventItem } from "../types";
 import "./HistoryPanel.css";
 
@@ -190,9 +190,66 @@ const rangeToMs = (range: HistoryRange) => {
 };
 
 export function HistoryPanel({ events, loading = false, impactTone, impactFilter }: HistoryPanelProps) {
-  const [range, setRange] = useState<HistoryRange>("7d");
-  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const rangeStorageKey = "xauusd:history:range";
+  const scrollStorageKey = "xauusd:scroll:history";
+  const [range, setRange] = useState<HistoryRange>(() => {
+    try {
+      const raw = window.localStorage.getItem(rangeStorageKey);
+      if (raw === "48h" || raw === "7d" || raw === "14d" || raw === "30d") {
+        return raw;
+      }
+    } catch {
+      // Ignore storage errors.
+    }
+    return "7d";
+  });
+  const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
+  const bodyRef = useRef<HTMLDivElement | null>(null);
   const showSkeleton = loading && events.length === 0;
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(rangeStorageKey, range);
+    } catch {
+      // Ignore storage errors.
+    }
+  }, [range]);
+
+  useEffect(() => {
+    const node = bodyRef.current;
+    if (!node) return;
+    try {
+      const raw = window.localStorage.getItem(scrollStorageKey);
+      const value = raw ? Number(raw) : 0;
+      if (Number.isFinite(value) && value > 0) {
+        node.scrollTop = value;
+      }
+    } catch {
+      // Ignore storage errors.
+    }
+  }, []);
+
+  useEffect(() => {
+    const node = bodyRef.current;
+    if (!node) return;
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(() => {
+        raf = 0;
+        try {
+          window.localStorage.setItem(scrollStorageKey, String(node.scrollTop));
+        } catch {
+          // Ignore storage errors.
+        }
+      });
+    };
+    node.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      node.removeEventListener("scroll", onScroll);
+      if (raf) window.cancelAnimationFrame(raf);
+    };
+  }, []);
 
   const view = useMemo(() => {
     const cutoff = Date.now() - rangeToMs(range);
@@ -310,7 +367,7 @@ export function HistoryPanel({ events, loading = false, impactTone, impactFilter
           </div>
         </div>
       </div>
-      <div className="history-body">
+      <div className="history-body" ref={bodyRef}>
         {showSkeleton ? (
           <div className="history-skeleton" data-qa="qa:history:skeleton" aria-busy="true">
             {Array.from({ length: 2 }).map((_, groupIndex) => (

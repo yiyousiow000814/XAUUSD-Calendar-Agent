@@ -50,6 +50,7 @@ type SettingsModalProps = {
   updateProgress: number;
   updateLastCheckedAt: string;
   appVersion: string;
+  onOpenReleaseNotes?: () => void;
   onClose: () => void;
   onSave: () => void;
   onCancel: () => void;
@@ -95,6 +96,7 @@ export function SettingsModal({
   updateProgress,
   updateLastCheckedAt,
   appVersion,
+  onOpenReleaseNotes,
   onClose,
   onSave,
   onCancel,
@@ -183,19 +185,49 @@ export function SettingsModal({
     options.add(utcOffsetValue);
     return Array.from(options).sort((a, b) => a - b);
   }, [systemOffsetMinutes, utcOffsetValue]);
+  const releaseNotesAction = onOpenReleaseNotes ? (
+    <button type="button" className="link-button" onClick={onOpenReleaseNotes}>
+      check release notes
+    </button>
+  ) : null;
   const updateNote = (() => {
     if (updatePhase === "error") {
-      return { tone: "error", text: updateMessage || "Update failed" };
+      return { tone: "error", content: updateMessage || "Update failed" };
+    }
+    if (updatePhase === "available") {
+      return {
+        tone: "info",
+        content: (
+          <>
+            {updateMessage || "Update available"}
+            {releaseNotesAction ? <> {releaseNotesAction}</> : null}
+          </>
+        )
+      };
     }
     if (updatePhase !== "idle" || !updateMessage) return null;
     if (updateMessage === "Up to date") {
-      return { tone: "info", text: `v${appVersion || "0.0.0"} is the latest version` };
+      return {
+        tone: "info",
+        content: (
+          <>
+            v{appVersion || "0.0.0"} is the latest version
+            {releaseNotesAction ? (
+              <>
+                , {releaseNotesAction} for more info.
+              </>
+            ) : (
+              "."
+            )}
+          </>
+        )
+      };
     }
     const warnSignals = ["not configured", "missing", "failed", "unavailable", "shutting down"];
     const tone = warnSignals.some((token) => updateMessage.toLowerCase().includes(token))
       ? "warn"
       : "info";
-    return { tone, text: updateMessage };
+    return { tone, content: updateMessage };
   })();
 
   return (
@@ -269,7 +301,7 @@ export function SettingsModal({
               </button>
               {updateNote ? (
                 <div className="update-note" data-qa="qa:meta:update-note" data-tone={updateNote.tone}>
-                  {updateNote.text}
+                  {updateNote.content}
                 </div>
               ) : null}
             </div>

@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { EventItem } from "../types";
 import { Select } from "./Select";
 import "./NextEvents.css";
@@ -39,11 +39,49 @@ export function NextEvents({
 }: NextEventsProps) {
   const [query, setQuery] = useState("");
   const showSkeleton = loading && events.length === 0;
+  const listRef = useRef<HTMLDivElement | null>(null);
   const rowRefs = useRef(new Map<string, HTMLDivElement>());
   const prevRects = useRef(new Map<string, DOMRect>());
   const prevFilterSignature = useRef("");
   const prevCurrentSignature = useRef("");
   const [pulseGen, setPulseGen] = useState(0);
+  const scrollStorageKey = "xauusd:scroll:next-events";
+
+  useEffect(() => {
+    const node = listRef.current;
+    if (!node) return;
+    try {
+      const raw = window.localStorage.getItem(scrollStorageKey);
+      const value = raw ? Number(raw) : 0;
+      if (Number.isFinite(value) && value > 0) {
+        node.scrollTop = value;
+      }
+    } catch {
+      // Ignore storage errors.
+    }
+  }, []);
+
+  useEffect(() => {
+    const node = listRef.current;
+    if (!node) return;
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(() => {
+        raf = 0;
+        try {
+          window.localStorage.setItem(scrollStorageKey, String(node.scrollTop));
+        } catch {
+          // Ignore storage errors.
+        }
+      });
+    };
+    node.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      node.removeEventListener("scroll", onScroll);
+      if (raf) window.cancelAnimationFrame(raf);
+    };
+  }, []);
 
   const getItemKey = (item: EventItem) =>
     item.id || `${item.time}|${item.cur}|${item.impact}|${item.event}`;
@@ -248,6 +286,7 @@ export function NextEvents({
       <div className="events-body">
         <div
           className="events-list"
+          ref={listRef}
           data-qa="qa:list:next-events"
           aria-busy={showSkeleton ? true : undefined}
         >

@@ -6,6 +6,7 @@ import subprocess
 import sys
 import threading
 import time
+import webbrowser
 from concurrent.futures import ProcessPoolExecutor, TimeoutError
 from datetime import datetime, timedelta, timezone
 from hashlib import sha1
@@ -70,6 +71,7 @@ except Exception:  # noqa: BLE001
 
 APP_TITLE = "XAUUSD Calendar Agent"
 AUTO_UPDATE_INTERVAL_MINUTES = 60
+AUTO_UPDATE_IDLE_MINUTES = 10
 OUTPUT_DIR_MARKER_FILENAME = ".xauusd_calendar_agent_managed_output"
 GIT_PID_PREFIX = "repo-clone"
 
@@ -136,6 +138,14 @@ class WebAgentBackend:
         self._update_downloaded_bytes = 0
         self._update_total_bytes: int | None = None
         self._update_in_progress = False
+        self._ui_state_lock = threading.Lock()
+        self._ui_state_seen_at: datetime | None = None
+        self._ui_visible = True
+        self._ui_focused = True
+        self._ui_last_input_at: datetime | None = None
+        self._update_prompted_version = ""
+        self._update_prompted_at: datetime | None = None
+        self._update_restart_hidden_once = False
         self._temporary_path_task_lock = threading.Lock()
         self._temporary_path_task_active = False
         self._temporary_path_task_phase = "idle"
@@ -168,6 +178,30 @@ class WebAgentBackend:
     def set_tray_supported(self, supported: bool) -> None:
         # Runtime capability; do not persist to config.json.
         self.tray_supported = bool(supported)
+
+    def set_ui_state(self, payload: dict | None = None) -> dict:
+        """
+        Frontend heartbeat so the backend can decide whether it's safe to auto-update.
+        Payload times use epoch milliseconds.
+        """
+        if payload is None:
+            payload = {}
+        now = datetime.now()
+        with self._ui_state_lock:
+            self._ui_state_seen_at = now
+            if "visible" in payload:
+                self._ui_visible = bool(payload.get("visible", True))
+            if "focused" in payload:
+                self._ui_focused = bool(payload.get("focused", True))
+            last_input_ms = payload.get("lastInputAt")
+            if isinstance(last_input_ms, (int, float)) and last_input_ms > 0:
+                try:
+                    self._ui_last_input_at = datetime.fromtimestamp(
+                        float(last_input_ms) / 1000.0
+                    )
+                except (OSError, ValueError):
+                    self._ui_last_input_at = None
+        return {"ok": True}
 
     def _ensure_startup_task_command(self) -> None:
         """
@@ -782,6 +816,29 @@ class WebAgentBackend:
             return {"ok": False, "message": str(exc)}
         return {"ok": True}
 
+    def open_url(self, url: str) -> dict:
+        value = (url or "").strip()
+        if not value:
+            return {"ok": False, "message": "URL is empty"}
+        try:
+            ok = webbrowser.open(value)
+        except Exception as exc:  # noqa: BLE001
+            return {"ok": False, "message": str(exc)}
+        if not ok:
+            return {"ok": False, "message": "Failed to open URL"}
+        return {"ok": True}
+
+    def open_release_notes(self) -> dict:
+        repo = (self.state.get("github_repo") or "").strip()
+        if not repo:
+            return {"ok": False, "message": "GitHub repo is not configured"}
+        version = (self._update_available_version or "").strip()
+        if version:
+            url = f"https://github.com/{repo}/releases/tag/v{version}"
+        else:
+            url = f"https://github.com/{repo}/releases"
+        return self.open_url(url)
+
     def add_log(self, payload: dict) -> dict:
         message = (payload.get("message") or "").strip()
         level = (payload.get("level") or "INFO").strip().upper()
@@ -1179,6 +1236,7 @@ class WebAgentBackend:
             )
 
         if is_downloaded:
+            self._update_restart_hidden_once = False
             self._run_task(self._install_update_task, "Install now")
             return {"ok": True}
 
@@ -2655,26 +2713,98 @@ class WebAgentBackend:
             return
         if not self.state.get("auto_update_enabled", False):
             return
-        with self._update_lock:
-            download_url = self._update_download_url
-            version = self._update_available_version
-        if not download_url:
-            return
-        self._download_and_apply_update(download_url, version)
 
-    def _download_and_apply_update(self, download_url: str, version: str) -> None:
-        if self._shutdown_event.is_set():
+        with self._update_lock:
+            version = self._update_available_version
+
+        should_apply, start_hidden = self._should_auto_apply_update()
+        if should_apply:
+            # Auto updates should be silent when the app is in the background; we keep
+            # the restart hidden so the window does not pop to the foreground.
+            self._update_restart_hidden_once = start_hidden
+            self._run_task(self._auto_update_task, "Auto update")
             return
-        self._append_notice(f"Downloading update {version}", level="INFO")
+
+        # User is actively using the app: do not force a restart; nudge instead.
+        self._update_restart_hidden_once = False
+        self._maybe_prompt_update_available(version)
+
+    def _should_auto_apply_update(self) -> tuple[bool, bool]:
+        """
+        Returns (should_apply_now, start_hidden_after_restart).
+
+        We only auto-apply updates when the app is not actively used: either the
+        window is in the background (hidden / not visible) or it has been idle
+        for a while.
+        """
+        now = datetime.now()
+        with self._ui_state_lock:
+            seen_at = self._ui_state_seen_at
+            visible = bool(self._ui_visible)
+            last_input = self._ui_last_input_at
+
+        if not seen_at:
+            # If we haven't received any UI state yet, avoid surprising restarts.
+            return False, False
+
+        in_background = not visible
+        if in_background:
+            return True, True
+
+        if last_input:
+            idle_for = now - last_input
+            if idle_for >= timedelta(minutes=AUTO_UPDATE_IDLE_MINUTES):
+                return True, False
+
+        # Active usage: visible and recently interacted with.
+        # If focused is false but visible is true, treat it as active to avoid
+        # surprising restarts while the window is still on-screen.
+        return False, False
+
+    def _maybe_prompt_update_available(self, version: str) -> None:
         try:
-            target = download_update(
-                download_url, get_update_dir(), token=get_github_token(self.state)
-            )
-        except Exception as exc:  # noqa: BLE001
-            self._append_notice(f"Update download failed: {exc}", level="ERROR")
+            version = (version or "").strip()
+        except Exception:  # noqa: BLE001
+            version = ""
+        if not version:
             return
-        self._append_notice("Update downloaded. Applying now…", level="INFO")
-        self._apply_update_now(target)
+
+        with self._ui_state_lock:
+            seen_at = self._ui_state_seen_at
+            visible = bool(self._ui_visible)
+            focused = bool(self._ui_focused)
+            last_input = self._ui_last_input_at
+
+        if not seen_at:
+            return
+        if not (visible and focused):
+            return
+        if not last_input:
+            return
+        if datetime.now() - last_input > timedelta(seconds=90):
+            # If the app is technically focused but idle, skip the prompt.
+            return
+
+        if self._update_prompted_version == version:
+            return
+        self._update_prompted_version = version
+        self._update_prompted_at = datetime.now()
+        self._set_ui_modal(
+            "Update available",
+            f"v{version} is ready.\n\nOpen Settings to update now, or check release notes.",
+            tone="info",
+        )
+        self._append_notice(f"Update available: {version}", level="INFO")
+
+    def _auto_update_task(self) -> None:
+        # Download then immediately install.
+        self._download_update_task()
+        with self._update_lock:
+            ready = self._update_phase == "downloaded" and bool(
+                self._update_download_target
+            )
+        if ready:
+            self._install_update_task()
 
     def _apply_update_now(self, pending_path: Path) -> None:
         if not getattr(sys, "frozen", False):
@@ -2687,6 +2817,7 @@ class WebAgentBackend:
 
         exe_path = Path(sys.executable)
         script_path = pending_path.parent / f"apply_update_{os.getpid()}.cmd"
+        launch_args = " --start-hidden" if self._update_restart_hidden_once else ""
         if is_setup:
             restart_delay_seconds = 5
             self._restart_deadline = datetime.now() + timedelta(
@@ -2703,7 +2834,7 @@ class WebAgentBackend:
                 "  goto wait\n"
                 ")\n"
                 f'start "" /wait "{pending_path}" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART\n'
-                'if exist "%APP_EXE%" start "" "%APP_EXE%"\n'
+                f'if exist "%APP_EXE%" start "" "%APP_EXE%"{launch_args}\n'
                 f'del "{pending_path}" >nul 2>&1\n'
                 'del "%~f0"\n'
             )
@@ -2718,7 +2849,7 @@ class WebAgentBackend:
                 "  goto wait\n"
                 ")\n"
                 f'move /y "{pending_path}" "{exe_path}"\n'
-                f'start "" "{exe_path}"\n'
+                f'start "" "{exe_path}"{launch_args}\n'
                 'del "%~f0"\n'
             )
         script_path.write_text(script, encoding="utf-8")

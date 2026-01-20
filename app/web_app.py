@@ -298,6 +298,11 @@ def main() -> None:
         action="store_true",
         help="Indicates the app was launched via the Windows startup entry.",
     )
+    parser.add_argument(
+        "--start-hidden",
+        action="store_true",
+        help="Start hidden (tray/background), used for silent update restarts.",
+    )
     args = parser.parse_args()
 
     lock_handle = acquire_single_instance_lock()
@@ -320,8 +325,19 @@ def main() -> None:
     if autostart_launch_mode not in ("tray", "show"):
         autostart_launch_mode = "tray"
     should_hide_on_autostart = bool(
-        args.autostart and tray_supported and autostart_launch_mode == "tray"
+        (args.autostart and tray_supported and autostart_launch_mode == "tray")
+        or (tray_supported and args.start_hidden)
     )
+    try:
+        backend.set_ui_state(
+            {
+                "visible": not should_hide_on_autostart,
+                "focused": not should_hide_on_autostart,
+                "lastInputAt": int(time.time() * 1000),
+            }
+        )
+    except Exception:  # noqa: BLE001
+        pass
     try:
         window = webview.create_window(
             APP_TITLE,

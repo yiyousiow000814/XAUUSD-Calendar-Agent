@@ -9,7 +9,7 @@
     "strict": true,
     "jsx": "react-jsx",
     "noEmit": true,
-    "types": []
+    "types": ["vitest/globals", "@testing-library/jest-dom"]
   },
   "include": ["src"]
 }
