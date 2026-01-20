@@ -50,7 +50,7 @@ type SettingsModalProps = {
   updateProgress: number;
   updateLastCheckedAt: string;
   appVersion: string;
-  onOpenReleaseNotes: () => void;
+  onOpenReleaseNotes?: () => void;
   onClose: () => void;
   onSave: () => void;
   onCancel: () => void;
@@ -185,6 +185,11 @@ export function SettingsModal({
     options.add(utcOffsetValue);
     return Array.from(options).sort((a, b) => a - b);
   }, [systemOffsetMinutes, utcOffsetValue]);
+  const releaseNotesAction = onOpenReleaseNotes ? (
+    <button type="button" className="link-button" onClick={onOpenReleaseNotes}>
+      check release notes
+    </button>
+  ) : null;
   const updateNote = (() => {
     if (updatePhase === "error") {
       return { tone: "error", content: updateMessage || "Update failed" };
@@ -194,10 +199,8 @@ export function SettingsModal({
         tone: "info",
         content: (
           <>
-            {updateMessage || "Update available"} ·{" "}
-            <button type="button" className="link-button" onClick={onOpenReleaseNotes}>
-              check release notes
-            </button>
+            {updateMessage || "Update available"}
+            {releaseNotesAction ? <> {releaseNotesAction}</> : null}
           </>
         )
       };
@@ -208,11 +211,14 @@ export function SettingsModal({
         tone: "info",
         content: (
           <>
-            v{appVersion || "0.0.0"} is the latest version,{" "}
-            <button type="button" className="link-button" onClick={onOpenReleaseNotes}>
-              check release notes
-            </button>{" "}
-            for more info.
+            v{appVersion || "0.0.0"} is the latest version
+            {releaseNotesAction ? (
+              <>
+                , {releaseNotesAction} for more info.
+              </>
+            ) : (
+              "."
+            )}
           </>
         )
       };

@@ -22,6 +22,9 @@ import "./App.css";
 const defaultCurrencyOptions = Array.from(CURRENCY_OPTIONS);
 const impactOptions = ["Low", "Medium", "High"];
 const impactFilterStorageKey = "xauusd:nextEvents:impactFilter";
+const UI_STATE_HEARTBEAT_MS = 30000;
+const UI_STATE_INPUT_THROTTLE_MS = 1000;
+const UI_STATE_SEND_THROTTLE_MS = 2000;
 
 const normalizeCurrencyOptions = (_options: string[]) => {
   // Design decision: keep a stable, curated currency list so the UI remains
@@ -85,6 +88,7 @@ type AlertContext = {
   message: string;
   tone: "info" | "error";
 };
+type UiStatePayload = { visible: boolean; focused: boolean; lastInputAt: number };
 
 export default function App() {
   const isUiCheckRuntime = useMemo(() => {
@@ -96,6 +100,7 @@ export default function App() {
       return false;
     }
   }, []);
+  const canOpenReleaseNotes = isWebview();
   const [snapshot, setSnapshot] = useState<Snapshot>(emptySnapshot);
   const [restartCountdown, setRestartCountdown] = useState<number>(0);
   const [restartPillState, setRestartPillState] = useState<"hidden" | "visible" | "closing">(
@@ -136,6 +141,14 @@ export default function App() {
   const [activityOriginRect, setActivityOriginRect] = useState<DOMRect | null>(null);
   const [splitRatio, setSplitRatio] = useState<number>(0.66);
   const splitRatioRef = useRef(splitRatio);
+  const uiStateRef = useRef<{
+    lastInputAt: number;
+    lastSentAt: number;
+    lastSent?: UiStatePayload;
+  }>({
+    lastInputAt: Date.now(),
+    lastSentAt: 0
+  });
   const splitGutterPx = 30;
   const [uninstallOpen, setUninstallOpen] = useState<boolean>(false);
   const [uninstallClosing, setUninstallClosing] = useState<boolean>(false);
@@ -426,6 +439,78 @@ export default function App() {
   useEffect(() => {
     refreshRef.current = refresh;
   });
+  const sendUiState = useCallback(
+    (overrides: Partial<UiStatePayload> = {}, force = false) => {
+      if (typeof document === "undefined") return;
+      const now = Date.now();
+      const payload: UiStatePayload = {
+        visible: overrides.visible ?? !document.hidden,
+        focused: overrides.focused ?? document.hasFocus(),
+        lastInputAt: overrides.lastInputAt ?? uiStateRef.current.lastInputAt
+      };
+      const lastSent = uiStateRef.current.lastSent;
+      if (!force && lastSent) {
+        const sinceLast = now - uiStateRef.current.lastSentAt;
+        const inputDelta = Math.abs(lastSent.lastInputAt - payload.lastInputAt);
+        if (
+          sinceLast < UI_STATE_SEND_THROTTLE_MS &&
+          lastSent.visible === payload.visible &&
+          lastSent.focused === payload.focused &&
+          inputDelta < UI_STATE_INPUT_THROTTLE_MS
+        ) {
+          return;
+        }
+      }
+      uiStateRef.current.lastSentAt = now;
+      uiStateRef.current.lastSent = payload;
+      backend.setUiState(payload).catch(() => {});
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (typeof document === "undefined") return undefined;
+    const recordInput = () => {
+      const now = Date.now();
+      if (now - uiStateRef.current.lastInputAt < UI_STATE_INPUT_THROTTLE_MS) {
+        return;
+      }
+      uiStateRef.current.lastInputAt = now;
+      sendUiState({ lastInputAt: now });
+    };
+    const handleVisibility = () => {
+      sendUiState({ visible: !document.hidden }, true);
+    };
+    const handleFocus = () => {
+      sendUiState({ focused: true }, true);
+    };
+    const handleBlur = () => {
+      sendUiState({ focused: false }, true);
+    };
+    const now = Date.now();
+    uiStateRef.current.lastInputAt = now;
+    sendUiState({ lastInputAt: now, visible: !document.hidden, focused: document.hasFocus() }, true);
+    document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("blur", handleBlur);
+    window.addEventListener("pointerdown", recordInput, { passive: true });
+    window.addEventListener("pointermove", recordInput, { passive: true });
+    window.addEventListener("wheel", recordInput, { passive: true });
+    window.addEventListener("keydown", recordInput);
+    const intervalId = window.setInterval(() => {
+      sendUiState();
+    }, UI_STATE_HEARTBEAT_MS);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("blur", handleBlur);
+      window.removeEventListener("pointerdown", recordInput);
+      window.removeEventListener("pointermove", recordInput);
+      window.removeEventListener("wheel", recordInput);
+      window.removeEventListener("keydown", recordInput);
+      window.clearInterval(intervalId);
+    };
+  }, [sendUiState]);
 
   const appendLogEntry = (message: string, level: string) => {
     const timestamp = new Date();
@@ -3110,7 +3195,7 @@ export default function App() {
           updateProgress={updateState.progress}
           updateLastCheckedAt={updateState.lastCheckedAt}
           appVersion={snapshot.version}
-          onOpenReleaseNotes={handleOpenReleaseNotes}
+          onOpenReleaseNotes={canOpenReleaseNotes ? handleOpenReleaseNotes : undefined}
           onClose={handleSettingsClose}
           onSave={handleSettingsSave}
           onCancel={handleSettingsCancel}
