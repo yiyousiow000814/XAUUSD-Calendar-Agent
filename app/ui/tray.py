@@ -15,11 +15,17 @@ from .constants import APP_ICON, APP_TITLE, get_asset_path
 
 class TrayMixin:
 
+    def _shutdown_scheduler(self) -> None:
+        scheduler = getattr(self, "scheduler", None)
+        if scheduler:
+            scheduler.shutdown()
+
     def _on_close(self) -> None:
         self._hide_to_tray()
 
     def _hide_to_tray(self) -> None:
         if not sys.platform.startswith("win"):
+            self._shutdown_scheduler()
             self.root.destroy()
             return
         if not pystray or not Image:
@@ -49,6 +55,7 @@ class TrayMixin:
         def _exit() -> None:
             if self.tray_icon:
                 self.tray_icon.stop()
+            self._shutdown_scheduler()
             self.root.quit()
             self.root.destroy()
 
