@@ -2672,6 +2672,20 @@ export default function App() {
   }, [activityLabelWidthMode]);
 
   useEffect(() => {
+    if (restartCountdown > 0) {
+      if (activityLabelClearTimerRef.current) {
+        window.clearTimeout(activityLabelClearTimerRef.current);
+        activityLabelClearTimerRef.current = null;
+      }
+      if (activityLabelWidthModeRef.current !== "notice") {
+        setActivityLabelWidthMode("notice");
+      }
+      setActivityLabelText(`Updating ${Math.max(0, restartCountdown)}s…`);
+      setActivityLabelTone("info");
+      setActivityLabelIsNotice(true);
+      return;
+    }
+
     if (activityNotice?.text) {
       if (activityLabelClearTimerRef.current) {
         window.clearTimeout(activityLabelClearTimerRef.current);
@@ -2712,7 +2726,7 @@ export default function App() {
       setActivityLabelIsNotice(false);
       setActivityLabelWidthMode("idle");
     }, activityLabelReleaseDelayMs);
-  }, [activityNotice?.text, activityLabelReleaseDelayMs]);
+  }, [activityNotice?.text, activityLabelReleaseDelayMs, restartCountdown]);
 
   useEffect(() => {
     activityLabelWidthRef.current = activityLabelWidth;
@@ -2807,12 +2821,20 @@ export default function App() {
     [snapshot.currencyOptions]
   );
   const activityLabelMeasureText =
-    activityLabelWidthMode === "notice" ? activityLabelText : "Activity";
+    restartCountdown > 0
+      ? `Updating ${Math.max(0, restartCountdown)}s…`
+      : activityLabelWidthMode === "notice"
+        ? activityLabelText
+        : "Activity";
   const activityLabelMeasureIsNotice = activityLabelWidthMode === "notice";
   const pillSnapshot = activityClosing ? activityPillSnapshot : null;
-  const pillLabelText = pillSnapshot?.text ?? activityLabelText;
-  const pillLabelTone = pillSnapshot?.tone ?? activityLabelTone;
-  const pillLabelIsNotice = pillSnapshot?.isNotice ?? activityLabelIsNotice;
+  const pillLabelText =
+    pillSnapshot?.text ??
+    (restartCountdown > 0 ? `Updating ${Math.max(0, restartCountdown)}s…` : activityLabelText);
+  const pillLabelTone =
+    pillSnapshot?.tone ?? (restartCountdown > 0 ? "info" : activityLabelTone);
+  const pillLabelIsNotice =
+    pillSnapshot?.isNotice ?? (restartCountdown > 0 ? true : activityLabelIsNotice);
   const pillLabelWidth = pillSnapshot?.width ?? activityLabelWidth;
   const pillLabelPulse = pillSnapshot?.pulse ?? activityNoticePulse;
   const pillLogCount = pillSnapshot?.logCount ?? snapshot.logs.length;
