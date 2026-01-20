@@ -21,7 +21,11 @@ class NoticeMixin:
                 self.notice_entries = self.notice_entries[:200]
             self._refresh_notice_view()
 
-        self.root.after(0, _insert)
+        scheduler = getattr(self, "scheduler", None)
+        if scheduler:
+            scheduler.call_soon(_insert)
+        else:
+            self.root.after(0, _insert)
 
     def _refresh_notice_view(self) -> None:
         self.notice_list.delete(*self.notice_list.get_children())
@@ -59,4 +63,8 @@ class NoticeMixin:
         self._append_notice(message)
 
     def _set_status(self, text: str) -> None:
-        self.root.after(0, lambda: self.status_var.set(text))
+        ui_state = getattr(self, "ui_state", None)
+        if ui_state:
+            ui_state.set_status(text)
+        else:
+            self.root.after(0, lambda: self.status_var.set(text))

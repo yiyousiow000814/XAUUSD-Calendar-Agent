@@ -5,6 +5,7 @@ from agent.logger import setup_logger
 from agent.timezone import clamp_utc_offset_minutes, format_utc_offset_label
 from agent.version import APP_VERSION
 from ui.calendar import CalendarMixin
+from ui.event_scheduler import EventScheduler
 from ui.layout import LayoutMixin
 from ui.notice import NoticeMixin
 from ui.repo import RepoMixin
@@ -12,8 +13,10 @@ from ui.settings import SettingsMixin
 from ui.shortcut import ShortcutMixin
 from ui.sync import SyncMixin
 from ui.tray import TrayMixin
+from ui.ui_state import UiStateService
 from ui.uninstall import UninstallMixin
 from ui.update import UpdateMixin
+from ui.update_service import UpdateService
 
 
 class App(
@@ -37,8 +40,8 @@ class App(
         self.tray_icon = None
         self.tray_thread = None
         self.tray_visible = False
-        self.update_in_progress = False
-        self.update_timer_id = None
+        max_workers = int(self.state.get("background_max_workers", 4) or 4)
+        self.scheduler = EventScheduler(self.root, max_workers=max_workers)
 
         self.repo_var = StringVar(value=self.state.get("repo_path", ""))
         self.temporary_path_var = StringVar(value=self.state.get("temporary_path", ""))
@@ -50,14 +53,17 @@ class App(
         self.update_button_var = StringVar(value="Check for updates")
         self.update_status_var = StringVar(value="")
         self.settings_status_var = StringVar(value="")
-        self.update_available_version = ""
-        self.update_download_url = ""
-        self._autosave_after_id = None
         self.calendar_events: list[dict] = []
-        self.calendar_timer_id = None
         self.currency_var = StringVar(value="USD")
         self.notice_entries: list[dict] = []
         self.log_filter_var = StringVar(value="All")
+        self.ui_state = UiStateService(
+            scheduler=self.scheduler,
+            status_var=self.status_var,
+            settings_status_var=self.settings_status_var,
+            update_button_var=self.update_button_var,
+            update_status_var=self.update_status_var,
+        )
 
         self.auto_sync_var = BooleanVar(
             value=self.state.get("auto_sync_after_pull", True)
@@ -77,6 +83,15 @@ class App(
         )
 
         self._build_ui()
+        self.update_service = UpdateService(
+            scheduler=self.scheduler,
+            state=self.state,
+            set_ui=self._set_update_ui,
+            append_notice=self._append_notice,
+            notify_user=self._notify_user,
+            apply_update=self._apply_update_now,
+            run_task=self._run_task,
+        )
         self._register_settings_traces()
         self.log_filter_var.trace_add("write", self._on_log_filter_changed)
         self._refresh_times()
