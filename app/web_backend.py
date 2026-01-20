@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import hashlib
 import json
 import os
@@ -13,7 +15,10 @@ from hashlib import sha1
 from pathlib import Path
 from typing import Iterable
 
-import webview
+try:
+    import webview
+except ImportError:  # pragma: no cover - optional in test/CI environments
+    webview = None
 from agent.calendar_loader import load_calendar_events
 from agent.calendar_update import update_calendar_from_github
 from agent.config import (
@@ -853,6 +858,8 @@ class WebAgentBackend:
     def browse_temporary_path(self) -> dict:
         if not self.window:
             return {"ok": False, "message": "Window not ready"}
+        if not webview:
+            return {"ok": False, "message": "Webview is not available"}
         start_dir = (self.state.get("temporary_path") or "").strip()
         directory = ""
         if start_dir:
@@ -1117,6 +1124,8 @@ class WebAgentBackend:
     def browse_output_dir(self) -> dict:
         if not self.window:
             return {"ok": False, "message": "Window not ready"}
+        if not webview:
+            return {"ok": False, "message": "Webview is not available"}
         start_dir = (self.state.get("output_dir") or "").strip()
         directory = ""
         if start_dir:
