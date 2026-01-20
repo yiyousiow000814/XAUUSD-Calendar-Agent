@@ -1068,7 +1068,7 @@ class WebAgentBackend:
                 continue
             shutil.rmtree(candidate, ignore_errors=True)
 
-    def _request_exit(self) -> None:
+    def _request_exit(self, *, force: bool = False) -> None:
         try:
             self.shutdown()
         except Exception:  # noqa: BLE001
@@ -1079,6 +1079,8 @@ class WebAgentBackend:
             self.window.destroy()
         except Exception:  # noqa: BLE001
             pass
+        if force:
+            threading.Timer(1.5, lambda: os._exit(0)).start()
 
     def _find_uninstaller(self) -> str | None:
         if not sys.platform.startswith("win"):
@@ -2868,6 +2870,8 @@ class WebAgentBackend:
             creationflags=creationflags,
         )
         if is_setup:
-            threading.Timer(restart_delay_seconds, self._request_exit).start()
+            threading.Timer(
+                restart_delay_seconds, lambda: self._request_exit(force=True)
+            ).start()
         else:
-            threading.Timer(0.2, self._request_exit).start()
+            threading.Timer(0.2, lambda: self._request_exit(force=True)).start()

@@ -97,12 +97,12 @@ vi.mock("../api", () => ({
 import App from "../App";
 
 describe("App restart countdown", () => {
-  it("shows restart countdown inside activity pill", async () => {
+  it("shows restart countdown pill", async () => {
     const { unmount } = render(<App />);
     await waitFor(() => {
-      const matches = screen.getAllByText(/Updating 5s/i);
-      const visible = matches.find((node) => node.getAttribute("aria-hidden") !== "true");
-      expect(visible).toBeTruthy();
+      const restartLabel = screen.getByText(/Restarting in 5s/i);
+      const restartPill = restartLabel.closest("[data-qa='qa:restart-countdown']");
+      expect(restartPill).toBeTruthy();
     });
     unmount();
   });
