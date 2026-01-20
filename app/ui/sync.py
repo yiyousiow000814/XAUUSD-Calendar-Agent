@@ -1,5 +1,4 @@
 import os
-import threading
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -30,8 +29,7 @@ class SyncMixin:
             finally:
                 self._set_status("Idle")
 
-        thread = threading.Thread(target=wrapper, daemon=True)
-        thread.start()
+        self.scheduler.run_in_background(wrapper)
 
     def _pull_now(self) -> None:
         self._run_task(self._pull_and_sync, "Manual pull")
@@ -41,13 +39,16 @@ class SyncMixin:
 
     def _schedule_periodic_check(self) -> None:
         interval = int(self.state.get("check_interval_minutes", 360))
-        delay_ms = max(interval, 10) * 60 * 1000
+        min_interval = int(self.state.get("ui_min_interval_minutes", 10) or 10)
+        delay_ms = max(interval, min_interval) * 60 * 1000
+        if interval <= 0:
+            self.scheduler.cancel("periodic_check")
+            return
 
         def periodic() -> None:
             self._run_task(self._maybe_pull_and_sync, "Auto check")
-            self.root.after(delay_ms, periodic)
 
-        self.root.after(delay_ms, periodic)
+        self.scheduler.schedule_interval("periodic_check", delay_ms, periodic)
 
     def _maybe_pull_and_sync(self) -> None:
         if not self.state.get("enable_temporary_path", False):

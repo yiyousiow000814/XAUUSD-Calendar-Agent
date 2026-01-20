@@ -129,17 +129,15 @@ class SettingsMixin:
             return
 
     def _schedule_settings_autosave(self) -> None:
-        if self._autosave_after_id is not None:
-            try:
-                self.root.after_cancel(self._autosave_after_id)
-            except Exception:
-                pass
-            self._autosave_after_id = None
+        delay_ms = int(self.state.get("ui_settings_autosave_ms", 400) or 400)
         self._set_settings_status("Saving... (auto save)")
-        self._autosave_after_id = self.root.after(400, self._autosave_settings)
+        self.scheduler.schedule(
+            "settings_autosave",
+            max(50, delay_ms),
+            self._autosave_settings,
+        )
 
     def _autosave_settings(self) -> None:
-        self._autosave_after_id = None
         self._save_settings(notify=False)
         self._save_paths(notify=False)
         try:
@@ -149,7 +147,7 @@ class SettingsMixin:
         self._set_settings_status("Saved (auto save)")
 
     def _set_settings_status(self, text: str) -> None:
-        self.root.after(0, lambda: self.settings_status_var.set(text))
+        self.ui_state.set_settings_status(text)
 
     def _ensure_dir(self, value: str) -> None:
         if not value:

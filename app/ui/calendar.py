@@ -1,7 +1,7 @@
-import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+from agent.calendar_loader import load_calendar_events
 from agent.config import (
     get_selected_output_dir_last_sync_at,
     parse_iso_time,
@@ -45,83 +45,31 @@ class CalendarMixin:
         self._update_calendar_view(events)
 
     def _schedule_calendar_tick(self) -> None:
-        if self.calendar_timer_id is not None:
-            try:
-                self.root.after_cancel(self.calendar_timer_id)
-            except Exception:
-                pass
+        interval_seconds = int(self.state.get("ui_calendar_tick_seconds", 60) or 60)
+        self._calendar_tick()
+        self.scheduler.schedule_interval(
+            "calendar_tick", max(1, interval_seconds) * 1000, self._calendar_tick
+        )
+
+    def _calendar_tick(self) -> None:
         self._update_calendar_view(self.calendar_events)
-        self.calendar_timer_id = self.root.after(60000, self._schedule_calendar_tick)
 
     def _load_calendar_events(self, repo_path: Path) -> list[dict]:
+        items = load_calendar_events(str(repo_path))
+        events = self._filter_upcoming_events(items)
+        events.sort(key=lambda item: item["dt_utc"])
+        return events
+
+    def _filter_upcoming_events(self, items: list[dict]) -> list[dict]:
         now_utc = datetime.now(timezone.utc)
-        calendar_root = repo_path / "data" / "Economic_Calendar"
-        if not calendar_root.exists():
-            return []
-        year_dirs = []
-        for entry in calendar_root.iterdir():
-            if entry.is_dir() and entry.name.isdigit():
-                year_dirs.append(int(entry.name))
-        if not year_dirs:
-            return []
-        years = sorted(set(year_dirs))
-        current_year = datetime.now().year
-        candidates = [y for y in years if y in (current_year, current_year + 1)]
-        if not candidates:
-            candidates = [years[-1]]
-        items: list[dict] = []
-        for year in candidates:
-            year_path = calendar_root / str(year)
-            file_path = year_path / f"{year}_calendar.json"
-            if not file_path.exists():
-                matches = list(year_path.glob("*.json"))
-                if not matches:
-                    continue
-                file_path = matches[0]
-            try:
-                payload = json.loads(file_path.read_text(encoding="utf-8"))
-            except (OSError, json.JSONDecodeError):
-                continue
-            if not isinstance(payload, list):
-                continue
-            items.extend(payload)
         events = []
         for item in items:
-            date_raw = item.get("Date")
-            time_raw = (item.get("Time") or "").strip()
-            event_raw = (item.get("Event") or "").strip()
-            currency_raw = (item.get("Cur.") or "").strip()
-            importance_raw = (item.get("Imp.") or "").strip()
-            if not date_raw or not event_raw:
+            dt_utc = item.get("dt_utc")
+            if not isinstance(dt_utc, datetime):
                 continue
-            try:
-                date_val = datetime.strptime(date_raw, "%Y-%m-%d").date()
-            except ValueError:
-                continue
-            time_label = time_raw or "All Day"
-            if ":" in time_raw:
-                try:
-                    time_val = datetime.strptime(time_raw, "%H:%M").time()
-                except ValueError:
-                    time_val = datetime.min.time()
-            else:
-                time_val = datetime.min.time()
-            dt_source = datetime.combine(date_val, time_val).replace(
-                tzinfo=utc_offset_minutes_to_tzinfo(CALENDAR_SOURCE_UTC_OFFSET_MINUTES)
-            )
-            dt_utc = dt_source.astimezone(timezone.utc)
             if dt_utc < now_utc:
                 continue
-            events.append(
-                {
-                    "dt_utc": dt_utc,
-                    "time_label": time_label,
-                    "event": event_raw,
-                    "currency": currency_raw.upper(),
-                    "importance": importance_raw,
-                }
-            )
-        events.sort(key=lambda item: item["dt_utc"])
+            events.append(item)
         return events
 
     def _update_currency_options(self, events: list[dict]) -> None:

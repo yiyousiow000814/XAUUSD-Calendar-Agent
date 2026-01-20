@@ -1,6 +1,10 @@
 import sys
-import winreg
 from dataclasses import dataclass
+
+try:
+    import winreg
+except ImportError:  # pragma: no cover - non-Windows platforms
+    winreg = None
 
 TASK_NAME = "XAUUSDCalendarAgent"
 
@@ -13,7 +17,7 @@ class TaskResult:
 
 
 def create_startup_task(command: str) -> TaskResult:
-    if not sys.platform.startswith("win"):
+    if not sys.platform.startswith("win") or not winreg:
         return TaskResult(False, "startup entry is supported on Windows only")
     try:
         with winreg.OpenKey(
@@ -29,7 +33,7 @@ def create_startup_task(command: str) -> TaskResult:
 
 
 def remove_startup_task() -> TaskResult:
-    if not sys.platform.startswith("win"):
+    if not sys.platform.startswith("win") or not winreg:
         return TaskResult(False, "startup entry is supported on Windows only")
     try:
         with winreg.OpenKey(

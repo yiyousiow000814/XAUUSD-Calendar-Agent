@@ -3,115 +3,45 @@ import subprocess
 import sys
 from pathlib import Path
 
-from agent.config import get_github_token, get_update_dir
-from agent.updater import download_update, fetch_github_release
-from agent.version import APP_VERSION
-
-from .constants import APP_TITLE, parse_version
-
 
 class UpdateMixin:
-    _UPDATE_CTA_CHECK = "Check for updates"
-    _UPDATE_CTA_UPDATE = "Update now"
-
     def _check_updates(self) -> None:
-        if self.update_download_url:
-            self._run_task(self._apply_update_action, self._UPDATE_CTA_UPDATE)
+        if self.update_service.state.download_url:
+            self._run_task(
+                self._apply_update_action,
+                self.update_service._UPDATE_CTA_UPDATE,
+            )
             return
-        self._run_task(lambda: self._update_check(manual=True), "Update check")
+        self.update_service.request_manual_check()
 
     def _schedule_update_check(self) -> None:
-        interval = 60
-        if self.update_timer_id is not None:
-            try:
-                self.root.after_cancel(self.update_timer_id)
-            except Exception:
-                pass
-            self.update_timer_id = None
-        if interval <= 0:
-            return
-        delay_ms = max(interval, 10) * 60 * 1000
-
-        def periodic() -> None:
-            self._run_task(
-                lambda: self._update_check(manual=False), "Auto update check"
-            )
-            self.update_timer_id = self.root.after(delay_ms, periodic)
-
-        self.update_timer_id = self.root.after(delay_ms, periodic)
+        interval = int(self.state.get("auto_update_interval_minutes", 60) or 60)
+        self.update_service.schedule_update_check(interval)
 
     def _update_check(self, manual: bool) -> None:
-        repo = self.state.get("github_repo", "")
-        if not repo:
-            self._set_update_ui(self._UPDATE_CTA_CHECK, "Update channel not configured")
-            return
-        self._set_update_ui(self._UPDATE_CTA_CHECK, "Checking...")
-        asset_name = self.state.get("github_release_asset_name", "") or None
-        token = get_github_token(self.state)
-        info = fetch_github_release(repo, asset_name=asset_name, token=token)
-
-        if not info.ok:
-            self._set_update_ui(self._UPDATE_CTA_CHECK, info.message)
-            return
-        current_version = APP_VERSION
-        if parse_version(info.version) <= parse_version(current_version):
-            self._set_update_ui(self._UPDATE_CTA_CHECK, "Up to date")
-            return
-
-        if not info.download_url:
-            self._set_update_ui(self._UPDATE_CTA_CHECK, "Release missing download URL")
-            return
-
-        self.update_available_version = info.version or ""
-        self.update_download_url = info.download_url
-        self._set_update_ui(
-            self._UPDATE_CTA_UPDATE, f"Update available: {info.version}"
-        )
-
-        if manual:
-            return
-        if not self.state.get("auto_update_enabled", False):
-            return
-        self._download_and_apply_update(info.download_url, info.version or "")
+        self.update_service.check_updates(manual=manual)
 
     def _apply_update_action(self) -> None:
-        if not self.update_download_url:
+        if not self.update_service.state.download_url:
             return
-        self._download_and_apply_update(
-            self.update_download_url, self.update_available_version
+        self.update_service.download_and_apply_update(
+            self.update_service.state.download_url,
+            self.update_service.state.available_version,
         )
 
-    def _download_and_apply_update(self, download_url: str, version: str) -> None:
-        self._append_notice(f"Downloading update {version}")
-        try:
-            token = get_github_token(self.state)
-            target = download_update(download_url, get_update_dir(), token=token)
-        except Exception as exc:  # noqa: BLE001
-            self._append_notice(f"Update download failed: {exc}")
-            self._set_update_ui(self._UPDATE_CTA_UPDATE, f"Update failed: {exc}")
-            return
-        if version:
-            self._notify_user(APP_TITLE, f"Update {version} downloaded, restarting")
-        self._append_notice("Update downloaded. Applying now…")
-        self.root.after(0, lambda: self._apply_update_now(target))
-
     def _set_update_ui(self, button_text: str, status: str) -> None:
-        def _update() -> None:
-            self.update_button_var.set(button_text)
-            self.update_status_var.set(status)
-            if button_text != self._UPDATE_CTA_UPDATE:
-                self.update_download_url = ""
-                self.update_available_version = ""
-
-        self.root.after(0, _update)
+        if button_text != self.update_service._UPDATE_CTA_UPDATE:
+            self.update_service.state.download_url = ""
+            self.update_service.state.available_version = ""
+        self.ui_state.set_update_ui(button_text, status)
 
     def _apply_update_now(self, pending_path: Path) -> None:
-        if self.update_in_progress:
+        if self.update_service.state.in_progress:
             return
-        self.update_in_progress = True
+        self.update_service.state.in_progress = True
         if not getattr(sys, "frozen", False):
             self._append_notice("Auto update is available only in the EXE build")
-            self.update_in_progress = False
+            self.update_service.state.in_progress = False
             return
 
         asset_name = (self.state.get("github_release_asset_name") or "").lower()
