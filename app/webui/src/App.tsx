@@ -1,7 +1,14 @@
 ﻿import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { useCallback, useLayoutEffect } from "react";
 import { backend, isWebview } from "./api";
-import type { EventHistoryResponse, FilterOption, Settings, Snapshot, ToastType } from "./types";
+import type {
+  EventHistoryOption,
+  EventHistoryResponse,
+  FilterOption,
+  Settings,
+  Snapshot,
+  ToastType
+} from "./types";
 import { ActivityDrawer } from "./components/ActivityDrawer";
 import { ActivityLog } from "./components/ActivityLog";
 import { AlertModal } from "./components/AlertModal";
@@ -3092,6 +3099,41 @@ export default function App() {
   const historySelectionLabel = historySelection
     ? `${historySelection.cur || "--"} ${historySelection.event}`.trim()
     : "";
+  const historySelectionKey = historySelection
+    ? `${(historySelection.cur || "").toUpperCase()}::${historySelection.event}`
+    : "";
+  const historyEventOptions = useMemo<EventHistoryOption[]>(() => {
+    const map = new Map<string, EventHistoryOption>();
+    const add = (cur: string, event: string) => {
+      const normalizedCur = String(cur || "--").toUpperCase();
+      const name = String(event || "").trim();
+      if (!name) return;
+      const key = `${normalizedCur}::${name}`;
+      if (map.has(key)) return;
+      map.set(key, {
+        key,
+        label: `${normalizedCur} ${name}`.trim(),
+        event: name,
+        cur: normalizedCur
+      });
+    };
+    snapshot.events.forEach((item) => add(item.cur, item.event));
+    snapshot.pastEvents.forEach((item) => add(item.cur, item.event));
+    if (historySelection) {
+      add(historySelection.cur, historySelection.event);
+    }
+    const options = Array.from(map.values());
+    options.sort((a, b) => {
+      const curCompare = a.cur.localeCompare(b.cur);
+      if (curCompare !== 0) return curCompare;
+      return a.event.localeCompare(b.event);
+    });
+    return options;
+  }, [historySelection, snapshot.events, snapshot.pastEvents]);
+  const historyEventOptionMap = useMemo(
+    () => new Map(historyEventOptions.map((option) => [option.key, option])),
+    [historyEventOptions]
+  );
 
   return (
     <div className="app" data-qa="qa:app-shell">
@@ -3217,6 +3259,23 @@ export default function App() {
         error={historyError}
         selectionLabel={historySelectionLabel}
         data={historyData}
+        eventOptions={historyEventOptions.map((option) => ({
+          value: option.key,
+          label: option.label
+        }))}
+        selectedEventKey={historySelectionKey}
+        onSelectEvent={(value) => {
+          const option = historyEventOptionMap.get(value);
+          if (!option) return;
+          if (
+            historySelection &&
+            option.event === historySelection.event &&
+            option.cur === historySelection.cur
+          ) {
+            return;
+          }
+          openEventHistory({ event: option.event, cur: option.cur });
+        }}
         onClose={closeHistoryModal}
       />
 

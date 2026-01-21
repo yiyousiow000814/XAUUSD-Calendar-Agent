@@ -1,5 +1,6 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { EventHistoryPoint, EventHistoryResponse } from "../types";
+import { Select } from "./Select";
 import "./EventHistoryModal.css";
 
 type EventHistoryModalProps = {
@@ -8,6 +9,9 @@ type EventHistoryModalProps = {
   error: string | null;
   selectionLabel: string;
   data: EventHistoryResponse | null;
+  eventOptions: Array<{ value: string; label: string }>;
+  selectedEventKey: string;
+  onSelectEvent: (value: string) => void;
   onClose: () => void;
 };
 
@@ -89,19 +93,44 @@ export function EventHistoryModal({
   error,
   selectionLabel,
   data,
+  eventOptions,
+  selectedEventKey,
+  onSelectEvent,
   onClose
 }: EventHistoryModalProps) {
+  const [displayMode, setDisplayMode] = useState<"recent" | "all">("recent");
+  const [visibleSeries, setVisibleSeries] = useState({
+    actual: true,
+    forecast: true,
+    previous: true
+  });
   const points = data?.points ?? [];
   const hasData = points.length > 0;
-  const rangeLabel = getRangeLabel(points);
+  const hasVisibleSeries = visibleSeries.actual || visibleSeries.forecast || visibleSeries.previous;
+  const displayPoints = useMemo(() => {
+    if (displayMode === "recent") {
+      return points.slice(-5);
+    }
+    return points;
+  }, [displayMode, points]);
+  const rangeLabel = getRangeLabel(displayPoints);
+  const showEventPicker = eventOptions.length > 1;
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setDisplayMode("recent");
+  }, [isOpen, selectionLabel]);
 
   const chart = useMemo(() => {
     if (!hasData) {
       return null;
     }
-    const actualValues = extractSeries(points, "actual");
-    const forecastValues = extractSeries(points, "forecast");
-    const previousValues = extractSeries(points, "previous");
+    if (!hasVisibleSeries) {
+      return null;
+    }
+    const actualValues = visibleSeries.actual ? extractSeries(displayPoints, "actual") : [];
+    const forecastValues = visibleSeries.forecast ? extractSeries(displayPoints, "forecast") : [];
+    const previousValues = visibleSeries.previous ? extractSeries(displayPoints, "previous") : [];
     const numericValues = [...actualValues, ...forecastValues, ...previousValues].filter(
       (value): value is number => value !== null
     );
@@ -115,11 +144,21 @@ export function EventHistoryModal({
     return {
       width,
       height,
-      actualPath: buildPath(actualValues, width, height, min, max),
-      forecastPath: buildPath(forecastValues, width, height, min, max),
-      previousPath: buildPath(previousValues, width, height, min, max)
+      actualPath: visibleSeries.actual ? buildPath(actualValues, width, height, min, max) : "",
+      forecastPath: visibleSeries.forecast ? buildPath(forecastValues, width, height, min, max) : "",
+      previousPath: visibleSeries.previous ? buildPath(previousValues, width, height, min, max) : ""
     };
-  }, [hasData, points]);
+  }, [displayPoints, hasData, hasVisibleSeries, visibleSeries]);
+
+  const toggleSeries = (key: "actual" | "forecast" | "previous") => {
+    setVisibleSeries((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      if (!next.actual && !next.forecast && !next.previous) {
+        return prev;
+      }
+      return next;
+    });
+  };
 
   if (!isOpen) return null;
 
@@ -149,9 +188,48 @@ export function EventHistoryModal({
           ) : null}
           {!loading && !error && hasData ? (
             <div className="history-modal-content">
+              <div className="history-modal-controls">
+                {showEventPicker ? (
+                  <div className="history-modal-control">
+                    <span className="history-modal-label">Event</span>
+                    <Select
+                      value={selectedEventKey}
+                      options={eventOptions}
+                      onChange={(value) => {
+                        if (value && value !== selectedEventKey) {
+                          onSelectEvent(value);
+                        }
+                      }}
+                      qa="qa:history:event-select"
+                    />
+                  </div>
+                ) : null}
+                <div className="history-modal-control">
+                  <span className="history-modal-label">Range</span>
+                  <div className="history-modal-toggle">
+                    <button
+                      type="button"
+                      className={`history-toggle${displayMode === "recent" ? " active" : ""}`}
+                      onClick={() => setDisplayMode("recent")}
+                    >
+                      Last 5
+                    </button>
+                    <button
+                      type="button"
+                      className={`history-toggle${displayMode === "all" ? " active" : ""}`}
+                      onClick={() => setDisplayMode("all")}
+                    >
+                      All
+                    </button>
+                  </div>
+                </div>
+              </div>
               <div className="history-modal-meta">
                 <span className="history-modal-pill">{points.length} releases</span>
                 {rangeLabel ? <span className="history-modal-pill">{rangeLabel}</span> : null}
+                {displayMode === "recent" && points.length > 5 ? (
+                  <span className="history-modal-pill">Last 5</span>
+                ) : null}
                 {data?.frequency && data.frequency !== "none" ? (
                   <span className="history-modal-pill">Frequency {data.frequency}</span>
                 ) : null}
@@ -166,21 +244,38 @@ export function EventHistoryModal({
                   </svg>
                 </div>
               ) : (
-                <div className="history-modal-empty">Values are not available for charting.</div>
+                <div className="history-modal-empty">
+                  {hasVisibleSeries ? "Values are not available for charting." : "Select a series to display."}
+                </div>
               )}
               <div className="history-modal-legend">
-                <span className="history-legend-item">
+                <button
+                  type="button"
+                  className={`history-legend-item${visibleSeries.actual ? " active" : ""}`}
+                  onClick={() => toggleSeries("actual")}
+                  aria-pressed={visibleSeries.actual}
+                >
                   <span className="history-legend-swatch history-line-actual" />
                   Actual
-                </span>
-                <span className="history-legend-item">
+                </button>
+                <button
+                  type="button"
+                  className={`history-legend-item${visibleSeries.forecast ? " active" : ""}`}
+                  onClick={() => toggleSeries("forecast")}
+                  aria-pressed={visibleSeries.forecast}
+                >
                   <span className="history-legend-swatch history-line-forecast" />
                   Forecast
-                </span>
-                <span className="history-legend-item">
+                </button>
+                <button
+                  type="button"
+                  className={`history-legend-item${visibleSeries.previous ? " active" : ""}`}
+                  onClick={() => toggleSeries("previous")}
+                  aria-pressed={visibleSeries.previous}
+                >
                   <span className="history-legend-swatch history-line-previous" />
                   Previous
-                </span>
+                </button>
               </div>
             </div>
           ) : null}

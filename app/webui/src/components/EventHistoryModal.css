@@ -9,7 +9,7 @@
 .modal-history .modal-body {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .history-modal-loading,
@@ -27,7 +27,8 @@
 .history-modal-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px 10px;
+  align-items: center;
 }
 
 .history-modal-pill {
@@ -37,6 +38,47 @@
   padding: 6px 10px;
   font-size: 12px;
   color: var(--text);
+}
+
+.history-modal-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.history-modal-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.history-modal-label {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.history-modal-toggle {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.history-toggle {
+  border: 1px solid var(--panel-border);
+  background: var(--pill-bg-0);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.history-toggle.active {
+  background: var(--pill-bg-1);
+  border-color: var(--panel-border-strong);
+  color: var(--text-strong);
 }
 
 .history-modal-chart {
@@ -74,7 +116,7 @@
 .history-modal-legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
+  gap: 10px;
   font-size: 12px;
   color: var(--muted);
   text-transform: uppercase;
@@ -85,6 +127,18 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: inherit;
+  padding: 4px 6px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.history-legend-item.active {
+  color: var(--text);
+  border-color: var(--panel-border);
+  background: var(--pill-bg-0);
 }
 
 .history-legend-swatch {

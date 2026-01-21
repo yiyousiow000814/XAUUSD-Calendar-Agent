@@ -55,6 +55,13 @@ export type EventHistoryResponse = {
   message?: string;
 };
 
+export type EventHistoryOption = {
+  key: string;
+  label: string;
+  event: string;
+  cur: string;
+};
+
 export type Snapshot = {
   lastPull: string;
   lastSync: string;
