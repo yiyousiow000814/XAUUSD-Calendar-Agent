@@ -1327,7 +1327,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-19,Monday,18:00,EUR,Medium,CPI (MoM)  (Dec),0.2%,0.2%,-0.3%
 2026-01-19,Monday,18:00,EUR,Medium,Core CPI (YoY)  (Dec),2.3%,2.3%,2.4%
 2026-01-19,Monday,18:00,EUR,Medium,Eurogroup Meetings,,,
-2026-01-19,Monday,19:00,EUR,Low,German Buba Monthly Report,,,
 2026-01-19,Monday,19:00,EUR,Low,Portuguese Current Account  (Nov),5.185B,,5.254B
 2026-01-19,Monday,19:00,ILS,Low,Quarterly Unemployment Rate  (Dec),3.10%,,3.10%
 2026-01-19,Monday,19:25,BRL,Low,BCB Focus Market Readout,,,
@@ -1388,74 +1387,73 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-20,Tuesday,18:00,OMR,Low,CPI (MoM)  (Dec),-0.1%,,0.1%
 2026-01-20,Tuesday,18:00,OMR,Low,CPI (YoY)  (Dec),1.6%,,1.7%
 2026-01-20,Tuesday,19:30,INR,Low,Infrastructure Output (YoY)  (Dec),3.7%,,2.1%
-2026-01-20,Tuesday,20:00,NZD,Low,GlobalDairyTrade Price Index,1.5%,,6.3%
-2026-01-20,Tuesday,20:00,USD,Low,Milk Auctions,"3,615.0",,"3,533.0"
 2026-01-20,Tuesday,21:15,USD,Medium,ADP Employment Change Weekly,8.00K,,11.25K
 2026-01-20,Tuesday,22:30,TRY,Low,Central Government Debt Stock  (Dec),"13,656.0B",,"13,325.0B"
+2026-01-20,Tuesday,22:45,NZD,Low,GlobalDairyTrade Price Index,1.5%,,6.3%
+2026-01-20,Tuesday,22:45,USD,Low,Milk Auctions,"3,615.0",,"3,533.0"
 2026-01-21,Wednesday,All Day,,Holiday,Oman - Al Isra' wal-Mi'raj,,,
 2026-01-21,Wednesday,00:30,CHF,Low,SNB Vice Chairman Schlegel Speaks,,,
 2026-01-21,Wednesday,00:30,EUR,Medium,German Buba President Nagel Speaks,,,
-2026-01-21,Wednesday,00:30,USD,Low,3-Month Bill Auction,,,3.570%
-2026-01-21,Wednesday,00:30,USD,Low,52-Week Bill Auction,,,3.380%
-2026-01-21,Wednesday,00:30,USD,Low,6-Month Bill Auction,,,3.490%
-2026-01-21,Wednesday,03:00,ARS,Low,Trade Balance  (Dec),,"1,372M","2,498M"
-2026-01-21,Wednesday,05:30,USD,Medium,API Weekly Crude Oil Stock,,,5.270M
-2026-01-21,Wednesday,08:00,AUD,Low,MI Leading Index (MoM)  (Dec),,,-0.0%
-2026-01-21,Wednesday,10:00,NZD,Low,RBNZ Offshore Holdings  (Dec),,,58.00%
-2026-01-21,Wednesday,15:00,GBP,High,CPI (YoY)  (Dec),,3.3%,3.2%
-2026-01-21,Wednesday,15:00,GBP,Low,"CPI, n.s.a  (Dec)",,,139.50
-2026-01-21,Wednesday,15:00,GBP,Low,Core CPI (MoM)  (Dec),,0.3%,-0.2%
-2026-01-21,Wednesday,15:00,GBP,Low,Core CPI (YoY)  (Dec),,3.3%,3.2%
-2026-01-21,Wednesday,15:00,GBP,Low,Core PPI Output (MoM)  (Dec),,,0.0%
-2026-01-21,Wednesday,15:00,GBP,Low,Core PPI Output (YoY)  (Dec),,,3.5%
-2026-01-21,Wednesday,15:00,GBP,Low,Core RPI (MoM)  (Dec),,,-0.5%
-2026-01-21,Wednesday,15:00,GBP,Low,Core RPI (YoY)  (Dec),,,3.7%
-2026-01-21,Wednesday,15:00,GBP,Low,PPI Input (YoY)  (Dec),,,1.1%
-2026-01-21,Wednesday,15:00,GBP,Low,PPI Output (MoM)  (Dec),,0.1%,0.1%
-2026-01-21,Wednesday,15:00,GBP,Low,PPI Output (YoY)  (Dec),,,3.4%
-2026-01-21,Wednesday,15:00,GBP,Low,RPI (MoM)  (Dec),,0.5%,-0.4%
-2026-01-21,Wednesday,15:00,GBP,Low,RPI (YoY)  (Dec),,4.1%,3.8%
-2026-01-21,Wednesday,15:00,GBP,Medium,CPI (MoM)  (Dec),,0.4%,-0.2%
-2026-01-21,Wednesday,15:00,GBP,Medium,PPI Input (MoM)  (Dec),,-0.1%,0.3%
-2026-01-21,Wednesday,15:20,IDR,Low,Loans (YoY)  (Dec),,,7.74%
+2026-01-21,Wednesday,00:30,USD,Low,3-Month Bill Auction,3.590%,,3.570%
+2026-01-21,Wednesday,00:30,USD,Low,6-Month Bill Auction,3.520%,,3.490%
+2026-01-21,Wednesday,02:00,USD,Low,52-Week Bill Auction,3.390%,,3.380%
+2026-01-21,Wednesday,03:00,ARS,Low,Trade Balance  (Dec),"1,892M","1,372M","2,498M"
+2026-01-21,Wednesday,07:30,AUD,Low,MI Leading Index (MoM)  (Dec),0.1%,,0.0%
+2026-01-21,Wednesday,10:00,NZD,Low,RBNZ Offshore Holdings  (Dec),57.50%,,58.00%
+2026-01-21,Wednesday,15:00,GBP,High,CPI (YoY)  (Dec),3.4%,3.3%,3.2%
+2026-01-21,Wednesday,15:00,GBP,Low,"CPI, n.s.a  (Dec)",140.10,,139.50
+2026-01-21,Wednesday,15:00,GBP,Low,Core CPI (MoM)  (Dec),0.3%,0.3%,-0.2%
+2026-01-21,Wednesday,15:00,GBP,Low,Core CPI (YoY)  (Dec),3.2%,3.3%,3.2%
+2026-01-21,Wednesday,15:00,GBP,Low,Core PPI Output (MoM)  (Dec),-0.1%,,0.1%
+2026-01-21,Wednesday,15:00,GBP,Low,Core PPI Output (YoY)  (Dec),3.2%,,3.6%
+2026-01-21,Wednesday,15:00,GBP,Low,Core RPI (MoM)  (Dec),0.7%,,-0.5%
+2026-01-21,Wednesday,15:00,GBP,Low,Core RPI (YoY)  (Dec),4.1%,,3.7%
+2026-01-21,Wednesday,15:00,GBP,Low,PPI Input (YoY)  (Dec),0.8%,,1.1%
+2026-01-21,Wednesday,15:00,GBP,Low,PPI Output (MoM)  (Dec),0.0%,0.1%,0.1%
+2026-01-21,Wednesday,15:00,GBP,Low,PPI Output (YoY)  (Dec),3.4%,,3.4%
+2026-01-21,Wednesday,15:00,GBP,Low,RPI (MoM)  (Dec),0.7%,0.5%,-0.4%
+2026-01-21,Wednesday,15:00,GBP,Low,RPI (YoY)  (Dec),4.2%,4.1%,3.8%
+2026-01-21,Wednesday,15:00,GBP,Medium,CPI (MoM)  (Dec),0.4%,0.4%,-0.2%
+2026-01-21,Wednesday,15:00,GBP,Medium,CPIH (YoY),3.6%,,3.5%
+2026-01-21,Wednesday,15:00,GBP,Medium,PPI Input (MoM)  (Dec),-0.2%,-0.1%,0.5%
+2026-01-21,Wednesday,15:25,IDR,Low,Loans (YoY)  (Dec),9.69%,,7.74%
 2026-01-21,Wednesday,15:30,EUR,Medium,ECB President Lagarde Speaks,,,
-2026-01-21,Wednesday,15:30,IDR,Low,Deposit Facility Rate  (Jan),,,3.75%
-2026-01-21,Wednesday,15:30,IDR,Low,Lending Facility Rate  (Jan),,,5.50%
-2026-01-21,Wednesday,15:30,IDR,Medium,Interest Rate Decision,,4.75%,4.75%
-2026-01-21,Wednesday,16:00,CHF,Low,M3 Money Supply  (Dec),,,"1,210.5B"
+2026-01-21,Wednesday,15:30,IDR,Low,Deposit Facility Rate  (Jan),3.75%,,3.75%
+2026-01-21,Wednesday,15:30,IDR,Low,Lending Facility Rate  (Jan),5.50%,,5.50%
+2026-01-21,Wednesday,15:30,IDR,Medium,Interest Rate Decision,4.75%,4.75%,4.75%
+2026-01-21,Wednesday,16:00,CHF,Low,M3 Money Supply  (Dec),"1,210.9B",,"1,211.6B"
 2026-01-21,Wednesday,16:00,CHF,Medium,World Economic Forum Annual Meetings,,,
-2026-01-21,Wednesday,16:00,ZAR,Low,CPI (MoM)  (Dec),,,-0.1%
-2026-01-21,Wednesday,16:00,ZAR,Low,CPI (YoY)  (Dec),,3.6%,3.5%
-2026-01-21,Wednesday,16:00,ZAR,Low,Core CPI (MoM)  (Dec),,,0.1%
-2026-01-21,Wednesday,16:00,ZAR,Low,Core CPI (YoY)  (Dec),,,3.2%
+2026-01-21,Wednesday,16:00,ZAR,Low,CPI (MoM)  (Dec),0.2%,,-0.1%
+2026-01-21,Wednesday,16:00,ZAR,Low,CPI (YoY)  (Dec),3.6%,3.6%,3.5%
+2026-01-21,Wednesday,16:00,ZAR,Low,Core CPI (MoM)  (Dec),0.1%,,0.1%
+2026-01-21,Wednesday,16:00,ZAR,Low,Core CPI (YoY)  (Dec),3.3%,,3.2%
+2026-01-21,Wednesday,17:00,EUR,Low,Slovak Unemployment Rate  (Dec),5.3%,,5.0%
 2026-01-21,Wednesday,17:00,USD,Medium,IEA Monthly Report,,,
-2026-01-21,Wednesday,17:30,GBP,Low,House Price Index (YoY),,1.8%,1.7%
-2026-01-21,Wednesday,18:00,GBP,Low,3-Year Treasury Gilt Auction,,,4.062%
-2026-01-21,Wednesday,18:00,GHS,Low,PPI (YoY)  (Dec),,,1.30%
-2026-01-21,Wednesday,19:00,EUR,Low,Resi Prop Prices (MoM)  (Nov),,,0.60%
-2026-01-21,Wednesday,19:00,EUR,Low,Resi Prop Prices (YoY)  (Nov),,,7.30%
-2026-01-21,Wednesday,19:00,GBP,Low,CBI Industrial Trends Orders  (Jan),,-33,-32
-2026-01-21,Wednesday,19:00,ZAR,Low,Retail Sales (YoY)  (Nov),,,2.9%
-2026-01-21,Wednesday,19:30,INR,Low,M3 Money Supply,,,12.1%
-2026-01-21,Wednesday,20:00,MXN,Low,Retail Sales (MoM)  (Nov),,0.1%,0.4%
-2026-01-21,Wednesday,20:00,MXN,Low,Retail Sales (YoY)  (Nov),,3.0%,3.4%
-2026-01-21,Wednesday,20:00,USD,Low,MBA 30-Year Mortgage Rate,,,6.18%
-2026-01-21,Wednesday,20:00,USD,Low,MBA Mortgage Applications (WoW),,,28.5%
-2026-01-21,Wednesday,20:00,USD,Low,MBA Purchase Index,,,184.6
-2026-01-21,Wednesday,20:00,USD,Low,Mortgage Market Index,,,348.0
-2026-01-21,Wednesday,20:00,USD,Low,Mortgage Refinance Index,,,"1,313.1"
-2026-01-21,Wednesday,21:00,CNY,Low,FDI  (Dec),,,-7.50%
-2026-01-21,Wednesday,21:30,CAD,Low,IPPI (MoM)  (Dec),,0.3%,0.9%
-2026-01-21,Wednesday,21:30,CAD,Low,IPPI (YoY)  (Dec),,,6.1%
-2026-01-21,Wednesday,21:30,CAD,Low,RMPI (YoY)  (Dec),,,6.4%
-2026-01-21,Wednesday,21:30,CAD,Medium,RMPI (MoM)  (Dec),,-0.5%,0.3%
+2026-01-21,Wednesday,17:30,GBP,Low,House Price Index (YoY),2.5%,1.8%,1.7%
+2026-01-21,Wednesday,18:00,GBP,Low,5-Year Treasury Gilt Auction,3.821%,,3.980%
+2026-01-21,Wednesday,18:00,GHS,Low,PPI (YoY)  (Dec),1.90%,,1.30%
+2026-01-21,Wednesday,19:00,EUR,Low,Resi Prop Prices (MoM)  (Nov),0.30%,,0.60%
+2026-01-21,Wednesday,19:00,EUR,Low,Resi Prop Prices (YoY)  (Nov),6.60%,,7.20%
+2026-01-21,Wednesday,19:00,GBP,Low,CBI Industrial Trends Orders  (Jan),-30,-33,-32
+2026-01-21,Wednesday,19:00,ZAR,Low,Retail Sales (YoY)  (Nov),3.5%,,3.0%
+2026-01-21,Wednesday,20:00,MXN,Low,Retail Sales (MoM)  (Nov),1.0%,0.1%,0.5%
+2026-01-21,Wednesday,20:00,MXN,Low,Retail Sales (YoY)  (Nov),4.4%,3.0%,3.4%
+2026-01-21,Wednesday,20:00,USD,Low,MBA 30-Year Mortgage Rate,6.16%,,6.18%
+2026-01-21,Wednesday,20:00,USD,Low,MBA Mortgage Applications (WoW),14.1%,,28.5%
+2026-01-21,Wednesday,20:00,USD,Low,MBA Purchase Index,194.1,,184.6
+2026-01-21,Wednesday,20:00,USD,Low,Mortgage Market Index,397.2,,348.0
+2026-01-21,Wednesday,20:00,USD,Low,Mortgage Refinance Index,"1,580.8",,"1,313.1"
+2026-01-21,Wednesday,21:30,CAD,Low,IPPI (MoM)  (Dec),-0.6%,0.3%,1.1%
+2026-01-21,Wednesday,21:30,CAD,Low,IPPI (YoY)  (Dec),4.9%,,5.9%
+2026-01-21,Wednesday,21:30,CAD,Low,RMPI (YoY)  (Dec),6.4%,,7.2%
+2026-01-21,Wednesday,21:30,CAD,Medium,RMPI (MoM)  (Dec),0.5%,-0.5%,0.6%
 2026-01-21,Wednesday,21:30,USD,High,U.S. President Trump Speaks,,,
-2026-01-21,Wednesday,21:55,USD,Low,Redbook (YoY),,,5.7%
-2026-01-21,Wednesday,22:00,EUR,Low,Slovak Unemployment Rate  (Dec),,,5.0%
+2026-01-21,Wednesday,21:55,USD,Low,Redbook (YoY),5.5%,,5.7%
 2026-01-21,Wednesday,22:15,GBP,Medium,BoE Deputy Governor Woods Speaks,,,
-2026-01-21,Wednesday,23:00,USD,Low,Pending Home Sales Index  (Dec),,,79.2
-2026-01-21,Wednesday,23:00,USD,Medium,Construction Spending (MoM)  (Oct),,0.1%,0.2%
-2026-01-21,Wednesday,23:00,USD,Medium,Pending Home Sales (MoM)  (Dec),,-2.6%,3.3%
+2026-01-21,Wednesday,23:00,USD,Low,Pending Home Sales Index  (Dec),71.8,,79.2
+2026-01-21,Wednesday,23:00,USD,Medium,Construction Spending (MoM)  (Oct),0.5%,0.1%,-0.6%
+2026-01-21,Wednesday,23:00,USD,Medium,Construction Spending (MoM)  (Sep),-0.6%,,0.4%
+2026-01-21,Wednesday,23:00,USD,Medium,Pending Home Sales (MoM)  (Dec),-9.3%,-0.3%,3.3%
 2026-01-22,Thursday,All Day,,Holiday,Oman - Al Isra' wal-Mi'raj,,,
 2026-01-22,Thursday,00:45,EUR,Medium,ECB President Lagarde Speaks,,,
 2026-01-22,Thursday,01:00,USD,Medium,Atlanta Fed GDPNow  (Q4),,5.3%,5.3%
@@ -1463,12 +1461,13 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-22,Thursday,02:00,USD,Medium,20-Year Bond Auction,,,4.798%
 2026-01-22,Thursday,02:30,EUR,Medium,German Buba President Nagel Speaks,,,
 2026-01-22,Thursday,03:00,ARS,Low,Economic Activity (YoY)  (Nov),,,3.2%
+2026-01-22,Thursday,05:30,USD,Medium,API Weekly Crude Oil Stock,,,5.270M
 2026-01-22,Thursday,05:45,NZD,Low,Electronic Card Retail Sales (YoY)  (Dec),,,1.6%
 2026-01-22,Thursday,05:45,NZD,Low,External Migration & Visitors  (Nov),,,9.40%
 2026-01-22,Thursday,05:45,NZD,Low,Permanent/Long-Term Migration  (Nov),,,"2,400"
 2026-01-22,Thursday,05:45,NZD,Low,Visitor Arrivals (MoM),,,0.6%
 2026-01-22,Thursday,05:45,NZD,Medium,Electronic Card Retail Sales (MoM)  (Dec),,,1.2%
-2026-01-22,Thursday,07:00,KRW,Low,GDP (QoQ)  (Q4),,0.2%,1.3%
+2026-01-22,Thursday,07:00,KRW,Low,GDP (QoQ)  (Q4),,0.1%,1.3%
 2026-01-22,Thursday,07:00,KRW,Low,GDP (YoY)  (Q4),,1.9%,1.8%
 2026-01-22,Thursday,07:50,JPY,Low,Foreign Bonds Buying,,,101.1B
 2026-01-22,Thursday,07:50,JPY,Low,Foreign Investments in Japanese Stocks,,,"1,141.4B"
@@ -1477,17 +1476,17 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-22,Thursday,07:50,JPY,Medium,Exports (YoY)  (Dec),,6.1%,6.1%
 2026-01-22,Thursday,07:50,JPY,Medium,Trade Balance  (Dec),,357.0B,316.7B
 2026-01-22,Thursday,08:00,AUD,Low,MI Leading Index (MoM)  (Dec),,,-0.0%
-2026-01-22,Thursday,08:30,AUD,Low,Participation Rate  (Dec),,,66.7%
-2026-01-22,Thursday,08:30,AUD,Medium,Employment Change  (Dec),,26.5K,-21.3K
+2026-01-22,Thursday,08:30,AUD,Low,Participation Rate  (Dec),,66.8%,66.7%
+2026-01-22,Thursday,08:30,AUD,Medium,Employment Change  (Dec),,28.3K,-21.3K
 2026-01-22,Thursday,08:30,AUD,Medium,Full Employment Change  (Dec),,,-56.5K
 2026-01-22,Thursday,08:30,AUD,Medium,Unemployment Rate  (Dec),,4.4%,4.3%
 2026-01-22,Thursday,12:00,IDR,Low,M2 Money Supply (YoY)  (Dec),,,8.30%
 2026-01-22,Thursday,13:30,EUR,Low,Dutch Consumer Confidence  (Jan),,,-21.0
 2026-01-22,Thursday,15:00,DKK,Low,Consumer Confidence  (Jan),,,-17.3
-2026-01-22,Thursday,15:00,GBP,Low,Public Sector Net Borrowing  (Dec),,-13.50B,-11.65B
+2026-01-22,Thursday,15:00,GBP,Low,Public Sector Net Borrowing  (Dec),,-13.40B,-11.65B
 2026-01-22,Thursday,15:00,GBP,Low,Public Sector Net Cash Requirement  (Dec),,,10.293B
 2026-01-22,Thursday,15:00,MYR,Low,FX Reserves USD,,,125.5B
-2026-01-22,Thursday,15:00,MYR,Medium,Interest Rate,,,2.75%
+2026-01-22,Thursday,15:00,MYR,Medium,Interest Rate,,2.75%,2.75%
 2026-01-22,Thursday,15:00,NOK,Low,Unemployment Rate  (Dec),,,4.5%
 2026-01-22,Thursday,15:00,TRY,Low,Capacity Utilization  (Jan),,,74.4%
 2026-01-22,Thursday,15:00,TRY,Low,Consumer Confidence  (Jan),,,83.5
@@ -1496,7 +1495,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-22,Thursday,16:00,TWD,Low,Unemployment Rate  (Dec),,,3.35%
 2026-01-22,Thursday,16:30,HKD,Low,CPI (MoM)  (Dec),,,0.00%
 2026-01-22,Thursday,16:30,HKD,Low,CPI (YoY)  (Dec),,,1.20%
-2026-01-22,Thursday,17:00,NOK,Medium,Interest Rate Decision,,,4.00%
+2026-01-22,Thursday,17:00,NOK,Medium,Interest Rate Decision,,4.00%,4.00%
 2026-01-22,Thursday,17:00,PLN,Low,Corp. Sector Wages (YoY)  (Dec),,6.9%,7.1%
 2026-01-22,Thursday,17:00,PLN,Low,Employment Growth (YoY)  (Dec),,-0.7%,-0.8%
 2026-01-22,Thursday,17:00,PLN,Low,Industrial Output (YoY)  (Dec),,2.9%,-1.1%
@@ -1508,18 +1507,20 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-22,Thursday,19:00,GBP,Low,CBI Distributive Trades Survey  (Jan),,-35,-44
 2026-01-22,Thursday,19:00,TRY,Low,Overnight Borrowing Rate  (Jan),,,36.50%
 2026-01-22,Thursday,19:00,TRY,Low,Overnight Lending Rate  (Jan),,,41.00%
-2026-01-22,Thursday,19:00,TRY,Medium,One-Week Repo Rate  (Jan),,,38.00%
+2026-01-22,Thursday,19:00,TRY,Medium,One-Week Repo Rate  (Jan),,36.50%,38.00%
+2026-01-22,Thursday,19:30,INR,Low,M3 Money Supply,,,12.1%
 2026-01-22,Thursday,19:30,TRY,Low,Gross FX Reserves,,,79.35B
 2026-01-22,Thursday,20:00,BRL,Low,BCB National Monetary Council Meeting,,,
 2026-01-22,Thursday,20:00,GHS,Low,PPI (YoY)  (Dec),,,1.30%
-2026-01-22,Thursday,20:00,MXN,Low,1st Half-Month CPI  (Jan),,,0.17%
-2026-01-22,Thursday,20:00,MXN,Low,1st Half-Month Core CPI  (Jan),,,0.31%
+2026-01-22,Thursday,20:00,MXN,Low,1st Half-Month CPI  (Jan),,0.37%,0.17%
+2026-01-22,Thursday,20:00,MXN,Low,1st Half-Month Core CPI  (Jan),,0.39%,0.31%
 2026-01-22,Thursday,20:30,EUR,Medium,ECB Publishes Account of Monetary Policy Meeting,,,
+2026-01-22,Thursday,21:00,CNY,Low,FDI  (Dec),,,-7.50%
 2026-01-22,Thursday,21:00,RUB,Low,Central Bank reserves (USD),,,752.5B
 2026-01-22,Thursday,21:30,CAD,Medium,New Housing Price Index (MoM)  (Dec),,-0.2%,0.0%
 2026-01-22,Thursday,21:30,USD,High,GDP (QoQ)  (Q3),,4.3%,3.8%
-2026-01-22,Thursday,21:30,USD,High,Initial Jobless Claims,,203K,198K
-2026-01-22,Thursday,21:30,USD,Low,Corporate Profits (QoQ)  (Q3),,4.4%,4.4%
+2026-01-22,Thursday,21:30,USD,High,Initial Jobless Claims,,209K,198K
+2026-01-22,Thursday,21:30,USD,Low,Corporate Profits (QoQ)  (Q3),,4.4%,0.2%
 2026-01-22,Thursday,21:30,USD,Low,GDP Sales  (Q3),,4.6%,7.5%
 2026-01-22,Thursday,21:30,USD,Low,Jobless Claims 4-Week Avg.,,,205.00K
 2026-01-22,Thursday,21:30,USD,Low,PCE Prices  (Q3),,2.8%,2.1%
@@ -1529,21 +1530,22 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-22,Thursday,21:30,USD,Medium,GDP Price Index (QoQ)  (Q3),,3.8%,2.1%
 2026-01-22,Thursday,23:00,COP,Low,Imports (YoY)  (Nov),,,14.90%
 2026-01-22,Thursday,23:00,COP,Low,Trade Balance (USD)  (Nov),,,-1.913B
+2026-01-22,Thursday,23:00,EUR,Low,Consumer Confidence  (Jan),,-13.0,-13.1
 2026-01-22,Thursday,23:00,USD,High,Core PCE Price Index (MoM)  (Nov),,0.2%,0.2%
 2026-01-22,Thursday,23:00,USD,High,Core PCE Price Index (YoY)  (Nov),,2.7%,2.8%
 2026-01-22,Thursday,23:00,USD,Low,Dallas Fed PCE  (Nov),,,1.90%
 2026-01-22,Thursday,23:00,USD,Low,Personal Income (MoM)  (Nov),,0.4%,0.4%
 2026-01-22,Thursday,23:00,USD,Low,Real Personal Consumption (MoM)  (Nov),,,0.1%
-2026-01-22,Thursday,23:00,USD,Medium,PCE Price index (YoY)  (Nov),,,2.8%
+2026-01-22,Thursday,23:00,USD,Medium,PCE Price index (YoY)  (Nov),,2.8%,2.8%
 2026-01-22,Thursday,23:00,USD,Medium,PCE price index (MoM)  (Nov),,0.2%,0.3%
 2026-01-22,Thursday,23:00,USD,Medium,Personal Spending (MoM)  (Nov),,0.5%,0.4%
-2026-01-22,Thursday,23:30,USD,Low,Natural Gas Storage,,,-71B
+2026-01-22,Thursday,23:30,USD,Low,Natural Gas Storage,,-82B,-71B
 2026-01-23,Friday,All Day,,Holiday,Oman - Al Isra' wal-Mi'raj,,,
 2026-01-23,Friday,00:00,USD,Low,KC Fed Composite Index  (Jan),,,1
 2026-01-23,Friday,00:00,USD,Low,KC Fed Manufacturing Index  (Jan),,,-3
 2026-01-23,Friday,00:30,USD,Low,4-Week Bill Auction,,,3.595%
 2026-01-23,Friday,00:30,USD,Low,8-Week Bill Auction,,,3.600%
-2026-01-23,Friday,01:00,USD,High,Crude Oil Inventories,,,3.391M
+2026-01-23,Friday,01:00,USD,High,Crude Oil Inventories,,-2.500M,3.391M
 2026-01-23,Friday,01:00,USD,Low,Crude Oil Imports,,,0.710M
 2026-01-23,Friday,01:00,USD,Low,Distillate Fuel Production,,,-0.019M
 2026-01-23,Friday,01:00,USD,Low,EIA Refinery Crude Runs  (WoW),,,0.049M
@@ -1552,6 +1554,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-23,Friday,01:00,USD,Low,Gasoline Inventories,,,8.977M
 2026-01-23,Friday,01:00,USD,Low,Gasoline Production,,,0.029M
 2026-01-23,Friday,01:00,USD,Low,Heating Oil Stockpiles,,,-0.745M
+2026-01-23,Friday,01:00,USD,Medium,Atlanta Fed GDPNow  (Q4),,,
 2026-01-23,Friday,01:00,USD,Medium,Cushing Crude Oil Inventories,,,0.745M
 2026-01-23,Friday,02:00,USD,Medium,10-Year TIPS Auction,,,1.843%
 2026-01-23,Friday,03:00,ARS,Low,Retail Sales (YoY)  (Nov),,,27.8%
@@ -1630,6 +1633,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-23,Friday,23:00,USD,Medium,Michigan 5-Year Inflation Expectations  (Jan),,3.4%,3.4%
 2026-01-23,Friday,23:00,USD,Medium,Michigan Consumer Expectations  (Jan),,55.0,55.0
 2026-01-23,Friday,23:00,USD,Medium,Michigan Consumer Sentiment  (Jan),,54.0,54.0
+2026-01-23,Friday,23:00,USD,Medium,US Leading Index (MoM)  (Nov),,,-0.3%
 2026-01-24,Saturday,All Day,,Holiday,Oman - Al Isra' wal-Mi'raj,,,
 2026-01-24,Saturday,00:00,COP,Low,Retail Sales (YoY)  (Nov),,,10.0%
 2026-01-24,Saturday,01:10,EUR,Low,Consumer Confidence  (Jan),,,-13.1
@@ -1661,21 +1665,28 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-26,Monday,All Day,,Holiday,Australia - Australia Day,,,
 2026-01-26,Monday,All Day,,Holiday,India - Republic Day,,,
 2026-01-26,Monday,All Day,,Holiday,Oman - Al Isra' wal-Mi'raj,,,
+2026-01-26,Monday,13:00,JPY,Low,Coincident Indicator (MoM)  (Nov),,,-0.7%
+2026-01-26,Monday,13:00,JPY,Low,Leading Index  (Nov),,,110.5
+2026-01-26,Monday,13:00,JPY,Low,Leading Index (MoM)  (Nov),,,0.7%
+2026-01-26,Monday,13:00,SGD,Low,Industrial Production (MoM)  (Dec),,,-10.2%
+2026-01-26,Monday,13:00,SGD,Low,Industrial Production (YoY)  (Dec),,,14.3%
 2026-01-26,Monday,14:00,EUR,Low,Finnish Export Price Index (YoY)  (Dec),,,-1.1%
 2026-01-26,Monday,14:00,EUR,Low,Finnish Import Price Index (YoY)  (Dec),,,-2.7%
 2026-01-26,Monday,14:00,EUR,Low,Finnish PPI (YoY)  (Dec),,,0.2%
+2026-01-26,Monday,16:00,EUR,Low,Spanish PPI (YoY)  (Dec),,,-2.5%
 2026-01-26,Monday,17:00,EUR,Medium,German Business Expectations  (Jan),,,89.7
 2026-01-26,Monday,17:00,EUR,Medium,German Current Assessment  (Jan),,,85.6
 2026-01-26,Monday,17:00,EUR,Medium,German Ifo Business Climate Index  (Jan),,,87.6
 2026-01-26,Monday,17:00,PLN,Low,Retail Sales (YoY)  (Dec),,,2.8%
+2026-01-26,Monday,19:00,BRL,Low,FGV Consumer confidence  (Jan),,,90.2
 2026-01-26,Monday,19:25,BRL,Low,BCB Focus Market Readout,,,
 2026-01-26,Monday,19:30,BRL,Low,Current Account (USD)  (Dec),,,-4.94B
 2026-01-26,Monday,19:30,BRL,Low,Foreign direct investment (USD)  (Dec),,,9.82B
 2026-01-26,Monday,20:00,MXN,Low,Unemployment Rate  (Dec),,,2.70%
 2026-01-26,Monday,20:00,MXN,Low,Unemployment Rate n.s.a.  (Dec),,,2.70%
 2026-01-26,Monday,21:00,PLN,Low,M3 Money Supply (YoY)  (Dec),,,10.6%
-2026-01-26,Monday,21:00,USD,Low,Chicago Fed National Activity  (Oct),,,-0.21
 2026-01-26,Monday,21:30,USD,High,Durable Goods Orders (MoM)  (Nov),,,-2.2%
+2026-01-26,Monday,21:30,USD,Low,Chicago Fed National Activity  (Nov),,,-0.21
 2026-01-26,Monday,21:30,USD,Low,Durables Excluding Defense (MoM)  (Nov),,,-1.5%
 2026-01-26,Monday,21:30,USD,Low,Goods Orders Non Defense Ex Air (MoM)  (Nov),,,0.5%
 2026-01-26,Monday,21:30,USD,Medium,Core Durable Goods Orders (MoM)  (Nov),,,0.1%
@@ -1686,13 +1697,18 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-26,Monday,23:30,USD,Low,Dallas Fed Mfg Business Index  (Jan),,,-10.9
 2026-01-26,Monday,23:30,USD,Medium,Atlanta Fed GDPNow  (Q4),,,
 2026-01-27,Tuesday,00:00,RUB,Low,Industrial Production (YoY)  (Dec),,,-0.7%
+2026-01-27,Tuesday,00:30,USD,Low,3-Month Bill Auction,,,3.590%
+2026-01-27,Tuesday,00:30,USD,Low,6-Month Bill Auction,,,3.520%
+2026-01-27,Tuesday,02:00,USD,Medium,2-Year Note Auction,,,3.499%
 2026-01-27,Tuesday,05:00,KRW,Low,Consumer Confidence  (Jan),,,109.9
 2026-01-27,Tuesday,08:30,AUD,Low,NAB Business Survey  (Dec),,,7
 2026-01-27,Tuesday,08:30,AUD,Medium,NAB Business Confidence  (Dec),,,1
+2026-01-27,Tuesday,09:00,EUR,Low,Irish Consumer Confidence  (Jan),,,61.2
 2026-01-27,Tuesday,09:00,PHP,Low,Exports (YoY)  (Dec),,,21.3%
 2026-01-27,Tuesday,09:00,PHP,Low,Imports (YoY)  (Dec),,,-2.0%
 2026-01-27,Tuesday,09:00,PHP,Low,Trade Balance  (Dec),,,"-3,514.0M"
 2026-01-27,Tuesday,09:30,CNY,Low,Chinese Industrial profit YTD  (Dec),,,0.1%
+2026-01-27,Tuesday,10:00,NZD,Low,Credit Card Spending (YoY)  (Dec),,,4.7%
 2026-01-27,Tuesday,13:00,CZK,Low,Car Registration (MoM)  (Dec),,,-8.50%
 2026-01-27,Tuesday,13:00,CZK,Low,Car Registration (YoY)  (Dec),,,3.30%
 2026-01-27,Tuesday,13:00,EUR,Low,Car Registration (MoM)  (Dec),,,2.5%
@@ -1717,6 +1733,8 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-27,Tuesday,15:00,DKK,Low,Retail Sales (YoY)  (Dec),,,4.7%
 2026-01-27,Tuesday,15:00,EUR,Low,Lithuania Industrial Production (MoM)  (Dec),,,5.80%
 2026-01-27,Tuesday,15:00,EUR,Low,Lithuania Industrial Production (YoY)  (Dec),,,2.60%
+2026-01-27,Tuesday,15:00,EUR,Low,Lithuania Retail Sales (MoM)  (Dec),,,-2.4%
+2026-01-27,Tuesday,15:00,EUR,Low,Lithuania Retail Sales (YoY)  (Dec),,,3.2%
 2026-01-27,Tuesday,15:00,SEK,Low,PPI (MoM)  (Dec),,,1.2%
 2026-01-27,Tuesday,15:00,SEK,Low,PPI (YoY)  (Dec),,,-1.4%
 2026-01-27,Tuesday,15:00,SEK,Low,Trade Balance  (Dec),,,11.60B
@@ -1725,13 +1743,20 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-27,Tuesday,16:00,EUR,Low,Spanish Unemployment Rate  (Q4),,,10.45%
 2026-01-27,Tuesday,16:30,HKD,Low,Exports (MoM)  (Dec),,,18.8%
 2026-01-27,Tuesday,16:30,HKD,Low,Imports (MoM)  (Dec),,,18.1%
+2026-01-27,Tuesday,16:30,HKD,Low,Trade Balance  (Dec),,,-48.5B
 2026-01-27,Tuesday,17:00,PLN,Low,Unemployment Rate  (Dec),,,5.6%
+2026-01-27,Tuesday,18:30,EUR,Low,German 2-Year Schatz Auction,,,2.110%
 2026-01-27,Tuesday,19:00,BRL,Low,FGV Consumer confidence  (Jan),,,90.2
 2026-01-27,Tuesday,20:00,BRL,Low,Mid-Month CPI (MoM)  (Jan),,,0.25%
 2026-01-27,Tuesday,20:00,BRL,Low,Mid-Month CPI (YoY)  (Jan),,,4.41%
 2026-01-27,Tuesday,20:00,MXN,Low,Trade Balance  (Dec),,,0.663B
 2026-01-27,Tuesday,20:00,MXN,Low,Trade Balance (USD)  (Dec),,,-0.274B
 2026-01-27,Tuesday,21:00,HUF,Low,Interest Rate Decision  (Jan),,,6.50%
+2026-01-27,Tuesday,21:00,KWD,Low,Bank Lending (YoY)  (Dec),,,6.98%
+2026-01-27,Tuesday,21:00,KWD,Low,M2 Money Supply (YoY)  (Dec),,,3.27%
+2026-01-27,Tuesday,21:15,USD,Medium,ADP Employment Change Weekly,,,8.00K
+2026-01-27,Tuesday,21:30,CAD,Medium,Wholesale Sales (MoM)  (Dec),,,
+2026-01-27,Tuesday,21:55,USD,Low,Redbook (YoY),,,5.7%
 2026-01-27,Tuesday,22:00,USD,Low,House Price Index  (Nov),,,436.7
 2026-01-27,Tuesday,22:00,USD,Low,House Price Index (MoM)  (Nov),,,0.4%
 2026-01-27,Tuesday,22:00,USD,Low,House Price Index (YoY)  (Nov),,,1.7%
@@ -1744,37 +1769,63 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-27,Tuesday,23:00,USD,Low,Richmond Services Index  (Jan),,,-6
 2026-01-27,Tuesday,23:30,USD,Low,Dallas Fed Services Revenues  (Jan),,,0.1
 2026-01-27,Tuesday,23:30,USD,Low,Texas Services Sector Outlook  (Jan),,,-3.3
+2026-01-28,Wednesday,02:00,USD,Low,M2 Money Supply (MoM)  (Dec),,,22.30T
+2026-01-28,Wednesday,02:00,USD,Medium,5-Year Note Auction,,,3.747%
 2026-01-28,Wednesday,05:00,CLP,Low,Interest Rate Decision  (Jan),,,4.50%
+2026-01-28,Wednesday,07:50,JPY,Medium,Monetary Policy Meeting Minutes,,,
+2026-01-28,Wednesday,08:30,AUD,Low,CPI Index Number  (Dec),,,100.01
 2026-01-28,Wednesday,08:30,AUD,Low,CPI Index Number  (Q4),,,143.60
+2026-01-28,Wednesday,08:30,AUD,Low,Monthly CPI Indicator (YoY)  (Dec),,,3.40%
 2026-01-28,Wednesday,08:30,AUD,Low,Trimmed Mean CPI (YoY)  (Q4),,,3.0%
 2026-01-28,Wednesday,08:30,AUD,Low,Weighted mean CPI (QoQ)  (Q4),,,1.0%
 2026-01-28,Wednesday,08:30,AUD,Low,Weighted mean CPI (YoY)  (Q4),,,2.8%
 2026-01-28,Wednesday,08:30,AUD,Medium,CPI (QoQ)  (Q4),,,1.3%
 2026-01-28,Wednesday,08:30,AUD,Medium,CPI (YoY)  (Q4),,,3.2%
+2026-01-28,Wednesday,08:30,AUD,Medium,Trimmed Mean CPI (QoQ)  (Dec),,,0.3%
 2026-01-28,Wednesday,08:30,AUD,Medium,Trimmed Mean CPI (QoQ)  (Q4),,,1.0%
+2026-01-28,Wednesday,10:00,LKR,Low,Interest Rate Decision (MoM),,,7.75%
 2026-01-28,Wednesday,15:00,DKK,Low,M3 Money Supply  (Dec),,,"2,071,019.4B"
 2026-01-28,Wednesday,15:00,EUR,Medium,GfK German Consumer Climate  (Feb),,,-26.9
+2026-01-28,Wednesday,17:00,CHF,Low,ZEW Expectations  (Jan),,,6.2
 2026-01-28,Wednesday,17:00,EUR,Low,Bank Austria Manufacturing PMI  (Jan),,,49.3
 2026-01-28,Wednesday,17:00,EUR,Low,Italian Business Confidence  (Jan),,,88.4
 2026-01-28,Wednesday,17:00,EUR,Low,Italian Consumer Confidence  (Jan),,,96.6
+2026-01-28,Wednesday,18:10,EUR,Low,Italian 6-Month BOT Auction,,,2.036%
+2026-01-28,Wednesday,18:30,EUR,Medium,German 10-Year Bund Auction,,,2.830%
 2026-01-28,Wednesday,18:30,INR,Low,Cumulative Industrial Production  (Dec),,,3.30%
 2026-01-28,Wednesday,18:30,INR,Low,Industrial Production (YoY)  (Dec),,,6.7%
 2026-01-28,Wednesday,18:30,INR,Low,Manufacturing Output (MoM)  (Dec),,,8.0%
+2026-01-28,Wednesday,19:00,EUR,Low,Irish Retail Sales (MoM)  (Dec),,,0.5%
+2026-01-28,Wednesday,19:00,EUR,Low,Irish Retail Sales (YoY)  (Dec),,,2.5%
 2026-01-28,Wednesday,19:00,GHS,Low,Prime Interest Rate (MoM)  (Jan),,,18.00%
+2026-01-28,Wednesday,20:00,USD,Low,MBA 30-Year Mortgage Rate,,,6.16%
+2026-01-28,Wednesday,20:00,USD,Low,MBA Mortgage Applications (WoW),,,14.1%
+2026-01-28,Wednesday,20:00,USD,Low,MBA Purchase Index,,,194.1
+2026-01-28,Wednesday,20:00,USD,Low,Mortgage Market Index,,,397.2
+2026-01-28,Wednesday,20:00,USD,Low,Mortgage Refinance Index,,,"1,580.8"
+2026-01-28,Wednesday,22:00,MZN,Low,Interest Rate Decision (MoM),,,9.50%
+2026-01-28,Wednesday,22:45,CAD,High,BoC Interest Rate Decision,,,2.25%
+2026-01-28,Wednesday,22:45,CAD,Medium,BoC Monetary Policy Report,,,
+2026-01-28,Wednesday,23:30,CAD,Medium,BOC Press Conference,,,
 2026-01-28,Wednesday,,,Holiday,Malaysia - Chinese New Year - Early close at 12:30,,,
 2026-01-29,Thursday,All Day,,Holiday,Malaysia - Chinese New Year,,,
 2026-01-29,Thursday,00:00,RUB,Low,PPI (MoM)  (Dec),,,-0.9%
 2026-01-29,Thursday,00:00,RUB,Low,PPI (YoY)  (Dec),,,-1.1%
 2026-01-29,Thursday,03:00,USD,High,Fed Interest Rate Decision,,3.75%,3.75%
+2026-01-29,Thursday,03:30,USD,High,FOMC Press Conference,,,
+2026-01-29,Thursday,05:30,BRL,Medium,Interest Rate Decision,,,15.00%
 2026-01-29,Thursday,05:45,NZD,Low,Exports  (Dec),,,6.99B
 2026-01-29,Thursday,05:45,NZD,Low,Imports  (Dec),,,7.15B
 2026-01-29,Thursday,05:45,NZD,Low,Trade Balance (MoM)  (Dec),,,-163M
 2026-01-29,Thursday,05:45,NZD,Low,Trade Balance (YoY)  (Dec),,,"-2,060M"
+2026-01-29,Thursday,08:00,NZD,Low,ANZ Business Confidence  (Jan),,,73.6
 2026-01-29,Thursday,08:30,AUD,Low,Export Price Index (QoQ)  (Q4),,,-0.9%
 2026-01-29,Thursday,08:30,AUD,Low,Import Price Index (QoQ)  (Q4),,,-0.4%
 2026-01-29,Thursday,10:00,PHP,Low,GDP (QoQ)  (Q4),,,0.4%
 2026-01-29,Thursday,10:00,PHP,Low,GDP (YoY)  (Q4),,,4.0%
+2026-01-29,Thursday,13:00,JPY,Low,Construction Orders (YoY)  (Dec),,,9.5%
 2026-01-29,Thursday,13:00,JPY,Low,Household Confidence  (Jan),,,37.2
+2026-01-29,Thursday,13:00,JPY,Low,Housing Starts (YoY)  (Dec),,,-8.5%
 2026-01-29,Thursday,14:00,SEK,Medium,GDP (QoQ)  (Q4),,,1.1%
 2026-01-29,Thursday,14:00,SEK,Medium,GDP (YoY)  (Q4),,,2.6%
 2026-01-29,Thursday,15:00,CHF,Low,Trade Balance  (Dec),,,3.841B
@@ -1788,14 +1839,18 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-29,Thursday,15:00,TRY,Low,Unemployment Rate (MoM)  (Dec),,,8.6%
 2026-01-29,Thursday,15:30,HUF,Low,PPI (YoY)  (Dec),,,-2.7%
 2026-01-29,Thursday,15:30,HUF,Low,Trade Balance (EUR) (MoM)  (Dec),,,-121.0M
+2026-01-29,Thursday,16:00,EUR,Low,Spanish Retail Sales (YoY)  (Dec),,,6.0%
+2026-01-29,Thursday,16:00,SEK,Low,Business Confidence  (Jan),,,107.40
 2026-01-29,Thursday,16:00,SEK,Low,Consumer Confidence  (Jan),,,95.8
 2026-01-29,Thursday,16:00,SEK,Low,Manufacturing Confidence  (Jan),,,103.8
 2026-01-29,Thursday,16:00,ZMK,Low,CPI (MoM)  (Jan),,,1.5%
 2026-01-29,Thursday,16:00,ZMK,Low,CPI (YoY)  (Jan),,,11.2%
+2026-01-29,Thursday,16:30,SEK,Medium,Interest Rate Decision,,,1.75%
 2026-01-29,Thursday,17:00,EUR,Low,Italian Trade Balance Non-EU  (Dec),,,6.92B
 2026-01-29,Thursday,17:00,EUR,Low,Loans to Non Financial Corporations  (Dec),,,3.1%
 2026-01-29,Thursday,17:00,EUR,Low,M3 Money Supply  (Dec),,,"17,189.3B"
 2026-01-29,Thursday,17:00,EUR,Low,M3 Money Supply (YoY)  (Dec),,,3.0%
+2026-01-29,Thursday,17:00,EUR,Low,Private Sector Loans (YoY)  (Dec),,,2.9%
 2026-01-29,Thursday,17:00,ISK,Low,CPI (MoM)  (Jan),,,1.2%
 2026-01-29,Thursday,17:00,ISK,Low,CPI (YoY)  (Jan),,,4.5%
 2026-01-29,Thursday,17:30,EUR,Low,Portuguese Business Confidence  (Jan),,,3.1
@@ -1803,27 +1858,57 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-29,Thursday,17:30,ZAR,Low,PPI (MoM)  (Dec),,,0.0%
 2026-01-29,Thursday,17:30,ZAR,Low,PPI (YoY)  (Dec),,,2.9%
 2026-01-29,Thursday,18:00,EUR,Low,Belgian GDP (QoQ)  (Q4),,,0.3%
+2026-01-29,Thursday,18:00,EUR,Low,Business Climate  (Jan),,,-0.56
+2026-01-29,Thursday,18:00,EUR,Low,Business and Consumer Survey  (Jan),,,96.7
+2026-01-29,Thursday,18:00,EUR,Low,Consumer Confidence  (Jan),,,-13.1
+2026-01-29,Thursday,18:00,EUR,Low,Consumer Inflation Expectation  (Jan),,,26.7
 2026-01-29,Thursday,18:00,EUR,Low,Greek PPI (YoY)  (Dec),,,0.1%
 2026-01-29,Thursday,18:00,EUR,Low,Greek Retail Sales (YoY)  (Nov),,,4.2%
 2026-01-29,Thursday,18:00,EUR,Low,Greek Unemployment Rate  (Dec),,,8.2%
+2026-01-29,Thursday,18:00,EUR,Low,Industrial Sentiment  (Jan),,,-9.0
 2026-01-29,Thursday,18:00,EUR,Low,Italian Industrial Sales (MoM)  (Nov),,,-0.50%
 2026-01-29,Thursday,18:00,EUR,Low,Italian Industrial Sales (YoY)  (Nov),,,1.70%
+2026-01-29,Thursday,18:00,EUR,Low,Selling Price Expectations  (Jan),,,10.9
+2026-01-29,Thursday,18:00,EUR,Low,Services Sentiment  (Jan),,,5.6
 2026-01-29,Thursday,18:30,EUR,Low,Belgium CPI (MoM)  (Jan),,,0.07%
 2026-01-29,Thursday,18:30,EUR,Low,Belgium CPI (YoY)  (Jan),,,2.06%
+2026-01-29,Thursday,19:00,EUR,Low,Irish GDP (QoQ)  (Q4),,,-0.3%
+2026-01-29,Thursday,19:00,EUR,Low,Irish GDP (YoY)  (Q4),,,10.8%
 2026-01-29,Thursday,19:00,EUR,Low,Latvian Retail Sales (MoM)  (Dec),,,0.30%
 2026-01-29,Thursday,19:00,EUR,Low,Latvian Retail Sales (YoY)  (Dec),,,3.30%
+2026-01-29,Thursday,19:00,EUR,Low,Spanish Business Confidence  (Jan),,,-3.5
+2026-01-29,Thursday,19:00,EUR,Medium,France Jobseekers Total  (Dec),,,"3,129.3K"
+2026-01-29,Thursday,19:00,TRY,Low,CBRT Monetary Policy Meeting Minutes,,,
 2026-01-29,Thursday,19:30,BRL,Low,Bank lending (MoM)  (Dec),,,0.9%
+2026-01-29,Thursday,19:30,TRY,Low,Gross FX Reserves,,,
+2026-01-29,Thursday,20:00,CLP,Low,Unemployment Rate  (Dec),,,8.4%
+2026-01-29,Thursday,20:00,MWK,Low,Bank Rate,,,26.00%
+2026-01-29,Thursday,20:00,UAH,Low,Interest Rate Decision,,,15.50%
 2026-01-29,Thursday,21:00,UAH,Low,Trade Balance YTD (USD)  (Oct),,,-30.6B
+2026-01-29,Thursday,21:00,ZAR,Low,Prime Rate  (Jan),,,10.25%
+2026-01-29,Thursday,21:00,ZAR,Medium,Interest Rate Decision  (Jan),,,6.75%
 2026-01-29,Thursday,21:30,CAD,Low,Average Weekly Earnings (YoY)  (Nov),,,2.18%
+2026-01-29,Thursday,21:30,CAD,Low,Exports  (Nov),,,65.61B
+2026-01-29,Thursday,21:30,CAD,Low,Imports  (Nov),,,66.19B
+2026-01-29,Thursday,21:30,CAD,Medium,Trade Balance  (Nov),,,-0.58B
+2026-01-29,Thursday,21:30,EUR,Low,Austrian Unemployment Change,,,
+2026-01-29,Thursday,21:30,USD,High,Initial Jobless Claims,,,
+2026-01-29,Thursday,21:30,USD,Low,Jobless Claims 4-Week Avg.,,,
+2026-01-29,Thursday,21:30,USD,Medium,Exports  (Nov),,,302.00B
+2026-01-29,Thursday,21:30,USD,Medium,Imports  (Nov),,,331.40B
 2026-01-29,Thursday,21:30,USD,Medium,Nonfarm Productivity (QoQ)  (Q3),,,4.9%
 2026-01-29,Thursday,21:30,USD,Medium,Trade Balance  (Nov),,,-29.40B
 2026-01-29,Thursday,21:30,USD,Medium,Unit Labor Costs (QoQ)  (Q3),,,-1.9%
+2026-01-29,Thursday,22:00,SAR,Low,M3 Money Supply (YoY)  (Dec),,,6.60%
+2026-01-29,Thursday,22:00,SAR,Low,Private Sector Loans (YoY)  (Dec),,,10.60%
+2026-01-29,Thursday,23:00,USD,Low,Dallas Fed PCE  (Oct),,,1.90%
 2026-01-29,Thursday,23:00,USD,Low,Durables Excluding Defense (MoM)  (Nov),,,-1.5%
 2026-01-29,Thursday,23:00,USD,Low,Durables Excluding Transport (MoM)  (Nov),,,0.2%
 2026-01-29,Thursday,23:00,USD,Low,Factory orders ex transportation (MoM)  (Nov),,,-0.2%
 2026-01-29,Thursday,23:00,USD,Low,Wholesale Inventories (MoM)  (Nov),,,0.2%
 2026-01-29,Thursday,23:00,USD,Low,Wholesale Trade Sales (MoM)  (Nov),,,-0.4%
 2026-01-29,Thursday,23:00,USD,Medium,Factory Orders (MoM)  (Nov),,,-1.3%
+2026-01-29,Thursday,23:30,USD,Low,Natural Gas Storage,,,
 2026-01-30,Friday,01:00,USD,Medium,Atlanta Fed GDPNow  (Q4),,,
 2026-01-30,Friday,07:00,KRW,Low,Industrial Production (MoM)  (Dec),,,0.6%
 2026-01-30,Friday,07:00,KRW,Low,Industrial Production (YoY)  (Dec),,,-1.4%
