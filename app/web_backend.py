@@ -1661,23 +1661,8 @@ class WebAgentBackend:
             'del "%~f0"\n'
         )
         script_path.write_text(script, encoding="utf-8")
-        creationflags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
         self.logger.info("Restart script ready: %s", script_path)
-        ps_cmd = f'Start-Process -FilePath "{script_path}" -WindowStyle Hidden'
-        subprocess.Popen(
-            [
-                "powershell",
-                "-NoProfile",
-                "-WindowStyle",
-                "Hidden",
-                "-ExecutionPolicy",
-                "Bypass",
-                "-Command",
-                ps_cmd,
-            ],
-            creationflags=creationflags,
-        )
-        self.logger.info("Restart script launched: %s", script_path)
+        self._launch_hidden_script(script_path, "Restart")
         restart_delay_seconds = 3
         self._restart_deadline = datetime.now() + timedelta(
             seconds=restart_delay_seconds
@@ -1720,23 +1705,8 @@ class WebAgentBackend:
             setup_exe_path,
         )
         script_path.write_text(script, encoding="utf-8")
-        creationflags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
         self.logger.info("Staged update script ready: %s", script_path)
-        ps_cmd = f'Start-Process -FilePath "{script_path}" -WindowStyle Hidden'
-        subprocess.Popen(
-            [
-                "powershell",
-                "-NoProfile",
-                "-WindowStyle",
-                "Hidden",
-                "-ExecutionPolicy",
-                "Bypass",
-                "-Command",
-                ps_cmd,
-            ],
-            creationflags=creationflags,
-        )
-        self.logger.info("Staged update script launched: %s", script_path)
+        self._launch_hidden_script(script_path, "Staged update")
         restart_delay_seconds = 3
         self._restart_deadline = datetime.now() + timedelta(
             seconds=restart_delay_seconds
@@ -3550,23 +3520,8 @@ class WebAgentBackend:
                 'del "%~f0"\n'
             )
         script_path.write_text(script, encoding="utf-8")
-        creationflags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
         self.logger.info("Update install script ready: %s", script_path)
-        ps_cmd = f'Start-Process -FilePath "{script_path}" -WindowStyle Hidden'
-        subprocess.Popen(
-            [
-                "powershell",
-                "-NoProfile",
-                "-WindowStyle",
-                "Hidden",
-                "-ExecutionPolicy",
-                "Bypass",
-                "-Command",
-                ps_cmd,
-            ],
-            creationflags=creationflags,
-        )
-        self.logger.info("Update install script launched: %s", script_path)
+        self._launch_hidden_script(script_path, "Update install")
         with self._update_lock:
             self._update_install_prepared = True
             self._update_install_script_path = str(script_path)
@@ -3592,3 +3547,25 @@ class WebAgentBackend:
             ).start()
         else:
             threading.Timer(0.2, lambda: self._request_exit(force=True)).start()
+
+    def _launch_hidden_script(self, script_path: Path, label: str) -> None:
+        creationflags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+        if os.name != "nt":
+            subprocess.Popen([str(script_path)], creationflags=creationflags)
+            return
+        ps_cmd = f'Start-Process -FilePath "{script_path}" -WindowStyle Hidden'
+        subprocess.Popen(
+            [
+                "powershell",
+                "-NoProfile",
+                "-WindowStyle",
+                "Hidden",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-Command",
+                ps_cmd,
+            ],
+            creationflags=creationflags,
+        )
+        if label:
+            self.logger.info("%s script launched: %s", label, script_path)
