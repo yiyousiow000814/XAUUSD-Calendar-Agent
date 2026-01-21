@@ -1663,8 +1663,18 @@ class WebAgentBackend:
         script_path.write_text(script, encoding="utf-8")
         creationflags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
         self.logger.info("Restart script ready: %s", script_path)
+        ps_cmd = f'Start-Process -FilePath "{script_path}" -WindowStyle Hidden'
         subprocess.Popen(
-            ["cmd", "/c", str(script_path)],
+            [
+                "powershell",
+                "-NoProfile",
+                "-WindowStyle",
+                "Hidden",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-Command",
+                ps_cmd,
+            ],
             creationflags=creationflags,
         )
         self.logger.info("Restart script launched: %s", script_path)
@@ -1712,8 +1722,18 @@ class WebAgentBackend:
         script_path.write_text(script, encoding="utf-8")
         creationflags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
         self.logger.info("Staged update script ready: %s", script_path)
+        ps_cmd = f'Start-Process -FilePath "{script_path}" -WindowStyle Hidden'
         subprocess.Popen(
-            ["cmd", "/c", str(script_path)],
+            [
+                "powershell",
+                "-NoProfile",
+                "-WindowStyle",
+                "Hidden",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-Command",
+                ps_cmd,
+            ],
             creationflags=creationflags,
         )
         self.logger.info("Staged update script launched: %s", script_path)
@@ -1943,7 +1963,10 @@ class WebAgentBackend:
             "    ping -n 2 127.0.0.1 >nul\n"
             "  )\n"
             '  if exist "%STAGE_DIR%" (\n'
-            '    start "" cmd /c "ping -n 3 127.0.0.1 >nul & rmdir /s /q ""%STAGE_DIR%""" >nul\n'
+            "    powershell -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass "
+            '-Command "Start-Sleep -Seconds 3; '
+            "$p=$env:STAGE_DIR; if (Test-Path $p) { "
+            'Remove-Item -Recurse -Force -LiteralPath $p }" >nul 2>&1\n'
             '    echo STAGE_DIR_PENDING>>"%LOG_PATH%"\n'
             "  ) else (\n"
             '    echo STAGE_DIR_REMOVED>>"%LOG_PATH%"\n'
@@ -1960,7 +1983,10 @@ class WebAgentBackend:
             "    ping -n 2 127.0.0.1 >nul\n"
             "  )\n"
             '  if exist "%BACKUP_DIR%" (\n'
-            '    start "" cmd /c "ping -n 4 127.0.0.1 >nul & rmdir /s /q ""%BACKUP_DIR%""" >nul\n'
+            "    powershell -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass "
+            '-Command "Start-Sleep -Seconds 4; '
+            "$p=$env:BACKUP_DIR; if (Test-Path $p) { "
+            'Remove-Item -Recurse -Force -LiteralPath $p }" >nul 2>&1\n'
             '    echo BACKUP_DIR_PENDING>>"%LOG_PATH%"\n'
             "  ) else (\n"
             '    echo BACKUP_DIR_REMOVED>>"%LOG_PATH%"\n'
@@ -1983,9 +2009,13 @@ class WebAgentBackend:
             ")\n"
             'if exist "%STAGE_PARENT%" (\n'
             '  echo STAGE_ROOT_NOT_EMPTY>>"%LOG_PATH%"\n'
-            '  start "" cmd /c "ping -n 6 127.0.0.1 >nul & '
-            'dir /b /a ""%STAGE_PARENT%"" 2>nul | findstr /r "." >nul & '
-            'if errorlevel 1 rmdir ""%STAGE_PARENT%""" >nul\n'
+            "  powershell -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass "
+            '-Command "Start-Sleep -Seconds 6; '
+            "$p=$env:STAGE_PARENT; "
+            "if ($p -and (Test-Path $p)) { "
+            "$items = Get-ChildItem -LiteralPath $p -Force -ErrorAction SilentlyContinue; "
+            "if (-not $items) { Remove-Item -Force -LiteralPath $p -ErrorAction SilentlyContinue } "
+            '}" >nul 2>&1\n'
             '  echo STAGE_ROOT_PENDING>>"%LOG_PATH%"\n'
             ")\n"
             "goto stage_root_done\n"
@@ -3522,8 +3552,18 @@ class WebAgentBackend:
         script_path.write_text(script, encoding="utf-8")
         creationflags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
         self.logger.info("Update install script ready: %s", script_path)
+        ps_cmd = f'Start-Process -FilePath "{script_path}" -WindowStyle Hidden'
         subprocess.Popen(
-            ["cmd", "/c", str(script_path)],
+            [
+                "powershell",
+                "-NoProfile",
+                "-WindowStyle",
+                "Hidden",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-Command",
+                ps_cmd,
+            ],
             creationflags=creationflags,
         )
         self.logger.info("Update install script launched: %s", script_path)
