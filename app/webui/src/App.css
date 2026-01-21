@@ -416,71 +416,6 @@ html[data-theme="light"] .activity-hover-row.tone-error .activity-hover-level {
   filter: drop-shadow(0 0 6px rgba(134, 201, 255, 0.28));
 }
 
-.restart-countdown {
-  position: fixed;
-  top: var(--app-pad);
-  right: var(--app-pad);
-  border-radius: 999px;
-  padding: 9px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: linear-gradient(180deg, rgba(20, 24, 32, 0.86), rgba(20, 24, 32, 0.68));
-  color: var(--text);
-  font-size: 12px;
-  letter-spacing: 0.02em;
-  z-index: 410;
-  box-shadow:
-    0 18px 36px rgba(8, 10, 14, 0.35),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
-  backdrop-filter: var(--ui-backdrop-restart-pill);
-  -webkit-backdrop-filter: var(--ui-backdrop-restart-pill);
-  animation: restart-pill-in var(--motion-med) var(--motion-ease) forwards;
-}
-
-.restart-countdown::before {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  background: linear-gradient(
-    135deg,
-    rgba(134, 201, 255, 0.38),
-    rgba(243, 154, 183, 0.22),
-    rgba(255, 255, 255, 0)
-  );
-  opacity: 0.75;
-  pointer-events: none;
-  mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
-  -webkit-mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
-  mask-composite: exclude;
-  -webkit-mask-composite: xor;
-  padding: 1px;
-}
-
-.restart-countdown.closing {
-  animation: restart-pill-out var(--motion-med) var(--motion-ease) forwards;
-}
-
-@keyframes restart-pill-in {
-  from {
-    opacity: 0;
-    transform: translateY(-8px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes restart-pill-out {
-  from {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-6px) scale(0.98);
-  }
-}
 
 @media (max-width: 1100px) {
   .split-view {
@@ -637,11 +572,3 @@ html[data-theme="light"] .activity-hover-row.tone-error .activity-hover-level {
   filter: drop-shadow(0 0 6px rgba(30, 75, 143, 0.22));
 }
 
-[data-theme="light"] .restart-countdown {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.84));
-  border-color: rgba(18, 20, 26, 0.14);
-  color: rgba(18, 20, 26, 0.92);
-  box-shadow:
-    0 18px 32px rgba(30, 32, 40, 0.16),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.82);
-}
