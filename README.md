@@ -27,8 +27,7 @@
 
 ## License
 Personal, non-commercial research use by Individuals only. No redistribution or
-public sharing. Public promotion (mentions, screenshots, demo videos, and links
-to the official GitHub repo) is allowed. See [LICENSE](LICENSE).
+public sharing. Public promotion is allowed. See [LICENSE](LICENSE).
 
 ## Usage Notice
 > [!IMPORTANT]
