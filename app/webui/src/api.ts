@@ -430,7 +430,10 @@ export const backend = {
             window.clearInterval(timer);
           }
           mockUpdateTimers.download = undefined;
-          setMockUpdateState({ phase: "downloaded", message: "Download complete", progress: 1 });
+          setMockUpdateState({ phase: "installing", message: "Installing...", progress: 1 });
+          window.setTimeout(() => {
+            setMockUpdateState({ phase: "downloaded", message: "Install complete", progress: 1 });
+          }, 800);
           return;
         }
         setMockUpdateState({ progress });

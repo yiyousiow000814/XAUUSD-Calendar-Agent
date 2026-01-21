@@ -100,7 +100,7 @@ describe("App restart countdown", () => {
   it("shows restart countdown inside activity pill", async () => {
     const { unmount } = render(<App />);
     await waitFor(() => {
-      const matches = screen.getAllByText(/Updating 5s/i);
+      const matches = screen.getAllByText(/Restarting in 5s/i);
       const visible = matches.find((node) => node.getAttribute("aria-hidden") !== "true");
       expect(visible).toBeTruthy();
     });

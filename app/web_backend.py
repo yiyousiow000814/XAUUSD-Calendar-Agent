@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 import webbrowser
@@ -143,6 +146,11 @@ class WebAgentBackend:
         self._update_downloaded_bytes = 0
         self._update_total_bytes: int | None = None
         self._update_in_progress = False
+        self._update_install_prepared = False
+        self._update_install_script_path: str | None = None
+        self._update_install_completed = False
+        self._update_install_staging_dir: str | None = None
+        self._update_install_started_at: float | None = None
         self._ui_state_lock = threading.Lock()
         self._ui_state_seen_at: datetime | None = None
         self._ui_visible = True
@@ -175,6 +183,7 @@ class WebAgentBackend:
         self._request_snapshot_rebuild("startup")
         self._request_calendar_refresh("startup")
         self._ensure_startup_task_command()
+        self._cleanup_stale_update_staging()
         self.logger.info(
             "Backend init complete in %.0fms",
             (time.perf_counter() - init_started) * 1000,
@@ -1005,7 +1014,7 @@ class WebAgentBackend:
             ":wait\r\n"
             'tasklist /FI "PID eq %PID%" | findstr /I "%PID%" >nul\r\n'
             "if not errorlevel 1 (\r\n"
-            "  timeout /t 1 /nobreak >nul\r\n"
+            "  ping -n 2 127.0.0.1 >nul\r\n"
             "  goto wait\r\n"
             ")\r\n"
             "%UNINS% /VERYSILENT /SUPPRESSMSGBOXES /NORESTART\r\n"
@@ -1068,7 +1077,7 @@ class WebAgentBackend:
                 continue
             shutil.rmtree(candidate, ignore_errors=True)
 
-    def _request_exit(self) -> None:
+    def _request_exit(self, *, force: bool = False) -> None:
         try:
             self.shutdown()
         except Exception:  # noqa: BLE001
@@ -1079,6 +1088,8 @@ class WebAgentBackend:
             self.window.destroy()
         except Exception:  # noqa: BLE001
             pass
+        if force:
+            threading.Timer(1.5, lambda: os._exit(0)).start()
 
     def _find_uninstaller(self) -> str | None:
         if not sys.platform.startswith("win"):
@@ -1197,11 +1208,13 @@ class WebAgentBackend:
         )
         with self._update_lock:
             progress = 0.0
-            if self._update_total_bytes and self._update_total_bytes > 0:
-                progress = max(
-                    0.0,
-                    min(1.0, self._update_downloaded_bytes / self._update_total_bytes),
+            if self._update_phase == "installing":
+                progress = max(0.0, self._get_install_progress())
+            elif self._update_total_bytes and self._update_total_bytes > 0:
+                download_progress = min(
+                    1.0, self._update_downloaded_bytes / self._update_total_bytes
                 )
+                progress = max(0.0, min(0.9, download_progress * 0.9))
             elif self._update_phase in ("downloaded", "restarting"):
                 progress = 1.0
             return {
@@ -1228,6 +1241,11 @@ class WebAgentBackend:
             self._update_downloaded_bytes = 0
             self._update_total_bytes = None
             self._update_in_progress = False
+            self._update_install_prepared = False
+            self._update_install_script_path = None
+            self._update_install_completed = False
+            self._update_install_staging_dir = None
+            self._update_install_started_at = None
         self._run_task(
             lambda: self._check_updates_task(quiet=False), "Manual update check"
         )
@@ -1240,8 +1258,10 @@ class WebAgentBackend:
             if self._update_in_progress:
                 return {"ok": False, "message": "Update already in progress"}
             has_pending = bool(self._update_download_url)
-            is_downloaded = self._update_phase == "downloaded" and bool(
-                self._update_download_target
+            is_downloaded = (
+                self._update_phase == "downloaded"
+                and bool(self._update_download_target)
+                and self._update_install_completed
             )
 
         if is_downloaded:
@@ -1257,7 +1277,10 @@ class WebAgentBackend:
                     "message": result.get("message") or "No update available",
                 }
 
-        self._run_task(self._download_update_task, "Update now")
+        self._run_task(
+            lambda: self._download_update_task(start_install_on_download=True),
+            "Update now",
+        )
         return {"ok": True}
 
     def _append_notice(self, message: str, level: str = "INFO") -> None:
@@ -1293,6 +1316,9 @@ class WebAgentBackend:
             with self._update_lock:
                 self._update_phase = "idle"
                 self._update_message = "Update channel not configured"
+                self._update_install_completed = False
+                self._update_install_staging_dir = None
+                self._update_install_started_at = None
             return {
                 "ok": False,
                 "message": "Update channel not configured",
@@ -1308,6 +1334,9 @@ class WebAgentBackend:
             with self._update_lock:
                 self._update_phase = "idle"
                 self._update_message = info.message
+                self._update_install_completed = False
+                self._update_install_staging_dir = None
+                self._update_install_started_at = None
             return {"ok": False, "message": info.message, "updateAvailable": False}
 
         current_version = APP_VERSION
@@ -1320,12 +1349,18 @@ class WebAgentBackend:
                 self._update_available_version = ""
                 self._update_download_url = ""
                 self._update_download_target = None
+                self._update_install_completed = False
+                self._update_install_staging_dir = None
+                self._update_install_started_at = None
             return {"ok": True, "message": "Up to date", "updateAvailable": False}
 
         if not info.download_url:
             with self._update_lock:
                 self._update_phase = "idle"
                 self._update_message = "Release missing download URL"
+                self._update_install_completed = False
+                self._update_install_staging_dir = None
+                self._update_install_started_at = None
             return {
                 "ok": False,
                 "message": "Release missing download URL",
@@ -1346,7 +1381,7 @@ class WebAgentBackend:
             "version": info.version,
         }
 
-    def _download_update_task(self) -> None:
+    def _download_update_task(self, start_install_on_download: bool = False) -> None:
         with self._update_lock:
             if self._update_in_progress:
                 return
@@ -1358,6 +1393,11 @@ class WebAgentBackend:
             self._update_download_target = None
             self._update_downloaded_bytes = 0
             self._update_total_bytes = None
+            self._update_install_prepared = False
+            self._update_install_script_path = None
+            self._update_install_completed = False
+            self._update_install_staging_dir = None
+            self._update_install_started_at = None
 
         def on_progress(downloaded: int, total: int | None) -> None:
             with self._update_lock:
@@ -1365,6 +1405,7 @@ class WebAgentBackend:
                 self._update_total_bytes = total
 
         self._append_notice(f"Downloading update {version}", level="INFO")
+        self.logger.info("Update download url: %s", download_url)
         try:
             target = download_update(
                 download_url,
@@ -1389,13 +1430,571 @@ class WebAgentBackend:
                 )
         time.sleep(0.35)
 
-        with self._update_lock:
-            self._update_phase = "downloaded"
-            self._update_message = "Download complete"
-            self._update_download_target = str(target)
-            self._update_in_progress = False
+        self.logger.info("Update downloaded to: %s", target)
+        self._append_notice("Update downloaded", level="INFO")
+        install_result = "skipped"
+        if start_install_on_download:
+            install_result = self._run_background_install(Path(target))
+        if install_result == "done":
+            with self._update_lock:
+                staging_dir = self._update_install_staging_dir
+            if not staging_dir:
+                with self._update_lock:
+                    self._update_in_progress = False
+                    self._update_phase = "error"
+                    self._update_message = "Install failed (staging missing)"
+                self._append_notice(
+                    "Update install failed: staging missing", level="ERROR"
+                )
+                return
+            with self._update_lock:
+                self._update_phase = "downloaded"
+                self._update_message = "Install complete"
+                self._update_download_target = str(target)
+                self._update_in_progress = False
+                self._update_install_completed = True
+            self._append_notice("Update installed, ready to restart", level="INFO")
+        elif install_result == "failed":
+            return
+        else:
+            with self._update_lock:
+                self._update_phase = "downloaded"
+                self._update_message = "Download complete"
+                self._update_download_target = str(target)
+                self._update_in_progress = False
+            self._append_notice("Update downloaded, ready to install", level="INFO")
 
-        self._append_notice("Update downloaded, ready to install", level="INFO")
+    def _read_exe_version(self, exe_path: Path) -> str:
+        try:
+            command = [
+                "powershell",
+                "-NoProfile",
+                "-Command",
+                f"(Get-Item '{exe_path}').VersionInfo.FileVersion",
+            ]
+            creationflags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+            output = subprocess.check_output(
+                command,
+                text=True,
+                stderr=subprocess.DEVNULL,
+                creationflags=creationflags,
+            )
+            return (output or "").strip().splitlines()[0]
+        except Exception:  # noqa: BLE001
+            return ""
+
+    def _get_install_progress(self) -> float:
+        started_at = self._update_install_started_at
+        if not started_at:
+            return 0.9
+        elapsed = max(0.0, time.time() - started_at)
+        ramp = min(1.0, elapsed / 12.0)
+        return min(0.98, 0.9 + ramp * 0.08)
+
+    def _sanitize_update_label(self, value: str) -> str:
+        cleaned = re.sub(r"[^A-Za-z0-9._-]+", "_", value or "").strip("._-")
+        return cleaned or "update"
+
+    def _get_update_staging_root(self, version: str) -> Path:
+        base = os.environ.get("LOCALAPPDATA")
+        if not base:
+            base = str(Path.home() / "AppData" / "Local")
+        root = Path(base) / "XAUUSDCalendarAgent-staged"
+        label = self._sanitize_update_label(version)
+        return root / f"stage_{label}_{os.getpid()}"
+
+    def _cleanup_stale_update_staging(self) -> None:
+        if not sys.platform.startswith("win"):
+            return
+        base = os.environ.get("LOCALAPPDATA")
+        if not base:
+            base = str(Path.home() / "AppData" / "Local")
+        root = Path(base) / "XAUUSDCalendarAgent-staged"
+
+        def runner() -> None:
+            if not root.exists():
+                return
+            try:
+                items = list(root.iterdir())
+            except OSError:
+                return
+            stale_dirs = [p for p in items if p.is_dir()]
+            stale_files = [p for p in items if p.is_file()]
+            for stale_file in stale_files:
+                try:
+                    stale_file.unlink()
+                except OSError:
+                    continue
+            if not stale_dirs:
+                try:
+                    if not any(root.iterdir()):
+                        root.rmdir()
+                except OSError:
+                    return
+                return
+            removed_any = False
+            for stage_dir in stale_dirs:
+                try:
+                    shutil.rmtree(stage_dir)
+                    removed_any = True
+                except OSError:
+                    continue
+            if removed_any:
+                try:
+                    if not any(root.iterdir()):
+                        root.rmdir()
+                except OSError:
+                    return
+
+        threading.Thread(target=runner, daemon=True).start()
+
+    def _run_background_install(self, pending_path: Path) -> str:
+        asset_name = (self.state.get("github_release_asset_name") or "").lower()
+        is_setup = asset_name == "setup.exe" or asset_name.startswith("setup")
+        if not is_setup:
+            return "skipped"
+        with self._update_lock:
+            expected_version = self._update_available_version
+            self._update_phase = "installing"
+            self._update_message = "Installing..."
+            self._update_download_target = str(pending_path)
+            self._update_install_started_at = time.time()
+        log_path = pending_path.parent / f"update_setup_{os.getpid()}.log"
+        staging_root = self._get_update_staging_root(expected_version or "update")
+        try:
+            if staging_root.exists():
+                shutil.rmtree(staging_root)
+            staging_root.mkdir(parents=True, exist_ok=True)
+        except OSError as exc:
+            with self._update_lock:
+                self._update_in_progress = False
+                self._update_phase = "error"
+                self._update_message = f"Install failed: {exc}. Log: {log_path}"
+                self._update_install_started_at = None
+            self._append_notice(
+                f"Update install failed: {exc}. Log: {log_path}", level="ERROR"
+            )
+            return "failed"
+        args = [
+            str(pending_path),
+            "/VERYSILENT",
+            "/SUPPRESSMSGBOXES",
+            "/NORESTART",
+            "/NOCLOSEAPPLICATIONS",
+            f"/DIR={staging_root}",
+            f"/LOG={log_path}",
+        ]
+        self._append_notice("Installing update in background…", level="INFO")
+        creationflags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+        try:
+            result = subprocess.run(
+                args,
+                check=False,
+                creationflags=creationflags,
+            )
+        except Exception as exc:  # noqa: BLE001
+            with self._update_lock:
+                self._update_in_progress = False
+                self._update_phase = "error"
+                self._update_message = f"Install failed: {exc}. Log: {log_path}"
+            self._append_notice(
+                f"Update install failed: {exc}. Log: {log_path}", level="ERROR"
+            )
+            return "failed"
+        if result.returncode != 0:
+            with self._update_lock:
+                self._update_in_progress = False
+                self._update_phase = "error"
+                self._update_message = (
+                    f"Install failed (exit {result.returncode}). Log: {log_path}"
+                )
+                self._update_install_started_at = None
+            self._append_notice(
+                f"Update install failed (exit {result.returncode}). Log: {log_path}",
+                level="ERROR",
+            )
+            return "failed"
+        staged_exe = staging_root / "XAUUSD Calendar Agent.exe"
+        if not staged_exe.exists():
+            with self._update_lock:
+                self._update_in_progress = False
+                self._update_phase = "error"
+                self._update_message = f"Installed exe missing. Log: {log_path}"
+                self._update_install_started_at = None
+            self._append_notice(
+                f"Update install failed (staged exe missing). Log: {log_path}",
+                level="ERROR",
+            )
+            return "failed"
+        if expected_version:
+            installed_version = self._read_exe_version(staged_exe)
+            if installed_version and expected_version not in installed_version:
+                with self._update_lock:
+                    self._update_in_progress = False
+                    self._update_phase = "error"
+                    self._update_message = f"Install version mismatch. Log: {log_path}"
+                    self._update_install_started_at = None
+                self._append_notice(
+                    f"Update install version mismatch. Log: {log_path}",
+                    level="ERROR",
+                )
+                return "failed"
+        with self._update_lock:
+            self._update_install_staging_dir = str(staging_root)
+            self._update_install_started_at = None
+        return "done"
+
+    def _restart_after_update(self) -> None:
+        exe_path = Path(sys.executable)
+        launch_args = " --start-hidden" if self._update_restart_hidden_once else ""
+        script_path = get_update_dir() / f"restart_app_{os.getpid()}.cmd"
+        script = (
+            "@echo off\n"
+            f"set PID={os.getpid()}\n"
+            ":wait\n"
+            'tasklist /FI "PID eq %PID%" | findstr /I "%PID%" >nul\n'
+            "if not errorlevel 1 (\n"
+            "  ping -n 2 127.0.0.1 >nul\n"
+            "  goto wait\n"
+            ")\n"
+            f'start "" "{exe_path}"{launch_args}\n'
+            'del "%~f0"\n'
+        )
+        script_path.write_text(script, encoding="utf-8")
+        self.logger.info("Restart script ready: %s", script_path)
+        self._launch_hidden_script(script_path, "Restart")
+        restart_delay_seconds = 3
+        self._restart_deadline = datetime.now() + timedelta(
+            seconds=restart_delay_seconds
+        )
+        threading.Timer(
+            restart_delay_seconds, lambda: self._request_exit(force=True)
+        ).start()
+
+    def _apply_staged_update(
+        self, staging_root: Path, setup_exe_path: Path | None
+    ) -> None:
+        if not getattr(sys, "frozen", False):
+            self._append_notice(
+                "Auto update is available only in the EXE build", level="WARN"
+            )
+            return
+        exe_path = Path(sys.executable).resolve()
+        install_dir = exe_path.parent
+        stage_root = staging_root.resolve()
+        launch_args = " --start-hidden" if self._update_restart_hidden_once else ""
+        stage_parent = stage_root.parent
+        log_path = (
+            Path(tempfile.gettempdir()) / f"xauusd_update_switch_{os.getpid()}.log"
+        )
+        script_path = (
+            Path(tempfile.gettempdir()) / f"apply_staged_update_{os.getpid()}.cmd"
+        )
+        backup_dir = stage_parent / f"backup_{os.getpid()}"
+        user_data_backup = stage_parent / f"user_data_{os.getpid()}"
+        app_id = "3F6B2F3A-2A0F-4A93-9C5D-7E1D1C7F7D0E"
+        script = self._build_staged_update_script(
+            stage_root,
+            install_dir,
+            backup_dir,
+            user_data_backup,
+            log_path,
+            app_id,
+            launch_args,
+            os.getpid(),
+            setup_exe_path,
+        )
+        script_path.write_text(script, encoding="utf-8")
+        self.logger.info("Staged update script ready: %s", script_path)
+        self._launch_hidden_script(script_path, "Staged update")
+        restart_delay_seconds = 3
+        self._restart_deadline = datetime.now() + timedelta(
+            seconds=restart_delay_seconds
+        )
+        threading.Timer(
+            restart_delay_seconds, lambda: self._request_exit(force=True)
+        ).start()
+
+    @staticmethod
+    def _build_staged_update_script(
+        stage_root: Path,
+        install_dir: Path,
+        backup_dir: Path,
+        user_data_backup: Path,
+        log_path: Path,
+        app_id: str,
+        launch_args: str,
+        pid: int,
+        setup_exe_path: Path | None,
+    ) -> str:
+        setup_exe = str(setup_exe_path) if setup_exe_path else ""
+        shortcut_script = (
+            "$ErrorActionPreference = 'Stop'\n"
+            "$s = New-Object -ComObject WScript.Shell\n"
+            "$desk = if ($env:TEST_DESKTOP_DIR) { $env:TEST_DESKTOP_DIR } else "
+            "{ [Environment]::GetFolderPath('Desktop') }\n"
+            "$start = if ($env:TEST_START_MENU_DIR) { $env:TEST_START_MENU_DIR } else "
+            "{ [Environment]::GetFolderPath('Programs') }\n"
+            "$targets = @(\n"
+            "  (Join-Path $desk 'XAUUSD Calendar Agent.lnk'),\n"
+            "  (Join-Path $start 'XAUUSD Calendar Agent\\XAUUSD Calendar Agent.lnk')\n"
+            ")\n"
+            "foreach ($p in $targets) {\n"
+            "  $dir = Split-Path $p\n"
+            "  if (!(Test-Path $dir)) {\n"
+            "    New-Item -ItemType Directory -Force -Path $dir | Out-Null\n"
+            "  }\n"
+            "  $lnk = $s.CreateShortcut($p)\n"
+            "  $lnk.TargetPath = $env:APP_EXE\n"
+            "  $lnk.IconLocation = $env:APP_EXE\n"
+            "  $lnk.WorkingDirectory = $env:INSTALL_DIR\n"
+            "  $lnk.Save()\n"
+            "}\n"
+        )
+        encoded_shortcut_script = base64.b64encode(
+            shortcut_script.encode("utf-16le")
+        ).decode("ascii")
+        return (
+            "@echo off\n"
+            f"set PID={pid}\n"
+            f'set "STAGE_DIR={stage_root}"\n'
+            f'set "INSTALL_DIR={install_dir}"\n'
+            f'set "BACKUP_DIR={backup_dir}"\n'
+            f'set "USER_DATA_BACKUP={user_data_backup}"\n'
+            f'set "LOG_PATH={log_path}"\n'
+            f'set "UNINSTALL_KEY=HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{{{app_id}}}_is1"\n'
+            'set "RESULT=0"\n'
+            'set "MIRROR_OK=0"\n'
+            f'set "SETUP_EXE={setup_exe}"\n'
+            'set "APP_EXE=%INSTALL_DIR%\\XAUUSD Calendar Agent.exe"\n'
+            'set "APP_EXE_BACKUP=%BACKUP_DIR%\\XAUUSD Calendar Agent.exe"\n'
+            'set "LAUNCH_EXE="\n'
+            'set "EXE_NAME=XAUUSD Calendar Agent.exe"\n'
+            'set "LEGACY_EXE=Agent.exe"\n'
+            ":wait\n"
+            'tasklist /FI "PID eq %PID%" | findstr /I "%PID%" >nul\n'
+            "if not errorlevel 1 (\n"
+            "  ping -n 2 127.0.0.1 >nul\n"
+            "  goto wait\n"
+            ")\n"
+            'taskkill /F /IM "%EXE_NAME%" /T >nul 2>&1\n'
+            'taskkill /F /IM "%LEGACY_EXE%" /T >nul 2>&1\n'
+            "for /l %%i in (1,1,10) do (\n"
+            '  tasklist /FI "IMAGENAME eq %EXE_NAME%" | findstr /I "%EXE_NAME%" >nul\n'
+            "  if errorlevel 1 (\n"
+            '    tasklist /FI "IMAGENAME eq %LEGACY_EXE%" | findstr /I "%LEGACY_EXE%" >nul\n'
+            "    if errorlevel 1 goto ready\n"
+            "  )\n"
+            "  ping -n 2 127.0.0.1 >nul\n"
+            ")\n"
+            ":ready\n"
+            'if not exist "%STAGE_DIR%\\XAUUSD Calendar Agent.exe" (\n'
+            '  set "RESULT=1"\n'
+            '  echo Staged exe missing>>"%LOG_PATH%"\n'
+            "  goto cleanup\n"
+            ")\n"
+            'set "MOVED_USERDATA=1"\n'
+            'if exist "%INSTALL_DIR%\\user-data" (\n'
+            '  set "MOVED_USERDATA=0"\n'
+            "  for /l %%i in (1,1,5) do (\n"
+            '    move /y "%INSTALL_DIR%\\user-data" "%USER_DATA_BACKUP%" >nul\n'
+            "    if not errorlevel 1 (\n"
+            '      set "MOVED_USERDATA=1"\n'
+            "      goto moved_user_data\n"
+            "    )\n"
+            "    ping -n 2 127.0.0.1 >nul\n"
+            "  )\n"
+            ")\n"
+            ":moved_user_data\n"
+            'if "%MOVED_USERDATA%"=="0" (\n'
+            '  set "RESULT=1"\n'
+            '  echo Failed to move user-data>>"%LOG_PATH%"\n'
+            "  goto restore\n"
+            ")\n"
+            'if "%SIMULATE_MOVE_FAIL%"=="1" (\n'
+            "  goto mirror_stage\n"
+            ")\n"
+            'set "MOVED_INSTALL=0"\n'
+            "for /l %%i in (1,1,5) do (\n"
+            '  if not exist "%INSTALL_DIR%" (\n'
+            '    set "MOVED_INSTALL=1"\n'
+            "    goto moved_install\n"
+            "  )\n"
+            '  move /y "%INSTALL_DIR%" "%BACKUP_DIR%" >nul\n'
+            "  if not errorlevel 1 (\n"
+            '    set "MOVED_INSTALL=1"\n'
+            "    goto moved_install\n"
+            "  )\n"
+            "  ping -n 2 127.0.0.1 >nul\n"
+            ")\n"
+            ":moved_install\n"
+            'if "%MOVED_INSTALL%"=="0" (\n'
+            '  echo Failed to move current install>>"%LOG_PATH%"\n'
+            "  goto mirror_stage\n"
+            ")\n"
+            'set "MOVED_STAGE=0"\n'
+            "for /l %%i in (1,1,5) do (\n"
+            '  move /y "%STAGE_DIR%" "%INSTALL_DIR%" >nul\n'
+            "  if not errorlevel 1 (\n"
+            '    set "MOVED_STAGE=1"\n'
+            "    goto moved_stage\n"
+            "  )\n"
+            "  ping -n 2 127.0.0.1 >nul\n"
+            ")\n"
+            ":moved_stage\n"
+            'if "%MOVED_STAGE%"=="0" (\n'
+            '  set "RESULT=1"\n'
+            '  echo Failed to move staged install>>"%LOG_PATH%"\n'
+            "  goto restore\n"
+            ")\n"
+            "goto after_swap\n"
+            ":mirror_stage\n"
+            'set "MIRROR_OK=0"\n'
+            "for /l %%i in (1,1,3) do (\n"
+            '  robocopy "%STAGE_DIR%" "%INSTALL_DIR%" /MIR /NFL /NDL /NJH /NJS /NC /NS >nul\n'
+            "  if errorlevel 8 (\n"
+            "    ping -n 2 127.0.0.1 >nul\n"
+            "  ) else (\n"
+            '    set "MIRROR_OK=1"\n'
+            "    goto mirror_done\n"
+            "  )\n"
+            ")\n"
+            ":mirror_done\n"
+            'if "%MIRROR_OK%"=="1" (\n'
+            '  echo MIRROR_SWAP_OK>>"%LOG_PATH%"\n'
+            "  goto after_swap\n"
+            ")\n"
+            'set "RESULT=1"\n'
+            'echo MIRROR_SWAP_FAILED>>"%LOG_PATH%"\n'
+            "goto restore\n"
+            ":after_swap\n"
+            'if exist "%USER_DATA_BACKUP%" (\n'
+            '  if exist "%INSTALL_DIR%\\user-data" (\n'
+            '    robocopy "%USER_DATA_BACKUP%" "%INSTALL_DIR%\\user-data" /E /MOVE /NFL /NDL /NJH /NJS /NC /NS >nul\n'
+            '    rmdir /s /q "%USER_DATA_BACKUP%" >nul 2>&1\n'
+            "  ) else (\n"
+            '    move /y "%USER_DATA_BACKUP%" "%INSTALL_DIR%\\user-data" >nul\n'
+            "  )\n"
+            ")\n"
+            'reg add "%UNINSTALL_KEY%" /v "InstallLocation" /t REG_SZ /d "%INSTALL_DIR%" /f >nul\n'
+            'reg add "%UNINSTALL_KEY%" /v "DisplayIcon" /t REG_SZ /d "%APP_EXE%" /f >nul\n'
+            'reg add "%UNINSTALL_KEY%" /v "UninstallString" /t REG_SZ /d ""%INSTALL_DIR%\\unins000.exe"" /f >nul\n'
+            'reg add "%UNINSTALL_KEY%" /v "QuietUninstallString" /t REG_SZ /d ""%INSTALL_DIR%\\unins000.exe" '
+            '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART" /f >nul\n'
+            'if not "%SETUP_EXE%"=="" if exist "%SETUP_EXE%" (\n'
+            '  set "REPAIR_LOG=%LOG_PATH%.repair.log"\n'
+            '  start "" /wait "%SETUP_EXE%" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART '
+            '/NOCLOSEAPPLICATIONS /DIR="%INSTALL_DIR%" /LOG="%REPAIR_LOG%"\n'
+            "  if errorlevel 1 (\n"
+            '    echo REPAIR_FAILED>>"%LOG_PATH%"\n'
+            "  ) else (\n"
+            '    echo REPAIR_OK>>"%LOG_PATH%"\n'
+            "  )\n"
+            ")\n"
+            'set "LAUNCH_EXE=%APP_EXE%"\n'
+            "goto launch\n"
+            ":restore\n"
+            'if exist "%BACKUP_DIR%" (\n'
+            '  move /y "%BACKUP_DIR%" "%INSTALL_DIR%" >nul\n'
+            ")\n"
+            'if exist "%USER_DATA_BACKUP%" (\n'
+            '  if exist "%INSTALL_DIR%\\user-data" (\n'
+            '    robocopy "%USER_DATA_BACKUP%" "%INSTALL_DIR%\\user-data" /E /MOVE /NFL /NDL /NJH /NJS /NC /NS >nul\n'
+            '    rmdir /s /q "%USER_DATA_BACKUP%" >nul 2>&1\n'
+            "  ) else (\n"
+            '    move /y "%USER_DATA_BACKUP%" "%INSTALL_DIR%\\user-data" >nul\n'
+            "  )\n"
+            ")\n"
+            'if exist "%APP_EXE%" (\n'
+            '  set "LAUNCH_EXE=%APP_EXE%"\n'
+            ') else if exist "%APP_EXE_BACKUP%" (\n'
+            '  set "LAUNCH_EXE=%APP_EXE_BACKUP%"\n'
+            ")\n"
+            ":launch\n"
+            'if not "%LAUNCH_EXE%"=="" start "" "%LAUNCH_EXE%"' + launch_args + "\n"
+            'echo APP_EXE=%APP_EXE%>>"%LOG_PATH%"\n'
+            'echo INSTALL_DIR=%INSTALL_DIR%>>"%LOG_PATH%"\n'
+            'echo TEST_DESKTOP_DIR=%TEST_DESKTOP_DIR%>>"%LOG_PATH%"\n'
+            'echo TEST_START_MENU_DIR=%TEST_START_MENU_DIR%>>"%LOG_PATH%"\n'
+            "powershell -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -EncodedCommand "
+            + encoded_shortcut_script
+            + " >nul 2>&1\n"
+            "if errorlevel 1 (\n"
+            '  set "RESULT=1"\n'
+            '  echo SHORTCUTS_FAILED>>"%LOG_PATH%"\n'
+            ") else (\n"
+            '  echo SHORTCUTS_UPDATED>>"%LOG_PATH%"\n'
+            ")\n"
+            ":cleanup\n"
+            'if exist "%STAGE_DIR%" (\n'
+            "  for /l %%i in (1,1,3) do (\n"
+            '    rmdir /s /q "%STAGE_DIR%" >nul 2>&1\n'
+            '    if not exist "%STAGE_DIR%" goto stage_removed\n'
+            "    ping -n 2 127.0.0.1 >nul\n"
+            "  )\n"
+            '  if exist "%STAGE_DIR%" (\n'
+            "    powershell -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass "
+            '-Command "Start-Sleep -Seconds 3; '
+            "$p=$env:STAGE_DIR; if (Test-Path $p) { "
+            'Remove-Item -Recurse -Force -LiteralPath $p }" >nul 2>&1\n'
+            '    echo STAGE_DIR_PENDING>>"%LOG_PATH%"\n'
+            "  ) else (\n"
+            '    echo STAGE_DIR_REMOVED>>"%LOG_PATH%"\n'
+            "  )\n"
+            "  goto stage_cleanup_done\n"
+            ")\n"
+            ":stage_removed\n"
+            'echo STAGE_DIR_REMOVED>>"%LOG_PATH%"\n'
+            ":stage_cleanup_done\n"
+            'if exist "%BACKUP_DIR%" (\n'
+            "  for /l %%i in (1,1,5) do (\n"
+            '    rmdir /s /q "%BACKUP_DIR%" >nul 2>&1\n'
+            '    if not exist "%BACKUP_DIR%" goto backup_removed\n'
+            "    ping -n 2 127.0.0.1 >nul\n"
+            "  )\n"
+            '  if exist "%BACKUP_DIR%" (\n'
+            "    powershell -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass "
+            '-Command "Start-Sleep -Seconds 4; '
+            "$p=$env:BACKUP_DIR; if (Test-Path $p) { "
+            'Remove-Item -Recurse -Force -LiteralPath $p }" >nul 2>&1\n'
+            '    echo BACKUP_DIR_PENDING>>"%LOG_PATH%"\n'
+            "  ) else (\n"
+            '    echo BACKUP_DIR_REMOVED>>"%LOG_PATH%"\n'
+            "  )\n"
+            "  goto backup_cleanup_done\n"
+            ")\n"
+            ":backup_removed\n"
+            'echo BACKUP_DIR_REMOVED>>"%LOG_PATH%"\n'
+            ":backup_cleanup_done\n"
+            ")\n"
+            'set "STAGE_PARENT=%STAGE_DIR%\\.."\n'
+            "for /l %%i in (1,1,5) do (\n"
+            '  if not exist "%STAGE_PARENT%" goto stage_root_done\n'
+            '  dir /b /a "%STAGE_PARENT%" 2>nul | findstr /r "." >nul\n'
+            "  if errorlevel 1 (\n"
+            '    rmdir "%STAGE_PARENT%" >nul 2>&1\n'
+            '    if not exist "%STAGE_PARENT%" goto stage_root_removed\n'
+            "  )\n"
+            "  ping -n 2 127.0.0.1 >nul\n"
+            ")\n"
+            'if exist "%STAGE_PARENT%" (\n'
+            '  echo STAGE_ROOT_NOT_EMPTY>>"%LOG_PATH%"\n'
+            "  powershell -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass "
+            '-Command "Start-Sleep -Seconds 6; '
+            "$p=$env:STAGE_PARENT; "
+            "if ($p -and (Test-Path $p)) { "
+            "$items = Get-ChildItem -LiteralPath $p -Force -ErrorAction SilentlyContinue; "
+            "if (-not $items) { Remove-Item -Force -LiteralPath $p -ErrorAction SilentlyContinue } "
+            '}" >nul 2>&1\n'
+            '  echo STAGE_ROOT_PENDING>>"%LOG_PATH%"\n'
+            ")\n"
+            "goto stage_root_done\n"
+            ":stage_root_removed\n"
+            'echo STAGE_ROOT_REMOVED>>"%LOG_PATH%"\n'
+            ":stage_root_done\n"
+            'del "%~f0"\n'
+            "exit /b %RESULT%\n"
+        )
 
     def _install_update_task(self) -> None:
         with self._update_lock:
@@ -1409,9 +2008,24 @@ class WebAgentBackend:
             self._update_in_progress = True
             self._update_phase = "restarting"
             self._update_message = "Restarting..."
+            install_ready = self._update_install_completed
+            staging_dir = self._update_install_staging_dir
 
         self._append_notice("Installing update…", level="INFO")
-        self._apply_update_now(Path(target))
+        self.logger.info("Install now target: %s", target)
+        if install_ready:
+            if not staging_dir:
+                with self._update_lock:
+                    self._update_in_progress = False
+                    self._update_phase = "error"
+                    self._update_message = "Install data missing"
+                self._append_notice(
+                    "Update install failed: staging data missing", level="ERROR"
+                )
+                return
+            self._apply_staged_update(Path(staging_dir), Path(target))
+        else:
+            self._apply_update_now(Path(target), request_exit=True)
 
     def shutdown(self) -> None:
         self._shutdown_event.set()
@@ -2807,7 +3421,7 @@ class WebAgentBackend:
 
     def _auto_update_task(self) -> None:
         # Download then immediately install.
-        self._download_update_task()
+        self._download_update_task(start_install_on_download=True)
         with self._update_lock:
             ready = self._update_phase == "downloaded" and bool(
                 self._update_download_target
@@ -2815,46 +3429,90 @@ class WebAgentBackend:
         if ready:
             self._install_update_task()
 
-    def _apply_update_now(self, pending_path: Path) -> None:
+    def _prepare_update_install(self, pending_path: Path) -> None:
         if not getattr(sys, "frozen", False):
             self._append_notice(
                 "Auto update is available only in the EXE build", level="WARN"
             )
             return
+        with self._update_lock:
+            if self._update_install_prepared and self._update_install_script_path:
+                return
+            expected_version = self._update_available_version
+
         asset_name = (self.state.get("github_release_asset_name") or "").lower()
         is_setup = asset_name == "setup.exe" or asset_name.startswith("setup")
-
-        exe_path = Path(sys.executable)
-        script_path = pending_path.parent / f"apply_update_{os.getpid()}.cmd"
         launch_args = " --start-hidden" if self._update_restart_hidden_once else ""
+        script_path = pending_path.parent / f"apply_update_{os.getpid()}.cmd"
         if is_setup:
-            restart_delay_seconds = 5
-            self._restart_deadline = datetime.now() + timedelta(
-                seconds=restart_delay_seconds
-            )
+            log_path = pending_path.parent / f"update_install_{os.getpid()}.log"
             script = (
                 "@echo off\n"
                 f"set PID={os.getpid()}\n"
+                f'set "LOG_PATH={log_path}"\n'
+                f'set "EXPECTED_VERSION={expected_version}"\n'
                 'set "APP_EXE=%LOCALAPPDATA%\\XAUUSDCalendarAgent\\XAUUSD Calendar Agent.exe"\n'
                 ":wait\n"
                 'tasklist /FI "PID eq %PID%" | findstr /I "%PID%" >nul\n'
                 "if not errorlevel 1 (\n"
-                "  timeout /t 1 /nobreak >nul\n"
+                "  ping -n 2 127.0.0.1 >nul\n"
                 "  goto wait\n"
                 ")\n"
-                f'start "" /wait "{pending_path}" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART\n'
-                f'if exist "%APP_EXE%" start "" "%APP_EXE%"{launch_args}\n'
+                f'start "" /wait "{pending_path}" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /LOG="%LOG_PATH%"\n'
+                'set "SETUP_EXIT=%ERRORLEVEL%"\n'
+                'if not "%SETUP_EXIT%"=="0" (\n'
+                '  echo Setup failed with exit %SETUP_EXIT%>>"%LOG_PATH%"\n'
+                "  goto cleanup\n"
+                ")\n"
+                'if not exist "%APP_EXE%" (\n'
+                '  echo Installed exe missing at %APP_EXE%>>"%LOG_PATH%"\n'
+                "  goto cleanup\n"
+                ")\n"
+                'if not "%TEMP%"=="" (\n'
+                '  echo Setting runtime temp to %TEMP%>>"%LOG_PATH%"\n'
+                '  set "PYINSTALLER_TEMP=%TEMP%"\n'
+                ")\n"
+                'if not "%EXPECTED_VERSION%"=="" (\n'
+                '  for /f "usebackq delims=" %%v in (`powershell -NoProfile -Command "(Get-Item \\"%APP_EXE%\\").VersionInfo.FileVersion"`) do '
+                'set "INSTALLED_VERSION=%%v"\n'
+                '  if "%INSTALLED_VERSION%"=="" (\n'
+                '    echo Installed version missing; continue>>"%LOG_PATH%"\n'
+                "    goto launch\n"
+                "  )\n"
+                '  echo Installed version: %INSTALLED_VERSION%>>"%LOG_PATH%"\n'
+                '  echo %INSTALLED_VERSION% | findstr /C:"%EXPECTED_VERSION%" >nul\n'
+                "  if errorlevel 1 (\n"
+                '    echo Installed version mismatch>>"%LOG_PATH%"\n'
+                "    goto cleanup\n"
+                "  )\n"
+                ")\n"
+                ":launch\n"
+                'set "LAUNCHED=0"\n'
+                "for /l %%i in (1,1,10) do (\n"
+                f'  start "" "%APP_EXE%"{launch_args}\n'
+                "  ping -n 2 127.0.0.1 >nul\n"
+                '  tasklist /FI "IMAGENAME eq XAUUSD Calendar Agent.exe" | findstr /I "XAUUSD Calendar Agent.exe" >nul\n'
+                "  if not errorlevel 1 (\n"
+                '    echo App relaunched on attempt %%i>>"%LOG_PATH%"\n'
+                '    set "LAUNCHED=1"\n'
+                "    goto cleanup\n"
+                "  )\n"
+                "  ping -n 2 127.0.0.1 >nul\n"
+                ")\n"
+                'if "%LAUNCHED%"=="0" echo Failed to relaunch app>>"%LOG_PATH%"\n'
+                ":cleanup\n"
                 f'del "{pending_path}" >nul 2>&1\n'
                 'del "%~f0"\n'
             )
         else:
+            exe_path = Path(sys.executable)
             script = (
                 "@echo off\n"
                 f"set PID={os.getpid()}\n"
                 ":wait\n"
                 'tasklist /FI "PID eq %PID%" | findstr /I "%PID%" >nul\n'
                 "if not errorlevel 1 (\n"
-                "  timeout /t 1 /nobreak >nul\n"
+                "  ping -n 2 127.0.0.1 >nul\n"
                 "  goto wait\n"
                 ")\n"
                 f'move /y "{pending_path}" "{exe_path}"\n'
@@ -2862,12 +3520,52 @@ class WebAgentBackend:
                 'del "%~f0"\n'
             )
         script_path.write_text(script, encoding="utf-8")
+        self.logger.info("Update install script ready: %s", script_path)
+        self._launch_hidden_script(script_path, "Update install")
+        with self._update_lock:
+            self._update_install_prepared = True
+            self._update_install_script_path = str(script_path)
+
+    def _apply_update_now(self, pending_path: Path, *, request_exit: bool) -> None:
+        if not getattr(sys, "frozen", False):
+            self._append_notice(
+                "Auto update is available only in the EXE build", level="WARN"
+            )
+            return
+        self._prepare_update_install(pending_path)
+        if not request_exit:
+            return
+        asset_name = (self.state.get("github_release_asset_name") or "").lower()
+        is_setup = asset_name == "setup.exe" or asset_name.startswith("setup")
+        if is_setup:
+            restart_delay_seconds = 3
+            self._restart_deadline = datetime.now() + timedelta(
+                seconds=restart_delay_seconds
+            )
+            threading.Timer(
+                restart_delay_seconds, lambda: self._request_exit(force=True)
+            ).start()
+        else:
+            threading.Timer(0.2, lambda: self._request_exit(force=True)).start()
+
+    def _launch_hidden_script(self, script_path: Path, label: str) -> None:
         creationflags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+        if os.name != "nt":
+            subprocess.Popen([str(script_path)], creationflags=creationflags)
+            return
+        ps_cmd = f'Start-Process -FilePath "{script_path}" -WindowStyle Hidden'
         subprocess.Popen(
-            ["cmd", "/c", str(script_path)],
+            [
+                "powershell",
+                "-NoProfile",
+                "-WindowStyle",
+                "Hidden",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-Command",
+                ps_cmd,
+            ],
             creationflags=creationflags,
         )
-        if is_setup:
-            threading.Timer(restart_delay_seconds, self._request_exit).start()
-        else:
-            threading.Timer(0.2, self._request_exit).start()
+        if label:
+            self.logger.info("%s script launched: %s", label, script_path)
