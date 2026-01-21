@@ -1,4 +1,4 @@
-Personal Research Non-Commercial License (No Public Sharing)
+Personal Research Non-Commercial License (Source-Available; No Redistribution)
 
 Copyright (c) 2025 yiyousiow000814
 All rights reserved.
@@ -89,9 +89,9 @@ Recommendation in Section 4, you may not:
     modified version (in source or binary form) to any third party, whether
     publicly or privately. For clarity, this includes any redistribution,
     republication, or packaging of the Software outside GitHub;
-(e) sell, license, sublicense, rent, lease, or otherwise transfer the Software
+(d) sell, license, sublicense, rent, lease, or otherwise transfer the Software
     or any modified version;
-(f) remove or alter any copyright or license notices included with the
+(e) remove or alter any copyright or license notices included with the
     Software.
 
 4. Private Recommendation
@@ -104,7 +104,12 @@ Recommendation). Private Recommendation is permitted only if:
 
 For clarity: Public Sharing is prohibited.
 
-5. Public Promotion
+5. Official Links
+
+Linking to the Official GitHub Repository and its official GitHub Releases is
+permitted.
+
+6. Public Promotion
 
 You may engage in Public Promotion only if:
 (a) you do not provide any copy of the Software (source or binary);
@@ -113,7 +118,7 @@ You may engage in Public Promotion only if:
 
 Public Promotion may include screenshots and demo videos.
 
-6. Patent License
+7. Patent License
 
 To the extent the copyright holder owns or controls patent claims that are
 necessarily infringed by exercising the rights granted in this License, the
@@ -125,24 +130,24 @@ If you (or any Organization you control) initiate patent litigation alleging
 that the Software infringes a patent, the patent license granted in this
 Section terminates automatically as of the date such litigation is filed.
 
-6. Ownership
+8. Ownership
 
 The Software is licensed, not sold. All rights not expressly granted are
 reserved.
 
-7. Termination
+9. Termination
 
 This License is automatically terminated if you fail to comply with any of its
 terms. Upon termination, you must immediately cease all use of the Software
 and destroy all copies in your possession or control.
 
-8. Disclaimer of Warranty
+10. Disclaimer of Warranty
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
 
-9. Limitation of Liability
+11. Limitation of Liability
 
 IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR
 OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING
