@@ -55,13 +55,12 @@ Official GitHub Repository on GitHub, including creating or maintaining a
 GitHub Fork on GitHub, solely for Personal, Non-Commercial Research.
 
 "Public Promotion" means publicly advertising, promoting, or marketing the
-Software, including by posting its name, links, screenshots, or descriptions of
-the Software on any publicly accessible platform, website, or service
-(including those listed under Public Sharing).
+Software, including by posting its name, links, screenshots, demo videos, or
+descriptions of the Software on any publicly accessible platform, website, or
+service (including those listed under Public Sharing).
 
 For clarity: Public Promotion does not include creating or maintaining a
-GitHub Fork on GitHub solely for Personal, Non-Commercial Research, so long as
-you do not advertise or market it.
+GitHub Fork on GitHub solely for Personal, Non-Commercial Research.
 
 "Private Recommendation" means telling another Individual about the Software
 through a private, person-to-person channel (e.g., email or direct message)
@@ -90,7 +89,6 @@ Recommendation in Section 4, you may not:
     modified version (in source or binary form) to any third party, whether
     publicly or privately. For clarity, this includes any redistribution,
     republication, or packaging of the Software outside GitHub;
-(d) engage in Public Promotion;
 (e) sell, license, sublicense, rent, lease, or otherwise transfer the Software
     or any modified version;
 (f) remove or alter any copyright or license notices included with the
@@ -104,9 +102,18 @@ Recommendation). Private Recommendation is permitted only if:
 (b) it does not involve sharing any copy of the Software (or any modified
     version) in any form.
 
-For clarity: Public Sharing and Public Promotion are prohibited.
+For clarity: Public Sharing is prohibited.
 
-5. Patent License
+5. Public Promotion
+
+You may engage in Public Promotion only if:
+(a) you do not provide any copy of the Software (source or binary);
+(b) you do not link to any non-official download or mirror; and
+(c) you do not use it for any Commercial Purpose.
+
+Public Promotion may include screenshots and demo videos.
+
+6. Patent License
 
 To the extent the copyright holder owns or controls patent claims that are
 necessarily infringed by exercising the rights granted in this License, the
