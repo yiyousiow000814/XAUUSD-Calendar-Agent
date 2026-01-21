@@ -1,4 +1,4 @@
-import type { Settings, Snapshot } from "./types";
+import type { EventHistoryResponse, Settings, Snapshot } from "./types";
 import { CURRENCY_OPTIONS } from "./constants/currencyOptions";
 
 type ApiResult<T> = Promise<T>;
@@ -16,6 +16,7 @@ type UpdateState = {
 
 type BackendApi = {
   get_snapshot: () => ApiResult<Snapshot>;
+  get_event_history?: (payload: { event: string; cur: string }) => ApiResult<EventHistoryResponse>;
   get_settings: () => ApiResult<Settings>;
   save_settings: (payload: Settings) => ApiResult<{ ok: boolean }>;
   frontend_boot_complete?: () => ApiResult<{ ok: boolean }>;
@@ -347,6 +348,40 @@ export const backend = {
       return Promise.resolve(getMockSnapshot());
     }
     return api.get_snapshot();
+  },
+  getEventHistory: async (payload: { event: string; cur: string }) => {
+    const api = await withApi();
+    if (!api || !hasMethod(api, "get_event_history")) {
+      if (isWebview()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      const points = [
+        {
+          date: "05-01-2026",
+          time: "08:30",
+          actual: "0.3",
+          forecast: "0.2",
+          previous: "0.4"
+        },
+        {
+          date: "05-12-2025",
+          time: "08:30",
+          actual: "0.1",
+          forecast: "0.2",
+          previous: "0.3"
+        }
+      ];
+      return Promise.resolve({
+        ok: true,
+        eventId: "mock",
+        metric: payload.event,
+        frequency: "m/m",
+        period: "",
+        cur: payload.cur,
+        points
+      });
+    }
+    return api.get_event_history(payload);
   },
   getUpdateState: async () => {
     const api = await withApi();

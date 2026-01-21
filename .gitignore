@@ -2,6 +2,8 @@
 data/*
 !data/Economic_Calendar/
 !data/Economic_Calendar/**
+!data/event_history_index/
+!data/event_history_index/**
 data/Economic_Calendar/backup/
 data/XAUUSD_1m_data/
 

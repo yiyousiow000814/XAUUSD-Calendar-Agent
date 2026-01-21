@@ -1,0 +1,37 @@
+name: Update event history index
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "40 15 * * *"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    if: github.repository == 'yiyousiow000814/XAUUSD-Calendar-Agent'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build event history index
+        run: |
+          python scripts/calendar/build_event_history_index.py
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore: update event history index"
+          title: "chore: update event history index"
+          body: |
+            自动更新事件历史索引（Event history index）。
+          branch: "chore/event-history-index"
+          delete-branch: true

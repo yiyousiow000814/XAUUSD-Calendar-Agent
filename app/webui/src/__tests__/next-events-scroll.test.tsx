@@ -14,6 +14,7 @@ const renderNextEvents = () =>
       impactTone={() => "low"}
       impactFilter={["Low", "Medium", "High"]}
       onImpactFilterChange={() => {}}
+      onOpenHistory={() => {}}
     />
   );
 

@@ -21,6 +21,7 @@ type HistoryPanelProps = {
   loading?: boolean;
   impactTone: (impact: string) => string;
   impactFilter: string[];
+  onOpenHistory: (item: PastEventItem) => void;
 };
 
 type HistoryTrend = "up" | "flat" | "down" | "tba" | "na";
@@ -30,7 +31,7 @@ const isMissingValue = (value: string | null | undefined) => {
   return (
     normalized.length === 0 ||
     normalized === "--" ||
-    normalized === "—" ||
+    normalized === "\u2014" ||
     normalized === "-" ||
     normalized === "tba" ||
     normalized === "n/a" ||
@@ -189,7 +190,13 @@ const rangeToMs = (range: HistoryRange) => {
   return 30 * 24 * 60 * 60 * 1000;
 };
 
-export function HistoryPanel({ events, loading = false, impactTone, impactFilter }: HistoryPanelProps) {
+export function HistoryPanel({
+  events,
+  loading = false,
+  impactTone,
+  impactFilter,
+  onOpenHistory
+}: HistoryPanelProps) {
   const rangeStorageKey = "xauusd:history:range";
   const scrollStorageKey = "xauusd:scroll:history";
   const [range, setRange] = useState<HistoryRange>(() => {
@@ -329,7 +336,7 @@ export function HistoryPanel({ events, loading = false, impactTone, impactFilter
       <div className="history-header">
         <div className="history-title">
           <h2>History</h2>
-          <span className="hint single-line">Past events · grouped by day · {range}</span>
+          <span className="hint single-line">Past events - grouped by day - {range}</span>
         </div>
         <div className="history-controls">
           <div
@@ -407,7 +414,7 @@ export function HistoryPanel({ events, loading = false, impactTone, impactFilter
             ))}
           </div>
         ) : groups.length === 0 ? (
-          <div className="history-empty">{loading ? "Loading history…" : "No past events yet."}</div>
+          <div className="history-empty">{loading ? "Loading history..." : "No past events yet."}</div>
         ) : (
           rows.map((row) => {
             if (row.type === "year") {
@@ -455,11 +462,24 @@ export function HistoryPanel({ events, loading = false, impactTone, impactFilter
                         trend === "tba"
                           ? "Actual: TBA"
                           : trend === "na"
-                            ? "Actual: —"
+                            ? "Actual: -"
                             : `Actual trend: ${trendText}`;
 
                       return (
-                        <div className="history-item history-event" key={`${group.key}-${index}`}>
+                      <div
+                        className="history-item history-event"
+                        key={`${group.key}-${index}`}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => onOpenHistory(item)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            onOpenHistory(item);
+                          }
+                        }}
+                        aria-label={`View history for ${item.cur} ${item.event}`}
+                      >
                           <span className="history-time mono">
                             {item.time.split(" ")[1] || item.time}
                           </span>
@@ -478,7 +498,7 @@ export function HistoryPanel({ events, loading = false, impactTone, impactFilter
                             title={title}
                           >
                             {trend === "tba" ? <span className="history-trend-label">TBA</span> : null}
-                            {trend === "na" ? <span className="history-trend-label">—</span> : null}
+                            {trend === "na" ? <span className="history-trend-label">-</span> : null}
                             {trend !== "tba" && trend !== "na" ? <TrendIcon trend={trend} /> : null}
                           </span>
                         </div>

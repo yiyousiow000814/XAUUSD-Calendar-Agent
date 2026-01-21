@@ -10,6 +10,7 @@ const renderHistory = () =>
       loading={false}
       impactTone={() => "low"}
       impactFilter={["Low", "Medium", "High"]}
+      onOpenHistory={() => {}}
     />
   );
 
