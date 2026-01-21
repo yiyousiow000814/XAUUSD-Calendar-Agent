@@ -1,143 +1,132 @@
-Personal Research Non-Commercial License (No Public Sharing)
+﻿# PolyForm Noncommercial License 1.0.0
 
-Copyright (c) 2025 yiyousiow000814
-All rights reserved.
+<https://polyformproject.org/licenses/noncommercial/1.0.0>
 
-This is a source-available license. It is not an open source license.
+## Acceptance
 
-Permission is hereby granted, free of charge, to any natural person (an
-"Individual") obtaining a copy of this software and associated documentation
-files (the "Software"), to use, copy, and modify the Software solely for
-Personal, Non-Commercial Research (as defined below), subject to the terms and
-conditions of this License.
+In order to get any license under these terms, you must agree
+to them as both strict obligations and conditions to all
+your licenses.
 
-This License does not grant any rights to any organization, company,
-institution, government entity, or other legal entity (each an
-"Organization"). Organizations may not use the Software for any purpose without
-prior written permission from the copyright holder.
+## Copyright License
 
-1. Definitions
+The licensor grants you a copyright license for the
+software to do everything you might do with the software
+that would otherwise infringe the licensor's copyright
+in it for any permitted purpose.  However, you may
+only distribute the software according to [Distribution
+License](#distribution-license) and make changes or new works
+based on the software according to [Changes and New Works
+License](#changes-and-new-works-license).
 
-"Personal, Non-Commercial Research" means use by an Individual:
-(a) for personal study, experimentation, or research; and
-(b) not for any Commercial Purpose; and
-(c) not on behalf of, under the direction or control of, or as part of the
-    activities of any Organization.
+## Distribution License
 
-"Commercial Purpose" means any use that is primarily intended for or directed
-toward commercial advantage or monetary compensation, including (without
-limitation):
-(a) use in connection with providing services to others;
-(b) use in a product or service that is sold, licensed, or otherwise monetized;
-(c) use to support or operate the business activities of an Organization; and
-(d) use to generate revenue, fees, advertising income, or other economic
-    benefit.
+The licensor grants you an additional copyright license
+to distribute copies of the software.  Your license
+to distribute covers distributing the software with
+changes and new works permitted by [Changes and New Works
+License](#changes-and-new-works-license).
 
-"Official GitHub Repository" means the GitHub repository designated by the
-copyright holder as the official source location for the Software, currently
-yiyousiow000814/XAUUSD-Calendar-Agent.
+## Notices
 
-"GitHub Fork" means a fork of the Official GitHub Repository created using
-GitHub's standard fork functionality.
+You must ensure that anyone who gets a copy of any part of
+the software from you also gets a copy of these terms or the
+URL for them above, as well as copies of any plain-text lines
+beginning with `Required Notice:` that the licensor provided
+with the software.  For example:
 
-"Public Sharing" means making the Software (or any portion, copy, or modified
-version of it) available to the public or to persons beyond those you directly
-and privately communicate with, including (without limitation) posting or
-uploading it to:
-(a) social media or content platforms (e.g., Facebook, Instagram, Xiaohongshu,
-    Reddit);
-(b) forums, public chat rooms, or public file-sharing services;
-(c) public code hosting services (e.g., GitHub/GitLab) or package registries;
-(d) app stores, download sites, or any publicly accessible website.
+> Required Notice: Copyright Yoyodyne, Inc. (http://example.com)
 
-For clarity: Public Sharing does not include accessing the Software via the
-Official GitHub Repository on GitHub, including creating or maintaining a
-GitHub Fork on GitHub, solely for Personal, Non-Commercial Research.
+## Changes and New Works License
 
-"Public Promotion" means publicly advertising, promoting, or marketing the
-Software, including by posting its name, links, screenshots, or descriptions of
-the Software on any publicly accessible platform, website, or service
-(including those listed under Public Sharing).
+The licensor grants you an additional copyright license to
+make changes and new works based on the software for any
+permitted purpose.
 
-For clarity: Public Promotion does not include creating or maintaining a
-GitHub Fork on GitHub solely for Personal, Non-Commercial Research, so long as
-you do not advertise or market it.
+## Patent License
 
-"Private Recommendation" means telling another Individual about the Software
-through a private, person-to-person channel (e.g., email or direct message)
-and, if desired, sending them a link to an official download/source location
-provided by the copyright holder, without providing any copy of the Software
-yourself.
+The licensor grants you a patent license for the software that
+covers patent claims the licensor can license, or becomes able
+to license, that you would infringe by using the software.
 
-2. Permitted Use
+## Noncommercial Purposes
 
-Subject to this License, you may:
-(a) use the Software for Personal, Non-Commercial Research;
-(b) make and keep copies of the Software as reasonably necessary for that use;
-    and
-(c) modify the Software for that use.
-(d) access the Software via the Official GitHub Repository on GitHub and create
-    and maintain a GitHub Fork on GitHub solely for that use.
+Any noncommercial purpose is a permitted purpose.
 
-3. Restrictions
+## Personal Uses
 
-Except for the limited GitHub permission in Section 2 and the limited Private
-Recommendation in Section 4, you may not:
-(a) use the Software for any Commercial Purpose;
-(b) use the Software on behalf of, under the direction or control of, or within
-    the activities of any Organization;
-(c) share, publish, distribute, or otherwise provide the Software or any
-    modified version (in source or binary form) to any third party, whether
-    publicly or privately. For clarity, this includes any redistribution,
-    republication, or packaging of the Software outside GitHub;
-(d) engage in Public Promotion;
-(e) sell, license, sublicense, rent, lease, or otherwise transfer the Software
-    or any modified version;
-(f) remove or alter any copyright or license notices included with the
-    Software.
+Personal use for research, experiment, and testing for
+the benefit of public knowledge, personal study, private
+entertainment, hobby projects, amateur pursuits, or religious
+observance, without any anticipated commercial application,
+is use for a permitted purpose.
 
-4. Private Recommendation
+## Noncommercial Organizations
 
-You may privately recommend the Software to another Individual (Private
-Recommendation). Private Recommendation is permitted only if:
-(a) it is made through a private, person-to-person channel; and
-(b) it does not involve sharing any copy of the Software (or any modified
-    version) in any form.
+Use by any charitable organization, educational institution,
+public research organization, public safety or health
+organization, environmental protection organization,
+or government institution is use for a permitted purpose
+regardless of the source of funding or obligations resulting
+from the funding.
 
-For clarity: Public Sharing and Public Promotion are prohibited.
+## Fair Use
 
-5. Patent License
+You may have "fair use" rights for the software under the
+law. These terms do not limit them.
 
-To the extent the copyright holder owns or controls patent claims that are
-necessarily infringed by exercising the rights granted in this License, the
-copyright holder grants you a non-exclusive, worldwide, royalty-free,
-non-transferable, non-sublicensable patent license to make, use, copy, and
-modify the Software solely for Personal, Non-Commercial Research.
+## No Other Rights
 
-If you (or any Organization you control) initiate patent litigation alleging
-that the Software infringes a patent, the patent license granted in this
-Section terminates automatically as of the date such litigation is filed.
+These terms do not allow you to sublicense or transfer any of
+your licenses to anyone else, or prevent the licensor from
+granting licenses to anyone else.  These terms do not imply
+any other licenses.
 
-6. Ownership
+## Patent Defense
 
-The Software is licensed, not sold. All rights not expressly granted are
-reserved.
+If you make any written claim that the software infringes or
+contributes to infringement of any patent, your patent license
+for the software granted under these terms ends immediately. If
+your company makes such a claim, your patent license ends
+immediately for work on behalf of your company.
 
-7. Termination
+## Violations
 
-This License is automatically terminated if you fail to comply with any of its
-terms. Upon termination, you must immediately cease all use of the Software
-and destroy all copies in your possession or control.
+The first time you are notified in writing that you have
+violated any of these terms, or done anything with the software
+not covered by your licenses, your licenses can nonetheless
+continue if you come into full compliance with these terms,
+and take practical steps to correct past violations, within
+32 days of receiving notice.  Otherwise, all your licenses
+end immediately.
 
-8. Disclaimer of Warranty
+## No Liability
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+***As far as the law allows, the software comes as is, without
+any warranty or condition, and the licensor will not be liable
+to you for any damages arising out of these terms or the use
+or nature of the software, under any kind of legal claim.***
 
-9. Limitation of Liability
+## Definitions
 
-IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR
-OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING
-FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-IN THE SOFTWARE.
+The **licensor** is the individual or entity offering these
+terms, and the **software** is the software the licensor makes
+available under these terms.
+
+**You** refers to the individual or entity agreeing to these
+terms.
+
+**Your company** is any legal entity, sole proprietorship,
+or other kind of organization that you work for, plus all
+organizations that have control over, are under the control of,
+or are under common control with that organization.  **Control**
+means ownership of substantially all the assets of an entity,
+or the power to direct its management and policies by vote,
+contract, or otherwise.  Control can be direct or indirect.
+
+**Your licenses** are all the licenses granted to you for the
+software under these terms.
+
+**Use** means anything you do with the software requiring one
+of your licenses.
+
