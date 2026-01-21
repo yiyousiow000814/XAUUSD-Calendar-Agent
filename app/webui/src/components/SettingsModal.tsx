@@ -160,12 +160,19 @@ export function SettingsModal({
       ? "checking"
       : updatePhase === "downloaded"
         ? "install"
-        : updatePhase === "available" || updatePhase === "downloading" || updatePhase === "restarting"
+        : updatePhase === "available" ||
+            updatePhase === "downloading" ||
+            updatePhase === "installing" ||
+            updatePhase === "restarting"
           ? "update"
           : "check";
-  const updateDisabled = updatePhase === "checking" || updatePhase === "downloading" || updatePhase === "restarting";
+  const updateDisabled =
+    updatePhase === "checking" ||
+    updatePhase === "downloading" ||
+    updatePhase === "installing" ||
+    updatePhase === "restarting";
   const updateOnClick = updateLabelMode === "update" || updateLabelMode === "install" ? onUpdateNow : onCheckUpdates;
-  const showProgress = updatePhase === "downloading";
+  const showProgress = updatePhase === "downloading" || updatePhase === "installing";
   const lastCheckedLabel = updateLastCheckedAt || "Not yet";
   const followSystemTimezone = settings.calendarTimezoneMode === "system";
   const utcOffsetValue = Number.isFinite(settings.calendarUtcOffsetMinutes)

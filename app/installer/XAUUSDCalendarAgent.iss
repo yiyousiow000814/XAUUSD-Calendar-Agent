@@ -3,6 +3,10 @@
 #define MyAppName "XAUUSD Calendar Agent"
 #define MyAppDirName "XAUUSDCalendarAgent"
 #define MyAppExeName "XAUUSD Calendar Agent.exe"
+#define MyAppDistName "XAUUSD Calendar Agent"
+#ifndef MyAppDistDir
+#define MyAppDistDir "..\\..\\{#MyAppDistName}"
+#endif
 ; Version is injected by `app/installer/build_installer.ps1` from `app/agent/version.py`.
 #ifndef MyAppVersion
 #define MyAppVersion "0.0.0"
@@ -30,7 +34,7 @@ RestartApplications=no
 Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Additional icons"
 
 [Files]
-Source: "..\..\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#MyAppDistDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\..\data\Economic_Calendar\*"; DestDir: "{app}\data\Economic_Calendar"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
