@@ -26,8 +26,7 @@
 - [News collection & analysis](scripts/news/README.md)
 
 ## License
-Personal, non-commercial research use by Individuals only. No redistribution or
-public sharing. Public promotion is allowed. See [LICENSE](LICENSE).
+Licensed under the PolyForm Noncommercial 1.0.0 license. See [LICENSE](LICENSE).
 
 ## Usage Notice
 > [!IMPORTANT]
