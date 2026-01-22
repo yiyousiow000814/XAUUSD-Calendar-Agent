@@ -713,6 +713,7 @@ export function EventHistoryModal({
                               <path
                                 ref={forecastPathRef}
                                 className="history-line history-line-forecast"
+                                vectorEffect="non-scaling-stroke"
                                 d={chart.forecastPath}
                               />
                             ) : null}
@@ -720,6 +721,7 @@ export function EventHistoryModal({
                               <path
                                 ref={actualPathRef}
                                 className="history-line history-line-actual"
+                                vectorEffect="non-scaling-stroke"
                                 d={chart.actualPath}
                               />
                             ) : null}
