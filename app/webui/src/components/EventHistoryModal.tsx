@@ -145,6 +145,7 @@ export function EventHistoryModal({
   const forecastPathRef = useRef<SVGPathElement | null>(null);
   const pointsGroupRef = useRef<SVGGElement | null>(null);
   const animationTimerRef = useRef<number | null>(null);
+  const strokeCleanupTimerRef = useRef<number | null>(null);
   const chartAnimatedTokenRef = useRef(0);
   const wasLoadingRef = useRef(false);
   const tableRef = useRef<HTMLDivElement | null>(null);
@@ -325,6 +326,9 @@ export function EventHistoryModal({
       if (animationTimerRef.current) {
         window.clearTimeout(animationTimerRef.current);
       }
+      if (strokeCleanupTimerRef.current) {
+        window.clearTimeout(strokeCleanupTimerRef.current);
+      }
     };
   }, []);
 
@@ -460,6 +464,24 @@ export function EventHistoryModal({
         // Ignore path animation failures (older SVG engines / zero-length paths).
       }
     });
+
+    // After the draw animation ends, clear dash styling. Otherwise subsequent path
+    // updates (range/series changes) can inherit the old dasharray length and look
+    // like a broken/dashed line even when data exists.
+    if (strokeCleanupTimerRef.current) {
+      window.clearTimeout(strokeCleanupTimerRef.current);
+      strokeCleanupTimerRef.current = null;
+    }
+    strokeCleanupTimerRef.current = window.setTimeout(() => {
+      strokeCleanupTimerRef.current = null;
+      [actualPathRef.current, forecastPathRef.current]
+        .filter((node): node is SVGPathElement => Boolean(node))
+        .forEach((path) => {
+          path.style.transition = "";
+          path.style.strokeDasharray = "";
+          path.style.strokeDashoffset = "";
+        });
+    }, 760);
 
     if (animationTimerRef.current) {
       window.clearTimeout(animationTimerRef.current);

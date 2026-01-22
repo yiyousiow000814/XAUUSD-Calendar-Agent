@@ -2323,6 +2323,25 @@ const main = async () => {
           })
         });
 
+        await runCheck(theme.key, "Event history chart dash styles cleared", async () => {
+          await page.waitForFunction(
+            () => {
+              const paths = Array.from(
+                document.querySelectorAll(".history-modal-chart path.history-line")
+              );
+              if (!paths.length) return true;
+              return paths.every(
+                (path) =>
+                  path instanceof SVGPathElement &&
+                  path.style.strokeDasharray === "" &&
+                  path.style.strokeDashoffset === ""
+              );
+            },
+            null,
+            { timeout: 2000 }
+          );
+        });
+
         const rangeAll = historyModal
           .locator(".history-modal-toggle button.history-toggle")
           .filter({ hasText: "All" })
