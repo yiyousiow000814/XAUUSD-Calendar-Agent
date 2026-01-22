@@ -176,7 +176,7 @@ NA::montenegro - new year's day::none,2024-01-04,All Day,,,
 DKK::currency reserves::none,2024-01-04,00:00,612.70B,,616.90B
 USD::atlanta fed gdpnow::none,2024-01-04,02:00,2.5%,2.0%,2.0%
 TRY::gross fx reserves::none,2024-01-04,02:30,92.83B,,97.56B
-USD::fomc meeting minutes::none,2024-01-04,03:00,,,
+USD::fomc meeting minutes::none,2024-01-04,03:00,,,0.00
 KRW::fx reserves - usd::none,2024-01-04,05:00,420.15B,,417.08B
 USD::api weekly crude oil stock::none,2024-01-04,05:30,-7.418M,-2.967M,1.837M
 EUR::north rhine westphalia cpi::m/m,2024-01-04,14:30,-0.1%,,-0.3%
@@ -1057,7 +1057,7 @@ EUR::ecb president lagarde speaks::none,2024-01-17,23:15,,,
 USD::20 - year bond auction::none,2024-01-18,02:00,4.423%,,4.213%
 USD::atlanta fed gdpnow::none,2024-01-18,02:00,2.4%,2.2%,2.2%
 EUR::german buba president nagel speaks::none,2024-01-18,02:30,,,
-USD::beige book::none,2024-01-18,03:00,,,
+USD::beige book::none,2024-01-18,03:00,,,0.00
 USD::fomc member williams speaks::none,2024-01-18,04:00,,,
 USD::api weekly crude oil stock::none,2024-01-18,05:30,0.483M,-2.400M,-5.215M
 NZD::fpi::m/m,2024-01-18,05:45,-0.1%,,-0.2%
@@ -1370,7 +1370,7 @@ KRW::gdp::q/q,2024-01-25,07:00,0.6%,0.5%,0.6%
 KRW::gdp::y/y,2024-01-25,07:00,2.2%,2.1%,1.4%
 JPY::foreign bonds buying::none,2024-01-25,07:50,-48.0B,,"1,689.3B"
 JPY::foreign investments in japanese stocks::none,2024-01-25,07:50,286.7B,,"1,202.0B"
-AUD::rba bulletin::none,2024-01-25,08:30,,,
+AUD::rba bulletin::none,2024-01-25,08:30,,,0.00
 EUR::finnish unemployment rate::none,2024-01-25,14:00,7.6%,,7.6%
 NOK::unemployment rate::none,2024-01-25,15:00,3.5%,,3.8%
 SEK::ppi::m/m,2024-01-25,15:00,-1.6%,,1.4%
@@ -1455,7 +1455,7 @@ JPY::cpi tokyo ex food and energy::m/m,2024-01-26,07:30,-0.4%,,0.1%
 JPY::tokyo cpi::y/y,2024-01-26,07:30,1.6%,,2.4%
 JPY::tokyo core cpi::y/y,2024-01-26,07:30,1.6%,1.9%,2.1%
 JPY::corporate services price index (cspi)::y/y,2024-01-26,07:50,1.6%,2.4%,2.3%
-JPY::monetary policy meeting minutes::none,2024-01-26,07:50,,,
+JPY::monetary policy meeting minutes::none,2024-01-26,07:50,,,0.00
 GBP::gfk consumer confidence::none,2024-01-26,08:00,-19,-21,-22
 SGD::ura property index::q/q,2024-01-26,08:30,2.80%,2.70%,0.80%
 PHP::exports::y/y,2024-01-26,09:00,-0.5%,,-13.0%
@@ -1517,7 +1517,7 @@ USD::pending home sales index::none,2024-01-26,23:00,77.3,,71.4
 USD::pending home sales::m/m,2024-01-26,23:00,8.3%,1.5%,0.0%
 CAD::budget balance::none,2024-01-27,00:00,-4.01B,,-6.33B
 CAD::budget balance::y/y,2024-01-27,00:00,-19.14B,,-15.13B
-USD::atlanta fed gdpnow::none,2024-01-27,00:30,3.0%,,
+USD::atlanta fed gdpnow::none,2024-01-27,00:30,3.0%,,2.4%
 USD::u.s. baker hughes oil rig count::none,2024-01-27,02:00,499,,497
 USD::u.s. baker hughes total rig count::none,2024-01-27,02:00,621,,620
 AUD::cftc aud speculative net positions::none,2024-01-27,04:30,-54.1K,,-47.9K
@@ -2974,7 +2974,7 @@ PLN::industrial output::y/y,2024-02-20,17:00,1.6%,3.1%,-3.5%
 PLN::ppi::y/y,2024-02-20,17:00,-9.0%,-8.3%,-6.9%
 ZAR::unemployment::none,2024-02-20,17:30,7.895M,,7.849M
 ZAR::unemployment rate::none,2024-02-20,17:30,32.10%,,31.90%
-GBP::boe mpc treasury committee hearings::none,2024-02-20,17:45,,,
+GBP::boe mpc treasury committee hearings::none,2024-02-20,17:45,,,0.00
 EUR::construction output::m/m,2024-02-20,18:00,0.80%,,-0.98%
 GBP::boe mpc member dhingra speaks::none,2024-02-20,18:15,,,
 GBP::boe gov bailey speaks::none,2024-02-20,18:15,,,
@@ -3064,7 +3064,7 @@ RUB::ppi::m/m,2024-02-22,00:00,-1.4%,,-3.1%
 RUB::ppi::y/y,2024-02-22,00:00,19.4%,,19.2%
 USD::20 - year bond auction::none,2024-02-22,02:00,4.595%,,4.423%
 USD::fomc member bowman speaks::none,2024-02-22,02:00,,,
-USD::fomc meeting minutes::none,2024-02-22,03:00,,,
+USD::fomc meeting minutes::none,2024-02-22,03:00,,,0.00
 USD::api weekly crude oil stock::none,2024-02-22,05:30,7.168M,4.298M,8.520M
 NZD::exports::none,2024-02-22,05:45,4.93B,,5.85B
 NZD::imports::none,2024-02-22,05:45,5.91B,,6.22B
@@ -3415,7 +3415,7 @@ USD::crude oil imports::none,2024-02-28,23:30,-0.032M,,-0.434M
 USD::distillate fuel production::none,2024-02-28,23:30,0.118M,,0.095M
 USD::eia refinery crude runs::w/w,2024-02-28,23:30,0.100M,,0.031M
 USD::eia weekly distillates stocks::none,2024-02-28,23:30,-0.510M,-2.140M,-4.009M
-USD::eia weekly refinery utilization rates::w/w,2024-02-28,23:30,0.9%,,
+USD::eia weekly refinery utilization rates::w/w,2024-02-28,23:30,0.9%,,0.0%
 USD::gasoline inventories::none,2024-02-28,23:30,-2.832M,-1.460M,-0.294M
 USD::gasoline production::none,2024-02-28,23:30,0.390M,,-0.146M
 USD::heating oil stockpiles::none,2024-02-28,23:30,-0.137M,,-0.351M
@@ -3927,7 +3927,7 @@ USD::fomc member daly speaks::none,2024-03-07,01:00,,,
 BRL::trade balance::none,2024-03-07,02:00,5.45B,5.79B,6.50B
 USD::atlanta fed gdpnow::none,2024-03-07,02:00,2.5%,2.1%,2.1%
 ARS::industrial production::y/y,2024-03-07,03:00,-12.4%,,-12.8%
-USD::beige book::none,2024-03-07,03:00,,,
+USD::beige book::none,2024-03-07,03:00,,,0.00
 USD::fomc member kashkari speaks::none,2024-03-07,04:15,,,
 NZD::manufacturing sales volume::q/q,2024-03-07,05:45,-0.6%,,-3.2%
 JPY::overall wage income of employees::none,2024-03-07,07:00,2.0%,,0.8%
@@ -5007,7 +5007,7 @@ NA::greece - independence day::none,2024-03-25,All Day,,,
 NA::india - holi::none,2024-03-25,All Day,,,
 NA::kazakhstan - parsi new year::none,2024-03-25,All Day,,,
 NA::lebanon - feast of annunciation::none,2024-03-25,All Day,,,
-JPY::monetary policy meeting minutes::none,2024-03-25,07:50,,,
+JPY::monetary policy meeting minutes::none,2024-03-25,07:50,,,0.00
 MYR::cpi::m/m,2024-03-25,12:00,0.50%,,0.20%
 MYR::cpi::y/y,2024-03-25,12:00,1.8%,1.5%,1.5%
 JPY::coincident indicator::m/m,2024-03-25,13:00,-3.8%,,-5.8%
@@ -6194,7 +6194,7 @@ RUB::cpi::y/y,2024-04-11,00:00,7.7%,7.7%,7.7%
 USD::fomc member barkin speaks::none,2024-04-11,00:45,,,
 USD::fed goolsbee speaks::none,2024-04-11,00:45,,,
 USD::10 - year note auction::none,2024-04-11,01:00,4.560%,,4.166%
-USD::fomc meeting minutes::none,2024-04-11,02:00,,,
+USD::fomc meeting minutes::none,2024-04-11,02:00,,,0.00
 USD::atlanta fed gdpnow::none,2024-04-11,02:00,2.4%,2.5%,2.5%
 USD::federal budget balance::none,2024-04-11,02:00,-236.0B,-209.4B,-296.0B
 JPY::foreign bonds buying::none,2024-04-11,07:50,346.4B,,"-1,660.5B"
@@ -6677,7 +6677,7 @@ RUB::ppi::y/y,2024-04-18,00:00,19.1%,,19.5%
 USD::20 - year bond auction::none,2024-04-18,01:00,4.818%,,4.542%
 EUR::ecb president lagarde speaks::none,2024-04-18,02:00,,,
 GBP::mpc member haskel speaks::none,2024-04-18,02:00,,,
-USD::beige book::none,2024-04-18,02:00,,,
+USD::beige book::none,2024-04-18,02:00,,,0.00
 USD::overall net capital flow::none,2024-04-18,04:00,51.60B,,-30.80B
 USD::tic net long - term transactions including swaps::none,2024-04-18,04:00,71.50B,40.20B,14.00B
 "USD::us foreign buying, t - bonds::none",2024-04-18,04:00,88.80B,,46.30B
@@ -6688,7 +6688,7 @@ JPY::foreign bonds buying::none,2024-04-18,07:50,"-1,005.9B",,347.9B
 JPY::foreign investments in japanese stocks::none,2024-04-18,07:50,"1,740.0B",,"1,764.9B"
 AUD::nab quarterly business confidence::none,2024-04-18,09:30,-2,,-6
 AUD::participation rate::none,2024-04-18,09:30,66.6%,,66.7%
-AUD::rba bulletin::none,2024-04-18,09:30,,,
+AUD::rba bulletin::none,2024-04-18,09:30,,,0.00
 AUD::reserve assets total::none,2024-04-18,09:30,92.7B,,92.6B
 AUD::employment change::none,2024-04-18,09:30,-6.6K,7.2K,117.6K
 AUD::full employment change::none,2024-04-18,09:30,27.9K,,79.4K
@@ -7103,7 +7103,7 @@ EUR::spanish retail sales::y/y,2024-04-26,15:00,0.6%,,1.8%
 EUR::spanish unemployment rate::none,2024-04-26,15:00,12.29%,11.80%,11.80%
 THB::currency swaps (usd)::none,2024-04-26,15:30,28.5B,,28.9B
 THB::foreign reserves (usd)::none,2024-04-26,15:30,221.3B,,222.1B
-CHF::snb board member jordan speaks::none,2024-04-26,16:00,,,
+CHF::snb board member jordan speaks::none,2024-04-26,16:00,,,0.00
 EUR::loans to non financial corporations::none,2024-04-26,16:00,0.4%,,0.3%
 EUR::m3 money supply::none,2024-04-26,16:00,"16,190.4B",,"16,110.0B"
 EUR::m3 money supply::y/y,2024-04-26,16:00,0.9%,0.5%,0.3%
@@ -7135,7 +7135,7 @@ USD::michigan 5 - year inflation expectations::none,2024-04-26,22:00,3.0%,3.0%,2
 USD::michigan consumer expectations::none,2024-04-26,22:00,76.0,77.0,77.4
 USD::michigan consumer sentiment::none,2024-04-26,22:00,77.2,77.8,79.4
 CAD::budget balance::none,2024-04-26,23:00,8.30B,,-2.10B
-USD::atlanta fed gdpnow::none,2024-04-27,00:00,3.9%,,
+USD::atlanta fed gdpnow::none,2024-04-27,00:00,3.9%,,2.7%
 USD::u.s. baker hughes oil rig count::none,2024-04-27,01:00,506,,511
 USD::u.s. baker hughes total rig count::none,2024-04-27,01:00,613,,619
 AUD::cftc aud speculative net positions::none,2024-04-27,03:30,-96.2K,,-101.1K
@@ -7556,7 +7556,7 @@ NZD::building consents::m/m,2024-05-02,06:45,-0.2%,,15.9%
 KRW::cpi::m/m,2024-05-02,07:00,0.0%,0.2%,0.1%
 KRW::cpi::y/y,2024-05-02,07:00,2.9%,3.0%,3.1%
 JPY::monetary base::y/y,2024-05-02,07:50,1.8%,,1.2%
-JPY::monetary policy meeting minutes::none,2024-05-02,07:50,,,
+JPY::monetary policy meeting minutes::none,2024-05-02,07:50,,,0.00
 KRW::s&p global south korea manufacturing pmi::none,2024-05-02,08:30,49.4,,49.8
 PHP::philippines ppi::y/y,2024-05-02,09:00,-1.0%,,-1.3%
 AUD::building approvals::y/y,2024-05-02,09:30,-2.50%,5.20%,4.90%
@@ -7774,7 +7774,7 @@ BRL::budget surplus::none,2024-05-06,19:30,1.177B,,-48.692B
 BRL::net debt - to - gdp ratio::none,2024-05-06,19:30,61.1%,,60.9%
 BRL::gross debt - to - gdp ratio::m/m,2024-05-06,19:30,75.7%,,75.5%
 EUR::german buba president nagel speaks::none,2024-05-06,19:30,,,
-CHF::snb board member jordan speaks::none,2024-05-06,20:25,,,
+CHF::snb board member jordan speaks::none,2024-05-06,20:25,,,0.00
 EUR::french 12 - month btf auction::none,2024-05-06,21:00,3.460%,,3.488%
 EUR::french 3 - month btf auction::none,2024-05-06,21:00,3.803%,,3.800%
 EUR::french 6 - month btf auction::none,2024-05-06,21:00,3.666%,,3.710%
@@ -8823,7 +8823,7 @@ RUB::ppi::m/m,2024-05-23,00:00,1.8%,,2.4%
 RUB::ppi::y/y,2024-05-23,00:00,18.4%,,19.1%
 USD::20 - year bond auction::none,2024-05-23,01:00,4.635%,,4.818%
 BRL::foreign exchange flows::none,2024-05-23,01:30,-1.102B,,-0.357B
-USD::fomc meeting minutes::none,2024-05-23,02:00,,,
+USD::fomc meeting minutes::none,2024-05-23,02:00,,,0.00
 ARS::economic activity::y/y,2024-05-23,03:00,-8.4%,,-3.2%
 NZD::rbnz gov orr speaks::none,2024-05-23,04:10,,,
 NZD::retail sales quarterly vs. year ago::none,2024-05-23,06:45,-2.4%,,-4.1%
@@ -9036,7 +9036,7 @@ USD::fomc member williams speaks::none,2024-05-28,01:45,,,
 GBP::brc shop price index::y/y,2024-05-28,07:00,0.6%,,0.8%
 JPY::corporate services price index (cspi)::y/y,2024-05-28,07:50,2.8%,2.3%,2.3%
 AUD::retail sales::m/m,2024-05-28,09:30,0.1%,0.3%,-0.4%
-CHF::snb board member jordan speaks::none,2024-05-28,12:55,,,
+CHF::snb board member jordan speaks::none,2024-05-28,12:55,,,0.00
 EUR::ecb's schnabel speaks::none,2024-05-28,12:55,,,
 USD::fomc member bowman speaks::none,2024-05-28,12:55,,,
 USD::fomc member mester speaks::none,2024-05-28,12:55,,,
@@ -9163,13 +9163,13 @@ RUB::industrial production::y/y,2024-05-30,00:00,3.9%,4.2%,4.0%
 USD::7 - year note auction::none,2024-05-30,01:00,4.650%,,4.716%
 BRL::foreign exchange flows::none,2024-05-30,01:30,-0.855B,,-1.102B
 USD::fomc member williams speaks::none,2024-05-30,01:45,,,
-USD::beige book::none,2024-05-30,02:00,,,
+USD::beige book::none,2024-05-30,02:00,,,0.00
 USD::api weekly crude oil stock::none,2024-05-30,04:30,-6.490M,-1.900M,2.480M
 NZD::building consents::m/m,2024-05-30,06:45,-1.9%,,-0.2%
 USD::fomc member bostic speaks::none,2024-05-30,07:00,,,
 JPY::foreign bonds buying::none,2024-05-30,07:50,-297.9B,,"2,189.6B"
 JPY::foreign investments in japanese stocks::none,2024-05-30,07:50,82.4B,,248.3B
-CHF::snb board member jordan speaks::none,2024-05-30,08:00,,,
+CHF::snb board member jordan speaks::none,2024-05-30,08:00,,,0.00
 NZD::budget balance::none,2024-05-30,09:00,-21.860B,,-25.800B
 NZD::economic forecast::none,2024-05-30,09:00,-11.070B,,-9.319B
 NZD::net debt forecast::none,2024-05-30,09:00,43.10%,,43.50%
@@ -10529,7 +10529,7 @@ JPY::reuters tankan index::none,2024-06-19,07:00,6,,9
 JPY::imports::y/y,2024-06-19,07:50,9.5%,13.0%,8.3%
 JPY::adjusted trade balance::none,2024-06-19,07:50,-0.62T,-0.64T,-0.58T
 JPY::exports::y/y,2024-06-19,07:50,13.5%,10.4%,8.3%
-JPY::monetary policy meeting minutes::none,2024-06-19,07:50,,,
+JPY::monetary policy meeting minutes::none,2024-06-19,07:50,,,0.00
 JPY::trade balance::none,2024-06-19,07:50,"-1,221.3B","-1,300.0B",-465.6B
 AUD::rba chart pack release::none,2024-06-19,09:30,,,
 NZD::rbnz offshore holdings::none,2024-06-19,11:00,57.80%,,58.50%
@@ -11512,7 +11512,7 @@ RUB::retail sales::y/y,2024-07-04,00:00,7.5%,9.3%,8.2%
 RUB::unemployment rate::none,2024-07-04,00:00,2.6%,2.7%,2.6%
 USD::natural gas storage::none,2024-07-04,00:00,32B,29B,52B
 BRL::foreign exchange flows::none,2024-07-04,01:30,1.157B,,-1.699B
-USD::fomc meeting minutes::none,2024-07-04,02:00,,,
+USD::fomc meeting minutes::none,2024-07-04,02:00,,,0.00
 JPY::foreign bonds buying::none,2024-07-04,07:50,-254.4B,,"-1,062.0B"
 JPY::foreign investments in japanese stocks::none,2024-07-04,07:50,185.3B,,-85.4B
 AUD::exports::m/m,2024-07-04,09:30,2.8%,,-2.2%
@@ -12311,14 +12311,14 @@ RUB::ppi::m/m,2024-07-18,00:00,-1.5%,,1.6%
 RUB::ppi::y/y,2024-07-18,00:00,14.0%,,16.2%
 USD::20 - year bond auction::none,2024-07-18,01:00,4.466%,,4.452%
 BRL::foreign exchange flows::none,2024-07-18,01:30,-0.389B,,-0.839B
-USD::beige book::none,2024-07-18,02:00,,,
+USD::beige book::none,2024-07-18,02:00,,,0.00
 JPY::imports::y/y,2024-07-18,07:50,3.2%,9.3%,9.5%
 JPY::adjusted trade balance::none,2024-07-18,07:50,-0.82T,-0.82T,-0.64T
 JPY::exports::y/y,2024-07-18,07:50,5.4%,6.4%,13.5%
 JPY::trade balance::none,2024-07-18,07:50,224.0B,-240.0B,"-1,220.1B"
 AUD::nab quarterly business confidence::none,2024-07-18,09:30,-1,,-2
 AUD::participation rate::none,2024-07-18,09:30,66.9%,66.8%,66.8%
-AUD::rba bulletin::none,2024-07-18,09:30,,,
+AUD::rba bulletin::none,2024-07-18,09:30,,,0.00
 AUD::reserve assets total::none,2024-07-18,09:30,93.4B,,93.0B
 AUD::employment change::none,2024-07-18,09:30,50.2K,19.9K,39.5K
 AUD::full employment change::none,2024-07-18,09:30,43.3K,,41.3K
@@ -12735,7 +12735,7 @@ USD::michigan 1 - year inflation expectations::none,2024-07-26,22:00,2.9%,2.9%,3
 USD::michigan 5 - year inflation expectations::none,2024-07-26,22:00,3.0%,2.9%,3.0%
 USD::michigan consumer expectations::none,2024-07-26,22:00,68.8,67.2,69.6
 USD::michigan consumer sentiment::none,2024-07-26,22:00,66.4,66.0,68.2
-USD::atlanta fed gdpnow::none,2024-07-26,22:30,2.8%,,
+USD::atlanta fed gdpnow::none,2024-07-26,22:30,2.8%,,2.6%
 CAD::budget balance::none,2024-07-26,23:00,1.10B,,-33.59B
 CAD::budget balance::y/y,2024-07-26,23:00,-3.89B,,-50.93B
 USD::u.s. baker hughes oil rig count::none,2024-07-27,01:00,482,,477
@@ -13240,7 +13240,7 @@ NA::canada - civic holiday::none,2024-08-05,All Day,,,
 NA::croatia - national day::none,2024-08-05,All Day,,,
 NA::iceland - national day::none,2024-08-05,All Day,,,
 KRW::fx reserves - usd::none,2024-08-05,05:00,413.51B,,412.21B
-JPY::monetary policy meeting minutes::none,2024-08-05,07:50,,,
+JPY::monetary policy meeting minutes::none,2024-08-05,07:50,,,0.00
 AUD::mi inflation gauge::m/m,2024-08-05,09:00,0.4%,,0.3%
 NZD::anz commodity price index::m/m,2024-08-05,09:00,-1.7%,,1.5%
 IDR::gdp::q/q,2024-08-05,12:00,3.79%,3.71%,-0.83%
@@ -14245,7 +14245,7 @@ RUB::ppi::m/m,2024-08-22,00:00,1.1%,,-1.5%
 RUB::ppi::y/y,2024-08-22,00:00,13.7%,,14.0%
 USD::20 - year bond auction::none,2024-08-22,01:00,4.160%,,4.466%
 BRL::foreign exchange flows::none,2024-08-22,01:30,-0.573B,,-0.836B
-USD::fomc meeting minutes::none,2024-08-22,02:00,,,
+USD::fomc meeting minutes::none,2024-08-22,02:00,,,0.00
 ARS::economic activity::y/y,2024-08-22,03:00,-3.9%,-1.9%,2.3%
 JPY::foreign bonds buying::none,2024-08-22,07:50,"1,854.0B",,"1,539.7B"
 JPY::foreign investments in japanese stocks::none,2024-08-22,07:50,-47.9B,,521.7B
@@ -15015,7 +15015,7 @@ EUR::car registration::y/y,2024-09-05,00:00,-20.30%,,-7.30%
 USD::atlanta fed gdpnow::none,2024-09-05,00:00,2.1%,2.0%,2.0%
 EUR::irish exchequer returns::none,2024-09-05,00:30,3.800B,,3.400B
 BRL::foreign exchange flows::none,2024-09-05,01:30,0.839B,,-2.660B
-USD::beige book::none,2024-09-05,02:00,,,
+USD::beige book::none,2024-09-05,02:00,,,0.00
 USD::api weekly crude oil stock::none,2024-09-05,04:30,-7.400M,-0.900M,-3.400M
 KRW::gdp::q/q,2024-09-05,07:00,-0.2%,-0.2%,1.3%
 KRW::gdp::y/y,2024-09-05,07:00,2.3%,2.3%,3.3%
@@ -16252,7 +16252,7 @@ USD::5 - year note auction::none,2024-09-26,01:00,3.519%,,3.645%
 BRL::foreign exchange flows::none,2024-09-26,01:30,-3.058B,,-0.331B
 ARS::economic activity::y/y,2024-09-26,03:00,-1.3%,-4.1%,-3.9%
 ARS::retail sales::y/y,2024-09-26,03:00,229.1%,,260.0%
-JPY::monetary policy meeting minutes::none,2024-09-26,07:50,,,
+JPY::monetary policy meeting minutes::none,2024-09-26,07:50,,,0.00
 AUD::rba financial stability review::none,2024-09-26,10:30,,,
 THB::industrial production::y/y,2024-09-26,12:00,-1.91%,1.00%,1.63%
 EUR::m3 money supply::none,2024-09-26,13:00,28.2B,,28.4B
@@ -17152,7 +17152,7 @@ USD::fomc member barkin speaks::none,2024-10-10,00:15,,,
 USD::fed governor jefferson speaks::none,2024-10-10,00:30,,,
 USD::10 - year note auction::none,2024-10-10,01:00,4.066%,,3.648%
 BRL::foreign exchange flows::none,2024-10-10,01:30,-0.695B,,-0.164B
-USD::fomc meeting minutes::none,2024-10-10,02:00,,,
+USD::fomc meeting minutes::none,2024-10-10,02:00,,,0.00
 USD::fed collins speaks::none,2024-10-10,05:00,,,
 USD::fomc member daly speaks::none,2024-10-10,06:00,,,
 JPY::bank lending::y/y,2024-10-10,07:50,2.7%,2.9%,3.0%
@@ -17615,7 +17615,7 @@ JPY::exports::y/y,2024-10-17,07:50,-1.7%,0.5%,5.5%
 JPY::trade balance::none,2024-10-17,07:50,-294.3B,-237.6B,-703.2B
 AUD::nab quarterly business confidence::none,2024-10-17,08:30,-6,,-1
 AUD::participation rate::none,2024-10-17,08:30,67.2%,67.1%,67.1%
-AUD::rba bulletin::none,2024-10-17,08:30,,,
+AUD::rba bulletin::none,2024-10-17,08:30,,,0.00
 AUD::reserve assets total::none,2024-10-17,08:30,93.0B,,93.1B
 AUD::employment change::none,2024-10-17,08:30,64.1K,25.2K,42.6K
 AUD::full employment change::none,2024-10-17,08:30,51.6K,,-5.9K
@@ -17956,7 +17956,7 @@ USD::fomc member barkin speaks::none,2024-10-24,00:00,,,
 NZD::rbnz gov orr speaks::none,2024-10-24,01:00,,,
 USD::20 - year bond auction::none,2024-10-24,01:00,4.590%,,4.039%
 BRL::foreign exchange flows::none,2024-10-24,01:30,-0.634B,,3.246B
-USD::beige book::none,2024-10-24,02:00,,,
+USD::beige book::none,2024-10-24,02:00,,,0.00
 ARS::economic activity::y/y,2024-10-24,03:00,-3.8%,-4.9%,-1.3%
 GBP::boe gov bailey speaks::none,2024-10-24,04:30,,,
 KRW::manufacturing bsi index::none,2024-10-24,05:00,69,,69
@@ -18487,7 +18487,7 @@ COP::unemployment rate::none,2024-10-31,23:00,9.1%,,9.7%
 COP::urban unemployment rate::none,2024-10-31,23:00,9.2%,,10.0%
 USD::4 - week bill auction::none,2024-10-31,23:30,4.580%,,4.650%
 USD::8 - week bill auction::none,2024-10-31,23:30,4.555%,,4.590%
-USD::atlanta fed gdpnow::none,2024-10-31,23:30,2.7%,,
+USD::atlanta fed gdpnow::none,2024-10-31,23:30,2.7%,,2.8%
 NA::chile - all saint's day::none,2024-11-01,All Day,,,
 NA::croatia - all saint's day::none,2024-11-01,All Day,,,
 NA::hungary - all saint's day::none,2024-11-01,All Day,,,
@@ -18721,7 +18721,7 @@ NZD::unemployment rate::none,2024-11-06,05:45,4.8%,5.0%,4.6%
 AUD::aig construction index::none,2024-11-06,06:00,-40.9,,-19.8
 AUD::aig manufacturing index::none,2024-11-06,06:00,-19.7,,-33.6
 JPY::reuters tankan index::none,2024-11-06,07:00,5,,7
-JPY::monetary policy meeting minutes::none,2024-11-06,07:50,,,
+JPY::monetary policy meeting minutes::none,2024-11-06,07:50,,,0.00
 AUD::rba chart pack release::none,2024-11-06,08:30,,,
 PHP::exports::y/y,2024-11-06,09:00,-7.6%,,0.3%
 PHP::imports::y/y,2024-11-06,09:00,9.9%,,2.9%
@@ -19578,7 +19578,7 @@ EUR::core cpi::y/y,2024-11-19,18:00,2.7%,2.7%,2.7%
 GBP::15 - year treasury gilt auction::none,2024-11-19,18:00,4.558%,,4.131%
 GBP::boe gov bailey speaks::none,2024-11-19,18:00,,,
 GBP::boe mpc member mann speaks::none,2024-11-19,18:00,,,
-GBP::boe mpc treasury committee hearings::none,2024-11-19,18:00,,,
+GBP::boe mpc treasury committee hearings::none,2024-11-19,18:00,,,0.00
 KWD::cpi::m/m,2024-11-19,18:00,0.07%,,0.15%
 KWD::cpi::y/y,2024-11-19,18:00,2.44%,,2.75%
 EUR::german buba monthly report::none,2024-11-19,19:00,,,
@@ -19957,7 +19957,7 @@ USD::m2 money supply::m/m,2024-11-27,00:00,21.34T,,21.22T
 USD::52 - week bill auction::none,2024-11-27,00:30,4.190%,,4.100%
 USD::5 - year note auction::none,2024-11-27,02:00,4.197%,,4.138%
 ARS::retail sales::y/y,2024-11-27,03:00,161.0%,,210.5%
-USD::fomc meeting minutes::none,2024-11-27,03:00,,,
+USD::fomc meeting minutes::none,2024-11-27,03:00,,,0.00
 KRW::manufacturing bsi index::none,2024-11-27,05:00,68,,69
 USD::api weekly crude oil stock::none,2024-11-27,05:30,-5.935M,0.250M,4.753M
 EUR::irish consumer confidence::none,2024-11-27,08:00,74.1,,74.1
@@ -20534,7 +20534,7 @@ EUR::irish exchequer returns::none,2024-12-05,00:30,13.800B,,1.300B
 EUR::german buba president nagel speaks::none,2024-12-05,01:10,,,
 BRL::foreign exchange flows::none,2024-12-05,01:30,0.389B,,-0.019B
 USD::fed chair powell speaks::none,2024-12-05,02:45,,,
-USD::beige book::none,2024-12-05,03:00,,,
+USD::beige book::none,2024-12-05,03:00,,,0.00
 KRW::gdp::q/q,2024-12-05,07:00,0.1%,0.5%,0.1%
 KRW::gdp::y/y,2024-12-05,07:00,1.5%,1.5%,1.5%
 JPY::foreign bonds buying::none,2024-12-05,07:50,922.4B,,-779.1B
@@ -21759,7 +21759,7 @@ USD::52 - week bill auction::none,2024-12-24,00:35,4.070%,,4.190%
 USD::2 - year note auction::none,2024-12-24,02:00,4.335%,,4.274%
 CAD::boc summary of deliberations::none,2024-12-24,02:30,,,
 KRW::consumer confidence::none,2024-12-24,05:00,88.4,,100.7
-JPY::monetary policy meeting minutes::none,2024-12-24,07:50,,,
+JPY::monetary policy meeting minutes::none,2024-12-24,07:50,,,0.00
 AUD::rba meeting minutes::none,2024-12-24,08:30,,,
 JPY::boj core cpi::y/y,2024-12-24,13:00,1.7%,1.5%,1.5%
 EUR::dutch gdp::q/q,2024-12-24,13:30,0.8%,0.8%,1.0%

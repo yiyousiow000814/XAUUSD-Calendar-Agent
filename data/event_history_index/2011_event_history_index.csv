@@ -225,7 +225,7 @@ GBP::net lending to individuals::none,2011-01-04,17:30,0.7B,0.9B,1.5B
 EUR::cpi::y/y,2011-01-04,18:00,2.2%,2.0%,1.9%
 EUR::italian cpi::m/m,2011-01-04,18:00,0.4%,0.2%,0.0%
 USD::factory orders::m/m,2011-01-04,23:00,0.7%,-0.4%,-0.7%
-USD::fomc meeting minutes::none,2011-01-05,03:00,,,
+USD::fomc meeting minutes::none,2011-01-05,03:00,,,0.00
 NZD::globaldairytrade price index::none,2011-01-05,04:00,5.80%,,2.30%
 USD::bloomberg consumer confidence::none,2011-01-05,06:00,27.5,,28
 USD::total vehicle sales::none,2011-01-05,06:00,12.60M,12.30M,12.30M
@@ -271,7 +271,7 @@ EUR::german trade balance::none,2011-01-07,15:00,11.8B,14.5B,14.3B
 EUR::french trade balance::none,2011-01-07,15:45,-3.9B,-3.7B,-3.7B
 TWD::trade balance::none,2011-01-07,16:00,1.60B,0.90B,0.41B
 EUR::italian monthly unemployment rate::none,2011-01-07,17:00,8.7%,8.6%,8.7%
-EUR::ecb president trichet speaks::none,2011-01-07,17:00,,,
+EUR::ecb president trichet speaks::none,2011-01-07,17:00,,,0.00
 EUR::gdp::q/q,2011-01-07,18:00,0.3%,0.4%,0.4%
 EUR::unemployment rate::none,2011-01-07,18:00,10.1%,10.1%,10.1%
 BRL::cpi::y/y,2011-01-07,19:00,5.40%,,5.60%
@@ -314,7 +314,7 @@ GBP::halifax house price index::m/m,2011-01-10,16:00,-1.3%,-0.3%,-0.2%
 CHF::retail sales::y/y,2011-01-10,16:15,2.5%,0.9%,3.5%
 EUR::sentix investor confidence::none,2011-01-10,17:30,10.6,11.8,9.7
 GBP::construction output::m/m,2011-01-10,17:30,-0.30%,,-1.20%
-EUR::ecb president trichet speaks::none,2011-01-10,20:00,,,
+EUR::ecb president trichet speaks::none,2011-01-10,20:00,,,0.00
 CAD::building permits::m/m,2011-01-10,21:30,-11.2%,0.8%,-6.2%
 MXN::economic activity::y/y,2011-01-10,22:00,4.30%,3.50%,5.00%
 NA::morocco - proclamation of independence::none,2011-01-11,All Day,,,
@@ -350,9 +350,9 @@ USD::treasury secretary geithner speaks::none,2011-01-12,21:30,,,
 USD::ibd/tipp economic optimism::none,2011-01-12,23:00,51.9,46.9,45.8
 USD::crude oil inventories::none,2011-01-12,23:30,-2.200M,0.400M,-4.200M
 USD::gasoline inventories::none,2011-01-12,23:30,5.100M,2.100M,3.300M
-CHF::snb board member jordan speaks::none,2011-01-13,02:00,,,
+CHF::snb board member jordan speaks::none,2011-01-13,02:00,,,0.00
 USD::fomc member fisher speaks::none,2011-01-13,02:00,,,
-USD::beige book::none,2011-01-13,03:00,,,
+USD::beige book::none,2011-01-13,03:00,,,0.00
 USD::federal budget balance::none,2011-01-13,03:00,-80.0B,-80.0B,-150.4B
 USD::fed's balance sheet::none,2011-01-13,04:30,"2,468.13B",,"2,436.06B"
 JPY::core machinery orders::m/m,2011-01-13,07:50,-3.0%,2.0%,-1.4%
@@ -378,7 +378,7 @@ USD::core ppi::m/m,2011-01-13,21:30,0.2%,0.2%,0.3%
 USD::trade balance::none,2011-01-13,21:30,-38.3B,-40.6B,-38.4B
 GBP::niesr gdp estimate::none,2011-01-13,23:00,0.5%,,0.6%
 USD::natural gas storage::none,2011-01-13,23:30,-138B,-145B,-135B
-USD::fed chairman bernanke speaks::none,2011-01-14,02:00,,,
+USD::fed chairman bernanke speaks::none,2011-01-14,02:00,,,0.00
 CLP::interest rate decision::none,2011-01-14,05:00,3.25%,3.50%,3.25%
 JPY::ppi::y/y,2011-01-14,07:50,1.2%,1.0%,0.9%
 SGD::retail sales::y/y,2011-01-14,13:00,-2.4%,-1.5%,-2.6%
@@ -513,7 +513,7 @@ TWD::industrial production::y/y,2011-01-24,16:00,18.20%,18.70%,19.40%
 EUR::industrial new orders::m/m,2011-01-24,18:00,2.1%,2.3%,1.4%
 HUF::interest rate decision::none,2011-01-24,21:00,6.00%,6.00%,5.75%
 NA::egypt - police day::none,2011-01-25,All Day,,,
-GBP::boe mpc member sentance speaks::none,2011-01-25,02:00,,,
+GBP::boe mpc member sentance speaks::none,2011-01-25,02:00,,,0.00
 ARS::retail sales::y/y,2011-01-25,03:00,43.7%,29.3%,30.4%
 AUD::cpi::q/q,2011-01-25,08:30,0.4%,0.8%,0.7%
 AUD::trimmed mean cpi::q/q,2011-01-25,08:30,0.3%,0.8%,0.6%
@@ -542,7 +542,7 @@ USD::bloomberg consumer confidence::none,2011-01-26,06:00,28,,28.5
 KRW::gdp::q/q,2011-01-26,07:00,0.5%,0.1%,0.7%
 JPY::corporate services price index (cspi)::y/y,2011-01-26,07:50,-1.3%,-1.3%,-1.1%
 NZD::credit card spending::y/y,2011-01-26,10:00,2.0%,,3.7%
-JPY::boj monthly report::none,2011-01-26,13:00,,,
+JPY::boj monthly report::none,2011-01-26,13:00,,,0.00
 SGD::industrial production::y/y,2011-01-26,13:00,9.0%,20.0%,40.5%
 EUR::german import price index::m/m,2011-01-26,15:00,2.3%,1.3%,1.2%
 EUR::italian retail sales::m/m,2011-01-26,17:00,-0.3%,0.1%,0.3%
@@ -583,7 +583,7 @@ JPY::household spending::y/y,2011-01-28,07:30,-3.3%,-0.5%,-0.4%
 JPY::national core cpi::y/y,2011-01-28,07:30,-0.4%,-0.4%,-0.5%
 JPY::tokyo core cpi::y/y,2011-01-28,07:30,-0.2%,-0.3%,-0.4%
 JPY::retail sales::y/y,2011-01-28,07:50,-2.0%,0.6%,1.5%
-JPY::monetary policy meeting minutes::none,2011-01-28,07:50,,,
+JPY::monetary policy meeting minutes::none,2011-01-28,07:50,,,0.00
 GBP::gfk consumer confidence::none,2011-01-28,08:00,-29,-20,-21
 VND::trade balance::none,2011-01-28,09:10,"-1,000.00M","-1,500.00M","-1,300.00M"
 THB::industrial production::y/y,2011-01-28,14:30,-2.5%,5.5%,5.7%
@@ -834,8 +834,8 @@ USD::philly fed employment::none,2011-02-01,17:00,13.40,,4.30
 USD::retail control::m/m,2011-02-01,17:00,0.80%,,0.10%
 USD::s&p/cs hpi composite - 20 n.s.a.::m/m,2011-02-01,17:00,-1.10%,,-1.00%
 NA::egypt - markets closed::none,2011-02-02,All Day,,,
-EUR::ecb president trichet speaks::none,2011-02-02,00:15,,,
-CHF::snb board member jordan speaks::none,2011-02-02,00:30,,,
+EUR::ecb president trichet speaks::none,2011-02-02,00:15,,,0.00
+CHF::snb board member jordan speaks::none,2011-02-02,00:30,,,0.00
 NZD::globaldairytrade price index::none,2011-02-02,04:00,6.70%,,0.70%
 USD::bloomberg consumer confidence::none,2011-02-02,06:00,29.5,,28
 USD::total vehicle sales::none,2011-02-02,06:00,12.60M,12.80M,12.60M
@@ -873,13 +873,13 @@ USD::factory orders::m/m,2011-02-03,23:00,0.2%,-0.5%,1.3%
 USD::natural gas storage::none,2011-02-03,23:30,-189B,-185B,-174B
 NA::hong kong - lunar new year::none,2011-02-04,All Day,,,
 NA::singapore - lunar new year::none,2011-02-04,All Day,,,
-USD::fed chairman bernanke speaks::none,2011-02-04,02:00,,,
+USD::fed chairman bernanke speaks::none,2011-02-04,02:00,,,0.00
 NZD::visitor arrivals::m/m,2011-02-04,05:45,1.4%,,0.5%
 AUD::rba monetary policy statement::none,2011-02-04,08:30,,,
 EUR::spanish industrial production::y/y,2011-02-04,16:00,-0.1%,1.2%,2.7%
 GBP::halifax house price index::m/m,2011-02-04,16:00,0.8%,-0.2%,-1.1%
 EUR::italian cpi::m/m,2011-02-04,18:00,0.4%,0.3%,0.4%
-EUR::ecb president trichet speaks::none,2011-02-04,19:30,,,
+EUR::ecb president trichet speaks::none,2011-02-04,19:30,,,0.00
 CAD::employment change::none,2011-02-04,20:00,69.2K,21.2K,22.0K
 CAD::unemployment rate::none,2011-02-04,20:00,7.8%,7.6%,7.6%
 RUB::cpi::m/m,2011-02-04,21:00,2.4%,2.0%,1.0%
@@ -918,7 +918,7 @@ EUR::german factory orders::m/m,2011-02-07,19:00,-3.4%,-1.4%,5.2%
 CLP::economic activity::y/y,2011-02-07,19:30,5.7%,5.5%,6.2%
 CLP::trade balance::none,2011-02-07,19:30,2.20B,1.50B,2.40B
 CAD::building permits::m/m,2011-02-07,21:30,2.4%,2.9%,-10.5%
-EUR::ecb president trichet speaks::none,2011-02-07,22:00,,,
+EUR::ecb president trichet speaks::none,2011-02-07,22:00,,,0.00
 USD::consumer credit::none,2011-02-08,04:00,6.10B,2.50B,2.00B
 JPY::bank lending::y/y,2011-02-08,07:50,-1.8%,-1.8%,-2.0%
 JPY::m2 money stock::y/y,2011-02-08,07:50,2.3%,2.3%,2.3%
@@ -995,7 +995,7 @@ USD::michigan 1 - year inflation expectations::none,2011-02-11,22:55,3.4%,,3.4%
 USD::michigan consumer sentiment::none,2011-02-11,22:55,75.1,75.5,74.2
 MXN::industrial production::y/y,2011-02-11,23:00,4.9%,4.0%,5.3%
 USD::u.s. baker hughes oil rig count::none,2011-02-12,01:00,805,,818
-EUR::ecb president trichet speaks::none,2011-02-12,01:30,,,
+EUR::ecb president trichet speaks::none,2011-02-12,01:30,,,0.00
 AUD::cftc aud speculative net positions::none,2011-02-12,04:30,72.0K,,60.1K
 CAD::cftc cad speculative net positions::none,2011-02-12,04:30,39.8K,,33.8K
 CHF::cftc chf speculative net positions::none,2011-02-12,04:30,8.2K,,10.4K
@@ -1010,7 +1010,7 @@ USD::cftc crude oil speculative net positions::none,2011-02-12,04:30,165.5k,,152
 USD::cftc gold speculative net positions::none,2011-02-12,04:30,167.1K,,151.2K
 NA::egypt - markets closed::none,2011-02-13,All Day,,,
 NA::egypt - markets closed::none,2011-02-14,All Day,,,
-EUR::ecb president trichet speaks::none,2011-02-14,01:00,,,
+EUR::ecb president trichet speaks::none,2011-02-14,01:00,,,0.00
 NZD::core retail sales::q/q,2011-02-14,05:45,0.0%,,0.0%
 NZD::retail sales::q/q,2011-02-14,05:45,-0.4%,-0.4%,-0.4%
 JPY::gdp::q/q,2011-02-14,07:50,-0.3%,-0.5%,0.8%
@@ -1069,7 +1069,7 @@ AUD::mi leading index::m/m,2011-02-16,07:30,0.8%,,0.0%
 JPY::tertiary industry activity index::m/m,2011-02-16,07:50,-0.8%,-0.5%,0.5%
 GBP::nationwide consumer confidence::none,2011-02-16,08:00,47,50,54
 AUD::new motor vehicle sales::m/m,2011-02-16,08:30,-1.9%,,1.0%
-JPY::boj monthly report::none,2011-02-16,13:00,,,
+JPY::boj monthly report::none,2011-02-16,13:00,,,0.00
 EUR::spanish gdp::q/q,2011-02-16,16:00,0.2%,0.2%,0.0%
 GBP::average earnings index +bonus::none,2011-02-16,17:30,1.8%,2.0%,2.1%
 GBP::claimant count change::none,2011-02-16,17:30,2.4K,-3.3K,-3.4K
@@ -1091,7 +1091,7 @@ USD::crude oil inventories::none,2011-02-16,23:30,0.900M,1.800M,1.900M
 USD::gasoline inventories::none,2011-02-16,23:30,0.200M,1.850M,4.700M
 NA::egypt - markets closed::none,2011-02-17,All Day,,,
 NA::morocco - prophet's birthday::none,2011-02-17,All Day,,,
-USD::fomc meeting minutes::none,2011-02-17,03:00,,,
+USD::fomc meeting minutes::none,2011-02-17,03:00,,,0.00
 USD::fed's balance sheet::none,2011-02-17,04:30,"2,508.87B",,"2,500.48B"
 NZD::business nz pmi::none,2011-02-17,05:30,53.7,,53.2
 NZD::ppi output::q/q,2011-02-17,05:45,0.2%,0.7%,1.2%
@@ -1103,7 +1103,7 @@ SGD::trade balance::none,2011-02-17,13:00,6.09B,,5.90B
 SEK::cpi::y/y,2011-02-17,16:30,2.1%,2.5%,2.3%
 EUR::current account::none,2011-02-17,17:00,-13.3B,-6.1B,-10.5B
 NOK::gdp::q/q,2011-02-17,17:00,2.4%,0.9%,-1.5%
-GBP::boe mpc member sentance speaks::none,2011-02-17,17:35,,,
+GBP::boe mpc member sentance speaks::none,2011-02-17,17:35,,,0.00
 CHF::zew expectations::none,2011-02-17,18:00,-17.2,,-18.4
 GBP::cbi industrial trends orders::none,2011-02-17,19:00,-8,-9,-16
 CAD::wholesale sales::m/m,2011-02-17,21:30,0.8%,1.9%,1.0%
@@ -1123,7 +1123,7 @@ CAD::boc review::none,2011-02-17,23:30,,,
 USD::natural gas storage::none,2011-02-17,23:30,-233B,-233B,-209B
 USD::fomc member fisher speaks::none,2011-02-18,02:10,,,
 CLP::interest rate decision::none,2011-02-18,05:00,3.50%,3.25%,3.25%
-JPY::monetary policy meeting minutes::none,2011-02-18,07:50,,,
+JPY::monetary policy meeting minutes::none,2011-02-18,07:50,,,0.00
 EUR::german ppi::m/m,2011-02-18,15:00,1.2%,0.6%,0.7%
 EUR::french business survey::none,2011-02-18,15:45,106,109,108
 MYR::gdp::y/y,2011-02-18,17:00,4.8%,5.0%,5.3%
@@ -1131,7 +1131,7 @@ GBP::mortgage approvals::none,2011-02-18,17:30,41K,46K,43K
 GBP::retail sales::m/m,2011-02-18,17:30,1.9%,0.5%,-1.4%
 CAD::cpi::m/m,2011-02-18,20:00,0.3%,0.3%,0.0%
 CAD::core cpi::m/m,2011-02-18,20:00,0.0%,0.2%,-0.3%
-USD::fed chairman bernanke speaks::none,2011-02-18,21:00,,,
+USD::fed chairman bernanke speaks::none,2011-02-18,21:00,,,0.00
 GBP::boe gov king speaks::none,2011-02-18,21:20,,,
 USD::treasury secretary geithner speaks::none,2011-02-18,22:45,,,
 USD::u.s. baker hughes oil rig count::none,2011-02-19,01:00,798,,805
@@ -1197,7 +1197,7 @@ MXN::retail sales::y/y,2011-02-23,23:00,2.6%,2.6%,2.4%
 USD::existing home sales::none,2011-02-23,23:00,5.36M,5.23M,5.22M
 USD::mass layoffs::none,2011-02-23,23:00,1.53K,,1.48K
 NA::egypt - markets closed::none,2011-02-24,All Day,,,
-EUR::ecb president trichet speaks::none,2011-02-24,01:00,,,
+EUR::ecb president trichet speaks::none,2011-02-24,01:00,,,0.00
 USD::kansas city fed president hoenig speaks::none,2011-02-24,01:30,,,
 ARS::industrial production::y/y,2011-02-24,03:00,10.3%,9.3%,10.6%
 USD::fed's balance sheet::none,2011-02-24,04:30,"2,533.22B",,"2,508.87B"
@@ -1510,7 +1510,7 @@ USD::fed chairman bernanke testifies::none,2011-03-02,23:00,,,
 USD::crude oil inventories::none,2011-03-02,23:30,-0.400M,1.100M,0.800M
 USD::gasoline inventories::none,2011-03-02,23:30,-3.600M,-3.000M,-2.800M
 NA::egypt - markets closed::none,2011-03-03,All Day,,,
-USD::beige book::none,2011-03-03,03:00,,,
+USD::beige book::none,2011-03-03,03:00,,,0.00
 USD::fed's balance sheet::none,2011-03-03,04:30,"2,545.12B",,"2,533.22B"
 VND::trade balance::none,2011-03-03,05:45,-950.00M,"-1,500.00M",-880.00M
 AUD::aig services index::none,2011-03-03,06:30,48.7,,45.5
@@ -1553,7 +1553,7 @@ CAD::ivey pmi::none,2011-03-04,23:00,70.8,50.6,41.4
 MXN::interest rate decision::none,2011-03-04,23:00,4.50%,4.50%,4.50%
 RUB::cpi::m/m,2011-03-04,23:00,0.8%,1.5%,2.4%
 USD::factory orders::m/m,2011-03-04,23:00,3.1%,2.1%,1.4%
-EUR::ecb president trichet speaks::none,2011-03-04,23:25,,,
+EUR::ecb president trichet speaks::none,2011-03-04,23:25,,,0.00
 USD::u.s. baker hughes oil rig count::none,2011-03-05,01:00,801,,783
 AUD::cftc aud speculative net positions::none,2011-03-05,04:30,71.9K,,66.1K
 CAD::cftc cad speculative net positions::none,2011-03-05,04:30,72.8K,,68.3K
@@ -1579,7 +1579,7 @@ TWD::trade balance::none,2011-03-07,16:00,0.92B,1.20B,1.88B
 EUR::sentix investor confidence::none,2011-03-07,17:30,17.1,17.2,16.7
 CLP::economic activity::y/y,2011-03-07,19:30,6.8%,5.9%,5.7%
 CLP::trade balance::none,2011-03-07,19:30,1.20B,1.70B,2.20B
-EUR::ecb president trichet speaks::none,2011-03-07,20:00,,,
+EUR::ecb president trichet speaks::none,2011-03-07,20:00,,,0.00
 USD::global semiconductor sales::m/m,2011-03-07,20:00,1.5%,,-3.0%
 CAD::building permits::m/m,2011-03-07,21:30,-5.1%,3.3%,2.6%
 USD::fomc member fisher speaks::none,2011-03-07,22:15,,,
@@ -1738,7 +1738,7 @@ KRW::unemployment rate::none,2011-03-16,07:00,4.0%,3.6%,3.6%
 AUD::mi leading index::m/m,2011-03-16,07:30,-0.1%,,0.9%
 JPY::bsi large manufacturing conditions::none,2011-03-16,07:50,-3.2,,-8.0
 AUD::housing starts::q/q,2011-03-16,08:30,-5.30%,-1.10%,-13.00%
-JPY::boj monthly report::none,2011-03-16,13:00,,,
+JPY::boj monthly report::none,2011-03-16,13:00,,,0.00
 GBP::boe gov king speaks::none,2011-03-16,15:00,,,
 EUR::italian cpi::m/m,2011-03-16,17:00,0.3%,0.3%,0.4%
 GBP::average earnings index +bonus::none,2011-03-16,17:30,2.3%,2.1%,1.8%
@@ -1761,7 +1761,7 @@ NA::egypt - markets closed::none,2011-03-17,All Day,,,
 USD::fed's balance sheet::none,2011-03-17,04:30,"2,583.05B",,"2,577.08B"
 NZD::westpac consumer sentiment::none,2011-03-17,05:00,97.9,,108.3
 JPY::tertiary industry activity index::m/m,2011-03-17,07:50,2.1%,1.4%,-0.9%
-AUD::rba bulletin::none,2011-03-17,08:30,,,
+AUD::rba bulletin::none,2011-03-17,08:30,,,0.00
 SGD::trade balance::none,2011-03-17,13:00,4.90B,,6.05B
 CHF::industrial production::q/q,2011-03-17,16:15,7.4%,4.6%,1.4%
 CHF::snb interest rate decision::none,2011-03-17,16:30,0.25%,0.25%,0.25%
@@ -1782,7 +1782,7 @@ USD::natural gas storage::none,2011-03-17,22:30,-56B,-42B,-71B
 USD::us leading index::m/m,2011-03-17,23:00,0.8%,0.9%,0.1%
 COP::industrial production::y/y,2011-03-18,05:00,6.2%,4.6%,4.0%
 CLP::interest rate decision::none,2011-03-18,06:00,4.00%,3.75%,3.50%
-JPY::monetary policy meeting minutes::none,2011-03-18,07:50,,,
+JPY::monetary policy meeting minutes::none,2011-03-18,07:50,,,0.00
 GBP::nationwide consumer confidence::none,2011-03-18,08:00,38,48,48
 EUR::german ppi::m/m,2011-03-18,15:00,0.7%,0.7%,1.2%
 CHF::ppi::m/m,2011-03-18,16:15,0.2%,0.4%,0.1%
@@ -1816,7 +1816,7 @@ NA::south africa - human rights day::none,2011-03-21,All Day,,,
 GBP::rightmove house price index::m/m,2011-03-21,08:00,0.8%,,3.1%
 NZD::credit card spending::y/y,2011-03-21,10:00,5.3%,,5.5%
 USD::chicago fed national activity::none,2011-03-21,20:30,-0.04,,-0.01
-EUR::ecb president trichet speaks::none,2011-03-21,22:00,,,
+EUR::ecb president trichet speaks::none,2011-03-21,22:00,,,0.00
 USD::existing home sales::none,2011-03-21,22:00,4.88M,5.05M,5.40M
 NA::egypt - markets closed::none,2011-03-22,All Day,,,
 JPY::all industries activity index::m/m,2011-03-22,12:30,2.9%,2.8%,-0.3%
@@ -1831,12 +1831,12 @@ CAD::core retail sales::m/m,2011-03-22,20:30,0.0%,0.7%,0.6%
 CAD::leading indicators::m/m,2011-03-22,20:30,0.8%,0.7%,0.4%
 CAD::retail sales::m/m,2011-03-22,20:30,-0.3%,1.0%,-0.2%
 USD::treasury secretary geithner speaks::none,2011-03-22,20:30,,,
-GBP::boe mpc member sentance speaks::none,2011-03-22,22:00,,,
+GBP::boe mpc member sentance speaks::none,2011-03-22,22:00,,,0.00
 USD::house price index::m/m,2011-03-22,22:00,-0.3%,-0.2%,-1.0%
 USD::mass layoffs::none,2011-03-22,22:00,1.42K,,1.53K
 USD::richmond manufacturing index::none,2011-03-22,22:00,20,23,25
 NA::egypt - markets closed::none,2011-03-23,All Day,,,
-GBP::boe mpc member sentance speaks::none,2011-03-23,02:00,,,
+GBP::boe mpc member sentance speaks::none,2011-03-23,02:00,,,0.00
 NZD::current account::q/q,2011-03-23,05:45,-3.52B,-2.13B,-0.03B
 TWD::industrial production::y/y,2011-03-23,16:00,13.30%,15.50%,17.40%
 SEK::business confidence::none,2011-03-23,16:15,13,9,11
@@ -1853,7 +1853,7 @@ USD::gasoline inventories::none,2011-03-23,22:30,-5.300M,-2.000M,-4.200M
 EUR::consumer confidence::none,2011-03-23,23:00,-11.0,-11.0,-10.0
 NA::argentina - remembrance for truth and justice day::none,2011-03-24,All Day,,,
 NA::egypt - markets closed::none,2011-03-24,All Day,,,
-USD::fed chairman bernanke speaks::none,2011-03-24,00:00,,,
+USD::fed chairman bernanke speaks::none,2011-03-24,00:00,,,0.00
 ARS::industrial production::y/y,2011-03-24,03:00,9.0%,8.2%,10.3%
 USD::fed's balance sheet::none,2011-03-24,04:30,"2,601.34B",,"2,583.05B"
 NZD::gdp::q/q,2011-03-24,05:45,0.2%,0.1%,-0.2%
@@ -1915,7 +1915,7 @@ USD::personal income::m/m,2011-03-28,20:30,0.3%,0.4%,1.2%
 USD::personal spending::m/m,2011-03-28,20:30,0.7%,0.5%,0.3%
 MXN::economic activity::y/y,2011-03-28,22:00,5.80%,5.20%,4.10%
 USD::pending home sales::m/m,2011-03-28,22:00,2.1%,0.3%,-2.8%
-EUR::ecb president trichet speaks::none,2011-03-28,23:00,,,
+EUR::ecb president trichet speaks::none,2011-03-28,23:00,,,0.00
 ARS::economic activity::y/y,2011-03-29,03:00,9.5%,8.7%,10.1%
 USD::chicago fed president evans speaks::none,2011-03-29,03:40,,,
 NZD::trade balance::m/m,2011-03-29,05:45,194M,270M,-3M
@@ -1964,7 +1964,7 @@ AUD::retail sales::m/m,2011-03-31,08:30,0.5%,0.4%,0.4%
 KRW::retail sales::m/m,2011-03-31,08:30,-6.1%,-0.5%,4.1%
 JPY::average cash earnings::y/y,2011-03-31,09:30,0.3%,0.3%,0.4%
 NZD::anz business confidence::none,2011-03-31,10:00,-8.70,,34.50
-EUR::ecb president trichet speaks::none,2011-03-31,11:15,,,
+EUR::ecb president trichet speaks::none,2011-03-31,11:15,,,0.00
 USD::monster employment index::none,2011-03-31,12:05,136,,129
 JPY::housing starts::y/y,2011-03-31,13:00,10.1%,7.4%,2.7%
 EUR::german retail sales::m/m,2011-03-31,14:00,-0.3%,0.4%,0.4%
@@ -2212,7 +2212,7 @@ USD::chicago fed president evans speaks::none,2011-04-04,21:30,,,
 USD::global semiconductor sales::m/m,2011-04-04,22:00,-1.1%,,1.3%
 NA::hong kong - ching ming festival::none,2011-04-05,All Day,,,
 NZD::nzier business confidence::none,2011-04-05,06:00,-27,,8
-USD::fed chairman bernanke speaks::none,2011-04-05,07:15,,,
+USD::fed chairman bernanke speaks::none,2011-04-05,07:15,,,0.00
 AUD::aig services index::none,2011-04-05,07:30,46.5,,48.7
 AUD::trade balance::none,2011-04-05,09:30,-0.21B,1.20B,1.43B
 AUD::rba interest rate decision::none,2011-04-05,12:30,4.75%,4.75%,4.75%
@@ -2224,7 +2224,7 @@ CLP::economic activity::y/y,2011-04-05,19:30,7.2%,5.6%,6.8%
 PLN::interest rate decision::none,2011-04-05,20:00,4.00%,3.75%,3.75%
 USD::ism non - manufacturing pmi::none,2011-04-05,22:00,57.3,60.0,59.7
 VEF::cpi::y/y,2011-04-06,01:00,28.7%,,29.8%
-USD::fomc meeting minutes::none,2011-04-06,02:00,,,
+USD::fomc meeting minutes::none,2011-04-06,02:00,,,0.00
 NZD::globaldairytrade price index::none,2011-04-06,04:00,-3.80%,,-8.40%
 GBP::brc shop price index::y/y,2011-04-06,07:00,2.4%,,2.7%
 AUD::home loans::m/m,2011-04-06,09:30,-5.6%,-2.6%,-6.3%
@@ -2267,7 +2267,7 @@ USD::natural gas storage::none,2011-04-07,22:30,-45B,-50B,12B
 USD::consumer credit::none,2011-04-08,03:00,7.60B,3.60B,4.40B
 JPY::adjusted current account::none,2011-04-08,07:50,1.21T,1.33T,1.09T
 JPY::economy watchers current index::none,2011-04-08,13:00,27.7,49.6,48.4
-JPY::boj monthly report::none,2011-04-08,13:00,,,
+JPY::boj monthly report::none,2011-04-08,13:00,,,0.00
 CHF::unemployment rate s.a.::none,2011-04-08,13:45,3.3%,3.3%,3.4%
 EUR::german trade balance::none,2011-04-08,14:00,11.4B,13.3B,11.8B
 EUR::french government budget balance::none,2011-04-08,14:45,-28.0B,,-13.4B
@@ -2308,7 +2308,7 @@ USD::chicago fed president evans speaks::none,2011-04-11,23:00,,,
 GBP::brc retail sales monitor::y/y,2011-04-12,07:00,-3.5%,,-0.4%
 JPY::bank lending::y/y,2011-04-12,07:50,-1.7%,,-1.8%
 JPY::m2 money stock::y/y,2011-04-12,07:50,2.7%,2.5%,2.4%
-JPY::monetary policy meeting minutes::none,2011-04-12,07:50,,,
+JPY::monetary policy meeting minutes::none,2011-04-12,07:50,,,0.00
 AUD::nab business confidence::none,2011-04-12,09:30,9,,14
 KRW::interest rate decision::none,2011-04-12,10:30,3.00%,3.00%,3.00%
 EUR::german cpi::m/m,2011-04-12,14:00,0.5%,0.5%,0.5%
@@ -2356,7 +2356,7 @@ CAD::boc monetary policy report::none,2011-04-13,22:30,,,
 USD::crude oil inventories::none,2011-04-13,22:30,1.600M,1.000M,2.000M
 USD::gasoline inventories::none,2011-04-13,22:30,-7.000M,-1.000M,-0.400M
 AUD::rba governor stevens speaks::none,2011-04-14,01:00,,,
-USD::beige book::none,2011-04-14,02:00,,,
+USD::beige book::none,2011-04-14,02:00,,,0.00
 USD::fed's balance sheet::none,2011-04-14,04:30,"2,665.41B",,"2,648.68B"
 NZD::business nz pmi::none,2011-04-14,06:30,50.1,,53.2
 GBP::nationwide consumer confidence::none,2011-04-14,07:00,44,40,39
@@ -2550,7 +2550,7 @@ SGD::industrial production::y/y,2011-04-26,13:00,22.0%,6.2%,4.7%
 CHF::consumption indicator::none,2011-04-26,14:00,1.66,,1.45
 CHF::trade balance::none,2011-04-26,14:00,1.090B,2.270B,2.380B
 GBP::cbi industrial trends orders::none,2011-04-26,18:00,-11,4,5
-GBP::boe mpc member sentance speaks::none,2011-04-26,20:50,,,
+GBP::boe mpc member sentance speaks::none,2011-04-26,20:50,,,0.00
 MXN::retail sales::y/y,2011-04-26,21:00,2.7%,3.3%,3.0%
 USD::s&p/cs hpi composite - 20 n.s.a.::y/y,2011-04-26,21:00,-3.3%,-3.2%,-3.1%
 USD::cb consumer confidence::none,2011-04-26,22:00,65.4,64.4,63.8
@@ -2578,7 +2578,7 @@ USD::crude oil inventories::none,2011-04-27,22:30,6.200M,1.500M,-2.300M
 USD::gasoline inventories::none,2011-04-27,22:30,-2.500M,-1.000M,-1.600M
 USD::fomc statement::none,2011-04-28,00:30,,,
 USD::fed interest rate decision::none,2011-04-28,00:30,0.25%,0.25%,0.25%
-USD::fed chairman bernanke speaks::none,2011-04-28,02:15,,,
+USD::fed chairman bernanke speaks::none,2011-04-28,02:15,,,0.00
 USD::fed's balance sheet::none,2011-04-28,04:30,"2,690.99B",,"2,685.78B"
 NZD::rbnz interest rate decision::none,2011-04-28,05:00,2.50%,2.50%,2.50%
 NZD::rbnz rate statement::none,2011-04-28,05:00,,,
@@ -2639,7 +2639,7 @@ CLP::unemployment rate::none,2011-04-29,21:00,7.3%,7.3%,7.3%
 USD::chicago pmi::none,2011-04-29,21:45,67.6,67.1,70.6
 USD::michigan 1 - year inflation expectations::none,2011-04-29,21:55,4.6%,,4.6%
 USD::michigan consumer sentiment::none,2011-04-29,21:55,69.8,70.0,69.6
-USD::fed chairman bernanke speaks::none,2011-04-30,00:30,,,
+USD::fed chairman bernanke speaks::none,2011-04-30,00:30,,,0.00
 USD::u.s. baker hughes oil rig count::none,2011-04-30,01:00,926,,913
 COP::interest rate decision::none,2011-04-30,03:00,3.75%,3.75%,3.50%
 AUD::cftc aud speculative net positions::none,2011-04-30,03:30,80.9K,,85.0K
@@ -2876,7 +2876,7 @@ AUD::commodity prices::y/y,2011-05-02,14:30,32.3%,,42.2%
 INR::trade balance::none,2011-05-02,14:30,-5.6B,-8.3B,-8.1B
 CHF::retail sales::y/y,2011-05-02,15:15,-0.2%,2.3%,1.8%
 CHF::manufacturing pmi::none,2011-05-02,15:30,58.4,59.8,58.4
-EUR::ecb president trichet speaks::none,2011-05-02,17:00,,,
+EUR::ecb president trichet speaks::none,2011-05-02,17:00,,,0.00
 CAD::ippi::m/m,2011-05-02,20:30,0.9%,0.9%,0.9%
 CAD::rmpi::m/m,2011-05-02,20:30,5.7%,2.5%,2.1%
 GBP::boe gov king speaks::none,2011-05-02,21:00,,,
@@ -2939,11 +2939,11 @@ USD::continuing jobless claims::none,2011-05-05,20:30,"3,733K","3,638K","3,659K"
 USD::nonfarm productivity::q/q,2011-05-05,20:30,1.6%,1.0%,2.9%
 USD::unit labor costs::q/q,2011-05-05,20:30,1.0%,0.8%,-1.0%
 USD::chicago fed president evans speaks::none,2011-05-05,21:15,,,
-USD::fed chairman bernanke speaks::none,2011-05-05,21:30,,,
+USD::fed chairman bernanke speaks::none,2011-05-05,21:30,,,0.00
 USD::bloomberg consumer confidence::none,2011-05-05,21:45,26.9,,27.45
 CAD::ivey pmi::none,2011-05-05,22:00,57.8,69.2,73.2
 USD::natural gas storage::none,2011-05-05,22:30,72B,68B,31B
-EUR::ecb president trichet speaks::none,2011-05-06,00:45,,,
+EUR::ecb president trichet speaks::none,2011-05-06,00:45,,,0.00
 AUD::aig construction index::none,2011-05-06,07:30,37.9,,39.4
 JPY::monetary base::y/y,2011-05-06,07:50,23.9%,14.3%,16.9%
 COP::cpi::y/y,2011-05-06,09:00,2.80%,,3.20%
@@ -2986,7 +2986,7 @@ RUB::cftc rub speculative positions::none,2011-05-07,04:30,13.7K,,13.5K
 USD::cftc crude oil speculative net positions::none,2011-05-07,04:30,244.3k,,258.1k
 NA::israel - memorial day::none,2011-05-09,All Day,,,
 NA::russia - victory day::none,2011-05-09,All Day,,,
-JPY::monetary policy meeting minutes::none,2011-05-09,07:50,,,
+JPY::monetary policy meeting minutes::none,2011-05-09,07:50,,,0.00
 AUD::anz job advertisements::m/m,2011-05-09,09:30,1.00%,,1.30%
 AUD::nab business confidence::none,2011-05-09,09:30,7,,9
 EUR::german trade balance::none,2011-05-09,14:00,15.2B,12.5B,11.2B
@@ -3075,7 +3075,7 @@ EUR::french non - farm payrolls::q/q,2011-05-13,14:45,0.4%,0.3%,0.2%
 CHF::ppi::m/m,2011-05-13,15:15,0.3%,0.4%,0.4%
 EUR::dutch gdp::y/y,2011-05-13,15:30,3.2%,1.5%,2.4%
 EUR::italian gdp::q/q,2011-05-13,16:00,0.1%,0.3%,0.1%
-EUR::ecb president trichet speaks::none,2011-05-13,16:00,,,
+EUR::ecb president trichet speaks::none,2011-05-13,16:00,,,0.00
 HKD::gdp::q/q,2011-05-13,16:30,2.8%,0.9%,1.5%
 EUR::gdp::q/q,2011-05-13,17:00,0.8%,0.6%,0.3%
 PEN::interest rate decision::none,2011-05-13,20:00,4.25%,4.25%,4.00%
@@ -3116,7 +3116,7 @@ EUR::trade balance::none,2011-05-16,17:00,-0.9B,1.7B,-2.1B
 HUF::interest rate decision::none,2011-05-16,20:00,6.00%,6.00%,6.00%
 CAD::manufacturing sales::m/m,2011-05-16,20:30,1.90%,1.60%,-1.80%
 USD::ny empire state manufacturing index::none,2011-05-16,20:30,11.9,19.6,21.7
-USD::fed chairman bernanke speaks::none,2011-05-16,21:00,,,
+USD::fed chairman bernanke speaks::none,2011-05-16,21:00,,,0.00
 USD::tic net long - term transactions::none,2011-05-16,21:00,24.0B,57.7B,27.2B
 USD::nahb housing market index::none,2011-05-16,22:00,16,17,16
 NA::singapore - vesak day::none,2011-05-17,All Day,,,
@@ -3136,7 +3136,7 @@ USD::building permits::none,2011-05-17,20:30,0.550M,0.590M,0.570M
 USD::housing starts::none,2011-05-17,20:30,0.520M,0.570M,0.590M
 USD::capacity utilization rate::none,2011-05-17,21:15,76.9%,77.7%,77.0%
 USD::industrial production::m/m,2011-05-17,21:15,0.0%,0.5%,0.7%
-CHF::snb board member jordan speaks::none,2011-05-18,00:30,,,
+CHF::snb board member jordan speaks::none,2011-05-18,00:30,,,0.00
 VEF::gdp::y/y,2011-05-18,01:00,4.5%,2.2%,0.3%
 NZD::globaldairytrade price index::none,2011-05-18,04:00,-2.20%,,-2.00%
 NZD::ppi output::q/q,2011-05-18,06:45,1.7%,0.5%,0.2%
@@ -3157,7 +3157,7 @@ CLP::chilean gdp::y/y,2011-05-18,20:30,9.8%,9.8%,5.8%
 USD::crude oil inventories::none,2011-05-18,22:30,0.000M,1.500M,3.800M
 USD::gasoline inventories::none,2011-05-18,22:30,0.100M,1.000M,1.300M
 USD::fomc member fisher speaks::none,2011-05-19,01:30,,,
-USD::fomc meeting minutes::none,2011-05-19,02:00,,,
+USD::fomc meeting minutes::none,2011-05-19,02:00,,,0.00
 USD::fed's balance sheet::none,2011-05-19,04:30,"2,758.01B",,"2,744.50B"
 GBP::nationwide consumer confidence::none,2011-05-19,07:00,43,48,45
 JPY::gdp::q/q,2011-05-19,07:50,-0.9%,-0.5%,-0.8%
@@ -3171,7 +3171,7 @@ TWD::gdp::y/y,2011-05-19,17:00,6.60%,6.20%,7.10%
 GBP::cbi industrial trends orders::none,2011-05-19,18:00,-2,-5,-11
 USD::initial jobless claims::none,2011-05-19,20:30,409K,420K,438K
 USD::continuing jobless claims::none,2011-05-19,20:30,"3,711K","3,713K","3,792K"
-EUR::ecb president trichet speaks::none,2011-05-19,21:00,,,
+EUR::ecb president trichet speaks::none,2011-05-19,21:00,,,0.00
 MXN::economic activity::y/y,2011-05-19,21:00,3.60%,4.00%,4.60%
 MXN::gdp::y/y,2011-05-19,21:00,4.60%,4.80%,4.40%
 USD::bloomberg consumer confidence::none,2011-05-19,21:45,25.3,,26.55
@@ -3194,7 +3194,7 @@ JPY::boj press conference::none,2011-05-20,15:15,,,
 EUR::current account::none,2011-05-20,16:00,-4.7B,-6.5B,-6.5B
 CAD::cpi::m/m,2011-05-20,19:00,0.3%,0.5%,1.1%
 CAD::core cpi::m/m,2011-05-20,19:00,0.2%,0.2%,0.7%
-EUR::italian industrial new orders::m/m,2011-05-20,19:00,8.0%,,
+EUR::italian industrial new orders::m/m,2011-05-20,19:00,8.0%,,1.39%
 CAD::core retail sales::m/m,2011-05-20,20:30,-0.1%,0.8%,0.8%
 CAD::retail sales::m/m,2011-05-20,20:30,0.0%,0.9%,0.5%
 EUR::consumer confidence::none,2011-05-20,22:00,-10.0,-12.0,-12.0
@@ -3218,7 +3218,7 @@ RUB::cftc rub speculative positions::none,2011-05-21,04:30,13.2K,,13.6K
 USD::cftc crude oil speculative net positions::none,2011-05-21,04:30,203.1k,,211.5k
 THB::gdp::y/y,2011-05-23,10:30,3.0%,2.6%,3.8%
 EUR::spanish industrial new orders::y/y,2011-05-23,13:00,10.1%,,10.0%
-JPY::boj monthly report::none,2011-05-23,13:00,,,
+JPY::boj monthly report::none,2011-05-23,13:00,,,0.00
 TWD::industrial production::y/y,2011-05-23,16:00,6.90%,11.50%,13.70%
 USD::chicago fed national activity::none,2011-05-23,20:30,-0.45,0.20,0.32
 MXN::retail sales::y/y,2011-05-23,21:00,1.0%,2.5%,2.7%
@@ -3241,7 +3241,7 @@ NA::argentina - 1810 revolution day::none,2011-05-25,All Day,,,
 NA::jordan - independence day::none,2011-05-25,All Day,,,
 NA::lebanon - resistance and liberation day::none,2011-05-25,All Day,,,
 JPY::adjusted trade balance::none,2011-05-25,07:50,-0.50T,-0.59T,0.00T
-JPY::monetary policy meeting minutes::none,2011-05-25,07:50,,,
+JPY::monetary policy meeting minutes::none,2011-05-25,07:50,,,0.00
 AUD::mi leading index::m/m,2011-05-25,08:30,0.5%,,0.5%
 AUD::construction work done::q/q,2011-05-25,09:30,0.7%,1.4%,1.4%
 JPY::boj governor shirakawa speaks::none,2011-05-25,11:30,,,
@@ -3256,7 +3256,7 @@ GBP::gross mortgage approvals::none,2011-05-25,16:30,29.4K,32.2K,31.2K
 USD::mba mortgage applications::w/w,2011-05-25,19:00,1.1%,,7.8%
 USD::durable goods orders::m/m,2011-05-25,20:30,-3.6%,-2.0%,4.4%
 USD::core durable goods orders::m/m,2011-05-25,20:30,-1.5%,0.6%,2.5%
-GBP::boe mpc member sentance speaks::none,2011-05-25,20:40,,,
+GBP::boe mpc member sentance speaks::none,2011-05-25,20:40,,,0.00
 MXN::trade balance::none,2011-05-25,21:00,0.770B,1.350B,1.440B
 USD::house price index::m/m,2011-05-25,22:00,-0.3%,-0.5%,-1.5%
 USD::crude oil inventories::none,2011-05-25,22:30,0.600M,-1.600M,0.000M
@@ -3274,7 +3274,7 @@ SEK::business confidence::none,2011-05-26,15:15,11,6,8
 EUR::french house price index::q/q,2011-05-26,16:00,1.50%,,2.50%
 EUR::italian business confidence::none,2011-05-26,16:00,101.3,102.8,102.6
 HKD::trade balance::none,2011-05-26,16:30,-42.4B,-32.0B,-40.1B
-EUR::ecb president trichet speaks::none,2011-05-26,17:20,,,
+EUR::ecb president trichet speaks::none,2011-05-26,17:20,,,0.00
 BRL::unemployment rate::none,2011-05-26,20:00,6.4%,6.4%,6.5%
 CAD::corporate profits::q/q,2011-05-26,20:30,4.2%,,7.9%
 USD::gdp::q/q,2011-05-26,20:30,1.8%,2.2%,1.8%
@@ -3581,7 +3581,7 @@ JPY::capital spending::y/y,2011-06-02,07:50,3.30%,3.20%,3.80%
 AUD::retail sales::m/m,2011-06-02,09:30,1.1%,0.4%,-0.3%
 AUD::trade balance::none,2011-06-02,09:30,1.60B,2.13B,1.69B
 EUR::french unemployment rate::none,2011-06-02,14:30,9.2%,9.1%,9.2%
-EUR::ecb president trichet speaks::none,2011-06-02,17:15,,,
+EUR::ecb president trichet speaks::none,2011-06-02,17:15,,,0.00
 USD::initial jobless claims::none,2011-06-02,20:30,422K,420K,428K
 USD::continuing jobless claims::none,2011-06-02,20:30,"3,711K","3,680K","3,712K"
 USD::nonfarm productivity::q/q,2011-06-02,20:30,1.8%,1.8%,1.6%
@@ -3620,7 +3620,7 @@ USD::cftc silver speculative net positions::none,2011-06-04,03:30,17.6K,,17.6K
 USD::cftc gold speculative net positions::none,2011-06-04,03:30,191.8K,,172.4K
 RUB::cftc rub speculative positions::none,2011-06-04,04:30,12.2K,,13.7K
 USD::cftc crude oil speculative net positions::none,2011-06-04,04:30,191.1k,,199.2k
-EUR::spanish government budget balance::none,2011-06-04,13:00,4.40B,,
+EUR::spanish government budget balance::none,2011-06-04,13:00,4.40B,,1.50B
 NA::hong kong - tuen ng day::none,2011-06-06,All Day,,,
 NA::sweden - holiday sweden::none,2011-06-06,All Day,,,
 AUD::mi inflation gauge::m/m,2011-06-06,08:30,0.2%,,0.3%
@@ -3652,7 +3652,7 @@ CLP::trade balance::none,2011-06-07,21:00,1.79B,2.00B,1.58B
 USD::ibd/tipp economic optimism::none,2011-06-07,22:00,44.6,42.0,42.8
 NA::israel - pentecost (shavuot)::none,2011-06-08,All Day,,,
 USD::consumer credit::none,2011-06-08,03:00,6.20B,5.20B,6.00B
-USD::fed chairman bernanke speaks::none,2011-06-08,03:45,,,
+USD::fed chairman bernanke speaks::none,2011-06-08,03:45,,,0.00
 GBP::brc shop price index::y/y,2011-06-08,07:00,2.3%,,2.5%
 KRW::gdp::q/q,2011-06-08,07:00,1.3%,1.4%,1.4%
 JPY::bank lending::y/y,2011-06-08,07:50,-0.7%,,-0.9%
@@ -3674,7 +3674,7 @@ CAD::housing starts::none,2011-06-08,20:15,184.00K,185.00K,179.00K
 EUR::belgian gdp::q/q,2011-06-08,21:00,1.1%,1.1%,0.5%
 USD::crude oil inventories::none,2011-06-08,22:30,-4.800M,-1.500M,2.900M
 USD::gasoline inventories::none,2011-06-08,22:30,2.200M,1.000M,2.600M
-USD::beige book::none,2011-06-09,02:00,,,
+USD::beige book::none,2011-06-09,02:00,,,0.00
 USD::fed's balance sheet::none,2011-06-09,04:30,"2,811.21B",,"2,788.72B"
 NZD::rbnz interest rate decision::none,2011-06-09,05:00,2.50%,2.50%,2.50%
 NZD::rbnz monetary policy statement::none,2011-06-09,05:00,,,
@@ -3713,7 +3713,7 @@ EUR::german cpi::m/m,2011-06-10,14:00,0.0%,0.0%,0.0%
 EUR::german wpi::m/m,2011-06-10,14:00,0.0%,0.5%,0.2%
 EUR::french industrial production::m/m,2011-06-10,14:45,-0.3%,0.4%,-1.1%
 INR::industrial production::y/y,2011-06-10,14:45,6.3%,5.5%,8.8%
-EUR::ecb president trichet speaks::none,2011-06-10,14:50,,,
+EUR::ecb president trichet speaks::none,2011-06-10,14:50,,,0.00
 EUR::austrian gdp::q/q,2011-06-10,15:40,4.2%,3.7%,3.0%
 EUR::italian gdp::q/q,2011-06-10,16:00,0.1%,0.1%,0.1%
 GBP::inflation expectations::none,2011-06-10,16:30,3.9%,,4.0%
@@ -3754,7 +3754,7 @@ NA::switzerland - whit monday::none,2011-06-13,All Day,,,
 JPY::core machinery orders::m/m,2011-06-13,07:50,-3.3%,2.0%,2.9%
 CNY::m2 money stock::y/y,2011-06-13,10:00,15.1%,15.5%,15.3%
 EUR::italian industrial production::m/m,2011-06-13,16:00,1.0%,-0.4%,0.7%
-EUR::ecb president trichet speaks::none,2011-06-13,21:00,,,
+EUR::ecb president trichet speaks::none,2011-06-13,21:00,,,0.00
 MXN::industrial production::y/y,2011-06-13,21:00,1.4%,3.2%,4.4%
 RUB::trade balance::none,2011-06-14,05:00,19.30B,,18.88B
 NZD::fpi::m/m,2011-06-14,06:45,0.5%,,0.1%
@@ -3782,7 +3782,7 @@ USD::ppi::m/m,2011-06-14,20:30,0.2%,0.1%,0.8%
 USD::retail sales::m/m,2011-06-14,20:30,-0.2%,-0.7%,0.3%
 USD::core ppi::m/m,2011-06-14,20:30,0.2%,0.2%,0.3%
 USD::business inventories::m/m,2011-06-14,22:00,0.8%,0.9%,1.3%
-USD::fed chairman bernanke speaks::none,2011-06-15,02:30,,,
+USD::fed chairman bernanke speaks::none,2011-06-15,02:30,,,0.00
 CLP::interest rate decision::none,2011-06-15,06:00,5.25%,5.25%,5.00%
 KRW::unemployment rate::none,2011-06-15,06:00,3.3%,3.8%,3.6%
 NZD::core retail sales::q/q,2011-06-15,06:45,0.7%,0.7%,0.0%
@@ -3792,7 +3792,7 @@ AUD::westpac consumer sentiment::none,2011-06-15,08:30,-2.60%,,-1.30%
 AUD::housing starts::q/q,2011-06-15,09:30,3.10%,-0.80%,-4.00%
 AUD::rba governor stevens speaks::none,2011-06-15,10:00,,,
 EUR::spanish government budget balance::none,2011-06-15,13:00,1.17B,,0.82B
-JPY::boj monthly report::none,2011-06-15,13:00,,,
+JPY::boj monthly report::none,2011-06-15,13:00,,,0.00
 SGD::retail sales::y/y,2011-06-15,13:00,8.1%,1.0%,1.1%
 EUR::french cpi::m/m,2011-06-15,13:30,0.1%,0.1%,0.3%
 HUF::cpi::y/y,2011-06-15,15:00,3.9%,4.3%,4.7%
@@ -3826,7 +3826,7 @@ NZD::westpac consumer sentiment::none,2011-06-16,06:00,112.0,,97.9
 NZD::business nz pmi::none,2011-06-16,06:30,54.7,,52.0
 AUD::mi inflation expectations::none,2011-06-16,09:00,3.3%,,3.3%
 AUD::new motor vehicle sales::m/m,2011-06-16,09:30,-7.6%,,-4.1%
-AUD::rba bulletin::none,2011-06-16,09:30,,,
+AUD::rba bulletin::none,2011-06-16,09:30,,,0.00
 RUB::industrial production::y/y,2011-06-16,13:00,4.10%,,4.50%
 CHF::industrial production::q/q,2011-06-16,15:15,-9.2%,-7.8%,7.7%
 CHF::snb interest rate decision::none,2011-06-16,15:30,0.25%,0.25%,0.25%
@@ -3846,8 +3846,8 @@ USD::bloomberg consumer confidence::none,2011-06-16,21:45,28,,27.05
 USD::philadelphia fed manufacturing index::none,2011-06-16,22:00,-7.7,7.0,3.9
 USD::natural gas storage::none,2011-06-16,22:30,69B,67B,80B
 USD::fomc member fisher speaks::none,2011-06-17,01:10,,,
-JPY::monetary policy meeting minutes::none,2011-06-17,07:50,,,
-EUR::ecb president trichet speaks::none,2011-06-17,08:00,,,
+JPY::monetary policy meeting minutes::none,2011-06-17,07:50,,,0.00
+EUR::ecb president trichet speaks::none,2011-06-17,08:00,,,0.00
 SGD::trade balance::none,2011-06-17,13:15,4.53B,,4.33B
 EUR::italian trade balance::none,2011-06-17,16:00,-3.76B,-2.14B,-3.94B
 EUR::german house price index::m/m,2011-06-17,17:00,1.6%,,1.5%
@@ -3876,7 +3876,7 @@ USD::cftc crude oil speculative net positions::none,2011-06-18,04:30,166.4k,,176
 COP::industrial production::y/y,2011-06-18,05:00,2.0%,5.5%,5.2%
 INR::cpi::y/y,2011-06-18,15:00,9.1%,,8.7%
 INR::wpi inflation::y/y,2011-06-19,03:00,9.10%,,9.74%
-EUR::ecb president trichet speaks::none,2011-06-19,17:00,,,
+EUR::ecb president trichet speaks::none,2011-06-19,17:00,,,0.00
 NA::argentina - belgrano day::none,2011-06-20,All Day,,,
 NZD::manufacturing sales volume::q/q,2011-06-20,06:45,2.7%,,3.0%
 GBP::rightmove house price index::m/m,2011-06-20,07:00,0.6%,,1.3%
@@ -3919,7 +3919,7 @@ NA::austria - corpus christi day::none,2011-06-23,All Day,,,
 NA::poland - corpus christi day::none,2011-06-23,All Day,,,
 USD::fomc statement::none,2011-06-23,00:30,,,
 USD::fed interest rate decision::none,2011-06-23,00:30,0.25%,0.25%,0.25%
-USD::fed chairman bernanke speaks::none,2011-06-23,02:15,,,
+USD::fed chairman bernanke speaks::none,2011-06-23,02:15,,,0.00
 USD::fed's balance sheet::none,2011-06-23,04:30,"2,856.40B",,"2,827.55B"
 RUB::unemployment rate::none,2011-06-23,13:00,6.4%,,7.2%
 CHF::trade balance::none,2011-06-23,14:00,3.310B,1.790B,1.440B
@@ -3940,7 +3940,7 @@ USD::new home sales::none,2011-06-23,22:00,319K,310K,326K
 USD::natural gas storage::none,2011-06-23,22:30,98B,91B,69B
 NA::finland - midsummer's eve::none,2011-06-24,All Day,,,
 NA::sweden - midsummer's eve::none,2011-06-24,All Day,,,
-EUR::ecb president trichet speaks::none,2011-06-24,00:00,,,
+EUR::ecb president trichet speaks::none,2011-06-24,00:00,,,0.00
 COP::gdp::y/y,2011-06-24,00:45,5.1%,5.0%,4.6%
 KRW::consumer confidence::none,2011-06-24,05:00,102,104,104
 JPY::corporate services price index (cspi)::y/y,2011-06-24,07:50,-0.9%,-0.8%,-0.7%
@@ -3996,7 +3996,7 @@ USD::cb consumer confidence::none,2011-06-28,21:45,58.5,60.3,61.7
 USD::richmond manufacturing index::none,2011-06-28,22:00,3,-2,-6
 NA::united arab emirates - eid al - isra wal miraj::none,2011-06-29,All Day,,,
 USD::fomc member fisher speaks::none,2011-06-29,00:00,,,
-EUR::ecb president trichet speaks::none,2011-06-29,02:45,,,
+EUR::ecb president trichet speaks::none,2011-06-29,02:45,,,0.00
 EUR::spanish business confidence::none,2011-06-29,07:00,-12,,-15
 JPY::industrial production::m/m,2011-06-29,07:50,5.7%,5.5%,1.6%
 EUR::spanish retail sales::y/y,2011-06-29,15:05,-5.8%,-4.0%,-2.1%
@@ -4027,7 +4027,7 @@ EUR::german retail sales::m/m,2011-06-30,14:00,-2.8%,0.7%,0.0%
 GBP::nationwide hpi::m/m,2011-06-30,14:00,0.0%,0.1%,0.3%
 EUR::french ppi::m/m,2011-06-30,14:45,-0.5%,0.2%,0.8%
 EUR::french consumer spending::m/m,2011-06-30,14:45,-0.8%,1.0%,-1.4%
-EUR::ecb president trichet speaks::none,2011-06-30,15:00,,,
+EUR::ecb president trichet speaks::none,2011-06-30,15:00,,,0.00
 THB::trade account::none,2011-06-30,15:30,0.27B,0.50B,-0.48B
 TRY::gdp::y/y,2011-06-30,15:30,11.0%,7.7%,9.2%
 EUR::german unemployment change::none,2011-06-30,15:55,-8K,-17K,-8K
@@ -4372,7 +4372,7 @@ USD::cftc crude oil speculative net positions::none,2011-07-09,04:30,138.4k,,134
 CNY::cpi::y/y,2011-07-09,09:30,6.4%,6.3%,5.5%
 CNY::ppi::y/y,2011-07-09,09:30,7.1%,6.9%,6.8%
 CNY::trade balance (usd)::none,2011-07-10,10:45,22.30B,14.10B,13.10B
-EUR::ecb president trichet speaks::none,2011-07-10,19:00,,,
+EUR::ecb president trichet speaks::none,2011-07-10,19:00,,,0.00
 JPY::m2 money stock::y/y,2011-07-11,07:50,2.9%,2.8%,2.7%
 AUD::home loans::m/m,2011-07-11,09:30,4.4%,4.5%,4.6%
 MYR::industrial production::y/y,2011-07-11,12:00,-5.1%,,-1.7%
@@ -4409,7 +4409,7 @@ CAD::trade balance::none,2011-07-12,20:30,-0.8B,-0.8B,-0.9B
 USD::trade balance::none,2011-07-12,20:30,-50.2B,-44.0B,-43.6B
 MXN::industrial production::y/y,2011-07-12,21:00,4.6%,1.6%,1.8%
 USD::ibd/tipp economic optimism::none,2011-07-12,22:00,41.4,43.9,44.6
-USD::fomc meeting minutes::none,2011-07-13,02:00,,,
+USD::fomc meeting minutes::none,2011-07-13,02:00,,,0.00
 NZD::fpi::m/m,2011-07-13,06:45,1.4%,,0.5%
 KRW::unemployment rate::none,2011-07-13,08:00,3.3%,3.3%,3.3%
 AUD::westpac consumer sentiment::none,2011-07-13,08:30,-8.30%,,-2.60%
@@ -4418,7 +4418,7 @@ CNY::retail sales::y/y,2011-07-13,10:00,17.7%,17.0%,16.9%
 CNY::fixed asset investment::y/y,2011-07-13,10:00,25.6%,25.6%,25.8%
 CNY::industrial production::y/y,2011-07-13,10:00,15.1%,13.1%,13.3%
 JPY::industrial production::m/m,2011-07-13,12:30,6.2%,5.7%,5.7%
-JPY::boj monthly report::none,2011-07-13,13:00,,,
+JPY::boj monthly report::none,2011-07-13,13:00,,,0.00
 EUR::german wpi::m/m,2011-07-13,14:00,-0.6%,-0.2%,0.0%
 CHF::ppi::m/m,2011-07-13,15:15,-0.5%,-0.3%,-0.2%
 THB::interest rate decision::none,2011-07-13,15:30,3.25%,3.25%,3.00%
@@ -4457,7 +4457,7 @@ USD::fed chairman bernanke testifies::none,2011-07-14,22:00,,,
 USD::business inventories::m/m,2011-07-14,22:00,1.0%,0.7%,1.0%
 USD::natural gas storage::none,2011-07-14,22:30,84B,78B,95B
 CLP::interest rate decision::none,2011-07-15,06:00,5.25%,5.25%,5.25%
-JPY::monetary policy meeting minutes::none,2011-07-15,07:50,,,
+JPY::monetary policy meeting minutes::none,2011-07-15,07:50,,,0.00
 EUR::german new motor sales::y/y,2011-07-15,13:00,0.20%,,3.00%
 RUB::industrial production::y/y,2011-07-15,13:00,5.70%,4.00%,4.10%
 SGD::retail sales::y/y,2011-07-15,13:00,10.0%,8.0%,8.5%
@@ -4619,7 +4619,7 @@ USD::core durable goods orders::m/m,2011-07-27,20:30,0.1%,0.5%,0.7%
 MXN::economic activity::y/y,2011-07-27,21:00,4.50%,3.80%,2.40%
 USD::crude oil inventories::none,2011-07-27,22:30,2.300M,-1.500M,-3.700M
 USD::gasoline inventories::none,2011-07-27,22:30,1.000M,0.400M,0.800M
-USD::beige book::none,2011-07-28,02:00,,,
+USD::beige book::none,2011-07-28,02:00,,,0.00
 ARS::retail sales::y/y,2011-07-28,03:00,32.4%,23.8%,20.6%
 USD::fed's balance sheet::none,2011-07-28,04:30,"2,863.58B",,"2,871.30B"
 NZD::rbnz interest rate decision::none,2011-07-28,05:00,2.50%,2.50%,2.50%
@@ -4945,7 +4945,7 @@ VEF::cpi::y/y,2011-08-04,23:45,26.1%,25.6%,25.1%
 AUD::aig construction index::none,2011-08-05,07:30,36.1,,35.8
 AUD::rba monetary policy statement::none,2011-08-05,09:30,,,
 JPY::leading index::none,2011-08-05,13:00,103.2,103.4,99.4
-JPY::boj monthly report::none,2011-08-05,13:00,,,
+JPY::boj monthly report::none,2011-08-05,13:00,,,0.00
 USD::monster employment index::none,2011-08-05,13:05,144,,146
 IDR::gdp::y/y,2011-08-05,13:15,6.50%,5.90%,6.50%
 EUR::french trade balance::none,2011-08-05,14:45,-5.6B,-6.5B,-6.4B
@@ -5001,7 +5001,7 @@ NA::singapore - national holiday::none,2011-08-09,All Day,,,
 NA::south africa - national women's day::none,2011-08-09,All Day,,,
 GBP::brc retail sales monitor::y/y,2011-08-09,07:00,0.6%,-0.5%,-0.6%
 JPY::m2 money stock::y/y,2011-08-09,07:50,2.9%,2.9%,2.9%
-JPY::monetary policy meeting minutes::none,2011-08-09,07:50,,,
+JPY::monetary policy meeting minutes::none,2011-08-09,07:50,,,0.00
 AUD::home loans::m/m,2011-08-09,09:30,0.0%,0.8%,2.8%
 AUD::nab business confidence::none,2011-08-09,09:30,2,,0
 CNY::cpi::y/y,2011-08-09,10:00,6.5%,6.4%,6.4%
@@ -5282,7 +5282,7 @@ USD::gdp price index::q/q,2011-08-26,20:30,2.4%,2.3%,2.3%
 USD::michigan 1 - year inflation expectations::none,2011-08-26,21:55,3.5%,,3.4%
 USD::michigan consumer sentiment::none,2011-08-26,21:55,55.7,56.0,54.9
 MXN::interest rate decision::none,2011-08-26,22:00,4.50%,4.50%,4.50%
-USD::fed chairman bernanke speaks::none,2011-08-26,22:00,,,
+USD::fed chairman bernanke speaks::none,2011-08-26,22:00,,,0.00
 VND::trade balance::none,2011-08-26,22:00,-800.00M,300.00M,"1,100.00M"
 VEF::gdp::y/y,2011-08-26,Tentative,2.5%,3.8%,4.5%
 USD::u.s. baker hughes oil rig count::none,2011-08-27,01:00,1069,,1066
@@ -5299,7 +5299,7 @@ USD::cftc silver speculative net positions::none,2011-08-27,03:30,27.0K,,21.9K
 USD::cftc gold speculative net positions::none,2011-08-27,03:30,187.7K,,200.1K
 RUB::cftc rub speculative positions::none,2011-08-27,04:30,14.0K,,12.6K
 USD::cftc crude oil speculative net positions::none,2011-08-27,04:30,136.3k,,131.2k
-EUR::ecb president trichet speaks::none,2011-08-27,22:25,,,
+EUR::ecb president trichet speaks::none,2011-08-27,22:25,,,0.00
 NA::saudi arabia - eid al - fitr::none,2011-08-29,All Day,,,
 NA::united arab emirates - eid al - fitr::none,2011-08-29,All Day,,,
 NA::united kingdom - summer::none,2011-08-29,All Day,,,
@@ -5310,7 +5310,7 @@ EUR::german cpi::m/m,2011-08-29,20:00,-0.1%,0.0%,0.4%
 USD::core pce price index::m/m,2011-08-29,20:30,0.2%,0.2%,0.2%
 USD::personal income::m/m,2011-08-29,20:30,0.3%,0.4%,0.2%
 USD::personal spending::m/m,2011-08-29,20:30,0.8%,0.5%,-0.1%
-EUR::ecb president trichet speaks::none,2011-08-29,21:00,,,
+EUR::ecb president trichet speaks::none,2011-08-29,21:00,,,0.00
 PEN::gdp::y/y,2011-08-29,22:00,6.60%,6.70%,8.70%
 USD::pending home sales::m/m,2011-08-29,22:00,-1.3%,-1.0%,2.4%
 NA::egypt - eid al - fitr::none,2011-08-30,All Day,,,
@@ -5345,7 +5345,7 @@ NA::jordan - eid al - fitr::none,2011-08-31,All Day,,,
 NA::morocco - eid al - fitr::none,2011-08-31,All Day,,,
 NA::saudi arabia - eid al - fitr::none,2011-08-31,All Day,,,
 NA::united arab emirates - eid al - fitr::none,2011-08-31,All Day,,,
-USD::fomc meeting minutes::none,2011-08-31,02:00,,,
+USD::fomc meeting minutes::none,2011-08-31,02:00,,,0.00
 GBP::gfk consumer confidence::none,2011-08-31,07:00,-31,-31,-30
 JPY::industrial production::m/m,2011-08-31,07:50,0.6%,1.6%,3.8%
 KRW::industrial production::y/y,2011-08-31,08:00,3.8%,7.0%,6.5%
@@ -5660,7 +5660,7 @@ CAD::ivey pmi::none,2011-09-07,22:00,56.4,46.7,46.8
 GBP::niesr gdp estimate::none,2011-09-07,22:00,0.2%,,0.6%
 USD::chicago fed president evans speaks::none,2011-09-07,23:15,,,
 NA::saudi arabia - eid al - fitr::none,2011-09-08,All Day,,,
-USD::beige book::none,2011-09-08,02:00,,,
+USD::beige book::none,2011-09-08,02:00,,,0.00
 USD::fed's balance sheet::none,2011-09-08,04:30,"2,858.66B",,"2,853.89B"
 JPY::bank lending::y/y,2011-09-08,07:50,-0.5%,,-0.6%
 JPY::core machinery orders::m/m,2011-09-08,07:50,-8.2%,-4.2%,7.7%
@@ -5670,7 +5670,7 @@ AUD::employment change::none,2011-09-08,09:30,-9.7K,10.0K,-4.1K
 AUD::unemployment rate::none,2011-09-08,09:30,5.3%,5.1%,5.1%
 MYR::trade balance::none,2011-09-08,12:00,9.45B,9.10B,7.90B
 JPY::economy watchers current index::none,2011-09-08,13:00,47.3,54.3,52.6
-JPY::boj monthly report::none,2011-09-08,13:00,,,
+JPY::boj monthly report::none,2011-09-08,13:00,,,0.00
 EUR::french non - farm payrolls::q/q,2011-09-08,13:30,0.2%,0.4%,0.4%
 CHF::unemployment rate s.a.::none,2011-09-08,13:45,3.0%,3.0%,3.0%
 EUR::german trade balance::none,2011-09-08,14:00,10.1B,11.0B,11.5B
@@ -5693,7 +5693,7 @@ USD::natural gas storage::none,2011-09-08,22:30,64B,60B,55B
 USD::crude oil inventories::none,2011-09-08,23:00,-4.000M,-2.200M,5.300M
 USD::gasoline inventories::none,2011-09-08,23:00,0.200M,-1.400M,-2.800M
 NA::saudi arabia - eid al - fitr::none,2011-09-09,All Day,,,
-USD::fed chairman bernanke speaks::none,2011-09-09,01:30,,,
+USD::fed chairman bernanke speaks::none,2011-09-09,01:30,,,0.00
 USD::consumer credit::none,2011-09-09,03:00,12.00B,5.40B,11.30B
 JPY::gdp::q/q,2011-09-09,07:50,-0.5%,-0.5%,-0.3%
 JPY::m2 money stock::y/y,2011-09-09,07:50,2.7%,2.9%,3.0%
@@ -5735,10 +5735,10 @@ CNY::trade balance (usd)::none,2011-09-10,11:00,17.80B,24.70B,31.50B
 GBP::construction output::m/m,2011-09-10,17:30,-0.10%,,1.30%
 GBP::u.k. construction output::y/y,2011-09-10,17:30,1.90%,,1.30%
 CNY::m2 money stock::y/y,2011-09-11,10:30,13.5%,14.3%,14.7%
-EUR::ecb president trichet speaks::none,2011-09-12,06:00,,,
+EUR::ecb president trichet speaks::none,2011-09-12,06:00,,,0.00
 JPY::ppi::y/y,2011-09-12,07:50,2.6%,2.7%,2.9%
 JPY::bsi large manufacturing conditions::none,2011-09-12,07:50,10.3,,-23.3
-JPY::monetary policy meeting minutes::none,2011-09-12,07:50,,,
+JPY::monetary policy meeting minutes::none,2011-09-12,07:50,,,0.00
 JPY::tertiary industry activity index::m/m,2011-09-12,07:50,-0.1%,0.3%,1.8%
 AUD::trade balance::none,2011-09-12,09:30,1.83B,1.90B,1.82B
 INR::industrial production::y/y,2011-09-12,13:30,3.3%,6.5%,8.7%
@@ -5791,7 +5791,7 @@ NZD::rbnz rate statement::none,2011-09-15,05:00,,,
 NZD::business nz pmi::none,2011-09-15,06:30,52.9,,53.2
 AUD::mi inflation expectations::none,2011-09-15,09:00,2.8%,,2.7%
 AUD::new motor vehicle sales::m/m,2011-09-15,09:30,3.3%,,9.0%
-AUD::rba bulletin::none,2011-09-15,09:30,,,
+AUD::rba bulletin::none,2011-09-15,09:30,,,0.00
 SGD::retail sales::y/y,2011-09-15,13:00,10.7%,8.8%,11.1%
 CHF::industrial production::q/q,2011-09-15,15:15,3.6%,3.0%,-9.6%
 CHF::snb interest rate decision::none,2011-09-15,15:30,0.00%,0.00%,0.00%
@@ -5812,7 +5812,7 @@ USD::continuing jobless claims::none,2011-09-15,20:30,"3,726K","3,700K","3,738K"
 USD::core cpi::y/y,2011-09-15,20:30,2.0%,,1.8%
 USD::current account::none,2011-09-15,20:30,-118.0B,-121.0B,-120.0B
 USD::ny empire state manufacturing index::none,2011-09-15,20:30,-8.8,-4.0,-7.7
-USD::fed chairman bernanke speaks::none,2011-09-15,20:45,,,
+USD::fed chairman bernanke speaks::none,2011-09-15,20:45,,,0.00
 USD::capacity utilization rate::none,2011-09-15,21:15,77.4%,77.5%,77.3%
 USD::industrial production::m/m,2011-09-15,21:15,0.2%,0.1%,0.9%
 USD::bloomberg consumer confidence::none,2011-09-15,21:45,25.35,,25.35
@@ -5821,7 +5821,7 @@ RUB::industrial production::y/y,2011-09-15,22:00,5.40%,,5.20%
 USD::philadelphia fed manufacturing index::none,2011-09-15,22:00,-17.5,-15.0,-30.7
 USD::natural gas storage::none,2011-09-15,22:30,87B,80B,64B
 ILS::cpi::y/y,2011-09-15,23:00,3.4%,,3.4%
-EUR::ecb president trichet speaks::none,2011-09-16,02:00,,,
+EUR::ecb president trichet speaks::none,2011-09-16,02:00,,,0.00
 CLP::interest rate decision::none,2011-09-16,06:00,5.25%,5.25%,5.25%
 SGD::trade balance::none,2011-09-16,13:00,2.85B,,5.54B
 RUB::trade balance::none,2011-09-16,15:00,15.20B,18.00B,17.40B
@@ -5931,10 +5931,10 @@ MXN::cftc mxn speculative net positions::none,2011-09-24,03:30,-16.9K,,-1.2K
 NZD::cftc nzd speculative net positions::none,2011-09-24,03:30,13.6K,,17.7K
 USD::cftc silver speculative net positions::none,2011-09-24,03:30,22.5K,,26.3K
 USD::cftc gold speculative net positions::none,2011-09-24,03:30,150.5K,,168.8K
-EUR::ecb president trichet speaks::none,2011-09-24,04:30,,,
+EUR::ecb president trichet speaks::none,2011-09-24,04:30,,,0.00
 RUB::cftc rub speculative positions::none,2011-09-24,04:30,17.2K,,16.5K
 USD::cftc crude oil speculative net positions::none,2011-09-24,04:30,160.0k,,165.4k
-EUR::ecb president trichet speaks::none,2011-09-25,07:00,,,
+EUR::ecb president trichet speaks::none,2011-09-25,07:00,,,0.00
 CAD::boc gov carney speaks::none,2011-09-25,20:30,,,
 VND::trade balance::none,2011-09-25,22:00,"-1,000.00M",-300.00M,-390.00M
 NZD::trade balance::m/m,2011-09-26,05:45,-641M,-321M,111M
@@ -5972,10 +5972,10 @@ MXN::economic activity::y/y,2011-09-28,21:00,3.70%,3.20%,3.50%
 USD::crude oil inventories::none,2011-09-28,22:30,1.900M,1.000M,-7.300M
 USD::gasoline inventories::none,2011-09-28,22:30,0.800M,1.100M,3.300M
 NA::israel - jewish new year::none,2011-09-29,All Day,,,
-CHF::snb board member jordan speaks::none,2011-09-29,01:15,,,
+CHF::snb board member jordan speaks::none,2011-09-29,01:15,,,0.00
 ARS::retail sales::y/y,2011-09-29,03:00,44.8%,27.5%,37.0%
 USD::fed's balance sheet::none,2011-09-29,04:30,"2,850.92B",,"2,857.75B"
-USD::fed chairman bernanke speaks::none,2011-09-29,05:00,,,
+USD::fed chairman bernanke speaks::none,2011-09-29,05:00,,,0.00
 JPY::retail sales::y/y,2011-09-29,07:50,-2.6%,-0.8%,0.6%
 PHP::industrial production::y/y,2011-09-29,13:00,6.8%,1.9%,1.2%
 GBP::nationwide hpi::m/m,2011-09-29,14:00,0.1%,0.1%,-0.6%
@@ -6259,7 +6259,7 @@ EUR::spanish government budget balance::none,2011-10-04,16:05,-8.10B,-5.00B,1.40
 EUR::ppi::m/m,2011-10-04,17:00,-0.1%,-0.2%,0.5%
 BRL::industrial production::y/y,2011-10-04,20:00,1.0%,1.6%,1.4%
 RUB::cpi::m/m,2011-10-04,20:00,0.0%,0.0%,-0.2%
-EUR::ecb president trichet speaks::none,2011-10-04,21:00,,,
+EUR::ecb president trichet speaks::none,2011-10-04,21:00,,,0.00
 USD::fed chairman bernanke testifies::none,2011-10-04,22:00,,,
 USD::factory orders::m/m,2011-10-04,22:00,-0.2%,-0.1%,2.1%
 USD::total vehicle sales::none,2011-10-04,Tentative,13.10M,12.50M,12.10M
@@ -6354,9 +6354,9 @@ JPY::adjusted current account::none,2011-10-11,07:50,0.65T,0.51T,0.75T
 AUD::nab business confidence::none,2011-10-11,08:30,-2,,-9
 MYR::industrial production::y/y,2011-10-11,12:00,3.0%,2.0%,-0.5%
 JPY::household confidence::none,2011-10-11,13:00,38.6,37.2,37.0
-JPY::boj monthly report::none,2011-10-11,13:00,,,
+JPY::boj monthly report::none,2011-10-11,13:00,,,0.00
 JPY::economy watchers current index::none,2011-10-11,14:00,45.3,46.5,47.3
-EUR::ecb president trichet speaks::none,2011-10-11,15:30,,,
+EUR::ecb president trichet speaks::none,2011-10-11,15:30,,,0.00
 GBP::house price index::y/y,2011-10-11,16:30,-1.3%,2.3%,-1.5%
 GBP::industrial production::m/m,2011-10-11,16:30,0.2%,-0.2%,-0.4%
 GBP::manufacturing production::m/m,2011-10-11,16:30,-0.3%,-0.1%,-0.2%
@@ -6388,13 +6388,13 @@ MXN::industrial production::y/y,2011-10-12,21:00,3.1%,3.0%,3.1%
 NA::hungary - bridge holiday::none,2011-10-13,All Day,,,
 NA::israel - feast of tabernacles (sukkot)::none,2011-10-13,All Day,,,
 USD::fomc member fisher speaks::none,2011-10-13,01:20,,,
-USD::fomc meeting minutes::none,2011-10-13,02:00,,,
-EUR::ecb president trichet speaks::none,2011-10-13,02:30,,,
+USD::fomc meeting minutes::none,2011-10-13,02:00,,,0.00
+EUR::ecb president trichet speaks::none,2011-10-13,02:30,,,0.00
 USD::fed's balance sheet::none,2011-10-13,04:30,"2,860.82B",,"2,859.70B"
 NZD::business nz pmi::none,2011-10-13,05:30,50.8,,52.7
 NZD::fpi::m/m,2011-10-13,05:45,-1.0%,,-1.3%
 JPY::bank lending::y/y,2011-10-13,07:50,-0.3%,-0.5%,-0.5%
-JPY::monetary policy meeting minutes::none,2011-10-13,07:50,,,
+JPY::monetary policy meeting minutes::none,2011-10-13,07:50,,,0.00
 JPY::tertiary industry activity index::m/m,2011-10-13,07:50,-0.2%,-0.3%,-0.3%
 AUD::mi inflation expectations::none,2011-10-13,08:00,3.1%,,2.8%
 AUD::employment change::none,2011-10-13,08:30,20.4K,10.0K,-10.5K
@@ -6479,7 +6479,7 @@ USD::core ppi::m/m,2011-10-18,20:30,0.2%,0.1%,0.1%
 USD::tic net long - term transactions::none,2011-10-18,21:00,57.9B,27.8B,9.1B
 USD::nahb housing market index::none,2011-10-18,22:00,18,15,14
 NA::israel - rejoicing of the law (simchat tora)::none,2011-10-19,All Day,,,
-USD::fed chairman bernanke speaks::none,2011-10-19,01:15,,,
+USD::fed chairman bernanke speaks::none,2011-10-19,01:15,,,0.00
 GBP::boe gov king speaks::none,2011-10-19,01:30,,,
 ARS::economic activity::y/y,2011-10-19,03:00,8.6%,6.8%,7.7%
 NZD::globaldairytrade price index::none,2011-10-19,04:00,2.50%,,-1.30%
@@ -6500,7 +6500,7 @@ USD::housing starts::none,2011-10-19,20:30,0.658M,0.590M,0.570M
 USD::crude oil inventories::none,2011-10-19,22:30,-4.700M,1.800M,1.300M
 USD::gasoline inventories::none,2011-10-19,22:30,-3.300M,-1.000M,-4.100M
 NA::israel - rejoicing of the law (simchat tora)::none,2011-10-20,All Day,,,
-USD::beige book::none,2011-10-20,02:00,,,
+USD::beige book::none,2011-10-20,02:00,,,0.00
 USD::fed's balance sheet::none,2011-10-20,04:30,"2,852.39B",,"2,860.82B"
 COP::industrial production::y/y,2011-10-20,05:00,9.5%,3.7%,3.9%
 BRL::interest rate decision::none,2011-10-20,06:00,11.50%,11.50%,12.00%
@@ -6527,7 +6527,7 @@ AUD::import price index::q/q,2011-10-21,08:30,0.0%,0.5%,0.8%
 NZD::credit card spending::y/y,2011-10-21,10:00,5.2%,,4.7%
 JPY::boj governor shirakawa speaks::none,2011-10-21,14:15,,,
 EUR::french business survey::none,2011-10-21,14:45,97,98,99
-EUR::ecb president trichet speaks::none,2011-10-21,15:40,,,
+EUR::ecb president trichet speaks::none,2011-10-21,15:40,,,0.00
 EUR::german business expectations::none,2011-10-21,16:00,97.0,97.0,98.0
 EUR::german current assessment::none,2011-10-21,16:00,116.7,116.5,117.9
 EUR::german ifo business climate index::none,2011-10-21,16:00,98.0,,98.3
@@ -6555,7 +6555,7 @@ TWD::industrial production::y/y,2011-10-24,16:00,1.60%,3.80%,4.00%
 TWD::trade balance::none,2011-10-24,16:00,1.78B,1.70B,1.21B
 EUR::industrial new orders::m/m,2011-10-24,17:00,1.9%,0.1%,-1.6%
 USD::chicago fed national activity::none,2011-10-24,20:30,-0.22,-0.31,-0.59
-EUR::ecb president trichet speaks::none,2011-10-25,00:15,,,
+EUR::ecb president trichet speaks::none,2011-10-25,00:15,,,0.00
 NZD::cpi::q/q,2011-10-25,05:45,0.4%,0.7%,1.0%
 SGD::industrial production::y/y,2011-10-25,13:00,12.8%,12.0%,22.8%
 CHF::consumption indicator::none,2011-10-25,14:00,0.84,,0.80
@@ -6692,7 +6692,7 @@ NA::poland - all saint's day::none,2011-11-01,All Day,,,
 NZD::labor cost index::q/q,2011-11-01,05:45,0.5%,0.9%,0.5%
 AUD::aig manufacturing index::none,2011-11-01,06:30,47.4,,42.3
 KRW::cpi::y/y,2011-11-01,07:00,3.9%,4.1%,4.3%
-JPY::monetary policy meeting minutes::none,2011-11-01,07:50,,,
+JPY::monetary policy meeting minutes::none,2011-11-01,07:50,,,0.00
 AUD::hia new home sales::m/m,2011-11-01,08:00,-3.5%,,1.1%
 NZD::anz commodity price index::m/m,2011-11-01,08:00,-3.5%,,-1.3%
 AUD::house price index::q/q,2011-11-01,08:30,-1.20%,-1.50%,-0.50%
@@ -6904,7 +6904,7 @@ USD::gasoline inventories::none,2011-11-02,22:30,1.400M,-0.900M,-1.400M
 NA::japan - culture day::none,2011-11-03,All Day,,,
 USD::fomc statement::none,2011-11-03,00:30,,,
 USD::fed interest rate decision::none,2011-11-03,00:30,0.25%,0.25%,0.25%
-USD::fed chairman bernanke speaks::none,2011-11-03,02:15,,,
+USD::fed chairman bernanke speaks::none,2011-11-03,02:15,,,0.00
 CAD::boc gov carney speaks::none,2011-11-03,04:15,,,
 USD::fed's balance sheet::none,2011-11-03,04:30,"2,822.03B",,"2,845.69B"
 NZD::employment change::q/q,2011-11-03,05:45,0.2%,0.6%,0.1%
@@ -6988,7 +6988,7 @@ NA::jordan - eid al - adha::none,2011-11-08,All Day,,,
 NA::morocco - eid al - adha::none,2011-11-08,All Day,,,
 NA::saudi arabia - eid al - adha::none,2011-11-08,All Day,,,
 NA::united arab emirates - eid al - adha::none,2011-11-08,All Day,,,
-CHF::snb board member jordan speaks::none,2011-11-08,01:45,,,
+CHF::snb board member jordan speaks::none,2011-11-08,01:45,,,0.00
 USD::consumer credit::none,2011-11-08,04:00,7.40B,5.00B,-9.70B
 GBP::brc retail sales monitor::y/y,2011-11-08,08:00,-0.6%,-0.2%,0.3%
 AUD::nab business confidence::none,2011-11-08,08:30,2,,-1
@@ -6998,7 +6998,7 @@ EUR::german trade balance::none,2011-11-08,15:00,15.3B,14.4B,13.8B
 EUR::french trade balance::none,2011-11-08,15:45,-6.3B,-5.2B,-4.3B
 GBP::industrial production::m/m,2011-11-08,17:30,0.0%,0.1%,0.3%
 GBP::manufacturing production::m/m,2011-11-08,17:30,0.2%,0.1%,-0.3%
-CHF::snb board member jordan speaks::none,2011-11-08,17:40,,,
+CHF::snb board member jordan speaks::none,2011-11-08,17:40,,,0.00
 CLP::cpi::m/m,2011-11-08,19:30,0.5%,0.4%,0.5%
 USD::nfib small business optimism::none,2011-11-08,20:30,90.2,90.2,88.9
 CAD::boc gov carney speaks::none,2011-11-08,21:05,,,
@@ -7026,7 +7026,7 @@ USD::mba mortgage applications::w/w,2011-11-09,20:00,10.3%,,0.2%
 EUR::deposit facility rate::none,2011-11-09,20:45,0.50%,,0.75%
 CAD::new housing price index::m/m,2011-11-09,21:30,0.2%,0.2%,0.1%
 MXN::cpi::y/y,2011-11-09,22:00,3.20%,3.30%,3.10%
-USD::fed chairman bernanke speaks::none,2011-11-09,22:30,,,
+USD::fed chairman bernanke speaks::none,2011-11-09,22:30,,,0.00
 USD::wholesale inventories::m/m,2011-11-09,23:00,-0.1%,0.6%,0.1%
 USD::crude oil inventories::none,2011-11-09,23:30,-1.400M,0.500M,1.800M
 USD::gasoline inventories::none,2011-11-09,23:30,-2.100M,-0.400M,1.400M
@@ -7062,7 +7062,7 @@ USD::bloomberg consumer confidence::none,2011-11-10,22:45,24.2,,23.4
 USD::natural gas storage::none,2011-11-10,23:30,37B,31B,78B
 USD::chicago fed president evans speaks::none,2011-11-10,23:40,,,
 NA::poland - independence day::none,2011-11-11,All Day,,,
-USD::fed chairman bernanke speaks::none,2011-11-11,00:45,,,
+USD::fed chairman bernanke speaks::none,2011-11-11,00:45,,,0.00
 USD::federal budget balance::none,2011-11-11,03:00,-98.5B,-110.3B,-61.5B
 PEN::interest rate decision::none,2011-11-11,05:30,4.25%,4.25%,4.25%
 NZD::fpi::m/m,2011-11-11,05:45,-1.3%,,-1.0%
@@ -7169,7 +7169,7 @@ AUD::rba governor stevens speaks::none,2011-11-17,05:30,,,
 NZD::ppi output::q/q,2011-11-17,05:45,0.2%,0.8%,1.4%
 NZD::ppi input::q/q,2011-11-17,05:45,0.6%,0.6%,0.9%
 GBP::nationwide consumer confidence::none,2011-11-17,08:00,36,46,45
-JPY::boj monthly report::none,2011-11-17,13:00,,,
+JPY::boj monthly report::none,2011-11-17,13:00,,,0.00
 SGD::trade balance::none,2011-11-17,13:00,4.84B,,6.66B
 GBP::retail sales::m/m,2011-11-17,17:30,0.6%,-0.2%,0.5%
 CHF::zew expectations::none,2011-11-17,18:00,-64.3,,-54.4
@@ -7210,7 +7210,7 @@ USD::cftc crude oil speculative net positions::none,2011-11-19,04:30,173.4k,,167
 USD::cftc gold speculative net positions::none,2011-11-19,04:30,159.2K,,155.7K
 COP::industrial production::y/y,2011-11-19,05:00,5.2%,5.6%,9.7%
 JPY::adjusted trade balance::none,2011-11-21,07:50,-0.46T,-0.20T,-0.01T
-JPY::monetary policy meeting minutes::none,2011-11-21,07:50,,,
+JPY::monetary policy meeting minutes::none,2011-11-21,07:50,,,0.00
 GBP::rightmove house price index::m/m,2011-11-21,08:00,-3.1%,,2.8%
 SGD::gdp::y/y,2011-11-21,09:00,6.1%,6.0%,1.0%
 NZD::credit card spending::y/y,2011-11-21,10:00,7.9%,,5.3%
@@ -7239,7 +7239,7 @@ EUR::consumer confidence::none,2011-11-22,23:00,-20.0,-21.0,-20.0
 USD::mass layoffs::none,2011-11-22,23:00,1.35K,,1.49K
 USD::richmond manufacturing index::none,2011-11-22,23:00,0,-2,-6
 NA::japan - labour thanksgiving day::none,2011-11-23,All Day,,,
-USD::fomc meeting minutes::none,2011-11-23,03:00,,,
+USD::fomc meeting minutes::none,2011-11-23,03:00,,,0.00
 AUD::construction work done::q/q,2011-11-23,08:30,12.5%,2.0%,-0.1%
 EUR::french business survey::none,2011-11-23,15:45,95,95,97
 TWD::industrial production::y/y,2011-11-23,16:00,1.40%,2.50%,1.80%
@@ -7390,7 +7390,7 @@ USD::crude oil inventories::none,2011-11-30,23:30,3.900M,1.000M,-6.200M
 USD::gasoline inventories::none,2011-11-30,23:30,0.200M,1.100M,4.500M
 VEF::industrial production::y/y,2011-12-01,01:00,2.9%,,3.7%
 VEF::retail sales::y/y,2011-12-01,01:00,10.4%,,20.8%
-USD::beige book::none,2011-12-01,03:00,,,
+USD::beige book::none,2011-12-01,03:00,,,0.00
 USD::fed's balance sheet::none,2011-12-01,04:30,"2,814.24B",,"2,821.98B"
 NZD::terms of trade index::q/q,2011-12-01,05:45,-0.7%,3.4%,2.4%
 BRL::interest rate decision::none,2011-12-01,06:00,11.00%,11.25%,11.50%
@@ -7796,7 +7796,7 @@ JPY::tankan large manufacturers index::none,2011-12-15,07:50,-4,-2,2
 JPY::tankan large non - manufacturers index::none,2011-12-15,07:50,4,1,1
 AUD::mi inflation expectations::none,2011-12-15,08:00,2.4%,,2.5%
 AUD::new motor vehicle sales::m/m,2011-12-15,08:30,-0.7%,,1.1%
-AUD::rba bulletin::none,2011-12-15,08:30,,,
+AUD::rba bulletin::none,2011-12-15,08:30,,,0.00
 SGD::retail sales::y/y,2011-12-15,13:00,8.5%,0.6%,0.2%
 SGD::trade balance::none,2011-12-15,13:00,1.26B,,4.81B
 EUR::spanish 10 - year obligacion auction::none,2011-12-15,15:30,5.550%,,6.980%
@@ -7907,7 +7907,7 @@ USD::gasoline inventories::none,2011-12-21,23:30,-0.400M,1.000M,3.800M
 USD::fed's balance sheet::none,2011-12-22,04:30,"2,916.09B",,"2,902.49B"
 NZD::gdp::q/q,2011-12-22,05:45,0.8%,0.6%,0.1%
 JPY::boj governor shirakawa speaks::none,2011-12-22,12:30,,,
-JPY::boj monthly report::none,2011-12-22,13:00,,,
+JPY::boj monthly report::none,2011-12-22,13:00,,,0.00
 DKK::gdp::q/q,2011-12-22,16:00,-0.5%,-0.8%,-0.8%
 EUR::dutch gdp::y/y,2011-12-22,16:30,1.1%,1.1%,1.1%
 EUR::italian retail sales::m/m,2011-12-22,17:00,0.1%,-0.2%,-0.3%
@@ -7994,7 +7994,7 @@ NA::hong kong - christmas::none,2011-12-27,All Day,,,
 NA::united kingdom - boxing day::none,2011-12-27,All Day,,,
 KRW::consumer confidence::none,2011-12-27,05:00,99,102,103
 JPY::corporate services price index (cspi)::y/y,2011-12-27,07:50,-0.2%,0.1%,0.1%
-JPY::monetary policy meeting minutes::none,2011-12-27,07:50,,,
+JPY::monetary policy meeting minutes::none,2011-12-27,07:50,,,0.00
 PHP::industrial production::y/y,2011-12-27,11:30,-6.3%,1.7%,2.5%
 JPY::housing starts::y/y,2011-12-27,13:00,-0.3%,-4.8%,-5.8%
 CHF::consumption indicator::none,2011-12-27,15:00,0.81,,0.90

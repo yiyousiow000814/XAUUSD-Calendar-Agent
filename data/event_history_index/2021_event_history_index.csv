@@ -306,7 +306,7 @@ NA::palestinian territory - christmas::none,2021-01-07,All Day,,,
 NA::russia - christmas::none,2021-01-07,All Day,,,
 NA::serbia - christmas::none,2021-01-07,All Day,,,
 NA::ukraine - christmas::none,2021-01-07,All Day,,,
-USD::fomc meeting minutes::none,2021-01-07,03:00,,,
+USD::fomc meeting minutes::none,2021-01-07,03:00,,,0.00
 USD::fed's balance sheet::none,2021-01-07,04:30,"7,334.81B",,"7,363.35B"
 JPY::average cash earnings::y/y,2021-01-07,07:30,-2.2%,,-0.7%
 JPY::overall wage income of employees::none,2021-01-07,07:30,-2.2%,,-0.7%
@@ -698,7 +698,7 @@ BRL::brazil thomson reuters ipsos pcsi::none,2021-01-14,00:00,43.27,,43.09
 USD::cleveland cpi::m/m,2021-01-14,00:00,0.1%,,0.1%
 USD::30 - year bond auction::none,2021-01-14,02:00,1.825%,,1.665%
 USD::fomc member brainard speaks::none,2021-01-14,02:00,,,
-USD::beige book::none,2021-01-14,03:00,,,
+USD::beige book::none,2021-01-14,03:00,,,0.00
 USD::fomc member harker speaks::none,2021-01-14,03:00,,,
 USD::federal budget balance::none,2021-01-14,03:00,-144.0B,-200.0B,-145.0B
 USD::fomc member clarida speaks::none,2021-01-14,04:00,,,
@@ -1104,7 +1104,7 @@ EUR::italian industrial new orders::y/y,2021-01-21,17:00,5.3%,,1.2%
 EUR::italian industrial sales::m/m,2021-01-21,17:00,-2.00%,,2.10%
 EUR::italian industrial sales::y/y,2021-01-21,17:00,-4.60%,,-2.00%
 EUR::spanish trade balance::none,2021-01-21,17:00,-0.59B,,-0.65B
-NOK::interest rate decision::none,2021-01-21,17:00,0.00%,,
+NOK::interest rate decision::none,2021-01-21,17:00,0.00%,,0.00%
 PLN::corp. sector wages::y/y,2021-01-21,17:00,6.6%,4.8%,4.9%
 PLN::employment growth::y/y,2021-01-21,17:00,-1.0%,-1.2%,-1.2%
 ZAR::retail sales::y/y,2021-01-21,17:00,-4.0%,-2.5%,-2.3%
@@ -1276,7 +1276,7 @@ USD::2 - year note auction::none,2021-01-26,02:00,0.125%,,0.137%
 KRW::gdp::q/q,2021-01-26,07:00,1.1%,0.7%,2.1%
 KRW::gdp::y/y,2021-01-26,07:00,-1.4%,-1.7%,-1.1%
 JPY::corporate services price index (cspi)::y/y,2021-01-26,07:50,-0.4%,-1.3%,-0.5%
-JPY::monetary policy meeting minutes::none,2021-01-26,07:50,,,
+JPY::monetary policy meeting minutes::none,2021-01-26,07:50,,,0.00
 JPY::boj core cpi::y/y,2021-01-26,13:00,-0.1%,,-0.1%
 SGD::industrial production::m/m,2021-01-26,13:00,2.4%,-0.6%,7.5%
 SGD::industrial production::y/y,2021-01-26,13:00,14.3%,11.5%,18.7%
@@ -1618,7 +1618,7 @@ CAD::ippi::y/y,2021-01-29,21:30,1.8%,,0.7%
 CAD::rmpi::y/y,2021-01-29,21:30,-0.7%,,-1.7%
 CAD::gdp::m/m,2021-01-29,21:30,0.7%,0.4%,0.4%
 CAD::rmpi::m/m,2021-01-29,21:30,3.5%,,0.6%
-USD::core pce price index::m/m,2021-01-29,21:30,0.3%,0.1%,
+USD::core pce price index::m/m,2021-01-29,21:30,0.3%,0.1%,0.0%
 USD::core pce price index::y/y,2021-01-29,21:30,1.5%,1.3%,1.4%
 USD::employment benefits::q/q,2021-01-29,21:30,0.60%,,0.60%
 USD::employment wages::q/q,2021-01-29,21:30,0.90%,,0.40%
@@ -1626,7 +1626,7 @@ USD::personal income::m/m,2021-01-29,21:30,0.6%,0.1%,-1.3%
 USD::real personal consumption::m/m,2021-01-29,21:30,-0.6%,,-0.7%
 USD::employment cost index::q/q,2021-01-29,21:30,0.7%,0.5%,0.5%
 USD::pce price index::y/y,2021-01-29,21:30,1.3,,1.1
-USD::pce price index::m/m,2021-01-29,21:30,0.4%,,
+USD::pce price index::m/m,2021-01-29,21:30,0.4%,,0.0%
 USD::personal spending::m/m,2021-01-29,21:30,-0.2%,-0.4%,-0.7%
 KES::cpi::y/y,2021-01-29,22:00,5.69%,,5.62%
 USD::chicago pmi::none,2021-01-29,22:45,63.8,58.5,58.7
@@ -2312,7 +2312,7 @@ BRL::brazilian service sector growth::m/m,2021-02-11,20:00,-0.2%,0.4%,2.6%
 BRL::brazilian service sector growth::y/y,2021-02-11,20:00,-3.3%,-2.6%,-4.8%
 MXN::industrial production::m/m,2021-02-11,20:00,0.1%,0.4%,1.1%
 MXN::industrial production::y/y,2021-02-11,20:00,-2.1%,-2.2%,-3.7%
-NAD::cpi::m/m,2021-02-11,20:00,0.90%,,
+NAD::cpi::m/m,2021-02-11,20:00,0.90%,,0.10%
 NAD::cpi::y/y,2021-02-11,20:00,2.70%,,2.40%
 USD::opec monthly report::none,2021-02-11,20:00,,,
 RUB::central bank reserves (usd)::none,2021-02-11,21:00,586.1B,,589.5B
@@ -2352,7 +2352,7 @@ CNY::china thomson reuters ipsos pcsi::none,2021-02-12,10:00,67.37,,77.74
 JPY::thomson reuters ipsos pcsi::none,2021-02-12,10:00,35.84,,34.84
 NAD::cpi::y/y,2021-02-12,12:30,2.70%,,2.40%
 EUR::finnish current account::none,2021-02-12,14:00,2.00B,,-0.10B
-EUR::lithuania cpi::m/m,2021-02-12,15:00,0.5%,,
+EUR::lithuania cpi::m/m,2021-02-12,15:00,0.5%,,0.0%
 EUR::lithuania cpi::y/y,2021-02-12,15:00,0.3%,,0.2%
 GBP::gdp::m/m,2021-02-12,15:00,1.2%,,-2.3%
 GBP::gdp::q/q,2021-02-12,15:00,1.0%,0.5%,16.1%
@@ -2458,7 +2458,7 @@ JPY::gdp private consumption::q/q,2021-02-15,07:50,2.2%,1.8%,5.1%
 JPY::gdp::y/y,2021-02-15,07:50,12.7%,9.5%,22.9%
 JPY::gdp price index::y/y,2021-02-15,07:50,0.2%,,1.2%
 KRW::exports::y/y,2021-02-15,07:55,11.4%,,12.6%
-KRW::imports::y/y,2021-02-15,07:55,3.6%,,
+KRW::imports::y/y,2021-02-15,07:55,3.6%,,3.1%
 KRW::trade balance::none,2021-02-15,07:55,3.76B,,6.94B
 GBP::rightmove house price index::m/m,2021-02-15,08:00,0.5%,,-0.9%
 SGD::gdp::q/q,2021-02-15,08:00,15.9%,,8.7%
@@ -2677,7 +2677,7 @@ USD::retail inventories ex auto::none,2021-02-17,23:00,1.2%,,1.1%
 GBP::mpc member ramsden speaks::none,2021-02-18,00:00,,,
 EUR::portuguese current account::none,2021-02-18,01:05,-2.377B,,-1.915B
 USD::20 - year bond auction::none,2021-02-18,02:00,1.920%,,1.657%
-USD::fomc meeting minutes::none,2021-02-18,03:00,,,
+USD::fomc meeting minutes::none,2021-02-18,03:00,,,0.00
 USD::fed's balance sheet::none,2021-02-18,04:30,"7,557.40B",,"7,442.23B"
 USD::api weekly gasoline stock::none,2021-02-18,05:30,3.900M,,4.810M
 USD::api weekly crude oil stock::none,2021-02-18,05:30,-5.800M,-2.175M,-3.500M
@@ -2982,7 +2982,7 @@ KWD::cpi::y/y,2021-02-24,17:20,2.95%,,2.95%
 KWD::cpi::m/m,2021-02-24,17:25,0.08%,,0.08%
 EUR::german 10 - year bund auction::none,2021-02-24,18:40,-0.320%,,-0.540%
 EUR::italian 6 - month bot auction::none,2021-02-24,18:45,-0.429%,,-0.448%
-GBP::boe mpc treasury committee hearings::none,2021-02-24,18:45,,,
+GBP::boe mpc treasury committee hearings::none,2021-02-24,18:45,,,0.00
 BRL::fgv consumer confidence::none,2021-02-24,19:00,78.0,,75.8
 BRL::mid - month cpi::m/m,2021-02-24,20:00,0.48%,0.46%,0.78%
 BRL::mid - month cpi::y/y,2021-02-24,20:00,4.57%,4.55%,4.30%
@@ -3219,8 +3219,8 @@ NOK::unemployment change::none,2021-02-26,17:00,128.46K,,128.10K
 NOK::unemployment rate n.s.a.::none,2021-02-26,17:00,4.30%,4.30%,4.40%
 PLN::gdp::q/q,2021-02-26,17:00,-0.7%,,7.9%
 PLN::gdp::y/y,2021-02-26,17:00,-2.8%,,-1.5%
-EUR::portuguese gdp::q/q,2021-02-26,17:30,0.2%,,
-EUR::portuguese gdp::y/y,2021-02-26,17:30,-6.1%,,
+EUR::portuguese gdp::q/q,2021-02-26,17:30,0.2%,,0.4%
+EUR::portuguese gdp::y/y,2021-02-26,17:30,-6.1%,,-5.4%
 EUR::greek ppi::y/y,2021-02-26,18:00,-5.4%,,-8.0%
 EUR::greek retail sales::y/y,2021-02-26,18:00,-11.0%,,-7.4%
 EUR::italian trade balance non - eu::none,2021-02-26,18:00,1.71B,,8.04B
@@ -3482,7 +3482,7 @@ USD::fomc member brainard speaks::none,2021-03-03,02:00,,,
 USD::fomc member daly speaks::none,2021-03-03,03:00,,,
 MXN::fiscal balance::none,2021-03-03,05:00,-7.96B,,274.82B
 AUD::aig construction index::none,2021-03-03,05:30,57.4,,57.6
-USD::api weekly gasoline stock::none,2021-03-03,05:30,-9.933M,,
+USD::api weekly gasoline stock::none,2021-03-03,05:30,-9.933M,,3.900M
 USD::api weekly crude oil stock::none,2021-03-03,05:30,7.356M,-1.850M,1.026M
 NZD::building consents::m/m,2021-03-03,05:45,2.1%,,5.1%
 GBP::brc shop price index::y/y,2021-03-03,08:00,-2.4%,,-2.2%
@@ -3551,7 +3551,7 @@ USD::fomc member bostic speaks::none,2021-03-04,01:00,,,
 BRL::foreign exchange flows::none,2021-03-04,01:30,4.358B,,3.847B
 EUR::german buba balz speaks::none,2021-03-04,01:30,,,
 USD::chicago fed president evans speaks::none,2021-03-04,02:00,,,
-USD::beige book::none,2021-03-04,03:00,,,
+USD::beige book::none,2021-03-04,03:00,,,0.00
 EUR::ecb's schnabel speaks::none,2021-03-04,03:30,,,
 NZD::rbnz gov orr speaks::none,2021-03-04,04:15,,,
 USD::fed's balance sheet::none,2021-03-04,04:30,"7,557.52B",,"7,590.11B"
@@ -4349,7 +4349,7 @@ NZD::gdp::q/q,2021-03-18,05:45,-1.0%,0.1%,13.9%
 JPY::foreign bonds buying::none,2021-03-18,07:50,-417.0B,,111.7B
 JPY::foreign investments in japanese stocks::none,2021-03-18,07:50,-60.1B,,-136.7B
 AUD::participation rate::none,2021-03-18,08:30,66.1%,66.2%,66.1%
-AUD::rba bulletin::none,2021-03-18,08:30,,,
+AUD::rba bulletin::none,2021-03-18,08:30,,,0.00
 AUD::employment change::none,2021-03-18,08:30,88.7K,30.0K,29.5K
 AUD::full employment change::none,2021-03-18,08:30,89.1K,,58.7K
 AUD::unemployment rate::none,2021-03-18,08:30,5.8%,6.3%,6.4%
@@ -4427,7 +4427,7 @@ JPY::national core cpi::y/y,2021-03-19,07:30,-0.4%,-0.4%,-0.6%
 GBP::gfk consumer confidence::none,2021-03-19,08:00,-16,-20,-23
 AUD::retail sales::m/m,2021-03-19,08:30,-1.1%,0.4%,0.3%
 JPY::boj press conference::none,2021-03-19,10:30,,,
-JPY::monetary policy meeting minutes::none,2021-03-19,10:30,,,
+JPY::monetary policy meeting minutes::none,2021-03-19,10:30,,,0.00
 JPY::boj interest rate decision::none,2021-03-19,11:40,-0.10%,-0.10%,-0.10%
 EUR::german ppi::y/y,2021-03-19,15:00,1.9%,2.0%,0.9%
 EUR::german ppi::m/m,2021-03-19,15:00,0.7%,0.7%,1.4%
@@ -4603,7 +4603,7 @@ NZD::imports::none,2021-03-24,05:45,4.29B,,4.85B
 NZD::trade balance::m/m,2021-03-24,05:45,181M,,-647M
 NZD::trade balance::y/y,2021-03-24,05:45,"2,360M",,"2,730M"
 JPY::corporate services price index (cspi)::y/y,2021-03-24,07:50,-0.1%,,-0.4%
-JPY::monetary policy meeting minutes::none,2021-03-24,07:50,,,
+JPY::monetary policy meeting minutes::none,2021-03-24,07:50,,,0.00
 MYR::cpi::y/y,2021-03-24,12:00,0.1%,0.2%,-0.2%
 EUR::finnish export price index::y/y,2021-03-24,14:00,0.5%,,-2.6%
 EUR::finnish import price index::y/y,2021-03-24,14:00,1.0%,,-3.3%
@@ -5521,7 +5521,7 @@ USD::cushing crude oil inventories::none,2021-04-07,22:30,-0.735M,,0.782M
 USD::imf meetings::none,2021-04-07,23:00,,,
 USD::fomc member barkin speaks::none,2021-04-08,00:00,,,
 BRL::foreign exchange flows::none,2021-04-08,01:30,-1.075B,,-1.481B
-USD::fomc meeting minutes::none,2021-04-08,02:00,,,
+USD::fomc meeting minutes::none,2021-04-08,02:00,,,0.00
 USD::consumer credit::none,2021-04-08,03:00,27.58B,5.00B,0.09B
 USD::fed's balance sheet::none,2021-04-08,04:30,"7,708.88B",,"7,688.99B"
 JPY::foreign bonds buying::none,2021-04-08,07:50,377.0B,,201.3B
@@ -5914,7 +5914,7 @@ USD::thomson reuters ipsos pcsi::none,2021-04-15,00:00,59.00,,54.47
 ZAR::sarb monetary policy review::none,2021-04-15,00:00,,,
 EUR::ecb's schnabel speaks::none,2021-04-15,01:00,,,
 BRL::foreign exchange flows::none,2021-04-15,01:30,-0.011B,,-1.075B
-USD::beige book::none,2021-04-15,02:00,,,
+USD::beige book::none,2021-04-15,02:00,,,0.00
 USD::fomc member williams speaks::none,2021-04-15,02:30,,,
 USD::fomc member clarida speaks::none,2021-04-15,03:45,,,
 USD::fomc member bostic speaks::none,2021-04-15,04:00,,,
@@ -6743,7 +6743,7 @@ THB::imports::y/y,2021-04-30,15:30,15.10%,,23.90%
 THB::private consumption::m/m,2021-04-30,15:30,1.0%,,3.4%
 THB::private investment::m/m,2021-04-30,15:30,-0.7%,,0.8%
 THB::trade account::none,2021-04-30,15:30,3.40B,,2.14B
-CHF::snb board member jordan speaks::none,2021-04-30,16:00,,,
+CHF::snb board member jordan speaks::none,2021-04-30,16:00,,,0.00
 EUR::german gdp::q/q,2021-04-30,16:00,-1.7%,-1.5%,0.5%
 EUR::italian gdp::q/q,2021-04-30,16:00,-0.4%,-0.5%,-1.8%
 EUR::italian gdp::y/y,2021-04-30,16:00,-1.4%,-1.6%,-6.6%
@@ -7109,7 +7109,7 @@ BRL::interest rate decision::none,2021-05-06,05:00,3.50%,3.50%,2.75%
 KRW::fx reserves - usd::none,2021-05-06,05:00,452.31B,,446.13B
 CAD::boc gov macklem speaks::none,2021-05-06,06:30,,,
 NZD::building consents::m/m,2021-05-06,06:45,17.9%,,-19.3%
-JPY::monetary policy meeting minutes::none,2021-05-06,07:50,,,
+JPY::monetary policy meeting minutes::none,2021-05-06,07:50,,,0.00
 COP::cpi::m/m,2021-05-06,08:00,0.59%,0.32%,0.51%
 COP::cpi::y/y,2021-05-06,08:00,1.95%,1.70%,1.51%
 NZD::anz business confidence::none,2021-05-06,09:00,7.0,,-2.0
@@ -7570,7 +7570,7 @@ BRL::foreign exchange flows::none,2021-05-13,01:30,-1.517B,,0.720B
 USD::fomc member harker speaks::none,2021-05-13,01:30,,,
 USD::federal budget balance::none,2021-05-13,02:00,-226.0B,-220.0B,-660.0B
 USD::fed's balance sheet::none,2021-05-13,04:30,"7,830.66B",,"7,810.49B"
-NZD::fpi::m/m,2021-05-13,06:45,1.1%,,
+NZD::fpi::m/m,2021-05-13,06:45,1.1%,,0.0%
 JPY::bank lending::y/y,2021-05-13,07:50,4.8%,,6.3%
 JPY::foreign bonds buying::none,2021-05-13,07:50,-73.6B,,132.8B
 JPY::foreign investments in japanese stocks::none,2021-05-13,07:50,144.8B,,492.2B
@@ -7886,7 +7886,7 @@ USD::housing starts::none,2021-05-18,20:30,1.569M,1.710M,1.733M
 USD::housing starts::m/m,2021-05-18,20:30,-9.5%,,19.8%
 USD::redbook::y/y,2021-05-18,20:55,12.6%,,13.3%
 EUR::ecb president lagarde speaks::none,2021-05-18,22:00,,,
-CHF::snb board member jordan speaks::none,2021-05-18,23:05,,,
+CHF::snb board member jordan speaks::none,2021-05-18,23:05,,,0.00
 NZD::globaldairytrade price index::none,2021-05-18,23:30,-0.2%,,-0.7%
 USD::52 - week bill auction::none,2021-05-18,23:30,0.055%,,0.065%
 NA::hong kong - the birthday of the buddha::none,2021-05-19,All Day,,,
@@ -7979,7 +7979,7 @@ USD::fomc member bostic speaks::none,2021-05-19,23:35,,,
 EUR::ecb's lane speaks::none,2021-05-19,23:50,,,
 USD::20 - year bond auction::none,2021-05-20,01:00,2.286%,,2.144%
 BRL::foreign exchange flows::none,2021-05-20,01:30,-0.524B,,-1.517B
-USD::fomc meeting minutes::none,2021-05-20,02:00,,,
+USD::fomc meeting minutes::none,2021-05-20,02:00,,,0.00
 USD::fed's balance sheet::none,2021-05-20,04:30,"7,922.88B",,"7,830.66B"
 JPY::reuters tankan index::none,2021-05-20,07:00,21,,13
 JPY::core machinery orders::m/m,2021-05-20,07:50,3.7%,6.4%,-8.5%
@@ -8187,7 +8187,7 @@ USD::chicago fed national activity::none,2021-05-24,20:30,0.24,,1.71
 EUR::ecb mccaul speaks::none,2021-05-24,21:00,,,
 USD::fomc member brainard speaks::none,2021-05-24,21:00,,,
 UAH::industrial production::m/m,2021-05-24,21:30,-3.2%,,10.9%
-GBP::boe mpc treasury committee hearings::none,2021-05-24,22:15,,,
+GBP::boe mpc treasury committee hearings::none,2021-05-24,22:15,,,0.00
 GBP::boe gov bailey speaks::none,2021-05-24,22:30,,,
 USD::3 - month bill auction::none,2021-05-24,23:30,0.015%,,0.015%
 USD::6 - month bill auction::none,2021-05-24,23:30,0.030%,,0.030%
@@ -8801,7 +8801,7 @@ EUR::ecb president lagarde speaks::none,2021-06-03,01:10,,,
 BRL::foreign exchange flows::none,2021-06-03,01:30,-1.310B,,-1.117B
 USD::fomc member harker speaks::none,2021-06-03,01:50,,,
 USD::chicago fed president evans speaks::none,2021-06-03,02:00,,,
-USD::beige book::none,2021-06-03,02:00,,,
+USD::beige book::none,2021-06-03,02:00,,,0.00
 USD::fomc member bostic speaks::none,2021-06-03,02:00,,,
 USD::fomc member brainard speaks::none,2021-06-03,02:00,,,
 USD::api weekly gasoline stock::none,2021-06-03,04:30,2.510M,,-1.986M
@@ -9613,7 +9613,7 @@ SGD::non - oil exports::m/m,2021-06-17,08:30,-0.10%,4.70%,-8.80%
 SGD::non - oil exports::y/y,2021-06-17,08:30,8.80%,16.00%,6.00%
 SGD::trade balance::none,2021-06-17,08:30,5.754B,,5.412B
 AUD::participation rate::none,2021-06-17,09:30,66.2%,66.1%,66.0%
-AUD::rba bulletin::none,2021-06-17,09:30,,,
+AUD::rba bulletin::none,2021-06-17,09:30,,,0.00
 AUD::employment change::none,2021-06-17,09:30,115.2K,30.0K,-30.6K
 AUD::full employment change::none,2021-06-17,09:30,97.5K,,33.8K
 AUD::unemployment rate::none,2021-06-17,09:30,5.1%,5.5%,5.5%
@@ -9831,7 +9831,7 @@ USD::fed chair powell testifies::none,2021-06-23,02:00,,,
 ARS::current account (usd)::none,2021-06-23,03:00,0.690B,,-1.372B
 USD::api weekly gasoline stock::none,2021-06-23,04:30,0.959M,,2.852M
 USD::api weekly crude oil stock::none,2021-06-23,04:30,-7.199M,-3.625M,-8.537M
-JPY::monetary policy meeting minutes::none,2021-06-23,07:50,,,
+JPY::monetary policy meeting minutes::none,2021-06-23,07:50,,,0.00
 AUD::rba assist gov ellis speaks::none,2021-06-23,11:15,,,
 JPY::coincident indicator::m/m,2021-06-23,13:00,2.4%,,2.6%
 JPY::leading index::none,2021-06-23,13:00,103.8,,102.4
@@ -10702,7 +10702,7 @@ RUB::cpi::m/m,2021-07-08,00:00,0.7%,0.5%,0.7%
 RUB::cpi::y/y,2021-07-08,00:00,6.5%,6.3%,6.0%
 USD::eia short - term energy outlook::none,2021-07-08,00:00,,,
 BRL::foreign exchange flows::none,2021-07-08,01:30,-0.183B,,2.608B
-USD::fomc meeting minutes::none,2021-07-08,02:00,,,
+USD::fomc meeting minutes::none,2021-07-08,02:00,,,0.00
 ARS::industrial production::y/y,2021-07-08,03:00,30.2%,,55.6%
 USD::fomc member bostic speaks::none,2021-07-08,03:30,,,
 USD::api weekly gasoline stock::none,2021-07-08,04:30,-2.736M,,2.418M
@@ -11100,7 +11100,7 @@ NA::türkiye - public holiday::none,2021-07-15,All Day,,,
 USD::fed chair powell testifies::none,2021-07-15,00:00,,,
 GBP::mpc member ramsden speaks::none,2021-07-15,01:00,,,
 BRL::foreign exchange flows::none,2021-07-15,01:30,0.808B,,-0.183B
-USD::beige book::none,2021-07-15,02:00,,,
+USD::beige book::none,2021-07-15,02:00,,,0.00
 USD::fed's balance sheet::none,2021-07-15,04:30,"8,201.65B",,"8,097.77B"
 CLP::interest rate decision::none,2021-07-15,06:00,0.75%,0.75%,0.50%
 JPY::foreign bonds buying::none,2021-07-15,07:50,"-1,217.8B",,-191.4B
@@ -11420,7 +11420,7 @@ KRW::ppi::y/y,2021-07-21,05:00,6.4%,,6.6%
 JPY::imports::y/y,2021-07-21,07:50,32.7%,29.0%,27.9%
 JPY::adjusted trade balance::none,2021-07-21,07:50,-0.09T,,0.04T
 JPY::exports::y/y,2021-07-21,07:50,48.6%,46.2%,49.6%
-JPY::monetary policy meeting minutes::none,2021-07-21,07:50,,,
+JPY::monetary policy meeting minutes::none,2021-07-21,07:50,,,0.00
 JPY::trade balance::none,2021-07-21,07:50,383.2B,460.0B,-189.4B
 AUD::mi leading index::m/m,2021-07-21,08:30,-0.1%,,0.1%
 AUD::retail sales::m/m,2021-07-21,09:30,-1.8%,-0.5%,0.4%
@@ -13013,7 +13013,7 @@ RUB::ppi::m/m,2021-08-19,00:00,2.6%,,2.9%
 RUB::ppi::y/y,2021-08-19,00:00,28.1%,,31.1%
 USD::20 - year bond auction::none,2021-08-19,01:00,1.850%,,1.890%
 BRL::foreign exchange flows::none,2021-08-19,01:30,1.591B,,0.917B
-USD::fomc meeting minutes::none,2021-08-19,02:00,,,
+USD::fomc meeting minutes::none,2021-08-19,02:00,,,0.00
 EUR::portuguese current account::none,2021-08-19,03:05,-1.937B,,-1.977B
 USD::fed's balance sheet::none,2021-08-19,04:30,"8,342.60B",,"8,257.16B"
 JPY::reuters tankan index::none,2021-08-19,07:00,33,,25
@@ -13389,7 +13389,7 @@ INR::bank loan growth::none,2021-08-27,19:30,6.5%,,6.1%
 INR::deposit growth::none,2021-08-27,19:30,10.6%,,9.8%
 "INR::fx reserves, usd::none",2021-08-27,19:30,616.90B,,619.37B
 BRL::brazilian ppi::m/m,2021-08-27,20:00,1.94%,,1.31%
-CAD::ippi::m/m,2021-08-27,20:30,-0.4%,0.1%,
+CAD::ippi::m/m,2021-08-27,20:30,-0.4%,0.1%,0.0%
 CAD::ippi::y/y,2021-08-27,20:30,15.4%,,17.2%
 CAD::rmpi::y/y,2021-08-27,20:30,37.7%,,37.9%
 CAD::rmpi::m/m,2021-08-27,20:30,2.2%,,3.8%
@@ -14067,7 +14067,7 @@ CAD::boc rate statement::none,2021-09-08,22:00,,,
 CAD::ivey pmi::none,2021-09-08,22:00,66.0,,56.4
 USD::jolts job openings::none,2021-09-08,22:00,10.934M,10.000M,10.185M
 USD::ibd/tipp economic optimism::none,2021-09-08,22:00,48.5,,53.6
-GBP::boe mpc treasury committee hearings::none,2021-09-08,22:15,,,
+GBP::boe mpc treasury committee hearings::none,2021-09-08,22:15,,,0.00
 BRL::brazil thomson reuters ipsos pcsi::none,2021-09-08,23:00,42.85,,44.04
 GBP::inflation report hearings::none,2021-09-08,23:00,,,
 USD::thomson reuters ipsos pcsi::none,2021-09-08,23:00,59.44,,57.07
@@ -14079,7 +14079,7 @@ PLN::nbp monetary policy meeting minutes::none,2021-09-09,00:30,,,
 USD::10 - year note auction::none,2021-09-09,01:00,1.338%,,1.340%
 USD::fomc member williams speaks::none,2021-09-09,01:10,,,
 BRL::foreign exchange flows::none,2021-09-09,01:30,1.180B,,3.783B
-USD::beige book::none,2021-09-09,02:00,,,
+USD::beige book::none,2021-09-09,02:00,,,0.00
 USD::consumer credit::none,2021-09-09,03:00,17.00B,25.00B,37.86B
 USD::api weekly gasoline stock::none,2021-09-09,04:30,6.414M,,2.711M
 USD::api weekly crude oil stock::none,2021-09-09,04:30,-2.882M,-3.832M,-4.045M
@@ -14540,7 +14540,7 @@ JPY::exports::y/y,2021-09-16,07:50,26.2%,34.0%,37.0%
 JPY::trade balance::none,2021-09-16,07:50,-635.4B,-47.7B,439.4B
 AUD::mi inflation expectations::none,2021-09-16,09:00,4.4%,,3.3%
 AUD::participation rate::none,2021-09-16,09:30,65.2%,65.7%,66.0%
-AUD::rba bulletin::none,2021-09-16,09:30,,,
+AUD::rba bulletin::none,2021-09-16,09:30,,,0.00
 AUD::employment change::none,2021-09-16,09:30,-146.3K,-90.0K,2.2K
 AUD::full employment change::none,2021-09-16,09:30,-68.0K,,-4.2K
 AUD::unemployment rate::none,2021-09-16,09:30,4.5%,4.9%,4.6%
@@ -15028,7 +15028,7 @@ USD::3 - month bill auction::none,2021-09-28,01:00,0.035%,,0.035%
 USD::5 - year note auction::none,2021-09-28,01:00,0.990%,,0.831%
 ARS::retail sales::y/y,2021-09-28,03:00,496.3%,,448.8%
 KRW::consumer confidence::none,2021-09-28,05:00,103.8,,102.5
-JPY::monetary policy meeting minutes::none,2021-09-28,07:50,,,
+JPY::monetary policy meeting minutes::none,2021-09-28,07:50,,,0.00
 AUD::retail sales::m/m,2021-09-28,09:30,-1.7%,-2.5%,-2.7%
 CNY::chinese industrial profit::y/y,2021-09-28,09:30,10.10%,,16.40%
 CNY::chinese industrial profit ytd::none,2021-09-28,09:30,49.5%,,57.3%
@@ -16017,7 +16017,7 @@ NA::tanzania - public holiday::none,2021-10-14,All Day,,,
 NA::ukraine - national day::none,2021-10-14,All Day,,,
 USD::30 - year bond auction::none,2021-10-14,01:00,2.049%,,1.190%
 BRL::foreign exchange flows::none,2021-10-14,01:30,-0.856B,,-0.971B
-USD::fomc meeting minutes::none,2021-10-14,02:00,,,
+USD::fomc meeting minutes::none,2021-10-14,02:00,,,0.00
 USD::api weekly gasoline stock::none,2021-10-14,04:30,-4.575M,,3.682M
 USD::api weekly crude oil stock::none,2021-10-14,04:30,5.213M,0.140M,0.951M
 USD::fomc member brainard speaks::none,2021-10-14,04:30,,,
@@ -16413,7 +16413,7 @@ USD::chicago fed president evans speaks::none,2021-10-21,00:00,,,
 USD::20 - year bond auction::none,2021-10-21,01:00,2.100%,,1.795%
 USD::fomc member quarles speaks::none,2021-10-21,01:00,,,
 BRL::foreign exchange flows::none,2021-10-21,01:30,-1.784B,,-0.856B
-USD::beige book::none,2021-10-21,02:00,,,
+USD::beige book::none,2021-10-21,02:00,,,0.00
 USD::fed's balance sheet::none,2021-10-21,04:30,"8,564.94B",,"8,480.94B"
 KRW::ppi::m/m,2021-10-21,05:00,0.2%,,0.5%
 KRW::ppi::y/y,2021-10-21,05:00,7.5%,,7.4%
@@ -16435,7 +16435,7 @@ THB::foreign reserves (usd)::none,2021-10-21,15:30,244.9B,,244.8B
 EUR::greek current account::y/y,2021-10-21,16:00,1.414B,,0.538B
 EUR::italian industrial sales::m/m,2021-10-21,16:00,0.80%,,0.80%
 EUR::italian industrial sales::y/y,2021-10-21,16:00,13.80%,,19.00%
-OMR::cpi::m/m,2021-10-21,16:00,-0.1%,,
+OMR::cpi::m/m,2021-10-21,16:00,-0.1%,,0.0%
 OMR::cpi::y/y,2021-10-21,16:00,2.5%,,2.1%
 PLN::retail sales::y/y,2021-10-21,16:00,11.1%,10.4%,10.7%
 HKD::unemployment rate::none,2021-10-21,16:30,4.5%,,4.7%
@@ -17669,7 +17669,7 @@ GBP::thomson reuters ipsos pcsi::none,2021-11-11,19:00,49.8,,52.4
 ILS::exports (usd)::none,2021-11-11,19:00,"5,158.9M",,"3,834.2M"
 ILS::imports (usd)::none,2021-11-11,19:00,"8,338.0M",,"6,336.8M"
 ILS::trade balance::none,2021-11-11,19:00,"-3,179.1M",,"-2,502.6M"
-RUB::russia thomon reuters ipsos pcsi::none,2021-11-11,19:00,36.24,,
+RUB::russia thomon reuters ipsos pcsi::none,2021-11-11,19:00,36.24,,39.62
 TRY::turkey thomson reuters ipsos pcsi::none,2021-11-11,19:00,31.3,,28.8
 ZAR::manufacturing production::m/m,2021-11-11,19:00,3.8%,-0.1%,7.6%
 ZAR::manufacturing production::y/y,2021-11-11,19:00,1.3%,-1.5%,1.9%
@@ -17833,7 +17833,7 @@ USD::ny empire state manufacturing index::none,2021-11-15,21:30,30.90,21.60,19.8
 EUR::french 12 - month btf auction::none,2021-11-15,22:00,-0.754%,,-0.675%
 EUR::french 3 - month btf auction::none,2021-11-15,22:00,-0.863%,,-0.782%
 EUR::french 6 - month btf auction::none,2021-11-15,22:00,-0.800%,,-0.711%
-GBP::boe mpc treasury committee hearings::none,2021-11-15,22:15,,,
+GBP::boe mpc treasury committee hearings::none,2021-11-15,22:15,,,0.00
 UAH::gdp::y/y,2021-11-15,22:55,2.4%,4.4%,5.7%
 EUR::ecb's de guindos speaks::none,2021-11-15,23:45,,,
 ILS::cpi::m/m,2021-11-16,00:30,0.1%,0.4%,0.2%
@@ -18383,7 +18383,7 @@ USD::natural gas storage::none,2021-11-25,01:00,-21B,-22B,26B
 BRL::foreign exchange flows::none,2021-11-25,01:30,-5.232B,,-3.659B
 USD::u.s. baker hughes oil rig count::none,2021-11-25,02:00,467,,461
 USD::u.s. baker hughes total rig count::none,2021-11-25,02:00,569,,563
-USD::fomc meeting minutes::none,2021-11-25,03:00,,,
+USD::fomc meeting minutes::none,2021-11-25,03:00,,,0.00
 USD::fed's balance sheet::none,2021-11-25,04:30,"8,681.77B",,"8,674.97B"
 NZD::exports::none,2021-11-25,05:45,5.35B,,4.36B
 NZD::imports::none,2021-11-25,05:45,6.64B,,6.57B
@@ -18592,7 +18592,7 @@ EUR::cftc eur speculative net positions::none,2021-11-30,04:30,-16.5K,,-3.8K
 GBP::cftc gbp speculative net positions::none,2021-11-30,04:30,-34.6K,,-31.6K
 MXN::cftc mxn speculative net positions::none,2021-11-30,04:30,-49.5K,,-47.7K
 NZD::cftc nzd speculative net positions::none,2021-11-30,04:30,13.9K,,14.0K
-RUB::cftc rub speculative positions::none,2021-11-30,04:30,18.1K,,
+RUB::cftc rub speculative positions::none,2021-11-30,04:30,18.1K,,20.0K
 USD::cftc aluminium speculative net positions::none,2021-11-30,04:30,3.9K,,4.0K
 USD::cftc copper speculative net positions::none,2021-11-30,04:30,13.7K,,20.3K
 USD::cftc corn speculative net positions::none,2021-11-30,04:30,417.1K,,399.2K
@@ -18854,7 +18854,7 @@ RUB::unemployment rate::none,2021-12-02,00:00,4.3%,4.4%,4.3%
 EUR::german buba beermann speaks::none,2021-12-02,01:00,,,
 BRL::foreign exchange flows::none,2021-12-02,01:30,-4.251B,,-5.232B
 BRL::trade balance::none,2021-12-02,02:00,-1.30B,-1.20B,2.00B
-USD::beige book::none,2021-12-02,03:00,,,
+USD::beige book::none,2021-12-02,03:00,,,0.00
 ARS::tax revenue::none,2021-12-02,04:00,"1,034.96B",,"1,018.78B"
 RUB::gdp monthly::y/y,2021-12-02,04:05,4.9%,,3.7%
 USD::fed's balance sheet::none,2021-12-02,04:30,"8,650.40B",,"8,681.77B"
@@ -19244,7 +19244,7 @@ JPY::foreign investments in japanese stocks::none,2021-12-09,07:50,-74.8B,,-309.
 JPY::m2 money stock::y/y,2021-12-09,07:50,4.0%,4.1%,4.2%
 JPY::m3 money supply::none,2021-12-09,07:50,"2,007.9T",,"2,005.2T"
 JPY::bsi large manufacturing conditions::none,2021-12-09,07:50,7.9,5.3,7.0
-AUD::rba bulletin::none,2021-12-09,08:30,,,
+AUD::rba bulletin::none,2021-12-09,08:30,,,0.00
 PHP::industrial production::y/y,2021-12-09,09:00,24.8%,,122.5%
 CNY::cpi::m/m,2021-12-09,09:30,0.4%,0.3%,0.7%
 CNY::cpi::y/y,2021-12-09,09:30,2.3%,2.5%,1.5%
@@ -19967,7 +19967,7 @@ ARS::unemployment rate::none,2021-12-22,03:00,8.2%,10.8%,9.6%
 USD::api weekly gasoline stock::none,2021-12-22,05:30,3.701M,,0.426M
 USD::api weekly crude oil stock::none,2021-12-22,05:30,-3.670M,-2.633M,-0.815M
 AUD::mi leading index::m/m,2021-12-22,07:30,0.1%,,0.3%
-JPY::monetary policy meeting minutes::none,2021-12-22,07:50,,,
+JPY::monetary policy meeting minutes::none,2021-12-22,07:50,,,0.00
 EUR::irish consumer confidence::none,2021-12-22,08:00,74.9,,83.1
 MYR::cpi::y/y,2021-12-22,12:00,3.3%,3.2%,2.9%
 GBP::gdp::q/q,2021-12-22,15:00,1.1%,1.3%,5.4%
@@ -20230,7 +20230,7 @@ GBP::cftc gbp speculative net positions::none,2021-12-28,04:30,-57.7K,,-50.7K
 JPY::cftc jpy speculative net positions::none,2021-12-28,04:30,-52.3K,,-53.5K
 MXN::cftc mxn speculative net positions::none,2021-12-28,04:30,-4.8K,,-10.7K
 NZD::cftc nzd speculative net positions::none,2021-12-28,04:30,-6.1K,,-5.9K
-RUB::cftc rub speculative positions::none,2021-12-28,04:30,,,
+RUB::cftc rub speculative positions::none,2021-12-28,04:30,,,13.8K
 USD::cftc aluminium speculative net positions::none,2021-12-28,04:30,2.4K,,2.4K
 USD::cftc copper speculative net positions::none,2021-12-28,04:30,4.4K,,6.7K
 USD::cftc corn speculative net positions::none,2021-12-28,04:30,445.3K,,426.6K

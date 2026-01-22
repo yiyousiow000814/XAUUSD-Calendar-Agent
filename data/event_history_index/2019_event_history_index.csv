@@ -225,7 +225,7 @@ EUR::lithuania cpi::y/y,2019-01-04,17:00,,,2.5%
 PLN::cpi::m/m,2019-01-04,17:00,0.0%,0.1%,0.0%
 PLN::cpi::y/y,2019-01-04,17:00,1.1%,1.1%,1.3%
 TRY::exports::none,2019-01-04,17:00,13.90B,,15.70B
-CNY::pboc reserve requirement ratio::none,2019-01-04,17:20,14.00%,,
+CNY::pboc reserve requirement ratio::none,2019-01-04,17:20,14.00%,,16.00%
 EUR::portuguese cpi::m/m,2019-01-04,17:30,-0.2%,,-0.4%
 EUR::portuguese cpi::y/y,2019-01-04,17:30,0.7%,,0.9%
 GBP::boe consumer credit::none,2019-01-04,17:30,0.924B,0.950B,0.754B
@@ -491,7 +491,7 @@ UAH::cpi::m/m,2019-01-09,23:45,0.8%,1.2%,1.4%
 CAD::boc press conference::none,2019-01-10,00:00,,,
 USD::fomc member rosengren speaks::none,2019-01-10,00:30,,,
 USD::10 - year note auction::none,2019-01-10,02:00,2.728%,,2.915%
-USD::fomc meeting minutes::none,2019-01-10,03:00,,,
+USD::fomc meeting minutes::none,2019-01-10,03:00,,,0.00
 USD::fed's balance sheet::none,2019-01-10,04:30,"4,056.56B",,"4,058.38B"
 JPY::foreign bonds buying::none,2019-01-10,07:50,"-1,004.3B",,-312.2B
 JPY::foreign investments in japanese stocks::none,2019-01-10,07:50,-248.5B,,-496.4B
@@ -835,7 +835,7 @@ USD::gasoline production::none,2019-01-16,23:30,0.192M,,-0.141M
 USD::heating oil stockpiles::none,2019-01-16,23:30,0.346M,,0.224M
 USD::cushing crude oil inventories::none,2019-01-16,23:30,-0.743M,,0.330M
 GBP::uk government no confidence vote::none,2019-01-17,03:00,,,
-USD::beige book::none,2019-01-17,03:00,,,
+USD::beige book::none,2019-01-17,03:00,,,0.00
 USD::fed's balance sheet::none,2019-01-17,04:30,"4,050.04B",,"4,056.56B"
 USD::fomc member kashkari speaks::none,2019-01-17,07:30,,,
 AUD::mi inflation expectations::none,2019-01-17,08:00,3.5%,,4.0%
@@ -1119,7 +1119,7 @@ ILS::industrial output::m/m,2019-01-24,19:00,-2.6%,,0.2%
 EUR::deposit facility rate::none,2019-01-24,20:45,-0.40%,-0.40%,-0.40%
 EUR::ecb interest rate decision::none,2019-01-24,20:45,0.00%,0.00%,0.00%
 EUR::ecb marginal lending facility::none,2019-01-24,20:45,0.25%,0.25%,0.25%
-AED::cpi::m/m,2019-01-24,21:00,-0.30%,,
+AED::cpi::m/m,2019-01-24,21:00,-0.30%,,-0.30%
 AED::cpi::y/y,2019-01-24,21:00,0.30%,,1.30%
 RUB::central bank reserves (usd)::none,2019-01-24,21:00,469.6B,,472.6B
 RUB::ppi::m/m,2019-01-24,21:00,-3.3%,-1.5%,0.7%
@@ -1193,7 +1193,7 @@ USD::u.s. baker hughes oil rig count::none,2019-01-26,02:00,862,,825
 USD::u.s. baker hughes total rig count::none,2019-01-26,02:00,"1,059",,"1,050"
 NA::australia - australia day::none,2019-01-28,All Day,,,
 JPY::corporate services price index (cspi)::y/y,2019-01-28,07:50,1.1%,1.2%,1.2%
-JPY::monetary policy meeting minutes::none,2019-01-28,07:50,,,
+JPY::monetary policy meeting minutes::none,2019-01-28,07:50,,,0.00
 VND::vietnamese foreign direct investment (usd)::none,2019-01-28,11:30,1.55B,,19.10B
 AUD::aud/usd index::none,2019-01-28,14:30,47.2%,,48.2%
 CAD::usd/cad index::none,2019-01-28,14:30,50.6%,,49.8%
@@ -2489,7 +2489,7 @@ NA::zimbabwe - youth day::none,2019-02-21,All Day,,,
 UAH::ukraine retail sales::m/m,2019-02-21,00:00,-23.0%,,19.1%
 UAH::ukraine retail sales::y/y,2019-02-21,00:00,6.3%,,4.9%
 USD::fomc member kaplan speaks::none,2019-02-21,02:10,,,
-USD::fomc meeting minutes::none,2019-02-21,03:00,,,
+USD::fomc meeting minutes::none,2019-02-21,03:00,,,0.00
 USD::fed's balance sheet::none,2019-02-21,04:30,"3,981.42B",,"4,028.43B"
 USD::api weekly crude oil stock::none,2019-02-21,05:30,1.260M,,-0.998M
 JPY::foreign bonds buying::none,2019-02-21,07:50,193.7B,,996.6B
@@ -2612,7 +2612,7 @@ EUR::german business expectations::none,2019-02-22,17:00,93.8,94.2,94.2
 EUR::german current assessment::none,2019-02-22,17:00,103.4,103.9,104.3
 EUR::german ifo business climate index::none,2019-02-22,17:00,98.5,99.0,99.3
 EUR::cpi::y/y,2019-02-22,18:00,1.4%,1.4%,1.5%
-EUR::cpi ex tobacco::m/m,2019-02-22,18:00,-1.1%,,
+EUR::cpi ex tobacco::m/m,2019-02-22,18:00,-1.1%,,0.0%
 EUR::cpi ex tobacco::y/y,2019-02-22,18:00,1.3%,,1.5%
 EUR::core cpi::m/m,2019-02-22,18:00,-1.5%,-1.5%,-1.5%
 EUR::cpi::m/m,2019-02-22,18:00,-1.0%,-1.1%,0.0%
@@ -3328,7 +3328,7 @@ USD::fomc member mester speaks::none,2019-03-07,01:00,,,
 USD::fomc member williams speaks::none,2019-03-07,01:00,,,
 GBP::boe mpc member saunders speaks::none,2019-03-07,01:30,,,
 ARS::industrial production::y/y,2019-03-07,03:00,-10.8%,,-14.8%
-USD::beige book::none,2019-03-07,03:00,,,
+USD::beige book::none,2019-03-07,03:00,,,0.00
 USD::fed's balance sheet::none,2019-03-07,04:30,"3,969.13B",,"3,974.59B"
 AUD::aig construction index::none,2019-03-07,05:30,43.8,,43.1
 JPY::foreign bonds buying::none,2019-03-07,07:50,453.1B,,"1,021.4B"
@@ -4020,7 +4020,7 @@ NZD::current account::q/q,2019-03-20,05:45,-3.26B,-3.56B,-6.15B
 NZD::current account::y/y,2019-03-20,05:45,-10.97B,-11.30B,-10.54B
 JPY::reuters tankan index::none,2019-03-20,07:00,10,,13
 AUD::mi leading index::m/m,2019-03-20,07:30,0.0%,,0.1%
-JPY::monetary policy meeting minutes::none,2019-03-20,07:50,,,
+JPY::monetary policy meeting minutes::none,2019-03-20,07:50,,,0.00
 AUD::rba assist gov bullock speaks::none,2019-03-20,08:00,,,
 JPY::leading index::none,2019-03-20,13:00,95.9,95.9,97.5
 EUR::estonian ppi::m/m,2019-03-20,14:00,-0.5%,,0.6%
@@ -4097,7 +4097,7 @@ NZD::gdp annual average::none,2019-03-21,05:45,2.8%,2.8%,3.1%
 NZD::gdp expenditure::q/q,2019-03-21,05:45,0.5%,0.6%,0.4%
 NZD::gdp::q/q,2019-03-21,05:45,0.6%,0.6%,0.3%
 AUD::participation rate::none,2019-03-21,08:30,65.6%,65.7%,65.7%
-AUD::rba bulletin::none,2019-03-21,08:30,,,
+AUD::rba bulletin::none,2019-03-21,08:30,,,0.00
 AUD::employment change::none,2019-03-21,08:30,4.6K,14.8K,39.1K
 AUD::full employment change::none,2019-03-21,08:30,-7.3K,,65.4K
 AUD::unemployment rate::none,2019-03-21,08:30,4.9%,5.0%,5.0%
@@ -5221,7 +5221,7 @@ EUR::german 5 - year bobl auction::none,2019-04-10,Tentative,-0.410%,,-0.320%
 NA::costa rica - juan santa maria day::none,2019-04-11,All Day,,,
 USD::10 - year note auction::none,2019-04-11,01:00,2.466%,,2.615%
 EUR::ecb's coeure speaks::none,2019-04-11,02:00,,,
-USD::fomc meeting minutes::none,2019-04-11,02:00,,,
+USD::fomc meeting minutes::none,2019-04-11,02:00,,,0.00
 USD::federal budget balance::none,2019-04-11,02:00,-147.0B,-194.7B,-234.0B
 USD::fed's balance sheet::none,2019-04-11,04:30,"3,936.78B",,"3,935.51B"
 NZD::fpi::m/m,2019-04-11,06:45,0.5%,,0.4%
@@ -5592,7 +5592,7 @@ NA::venezuela - maundy thursday::none,2019-04-18,All Day,,,
 NA::zimbabwe - independence day::none,2019-04-18,All Day,,,
 USD::fomc member harker speaks::none,2019-04-18,00:30,,,
 USD::fomc member bullard speaks::none,2019-04-18,00:45,,,
-USD::beige book::none,2019-04-18,02:00,,,
+USD::beige book::none,2019-04-18,02:00,,,0.00
 USD::fed's balance sheet::none,2019-04-18,04:30,"3,931.83B",,"3,936.78B"
 JPY::reuters tankan index::none,2019-04-18,07:00,8,,10
 JPY::foreign bonds buying::none,2019-04-18,07:50,591.1B,,"-1,742.5B"
@@ -6759,7 +6759,7 @@ USD::api weekly crude oil stock::none,2019-05-08,04:30,2.806M,,6.810M
 GBP::brc retail sales monitor::y/y,2019-05-08,07:00,3.7%,2.4%,-1.1%
 KRW::current account::none,2019-05-08,07:00,4.82B,,3.60B
 JPY::monetary base::y/y,2019-05-08,07:50,3.1%,3.6%,3.8%
-JPY::monetary policy meeting minutes::none,2019-05-08,07:50,,,
+JPY::monetary policy meeting minutes::none,2019-05-08,07:50,,,0.00
 PHP::exports::y/y,2019-05-08,09:00,-2.5%,,-0.9%
 PHP::imports::y/y,2019-05-08,09:00,7.8%,,2.6%
 PHP::trade balance::none,2019-05-08,09:00,"-3,138.0M",,"-2,788.0M"
@@ -7572,7 +7572,7 @@ USD::heating oil stockpiles::none,2019-05-22,22:30,-0.028M,,-0.577M
 USD::cushing crude oil inventories::none,2019-05-22,22:30,1.266M,,1.805M
 BRL::foreign exchange flows::none,2019-05-22,23:30,1.796B,,1.226B
 NA::jamaica - labour day::none,2019-05-23,All Day,,,
-USD::fomc meeting minutes::none,2019-05-23,02:00,,,
+USD::fomc meeting minutes::none,2019-05-23,02:00,,,0.00
 ARS::economic activity::y/y,2019-05-23,03:00,-6.8%,-6.0%,-4.8%
 USD::fed's balance sheet::none,2019-05-23,04:30,"3,860.44B",,"3,864.75B"
 JPY::foreign bonds buying::none,2019-05-23,07:50,"1,355.7B",,"1,169.5B"
@@ -8185,7 +8185,7 @@ ZAR::total vehicle sales::none,2019-06-03,20:00,40.51K,,36.79K
 ZAR::total vehicle sales::y/y,2019-06-03,20:00,-5.70%,,0.70%
 KWD::bank lending::y/y,2019-06-03,20:50,4.90%,,5.00%
 KWD::m2 money supply::y/y,2019-06-03,20:50,2.60%,,5.00%
-OMR::cpi::m/m,2019-06-03,20:55,0.2%,,
+OMR::cpi::m/m,2019-06-03,20:55,0.2%,,-0.1%
 OMR::cpi::y/y,2019-06-03,20:55,0.4%,,0.4%
 CLP::retail sales::y/y,2019-06-03,21:00,-0.8%,,0.9%
 EUR::french 12 - month btf auction::none,2019-06-03,21:00,-0.562%,,-0.547%
@@ -8384,7 +8384,7 @@ NA::tunisia - aid al fitr::none,2019-06-06,All Day,,,
 NA::türkiye - ramadan holiday::none,2019-06-06,All Day,,,
 NA::united arab emirates - eid al - fitr::none,2019-06-06,All Day,,,
 ILS::budget balance::none,2019-06-06,00:10,"-1,000M",,"-4,900M"
-USD::beige book::none,2019-06-06,02:00,,,
+USD::beige book::none,2019-06-06,02:00,,,0.00
 ARS::industrial production::y/y,2019-06-06,03:00,-8.8%,,-13.9%
 ARS::tax revenue::none,2019-06-06,04:00,444.25B,431.90B,357.36B
 USD::fed's balance sheet::none,2019-06-06,04:30,"3,847.65B",,"3,851.44B"
@@ -9150,7 +9150,7 @@ JPY::foreign bonds buying::none,2019-06-20,07:50,327.3B,,"1,739.7B"
 JPY::foreign investments in japanese stocks::none,2019-06-20,07:50,-95.4B,,-148.0B
 KRW::monetary policy board's policy setting meeting dates::none,2019-06-20,09:00,,,
 AUD::rba governor lowe speaks::none,2019-06-20,09:15,,,
-AUD::rba bulletin::none,2019-06-20,09:30,,,
+AUD::rba bulletin::none,2019-06-20,09:30,,,0.00
 JPY::boj interest rate decision::none,2019-06-20,11:00,-0.10%,-0.10%,-0.10%
 JPY::boj monetary policy statement::none,2019-06-20,11:00,,,
 EUR::dutch consumer confidence::none,2019-06-20,12:30,0.0,,-3.0
@@ -9351,7 +9351,7 @@ NZD::imports::none,2019-06-25,06:45,5.54B,5.40B,5.12B
 NZD::trade balance::m/m,2019-06-25,06:45,264M,200M,383M
 NZD::trade balance::y/y,2019-06-25,06:45,"-5,490M","-5,530M","-5,560M"
 JPY::corporate services price index (cspi)::y/y,2019-06-25,07:50,0.8%,1.1%,1.0%
-JPY::monetary policy meeting minutes::none,2019-06-25,07:50,,,
+JPY::monetary policy meeting minutes::none,2019-06-25,07:50,,,0.00
 IDR::motorbike sales::y/y,2019-06-25,11:00,-4.70%,,3.00%
 PHP::budget balance::none,2019-06-25,11:00,2.6B,,86.9B
 THB::industrial production::y/y,2019-06-25,12:00,-3.99%,-0.10%,2.03%
@@ -10223,7 +10223,7 @@ NA::mongolia - naadam festival::none,2019-07-11,All Day,,,
 USD::10 - year note auction::none,2019-07-11,01:00,2.064%,,2.130%
 GBP::mpc member tenreyro speaks::none,2019-07-11,01:10,,,
 USD::fomc member bullard speaks::none,2019-07-11,01:30,,,
-USD::fomc meeting minutes::none,2019-07-11,02:00,,,
+USD::fomc meeting minutes::none,2019-07-11,02:00,,,0.00
 USD::fed's balance sheet::none,2019-07-11,04:30,"3,815.04B",,"3,813.20B"
 NZD::electronic card retail sales::y/y,2019-07-11,06:45,1.1%,,3.2%
 NZD::electronic card retail sales::m/m,2019-07-11,06:45,0.0%,0.7%,-0.5%
@@ -10594,7 +10594,7 @@ USD::heating oil stockpiles::none,2019-07-17,22:30,0.889M,,0.264M
 USD::cushing crude oil inventories::none,2019-07-17,22:30,-1.351M,,-0.310M
 BRL::foreign exchange flows::none,2019-07-17,23:30,-1.227B,,-0.641B
 INR::m3 money supply::none,2019-07-17,Tentative,10.3%,,10.1%
-USD::beige book::none,2019-07-18,02:00,,,
+USD::beige book::none,2019-07-18,02:00,,,0.00
 USD::fed's balance sheet::none,2019-07-18,04:30,"3,808.11B",,"3,815.04B"
 JPY::reuters tankan index::none,2019-07-18,07:00,3,,6
 JPY::imports::y/y,2019-07-18,07:50,-5.2%,-0.4%,-1.5%
@@ -11307,7 +11307,7 @@ BRL::trade balance::none,2019-08-02,03:00,2.29B,3.80B,5.02B
 USD::total vehicle sales::none,2019-08-02,03:00,16.80M,16.90M,17.30M
 ARS::tax revenue::none,2019-08-02,04:00,450.90B,,454.44B
 JPY::monetary base::y/y,2019-08-02,07:50,3.7%,3.8%,4.0%
-JPY::monetary policy meeting minutes::none,2019-08-02,07:50,,,
+JPY::monetary policy meeting minutes::none,2019-08-02,07:50,,,0.00
 MYR::exports::y/y,2019-08-02,09:00,-3.1%,1.8%,2.5%
 MYR::imports::y/y,2019-08-02,09:00,-9.2%,1.1%,1.4%
 MYR::trade balance::none,2019-08-02,09:00,10.30B,8.40B,9.10B
@@ -12357,7 +12357,7 @@ USD::heating oil stockpiles::none,2019-08-21,22:30,0.228M,,0.205M
 USD::cushing crude oil inventories::none,2019-08-21,22:30,-2.485M,,-2.540M
 BRL::foreign exchange flows::none,2019-08-21,23:30,-0.802B,,0.169B
 INR::rbi mpc meeting minutes::none,2019-08-21,Tentative,,,
-USD::fomc meeting minutes::none,2019-08-22,02:00,,,
+USD::fomc meeting minutes::none,2019-08-22,02:00,,,0.00
 ARS::trade balance::none,2019-08-22,03:00,951M,684M,"1,062M"
 USD::fed's balance sheet::none,2019-08-22,04:30,"3,764.87B",,"3,786.02B"
 JPY::foreign bonds buying::none,2019-08-22,07:50,499.7B,,175.8B
@@ -13069,7 +13069,7 @@ EUR::ecb's de guindos speaks::none,2019-09-05,00:30,,,
 USD::fomc member bowman speaks::none,2019-09-05,00:30,,,
 USD::fomc member bullard speaks::none,2019-09-05,00:30,,,
 USD::fomc member kashkari speaks::none,2019-09-05,01:00,,,
-USD::beige book::none,2019-09-05,02:00,,,
+USD::beige book::none,2019-09-05,02:00,,,0.00
 USD::chicago fed president evans speaks::none,2019-09-05,03:15,,,
 USD::api weekly crude oil stock::none,2019-09-05,04:30,0.401M,,-11.100M
 USD::fed's balance sheet::none,2019-09-05,04:30,"3,761.51B",,"3,759.95B"
@@ -13869,7 +13869,7 @@ NZD::gdp annual average::none,2019-09-19,06:45,2.4%,2.4%,2.7%
 NZD::gdp expenditure::q/q,2019-09-19,06:45,0.7%,0.5%,0.9%
 NZD::gdp::q/q,2019-09-19,06:45,0.5%,0.4%,0.6%
 AUD::participation rate::none,2019-09-19,09:30,66.2%,66.1%,66.1%
-AUD::rba bulletin::none,2019-09-19,09:30,,,
+AUD::rba bulletin::none,2019-09-19,09:30,,,0.00
 AUD::employment change::none,2019-09-19,09:30,34.7K,10.0K,41.1K
 AUD::full employment change::none,2019-09-19,09:30,-15.5K,,34.5K
 AUD::unemployment rate::none,2019-09-19,09:30,5.3%,5.3%,5.2%
@@ -14057,7 +14057,7 @@ NA::saudi arabia - national day of saudi arabia::none,2019-09-24,All Day,,,
 NA::south africa - heritage day::none,2019-09-24,All Day,,,
 USD::fomc member bullard speaks::none,2019-09-24,01:00,,,
 USD::fomc member daly speaks::none,2019-09-24,02:30,,,
-COP::interest rate decision::none,2019-09-24,04:00,4.25%,4.25%,
+COP::interest rate decision::none,2019-09-24,04:00,4.25%,4.25%,4.25%
 KRW::ppi::m/m,2019-09-24,05:00,0.2%,-0.1%,0.0%
 KRW::ppi::y/y,2019-09-24,05:00,-0.6%,-0.9%,-0.3%
 THB::industrial production::y/y,2019-09-24,12:00,-4.40%,-3.60%,-3.23%
@@ -14116,7 +14116,7 @@ NZD::imports::none,2019-09-25,06:45,5.69B,,5.66B
 NZD::trade balance::m/m,2019-09-25,06:45,"-1,565M","-1,464M",-700M
 NZD::trade balance::y/y,2019-09-25,06:45,"-5,480M",,"-5,490M"
 JPY::corporate services price index (cspi)::y/y,2019-09-25,07:50,0.6%,0.5%,0.6%
-JPY::monetary policy meeting minutes::none,2019-09-25,07:50,,,
+JPY::monetary policy meeting minutes::none,2019-09-25,07:50,,,0.00
 JPY::boj board member masai speaks::none,2019-09-25,09:30,,,
 NZD::rbnz interest rate decision::none,2019-09-25,10:00,1.00%,1.00%,1.00%
 NZD::rbnz rate statement::none,2019-09-25,10:00,,,
@@ -14978,7 +14978,7 @@ NA::kenya - moi day::none,2019-10-10,All Day,,,
 NA::taiwan - double tenth day::none,2019-10-10,All Day,,,
 USD::10 - year note auction::none,2019-10-10,01:00,1.590%,,1.739%
 BRL::foreign exchange flows::none,2019-10-10,01:30,-3.673B,,-6.035B
-USD::fomc meeting minutes::none,2019-10-10,02:00,,,
+USD::fomc meeting minutes::none,2019-10-10,02:00,,,0.00
 USD::fed's balance sheet::none,2019-10-10,04:30,"3,949.96B",,"3,945.83B"
 NZD::fpi::m/m,2019-10-10,05:45,0.0%,,0.7%
 JPY::reuters tankan index::none,2019-10-10,07:00,-5,,-7
@@ -15398,13 +15398,13 @@ RUB::industrial production::y/y,2019-10-16,21:00,3.0%,3.0%,2.9%
 USD::chicago fed president evans speaks::none,2019-10-16,21:00,,,
 USD::nahb housing market index::none,2019-10-16,22:00,71,68,68
 USD::business inventories::m/m,2019-10-16,22:00,0.0%,0.2%,0.3%
-USD::retail inventories ex auto::none,2019-10-16,22:00,-0.2%,,
+USD::retail inventories ex auto::none,2019-10-16,22:00,-0.2%,,0.0%
 BRL::brazil thomson reuters ipsos pcsi::none,2019-10-16,23:00,50.11,,47.08
 USD::thomson reuters ipsos pcsi::none,2019-10-16,23:00,62.12,,58.94
 NA::israel - early close - early close at 14:25::none,2019-10-16,,,,
 EUR::german buba president weidmann speaks::none,2019-10-17,01:00,,,
 BRL::foreign exchange flows::none,2019-10-17,01:30,-6.858B,,-3.673B
-USD::beige book::none,2019-10-17,02:00,,,
+USD::beige book::none,2019-10-17,02:00,,,0.00
 ARS::cpi::m/m,2019-10-17,03:00,5.8%,,3.9%
 BRL::caged net payroll jobs::none,2019-10-17,03:00,157.21K,,121.39K
 USD::fomc member brainard speaks::none,2019-10-17,03:00,,,
@@ -16399,7 +16399,7 @@ NZD::participation rate::none,2019-11-06,05:45,70.40%,70.30%,70.30%
 NZD::unemployment rate::none,2019-11-06,05:45,4.2%,4.1%,3.9%
 KRW::current account::none,2019-11-06,07:00,7.48B,8.45B,5.27B
 USD::fomc member kashkari speaks::none,2019-11-06,07:00,,,
-JPY::monetary policy meeting minutes::none,2019-11-06,07:50,,,
+JPY::monetary policy meeting minutes::none,2019-11-06,07:50,,,0.00
 COP::cpi::m/m,2019-11-06,08:00,0.16%,0.19%,0.23%
 COP::cpi::y/y,2019-11-06,08:00,3.86%,3.89%,3.82%
 EUR::irish consumer confidence::none,2019-11-06,08:00,69.5,,75.3
@@ -17087,7 +17087,7 @@ USD::retail sales ex gas/autos::m/m,2019-11-15,21:30,0.1%,0.4%,-0.1%
 USD::export price index::m/m,2019-11-15,21:30,-0.1%,-0.1%,-0.2%
 USD::import price index::m/m,2019-11-15,21:30,-0.5%,-0.2%,0.1%
 USD::ny empire state manufacturing index::none,2019-11-15,21:30,2.90,5.00,4.00
-USD::retail control::m/m,2019-11-15,21:30,0.3%,0.3%,
+USD::retail control::m/m,2019-11-15,21:30,0.3%,0.3%,0.0%
 PEN::gdp::y/y,2019-11-15,22:00,2.22%,,3.39%
 PEN::unemployment rate::none,2019-11-15,22:00,6.4%,,5.8%
 USD::capacity utilization rate::none,2019-11-15,22:15,76.7%,77.1%,77.5%
@@ -17271,7 +17271,7 @@ USD::gasoline inventories::none,2019-11-20,23:30,1.756M,0.870M,1.861M
 USD::gasoline production::none,2019-11-20,23:30,-0.120M,,0.137M
 USD::heating oil stockpiles::none,2019-11-20,23:30,0.373M,,-0.407M
 USD::cushing crude oil inventories::none,2019-11-20,23:30,-2.295M,,-1.229M
-USD::fomc meeting minutes::none,2019-11-21,03:00,,,
+USD::fomc meeting minutes::none,2019-11-21,03:00,,,0.00
 USD::fed's balance sheet::none,2019-11-21,04:30,"4,030.25B",,"4,047.88B"
 JPY::foreign bonds buying::none,2019-11-21,07:50,119.4B,,530.0B
 JPY::foreign investments in japanese stocks::none,2019-11-21,07:50,110.3B,,569.8B
@@ -17587,7 +17587,7 @@ USD::gasoline inventories::none,2019-11-27,23:30,5.132M,1.222M,1.756M
 USD::gasoline production::none,2019-11-27,23:30,0.012M,,-0.120M
 USD::heating oil stockpiles::none,2019-11-27,23:30,0.959M,,0.373M
 USD::cushing crude oil inventories::none,2019-11-27,23:30,-0.097M,,-2.295M
-GBP::boe mpc treasury committee hearings::none,2019-11-27,Tentative,,,
+GBP::boe mpc treasury committee hearings::none,2019-11-27,Tentative,,,0.00
 NA::united states - thanksgiving day::none,2019-11-28,All Day,,,
 USD::7 - year note auction::none,2019-11-28,00:00,1.719%,,1.657%
 USD::dallas fed pce::none,2019-11-28,01:00,1.60%,,1.40%
@@ -17595,7 +17595,7 @@ USD::natural gas storage::none,2019-11-28,01:00,-28B,-89B,-94B
 USD::u.s. baker hughes oil rig count::none,2019-11-28,02:00,668,,671
 USD::u.s. baker hughes total rig count::none,2019-11-28,02:00,802,,803
 ARS::retail sales::y/y,2019-11-28,03:00,45.4%,,45.9%
-USD::beige book::none,2019-11-28,03:00,,,
+USD::beige book::none,2019-11-28,03:00,,,0.00
 USD::fed's balance sheet::none,2019-11-28,04:30,"4,052.88B",,"4,030.25B"
 KRW::manufacturing bsi index::none,2019-11-28,05:00,74,,74
 JPY::foreign bonds buying::none,2019-11-28,07:50,-155.2B,,123.4B
@@ -17961,7 +17961,7 @@ USD::ism ny business conditions::none,2019-12-03,22:45,50.4%,44.7%,47.7%
 USD::ism - new york index::none,2019-12-03,22:45,874.5,,874.3
 COP::exports::y/y,2019-12-03,23:00,-11.90%,,-12.30%
 NZD::globaldairytrade price index::none,2019-12-03,23:20,-0.5%,0.5%,1.7%
-GBP::boe mpc treasury committee hearings::none,2019-12-03,Tentative,,,
+GBP::boe mpc treasury committee hearings::none,2019-12-03,Tentative,,,0.00
 EUR::irish exchequer returns::none,2019-12-04,00:30,3.355B,,-1.697B
 USD::52 - week bill auction::none,2019-12-04,00:30,1.525%,,1.565%
 EGP::foreign reserves (usd)::none,2019-12-04,01:00,45.35B,,45.25B
@@ -18456,7 +18456,7 @@ JPY::core machinery orders::y/y,2019-12-12,07:50,-6.1%,-1.8%,5.1%
 JPY::foreign bonds buying::none,2019-12-12,07:50,235.8B,,-511.1B
 JPY::foreign investments in japanese stocks::none,2019-12-12,07:50,-200.4B,,394.0B
 AUD::mi inflation expectations::none,2019-12-12,08:00,4.0%,,4.0%
-AUD::rba bulletin::none,2019-12-12,08:30,,,
+AUD::rba bulletin::none,2019-12-12,08:30,,,0.00
 JPY::boj deputy governor amamiya speaks::none,2019-12-12,09:30,,,
 SGD::unemployment rate::none,2019-12-12,10:30,2.3%,,2.3%
 MYR::industrial production::y/y,2019-12-12,12:00,0.3%,1.4%,1.7%
@@ -18705,7 +18705,7 @@ PEN::gdp::y/y,2019-12-16,23:00,2.09%,,2.22%
 PEN::unemployment rate::none,2019-12-16,23:00,6.3%,,6.4%
 USD::nahb housing market index::none,2019-12-16,23:00,76,70,71
 CAD::budget balance::none,2019-12-16,23:45,-3.25B,,-0.58B
-CAD::budget balance::y/y,2019-12-16,23:45,-9.05B,,
+CAD::budget balance::y/y,2019-12-16,23:45,-9.05B,,-5.80B
 NA::bahrain - national day::none,2019-12-17,All Day,,,
 NA::kazakhstan - independence day::none,2019-12-17,All Day,,,
 USD::3 - month bill auction::none,2019-12-17,00:30,1.540%,,1.520%
@@ -19162,7 +19162,7 @@ USD::2 - year note auction::none,2019-12-24,02:00,1.653%,,1.601%
 UAH::ukraine unemployment rate::none,2019-12-24,02:30,7.3,,7.8
 ARS::economic activity::y/y,2019-12-24,03:00,0.9%,,-2.1%
 ARS::trade balance::none,2019-12-24,03:00,"2,445M","1,647M","1,768M"
-JPY::monetary policy meeting minutes::none,2019-12-24,07:50,,,
+JPY::monetary policy meeting minutes::none,2019-12-24,07:50,,,0.00
 JPY::boj core cpi::y/y,2019-12-24,13:00,0.2%,,0.3%
 EUR::dutch gdp::q/q,2019-12-24,13:30,0.4%,0.4%,0.4%
 EUR::dutch gdp::y/y,2019-12-24,13:30,1.9%,1.9%,1.8%

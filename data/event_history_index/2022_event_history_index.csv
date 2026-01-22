@@ -232,7 +232,7 @@ NA::slovakia - epiphany day::none,2022-01-06,All Day,,,
 NA::sweden - epiphany day::none,2022-01-06,All Day,,,
 EUR::irish exchequer returns::none,2022-01-06,00:30,-7.372B,,-1.485B
 BRL::foreign exchange flows::none,2022-01-06,01:30,-9.946B,,-6.261B
-USD::fomc meeting minutes::none,2022-01-06,03:00,,,
+USD::fomc meeting minutes::none,2022-01-06,03:00,,,0.00
 USD::fed's balance sheet::none,2022-01-06,04:30,"8,765.72B",,"8,757.46B"
 USD::api weekly gasoline stock::none,2022-01-06,05:30,7.061M,,-0.319M
 COP::cpi::m/m,2022-01-06,08:00,0.73%,0.44%,0.50%
@@ -631,7 +631,7 @@ USD::wasde report::none,2022-01-13,01:00,,,
 BRL::foreign exchange flows::none,2022-01-13,01:30,-1.132B,,-7.122B
 USD::10 - year note auction::none,2022-01-13,02:00,1.723%,,1.518%
 USD::fomc member kashkari speaks::none,2022-01-13,02:00,,,
-USD::beige book::none,2022-01-13,03:00,,,
+USD::beige book::none,2022-01-13,03:00,,,0.00
 USD::federal budget balance::none,2022-01-13,03:00,-21.0B,-25.0B,-191.0B
 USD::fed's balance sheet::none,2022-01-13,04:30,"8,788.28B",,"8,765.72B"
 KRW::export price index::y/y,2022-01-13,05:00,23.5%,,25.5%
@@ -1114,7 +1114,7 @@ NZD::visitor arrivals::m/m,2022-01-21,05:45,44.0%,,59.6%
 JPY::national cpi::y/y,2022-01-21,07:30,0.8%,,0.6%
 JPY::national cpi::m/m,2022-01-21,07:30,0.1%,,0.3%
 JPY::national core cpi::y/y,2022-01-21,07:30,0.5%,0.6%,0.5%
-JPY::monetary policy meeting minutes::none,2022-01-21,07:50,,,
+JPY::monetary policy meeting minutes::none,2022-01-21,07:50,,,0.00
 GBP::gfk consumer confidence::none,2022-01-21,08:00,-19,-15,-15
 MYR::cpi::y/y,2022-01-21,12:00,3.2%,3.1%,3.3%
 THB::custom - based export data::none,2022-01-21,12:30,24.20%,15.50%,24.70%
@@ -2608,7 +2608,7 @@ EUR::german buba wuermeling speaks::none,2022-02-17,00:30,,,
 BRL::foreign exchange flows::none,2022-02-17,01:30,5.077B,,4.232B
 USD::20 - year bond auction::none,2022-02-17,02:00,2.400%,,2.210%
 CAD::boc gov council member lane speaks::none,2022-02-17,02:30,,,
-USD::fomc meeting minutes::none,2022-02-17,03:00,,,
+USD::fomc meeting minutes::none,2022-02-17,03:00,,,0.00
 USD::fed's balance sheet::none,2022-02-17,04:30,"8,911.03B",,"8,878.01B"
 JPY::core machinery orders::m/m,2022-02-17,07:50,3.6%,-1.8%,3.4%
 JPY::core machinery orders::y/y,2022-02-17,07:50,5.1%,0.6%,11.6%
@@ -2910,7 +2910,7 @@ USD::mortgage refinance index::none,2022-02-23,20:00,"1,677.7",,"1,988.8"
 BRL::federal tax revenue::none,2022-02-23,21:00,235.30B,,193.90B
 CAD::corporate profits::q/q,2022-02-23,21:30,3.8%,,2.8%
 USD::redbook::y/y,2022-02-23,21:55,14.5%,,15.4%
-GBP::boe mpc treasury committee hearings::none,2022-02-23,22:15,,,
+GBP::boe mpc treasury committee hearings::none,2022-02-23,22:15,,,0.00
 NA::estonia - independence day::none,2022-02-24,All Day,,,
 EUR::ecb's schnabel speaks::none,2022-02-24,00:00,,,
 GBP::mpc member tenreyro speaks::none,2022-02-24,01:00,,,
@@ -2919,7 +2919,7 @@ BRL::foreign exchange flows::none,2022-02-24,01:30,5.200B,,5.077B
 USD::5 - year note auction::none,2022-02-24,02:00,1.880%,,1.533%
 ARS::economic activity::y/y,2022-02-24,03:00,9.8%,8.5%,9.3%
 USD::fed's balance sheet::none,2022-02-24,04:30,"8,928.13B",,"8,911.03B"
-KRW::ppi::m/m,2022-02-24,05:00,0.9%,,
+KRW::ppi::m/m,2022-02-24,05:00,0.9%,,0.0%
 KRW::ppi::y/y,2022-02-24,05:00,8.7%,,9.0%
 USD::api weekly gasoline stock::none,2022-02-24,05:30,0.427M,,0.923M
 USD::api weekly crude oil stock::none,2022-02-24,05:30,5.983M,0.767M,-1.076M
@@ -3002,8 +3002,8 @@ USD::7 - year note auction::none,2022-02-25,02:00,1.905%,,1.769%
 USD::u.s. president biden speaks::none,2022-02-25,02:30,,,
 ARS::retail sales::y/y,2022-02-25,03:00,104.5%,,144.7%
 NZD::core retail sales::q/q,2022-02-25,05:35,6.8%,,-6.8%
-NZD::exports::none,2022-02-25,05:45,4.86B,,
-NZD::imports::none,2022-02-25,05:45,5.94B,,
+NZD::exports::none,2022-02-25,05:45,4.86B,,6.07B
+NZD::imports::none,2022-02-25,05:45,5.94B,,6.55B
 NZD::retail sales quarterly vs. year ago::none,2022-02-25,05:45,4.4%,,-5.2%
 NZD::trade balance::m/m,2022-02-25,05:45,"-1,082M",,-477M
 NZD::trade balance::y/y,2022-02-25,05:45,"-7,710M",,"-6,780M"
@@ -3469,7 +3469,7 @@ RUB::unemployment rate::none,2022-03-03,00:00,4.4%,4.3%,4.3%
 EUR::irish exchequer returns::none,2022-03-03,00:30,0.900B,,2.200B
 BRL::bcb focus market readout::none,2022-03-03,01:00,,,
 GBP::mpc member tenreyro speaks::none,2022-03-03,02:30,,,
-USD::beige book::none,2022-03-03,03:00,,,
+USD::beige book::none,2022-03-03,03:00,,,0.00
 ARS::tax revenue::none,2022-03-03,04:00,"1,166.51B",,"1,171.94B"
 GBP::boe mpc member cunliffe speaks::none,2022-03-03,04:00,,,
 USD::fed's balance sheet::none,2022-03-03,04:30,"8,904.46B",,"8,928.13B"
@@ -4251,7 +4251,7 @@ JPY::core machinery orders::y/y,2022-03-17,07:50,5.1%,8.1%,5.1%
 JPY::foreign bonds buying::none,2022-03-17,07:50,-164.7B,,-363.8B
 JPY::foreign investments in japanese stocks::none,2022-03-17,07:50,"-1,050.4B",,-910.0B
 AUD::participation rate::none,2022-03-17,08:30,66.4%,66.3%,66.2%
-AUD::rba bulletin::none,2022-03-17,08:30,,,
+AUD::rba bulletin::none,2022-03-17,08:30,,,0.00
 AUD::employment change::none,2022-03-17,08:30,77.4K,37.0K,12.9K
 AUD::full employment change::none,2022-03-17,08:30,121.9K,,-17.0K
 AUD::unemployment rate::none,2022-03-17,08:30,4.0%,4.1%,4.2%
@@ -4526,7 +4526,7 @@ GBP::core rpi::y/y,2022-03-23,15:00,8.3%,,8.0%
 GBP::ppi input::y/y,2022-03-23,15:00,14.7%,13.9%,14.2%
 GBP::ppi output::m/m,2022-03-23,15:00,0.8%,0.9%,1.2%
 GBP::ppi output::y/y,2022-03-23,15:00,10.1%,10.1%,9.9%
-GBP::rpi::m/m,2022-03-23,15:00,0.8%,0.8%,
+GBP::rpi::m/m,2022-03-23,15:00,0.8%,0.8%,0.0%
 GBP::rpi::y/y,2022-03-23,15:00,8.2%,8.2%,7.8%
 GBP::cpi::m/m,2022-03-23,15:00,0.8%,0.6%,-0.1%
 GBP::ppi input::m/m,2022-03-23,15:00,1.4%,1.2%,1.5%
@@ -4576,7 +4576,7 @@ ARS::gdp::y/y,2022-03-24,03:00,8.6%,8.7%,11.9%
 ARS::trade balance::none,2022-03-24,03:00,809M,600M,296M
 ARS::unemployment rate::none,2022-03-24,03:00,7.0%,8.5%,8.2%
 USD::fed's balance sheet::none,2022-03-24,04:30,"8,962.47B",,"8,954.31B"
-JPY::monetary policy meeting minutes::none,2022-03-24,07:50,,,
+JPY::monetary policy meeting minutes::none,2022-03-24,07:50,,,0.00
 EUR::irish consumer confidence::none,2022-03-24,08:00,67.0,,77.0
 JPY::boj board member kataoka speaks::none,2022-03-24,09:30,,,
 IDR::m2 money supply::y/y,2022-03-24,12:00,12.50%,,12.90%
@@ -5332,7 +5332,7 @@ NA::morocco - ramadan holiday - early close at 13:20::none,2022-04-06,,,,
 NA::rwanda - public holiday::none,2022-04-07,All Day,,,
 NA::tanzania - karume day::none,2022-04-07,All Day,,,
 EUR::irish unemployment::none,2022-04-07,00:30,146.4K,,135.1K
-USD::fomc meeting minutes::none,2022-04-07,02:00,,,
+USD::fomc meeting minutes::none,2022-04-07,02:00,,,0.00
 USD::fed's balance sheet::none,2022-04-07,04:30,"8,937.59B",,"8,937.14B"
 AUD::aig services index::none,2022-04-07,06:30,56.2,,60.0
 JPY::foreign bonds buying::none,2022-04-07,07:50,"-1,673.7B",,-703.3B
@@ -6202,7 +6202,7 @@ NA::israel - passover::none,2022-04-21,All Day,,,
 RUB::ppi::m/m,2022-04-21,00:00,5.9%,,3.9%
 RUB::ppi::y/y,2022-04-21,00:00,26.7%,,23.5%
 USD::20 - year bond auction::none,2022-04-21,01:00,3.095%,,2.651%
-USD::beige book::none,2022-04-21,02:00,,,
+USD::beige book::none,2022-04-21,02:00,,,0.00
 ARS::trade balance::none,2022-04-21,03:00,279M,647M,818M
 USD::fed's balance sheet::none,2022-04-21,04:30,"8,955.85B",,"8,965.49B"
 KRW::ppi::m/m,2022-04-21,05:00,1.3%,,0.5%
@@ -6708,7 +6708,7 @@ TRY::tourism revenues::none,2022-04-29,15:00,5.45B,,7.63B
 TRY::trade balance::none,2022-04-29,15:00,-8.17B,,-7.88B
 THB::currency swaps (usd)::none,2022-04-29,15:30,32.4B,,31.6B
 THB::foreign reserves (usd)::none,2022-04-29,15:30,233.9B,,238.1B
-CHF::snb board member jordan speaks::none,2022-04-29,16:00,,,
+CHF::snb board member jordan speaks::none,2022-04-29,16:00,,,0.00
 EUR::german gdp::q/q,2022-04-29,16:00,0.2%,0.1%,-0.3%
 EUR::italian gdp::q/q,2022-04-29,16:00,-0.2%,-0.2%,0.6%
 EUR::italian gdp::y/y,2022-04-29,16:00,5.8%,5.8%,6.2%
@@ -6929,8 +6929,8 @@ BRL::ibc - br economic activity::none,2022-05-02,20:00,0.34%,0.50%,-0.73%
 CZK::budget balance::none,2022-05-02,20:00,-100.100B,,-59.100B
 BRL::budget balance::none,2022-05-02,20:30,-22.545B,,84.100B
 BRL::budget surplus::none,2022-05-02,20:30,3.471B,-8.600B,101.800B
-BRL::net debt - to - gdp ratio::none,2022-05-02,20:30,57.1%,,
-BRL::gross debt - to - gdp ratio::m/m,2022-05-02,20:30,79.2%,,
+BRL::net debt - to - gdp ratio::none,2022-05-02,20:30,57.1%,,56.6%
+BRL::gross debt - to - gdp ratio::m/m,2022-05-02,20:30,79.2%,,79.6%
 EUR::french 12 - month btf auction::none,2022-05-02,21:00,-0.167%,,-0.156%
 EUR::french 3 - month btf auction::none,2022-05-02,21:00,-0.652%,,-0.669%
 EUR::french 6 - month btf auction::none,2022-05-02,21:00,-0.519%,,-0.541%
@@ -7309,7 +7309,7 @@ USD::fomc member bostic speaks::none,2022-05-09,07:00,,,
 JPY::average cash earnings::y/y,2022-05-09,07:30,1.2%,0.9%,1.2%
 JPY::overall wage income of employees::none,2022-05-09,07:30,1.2%,,1.2%
 JPY::overtime pay::y/y,2022-05-09,07:30,2.50%,,5.80%
-JPY::monetary policy meeting minutes::none,2022-05-09,07:50,,,
+JPY::monetary policy meeting minutes::none,2022-05-09,07:50,,,0.00
 CNY::exports::y/y,2022-05-09,11:00,3.9%,3.2%,14.7%
 CNY::imports::y/y,2022-05-09,11:00,0.0%,-3.0%,-0.1%
 CNY::trade balance (usd)::none,2022-05-09,11:00,51.12B,50.65B,47.38B
@@ -7782,7 +7782,7 @@ EUR::french 12 - month btf auction::none,2022-05-16,21:00,-0.147%,,-0.120%
 EUR::french 3 - month btf auction::none,2022-05-16,21:00,-0.628%,,-0.631%
 EUR::french 6 - month btf auction::none,2022-05-16,21:00,-0.471%,,-0.477%
 UAH::trade balance ytd (usd)::none,2022-05-16,21:20,-0.0B,,-0.2B
-GBP::boe mpc treasury committee hearings::none,2022-05-16,22:15,,,
+GBP::boe mpc treasury committee hearings::none,2022-05-16,22:15,,,0.00
 COP::imports::y/y,2022-05-16,23:00,40.30%,,44.90%
 COP::trade balance (usd)::none,2022-05-16,23:00,-1.521B,,-1.101B
 QAR::cpi::m/m,2022-05-16,23:00,0.29%,,0.58%
@@ -8301,7 +8301,7 @@ RUB::ppi::m/m,2022-05-26,00:00,6.3%,,5.9%
 RUB::ppi::y/y,2022-05-26,00:00,31.5%,,26.7%
 USD::fomc member brainard speaks::none,2022-05-26,00:15,,,
 USD::5 - year note auction::none,2022-05-26,01:00,2.736%,,2.785%
-USD::fomc meeting minutes::none,2022-05-26,02:00,,,
+USD::fomc meeting minutes::none,2022-05-26,02:00,,,0.00
 USD::fed's balance sheet::none,2022-05-26,04:30,"8,914.28B",,"8,945.90B"
 NZD::rbnz gov orr speaks::none,2022-05-26,05:10,,,
 EUR::irish consumer confidence::none,2022-05-26,07:00,55.2,,57.7
@@ -8339,7 +8339,7 @@ CAD::core retail sales::m/m,2022-05-26,20:30,2.4%,2.0%,1.8%
 CAD::retail sales::m/m,2022-05-26,20:30,0.0%,1.4%,0.2%
 USD::gdp::q/q,2022-05-26,20:30,-1.5%,-1.3%,-1.4%
 USD::initial jobless claims::none,2022-05-26,20:30,210K,215K,218K
-USD::corporate profits::q/q,2022-05-26,20:30,-4.3%,,
+USD::corporate profits::q/q,2022-05-26,20:30,-4.3%,,0.2%
 USD::gdp sales::none,2022-05-26,20:30,-0.4%,,-0.6%
 USD::jobless claims 4 - week avg.::none,2022-05-26,20:30,206.75K,,199.50K
 USD::pce prices::none,2022-05-26,20:30,7.0%,,6.4%
@@ -8749,7 +8749,7 @@ RUB::unemployment rate::none,2022-06-02,00:00,4.0%,4.3%,4.1%
 RUB::gdp monthly::y/y,2022-06-02,00:30,-3.0%,,1.3%
 USD::fomc member bullard speaks::none,2022-06-02,01:00,,,
 BRL::trade balance::none,2022-06-02,02:00,3.11B,4.57B,8.15B
-USD::beige book::none,2022-06-02,02:00,,,
+USD::beige book::none,2022-06-02,02:00,,,0.00
 ARS::tax revenue::none,2022-06-02,03:00,"1,551.37B",,"1,341.60B"
 ARS::tax revenue::none,2022-06-02,04:00,"1,551.37B",,"1,341.60B"
 USD::api weekly crude oil stock::none,2022-06-02,04:30,-1.181M,-0.067M,0.567M
@@ -9237,7 +9237,7 @@ THB::foreign reserves (usd)::none,2022-06-10,15:30,229.6B,,230.3B
 CNY::m2 money stock::y/y,2022-06-10,16:00,11.1%,10.4%,10.5%
 CNY::outstanding loan growth::y/y,2022-06-10,16:00,11.0%,10.7%,10.9%
 CNY::new loans::none,2022-06-10,16:00,"1,890.0B","1,300.0B",645.4B
-EUR::italian industrial production::m/m,2022-06-10,16:00,1.6%,-1.1%,
+EUR::italian industrial production::m/m,2022-06-10,16:00,1.6%,-1.1%,0.0%
 EUR::italian industrial production::y/y,2022-06-10,16:00,4.2%,-0.2%,3.2%
 CNY::chinese total social financing::none,2022-06-10,16:10,"2,790.0B","2,015.0B",910.2B
 GBP::inflation expectations::none,2022-06-10,16:30,4.6%,,4.3%
@@ -9572,7 +9572,7 @@ JPY::exports::y/y,2022-06-16,07:50,15.8%,16.4%,12.5%
 JPY::trade balance::none,2022-06-16,07:50,"-2,384.7B","-2,022.6B",-842.8B
 AUD::mi inflation expectations::none,2022-06-16,09:00,6.7%,,5.0%
 AUD::participation rate::none,2022-06-16,09:30,66.7%,66.4%,66.4%
-AUD::rba bulletin::none,2022-06-16,09:30,,,
+AUD::rba bulletin::none,2022-06-16,09:30,,,0.00
 AUD::employment change::none,2022-06-16,09:30,60.6K,25.0K,4.5K
 AUD::full employment change::none,2022-06-16,09:30,69.4K,,93.3K
 AUD::unemployment rate::none,2022-06-16,09:30,3.9%,3.8%,3.9%
@@ -9809,7 +9809,7 @@ NZD::exports::none,2022-06-22,06:45,6.95B,,6.16B
 NZD::imports::none,2022-06-22,06:45,6.69B,,5.72B
 NZD::trade balance::m/m,2022-06-22,06:45,263M,,440M
 NZD::trade balance::y/y,2022-06-22,06:45,"-9,520M",,"-9,290M"
-JPY::monetary policy meeting minutes::none,2022-06-22,07:50,,,
+JPY::monetary policy meeting minutes::none,2022-06-22,07:50,,,0.00
 AUD::mi leading index::m/m,2022-06-22,08:30,-0.1%,,-0.2%
 NZD::credit card spending::y/y,2022-06-22,11:00,2.2%,,1.3%
 EUR::dutch consumer confidence::none,2022-06-22,12:30,-50.0,,-47.0
@@ -9968,7 +9968,7 @@ JPY::national core cpi::y/y,2022-06-24,07:30,2.1%,2.1%,2.1%
 JPY::corporate services price index (cspi)::y/y,2022-06-24,07:50,1.8%,,1.7%
 MYR::cpi::y/y,2022-06-24,12:00,2.8%,2.6%,2.3%
 EUR::dutch gdp::q/q,2022-06-24,12:30,0.4%,0.0%,1.0%
-EUR::dutch gdp::y/y,2022-06-24,12:30,6.7%,,
+EUR::dutch gdp::y/y,2022-06-24,12:30,6.7%,,7.0%
 SGD::industrial production::m/m,2022-06-24,13:00,10.9%,2.8%,2.1%
 SGD::industrial production::y/y,2022-06-24,13:00,13.8%,5.8%,6.4%
 GBP::core retail sales::m/m,2022-06-24,14:00,-0.7%,-1.0%,0.2%
@@ -10287,7 +10287,7 @@ ZAR::private sector credit::none,2022-06-30,14:00,5.34%,5.70%,5.87%
 CHF::retail sales::y/y,2022-06-30,14:30,-1.6%,,-5.5%
 EUR::french cpi::y/y,2022-06-30,14:45,5.8%,5.7%,5.2%
 EUR::french hicp::y/y,2022-06-30,14:45,6.5%,6.5%,5.8%
-EUR::french ppi::m/m,2022-06-30,14:45,-0.1%,,
+EUR::french ppi::m/m,2022-06-30,14:45,-0.1%,,0.0%
 EUR::french cpi::m/m,2022-06-30,14:45,0.7%,0.7%,0.7%
 EUR::french consumer spending::m/m,2022-06-30,14:45,0.7%,0.2%,-0.7%
 EUR::french hicp::m/m,2022-06-30,14:45,0.8%,0.9%,0.8%
@@ -10654,7 +10654,7 @@ QAR::cpi::m/m,2022-07-06,23:00,0.01%,,1.34%
 QAR::cpi::y/y,2022-07-06,23:00,5.41%,,5.18%
 NA::saudi arabia - eid al - adha::none,2022-07-07,All Day,,,
 NA::tanzania - public holiday::none,2022-07-07,All Day,,,
-USD::fomc meeting minutes::none,2022-07-07,02:00,,,
+USD::fomc meeting minutes::none,2022-07-07,02:00,,,0.00
 USD::api weekly crude oil stock::none,2022-07-07,04:30,3.825M,-1.100M,-3.799M
 USD::fed's balance sheet::none,2022-07-07,04:30,"8,891.85B",,"8,913.55B"
 AUD::aig services index::none,2022-07-07,06:30,48.8,,49.2
@@ -11117,7 +11117,7 @@ NA::mongolia - naadam festival::none,2022-07-14,All Day,,,
 NA::montenegro - statehood day::none,2022-07-14,All Day,,,
 NA::oman - eid al - adha::none,2022-07-14,All Day,,,
 USD::30 - year bond auction::none,2022-07-14,01:00,3.115%,,3.185%
-USD::beige book::none,2022-07-14,02:00,,,
+USD::beige book::none,2022-07-14,02:00,,,0.00
 USD::federal budget balance::none,2022-07-14,02:00,-89.0B,-76.5B,-66.0B
 USD::fed's balance sheet::none,2022-07-14,04:30,"8,895.87B",,"8,891.85B"
 CLP::interest rate decision::none,2022-07-14,06:00,9.75%,9.50%,9.00%
@@ -11637,7 +11637,7 @@ USD::2 - year note auction::none,2022-07-26,01:00,3.015%,,3.084%
 KRW::gdp::q/q,2022-07-26,07:00,0.7%,0.4%,0.6%
 KRW::gdp::y/y,2022-07-26,07:00,2.9%,2.5%,3.0%
 JPY::corporate services price index (cspi)::y/y,2022-07-26,07:50,2.0%,2.0%,1.9%
-JPY::monetary policy meeting minutes::none,2022-07-26,07:50,,,
+JPY::monetary policy meeting minutes::none,2022-07-26,07:50,,,0.00
 PHP::budget balance::none,2022-07-26,10:00,-215.5B,,-146.8B
 EUR::finnish unemployment rate::none,2022-07-26,13:00,6.4%,,6.1%
 JPY::boj core cpi::y/y,2022-07-26,13:00,1.6%,,1.5%
@@ -12995,7 +12995,7 @@ NA::pakistan - al hijra new year::none,2022-08-18,All Day,,,
 RUB::ppi::m/m,2022-08-18,00:00,-2.2%,,-4.1%
 RUB::ppi::y/y,2022-08-18,00:00,6.1%,,11.3%
 USD::20 - year bond auction::none,2022-08-18,01:00,3.380%,,3.420%
-USD::fomc meeting minutes::none,2022-08-18,02:00,,,
+USD::fomc meeting minutes::none,2022-08-18,02:00,,,0.00
 USD::fomc member bowman speaks::none,2022-08-18,02:20,,,
 USD::fed's balance sheet::none,2022-08-18,04:30,"8,849.76B",,"8,879.14B"
 JPY::foreign bonds buying::none,2022-08-18,07:50,"1,152.4B",,829.9B
@@ -14023,13 +14023,13 @@ CAD::ivey pmi n.s.a::none,2022-09-07,22:00,57.1,,53.2
 CAD::boc rate statement::none,2022-09-07,22:00,,,
 CAD::ivey pmi::none,2022-09-07,22:00,60.9,48.3,49.6
 USD::fomc member mester speaks::none,2022-09-07,22:00,,,
-GBP::boe mpc treasury committee hearings::none,2022-09-07,22:15,,,
+GBP::boe mpc treasury committee hearings::none,2022-09-07,22:15,,,0.00
 TRY::treasury cash balance::none,2022-09-07,22:30,28.730B,,-92.800B
 NA::malta - public holiday::none,2022-09-08,All Day,,,
 USD::eia short - term energy outlook::none,2022-09-08,00:00,,,
 USD::fed vice chair brainard speaks::none,2022-09-08,00:35,,,
 EUR::ecb's supervisory board member jochnick speaks::none,2022-09-08,01:15,,,
-USD::beige book::none,2022-09-08,02:00,,,
+USD::beige book::none,2022-09-08,02:00,,,0.00
 USD::fed vice chair for supervision barr speaks::none,2022-09-08,02:00,,,
 ARS::industrial production::y/y,2022-09-08,03:00,5.1%,4.6%,7.3%
 USD::api weekly crude oil stock::none,2022-09-08,04:30,3.645M,-0.733M,0.593M
@@ -14459,7 +14459,7 @@ JPY::exports::y/y,2022-09-15,07:50,22.1%,23.6%,19.0%
 JPY::trade balance::none,2022-09-15,07:50,"-2,817.3B","-2,398.2B","-1,433.9B"
 AUD::mi inflation expectations::none,2022-09-15,09:00,5.4%,,5.9%
 AUD::participation rate::none,2022-09-15,09:30,66.6%,66.6%,66.4%
-AUD::rba bulletin::none,2022-09-15,09:30,,,
+AUD::rba bulletin::none,2022-09-15,09:30,,,0.00
 AUD::employment change::none,2022-09-15,09:30,33.5K,35.0K,-41.0K
 AUD::full employment change::none,2022-09-15,09:30,58.8K,,-86.9K
 AUD::unemployment rate::none,2022-09-15,09:30,3.5%,3.4%,3.4%
@@ -15058,7 +15058,7 @@ USD::5 - year note auction::none,2022-09-28,01:00,4.228%,,3.230%
 ARS::retail sales::y/y,2022-09-28,03:00,167.6%,,266.9%
 USD::api weekly crude oil stock::none,2022-09-28,04:30,4.150M,0.333M,1.035M
 GBP::brc shop price index::y/y,2022-09-28,07:00,5.7%,,5.1%
-JPY::monetary policy meeting minutes::none,2022-09-28,07:50,,,
+JPY::monetary policy meeting minutes::none,2022-09-28,07:50,,,0.00
 USD::fomc member daly speaks::none,2022-09-28,08:35,,,
 AUD::retail sales::m/m,2022-09-28,09:30,0.6%,0.4%,1.3%
 THB::industrial production::y/y,2022-09-28,12:00,14.52%,10.10%,6.39%
@@ -16029,7 +16029,7 @@ USD::wasde report::none,2022-10-13,00:00,,,
 GBP::boe mpc member mann speaks::none,2022-10-13,01:00,,,
 USD::10 - year note auction::none,2022-10-13,01:00,3.930%,,3.330%
 USD::fed vice chair for supervision barr speaks::none,2022-10-13,01:45,,,
-USD::fomc meeting minutes::none,2022-10-13,02:00,,,
+USD::fomc meeting minutes::none,2022-10-13,02:00,,,0.00
 USD::api weekly crude oil stock::none,2022-10-13,04:30,7.054M,,-1.770M
 USD::fed's balance sheet::none,2022-10-13,04:30,"8,758.97B",,"8,759.05B"
 CLP::interest rate decision::none,2022-10-13,05:00,11.25%,11.25%,10.75%
@@ -16418,7 +16418,7 @@ RUB::ppi::m/m,2022-10-20,00:00,-0.8%,,-1.0%
 RUB::ppi::y/y,2022-10-20,00:00,3.8%,,3.8%
 USD::20 - year bond auction::none,2022-10-20,01:00,4.395%,,3.820%
 USD::fomc member kashkari speaks::none,2022-10-20,01:00,,,
-USD::beige book::none,2022-10-20,02:00,,,
+USD::beige book::none,2022-10-20,02:00,,,0.00
 USD::fed's balance sheet::none,2022-10-20,04:30,"8,743.92B",,"8,758.97B"
 USD::chicago fed president evans speaks::none,2022-10-20,06:30,,,
 EUR::irish consumer confidence::none,2022-10-20,07:00,46.1,,42.1
@@ -16814,7 +16814,7 @@ EUR::ecb president lagarde speaks::none,2022-10-27,22:15,,,
 USD::natural gas storage::none,2022-10-27,22:30,52B,59B,111B
 DKK::cbank cod rate::none,2022-10-27,23:00,1.25%,,-0.10%
 DKK::current account rate::none,2022-10-27,23:00,1.25%,,-0.10%
-DKK::discount rate::none,2022-10-27,23:00,1.25%,,
+DKK::discount rate::none,2022-10-27,23:00,1.25%,,0.65%
 DKK::lending rate::none,2022-10-27,23:00,1.40%,,0.05%
 USD::kc fed composite index::none,2022-10-27,23:00,-7,,1
 USD::kc fed manufacturing index::none,2022-10-27,23:00,-22,,2
@@ -17169,7 +17169,7 @@ KRW::cpi::m/m,2022-11-02,07:00,0.3%,0.2%,0.3%
 KRW::cpi::y/y,2022-11-02,07:00,5.7%,5.6%,5.6%
 USD::total vehicle sales::none,2022-11-02,07:00,14.90M,,13.50M
 JPY::monetary base::y/y,2022-11-02,07:50,-6.9%,-2.0%,-3.3%
-JPY::monetary policy meeting minutes::none,2022-11-02,07:50,,,
+JPY::monetary policy meeting minutes::none,2022-11-02,07:50,,,0.00
 GBP::brc shop price index::y/y,2022-11-02,08:00,6.6%,5.5%,5.7%
 AUD::invest housing finance::m/m,2022-11-02,08:30,-6.0%,,-4.8%
 AUD::private house approvals::none,2022-11-02,08:30,-7.8%,,4.8%
@@ -18040,7 +18040,7 @@ USD::export price index::m/m,2022-11-16,21:30,-0.3%,-0.4%,-1.5%
 USD::import price index::m/m,2022-11-16,21:30,-0.2%,-0.4%,-1.1%
 USD::retail control::m/m,2022-11-16,21:30,0.7%,0.3%,0.6%
 GBP::boe gov bailey speaks::none,2022-11-16,22:15,,,
-GBP::boe mpc treasury committee hearings::none,2022-11-16,22:15,,,
+GBP::boe mpc treasury committee hearings::none,2022-11-16,22:15,,,0.00
 GBP::inflation report hearings::none,2022-11-16,22:15,,,
 USD::capacity utilization rate::none,2022-11-16,22:15,79.9%,80.4%,80.1%
 USD::manufacturing production::m/m,2022-11-16,22:15,0.1%,0.2%,0.2%
@@ -18404,7 +18404,7 @@ USD::u.s. baker hughes oil rig count::none,2022-11-24,02:00,627,,623
 USD::u.s. baker hughes total rig count::none,2022-11-24,02:00,784,,782
 ARS::economic activity::y/y,2022-11-24,03:00,4.8%,4.3%,6.4%
 GBP::boe mpc member pill speaks::none,2022-11-24,03:00,,,
-USD::fomc meeting minutes::none,2022-11-24,03:00,,,
+USD::fomc meeting minutes::none,2022-11-24,03:00,,,0.00
 USD::fed's balance sheet::none,2022-11-24,04:30,"8,621.39B",,"8,625.62B"
 KRW::ppi::m/m,2022-11-24,05:00,0.5%,,0.2%
 KRW::ppi::y/y,2022-11-24,05:00,7.3%,,7.9%
@@ -18845,7 +18845,7 @@ RUB::unemployment rate::none,2022-12-01,00:00,3.9%,4.1%,3.9%
 RUB::gdp monthly::y/y,2022-12-01,01:25,-4.4%,,-4.5%
 USD::fed governor cook speaks::none,2022-12-01,01:35,,,
 USD::fed chair powell speaks::none,2022-12-01,02:30,,,
-USD::beige book::none,2022-12-01,03:00,,,
+USD::beige book::none,2022-12-01,03:00,,,0.00
 UAH::current account (usd)::none,2022-12-01,03:20,7.828B,,8.521B
 MXN::fiscal balance::none,2022-12-01,04:00,-59.99B,,-111.25B
 USD::fed's balance sheet::none,2022-12-01,04:30,"8,584.58B",,"8,621.39B"
@@ -19265,7 +19265,7 @@ JPY::gdp::y/y,2022-12-08,07:50,-0.8%,-1.1%,-1.2%
 JPY::gdp price index::y/y,2022-12-08,07:50,-0.3%,-0.5%,-0.3%
 AUD::exports::m/m,2022-12-08,08:30,-1.0%,,7.0%
 AUD::imports::m/m,2022-12-08,08:30,-1.0%,,0.3%
-AUD::rba bulletin::none,2022-12-08,08:30,,,
+AUD::rba bulletin::none,2022-12-08,08:30,,,0.00
 AUD::trade balance::none,2022-12-08,08:30,12.217B,12.100B,12.444B
 IDR::consumer confidence::none,2022-12-08,11:00,119.1,,120.3
 THB::consumer confidence::none,2022-12-08,11:00,47.9,,46.1
@@ -19825,7 +19825,7 @@ INR::thomson reuters ipsos pcsi::m/m,2022-12-16,10:00,64.48,,63.44
 JPY::thomson reuters ipsos pcsi::none,2022-12-16,10:00,35.71,,35.39
 KRW::thomson reuters ipsos pcsi::m/m,2022-12-16,10:00,37.16,,37.90
 NZD::rbnz offshore holdings::none,2022-12-16,10:00,55.30%,,54.00%
-INR::imports (usd)::none,2022-12-16,12:10,55.88B,,
+INR::imports (usd)::none,2022-12-16,12:10,55.88B,,51.88B
 GBP::core retail sales::m/m,2022-12-16,15:00,-0.3%,0.3%,0.7%
 GBP::core retail sales::y/y,2022-12-16,15:00,-5.9%,-5.8%,-6.4%
 GBP::retail sales::m/m,2022-12-16,15:00,-0.4%,0.3%,0.9%
@@ -20114,7 +20114,7 @@ USD::reserve balances with federal reserve banks::none,2022-12-23,05:30,3.050T,,
 JPY::national cpi::y/y,2022-12-23,07:30,3.8%,,3.7%
 JPY::national cpi::m/m,2022-12-23,07:30,0.3%,,0.6%
 JPY::national core cpi::y/y,2022-12-23,07:30,3.7%,3.7%,3.6%
-JPY::monetary policy meeting minutes::none,2022-12-23,07:50,,,
+JPY::monetary policy meeting minutes::none,2022-12-23,07:50,,,0.00
 AUD::housing credit::none,2022-12-23,08:30,0.4%,,0.4%
 AUD::private sector credit::m/m,2022-12-23,08:30,0.5%,0.6%,0.5%
 IDR::m2 money supply::y/y,2022-12-23,11:00,9.50%,,9.80%

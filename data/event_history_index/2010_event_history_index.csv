@@ -211,7 +211,7 @@ RUB::cftc rub speculative positions::none,2010-01-02,04:30,6.6K,,5.2K
 USD::cftc silver speculative net positions::none,2010-01-02,04:30,38.7K,,39.7K
 USD::cftc crude oil speculative net positions::none,2010-01-02,04:30,94.1k,,75.3k
 USD::cftc gold speculative net positions::none,2010-01-02,04:30,230.5K,,238.1K
-USD::fed chairman bernanke speaks::none,2010-01-03,23:30,,,
+USD::fed chairman bernanke speaks::none,2010-01-03,23:30,,,0.00
 AUD::aig manufacturing index::none,2010-01-04,06:30,48.5,,51.2
 AUD::commodity prices::y/y,2010-01-04,13:30,-16.6%,,-24.4%
 CHF::manufacturing pmi::none,2010-01-04,16:30,54.6,57.0,55.6
@@ -245,7 +245,7 @@ USD::adp nonfarm employment change::none,2010-01-06,21:15,-84K,-75K,-145K
 USD::ism non - manufacturing pmi::none,2010-01-06,23:00,50.1,50.5,48.7
 USD::crude oil inventories::none,2010-01-06,23:30,1.300M,,-1.500M
 USD::total vehicle sales::none,2010-01-06,Tentative,11.25M,11.00M,10.93M
-USD::fomc meeting minutes::none,2010-01-07,03:00,,,
+USD::fomc meeting minutes::none,2010-01-07,03:00,,,0.00
 USD::fed's balance sheet::none,2010-01-07,04:30,"2,235.30B",,"2,234.07B"
 NZD::trade balance::m/m,2010-01-07,05:45,-269M,-400M,-495M
 AUD::retail sales::m/m,2010-01-07,08:30,1.4%,0.4%,0.4%
@@ -296,7 +296,7 @@ USD::cftc gold speculative net positions::none,2010-01-09,04:30,227.8K,,230.5K
 AUD::anz job advertisements::m/m,2010-01-11,08:30,6.00%,,5.20%
 EUR::french industrial production::m/m,2010-01-11,15:45,1.1%,0.4%,-0.6%
 CHF::retail sales::y/y,2010-01-11,16:15,0.6%,2.0%,3.6%
-EUR::ecb president trichet speaks::none,2010-01-11,18:15,,,
+EUR::ecb president trichet speaks::none,2010-01-11,18:15,,,0.00
 CAD::housing starts::none,2010-01-11,21:15,174.50K,160.00K,165.00K
 CAD::building permits::m/m,2010-01-11,21:30,-4.6%,-1.0%,20.0%
 NZD::nzier business confidence::none,2010-01-12,05:00,31,,36
@@ -323,7 +323,7 @@ GBP::manufacturing production::m/m,2010-01-13,17:30,0.0%,0.3%,0.0%
 USD::mba mortgage applications::w/w,2010-01-13,20:00,14.3%,,0.5%
 GBP::niesr gdp estimate::none,2010-01-13,23:00,0.3%,,0.2%
 USD::crude oil inventories::none,2010-01-13,23:30,3.700M,1.300M,1.300M
-USD::beige book::none,2010-01-14,03:00,,,
+USD::beige book::none,2010-01-14,03:00,,,0.00
 USD::federal budget balance::none,2010-01-14,03:00,-91.9B,-92.0B,-120.3B
 USD::fed's balance sheet::none,2010-01-14,04:30,"2,291.70B",,"2,235.30B"
 NZD::building consents::m/m,2010-01-14,05:45,1.2%,,10.7%
@@ -413,7 +413,7 @@ GBP::m4 money supply::m/m,2010-01-21,17:30,-1.1%,1.0%,0.1%
 GBP::public sector net borrowing::none,2010-01-21,17:30,15.7B,18.6B,18.7B
 CHF::zew expectations::none,2010-01-21,18:00,56.2,,54.0
 GBP::cbi industrial trends orders::none,2010-01-21,19:00,-39,-39,-42
-EUR::ecb president trichet speaks::none,2010-01-21,20:00,,,
+EUR::ecb president trichet speaks::none,2010-01-21,20:00,,,0.00
 CAD::wholesale sales::m/m,2010-01-21,21:30,2.5%,0.4%,0.5%
 USD::initial jobless claims::none,2010-01-21,21:30,482K,440K,446K
 USD::philadelphia fed manufacturing index::none,2010-01-21,23:00,15.2,18.8,22.5
@@ -466,8 +466,8 @@ AUD::mi leading index::m/m,2010-01-27,07:30,1.0%,,0.5%
 JPY::adjusted trade balance::none,2010-01-27,07:50,0.52T,0.60T,0.52T
 AUD::cpi::q/q,2010-01-27,08:30,0.5%,0.4%,1.0%
 AUD::trimmed mean cpi::q/q,2010-01-27,08:30,0.6%,0.6%,0.8%
-JPY::boj monthly report::none,2010-01-27,13:00,,,
-GBP::boe mpc member sentance speaks::none,2010-01-27,17:30,,,
+JPY::boj monthly report::none,2010-01-27,13:00,,,0.00
+GBP::boe mpc member sentance speaks::none,2010-01-27,17:30,,,0.00
 GBP::cbi distributive trades survey::none,2010-01-27,19:00,-8,12,13
 USD::mba mortgage applications::w/w,2010-01-27,20:00,-10.9%,,9.1%
 USD::new home sales::none,2010-01-27,23:00,342K,370K,370K
@@ -481,7 +481,7 @@ JPY::retail sales::y/y,2010-01-28,07:50,-0.3%,0.3%,-1.1%
 EUR::german unemployment change::none,2010-01-28,16:55,6K,17K,-3K
 EUR::german unemployment rate::none,2010-01-28,16:55,8.2%,8.2%,8.1%
 EUR::consumer confidence::none,2010-01-28,18:00,-16.0,-15.0,-16.0
-EUR::ecb president trichet speaks::none,2010-01-28,21:30,,,
+EUR::ecb president trichet speaks::none,2010-01-28,21:30,,,0.00
 USD::durable goods orders::m/m,2010-01-28,21:30,0.3%,2.0%,-0.4%
 USD::initial jobless claims::none,2010-01-28,21:30,470K,450K,478K
 USD::core durable goods orders::m/m,2010-01-28,21:30,0.9%,0.4%,2.1%
@@ -494,7 +494,7 @@ JPY::household spending::y/y,2010-01-29,07:30,2.1%,1.6%,2.2%
 JPY::national core cpi::y/y,2010-01-29,07:30,-1.3%,-1.3%,-1.7%
 JPY::tokyo core cpi::y/y,2010-01-29,07:30,-2.0%,-1.8%,-1.9%
 JPY::industrial production::m/m,2010-01-29,07:50,2.2%,2.5%,2.2%
-JPY::monetary policy meeting minutes::none,2010-01-29,07:50,,,
+JPY::monetary policy meeting minutes::none,2010-01-29,07:50,,,0.00
 GBP::gfk consumer confidence::none,2010-01-29,08:00,-17,-18,-19
 AUD::private sector credit::m/m,2010-01-29,08:30,0.3%,0.1%,0.1%
 JPY::boj governor shirakawa speaks::none,2010-01-29,11:30,,,
@@ -915,7 +915,7 @@ USD::housing starts::none,2010-02-17,21:30,0.590M,0.580M,0.580M
 USD::import price index::m/m,2010-02-17,21:30,1.4%,0.9%,0.2%
 USD::capacity utilization rate::none,2010-02-17,22:15,72.6%,72.6%,71.9%
 USD::industrial production::m/m,2010-02-17,22:15,0.9%,0.7%,0.7%
-USD::fomc meeting minutes::none,2010-02-18,03:00,,,
+USD::fomc meeting minutes::none,2010-02-18,03:00,,,0.00
 USD::federal budget balance::none,2010-02-18,03:00,-42.6B,-46.0B,-91.9B
 USD::fed's balance sheet::none,2010-02-18,04:30,"2,277.57B",,"2,256.68B"
 AUD::nab quarterly business confidence::none,2010-02-18,08:30,18.00,,16.00
@@ -940,7 +940,7 @@ USD::crude oil inventories::none,2010-02-19,00:00,3.100M,,2.400M
 AUD::rba governor stevens speaks::none,2010-02-19,06:30,,,
 NZD::credit card spending::y/y,2010-02-19,10:00,2.6%,,1.9%
 JPY::all industries activity index::m/m,2010-02-19,12:30,-0.3%,0.3%,0.2%
-JPY::boj monthly report::none,2010-02-19,13:00,,,
+JPY::boj monthly report::none,2010-02-19,13:00,,,0.00
 EUR::german ppi::m/m,2010-02-19,15:00,0.8%,0.4%,-0.1%
 EUR::current account::none,2010-02-19,17:00,1.9B,-0.5B,-0.5B
 GBP::retail sales::m/m,2010-02-19,17:30,-1.8%,-0.5%,0.3%
@@ -969,7 +969,7 @@ THB::gdp::y/y,2010-02-22,10:30,5.8%,3.1%,-2.8%
 TWD::gdp::y/y,2010-02-22,13:30,9.20%,8.40%,-1.30%
 MXN::gdp::y/y,2010-02-22,22:00,-2.30%,-2.50%,-6.20%
 ARS::unemployment rate::none,2010-02-23,03:00,8.4%,8.4%,9.1%
-JPY::monetary policy meeting minutes::none,2010-02-23,07:50,,,
+JPY::monetary policy meeting minutes::none,2010-02-23,07:50,,,0.00
 NZD::inflation expectations::q/q,2010-02-23,10:00,2.7%,,2.6%
 CHF::consumption indicator::none,2010-02-23,15:00,1.36,,1.19
 EUR::french cpi::m/m,2010-02-23,15:45,-0.2%,-0.3%,0.3%
@@ -1279,7 +1279,7 @@ USD::challenger job cuts::y/y,2010-03-03,20:30,-77.4%,,-70.4%
 USD::adp nonfarm employment change::none,2010-03-03,21:15,-20K,-10K,-60K
 USD::ism non - manufacturing pmi::none,2010-03-03,23:00,53.0,51.0,50.5
 USD::crude oil inventories::none,2010-03-03,23:30,4.100M,,3.000M
-USD::beige book::none,2010-03-04,03:00,,,
+USD::beige book::none,2010-03-04,03:00,,,0.00
 USD::fed's balance sheet::none,2010-03-04,04:30,"2,280.15B",,"2,286.13B"
 JPY::capital spending::y/y,2010-03-04,07:50,-17.30%,-18.00%,-24.80%
 AUD::trade balance::none,2010-03-04,08:30,-1.18B,-1.60B,-2.17B
@@ -1356,7 +1356,7 @@ EUR::belgian gdp::q/q,2010-03-10,22:00,0.3%,0.3%,0.5%
 GBP::niesr gdp estimate::none,2010-03-10,23:00,0.3%,,0.6%
 USD::wholesale inventories::m/m,2010-03-10,23:00,-0.2%,0.2%,-1.0%
 USD::crude oil inventories::none,2010-03-10,23:30,1.400M,2.000M,4.100M
-EUR::ecb president trichet speaks::none,2010-03-11,02:00,,,
+EUR::ecb president trichet speaks::none,2010-03-11,02:00,,,0.00
 USD::federal budget balance::none,2010-03-11,03:00,-220.9B,-200.0B,-42.6B
 NZD::rbnz interest rate decision::none,2010-03-11,04:00,2.50%,2.50%,2.50%
 USD::fed's balance sheet::none,2010-03-11,04:30,"2,282.47B",,"2,280.15B"
@@ -1365,7 +1365,7 @@ NZD::fpi::m/m,2010-03-11,05:45,-1.3%,,2.1%
 JPY::gdp::q/q,2010-03-11,07:50,0.9%,1.0%,1.1%
 JPY::gdp price index::y/y,2010-03-11,07:50,-2.8%,-2.9%,-3.0%
 AUD::mi inflation expectations::none,2010-03-11,08:00,3.2%,,3.2%
-AUD::rba bulletin::none,2010-03-11,08:30,,,
+AUD::rba bulletin::none,2010-03-11,08:30,,,0.00
 AUD::employment change::none,2010-03-11,08:30,0.4K,15.0K,56.5K
 AUD::unemployment rate::none,2010-03-11,08:30,5.3%,5.3%,5.2%
 EUR::french government budget balance::none,2010-03-11,15:45,-9.2B,,-138.0B
@@ -1407,7 +1407,7 @@ RUB::cftc rub speculative positions::none,2010-03-13,04:30,2.2K,,1.6K
 USD::cftc silver speculative net positions::none,2010-03-13,04:30,35.2K,,31.1K
 USD::cftc crude oil speculative net positions::none,2010-03-13,04:30,109.3k,,91.4k
 USD::cftc gold speculative net positions::none,2010-03-13,04:30,208.2K,,207.4K
-EUR::ecb president trichet speaks::none,2010-03-13,04:45,,,
+EUR::ecb president trichet speaks::none,2010-03-13,04:45,,,0.00
 GBP::rightmove house price index::m/m,2010-03-15,08:00,0.1%,,3.2%
 JPY::household confidence::none,2010-03-15,13:00,39.8,40.5,39.0
 CHF::ppi::m/m,2010-03-15,16:15,-0.3%,0.2%,0.3%
@@ -1453,7 +1453,7 @@ USD::crude oil inventories::none,2010-03-17,22:30,1.000M,,1.400M
 USD::fed chairman bernanke testifies::none,2010-03-18,02:00,,,
 USD::fed's balance sheet::none,2010-03-18,04:30,"2,308.00B",,"2,282.47B"
 JPY::bsi large manufacturing conditions::none,2010-03-18,07:50,4.3,15.0,13.2
-JPY::boj monthly report::none,2010-03-18,13:00,,,
+JPY::boj monthly report::none,2010-03-18,13:00,,,0.00
 CHF::trade balance::none,2010-03-18,15:15,1.290B,2.400B,2.420B
 CHF::industrial production::q/q,2010-03-18,16:15,6.4%,5.0%,3.5%
 EUR::current account::none,2010-03-18,17:00,-8.1B,3.0B,2.3B
@@ -1473,12 +1473,12 @@ USD::current account::none,2010-03-18,20:30,-116.0B,-120.0B,-102.0B
 USD::philadelphia fed manufacturing index::none,2010-03-18,22:00,18.9,18.0,17.6
 USD::natural gas storage::none,2010-03-18,22:30,-11B,,-111B
 USD::us leading index::m/m,2010-03-18,23:00,0.1%,0.1%,0.3%
-GBP::boe mpc member sentance speaks::none,2010-03-19,00:45,,,
+GBP::boe mpc member sentance speaks::none,2010-03-19,00:45,,,0.00
 NZD::visitor arrivals::m/m,2010-03-19,05:45,-1.9%,,-2.3%
 NZD::credit card spending::y/y,2010-03-19,10:00,1.1%,,2.7%
 JPY::all industries activity index::m/m,2010-03-19,12:30,3.8%,1.5%,-0.2%
 EUR::german ppi::m/m,2010-03-19,15:00,0.0%,0.1%,0.8%
-EUR::ecb president trichet speaks::none,2010-03-19,15:45,,,
+EUR::ecb president trichet speaks::none,2010-03-19,15:45,,,0.00
 CAD::cpi::m/m,2010-03-19,19:00,0.4%,0.4%,0.3%
 CAD::core cpi::m/m,2010-03-19,19:00,0.7%,0.3%,0.1%
 CAD::core retail sales::m/m,2010-03-19,20:30,1.8%,0.5%,0.7%
@@ -1496,12 +1496,12 @@ USD::cftc silver speculative net positions::none,2010-03-20,03:30,34.9K,,35.2K
 USD::cftc gold speculative net positions::none,2010-03-20,03:30,200.3K,,208.2K
 RUB::cftc rub speculative positions::none,2010-03-20,04:30,2.2K,,2.2K
 USD::cftc crude oil speculative net positions::none,2010-03-20,04:30,124.1k,,109.3k
-USD::fed chairman bernanke speaks::none,2010-03-20,21:00,,,
+USD::fed chairman bernanke speaks::none,2010-03-20,21:00,,,0.00
 AUD::new motor vehicle sales::m/m,2010-03-22,08:30,-1.9%,,-3.5%
-EUR::ecb president trichet speaks::none,2010-03-22,23:30,,,
+EUR::ecb president trichet speaks::none,2010-03-22,23:30,,,0.00
 GBP::boe gov king speaks::none,2010-03-22,23:30,,,
 USD::treasury secretary geithner speaks::none,2010-03-23,04:30,,,
-JPY::monetary policy meeting minutes::none,2010-03-23,07:50,,,
+JPY::monetary policy meeting minutes::none,2010-03-23,07:50,,,0.00
 GBP::cpi::y/y,2010-03-23,17:30,3.0%,3.1%,3.5%
 GBP::core cpi::y/y,2010-03-23,17:30,2.9%,3.0%,3.1%
 GBP::rpi::y/y,2010-03-23,17:30,3.7%,3.7%,3.7%
@@ -1534,7 +1534,7 @@ AUD::rba financial stability review::none,2010-03-25,08:30,,,
 COP::gdp::y/y,2010-03-25,13:00,2.5%,,-0.2%
 EUR::gfk german consumer climate::none,2010-03-25,15:00,3.2,3.1,3.2
 EUR::french consumer spending::m/m,2010-03-25,15:45,-1.2%,0.3%,-2.5%
-EUR::ecb president trichet speaks::none,2010-03-25,16:00,,,
+EUR::ecb president trichet speaks::none,2010-03-25,16:00,,,0.00
 EUR::italian retail sales::m/m,2010-03-25,17:00,-0.5%,0.2%,0.0%
 EUR::m3 money supply::y/y,2010-03-25,17:00,-0.4%,-0.1%,0.1%
 EUR::private sector loans::y/y,2010-03-25,17:00,-0.4%,-0.4%,-0.6%
@@ -1553,7 +1553,7 @@ USD::gdp::q/q,2010-03-26,20:30,5.6%,5.9%,5.9%
 USD::gdp price index::q/q,2010-03-26,20:30,0.5%,0.4%,0.4%
 USD::michigan 1 - year inflation expectations::none,2010-03-26,21:55,2.7%,,2.8%
 USD::michigan consumer sentiment::none,2010-03-26,21:55,73.6,73.0,72.5
-EUR::ecb president trichet speaks::none,2010-03-27,00:00,,,
+EUR::ecb president trichet speaks::none,2010-03-27,00:00,,,0.00
 USD::u.s. baker hughes oil rig count::none,2010-03-27,01:00,489,,474
 AUD::cftc aud speculative net positions::none,2010-03-27,03:30,74.3K,,63.5K
 CAD::cftc cad speculative net positions::none,2010-03-27,03:30,73.0K,,69.6K
@@ -1843,7 +1843,7 @@ JPY::leading index::none,2010-04-06,13:00,97.9,97.9,96.9
 CHF::cpi::m/m,2010-04-06,15:15,0.1%,0.1%,0.1%
 EUR::sentix investor confidence::none,2010-04-06,16:30,2.5,-6.0,-7.5
 GBP::housing equity withdrawal::q/q,2010-04-06,16:30,-4.0B,-3.0B,-5.1B
-USD::fomc meeting minutes::none,2010-04-07,02:00,,,
+USD::fomc meeting minutes::none,2010-04-07,02:00,,,0.00
 NZD::globaldairytrade price index::none,2010-04-07,04:00,22.60%,,0.10%
 USD::bloomberg consumer confidence::none,2010-04-07,05:00,28.5,,27.5
 GBP::brc shop price index::y/y,2010-04-07,07:00,1.2%,,1.7%
@@ -1860,7 +1860,7 @@ USD::mba mortgage applications::w/w,2010-04-07,19:00,-11.0%,,1.3%
 CAD::building permits::m/m,2010-04-07,20:30,-0.5%,2.0%,-4.7%
 CAD::ivey pmi::none,2010-04-07,22:00,57.8,55.0,51.9
 USD::crude oil inventories::none,2010-04-07,22:30,2.000M,,2.900M
-USD::fed chairman bernanke speaks::none,2010-04-08,01:30,,,
+USD::fed chairman bernanke speaks::none,2010-04-08,01:30,,,0.00
 USD::consumer credit::none,2010-04-08,03:00,-11.50B,1.50B,10.60B
 USD::fed's balance sheet::none,2010-04-08,04:30,"2,307.58B",,"2,307.15B"
 JPY::core machinery orders::m/m,2010-04-08,07:50,-5.4%,3.8%,-3.7%
@@ -1868,7 +1868,7 @@ JPY::adjusted current account::none,2010-04-08,07:50,1.12T,1.25T,1.71T
 AUD::employment change::none,2010-04-08,09:30,19.6K,20.0K,-4.7K
 AUD::unemployment rate::none,2010-04-08,09:30,5.3%,5.3%,5.3%
 JPY::economy watchers current index::none,2010-04-08,13:00,47.4,45.0,42.1
-JPY::boj monthly report::none,2010-04-08,13:00,,,
+JPY::boj monthly report::none,2010-04-08,13:00,,,0.00
 CHF::unemployment rate s.a.::none,2010-04-08,13:45,4.1%,4.1%,4.1%
 JPY::machine tool orders::y/y,2010-04-08,14:00,262.1%,,217.4%
 EUR::french government budget balance::none,2010-04-08,14:45,-21.8B,,-9.2B
@@ -1886,7 +1886,7 @@ GBP::niesr gdp estimate::none,2010-04-08,22:00,0.4%,,0.4%
 USD::natural gas storage::none,2010-04-08,22:30,31B,,12B
 USD::fed governor kohn speaks::none,2010-04-09,04:00,,,
 AUD::aig construction index::none,2010-04-09,07:30,48.7,,52.8
-USD::fed chairman bernanke speaks::none,2010-04-09,08:30,,,
+USD::fed chairman bernanke speaks::none,2010-04-09,08:30,,,0.00
 EUR::german trade balance::none,2010-04-09,14:00,12.1B,11.5B,8.7B
 EUR::french industrial production::m/m,2010-04-09,14:45,0.0%,0.5%,1.1%
 GBP::ppi output::m/m,2010-04-09,16:30,0.9%,0.4%,0.3%
@@ -1894,7 +1894,7 @@ GBP::ppi input::m/m,2010-04-09,16:30,3.6%,1.2%,0.6%
 CAD::employment change::none,2010-04-09,19:00,17.9K,25.0K,20.9K
 CAD::unemployment rate::none,2010-04-09,19:00,8.2%,8.2%,8.2%
 USD::wholesale inventories::m/m,2010-04-09,22:00,0.6%,0.4%,-0.1%
-EUR::ecb president trichet speaks::none,2010-04-09,23:30,,,
+EUR::ecb president trichet speaks::none,2010-04-09,23:30,,,0.00
 USD::u.s. baker hughes oil rig count::none,2010-04-10,01:00,505,,502
 AUD::cftc aud speculative net positions::none,2010-04-10,03:30,73.2K,,69.3K
 CAD::cftc cad speculative net positions::none,2010-04-10,03:30,69.3K,,70.3K
@@ -1908,11 +1908,11 @@ USD::cftc silver speculative net positions::none,2010-04-10,03:30,37.5K,,33.0K
 USD::cftc gold speculative net positions::none,2010-04-10,03:30,203.4K,,173.8K
 RUB::cftc rub speculative positions::none,2010-04-10,04:30,2.6K,,3.1K
 USD::cftc crude oil speculative net positions::none,2010-04-10,04:30,128.1k,,117.2k
-EUR::ecb president trichet speaks::none,2010-04-10,15:45,,,
+EUR::ecb president trichet speaks::none,2010-04-10,15:45,,,0.00
 GBP::construction output::m/m,2010-04-10,17:30,4.80%,,
 JPY::bank lending::y/y,2010-04-12,07:50,-1.8%,,-1.5%
 JPY::m2 money stock::y/y,2010-04-12,07:50,2.6%,2.7%,2.7%
-JPY::monetary policy meeting minutes::none,2010-04-12,07:50,,,
+JPY::monetary policy meeting minutes::none,2010-04-12,07:50,,,0.00
 AUD::home loans::m/m,2010-04-12,09:30,-1.8%,-0.9%,-7.3%
 EUR::italian industrial production::m/m,2010-04-12,16:00,0.0%,0.4%,1.9%
 CAD::housing starts::none,2010-04-12,20:15,197.00K,201.00K,200.00K
@@ -1932,7 +1932,7 @@ USD::trade balance::none,2010-04-13,20:30,-39.7B,-39.0B,-37.0B
 USD::ibd/tipp economic optimism::none,2010-04-13,22:00,48.4,47.8,45.4
 USD::treasury secretary geithner speaks::none,2010-04-14,00:45,,,
 USD::bloomberg consumer confidence::none,2010-04-14,05:00,26.5,,28.5
-USD::fed chairman bernanke speaks::none,2010-04-14,07:00,,,
+USD::fed chairman bernanke speaks::none,2010-04-14,07:00,,,0.00
 AUD::westpac consumer sentiment::none,2010-04-14,08:30,-1.00%,,0.20%
 JPY::boj governor shirakawa speaks::none,2010-04-14,14:30,,,
 EUR::industrial production::m/m,2010-04-14,17:00,0.9%,0.3%,1.6%
@@ -1946,7 +1946,7 @@ USD::core cpi::y/y,2010-04-14,20:30,1.1%,,1.3%
 USD::fed chairman bernanke testifies::none,2010-04-14,22:00,,,
 USD::business inventories::m/m,2010-04-14,22:00,0.5%,0.3%,0.2%
 USD::crude oil inventories::none,2010-04-14,22:30,-2.200M,1.400M,2.000M
-USD::beige book::none,2010-04-15,02:00,,,
+USD::beige book::none,2010-04-15,02:00,,,0.00
 USD::fed's balance sheet::none,2010-04-15,04:30,"2,339.35B",,"2,307.58B"
 NZD::business nz pmi::none,2010-04-15,06:30,56.3,,53.6
 GBP::nationwide consumer confidence::none,2010-04-15,07:00,72,81,81
@@ -1989,7 +1989,7 @@ USD::cftc crude oil speculative net positions::none,2010-04-17,04:30,113.4k,,128
 GBP::rightmove house price index::m/m,2010-04-19,07:00,2.6%,,0.1%
 JPY::household confidence::none,2010-04-19,13:00,40.9,40.2,39.8
 CAD::foreign securities purchases::none,2010-04-19,20:30,6.72B,8.50B,11.84B
-USD::fed chairman bernanke speaks::none,2010-04-19,21:00,,,
+USD::fed chairman bernanke speaks::none,2010-04-19,21:00,,,0.00
 USD::us leading index::m/m,2010-04-19,23:00,1.4%,1%,0.4%
 NZD::fpi::m/m,2010-04-20,06:45,0.2%,,-1.3%
 NZD::cpi::q/q,2010-04-20,06:45,0.4%,0.6%,-0.2%
@@ -2024,7 +2024,7 @@ GBP::public sector net borrowing::none,2010-04-22,16:30,23.5B,24.0B,9.3B
 GBP::retail sales::m/m,2010-04-22,16:30,0.4%,0.7%,2.5%
 CHF::zew expectations::none,2010-04-22,17:00,53.4,,53.8
 GBP::cbi industrial trends orders::none,2010-04-22,18:00,-36,-31,-37
-EUR::ecb president trichet speaks::none,2010-04-22,19:00,,,
+EUR::ecb president trichet speaks::none,2010-04-22,19:00,,,0.00
 CAD::leading indicators::m/m,2010-04-22,20:30,1.0%,0.8%,0.9%
 USD::initial jobless claims::none,2010-04-22,20:30,456K,450K,480K
 USD::ppi::m/m,2010-04-22,20:30,0.7%,0.4%,-0.6%
@@ -2070,7 +2070,7 @@ RUB::cftc rub speculative positions::none,2010-04-24,04:30,2.1K,,2.2K
 USD::cftc crude oil speculative net positions::none,2010-04-24,04:30,121.5k,,113.4k
 USD::treasury secretary geithner speaks::none,2010-04-24,06:00,,,
 JPY::corporate services price index (cspi)::y/y,2010-04-26,07:50,-1.1%,-1.3%,-1.2%
-EUR::ecb president trichet speaks::none,2010-04-27,00:30,,,
+EUR::ecb president trichet speaks::none,2010-04-27,00:30,,,0.00
 AUD::nab quarterly business confidence::none,2010-04-27,09:30,17.00,,18.00
 AUD::ppi::q/q,2010-04-27,09:30,1.0%,0.7%,-0.4%
 CHF::consumption indicator::none,2010-04-27,14:00,1.71,,1.20
@@ -2082,9 +2082,9 @@ USD::s&p/cs hpi composite - 20 n.s.a.::y/y,2010-04-27,21:00,0.6%,1.4%,-0.7%
 USD::cb consumer confidence::none,2010-04-27,22:00,57.9,53.7,52.3
 USD::fed chairman bernanke testifies::none,2010-04-27,22:00,,,
 USD::richmond manufacturing index::none,2010-04-27,22:00,30,7,6
-EUR::ecb president trichet speaks::none,2010-04-27,22:15,,,
+EUR::ecb president trichet speaks::none,2010-04-27,22:15,,,0.00
 USD::treasury secretary geithner speaks::none,2010-04-28,00:30,,,
-EUR::ecb president trichet speaks::none,2010-04-28,01:15,,,
+EUR::ecb president trichet speaks::none,2010-04-28,01:15,,,0.00
 CAD::boc gov carney speaks::none,2010-04-28,03:30,,,
 USD::bloomberg consumer confidence::none,2010-04-28,05:00,25.5,,25
 JPY::retail sales::y/y,2010-04-28,07:50,4.7%,3.7%,4.2%
@@ -2105,7 +2105,7 @@ EUR::german unemployment change::none,2010-04-29,15:55,-68K,-11K,-42K
 EUR::german unemployment rate::none,2010-04-29,15:55,7.8%,8.0%,8.0%
 EUR::m3 money supply::y/y,2010-04-29,16:00,-0.1%,-0.1%,-0.3%
 EUR::private sector loans::y/y,2010-04-29,16:00,-0.2%,-0.1%,-0.4%
-EUR::ecb president trichet speaks::none,2010-04-29,19:30,,,
+EUR::ecb president trichet speaks::none,2010-04-29,19:30,,,0.00
 USD::initial jobless claims::none,2010-04-29,20:30,448K,440K,459K
 CAD::boc gov carney speaks::none,2010-04-29,22:30,,,
 USD::natural gas storage::none,2010-04-29,22:30,83B,,73B
@@ -2387,10 +2387,10 @@ USD::initial jobless claims::none,2010-05-06,20:30,444K,440K,451K
 USD::nonfarm productivity::q/q,2010-05-06,20:30,3.6%,2.4%,6.3%
 USD::unit labor costs::q/q,2010-05-06,20:30,-1.6%,-0.4%,-5.6%
 USD::treasury secretary geithner speaks::none,2010-05-06,21:00,,,
-USD::fed chairman bernanke speaks::none,2010-05-06,21:30,,,
+USD::fed chairman bernanke speaks::none,2010-05-06,21:30,,,0.00
 CAD::ivey pmi::none,2010-05-06,22:00,58.7,59.3,57.8
 USD::natural gas storage::none,2010-05-06,22:30,83B,,83B
-EUR::ecb president trichet speaks::none,2010-05-06,23:30,,,
+EUR::ecb president trichet speaks::none,2010-05-06,23:30,,,0.00
 AUD::aig construction index::none,2010-05-07,07:30,55.8,,51.0
 JPY::monetary base::y/y,2010-05-07,07:50,2.9%,2.4%,2.1%
 AUD::rba monetary policy statement::none,2010-05-07,09:30,,,
@@ -2423,8 +2423,8 @@ USD::cftc silver speculative net positions::none,2010-05-08,03:30,38.7K,,40.6K
 USD::cftc gold speculative net positions::none,2010-05-08,03:30,230.5K,,225.7K
 RUB::cftc rub speculative positions::none,2010-05-08,04:30,2.2K,,1.7K
 USD::cftc crude oil speculative net positions::none,2010-05-08,04:30,109.9k,,109.3k
-USD::fed chairman bernanke speaks::none,2010-05-08,21:30,,,
-JPY::monetary policy meeting minutes::none,2010-05-10,07:50,,,
+USD::fed chairman bernanke speaks::none,2010-05-08,21:30,,,0.00
+JPY::monetary policy meeting minutes::none,2010-05-10,07:50,,,0.00
 AUD::anz job advertisements::m/m,2010-05-10,09:30,-1.20%,,1.80%
 AUD::nab business confidence::none,2010-05-10,09:30,13,,16
 JPY::boj interest rate decision::none,2010-05-10,11:10,0.10%,0.10%,0.10%
@@ -2434,7 +2434,7 @@ EUR::italian industrial production::m/m,2010-05-10,16:00,-0.1%,1.2%,0.0%
 EUR::sentix investor confidence::none,2010-05-10,16:30,-6.4,1.6,2.5
 GBP::boe interest rate decision::none,2010-05-10,19:00,0.50%,0.50%,0.50%
 CAD::housing starts::none,2010-05-10,20:15,202.00K,201.00K,199.00K
-EUR::ecb president trichet speaks::none,2010-05-10,20:45,,,
+EUR::ecb president trichet speaks::none,2010-05-10,20:45,,,0.00
 GBP::brc retail sales monitor::y/y,2010-05-11,07:00,-2.3%,,4.4%
 CHF::seco consumer climate::none,2010-05-11,13:45,14,2,-7
 EUR::german cpi::m/m,2010-05-11,14:00,-0.1%,-0.1%,-0.1%
@@ -2485,7 +2485,7 @@ USD::initial jobless claims::none,2010-05-13,20:30,444K,440K,448K
 USD::import price index::m/m,2010-05-13,20:30,0.9%,0.8%,0.5%
 USD::fed governor kohn speaks::none,2010-05-13,21:00,,,
 USD::natural gas storage::none,2010-05-13,22:30,94B,,83B
-USD::fed chairman bernanke speaks::none,2010-05-14,00:30,,,
+USD::fed chairman bernanke speaks::none,2010-05-14,00:30,,,0.00
 NZD::core retail sales::q/q,2010-05-14,06:45,-0.5%,,1.2%
 NZD::retail sales::q/q,2010-05-14,06:45,0.2%,0.3%,0.9%
 HKD::gdp::q/q,2010-05-14,16:30,2.4%,2.1%,2.3%
@@ -2554,7 +2554,7 @@ USD::core cpi::m/m,2010-05-19,20:30,0.0%,0.1%,0.0%
 USD::core cpi::y/y,2010-05-19,20:30,0.9%,,1.1%
 USD::crude oil inventories::none,2010-05-19,22:30,0.200M,,1.900M
 USD::mba delinquency rates::q/q,2010-05-19,23:00,10.06%,9.12%,9.47%
-USD::fomc meeting minutes::none,2010-05-20,02:00,,,
+USD::fomc meeting minutes::none,2010-05-20,02:00,,,0.00
 USD::fed's balance sheet::none,2010-05-20,04:30,"2,350.89B",,"2,336.10B"
 JPY::gdp::q/q,2010-05-20,07:50,1.2%,1.4%,1.0%
 JPY::gdp price index::y/y,2010-05-20,07:50,-3.0%,-2.9%,-2.7%
@@ -2603,7 +2603,7 @@ USD::cftc crude oil speculative net positions::none,2010-05-22,04:30,67.4k,,92.9
 AUD::new motor vehicle sales::m/m,2010-05-24,09:30,8.4%,,-2.8%
 THB::gdp::y/y,2010-05-24,10:30,12.0%,11.0%,5.8%
 JPY::all industries activity index::m/m,2010-05-24,12:30,-0.8%,-0.6%,-2.3%
-JPY::boj monthly report::none,2010-05-24,13:00,,,
+JPY::boj monthly report::none,2010-05-24,13:00,,,0.00
 USD::existing home sales::none,2010-05-24,22:00,5.77M,5.65M,5.36M
 NZD::inflation expectations::q/q,2010-05-25,11:00,2.8%,,2.7%
 CHF::consumption indicator::none,2010-05-25,14:00,1.76,,1.68
@@ -2618,10 +2618,10 @@ USD::richmond manufacturing index::none,2010-05-25,22:00,26,25,30
 VEF::gdp::y/y,2010-05-26,01:00,-5.8%,,-5.8%
 USD::bloomberg consumer confidence::none,2010-05-26,05:00,27.5,,28
 JPY::corporate services price index (cspi)::y/y,2010-05-26,07:50,-1.1%,,-1.2%
-JPY::monetary policy meeting minutes::none,2010-05-26,07:50,,,
+JPY::monetary policy meeting minutes::none,2010-05-26,07:50,,,0.00
 AUD::mi leading index::m/m,2010-05-26,08:30,0.9%,,0.5%
 JPY::boj governor shirakawa speaks::none,2010-05-26,08:30,,,
-USD::fed chairman bernanke speaks::none,2010-05-26,08:30,,,
+USD::fed chairman bernanke speaks::none,2010-05-26,08:30,,,0.00
 AUD::construction work done::q/q,2010-05-26,09:30,1.9%,4.1%,-0.2%
 EUR::gfk german consumer climate::none,2010-05-26,14:00,3.5,3.7,3.7
 EUR::french consumer spending::m/m,2010-05-26,14:45,-1.2%,-0.5%,1.6%
@@ -2677,8 +2677,8 @@ USD::cftc gold speculative net positions::none,2010-05-29,03:30,227.7K,,231.7K
 RUB::cftc rub speculative positions::none,2010-05-29,04:30,7.6K,,5.6K
 USD::cftc crude oil speculative net positions::none,2010-05-29,04:30,40.4k,,67.4k
 JPY::industrial production::m/m,2010-05-31,07:50,1.3%,2.6%,1.2%
-EUR::ecb president trichet speaks::none,2010-05-31,08:25,,,
-USD::fed chairman bernanke speaks::none,2010-05-31,08:25,,,
+EUR::ecb president trichet speaks::none,2010-05-31,08:25,,,0.00
+USD::fed chairman bernanke speaks::none,2010-05-31,08:25,,,0.00
 AUD::mi inflation gauge::m/m,2010-05-31,08:30,0.5%,,0.4%
 AUD::hia new home sales::m/m,2010-05-31,09:00,6.2%,,0.9%
 AUD::private sector credit::m/m,2010-05-31,09:30,0.2%,0.5%,0.5%
@@ -2924,7 +2924,7 @@ USD::ism non - manufacturing pmi::none,2010-06-03,22:00,55.4,55.5,55.4
 USD::factory orders::m/m,2010-06-03,22:00,1.2%,1.7%,1.7%
 USD::natural gas storage::none,2010-06-03,22:30,88B,,104B
 USD::crude oil inventories::none,2010-06-03,23:00,-1.900M,,2.400M
-USD::fed chairman bernanke speaks::none,2010-06-03,23:15,,,
+USD::fed chairman bernanke speaks::none,2010-06-03,23:15,,,0.00
 USD::total vehicle sales::none,2010-06-03,Tentative,11.60M,11.40M,11.20M
 GBP::halifax house price index::m/m,2010-06-04,16:00,-0.4%,0.3%,-0.1%
 EUR::gdp::q/q,2010-06-04,17:00,0.2%,0.2%,0.2%
@@ -2961,7 +2961,7 @@ GBP::brc retail sales monitor::y/y,2010-06-08,07:00,0.8%,,-2.3%
 JPY::bank lending::y/y,2010-06-08,07:50,-2.0%,,-1.8%
 JPY::m2 money stock::y/y,2010-06-08,07:50,3.1%,2.8%,2.9%
 JPY::adjusted current account::none,2010-06-08,07:50,1.38T,1.42T,1.77T
-USD::fed chairman bernanke speaks::none,2010-06-08,07:55,,,
+USD::fed chairman bernanke speaks::none,2010-06-08,07:55,,,0.00
 AUD::nab business confidence::none,2010-06-08,09:30,5,,13
 JPY::leading index::none,2010-06-08,13:00,101.7,102.8,101.9
 CHF::unemployment rate s.a.::none,2010-06-08,13:45,4.0%,4.0%,4.0%
@@ -2990,8 +2990,8 @@ EUR::belgian gdp::q/q,2010-06-09,22:00,0.1%,0.1%,0.3%
 USD::fed chairman bernanke testifies::none,2010-06-09,22:00,,,
 USD::wholesale inventories::m/m,2010-06-09,22:00,0.4%,0.5%,0.7%
 USD::crude oil inventories::none,2010-06-09,22:30,-1.800M,,-1.900M
-USD::beige book::none,2010-06-10,02:00,,,
-USD::fed chairman bernanke speaks::none,2010-06-10,04:00,,,
+USD::beige book::none,2010-06-10,02:00,,,0.00
+USD::fed chairman bernanke speaks::none,2010-06-10,04:00,,,0.00
 USD::fed's balance sheet::none,2010-06-10,04:30,"2,331.53B",,"2,336.22B"
 NZD::rbnz interest rate decision::none,2010-06-10,05:00,2.75%,2.75%,2.50%
 NZD::rbnz monetary policy statement::none,2010-06-10,05:00,,,
@@ -3002,7 +3002,7 @@ JPY::gdp::q/q,2010-06-10,07:50,1.2%,1.1%,1.2%
 JPY::ppi::y/y,2010-06-10,07:50,0.4%,0.3%,-0.1%
 JPY::gdp price index::y/y,2010-06-10,07:50,-2.8%,-3.0%,-3.0%
 AUD::mi inflation expectations::none,2010-06-10,09:00,3.4%,,3.6%
-AUD::rba bulletin::none,2010-06-10,09:30,,,
+AUD::rba bulletin::none,2010-06-10,09:30,,,0.00
 AUD::employment change::none,2010-06-10,09:30,26.9K,16.1K,35.3K
 AUD::unemployment rate::none,2010-06-10,09:30,5.2%,5.4%,5.4%
 AUD::rba governor stevens speaks::none,2010-06-10,11:00,,,
@@ -3081,7 +3081,7 @@ GBP::nationwide consumer confidence::none,2010-06-16,07:00,65,74,75
 JPY::tertiary industry activity index::m/m,2010-06-16,07:50,2.1%,2.5%,-2.7%
 AUD::mi leading index::m/m,2010-06-16,08:30,0.0%,,1.0%
 AUD::housing starts::q/q,2010-06-16,09:30,4.30%,7.10%,16.80%
-JPY::boj monthly report::none,2010-06-16,13:00,,,
+JPY::boj monthly report::none,2010-06-16,13:00,,,0.00
 JPY::machine tool orders::y/y,2010-06-16,14:00,192.5%,,191.8%
 EUR::italian cpi::m/m,2010-06-16,16:00,0.1%,,0.1%
 GBP::average earnings index +bonus::none,2010-06-16,16:30,4.2%,4.4%,4.3%
@@ -3101,7 +3101,7 @@ USD::crude oil inventories::none,2010-06-16,22:30,1.700M,,-1.800M
 CAD::boc gov carney speaks::none,2010-06-16,23:50,,,
 USD::fed's balance sheet::none,2010-06-17,04:30,"2,344.32B",,"2,331.53B"
 GBP::boe gov king speaks::none,2010-06-17,05:45,,,
-USD::fed chairman bernanke speaks::none,2010-06-17,05:45,,,
+USD::fed chairman bernanke speaks::none,2010-06-17,05:45,,,0.00
 CHF::industrial production::q/q,2010-06-17,15:15,-7.8%,-6.3%,6.4%
 CHF::snb interest rate decision::none,2010-06-17,15:30,0.25%,0.25%,0.25%
 EUR::ecb economic bulletin::none,2010-06-17,16:30,,,
@@ -3117,7 +3117,7 @@ USD::current account::none,2010-06-17,20:30,-109.0B,-123.0B,-101.0B
 USD::philadelphia fed manufacturing index::none,2010-06-17,22:00,8.0,18.8,21.4
 USD::natural gas storage::none,2010-06-17,22:30,87B,,99B
 USD::us leading index::m/m,2010-06-17,23:00,0.4%,0.4%,0%
-JPY::monetary policy meeting minutes::none,2010-06-18,07:50,,,
+JPY::monetary policy meeting minutes::none,2010-06-18,07:50,,,0.00
 EUR::german ppi::m/m,2010-06-18,14:00,0.3%,0.2%,0.8%
 GBP::m4 money supply::m/m,2010-06-18,16:30,0.0%,0.2%,0.1%
 GBP::mortgage approvals::none,2010-06-18,16:30,51K,49K,48K
@@ -3142,7 +3142,7 @@ NZD::visitor arrivals::m/m,2010-06-21,06:45,1.0%,,-1.8%
 GBP::rightmove house price index::m/m,2010-06-21,07:00,0.3%,,0.7%
 AUD::new motor vehicle sales::m/m,2010-06-21,09:30,-3.2%,,9.0%
 JPY::all industries activity index::m/m,2010-06-21,12:30,1.8%,2.1%,-0.7%
-EUR::ecb president trichet speaks::none,2010-06-22,00:30,,,
+EUR::ecb president trichet speaks::none,2010-06-22,00:30,,,0.00
 NZD::credit card spending::y/y,2010-06-22,11:00,3.4%,,0.7%
 CHF::trade balance::none,2010-06-22,14:15,0.820B,1.970B,2.060B
 EUR::current account::none,2010-06-22,16:00,-5.1B,1.3B,1.5B
@@ -3245,7 +3245,7 @@ CAD::gdp::m/m,2010-06-30,20:30,0.0%,0.2%,0.6%
 INR::cpi::y/y,2010-06-30,21:00,13.9%,13.2%,13.3%
 PLN::interest rate decision::none,2010-06-30,21:00,3.50%,3.50%,3.50%
 USD::chicago pmi::none,2010-06-30,21:45,59.1,59.0,59.7
-EUR::ecb president trichet speaks::none,2010-06-30,22:30,,,
+EUR::ecb president trichet speaks::none,2010-06-30,22:30,,,0.00
 USD::crude oil inventories::none,2010-06-30,22:30,-2.000M,,2.000M
 USD::fed's balance sheet::none,2010-07-01,04:30,"2,330.85B",,"2,344.50B"
 AUD::aig manufacturing index::none,2010-07-01,07:30,52.9,,56.3
@@ -3553,7 +3553,7 @@ CZK::cpi::m/m,2010-07-12,16:00,0.0%,0.0%,0.1%
 GBP::gdp::q/q,2010-07-12,16:30,0.3%,0.3%,0.3%
 GBP::index of services::none,2010-07-12,16:30,0.6%,0.4%,0.3%
 GBP::current account::none,2010-07-12,16:30,-9.6B,-4.3B,0.5B
-USD::fed chairman bernanke speaks::none,2010-07-12,22:00,,,
+USD::fed chairman bernanke speaks::none,2010-07-12,22:00,,,0.00
 MXN::industrial production::y/y,2010-07-12,23:00,8.4%,5.8%,6.1%
 INR::industrial production::y/y,2010-07-13,02:30,11.5%,17.9%,17.6%
 NZD::fpi::m/m,2010-07-13,06:45,1.3%,,-0.7%
@@ -3572,7 +3572,7 @@ GBP::rpi::y/y,2010-07-13,16:30,5.0%,4.9%,5.1%
 EUR::german zew economic sentiment::none,2010-07-13,17:00,21.2,25.2,28.7
 EUR::zew economic sentiment::none,2010-07-13,17:00,10.7,16.8,18.8
 CAD::trade balance::none,2010-07-13,20:30,-0.5B,0.4B,-0.3B
-GBP::boe mpc member sentance speaks::none,2010-07-13,20:30,,,
+GBP::boe mpc member sentance speaks::none,2010-07-13,20:30,,,0.00
 USD::trade balance::none,2010-07-13,20:30,-42.3B,-39.5B,-40.3B
 BRL::retail sales::y/y,2010-07-13,21:00,10.2%,9.0%,9.1%
 PLN::cpi::y/y,2010-07-13,21:00,2.3%,2.1%,2.2%
@@ -3595,7 +3595,7 @@ USD::retail sales::m/m,2010-07-14,20:30,-0.5%,-0.2%,-1.1%
 USD::import price index::m/m,2010-07-14,20:30,-1.3%,-0.1%,-0.5%
 USD::business inventories::m/m,2010-07-14,22:00,0.1%,0.2%,0.4%
 USD::crude oil inventories::none,2010-07-14,22:30,-5.100M,,-5.000M
-USD::fomc meeting minutes::none,2010-07-15,02:00,,,
+USD::fomc meeting minutes::none,2010-07-15,02:00,,,0.00
 USD::fed's balance sheet::none,2010-07-15,04:30,"2,340.72B",,"2,332.02B"
 NZD::business nz pmi::none,2010-07-15,06:30,56.2,,54.0
 AUD::mi inflation expectations::none,2010-07-15,09:00,3.3%,,3.4%
@@ -3620,7 +3620,7 @@ USD::natural gas storage::none,2010-07-15,22:30,78B,,78B
 ILS::cpi::y/y,2010-07-15,23:00,2.4%,,3%
 NZD::cpi::q/q,2010-07-16,06:45,0.3%,0.5%,0.4%
 JPY::tertiary industry activity index::m/m,2010-07-16,07:50,-0.9%,-0.7%,2.4%
-JPY::boj monthly report::none,2010-07-16,13:00,,,
+JPY::boj monthly report::none,2010-07-16,13:00,,,0.00
 EUR::italian trade balance::none,2010-07-16,16:00,-1.96B,-0.75B,-0.86B
 EUR::trade balance::none,2010-07-16,17:00,-3.0B,1.4B,0.1B
 CAD::leading indicators::m/m,2010-07-16,20:30,1.0%,0.5%,1.1%
@@ -3662,7 +3662,7 @@ USD::housing starts::none,2010-07-20,20:30,0.550M,0.570M,0.580M
 CAD::boc interest rate decision::none,2010-07-20,21:00,0.75%,0.75%,0.50%
 USD::bloomberg consumer confidence::none,2010-07-21,05:00,27.5,,28
 NZD::visitor arrivals::m/m,2010-07-21,06:45,0.3%,,1.1%
-JPY::monetary policy meeting minutes::none,2010-07-21,07:50,,,
+JPY::monetary policy meeting minutes::none,2010-07-21,07:50,,,0.00
 AUD::mi leading index::m/m,2010-07-21,08:30,0.2%,,0.0%
 NZD::credit card spending::y/y,2010-07-21,11:00,4.5%,,3.4%
 GBP::boe mpc meeting minutes::none,2010-07-21,16:30,,,
@@ -3742,7 +3742,7 @@ USD::core durable goods orders::m/m,2010-07-28,20:30,-0.6%,0.6%,1.2%
 CLP::chilean manufacturing production::y/y,2010-07-28,22:00,2.9%,5.5%,4.2%
 CLP::retail sales::y/y,2010-07-28,22:00,17.8%,17.0%,19.1%
 USD::crude oil inventories::none,2010-07-28,22:30,7.300M,,0.400M
-USD::beige book::none,2010-07-29,02:00,,,
+USD::beige book::none,2010-07-29,02:00,,,0.00
 ARS::retail sales::y/y,2010-07-29,04:00,33.0%,40.5%,42.8%
 USD::fed's balance sheet::none,2010-07-29,04:30,"2,325.30B",,"2,332.32B"
 NZD::rbnz interest rate decision::none,2010-07-29,05:00,3.00%,3.00%,2.75%
@@ -4010,7 +4010,7 @@ INR::cpi::y/y,2010-08-02,21:00,13.7%,13.7%,13.9%
 USD::ism manufacturing pmi::none,2010-08-02,22:00,55.5,54.2,56.2
 USD::ism manufacturing prices::none,2010-08-02,22:00,57.5,55.3,57.0
 USD::construction spending::m/m,2010-08-02,22:00,0.1%,-0.8%,-0.1%
-USD::fed chairman bernanke speaks::none,2010-08-02,22:15,,,
+USD::fed chairman bernanke speaks::none,2010-08-02,22:15,,,0.00
 USD::treasury secretary geithner speaks::none,2010-08-03,04:00,,,
 NZD::labor cost index::q/q,2010-08-03,06:45,0.4%,0.4%,0.3%
 JPY::monetary base::y/y,2010-08-03,07:50,6.1%,3.7%,3.6%
@@ -4126,7 +4126,7 @@ KRW::unemployment rate::none,2010-08-11,07:00,3.7%,3.4%,3.5%
 JPY::core machinery orders::m/m,2010-08-11,07:50,1.6%,5.6%,-9.1%
 JPY::ppi::y/y,2010-08-11,07:50,-0.1%,0.0%,0.4%
 AUD::westpac consumer sentiment::none,2010-08-11,08:30,5.40%,,11.10%
-JPY::boj monthly report::none,2010-08-11,13:00,,,
+JPY::boj monthly report::none,2010-08-11,13:00,,,0.00
 HUF::cpi::y/y,2010-08-11,16:00,4.0%,4.5%,5.3%
 GBP::average earnings index +bonus::none,2010-08-11,16:30,1.3%,1.1%,2.7%
 GBP::claimant count change::none,2010-08-11,16:30,-3.8K,-17.4K,-15.9K
@@ -4159,7 +4159,7 @@ USD::natural gas storage::none,2010-08-12,22:30,37B,,29B
 INR::industrial production::y/y,2010-08-13,02:30,7.1%,8.2%,12.2%
 NZD::core retail sales::q/q,2010-08-13,06:45,0.9%,,-0.5%
 NZD::retail sales::q/q,2010-08-13,06:45,1.3%,0.3%,0.2%
-JPY::monetary policy meeting minutes::none,2010-08-13,07:50,,,
+JPY::monetary policy meeting minutes::none,2010-08-13,07:50,,,0.00
 SGD::retail sales::y/y,2010-08-13,13:00,-4.9%,-2.5%,-3.4%
 EUR::german gdp::q/q,2010-08-13,14:00,2.2%,1.3%,0.5%
 EUR::french non - farm payrolls::q/q,2010-08-13,14:45,0.2%,0.3%,0.2%
@@ -4330,7 +4330,7 @@ USD::gdp price index::q/q,2010-08-27,20:30,1.9%,1.8%,1.8%
 EUR::german cpi::m/m,2010-08-27,20:50,0.0%,0.2%,0.3%
 USD::michigan 1 - year inflation expectations::none,2010-08-27,21:55,2.7%,,2.8%
 USD::michigan consumer sentiment::none,2010-08-27,21:55,68.9,69.4,69.6
-USD::fed chairman bernanke speaks::none,2010-08-27,22:00,,,
+USD::fed chairman bernanke speaks::none,2010-08-27,22:00,,,0.00
 PEN::gdp::y/y,2010-08-28,01:00,10.10%,10.00%,6.00%
 USD::u.s. baker hughes oil rig count::none,2010-08-28,01:00,672,,655
 AUD::cftc aud speculative net positions::none,2010-08-28,03:30,47.0K,,57.7K
@@ -4392,7 +4392,7 @@ CAD::gdp::m/m,2010-08-31,20:30,0.2%,0.2%,0.1%
 USD::s&p/cs hpi composite - 20 n.s.a.::y/y,2010-08-31,21:00,4.2%,3.5%,4.6%
 USD::chicago pmi::none,2010-08-31,21:45,56.7,57.5,62.3
 USD::cb consumer confidence::none,2010-08-31,22:00,53.5,50.0,51.0
-USD::fomc meeting minutes::none,2010-09-01,02:00,,,
+USD::fomc meeting minutes::none,2010-09-01,02:00,,,0.00
 USD::bloomberg consumer confidence::none,2010-09-01,05:00,27.5,,28
 AUD::aig manufacturing index::none,2010-09-01,07:30,51.7,,54.4
 AUD::gdp::q/q,2010-09-01,09:30,1.2%,0.9%,0.7%
@@ -4638,7 +4638,7 @@ USD::cftc silver speculative net positions::none,2010-09-04,03:30,44.8K,,34.8K
 USD::cftc gold speculative net positions::none,2010-09-04,03:30,238.1K,,221.2K
 RUB::cftc rub speculative positions::none,2010-09-04,04:30,2.7K,,2.7K
 USD::cftc crude oil speculative net positions::none,2010-09-04,04:30,13.1k,,27.3k
-EUR::ecb president trichet speaks::none,2010-09-06,02:00,,,
+EUR::ecb president trichet speaks::none,2010-09-06,02:00,,,0.00
 AUD::mi inflation gauge::m/m,2010-09-06,08:30,0.2%,,0.1%
 AUD::anz job advertisements::m/m,2010-09-06,09:30,2.60%,,1.40%
 EUR::sentix investor confidence::none,2010-09-06,16:30,7.6,8.7,8.2
@@ -4659,7 +4659,7 @@ JPY::m2 money stock::y/y,2010-09-08,07:50,2.8%,2.6%,2.7%
 JPY::adjusted current account::none,2010-09-08,07:50,1.46T,1.38T,1.36T
 AUD::home loans::m/m,2010-09-08,09:30,1.7%,1.1%,-3.2%
 JPY::economy watchers current index::none,2010-09-08,13:00,45.1,50.3,49.8
-JPY::boj monthly report::none,2010-09-08,13:00,,,
+JPY::boj monthly report::none,2010-09-08,13:00,,,0.00
 EUR::german trade balance::none,2010-09-08,14:00,12.7B,12.8B,12.4B
 EUR::french government budget balance::none,2010-09-08,14:45,-93.1B,,-61.7B
 EUR::french trade balance::none,2010-09-08,14:45,-4.2B,-4.2B,-3.7B
@@ -4677,7 +4677,7 @@ CAD::boc interest rate decision::none,2010-09-08,21:00,1.00%,1.00%,0.75%
 CAD::ivey pmi::none,2010-09-08,22:00,65.9,55.9,54.0
 EUR::belgian gdp::q/q,2010-09-08,22:00,0.9%,0.7%,0.1%
 GBP::niesr gdp estimate::none,2010-09-08,22:00,0.7%,,1.3%
-USD::beige book::none,2010-09-09,02:00,,,
+USD::beige book::none,2010-09-09,02:00,,,0.00
 USD::consumer credit::none,2010-09-09,03:00,-3.60B,-5.25B,-1.00B
 USD::fed's balance sheet::none,2010-09-09,04:30,"2,305.80B",,"2,302.00B"
 NZD::manufacturing sales volume::q/q,2010-09-09,06:45,3.1%,,1.4%
@@ -4707,7 +4707,7 @@ PEN::interest rate decision::none,2010-09-10,07:00,3.00%,3.00%,2.50%
 JPY::gdp::q/q,2010-09-10,07:50,0.4%,0.4%,0.1%
 JPY::ppi::y/y,2010-09-10,07:50,0.0%,-0.2%,-0.1%
 JPY::gdp price index::y/y,2010-09-10,07:50,-1.7%,-1.8%,-1.8%
-JPY::monetary policy meeting minutes::none,2010-09-10,07:50,,,
+JPY::monetary policy meeting minutes::none,2010-09-10,07:50,,,0.00
 EUR::french industrial production::m/m,2010-09-10,14:45,0.9%,0.8%,-1.7%
 EUR::italian industrial production::m/m,2010-09-10,16:00,0.1%,0.4%,0.5%
 HUF::cpi::y/y,2010-09-10,16:00,3.7%,3.9%,4.0%
@@ -4792,7 +4792,7 @@ NZD::rbnz rate statement::none,2010-09-16,05:00,,,
 NZD::business nz pmi::none,2010-09-16,06:30,49.3,,50.3
 JPY::tertiary industry activity index::m/m,2010-09-16,07:50,1.6%,0.7%,0.2%
 AUD::mi inflation expectations::none,2010-09-16,09:00,3.1%,,2.8%
-AUD::rba bulletin::none,2010-09-16,09:30,,,
+AUD::rba bulletin::none,2010-09-16,09:30,,,0.00
 AUD::rba governor lowe speaks::none,2010-09-16,11:45,,,
 JPY::boj governor shirakawa speaks::none,2010-09-16,14:00,,,
 CHF::industrial production::q/q,2010-09-16,15:15,5.7%,3.3%,-7.9%
@@ -4832,7 +4832,7 @@ USD::cftc silver speculative net positions::none,2010-09-18,03:30,48.8K,,47.2K
 USD::cftc gold speculative net positions::none,2010-09-18,03:30,244.3K,,239.7K
 RUB::cftc rub speculative positions::none,2010-09-18,04:30,2.9K,,2.9K
 USD::cftc crude oil speculative net positions::none,2010-09-18,04:30,48.3k,,10.5k
-EUR::ecb president trichet speaks::none,2010-09-20,01:00,,,
+EUR::ecb president trichet speaks::none,2010-09-20,01:00,,,0.00
 GBP::rightmove house price index::m/m,2010-09-20,07:00,-1.1%,,-1.7%
 AUD::rba governor stevens speaks::none,2010-09-20,11:30,,,
 EUR::italian trade balance::none,2010-09-20,16:00,1.75B,-1.37B,-3.06B
@@ -4902,18 +4902,18 @@ NZD::cftc nzd speculative net positions::none,2010-09-25,03:30,18.4K,,16.8K
 USD::cftc silver speculative net positions::none,2010-09-25,03:30,49.4K,,48.8K
 USD::cftc gold speculative net positions::none,2010-09-25,03:30,244.0K,,244.3K
 RUB::cftc rub speculative positions::none,2010-09-25,04:30,3.8K,,2.9K
-USD::fed chairman bernanke speaks::none,2010-09-25,04:30,,,
+USD::fed chairman bernanke speaks::none,2010-09-25,04:30,,,0.00
 USD::cftc crude oil speculative net positions::none,2010-09-25,04:30,43.9k,,48.3k
 JPY::boj governor shirakawa speaks::none,2010-09-26,00:50,,,
 JPY::boj governor shirakawa speaks::none,2010-09-26,11:50,,,
 JPY::corporate services price index (cspi)::y/y,2010-09-27,07:50,-1.1%,-1.2%,-1.1%
 JPY::adjusted trade balance::none,2010-09-27,07:50,0.59T,0.52T,0.59T
 JPY::boj governor shirakawa speaks::none,2010-09-27,13:30,,,
-EUR::ecb president trichet speaks::none,2010-09-27,15:00,,,
+EUR::ecb president trichet speaks::none,2010-09-27,15:00,,,0.00
 EUR::m3 money supply::y/y,2010-09-27,16:00,1.1%,0.4%,0.2%
 EUR::private sector loans::y/y,2010-09-27,16:00,1.2%,1.2%,0.8%
 HKD::trade balance::none,2010-09-27,17:30,-11.9B,-28.0B,-30.5B
-EUR::ecb president trichet speaks::none,2010-09-27,21:00,,,
+EUR::ecb president trichet speaks::none,2010-09-27,21:00,,,0.00
 HUF::interest rate decision::none,2010-09-27,21:00,5.25%,5.00%,5.25%
 KRW::consumer confidence::none,2010-09-28,06:00,109,111,110
 CHF::consumption indicator::none,2010-09-28,14:00,1.95,,1.88
@@ -4973,7 +4973,7 @@ USD::chicago pmi::none,2010-09-30,21:45,60.4,56.0,56.7
 USD::fed chairman bernanke testifies::none,2010-09-30,22:00,,,
 USD::natural gas storage::none,2010-09-30,22:30,74B,,73B
 CAD::boc gov carney speaks::none,2010-10-01,00:50,,,
-USD::fed chairman bernanke speaks::none,2010-10-01,02:30,,,
+USD::fed chairman bernanke speaks::none,2010-10-01,02:30,,,0.00
 AUD::aig manufacturing index::none,2010-10-01,07:30,47.3,,51.7
 JPY::unemployment rate::none,2010-10-01,07:30,5.1%,5.1%,5.2%
 JPY::household spending::y/y,2010-10-01,07:30,1.7%,1.4%,1.1%
@@ -5195,10 +5195,10 @@ EUR::ppi::m/m,2010-10-04,17:00,0.1%,0.2%,0.2%
 USD::global semiconductor sales::m/m,2010-10-04,19:00,1.8%,,1.2%
 USD::factory orders::m/m,2010-10-04,22:00,-0.5%,-0.4%,0.5%
 USD::pending home sales::m/m,2010-10-04,22:00,4.3%,2.8%,4.5%
-USD::fed chairman bernanke speaks::none,2010-10-05,03:00,,,
+USD::fed chairman bernanke speaks::none,2010-10-05,03:00,,,0.00
 NZD::nzier business confidence::none,2010-10-05,05:00,6,,18
 AUD::aig services index::none,2010-10-05,06:30,45.6,,47.5
-USD::fed chairman bernanke speaks::none,2010-10-05,07:30,,,
+USD::fed chairman bernanke speaks::none,2010-10-05,07:30,,,0.00
 AUD::anz job advertisements::m/m,2010-10-05,08:30,0.70%,,2.40%
 AUD::retail sales::m/m,2010-10-05,08:30,0.3%,0.5%,0.7%
 AUD::trade balance::none,2010-10-05,08:30,2.35B,2.31B,1.74B
@@ -5211,7 +5211,7 @@ EUR::retail sales::m/m,2010-10-05,17:00,-0.4%,0.2%,0.1%
 USD::ism non - manufacturing pmi::none,2010-10-05,22:00,53.2,51.8,51.5
 USD::bloomberg consumer confidence::none,2010-10-06,05:00,26.5,,27.5
 GBP::brc shop price index::y/y,2010-10-06,07:00,1.9%,,1.7%
-JPY::boj monthly report::none,2010-10-06,13:00,,,
+JPY::boj monthly report::none,2010-10-06,13:00,,,0.00
 EUR::gdp::q/q,2010-10-06,17:00,1.0%,1.0%,1.0%
 EUR::german factory orders::m/m,2010-10-06,18:00,3.4%,0.9%,-1.6%
 USD::mba mortgage applications::w/w,2010-10-06,19:00,-0.2%,,-0.8%
@@ -5243,7 +5243,7 @@ MXN::cpi::y/y,2010-10-07,23:00,3.70%,3.80%,3.70%
 USD::consumer credit::none,2010-10-08,03:00,-3.30B,-3.00B,-4.10B
 PEN::interest rate decision::none,2010-10-08,07:00,3.00%,3.25%,3.00%
 JPY::adjusted current account::none,2010-10-08,07:50,1.18T,1.09T,1.46T
-JPY::monetary policy meeting minutes::none,2010-10-08,07:50,,,
+JPY::monetary policy meeting minutes::none,2010-10-08,07:50,,,0.00
 JPY::economy watchers current index::none,2010-10-08,13:00,41.2,44.8,45.1
 CHF::unemployment rate s.a.::none,2010-10-08,13:45,3.7%,3.7%,3.8%
 EUR::german trade balance::none,2010-10-08,14:00,11.7B,12.2B,12.6B
@@ -5279,7 +5279,7 @@ EUR::french industrial production::m/m,2010-10-11,14:45,0.0%,0.3%,0.8%
 CZK::cpi::m/m,2010-10-11,16:00,-0.3%,-0.3%,-0.3%
 EUR::italian industrial production::m/m,2010-10-11,16:00,1.6%,0.0%,0.3%
 GBP::construction output::m/m,2010-10-11,17:30,3.30%,,-0.70%
-EUR::ecb president trichet speaks::none,2010-10-12,00:00,,,
+EUR::ecb president trichet speaks::none,2010-10-12,00:00,,,0.00
 GBP::brc retail sales monitor::y/y,2010-10-12,07:00,0.5%,,1.0%
 AUD::nab business confidence::none,2010-10-12,08:30,10,,11
 JPY::household confidence::none,2010-10-12,13:00,41.2,43.9,42.4
@@ -5295,8 +5295,8 @@ INR::industrial production::y/y,2010-10-12,16:30,5.6%,12.5%,15.1%
 SEK::cpi::y/y,2010-10-12,16:30,1.4%,,0.9%
 USD::ibd/tipp economic optimism::none,2010-10-12,22:00,46.4,46.7,45.3
 MXN::industrial production::y/y,2010-10-12,23:00,8.1%,4.6%,5.4%
-EUR::ecb president trichet speaks::none,2010-10-13,00:20,,,
-USD::fomc meeting minutes::none,2010-10-13,02:00,,,
+EUR::ecb president trichet speaks::none,2010-10-13,00:20,,,0.00
+USD::fomc meeting minutes::none,2010-10-13,02:00,,,0.00
 USD::bloomberg consumer confidence::none,2010-10-13,05:00,27.5,,26.5
 NZD::fpi::m/m,2010-10-13,05:45,0.7%,,-0.1%
 GBP::nationwide consumer confidence::none,2010-10-13,07:00,53,64,62
@@ -5306,7 +5306,7 @@ JPY::core machinery orders::m/m,2010-10-13,07:50,10.1%,-3.7%,8.8%
 JPY::m2 money stock::y/y,2010-10-13,07:50,2.8%,2.8%,2.8%
 EUR::french cpi::m/m,2010-10-13,13:30,-0.1%,0.1%,0.2%
 CHF::ppi::m/m,2010-10-13,15:15,-0.1%,0.2%,0.1%
-USD::fed chairman bernanke speaks::none,2010-10-13,16:10,,,
+USD::fed chairman bernanke speaks::none,2010-10-13,16:10,,,0.00
 GBP::average earnings index +bonus::none,2010-10-13,16:30,1.7%,1.6%,1.3%
 GBP::claimant count change::none,2010-10-13,16:30,5.3K,3.9K,3.8K
 GBP::unemployment rate::none,2010-10-13,16:30,7.7%,7.8%,7.8%
@@ -5315,7 +5315,7 @@ USD::mba mortgage applications::w/w,2010-10-13,19:00,14.6%,,-0.2%
 CAD::new housing price index::m/m,2010-10-13,20:30,0.1%,-0.1%,-0.1%
 USD::import price index::m/m,2010-10-13,20:30,-0.3%,-0.1%,0.6%
 PLN::cpi::y/y,2010-10-13,21:00,2.5%,2.3%,2.0%
-GBP::boe mpc member sentance speaks::none,2010-10-14,01:40,,,
+GBP::boe mpc member sentance speaks::none,2010-10-14,01:40,,,0.00
 USD::fed's balance sheet::none,2010-10-14,04:30,"2,309.89B",,"2,308.09B"
 NZD::business nz pmi::none,2010-10-14,05:30,49.2,,49.3
 JPY::ppi::y/y,2010-10-14,07:50,-0.1%,0.0%,0.0%
@@ -5338,7 +5338,7 @@ EUR::italian trade balance::none,2010-10-15,16:00,-3.26B,-1.97B,1.75B
 EUR::cpi::y/y,2010-10-15,17:00,1.8%,1.8%,1.8%
 EUR::core cpi::y/y,2010-10-15,17:00,1.0%,1.0%,1.0%
 EUR::trade balance::none,2010-10-15,17:00,-1.4B,1.3B,-0.2B
-USD::fed chairman bernanke speaks::none,2010-10-15,20:15,,,
+USD::fed chairman bernanke speaks::none,2010-10-15,20:15,,,0.00
 CAD::manufacturing sales::m/m,2010-10-15,20:30,2.00%,0.50%,-1.10%
 CAD::new motor vehicle sales::m/m,2010-10-15,20:30,-4.8%,1.3%,2.2%
 USD::cpi::m/m,2010-10-15,20:30,0.1%,0.2%,0.3%
@@ -5366,8 +5366,8 @@ USD::cftc silver speculative net positions::none,2010-10-16,03:30,45.4K,,48.5K
 USD::cftc gold speculative net positions::none,2010-10-16,03:30,255.9K,,259.6K
 RUB::cftc rub speculative positions::none,2010-10-16,04:30,8.2K,,7.4K
 USD::cftc crude oil speculative net positions::none,2010-10-16,04:30,129.3k,,116.0k
-EUR::ecb president trichet speaks::none,2010-10-16,19:00,,,
-EUR::ecb president trichet speaks::none,2010-10-17,16:00,,,
+EUR::ecb president trichet speaks::none,2010-10-16,19:00,,,0.00
+EUR::ecb president trichet speaks::none,2010-10-17,16:00,,,0.00
 NZD::cpi::q/q,2010-10-18,05:45,1.1%,1.0%,0.2%
 GBP::rightmove house price index::m/m,2010-10-18,07:00,3.1%,,-1.1%
 JPY::tertiary industry activity index::m/m,2010-10-18,07:50,-0.2%,-0.5%,1.6%
@@ -5402,7 +5402,7 @@ CAD::wholesale sales::m/m,2010-10-20,20:30,1.2%,0.5%,0.0%
 CAD::boc monetary policy report::none,2010-10-20,22:30,,,
 USD::crude oil inventories::none,2010-10-20,22:30,0.700M,,-0.400M
 MXN::retail sales::y/y,2010-10-20,23:00,4.4%,2.2%,2.0%
-USD::beige book::none,2010-10-21,02:00,,,
+USD::beige book::none,2010-10-21,02:00,,,0.00
 BRL::interest rate decision::none,2010-10-21,04:00,10.75%,10.75%,10.75%
 USD::fed's balance sheet::none,2010-10-21,04:30,"2,305.23B",,"2,309.89B"
 NZD::visitor arrivals::m/m,2010-10-21,05:45,0.9%,,0.7%
@@ -5451,7 +5451,7 @@ EUR::spanish ppi::y/y,2010-10-25,16:00,3.4%,3.3%,2.7%
 TWD::industrial production::y/y,2010-10-25,16:00,12.20%,17.00%,23.40%
 GBP::gross mortgage approvals::none,2010-10-25,16:30,31.1K,31.6K,31.8K
 EUR::industrial new orders::m/m,2010-10-25,17:00,5.3%,2.1%,-1.8%
-USD::fed chairman bernanke speaks::none,2010-10-25,20:30,,,
+USD::fed chairman bernanke speaks::none,2010-10-25,20:30,,,0.00
 HUF::interest rate decision::none,2010-10-25,21:00,5.25%,5.25%,5.25%
 USD::existing home sales::none,2010-10-25,22:00,4.53M,4.25M,4.12M
 GBP::boe gov king speaks::none,2010-10-26,03:00,,,
@@ -5503,7 +5503,7 @@ GBP::nationwide hpi::m/m,2010-10-28,14:00,-0.7%,-0.3%,0.0%
 JPY::boj press conference::none,2010-10-28,15:20,,,
 EUR::german unemployment rate::none,2010-10-28,16:00,7.5%,7.4%,7.5%
 SEK::business confidence::none,2010-10-28,16:15,5,14,12
-EUR::ecb president trichet speaks::none,2010-10-28,16:30,,,
+EUR::ecb president trichet speaks::none,2010-10-28,16:30,,,0.00
 EUR::business and consumer survey::none,2010-10-28,18:00,104.1,103.8,103.2
 GBP::cbi distributive trades survey::none,2010-10-28,18:00,36,40,49
 USD::initial jobless claims::none,2010-10-28,20:30,434K,455K,455K
@@ -5758,7 +5758,7 @@ USD::retail control::m/m,2010-11-01,17:00,0.50%,,0.30%
 USD::s&p/cs hpi composite - 20 n.s.a.::m/m,2010-11-01,17:00,-1.40%,,-0.80%
 NZD::labor cost index::q/q,2010-11-02,05:45,0.6%,0.5%,0.4%
 JPY::monetary base::y/y,2010-11-02,07:50,6.4%,5.6%,5.8%
-JPY::monetary policy meeting minutes::none,2010-11-02,07:50,,,
+JPY::monetary policy meeting minutes::none,2010-11-02,07:50,,,0.00
 AUD::rba interest rate decision::none,2010-11-02,11:30,4.75%,4.50%,4.50%
 AUD::rba rate statement::none,2010-11-02,11:30,,,
 NA::japan - culture day::none,2010-11-03,All Day,,,
@@ -5775,7 +5775,7 @@ USD::ism non - manufacturing pmi::none,2010-11-03,22:00,54.3,53.6,53.2
 USD::factory orders::m/m,2010-11-03,22:00,2.1%,0.6%,0.0%
 USD::crude oil inventories::none,2010-11-03,22:30,2.000M,,5.000M
 USD::gasoline inventories::none,2010-11-03,23:30,-2.700M,0.000M,-4.400M
-CHF::snb board member jordan speaks::none,2010-11-04,00:15,,,
+CHF::snb board member jordan speaks::none,2010-11-04,00:15,,,0.00
 USD::fomc statement::none,2010-11-04,02:15,,,
 USD::fed interest rate decision::none,2010-11-04,02:15,0.25%,0.25%,0.25%
 USD::fed's balance sheet::none,2010-11-04,04:30,"2,300.35B",,"2,295.39B"
@@ -5815,7 +5815,7 @@ USD::u6 unemployment rate::none,2010-11-05,20:30,16.60%,,16.80%
 USD::kansas city fed president hoenig speaks::none,2010-11-05,21:30,,,
 USD::pending home sales::m/m,2010-11-06,00:30,-1.8%,0.5%,4.4%
 USD::u.s. baker hughes oil rig count::none,2010-11-06,01:00,718,,696
-USD::fed chairman bernanke speaks::none,2010-11-06,02:00,,,
+USD::fed chairman bernanke speaks::none,2010-11-06,02:00,,,0.00
 USD::consumer credit::none,2010-11-06,03:00,2.10B,-3.80B,-4.90B
 AUD::cftc aud speculative net positions::none,2010-11-06,03:30,51.2K,,55.1K
 CAD::cftc cad speculative net positions::none,2010-11-06,03:30,23.4K,,19.9K
@@ -5831,7 +5831,7 @@ RUB::cftc rub speculative positions::none,2010-11-06,04:30,2.6K,,8.5K
 USD::cftc crude oil speculative net positions::none,2010-11-06,04:30,130.1k,,125.3k
 AUD::anz job advertisements::m/m,2010-11-08,08:30,0.60%,,1.10%
 JPY::leading index::none,2010-11-08,13:00,98.9,99.0,99.5
-JPY::boj monthly report::none,2010-11-08,13:00,,,
+JPY::boj monthly report::none,2010-11-08,13:00,,,0.00
 CHF::unemployment rate s.a.::none,2010-11-08,14:45,3.6%,3.6%,3.7%
 EUR::german trade balance::none,2010-11-08,15:00,15.6B,13.2B,12.0B
 EUR::sentix investor confidence::none,2010-11-08,17:30,14.0,10.0,8.8
@@ -5840,7 +5840,7 @@ CLP::trade balance::none,2010-11-08,19:30,0.22B,1.50B,1.70B
 USD::bankruptcy filings::y/y,2010-11-08,20:00,6.70%,,11.70%
 CAD::housing starts::none,2010-11-08,21:15,168.00K,180.00K,185.00K
 USD::fomc member fisher speaks::none,2010-11-09,02:00,,,
-USD::fed governor warsh speaks::none,2010-11-09,04:30,,,
+USD::fed governor warsh speaks::none,2010-11-09,04:30,,,0.00
 JPY::bank lending::y/y,2010-11-09,07:50,-1.9%,,-1.8%
 JPY::m2 money stock::y/y,2010-11-09,07:50,2.7%,2.8%,2.8%
 JPY::adjusted current account::none,2010-11-09,07:50,1.66T,1.23T,1.18T
@@ -5998,21 +5998,21 @@ CLP::chilean gdp::y/y,2010-11-18,20:30,7.0%,7.1%,6.6%
 CAD::foreign securities purchases::none,2010-11-18,21:30,12.25B,9.21B,10.37B
 CAD::leading indicators::m/m,2010-11-18,21:30,0.2%,0.0%,-0.2%
 CAD::wholesale sales::m/m,2010-11-18,21:30,0.4%,0.1%,1.3%
-EUR::ecb president trichet speaks::none,2010-11-18,21:30,,,
+EUR::ecb president trichet speaks::none,2010-11-18,21:30,,,0.00
 USD::initial jobless claims::none,2010-11-18,21:30,439K,442K,435K
 USD::mba delinquency rates::q/q,2010-11-18,22:00,9.13%,9.26%,9.85%
 USD::philadelphia fed manufacturing index::none,2010-11-18,23:00,22.5,4.5,1.0
 USD::us leading index::m/m,2010-11-18,23:00,0.5%,0.5%,0.5%
 CAD::boc review::none,2010-11-18,23:30,,,
 USD::natural gas storage::none,2010-11-18,23:30,3B,11B,19B
-USD::fed governor warsh speaks::none,2010-11-19,01:00,,,
+USD::fed governor warsh speaks::none,2010-11-19,01:00,,,0.00
 COP::industrial production::y/y,2010-11-19,05:00,2.8%,4.0%,4.4%
-JPY::monetary policy meeting minutes::none,2010-11-19,07:50,,,
+JPY::monetary policy meeting minutes::none,2010-11-19,07:50,,,0.00
 NZD::credit card spending::y/y,2010-11-19,10:00,4.6%,,4.2%
 JPY::all industries activity index::m/m,2010-11-19,12:30,-0.8%,-0.6%,-0.2%
 EUR::german ppi::m/m,2010-11-19,15:00,0.4%,0.3%,0.3%
-USD::fed chairman bernanke speaks::none,2010-11-19,18:15,,,
-EUR::ecb president trichet speaks::none,2010-11-19,22:15,,,
+USD::fed chairman bernanke speaks::none,2010-11-19,18:15,,,0.00
+EUR::ecb president trichet speaks::none,2010-11-19,22:15,,,0.00
 USD::u.s. baker hughes oil rig count::none,2010-11-20,01:00,731,,720
 AUD::cftc aud speculative net positions::none,2010-11-20,04:30,36.2K,,47.6K
 CAD::cftc cad speculative net positions::none,2010-11-20,04:30,38.4K,,37.3K
@@ -6033,7 +6033,7 @@ MXN::economic activity::y/y,2010-11-22,22:00,5.00%,5.50%,7.30%
 MXN::gdp::y/y,2010-11-22,22:00,5.30%,5.80%,7.60%
 EUR::consumer confidence::none,2010-11-22,23:00,-10.0,-10.0,-11.0
 NA::japan - labour thanksgiving day::none,2010-11-23,All Day,,,
-EUR::ecb president trichet speaks::none,2010-11-23,00:00,,,
+EUR::ecb president trichet speaks::none,2010-11-23,00:00,,,0.00
 NZD::inflation expectations::q/q,2010-11-23,10:00,2.6%,,2.6%
 EUR::german gdp::q/q,2010-11-23,15:00,0.7%,0.7%,0.7%
 EUR::french business survey::none,2010-11-23,15:45,100,101,102
@@ -6054,7 +6054,7 @@ USD::existing home sales::none,2010-11-23,23:00,4.43M,4.42M,4.53M
 USD::mass layoffs::none,2010-11-23,23:00,1.65K,,1.49K
 USD::richmond manufacturing index::none,2010-11-23,23:00,9,6,5
 ARS::unemployment rate::none,2010-11-24,03:00,7.5%,8.1%,7.9%
-USD::fomc meeting minutes::none,2010-11-24,03:00,,,
+USD::fomc meeting minutes::none,2010-11-24,03:00,,,0.00
 USD::bloomberg consumer confidence::none,2010-11-24,05:00,26.5,,26.5
 AUD::construction work done::q/q,2010-11-24,08:30,-2.1%,2.1%,4.5%
 EUR::italian retail sales::m/m,2010-11-24,17:00,-0.2%,0.3%,0.1%
@@ -6064,7 +6064,7 @@ GBP::index of services::none,2010-11-24,17:30,0.6%,0.6%,0.2%
 GBP::business investment::q/q,2010-11-24,17:30,-0.2%,0.6%,0.7%
 EUR::industrial new orders::m/m,2010-11-24,18:00,-3.8%,-2.7%,5.1%
 USD::mba mortgage applications::w/w,2010-11-24,20:00,2.1%,,-14.4%
-GBP::boe mpc member sentance speaks::none,2010-11-24,20:20,,,
+GBP::boe mpc member sentance speaks::none,2010-11-24,20:20,,,0.00
 CAD::corporate profits::q/q,2010-11-24,21:30,-0.3%,,-1.8%
 USD::core pce price index::m/m,2010-11-24,21:30,0.0%,0.1%,0.0%
 USD::durable goods orders::m/m,2010-11-24,21:30,-3.3%,-0.3%,5.0%
@@ -6169,8 +6169,8 @@ CAD::gdp::m/m,2010-11-30,21:30,-0.1%,0.1%,0.3%
 USD::s&p/cs hpi composite - 20 n.s.a.::y/y,2010-11-30,22:00,0.6%,1.0%,1.7%
 USD::chicago pmi::none,2010-11-30,22:45,62.5,59.8,60.6
 USD::cb consumer confidence::none,2010-11-30,23:00,54.1,52.0,49.9
-EUR::ecb president trichet speaks::none,2010-11-30,23:30,,,
-USD::fed chairman bernanke speaks::none,2010-12-01,04:00,,,
+EUR::ecb president trichet speaks::none,2010-11-30,23:30,,,0.00
+USD::fed chairman bernanke speaks::none,2010-12-01,04:00,,,0.00
 USD::bloomberg consumer confidence::none,2010-12-01,05:00,27.5,,26.5
 AUD::aig manufacturing index::none,2010-12-01,06:30,47.6,,49.4
 AUD::gdp::q/q,2010-12-01,08:30,0.2%,0.5%,1.1%
@@ -6370,7 +6370,7 @@ USD::philly fed employment::none,2010-12-01,17:00,10.70,,6.10
 USD::private nonfarm payrolls::none,2010-12-01,17:00,131.00K,,198.00K
 USD::retail control::m/m,2010-12-01,17:00,1.00%,,0.50%
 USD::s&p/cs hpi composite - 20 n.s.a.::m/m,2010-12-01,17:00,-1.00%,,-1.40%
-USD::beige book::none,2010-12-02,03:00,,,
+USD::beige book::none,2010-12-02,03:00,,,0.00
 NZD::globaldairytrade price index::none,2010-12-02,04:00,1.90%,,-0.80%
 USD::fed's balance sheet::none,2010-12-02,04:30,"2,346.92B",,"2,346.00B"
 JPY::monetary base::y/y,2010-12-02,07:50,7.6%,6.9%,6.4%
@@ -6390,7 +6390,7 @@ USD::pending home sales::m/m,2010-12-02,23:00,10.4%,-0.9%,-1.8%
 USD::natural gas storage::none,2010-12-02,23:30,-23B,-26B,-6B
 USD::total vehicle sales::none,2010-12-02,Tentative,12.30M,12.10M,12.30M
 AUD::aig services index::none,2010-12-03,06:30,46.2,,50.7
-EUR::ecb president trichet speaks::none,2010-12-03,15:30,,,
+EUR::ecb president trichet speaks::none,2010-12-03,15:30,,,0.00
 CHF::cpi::m/m,2010-12-03,16:15,0.2%,0.1%,0.5%
 EUR::retail sales::m/m,2010-12-03,18:00,0.5%,0.2%,-0.1%
 CAD::employment change::none,2010-12-03,20:00,15.2K,20.0K,3.0K
@@ -6417,7 +6417,7 @@ USD::cftc silver speculative net positions::none,2010-12-04,04:30,34.0K,,30.4K
 USD::cftc crude oil speculative net positions::none,2010-12-04,04:30,146.9k,,141.4k
 USD::cftc gold speculative net positions::none,2010-12-04,04:30,227.6K,,221.3K
 AUD::mi inflation gauge::m/m,2010-12-06,07:30,0.4%,,0.3%
-USD::fed chairman bernanke speaks::none,2010-12-06,08:00,,,
+USD::fed chairman bernanke speaks::none,2010-12-06,08:00,,,0.00
 AUD::anz job advertisements::m/m,2010-12-06,08:30,2.90%,,0.70%
 TWD::cpi::y/y,2010-12-06,16:00,1.50%,0.90%,0.50%
 EUR::sentix investor confidence::none,2010-12-06,17:30,9.7,11.0,14.0
@@ -6511,7 +6511,7 @@ USD::import price index::m/m,2010-12-10,21:30,1.3%,0.8%,1.0%
 USD::trade balance::none,2010-12-10,21:30,-38.7B,-44.4B,-44.6B
 USD::michigan 1 - year inflation expectations::none,2010-12-10,22:55,2.9%,,3.0%
 USD::michigan consumer sentiment::none,2010-12-10,22:55,74.2,72.5,71.6
-EUR::ecb president trichet speaks::none,2010-12-11,00:15,,,
+EUR::ecb president trichet speaks::none,2010-12-11,00:15,,,0.00
 USD::u.s. baker hughes oil rig count::none,2010-12-11,01:00,763,,742
 USD::federal budget balance::none,2010-12-11,03:00,-150.4B,-134.0B,-140.4B
 AUD::cftc aud speculative net positions::none,2010-12-11,04:30,43.4K,,26.6K
@@ -6540,7 +6540,7 @@ GBP::ppi input::m/m,2010-12-13,17:30,0.9%,0.5%,2.2%
 CAD::capacity utilization rate::none,2010-12-13,21:30,78.1%,75.8%,76.9%
 MXN::industrial production::y/y,2010-12-13,23:00,3.7%,4.8%,6.6%
 CAD::boc gov carney speaks::none,2010-12-14,01:10,,,
-EUR::ecb president trichet speaks::none,2010-12-14,02:30,,,
+EUR::ecb president trichet speaks::none,2010-12-14,02:30,,,0.00
 AUD::housing starts::q/q,2010-12-14,08:30,-13.20%,-5.00%,2.10%
 AUD::nab business confidence::none,2010-12-14,08:30,6,,8
 JPY::industrial production::m/m,2010-12-14,12:30,-2.0%,-1.8%,-1.8%
@@ -6602,7 +6602,7 @@ USD::fed's balance sheet::none,2010-12-16,04:30,"2,385.75B",,"2,382.29B"
 NZD::westpac consumer sentiment::none,2010-12-16,05:00,108.3,,114.1
 NZD::business nz pmi::none,2010-12-16,05:30,52.7,,50.0
 AUD::mi inflation expectations::none,2010-12-16,08:00,2.8%,,3.1%
-AUD::rba bulletin::none,2010-12-16,08:30,,,
+AUD::rba bulletin::none,2010-12-16,08:30,,,0.00
 NZD::anz business confidence::none,2010-12-16,10:00,29.50,,33.20
 CHF::industrial production::q/q,2010-12-16,16:15,1.8%,0.9%,5.8%
 CHF::snb interest rate decision::none,2010-12-16,16:30,0.25%,0.25%,0.25%
@@ -6672,7 +6672,7 @@ NZD::current account::q/q,2010-12-22,05:45,-1.77B,-2.23B,-0.99B
 USD::bloomberg consumer confidence::none,2010-12-22,06:00,29.5,,28.5
 AUD::mi leading index::m/m,2010-12-22,07:30,0.3%,,0.0%
 JPY::adjusted trade balance::none,2010-12-22,07:50,0.43T,0.63T,0.58T
-JPY::boj monthly report::none,2010-12-22,13:00,,,
+JPY::boj monthly report::none,2010-12-22,13:00,,,0.00
 EUR::german import price index::m/m,2010-12-22,15:00,1.2%,0.5%,-0.2%
 DKK::gdp::q/q,2010-12-22,16:30,1.0%,2.9%,1.3%
 EUR::italian retail sales::m/m,2010-12-22,17:00,0.3%,0.2%,-0.3%
@@ -6759,7 +6759,7 @@ NA::hong kong - christmas::none,2010-12-27,All Day,,,
 NA::south africa - christmas::none,2010-12-27,All Day,,,
 NA::united kingdom - christmas::none,2010-12-27,All Day,,,
 JPY::corporate services price index (cspi)::y/y,2010-12-27,07:50,-1.1%,-1.1%,-1.3%
-JPY::monetary policy meeting minutes::none,2010-12-27,07:50,,,
+JPY::monetary policy meeting minutes::none,2010-12-27,07:50,,,0.00
 JPY::housing starts::y/y,2010-12-27,13:00,6.8%,5.0%,6.4%
 NA::australia - boxing day::none,2010-12-28,All Day,,,
 NA::united kingdom - christmas::none,2010-12-28,All Day,,,

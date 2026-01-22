@@ -135,7 +135,7 @@ USD::ism - new york index::none,2017-01-04,22:45,727.4,,720.5
 EUR::irish exchequer returns::none,2017-01-05,00:30,-1.010B,,1.521B
 USD::all truck sales::none,2017-01-05,02:30,11.17M,,10.71M
 USD::domestic truck sales::none,2017-01-05,02:30,9.25M,8.70M,8.92M
-USD::fomc meeting minutes::none,2017-01-05,03:00,,,
+USD::fomc meeting minutes::none,2017-01-05,03:00,,,0.00
 USD::all car sales::none,2017-01-05,04:00,7.26M,,7.16M
 USD::domestic car sales::none,2017-01-05,04:00,5.30M,,5.21M
 USD::total vehicle sales::none,2017-01-05,04:00,18.43M,17.69M,17.87M
@@ -780,7 +780,7 @@ USD::cleveland cpi::m/m,2017-01-19,00:00,0.2%,,0.2%
 USD::fomc member kashkari speaks::none,2017-01-19,00:00,,,
 CAD::boc gov poloz speaks::none,2017-01-19,00:15,,,
 COP::retail sales::y/y,2017-01-19,03:00,4.9%,-1.0%,-0.7%
-USD::beige book::none,2017-01-19,03:00,,,
+USD::beige book::none,2017-01-19,03:00,,,0.00
 COP::industrial production::y/y,2017-01-19,03:30,1.6%,1.5%,0.4%
 USD::fed chair yellen speaks::none,2017-01-19,04:00,,,
 USD::fed's balance sheet::none,2017-01-19,04:30,"4,460.76B",,"4,452.51B"
@@ -1535,7 +1535,7 @@ EUR::irish exchequer returns::none,2017-02-03,00:30,1.470B,,-1.012B
 COP::exports::y/y,2017-02-03,06:00,32.70%,,12.60%
 AUD::aig services index::none,2017-02-03,06:30,54.5,,57.7
 KRW::current account::none,2017-02-03,07:00,8.57B,,7.05B
-JPY::monetary policy meeting minutes::none,2017-02-03,07:50,,,
+JPY::monetary policy meeting minutes::none,2017-02-03,07:50,,,0.00
 EUR::irish consumer confidence::none,2017-02-03,08:00,103.1,,96.2
 NZD::anz commodity price index::m/m,2017-02-03,08:00,-0.1%,,0.7%
 BRL::ipc - fipe inflation index::m/m,2017-02-03,15:00,0.32%,0.51%,0.72%
@@ -2407,7 +2407,7 @@ COP::gdp::q/q,2017-02-23,02:00,1.6%,0.9%,0.3%
 COP::gdp::y/y,2017-02-23,02:00,2.0%,1.4%,1.2%
 USD::fomc member powell speaks::none,2017-02-23,02:00,,,
 USD::5 - year note auction::none,2017-02-23,02:00,1.937%,,1.988%
-USD::fomc meeting minutes::none,2017-02-23,03:00,,,
+USD::fomc meeting minutes::none,2017-02-23,03:00,,,0.00
 USD::fed's balance sheet::none,2017-02-23,04:30,"4,468.70B",,"4,454.68B"
 USD::api weekly crude oil stock::none,2017-02-23,05:35,-0.884M,3.300M,9.940M
 BRL::interest rate decision::none,2017-02-23,07:20,12.25%,12.25%,13.00%
@@ -2822,7 +2822,7 @@ USD::cushing crude oil inventories::none,2017-03-01,23:30,0.495M,,-1.528M
 USD::fomc member kaplan speaks::none,2017-03-02,02:00,,,
 USD::all truck sales::none,2017-03-02,02:30,11.05M,,11.03M
 USD::domestic truck sales::none,2017-03-02,02:30,9.28M,9.00M,9.22M
-USD::beige book::none,2017-03-02,03:00,,,
+USD::beige book::none,2017-03-02,03:00,,,0.00
 ARS::tax revenue::none,2017-03-02,03:35,172.22B,175.00B,172.22B
 NZD::rbnz gov wheeler speaks::none,2017-03-02,04:00,,,
 USD::all car sales::none,2017-03-02,04:00,6.53M,,6.58M
@@ -3500,7 +3500,7 @@ JPY::foreign bonds buying::none,2017-03-16,07:50,-703.9B,,"-1,129.5B"
 JPY::foreign investments in japanese stocks::none,2017-03-16,07:50,-722.7B,,-165.9B
 AUD::mi inflation expectations::none,2017-03-16,08:00,4.0%,,4.1%
 AUD::participation rate::none,2017-03-16,08:30,64.6%,64.6%,64.6%
-AUD::rba bulletin::none,2017-03-16,08:30,,,
+AUD::rba bulletin::none,2017-03-16,08:30,,,0.00
 AUD::employment change::none,2017-03-16,08:30,-6.4K,16.0K,13.5K
 AUD::full employment change::none,2017-03-16,08:30,27.1K,,-44.1K
 AUD::unemployment rate::none,2017-03-16,08:30,5.9%,5.7%,5.7%
@@ -3729,7 +3729,7 @@ AUD::mi leading index::m/m,2017-03-22,07:30,-0.1%,,0.0%
 JPY::imports::y/y,2017-03-22,07:50,1.2%,0.6%,8.5%
 JPY::adjusted trade balance::none,2017-03-22,07:50,0.68T,0.55T,0.20T
 JPY::exports::y/y,2017-03-22,07:50,11.3%,10.6%,1.3%
-JPY::monetary policy meeting minutes::none,2017-03-22,07:50,,,
+JPY::monetary policy meeting minutes::none,2017-03-22,07:50,,,0.00
 JPY::trade balance::none,2017-03-22,07:50,813B,822B,"-1,087B"
 TWD::unemployment rate::none,2017-03-22,08:30,3.83%,,3.84%
 AUD::rba assist gov debelle speaks::none,2017-03-22,09:40,,,
@@ -4414,7 +4414,7 @@ USD::cushing crude oil inventories::none,2017-04-05,22:30,1.413M,,-0.220M
 BRL::foreign exchange flows::none,2017-04-05,23:30,2.88B,,3.47B
 NA::thailand - chakri day::none,2017-04-06,All Day,,,
 NA::vietnam - hung king ann::none,2017-04-06,All Day,,,
-USD::fomc meeting minutes::none,2017-04-06,02:00,,,
+USD::fomc meeting minutes::none,2017-04-06,02:00,,,0.00
 USD::fed's balance sheet::none,2017-04-06,04:30,"4,474.63B",,"4,469.62B"
 AUD::rba assist gov debelle speaks::none,2017-04-06,06:40,,,
 TWD::cpi::m/m,2017-04-06,08:30,-0.30%,,0.65%
@@ -5128,7 +5128,7 @@ USD::cushing crude oil inventories::none,2017-04-19,22:30,-0.778M,,0.276M
 BRL::foreign exchange flows::none,2017-04-19,23:30,7.05B,,2.96B
 NA::iceland - summer day::none,2017-04-20,All Day,,,
 USD::fomc member rosengren speaks::none,2017-04-20,00:00,,,
-USD::beige book::none,2017-04-20,02:00,,,
+USD::beige book::none,2017-04-20,02:00,,,0.00
 USD::fed's balance sheet::none,2017-04-20,04:30,"4,479.27B",,"4,484.49B"
 NZD::cpi::q/q,2017-04-20,06:45,1.0%,0.8%,0.4%
 NZD::cpi::y/y,2017-04-20,06:45,2.2%,2.0%,1.3%
@@ -5197,7 +5197,7 @@ USD::5 - year tips auction::none,2017-04-21,01:00,-0.049%,,0.120%
 USD::treasury secretary mnuchin speaks::none,2017-04-21,01:15,,,
 BRL::caged net payroll jobs::none,2017-04-21,02:00,-63.62K,-5.00K,35.61K
 JPY::tertiary industry activity index::m/m,2017-04-21,12:30,0.2%,0.3%,-0.2%
-NOK::industrial confidence::none,2017-04-21,14:00,1.0,3.0,
+NOK::industrial confidence::none,2017-04-21,14:00,1.0,3.0,0.0
 NOK::trade balance::none,2017-04-21,14:00,22.7B,,23.5B
 MYR::fx reserves usd::none,2017-04-21,15:00,95.7B,,95.4B
 THB::currency swaps (usd)::none,2017-04-21,15:30,27.4B,,25.7B
@@ -5766,7 +5766,7 @@ NA::vietnam - liberation day::none,2017-05-02,All Day,,,
 KRW::cpi::m/m,2017-05-02,07:00,-0.1%,,0.0%
 KRW::cpi::y/y,2017-05-02,07:00,1.9%,2.0%,2.2%
 JPY::monetary base::y/y,2017-05-02,07:50,19.8%,21.2%,20.3%
-JPY::monetary policy meeting minutes::none,2017-05-02,07:50,,,
+JPY::monetary policy meeting minutes::none,2017-05-02,07:50,,,0.00
 JPY::boj governor kuroda speaks::none,2017-05-02,08:20,,,
 KRW::s&p global south korea manufacturing pmi::none,2017-05-02,08:30,49.4,,48.4
 IDR::core inflation::y/y,2017-05-02,12:00,3.28%,3.35%,3.30%
@@ -6869,7 +6869,7 @@ NA::zambia - african freedom day::none,2017-05-25,All Day,,,
 NA::zimbabwe - africa day::none,2017-05-25,All Day,,,
 EUR::france jobseekers total::none,2017-05-25,00:00,"3,471.8K",,"3,508.1K"
 USD::5 - year note auction::none,2017-05-25,01:00,1.831%,,1.875%
-USD::fomc meeting minutes::none,2017-05-25,02:00,,,
+USD::fomc meeting minutes::none,2017-05-25,02:00,,,0.00
 USD::treasury secretary mnuchin speaks::none,2017-05-25,02:00,,,
 USD::fed's balance sheet::none,2017-05-25,04:30,"4,470.85B",,"4,467.11B"
 USD::fomc member kaplan speaks::none,2017-05-25,06:00,,,
@@ -7210,7 +7210,7 @@ NA::indonesia - pancasila day::none,2017-06-01,All Day,,,
 NA::kenya - madaraka day::none,2017-06-01,All Day,,,
 NA::mongolia - mother and children's day::none,2017-06-01,All Day,,,
 NA::romania - children's day::none,2017-06-01,All Day,,,
-USD::beige book::none,2017-06-01,02:00,,,
+USD::beige book::none,2017-06-01,02:00,,,0.00
 ARS::industrial production::y/y,2017-06-01,03:00,-2.3%,1.5%,-0.4%
 HKD::m3 money supply::none,2017-06-01,04:00,14.4%,,13.7%
 IDR::m2 money supply::y/y,2017-06-01,04:00,10.00%,,10.00%
@@ -7914,7 +7914,7 @@ JPY::foreign bonds buying::none,2017-06-15,07:50,526.6B,,-345.4B
 JPY::foreign investments in japanese stocks::none,2017-06-15,07:50,-143.1B,,543.5B
 AUD::mi inflation expectations::none,2017-06-15,09:00,3.6%,,4.0%
 AUD::participation rate::none,2017-06-15,09:30,64.9%,64.8%,64.8%
-AUD::rba bulletin::none,2017-06-15,09:30,,,
+AUD::rba bulletin::none,2017-06-15,09:30,,,0.00
 AUD::employment change::none,2017-06-15,09:30,42.0K,10.0K,46.2K
 AUD::full employment change::none,2017-06-15,09:30,52.1K,,-5.7K
 AUD::unemployment rate::none,2017-06-15,09:30,5.5%,5.7%,5.7%
@@ -8157,7 +8157,7 @@ BWP::interest rate decision::none,2017-06-21,04:00,5.50%,,5.50%
 KWD::cpi::m/m,2017-06-21,04:00,0.10%,,-0.10%
 KWD::cpi::y/y,2017-06-21,04:00,2.70%,,2.60%
 USD::api weekly crude oil stock::none,2017-06-21,04:35,-2.720M,-2.100M,2.750M
-JPY::monetary policy meeting minutes::none,2017-06-21,07:50,,,
+JPY::monetary policy meeting minutes::none,2017-06-21,07:50,,,0.00
 AUD::mi leading index::m/m,2017-06-21,08:30,0.0%,,-0.1%
 MYR::cpi::y/y,2017-06-21,12:00,3.9%,4.0%,4.4%
 EUR::dutch consumer confidence::none,2017-06-21,12:30,23.0,,23.0
@@ -8875,7 +8875,7 @@ NA::kazakhstan - day of capital::none,2017-07-06,All Day,,,
 NA::lithuania - state holiday::none,2017-07-06,All Day,,,
 NA::malawi - independence day::none,2017-07-06,All Day,,,
 COP::exports::y/y,2017-07-06,00:00,23.40%,,6.80%
-USD::fomc meeting minutes::none,2017-07-06,02:00,,,
+USD::fomc meeting minutes::none,2017-07-06,02:00,,,0.00
 USD::fed's balance sheet::none,2017-07-06,04:30,"4,467.27B",,"4,463.35B"
 USD::api weekly crude oil stock::none,2017-07-06,04:35,-5.764M,-1.600M,0.851M
 JPY::foreign bonds buying::none,2017-07-06,07:50,-772.8B,,325.5B
@@ -9233,7 +9233,7 @@ BRL::foreign exchange flows::none,2017-07-12,23:30,-1.19B,,-4.30B
 NA::mongolia - naadam festival::none,2017-07-13,All Day,,,
 NA::montenegro - statehood day::none,2017-07-13,All Day,,,
 USD::10 - year note auction::none,2017-07-13,01:00,2.325%,,2.195%
-USD::beige book::none,2017-07-13,02:00,,,
+USD::beige book::none,2017-07-13,02:00,,,0.00
 USD::fomc member george speaks::none,2017-07-13,02:15,,,
 USD::fed's balance sheet::none,2017-07-13,04:30,"4,466.70B",,"4,467.27B"
 NZD::fpi::m/m,2017-07-13,06:45,0.2%,,2.4%
@@ -9680,7 +9680,7 @@ USD::6 - month bill auction::none,2017-07-24,23:30,1.130%,,1.105%
 NA::costa rica - annexation of guanacaste day::none,2017-07-25,All Day,,,
 NA::tunisia - republic day::none,2017-07-25,All Day,,,
 KRW::consumer confidence::none,2017-07-25,05:00,111,,111
-JPY::monetary policy meeting minutes::none,2017-07-25,07:50,,,
+JPY::monetary policy meeting minutes::none,2017-07-25,07:50,,,0.00
 EUR::finnish unemployment rate::none,2017-07-25,14:00,8.7%,,8.7%
 EUR::german import price index::m/m,2017-07-25,14:00,-1.1%,-0.7%,-1.0%
 EUR::german import price index::y/y,2017-07-25,14:00,2.5%,2.9%,4.1%
@@ -9902,7 +9902,7 @@ RUB::interest rate decision::none,2017-07-28,18:30,9.00%,9.00%,9.00%
 BRL::igp - m inflation index::m/m,2017-07-28,19:00,-0.72%,-0.65%,-0.67%
 "INR::fx reserves, usd::none",2017-07-28,19:30,391.33B,,389.06B
 BRL::unemployment rate::none,2017-07-28,20:00,13.0%,13.5%,13.3%
-UAH::current account (usd)::none,2017-07-28,20:00,-1.570B,,
+UAH::current account (usd)::none,2017-07-28,20:00,-1.570B,,0.000B
 CAD::gdp::m/m,2017-07-28,20:30,0.6%,0.2%,0.2%
 USD::gdp::q/q,2017-07-28,20:30,2.6%,2.6%,1.2%
 USD::employment benefits::q/q,2017-07-28,20:30,0.60%,,0.70%
@@ -10800,7 +10800,7 @@ USD::heating oil stockpiles::none,2017-08-16,22:30,0.555M,,-0.703M
 USD::cushing crude oil inventories::none,2017-08-16,22:30,0.678M,,0.569M
 BRL::foreign exchange flows::none,2017-08-16,23:30,2.53B,,0.36B
 NA::indonesia - independence day::none,2017-08-17,All Day,,,
-USD::fomc meeting minutes::none,2017-08-17,02:00,,,
+USD::fomc meeting minutes::none,2017-08-17,02:00,,,0.00
 USD::fed's balance sheet::none,2017-08-17,04:30,"4,462.87B",,"4,469.08B"
 NZD::ppi output::q/q,2017-08-17,06:45,1.3%,,1.4%
 NZD::ppi input::q/q,2017-08-17,06:45,1.4%,,0.8%
@@ -11754,7 +11754,7 @@ USD::ism non - manufacturing employment::none,2017-09-06,22:00,56.2,,53.6
 "USD::payrolls benchmark, n.s.a.::none",2017-09-06,22:00,95.00K,,-81.00K
 BRL::foreign exchange flows::none,2017-09-06,23:30,-0.28B,,-0.14B
 NA::brazil - independence day::none,2017-09-07,All Day,,,
-USD::beige book::none,2017-09-07,02:00,,,
+USD::beige book::none,2017-09-07,02:00,,,0.00
 USD::fed's balance sheet::none,2017-09-07,04:30,"4,453.47B",,"4,452.36B"
 USD::api weekly crude oil stock::none,2017-09-07,04:35,2.791M,4.000M,-5.780M
 BRL::interest rate decision::none,2017-09-07,05:00,8.25%,8.25%,9.25%
@@ -12424,7 +12424,7 @@ NZD::gdp expenditure::q/q,2017-09-21,06:45,1.1%,1.2%,0.5%
 NZD::permanent/long - term migration::none,2017-09-21,06:45,"5,490",,"5,750"
 NZD::visitor arrivals::m/m,2017-09-21,06:45,-0.3%,,-5.3%
 NZD::gdp::q/q,2017-09-21,06:45,0.8%,0.8%,0.6%
-AUD::rba bulletin::none,2017-09-21,09:30,,,
+AUD::rba bulletin::none,2017-09-21,09:30,,,0.00
 JPY::boj interest rate decision::none,2017-09-21,11:00,-0.10%,-0.10%,-0.10%
 JPY::boj monetary policy statement::none,2017-09-21,11:00,,,
 NZD::credit card spending::y/y,2017-09-21,11:00,6.4%,,7.1%
@@ -12605,7 +12605,7 @@ NZD::trade balance::m/m,2017-09-26,05:45,"-1,235M",-825M,98M
 NZD::trade balance::y/y,2017-09-26,05:45,"-3,200M","-2,910M","-3,210M"
 USD::fomc member kashkari speaks::none,2017-09-26,06:30,,,
 JPY::corporate services price index (cspi)::y/y,2017-09-26,07:50,0.8%,0.7%,0.6%
-JPY::monetary policy meeting minutes::none,2017-09-26,07:50,,,
+JPY::monetary policy meeting minutes::none,2017-09-26,07:50,,,0.00
 NZD::anz business confidence::none,2017-09-26,09:00,0.0,,18.3
 NZD::nbnz own activity::none,2017-09-26,09:00,29.6%,,38.2%
 SGD::industrial production::m/m,2017-09-26,13:00,0.6%,-0.4%,0.9%
@@ -13440,7 +13440,7 @@ NA::israel - rejoicing of the law (simchat tora)::none,2017-10-12,All Day,,,
 NA::venezuela - columbus day::none,2017-10-12,All Day,,,
 USD::10 - year note auction::none,2017-10-12,01:00,2.346%,,2.180%
 USD::3 - year note auction::none,2017-10-12,01:00,1.657%,,1.433%
-USD::fomc meeting minutes::none,2017-10-12,02:00,,,
+USD::fomc meeting minutes::none,2017-10-12,02:00,,,0.00
 USD::fomc member williams speaks::none,2017-10-12,02:40,,,
 EUR::ecb's praet speaks::none,2017-10-12,02:50,,,
 USD::fed's balance sheet::none,2017-10-12,04:30,"4,459.42B",,"4,460.42B"
@@ -13797,7 +13797,7 @@ COP::imports::y/y,2017-10-18,23:00,-0.60%,,11.80%
 COP::trade balance (usd)::none,2017-10-18,23:00,-0.930B,-0.900B,-0.520B
 NA::india - diwali - laxmi puja::none,2017-10-19,All Day,,,
 NA::mauritius - divali::none,2017-10-19,All Day,,,
-USD::beige book::none,2017-10-19,02:00,,,
+USD::beige book::none,2017-10-19,02:00,,,0.00
 USD::fed's balance sheet::none,2017-10-19,04:30,"4,469.72B",,"4,459.42B"
 JPY::foreign bonds buying::none,2017-10-19,07:50,269.7B,,93.7B
 JPY::foreign investments in japanese stocks::none,2017-10-19,07:50,840.7B,,"1,235.3B"
@@ -14589,7 +14589,7 @@ NA::colombia - all saint's day::none,2017-11-06,All Day,,,
 NA::morocco - day of the green march::none,2017-11-06,All Day,,,
 NA::russia - unity day::none,2017-11-06,All Day,,,
 NA::venezuela - all saint's day::none,2017-11-06,All Day,,,
-JPY::monetary policy meeting minutes::none,2017-11-06,07:50,,,
+JPY::monetary policy meeting minutes::none,2017-11-06,07:50,,,0.00
 AUD::mi inflation gauge::m/m,2017-11-06,08:00,0.3%,,0.3%
 NZD::anz commodity price index::m/m,2017-11-06,08:00,-0.3%,,0.8%
 AUD::anz job advertisements::m/m,2017-11-06,08:30,1.4%,,-0.7%
@@ -15446,7 +15446,7 @@ NA::japan - labour thanksgiving day::none,2017-11-23,All Day,,,
 NA::united states - thanksgiving day::none,2017-11-23,All Day,,,
 USD::natural gas storage::none,2017-11-23,01:00,-46B,-51B,-18B
 USD::u.s. baker hughes oil rig count::none,2017-11-23,02:00,747,,738
-USD::fomc meeting minutes::none,2017-11-23,03:00,,,
+USD::fomc meeting minutes::none,2017-11-23,03:00,,,0.00
 USD::fed's balance sheet::none,2017-11-23,04:30,"4,450.62B",,"4,448.29B"
 NZD::retail sales quarterly vs. year ago::none,2017-11-23,05:45,4.1%,,5.4%
 NZD::core retail sales::q/q,2017-11-23,05:45,0.5%,0.9%,1.9%
@@ -15741,7 +15741,7 @@ NA::romania - st. andrew's day::none,2017-11-30,All Day,,,
 NA::united arab emirates - commemoration day::none,2017-11-30,All Day,,,
 EUR::german buba president weidmann speaks::none,2017-11-30,01:00,,,
 USD::fomc member williams speaks::none,2017-11-30,01:45,,,
-USD::beige book::none,2017-11-30,03:00,,,
+USD::beige book::none,2017-11-30,03:00,,,0.00
 USD::fed's balance sheet::none,2017-11-30,04:30,"4,438.59B",,"4,450.62B"
 NZD::building consents::m/m,2017-11-30,05:45,-9.6%,,-2.5%
 KRW::industrial production::m/m,2017-11-30,07:00,-1.1%,0.2%,0.2%
@@ -16668,7 +16668,7 @@ TRY::quarterly 3 - month jobless average::none,2017-12-15,15:00,10.6%,,10.6%
 THB::currency swaps (usd)::none,2017-12-15,15:30,32.4B,,33.2B
 THB::foreign reserves (usd)::none,2017-12-15,15:30,203.3B,,203.1B
 TRY::budget balance::none,2017-12-15,16:00,8.50B,,-3.30B
-BWP::cpi::m/m,2017-12-15,17:20,0.2%,,
+BWP::cpi::m/m,2017-12-15,17:20,0.2%,,0.1%
 BWP::cpi::y/y,2017-12-15,17:20,2.9%,,3.0%
 EUR::trade balance::none,2017-12-15,18:00,18.9B,24.6B,26.4B
 RUB::interest rate decision::none,2017-12-15,18:30,7.75%,8.00%,8.25%
@@ -16739,7 +16739,7 @@ JPY::usd/jpy index::none,2017-12-18,14:30,63.4%,,60.1%
 NZD::nzd/usd index::none,2017-12-18,14:30,49.4%,,54.0%
 USD::gold index::none,2017-12-18,14:30,62.8%,,66.7%
 THB::interest rate decision::none,2017-12-18,15:05,1.50%,1.50%,1.50%
-CZK::ppi::m/m,2017-12-18,16:00,-0.1%,0.3%,
+CZK::ppi::m/m,2017-12-18,16:00,-0.1%,0.3%,0.0%
 CZK::ppi::y/y,2017-12-18,16:00,0.9%,1.3%,1.1%
 EUR::austrian hicp::m/m,2017-12-18,16:00,0.1%,,0.2%
 EUR::austrian hicp::y/y,2017-12-18,16:00,2.4%,,2.3%
@@ -16775,7 +16775,7 @@ UGX::interest rate decision::none,2017-12-18,Tentative,9.50%,,9.50%
 NA::kazakhstan - independence day::none,2017-12-19,All Day,,,
 USD::3 - month bill auction::none,2017-12-19,00:30,1.355%,,1.320%
 USD::6 - month bill auction::none,2017-12-19,00:30,1.480%,,1.460%
-KRW::ppi::m/m,2017-12-19,05:00,-0.1%,,
+KRW::ppi::m/m,2017-12-19,05:00,-0.1%,,0.0%
 KRW::ppi::y/y,2017-12-19,05:00,3.1%,,3.6%
 NZD::westpac consumer sentiment::none,2017-12-19,05:00,107.4,,112.4
 NZD::anz business confidence::none,2017-12-19,08:00,-37.8,,-39.3
@@ -16879,7 +16879,7 @@ NZD::gdp::q/q,2017-12-21,05:45,0.6%,0.5%,1.0%
 JPY::foreign bonds buying::none,2017-12-21,07:50,51.0B,,-490.2B
 JPY::foreign investments in japanese stocks::none,2017-12-21,07:50,-622.5B,,-155.3B
 GBP::gfk consumer confidence::none,2017-12-21,08:00,-13,-12,-12
-AUD::rba bulletin::none,2017-12-21,08:30,,,
+AUD::rba bulletin::none,2017-12-21,08:30,,,0.00
 THB::custom - based export data::none,2017-12-21,11:30,13.40%,6.40%,13.10%
 THB::custom - based import data::none,2017-12-21,11:30,13.70%,12.80%,13.50%
 THB::custom - based trade data (usd)::none,2017-12-21,11:30,1.760B,0.720B,0.210B
@@ -16963,7 +16963,7 @@ INR::rbi financial stability report::none,2017-12-21,Tentative,,,
 JPY::boj interest rate decision::none,2017-12-21,Tentative,-0.10%,-0.10%,-0.10%
 JPY::boj monetary policy statement::none,2017-12-21,Tentative,,,
 NA::zimbabwe - national unity day::none,2017-12-22,All Day,,,
-USD::5 - year tips auction::none,2017-12-22,02:00,0.370%,,
+USD::5 - year tips auction::none,2017-12-22,02:00,0.370%,,0.117%
 ARS::current account (usd)::none,2017-12-22,03:00,-9M,,-6M
 EUR::dutch gdp::q/q,2017-12-22,13:30,0.4%,0.4%,0.4%
 EUR::dutch gdp::y/y,2017-12-22,13:30,3.0%,,3.0%
@@ -17201,7 +17201,7 @@ JPY::national cpi::m/m,2017-12-26,07:30,0.7%,,0.0%
 JPY::national core cpi::y/y,2017-12-26,07:30,0.9%,0.8%,0.8%
 JPY::tokyo core cpi::y/y,2017-12-26,07:30,0.8%,0.7%,0.6%
 JPY::corporate services price index (cspi)::y/y,2017-12-26,07:50,0.8%,0.8%,0.8%
-JPY::monetary policy meeting minutes::none,2017-12-26,07:50,,,
+JPY::monetary policy meeting minutes::none,2017-12-26,07:50,,,0.00
 JPY::boj governor kuroda speaks::none,2017-12-26,12:00,,,
 SGD::industrial production::m/m,2017-12-26,13:00,-2.3%,0.7%,0.4%
 SGD::industrial production::y/y,2017-12-26,13:00,5.3%,9.0%,14.5%

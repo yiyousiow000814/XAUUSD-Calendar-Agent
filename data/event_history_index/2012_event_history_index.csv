@@ -228,7 +228,7 @@ USD::ism manufacturing prices::none,2012-01-03,23:00,47.5,47.9,45.0
 USD::construction spending::m/m,2012-01-03,23:00,1.2%,0.5%,-0.2%
 GBP::halifax house price index::m/m,2012-01-03,Tentative,,0.2%,1.0%
 NA::russia - new year's day::none,2012-01-04,All Day,,,
-USD::fomc meeting minutes::none,2012-01-04,03:15,,,
+USD::fomc meeting minutes::none,2012-01-04,03:15,,,0.00
 NZD::globaldairytrade price index::none,2012-01-04,04:00,-1.20%,,-1.40%
 EUR::french consumer spending::m/m,2012-01-04,15:45,-0.1%,0.3%,0.1%
 GBP::m4 money supply::m/m,2012-01-04,17:30,-0.6%,0.2%,-0.3%
@@ -352,7 +352,7 @@ USD::chicago fed president evans speaks::none,2012-01-11,21:40,,,
 MXN::industrial production::y/y,2012-01-11,22:00,3.2%,3.5%,3.3%
 USD::crude oil inventories::none,2012-01-11,23:30,5.000M,1.000M,2.200M
 USD::gasoline inventories::none,2012-01-11,23:30,3.600M,2.000M,2.500M
-USD::beige book::none,2012-01-12,03:00,,,
+USD::beige book::none,2012-01-12,03:00,,,0.00
 USD::fed's balance sheet::none,2012-01-12,04:30,"2,899.15B",,"2,917.69B"
 JPY::bank lending::y/y,2012-01-12,07:50,0.4%,,0.2%
 JPY::adjusted current account::none,2012-01-12,07:50,0.48T,0.44T,0.52T
@@ -467,7 +467,7 @@ USD::industrial production::m/m,2012-01-18,22:15,0.4%,0.5%,-0.3%
 USD::nahb housing market index::none,2012-01-18,23:00,25,22,21
 CAD::boc monetary policy report::none,2012-01-18,23:30,,,
 CAD::boc gov carney speaks::none,2012-01-19,00:15,,,
-USD::4 - week bill auction::none,2012-01-19,00:30,0.015%,,
+USD::4 - week bill auction::none,2012-01-19,00:30,0.015%,,0.02%
 USD::fed's balance sheet::none,2012-01-19,04:30,"2,919.42B",,"2,899.15B"
 NZD::cpi::q/q,2012-01-19,05:45,-0.3%,0.4%,0.4%
 BRL::interest rate decision::none,2012-01-19,06:00,10.50%,10.50%,11.00%
@@ -557,7 +557,7 @@ AUD::trimmed mean cpi::q/q,2012-01-25,08:30,0.6%,0.6%,0.3%
 NZD::credit card spending::y/y,2012-01-25,10:00,5.9%,,3.0%
 NZD::business nz pmi::none,2012-01-25,10:00,51.9,,46.0
 PHP::industrial production::y/y,2012-01-25,11:30,-5.2%,-5.2%,-10.8%
-JPY::boj monthly report::none,2012-01-25,13:00,,,
+JPY::boj monthly report::none,2012-01-25,13:00,,,0.00
 THB::interest rate decision::none,2012-01-25,15:30,3.00%,3.00%,3.25%
 CAD::boc gov carney speaks::none,2012-01-25,16:00,,,
 EUR::spanish ppi::y/y,2012-01-25,16:00,5.2%,6.0%,6.3%
@@ -583,7 +583,7 @@ NA::india - republic day::none,2012-01-26,All Day,,,
 USD::5 - year note auction::none,2012-01-26,00:30,0.899%,,0.880%
 USD::fomc statement::none,2012-01-26,01:30,,,
 USD::fed interest rate decision::none,2012-01-26,01:30,0.25%,0.25%,0.25%
-USD::fed chairman bernanke speaks::none,2012-01-26,03:15,,,
+USD::fed chairman bernanke speaks::none,2012-01-26,03:15,,,0.00
 NZD::rbnz interest rate decision::none,2012-01-26,04:00,2.50%,2.50%,2.50%
 NZD::rbnz rate statement::none,2012-01-26,04:00,,,
 USD::fed's balance sheet::none,2012-01-26,04:30,"2,919.55B",,"2,919.42B"
@@ -612,7 +612,7 @@ NZD::trade balance::m/m,2012-01-27,05:45,338M,-50M,-307M
 JPY::national core cpi::y/y,2012-01-27,07:30,-0.1%,-0.1%,-0.2%
 JPY::tokyo core cpi::y/y,2012-01-27,07:30,-0.4%,-0.3%,-0.3%
 JPY::retail sales::y/y,2012-01-27,07:50,2.5%,2.0%,-2.2%
-JPY::monetary policy meeting minutes::none,2012-01-27,07:50,,,
+JPY::monetary policy meeting minutes::none,2012-01-27,07:50,,,0.00
 EUR::german import price index::m/m,2012-01-27,15:00,0.3%,0.3%,0.4%
 THB::industrial production::y/y,2012-01-27,15:30,-25.8%,-30.0%,-47.2%
 EUR::spanish unemployment rate::none,2012-01-27,16:00,22.90%,21.80%,21.50%
@@ -1045,7 +1045,7 @@ USD::michigan 1 - year inflation expectations::none,2012-02-10,22:55,3.2%,,3.3%
 USD::michigan consumer sentiment::none,2012-02-10,22:55,72.5,74.3,75.0
 NA::japan - national founding day::none,2012-02-11,All Day,,,
 USD::u.s. baker hughes oil rig count::none,2012-02-11,01:00,1263,,1245
-USD::fed chairman bernanke speaks::none,2012-02-11,01:30,,,
+USD::fed chairman bernanke speaks::none,2012-02-11,01:30,,,0.00
 USD::federal budget balance::none,2012-02-11,03:00,-27.4B,-65.2B,-86.0B
 AUD::cftc aud speculative net positions::none,2012-02-11,04:30,75.1K,,78.0K
 CAD::cftc cad speculative net positions::none,2012-02-11,04:30,2.2K,,-19.4K
@@ -1102,7 +1102,7 @@ CLP::interest rate decision::none,2012-02-15,06:00,5.00%,5.00%,5.00%
 KRW::unemployment rate::none,2012-02-15,07:00,3.2%,3.2%,3.1%
 AUD::westpac consumer sentiment::none,2012-02-15,07:30,4.20%,,2.40%
 AUD::new motor vehicle sales::m/m,2012-02-15,08:30,1.3%,,-2.7%
-JPY::boj monthly report::none,2012-02-15,13:00,,,
+JPY::boj monthly report::none,2012-02-15,13:00,,,0.00
 SGD::retail sales::y/y,2012-02-15,13:00,4.2%,7.0%,6.2%
 EUR::french gdp::q/q,2012-02-15,14:30,0.2%,-0.2%,0.3%
 EUR::german gdp::q/q,2012-02-15,15:00,-0.2%,-0.3%,0.6%
@@ -1132,7 +1132,7 @@ USD::nahb housing market index::none,2012-02-15,23:00,29,26,25
 USD::crude oil inventories::none,2012-02-15,23:30,-0.200M,1.700M,0.300M
 USD::gasoline inventories::none,2012-02-15,23:30,0.400M,0.700M,1.600M
 USD::fomc member fisher speaks::none,2012-02-16,01:15,,,
-USD::fomc meeting minutes::none,2012-02-16,03:00,,,
+USD::fomc meeting minutes::none,2012-02-16,03:00,,,0.00
 NZD::globaldairytrade price index::none,2012-02-16,04:00,-3.70%,,-1.40%
 USD::fed's balance sheet::none,2012-02-16,04:30,"2,937.89B",,"2,928.28B"
 NZD::business nz pmi::none,2012-02-16,05:30,50.5,,51.6
@@ -1160,13 +1160,13 @@ USD::core ppi::m/m,2012-02-16,21:30,0.4%,0.1%,0.3%
 USD::housing starts::none,2012-02-16,21:30,0.699M,0.680M,0.689M
 MXN::economic activity::y/y,2012-02-16,22:00,3.51%,3.90%,3.80%
 MXN::gdp::y/y,2012-02-16,22:00,3.70%,3.90%,4.50%
-USD::fed chairman bernanke speaks::none,2012-02-16,22:00,,,
+USD::fed chairman bernanke speaks::none,2012-02-16,22:00,,,0.00
 USD::bloomberg consumer confidence::none,2012-02-16,22:45,30.1,,29.15
 USD::philadelphia fed manufacturing index::none,2012-02-16,23:00,10.2,8.4,7.3
 USD::mba delinquency rates::q/q,2012-02-16,23:00,7.58%,,7.99%
 USD::natural gas storage::none,2012-02-16,23:30,-127B,-126B,-78B
 VEF::gdp::y/y,2012-02-17,01:00,4.9%,,4.4%
-JPY::monetary policy meeting minutes::none,2012-02-17,07:50,,,
+JPY::monetary policy meeting minutes::none,2012-02-17,07:50,,,0.00
 SGD::trade balance::none,2012-02-17,13:00,1.26B,,7.61B
 EUR::german ppi::m/m,2012-02-17,15:00,0.6%,0.2%,-0.4%
 EUR::current account::none,2012-02-17,17:00,2.0B,2.3B,-0.9B
@@ -1329,7 +1329,7 @@ PEN::gdp::y/y,2012-02-28,23:00,5.50%,5.40%,6.50%
 USD::cb consumer confidence::none,2012-02-28,23:00,70.8,63.0,61.5
 USD::richmond manufacturing index::none,2012-02-28,23:00,20,10,12
 USD::4 - week bill auction::none,2012-02-29,00:30,0.100%,,0.110%
-CHF::snb board member jordan speaks::none,2012-02-29,01:30,,,
+CHF::snb board member jordan speaks::none,2012-02-29,01:30,,,0.00
 NZD::building consents::m/m,2012-02-29,05:45,8.3%,3.4%,2.6%
 KRW::industrial production::y/y,2012-02-29,07:00,-2.0%,-3.0%,2.9%
 KRW::retail sales::m/m,2012-02-29,07:00,0.8%,-2.0%,-0.6%
@@ -1367,7 +1367,7 @@ USD::fed chairman bernanke testifies::none,2012-02-29,23:00,,,
 USD::crude oil inventories::none,2012-02-29,23:30,4.200M,1.200M,1.600M
 USD::gasoline inventories::none,2012-02-29,23:30,-1.600M,0.250M,-0.600M
 USD::fed monetary policy report::none,2012-03-01,00:00,,,
-USD::beige book::none,2012-03-01,03:00,,,
+USD::beige book::none,2012-03-01,03:00,,,0.00
 USD::fed's balance sheet::none,2012-03-01,04:30,"2,925.72B",,"2,932.81B"
 NZD::terms of trade index::q/q,2012-03-01,05:45,-1.4%,-1.9%,-0.6%
 AUD::aig manufacturing index::none,2012-03-01,06:30,51.3,,51.6
@@ -1792,7 +1792,7 @@ AUD::westpac consumer sentiment::none,2012-03-14,07:30,-5.00%,,4.20%
 JPY::bsi large manufacturing conditions::none,2012-03-14,07:50,-7.3,1.3,-6.1
 AUD::housing starts::q/q,2012-03-14,08:30,-6.90%,-3.00%,-5.80%
 JPY::industrial production::m/m,2012-03-14,12:30,1.9%,2.1%,2.0%
-JPY::boj monthly report::none,2012-03-14,13:00,,,
+JPY::boj monthly report::none,2012-03-14,13:00,,,0.00
 INR::wpi inflation::y/y,2012-03-14,14:00,6.95%,6.79%,6.55%
 EUR::finnish cpi::y/y,2012-03-14,15:00,3.10%,,3.20%
 GBP::average earnings index +bonus::none,2012-03-14,17:30,1.4%,1.9%,1.9%
@@ -1809,7 +1809,7 @@ CAD::new motor vehicle sales::m/m,2012-03-14,20:30,15.4%,2.1%,-3.0%
 USD::current account::none,2012-03-14,20:30,-124.1B,-114.0B,-108.0B
 USD::import price index::m/m,2012-03-14,20:30,0.4%,0.6%,0.0%
 NOK::interest rate decision::none,2012-03-14,21:00,1.50%,1.75%,1.75%
-USD::fed chairman bernanke speaks::none,2012-03-14,22:00,,,
+USD::fed chairman bernanke speaks::none,2012-03-14,22:00,,,0.00
 USD::crude oil inventories::none,2012-03-14,22:30,1.800M,2.000M,0.800M
 USD::gasoline inventories::none,2012-03-14,22:30,-1.400M,-1.000M,-0.400M
 NA::hungary - 1848 revolution day::none,2012-03-15,All Day,,,
@@ -1818,7 +1818,7 @@ USD::fed's balance sheet::none,2012-03-15,04:30,"2,893.56B",,"2,884.75B"
 NZD::business nz pmi::none,2012-03-15,05:30,57.7,,50.8
 AUD::mi inflation expectations::none,2012-03-15,08:00,2.7%,,2.5%
 AUD::new motor vehicle sales::m/m,2012-03-15,08:30,0.0%,2.2%,1.2%
-AUD::rba bulletin::none,2012-03-15,08:30,,,
+AUD::rba bulletin::none,2012-03-15,08:30,,,0.00
 SGD::unemployment rate::none,2012-03-15,11:00,2.0%,2.1%,2.0%
 SGD::retail sales::y/y,2012-03-15,13:00,1.7%,3.5%,4.2%
 TRY::quarterly 3 - month jobless average::none,2012-03-15,16:00,9.80%,,9.10%
@@ -1843,7 +1843,7 @@ USD::natural gas storage::none,2012-03-15,22:30,-64B,-58B,-80B
 ILS::cpi::y/y,2012-03-15,23:00,1.7%,,2%
 NA::hungary - 1848 revolution day::none,2012-03-16,All Day,,,
 CLP::interest rate decision::none,2012-03-16,06:00,5.00%,5.00%,5.00%
-JPY::monetary policy meeting minutes::none,2012-03-16,07:50,,,
+JPY::monetary policy meeting minutes::none,2012-03-16,07:50,,,0.00
 PHP::industrial production::y/y,2012-03-16,11:30,0.2%,-7.0%,-7.7%
 SGD::trade balance::none,2012-03-16,13:00,17.60B,,-4.10B
 TRY::consumer confidence::none,2012-03-16,16:00,93.20,,92.20
@@ -1902,7 +1902,7 @@ RUB::unemployment rate::none,2012-03-20,21:00,6.5%,6.7%,6.6%
 USD::treasury secretary geithner speaks::none,2012-03-20,22:00,,,
 USD::4 - week bill auction::none,2012-03-20,23:30,0.100%,,0.070%
 NA::south africa - human rights day::none,2012-03-21,All Day,,,
-USD::fed chairman bernanke speaks::none,2012-03-21,00:45,,,
+USD::fed chairman bernanke speaks::none,2012-03-21,00:45,,,0.00
 NZD::globaldairytrade price index::none,2012-03-21,04:00,-5.10%,,-0.40%
 NZD::visitor arrivals::m/m,2012-03-21,05:45,-4.9%,,-3.3%
 NZD::current account::q/q,2012-03-21,05:45,-2.76B,-2.83B,-4.75B
@@ -1942,7 +1942,7 @@ USD::natural gas storage::none,2012-03-22,22:30,11B,10B,-64B
 EUR::consumer confidence::none,2012-03-22,23:00,-19.0,-20.0,-20.0
 USD::us leading index::m/m,2012-03-22,23:00,0.7%,0.6%,0.2%
 EUR::ecb president draghi speaks::none,2012-03-23,00:00,,,
-USD::fed chairman bernanke speaks::none,2012-03-23,00:45,,,
+USD::fed chairman bernanke speaks::none,2012-03-23,00:45,,,0.00
 COP::gdp::y/y,2012-03-23,01:00,6.1%,5.3%,7.7%
 USD::chicago fed president evans speaks::none,2012-03-23,04:00,,,
 GBP::nationwide consumer confidence::none,2012-03-23,08:00,44,49,47
@@ -1986,7 +1986,7 @@ EUR::german ifo business climate index::none,2012-03-26,16:00,99.3,,99.1
 PLN::retail sales::y/y,2012-03-26,17:00,13.70%,9.90%,14.30%
 PLN::unemployment rate::none,2012-03-26,17:00,13.50%,13.50%,13.20%
 EUR::german 12 - month bubill auction::none,2012-03-26,17:30,0.077%,,0.077%
-USD::fed chairman bernanke speaks::none,2012-03-26,20:00,,,
+USD::fed chairman bernanke speaks::none,2012-03-26,20:00,,,0.00
 TRY::manufacturing confidence::none,2012-03-26,20:30,112.90,,107.30
 USD::chicago fed national activity::none,2012-03-26,20:30,-0.09,0.00,0.33
 MXN::trade balance::none,2012-03-26,22:00,0.440B,0.700B,-0.290B
@@ -2018,7 +2018,7 @@ USD::cb consumer confidence::none,2012-03-27,22:00,70.2,70.3,71.6
 USD::richmond manufacturing index::none,2012-03-27,22:00,7,18,20
 GBP::boe gov king speaks::none,2012-03-27,22:30,,,
 USD::4 - week bill auction::none,2012-03-27,23:30,0.065%,,0.100%
-USD::fed chairman bernanke speaks::none,2012-03-28,00:45,,,
+USD::fed chairman bernanke speaks::none,2012-03-28,00:45,,,0.00
 USD::2 - year note auction::none,2012-03-28,01:00,0.340%,,0.310%
 USD::fomc member fisher speaks::none,2012-03-28,01:20,,,
 ARS::retail sales::y/y,2012-03-28,03:00,32.4%,18.9%,23.3%
@@ -2075,7 +2075,7 @@ USD::bloomberg consumer confidence::none,2012-03-29,21:45,32.65,,32.55
 VND::trade balance::none,2012-03-29,22:00,-150.00M,-700.00M,-800.00M
 USD::natural gas storage::none,2012-03-29,22:30,57B,49B,11B
 USD::kc fed composite index::none,2012-03-29,23:00,9.00,13.00,13.00
-USD::fed chairman bernanke speaks::none,2012-03-30,00:45,,,
+USD::fed chairman bernanke speaks::none,2012-03-30,00:45,,,0.00
 USD::7 - year note auction::none,2012-03-30,01:00,1.590%,,1.418%
 CAD::budget balance::none,2012-03-30,04:00,1.72B,,-0.35B
 NZD::building consents::m/m,2012-03-30,05:45,-6.7%,,8.1%
@@ -2376,7 +2376,7 @@ USD::factory orders::m/m,2012-04-03,22:00,1.3%,1.5%,-1.1%
 USD::4 - week bill auction::none,2012-04-03,23:30,0.055%,,0.065%
 USD::52 - week bill auction::none,2012-04-03,23:30,0.185%,,0.170%
 NA::hong kong - ching ming festival::none,2012-04-04,All Day,,,
-USD::fomc meeting minutes::none,2012-04-04,02:00,,,
+USD::fomc meeting minutes::none,2012-04-04,02:00,,,0.00
 VEF::cpi::y/y,2012-04-04,03:00,24.2%,24.7%,24.8%
 NZD::globaldairytrade price index::none,2012-04-04,04:00,0.60%,,-5.10%
 USD::total vehicle sales::none,2012-04-04,04:00,14.37M,14.74M,15.10M
@@ -2538,7 +2538,7 @@ USD::cb employment trends index::none,2012-04-09,22:00,107.28,,107.47
 USD::3 - month bill auction::none,2012-04-09,23:30,0.085%,,0.075%
 USD::6 - month bill auction::none,2012-04-09,23:30,0.150%,,0.140%
 NA::israel - passover - early close at 14:45::none,2012-04-09,,,,
-USD::fed chairman bernanke speaks::none,2012-04-10,07:15,,,
+USD::fed chairman bernanke speaks::none,2012-04-10,07:15,,,0.00
 AUD::aig construction index::none,2012-04-10,07:30,36.2,,35.6
 AUD::anz job advertisements::m/m,2012-04-10,09:30,1.00%,,3.30%
 AUD::nab business confidence::none,2012-04-10,09:30,3,,1
@@ -2581,7 +2581,7 @@ JPY::bank lending::y/y,2012-04-11,07:50,0.8%,,0.6%
 JPY::core machinery orders::m/m,2012-04-11,07:50,4.8%,-0.8%,3.4%
 AUD::westpac consumer sentiment::none,2012-04-11,08:30,-1.60%,,-5.00%
 AUD::home loans::m/m,2012-04-11,09:30,-2.5%,-3.5%,-1.1%
-JPY::boj monthly report::none,2012-04-11,13:00,,,
+JPY::boj monthly report::none,2012-04-11,13:00,,,0.00
 EUR::german wpi::m/m,2012-04-11,14:00,0.9%,0.8%,1.0%
 DKK::industrial production::m/m,2012-04-11,15:00,-1.00%,,1.80%
 EUR::spanish industrial production::y/y,2012-04-11,15:00,-5.1%,-5.0%,-4.3%
@@ -2599,7 +2599,7 @@ USD::gasoline inventories::none,2012-04-11,22:30,-4.277M,-1.344M,-1.457M
 NA::israel - passover - early close at 14:45::none,2012-04-11,,,,
 NA::israel - passover ii::none,2012-04-12,All Day,,,
 USD::10 - year note auction::none,2012-04-12,01:00,2.043%,,2.076%
-USD::beige book::none,2012-04-12,02:00,,,
+USD::beige book::none,2012-04-12,02:00,,,0.00
 USD::federal budget balance::none,2012-04-12,02:00,-198.2B,-196.0B,-232.0B
 USD::fed's balance sheet::none,2012-04-12,04:30,"2,867.20B",,"2,865.48B"
 NZD::business nz pmi::none,2012-04-12,06:30,54.5,,57.7
@@ -2639,7 +2639,7 @@ NA::israel - passover ii::none,2012-04-13,All Day,,,
 NA::lebanon - good friday::none,2012-04-13,All Day,,,
 USD::30 - year bond auction::none,2012-04-13,01:00,3.230%,,3.383%
 PEN::interest rate decision::none,2012-04-13,07:00,4.25%,4.25%,4.25%
-JPY::monetary policy meeting minutes::none,2012-04-13,07:50,,,
+JPY::monetary policy meeting minutes::none,2012-04-13,07:50,,,0.00
 KRW::interest rate decision::none,2012-04-13,09:00,3.25%,3.25%,3.25%
 CNY::gdp::y/y,2012-04-13,10:00,8.1%,8.3%,8.9%
 CNY::retail sales::y/y,2012-04-13,10:00,15.2%,15.0%,14.7%
@@ -2663,7 +2663,7 @@ USD::core cpi::m/m,2012-04-13,20:30,0.2%,0.2%,0.1%
 USD::core cpi::y/y,2012-04-13,20:30,2.3%,,2.2%
 USD::michigan 1 - year inflation expectations::none,2012-04-13,21:55,3.4%,,3.9%
 USD::michigan consumer sentiment::none,2012-04-13,21:55,75.7,76.2,76.2
-USD::fed chairman bernanke speaks::none,2012-04-14,01:00,,,
+USD::fed chairman bernanke speaks::none,2012-04-14,01:00,,,0.00
 USD::u.s. baker hughes oil rig count::none,2012-04-14,01:00,1322,,1329
 ARS::cpi::m/m,2012-04-14,03:00,0.9%,0.8%,0.7%
 AUD::cftc aud speculative net positions::none,2012-04-14,03:30,39.4K,,49.3K
@@ -2899,7 +2899,7 @@ NA::israel - independence day::none,2012-04-26,All Day,,,
 USD::fomc statement::none,2012-04-26,00:30,,,
 USD::fed interest rate decision::none,2012-04-26,00:30,0.25%,0.25%,0.25%
 USD::5 - year note auction::none,2012-04-26,01:00,0.887%,,1.040%
-USD::fed chairman bernanke speaks::none,2012-04-26,02:15,,,
+USD::fed chairman bernanke speaks::none,2012-04-26,02:15,,,0.00
 CAD::boc gov carney speaks::none,2012-04-26,04:15,,,
 USD::fed's balance sheet::none,2012-04-26,04:30,"2,866.56B",,"2,875.47B"
 NZD::rbnz interest rate decision::none,2012-04-26,05:00,2.50%,2.50%,2.50%
@@ -3385,7 +3385,7 @@ NA::bulgaria - st. george's day::none,2012-05-06,All Day,,,
 ILS::budget balance::none,2012-05-06,17:00,"-2,616.0M",,"-4,279.0M"
 NA::united kingdom - may::none,2012-05-07,All Day,,,
 AUD::aig construction index::none,2012-05-07,07:30,34.9,,36.2
-JPY::monetary policy meeting minutes::none,2012-05-07,07:50,,,
+JPY::monetary policy meeting minutes::none,2012-05-07,07:50,,,0.00
 TWD::cpi::y/y,2012-05-07,08:30,1.44%,1.40%,1.25%
 AUD::anz job advertisements::m/m,2012-05-07,09:30,-3.10%,,0.70%
 AUD::building approvals::m/m,2012-05-07,09:30,7.4%,3.1%,-8.8%
@@ -3506,7 +3506,7 @@ USD::continuing jobless claims::none,2012-05-10,20:30,"3,229K","3,278K","3,290K"
 USD::import price index::m/m,2012-05-10,20:30,-0.5%,-0.2%,1.5%
 USD::trade balance::none,2012-05-10,20:30,-51.8B,-50.0B,-45.4B
 USD::chicago fed president evans speaks::none,2012-05-10,21:15,,,
-USD::fed chairman bernanke speaks::none,2012-05-10,21:30,,,
+USD::fed chairman bernanke speaks::none,2012-05-10,21:30,,,0.00
 USD::bloomberg consumer confidence::none,2012-05-10,21:45,29.8,,31.2
 GBP::niesr gdp estimate::none,2012-05-10,22:00,0.1%,,-0.2%
 USD::natural gas storage::none,2012-05-10,22:30,30B,34B,28B
@@ -3688,7 +3688,7 @@ NA::finland - assumption day::none,2012-05-17,All Day,,,
 NA::norway - constitution day::none,2012-05-17,All Day,,,
 NA::sweden - ascension day::none,2012-05-17,All Day,,,
 NA::switzerland - ascension day::none,2012-05-17,All Day,,,
-USD::fomc meeting minutes::none,2012-05-17,02:00,,,
+USD::fomc meeting minutes::none,2012-05-17,02:00,,,0.00
 USD::fed's balance sheet::none,2012-05-17,04:30,"2,850.98B",,"2,864.15B"
 NZD::ppi output::q/q,2012-05-17,06:45,-0.1%,0.2%,0.1%
 NZD::ppi input::q/q,2012-05-17,06:45,0.3%,0.0%,0.5%
@@ -3828,7 +3828,7 @@ NA::bulgaria - culture day::none,2012-05-24,All Day,,,
 USD::5 - year note auction::none,2012-05-24,01:00,0.748%,,0.887%
 USD::fed's balance sheet::none,2012-05-24,04:30,"2,859.50B",,"2,850.98B"
 NZD::trade balance::m/m,2012-05-24,06:45,355M,500M,186M
-JPY::boj monthly report::none,2012-05-24,13:00,,,
+JPY::boj monthly report::none,2012-05-24,13:00,,,0.00
 CHF::trade balance::none,2012-05-24,14:00,1.334B,1.900B,1.582B
 EUR::german gdp::q/q,2012-05-24,14:00,0.5%,0.5%,0.5%
 EUR::finnish ppi::y/y,2012-05-24,14:00,1.40%,,1.40%
@@ -3914,7 +3914,7 @@ NA::switzerland - whit monday::none,2012-05-28,All Day,,,
 NA::united states - memorial day::none,2012-05-28,All Day,,,
 AUD::rba governor stevens speaks::none,2012-05-28,07:10,,,
 JPY::corporate services price index (cspi)::y/y,2012-05-28,07:50,0.2%,-0.1%,-0.2%
-JPY::monetary policy meeting minutes::none,2012-05-28,07:50,,,
+JPY::monetary policy meeting minutes::none,2012-05-28,07:50,,,0.00
 THB::industrial production::y/y,2012-05-28,12:30,0.5%,2.8%,-3.2%
 SEK::retail sales::m/m,2012-05-28,15:30,-0.20%,0.10%,0.10%
 SEK::trade balance::none,2012-05-28,15:30,4.70B,,5.40B
@@ -4343,7 +4343,7 @@ NA::austria - corpus christi day::none,2012-06-07,All Day,,,
 NA::brazil - corpus christi day::none,2012-06-07,All Day,,,
 NA::croatia - corpus christi day::none,2012-06-07,All Day,,,
 NA::poland - corpus christi day::none,2012-06-07,All Day,,,
-USD::beige book::none,2012-06-07,02:00,,,
+USD::beige book::none,2012-06-07,02:00,,,0.00
 USD::fed's balance sheet::none,2012-06-07,04:30,"2,852.02B",,"2,842.65B"
 GBP::brc retail sales monitor::y/y,2012-06-07,07:00,1.3%,0.8%,-3.3%
 KRW::gdp::q/q,2012-06-07,07:00,0.9%,0.9%,0.9%
@@ -4640,7 +4640,7 @@ ILS::gdp annualized::q/q,2012-06-17,18:00,2.90%,3.00%,3.10%
 NZD::westpac consumer sentiment::none,2012-06-18,06:00,99.9,,102.4
 GBP::rightmove house price index::m/m,2012-06-18,07:00,1.0%,,0.0%
 AUD::new motor vehicle sales::m/m,2012-06-18,09:30,2.4%,,-1.0%
-JPY::boj monthly report::none,2012-06-18,13:00,,,
+JPY::boj monthly report::none,2012-06-18,13:00,,,0.00
 INR::interest rate decision::none,2012-06-18,13:30,8.00%,7.75%,8.00%
 TRY::consumer confidence::none,2012-06-18,15:00,92.10,,91.10
 HKD::unemployment rate::none,2012-06-18,16:30,3.20%,3.40%,3.30%
@@ -4676,7 +4676,7 @@ USD::api weekly gasoline stock::none,2012-06-20,04:30,1.07M,0.95M,-0.88M
 USD::api weekly crude oil stock::none,2012-06-20,04:30,-0.55M,-1.00M,1.59M
 NZD::current account::q/q,2012-06-20,06:45,-1.31B,-1.11B,-2.83B
 JPY::adjusted trade balance::none,2012-06-20,07:50,-0.66T,-0.36T,-0.51T
-JPY::monetary policy meeting minutes::none,2012-06-20,07:50,,,
+JPY::monetary policy meeting minutes::none,2012-06-20,07:50,,,0.00
 AUD::mi leading index::m/m,2012-06-20,08:30,0.5%,,0.5%
 AUD::housing starts::q/q,2012-06-20,09:30,-12.60%,-2.30%,-4.50%
 JPY::all industries activity index::m/m,2012-06-20,12:30,0.1%,0.2%,-0.3%
@@ -4709,11 +4709,11 @@ USD::gasoline inventories::none,2012-06-20,22:30,0.943M,0.810M,-1.724M
 BRL::foreign exchange flows::none,2012-06-20,23:30,0.52B,,0.84B
 USD::fomc statement::none,2012-06-21,00:30,,,
 USD::fed interest rate decision::none,2012-06-21,00:30,0.25%,0.25%,0.25%
-USD::fed chairman bernanke speaks::none,2012-06-21,02:15,,,
+USD::fed chairman bernanke speaks::none,2012-06-21,02:15,,,0.00
 USD::fed's balance sheet::none,2012-06-21,04:30,"2,870.85B",,"2,869.07B"
 COP::industrial production::y/y,2012-06-21,05:00,-1.6%,3.5%,-0.7%
 NZD::gdp::q/q,2012-06-21,06:45,1.1%,0.5%,0.4%
-AUD::rba bulletin::none,2012-06-21,09:30,,,
+AUD::rba bulletin::none,2012-06-21,09:30,,,0.00
 CHF::trade balance::none,2012-06-21,14:00,2.484B,1.970B,1.256B
 EUR::dutch unemployment rate::none,2012-06-21,15:30,6.20%,6.30%,6.20%
 EUR::current account::none,2012-06-21,16:00,4.6B,7.1B,10.3B
@@ -5410,7 +5410,7 @@ USD::wholesale inventories::m/m,2012-07-11,22:00,0.3%,0.3%,0.5%
 USD::crude oil inventories::none,2012-07-11,22:30,-4.696M,-1.156M,-4.270M
 USD::gasoline inventories::none,2012-07-11,22:30,2.752M,0.294M,0.151M
 USD::10 - year note auction::none,2012-07-12,01:00,1.459%,,1.622%
-USD::fomc meeting minutes::none,2012-07-12,02:00,,,
+USD::fomc meeting minutes::none,2012-07-12,02:00,,,0.00
 USD::fed's balance sheet::none,2012-07-12,04:30,"2,866.28B",,"2,865.86B"
 BRL::interest rate decision::none,2012-07-12,06:00,8.00%,8.00%,8.50%
 NZD::business nz pmi::none,2012-07-12,06:30,50.2,,55.8
@@ -5457,7 +5457,7 @@ CNY::retail sales::y/y,2012-07-13,10:00,13.7%,13.5%,13.8%
 CNY::fixed asset investment::y/y,2012-07-13,10:00,20.4%,20.1%,20.1%
 CNY::industrial production::y/y,2012-07-13,10:00,9.5%,9.8%,9.6%
 JPY::industrial production::m/m,2012-07-13,12:30,-3.4%,-3.1%,-3.1%
-JPY::boj monthly report::none,2012-07-13,13:00,,,
+JPY::boj monthly report::none,2012-07-13,13:00,,,0.00
 SGD::retail sales::y/y,2012-07-13,13:00,0.5%,3.3%,2.1%
 EUR::finnish cpi::y/y,2012-07-13,14:00,2.80%,,3.10%
 EUR::slovak cpi::m/m,2012-07-13,15:00,0.20%,,0.10%
@@ -5551,7 +5551,7 @@ USD::4 - week bill auction::none,2012-07-17,23:30,0.075%,,0.070%
 NZD::globaldairytrade price index::none,2012-07-18,04:00,-1.20%,,-6.00%
 USD::api weekly gasoline stock::none,2012-07-18,04:30,-0.12M,1.13M,2.47M
 USD::api weekly crude oil stock::none,2012-07-18,04:30,-2.01M,-0.50M,-0.70M
-JPY::monetary policy meeting minutes::none,2012-07-18,07:50,,,
+JPY::monetary policy meeting minutes::none,2012-07-18,07:50,,,0.00
 AUD::mi leading index::m/m,2012-07-18,08:30,0.8%,,0.5%
 EUR::spanish house price index::y/y,2012-07-18,16:00,-8.30%,-7.50%,-7.20%
 ZAR::cpi::m/m,2012-07-18,16:00,0.20%,0.30%,0.10%
@@ -5575,7 +5575,7 @@ USD::crude oil inventories::none,2012-07-18,22:30,-0.809M,-1.150M,-4.696M
 USD::gasoline inventories::none,2012-07-18,22:30,-1.815M,1.163M,2.752M
 CAD::boc gov carney speaks::none,2012-07-18,23:15,,,
 BRL::foreign exchange flows::none,2012-07-18,23:30,-0.21B,,0.40B
-USD::beige book::none,2012-07-19,02:00,,,
+USD::beige book::none,2012-07-19,02:00,,,0.00
 USD::fed's balance sheet::none,2012-07-19,04:30,"2,855.81B",,"2,866.28B"
 AUD::nab quarterly business confidence::none,2012-07-19,09:30,-2.00,,-1.00
 JPY::5 - year jgb auction::none,2012-07-19,11:30,0.185%,,0.220%
@@ -5668,7 +5668,7 @@ HUF::interest rate decision::none,2012-07-24,20:00,7.00%,7.00%,7.00%
 CAD::core retail sales::m/m,2012-07-24,20:30,0.5%,0.2%,-0.4%
 CAD::retail sales::m/m,2012-07-24,20:30,0.3%,0.5%,-0.6%
 RUB::government budget balance::none,2012-07-24,20:30,1.05T,0.70T,0.64T
-USD::fed chairman bernanke speaks::none,2012-07-24,20:45,,,
+USD::fed chairman bernanke speaks::none,2012-07-24,20:45,,,0.00
 USD::redbook::m/m,2012-07-24,20:55,-1.30%,,-1.10%
 RUB::business confidence::none,2012-07-24,21:00,2,0,1
 USD::house price index::m/m,2012-07-24,22:00,0.8%,0.5%,0.7%
@@ -6149,7 +6149,7 @@ CLP::economic activity::y/y,2012-08-06,20:30,6.2%,5.3%,5.3%
 EUR::french 12 - month btf auction::none,2012-08-06,21:00,-0.006%,,-0.008%
 EUR::french 3 - month btf auction::none,2012-08-06,21:00,-0.010%,,-0.010%
 EUR::french 6 - month btf auction::none,2012-08-06,21:00,-0.010%,,-0.004%
-USD::fed chairman bernanke speaks::none,2012-08-06,21:00,,,
+USD::fed chairman bernanke speaks::none,2012-08-06,21:00,,,0.00
 BRL::auto sales::m/m,2012-08-06,21:30,3.10%,,22.90%
 USD::cb employment trends index::none,2012-08-06,22:00,108.10,,107.70
 USD::3 - month bill auction::none,2012-08-06,23:30,0.100%,,0.110%
@@ -6184,7 +6184,7 @@ ILS::fx reserve - usd::none,2012-08-07,23:00,75.4B,,75.1B
 USD::4 - week bill auction::none,2012-08-07,23:30,0.085%,,0.075%
 USD::3 - year note auction::none,2012-08-08,01:00,0.370%,,0.366%
 VEF::cpi::y/y,2012-08-08,02:00,19.4%,20.0%,21.2%
-USD::fed chairman bernanke speaks::none,2012-08-08,02:30,,,
+USD::fed chairman bernanke speaks::none,2012-08-08,02:30,,,0.00
 USD::consumer credit::none,2012-08-08,03:00,6.46B,11.00B,16.70B
 USD::api weekly gasoline stock::none,2012-08-08,04:30,0.42M,-1.88M,-1.34M
 USD::api weekly crude oil stock::none,2012-08-08,04:30,-5.35M,-0.54M,-11.61M
@@ -6275,7 +6275,7 @@ CNY::trade balance (usd)::none,2012-08-10,11:00,25.10B,35.10B,31.70B
 JPY::industrial production::m/m,2012-08-10,12:30,0.4%,-0.1%,-0.1%
 CNY::m2 money stock::y/y,2012-08-10,13:00,13.9%,13.8%,13.6%
 EUR::estonian gdp::y/y,2012-08-10,13:00,2.00%,2.45%,3.60%
-JPY::boj monthly report::none,2012-08-10,13:00,,,
+JPY::boj monthly report::none,2012-08-10,13:00,,,0.00
 EUR::german cpi::m/m,2012-08-10,14:00,0.4%,0.4%,0.4%
 EUR::finnish industry output::y/y,2012-08-10,14:00,-1.40%,,1.20%
 EUR::german cpi::y/y,2012-08-10,14:00,1.7%,1.7%,1.7%
@@ -6343,7 +6343,7 @@ USD::6 - month bill auction::none,2012-08-13,23:30,0.145%,,0.135%
 NA::morocco - oued ed - dahab day::none,2012-08-14,All Day,,,
 NZD::core retail sales::q/q,2012-08-14,06:45,0.9%,1.0%,-1.4%
 NZD::retail sales::q/q,2012-08-14,06:45,1.3%,0.7%,-0.6%
-JPY::monetary policy meeting minutes::none,2012-08-14,07:50,,,
+JPY::monetary policy meeting minutes::none,2012-08-14,07:50,,,0.00
 JPY::tertiary industry activity index::m/m,2012-08-14,07:50,0.1%,-0.3%,0.9%
 AUD::new motor vehicle sales::m/m,2012-08-14,09:30,-0.8%,,-1.0%
 AUD::nab business confidence::none,2012-08-14,09:30,4,,-3
@@ -6595,7 +6595,7 @@ USD::gasoline inventories::none,2012-08-22,22:30,-0.962M,-0.725M,-2.371M
 CAD::boc gov carney speaks::none,2012-08-22,23:00,,,
 BRL::foreign exchange flows::none,2012-08-22,23:30,-1.01B,,-1.18B
 NA::oman - eid al - fitr::none,2012-08-23,All Day,,,
-USD::fomc meeting minutes::none,2012-08-23,02:00,,,
+USD::fomc meeting minutes::none,2012-08-23,02:00,,,0.00
 ARS::trade balance::none,2012-08-23,03:00,"1,014M",940M,"1,024M"
 USD::fed's balance sheet::none,2012-08-23,04:30,"2,825.66B",,"2,833.32B"
 COP::industrial production::y/y,2012-08-23,05:00,2.8%,1.0%,-0.3%
@@ -6727,7 +6727,7 @@ USD::crude oil inventories::none,2012-08-29,22:30,3.778M,-1.480M,-5.412M
 USD::gasoline inventories::none,2012-08-29,22:30,-1.509M,-1.420M,-0.962M
 BRL::foreign exchange flows::none,2012-08-29,23:30,-2.21B,,-1.01B
 USD::5 - year note auction::none,2012-08-30,01:00,0.708%,,0.584%
-USD::beige book::none,2012-08-30,02:00,,,
+USD::beige book::none,2012-08-30,02:00,,,0.00
 VEF::industrial production::y/y,2012-08-30,04:00,1.1%,2.1%,-2.0%
 USD::fed's balance sheet::none,2012-08-30,04:30,"2,812.81B",,"2,825.66B"
 KRW::manufacturing bsi index::none,2012-08-30,05:00,73.00,,69.00
@@ -6821,7 +6821,7 @@ BRL::net debt - to - gdp ratio::none,2012-08-31,21:30,34.9%,,35.1%
 USD::chicago pmi::none,2012-08-31,21:45,53.0,53.5,53.7
 USD::michigan 1 - year inflation expectations::none,2012-08-31,21:55,3.6%,,3.6%
 USD::michigan consumer sentiment::none,2012-08-31,21:55,74.3,73.6,73.6
-USD::fed chairman bernanke speaks::none,2012-08-31,22:00,,,
+USD::fed chairman bernanke speaks::none,2012-08-31,22:00,,,0.00
 USD::factory orders::m/m,2012-08-31,22:00,2.8%,1.9%,-0.5%
 USD::u.s. baker hughes oil rig count::none,2012-09-01,01:00,1419,,1408
 AUD::cftc aud speculative net positions::none,2012-09-01,03:30,78.1K,,86.9K
@@ -7331,7 +7331,7 @@ NZD::rbnz rate statement::none,2012-09-13,05:00,,,
 NZD::business nz pmi::none,2012-09-13,06:30,47.2,,49.4
 AUD::mi inflation expectations::none,2012-09-13,09:00,2.4%,,2.4%
 KRW::interest rate decision::none,2012-09-13,09:00,3.00%,2.75%,3.00%
-AUD::rba bulletin::none,2012-09-13,09:30,,,
+AUD::rba bulletin::none,2012-09-13,09:30,,,0.00
 CHF::ppi::m/m,2012-09-13,15:15,0.5%,-0.4%,-0.3%
 CHF::snb interest rate decision::none,2012-09-13,15:30,0.00%,0.00%,0.00%
 EUR::dutch retail sales::y/y,2012-09-13,15:30,-4.00%,,1.00%
@@ -7361,7 +7361,7 @@ USD::30 - year bond auction::none,2012-09-13,23:30,2.896%,,2.825%
 USD::fomc statement::none,2012-09-14,00:30,,,
 USD::fed interest rate decision::none,2012-09-14,00:30,0.25%,0.25%,0.25%
 USD::federal budget balance::none,2012-09-14,02:00,-191.0B,-155.0B,-69.6B
-USD::fed chairman bernanke speaks::none,2012-09-14,02:15,,,
+USD::fed chairman bernanke speaks::none,2012-09-14,02:15,,,0.00
 CLP::interest rate decision::none,2012-09-14,06:00,5.00%,5.00%,5.00%
 NZD::fpi::m/m,2012-09-14,06:45,0.1%,,0.2%
 JPY::industrial production::m/m,2012-09-14,12:30,-1.0%,-1.2%,-1.2%
@@ -7486,7 +7486,7 @@ NZD::gdp::q/q,2012-09-20,06:45,0.6%,0.3%,1.0%
 JPY::adjusted trade balance::none,2012-09-20,07:50,-0.47T,-0.37T,-0.37T
 JPY::all industries activity index::m/m,2012-09-20,12:30,-0.6%,-0.5%,0.3%
 EUR::estonian ppi::m/m,2012-09-20,13:00,0.60%,,0.20%
-JPY::boj monthly report::none,2012-09-20,13:00,,,
+JPY::boj monthly report::none,2012-09-20,13:00,,,0.00
 CHF::trade balance::none,2012-09-20,14:00,1.733B,0.423B,2.875B
 EUR::german ppi::y/y,2012-09-20,14:00,1.6%,1.5%,0.9%
 EUR::german ppi::m/m,2012-09-20,14:00,0.5%,0.4%,0.0%
@@ -7553,7 +7553,7 @@ RUB::cftc rub speculative positions::none,2012-09-22,04:30,-1.3K,,-1.8K
 USD::cftc crude oil speculative net positions::none,2012-09-22,04:30,267.2k,,248.7k
 NA::saudi arabia - national day of saudi arabia::none,2012-09-23,All Day,,,
 NA::south africa - heritage day::none,2012-09-24,All Day,,,
-JPY::monetary policy meeting minutes::none,2012-09-24,07:50,,,
+JPY::monetary policy meeting minutes::none,2012-09-24,07:50,,,0.00
 TWD::unemployment rate::none,2012-09-24,08:30,4.29%,4.30%,4.25%
 EUR::finnish ppi::y/y,2012-09-24,14:00,1.50%,,0.20%
 EUR::austrian industrial production::y/y,2012-09-24,15:00,2.00%,,0.30%
@@ -7958,7 +7958,7 @@ USD::s&p/cs hpi composite - 20 n.s.a.::m/m,2012-10-01,17:00,0.30%,,0.90%
 NA::china - mid - autumn festival::none,2012-10-02,All Day,,,
 NA::hong kong - national holiday::none,2012-10-02,All Day,,,
 NA::india - gandhi jayanti::none,2012-10-02,All Day,,,
-USD::fed chairman bernanke speaks::none,2012-10-02,00:30,,,
+USD::fed chairman bernanke speaks::none,2012-10-02,00:30,,,0.00
 BRL::trade balance::none,2012-10-02,02:00,2.56B,2.70B,3.23B
 KRW::cpi::m/m,2012-10-02,07:00,0.7%,0.6%,0.4%
 KRW::cpi::y/y,2012-10-02,07:00,2.0%,2.0%,1.2%
@@ -8033,7 +8033,7 @@ USD::natural gas storage::none,2012-10-04,22:30,77B,71B,80B
 NA::israel - feast of tabernacles (sukkoth) - early close at 14:55::none,2012-10-04,,,,
 NA::china - mid - autumn festival::none,2012-10-05,All Day,,,
 BRL::auto sales::m/m,2012-10-05,02:00,-31.40%,,15.30%
-USD::fomc meeting minutes::none,2012-10-05,02:00,,,
+USD::fomc meeting minutes::none,2012-10-05,02:00,,,0.00
 KRW::fx reserves - usd::none,2012-10-05,05:00,322.01B,,316.88B
 AUD::aig construction index::none,2012-10-05,07:30,30.9,,32.2
 TWD::cpi::y/y,2012-10-05,08:30,2.96%,2.80%,3.43%
@@ -8116,7 +8116,7 @@ JPY::boj governor shirakawa speaks::none,2012-10-09,08:15,,,
 AUD::nab business confidence::none,2012-10-09,08:30,0,,-3
 AUD::rba governor lowe speaks::none,2012-10-09,09:00,,,
 JPY::economy watchers current index::none,2012-10-09,13:00,41.2,44.2,43.6
-JPY::boj monthly report::none,2012-10-09,13:00,,,
+JPY::boj monthly report::none,2012-10-09,13:00,,,0.00
 EUR::french government budget balance::none,2012-10-09,14:45,-97.7B,,-85.5B
 EUR::french trade balance::none,2012-10-09,14:45,-5.3B,-5.1B,-4.1B
 CZK::cpi::m/m,2012-10-09,15:00,-0.1%,-0.1%,-0.1%
@@ -8171,7 +8171,7 @@ USD::wholesale inventories::m/m,2012-10-10,22:00,0.5%,0.5%,0.6%
 BRL::foreign exchange flows::none,2012-10-10,23:30,0.14B,,-0.53B
 USD::4 - week bill auction::none,2012-10-10,23:30,0.115%,,0.100%
 USD::10 - year note auction::none,2012-10-11,01:00,1.700%,,1.764%
-USD::beige book::none,2012-10-11,02:00,,,
+USD::beige book::none,2012-10-11,02:00,,,0.00
 USD::fomc member fisher speaks::none,2012-10-11,03:45,,,
 USD::api weekly gasoline stock::none,2012-10-11,04:30,2.47M,0.19M,-0.06M
 USD::api weekly crude oil stock::none,2012-10-11,04:30,1.65M,1.03M,0.46M
@@ -8183,7 +8183,7 @@ NZD::fpi::m/m,2012-10-11,05:45,-0.9%,,0.1%
 BRL::interest rate decision::none,2012-10-11,06:00,7.25%,7.50%,7.50%
 JPY::bank lending::y/y,2012-10-11,07:50,1.0%,,0.9%
 JPY::core machinery orders::m/m,2012-10-11,07:50,-3.3%,-2.5%,4.6%
-JPY::monetary policy meeting minutes::none,2012-10-11,07:50,,,
+JPY::monetary policy meeting minutes::none,2012-10-11,07:50,,,0.00
 AUD::mi inflation expectations::none,2012-10-11,08:00,2.6%,,2.4%
 AUD::employment change::none,2012-10-11,08:30,14.5K,3.8K,-9.1K
 AUD::unemployment rate::none,2012-10-11,08:30,5.4%,5.3%,5.1%
@@ -8956,7 +8956,7 @@ NA::philippines - public holiday::none,2012-11-02,All Day,,,
 BRL::trade balance::none,2012-11-02,01:00,1.66B,2.00B,2.56B
 USD::total vehicle sales::none,2012-11-02,05:00,14.30M,14.90M,14.90M
 JPY::monetary base::y/y,2012-11-02,07:50,10.8%,10.2%,9.0%
-JPY::monetary policy meeting minutes::none,2012-11-02,07:50,,,
+JPY::monetary policy meeting minutes::none,2012-11-02,07:50,,,0.00
 NZD::anz commodity price index::m/m,2012-11-02,08:00,1.3%,,3.4%
 AUD::ppi::q/q,2012-11-02,08:30,0.6%,1.2%,0.5%
 THB::consumer confidence::none,2012-11-02,12:00,68.10,,67.50
@@ -9290,7 +9290,7 @@ NA::united arab emirates - islamic new year (hijri)::none,2012-11-15,All Day,,,
 USD::4 - week bill auction::none,2012-11-15,00:30,0.145%,,0.120%
 USD::52 - week bill auction::none,2012-11-15,00:30,0.180%,,0.180%
 ARS::cpi::m/m,2012-11-15,03:00,0.8%,0.7%,0.9%
-USD::fomc meeting minutes::none,2012-11-15,03:00,,,
+USD::fomc meeting minutes::none,2012-11-15,03:00,,,0.00
 USD::fed's balance sheet::none,2012-11-15,04:30,"2,877.24B",,"2,830.79B"
 NZD::business nz pmi::none,2012-11-15,05:30,50.5,,48.5
 USD::api weekly gasoline stock::none,2012-11-15,05:30,-0.10M,-0.33M,1.38M
@@ -9344,7 +9344,7 @@ USD::natural gas storage::none,2012-11-15,23:30,-18B,-14B,21B
 NA::indonesia - public holiday::none,2012-11-16,All Day,,,
 USD::crude oil inventories::none,2012-11-16,00:00,1.089M,1.943M,1.766M
 USD::gasoline inventories::none,2012-11-16,00:00,-0.440M,-0.843M,2.875M
-USD::fed chairman bernanke speaks::none,2012-11-16,02:20,,,
+USD::fed chairman bernanke speaks::none,2012-11-16,02:20,,,0.00
 USD::fomc member fisher speaks::none,2012-11-16,03:45,,,
 SGD::gdp::y/y,2012-11-16,08:00,0.3%,0.9%,2.5%
 TRY::consumer confidence::none,2012-11-16,16:00,85.70,,88.80
@@ -9402,7 +9402,7 @@ NA::brazil - black awareness day::none,2012-11-20,All Day,,,
 USD::3 - month bill auction::none,2012-11-20,00:30,0.090%,,0.105%
 USD::6 - month bill auction::none,2012-11-20,00:30,0.135%,,0.145%
 ARS::unemployment rate::none,2012-11-20,03:00,7.6%,7.3%,7.2%
-JPY::monetary policy meeting minutes::none,2012-11-20,08:30,,,
+JPY::monetary policy meeting minutes::none,2012-11-20,08:30,,,0.00
 CNY::fdi::none,2012-11-20,10:00,-3.45%,,-3.80%
 JPY::boj interest rate decision::none,2012-11-20,11:15,0.10%,0.10%,0.10%
 JPY::all industries activity index::m/m,2012-11-20,12:30,-0.3%,-0.4%,0.0%
@@ -9430,7 +9430,7 @@ EUR::belgium consumer confidence::none,2012-11-20,22:00,-24.00,-16.00,-17.00
 USD::mass layoffs::none,2012-11-20,23:00,1.36K,,1.32K
 USD::4 - week bill auction::none,2012-11-21,00:30,0.155%,,0.145%
 VEF::gdp::y/y,2012-11-21,01:00,5.2%,5.5%,5.8%
-USD::fed chairman bernanke speaks::none,2012-11-21,01:15,,,
+USD::fed chairman bernanke speaks::none,2012-11-21,01:15,,,0.00
 NZD::globaldairytrade price index::none,2012-11-21,04:00,-0.80%,,0.00%
 COP::industrial production::y/y,2012-11-21,05:00,-1.3%,0.8%,-2.1%
 USD::api weekly gasoline stock::none,2012-11-21,05:30,-4.81M,1.25M,-0.10M
@@ -9438,7 +9438,7 @@ USD::api weekly crude oil stock::none,2012-11-21,05:30,-1.92M,0.85M,1.35M
 AUD::mi leading index::m/m,2012-11-21,07:30,0.7%,,0.4%
 JPY::adjusted trade balance::none,2012-11-21,07:50,-0.62T,-0.49T,-0.96T
 NZD::credit card spending::y/y,2012-11-21,10:00,-0.9%,,1.5%
-JPY::boj monthly report::none,2012-11-21,13:00,,,
+JPY::boj monthly report::none,2012-11-21,13:00,,,0.00
 ZAR::cpi::m/m,2012-11-21,16:00,0.60%,0.40%,0.90%
 NOK::unemployment rate::none,2012-11-21,17:00,3.00%,3.10%,3.10%
 GBP::public sector net borrowing::none,2012-11-21,17:30,6.5B,4.0B,9.9B
@@ -9518,7 +9518,7 @@ NA::argentina - national sovereignity day::none,2012-11-26,All Day,,,
 NA::bahrain - ashura::none,2012-11-26,All Day,,,
 NA::pakistan - ashura::none,2012-11-26,All Day,,,
 KRW::consumer confidence::none,2012-11-26,05:00,99,98,98
-JPY::monetary policy meeting minutes::none,2012-11-26,07:50,,,
+JPY::monetary policy meeting minutes::none,2012-11-26,07:50,,,0.00
 JPY::boj governor shirakawa speaks::none,2012-11-26,09:00,,,
 SGD::industrial production::y/y,2012-11-26,13:00,-2.1%,-1.0%,-2.8%
 EUR::finnish ppi::y/y,2012-11-26,15:00,1.70%,,1.70%
@@ -9567,7 +9567,7 @@ EUR::italian 2 - year ctz auction::none,2012-11-27,18:10,1.923%,,2.397%
 HUF::interest rate decision::none,2012-11-27,21:00,6.00%,6.00%,6.25%
 CAD::corporate profits::q/q,2012-11-27,21:30,3.7%,,-4.9%
 USD::durable goods orders::m/m,2012-11-27,21:30,0.0%,-0.6%,9.2%
-USD::fed chairman bernanke speaks::none,2012-11-27,21:30,,,
+USD::fed chairman bernanke speaks::none,2012-11-27,21:30,,,0.00
 USD::core durable goods orders::m/m,2012-11-27,21:30,1.5%,-0.5%,1.7%
 USD::redbook::m/m,2012-11-27,21:55,0.80%,,0.00%
 USD::s&p/cs hpi composite - 20 n.s.a.::y/y,2012-11-27,22:00,3.0%,2.9%,2.0%
@@ -9605,7 +9605,7 @@ GBP::mortgage approvals::none,2012-11-29,01:00,53K,52K,50K
 GBP::net lending to individuals::none,2012-11-29,01:00,-0.3B,0.9B,1.7B
 CHF::snb chairman thomas jordan speaks::none,2012-11-29,01:15,,,
 USD::5 - year note auction::none,2012-11-29,02:00,0.641%,,0.774%
-USD::beige book::none,2012-11-29,03:00,,,
+USD::beige book::none,2012-11-29,03:00,,,0.00
 USD::fed's balance sheet::none,2012-11-29,04:30,"2,851.36B",,"2,871.16B"
 KRW::manufacturing bsi index::none,2012-11-29,05:00,69.00,,72.00
 BRL::interest rate decision::none,2012-11-29,05:45,7.25%,7.25%,7.25%
@@ -10215,7 +10215,7 @@ USD::10 - year note auction::none,2012-12-13,00:30,1.652%,,1.675%
 USD::fomc statement::none,2012-12-13,01:30,,,
 USD::fed interest rate decision::none,2012-12-13,01:30,0.25%,0.25%,0.25%
 USD::federal budget balance::none,2012-12-13,03:00,-172.1B,-150.0B,-120.0B
-USD::fed chairman bernanke speaks::none,2012-12-13,03:15,,,
+USD::fed chairman bernanke speaks::none,2012-12-13,03:15,,,0.00
 USD::fed's balance sheet::none,2012-12-13,04:30,"2,917.26B",,"2,859.81B"
 NZD::business nz pmi::none,2012-12-13,05:30,48.8,,50.3
 NZD::fpi::m/m,2012-12-13,05:45,-0.8%,,-0.6%
@@ -10386,7 +10386,7 @@ USD::fed's balance sheet::none,2012-12-20,04:30,"2,920.23B",,"2,917.26B"
 COP::industrial production::y/y,2012-12-20,05:00,1.2%,1.4%,-1.5%
 NZD::gdp::q/q,2012-12-20,05:45,0.2%,0.4%,0.3%
 NZD::anz business confidence::none,2012-12-20,08:00,22.7%,,26.4%
-AUD::rba bulletin::none,2012-12-20,08:30,,,
+AUD::rba bulletin::none,2012-12-20,08:30,,,0.00
 JPY::boj interest rate decision::none,2012-12-20,12:00,0.10%,0.10%,0.10%
 EUR::estonian ppi::m/m,2012-12-20,14:00,0.30%,,-0.10%
 CHF::trade balance::none,2012-12-20,15:00,2.946B,2.250B,2.732B
@@ -10423,7 +10423,7 @@ ARS::industrial production::y/y,2012-12-21,03:00,-1.4%,2.0%,2.2%
 NZD::visitor arrivals::m/m,2012-12-21,05:45,1.7%,,-1.6%
 GBP::gfk consumer confidence::none,2012-12-21,08:00,-29,-25,-22
 NZD::credit card spending::y/y,2012-12-21,10:00,3.9%,,-0.9%
-JPY::boj monthly report::none,2012-12-21,13:00,,,
+JPY::boj monthly report::none,2012-12-21,13:00,,,0.00
 EUR::finnish ppi::y/y,2012-12-21,15:00,1.30%,,1.70%
 EUR::finnish unemployment rate::none,2012-12-21,15:00,8.00%,,7.90%
 EUR::gfk german consumer climate::none,2012-12-21,15:00,5.6,5.9,5.8
@@ -10594,7 +10594,7 @@ NA::sweden - boxing day::none,2012-12-26,All Day,,,
 NA::switzerland - st. stephen's day::none,2012-12-26,All Day,,,
 NA::united kingdom - boxing day::none,2012-12-26,All Day,,,
 KRW::consumer confidence::none,2012-12-26,05:00,99,99,99
-JPY::monetary policy meeting minutes::none,2012-12-26,07:50,,,
+JPY::monetary policy meeting minutes::none,2012-12-26,07:50,,,0.00
 JPY::2 - year jgb auction::none,2012-12-26,10:45,0.094%,,0.096%
 SGD::industrial production::y/y,2012-12-26,13:00,3.1%,4.8%,-5.1%
 INR::m3 money supply::none,2012-12-26,18:00,12.90%,,12.50%

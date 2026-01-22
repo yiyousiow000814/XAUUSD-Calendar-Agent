@@ -143,7 +143,7 @@ USD::ism manufacturing new orders index::none,2023-01-04,23:00,45.2,,47.2
 USD::ism manufacturing employment::none,2023-01-04,23:00,51.4,48.3,48.4
 NA::montenegro - christmas::none,2023-01-05,All Day,,,
 EUR::irish exchequer returns::none,2023-01-05,00:30,5.000B,,12.100B
-USD::fomc meeting minutes::none,2023-01-05,03:00,,,
+USD::fomc meeting minutes::none,2023-01-05,03:00,,,0.00
 USD::fed's balance sheet::none,2023-01-05,04:30,"8,507.43B",,"8,551.17B"
 USD::api weekly crude oil stock::none,2023-01-05,05:30,3.298M,,-1.300M
 USD::total vehicle sales::none,2023-01-05,07:00,13.30M,,14.10M
@@ -954,7 +954,7 @@ USD::retail inventories ex auto::none,2023-01-18,23:00,-0.3%,,-0.6%
 NA::taiwan - market holiday::none,2023-01-19,All Day,,,
 USD::20 - year bond auction::none,2023-01-19,02:00,3.678%,,3.935%
 USD::fomc member george speaks::none,2023-01-19,02:00,,,
-USD::beige book::none,2023-01-19,03:00,,,
+USD::beige book::none,2023-01-19,03:00,,,0.00
 USD::fomc member harker speaks::none,2023-01-19,03:00,,,
 USD::fed's balance sheet::none,2023-01-19,04:30,"8,489.04B",,"8,508.59B"
 USD::overall net capital flow::none,2023-01-19,05:00,213.10B,,179.30B
@@ -1134,7 +1134,7 @@ NA::south korea - new year's day::none,2023-01-23,All Day,,,
 NA::taiwan - chinese new year::none,2023-01-23,All Day,,,
 NA::vietnam - chinese new year::none,2023-01-23,All Day,,,
 NZD::performance of services index::none,2023-01-23,05:30,52.1,,53.8
-JPY::monetary policy meeting minutes::none,2023-01-23,07:50,,,
+JPY::monetary policy meeting minutes::none,2023-01-23,07:50,,,0.00
 DKK::consumer confidence::none,2023-01-23,15:00,-26.1,,-28.9
 TRY::consumer confidence::none,2023-01-23,15:00,79.1,,75.6
 PLN::industrial output::y/y,2023-01-23,17:00,1.0%,1.4%,4.5%
@@ -2094,7 +2094,7 @@ SEK::interest rate decision::none,2023-02-09,16:30,3.00%,3.00%,2.50%
 TWD::wholesale prices::m/m,2023-02-09,17:00,5.61%,,7.14%
 ZAR::gold production::y/y,2023-02-09,17:30,-3.3%,,-4.6%
 ZAR::mining production::none,2023-02-09,17:30,-3.5%,-6.0%,-9.2%
-GBP::boe mpc treasury committee hearings::none,2023-02-09,17:45,,,
+GBP::boe mpc treasury committee hearings::none,2023-02-09,17:45,,,0.00
 EUR::france thomson reuters ipsos pcsi::none,2023-02-09,18:00,40.74,,42.75
 EUR::germany thomson reuters ipsos pcsi::none,2023-02-09,18:00,49.28,,47.25
 EUR::italy thomson reuters ipsos pcsi::none,2023-02-09,18:00,40.83,,44.85
@@ -2790,7 +2790,7 @@ RUB::ppi::m/m,2023-02-23,00:00,-0.9%,,-0.8%
 RUB::ppi::y/y,2023-02-23,00:00,-4.6%,,-3.3%
 USD::5 - year note auction::none,2023-02-23,02:00,4.109%,,3.530%
 ARS::trade balance::none,2023-02-23,03:00,-484M,350M,"1,102M"
-USD::fomc meeting minutes::none,2023-02-23,03:00,,,
+USD::fomc meeting minutes::none,2023-02-23,03:00,,,0.00
 ARS::budget balance::none,2023-02-23,03:20,-204M,,-442M
 USD::fed's balance sheet::none,2023-02-23,04:30,"8,382B",,"8,385B"
 KRW::ppi::m/m,2023-02-23,05:00,0.4%,,-0.4%
@@ -2820,7 +2820,7 @@ ZMK::cpi::y/y,2023-02-23,16:00,9.6%,,9.4%
 HKD::cpi::y/y,2023-02-23,16:30,2.40%,1.90%,2.00%
 PLN::unemployment rate::none,2023-02-23,17:00,5.5%,5.5%,5.2%
 GBP::boe mpc member mann speaks::none,2023-02-23,17:30,,,
-ZAR::ppi::m/m,2023-02-23,17:30,-0.6%,-0.4%,
+ZAR::ppi::m/m,2023-02-23,17:30,-0.6%,-0.4%,0.0%
 ZAR::ppi::y/y,2023-02-23,17:30,12.7%,12.8%,13.5%
 BWP::interest rate decision::none,2023-02-23,18:00,2.65%,,2.65%
 EUR::cpi::y/y,2023-02-23,18:00,8.6%,8.6%,9.2%
@@ -3137,7 +3137,7 @@ INR::federal fiscal deficit::none,2023-02-28,18:00,"11,908.05B",,"9,929.76B"
 GBP::boe mpc member cunliffe speaks::none,2023-02-28,18:15,,,
 EUR::german 2 - year schatz auction::none,2023-02-28,18:30,3.140%,,2.640%
 JPY::2 - year jgb auction::none,2023-02-28,18:30,-0.027%,,-0.009%
-EUR::irish retail sales::m/m,2023-02-28,19:00,0.1%,,
+EUR::irish retail sales::m/m,2023-02-28,19:00,0.1%,,0.0%
 EUR::irish retail sales::y/y,2023-02-28,19:00,3.0%,,1.4%
 EUR::latvian gdp::y/y,2023-02-28,19:00,0.3%,,-0.6%
 EUR::portuguese cpi::m/m,2023-02-28,19:00,0.3%,,-0.8%
@@ -3675,7 +3675,7 @@ USD::thomson reuters ipsos pcsi::none,2023-03-09,00:00,51.35,,51.57
 USD::wasde report::none,2023-03-09,01:00,,,
 USD::10 - year note auction::none,2023-03-09,02:00,3.985%,,3.613%
 ARS::industrial production::y/y,2023-03-09,03:00,6.3%,,-2.7%
-USD::beige book::none,2023-03-09,03:00,,,
+USD::beige book::none,2023-03-09,03:00,,,0.00
 USD::fed's balance sheet::none,2023-03-09,04:30,"8,342B",,"8,340B"
 NZD::electronic card retail sales::y/y,2023-03-09,05:45,11.7%,,2.7%
 NZD::electronic card retail sales::m/m,2023-03-09,05:45,0.0%,,2.6%
@@ -3990,7 +3990,7 @@ NZD::current account % of gdp::none,2023-03-15,05:45,-8.90%,-8.30%,-8.50%
 NZD::current account::q/q,2023-03-15,05:45,-9.46B,-7.64B,-11.40B
 NZD::current account::y/y,2023-03-15,05:45,-33.79B,-30.90B,-31.87B
 KRW::unemployment rate::none,2023-03-15,07:00,2.6%,,2.9%
-JPY::monetary policy meeting minutes::none,2023-03-15,07:50,,,
+JPY::monetary policy meeting minutes::none,2023-03-15,07:50,,,0.00
 CNY::chinese retail sales ytd::y/y,2023-03-15,10:00,3.55%,,-0.25%
 CNY::retail sales::y/y,2023-03-15,10:00,3.5%,3.5%,-1.8%
 CNY::chinese industrial production ytd::y/y,2023-03-15,10:00,2.4%,,3.6%
@@ -4108,7 +4108,7 @@ JPY::exports::y/y,2023-03-16,07:50,6.5%,7.1%,3.5%
 JPY::trade balance::none,2023-03-16,07:50,-897.7B,"-1,069.4B","-3,498.6B"
 AUD::mi inflation expectations::none,2023-03-16,08:00,5.0%,,5.1%
 AUD::participation rate::none,2023-03-16,08:30,66.6%,66.6%,66.5%
-AUD::rba bulletin::none,2023-03-16,08:30,,,
+AUD::rba bulletin::none,2023-03-16,08:30,,,0.00
 AUD::employment change::none,2023-03-16,08:30,64.6K,48.5K,-11.0K
 AUD::full employment change::none,2023-03-16,08:30,74.9K,,-42.4K
 AUD::unemployment rate::none,2023-03-16,08:30,3.5%,3.6%,3.7%
@@ -5668,7 +5668,7 @@ NA::thailand - songkran festival::none,2023-04-13,All Day,,,
 RUB::cpi::m/m,2023-04-13,00:00,0.4%,0.2%,0.5%
 RUB::cpi::y/y,2023-04-13,00:00,3.5%,3.4%,11.0%
 USD::10 - year note auction::none,2023-04-13,01:00,3.455%,,3.985%
-USD::fomc meeting minutes::none,2023-04-13,02:00,,,
+USD::fomc meeting minutes::none,2023-04-13,02:00,,,0.00
 USD::federal budget balance::none,2023-04-13,02:00,-378.0B,-302.0B,-262.0B
 GBP::boe gov bailey speaks::none,2023-04-13,03:15,,,
 KRW::export price index::y/y,2023-04-13,05:00,-6.4%,-2.4%,-2.6%
@@ -6125,7 +6125,7 @@ RUB::ppi::m/m,2023-04-20,00:00,2.6%,,0.9%
 RUB::ppi::y/y,2023-04-20,00:00,-10.7%,,-7.5%
 GBP::boe mpc member mann speaks::none,2023-04-20,00:30,,,
 USD::20 - year bond auction::none,2023-04-20,01:00,3.920%,,3.909%
-USD::beige book::none,2023-04-20,02:00,,,
+USD::beige book::none,2023-04-20,02:00,,,0.00
 NZD::cpi::q/q,2023-04-20,06:45,1.2%,1.7%,1.4%
 NZD::cpi::y/y,2023-04-20,06:45,6.7%,7.1%,7.2%
 USD::fomc member williams speaks::none,2023-04-20,07:00,,,
@@ -7193,7 +7193,7 @@ NA::czech republic - liberation day::none,2023-05-08,All Day,,,
 NA::kazakhstan - defender of the fatherland day::none,2023-05-08,All Day,,,
 NA::slovakia - national day::none,2023-05-08,All Day,,,
 NA::united kingdom - bank holiday::none,2023-05-08,All Day,,,
-JPY::monetary policy meeting minutes::none,2023-05-08,07:50,,,
+JPY::monetary policy meeting minutes::none,2023-05-08,07:50,,,0.00
 AUD::nab business survey::none,2023-05-08,09:30,14,9,16
 AUD::private house approvals::none,2023-05-08,09:30,-2.8%,,11.3%
 AUD::building approvals::m/m,2023-05-08,09:30,-0.1%,3.0%,3.9%
@@ -7918,7 +7918,7 @@ KWD::cpi::m/m,2023-05-18,16:30,0.16%,,0.70%
 KWD::cpi::y/y,2023-05-18,16:30,3.69%,,3.70%
 EUR::spanish 5 - year bonos auction::none,2023-05-18,17:00,3.027%,,2.623%
 EUR::ecb president lagarde speaks::none,2023-05-18,17:00,,,
-GBP::boe mpc treasury committee hearings::none,2023-05-18,17:15,,,
+GBP::boe mpc treasury committee hearings::none,2023-05-18,17:15,,,0.00
 GBP::boe quarterly bulletin::none,2023-05-18,19:00,,,
 TRY::cbrt financial stability report::none,2023-05-18,19:00,,,
 KWD::exports::none,2023-05-18,19:10,8.050B,,8.610B
@@ -8218,7 +8218,7 @@ RUB::ppi::y/y,2023-05-25,00:00,-12.7%,,-10.7%
 USD::fed waller speaks::none,2023-05-25,00:10,,,
 USD::5 - year note auction::none,2023-05-25,01:00,3.749%,,3.500%
 EUR::ecb president lagarde speaks::none,2023-05-25,01:45,,,
-USD::fomc meeting minutes::none,2023-05-25,02:00,,,
+USD::fomc meeting minutes::none,2023-05-25,02:00,,,0.00
 ARS::retail sales::y/y,2023-05-25,03:00,126.1%,,132.1%
 KRW::ppi::m/m,2023-05-25,05:00,-0.1%,0.3%,0.1%
 KRW::ppi::y/y,2023-05-25,05:00,1.6%,2.3%,3.3%
@@ -8654,7 +8654,7 @@ BRL::caged net payroll jobs::none,2023-05-31,22:30,180.01K,204.80K,195.17K
 USD::dallas fed services revenues::none,2023-05-31,22:30,6.9,4.2,6.9
 USD::texas services sector outlook::none,2023-05-31,22:30,-17.3,-16.0,-14.4
 BRL::foreign exchange flows::none,2023-05-31,23:00,-2.925B,-1.110B,-3.151B
-CHF::snb board member jordan speaks::none,2023-05-31,23:00,,,
+CHF::snb board member jordan speaks::none,2023-05-31,23:00,,,0.00
 COP::unemployment rate::none,2023-05-31,23:00,10.7%,,10.0%
 COP::urban unemployment rate::none,2023-05-31,23:00,11.1%,,10.5%
 NA::malaysia - harvest festival - early close at 12:30::none,2023-05-31,,,,
@@ -8670,7 +8670,7 @@ RUB::unemployment rate::none,2023-06-01,00:00,3.3%,3.6%,3.5%
 RUB::gdp monthly::y/y,2023-06-01,00:30,3.3%,,-0.7%
 USD::fomc member harker speaks::none,2023-06-01,00:30,,,
 USD::fed governor jefferson speaks::none,2023-06-01,01:30,,,
-USD::beige book::none,2023-06-01,02:00,,,
+USD::beige book::none,2023-06-01,02:00,,,0.00
 USD::api weekly crude oil stock::none,2023-06-01,04:30,5.202M,-1.220M,-6.799M
 RUB::business confidence::none,2023-06-01,05:30,3.9,,3.4
 JPY::foreign bonds buying::none,2023-06-01,07:50,"1,028.8B",,962.9B
@@ -9144,7 +9144,7 @@ MXN::ppi::m/m,2023-06-08,20:00,-0.50%,,0.10%
 MXN::ppi::y/y,2023-06-08,20:00,0.10%,,1.40%
 MXN::cpi::m/m,2023-06-08,20:00,-0.22%,-0.16%,-0.02%
 MXN::cpi::y/y,2023-06-08,20:00,5.84%,5.90%,6.25%
-CHF::snb board member jordan speaks::none,2023-06-08,20:05,,,
+CHF::snb board member jordan speaks::none,2023-06-08,20:05,,,0.00
 USD::initial jobless claims::none,2023-06-08,20:30,261K,235K,233K
 USD::jobless claims 4 - week avg.::none,2023-06-08,20:30,237.25K,209.67K,229.75K
 USD::continuing jobless claims::none,2023-06-08,20:30,"1,757K","1,800K","1,794K"
@@ -9472,7 +9472,7 @@ JPY::trade balance::none,2023-06-15,07:50,"-1,372.5B","1,331.9B",-432.3B
 AUD::mi inflation expectations::none,2023-06-15,09:00,5.2%,4.8%,5.0%
 HKD::interest rate decision::none,2023-06-15,09:00,5.50%,,5.50%
 AUD::participation rate::none,2023-06-15,09:30,66.9%,66.7%,66.7%
-AUD::rba bulletin::none,2023-06-15,09:30,,,
+AUD::rba bulletin::none,2023-06-15,09:30,,,0.00
 AUD::employment change::none,2023-06-15,09:30,75.9K,15.0K,-4.0K
 AUD::full employment change::none,2023-06-15,09:30,61.7K,,-28.6K
 AUD::unemployment rate::none,2023-06-15,09:30,3.6%,3.7%,3.7%
@@ -9778,7 +9778,7 @@ EUR::ecb's de guindos speaks::none,2023-06-21,01:10,,,
 KRW::ppi::m/m,2023-06-21,05:00,-0.3%,-0.2%,-0.1%
 KRW::ppi::y/y,2023-06-21,05:00,0.6%,0.5%,1.6%
 JPY::reuters tankan index::none,2023-06-21,07:00,8,,6
-JPY::monetary policy meeting minutes::none,2023-06-21,07:50,,,
+JPY::monetary policy meeting minutes::none,2023-06-21,07:50,,,0.00
 AUD::mi leading index::m/m,2023-06-21,09:00,0.0%,,0.0%
 KRW::bok financial stability board meeting minutes::none,2023-06-21,09:00,,,
 JPY::boj board member adachi speaks::none,2023-06-21,09:30,,,
@@ -10722,7 +10722,7 @@ NA::czech republic - jan hus day::none,2023-07-06,All Day,,,
 NA::kazakhstan - day of capital::none,2023-07-06,All Day,,,
 NA::lithuania - statehood day::none,2023-07-06,All Day,,,
 BRL::foreign exchange flows::none,2023-07-06,01:30,2.890B,-1.544B,0.048B
-USD::fomc meeting minutes::none,2023-07-06,02:00,,,
+USD::fomc meeting minutes::none,2023-07-06,02:00,,,0.00
 USD::fomc member williams speaks::none,2023-07-06,04:00,,,
 USD::api weekly crude oil stock::none,2023-07-06,04:30,-4.382M,-1.800M,-2.408M
 JPY::foreign bonds buying::none,2023-07-06,07:50,"1,252.7B",,162.3B
@@ -11143,7 +11143,7 @@ USD::wasde report::none,2023-07-13,00:00,,,
 USD::10 - year note auction::none,2023-07-13,01:00,3.857%,,3.791%
 USD::fomc member bostic speaks::none,2023-07-13,01:00,,,
 BRL::foreign exchange flows::none,2023-07-13,01:30,0.706B,,2.843B
-USD::beige book::none,2023-07-13,02:00,,,
+USD::beige book::none,2023-07-13,02:00,,,0.00
 USD::fomc member mester speaks::none,2023-07-13,04:00,,,
 KRW::export price index::y/y,2023-07-13,05:00,-14.7%,-11.6%,-11.3%
 KRW::import price index::y/y,2023-07-13,05:00,-15.7%,-15.2%,-12.3%
@@ -12298,7 +12298,7 @@ AUD::aig manufacturing index::none,2023-08-02,07:00,-25.6,,-19.8
 KRW::cpi::m/m,2023-08-02,07:00,0.1%,0.2%,0.0%
 KRW::cpi::y/y,2023-08-02,07:00,2.3%,2.4%,2.7%
 JPY::monetary base::y/y,2023-08-02,07:50,-1.3%,-0.9%,-1.0%
-JPY::monetary policy meeting minutes::none,2023-08-02,07:50,,,
+JPY::monetary policy meeting minutes::none,2023-08-02,07:50,,,0.00
 AUD::rba chart pack release::none,2023-08-02,09:30,,,
 ARS::tax revenue::none,2023-08-02,10:00,"3,571.20B",,"3,517.26B"
 RON::ppi::y/y,2023-08-02,14:00,3.76%,,7.60%
@@ -13184,7 +13184,7 @@ NA::indonesia - independence day::none,2023-08-17,All Day,,,
 RUB::ppi::m/m,2023-08-17,00:00,1.4%,,0.0%
 RUB::ppi::y/y,2023-08-17,00:00,4.1%,,0.0%
 BRL::foreign exchange flows::none,2023-08-17,01:30,4.149B,2.063B,1.923B
-USD::fomc meeting minutes::none,2023-08-17,02:00,,,
+USD::fomc meeting minutes::none,2023-08-17,02:00,,,0.00
 KRW::export price index::y/y,2023-08-17,05:00,-12.8%,-16.5%,-15.0%
 KRW::import price index::y/y,2023-08-17,05:00,-13.5%,-20.8%,-16.1%
 NZD::ppi output::q/q,2023-08-17,06:45,0.2%,0.7%,0.2%
@@ -14255,7 +14255,7 @@ USD::exports::none,2023-09-06,20:30,251.66B,,247.50B
 USD::imports::none,2023-09-06,20:30,316.70B,,313.00B
 USD::trade balance::none,2023-09-06,20:30,-65.00B,-68.00B,-63.70B
 USD::redbook::y/y,2023-09-06,20:55,4.1%,,4.2%
-GBP::boe mpc treasury committee hearings::none,2023-09-06,21:15,,,
+GBP::boe mpc treasury committee hearings::none,2023-09-06,21:15,,,0.00
 PLN::interest rate decision::none,2023-09-06,21:20,6.00%,6.50%,6.75%
 EUR::german buba wuermeling speaks::none,2023-09-06,21:35,,,
 CAD::boc interest rate decision::none,2023-09-06,22:00,5.00%,5.00%,5.00%
@@ -14270,7 +14270,7 @@ AUD::rba governor lowe speaks::none,2023-09-06,23:10,,,
 NA::brazil - independence day::none,2023-09-07,All Day,,,
 EUR::german buba balz speaks::none,2023-09-07,00:00,,,
 BRL::foreign exchange flows::none,2023-09-07,01:30,-0.566B,,1.922B
-USD::beige book::none,2023-09-07,02:00,,,
+USD::beige book::none,2023-09-07,02:00,,,0.00
 USD::fed logan speaks::none,2023-09-07,03:00,,,
 USD::api weekly crude oil stock::none,2023-09-07,04:30,-5.521M,-1.429M,-11.486M
 NZD::manufacturing sales volume::q/q,2023-09-07,06:45,2.9%,,-1.8%
@@ -15150,7 +15150,7 @@ NZD::gdp expenditure::q/q,2023-09-21,06:45,1.3%,,-0.2%
 NZD::gdp::q/q,2023-09-21,06:45,0.9%,0.5%,0.0%
 AED::interest rate decision::none,2023-09-21,08:15,5.40%,,5.40%
 HKD::interest rate decision::none,2023-09-21,09:00,5.75%,,5.75%
-AUD::rba bulletin::none,2023-09-21,09:30,,,
+AUD::rba bulletin::none,2023-09-21,09:30,,,0.00
 AUD::reserve assets total::none,2023-09-21,09:30,93.9B,,91.4B
 NZD::credit card spending::y/y,2023-09-21,11:00,4.2%,,4.0%
 EUR::dutch consumer confidence::none,2023-09-21,12:30,-39.0,,-40.0
@@ -15410,7 +15410,7 @@ ARS::economic activity::y/y,2023-09-27,03:00,-1.3%,-3.7%,-4.4%
 ARS::retail sales::y/y,2023-09-27,03:00,137.9%,,117.1%
 USD::api weekly crude oil stock::none,2023-09-27,04:30,1.586M,-1.650M,-5.250M
 KRW::manufacturing bsi index::none,2023-09-27,05:00,68,,67
-JPY::monetary policy meeting minutes::none,2023-09-27,07:50,,,
+JPY::monetary policy meeting minutes::none,2023-09-27,07:50,,,0.00
 AUD::monthly cpi indicator::y/y,2023-09-27,09:30,5.20%,5.20%,4.90%
 CNY::chinese industrial profit ytd::none,2023-09-27,09:30,-11.7%,,-15.5%
 EUR::finnish consumer confidence::none,2023-09-27,13:00,-11.5,,-8.0
@@ -16375,7 +16375,7 @@ USD::eia short - term energy outlook::none,2023-10-12,00:00,,,
 USD::fomc member bostic speaks::none,2023-10-12,00:15,,,
 USD::10 - year note auction::none,2023-10-12,01:00,4.610%,,4.289%
 BRL::foreign exchange flows::none,2023-10-12,01:30,5.546B,-3.376B,-1.671B
-USD::fomc meeting minutes::none,2023-10-12,02:00,,,
+USD::fomc meeting minutes::none,2023-10-12,02:00,,,0.00
 USD::api weekly crude oil stock::none,2023-10-12,04:30,12.940M,1.300M,-4.210M
 NZD::fpi::m/m,2023-10-12,05:45,-0.4%,,0.5%
 JPY::bank lending::y/y,2023-10-12,07:50,2.9%,3.1%,3.1%
@@ -16823,7 +16823,7 @@ USD::fomc member williams speaks::none,2023-10-19,00:30,,,
 USD::20 - year bond auction::none,2023-10-19,01:00,5.245%,,4.592%
 USD::fomc member bowman speaks::none,2023-10-19,01:00,,,
 BRL::foreign exchange flows::none,2023-10-19,01:30,4.078B,1.454B,5.546B
-USD::beige book::none,2023-10-19,02:00,,,
+USD::beige book::none,2023-10-19,02:00,,,0.00
 USD::fomc member harker speaks::none,2023-10-19,03:15,,,
 USD::overall net capital flow::none,2023-10-19,04:00,134.40B,,141.40B
 USD::tic net long - term transactions including swaps::none,2023-10-19,04:00,63.50B,,9.50B
@@ -17834,7 +17834,7 @@ EGP::foreign reserves (usd)::none,2023-11-05,19:00,35.10B,,34.97B
 NA::colombia - all saint's day::none,2023-11-06,All Day,,,
 NA::morocco - day of the green march::none,2023-11-06,All Day,,,
 NA::venezuela - all saint's day::none,2023-11-06,All Day,,,
-JPY::monetary policy meeting minutes::none,2023-11-06,07:50,,,
+JPY::monetary policy meeting minutes::none,2023-11-06,07:50,,,0.00
 AUD::mi inflation gauge::m/m,2023-11-06,08:00,-0.1%,,0.0%
 NZD::anz commodity price index::m/m,2023-11-06,08:00,2.9%,,1.4%
 AUD::anz job advertisements::m/m,2023-11-06,08:30,-3.0%,,-0.5%
@@ -18723,7 +18723,7 @@ USD::cftc crude oil speculative net positions::none,2023-11-18,04:30,215.7K,,236
 USD::cftc gold speculative net positions::none,2023-11-18,04:30,155.4K,,166.2K
 USD::cftc nasdaq 100 speculative net positions::none,2023-11-18,04:30,0.3K,,16.3K
 USD::cftc s&p 500 speculative net positions::none,2023-11-18,04:30,-52.8K,,-53.4K
-CHF::snb board member jordan speaks::none,2023-11-18,17:00,,,
+CHF::snb board member jordan speaks::none,2023-11-18,17:00,,,0.00
 NA::argentina - national sovereignity day::none,2023-11-20,All Day,,,
 NA::latvia - republic day::none,2023-11-20,All Day,,,
 NA::mexico - revolution day::none,2023-11-20,All Day,,,
@@ -18831,7 +18831,7 @@ USD::chicago fed national activity::none,2023-11-21,21:30,-0.49,,-0.02
 EUR::ecb mccaul speaks::none,2023-11-21,21:45,,,
 USD::redbook::y/y,2023-11-21,21:55,3.4%,,3.0%
 AOA::interest rate decision::m/m,2023-11-21,22:00,18.00%,,17.00%
-GBP::boe mpc treasury committee hearings::none,2023-11-21,22:15,,,
+GBP::boe mpc treasury committee hearings::none,2023-11-21,22:15,,,0.00
 NZD::globaldairytrade price index::none,2023-11-21,22:30,0.0%,,-0.7%
 USD::existing home sales::none,2023-11-21,23:00,3.79M,3.90M,3.95M
 USD::existing home sales::m/m,2023-11-21,23:00,-4.1%,,-2.2%
@@ -18840,7 +18840,7 @@ CAD::budget balance::none,2023-11-22,00:00,-3.88B,,-3.05B
 EUR::ecb president lagarde speaks::none,2023-11-22,00:00,,,
 EUR::ecb's schnabel speaks::none,2023-11-22,01:15,,,
 USD::10 - year tips auction::none,2023-11-22,02:00,2.180%,,2.094%
-USD::fomc meeting minutes::none,2023-11-22,03:00,,,
+USD::fomc meeting minutes::none,2023-11-22,03:00,,,0.00
 ARS::budget balance::none,2023-11-22,05:30,-330M,,-380M
 USD::api weekly crude oil stock::none,2023-11-22,05:30,9.047M,1.467M,1.335M
 AUD::mi leading index::m/m,2023-11-22,07:30,0.0%,,0.1%
@@ -19271,7 +19271,7 @@ RUB::retail sales::y/y,2023-11-30,00:00,12.7%,11.2%,12.2%
 RUB::unemployment rate::none,2023-11-30,00:00,2.9%,3.0%,3.0%
 RUB::gdp monthly::y/y,2023-11-30,01:00,5.0%,3.8%,5.6%
 USD::fomc member mester speaks::none,2023-11-30,02:45,,,
-USD::beige book::none,2023-11-30,03:00,,,
+USD::beige book::none,2023-11-30,03:00,,,0.00
 NZD::building consents::m/m,2023-11-30,05:45,8.7%,,-4.6%
 KRW::industrial production::m/m,2023-11-30,07:00,-3.5%,0.5%,1.7%
 KRW::industrial production::y/y,2023-11-30,07:00,1.1%,5.0%,2.9%
@@ -20771,7 +20771,7 @@ USD::fed's balance sheet::none,2023-12-22,05:30,"7,724B",,"7,740B"
 JPY::national cpi::y/y,2023-12-22,07:30,2.8%,,3.3%
 JPY::national cpi::m/m,2023-12-22,07:30,-0.1%,,0.7%
 JPY::national core cpi::y/y,2023-12-22,07:30,2.5%,2.5%,2.9%
-JPY::monetary policy meeting minutes::none,2023-12-22,07:50,,,
+JPY::monetary policy meeting minutes::none,2023-12-22,07:50,,,0.00
 AUD::housing credit::none,2023-12-22,08:30,0.4%,,0.4%
 AUD::private sector credit::m/m,2023-12-22,08:30,0.4%,,0.3%
 IDR::m2 money supply::y/y,2023-12-22,12:00,3.30%,,3.40%

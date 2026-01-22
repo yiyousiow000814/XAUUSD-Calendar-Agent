@@ -1987,8 +1987,8 @@ CAD::cpi::m/m,2008-05-21,20:00,0.8%,0.4%,0.4%
 GBP::core cpi::y/y,2008-05-21,20:00,0.3%,0.2%,0.2%
 CAD::leading indicators::m/m,2008-05-21,21:30,0.1%,0.0%,0.0%
 USD::crude oil inventories::none,2008-05-21,23:30,-5.300M,,0.200M
-USD::fed governor warsh speaks::none,2008-05-22,02:00,,,
-USD::fomc meeting minutes::none,2008-05-22,03:00,,,
+USD::fed governor warsh speaks::none,2008-05-22,02:00,,,0.00
+USD::fomc meeting minutes::none,2008-05-22,03:00,,,0.00
 USD::fed's balance sheet::none,2008-05-22,04:30,898.49B,,880.18B
 JPY::all industries activity index::m/m,2008-05-22,08:50,0.5%,-0.2%,-1.4%
 JPY::adjusted trade balance::none,2008-05-22,08:50,0.49T,0.79T,0.77T
@@ -2001,7 +2001,7 @@ CAD::core retail sales::m/m,2008-05-22,21:30,0.0%,0.4%,-0.3%
 CAD::retail sales::m/m,2008-05-22,21:30,0.1%,0.3%,-0.7%
 USD::initial jobless claims::none,2008-05-22,21:30,365K,373K,371K
 USD::fed governor kroszner speaks::none,2008-05-22,22:00,,,
-JPY::monetary policy meeting minutes::none,2008-05-23,08:50,,,
+JPY::monetary policy meeting minutes::none,2008-05-23,08:50,,,0.00
 EUR::french consumer spending::m/m,2008-05-23,15:45,-0.8%,0.4%,-1.7%
 GBP::index of services::none,2008-05-23,17:30,0.5%,0.4%,0.3%
 EUR::italian gdp::q/q,2008-05-23,18:00,0.4%,,
@@ -2048,7 +2048,7 @@ GBP::cbi distributive trades survey::none,2008-05-29,19:00,-14,,-26
 CAD::current account::none,2008-05-29,21:30,5.6B,2.8B,-0.5B
 USD::initial jobless claims::none,2008-05-29,21:30,372K,370K,365K
 USD::crude oil inventories::none,2008-05-29,23:30,-8.800M,,-5.400M
-USD::fed chairman bernanke speaks::none,2008-05-30,03:30,,,
+USD::fed chairman bernanke speaks::none,2008-05-30,03:30,,,0.00
 NZD::building consents::m/m,2008-05-30,07:45,82.1%,,-9.1%
 USD::fed governor kohn speaks::none,2008-05-30,08:00,,,
 JPY::unemployment rate::none,2008-05-30,08:30,4.0%,3.9%,3.8%
@@ -2288,7 +2288,7 @@ AUD::commodity prices::y/y,2008-06-02,15:30,28.6%,,20.7%
 CHF::manufacturing pmi::none,2008-06-02,16:30,55.7,55.4,56.7
 GBP::mortgage approvals::none,2008-06-02,17:30,58K,64K,64K
 GBP::net lending to individuals::none,2008-06-02,17:30,7.3B,8.0B,8.1B
-EUR::ecb president trichet speaks::none,2008-06-02,22:30,,,
+EUR::ecb president trichet speaks::none,2008-06-02,22:30,,,0.00
 USD::ism manufacturing pmi::none,2008-06-02,23:00,49.6,48.6,48.6
 USD::ism manufacturing prices::none,2008-06-02,23:00,87.0,85.0,84.5
 USD::construction spending::m/m,2008-06-02,23:00,-0.4%,-0.5%,-1.1%
@@ -2299,8 +2299,8 @@ AUD::rba interest rate decision::none,2008-06-03,13:30,7.25%,7.25%,7.25%
 CHF::cpi::m/m,2008-06-03,14:45,0.8%,0.4%,0.8%
 EUR::ppi::m/m,2008-06-03,18:00,0.8%,0.8%,0.7%
 EUR::gdp::q/q,2008-06-03,18:00,0.8%,0.7%,0.7%
-EUR::ecb president trichet speaks::none,2008-06-03,22:00,,,
-USD::fed chairman bernanke speaks::none,2008-06-03,22:00,,,
+EUR::ecb president trichet speaks::none,2008-06-03,22:00,,,0.00
+USD::fed chairman bernanke speaks::none,2008-06-03,22:00,,,0.00
 USD::factory orders::m/m,2008-06-03,23:00,1.1%,0.0%,1.3%
 USD::total vehicle sales::none,2008-06-04,00:00,10.50M,10.80M,10.60M
 GBP::nationwide consumer confidence::none,2008-06-04,08:00,69,68,70
@@ -2308,7 +2308,7 @@ AUD::aig services index::none,2008-06-04,08:30,49.7,,47.3
 JPY::capital spending::y/y,2008-06-04,08:50,-4.90%,-9.60%,-7.70%
 AUD::gdp::q/q,2008-06-04,10:30,0.6%,0.3%,0.6%
 NZD::anz commodity price index::m/m,2008-06-04,12:00,1.0%,,-0.3%
-EUR::ecb president trichet speaks::none,2008-06-04,16:30,,,
+EUR::ecb president trichet speaks::none,2008-06-04,16:30,,,0.00
 EUR::retail sales::m/m,2008-06-04,18:00,-0.6%,0.2%,-0.4%
 GBP::brc shop price index::y/y,2008-06-04,18:30,1.8%,,1.2%
 USD::adp nonfarm employment change::none,2008-06-04,21:15,40K,-30K,13K
@@ -2316,7 +2316,7 @@ USD::nonfarm productivity::q/q,2008-06-04,21:30,2.6%,2.5%,2.2%
 USD::unit labor costs::q/q,2008-06-04,21:30,2.2%,2.0%,2.2%
 USD::ism non - manufacturing pmi::none,2008-06-04,23:00,51.7,51.0,52.0
 USD::crude oil inventories::none,2008-06-04,23:30,-4.800M,,-8.800M
-USD::fed chairman bernanke speaks::none,2008-06-05,03:45,,,
+USD::fed chairman bernanke speaks::none,2008-06-05,03:45,,,0.00
 USD::fed's balance sheet::none,2008-06-05,04:30,895.94B,,904.05B
 NZD::rbnz interest rate decision::none,2008-06-05,06:00,8.25%,8.25%,8.25%
 AUD::trade balance::none,2008-06-05,10:30,-1.00B,-1.70B,-2.70B
@@ -2330,7 +2330,7 @@ CAD::ivey pmi::none,2008-06-05,23:00,62.5,58.8,57.6
 AUD::aig construction index::none,2008-06-06,08:30,36.9,,42.6
 EUR::french government budget balance::none,2008-06-06,15:45,-45.0B,-40.0B,-22.5B
 EUR::french trade balance::none,2008-06-06,15:45,-3.7B,-4.0B,-4.7B
-CHF::snb board member jordan speaks::none,2008-06-06,18:00,,,
+CHF::snb board member jordan speaks::none,2008-06-06,18:00,,,0.00
 EUR::german industrial production::m/m,2008-06-06,19:00,-0.8%,0.2%,-0.5%
 CAD::employment change::none,2008-06-06,20:00,8.4K,10.2K,19.2K
 CAD::unemployment rate::none,2008-06-06,20:00,6.1%,6.1%,6.1%
@@ -2359,12 +2359,12 @@ EUR::sentix investor confidence::none,2008-06-09,17:30,5.2,3.0,3.5
 GBP::ppi output::m/m,2008-06-09,17:30,1.6%,0.8%,1.4%
 GBP::ppi input::m/m,2008-06-09,17:30,3.8%,2.6%,2.4%
 CAD::housing starts::none,2008-06-09,21:15,221.00K,220.00K,214.00K
-CHF::snb chairman roth speaks::none,2008-06-09,23:00,,,
+CHF::snb chairman roth speaks::none,2008-06-09,23:00,,,0.00
 USD::pending home sales::m/m,2008-06-09,23:00,6.3%,-0.5%,-1.0%
-EUR::ecb president trichet speaks::none,2008-06-10,01:30,,,
+EUR::ecb president trichet speaks::none,2008-06-10,01:30,,,0.00
 GBP::brc retail sales monitor::y/y,2008-06-10,08:00,1.9%,,-1.5%
 JPY::core machinery orders::m/m,2008-06-10,08:50,5.5%,3.1%,-8.3%
-USD::fed chairman bernanke speaks::none,2008-06-10,09:15,,,
+USD::fed chairman bernanke speaks::none,2008-06-10,09:15,,,0.00
 AUD::home loans::m/m,2008-06-10,10:30,-3.0%,-2.0%,-6.1%
 AUD::nab business confidence::none,2008-06-10,10:30,-4,,-8
 EUR::german wpi::m/m,2008-06-10,15:00,1.4%,0.6%,0.6%
@@ -2392,7 +2392,7 @@ CAD::capacity utilization rate::none,2008-06-11,21:30,79.8%,80.7%,81.8%
 CAD::new housing price index::m/m,2008-06-11,21:30,0.0%,0.2%,0.2%
 USD::crude oil inventories::none,2008-06-11,23:35,-4.600M,,-4.800M
 USD::fed governor kroszner speaks::none,2008-06-12,01:15,,,
-USD::beige book::none,2008-06-12,03:00,,,
+USD::beige book::none,2008-06-12,03:00,,,0.00
 USD::fed's balance sheet::none,2008-06-12,04:30,890.61B,,895.94B
 NZD::fpi::m/m,2008-06-12,07:45,1.0%,,0.3%
 NZD::business nz pmi::none,2008-06-12,09:00,49.3,,51.4
@@ -2400,7 +2400,7 @@ AUD::employment change::none,2008-06-12,10:30,-19.7K,13.8K,25.4K
 AUD::unemployment rate::none,2008-06-12,10:30,4.3%,4.2%,4.2%
 EUR::ecb economic bulletin::none,2008-06-12,17:00,,,
 EUR::industrial production::m/m,2008-06-12,18:00,0.9%,-0.1%,-0.2%
-CHF::snb board member jordan speaks::none,2008-06-12,19:00,,,
+CHF::snb board member jordan speaks::none,2008-06-12,19:00,,,0.00
 USD::core retail sales::m/m,2008-06-12,20:30,1.2%,0.7%,0.5%
 USD::initial jobless claims::none,2008-06-12,20:30,384K,370K,357K
 USD::import price index::m/m,2008-06-12,20:30,2.3%,2.5%,1.8%
@@ -2439,7 +2439,7 @@ EUR::cpi::y/y,2008-06-16,17:00,3.7%,3.6%,3.3%
 EUR::core cpi::y/y,2008-06-16,17:00,1.7%,1.8%,1.6%
 USD::ny empire state manufacturing index::none,2008-06-16,20:30,-8.6,-1.5,-3.2
 USD::tic net long - term transactions::none,2008-06-16,21:00,115.1B,63.0B,80.4B
-USD::fed chairman bernanke speaks::none,2008-06-16,22:00,,,
+USD::fed chairman bernanke speaks::none,2008-06-16,22:00,,,0.00
 USD::nahb housing market index::none,2008-06-17,01:00,18,19,19
 JPY::tertiary industry activity index::m/m,2008-06-17,07:50,1.8%,0.5%,0.3%
 CHF::industrial production::q/q,2008-06-17,15:15,-9.3%,-5.1%,6.8%
@@ -2458,7 +2458,7 @@ USD::current account::none,2008-06-17,20:30,-176.0B,,-173.0B
 USD::housing starts::none,2008-06-17,20:30,0.980M,0.990M,1.030M
 USD::capacity utilization rate::none,2008-06-17,21:15,79.4%,79.7%,79.7%
 USD::industrial production::m/m,2008-06-17,21:15,-0.2%,0.1%,-0.7%
-JPY::monetary policy meeting minutes::none,2008-06-18,07:50,,,
+JPY::monetary policy meeting minutes::none,2008-06-18,07:50,,,0.00
 AUD::mi leading index::m/m,2008-06-18,08:30,0.4%,,0.2%
 GBP::boe mpc meeting minutes::none,2008-06-18,16:30,,,
 CHF::zew expectations::none,2008-06-18,17:00,-63.8,-60.8,-60.4
@@ -2467,7 +2467,7 @@ CAD::leading indicators::m/m,2008-06-18,20:30,0.2%,0.2%,0.1%
 USD::crude oil inventories::none,2008-06-18,22:35,-1.200M,,-4.600M
 USD::fed's balance sheet::none,2008-06-19,04:30,902.30B,,890.61B
 JPY::all industries activity index::m/m,2008-06-19,07:50,0.8%,0.3%,0.5%
-AUD::rba bulletin::none,2008-06-19,09:30,,,
+AUD::rba bulletin::none,2008-06-19,09:30,,,0.00
 CHF::trade balance::none,2008-06-19,14:15,1.870B,1.580B,1.530B
 CHF::snb interest rate decision::none,2008-06-19,15:30,2.75%,2.75%,2.75%
 EUR::italian quarterly unemployment rate::none,2008-06-19,16:00,6.5%,6.0%,6.1%
@@ -2480,13 +2480,13 @@ CAD::wholesale sales::m/m,2008-06-19,20:30,1.4%,0.8%,0.6%
 USD::initial jobless claims::none,2008-06-19,20:30,381K,375K,384K
 USD::philadelphia fed manufacturing index::none,2008-06-19,22:00,-17.1,-10.0,-15.6
 USD::us leading index::m/m,2008-06-19,23:00,0.1%,0%,0.1%
-GBP::boe mpc member gieve speaks::none,2008-06-20,03:00,,,
+GBP::boe mpc member gieve speaks::none,2008-06-20,03:00,,,0.00
 NZD::visitor arrivals::m/m,2008-06-20,06:45,9.4%,,-11.8%
 EUR::german ppi::m/m,2008-06-20,14:00,1.0%,0.9%,1.1%
 CHF::ppi::m/m,2008-06-20,15:15,1.2%,0.9%,0.7%
 CAD::core retail sales::m/m,2008-06-20,20:30,1.1%,0.5%,0.0%
 CAD::retail sales::m/m,2008-06-20,20:30,0.6%,0.6%,0.1%
-EUR::ecb president trichet speaks::none,2008-06-21,00:45,,,
+EUR::ecb president trichet speaks::none,2008-06-21,00:45,,,0.00
 USD::u.s. baker hughes oil rig count::none,2008-06-21,01:00,384,,389
 AUD::cftc aud speculative net positions::none,2008-06-21,03:30,37.0K,,47.5K
 CAD::cftc cad speculative net positions::none,2008-06-21,03:30,-1.0K,,17.6K
@@ -2514,7 +2514,7 @@ USD::richmond manufacturing index::none,2008-06-24,22:00,-14,-5,-3
 JPY::corporate services price index (cspi)::y/y,2008-06-25,07:50,0.6%,0.5%,0.5%
 JPY::adjusted trade balance::none,2008-06-25,07:50,0.64T,0.41T,0.61T
 EUR::italian retail sales::m/m,2008-06-25,16:00,0.0%,0.3%,-0.5%
-EUR::ecb president trichet speaks::none,2008-06-25,16:15,,,
+EUR::ecb president trichet speaks::none,2008-06-25,16:15,,,0.00
 GBP::cbi distributive trades survey::none,2008-06-25,18:00,-9,-17,-14
 USD::durable goods orders::m/m,2008-06-25,20:30,0.0%,0.0%,-0.6%
 USD::core durable goods orders::m/m,2008-06-25,20:30,-0.9%,-0.9%,2.4%
@@ -2526,7 +2526,7 @@ NZD::current account::q/q,2008-06-26,06:45,-2.20B,-1.70B,-3.40B
 EUR::german import price index::m/m,2008-06-26,14:00,2.4%,1.5%,0.9%
 EUR::m3 money supply::y/y,2008-06-26,16:00,10.5%,10.4%,10.6%
 GBP::business investment::q/q,2008-06-26,16:30,-1.8%,-1.4%,-1.4%
-GBP::boe mpc treasury committee hearings::none,2008-06-26,16:45,,,
+GBP::boe mpc treasury committee hearings::none,2008-06-26,16:45,,,0.00
 USD::gdp::q/q,2008-06-26,20:30,2.7%,1.0%,0.9%
 USD::initial jobless claims::none,2008-06-26,20:30,384K,375K,381K
 USD::existing home sales::none,2008-06-26,22:00,4.99M,4.96M,4.89M
@@ -2776,13 +2776,13 @@ USD::total vehicle sales::none,2008-07-02,00:00,9.70M,10.20M,10.50M
 JPY::monetary base::y/y,2008-07-02,07:50,0.4%,0.0%,-0.9%
 AUD::building approvals::m/m,2008-07-02,09:30,-6.5%,-3.3%,7.8%
 AUD::retail sales::m/m,2008-07-02,09:30,0.7%,0.1%,-0.2%
-EUR::ecb president trichet speaks::none,2008-07-02,15:15,,,
+EUR::ecb president trichet speaks::none,2008-07-02,15:15,,,0.00
 GBP::housing equity withdrawal::q/q,2008-07-02,16:30,5.0B,5.4B,7.3B
 EUR::ppi::m/m,2008-07-02,17:00,1.2%,0.9%,0.8%
 USD::adp nonfarm employment change::none,2008-07-02,20:15,-79K,-20K,40K
 USD::factory orders::m/m,2008-07-02,22:00,0.6%,0.4%,1.1%
 USD::crude oil inventories::none,2008-07-02,22:30,-2.000M,,0.800M
-USD::treasury secretary paulson speaks::none,2008-07-02,23:00,,,
+USD::treasury secretary paulson speaks::none,2008-07-02,23:00,,,0.00
 USD::fed's balance sheet::none,2008-07-03,04:30,902.96B,,892.71B
 AUD::aig services index::none,2008-07-03,07:30,45.4,,49.7
 AUD::trade balance::none,2008-07-03,09:30,-1.00B,-1.00B,-1.00B
@@ -2790,7 +2790,7 @@ NZD::anz commodity price index::m/m,2008-07-03,11:00,0.0%,,1.0%
 CHF::cpi::m/m,2008-07-03,13:45,0.2%,0.4%,0.8%
 EUR::retail sales::m/m,2008-07-03,17:00,1.2%,0.4%,-0.7%
 EUR::ecb interest rate decision::none,2008-07-03,19:45,4.25%,4.25%,4.00%
-EUR::ecb president trichet speaks::none,2008-07-03,20:30,,,
+EUR::ecb president trichet speaks::none,2008-07-03,20:30,,,0.00
 USD::average hourly earnings::m/m,2008-07-03,20:30,0.3%,0.3%,0.3%
 USD::initial jobless claims::none,2008-07-03,20:30,404K,384K,384K
 USD::nonfarm payrolls::none,2008-07-03,20:30,-62K,-60K,-49K
@@ -2811,8 +2811,8 @@ NZD::cftc nzd speculative net positions::none,2008-07-05,03:30,3.2K,,2.7K
 USD::cftc silver speculative net positions::none,2008-07-05,03:30,46.5K,,39.0K
 USD::cftc gold speculative net positions::none,2008-07-05,03:30,187.7K,,153.5K
 USD::cftc crude oil speculative net positions::none,2008-07-05,04:30,26.5k,,20.6k
-EUR::ecb president trichet speaks::none,2008-07-05,18:00,,,
-EUR::ecb president trichet speaks::none,2008-07-06,18:00,,,
+EUR::ecb president trichet speaks::none,2008-07-05,18:00,,,0.00
+EUR::ecb president trichet speaks::none,2008-07-06,18:00,,,0.00
 AUD::aig construction index::none,2008-07-07,07:30,40.3,,36.9
 CHF::unemployment rate s.a.::none,2008-07-07,13:45,2.5%,2.5%,2.5%
 EUR::sentix investor confidence::none,2008-07-07,16:30,-9.3,2.5,5.2
@@ -2825,7 +2825,7 @@ GBP::niesr gdp estimate::none,2008-07-08,07:00,0.2%,,0.2%
 AUD::nab business confidence::none,2008-07-08,09:30,-9,,-4
 JPY::economy watchers current index::none,2008-07-08,13:00,29.5,31.0,32.1
 GBP::house price index::y/y,2008-07-08,16:30,3.7%,3.2%,4.9%
-USD::fed chairman bernanke speaks::none,2008-07-08,20:30,,,
+USD::fed chairman bernanke speaks::none,2008-07-08,20:30,,,0.00
 USD::wholesale inventories::m/m,2008-07-08,22:00,0.8%,0.7%,1.3%
 USD::pending home sales::m/m,2008-07-08,22:00,-4.7%,-2.4%,6.3%
 USD::consumer credit::none,2008-07-09,03:00,7.80B,7.50B,8.90B
@@ -2836,7 +2836,7 @@ AUD::home loans::m/m,2008-07-09,09:30,-7.9%,-2.0%,-3.0%
 EUR::german trade balance::none,2008-07-09,14:00,12.4B,17.4B,18.7B
 JPY::machine tool orders::y/y,2008-07-09,14:00,-2.7%,,1.4%
 EUR::french trade balance::none,2008-07-09,14:45,-4.7B,-3.9B,-3.7B
-EUR::ecb president trichet speaks::none,2008-07-09,15:00,,,
+EUR::ecb president trichet speaks::none,2008-07-09,15:00,,,0.00
 GBP::trade balance::none,2008-07-09,16:30,-7.5B,-7.4B,-7.6B
 EUR::gdp::q/q,2008-07-09,17:00,0.7%,0.7%,0.8%
 GBP::brc shop price index::y/y,2008-07-09,17:30,2.5%,,1.8%
@@ -2855,7 +2855,7 @@ EUR::italian industrial production::m/m,2008-07-10,16:00,-1.4%,-0.5%,0.7%
 EUR::ecb economic bulletin::none,2008-07-10,17:00,,,
 GBP::boe interest rate decision::none,2008-07-10,19:00,5.00%,5.00%,5.00%
 USD::initial jobless claims::none,2008-07-10,20:30,346K,397K,404K
-EUR::ecb president trichet speaks::none,2008-07-11,01:45,,,
+EUR::ecb president trichet speaks::none,2008-07-11,01:45,,,0.00
 JPY::industrial production::m/m,2008-07-11,12:30,2.8%,2.9%,2.9%
 JPY::household confidence::none,2008-07-11,13:00,32.6,31.5,34.1
 EUR::german wpi::m/m,2008-07-11,14:00,0.9%,1.0%,1.4%
@@ -2886,11 +2886,11 @@ NZD::cpi::q/q,2008-07-15,06:45,1.6%,1.4%,0.7%
 GBP::brc retail sales monitor::y/y,2008-07-15,07:00,-0.4%,,1.9%
 AUD::rba meeting minutes::none,2008-07-15,09:30,,,
 JPY::boj interest rate decision::none,2008-07-15,10:00,0.50%,0.50%,0.50%
-JPY::boj monthly report::none,2008-07-15,14:00,,,
+JPY::boj monthly report::none,2008-07-15,14:00,,,0.00
 GBP::cpi::y/y,2008-07-15,16:30,3.8%,3.6%,3.3%
 GBP::core cpi::y/y,2008-07-15,16:30,1.6%,1.5%,1.5%
 GBP::rpi::y/y,2008-07-15,16:30,4.6%,4.3%,4.3%
-GBP::boe mpc member sentance speaks::none,2008-07-15,16:30,,,
+GBP::boe mpc member sentance speaks::none,2008-07-15,16:30,,,0.00
 EUR::german zew economic sentiment::none,2008-07-15,17:00,-63.9,-55.5,-52.4
 EUR::zew economic sentiment::none,2008-07-15,17:00,-63.7,-56.0,-52.7
 CAD::new motor vehicle sales::m/m,2008-07-15,20:30,1.1%,0.0%,-2.6%
@@ -2924,9 +2924,9 @@ USD::industrial production::m/m,2008-07-16,21:15,0.5%,0.0%,-0.2%
 USD::fed chairman bernanke testifies::none,2008-07-16,22:00,,,
 USD::crude oil inventories::none,2008-07-16,22:35,3.000M,,-5.900M
 USD::nahb housing market index::none,2008-07-17,01:00,16,18,18
-USD::fomc meeting minutes::none,2008-07-17,02:00,,,
+USD::fomc meeting minutes::none,2008-07-17,02:00,,,0.00
 USD::fed's balance sheet::none,2008-07-17,04:30,910.68B,,898.03B
-AUD::rba bulletin::none,2008-07-17,09:30,,,
+AUD::rba bulletin::none,2008-07-17,09:30,,,0.00
 EUR::italian trade balance::none,2008-07-17,16:00,-0.10B,,-1.00B
 CHF::zew expectations::none,2008-07-17,17:00,-76.9,-66.8,-63.8
 CAD::foreign securities purchases::none,2008-07-17,20:30,10.70B,3.50B,9.80B
@@ -2935,7 +2935,7 @@ USD::building permits::none,2008-07-17,20:30,1.090M,0.960M,0.980M
 USD::housing starts::none,2008-07-17,20:30,1.070M,0.960M,0.980M
 USD::philadelphia fed manufacturing index::none,2008-07-17,22:00,-16.3,-15.0,-17.1
 CAD::boc monetary policy report::none,2008-07-17,22:30,,,
-JPY::monetary policy meeting minutes::none,2008-07-18,07:50,,,
+JPY::monetary policy meeting minutes::none,2008-07-18,07:50,,,0.00
 AUD::import price index::q/q,2008-07-18,09:30,1.4%,2.1%,2.7%
 EUR::german ppi::m/m,2008-07-18,14:00,0.9%,0.7%,1.0%
 GBP::m4 money supply::m/m,2008-07-18,16:30,2.0%,0.4%,0.4%
@@ -2943,7 +2943,7 @@ GBP::public sector net borrowing::none,2008-07-18,16:30,9.2B,7.5B,11.0B
 EUR::trade balance::none,2008-07-18,17:00,-1.5B,0.9B,2.2B
 CAD::leading indicators::m/m,2008-07-18,20:30,0.0%,0.1%,0.2%
 CAD::wholesale sales::m/m,2008-07-18,20:30,1.6%,0.5%,1.4%
-GBP::boe mpc member gieve speaks::none,2008-07-18,22:45,,,
+GBP::boe mpc member gieve speaks::none,2008-07-18,22:45,,,0.00
 USD::u.s. baker hughes oil rig count::none,2008-07-19,01:00,385,,370
 AUD::cftc aud speculative net positions::none,2008-07-19,03:30,56.1K,,49.3K
 CAD::cftc cad speculative net positions::none,2008-07-19,03:30,12.9K,,-6.0K
@@ -2965,7 +2965,7 @@ CHF::ppi::m/m,2008-07-21,15:15,0.6%,0.4%,1.2%
 USD::us leading index::m/m,2008-07-21,23:00,-0.1%,-0.1%,-0.2%
 JPY::all industries activity index::m/m,2008-07-22,07:50,0.4%,,0.8%
 CHF::trade balance::none,2008-07-22,14:15,2.410B,1.620B,1.870B
-USD::treasury secretary paulson speaks::none,2008-07-22,20:10,,,
+USD::treasury secretary paulson speaks::none,2008-07-22,20:10,,,0.00
 CAD::core retail sales::m/m,2008-07-22,20:30,0.4%,0.8%,1.1%
 CAD::retail sales::m/m,2008-07-22,20:30,0.4%,0.5%,0.6%
 USD::house price index::m/m,2008-07-22,22:00,-0.3%,-0.6%,-0.8%
@@ -2981,7 +2981,7 @@ GBP::cbi industrial trends orders::none,2008-07-23,18:00,-8,-5,1
 CAD::cpi::m/m,2008-07-23,19:00,0.7%,0.5%,1.0%
 CAD::core cpi::m/m,2008-07-23,19:00,0.1%,0.2%,0.3%
 USD::crude oil inventories::none,2008-07-23,22:35,-1.600M,,3.000M
-USD::beige book::none,2008-07-24,02:00,,,
+USD::beige book::none,2008-07-24,02:00,,,0.00
 USD::fed's balance sheet::none,2008-07-24,04:30,899.67B,,910.68B
 NZD::rbnz interest rate decision::none,2008-07-24,05:00,8.00%,8.25%,8.25%
 JPY::adjusted trade balance::none,2008-07-24,07:50,0.14T,0.28T,0.64T
@@ -3054,7 +3054,7 @@ USD::initial jobless claims::none,2008-07-31,20:30,448K,395K,406K
 USD::employment cost index::q/q,2008-07-31,20:30,0.7%,0.7%,0.7%
 USD::gdp price index::q/q,2008-07-31,20:30,1.1%,2.4%,2.7%
 USD::chicago pmi::none,2008-07-31,21:45,50.8,49.0,49.6
-USD::treasury secretary paulson speaks::none,2008-08-01,01:00,,,
+USD::treasury secretary paulson speaks::none,2008-08-01,01:00,,,0.00
 AUD::mi inflation gauge::m/m,2008-08-01,09:30,0.4%,,0.5%
 EUR::german retail sales::m/m,2008-08-01,10:00,-1.4%,-0.5%,0.5%
 CAD::budget balance::none,2008-08-01,17:00,2.18B,,1.64B
@@ -3307,7 +3307,7 @@ EUR::german industrial production::m/m,2008-08-07,18:00,0.2%,,0.8%
 GBP::boe interest rate decision::none,2008-08-07,19:00,5.00%,5.00%,5.00%
 EUR::ecb interest rate decision::none,2008-08-07,19:45,4.25%,4.25%,4.25%
 CAD::building permits::m/m,2008-08-07,20:30,-5.3%,-1.0%,1.1%
-EUR::ecb president trichet speaks::none,2008-08-07,20:30,0.00,,
+EUR::ecb president trichet speaks::none,2008-08-07,20:30,0.00,,0.00
 USD::initial jobless claims::none,2008-08-07,20:30,455K,420K,448K
 USD::pending home sales::m/m,2008-08-07,22:00,5.3%,-1.0%,-4.7%
 USD::consumer credit::none,2008-08-08,03:00,14.30B,6.60B,7.80B
@@ -3423,7 +3423,7 @@ USD::housing starts::none,2008-08-19,20:30,0.970M,0.970M,1.070M
 JPY::boj interest rate decision::none,2008-08-19,Tentative,0.50%,0.50%,0.50%
 JPY::all industries activity index::m/m,2008-08-20,07:50,-0.9%,-0.8%,0.4%
 AUD::mi leading index::m/m,2008-08-20,08:30,0.1%,,0.0%
-JPY::boj monthly report::none,2008-08-20,14:00,,,
+JPY::boj monthly report::none,2008-08-20,14:00,,,0.00
 GBP::m4 money supply::m/m,2008-08-20,16:30,0.9%,,1.8%
 GBP::public sector net borrowing::none,2008-08-20,16:30,-4.8B,-4.5B,9.2B
 GBP::boe mpc meeting minutes::none,2008-08-20,16:30,,,
@@ -3436,7 +3436,7 @@ USD::fed's balance sheet::none,2008-08-21,04:30,898.61B,,914.63B
 NZD::visitor arrivals::m/m,2008-08-21,06:45,2.1%,,-1.4%
 JPY::adjusted trade balance::none,2008-08-21,07:50,0.17T,0.35T,0.14T
 AUD::new motor vehicle sales::m/m,2008-08-21,09:30,-3.4%,,1.0%
-AUD::rba bulletin::none,2008-08-21,09:30,,,
+AUD::rba bulletin::none,2008-08-21,09:30,,,0.00
 NZD::credit card spending::y/y,2008-08-21,11:00,3.8%,,3.3%
 CHF::trade balance::none,2008-08-21,14:15,2.370B,2.000B,2.370B
 CHF::ppi::m/m,2008-08-21,15:15,0.5%,0.3%,0.6%
@@ -3447,12 +3447,12 @@ CAD::core cpi::m/m,2008-08-21,19:00,0.1%,0.2%,0.1%
 USD::initial jobless claims::none,2008-08-21,20:30,432K,443K,450K
 USD::philadelphia fed manufacturing index::none,2008-08-21,22:00,-12.7,-14.5,-16.3
 USD::us leading index::m/m,2008-08-21,23:00,-0.7%,-0.2%,0%
-JPY::monetary policy meeting minutes::none,2008-08-22,07:50,,,
+JPY::monetary policy meeting minutes::none,2008-08-22,07:50,,,0.00
 EUR::current account::none,2008-08-22,16:00,-8.2B,,-7.3B
 GBP::gdp::q/q,2008-08-22,16:30,0.0%,0.1%,0.2%
 GBP::index of services::none,2008-08-22,16:30,0.2%,0.4%,0.4%
 EUR::industrial new orders::m/m,2008-08-22,17:00,-0.3%,-1.1%,-3.5%
-USD::fed chairman bernanke speaks::none,2008-08-22,22:00,,,
+USD::fed chairman bernanke speaks::none,2008-08-22,22:00,,,0.00
 USD::u.s. baker hughes oil rig count::none,2008-08-23,01:00,395,,395
 AUD::cftc aud speculative net positions::none,2008-08-23,03:30,6.0K,,9.1K
 CAD::cftc cad speculative net positions::none,2008-08-23,03:30,-28.1K,,-25.3K
@@ -3480,7 +3480,7 @@ USD::cb consumer confidence::none,2008-08-26,22:00,56.9,53.0,51.9
 USD::new home sales::none,2008-08-26,22:00,515K,530K,530K
 USD::house price index::m/m,2008-08-26,22:00,0.0%,-0.4%,-0.3%
 USD::richmond manufacturing index::none,2008-08-26,22:00,-16,-10,-16
-USD::fomc meeting minutes::none,2008-08-27,02:00,,,
+USD::fomc meeting minutes::none,2008-08-27,02:00,,,0.00
 AUD::construction work done::q/q,2008-08-27,09:30,-2.6%,1.5%,2.3%
 NZD::anz business confidence::none,2008-08-27,11:00,-20.50,,-43.20
 EUR::german import price index::m/m,2008-08-27,14:00,0.6%,0.5%,1.5%
@@ -3749,7 +3749,7 @@ GBP::brc shop price index::y/y,2008-09-03,17:30,3.8%,,3.2%
 USD::challenger job cuts::y/y,2008-09-03,19:30,11.7%,,140.8%
 CAD::boc interest rate decision::none,2008-09-03,21:00,3.00%,3.00%,3.00%
 USD::factory orders::m/m,2008-09-03,22:00,1.3%,1.0%,1.7%
-USD::beige book::none,2008-09-04,02:00,,,
+USD::beige book::none,2008-09-04,02:00,,,0.00
 USD::fed's balance sheet::none,2008-09-04,04:30,905.25B,,909.98B
 AUD::trade balance::none,2008-09-04,09:30,-0.70B,0.10B,0.40B
 GBP::halifax house price index::m/m,2008-09-04,14:00,-1.8%,-1.8%,-1.7%
@@ -3786,7 +3786,7 @@ NZD::cftc nzd speculative net positions::none,2008-09-06,03:30,-1.8K,,-0.5K
 USD::cftc silver speculative net positions::none,2008-09-06,03:30,27.0K,,27.6K
 USD::cftc gold speculative net positions::none,2008-09-06,03:30,93.2K,,105.3K
 USD::cftc crude oil speculative net positions::none,2008-09-06,04:30,14.3k,,20.2k
-EUR::ecb president trichet speaks::none,2008-09-06,14:30,,,
+EUR::ecb president trichet speaks::none,2008-09-06,14:30,,,0.00
 AUD::rba governor stevens speaks::none,2008-09-08,07:00,,,
 JPY::economy watchers current index::none,2008-09-08,13:00,28.3,29.7,29.3
 CHF::unemployment rate s.a.::none,2008-09-08,13:45,2.5%,2.5%,2.5%
@@ -3806,7 +3806,7 @@ JPY::machine tool orders::y/y,2008-09-09,14:00,-14.2%,,-8.9%
 GBP::industrial production::m/m,2008-09-09,16:30,-0.4%,-0.1%,-0.2%
 GBP::manufacturing production::m/m,2008-09-09,16:30,-0.2%,-0.1%,-0.5%
 CAD::housing starts::none,2008-09-09,20:15,211.00K,194.00K,187.00K
-USD::fed chairman bernanke speaks::none,2008-09-09,21:00,,,
+USD::fed chairman bernanke speaks::none,2008-09-09,21:00,,,0.00
 USD::ibd/tipp economic optimism::none,2008-09-09,22:00,45.8,43.9,42.8
 USD::wholesale inventories::m/m,2008-09-09,22:00,1.4%,0.7%,1.1%
 USD::pending home sales::m/m,2008-09-09,22:00,3.2%,-1.2%,5.3%
@@ -3817,7 +3817,7 @@ AUD::westpac consumer sentiment::none,2008-09-10,08:30,7.00%,,9.10%
 JPY::leading index::none,2008-09-10,13:00,91.6,91.9,91.3
 EUR::french industrial production::m/m,2008-09-10,14:45,1.2%,0.1%,-0.4%
 EUR::french trade balance::none,2008-09-10,14:45,-4.8B,-5.1B,-5.6B
-EUR::ecb president trichet speaks::none,2008-09-10,15:00,,,
+EUR::ecb president trichet speaks::none,2008-09-10,15:00,,,0.00
 GBP::trade balance::none,2008-09-10,16:30,-7.7B,-7.5B,-7.7B
 CAD::labor productivity::q/q,2008-09-10,20:30,-0.2%,0.1%,-0.3%
 USD::crude oil inventories::none,2008-09-10,22:35,-5.900M,,-1.900M
@@ -3832,13 +3832,13 @@ AUD::unemployment rate::none,2008-09-11,09:30,4.1%,4.4%,4.3%
 EUR::german wpi::m/m,2008-09-11,14:00,-1.8%,-0.3%,1.4%
 EUR::french non - farm payrolls::q/q,2008-09-11,14:45,-0.2%,-0.1%,-0.1%
 GBP::inflation expectations::none,2008-09-11,16:30,4.4%,,4.3%
-GBP::boe mpc treasury committee hearings::none,2008-09-11,16:45,,,
+GBP::boe mpc treasury committee hearings::none,2008-09-11,16:45,,,0.00
 CAD::new housing price index::m/m,2008-09-11,20:30,0.1%,0.1%,0.1%
 CAD::trade balance::none,2008-09-11,20:30,4.9B,5.6B,5.8B
 USD::initial jobless claims::none,2008-09-11,20:30,445K,440K,444K
 USD::import price index::m/m,2008-09-11,20:30,-3.7%,-1.5%,1.7%
 USD::trade balance::none,2008-09-11,20:30,-62.2B,-58.0B,-56.8B
-EUR::ecb president trichet speaks::none,2008-09-12,02:00,,,
+EUR::ecb president trichet speaks::none,2008-09-12,02:00,,,0.00
 JPY::gdp::q/q,2008-09-12,07:50,-0.7%,-0.9%,-0.6%
 JPY::gdp price index::y/y,2008-09-12,07:50,-1.5%,-1.6%,-1.6%
 JPY::industrial production::m/m,2008-09-12,12:30,1.3%,0.9%,0.9%
@@ -3853,7 +3853,7 @@ USD::capacity utilization rate::none,2008-09-12,20:30,78.9%,79.3%,79.8%
 USD::core ppi::m/m,2008-09-12,20:30,0.2%,0.2%,0.7%
 USD::business inventories::m/m,2008-09-12,22:00,1.1%,0.5%,0.7%
 USD::michigan consumer sentiment::none,2008-09-12,22:00,73.1,64.0,63.0
-CHF::snb chairman roth speaks::none,2008-09-12,23:00,,,
+CHF::snb chairman roth speaks::none,2008-09-12,23:00,,,0.00
 USD::u.s. baker hughes oil rig count::none,2008-09-13,01:00,413,,416
 AUD::cftc aud speculative net positions::none,2008-09-13,03:30,1.6K,,1.5K
 CAD::cftc cad speculative net positions::none,2008-09-13,03:30,-10.0K,,-17.6K
@@ -3870,7 +3870,7 @@ NZD::manufacturing sales volume::q/q,2008-09-15,06:45,-0.6%,,3.7%
 AUD::housing starts::q/q,2008-09-15,09:30,-3.70%,-2.70%,-3.30%
 CHF::retail sales::y/y,2008-09-15,15:15,6.2%,2.3%,0.7%
 CHF::ppi::m/m,2008-09-15,15:15,-0.5%,-0.2%,0.5%
-EUR::ecb president trichet speaks::none,2008-09-15,17:00,,,
+EUR::ecb president trichet speaks::none,2008-09-15,17:00,,,0.00
 CNY::pboc interest rate::none,2008-09-15,18:00,7.20%,,7.47%
 CAD::new motor vehicle sales::m/m,2008-09-15,20:30,-0.8%,0.0%,-1.0%
 USD::ny empire state manufacturing index::none,2008-09-15,20:30,-7.4,1.5,2.8
@@ -3895,7 +3895,7 @@ USD::cpi::y/y,2008-09-16,20:30,5.4%,,5.6%
 USD::core cpi::m/m,2008-09-16,20:30,0.2%,0.2%,0.3%
 USD::core cpi::y/y,2008-09-16,20:30,2.5%,,2.5%
 USD::tic net long - term transactions::none,2008-09-16,21:00,6.1B,55.0B,53.4B
-USD::treasury secretary paulson speaks::none,2008-09-16,22:00,,,
+USD::treasury secretary paulson speaks::none,2008-09-16,22:00,,,0.00
 GBP::boe inflation letter::none,2008-09-16,Tentative,,,
 USD::nahb housing market index::none,2008-09-17,01:00,18,17,16
 USD::fed interest rate decision::none,2008-09-17,02:15,2.00%,2.00%,2.00%
@@ -3916,8 +3916,8 @@ USD::crude oil inventories::none,2008-09-17,22:35,-6.300M,,-5.900M
 JPY::boj interest rate decision::none,2008-09-17,Tentative,0.50%,0.50%,0.50%
 USD::fed's balance sheet::none,2008-09-18,04:30,995.09B,,925.73B
 JPY::tertiary industry activity index::m/m,2008-09-18,07:50,1.2%,0.4%,-0.8%
-AUD::rba bulletin::none,2008-09-18,09:30,,,
-JPY::boj monthly report::none,2008-09-18,13:00,,,
+AUD::rba bulletin::none,2008-09-18,09:30,,,0.00
+JPY::boj monthly report::none,2008-09-18,13:00,,,0.00
 CHF::trade balance::none,2008-09-18,14:15,1.430B,1.000B,2.290B
 GBP::m4 money supply::m/m,2008-09-18,16:30,1.4%,0.7%,0.9%
 GBP::public sector net borrowing::none,2008-09-18,16:30,10.4B,8.8B,-4.8B
@@ -3944,13 +3944,13 @@ NZD::cftc nzd speculative net positions::none,2008-09-20,03:30,-3.9K,,-3.0K
 USD::cftc silver speculative net positions::none,2008-09-20,03:30,23.5K,,24.8K
 USD::cftc gold speculative net positions::none,2008-09-20,03:30,90.3K,,82.7K
 USD::cftc crude oil speculative net positions::none,2008-09-20,04:30,19.4k,,6.3k
-EUR::ecb president trichet speaks::none,2008-09-21,22:00,,,
+EUR::ecb president trichet speaks::none,2008-09-21,22:00,,,0.00
 GBP::rightmove house price index::m/m,2008-09-22,07:00,-1.0%,,-2.3%
 JPY::all industries activity index::m/m,2008-09-22,07:50,0.8%,0.8%,-0.9%
-JPY::monetary policy meeting minutes::none,2008-09-22,07:50,,,
+JPY::monetary policy meeting minutes::none,2008-09-22,07:50,,,0.00
 AUD::new motor vehicle sales::m/m,2008-09-22,09:30,-3.5%,,-3.4%
-EUR::ecb president trichet speaks::none,2008-09-22,15:15,,,
-GBP::boe mpc member gieve speaks::none,2008-09-22,16:00,,,
+EUR::ecb president trichet speaks::none,2008-09-22,15:15,,,0.00
+GBP::boe mpc member gieve speaks::none,2008-09-22,16:00,,,0.00
 CAD::core retail sales::m/m,2008-09-22,20:30,0.4%,0.3%,1.4%
 CAD::retail sales::m/m,2008-09-22,20:30,0.1%,0.2%,0.5%
 EUR::french consumer spending::m/m,2008-09-23,14:45,0.4%,0.0%,-0.4%
@@ -4035,7 +4035,7 @@ CAD::rmpi::m/m,2008-09-30,20:30,-7.7%,-3.3%,1.4%
 USD::s&p/cs hpi composite - 20 n.s.a.::y/y,2008-09-30,21:00,-16.3%,-16.1%,-15.9%
 USD::chicago pmi::none,2008-09-30,21:45,56.7,53.5,57.9
 USD::cb consumer confidence::none,2008-09-30,22:00,59.8,54.6,56.9
-EUR::ecb president trichet speaks::none,2008-10-01,00:00,,,
+EUR::ecb president trichet speaks::none,2008-10-01,00:00,,,0.00
 JPY::tankan large manufacturers index::none,2008-10-01,07:50,-3,-2,5
 JPY::tankan large non - manufacturers index::none,2008-10-01,07:50,1,5,10
 JPY::average cash earnings::y/y,2008-10-01,09:30,-0.3%,0.0%,0.3%
@@ -4275,17 +4275,17 @@ JPY::leading index::none,2008-10-07,13:00,89.3,89.3,91.4
 GBP::industrial production::m/m,2008-10-07,16:30,-0.6%,-0.2%,-0.4%
 GBP::manufacturing production::m/m,2008-10-07,16:30,-0.4%,-0.2%,-0.2%
 EUR::german factory orders::m/m,2008-10-07,18:00,3.6%,0.2%,-1.3%
-EUR::ecb president trichet speaks::none,2008-10-07,21:30,,,
+EUR::ecb president trichet speaks::none,2008-10-07,21:30,,,0.00
 JPY::boj interest rate decision::none,2008-10-07,Tentative,0.50%,0.50%,0.50%
-USD::fed chairman bernanke speaks::none,2008-10-08,01:15,,,
-USD::fomc meeting minutes::none,2008-10-08,02:00,,,
+USD::fed chairman bernanke speaks::none,2008-10-08,01:15,,,0.00
+USD::fomc meeting minutes::none,2008-10-08,02:00,,,0.00
 USD::consumer credit::none,2008-10-08,03:00,-7.90B,5.60B,4.60B
 GBP::niesr gdp estimate::none,2008-10-08,07:00,-0.2%,,-0.2%
 GBP::nationwide consumer confidence::none,2008-10-08,07:00,50,48,52
 AUD::westpac consumer sentiment::none,2008-10-08,07:30,-11.00%,,7.00%
 AUD::home loans::m/m,2008-10-08,08:30,-2.2%,-1.0%,-0.2%
 JPY::economy watchers current index::none,2008-10-08,13:00,28.0,27.8,28.3
-JPY::boj monthly report::none,2008-10-08,13:00,,,
+JPY::boj monthly report::none,2008-10-08,13:00,,,0.00
 EUR::french government budget balance::none,2008-10-08,14:45,-67.6B,,-51.4B
 EUR::french trade balance::none,2008-10-08,14:45,-5.4B,-4.7B,-4.8B
 EUR::gdp::q/q,2008-10-08,17:00,-0.2%,-0.2%,0.7%
@@ -4312,9 +4312,9 @@ EUR::ecb economic bulletin::none,2008-10-09,16:00,,,
 GBP::trade balance::none,2008-10-09,16:30,-8.2B,-7.6B,-7.7B
 USD::initial jobless claims::none,2008-10-09,20:30,478K,475K,497K
 USD::wholesale inventories::m/m,2008-10-09,22:00,0.8%,0.5%,1.4%
-EUR::ecb president trichet speaks::none,2008-10-10,01:30,,,
+EUR::ecb president trichet speaks::none,2008-10-10,01:30,,,0.00
 JPY::m2 money stock::y/y,2008-10-10,07:50,2.2%,2.4%,2.4%
-JPY::monetary policy meeting minutes::none,2008-10-10,07:50,,,
+JPY::monetary policy meeting minutes::none,2008-10-10,07:50,,,0.00
 CHF::unemployment rate s.a.::none,2008-10-10,13:45,2.6%,2.5%,2.5%
 EUR::french industrial production::m/m,2008-10-10,14:45,-0.4%,-0.7%,1.2%
 EUR::italian industrial production::m/m,2008-10-10,16:00,1.4%,0.4%,-1.1%
@@ -4341,7 +4341,7 @@ JPY::boj governor shirakawa speaks::none,2008-10-13,08:30,,,
 CHF::ppi::m/m,2008-10-13,15:15,-0.5%,-0.3%,-0.5%
 GBP::ppi output::m/m,2008-10-13,16:30,0.3%,-0.4%,-0.6%
 GBP::ppi input::m/m,2008-10-13,16:30,-1.2%,-1.5%,-2.0%
-GBP::boe mpc member sentance speaks::none,2008-10-13,18:30,,,
+GBP::boe mpc member sentance speaks::none,2008-10-13,18:30,,,0.00
 USD::sec kashkari speaks::none,2008-10-13,20:00,,,
 GBP::brc retail sales monitor::y/y,2008-10-14,07:00,-1.5%,,-1.0%
 JPY::ppi::y/y,2008-10-14,07:50,6.8%,6.6%,7.2%
@@ -4357,10 +4357,10 @@ EUR::industrial production::m/m,2008-10-14,17:00,1.1%,1.1%,-0.3%
 EUR::zew economic sentiment::none,2008-10-14,17:00,-62.7,-57.2,-40.9
 CAD::new motor vehicle sales::m/m,2008-10-14,20:30,-2.3%,-1.0%,-0.8%
 USD::ibd/tipp economic optimism::none,2008-10-14,22:00,41.1,44.5,45.8
-EUR::ecb president trichet speaks::none,2008-10-15,00:15,,,
+EUR::ecb president trichet speaks::none,2008-10-15,00:15,,,0.00
 USD::federal budget balance::none,2008-10-15,02:00,45.7B,47.0B,-111.9B
 JPY::adjusted current account::none,2008-10-15,07:50,0.90T,1.15T,1.56T
-AUD::rba bulletin::none,2008-10-15,08:30,,,
+AUD::rba bulletin::none,2008-10-15,08:30,,,0.00
 JPY::industrial production::m/m,2008-10-15,12:30,-3.5%,-3.5%,-3.5%
 EUR::german cpi::m/m,2008-10-15,14:00,-0.1%,-0.1%,-0.1%
 GBP::average earnings index +bonus::none,2008-10-15,16:30,3.4%,3.5%,3.5%
@@ -4375,8 +4375,8 @@ USD::core ppi::m/m,2008-10-15,20:30,0.4%,0.2%,0.2%
 USD::ny empire state manufacturing index::none,2008-10-15,20:30,-24.6,-9.0,-7.4
 USD::business inventories::m/m,2008-10-15,22:00,0.3%,0.5%,1.1%
 ILS::cpi::y/y,2008-10-15,23:00,5.5%,,5%
-USD::fed chairman bernanke speaks::none,2008-10-16,00:15,,,
-USD::beige book::none,2008-10-16,02:00,,,
+USD::fed chairman bernanke speaks::none,2008-10-16,00:15,,,0.00
+USD::beige book::none,2008-10-16,02:00,,,0.00
 USD::fed's balance sheet::none,2008-10-16,04:30,"1,770.81B",,"1,591.59B"
 NZD::business nz pmi::none,2008-10-16,07:00,47.0,47.0,45.7
 CHF::retail sales::y/y,2008-10-16,15:15,0.0%,0.9%,6.2%
@@ -4432,7 +4432,7 @@ CHF::trade balance::none,2008-10-21,14:15,1.440B,1.200B,1.440B
 GBP::cbi industrial trends orders::none,2008-10-21,18:00,-39,-30,-26
 CAD::boc interest rate decision::none,2008-10-21,21:00,2.25%,2.00%,2.50%
 NZD::visitor arrivals::m/m,2008-10-22,05:45,-6.0%,,-0.5%
-USD::treasury secretary paulson speaks::none,2008-10-22,07:30,,,
+USD::treasury secretary paulson speaks::none,2008-10-22,07:30,,,0.00
 JPY::all industries activity index::m/m,2008-10-22,07:50,-1.8%,-1.6%,0.8%
 AUD::cpi::q/q,2008-10-22,08:30,1.2%,1.0%,1.5%
 AUD::trimmed mean cpi::q/q,2008-10-22,08:30,1.2%,1.1%,1.2%
@@ -4474,10 +4474,10 @@ USD::cftc crude oil speculative net positions::none,2008-10-25,04:30,0.5k,,-1.9k
 JPY::corporate services price index (cspi)::y/y,2008-10-27,07:50,0.1%,1.2%,1.4%
 EUR::m3 money supply::y/y,2008-10-27,17:00,8.6%,8.5%,8.8%
 EUR::german ifo business climate index::none,2008-10-27,17:00,87.1,,91.2
-EUR::ecb president trichet speaks::none,2008-10-27,21:55,,,
+EUR::ecb president trichet speaks::none,2008-10-27,21:55,,,0.00
 USD::new home sales::none,2008-10-27,22:00,464K,452K,460K
 JPY::retail sales::y/y,2008-10-28,07:50,-0.4%,0.0%,0.7%
-GBP::boe mpc member gieve speaks::none,2008-10-28,08:00,,,
+GBP::boe mpc member gieve speaks::none,2008-10-28,08:00,,,0.00
 AUD::nab business confidence::none,2008-10-28,08:30,-7,,-8
 AUD::nab quarterly business confidence::none,2008-10-28,09:30,-7.00,,-8.00
 EUR::gfk german consumer climate::none,2008-10-28,15:00,1.9,1.5,1.8
@@ -4486,7 +4486,7 @@ GBP::cbi distributive trades survey::none,2008-10-28,19:00,-27,-35,-27
 USD::s&p/cs hpi composite - 20 n.s.a.::y/y,2008-10-28,21:00,-16.6%,-16.6%,-16.3%
 USD::cb consumer confidence::none,2008-10-28,22:00,38.0,52.2,59.8
 USD::richmond manufacturing index::none,2008-10-28,22:00,-26,-21,-18
-USD::treasury secretary paulson speaks::none,2008-10-28,22:00,,,
+USD::treasury secretary paulson speaks::none,2008-10-28,22:00,,,0.00
 NZD::trade balance::m/m,2008-10-29,05:45,"-1,183M",-632M,-750M
 JPY::industrial production::m/m,2008-10-29,07:50,1.2%,0.5%,-3.5%
 EUR::german cpi::m/m,2008-10-29,16:00,-0.2%,-0.2%,-0.1%
@@ -4496,7 +4496,7 @@ CNY::pboc interest rate::none,2008-10-29,18:00,6.66%,,6.93%
 USD::durable goods orders::m/m,2008-10-29,20:30,0.8%,-1.2%,-4.8%
 USD::core durable goods orders::m/m,2008-10-29,20:30,-1.1%,-1.5%,-3.3%
 USD::crude oil inventories::none,2008-10-29,22:35,0.500M,,3.200M
-GBP::boe mpc member blanchflower speaks::none,2008-10-30,02:00,,,
+GBP::boe mpc member blanchflower speaks::none,2008-10-30,02:00,,,0.00
 USD::fed interest rate decision::none,2008-10-30,02:15,1.00%,1.00%,1.50%
 USD::fed's balance sheet::none,2008-10-30,04:30,"1,969.09B",,"1,802.60B"
 NZD::building consents::m/m,2008-10-30,05:45,8.4%,,-7.9%
@@ -4530,7 +4530,7 @@ GBP::gfk consumer confidence::none,2008-10-31,Tentative,-36,-35,-32
 JPY::boj interest rate decision::none,2008-10-31,Tentative,0.30%,0.50%,0.50%
 JPY::boj press conference::none,2008-10-31,Tentative,,,
 USD::u.s. baker hughes oil rig count::none,2008-11-01,01:00,408,,423
-USD::fed chairman bernanke speaks::none,2008-11-01,02:00,,,
+USD::fed chairman bernanke speaks::none,2008-11-01,02:00,,,0.00
 AUD::cftc aud speculative net positions::none,2008-11-01,03:30,-9.8K,,-7.2K
 CAD::cftc cad speculative net positions::none,2008-11-01,03:30,-9.8K,,-12.4K
 CHF::cftc chf speculative net positions::none,2008-11-01,03:30,-14.3K,,-15.9K
@@ -4765,7 +4765,7 @@ USD::crude oil inventories::none,2008-11-05,23:35,0.000M,,0.500M
 USD::fed's balance sheet::none,2008-11-06,04:30,"2,074.21B",,"1,969.09B"
 NZD::employment change::q/q,2008-11-06,05:45,0.1%,-0.8%,1.2%
 NZD::unemployment rate::none,2008-11-06,05:45,4.2%,4.3%,3.9%
-JPY::monetary policy meeting minutes::none,2008-11-06,07:50,,,
+JPY::monetary policy meeting minutes::none,2008-11-06,07:50,,,0.00
 GBP::niesr gdp estimate::none,2008-11-06,08:00,-0.5%,,-0.2%
 AUD::employment change::none,2008-11-06,08:30,34.3K,-10.0K,2.2K
 AUD::unemployment rate::none,2008-11-06,08:30,4.3%,4.4%,4.3%
@@ -4819,7 +4819,7 @@ GBP::ppi output::m/m,2008-11-10,17:30,-1.0%,,-0.3%
 GBP::ppi input::m/m,2008-11-10,17:30,-5.6%,-2.6%,-1.7%
 CAD::housing starts::none,2008-11-10,21:15,212.00K,202.00K,218.00K
 CAD::new housing price index::m/m,2008-11-10,21:30,0.1%,,2.3%
-EUR::ecb president trichet speaks::none,2008-11-10,23:30,,,
+EUR::ecb president trichet speaks::none,2008-11-10,23:30,,,0.00
 JPY::bank lending::y/y,2008-11-11,07:50,2.2%,,1.6%
 JPY::m2 money stock::y/y,2008-11-11,07:50,1.8%,2.2%,2.2%
 JPY::adjusted current account::none,2008-11-11,07:50,0.97T,1.02T,0.90T
@@ -4840,7 +4840,7 @@ GBP::unemployment rate::none,2008-11-12,17:30,5.8%,5.8%,5.7%
 EUR::industrial production::m/m,2008-11-12,18:00,-1.6%,-1.5%,1.1%
 GBP::boe inflation report::none,2008-11-12,18:30,,,
 EUR::deposit facility rate::none,2008-11-12,20:45,2.75%,,3.25%
-EUR::ecb president trichet speaks::none,2008-11-13,02:00,,,
+EUR::ecb president trichet speaks::none,2008-11-13,02:00,,,0.00
 USD::fed's balance sheet::none,2008-11-13,04:30,"2,212.85B",,"2,074.21B"
 NZD::business nz pmi::none,2008-11-13,05:30,43.5,,47.0
 JPY::ppi::y/y,2008-11-13,07:50,4.8%,5.5%,6.8%
@@ -4858,14 +4858,14 @@ USD::federal budget balance::none,2008-11-14,03:00,-237.2B,-99.0B,45.7B
 EUR::german cpi::m/m,2008-11-14,15:00,-0.2%,-0.2%,-0.2%
 EUR::french non - farm payrolls::q/q,2008-11-14,15:45,-0.1%,-0.2%,-0.2%
 EUR::french gdp::q/q,2008-11-14,15:50,0.1%,-0.1%,-0.3%
-EUR::ecb president trichet speaks::none,2008-11-14,16:00,,,
+EUR::ecb president trichet speaks::none,2008-11-14,16:00,,,0.00
 EUR::italian gdp::q/q,2008-11-14,17:00,-0.5%,-0.2%,-0.3%
 EUR::cpi::y/y,2008-11-14,18:00,3.2%,3.2%,3.2%
 EUR::core cpi::y/y,2008-11-14,18:00,1.9%,,1.9%
 CAD::manufacturing sales::m/m,2008-11-14,21:30,0.10%,,-3.70%
 CAD::new motor vehicle sales::m/m,2008-11-14,21:30,2.5%,0.9%,-2.3%
 USD::core retail sales::m/m,2008-11-14,21:30,-2.2%,-1.1%,-0.6%
-USD::fed chairman bernanke speaks::none,2008-11-14,21:30,,,
+USD::fed chairman bernanke speaks::none,2008-11-14,21:30,,,0.00
 USD::retail sales::m/m,2008-11-14,21:30,-2.8%,-2.0%,-1.2%
 USD::import price index::m/m,2008-11-14,21:30,-4.7%,-4.3%,-3.0%
 USD::business inventories::m/m,2008-11-14,23:00,-0.2%,0.1%,0.3%
@@ -4904,9 +4904,9 @@ USD::ppi::m/m,2008-11-18,21:30,-2.8%,-1.9%,-0.4%
 USD::core ppi::m/m,2008-11-18,21:30,0.4%,0.1%,0.4%
 USD::tic net long - term transactions::none,2008-11-18,22:00,66.2B,,14.0B
 USD::fed chairman bernanke testifies::none,2008-11-18,22:30,,,
-USD::treasury secretary paulson speaks::none,2008-11-18,22:30,,,
+USD::treasury secretary paulson speaks::none,2008-11-18,22:30,,,0.00
 USD::nahb housing market index::none,2008-11-19,02:00,9,14,14
-EUR::ecb president trichet speaks::none,2008-11-19,02:30,,,
+EUR::ecb president trichet speaks::none,2008-11-19,02:30,,,0.00
 NZD::ppi output::q/q,2008-11-19,05:45,2.8%,,3.5%
 NZD::ppi input::q/q,2008-11-19,05:45,3.7%,,5.6%
 JPY::all industries activity index::m/m,2008-11-19,07:50,-0.1%,-0.1%,-1.8%
@@ -4923,11 +4923,11 @@ USD::building permits::none,2008-11-19,21:30,0.710M,0.770M,0.810M
 USD::core cpi::y/y,2008-11-19,21:30,2.2%,,2.5%
 USD::housing starts::none,2008-11-19,21:30,0.790M,0.780M,0.820M
 USD::crude oil inventories::none,2008-11-19,23:35,1.600M,,0.000M
-GBP::boe mpc member gieve speaks::none,2008-11-20,02:40,,,
-USD::fomc meeting minutes::none,2008-11-20,03:00,,,
+GBP::boe mpc member gieve speaks::none,2008-11-20,02:40,,,0.00
+USD::fomc meeting minutes::none,2008-11-20,03:00,,,0.00
 USD::fed's balance sheet::none,2008-11-20,04:30,"2,187.14B",,"2,212.85B"
 JPY::adjusted trade balance::none,2008-11-20,07:50,-0.18T,0.08T,-0.03T
-AUD::rba bulletin::none,2008-11-20,08:30,,,
+AUD::rba bulletin::none,2008-11-20,08:30,,,0.00
 EUR::german ppi::m/m,2008-11-20,15:00,0.0%,-0.6%,0.3%
 CHF::trade balance::none,2008-11-20,15:15,1.840B,,1.460B
 GBP::m4 money supply::m/m,2008-11-20,17:30,2.3%,0.8%,1.5%
@@ -4937,7 +4937,7 @@ CAD::wholesale sales::m/m,2008-11-20,21:30,1.5%,-0.5%,-1.5%
 USD::initial jobless claims::none,2008-11-20,21:30,542K,508K,516K
 USD::philadelphia fed manufacturing index::none,2008-11-20,23:00,-39.3,-35.0,-37.5
 USD::us leading index::m/m,2008-11-20,23:00,-0.8%,-0.6%,0.1%
-USD::treasury secretary paulson speaks::none,2008-11-21,03:00,,,
+USD::treasury secretary paulson speaks::none,2008-11-21,03:00,,,0.00
 NZD::visitor arrivals::m/m,2008-11-21,05:45,0.7%,,-6.0%
 NZD::credit card spending::y/y,2008-11-21,10:00,1.1%,,2.6%
 EUR::french consumer spending::m/m,2008-11-21,15:45,-0.4%,-0.5%,0.6%
@@ -4965,13 +4965,13 @@ USD::existing home sales::none,2008-11-24,23:00,4.98M,5.00M,5.18M
 GBP::pre - budget report::none,2008-11-24,23:30,,,
 JPY::corporate services price index (cspi)::y/y,2008-11-25,07:50,-1.4%,-0.5%,0.1%
 NZD::inflation expectations::q/q,2008-11-25,10:00,2.7%,,3.0%
-JPY::boj monthly report::none,2008-11-25,14:00,,,
+JPY::boj monthly report::none,2008-11-25,14:00,,,0.00
 EUR::german gdp::q/q,2008-11-25,15:00,-0.5%,-0.5%,-0.5%
 EUR::gfk german consumer climate::none,2008-11-25,15:00,2.2,1.5,1.9
 CHF::consumption indicator::none,2008-11-25,17:00,1.32,,1.67
 GBP::business investment::q/q,2008-11-25,17:30,-0.2%,-2.0%,-1.0%
 GBP::gross mortgage approvals::none,2008-11-25,17:30,21.6K,,23.4K
-GBP::boe mpc treasury committee hearings::none,2008-11-25,17:45,,,
+GBP::boe mpc treasury committee hearings::none,2008-11-25,17:45,,,0.00
 CAD::core retail sales::m/m,2008-11-25,21:30,0.8%,0.2%,-0.3%
 CAD::retail sales::m/m,2008-11-25,21:30,1.1%,0.4%,-0.3%
 USD::gdp::q/q,2008-11-25,21:30,-0.5%,-0.5%,-0.3%
@@ -5000,7 +5000,7 @@ EUR::german cpi::m/m,2008-11-26,Tentative,-0.5%,-0.3%,-0.2%
 USD::u.s. baker hughes oil rig count::none,2008-11-27,01:00,412,,419
 USD::fed's balance sheet::none,2008-11-27,04:30,"2,106.12B",,"2,187.14B"
 NZD::trade balance::m/m,2008-11-27,05:45,-942M,-1M,-1M
-JPY::monetary policy meeting minutes::none,2008-11-27,07:50,,,
+JPY::monetary policy meeting minutes::none,2008-11-27,07:50,,,0.00
 AUD::private new capital expenditure::q/q,2008-11-27,08:30,0.6%,0.5%,5.7%
 NZD::anz business confidence::none,2008-11-27,10:00,-43.00,,-42.30
 GBP::nationwide hpi::m/m,2008-11-27,15:00,-0.4%,-1.7%,-1.4%
@@ -5008,7 +5008,7 @@ CHF::employment level::none,2008-11-27,16:15,3.96M,,3.92M
 EUR::german unemployment change::none,2008-11-27,16:55,-10K,-4K,-26K
 EUR::m3 money supply::y/y,2008-11-27,17:00,8.7%,8.1%,8.6%
 EUR::consumer confidence::none,2008-11-27,18:00,-25.0,-25.0,-24.0
-CHF::snb chairman roth speaks::none,2008-11-28,00:00,,,
+CHF::snb chairman roth speaks::none,2008-11-28,00:00,,,0.00
 NZD::building consents::m/m,2008-11-28,05:45,-21.9%,,8.4%
 JPY::unemployment rate::none,2008-11-28,07:30,3.7%,4.2%,4.0%
 JPY::household spending::y/y,2008-11-28,07:30,-3.8%,-3.4%,-2.3%
@@ -5245,7 +5245,7 @@ AUD::rba interest rate decision::none,2008-12-02,11:30,4.25%,4.75%,5.25%
 JPY::boj interest rate decision::none,2008-12-02,13:30,0.30%,0.30%,0.30%
 CHF::cpi::m/m,2008-12-02,14:45,-0.7%,-0.3%,0.5%
 EUR::ppi::m/m,2008-12-02,18:00,-0.8%,-0.3%,-0.2%
-USD::treasury secretary paulson speaks::none,2008-12-03,00:30,,,
+USD::treasury secretary paulson speaks::none,2008-12-03,00:30,,,0.00
 AUD::aig services index::none,2008-12-03,06:30,37.8,,42.1
 GBP::nationwide consumer confidence::none,2008-12-03,08:00,50,54,55
 AUD::gdp::q/q,2008-12-03,08:30,0.1%,0.2%,0.3%
@@ -5258,8 +5258,8 @@ USD::nonfarm productivity::q/q,2008-12-03,21:30,1.3%,,1.1%
 USD::unit labor costs::q/q,2008-12-03,21:30,2.8%,3.6%,3.6%
 USD::ism non - manufacturing pmi::none,2008-12-03,23:00,37.3,42.5,44.4
 USD::crude oil inventories::none,2008-12-03,23:35,-0.400M,1.800M,7.300M
-CHF::snb chairman roth speaks::none,2008-12-04,00:00,,,
-USD::beige book::none,2008-12-04,03:00,0.00,,
+CHF::snb chairman roth speaks::none,2008-12-04,00:00,,,0.00
+USD::beige book::none,2008-12-04,03:00,0.00,,0.00
 NZD::rbnz interest rate decision::none,2008-12-04,04:00,5.00%,5.00%,6.50%
 USD::fed's balance sheet::none,2008-12-04,04:30,"2,136.92B",,"2,106.12B"
 JPY::capital spending::y/y,2008-12-04,07:50,-13.00%,-9.90%,-6.50%
@@ -5275,7 +5275,7 @@ CAD::building permits::m/m,2008-12-04,21:30,-15.7%,-6.0%,13.4%
 USD::initial jobless claims::none,2008-12-04,21:30,509K,540K,529K
 CAD::ivey pmi::none,2008-12-04,23:00,40.2,50.5,52.2
 USD::factory orders::m/m,2008-12-04,23:00,-5.1%,-4.0%,-2.5%
-USD::fed chairman bernanke speaks::none,2008-12-05,00:15,,,
+USD::fed chairman bernanke speaks::none,2008-12-05,00:15,,,0.00
 AUD::aig construction index::none,2008-12-05,06:30,32.0,,36.4
 USD::average weekly hours::none,2008-12-05,08:00,33.5,,33.6
 EUR::german factory orders::m/m,2008-12-05,19:00,-6.1%,-0.4%,-8.0%
@@ -5307,7 +5307,7 @@ GBP::ppi output::m/m,2008-12-08,17:30,-0.7%,-0.6%,-1.0%
 GBP::ppi input::m/m,2008-12-08,17:30,-3.3%,-2.9%,-5.6%
 EUR::german industrial production::m/m,2008-12-08,19:00,-2.1%,-1.8%,-3.6%
 CAD::housing starts::none,2008-12-08,21:15,172.00K,194.00K,212.00K
-EUR::ecb president trichet speaks::none,2008-12-08,22:00,,,
+EUR::ecb president trichet speaks::none,2008-12-08,22:00,,,0.00
 JPY::gdp::q/q,2008-12-09,07:50,-0.5%,-0.2%,-0.1%
 JPY::gdp price index::y/y,2008-12-09,07:50,-1.6%,-1.6%,-1.6%
 GBP::brc retail sales monitor::y/y,2008-12-09,08:00,-2.6%,,-2.2%
@@ -5326,7 +5326,7 @@ GBP::trade balance::none,2008-12-09,17:30,-7.8B,-7.5B,-7.5B
 EUR::german zew economic sentiment::none,2008-12-09,18:00,-45.2,-56.5,-53.5
 EUR::zew economic sentiment::none,2008-12-09,18:00,-46.1,-55.8,-54.0
 CAD::boc interest rate decision::none,2008-12-09,22:00,1.50%,1.75%,2.25%
-GBP::boe mpc member sentance speaks::none,2008-12-09,22:30,,,
+GBP::boe mpc member sentance speaks::none,2008-12-09,22:30,,,0.00
 USD::ibd/tipp economic optimism::none,2008-12-09,23:00,45.0,45.0,50.8
 USD::pending home sales::m/m,2008-12-09,23:00,-0.7%,-3.2%,-4.6%
 NZD::terms of trade index::q/q,2008-12-10,05:45,-2.3%,-2.6%,-0.5%
@@ -5350,7 +5350,7 @@ NZD::fpi::m/m,2008-12-11,05:45,0.8%,,-0.3%
 AUD::mi inflation expectations::none,2008-12-11,08:00,0.0%,,3.3%
 AUD::employment change::none,2008-12-11,08:30,0.0K,-15.0K,34.3K
 AUD::unemployment rate::none,2008-12-11,08:30,4.4%,4.4%,4.3%
-EUR::ecb president trichet speaks::none,2008-12-11,16:05,,,
+EUR::ecb president trichet speaks::none,2008-12-11,16:05,,,0.00
 CHF::snb interest rate decision::none,2008-12-11,16:30,0.50%,0.50%,1.00%
 EUR::ecb economic bulletin::none,2008-12-11,17:00,,,
 GBP::inflation expectations::none,2008-12-11,17:30,2.8%,,4.4%
@@ -5393,7 +5393,7 @@ USD::tic net long - term transactions::none,2008-12-15,22:00,1.5B,40.0B,66.2B
 USD::capacity utilization rate::none,2008-12-15,22:15,75.4%,75.5%,76.4%
 USD::industrial production::m/m,2008-12-15,22:15,-0.6%,-0.7%,1.3%
 ILS::cpi::y/y,2008-12-15,23:00,4.5%,,5.5%
-EUR::ecb president trichet speaks::none,2008-12-16,01:30,,,
+EUR::ecb president trichet speaks::none,2008-12-16,01:30,,,0.00
 USD::nahb housing market index::none,2008-12-16,02:00,9,9,9
 JPY::tertiary industry activity index::m/m,2008-12-16,07:50,0.4%,-0.2%,-0.6%
 AUD::housing starts::q/q,2008-12-16,08:30,-10.70%,-2.30%,-3.70%
@@ -5427,7 +5427,7 @@ USD::current account::none,2008-12-17,21:30,-174.0B,-180.0B,-183.0B
 USD::crude oil inventories::none,2008-12-17,23:35,0.500M,,0.400M
 USD::opec meeting::none,2008-12-17,Tentative,,,
 USD::fed's balance sheet::none,2008-12-18,04:30,"2,254.98B",,"2,250.01B"
-AUD::rba bulletin::none,2008-12-18,08:30,,,
+AUD::rba bulletin::none,2008-12-18,08:30,,,0.00
 NZD::anz business confidence::none,2008-12-18,10:00,-35.00,,-43.00
 CHF::trade balance::none,2008-12-18,15:15,2.150B,1.700B,1.950B
 CHF::retail sales::y/y,2008-12-18,16:15,2.9%,1.9%,6.4%
@@ -5472,7 +5472,7 @@ JPY::adjusted trade balance::none,2008-12-22,07:50,-0.37T,-0.22T,-0.18T
 AUD::new motor vehicle sales::m/m,2008-12-22,08:30,-5.2%,,-0.5%
 NZD::westpac consumer sentiment::none,2008-12-22,09:00,101.3,,104.8
 JPY::boj governor shirakawa speaks::none,2008-12-22,13:00,,,
-JPY::boj monthly report::none,2008-12-22,13:00,,,
+JPY::boj monthly report::none,2008-12-22,13:00,,,0.00
 EUR::german import price index::m/m,2008-12-22,15:00,-3.4%,-2.6%,-3.6%
 EUR::gfk german consumer climate::none,2008-12-22,15:00,2.1,2.1,2.2
 CNY::pboc interest rate::none,2008-12-22,18:00,5.31%,,5.58%
@@ -5492,7 +5492,7 @@ USD::new home sales::none,2008-12-23,23:00,407K,417K,433K
 USD::house price index::m/m,2008-12-23,23:00,-1.1%,-1.3%,-1.3%
 USD::richmond manufacturing index::none,2008-12-23,23:00,-55,-40,-38
 USD::michigan consumer sentiment::none,2008-12-23,23:00,60.1,58.5,59.1
-EUR::ecb president trichet speaks::none,2008-12-24,01:30,,,
+EUR::ecb president trichet speaks::none,2008-12-24,01:30,,,0.00
 JPY::bsi large manufacturing conditions::none,2008-12-24,07:50,-44.5,-12.0,-10.0
 CAD::gdp::m/m,2008-12-24,21:30,-0.1%,-0.3%,0.1%
 USD::core pce price index::m/m,2008-12-24,21:30,0.0%,0.0%,0.0%
@@ -5504,7 +5504,7 @@ USD::personal spending::m/m,2008-12-24,21:30,-0.6%,-0.8%,-1.0%
 USD::crude oil inventories::none,2008-12-24,23:35,-3.100M,,0.500M
 USD::fed's balance sheet::none,2008-12-25,04:30,"2,232.31B",,"2,254.98B"
 JPY::corporate services price index (cspi)::y/y,2008-12-25,07:50,-1.9%,-1.9%,-1.4%
-JPY::monetary policy meeting minutes::none,2008-12-25,07:50,,,
+JPY::monetary policy meeting minutes::none,2008-12-25,07:50,,,0.00
 JPY::housing starts::y/y,2008-12-25,13:00,0.0%,7.9%,19.8%
 AUD::cftc aud speculative net positions::none,2008-12-26,04:30,-1.4K,,-4.2K
 CAD::cftc cad speculative net positions::none,2008-12-26,04:30,-10.0K,,-6.7K

@@ -499,7 +499,7 @@ USD::natural gas storage::none,2025-01-09,01:00,-40B,-39B,-116B
 BRL::foreign exchange flows::none,2025-01-09,01:30,-5.602B,,-5.890B
 USD::30 - year bond auction::none,2025-01-09,02:00,4.913%,,4.535%
 ARS::industrial production::y/y,2025-01-09,03:00,-1.7%,,-1.9%
-USD::fomc meeting minutes::none,2025-01-09,03:00,,,
+USD::fomc meeting minutes::none,2025-01-09,03:00,,,0.00
 USD::consumer credit::none,2025-01-09,04:00,-7.49B,10.30B,17.32B
 JPY::average cash earnings::y/y,2025-01-09,07:30,3.0%,2.7%,2.2%
 JPY::overall wage income of employees::none,2025-01-09,07:30,3.0%,,2.2%
@@ -978,7 +978,7 @@ ILS::cpi::m/m,2025-01-16,00:30,-0.3%,0.0%,-0.4%
 ILS::cpi::y/y,2025-01-16,00:30,3.2%,3.2%,3.4%
 USD::fed goolsbee speaks::none,2025-01-16,01:00,,,
 BRL::foreign exchange flows::none,2025-01-16,01:30,-1.104B,,-5.602B
-USD::beige book::none,2025-01-16,03:00,,,
+USD::beige book::none,2025-01-16,03:00,,,0.00
 NZD::fpi::m/m,2025-01-16,05:45,0.1%,,-0.1%
 JPY::ppi::m/m,2025-01-16,07:50,0.3%,0.4%,0.4%
 JPY::ppi::y/y,2025-01-16,07:50,3.8%,3.8%,3.8%
@@ -1579,7 +1579,7 @@ USD::m2 money supply::m/m,2025-01-29,02:00,21.53T,,21.45T
 USD::7 - year note auction::none,2025-01-29,02:00,4.457%,,4.532%
 CLP::interest rate decision::none,2025-01-29,05:00,5.00%,5.00%,5.00%
 USD::api weekly crude oil stock::none,2025-01-29,05:30,2.860M,3.700M,1.000M
-JPY::monetary policy meeting minutes::none,2025-01-29,07:50,,,
+JPY::monetary policy meeting minutes::none,2025-01-29,07:50,,,0.00
 AUD::cpi index number::none,2025-01-29,08:30,139.40,,139.10
 AUD::monthly cpi indicator::y/y,2025-01-29,08:30,2.50%,2.50%,2.30%
 AUD::trimmed mean cpi::y/y,2025-01-29,08:30,3.2%,3.3%,3.6%
@@ -1669,7 +1669,7 @@ NZD::anz business confidence::none,2025-01-30,08:00,54.4,,62.3
 NZD::nbnz own activity::none,2025-01-30,08:00,45.8%,,50.3%
 AUD::export price index::q/q,2025-01-30,08:30,3.6%,,-4.3%
 AUD::import price index::q/q,2025-01-30,08:30,0.2%,1.5%,-1.4%
-AUD::rba bulletin::none,2025-01-30,08:30,,,
+AUD::rba bulletin::none,2025-01-30,08:30,,,0.00
 PHP::gdp::q/q,2025-01-30,10:00,1.8%,1.9%,1.5%
 PHP::gdp::y/y,2025-01-30,10:00,5.2%,5.4%,5.2%
 AUD::rba assistant governor jones speaks::none,2025-01-30,11:20,,,
@@ -1919,7 +1919,7 @@ USD::personal spending::m/m,2025-01-31,21:30,0.7%,0.5%,0.6%
 USD::chicago pmi::none,2025-01-31,22:45,39.5,40.3,36.9
 COP::unemployment rate::none,2025-01-31,23:00,9.1%,,8.2%
 COP::urban unemployment rate::none,2025-01-31,23:00,9.0%,,8.0%
-USD::atlanta fed gdpnow::none,2025-01-31,23:30,2.9%,,
+USD::atlanta fed gdpnow::none,2025-01-31,23:30,2.9%,,2.3%
 CAD::budget balance::none,2025-02-01,00:00,-8.21B,,-1.49B
 CAD::budget balance::y/y,2025-02-01,00:00,-22.72B,,-14.50B
 COP::interest rate decision::none,2025-02-01,02:00,9.50%,9.25%,9.50%
@@ -2755,7 +2755,7 @@ USD::capacity utilization rate::none,2025-02-14,22:15,77.8%,77.7%,77.5%
 USD::manufacturing production::m/m,2025-02-14,22:15,-0.1%,0.1%,0.5%
 USD::industrial production::m/m,2025-02-14,22:15,0.5%,0.3%,1.0%
 USD::industrial production::y/y,2025-02-14,22:15,2.00%,,0.34%
-CAD::boc senior loan officer survey::none,2025-02-14,22:30,-1.9,,
+CAD::boc senior loan officer survey::none,2025-02-14,22:30,-1.9,,1.7
 COP::imports::y/y,2025-02-14,23:00,7.50%,,13.70%
 COP::industrial production::y/y,2025-02-14,23:00,1.9%,0.2%,-0.8%
 COP::retail sales::y/y,2025-02-14,23:00,7.8%,8.7%,10.4%
@@ -2991,7 +2991,7 @@ RUB::ppi::m/m,2025-02-20,00:00,0.5%,,0.4%
 RUB::ppi::y/y,2025-02-20,00:00,9.7%,,7.9%
 BRL::foreign exchange flows::none,2025-02-20,01:30,-1.984B,,-0.350B
 USD::20 - year bond auction::none,2025-02-20,02:00,4.830%,,4.900%
-USD::fomc meeting minutes::none,2025-02-20,03:00,,,
+USD::fomc meeting minutes::none,2025-02-20,03:00,,,0.00
 NZD::rbnz gov orr speaks::none,2025-02-20,03:10,,,
 KRW::consumer confidence::none,2025-02-20,05:00,95.2,,91.2
 KRW::ppi::m/m,2025-02-20,05:00,0.6%,,0.3%
@@ -3884,7 +3884,7 @@ USD::opec crude oil production uae (barrel)::none,2025-03-05,22:00,2.92M,,2.94M
 USD::opec crude oil production venezuela (barrel)::none,2025-03-05,22:00,0.91M,,0.90M
 GBP::boe gov bailey speaks::none,2025-03-05,22:30,,,
 GBP::boe mpc member pill speaks::none,2025-03-05,22:30,,,
-GBP::boe mpc treasury committee hearings::none,2025-03-05,22:30,,,
+GBP::boe mpc treasury committee hearings::none,2025-03-05,22:30,,,0.00
 USD::ism non - manufacturing pmi::none,2025-03-05,23:00,53.5,52.5,52.8
 USD::ism non - manufacturing prices::none,2025-03-05,23:00,62.6,60.0,60.4
 USD::durables excluding defense::m/m,2025-03-05,23:00,3.5%,,3.5%
@@ -3911,7 +3911,7 @@ RUB::retail sales::y/y,2025-03-06,00:00,5.4%,4.1%,5.2%
 RUB::unemployment rate::none,2025-03-06,00:00,2.4%,2.3%,2.3%
 USD::total vehicle sales::none,2025-03-06,00:00,16.00M,,15.60M
 EUR::irish exchequer returns::none,2025-03-06,00:30,3.200B,,3.600B
-USD::beige book::none,2025-03-06,03:00,,,
+USD::beige book::none,2025-03-06,03:00,,,0.00
 NZD::rbnz gov orr speaks::none,2025-03-06,04:30,,,
 KRW::fx reserves - usd::none,2025-03-06,05:00,409.20B,,411.00B
 KRW::cpi::m/m,2025-03-06,07:00,0.3%,0.2%,0.7%
@@ -4998,7 +4998,7 @@ GBP::boe gov bailey speaks::none,2025-03-25,02:00,,,
 USD::fed vice chair for supervision barr speaks::none,2025-03-25,03:10,,,
 KRW::consumer confidence::none,2025-03-25,05:00,93.4,,95.2
 AUD::rba assistant governor jones speaks::none,2025-03-25,07:10,,,
-JPY::monetary policy meeting minutes::none,2025-03-25,07:50,,,
+JPY::monetary policy meeting minutes::none,2025-03-25,07:50,,,0.00
 CZK::car registration::m/m,2025-03-25,13:00,-8.10%,,8.20%
 CZK::car registration::y/y,2025-03-25,13:00,-3.00%,,-5.00%
 EUR::car registration::m/m,2025-03-25,13:00,-15.2%,,-11.5%
@@ -6047,7 +6047,7 @@ NA::india - mahavir jayanti::none,2025-04-10,All Day,,,
 USD::fomc member barkin speaks::none,2025-04-10,00:30,,,
 USD::10 - year note auction::none,2025-04-10,01:00,4.435%,,4.310%
 BRL::foreign exchange flows::none,2025-04-10,01:30,3.467B,,-2.085B
-USD::fomc meeting minutes::none,2025-04-10,02:00,,,
+USD::fomc meeting minutes::none,2025-04-10,02:00,,,0.00
 ARS::industrial production::y/y,2025-04-10,03:00,5.6%,,7.6%
 JPY::bank lending::y/y,2025-04-10,07:50,2.8%,3.1%,3.0%
 JPY::foreign bonds buying::none,2025-04-10,07:50,"-2,569.8B",,-5.9B
@@ -6930,7 +6930,7 @@ GBP::boe gov bailey speaks::none,2025-04-24,00:30,,,
 USD::5 - year note auction::none,2025-04-24,01:00,3.995%,,4.100%
 BRL::foreign exchange flows::none,2025-04-24,01:30,-0.186B,,-0.236B
 GBP::boe breeden speaks::none,2025-04-24,02:00,,,
-USD::beige book::none,2025-04-24,02:00,,,
+USD::beige book::none,2025-04-24,02:00,,,0.00
 ARS::retail sales::y/y,2025-04-24,03:00,50.6%,,69.6%
 EUR::ecb's lane speaks::none,2025-04-24,03:15,,,
 KRW::gdp::q/q,2025-04-24,07:00,-0.2%,0.1%,0.1%
@@ -6938,7 +6938,7 @@ KRW::gdp::y/y,2025-04-24,07:00,-0.1%,0.2%,1.2%
 JPY::corporate services price index (cspi)::y/y,2025-04-24,07:50,3.1%,3.0%,3.2%
 JPY::foreign bonds buying::none,2025-04-24,07:50,223.7B,,-511.9B
 JPY::foreign investments in japanese stocks::none,2025-04-24,07:50,705.6B,,"1,044.9B"
-AUD::rba bulletin::none,2025-04-24,09:30,,,
+AUD::rba bulletin::none,2025-04-24,09:30,,,0.00
 THB::custom - based export data::none,2025-04-24,11:00,17.80%,13.00%,14.00%
 THB::custom - based import data::none,2025-04-24,11:00,10.20%,6.35%,4.00%
 THB::custom - based trade data (usd)::none,2025-04-24,11:00,0.970B,1.000B,2.000B
@@ -7479,7 +7479,7 @@ RUB::unemployment rate::none,2025-05-01,00:00,2.3%,2.4%,2.4%
 SAR::m3 money supply::y/y,2025-05-01,00:00,8.20%,,10.10%
 SAR::private sector loans::y/y,2025-05-01,00:00,15.00%,,13.80%
 RUB::gdp monthly::y/y,2025-05-01,00:05,1.4%,,0.7%
-USD::atlanta fed gdpnow::none,2025-05-01,00:30,2.4%,,
+USD::atlanta fed gdpnow::none,2025-05-01,00:30,2.4%,,-2.7%
 BRL::caged net payroll jobs::none,2025-05-01,01:30,71.58K,201.70K,432.00K
 BRL::foreign exchange flows::none,2025-05-01,01:30,0.108B,,-0.235B
 CAD::boc summary of deliberations::none,2025-05-01,01:30,,,
@@ -7850,7 +7850,7 @@ USD::fomc press conference::none,2025-05-08,02:30,,,
 USD::consumer credit::none,2025-05-08,03:00,10.17B,9.80B,-0.61B
 KRW::fx reserves - usd::none,2025-05-08,05:00,404.67B,,409.66B
 BRL::interest rate decision::none,2025-05-08,05:30,14.75%,14.75%,14.25%
-JPY::monetary policy meeting minutes::none,2025-05-08,07:50,,,
+JPY::monetary policy meeting minutes::none,2025-05-08,07:50,,,0.00
 PHP::gdp::q/q,2025-05-08,10:00,1.2%,,1.5%
 PHP::gdp::y/y,2025-05-08,10:00,5.4%,5.6%,5.3%
 IDR::fx reserves (usd)::none,2025-05-08,11:00,152.50B,,157.10B
@@ -9066,7 +9066,7 @@ SAR::private sector loans::y/y,2025-05-29,00:20,15.20%,,15.00%
 NZD::rbnz press conference::none,2025-05-29,01:00,,,
 USD::5 - year note auction::none,2025-05-29,01:00,4.071%,,3.995%
 BRL::foreign exchange flows::none,2025-05-29,01:30,-0.089B,,-0.235B
-USD::fomc meeting minutes::none,2025-05-29,02:00,,,
+USD::fomc meeting minutes::none,2025-05-29,02:00,,,0.00
 BRL::caged net payroll jobs::none,2025-05-29,02:30,257.53K,175.00K,71.58K
 USD::api weekly crude oil stock::none,2025-05-29,04:30,-4.236M,1.000M,2.499M
 JPY::foreign bonds buying::none,2025-05-29,07:50,92.0B,,"2,833.9B"
@@ -9470,7 +9470,7 @@ EUR::cpi::m/m,2025-06-03,17:00,0.0%,,0.6%
 EUR::core cpi::y/y,2025-06-03,17:00,2.3%,2.4%,2.7%
 EUR::unemployment rate::none,2025-06-03,17:00,6.2%,6.2%,6.3%
 NGN::foreign reserves (usd)::none,2025-06-03,17:00,38.45B,,37.90B
-GBP::boe mpc treasury committee hearings::none,2025-06-03,17:15,,,
+GBP::boe mpc treasury committee hearings::none,2025-06-03,17:15,,,0.00
 ZAR::gdp::y/y,2025-06-03,17:30,0.8%,,0.8%
 ZAR::gdp annualized::q/q,2025-06-03,17:30,0.1%,0.0%,0.6%
 EUR::german 2 - year schatz auction::none,2025-06-03,17:50,1.780%,,1.940%
@@ -9568,7 +9568,7 @@ RUB::retail sales::y/y,2025-06-05,00:00,1.9%,,1.3%
 RUB::unemployment rate::none,2025-06-05,00:00,2.3%,2.4%,2.3%
 RUB::gdp monthly::y/y,2025-06-05,00:05,1.9%,,1.1%
 BRL::foreign exchange flows::none,2025-06-05,01:30,1.058B,,-0.186B
-USD::beige book::none,2025-06-05,02:00,,,
+USD::beige book::none,2025-06-05,02:00,,,0.00
 KRW::fx reserves - usd::none,2025-06-05,05:00,404.60B,,404.67B
 KRW::gdp::q/q,2025-06-05,07:00,-0.2%,-0.2%,-0.2%
 KRW::gdp::y/y,2025-06-05,07:00,0.0%,-0.1%,1.2%
@@ -10565,7 +10565,7 @@ GBP::gfk consumer confidence::none,2025-06-20,07:00,-18,-19,-20
 JPY::national cpi::y/y,2025-06-20,07:30,3.5%,3.5%,3.6%
 JPY::national cpi::m/m,2025-06-20,07:30,0.3%,,0.1%
 JPY::national core cpi::y/y,2025-06-20,07:30,3.7%,3.6%,3.5%
-JPY::monetary policy meeting minutes::none,2025-06-20,07:50,,,
+JPY::monetary policy meeting minutes::none,2025-06-20,07:50,,,0.00
 CNY::china loan prime rate 5y::none,2025-06-20,09:00,3.50%,3.50%,3.50%
 CNY::pboc loan prime rate::none,2025-06-20,09:00,3.00%,3.00%,3.00%
 MYR::exports::y/y,2025-06-20,12:00,-1.1%,8.9%,16.4%
@@ -11727,7 +11727,7 @@ EGP::core cpi::y/y,2025-07-10,01:00,11.40%,,13.10%
 USD::10 - year note auction::none,2025-07-10,01:00,4.362%,,4.421%
 USD::atlanta fed gdpnow::none,2025-07-10,01:00,2.6%,2.6%,2.6%
 BRL::foreign exchange flows::none,2025-07-10,01:30,-2.148B,,-2.268B
-USD::fomc meeting minutes::none,2025-07-10,02:00,,,
+USD::fomc meeting minutes::none,2025-07-10,02:00,,,0.00
 NZD::external migration & visitors::none,2025-07-10,06:45,6.10%,,18.80%
 NZD::permanent/long - term migration::none,2025-07-10,06:45,"1,530",,"1,090"
 NZD::visitor arrivals::m/m,2025-07-10,06:45,-0.9%,,2.2%
@@ -12139,7 +12139,7 @@ RUB::ppi::m/m,2025-07-17,00:00,-1.3%,,-1.3%
 RUB::ppi::y/y,2025-07-17,00:00,0.1%,,0.3%
 ARS::budget balance::none,2025-07-17,01:10,791M,,"1,697M"
 BRL::foreign exchange flows::none,2025-07-17,01:30,0.638B,,-2.148B
-USD::beige book::none,2025-07-17,02:00,,,
+USD::beige book::none,2025-07-17,02:00,,,0.00
 USD::fomc member williams speaks::none,2025-07-17,04:30,,,
 NZD::fpi::m/m,2025-07-17,06:45,1.2%,,0.5%
 JPY::foreign bonds buying::none,2025-07-17,07:50,759.3B,,"1,659.1B"
@@ -12422,7 +12422,7 @@ ARS::retail sales::y/y,2025-07-24,03:00,40.7%,,48.0%
 KRW::manufacturing bsi index::none,2025-07-24,05:00,68,,70
 KRW::gdp::q/q,2025-07-24,07:00,0.6%,0.5%,-0.2%
 KRW::gdp::y/y,2025-07-24,07:00,0.5%,0.4%,0.0%
-AUD::rba bulletin::none,2025-07-24,09:30,,,
+AUD::rba bulletin::none,2025-07-24,09:30,,,0.00
 THB::custom - based export data::none,2025-07-24,11:00,15.50%,18.70%,18.40%
 THB::custom - based import data::none,2025-07-24,11:00,13.10%,17.75%,18.00%
 THB::custom - based trade data (usd)::none,2025-07-24,11:00,1.060B,0.600B,1.120B
@@ -12931,7 +12931,7 @@ COP::unemployment rate::none,2025-07-31,23:00,8.6%,9.2%,9.0%
 COP::urban unemployment rate::none,2025-07-31,23:00,8.3%,,9.0%
 USD::4 - week bill auction::none,2025-07-31,23:30,4.290%,,4.245%
 USD::8 - week bill auction::none,2025-07-31,23:30,4.290%,,4.265%
-USD::atlanta fed gdpnow::none,2025-07-31,23:30,2.3%,,
+USD::atlanta fed gdpnow::none,2025-07-31,23:30,2.3%,,2.9%
 NA::bermuda - national day::none,2025-08-01,All Day,,,
 NA::jamaica - emancipation day::none,2025-08-01,All Day,,,
 NA::rwanda - thanksgiving day::none,2025-08-01,All Day,,,
@@ -13100,7 +13100,7 @@ USD::loan officer survey::none,2025-08-05,02:00,,,
 KRW::fx reserves - usd::none,2025-08-05,05:00,411.33B,,410.20B
 KRW::cpi::m/m,2025-08-05,07:00,0.2%,0.2%,0.0%
 KRW::cpi::y/y,2025-08-05,07:00,2.1%,2.1%,2.2%
-JPY::monetary policy meeting minutes::none,2025-08-05,07:50,,,
+JPY::monetary policy meeting minutes::none,2025-08-05,07:50,,,0.00
 NZD::anz commodity price index::m/m,2025-08-05,09:00,-1.8%,,-2.4%
 PHP::cpi::m/m,2025-08-05,09:00,0.3%,,0.1%
 PHP::cpi::y/y,2025-08-05,09:00,0.9%,1.1%,1.4%
@@ -14048,7 +14048,7 @@ RUB::ppi::m/m,2025-08-21,00:00,0.9%,,-1.3%
 RUB::ppi::y/y,2025-08-21,00:00,-0.3%,,0.1%
 USD::20 - year bond auction::none,2025-08-21,01:00,4.876%,,4.935%
 BRL::foreign exchange flows::none,2025-08-21,01:30,0.031B,,-0.305B
-USD::fomc meeting minutes::none,2025-08-21,02:00,,,
+USD::fomc meeting minutes::none,2025-08-21,02:00,,,0.00
 ARS::economic activity::y/y,2025-08-21,03:00,6.4%,6.4%,5.0%
 ARS::trade balance::none,2025-08-21,03:00,988M,690M,906M
 USD::fomc member bostic speaks::none,2025-08-21,03:00,,,
@@ -14876,7 +14876,7 @@ USD::redbook::y/y,2025-09-03,20:55,6.5%,,6.5%
 BRL::s&p global composite pmi::none,2025-09-03,21:00,48.8,,46.6
 BRL::s&p global services pmi::none,2025-09-03,21:00,49.3,,46.3
 GBP::boe gov bailey speaks::none,2025-09-03,21:15,,,
-GBP::boe mpc treasury committee hearings::none,2025-09-03,21:15,,,
+GBP::boe mpc treasury committee hearings::none,2025-09-03,21:15,,,0.00
 USD::jolts job openings::none,2025-09-03,22:00,7.181M,7.380M,7.357M
 USD::durables excluding defense::m/m,2025-09-03,22:00,-2.5%,-2.5%,-2.5%
 USD::durables excluding transport::m/m,2025-09-03,22:00,1.0%,,1.1%
@@ -14892,7 +14892,7 @@ NA::palestinian territory - mawlid - al - nabi::none,2025-09-04,All Day,,,
 NA::united arab emirates - mawlid - al - nabi::none,2025-09-04,All Day,,,
 BRL::foreign exchange flows::none,2025-09-04,01:30,-0.231B,,-1.982B
 USD::fomc member kashkari speaks::none,2025-09-04,01:30,,,
-USD::beige book::none,2025-09-04,02:00,,,
+USD::beige book::none,2025-09-04,02:00,,,0.00
 USD::api weekly crude oil stock::none,2025-09-04,04:30,0.622M,-3.400M,-0.974M
 KRW::fx reserves - usd::none,2025-09-04,05:00,416.29B,,411.33B
 USD::total vehicle sales::none,2025-09-04,06:00,16.10M,16.10M,16.40M
@@ -16108,7 +16108,7 @@ BRL::foreign exchange flows::none,2025-09-25,01:30,-0.660B,,-0.163B
 ARS::economic activity::y/y,2025-09-25,03:00,2.9%,3.3%,6.4%
 USD::fomc member daly speaks::none,2025-09-25,04:10,,,
 JPY::corporate services price index (cspi)::y/y,2025-09-25,07:50,2.7%,2.9%,2.6%
-JPY::monetary policy meeting minutes::none,2025-09-25,07:50,,,
+JPY::monetary policy meeting minutes::none,2025-09-25,07:50,,,0.00
 CZK::car registration::m/m,2025-09-25,12:00,-15.40%,,-6.30%
 CZK::car registration::y/y,2025-09-25,12:00,3.10%,,19.30%
 EUR::car registration::m/m,2025-09-25,12:00,-20.8%,,-4.1%
@@ -17129,9 +17129,9 @@ EUR::ecb president lagarde speaks::none,2025-10-09,00:00,,,
 USD::10 - year note auction::none,2025-10-09,01:00,4.117%,,4.033%
 USD::fed logan speaks::none,2025-10-09,01:15,,,
 BRL::foreign exchange flows::none,2025-10-09,01:30,-1.056B,,1.141B
-USD::fomc meeting minutes::none,2025-10-09,02:00,,,
+USD::fomc meeting minutes::none,2025-10-09,02:00,,,0.00
 ARS::industrial production::y/y,2025-10-09,03:00,-4.4%,,-0.9%
-USD::fomc meeting minutes::none,2025-10-09,03:00,,,
+USD::fomc meeting minutes::none,2025-10-09,03:00,,,0.00
 USD::fomc member kashkari speaks::none,2025-10-09,03:15,,,
 USD::fed vice chair for supervision barr speaks::none,2025-10-09,05:45,,,
 IDR::motorbike sales::y/y,2025-10-09,06:50,7.30%,,0.70%
@@ -17227,7 +17227,7 @@ NA::taiwan - double tenth day::none,2025-10-10,All Day,,,
 USD::wasde report::none,2025-10-10,00:00,,,
 USD::fed vice chair for supervision barr speaks::none,2025-10-10,00:45,,,
 USD::30 - year bond auction::none,2025-10-10,01:00,4.734%,,4.651%
-USD::atlanta fed gdpnow::none,2025-10-10,01:00,,,
+USD::atlanta fed gdpnow::none,2025-10-10,01:00,,,3.8%
 USD::fed vice chair for supervision barr speaks::none,2025-10-10,01:00,,,
 USD::fomc member bowman speaks::none,2025-10-10,03:45,,,
 USD::reserve balances with federal reserve banks::none,2025-10-10,04:30,3.034T,,2.980T
@@ -17298,8 +17298,8 @@ EUR::portuguese cpi::m/m,2025-10-10,18:00,0.9%,0.9%,-0.2%
 EUR::portuguese cpi::y/y,2025-10-10,18:00,2.4%,2.4%,2.8%
 EUR::portuguese trade balance::none,2025-10-10,18:00,-8.62B,,-8.90B
 MZN::cpi::y/y,2025-10-10,19:00,4.93%,,4.79%
-INR::bank loan growth::none,2025-10-10,19:30,,,
-INR::deposit growth::none,2025-10-10,19:30,,,
+INR::bank loan growth::none,2025-10-10,19:30,,,10.4%
+INR::deposit growth::none,2025-10-10,19:30,,,9.5%
 "INR::fx reserves, usd::none",2025-10-10,19:30,699.96B,,700.24B
 BRL::brazilian ppi::m/m,2025-10-10,20:00,-0.20%,,-0.31%
 MXN::industrial production::m/m,2025-10-10,20:00,-0.3%,0.4%,-1.2%
@@ -17384,8 +17384,8 @@ RUB::trade balance::none,2025-10-13,21:00,7.47B,,13.17B
 USD::wholesale trade sales::m/m,2025-10-13,22:00,,,1.4%
 NA::israel - rejoicing of the law (simchat tora)::none,2025-10-14,All Day,,,
 NA::tanzania - nyerere day::none,2025-10-14,All Day,,,
-USD::treasury secretary paulson speaks::none,2025-10-14,00:10,,,
-USD::treasury secretary paulson speaks::none,2025-10-14,00:55,,,
+USD::treasury secretary paulson speaks::none,2025-10-14,00:10,,,0.00
+USD::treasury secretary paulson speaks::none,2025-10-14,00:55,,,0.00
 EUR::german buba balz speaks::none,2025-10-14,01:30,,,
 GBP::boe mpc member mann speaks::none,2025-10-14,03:10,,,
 CNY::exports::none,2025-10-14,04:40,,,4.80M
@@ -17544,7 +17544,7 @@ INR::exports (usd)::none,2025-10-15,17:30,36.38B,,35.10B
 INR::imports (usd)::none,2025-10-15,17:30,68.53B,,61.59B
 INR::trade balance::none,2025-10-15,17:30,-32.15B,,-26.49B
 ZAR::business confidence::none,2025-10-15,17:30,,,116.7
-ZAR::business confidence::none,2025-10-15,17:30,,,
+ZAR::business confidence::none,2025-10-15,17:30,,,121.1
 EUR::german buba monthly report::none,2025-10-15,18:00,,,
 EUR::reserve assets total::none,2025-10-15,18:00,"1,622.22B",,"1,507.84B"
 EUR::resi prop prices::m/m,2025-10-15,18:00,1.00%,,0.70%
@@ -17599,7 +17599,7 @@ USD::fed waller speaks::none,2025-10-16,01:00,,,
 AOA::fx reserve::none,2025-10-16,01:30,,,15.1B
 BRL::foreign exchange flows::none,2025-10-16,01:30,0.738B,,-1.056B
 EUR::ecb's de guindos speaks::none,2025-10-16,02:00,,,
-USD::beige book::none,2025-10-16,02:00,,,
+USD::beige book::none,2025-10-16,02:00,,,0.00
 AUD::rba gov bullock speaks::none,2025-10-16,03:45,,,
 UAH::trade balance ytd (usd)::none,2025-10-16,04:30,,,-22.6B
 USD::api weekly crude oil stock::none,2025-10-16,04:30,,0.120M,2.780M
@@ -17722,7 +17722,7 @@ USD::heating oil stockpiles::none,2025-10-17,00:00,-0.519M,,-0.060M
 USD::cushing crude oil inventories::none,2025-10-17,00:00,-0.703M,,-0.763M
 USD::fomc member barkin speaks::none,2025-10-17,00:45,,,
 USD::api weekly crude oil stock::none,2025-10-17,01:00,3.524M,0.120M,2.780M
-USD::atlanta fed gdpnow::none,2025-10-17,01:00,,,
+USD::atlanta fed gdpnow::none,2025-10-17,01:00,,,3.8%
 AOA::fx reserve::none,2025-10-17,01:30,,,15.1B
 CAD::boc gov macklem speaks::none,2025-10-17,01:30,,,
 USD::federal budget balance::none,2025-10-17,02:00,198.0B,42.3B,-345.0B
@@ -18025,7 +18025,7 @@ USD::fed vice chair for supervision barr speaks::none,2025-10-23,04:00,,,
 JPY::foreign bonds buying::none,2025-10-23,07:50,-669.7B,,601.3B
 JPY::foreign investments in japanese stocks::none,2025-10-23,07:50,752.6B,,"1,886.6B"
 AUD::nab quarterly business confidence::none,2025-10-23,08:30,2,,0
-AUD::rba bulletin::none,2025-10-23,08:30,,,
+AUD::rba bulletin::none,2025-10-23,08:30,,,0.00
 KRW::bank of korea monetary policy board’s policy setting meeting dates::m/m,2025-10-23,09:00,,,
 KRW::interest rate decision::none,2025-10-23,09:00,2.50%,2.50%,2.50%
 IDR::m2 money supply::y/y,2025-10-23,11:00,8.00%,,7.60%
@@ -18692,7 +18692,7 @@ CAD::budget balance::none,2025-10-31,23:00,-3.28B,,-1.51B
 CAD::budget balance::y/y,2025-10-31,23:00,-11.07B,,-7.79B
 COP::unemployment rate::none,2025-10-31,23:00,8.2%,8.5%,8.6%
 COP::urban unemployment rate::none,2025-10-31,23:00,8.1%,,7.8%
-USD::atlanta fed gdpnow::none,2025-10-31,23:30,,,
+USD::atlanta fed gdpnow::none,2025-10-31,23:30,,,3.9%
 NA::sweden - all saint's day - early close at 13:00::none,2025-10-31,,,,
 USD::fomc member bostic speaks::none,2025-11-01,00:00,,,
 USD::u.s. baker hughes oil rig count::none,2025-11-01,01:00,414,,420
@@ -18810,7 +18810,7 @@ DKK::current account rate::none,2025-11-04,01:00,,,1.60%
 DKK::discount rate::none,2025-11-04,01:00,,,1.60%
 DKK::lending rate::none,2025-11-04,01:00,,,1.75%
 EGP::m2 money supply::y/y,2025-11-04,01:00,,,22.88%
-USD::atlanta fed gdpnow::none,2025-11-04,01:00,4.0%,,
+USD::atlanta fed gdpnow::none,2025-11-04,01:00,4.0%,,3.9%
 USD::fomc member daly speaks::none,2025-11-04,01:00,,,
 EUR::german buba balz speaks::none,2025-11-04,01:20,,,
 COP::interest rate decision::none,2025-11-04,02:00,,9.25%,9.25%
@@ -18828,7 +18828,7 @@ SAR::riyad bank composite pmi::none,2025-11-04,12:15,60.2,,57.8
 AUD::rba monetary policy statement::none,2025-11-04,12:30,,,
 INR::s&p global manufacturing pmi::none,2025-11-04,13:00,,58.4,57.7
 RON::ppi::y/y,2025-11-04,15:00,6.13%,,3.21%
-TRY::trade balance::none,2025-11-04,15:00,,,
+TRY::trade balance::none,2025-11-04,15:00,,,-6.90B
 TRY::trade balance::none,2025-11-04,15:00,,,-6.90B
 EUR::ecb president lagarde speaks::none,2025-11-04,15:40,,,
 EUR::french government budget balance::none,2025-11-04,15:45,-155.4B,,-157.5B
@@ -18894,7 +18894,7 @@ USD::opec crude oil production iran (barrel)::none,2025-11-05,01:00,3.37M,,3.38M
 USD::opec crude oil production iraq (barrel)::none,2025-11-05,01:00,4.06M,,4.01M
 USD::opec crude oil production uae (barrel)::none,2025-11-05,01:00,3.36M,,3.35M
 USD::opec crude oil production venezuela (barrel)::none,2025-11-05,01:00,0.93M,,0.95M
-USD::atlanta fed gdpnow::none,2025-11-05,01:00,,,
+USD::atlanta fed gdpnow::none,2025-11-05,01:00,,,4.0%
 NZD::rbnz financial stability report::none,2025-11-05,04:00,,,
 KRW::fx reserves - usd::none,2025-11-05,05:00,428.82B,,422.02B
 USD::api weekly crude oil stock::none,2025-11-05,05:30,6.500M,-2.400M,-4.000M
@@ -18911,7 +18911,7 @@ NZD::rbnz gov orr speaks::none,2025-11-05,06:00,,,
 USD::opec crude oil production guinea (barrel)::none,2025-11-05,06:05,0.06M,,0.05M
 USD::opec crude oil production saudi arabia (barrel)::none,2025-11-05,06:05,9.90M,,9.85M
 JPY::monetary base::y/y,2025-11-05,07:50,-7.9%,-4.8%,-6.1%
-JPY::monetary policy meeting minutes::none,2025-11-05,07:50,,,
+JPY::monetary policy meeting minutes::none,2025-11-05,07:50,,,0.00
 NZD::anz commodity price index::m/m,2025-11-05,08:00,-0.3%,,-1.1%
 NZD::rbnz press conference::none,2025-11-05,08:00,,,
 AUD::rba chart pack release::none,2025-11-05,08:30,,,
@@ -19128,7 +19128,7 @@ MXN::interest rate decision::none,2025-11-07,03:00,7.25%,7.25%,7.50%
 BRL::trade balance::none,2025-11-07,04:00,6.96B,6.20B,2.94B
 USD::fed waller speaks::none,2025-11-07,04:30,,,
 USD::reserve balances with federal reserve banks::none,2025-11-07,05:30,2.852T,,2.828T
-USD::treasury secretary paulson speaks::none,2025-11-07,05:30,,,
+USD::treasury secretary paulson speaks::none,2025-11-07,05:30,,,0.00
 USD::fed's balance sheet::none,2025-11-07,05:30,"6,573B",,"6,587B"
 JPY::household spending::m/m,2025-11-07,07:30,-0.7%,,0.6%
 JPY::household spending::y/y,2025-11-07,07:30,1.8%,2.5%,2.3%
@@ -20044,7 +20044,7 @@ USD::20 - year bond auction::none,2025-11-20,02:00,4.706%,,4.506%
 USD::federal budget balance::none,2025-11-20,02:00,,-223.3B,198.0B
 ARS::tax revenue::none,2025-11-20,02:30,,,"16,166.00B"
 ARS::trade balance::none,2025-11-20,03:00,800M,728M,921M
-USD::fomc meeting minutes::none,2025-11-20,03:00,,,
+USD::fomc meeting minutes::none,2025-11-20,03:00,,,0.00
 USD::fomc member williams speaks::none,2025-11-20,03:00,,,
 AUD::cftc aud speculative net positions::none,2025-11-20,04:30,-64.6K,,-59.6K
 BRL::cftc brl speculative net positions::none,2025-11-20,04:30,82.6K,,65.5K
@@ -20255,7 +20255,7 @@ CHF::snb vice chairman schlegel speaks::none,2025-11-21,20:40,,,
 EUR::german buba president nagel speaks::none,2025-11-21,21:00,,,
 CAD::core retail sales::m/m,2025-11-21,21:30,0.2%,-0.5%,0.8%
 CAD::new housing price index::m/m,2025-11-21,21:30,-0.4%,0.0%,-0.2%
-CAD::retail sales::m/m,2025-11-21,21:30,,,
+CAD::retail sales::m/m,2025-11-21,21:30,,,-0.7%
 CAD::retail sales::m/m,2025-11-21,21:30,-0.7%,-0.7%,1.0%
 CAD::wholesale sales::m/m,2025-11-21,21:30,,,0.6%
 USD::real earnings::m/m,2025-11-21,21:30,-0.1%,,-0.3%
@@ -20580,7 +20580,7 @@ USD::atlanta fed gdpnow::none,2025-11-27,01:30,3.9%,4.0%,4.0%
 USD::u.s. baker hughes oil rig count::none,2025-11-27,02:00,407,,419
 USD::u.s. baker hughes total rig count::none,2025-11-27,02:00,544,,554
 ARS::retail sales::y/y,2025-11-27,03:00,23.8%,,25.1%
-USD::beige book::none,2025-11-27,03:00,,,
+USD::beige book::none,2025-11-27,03:00,,,0.00
 USD::reserve balances with federal reserve banks::none,2025-11-27,05:30,,,2.918T
 USD::fed's balance sheet::none,2025-11-27,05:30,,,"6,555B"
 NZD::retail sales quarterly vs. year ago::none,2025-11-27,05:45,4.5%,,2.3%
@@ -21721,7 +21721,7 @@ MXN::thomson reuters ipsos pcsi::m/m,2025-12-11,00:00,55.16,,51.72
 RUB::cpi::m/m,2025-12-11,00:00,0.4%,,0.5%
 RUB::cpi::y/y,2025-12-11,00:00,6.6%,,7.7%
 USD::thomson reuters ipsos pcsi::none,2025-12-11,00:00,51.86,,51.31
-USD::atlanta fed gdpnow::none,2025-12-11,01:00,,,
+USD::atlanta fed gdpnow::none,2025-12-11,01:00,,,3.5%
 RUB::cpi::m/m,2025-12-11,01:05,,,0.5%
 RUB::cpi::y/y,2025-12-11,01:05,,,7.7%
 BRL::foreign exchange flows::none,2025-12-11,01:30,4.709B,,-1.219B
@@ -21898,7 +21898,7 @@ CNY::m2 money stock::y/y,2025-12-12,17:00,8.0%,,8.2%
 CNY::outstanding loan growth::y/y,2025-12-12,17:00,6.4%,,6.5%
 CNY::new loans::none,2025-12-12,17:00,390.0B,,220.0B
 GBP::inflation expectations::none,2025-12-12,17:30,,,3.6%
-ZAR::business confidence::none,2025-12-12,17:30,,,
+ZAR::business confidence::none,2025-12-12,17:30,,,123.8
 ZAR::business confidence::none,2025-12-12,17:30,,,121.1
 EUR::ecofin meetings::none,2025-12-12,18:00,,,
 INR::cpi::y/y,2025-12-12,18:30,0.71%,0.70%,0.25%
@@ -22166,7 +22166,7 @@ USD::s&p global composite pmi::none,2025-12-16,22:45,53.0,53.9,54.2
 BHD::private sector credit::y/y,2025-12-16,23:00,,,-0.50%
 USD::business inventories::m/m,2025-12-16,23:00,0.2%,0.1%,0.0%
 USD::retail inventories ex auto::none,2025-12-16,23:00,0.0%,,0.0%
-USD::atlanta fed gdpnow::none,2025-12-16,23:30,,,
+USD::atlanta fed gdpnow::none,2025-12-16,23:30,,,3.5%
 NA::bahrain - national day::none,2025-12-17,All Day,,,
 ARS::budget balance::none,2025-12-17,00:35,"2,128M",,824M
 USD::atlanta fed gdpnow::none,2025-12-17,01:00,3.5%,3.5%,3.5%
@@ -22517,7 +22517,7 @@ DKK::cbank cod rate::none,2025-12-20,01:00,,,1.60%
 DKK::current account rate::none,2025-12-20,01:00,,,1.60%
 DKK::discount rate::none,2025-12-20,01:00,,,1.60%
 DKK::lending rate::none,2025-12-20,01:00,,,1.75%
-USD::atlanta fed gdpnow::none,2025-12-20,01:00,,,
+USD::atlanta fed gdpnow::none,2025-12-20,01:00,,,3.5%
 ARS::budget balance::none,2025-12-20,01:05,,,824M
 COP::interest rate decision::none,2025-12-20,02:00,9.25%,9.25%,9.25%
 USD::u.s. baker hughes oil rig count::none,2025-12-20,02:00,406,,414
@@ -22770,12 +22770,12 @@ USD::u.s. baker hughes oil rig count::none,2025-12-24,02:00,409,,406
 USD::u.s. baker hughes total rig count::none,2025-12-24,02:00,545,,542
 CAD::boc summary of deliberations::none,2025-12-24,02:30,,,
 ARS::current account (usd)::none,2025-12-24,03:00,-1.580B,,-3.016B
-USD::new home sales::none,2025-12-24,04:00,,,
 USD::new home sales::none,2025-12-24,04:00,,,800K
-USD::new home sales::m/m,2025-12-24,04:00,,,
+USD::new home sales::none,2025-12-24,04:00,,,800K
 USD::new home sales::m/m,2025-12-24,04:00,,,20.5%
-USD::new home sales::none,2025-12-24,04:05,,,
-USD::new home sales::m/m,2025-12-24,04:05,,,
+USD::new home sales::m/m,2025-12-24,04:00,,,20.5%
+USD::new home sales::none,2025-12-24,04:05,,,800K
+USD::new home sales::m/m,2025-12-24,04:05,,,20.5%
 AUD::cftc aud speculative net positions::none,2025-12-24,04:30,-21.9K,,-62.9K
 BRL::cftc brl speculative net positions::none,2025-12-24,04:30,48.0K,,57.4K
 CAD::cftc cad speculative net positions::none,2025-12-24,04:30,-86.6K,,-130.6K
@@ -22799,7 +22799,7 @@ USD::cftc s&p 500 speculative net positions::none,2025-12-24,04:30,-166.0K,,-190
 KRW::consumer confidence::none,2025-12-24,05:00,109.9,,112.4
 USD::api weekly crude oil stock::none,2025-12-24,05:30,2.400M,,-9.300M
 JPY::corporate services price index (cspi)::y/y,2025-12-24,07:50,2.7%,2.7%,2.7%
-JPY::monetary policy meeting minutes::none,2025-12-24,07:50,,,
+JPY::monetary policy meeting minutes::none,2025-12-24,07:50,,,0.00
 EUR::irish consumer confidence::none,2025-12-24,08:00,,,61.0
 THB::custom - based export data::none,2025-12-24,10:30,,,5.70%
 THB::custom - based import data::none,2025-12-24,10:30,,,16.30%
@@ -22845,7 +22845,7 @@ USD::eia weekly refinery utilization rates::w/w,2025-12-24,23:30,,,0.3%
 USD::gasoline inventories::none,2025-12-24,23:30,,,4.808M
 USD::gasoline production::none,2025-12-24,23:30,,,0.033M
 USD::heating oil stockpiles::none,2025-12-24,23:30,,,0.267M
-USD::atlanta fed gdpnow::none,2025-12-24,23:30,,,
+USD::atlanta fed gdpnow::none,2025-12-24,23:30,,,3.0%
 USD::cushing crude oil inventories::none,2025-12-24,23:30,,,-0.742M
 ZMK::cpi::m/m,2025-12-24,Tentative,,,0.7%
 ZMK::cpi::y/y,2025-12-24,Tentative,,,10.9%
@@ -23185,7 +23185,7 @@ MXN::fiscal balance::none,2025-12-31,02:00,"-1,083.10B",,-779.60B
 USD::u.s. baker hughes oil rig count::none,2025-12-31,02:00,412,,409
 USD::u.s. baker hughes total rig count::none,2025-12-31,02:00,546,,545
 MXN::fiscal balance::none,2025-12-31,03:00,-200.52B,,-16.75B
-USD::fomc meeting minutes::none,2025-12-31,03:00,,,
+USD::fomc meeting minutes::none,2025-12-31,03:00,,,0.00
 USD::api weekly crude oil stock::none,2025-12-31,05:30,1.700M,,2.400M
 KRW::cpi::m/m,2025-12-31,07:00,0.3%,0.2%,-0.2%
 KRW::cpi::y/y,2025-12-31,07:00,2.3%,2.3%,2.4%
