@@ -76,7 +76,13 @@ type BackendApi = {
 
 const DESKTOP_USER_AGENT_TOKEN = "XAUUSDCalendar/";
 
+const isUiCheckRuntime = () => {
+  if (typeof window === "undefined") return false;
+  return (window as { __UI_CHECK_RUNTIME__?: boolean }).__UI_CHECK_RUNTIME__ === true;
+};
+
 export const isWebview = () => {
+  if (isUiCheckRuntime()) return false;
   if (typeof navigator === "undefined") return false;
   return navigator.userAgent.includes(DESKTOP_USER_AGENT_TOKEN);
 };
@@ -342,7 +348,7 @@ export const backend = {
   getSnapshot: async (): ApiResult<Snapshot> => {
     const api = await withApi();
     if (!api || !hasMethod(api, "get_snapshot")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       return Promise.resolve(getMockSnapshot());
@@ -352,24 +358,22 @@ export const backend = {
   getEventHistory: async (payload: { event: string; cur: string }) => {
     const api = await withApi();
     if (!api || !hasMethod(api, "get_event_history")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       const points = [
-        {
-          date: "05-01-2026",
-          time: "08:30",
-          actual: "0.3",
-          forecast: "0.2",
-          previous: "0.4"
-        },
-        {
-          date: "05-12-2025",
-          time: "08:30",
-          actual: "0.1",
-          forecast: "0.2",
-          previous: "0.3"
-        }
+        { date: "2026-01-22", time: "08:30", actual: "218k", forecast: "220k", previous: "215k" },
+        { date: "2026-01-15", time: "08:30", actual: "224k", forecast: "225k", previous: "219k" },
+        { date: "2026-01-08", time: "08:30", actual: "231k", forecast: "230k", previous: "227k" },
+        { date: "2025-12-31", time: "08:30", actual: "221k", forecast: "223k", previous: "214k" },
+        { date: "2025-12-24", time: "08:30", actual: "206k", forecast: "210k", previous: "212k" },
+        { date: "2025-12-18", time: "08:30", actual: "201k", forecast: "205k", previous: "207k" },
+        { date: "2025-12-11", time: "08:30", actual: "209k", forecast: "212k", previous: "216k" },
+        { date: "2025-12-04", time: "08:30", actual: "215k", forecast: "214k", previous: "210k" },
+        { date: "2025-11-26", time: "08:30", actual: "212k", forecast: "213k", previous: "211k" },
+        { date: "2025-11-20", time: "08:30", actual: "224k", forecast: "223k", previous: "219k" },
+        { date: "2025-11-13", time: "08:30", actual: "219k", forecast: "221k", previous: "220k" },
+        { date: "2025-11-06", time: "08:30", actual: "217k", forecast: "218k", previous: "--" }
       ];
       return Promise.resolve({
         ok: true,
@@ -386,7 +390,7 @@ export const backend = {
   getUpdateState: async () => {
     const api = await withApi();
     if (!api || !hasMethod(api, "get_update_state")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       return Promise.resolve(getMockUpdateState());
@@ -396,7 +400,7 @@ export const backend = {
   checkUpdates: async () => {
     const api = await withApi();
     if (!api || !hasMethod(api, "check_updates")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       const now = new Date();
@@ -418,7 +422,7 @@ export const backend = {
   updateNow: async () => {
     const api = await withApi();
     if (!api || !hasMethod(api, "update_now")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       const state = getMockUpdateState();
@@ -480,7 +484,7 @@ export const backend = {
   getSettings: async (): ApiResult<Settings> => {
     const api = await withApi();
     if (!api || !hasMethod(api, "get_settings")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       return Promise.resolve(mockSettings);
@@ -490,7 +494,7 @@ export const backend = {
   saveSettings: async (payload: Settings) => {
     const api = await withApi();
     if (!api || !hasMethod(api, "save_settings")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       mockSettings = { ...mockSettings, ...payload };
@@ -515,7 +519,7 @@ export const backend = {
   openLog: async () => {
     const api = await withApi();
     if (!api || !hasMethod(api, "open_log")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       return { ok: true };
@@ -525,7 +529,7 @@ export const backend = {
   openPath: async (path: string) => {
     const api = await withApi();
     if (!api || !hasMethod(api, "open_path")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       return { ok: true };
@@ -535,7 +539,7 @@ export const backend = {
   openUrl: async (url: string) => {
     const api = await withApi();
     if (!api || !hasMethod(api, "open_url")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       try {
@@ -550,7 +554,7 @@ export const backend = {
   openReleaseNotes: async () => {
     const api = await withApi();
     if (!api || !hasMethod(api, "open_release_notes")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       return { ok: false, message: "Release notes not available" };
@@ -560,7 +564,7 @@ export const backend = {
   addLog: async (payload: { message: string; level?: string }) => {
     const api = await withApi();
     if (!api || !hasMethod(api, "add_log")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         return { ok: false };
       }
       return { ok: true };
@@ -570,7 +574,7 @@ export const backend = {
   browseTemporaryPath: async () => {
     const api = await withApi();
     if (!api || !hasMethod(api, "browse_temporary_path")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       return { ok: true, path: "" };
@@ -580,7 +584,7 @@ export const backend = {
   setTemporaryPathPath: async (path: string) => {
     const api = await withApi();
     if (!api || !hasMethod(api, "set_temporary_path")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       return { ok: true };
@@ -590,7 +594,7 @@ export const backend = {
   getTemporaryPathTask: async () => {
     const api = await withApi();
     if (!api || !hasMethod(api, "get_temporary_path_task")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       return { ok: true, active: false, phase: "idle", progress: 0, message: "", path: "" };
@@ -600,7 +604,7 @@ export const backend = {
   probeTemporaryPath: async (payload: { enableTemporaryPath: boolean; temporaryPath: string; autoStart?: boolean }) => {
     const api = await withApi();
     if (!api || !hasMethod(api, "probe_temporary_path")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       const uiCheck = (
@@ -645,7 +649,7 @@ export const backend = {
   temporaryPathUseAsIs: async (temporaryPath: string) => {
     const api = await withApi();
     if (!api || !hasMethod(api, "temporary_path_use_as_is")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       return { ok: true };
@@ -655,7 +659,7 @@ export const backend = {
   temporaryPathReset: async (temporaryPath: string) => {
     const api = await withApi();
     if (!api || !hasMethod(api, "temporary_path_reset")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       return { ok: true };
@@ -670,7 +674,7 @@ export const backend = {
   }) => {
     const api = await withApi();
     if (!api || !hasMethod(api, "uninstall")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       return { ok: true };
@@ -680,7 +684,7 @@ export const backend = {
   pullNow: async () => {
     const api = await withApi();
     if (!api || !hasMethod(api, "pull_now")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       const baseline = getMockSnapshot();
@@ -711,7 +715,7 @@ export const backend = {
   syncNow: async () => {
     const api = await withApi();
     if (!api || !hasMethod(api, "sync_now")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       const baseline = getMockSnapshot();
@@ -750,7 +754,7 @@ export const backend = {
   browseOutputDir: async () => {
     const api = await withApi();
     if (!api || !hasMethod(api, "browse_output_dir")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       return { ok: true, path: getMockSnapshot().outputDir };
@@ -760,7 +764,7 @@ export const backend = {
   setOutputDir: async (path: string) => {
     const api = await withApi();
     if (!api || !hasMethod(api, "set_output_dir")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       const value = String(path || "");
@@ -774,7 +778,7 @@ export const backend = {
   setCurrency: async (value: string) => {
     const api = await withApi();
     if (!api || !hasMethod(api, "set_currency")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       return { ok: true };
@@ -784,7 +788,7 @@ export const backend = {
   clearLogs: async () => {
     const api = await withApi();
     if (!api || !hasMethod(api, "clear_logs")) {
-      if (isWebview()) {
+      if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
       return { ok: true };

@@ -1,9 +1,9 @@
-name: Update event history index
+name: Audit event history previous values
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "40 15 * * *"
+    - cron: "50 15 * * *"
 
 permissions:
   contents: write
@@ -22,16 +22,16 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Build event history index
+      - name: Audit event history previous values
         run: |
-          python scripts/calendar/build_event_history_index.py
+          python scripts/calendar/audit_event_history_previous.py
 
       - name: Create pull request
         uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: "chore: update event history index"
-          title: "chore: update event history index"
+          commit-message: "chore: audit event history previous values"
+          title: "chore: audit event history previous values"
           body: |
-            自动更新事件历史索引（Event history index）。
-          branch: "chore/event-history-index"
+            自动审查事件历史的 Previous 值一致性，并输出补丁与问题清单。
+          branch: "chore/event-history-previous-audit"
           delete-branch: true

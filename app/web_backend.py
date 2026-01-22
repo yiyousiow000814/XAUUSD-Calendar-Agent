@@ -553,6 +553,7 @@ class WebAgentBackend:
         points = self._collect_event_history_from_index(event_id, repo_path)
         if not points:
             points = self._collect_event_history_from_calendar(event_id, repo_path)
+        points = self._apply_previous_fallback(points)
         self._store_event_history_cache(event_id, points)
         return {
             "ok": True,
@@ -2506,6 +2507,31 @@ class WebAgentBackend:
                 self._parse_history_time_minutes(item["time"]),
             )
         )
+        return points
+
+    @staticmethod
+    def _is_history_value_missing(value: str | None) -> bool:
+        if value is None:
+            return True
+        normalized = value.strip().lower()
+        return normalized in {"", "--", "-", "\u2014", "tba", "n/a", "na", "null"}
+
+    def _apply_previous_fallback(self, points: list[dict]) -> list[dict]:
+        if not points:
+            return points
+        last_actual: str | None = None
+        for point in points:
+            prior_actual = last_actual
+            actual = (point.get("actual") or "").strip()
+            previous = (point.get("previous") or "").strip()
+            if (
+                self._is_history_value_missing(previous)
+                and prior_actual
+                and not self._is_history_value_missing(prior_actual)
+            ):
+                point["previous"] = prior_actual
+            if not self._is_history_value_missing(actual):
+                last_actual = actual
         return points
 
     def _collect_event_history_from_calendar(
