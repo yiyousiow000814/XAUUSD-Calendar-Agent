@@ -17,6 +17,9 @@ const NUMERIC_RANGE_KEYS = [5, 10, 20, 50, 100] as const;
 type NumericRangeKey = (typeof NUMERIC_RANGE_KEYS)[number];
 type RangeKey = NumericRangeKey | "all";
 
+const RANGE_STORAGE_KEY = "xauusd:event-history:range";
+const SERIES_STORAGE_KEY = "xauusd:event-history:series";
+
 const isMissingValue = (value: string | null | undefined) => {
   const normalized = (value ?? "").trim().toLowerCase();
   return (
@@ -35,10 +38,12 @@ const parseComparableNumber = (rawValue: string) => {
   if (isMissingValue(rawValue)) return null;
   const cleaned = rawValue
     .trim()
+    .replaceAll("−", "-") // normalize unicode minus to ASCII
+    .replace(/[\s\u00A0]+/g, "")
     .replaceAll(",", "")
-    .replaceAll("%", "")
-    .replaceAll(" ", "");
-  const match = cleaned.match(/^([+-]?\d+(?:\.\d+)?)([kmb])?$/i);
+    .replaceAll("%", "");
+  // Some calendar sources append notes like "(rev.)" or "*"; accept the first numeric token.
+  const match = cleaned.match(/([+-]?\d+(?:\.\d+)?)([kmb])?/i);
   if (!match) return null;
   const base = Number(match[1]);
   if (!Number.isFinite(base)) return null;
@@ -119,7 +124,20 @@ export function EventHistoryModal({
   data,
   onClose
 }: EventHistoryModalProps) {
-  const [range, setRange] = useState<RangeKey>(10);
+  const [range, setRange] = useState<RangeKey>(() => {
+    if (typeof window === "undefined") return 10;
+    try {
+      const raw = window.localStorage.getItem(RANGE_STORAGE_KEY);
+      if (raw === "all") return "all";
+      const parsed = Number(raw);
+      if (NUMERIC_RANGE_KEYS.includes(parsed as NumericRangeKey)) {
+        return parsed as NumericRangeKey;
+      }
+    } catch {
+      // Ignore storage errors.
+    }
+    return 10;
+  });
   const [phase, setPhase] = useState<"entering" | "open" | "closing">("entering");
   const closeTimerRef = useRef<number | null>(null);
   const [contentEnterToken, setContentEnterToken] = useState(0);
@@ -131,9 +149,19 @@ export function EventHistoryModal({
   const wasLoadingRef = useRef(false);
   const tableRef = useRef<HTMLDivElement | null>(null);
   const [fitRowCount, setFitRowCount] = useState(0);
-  const [visibleSeries, setVisibleSeries] = useState({
-    actual: true,
-    forecast: true
+  const [visibleSeries, setVisibleSeries] = useState(() => {
+    if (typeof window === "undefined") return { actual: true, forecast: true };
+    try {
+      const raw = window.localStorage.getItem(SERIES_STORAGE_KEY);
+      if (!raw) return { actual: true, forecast: true };
+      const parsed = JSON.parse(raw);
+      const actual = Boolean(parsed?.actual);
+      const forecast = Boolean(parsed?.forecast);
+      if (!actual && !forecast) return { actual: true, forecast: true };
+      return { actual, forecast };
+    } catch {
+      return { actual: true, forecast: true };
+    }
   });
   const points = data?.points ?? [];
   const pointIdByIdentity = useMemo(() => {
@@ -184,11 +212,27 @@ export function EventHistoryModal({
 
   useEffect(() => {
     if (!isOpen) return;
-    setRange(10);
     setFitRowCount(0);
     chartAnimatedTokenRef.current = 0;
-    setVisibleSeries({ actual: true, forecast: true });
   }, [isOpen, selectionLabel]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    try {
+      window.localStorage.setItem(RANGE_STORAGE_KEY, String(range));
+    } catch {
+      // Ignore storage errors.
+    }
+  }, [isOpen, range]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    try {
+      window.localStorage.setItem(SERIES_STORAGE_KEY, JSON.stringify(visibleSeries));
+    } catch {
+      // Ignore storage errors.
+    }
+  }, [isOpen, visibleSeries]);
 
   useEffect(() => {
     if (!isOpen) return;
