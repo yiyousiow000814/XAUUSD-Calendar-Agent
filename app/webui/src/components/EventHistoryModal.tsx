@@ -13,15 +13,9 @@ type EventHistoryModalProps = {
 
 const CLOSE_ANIMATION_MS = 320;
 
-const RANGE_OPTIONS = [
-  { key: 10, label: "Last 10" },
-  { key: 20, label: "Last 20" },
-  { key: 50, label: "Last 50" },
-  { key: 100, label: "Last 100" },
-  { key: "all", label: "All" }
-] as const;
-
-type RangeKey = (typeof RANGE_OPTIONS)[number]["key"];
+const NUMERIC_RANGE_KEYS = [5, 10, 20, 50, 100] as const;
+type NumericRangeKey = (typeof NUMERIC_RANGE_KEYS)[number];
+type RangeKey = NumericRangeKey | "all";
 
 const isMissingValue = (value: string | null | undefined) => {
   const normalized = (value ?? "").trim().toLowerCase();
@@ -133,25 +127,122 @@ export function EventHistoryModal({
   const forecastPathRef = useRef<SVGPathElement | null>(null);
   const pointsGroupRef = useRef<SVGGElement | null>(null);
   const animationTimerRef = useRef<number | null>(null);
+  const chartAnimatedTokenRef = useRef(0);
   const wasLoadingRef = useRef(false);
+  const tableRef = useRef<HTMLDivElement | null>(null);
+  const [fitRowCount, setFitRowCount] = useState(0);
   const [visibleSeries, setVisibleSeries] = useState({
     actual: true,
     forecast: true
   });
   const points = data?.points ?? [];
+  const pointIdByIdentity = useMemo(() => {
+    const map = new Map<EventHistoryPoint, number>();
+    points.forEach((point, index) => map.set(point, index));
+    return map;
+  }, [points]);
   const hasData = points.length > 0;
+  const hasMetricValues = useMemo(
+    () =>
+      points.some(
+        (point) =>
+          !isMissingValue(point.actual) ||
+          !isMissingValue(point.forecast) ||
+          !isMissingValue(point.previous)
+      ),
+    [points]
+  );
+  const rangeOptions = useMemo(() => {
+    const total = points.length;
+    const options: Array<{ key: RangeKey; label: string }> = [];
+    for (const key of NUMERIC_RANGE_KEYS) {
+      if (total >= key) {
+        options.push({ key, label: `Last ${key}` });
+      }
+    }
+    const maxNumeric =
+      options.length > 0 ? Math.max(...options.map((item) => Number(item.key))) : 0;
+    if (total > maxNumeric) {
+      options.push({ key: "all", label: "All" });
+    }
+    // If there's only one valid option, hide the entire range control.
+    return options.length > 1 ? options : [];
+  }, [points.length]);
   const hasVisibleSeries = visibleSeries.actual || visibleSeries.forecast;
   const displayPoints = useMemo(() => {
     if (range === "all") return points;
     return points.slice(-range);
   }, [points, range]);
   const listPoints = useMemo(() => [...displayPoints].reverse(), [displayPoints]);
+  const tablePoints = useMemo(() => {
+    if (range === "all") return listPoints;
+    if (range > 10) return listPoints;
+    const fallback = listPoints.length ? 1 : 0;
+    const limit = fitRowCount > 0 ? fitRowCount : fallback;
+    return listPoints.slice(0, limit);
+  }, [fitRowCount, listPoints, range]);
 
   useEffect(() => {
     if (!isOpen) return;
     setRange(10);
+    setFitRowCount(0);
+    chartAnimatedTokenRef.current = 0;
     setVisibleSeries({ actual: true, forecast: true });
   }, [isOpen, selectionLabel]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (range === "all") return;
+    if (range > points.length && points.length) {
+      setRange("all");
+    }
+  }, [isOpen, points.length, range]);
+
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+    if (range === "all") return;
+    if (range > 10) return;
+    const node = tableRef.current;
+    if (!node) return;
+
+    let rafId = 0;
+    const measure = () => {
+      const containerHeight = node.getBoundingClientRect().height;
+      if (!containerHeight) return;
+      const header = node.querySelector<HTMLElement>(".history-modal-header");
+      const row = node.querySelector<HTMLElement>(".history-modal-row:not(.history-modal-header)");
+      const headerHeight = header?.getBoundingClientRect().height ?? 0;
+      const rowHeight = row?.getBoundingClientRect().height ?? 0;
+      if (!rowHeight) return;
+      const available = Math.max(0, containerHeight - headerHeight);
+      const next = Math.max(1, Math.floor(available / rowHeight));
+      setFitRowCount((prev) => (prev === next ? prev : next));
+    };
+    const scheduleMeasure = () => {
+      if (rafId) window.cancelAnimationFrame(rafId);
+      rafId = window.requestAnimationFrame(() => {
+        rafId = 0;
+        measure();
+      });
+    };
+
+    // First layout pass: measure immediately to avoid flicker on range changes.
+    measure();
+
+    let observer: ResizeObserver | null = null;
+    if ("ResizeObserver" in window) {
+      observer = new ResizeObserver(scheduleMeasure);
+      observer.observe(node);
+    } else {
+      window.addEventListener("resize", scheduleMeasure);
+    }
+
+    return () => {
+      if (observer) observer.disconnect();
+      window.removeEventListener("resize", scheduleMeasure);
+      if (rafId) window.cancelAnimationFrame(rafId);
+    };
+  }, [hasMetricValues, isOpen, range, contentEnterToken, selectionLabel]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -215,16 +306,22 @@ export function EventHistoryModal({
     const padding = { top: 36, right: 32, bottom: 90, left: 84 };
     const innerWidth = Math.max(1, width - padding.left - padding.right);
     const innerHeight = Math.max(1, height - padding.top - padding.bottom);
-    const span = max - min || 1;
+    // Add a small headroom/footroom so points do not stick to the plot bounds.
+    const rawSpan = max - min;
+    const anchor = rawSpan !== 0 ? rawSpan : Math.abs(max) || 1;
+    const domainPad = anchor * 0.08;
+    const domainMin = min - domainPad;
+    const domainMax = max + domainPad;
+    const span = domainMax - domainMin || 1;
     const step = displayPoints.length > 1 ? innerWidth / (displayPoints.length - 1) : 0;
     const xForIndex = (index: number) =>
       displayPoints.length > 1 ? padding.left + index * step : padding.left + innerWidth / 2;
     const yForValue = (value: number) =>
-      padding.top + ((max - value) / span) * innerHeight;
+      padding.top + ((domainMax - value) / span) * innerHeight;
     const yTickCount = 5;
     const yTicks = Array.from({ length: yTickCount }, (_, idx) => {
       const ratio = yTickCount === 1 ? 0 : idx / (yTickCount - 1);
-      const value = max - ratio * span;
+      const value = domainMax - ratio * span;
       return { value, y: yForValue(value), label: formatTickNumber(value) };
     });
     const xTickIndices = Array.from(
@@ -242,6 +339,7 @@ export function EventHistoryModal({
         ...(visibleSeries.forecast ? (["forecast"] as const) : [])
       ]
     );
+    const renderPoints = range !== "all";
     const buildPoints = (series: "actual" | "forecast", values: Array<number | null>) =>
       values
         .map((value, index) => {
@@ -279,17 +377,21 @@ export function EventHistoryModal({
       yAxisLabel: "Value",
       actualPath: visibleSeries.actual ? buildPath(actualValues, xForIndex, yForValue) : "",
       forecastPath: visibleSeries.forecast ? buildPath(forecastValues, xForIndex, yForValue) : "",
-      points: [
-        ...(visibleSeries.actual ? buildPoints("actual", actualValues) : []),
-        ...(visibleSeries.forecast ? buildPoints("forecast", forecastValues) : [])
-      ]
+      points: renderPoints
+        ? [
+            ...(visibleSeries.actual ? buildPoints("actual", actualValues) : []),
+            ...(visibleSeries.forecast ? buildPoints("forecast", forecastValues) : [])
+          ]
+        : []
     };
-  }, [displayPoints, hasData, hasVisibleSeries, visibleSeries]);
+  }, [displayPoints, hasData, hasVisibleSeries, range, visibleSeries]);
 
   useLayoutEffect(() => {
     if (loading) return;
     if (!chart) return;
     if (contentEnterToken === 0) return;
+    if (chartAnimatedTokenRef.current === contentEnterToken) return;
+    chartAnimatedTokenRef.current = contentEnterToken;
 
     const paths = [actualPathRef.current, forecastPathRef.current].filter(
       (node): node is SVGPathElement => Boolean(node)
@@ -391,211 +493,258 @@ export function EventHistoryModal({
           {!loading && !error && !hasData ? (
             <div className="history-modal-empty">No history available yet.</div>
           ) : null}
-          {!loading && !error && hasData ? (
-            <div className="history-modal-content">
-              <div className="history-modal-controls">
-                <div className="history-modal-control">
-                  <span className="history-modal-label">Range</span>
-                  <div className="history-modal-toggle">
-                    {RANGE_OPTIONS.map((option) => (
-                      <button
-                        key={String(option.key)}
-                        type="button"
-                        className={`history-toggle${range === option.key ? " active" : ""}`}
-                        onClick={() => setRange(option.key)}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                  <div className="history-modal-series" aria-label="Series toggles" role="group">
-                    <button
-                      type="button"
-                      className={`history-legend-item${visibleSeries.actual ? " active" : ""}`}
-                      onClick={() => toggleSeries("actual")}
-                      aria-pressed={visibleSeries.actual}
-                    >
-                      <span className="history-legend-swatch history-line-actual" />
-                      Actual
-                    </button>
-                    <button
-                      type="button"
-                      className={`history-legend-item${visibleSeries.forecast ? " active" : ""}`}
-                      onClick={() => toggleSeries("forecast")}
-                      aria-pressed={visibleSeries.forecast}
-                    >
-                      <span className="history-legend-swatch history-line-forecast" />
-                      Forecast
-                    </button>
-                  </div>
-                </div>
-              <div className="history-modal-layout">
-                <div className="history-modal-layout-left">
-                  {chart ? (
-                    <div className="history-modal-chart">
-                      <svg
-                        viewBox={`0 0 ${chart.width} ${chart.height}`}
-                        role="img"
-                        aria-label="Event history chart"
-                      >
-                        <g className="history-chart-grid">
-                          {chart.yTicks.map((tick) => (
-                            <line
-                              key={`y-${tick.value}`}
-                              x1={chart.padding.left}
-                              x2={chart.width - chart.padding.right}
-                              y1={tick.y}
-                              y2={tick.y}
-                            />
-                          ))}
-                          {chart.xTicks.map((tick) => (
-                            <line
-                              key={`x-${tick.index}`}
-                              x1={tick.x}
-                              x2={tick.x}
-                              y1={chart.padding.top}
-                              y2={chart.height - chart.padding.bottom}
-                            />
-                          ))}
-                        </g>
-                        <g className="history-chart-axis">
-                          <line
-                            x1={chart.padding.left}
-                            x2={chart.padding.left}
-                            y1={chart.padding.top}
-                            y2={chart.height - chart.padding.bottom}
-                          />
-                          <line
-                            x1={chart.padding.left}
-                            x2={chart.width - chart.padding.right}
-                            y1={chart.height - chart.padding.bottom}
-                            y2={chart.height - chart.padding.bottom}
-                          />
-                        </g>
-                        <g className="history-chart-labels">
-                          {chart.yTicks.map((tick) => (
-                            <text
-                              key={`y-label-${tick.value}`}
-                              x={chart.padding.left - 8}
-                              y={tick.y + 4}
-                              textAnchor="end"
-                            >
-                              {tick.label}
-                            </text>
-                          ))}
-                          {chart.xTicks.map((tick) => (
-                            <text
-                              key={`x-label-${tick.index}`}
-                              x={tick.x}
-                              y={chart.height - chart.padding.bottom + 22}
-                              textAnchor="middle"
-                            >
-                              {tick.label}
-                            </text>
-                          ))}
-                          <text
-                            x={chart.padding.left + chart.plotWidth / 2}
-                            y={chart.height - 12}
-                            textAnchor="middle"
-                            className="history-chart-axis-label"
+            {!loading && !error && hasData ? (
+              <div className="history-modal-content">
+                <div className="history-modal-controls">
+                  {rangeOptions.length ? (
+                    <div className="history-modal-control">
+                      <span className="history-modal-label">Range</span>
+                      <div className="history-modal-toggle">
+                        {rangeOptions.map((option) => (
+                          <button
+                            key={String(option.key)}
+                            type="button"
+                            className={`history-toggle${range === option.key ? " active" : ""}`}
+                            onClick={() => setRange(option.key)}
+                            aria-pressed={range === option.key}
                           >
-                            {chart.xAxisLabel}
-                          </text>
-                          <text
-                            x={16}
-                            y={chart.padding.top + chart.plotHeight / 2}
-                            textAnchor="middle"
-                            className="history-chart-axis-label"
-                            transform={`rotate(-90 16 ${chart.padding.top + chart.plotHeight / 2})`}
-                          >
-                            {chart.yAxisLabel}
-                          </text>
-                          {chart.unitLabel ? (
-                            <text
-                              x={chart.padding.left}
-                              y={chart.padding.top - 8}
-                              className="history-chart-unit"
-                            >
-                              Unit {chart.unitLabel}
-                            </text>
-                          ) : null}
-                        </g>
-                        {visibleSeries.forecast ? (
-                          <path
-                            ref={forecastPathRef}
-                            className="history-line history-line-forecast"
-                            d={chart.forecastPath}
-                          />
-                        ) : null}
-                        {visibleSeries.actual ? (
-                          <path
-                            ref={actualPathRef}
-                            className="history-line history-line-actual"
-                            d={chart.actualPath}
-                          />
-                        ) : null}
-                        <g className="history-chart-points" ref={pointsGroupRef}>
-                          {chart.points.map((point) => (
-                            <circle
-                              key={point.key}
-                              className={`history-point history-point-${point.series}`}
-                              cx={point.x}
-                              cy={point.y}
-                              r={3.8}
-                            >
-                              <title>{point.label}</title>
-                            </circle>
-                          ))}
-                        </g>
-                      </svg>
-                    </div>
-                  ) : (
-                    <div className="history-modal-empty">
-                      {hasVisibleSeries
-                        ? "Values are not available for charting."
-                        : "Select a series to display."}
-                    </div>
-                  )}
-                  <div className="history-modal-placeholder" data-qa="qa:history:placeholder">
-                    <div className="history-placeholder-title">Event notes</div>
-                    <div className="history-placeholder-body">
-                      Placeholder for future notes: release context, anomalies, and quick summaries.
-                    </div>
-                    <div className="history-placeholder-lines" aria-hidden="true">
-                      <span />
-                      <span />
-                      <span />
-                    </div>
-                  </div>
-                </div>
-                <div className="history-modal-layout-right">
-                  <div className="history-modal-table" data-qa="qa:history:table">
-                    <div className="history-modal-row history-modal-header">
-                      <span>Date</span>
-                      <span>Time</span>
-                      <span>Actual</span>
-                      <span>Forecast</span>
-                      <span>Previous</span>
-                    </div>
-                    {listPoints.map((point, index) => (
-                      <div
-                        className="history-modal-row history-modal-row-animate"
-                        key={`${point.date}-${point.time}-${index}-${contentEnterToken}`}
-                        style={{ animationDelay: `${Math.min(index * 28, 220)}ms` }}
-                      >
-                        <span>{formatDisplayDate(point.date)}</span>
-                        <span>{point.time || "--"}</span>
-                        <span>{formatDisplayValue(point.actual)}</span>
-                        <span>{formatDisplayValue(point.forecast)}</span>
-                        <span>{formatDisplayValue(point.previous)}</span>
+                            {option.label}
+                          </button>
+                        ))}
                       </div>
-                    ))}
+                    </div>
+                  ) : null}
+                  {hasMetricValues ? (
+                    <div
+                      className="history-modal-series"
+                      aria-label="Series toggles"
+                      role="group"
+                    >
+                      <button
+                        type="button"
+                        className={`history-legend-item history-legend-item-actual${
+                          visibleSeries.actual ? " active" : ""
+                        }`}
+                        onClick={() => toggleSeries("actual")}
+                        aria-pressed={visibleSeries.actual}
+                      >
+                        <span className="history-legend-swatch history-line-actual" />
+                        Actual
+                      </button>
+                      <button
+                        type="button"
+                        className={`history-legend-item history-legend-item-forecast${
+                          visibleSeries.forecast ? " active" : ""
+                        }`}
+                        onClick={() => toggleSeries("forecast")}
+                        aria-pressed={visibleSeries.forecast}
+                      >
+                        <span className="history-legend-swatch history-line-forecast" />
+                        Forecast
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+                <div className="history-modal-layout">
+                  <div className="history-modal-layout-left">
+                    {hasMetricValues ? (
+                      chart ? (
+                        <div className="history-modal-chart">
+                          <svg
+                            viewBox={`0 0 ${chart.width} ${chart.height}`}
+                            shapeRendering="geometricPrecision"
+                            textRendering="geometricPrecision"
+                            role="img"
+                            aria-label="Event history chart"
+                          >
+                            <g className="history-chart-grid">
+                              {chart.yTicks.map((tick) => (
+                                <line
+                                  key={`y-${tick.value}`}
+                                  x1={chart.padding.left}
+                                  x2={chart.width - chart.padding.right}
+                                  y1={Math.round(tick.y) + 0.5}
+                                  y2={Math.round(tick.y) + 0.5}
+                                  vectorEffect="non-scaling-stroke"
+                                />
+                              ))}
+                              {chart.xTicks.map((tick) => (
+                                <line
+                                  key={`x-${tick.index}`}
+                                  x1={Math.round(tick.x) + 0.5}
+                                  x2={Math.round(tick.x) + 0.5}
+                                  y1={chart.padding.top}
+                                  y2={chart.height - chart.padding.bottom}
+                                  vectorEffect="non-scaling-stroke"
+                                />
+                              ))}
+                            </g>
+                            <g className="history-chart-axis">
+                              <line
+                                x1={chart.padding.left + 0.5}
+                                x2={chart.padding.left + 0.5}
+                                y1={chart.padding.top}
+                                y2={chart.height - chart.padding.bottom}
+                                vectorEffect="non-scaling-stroke"
+                              />
+                              <line
+                                x1={chart.padding.left}
+                                x2={chart.width - chart.padding.right}
+                                y1={chart.height - chart.padding.bottom + 0.5}
+                                y2={chart.height - chart.padding.bottom + 0.5}
+                                vectorEffect="non-scaling-stroke"
+                              />
+                            </g>
+                            <g className="history-chart-labels">
+                              {chart.yTicks.map((tick) => (
+                                <text
+                                  key={`y-label-${tick.value}`}
+                                  x={chart.padding.left - 8}
+                                  y={tick.y + 4}
+                                  textAnchor="end"
+                                >
+                                  {tick.label}
+                                </text>
+                              ))}
+                              {chart.xTicks.map((tick) => (
+                                <text
+                                  key={`x-label-${tick.index}`}
+                                  x={tick.x}
+                                  y={chart.height - chart.padding.bottom + 22}
+                                  textAnchor="middle"
+                                >
+                                  {tick.label}
+                                </text>
+                              ))}
+                              <text
+                                x={chart.padding.left + chart.plotWidth / 2}
+                                y={chart.height - 12}
+                                textAnchor="middle"
+                                className="history-chart-axis-label"
+                              >
+                                {chart.xAxisLabel}
+                              </text>
+                              <text
+                                x={16}
+                                y={chart.padding.top + chart.plotHeight / 2}
+                                textAnchor="middle"
+                                className="history-chart-axis-label"
+                                transform={`rotate(-90 16 ${chart.padding.top + chart.plotHeight / 2})`}
+                              >
+                                {chart.yAxisLabel}
+                              </text>
+                              {chart.unitLabel ? (
+                                <text
+                                  x={chart.padding.left}
+                                  y={chart.padding.top - 8}
+                                  className="history-chart-unit"
+                                >
+                                  Unit {chart.unitLabel}
+                                </text>
+                              ) : null}
+                            </g>
+                            {visibleSeries.forecast ? (
+                              <path
+                                ref={forecastPathRef}
+                                className="history-line history-line-forecast"
+                                d={chart.forecastPath}
+                              />
+                            ) : null}
+                            {visibleSeries.actual ? (
+                              <path
+                                ref={actualPathRef}
+                                className="history-line history-line-actual"
+                                d={chart.actualPath}
+                              />
+                            ) : null}
+                            <g className="history-chart-points" ref={pointsGroupRef}>
+                              {chart.points.map((point) => (
+                                <circle
+                                  key={point.key}
+                                  className={`history-point history-point-${point.series}`}
+                                  cx={point.x}
+                                  cy={point.y}
+                                  r={3.8}
+                                >
+                                  <title>{point.label}</title>
+                                </circle>
+                              ))}
+                            </g>
+                          </svg>
+                        </div>
+                      ) : (
+                        <div className="history-modal-empty">
+                          {hasVisibleSeries
+                            ? "Values are not available for charting."
+                            : "Select a series to display."}
+                        </div>
+                      )
+                    ) : null}
+                    <div className="history-modal-placeholder" data-qa="qa:history:placeholder">
+                      <div className="history-placeholder-title">
+                        {hasMetricValues ? "Event notes" : "Event description"}
+                      </div>
+                      <div className="history-placeholder-body">
+                        {hasMetricValues
+                          ? "Placeholder for future notes: release context, anomalies, and quick summaries."
+                          : "Placeholder for future description: key remarks, themes, and context."}
+                      </div>
+                      <div className="history-placeholder-lines" aria-hidden="true">
+                        <span />
+                        <span />
+                        <span />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="history-modal-layout-right">
+                    <div
+                      className={`history-modal-table${
+                        range === "all" || range > 10 ? " scrollable" : ""
+                      }${
+                        hasMetricValues ? "" : " schedule"
+                      }`}
+                      data-qa="qa:history:table"
+                      ref={tableRef}
+                    >
+                      <div className="history-modal-row history-modal-header">
+                        <span>Date</span>
+                        <span>Time</span>
+                        {hasMetricValues ? (
+                          <>
+                            <span>Actual</span>
+                            <span>Forecast</span>
+                            <span>Previous</span>
+                          </>
+                        ) : (
+                          <span>Details</span>
+                        )}
+                      </div>
+                      {tablePoints.map((point, index) => (
+                        <div
+                          className="history-modal-row history-modal-row-animate"
+                          key={`${pointIdByIdentity.get(point) ?? `${point.date}-${point.time}`}-${
+                            contentEnterToken
+                          }`}
+                          style={{ animationDelay: `${Math.min(index * 28, 220)}ms` }}
+                        >
+                          <span>{formatDisplayDate(point.date)}</span>
+                          <span>{point.time || "--"}</span>
+                          {hasMetricValues ? (
+                            <>
+                              <span>{formatDisplayValue(point.actual)}</span>
+                              <span>{formatDisplayValue(point.forecast)}</span>
+                              <span>{formatDisplayValue(point.previous)}</span>
+                            </>
+                          ) : (
+                            <span className="disabled">--</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ) : null}
+            ) : null}
         </div>
       </div>
     </div>

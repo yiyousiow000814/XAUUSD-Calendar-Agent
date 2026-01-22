@@ -361,20 +361,36 @@ export const backend = {
       if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
-      const points = [
-        { date: "2026-01-22", time: "08:30", actual: "218k", forecast: "220k", previous: "215k" },
-        { date: "2026-01-15", time: "08:30", actual: "224k", forecast: "225k", previous: "219k" },
-        { date: "2026-01-08", time: "08:30", actual: "231k", forecast: "230k", previous: "227k" },
-        { date: "2025-12-31", time: "08:30", actual: "221k", forecast: "223k", previous: "214k" },
-        { date: "2025-12-24", time: "08:30", actual: "206k", forecast: "210k", previous: "212k" },
-        { date: "2025-12-18", time: "08:30", actual: "201k", forecast: "205k", previous: "207k" },
-        { date: "2025-12-11", time: "08:30", actual: "209k", forecast: "212k", previous: "216k" },
-        { date: "2025-12-04", time: "08:30", actual: "215k", forecast: "214k", previous: "210k" },
-        { date: "2025-11-26", time: "08:30", actual: "212k", forecast: "213k", previous: "211k" },
-        { date: "2025-11-20", time: "08:30", actual: "224k", forecast: "223k", previous: "219k" },
-        { date: "2025-11-13", time: "08:30", actual: "219k", forecast: "221k", previous: "220k" },
-        { date: "2025-11-06", time: "08:30", actual: "217k", forecast: "218k", previous: "--" }
-      ];
+      const points = (() => {
+        const count = 120;
+        const start = new Date(Date.UTC(2026, 0, 22));
+        const pad = (value: number) => String(value).padStart(2, "0");
+        const fmtDate = (dt: Date) =>
+          `${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`;
+
+        const result: Array<{
+          date: string;
+          time: string;
+          actual: string;
+          forecast: string;
+          previous: string;
+        }> = [];
+
+        let lastActual: string | null = null;
+        // Build oldest -> newest to match backend sorting expectations.
+        for (let i = count - 1; i >= 0; i -= 1) {
+          const dt = new Date(start);
+          dt.setUTCDate(start.getUTCDate() - i * 7);
+          const actualK = 220 + Math.round(Math.sin(i / 5) * 12 + (i % 4) * 2);
+          const forecastK = 221 + Math.round(Math.cos(i / 6) * 10 - (i % 3));
+          const actual = `${actualK}k`;
+          const forecast = `${forecastK}k`;
+          const previous = lastActual && i % 17 !== 0 ? lastActual : "--";
+          result.push({ date: fmtDate(dt), time: "08:30", actual, forecast, previous });
+          lastActual = actual;
+        }
+        return result;
+      })();
       return Promise.resolve({
         ok: true,
         eventId: "mock",

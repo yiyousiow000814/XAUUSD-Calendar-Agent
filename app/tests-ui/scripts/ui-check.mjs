@@ -2322,6 +2322,68 @@ const main = async () => {
             element: historyModal
           })
         });
+
+        const rangeAll = historyModal
+          .locator(".history-modal-toggle button.history-toggle")
+          .filter({ hasText: "All" })
+          .first();
+        if (await rangeAll.count()) {
+          await rangeAll.click();
+          await page.waitForTimeout(120);
+
+          await runCheck(theme.key, "Event history modal scrollbars hidden", async () => {
+            const info = await historyModal.evaluate(() => {
+              const body = document.querySelector(".modal.modal-history .modal-body");
+              const table = document.querySelector("[data-qa='qa:history:table']");
+              const measure = (el) => {
+                const style = window.getComputedStyle(el);
+                const borderLeft = Number.parseFloat(style.borderLeftWidth) || 0;
+                const borderRight = Number.parseFloat(style.borderRightWidth) || 0;
+                return {
+                  scrollable: el.scrollHeight > el.clientHeight + 1,
+                  // Strip borders so we only measure scrollbar-reserved space.
+                  scrollbarGutter: el.offsetWidth - el.clientWidth - borderLeft - borderRight
+                };
+              };
+              return {
+                body: body ? measure(body) : null,
+                table: table ? measure(table) : null
+              };
+            });
+
+            const candidates = [info?.table, info?.body].filter(Boolean);
+            if (!candidates.length) {
+              throw new Error("modal scroll containers not found");
+            }
+            const scrollable = candidates.find((item) => item.scrollable);
+            if (!scrollable) {
+              throw new Error(
+                `expected a scrollable container (body=${JSON.stringify(info.body)}, table=${JSON.stringify(info.table)})`
+              );
+            }
+            if (scrollable.scrollbarGutter > 1) {
+              throw new Error(
+                `scrollbar gutter detected (${scrollable.scrollbarGutter}px): body=${JSON.stringify(info.body)} table=${JSON.stringify(info.table)}`
+              );
+            }
+          });
+
+          // Scroll the table if possible so the report captures the long-history state.
+          const scrollTarget = historyModal.locator("[data-qa='qa:history:table']").first();
+          await scrollTarget.evaluate((el) => {
+            el.scrollTop = el.scrollHeight;
+          });
+          await page.waitForTimeout(120);
+          artifacts.push({
+            scenario: "event-history-modal",
+            theme: theme.key,
+            state: "all",
+            label: "History modal long range (All)",
+            path: await captureState(page, "event-history-modal", theme.key, "all", {
+              element: historyModal
+            })
+          });
+        }
         const historyClose = page.locator("[data-qa='qa:modal-close:history']").first();
         if (await historyClose.count()) {
           await historyClose.click();
