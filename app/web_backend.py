@@ -166,6 +166,9 @@ class WebAgentBackend:
         self._event_history_cache: OrderedDict[str, list[dict]] = OrderedDict()
         self._event_history_cache_limit = 60
         self._event_history_index_signature: tuple[tuple[str, float, int], ...] = ()
+        self._event_history_by_event_offsets: dict[str, int] | None = None
+        self._event_history_by_event_path: Path | None = None
+        self._event_history_by_event_index_path: Path | None = None
         self._temporary_path_task_lock = threading.Lock()
         self._temporary_path_task_active = False
         self._temporary_path_task_phase = "idle"
@@ -2436,6 +2439,18 @@ class WebAgentBackend:
             return []
         return sorted(index_dir.glob("*_event_history_index.csv"))
 
+    def _event_history_by_event_files(
+        self, repo_path: Path
+    ) -> tuple[Path, Path] | None:
+        index_dir = repo_path / "data" / "event_history_index"
+        if not index_dir.exists():
+            return None
+        by_event_path = index_dir / "event_history_by_event.ndjson"
+        by_event_index_path = index_dir / "event_history_by_event.index.json"
+        if by_event_path.exists() and by_event_index_path.exists():
+            return by_event_path, by_event_index_path
+        return None
+
     def _event_history_signature(
         self, paths: list[Path]
     ) -> tuple[tuple[str, float, int], ...]:
@@ -2449,13 +2464,22 @@ class WebAgentBackend:
         return tuple(signature)
 
     def _refresh_event_history_cache(self, repo_path: Path) -> list[Path]:
-        paths = self._event_history_index_paths(repo_path)
-        signature = self._event_history_signature(paths)
+        index_paths = self._event_history_index_paths(repo_path)
+        by_event_files = self._event_history_by_event_files(repo_path)
+        signature_paths = list(by_event_files) if by_event_files else index_paths
+        signature = self._event_history_signature(signature_paths)
         with self._event_history_lock:
             if signature != self._event_history_index_signature:
                 self._event_history_index_signature = signature
                 self._event_history_cache.clear()
-        return paths
+                self._event_history_by_event_offsets = None
+                if by_event_files:
+                    self._event_history_by_event_path = by_event_files[0]
+                    self._event_history_by_event_index_path = by_event_files[1]
+                else:
+                    self._event_history_by_event_path = None
+                    self._event_history_by_event_index_path = None
+        return index_paths
 
     @staticmethod
     def _parse_history_date(value: str) -> datetime | None:
@@ -2483,8 +2507,68 @@ class WebAgentBackend:
         self, event_id: str, repo_path: Path
     ) -> list[dict]:
         paths = self._refresh_event_history_cache(repo_path)
+        by_event_path: Path | None
+        by_event_index_path: Path | None
+        offsets: dict[str, int] | None
+        with self._event_history_lock:
+            by_event_path = self._event_history_by_event_path
+            by_event_index_path = self._event_history_by_event_index_path
+            offsets = self._event_history_by_event_offsets
+
+        if by_event_path and by_event_index_path:
+            if offsets is None:
+                try:
+                    payload = json.loads(
+                        by_event_index_path.read_text(encoding="utf-8")
+                    )
+                    raw_index = (
+                        payload.get("index", {}) if isinstance(payload, dict) else {}
+                    )
+                    if isinstance(raw_index, dict):
+                        offsets = {
+                            str(key): int(value)
+                            for key, value in raw_index.items()
+                            if isinstance(value, (int, float))
+                        }
+                    else:
+                        offsets = {}
+                except (OSError, json.JSONDecodeError, ValueError):
+                    offsets = {}
+                with self._event_history_lock:
+                    self._event_history_by_event_offsets = offsets
+
+            offset = offsets.get(event_id) if offsets else None
+            if offset is not None:
+                try:
+                    with by_event_path.open("rb") as handle:
+                        handle.seek(int(offset))
+                        line = handle.readline()
+                    payload = json.loads(line.decode("utf-8"))
+                    raw_points = (
+                        payload.get("points") if isinstance(payload, dict) else None
+                    )
+                    if isinstance(raw_points, list):
+                        points: list[dict] = []
+                        for item in raw_points:
+                            if not isinstance(item, list) or len(item) < 5:
+                                continue
+                            points.append(
+                                {
+                                    "date": str(item[0] or "").strip(),
+                                    "time": str(item[1] or "").strip(),
+                                    "actual": str(item[2] or "").strip(),
+                                    "forecast": str(item[3] or "").strip(),
+                                    "previous": str(item[4] or "").strip(),
+                                }
+                            )
+                        return points
+                except (OSError, json.JSONDecodeError, UnicodeDecodeError, ValueError):
+                    # Fall back to scanning per-year CSVs.
+                    pass
+
         if not paths:
             return []
+
         points: list[dict] = []
         for path in paths:
             with path.open("r", encoding="utf-8") as handle:
