@@ -1,6 +1,30 @@
 {
-  "generated_at": "23-01-2026 01:44",
+  "generated_at": "23-01-2026 15:13",
   "patches": [
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::initial jobless claims::none",
+      "cur": "USD",
+      "event": "Initial Jobless Claims",
+      "period": "",
+      "date": "2026-01-29",
+      "time": "21:30",
+      "previous_raw": "",
+      "prior_actual": "200K",
+      "previous_effective": "200K"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::jobless claims 4 - week avg.::none",
+      "cur": "USD",
+      "event": "Jobless Claims 4-Week Avg.",
+      "period": "",
+      "date": "2026-01-29",
+      "time": "21:30",
+      "previous_raw": "",
+      "prior_actual": "201.50K",
+      "previous_effective": "201.50K"
+    },
     {
       "patch": "previous_missing_filled",
       "event_id": "USD::natural gas storage::none",
@@ -12,6 +36,78 @@
       "previous_raw": "",
       "prior_actual": "-120B",
       "previous_effective": "-120B"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::fed interest rate decision::none",
+      "cur": "USD",
+      "event": "Fed Interest Rate Decision",
+      "period": "",
+      "date": "2026-03-19",
+      "time": "02:00",
+      "previous_raw": "",
+      "prior_actual": "3.75%",
+      "previous_effective": "3.75%"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::fed interest rate decision::none",
+      "cur": "USD",
+      "event": "Fed Interest Rate Decision",
+      "period": "",
+      "date": "2026-04-30",
+      "time": "02:00",
+      "previous_raw": "",
+      "prior_actual": "3.75%",
+      "previous_effective": "3.75%"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::beige book::none",
+      "cur": "USD",
+      "event": "Beige Book",
+      "period": "",
+      "date": "2026-01-15",
+      "time": "03:00",
+      "previous_raw": "",
+      "prior_actual": "0.00",
+      "previous_effective": "0.00"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "JPY::monetary policy meeting minutes::none",
+      "cur": "JPY",
+      "event": "Monetary Policy Meeting Minutes",
+      "period": "",
+      "date": "2026-01-28",
+      "time": "07:50",
+      "previous_raw": "",
+      "prior_actual": "0.00",
+      "previous_effective": "0.00"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "RUB::interest rate decision::none",
+      "cur": "RUB",
+      "event": "Interest Rate Decision",
+      "period": "",
+      "date": "2026-03-20",
+      "time": "18:30",
+      "previous_raw": "",
+      "prior_actual": "16.00%",
+      "previous_effective": "16.00%"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "RUB::interest rate decision::none",
+      "cur": "RUB",
+      "event": "Interest Rate Decision",
+      "period": "",
+      "date": "2026-04-24",
+      "time": "18:30",
+      "previous_raw": "",
+      "prior_actual": "16.00%",
+      "previous_effective": "16.00%"
     },
     {
       "patch": "previous_missing_filled",
@@ -48,30 +144,6 @@
       "previous_raw": "",
       "prior_actual": "5.4%",
       "previous_effective": "5.4%"
-    },
-    {
-      "patch": "previous_missing_filled",
-      "event_id": "USD::initial jobless claims::none",
-      "cur": "USD",
-      "event": "Initial Jobless Claims",
-      "period": "",
-      "date": "2026-01-29",
-      "time": "21:30",
-      "previous_raw": "",
-      "prior_actual": "200K",
-      "previous_effective": "200K"
-    },
-    {
-      "patch": "previous_missing_filled",
-      "event_id": "USD::jobless claims 4 - week avg.::none",
-      "cur": "USD",
-      "event": "Jobless Claims 4-Week Avg.",
-      "period": "",
-      "date": "2026-01-29",
-      "time": "21:30",
-      "previous_raw": "",
-      "prior_actual": "201.50K",
-      "previous_effective": "201.50K"
     }
   ]
 }

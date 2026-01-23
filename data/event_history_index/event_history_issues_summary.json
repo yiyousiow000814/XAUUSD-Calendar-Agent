@@ -1,0 +1,381 @@
+{
+  "generated_at": "23-01-2026 15:13",
+  "output_dir": "data/event_history_index",
+  "totals": {
+    "all": 3829,
+    "open": 0,
+    "solved": 3829
+  },
+  "globs": {
+    "all_csv": "*_event_history_issues.csv",
+    "all_json": "*_event_history_issues.json",
+    "open_csv": "*_event_history_issues_open.csv",
+    "open_json": "*_event_history_issues_open.json",
+    "solved_csv": "*_event_history_issues_solved.csv",
+    "solved_json": "*_event_history_issues_solved.json"
+  },
+  "by_year": {
+    "2008": {
+      "all": 208,
+      "open": 0,
+      "solved": 208,
+      "files": {
+        "all": {
+          "csv": "2008_event_history_issues.csv",
+          "json": "2008_event_history_issues.json"
+        },
+        "open": {
+          "csv": "2008_event_history_issues_open.csv",
+          "json": "2008_event_history_issues_open.json"
+        },
+        "solved": {
+          "csv": "2008_event_history_issues_solved.csv",
+          "json": "2008_event_history_issues_solved.json"
+        }
+      }
+    },
+    "2009": {
+      "all": 297,
+      "open": 0,
+      "solved": 297,
+      "files": {
+        "all": {
+          "csv": "2009_event_history_issues.csv",
+          "json": "2009_event_history_issues.json"
+        },
+        "open": {
+          "csv": "2009_event_history_issues_open.csv",
+          "json": "2009_event_history_issues_open.json"
+        },
+        "solved": {
+          "csv": "2009_event_history_issues_solved.csv",
+          "json": "2009_event_history_issues_solved.json"
+        }
+      }
+    },
+    "2010": {
+      "all": 240,
+      "open": 0,
+      "solved": 240,
+      "files": {
+        "all": {
+          "csv": "2010_event_history_issues.csv",
+          "json": "2010_event_history_issues.json"
+        },
+        "open": {
+          "csv": "2010_event_history_issues_open.csv",
+          "json": "2010_event_history_issues_open.json"
+        },
+        "solved": {
+          "csv": "2010_event_history_issues_solved.csv",
+          "json": "2010_event_history_issues_solved.json"
+        }
+      }
+    },
+    "2011": {
+      "all": 235,
+      "open": 0,
+      "solved": 235,
+      "files": {
+        "all": {
+          "csv": "2011_event_history_issues.csv",
+          "json": "2011_event_history_issues.json"
+        },
+        "open": {
+          "csv": "2011_event_history_issues_open.csv",
+          "json": "2011_event_history_issues_open.json"
+        },
+        "solved": {
+          "csv": "2011_event_history_issues_solved.csv",
+          "json": "2011_event_history_issues_solved.json"
+        }
+      }
+    },
+    "2012": {
+      "all": 149,
+      "open": 0,
+      "solved": 149,
+      "files": {
+        "all": {
+          "csv": "2012_event_history_issues.csv",
+          "json": "2012_event_history_issues.json"
+        },
+        "open": {
+          "csv": "2012_event_history_issues_open.csv",
+          "json": "2012_event_history_issues_open.json"
+        },
+        "solved": {
+          "csv": "2012_event_history_issues_solved.csv",
+          "json": "2012_event_history_issues_solved.json"
+        }
+      }
+    },
+    "2013": {
+      "all": 141,
+      "open": 0,
+      "solved": 141,
+      "files": {
+        "all": {
+          "csv": "2013_event_history_issues.csv",
+          "json": "2013_event_history_issues.json"
+        },
+        "open": {
+          "csv": "2013_event_history_issues_open.csv",
+          "json": "2013_event_history_issues_open.json"
+        },
+        "solved": {
+          "csv": "2013_event_history_issues_solved.csv",
+          "json": "2013_event_history_issues_solved.json"
+        }
+      }
+    },
+    "2014": {
+      "all": 149,
+      "open": 0,
+      "solved": 149,
+      "files": {
+        "all": {
+          "csv": "2014_event_history_issues.csv",
+          "json": "2014_event_history_issues.json"
+        },
+        "open": {
+          "csv": "2014_event_history_issues_open.csv",
+          "json": "2014_event_history_issues_open.json"
+        },
+        "solved": {
+          "csv": "2014_event_history_issues_solved.csv",
+          "json": "2014_event_history_issues_solved.json"
+        }
+      }
+    },
+    "2015": {
+      "all": 162,
+      "open": 0,
+      "solved": 162,
+      "files": {
+        "all": {
+          "csv": "2015_event_history_issues.csv",
+          "json": "2015_event_history_issues.json"
+        },
+        "open": {
+          "csv": "2015_event_history_issues_open.csv",
+          "json": "2015_event_history_issues_open.json"
+        },
+        "solved": {
+          "csv": "2015_event_history_issues_solved.csv",
+          "json": "2015_event_history_issues_solved.json"
+        }
+      }
+    },
+    "2016": {
+      "all": 136,
+      "open": 0,
+      "solved": 136,
+      "files": {
+        "all": {
+          "csv": "2016_event_history_issues.csv",
+          "json": "2016_event_history_issues.json"
+        },
+        "open": {
+          "csv": "2016_event_history_issues_open.csv",
+          "json": "2016_event_history_issues_open.json"
+        },
+        "solved": {
+          "csv": "2016_event_history_issues_solved.csv",
+          "json": "2016_event_history_issues_solved.json"
+        }
+      }
+    },
+    "2017": {
+      "all": 78,
+      "open": 0,
+      "solved": 78,
+      "files": {
+        "all": {
+          "csv": "2017_event_history_issues.csv",
+          "json": "2017_event_history_issues.json"
+        },
+        "open": {
+          "csv": "2017_event_history_issues_open.csv",
+          "json": "2017_event_history_issues_open.json"
+        },
+        "solved": {
+          "csv": "2017_event_history_issues_solved.csv",
+          "json": "2017_event_history_issues_solved.json"
+        }
+      }
+    },
+    "2018": {
+      "all": 69,
+      "open": 0,
+      "solved": 69,
+      "files": {
+        "all": {
+          "csv": "2018_event_history_issues.csv",
+          "json": "2018_event_history_issues.json"
+        },
+        "open": {
+          "csv": "2018_event_history_issues_open.csv",
+          "json": "2018_event_history_issues_open.json"
+        },
+        "solved": {
+          "csv": "2018_event_history_issues_solved.csv",
+          "json": "2018_event_history_issues_solved.json"
+        }
+      }
+    },
+    "2019": {
+      "all": 99,
+      "open": 0,
+      "solved": 99,
+      "files": {
+        "all": {
+          "csv": "2019_event_history_issues.csv",
+          "json": "2019_event_history_issues.json"
+        },
+        "open": {
+          "csv": "2019_event_history_issues_open.csv",
+          "json": "2019_event_history_issues_open.json"
+        },
+        "solved": {
+          "csv": "2019_event_history_issues_solved.csv",
+          "json": "2019_event_history_issues_solved.json"
+        }
+      }
+    },
+    "2020": {
+      "all": 59,
+      "open": 0,
+      "solved": 59,
+      "files": {
+        "all": {
+          "csv": "2020_event_history_issues.csv",
+          "json": "2020_event_history_issues.json"
+        },
+        "open": {
+          "csv": "2020_event_history_issues_open.csv",
+          "json": "2020_event_history_issues_open.json"
+        },
+        "solved": {
+          "csv": "2020_event_history_issues_solved.csv",
+          "json": "2020_event_history_issues_solved.json"
+        }
+      }
+    },
+    "2021": {
+      "all": 90,
+      "open": 0,
+      "solved": 90,
+      "files": {
+        "all": {
+          "csv": "2021_event_history_issues.csv",
+          "json": "2021_event_history_issues.json"
+        },
+        "open": {
+          "csv": "2021_event_history_issues_open.csv",
+          "json": "2021_event_history_issues_open.json"
+        },
+        "solved": {
+          "csv": "2021_event_history_issues_solved.csv",
+          "json": "2021_event_history_issues_solved.json"
+        }
+      }
+    },
+    "2022": {
+      "all": 89,
+      "open": 0,
+      "solved": 89,
+      "files": {
+        "all": {
+          "csv": "2022_event_history_issues.csv",
+          "json": "2022_event_history_issues.json"
+        },
+        "open": {
+          "csv": "2022_event_history_issues_open.csv",
+          "json": "2022_event_history_issues_open.json"
+        },
+        "solved": {
+          "csv": "2022_event_history_issues_solved.csv",
+          "json": "2022_event_history_issues_solved.json"
+        }
+      }
+    },
+    "2023": {
+      "all": 72,
+      "open": 0,
+      "solved": 72,
+      "files": {
+        "all": {
+          "csv": "2023_event_history_issues.csv",
+          "json": "2023_event_history_issues.json"
+        },
+        "open": {
+          "csv": "2023_event_history_issues_open.csv",
+          "json": "2023_event_history_issues_open.json"
+        },
+        "solved": {
+          "csv": "2023_event_history_issues_solved.csv",
+          "json": "2023_event_history_issues_solved.json"
+        }
+      }
+    },
+    "2024": {
+      "all": 123,
+      "open": 0,
+      "solved": 123,
+      "files": {
+        "all": {
+          "csv": "2024_event_history_issues.csv",
+          "json": "2024_event_history_issues.json"
+        },
+        "open": {
+          "csv": "2024_event_history_issues_open.csv",
+          "json": "2024_event_history_issues_open.json"
+        },
+        "solved": {
+          "csv": "2024_event_history_issues_solved.csv",
+          "json": "2024_event_history_issues_solved.json"
+        }
+      }
+    },
+    "2025": {
+      "all": 1288,
+      "open": 0,
+      "solved": 1288,
+      "files": {
+        "all": {
+          "csv": "2025_event_history_issues.csv",
+          "json": "2025_event_history_issues.json"
+        },
+        "open": {
+          "csv": "2025_event_history_issues_open.csv",
+          "json": "2025_event_history_issues_open.json"
+        },
+        "solved": {
+          "csv": "2025_event_history_issues_solved.csv",
+          "json": "2025_event_history_issues_solved.json"
+        }
+      }
+    },
+    "2026": {
+      "all": 145,
+      "open": 0,
+      "solved": 145,
+      "files": {
+        "all": {
+          "csv": "2026_event_history_issues.csv",
+          "json": "2026_event_history_issues.json"
+        },
+        "open": {
+          "csv": "2026_event_history_issues_open.csv",
+          "json": "2026_event_history_issues_open.json"
+        },
+        "solved": {
+          "csv": "2026_event_history_issues_solved.csv",
+          "json": "2026_event_history_issues_solved.json"
+        }
+      }
+    }
+  },
+  "misc": null
+}

@@ -1,5 +1,5 @@
 {
-  "generated_at": "22-01-2026 20:56",
+  "generated_at": "23-01-2026 15:13",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -369,7 +369,7 @@
       "period": "",
       "date": "2020-10-03",
       "time": "15:45",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -379,7 +379,7 @@
       "period": "",
       "date": "2020-01-16",
       "time": "03:00",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -389,7 +389,7 @@
       "period": "",
       "date": "2020-03-05",
       "time": "03:00",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -399,7 +399,7 @@
       "period": "",
       "date": "2020-04-16",
       "time": "02:00",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -409,7 +409,7 @@
       "period": "",
       "date": "2020-05-28",
       "time": "02:00",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -419,7 +419,7 @@
       "period": "",
       "date": "2020-07-16",
       "time": "02:00",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -429,7 +429,7 @@
       "period": "",
       "date": "2020-09-03",
       "time": "02:00",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -439,7 +439,7 @@
       "period": "",
       "date": "2020-10-22",
       "time": "02:00",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -449,7 +449,7 @@
       "period": "",
       "date": "2020-12-03",
       "time": "03:00",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -459,7 +459,7 @@
       "period": "",
       "date": "2020-05-01",
       "time": "07:50",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -469,7 +469,7 @@
       "period": "",
       "date": "2020-06-19",
       "time": "07:50",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -479,7 +479,7 @@
       "period": "",
       "date": "2020-07-20",
       "time": "07:50",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -489,7 +489,7 @@
       "period": "",
       "date": "2020-09-24",
       "time": "07:50",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -499,7 +499,7 @@
       "period": "",
       "date": "2020-12-23",
       "time": "07:50",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -509,7 +509,7 @@
       "period": "",
       "date": "2020-03-04",
       "time": "Tentative",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -519,7 +519,7 @@
       "period": "",
       "date": "2020-11-23",
       "time": "Tentative",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -529,7 +529,7 @@
       "period": "",
       "date": "2020-01-04",
       "time": "04:00",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -539,7 +539,7 @@
       "period": "",
       "date": "2020-02-20",
       "time": "03:00",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -549,7 +549,7 @@
       "period": "",
       "date": "2020-04-09",
       "time": "02:00",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -559,7 +559,7 @@
       "period": "",
       "date": "2020-05-21",
       "time": "02:00",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -569,7 +569,7 @@
       "period": "",
       "date": "2020-07-02",
       "time": "02:00",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -579,7 +579,7 @@
       "period": "",
       "date": "2020-08-20",
       "time": "02:00",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -589,7 +589,7 @@
       "period": "",
       "date": "2020-10-08",
       "time": "02:00",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -599,7 +599,7 @@
       "period": "",
       "date": "2020-11-26",
       "time": "03:00",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -609,7 +609,7 @@
       "period": "",
       "date": "2020-03-19",
       "time": "08:30",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -619,7 +619,7 @@
       "period": "",
       "date": "2020-06-18",
       "time": "09:30",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -629,7 +629,7 @@
       "period": "",
       "date": "2020-09-17",
       "time": "09:30",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -639,7 +639,7 @@
       "period": "",
       "date": "2020-12-10",
       "time": "08:30",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -649,7 +649,7 @@
       "period": "dec",
       "date": "2020-01-25",
       "time": "04:00",
-      "cutoff": "20-01-2026 20:56"
+      "cutoff": "21-01-2026 15:13"
     }
   ]
 }
