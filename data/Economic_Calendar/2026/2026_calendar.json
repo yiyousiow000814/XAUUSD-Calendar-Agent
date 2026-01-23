@@ -14613,6 +14613,17 @@
         "Time":"19:00",
         "Cur.":"EUR",
         "Imp.":"Low",
+        "Event":"German Buba Monthly Report",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":null
+    },
+    {
+        "Date":"2026-01-19",
+        "Day":"Monday",
+        "Time":"19:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
         "Event":"Portuguese Current Account  (Nov)",
         "Actual":"5.185B",
         "Forecast":null,
@@ -15270,6 +15281,28 @@
     {
         "Date":"2026-01-20",
         "Day":"Tuesday",
+        "Time":"20:00",
+        "Cur.":"NZD",
+        "Imp.":"Low",
+        "Event":"GlobalDairyTrade Price Index",
+        "Actual":"1.5%",
+        "Forecast":null,
+        "Previous":"6.3%"
+    },
+    {
+        "Date":"2026-01-20",
+        "Day":"Tuesday",
+        "Time":"20:00",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"Milk Auctions",
+        "Actual":"3,615.0",
+        "Forecast":null,
+        "Previous":"3,533.0"
+    },
+    {
+        "Date":"2026-01-20",
+        "Day":"Tuesday",
         "Time":"21:15",
         "Cur.":"USD",
         "Imp.":"Medium",
@@ -15288,28 +15321,6 @@
         "Actual":"13,656.0B",
         "Forecast":null,
         "Previous":"13,325.0B"
-    },
-    {
-        "Date":"2026-01-20",
-        "Day":"Tuesday",
-        "Time":"22:45",
-        "Cur.":"NZD",
-        "Imp.":"Low",
-        "Event":"GlobalDairyTrade Price Index",
-        "Actual":"1.5%",
-        "Forecast":null,
-        "Previous":"6.3%"
-    },
-    {
-        "Date":"2026-01-20",
-        "Day":"Tuesday",
-        "Time":"22:45",
-        "Cur.":"USD",
-        "Imp.":"Low",
-        "Event":"Milk Auctions",
-        "Actual":"3,615.0",
-        "Forecast":null,
-        "Previous":"3,533.0"
     },
     {
         "Date":"2026-01-21",
@@ -15351,7 +15362,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"3-Month Bill Auction",
-        "Actual":"3.590%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"3.570%"
     },
@@ -15361,21 +15372,21 @@
         "Time":"00:30",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"6-Month Bill Auction",
-        "Actual":"3.520%",
+        "Event":"52-Week Bill Auction",
+        "Actual":null,
         "Forecast":null,
-        "Previous":"3.490%"
+        "Previous":"3.380%"
     },
     {
         "Date":"2026-01-21",
         "Day":"Wednesday",
-        "Time":"02:00",
+        "Time":"00:30",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"52-Week Bill Auction",
-        "Actual":"3.390%",
+        "Event":"6-Month Bill Auction",
+        "Actual":null,
         "Forecast":null,
-        "Previous":"3.380%"
+        "Previous":"3.490%"
     },
     {
         "Date":"2026-01-21",
@@ -15384,20 +15395,31 @@
         "Cur.":"ARS",
         "Imp.":"Low",
         "Event":"Trade Balance  (Dec)",
-        "Actual":"1,892M",
+        "Actual":null,
         "Forecast":"1,372M",
         "Previous":"2,498M"
     },
     {
         "Date":"2026-01-21",
         "Day":"Wednesday",
-        "Time":"07:30",
+        "Time":"05:30",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"API Weekly Crude Oil Stock",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"5.270M"
+    },
+    {
+        "Date":"2026-01-21",
+        "Day":"Wednesday",
+        "Time":"08:00",
         "Cur.":"AUD",
         "Imp.":"Low",
         "Event":"MI Leading Index (MoM)  (Dec)",
-        "Actual":"0.1%",
+        "Actual":null,
         "Forecast":null,
-        "Previous":"0.0%"
+        "Previous":"-0.0%"
     },
     {
         "Date":"2026-01-21",
@@ -15406,7 +15428,7 @@
         "Cur.":"NZD",
         "Imp.":"Low",
         "Event":"RBNZ Offshore Holdings  (Dec)",
-        "Actual":"57.50%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"58.00%"
     },
@@ -15417,7 +15439,7 @@
         "Cur.":"GBP",
         "Imp.":"High",
         "Event":"CPI (YoY)  (Dec)",
-        "Actual":"3.4%",
+        "Actual":null,
         "Forecast":"3.3%",
         "Previous":"3.2%"
     },
@@ -15428,7 +15450,7 @@
         "Cur.":"GBP",
         "Imp.":"Low",
         "Event":"CPI, n.s.a  (Dec)",
-        "Actual":"140.10",
+        "Actual":null,
         "Forecast":null,
         "Previous":"139.50"
     },
@@ -15439,7 +15461,7 @@
         "Cur.":"GBP",
         "Imp.":"Low",
         "Event":"Core CPI (MoM)  (Dec)",
-        "Actual":"0.3%",
+        "Actual":null,
         "Forecast":"0.3%",
         "Previous":"-0.2%"
     },
@@ -15450,7 +15472,7 @@
         "Cur.":"GBP",
         "Imp.":"Low",
         "Event":"Core CPI (YoY)  (Dec)",
-        "Actual":"3.2%",
+        "Actual":null,
         "Forecast":"3.3%",
         "Previous":"3.2%"
     },
@@ -15461,9 +15483,9 @@
         "Cur.":"GBP",
         "Imp.":"Low",
         "Event":"Core PPI Output (MoM)  (Dec)",
-        "Actual":"-0.1%",
+        "Actual":null,
         "Forecast":null,
-        "Previous":"0.1%"
+        "Previous":"0.0%"
     },
     {
         "Date":"2026-01-21",
@@ -15472,9 +15494,9 @@
         "Cur.":"GBP",
         "Imp.":"Low",
         "Event":"Core PPI Output (YoY)  (Dec)",
-        "Actual":"3.2%",
+        "Actual":null,
         "Forecast":null,
-        "Previous":"3.6%"
+        "Previous":"3.5%"
     },
     {
         "Date":"2026-01-21",
@@ -15483,7 +15505,7 @@
         "Cur.":"GBP",
         "Imp.":"Low",
         "Event":"Core RPI (MoM)  (Dec)",
-        "Actual":"0.7%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"-0.5%"
     },
@@ -15494,7 +15516,7 @@
         "Cur.":"GBP",
         "Imp.":"Low",
         "Event":"Core RPI (YoY)  (Dec)",
-        "Actual":"4.1%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"3.7%"
     },
@@ -15505,7 +15527,7 @@
         "Cur.":"GBP",
         "Imp.":"Low",
         "Event":"PPI Input (YoY)  (Dec)",
-        "Actual":"0.8%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"1.1%"
     },
@@ -15516,7 +15538,7 @@
         "Cur.":"GBP",
         "Imp.":"Low",
         "Event":"PPI Output (MoM)  (Dec)",
-        "Actual":"0.0%",
+        "Actual":null,
         "Forecast":"0.1%",
         "Previous":"0.1%"
     },
@@ -15527,7 +15549,7 @@
         "Cur.":"GBP",
         "Imp.":"Low",
         "Event":"PPI Output (YoY)  (Dec)",
-        "Actual":"3.4%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"3.4%"
     },
@@ -15538,7 +15560,7 @@
         "Cur.":"GBP",
         "Imp.":"Low",
         "Event":"RPI (MoM)  (Dec)",
-        "Actual":"0.7%",
+        "Actual":null,
         "Forecast":"0.5%",
         "Previous":"-0.4%"
     },
@@ -15549,7 +15571,7 @@
         "Cur.":"GBP",
         "Imp.":"Low",
         "Event":"RPI (YoY)  (Dec)",
-        "Actual":"4.2%",
+        "Actual":null,
         "Forecast":"4.1%",
         "Previous":"3.8%"
     },
@@ -15560,7 +15582,7 @@
         "Cur.":"GBP",
         "Imp.":"Medium",
         "Event":"CPI (MoM)  (Dec)",
-        "Actual":"0.4%",
+        "Actual":null,
         "Forecast":"0.4%",
         "Previous":"-0.2%"
     },
@@ -15570,30 +15592,19 @@
         "Time":"15:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"CPIH (YoY)",
-        "Actual":"3.6%",
-        "Forecast":null,
-        "Previous":"3.5%"
-    },
-    {
-        "Date":"2026-01-21",
-        "Day":"Wednesday",
-        "Time":"15:00",
-        "Cur.":"GBP",
-        "Imp.":"Medium",
         "Event":"PPI Input (MoM)  (Dec)",
-        "Actual":"-0.2%",
+        "Actual":null,
         "Forecast":"-0.1%",
-        "Previous":"0.5%"
+        "Previous":"0.3%"
     },
     {
         "Date":"2026-01-21",
         "Day":"Wednesday",
-        "Time":"15:25",
+        "Time":"15:20",
         "Cur.":"IDR",
         "Imp.":"Low",
         "Event":"Loans (YoY)  (Dec)",
-        "Actual":"9.69%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"7.74%"
     },
@@ -15615,7 +15626,7 @@
         "Cur.":"IDR",
         "Imp.":"Low",
         "Event":"Deposit Facility Rate  (Jan)",
-        "Actual":"3.75%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"3.75%"
     },
@@ -15626,7 +15637,7 @@
         "Cur.":"IDR",
         "Imp.":"Low",
         "Event":"Lending Facility Rate  (Jan)",
-        "Actual":"5.50%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"5.50%"
     },
@@ -15637,7 +15648,7 @@
         "Cur.":"IDR",
         "Imp.":"Medium",
         "Event":"Interest Rate Decision",
-        "Actual":"4.75%",
+        "Actual":null,
         "Forecast":"4.75%",
         "Previous":"4.75%"
     },
@@ -15648,9 +15659,9 @@
         "Cur.":"CHF",
         "Imp.":"Low",
         "Event":"M3 Money Supply  (Dec)",
-        "Actual":"1,210.9B",
+        "Actual":null,
         "Forecast":null,
-        "Previous":"1,211.6B"
+        "Previous":"1,210.5B"
     },
     {
         "Date":"2026-01-21",
@@ -15670,7 +15681,7 @@
         "Cur.":"ZAR",
         "Imp.":"Low",
         "Event":"CPI (MoM)  (Dec)",
-        "Actual":"0.2%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"-0.1%"
     },
@@ -15681,7 +15692,7 @@
         "Cur.":"ZAR",
         "Imp.":"Low",
         "Event":"CPI (YoY)  (Dec)",
-        "Actual":"3.6%",
+        "Actual":null,
         "Forecast":"3.6%",
         "Previous":"3.5%"
     },
@@ -15692,7 +15703,7 @@
         "Cur.":"ZAR",
         "Imp.":"Low",
         "Event":"Core CPI (MoM)  (Dec)",
-        "Actual":"0.1%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"0.1%"
     },
@@ -15703,20 +15714,9 @@
         "Cur.":"ZAR",
         "Imp.":"Low",
         "Event":"Core CPI (YoY)  (Dec)",
-        "Actual":"3.3%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"3.2%"
-    },
-    {
-        "Date":"2026-01-21",
-        "Day":"Wednesday",
-        "Time":"17:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"Slovak Unemployment Rate  (Dec)",
-        "Actual":"5.3%",
-        "Forecast":null,
-        "Previous":"5.0%"
     },
     {
         "Date":"2026-01-21",
@@ -15736,7 +15736,7 @@
         "Cur.":"GBP",
         "Imp.":"Low",
         "Event":"House Price Index (YoY)",
-        "Actual":"2.5%",
+        "Actual":null,
         "Forecast":"1.8%",
         "Previous":"1.7%"
     },
@@ -15746,10 +15746,10 @@
         "Time":"18:00",
         "Cur.":"GBP",
         "Imp.":"Low",
-        "Event":"5-Year Treasury Gilt Auction",
-        "Actual":"3.821%",
+        "Event":"3-Year Treasury Gilt Auction",
+        "Actual":null,
         "Forecast":null,
-        "Previous":"3.980%"
+        "Previous":"4.062%"
     },
     {
         "Date":"2026-01-21",
@@ -15758,7 +15758,7 @@
         "Cur.":"GHS",
         "Imp.":"Low",
         "Event":"PPI (YoY)  (Dec)",
-        "Actual":"1.90%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"1.30%"
     },
@@ -15769,7 +15769,7 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Resi Prop Prices (MoM)  (Nov)",
-        "Actual":"0.30%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"0.60%"
     },
@@ -15780,9 +15780,9 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Resi Prop Prices (YoY)  (Nov)",
-        "Actual":"6.60%",
+        "Actual":null,
         "Forecast":null,
-        "Previous":"7.20%"
+        "Previous":"7.30%"
     },
     {
         "Date":"2026-01-21",
@@ -15791,7 +15791,7 @@
         "Cur.":"GBP",
         "Imp.":"Low",
         "Event":"CBI Industrial Trends Orders  (Jan)",
-        "Actual":"-30",
+        "Actual":null,
         "Forecast":"-33",
         "Previous":"-32"
     },
@@ -15802,9 +15802,20 @@
         "Cur.":"ZAR",
         "Imp.":"Low",
         "Event":"Retail Sales (YoY)  (Nov)",
-        "Actual":"3.5%",
+        "Actual":null,
         "Forecast":null,
-        "Previous":"3.0%"
+        "Previous":"2.9%"
+    },
+    {
+        "Date":"2026-01-21",
+        "Day":"Wednesday",
+        "Time":"19:30",
+        "Cur.":"INR",
+        "Imp.":"Low",
+        "Event":"M3 Money Supply",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"12.1%"
     },
     {
         "Date":"2026-01-21",
@@ -15813,9 +15824,9 @@
         "Cur.":"MXN",
         "Imp.":"Low",
         "Event":"Retail Sales (MoM)  (Nov)",
-        "Actual":"1.0%",
+        "Actual":null,
         "Forecast":"0.1%",
-        "Previous":"0.5%"
+        "Previous":"0.4%"
     },
     {
         "Date":"2026-01-21",
@@ -15824,7 +15835,7 @@
         "Cur.":"MXN",
         "Imp.":"Low",
         "Event":"Retail Sales (YoY)  (Nov)",
-        "Actual":"4.4%",
+        "Actual":null,
         "Forecast":"3.0%",
         "Previous":"3.4%"
     },
@@ -15835,7 +15846,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"MBA 30-Year Mortgage Rate",
-        "Actual":"6.16%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"6.18%"
     },
@@ -15846,7 +15857,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"MBA Mortgage Applications (WoW)",
-        "Actual":"14.1%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"28.5%"
     },
@@ -15857,7 +15868,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"MBA Purchase Index",
-        "Actual":"194.1",
+        "Actual":null,
         "Forecast":null,
         "Previous":"184.6"
     },
@@ -15868,7 +15879,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"Mortgage Market Index",
-        "Actual":"397.2",
+        "Actual":null,
         "Forecast":null,
         "Previous":"348.0"
     },
@@ -15879,9 +15890,20 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"Mortgage Refinance Index",
-        "Actual":"1,580.8",
+        "Actual":null,
         "Forecast":null,
         "Previous":"1,313.1"
+    },
+    {
+        "Date":"2026-01-21",
+        "Day":"Wednesday",
+        "Time":"21:00",
+        "Cur.":"CNY",
+        "Imp.":"Low",
+        "Event":"FDI  (Dec)",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"-7.50%"
     },
     {
         "Date":"2026-01-21",
@@ -15890,9 +15912,9 @@
         "Cur.":"CAD",
         "Imp.":"Low",
         "Event":"IPPI (MoM)  (Dec)",
-        "Actual":"-0.6%",
+        "Actual":null,
         "Forecast":"0.3%",
-        "Previous":"1.1%"
+        "Previous":"0.9%"
     },
     {
         "Date":"2026-01-21",
@@ -15901,9 +15923,9 @@
         "Cur.":"CAD",
         "Imp.":"Low",
         "Event":"IPPI (YoY)  (Dec)",
-        "Actual":"4.9%",
+        "Actual":null,
         "Forecast":null,
-        "Previous":"5.9%"
+        "Previous":"6.1%"
     },
     {
         "Date":"2026-01-21",
@@ -15912,9 +15934,9 @@
         "Cur.":"CAD",
         "Imp.":"Low",
         "Event":"RMPI (YoY)  (Dec)",
-        "Actual":"6.4%",
+        "Actual":null,
         "Forecast":null,
-        "Previous":"7.2%"
+        "Previous":"6.4%"
     },
     {
         "Date":"2026-01-21",
@@ -15923,9 +15945,9 @@
         "Cur.":"CAD",
         "Imp.":"Medium",
         "Event":"RMPI (MoM)  (Dec)",
-        "Actual":"0.5%",
+        "Actual":null,
         "Forecast":"-0.5%",
-        "Previous":"0.6%"
+        "Previous":"0.3%"
     },
     {
         "Date":"2026-01-21",
@@ -15945,9 +15967,20 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"Redbook (YoY)",
-        "Actual":"5.5%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"5.7%"
+    },
+    {
+        "Date":"2026-01-21",
+        "Day":"Wednesday",
+        "Time":"22:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Slovak Unemployment Rate  (Dec)",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"5.0%"
     },
     {
         "Date":"2026-01-21",
@@ -15967,7 +16000,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"Pending Home Sales Index  (Dec)",
-        "Actual":"71.8",
+        "Actual":null,
         "Forecast":null,
         "Previous":"79.2"
     },
@@ -15978,20 +16011,9 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"Construction Spending (MoM)  (Oct)",
-        "Actual":"0.5%",
+        "Actual":null,
         "Forecast":"0.1%",
-        "Previous":"-0.6%"
-    },
-    {
-        "Date":"2026-01-21",
-        "Day":"Wednesday",
-        "Time":"23:00",
-        "Cur.":"USD",
-        "Imp.":"Medium",
-        "Event":"Construction Spending (MoM)  (Sep)",
-        "Actual":"-0.6%",
-        "Forecast":null,
-        "Previous":"0.4%"
+        "Previous":"0.2%"
     },
     {
         "Date":"2026-01-21",
@@ -16000,8 +16022,8 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"Pending Home Sales (MoM)  (Dec)",
-        "Actual":"-9.3%",
-        "Forecast":"-0.3%",
+        "Actual":null,
+        "Forecast":"-2.6%",
         "Previous":"3.3%"
     },
     {
@@ -16018,17 +16040,6 @@
     {
         "Date":"2026-01-22",
         "Day":"Thursday",
-        "Time":"00:30",
-        "Cur.":"USD",
-        "Imp.":"Medium",
-        "Event":"Atlanta Fed GDPNow  (Q4)",
-        "Actual":"5.4%",
-        "Forecast":"5.3%",
-        "Previous":"5.3%"
-    },
-    {
-        "Date":"2026-01-22",
-        "Day":"Thursday",
         "Time":"00:45",
         "Cur.":"EUR",
         "Imp.":"Medium",
@@ -16040,11 +16051,22 @@
     {
         "Date":"2026-01-22",
         "Day":"Thursday",
+        "Time":"01:00",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"Atlanta Fed GDPNow  (Q4)",
+        "Actual":null,
+        "Forecast":"5.3%",
+        "Previous":"5.3%"
+    },
+    {
+        "Date":"2026-01-22",
+        "Day":"Thursday",
         "Time":"01:30",
         "Cur.":"BRL",
         "Imp.":"Low",
         "Event":"Foreign Exchange Flows",
-        "Actual":"2.215B",
+        "Actual":null,
         "Forecast":null,
         "Previous":"-1.696B"
     },
@@ -16055,7 +16077,7 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"20-Year Bond Auction",
-        "Actual":"4.846%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"4.798%"
     },
@@ -16077,20 +16099,9 @@
         "Cur.":"ARS",
         "Imp.":"Low",
         "Event":"Economic Activity (YoY)  (Nov)",
-        "Actual":"-0.3%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"3.2%"
-    },
-    {
-        "Date":"2026-01-22",
-        "Day":"Thursday",
-        "Time":"05:30",
-        "Cur.":"USD",
-        "Imp.":"Medium",
-        "Event":"API Weekly Crude Oil Stock",
-        "Actual":"3.040M",
-        "Forecast":null,
-        "Previous":"5.270M"
     },
     {
         "Date":"2026-01-22",
@@ -16099,7 +16110,7 @@
         "Cur.":"NZD",
         "Imp.":"Low",
         "Event":"Electronic Card Retail Sales (YoY)  (Dec)",
-        "Actual":"-0.5%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"1.6%"
     },
@@ -16110,7 +16121,7 @@
         "Cur.":"NZD",
         "Imp.":"Low",
         "Event":"External Migration & Visitors  (Nov)",
-        "Actual":"8.20%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"9.40%"
     },
@@ -16121,9 +16132,9 @@
         "Cur.":"NZD",
         "Imp.":"Low",
         "Event":"Permanent\/Long-Term Migration  (Nov)",
-        "Actual":"990",
+        "Actual":null,
         "Forecast":null,
-        "Previous":"1,610"
+        "Previous":"2,400"
     },
     {
         "Date":"2026-01-22",
@@ -16132,9 +16143,9 @@
         "Cur.":"NZD",
         "Imp.":"Low",
         "Event":"Visitor Arrivals (MoM)",
-        "Actual":"0.8%",
+        "Actual":null,
         "Forecast":null,
-        "Previous":"0.7%"
+        "Previous":"0.6%"
     },
     {
         "Date":"2026-01-22",
@@ -16143,7 +16154,7 @@
         "Cur.":"NZD",
         "Imp.":"Medium",
         "Event":"Electronic Card Retail Sales (MoM)  (Dec)",
-        "Actual":"-0.1%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"1.2%"
     },
@@ -16154,8 +16165,8 @@
         "Cur.":"KRW",
         "Imp.":"Low",
         "Event":"GDP (QoQ)  (Q4)",
-        "Actual":"-0.3%",
-        "Forecast":"0.1%",
+        "Actual":null,
+        "Forecast":"0.2%",
         "Previous":"1.3%"
     },
     {
@@ -16165,7 +16176,7 @@
         "Cur.":"KRW",
         "Imp.":"Low",
         "Event":"GDP (YoY)  (Q4)",
-        "Actual":"1.5%",
+        "Actual":null,
         "Forecast":"1.9%",
         "Previous":"1.8%"
     },
@@ -16176,9 +16187,9 @@
         "Cur.":"JPY",
         "Imp.":"Low",
         "Event":"Foreign Bonds Buying",
-        "Actual":"-361.4B",
+        "Actual":null,
         "Forecast":null,
-        "Previous":"91.2B"
+        "Previous":"101.1B"
     },
     {
         "Date":"2026-01-22",
@@ -16187,9 +16198,9 @@
         "Cur.":"JPY",
         "Imp.":"Low",
         "Event":"Foreign Investments in Japanese Stocks",
-        "Actual":"874.0B",
+        "Actual":null,
         "Forecast":null,
-        "Previous":"1,141.6B"
+        "Previous":"1,141.4B"
     },
     {
         "Date":"2026-01-22",
@@ -16198,7 +16209,7 @@
         "Cur.":"JPY",
         "Imp.":"Low",
         "Event":"Imports (YoY)  (Dec)",
-        "Actual":"5.3%",
+        "Actual":null,
         "Forecast":"3.6%",
         "Previous":"1.3%"
     },
@@ -16209,9 +16220,9 @@
         "Cur.":"JPY",
         "Imp.":"Medium",
         "Event":"Adjusted Trade Balance",
-        "Actual":"-0.21T",
+        "Actual":null,
         "Forecast":"-0.06T",
-        "Previous":"0.01T"
+        "Previous":"0.06T"
     },
     {
         "Date":"2026-01-22",
@@ -16220,7 +16231,7 @@
         "Cur.":"JPY",
         "Imp.":"Medium",
         "Event":"Exports (YoY)  (Dec)",
-        "Actual":"5.1%",
+        "Actual":null,
         "Forecast":"6.1%",
         "Previous":"6.1%"
     },
@@ -16231,9 +16242,20 @@
         "Cur.":"JPY",
         "Imp.":"Medium",
         "Event":"Trade Balance  (Dec)",
-        "Actual":"105.7B",
+        "Actual":null,
         "Forecast":"357.0B",
         "Previous":"316.7B"
+    },
+    {
+        "Date":"2026-01-22",
+        "Day":"Thursday",
+        "Time":"08:00",
+        "Cur.":"AUD",
+        "Imp.":"Low",
+        "Event":"MI Leading Index (MoM)  (Dec)",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"-0.0%"
     },
     {
         "Date":"2026-01-22",
@@ -16242,9 +16264,9 @@
         "Cur.":"AUD",
         "Imp.":"Low",
         "Event":"Participation Rate  (Dec)",
-        "Actual":"66.7%",
-        "Forecast":"66.8%",
-        "Previous":"66.6%"
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"66.7%"
     },
     {
         "Date":"2026-01-22",
@@ -16253,9 +16275,9 @@
         "Cur.":"AUD",
         "Imp.":"Medium",
         "Event":"Employment Change  (Dec)",
-        "Actual":"65.2K",
-        "Forecast":"28.3K",
-        "Previous":"-28.7K"
+        "Actual":null,
+        "Forecast":"26.5K",
+        "Previous":"-21.3K"
     },
     {
         "Date":"2026-01-22",
@@ -16264,9 +16286,9 @@
         "Cur.":"AUD",
         "Imp.":"Medium",
         "Event":"Full Employment Change  (Dec)",
-        "Actual":"54.8K",
+        "Actual":null,
         "Forecast":null,
-        "Previous":"-65.3K"
+        "Previous":"-56.5K"
     },
     {
         "Date":"2026-01-22",
@@ -16275,9 +16297,20 @@
         "Cur.":"AUD",
         "Imp.":"Medium",
         "Event":"Unemployment Rate  (Dec)",
-        "Actual":"4.1%",
+        "Actual":null,
         "Forecast":"4.4%",
         "Previous":"4.3%"
+    },
+    {
+        "Date":"2026-01-22",
+        "Day":"Thursday",
+        "Time":"12:00",
+        "Cur.":"IDR",
+        "Imp.":"Low",
+        "Event":"M2 Money Supply (YoY)  (Dec)",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"8.30%"
     },
     {
         "Date":"2026-01-22",
@@ -16286,7 +16319,7 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Dutch Consumer Confidence  (Jan)",
-        "Actual":"-23.0",
+        "Actual":null,
         "Forecast":null,
         "Previous":"-21.0"
     },
@@ -16297,7 +16330,7 @@
         "Cur.":"DKK",
         "Imp.":"Low",
         "Event":"Consumer Confidence  (Jan)",
-        "Actual":"-13.4",
+        "Actual":null,
         "Forecast":null,
         "Previous":"-17.3"
     },
@@ -16308,9 +16341,9 @@
         "Cur.":"GBP",
         "Imp.":"Low",
         "Event":"Public Sector Net Borrowing  (Dec)",
-        "Actual":"-11.58B",
-        "Forecast":"-13.40B",
-        "Previous":"-10.94B"
+        "Actual":null,
+        "Forecast":"-13.50B",
+        "Previous":"-11.65B"
     },
     {
         "Date":"2026-01-22",
@@ -16319,9 +16352,9 @@
         "Cur.":"GBP",
         "Imp.":"Low",
         "Event":"Public Sector Net Cash Requirement  (Dec)",
-        "Actual":"16.908B",
+        "Actual":null,
         "Forecast":null,
-        "Previous":"9.516B"
+        "Previous":"10.293B"
     },
     {
         "Date":"2026-01-22",
@@ -16330,7 +16363,7 @@
         "Cur.":"MYR",
         "Imp.":"Low",
         "Event":"FX Reserves USD",
-        "Actual":"125.6B",
+        "Actual":null,
         "Forecast":null,
         "Previous":"125.5B"
     },
@@ -16341,8 +16374,8 @@
         "Cur.":"MYR",
         "Imp.":"Medium",
         "Event":"Interest Rate",
-        "Actual":"2.75%",
-        "Forecast":"2.75%",
+        "Actual":null,
+        "Forecast":null,
         "Previous":"2.75%"
     },
     {
@@ -16352,7 +16385,7 @@
         "Cur.":"NOK",
         "Imp.":"Low",
         "Event":"Unemployment Rate  (Dec)",
-        "Actual":"4.3%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"4.5%"
     },
@@ -16363,7 +16396,7 @@
         "Cur.":"TRY",
         "Imp.":"Low",
         "Event":"Capacity Utilization  (Jan)",
-        "Actual":"74.1%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"74.4%"
     },
@@ -16374,7 +16407,7 @@
         "Cur.":"TRY",
         "Imp.":"Low",
         "Event":"Consumer Confidence  (Jan)",
-        "Actual":"83.7",
+        "Actual":null,
         "Forecast":null,
         "Previous":"83.5"
     },
@@ -16385,7 +16418,7 @@
         "Cur.":"TRY",
         "Imp.":"Low",
         "Event":"Manufacturing Confidence  (Jan)",
-        "Actual":"101.6",
+        "Actual":null,
         "Forecast":null,
         "Previous":"100.8"
     },
@@ -16407,7 +16440,7 @@
         "Cur.":"TWD",
         "Imp.":"Low",
         "Event":"Unemployment Rate  (Dec)",
-        "Actual":"3.35%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"3.35%"
     },
@@ -16418,7 +16451,7 @@
         "Cur.":"HKD",
         "Imp.":"Low",
         "Event":"CPI (MoM)  (Dec)",
-        "Actual":"0.30%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"0.00%"
     },
@@ -16429,7 +16462,7 @@
         "Cur.":"HKD",
         "Imp.":"Low",
         "Event":"CPI (YoY)  (Dec)",
-        "Actual":"1.40%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"1.20%"
     },
@@ -16440,8 +16473,8 @@
         "Cur.":"NOK",
         "Imp.":"Medium",
         "Event":"Interest Rate Decision",
-        "Actual":"4.00%",
-        "Forecast":"4.00%",
+        "Actual":null,
+        "Forecast":null,
         "Previous":"4.00%"
     },
     {
@@ -16451,7 +16484,7 @@
         "Cur.":"PLN",
         "Imp.":"Low",
         "Event":"Corp. Sector Wages (YoY)  (Dec)",
-        "Actual":"8.6%",
+        "Actual":null,
         "Forecast":"6.9%",
         "Previous":"7.1%"
     },
@@ -16462,7 +16495,7 @@
         "Cur.":"PLN",
         "Imp.":"Low",
         "Event":"Employment Growth (YoY)  (Dec)",
-        "Actual":"-0.7%",
+        "Actual":null,
         "Forecast":"-0.7%",
         "Previous":"-0.8%"
     },
@@ -16473,7 +16506,7 @@
         "Cur.":"PLN",
         "Imp.":"Low",
         "Event":"Industrial Output (YoY)  (Dec)",
-        "Actual":"7.3%",
+        "Actual":null,
         "Forecast":"2.9%",
         "Previous":"-1.1%"
     },
@@ -16484,9 +16517,9 @@
         "Cur.":"PLN",
         "Imp.":"Low",
         "Event":"PPI (YoY)  (Dec)",
-        "Actual":"-2.5%",
+        "Actual":null,
         "Forecast":"-2.2%",
-        "Previous":"-2.3%"
+        "Previous":"-2.4%"
     },
     {
         "Date":"2026-01-22",
@@ -16495,20 +16528,9 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Belgium Consumer Confidence  (Jan)",
-        "Actual":"4",
+        "Actual":null,
         "Forecast":null,
         "Previous":"-1"
-    },
-    {
-        "Date":"2026-01-22",
-        "Day":"Thursday",
-        "Time":"18:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"Greek Credit Expansion (YoY)  (Oct)",
-        "Actual":"5.4%",
-        "Forecast":null,
-        "Previous":"7.8%"
     },
     {
         "Date":"2026-01-22",
@@ -16528,7 +16550,7 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Latvian PPI (MoM)  (Dec)",
-        "Actual":"-0.8%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"0.1%"
     },
@@ -16539,7 +16561,7 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Latvian PPI (YoY)  (Dec)",
-        "Actual":"1.0%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"2.1%"
     },
@@ -16550,7 +16572,7 @@
         "Cur.":"GBP",
         "Imp.":"Low",
         "Event":"CBI Distributive Trades Survey  (Jan)",
-        "Actual":"-17",
+        "Actual":null,
         "Forecast":"-35",
         "Previous":"-44"
     },
@@ -16561,7 +16583,7 @@
         "Cur.":"TRY",
         "Imp.":"Low",
         "Event":"Overnight Borrowing Rate  (Jan)",
-        "Actual":"35.50%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"36.50%"
     },
@@ -16572,7 +16594,7 @@
         "Cur.":"TRY",
         "Imp.":"Low",
         "Event":"Overnight Lending Rate  (Jan)",
-        "Actual":"40.00%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"41.00%"
     },
@@ -16583,8 +16605,8 @@
         "Cur.":"TRY",
         "Imp.":"Medium",
         "Event":"One-Week Repo Rate  (Jan)",
-        "Actual":"37.00%",
-        "Forecast":"36.50%",
+        "Actual":null,
+        "Forecast":null,
         "Previous":"38.00%"
     },
     {
@@ -16594,20 +16616,9 @@
         "Cur.":"TRY",
         "Imp.":"Low",
         "Event":"Gross FX Reserves",
-        "Actual":"84.15B",
+        "Actual":null,
         "Forecast":null,
         "Previous":"79.35B"
-    },
-    {
-        "Date":"2026-01-22",
-        "Day":"Thursday",
-        "Time":"19:30",
-        "Cur.":"TRY",
-        "Imp.":"Low",
-        "Event":"Net FX Reserves",
-        "Actual":"91.01%",
-        "Forecast":null,
-        "Previous":"82.93%"
     },
     {
         "Date":"2026-01-22",
@@ -16624,11 +16635,22 @@
         "Date":"2026-01-22",
         "Day":"Thursday",
         "Time":"20:00",
+        "Cur.":"GHS",
+        "Imp.":"Low",
+        "Event":"PPI (YoY)  (Dec)",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"1.30%"
+    },
+    {
+        "Date":"2026-01-22",
+        "Day":"Thursday",
+        "Time":"20:00",
         "Cur.":"MXN",
         "Imp.":"Low",
         "Event":"1st Half-Month CPI  (Jan)",
-        "Actual":"0.31%",
-        "Forecast":"0.37%",
+        "Actual":null,
+        "Forecast":null,
         "Previous":"0.17%"
     },
     {
@@ -16638,8 +16660,8 @@
         "Cur.":"MXN",
         "Imp.":"Low",
         "Event":"1st Half-Month Core CPI  (Jan)",
-        "Actual":"0.43%",
-        "Forecast":"0.39%",
+        "Actual":null,
+        "Forecast":null,
         "Previous":"0.31%"
     },
     {
@@ -16660,20 +16682,9 @@
         "Cur.":"RUB",
         "Imp.":"Low",
         "Event":"Central Bank reserves (USD)",
-        "Actual":"769.1B",
+        "Actual":null,
         "Forecast":null,
         "Previous":"752.5B"
-    },
-    {
-        "Date":"2026-01-22",
-        "Day":"Thursday",
-        "Time":"21:30",
-        "Cur.":"BRL",
-        "Imp.":"Low",
-        "Event":"Federal Tax Revenue  (Dec)",
-        "Actual":"292.72B",
-        "Forecast":null,
-        "Previous":"226.75B"
     },
     {
         "Date":"2026-01-22",
@@ -16682,7 +16693,7 @@
         "Cur.":"CAD",
         "Imp.":"Medium",
         "Event":"New Housing Price Index (MoM)  (Dec)",
-        "Actual":"-0.2%",
+        "Actual":null,
         "Forecast":"-0.2%",
         "Previous":"0.0%"
     },
@@ -16693,7 +16704,7 @@
         "Cur.":"USD",
         "Imp.":"High",
         "Event":"GDP (QoQ)  (Q3)",
-        "Actual":"4.4%",
+        "Actual":null,
         "Forecast":"4.3%",
         "Previous":"3.8%"
     },
@@ -16704,9 +16715,9 @@
         "Cur.":"USD",
         "Imp.":"High",
         "Event":"Initial Jobless Claims",
-        "Actual":"200K",
-        "Forecast":"209K",
-        "Previous":"199K"
+        "Actual":null,
+        "Forecast":"203K",
+        "Previous":"198K"
     },
     {
         "Date":"2026-01-22",
@@ -16715,9 +16726,9 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"Corporate Profits (QoQ)  (Q3)",
-        "Actual":"4.7%",
+        "Actual":null,
         "Forecast":"4.4%",
-        "Previous":"0.2%"
+        "Previous":"4.4%"
     },
     {
         "Date":"2026-01-22",
@@ -16726,7 +16737,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"GDP Sales  (Q3)",
-        "Actual":"4.5%",
+        "Actual":null,
         "Forecast":"4.6%",
         "Previous":"7.5%"
     },
@@ -16737,9 +16748,9 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"Jobless Claims 4-Week Avg.",
-        "Actual":"201.50K",
+        "Actual":null,
         "Forecast":null,
-        "Previous":"205.25K"
+        "Previous":"205.00K"
     },
     {
         "Date":"2026-01-22",
@@ -16748,7 +16759,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"PCE Prices  (Q3)",
-        "Actual":"2.8%",
+        "Actual":null,
         "Forecast":"2.8%",
         "Previous":"2.1%"
     },
@@ -16759,7 +16770,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"Real Consumer Spending  (Q3)",
-        "Actual":"3.5%",
+        "Actual":null,
         "Forecast":"3.5%",
         "Previous":"2.5%"
     },
@@ -16770,9 +16781,9 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"Continuing Jobless Claims",
-        "Actual":"1,849K",
+        "Actual":null,
         "Forecast":null,
-        "Previous":"1,875K"
+        "Previous":"1,884K"
     },
     {
         "Date":"2026-01-22",
@@ -16781,7 +16792,7 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"Core PCE Prices  (Q3)",
-        "Actual":"2.90%",
+        "Actual":null,
         "Forecast":"2.90%",
         "Previous":"2.60%"
     },
@@ -16792,8 +16803,8 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"GDP Price Index (QoQ)  (Q3)",
-        "Actual":"3.7%",
-        "Forecast":"3.7%",
+        "Actual":null,
+        "Forecast":"3.8%",
         "Previous":"2.1%"
     },
     {
@@ -16803,7 +16814,7 @@
         "Cur.":"COP",
         "Imp.":"Low",
         "Event":"Imports (YoY)  (Nov)",
-        "Actual":"0.30%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"14.90%"
     },
@@ -16814,20 +16825,9 @@
         "Cur.":"COP",
         "Imp.":"Low",
         "Event":"Trade Balance (USD)  (Nov)",
-        "Actual":"-1.550B",
+        "Actual":null,
         "Forecast":null,
-        "Previous":"-1.915B"
-    },
-    {
-        "Date":"2026-01-22",
-        "Day":"Thursday",
-        "Time":"23:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"Consumer Confidence  (Jan)",
-        "Actual":"-12.4",
-        "Forecast":"-13.0",
-        "Previous":"-13.2"
+        "Previous":"-1.913B"
     },
     {
         "Date":"2026-01-22",
@@ -16836,7 +16836,7 @@
         "Cur.":"USD",
         "Imp.":"High",
         "Event":"Core PCE Price Index (MoM)  (Nov)",
-        "Actual":"0.2%",
+        "Actual":null,
         "Forecast":"0.2%",
         "Previous":"0.2%"
     },
@@ -16846,31 +16846,9 @@
         "Time":"23:00",
         "Cur.":"USD",
         "Imp.":"High",
-        "Event":"Core PCE Price Index (MoM)  (Oct)",
-        "Actual":"0.2%",
-        "Forecast":null,
-        "Previous":"0.2%"
-    },
-    {
-        "Date":"2026-01-22",
-        "Day":"Thursday",
-        "Time":"23:00",
-        "Cur.":"USD",
-        "Imp.":"High",
         "Event":"Core PCE Price Index (YoY)  (Nov)",
-        "Actual":"2.8%",
-        "Forecast":"2.8%",
-        "Previous":"2.7%"
-    },
-    {
-        "Date":"2026-01-22",
-        "Day":"Thursday",
-        "Time":"23:00",
-        "Cur.":"USD",
-        "Imp.":"High",
-        "Event":"Core PCE Price Index (YoY)  (Oct)",
-        "Actual":"2.7%",
-        "Forecast":null,
+        "Actual":null,
+        "Forecast":"2.7%",
         "Previous":"2.8%"
     },
     {
@@ -16879,10 +16857,10 @@
         "Time":"23:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Personal Income (MoM)  (Nov)",
-        "Actual":"0.3%",
-        "Forecast":"0.4%",
-        "Previous":"0.1%"
+        "Event":"Dallas Fed PCE  (Nov)",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"1.90%"
     },
     {
         "Date":"2026-01-22",
@@ -16890,9 +16868,9 @@
         "Time":"23:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Personal Income (MoM)  (Oct)",
-        "Actual":"0.1%",
-        "Forecast":null,
+        "Event":"Personal Income (MoM)  (Nov)",
+        "Actual":null,
+        "Forecast":"0.4%",
         "Previous":"0.4%"
     },
     {
@@ -16902,7 +16880,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"Real Personal Consumption (MoM)  (Nov)",
-        "Actual":"0.3%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"0.1%"
     },
@@ -16913,18 +16891,7 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"PCE Price index (YoY)  (Nov)",
-        "Actual":"2.8%",
-        "Forecast":"2.8%",
-        "Previous":"2.7%"
-    },
-    {
-        "Date":"2026-01-22",
-        "Day":"Thursday",
-        "Time":"23:00",
-        "Cur.":"USD",
-        "Imp.":"Medium",
-        "Event":"PCE Price index (YoY)  (Oct)",
-        "Actual":"2.7%",
+        "Actual":null,
         "Forecast":null,
         "Previous":"2.8%"
     },
@@ -16935,19 +16902,8 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"PCE price index (MoM)  (Nov)",
-        "Actual":"0.2%",
+        "Actual":null,
         "Forecast":"0.2%",
-        "Previous":"0.2%"
-    },
-    {
-        "Date":"2026-01-22",
-        "Day":"Thursday",
-        "Time":"23:00",
-        "Cur.":"USD",
-        "Imp.":"Medium",
-        "Event":"PCE price index (MoM)  (Oct)",
-        "Actual":"0.2%",
-        "Forecast":null,
         "Previous":"0.3%"
     },
     {
@@ -16957,20 +16913,9 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"Personal Spending (MoM)  (Nov)",
-        "Actual":"0.5%",
+        "Actual":null,
         "Forecast":"0.5%",
-        "Previous":"0.5%"
-    },
-    {
-        "Date":"2026-01-22",
-        "Day":"Thursday",
-        "Time":"23:00",
-        "Cur.":"USD",
-        "Imp.":"Medium",
-        "Event":"Personal Spending (MoM)  (Oct)",
-        "Actual":"0.5%",
-        "Forecast":null,
-        "Previous":"0.3%"
+        "Previous":"0.4%"
     },
     {
         "Date":"2026-01-22",
@@ -16979,8 +16924,8 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"Natural Gas Storage",
-        "Actual":"-120B",
-        "Forecast":"-90B",
+        "Actual":null,
+        "Forecast":null,
         "Previous":"-71B"
     },
     {
@@ -17046,7 +16991,7 @@
         "Imp.":"High",
         "Event":"Crude Oil Inventories",
         "Actual":null,
-        "Forecast":"-1.000M",
+        "Forecast":null,
         "Previous":"3.391M"
     },
     {
@@ -17090,7 +17035,7 @@
         "Imp.":"Low",
         "Event":"EIA Weekly Distillates Stocks",
         "Actual":null,
-        "Forecast":"-0.200M",
+        "Forecast":null,
         "Previous":"-0.029M"
     },
     {
@@ -17112,7 +17057,7 @@
         "Imp.":"Low",
         "Event":"Gasoline Inventories",
         "Actual":null,
-        "Forecast":"1.700M",
+        "Forecast":null,
         "Previous":"8.977M"
     },
     {
@@ -17136,17 +17081,6 @@
         "Actual":null,
         "Forecast":null,
         "Previous":"-0.745M"
-    },
-    {
-        "Date":"2026-01-23",
-        "Day":"Friday",
-        "Time":"01:00",
-        "Cur.":"USD",
-        "Imp.":"Medium",
-        "Event":"Atlanta Fed GDPNow  (Q4)",
-        "Actual":null,
-        "Forecast":"5.4%",
-        "Previous":"5.4%"
     },
     {
         "Date":"2026-01-23",
@@ -17310,7 +17244,7 @@
         "Imp.":"Low",
         "Event":"GfK Consumer Confidence  (Jan)",
         "Actual":null,
-        "Forecast":"-17",
+        "Forecast":"-16",
         "Previous":"-17"
     },
     {
@@ -17486,7 +17420,7 @@
         "Imp.":"Medium",
         "Event":"CPI (YoY)  (Dec)",
         "Actual":null,
-        "Forecast":"1.2%",
+        "Forecast":null,
         "Previous":"1.2%"
     },
     {
@@ -17519,7 +17453,7 @@
         "Imp.":"Medium",
         "Event":"Core Retail Sales (MoM)  (Dec)",
         "Actual":null,
-        "Forecast":"-0.2%",
+        "Forecast":null,
         "Previous":"-0.2%"
     },
     {
@@ -17530,7 +17464,7 @@
         "Imp.":"Medium",
         "Event":"Core Retail Sales (YoY)  (Dec)",
         "Actual":null,
-        "Forecast":"1.4%",
+        "Forecast":null,
         "Previous":"1.2%"
     },
     {
@@ -17552,7 +17486,7 @@
         "Imp.":"Medium",
         "Event":"Retail Sales (YoY)  (Dec)",
         "Actual":null,
-        "Forecast":"1.0%",
+        "Forecast":"0.9%",
         "Previous":"0.6%"
     },
     {
@@ -17662,7 +17596,7 @@
         "Imp.":"Low",
         "Event":"HCOB France Composite PMI  (Jan)",
         "Actual":null,
-        "Forecast":"50.1",
+        "Forecast":null,
         "Previous":"50.0"
     },
     {
@@ -17673,7 +17607,7 @@
         "Imp.":"Medium",
         "Event":"HCOB France Manufacturing PMI  (Jan)",
         "Actual":null,
-        "Forecast":"50.3",
+        "Forecast":"50.4",
         "Previous":"50.7"
     },
     {
@@ -17684,7 +17618,7 @@
         "Imp.":"Medium",
         "Event":"HCOB France Services PMI  (Jan)",
         "Actual":null,
-        "Forecast":"50.3",
+        "Forecast":"50.4",
         "Previous":"50.1"
     },
     {
@@ -17717,7 +17651,7 @@
         "Imp.":"Low",
         "Event":"HCOB Germany Composite PMI  (Jan)",
         "Actual":null,
-        "Forecast":"51.8",
+        "Forecast":null,
         "Previous":"51.3"
     },
     {
@@ -17728,7 +17662,7 @@
         "Imp.":"Medium",
         "Event":"HCOB Germany Manufacturing PMI  (Jan)",
         "Actual":null,
-        "Forecast":"47.8",
+        "Forecast":"47.6",
         "Previous":"47.0"
     },
     {
@@ -17739,7 +17673,7 @@
         "Imp.":"Medium",
         "Event":"HCOB Germany Services PMI  (Jan)",
         "Actual":null,
-        "Forecast":"52.7",
+        "Forecast":"52.5",
         "Previous":"52.7"
     },
     {
@@ -17750,7 +17684,7 @@
         "Imp.":"Medium",
         "Event":"HCOB Eurozone Composite PMI  (Jan)",
         "Actual":null,
-        "Forecast":"51.6",
+        "Forecast":null,
         "Previous":"51.5"
     },
     {
@@ -17761,7 +17695,7 @@
         "Imp.":"Medium",
         "Event":"HCOB Eurozone Manufacturing PMI  (Jan)",
         "Actual":null,
-        "Forecast":"49.1",
+        "Forecast":"49.2",
         "Previous":"48.8"
     },
     {
@@ -17783,7 +17717,7 @@
         "Imp.":"Medium",
         "Event":"S&P Global Composite PMI  (Jan)",
         "Actual":null,
-        "Forecast":"51.7",
+        "Forecast":null,
         "Previous":"51.4"
     },
     {
@@ -17818,28 +17752,6 @@
         "Actual":null,
         "Forecast":null,
         "Previous":null
-    },
-    {
-        "Date":"2026-01-23",
-        "Day":"Friday",
-        "Time":"19:00",
-        "Cur.":"QAR",
-        "Imp.":"Low",
-        "Event":"M2 Money Supply (YoY)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"1.20%"
-    },
-    {
-        "Date":"2026-01-23",
-        "Day":"Friday",
-        "Time":"19:00",
-        "Cur.":"QAR",
-        "Imp.":"Low",
-        "Event":"Total Credit (YoY)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"4.80%"
     },
     {
         "Date":"2026-01-23",
@@ -17882,7 +17794,7 @@
         "Imp.":"Low",
         "Event":"Economic Activity (MoM)  (Nov)",
         "Actual":null,
-        "Forecast":"0.20%",
+        "Forecast":null,
         "Previous":"1.00%"
     },
     {
@@ -17893,19 +17805,8 @@
         "Imp.":"Low",
         "Event":"Economic Activity (YoY)  (Nov)",
         "Actual":null,
-        "Forecast":"1.20%",
-        "Previous":"1.70%"
-    },
-    {
-        "Date":"2026-01-23",
-        "Day":"Friday",
-        "Time":"21:00",
-        "Cur.":"CNY",
-        "Imp.":"Low",
-        "Event":"FDI  (Dec)",
-        "Actual":null,
         "Forecast":null,
-        "Previous":"-7.50%"
+        "Previous":"1.70%"
     },
     {
         "Date":"2026-01-23",
@@ -17926,7 +17827,7 @@
         "Imp.":"Medium",
         "Event":"Core Retail Sales (MoM)  (Nov)",
         "Actual":null,
-        "Forecast":"1.0%",
+        "Forecast":"1.2%",
         "Previous":"-0.6%"
     },
     {
@@ -17948,7 +17849,7 @@
         "Imp.":"High",
         "Event":"S&P Global Manufacturing PMI  (Jan)",
         "Actual":null,
-        "Forecast":"51.9",
+        "Forecast":"52.1",
         "Previous":"51.8"
     },
     {
@@ -17959,7 +17860,7 @@
         "Imp.":"High",
         "Event":"S&P Global Services PMI  (Jan)",
         "Actual":null,
-        "Forecast":"52.9",
+        "Forecast":"52.8",
         "Previous":"52.5"
     },
     {
@@ -17993,7 +17894,7 @@
         "Event":"Michigan Current Conditions  (Jan)",
         "Actual":null,
         "Forecast":"52.4",
-        "Previous":"50.4"
+        "Previous":"52.4"
     },
     {
         "Date":"2026-01-23",
@@ -18026,7 +17927,7 @@
         "Event":"Michigan Consumer Expectations  (Jan)",
         "Actual":null,
         "Forecast":"55.0",
-        "Previous":"54.6"
+        "Previous":"55.0"
     },
     {
         "Date":"2026-01-23",
@@ -18038,28 +17939,6 @@
         "Actual":null,
         "Forecast":"54.0",
         "Previous":"54.0"
-    },
-    {
-        "Date":"2026-01-23",
-        "Day":"Friday",
-        "Time":"23:00",
-        "Cur.":"USD",
-        "Imp.":"Medium",
-        "Event":"US Leading Index (MoM)  (Nov)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"-0.3%"
-    },
-    {
-        "Date":"2026-01-23",
-        "Day":"Friday",
-        "Time":"23:30",
-        "Cur.":"USD",
-        "Imp.":"Low",
-        "Event":"Dallas Fed PCE  (Nov)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"1.90%"
     },
     {
         "Date":"2026-01-24",
@@ -18082,6 +17961,17 @@
         "Actual":null,
         "Forecast":null,
         "Previous":"10.0%"
+    },
+    {
+        "Date":"2026-01-24",
+        "Day":"Saturday",
+        "Time":"01:10",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Consumer Confidence  (Jan)",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"-13.1"
     },
     {
         "Date":"2026-01-24",
@@ -18394,61 +18284,6 @@
     {
         "Date":"2026-01-26",
         "Day":"Monday",
-        "Time":"13:00",
-        "Cur.":"JPY",
-        "Imp.":"Low",
-        "Event":"Coincident Indicator (MoM)  (Nov)",
-        "Actual":null,
-        "Forecast":"-0.7%",
-        "Previous":"-1.3%"
-    },
-    {
-        "Date":"2026-01-26",
-        "Day":"Monday",
-        "Time":"13:00",
-        "Cur.":"JPY",
-        "Imp.":"Low",
-        "Event":"Leading Index  (Nov)",
-        "Actual":null,
-        "Forecast":"110.5",
-        "Previous":"109.8"
-    },
-    {
-        "Date":"2026-01-26",
-        "Day":"Monday",
-        "Time":"13:00",
-        "Cur.":"JPY",
-        "Imp.":"Low",
-        "Event":"Leading Index (MoM)  (Nov)",
-        "Actual":null,
-        "Forecast":"0.7%",
-        "Previous":"0.9%"
-    },
-    {
-        "Date":"2026-01-26",
-        "Day":"Monday",
-        "Time":"13:00",
-        "Cur.":"SGD",
-        "Imp.":"Low",
-        "Event":"Industrial Production (MoM)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"-10.2%"
-    },
-    {
-        "Date":"2026-01-26",
-        "Day":"Monday",
-        "Time":"13:00",
-        "Cur.":"SGD",
-        "Imp.":"Low",
-        "Event":"Industrial Production (YoY)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"14.3%"
-    },
-    {
-        "Date":"2026-01-26",
-        "Day":"Monday",
         "Time":"14:00",
         "Cur.":"EUR",
         "Imp.":"Low",
@@ -18478,17 +18313,6 @@
         "Actual":null,
         "Forecast":null,
         "Previous":"0.2%"
-    },
-    {
-        "Date":"2026-01-26",
-        "Day":"Monday",
-        "Time":"16:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"Spanish PPI (YoY)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"-2.5%"
     },
     {
         "Date":"2026-01-26",
@@ -18532,18 +18356,7 @@
         "Event":"Retail Sales (YoY)  (Dec)",
         "Actual":null,
         "Forecast":null,
-        "Previous":"3.1%"
-    },
-    {
-        "Date":"2026-01-26",
-        "Day":"Monday",
-        "Time":"19:00",
-        "Cur.":"BRL",
-        "Imp.":"Low",
-        "Event":"FGV Consumer confidence  (Jan)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"90.2"
+        "Previous":"2.8%"
     },
     {
         "Date":"2026-01-26",
@@ -18614,6 +18427,17 @@
     {
         "Date":"2026-01-26",
         "Day":"Monday",
+        "Time":"21:00",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"Chicago Fed National Activity  (Oct)",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"-0.21"
+    },
+    {
+        "Date":"2026-01-26",
+        "Day":"Monday",
         "Time":"21:30",
         "Cur.":"USD",
         "Imp.":"High",
@@ -18621,17 +18445,6 @@
         "Actual":null,
         "Forecast":null,
         "Previous":"-2.2%"
-    },
-    {
-        "Date":"2026-01-26",
-        "Day":"Monday",
-        "Time":"21:30",
-        "Cur.":"USD",
-        "Imp.":"Low",
-        "Event":"Chicago Fed National Activity  (Nov)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"-0.21"
     },
     {
         "Date":"2026-01-26",
@@ -18735,35 +18548,13 @@
     {
         "Date":"2026-01-27",
         "Day":"Tuesday",
-        "Time":"00:30",
-        "Cur.":"USD",
+        "Time":"00:00",
+        "Cur.":"RUB",
         "Imp.":"Low",
-        "Event":"3-Month Bill Auction",
+        "Event":"Industrial Production (YoY)  (Dec)",
         "Actual":null,
         "Forecast":null,
-        "Previous":"3.590%"
-    },
-    {
-        "Date":"2026-01-27",
-        "Day":"Tuesday",
-        "Time":"00:30",
-        "Cur.":"USD",
-        "Imp.":"Low",
-        "Event":"6-Month Bill Auction",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"3.520%"
-    },
-    {
-        "Date":"2026-01-27",
-        "Day":"Tuesday",
-        "Time":"02:00",
-        "Cur.":"USD",
-        "Imp.":"Medium",
-        "Event":"2-Year Note Auction",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"3.499%"
+        "Previous":"-0.7%"
     },
     {
         "Date":"2026-01-27",
@@ -18797,17 +18588,6 @@
         "Actual":null,
         "Forecast":null,
         "Previous":"1"
-    },
-    {
-        "Date":"2026-01-27",
-        "Day":"Tuesday",
-        "Time":"09:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"Irish Consumer Confidence  (Jan)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"61.2"
     },
     {
         "Date":"2026-01-27",
@@ -18852,17 +18632,6 @@
         "Actual":null,
         "Forecast":null,
         "Previous":"0.1%"
-    },
-    {
-        "Date":"2026-01-27",
-        "Day":"Tuesday",
-        "Time":"10:00",
-        "Cur.":"NZD",
-        "Imp.":"Low",
-        "Event":"Credit Card Spending (YoY)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"4.7%"
     },
     {
         "Date":"2026-01-27",
@@ -19132,28 +18901,6 @@
         "Date":"2026-01-27",
         "Day":"Tuesday",
         "Time":"15:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"Lithuania Retail Sales (MoM)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"-2.4%"
-    },
-    {
-        "Date":"2026-01-27",
-        "Day":"Tuesday",
-        "Time":"15:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"Lithuania Retail Sales (YoY)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"3.2%"
-    },
-    {
-        "Date":"2026-01-27",
-        "Day":"Tuesday",
-        "Time":"15:00",
         "Cur.":"SEK",
         "Imp.":"Low",
         "Event":"PPI (MoM)  (Dec)",
@@ -19241,24 +18988,24 @@
     {
         "Date":"2026-01-27",
         "Day":"Tuesday",
-        "Time":"16:30",
-        "Cur.":"HKD",
+        "Time":"17:00",
+        "Cur.":"PLN",
         "Imp.":"Low",
-        "Event":"Trade Balance  (Dec)",
+        "Event":"Unemployment Rate  (Dec)",
         "Actual":null,
         "Forecast":null,
-        "Previous":"-48.5B"
+        "Previous":"5.6%"
     },
     {
         "Date":"2026-01-27",
         "Day":"Tuesday",
-        "Time":"18:30",
-        "Cur.":"EUR",
+        "Time":"19:00",
+        "Cur.":"BRL",
         "Imp.":"Low",
-        "Event":"German 2-Year Schatz Auction",
+        "Event":"FGV Consumer confidence  (Jan)",
         "Actual":null,
         "Forecast":null,
-        "Previous":"2.110%"
+        "Previous":"90.2"
     },
     {
         "Date":"2026-01-27",
@@ -19314,61 +19061,6 @@
         "Actual":null,
         "Forecast":null,
         "Previous":"6.50%"
-    },
-    {
-        "Date":"2026-01-27",
-        "Day":"Tuesday",
-        "Time":"21:00",
-        "Cur.":"KWD",
-        "Imp.":"Low",
-        "Event":"Bank Lending (YoY)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"6.98%"
-    },
-    {
-        "Date":"2026-01-27",
-        "Day":"Tuesday",
-        "Time":"21:00",
-        "Cur.":"KWD",
-        "Imp.":"Low",
-        "Event":"M2 Money Supply (YoY)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"3.27%"
-    },
-    {
-        "Date":"2026-01-27",
-        "Day":"Tuesday",
-        "Time":"21:15",
-        "Cur.":"USD",
-        "Imp.":"Medium",
-        "Event":"ADP Employment Change Weekly",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"8.00K"
-    },
-    {
-        "Date":"2026-01-27",
-        "Day":"Tuesday",
-        "Time":"21:30",
-        "Cur.":"CAD",
-        "Imp.":"Medium",
-        "Event":"Wholesale Sales (MoM)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"-1.8%"
-    },
-    {
-        "Date":"2026-01-27",
-        "Day":"Tuesday",
-        "Time":"21:55",
-        "Cur.":"USD",
-        "Imp.":"Low",
-        "Event":"Redbook (YoY)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"5.5%"
     },
     {
         "Date":"2026-01-27",
@@ -19439,17 +19131,6 @@
     {
         "Date":"2026-01-27",
         "Day":"Tuesday",
-        "Time":"22:45",
-        "Cur.":"CAD",
-        "Imp.":"Medium",
-        "Event":"BoC Rate Statement",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":null
-    },
-    {
-        "Date":"2026-01-27",
-        "Day":"Tuesday",
         "Time":"23:00",
         "Cur.":"USD",
         "Imp.":"High",
@@ -19516,28 +19197,6 @@
     {
         "Date":"2026-01-28",
         "Day":"Wednesday",
-        "Time":"02:00",
-        "Cur.":"USD",
-        "Imp.":"Low",
-        "Event":"M2 Money Supply (MoM)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"22.30T"
-    },
-    {
-        "Date":"2026-01-28",
-        "Day":"Wednesday",
-        "Time":"02:00",
-        "Cur.":"USD",
-        "Imp.":"Medium",
-        "Event":"5-Year Note Auction",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"3.747%"
-    },
-    {
-        "Date":"2026-01-28",
-        "Day":"Wednesday",
         "Time":"05:00",
         "Cur.":"CLP",
         "Imp.":"Low",
@@ -19549,24 +19208,13 @@
     {
         "Date":"2026-01-28",
         "Day":"Wednesday",
-        "Time":"05:30",
-        "Cur.":"USD",
-        "Imp.":"Medium",
-        "Event":"API Weekly Crude Oil Stock",
+        "Time":"08:30",
+        "Cur.":"AUD",
+        "Imp.":"Low",
+        "Event":"CPI Index Number  (Q4)",
         "Actual":null,
         "Forecast":null,
-        "Previous":"3.040M"
-    },
-    {
-        "Date":"2026-01-28",
-        "Day":"Wednesday",
-        "Time":"07:50",
-        "Cur.":"JPY",
-        "Imp.":"Medium",
-        "Event":"Monetary Policy Meeting Minutes",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":null
+        "Previous":"143.60"
     },
     {
         "Date":"2026-01-28",
@@ -19574,10 +19222,10 @@
         "Time":"08:30",
         "Cur.":"AUD",
         "Imp.":"Low",
-        "Event":"CPI Index Number  (Dec)",
+        "Event":"Trimmed Mean CPI (YoY)  (Q4)",
         "Actual":null,
         "Forecast":null,
-        "Previous":"100.01"
+        "Previous":"3.0%"
     },
     {
         "Date":"2026-01-28",
@@ -19585,10 +19233,10 @@
         "Time":"08:30",
         "Cur.":"AUD",
         "Imp.":"Low",
-        "Event":"Monthly CPI Indicator (YoY)  (Dec)",
+        "Event":"Weighted mean CPI (QoQ)  (Q4)",
         "Actual":null,
         "Forecast":null,
-        "Previous":"3.40%"
+        "Previous":"1.0%"
     },
     {
         "Date":"2026-01-28",
@@ -19596,32 +19244,10 @@
         "Time":"08:30",
         "Cur.":"AUD",
         "Imp.":"Low",
-        "Event":"Trimmed Mean CPI (YoY)  (Dec)",
+        "Event":"Weighted mean CPI (YoY)  (Q4)",
         "Actual":null,
         "Forecast":null,
-        "Previous":"3.2%"
-    },
-    {
-        "Date":"2026-01-28",
-        "Day":"Wednesday",
-        "Time":"08:30",
-        "Cur.":"AUD",
-        "Imp.":"Low",
-        "Event":"Weighted mean CPI (QoQ)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"0.3%"
-    },
-    {
-        "Date":"2026-01-28",
-        "Day":"Wednesday",
-        "Time":"08:30",
-        "Cur.":"AUD",
-        "Imp.":"Low",
-        "Event":"Weighted mean CPI (YoY)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"3.4%"
+        "Previous":"2.8%"
     },
     {
         "Date":"2026-01-28",
@@ -19651,21 +19277,10 @@
         "Time":"08:30",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"Trimmed Mean CPI (QoQ)  (Dec)",
+        "Event":"Trimmed Mean CPI (QoQ)  (Q4)",
         "Actual":null,
         "Forecast":null,
-        "Previous":"0.3%"
-    },
-    {
-        "Date":"2026-01-28",
-        "Day":"Wednesday",
-        "Time":"10:00",
-        "Cur.":"LKR",
-        "Imp.":"Low",
-        "Event":"Interest Rate Decision (MoM)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"7.75%"
+        "Previous":"1.0%"
     },
     {
         "Date":"2026-01-28",
@@ -19676,7 +19291,7 @@
         "Event":"M3 Money Supply  (Dec)",
         "Actual":null,
         "Forecast":null,
-        "Previous":"2,071.0B"
+        "Previous":"2,071,019.4B"
     },
     {
         "Date":"2026-01-28",
@@ -19688,17 +19303,6 @@
         "Actual":null,
         "Forecast":null,
         "Previous":"-26.9"
-    },
-    {
-        "Date":"2026-01-28",
-        "Day":"Wednesday",
-        "Time":"17:00",
-        "Cur.":"CHF",
-        "Imp.":"Low",
-        "Event":"ZEW Expectations  (Jan)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"6.2"
     },
     {
         "Date":"2026-01-28",
@@ -19732,28 +19336,6 @@
         "Actual":null,
         "Forecast":null,
         "Previous":"96.6"
-    },
-    {
-        "Date":"2026-01-28",
-        "Day":"Wednesday",
-        "Time":"18:10",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"Italian 6-Month BOT Auction",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"2.036%"
-    },
-    {
-        "Date":"2026-01-28",
-        "Day":"Wednesday",
-        "Time":"18:30",
-        "Cur.":"EUR",
-        "Imp.":"Medium",
-        "Event":"German 10-Year Bund Auction",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"2.830%"
     },
     {
         "Date":"2026-01-28",
@@ -19792,155 +19374,12 @@
         "Date":"2026-01-28",
         "Day":"Wednesday",
         "Time":"19:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"Irish Retail Sales (MoM)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"0.5%"
-    },
-    {
-        "Date":"2026-01-28",
-        "Day":"Wednesday",
-        "Time":"19:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"Irish Retail Sales (YoY)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"2.5%"
-    },
-    {
-        "Date":"2026-01-28",
-        "Day":"Wednesday",
-        "Time":"19:00",
         "Cur.":"GHS",
         "Imp.":"Low",
         "Event":"Prime Interest Rate (MoM)  (Jan)",
         "Actual":null,
         "Forecast":null,
         "Previous":"18.00%"
-    },
-    {
-        "Date":"2026-01-28",
-        "Day":"Wednesday",
-        "Time":"19:30",
-        "Cur.":"INR",
-        "Imp.":"Low",
-        "Event":"M3 Money Supply",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"12.1%"
-    },
-    {
-        "Date":"2026-01-28",
-        "Day":"Wednesday",
-        "Time":"20:00",
-        "Cur.":"USD",
-        "Imp.":"Low",
-        "Event":"MBA 30-Year Mortgage Rate",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"6.16%"
-    },
-    {
-        "Date":"2026-01-28",
-        "Day":"Wednesday",
-        "Time":"20:00",
-        "Cur.":"USD",
-        "Imp.":"Low",
-        "Event":"MBA Mortgage Applications (WoW)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"14.1%"
-    },
-    {
-        "Date":"2026-01-28",
-        "Day":"Wednesday",
-        "Time":"20:00",
-        "Cur.":"USD",
-        "Imp.":"Low",
-        "Event":"MBA Purchase Index",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"194.1"
-    },
-    {
-        "Date":"2026-01-28",
-        "Day":"Wednesday",
-        "Time":"20:00",
-        "Cur.":"USD",
-        "Imp.":"Low",
-        "Event":"Mortgage Market Index",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"397.2"
-    },
-    {
-        "Date":"2026-01-28",
-        "Day":"Wednesday",
-        "Time":"20:00",
-        "Cur.":"USD",
-        "Imp.":"Low",
-        "Event":"Mortgage Refinance Index",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"1,580.8"
-    },
-    {
-        "Date":"2026-01-28",
-        "Day":"Wednesday",
-        "Time":"21:30",
-        "Cur.":"USD",
-        "Imp.":"High",
-        "Event":"U.S. President Trump Speaks",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":null
-    },
-    {
-        "Date":"2026-01-28",
-        "Day":"Wednesday",
-        "Time":"22:00",
-        "Cur.":"MZN",
-        "Imp.":"Low",
-        "Event":"Interest Rate Decision (MoM)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"9.50%"
-    },
-    {
-        "Date":"2026-01-28",
-        "Day":"Wednesday",
-        "Time":"22:45",
-        "Cur.":"CAD",
-        "Imp.":"High",
-        "Event":"BoC Interest Rate Decision",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"2.25%"
-    },
-    {
-        "Date":"2026-01-28",
-        "Day":"Wednesday",
-        "Time":"22:45",
-        "Cur.":"CAD",
-        "Imp.":"Medium",
-        "Event":"BoC Monetary Policy Report",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":null
-    },
-    {
-        "Date":"2026-01-28",
-        "Day":"Wednesday",
-        "Time":"23:30",
-        "Cur.":"CAD",
-        "Imp.":"Medium",
-        "Event":"BOC Press Conference",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":null
     },
     {
         "Date":"2026-01-28",
@@ -19992,43 +19431,10 @@
         "Time":"03:00",
         "Cur.":"USD",
         "Imp.":"High",
-        "Event":"FOMC Statement",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":null
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"03:00",
-        "Cur.":"USD",
-        "Imp.":"High",
         "Event":"Fed Interest Rate Decision",
         "Actual":null,
         "Forecast":"3.75%",
         "Previous":"3.75%"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"03:30",
-        "Cur.":"USD",
-        "Imp.":"High",
-        "Event":"FOMC Press Conference",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":null
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"05:30",
-        "Cur.":"BRL",
-        "Imp.":"Medium",
-        "Event":"Interest Rate Decision",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"15.00%"
     },
     {
         "Date":"2026-01-29",
@@ -20073,17 +19479,6 @@
         "Actual":null,
         "Forecast":null,
         "Previous":"-2,060M"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"08:00",
-        "Cur.":"NZD",
-        "Imp.":"Low",
-        "Event":"ANZ Business Confidence  (Jan)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"73.6"
     },
     {
         "Date":"2026-01-29",
@@ -20135,32 +19530,10 @@
         "Time":"13:00",
         "Cur.":"JPY",
         "Imp.":"Low",
-        "Event":"Construction Orders (YoY)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"9.5%"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"13:00",
-        "Cur.":"JPY",
-        "Imp.":"Low",
         "Event":"Household Confidence  (Jan)",
         "Actual":null,
         "Forecast":null,
         "Previous":"37.2"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"13:00",
-        "Cur.":"JPY",
-        "Imp.":"Low",
-        "Event":"Housing Starts (YoY)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"-8.5%"
     },
     {
         "Date":"2026-01-29",
@@ -20204,7 +19577,7 @@
         "Event":"M3 Money Supply  (Dec)",
         "Actual":null,
         "Forecast":null,
-        "Previous":"29.9B"
+        "Previous":"29,874.0B"
     },
     {
         "Date":"2026-01-29",
@@ -20259,7 +19632,7 @@
         "Event":"M3 Money Supply  (Dec)",
         "Actual":null,
         "Forecast":null,
-        "Previous":"4,900.9B"
+        "Previous":"4,900,917.0B"
     },
     {
         "Date":"2026-01-29",
@@ -20309,28 +19682,6 @@
         "Date":"2026-01-29",
         "Day":"Thursday",
         "Time":"16:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"Spanish Retail Sales (YoY)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"6.0%"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"16:00",
-        "Cur.":"SEK",
-        "Imp.":"Low",
-        "Event":"Business Confidence  (Jan)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"107.40"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"16:00",
         "Cur.":"SEK",
         "Imp.":"Low",
         "Event":"Consumer Confidence  (Jan)",
@@ -20370,17 +19721,6 @@
         "Actual":null,
         "Forecast":null,
         "Previous":"11.2%"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"16:30",
-        "Cur.":"SEK",
-        "Imp.":"Medium",
-        "Event":"Interest Rate Decision",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"1.75%"
     },
     {
         "Date":"2026-01-29",
@@ -20425,17 +19765,6 @@
         "Actual":null,
         "Forecast":null,
         "Previous":"3.0%"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"17:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"Private Sector Loans (YoY)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"2.9%"
     },
     {
         "Date":"2026-01-29",
@@ -20520,50 +19849,6 @@
         "Time":"18:00",
         "Cur.":"EUR",
         "Imp.":"Low",
-        "Event":"Business Climate  (Jan)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"-0.56"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"18:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"Business and Consumer Survey  (Jan)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"96.7"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"18:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"Consumer Confidence  (Jan)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"-12.4"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"18:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"Consumer Inflation Expectation  (Jan)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"26.7"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"18:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
         "Event":"Greek PPI (YoY)  (Dec)",
         "Actual":null,
         "Forecast":null,
@@ -20597,17 +19882,6 @@
         "Time":"18:00",
         "Cur.":"EUR",
         "Imp.":"Low",
-        "Event":"Industrial Sentiment  (Jan)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"-9.0"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"18:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
         "Event":"Italian Industrial Sales (MoM)  (Nov)",
         "Actual":null,
         "Forecast":null,
@@ -20623,28 +19897,6 @@
         "Actual":null,
         "Forecast":null,
         "Previous":"1.70%"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"18:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"Selling Price Expectations  (Jan)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"10.9"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"18:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"Services Sentiment  (Jan)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"5.6"
     },
     {
         "Date":"2026-01-29",
@@ -20674,28 +19926,6 @@
         "Time":"19:00",
         "Cur.":"EUR",
         "Imp.":"Low",
-        "Event":"Irish GDP (QoQ)  (Q4)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"-0.3%"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"19:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"Irish GDP (YoY)  (Q4)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"10.8%"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"19:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
         "Event":"Latvian Retail Sales (MoM)  (Dec)",
         "Actual":null,
         "Forecast":null,
@@ -20715,39 +19945,6 @@
     {
         "Date":"2026-01-29",
         "Day":"Thursday",
-        "Time":"19:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"Spanish Business Confidence  (Jan)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"-3.5"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"19:00",
-        "Cur.":"EUR",
-        "Imp.":"Medium",
-        "Event":"France Jobseekers Total  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"3,129.3K"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"19:00",
-        "Cur.":"TRY",
-        "Imp.":"Low",
-        "Event":"CBRT Monetary Policy Meeting Minutes",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":null
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
         "Time":"19:30",
         "Cur.":"BRL",
         "Imp.":"Low",
@@ -20759,28 +19956,6 @@
     {
         "Date":"2026-01-29",
         "Day":"Thursday",
-        "Time":"19:30",
-        "Cur.":"TRY",
-        "Imp.":"Low",
-        "Event":"Gross FX Reserves",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":null
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"20:00",
-        "Cur.":"UAH",
-        "Imp.":"Low",
-        "Event":"Interest Rate Decision",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"15.50%"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
         "Time":"21:00",
         "Cur.":"UAH",
         "Imp.":"Low",
@@ -20788,28 +19963,6 @@
         "Actual":null,
         "Forecast":null,
         "Previous":"-30.6B"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"21:00",
-        "Cur.":"ZAR",
-        "Imp.":"Low",
-        "Event":"Prime Rate  (Jan)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"10.25%"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"21:00",
-        "Cur.":"ZAR",
-        "Imp.":"Medium",
-        "Event":"Interest Rate Decision  (Jan)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"6.75%"
     },
     {
         "Date":"2026-01-29",
@@ -20826,88 +19979,11 @@
         "Date":"2026-01-29",
         "Day":"Thursday",
         "Time":"21:30",
-        "Cur.":"CAD",
-        "Imp.":"Low",
-        "Event":"Exports  (Nov)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"65.61B"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"21:30",
-        "Cur.":"CAD",
-        "Imp.":"Low",
-        "Event":"Imports  (Nov)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"66.19B"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"21:30",
-        "Cur.":"CAD",
-        "Imp.":"Medium",
-        "Event":"Trade Balance  (Nov)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"-0.58B"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"21:30",
-        "Cur.":"USD",
-        "Imp.":"High",
-        "Event":"Initial Jobless Claims",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":null
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"21:30",
-        "Cur.":"USD",
-        "Imp.":"Low",
-        "Event":"Jobless Claims 4-Week Avg.",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":null
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"21:30",
-        "Cur.":"USD",
-        "Imp.":"Medium",
-        "Event":"Exports  (Nov)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"302.00B"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"21:30",
-        "Cur.":"USD",
-        "Imp.":"Medium",
-        "Event":"Imports  (Nov)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"331.40B"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"21:30",
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"Nonfarm Productivity (QoQ)  (Q3)",
         "Actual":null,
-        "Forecast":"4.9%",
+        "Forecast":null,
         "Previous":"4.9%"
     },
     {
@@ -20929,30 +20005,8 @@
         "Imp.":"Medium",
         "Event":"Unit Labor Costs (QoQ)  (Q3)",
         "Actual":null,
-        "Forecast":"-1.9%",
-        "Previous":"1.0%"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"22:00",
-        "Cur.":"SAR",
-        "Imp.":"Low",
-        "Event":"M3 Money Supply (YoY)  (Dec)",
-        "Actual":null,
         "Forecast":null,
-        "Previous":"6.60%"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"22:00",
-        "Cur.":"SAR",
-        "Imp.":"Low",
-        "Event":"Private Sector Loans (YoY)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"10.60%"
+        "Previous":"-1.9%"
     },
     {
         "Date":"2026-01-29",
@@ -20974,7 +20028,7 @@
         "Event":"Durables Excluding Transport (MoM)  (Nov)",
         "Actual":null,
         "Forecast":null,
-        "Previous":"0.1%"
+        "Previous":"0.2%"
     },
     {
         "Date":"2026-01-29",
@@ -20995,8 +20049,8 @@
         "Imp.":"Low",
         "Event":"Wholesale Inventories (MoM)  (Nov)",
         "Actual":null,
-        "Forecast":"0.2%",
-        "Previous":"0.5%"
+        "Forecast":null,
+        "Previous":"0.2%"
     },
     {
         "Date":"2026-01-29",
@@ -21019,17 +20073,6 @@
         "Actual":null,
         "Forecast":null,
         "Previous":"-1.3%"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"23:30",
-        "Cur.":"USD",
-        "Imp.":"Low",
-        "Event":"Natural Gas Storage",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":null
     },
     {
         "Date":"2026-01-30",
