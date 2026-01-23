@@ -1209,13 +1209,13 @@ export function EventHistoryModal({
                                   </span>
                                 </span>
                                 {previousRevised ? (
-                                  <div className="history-row-revision" aria-hidden="true">
-                                    <span className="history-revised-prefix">Revised from</span>
-                                    <span className="history-revised-value">
-                                      {formatDisplayValue(point.previousRevisedFrom)}*
-                                    </span>
-                                  </div>
-                                ) : null}
+                                    <div className="history-row-revision" aria-hidden="true">
+                                      <span className="history-revised-prefix">Revised from</span>
+                                      <span className="history-revised-value">
+                                        {formatDisplayValue(point.previousRevisedFrom)}<span className="history-revised-star">*</span>
+                                      </span>
+                                    </div>
+                                  ) : null}
                               </>
                             ) : (
                               <span className="disabled">--</span>
