@@ -366,14 +366,14 @@
 .history-modal-row {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(92px, 1.1fr) minmax(52px, 0.8fr) minmax(0, 1fr) minmax(
+  grid-template-columns: minmax(92px, 1fr) minmax(52px, 0.7fr) minmax(0, 0.95fr) minmax(
       0,
-      1fr
-    ) minmax(0, 0.75fr);
-  gap: 10px;
+      0.95fr
+    ) minmax(0, 1.1fr);
+  gap: 8px;
   font-size: 13px;
   color: var(--text);
-  padding: 5px 8px;
+  padding: 7px 8px;
   border-radius: 12px;
   align-items: center;
 }
@@ -424,6 +424,10 @@
   letter-spacing: 0.08em;
   font-size: 11px;
   padding: 6px 8px 10px;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--table-row-bg);
 }
 
 .history-modal-row .disabled {
@@ -703,7 +707,7 @@
   position: absolute;
   right: 0;
   top: 50%;
-  transform: translateY(9px);
+  transform: translateY(7px);
   font-size: 10px;
   color: rgba(255, 143, 123, 0.82);
   max-width: none;
