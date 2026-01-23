@@ -1,0 +1,7 @@
+Patch,EventId,Cur,Event,Period,Date,Time,PreviousRaw,PriorActual,PreviousEffective
+previous_missing_filled,USD::natural gas storage::none,USD,Natural Gas Storage,,2026-01-29,23:30,,-120B,-120B
+previous_missing_filled,TRY::gross fx reserves::none,TRY,Gross FX Reserves,,2026-01-29,19:30,,84.15B,84.15B
+previous_missing_filled,USD::atlanta fed gdpnow::none,USD,Atlanta Fed GDPNow  (Q4),q4,2026-01-26,23:30,,5.4%,5.4%
+previous_missing_filled,USD::atlanta fed gdpnow::none,USD,Atlanta Fed GDPNow  (Q4),q4,2026-01-30,01:00,,5.4%,5.4%
+previous_missing_filled,USD::initial jobless claims::none,USD,Initial Jobless Claims,,2026-01-29,21:30,,200K,200K
+previous_missing_filled,USD::jobless claims 4 - week avg.::none,USD,Jobless Claims 4-Week Avg.,,2026-01-29,21:30,,201.50K,201.50K

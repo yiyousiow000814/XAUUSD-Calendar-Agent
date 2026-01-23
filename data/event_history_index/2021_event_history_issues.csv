@@ -1,0 +1,91 @@
+Issue,EventId,Cur,Event,Period,Date,Time,PreviousRaw,PriorActual,PreviousEffective,Details
+previous_missing_filled,CAD::ippi::m/m,CAD,IPPI (MoM)  (Jul),jul,2021-08-27,20:30,,0.0%,0.0%,
+previous_missing_filled,USD::core pce price index::m/m,USD,Core PCE Price Index (MoM)  (Dec),dec,2021-01-29,21:30,,0.0%,0.0%,
+previous_missing_filled,KRW::imports::y/y,KRW,Imports (YoY),,2021-02-15,07:55,,3.1%,3.1%,
+previous_missing_filled,NZD::fpi::m/m,NZD,FPI (MoM)  (Apr),apr,2021-05-13,06:45,,0.0%,0.0%,
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2021-01-14,03:00,,0.00,0.00,
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2021-03-04,03:00,,0.00,0.00,
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2021-04-15,02:00,,0.00,0.00,
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2021-06-03,02:00,,0.00,0.00,
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2021-07-15,02:00,,0.00,0.00,
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2021-09-09,02:00,,0.00,0.00,
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2021-10-21,02:00,,0.00,0.00,
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2021-12-02,03:00,,0.00,0.00,
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2021-01-26,07:50,,0.00,0.00,
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2021-03-19,10:30,,0.00,0.00,
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2021-03-24,07:50,,0.00,0.00,
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2021-05-06,07:50,,0.00,0.00,
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2021-06-23,07:50,,0.00,0.00,
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2021-07-21,07:50,,0.00,0.00,
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2021-09-28,07:50,,0.00,0.00,
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2021-12-22,07:50,,0.00,0.00,
+previous_missing_filled,GBP::boe mpc treasury committee hearings::none,GBP,BoE MPC Treasury Committee Hearings,,2021-02-24,18:45,,0.00,0.00,
+previous_missing_filled,GBP::boe mpc treasury committee hearings::none,GBP,BoE MPC Treasury Committee Hearings,,2021-05-24,22:15,,0.00,0.00,
+previous_missing_filled,GBP::boe mpc treasury committee hearings::none,GBP,BoE MPC Treasury Committee Hearings,,2021-09-08,22:15,,0.00,0.00,
+previous_missing_filled,GBP::boe mpc treasury committee hearings::none,GBP,BoE MPC Treasury Committee Hearings,,2021-11-15,22:15,,0.00,0.00,
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2021-01-07,03:00,,0.00,0.00,
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2021-02-18,03:00,,0.00,0.00,
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2021-04-08,02:00,,0.00,0.00,
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2021-05-20,02:00,,0.00,0.00,
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2021-07-08,02:00,,0.00,0.00,
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2021-08-19,02:00,,0.00,0.00,
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2021-10-14,02:00,,0.00,0.00,
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2021-11-25,03:00,,0.00,0.00,
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2021-03-18,08:30,,0.00,0.00,
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2021-06-17,09:30,,0.00,0.00,
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2021-09-16,09:30,,0.00,0.00,
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2021-12-09,08:30,,0.00,0.00,
+previous_missing_filled,CHF::snb board member jordan speaks::none,CHF,SNB Board Member Jordan Speaks,,2021-04-30,16:00,,0.00,0.00,
+previous_missing_filled,CHF::snb board member jordan speaks::none,CHF,SNB Board Member Jordan Speaks,,2021-05-18,23:05,,0.00,0.00,
+previous_missing_filled,RUB::cftc rub speculative positions::none,RUB,CFTC RUB speculative positions,,2021-11-30,04:30,,20.0K,20.0K,
+previous_missing_filled,RUB::cftc rub speculative positions::none,RUB,CFTC RUB speculative positions,,2021-12-28,04:30,,13.8K,13.8K,
+previous_missing_filled,EUR::portuguese gdp::y/y,EUR,Portuguese GDP (YoY)  (Q4),q4,2021-02-26,17:30,,-5.4%,-5.4%,
+previous_missing_filled,NOK::interest rate decision::none,NOK,Interest Rate Decision,,2021-01-21,17:00,,0.00%,0.00%,
+previous_missing_filled,USD::api weekly gasoline stock::none,USD,API Weekly Gasoline Stock,,2021-03-03,05:30,,3.900M,3.900M,
+previous_missing_filled,EUR::portuguese gdp::q/q,EUR,Portuguese GDP (QoQ)  (Q4),q4,2021-02-26,17:30,,0.4%,0.4%,
+previous_missing_filled,EUR::lithuania cpi::m/m,EUR,Lithuania CPI (MoM)  (Jan),jan,2021-02-12,15:00,,0.0%,0.0%,
+previous_missing_filled,OMR::cpi::m/m,OMR,CPI (MoM)  (Sep),sep,2021-10-21,16:00,,0.0%,0.0%,
+previous_missing_filled,NAD::cpi::m/m,NAD,CPI (MoM)  (Jan),jan,2021-02-11,20:00,,0.10%,0.10%,
+previous_missing_filled,RUB::russia thomon reuters ipsos pcsi::none,RUB,Russia Thomon Reuters IPSOS PCSI,,2021-11-11,19:00,,39.62,39.62,
+previous_missing_filled,USD::pce price index::m/m,USD,PCE price index (MoM)  (Dec),dec,2021-01-29,21:30,,0.0%,0.0%,
+stale_missing_actual_dropped,JPY::cftc jpy speculative net positions::none,JPY,CFTC JPY speculative net positions,,2021-11-27,04:30,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2021-01-14,03:00,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2021-03-04,03:00,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2021-04-15,02:00,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2021-06-03,02:00,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2021-07-15,02:00,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2021-09-09,02:00,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2021-10-21,02:00,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2021-12-02,03:00,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2021-01-26,07:50,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2021-03-19,10:30,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2021-03-24,07:50,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2021-05-06,07:50,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2021-06-23,07:50,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2021-07-21,07:50,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2021-09-28,07:50,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2021-12-22,07:50,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,GBP::boe mpc treasury committee hearings::none,GBP,BoE MPC Treasury Committee Hearings,,2021-02-24,18:45,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,GBP::boe mpc treasury committee hearings::none,GBP,BoE MPC Treasury Committee Hearings,,2021-05-24,22:15,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,GBP::boe mpc treasury committee hearings::none,GBP,BoE MPC Treasury Committee Hearings,,2021-09-08,22:15,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,GBP::boe mpc treasury committee hearings::none,GBP,BoE MPC Treasury Committee Hearings,,2021-11-15,22:15,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2021-01-07,03:00,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2021-02-18,03:00,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2021-04-08,02:00,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2021-05-20,02:00,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2021-07-08,02:00,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2021-08-19,02:00,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2021-10-14,02:00,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2021-11-25,03:00,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,AUD::rba bulletin::none,AUD,RBA Bulletin,,2021-03-18,08:30,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,AUD::rba bulletin::none,AUD,RBA Bulletin,,2021-06-17,09:30,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,AUD::rba bulletin::none,AUD,RBA Bulletin,,2021-09-16,09:30,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,AUD::rba bulletin::none,AUD,RBA Bulletin,,2021-12-09,08:30,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,CHF::snb board member jordan speaks::none,CHF,SNB Board Member Jordan Speaks,,2021-04-30,16:00,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,CHF::snb board member jordan speaks::none,CHF,SNB Board Member Jordan Speaks,,2021-05-18,23:05,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,RUB::cftc rub speculative positions::none,RUB,CFTC RUB speculative positions,,2021-11-16,03:30,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,RUB::cftc rub speculative positions::none,RUB,CFTC RUB speculative positions,,2021-11-20,04:30,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,RUB::cftc rub speculative positions::none,RUB,CFTC RUB speculative positions,,2021-12-18,04:30,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,RUB::cftc rub speculative positions::none,RUB,CFTC RUB speculative positions,,2021-12-28,04:30,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,QAR::gdp::y/y,QAR,GDP (YoY),,2021-01-03,20:00,,,,"{""cutoff"": ""20-01-2026 20:56""}"
+stale_missing_actual_dropped,QAR::gdp::q/q,QAR,GDP (QoQ),,2021-01-03,20:00,,,,"{""cutoff"": ""20-01-2026 20:56""}"

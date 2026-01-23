@@ -1,0 +1,39 @@
+Patch,EventId,Cur,Event,Period,Date,Time,PreviousRaw,PriorActual,PreviousEffective
+previous_missing_filled,CAD::budget balance::y/y,CAD,Budget Balance (YoY),,2019-12-16,23:45,,-5.80B,-5.80B
+previous_missing_filled,USD::retail control::m/m,USD,Retail Control (MoM)  (Oct),oct,2019-11-15,21:30,,0.0%,0.0%
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2019-01-17,03:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2019-03-07,03:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2019-04-18,02:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2019-06-06,02:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2019-07-18,02:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2019-09-05,02:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2019-10-17,02:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2019-11-28,03:00,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2019-01-28,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2019-03-20,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2019-05-08,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2019-06-25,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2019-08-02,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2019-09-25,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2019-11-06,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2019-12-24,07:50,,0.00,0.00
+previous_missing_filled,GBP::boe mpc treasury committee hearings::none,GBP,BoE MPC Treasury Committee Hearings,,2019-11-27,Tentative,,0.00,0.00
+previous_missing_filled,GBP::boe mpc treasury committee hearings::none,GBP,BoE MPC Treasury Committee Hearings,,2019-12-03,Tentative,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2019-01-10,03:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2019-02-21,03:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2019-04-11,02:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2019-05-23,02:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2019-07-11,02:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2019-08-22,02:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2019-10-10,02:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2019-11-21,03:00,,0.00,0.00
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2019-03-21,08:30,,0.00,0.00
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2019-06-20,09:30,,0.00,0.00
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2019-09-19,09:30,,0.00,0.00
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2019-12-12,08:30,,0.00,0.00
+previous_missing_filled,COP::interest rate decision::none,COP,Interest Rate Decision  (Sep),sep,2019-09-24,04:00,,4.25%,4.25%
+previous_missing_filled,CNY::pboc reserve requirement ratio::none,CNY,PBoC Reserve Requirement Ratio,,2019-01-04,17:20,,16.00%,16.00%
+previous_missing_filled,EUR::cpi ex tobacco::m/m,EUR,CPI ex Tobacco (MoM)  (Jan),jan,2019-02-22,18:00,,0.0%,0.0%
+previous_missing_filled,OMR::cpi::m/m,OMR,CPI (MoM)  (Apr),apr,2019-06-03,20:55,,-0.1%,-0.1%
+previous_missing_filled,AED::cpi::m/m,AED,CPI (MoM),,2019-01-24,21:00,,-0.30%,-0.30%
+previous_missing_filled,USD::retail inventories ex auto::none,USD,Retail Inventories Ex Auto  (Aug),aug,2019-10-16,22:00,,0.0%,0.0%

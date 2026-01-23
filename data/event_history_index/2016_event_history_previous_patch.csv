@@ -1,0 +1,54 @@
+Patch,EventId,Cur,Event,Period,Date,Time,PreviousRaw,PriorActual,PreviousEffective
+previous_missing_filled,USD::philly fed new orders::none,USD,Philly Fed New Orders  (May),may,2016-05-19,20:30,,0.0,0.0
+previous_missing_filled,EUR::italian retail sales::m/m,EUR,Italian Retail Sales (MoM)  (Feb),feb,2016-04-22,17:00,,0.0%,0.0%
+previous_missing_filled,KRW::ppi::m/m,KRW,PPI (MoM)  (Mar),mar,2016-04-20,05:00,,0.0%,0.0%
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2016-01-14,03:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2016-03-03,03:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2016-04-14,02:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2016-06-02,02:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2016-07-14,02:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2016-09-08,02:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2016-10-20,02:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2016-12-01,03:00,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2016-02-03,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2016-03-18,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2016-05-09,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2016-06-21,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2016-08-03,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2016-09-27,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2016-11-07,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2016-12-26,07:50,,0.00,0.00
+previous_missing_filled,INR::bank loan growth::none,INR,Bank Loan Growth,,2016-12-23,19:30,,11.0%,11.0%
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2016-01-07,03:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2016-02-18,03:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2016-04-07,02:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2016-05-19,02:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2016-07-07,02:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2016-08-18,02:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2016-10-13,02:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2016-11-24,03:00,,0.00,0.00
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2016-03-17,08:30,,0.00,0.00
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2016-06-16,09:30,,0.00,0.00
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2016-09-15,09:30,,0.00,0.00
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2016-12-15,08:30,,0.00,0.00
+previous_missing_filled,INR::deposit growth::none,INR,Deposit Growth,,2016-12-23,19:30,,13.1%,13.1%
+previous_missing_filled,"INR::fx reserves, usd::none",INR,"FX Reserves, USD",,2016-01-08,19:30,,351.11B,351.11B
+previous_missing_filled,INR::cumulative industrial production::none,INR,Cumulative Industrial Production  (May),may,2016-07-12,20:00,,2.40%,2.40%
+previous_missing_filled,UAH::gdp::y/y,UAH,GDP (YoY)  (Q4),q4,2016-03-21,22:20,,5.3%,5.3%
+previous_missing_filled,USD::5 - year tips auction::none,USD,5-Year TIPS Auction,,2016-04-22,01:05,,0.472%,0.472%
+previous_missing_filled,USD::5 - year tips auction::none,USD,5-Year TIPS Auction,,2016-12-23,02:05,,-0.209%,-0.209%
+previous_missing_filled,ARS::trade balance::none,ARS,Trade Balance  (Dec),dec,2016-02-19,00:40,,254M,254M
+previous_missing_filled,EUR::french 6 - year oat auction::none,EUR,French 6-Year OAT Auction,,2016-11-17,18:00,,1.67%,1.67%
+previous_missing_filled,MXN::private spending::q/q,MXN,Private Spending (QoQ)  (Q3),q3,2016-12-21,22:00,,0.00%,0.00%
+previous_missing_filled,JPY::tokyo cpi::y/y,JPY,Tokyo CPI (YoY)  (Jan),jan,2016-01-29,07:30,,0.0%,0.0%
+previous_missing_filled,TRY::budget balance::none,TRY,Budget balance  (Sep),sep,2016-10-17,16:00,,0.13B,0.13B
+previous_missing_filled,OMR::budget balance::none,OMR,Budget Balance  (Mar),mar,2016-05-28,05:00,,"-2,934.3M","-2,934.3M"
+previous_missing_filled,BHD::m2 money supply::none,BHD,M2 Money Supply  (Sep),sep,2016-01-13,06:00,,6.60%,6.60%
+previous_missing_filled,BHD::m2 money supply::none,BHD,M2 Money Supply  (Nov),nov,2016-03-15,06:00,,6.60%,6.60%
+previous_missing_filled,BHD::m2 money supply::none,BHD,M2 Money Supply  (Feb),feb,2016-06-16,05:00,,6.60%,6.60%
+previous_missing_filled,TRY::exports::none,TRY,Exports  (Jan),jan,2016-02-01,17:00,,11.44B,11.44B
+previous_missing_filled,NAD::cpi::m/m,NAD,CPI (MoM)  (Oct),oct,2016-11-10,17:25,,0.20%,0.20%
+previous_missing_filled,NAD::cpi::y/y,NAD,CPI (YoY)  (Oct),oct,2016-11-10,17:25,,6.90%,6.90%
+previous_missing_filled,BHD::private sector credit::y/y,BHD,Private Sector Credit (YoY)  (Sep),sep,2016-01-13,06:00,,5.70%,5.70%
+previous_missing_filled,BHD::private sector credit::y/y,BHD,Private Sector Credit (YoY)  (Nov),nov,2016-03-15,06:00,,5.70%,5.70%
+previous_missing_filled,BHD::private sector credit::y/y,BHD,Private Sector Credit (YoY)  (Feb),feb,2016-06-16,05:00,,5.70%,5.70%
