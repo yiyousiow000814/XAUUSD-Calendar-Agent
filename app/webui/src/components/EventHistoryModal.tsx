@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { EventHistoryPoint, EventHistoryResponse } from "../types";
 import "./EventHistoryModal.css";
 
@@ -12,6 +12,8 @@ type EventHistoryModalProps = {
 };
 
 const CLOSE_ANIMATION_MS = 320;
+const CHART_LINE_ANIMATION_MS = 1100;
+const ROW_EXIT_ANIMATION_MS = 220;
 
 const NUMERIC_RANGE_KEYS = [5, 10, 20, 50, 100] as const;
 type NumericRangeKey = (typeof NUMERIC_RANGE_KEYS)[number];
@@ -19,6 +21,13 @@ type RangeKey = NumericRangeKey | "all";
 
 const RANGE_STORAGE_KEY = "xauusd:event-history:range";
 const SERIES_STORAGE_KEY = "xauusd:event-history:series";
+
+const resolveRange = (preferred: RangeKey, total: number): RangeKey => {
+  if (preferred === "all") return "all";
+  if (!total || total >= preferred) return preferred;
+  const fallback = NUMERIC_RANGE_KEYS.filter((key) => key <= preferred && key <= total).pop();
+  return fallback ?? preferred;
+};
 
 const isMissingValue = (value: string | null | undefined) => {
   const normalized = (value ?? "").trim().toLowerCase();
@@ -54,14 +63,31 @@ const parseComparableNumber = (rawValue: string) => {
   return base;
 };
 
+const valuesMatch = (left: string | null | undefined, right: string | null | undefined) => {
+  if (isMissingValue(left) && isMissingValue(right)) return true;
+  if (isMissingValue(left) || isMissingValue(right)) return false;
+  const leftNum = parseComparableNumber(String(left));
+  const rightNum = parseComparableNumber(String(right));
+  if (leftNum !== null && rightNum !== null) return Math.abs(leftNum - rightNum) <= 1e-9;
+  return String(left).trim() === String(right).trim();
+};
+
 const formatDisplayDate = (value: string) => {
   const [year, month, day] = value.split("-");
   if (!year || !month || !day) return value;
   return `${day}-${month}-${year}`;
 };
 
+const formatDisplayPeriod = (value: string | null | undefined) => {
+  const token = (value ?? "").trim();
+  if (!token) return "";
+  if (/^(q[1-4]|h[1-2])$/i.test(token)) return token.toUpperCase();
+  if (token.length === 3) return `${token[0].toUpperCase()}${token.slice(1).toLowerCase()}`;
+  return `${token[0].toUpperCase()}${token.slice(1)}`;
+};
+
 const formatDisplayValue = (value: string | null | undefined) =>
-  isMissingValue(value) ? "--" : String(value ?? "");
+  isMissingValue(value) ? "--" : String(value ?? "").trim();
 
 const extractSeries = (points: EventHistoryPoint[], key: keyof EventHistoryPoint) =>
   points.map((item) => parseComparableNumber(String(item[key] ?? "")));
@@ -94,14 +120,17 @@ const detectUnitLabel = (points: EventHistoryPoint[], keys: Array<keyof EventHis
 const buildPath = (
   values: Array<number | null>,
   xForIndex: (index: number) => number,
-  yForValue: (value: number) => number
+  yForValue: (value: number) => number,
+  { connectNulls = false }: { connectNulls?: boolean } = {}
 ) => {
   if (values.length <= 1) return "";
   let path = "";
   let started = false;
   values.forEach((value, index) => {
     if (value === null) {
-      started = false;
+      if (!connectNulls) {
+        started = false;
+      }
       return;
     }
     const x = xForIndex(index);
@@ -124,7 +153,7 @@ export function EventHistoryModal({
   data,
   onClose
 }: EventHistoryModalProps) {
-  const [range, setRange] = useState<RangeKey>(() => {
+  const [preferredRange, setPreferredRange] = useState<RangeKey>(() => {
     if (typeof window === "undefined") return 10;
     try {
       const raw = window.localStorage.getItem(RANGE_STORAGE_KEY);
@@ -143,14 +172,24 @@ export function EventHistoryModal({
   const [contentEnterToken, setContentEnterToken] = useState(0);
   const actualPathRef = useRef<SVGPathElement | null>(null);
   const forecastPathRef = useRef<SVGPathElement | null>(null);
-  const pointsGroupRef = useRef<SVGGElement | null>(null);
-  const animationTimerRef = useRef<number | null>(null);
-  const strokeCleanupTimerRef = useRef<number | null>(null);
-  const chartAnimatedTokenRef = useRef(0);
+  const chartContainerRef = useRef<HTMLDivElement | null>(null);
+  const actualStrokeCleanupTimerRef = useRef<number | null>(null);
+  const forecastStrokeCleanupTimerRef = useRef<number | null>(null);
+  const lineAnimationStateRef = useRef<
+    | {
+        activeRange: RangeKey;
+        pointCount: number;
+        contentToken: number;
+        actualVisible: boolean;
+        forecastVisible: boolean;
+      }
+    | null
+  >(null);
   const wasLoadingRef = useRef(false);
   const tableRef = useRef<HTMLDivElement | null>(null);
   const [fitRowCount, setFitRowCount] = useState(0);
-  const [visibleSeries, setVisibleSeries] = useState(() => {
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const [preferredSeries, setPreferredSeries] = useState(() => {
     if (typeof window === "undefined") return { actual: true, forecast: true };
     try {
       const raw = window.localStorage.getItem(SERIES_STORAGE_KEY);
@@ -171,6 +210,20 @@ export function EventHistoryModal({
     return map;
   }, [points]);
   const hasData = points.length > 0;
+  const hasForecastValues = useMemo(
+    () => points.some((point) => !isMissingValue(point.forecast)),
+    [points]
+  );
+  const visibleSeries = useMemo(() => {
+    const next = {
+      actual: Boolean(preferredSeries.actual),
+      forecast: Boolean(preferredSeries.forecast) && hasForecastValues
+    };
+    if (!next.actual && !next.forecast) {
+      return { actual: true, forecast: hasForecastValues };
+    }
+    return next;
+  }, [hasForecastValues, preferredSeries]);
   const hasMetricValues = useMemo(
     () =>
       points.some(
@@ -198,55 +251,71 @@ export function EventHistoryModal({
     return options.length > 1 ? options : [];
   }, [points.length]);
   const hasVisibleSeries = visibleSeries.actual || visibleSeries.forecast;
+  const activeRange = useMemo(
+    () => resolveRange(preferredRange, points.length),
+    [points.length, preferredRange]
+  );
   const displayPoints = useMemo(() => {
-    if (range === "all") return points;
-    return points.slice(-range);
-  }, [points, range]);
+    if (activeRange === "all") return points;
+    return points.slice(-activeRange);
+  }, [activeRange, points]);
   const listPoints = useMemo(() => [...displayPoints].reverse(), [displayPoints]);
   const tablePoints = useMemo(() => {
-    if (range === "all") return listPoints;
-    if (range > 10) return listPoints;
+    if (activeRange === "all") return listPoints;
+    if (activeRange > 10) return listPoints;
     const fallback = listPoints.length ? 1 : 0;
     const limit = fitRowCount > 0 ? fitRowCount : fallback;
     return listPoints.slice(0, limit);
-  }, [fitRowCount, listPoints, range]);
+  }, [activeRange, fitRowCount, listPoints]);
+
+  type TableRowEntry = {
+    key: string;
+    point: EventHistoryPoint;
+    exiting: boolean;
+  };
+
+  const pointKeyPrefix = data?.eventId ?? selectionLabel;
+  const buildPointKey = useCallback(
+    (point: EventHistoryPoint) =>
+      `${pointKeyPrefix}:${point.date}:${point.time}:${point.period ?? ""}`,
+    [pointKeyPrefix]
+  );
+
+  const [tableRows, setTableRows] = useState<TableRowEntry[]>(() =>
+    tablePoints.map((point) => ({ key: buildPointKey(point), point, exiting: false }))
+  );
+  const tableExitTimerRef = useRef<number | null>(null);
+  const lastPointKeyPrefixRef = useRef(pointKeyPrefix);
 
   useEffect(() => {
     if (!isOpen) return;
     setFitRowCount(0);
-    chartAnimatedTokenRef.current = 0;
+    lineAnimationStateRef.current = null;
+    setHoverIndex(null);
   }, [isOpen, selectionLabel]);
 
   useEffect(() => {
     if (!isOpen) return;
     try {
-      window.localStorage.setItem(RANGE_STORAGE_KEY, String(range));
+      window.localStorage.setItem(RANGE_STORAGE_KEY, String(preferredRange));
     } catch {
       // Ignore storage errors.
     }
-  }, [isOpen, range]);
+  }, [isOpen, preferredRange]);
 
   useEffect(() => {
     if (!isOpen) return;
     try {
-      window.localStorage.setItem(SERIES_STORAGE_KEY, JSON.stringify(visibleSeries));
+      window.localStorage.setItem(SERIES_STORAGE_KEY, JSON.stringify(preferredSeries));
     } catch {
       // Ignore storage errors.
     }
-  }, [isOpen, visibleSeries]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    if (range === "all") return;
-    if (range > points.length && points.length) {
-      setRange("all");
-    }
-  }, [isOpen, points.length, range]);
+  }, [isOpen, preferredSeries]);
 
   useLayoutEffect(() => {
     if (!isOpen) return;
-    if (range === "all") return;
-    if (range > 10) return;
+    if (activeRange === "all") return;
+    if (activeRange > 10) return;
     const node = tableRef.current;
     if (!node) return;
 
@@ -287,7 +356,52 @@ export function EventHistoryModal({
       window.removeEventListener("resize", scheduleMeasure);
       if (rafId) window.cancelAnimationFrame(rafId);
     };
-  }, [hasMetricValues, isOpen, range, contentEnterToken, selectionLabel]);
+  }, [activeRange, contentEnterToken, hasMetricValues, isOpen, selectionLabel]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (lastPointKeyPrefixRef.current === pointKeyPrefix) return;
+    lastPointKeyPrefixRef.current = pointKeyPrefix;
+    if (tableExitTimerRef.current) {
+      window.clearTimeout(tableExitTimerRef.current);
+      tableExitTimerRef.current = null;
+    }
+    setTableRows(tablePoints.map((point) => ({ key: buildPointKey(point), point, exiting: false })));
+  }, [buildPointKey, isOpen, pointKeyPrefix, tablePoints]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setTableRows((prev) => {
+      const prevByKey = new Map(prev.map((entry) => [entry.key, entry]));
+      const nextKeys = new Set<string>();
+      const nextRows = tablePoints.map((point) => {
+        const key = buildPointKey(point);
+        nextKeys.add(key);
+        const existing = prevByKey.get(key);
+        if (existing) {
+          return { ...existing, point, exiting: false };
+        }
+        return { key, point, exiting: false };
+      });
+      const exitingRows = prev
+        .filter((entry) => !nextKeys.has(entry.key))
+        .map((entry) => (entry.exiting ? entry : { ...entry, exiting: true }));
+      return [...nextRows, ...exitingRows];
+    });
+  }, [buildPointKey, isOpen, tablePoints]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (tableExitTimerRef.current) {
+      window.clearTimeout(tableExitTimerRef.current);
+      tableExitTimerRef.current = null;
+    }
+    if (!tableRows.some((row) => row.exiting)) return;
+    tableExitTimerRef.current = window.setTimeout(() => {
+      tableExitTimerRef.current = null;
+      setTableRows((prev) => prev.filter((row) => !row.exiting));
+    }, ROW_EXIT_ANIMATION_MS + 40);
+  }, [isOpen, tableRows]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -296,7 +410,7 @@ export function EventHistoryModal({
     return () => window.cancelAnimationFrame(raf);
   }, [isOpen]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (loading) {
       wasLoadingRef.current = true;
       return;
@@ -323,11 +437,16 @@ export function EventHistoryModal({
       if (closeTimerRef.current) {
         window.clearTimeout(closeTimerRef.current);
       }
-      if (animationTimerRef.current) {
-        window.clearTimeout(animationTimerRef.current);
+      if (actualStrokeCleanupTimerRef.current) {
+        window.clearTimeout(actualStrokeCleanupTimerRef.current);
+        actualStrokeCleanupTimerRef.current = null;
       }
-      if (strokeCleanupTimerRef.current) {
-        window.clearTimeout(strokeCleanupTimerRef.current);
+      if (forecastStrokeCleanupTimerRef.current) {
+        window.clearTimeout(forecastStrokeCleanupTimerRef.current);
+        forecastStrokeCleanupTimerRef.current = null;
+      }
+      if (tableExitTimerRef.current) {
+        window.clearTimeout(tableExitTimerRef.current);
       }
     };
   }, []);
@@ -339,8 +458,8 @@ export function EventHistoryModal({
     if (!hasVisibleSeries) {
       return null;
     }
-    const actualValues = visibleSeries.actual ? extractSeries(displayPoints, "actual") : [];
-    const forecastValues = visibleSeries.forecast ? extractSeries(displayPoints, "forecast") : [];
+    const actualValues = extractSeries(displayPoints, "actual");
+    const forecastValues = extractSeries(displayPoints, "forecast");
     const numericValues = [...actualValues, ...forecastValues].filter(
       (value): value is number => value !== null
     );
@@ -380,14 +499,17 @@ export function EventHistoryModal({
       x: xForIndex(index),
       label: formatDisplayDate(displayPoints[index]?.date || "")
     }));
-    const unitLabel = detectUnitLabel(
-      displayPoints,
-      [
-        ...(visibleSeries.actual ? (["actual"] as const) : []),
-        ...(visibleSeries.forecast ? (["forecast"] as const) : [])
-      ]
-    );
-    const renderPoints = range !== "all";
+    const hasActualNumeric = actualValues.some((value) => value !== null);
+    const hasForecastNumeric = forecastValues.some((value) => value !== null);
+    const unitKeys: Array<keyof EventHistoryPoint> = [
+      ...(hasActualNumeric ? (["actual"] as const) : []),
+      ...(hasForecastNumeric ? (["forecast"] as const) : [])
+    ];
+    const unitLabel = detectUnitLabel(displayPoints, unitKeys);
+    // Dense point markers get visually noisy beyond the small ranges.
+    const renderPoints = activeRange !== "all" && activeRange <= 20;
+    const pointDelayStepMs =
+      displayPoints.length > 1 ? CHART_LINE_ANIMATION_MS / (displayPoints.length - 1) : 0;
     const buildPoints = (series: "actual" | "forecast", values: Array<number | null>) =>
       values
         .map((value, index) => {
@@ -397,15 +519,31 @@ export function EventHistoryModal({
             series === "actual"
               ? point?.actual
               : point?.forecast;
+          const periodLabel = formatDisplayPeriod(point?.period);
+          const actualRaw = series === "actual" ? String(point?.actualRaw ?? "") : "";
+          const revisedFrom =
+            series === "actual" && point
+              ? !isMissingValue(point.actualRevisedFrom)
+                ? String(point.actualRevisedFrom ?? "")
+                : actualRaw && !valuesMatch(actualRaw, point.actual)
+                  ? actualRaw
+                  : ""
+              : "";
           const labelParts = [
             formatDisplayDate(point?.date || ""),
             point?.time || "--",
+            periodLabel ? `(${periodLabel})` : "",
             series === "actual" ? "Actual" : "Forecast",
             formatDisplayValue(raw)
           ];
+          if (revisedFrom) {
+            labelParts.push(`Revised from ${formatDisplayValue(revisedFrom)}`);
+          }
           return {
             key: `${series}-${point?.date ?? ""}-${point?.time ?? ""}-${index}`,
             series,
+            index,
+            delayMs: Math.max(0, Math.round(index * pointDelayStepMs)),
             x: xForIndex(index),
             y: yForValue(value),
             label: labelParts.filter(Boolean).join(" · ")
@@ -418,13 +556,17 @@ export function EventHistoryModal({
       padding,
       plotWidth: innerWidth,
       plotHeight: innerHeight,
+      xStep: step,
+      lastDataIndex: Math.max(0, displayPoints.length - 1),
+      domainMax,
+      domainSpan: span,
       yTicks,
       xTicks,
       unitLabel,
       xAxisLabel: "Date",
       yAxisLabel: "Value",
-      actualPath: visibleSeries.actual ? buildPath(actualValues, xForIndex, yForValue) : "",
-      forecastPath: visibleSeries.forecast ? buildPath(forecastValues, xForIndex, yForValue) : "",
+      actualPath: buildPath(actualValues, xForIndex, yForValue),
+      forecastPath: buildPath(forecastValues, xForIndex, yForValue, { connectNulls: true }),
       points: renderPoints
         ? [
             ...(visibleSeries.actual ? buildPoints("actual", actualValues) : []),
@@ -432,25 +574,34 @@ export function EventHistoryModal({
           ]
         : []
     };
-  }, [displayPoints, hasData, hasVisibleSeries, range, visibleSeries]);
+  }, [activeRange, displayPoints, hasData, hasVisibleSeries, visibleSeries]);
 
   useLayoutEffect(() => {
     if (loading) return;
     if (!chart) return;
-    if (contentEnterToken === 0) return;
-    if (chartAnimatedTokenRef.current === contentEnterToken) return;
-    chartAnimatedTokenRef.current = contentEnterToken;
 
-    const paths = [actualPathRef.current, forecastPathRef.current].filter(
-      (node): node is SVGPathElement => Boolean(node)
-    );
+    const prev = lineAnimationStateRef.current;
+    const rangeChanged =
+      !prev ||
+      prev.contentToken !== contentEnterToken ||
+      prev.activeRange !== activeRange ||
+      prev.pointCount !== displayPoints.length;
 
-    // Reset point visibility so the fade-in runs reliably.
-    if (pointsGroupRef.current) {
-      pointsGroupRef.current.style.opacity = "0";
-    }
+    const actualAppeared = visibleSeries.actual && (!prev || !prev.actualVisible);
+    const forecastAppeared = visibleSeries.forecast && (!prev || !prev.forecastVisible);
 
-    paths.forEach((path) => {
+    const animateActual =
+      visibleSeries.actual && (actualAppeared || (rangeChanged && Boolean(prev?.actualVisible)));
+    const animateForecast =
+      visibleSeries.forecast &&
+      (forecastAppeared || (rangeChanged && Boolean(prev?.forecastVisible)));
+
+    const animatePath = (
+      path: SVGPathElement | null,
+      timerRef: { current: number | null }
+    ) => {
+      if (!path) return;
+
       try {
         const length = path.getTotalLength();
         path.style.transition = "none";
@@ -458,45 +609,54 @@ export function EventHistoryModal({
         path.style.strokeDashoffset = `${length}`;
         // Force reflow so the next transition starts from dashoffset=length.
         path.getBoundingClientRect();
-        path.style.transition = "stroke-dashoffset 720ms var(--motion-ease)";
+        path.style.transition = `stroke-dashoffset ${CHART_LINE_ANIMATION_MS}ms var(--motion-ease)`;
         path.style.strokeDashoffset = "0";
       } catch {
         // Ignore path animation failures (older SVG engines / zero-length paths).
       }
-    });
 
-    // After the draw animation ends, clear dash styling. Otherwise subsequent path
-    // updates (range/series changes) can inherit the old dasharray length and look
-    // like a broken/dashed line even when data exists.
-    if (strokeCleanupTimerRef.current) {
-      window.clearTimeout(strokeCleanupTimerRef.current);
-      strokeCleanupTimerRef.current = null;
-    }
-    strokeCleanupTimerRef.current = window.setTimeout(() => {
-      strokeCleanupTimerRef.current = null;
-      [actualPathRef.current, forecastPathRef.current]
-        .filter((node): node is SVGPathElement => Boolean(node))
-        .forEach((path) => {
-          path.style.transition = "";
-          path.style.strokeDasharray = "";
-          path.style.strokeDashoffset = "";
-        });
-    }, 760);
-
-    if (animationTimerRef.current) {
-      window.clearTimeout(animationTimerRef.current);
-      animationTimerRef.current = null;
-    }
-    animationTimerRef.current = window.setTimeout(() => {
-      animationTimerRef.current = null;
-      if (pointsGroupRef.current) {
-        pointsGroupRef.current.style.opacity = "1";
+      // After the draw animation ends, clear dash styling. Otherwise subsequent path
+      // updates can inherit the old dasharray length and look like a broken/dashed line.
+      if (timerRef.current) {
+        window.clearTimeout(timerRef.current);
+        timerRef.current = null;
       }
-    }, 260);
-  }, [chart, contentEnterToken, loading]);
+      const target = path;
+      timerRef.current = window.setTimeout(() => {
+        timerRef.current = null;
+        if (!target.isConnected) return;
+        target.style.transition = "";
+        target.style.strokeDasharray = "";
+        target.style.strokeDashoffset = "";
+      }, CHART_LINE_ANIMATION_MS + 60);
+    };
+
+    if (animateActual) {
+      animatePath(actualPathRef.current, actualStrokeCleanupTimerRef);
+    }
+    if (animateForecast) {
+      animatePath(forecastPathRef.current, forecastStrokeCleanupTimerRef);
+    }
+
+    lineAnimationStateRef.current = {
+      activeRange,
+      pointCount: displayPoints.length,
+      contentToken: contentEnterToken,
+      actualVisible: visibleSeries.actual,
+      forecastVisible: visibleSeries.forecast,
+    };
+  }, [
+    activeRange,
+    chart,
+    contentEnterToken,
+    displayPoints.length,
+    loading,
+    visibleSeries.actual,
+    visibleSeries.forecast,
+  ]);
 
   const toggleSeries = (key: "actual" | "forecast") => {
-    setVisibleSeries((prev) => {
+    setPreferredSeries((prev) => {
       const next = { ...prev, [key]: !prev[key] };
       if (!next.actual && !next.forecast) {
         return prev;
@@ -504,6 +664,88 @@ export function EventHistoryModal({
       return next;
     });
   };
+
+  const hoverPoint =
+    hoverIndex !== null && hoverIndex >= 0 && hoverIndex < displayPoints.length
+      ? displayPoints[hoverIndex]
+      : null;
+  // Period tokens are used internally for stable sorting but are not part of the UI copy.
+  const hoverActualRaw = hoverPoint ? String(hoverPoint.actualRaw ?? hoverPoint.actual ?? "") : "";
+  const hoverActualRevised =
+    hoverPoint && !isMissingValue(hoverPoint.actualRevisedFrom)
+      ? String(hoverPoint.actualRevisedFrom ?? "")
+      : hoverPoint && hoverActualRaw && !valuesMatch(hoverActualRaw, hoverPoint.actual)
+        ? hoverActualRaw
+        : "";
+  const hoverPreviousValue = hoverPoint
+    ? String(hoverPoint.previous ?? "")
+    : "";
+
+  const hoverRowKey = useMemo(
+    () => (hoverPoint ? buildPointKey(hoverPoint) : null),
+    [buildPointKey, hoverPoint]
+  );
+
+  const scrollTableToRow = useCallback((rowKey: string) => {
+    const node = tableRef.current;
+    if (!node) return;
+    const selector = `[data-row-key=${JSON.stringify(rowKey)}]`;
+    const row = node.querySelector<HTMLElement>(selector);
+    if (!row) return;
+    row.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, []);
+
+  const resolveHoverIndex = useCallback(
+    (clientX: number) => {
+      if (!chart) return null;
+      const node = chartContainerRef.current;
+      if (!node) return null;
+      if (!displayPoints.length) return null;
+
+      const rect = node.getBoundingClientRect();
+      if (!rect.width) return null;
+
+      const xPx = clientX - rect.left;
+      const xSvg = (xPx / rect.width) * chart.width;
+      const plotLeft = chart.padding.left;
+      const plotRight = chart.padding.left + chart.plotWidth;
+      const clamped = Math.max(plotLeft, Math.min(plotRight, xSvg));
+
+      const next =
+        displayPoints.length <= 1 || chart.xStep === 0
+          ? 0
+          : Math.round((clamped - plotLeft) / chart.xStep);
+      return Math.max(0, Math.min(displayPoints.length - 1, next));
+    },
+    [chart, displayPoints.length]
+  );
+
+  const updateHoverIndex = (clientX: number) => {
+    const bounded = resolveHoverIndex(clientX);
+    if (bounded === null) return;
+    setHoverIndex((prev) => (prev === bounded ? prev : bounded));
+  };
+
+  const hoverOverlay = useMemo(() => {
+    if (!chart) return null;
+    if (!hoverPoint || hoverIndex === null) return null;
+
+    const x =
+      displayPoints.length > 1
+        ? chart.padding.left + hoverIndex * chart.xStep
+        : chart.padding.left + chart.plotWidth / 2;
+
+    const yFor = (value: number) =>
+      chart.padding.top + ((chart.domainMax - value) / chart.domainSpan) * chart.plotHeight;
+
+    const actualValue = visibleSeries.actual ? parseComparableNumber(hoverPoint.actual) : null;
+    const forecastValue = visibleSeries.forecast ? parseComparableNumber(hoverPoint.forecast) : null;
+    return {
+      x,
+      actualY: actualValue !== null ? yFor(actualValue) : null,
+      forecastY: forecastValue !== null ? yFor(forecastValue) : null
+    };
+  }, [chart, displayPoints.length, hoverIndex, hoverPoint, visibleSeries]);
 
   if (!isOpen) return null;
 
@@ -570,9 +812,11 @@ export function EventHistoryModal({
                           <button
                             key={String(option.key)}
                             type="button"
-                            className={`history-toggle${range === option.key ? " active" : ""}`}
-                            onClick={() => setRange(option.key)}
-                            aria-pressed={range === option.key}
+                            className={`history-toggle${
+                              activeRange === option.key ? " active" : ""
+                            }`}
+                            onClick={() => setPreferredRange(option.key)}
+                            aria-pressed={activeRange === option.key}
                           >
                             {option.label}
                           </button>
@@ -597,17 +841,19 @@ export function EventHistoryModal({
                         <span className="history-legend-swatch history-line-actual" />
                         Actual
                       </button>
-                      <button
-                        type="button"
-                        className={`history-legend-item history-legend-item-forecast${
-                          visibleSeries.forecast ? " active" : ""
-                        }`}
-                        onClick={() => toggleSeries("forecast")}
-                        aria-pressed={visibleSeries.forecast}
-                      >
-                        <span className="history-legend-swatch history-line-forecast" />
-                        Forecast
-                      </button>
+                      {hasForecastValues ? (
+                        <button
+                          type="button"
+                          className={`history-legend-item history-legend-item-forecast${
+                            visibleSeries.forecast ? " active" : ""
+                          }`}
+                          onClick={() => toggleSeries("forecast")}
+                          aria-pressed={visibleSeries.forecast}
+                        >
+                          <span className="history-legend-swatch history-line-forecast" />
+                          Forecast
+                        </button>
+                      ) : null}
                     </div>
                   ) : null}
                 </div>
@@ -615,7 +861,27 @@ export function EventHistoryModal({
                   <div className="history-modal-layout-left">
                     {hasMetricValues ? (
                       chart ? (
-                        <div className="history-modal-chart">
+                        <div
+                          className="history-modal-chart"
+                          ref={chartContainerRef}
+                          onMouseMove={(event) => updateHoverIndex(event.clientX)}
+                          onMouseLeave={() => setHoverIndex(null)}
+                          onClick={(event) => {
+                            const index = resolveHoverIndex(event.clientX);
+                            if (index === null) return;
+                            const point = displayPoints[index];
+                            if (!point) return;
+                            setHoverIndex(index);
+                            if (!(activeRange === "all" || activeRange > 10)) return;
+                            scrollTableToRow(buildPointKey(point));
+                          }}
+                          onTouchMove={(event) => {
+                            const touch = event.touches[0];
+                            if (!touch) return;
+                            updateHoverIndex(touch.clientX);
+                          }}
+                          onTouchEnd={() => setHoverIndex(null)}
+                        >
                           <svg
                             viewBox={`0 0 ${chart.width} ${chart.height}`}
                             shapeRendering="geometricPrecision"
@@ -675,16 +941,32 @@ export function EventHistoryModal({
                               {chart.xTicks.map((tick) => (
                                 <text
                                   key={`x-label-${tick.index}`}
-                                  x={tick.x}
+                                  x={
+                                    chart.xTicks.length === 1
+                                      ? tick.x
+                                      : tick.index === 0
+                                        ? tick.x + 8
+                                        : tick.index === chart.lastDataIndex
+                                          ? tick.x - 8
+                                          : tick.x
+                                  }
                                   y={chart.height - chart.padding.bottom + 22}
-                                  textAnchor="middle"
+                                  textAnchor={
+                                    chart.xTicks.length === 1
+                                      ? "middle"
+                                      : tick.index === 0
+                                        ? "start"
+                                        : tick.index === chart.lastDataIndex
+                                          ? "end"
+                                          : "middle"
+                                  }
                                 >
                                   {tick.label}
                                 </text>
                               ))}
                               <text
                                 x={chart.padding.left + chart.plotWidth / 2}
-                                y={chart.height - 12}
+                                y={chart.height - 14}
                                 textAnchor="middle"
                                 className="history-chart-axis-label"
                               >
@@ -725,20 +1007,106 @@ export function EventHistoryModal({
                                 d={chart.actualPath}
                               />
                             ) : null}
-                            <g className="history-chart-points" ref={pointsGroupRef}>
+                            <g className="history-chart-points">
                               {chart.points.map((point) => (
                                 <circle
                                   key={point.key}
-                                  className={`history-point history-point-${point.series}`}
+                                  className={`history-point history-point-${point.series} animate`}
                                   cx={point.x}
                                   cy={point.y}
                                   r={3.8}
+                                  style={{ animationDelay: `${point.delayMs}ms` }}
                                 >
                                   <title>{point.label}</title>
                                 </circle>
                               ))}
                             </g>
+                            {hoverOverlay ? (
+                              <g className="history-chart-hover" aria-hidden="true">
+                                <line
+                                  x1={Math.round(hoverOverlay.x) + 0.5}
+                                  x2={Math.round(hoverOverlay.x) + 0.5}
+                                  y1={chart.padding.top}
+                                  y2={chart.height - chart.padding.bottom}
+                                  vectorEffect="non-scaling-stroke"
+                                />
+                                {visibleSeries.actual && hoverOverlay.actualY !== null ? (
+                                  <circle
+                                    className="history-hover-dot history-point-actual"
+                                    cx={hoverOverlay.x}
+                                    cy={hoverOverlay.actualY}
+                                    r={5.2}
+                                  />
+                                ) : null}
+                                {visibleSeries.forecast && hoverOverlay.forecastY !== null ? (
+                                  <circle
+                                    className="history-hover-dot history-point-forecast"
+                                    cx={hoverOverlay.x}
+                                    cy={hoverOverlay.forecastY}
+                                    r={5.2}
+                                  />
+                                ) : null}
+                              </g>
+                            ) : null}
                           </svg>
+                          {hoverPoint ? (
+                            <div className="history-chart-tooltip" data-qa="qa:history:tooltip">
+                              <div className="history-tooltip-title">
+                                {formatDisplayDate(hoverPoint.date)} {hoverPoint.time || "--"}
+                              </div>
+                              <div className="history-tooltip-body">
+                                {visibleSeries.actual ? (
+                                  <div className="history-tooltip-row">
+                                    <span className="history-tooltip-key">
+                                      <span
+                                        className="history-tooltip-swatch actual"
+                                        aria-hidden="true"
+                                      />
+                                      Actual
+                                    </span>
+                                    <span
+                                      className={`history-tooltip-value${
+                                        hoverActualRevised ? " revised" : ""
+                                      }`}
+                                    >
+                                      {formatDisplayValue(hoverPoint.actual)}
+                                    </span>
+                                  </div>
+                                ) : null}
+                                {visibleSeries.actual && hoverActualRevised ? (
+                                  <div className="history-tooltip-sub">
+                                    Revised from {formatDisplayValue(hoverActualRevised)}
+                                  </div>
+                                ) : null}
+                                {visibleSeries.forecast ? (
+                                  <div className="history-tooltip-row">
+                                    <span className="history-tooltip-key">
+                                      <span
+                                        className="history-tooltip-swatch forecast"
+                                        aria-hidden="true"
+                                      />
+                                      Forecast
+                                    </span>
+                                    <span className="history-tooltip-value">
+                                      {formatDisplayValue(hoverPoint.forecast)}
+                                    </span>
+                                  </div>
+                                ) : null}
+                                <div className="history-tooltip-row">
+                                  <span className="history-tooltip-key">
+                                    <span
+                                      className="history-tooltip-swatch previous"
+                                      aria-hidden="true"
+                                    />
+                                    Previous
+                                  </span>
+                                  <span className="history-tooltip-value">
+                                    {formatDisplayValue(hoverPreviousValue)}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
                         </div>
                       ) : (
                         <div className="history-modal-empty">
@@ -767,7 +1135,7 @@ export function EventHistoryModal({
                   <div className="history-modal-layout-right">
                     <div
                       className={`history-modal-table${
-                        range === "all" || range > 10 ? " scrollable" : ""
+                        activeRange === "all" || activeRange > 10 ? " scrollable" : ""
                       }${
                         hasMetricValues ? "" : " schedule"
                       }`}
@@ -787,27 +1155,74 @@ export function EventHistoryModal({
                           <span>Details</span>
                         )}
                       </div>
-                      {tablePoints.map((point, index) => (
-                        <div
-                          className="history-modal-row history-modal-row-animate"
-                          key={`${pointIdByIdentity.get(point) ?? `${point.date}-${point.time}`}-${
-                            contentEnterToken
-                          }`}
-                          style={{ animationDelay: `${Math.min(index * 28, 220)}ms` }}
-                        >
-                          <span>{formatDisplayDate(point.date)}</span>
-                          <span>{point.time || "--"}</span>
-                          {hasMetricValues ? (
-                            <>
-                              <span>{formatDisplayValue(point.actual)}</span>
-                              <span>{formatDisplayValue(point.forecast)}</span>
-                              <span>{formatDisplayValue(point.previous)}</span>
-                            </>
-                          ) : (
-                            <span className="disabled">--</span>
-                          )}
-                        </div>
-                      ))}
+                      {tableRows.map((row, index) => {
+                        const point = row.point;
+                        const actualValue = String(point.actualRaw ?? point.actual ?? "");
+                        const previousValue = String(point.previous ?? "");
+                        const previousRevised = !isMissingValue(point.previousRevisedFrom);
+                        return (
+                          <div
+                            className={`history-modal-row${
+                              row.exiting
+                                ? " history-modal-row-exit"
+                                : " history-modal-row-animate"
+                            }${hoverRowKey === row.key && !row.exiting ? " active" : ""}`}
+                            key={row.key}
+                            data-row-key={row.key}
+                            style={
+                              row.exiting
+                                ? undefined
+                                : { animationDelay: `${Math.min(index * 28, 220)}ms` }
+                            }
+                          >
+                            <span>{formatDisplayDate(point.date)}</span>
+                            <span>{point.time || "--"}</span>
+                            {hasMetricValues ? (
+                              <>
+                                <span className="history-value">
+                                  <span className="history-value-main">
+                                    {formatDisplayValue(actualValue)}
+                                  </span>
+                                  <span className="history-value-sub placeholder" aria-hidden="true">
+                                    {"\u00A0"}
+                                  </span>
+                                </span>
+                                <span className="history-value">
+                                  <span className="history-value-main">
+                                    {formatDisplayValue(point.forecast)}
+                                  </span>
+                                  <span className="history-value-sub placeholder" aria-hidden="true">
+                                    {"\u00A0"}
+                                  </span>
+                                </span>
+                                <span
+                                  className={`history-value${previousRevised ? " revised" : ""}`}
+                                  title={
+                                    previousRevised
+                                      ? `Revised from ${formatDisplayValue(point.previousRevisedFrom)}`
+                                      : undefined
+                                  }
+                                >
+                                  <span className="history-value-main">{formatDisplayValue(previousValue)}</span>
+                                  <span className="history-value-sub placeholder" aria-hidden="true">
+                                    {"\u00A0"}
+                                  </span>
+                                </span>
+                                {previousRevised ? (
+                                  <div className="history-row-revision" aria-hidden="true">
+                                    <span className="history-revised-prefix">Revised from</span>
+                                    <span className="history-revised-value">
+                                      {formatDisplayValue(point.previousRevisedFrom)}*
+                                    </span>
+                                  </div>
+                                ) : null}
+                              </>
+                            ) : (
+                              <span className="disabled">--</span>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>

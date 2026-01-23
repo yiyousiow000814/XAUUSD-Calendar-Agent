@@ -1,4 +1,4 @@
-name: Audit event history previous values
+name: Audit event history consistency
 
 on:
   workflow_dispatch:
@@ -22,16 +22,16 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Audit event history previous values
+      - name: Audit event history consistency
         run: |
-          python scripts/calendar/audit_event_history_previous.py
+          python scripts/calendar/audit_event_history_consistency.py
 
       - name: Create pull request
         uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: "chore: audit event history previous values"
-          title: "chore: audit event history previous values"
+          commit-message: "chore: audit event history consistency"
+          title: "chore: audit event history consistency"
           body: |
-            自动审查事件历史的 Previous 值一致性，并输出补丁与问题清单。
-          branch: "chore/event-history-previous-audit"
+            Automated audit of event history consistency (previous fill opportunities and missing actual values), outputting patch and issue reports.
+          branch: "chore/event-history-consistency-audit"
           delete-branch: true

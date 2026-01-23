@@ -29,6 +29,9 @@ node_modules/
 # Local UI/self-check artifacts
 artifacts/
 
+# Local temporary scratch (do not commit)
+tmp/
+
 # Local per-install user data (config/logs/repo cache)
 user-data/*
 !user-data/.gitkeep

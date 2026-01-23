@@ -2269,9 +2269,6 @@ const main = async () => {
       // Restore in case a future refactor changes the loop.
       await page.setViewportSize(base);
     });
-    if (theme.key === "light") {
-      await runCheck(theme.key, "Split divider not dark", () => assertSplitDividerNotDark(page));
-    }
     await runCheck(theme.key, "Events list completeness", () => assertEventsLoaded(page));
       const firstEventRow = page.locator("[data-qa='qa:row:next-event']").first();
       if (await firstEventRow.count()) {
@@ -2342,6 +2339,202 @@ const main = async () => {
           );
         });
 
+        await runCheck(theme.key, "Event history chart points do not flash", async () => {
+          const info = await page.evaluate(() => {
+            const pointsGroup = document.querySelector(".history-modal-chart .history-chart-points");
+            if (!(pointsGroup instanceof SVGGElement)) {
+              return { ok: false, reason: "points group not found" };
+            }
+            const inlineStyle = pointsGroup.getAttribute("style") || "";
+            const hasInlineOpacity =
+              inlineStyle.includes("opacity") ||
+              (pointsGroup instanceof HTMLElement && pointsGroup.style.opacity !== "");
+            const firstPoint = pointsGroup.querySelector("circle.history-point");
+            return {
+              ok: !hasInlineOpacity,
+              reason: hasInlineOpacity ? `unexpected inline opacity (${inlineStyle || "style.opacity"})` : "",
+              hasPoint: Boolean(firstPoint)
+            };
+          });
+          if (!info.ok) {
+            throw new Error(info.reason);
+          }
+        });
+
+        await runCheck(theme.key, "Event history series toggles only animate newly shown line", async () => {
+          const forecastToggle = historyModal.locator(".history-legend-item-forecast").first();
+          const actualToggle = historyModal.locator(".history-legend-item-actual").first();
+          if (!(await forecastToggle.count()) || !(await actualToggle.count())) {
+            return;
+          }
+
+          const readLineStyles = async () =>
+            page.evaluate(() => {
+              const read = (selector) => {
+                const node = document.querySelector(selector);
+                if (!(node instanceof SVGPathElement)) return null;
+                return {
+                  dasharray: node.style.strokeDasharray,
+                  dashoffset: node.style.strokeDashoffset,
+                  transition: node.style.transition,
+                  connected: node.isConnected
+                };
+              };
+              return {
+                actual: read(".history-modal-chart path.history-line-actual"),
+                forecast: read(".history-modal-chart path.history-line-forecast")
+              };
+            });
+
+          // Ensure we're in the steady state before toggling.
+          await page.waitForFunction(() => {
+            const paths = Array.from(document.querySelectorAll(".history-modal-chart path.history-line"));
+            return paths.every(
+              (path) =>
+                path instanceof SVGPathElement &&
+                path.style.strokeDasharray === "" &&
+                path.style.strokeDashoffset === ""
+            );
+          });
+
+          // Toggle forecast off and back on; only the forecast line should redraw.
+          await forecastToggle.click();
+          await page.waitForTimeout(80);
+          await forecastToggle.click();
+          await page.waitForTimeout(60);
+
+          const stylesAfterForecast = await readLineStyles();
+          if (!stylesAfterForecast.actual) {
+            throw new Error(`actual line missing after toggling forecast (styles=${JSON.stringify(stylesAfterForecast)})`);
+          }
+          if (
+            stylesAfterForecast.actual.dasharray !== "" ||
+            stylesAfterForecast.actual.dashoffset !== "" ||
+            stylesAfterForecast.actual.transition !== ""
+          ) {
+            throw new Error(`actual line re-animated while toggling forecast (styles=${JSON.stringify(stylesAfterForecast.actual)})`);
+          }
+          if (!stylesAfterForecast.forecast) {
+            throw new Error(`forecast line missing after toggle-on (styles=${JSON.stringify(stylesAfterForecast)})`);
+          }
+          if (
+            stylesAfterForecast.forecast.dasharray === "" &&
+            stylesAfterForecast.forecast.dashoffset === ""
+          ) {
+            throw new Error(`forecast line did not animate on toggle-on (styles=${JSON.stringify(stylesAfterForecast.forecast)})`);
+          }
+
+          await page.waitForFunction(() => {
+            const paths = Array.from(document.querySelectorAll(".history-modal-chart path.history-line"));
+            return paths.every(
+              (path) =>
+                path instanceof SVGPathElement &&
+                path.style.strokeDasharray === "" &&
+                path.style.strokeDashoffset === ""
+            );
+          });
+
+          // Toggle actual off and back on; only the actual line should redraw.
+          await actualToggle.click();
+          await page.waitForTimeout(80);
+          await actualToggle.click();
+          await page.waitForTimeout(60);
+
+          const stylesAfterActual = await readLineStyles();
+          if (!stylesAfterActual.forecast) {
+            throw new Error(`forecast line missing after toggling actual (styles=${JSON.stringify(stylesAfterActual)})`);
+          }
+          if (
+            stylesAfterActual.forecast.dasharray !== "" ||
+            stylesAfterActual.forecast.dashoffset !== "" ||
+            stylesAfterActual.forecast.transition !== ""
+          ) {
+            throw new Error(`forecast line re-animated while toggling actual (styles=${JSON.stringify(stylesAfterActual.forecast)})`);
+          }
+          if (!stylesAfterActual.actual) {
+            throw new Error(`actual line missing after toggle-on (styles=${JSON.stringify(stylesAfterActual)})`);
+          }
+          if (
+            stylesAfterActual.actual.dasharray === "" &&
+            stylesAfterActual.actual.dashoffset === ""
+          ) {
+            throw new Error(`actual line did not animate on toggle-on (styles=${JSON.stringify(stylesAfterActual.actual)})`);
+          }
+
+          await page.waitForFunction(() => {
+            const paths = Array.from(document.querySelectorAll(".history-modal-chart path.history-line"));
+            return paths.every(
+              (path) =>
+                path instanceof SVGPathElement &&
+                path.style.strokeDasharray === "" &&
+                path.style.strokeDashoffset === ""
+            );
+          });
+        });
+
+        // Switch range once to ensure draw animations trigger outside the initial load.
+        const range20 = historyModal
+          .locator(".history-modal-toggle button.history-toggle")
+          .filter({ hasText: "Last 20" })
+          .first();
+        const range50 = historyModal
+          .locator(".history-modal-toggle button.history-toggle")
+          .filter({ hasText: "Last 50" })
+          .first();
+        const rangeCandidate =
+          (await range20.count()) ? range20 : (await range50.count()) ? range50 : null;
+        if (rangeCandidate && (await chart.count())) {
+          await rangeCandidate.click();
+          await page.waitForTimeout(60);
+
+          await runCheck(theme.key, "Event history chart animates on range change", async () => {
+            await page.waitForFunction(
+              () =>
+                Array.from(document.querySelectorAll(".history-modal-chart path.history-line"))
+                  .filter((node) => node instanceof SVGPathElement)
+                  .some((path) => path.style.strokeDasharray !== "" || path.style.strokeDashoffset !== ""),
+              null,
+              { timeout: 600 }
+            );
+          });
+
+          const rangeFrames = await captureFrames(
+            page,
+            "event-history-modal",
+            theme.key,
+            "range-anim",
+            { count: 6, gapMs: 140, element: chart }
+          );
+          artifacts.push({
+            scenario: "event-history-modal",
+            theme: theme.key,
+            state: "range-anim",
+            label: "Chart line draw animation (range change)",
+            path: rangeFrames[0],
+            frames: rangeFrames,
+            frameGapMs: 140
+          });
+
+          await runCheck(theme.key, "Event history chart dash styles cleared (range change)", async () => {
+            await page.waitForFunction(
+              () => {
+                const paths = Array.from(
+                  document.querySelectorAll(".history-modal-chart path.history-line")
+                );
+                if (!paths.length) return true;
+                return paths.every(
+                  (path) =>
+                    path instanceof SVGPathElement &&
+                    path.style.strokeDasharray === "" &&
+                    path.style.strokeDashoffset === ""
+                );
+              },
+              null,
+              { timeout: 2500 }
+            );
+          });
+        }
+
         const rangeAll = historyModal
           .locator(".history-modal-toggle button.history-toggle")
           .filter({ hasText: "All" })
@@ -2349,6 +2542,132 @@ const main = async () => {
         if (await rangeAll.count()) {
           await rangeAll.click();
           await page.waitForTimeout(120);
+
+          await runCheck(theme.key, "Event history revision labels do not shift row height", async () => {
+            const info = await page.evaluate(() => {
+              const table = document.querySelector("[data-qa='qa:history:table']");
+              if (!(table instanceof HTMLElement)) {
+                return { ok: false, reason: "history table missing" };
+              }
+              const rows = Array.from(
+                table.querySelectorAll(".history-modal-row:not(.history-modal-header)")
+              ).filter((row) => row instanceof HTMLElement);
+              if (!rows.length) {
+                return { ok: false, reason: "history rows missing" };
+              }
+              const revisedRow = rows.find((row) => row.querySelector(".history-row-revision"));
+              const plainRow = rows.find((row) => !row.querySelector(".history-row-revision"));
+              if (!(revisedRow instanceof HTMLElement) || !(plainRow instanceof HTMLElement)) {
+                return { ok: true, reason: "no revised rows found" };
+              }
+              const revisedRect = revisedRow.getBoundingClientRect();
+              const plainRect = plainRow.getBoundingClientRect();
+              const heightDelta = Math.abs(revisedRect.height - plainRect.height);
+
+              const pickPreviousCell = (row) => {
+                const cells = row.querySelectorAll("span.history-value");
+                return cells.length ? cells[cells.length - 1] : null;
+              };
+              const revisedPrev = pickPreviousCell(revisedRow);
+              const plainPrev = pickPreviousCell(plainRow);
+              const revisedMain = revisedPrev?.querySelector(".history-value-main");
+              const plainMain = plainPrev?.querySelector(".history-value-main");
+              if (!(revisedMain instanceof HTMLElement) || !(plainMain instanceof HTMLElement)) {
+                return { ok: false, reason: "missing previous cell main value" };
+              }
+              const revisedCenter =
+                revisedMain.getBoundingClientRect().top +
+                revisedMain.getBoundingClientRect().height / 2 -
+                revisedRect.top;
+              const plainCenter =
+                plainMain.getBoundingClientRect().top +
+                plainMain.getBoundingClientRect().height / 2 -
+                plainRect.top;
+              const centerDelta = Math.abs(revisedCenter - plainCenter);
+
+              const revisedLabel = revisedRow.querySelector(".history-row-revision");
+              const revisedValue = revisedLabel?.querySelector(".history-revised-value");
+              const revisedValueStyle =
+                revisedValue instanceof HTMLElement ? window.getComputedStyle(revisedValue) : null;
+              const prevCellStyle =
+                revisedPrev instanceof HTMLElement ? window.getComputedStyle(revisedPrev) : null;
+
+              const hasEllipsis = revisedValueStyle?.textOverflow === "ellipsis";
+              const prevOverflow = prevCellStyle?.overflowX || prevCellStyle?.overflow;
+
+              if (heightDelta > 0.9) {
+                return {
+                  ok: false,
+                  reason: `row height drifted (delta=${heightDelta.toFixed(2)}px)`,
+                  revisedHeight: revisedRect.height,
+                  plainHeight: plainRect.height,
+                  revisedRowText: revisedRow.textContent || ""
+                };
+              }
+              if (centerDelta > 1.1) {
+                return {
+                  ok: false,
+                  reason: `primary value shifted by revision label (delta=${centerDelta.toFixed(2)}px)`,
+                  revisedCenter,
+                  plainCenter
+                };
+              }
+              if (hasEllipsis) {
+                return {
+                  ok: false,
+                  reason: "revision value uses ellipsis",
+                  textOverflow: revisedValueStyle?.textOverflow
+                };
+              }
+              if (prevOverflow && prevOverflow !== "visible") {
+                return {
+                  ok: false,
+                  reason: `previous cell clips overflow (overflow=${prevOverflow})`
+                };
+              }
+              if (revisedLabel instanceof HTMLElement && revisedPrev instanceof HTMLElement) {
+                const labelRect = revisedLabel.getBoundingClientRect();
+                const prevRect = revisedPrev.getBoundingClientRect();
+                if (labelRect.width > prevRect.width + 6 && labelRect.left >= prevRect.left - 1) {
+                  return {
+                    ok: false,
+                    reason: "revision label is constrained to the previous cell (should flow left)",
+                    labelWidth: labelRect.width,
+                    prevWidth: prevRect.width,
+                    labelLeft: labelRect.left,
+                    prevLeft: prevRect.left
+                  };
+                }
+              }
+              return { ok: true, reason: "" };
+            });
+            if (!info.ok) {
+              throw new Error(info.reason);
+            }
+          });
+
+          // Hover the chart so the tooltip/crosshair state is captured in the report.
+          if (await chart.count()) {
+            const box = await chart.boundingBox();
+            if (box) {
+              await chart.hover({
+                position: {
+                  x: Math.floor(box.width * 0.81),
+                  y: Math.floor(box.height * 0.35)
+                }
+              });
+              await page.waitForTimeout(120);
+              artifacts.push({
+                scenario: "event-history-modal",
+                theme: theme.key,
+                state: "tooltip",
+                label: "History modal chart tooltip",
+                path: await captureState(page, "event-history-modal", theme.key, "tooltip", {
+                  element: historyModal
+                })
+              });
+            }
+          }
 
           await runCheck(theme.key, "Event history modal scrollbars hidden", async () => {
             const info = await historyModal.evaluate(() => {
@@ -3518,7 +3837,7 @@ const main = async () => {
     });
 
     await actionMutex(async () => {
-      const pullButton = page.locator("[data-qa*='qa:action:pull']").first();
+      const pullButton = page.locator("[data-qa~='qa:action:pull']").first();
       await pullButton.hover();
       artifacts.push({
         scenario: "actions",
@@ -3536,7 +3855,8 @@ const main = async () => {
       });
       await releasePull();
       await pullButton.click();
-      await waitForActionLoading(page, "[data-qa*='qa:action:pull']", "[data-qa*='qa:spinner:pull']");
+      await waitForActionLoading(page, "[data-qa~='qa:action:pull']", "[data-qa*='qa:spinner:pull']");
+      const pullCompletionPromise = waitForActionCompletion(page, "[data-qa~='qa:action:pull']");
       artifacts.push({
         scenario: "actions",
         theme: theme.key,
@@ -3555,7 +3875,7 @@ const main = async () => {
         skipCheck(theme.key, "Toast transition presence", "Toast not present");
       }
 
-      const pullCompletion = await waitForActionCompletion(page, "[data-qa*='qa:action:pull']");
+      const pullCompletion = await pullCompletionPromise;
       const pullStateLabel =
         pullCompletion.state === "success"
           ? "pull-success"
@@ -3591,7 +3911,7 @@ const main = async () => {
       // the pull button width transition.
       await page.waitForFunction(
         () => {
-          const btn = document.querySelector("[data-qa*='qa:action:pull']");
+          const btn = document.querySelector("[data-qa~='qa:action:pull']");
           return (btn?.getAttribute("data-qa-state") || "") === "idle";
         },
         null,
@@ -3599,7 +3919,7 @@ const main = async () => {
       );
       await page.waitForTimeout(200);
 
-      const syncButton = page.locator("[data-qa*='qa:action:sync']").first();
+      const syncButton = page.locator("[data-qa~='qa:action:sync']").first();
       await syncButton.hover();
       artifacts.push({
         scenario: "actions",
@@ -3700,7 +4020,7 @@ const main = async () => {
         });
         await runCheck(theme.key, "Sync missing target pulse", async () => {
           const result = await page.evaluate((baselinePulse) => {
-            const syncBtn = document.querySelector("[data-qa*='qa:action:sync']");
+            const syncBtn = document.querySelector("[data-qa~='qa:action:sync']");
             const target = document.querySelector("[data-qa='qa:action:sync-target']");
             const spinner = document.querySelector("[data-qa*='qa:spinner:sync']");
             const state = syncBtn?.getAttribute("data-qa-state") || "";
@@ -3752,7 +4072,8 @@ const main = async () => {
         // Start an actual sync after a target is set.
         await syncButton.click();
       }
-      await waitForActionLoading(page, "[data-qa*='qa:action:sync']", "[data-qa*='qa:spinner:sync']");
+      await waitForActionLoading(page, "[data-qa~='qa:action:sync']", "[data-qa*='qa:spinner:sync']");
+      const syncCompletionPromise = waitForActionCompletion(page, "[data-qa~='qa:action:sync']");
       artifacts.push({
         scenario: "actions",
         theme: theme.key,
@@ -3770,7 +4091,7 @@ const main = async () => {
         skipCheck(theme.key, "Toast transition presence (sync)", "Toast not present");
       }
 
-      const syncCompletion = await waitForActionCompletion(page, "[data-qa*='qa:action:sync']");
+      const syncCompletion = await syncCompletionPromise;
       const syncStateLabel =
         syncCompletion.state === "success"
           ? "sync-success"

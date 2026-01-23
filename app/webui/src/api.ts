@@ -372,22 +372,73 @@ export const backend = {
           date: string;
           time: string;
           actual: string;
+          actualRaw: string;
+          actualRevisedFrom: string;
           forecast: string;
           previous: string;
+          previousRaw: string;
+          previousRevisedFrom: string;
+          period: string;
         }> = [];
 
-        let lastActual: string | null = null;
+        let lastPoint: (typeof result)[number] | null = null;
         // Build oldest -> newest to match backend sorting expectations.
         for (let i = count - 1; i >= 0; i -= 1) {
           const dt = new Date(start);
           dt.setUTCDate(start.getUTCDate() - i * 7);
           const actualK = 220 + Math.round(Math.sin(i / 5) * 12 + (i % 4) * 2);
           const forecastK = 221 + Math.round(Math.cos(i / 6) * 10 - (i % 3));
-          const actual = `${actualK}k`;
+          const monthTokens = [
+            "jan",
+            "feb",
+            "mar",
+            "apr",
+            "may",
+            "jun",
+            "jul",
+            "aug",
+            "sep",
+            "oct",
+            "nov",
+            "dec"
+          ] as const;
+          const period = monthTokens[dt.getUTCMonth()] ?? "";
+
+          const actualRaw = `${actualK}k`;
           const forecast = `${forecastK}k`;
-          const previous = lastActual && i % 17 !== 0 ? lastActual : "--";
-          result.push({ date: fmtDate(dt), time: "08:30", actual, forecast, previous });
-          lastActual = actual;
+          const previousBase = lastPoint && i % 17 !== 0 ? lastPoint.actual : "--";
+          let previous = previousBase;
+          let previousRaw = previousBase;
+          let previousRevisedFrom = "";
+
+          // Simulate occasional revisions: the newer row's Previous value revises the older
+          // row's Actual. Keep the old value in `actualRevisedFrom` and surface the revision
+          // under the newer row's Previous.
+          if (lastPoint && previousBase !== "--" && i % 23 === 0) {
+            const base = Number(lastPoint.actualRaw.replace(/k/i, ""));
+            const revised = Number.isFinite(base) ? Math.max(0, base - 3) : base;
+            const revisedValue = `${revised}k`;
+            previous = revisedValue;
+            previousRaw = revisedValue;
+            previousRevisedFrom = lastPoint.actualRaw;
+            lastPoint.actualRevisedFrom = lastPoint.actualRaw;
+            lastPoint.actual = revisedValue;
+          }
+
+          const point = {
+            date: fmtDate(dt),
+            time: "08:30",
+            actual: actualRaw,
+            actualRaw,
+            actualRevisedFrom: "",
+            forecast,
+            previous,
+            previousRaw,
+            previousRevisedFrom,
+            period
+          };
+          result.push(point);
+          lastPoint = point;
         }
         return result;
       })();

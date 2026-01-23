@@ -1,1 +1,1 @@
-EventId,Date,Time,Actual,Forecast,Previous,Reason
+EventId,Date,Time,Period,Actual,Forecast,Previous,Reason

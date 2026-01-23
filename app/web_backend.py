@@ -2552,13 +2552,68 @@ class WebAgentBackend:
                         for item in raw_points:
                             if not isinstance(item, list) or len(item) < 5:
                                 continue
+
+                            # v3 schema (len>=8):
+                            # [date, time, actualEffective, forecast, previousEffective, actualRaw, previousRaw, (previousRevisedFrom?), period]
+                            if len(item) >= 8:
+                                actual_effective = str(item[2] or "").strip()
+                                forecast = str(item[3] or "").strip()
+                                previous_effective = str(item[4] or "").strip()
+                                actual_raw = str(item[5] or "").strip()
+                                previous_raw = str(item[6] or "").strip()
+                                previous_revised_from = ""
+                                if len(item) >= 9:
+                                    previous_revised_from = str(item[7] or "").strip()
+                                    period = str(item[8] or "").strip()
+                                else:
+                                    period = str(item[7] or "").strip()
+                                actual_revised_from = ""
+                                if (
+                                    actual_raw.strip() != actual_effective.strip()
+                                    and not self._is_history_value_missing(actual_raw)
+                                    and not self._is_history_value_missing(
+                                        actual_effective
+                                    )
+                                ):
+                                    actual_revised_from = actual_raw
+                                points.append(
+                                    {
+                                        "date": str(item[0] or "").strip(),
+                                        "time": str(item[1] or "").strip(),
+                                        "actual": actual_effective,
+                                        "actualRaw": actual_raw,
+                                        "actualRevisedFrom": actual_revised_from,
+                                        "forecast": forecast,
+                                        "previous": previous_effective,
+                                        "previousRaw": previous_raw,
+                                        "previousRevisedFrom": previous_revised_from,
+                                        "period": period,
+                                    }
+                                )
+                                continue
+
+                            # v2 schema (len>=7): [date, time, actual, forecast, previous, actualRevisedFrom, period]
+                            actual_revised_from = ""
+                            period = ""
+                            if len(item) >= 7:
+                                actual_revised_from = str(item[5] or "").strip()
+                                period = str(item[6] or "").strip()
+                            elif len(item) >= 6:
+                                period = str(item[5] or "").strip()
+                            actual = str(item[2] or "").strip()
+                            previous = str(item[4] or "").strip()
                             points.append(
                                 {
                                     "date": str(item[0] or "").strip(),
                                     "time": str(item[1] or "").strip(),
-                                    "actual": str(item[2] or "").strip(),
+                                    "actual": actual,
+                                    "actualRaw": actual,
+                                    "actualRevisedFrom": actual_revised_from,
                                     "forecast": str(item[3] or "").strip(),
-                                    "previous": str(item[4] or "").strip(),
+                                    "previous": previous,
+                                    "previousRaw": previous,
+                                    "previousRevisedFrom": "",
+                                    "period": period,
                                 }
                             )
                         return points
@@ -2581,8 +2636,21 @@ class WebAgentBackend:
                             "date": (row.get("Date") or "").strip(),
                             "time": (row.get("Time") or "").strip(),
                             "actual": (row.get("Actual") or "").strip(),
+                            "actualRaw": (
+                                row.get("ActualRaw") or row.get("Actual") or ""
+                            ).strip(),
+                            "actualRevisedFrom": (
+                                row.get("ActualRevisedFrom") or ""
+                            ).strip(),
                             "forecast": (row.get("Forecast") or "").strip(),
                             "previous": (row.get("Previous") or "").strip(),
+                            "previousRaw": (
+                                row.get("PreviousRaw") or row.get("Previous") or ""
+                            ).strip(),
+                            "previousRevisedFrom": (
+                                row.get("PreviousRevisedFrom") or ""
+                            ).strip(),
+                            "period": (row.get("Period") or "").strip(),
                         }
                     )
         points.sort(
@@ -2648,7 +2716,7 @@ class WebAgentBackend:
                 if not event:
                     continue
                 cur = (row.get("Cur.") or "").strip()
-                row_id, _identity = build_event_canonical_id(cur, event)
+                row_id, identity = build_event_canonical_id(cur, event)
                 if row_id != event_id:
                     continue
                 points.append(
@@ -2656,8 +2724,13 @@ class WebAgentBackend:
                         "date": str(row.get("Date") or "").strip(),
                         "time": str(row.get("Time") or "").strip(),
                         "actual": str(row.get("Actual") or "").strip(),
+                        "actualRaw": str(row.get("Actual") or "").strip(),
+                        "actualRevisedFrom": "",
                         "forecast": str(row.get("Forecast") or "").strip(),
                         "previous": str(row.get("Previous") or "").strip(),
+                        "previousRaw": str(row.get("Previous") or "").strip(),
+                        "previousRevisedFrom": "",
+                        "period": (identity.period or "").strip(),
                     }
                 )
         points.sort(

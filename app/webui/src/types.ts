@@ -39,8 +39,13 @@ export type EventHistoryPoint = {
   date: string;
   time: string;
   actual: string;
+  actualRaw?: string;
+  actualRevisedFrom?: string;
   forecast: string;
   previous: string;
+  previousRaw?: string;
+  previousRevisedFrom?: string;
+  period?: string;
 };
 
 export type EventHistoryResponse = {

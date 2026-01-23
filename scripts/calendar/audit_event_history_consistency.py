@@ -16,7 +16,7 @@ import build_event_history_index as history_index  # noqa: E402
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Audit event history previous values and generate patch/issue reports "
+            "Audit event history consistency and generate patch/issue reports "
             "without rewriting the index files."
         )
     )
