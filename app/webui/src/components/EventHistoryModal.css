@@ -428,6 +428,8 @@
   top: 0;
   z-index: 2;
   background: var(--table-row-bg);
+  backdrop-filter: blur(10px) saturate(1.2);
+  -webkit-backdrop-filter: blur(10px) saturate(1.2);
 }
 
 .history-modal-row .disabled {
