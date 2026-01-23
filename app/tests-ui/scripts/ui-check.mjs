@@ -1742,7 +1742,9 @@ const main = async () => {
     await clearDir(baseArtifactsRoot);
     await fs.rm(baseReportPath, { force: true });
 
-    const workerLimit = parseWorkerLimit(process.env.UI_CHECK_WORKERS) ?? themeList.length;
+    const platformDefault =
+      process.platform === "win32" ? Math.min(2, themeList.length) : themeList.length;
+    const workerLimit = parseWorkerLimit(process.env.UI_CHECK_WORKERS) ?? platformDefault;
     const workerCount = Math.max(1, Math.min(themeList.length, workerLimit));
     const basePort = parsePort(process.env.UI_CHECK_PORT_BASE) ?? defaultPort;
 
