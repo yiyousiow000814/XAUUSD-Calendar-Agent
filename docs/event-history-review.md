@@ -35,9 +35,6 @@ Notes:
 
 1. Index build-time detection (local / CI usage)
    - `scripts/calendar/build_event_history_index.py` flags issues while rebuilding the index and writes them into `*_event_history_issues*`.
-2. Scheduled consistency audit (GitHub Actions)
-   - `scripts/calendar/audit_event_history_consistency.py` runs the same detection logic but does not rewrite the index files.
-   - Workflow: `.github/workflows/event-history-consistency-audit.yml`
 
 ## Manual review workflow
 
