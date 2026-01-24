@@ -14,6 +14,7 @@ type EventHistoryModalProps = {
 const CLOSE_ANIMATION_MS = 320;
 const CHART_LINE_ANIMATION_MS = 1100;
 const ROW_EXIT_ANIMATION_MS = 220;
+const HEADER_SHADOW_TRIGGER_PX = 6;
 
 const NUMERIC_RANGE_KEYS = [5, 10, 20, 50, 100] as const;
 type NumericRangeKey = (typeof NUMERIC_RANGE_KEYS)[number];
@@ -189,6 +190,7 @@ export function EventHistoryModal({
   const tableRef = useRef<HTMLDivElement | null>(null);
   const [fitRowCount, setFitRowCount] = useState(0);
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const [showHeaderShadow, setShowHeaderShadow] = useState(false);
   const [preferredSeries, setPreferredSeries] = useState(() => {
     if (typeof window === "undefined") return { actual: true, forecast: true };
     try {
@@ -255,6 +257,26 @@ export function EventHistoryModal({
     () => resolveRange(preferredRange, points.length),
     [points.length, preferredRange]
   );
+
+  const headerShadowFrame = useRef<number | null>(null);
+  const updateHeaderShadow = useCallback(() => {
+    const node = tableRef.current;
+    if (!node) {
+      setShowHeaderShadow(false);
+      return;
+    }
+    const header = node.querySelector<HTMLElement>(".history-modal-header");
+    const row = node.querySelector<HTMLElement>(
+      ".history-modal-row:not(.history-modal-header)"
+    );
+    if (!header || !row) {
+      setShowHeaderShadow(false);
+      return;
+    }
+    const headerRect = header.getBoundingClientRect();
+    const rowRect = row.getBoundingClientRect();
+    setShowHeaderShadow(rowRect.top < headerRect.bottom - HEADER_SHADOW_TRIGGER_PX);
+  }, []);
   const displayPoints = useMemo(() => {
     if (activeRange === "all") return points;
     return points.slice(-activeRange);
@@ -292,6 +314,7 @@ export function EventHistoryModal({
     setFitRowCount(0);
     lineAnimationStateRef.current = null;
     setHoverIndex(null);
+    setShowHeaderShadow(false);
   }, [isOpen, selectionLabel]);
 
   useEffect(() => {
@@ -311,6 +334,11 @@ export function EventHistoryModal({
       // Ignore storage errors.
     }
   }, [isOpen, preferredSeries]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    updateHeaderShadow();
+  }, [isOpen, tableRows, updateHeaderShadow]);
 
   useLayoutEffect(() => {
     if (!isOpen) return;
@@ -694,6 +722,17 @@ export function EventHistoryModal({
     if (!row) return;
     row.scrollIntoView({ block: "center", behavior: "smooth" });
   }, []);
+
+  const handleTableScroll = useCallback(
+    (_event: React.UIEvent<HTMLDivElement>) => {
+      if (headerShadowFrame.current !== null) return;
+      headerShadowFrame.current = window.requestAnimationFrame(() => {
+        headerShadowFrame.current = null;
+        updateHeaderShadow();
+      });
+    },
+    [updateHeaderShadow]
+  );
 
   const resolveHoverIndex = useCallback(
     (clientX: number) => {
@@ -1138,8 +1177,9 @@ export function EventHistoryModal({
                         activeRange === "all" || activeRange > 10 ? " scrollable" : ""
                       }${
                         hasMetricValues ? "" : " schedule"
-                      }`}
+                      }${showHeaderShadow ? " has-header-shadow" : ""}`}
                       data-qa="qa:history:table"
+                      onScroll={handleTableScroll}
                       ref={tableRef}
                     >
                       <div className="history-modal-row history-modal-header">
@@ -1203,7 +1243,9 @@ export function EventHistoryModal({
                                       : undefined
                                   }
                                 >
-                                  <span className="history-value-main">{formatDisplayValue(previousValue)}</span>
+                                  <span className="history-value-main">
+                                    {formatDisplayValue(previousValue)}
+                                  </span>
                                   <span className="history-value-sub placeholder" aria-hidden="true">
                                     {"\u00A0"}
                                   </span>
@@ -1212,7 +1254,10 @@ export function EventHistoryModal({
                                   <div className="history-row-revision" aria-hidden="true">
                                     <span className="history-revised-prefix">Revised from</span>
                                     <span className="history-revised-value">
-                                      {formatDisplayValue(point.previousRevisedFrom)}*
+                                      {formatDisplayValue(point.previousRevisedFrom)}
+                                      <span className="history-revised-star" aria-hidden="true">
+                                        *
+                                      </span>
                                     </span>
                                   </div>
                                 ) : null}
