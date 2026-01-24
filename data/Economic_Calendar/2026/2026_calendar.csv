@@ -1637,30 +1637,31 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-23,Friday,23:00,USD,Medium,Michigan 5-Year Inflation Expectations  (Jan),3.3%,3.4%,3.2%
 2026-01-23,Friday,23:00,USD,Medium,Michigan Consumer Expectations  (Jan),57.0,55.0,54.6
 2026-01-23,Friday,23:00,USD,Medium,Michigan Consumer Sentiment  (Jan),56.4,54.0,52.9
+2026-01-23,Friday,23:59,USD,Medium,US Leading Index (MoM)  (Oct),-0.1%,-0.2%,-0.3%
 2026-01-24,Saturday,All Day,,Holiday,Oman - Al Isra' wal-Mi'raj,,,
-2026-01-24,Saturday,01:00,USD,Medium,US Leading Index (MoM)  (Nov),,-0.2%,-0.3%
-2026-01-24,Saturday,02:00,USD,Medium,U.S. Baker Hughes Oil Rig Count,,411,410
-2026-01-24,Saturday,02:00,USD,Medium,U.S. Baker Hughes Total Rig Count,,,543
-2026-01-24,Saturday,04:30,AUD,Medium,CFTC AUD speculative net positions,,,-18.8K
-2026-01-24,Saturday,04:30,BRL,Medium,CFTC BRL speculative net positions,,,17.9K
-2026-01-24,Saturday,04:30,CAD,Low,CFTC CAD speculative net positions,,,-42.3K
-2026-01-24,Saturday,04:30,CHF,Low,CFTC CHF speculative net positions,,,-43.4K
-2026-01-24,Saturday,04:30,EUR,Medium,CFTC EUR speculative net positions,,,132.7K
-2026-01-24,Saturday,04:30,GBP,Medium,CFTC GBP speculative net positions,,,-25.3K
-2026-01-24,Saturday,04:30,JPY,Medium,CFTC JPY speculative net positions,,,-45.2K
-2026-01-24,Saturday,04:30,MXN,Low,CFTC MXN speculative net positions,,,103.6K
-2026-01-24,Saturday,04:30,NZD,Low,CFTC NZD speculative net positions,,,-48.9K
-2026-01-24,Saturday,04:30,USD,Low,CFTC Aluminium speculative net positions,,,-3.3K
-2026-01-24,Saturday,04:30,USD,Low,CFTC Copper speculative net positions,,,53.4K
-2026-01-24,Saturday,04:30,USD,Low,CFTC Corn speculative net positions,,,-33.4K
-2026-01-24,Saturday,04:30,USD,Low,CFTC Natural Gas speculative net positions,,,-185.6K
-2026-01-24,Saturday,04:30,USD,Low,CFTC Silver speculative net positions,,,32.1K
-2026-01-24,Saturday,04:30,USD,Low,CFTC Soybeans speculative net positions,,,58.9K
-2026-01-24,Saturday,04:30,USD,Low,CFTC Wheat speculative net positions,,,-86.0K
-2026-01-24,Saturday,04:30,USD,Medium,CFTC Crude Oil speculative net positions,,,58.1K
-2026-01-24,Saturday,04:30,USD,Medium,CFTC Gold speculative net positions,,,251.2K
-2026-01-24,Saturday,04:30,USD,Medium,CFTC Nasdaq 100 speculative net positions,,,29.1K
-2026-01-24,Saturday,04:30,USD,Medium,CFTC S&P 500 speculative net positions,,,-122.1K
+2026-01-24,Saturday,00:00,USD,Medium,US Leading Index (MoM)  (Nov),-0.3%,-0.2%,-0.1%
+2026-01-24,Saturday,02:00,USD,Medium,U.S. Baker Hughes Oil Rig Count,411,411,410
+2026-01-24,Saturday,02:00,USD,Medium,U.S. Baker Hughes Total Rig Count,544,,543
+2026-01-24,Saturday,04:30,AUD,Medium,CFTC AUD speculative net positions,-14.0K,,-18.8K
+2026-01-24,Saturday,04:30,BRL,Medium,CFTC BRL speculative net positions,17.6K,,17.9K
+2026-01-24,Saturday,04:30,CAD,Low,CFTC CAD speculative net positions,-41.8K,,-42.3K
+2026-01-24,Saturday,04:30,CHF,Low,CFTC CHF speculative net positions,-43.2K,,-43.4K
+2026-01-24,Saturday,04:30,EUR,Medium,CFTC EUR speculative net positions,111.7K,,132.7K
+2026-01-24,Saturday,04:30,GBP,Medium,CFTC GBP speculative net positions,-22.0K,,-25.3K
+2026-01-24,Saturday,04:30,JPY,Medium,CFTC JPY speculative net positions,-44.8K,,-45.2K
+2026-01-24,Saturday,04:30,MXN,Low,CFTC MXN speculative net positions,107.2K,,103.6K
+2026-01-24,Saturday,04:30,NZD,Low,CFTC NZD speculative net positions,-49.6K,,-48.9K
+2026-01-24,Saturday,04:30,USD,Low,CFTC Aluminium speculative net positions,-3.4K,,-3.3K
+2026-01-24,Saturday,04:30,USD,Low,CFTC Copper speculative net positions,52.6K,,53.4K
+2026-01-24,Saturday,04:30,USD,Low,CFTC Corn speculative net positions,-51.7K,,-33.4K
+2026-01-24,Saturday,04:30,USD,Low,CFTC Natural Gas speculative net positions,-193.5K,,-185.6K
+2026-01-24,Saturday,04:30,USD,Low,CFTC Silver speculative net positions,25.2K,,32.1K
+2026-01-24,Saturday,04:30,USD,Low,CFTC Soybeans speculative net positions,58.1K,,58.9K
+2026-01-24,Saturday,04:30,USD,Low,CFTC Wheat speculative net positions,-93.7K,,-86.0K
+2026-01-24,Saturday,04:30,USD,Medium,CFTC Crude Oil speculative net positions,78.8K,,58.1K
+2026-01-24,Saturday,04:30,USD,Medium,CFTC Gold speculative net positions,244.8K,,251.2K
+2026-01-24,Saturday,04:30,USD,Medium,CFTC Nasdaq 100 speculative net positions,21.1K,,29.1K
+2026-01-24,Saturday,04:30,USD,Medium,CFTC S&P 500 speculative net positions,-81.8K,,-122.1K
 2026-01-25,Sunday,All Day,,Holiday,Egypt - Revolution Day,,,
 2026-01-25,Sunday,All Day,,Holiday,Oman - Al Isra' wal-Mi'raj,,,
 2026-01-25,Sunday,19:00,ILS,Low,Industrial Output (MoM)  (Nov),,,0.3%
@@ -1681,7 +1682,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-26,Monday,17:00,EUR,Medium,German Current Assessment  (Jan),,,85.6
 2026-01-26,Monday,17:00,EUR,Medium,German Ifo Business Climate Index  (Jan),,,87.6
 2026-01-26,Monday,17:00,PLN,Low,Retail Sales (YoY)  (Dec),,,2.8%
-2026-01-26,Monday,19:00,BRL,Low,FGV Consumer confidence  (Jan),,,90.2
 2026-01-26,Monday,19:00,EUR,Medium,German Buba President Nagel Speaks,,,
 2026-01-26,Monday,19:25,BRL,Low,BCB Focus Market Readout,,,
 2026-01-26,Monday,19:30,BRL,Low,Current Account (USD)  (Dec),,,-4.94B
@@ -1754,6 +1754,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-27,Tuesday,16:30,HKD,Low,Trade Balance  (Dec),,,-48.5B
 2026-01-27,Tuesday,17:00,PLN,Low,Unemployment Rate  (Dec),,,5.6%
 2026-01-27,Tuesday,18:30,EUR,Low,German 2-Year Schatz Auction,,,2.110%
+2026-01-27,Tuesday,19:00,BRL,Low,FGV Consumer confidence  (Jan),,,90.2
 2026-01-27,Tuesday,20:00,BRL,Low,Mid-Month CPI (MoM)  (Jan),,,0.25%
 2026-01-27,Tuesday,20:00,BRL,Low,Mid-Month CPI (YoY)  (Jan),,,4.41%
 2026-01-27,Tuesday,20:00,MXN,Low,Trade Balance  (Dec),,,0.663B
@@ -1783,16 +1784,16 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-28,Wednesday,05:00,CLP,Low,Interest Rate Decision  (Jan),,4.50%,4.50%
 2026-01-28,Wednesday,05:30,USD,Medium,API Weekly Crude Oil Stock,,,3.040M
 2026-01-28,Wednesday,07:50,JPY,Medium,Monetary Policy Meeting Minutes,,,
-2026-01-28,Wednesday,08:30,AUD,Low,CPI Index Number  (Dec),,,100.01
+2026-01-28,Wednesday,08:30,AUD,Low,CPI Index Number  (Q4),,,143.60
 2026-01-28,Wednesday,08:30,AUD,Low,Monthly CPI Indicator (YoY)  (Dec),,,3.40%
-2026-01-28,Wednesday,08:30,AUD,Low,Trimmed Mean CPI (YoY)  (Dec),,,3.2%
-2026-01-28,Wednesday,08:30,AUD,Low,Weighted mean CPI (QoQ)  (Dec),,,0.3%
-2026-01-28,Wednesday,08:30,AUD,Low,Weighted mean CPI (YoY)  (Dec),,,3.4%
+2026-01-28,Wednesday,08:30,AUD,Low,Trimmed Mean CPI (YoY)  (Q4),,,3.0%
+2026-01-28,Wednesday,08:30,AUD,Low,Weighted mean CPI (QoQ)  (Q4),,,1.0%
+2026-01-28,Wednesday,08:30,AUD,Low,Weighted mean CPI (YoY)  (Q4),,,2.8%
 2026-01-28,Wednesday,08:30,AUD,Medium,CPI (QoQ)  (Q4),,,1.3%
 2026-01-28,Wednesday,08:30,AUD,Medium,CPI (YoY)  (Q4),,,3.2%
-2026-01-28,Wednesday,08:30,AUD,Medium,Trimmed Mean CPI (QoQ)  (Dec),,,0.3%
+2026-01-28,Wednesday,08:30,AUD,Medium,Trimmed Mean CPI (QoQ)  (Q4),,,1.0%
 2026-01-28,Wednesday,10:00,LKR,Low,Interest Rate Decision (MoM),,,7.75%
-2026-01-28,Wednesday,15:00,DKK,Low,M3 Money Supply  (Dec),,,"2,071.0B"
+2026-01-28,Wednesday,15:00,DKK,Low,M3 Money Supply  (Dec),,,"2,071,019.4B"
 2026-01-28,Wednesday,15:00,EUR,Medium,GfK German Consumer Climate  (Feb),,,-26.9
 2026-01-28,Wednesday,17:00,CHF,Low,ZEW Expectations  (Jan),,,6.2
 2026-01-28,Wednesday,17:00,EUR,Low,Bank Austria Manufacturing PMI  (Jan),,,49.3
@@ -1817,6 +1818,16 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-28,Wednesday,22:45,CAD,High,BoC Interest Rate Decision,,,2.25%
 2026-01-28,Wednesday,22:45,CAD,Medium,BoC Monetary Policy Report,,,
 2026-01-28,Wednesday,23:30,CAD,Medium,BOC Press Conference,,,
+2026-01-28,Wednesday,23:30,USD,High,Crude Oil Inventories,,,3.602M
+2026-01-28,Wednesday,23:30,USD,Low,Crude Oil Imports,,,-0.027M
+2026-01-28,Wednesday,23:30,USD,Low,Distillate Fuel Production,,,-0.209M
+2026-01-28,Wednesday,23:30,USD,Low,EIA Refinery Crude Runs  (WoW),,,-0.354M
+2026-01-28,Wednesday,23:30,USD,Low,EIA Weekly Distillates Stocks,,,3.348M
+2026-01-28,Wednesday,23:30,USD,Low,EIA Weekly Refinery Utilization Rates (WoW),,,-2.0%
+2026-01-28,Wednesday,23:30,USD,Low,Gasoline Inventories,,,5.977M
+2026-01-28,Wednesday,23:30,USD,Low,Gasoline Production,,,-0.246M
+2026-01-28,Wednesday,23:30,USD,Low,Heating Oil Stockpiles,,,0.279M
+2026-01-28,Wednesday,23:30,USD,Medium,Cushing Crude Oil Inventories,,,1.478M
 2026-01-28,Wednesday,,,Holiday,Malaysia - Chinese New Year - Early close at 12:30,,,
 2026-01-29,Thursday,All Day,,Holiday,Malaysia - Chinese New Year,,,
 2026-01-29,Thursday,00:00,RUB,Low,PPI (MoM)  (Dec),,,-0.9%
@@ -1837,15 +1848,14 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-29,Thursday,08:30,AUD,Low,Import Price Index (QoQ)  (Q4),,,-0.4%
 2026-01-29,Thursday,10:00,PHP,Low,GDP (QoQ)  (Q4),,,0.4%
 2026-01-29,Thursday,10:00,PHP,Low,GDP (YoY)  (Q4),,,4.0%
+2026-01-29,Thursday,10:20,UAH,Low,Interest Rate Decision,,,15.50%
 2026-01-29,Thursday,10:30,SGD,Low,Unemployment Rate  (Q4),,,2.0%
 2026-01-29,Thursday,12:00,THB,Low,Industrial Production (YoY)  (Dec),,,-4.24%
-2026-01-29,Thursday,13:00,JPY,Low,Construction Orders (YoY)  (Dec),,,9.5%
 2026-01-29,Thursday,13:00,JPY,Low,Household Confidence  (Jan),,,37.2
-2026-01-29,Thursday,13:00,JPY,Low,Housing Starts (YoY)  (Dec),,,-8.5%
 2026-01-29,Thursday,14:00,SEK,Medium,GDP (QoQ)  (Q4),,,1.1%
 2026-01-29,Thursday,14:00,SEK,Medium,GDP (YoY)  (Q4),,,2.6%
 2026-01-29,Thursday,15:00,CHF,Low,Trade Balance  (Dec),,,3.841B
-2026-01-29,Thursday,15:00,EUR,Low,M3 Money Supply  (Dec),,,29.9B
+2026-01-29,Thursday,15:00,EUR,Low,M3 Money Supply  (Dec),,,"29,874.0B"
 2026-01-29,Thursday,15:00,NOK,Low,Credit Indicator (YoY)  (Dec),,,3.9%
 2026-01-29,Thursday,15:00,NOK,Low,M3 Money Supply  (Dec),,,"3,446.6B"
 2026-01-29,Thursday,15:00,SEK,Low,GDP (MoM)  (Dec),,,0.9%
@@ -1876,7 +1886,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-29,Thursday,18:00,EUR,Low,Belgian GDP (QoQ)  (Q4),,,0.3%
 2026-01-29,Thursday,18:00,EUR,Low,Business Climate  (Jan),,,-0.56
 2026-01-29,Thursday,18:00,EUR,Low,Business and Consumer Survey  (Jan),,,96.7
-2026-01-29,Thursday,18:00,EUR,Low,Consumer Confidence  (Jan),,-12.4,-13.1
+2026-01-29,Thursday,18:00,EUR,Low,Consumer Confidence  (Jan),,-12.4,-12.4
 2026-01-29,Thursday,18:00,EUR,Low,Consumer Inflation Expectation  (Jan),,,26.7
 2026-01-29,Thursday,18:00,EUR,Low,Greek PPI (YoY)  (Dec),,,0.1%
 2026-01-29,Thursday,18:00,EUR,Low,Greek Retail Sales (YoY)  (Nov),,,4.2%
@@ -1898,8 +1908,8 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-29,Thursday,19:30,BRL,Low,Bank lending (MoM)  (Dec),,,0.9%
 2026-01-29,Thursday,19:30,TRY,Low,Gross FX Reserves,,,84.15B
 2026-01-29,Thursday,19:30,TRY,Low,Net FX Reserves,,,91.01%
+2026-01-29,Thursday,20:00,CLP,Low,Unemployment Rate  (Dec),,,8.4%
 2026-01-29,Thursday,20:00,MWK,Low,Bank Rate,,,26.00%
-2026-01-29,Thursday,20:00,UAH,Low,Interest Rate Decision,,,15.50%
 2026-01-29,Thursday,21:00,RUB,Low,Central Bank reserves (USD),,,769.1B
 2026-01-29,Thursday,21:00,UAH,Low,Trade Balance YTD (USD)  (Oct),,,-30.6B
 2026-01-29,Thursday,21:00,ZAR,Low,Prime Rate  (Jan),,,10.25%
@@ -1915,7 +1925,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-29,Thursday,21:30,USD,Medium,Imports  (Nov),,,331.40B
 2026-01-29,Thursday,21:30,USD,Medium,Nonfarm Productivity (QoQ)  (Q3),,4.9%,4.9%
 2026-01-29,Thursday,21:30,USD,Medium,Trade Balance  (Nov),,,-29.40B
-2026-01-29,Thursday,21:30,USD,Medium,Unit Labor Costs (QoQ)  (Q3),,-1.9%,1.0%
+2026-01-29,Thursday,21:30,USD,Medium,Unit Labor Costs (QoQ)  (Q3),,-1.9%,-1.9%
 2026-01-29,Thursday,22:00,SAR,Low,M3 Money Supply (YoY)  (Dec),,,6.60%
 2026-01-29,Thursday,22:00,SAR,Low,Private Sector Loans (YoY)  (Dec),,,10.60%
 2026-01-29,Thursday,23:00,USD,Low,Durables Excluding Defense (MoM)  (Nov),,,-1.5%
@@ -1945,7 +1955,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-30,Friday,07:50,JPY,Low,Industrial Production forecast 2m ahead (MoM)  (Feb),,,8.0%
 2026-01-30,Friday,07:50,JPY,Low,Large Retailers' Sales (MoM)  (Dec),,,0.6%
 2026-01-30,Friday,07:50,JPY,Low,Large Scale Retail Sales YoY (YoY)  (Dec),,,5.0%
-2026-01-30,Friday,07:50,JPY,Low,Retail Sales (YoY)  (Dec),,,1.0%
+2026-01-30,Friday,07:50,JPY,Low,Retail Sales (YoY)  (Dec),,,1.1%
 2026-01-30,Friday,07:50,JPY,Medium,Industrial Production (MoM)  (Dec),,,-2.7%
 2026-01-30,Friday,08:30,AUD,Low,Housing Credit  (Dec),,,0.6%
 2026-01-30,Friday,08:30,AUD,Low,Private Sector Credit (MoM)  (Dec),,,0.6%
@@ -1954,7 +1964,11 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-30,Friday,09:00,PHP,Low,Philippines PPI (YoY)  (Dec),,,0.1%
 2026-01-30,Friday,10:00,NZD,Low,M3 Money Supply  (Dec),,,"443,578.0B"
 2026-01-30,Friday,10:00,SGD,Low,Bank Lending  (Dec),,,873.1B
+2026-01-30,Friday,10:20,UAH,Low,Current Account (USD)  (Dec),,,-30.600B
+2026-01-30,Friday,10:20,ZAR,Low,Budget Balance (MoM)  (Dec),,,-14.99B
 2026-01-30,Friday,12:00,THB,Low,Industrial Production (YoY)  (Dec),,0.60%,-4.24%
+2026-01-30,Friday,13:00,JPY,Low,Construction Orders (YoY)  (Dec),,,9.5%
+2026-01-30,Friday,13:00,JPY,Low,Housing Starts (YoY)  (Dec),,,-8.5%
 2026-01-30,Friday,14:00,EUR,Low,Estonian Retail Sales (MoM)  (Dec),,,-5.00%
 2026-01-30,Friday,14:00,EUR,Low,Estonian Retail Sales (YoY)  (Dec),,,0.00%
 2026-01-30,Friday,14:00,EUR,Low,Finnish GDP (QoQ)  (Q4),,,-0.3%
@@ -2031,7 +2045,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-30,Friday,17:00,EUR,Low,Spanish Current account  (Nov),,,7.18B
 2026-01-30,Friday,17:00,EUR,Medium,German GDP (YoY)  (Q4),,,0.3%
 2026-01-30,Friday,17:00,PLN,Low,CPI (MoM)  (Jan),,,0.0%
-2026-01-30,Friday,17:00,PLN,Low,CPI (YoY)  (Jan),,,2.5%
+2026-01-30,Friday,17:00,PLN,Low,CPI (YoY)  (Jan),,,2.4%
 2026-01-30,Friday,17:00,PLN,Low,Unemployment Rate  (Dec),,,5.6%
 2026-01-30,Friday,17:00,PLN,Medium,GDP (YoY),,,2.9%
 2026-01-30,Friday,17:30,EUR,Low,Portuguese GDP (QoQ)  (Q4),,,0.8%
@@ -2075,7 +2089,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-30,Friday,21:00,EUR,Low,German HICP (YoY)  (Jan),,,2.0%
 2026-01-30,Friday,21:00,EUR,Medium,German CPI (YoY)  (Jan),,,1.8%
 2026-01-30,Friday,21:00,NGN,Low,Foreign Reserves (USD)  (Jan),,,45.45B
-2026-01-30,Friday,21:30,CAD,Medium,GDP (MoM)  (Dec),,,
 2026-01-30,Friday,21:30,CAD,Medium,GDP (MoM)  (Nov),,0.1%,-0.3%
 2026-01-30,Friday,21:30,USD,High,PPI (MoM)  (Dec),,,0.2%
 2026-01-30,Friday,21:30,USD,Low,Core PPI (YoY)  (Dec),,,3.0%
@@ -2083,23 +2096,41 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-01-30,Friday,21:30,USD,Low,PPI ex. Food/Energy/Transport (MoM)  (Dec),,,0.2%
 2026-01-30,Friday,21:30,USD,Low,PPI ex. Food/Energy/Transport (YoY)  (Dec),,,3.5%
 2026-01-30,Friday,21:30,USD,Medium,Core PPI (MoM)  (Dec),,,0.0%
-2026-01-30,Friday,22:45,USD,High,Chicago PMI  (Jan),,,43.5
+2026-01-30,Friday,22:45,USD,High,Chicago PMI  (Jan),,,42.7
 2026-01-30,Friday,23:00,COP,Low,Unemployment Rate  (Dec),,,7.0%
 2026-01-31,Saturday,00:00,CAD,Low,Budget Balance  (Nov),,,-2.28B
 2026-01-31,Saturday,00:00,CAD,Low,Budget Balance (YoY)  (Nov),,,-18.37B
-2026-01-31,Saturday,01:10,UAH,Low,Current Account (USD)  (Dec),,,-30.600B
-2026-01-31,Saturday,01:10,ZAR,Low,Budget Balance (MoM)  (Dec),,,-14.99B
 2026-01-31,Saturday,01:30,BRL,Low,CAGED Net Payroll Jobs  (Dec),,,85.86K
 2026-01-31,Saturday,02:00,COP,Low,Interest Rate Decision  (Jan),,,9.25%
 2026-01-31,Saturday,02:00,USD,Medium,U.S. Baker Hughes Oil Rig Count,,,
 2026-01-31,Saturday,02:00,USD,Medium,U.S. Baker Hughes Total Rig Count,,,
 2026-01-31,Saturday,03:00,MXN,Low,Fiscal Balance  (Dec),,,-200.52B
+2026-01-31,Saturday,04:30,AUD,Medium,CFTC AUD speculative net positions,,,-14.0K
+2026-01-31,Saturday,04:30,BRL,Medium,CFTC BRL speculative net positions,,,17.6K
+2026-01-31,Saturday,04:30,CAD,Low,CFTC CAD speculative net positions,,,-41.8K
+2026-01-31,Saturday,04:30,CHF,Low,CFTC CHF speculative net positions,,,-43.2K
+2026-01-31,Saturday,04:30,EUR,Medium,CFTC EUR speculative net positions,,,111.7K
+2026-01-31,Saturday,04:30,GBP,Medium,CFTC GBP speculative net positions,,,-22.0K
+2026-01-31,Saturday,04:30,JPY,Medium,CFTC JPY speculative net positions,,,-44.8K
+2026-01-31,Saturday,04:30,MXN,Low,CFTC MXN speculative net positions,,,107.2K
+2026-01-31,Saturday,04:30,NZD,Low,CFTC NZD speculative net positions,,,-49.6K
+2026-01-31,Saturday,04:30,USD,Low,CFTC Aluminium speculative net positions,,,-3.4K
+2026-01-31,Saturday,04:30,USD,Low,CFTC Copper speculative net positions,,,52.6K
+2026-01-31,Saturday,04:30,USD,Low,CFTC Corn speculative net positions,,,-51.7K
+2026-01-31,Saturday,04:30,USD,Low,CFTC Natural Gas speculative net positions,,,-193.5K
+2026-01-31,Saturday,04:30,USD,Low,CFTC Silver speculative net positions,,,25.2K
+2026-01-31,Saturday,04:30,USD,Low,CFTC Soybeans speculative net positions,,,58.1K
+2026-01-31,Saturday,04:30,USD,Low,CFTC Wheat speculative net positions,,,-93.7K
+2026-01-31,Saturday,04:30,USD,Medium,CFTC Crude Oil speculative net positions,,,78.8K
+2026-01-31,Saturday,04:30,USD,Medium,CFTC Gold speculative net positions,,,244.8K
+2026-01-31,Saturday,04:30,USD,Medium,CFTC Nasdaq 100 speculative net positions,,,21.1K
+2026-01-31,Saturday,04:30,USD,Medium,CFTC S&P 500 speculative net positions,,,-81.8K
 2026-01-31,Saturday,06:00,USD,Medium,FOMC Member Bowman Speaks,,,
 2026-01-31,Saturday,09:30,CNY,High,Manufacturing PMI  (Jan),,,50.1
 2026-01-31,Saturday,09:30,CNY,Medium,Chinese Composite PMI  (Jan),,,50.7
 2026-01-31,Saturday,09:30,CNY,Medium,Non-Manufacturing PMI  (Jan),,,50.2
 2026-02-01,Sunday,08:00,KRW,Low,Exports (YoY)  (Jan),,,13.3%
-2026-02-01,Sunday,08:00,KRW,Low,Imports (YoY)  (Jan),,,4.6%
+2026-02-01,Sunday,08:00,KRW,Low,Imports (YoY)  (Dec),,,4.6%
 2026-02-01,Sunday,08:00,KRW,Low,Trade Balance  (Jan),,,12.17B
 2026-02-01,Sunday,14:00,INR,Medium,Indian Union Budget,,,
 2026-02-01,Sunday,14:00,SAR,Low,GDP (YoY)  (Q4),,,4.80%
@@ -2117,6 +2148,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-02-02,Monday,08:30,TWD,Low,S&P Global Manufacturing PMI  (Jan),,,50.90
 2026-02-02,Monday,08:30,VND,Low,S&P Global Manufacturing PMI  (Jan),,,53.0
 2026-02-02,Monday,09:45,CNY,Medium,Caixin Manufacturing PMI (MoM)  (Jan),,,50.1
+2026-02-02,Monday,10:20,RUB,Medium,GDP Monthly (YoY)  (Dec),,,0.1%
 2026-02-02,Monday,12:00,IDR,Low,Core Inflation (YoY)  (Jan),,,2.38%
 2026-02-02,Monday,12:00,IDR,Low,Export Growth (YoY)  (Dec),,,-6.60%
 2026-02-02,Monday,12:00,IDR,Low,Import Growth (YoY)  (Dec),,,0.46%
@@ -2138,6 +2170,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-02-02,Monday,16:00,PLN,Low,S&P Global Manufacturing PMI  (Jan),,,48.50
 2026-02-02,Monday,16:15,EUR,Medium,HCOB Spain Manufacturing PMI  (Jan),,,49.6
 2026-02-02,Monday,16:30,CZK,Low,S&P Global Czech Republic Manufacturing PMI  (Jan),,,50.4
+2026-02-02,Monday,16:30,GBP,Medium,S&P Global Manufacturing PMI  (Jan),,,51.6
 2026-02-02,Monday,16:45,EUR,Medium,HCOB Italy Manufacturing PMI  (Jan),,,47.9
 2026-02-02,Monday,16:50,EUR,Medium,HCOB France Manufacturing PMI  (Jan),,,51.0
 2026-02-02,Monday,16:55,EUR,Medium,HCOB Germany Manufacturing PMI  (Jan),,,48.7
@@ -2146,7 +2179,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-02-02,Monday,17:00,EUR,Low,S&P Global Greece Manufacturing PMI  (Jan),,,52.9
 2026-02-02,Monday,17:00,EUR,Medium,HCOB Eurozone Manufacturing PMI  (Jan),,,49.4
 2026-02-02,Monday,17:30,CHF,Medium,procure.ch Manufacturing PMI  (Jan),,,45.8
-2026-02-02,Monday,17:30,GBP,Medium,S&P Global Manufacturing PMI  (Jan),,,51.6
 2026-02-02,Monday,19:00,EUR,Low,Car Registration (MoM)  (Jan),,,9.40%
 2026-02-02,Monday,19:00,EUR,Low,Car Registration (YoY)  (Jan),,,-2.20%
 2026-02-02,Monday,19:30,CLP,Low,Economic Activity (YoY)  (Dec),,,1.2%

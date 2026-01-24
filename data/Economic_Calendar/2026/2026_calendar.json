@@ -18018,6 +18018,17 @@
         "Previous":"52.9"
     },
     {
+        "Date":"2026-01-23",
+        "Day":"Friday",
+        "Time":"23:59",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"US Leading Index (MoM)  (Oct)",
+        "Actual":"-0.1%",
+        "Forecast":"-0.2%",
+        "Previous":"-0.3%"
+    },
+    {
         "Date":"2026-01-24",
         "Day":"Saturday",
         "Time":"All Day",
@@ -18031,13 +18042,13 @@
     {
         "Date":"2026-01-24",
         "Day":"Saturday",
-        "Time":"01:00",
+        "Time":"00:00",
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"US Leading Index (MoM)  (Nov)",
-        "Actual":null,
+        "Actual":"-0.3%",
         "Forecast":"-0.2%",
-        "Previous":"-0.3%"
+        "Previous":"-0.1%"
     },
     {
         "Date":"2026-01-24",
@@ -18046,7 +18057,7 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"U.S. Baker Hughes Oil Rig Count",
-        "Actual":null,
+        "Actual":"411",
         "Forecast":"411",
         "Previous":"410"
     },
@@ -18057,7 +18068,7 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"U.S. Baker Hughes Total Rig Count",
-        "Actual":null,
+        "Actual":"544",
         "Forecast":null,
         "Previous":"543"
     },
@@ -18068,7 +18079,7 @@
         "Cur.":"AUD",
         "Imp.":"Medium",
         "Event":"CFTC AUD speculative net positions",
-        "Actual":null,
+        "Actual":"-14.0K",
         "Forecast":null,
         "Previous":"-18.8K"
     },
@@ -18079,7 +18090,7 @@
         "Cur.":"BRL",
         "Imp.":"Medium",
         "Event":"CFTC BRL speculative net positions",
-        "Actual":null,
+        "Actual":"17.6K",
         "Forecast":null,
         "Previous":"17.9K"
     },
@@ -18090,7 +18101,7 @@
         "Cur.":"CAD",
         "Imp.":"Low",
         "Event":"CFTC CAD speculative net positions",
-        "Actual":null,
+        "Actual":"-41.8K",
         "Forecast":null,
         "Previous":"-42.3K"
     },
@@ -18101,7 +18112,7 @@
         "Cur.":"CHF",
         "Imp.":"Low",
         "Event":"CFTC CHF speculative net positions",
-        "Actual":null,
+        "Actual":"-43.2K",
         "Forecast":null,
         "Previous":"-43.4K"
     },
@@ -18112,7 +18123,7 @@
         "Cur.":"EUR",
         "Imp.":"Medium",
         "Event":"CFTC EUR speculative net positions",
-        "Actual":null,
+        "Actual":"111.7K",
         "Forecast":null,
         "Previous":"132.7K"
     },
@@ -18123,7 +18134,7 @@
         "Cur.":"GBP",
         "Imp.":"Medium",
         "Event":"CFTC GBP speculative net positions",
-        "Actual":null,
+        "Actual":"-22.0K",
         "Forecast":null,
         "Previous":"-25.3K"
     },
@@ -18134,7 +18145,7 @@
         "Cur.":"JPY",
         "Imp.":"Medium",
         "Event":"CFTC JPY speculative net positions",
-        "Actual":null,
+        "Actual":"-44.8K",
         "Forecast":null,
         "Previous":"-45.2K"
     },
@@ -18145,7 +18156,7 @@
         "Cur.":"MXN",
         "Imp.":"Low",
         "Event":"CFTC MXN speculative net positions",
-        "Actual":null,
+        "Actual":"107.2K",
         "Forecast":null,
         "Previous":"103.6K"
     },
@@ -18156,7 +18167,7 @@
         "Cur.":"NZD",
         "Imp.":"Low",
         "Event":"CFTC NZD speculative net positions",
-        "Actual":null,
+        "Actual":"-49.6K",
         "Forecast":null,
         "Previous":"-48.9K"
     },
@@ -18167,7 +18178,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"CFTC Aluminium speculative net positions",
-        "Actual":null,
+        "Actual":"-3.4K",
         "Forecast":null,
         "Previous":"-3.3K"
     },
@@ -18178,7 +18189,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"CFTC Copper speculative net positions",
-        "Actual":null,
+        "Actual":"52.6K",
         "Forecast":null,
         "Previous":"53.4K"
     },
@@ -18189,7 +18200,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"CFTC Corn speculative net positions",
-        "Actual":null,
+        "Actual":"-51.7K",
         "Forecast":null,
         "Previous":"-33.4K"
     },
@@ -18200,7 +18211,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"CFTC Natural Gas speculative net positions",
-        "Actual":null,
+        "Actual":"-193.5K",
         "Forecast":null,
         "Previous":"-185.6K"
     },
@@ -18211,7 +18222,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"CFTC Silver speculative net positions",
-        "Actual":null,
+        "Actual":"25.2K",
         "Forecast":null,
         "Previous":"32.1K"
     },
@@ -18222,7 +18233,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"CFTC Soybeans speculative net positions",
-        "Actual":null,
+        "Actual":"58.1K",
         "Forecast":null,
         "Previous":"58.9K"
     },
@@ -18233,7 +18244,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"CFTC Wheat speculative net positions",
-        "Actual":null,
+        "Actual":"-93.7K",
         "Forecast":null,
         "Previous":"-86.0K"
     },
@@ -18244,7 +18255,7 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"CFTC Crude Oil speculative net positions",
-        "Actual":null,
+        "Actual":"78.8K",
         "Forecast":null,
         "Previous":"58.1K"
     },
@@ -18255,7 +18266,7 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"CFTC Gold speculative net positions",
-        "Actual":null,
+        "Actual":"244.8K",
         "Forecast":null,
         "Previous":"251.2K"
     },
@@ -18266,7 +18277,7 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"CFTC Nasdaq 100 speculative net positions",
-        "Actual":null,
+        "Actual":"21.1K",
         "Forecast":null,
         "Previous":"29.1K"
     },
@@ -18277,7 +18288,7 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"CFTC S&P 500 speculative net positions",
-        "Actual":null,
+        "Actual":"-81.8K",
         "Forecast":null,
         "Previous":"-122.1K"
     },
@@ -18500,17 +18511,6 @@
         "Actual":null,
         "Forecast":null,
         "Previous":"2.8%"
-    },
-    {
-        "Date":"2026-01-26",
-        "Day":"Monday",
-        "Time":"19:00",
-        "Cur.":"BRL",
-        "Imp.":"Low",
-        "Event":"FGV Consumer confidence  (Jan)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"90.2"
     },
     {
         "Date":"2026-01-26",
@@ -19307,6 +19307,17 @@
     {
         "Date":"2026-01-27",
         "Day":"Tuesday",
+        "Time":"19:00",
+        "Cur.":"BRL",
+        "Imp.":"Low",
+        "Event":"FGV Consumer confidence  (Jan)",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"90.2"
+    },
+    {
+        "Date":"2026-01-27",
+        "Day":"Tuesday",
         "Time":"20:00",
         "Cur.":"BRL",
         "Imp.":"Low",
@@ -19629,10 +19640,10 @@
         "Time":"08:30",
         "Cur.":"AUD",
         "Imp.":"Low",
-        "Event":"CPI Index Number  (Dec)",
+        "Event":"CPI Index Number  (Q4)",
         "Actual":null,
         "Forecast":null,
-        "Previous":"100.01"
+        "Previous":"143.60"
     },
     {
         "Date":"2026-01-28",
@@ -19651,10 +19662,10 @@
         "Time":"08:30",
         "Cur.":"AUD",
         "Imp.":"Low",
-        "Event":"Trimmed Mean CPI (YoY)  (Dec)",
+        "Event":"Trimmed Mean CPI (YoY)  (Q4)",
         "Actual":null,
         "Forecast":null,
-        "Previous":"3.2%"
+        "Previous":"3.0%"
     },
     {
         "Date":"2026-01-28",
@@ -19662,10 +19673,10 @@
         "Time":"08:30",
         "Cur.":"AUD",
         "Imp.":"Low",
-        "Event":"Weighted mean CPI (QoQ)  (Dec)",
+        "Event":"Weighted mean CPI (QoQ)  (Q4)",
         "Actual":null,
         "Forecast":null,
-        "Previous":"0.3%"
+        "Previous":"1.0%"
     },
     {
         "Date":"2026-01-28",
@@ -19673,10 +19684,10 @@
         "Time":"08:30",
         "Cur.":"AUD",
         "Imp.":"Low",
-        "Event":"Weighted mean CPI (YoY)  (Dec)",
+        "Event":"Weighted mean CPI (YoY)  (Q4)",
         "Actual":null,
         "Forecast":null,
-        "Previous":"3.4%"
+        "Previous":"2.8%"
     },
     {
         "Date":"2026-01-28",
@@ -19706,10 +19717,10 @@
         "Time":"08:30",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"Trimmed Mean CPI (QoQ)  (Dec)",
+        "Event":"Trimmed Mean CPI (QoQ)  (Q4)",
         "Actual":null,
         "Forecast":null,
-        "Previous":"0.3%"
+        "Previous":"1.0%"
     },
     {
         "Date":"2026-01-28",
@@ -19731,7 +19742,7 @@
         "Event":"M3 Money Supply  (Dec)",
         "Actual":null,
         "Forecast":null,
-        "Previous":"2,071.0B"
+        "Previous":"2,071,019.4B"
     },
     {
         "Date":"2026-01-28",
@@ -20000,6 +20011,116 @@
     {
         "Date":"2026-01-28",
         "Day":"Wednesday",
+        "Time":"23:30",
+        "Cur.":"USD",
+        "Imp.":"High",
+        "Event":"Crude Oil Inventories",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"3.602M"
+    },
+    {
+        "Date":"2026-01-28",
+        "Day":"Wednesday",
+        "Time":"23:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"Crude Oil Imports",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"-0.027M"
+    },
+    {
+        "Date":"2026-01-28",
+        "Day":"Wednesday",
+        "Time":"23:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"Distillate Fuel Production",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"-0.209M"
+    },
+    {
+        "Date":"2026-01-28",
+        "Day":"Wednesday",
+        "Time":"23:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"EIA Refinery Crude Runs  (WoW)",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"-0.354M"
+    },
+    {
+        "Date":"2026-01-28",
+        "Day":"Wednesday",
+        "Time":"23:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"EIA Weekly Distillates Stocks",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"3.348M"
+    },
+    {
+        "Date":"2026-01-28",
+        "Day":"Wednesday",
+        "Time":"23:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"EIA Weekly Refinery Utilization Rates (WoW)",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"-2.0%"
+    },
+    {
+        "Date":"2026-01-28",
+        "Day":"Wednesday",
+        "Time":"23:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"Gasoline Inventories",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"5.977M"
+    },
+    {
+        "Date":"2026-01-28",
+        "Day":"Wednesday",
+        "Time":"23:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"Gasoline Production",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"-0.246M"
+    },
+    {
+        "Date":"2026-01-28",
+        "Day":"Wednesday",
+        "Time":"23:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"Heating Oil Stockpiles",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"0.279M"
+    },
+    {
+        "Date":"2026-01-28",
+        "Day":"Wednesday",
+        "Time":"23:30",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"Cushing Crude Oil Inventories",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"1.478M"
+    },
+    {
+        "Date":"2026-01-28",
+        "Day":"Wednesday",
         "Time":"",
         "Cur.":"",
         "Imp.":"Holiday",
@@ -20220,6 +20341,17 @@
     {
         "Date":"2026-01-29",
         "Day":"Thursday",
+        "Time":"10:20",
+        "Cur.":"UAH",
+        "Imp.":"Low",
+        "Event":"Interest Rate Decision",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"15.50%"
+    },
+    {
+        "Date":"2026-01-29",
+        "Day":"Thursday",
         "Time":"10:30",
         "Cur.":"SGD",
         "Imp.":"Low",
@@ -20245,32 +20377,10 @@
         "Time":"13:00",
         "Cur.":"JPY",
         "Imp.":"Low",
-        "Event":"Construction Orders (YoY)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"9.5%"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"13:00",
-        "Cur.":"JPY",
-        "Imp.":"Low",
         "Event":"Household Confidence  (Jan)",
         "Actual":null,
         "Forecast":null,
         "Previous":"37.2"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"13:00",
-        "Cur.":"JPY",
-        "Imp.":"Low",
-        "Event":"Housing Starts (YoY)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"-8.5%"
     },
     {
         "Date":"2026-01-29",
@@ -20314,7 +20424,7 @@
         "Event":"M3 Money Supply  (Dec)",
         "Actual":null,
         "Forecast":null,
-        "Previous":"29.9B"
+        "Previous":"29,874.0B"
     },
     {
         "Date":"2026-01-29",
@@ -20655,7 +20765,7 @@
         "Event":"Consumer Confidence  (Jan)",
         "Actual":null,
         "Forecast":"-12.4",
-        "Previous":"-13.1"
+        "Previous":"-12.4"
     },
     {
         "Date":"2026-01-29",
@@ -20892,23 +21002,23 @@
         "Date":"2026-01-29",
         "Day":"Thursday",
         "Time":"20:00",
+        "Cur.":"CLP",
+        "Imp.":"Low",
+        "Event":"Unemployment Rate  (Dec)",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"8.4%"
+    },
+    {
+        "Date":"2026-01-29",
+        "Day":"Thursday",
+        "Time":"20:00",
         "Cur.":"MWK",
         "Imp.":"Low",
         "Event":"Bank Rate",
         "Actual":null,
         "Forecast":null,
         "Previous":"26.00%"
-    },
-    {
-        "Date":"2026-01-29",
-        "Day":"Thursday",
-        "Time":"20:00",
-        "Cur.":"UAH",
-        "Imp.":"Low",
-        "Event":"Interest Rate Decision",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"15.50%"
     },
     {
         "Date":"2026-01-29",
@@ -21084,7 +21194,7 @@
         "Event":"Unit Labor Costs (QoQ)  (Q3)",
         "Actual":null,
         "Forecast":"-1.9%",
-        "Previous":"1.0%"
+        "Previous":"-1.9%"
     },
     {
         "Date":"2026-01-29",
@@ -21414,7 +21524,7 @@
         "Event":"Retail Sales (YoY)  (Dec)",
         "Actual":null,
         "Forecast":null,
-        "Previous":"1.0%"
+        "Previous":"1.1%"
     },
     {
         "Date":"2026-01-30",
@@ -21507,6 +21617,28 @@
     {
         "Date":"2026-01-30",
         "Day":"Friday",
+        "Time":"10:20",
+        "Cur.":"UAH",
+        "Imp.":"Low",
+        "Event":"Current Account (USD)  (Dec)",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"-30.600B"
+    },
+    {
+        "Date":"2026-01-30",
+        "Day":"Friday",
+        "Time":"10:20",
+        "Cur.":"ZAR",
+        "Imp.":"Low",
+        "Event":"Budget Balance (MoM)  (Dec)",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"-14.99B"
+    },
+    {
+        "Date":"2026-01-30",
+        "Day":"Friday",
         "Time":"12:00",
         "Cur.":"THB",
         "Imp.":"Low",
@@ -21514,6 +21646,28 @@
         "Actual":null,
         "Forecast":"0.60%",
         "Previous":"-4.24%"
+    },
+    {
+        "Date":"2026-01-30",
+        "Day":"Friday",
+        "Time":"13:00",
+        "Cur.":"JPY",
+        "Imp.":"Low",
+        "Event":"Construction Orders (YoY)  (Dec)",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"9.5%"
+    },
+    {
+        "Date":"2026-01-30",
+        "Day":"Friday",
+        "Time":"13:00",
+        "Cur.":"JPY",
+        "Imp.":"Low",
+        "Event":"Housing Starts (YoY)  (Dec)",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"-8.5%"
     },
     {
         "Date":"2026-01-30",
@@ -22360,7 +22514,7 @@
         "Event":"CPI (YoY)  (Jan)",
         "Actual":null,
         "Forecast":null,
-        "Previous":"2.5%"
+        "Previous":"2.4%"
     },
     {
         "Date":"2026-01-30",
@@ -22841,17 +22995,6 @@
         "Time":"21:30",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"GDP (MoM)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":null
-    },
-    {
-        "Date":"2026-01-30",
-        "Day":"Friday",
-        "Time":"21:30",
-        "Cur.":"CAD",
-        "Imp.":"Medium",
         "Event":"GDP (MoM)  (Nov)",
         "Actual":null,
         "Forecast":"0.1%",
@@ -22932,7 +23075,7 @@
         "Event":"Chicago PMI  (Jan)",
         "Actual":null,
         "Forecast":null,
-        "Previous":"43.5"
+        "Previous":"42.7"
     },
     {
         "Date":"2026-01-30",
@@ -22966,28 +23109,6 @@
         "Actual":null,
         "Forecast":null,
         "Previous":"-18.37B"
-    },
-    {
-        "Date":"2026-01-31",
-        "Day":"Saturday",
-        "Time":"01:10",
-        "Cur.":"UAH",
-        "Imp.":"Low",
-        "Event":"Current Account (USD)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"-30.600B"
-    },
-    {
-        "Date":"2026-01-31",
-        "Day":"Saturday",
-        "Time":"01:10",
-        "Cur.":"ZAR",
-        "Imp.":"Low",
-        "Event":"Budget Balance (MoM)  (Dec)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"-14.99B"
     },
     {
         "Date":"2026-01-31",
@@ -23043,6 +23164,226 @@
         "Actual":null,
         "Forecast":null,
         "Previous":"-200.52B"
+    },
+    {
+        "Date":"2026-01-31",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"AUD",
+        "Imp.":"Medium",
+        "Event":"CFTC AUD speculative net positions",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"-14.0K"
+    },
+    {
+        "Date":"2026-01-31",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"BRL",
+        "Imp.":"Medium",
+        "Event":"CFTC BRL speculative net positions",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"17.6K"
+    },
+    {
+        "Date":"2026-01-31",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"CAD",
+        "Imp.":"Low",
+        "Event":"CFTC CAD speculative net positions",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"-41.8K"
+    },
+    {
+        "Date":"2026-01-31",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"CHF",
+        "Imp.":"Low",
+        "Event":"CFTC CHF speculative net positions",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"-43.2K"
+    },
+    {
+        "Date":"2026-01-31",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"EUR",
+        "Imp.":"Medium",
+        "Event":"CFTC EUR speculative net positions",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"111.7K"
+    },
+    {
+        "Date":"2026-01-31",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"GBP",
+        "Imp.":"Medium",
+        "Event":"CFTC GBP speculative net positions",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"-22.0K"
+    },
+    {
+        "Date":"2026-01-31",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"JPY",
+        "Imp.":"Medium",
+        "Event":"CFTC JPY speculative net positions",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"-44.8K"
+    },
+    {
+        "Date":"2026-01-31",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"MXN",
+        "Imp.":"Low",
+        "Event":"CFTC MXN speculative net positions",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"107.2K"
+    },
+    {
+        "Date":"2026-01-31",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"NZD",
+        "Imp.":"Low",
+        "Event":"CFTC NZD speculative net positions",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"-49.6K"
+    },
+    {
+        "Date":"2026-01-31",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"CFTC Aluminium speculative net positions",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"-3.4K"
+    },
+    {
+        "Date":"2026-01-31",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"CFTC Copper speculative net positions",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"52.6K"
+    },
+    {
+        "Date":"2026-01-31",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"CFTC Corn speculative net positions",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"-51.7K"
+    },
+    {
+        "Date":"2026-01-31",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"CFTC Natural Gas speculative net positions",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"-193.5K"
+    },
+    {
+        "Date":"2026-01-31",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"CFTC Silver speculative net positions",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"25.2K"
+    },
+    {
+        "Date":"2026-01-31",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"CFTC Soybeans speculative net positions",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"58.1K"
+    },
+    {
+        "Date":"2026-01-31",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"CFTC Wheat speculative net positions",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"-93.7K"
+    },
+    {
+        "Date":"2026-01-31",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"CFTC Crude Oil speculative net positions",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"78.8K"
+    },
+    {
+        "Date":"2026-01-31",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"CFTC Gold speculative net positions",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"244.8K"
+    },
+    {
+        "Date":"2026-01-31",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"CFTC Nasdaq 100 speculative net positions",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"21.1K"
+    },
+    {
+        "Date":"2026-01-31",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"CFTC S&P 500 speculative net positions",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"-81.8K"
     },
     {
         "Date":"2026-01-31",
@@ -23105,7 +23446,7 @@
         "Time":"08:00",
         "Cur.":"KRW",
         "Imp.":"Low",
-        "Event":"Imports (YoY)  (Jan)",
+        "Event":"Imports (YoY)  (Dec)",
         "Actual":null,
         "Forecast":null,
         "Previous":"4.6%"
@@ -23296,6 +23637,17 @@
         "Actual":null,
         "Forecast":null,
         "Previous":"50.1"
+    },
+    {
+        "Date":"2026-02-02",
+        "Day":"Monday",
+        "Time":"10:20",
+        "Cur.":"RUB",
+        "Imp.":"Medium",
+        "Event":"GDP Monthly (YoY)  (Dec)",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"0.1%"
     },
     {
         "Date":"2026-02-02",
@@ -23531,6 +23883,17 @@
     {
         "Date":"2026-02-02",
         "Day":"Monday",
+        "Time":"16:30",
+        "Cur.":"GBP",
+        "Imp.":"Medium",
+        "Event":"S&P Global Manufacturing PMI  (Jan)",
+        "Actual":null,
+        "Forecast":null,
+        "Previous":"51.6"
+    },
+    {
+        "Date":"2026-02-02",
+        "Day":"Monday",
         "Time":"16:45",
         "Cur.":"EUR",
         "Imp.":"Medium",
@@ -23615,17 +23978,6 @@
         "Actual":null,
         "Forecast":null,
         "Previous":"45.8"
-    },
-    {
-        "Date":"2026-02-02",
-        "Day":"Monday",
-        "Time":"17:30",
-        "Cur.":"GBP",
-        "Imp.":"Medium",
-        "Event":"S&P Global Manufacturing PMI  (Jan)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"51.6"
     },
     {
         "Date":"2026-02-02",
