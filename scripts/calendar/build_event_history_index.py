@@ -526,6 +526,12 @@ def _iter_years(
     return sorted(years)
 
 
+def _years_from_date_range(
+    start_date: datetime.date, end_date: datetime.date
+) -> set[int]:
+    return set(range(start_date.year, end_date.year + 1))
+
+
 def build_index(
     calendar_dir: Path,
     output_dir: Path,
@@ -547,6 +553,9 @@ def build_index(
     years = _iter_years(calendar_dir, start_year, end_year)
     if not years:
         raise SystemExit("No calendar year folders found.")
+    target_years = (
+        _years_from_date_range(start_date, end_date) if partial_update else set(years)
+    )
 
     rows_written = 0
     entries: list[HistoryRow] = []
@@ -828,6 +837,8 @@ def build_index(
             "Previous",
         ]
         for year in years:
+            if partial_update and year not in target_years:
+                continue
             output_path = output_dir / f"{year}_event_history_index.csv"
             new_rows = [
                 {
@@ -855,11 +866,12 @@ def build_index(
                 )
             _write_csv_rows(output_path, index_header, rows_to_write)
 
-        legacy_clean_path = output_dir / _CLEAN_CSV_FILENAME
-        try:
-            legacy_clean_path.unlink(missing_ok=True)
-        except OSError:
-            pass
+        if not partial_update:
+            legacy_clean_path = output_dir / _CLEAN_CSV_FILENAME
+            try:
+                legacy_clean_path.unlink(missing_ok=True)
+            except OSError:
+                pass
 
         clean_header = [
             "EventId",
@@ -877,6 +889,8 @@ def build_index(
             "PreviousRevisedFrom",
         ]
         for year in years:
+            if partial_update and year not in target_years:
+                continue
             clean_path = output_dir / f"{year}_{_CLEAN_CSV_FILENAME}"
             new_rows = [
                 {
@@ -970,14 +984,15 @@ def build_index(
             generated_at=datetime.now(timezone.utc).strftime("%d-%m-%Y %H:%M"),
         )
 
-        try:
-            (output_dir / _MANUAL_APPLIED_CSV_FILENAME).unlink(missing_ok=True)
-            (output_dir / _MANUAL_APPLIED_JSON_FILENAME).unlink(missing_ok=True)
-            (output_dir / f"{_MANUAL_APPLIED_CSV_FILENAME}.misc").unlink(
-                missing_ok=True
-            )
-        except OSError:
-            pass
+        if not partial_update:
+            try:
+                (output_dir / _MANUAL_APPLIED_CSV_FILENAME).unlink(missing_ok=True)
+                (output_dir / _MANUAL_APPLIED_JSON_FILENAME).unlink(missing_ok=True)
+                (output_dir / f"{_MANUAL_APPLIED_CSV_FILENAME}.misc").unlink(
+                    missing_ok=True
+                )
+            except OSError:
+                pass
 
         manual_header = [
             "Patch",
@@ -999,6 +1014,8 @@ def build_index(
 
         generated_at = datetime.now(timezone.utc).strftime("%d-%m-%Y %H:%M")
         for year, patches_for_year in sorted(manual_by_year.items()):
+            if partial_update and year not in target_years:
+                continue
             manual_csv_path = output_dir / f"{year}_{_MANUAL_APPLIED_CSV_FILENAME}"
             new_rows = [
                 {
@@ -1057,7 +1074,7 @@ def build_index(
                 encoding="utf-8",
             )
 
-        if manual_misc:
+        if manual_misc and not partial_update:
             manual_csv_path = output_dir / "event_history_manual_patch_applied_misc.csv"
             with manual_csv_path.open("w", encoding="utf-8", newline="") as handle:
                 writer = csv.writer(handle)
@@ -1217,6 +1234,8 @@ def build_index(
         _write_csv_rows(issues_csv_path, issue_header, rows_to_write)
 
     for year, issues_for_year in sorted(issues_by_year.items()):
+        if partial_update and year not in target_years:
+            continue
         write_issue_files(f"{year}_event_history_issues", issues_for_year)
         open_issues = [
             issue
@@ -1231,7 +1250,7 @@ def build_index(
         write_issue_files(f"{year}_event_history_issues_open", open_issues)
         write_issue_files(f"{year}_event_history_issues_solved", solved_issues)
 
-    if issues_misc:
+    if issues_misc and not partial_update:
         write_issue_files("event_history_issues_misc", issues_misc)
         open_misc = [
             issue
@@ -1246,105 +1265,106 @@ def build_index(
         write_issue_files("event_history_issues_misc_open", open_misc)
         write_issue_files("event_history_issues_misc_solved", solved_misc)
 
-    issue_summary_by_year: dict[str, dict] = {}
-    totals_all = 0
-    totals_open = 0
-    totals_solved = 0
-    for year, issues_for_year in sorted(issues_by_year.items()):
-        open_issues = [
-            issue
-            for issue in issues_for_year
-            if str(issue.get("issue", "")) not in solved_issue_types
-        ]
-        solved_issues = [
-            issue
-            for issue in issues_for_year
-            if str(issue.get("issue", "")) in solved_issue_types
-        ]
-        totals_all += len(issues_for_year)
-        totals_open += len(open_issues)
-        totals_solved += len(solved_issues)
-        issue_summary_by_year[str(year)] = {
-            "all": len(issues_for_year),
-            "open": len(open_issues),
-            "solved": len(solved_issues),
-            "files": {
-                "all": {
-                    "csv": f"{year}_event_history_issues.csv",
-                    "json": f"{year}_event_history_issues.json",
+    if not partial_update:
+        issue_summary_by_year: dict[str, dict] = {}
+        totals_all = 0
+        totals_open = 0
+        totals_solved = 0
+        for year, issues_for_year in sorted(issues_by_year.items()):
+            open_issues = [
+                issue
+                for issue in issues_for_year
+                if str(issue.get("issue", "")) not in solved_issue_types
+            ]
+            solved_issues = [
+                issue
+                for issue in issues_for_year
+                if str(issue.get("issue", "")) in solved_issue_types
+            ]
+            totals_all += len(issues_for_year)
+            totals_open += len(open_issues)
+            totals_solved += len(solved_issues)
+            issue_summary_by_year[str(year)] = {
+                "all": len(issues_for_year),
+                "open": len(open_issues),
+                "solved": len(solved_issues),
+                "files": {
+                    "all": {
+                        "csv": f"{year}_event_history_issues.csv",
+                        "json": f"{year}_event_history_issues.json",
+                    },
+                    "open": {
+                        "csv": f"{year}_event_history_issues_open.csv",
+                        "json": f"{year}_event_history_issues_open.json",
+                    },
+                    "solved": {
+                        "csv": f"{year}_event_history_issues_solved.csv",
+                        "json": f"{year}_event_history_issues_solved.json",
+                    },
                 },
-                "open": {
-                    "csv": f"{year}_event_history_issues_open.csv",
-                    "json": f"{year}_event_history_issues_open.json",
-                },
-                "solved": {
-                    "csv": f"{year}_event_history_issues_solved.csv",
-                    "json": f"{year}_event_history_issues_solved.json",
-                },
-            },
-        }
+            }
 
-    if issues_misc:
-        totals_all += len(issues_misc)
-        totals_open += len(open_misc)
-        totals_solved += len(solved_misc)
+        if issues_misc:
+            totals_all += len(issues_misc)
+            totals_open += len(open_misc)
+            totals_solved += len(solved_misc)
 
-    output_dir_label = output_dir
-    try:
-        output_dir_label = output_dir.relative_to(REPO_ROOT)
-    except ValueError:
-        pass
-    output_dir_label_str = output_dir_label.as_posix()
+        output_dir_label = output_dir
+        try:
+            output_dir_label = output_dir.relative_to(REPO_ROOT)
+        except ValueError:
+            pass
+        output_dir_label_str = output_dir_label.as_posix()
 
-    (output_dir / "event_history_issues_summary.json").write_text(
-        json.dumps(
-            {
-                "generated_at": generated_at,
-                "output_dir": output_dir_label_str,
-                "totals": {
-                    "all": totals_all,
-                    "open": totals_open,
-                    "solved": totals_solved,
+        (output_dir / "event_history_issues_summary.json").write_text(
+            json.dumps(
+                {
+                    "generated_at": generated_at,
+                    "output_dir": output_dir_label_str,
+                    "totals": {
+                        "all": totals_all,
+                        "open": totals_open,
+                        "solved": totals_solved,
+                    },
+                    "globs": {
+                        "all_csv": "*_event_history_issues.csv",
+                        "all_json": "*_event_history_issues.json",
+                        "open_csv": "*_event_history_issues_open.csv",
+                        "open_json": "*_event_history_issues_open.json",
+                        "solved_csv": "*_event_history_issues_solved.csv",
+                        "solved_json": "*_event_history_issues_solved.json",
+                    },
+                    "by_year": issue_summary_by_year,
+                    "misc": (
+                        {
+                            "all": len(issues_misc),
+                            "open": len(open_misc),
+                            "solved": len(solved_misc),
+                            "files": {
+                                "all": {
+                                    "csv": "event_history_issues_misc.csv",
+                                    "json": "event_history_issues_misc.json",
+                                },
+                                "open": {
+                                    "csv": "event_history_issues_misc_open.csv",
+                                    "json": "event_history_issues_misc_open.json",
+                                },
+                                "solved": {
+                                    "csv": "event_history_issues_misc_solved.csv",
+                                    "json": "event_history_issues_misc_solved.json",
+                                },
+                            },
+                        }
+                        if issues_misc
+                        else None
+                    ),
                 },
-                "globs": {
-                    "all_csv": "*_event_history_issues.csv",
-                    "all_json": "*_event_history_issues.json",
-                    "open_csv": "*_event_history_issues_open.csv",
-                    "open_json": "*_event_history_issues_open.json",
-                    "solved_csv": "*_event_history_issues_solved.csv",
-                    "solved_json": "*_event_history_issues_solved.json",
-                },
-                "by_year": issue_summary_by_year,
-                "misc": (
-                    {
-                        "all": len(issues_misc),
-                        "open": len(open_misc),
-                        "solved": len(solved_misc),
-                        "files": {
-                            "all": {
-                                "csv": "event_history_issues_misc.csv",
-                                "json": "event_history_issues_misc.json",
-                            },
-                            "open": {
-                                "csv": "event_history_issues_misc_open.csv",
-                                "json": "event_history_issues_misc_open.json",
-                            },
-                            "solved": {
-                                "csv": "event_history_issues_misc_solved.csv",
-                                "json": "event_history_issues_misc_solved.json",
-                            },
-                        },
-                    }
-                    if issues_misc
-                    else None
-                ),
-            },
-            ensure_ascii=False,
-            indent=2,
+                ensure_ascii=False,
+                indent=2,
+            )
+            + "\n",
+            encoding="utf-8",
         )
-        + "\n",
-        encoding="utf-8",
-    )
 
     patch_header = [
         "Patch",
@@ -1368,6 +1388,8 @@ def build_index(
             patches_by_year.setdefault(year, []).append(patch)
 
     for year, patches_for_year in sorted(patches_by_year.items()):
+        if partial_update and year not in target_years:
+            continue
         patches_path = output_dir / f"{year}_event_history_previous_patch.json"
         patches_payload = patches_for_year
         if (
@@ -1438,7 +1460,7 @@ def build_index(
             )
         _write_csv_rows(patches_csv_path, patch_header, rows_to_write)
 
-    if patches_misc:
+    if patches_misc and not partial_update:
         patches_path = output_dir / "event_history_previous_patch_misc.json"
         patches_path.write_text(
             json.dumps(
