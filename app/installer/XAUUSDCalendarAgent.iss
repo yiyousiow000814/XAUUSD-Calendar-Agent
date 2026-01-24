@@ -36,6 +36,7 @@ Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription:
 [Files]
 Source: "{#MyAppDistDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\..\data\Economic_Calendar\*"; DestDir: "{app}\data\Economic_Calendar"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\..\data\event_history_index\*"; DestDir: "{app}\data\event_history_index"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

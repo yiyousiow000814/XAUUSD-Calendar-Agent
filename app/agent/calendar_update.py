@@ -38,6 +38,7 @@ def update_calendar_from_github(
     repo: str, branch: str, install_dir: Path, token: str | None = None
 ) -> CalendarUpdateResult:
     target_dir = install_dir / "data" / "Economic_Calendar"
+    history_dir = install_dir / "data" / "event_history_index"
     branch_value = (branch or "main").strip() or "main"
     url = f"https://api.github.com/repos/{repo}/zipball/{branch_value}"
     tmp_root = Path(tempfile.mkdtemp(prefix="xauusd_calendar_"))
@@ -64,40 +65,58 @@ def update_calendar_from_github(
     try:
         with zipfile.ZipFile(zip_path) as archive:
             names = [item.filename for item in archive.infolist() if item.filename]
-            prefix = None
+            calendar_prefix = None
+            history_prefix = None
             for name in names:
                 if "/data/Economic_Calendar/" in name:
-                    prefix = (
-                        name.split("/data/Economic_Calendar/")[0]
-                        + "/data/Economic_Calendar/"
-                    )
+                    base_prefix = name.split("/data/Economic_Calendar/")[0] + "/data/"
+                    calendar_prefix = base_prefix + "Economic_Calendar/"
+                    history_prefix = base_prefix + "event_history_index/"
                     break
-            if not prefix:
+            if not calendar_prefix or not history_prefix:
                 raise RuntimeError("calendar folder not found in repo archive")
 
             extracted_calendar = extract_root / "Economic_Calendar"
+            extracted_history = extract_root / "event_history_index"
             extracted_calendar.mkdir(parents=True, exist_ok=True)
-            files = 0
+            extracted_history.mkdir(parents=True, exist_ok=True)
+            calendar_files = 0
+            history_files = 0
             for info in archive.infolist():
                 name = info.filename
-                if not name or not name.startswith(prefix) or name.endswith("/"):
+                if not name or name.endswith("/"):
                     continue
-                rel = name[len(prefix) :]
-                dest = extracted_calendar / rel
+                if name.startswith(calendar_prefix):
+                    rel = name[len(calendar_prefix) :]
+                    dest = extracted_calendar / rel
+                    calendar_files += 1
+                elif name.startswith(history_prefix):
+                    rel = name[len(history_prefix) :]
+                    dest = extracted_history / rel
+                    history_files += 1
+                else:
+                    continue
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 with archive.open(info) as src, dest.open("wb") as out:
                     shutil.copyfileobj(src, out)
-                files += 1
 
-            if files == 0:
+            if calendar_files == 0:
                 raise RuntimeError("calendar archive contained no files")
+            if history_files == 0:
+                raise RuntimeError(
+                    "event history index folder not found in repo archive"
+                )
 
             target_dir.parent.mkdir(parents=True, exist_ok=True)
+            history_dir.parent.mkdir(parents=True, exist_ok=True)
             shutil.rmtree(target_dir, ignore_errors=True)
+            shutil.rmtree(history_dir, ignore_errors=True)
             shutil.move(str(extracted_calendar), str(target_dir))
+            shutil.move(str(extracted_history), str(history_dir))
     except Exception as exc:  # noqa: BLE001
         shutil.rmtree(tmp_root, ignore_errors=True)
         return CalendarUpdateResult(False, f"calendar update failed: {exc}")
 
     shutil.rmtree(tmp_root, ignore_errors=True)
-    return CalendarUpdateResult(True, "calendar update ok", files=files)
+    total_files = calendar_files + history_files
+    return CalendarUpdateResult(True, "calendar update ok", files=total_files)
