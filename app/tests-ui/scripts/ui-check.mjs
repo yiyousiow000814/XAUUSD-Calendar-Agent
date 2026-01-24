@@ -106,6 +106,64 @@ const clearDir = async (dir) => {
 
 const sanitize = (value) => value.replace(/[^a-zA-Z0-9_-]+/g, "_");
 
+const withTransparentBackground = async (page, action) => {
+  const prev = await page.evaluate(() => {
+    const root = document.documentElement;
+    const body = document.body;
+    return {
+      root: {
+        background: root.style.background,
+        backgroundColor: root.style.backgroundColor,
+        backgroundImage: root.style.backgroundImage
+      },
+      body: {
+        background: body?.style.background || "",
+        backgroundColor: body?.style.backgroundColor || "",
+        backgroundImage: body?.style.backgroundImage || ""
+      }
+    };
+  });
+  await page.evaluate(() => {
+    const root = document.documentElement;
+    const body = document.body;
+    root.style.background = "transparent";
+    root.style.backgroundColor = "transparent";
+    root.style.backgroundImage = "none";
+    if (body) {
+      body.style.background = "transparent";
+      body.style.backgroundColor = "transparent";
+      body.style.backgroundImage = "none";
+    }
+  });
+  try {
+    return await action();
+  } finally {
+    await page.evaluate((state) => {
+      const root = document.documentElement;
+      const body = document.body;
+      root.style.background = state.root.background;
+      root.style.backgroundColor = state.root.backgroundColor;
+      root.style.backgroundImage = state.root.backgroundImage;
+      if (body) {
+        body.style.background = state.body.background;
+        body.style.backgroundColor = state.body.backgroundColor;
+        body.style.backgroundImage = state.body.backgroundImage;
+      }
+    }, prev);
+  }
+};
+
+const clipFromBox = (box, viewport) => {
+  if (!box) return null;
+  const maxWidth = viewport?.width ?? Math.ceil(box.x + box.width);
+  const maxHeight = viewport?.height ?? Math.ceil(box.y + box.height);
+  const x = Math.max(0, Math.floor(box.x));
+  const y = Math.max(0, Math.floor(box.y));
+  const width = Math.max(1, Math.min(maxWidth - x, Math.ceil(box.width)));
+  const height = Math.max(1, Math.min(maxHeight - y, Math.ceil(box.height)));
+  return { x, y, width, height };
+};
+
 const parsePositiveInt = (value) => {
   if (!value) return null;
   const parsed = Number.parseInt(value, 10);
@@ -455,13 +513,23 @@ const getPortFromURL = (url) => {
 const captureState = async (page, scenario, theme, state, options = {}) => {
   const fileName = `${sanitize(scenario)}__${sanitize(theme)}__${sanitize(state)}.png`;
   const filePath = path.join(snapshotsDir, fileName);
-  if (options.element) {
-    await options.element.screenshot({ path: filePath });
-  } else if (options.clip) {
-    await page.screenshot({ path: filePath, clip: options.clip });
-  } else {
-    await page.screenshot({ path: filePath, fullPage: true });
-  }
+  await withTransparentBackground(page, async () => {
+    if (options.element) {
+      const box = await options.element.boundingBox();
+      const clip = clipFromBox(box, page.viewportSize());
+      if (clip) {
+        await page.screenshot({ path: filePath, clip, omitBackground: true });
+        return;
+      }
+      await options.element.screenshot({ path: filePath, omitBackground: true });
+      return;
+    }
+    if (options.clip) {
+      await page.screenshot({ path: filePath, clip: options.clip, omitBackground: true });
+      return;
+    }
+    await page.screenshot({ path: filePath, fullPage: true, omitBackground: true });
+  });
   return filePath;
 };
 
@@ -475,19 +543,27 @@ const captureFrames = async (page, scenario, theme, state, options = 4, gapMs = 
       : { count: 4, gapMs: 80, clip: null, element: null, ...(options || {}) };
 
   const files = [];
-  for (let i = 0; i < opts.count; i += 1) {
-    const fileName = `${sanitize(scenario)}__${sanitize(theme)}__${sanitize(state)}__frame${i}.png`;
-    const filePath = path.join(framesDir, fileName);
-    if (opts.element) {
-      await opts.element.screenshot({ path: filePath });
-    } else if (opts.clip) {
-      await page.screenshot({ path: filePath, clip: opts.clip });
-    } else {
-      await page.screenshot({ path: filePath, fullPage: true });
+  await withTransparentBackground(page, async () => {
+    for (let i = 0; i < opts.count; i += 1) {
+      const fileName = `${sanitize(scenario)}__${sanitize(theme)}__${sanitize(state)}__frame${i}.png`;
+      const filePath = path.join(framesDir, fileName);
+      if (opts.element) {
+        const box = await opts.element.boundingBox();
+        const clip = clipFromBox(box, page.viewportSize());
+        if (clip) {
+          await page.screenshot({ path: filePath, clip, omitBackground: true });
+        } else {
+          await opts.element.screenshot({ path: filePath, omitBackground: true });
+        }
+      } else if (opts.clip) {
+        await page.screenshot({ path: filePath, clip: opts.clip, omitBackground: true });
+      } else {
+        await page.screenshot({ path: filePath, fullPage: true, omitBackground: true });
+      }
+      files.push(filePath);
+      await page.waitForTimeout(opts.gapMs);
     }
-    files.push(filePath);
-    await page.waitForTimeout(opts.gapMs);
-  }
+  });
   return files;
 };
 
@@ -520,52 +596,54 @@ const captureClipFramesAtTimes = async ({
 }) => {
   const start = Date.now();
   const framePaths = [];
-  for (const ms of sampleTimes) {
-    const remaining = ms - (Date.now() - start);
-    if (remaining > 0) await page.waitForTimeout(remaining);
-    const fileName = `${sanitize(scenario)}__${sanitize(theme)}__${sanitize(statePrefix)}__t${String(ms).padStart(3, "0")}ms.png`;
-    const filePath = path.join(framesDir, fileName);
-    const capturedAt = Date.now() - start;
-    const transform = probeSelector
-      ? await page.evaluate((sel) => {
-          const node = document.querySelector(sel);
-          if (!node) return null;
-          return window.getComputedStyle(node).transform;
-        }, probeSelector)
-      : null;
-    const probeRect = probeSelector
-      ? await page.evaluate((sel) => {
-          const node = document.querySelector(sel);
-          if (!node) return null;
-          const rect = node.getBoundingClientRect();
-          return { width: rect.width, height: rect.height };
-        }, probeSelector)
-      : null;
-    const probeValues = Array.isArray(probes) && probes.length
-      ? await page.evaluate((items) => {
-          const read = (item) => {
-            if (!item || !item.selector || !item.property) return null;
-            const node = document.querySelector(item.selector);
+  await withTransparentBackground(page, async () => {
+    for (const ms of sampleTimes) {
+      const remaining = ms - (Date.now() - start);
+      if (remaining > 0) await page.waitForTimeout(remaining);
+      const fileName = `${sanitize(scenario)}__${sanitize(theme)}__${sanitize(statePrefix)}__t${String(ms).padStart(3, "0")}ms.png`;
+      const filePath = path.join(framesDir, fileName);
+      const capturedAt = Date.now() - start;
+      const transform = probeSelector
+        ? await page.evaluate((sel) => {
+            const node = document.querySelector(sel);
             if (!node) return null;
-            const style = window.getComputedStyle(node);
-            if (item.property === "--var") {
-              return style.getPropertyValue(item.name || "").trim();
-            }
-            return style[item.property] ?? null;
-          };
-          return items.map((item) => ({ name: item.name, value: read(item) }));
-        }, probes)
-      : null;
-    await page.screenshot({ path: filePath, clip });
-    framePaths.push({
-      ms,
-      actualMs: Math.max(0, Math.round(capturedAt)),
-      path: filePath,
-      transform,
-      rect: probeRect,
-      probes: probeValues
-    });
-  }
+            return window.getComputedStyle(node).transform;
+          }, probeSelector)
+        : null;
+      const probeRect = probeSelector
+        ? await page.evaluate((sel) => {
+            const node = document.querySelector(sel);
+            if (!node) return null;
+            const rect = node.getBoundingClientRect();
+            return { width: rect.width, height: rect.height };
+          }, probeSelector)
+        : null;
+      const probeValues = Array.isArray(probes) && probes.length
+        ? await page.evaluate((items) => {
+            const read = (item) => {
+              if (!item || !item.selector || !item.property) return null;
+              const node = document.querySelector(item.selector);
+              if (!node) return null;
+              const style = window.getComputedStyle(node);
+              if (item.property === "--var") {
+                return style.getPropertyValue(item.name || "").trim();
+              }
+              return style[item.property] ?? null;
+            };
+            return items.map((item) => ({ name: item.name, value: read(item) }));
+          }, probes)
+        : null;
+      await page.screenshot({ path: filePath, clip, omitBackground: true });
+      framePaths.push({
+        ms,
+        actualMs: Math.max(0, Math.round(capturedAt)),
+        path: filePath,
+        transform,
+        rect: probeRect,
+        probes: probeValues
+      });
+    }
+  });
   return framePaths;
 };
 
@@ -1430,7 +1508,9 @@ const assertThemeTransitionSynchronized = async (page, themeKey) => {
     bg: window.getComputedStyle(document.documentElement).getPropertyValue("--bg").trim(),
     panel: window.getComputedStyle(document.documentElement).getPropertyValue("--panel").trim()
   }));
-  await page.screenshot({ path: beforeThemeShot });
+  await withTransparentBackground(page, async () => {
+    await page.screenshot({ path: beforeThemeShot, omitBackground: true });
+  });
 
   const startTheme = await page.evaluate(() => document.documentElement.dataset.theme);
   const desiredTheme = startTheme === "dark" ? "light" : "dark";
@@ -1532,7 +1612,9 @@ const assertThemeTransitionSynchronized = async (page, themeKey) => {
     const fileName = `${sanitize("theme-transition")}__${sanitize(themeKey)}__t${String(ms).padStart(3, "0")}ms.png`;
     const filePath = path.join(framesDir, fileName);
     const capturedAt = Date.now() - start;
-    await page.screenshot({ path: filePath });
+    await withTransparentBackground(page, async () => {
+      await page.screenshot({ path: filePath, omitBackground: true });
+    });
     framePaths.push({ ms, actualMs: Math.max(0, Math.round(capturedAt)), path: filePath });
   }
 
@@ -1546,7 +1628,9 @@ const assertThemeTransitionSynchronized = async (page, themeKey) => {
     bg: window.getComputedStyle(document.documentElement).getPropertyValue("--bg").trim(),
     panel: window.getComputedStyle(document.documentElement).getPropertyValue("--panel").trim()
   }));
-  await page.screenshot({ path: afterThemeShot });
+  await withTransparentBackground(page, async () => {
+    await page.screenshot({ path: afterThemeShot, omitBackground: true });
+  });
 
   const readPng = async (filePath) => PNG.sync.read(await fs.readFile(filePath));
   const pixelAt = (png, x, y) => {
@@ -1642,7 +1726,9 @@ const assertThemeTransitionSynchronized = async (page, themeKey) => {
       framesDir,
       `${sanitize("theme-transition")}__${sanitize(themeKey)}__retry.png`
     );
-    await page.screenshot({ path: retryPath });
+    await withTransparentBackground(page, async () => {
+      await page.screenshot({ path: retryPath, omitBackground: true });
+    });
     const retryPng = await readPng(retryPath);
     const retryProgresses = orderedPoints.map((point) => {
       const cur = dist(pixelAt(startPng, point.x, point.y), pixelAt(retryPng, point.x, point.y));
@@ -3805,9 +3891,12 @@ const main = async () => {
       };
 
       await page.waitForTimeout(360);
-      const earlyBuf = await page.screenshot({ clip });
-      await page.waitForTimeout(980);
-      const lateBuf = await page.screenshot({ clip });
+      const { earlyBuf, lateBuf } = await withTransparentBackground(page, async () => {
+        const early = await page.screenshot({ clip, omitBackground: true });
+        await page.waitForTimeout(980);
+        const late = await page.screenshot({ clip, omitBackground: true });
+        return { earlyBuf: early, lateBuf: late };
+      });
 
       const mad = screenshotMad(earlyBuf, lateBuf);
       if (mad > 0.003) {
