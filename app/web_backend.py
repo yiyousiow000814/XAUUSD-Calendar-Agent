@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import csv
 import hashlib
 import json
 import os
@@ -12,6 +13,7 @@ import tempfile
 import threading
 import time
 import webbrowser
+from collections import OrderedDict
 from concurrent.futures import ProcessPoolExecutor, TimeoutError
 from datetime import datetime, timedelta, timezone
 from hashlib import sha1
@@ -41,6 +43,7 @@ from agent.config import (
     to_iso_time,
 )
 from agent.currency_options import CURRENCY_OPTIONS
+from agent.event_history import build_event_canonical_id
 from agent.git_ops import (
     clone_repo_with_progress_into_dir,
     fetch_origin,
@@ -159,6 +162,13 @@ class WebAgentBackend:
         self._update_prompted_version = ""
         self._update_prompted_at: datetime | None = None
         self._update_restart_hidden_once = False
+        self._event_history_lock = threading.Lock()
+        self._event_history_cache: OrderedDict[str, list[dict]] = OrderedDict()
+        self._event_history_cache_limit = 60
+        self._event_history_index_signature: tuple[tuple[str, float, int], ...] = ()
+        self._event_history_by_event_offsets: dict[str, int] | None = None
+        self._event_history_by_event_path: Path | None = None
+        self._event_history_by_event_index_path: Path | None = None
         self._temporary_path_task_lock = threading.Lock()
         self._temporary_path_task_active = False
         self._temporary_path_task_phase = "idle"
@@ -517,6 +527,47 @@ class WebAgentBackend:
             base = dict(self._snapshot_cache)
         base["restartInSeconds"] = restart_in
         return base
+
+    def get_event_history(self, payload: dict | None = None) -> dict:
+        payload = payload or {}
+        event_name = (payload.get("event") or "").strip()
+        cur = (payload.get("cur") or "").strip()
+        if not event_name:
+            return {"ok": False, "message": "Missing event name"}
+
+        event_id, identity = build_event_canonical_id(cur, event_name)
+        repo_path = self._resolve_calendar_repo_path() or self._get_main_repo_path()
+        if not repo_path:
+            return {"ok": False, "message": "Calendar repo path not set"}
+
+        cached = self._get_cached_event_history(event_id)
+        if cached is not None:
+            return {
+                "ok": True,
+                "eventId": event_id,
+                "metric": identity.metric,
+                "frequency": identity.frequency,
+                "period": identity.period,
+                "cur": cur.upper() or "NA",
+                "points": cached,
+                "cached": True,
+            }
+
+        points = self._collect_event_history_from_index(event_id, repo_path)
+        if not points:
+            points = self._collect_event_history_from_calendar(event_id, repo_path)
+        points = self._apply_previous_fallback(points)
+        self._store_event_history_cache(event_id, points)
+        return {
+            "ok": True,
+            "eventId": event_id,
+            "metric": identity.metric,
+            "frequency": identity.frequency,
+            "period": identity.period,
+            "cur": cur.upper() or "NA",
+            "points": points,
+            "cached": False,
+        }
 
     def get_settings(self) -> dict:
         log_file = get_log_dir() / "app.log"
@@ -2381,6 +2432,329 @@ class WebAgentBackend:
             if len(rendered) >= max_items:
                 break
         return rendered
+
+    def _event_history_index_paths(self, repo_path: Path) -> list[Path]:
+        index_dir = repo_path / "data" / "event_history_index"
+        if not index_dir.exists():
+            return []
+        return sorted(index_dir.glob("*_event_history_index.csv"))
+
+    def _event_history_by_event_files(
+        self, repo_path: Path
+    ) -> tuple[Path, Path] | None:
+        index_dir = repo_path / "data" / "event_history_index"
+        if not index_dir.exists():
+            return None
+        by_event_path = index_dir / "event_history_by_event.ndjson"
+        by_event_index_path = index_dir / "event_history_by_event.index.json"
+        if by_event_path.exists() and by_event_index_path.exists():
+            return by_event_path, by_event_index_path
+        return None
+
+    def _event_history_signature(
+        self, paths: list[Path]
+    ) -> tuple[tuple[str, float, int], ...]:
+        signature: list[tuple[str, float, int]] = []
+        for path in paths:
+            try:
+                stat = path.stat()
+            except FileNotFoundError:
+                continue
+            signature.append((str(path), float(stat.st_mtime), int(stat.st_size)))
+        return tuple(signature)
+
+    def _refresh_event_history_cache(self, repo_path: Path) -> list[Path]:
+        index_paths = self._event_history_index_paths(repo_path)
+        by_event_files = self._event_history_by_event_files(repo_path)
+        signature_paths = list(by_event_files) if by_event_files else index_paths
+        signature = self._event_history_signature(signature_paths)
+        with self._event_history_lock:
+            if signature != self._event_history_index_signature:
+                self._event_history_index_signature = signature
+                self._event_history_cache.clear()
+                self._event_history_by_event_offsets = None
+                if by_event_files:
+                    self._event_history_by_event_path = by_event_files[0]
+                    self._event_history_by_event_index_path = by_event_files[1]
+                else:
+                    self._event_history_by_event_path = None
+                    self._event_history_by_event_index_path = None
+        return index_paths
+
+    @staticmethod
+    def _parse_history_date(value: str) -> datetime | None:
+        if not value:
+            return None
+        try:
+            return datetime.strptime(value.strip(), "%Y-%m-%d")
+        except ValueError:
+            return None
+
+    @staticmethod
+    def _parse_history_time_minutes(value: str) -> int:
+        if not value:
+            return 0
+        text = value.strip()
+        if ":" not in text:
+            return 0
+        try:
+            dt = datetime.strptime(text, "%H:%M")
+        except ValueError:
+            return 0
+        return dt.hour * 60 + dt.minute
+
+    def _collect_event_history_from_index(
+        self, event_id: str, repo_path: Path
+    ) -> list[dict]:
+        paths = self._refresh_event_history_cache(repo_path)
+        by_event_path: Path | None
+        by_event_index_path: Path | None
+        offsets: dict[str, int] | None
+        with self._event_history_lock:
+            by_event_path = self._event_history_by_event_path
+            by_event_index_path = self._event_history_by_event_index_path
+            offsets = self._event_history_by_event_offsets
+
+        if by_event_path and by_event_index_path:
+            if offsets is None:
+                try:
+                    payload = json.loads(
+                        by_event_index_path.read_text(encoding="utf-8")
+                    )
+                    raw_index = (
+                        payload.get("index", {}) if isinstance(payload, dict) else {}
+                    )
+                    if isinstance(raw_index, dict):
+                        offsets = {
+                            str(key): int(value)
+                            for key, value in raw_index.items()
+                            if isinstance(value, (int, float))
+                        }
+                    else:
+                        offsets = {}
+                except (OSError, json.JSONDecodeError, ValueError):
+                    offsets = {}
+                with self._event_history_lock:
+                    self._event_history_by_event_offsets = offsets
+
+            offset = offsets.get(event_id) if offsets else None
+            if offset is not None:
+                try:
+                    with by_event_path.open("rb") as handle:
+                        handle.seek(int(offset))
+                        line = handle.readline()
+                    payload = json.loads(line.decode("utf-8"))
+                    raw_points = (
+                        payload.get("points") if isinstance(payload, dict) else None
+                    )
+                    if isinstance(raw_points, list):
+                        points: list[dict] = []
+                        for item in raw_points:
+                            if not isinstance(item, list) or len(item) < 5:
+                                continue
+
+                            # v3 schema (len>=8):
+                            # [date, time, actualEffective, forecast, previousEffective, actualRaw, previousRaw, (previousRevisedFrom?), period]
+                            if len(item) >= 8:
+                                actual_effective = str(item[2] or "").strip()
+                                forecast = str(item[3] or "").strip()
+                                previous_effective = str(item[4] or "").strip()
+                                actual_raw = str(item[5] or "").strip()
+                                previous_raw = str(item[6] or "").strip()
+                                previous_revised_from = ""
+                                if len(item) >= 9:
+                                    previous_revised_from = str(item[7] or "").strip()
+                                    period = str(item[8] or "").strip()
+                                else:
+                                    period = str(item[7] or "").strip()
+                                actual_revised_from = ""
+                                if (
+                                    actual_raw.strip() != actual_effective.strip()
+                                    and not self._is_history_value_missing(actual_raw)
+                                    and not self._is_history_value_missing(
+                                        actual_effective
+                                    )
+                                ):
+                                    actual_revised_from = actual_raw
+                                points.append(
+                                    {
+                                        "date": str(item[0] or "").strip(),
+                                        "time": str(item[1] or "").strip(),
+                                        "actual": actual_effective,
+                                        "actualRaw": actual_raw,
+                                        "actualRevisedFrom": actual_revised_from,
+                                        "forecast": forecast,
+                                        "previous": previous_effective,
+                                        "previousRaw": previous_raw,
+                                        "previousRevisedFrom": previous_revised_from,
+                                        "period": period,
+                                    }
+                                )
+                                continue
+
+                            # v2 schema (len>=7): [date, time, actual, forecast, previous, actualRevisedFrom, period]
+                            actual_revised_from = ""
+                            period = ""
+                            if len(item) >= 7:
+                                actual_revised_from = str(item[5] or "").strip()
+                                period = str(item[6] or "").strip()
+                            elif len(item) >= 6:
+                                period = str(item[5] or "").strip()
+                            actual = str(item[2] or "").strip()
+                            previous = str(item[4] or "").strip()
+                            points.append(
+                                {
+                                    "date": str(item[0] or "").strip(),
+                                    "time": str(item[1] or "").strip(),
+                                    "actual": actual,
+                                    "actualRaw": actual,
+                                    "actualRevisedFrom": actual_revised_from,
+                                    "forecast": str(item[3] or "").strip(),
+                                    "previous": previous,
+                                    "previousRaw": previous,
+                                    "previousRevisedFrom": "",
+                                    "period": period,
+                                }
+                            )
+                        return points
+                except (OSError, json.JSONDecodeError, UnicodeDecodeError, ValueError):
+                    # Fall back to scanning per-year CSVs.
+                    pass
+
+        if not paths:
+            return []
+
+        points: list[dict] = []
+        for path in paths:
+            with path.open("r", encoding="utf-8") as handle:
+                reader = csv.DictReader(handle)
+                for row in reader:
+                    if row.get("EventId") != event_id:
+                        continue
+                    points.append(
+                        {
+                            "date": (row.get("Date") or "").strip(),
+                            "time": (row.get("Time") or "").strip(),
+                            "actual": (row.get("Actual") or "").strip(),
+                            "actualRaw": (
+                                row.get("ActualRaw") or row.get("Actual") or ""
+                            ).strip(),
+                            "actualRevisedFrom": (
+                                row.get("ActualRevisedFrom") or ""
+                            ).strip(),
+                            "forecast": (row.get("Forecast") or "").strip(),
+                            "previous": (row.get("Previous") or "").strip(),
+                            "previousRaw": (
+                                row.get("PreviousRaw") or row.get("Previous") or ""
+                            ).strip(),
+                            "previousRevisedFrom": (
+                                row.get("PreviousRevisedFrom") or ""
+                            ).strip(),
+                            "period": (row.get("Period") or "").strip(),
+                        }
+                    )
+        points.sort(
+            key=lambda item: (
+                self._parse_history_date(item["date"]) or datetime.min,
+                self._parse_history_time_minutes(item["time"]),
+            )
+        )
+        return points
+
+    @staticmethod
+    def _is_history_value_missing(value: str | None) -> bool:
+        if value is None:
+            return True
+        normalized = value.strip().lower()
+        return normalized in {"", "--", "-", "\u2014", "tba", "n/a", "na", "null"}
+
+    def _apply_previous_fallback(self, points: list[dict]) -> list[dict]:
+        if not points:
+            return points
+        last_actual: str | None = None
+        for point in points:
+            prior_actual = last_actual
+            actual = (point.get("actual") or "").strip()
+            previous = (point.get("previous") or "").strip()
+            if (
+                self._is_history_value_missing(previous)
+                and prior_actual
+                and not self._is_history_value_missing(prior_actual)
+            ):
+                point["previous"] = prior_actual
+            if not self._is_history_value_missing(actual):
+                last_actual = actual
+        return points
+
+    def _collect_event_history_from_calendar(
+        self, event_id: str, repo_path: Path
+    ) -> list[dict]:
+        calendar_root = repo_path / "data" / "Economic_Calendar"
+        if not calendar_root.exists():
+            return []
+        points: list[dict] = []
+        for year_dir in sorted(calendar_root.iterdir()):
+            if not year_dir.is_dir():
+                continue
+            try:
+                year = int(year_dir.name)
+            except ValueError:
+                continue
+            json_path = year_dir / f"{year}_calendar.json"
+            if not json_path.exists():
+                continue
+            try:
+                payload = json.loads(json_path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                continue
+            if not isinstance(payload, list):
+                continue
+            for row in payload:
+                if not isinstance(row, dict):
+                    continue
+                event = (row.get("Event") or "").strip()
+                if not event:
+                    continue
+                cur = (row.get("Cur.") or "").strip()
+                row_id, identity = build_event_canonical_id(cur, event)
+                if row_id != event_id:
+                    continue
+                points.append(
+                    {
+                        "date": str(row.get("Date") or "").strip(),
+                        "time": str(row.get("Time") or "").strip(),
+                        "actual": str(row.get("Actual") or "").strip(),
+                        "actualRaw": str(row.get("Actual") or "").strip(),
+                        "actualRevisedFrom": "",
+                        "forecast": str(row.get("Forecast") or "").strip(),
+                        "previous": str(row.get("Previous") or "").strip(),
+                        "previousRaw": str(row.get("Previous") or "").strip(),
+                        "previousRevisedFrom": "",
+                        "period": (identity.period or "").strip(),
+                    }
+                )
+        points.sort(
+            key=lambda item: (
+                self._parse_history_date(item["date"]) or datetime.min,
+                self._parse_history_time_minutes(item["time"]),
+            )
+        )
+        return points
+
+    def _get_cached_event_history(self, event_id: str) -> list[dict] | None:
+        with self._event_history_lock:
+            cached = self._event_history_cache.get(event_id)
+            if cached is None:
+                return None
+            self._event_history_cache.move_to_end(event_id)
+            return list(cached)
+
+    def _store_event_history_cache(self, event_id: str, points: list[dict]) -> None:
+        with self._event_history_lock:
+            self._event_history_cache[event_id] = list(points)
+            self._event_history_cache.move_to_end(event_id)
+            while len(self._event_history_cache) > self._event_history_cache_limit:
+                self._event_history_cache.popitem(last=False)
 
     def _ensure_dir(self, value: str) -> None:
         if not value:

@@ -237,6 +237,10 @@
     border-color var(--motion-fast) var(--motion-ease);
 }
 
+.event-row[role="button"] {
+  cursor: pointer;
+}
+
 .event-row::before {
   content: "";
   position: absolute;

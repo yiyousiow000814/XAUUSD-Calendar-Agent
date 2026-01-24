@@ -1,12 +1,13 @@
 ﻿import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { useCallback, useLayoutEffect } from "react";
 import { backend, isWebview } from "./api";
-import type { FilterOption, Settings, Snapshot, ToastType } from "./types";
+import type { EventHistoryResponse, FilterOption, Settings, Snapshot, ToastType } from "./types";
 import { ActivityDrawer } from "./components/ActivityDrawer";
 import { ActivityLog } from "./components/ActivityLog";
 import { AlertModal } from "./components/AlertModal";
 import { AppBar } from "./components/AppBar";
 import { BottomClock } from "./components/BottomClock";
+import { EventHistoryModal } from "./components/EventHistoryModal";
 import { Footer } from "./components/Footer";
 import { HistoryPanel } from "./components/HistoryPanel";
 import { InitOverlay } from "./components/InitOverlay";
@@ -150,6 +151,11 @@ export default function App() {
   const [uninstallOpen, setUninstallOpen] = useState<boolean>(false);
   const [uninstallClosing, setUninstallClosing] = useState<boolean>(false);
   const [uninstallEntering, setUninstallEntering] = useState<boolean>(false);
+  const [historyOpen, setHistoryOpen] = useState<boolean>(false);
+  const [historyLoading, setHistoryLoading] = useState<boolean>(false);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+  const [historySelection, setHistorySelection] = useState<{ event: string; cur: string } | null>(null);
+  const [historyData, setHistoryData] = useState<EventHistoryResponse | null>(null);
   const [temporaryPathNote, setTemporaryPathNote] = useState<{
     tone: "info" | "warn" | "error";
     text: string;
@@ -282,6 +288,7 @@ export default function App() {
   const startupTemporaryPathCapturedRef = useRef(false);
   const eventRetryRef = useRef(0);
   const eventRetryTimerRef = useRef<number | null>(null);
+  const historyRequestRef = useRef(0);
   const hasManualCurrencyRef = useRef(false);
   const refreshInFlightRef = useRef(false);
   const refreshRef = useRef<() => Promise<Snapshot | null>>(async () => null);
@@ -1683,6 +1690,44 @@ export default function App() {
     }, 240);
   };
 
+  const closeHistoryModal = () => {
+    setHistoryOpen(false);
+    setHistoryLoading(false);
+    setHistoryError(null);
+    setHistoryData(null);
+    setHistorySelection(null);
+  };
+
+  const openEventHistory = async (payload: { event: string; cur: string }) => {
+    const eventName = payload.event || "";
+    const currencyCode = payload.cur || "";
+    historyRequestRef.current += 1;
+    const requestId = historyRequestRef.current;
+    setHistorySelection({ event: eventName, cur: currencyCode });
+    setHistoryOpen(true);
+    setHistoryLoading(true);
+    setHistoryError(null);
+    try {
+      const result = await backend.getEventHistory({ event: eventName, cur: currencyCode });
+      if (historyRequestRef.current !== requestId) return;
+      if (!result.ok) {
+        setHistoryError(result.message || "Unable to load history.");
+        setHistoryData(null);
+      } else {
+        setHistoryData(result);
+      }
+    } catch (error) {
+      if (historyRequestRef.current !== requestId) return;
+      const message = error instanceof Error ? error.message : "Unable to load history.";
+      setHistoryError(message);
+      setHistoryData(null);
+    } finally {
+      if (historyRequestRef.current === requestId) {
+        setHistoryLoading(false);
+      }
+    }
+  };
+
   const handleSettingsClose = async () => {
     const trimmedTemporaryPathPath = (settings.temporaryPath || "").trim();
     const savedTemporaryPathEnabled = Boolean(savedSettings.enableTemporaryPath);
@@ -2114,11 +2159,11 @@ export default function App() {
 
   useEffect(() => {
     const body = document.body;
-    const isOpen = settingsOpen || uninstallOpen;
+    const isOpen = settingsOpen || uninstallOpen || historyOpen;
     body.classList.toggle("modal-open", isOpen);
     body.style.paddingRight = "";
     return () => body.classList.remove("modal-open");
-  }, [settingsOpen, uninstallOpen]);
+  }, [settingsOpen, uninstallOpen, historyOpen]);
 
   useEffect(() => {
     const handleMove = (event: MouseEvent) => {
@@ -3044,6 +3089,11 @@ export default function App() {
     }, 400);
   }, []);
 
+  const historySelectionLabel = historySelection
+    ? `${historySelection.cur || "--"} ${historySelection.event}`.trim()
+    : "";
+
+
   return (
     <div className="app" data-qa="qa:app-shell">
       <InitOverlay state={initState} error={initError} onRetry={refresh} />
@@ -3085,6 +3135,7 @@ export default function App() {
               impactTone={impactTone}
               impactFilter={impactFilter}
               onImpactFilterChange={setImpactFilter}
+              onOpenHistory={(item) => openEventHistory({ event: item.event, cur: item.cur })}
             />
           </div>
           <div className="split-divider" onMouseDown={startSplitDrag} data-qa="qa:split:divider" />
@@ -3094,6 +3145,7 @@ export default function App() {
               loading={snapshot.calendarStatus === "loading"}
               impactTone={impactTone}
               impactFilter={impactFilter}
+              onOpenHistory={(item) => openEventHistory({ event: item.event, cur: item.cur })}
             />
           </div>
         </div>
@@ -3159,6 +3211,15 @@ export default function App() {
           ) : null}
         </div>
       </div>
+
+      <EventHistoryModal
+        isOpen={historyOpen}
+        loading={historyLoading}
+        error={historyError}
+        selectionLabel={historySelectionLabel}
+        data={historyData}
+        onClose={closeHistoryModal}
+      />
 
       <SettingsModal
         isOpen={settingsOpen}

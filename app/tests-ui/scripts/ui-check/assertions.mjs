@@ -800,17 +800,20 @@ export const assertSpinnerAnim = async (page, selector, label) => {
       return style.transform || "";
     }, selector);
 
+  // Multi-theme runs can be CPU bound on Windows, so give the spinner enough time
+  // to mount and start animating before sampling.
+  await page.waitForSelector(selector, { state: "attached", timeout: 6000 });
+
   const transforms = [];
   const start = Date.now();
-  const timeoutMs = 1800;
-  await page.waitForSelector(selector, { state: "attached", timeout: 2000 }).catch(() => null);
+  const timeoutMs = 2800;
   while (Date.now() - start < timeoutMs) {
     const value = await sampleTransform();
     if (value) {
       transforms.push(value);
-      if (transforms.length >= 6) break;
+      if (transforms.length >= 8) break;
     }
-    await page.waitForTimeout(90);
+    await page.waitForTimeout(120);
   }
 
   if (transforms.length < 2) {

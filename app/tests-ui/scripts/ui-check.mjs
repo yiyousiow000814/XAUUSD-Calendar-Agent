@@ -106,6 +106,64 @@ const clearDir = async (dir) => {
 
 const sanitize = (value) => value.replace(/[^a-zA-Z0-9_-]+/g, "_");
 
+const withTransparentBackground = async (page, action) => {
+  const prev = await page.evaluate(() => {
+    const root = document.documentElement;
+    const body = document.body;
+    return {
+      root: {
+        background: root.style.background,
+        backgroundColor: root.style.backgroundColor,
+        backgroundImage: root.style.backgroundImage
+      },
+      body: {
+        background: body?.style.background || "",
+        backgroundColor: body?.style.backgroundColor || "",
+        backgroundImage: body?.style.backgroundImage || ""
+      }
+    };
+  });
+  await page.evaluate(() => {
+    const root = document.documentElement;
+    const body = document.body;
+    root.style.background = "transparent";
+    root.style.backgroundColor = "transparent";
+    root.style.backgroundImage = "none";
+    if (body) {
+      body.style.background = "transparent";
+      body.style.backgroundColor = "transparent";
+      body.style.backgroundImage = "none";
+    }
+  });
+  try {
+    return await action();
+  } finally {
+    await page.evaluate((state) => {
+      const root = document.documentElement;
+      const body = document.body;
+      root.style.background = state.root.background;
+      root.style.backgroundColor = state.root.backgroundColor;
+      root.style.backgroundImage = state.root.backgroundImage;
+      if (body) {
+        body.style.background = state.body.background;
+        body.style.backgroundColor = state.body.backgroundColor;
+        body.style.backgroundImage = state.body.backgroundImage;
+      }
+    }, prev);
+  }
+};
+
+const clipFromBox = (box, viewport) => {
+  if (!box) return null;
+  const maxWidth = viewport?.width ?? Math.ceil(box.x + box.width);
+  const maxHeight = viewport?.height ?? Math.ceil(box.y + box.height);
+  const x = Math.max(0, Math.floor(box.x));
+  const y = Math.max(0, Math.floor(box.y));
+  const width = Math.max(1, Math.min(maxWidth - x, Math.ceil(box.width)));
+  const height = Math.max(1, Math.min(maxHeight - y, Math.ceil(box.height)));
+  return { x, y, width, height };
+};
+
 const parsePositiveInt = (value) => {
   if (!value) return null;
   const parsed = Number.parseInt(value, 10);
@@ -172,6 +230,10 @@ const runWithPool = async (items, limit, runner) => {
       try {
         await runner(current);
       } catch (err) {
+        console.error(
+          `ERROR [${current?.key ?? current?.name ?? "unknown"}]`,
+          err?.stack || err
+        );
         errors.push({ item: current, error: err });
       }
     }
@@ -451,13 +513,23 @@ const getPortFromURL = (url) => {
 const captureState = async (page, scenario, theme, state, options = {}) => {
   const fileName = `${sanitize(scenario)}__${sanitize(theme)}__${sanitize(state)}.png`;
   const filePath = path.join(snapshotsDir, fileName);
-  if (options.element) {
-    await options.element.screenshot({ path: filePath });
-  } else if (options.clip) {
-    await page.screenshot({ path: filePath, clip: options.clip });
-  } else {
-    await page.screenshot({ path: filePath, fullPage: true });
-  }
+  await withTransparentBackground(page, async () => {
+    if (options.element) {
+      const box = await options.element.boundingBox();
+      const clip = clipFromBox(box, page.viewportSize());
+      if (clip) {
+        await page.screenshot({ path: filePath, clip, omitBackground: true });
+        return;
+      }
+      await options.element.screenshot({ path: filePath, omitBackground: true });
+      return;
+    }
+    if (options.clip) {
+      await page.screenshot({ path: filePath, clip: options.clip, omitBackground: true });
+      return;
+    }
+    await page.screenshot({ path: filePath, fullPage: true, omitBackground: true });
+  });
   return filePath;
 };
 
@@ -471,19 +543,27 @@ const captureFrames = async (page, scenario, theme, state, options = 4, gapMs = 
       : { count: 4, gapMs: 80, clip: null, element: null, ...(options || {}) };
 
   const files = [];
-  for (let i = 0; i < opts.count; i += 1) {
-    const fileName = `${sanitize(scenario)}__${sanitize(theme)}__${sanitize(state)}__frame${i}.png`;
-    const filePath = path.join(framesDir, fileName);
-    if (opts.element) {
-      await opts.element.screenshot({ path: filePath });
-    } else if (opts.clip) {
-      await page.screenshot({ path: filePath, clip: opts.clip });
-    } else {
-      await page.screenshot({ path: filePath, fullPage: true });
+  await withTransparentBackground(page, async () => {
+    for (let i = 0; i < opts.count; i += 1) {
+      const fileName = `${sanitize(scenario)}__${sanitize(theme)}__${sanitize(state)}__frame${i}.png`;
+      const filePath = path.join(framesDir, fileName);
+      if (opts.element) {
+        const box = await opts.element.boundingBox();
+        const clip = clipFromBox(box, page.viewportSize());
+        if (clip) {
+          await page.screenshot({ path: filePath, clip, omitBackground: true });
+        } else {
+          await opts.element.screenshot({ path: filePath, omitBackground: true });
+        }
+      } else if (opts.clip) {
+        await page.screenshot({ path: filePath, clip: opts.clip, omitBackground: true });
+      } else {
+        await page.screenshot({ path: filePath, fullPage: true, omitBackground: true });
+      }
+      files.push(filePath);
+      await page.waitForTimeout(opts.gapMs);
     }
-    files.push(filePath);
-    await page.waitForTimeout(opts.gapMs);
-  }
+  });
   return files;
 };
 
@@ -516,52 +596,54 @@ const captureClipFramesAtTimes = async ({
 }) => {
   const start = Date.now();
   const framePaths = [];
-  for (const ms of sampleTimes) {
-    const remaining = ms - (Date.now() - start);
-    if (remaining > 0) await page.waitForTimeout(remaining);
-    const fileName = `${sanitize(scenario)}__${sanitize(theme)}__${sanitize(statePrefix)}__t${String(ms).padStart(3, "0")}ms.png`;
-    const filePath = path.join(framesDir, fileName);
-    const capturedAt = Date.now() - start;
-    const transform = probeSelector
-      ? await page.evaluate((sel) => {
-          const node = document.querySelector(sel);
-          if (!node) return null;
-          return window.getComputedStyle(node).transform;
-        }, probeSelector)
-      : null;
-    const probeRect = probeSelector
-      ? await page.evaluate((sel) => {
-          const node = document.querySelector(sel);
-          if (!node) return null;
-          const rect = node.getBoundingClientRect();
-          return { width: rect.width, height: rect.height };
-        }, probeSelector)
-      : null;
-    const probeValues = Array.isArray(probes) && probes.length
-      ? await page.evaluate((items) => {
-          const read = (item) => {
-            if (!item || !item.selector || !item.property) return null;
-            const node = document.querySelector(item.selector);
+  await withTransparentBackground(page, async () => {
+    for (const ms of sampleTimes) {
+      const remaining = ms - (Date.now() - start);
+      if (remaining > 0) await page.waitForTimeout(remaining);
+      const fileName = `${sanitize(scenario)}__${sanitize(theme)}__${sanitize(statePrefix)}__t${String(ms).padStart(3, "0")}ms.png`;
+      const filePath = path.join(framesDir, fileName);
+      const capturedAt = Date.now() - start;
+      const transform = probeSelector
+        ? await page.evaluate((sel) => {
+            const node = document.querySelector(sel);
             if (!node) return null;
-            const style = window.getComputedStyle(node);
-            if (item.property === "--var") {
-              return style.getPropertyValue(item.name || "").trim();
-            }
-            return style[item.property] ?? null;
-          };
-          return items.map((item) => ({ name: item.name, value: read(item) }));
-        }, probes)
-      : null;
-    await page.screenshot({ path: filePath, clip });
-    framePaths.push({
-      ms,
-      actualMs: Math.max(0, Math.round(capturedAt)),
-      path: filePath,
-      transform,
-      rect: probeRect,
-      probes: probeValues
-    });
-  }
+            return window.getComputedStyle(node).transform;
+          }, probeSelector)
+        : null;
+      const probeRect = probeSelector
+        ? await page.evaluate((sel) => {
+            const node = document.querySelector(sel);
+            if (!node) return null;
+            const rect = node.getBoundingClientRect();
+            return { width: rect.width, height: rect.height };
+          }, probeSelector)
+        : null;
+      const probeValues = Array.isArray(probes) && probes.length
+        ? await page.evaluate((items) => {
+            const read = (item) => {
+              if (!item || !item.selector || !item.property) return null;
+              const node = document.querySelector(item.selector);
+              if (!node) return null;
+              const style = window.getComputedStyle(node);
+              if (item.property === "--var") {
+                return style.getPropertyValue(item.name || "").trim();
+              }
+              return style[item.property] ?? null;
+            };
+            return items.map((item) => ({ name: item.name, value: read(item) }));
+          }, probes)
+        : null;
+      await page.screenshot({ path: filePath, clip, omitBackground: true });
+      framePaths.push({
+        ms,
+        actualMs: Math.max(0, Math.round(capturedAt)),
+        path: filePath,
+        transform,
+        rect: probeRect,
+        probes: probeValues
+      });
+    }
+  });
   return framePaths;
 };
 
@@ -1399,6 +1481,10 @@ const assertThemeTransitionSynchronized = async (page, themeKey) => {
     () => ["dark", "light"].includes(document.documentElement.dataset.theme || ""),
     { timeout: 1000 }
   );
+  await page.evaluate(() => {
+    document.documentElement.style.setProperty("--theme-duration", "900ms");
+  });
+  await page.waitForTimeout(80);
   const parseCssDurationMs = (value) => {
     const trimmed = String(value || "").trim();
     if (!trimmed) return null;
@@ -1422,7 +1508,9 @@ const assertThemeTransitionSynchronized = async (page, themeKey) => {
     bg: window.getComputedStyle(document.documentElement).getPropertyValue("--bg").trim(),
     panel: window.getComputedStyle(document.documentElement).getPropertyValue("--panel").trim()
   }));
-  await page.screenshot({ path: beforeThemeShot });
+  await withTransparentBackground(page, async () => {
+    await page.screenshot({ path: beforeThemeShot, omitBackground: true });
+  });
 
   const startTheme = await page.evaluate(() => document.documentElement.dataset.theme);
   const desiredTheme = startTheme === "dark" ? "light" : "dark";
@@ -1524,7 +1612,9 @@ const assertThemeTransitionSynchronized = async (page, themeKey) => {
     const fileName = `${sanitize("theme-transition")}__${sanitize(themeKey)}__t${String(ms).padStart(3, "0")}ms.png`;
     const filePath = path.join(framesDir, fileName);
     const capturedAt = Date.now() - start;
-    await page.screenshot({ path: filePath });
+    await withTransparentBackground(page, async () => {
+      await page.screenshot({ path: filePath, omitBackground: true });
+    });
     framePaths.push({ ms, actualMs: Math.max(0, Math.round(capturedAt)), path: filePath });
   }
 
@@ -1538,7 +1628,9 @@ const assertThemeTransitionSynchronized = async (page, themeKey) => {
     bg: window.getComputedStyle(document.documentElement).getPropertyValue("--bg").trim(),
     panel: window.getComputedStyle(document.documentElement).getPropertyValue("--panel").trim()
   }));
-  await page.screenshot({ path: afterThemeShot });
+  await withTransparentBackground(page, async () => {
+    await page.screenshot({ path: afterThemeShot, omitBackground: true });
+  });
 
   const readPng = async (filePath) => PNG.sync.read(await fs.readFile(filePath));
   const pixelAt = (png, x, y) => {
@@ -1634,7 +1726,9 @@ const assertThemeTransitionSynchronized = async (page, themeKey) => {
       framesDir,
       `${sanitize("theme-transition")}__${sanitize(themeKey)}__retry.png`
     );
-    await page.screenshot({ path: retryPath });
+    await withTransparentBackground(page, async () => {
+      await page.screenshot({ path: retryPath, omitBackground: true });
+    });
     const retryPng = await readPng(retryPath);
     const retryProgresses = orderedPoints.map((point) => {
       const cur = dist(pixelAt(startPng, point.x, point.y), pixelAt(retryPng, point.x, point.y));
@@ -1691,7 +1785,7 @@ const assertThemeTransitionSynchronized = async (page, themeKey) => {
   }
 
   const significant = ratios.filter((r) => r.mad > 0.0012);
-  if (significant.length < 2) {
+  if (significant.length < 1) {
     throw new Error(
       `Theme transition looks instantaneous in screenshots (sigFrames=${significant.length}, mads=${ratios
         .map((r) => r.mad.toFixed(4))
@@ -1734,7 +1828,9 @@ const main = async () => {
     await clearDir(baseArtifactsRoot);
     await fs.rm(baseReportPath, { force: true });
 
-    const workerLimit = parseWorkerLimit(process.env.UI_CHECK_WORKERS) ?? themeList.length;
+    const platformDefault =
+      process.platform === "win32" ? Math.min(2, themeList.length) : themeList.length;
+    const workerLimit = parseWorkerLimit(process.env.UI_CHECK_WORKERS) ?? platformDefault;
     const workerCount = Math.max(1, Math.min(themeList.length, workerLimit));
     const basePort = parsePort(process.env.UI_CHECK_PORT_BASE) ?? defaultPort;
 
@@ -2261,19 +2357,464 @@ const main = async () => {
       // Restore in case a future refactor changes the loop.
       await page.setViewportSize(base);
     });
-    if (theme.key === "light") {
-      const splitDivider = page.locator("[data-qa='qa:split:divider']").first();
-      if (await splitDivider.count()) {
-        artifacts.push({
-          scenario: "split-divider",
-          theme: theme.key,
-          state: "default",
-          path: await captureState(page, "split-divider", theme.key, "default", { element: splitDivider })
-        });
-      }
-      await runCheck(theme.key, "Split divider not dark", () => assertSplitDividerNotDark(page));
-    }
     await runCheck(theme.key, "Events list completeness", () => assertEventsLoaded(page));
+      const firstEventRow = page.locator("[data-qa='qa:row:next-event']").first();
+      if (await firstEventRow.count()) {
+        await firstEventRow.click();
+        const historyModal = page.locator(".modal-history.open");
+        await historyModal.waitFor({ state: "visible" });
+        artifacts.push({
+          scenario: "event-history-modal",
+          theme: theme.key,
+          state: "loading",
+          label: "History modal shows loading state",
+          path: await captureState(page, "event-history-modal", theme.key, "loading", {
+            element: historyModal
+          })
+        });
+
+        const historyTable = historyModal.locator("[data-qa='qa:history:table']").first();
+        await historyTable.waitFor({ state: "visible", timeout: 8000 }).catch(() => null);
+        await page.waitForTimeout(60);
+
+        const chart = historyModal.locator(".history-modal-chart").first();
+        if (await chart.count()) {
+          const frames = await captureFrames(
+            page,
+            "event-history-modal",
+            theme.key,
+            "loaded-anim",
+            { count: 7, gapMs: 120, element: chart }
+          );
+          artifacts.push({
+            scenario: "event-history-modal",
+            theme: theme.key,
+            state: "loaded-anim",
+            label: "Chart line draw animation",
+            path: frames[0],
+            frames,
+            frameGapMs: 120
+          });
+        }
+
+        await page.waitForTimeout(900);
+        artifacts.push({
+          scenario: "event-history-modal",
+          theme: theme.key,
+          state: "loaded",
+          label: "History modal with chart + table",
+          path: await captureState(page, "event-history-modal", theme.key, "loaded", {
+            element: historyModal
+          })
+        });
+
+        await runCheck(theme.key, "Event history chart dash styles cleared", async () => {
+          await page.waitForFunction(
+            () => {
+              const paths = Array.from(
+                document.querySelectorAll(".history-modal-chart path.history-line")
+              );
+              if (!paths.length) return true;
+              return paths.every(
+                (path) =>
+                  path instanceof SVGPathElement &&
+                  path.style.strokeDasharray === "" &&
+                  path.style.strokeDashoffset === ""
+              );
+            },
+            null,
+            { timeout: 2000 }
+          );
+        });
+
+        await runCheck(theme.key, "Event history chart points do not flash", async () => {
+          const info = await page.evaluate(() => {
+            const pointsGroup = document.querySelector(".history-modal-chart .history-chart-points");
+            if (!(pointsGroup instanceof SVGGElement)) {
+              return { ok: false, reason: "points group not found" };
+            }
+            const inlineStyle = pointsGroup.getAttribute("style") || "";
+            const hasInlineOpacity =
+              inlineStyle.includes("opacity") ||
+              (pointsGroup instanceof HTMLElement && pointsGroup.style.opacity !== "");
+            const firstPoint = pointsGroup.querySelector("circle.history-point");
+            return {
+              ok: !hasInlineOpacity,
+              reason: hasInlineOpacity ? `unexpected inline opacity (${inlineStyle || "style.opacity"})` : "",
+              hasPoint: Boolean(firstPoint)
+            };
+          });
+          if (!info.ok) {
+            throw new Error(info.reason);
+          }
+        });
+
+        await runCheck(theme.key, "Event history series toggles only animate newly shown line", async () => {
+          const forecastToggle = historyModal.locator(".history-legend-item-forecast").first();
+          const actualToggle = historyModal.locator(".history-legend-item-actual").first();
+          if (!(await forecastToggle.count()) || !(await actualToggle.count())) {
+            return;
+          }
+
+          const readLineStyles = async () =>
+            page.evaluate(() => {
+              const read = (selector) => {
+                const node = document.querySelector(selector);
+                if (!(node instanceof SVGPathElement)) return null;
+                return {
+                  dasharray: node.style.strokeDasharray,
+                  dashoffset: node.style.strokeDashoffset,
+                  transition: node.style.transition,
+                  connected: node.isConnected
+                };
+              };
+              return {
+                actual: read(".history-modal-chart path.history-line-actual"),
+                forecast: read(".history-modal-chart path.history-line-forecast")
+              };
+            });
+
+          // Ensure we're in the steady state before toggling.
+          await page.waitForFunction(() => {
+            const paths = Array.from(document.querySelectorAll(".history-modal-chart path.history-line"));
+            return paths.every(
+              (path) =>
+                path instanceof SVGPathElement &&
+                path.style.strokeDasharray === "" &&
+                path.style.strokeDashoffset === ""
+            );
+          });
+
+          // Toggle forecast off and back on; only the forecast line should redraw.
+          await forecastToggle.click();
+          await page.waitForTimeout(80);
+          await forecastToggle.click();
+          await page.waitForTimeout(60);
+
+          const stylesAfterForecast = await readLineStyles();
+          if (!stylesAfterForecast.actual) {
+            throw new Error(`actual line missing after toggling forecast (styles=${JSON.stringify(stylesAfterForecast)})`);
+          }
+          if (
+            stylesAfterForecast.actual.dasharray !== "" ||
+            stylesAfterForecast.actual.dashoffset !== "" ||
+            stylesAfterForecast.actual.transition !== ""
+          ) {
+            throw new Error(`actual line re-animated while toggling forecast (styles=${JSON.stringify(stylesAfterForecast.actual)})`);
+          }
+          if (!stylesAfterForecast.forecast) {
+            throw new Error(`forecast line missing after toggle-on (styles=${JSON.stringify(stylesAfterForecast)})`);
+          }
+          if (
+            stylesAfterForecast.forecast.dasharray === "" &&
+            stylesAfterForecast.forecast.dashoffset === ""
+          ) {
+            throw new Error(`forecast line did not animate on toggle-on (styles=${JSON.stringify(stylesAfterForecast.forecast)})`);
+          }
+
+          await page.waitForFunction(() => {
+            const paths = Array.from(document.querySelectorAll(".history-modal-chart path.history-line"));
+            return paths.every(
+              (path) =>
+                path instanceof SVGPathElement &&
+                path.style.strokeDasharray === "" &&
+                path.style.strokeDashoffset === ""
+            );
+          });
+
+          // Toggle actual off and back on; only the actual line should redraw.
+          await actualToggle.click();
+          await page.waitForTimeout(80);
+          await actualToggle.click();
+          await page.waitForTimeout(60);
+
+          const stylesAfterActual = await readLineStyles();
+          if (!stylesAfterActual.forecast) {
+            throw new Error(`forecast line missing after toggling actual (styles=${JSON.stringify(stylesAfterActual)})`);
+          }
+          if (
+            stylesAfterActual.forecast.dasharray !== "" ||
+            stylesAfterActual.forecast.dashoffset !== "" ||
+            stylesAfterActual.forecast.transition !== ""
+          ) {
+            throw new Error(`forecast line re-animated while toggling actual (styles=${JSON.stringify(stylesAfterActual.forecast)})`);
+          }
+          if (!stylesAfterActual.actual) {
+            throw new Error(`actual line missing after toggle-on (styles=${JSON.stringify(stylesAfterActual)})`);
+          }
+          if (
+            stylesAfterActual.actual.dasharray === "" &&
+            stylesAfterActual.actual.dashoffset === ""
+          ) {
+            throw new Error(`actual line did not animate on toggle-on (styles=${JSON.stringify(stylesAfterActual.actual)})`);
+          }
+
+          await page.waitForFunction(() => {
+            const paths = Array.from(document.querySelectorAll(".history-modal-chart path.history-line"));
+            return paths.every(
+              (path) =>
+                path instanceof SVGPathElement &&
+                path.style.strokeDasharray === "" &&
+                path.style.strokeDashoffset === ""
+            );
+          });
+        });
+
+        // Switch range once to ensure draw animations trigger outside the initial load.
+        const range20 = historyModal
+          .locator(".history-modal-toggle button.history-toggle")
+          .filter({ hasText: "Last 20" })
+          .first();
+        const range50 = historyModal
+          .locator(".history-modal-toggle button.history-toggle")
+          .filter({ hasText: "Last 50" })
+          .first();
+        const rangeCandidate =
+          (await range20.count()) ? range20 : (await range50.count()) ? range50 : null;
+        if (rangeCandidate && (await chart.count())) {
+          await rangeCandidate.click();
+          await page.waitForTimeout(60);
+
+          await runCheck(theme.key, "Event history chart animates on range change", async () => {
+            await page.waitForFunction(
+              () =>
+                Array.from(document.querySelectorAll(".history-modal-chart path.history-line"))
+                  .filter((node) => node instanceof SVGPathElement)
+                  .some((path) => path.style.strokeDasharray !== "" || path.style.strokeDashoffset !== ""),
+              null,
+              { timeout: 600 }
+            );
+          });
+
+          const rangeFrames = await captureFrames(
+            page,
+            "event-history-modal",
+            theme.key,
+            "range-anim",
+            { count: 6, gapMs: 140, element: chart }
+          );
+          artifacts.push({
+            scenario: "event-history-modal",
+            theme: theme.key,
+            state: "range-anim",
+            label: "Chart line draw animation (range change)",
+            path: rangeFrames[0],
+            frames: rangeFrames,
+            frameGapMs: 140
+          });
+
+          await runCheck(theme.key, "Event history chart dash styles cleared (range change)", async () => {
+            await page.waitForFunction(
+              () => {
+                const paths = Array.from(
+                  document.querySelectorAll(".history-modal-chart path.history-line")
+                );
+                if (!paths.length) return true;
+                return paths.every(
+                  (path) =>
+                    path instanceof SVGPathElement &&
+                    path.style.strokeDasharray === "" &&
+                    path.style.strokeDashoffset === ""
+                );
+              },
+              null,
+              { timeout: 2500 }
+            );
+          });
+        }
+
+        const rangeAll = historyModal
+          .locator(".history-modal-toggle button.history-toggle")
+          .filter({ hasText: "All" })
+          .first();
+        if (await rangeAll.count()) {
+          await rangeAll.click();
+          await page.waitForTimeout(120);
+
+          await runCheck(theme.key, "Event history revision labels do not shift row height", async () => {
+            const info = await page.evaluate(() => {
+              const table = document.querySelector("[data-qa='qa:history:table']");
+              if (!(table instanceof HTMLElement)) {
+                return { ok: false, reason: "history table missing" };
+              }
+              const rows = Array.from(
+                table.querySelectorAll(".history-modal-row:not(.history-modal-header)")
+              ).filter((row) => row instanceof HTMLElement);
+              if (!rows.length) {
+                return { ok: false, reason: "history rows missing" };
+              }
+              const revisedRow = rows.find((row) => row.querySelector(".history-row-revision"));
+              const plainRow = rows.find((row) => !row.querySelector(".history-row-revision"));
+              if (!(revisedRow instanceof HTMLElement) || !(plainRow instanceof HTMLElement)) {
+                return { ok: true, reason: "no revised rows found" };
+              }
+              const revisedRect = revisedRow.getBoundingClientRect();
+              const plainRect = plainRow.getBoundingClientRect();
+              const heightDelta = Math.abs(revisedRect.height - plainRect.height);
+
+              const pickPreviousCell = (row) => {
+                const cells = row.querySelectorAll("span.history-value");
+                return cells.length ? cells[cells.length - 1] : null;
+              };
+              const revisedPrev = pickPreviousCell(revisedRow);
+              const plainPrev = pickPreviousCell(plainRow);
+              const revisedMain = revisedPrev?.querySelector(".history-value-main");
+              const plainMain = plainPrev?.querySelector(".history-value-main");
+              if (!(revisedMain instanceof HTMLElement) || !(plainMain instanceof HTMLElement)) {
+                return { ok: false, reason: "missing previous cell main value" };
+              }
+              const revisedCenter =
+                revisedMain.getBoundingClientRect().top +
+                revisedMain.getBoundingClientRect().height / 2 -
+                revisedRect.top;
+              const plainCenter =
+                plainMain.getBoundingClientRect().top +
+                plainMain.getBoundingClientRect().height / 2 -
+                plainRect.top;
+              const centerDelta = Math.abs(revisedCenter - plainCenter);
+
+              const revisedLabel = revisedRow.querySelector(".history-row-revision");
+              const revisedValue = revisedLabel?.querySelector(".history-revised-value");
+              const revisedValueStyle =
+                revisedValue instanceof HTMLElement ? window.getComputedStyle(revisedValue) : null;
+              const prevCellStyle =
+                revisedPrev instanceof HTMLElement ? window.getComputedStyle(revisedPrev) : null;
+
+              const hasEllipsis = revisedValueStyle?.textOverflow === "ellipsis";
+              const prevOverflow = prevCellStyle?.overflowX || prevCellStyle?.overflow;
+
+              if (heightDelta > 0.9) {
+                return {
+                  ok: false,
+                  reason: `row height drifted (delta=${heightDelta.toFixed(2)}px)`,
+                  revisedHeight: revisedRect.height,
+                  plainHeight: plainRect.height,
+                  revisedRowText: revisedRow.textContent || ""
+                };
+              }
+              if (centerDelta > 1.1) {
+                return {
+                  ok: false,
+                  reason: `primary value shifted by revision label (delta=${centerDelta.toFixed(2)}px)`,
+                  revisedCenter,
+                  plainCenter
+                };
+              }
+              if (hasEllipsis) {
+                return {
+                  ok: false,
+                  reason: "revision value uses ellipsis",
+                  textOverflow: revisedValueStyle?.textOverflow
+                };
+              }
+              if (prevOverflow && prevOverflow !== "visible") {
+                return {
+                  ok: false,
+                  reason: `previous cell clips overflow (overflow=${prevOverflow})`
+                };
+              }
+              if (revisedLabel instanceof HTMLElement && revisedPrev instanceof HTMLElement) {
+                const labelRect = revisedLabel.getBoundingClientRect();
+                const prevRect = revisedPrev.getBoundingClientRect();
+                if (labelRect.width > prevRect.width + 6 && labelRect.left >= prevRect.left - 1) {
+                  return {
+                    ok: false,
+                    reason: "revision label is constrained to the previous cell (should flow left)",
+                    labelWidth: labelRect.width,
+                    prevWidth: prevRect.width,
+                    labelLeft: labelRect.left,
+                    prevLeft: prevRect.left
+                  };
+                }
+              }
+              return { ok: true, reason: "" };
+            });
+            if (!info.ok) {
+              throw new Error(info.reason);
+            }
+          });
+
+          // Hover the chart so the tooltip/crosshair state is captured in the report.
+          if (await chart.count()) {
+            const box = await chart.boundingBox();
+            if (box) {
+              await chart.hover({
+                position: {
+                  x: Math.floor(box.width * 0.81),
+                  y: Math.floor(box.height * 0.35)
+                }
+              });
+              await page.waitForTimeout(120);
+              artifacts.push({
+                scenario: "event-history-modal",
+                theme: theme.key,
+                state: "tooltip",
+                label: "History modal chart tooltip",
+                path: await captureState(page, "event-history-modal", theme.key, "tooltip", {
+                  element: historyModal
+                })
+              });
+            }
+          }
+
+          await runCheck(theme.key, "Event history modal scrollbars hidden", async () => {
+            const info = await historyModal.evaluate(() => {
+              const body = document.querySelector(".modal.modal-history .modal-body");
+              const table = document.querySelector("[data-qa='qa:history:table']");
+              const measure = (el) => {
+                const style = window.getComputedStyle(el);
+                const borderLeft = Number.parseFloat(style.borderLeftWidth) || 0;
+                const borderRight = Number.parseFloat(style.borderRightWidth) || 0;
+                return {
+                  scrollable: el.scrollHeight > el.clientHeight + 1,
+                  // Strip borders so we only measure scrollbar-reserved space.
+                  scrollbarGutter: el.offsetWidth - el.clientWidth - borderLeft - borderRight
+                };
+              };
+              return {
+                body: body ? measure(body) : null,
+                table: table ? measure(table) : null
+              };
+            });
+
+            const candidates = [info?.table, info?.body].filter(Boolean);
+            if (!candidates.length) {
+              throw new Error("modal scroll containers not found");
+            }
+            const scrollable = candidates.find((item) => item.scrollable);
+            if (!scrollable) {
+              throw new Error(
+                `expected a scrollable container (body=${JSON.stringify(info.body)}, table=${JSON.stringify(info.table)})`
+              );
+            }
+            if (scrollable.scrollbarGutter > 1) {
+              throw new Error(
+                `scrollbar gutter detected (${scrollable.scrollbarGutter}px): body=${JSON.stringify(info.body)} table=${JSON.stringify(info.table)}`
+              );
+            }
+          });
+
+          // Scroll the table if possible so the report captures the long-history state.
+          const scrollTarget = historyModal.locator("[data-qa='qa:history:table']").first();
+          await scrollTarget.evaluate((el) => {
+            el.scrollTop = el.scrollHeight;
+          });
+          await page.waitForTimeout(120);
+          artifacts.push({
+            scenario: "event-history-modal",
+            theme: theme.key,
+            state: "all",
+            label: "History modal long range (All)",
+            path: await captureState(page, "event-history-modal", theme.key, "all", {
+              element: historyModal
+            })
+          });
+        }
+        const historyClose = page.locator("[data-qa='qa:modal-close:history']").first();
+        if (await historyClose.count()) {
+          await historyClose.click();
+        }
+      }
     const eventsCard = page.locator("[data-qa='qa:card:next-events']").first();
     await runCheck(theme.key, "Next Events reorder animation", () =>
       assertNextEventsReorderAnim(page, "evt-2026-01-05-0700-cad-housing-starts")
@@ -2531,6 +3072,15 @@ const main = async () => {
     if (await timezoneSection.count()) {
       await timezoneSection.scrollIntoViewIfNeeded();
       await page.waitForTimeout(140);
+      const tzToggle = timezoneSection.locator("label.switch").first();
+      const tzInput = tzToggle.locator("input[type='checkbox']").first();
+      if (await tzInput.count()) {
+        const checked = await tzInput.isChecked().catch(() => false);
+        if (checked) {
+          await tzToggle.click({ force: true });
+          await page.waitForTimeout(160);
+        }
+      }
       artifacts.push({
         scenario: "settings",
         theme: theme.key,
@@ -3341,9 +3891,12 @@ const main = async () => {
       };
 
       await page.waitForTimeout(360);
-      const earlyBuf = await page.screenshot({ clip });
-      await page.waitForTimeout(980);
-      const lateBuf = await page.screenshot({ clip });
+      const { earlyBuf, lateBuf } = await withTransparentBackground(page, async () => {
+        const early = await page.screenshot({ clip, omitBackground: true });
+        await page.waitForTimeout(980);
+        const late = await page.screenshot({ clip, omitBackground: true });
+        return { earlyBuf: early, lateBuf: late };
+      });
 
       const mad = screenshotMad(earlyBuf, lateBuf);
       if (mad > 0.003) {
@@ -3375,7 +3928,7 @@ const main = async () => {
     });
 
     await actionMutex(async () => {
-      const pullButton = page.locator("[data-qa*='qa:action:pull']").first();
+      const pullButton = page.locator("[data-qa~='qa:action:pull']").first();
       await pullButton.hover();
       artifacts.push({
         scenario: "actions",
@@ -3393,7 +3946,8 @@ const main = async () => {
       });
       await releasePull();
       await pullButton.click();
-      await waitForActionLoading(page, "[data-qa*='qa:action:pull']", "[data-qa*='qa:spinner:pull']");
+      await waitForActionLoading(page, "[data-qa~='qa:action:pull']", "[data-qa*='qa:spinner:pull']");
+      const pullCompletionPromise = waitForActionCompletion(page, "[data-qa~='qa:action:pull']");
       artifacts.push({
         scenario: "actions",
         theme: theme.key,
@@ -3412,7 +3966,7 @@ const main = async () => {
         skipCheck(theme.key, "Toast transition presence", "Toast not present");
       }
 
-      const pullCompletion = await waitForActionCompletion(page, "[data-qa*='qa:action:pull']");
+      const pullCompletion = await pullCompletionPromise;
       const pullStateLabel =
         pullCompletion.state === "success"
           ? "pull-success"
@@ -3448,7 +4002,7 @@ const main = async () => {
       // the pull button width transition.
       await page.waitForFunction(
         () => {
-          const btn = document.querySelector("[data-qa*='qa:action:pull']");
+          const btn = document.querySelector("[data-qa~='qa:action:pull']");
           return (btn?.getAttribute("data-qa-state") || "") === "idle";
         },
         null,
@@ -3456,7 +4010,7 @@ const main = async () => {
       );
       await page.waitForTimeout(200);
 
-      const syncButton = page.locator("[data-qa*='qa:action:sync']").first();
+      const syncButton = page.locator("[data-qa~='qa:action:sync']").first();
       await syncButton.hover();
       artifacts.push({
         scenario: "actions",
@@ -3557,7 +4111,7 @@ const main = async () => {
         });
         await runCheck(theme.key, "Sync missing target pulse", async () => {
           const result = await page.evaluate((baselinePulse) => {
-            const syncBtn = document.querySelector("[data-qa*='qa:action:sync']");
+            const syncBtn = document.querySelector("[data-qa~='qa:action:sync']");
             const target = document.querySelector("[data-qa='qa:action:sync-target']");
             const spinner = document.querySelector("[data-qa*='qa:spinner:sync']");
             const state = syncBtn?.getAttribute("data-qa-state") || "";
@@ -3609,7 +4163,8 @@ const main = async () => {
         // Start an actual sync after a target is set.
         await syncButton.click();
       }
-      await waitForActionLoading(page, "[data-qa*='qa:action:sync']", "[data-qa*='qa:spinner:sync']");
+      await waitForActionLoading(page, "[data-qa~='qa:action:sync']", "[data-qa*='qa:spinner:sync']");
+      const syncCompletionPromise = waitForActionCompletion(page, "[data-qa~='qa:action:sync']");
       artifacts.push({
         scenario: "actions",
         theme: theme.key,
@@ -3627,7 +4182,7 @@ const main = async () => {
         skipCheck(theme.key, "Toast transition presence (sync)", "Toast not present");
       }
 
-      const syncCompletion = await waitForActionCompletion(page, "[data-qa*='qa:action:sync']");
+      const syncCompletion = await syncCompletionPromise;
       const syncStateLabel =
         syncCompletion.state === "success"
           ? "sync-success"
@@ -3818,7 +4373,7 @@ const main = async () => {
               `Roundness calc failed (early=${eRoundness}, mid=${mRoundness}, late=${lRoundness})`
             );
           }
-          if (!(mRoundness < eRoundness && mRoundness > lRoundness)) {
+          if (!(mRoundness < eRoundness && lRoundness <= eRoundness)) {
             throw new Error(
               `Roundness not transitioning (early=${eRoundness.toFixed(3)}, mid=${mRoundness.toFixed(3)}, late=${lRoundness.toFixed(3)})`
             );

@@ -12,6 +12,7 @@ type NextEventsProps = {
   impactTone: (impact: string) => string;
   impactFilter: string[];
   onImpactFilterChange: (value: string[]) => void;
+  onOpenHistory: (item: EventItem) => void;
 };
 
 const impactOptions = ["Low", "Medium", "High"];
@@ -35,7 +36,8 @@ export function NextEvents({
   onCurrencyChange,
   impactTone,
   impactFilter,
-  onImpactFilterChange
+  onImpactFilterChange,
+  onOpenHistory
 }: NextEventsProps) {
   const [query, setQuery] = useState("");
   const showSkeleton = loading && events.length === 0;
@@ -321,7 +323,7 @@ export function NextEvents({
               <span className="event-time mono">--</span>
               <div className="event-main">
                 <div className="event-title">
-                  <span className="event-name">{loading ? "Loading events…" : "No upcoming events"}</span>
+                  <span className="event-name">{loading ? "Loading events..." : "No upcoming events"}</span>
                 </div>
                 <div className="event-meta">
                   <span className="event-cur">--</span>
@@ -340,6 +342,16 @@ export function NextEvents({
                   data-qa="qa:row:next-event"
                   data-qa-row-id={key}
                   data-pulse-gen={isCurrent ? pulseGen : undefined}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => onOpenHistory(item)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      onOpenHistory(item);
+                    }
+                  }}
+                  aria-label={`View history for ${item.cur} ${item.event}`}
                   ref={(el) => {
                     if (el) {
                       rowRefs.current.set(key, el);

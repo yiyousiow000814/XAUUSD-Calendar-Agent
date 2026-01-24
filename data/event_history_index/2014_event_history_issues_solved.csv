@@ -1,0 +1,150 @@
+Issue,EventId,Cur,Event,Period,Date,Time,PreviousRaw,PriorActual,PreviousEffective,Details
+previous_missing_filled,CAD::budget balance::none,CAD,Budget Balance,,2014-07-25,23:00,,-6.72B,-6.72B,
+previous_missing_filled,CAD::budget balance::y/y,CAD,Budget Balance (YoY),,2014-07-25,23:00,,-12.11B,-12.11B,
+previous_missing_filled,USD::real earnings::m/m,USD,Real Earnings (MoM),,2014-04-15,20:30,,0.0%,0.0%,
+previous_missing_filled,SEK::unemployment rate::none,SEK,Unemployment Rate  (Jan),jan,2014-02-01,17:00,,7.5%,7.5%,
+previous_missing_filled,USD::fed chairman bernanke speaks::none,USD,Fed Chairman Bernanke Speaks,,2014-01-04,03:30,,0.00,0.00,
+previous_missing_filled,USD::fed chairman bernanke speaks::none,USD,Fed Chairman Bernanke Speaks,,2014-01-17,00:10,,0.00,0.00,
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2014-01-16,03:00,,0.00,0.00,
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2014-03-06,03:00,,0.00,0.00,
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2014-04-17,02:00,,0.00,0.00,
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2014-06-05,02:00,,0.00,0.00,
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2014-07-17,02:00,,0.00,0.00,
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2014-09-04,02:00,,0.00,0.00,
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2014-10-16,02:00,,0.00,0.00,
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2014-12-04,03:00,,0.00,0.00,
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-01-27,07:50,,0.00,0.00,
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-02-21,07:50,,0.00,0.00,
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-03-14,07:50,,0.00,0.00,
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-04-11,07:50,,0.00,0.00,
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-05-07,07:50,,0.00,0.00,
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-05-26,07:50,,0.00,0.00,
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-06-18,07:50,,0.00,0.00,
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-07-18,07:50,,0.00,0.00,
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-08-13,07:50,,0.00,0.00,
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-09-09,07:50,,0.00,0.00,
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-10-10,07:50,,0.00,0.00,
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-11-06,07:50,,0.00,0.00,
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-11-25,07:50,,0.00,0.00,
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-12-25,07:50,,0.00,0.00,
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2014-01-09,03:00,,0.00,0.00,
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2014-02-20,03:00,,0.00,0.00,
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2014-04-10,02:00,,0.00,0.00,
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2014-05-22,02:00,,0.00,0.00,
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2014-07-10,02:00,,0.00,0.00,
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2014-08-21,02:00,,0.00,0.00,
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2014-10-09,02:00,,0.00,0.00,
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2014-11-20,03:00,,0.00,0.00,
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2014-03-20,08:30,,0.00,0.00,
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2014-06-19,09:30,,0.00,0.00,
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2014-09-18,09:30,,0.00,0.00,
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2014-12-18,08:30,,0.00,0.00,
+previous_missing_filled,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2014-01-23,13:00,,0.00,0.00,
+previous_missing_filled,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2014-02-19,13:00,,0.00,0.00,
+previous_missing_filled,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2014-03-12,13:00,,0.00,0.00,
+previous_missing_filled,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2014-04-09,14:00,,0.00,0.00,
+previous_missing_filled,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2014-05-22,13:00,,0.00,0.00,
+previous_missing_filled,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2014-06-16,13:00,,0.00,0.00,
+previous_missing_filled,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2014-07-16,13:00,,0.00,0.00,
+previous_missing_filled,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2014-08-11,13:00,,0.00,0.00,
+previous_missing_filled,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2014-10-08,13:00,,0.00,0.00,
+previous_missing_filled,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2014-11-20,13:00,,0.00,0.00,
+previous_missing_filled,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2014-12-22,13:00,,0.00,0.00,
+previous_missing_filled,USD::30 - year tips auction::none,USD,30-Year TIPS Auction,,2014-10-24,01:00,,0.63%,0.63%,
+previous_missing_filled,USD::5 - year tips auction::none,USD,5-Year TIPS Auction,,2014-04-18,01:00,,0.13%,0.13%,
+previous_missing_filled,USD::4 - week bill auction::none,USD,4-Week Bill Auction,,2014-04-15,23:30,,0.025%,0.025%,
+previous_missing_filled,AUD::imports::m/m,AUD,Imports (MoM)  (Aug),aug,2014-10-02,09:30,,0%,0%,
+previous_missing_filled,BRL::foreign exchange flows::none,BRL,Foreign Exchange Flows,,2014-07-23,23:30,,-1.61B,-1.61B,
+previous_missing_filled,ARS::budget balance::none,ARS,Budget Balance,,2014-08-20,07:35,,-286.80M,-286.80M,
+previous_missing_filled,ARS::budget balance::none,ARS,Budget Balance,,2014-09-20,07:35,,-286.80M,-286.80M,
+previous_missing_filled,ARS::budget balance::none,ARS,Budget Balance  (Sep),sep,2014-10-20,07:00,,-286.80M,-286.80M,
+previous_missing_filled,BRL::auto sales::m/m,BRL,Auto Sales (MoM),,2014-07-07,21:30,,21.80%,21.80%,
+previous_missing_filled,TRY::treasury cash balance::none,TRY,Treasury Cash Balance,,2014-10-09,22:30,,21.84B,21.84B,
+stale_missing_actual_dropped,CAD::budget balance::none,CAD,Budget Balance,,2014-06-27,23:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,CAD::budget balance::y/y,CAD,Budget Balance (YoY),,2014-06-27,23:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,MXN::fiscal balance::none,MXN,Fiscal Balance  (Sep),sep,2014-10-31,04:30,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,USD::chain store sales::m/m,USD,Chain Store Sales (MoM),,2014-07-10,20:45,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,USD::chain store sales::m/m,USD,Chain Store Sales (MoM),,2014-08-07,20:45,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,USD::chain store sales::m/m,USD,Chain Store Sales (MoM)  (Oct),oct,2014-11-07,01:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,USD::midwest manufacturing::none,USD,Midwest Manufacturing  (Oct),oct,2014-11-26,21:30,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,USD::midwest manufacturing::none,USD,Midwest Manufacturing  (Nov),nov,2014-12-29,21:30,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,USD::fed chairman bernanke speaks::none,USD,Fed Chairman Bernanke Speaks,,2014-01-04,03:30,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,USD::fed chairman bernanke speaks::none,USD,Fed Chairman Bernanke Speaks,,2014-01-17,00:10,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2014-01-16,03:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2014-03-06,03:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2014-04-17,02:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2014-06-05,02:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2014-07-17,02:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2014-09-04,02:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2014-10-16,02:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2014-12-04,03:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-01-27,07:50,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-02-21,07:50,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-03-14,07:50,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-04-11,07:50,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-05-07,07:50,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-05-26,07:50,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-06-18,07:50,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-07-18,07:50,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-08-13,07:50,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-09-09,07:50,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-10-10,07:50,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-11-06,07:50,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-11-25,07:50,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2014-12-25,07:50,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,INR::bank loan growth::none,INR,Bank Loan Growth,,2014-10-03,19:30,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2014-01-09,03:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2014-02-20,03:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2014-04-10,02:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2014-05-22,02:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2014-07-10,02:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2014-08-21,02:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2014-10-09,02:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2014-11-20,03:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,AUD::rba bulletin::none,AUD,RBA Bulletin,,2014-03-20,08:30,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,AUD::rba bulletin::none,AUD,RBA Bulletin,,2014-06-19,09:30,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,AUD::rba bulletin::none,AUD,RBA Bulletin,,2014-09-18,09:30,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,AUD::rba bulletin::none,AUD,RBA Bulletin,,2014-12-18,08:30,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,INR::deposit growth::none,INR,Deposit Growth,,2014-10-03,19:30,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2014-01-23,13:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2014-02-19,13:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2014-03-12,13:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2014-04-09,14:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2014-05-22,13:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2014-06-16,13:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2014-07-16,13:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2014-08-11,13:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2014-10-08,13:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2014-11-20,13:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2014-12-22,13:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,UAH::gdp::y/y,UAH,GDP (YoY),,2014-09-12,Tentative,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,BRL::foreign exchange flows::none,BRL,Foreign Exchange Flows,,2014-07-16,23:30,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,ARS::budget balance::none,ARS,Budget Balance,,2014-08-20,07:35,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,ARS::budget balance::none,ARS,Budget Balance,,2014-09-20,07:35,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,ARS::budget balance::none,ARS,Budget Balance  (Sep),sep,2014-10-20,07:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,BRL::auto sales::m/m,BRL,Auto Sales (MoM),,2014-06-05,21:30,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,IDR::retail sales::y/y,IDR,Retail Sales (YoY),,2014-04-10,10:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,TRY::budget balance::none,TRY,Budget balance,,2014-08-15,16:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,EUR::greek credit expansion::y/y,EUR,Greek Credit Expansion (YoY)  (Nov),nov,2014-12-30,18:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,IDR::car sales::y/y,IDR,Car Sales (YoY),,2014-05-12,08:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,IDR::consumer confidence::none,IDR,Consumer Confidence,,2014-07-04,20:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,IDR::consumer confidence::none,IDR,Consumer Confidence,,2014-08-06,14:30,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,IDR::consumer confidence::none,IDR,Consumer Confidence  (Sep),sep,2014-10-02,09:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,IDR::consumer confidence::none,IDR,Consumer Confidence  (Nov),nov,2014-12-04,10:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,IDR::fx reserves (usd)::none,IDR,FX Reserves (USD),,2014-04-07,10:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,IDR::fx reserves (usd)::none,IDR,FX Reserves (USD),,2014-06-06,08:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,NGN::foreign reserves (usd)::none,NGN,Foreign Reserves (USD)  (Oct),oct,2014-10-31,20:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,IDR::foreign direct investment::y/y,IDR,Foreign Direct Investment (YoY),,2014-07-25,14:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,EGP::foreign reserves (usd)::none,EGP,Foreign Reserves (USD)  (Oct),oct,2014-11-09,08:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,EGP::m2 money supply::y/y,EGP,M2 Money Supply (YoY)  (Nov),nov,2014-12-31,22:05,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,UAH::trade balance ytd (usd)::none,UAH,Trade Balance YTD (USD)  (Nov),nov,2014-12-15,21:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,QAR::total credit::y/y,QAR,Total Credit (YoY)  (Sep),sep,2014-10-31,06:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,QAR::total credit::y/y,QAR,Total Credit (YoY)  (Nov),nov,2014-12-31,06:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,ZAR::total vehicle sales::none,ZAR,Total Vehicle Sales,,2014-09-01,19:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,ZAR::total vehicle sales::y/y,ZAR,Total Vehicle Sales (YoY),,2014-09-01,19:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,COP::exports::y/y,COP,Exports (YoY)  (Oct),oct,2014-11-19,06:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,EUR::lithuania current account::none,EUR,Lithuania Current Account  (Q3),q3,2014-12-19,16:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,CZK::foreign debt (eur)::none,CZK,Foreign Debt (EUR)  (Q3),q3,2014-12-31,17:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,NOK::central bank currency purchase::none,NOK,Central Bank Currency Purchase  (Jan),jan,2014-12-31,17:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,QAR::cpi::m/m,QAR,CPI (MoM)  (Sep),sep,2014-10-15,05:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
+stale_missing_actual_dropped,QAR::cpi::y/y,QAR,CPI (YoY)  (Sep),sep,2014-10-15,05:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"

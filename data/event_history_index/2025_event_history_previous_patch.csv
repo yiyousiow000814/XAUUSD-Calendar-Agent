@@ -1,0 +1,60 @@
+Patch,EventId,Cur,Event,Period,Date,Time,PreviousRaw,PriorActual,PreviousEffective
+previous_missing_filled,CAD::retail sales::m/m,CAD,Retail Sales (MoM)  (Oct),oct,2025-11-21,21:30,,-0.7%,-0.7%
+previous_missing_filled,USD::new home sales::none,USD,New Home Sales  (Oct),oct,2025-12-24,04:00,,800K,800K
+previous_missing_filled,USD::new home sales::none,USD,New Home Sales  (Nov),nov,2025-12-24,04:05,,800K,800K
+previous_missing_filled,USD::new home sales::m/m,USD,New Home Sales (MoM)  (Oct),oct,2025-12-24,04:00,,20.5%,20.5%
+previous_missing_filled,USD::new home sales::m/m,USD,New Home Sales (MoM)  (Nov),nov,2025-12-24,04:05,,20.5%,20.5%
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2025-01-16,03:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2025-03-06,03:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2025-04-24,02:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2025-06-05,02:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2025-07-17,02:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2025-09-04,02:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2025-10-16,02:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2025-11-27,03:00,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2025-01-29,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2025-03-25,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2025-05-08,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2025-06-20,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2025-08-05,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2025-09-25,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2025-11-05,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2025-12-24,07:50,,0.00,0.00
+previous_missing_filled,GBP::boe mpc treasury committee hearings::none,GBP,BoE MPC Treasury Committee Hearings,,2025-03-05,22:30,,0.00,0.00
+previous_missing_filled,GBP::boe mpc treasury committee hearings::none,GBP,BoE MPC Treasury Committee Hearings,,2025-06-03,17:15,,0.00,0.00
+previous_missing_filled,GBP::boe mpc treasury committee hearings::none,GBP,BoE MPC Treasury Committee Hearings,,2025-09-03,21:15,,0.00,0.00
+previous_missing_filled,USD::treasury secretary paulson speaks::none,USD,Treasury Secretary Paulson Speaks,,2025-10-14,00:10,,0.00,0.00
+previous_missing_filled,USD::treasury secretary paulson speaks::none,USD,Treasury Secretary Paulson Speaks,,2025-10-14,00:55,,0.00,0.00
+previous_missing_filled,USD::treasury secretary paulson speaks::none,USD,Treasury Secretary Paulson Speaks,,2025-11-07,05:30,,0.00,0.00
+previous_missing_filled,INR::bank loan growth::none,INR,Bank Loan Growth,,2025-10-10,19:30,,10.4%,10.4%
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2025-01-09,03:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2025-02-20,03:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2025-04-10,02:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2025-05-29,02:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2025-07-10,02:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2025-08-21,02:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2025-10-09,02:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2025-10-09,03:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2025-11-20,03:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2025-12-31,03:00,,0.00,0.00
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2025-01-30,08:30,,0.00,0.00
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2025-04-24,09:30,,0.00,0.00
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2025-07-24,09:30,,0.00,0.00
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2025-10-23,08:30,,0.00,0.00
+previous_missing_filled,INR::deposit growth::none,INR,Deposit Growth,,2025-10-10,19:30,,9.5%,9.5%
+previous_missing_filled,TRY::trade balance::none,TRY,Trade Balance,,2025-11-04,15:00,,-6.90B,-6.90B
+previous_missing_filled,ZAR::business confidence::none,ZAR,Business Confidence  (Sep),sep,2025-10-15,17:30,,121.1,121.1
+previous_missing_filled,ZAR::business confidence::none,ZAR,Business Confidence  (Nov),nov,2025-12-12,17:30,,132.3,132.3
+previous_missing_filled,CAD::boc senior loan officer survey::none,CAD,BoC Senior Loan Officer Survey  (Q4),q4,2025-02-14,22:30,,1.7,1.7
+previous_missing_filled,USD::atlanta fed gdpnow::none,USD,Atlanta Fed GDPNow  (Q1),q1,2025-01-31,23:30,,2.3%,2.3%
+previous_missing_filled,USD::atlanta fed gdpnow::none,USD,Atlanta Fed GDPNow  (Q2),q2,2025-05-01,00:30,,-2.7%,-2.7%
+previous_missing_filled,USD::atlanta fed gdpnow::none,USD,Atlanta Fed GDPNow  (Q3),q3,2025-07-31,23:30,,2.9%,2.9%
+previous_missing_filled,USD::atlanta fed gdpnow::none,USD,Atlanta Fed GDPNow  (Q3),q3,2025-10-10,01:00,,3.8%,3.8%
+previous_missing_filled,USD::atlanta fed gdpnow::none,USD,Atlanta Fed GDPNow  (Q3),q3,2025-10-17,01:00,,3.8%,3.8%
+previous_missing_filled,USD::atlanta fed gdpnow::none,USD,Atlanta Fed GDPNow  (Q4),q4,2025-10-31,23:30,,3.9%,3.9%
+previous_missing_filled,USD::atlanta fed gdpnow::none,USD,Atlanta Fed GDPNow  (Q4),q4,2025-11-04,01:00,,3.9%,3.9%
+previous_missing_filled,USD::atlanta fed gdpnow::none,USD,Atlanta Fed GDPNow  (Q4),q4,2025-11-05,01:00,,4.0%,4.0%
+previous_missing_filled,USD::atlanta fed gdpnow::none,USD,Atlanta Fed GDPNow  (Q4),q4,2025-12-11,01:00,,3.5%,3.5%
+previous_missing_filled,USD::atlanta fed gdpnow::none,USD,Atlanta Fed GDPNow  (Q4),q4,2025-12-16,23:30,,3.5%,3.5%
+previous_missing_filled,USD::atlanta fed gdpnow::none,USD,Atlanta Fed GDPNow  (Q4),q4,2025-12-20,01:00,,3.5%,3.5%
+previous_missing_filled,USD::atlanta fed gdpnow::none,USD,Atlanta Fed GDPNow  (Q4),q4,2025-12-24,23:30,,3.0%,3.0%

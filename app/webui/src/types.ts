@@ -35,6 +35,31 @@ export type PastEventItem = {
   previous: string;
 };
 
+export type EventHistoryPoint = {
+  date: string;
+  time: string;
+  actual: string;
+  actualRaw?: string;
+  actualRevisedFrom?: string;
+  forecast: string;
+  previous: string;
+  previousRaw?: string;
+  previousRevisedFrom?: string;
+  period?: string;
+};
+
+export type EventHistoryResponse = {
+  ok: boolean;
+  eventId?: string;
+  metric?: string;
+  frequency?: string;
+  period?: string;
+  cur?: string;
+  points?: EventHistoryPoint[];
+  cached?: boolean;
+  message?: string;
+};
+
 export type Snapshot = {
   lastPull: string;
   lastSync: string;

@@ -1,0 +1,35 @@
+Patch,EventId,Cur,Event,Period,Date,Time,PreviousRaw,PriorActual,PreviousEffective
+previous_missing_filled,KRW::ppi::m/m,KRW,PPI (MoM)  (Nov),nov,2017-12-19,05:00,,0.0%,0.0%
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2017-01-19,03:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2017-03-02,03:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2017-04-20,02:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2017-06-01,02:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2017-07-13,02:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2017-09-07,02:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2017-10-19,02:00,,0.00,0.00
+previous_missing_filled,USD::beige book::none,USD,Beige Book,,2017-11-30,03:00,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-02-03,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-03-22,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-05-02,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-06-21,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-07-25,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-09-26,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-11-06,07:50,,0.00,0.00
+previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-12-26,07:50,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-01-05,03:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-02-23,03:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-04-06,02:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-05-25,02:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-07-06,02:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-08-17,02:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-10-12,02:00,,0.00,0.00
+previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-11-23,03:00,,0.00,0.00
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2017-03-16,08:30,,0.00,0.00
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2017-06-15,09:30,,0.00,0.00
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2017-09-21,09:30,,0.00,0.00
+previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2017-12-21,08:30,,0.00,0.00
+previous_missing_filled,USD::5 - year tips auction::none,USD,5-Year TIPS Auction,,2017-12-22,02:00,,0.117%,0.117%
+previous_missing_filled,CZK::ppi::m/m,CZK,PPI (MoM)  (Nov),nov,2017-12-18,16:00,,0.0%,0.0%
+previous_missing_filled,BWP::cpi::m/m,BWP,CPI (MoM)  (Nov),nov,2017-12-15,17:20,,0.1%,0.1%
+previous_missing_filled,NOK::industrial confidence::none,NOK,Industrial Confidence  (Q1),q1,2017-04-21,14:00,,0.0,0.0
+previous_missing_filled,UAH::current account (usd)::none,UAH,Current Account (USD)  (Jun),jun,2017-07-28,20:00,,0.000B,0.000B

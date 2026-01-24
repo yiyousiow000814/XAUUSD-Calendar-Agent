@@ -28,7 +28,7 @@ export const captureFullPage = async (
   const folder = resolvePath([currentDir, viewportLabel]);
   await ensureDir(folder);
   const filePath = resolvePath([folder, "full-page.png"]);
-  await page.screenshot({ path: filePath, fullPage: true });
+  await page.screenshot({ path: filePath, fullPage: true, omitBackground: true });
   testInfo.attachments.push({ name: `full-${viewportLabel}`, path: filePath });
   await compareWithBaseline(filePath, viewportLabel, "full-page", testInfo);
 };
@@ -43,7 +43,7 @@ export const captureElement = async (
   await ensureDir(folder);
   const fileName = `${sanitizeName(qaName)}.png`;
   const filePath = resolvePath([folder, fileName]);
-  await locator.screenshot({ path: filePath });
+  await locator.screenshot({ path: filePath, omitBackground: true });
   testInfo.attachments.push({ name: `${qaName}-${viewportLabel}`, path: filePath });
   await compareWithBaseline(filePath, viewportLabel, qaName, testInfo);
 };

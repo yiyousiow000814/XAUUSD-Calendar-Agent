@@ -242,6 +242,10 @@
     background var(--motion-fast) var(--motion-ease);
 }
 
+.history-event[role="button"] {
+  cursor: pointer;
+}
+
 .history-event:hover {
   border-color: rgba(255, 255, 255, 0.1);
   background: rgba(10, 14, 20, 0.22);

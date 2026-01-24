@@ -1,0 +1,2652 @@
+EventId,Date,Time,Period,Actual,Forecast,Previous
+USD::10 - year note auction::none,2007-01-01,17:00,dec,4.63%,,4.63%
+USD::5 - year note auction::none,2007-01-01,17:00,dec,4.63%,,4.50%
+USD::all car sales::none,2007-01-01,17:00,dec,7.94M,,7.42M
+USD::all truck sales::none,2007-01-01,17:00,dec,8.63M,,8.70M
+GBP::average earnings index +bonus::none,2007-01-01,17:00,dec,4.70%,,4.10%
+GBP::average earnings ex bonus::none,2007-01-01,17:00,dec,4.00%,,3.80%
+USD::average hourly earnings::m/m,2007-01-01,17:00,dec,0.40%,,0.20%
+USD::average weekly hours::none,2007-01-01,17:00,dec,34.70,,34.50
+GBP::brc retail sales monitor::y/y,2007-01-01,17:00,dec,2.50%,,0.50%
+CAD::boc interest rate decision::none,2007-01-01,17:00,dec,4.25%,,4.25%
+GBP::boe consumer credit::none,2007-01-01,17:00,dec,0.87B,,0.90B
+GBP::boe interest rate decision::none,2007-01-01,17:00,dec,5.00%,,5.00%
+CAD::budget balance::none,2007-01-01,17:00,dec,1.29B,,0.46B
+CAD::budget balance::y/y,2007-01-01,17:00,dec,8.20B,,6.91B
+CAD::building permits::m/m,2007-01-01,17:00,dec,-8.90%,,2.40%
+USD::business inventories::m/m,2007-01-01,17:00,dec,0.10%,,0.40%
+USD::cb consumer confidence::none,2007-01-01,17:00,dec,110.00,,105.30
+USD::cb employment trends index::none,2007-01-01,17:00,dec,126.30,,125.60
+GBP::cbi distributive trades survey::none,2007-01-01,17:00,dec,25.00,,-9.00
+GBP::cbi industrial trends orders::none,2007-01-01,17:00,dec,-5.00,,-6.00
+CAD::cpi::m/m,2007-01-01,17:00,dec,0.20%,,0.20%
+GBP::cpi::m/m,2007-01-01,17:00,dec,0.60%,,0.30%
+MXN::cpi::m/m,2007-01-01,17:00,dec,0.58%,,0.52%
+SEK::cpi::m/m,2007-01-01,17:00,dec,0.00%,,0.10%
+CAD::cpi::y/y,2007-01-01,17:00,dec,1.70%,,1.40%
+GBP::cpi::y/y,2007-01-01,17:00,dec,3.00%,,2.70%
+MXN::cpi::y/y,2007-01-01,17:00,dec,4.05%,,4.09%
+SEK::cpi::y/y,2007-01-01,17:00,dec,1.60%,,1.70%
+"USD::cpi index, n.s.a.::none",2007-01-01,17:00,dec,201.80,,201.50
+USD::capacity utilization rate::none,2007-01-01,17:00,dec,80.30%,,79.70%
+USD::chain store sales::m/m,2007-01-01,17:00,dec,3.30%,,2.50%
+USD::chain store sales::w/w,2007-01-01,17:00,dec,1.04%,,-0.34%
+USD::chain store sales::y/y,2007-01-01,17:00,dec,2.55%,,2.45%
+USD::challenger job cuts::none,2007-01-01,17:00,dec,54.64K,,76.77K
+USD::chicago fed national activity::none,2007-01-01,17:00,dec,0.87,,-0.19
+USD::chicago pmi::none,2007-01-01,17:00,dec,51.60,,51.10
+GBP::claimant count change::none,2007-01-01,17:00,dec,-9.40K,,-9.30K
+USD::cleveland cpi::m/m,2007-01-01,17:00,dec,0.20%,,0.20%
+USD::construction spending::m/m,2007-01-01,17:00,dec,1.40%,,-0.20%
+MXN::consumer confidence::none,2007-01-01,17:00,dec,107.60,,108.70
+SEK::consumer confidence::none,2007-01-01,17:00,dec,108.20,,108.10
+MXN::consumer confidence n.s.a.::none,2007-01-01,17:00,dec,109.70,,105.90
+USD::consumer credit::none,2007-01-01,17:00,dec,15.16B,,11.93B
+USD::continuing jobless claims::none,2007-01-01,17:00,dec,"2,482.95K",,"2,480.91K"
+CAD::core cpi::m/m,2007-01-01,17:00,dec,-0.20%,,0.20%
+MXN::core cpi::m/m,2007-01-01,17:00,dec,0.40%,,0.26%
+CAD::core cpi::y/y,2007-01-01,17:00,dec,2.10%,,2.20%
+USD::core cpi index::none,2007-01-01,17:00,dec,208.10,,207.80
+USD::core pce price index::m/m,2007-01-01,17:00,dec,0.20%,,0.00%
+USD::core pce price index::y/y,2007-01-01,17:00,dec,2.10%,,2.10%
+GBP::core ppi output::m/m,2007-01-01,17:00,dec,0.00%,,0.00%
+GBP::core ppi output::y/y,2007-01-01,17:00,dec,1.30%,,1.50%
+GBP::core rpi::m/m,2007-01-01,17:00,dec,0.60%,,0.40%
+GBP::core rpi::y/y,2007-01-01,17:00,dec,3.80%,,3.40%
+CAD::core retail sales::m/m,2007-01-01,17:00,dec,2.40%,,-0.10%
+GBP::core retail sales::m/m,2007-01-01,17:00,dec,0.60%,,0.20%
+USD::core retail sales::m/m,2007-01-01,17:00,dec,1.90%,,0.00%
+GBP::core retail sales::y/y,2007-01-01,17:00,dec,2.70%,,1.80%
+USD::crude oil inventories::none,2007-01-01,17:00,dec,-4.82M,,1.25M
+USD::dallas fed mfg business index::none,2007-01-01,17:00,dec,-6.90,,4.70
+USD::dallas fed pce::none,2007-01-01,17:00,dec,3.20%,,1.20%
+USD::domestic truck sales::none,2007-01-01,17:00,dec,7.21M,,7.28M
+USD::durables excluding defense::m/m,2007-01-01,17:00,dec,2.50%,,1.70%
+USD::eia weekly distillates stocks::none,2007-01-01,17:00,dec,0.74M,,-1.76M
+MXN::economic activity::m/m,2007-01-01,17:00,dec,0.57%,,-0.13%
+MXN::economic activity::y/y,2007-01-01,17:00,dec,2.98%,,3.76%
+CAD::employment change::none,2007-01-01,17:00,dec,64.30K,,27.60K
+USD::existing home sales::none,2007-01-01,17:00,dec,6.40M,,6.34M
+USD::existing home sales::m/m,2007-01-01,17:00,dec,0.90%,,-0.30%
+USD::export price index::m/m,2007-01-01,17:00,dec,0.60%,,0.40%
+CAD::exports::none,2007-01-01,17:00,dec,40.31B,,37.72B
+USD::factory orders::m/m,2007-01-01,17:00,dec,2.30%,,3.10%
+USD::factory orders ex transportation::m/m,2007-01-01,17:00,dec,3.40%,,0.90%
+USD::federal budget balance::none,2007-01-01,17:00,dec,42.00B,,-73.00B
+MXN::fiscal balance::none,2007-01-01,17:00,dec,-148.58B,,1.69B
+CAD::foreign securities purchases::none,2007-01-01,17:00,dec,-1.58B,,11.80B
+CAD::foreign securities purchases by canadians::none,2007-01-01,17:00,dec,5.35B,,5.28B
+CAD::full employment change::none,2007-01-01,17:00,dec,36.40K,,-11.20K
+CAD::gdp::m/m,2007-01-01,17:00,dec,0.70%,,0.30%
+USD::gasoline inventories::none,2007-01-01,17:00,dec,2.21M,,-0.94M
+GBP::gfk consumer confidence::none,2007-01-01,17:00,dec,-8.00,,-7.00
+USD::government payrolls::none,2007-01-01,17:00,dec,5.00K,,15.00K
+MXN::gross fixed investments::m/m,2007-01-01,17:00,dec,2.34%,,0.11%
+MXN::gross fixed investments::y/y,2007-01-01,17:00,dec,4.86%,,6.55%
+GBP::halifax house price index::m/m,2007-01-01,17:00,dec,-1.80%,,2.10%
+GBP::halifax house price index::y/y,2007-01-01,17:00,dec,9.90%,,9.60%
+USD::house price index::none,2007-01-01,17:00,dec,225.10,,224.90
+USD::house price index::m/m,2007-01-01,17:00,dec,0.10%,,0.30%
+USD::house price index::y/y,2007-01-01,17:00,dec,2.60%,,3.10%
+CAD::housing starts::none,2007-01-01,17:00,dec,210.40K,,235.70K
+USD::housing starts::none,2007-01-01,17:00,dec,1.65M,,1.57M
+USD::housing starts::m/m,2007-01-01,17:00,dec,5.00%,,5.30%
+CAD::ippi::m/m,2007-01-01,17:00,dec,1.40%,,0.10%
+CAD::ippi::y/y,2007-01-01,17:00,dec,3.40%,,1.70%
+USD::ism manufacturing employment::none,2007-01-01,17:00,dec,49.80,,49.20
+USD::ism manufacturing new orders index::none,2007-01-01,17:00,dec,51.40,,50.80
+USD::ism manufacturing pmi::none,2007-01-01,17:00,dec,51.40,,50.30
+USD::ism manufacturing prices::none,2007-01-01,17:00,dec,47.50,,53.50
+USD::ism non - manufacturing business activity::none,2007-01-01,17:00,dec,56.10,,59.20
+USD::ism non - manufacturing employment::none,2007-01-01,17:00,dec,52.70,,52.20
+USD::ism non - manufacturing new orders::none,2007-01-01,17:00,dec,54.80,,56.70
+USD::ism non - manufacturing pmi::none,2007-01-01,17:00,dec,53.70,,54.50
+USD::ism non - manufacturing prices::none,2007-01-01,17:00,dec,60.50,,56.70
+USD::ism - new york index::none,2007-01-01,17:00,dec,428.40,,428.70
+USD::import price index::m/m,2007-01-01,17:00,dec,1.10%,,0.40%
+CAD::imports::none,2007-01-01,17:00,dec,34.93B,,34.16B
+GBP::industrial production::m/m,2007-01-01,17:00,dec,-0.90%,,0.50%
+MXN::industrial production::m/m,2007-01-01,17:00,dec,-0.49%,,0.09%
+USD::industrial production::m/m,2007-01-01,17:00,dec,1.00%,,-0.10%
+GBP::industrial production::y/y,2007-01-01,17:00,dec,-0.60%,,1.40%
+MXN::industrial production::y/y,2007-01-01,17:00,dec,0.10%,,3.03%
+USD::initial jobless claims::none,2007-01-01,17:00,dec,323.43K,,327.05K
+MXN::interest rate decision::none,2007-01-01,17:00,dec,7.00%,,7.00%
+CAD::ivey pmi n.s.a::none,2007-01-01,17:00,dec,49.40,,52.80
+USD::jolts job openings::none,2007-01-01,17:00,dec,4.55M,,4.62M
+USD::jobless claims 4 - week avg.::none,2007-01-01,17:00,dec,324.56K,,322.13K
+USD::kc fed composite index::none,2007-01-01,17:00,dec,10.00,,9.00
+USD::kc fed manufacturing index::none,2007-01-01,17:00,dec,8.00,,11.00
+GBP::m4 money supply::m/m,2007-01-01,17:00,dec,0.90%,,0.50%
+USD::mba 30 - year mortgage rate::none,2007-01-01,17:00,dec,6.11%,,6.12%
+USD::mba purchase index::none,2007-01-01,17:00,dec,424.46,,409.91
+USD::manufacturing payrolls::none,2007-01-01,17:00,dec,-26.00K,,-34.00K
+GBP::manufacturing production::m/m,2007-01-01,17:00,dec,-0.30%,,0.50%
+USD::manufacturing production::m/m,2007-01-01,17:00,dec,1.50%,,0.00%
+GBP::manufacturing production::y/y,2007-01-01,17:00,dec,2.30%,,3.30%
+CAD::manufacturing sales::m/m,2007-01-01,17:00,dec,4.90%,,1.90%
+USD::michigan 1 - year inflation expectations::none,2007-01-01,17:00,dec,2.90%,,3.00%
+USD::michigan 5 - year inflation expectations::none,2007-01-01,17:00,dec,3.00%,,3.00%
+USD::michigan consumer expectations::none,2007-01-01,17:00,dec,78.60,,83.20
+USD::michigan consumer sentiment::none,2007-01-01,17:00,dec,91.70,,92.30
+USD::michigan current conditions::none,2007-01-01,17:00,dec,108.10,,106.50
+USD::midwest manufacturing::none,2007-01-01,17:00,dec,98.80,,97.40
+GBP::mortgage approvals::none,2007-01-01,17:00,dec,119.41K,,130.00K
+GBP::mortgage lending::none,2007-01-01,17:00,dec,9.60B,,10.00B
+USD::mortgage market index::none,2007-01-01,17:00,dec,626.12,,627.44
+USD::mortgage refinance index::none,2007-01-01,17:00,dec,"1,884.80",,"1,917.64"
+USD::nahb housing market index::none,2007-01-01,17:00,dec,33.00,,33.00
+USD::nfib small business optimism::none,2007-01-01,17:00,dec,96.50,,99.70
+USD::ny empire state manufacturing index::none,2007-01-01,17:00,dec,20.12,,22.85
+GBP::nationwide hpi::m/m,2007-01-01,17:00,dec,1.60%,,1.60%
+GBP::nationwide hpi::y/y,2007-01-01,17:00,dec,10.50%,,9.60%
+USD::natural gas storage::none,2007-01-01,17:00,dec,-79.57B,,-9.32B
+USD::new home sales::none,2007-01-01,17:00,dec,998.00K,,"1,003.00K"
+USD::new home sales::m/m,2007-01-01,17:00,dec,-0.50%,,6.60%
+CAD::new housing price index::m/m,2007-01-01,17:00,dec,0.00%,,0.50%
+USD::overall net capital flow::none,2007-01-01,17:00,dec,-14.70B,,89.80B
+GBP::ppi input::m/m,2007-01-01,17:00,dec,0.90%,,1.30%
+GBP::ppi input::y/y,2007-01-01,17:00,dec,1.30%,,2.30%
+GBP::ppi output::m/m,2007-01-01,17:00,dec,0.20%,,-0.10%
+GBP::ppi output::y/y,2007-01-01,17:00,dec,1.50%,,1.10%
+CAD::part time employment change::none,2007-01-01,17:00,dec,28.00K,,38.70K
+CAD::participation rate::none,2007-01-01,17:00,dec,67.10%,,67.10%
+USD::pending home sales::m/m,2007-01-01,17:00,dec,2.80%,,2.20%
+USD::pending home sales index::none,2007-01-01,17:00,dec,112.20,,109.10
+USD::personal income::m/m,2007-01-01,17:00,dec,0.80%,,0.50%
+USD::personal spending::m/m,2007-01-01,17:00,dec,0.90%,,0.20%
+USD::philadelphia fed manufacturing index::none,2007-01-01,17:00,dec,-1.70,,5.00
+USD::philly fed business conditions::none,2007-01-01,17:00,dec,16.40,,16.50
+USD::philly fed capex index::none,2007-01-01,17:00,dec,6.40,,19.20
+USD::philly fed employment::none,2007-01-01,17:00,dec,8.20,,2.70
+USD::philly fed new orders::none,2007-01-01,17:00,dec,-1.80,,0.70
+USD::philly fed prices paid::none,2007-01-01,17:00,dec,23.90,,26.70
+USD::private nonfarm payrolls::none,2007-01-01,17:00,dec,167.00K,,194.00K
+GBP::public sector net borrowing::none,2007-01-01,17:00,dec,7.12B,,9.55B
+GBP::public sector net cash requirement::none,2007-01-01,17:00,dec,13.51B,,7.47B
+CAD::rmpi::m/m,2007-01-01,17:00,dec,5.00%,,0.20%
+CAD::rmpi::y/y,2007-01-01,17:00,dec,11.40%,,4.70%
+GBP::rpi::m/m,2007-01-01,17:00,dec,0.80%,,0.30%
+GBP::rpi::y/y,2007-01-01,17:00,dec,4.40%,,3.90%
+USD::real earnings::m/m,2007-01-01,17:00,dec,0.50%,,0.10%
+USD::real personal consumption::m/m,2007-01-01,17:00,dec,0.50%,,0.20%
+USD::redbook::m/m,2007-01-01,17:00,dec,-1.59%,,-0.15%
+USD::redbook::y/y,2007-01-01,17:00,dec,2.83%,,2.99%
+USD::retail control::m/m,2007-01-01,17:00,dec,1.30%,,0.00%
+CAD::retail sales::m/m,2007-01-01,17:00,dec,2.10%,,0.70%
+GBP::retail sales::m/m,2007-01-01,17:00,dec,0.20%,,0.20%
+USD::retail sales::m/m,2007-01-01,17:00,dec,1.50%,,0.20%
+GBP::retail sales::y/y,2007-01-01,17:00,dec,3.60%,,3.10%
+USD::retail sales ex gas/autos::m/m,2007-01-01,17:00,dec,1.60%,,-0.10%
+USD::richmond manufacturing index::none,2007-01-01,17:00,dec,-2.00,,11.00
+USD::richmond manufacturing shipments::none,2007-01-01,17:00,dec,2.00,,13.00
+USD::richmond services index::none,2007-01-01,17:00,dec,7.00,,10.00
+USD::s&p/cs hpi composite - 20 n.s.a.::m/m,2007-01-01,17:00,dec,-0.60%,,-0.40%
+USD::s&p/cs hpi composite - 20 n.s.a.::y/y,2007-01-01,17:00,dec,0.70%,,1.80%
+USD::s&p/cs hpi composite - 20 s.a.::m/m,2007-01-01,17:00,dec,-0.10%,,0.00%
+USD::tic net long - term transactions::none,2007-01-01,17:00,dec,11.80B,,87.10B
+USD::tic net long - term transactions including swaps::none,2007-01-01,17:00,dec,-4.40B,,62.10B
+CAD::trade balance::none,2007-01-01,17:00,dec,5.38B,,3.56B
+GBP::trade balance::none,2007-01-01,17:00,dec,-7.08B,,-6.97B
+MXN::trade balance::none,2007-01-01,17:00,dec,-1.16B,,-1.61B
+USD::trade balance::none,2007-01-01,17:00,dec,-61.60B,,-58.60B
+MXN::trade balance (usd)::none,2007-01-01,17:00,dec,-0.78B,,-0.92B
+GBP::trade balance non - eu::none,2007-01-01,17:00,dec,-4.11B,,-4.04B
+"USD::us foreign buying, t - bonds::none",2007-01-01,17:00,dec,10.40B,,33.40B
+CAD::unemployment rate::none,2007-01-01,17:00,dec,6.10%,,6.20%
+GBP::unemployment rate::none,2007-01-01,17:00,dec,5.50%,,5.40%
+MXN::unemployment rate::none,2007-01-01,17:00,dec,3.79%,,3.76%
+MXN::unemployment rate n.s.a.::none,2007-01-01,17:00,dec,3.32%,,3.50%
+USD::wholesale inventories::m/m,2007-01-01,17:00,dec,-0.40%,,1.10%
+CAD::wholesale sales::m/m,2007-01-01,17:00,dec,4.70%,,1.00%
+USD::fed's balance sheet::none,2007-01-04,04:30,,874.63B,,869.99B
+USD::nonfarm payrolls::none,2007-01-05,20:30,dec,172K,,209K
+USD::u.s. baker hughes oil rig count::none,2007-01-06,01:00,,279,,278
+USD::cftc crude oil speculative net positions::none,2007-01-07,04:30,,2.2k,,19.8k
+USD::fed's balance sheet::none,2007-01-11,04:30,,854.82B,,874.63B
+USD::u.s. baker hughes oil rig count::none,2007-01-13,01:00,,269,,279
+USD::cftc crude oil speculative net positions::none,2007-01-13,04:30,,-22.4k,,2.2k
+ILS::cpi::y/y,2007-01-15,23:00,dec,-0.1%,,-0.3%
+USD::fed's balance sheet::none,2007-01-18,04:30,,859.36B,,854.82B
+USD::cpi::m/m,2007-01-18,21:30,dec,0.5%,,0.0%
+USD::cpi::y/y,2007-01-18,21:30,dec,2.5%,,2.0%
+USD::core cpi::m/m,2007-01-18,21:30,dec,0.1%,,0.1%
+USD::core cpi::y/y,2007-01-18,21:30,dec,2.6%,,2.6%
+USD::u.s. baker hughes oil rig count::none,2007-01-20,01:00,,275,,269
+USD::cftc crude oil speculative net positions::none,2007-01-20,04:30,,-2.0k,,-22.4k
+USD::fed's balance sheet::none,2007-01-25,04:30,,851.76B,,859.36B
+EUR::german ifo business climate index::none,2007-01-25,17:00,,107.9,108.9,108.7
+USD::u.s. baker hughes oil rig count::none,2007-01-27,01:00,,255,,275
+USD::cftc crude oil speculative net positions::none,2007-01-27,04:30,,-8.5k,,-2.0k
+USD::fed's balance sheet::none,2007-02-01,04:30,,865.73B,,851.76B
+USD::5 - year note auction::none,2007-02-01,17:00,jan,4.75%,,4.63%
+USD::all car sales::none,2007-02-01,17:00,jan,7.72M,,7.94M
+USD::all truck sales::none,2007-02-01,17:00,jan,8.68M,,8.63M
+GBP::average earnings index +bonus::none,2007-02-01,17:00,jan,5.40%,,4.70%
+GBP::average earnings ex bonus::none,2007-02-01,17:00,jan,3.90%,,4.00%
+USD::average hourly earnings::m/m,2007-02-01,17:00,jan,0.10%,,0.40%
+USD::average weekly hours::none,2007-02-01,17:00,jan,34.50,,34.70
+GBP::brc retail sales monitor::y/y,2007-02-01,17:00,jan,3.10%,,2.50%
+CAD::boc interest rate decision::none,2007-02-01,17:00,jan,4.25%,,4.25%
+GBP::boe consumer credit::none,2007-02-01,17:00,jan,0.54B,,0.87B
+GBP::boe interest rate decision::none,2007-02-01,17:00,jan,5.25%,,5.00%
+CAD::budget balance::none,2007-02-01,17:00,jan,2.40B,,1.29B
+CAD::budget balance::y/y,2007-02-01,17:00,jan,10.60B,,8.20B
+CAD::building permits::m/m,2007-02-01,17:00,jan,7.70%,,-8.90%
+USD::business inventories::m/m,2007-02-01,17:00,jan,0.40%,,0.10%
+USD::cb consumer confidence::none,2007-02-01,17:00,jan,110.20,,110.00
+USD::cb employment trends index::none,2007-02-01,17:00,jan,127.30,,126.30
+GBP::cbi distributive trades survey::none,2007-02-01,17:00,jan,30.00,,25.00
+GBP::cbi industrial trends orders::none,2007-02-01,17:00,jan,-9.00,,-5.00
+CAD::cpi::m/m,2007-02-01,17:00,jan,0.00%,,0.20%
+GBP::cpi::m/m,2007-02-01,17:00,jan,-0.80%,,0.60%
+MXN::cpi::m/m,2007-02-01,17:00,jan,0.52%,,0.58%
+CAD::cpi::y/y,2007-02-01,17:00,jan,1.10%,,1.70%
+GBP::cpi::y/y,2007-02-01,17:00,jan,2.70%,,3.00%
+MXN::cpi::y/y,2007-02-01,17:00,jan,3.98%,,4.05%
+"USD::cpi index, n.s.a.::none",2007-02-01,17:00,jan,202.42,,201.80
+USD::capacity utilization rate::none,2007-02-01,17:00,jan,79.70%,,80.30%
+USD::chain store sales::m/m,2007-02-01,17:00,jan,3.70%,,3.30%
+USD::chain store sales::w/w,2007-02-01,17:00,jan,0.15%,,1.04%
+USD::chain store sales::y/y,2007-02-01,17:00,jan,4.47%,,2.55%
+USD::challenger job cuts::none,2007-02-01,17:00,jan,62.98K,,54.64K
+USD::chicago fed national activity::none,2007-02-01,17:00,jan,-0.76,,0.87
+USD::chicago pmi::none,2007-02-01,17:00,jan,52.10,,51.60
+GBP::claimant count change::none,2007-02-01,17:00,jan,-14.30K,,-9.40K
+USD::cleveland cpi::m/m,2007-02-01,17:00,jan,0.20%,,0.20%
+USD::construction spending::m/m,2007-02-01,17:00,jan,-0.30%,,1.40%
+MXN::consumer confidence::none,2007-02-01,17:00,jan,104.20,,107.60
+SEK::consumer confidence::none,2007-02-01,17:00,jan,106.10,,108.20
+MXN::consumer confidence n.s.a.::none,2007-02-01,17:00,jan,104.30,,109.70
+USD::consumer credit::none,2007-02-01,17:00,jan,5.49B,,15.16B
+USD::continuing jobless claims::none,2007-02-01,17:00,jan,"2,530.87K",,"2,482.95K"
+CAD::core cpi::m/m,2007-02-01,17:00,jan,0.20%,,-0.20%
+MXN::core cpi::m/m,2007-02-01,17:00,jan,0.46%,,0.40%
+CAD::core cpi::y/y,2007-02-01,17:00,jan,2.30%,,2.10%
+USD::core cpi index::none,2007-02-01,17:00,jan,208.60,,208.10
+USD::core pce price index::m/m,2007-02-01,17:00,jan,0.40%,,0.20%
+USD::core pce price index::y/y,2007-02-01,17:00,jan,2.40%,,2.10%
+GBP::core ppi output::m/m,2007-02-01,17:00,jan,0.20%,,0.00%
+GBP::core ppi output::y/y,2007-02-01,17:00,jan,1.10%,,1.30%
+GBP::core rpi::m/m,2007-02-01,17:00,jan,-0.70%,,0.60%
+GBP::core rpi::y/y,2007-02-01,17:00,jan,3.50%,,3.80%
+CAD::core retail sales::m/m,2007-02-01,17:00,jan,-0.10%,,2.40%
+GBP::core retail sales::m/m,2007-02-01,17:00,jan,-0.70%,,0.60%
+USD::core retail sales::m/m,2007-02-01,17:00,jan,-0.30%,,1.90%
+GBP::core retail sales::y/y,2007-02-01,17:00,jan,2.30%,,2.70%
+USD::crude oil inventories::none,2007-02-01,17:00,jan,1.08M,,-4.82M
+USD::dallas fed mfg business index::none,2007-02-01,17:00,jan,0.30,,-6.90
+USD::dallas fed pce::none,2007-02-01,17:00,jan,3.60%,,3.20%
+USD::dallas fed services revenues::none,2007-02-01,17:00,jan,29.30,,
+USD::domestic truck sales::none,2007-02-01,17:00,jan,7.25M,,7.21M
+USD::durables excluding defense::m/m,2007-02-01,17:00,jan,-3.80%,,2.50%
+USD::eia weekly distillates stocks::none,2007-02-01,17:00,jan,0.49M,,0.74M
+MXN::economic activity::m/m,2007-02-01,17:00,jan,0.16%,,0.57%
+MXN::economic activity::y/y,2007-02-01,17:00,jan,3.06%,,2.98%
+CAD::employment change::none,2007-02-01,17:00,jan,54.00K,,64.30K
+USD::existing home sales::none,2007-02-01,17:00,jan,5.74M,,6.40M
+USD::existing home sales::m/m,2007-02-01,17:00,jan,-10.30%,,0.90%
+USD::export price index::m/m,2007-02-01,17:00,jan,0.40%,,0.60%
+CAD::exports::none,2007-02-01,17:00,jan,39.60B,,40.31B
+USD::factory orders::m/m,2007-02-01,17:00,jan,-3.30%,,2.30%
+USD::factory orders ex transportation::m/m,2007-02-01,17:00,jan,-2.50%,,3.40%
+USD::federal budget balance::none,2007-02-01,17:00,jan,38.20B,,42.00B
+MXN::fiscal balance::none,2007-02-01,17:00,jan,51.52B,,-148.58B
+CAD::foreign securities purchases::none,2007-02-01,17:00,jan,-4.02B,,-1.58B
+CAD::foreign securities purchases by canadians::none,2007-02-01,17:00,jan,8.64B,,5.35B
+CAD::full employment change::none,2007-02-01,17:00,jan,21.90K,,36.40K
+CAD::gdp::m/m,2007-02-01,17:00,jan,-0.20%,,0.70%
+USD::gasoline inventories::none,2007-02-01,17:00,jan,3.62M,,2.21M
+GBP::gfk consumer confidence::none,2007-02-01,17:00,jan,-7.00,,-8.00
+USD::government payrolls::none,2007-02-01,17:00,jan,7.00K,,5.00K
+MXN::gross fixed investments::m/m,2007-02-01,17:00,jan,-1.49%,,2.34%
+MXN::gross fixed investments::y/y,2007-02-01,17:00,jan,4.43%,,4.86%
+GBP::halifax house price index::m/m,2007-02-01,17:00,jan,2.30%,,-1.80%
+GBP::halifax house price index::y/y,2007-02-01,17:00,jan,9.90%,,9.90%
+USD::house price index::none,2007-02-01,17:00,jan,226.00,,225.10
+USD::house price index::m/m,2007-02-01,17:00,jan,0.40%,,0.10%
+USD::house price index::y/y,2007-02-01,17:00,jan,2.20%,,2.60%
+CAD::housing starts::none,2007-02-01,17:00,jan,242.30K,,210.40K
+USD::housing starts::none,2007-02-01,17:00,jan,1.41M,,1.65M
+USD::housing starts::m/m,2007-02-01,17:00,jan,-14.60%,,5.00%
+CAD::ippi::m/m,2007-02-01,17:00,jan,0.30%,,1.40%
+CAD::ippi::y/y,2007-02-01,17:00,jan,3.00%,,3.40%
+USD::ism manufacturing employment::none,2007-02-01,17:00,jan,50.30,,49.80
+USD::ism manufacturing new orders index::none,2007-02-01,17:00,jan,52.20,,51.40
+USD::ism manufacturing pmi::none,2007-02-01,17:00,jan,49.50,,51.40
+USD::ism manufacturing prices::none,2007-02-01,17:00,jan,53.00,,47.50
+USD::ism non - manufacturing business activity::none,2007-02-01,17:00,jan,58.30,,56.10
+USD::ism non - manufacturing employment::none,2007-02-01,17:00,jan,54.80,,52.70
+USD::ism non - manufacturing new orders::none,2007-02-01,17:00,jan,55.60,,54.80
+USD::ism non - manufacturing pmi::none,2007-02-01,17:00,jan,55.60,,53.70
+USD::ism non - manufacturing prices::none,2007-02-01,17:00,jan,56.80,,60.50
+USD::ism - new york index::none,2007-02-01,17:00,jan,430.00,,428.40
+USD::import price index::m/m,2007-02-01,17:00,jan,-1.20%,,1.10%
+CAD::imports::none,2007-02-01,17:00,jan,34.95B,,34.93B
+GBP::industrial production::m/m,2007-02-01,17:00,jan,1.20%,,-0.90%
+MXN::industrial production::m/m,2007-02-01,17:00,jan,0.36%,,-0.49%
+USD::industrial production::m/m,2007-02-01,17:00,jan,-0.50%,,1.00%
+GBP::industrial production::y/y,2007-02-01,17:00,jan,0.50%,,-0.60%
+MXN::industrial production::y/y,2007-02-01,17:00,jan,1.64%,,0.10%
+USD::initial jobless claims::none,2007-02-01,17:00,jan,316.30K,,323.43K
+MXN::interest rate decision::none,2007-02-01,17:00,jan,7.00%,,7.00%
+CAD::ivey pmi n.s.a::none,2007-02-01,17:00,jan,53.80,,49.40
+USD::jolts job openings::none,2007-02-01,17:00,jan,4.59M,,4.55M
+USD::jobless claims 4 - week avg.::none,2007-02-01,17:00,jan,321.87K,,324.56K
+USD::kc fed composite index::none,2007-02-01,17:00,jan,8.00,,10.00
+USD::kc fed manufacturing index::none,2007-02-01,17:00,jan,8.00,,8.00
+GBP::m4 money supply::m/m,2007-02-01,17:00,jan,0.70%,,0.90%
+USD::mba 30 - year mortgage rate::none,2007-02-01,17:00,jan,6.21%,,6.11%
+USD::mba purchase index::none,2007-02-01,17:00,jan,427.40,,424.46
+USD::manufacturing payrolls::none,2007-02-01,17:00,jan,-7.00K,,-26.00K
+GBP::manufacturing production::m/m,2007-02-01,17:00,jan,0.80%,,-0.30%
+USD::manufacturing production::m/m,2007-02-01,17:00,jan,-0.50%,,1.50%
+GBP::manufacturing production::y/y,2007-02-01,17:00,jan,3.40%,,2.30%
+CAD::manufacturing sales::m/m,2007-02-01,17:00,jan,-3.90%,,4.90%
+USD::michigan 1 - year inflation expectations::none,2007-02-01,17:00,jan,3.00%,,2.90%
+USD::michigan 5 - year inflation expectations::none,2007-02-01,17:00,jan,3.00%,,3.00%
+USD::michigan consumer expectations::none,2007-02-01,17:00,jan,88.70,,81.20
+USD::michigan consumer sentiment::none,2007-02-01,17:00,jan,96.90,,90.20
+USD::michigan current conditions::none,2007-02-01,17:00,jan,111.30,,108.20
+USD::midwest manufacturing::none,2007-02-01,17:00,jan,97.60,,98.80
+GBP::mortgage approvals::none,2007-02-01,17:00,jan,119.94K,,119.41K
+GBP::mortgage lending::none,2007-02-01,17:00,jan,9.64B,,9.60B
+USD::mortgage market index::none,2007-02-01,17:00,jan,643.21,,626.12
+USD::mortgage refinance index::none,2007-02-01,17:00,jan,"1,940.20",,"1,884.80"
+USD::nahb housing market index::none,2007-02-01,17:00,jan,35.00,,33.00
+USD::nfib small business optimism::none,2007-02-01,17:00,jan,98.90,,96.50
+USD::ny empire state manufacturing index::none,2007-02-01,17:00,jan,7.31,,20.12
+GBP::nationwide hpi::m/m,2007-02-01,17:00,jan,0.10%,,1.60%
+GBP::nationwide hpi::y/y,2007-02-01,17:00,jan,9.30%,,10.50%
+USD::natural gas storage::none,2007-02-01,17:00,jan,-138.57B,,-79.57B
+USD::new home sales::none,2007-02-01,17:00,jan,891.00K,,998.00K
+USD::new home sales::m/m,2007-02-01,17:00,jan,-10.70%,,-0.50%
+CAD::new housing price index::m/m,2007-02-01,17:00,jan,0.40%,,0.00%
+USD::overall net capital flow::none,2007-02-01,17:00,jan,90.60B,,-14.70B
+GBP::ppi input::m/m,2007-02-01,17:00,jan,-3.30%,,0.90%
+GBP::ppi input::y/y,2007-02-01,17:00,jan,-3.70%,,1.30%
+GBP::ppi output::m/m,2007-02-01,17:00,jan,0.20%,,0.20%
+GBP::ppi output::y/y,2007-02-01,17:00,jan,1.20%,,1.50%
+CAD::part time employment change::none,2007-02-01,17:00,jan,32.10K,,28.00K
+CAD::participation rate::none,2007-02-01,17:00,jan,67.40%,,67.10%
+USD::pending home sales::m/m,2007-02-01,17:00,jan,-4.50%,,2.80%
+USD::pending home sales index::none,2007-02-01,17:00,jan,107.10,,112.20
+USD::personal income::m/m,2007-02-01,17:00,jan,0.60%,,0.80%
+USD::personal spending::m/m,2007-02-01,17:00,jan,0.40%,,0.90%
+USD::philadelphia fed manufacturing index::none,2007-02-01,17:00,jan,7.50,,-1.70
+USD::philly fed business conditions::none,2007-02-01,17:00,jan,24.00,,16.40
+USD::philly fed capex index::none,2007-02-01,17:00,jan,21.00,,6.40
+USD::philly fed employment::none,2007-02-01,17:00,jan,7.80,,8.20
+USD::philly fed new orders::none,2007-02-01,17:00,jan,3.90,,-1.80
+USD::philly fed prices paid::none,2007-02-01,17:00,jan,16.00,,23.90
+USD::private nonfarm payrolls::none,2007-02-01,17:00,jan,230.00K,,167.00K
+GBP::public sector net borrowing::none,2007-02-01,17:00,jan,-10.44B,,7.12B
+GBP::public sector net cash requirement::none,2007-02-01,17:00,jan,-20.97B,,13.51B
+CAD::rmpi::m/m,2007-02-01,17:00,jan,-2.80%,,5.00%
+CAD::rmpi::y/y,2007-02-01,17:00,jan,3.30%,,11.40%
+GBP::rpi::m/m,2007-02-01,17:00,jan,-0.50%,,0.80%
+GBP::rpi::y/y,2007-02-01,17:00,jan,4.20%,,4.40%
+USD::real earnings::m/m,2007-02-01,17:00,jan,-0.60%,,0.50%
+USD::real personal consumption::m/m,2007-02-01,17:00,jan,0.10%,,0.50%
+USD::redbook::m/m,2007-02-01,17:00,jan,1.61%,,-1.59%
+USD::redbook::y/y,2007-02-01,17:00,jan,2.80%,,2.83%
+USD::retail control::m/m,2007-02-01,17:00,jan,0.20%,,1.30%
+CAD::retail sales::m/m,2007-02-01,17:00,jan,-0.90%,,2.10%
+GBP::retail sales::m/m,2007-02-01,17:00,jan,-0.30%,,0.20%
+USD::retail sales::m/m,2007-02-01,17:00,jan,-0.40%,,1.50%
+GBP::retail sales::y/y,2007-02-01,17:00,jan,2.20%,,3.60%
+USD::retail sales ex gas/autos::m/m,2007-02-01,17:00,jan,0.00%,,1.60%
+USD::richmond manufacturing index::none,2007-02-01,17:00,jan,-8.00,,-2.00
+USD::richmond manufacturing shipments::none,2007-02-01,17:00,jan,-8.00,,2.00
+USD::richmond services index::none,2007-02-01,17:00,jan,0.00,,7.00
+USD::s&p/cs hpi composite - 20 n.s.a.::m/m,2007-02-01,17:00,jan,-0.50%,,-0.60%
+USD::s&p/cs hpi composite - 20 n.s.a.::y/y,2007-02-01,17:00,jan,-0.10%,,0.70%
+USD::s&p/cs hpi composite - 20 s.a.::m/m,2007-02-01,17:00,jan,0.10%,,-0.10%
+USD::tic net long - term transactions::none,2007-02-01,17:00,jan,111.40B,,11.80B
+USD::tic net long - term transactions including swaps::none,2007-02-01,17:00,jan,92.40B,,-4.40B
+USD::texas services sector outlook::none,2007-02-01,17:00,jan,20.80,,
+CAD::trade balance::none,2007-02-01,17:00,jan,4.65B,,5.38B
+GBP::trade balance::none,2007-02-01,17:00,jan,-7.41B,,-7.08B
+MXN::trade balance::none,2007-02-01,17:00,jan,-1.68B,,-1.16B
+USD::trade balance::none,2007-02-01,17:00,jan,-57.70B,,-61.60B
+MXN::trade balance (usd)::none,2007-02-01,17:00,jan,-1.30B,,-0.78B
+GBP::trade balance non - eu::none,2007-02-01,17:00,jan,-4.08B,,-4.11B
+"USD::us foreign buying, t - bonds::none",2007-02-01,17:00,jan,16.10B,,10.40B
+CAD::unemployment rate::none,2007-02-01,17:00,jan,6.20%,,6.10%
+GBP::unemployment rate::none,2007-02-01,17:00,jan,5.50%,,5.50%
+MXN::unemployment rate::none,2007-02-01,17:00,jan,3.74%,,3.79%
+MXN::unemployment rate n.s.a.::none,2007-02-01,17:00,jan,4.05%,,3.32%
+USD::wholesale inventories::m/m,2007-02-01,17:00,jan,0.30%,,-0.40%
+CAD::wholesale sales::m/m,2007-02-01,17:00,jan,-1.70%,,4.70%
+USD::nonfarm payrolls::none,2007-02-02,20:30,jan,237K,,172K
+USD::u.s. baker hughes oil rig count::none,2007-02-03,01:00,,264,,255
+USD::cftc crude oil speculative net positions::none,2007-02-03,04:30,,-14.3k,,-8.5k
+USD::fed's balance sheet::none,2007-02-08,04:30,,855.06B,,865.73B
+USD::u.s. baker hughes oil rig count::none,2007-02-10,01:00,,254,,264
+USD::cftc crude oil speculative net positions::none,2007-02-10,04:30,,-21.3k,,-14.3k
+USD::fed's balance sheet::none,2007-02-15,04:30,,867.20B,,855.06B
+ILS::cpi::y/y,2007-02-15,23:00,jan,0.1%,,-0.1%
+USD::u.s. baker hughes oil rig count::none,2007-02-17,01:00,,267,,254
+USD::cftc crude oil speculative net positions::none,2007-02-17,04:30,,-7.2k,,-21.3k
+USD::cpi::m/m,2007-02-21,21:30,jan,0.2%,,0.5%
+USD::cpi::y/y,2007-02-21,21:30,jan,2.1%,,2.5%
+USD::core cpi::m/m,2007-02-21,21:30,jan,0.2%,,0.1%
+USD::core cpi::y/y,2007-02-21,21:30,jan,2.7%,,2.6%
+USD::us leading index::m/m,2007-02-21,23:00,jan,0.1%,0.2%,0.6%
+USD::fed's balance sheet::none,2007-02-22,04:30,,869.24B,,867.20B
+EUR::german ifo business climate index::none,2007-02-23,17:00,,107,107.5,107.9
+USD::u.s. baker hughes oil rig count::none,2007-02-24,01:00,,278,,267
+USD::cftc crude oil speculative net positions::none,2007-02-24,04:30,,7.9k,,-7.2k
+USD::fed's balance sheet::none,2007-03-01,04:30,,877.41B,,869.24B
+USD::10 - year note auction::none,2007-03-01,17:00,feb,4.63%,,4.63%
+USD::5 - year note auction::none,2007-03-01,17:00,feb,4.63%,,4.75%
+USD::all car sales::none,2007-03-01,17:00,feb,7.64M,,7.72M
+USD::all truck sales::none,2007-03-01,17:00,feb,9.07M,,8.68M
+GBP::average earnings index +bonus::none,2007-03-01,17:00,feb,6.60%,,5.40%
+GBP::average earnings ex bonus::none,2007-03-01,17:00,feb,3.90%,,3.90%
+USD::average hourly earnings::m/m,2007-03-01,17:00,feb,0.40%,,0.10%
+USD::average weekly hours::none,2007-03-01,17:00,feb,34.50,,34.50
+GBP::brc retail sales monitor::y/y,2007-03-01,17:00,feb,3.30%,,3.10%
+CAD::boc interest rate decision::none,2007-03-01,17:00,feb,4.25%,,4.25%
+GBP::boe consumer credit::none,2007-03-01,17:00,feb,0.41B,,0.54B
+GBP::boe interest rate decision::none,2007-03-01,17:00,feb,5.25%,,5.25%
+CAD::budget balance::none,2007-03-01,17:00,feb,4.69B,,2.40B
+CAD::budget balance::y/y,2007-03-01,17:00,feb,15.29B,,10.60B
+CAD::building permits::m/m,2007-03-01,17:00,feb,-20.50%,,7.70%
+USD::business inventories::m/m,2007-03-01,17:00,feb,0.40%,,0.40%
+USD::cb consumer confidence::none,2007-03-01,17:00,feb,111.20,,110.20
+USD::cb employment trends index::none,2007-03-01,17:00,feb,128.10,,127.30
+GBP::cbi distributive trades survey::none,2007-03-01,17:00,feb,19.00,,30.00
+GBP::cbi industrial trends orders::none,2007-03-01,17:00,feb,4.00,,-9.00
+CAD::cpi::m/m,2007-03-01,17:00,feb,0.70%,,0.00%
+GBP::cpi::m/m,2007-03-01,17:00,feb,0.40%,,-0.80%
+MXN::cpi::m/m,2007-03-01,17:00,feb,0.28%,,0.52%
+CAD::cpi::y/y,2007-03-01,17:00,feb,2.00%,,1.10%
+GBP::cpi::y/y,2007-03-01,17:00,feb,2.80%,,2.70%
+MXN::cpi::y/y,2007-03-01,17:00,feb,4.11%,,3.98%
+"USD::cpi index, n.s.a.::none",2007-03-01,17:00,feb,203.50,,202.42
+USD::capacity utilization rate::none,2007-03-01,17:00,feb,80.40%,,79.70%
+USD::chain store sales::m/m,2007-03-01,17:00,feb,2.50%,,3.70%
+USD::chain store sales::w/w,2007-03-01,17:00,feb,-0.11%,,0.15%
+USD::chain store sales::y/y,2007-03-01,17:00,feb,3.06%,,4.47%
+USD::challenger job cuts::none,2007-03-01,17:00,feb,84.01K,,62.98K
+USD::chicago fed national activity::none,2007-03-01,17:00,feb,0.27,,-0.76
+USD::chicago pmi::none,2007-03-01,17:00,feb,51.20,,52.10
+GBP::claimant count change::none,2007-03-01,17:00,feb,-14.10K,,-14.30K
+USD::cleveland cpi::m/m,2007-03-01,17:00,feb,0.40%,,0.20%
+USD::construction spending::m/m,2007-03-01,17:00,feb,0.50%,,-0.30%
+MXN::consumer confidence::none,2007-03-01,17:00,feb,105.20,,104.20
+MXN::consumer confidence n.s.a.::none,2007-03-01,17:00,feb,103.60,,104.30
+USD::consumer credit::none,2007-03-01,17:00,feb,12.08B,,5.49B
+USD::continuing jobless claims::none,2007-03-01,17:00,feb,"2,570.15K",,"2,530.87K"
+CAD::core cpi::m/m,2007-03-01,17:00,feb,0.50%,,0.20%
+MXN::core cpi::m/m,2007-03-01,17:00,feb,0.38%,,0.46%
+CAD::core cpi::y/y,2007-03-01,17:00,feb,2.30%,,2.30%
+USD::core cpi index::none,2007-03-01,17:00,feb,209.14,,208.60
+USD::core pce price index::m/m,2007-03-01,17:00,feb,0.20%,,0.40%
+USD::core pce price index::y/y,2007-03-01,17:00,feb,2.40%,,2.40%
+GBP::core ppi output::m/m,2007-03-01,17:00,feb,0.30%,,0.20%
+GBP::core ppi output::y/y,2007-03-01,17:00,feb,1.40%,,1.10%
+GBP::core rpi::m/m,2007-03-01,17:00,feb,0.50%,,-0.70%
+GBP::core rpi::y/y,2007-03-01,17:00,feb,3.70%,,3.50%
+CAD::core retail sales::m/m,2007-03-01,17:00,feb,1.10%,,-0.10%
+GBP::core retail sales::m/m,2007-03-01,17:00,feb,1.20%,,-0.70%
+USD::core retail sales::m/m,2007-03-01,17:00,feb,0.10%,,-0.30%
+GBP::core retail sales::y/y,2007-03-01,17:00,feb,3.50%,,2.30%
+USD::crude oil inventories::none,2007-03-01,17:00,feb,0.36M,,1.08M
+USD::dallas fed mfg business index::none,2007-03-01,17:00,feb,23.00,,0.30
+USD::dallas fed pce::none,2007-03-01,17:00,feb,3.60%,,3.60%
+USD::dallas fed services revenues::none,2007-03-01,17:00,feb,24.20,,29.30
+USD::domestic truck sales::none,2007-03-01,17:00,feb,7.68M,,7.25M
+USD::durables excluding defense::m/m,2007-03-01,17:00,feb,1.00%,,-3.80%
+USD::eia weekly distillates stocks::none,2007-03-01,17:00,feb,-3.52M,,0.49M
+MXN::economic activity::m/m,2007-03-01,17:00,feb,0.18%,,0.16%
+MXN::economic activity::y/y,2007-03-01,17:00,feb,2.89%,,3.06%
+CAD::employment change::none,2007-03-01,17:00,feb,21.10K,,54.00K
+USD::existing home sales::none,2007-03-01,17:00,feb,5.79M,,5.74M
+USD::existing home sales::m/m,2007-03-01,17:00,feb,0.90%,,-10.30%
+USD::export price index::m/m,2007-03-01,17:00,feb,0.80%,,0.40%
+CAD::exports::none,2007-03-01,17:00,feb,38.94B,,39.60B
+USD::factory orders::m/m,2007-03-01,17:00,feb,1.90%,,-3.30%
+USD::factory orders ex transportation::m/m,2007-03-01,17:00,feb,1.90%,,-2.50%
+USD::federal budget balance::none,2007-03-01,17:00,feb,-120.00B,,38.20B
+MXN::fiscal balance::none,2007-03-01,17:00,feb,28.64B,,51.52B
+CAD::foreign securities purchases::none,2007-03-01,17:00,feb,5.81B,,-4.02B
+CAD::foreign securities purchases by canadians::none,2007-03-01,17:00,feb,6.93B,,8.64B
+CAD::full employment change::none,2007-03-01,17:00,feb,28.40K,,21.90K
+CAD::gdp::m/m,2007-03-01,17:00,feb,0.50%,,-0.20%
+USD::gasoline inventories::none,2007-03-01,17:00,feb,-2.06M,,3.62M
+GBP::gfk consumer confidence::none,2007-03-01,17:00,feb,-8.00,,-7.00
+USD::government payrolls::none,2007-03-01,17:00,feb,36.00K,,7.00K
+MXN::gross fixed investments::m/m,2007-03-01,17:00,feb,1.09%,,-1.49%
+MXN::gross fixed investments::y/y,2007-03-01,17:00,feb,7.00%,,4.43%
+GBP::halifax house price index::m/m,2007-03-01,17:00,feb,1.40%,,2.30%
+GBP::halifax house price index::y/y,2007-03-01,17:00,feb,9.90%,,9.90%
+USD::house price index::none,2007-03-01,17:00,feb,225.80,,226.00
+USD::house price index::m/m,2007-03-01,17:00,feb,-0.10%,,0.40%
+USD::house price index::y/y,2007-03-01,17:00,feb,2.00%,,2.20%
+CAD::housing starts::none,2007-03-01,17:00,feb,195.20K,,242.30K
+USD::housing starts::none,2007-03-01,17:00,feb,1.48M,,1.41M
+USD::housing starts::m/m,2007-03-01,17:00,feb,5.00%,,-14.60%
+CAD::ippi::m/m,2007-03-01,17:00,feb,0.90%,,0.30%
+CAD::ippi::y/y,2007-03-01,17:00,feb,4.30%,,3.00%
+USD::ism manufacturing employment::none,2007-03-01,17:00,feb,50.90,,50.30
+USD::ism manufacturing new orders index::none,2007-03-01,17:00,feb,55.10,,52.20
+USD::ism manufacturing pmi::none,2007-03-01,17:00,feb,51.90,,49.50
+USD::ism manufacturing prices::none,2007-03-01,17:00,feb,59.00,,53.00
+USD::ism non - manufacturing business activity::none,2007-03-01,17:00,feb,56.00,,58.30
+USD::ism non - manufacturing employment::none,2007-03-01,17:00,feb,52.70,,54.80
+USD::ism non - manufacturing new orders::none,2007-03-01,17:00,feb,55.70,,55.60
+USD::ism non - manufacturing pmi::none,2007-03-01,17:00,feb,54.20,,55.60
+USD::ism non - manufacturing prices::none,2007-03-01,17:00,feb,54.70,,56.80
+USD::ism - new york index::none,2007-03-01,17:00,feb,430.80,,430.00
+USD::import price index::m/m,2007-03-01,17:00,feb,0.40%,,-1.20%
+CAD::imports::none,2007-03-01,17:00,feb,34.90B,,34.95B
+GBP::industrial production::m/m,2007-03-01,17:00,feb,-0.60%,,1.20%
+MXN::industrial production::m/m,2007-03-01,17:00,feb,0.60%,,0.36%
+USD::industrial production::m/m,2007-03-01,17:00,feb,1.10%,,-0.50%
+GBP::industrial production::y/y,2007-03-01,17:00,feb,0.20%,,0.50%
+MXN::industrial production::y/y,2007-03-01,17:00,feb,2.30%,,1.64%
+USD::initial jobless claims::none,2007-03-01,17:00,feb,324.25K,,316.30K
+MXN::interest rate decision::none,2007-03-01,17:00,feb,7.00%,,7.00%
+CAD::ivey pmi n.s.a::none,2007-03-01,17:00,feb,60.50,,53.80
+USD::jolts job openings::none,2007-03-01,17:00,feb,4.48M,,4.59M
+USD::jobless claims 4 - week avg.::none,2007-03-01,17:00,feb,321.20K,,321.87K
+USD::kc fed composite index::none,2007-03-01,17:00,feb,15.00,,8.00
+USD::kc fed manufacturing index::none,2007-03-01,17:00,feb,20.00,,8.00
+GBP::m4 money supply::m/m,2007-03-01,17:00,feb,0.80%,,0.70%
+USD::mba 30 - year mortgage rate::none,2007-03-01,17:00,feb,6.18%,,6.21%
+USD::mba purchase index::none,2007-03-01,17:00,feb,397.12,,427.40
+USD::manufacturing payrolls::none,2007-03-01,17:00,feb,-11.00K,,-7.00K
+GBP::manufacturing production::m/m,2007-03-01,17:00,feb,-1.70%,,0.80%
+USD::manufacturing production::m/m,2007-03-01,17:00,feb,0.40%,,-0.50%
+GBP::manufacturing production::y/y,2007-03-01,17:00,feb,1.30%,,3.40%
+CAD::manufacturing sales::m/m,2007-03-01,17:00,feb,-0.30%,,-3.90%
+USD::michigan 1 - year inflation expectations::none,2007-03-01,17:00,feb,3.00%,,3.00%
+USD::michigan 5 - year inflation expectations::none,2007-03-01,17:00,feb,2.90%,,3.00%
+USD::michigan consumer expectations::none,2007-03-01,17:00,feb,83.70,,87.60
+USD::michigan consumer sentiment::none,2007-03-01,17:00,feb,91.30,,98.00
+USD::michigan current conditions::none,2007-03-01,17:00,feb,106.70,,112.50
+USD::midwest manufacturing::none,2007-03-01,17:00,feb,98.60,,97.60
+GBP::mortgage approvals::none,2007-03-01,17:00,feb,117.06K,,119.94K
+GBP::mortgage lending::none,2007-03-01,17:00,feb,8.97B,,9.64B
+USD::mortgage market index::none,2007-03-01,17:00,feb,631.88,,643.21
+USD::mortgage refinance index::none,2007-03-01,17:00,feb,"2,003.55",,"1,940.20"
+USD::nahb housing market index::none,2007-03-01,17:00,feb,39.00,,35.00
+USD::nfib small business optimism::none,2007-03-01,17:00,feb,98.20,,98.90
+USD::ny empire state manufacturing index::none,2007-03-01,17:00,feb,24.41,,7.31
+GBP::nationwide hpi::m/m,2007-03-01,17:00,feb,0.90%,,0.10%
+GBP::nationwide hpi::y/y,2007-03-01,17:00,feb,10.20%,,9.30%
+USD::natural gas storage::none,2007-03-01,17:00,feb,-191.20B,,-138.57B
+USD::new home sales::none,2007-03-01,17:00,feb,828.00K,,891.00K
+USD::new home sales::m/m,2007-03-01,17:00,feb,-7.10%,,-10.70%
+CAD::new housing price index::m/m,2007-03-01,17:00,feb,0.40%,,0.40%
+USD::overall net capital flow::none,2007-03-01,17:00,feb,94.80B,,90.60B
+GBP::ppi input::m/m,2007-03-01,17:00,feb,1.20%,,-3.30%
+GBP::ppi input::y/y,2007-03-01,17:00,feb,-2.10%,,-3.70%
+GBP::ppi output::m/m,2007-03-01,17:00,feb,0.20%,,0.20%
+GBP::ppi output::y/y,2007-03-01,17:00,feb,1.50%,,1.20%
+CAD::part time employment change::none,2007-03-01,17:00,feb,-7.30K,,32.10K
+CAD::participation rate::none,2007-03-01,17:00,feb,67.40%,,67.40%
+USD::pending home sales::m/m,2007-03-01,17:00,feb,0.70%,,-4.50%
+USD::pending home sales index::none,2007-03-01,17:00,feb,107.90,,107.10
+USD::personal income::m/m,2007-03-01,17:00,feb,0.70%,,0.60%
+USD::personal spending::m/m,2007-03-01,17:00,feb,0.40%,,0.40%
+USD::philadelphia fed manufacturing index::none,2007-03-01,17:00,feb,3.50,,7.50
+USD::philly fed business conditions::none,2007-03-01,17:00,feb,22.80,,24.00
+USD::philly fed capex index::none,2007-03-01,17:00,feb,20.90,,21.00
+USD::philly fed employment::none,2007-03-01,17:00,feb,2.60,,7.80
+USD::philly fed new orders::none,2007-03-01,17:00,feb,3.00,,3.90
+USD::philly fed prices paid::none,2007-03-01,17:00,feb,21.80,,16.00
+USD::private nonfarm payrolls::none,2007-03-01,17:00,feb,52.00K,,230.00K
+GBP::public sector net borrowing::none,2007-03-01,17:00,feb,0.59B,,-10.44B
+GBP::public sector net cash requirement::none,2007-03-01,17:00,feb,1.93B,,-20.97B
+CAD::rmpi::m/m,2007-03-01,17:00,feb,3.30%,,-2.80%
+CAD::rmpi::y/y,2007-03-01,17:00,feb,10.10%,,3.30%
+GBP::rpi::m/m,2007-03-01,17:00,feb,0.70%,,-0.50%
+GBP::rpi::y/y,2007-03-01,17:00,feb,4.60%,,4.20%
+USD::real earnings::m/m,2007-03-01,17:00,feb,0.00%,,-0.60%
+USD::real personal consumption::m/m,2007-03-01,17:00,feb,0.10%,,0.10%
+USD::redbook::m/m,2007-03-01,17:00,feb,-0.95%,,1.61%
+USD::redbook::y/y,2007-03-01,17:00,feb,2.87%,,2.80%
+USD::retail control::m/m,2007-03-01,17:00,feb,0.00%,,0.20%
+CAD::retail sales::m/m,2007-03-01,17:00,feb,0.70%,,-0.90%
+GBP::retail sales::m/m,2007-03-01,17:00,feb,1.00%,,-0.30%
+USD::retail sales::m/m,2007-03-01,17:00,feb,0.20%,,-0.40%
+GBP::retail sales::y/y,2007-03-01,17:00,feb,3.40%,,2.20%
+USD::retail sales ex gas/autos::m/m,2007-03-01,17:00,feb,-0.20%,,0.00%
+USD::richmond manufacturing index::none,2007-03-01,17:00,feb,-2.00,,-8.00
+USD::richmond manufacturing shipments::none,2007-03-01,17:00,feb,-4.00,,-8.00
+USD::richmond services index::none,2007-03-01,17:00,feb,11.00,,0.00
+USD::s&p/cs hpi composite - 20 n.s.a.::m/m,2007-03-01,17:00,feb,-0.40%,,-0.50%
+USD::s&p/cs hpi composite - 20 n.s.a.::y/y,2007-03-01,17:00,feb,-0.80%,,-0.10%
+USD::s&p/cs hpi composite - 20 s.a.::m/m,2007-03-01,17:00,feb,0.20%,,0.10%
+USD::tic net long - term transactions::none,2007-03-01,17:00,feb,66.50B,,111.40B
+USD::tic net long - term transactions including swaps::none,2007-03-01,17:00,feb,45.80B,,92.40B
+USD::texas services sector outlook::none,2007-03-01,17:00,feb,23.10,,20.80
+CAD::trade balance::none,2007-03-01,17:00,feb,4.04B,,4.65B
+GBP::trade balance::none,2007-03-01,17:00,feb,-7.53B,,-7.41B
+MXN::trade balance::none,2007-03-01,17:00,feb,-0.40B,,-1.68B
+USD::trade balance::none,2007-03-01,17:00,feb,-58.50B,,-57.70B
+MXN::trade balance (usd)::none,2007-03-01,17:00,feb,-0.79B,,-1.30B
+GBP::trade balance non - eu::none,2007-03-01,17:00,feb,-3.96B,,-4.08B
+"USD::us foreign buying, t - bonds::none",2007-03-01,17:00,feb,17.70B,,16.10B
+CAD::unemployment rate::none,2007-03-01,17:00,feb,6.20%,,6.20%
+GBP::unemployment rate::none,2007-03-01,17:00,feb,5.50%,,5.50%
+MXN::unemployment rate::none,2007-03-01,17:00,feb,3.77%,,3.74%
+MXN::unemployment rate n.s.a.::none,2007-03-01,17:00,feb,4.05%,,4.05%
+USD::wholesale inventories::m/m,2007-03-01,17:00,feb,0.40%,,0.30%
+CAD::wholesale sales::m/m,2007-03-01,17:00,feb,2.70%,,-1.70%
+USD::u.s. baker hughes oil rig count::none,2007-03-03,01:00,,290,,278
+USD::cftc crude oil speculative net positions::none,2007-03-03,04:30,,26.0k,,7.9k
+USD::fed's balance sheet::none,2007-03-08,04:30,,864.51B,,877.41B
+USD::nonfarm payrolls::none,2007-03-09,20:30,feb,97K,,111K
+USD::u.s. baker hughes oil rig count::none,2007-03-10,01:00,,287,,290
+USD::cftc crude oil speculative net positions::none,2007-03-10,04:30,,36.3k,,26.0k
+USD::fed's balance sheet::none,2007-03-15,04:30,,876.11B,,864.51B
+ILS::cpi::y/y,2007-03-15,23:00,feb,-0.8%,,0.1%
+USD::cpi::m/m,2007-03-16,20:30,feb,0.4%,,0.2%
+USD::cpi::y/y,2007-03-16,20:30,feb,2.4%,,2.1%
+USD::core cpi::m/m,2007-03-16,20:30,feb,0.3%,,0.2%
+USD::core cpi::y/y,2007-03-16,20:30,feb,2.7%,,2.7%
+USD::u.s. baker hughes oil rig count::none,2007-03-17,01:00,,282,,287
+USD::cftc crude oil speculative net positions::none,2007-03-17,04:30,,37.1k,,36.3k
+USD::fed's balance sheet::none,2007-03-22,04:30,,863.07B,,876.11B
+USD::us leading index::m/m,2007-03-22,23:00,feb,-0.5%,-0.3%,-0.3%
+USD::u.s. baker hughes oil rig count::none,2007-03-24,01:00,,281,,282
+USD::cftc crude oil speculative net positions::none,2007-03-24,04:30,,44.4k,,37.1k
+EUR::german ifo business climate index::none,2007-03-27,17:00,,107.7,106.5,107
+USD::fed's balance sheet::none,2007-03-29,04:30,,869.80B,,863.07B
+USD::u.s. baker hughes oil rig count::none,2007-03-31,01:00,,271,,281
+USD::cftc crude oil speculative net positions::none,2007-03-31,04:30,,40.2k,,44.4k
+USD::10 - year note auction::none,2007-04-01,17:00,mar,4.63%,,4.63%
+USD::5 - year note auction::none,2007-04-01,17:00,mar,4.50%,,4.63%
+USD::all car sales::none,2007-04-01,17:00,mar,7.50M,,7.64M
+USD::all truck sales::none,2007-04-01,17:00,mar,8.52M,,9.07M
+GBP::average earnings index +bonus::none,2007-04-01,17:00,mar,6.20%,,6.60%
+GBP::average earnings ex bonus::none,2007-04-01,17:00,mar,3.90%,,3.90%
+USD::average hourly earnings::m/m,2007-04-01,17:00,mar,0.40%,,0.40%
+USD::average weekly hours::none,2007-04-01,17:00,mar,34.60,,34.50
+GBP::brc retail sales monitor::y/y,2007-04-01,17:00,mar,3.90%,,3.30%
+CAD::boc interest rate decision::none,2007-04-01,17:00,mar,4.25%,,4.25%
+GBP::boe consumer credit::none,2007-04-01,17:00,mar,0.39B,,0.41B
+GBP::boe interest rate decision::none,2007-04-01,17:00,mar,5.25%,,5.25%
+CAD::budget balance::none,2007-04-01,17:00,mar,-2.43B,,4.69B
+CAD::budget balance::y/y,2007-04-01,17:00,mar,12.86B,,15.29B
+CAD::building permits::m/m,2007-04-01,17:00,mar,24.40%,,-20.50%
+USD::business inventories::m/m,2007-04-01,17:00,mar,0.20%,,0.40%
+USD::cb consumer confidence::none,2007-04-01,17:00,mar,108.20,,111.20
+USD::cb employment trends index::none,2007-04-01,17:00,mar,128.50,,128.10
+GBP::cbi distributive trades survey::none,2007-04-01,17:00,mar,32.00,,19.00
+GBP::cbi industrial trends orders::none,2007-04-01,17:00,mar,8.00,,4.00
+CAD::cpi::m/m,2007-04-01,17:00,mar,0.80%,,0.70%
+GBP::cpi::m/m,2007-04-01,17:00,mar,0.50%,,0.40%
+MXN::cpi::m/m,2007-04-01,17:00,mar,0.22%,,0.28%
+CAD::cpi::y/y,2007-04-01,17:00,mar,2.30%,,2.00%
+GBP::cpi::y/y,2007-04-01,17:00,mar,3.10%,,2.80%
+MXN::cpi::y/y,2007-04-01,17:00,mar,4.21%,,4.11%
+"USD::cpi index, n.s.a.::none",2007-04-01,17:00,mar,205.35,,203.50
+USD::capacity utilization rate::none,2007-04-01,17:00,mar,80.40%,,80.40%
+USD::chain store sales::m/m,2007-04-01,17:00,mar,5.90%,,2.50%
+USD::chain store sales::w/w,2007-04-01,17:00,mar,0.33%,,-0.11%
+USD::chain store sales::y/y,2007-04-01,17:00,mar,3.39%,,3.06%
+USD::challenger job cuts::none,2007-04-01,17:00,mar,49.00K,,84.01K
+USD::chicago fed national activity::none,2007-04-01,17:00,mar,0.20,,0.27
+USD::chicago pmi::none,2007-04-01,17:00,mar,58.60,,51.20
+GBP::claimant count change::none,2007-04-01,17:00,mar,-14.70K,,-14.10K
+USD::cleveland cpi::m/m,2007-04-01,17:00,mar,0.20%,,0.40%
+USD::construction spending::m/m,2007-04-01,17:00,mar,1.00%,,0.50%
+MXN::consumer confidence::none,2007-04-01,17:00,mar,105.50,,105.20
+SEK::consumer confidence::none,2007-04-01,17:00,mar,108.00,,109.90
+MXN::consumer confidence n.s.a.::none,2007-04-01,17:00,mar,106.50,,103.60
+USD::consumer credit::none,2007-04-01,17:00,mar,13.38B,,12.08B
+USD::continuing jobless claims::none,2007-04-01,17:00,mar,"2,510.55K",,"2,570.15K"
+CAD::core cpi::m/m,2007-04-01,17:00,mar,0.40%,,0.50%
+MXN::core cpi::m/m,2007-04-01,17:00,mar,0.29%,,0.38%
+CAD::core cpi::y/y,2007-04-01,17:00,mar,2.30%,,2.30%
+USD::core cpi index::none,2007-04-01,17:00,mar,209.42,,209.14
+USD::core pce price index::m/m,2007-04-01,17:00,mar,0.10%,,0.20%
+USD::core pce price index::y/y,2007-04-01,17:00,mar,2.30%,,2.40%
+GBP::core ppi output::m/m,2007-04-01,17:00,mar,0.20%,,0.30%
+GBP::core ppi output::y/y,2007-04-01,17:00,mar,1.50%,,1.40%
+GBP::core rpi::m/m,2007-04-01,17:00,mar,0.60%,,0.50%
+GBP::core rpi::y/y,2007-04-01,17:00,mar,3.90%,,3.70%
+CAD::core retail sales::m/m,2007-04-01,17:00,mar,0.80%,,1.10%
+GBP::core retail sales::m/m,2007-04-01,17:00,mar,0.80%,,1.20%
+USD::core retail sales::m/m,2007-04-01,17:00,mar,1.20%,,0.10%
+GBP::core retail sales::y/y,2007-04-01,17:00,mar,3.60%,,3.50%
+USD::crude oil inventories::none,2007-04-01,17:00,mar,1.51M,,0.36M
+USD::dallas fed mfg business index::none,2007-04-01,17:00,mar,5.40,,23.00
+USD::dallas fed pce::none,2007-04-01,17:00,mar,2.00%,,3.60%
+USD::dallas fed services revenues::none,2007-04-01,17:00,mar,27.20,,24.20
+USD::domestic truck sales::none,2007-04-01,17:00,mar,7.14M,,7.68M
+USD::durables excluding defense::m/m,2007-04-01,17:00,mar,5.20%,,1.00%
+USD::eia weekly distillates stocks::none,2007-04-01,17:00,mar,-1.31M,,-3.52M
+MXN::economic activity::m/m,2007-04-01,17:00,mar,0.68%,,0.18%
+MXN::economic activity::y/y,2007-04-01,17:00,mar,2.83%,,2.89%
+CAD::employment change::none,2007-04-01,17:00,mar,48.10K,,21.10K
+USD::existing home sales::none,2007-04-01,17:00,mar,5.46M,,5.79M
+USD::existing home sales::m/m,2007-04-01,17:00,mar,-5.70%,,0.90%
+USD::export price index::m/m,2007-04-01,17:00,mar,0.70%,,0.80%
+CAD::exports::none,2007-04-01,17:00,mar,40.41B,,38.94B
+USD::factory orders::m/m,2007-04-01,17:00,mar,2.60%,,1.90%
+USD::factory orders ex transportation::m/m,2007-04-01,17:00,mar,1.10%,,1.90%
+USD::federal budget balance::none,2007-04-01,17:00,mar,-96.30B,,-120.00B
+MXN::fiscal balance::none,2007-04-01,17:00,mar,22.27B,,28.64B
+CAD::foreign securities purchases::none,2007-04-01,17:00,mar,5.20B,,5.81B
+CAD::foreign securities purchases by canadians::none,2007-04-01,17:00,mar,11.19B,,6.93B
+CAD::full employment change::none,2007-04-01,17:00,mar,30.90K,,28.40K
+CAD::gdp::m/m,2007-04-01,17:00,mar,0.20%,,0.50%
+USD::gasoline inventories::none,2007-04-01,17:00,mar,-2.89M,,-2.06M
+GBP::gfk consumer confidence::none,2007-04-01,17:00,mar,-8.00,,-8.00
+USD::government payrolls::none,2007-04-01,17:00,mar,18.00K,,36.00K
+MXN::gross fixed investments::m/m,2007-04-01,17:00,mar,0.94%,,1.09%
+MXN::gross fixed investments::y/y,2007-04-01,17:00,mar,2.08%,,7.00%
+GBP::halifax house price index::m/m,2007-04-01,17:00,mar,1.00%,,1.40%
+GBP::halifax house price index::y/y,2007-04-01,17:00,mar,11.10%,,9.90%
+USD::house price index::none,2007-04-01,17:00,mar,227.00,,225.80
+USD::house price index::m/m,2007-04-01,17:00,mar,0.50%,,-0.10%
+USD::house price index::y/y,2007-04-01,17:00,mar,2.10%,,2.00%
+CAD::housing starts::none,2007-04-01,17:00,mar,219.50K,,195.20K
+USD::housing starts::none,2007-04-01,17:00,mar,1.50M,,1.48M
+USD::housing starts::m/m,2007-04-01,17:00,mar,1.00%,,5.00%
+CAD::ippi::m/m,2007-04-01,17:00,mar,1.30%,,0.90%
+CAD::ippi::y/y,2007-04-01,17:00,mar,4.70%,,4.30%
+USD::ism manufacturing employment::none,2007-04-01,17:00,mar,49.90,,50.90
+USD::ism manufacturing new orders index::none,2007-04-01,17:00,mar,50.20,,55.10
+USD::ism manufacturing pmi::none,2007-04-01,17:00,mar,50.70,,51.90
+USD::ism manufacturing prices::none,2007-04-01,17:00,mar,65.50,,59.00
+USD::ism non - manufacturing business activity::none,2007-04-01,17:00,mar,52.80,,56.00
+USD::ism non - manufacturing employment::none,2007-04-01,17:00,mar,51.90,,52.70
+USD::ism non - manufacturing new orders::none,2007-04-01,17:00,mar,53.20,,55.70
+USD::ism non - manufacturing pmi::none,2007-04-01,17:00,mar,52.00,,54.20
+USD::ism non - manufacturing prices::none,2007-04-01,17:00,mar,61.90,,54.70
+USD::ism - new york index::none,2007-04-01,17:00,mar,430.70,,430.80
+USD::import price index::m/m,2007-04-01,17:00,mar,1.60%,,0.40%
+CAD::imports::none,2007-04-01,17:00,mar,35.97B,,34.90B
+GBP::industrial production::m/m,2007-04-01,17:00,mar,0.10%,,-0.60%
+MXN::industrial production::m/m,2007-04-01,17:00,mar,1.28%,,0.60%
+USD::industrial production::m/m,2007-04-01,17:00,mar,0.10%,,1.10%
+GBP::industrial production::y/y,2007-04-01,17:00,mar,0.00%,,0.20%
+MXN::industrial production::y/y,2007-04-01,17:00,mar,1.68%,,2.30%
+USD::initial jobless claims::none,2007-04-01,17:00,mar,307.95K,,324.25K
+MXN::interest rate decision::none,2007-04-01,17:00,mar,7.00%,,7.00%
+CAD::ivey pmi n.s.a::none,2007-04-01,17:00,mar,67.30,,60.50
+USD::jolts job openings::none,2007-04-01,17:00,mar,4.66M,,4.48M
+USD::jobless claims 4 - week avg.::none,2007-04-01,17:00,mar,313.49K,,321.20K
+USD::kc fed composite index::none,2007-04-01,17:00,mar,10.00,,15.00
+USD::kc fed manufacturing index::none,2007-04-01,17:00,mar,12.00,,20.00
+GBP::m4 money supply::m/m,2007-04-01,17:00,mar,1.40%,,0.80%
+USD::mba 30 - year mortgage rate::none,2007-04-01,17:00,mar,6.06%,,6.18%
+USD::mba purchase index::none,2007-04-01,17:00,mar,409.32,,397.12
+USD::manufacturing payrolls::none,2007-04-01,17:00,mar,-27.00K,,-11.00K
+GBP::manufacturing production::m/m,2007-04-01,17:00,mar,0.20%,,-1.70%
+USD::manufacturing production::m/m,2007-04-01,17:00,mar,0.80%,,0.40%
+GBP::manufacturing production::y/y,2007-04-01,17:00,mar,1.00%,,1.30%
+CAD::manufacturing sales::m/m,2007-04-01,17:00,mar,2.40%,,-0.30%
+USD::michigan 1 - year inflation expectations::none,2007-04-01,17:00,mar,3.00%,,3.00%
+USD::michigan 5 - year inflation expectations::none,2007-04-01,17:00,mar,2.90%,,2.90%
+USD::michigan consumer expectations::none,2007-04-01,17:00,mar,79.30,,81.50
+USD::michigan consumer sentiment::none,2007-04-01,17:00,mar,88.40,,93.30
+USD::michigan current conditions::none,2007-04-01,17:00,mar,103.50,,108.30
+USD::midwest manufacturing::none,2007-04-01,17:00,mar,99.80,,98.60
+GBP::mortgage approvals::none,2007-04-01,17:00,mar,113.61K,,117.06K
+GBP::mortgage lending::none,2007-04-01,17:00,mar,8.97B,,8.97B
+USD::mortgage market index::none,2007-04-01,17:00,mar,670.85,,631.88
+USD::mortgage refinance index::none,2007-04-01,17:00,mar,"2,206.93",,"2,003.55"
+USD::nahb housing market index::none,2007-04-01,17:00,mar,36.00,,39.00
+USD::nfib small business optimism::none,2007-04-01,17:00,mar,97.30,,98.20
+USD::ny empire state manufacturing index::none,2007-04-01,17:00,mar,13.42,,24.41
+GBP::nationwide hpi::m/m,2007-04-01,17:00,mar,0.40%,,0.90%
+GBP::nationwide hpi::y/y,2007-04-01,17:00,mar,9.30%,,10.20%
+USD::natural gas storage::none,2007-04-01,17:00,mar,-23.36B,,-191.20B
+USD::new home sales::none,2007-04-01,17:00,mar,833.00K,,828.00K
+USD::new home sales::m/m,2007-04-01,17:00,mar,0.60%,,-7.10%
+CAD::new housing price index::m/m,2007-04-01,17:00,mar,0.40%,,0.40%
+USD::overall net capital flow::none,2007-04-01,17:00,mar,49.30B,,94.80B
+GBP::ppi input::m/m,2007-04-01,17:00,mar,2.40%,,1.20%
+GBP::ppi input::y/y,2007-04-01,17:00,mar,-0.40%,,-2.10%
+GBP::ppi output::m/m,2007-04-01,17:00,mar,0.60%,,0.20%
+GBP::ppi output::y/y,2007-04-01,17:00,mar,1.80%,,1.50%
+CAD::part time employment change::none,2007-04-01,17:00,mar,17.20K,,-7.30K
+CAD::participation rate::none,2007-04-01,17:00,mar,67.50%,,67.40%
+USD::pending home sales::m/m,2007-04-01,17:00,mar,-3.10%,,0.70%
+USD::pending home sales index::none,2007-04-01,17:00,mar,104.60,,107.90
+USD::personal income::m/m,2007-04-01,17:00,mar,0.70%,,0.70%
+USD::personal spending::m/m,2007-04-01,17:00,mar,0.40%,,0.40%
+USD::philadelphia fed manufacturing index::none,2007-04-01,17:00,mar,2.80,,3.50
+USD::philly fed business conditions::none,2007-04-01,17:00,mar,22.90,,22.80
+USD::philly fed capex index::none,2007-04-01,17:00,mar,26.80,,20.90
+USD::philly fed employment::none,2007-04-01,17:00,mar,6.50,,2.60
+USD::philly fed new orders::none,2007-04-01,17:00,mar,4.10,,3.00
+USD::philly fed prices paid::none,2007-04-01,17:00,mar,26.00,,21.80
+USD::private nonfarm payrolls::none,2007-04-01,17:00,mar,170.00K,,52.00K
+GBP::public sector net borrowing::none,2007-04-01,17:00,mar,8.87B,,0.59B
+GBP::public sector net cash requirement::none,2007-04-01,17:00,mar,17.35B,,1.93B
+CAD::rmpi::m/m,2007-04-01,17:00,mar,2.30%,,3.30%
+CAD::rmpi::y/y,2007-04-01,17:00,mar,11.40%,,10.10%
+GBP::rpi::m/m,2007-04-01,17:00,mar,0.60%,,0.70%
+GBP::rpi::y/y,2007-04-01,17:00,mar,4.80%,,4.60%
+USD::real earnings::m/m,2007-04-01,17:00,mar,0.20%,,0.00%
+USD::real personal consumption::m/m,2007-04-01,17:00,mar,0.10%,,0.10%
+USD::redbook::m/m,2007-04-01,17:00,mar,0.42%,,-0.95%
+USD::redbook::y/y,2007-04-01,17:00,mar,3.99%,,2.87%
+USD::retail control::m/m,2007-04-01,17:00,mar,0.90%,,0.00%
+CAD::retail sales::m/m,2007-04-01,17:00,mar,1.30%,,0.70%
+GBP::retail sales::m/m,2007-04-01,17:00,mar,1.00%,,1.00%
+USD::retail sales::m/m,2007-04-01,17:00,mar,1.00%,,0.20%
+GBP::retail sales::y/y,2007-04-01,17:00,mar,3.60%,,3.40%
+USD::retail sales ex gas/autos::m/m,2007-04-01,17:00,mar,1.00%,,-0.20%
+USD::richmond manufacturing index::none,2007-04-01,17:00,mar,-10.00,,-2.00
+USD::richmond manufacturing shipments::none,2007-04-01,17:00,mar,-13.00,,-4.00
+USD::richmond services index::none,2007-04-01,17:00,mar,6.00,,11.00
+USD::s&p/cs hpi composite - 20 n.s.a.::m/m,2007-04-01,17:00,mar,-0.30%,,-0.40%
+USD::s&p/cs hpi composite - 20 n.s.a.::y/y,2007-04-01,17:00,mar,-1.30%,,-0.80%
+USD::s&p/cs hpi composite - 20 s.a.::m/m,2007-04-01,17:00,mar,0.10%,,0.20%
+USD::tic net long - term transactions::none,2007-04-01,17:00,mar,59.10B,,66.50B
+USD::tic net long - term transactions including swaps::none,2007-04-01,17:00,mar,41.30B,,45.80B
+USD::texas services sector outlook::none,2007-04-01,17:00,mar,14.40,,23.10
+CAD::trade balance::none,2007-04-01,17:00,mar,4.44B,,4.04B
+GBP::trade balance::none,2007-04-01,17:00,mar,-7.32B,,-7.53B
+MXN::trade balance::none,2007-04-01,17:00,mar,-0.38B,,-0.40B
+USD::trade balance::none,2007-04-01,17:00,mar,-61.80B,,-58.50B
+MXN::trade balance (usd)::none,2007-04-01,17:00,mar,-0.70B,,-0.79B
+GBP::trade balance non - eu::none,2007-04-01,17:00,mar,-3.49B,,-3.96B
+"USD::us foreign buying, t - bonds::none",2007-04-01,17:00,mar,31.10B,,17.70B
+CAD::unemployment rate::none,2007-04-01,17:00,mar,6.10%,,6.20%
+GBP::unemployment rate::none,2007-04-01,17:00,mar,5.50%,,5.50%
+MXN::unemployment rate::none,2007-04-01,17:00,mar,3.74%,,3.77%
+MXN::unemployment rate n.s.a.::none,2007-04-01,17:00,mar,3.73%,,4.05%
+USD::wholesale inventories::m/m,2007-04-01,17:00,mar,0.60%,,0.40%
+CAD::wholesale sales::m/m,2007-04-01,17:00,mar,1.10%,,2.70%
+USD::fed's balance sheet::none,2007-04-05,04:30,,862.32B,,869.80B
+USD::nonfarm payrolls::none,2007-04-06,20:30,mar,177K,,97K
+USD::u.s. baker hughes oil rig count::none,2007-04-07,01:00,,283,,271
+USD::cftc crude oil speculative net positions::none,2007-04-07,04:30,,66.7k,,40.2k
+USD::fed's balance sheet::none,2007-04-12,04:30,,865.44B,,862.32B
+USD::u.s. baker hughes oil rig count::none,2007-04-14,01:00,,282,,283
+USD::cftc crude oil speculative net positions::none,2007-04-14,04:30,,75.2k,,66.7k
+ILS::cpi::y/y,2007-04-15,23:00,mar,-0.9%,,-0.8%
+USD::cpi::m/m,2007-04-17,20:30,mar,0.5%,,0.4%
+USD::cpi::y/y,2007-04-17,20:30,mar,2.8%,,2.4%
+USD::core cpi::m/m,2007-04-17,20:30,mar,0.1%,,0.3%
+USD::core cpi::y/y,2007-04-17,20:30,mar,2.5%,,2.7%
+USD::fed's balance sheet::none,2007-04-19,04:30,,861.34B,,865.44B
+USD::us leading index::m/m,2007-04-19,23:00,mar,0.1%,0.2%,-0.6%
+USD::u.s. baker hughes oil rig count::none,2007-04-21,01:00,,292,,282
+USD::cftc crude oil speculative net positions::none,2007-04-21,04:30,,80.8k,,75.2k
+EUR::german ifo business climate index::none,2007-04-25,17:00,,108.6,107.7,107.7
+USD::fed's balance sheet::none,2007-04-26,04:30,,879.69B,,861.34B
+USD::u.s. baker hughes oil rig count::none,2007-04-28,01:00,,283,,292
+USD::cftc crude oil speculative net positions::none,2007-04-28,04:30,,63.8k,,80.8k
+USD::5 - year note auction::none,2007-05-01,17:00,apr,4.50%,,4.50%
+USD::all car sales::none,2007-05-01,17:00,apr,7.44M,,7.50M
+USD::all truck sales::none,2007-05-01,17:00,apr,8.77M,,8.52M
+GBP::average earnings index +bonus::none,2007-05-01,17:00,apr,5.40%,,6.20%
+GBP::average earnings ex bonus::none,2007-05-01,17:00,apr,4.00%,,3.90%
+USD::average hourly earnings::m/m,2007-05-01,17:00,apr,0.20%,,0.40%
+USD::average weekly hours::none,2007-05-01,17:00,apr,34.50,,34.60
+GBP::brc retail sales monitor::y/y,2007-05-01,17:00,apr,2.40%,,3.90%
+CAD::boc interest rate decision::none,2007-05-01,17:00,apr,4.25%,,4.25%
+GBP::boe consumer credit::none,2007-05-01,17:00,apr,0.89B,,0.39B
+GBP::boe interest rate decision::none,2007-05-01,17:00,apr,5.25%,,5.25%
+CAD::budget balance::none,2007-05-01,17:00,apr,2.02B,,-2.43B
+CAD::budget balance::y/y,2007-05-01,17:00,apr,2.02B,,12.86B
+CAD::building permits::m/m,2007-05-01,17:00,apr,-7.30%,,24.40%
+USD::business inventories::m/m,2007-05-01,17:00,apr,0.50%,,0.20%
+USD::cb consumer confidence::none,2007-05-01,17:00,apr,106.30,,108.20
+USD::cb employment trends index::none,2007-05-01,17:00,apr,127.60,,128.50
+GBP::cbi distributive trades survey::none,2007-05-01,17:00,apr,44.00,,32.00
+GBP::cbi industrial trends orders::none,2007-05-01,17:00,apr,2.00,,8.00
+CAD::cpi::m/m,2007-05-01,17:00,apr,0.50%,,0.80%
+GBP::cpi::m/m,2007-05-01,17:00,apr,0.30%,,0.50%
+MXN::cpi::m/m,2007-05-01,17:00,apr,-0.06%,,0.22%
+CAD::cpi::y/y,2007-05-01,17:00,apr,2.20%,,2.30%
+GBP::cpi::y/y,2007-05-01,17:00,apr,2.80%,,3.10%
+MXN::cpi::y/y,2007-05-01,17:00,apr,3.99%,,4.21%
+SEK::cpi::y/y,2007-05-01,17:00,apr,1.90%,,1.90%
+"USD::cpi index, n.s.a.::none",2007-05-01,17:00,apr,206.69,,205.35
+USD::capacity utilization rate::none,2007-05-01,17:00,apr,80.80%,,80.40%
+USD::chain store sales::m/m,2007-05-01,17:00,apr,-1.90%,,5.90%
+USD::chain store sales::w/w,2007-05-01,17:00,apr,0.09%,,0.33%
+USD::chain store sales::y/y,2007-05-01,17:00,apr,2.53%,,3.39%
+USD::challenger job cuts::none,2007-05-01,17:00,apr,70.67K,,49.00K
+USD::chicago fed national activity::none,2007-05-01,17:00,apr,-0.18,,0.20
+USD::chicago pmi::none,2007-05-01,17:00,apr,54.20,,58.60
+GBP::claimant count change::none,2007-05-01,17:00,apr,-18.60K,,-14.70K
+USD::cleveland cpi::m/m,2007-05-01,17:00,apr,0.20%,,0.20%
+USD::construction spending::m/m,2007-05-01,17:00,apr,-0.70%,,1.00%
+MXN::consumer confidence::none,2007-05-01,17:00,apr,106.40,,105.50
+SEK::consumer confidence::none,2007-05-01,17:00,apr,116.10,,108.00
+MXN::consumer confidence n.s.a.::none,2007-05-01,17:00,apr,106.30,,106.50
+USD::consumer credit::none,2007-05-01,17:00,apr,8.19B,,13.38B
+USD::continuing jobless claims::none,2007-05-01,17:00,apr,"2,492.81K",,"2,510.55K"
+CAD::core cpi::m/m,2007-05-01,17:00,apr,0.10%,,0.40%
+MXN::core cpi::m/m,2007-05-01,17:00,apr,0.19%,,0.29%
+CAD::core cpi::y/y,2007-05-01,17:00,apr,2.50%,,2.30%
+USD::core cpi index::none,2007-05-01,17:00,apr,209.75,,209.42
+USD::core pce price index::m/m,2007-05-01,17:00,apr,0.10%,,0.10%
+USD::core pce price index::y/y,2007-05-01,17:00,apr,2.10%,,2.30%
+GBP::core ppi output::m/m,2007-05-01,17:00,apr,0.00%,,0.20%
+GBP::core ppi output::y/y,2007-05-01,17:00,apr,1.30%,,1.50%
+GBP::core rpi::m/m,2007-05-01,17:00,apr,0.50%,,0.60%
+GBP::core rpi::y/y,2007-05-01,17:00,apr,3.60%,,3.90%
+CAD::core retail sales::m/m,2007-05-01,17:00,apr,0.90%,,0.80%
+GBP::core retail sales::m/m,2007-05-01,17:00,apr,0.30%,,0.80%
+USD::core retail sales::m/m,2007-05-01,17:00,apr,-0.60%,,1.20%
+GBP::core retail sales::y/y,2007-05-01,17:00,apr,3.50%,,3.60%
+USD::crude oil inventories::none,2007-05-01,17:00,apr,0.96M,,1.51M
+USD::dallas fed mfg business index::none,2007-05-01,17:00,apr,9.00,,5.40
+USD::dallas fed pce::none,2007-05-01,17:00,apr,1.80%,,2.00%
+USD::dallas fed services revenues::none,2007-05-01,17:00,apr,8.40,,27.20
+USD::domestic truck sales::none,2007-05-01,17:00,apr,7.40M,,7.14M
+USD::durables excluding defense::m/m,2007-05-01,17:00,apr,1.00%,,5.20%
+USD::eia weekly distillates stocks::none,2007-05-01,17:00,apr,-0.12M,,-1.31M
+MXN::economic activity::m/m,2007-05-01,17:00,apr,0.61%,,0.68%
+MXN::economic activity::y/y,2007-05-01,17:00,apr,3.32%,,2.83%
+CAD::employment change::none,2007-05-01,17:00,apr,-15.00K,,48.10K
+USD::existing home sales::none,2007-05-01,17:00,apr,5.29M,,5.46M
+USD::existing home sales::m/m,2007-05-01,17:00,apr,-3.10%,,-5.70%
+USD::export price index::m/m,2007-05-01,17:00,apr,0.40%,,0.70%
+CAD::exports::none,2007-05-01,17:00,apr,40.63B,,40.41B
+USD::factory orders::m/m,2007-05-01,17:00,apr,1.30%,,2.60%
+USD::factory orders ex transportation::m/m,2007-05-01,17:00,apr,1.10%,,1.10%
+USD::federal budget balance::none,2007-05-01,17:00,apr,177.70B,,-96.30B
+MXN::fiscal balance::none,2007-05-01,17:00,apr,35.66B,,22.27B
+CAD::foreign securities purchases::none,2007-05-01,17:00,apr,2.62B,,5.20B
+CAD::foreign securities purchases by canadians::none,2007-05-01,17:00,apr,12.55B,,11.19B
+CAD::full employment change::none,2007-05-01,17:00,apr,-22.80K,,30.90K
+CAD::gdp::m/m,2007-05-01,17:00,apr,0.10%,,0.20%
+USD::gasoline inventories::none,2007-05-01,17:00,apr,-2.86M,,-2.89M
+GBP::gfk consumer confidence::none,2007-05-01,17:00,apr,-6.00,,-8.00
+USD::government payrolls::none,2007-05-01,17:00,apr,26.00K,,18.00K
+MXN::gross fixed investments::m/m,2007-05-01,17:00,apr,1.87%,,0.94%
+MXN::gross fixed investments::y/y,2007-05-01,17:00,apr,6.76%,,2.08%
+GBP::halifax house price index::m/m,2007-05-01,17:00,apr,1.10%,,1.00%
+GBP::halifax house price index::y/y,2007-05-01,17:00,apr,10.90%,,11.10%
+USD::house price index::none,2007-05-01,17:00,apr,226.90,,227.00
+USD::house price index::m/m,2007-05-01,17:00,apr,0.00%,,0.50%
+USD::house price index::y/y,2007-05-01,17:00,apr,1.90%,,2.10%
+CAD::housing starts::none,2007-05-01,17:00,apr,227.50K,,219.50K
+USD::housing starts::none,2007-05-01,17:00,apr,1.49M,,1.50M
+USD::housing starts::m/m,2007-05-01,17:00,apr,-0.30%,,1.00%
+CAD::ippi::m/m,2007-05-01,17:00,apr,0.30%,,1.30%
+CAD::ippi::y/y,2007-05-01,17:00,apr,3.70%,,4.70%
+USD::ism manufacturing employment::none,2007-05-01,17:00,apr,51.90,,49.90
+USD::ism manufacturing new orders index::none,2007-05-01,17:00,apr,57.40,,50.20
+USD::ism manufacturing pmi::none,2007-05-01,17:00,apr,52.60,,50.70
+USD::ism manufacturing prices::none,2007-05-01,17:00,apr,73.00,,65.50
+USD::ism non - manufacturing business activity::none,2007-05-01,17:00,apr,56.10,,52.80
+USD::ism non - manufacturing employment::none,2007-05-01,17:00,apr,51.10,,51.90
+USD::ism non - manufacturing new orders::none,2007-05-01,17:00,apr,54.90,,53.20
+USD::ism non - manufacturing pmi::none,2007-05-01,17:00,apr,53.30,,52.00
+USD::ism non - manufacturing prices::none,2007-05-01,17:00,apr,62.10,,61.90
+USD::ism - new york index::none,2007-05-01,17:00,apr,439.70,,430.70
+USD::import price index::m/m,2007-05-01,17:00,apr,1.40%,,1.60%
+CAD::imports::none,2007-05-01,17:00,apr,35.06B,,35.97B
+GBP::industrial production::m/m,2007-05-01,17:00,apr,-0.50%,,0.10%
+MXN::industrial production::m/m,2007-05-01,17:00,apr,-0.48%,,1.28%
+USD::industrial production::m/m,2007-05-01,17:00,apr,0.70%,,0.10%
+GBP::industrial production::y/y,2007-05-01,17:00,apr,0.10%,,0.00%
+MXN::industrial production::y/y,2007-05-01,17:00,apr,1.82%,,1.68%
+USD::initial jobless claims::none,2007-05-01,17:00,apr,319.29K,,307.95K
+MXN::interest rate decision::none,2007-05-01,17:00,apr,7.25%,,7.00%
+CAD::ivey pmi n.s.a::none,2007-05-01,17:00,apr,60.90,,67.30
+USD::jolts job openings::none,2007-05-01,17:00,apr,4.53M,,4.66M
+USD::jobless claims 4 - week avg.::none,2007-05-01,17:00,apr,317.73K,,313.49K
+USD::kc fed composite index::none,2007-05-01,17:00,apr,11.00,,10.00
+USD::kc fed manufacturing index::none,2007-05-01,17:00,apr,21.00,,12.00
+GBP::m4 money supply::m/m,2007-05-01,17:00,apr,1.30%,,1.40%
+USD::mba 30 - year mortgage rate::none,2007-05-01,17:00,apr,6.16%,,6.06%
+USD::mba purchase index::none,2007-05-01,17:00,apr,413.40,,409.32
+USD::manufacturing payrolls::none,2007-05-01,17:00,apr,-25.00K,,-27.00K
+GBP::manufacturing production::m/m,2007-05-01,17:00,apr,0.30%,,0.20%
+USD::manufacturing production::m/m,2007-05-01,17:00,apr,0.70%,,0.80%
+GBP::manufacturing production::y/y,2007-05-01,17:00,apr,1.10%,,1.00%
+CAD::manufacturing sales::m/m,2007-05-01,17:00,apr,-0.40%,,2.40%
+USD::michigan 1 - year inflation expectations::none,2007-05-01,17:00,apr,3.30%,,3.00%
+USD::michigan 5 - year inflation expectations::none,2007-05-01,17:00,apr,3.10%,,2.90%
+USD::michigan consumer expectations::none,2007-05-01,17:00,apr,74.30,,78.70
+USD::michigan consumer sentiment::none,2007-05-01,17:00,apr,87.10,,88.80
+USD::michigan current conditions::none,2007-05-01,17:00,apr,104.60,,103.60
+USD::midwest manufacturing::none,2007-05-01,17:00,apr,100.90,,99.80
+GBP::mortgage approvals::none,2007-05-01,17:00,apr,108.79K,,113.61K
+GBP::mortgage lending::none,2007-05-01,17:00,apr,8.56B,,8.97B
+USD::mortgage market index::none,2007-05-01,17:00,apr,648.53,,670.85
+USD::mortgage refinance index::none,2007-05-01,17:00,apr,"2,034.25",,"2,206.93"
+USD::nahb housing market index::none,2007-05-01,17:00,apr,33.00,,36.00
+USD::nfib small business optimism::none,2007-05-01,17:00,apr,96.80,,97.30
+USD::ny empire state manufacturing index::none,2007-05-01,17:00,apr,3.80,,13.42
+GBP::nationwide hpi::m/m,2007-05-01,17:00,apr,0.90%,,0.40%
+GBP::nationwide hpi::y/y,2007-05-01,17:00,apr,10.20%,,9.30%
+USD::natural gas storage::none,2007-05-01,17:00,apr,24.10B,,-23.36B
+USD::new home sales::none,2007-05-01,17:00,apr,887.00K,,833.00K
+USD::new home sales::m/m,2007-05-01,17:00,apr,6.50%,,0.60%
+CAD::new housing price index::m/m,2007-05-01,17:00,apr,0.80%,,0.40%
+USD::overall net capital flow::none,2007-05-01,17:00,apr,84.10B,,49.30B
+GBP::ppi input::m/m,2007-05-01,17:00,apr,0.30%,,2.40%
+GBP::ppi input::y/y,2007-05-01,17:00,apr,-1.90%,,-0.40%
+GBP::ppi output::m/m,2007-05-01,17:00,apr,0.30%,,0.60%
+GBP::ppi output::y/y,2007-05-01,17:00,apr,1.60%,,1.80%
+CAD::part time employment change::none,2007-05-01,17:00,apr,7.80K,,17.20K
+CAD::participation rate::none,2007-05-01,17:00,apr,67.40%,,67.50%
+USD::pending home sales::m/m,2007-05-01,17:00,apr,-3.50%,,-3.10%
+USD::pending home sales index::none,2007-05-01,17:00,apr,100.90,,104.60
+USD::personal income::m/m,2007-05-01,17:00,apr,0.20%,,0.70%
+USD::personal spending::m/m,2007-05-01,17:00,apr,0.40%,,0.40%
+USD::philadelphia fed manufacturing index::none,2007-05-01,17:00,apr,2.90,,2.80
+USD::philly fed business conditions::none,2007-05-01,17:00,apr,22.60,,22.90
+USD::philly fed capex index::none,2007-05-01,17:00,apr,14.90,,26.80
+USD::philly fed employment::none,2007-05-01,17:00,apr,8.30,,6.50
+USD::philly fed new orders::none,2007-05-01,17:00,apr,4.90,,4.10
+USD::philly fed prices paid::none,2007-05-01,17:00,apr,26.40,,26.00
+USD::private nonfarm payrolls::none,2007-05-01,17:00,apr,52.00K,,170.00K
+GBP::public sector net borrowing::none,2007-05-01,17:00,apr,0.20B,,8.87B
+GBP::public sector net cash requirement::none,2007-05-01,17:00,apr,-3.61B,,17.35B
+CAD::rmpi::m/m,2007-05-01,17:00,apr,3.60%,,2.30%
+CAD::rmpi::y/y,2007-05-01,17:00,apr,8.60%,,11.40%
+GBP::rpi::m/m,2007-05-01,17:00,apr,0.50%,,0.60%
+GBP::rpi::y/y,2007-05-01,17:00,apr,4.50%,,4.80%
+USD::real earnings::m/m,2007-05-01,17:00,apr,-0.30%,,0.20%
+USD::real personal consumption::m/m,2007-05-01,17:00,apr,0.20%,,0.10%
+USD::redbook::m/m,2007-05-01,17:00,apr,-2.89%,,0.42%
+USD::redbook::y/y,2007-05-01,17:00,apr,1.22%,,3.99%
+USD::retail control::m/m,2007-05-01,17:00,apr,-0.50%,,0.90%
+CAD::retail sales::m/m,2007-05-01,17:00,apr,1.40%,,1.30%
+GBP::retail sales::m/m,2007-05-01,17:00,apr,0.40%,,1.00%
+USD::retail sales::m/m,2007-05-01,17:00,apr,-0.40%,,1.00%
+GBP::retail sales::y/y,2007-05-01,17:00,apr,3.90%,,3.60%
+USD::retail sales ex gas/autos::m/m,2007-05-01,17:00,apr,-0.80%,,1.00%
+USD::richmond manufacturing index::none,2007-05-01,17:00,apr,-10.00,,-10.00
+USD::richmond manufacturing shipments::none,2007-05-01,17:00,apr,-13.00,,-13.00
+USD::richmond services index::none,2007-05-01,17:00,apr,3.00,,6.00
+USD::s&p/cs hpi composite - 20 n.s.a.::m/m,2007-05-01,17:00,apr,-0.20%,,-0.30%
+USD::s&p/cs hpi composite - 20 n.s.a.::y/y,2007-05-01,17:00,apr,-2.10%,,-1.30%
+USD::s&p/cs hpi composite - 20 s.a.::m/m,2007-05-01,17:00,apr,-0.70%,,0.10%
+USD::tic net long - term transactions::none,2007-05-01,17:00,apr,83.80B,,59.10B
+USD::tic net long - term transactions including swaps::none,2007-05-01,17:00,apr,70.70B,,41.30B
+USD::texas services sector outlook::none,2007-05-01,17:00,apr,7.70,,14.40
+CAD::trade balance::none,2007-05-01,17:00,apr,5.57B,,4.44B
+GBP::trade balance::none,2007-05-01,17:00,apr,-7.02B,,-7.32B
+MXN::trade balance::none,2007-05-01,17:00,apr,-0.76B,,-0.38B
+USD::trade balance::none,2007-05-01,17:00,apr,-60.50B,,-61.80B
+MXN::trade balance (usd)::none,2007-05-01,17:00,apr,-1.49B,,-0.70B
+GBP::trade balance non - eu::none,2007-05-01,17:00,apr,-3.28B,,-3.49B
+"USD::us foreign buying, t - bonds::none",2007-05-01,17:00,apr,0.50B,,31.10B
+CAD::unemployment rate::none,2007-05-01,17:00,apr,6.20%,,6.10%
+GBP::unemployment rate::none,2007-05-01,17:00,apr,5.50%,,5.50%
+MXN::unemployment rate::none,2007-05-01,17:00,apr,3.68%,,3.74%
+MXN::unemployment rate n.s.a.::none,2007-05-01,17:00,apr,3.51%,,3.73%
+USD::wholesale inventories::m/m,2007-05-01,17:00,apr,0.30%,,0.60%
+CAD::wholesale sales::m/m,2007-05-01,17:00,apr,-1.30%,,1.10%
+USD::fed's balance sheet::none,2007-05-03,04:30,,890.86B,,879.69B
+USD::nonfarm payrolls::none,2007-05-04,20:30,apr,80K,,180K
+USD::u.s. baker hughes oil rig count::none,2007-05-05,01:00,,282,,283
+USD::cftc crude oil speculative net positions::none,2007-05-05,04:30,,66.1k,,63.8k
+USD::fed's balance sheet::none,2007-05-10,04:30,,875.27B,,890.86B
+USD::u.s. baker hughes oil rig count::none,2007-05-12,01:00,,282,,282
+USD::cftc crude oil speculative net positions::none,2007-05-12,04:30,,56.0k,,66.1k
+USD::cpi::m/m,2007-05-15,20:30,apr,0.3%,,0.5%
+USD::cpi::y/y,2007-05-15,20:30,apr,2.6%,,2.8%
+USD::core cpi::m/m,2007-05-15,20:30,apr,0.2%,,0.1%
+USD::core cpi::y/y,2007-05-15,20:30,apr,2.3%,,2.5%
+ILS::cpi::y/y,2007-05-15,23:00,apr,-1.3%,,-0.9%
+USD::fed's balance sheet::none,2007-05-17,04:30,,859.56B,,875.27B
+USD::us leading index::m/m,2007-05-17,23:00,apr,-0.5%,-0.1%,0.6%
+CNY::pboc interest rate::none,2007-05-18,18:00,,6.57%,,6.39%
+USD::u.s. baker hughes oil rig count::none,2007-05-19,01:00,,276,,282
+USD::cftc crude oil speculative net positions::none,2007-05-19,04:30,,44.6k,,56.0k
+USD::fed's balance sheet::none,2007-05-24,04:30,,873.94B,,859.56B
+EUR::german ifo business climate index::none,2007-05-24,17:00,,108.6,108.9,108.6
+USD::u.s. baker hughes oil rig count::none,2007-05-26,01:00,,287,,276
+USD::cftc crude oil speculative net positions::none,2007-05-26,04:30,,53.5k,,44.6k
+USD::fed's balance sheet::none,2007-05-31,04:30,,876.99B,,873.94B
+USD::10 - year note auction::none,2007-06-01,17:00,may,4.50%,,4.63%
+USD::5 - year note auction::none,2007-06-01,17:00,may,4.75%,,4.50%
+USD::all car sales::none,2007-06-01,17:00,may,7.85M,,7.44M
+USD::all truck sales::none,2007-06-01,17:00,may,8.44M,,8.77M
+GBP::average earnings index +bonus::none,2007-06-01,17:00,may,4.40%,,5.40%
+GBP::average earnings ex bonus::none,2007-06-01,17:00,may,4.10%,,4.00%
+USD::average hourly earnings::m/m,2007-06-01,17:00,may,0.30%,,0.20%
+USD::average weekly hours::none,2007-06-01,17:00,may,34.60,,34.50
+GBP::brc retail sales monitor::y/y,2007-06-01,17:00,may,1.80%,,2.40%
+CAD::boc interest rate decision::none,2007-06-01,17:00,may,4.25%,,4.25%
+GBP::boe consumer credit::none,2007-06-01,17:00,may,0.57B,,0.89B
+GBP::boe interest rate decision::none,2007-06-01,17:00,may,5.50%,,5.25%
+CAD::budget balance::none,2007-06-01,17:00,may,0.76B,,2.02B
+CAD::budget balance::y/y,2007-06-01,17:00,may,2.78B,,2.02B
+CAD::building permits::m/m,2007-06-01,17:00,may,23.30%,,-7.30%
+USD::business inventories::m/m,2007-06-01,17:00,may,0.70%,,0.50%
+USD::cb consumer confidence::none,2007-06-01,17:00,may,108.50,,106.30
+USD::cb employment trends index::none,2007-06-01,17:00,may,127.50,,127.60
+GBP::cbi distributive trades survey::none,2007-06-01,17:00,may,31.00,,44.00
+GBP::cbi industrial trends orders::none,2007-06-01,17:00,may,5.00,,2.00
+CAD::cpi::m/m,2007-06-01,17:00,may,0.40%,,0.50%
+GBP::cpi::m/m,2007-06-01,17:00,may,0.30%,,0.30%
+MXN::cpi::m/m,2007-06-01,17:00,may,-0.49%,,-0.06%
+CAD::cpi::y/y,2007-06-01,17:00,may,2.20%,,2.20%
+GBP::cpi::y/y,2007-06-01,17:00,may,2.50%,,2.80%
+MXN::cpi::y/y,2007-06-01,17:00,may,3.95%,,3.99%
+"USD::cpi index, n.s.a.::none",2007-06-01,17:00,may,207.95,,206.69
+USD::capacity utilization rate::none,2007-06-01,17:00,may,80.70%,,80.80%
+USD::chain store sales::m/m,2007-06-01,17:00,may,2.50%,,-1.90%
+USD::chain store sales::w/w,2007-06-01,17:00,may,-0.34%,,0.09%
+USD::chain store sales::y/y,2007-06-01,17:00,may,2.30%,,2.53%
+USD::challenger job cuts::none,2007-06-01,17:00,may,71.12K,,70.67K
+USD::chicago fed national activity::none,2007-06-01,17:00,may,0.00,,-0.18
+USD::chicago pmi::none,2007-06-01,17:00,may,60.60,,54.20
+GBP::claimant count change::none,2007-06-01,17:00,may,-7.40K,,-18.60K
+USD::cleveland cpi::m/m,2007-06-01,17:00,may,0.20%,,0.20%
+USD::construction spending::m/m,2007-06-01,17:00,may,0.80%,,-0.70%
+MXN::consumer confidence::none,2007-06-01,17:00,may,106.80,,106.40
+SEK::consumer confidence::none,2007-06-01,17:00,may,110.00,,116.10
+MXN::consumer confidence n.s.a.::none,2007-06-01,17:00,may,107.30,,106.30
+USD::consumer credit::none,2007-06-01,17:00,may,16.64B,,8.19B
+USD::continuing jobless claims::none,2007-06-01,17:00,may,"2,449.30K",,"2,492.81K"
+CAD::core cpi::m/m,2007-06-01,17:00,may,0.30%,,0.10%
+MXN::core cpi::m/m,2007-06-01,17:00,may,0.20%,,0.19%
+CAD::core cpi::y/y,2007-06-01,17:00,may,2.20%,,2.50%
+USD::core cpi index::none,2007-06-01,17:00,may,210.06,,209.75
+USD::core pce price index::m/m,2007-06-01,17:00,may,0.10%,,0.10%
+USD::core pce price index::y/y,2007-06-01,17:00,may,2.00%,,2.10%
+GBP::core ppi output::m/m,2007-06-01,17:00,may,0.00%,,0.00%
+GBP::core ppi output::y/y,2007-06-01,17:00,may,1.30%,,1.30%
+GBP::core rpi::m/m,2007-06-01,17:00,may,0.40%,,0.50%
+GBP::core rpi::y/y,2007-06-01,17:00,may,3.30%,,3.60%
+CAD::core retail sales::m/m,2007-06-01,17:00,may,1.00%,,0.90%
+GBP::core retail sales::m/m,2007-06-01,17:00,may,-0.40%,,0.30%
+USD::core retail sales::m/m,2007-06-01,17:00,may,1.30%,,-0.60%
+GBP::core retail sales::y/y,2007-06-01,17:00,may,2.70%,,3.50%
+USD::crude oil inventories::none,2007-06-01,17:00,may,1.21M,,0.96M
+USD::dallas fed mfg business index::none,2007-06-01,17:00,may,12.00,,9.00
+USD::dallas fed pce::none,2007-06-01,17:00,may,1.60%,,1.80%
+USD::dallas fed services revenues::none,2007-06-01,17:00,may,36.30,,8.40
+USD::domestic truck sales::none,2007-06-01,17:00,may,7.09M,,7.40M
+USD::durables excluding defense::m/m,2007-06-01,17:00,may,-3.10%,,1.00%
+USD::eia weekly distillates stocks::none,2007-06-01,17:00,may,0.97M,,-0.12M
+MXN::economic activity::m/m,2007-06-01,17:00,may,0.21%,,0.61%
+MXN::economic activity::y/y,2007-06-01,17:00,may,2.17%,,3.32%
+CAD::employment change::none,2007-06-01,17:00,may,23.10K,,-15.00K
+USD::existing home sales::none,2007-06-01,17:00,may,5.27M,,5.29M
+USD::existing home sales::m/m,2007-06-01,17:00,may,-0.40%,,-3.10%
+USD::export price index::m/m,2007-06-01,17:00,may,0.30%,,0.40%
+CAD::exports::none,2007-06-01,17:00,may,39.83B,,40.63B
+USD::factory orders::m/m,2007-06-01,17:00,may,-0.60%,,1.30%
+USD::factory orders ex transportation::m/m,2007-06-01,17:00,may,0.80%,,1.10%
+USD::federal budget balance::none,2007-06-01,17:00,may,-67.70B,,177.70B
+MXN::fiscal balance::none,2007-06-01,17:00,may,13.84B,,35.66B
+CAD::foreign securities purchases::none,2007-06-01,17:00,may,-2.66B,,2.62B
+CAD::foreign securities purchases by canadians::none,2007-06-01,17:00,may,6.57B,,12.55B
+CAD::full employment change::none,2007-06-01,17:00,may,61.80K,,-22.80K
+CAD::gdp::m/m,2007-06-01,17:00,may,0.30%,,0.10%
+USD::gasoline inventories::none,2007-06-01,17:00,may,1.67M,,-2.86M
+GBP::gfk consumer confidence::none,2007-06-01,17:00,may,-2.00,,-6.00
+USD::government payrolls::none,2007-06-01,17:00,may,18.00K,,26.00K
+MXN::gross fixed investments::m/m,2007-06-01,17:00,may,-1.59%,,1.87%
+MXN::gross fixed investments::y/y,2007-06-01,17:00,may,4.31%,,6.76%
+GBP::halifax house price index::m/m,2007-06-01,17:00,may,0.20%,,1.10%
+GBP::halifax house price index::y/y,2007-06-01,17:00,may,10.60%,,10.90%
+USD::house price index::none,2007-06-01,17:00,may,225.90,,226.90
+USD::house price index::m/m,2007-06-01,17:00,may,-0.50%,,0.00%
+USD::house price index::y/y,2007-06-01,17:00,may,1.10%,,1.90%
+CAD::housing starts::none,2007-06-01,17:00,may,237.50K,,227.50K
+USD::housing starts::none,2007-06-01,17:00,may,1.42M,,1.49M
+USD::housing starts::m/m,2007-06-01,17:00,may,-5.00%,,-0.30%
+CAD::ippi::m/m,2007-06-01,17:00,may,-0.40%,,0.30%
+CAD::ippi::y/y,2007-06-01,17:00,may,3.10%,,3.70%
+USD::ism manufacturing employment::none,2007-06-01,17:00,may,52.20,,51.90
+USD::ism manufacturing new orders index::none,2007-06-01,17:00,may,58.60,,57.40
+USD::ism manufacturing pmi::none,2007-06-01,17:00,may,52.50,,52.60
+USD::ism manufacturing prices::none,2007-06-01,17:00,may,71.00,,73.00
+USD::ism non - manufacturing business activity::none,2007-06-01,17:00,may,58.10,,56.10
+USD::ism non - manufacturing employment::none,2007-06-01,17:00,may,52.20,,51.10
+USD::ism non - manufacturing new orders::none,2007-06-01,17:00,may,57.10,,54.90
+USD::ism non - manufacturing pmi::none,2007-06-01,17:00,may,54.20,,53.30
+USD::ism non - manufacturing prices::none,2007-06-01,17:00,may,63.20,,62.10
+USD::ism - new york index::none,2007-06-01,17:00,may,431.90,,439.70
+USD::import price index::m/m,2007-06-01,17:00,may,0.90%,,1.40%
+CAD::imports::none,2007-06-01,17:00,may,34.49B,,35.06B
+GBP::industrial production::m/m,2007-06-01,17:00,may,1.60%,,-0.50%
+MXN::industrial production::m/m,2007-06-01,17:00,may,-0.11%,,-0.48%
+USD::industrial production::m/m,2007-06-01,17:00,may,0.00%,,0.70%
+GBP::industrial production::y/y,2007-06-01,17:00,may,1.80%,,0.10%
+MXN::industrial production::y/y,2007-06-01,17:00,may,0.59%,,1.82%
+USD::initial jobless claims::none,2007-06-01,17:00,may,305.96K,,319.29K
+MXN::interest rate decision::none,2007-06-01,17:00,may,7.25%,,7.25%
+CAD::ivey pmi n.s.a::none,2007-06-01,17:00,may,62.70,,60.90
+USD::jolts job openings::none,2007-06-01,17:00,may,4.53M,,4.53M
+USD::jobless claims 4 - week avg.::none,2007-06-01,17:00,may,305.83K,,317.73K
+USD::kc fed composite index::none,2007-06-01,17:00,may,9.00,,11.00
+USD::kc fed manufacturing index::none,2007-06-01,17:00,may,14.00,,21.00
+GBP::m4 money supply::m/m,2007-06-01,17:00,may,1.30%,,1.30%
+USD::mba 30 - year mortgage rate::none,2007-06-01,17:00,may,6.23%,,6.16%
+USD::mba purchase index::none,2007-06-01,17:00,may,433.68,,413.40
+USD::manufacturing payrolls::none,2007-06-01,17:00,may,-16.00K,,-25.00K
+GBP::manufacturing production::m/m,2007-06-01,17:00,may,0.70%,,0.30%
+USD::manufacturing production::m/m,2007-06-01,17:00,may,-0.10%,,0.70%
+GBP::manufacturing production::y/y,2007-06-01,17:00,may,1.30%,,1.10%
+CAD::manufacturing sales::m/m,2007-06-01,17:00,may,-1.10%,,-0.40%
+USD::michigan 1 - year inflation expectations::none,2007-06-01,17:00,may,3.30%,,3.30%
+USD::michigan 5 - year inflation expectations::none,2007-06-01,17:00,may,3.10%,,3.10%
+USD::michigan consumer expectations::none,2007-06-01,17:00,may,79.00,,75.90
+USD::michigan consumer sentiment::none,2007-06-01,17:00,may,88.30,,85.30
+USD::michigan current conditions::none,2007-06-01,17:00,may,105.10,,102.40
+USD::midwest manufacturing::none,2007-06-01,17:00,may,100.80,,100.90
+GBP::mortgage approvals::none,2007-06-01,17:00,may,113.33K,,108.79K
+GBP::mortgage lending::none,2007-06-01,17:00,may,9.02B,,8.56B
+USD::mortgage market index::none,2007-06-01,17:00,may,661.50,,648.53
+USD::mortgage refinance index::none,2007-06-01,17:00,may,"2,009.27",,"2,034.25"
+USD::nahb housing market index::none,2007-06-01,17:00,may,30.00,,33.00
+USD::nfib small business optimism::none,2007-06-01,17:00,may,97.20,,96.80
+USD::ny empire state manufacturing index::none,2007-06-01,17:00,may,9.94,,3.80
+GBP::nationwide hpi::m/m,2007-06-01,17:00,may,0.40%,,0.90%
+GBP::nationwide hpi::y/y,2007-06-01,17:00,may,10.30%,,10.20%
+USD::natural gas storage::none,2007-06-01,17:00,may,102.35B,,24.10B
+USD::new home sales::none,2007-06-01,17:00,may,842.00K,,887.00K
+USD::new home sales::m/m,2007-06-01,17:00,may,-5.10%,,6.50%
+CAD::new housing price index::m/m,2007-06-01,17:00,may,1.00%,,0.80%
+USD::overall net capital flow::none,2007-06-01,17:00,may,101.40B,,84.10B
+GBP::ppi input::m/m,2007-06-01,17:00,may,0.40%,,0.30%
+GBP::ppi input::y/y,2007-06-01,17:00,may,0.40%,,-1.90%
+GBP::ppi output::m/m,2007-06-01,17:00,may,0.30%,,0.30%
+GBP::ppi output::y/y,2007-06-01,17:00,may,1.60%,,1.60%
+CAD::part time employment change::none,2007-06-01,17:00,may,-38.80K,,7.80K
+CAD::participation rate::none,2007-06-01,17:00,may,67.30%,,67.40%
+USD::pending home sales::m/m,2007-06-01,17:00,may,-2.10%,,-3.50%
+USD::pending home sales index::none,2007-06-01,17:00,may,98.80,,100.90
+USD::personal income::m/m,2007-06-01,17:00,may,0.20%,,0.20%
+USD::personal spending::m/m,2007-06-01,17:00,may,0.40%,,0.40%
+USD::philadelphia fed manufacturing index::none,2007-06-01,17:00,may,3.80,,2.90
+USD::philly fed business conditions::none,2007-06-01,17:00,may,22.70,,22.60
+USD::philly fed capex index::none,2007-06-01,17:00,may,12.20,,14.90
+USD::philly fed employment::none,2007-06-01,17:00,may,9.90,,8.30
+USD::philly fed new orders::none,2007-06-01,17:00,may,8.20,,4.90
+USD::philly fed prices paid::none,2007-06-01,17:00,may,27.50,,26.40
+USD::private nonfarm payrolls::none,2007-06-01,17:00,may,127.00K,,52.00K
+GBP::public sector net borrowing::none,2007-06-01,17:00,may,8.85B,,0.20B
+GBP::public sector net cash requirement::none,2007-06-01,17:00,may,6.29B,,-3.61B
+CAD::rmpi::m/m,2007-06-01,17:00,may,-0.40%,,3.60%
+CAD::rmpi::y/y,2007-06-01,17:00,may,1.40%,,8.60%
+GBP::rpi::m/m,2007-06-01,17:00,may,0.40%,,0.50%
+GBP::rpi::y/y,2007-06-01,17:00,may,4.30%,,4.50%
+USD::real earnings::m/m,2007-06-01,17:00,may,0.20%,,-0.30%
+USD::real personal consumption::m/m,2007-06-01,17:00,may,0.10%,,0.20%
+USD::redbook::m/m,2007-06-01,17:00,may,1.17%,,-2.89%
+USD::redbook::y/y,2007-06-01,17:00,may,1.87%,,1.22%
+USD::retail control::m/m,2007-06-01,17:00,may,0.60%,,-0.50%
+CAD::retail sales::m/m,2007-06-01,17:00,may,1.20%,,1.40%
+GBP::retail sales::m/m,2007-06-01,17:00,may,-0.50%,,0.40%
+USD::retail sales::m/m,2007-06-01,17:00,may,1.30%,,-0.40%
+GBP::retail sales::y/y,2007-06-01,17:00,may,2.70%,,3.90%
+USD::retail sales ex gas/autos::m/m,2007-06-01,17:00,may,0.80%,,-0.80%
+USD::richmond manufacturing index::none,2007-06-01,17:00,may,-10.00,,-10.00
+USD::richmond manufacturing shipments::none,2007-06-01,17:00,may,-9.00,,-13.00
+USD::richmond services index::none,2007-06-01,17:00,may,5.00,,3.00
+USD::s&p/cs hpi composite - 20 n.s.a.::m/m,2007-06-01,17:00,may,-0.20%,,-0.20%
+USD::s&p/cs hpi composite - 20 n.s.a.::y/y,2007-06-01,17:00,may,-2.80%,,-2.10%
+USD::s&p/cs hpi composite - 20 s.a.::m/m,2007-06-01,17:00,may,-0.90%,,-0.70%
+USD::tic net long - term transactions::none,2007-06-01,17:00,may,135.80B,,83.80B
+USD::tic net long - term transactions including swaps::none,2007-06-01,17:00,may,116.10B,,70.70B
+USD::texas services sector outlook::none,2007-06-01,17:00,may,10.90,,7.70
+CAD::trade balance::none,2007-06-01,17:00,may,5.34B,,5.57B
+GBP::trade balance::none,2007-06-01,17:00,may,-7.69B,,-7.02B
+MXN::trade balance::none,2007-06-01,17:00,may,-0.72B,,-0.76B
+USD::trade balance::none,2007-06-01,17:00,may,-59.30B,,-60.50B
+MXN::trade balance (usd)::none,2007-06-01,17:00,may,-1.33B,,-1.49B
+GBP::trade balance non - eu::none,2007-06-01,17:00,may,-4.23B,,-3.28B
+"USD::us foreign buying, t - bonds::none",2007-06-01,17:00,may,22.70B,,0.50B
+CAD::unemployment rate::none,2007-06-01,17:00,may,6.00%,,6.20%
+GBP::unemployment rate::none,2007-06-01,17:00,may,5.40%,,5.50%
+MXN::unemployment rate::none,2007-06-01,17:00,may,3.50%,,3.68%
+MXN::unemployment rate n.s.a.::none,2007-06-01,17:00,may,3.15%,,3.51%
+USD::wholesale inventories::m/m,2007-06-01,17:00,may,0.40%,,0.30%
+CAD::wholesale sales::m/m,2007-06-01,17:00,may,0.20%,,-1.30%
+USD::u.s. baker hughes oil rig count::none,2007-06-02,01:00,,288,,287
+USD::cftc crude oil speculative net positions::none,2007-06-02,04:30,,35.2k,,53.5k
+USD::fed's balance sheet::none,2007-06-07,04:30,,872.71B,,876.99B
+USD::u.s. baker hughes oil rig count::none,2007-06-09,01:00,,291,,288
+USD::cftc crude oil speculative net positions::none,2007-06-09,04:30,,54.9k,,35.2k
+EUR::deposit facility rate::none,2007-06-13,20:45,,3.00%,,2.75%
+USD::fed's balance sheet::none,2007-06-14,04:30,,864.99B,,872.71B
+USD::cpi::m/m,2007-06-15,20:30,may,0.4%,,0.3%
+USD::cpi::y/y,2007-06-15,20:30,may,2.7%,,2.6%
+USD::core cpi::m/m,2007-06-15,20:30,may,0.1%,,0.2%
+USD::core cpi::y/y,2007-06-15,20:30,may,2.2%,,2.3%
+ILS::cpi::y/y,2007-06-15,23:00,may,-1.3%,,-1.3%
+USD::u.s. baker hughes oil rig count::none,2007-06-16,01:00,,285,,291
+USD::cftc crude oil speculative net positions::none,2007-06-16,04:30,,64.5k,,54.9k
+USD::fed's balance sheet::none,2007-06-21,04:30,,866.09B,,864.99B
+USD::us leading index::m/m,2007-06-21,23:00,may,0.3%,0.2%,-0.3%
+EUR::german ifo business climate index::none,2007-06-22,17:00,,107,108.4,108.6
+USD::u.s. baker hughes oil rig count::none,2007-06-23,01:00,,271,,285
+USD::cftc crude oil speculative net positions::none,2007-06-23,04:30,,67.4k,,64.5k
+USD::fed's balance sheet::none,2007-06-28,04:30,,865.11B,,866.09B
+USD::u.s. baker hughes oil rig count::none,2007-06-30,01:00,,281,,271
+USD::cftc crude oil speculative net positions::none,2007-06-30,04:30,,67.2k,,67.4k
+USD::10 - year note auction::none,2007-07-01,17:00,jun,4.50%,,4.50%
+USD::5 - year note auction::none,2007-07-01,17:00,jun,4.88%,,4.75%
+USD::all car sales::none,2007-07-01,17:00,jun,7.52M,,7.85M
+USD::all truck sales::none,2007-07-01,17:00,jun,8.30M,,8.44M
+GBP::average earnings index +bonus::none,2007-07-01,17:00,jun,4.30%,,4.40%
+GBP::average earnings ex bonus::none,2007-07-01,17:00,jun,4.10%,,4.10%
+USD::average hourly earnings::m/m,2007-07-01,17:00,jun,0.60%,,0.30%
+USD::average weekly hours::none,2007-07-01,17:00,jun,34.60,,34.60
+GBP::brc retail sales monitor::y/y,2007-07-01,17:00,jun,3.00%,,1.80%
+CAD::boc interest rate decision::none,2007-07-01,17:00,jun,4.25%,,4.25%
+GBP::boe consumer credit::none,2007-07-01,17:00,jun,0.72B,,0.57B
+GBP::boe interest rate decision::none,2007-07-01,17:00,jun,5.50%,,5.50%
+CAD::budget balance::none,2007-07-01,17:00,jun,2.82B,,0.76B
+CAD::budget balance::y/y,2007-07-01,17:00,jun,5.60B,,2.78B
+CAD::building permits::m/m,2007-07-01,17:00,jun,-2.20%,,23.30%
+USD::business inventories::m/m,2007-07-01,17:00,jun,0.50%,,0.70%
+USD::cb consumer confidence::none,2007-07-01,17:00,jun,105.30,,108.50
+USD::cb employment trends index::none,2007-07-01,17:00,jun,127.60,,127.50
+GBP::cbi distributive trades survey::none,2007-07-01,17:00,jun,17.00,,31.00
+GBP::cbi industrial trends orders::none,2007-07-01,17:00,jun,8.00,,5.00
+CAD::cpi::m/m,2007-07-01,17:00,jun,-0.20%,,0.40%
+GBP::cpi::m/m,2007-07-01,17:00,jun,0.20%,,0.30%
+MXN::cpi::m/m,2007-07-01,17:00,jun,0.12%,,-0.49%
+CAD::cpi::y/y,2007-07-01,17:00,jun,2.20%,,2.20%
+GBP::cpi::y/y,2007-07-01,17:00,jun,2.40%,,2.50%
+MXN::cpi::y/y,2007-07-01,17:00,jun,3.98%,,3.95%
+"USD::cpi index, n.s.a.::none",2007-07-01,17:00,jun,208.35,,207.95
+USD::capacity utilization rate::none,2007-07-01,17:00,jun,80.60%,,80.70%
+USD::chain store sales::m/m,2007-07-01,17:00,jun,2.40%,,2.50%
+USD::chain store sales::w/w,2007-07-01,17:00,jun,0.05%,,-0.34%
+USD::chain store sales::y/y,2007-07-01,17:00,jun,2.06%,,2.30%
+USD::challenger job cuts::none,2007-07-01,17:00,jun,55.73K,,71.12K
+USD::chicago fed national activity::none,2007-07-01,17:00,jun,-0.26,,0.00
+USD::chicago pmi::none,2007-07-01,17:00,jun,58.30,,60.60
+GBP::claimant count change::none,2007-07-01,17:00,jun,-8.90K,,-7.40K
+USD::cleveland cpi::m/m,2007-07-01,17:00,jun,0.30%,,0.20%
+USD::construction spending::m/m,2007-07-01,17:00,jun,-0.10%,,0.80%
+MXN::consumer confidence::none,2007-07-01,17:00,jun,105.70,,106.80
+SEK::consumer confidence::none,2007-07-01,17:00,jun,114.00,,110.00
+MXN::consumer confidence n.s.a.::none,2007-07-01,17:00,jun,105.20,,107.30
+USD::consumer credit::none,2007-07-01,17:00,jun,10.67B,,16.64B
+USD::continuing jobless claims::none,2007-07-01,17:00,jun,"2,487.71K",,"2,449.30K"
+CAD::core cpi::m/m,2007-07-01,17:00,jun,0.00%,,0.30%
+MXN::core cpi::m/m,2007-07-01,17:00,jun,0.29%,,0.20%
+CAD::core cpi::y/y,2007-07-01,17:00,jun,2.50%,,2.20%
+USD::core cpi index::none,2007-07-01,17:00,jun,210.39,,210.06
+USD::core pce price index::m/m,2007-07-01,17:00,jun,0.20%,,0.10%
+USD::core pce price index::y/y,2007-07-01,17:00,jun,1.90%,,2.00%
+GBP::core ppi output::m/m,2007-07-01,17:00,jun,0.10%,,0.00%
+GBP::core ppi output::y/y,2007-07-01,17:00,jun,1.30%,,1.30%
+GBP::core rpi::m/m,2007-07-01,17:00,jun,0.40%,,0.40%
+GBP::core rpi::y/y,2007-07-01,17:00,jun,3.30%,,3.30%
+CAD::core retail sales::m/m,2007-07-01,17:00,jun,-0.50%,,1.00%
+GBP::core retail sales::m/m,2007-07-01,17:00,jun,0.20%,,-0.40%
+USD::core retail sales::m/m,2007-07-01,17:00,jun,-0.30%,,1.30%
+GBP::core retail sales::y/y,2007-07-01,17:00,jun,2.40%,,2.70%
+USD::crude oil inventories::none,2007-07-01,17:00,jun,2.79M,,1.21M
+USD::dallas fed mfg business index::none,2007-07-01,17:00,jun,9.20,,12.00
+USD::dallas fed pce::none,2007-07-01,17:00,jun,2.50%,,1.60%
+USD::dallas fed services revenues::none,2007-07-01,17:00,jun,18.60,,36.30
+USD::domestic truck sales::none,2007-07-01,17:00,jun,6.90M,,7.09M
+USD::durables excluding defense::m/m,2007-07-01,17:00,jun,2.10%,,-3.10%
+USD::eia weekly distillates stocks::none,2007-07-01,17:00,jun,-0.07M,,0.97M
+MXN::economic activity::m/m,2007-07-01,17:00,jun,0.36%,,0.21%
+MXN::economic activity::y/y,2007-07-01,17:00,jun,2.85%,,2.17%
+CAD::employment change::none,2007-07-01,17:00,jun,57.30K,,23.10K
+USD::existing home sales::none,2007-07-01,17:00,jun,5.12M,,5.27M
+USD::existing home sales::m/m,2007-07-01,17:00,jun,-2.80%,,-0.40%
+USD::export price index::m/m,2007-07-01,17:00,jun,0.40%,,0.30%
+CAD::exports::none,2007-07-01,17:00,jun,38.52B,,39.83B
+USD::factory orders::m/m,2007-07-01,17:00,jun,0.80%,,-0.60%
+USD::factory orders ex transportation::m/m,2007-07-01,17:00,jun,-0.60%,,0.80%
+USD::federal budget balance::none,2007-07-01,17:00,jun,27.50B,,-67.70B
+MXN::fiscal balance::none,2007-07-01,17:00,jun,-40.58B,,13.84B
+CAD::foreign securities purchases::none,2007-07-01,17:00,jun,-1.50B,,-2.66B
+CAD::foreign securities purchases by canadians::none,2007-07-01,17:00,jun,5.18B,,6.57B
+CAD::full employment change::none,2007-07-01,17:00,jun,103.60K,,61.80K
+CAD::gdp::m/m,2007-07-01,17:00,jun,0.30%,,0.30%
+USD::gasoline inventories::none,2007-07-01,17:00,jun,0.86M,,1.67M
+GBP::gfk consumer confidence::none,2007-07-01,17:00,jun,-3.00,,-2.00
+USD::government payrolls::none,2007-07-01,17:00,jun,14.00K,,18.00K
+MXN::gross fixed investments::m/m,2007-07-01,17:00,jun,-0.48%,,-1.59%
+MXN::gross fixed investments::y/y,2007-07-01,17:00,jun,3.26%,,4.31%
+GBP::halifax house price index::m/m,2007-07-01,17:00,jun,0.50%,,0.20%
+GBP::halifax house price index::y/y,2007-07-01,17:00,jun,10.70%,,10.60%
+USD::house price index::none,2007-07-01,17:00,jun,225.10,,225.90
+USD::house price index::m/m,2007-07-01,17:00,jun,-0.40%,,-0.50%
+USD::house price index::y/y,2007-07-01,17:00,jun,0.80%,,1.10%
+CAD::housing starts::none,2007-07-01,17:00,jun,229.40K,,237.50K
+USD::housing starts::none,2007-07-01,17:00,jun,1.45M,,1.42M
+USD::housing starts::m/m,2007-07-01,17:00,jun,2.30%,,-5.00%
+CAD::ippi::m/m,2007-07-01,17:00,jun,-1.10%,,-0.40%
+CAD::ippi::y/y,2007-07-01,17:00,jun,2.10%,,3.10%
+USD::ism manufacturing employment::none,2007-07-01,17:00,jun,51.90,,52.20
+USD::ism manufacturing new orders index::none,2007-07-01,17:00,jun,57.70,,58.60
+USD::ism manufacturing pmi::none,2007-07-01,17:00,jun,52.60,,52.50
+USD::ism manufacturing prices::none,2007-07-01,17:00,jun,68.00,,71.00
+USD::ism non - manufacturing business activity::none,2007-07-01,17:00,jun,60.10,,58.10
+USD::ism non - manufacturing employment::none,2007-07-01,17:00,jun,53.30,,52.20
+USD::ism non - manufacturing new orders::none,2007-07-01,17:00,jun,57.20,,57.10
+USD::ism non - manufacturing pmi::none,2007-07-01,17:00,jun,55.30,,54.20
+USD::ism non - manufacturing prices::none,2007-07-01,17:00,jun,61.90,,63.20
+USD::ism - new york index::none,2007-07-01,17:00,jun,434.40,,431.90
+USD::import price index::m/m,2007-07-01,17:00,jun,1.20%,,0.90%
+CAD::imports::none,2007-07-01,17:00,jun,34.75B,,34.49B
+GBP::industrial production::m/m,2007-07-01,17:00,jun,-1.10%,,1.60%
+MXN::industrial production::m/m,2007-07-01,17:00,jun,0.18%,,-0.11%
+USD::industrial production::m/m,2007-07-01,17:00,jun,0.00%,,0.00%
+GBP::industrial production::y/y,2007-07-01,17:00,jun,0.10%,,1.80%
+MXN::industrial production::y/y,2007-07-01,17:00,jun,0.66%,,0.59%
+USD::initial jobless claims::none,2007-07-01,17:00,jun,315.62K,,305.96K
+MXN::interest rate decision::none,2007-07-01,17:00,jun,7.25%,,7.25%
+CAD::ivey pmi n.s.a::none,2007-07-01,17:00,jun,67.40,,62.70
+USD::jolts job openings::none,2007-07-01,17:00,jun,4.64M,,4.53M
+USD::jobless claims 4 - week avg.::none,2007-07-01,17:00,jun,313.69K,,305.83K
+USD::kc fed composite index::none,2007-07-01,17:00,jun,5.00,,9.00
+USD::kc fed manufacturing index::none,2007-07-01,17:00,jun,-5.00,,14.00
+GBP::m4 money supply::m/m,2007-07-01,17:00,jun,0.90%,,1.30%
+USD::mba 30 - year mortgage rate::none,2007-07-01,17:00,jun,6.57%,,6.23%
+USD::mba purchase index::none,2007-07-01,17:00,jun,444.89,,433.68
+USD::manufacturing payrolls::none,2007-07-01,17:00,jun,-18.00K,,-16.00K
+GBP::manufacturing production::m/m,2007-07-01,17:00,jun,-0.40%,,0.70%
+USD::manufacturing production::m/m,2007-07-01,17:00,jun,0.30%,,-0.10%
+GBP::manufacturing production::y/y,2007-07-01,17:00,jun,0.60%,,1.30%
+CAD::manufacturing sales::m/m,2007-07-01,17:00,jun,-1.60%,,-1.10%
+USD::michigan 1 - year inflation expectations::none,2007-07-01,17:00,jun,3.40%,,3.30%
+USD::michigan 5 - year inflation expectations::none,2007-07-01,17:00,jun,2.90%,,3.10%
+USD::michigan consumer expectations::none,2007-07-01,17:00,jun,73.00,,77.60
+USD::michigan consumer sentiment::none,2007-07-01,17:00,jun,85.30,,88.70
+USD::michigan current conditions::none,2007-07-01,17:00,jun,101.90,,103.80
+USD::midwest manufacturing::none,2007-07-01,17:00,jun,100.80,,100.80
+GBP::mortgage approvals::none,2007-07-01,17:00,jun,114.21K,,113.33K
+GBP::mortgage lending::none,2007-07-01,17:00,jun,9.25B,,9.02B
+USD::mortgage market index::none,2007-07-01,17:00,jun,636.49,,661.50
+USD::mortgage refinance index::none,2007-07-01,17:00,jun,"1,762.34",,"2,009.27"
+USD::nahb housing market index::none,2007-07-01,17:00,jun,28.00,,30.00
+USD::nfib small business optimism::none,2007-07-01,17:00,jun,96.00,,97.20
+USD::ny empire state manufacturing index::none,2007-07-01,17:00,jun,24.34,,9.94
+GBP::nationwide hpi::m/m,2007-07-01,17:00,jun,1.00%,,0.40%
+GBP::nationwide hpi::y/y,2007-07-01,17:00,jun,11.10%,,10.30%
+USD::natural gas storage::none,2007-07-01,17:00,jun,90.48B,,102.35B
+USD::new home sales::none,2007-07-01,17:00,jun,793.00K,,842.00K
+USD::new home sales::m/m,2007-07-01,17:00,jun,-5.80%,,-5.10%
+CAD::new housing price index::m/m,2007-07-01,17:00,jun,0.60%,,1.00%
+USD::overall net capital flow::none,2007-07-01,17:00,jun,34.50B,,101.40B
+GBP::ppi input::m/m,2007-07-01,17:00,jun,1.30%,,0.40%
+GBP::ppi input::y/y,2007-07-01,17:00,jun,1.70%,,0.40%
+GBP::ppi output::m/m,2007-07-01,17:00,jun,0.20%,,0.30%
+GBP::ppi output::y/y,2007-07-01,17:00,jun,1.70%,,1.60%
+CAD::part time employment change::none,2007-07-01,17:00,jun,-46.20K,,-38.80K
+CAD::participation rate::none,2007-07-01,17:00,jun,67.50%,,67.30%
+USD::pending home sales::m/m,2007-07-01,17:00,jun,1.30%,,-2.10%
+USD::pending home sales index::none,2007-07-01,17:00,jun,100.10,,98.80
+USD::personal income::m/m,2007-07-01,17:00,jun,0.10%,,0.20%
+USD::personal spending::m/m,2007-07-01,17:00,jun,0.10%,,0.40%
+USD::philadelphia fed manufacturing index::none,2007-07-01,17:00,jun,17.20,,3.80
+USD::philly fed business conditions::none,2007-07-01,17:00,jun,11.10,,22.70
+USD::philly fed capex index::none,2007-07-01,17:00,jun,18.20,,12.20
+USD::philly fed employment::none,2007-07-01,17:00,jun,4.40,,9.90
+USD::philly fed new orders::none,2007-07-01,17:00,jun,14.90,,8.20
+USD::philly fed prices paid::none,2007-07-01,17:00,jun,22.30,,27.50
+USD::private nonfarm payrolls::none,2007-07-01,17:00,jun,57.00K,,127.00K
+GBP::public sector net borrowing::none,2007-07-01,17:00,jun,7.12B,,8.85B
+GBP::public sector net cash requirement::none,2007-07-01,17:00,jun,10.11B,,6.29B
+CAD::rmpi::m/m,2007-07-01,17:00,jun,0.30%,,-0.40%
+CAD::rmpi::y/y,2007-07-01,17:00,jun,4.30%,,1.40%
+GBP::rpi::m/m,2007-07-01,17:00,jun,0.50%,,0.40%
+GBP::rpi::y/y,2007-07-01,17:00,jun,4.40%,,4.30%
+USD::real earnings::m/m,2007-07-01,17:00,jun,0.30%,,0.20%
+USD::real personal consumption::m/m,2007-07-01,17:00,jun,-0.10%,,0.10%
+USD::redbook::m/m,2007-07-01,17:00,jun,-0.82%,,1.17%
+USD::redbook::y/y,2007-07-01,17:00,jun,1.59%,,1.87%
+USD::retail control::m/m,2007-07-01,17:00,jun,0.10%,,0.60%
+CAD::retail sales::m/m,2007-07-01,17:00,jun,-1.00%,,1.20%
+GBP::retail sales::m/m,2007-07-01,17:00,jun,0.10%,,-0.50%
+USD::retail sales::m/m,2007-07-01,17:00,jun,-0.70%,,1.30%
+GBP::retail sales::y/y,2007-07-01,17:00,jun,2.60%,,2.70%
+USD::retail sales ex gas/autos::m/m,2007-07-01,17:00,jun,0.00%,,0.80%
+USD::richmond manufacturing index::none,2007-07-01,17:00,jun,-1.00,,-10.00
+USD::richmond manufacturing shipments::none,2007-07-01,17:00,jun,2.00,,-9.00
+USD::richmond services index::none,2007-07-01,17:00,jun,16.00,,5.00
+USD::s&p/cs hpi composite - 20 n.s.a.::m/m,2007-07-01,17:00,jun,-0.30%,,-0.20%
+USD::s&p/cs hpi composite - 20 n.s.a.::y/y,2007-07-01,17:00,jun,-3.40%,,-2.80%
+USD::s&p/cs hpi composite - 20 s.a.::m/m,2007-07-01,17:00,jun,-1.10%,,-0.90%
+USD::tic net long - term transactions::none,2007-07-01,17:00,jun,108.60B,,135.80B
+USD::tic net long - term transactions including swaps::none,2007-07-01,17:00,jun,88.40B,,116.10B
+USD::texas services sector outlook::none,2007-07-01,17:00,jun,5.20,,10.90
+CAD::trade balance::none,2007-07-01,17:00,jun,3.77B,,5.34B
+GBP::trade balance::none,2007-07-01,17:00,jun,-7.56B,,-7.69B
+MXN::trade balance::none,2007-07-01,17:00,jun,-0.83B,,-0.72B
+USD::trade balance::none,2007-07-01,17:00,jun,-59.50B,,-59.30B
+MXN::trade balance (usd)::none,2007-07-01,17:00,jun,-1.21B,,-1.33B
+GBP::trade balance non - eu::none,2007-07-01,17:00,jun,-3.78B,,-4.23B
+"USD::us foreign buying, t - bonds::none",2007-07-01,17:00,jun,24.30B,,22.70B
+CAD::unemployment rate::none,2007-07-01,17:00,jun,6.10%,,6.00%
+GBP::unemployment rate::none,2007-07-01,17:00,jun,5.40%,,5.40%
+MXN::unemployment rate::none,2007-07-01,17:00,jun,3.56%,,3.50%
+MXN::unemployment rate n.s.a.::none,2007-07-01,17:00,jun,3.28%,,3.15%
+USD::wholesale inventories::m/m,2007-07-01,17:00,jun,0.30%,,0.40%
+CAD::wholesale sales::m/m,2007-07-01,17:00,jun,-0.10%,,0.20%
+USD::fed's balance sheet::none,2007-07-05,04:30,,876.61B,,865.11B
+USD::nonfarm payrolls::none,2007-07-06,20:30,jun,69K,,157K
+USD::u.s. baker hughes oil rig count::none,2007-07-07,01:00,,274,,281
+USD::cftc crude oil speculative net positions::none,2007-07-07,04:30,,97.4k,,67.2k
+USD::fed's balance sheet::none,2007-07-12,04:30,,869.41B,,876.61B
+USD::u.s. baker hughes oil rig count::none,2007-07-14,01:00,,284,,274
+USD::cftc crude oil speculative net positions::none,2007-07-14,04:30,,113.3k,,97.4k
+ILS::cpi::y/y,2007-07-15,23:00,jun,-0.7%,,-1.3%
+USD::cpi::m/m,2007-07-18,20:30,jun,0.2%,,0.4%
+USD::cpi::y/y,2007-07-18,20:30,jun,2.7%,,2.7%
+USD::core cpi::m/m,2007-07-18,20:30,jun,0.2%,,0.1%
+USD::core cpi::y/y,2007-07-18,20:30,jun,2.2%,,2.2%
+USD::fed's balance sheet::none,2007-07-19,04:30,,872.92B,,869.41B
+USD::us leading index::m/m,2007-07-19,23:00,jun,-0.3%,0%,0.2%
+CNY::pboc interest rate::none,2007-07-20,18:00,,6.84%,,6.57%
+USD::u.s. baker hughes oil rig count::none,2007-07-21,01:00,,287,,284
+USD::cftc crude oil speculative net positions::none,2007-07-21,04:30,,111.5k,,113.3k
+USD::fed's balance sheet::none,2007-07-26,04:30,,863.89B,,872.92B
+EUR::german ifo business climate index::none,2007-07-26,17:00,,106.4,106.5,107
+USD::u.s. baker hughes oil rig count::none,2007-07-28,01:00,,296,,287
+USD::cftc crude oil speculative net positions::none,2007-07-28,04:30,,110.9k,,111.5k
+USD::5 - year note auction::none,2007-08-01,17:00,jul,4.63%,,4.88%
+USD::all car sales::none,2007-08-01,17:00,jul,7.21M,,7.52M
+USD::all truck sales::none,2007-08-01,17:00,jul,8.29M,,8.30M
+GBP::average earnings index +bonus::none,2007-08-01,17:00,jul,4.50%,,4.30%
+GBP::average earnings ex bonus::none,2007-08-01,17:00,jul,4.30%,,4.10%
+USD::average hourly earnings::m/m,2007-08-01,17:00,jul,0.00%,,0.60%
+USD::average weekly hours::none,2007-08-01,17:00,jul,34.60,,34.60
+GBP::brc retail sales monitor::y/y,2007-08-01,17:00,jul,1.19%,,3.00%
+CAD::boc interest rate decision::none,2007-08-01,17:00,jul,4.50%,,4.25%
+GBP::boe consumer credit::none,2007-08-01,17:00,jul,1.06B,,0.72B
+GBP::boe interest rate decision::none,2007-08-01,17:00,jul,5.75%,,5.50%
+CAD::budget balance::none,2007-08-01,17:00,jul,1.14B,,2.82B
+CAD::budget balance::y/y,2007-08-01,17:00,jul,6.75B,,5.60B
+CAD::building permits::m/m,2007-08-01,17:00,jul,-11.00%,,-2.20%
+USD::business inventories::m/m,2007-08-01,17:00,jul,0.10%,,0.50%
+USD::cb consumer confidence::none,2007-08-01,17:00,jul,111.90,,105.30
+USD::cb employment trends index::none,2007-08-01,17:00,jul,127.10,,127.60
+GBP::cbi distributive trades survey::none,2007-08-01,17:00,jul,18.00,,17.00
+GBP::cbi industrial trends orders::none,2007-08-01,17:00,jul,-6.00,,8.00
+CAD::cpi::m/m,2007-08-01,17:00,jul,0.10%,,-0.20%
+GBP::cpi::m/m,2007-08-01,17:00,jul,-0.60%,,0.20%
+MXN::cpi::m/m,2007-08-01,17:00,jul,0.42%,,0.12%
+CAD::cpi::y/y,2007-08-01,17:00,jul,2.20%,,2.20%
+GBP::cpi::y/y,2007-08-01,17:00,jul,1.90%,,2.40%
+MXN::cpi::y/y,2007-08-01,17:00,jul,4.14%,,3.98%
+SEK::cpi::y/y,2007-08-01,17:00,jul,1.90%,,1.90%
+"USD::cpi index, n.s.a.::none",2007-08-01,17:00,jul,208.30,,208.35
+USD::capacity utilization rate::none,2007-08-01,17:00,jul,80.50%,,80.60%
+USD::chain store sales::m/m,2007-08-01,17:00,jul,2.60%,,2.40%
+USD::chain store sales::w/w,2007-08-01,17:00,jul,0.27%,,0.05%
+USD::chain store sales::y/y,2007-08-01,17:00,jul,3.01%,,2.06%
+USD::challenger job cuts::none,2007-08-01,17:00,jul,42.90K,,55.73K
+USD::chicago fed national activity::none,2007-08-01,17:00,jul,-0.44,,-0.26
+USD::chicago pmi::none,2007-08-01,17:00,jul,52.80,,58.30
+GBP::claimant count change::none,2007-08-01,17:00,jul,-5.60K,,-8.90K
+USD::cleveland cpi::m/m,2007-08-01,17:00,jul,0.20%,,0.30%
+USD::construction spending::m/m,2007-08-01,17:00,jul,-1.10%,,-0.10%
+MXN::consumer confidence::none,2007-08-01,17:00,jul,105.10,,105.70
+SEK::consumer confidence::none,2007-08-01,17:00,jul,113.50,,114.00
+MXN::consumer confidence n.s.a.::none,2007-08-01,17:00,jul,104.80,,105.20
+USD::consumer credit::none,2007-08-01,17:00,jul,16.62B,,10.67B
+USD::continuing jobless claims::none,2007-08-01,17:00,jul,"2,541.23K",,"2,487.71K"
+CAD::core cpi::m/m,2007-08-01,17:00,jul,0.10%,,0.00%
+MXN::core cpi::m/m,2007-08-01,17:00,jul,0.30%,,0.29%
+CAD::core cpi::y/y,2007-08-01,17:00,jul,2.30%,,2.50%
+USD::core cpi index::none,2007-08-01,17:00,jul,210.77,,210.39
+USD::core pce price index::m/m,2007-08-01,17:00,jul,0.10%,,0.20%
+USD::core pce price index::y/y,2007-08-01,17:00,jul,2.00%,,1.90%
+GBP::core ppi output::m/m,2007-08-01,17:00,jul,0.10%,,0.10%
+GBP::core ppi output::y/y,2007-08-01,17:00,jul,1.30%,,1.30%
+GBP::core rpi::m/m,2007-08-01,17:00,jul,-0.60%,,0.40%
+GBP::core rpi::y/y,2007-08-01,17:00,jul,2.70%,,3.30%
+CAD::core retail sales::m/m,2007-08-01,17:00,jul,0.10%,,-0.50%
+GBP::core retail sales::m/m,2007-08-01,17:00,jul,0.60%,,0.20%
+USD::core retail sales::m/m,2007-08-01,17:00,jul,0.60%,,-0.30%
+GBP::core retail sales::y/y,2007-08-01,17:00,jul,2.90%,,2.40%
+USD::crude oil inventories::none,2007-08-01,17:00,jul,-2.54M,,2.79M
+USD::dallas fed mfg business index::none,2007-08-01,17:00,jul,3.10,,9.20
+USD::dallas fed pce::none,2007-08-01,17:00,jul,2.00%,,2.50%
+USD::dallas fed services revenues::none,2007-08-01,17:00,jul,22.30,,18.60
+USD::domestic truck sales::none,2007-08-01,17:00,jul,6.92M,,6.90M
+USD::durables excluding defense::m/m,2007-08-01,17:00,jul,2.70%,,2.10%
+USD::eia weekly distillates stocks::none,2007-08-01,17:00,jul,1.21M,,-0.07M
+MXN::economic activity::m/m,2007-08-01,17:00,jul,0.09%,,0.36%
+MXN::economic activity::y/y,2007-08-01,17:00,jul,4.05%,,2.85%
+CAD::employment change::none,2007-08-01,17:00,jul,42.70K,,57.30K
+USD::existing home sales::none,2007-08-01,17:00,jul,5.07M,,5.12M
+USD::existing home sales::m/m,2007-08-01,17:00,jul,-1.00%,,-2.80%
+USD::export price index::m/m,2007-08-01,17:00,jul,0.10%,,0.40%
+CAD::exports::none,2007-08-01,17:00,jul,37.96B,,38.52B
+USD::factory orders::m/m,2007-08-01,17:00,jul,2.20%,,0.80%
+USD::factory orders ex transportation::m/m,2007-08-01,17:00,jul,1.00%,,-0.60%
+USD::federal budget balance::none,2007-08-01,17:00,jul,-36.40B,,27.50B
+MXN::fiscal balance::none,2007-08-01,17:00,jul,15.67B,,-40.58B
+CAD::foreign securities purchases::none,2007-08-01,17:00,jul,-0.65B,,-1.50B
+CAD::foreign securities purchases by canadians::none,2007-08-01,17:00,jul,3.63B,,5.18B
+CAD::full employment change::none,2007-08-01,17:00,jul,2.50K,,103.60K
+CAD::gdp::m/m,2007-08-01,17:00,jul,0.00%,,0.30%
+USD::gasoline inventories::none,2007-08-01,17:00,jul,-0.09M,,0.86M
+GBP::gfk consumer confidence::none,2007-08-01,17:00,jul,-6.00,,-3.00
+USD::government payrolls::none,2007-08-01,17:00,jul,-36.00K,,14.00K
+MXN::gross fixed investments::m/m,2007-08-01,17:00,jul,1.99%,,-0.48%
+MXN::gross fixed investments::y/y,2007-08-01,17:00,jul,7.15%,,3.26%
+GBP::halifax house price index::m/m,2007-08-01,17:00,jul,0.70%,,0.50%
+GBP::halifax house price index::y/y,2007-08-01,17:00,jul,11.20%,,10.70%
+USD::house price index::none,2007-08-01,17:00,jul,224.00,,225.10
+USD::house price index::m/m,2007-08-01,17:00,jul,-0.50%,,-0.40%
+USD::house price index::y/y,2007-08-01,17:00,jul,0.30%,,0.80%
+CAD::housing starts::none,2007-08-01,17:00,jul,222.90K,,229.40K
+USD::housing starts::none,2007-08-01,17:00,jul,1.35M,,1.45M
+USD::housing starts::m/m,2007-08-01,17:00,jul,-6.50%,,2.30%
+CAD::ippi::m/m,2007-08-01,17:00,jul,-0.60%,,-1.10%
+CAD::ippi::y/y,2007-08-01,17:00,jul,-0.20%,,2.10%
+USD::ism manufacturing employment::none,2007-08-01,17:00,jul,49.80,,51.90
+USD::ism manufacturing new orders index::none,2007-08-01,17:00,jul,58.60,,57.70
+USD::ism manufacturing pmi::none,2007-08-01,17:00,jul,52.40,,52.60
+USD::ism manufacturing prices::none,2007-08-01,17:00,jul,65.00,,68.00
+USD::ism non - manufacturing business activity::none,2007-08-01,17:00,jul,57.10,,60.10
+USD::ism non - manufacturing employment::none,2007-08-01,17:00,jul,51.10,,53.30
+USD::ism non - manufacturing new orders::none,2007-08-01,17:00,jul,54.50,,57.20
+USD::ism non - manufacturing pmi::none,2007-08-01,17:00,jul,53.60,,55.30
+USD::ism non - manufacturing prices::none,2007-08-01,17:00,jul,60.30,,61.90
+USD::ism - new york index::none,2007-08-01,17:00,jul,430.10,,434.40
+USD::import price index::m/m,2007-08-01,17:00,jul,1.20%,,1.20%
+CAD::imports::none,2007-08-01,17:00,jul,35.40B,,34.75B
+GBP::industrial production::m/m,2007-08-01,17:00,jul,-0.50%,,-1.10%
+MXN::industrial production::m/m,2007-08-01,17:00,jul,0.53%,,0.18%
+USD::industrial production::m/m,2007-08-01,17:00,jul,0.00%,,0.00%
+GBP::industrial production::y/y,2007-08-01,17:00,jul,0.60%,,0.10%
+MXN::industrial production::y/y,2007-08-01,17:00,jul,2.32%,,0.66%
+USD::initial jobless claims::none,2007-08-01,17:00,jul,313.32K,,315.62K
+MXN::interest rate decision::none,2007-08-01,17:00,jul,7.25%,,7.25%
+CAD::ivey pmi n.s.a::none,2007-08-01,17:00,jul,54.60,,67.40
+USD::jolts job openings::none,2007-08-01,17:00,jul,4.43M,,4.64M
+USD::jobless claims 4 - week avg.::none,2007-08-01,17:00,jul,315.65K,,313.69K
+USD::kc fed composite index::none,2007-08-01,17:00,jul,7.00,,5.00
+USD::kc fed manufacturing index::none,2007-08-01,17:00,jul,11.00,,-5.00
+GBP::m4 money supply::m/m,2007-08-01,17:00,jul,1.10%,,0.90%
+USD::mba 30 - year mortgage rate::none,2007-08-01,17:00,jul,6.57%,,6.57%
+USD::mba purchase index::none,2007-08-01,17:00,jul,436.40,,444.89
+USD::manufacturing payrolls::none,2007-08-01,17:00,jul,-22.00K,,-18.00K
+GBP::manufacturing production::m/m,2007-08-01,17:00,jul,-0.70%,,-0.40%
+USD::manufacturing production::m/m,2007-08-01,17:00,jul,0.20%,,0.30%
+GBP::manufacturing production::y/y,2007-08-01,17:00,jul,0.10%,,0.60%
+CAD::manufacturing sales::m/m,2007-08-01,17:00,jul,-0.10%,,-1.60%
+USD::michigan 1 - year inflation expectations::none,2007-08-01,17:00,jul,3.40%,,3.40%
+USD::michigan 5 - year inflation expectations::none,2007-08-01,17:00,jul,3.10%,,2.90%
+USD::michigan consumer expectations::none,2007-08-01,17:00,jul,83.90,,74.70
+USD::michigan consumer sentiment::none,2007-08-01,17:00,jul,90.40,,83.70
+USD::michigan current conditions::none,2007-08-01,17:00,jul,104.50,,100.20
+USD::midwest manufacturing::none,2007-08-01,17:00,jul,100.30,,100.80
+GBP::mortgage approvals::none,2007-08-01,17:00,jul,112.35K,,114.21K
+GBP::mortgage lending::none,2007-08-01,17:00,jul,9.20B,,9.25B
+USD::mortgage market index::none,2007-08-01,17:00,jul,621.93,,636.49
+USD::mortgage refinance index::none,2007-08-01,17:00,jul,"1,709.94",,"1,762.34"
+USD::nahb housing market index::none,2007-08-01,17:00,jul,24.00,,28.00
+USD::nfib small business optimism::none,2007-08-01,17:00,jul,97.60,,96.00
+USD::ny empire state manufacturing index::none,2007-08-01,17:00,jul,26.32,,24.34
+GBP::nationwide hpi::m/m,2007-08-01,17:00,jul,0.00%,,1.00%
+GBP::nationwide hpi::y/y,2007-08-01,17:00,jul,9.90%,,11.10%
+USD::natural gas storage::none,2007-08-01,17:00,jul,76.32B,,90.48B
+USD::new home sales::none,2007-08-01,17:00,jul,778.00K,,793.00K
+USD::new home sales::m/m,2007-08-01,17:00,jul,-1.90%,,-5.80%
+CAD::new housing price index::m/m,2007-08-01,17:00,jul,1.00%,,0.60%
+USD::overall net capital flow::none,2007-08-01,17:00,jul,84.90B,,34.50B
+GBP::ppi input::m/m,2007-08-01,17:00,jul,1.10%,,1.30%
+GBP::ppi input::y/y,2007-08-01,17:00,jul,0.20%,,1.70%
+GBP::ppi output::m/m,2007-08-01,17:00,jul,0.20%,,0.20%
+GBP::ppi output::y/y,2007-08-01,17:00,jul,1.70%,,1.70%
+CAD::part time employment change::none,2007-08-01,17:00,jul,40.20K,,-46.20K
+CAD::participation rate::none,2007-08-01,17:00,jul,67.50%,,67.50%
+USD::pending home sales::m/m,2007-08-01,17:00,jul,-7.30%,,1.30%
+USD::pending home sales index::none,2007-08-01,17:00,jul,92.80,,100.10
+USD::personal income::m/m,2007-08-01,17:00,jul,0.40%,,0.10%
+USD::personal spending::m/m,2007-08-01,17:00,jul,0.40%,,0.10%
+USD::philadelphia fed manufacturing index::none,2007-08-01,17:00,jul,6.70,,17.20
+USD::philly fed business conditions::none,2007-08-01,17:00,jul,27.00,,11.10
+USD::philly fed capex index::none,2007-08-01,17:00,jul,18.30,,18.20
+USD::philly fed employment::none,2007-08-01,17:00,jul,6.00,,4.40
+USD::philly fed new orders::none,2007-08-01,17:00,jul,8.50,,14.90
+USD::philly fed prices paid::none,2007-08-01,17:00,jul,21.40,,22.30
+USD::private nonfarm payrolls::none,2007-08-01,17:00,jul,2.00K,,57.00K
+GBP::public sector net borrowing::none,2007-08-01,17:00,jul,-6.03B,,7.12B
+GBP::public sector net cash requirement::none,2007-08-01,17:00,jul,-13.25B,,10.11B
+CAD::rmpi::m/m,2007-08-01,17:00,jul,3.60%,,0.30%
+CAD::rmpi::y/y,2007-08-01,17:00,jul,2.50%,,4.30%
+GBP::rpi::m/m,2007-08-01,17:00,jul,-0.60%,,0.50%
+GBP::rpi::y/y,2007-08-01,17:00,jul,3.80%,,4.40%
+USD::real earnings::m/m,2007-08-01,17:00,jul,-0.20%,,0.30%
+USD::real personal consumption::m/m,2007-08-01,17:00,jul,0.20%,,-0.10%
+USD::redbook::m/m,2007-08-01,17:00,jul,0.08%,,-0.82%
+USD::redbook::y/y,2007-08-01,17:00,jul,2.38%,,1.59%
+USD::retail control::m/m,2007-08-01,17:00,jul,0.80%,,0.10%
+CAD::retail sales::m/m,2007-08-01,17:00,jul,0.00%,,-1.00%
+GBP::retail sales::m/m,2007-08-01,17:00,jul,0.50%,,0.10%
+USD::retail sales::m/m,2007-08-01,17:00,jul,0.50%,,-0.70%
+GBP::retail sales::y/y,2007-08-01,17:00,jul,2.90%,,2.60%
+USD::retail sales ex gas/autos::m/m,2007-08-01,17:00,jul,0.70%,,0.00%
+USD::richmond manufacturing index::none,2007-08-01,17:00,jul,-1.00,,-1.00
+USD::richmond manufacturing shipments::none,2007-08-01,17:00,jul,3.00,,2.00
+USD::richmond services index::none,2007-08-01,17:00,jul,5.00,,16.00
+USD::s&p/cs hpi composite - 20 n.s.a.::m/m,2007-08-01,17:00,jul,-0.40%,,-0.30%
+USD::s&p/cs hpi composite - 20 n.s.a.::y/y,2007-08-01,17:00,jul,-3.80%,,-3.40%
+USD::s&p/cs hpi composite - 20 s.a.::m/m,2007-08-01,17:00,jul,-1.00%,,-1.10%
+USD::tic net long - term transactions::none,2007-08-01,17:00,jul,11.20B,,108.60B
+USD::tic net long - term transactions including swaps::none,2007-08-01,17:00,jul,-18.00B,,88.40B
+USD::texas services sector outlook::none,2007-08-01,17:00,jul,5.60,,5.20
+CAD::trade balance::none,2007-08-01,17:00,jul,2.56B,,3.77B
+GBP::trade balance::none,2007-08-01,17:00,jul,-7.80B,,-7.56B
+MXN::trade balance::none,2007-08-01,17:00,jul,-0.70B,,-0.83B
+USD::trade balance::none,2007-08-01,17:00,jul,-59.90B,,-59.50B
+MXN::trade balance (usd)::none,2007-08-01,17:00,jul,-0.84B,,-1.21B
+GBP::trade balance non - eu::none,2007-08-01,17:00,jul,-4.18B,,-3.78B
+"USD::us foreign buying, t - bonds::none",2007-08-01,17:00,jul,-9.40B,,24.30B
+CAD::unemployment rate::none,2007-08-01,17:00,jul,6.00%,,6.10%
+GBP::unemployment rate::none,2007-08-01,17:00,jul,5.30%,,5.40%
+MXN::unemployment rate::none,2007-08-01,17:00,jul,3.48%,,3.56%
+MXN::unemployment rate n.s.a.::none,2007-08-01,17:00,jul,3.79%,,3.28%
+USD::wholesale inventories::m/m,2007-08-01,17:00,jul,0.10%,,0.30%
+CAD::wholesale sales::m/m,2007-08-01,17:00,jul,-0.70%,,-0.10%
+USD::fed's balance sheet::none,2007-08-02,04:30,,870.26B,,863.89B
+USD::nonfarm payrolls::none,2007-08-03,20:30,jul,68K,,132K
+USD::u.s. baker hughes oil rig count::none,2007-08-04,01:00,,306,,296
+USD::cftc crude oil speculative net positions::none,2007-08-04,04:30,,129.6k,,110.9k
+USD::fed's balance sheet::none,2007-08-09,04:30,,865.45B,,870.26B
+USD::u.s. baker hughes oil rig count::none,2007-08-11,01:00,,305,,306
+USD::cftc crude oil speculative net positions::none,2007-08-11,04:30,,108.9k,,129.6k
+USD::cpi::m/m,2007-08-15,20:30,jul,0.2%,,0.2%
+USD::cpi::y/y,2007-08-15,20:30,jul,2.4%,,2.7%
+USD::core cpi::m/m,2007-08-15,20:30,jul,0.2%,,0.2%
+USD::core cpi::y/y,2007-08-15,20:30,jul,2.2%,,2.2%
+ILS::cpi::y/y,2007-08-15,23:00,jul,0.3%,,-0.7%
+USD::fed's balance sheet::none,2007-08-16,04:30,,864.93B,,865.45B
+USD::u.s. baker hughes oil rig count::none,2007-08-18,01:00,,309,,305
+USD::cftc crude oil speculative net positions::none,2007-08-18,04:30,,66.1k,,108.9k
+USD::us leading index::m/m,2007-08-20,23:00,jul,0.4%,0.3%,-0.3%
+CNY::pboc interest rate::none,2007-08-21,18:00,,7.02%,,6.84%
+USD::fed's balance sheet::none,2007-08-23,04:30,,862.78B,,864.93B
+USD::u.s. baker hughes oil rig count::none,2007-08-25,01:00,,310,,309
+USD::cftc crude oil speculative net positions::none,2007-08-25,04:30,,22.8k,,66.1k
+EUR::german ifo business climate index::none,2007-08-28,17:00,,105.8,105.5,106.4
+USD::fed's balance sheet::none,2007-08-30,04:30,,872.87B,,862.78B
+USD::u.s. baker hughes oil rig count::none,2007-09-01,01:00,,300,,310
+USD::cftc crude oil speculative net positions::none,2007-09-01,04:30,,7.4k,,22.8k
+USD::10 - year note auction::none,2007-09-01,17:00,aug,4.75%,,4.50%
+USD::5 - year note auction::none,2007-09-01,17:00,aug,4.13%,,4.63%
+USD::all car sales::none,2007-09-01,17:00,aug,7.31M,,7.21M
+USD::all truck sales::none,2007-09-01,17:00,aug,8.72M,,8.29M
+GBP::average earnings index +bonus::none,2007-09-01,17:00,aug,4.70%,,4.50%
+GBP::average earnings ex bonus::none,2007-09-01,17:00,aug,4.60%,,4.30%
+USD::average hourly earnings::m/m,2007-09-01,17:00,aug,0.10%,,0.00%
+USD::average weekly hours::none,2007-09-01,17:00,aug,34.60,,34.60
+GBP::brc retail sales monitor::y/y,2007-09-01,17:00,aug,1.80%,,1.19%
+CAD::boc interest rate decision::none,2007-09-01,17:00,aug,4.50%,,4.50%
+GBP::boe consumer credit::none,2007-09-01,17:00,aug,0.91B,,1.06B
+GBP::boe interest rate decision::none,2007-09-01,17:00,aug,5.75%,,5.75%
+CAD::budget balance::none,2007-09-01,17:00,aug,-0.13B,,1.14B
+CAD::budget balance::y/y,2007-09-01,17:00,aug,6.62B,,6.75B
+CAD::building permits::m/m,2007-09-01,17:00,aug,3.80%,,-11.00%
+USD::business inventories::m/m,2007-09-01,17:00,aug,0.40%,,0.10%
+USD::cb consumer confidence::none,2007-09-01,17:00,aug,105.60,,111.90
+USD::cb employment trends index::none,2007-09-01,17:00,aug,126.90,,127.10
+GBP::cbi distributive trades survey::none,2007-09-01,17:00,aug,15.00,,18.00
+GBP::cbi industrial trends orders::none,2007-09-01,17:00,aug,9.00,,-6.00
+CAD::cpi::m/m,2007-09-01,17:00,aug,-0.30%,,0.10%
+GBP::cpi::m/m,2007-09-01,17:00,aug,0.40%,,-0.60%
+MXN::cpi::m/m,2007-09-01,17:00,aug,0.41%,,0.42%
+CAD::cpi::y/y,2007-09-01,17:00,aug,1.70%,,2.20%
+GBP::cpi::y/y,2007-09-01,17:00,aug,1.80%,,1.90%
+MXN::cpi::y/y,2007-09-01,17:00,aug,4.03%,,4.14%
+"USD::cpi index, n.s.a.::none",2007-09-01,17:00,aug,207.92,,208.30
+USD::capacity utilization rate::none,2007-09-01,17:00,aug,80.50%,,80.50%
+USD::chain store sales::m/m,2007-09-01,17:00,aug,2.90%,,2.60%
+USD::chain store sales::w/w,2007-09-01,17:00,aug,-0.08%,,0.27%
+USD::chain store sales::y/y,2007-09-01,17:00,aug,2.53%,,3.01%
+USD::challenger job cuts::none,2007-09-01,17:00,aug,79.46K,,42.90K
+USD::chicago fed national activity::none,2007-09-01,17:00,aug,-0.37,,-0.44
+USD::chicago pmi::none,2007-09-01,17:00,aug,52.20,,52.80
+GBP::claimant count change::none,2007-09-01,17:00,aug,-5.00K,,-5.60K
+USD::cleveland cpi::m/m,2007-09-01,17:00,aug,0.20%,,0.20%
+USD::construction spending::m/m,2007-09-01,17:00,aug,0.60%,,-1.10%
+MXN::consumer confidence::none,2007-09-01,17:00,aug,106.40,,105.10
+MXN::consumer confidence n.s.a.::none,2007-09-01,17:00,aug,108.00,,104.80
+USD::consumer credit::none,2007-09-01,17:00,aug,19.08B,,16.62B
+USD::continuing jobless claims::none,2007-09-01,17:00,aug,"2,557.52K",,"2,541.23K"
+CAD::core cpi::m/m,2007-09-01,17:00,aug,0.10%,,0.10%
+MXN::core cpi::m/m,2007-09-01,17:00,aug,0.27%,,0.30%
+CAD::core cpi::y/y,2007-09-01,17:00,aug,2.20%,,2.30%
+USD::core cpi index::none,2007-09-01,17:00,aug,211.12,,210.77
+USD::core pce price index::m/m,2007-09-01,17:00,aug,0.20%,,0.10%
+USD::core pce price index::y/y,2007-09-01,17:00,aug,1.90%,,2.00%
+GBP::core ppi output::m/m,2007-09-01,17:00,aug,0.10%,,0.10%
+GBP::core ppi output::y/y,2007-09-01,17:00,aug,1.30%,,1.30%
+GBP::core rpi::m/m,2007-09-01,17:00,aug,0.40%,,-0.60%
+GBP::core rpi::y/y,2007-09-01,17:00,aug,2.70%,,2.70%
+CAD::core retail sales::m/m,2007-09-01,17:00,aug,0.50%,,0.10%
+GBP::core retail sales::m/m,2007-09-01,17:00,aug,0.30%,,0.60%
+USD::core retail sales::m/m,2007-09-01,17:00,aug,-0.10%,,0.60%
+GBP::core retail sales::y/y,2007-09-01,17:00,aug,3.20%,,2.90%
+USD::crude oil inventories::none,2007-09-01,17:00,aug,-2.87M,,-2.54M
+USD::dallas fed mfg business index::none,2007-09-01,17:00,aug,2.50,,3.10
+USD::dallas fed pce::none,2007-09-01,17:00,aug,2.20%,,2.00%
+USD::dallas fed services revenues::none,2007-09-01,17:00,aug,27.90,,22.30
+USD::domestic truck sales::none,2007-09-01,17:00,aug,7.39M,,6.92M
+USD::durables excluding defense::m/m,2007-09-01,17:00,aug,-4.20%,,2.70%
+USD::eia weekly distillates stocks::none,2007-09-01,17:00,aug,1.14M,,1.21M
+MXN::economic activity::m/m,2007-09-01,17:00,aug,0.09%,,0.09%
+MXN::economic activity::y/y,2007-09-01,17:00,aug,2.95%,,4.05%
+CAD::employment change::none,2007-09-01,17:00,aug,7.70K,,42.70K
+USD::existing home sales::none,2007-09-01,17:00,aug,4.87M,,5.07M
+USD::existing home sales::m/m,2007-09-01,17:00,aug,-3.90%,,-1.00%
+USD::export price index::m/m,2007-09-01,17:00,aug,0.20%,,0.10%
+CAD::exports::none,2007-09-01,17:00,aug,38.07B,,37.96B
+USD::factory orders::m/m,2007-09-01,17:00,aug,-1.20%,,2.20%
+USD::factory orders ex transportation::m/m,2007-09-01,17:00,aug,0.00%,,1.00%
+USD::federal budget balance::none,2007-09-01,17:00,aug,-117.00B,,-36.40B
+MXN::fiscal balance::none,2007-09-01,17:00,aug,-0.29B,,15.67B
+CAD::foreign securities purchases::none,2007-09-01,17:00,aug,-3.83B,,-0.65B
+CAD::foreign securities purchases by canadians::none,2007-09-01,17:00,aug,-7.13B,,3.63B
+CAD::full employment change::none,2007-09-01,17:00,aug,-0.60K,,2.50K
+CAD::gdp::m/m,2007-09-01,17:00,aug,0.50%,,0.00%
+USD::gasoline inventories::none,2007-09-01,17:00,aug,-2.81M,,-0.09M
+GBP::gfk consumer confidence::none,2007-09-01,17:00,aug,-4.00,,-6.00
+USD::government payrolls::none,2007-09-01,17:00,aug,55.00K,,-36.00K
+MXN::gross fixed investments::m/m,2007-09-01,17:00,aug,0.53%,,1.99%
+MXN::gross fixed investments::y/y,2007-09-01,17:00,aug,5.33%,,7.15%
+GBP::halifax house price index::m/m,2007-09-01,17:00,aug,0.30%,,0.70%
+GBP::halifax house price index::y/y,2007-09-01,17:00,aug,11.40%,,11.20%
+USD::house price index::none,2007-09-01,17:00,aug,223.10,,224.00
+USD::house price index::m/m,2007-09-01,17:00,aug,-0.40%,,-0.50%
+USD::house price index::y/y,2007-09-01,17:00,aug,-0.40%,,0.30%
+CAD::housing starts::none,2007-09-01,17:00,aug,231.80K,,222.90K
+USD::housing starts::none,2007-09-01,17:00,aug,1.33M,,1.35M
+USD::housing starts::m/m,2007-09-01,17:00,aug,-1.80%,,-6.50%
+CAD::ippi::m/m,2007-09-01,17:00,aug,-1.00%,,-0.60%
+CAD::ippi::y/y,2007-09-01,17:00,aug,-0.60%,,-0.20%
+USD::ism manufacturing employment::none,2007-09-01,17:00,aug,50.00,,49.80
+USD::ism manufacturing new orders index::none,2007-09-01,17:00,aug,54.40,,58.60
+USD::ism manufacturing pmi::none,2007-09-01,17:00,aug,50.90,,52.40
+USD::ism manufacturing prices::none,2007-09-01,17:00,aug,63.00,,65.00
+USD::ism non - manufacturing business activity::none,2007-09-01,17:00,aug,55.70,,57.10
+USD::ism non - manufacturing employment::none,2007-09-01,17:00,aug,48.30,,51.10
+USD::ism non - manufacturing new orders::none,2007-09-01,17:00,aug,56.70,,54.50
+USD::ism non - manufacturing pmi::none,2007-09-01,17:00,aug,52.80,,53.60
+USD::ism non - manufacturing prices::none,2007-09-01,17:00,aug,59.90,,60.30
+USD::ism - new york index::none,2007-09-01,17:00,aug,428.50,,430.10
+USD::import price index::m/m,2007-09-01,17:00,aug,-0.30%,,1.20%
+CAD::imports::none,2007-09-01,17:00,aug,34.28B,,35.40B
+GBP::industrial production::m/m,2007-09-01,17:00,aug,0.50%,,-0.50%
+MXN::industrial production::m/m,2007-09-01,17:00,aug,-1.04%,,0.53%
+USD::industrial production::m/m,2007-09-01,17:00,aug,0.10%,,0.00%
+GBP::industrial production::y/y,2007-09-01,17:00,aug,0.20%,,0.60%
+MXN::industrial production::y/y,2007-09-01,17:00,aug,-0.23%,,2.32%
+USD::initial jobless claims::none,2007-09-01,17:00,aug,319.22K,,313.32K
+MXN::interest rate decision::none,2007-09-01,17:00,aug,7.25%,,7.25%
+CAD::ivey pmi n.s.a::none,2007-09-01,17:00,aug,58.50,,54.60
+USD::jolts job openings::none,2007-09-01,17:00,aug,4.51M,,4.43M
+USD::jobless claims 4 - week avg.::none,2007-09-01,17:00,aug,315.68K,,315.65K
+USD::kc fed composite index::none,2007-09-01,17:00,aug,8.00,,7.00
+USD::kc fed manufacturing index::none,2007-09-01,17:00,aug,16.00,,11.00
+GBP::m4 money supply::m/m,2007-09-01,17:00,aug,1.50%,,1.10%
+USD::mba 30 - year mortgage rate::none,2007-09-01,17:00,aug,6.44%,,6.57%
+USD::mba purchase index::none,2007-09-01,17:00,aug,440.14,,436.40
+USD::manufacturing payrolls::none,2007-09-01,17:00,aug,-61.00K,,-22.00K
+GBP::manufacturing production::m/m,2007-09-01,17:00,aug,1.00%,,-0.70%
+USD::manufacturing production::m/m,2007-09-01,17:00,aug,-0.40%,,0.20%
+GBP::manufacturing production::y/y,2007-09-01,17:00,aug,0.60%,,0.10%
+CAD::manufacturing sales::m/m,2007-09-01,17:00,aug,-0.80%,,-0.10%
+USD::michigan 1 - year inflation expectations::none,2007-09-01,17:00,aug,3.20%,,3.40%
+USD::michigan 5 - year inflation expectations::none,2007-09-01,17:00,aug,2.90%,,3.10%
+USD::michigan consumer expectations::none,2007-09-01,17:00,aug,74.10,,81.50
+USD::michigan consumer sentiment::none,2007-09-01,17:00,aug,83.40,,92.40
+USD::michigan current conditions::none,2007-09-01,17:00,aug,98.40,,105.70
+USD::midwest manufacturing::none,2007-09-01,17:00,aug,100.30,,100.30
+GBP::mortgage approvals::none,2007-09-01,17:00,aug,107.69K,,112.35K
+GBP::mortgage lending::none,2007-09-01,17:00,aug,9.17B,,9.20B
+USD::mortgage market index::none,2007-09-01,17:00,aug,641.70,,621.93
+USD::mortgage refinance index::none,2007-09-01,17:00,aug,"1,818.34",,"1,709.94"
+USD::nahb housing market index::none,2007-09-01,17:00,aug,22.00,,24.00
+USD::nfib small business optimism::none,2007-09-01,17:00,aug,96.30,,97.60
+USD::ny empire state manufacturing index::none,2007-09-01,17:00,aug,22.69,,26.32
+GBP::nationwide hpi::m/m,2007-09-01,17:00,aug,0.60%,,0.00%
+GBP::nationwide hpi::y/y,2007-09-01,17:00,aug,9.60%,,9.90%
+USD::natural gas storage::none,2007-09-01,17:00,aug,32.22B,,76.32B
+USD::new home sales::none,2007-09-01,17:00,aug,699.00K,,778.00K
+USD::new home sales::m/m,2007-09-01,17:00,aug,-10.20%,,-1.90%
+CAD::new housing price index::m/m,2007-09-01,17:00,aug,0.40%,,1.00%
+USD::overall net capital flow::none,2007-09-01,17:00,aug,-143.20B,,84.90B
+GBP::ppi input::m/m,2007-09-01,17:00,aug,-1.20%,,1.10%
+GBP::ppi input::y/y,2007-09-01,17:00,aug,-0.10%,,0.20%
+GBP::ppi output::m/m,2007-09-01,17:00,aug,0.10%,,0.20%
+GBP::ppi output::y/y,2007-09-01,17:00,aug,1.70%,,1.70%
+CAD::part time employment change::none,2007-09-01,17:00,aug,8.30K,,40.20K
+CAD::participation rate::none,2007-09-01,17:00,aug,67.40%,,67.50%
+USD::pending home sales::m/m,2007-09-01,17:00,aug,-8.30%,,-7.30%
+USD::pending home sales index::none,2007-09-01,17:00,aug,85.10,,92.80
+USD::personal income::m/m,2007-09-01,17:00,aug,0.10%,,0.40%
+USD::personal spending::m/m,2007-09-01,17:00,aug,0.40%,,0.40%
+USD::philadelphia fed manufacturing index::none,2007-09-01,17:00,aug,-0.80,,6.70
+USD::philly fed business conditions::none,2007-09-01,17:00,aug,30.70,,27.00
+USD::philly fed capex index::none,2007-09-01,17:00,aug,25.50,,18.30
+USD::philly fed employment::none,2007-09-01,17:00,aug,15.60,,6.00
+USD::philly fed new orders::none,2007-09-01,17:00,aug,3.20,,8.50
+USD::philly fed prices paid::none,2007-09-01,17:00,aug,11.30,,21.40
+USD::private nonfarm payrolls::none,2007-09-01,17:00,aug,-72.00K,,2.00K
+GBP::public sector net borrowing::none,2007-09-01,17:00,aug,8.22B,,-6.03B
+GBP::public sector net cash requirement::none,2007-09-01,17:00,aug,5.36B,,-13.25B
+CAD::rmpi::m/m,2007-09-01,17:00,aug,-2.90%,,3.60%
+CAD::rmpi::y/y,2007-09-01,17:00,aug,3.50%,,2.50%
+GBP::rpi::m/m,2007-09-01,17:00,aug,0.60%,,-0.60%
+GBP::rpi::y/y,2007-09-01,17:00,aug,4.10%,,3.80%
+USD::real earnings::m/m,2007-09-01,17:00,aug,0.10%,,-0.20%
+USD::real personal consumption::m/m,2007-09-01,17:00,aug,0.30%,,0.20%
+USD::redbook::m/m,2007-09-01,17:00,aug,-0.47%,,0.08%
+USD::redbook::y/y,2007-09-01,17:00,aug,2.46%,,2.38%
+USD::retail control::m/m,2007-09-01,17:00,aug,-0.10%,,0.80%
+CAD::retail sales::m/m,2007-09-01,17:00,aug,0.90%,,0.00%
+GBP::retail sales::m/m,2007-09-01,17:00,aug,0.30%,,0.50%
+USD::retail sales::m/m,2007-09-01,17:00,aug,0.30%,,0.50%
+GBP::retail sales::y/y,2007-09-01,17:00,aug,3.40%,,2.90%
+USD::retail sales ex gas/autos::m/m,2007-09-01,17:00,aug,-0.20%,,0.70%
+USD::richmond manufacturing index::none,2007-09-01,17:00,aug,1.00,,-1.00
+USD::richmond manufacturing shipments::none,2007-09-01,17:00,aug,3.00,,3.00
+USD::richmond services index::none,2007-09-01,17:00,aug,-6.00,,5.00
+USD::s&p/cs hpi composite - 20 n.s.a.::m/m,2007-09-01,17:00,aug,-0.70%,,-0.40%
+USD::s&p/cs hpi composite - 20 n.s.a.::y/y,2007-09-01,17:00,aug,-4.30%,,-3.80%
+USD::s&p/cs hpi composite - 20 s.a.::m/m,2007-09-01,17:00,aug,-1.00%,,-1.00%
+USD::tic net long - term transactions::none,2007-09-01,17:00,aug,-72.90B,,11.20B
+USD::tic net long - term transactions including swaps::none,2007-09-01,17:00,aug,-93.40B,,-18.00B
+USD::texas services sector outlook::none,2007-09-01,17:00,aug,9.70,,5.60
+CAD::trade balance::none,2007-09-01,17:00,aug,3.79B,,2.56B
+GBP::trade balance::none,2007-09-01,17:00,aug,-8.25B,,-7.80B
+MXN::trade balance::none,2007-09-01,17:00,aug,-1.06B,,-0.70B
+USD::trade balance::none,2007-09-01,17:00,aug,-57.00B,,-59.90B
+MXN::trade balance (usd)::none,2007-09-01,17:00,aug,-0.52B,,-0.84B
+GBP::trade balance non - eu::none,2007-09-01,17:00,aug,-4.52B,,-4.18B
+"USD::us foreign buying, t - bonds::none",2007-09-01,17:00,aug,-4.50B,,-9.40B
+CAD::unemployment rate::none,2007-09-01,17:00,aug,5.90%,,6.00%
+GBP::unemployment rate::none,2007-09-01,17:00,aug,5.30%,,5.30%
+MXN::unemployment rate::none,2007-09-01,17:00,aug,3.58%,,3.48%
+USD::wholesale inventories::m/m,2007-09-01,17:00,aug,0.40%,,0.10%
+CAD::wholesale sales::m/m,2007-09-01,17:00,aug,0.10%,,-0.70%
+USD::fed's balance sheet::none,2007-09-06,04:30,,871.16B,,872.87B
+USD::nonfarm payrolls::none,2007-09-07,20:30,aug,93K,,92K
+USD::u.s. baker hughes oil rig count::none,2007-09-08,01:00,,294,,300
+USD::cftc crude oil speculative net positions::none,2007-09-08,04:30,,32.9k,,7.4k
+USD::fed's balance sheet::none,2007-09-13,04:30,,886.31B,,871.16B
+CNY::pboc interest rate::none,2007-09-14,18:00,,7.29%,,7.02%
+USD::u.s. baker hughes oil rig count::none,2007-09-15,01:00,,298,,294
+USD::cftc crude oil speculative net positions::none,2007-09-15,04:30,,26.6k,,32.9k
+ILS::cpi::y/y,2007-09-15,23:00,aug,1%,,0.3%
+USD::fed interest rate decision::none,2007-09-19,02:00,,4.75%,,5.25%
+USD::cpi::m/m,2007-09-19,20:30,aug,0.0%,,0.2%
+USD::cpi::y/y,2007-09-19,20:30,aug,2.0%,,2.4%
+USD::core cpi::m/m,2007-09-19,20:30,aug,0.2%,,0.2%
+USD::core cpi::y/y,2007-09-19,20:30,aug,2.1%,,2.2%
+USD::fed's balance sheet::none,2007-09-20,04:30,,867.73B,,886.31B
+USD::us leading index::m/m,2007-09-20,23:00,aug,-0.6%,-0.1%,0.7%
+USD::u.s. baker hughes oil rig count::none,2007-09-22,01:00,,305,,298
+USD::cftc crude oil speculative net positions::none,2007-09-22,04:30,,39.1k,,26.6k
+EUR::german ifo business climate index::none,2007-09-25,17:00,,104.2,105,105.8
+USD::fed's balance sheet::none,2007-09-27,04:30,,889.90B,,867.73B
+USD::u.s. baker hughes oil rig count::none,2007-09-29,01:00,,311,,305
+USD::cftc crude oil speculative net positions::none,2007-09-29,04:30,,28.1k,,39.1k
+USD::10 - year note auction::none,2007-10-01,17:00,sep,4.75%,,4.75%
+USD::5 - year note auction::none,2007-10-01,17:00,sep,4.25%,,4.13%
+USD::all car sales::none,2007-10-01,17:00,sep,7.52M,,7.31M
+USD::all truck sales::none,2007-10-01,17:00,sep,8.68M,,8.72M
+GBP::average earnings index +bonus::none,2007-10-01,17:00,sep,5.10%,,4.70%
+GBP::average earnings ex bonus::none,2007-10-01,17:00,sep,4.70%,,4.60%
+USD::average hourly earnings::m/m,2007-10-01,17:00,sep,0.20%,,0.10%
+USD::average weekly hours::none,2007-10-01,17:00,sep,34.60,,34.60
+GBP::brc retail sales monitor::y/y,2007-10-01,17:00,sep,3.00%,,1.80%
+CAD::boc interest rate decision::none,2007-10-01,17:00,sep,4.50%,,4.50%
+GBP::boe consumer credit::none,2007-10-01,17:00,sep,1.39B,,0.91B
+GBP::boe interest rate decision::none,2007-10-01,17:00,sep,5.75%,,5.75%
+CAD::budget balance::none,2007-10-01,17:00,sep,0.01B,,-0.13B
+CAD::budget balance::y/y,2007-10-01,17:00,sep,6.63B,,6.62B
+CAD::building permits::m/m,2007-10-01,17:00,sep,-1.70%,,3.80%
+USD::business inventories::m/m,2007-10-01,17:00,sep,0.60%,,0.40%
+USD::cb consumer confidence::none,2007-10-01,17:00,sep,99.50,,105.60
+USD::cb employment trends index::none,2007-10-01,17:00,sep,126.40,,126.90
+GBP::cbi distributive trades survey::none,2007-10-01,17:00,sep,12.00,,15.00
+GBP::cbi industrial trends orders::none,2007-10-01,17:00,sep,6.00,,9.00
+CAD::cpi::m/m,2007-10-01,17:00,sep,0.20%,,-0.30%
+GBP::cpi::m/m,2007-10-01,17:00,sep,0.10%,,0.40%
+MXN::cpi::m/m,2007-10-01,17:00,sep,0.78%,,0.41%
+CAD::cpi::y/y,2007-10-01,17:00,sep,2.50%,,1.70%
+GBP::cpi::y/y,2007-10-01,17:00,sep,1.80%,,1.80%
+MXN::cpi::y/y,2007-10-01,17:00,sep,3.79%,,4.03%
+"USD::cpi index, n.s.a.::none",2007-10-01,17:00,sep,208.49,,207.92
+USD::capacity utilization rate::none,2007-10-01,17:00,sep,80.80%,,80.50%
+USD::chain store sales::m/m,2007-10-01,17:00,sep,1.70%,,2.90%
+USD::chain store sales::w/w,2007-10-01,17:00,sep,-0.45%,,-0.08%
+USD::chain store sales::y/y,2007-10-01,17:00,sep,2.73%,,2.53%
+USD::challenger job cuts::none,2007-10-01,17:00,sep,71.74K,,79.46K
+USD::chicago fed national activity::none,2007-10-01,17:00,sep,-0.18,,-0.37
+USD::chicago pmi::none,2007-10-01,17:00,sep,52.70,,52.20
+GBP::claimant count change::none,2007-10-01,17:00,sep,-6.80K,,-5.00K
+USD::cleveland cpi::m/m,2007-10-01,17:00,sep,0.30%,,0.20%
+USD::construction spending::m/m,2007-10-01,17:00,sep,0.40%,,0.60%
+MXN::consumer confidence::none,2007-10-01,17:00,sep,103.50,,106.40
+SEK::consumer confidence::none,2007-10-01,17:00,sep,106.70,,110.40
+MXN::consumer confidence n.s.a.::none,2007-10-01,17:00,sep,105.30,,108.00
+USD::consumer credit::none,2007-10-01,17:00,sep,14.53B,,19.08B
+USD::continuing jobless claims::none,2007-10-01,17:00,sep,"2,530.25K",,"2,557.52K"
+CAD::core cpi::m/m,2007-10-01,17:00,sep,0.40%,,0.10%
+MXN::core cpi::m/m,2007-10-01,17:00,sep,0.48%,,0.27%
+CAD::core cpi::y/y,2007-10-01,17:00,sep,2.00%,,2.20%
+USD::core cpi index::none,2007-10-01,17:00,sep,211.55,,211.12
+USD::core pce price index::m/m,2007-10-01,17:00,sep,0.30%,,0.20%
+USD::core pce price index::y/y,2007-10-01,17:00,sep,2.00%,,1.90%
+GBP::core ppi output::m/m,2007-10-01,17:00,sep,0.00%,,0.10%
+GBP::core ppi output::y/y,2007-10-01,17:00,sep,1.20%,,1.30%
+GBP::core rpi::m/m,2007-10-01,17:00,sep,0.30%,,0.40%
+GBP::core rpi::y/y,2007-10-01,17:00,sep,2.80%,,2.70%
+CAD::core retail sales::m/m,2007-10-01,17:00,sep,-0.20%,,0.50%
+GBP::core retail sales::m/m,2007-10-01,17:00,sep,0.20%,,0.30%
+USD::core retail sales::m/m,2007-10-01,17:00,sep,0.50%,,-0.10%
+GBP::core retail sales::y/y,2007-10-01,17:00,sep,4.10%,,3.20%
+USD::crude oil inventories::none,2007-10-01,17:00,sep,-1.98M,,-2.87M
+USD::dallas fed mfg business index::none,2007-10-01,17:00,sep,0.10,,2.50
+USD::dallas fed pce::none,2007-10-01,17:00,sep,3.20%,,2.20%
+USD::dallas fed services revenues::none,2007-10-01,17:00,sep,30.20,,27.90
+USD::domestic truck sales::none,2007-10-01,17:00,sep,7.26M,,7.39M
+USD::durables excluding defense::m/m,2007-10-01,17:00,sep,-0.90%,,-4.20%
+USD::eia weekly distillates stocks::none,2007-10-01,17:00,sep,0.93M,,1.14M
+MXN::economic activity::m/m,2007-10-01,17:00,sep,0.30%,,0.09%
+MXN::economic activity::y/y,2007-10-01,17:00,sep,2.54%,,2.95%
+CAD::employment change::none,2007-10-01,17:00,sep,45.00K,,7.70K
+USD::existing home sales::none,2007-10-01,17:00,sep,4.58M,,4.87M
+USD::existing home sales::m/m,2007-10-01,17:00,sep,-6.00%,,-3.90%
+USD::export price index::m/m,2007-10-01,17:00,sep,0.30%,,0.20%
+CAD::exports::none,2007-10-01,17:00,sep,37.10B,,38.07B
+USD::factory orders::m/m,2007-10-01,17:00,sep,-1.10%,,-1.20%
+USD::factory orders ex transportation::m/m,2007-10-01,17:00,sep,0.50%,,0.00%
+USD::federal budget balance::none,2007-10-01,17:00,sep,112.90B,,-117.00B
+MXN::fiscal balance::none,2007-10-01,17:00,sep,11.47B,,-0.29B
+CAD::foreign securities purchases::none,2007-10-01,17:00,sep,-4.46B,,-3.83B
+CAD::foreign securities purchases by canadians::none,2007-10-01,17:00,sep,-4.50B,,-7.13B
+CAD::full employment change::none,2007-10-01,17:00,sep,14.80K,,-0.60K
+CAD::gdp::m/m,2007-10-01,17:00,sep,0.00%,,0.50%
+USD::gasoline inventories::none,2007-10-01,17:00,sep,0.06M,,-2.81M
+GBP::gfk consumer confidence::none,2007-10-01,17:00,sep,-7.00,,-4.00
+USD::government payrolls::none,2007-10-01,17:00,sep,53.00K,,55.00K
+MXN::gross fixed investments::m/m,2007-10-01,17:00,sep,2.12%,,0.53%
+MXN::gross fixed investments::y/y,2007-10-01,17:00,sep,3.19%,,5.33%
+GBP::halifax house price index::m/m,2007-10-01,17:00,sep,-0.50%,,0.30%
+GBP::halifax house price index::y/y,2007-10-01,17:00,sep,10.70%,,11.40%
+USD::house price index::none,2007-10-01,17:00,sep,222.20,,223.10
+USD::house price index::m/m,2007-10-01,17:00,sep,-0.40%,,-0.40%
+USD::house price index::y/y,2007-10-01,17:00,sep,-0.80%,,-0.40%
+CAD::housing starts::none,2007-10-01,17:00,sep,290.40K,,231.80K
+USD::housing starts::none,2007-10-01,17:00,sep,1.18M,,1.33M
+USD::housing starts::m/m,2007-10-01,17:00,sep,-11.10%,,-1.80%
+CAD::ippi::m/m,2007-10-01,17:00,sep,-0.80%,,-1.00%
+CAD::ippi::y/y,2007-10-01,17:00,sep,0.20%,,-0.60%
+USD::ism manufacturing employment::none,2007-10-01,17:00,sep,52.00,,50.00
+USD::ism manufacturing new orders index::none,2007-10-01,17:00,sep,54.40,,54.40
+USD::ism manufacturing pmi::none,2007-10-01,17:00,sep,51.00,,50.90
+USD::ism manufacturing prices::none,2007-10-01,17:00,sep,59.00,,63.00
+USD::ism non - manufacturing business activity::none,2007-10-01,17:00,sep,54.20,,55.70
+USD::ism non - manufacturing employment::none,2007-10-01,17:00,sep,52.50,,48.30
+USD::ism non - manufacturing new orders::none,2007-10-01,17:00,sep,52.60,,56.70
+USD::ism non - manufacturing pmi::none,2007-10-01,17:00,sep,52.50,,52.80
+USD::ism non - manufacturing prices::none,2007-10-01,17:00,sep,68.60,,59.90
+USD::ism - new york index::none,2007-10-01,17:00,sep,422.30,,428.50
+USD::import price index::m/m,2007-10-01,17:00,sep,0.60%,,-0.30%
+CAD::imports::none,2007-10-01,17:00,sep,34.49B,,34.28B
+GBP::industrial production::m/m,2007-10-01,17:00,sep,-0.60%,,0.50%
+MXN::industrial production::m/m,2007-10-01,17:00,sep,1.08%,,-1.04%
+USD::industrial production::m/m,2007-10-01,17:00,sep,0.40%,,0.10%
+GBP::industrial production::y/y,2007-10-01,17:00,sep,-0.80%,,0.20%
+MXN::industrial production::y/y,2007-10-01,17:00,sep,0.42%,,-0.23%
+USD::initial jobless claims::none,2007-10-01,17:00,sep,313.25K,,319.22K
+MXN::interest rate decision::none,2007-10-01,17:00,sep,7.25%,,7.25%
+CAD::ivey pmi n.s.a::none,2007-10-01,17:00,sep,56.00,,58.50
+USD::jolts job openings::none,2007-10-01,17:00,sep,4.48M,,4.51M
+USD::jobless claims 4 - week avg.::none,2007-10-01,17:00,sep,316.56K,,315.68K
+USD::kc fed composite index::none,2007-10-01,17:00,sep,2.00,,8.00
+USD::kc fed manufacturing index::none,2007-10-01,17:00,sep,5.00,,16.00
+GBP::m4 money supply::m/m,2007-10-01,17:00,sep,0.90%,,1.50%
+USD::mba 30 - year mortgage rate::none,2007-10-01,17:00,sep,6.31%,,6.44%
+USD::mba purchase index::none,2007-10-01,17:00,sep,432.55,,440.14
+USD::manufacturing payrolls::none,2007-10-01,17:00,sep,-38.00K,,-61.00K
+GBP::manufacturing production::m/m,2007-10-01,17:00,sep,-0.80%,,1.00%
+USD::manufacturing production::m/m,2007-10-01,17:00,sep,0.50%,,-0.40%
+GBP::manufacturing production::y/y,2007-10-01,17:00,sep,-0.40%,,0.60%
+CAD::manufacturing sales::m/m,2007-10-01,17:00,sep,-0.70%,,-0.80%
+USD::michigan 1 - year inflation expectations::none,2007-10-01,17:00,sep,3.10%,,3.20%
+USD::michigan 5 - year inflation expectations::none,2007-10-01,17:00,sep,2.90%,,2.90%
+USD::michigan consumer expectations::none,2007-10-01,17:00,sep,74.40,,73.70
+USD::michigan consumer sentiment::none,2007-10-01,17:00,sep,83.40,,83.30
+USD::michigan current conditions::none,2007-10-01,17:00,sep,97.90,,97.70
+USD::midwest manufacturing::none,2007-10-01,17:00,sep,100.40,,100.30
+GBP::mortgage approvals::none,2007-10-01,17:00,sep,99.22K,,107.69K
+GBP::mortgage lending::none,2007-10-01,17:00,sep,9.63B,,9.17B
+USD::mortgage market index::none,2007-10-01,17:00,sep,655.38,,641.70
+USD::mortgage refinance index::none,2007-10-01,17:00,sep,"1,953.88",,"1,818.34"
+USD::nahb housing market index::none,2007-10-01,17:00,sep,20.00,,22.00
+USD::nfib small business optimism::none,2007-10-01,17:00,sep,97.30,,96.30
+USD::ny empire state manufacturing index::none,2007-10-01,17:00,sep,14.74,,22.69
+GBP::nationwide hpi::m/m,2007-10-01,17:00,sep,0.50%,,0.60%
+GBP::nationwide hpi::y/y,2007-10-01,17:00,sep,9.00%,,9.60%
+USD::natural gas storage::none,2007-10-01,17:00,sep,64.50B,,32.22B
+USD::new home sales::none,2007-10-01,17:00,sep,686.00K,,699.00K
+USD::new home sales::m/m,2007-10-01,17:00,sep,-1.90%,,-10.20%
+CAD::new housing price index::m/m,2007-10-01,17:00,sep,0.30%,,0.40%
+USD::overall net capital flow::none,2007-10-01,17:00,sep,-35.20B,,-143.20B
+GBP::ppi input::m/m,2007-10-01,17:00,sep,2.50%,,-1.20%
+GBP::ppi input::y/y,2007-10-01,17:00,sep,6.10%,,-0.10%
+GBP::ppi output::m/m,2007-10-01,17:00,sep,0.30%,,0.10%
+GBP::ppi output::y/y,2007-10-01,17:00,sep,2.40%,,1.70%
+CAD::part time employment change::none,2007-10-01,17:00,sep,30.10K,,8.30K
+CAD::participation rate::none,2007-10-01,17:00,sep,67.50%,,67.40%
+USD::pending home sales::m/m,2007-10-01,17:00,sep,2.00%,,-8.30%
+USD::pending home sales index::none,2007-10-01,17:00,sep,86.80,,85.10
+USD::personal income::m/m,2007-10-01,17:00,sep,0.70%,,0.10%
+USD::personal spending::m/m,2007-10-01,17:00,sep,0.40%,,0.40%
+USD::philadelphia fed manufacturing index::none,2007-10-01,17:00,sep,7.00,,-0.80
+USD::philly fed business conditions::none,2007-10-01,17:00,sep,32.90,,30.70
+USD::philly fed capex index::none,2007-10-01,17:00,sep,16.50,,25.50
+USD::philly fed employment::none,2007-10-01,17:00,sep,5.20,,15.60
+USD::philly fed new orders::none,2007-10-01,17:00,sep,12.70,,3.20
+USD::philly fed prices paid::none,2007-10-01,17:00,sep,24.60,,11.30
+USD::private nonfarm payrolls::none,2007-10-01,17:00,sep,33.00K,,-72.00K
+GBP::public sector net borrowing::none,2007-10-01,17:00,sep,5.80B,,8.22B
+GBP::public sector net cash requirement::none,2007-10-01,17:00,sep,8.77B,,5.36B
+CAD::rmpi::m/m,2007-10-01,17:00,sep,-0.80%,,-2.90%
+CAD::rmpi::y/y,2007-10-01,17:00,sep,8.70%,,3.50%
+GBP::rpi::m/m,2007-10-01,17:00,sep,0.30%,,0.60%
+GBP::rpi::y/y,2007-10-01,17:00,sep,3.90%,,4.10%
+USD::real earnings::m/m,2007-10-01,17:00,sep,-0.20%,,0.10%
+USD::real personal consumption::m/m,2007-10-01,17:00,sep,0.00%,,0.30%
+USD::redbook::m/m,2007-10-01,17:00,sep,0.68%,,-0.47%
+USD::redbook::y/y,2007-10-01,17:00,sep,2.05%,,2.46%
+USD::retail control::m/m,2007-10-01,17:00,sep,0.20%,,-0.10%
+CAD::retail sales::m/m,2007-10-01,17:00,sep,-1.10%,,0.90%
+GBP::retail sales::m/m,2007-10-01,17:00,sep,0.20%,,0.30%
+USD::retail sales::m/m,2007-10-01,17:00,sep,0.80%,,0.30%
+GBP::retail sales::y/y,2007-10-01,17:00,sep,4.10%,,3.40%
+USD::retail sales ex gas/autos::m/m,2007-10-01,17:00,sep,0.10%,,-0.20%
+USD::richmond manufacturing index::none,2007-10-01,17:00,sep,3.00,,1.00
+USD::richmond manufacturing shipments::none,2007-10-01,17:00,sep,6.00,,3.00
+USD::richmond services index::none,2007-10-01,17:00,sep,-6.00,,-6.00
+USD::s&p/cs hpi composite - 20 n.s.a.::m/m,2007-10-01,17:00,sep,-0.90%,,-0.70%
+USD::s&p/cs hpi composite - 20 n.s.a.::y/y,2007-10-01,17:00,sep,-4.90%,,-4.30%
+USD::s&p/cs hpi composite - 20 s.a.::m/m,2007-10-01,17:00,sep,-0.90%,,-1.00%
+USD::tic net long - term transactions::none,2007-10-01,17:00,sep,13.90B,,-72.90B
+USD::tic net long - term transactions including swaps::none,2007-10-01,17:00,sep,-10.20B,,-93.40B
+USD::texas services sector outlook::none,2007-10-01,17:00,sep,10.20,,9.70
+CAD::trade balance::none,2007-10-01,17:00,sep,2.61B,,3.79B
+GBP::trade balance::none,2007-10-01,17:00,sep,-7.95B,,-8.25B
+MXN::trade balance::none,2007-10-01,17:00,sep,-0.64B,,-1.06B
+USD::trade balance::none,2007-10-01,17:00,sep,-57.80B,,-57.00B
+MXN::trade balance (usd)::none,2007-10-01,17:00,sep,-0.56B,,-0.52B
+GBP::trade balance non - eu::none,2007-10-01,17:00,sep,-4.14B,,-4.52B
+"USD::us foreign buying, t - bonds::none",2007-10-01,17:00,sep,24.30B,,-4.50B
+CAD::unemployment rate::none,2007-10-01,17:00,sep,5.90%,,5.90%
+GBP::unemployment rate::none,2007-10-01,17:00,sep,5.30%,,5.30%
+MXN::unemployment rate::none,2007-10-01,17:00,sep,3.53%,,3.58%
+MXN::unemployment rate n.s.a.::none,2007-10-01,17:00,sep,3.76%,,3.83%
+USD::wholesale inventories::m/m,2007-10-01,17:00,sep,0.80%,,0.40%
+CAD::wholesale sales::m/m,2007-10-01,17:00,sep,0.20%,,0.10%
+USD::fed's balance sheet::none,2007-10-04,04:30,,869.05B,,889.90B
+USD::nonfarm payrolls::none,2007-10-05,20:30,sep,96K,,-4K
+USD::u.s. baker hughes oil rig count::none,2007-10-06,01:00,,318,,311
+USD::cftc crude oil speculative net positions::none,2007-10-06,04:30,,41.5k,,28.1k
+USD::fed's balance sheet::none,2007-10-11,04:30,,886.36B,,869.05B
+USD::u.s. baker hughes oil rig count::none,2007-10-13,01:00,,319,,318
+USD::cftc crude oil speculative net positions::none,2007-10-13,04:30,,53.4k,,41.5k
+ILS::cpi::y/y,2007-10-15,23:00,sep,1.4%,,1%
+USD::cpi::m/m,2007-10-17,20:30,sep,0.4%,,0.0%
+USD::cpi::y/y,2007-10-17,20:30,sep,2.8%,,2.0%
+USD::core cpi::m/m,2007-10-17,20:30,sep,0.2%,,0.2%
+USD::core cpi::y/y,2007-10-17,20:30,sep,2.1%,,2.1%
+USD::fed's balance sheet::none,2007-10-18,04:30,,869.51B,,886.36B
+USD::us leading index::m/m,2007-10-18,23:00,sep,0.3%,0.3%,-0.8%
+USD::u.s. baker hughes oil rig count::none,2007-10-20,01:00,,320,,319
+USD::cftc crude oil speculative net positions::none,2007-10-20,04:30,,68.6k,,53.4k
+USD::fed's balance sheet::none,2007-10-25,04:30,,881.40B,,869.51B
+EUR::german ifo business climate index::none,2007-10-25,17:00,,103.9,103.7,104.2
+USD::u.s. baker hughes oil rig count::none,2007-10-27,01:00,,326,,320
+USD::cftc crude oil speculative net positions::none,2007-10-27,04:30,,42.4k,,68.6k
+USD::fed interest rate decision::none,2007-11-01,02:00,,4.50%,,4.75%
+USD::fed's balance sheet::none,2007-11-01,04:30,,883.39B,,881.40B
+USD::5 - year note auction::none,2007-11-01,17:00,oct,3.88%,,4.25%
+USD::all car sales::none,2007-11-01,17:00,oct,7.52M,,7.52M
+USD::all truck sales::none,2007-11-01,17:00,oct,8.60M,,8.68M
+GBP::average earnings index +bonus::none,2007-11-01,17:00,oct,5.00%,,5.10%
+GBP::average earnings ex bonus::none,2007-11-01,17:00,oct,4.40%,,4.70%
+USD::average hourly earnings::m/m,2007-11-01,17:00,oct,0.10%,,0.20%
+USD::average weekly hours::none,2007-11-01,17:00,oct,34.50,,34.60
+GBP::brc retail sales monitor::y/y,2007-11-01,17:00,oct,1.00%,,3.00%
+CAD::boc interest rate decision::none,2007-11-01,17:00,oct,4.50%,,4.50%
+GBP::boe consumer credit::none,2007-11-01,17:00,oct,1.52B,,1.39B
+GBP::boe interest rate decision::none,2007-11-01,17:00,oct,5.75%,,5.75%
+CAD::budget balance::none,2007-11-01,17:00,oct,-0.52B,,0.01B
+CAD::budget balance::y/y,2007-11-01,17:00,oct,6.11B,,6.63B
+CAD::building permits::m/m,2007-11-01,17:00,oct,7.10%,,-1.70%
+USD::business inventories::m/m,2007-11-01,17:00,oct,0.40%,,0.60%
+USD::cb consumer confidence::none,2007-11-01,17:00,oct,95.20,,99.50
+USD::cb employment trends index::none,2007-11-01,17:00,oct,125.50,,126.40
+GBP::cbi distributive trades survey::none,2007-11-01,17:00,oct,10.00,,12.00
+GBP::cbi industrial trends orders::none,2007-11-01,17:00,oct,-6.00,,6.00
+CAD::cpi::m/m,2007-11-01,17:00,oct,-0.30%,,0.20%
+GBP::cpi::m/m,2007-11-01,17:00,oct,0.50%,,0.10%
+MXN::cpi::m/m,2007-11-01,17:00,oct,0.39%,,0.78%
+CAD::cpi::y/y,2007-11-01,17:00,oct,2.40%,,2.50%
+GBP::cpi::y/y,2007-11-01,17:00,oct,2.10%,,1.80%
+MXN::cpi::y/y,2007-11-01,17:00,oct,3.74%,,3.79%
+"USD::cpi index, n.s.a.::none",2007-11-01,17:00,oct,208.94,,208.49
+USD::capacity utilization rate::none,2007-11-01,17:00,oct,80.40%,,80.80%
+USD::chain store sales::m/m,2007-11-01,17:00,oct,1.60%,,1.70%
+USD::chain store sales::w/w,2007-11-01,17:00,oct,0.04%,,-0.45%
+USD::chain store sales::y/y,2007-11-01,17:00,oct,2.33%,,2.73%
+USD::challenger job cuts::none,2007-11-01,17:00,oct,63.11K,,71.74K
+USD::chicago fed national activity::none,2007-11-01,17:00,oct,-0.70,,-0.18
+USD::chicago pmi::none,2007-11-01,17:00,oct,50.80,,52.70
+GBP::claimant count change::none,2007-11-01,17:00,oct,-8.20K,,-6.80K
+USD::cleveland cpi::m/m,2007-11-01,17:00,oct,0.30%,,0.30%
+USD::construction spending::m/m,2007-11-01,17:00,oct,-1.10%,,0.40%
+MXN::consumer confidence::none,2007-11-01,17:00,oct,103.00,,103.50
+MXN::consumer confidence n.s.a.::none,2007-11-01,17:00,oct,101.40,,105.30
+USD::consumer credit::none,2007-11-01,17:00,oct,13.19B,,14.53B
+USD::continuing jobless claims::none,2007-11-01,17:00,oct,"2,568.96K",,"2,530.25K"
+CAD::core cpi::m/m,2007-11-01,17:00,oct,-0.20%,,0.40%
+MXN::core cpi::m/m,2007-11-01,17:00,oct,0.33%,,0.48%
+CAD::core cpi::y/y,2007-11-01,17:00,oct,1.80%,,2.00%
+USD::core cpi index::none,2007-11-01,17:00,oct,212.08,,211.55
+USD::core pce price index::m/m,2007-11-01,17:00,oct,0.20%,,0.30%
+USD::core pce price index::y/y,2007-11-01,17:00,oct,2.10%,,2.00%
+GBP::core ppi output::m/m,2007-11-01,17:00,oct,0.20%,,0.00%
+GBP::core ppi output::y/y,2007-11-01,17:00,oct,1.30%,,1.20%
+GBP::core rpi::m/m,2007-11-01,17:00,oct,0.40%,,0.30%
+GBP::core rpi::y/y,2007-11-01,17:00,oct,3.10%,,2.80%
+CAD::core retail sales::m/m,2007-11-01,17:00,oct,0.40%,,-0.20%
+GBP::core retail sales::m/m,2007-11-01,17:00,oct,-0.90%,,0.20%
+USD::core retail sales::m/m,2007-11-01,17:00,oct,0.50%,,0.50%
+GBP::core retail sales::y/y,2007-11-01,17:00,oct,2.30%,,4.10%
+USD::crude oil inventories::none,2007-11-01,17:00,oct,-2.08M,,-1.98M
+USD::dallas fed mfg business index::none,2007-11-01,17:00,oct,1.70,,0.10
+USD::dallas fed pce::none,2007-11-01,17:00,oct,3.00%,,3.20%
+USD::dallas fed services revenues::none,2007-11-01,17:00,oct,28.60,,30.20
+USD::domestic truck sales::none,2007-11-01,17:00,oct,7.15M,,7.26M
+USD::durables excluding defense::m/m,2007-11-01,17:00,oct,0.70%,,-0.90%
+USD::eia weekly distillates stocks::none,2007-11-01,17:00,oct,-0.12M,,0.93M
+MXN::economic activity::m/m,2007-11-01,17:00,oct,0.49%,,0.30%
+MXN::economic activity::y/y,2007-11-01,17:00,oct,4.74%,,2.54%
+CAD::employment change::none,2007-11-01,17:00,oct,55.60K,,45.00K
+USD::existing home sales::none,2007-11-01,17:00,oct,4.43M,,4.58M
+USD::existing home sales::m/m,2007-11-01,17:00,oct,-3.30%,,-6.00%
+USD::export price index::m/m,2007-11-01,17:00,oct,0.80%,,0.30%
+CAD::exports::none,2007-11-01,17:00,oct,36.64B,,37.10B
+USD::factory orders::m/m,2007-11-01,17:00,oct,1.80%,,-1.10%
+USD::factory orders ex transportation::m/m,2007-11-01,17:00,oct,2.00%,,0.50%
+USD::federal budget balance::none,2007-11-01,17:00,oct,-56.80B,,112.90B
+MXN::fiscal balance::none,2007-11-01,17:00,oct,50.30B,,11.47B
+CAD::foreign securities purchases::none,2007-11-01,17:00,oct,-24.13B,,-4.46B
+CAD::foreign securities purchases by canadians::none,2007-11-01,17:00,oct,4.78B,,-4.50B
+CAD::full employment change::none,2007-11-01,17:00,oct,4.40K,,14.80K
+CAD::gdp::m/m,2007-11-01,17:00,oct,0.00%,,0.00%
+USD::gasoline inventories::none,2007-11-01,17:00,oct,0.72M,,0.06M
+GBP::gfk consumer confidence::none,2007-11-01,17:00,oct,-8.00,,-7.00
+USD::government payrolls::none,2007-11-01,17:00,oct,18.00K,,53.00K
+MXN::gross fixed investments::m/m,2007-11-01,17:00,oct,1.20%,,2.12%
+MXN::gross fixed investments::y/y,2007-11-01,17:00,oct,10.91%,,3.19%
+GBP::halifax house price index::m/m,2007-11-01,17:00,oct,-0.40%,,-0.50%
+GBP::halifax house price index::y/y,2007-11-01,17:00,oct,8.90%,,10.70%
+USD::house price index::none,2007-11-01,17:00,oct,220.50,,222.20
+USD::house price index::m/m,2007-11-01,17:00,oct,-0.80%,,-0.40%
+USD::house price index::y/y,2007-11-01,17:00,oct,-1.70%,,-0.80%
+CAD::housing starts::none,2007-11-01,17:00,oct,234.40K,,290.40K
+USD::housing starts::none,2007-11-01,17:00,oct,1.26M,,1.18M
+USD::housing starts::m/m,2007-11-01,17:00,oct,6.80%,,-11.10%
+CAD::ippi::m/m,2007-11-01,17:00,oct,-1.20%,,-0.80%
+CAD::ippi::y/y,2007-11-01,17:00,oct,-0.90%,,0.20%
+USD::ism manufacturing employment::none,2007-11-01,17:00,oct,50.70,,52.00
+USD::ism manufacturing new orders index::none,2007-11-01,17:00,oct,56.40,,54.40
+USD::ism manufacturing pmi::none,2007-11-01,17:00,oct,51.10,,51.00
+USD::ism manufacturing prices::none,2007-11-01,17:00,oct,63.00,,59.00
+USD::ism non - manufacturing business activity::none,2007-11-01,17:00,oct,55.10,,54.20
+USD::ism non - manufacturing employment::none,2007-11-01,17:00,oct,53.60,,52.50
+USD::ism non - manufacturing new orders::none,2007-11-01,17:00,oct,55.30,,52.60
+USD::ism non - manufacturing pmi::none,2007-11-01,17:00,oct,53.50,,52.50
+USD::ism non - manufacturing prices::none,2007-11-01,17:00,oct,69.20,,68.60
+USD::ism - new york index::none,2007-11-01,17:00,oct,426.50,,422.30
+USD::import price index::m/m,2007-11-01,17:00,oct,1.50%,,0.60%
+CAD::imports::none,2007-11-01,17:00,oct,33.54B,,34.49B
+GBP::industrial production::m/m,2007-11-01,17:00,oct,0.70%,,-0.60%
+MXN::industrial production::m/m,2007-11-01,17:00,oct,-0.39%,,1.08%
+USD::industrial production::m/m,2007-11-01,17:00,oct,-0.50%,,0.40%
+GBP::industrial production::y/y,2007-11-01,17:00,oct,0.50%,,-0.80%
+MXN::industrial production::y/y,2007-11-01,17:00,oct,3.05%,,0.42%
+USD::initial jobless claims::none,2007-11-01,17:00,oct,328.09K,,313.25K
+MXN::interest rate decision::none,2007-11-01,17:00,oct,7.50%,,7.25%
+CAD::ivey pmi n.s.a::none,2007-11-01,17:00,oct,57.10,,56.00
+USD::jolts job openings::none,2007-11-01,17:00,oct,4.28M,,4.48M
+USD::jobless claims 4 - week avg.::none,2007-11-01,17:00,oct,322.14K,,316.56K
+USD::kc fed composite index::none,2007-11-01,17:00,oct,3.00,,2.00
+USD::kc fed manufacturing index::none,2007-11-01,17:00,oct,12.00,,5.00
+GBP::m4 money supply::m/m,2007-11-01,17:00,oct,-0.20%,,0.90%
+USD::mba 30 - year mortgage rate::none,2007-11-01,17:00,oct,6.27%,,6.31%
+USD::mba purchase index::none,2007-11-01,17:00,oct,418.63,,432.55
+USD::manufacturing payrolls::none,2007-11-01,17:00,oct,-26.00K,,-38.00K
+GBP::manufacturing production::m/m,2007-11-01,17:00,oct,0.00%,,-0.80%
+USD::manufacturing production::m/m,2007-11-01,17:00,oct,-0.40%,,0.50%
+GBP::manufacturing production::y/y,2007-11-01,17:00,oct,-0.40%,,-0.40%
+CAD::manufacturing sales::m/m,2007-11-01,17:00,oct,-0.10%,,-0.70%
+USD::michigan 1 - year inflation expectations::none,2007-11-01,17:00,oct,3.10%,,3.10%
+USD::michigan 5 - year inflation expectations::none,2007-11-01,17:00,oct,2.80%,,2.90%
+USD::michigan consumer expectations::none,2007-11-01,17:00,oct,71.60,,74.10
+USD::michigan consumer sentiment::none,2007-11-01,17:00,oct,80.90,,83.80
+USD::michigan current conditions::none,2007-11-01,17:00,oct,97.60,,98.30
+USD::midwest manufacturing::none,2007-11-01,17:00,oct,99.40,,100.40
+GBP::mortgage approvals::none,2007-11-01,17:00,oct,87.85K,,99.22K
+GBP::mortgage lending::none,2007-11-01,17:00,oct,7.77B,,9.63B
+USD::mortgage market index::none,2007-11-01,17:00,oct,662.80,,655.38
+USD::mortgage refinance index::none,2007-11-01,17:00,oct,"2,086.53",,"1,953.88"
+USD::nahb housing market index::none,2007-11-01,17:00,oct,19.00,,20.00
+USD::nfib small business optimism::none,2007-11-01,17:00,oct,96.20,,97.30
+USD::ny empire state manufacturing index::none,2007-11-01,17:00,oct,26.10,,14.74
+GBP::nationwide hpi::m/m,2007-11-01,17:00,oct,1.30%,,0.50%
+GBP::nationwide hpi::y/y,2007-11-01,17:00,oct,9.70%,,9.00%
+USD::natural gas storage::none,2007-11-01,17:00,oct,58.17B,,64.50B
+USD::new home sales::none,2007-11-01,17:00,oct,727.00K,,686.00K
+USD::new home sales::m/m,2007-11-01,17:00,oct,6.00%,,-1.90%
+CAD::new housing price index::m/m,2007-11-01,17:00,oct,0.10%,,0.30%
+USD::overall net capital flow::none,2007-11-01,17:00,oct,90.40B,,-35.20B
+GBP::ppi input::m/m,2007-11-01,17:00,oct,2.70%,,2.50%
+GBP::ppi input::y/y,2007-11-01,17:00,oct,9.70%,,6.10%
+GBP::ppi output::m/m,2007-11-01,17:00,oct,0.80%,,0.30%
+GBP::ppi output::y/y,2007-11-01,17:00,oct,3.50%,,2.40%
+CAD::part time employment change::none,2007-11-01,17:00,oct,51.30K,,30.10K
+CAD::participation rate::none,2007-11-01,17:00,oct,67.60%,,67.50%
+USD::pending home sales::m/m,2007-11-01,17:00,oct,2.40%,,2.00%
+USD::pending home sales index::none,2007-11-01,17:00,oct,88.90,,86.80
+USD::personal income::m/m,2007-11-01,17:00,oct,0.10%,,0.70%
+USD::personal spending::m/m,2007-11-01,17:00,oct,0.20%,,0.40%
+USD::philadelphia fed manufacturing index::none,2007-11-01,17:00,oct,8.00,,7.00
+USD::philly fed business conditions::none,2007-11-01,17:00,oct,38.90,,32.90
+USD::philly fed capex index::none,2007-11-01,17:00,oct,21.30,,16.50
+USD::philly fed employment::none,2007-11-01,17:00,oct,8.60,,5.20
+USD::philly fed new orders::none,2007-11-01,17:00,oct,4.60,,12.70
+USD::philly fed prices paid::none,2007-11-01,17:00,oct,37.60,,24.60
+USD::private nonfarm payrolls::none,2007-11-01,17:00,oct,65.00K,,33.00K
+GBP::public sector net borrowing::none,2007-11-01,17:00,oct,-1.94B,,5.80B
+GBP::public sector net cash requirement::none,2007-11-01,17:00,oct,-3.17B,,8.77B
+CAD::rmpi::m/m,2007-11-01,17:00,oct,0.50%,,-0.80%
+CAD::rmpi::y/y,2007-11-01,17:00,oct,12.20%,,8.70%
+GBP::rpi::m/m,2007-11-01,17:00,oct,0.40%,,0.30%
+GBP::rpi::y/y,2007-11-01,17:00,oct,4.20%,,3.90%
+USD::real earnings::m/m,2007-11-01,17:00,oct,-0.50%,,-0.20%
+USD::real personal consumption::m/m,2007-11-01,17:00,oct,-0.10%,,0.00%
+USD::redbook::m/m,2007-11-01,17:00,oct,-0.07%,,0.68%
+USD::redbook::y/y,2007-11-01,17:00,oct,2.07%,,2.05%
+USD::retail control::m/m,2007-11-01,17:00,oct,0.30%,,0.20%
+CAD::retail sales::m/m,2007-11-01,17:00,oct,-0.10%,,-1.10%
+GBP::retail sales::m/m,2007-11-01,17:00,oct,-1.00%,,0.20%
+USD::retail sales::m/m,2007-11-01,17:00,oct,0.30%,,0.80%
+GBP::retail sales::y/y,2007-11-01,17:00,oct,2.30%,,4.10%
+USD::retail sales ex gas/autos::m/m,2007-11-01,17:00,oct,0.20%,,0.10%
+USD::richmond manufacturing index::none,2007-11-01,17:00,oct,0.00,,3.00
+USD::richmond manufacturing shipments::none,2007-11-01,17:00,oct,0.00,,6.00
+USD::richmond services index::none,2007-11-01,17:00,oct,5.00,,-6.00
+USD::s&p/cs hpi composite - 20 n.s.a.::m/m,2007-11-01,17:00,oct,-1.40%,,-0.90%
+USD::s&p/cs hpi composite - 20 n.s.a.::y/y,2007-11-01,17:00,oct,-6.10%,,-4.90%
+USD::s&p/cs hpi composite - 20 s.a.::m/m,2007-11-01,17:00,oct,-1.10%,,-0.90%
+USD::tic net long - term transactions::none,2007-11-01,17:00,oct,128.90B,,13.90B
+USD::tic net long - term transactions including swaps::none,2007-11-01,17:00,oct,109.30B,,-10.20B
+USD::texas services sector outlook::none,2007-11-01,17:00,oct,7.10,,10.20
+CAD::trade balance::none,2007-11-01,17:00,oct,3.09B,,2.61B
+GBP::trade balance::none,2007-11-01,17:00,oct,-7.92B,,-7.95B
+MXN::trade balance::none,2007-11-01,17:00,oct,-1.56B,,-0.64B
+USD::trade balance::none,2007-11-01,17:00,oct,-56.50B,,-57.80B
+MXN::trade balance (usd)::none,2007-11-01,17:00,oct,-1.00B,,-0.56B
+GBP::trade balance non - eu::none,2007-11-01,17:00,oct,-4.40B,,-4.14B
+"USD::us foreign buying, t - bonds::none",2007-11-01,17:00,oct,54.90B,,24.30B
+CAD::unemployment rate::none,2007-11-01,17:00,oct,5.80%,,5.90%
+GBP::unemployment rate::none,2007-11-01,17:00,oct,5.20%,,5.30%
+MXN::unemployment rate::none,2007-11-01,17:00,oct,3.64%,,3.53%
+MXN::unemployment rate n.s.a.::none,2007-11-01,17:00,oct,3.77%,,3.76%
+USD::wholesale inventories::m/m,2007-11-01,17:00,oct,0.20%,,0.80%
+CAD::wholesale sales::m/m,2007-11-01,17:00,oct,0.80%,,0.20%
+USD::nonfarm payrolls::none,2007-11-02,20:30,oct,170K,,110K
+USD::u.s. baker hughes oil rig count::none,2007-11-03,01:00,,335,,326
+USD::cftc crude oil speculative net positions::none,2007-11-03,04:30,,65.7k,,42.4k
+USD::fed's balance sheet::none,2007-11-08,04:30,,885.72B,,883.39B
+USD::u.s. baker hughes oil rig count::none,2007-11-10,01:00,,337,,335
+USD::cftc crude oil speculative net positions::none,2007-11-10,04:30,,88.6k,,65.7k
+USD::fed's balance sheet::none,2007-11-15,04:30,,889.54B,,885.72B
+USD::cpi::m/m,2007-11-15,21:30,oct,0.3%,,0.4%
+USD::cpi::y/y,2007-11-15,21:30,oct,3.5%,,2.8%
+USD::core cpi::m/m,2007-11-15,21:30,oct,0.2%,,0.2%
+USD::core cpi::y/y,2007-11-15,21:30,oct,2.2%,,2.1%
+ILS::cpi::y/y,2007-11-15,23:00,oct,2.2%,,1.4%
+USD::u.s. baker hughes oil rig count::none,2007-11-17,01:00,,337,,337
+USD::cftc crude oil speculative net positions::none,2007-11-17,04:30,,10.8k,,88.6k
+USD::us leading index::m/m,2007-11-21,23:00,oct,-0.5%,-0.3%,0.1%
+USD::u.s. baker hughes oil rig count::none,2007-11-22,01:00,,343,,337
+USD::fed's balance sheet::none,2007-11-22,04:30,,891.03B,,889.54B
+USD::cftc crude oil speculative net positions::none,2007-11-24,04:30,,34.6k,,10.8k
+EUR::german ifo business climate index::none,2007-11-27,17:00,,104.2,103.3,103.9
+USD::fed's balance sheet::none,2007-11-29,04:30,,879.42B,,891.03B
+USD::u.s. baker hughes oil rig count::none,2007-12-01,01:00,,354,,343
+USD::cftc crude oil speculative net positions::none,2007-12-01,04:30,,44.6k,,34.6k
+USD::10 - year note auction::none,2007-12-01,17:00,nov,4.25%,,4.75%
+USD::5 - year note auction::none,2007-12-01,17:00,nov,3.38%,,3.88%
+USD::all car sales::none,2007-12-01,17:00,nov,7.91M,,7.52M
+USD::all truck sales::none,2007-12-01,17:00,nov,8.13M,,8.60M
+GBP::average earnings index +bonus::none,2007-12-01,17:00,nov,4.80%,,5.00%
+GBP::average earnings ex bonus::none,2007-12-01,17:00,nov,4.20%,,4.40%
+USD::average hourly earnings::m/m,2007-12-01,17:00,nov,0.20%,,0.10%
+USD::average weekly hours::none,2007-12-01,17:00,nov,34.50,,34.50
+GBP::brc retail sales monitor::y/y,2007-12-01,17:00,nov,1.20%,,1.00%
+CAD::boc interest rate decision::none,2007-12-01,17:00,nov,4.50%,,4.50%
+GBP::boe consumer credit::none,2007-12-01,17:00,nov,0.82B,,1.52B
+GBP::boe interest rate decision::none,2007-12-01,17:00,nov,5.75%,,5.75%
+CAD::budget balance::none,2007-12-01,17:00,nov,0.49B,,-0.52B
+CAD::budget balance::y/y,2007-12-01,17:00,nov,6.60B,,6.11B
+CAD::building permits::m/m,2007-12-01,17:00,nov,-9.30%,,7.10%
+USD::business inventories::m/m,2007-12-01,17:00,nov,0.60%,,0.40%
+USD::cb consumer confidence::none,2007-12-01,17:00,nov,87.80,,95.20
+USD::cb employment trends index::none,2007-12-01,17:00,nov,125.00,,125.50
+GBP::cbi distributive trades survey::none,2007-12-01,17:00,nov,13.00,,10.00
+GBP::cbi industrial trends orders::none,2007-12-01,17:00,nov,8.00,,-6.00
+CAD::cpi::m/m,2007-12-01,17:00,nov,0.30%,,-0.30%
+GBP::cpi::m/m,2007-12-01,17:00,nov,0.30%,,0.50%
+MXN::cpi::m/m,2007-12-01,17:00,nov,0.71%,,0.39%
+CAD::cpi::y/y,2007-12-01,17:00,nov,2.50%,,2.40%
+GBP::cpi::y/y,2007-12-01,17:00,nov,2.10%,,2.10%
+MXN::cpi::y/y,2007-12-01,17:00,nov,3.93%,,3.74%
+"USD::cpi index, n.s.a.::none",2007-12-01,17:00,nov,210.18,,208.94
+USD::capacity utilization rate::none,2007-12-01,17:00,nov,80.80%,,80.40%
+USD::chain store sales::m/m,2007-12-01,17:00,nov,3.50%,,1.60%
+USD::chain store sales::w/w,2007-12-01,17:00,nov,-0.32%,,0.04%
+USD::chain store sales::y/y,2007-12-01,17:00,nov,2.60%,,2.33%
+USD::challenger job cuts::none,2007-12-01,17:00,nov,73.14K,,63.11K
+USD::chicago fed national activity::none,2007-12-01,17:00,nov,-0.09,,-0.70
+USD::chicago pmi::none,2007-12-01,17:00,nov,53.40,,50.80
+GBP::claimant count change::none,2007-12-01,17:00,nov,-11.10K,,-8.20K
+USD::cleveland cpi::m/m,2007-12-01,17:00,nov,0.30%,,0.30%
+USD::construction spending::m/m,2007-12-01,17:00,nov,-2.20%,,-1.10%
+MXN::consumer confidence::none,2007-12-01,17:00,nov,102.50,,103.00
+MXN::consumer confidence n.s.a.::none,2007-12-01,17:00,nov,100.00,,101.40
+USD::consumer credit::none,2007-12-01,17:00,nov,15.45B,,13.19B
+USD::continuing jobless claims::none,2007-12-01,17:00,nov,"2,621.77K",,"2,568.96K"
+CAD::core cpi::m/m,2007-12-01,17:00,nov,0.00%,,-0.20%
+MXN::core cpi::m/m,2007-12-01,17:00,nov,0.23%,,0.33%
+CAD::core cpi::y/y,2007-12-01,17:00,nov,1.60%,,1.80%
+USD::core cpi index::none,2007-12-01,17:00,nov,212.66,,212.08
+USD::core pce price index::m/m,2007-12-01,17:00,nov,0.20%,,0.20%
+USD::core pce price index::y/y,2007-12-01,17:00,nov,2.30%,,2.10%
+GBP::core ppi output::m/m,2007-12-01,17:00,nov,0.10%,,0.20%
+GBP::core ppi output::y/y,2007-12-01,17:00,nov,1.40%,,1.30%
+GBP::core rpi::m/m,2007-12-01,17:00,nov,0.40%,,0.40%
+GBP::core rpi::y/y,2007-12-01,17:00,nov,3.20%,,3.10%
+CAD::core retail sales::m/m,2007-12-01,17:00,nov,2.00%,,0.40%
+GBP::core retail sales::m/m,2007-12-01,17:00,nov,0.40%,,-0.90%
+USD::core retail sales::m/m,2007-12-01,17:00,nov,1.70%,,0.50%
+GBP::core retail sales::y/y,2007-12-01,17:00,nov,2.50%,,2.30%
+USD::crude oil inventories::none,2007-12-01,17:00,nov,-1.58M,,-2.08M
+USD::dallas fed mfg business index::none,2007-12-01,17:00,nov,-10.50,,1.70
+USD::dallas fed pce::none,2007-12-01,17:00,nov,3.10%,,3.00%
+USD::dallas fed services revenues::none,2007-12-01,17:00,nov,21.80,,28.60
+USD::domestic truck sales::none,2007-12-01,17:00,nov,6.73M,,7.15M
+USD::durables excluding defense::m/m,2007-12-01,17:00,nov,2.90%,,0.70%
+USD::eia weekly distillates stocks::none,2007-12-01,17:00,nov,-0.68M,,-0.12M
+MXN::economic activity::m/m,2007-12-01,17:00,nov,-0.60%,,0.49%
+MXN::economic activity::y/y,2007-12-01,17:00,nov,3.45%,,4.74%
+CAD::employment change::none,2007-12-01,17:00,nov,16.40K,,55.60K
+USD::existing home sales::none,2007-12-01,17:00,nov,4.46M,,4.43M
+USD::existing home sales::m/m,2007-12-01,17:00,nov,0.70%,,-3.30%
+USD::export price index::m/m,2007-12-01,17:00,nov,0.90%,,0.80%
+CAD::exports::none,2007-12-01,17:00,nov,37.64B,,36.64B
+USD::factory orders::m/m,2007-12-01,17:00,nov,3.30%,,1.80%
+USD::factory orders ex transportation::m/m,2007-12-01,17:00,nov,2.90%,,2.00%
+USD::federal budget balance::none,2007-12-01,17:00,nov,-98.20B,,-56.80B
+MXN::fiscal balance::none,2007-12-01,17:00,nov,3.59B,,50.30B
+CAD::foreign securities purchases::none,2007-12-01,17:00,nov,-4.68B,,-24.13B
+CAD::foreign securities purchases by canadians::none,2007-12-01,17:00,nov,-2.40B,,4.78B
+CAD::full employment change::none,2007-12-01,17:00,nov,14.80K,,4.40K
+CAD::gdp::m/m,2007-12-01,17:00,nov,0.20%,,0.00%
+USD::gasoline inventories::none,2007-12-01,17:00,nov,1.36M,,0.72M
+GBP::gfk consumer confidence::none,2007-12-01,17:00,nov,-10.00,,-8.00
+USD::government payrolls::none,2007-12-01,17:00,nov,37.00K,,18.00K
+MXN::gross fixed investments::m/m,2007-12-01,17:00,nov,0.58%,,1.20%
+MXN::gross fixed investments::y/y,2007-12-01,17:00,nov,9.92%,,10.91%
+GBP::halifax house price index::m/m,2007-12-01,17:00,nov,-1.30%,,-0.40%
+GBP::halifax house price index::y/y,2007-12-01,17:00,nov,6.30%,,8.90%
+USD::house price index::none,2007-12-01,17:00,nov,219.10,,220.50
+USD::house price index::m/m,2007-12-01,17:00,nov,-0.60%,,-0.80%
+USD::house price index::y/y,2007-12-01,17:00,nov,-2.60%,,-1.70%
+CAD::housing starts::none,2007-12-01,17:00,nov,235.50K,,234.40K
+USD::housing starts::none,2007-12-01,17:00,nov,1.20M,,1.26M
+USD::housing starts::m/m,2007-12-01,17:00,nov,-5.30%,,6.80%
+CAD::ippi::m/m,2007-12-01,17:00,nov,0.70%,,-1.20%
+CAD::ippi::y/y,2007-12-01,17:00,nov,-0.30%,,-0.90%
+USD::ism manufacturing employment::none,2007-12-01,17:00,nov,48.40,,50.70
+USD::ism manufacturing new orders index::none,2007-12-01,17:00,nov,52.40,,56.40
+USD::ism manufacturing pmi::none,2007-12-01,17:00,nov,50.50,,51.10
+USD::ism manufacturing prices::none,2007-12-01,17:00,nov,67.50,,63.00
+USD::ism non - manufacturing business activity::none,2007-12-01,17:00,nov,55.70,,55.10
+USD::ism non - manufacturing employment::none,2007-12-01,17:00,nov,51.60,,53.60
+USD::ism non - manufacturing new orders::none,2007-12-01,17:00,nov,51.90,,55.30
+USD::ism non - manufacturing pmi::none,2007-12-01,17:00,nov,52.70,,53.50
+USD::ism non - manufacturing prices::none,2007-12-01,17:00,nov,75.30,,69.20
+USD::ism - new york index::none,2007-12-01,17:00,nov,431.20,,426.50
+USD::import price index::m/m,2007-12-01,17:00,nov,3.20%,,1.50%
+CAD::imports::none,2007-12-01,17:00,nov,33.87B,,33.54B
+GBP::industrial production::m/m,2007-12-01,17:00,nov,0.20%,,0.70%
+MXN::industrial production::m/m,2007-12-01,17:00,nov,-1.13%,,-0.39%
+USD::industrial production::m/m,2007-12-01,17:00,nov,0.60%,,-0.50%
+GBP::industrial production::y/y,2007-12-01,17:00,nov,0.10%,,0.50%
+MXN::industrial production::y/y,2007-12-01,17:00,nov,0.53%,,3.05%
+USD::initial jobless claims::none,2007-12-01,17:00,nov,339.05K,,328.09K
+MXN::interest rate decision::none,2007-12-01,17:00,nov,7.50%,,7.50%
+CAD::ivey pmi n.s.a::none,2007-12-01,17:00,nov,58.70,,57.10
+USD::jolts job openings::none,2007-12-01,17:00,nov,4.28M,,4.28M
+USD::jobless claims 4 - week avg.::none,2007-12-01,17:00,nov,333.90K,,322.14K
+USD::kc fed composite index::none,2007-12-01,17:00,nov,4.00,,3.00
+USD::kc fed manufacturing index::none,2007-12-01,17:00,nov,9.00,,12.00
+GBP::m4 money supply::m/m,2007-12-01,17:00,nov,0.20%,,-0.20%
+USD::mba 30 - year mortgage rate::none,2007-12-01,17:00,nov,6.08%,,6.27%
+USD::mba purchase index::none,2007-12-01,17:00,nov,429.38,,418.63
+USD::manufacturing payrolls::none,2007-12-01,17:00,nov,-7.00K,,-26.00K
+GBP::manufacturing production::m/m,2007-12-01,17:00,nov,0.80%,,0.00%
+USD::manufacturing production::m/m,2007-12-01,17:00,nov,0.50%,,-0.40%
+GBP::manufacturing production::y/y,2007-12-01,17:00,nov,-0.10%,,-0.40%
+CAD::manufacturing sales::m/m,2007-12-01,17:00,nov,1.00%,,-0.10%
+USD::michigan 1 - year inflation expectations::none,2007-12-01,17:00,nov,3.40%,,3.10%
+USD::michigan 5 - year inflation expectations::none,2007-12-01,17:00,nov,2.90%,,2.80%
+USD::michigan consumer expectations::none,2007-12-01,17:00,nov,64.00,,70.10
+USD::michigan consumer sentiment::none,2007-12-01,17:00,nov,76.10,,82.00
+USD::michigan current conditions::none,2007-12-01,17:00,nov,91.50,,98.20
+USD::midwest manufacturing::none,2007-12-01,17:00,nov,100.40,,99.40
+GBP::mortgage approvals::none,2007-12-01,17:00,nov,80.95K,,87.85K
+GBP::mortgage lending::none,2007-12-01,17:00,nov,7.33B,,7.77B
+USD::mortgage market index::none,2007-12-01,17:00,nov,703.49,,662.80
+USD::mortgage refinance index::none,2007-12-01,17:00,nov,"2,327.35",,"2,086.53"
+USD::nahb housing market index::none,2007-12-01,17:00,nov,19.00,,19.00
+USD::nfib small business optimism::none,2007-12-01,17:00,nov,94.40,,96.20
+USD::ny empire state manufacturing index::none,2007-12-01,17:00,nov,25.77,,26.10
+GBP::nationwide hpi::m/m,2007-12-01,17:00,nov,-1.00%,,1.30%
+GBP::nationwide hpi::y/y,2007-12-01,17:00,nov,6.90%,,9.70%
+USD::natural gas storage::none,2007-12-01,17:00,nov,-20.59B,,58.17B
+USD::new home sales::none,2007-12-01,17:00,nov,641.00K,,727.00K
+USD::new home sales::m/m,2007-12-01,17:00,nov,-11.80%,,6.00%
+CAD::new housing price index::m/m,2007-12-01,17:00,nov,0.50%,,0.10%
+USD::overall net capital flow::none,2007-12-01,17:00,nov,120.70B,,90.40B
+GBP::ppi input::m/m,2007-12-01,17:00,nov,3.70%,,2.70%
+GBP::ppi input::y/y,2007-12-01,17:00,nov,12.30%,,9.70%
+GBP::ppi output::m/m,2007-12-01,17:00,nov,0.80%,,0.80%
+GBP::ppi output::y/y,2007-12-01,17:00,nov,4.40%,,3.50%
+CAD::part time employment change::none,2007-12-01,17:00,nov,1.60K,,51.30K
+CAD::participation rate::none,2007-12-01,17:00,nov,67.70%,,67.60%
+USD::pending home sales::m/m,2007-12-01,17:00,nov,-0.80%,,2.40%
+USD::pending home sales index::none,2007-12-01,17:00,nov,88.20,,88.90
+USD::personal income::m/m,2007-12-01,17:00,nov,0.40%,,0.10%
+USD::personal spending::m/m,2007-12-01,17:00,nov,0.80%,,0.20%
+USD::philadelphia fed manufacturing index::none,2007-12-01,17:00,nov,7.40,,8.00
+USD::philly fed business conditions::none,2007-12-01,17:00,nov,21.30,,38.90
+USD::philly fed capex index::none,2007-12-01,17:00,nov,6.90,,21.30
+USD::philly fed employment::none,2007-12-01,17:00,nov,4.20,,8.60
+USD::philly fed new orders::none,2007-12-01,17:00,nov,5.30,,4.60
+USD::philly fed prices paid::none,2007-12-01,17:00,nov,41.90,,37.60
+USD::private nonfarm payrolls::none,2007-12-01,17:00,nov,80.00K,,65.00K
+GBP::public sector net borrowing::none,2007-12-01,17:00,nov,10.99B,,-1.94B
+GBP::public sector net cash requirement::none,2007-12-01,17:00,nov,10.01B,,-3.17B
+CAD::rmpi::m/m,2007-12-01,17:00,nov,3.00%,,0.50%
+CAD::rmpi::y/y,2007-12-01,17:00,nov,15.30%,,12.20%
+GBP::rpi::m/m,2007-12-01,17:00,nov,0.40%,,0.40%
+GBP::rpi::y/y,2007-12-01,17:00,nov,4.30%,,4.20%
+USD::real earnings::m/m,2007-12-01,17:00,nov,-0.60%,,-0.50%
+USD::real personal consumption::m/m,2007-12-01,17:00,nov,0.30%,,-0.10%
+USD::redbook::m/m,2007-12-01,17:00,nov,0.26%,,-0.07%
+USD::redbook::y/y,2007-12-01,17:00,nov,2.33%,,2.07%
+USD::retail control::m/m,2007-12-01,17:00,nov,1.10%,,0.30%
+CAD::retail sales::m/m,2007-12-01,17:00,nov,1.90%,,-0.10%
+GBP::retail sales::m/m,2007-12-01,17:00,nov,0.50%,,-1.00%
+USD::retail sales::m/m,2007-12-01,17:00,nov,0.80%,,0.30%
+GBP::retail sales::y/y,2007-12-01,17:00,nov,2.50%,,2.30%
+USD::retail sales ex gas/autos::m/m,2007-12-01,17:00,nov,1.00%,,0.20%
+USD::richmond manufacturing index::none,2007-12-01,17:00,nov,2.00,,0.00
+USD::richmond manufacturing shipments::none,2007-12-01,17:00,nov,3.00,,0.00
+USD::richmond services index::none,2007-12-01,17:00,nov,-2.00,,5.00
+USD::s&p/cs hpi composite - 20 n.s.a.::m/m,2007-12-01,17:00,nov,-2.10%,,-1.40%
+USD::s&p/cs hpi composite - 20 n.s.a.::y/y,2007-12-01,17:00,nov,-7.70%,,-6.10%
+USD::s&p/cs hpi composite - 20 s.a.::m/m,2007-12-01,17:00,nov,-1.60%,,-1.10%
+USD::tic net long - term transactions::none,2007-12-01,17:00,nov,82.00B,,128.90B
+USD::tic net long - term transactions including swaps::none,2007-12-01,17:00,nov,65.30B,,109.30B
+USD::texas services sector outlook::none,2007-12-01,17:00,nov,1.40,,7.10
+CAD::trade balance::none,2007-12-01,17:00,nov,3.77B,,3.09B
+GBP::trade balance::none,2007-12-01,17:00,nov,-8.82B,,-7.92B
+MXN::trade balance::none,2007-12-01,17:00,nov,-0.82B,,-1.56B
+USD::trade balance::none,2007-12-01,17:00,nov,-59.70B,,-56.50B
+MXN::trade balance (usd)::none,2007-12-01,17:00,nov,-0.09B,,-1.00B
+GBP::trade balance non - eu::none,2007-12-01,17:00,nov,-5.06B,,-4.40B
+"USD::us foreign buying, t - bonds::none",2007-12-01,17:00,nov,19.80B,,54.90B
+CAD::unemployment rate::none,2007-12-01,17:00,nov,6.00%,,5.80%
+GBP::unemployment rate::none,2007-12-01,17:00,nov,5.20%,,5.20%
+MXN::unemployment rate::none,2007-12-01,17:00,nov,3.57%,,3.64%
+USD::wholesale inventories::m/m,2007-12-01,17:00,nov,1.20%,,0.20%
+CAD::wholesale sales::m/m,2007-12-01,17:00,nov,0.00%,,0.80%
+USD::fed's balance sheet::none,2007-12-06,04:30,,882.76B,,879.42B
+USD::nonfarm payrolls::none,2007-12-07,20:30,nov,115K,,166K
+USD::u.s. baker hughes oil rig count::none,2007-12-08,01:00,,340,,354
+USD::cftc crude oil speculative net positions::none,2007-12-08,04:30,,34.2k,,44.6k
+USD::fed interest rate decision::none,2007-12-12,02:00,,4.25%,,4.50%
+USD::fed's balance sheet::none,2007-12-13,04:30,,881.75B,,882.76B
+USD::cpi::m/m,2007-12-14,21:30,nov,0.8%,,0.3%
+USD::cpi::y/y,2007-12-14,21:30,nov,4.3%,,3.5%
+USD::core cpi::m/m,2007-12-14,21:30,nov,0.3%,,0.2%
+USD::core cpi::y/y,2007-12-14,21:30,nov,2.3%,,2.2%
+USD::u.s. baker hughes oil rig count::none,2007-12-15,01:00,,342,,340
+USD::cftc crude oil speculative net positions::none,2007-12-15,04:30,,38.0k,,34.2k
+ILS::cpi::y/y,2007-12-15,23:00,nov,2.8%,,2.2%
+EUR::german ifo business climate index::none,2007-12-19,17:00,,103,103.8,104.2
+USD::fed's balance sheet::none,2007-12-20,04:30,,887.98B,,881.75B
+CNY::pboc interest rate::none,2007-12-20,18:00,,7.47%,,7.29%
+USD::us leading index::m/m,2007-12-20,23:00,nov,-0.4%,-0.3%,-0.5%
+USD::u.s. baker hughes oil rig count::none,2007-12-22,01:00,,343,,342
+USD::cftc crude oil speculative net positions::none,2007-12-22,04:30,,29.1k,,38.0k
+USD::fed's balance sheet::none,2007-12-27,04:30,,890.66B,,887.98B
+USD::cftc crude oil speculative net positions::none,2007-12-28,04:30,,48.4k,,29.1k
+USD::u.s. baker hughes oil rig count::none,2007-12-29,01:00,,325,,343
