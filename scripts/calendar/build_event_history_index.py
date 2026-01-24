@@ -204,6 +204,27 @@ def _parse_history_datetime(date_value: str, time_value: str) -> datetime:
     return datetime(date_part.year, date_part.month, date_part.day)
 
 
+def _parse_date_only(value: str) -> datetime.date | None:
+    text = value.strip()
+    if not text:
+        return None
+    for fmt in ("%Y-%m-%d", "%d-%m-%Y"):
+        try:
+            return datetime.strptime(text, fmt).date()
+        except ValueError:
+            continue
+    return None
+
+
+def _date_in_range(
+    value: str, start_date: datetime.date, end_date: datetime.date
+) -> bool:
+    parsed = _parse_date_only(value)
+    if not parsed:
+        return False
+    return start_date <= parsed <= end_date
+
+
 def _year_from_date_text(value: str) -> int | None:
     text = value.strip()
     if not text:
@@ -301,6 +322,118 @@ def _load_manual_overrides(
     return overrides, issues
 
 
+def _load_csv_rows(path: Path) -> list[dict[str, str]]:
+    if not path.exists():
+        return []
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle)
+        return [dict(row) for row in reader]
+
+
+def _write_csv_rows(path: Path, header: list[str], rows: list[dict[str, str]]) -> None:
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(header)
+        for row in rows:
+            writer.writerow([row.get(field, "") for field in header])
+
+
+def _history_row_key(row: dict[str, str]) -> tuple[str, str, str, str]:
+    return (
+        row.get("EventId", ""),
+        row.get("Date", ""),
+        row.get("Time", ""),
+        row.get("Period", ""),
+    )
+
+
+def _issue_row_key(row: dict[str, str]) -> tuple[str, str, str, str, str]:
+    return (
+        row.get("Issue", ""),
+        row.get("EventId", ""),
+        row.get("Date", ""),
+        row.get("Time", ""),
+        row.get("Period", ""),
+    )
+
+
+def _patch_row_key(row: dict[str, str]) -> tuple[str, str, str, str, str]:
+    return (
+        row.get("Patch", ""),
+        row.get("EventId", ""),
+        row.get("Date", ""),
+        row.get("Time", ""),
+        row.get("Period", ""),
+    )
+
+
+def _issue_json_key(row: dict) -> tuple[str, str, str, str, str]:
+    return (
+        str(row.get("issue", "")),
+        str(row.get("event_id", "")),
+        str(row.get("date", "")),
+        str(row.get("time", "")),
+        str(row.get("period", "")),
+    )
+
+
+def _patch_json_key(row: dict) -> tuple[str, str, str, str, str]:
+    return (
+        str(row.get("patch", "")),
+        str(row.get("event_id", "")),
+        str(row.get("date", "")),
+        str(row.get("time", "")),
+        str(row.get("period", "")),
+    )
+
+
+def _row_history_sort_key(
+    row: dict[str, str],
+) -> tuple[datetime, tuple[int, int, str], str]:
+    date_value = row.get("Date", "")
+    time_value = row.get("Time", "")
+    period_value = row.get("Period", "")
+    event_value = row.get("Event", row.get("EventId", ""))
+    date_key = _parse_history_datetime(date_value, time_value)
+    ref_month = date_key.month if date_key != datetime.min else None
+    return (
+        date_key,
+        _period_sort_value(period_value, reference_month=ref_month),
+        event_value,
+    )
+
+
+def _merge_rows_by_date_range(
+    existing_rows: list[dict[str, str]],
+    new_rows: list[dict[str, str]],
+    *,
+    date_key: str,
+    key_func,
+    start_date: datetime.date,
+    end_date: datetime.date,
+    sort_key=None,
+) -> list[dict[str, str]]:
+    new_by_key = {
+        key_func(row): row
+        for row in new_rows
+        if _date_in_range(row.get(date_key, ""), start_date, end_date)
+    }
+    merged: list[dict[str, str]] = []
+    for row in existing_rows:
+        if not _date_in_range(row.get(date_key, ""), start_date, end_date):
+            merged.append(row)
+            continue
+        key = key_func(row)
+        replacement = new_by_key.pop(key, None)
+        if replacement is not None:
+            merged.append(replacement)
+    remaining = list(new_by_key.values())
+    if sort_key:
+        remaining.sort(key=sort_key)
+    merged.extend(remaining)
+    return merged
+
+
 def _write_ndjson_index(
     index_path: Path, index: dict[str, int], *, generated_at: str
 ) -> None:
@@ -339,12 +472,15 @@ def build_index(
     output_dir: Path,
     start_year: int | None,
     end_year: int | None,
+    start_date: datetime.date | None,
+    end_date: datetime.date | None,
     *,
     write_index: bool = True,
 ) -> tuple[int, int, int]:
     if not calendar_dir.exists():
         raise SystemExit(f"Calendar directory not found: {calendar_dir}")
     output_dir.mkdir(parents=True, exist_ok=True)
+    partial_update = start_date is not None and end_date is not None
 
     manual_patch_path = output_dir / _DEFAULT_MANUAL_PATCH_FILENAME
     manual_overrides, manual_issues = _load_manual_overrides(manual_patch_path)
@@ -623,36 +759,42 @@ def build_index(
         by_year.setdefault(entry.year, []).append(entry)
 
     if write_index:
+        index_header = [
+            "EventId",
+            "Date",
+            "Time",
+            "Period",
+            "Actual",
+            "Forecast",
+            "Previous",
+        ]
         for year in years:
             output_path = output_dir / f"{year}_event_history_index.csv"
-            with output_path.open("w", encoding="utf-8", newline="") as handle:
-                writer = csv.writer(handle)
-                writer.writerow(
-                    [
-                        "EventId",
-                        "Date",
-                        "Time",
-                        "Period",
-                        "Actual",
-                        "Forecast",
-                        "Previous",
-                    ]
+            new_rows = [
+                {
+                    "EventId": entry.event_id,
+                    "Date": entry.date,
+                    "Time": entry.time,
+                    "Period": entry.period,
+                    "Actual": entry.actual,
+                    "Forecast": entry.forecast,
+                    "Previous": entry.previous_effective,
+                }
+                for entry in sorted(by_year.get(year, []), key=_history_sort_key)
+            ]
+            rows_to_write = new_rows
+            if partial_update and output_path.exists():
+                existing_rows = _load_csv_rows(output_path)
+                rows_to_write = _merge_rows_by_date_range(
+                    existing_rows,
+                    new_rows,
+                    date_key="Date",
+                    key_func=_history_row_key,
+                    start_date=start_date,
+                    end_date=end_date,
+                    sort_key=_row_history_sort_key,
                 )
-                for entry in sorted(
-                    by_year.get(year, []),
-                    key=_history_sort_key,
-                ):
-                    writer.writerow(
-                        [
-                            entry.event_id,
-                            entry.date,
-                            entry.time,
-                            entry.period,
-                            entry.actual,
-                            entry.forecast,
-                            entry.previous_effective,
-                        ]
-                    )
+            _write_csv_rows(output_path, index_header, rows_to_write)
 
         legacy_clean_path = output_dir / _CLEAN_CSV_FILENAME
         try:
@@ -677,27 +819,37 @@ def build_index(
         ]
         for year in years:
             clean_path = output_dir / f"{year}_{_CLEAN_CSV_FILENAME}"
-            with clean_path.open("w", encoding="utf-8", newline="") as handle:
-                writer = csv.writer(handle)
-                writer.writerow(clean_header)
-                for entry in sorted(by_year.get(year, []), key=_history_sort_key):
-                    writer.writerow(
-                        [
-                            entry.event_id,
-                            entry.cur,
-                            entry.event,
-                            entry.period,
-                            entry.date,
-                            entry.time,
-                            entry.actual,
-                            entry.actual_effective,
-                            entry.actual_revised_from,
-                            entry.forecast,
-                            entry.previous_raw,
-                            entry.previous_effective,
-                            entry.previous_revised_from,
-                        ]
-                    )
+            new_rows = [
+                {
+                    "EventId": entry.event_id,
+                    "Cur": entry.cur,
+                    "Event": entry.event,
+                    "Period": entry.period,
+                    "Date": entry.date,
+                    "Time": entry.time,
+                    "ActualRaw": entry.actual,
+                    "ActualEffective": entry.actual_effective,
+                    "ActualRevisedFrom": entry.actual_revised_from,
+                    "Forecast": entry.forecast,
+                    "PreviousRaw": entry.previous_raw,
+                    "Previous": entry.previous_effective,
+                    "PreviousRevisedFrom": entry.previous_revised_from,
+                }
+                for entry in sorted(by_year.get(year, []), key=_history_sort_key)
+            ]
+            rows_to_write = new_rows
+            if partial_update and clean_path.exists():
+                existing_rows = _load_csv_rows(clean_path)
+                rows_to_write = _merge_rows_by_date_range(
+                    existing_rows,
+                    new_rows,
+                    date_key="Date",
+                    key_func=_history_row_key,
+                    start_date=start_date,
+                    end_date=end_date,
+                    sort_key=_row_history_sort_key,
+                )
+            _write_csv_rows(clean_path, clean_header, rows_to_write)
 
         by_event_path = output_dir / _BY_EVENT_NDJSON_FILENAME
         by_event_index: dict[str, int] = {}
@@ -764,27 +916,55 @@ def build_index(
         generated_at = datetime.now(timezone.utc).strftime("%d-%m-%Y %H:%M")
         for year, patches_for_year in sorted(manual_by_year.items()):
             manual_csv_path = output_dir / f"{year}_{_MANUAL_APPLIED_CSV_FILENAME}"
-            with manual_csv_path.open("w", encoding="utf-8", newline="") as handle:
-                writer = csv.writer(handle)
-                writer.writerow(manual_header)
-                for patch in patches_for_year:
-                    writer.writerow(
-                        [
-                            patch.get("patch", ""),
-                            patch.get("event_id", ""),
-                            patch.get("period", ""),
-                            patch.get("date", ""),
-                            patch.get("time", ""),
-                            json.dumps(patch.get("overrides", {}), ensure_ascii=False),
-                            patch.get("reason", ""),
-                        ]
-                    )
+            new_rows = [
+                {
+                    "Patch": patch.get("patch", ""),
+                    "EventId": patch.get("event_id", ""),
+                    "Period": patch.get("period", ""),
+                    "Date": patch.get("date", ""),
+                    "Time": patch.get("time", ""),
+                    "Overrides": json.dumps(
+                        patch.get("overrides", {}), ensure_ascii=False
+                    ),
+                    "Reason": patch.get("reason", ""),
+                }
+                for patch in patches_for_year
+            ]
+            rows_to_write = new_rows
+            if partial_update and manual_csv_path.exists():
+                existing_rows = _load_csv_rows(manual_csv_path)
+                rows_to_write = _merge_rows_by_date_range(
+                    existing_rows,
+                    new_rows,
+                    date_key="Date",
+                    key_func=_patch_row_key,
+                    start_date=start_date,
+                    end_date=end_date,
+                )
+            _write_csv_rows(manual_csv_path, manual_header, rows_to_write)
             manual_json_path = output_dir / f"{year}_{_MANUAL_APPLIED_JSON_FILENAME}"
+            patches_payload = patches_for_year
+            if partial_update and manual_json_path.exists():
+                try:
+                    existing_payload = json.loads(
+                        manual_json_path.read_text(encoding="utf-8")
+                    )
+                    existing_patches = existing_payload.get("patches", [])
+                except (OSError, json.JSONDecodeError):
+                    existing_patches = []
+                patches_payload = _merge_rows_by_date_range(
+                    existing_patches,
+                    patches_for_year,
+                    date_key="date",
+                    key_func=_patch_json_key,
+                    start_date=start_date,
+                    end_date=end_date,
+                )
             manual_json_path.write_text(
                 json.dumps(
                     {
                         "generated_at": generated_at,
-                        "patches": patches_for_year,
+                        "patches": patches_payload,
                     },
                     ensure_ascii=False,
                     indent=2,
@@ -877,42 +1057,80 @@ def build_index(
 
     def write_issue_files(stem: str, issue_rows: list[dict]) -> None:
         issues_path = output_dir / f"{stem}.json"
+        issues_csv_path = output_dir / f"{stem}.csv"
+
+        merge_by_range = (
+            partial_update
+            and issues_path.exists()
+            and all(
+                _parse_date_only(str(issue.get("date", ""))) for issue in issue_rows
+            )
+        )
+        issues_payload = issue_rows
+        if merge_by_range:
+            try:
+                existing_payload = json.loads(issues_path.read_text(encoding="utf-8"))
+                existing_issues = existing_payload.get("issues", [])
+            except (OSError, json.JSONDecodeError):
+                existing_issues = []
+            issues_payload = _merge_rows_by_date_range(
+                existing_issues,
+                issue_rows,
+                date_key="date",
+                key_func=_issue_json_key,
+                start_date=start_date,
+                end_date=end_date,
+            )
+
         issues_path.write_text(
             json.dumps(
                 {
                     "generated_at": generated_at,
-                    "issues": issue_rows,
+                    "issues": issues_payload,
                 },
                 ensure_ascii=False,
                 indent=2,
             ),
             encoding="utf-8",
         )
-        issues_csv_path = output_dir / f"{stem}.csv"
-        with issues_csv_path.open("w", encoding="utf-8", newline="") as handle:
-            writer = csv.writer(handle)
-            writer.writerow(issue_header)
-            for issue in issue_rows:
-                details = {
-                    key: value
-                    for key, value in issue.items()
-                    if key not in issue_known_keys
+
+        csv_rows = []
+        for issue in issue_rows:
+            details = {
+                key: value
+                for key, value in issue.items()
+                if key not in issue_known_keys
+            }
+            csv_rows.append(
+                {
+                    "Issue": issue.get("issue", ""),
+                    "EventId": issue.get("event_id", ""),
+                    "Cur": issue.get("cur", ""),
+                    "Event": issue.get("event", ""),
+                    "Period": issue.get("period", ""),
+                    "Date": issue.get("date", ""),
+                    "Time": issue.get("time", ""),
+                    "PreviousRaw": issue.get("previous_raw", ""),
+                    "PriorActual": issue.get("prior_actual", ""),
+                    "PreviousEffective": issue.get("previous_effective", ""),
+                    "Details": (
+                        json.dumps(details, ensure_ascii=False) if details else ""
+                    ),
                 }
-                writer.writerow(
-                    [
-                        issue.get("issue", ""),
-                        issue.get("event_id", ""),
-                        issue.get("cur", ""),
-                        issue.get("event", ""),
-                        issue.get("period", ""),
-                        issue.get("date", ""),
-                        issue.get("time", ""),
-                        issue.get("previous_raw", ""),
-                        issue.get("prior_actual", ""),
-                        issue.get("previous_effective", ""),
-                        json.dumps(details, ensure_ascii=False) if details else "",
-                    ]
-                )
+            )
+
+        rows_to_write = csv_rows
+        if merge_by_range and issues_csv_path.exists():
+            existing_rows = _load_csv_rows(issues_csv_path)
+            rows_to_write = _merge_rows_by_date_range(
+                existing_rows,
+                csv_rows,
+                date_key="Date",
+                key_func=_issue_row_key,
+                start_date=start_date,
+                end_date=end_date,
+            )
+        _write_csv_rows(issues_csv_path, issue_header, rows_to_write)
 
     for year, issues_for_year in sorted(issues_by_year.items()):
         write_issue_files(f"{year}_event_history_issues", issues_for_year)
@@ -1067,11 +1285,33 @@ def build_index(
 
     for year, patches_for_year in sorted(patches_by_year.items()):
         patches_path = output_dir / f"{year}_event_history_previous_patch.json"
+        patches_payload = patches_for_year
+        if (
+            partial_update
+            and patches_path.exists()
+            and all(
+                _parse_date_only(str(patch.get("date", "")))
+                for patch in patches_for_year
+            )
+        ):
+            try:
+                existing_payload = json.loads(patches_path.read_text(encoding="utf-8"))
+                existing_patches = existing_payload.get("patches", [])
+            except (OSError, json.JSONDecodeError):
+                existing_patches = []
+            patches_payload = _merge_rows_by_date_range(
+                existing_patches,
+                patches_for_year,
+                date_key="date",
+                key_func=_patch_json_key,
+                start_date=start_date,
+                end_date=end_date,
+            )
         patches_path.write_text(
             json.dumps(
                 {
                     "generated_at": generated_at,
-                    "patches": patches_for_year,
+                    "patches": patches_payload,
                 },
                 ensure_ascii=False,
                 indent=2,
@@ -1079,24 +1319,40 @@ def build_index(
             encoding="utf-8",
         )
         patches_csv_path = output_dir / f"{year}_event_history_previous_patch.csv"
-        with patches_csv_path.open("w", encoding="utf-8", newline="") as handle:
-            writer = csv.writer(handle)
-            writer.writerow(patch_header)
-            for patch in patches_for_year:
-                writer.writerow(
-                    [
-                        patch.get("patch", ""),
-                        patch.get("event_id", ""),
-                        patch.get("cur", ""),
-                        patch.get("event", ""),
-                        patch.get("period", ""),
-                        patch.get("date", ""),
-                        patch.get("time", ""),
-                        patch.get("previous_raw", ""),
-                        patch.get("prior_actual", ""),
-                        patch.get("previous_effective", ""),
-                    ]
-                )
+        csv_rows = [
+            {
+                "Patch": patch.get("patch", ""),
+                "EventId": patch.get("event_id", ""),
+                "Cur": patch.get("cur", ""),
+                "Event": patch.get("event", ""),
+                "Period": patch.get("period", ""),
+                "Date": patch.get("date", ""),
+                "Time": patch.get("time", ""),
+                "PreviousRaw": patch.get("previous_raw", ""),
+                "PriorActual": patch.get("prior_actual", ""),
+                "PreviousEffective": patch.get("previous_effective", ""),
+            }
+            for patch in patches_for_year
+        ]
+        rows_to_write = csv_rows
+        if (
+            partial_update
+            and patches_csv_path.exists()
+            and all(
+                _parse_date_only(str(patch.get("date", "")))
+                for patch in patches_for_year
+            )
+        ):
+            existing_rows = _load_csv_rows(patches_csv_path)
+            rows_to_write = _merge_rows_by_date_range(
+                existing_rows,
+                csv_rows,
+                date_key="Date",
+                key_func=_patch_row_key,
+                start_date=start_date,
+                end_date=end_date,
+            )
+        _write_csv_rows(patches_csv_path, patch_header, rows_to_write)
 
     if patches_misc:
         patches_path = output_dir / "event_history_previous_patch_misc.json"
@@ -1150,6 +1406,18 @@ def parse_args() -> argparse.Namespace:
         default="",
         help="Output directory (defaults to data/event_history_index).",
     )
+    parser.add_argument(
+        "--start-date",
+        type=str,
+        default="",
+        help="Start date (YYYY-MM-DD or DD-MM-YYYY).",
+    )
+    parser.add_argument(
+        "--end-date",
+        type=str,
+        default="",
+        help="End date (YYYY-MM-DD or DD-MM-YYYY).",
+    )
     parser.add_argument("--start-year", type=int, default=None)
     parser.add_argument("--end-year", type=int, default=None)
     return parser.parse_args()
@@ -1169,8 +1437,20 @@ def main() -> None:
     if not output_dir:
         output_dir = REPO_ROOT / "data" / "event_history_index"
 
+    start_date = _parse_date_only(args.start_date) if args.start_date else None
+    end_date = _parse_date_only(args.end_date) if args.end_date else None
+    if bool(start_date) ^ bool(end_date):
+        raise SystemExit("Both --start-date and --end-date are required together.")
+    if start_date and end_date and start_date > end_date:
+        raise SystemExit("--start-date must be earlier than or equal to --end-date.")
+
     rows_written, issue_count, patch_count = build_index(
-        calendar_dir, output_dir, args.start_year, args.end_year
+        calendar_dir,
+        output_dir,
+        args.start_year,
+        args.end_year,
+        start_date,
+        end_date,
     )
     print(f"[INFO] Wrote {rows_written} history rows into {output_dir}")
     print(f"[INFO] Wrote {issue_count} issues into {output_dir}")

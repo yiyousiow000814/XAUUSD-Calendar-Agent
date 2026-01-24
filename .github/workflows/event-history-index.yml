@@ -42,20 +42,17 @@ jobs:
                   "'(YYYY-MM-DD..YYYY-MM-DD)'."
               )
           start_date, end_date = match.group(1), match.group(2)
-          start_year, end_year = start_date[:4], end_date[:4]
           output = os.environ["GITHUB_OUTPUT"]
           with open(output, "a", encoding="utf-8") as handle:
               handle.write(f"start_date={start_date}\n")
               handle.write(f"end_date={end_date}\n")
-              handle.write(f"start_year={start_year}\n")
-              handle.write(f"end_year={end_year}\n")
           PY
 
       - name: Build event history index
         run: |
           python scripts/calendar/build_event_history_index.py \
-            --start-year "${{ steps.range.outputs.start_year }}" \
-            --end-year "${{ steps.range.outputs.end_year }}"
+            --start-date "${{ steps.range.outputs.start_date }}" \
+            --end-date "${{ steps.range.outputs.end_date }}"
 
       - name: Commit and push updates
         env:
