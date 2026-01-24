@@ -378,6 +378,14 @@
   align-items: center;
 }
 
+.history-modal-header + .history-modal-row {
+  margin-top: 8px;
+}
+
+.history-modal-row:not(.history-modal-header):last-child {
+  margin-bottom: 8px;
+}
+
 .history-modal-table.schedule .history-modal-row {
   grid-template-columns: minmax(120px, 0.9fr) minmax(68px, 0.6fr) minmax(0, 1.6fr);
 }
@@ -430,10 +438,12 @@
   background: rgba(13, 16, 24, 0.4);
   backdrop-filter: blur(3px) saturate(1.02);
   -webkit-backdrop-filter: blur(3px) saturate(1.02);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
 }
 
 [data-theme="light"] .history-modal-header {
   background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 6px 16px rgba(18, 20, 26, 0.08);
 }
 
 .history-modal-row .disabled {

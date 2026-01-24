@@ -692,7 +692,7 @@ export function EventHistoryModal({
     const selector = `[data-row-key=${JSON.stringify(rowKey)}]`;
     const row = node.querySelector<HTMLElement>(selector);
     if (!row) return;
-    row.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    row.scrollIntoView({ block: "center", behavior: "smooth" });
   }, []);
 
   const resolveHoverIndex = useCallback(
