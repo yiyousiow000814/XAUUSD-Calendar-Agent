@@ -1,42 +1,6 @@
 {
-  "generated_at": "23-01-2026 15:13",
+  "generated_at": "24-01-2026 15:38",
   "issues": [
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::initial jobless claims::none",
-      "cur": "USD",
-      "event": "Initial Jobless Claims",
-      "period": "",
-      "date": "2026-01-29",
-      "time": "21:30",
-      "previous_raw": "",
-      "prior_actual": "200K",
-      "previous_effective": "200K"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::jobless claims 4 - week avg.::none",
-      "cur": "USD",
-      "event": "Jobless Claims 4-Week Avg.",
-      "period": "",
-      "date": "2026-01-29",
-      "time": "21:30",
-      "previous_raw": "",
-      "prior_actual": "201.50K",
-      "previous_effective": "201.50K"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::natural gas storage::none",
-      "cur": "USD",
-      "event": "Natural Gas Storage",
-      "period": "",
-      "date": "2026-01-29",
-      "time": "23:30",
-      "previous_raw": "",
-      "prior_actual": "-120B",
-      "previous_effective": "-120B"
-    },
     {
       "issue": "previous_missing_filled",
       "event_id": "USD::fed interest rate decision::none",
@@ -108,30 +72,6 @@
       "previous_raw": "",
       "prior_actual": "16.00%",
       "previous_effective": "16.00%"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "TRY::gross fx reserves::none",
-      "cur": "TRY",
-      "event": "Gross FX Reserves",
-      "period": "",
-      "date": "2026-01-29",
-      "time": "19:30",
-      "previous_raw": "",
-      "prior_actual": "84.15B",
-      "previous_effective": "84.15B"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::atlanta fed gdpnow::none",
-      "cur": "USD",
-      "event": "Atlanta Fed GDPNow  (Q4)",
-      "period": "q4",
-      "date": "2026-01-26",
-      "time": "23:30",
-      "previous_raw": "",
-      "prior_actual": "5.4%",
-      "previous_effective": "5.4%"
     },
     {
       "issue": "previous_missing_filled",
@@ -1474,6 +1414,30 @@
       "date": "2026-01-01",
       "time": "08:30",
       "cutoff": "21-01-2026 15:13"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "USD::u.s. baker hughes oil rig count::none",
+      "cur": "USD",
+      "event": "U.S. Baker Hughes Oil Rig Count",
+      "period": "",
+      "date": "2026-01-31",
+      "time": "02:00",
+      "previous_raw": "",
+      "prior_actual": "411",
+      "previous_effective": "411"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "USD::u.s. baker hughes total rig count::none",
+      "cur": "USD",
+      "event": "U.S. Baker Hughes Total Rig Count",
+      "period": "",
+      "date": "2026-01-31",
+      "time": "02:00",
+      "previous_raw": "",
+      "prior_actual": "544",
+      "previous_effective": "544"
     }
   ]
 }

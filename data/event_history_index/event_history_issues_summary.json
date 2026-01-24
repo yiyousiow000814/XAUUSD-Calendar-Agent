@@ -1,10 +1,10 @@
 {
-  "generated_at": "23-01-2026 15:13",
+  "generated_at": "24-01-2026 15:38",
   "output_dir": "data/event_history_index",
   "totals": {
-    "all": 3829,
+    "all": 3826,
     "open": 0,
-    "solved": 3829
+    "solved": 3826
   },
   "globs": {
     "all_csv": "*_event_history_issues.csv",
@@ -358,9 +358,9 @@
       }
     },
     "2026": {
-      "all": 145,
+      "all": 142,
       "open": 0,
-      "solved": 145,
+      "solved": 142,
       "files": {
         "all": {
           "csv": "2026_event_history_issues.csv",
