@@ -2377,6 +2377,15 @@ const main = async () => {
         await historyTable.waitFor({ state: "visible", timeout: 8000 }).catch(() => null);
         await page.waitForTimeout(60);
 
+        const range5 = historyModal
+          .locator(".history-modal-toggle button.history-toggle")
+          .filter({ hasText: "Last 5" })
+          .first();
+        if (await range5.count()) {
+          await range5.click();
+          await page.waitForTimeout(80);
+        }
+
         const historyNotes = historyModal.locator("[data-qa='qa:history:notes']").first();
         if (await historyNotes.count()) {
           try {
@@ -2392,6 +2401,7 @@ const main = async () => {
           const disclaimerBox = (await historyDisclaimer.count())
             ? await historyDisclaimer.boundingBox()
             : null;
+          const tableBox = await historyTable.boundingBox();
           let clip = null;
           if (notesBox) {
             const union = disclaimerBox
@@ -2406,7 +2416,17 @@ const main = async () => {
                     Math.min(notesBox.y, disclaimerBox.y)
                 }
               : notesBox;
-            clip = clipFromBox(union, page.viewportSize());
+            const extended = tableBox
+              ? {
+                  x: Math.min(union.x, tableBox.x),
+                  y: union.y,
+                  width:
+                    Math.max(union.x + union.width, tableBox.x + tableBox.width) -
+                    Math.min(union.x, tableBox.x),
+                  height: union.height
+                }
+              : union;
+            clip = clipFromBox(extended, page.viewportSize());
           }
           const noteCaptureOptions = clip ? { clip } : { element: historyNotes };
           artifacts.push({
@@ -2415,6 +2435,45 @@ const main = async () => {
             state: "notes",
             label: "History description note",
             path: await captureState(page, "event-history-description", theme.key, "notes", noteCaptureOptions)
+          });
+          await runCheck(theme.key, "History notes disclaimer aligns with text", async () => {
+            const result = await page.evaluate(() => {
+              const notesText = document.querySelector(".history-notes-text");
+              const disclaimer = document.querySelector(".history-notes-disclaimer");
+              const notesCard = document.querySelector(".history-notes-card");
+              if (
+                !(notesText instanceof HTMLElement) ||
+                !(disclaimer instanceof HTMLElement) ||
+                !(notesCard instanceof HTMLElement)
+              ) {
+                return { ok: false, reason: "notes text, card, or disclaimer missing" };
+              }
+              const textRect = notesText.getBoundingClientRect();
+              const disclaimerRect = disclaimer.getBoundingClientRect();
+              const cardRect = notesCard.getBoundingClientRect();
+              const paddingLeft = Number.parseFloat(
+                window.getComputedStyle(disclaimer).paddingLeft || "0"
+              );
+              const disclaimerTextLeft = disclaimerRect.left + paddingLeft;
+              const leftDelta = Math.abs(textRect.left - disclaimerTextLeft);
+              if (leftDelta > 1.5) {
+                return {
+                  ok: false,
+                  reason: `notes disclaimer left misaligned (delta=${leftDelta.toFixed(2)}px)`
+                };
+              }
+              const gap = disclaimerRect.top - cardRect.bottom;
+              if (gap < 6) {
+                return {
+                  ok: false,
+                  reason: `notes disclaimer gap too tight (gap=${gap.toFixed(2)}px)`
+                };
+              }
+              return { ok: true, reason: "" };
+            });
+            if (!result.ok) {
+              throw new Error(result.reason);
+            }
           });
         }
 
