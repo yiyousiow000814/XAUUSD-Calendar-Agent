@@ -2377,6 +2377,47 @@ const main = async () => {
         await historyTable.waitFor({ state: "visible", timeout: 8000 }).catch(() => null);
         await page.waitForTimeout(60);
 
+        const historyNotes = historyModal.locator("[data-qa='qa:history:notes']").first();
+        if (await historyNotes.count()) {
+          try {
+            await historyNotes.scrollIntoViewIfNeeded();
+          } catch {
+            // ignore
+          }
+          await page.waitForTimeout(80);
+          const historyDisclaimer = historyModal
+            .locator("[data-qa='qa:history:disclaimer']")
+            .first();
+          const notesBox = await historyNotes.boundingBox();
+          const disclaimerBox = (await historyDisclaimer.count())
+            ? await historyDisclaimer.boundingBox()
+            : null;
+          let clip = null;
+          if (notesBox) {
+            const union = disclaimerBox
+              ? {
+                  x: Math.min(notesBox.x, disclaimerBox.x),
+                  y: Math.min(notesBox.y, disclaimerBox.y),
+                  width:
+                    Math.max(notesBox.x + notesBox.width, disclaimerBox.x + disclaimerBox.width) -
+                    Math.min(notesBox.x, disclaimerBox.x),
+                  height:
+                    Math.max(notesBox.y + notesBox.height, disclaimerBox.y + disclaimerBox.height) -
+                    Math.min(notesBox.y, disclaimerBox.y)
+                }
+              : notesBox;
+            clip = clipFromBox(union, page.viewportSize());
+          }
+          const noteCaptureOptions = clip ? { clip } : { element: historyNotes };
+          artifacts.push({
+            scenario: "event-history-description",
+            theme: theme.key,
+            state: "notes",
+            label: "History description note",
+            path: await captureState(page, "event-history-description", theme.key, "notes", noteCaptureOptions)
+          });
+        }
+
         const chart = historyModal.locator(".history-modal-chart").first();
         if (await chart.count()) {
           const frames = await captureFrames(

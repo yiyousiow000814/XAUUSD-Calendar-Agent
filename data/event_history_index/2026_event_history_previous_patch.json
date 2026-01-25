@@ -1,6 +1,18 @@
 {
-  "generated_at": "24-01-2026 15:38",
+  "generated_at": "25-01-2026 02:26",
   "patches": [
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::u.s. baker hughes oil rig count::none",
+      "cur": "USD",
+      "event": "U.S. Baker Hughes Oil Rig Count",
+      "period": "",
+      "date": "2026-01-31",
+      "time": "02:00",
+      "previous_raw": "",
+      "prior_actual": "411",
+      "previous_effective": "411"
+    },
     {
       "patch": "previous_missing_filled",
       "event_id": "USD::fed interest rate decision::none",
@@ -75,30 +87,6 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "USD::atlanta fed gdpnow::none",
-      "cur": "USD",
-      "event": "Atlanta Fed GDPNow  (Q4)",
-      "period": "q4",
-      "date": "2026-01-30",
-      "time": "01:00",
-      "previous_raw": "",
-      "prior_actual": "5.4%",
-      "previous_effective": "5.4%"
-    },
-    {
-      "patch": "previous_missing_filled",
-      "event_id": "USD::u.s. baker hughes oil rig count::none",
-      "cur": "USD",
-      "event": "U.S. Baker Hughes Oil Rig Count",
-      "period": "",
-      "date": "2026-01-31",
-      "time": "02:00",
-      "previous_raw": "",
-      "prior_actual": "411",
-      "previous_effective": "411"
-    },
-    {
-      "patch": "previous_missing_filled",
       "event_id": "USD::u.s. baker hughes total rig count::none",
       "cur": "USD",
       "event": "U.S. Baker Hughes Total Rig Count",
@@ -108,6 +96,18 @@
       "previous_raw": "",
       "prior_actual": "544",
       "previous_effective": "544"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::atlanta fed gdpnow::none",
+      "cur": "USD",
+      "event": "Atlanta Fed GDPNow  (Q4)",
+      "period": "q4",
+      "date": "2026-01-30",
+      "time": "01:00",
+      "previous_raw": "",
+      "prior_actual": "5.4%",
+      "previous_effective": "5.4%"
     }
   ]
 }

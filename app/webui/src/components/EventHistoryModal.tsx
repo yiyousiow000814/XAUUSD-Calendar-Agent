@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { EventHistoryPoint, EventHistoryResponse } from "../types";
+import { buildEventNotes } from "../utils/eventNotes";
 import "./EventHistoryModal.css";
 
 type EventHistoryModalProps = {
@@ -206,6 +207,11 @@ export function EventHistoryModal({
     }
   });
   const points = data?.points ?? [];
+  const eventNotes = useMemo(
+    () => buildEventNotes(selectionLabel, data),
+    [selectionLabel, data]
+  );
+  const hasNotes = eventNotes.note.trim().length > 0;
   const pointIdByIdentity = useMemo(() => {
     const map = new Map<EventHistoryPoint, number>();
     points.forEach((point, index) => map.set(point, index));
@@ -1155,21 +1161,21 @@ export function EventHistoryModal({
                         </div>
                       )
                     ) : null}
-                    <div className="history-modal-placeholder" data-qa="qa:history:placeholder">
-                      <div className="history-placeholder-title">
-                        {hasMetricValues ? "Event notes" : "Event description"}
-                      </div>
-                      <div className="history-placeholder-body">
-                        {hasMetricValues
-                          ? "Placeholder for future notes: release context, anomalies, and quick summaries."
-                          : "Placeholder for future description: key remarks, themes, and context."}
-                      </div>
-                      <div className="history-placeholder-lines" aria-hidden="true">
-                        <span />
-                        <span />
-                        <span />
-                      </div>
-                    </div>
+                    {hasNotes ? (
+                      <>
+                        <div className="history-notes-card" data-qa="qa:history:notes">
+                          <div className="history-notes-title">Description</div>
+                          <div className="history-notes-text">{eventNotes.note}</div>
+                        </div>
+                        <div
+                          className="history-notes-disclaimer"
+                          data-qa="qa:history:disclaimer"
+                        >
+                          XAUUSD impact guidance is based on experience, not yet backed by
+                          statistical analysis; quantitative validation will be added later.
+                        </div>
+                      </>
+                    ) : null}
                   </div>
                   <div className="history-modal-layout-right">
                     <div

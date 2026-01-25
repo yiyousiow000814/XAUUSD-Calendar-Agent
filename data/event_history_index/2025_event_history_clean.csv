@@ -20936,7 +20936,7 @@ MXN::industrial production::m/m,MXN,Industrial Production (MoM)  (Oct),oct,2025-
 MXN::industrial production::y/y,MXN,Industrial Production (YoY)  (Oct),oct,2025-12-12,20:00,-0.4%,-0.3%,-0.4%,-2.4%,-2.3%,-2.3%,-2.4%
 GBP::niesr monthly gdp tracker::none,GBP,NIESR Monthly GDP Tracker  (Nov),nov,2025-12-12,20:00,-0.1%,-0.1%,,,0.0%,0.0%,
 EUR::german current account balance n.s.a::none,EUR,German Current Account Balance n.s.a  (Oct),oct,2025-12-12,21:00,14.8B,14.8B,,,15.8B,15.8B,18.6B
-RUB::trade balance::none,RUB,Trade Balance  (Oct),oct,2025-12-12,21:00,11.14B,11.14B,,,13.60B,13.60B,
+RUB::trade balance::none,RUB,Trade Balance  (Oct),oct,2025-12-12,21:00,11.14B,10.80B,11.14B,,13.60B,13.60B,
 CAD::building permits::m/m,CAD,Building Permits (MoM)  (Oct),oct,2025-12-12,21:30,14.9%,15.7%,14.9%,-1.4%,5.9%,5.9%,4.5%
 CAD::new motor vehicle sales::m/m,CAD,New Motor Vehicle Sales (MoM)  (Oct),oct,2025-12-12,21:30,163.5K,165.6K,163.5K,,168.7K,168.7K,
 CAD::wholesale sales::m/m,CAD,Wholesale Sales (MoM)  (Oct),oct,2025-12-12,21:30,0.1%,0.4%,0.1%,-0.1%,0.6%,0.6%,-0.1%
@@ -21347,7 +21347,7 @@ EUR::ecb press conference::none,EUR,ECB Press Conference,,2025-12-18,21:45,,,,,,
 EUR::ecb president lagarde speaks::none,EUR,ECB President Lagarde Speaks,,2025-12-18,23:15,,,,,,,
 USD::natural gas storage::none,USD,Natural Gas Storage,,2025-12-18,23:30,-167B,-167B,,-176B,-177B,-177B,
 USD::cleveland cpi::m/m,USD,Cleveland CPI (MoM)  (Nov),nov,2025-12-19,00:00,0.1%,0.1%,,,0.2%,0.2%,
-USD::kc fed composite index::none,USD,KC Fed Composite Index  (Dec),dec,2025-12-19,00:00,1,1,,,8,8,
+USD::kc fed composite index::none,USD,KC Fed Composite Index  (Dec),dec,2025-12-19,00:00,1,0,1,,8,8,
 USD::kc fed manufacturing index::none,USD,KC Fed Manufacturing Index  (Dec),dec,2025-12-19,00:00,-3,-3,,,18,18,
 USD::4 - week bill auction::none,USD,4-Week Bill Auction,,2025-12-19,00:30,3.580%,3.580%,,,3.610%,3.610%,
 USD::8 - week bill auction::none,USD,8-Week Bill Auction,,2025-12-19,00:30,3.580%,3.585%,3.580%,,3.610%,3.610%,
@@ -21369,7 +21369,7 @@ NZD::imports::none,NZD,Imports  (Nov),nov,2025-12-19,05:45,7.15B,7.15B,,,8.03B,8
 NZD::trade balance::m/m,NZD,Trade Balance (MoM)  (Nov),nov,2025-12-19,05:45,-163M,-163M,,"-1,175M","-1,598M","-1,598M","-1,542M"
 NZD::trade balance::y/y,NZD,Trade Balance (YoY)  (Nov),nov,2025-12-19,05:45,"-2,060M","-2,060M",,,"-2,350M","-2,350M","-2,280M"
 "JPY::cpi, n.s.a::m/m",JPY,"CPI, n.s.a (MoM)  (Nov)",nov,2025-12-19,07:30,0.3%,0.3%,,,0.7%,0.7%,
-JPY::national cpi::m/m,JPY,National CPI (MoM)  (Nov),nov,2025-12-19,07:30,0.4%,0.4%,,,0.4%,0.4%,
+JPY::national cpi::m/m,JPY,National CPI (MoM)  (Nov),nov,2025-12-19,07:30,0.4%,0.3%,0.4%,,0.4%,0.4%,
 JPY::national cpi::y/y,JPY,National CPI (YoY)  (Nov),nov,2025-12-19,07:30,2.9%,2.9%,,,3.0%,3.0%,
 JPY::national core cpi::y/y,JPY,National Core CPI (YoY)  (Nov),nov,2025-12-19,07:30,3.0%,3.0%,,3.0%,3.0%,3.0%,
 NZD::anz business confidence::none,NZD,ANZ Business Confidence  (Dec),dec,2025-12-19,08:00,73.6,73.6,,,67.1,67.1,
@@ -21387,15 +21387,15 @@ EUR::dutch consumer confidence::none,EUR,Dutch Consumer Confidence  (Dec),dec,20
 AUD::commodity prices::y/y,AUD,Commodity Prices (YoY),,2025-12-19,13:30,-3.8%,-3.8%,,,-1.8%,-1.8%,-1.7%
 JPY::boj press conference::none,JPY,BoJ Press Conference,,2025-12-19,14:30,,,,,,,
 EUR::gfk german consumer climate::none,EUR,GfK German Consumer Climate  (Jan),jan,2025-12-19,15:00,-26.9,-26.9,,-23.0,-23.4,-23.4,-23.2
-GBP::core retail sales::m/m,GBP,Core Retail Sales (MoM)  (Nov),nov,2025-12-19,15:00,-0.2%,-0.2%,,0.2%,-0.8%,-0.8%,-1.0%
-GBP::core retail sales::y/y,GBP,Core Retail Sales (YoY)  (Nov),nov,2025-12-19,15:00,1.2%,1.2%,,1.6%,1.6%,1.6%,1.2%
+GBP::core retail sales::m/m,GBP,Core Retail Sales (MoM)  (Nov),nov,2025-12-19,15:00,-0.2%,-0.4%,-0.2%,0.2%,-0.8%,-0.8%,-1.0%
+GBP::core retail sales::y/y,GBP,Core Retail Sales (YoY)  (Nov),nov,2025-12-19,15:00,1.2%,2.6%,1.2%,1.6%,1.6%,1.6%,1.2%
 EUR::german ppi::m/m,EUR,German PPI (MoM)  (Nov),nov,2025-12-19,15:00,0.0%,0.0%,,0.1%,0.1%,0.1%,
 EUR::german ppi::y/y,EUR,German PPI (YoY)  (Nov),nov,2025-12-19,15:00,-2.3%,-2.3%,,-2.2%,-1.8%,-1.8%,
 GBP::public sector net cash requirement::none,GBP,Public Sector Net Cash Requirement  (Nov),nov,2025-12-19,15:00,10.293B,9.516B,10.293B,,20.460B,20.460B,20.825B
 GBP::retail sales::m/m,GBP,Retail Sales (MoM)  (Nov),nov,2025-12-19,15:00,-0.1%,-0.1%,,0.3%,-0.9%,-0.9%,-1.1%
 SEK::retail sales::m/m,SEK,Retail Sales (MoM)  (Nov),nov,2025-12-19,15:00,1.1%,1.1%,,,-0.2%,-0.2%,-0.3%
 DKK::retail sales::y/y,DKK,Retail Sales (YoY)  (Nov),nov,2025-12-19,15:00,4.7%,4.7%,,,4.9%,4.9%,
-GBP::retail sales::y/y,GBP,Retail Sales (YoY)  (Nov),nov,2025-12-19,15:00,0.6%,0.6%,,1.6%,0.6%,0.6%,0.2%
+GBP::retail sales::y/y,GBP,Retail Sales (YoY)  (Nov),nov,2025-12-19,15:00,0.6%,1.8%,0.6%,1.6%,0.6%,0.6%,0.2%
 SEK::retail sales::y/y,SEK,Retail Sales (YoY)  (Nov),nov,2025-12-19,15:00,5.6%,5.6%,,,3.5%,3.5%,3.4%
 DKK::consumer confidence::none,DKK,Consumer Confidence  (Dec),dec,2025-12-19,15:00,-17.3,-17.3,,,-20.1,-20.1,
 TRY::consumer confidence::none,TRY,Consumer Confidence  (Dec),dec,2025-12-19,15:00,83.5,83.5,,,85.0,85.0,
@@ -21434,7 +21434,7 @@ MXN::private spending::y/y,MXN,Private Spending (YoY)  (Q3),q3,2025-12-19,20:00,
 CAD::core retail sales::m/m,CAD,Core Retail Sales (MoM)  (Oct),oct,2025-12-19,21:30,-0.6%,-0.6%,,0.0%,-0.1%,-0.1%,0.2%
 CAD::retail sales::m/m,CAD,Retail Sales (MoM)  (Oct),oct,2025-12-19,21:30,-0.2%,-0.2%,,0.0%,-0.9%,-0.9%,-0.7%
 CAD::new housing price index::m/m,CAD,New Housing Price Index (MoM)  (Nov),nov,2025-12-19,21:30,0.0%,0.0%,,0.1%,-0.4%,-0.4%,
-CAD::retail sales::m/m,CAD,Retail Sales (MoM)  (Nov),nov,2025-12-19,21:30,1.2%,1.2%,,,-0.2%,-0.2%,
+CAD::retail sales::m/m,CAD,Retail Sales (MoM)  (Nov),nov,2025-12-19,21:30,1.2%,-0.3%,1.2%,,-0.2%,-0.2%,
 USD::fomc member williams speaks::none,USD,FOMC Member Williams Speaks,,2025-12-19,21:30,,,,,,,
 EUR::belgium nbb business climate::none,EUR,Belgium NBB Business Climate  (Dec),dec,2025-12-19,22:00,-11.9,-11.9,,-7.8,-8.2,-8.2,
 USD::cb employment trends index::none,USD,CB Employment Trends Index  (Nov),nov,2025-12-19,23:00,105.80,104.64,105.80,,106.24,106.24,106.84
@@ -21514,7 +21514,7 @@ BRL::fgv consumer confidence::none,BRL,FGV Consumer confidence  (Dec),dec,2025-1
 BRL::bcb focus market readout::none,BRL,BCB Focus Market Readout,,2025-12-22,19:25,,,,,,,
 INR::infrastructure output::y/y,INR,Infrastructure Output (YoY)  (Nov),nov,2025-12-22,19:30,1.8%,2.1%,1.8%,,-0.1%,-0.1%,0.0%
 MXN::economic activity::m/m,MXN,Economic Activity (MoM)  (Oct),oct,2025-12-22,20:00,1.00%,1.00%,,0.50%,-0.40%,-0.40%,-0.60%
-MXN::economic activity::y/y,MXN,Economic Activity (YoY)  (Oct),oct,2025-12-22,20:00,1.70%,1.70%,,1.00%,0.80%,0.80%,0.70%
+MXN::economic activity::y/y,MXN,Economic Activity (YoY)  (Oct),oct,2025-12-22,20:00,1.70%,1.80%,1.70%,1.00%,0.80%,0.80%,0.70%
 PLN::m3 money supply::y/y,PLN,M3 Money Supply (YoY)  (Nov),nov,2025-12-22,21:00,10.6%,10.6%,,10.4%,10.6%,10.6%,
 USD::chicago fed national activity::none,USD,Chicago Fed National Activity  (Sep),sep,2025-12-22,21:30,-0.21,-0.21,,,-0.31,-0.31,-0.12
 CAD::ippi::m/m,CAD,IPPI (MoM)  (Nov),nov,2025-12-22,21:30,0.9%,1.1%,0.9%,0.3%,1.7%,1.7%,1.5%
@@ -21530,7 +21530,7 @@ USD::2 - year note auction::none,USD,2-Year Note Auction,,2025-12-23,02:00,3.499
 ARS::economic activity::y/y,ARS,Economic Activity (YoY)  (Oct),oct,2025-12-23,03:00,3.2%,3.2%,,3.3%,4.8%,4.8%,5.0%
 AUD::rba meeting minutes::none,AUD,RBA Meeting Minutes,,2025-12-23,08:30,,,,,,,
 NZD::m3 money supply::none,NZD,M3 Money Supply  (Nov),nov,2025-12-23,10:00,443.6B,443.6B,,,442.3B,442.3B,
-SGD::cpi::m/m,SGD,CPI (MoM)  (Nov),nov,2025-12-23,13:00,0.30%,0.30%,,,0.00%,0.00%,
+SGD::cpi::m/m,SGD,CPI (MoM)  (Nov),nov,2025-12-23,13:00,0.30%,0.20%,0.30%,,0.00%,0.00%,
 SGD::cpi::y/y,SGD,CPI (YoY)  (Nov),nov,2025-12-23,13:00,1.2%,1.2%,,1.3%,1.2%,1.2%,
 CZK::car registration::m/m,CZK,Car Registration (MoM)  (Nov),nov,2025-12-23,13:00,-8.50%,-8.50%,,,9.00%,9.00%,
 EUR::car registration::m/m,EUR,Car Registration (MoM)  (Nov),nov,2025-12-23,13:00,4.8%,-2.70%,4.8%,,14.3%,14.3%,-2.70%
@@ -21676,7 +21676,7 @@ JPY::corporate services price index (cspi)::y/y,JPY,Corporate Services Price Ind
 JPY::leading index::none,JPY,Leading Index  (Nov),nov,2025-12-24,13:00,109.8,109.8,,110.0,108.6,108.6,110.0
 EUR::dutch gdp::q/q,EUR,Dutch GDP (QoQ)  (Q3),q3,2025-12-24,13:30,0.5%,0.5%,,0.4%,0.3%,0.3%,0.4%
 EUR::dutch gdp::y/y,EUR,Dutch GDP (YoY)  (Q3),q3,2025-12-24,13:30,1.8%,1.8%,,1.6%,1.7%,1.7%,1.6%
-TWD::industrial production::y/y,TWD,Industrial Production (YoY)  (Nov),nov,2025-12-24,16:00,16.42%,16.42%,,,14.15%,14.15%,14.50%
+TWD::industrial production::y/y,TWD,Industrial Production (YoY)  (Nov),nov,2025-12-24,16:00,16.42%,15.82%,16.42%,,14.15%,14.15%,14.50%
 ZMK::cpi::m/m,ZMK,CPI (MoM)  (Dec),dec,2025-12-24,16:00,1.5%,1.5%,,,0.7%,0.7%,
 ZMK::cpi::y/y,ZMK,CPI (YoY)  (Dec),dec,2025-12-24,16:00,11.2%,11.2%,,,10.9%,10.9%,
 MXN::unemployment rate::none,MXN,Unemployment Rate  (Nov),nov,2025-12-24,20:00,2.70%,2.70%,,2.70%,2.60%,2.60%,
