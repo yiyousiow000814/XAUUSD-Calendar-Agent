@@ -13155,13 +13155,13 @@
     "note": "USD Core CPI Index is an inflation reading for the United States. CPI is the Consumer Price Index, a basket of consumer prices. Higher-than-expected inflation can pressure XAUUSD; lower-than-expected inflation can support it."
   },
   "USD::core cpi::m/m": {
-    "note": "USD Core CPI (MoM) is an inflation reading for the United States. It is reported on a month-over-month basis. MoM means the change versus the previous month. CPI is the Consumer Price Index, a basket of consumer prices. Higher-than-expected inflation can pressure XAUUSD; lower-than-expected inflation can support it."
+    "note": "Core CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices excluding food and energy. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
   },
   "USD::core cpi::y/y": {
-    "note": "USD Core CPI (YoY) is an inflation reading for the United States. It is reported on a year-over-year basis. YoY means the change versus the same period a year earlier. CPI is the Consumer Price Index, a basket of consumer prices. Higher-than-expected inflation can pressure XAUUSD; lower-than-expected inflation can support it."
+    "note": "Core CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices excluding food and energy. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
   },
   "USD::core durable goods orders::m/m": {
-    "note": "USD Core Durable Goods Orders (MoM) is an inflation reading for the United States. It is reported on a month-over-month basis. MoM means the change versus the previous month. Higher-than-expected inflation can pressure XAUUSD; lower-than-expected inflation can support it."
+    "note": "Core Durable Goods Orders (MoM) measures the month-over-month % change in durable goods orders excluding transportation. A higher-than-expected reading can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
   },
   "USD::core pce price index::m/m": {
     "note": "USD Core PCE Price Index (MoM) is an inflation reading for the United States. It is reported on a month-over-month basis. MoM means the change versus the previous month. PCE is the Personal Consumption Expenditures price index, the Fed's preferred inflation gauge. Higher-than-expected inflation can pressure XAUUSD; lower-than-expected inflation can support it."
@@ -13194,10 +13194,10 @@
     "note": "USD CPI, N.s.a (MoM) is an inflation reading for the United States. It is reported on a month-over-month basis. MoM means the change versus the previous month. CPI is the Consumer Price Index, a basket of consumer prices. Higher-than-expected inflation can pressure XAUUSD; lower-than-expected inflation can support it."
   },
   "USD::cpi::m/m": {
-    "note": "USD CPI (MoM) is an inflation reading for the United States. It is reported on a month-over-month basis. MoM means the change versus the previous month. CPI is the Consumer Price Index, a basket of consumer prices. Higher-than-expected inflation can pressure XAUUSD; lower-than-expected inflation can support it."
+    "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
   },
   "USD::cpi::y/y": {
-    "note": "USD CPI (YoY) is an inflation reading for the United States. It is reported on a year-over-year basis. YoY means the change versus the same period a year earlier. CPI is the Consumer Price Index, a basket of consumer prices. Higher-than-expected inflation can pressure XAUUSD; lower-than-expected inflation can support it."
+    "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
   },
   "USD::crude oil imports::none": {
     "note": "USD Crude Oil Imports is a trade balance reading for the United States that tracks Crude Oil Imports. Stronger external balance can support the currency and weigh on XAUUSD; a weaker balance can do the opposite."
@@ -13233,13 +13233,13 @@
     "note": "USD Domestic Truck Sales is a macro indicator for the United States that tracks Domestic Truck Sales. Direction depends on how the release shifts USD tone and real-rate expectations."
   },
   "USD::durable goods orders::m/m": {
-    "note": "USD Durable Goods Orders (MoM) is a growth indicator for the United States that tracks Durable Goods Orders. It is reported on a month-over-month basis. MoM means the change versus the previous month. Stronger growth can pressure XAUUSD; weaker growth can support it."
+    "note": "Durable Goods Orders (MoM) measures the month-over-month % change in new orders for long-lasting manufactured goods. A higher-than-expected reading can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
   },
   "USD::durables excluding defense::m/m": {
     "note": "USD Durables Excluding Defense (MoM) is a macro indicator for the United States that tracks Durables Excluding Defense. It is reported on a month-over-month basis. MoM means the change versus the previous month. Direction depends on how the release shifts USD tone and real-rate expectations."
   },
   "USD::durables excluding transport::m/m": {
-    "note": "USD Durables Excluding Transport (MoM) is a macro indicator for the United States that tracks Durables Excluding Transport. It is reported on a month-over-month basis. MoM means the change versus the previous month. Direction depends on how the release shifts USD tone and real-rate expectations."
+    "note": "Durable Goods Orders ex-Transportation (MoM) measures the month-over-month % change in durable goods orders excluding transportation."
   },
   "USD::eia refinery crude runs::w/w": {
     "note": "USD Eia Refinery Crude Runs (WoW) is a macro indicator for the United States that tracks Eia Refinery Crude Runs. It is reported on a week-over-week basis. WoW means the change versus the previous week. Direction depends on how the release shifts USD tone and real-rate expectations."

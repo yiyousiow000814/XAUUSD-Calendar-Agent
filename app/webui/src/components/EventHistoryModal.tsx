@@ -1162,7 +1162,7 @@ export function EventHistoryModal({
                       )
                     ) : null}
                     {hasNotes ? (
-                      <>
+                      <div className="history-notes-wrap">
                         <div className="history-notes-card" data-qa="qa:history:notes">
                           <div className="history-notes-title">Description</div>
                           <div className="history-notes-text">{eventNotes.note}</div>
@@ -1171,10 +1171,10 @@ export function EventHistoryModal({
                           className="history-notes-disclaimer"
                           data-qa="qa:history:disclaimer"
                         >
-                          XAUUSD impact guidance is based on experience, not yet backed by
+                          *XAUUSD impact guidance is based on experience, not yet backed by
                           statistical analysis; quantitative validation will be added later.
                         </div>
-                      </>
+                      </div>
                     ) : null}
                   </div>
                   <div className="history-modal-layout-right">

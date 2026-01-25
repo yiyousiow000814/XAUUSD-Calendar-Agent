@@ -221,12 +221,14 @@
   align-items: stretch;
   flex: 1;
   min-height: 0;
+  padding-bottom: 12px;
 }
 
 .history-modal-layout-left,
 .history-modal-layout-right {
   display: flex;
   flex-direction: column;
+  gap: 16px;
   min-height: 0;
   min-width: 0;
 }
@@ -857,8 +859,13 @@
   }
 }
 
+.history-notes-wrap {
+  margin-top: auto;
+  position: relative;
+}
+
 .history-notes-card {
-  margin-top: 16px;
+  margin-top: 0;
   margin-bottom: 0;
   border: 1px solid var(--panel-border);
   background: var(--table-row-bg);
@@ -881,7 +888,9 @@
 }
 
 .history-notes-disclaimer {
-  margin-top: 8px;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
   padding: 0 18px;
   font-size: 11px;
   line-height: 1.4;

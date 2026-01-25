@@ -63,6 +63,32 @@ let baseURL = process.env.UI_BASE_URL || "http://127.0.0.1:4173";
 let shouldStartServer = !process.env.UI_BASE_URL;
 const defaultPort = Number.parseInt(process.env.UI_CHECK_PORT || "", 10) || 4183;
 let serverState = null;
+let browser = null;
+let shutdownStarted = false;
+
+const shutdown = async (reason) => {
+  if (shutdownStarted) return;
+  shutdownStarted = true;
+  try {
+    if (browser) {
+      await browser.close();
+      browser = null;
+    }
+  } catch {
+    // ignore
+  }
+  try {
+    if (serverState?.server) {
+      await stopServer(serverState.server);
+      serverState = null;
+    }
+  } catch {
+    // ignore
+  }
+  if (reason) {
+    console.warn(`WARN ui-check: shutdown (${reason})`);
+  }
+};
 
 const ensureDir = async (dir) => {
   await fs.mkdir(dir, { recursive: true });
@@ -430,7 +456,7 @@ const startServer = async (port) => {
   return server;
 };
 
-const stopServer = async (server) => {
+async function stopServer(server) {
   if (!server?.pid) return;
   if (process.platform === "win32") {
     await new Promise((resolve) => {
@@ -448,7 +474,7 @@ const stopServer = async (server) => {
   } catch {
     // ignore
   }
-};
+}
 
 const pickPort = async (start, count = 6) => {
   for (let i = 0; i < count; i += 1) {
@@ -2106,7 +2132,6 @@ const main = async () => {
     });
   };
 
-  let browser;
   const artifacts = [];
   const activityPillDiagnostics = [];
   try {
@@ -2467,6 +2492,34 @@ const main = async () => {
                 return {
                   ok: false,
                   reason: `notes disclaimer gap too tight (gap=${gap.toFixed(2)}px)`
+                };
+              }
+              return { ok: true, reason: "" };
+            });
+            if (!result.ok) {
+              throw new Error(result.reason);
+            }
+          });
+          await runCheck(theme.key, "History notes card aligns with table bottom", async () => {
+            const result = await page.evaluate(() => {
+              const notesCard = document.querySelector(".history-notes-card");
+              const table = document.querySelector(".history-modal-table");
+              if (
+                !(notesCard instanceof HTMLElement) ||
+                !(table instanceof HTMLElement)
+              ) {
+                return { ok: false, reason: "notes card or table missing" };
+              }
+              const cardRect = notesCard.getBoundingClientRect();
+              const tableRect = table.getBoundingClientRect();
+              const delta = Math.abs(cardRect.bottom - tableRect.bottom);
+              if (delta > 1.5) {
+                return {
+                  ok: false,
+                  reason:
+                    "notes card bottom misaligned " +
+                    `(delta=${delta.toFixed(2)}px card=${cardRect.bottom.toFixed(2)} ` +
+                    `table=${tableRect.bottom.toFixed(2)})`
                 };
               }
               return { ok: true, reason: "" };
@@ -5311,22 +5364,24 @@ const main = async () => {
       "utf-8"
     );
   } finally {
-    try {
-      if (browser) await browser.close();
-    } catch {
-      // ignore
-    }
-    try {
-      if (serverState?.server) await stopServer(serverState.server);
-    } catch {
-      // ignore
-    }
+    await shutdown("finally");
   }
 };
 
+const attachSignalHandlers = () => {
+  process.once("SIGINT", () => {
+    shutdown("SIGINT").finally(() => process.exit(130));
+  });
+  process.once("SIGTERM", () => {
+    shutdown("SIGTERM").finally(() => process.exit(143));
+  });
+};
+
+attachSignalHandlers();
+
 main().catch((err) => {
   console.error(err);
-  process.exit(1);
+  shutdown("error").finally(() => process.exit(1));
 });
 
 
