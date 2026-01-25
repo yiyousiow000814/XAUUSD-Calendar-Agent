@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { EventItem } from "../types";
 import { Select } from "./Select";
+import { normalizeAcronyms } from "../utils/normalizeAcronyms";
 import "./NextEvents.css";
 
 type NextEventsProps = {
@@ -213,13 +214,15 @@ export function NextEvents({
   };
 
   const filtered = useMemo(() => {
+    // Keep search behavior consistent with what the user sees on screen.
     const queryValue = query.trim().toLowerCase();
     return events.filter((item) => {
       const impactMatch = impactFilter.length
         ? impactFilter.some((impact) => item.impact.toLowerCase().includes(impact.toLowerCase()))
         : true;
+
       const queryMatch = queryValue
-        ? [item.event, item.cur, item.impact, item.time]
+        ? [normalizeAcronyms(item.event), item.cur, item.impact, item.time]
             .join(" ")
             .toLowerCase()
             .includes(queryValue)
@@ -351,7 +354,7 @@ export function NextEvents({
                       onOpenHistory(item);
                     }
                   }}
-                  aria-label={`View history for ${item.cur} ${item.event}`}
+                  aria-label={`View history for ${item.cur} ${normalizeAcronyms(item.event)}`}
                   ref={(el) => {
                     if (el) {
                       rowRefs.current.set(key, el);
@@ -364,7 +367,7 @@ export function NextEvents({
                   <div className="event-main">
                     <div className="event-title">
                       <span className="event-impact" aria-hidden="true" />
-                      <span className="event-name">{item.event}</span>
+                      <span className="event-name">{normalizeAcronyms(item.event)}</span>
                     </div>
                     <div className="event-meta">
                       <span className="event-cur mono">{item.cur}</span>

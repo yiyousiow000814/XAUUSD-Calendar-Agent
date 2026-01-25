@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { PastEventItem } from "../types";
+import { normalizeAcronyms } from "../utils/normalizeAcronyms";
 import "./HistoryPanel.css";
 
 type HistoryRange = "48h" | "7d" | "14d" | "30d";
@@ -478,7 +479,7 @@ export function HistoryPanel({
                             onOpenHistory(item);
                           }
                         }}
-                        aria-label={`View history for ${item.cur} ${item.event}`}
+                        aria-label={`View history for ${item.cur} ${normalizeAcronyms(item.event)}`}
                       >
                           <span className="history-time mono">
                             {item.time.split(" ")[1] || item.time}
@@ -488,7 +489,7 @@ export function HistoryPanel({
                           </span>
                           <span className="history-event-name">
                             <span className="history-event-cur mono">{item.cur}</span>
-                            <span className="history-event-title">{item.event}</span>
+                            <span className="history-event-title">{normalizeAcronyms(item.event)}</span>
                           </span>
                           <span
                             className={`history-trend history-trend-${trend}`}

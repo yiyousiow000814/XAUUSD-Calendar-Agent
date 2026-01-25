@@ -2402,7 +2402,9 @@ class WebAgentBackend:
         max_items = 6000 if selected == "ALL" else 300
         tz = utc_offset_minutes_to_tzinfo(self._effective_calendar_utc_offset_minutes())
         source_tz = utc_offset_minutes_to_tzinfo(CALENDAR_SOURCE_UTC_OFFSET_MINUTES)
-        rendered = []
+        repo_path = self._resolve_calendar_repo_path() or self._get_main_repo_path()
+        history_by_event: dict[str, list[dict]] = {}
+        best_by_key: dict[tuple[str, str, str], tuple[datetime, int, dict]] = {}
         candidates = [
             event for event in events if isinstance(event.get("dt_utc"), datetime)
         ]
@@ -2415,23 +2417,96 @@ class WebAgentBackend:
                 continue
             time_label = event.get("time_label", "")
             dt_display = dt_utc.astimezone(tz)
-            source_date = dt_utc.astimezone(source_tz).strftime("%d-%m-%Y")
-            rendered.append(
-                {
-                    "time": self._format_time_text(
-                        dt_display, time_label, source_date_label=source_date
-                    ),
-                    "cur": event_currency or "--",
-                    "impact": (event.get("importance") or "--").strip() or "--",
-                    "event": (event.get("event") or "").strip(),
-                    "actual": (event.get("actual") or "").strip(),
-                    "forecast": (event.get("forecast") or "").strip(),
-                    "previous": (event.get("previous") or "").strip(),
-                }
+            dt_source = dt_utc.astimezone(source_tz)
+            source_date_iso = dt_source.date().isoformat()
+            source_date_label = dt_source.strftime("%d-%m-%Y")
+
+            event_name = (event.get("event") or "").strip()
+            actual = (event.get("actual") or "").strip()
+            forecast = (event.get("forecast") or "").strip()
+            previous = (event.get("previous") or "").strip()
+
+            # Some calendar feeds contain duplicated entries for the same event + day with
+            # different times, where one row has values and the other is blank. Prefer the
+            # row with more available fields to avoid showing "TBA" when data exists.
+            score = sum(
+                0 if self._is_history_value_missing(value) else 1
+                for value in (actual, forecast, previous)
             )
-            if len(rendered) >= max_items:
-                break
-        return rendered
+
+            # If the calendar row is missing values, try to fill them from the event history
+            # index for the same day (best-effort, only when data is available).
+            if repo_path and event_currency and event_name:
+                if (
+                    self._is_history_value_missing(actual)
+                    or self._is_history_value_missing(forecast)
+                    or self._is_history_value_missing(previous)
+                ):
+                    event_id, _ = build_event_canonical_id(event_currency, event_name)
+                    points = history_by_event.get(event_id)
+                    if points is None:
+                        points = self._get_cached_event_history(event_id)
+                        if points is None:
+                            points = self._collect_event_history_from_index(
+                                event_id, repo_path
+                            )
+                            points = self._apply_previous_fallback(points)
+                            self._store_event_history_cache(event_id, points)
+                        history_by_event[event_id] = points
+
+                    if points:
+                        target_minutes = dt_source.hour * 60 + dt_source.minute
+                        best_point: dict | None = None
+                        best_delta: int | None = None
+                        for point in reversed(points):
+                            if (point.get("date") or "").strip() != source_date_iso:
+                                continue
+                            point_minutes = self._parse_history_time_minutes(
+                                (point.get("time") or "").strip()
+                            )
+                            delta = abs(point_minutes - target_minutes)
+                            if best_delta is None or delta < best_delta:
+                                best_delta = delta
+                                best_point = point
+                                if best_delta == 0:
+                                    break
+                        if best_point:
+                            if self._is_history_value_missing(actual):
+                                actual = (best_point.get("actual") or "").strip()
+                            if self._is_history_value_missing(forecast):
+                                forecast = (best_point.get("forecast") or "").strip()
+                            if self._is_history_value_missing(previous):
+                                previous = (best_point.get("previous") or "").strip()
+                            score = sum(
+                                0 if self._is_history_value_missing(value) else 1
+                                for value in (actual, forecast, previous)
+                            )
+
+            rendered = {
+                "time": self._format_time_text(
+                    dt_display, time_label, source_date_label=source_date_label
+                ),
+                "cur": event_currency or "--",
+                "impact": (event.get("importance") or "--").strip() or "--",
+                "event": event_name,
+                "actual": actual,
+                "forecast": forecast,
+                "previous": previous,
+            }
+
+            key = (event_currency or "--", event_name, source_date_iso)
+            existing = best_by_key.get(key)
+            if existing is None:
+                best_by_key[key] = (dt_utc, score, rendered)
+                continue
+
+            existing_dt, existing_score, _ = existing
+            if score > existing_score or (score == existing_score and dt_utc > existing_dt):
+                best_by_key[key] = (dt_utc, score, rendered)
+
+        # Flatten the "best per day" items and keep the same newest-first ordering.
+        flattened = sorted(best_by_key.values(), key=lambda item: item[0], reverse=True)
+        return [item[2] for item in flattened[:max_items]]
 
     def _event_history_index_paths(self, repo_path: Path) -> list[Path]:
         index_dir = repo_path / "data" / "event_history_index"
