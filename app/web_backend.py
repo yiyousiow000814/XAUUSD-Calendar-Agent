@@ -2501,7 +2501,9 @@ class WebAgentBackend:
                 continue
 
             existing_dt, existing_score, _ = existing
-            if score > existing_score or (score == existing_score and dt_utc > existing_dt):
+            if score > existing_score or (
+                score == existing_score and dt_utc > existing_dt
+            ):
                 best_by_key[key] = (dt_utc, score, rendered)
 
         # Flatten the "best per day" items and keep the same newest-first ordering.

@@ -629,14 +629,18 @@ def _drop_stale_month_placeholder_rows(df: pd.DataFrame) -> pd.DataFrame:
     working["Actual"] = working["Actual"].fillna("").astype(str).str.strip()
 
     working["_ym"] = working["Date"].astype(str).str.slice(0, 7)
-    working["_event_exact"] = working["Event"].map(lambda v: re.sub(r"\s{2,}", " ", v).strip())
+    working["_event_exact"] = working["Event"].map(
+        lambda v: re.sub(r"\s{2,}", " ", v).strip()
+    )
     working["_event_base"] = working["_event_exact"].map(_strip_month_suffix)
     working["_has_month"] = working["_event_exact"].map(_has_month_suffix)
 
     now_source = datetime.now(timezone(timedelta(hours=8)))
     dts = [
         _event_datetime_source_tz(d, t)
-        for d, t in zip(working["Date"].astype(str).tolist(), working["Time"].astype(str).tolist())
+        for d, t in zip(
+            working["Date"].astype(str).tolist(), working["Time"].astype(str).tolist()
+        )
     ]
     working["_dt_source"] = dts
     working["_not_future"] = working["_dt_source"].map(
@@ -645,7 +649,11 @@ def _drop_stale_month_placeholder_rows(df: pd.DataFrame) -> pd.DataFrame:
 
     def actual_missing(series: pd.Series) -> pd.Series:
         text = series.astype(str).str.strip().str.lower()
-        return text.eq("") | text.isin(MISSING_VALUE_TOKENS) | text.isin({"--", "-", "\u2014", "null"})
+        return (
+            text.eq("")
+            | text.isin(MISSING_VALUE_TOKENS)
+            | text.isin({"--", "-", "\u2014", "null"})
+        )
 
     working["_actual_missing"] = actual_missing(working["Actual"])
     working["_actual_present"] = ~working["_actual_missing"]
