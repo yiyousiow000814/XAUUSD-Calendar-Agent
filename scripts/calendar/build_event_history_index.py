@@ -953,6 +953,8 @@ def build_index(
                         continue
                     if not group:
                         continue
+                elif not group:
+                    continue
 
                 points: list[list[str]] = []
                 for entry in group:
