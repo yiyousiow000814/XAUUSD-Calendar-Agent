@@ -11247,7 +11247,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2014-10-03,Friday,17:00,EUR,Low,Retail Sales (YoY)  (Aug),1.9%,0.5%,0.5%
 2014-10-03,Friday,17:00,NOK,Low,House Price Index (YoY)  (Sep),3.60%,,2.30%
 2014-10-03,Friday,18:00,IDR,Low,M2 Money Supply (YoY),11.00%,,11.00%
-2014-10-03,Friday,19:30,INR,Low,Bank Loan Growth,,,9.7%
 2014-10-03,Friday,19:30,INR,Low,Deposit Growth,,,13.8%
 2014-10-03,Friday,19:30,INR,Low,"FX Reserves, USD",314.18B,,315.60B
 2014-10-03,Friday,20:00,RUB,Medium,CPI (MoM),0.7%,0.6%,0.2%
@@ -12427,7 +12426,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2014-10-31,Friday,01:00,USD,Medium,7-Year Note Auction,2.018%,,2.235%
 2014-10-31,Friday,04:30,MXN,Low,Fiscal Balance  (Sep),,,-13.52B
 2014-10-31,Friday,05:45,NZD,Low,Building Consents (MoM)  (Sep),-12.2%,1.0%,-0.8%
-2014-10-31,Friday,06:00,QAR,Low,Total Credit (YoY)  (Sep),,,9.00%
 2014-10-31,Friday,07:30,JPY,Low,National CPI (YoY)  (Sep),3.2%,3.2%,3.3%
 2014-10-31,Friday,07:30,JPY,Low,Tokyo CPI (YoY)  (Oct),2.5%,2.7%,2.9%
 2014-10-31,Friday,07:30,JPY,Low,Unemployment Rate  (Sep),3.6%,3.6%,3.5%
@@ -15400,7 +15398,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2014-12-31,Wednesday,17:00,CZK,Low,Foreign Debt (EUR)  (Q3),,,82.40B
 2014-12-31,Wednesday,17:00,CZK,Low,M2 Money Supply (YoY)  (Nov),3.90%,,4.00%
 2014-12-31,Wednesday,17:00,MYR,Low,Money Supply (YoY)  (Nov),7.1%,,5.4%
-2014-12-31,Wednesday,17:00,NOK,Low,Central Bank Currency Purchase  (Jan),,,-300.0M
 2014-12-31,Wednesday,17:00,UGX,Low,CPI (YoY)  (Dec),1.8%,,2.1%
 2014-12-31,Wednesday,18:00,EUR,Low,Greek Retail Sales (YoY)  (Oct),3.7%,,2.2%
 2014-12-31,Wednesday,18:30,INR,Low,Federal Fiscal Deficit  (Nov),"5,251.34B",,"4,757.51B"
@@ -15413,7 +15410,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2014-12-31,Wednesday,21:30,USD,High,Initial Jobless Claims,298K,288K,281K
 2014-12-31,Wednesday,21:30,USD,Low,Jobless Claims 4-Week Avg.,290.75K,,290.50K
 2014-12-31,Wednesday,21:30,USD,Medium,Continuing Jobless Claims,"2,353K","2,360K","2,406K"
-2014-12-31,Wednesday,22:05,EGP,Low,M2 Money Supply (YoY)  (Nov),,,15.71%
 2014-12-31,Wednesday,22:30,BRL,Low,Foreign Exchange Flows,-10.80B,,-7.06B
 2014-12-31,Wednesday,22:45,USD,High,Chicago PMI  (Dec),58.3,60.2,60.8
 2014-12-31,Wednesday,23:00,USD,Low,Pending Home Sales Index  (Nov),104.8,,104.1

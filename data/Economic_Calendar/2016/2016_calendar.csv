@@ -85,7 +85,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2016-01-01,Friday,14:00,PEN,Low,CPI (MoM)  (Dec),0.45%,0.26%,0.34%
 2016-01-01,Friday,17:00,TRY,Low,Exports  (Dec),,,11.44B
 2016-01-02,Saturday,All Day,,Holiday,Rwanda -  Day After New Year's,,,
-2016-01-02,Saturday,05:00,ARS,Low,Tax Revenue  (Dec),,,129.49B
 2016-01-03,Sunday,All Day,,Holiday,Kuwait - New-Year Holidays,,,
 2016-01-04,Monday,All Day,,Holiday,New Zealand - New Year (Observed),,,
 2016-01-04,Monday,All Day,,Holiday,Ukraine - Exchange Holiday,,,
@@ -719,7 +718,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2016-01-15,Friday,17:00,NOK,Low,Trade Balance  (Dec),18.1B,,15.4B
 2016-01-15,Friday,17:00,TRY,Low,Budget balance  (Dec),-17.18B,,0.80B
 2016-01-15,Friday,17:30,GBP,Medium,BOE Credit Conditions Survey,,,
-2016-01-15,Friday,18:00,EUR,Low,Greek Credit Expansion (YoY)  (Nov),,,0.7%
 2016-01-15,Friday,18:00,EUR,Medium,Trade Balance  (Nov),23.6B,,24.1B
 2016-01-15,Friday,18:30,BRL,Low,IBC-Br Economic Activity  (Nov),-0.52%,-1.00%,-0.55%
 2016-01-15,Friday,19:30,INR,Low,"FX Reserves, USD",348.93B,,350.37B
@@ -1736,7 +1734,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2016-02-05,Friday,22:00,MXN,Low,Consumer Confidence n.s.a.  (Jan),92.5,90.6,93.0
 2016-02-05,Friday,23:00,CAD,Low,Ivey PMI n.s.a  (Jan),56.7,,42.5
 2016-02-05,Friday,23:00,CAD,Medium,Ivey PMI  (Jan),66.0,50.0,49.9
-2016-02-05,Friday,23:00,PLN,Low,Current Account (EUR)  (Dec),,,620M
 2016-02-05,Friday,23:30,TRY,Low,Treasury Cash Balance  (Jan),3.300B,,-4.190B
 2016-02-06,Saturday,All Day,,Holiday,New Zealand - Waitangi Day,,,
 2016-02-06,Saturday,00:45,RUB,Medium,CPI (MoM)  (Jan),1.0%,0.9%,0.8%
@@ -4933,8 +4930,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2016-04-12,Tuesday,15:30,SEK,Low,CPIF (CPI at constant interest rates) (YoY)  (Mar),1.5%,1.4%,1.1%
 2016-04-12,Tuesday,15:30,SEK,Medium,CPI (MoM)  (Mar),0.5%,0.4%,0.3%
 2016-04-12,Tuesday,15:30,SEK,Medium,CPI (YoY)  (Mar),0.8%,0.7%,0.4%
-2016-04-12,Tuesday,15:30,THB,Low,Currency Swaps (USD),,,13.8B
-2016-04-12,Tuesday,15:30,THB,Low,Foreign Reserves (USD),,,175.5B
 2016-04-12,Tuesday,16:30,GBP,High,CPI (YoY)  (Mar),0.5%,0.4%,0.3%
 2016-04-12,Tuesday,16:30,GBP,Low,Core CPI (YoY),1.5%,1.3%,1.2%
 2016-04-12,Tuesday,16:30,GBP,Low,Core PPI Output (MoM)  (Mar),0.1%,0.1%,0.1%
@@ -5060,7 +5055,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2016-04-14,Thursday,11:00,NZD,Low,RBNZ Offshore Holdings  (Mar),64.10%,,64.70%
 2016-04-14,Thursday,11:45,JPY,Low,30-Year JGB Auction,0.388%,,0.765%
 2016-04-14,Thursday,14:00,EUR,Low,Finnish CPI (YoY)  (Mar),0.0%,0.0%,-0.1%
-2016-04-14,Thursday,14:30,INR,Low,WPI Manufacturing Inflation (YoY)  (Mar),,,-0.58%
 2016-04-14,Thursday,15:00,EUR,Low,Austrian HICP (MoM)  (Mar),1.0%,,-0.1%
 2016-04-14,Thursday,15:00,EUR,Low,Austrian HICP (YoY)  (Mar),0.6%,0.8%,1.0%
 2016-04-14,Thursday,15:00,EUR,Low,Slovak CPI (MoM)  (Mar),0.0%,0.2%,0.1%
@@ -5989,7 +5983,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2016-05-03,Tuesday,22:00,NZD,Low,GlobalDairyTrade Price Index,-1.4%,,3.8%
 2016-05-03,Tuesday,22:00,USD,Low,IBD/TIPP Economic Optimism,48.7,46.6,46.3
 2016-05-03,Tuesday,22:30,USD,Medium,FOMC Member Mester Speaks,,,
-2016-05-03,Tuesday,23:30,EUR,Low,Irish Exchequer Returns  (Apr),,,-1.170B
 2016-05-03,Tuesday,23:30,USD,Low,4-Week Bill Auction,0.170%,,0.190%
 2016-05-04,Wednesday,All Day,,Holiday,Japan - Greenery Day,,,
 2016-05-04,Wednesday,All Day,,Holiday,Latvia - Independence Day,,,
@@ -9797,7 +9790,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2016-07-21,Thursday,17:00,EUR,Low,Greek Credit Expansion (YoY)  (May),-2.2%,,-1.8%
 2016-07-21,Thursday,18:00,EUR,Low,Latvian PPI (MoM)  (Jun),0.2%,,-0.2%
 2016-07-21,Thursday,18:00,EUR,Low,Latvian PPI (YoY)  (Jun),-3.5%,,-3.3%
-2016-07-21,Thursday,18:00,IDR,Low,Loans (YoY)  (May),,,8.00%
 2016-07-21,Thursday,19:45,EUR,High,Deposit Facility Rate,-0.40%,-0.40%,-0.40%
 2016-07-21,Thursday,19:45,EUR,High,ECB Interest Rate Decision  (Jul),0.00%,0.00%,0.00%
 2016-07-21,Thursday,20:00,BRL,Low,Mid-Month CPI (MoM)  (Jul),0.54%,0.46%,0.40%
@@ -15986,7 +15978,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2016-12-01,Thursday,05:00,BRL,Medium,Interest Rate Decision,13.75%,13.75%,14.00%
 2016-12-01,Thursday,05:00,UGX,Low,CPI (YoY)  (Nov),4.6%,,4.1%
 2016-12-01,Thursday,05:45,NZD,Low,Terms of Trade - Exports Prices  (Q3),-2.8%,,-1.9%
-2016-12-01,Thursday,05:45,NZD,Low,Terms of Trade - Exports Volume (QoQ)  (Q3),,,10.2%
 2016-12-01,Thursday,05:45,NZD,Low,Terms of Trade - Imports Prices  (Q3),-1.0%,,0.2%
 2016-12-01,Thursday,05:45,NZD,Low,Terms of Trade Index (QoQ)  (Q3),-1.8%,,-2.1%
 2016-12-01,Thursday,06:30,AUD,Low,AIG Manufacturing Index  (Nov),54.2,,50.9
@@ -16123,7 +16114,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2016-12-03,Saturday,04:30,USD,Medium,CFTC Crude Oil speculative net positions,287.9K,,276.3K
 2016-12-03,Saturday,04:30,USD,Medium,CFTC Gold speculative net positions,151.6K,,167.1K
 2016-12-03,Saturday,04:30,USD,Medium,CFTC S&P 500 speculative net positions,-139.3K,,-70.4K
-2016-12-03,Saturday,18:00,EUR,Low,Greek CPI (YoY)  (Nov),,,-0.5%
 2016-12-05,Monday,All Day,,Holiday,Thailand - H.M. The King's Birthday,,,
 2016-12-05,Monday,05:00,KRW,Low,FX Reserves - USD  (Nov),371.99B,,375.17B
 2016-12-05,Monday,06:30,AUD,Low,AIG Services Index  (Nov),51.1,,50.5
@@ -16244,7 +16234,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2016-12-07,Wednesday,00:30,USD,Low,4-Week Bill Auction,0.340%,,0.365%
 2016-12-07,Wednesday,00:30,USD,Low,52-Week Bill Auction,0.830%,,0.695%
 2016-12-07,Wednesday,05:35,USD,Medium,API Weekly Crude Oil Stock,-2.210M,-1.370M,-0.717M
-2016-12-07,Wednesday,05:45,NZD,Low,Manufacturing Sales Volume (QoQ)  (Q3),,,2.8%
 2016-12-07,Wednesday,06:00,NZD,Medium,RBNZ Gov Wheeler Speaks,,,
 2016-12-07,Wednesday,06:30,AUD,Low,AIG Construction Index  (Nov),46.6,,45.9
 2016-12-07,Wednesday,07:00,JPY,Low,Reuters Tankan Index  (Dec),16,,14
@@ -16633,8 +16622,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2016-12-14,Wednesday,05:00,KRW,Low,Export Price Index (YoY)  (Nov),3.8%,,-1.4%
 2016-12-14,Wednesday,05:00,KRW,Low,Import Price Index (YoY)  (Nov),3.6%,,-0.6%
 2016-12-14,Wednesday,05:35,USD,Medium,API Weekly Crude Oil Stock,4.680M,-1.500M,-2.210M
-2016-12-14,Wednesday,05:45,NZD,Low,Current Account % of GDP  (Q3),,,-2.90%
-2016-12-14,Wednesday,05:45,NZD,Medium,Current Account (YoY)  (Q3),,,-7.38B
 2016-12-14,Wednesday,06:30,AUD,Low,New Motor Vehicle Sales (MoM)  (Nov),-0.6%,,-2.4%
 2016-12-14,Wednesday,07:00,KRW,Low,Unemployment Rate  (Nov),3.6%,,3.7%
 2016-12-14,Wednesday,07:30,AUD,Low,Westpac Consumer Sentiment  (Dec),-3.9%,,-1.1%
