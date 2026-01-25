@@ -233,6 +233,10 @@
   min-width: 0;
 }
 
+.history-modal-layout-left--no-chart .history-notes-wrap {
+  margin-top: 0;
+}
+
 @media (max-width: 940px) {
   .history-modal-layout {
     grid-template-columns: 1fr;

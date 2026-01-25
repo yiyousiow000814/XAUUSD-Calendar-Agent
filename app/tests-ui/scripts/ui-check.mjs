@@ -2968,6 +2968,63 @@ const main = async () => {
           await historyClose.click();
         }
       }
+
+      // Some events (e.g. statements/speeches) have no metric series. In that case, the
+      // Description block should sit near the top (not pinned to the bottom).
+      const noChartRow = page
+        .locator("[data-qa='qa:row:next-event']")
+        .filter({ hasText: "FOMC Statement" })
+        .first();
+      if (await noChartRow.count()) {
+        await noChartRow.click();
+        const noChartModal = page.locator(".modal-history.open");
+        await noChartModal.waitFor({ state: "visible" });
+
+        const historyTable = noChartModal.locator("[data-qa='qa:history:table']").first();
+        await historyTable.waitFor({ state: "visible", timeout: 8000 }).catch(() => null);
+        await page.waitForTimeout(80);
+
+        const chart = noChartModal.locator(".history-modal-chart").first();
+        await runCheck(theme.key, "History notes not pinned when chart missing", async () => {
+          if (await chart.count()) return;
+          const result = await page.evaluate(() => {
+            const notesCard = document.querySelector(".history-notes-card");
+            const table = document.querySelector(".history-modal-table");
+            if (!(notesCard instanceof HTMLElement) || !(table instanceof HTMLElement)) {
+              return { ok: false, reason: "notes card or table missing" };
+            }
+            const cardRect = notesCard.getBoundingClientRect();
+            const tableRect = table.getBoundingClientRect();
+            const delta = Math.abs(cardRect.top - tableRect.top);
+            if (delta > 1.5) {
+              return {
+                ok: false,
+                reason:
+                  "notes card top misaligned when chart missing " +
+                  `(delta=${delta.toFixed(2)}px card=${cardRect.top.toFixed(2)} table=${tableRect.top.toFixed(2)})`
+              };
+            }
+            return { ok: true, reason: "" };
+          });
+          if (!result.ok) throw new Error(result.reason);
+        });
+
+        artifacts.push({
+          scenario: "event-history-modal",
+          theme: theme.key,
+          state: "no-chart",
+          label: "History modal without chart (notes near top)",
+          path: await captureState(page, "event-history-modal", theme.key, "no-chart", {
+            element: noChartModal
+          })
+        });
+
+        const historyClose = page.locator("[data-qa='qa:modal-close:history']").first();
+        if (await historyClose.count()) {
+          await historyClose.click();
+        }
+      }
+
     const eventsCard = page.locator("[data-qa='qa:card:next-events']").first();
     await runCheck(theme.key, "Next Events reorder animation", () =>
       assertNextEventsReorderAnim(page, "evt-2026-01-05-0700-cad-housing-starts")

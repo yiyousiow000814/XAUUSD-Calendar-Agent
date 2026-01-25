@@ -903,7 +903,11 @@ export function EventHistoryModal({
                   ) : null}
                 </div>
                 <div className="history-modal-layout">
-                  <div className="history-modal-layout-left">
+                  <div
+                    className={`history-modal-layout-left${
+                      hasMetricValues ? "" : " history-modal-layout-left--no-chart"
+                    }`}
+                  >
                     {hasMetricValues ? (
                       chart ? (
                         <div
