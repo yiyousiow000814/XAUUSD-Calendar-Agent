@@ -59,6 +59,37 @@ ACRONYMS = {
     "bnz": "BNZ",
 }
 
+METRIC_DEFINITION_RULES = [
+    (
+        re.compile(r"\bCPI\b|\bConsumer Price Index\b", re.IGNORECASE),
+        "CPI is the Consumer Price Index, a basket of consumer prices.",
+    ),
+    (
+        re.compile(r"\bPCE\b|\bPersonal Consumption Expenditures\b", re.IGNORECASE),
+        "PCE is the Personal Consumption Expenditures price index, the Fed's preferred inflation gauge.",
+    ),
+    (
+        re.compile(r"\bPPI\b|\bProducer Price Index\b", re.IGNORECASE),
+        "PPI is the Producer Price Index, prices received by producers.",
+    ),
+    (
+        re.compile(r"\bGDP\b|\bGross Domestic Product\b", re.IGNORECASE),
+        "GDP is Gross Domestic Product, total economic output.",
+    ),
+    (
+        re.compile(r"\bPMI\b|\bPurchasing Managers' Index\b", re.IGNORECASE),
+        "PMI is a Purchasing Managers' Index, a survey of business activity.",
+    ),
+    (
+        re.compile(r"\bISM\b|\bInstitute for Supply Management\b", re.IGNORECASE),
+        "ISM is the Institute for Supply Management survey.",
+    ),
+    (
+        re.compile(r"\bNFP\b|\bNonfarm Payrolls\b", re.IGNORECASE),
+        "NFP is Nonfarm Payrolls, the monthly change in employment.",
+    ),
+]
+
 
 def split_event_id(event_id: str) -> tuple[str, str, str]:
     parts = event_id.split("::")
@@ -84,6 +115,13 @@ def humanize_metric(metric: str) -> str:
     for token, label in ACRONYMS.items():
         result = re.sub(rf"\b{re.escape(token)}\b", label, result, flags=re.IGNORECASE)
     return result
+
+
+def build_metric_definition(metric_label: str) -> str:
+    for pattern, definition in METRIC_DEFINITION_RULES:
+        if pattern.search(metric_label):
+            return definition
+    return ""
 
 
 def category_for_metric(metric: str) -> str:
@@ -140,7 +178,7 @@ def build_what(
     if category == "rates":
         return f"{bank} policy rate decision for {region}.{freq_suffix}"
     if category == "inflation":
-        return f"An inflation reading for {region} that tracks {metric_label}.{freq_suffix}"
+        return f"An inflation reading for {region}.{freq_suffix}"
     if category == "labor":
         return f"A labor market report for {region} that tracks {metric_label}.{freq_suffix}"
     if category == "growth":
@@ -162,14 +200,6 @@ def build_what(
     if category == "rates-market":
         return f"A market rate signal for {region} that tracks {metric_label}.{freq_suffix}"
     return f"A macro indicator for {region} that tracks {metric_label}.{freq_suffix}"
-
-
-def build_impact(currency: str) -> str:
-    if currency == "USD":
-        return "This can move USD and real yields, which are key drivers of XAUUSD."
-    if currency in {"", "NA"}:
-        return "This can shift global rates and risk tone; XAUUSD often reacts via USD and real yields."
-    return f"This can move {currency} and global rate expectations; XAUUSD often reacts via USD and real yields."
 
 
 def build_direction(category: str) -> str:
@@ -245,10 +275,14 @@ def main() -> None:
         what = build_what(
             category, metric_label, info["region"], info["bank"], frequency
         )
-        impact = build_impact(currency)
+        definition = build_metric_definition(metric_label)
         reaction = build_direction(category)
         explainer = f" {frequency_explainer}" if frequency_explainer else ""
-        note = f"{event_label} is {lower_leading_article(what)}{explainer} {impact} {reaction}"
+        definition_text = f" {definition}" if definition else ""
+        note = (
+            f"{event_label} is {lower_leading_article(what)}{explainer}"
+            f"{definition_text} {reaction}"
+        )
         notes[event_id] = {"note": note.strip()}
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
