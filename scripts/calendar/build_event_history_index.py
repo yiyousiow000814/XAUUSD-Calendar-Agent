@@ -434,10 +434,17 @@ def _merge_rows_by_date_range(
     return merged
 
 
-def _load_by_event_lines(path: Path) -> dict[str, str]:
+def _load_by_event_lines(
+    path: Path,
+    *,
+    start_date: datetime.date,
+    end_date: datetime.date,
+) -> tuple[dict[str, str], set[str], set[int]]:
     if not path.exists():
-        return {}
+        return {}, set(), set()
     lines_by_event: dict[str, str] = {}
+    in_range_event_ids: set[str] = set()
+    in_range_years: set[int] = set()
     try:
         with path.open("r", encoding="utf-8") as handle:
             for line in handle:
@@ -451,10 +458,22 @@ def _load_by_event_lines(path: Path) -> dict[str, str]:
                 event_id = str(payload.get("eventId", "")).strip()
                 if not event_id:
                     continue
+                points = payload.get("points", [])
+                if isinstance(points, list):
+                    for point in points:
+                        if not point:
+                            continue
+                        date_value = str(point[0])
+                        if _date_in_range(date_value, start_date, end_date):
+                            in_range_event_ids.add(event_id)
+                            parsed = _parse_date_only(date_value)
+                            if parsed:
+                                in_range_years.add(parsed.year)
+                            break
                 lines_by_event[event_id] = text
     except OSError:
-        return {}
-    return lines_by_event
+        return {}, set(), set()
+    return lines_by_event, in_range_event_ids, in_range_years
 
 
 def _write_ndjson_index(
@@ -511,6 +530,22 @@ def build_index(
     years = _iter_years(calendar_dir, start_year, end_year)
     if not years:
         raise SystemExit("No calendar year folders found.")
+
+    existing_lines: dict[str, str] = {}
+    existing_in_range_event_ids: set[str] = set()
+    existing_in_range_years: set[int] = set()
+    if partial_update:
+        by_event_path = output_dir / _BY_EVENT_NDJSON_FILENAME
+        if by_event_path.exists():
+            (
+                existing_lines,
+                existing_in_range_event_ids,
+                existing_in_range_years,
+            ) = _load_by_event_lines(
+                by_event_path,
+                start_date=start_date,
+                end_date=end_date,
+            )
 
     rows_written = 0
     entries: list[HistoryRow] = []
@@ -577,8 +612,12 @@ def build_index(
         if partial_update
         else set()
     )
+    if partial_update and existing_in_range_event_ids:
+        affected_event_ids.update(existing_in_range_event_ids)
     target_years = (
-        {entry.year for entry in entries if entry.event_id in affected_event_ids}
+        {entry.year for entry in entries if entry.event_id in affected_event_ids}.union(
+            existing_in_range_years
+        )
         if partial_update
         else set(years)
     )
@@ -895,11 +934,6 @@ def build_index(
             _write_csv_rows(clean_path, clean_header, rows_to_write)
 
         by_event_path = output_dir / _BY_EVENT_NDJSON_FILENAME
-        existing_lines = (
-            _load_by_event_lines(by_event_path)
-            if partial_update and by_event_path.exists()
-            else {}
-        )
         by_event_index: dict[str, int] = {}
         if partial_update and existing_lines:
             event_ids = sorted(set(grouped.keys()) | set(existing_lines.keys()))
@@ -916,6 +950,8 @@ def build_index(
                     if existing_line is not None:
                         by_event_index[event_id] = int(handle.tell())
                         handle.write((existing_line + "\n").encode("utf-8"))
+                        continue
+                    if not group:
                         continue
 
                 points: list[list[str]] = []
