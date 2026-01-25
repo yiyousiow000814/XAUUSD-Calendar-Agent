@@ -469,10 +469,13 @@ def _merge_points_by_date_range(
     return merged
 
 
-def _load_by_event_points(path: Path) -> dict[str, list[list[str]]]:
+def _load_by_event_payloads(
+    path: Path,
+) -> tuple[dict[str, list[list[str]]], dict[str, str]]:
     if not path.exists():
-        return {}
+        return {}, {}
     points_by_event: dict[str, list[list[str]]] = {}
+    lines_by_event: dict[str, str] = {}
     try:
         with path.open("r", encoding="utf-8") as handle:
             for line in handle:
@@ -488,9 +491,10 @@ def _load_by_event_points(path: Path) -> dict[str, list[list[str]]]:
                 if not event_id or not isinstance(points, list):
                     continue
                 points_by_event[event_id] = points
+                lines_by_event[event_id] = text
     except OSError:
-        return {}
-    return points_by_event
+        return {}, {}
+    return points_by_event, lines_by_event
 
 
 def _write_ndjson_index(
@@ -925,15 +929,30 @@ def build_index(
             _write_csv_rows(clean_path, clean_header, rows_to_write)
 
         by_event_path = output_dir / _BY_EVENT_NDJSON_FILENAME
-        existing_by_event = (
-            _load_by_event_points(by_event_path)
+        existing_by_event, existing_lines = (
+            _load_by_event_payloads(by_event_path)
             if partial_update and by_event_path.exists()
-            else {}
+            else ({}, {})
         )
         by_event_index: dict[str, int] = {}
+        if partial_update and existing_lines:
+            event_ids = sorted(set(grouped.keys()) | set(existing_lines.keys()))
+        else:
+            event_ids = sorted(grouped.keys())
         with by_event_path.open("wb") as handle:
-            for event_id in sorted(grouped.keys()):
+            for event_id in event_ids:
                 group = filtered_grouped.get(event_id, [])
+                has_new_range = any(
+                    _date_in_range(entry.date, start_date, end_date) for entry in group
+                )
+                if partial_update and not has_new_range:
+                    existing_line = existing_lines.get(event_id)
+                    if existing_line is None:
+                        continue
+                    by_event_index[event_id] = int(handle.tell())
+                    handle.write((existing_line + "\n").encode("utf-8"))
+                    continue
+
                 points: list[list[str]] = []
                 for entry in group:
                     row = [
@@ -950,26 +969,15 @@ def build_index(
                         # Insert before `period` so period stays at the end.
                         row.insert(-1, entry.previous_revised_from)
                     points.append(row)
-                if partial_update and existing_by_event:
+                if partial_update:
                     existing_points = existing_by_event.get(event_id, [])
                     if existing_points:
-                        has_new_range = any(
-                            _date_in_range(str(point[0]), start_date, end_date)
-                            for point in points
+                        points = _merge_points_by_date_range(
+                            existing_points,
+                            points,
+                            start_date=start_date,
+                            end_date=end_date,
                         )
-                        has_existing_range = any(
-                            _date_in_range(str(point[0]), start_date, end_date)
-                            for point in existing_points
-                        )
-                        if not (has_new_range or has_existing_range):
-                            points = existing_points
-                        else:
-                            points = _merge_points_by_date_range(
-                                existing_points,
-                                points,
-                                start_date=start_date,
-                                end_date=end_date,
-                            )
                 payload = {
                     "eventId": event_id,
                     "points": points,
