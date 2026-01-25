@@ -434,47 +434,9 @@ def _merge_rows_by_date_range(
     return merged
 
 
-def _point_sort_key(point: list[str]) -> tuple[datetime, tuple[int, int, str], str]:
-    date_value = str(point[0]) if len(point) > 0 else ""
-    time_value = str(point[1]) if len(point) > 1 else ""
-    period_value = str(point[-1]) if point else ""
-    date_key = _parse_history_datetime(date_value, time_value)
-    ref_month = date_key.month if date_key != datetime.min else None
-    return (
-        date_key,
-        _period_sort_value(period_value, reference_month=ref_month),
-        period_value,
-    )
-
-
-def _merge_points_by_date_range(
-    existing_points: list[list[str]],
-    new_points: list[list[str]],
-    *,
-    start_date: datetime.date,
-    end_date: datetime.date,
-) -> list[list[str]]:
-    new_in_range = [
-        point
-        for point in new_points
-        if _date_in_range(str(point[0]), start_date, end_date)
-    ]
-    existing_outside = [
-        point
-        for point in existing_points
-        if not _date_in_range(str(point[0]), start_date, end_date)
-    ]
-    merged = existing_outside + new_in_range
-    merged.sort(key=_point_sort_key)
-    return merged
-
-
-def _load_by_event_payloads(
-    path: Path,
-) -> tuple[dict[str, list[list[str]]], dict[str, str]]:
+def _load_by_event_lines(path: Path) -> dict[str, str]:
     if not path.exists():
-        return {}, {}
-    points_by_event: dict[str, list[list[str]]] = {}
+        return {}
     lines_by_event: dict[str, str] = {}
     try:
         with path.open("r", encoding="utf-8") as handle:
@@ -487,14 +449,12 @@ def _load_by_event_payloads(
                 except json.JSONDecodeError:
                     continue
                 event_id = str(payload.get("eventId", "")).strip()
-                points = payload.get("points", [])
-                if not event_id or not isinstance(points, list):
+                if not event_id:
                     continue
-                points_by_event[event_id] = points
                 lines_by_event[event_id] = text
     except OSError:
-        return {}, {}
-    return points_by_event, lines_by_event
+        return {}
+    return lines_by_event
 
 
 def _write_ndjson_index(
@@ -530,12 +490,6 @@ def _iter_years(
     return sorted(years)
 
 
-def _years_from_date_range(
-    start_date: datetime.date, end_date: datetime.date
-) -> set[int]:
-    return set(range(start_date.year, end_date.year + 1))
-
-
 def build_index(
     calendar_dir: Path,
     output_dir: Path,
@@ -557,9 +511,6 @@ def build_index(
     years = _iter_years(calendar_dir, start_year, end_year)
     if not years:
         raise SystemExit("No calendar year folders found.")
-    target_years = (
-        _years_from_date_range(start_date, end_date) if partial_update else set(years)
-    )
 
     rows_written = 0
     entries: list[HistoryRow] = []
@@ -616,6 +567,21 @@ def build_index(
                 )
             )
             rows_written += 1
+
+    affected_event_ids = (
+        {
+            entry.event_id
+            for entry in entries
+            if _date_in_range(entry.date, start_date, end_date)
+        }
+        if partial_update
+        else set()
+    )
+    target_years = (
+        {entry.year for entry in entries if entry.event_id in affected_event_ids}
+        if partial_update
+        else set(years)
+    )
 
     issues: list[dict] = []
     patches: list[dict] = []
@@ -929,10 +895,10 @@ def build_index(
             _write_csv_rows(clean_path, clean_header, rows_to_write)
 
         by_event_path = output_dir / _BY_EVENT_NDJSON_FILENAME
-        existing_by_event, existing_lines = (
-            _load_by_event_payloads(by_event_path)
+        existing_lines = (
+            _load_by_event_lines(by_event_path)
             if partial_update and by_event_path.exists()
-            else ({}, {})
+            else {}
         )
         by_event_index: dict[str, int] = {}
         if partial_update and existing_lines:
@@ -942,16 +908,15 @@ def build_index(
         with by_event_path.open("wb") as handle:
             for event_id in event_ids:
                 group = filtered_grouped.get(event_id, [])
-                has_new_range = any(
-                    _date_in_range(entry.date, start_date, end_date) for entry in group
+                has_new_range = (
+                    event_id in affected_event_ids if partial_update else True
                 )
                 if partial_update and not has_new_range:
                     existing_line = existing_lines.get(event_id)
-                    if existing_line is None:
+                    if existing_line is not None:
+                        by_event_index[event_id] = int(handle.tell())
+                        handle.write((existing_line + "\n").encode("utf-8"))
                         continue
-                    by_event_index[event_id] = int(handle.tell())
-                    handle.write((existing_line + "\n").encode("utf-8"))
-                    continue
 
                 points: list[list[str]] = []
                 for entry in group:
@@ -969,15 +934,6 @@ def build_index(
                         # Insert before `period` so period stays at the end.
                         row.insert(-1, entry.previous_revised_from)
                     points.append(row)
-                if partial_update:
-                    existing_points = existing_by_event.get(event_id, [])
-                    if existing_points:
-                        points = _merge_points_by_date_range(
-                            existing_points,
-                            points,
-                            start_date=start_date,
-                            end_date=end_date,
-                        )
                 payload = {
                     "eventId": event_id,
                     "points": points,
