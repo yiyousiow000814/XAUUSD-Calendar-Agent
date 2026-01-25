@@ -139,5 +139,3 @@ stale_missing_actual_dropped,CAD::s&p global manufacturing pmi::none,CAD,S&P Glo
 stale_missing_actual_dropped,AUD::judo bank services pmi::none,AUD,Judo Bank Services PMI  (Dec),dec,2026-01-03,07:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
 stale_missing_actual_dropped,AUD::manufacturing & services pmi::none,AUD,Manufacturing & Services PMI  (Dec),dec,2026-01-03,07:00,,,,"{""cutoff"": ""21-01-2026 15:13""}"
 stale_missing_actual_dropped,MYR::manufacturing pmi::none,MYR,Manufacturing PMI  (Dec),dec,2026-01-01,08:30,,,,"{""cutoff"": ""21-01-2026 15:13""}"
-previous_missing_filled,USD::u.s. baker hughes oil rig count::none,USD,U.S. Baker Hughes Oil Rig Count,,2026-01-31,02:00,,411,411,
-previous_missing_filled,USD::u.s. baker hughes total rig count::none,USD,U.S. Baker Hughes Total Rig Count,,2026-01-31,02:00,,544,544,
