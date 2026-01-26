@@ -900,7 +900,7 @@
     "note": "Imports (usd) is a scheduled data release."
   },
   "CLP::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "The Board of the Central Bank of Chile sets the Monetary Policy Rate at its Monetary Policy Meeting (RPM). Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "CLP::retail sales::y/y": {
     "note": "Retail Sales measures retail spending."
@@ -1113,7 +1113,7 @@
     "note": "Industrial Production measures industrial output."
   },
   "CZK::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "The Czech National Bank sets monetary policy rates including the 2W repo rate (its main instrument), plus the discount and Lombard rates. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "CZK::m2 money supply::y/y": {
     "note": "M2 Money Supply measures the money supply for this monetary aggregate."
@@ -3024,7 +3024,7 @@
     "note": "Industrial Production measures industrial output."
   },
   "HKD::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "HKMA announces the Base Rate, which underpins Discount Window rates and is set off the US federal funds target range and HIBOR measures. Usually limited direct impact on XAUUSD unless it moves broader USD funding conditions or risk sentiment."
   },
   "HKD::m3 money supply::none": {
     "note": "M3 Money Supply measures the money supply for this monetary aggregate."
@@ -3075,7 +3075,7 @@
     "note": "Industrial Output measures production for this series."
   },
   "HUF::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "Magyar Nemzeti Bank's Monetary Council sets the central bank base rate at its policy meeting. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "HUF::manufacturing pmi::none": {
     "note": "Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
@@ -3147,7 +3147,7 @@
     "note": "Inflation is a scheduled data release."
   },
   "IDR::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "Bank Indonesia sets its policy rate (BI-Rate, formerly the BI 7-Day Reverse Repo Rate) at its Board of Governors meeting. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "IDR::lending facility rate::none": {
     "note": "Lending Facility Rate reports a rate for this series."
@@ -3195,7 +3195,7 @@
     "note": "Industrial Output measures production for this series."
   },
   "ILS::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "Bank of Israel's Monetary Committee announces the interest rate decision after its monetary policy meeting. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "ILS::m1 money supply::y/y": {
     "note": "M1 Money Supply measures the money supply for this monetary aggregate."
@@ -14070,7 +14070,7 @@
     "note": "Interest Rate Decision (2m) sets the policy rate (the central bank)."
   },
   "ZAR::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "South African Reserve Bank's Monetary Policy Committee (MPC) sets the repo rate in its monetary policy statement. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "ZAR::leading indicators::none": {
     "note": "Leading Indicators is a scheduled data release."
