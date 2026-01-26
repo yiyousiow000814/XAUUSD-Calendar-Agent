@@ -484,6 +484,18 @@ def _write_ndjson_index(
         "version": 3,
         "index": index,
     }
+    try:
+        if index_path.exists():
+            existing = json.loads(index_path.read_text(encoding="utf-8"))
+            # Avoid rewriting when the index payload is unchanged (keeps `generated_at`
+            # stable and prevents churn on no-op partial updates).
+            if (
+                existing.get("version") == payload["version"]
+                and existing.get("index") == payload["index"]
+            ):
+                return
+    except (OSError, json.JSONDecodeError, TypeError):
+        pass
     index_path.write_text(
         json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
@@ -1162,6 +1174,14 @@ def build_index(
         issues_path = output_dir / f"{stem}.json"
         issues_csv_path = output_dir / f"{stem}.csv"
 
+        existing_issues: list[dict] | None = None
+        if partial_update and issues_path.exists():
+            try:
+                existing_payload = json.loads(issues_path.read_text(encoding="utf-8"))
+                existing_issues = existing_payload.get("issues", [])
+            except (OSError, json.JSONDecodeError):
+                existing_issues = None
+
         merge_by_range = (
             partial_update
             and issues_path.exists()
@@ -1170,12 +1190,7 @@ def build_index(
             )
         )
         issues_payload = issue_rows
-        if merge_by_range:
-            try:
-                existing_payload = json.loads(issues_path.read_text(encoding="utf-8"))
-                existing_issues = existing_payload.get("issues", [])
-            except (OSError, json.JSONDecodeError):
-                existing_issues = []
+        if merge_by_range and existing_issues is not None:
             issues_payload = _merge_rows_by_date_range(
                 existing_issues,
                 issue_rows,
@@ -1185,17 +1200,24 @@ def build_index(
                 end_date=end_date,
             )
 
-        issues_path.write_text(
-            json.dumps(
-                {
-                    "generated_at": generated_at,
-                    "issues": issues_payload,
-                },
-                ensure_ascii=False,
-                indent=2,
-            ),
-            encoding="utf-8",
-        )
+        # During partial updates, avoid rewriting issue files when the payload is unchanged.
+        # This keeps out-of-range years stable (and avoids churn from `generated_at` only).
+        if not (
+            partial_update
+            and existing_issues is not None
+            and existing_issues == issues_payload
+        ):
+            issues_path.write_text(
+                json.dumps(
+                    {
+                        "generated_at": generated_at,
+                        "issues": issues_payload,
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
 
         csv_rows = []
         for issue in issue_rows:
@@ -1393,6 +1415,14 @@ def build_index(
         if partial_update and year not in target_years:
             continue
         patches_path = output_dir / f"{year}_event_history_previous_patch.json"
+        existing_patches: list[dict] | None = None
+        if partial_update and patches_path.exists():
+            try:
+                existing_payload = json.loads(patches_path.read_text(encoding="utf-8"))
+                existing_patches = existing_payload.get("patches", [])
+            except (OSError, json.JSONDecodeError):
+                existing_patches = None
+
         patches_payload = patches_for_year
         if (
             partial_update
@@ -1402,30 +1432,36 @@ def build_index(
                 for patch in patches_for_year
             )
         ):
-            try:
-                existing_payload = json.loads(patches_path.read_text(encoding="utf-8"))
-                existing_patches = existing_payload.get("patches", [])
-            except (OSError, json.JSONDecodeError):
-                existing_patches = []
+            if existing_patches is None:
+                existing_for_merge: list[dict] = []
+            else:
+                existing_for_merge = existing_patches
             patches_payload = _merge_rows_by_date_range(
-                existing_patches,
+                existing_for_merge,
                 patches_for_year,
                 date_key="date",
                 key_func=_patch_json_key,
                 start_date=start_date,
                 end_date=end_date,
             )
-        patches_path.write_text(
-            json.dumps(
-                {
-                    "generated_at": generated_at,
-                    "patches": patches_payload,
-                },
-                ensure_ascii=False,
-                indent=2,
-            ),
-            encoding="utf-8",
-        )
+
+        # During partial updates, avoid rewriting patch files when the payload is unchanged.
+        if not (
+            partial_update
+            and existing_patches is not None
+            and existing_patches == patches_payload
+        ):
+            patches_path.write_text(
+                json.dumps(
+                    {
+                        "generated_at": generated_at,
+                        "patches": patches_payload,
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
         patches_csv_path = output_dir / f"{year}_event_history_previous_patch.csv"
         csv_rows = [
             {
