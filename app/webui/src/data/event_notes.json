@@ -93,7 +93,7 @@
     "note": "ANZ provides a historical newspaper job ads series (1975-2018)."
   },
   "AUD::aud/usd index::none": {
-    "note": "Aud/usd Index is an index reading for this series."
+    "note": "AUD/USD index is a market exchange rate level for AUD versus USD, commonly shown as USD per 1 AUD."
   },
   "AUD::building approvals::m/m": {
     "note": "Australian Bureau of Statistics (ABS) Building Approvals provides the number of dwelling units and value of buildings approved."
@@ -168,7 +168,7 @@
     "note": "Home Loans measures credit or lending conditions."
   },
   "AUD::house price index::q/q": {
-    "note": "House Price Index is an index reading for this series."
+    "note": "ABS Residential Property Price Index measures the quarterly change in residential property prices in Australia."
   },
   "AUD::housing credit::none": {
     "note": "Housing Credit measures credit or lending conditions."
@@ -327,10 +327,10 @@
     "note": "Unemployment Rate shows the share of the labor force that is unemployed. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "AUD::wage price index::q/q": {
-    "note": "Wage Price Index is an index reading for this series. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "ABS Wage Price Index measures changes in wages and salaries, holding the quality and composition of jobs constant, and this series reports the quarterly change."
   },
   "AUD::wage price index::y/y": {
-    "note": "Wage Price Index is an index reading for this series. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "ABS Wage Price Index measures changes in wages and salaries, holding the quality and composition of jobs constant, and this series reports the annual change."
   },
   "AUD::weighted mean cpi::q/q": {
     "note": "Weighted Mean CPI (Consumer Price Index, QoQ) measures the change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -390,7 +390,7 @@
     "note": "Brazilian Igp M Inflation is a scheduled data release."
   },
   "BRL::brazilian ipca inflation index sa::m/m": {
-    "note": "Brazilian Ipca Inflation Index Sa is an index reading for this series."
+    "note": "IBGE IPCA is Brazil's official consumer inflation index and this series reports the seasonally adjusted monthly change."
   },
   "BRL::brazilian ppi::m/m": {
     "note": "Brazilian PPI (Producer Price Index, MoM) measures the month-over-month % change in prices received by producers."
@@ -453,16 +453,16 @@
     "note": "Ibc Br Economic Activity is a scheduled data release."
   },
   "BRL::igp - 10 inflation index::m/m": {
-    "note": "Igp 10 Inflation Index is an index reading for this series."
+    "note": "FGV IGP-10 is a broad price index combining wholesale, consumer, and construction costs and this series reports the monthly change."
   },
   "BRL::igp - 10 inflation index::y/y": {
-    "note": "Igp 10 Inflation Index is an index reading for this series."
+    "note": "FGV IGP-10 is a broad price index combining wholesale, consumer, and construction costs and this series reports the annual change."
   },
   "BRL::igp - di inflation index::m/m": {
-    "note": "Igp Di Inflation Index is an index reading for this series."
+    "note": "FGV IGP-DI is a broad price index combining wholesale, consumer, and construction costs and this series reports the monthly change."
   },
   "BRL::igp - m inflation index::m/m": {
-    "note": "Igp M Inflation Index is an index reading for this series."
+    "note": "FGV IGP-M is a broad price index combining wholesale, consumer, and construction costs and this series reports the monthly change."
   },
   "BRL::industrial production::m/m": {
     "note": "Industrial Production measures the month-over-month % change in industrial output."
@@ -474,7 +474,7 @@
     "note": "Banco Central do Brasil's Monetary Policy Committee (Copom) sets the target for the Selic policy rate."
   },
   "BRL::ipc - fipe inflation index::m/m": {
-    "note": "Ipc Fipe Inflation Index is an index reading for this series."
+    "note": "FIPE IPC measures consumer price inflation in the city of Sao Paulo and this series reports the monthly change."
   },
   "BRL::long term interest rate tjlp::none": {
     "note": "TJLP (Taxa de Juros de Longo Prazo) is a long-term reference rate in Brazil set periodically by the National Monetary Council and used in BNDES lending."
@@ -693,7 +693,7 @@
     "note": "Labor Productivity is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "CAD::leading index::m/m": {
-    "note": "Leading Index is an index reading for this series."
+    "note": "The Conference Board of Canada Leading Indicator is a composite designed to signal the near-term direction of the Canadian economy and this series reports the monthly change."
   },
   "CAD::leading indicators::m/m": {
     "note": "Leading Indicators is a scheduled data release."
@@ -705,7 +705,7 @@
     "note": "Median CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "CAD::new housing price index::m/m": {
-    "note": "New Housing Price Index is an index reading for this series."
+    "note": "Statistics Canada New Housing Price Index measures changes in contractors' selling prices of new houses, excluding land, and this series reports the monthly change."
   },
   "CAD::new motor vehicle sales::m/m": {
     "note": "New Motor Vehicle Sales measures sales for this series."
@@ -750,7 +750,7 @@
     "note": "Unemployment Rate shows the share of the labor force that is unemployed. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "CAD::usd/cad index::none": {
-    "note": "Usd/cad Index is an index reading for this series."
+    "note": "USD/CAD index is a market exchange rate level for USD versus CAD, commonly shown as CAD per 1 USD."
   },
   "CAD::wholesale sales::m/m": {
     "note": "Wholesale Sales measures sales for this series."
@@ -861,7 +861,7 @@
     "note": "Unemployment Rate S.a. shows the share of the labor force that is unemployed."
   },
   "CHF::usd/chf index::none": {
-    "note": "Usd/chf Index is an index reading for this series."
+    "note": "USD/CHF index is a market exchange rate level for USD versus CHF, commonly shown as CHF per 1 USD."
   },
   "CHF::world economic forum annual meetings::none": {
     "note": "World Economic Forum Annual Meetings is a scheduled data release."
@@ -1581,7 +1581,7 @@
     "note": "Eu Leaders Summit is a scheduled data release."
   },
   "EUR::eur/usd index::none": {
-    "note": "Eur/usd Index is an index reading for this series."
+    "note": "EUR/USD index is a market exchange rate level for EUR versus USD, commonly shown as USD per 1 EUR."
   },
   "EUR::euro summit::none": {
     "note": "Euro Summit is a scheduled data release."
@@ -1605,7 +1605,7 @@
     "note": "Finnish Current Account reports the current account balance."
   },
   "EUR::finnish export price index::y/y": {
-    "note": "Finnish Export Price Index is an index reading for this series."
+    "note": "Statistics Finland export price index (YoY) reports the annual change in prices of exported goods."
   },
   "EUR::finnish gdp::q/q": {
     "note": "Finnish GDP measures quarter-over-quarter % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -1614,7 +1614,7 @@
     "note": "Finnish GDP measures year-over-year % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "EUR::finnish import price index::y/y": {
-    "note": "Finnish Import Price Index is an index reading for this series."
+    "note": "Statistics Finland import price index (YoY) reports the annual change in prices of imported goods."
   },
   "EUR::finnish industrial confidence::none": {
     "note": "Finnish Industrial Confidence is a survey-based sentiment reading."
@@ -1731,7 +1731,7 @@
     "note": "French Hicp is a scheduled data release."
   },
   "EUR::french house price index::q/q": {
-    "note": "French House Price Index is an index reading for this series."
+    "note": "INSEE house price index reports changes in prices of residential property in France and this series is the quarterly change."
   },
   "EUR::french imports::none": {
     "note": "French Imports is a scheduled data release."
@@ -1860,16 +1860,16 @@
     "note": "German Hicp is a scheduled data release."
   },
   "EUR::german house price index::m/m": {
-    "note": "German House Price Index is an index reading for this series."
+    "note": "Destatis House Price Index measures changes in prices of residential property in Germany."
   },
   "EUR::german ifo business climate index::none": {
     "note": "Ifo Business Climate Index is based on a monthly survey of German firms and combines current assessment and expectations."
   },
   "EUR::german import price index::m/m": {
-    "note": "German Import Price Index is an index reading for this series."
+    "note": "Destatis import price index measures changes in prices of imported goods and this series is the monthly change."
   },
   "EUR::german import price index::y/y": {
-    "note": "German Import Price Index is an index reading for this series."
+    "note": "Destatis import price index measures changes in prices of imported goods and this series is the annual change."
   },
   "EUR::german imports::m/m": {
     "note": "German Imports is a scheduled data release."
@@ -2217,7 +2217,7 @@
     "note": "Italy Thomson Reuters Ipsos Pcsi is a scheduled data release."
   },
   "EUR::labor cost index::y/y": {
-    "note": "Labor Cost Index is an index reading for this series. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Eurostat Labour Cost Index measures the annual change in hourly labour costs (wages plus non-wage costs) for employees."
   },
   "EUR::latvian cpi::m/m": {
     "note": "Latvian CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -2499,7 +2499,7 @@
     "note": "Spanish Hicp is a scheduled data release."
   },
   "EUR::spanish house price index::y/y": {
-    "note": "Spanish House Price Index is an index reading for this series."
+    "note": "Spain house price index (YoY) reports the annual change in residential property prices."
   },
   "EUR::spanish industrial new orders::y/y": {
     "note": "Spanish Industrial New Orders is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -2571,7 +2571,7 @@
     "note": "Average Earnings ex Bonus is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "GBP::average earnings index +bonus::none": {
-    "note": "Average Earnings Index +bonus is an index reading for this series. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "ONS Average Weekly Earnings (total pay) reports wage growth including bonuses, typically shown as a 3-month average versus a year earlier."
   },
   "GBP::boe breeden speaks::none": {
     "note": "Boe Breeden Speaks is a scheduled data release."
@@ -2685,7 +2685,7 @@
     "note": "Brc Retail Sales Monitor measures retail spending. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "GBP::brc shop price index::y/y": {
-    "note": "Brc Shop Price Index is an index reading for this series."
+    "note": "BRC-NielsenIQ Shop Price Index (YoY) reports the annual change in shop prices across UK retail categories."
   },
   "GBP::brexit referendum::none": {
     "note": "Brexit Referendum is a scheduled data release."
@@ -2766,7 +2766,7 @@
     "note": "Exports is a scheduled data release."
   },
   "GBP::gbp/usd index::none": {
-    "note": "Gbp/usd Index is an index reading for this series."
+    "note": "GBP/USD index is a market exchange rate level for GBP versus USD, commonly shown as USD per 1 GBP."
   },
   "GBP::gdp::m/m": {
     "note": "GDP measures growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -2790,7 +2790,7 @@
     "note": "Halifax House Price Index (YoY) reports the 12-month percentage change in UK house prices based on Halifax mortgage approvals."
   },
   "GBP::house price index::y/y": {
-    "note": "House Price Index is an index reading for this series."
+    "note": "UK House Price Index (YoY) reports the annual change in residential property prices, compiled from property transaction data."
   },
   "GBP::housing equity withdrawal::q/q": {
     "note": "Housing Equity Withdrawal is a scheduled data release."
@@ -2799,7 +2799,7 @@
     "note": "Imports is a scheduled data release."
   },
   "GBP::index of services::none": {
-    "note": "Index of Services is an index reading for this series."
+    "note": "ONS Index of Services measures monthly output in the UK services industries."
   },
   "GBP::industrial production::m/m": {
     "note": "Industrial Production measures the month-over-month % change in industrial output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -2907,10 +2907,10 @@
     "note": "Rics House Price Balance is a scheduled data release."
   },
   "GBP::rightmove house price index::m/m": {
-    "note": "Rightmove House Price Index is an index reading for this series."
+    "note": "Rightmove House Price Index (MoM) reports the monthly change in asking prices of property coming to market in the UK."
   },
   "GBP::rightmove house price index::y/y": {
-    "note": "Rightmove House Price Index is an index reading for this series."
+    "note": "Rightmove House Price Index (YoY) reports the annual change in asking prices of property coming to market in the UK."
   },
   "GBP::rpi::m/m": {
     "note": "Rpi is a scheduled data release."
@@ -3384,7 +3384,7 @@
     "note": "Adjusted Trade Balance reports exports minus imports."
   },
   "JPY::all industries activity index::m/m": {
-    "note": "All Industries Activity Index is an index reading for this series."
+    "note": "METI All Industry Activity Index summarizes monthly changes in activity across major industries in Japan."
   },
   "JPY::au jibun bank manufacturing pmi::none": {
     "note": "Au Jibun Bank Manufacturing PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -3501,7 +3501,7 @@
     "note": "Core Machinery Orders is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "JPY::corporate services price index (cspi)::y/y": {
-    "note": "Corporate Services Price Index (cspi) is an index reading for this series."
+    "note": "Bank of Japan Corporate Services Price Index (CSPI) measures price changes in services traded between companies and this series is the annual change."
   },
   "JPY::cpi tokyo ex food & energy::y/y": {
     "note": "CPI Tokyo ex Food & Energy (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -3516,7 +3516,7 @@
     "note": "Current Account N.s.a. reports the current account balance."
   },
   "JPY::economy watchers current index::none": {
-    "note": "Economy Watchers Current Index is an index reading for this series."
+    "note": "Japan Cabinet Office Economy Watchers Survey current conditions index is a diffusion index of sentiment among workers close to consumers."
   },
   "JPY::exports::y/y": {
     "note": "Exports is a scheduled data release."
@@ -3585,10 +3585,10 @@
     "note": "Large Scale Retail Sales Yoy measures retail spending. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "JPY::leading index::m/m": {
-    "note": "Leading Index is an index reading for this series."
+    "note": "Japan Cabinet Office Composite Index leading index is designed to signal turning points in the business cycle and this series is the monthly change."
   },
   "JPY::leading index::none": {
-    "note": "Leading Index is an index reading for this series."
+    "note": "Japan Cabinet Office Composite Index leading index is designed to signal turning points in the business cycle."
   },
   "JPY::m2 money stock::y/y": {
     "note": "M2 Money Stock measures the money supply for this monetary aggregate."
@@ -3645,34 +3645,34 @@
     "note": "Tankan All Small Industry Capex is a scheduled data release."
   },
   "JPY::tankan big manufacturing outlook index::none": {
-    "note": "Tankan Big Manufacturing Outlook Index is an index reading for this series."
+    "note": "Bank of Japan Tankan large manufacturers outlook is a diffusion index computed as the share of firms reporting favourable conditions minus the share reporting unfavourable."
   },
   "JPY::tankan large manufacturers index::none": {
-    "note": "Tankan Large Manufacturers Index is an index reading for this series."
+    "note": "Bank of Japan Tankan large manufacturers index is a diffusion index computed as the share of firms reporting favourable conditions minus the share reporting unfavourable."
   },
   "JPY::tankan large non - manufacturers diffusion index::none": {
-    "note": "Tankan Large Non Manufacturers Diffusion Index is an index reading for this series."
+    "note": "Bank of Japan Tankan large non-manufacturers diffusion index is computed as the share reporting favourable conditions minus the share reporting unfavourable."
   },
   "JPY::tankan large non - manufacturers index::none": {
-    "note": "Tankan Large Non Manufacturers Index is an index reading for this series."
+    "note": "Bank of Japan Tankan large non-manufacturers index is a diffusion index computed as the share reporting favourable conditions minus the share reporting unfavourable."
   },
   "JPY::tankan small manufacturers diffusion index::none": {
-    "note": "Tankan Small Manufacturers Diffusion Index is an index reading for this series."
+    "note": "Bank of Japan Tankan small manufacturers diffusion index is computed as the share reporting favourable conditions minus the share reporting unfavourable."
   },
   "JPY::tankan small manufacturing index::none": {
-    "note": "Tankan Small Manufacturing Index is an index reading for this series."
+    "note": "Bank of Japan Tankan small manufacturers index is a diffusion index computed as the share reporting favourable conditions minus the share reporting unfavourable."
   },
   "JPY::tankan small non - manufacturers diffusion index::none": {
-    "note": "Tankan Small Non Manufacturers Diffusion Index is an index reading for this series."
+    "note": "Bank of Japan Tankan small non-manufacturers diffusion index is computed as the share reporting favourable conditions minus the share reporting unfavourable."
   },
   "JPY::tankan small non - manufacturing index::none": {
-    "note": "Tankan Small Non Manufacturing Index is an index reading for this series."
+    "note": "Bank of Japan Tankan small non-manufacturers index is a diffusion index computed as the share reporting favourable conditions minus the share reporting unfavourable."
   },
   "JPY::tertiary industry activity index::m/m": {
-    "note": "Tertiary Industry Activity Index is an index reading for this series."
+    "note": "METI Tertiary Industry Activity Index measures monthly changes in activity in Japan's services sector and this series is the monthly change."
   },
   "JPY::tertiary industry activity index::none": {
-    "note": "Tertiary Industry Activity Index is an index reading for this series."
+    "note": "METI Tertiary Industry Activity Index measures changes in activity in Japan's services sector."
   },
   "JPY::thomson reuters ipsos pcsi::none": {
     "note": "Thomson Reuters Ipsos Pcsi is a scheduled data release."
@@ -3690,7 +3690,7 @@
     "note": "Unemployment Rate shows the share of the labor force that is unemployed. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "JPY::usd/jpy index::none": {
-    "note": "Usd/jpy Index is an index reading for this series."
+    "note": "USD/JPY index is a market exchange rate level for USD versus JPY, commonly shown as JPY per 1 USD."
   },
   "KES::cpi::y/y": {
     "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
@@ -3723,7 +3723,7 @@
     "note": "Current Account reports the current account balance."
   },
   "KRW::export price index::y/y": {
-    "note": "Export Price Index is an index reading for this series."
+    "note": "Bank of Korea export price index (YoY) reports the annual change in prices of goods exported from South Korea."
   },
   "KRW::exports::y/y": {
     "note": "Exports is a scheduled data release."
@@ -3738,7 +3738,7 @@
     "note": "GDP measures year-over-year % growth in economic output."
   },
   "KRW::import price index::y/y": {
-    "note": "Import Price Index is an index reading for this series."
+    "note": "Bank of Korea import price index (YoY) reports the annual change in prices of goods imported into South Korea."
   },
   "KRW::imports::y/y": {
     "note": "Imports is a scheduled data release."
@@ -3759,7 +3759,7 @@
     "note": "M3 Money Supply measures the money supply for this monetary aggregate."
   },
   "KRW::manufacturing bsi index::none": {
-    "note": "Manufacturing Bsi Index is an index reading for this series."
+    "note": "Bank of Korea manufacturing Business Survey Index (BSI) is a sentiment index based on surveys of manufacturing firms."
   },
   "KRW::monetary policy board's policy setting meeting dates::none": {
     "note": "Monetary Policy Board's Policy Setting Meeting Dates is a scheduled data release."
@@ -11970,7 +11970,7 @@
     "note": "GDP measures quarter-over-quarter % growth in economic output."
   },
   "NOK::house price index::y/y": {
-    "note": "House Price Index is an index reading for this series."
+    "note": "Eiendom Norge house price index (YoY) reports the annual change in resale housing prices in Norway."
   },
   "NOK::industrial confidence::none": {
     "note": "Industrial Confidence is a survey-based sentiment reading."
@@ -12081,7 +12081,7 @@
     "note": "GDP measures year-over-year % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "NZD::globaldairytrade price index::none": {
-    "note": "Globaldairytrade Price Index is an index reading for this series."
+    "note": "GlobalDairyTrade price index summarizes price movements at GlobalDairyTrade auctions across major dairy products."
   },
   "NZD::government monthly debt::none": {
     "note": "Government Monthly Debt is a scheduled data release."
@@ -12096,10 +12096,10 @@
     "note": "Inflation Expectations is a scheduled data release. Higher-than-expected inflation (vs forecast) can lift yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "NZD::labor cost index::q/q": {
-    "note": "Labor Cost Index is an index reading for this series. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Stats NZ Labour Cost Index measures changes in wage and salary rates, adjusted for changes in the quantity and quality of work, and this series is the quarterly change."
   },
   "NZD::labor cost index::y/y": {
-    "note": "Labor Cost Index is an index reading for this series. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Stats NZ Labour Cost Index measures changes in wage and salary rates, adjusted for changes in the quantity and quality of work, and this series is the annual change."
   },
   "NZD::m3 money supply::none": {
     "note": "M3 Money Supply measures the money supply for this monetary aggregate."
@@ -12114,7 +12114,7 @@
     "note": "Net Debt Forecast is a scheduled data release."
   },
   "NZD::nzd/usd index::none": {
-    "note": "Nzd/usd Index is an index reading for this series."
+    "note": "NZD/USD index is a market exchange rate level for NZD versus USD, commonly shown as USD per 1 NZD."
   },
   "NZD::nzier business confidence::none": {
     "note": "Nzier Business Confidence is a survey-based sentiment reading."
@@ -12126,7 +12126,7 @@
     "note": "Stats NZ publishes the labour force participation rate in its Labour market statistics based on the Household Labour Force Survey."
   },
   "NZD::performance of services index::none": {
-    "note": "Performance of Services Index is an index reading for this series."
+    "note": "BusinessNZ Performance of Services Index is a monthly survey-based diffusion index for the services sector (50 = no change)."
   },
   "NZD::permanent/long - term migration::none": {
     "note": "Permanent/long Term Migration is a scheduled data release."
@@ -12168,10 +12168,10 @@
     "note": "Rbnz Rate Statement communicates the policy outlook and guidance (the RBNZ). A more hawkish-than-expected message can lift global yields and pressure XAUUSD; a dovish surprise can support it."
   },
   "NZD::reinz house price index::m/m": {
-    "note": "Reinz House Price Index is an index reading for this series."
+    "note": "REINZ House Price Index (MoM) reports the monthly change in house prices based on New Zealand property sales."
   },
   "NZD::reinz house price index::y/y": {
-    "note": "Reinz House Price Index is an index reading for this series."
+    "note": "REINZ House Price Index (YoY) reports the annual change in house prices based on New Zealand property sales."
   },
   "NZD::retail sales quarterly vs. year ago::none": {
     "note": "Retail Sales Quarterly Vs. Year Ago measures retail spending."
@@ -12189,7 +12189,7 @@
     "note": "Terms of Trade Imports Prices is a scheduled data release."
   },
   "NZD::terms of trade index::q/q": {
-    "note": "Terms of Trade Index is an index reading for this series."
+    "note": "Stats NZ terms of trade index measures the ratio of export prices to import prices and this series is the quarterly change."
   },
   "NZD::trade balance::m/m": {
     "note": "Stats NZ trade balance reports the net balance of New Zealand's merchandise exports minus merchandise imports."
@@ -12465,7 +12465,7 @@
     "note": "Government Budget Balance reports the government's fiscal balance (surplus/deficit)."
   },
   "RUB::house price index::q/q": {
-    "note": "House Price Index is an index reading for this series."
+    "note": "Rosstat house price index measures changes in residential property prices in Russia and this series is the quarterly change."
   },
   "RUB::industrial production::y/y": {
     "note": "Industrial Production measures industrial output."
