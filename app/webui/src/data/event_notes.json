@@ -4590,7 +4590,7 @@
     "note": "Bosnia Herzegovina Christmas is a scheduled data release."
   },
   "NA::bosnia - herzegovina - day of victory over fascism::none": {
-    "note": "Bosnia Herzegovina Day of Victory Over Fascism is a diffusion index of business activity (50 = expansion)."
+    "note": "Bosnia and Herzegovina Day of Victory Over Fascism is a market holiday."
   },
   "NA::bosnia - herzegovina - easter monday::none": {
     "note": "Bosnia Herzegovina Easter Monday is a scheduled data release."
@@ -5571,7 +5571,7 @@
     "note": "Czech Republic Liberation Day is a scheduled data release."
   },
   "NA::czech republic - liberation from fascism::none": {
-    "note": "Czech Republic Liberation From Fascism is a diffusion index of business activity (50 = expansion)."
+    "note": "Czech Republic Liberation From Fascism is a market holiday."
   },
   "NA::czech republic - market holiday::none": {
     "note": "Czech Republic Market Holiday is a market holiday."
@@ -9942,7 +9942,7 @@
     "note": "Slovakia Cyril and Methodius Day is a scheduled data release."
   },
   "NA::slovakia - day of victory over fascism::none": {
-    "note": "Slovakia Day of Victory Over Fascism is a diffusion index of business activity (50 = expansion)."
+    "note": "Slovakia Day of Victory Over Fascism is a market holiday."
   },
   "NA::slovakia - democracy day::none": {
     "note": "Slovakia Democracy Day is a scheduled data release."
@@ -9969,7 +9969,7 @@
     "note": "Slovakia Labour Day is a scheduled data release."
   },
   "NA::slovakia - liberation from fascism::none": {
-    "note": "Slovakia Liberation From Fascism is a diffusion index of business activity (50 = expansion)."
+    "note": "Slovakia Liberation From Fascism is a market holiday."
   },
   "NA::slovakia - national day::none": {
     "note": "Slovakia National Day is a scheduled data release."
@@ -11370,7 +11370,7 @@
     "note": "Ukraine Ukrainian Statehood Day is a scheduled data release."
   },
   "NA::ukraine - victory day over nazism in world war ii::none": {
-    "note": "Ukraine Victory Day Over Nazism in World War Ii is a diffusion index of business activity (50 = expansion)."
+    "note": "Ukraine Victory Day Over Nazism in World War II is a market holiday."
   },
   "NA::ukraine - victory day::none": {
     "note": "Ukraine Victory Day is a scheduled data release."
@@ -11379,70 +11379,70 @@
     "note": "Ukraine Women's Day is a scheduled data release."
   },
   "NA::united arab emirates - al - hijri (islamic new year)::none": {
-    "note": "United Arab Emirates Al Hijri (islamic New Year) reports a rate for this series."
+    "note": "United Arab Emirates Al Hijri (Islamic New Year) is a market holiday."
   },
   "NA::united arab emirates - al hijra new year::none": {
-    "note": "United Arab Emirates Al Hijra New Year reports a rate for this series."
+    "note": "United Arab Emirates Al Hijra New Year is a market holiday."
   },
   "NA::united arab emirates - christmas::none": {
-    "note": "United Arab Emirates Christmas reports a rate for this series."
+    "note": "United Arab Emirates Christmas is a market holiday."
   },
   "NA::united arab emirates - commemoration day::none": {
-    "note": "United Arab Emirates Commemoration Day reports a rate for this series."
+    "note": "United Arab Emirates Commemoration Day is a market holiday."
   },
   "NA::united arab emirates - day of arafat::none": {
-    "note": "United Arab Emirates Day of Arafat reports a rate for this series."
+    "note": "United Arab Emirates Day of Arafat is a market holiday."
   },
   "NA::united arab emirates - eid al - adha::none": {
-    "note": "United Arab Emirates Eid Al Adha reports a rate for this series."
+    "note": "United Arab Emirates Eid Al Adha is a market holiday."
   },
   "NA::united arab emirates - eid al - fitr::none": {
-    "note": "United Arab Emirates Eid Al Fitr reports a rate for this series."
+    "note": "United Arab Emirates Eid Al Fitr is a market holiday."
   },
   "NA::united arab emirates - eid al - isra wal miraj::none": {
-    "note": "United Arab Emirates Eid Al Isra Wal Miraj reports a rate for this series."
+    "note": "United Arab Emirates Eid Al Isra Wal Miraj is a market holiday."
   },
   "NA::united arab emirates - good friday::none": {
-    "note": "United Arab Emirates Good Friday reports a rate for this series."
+    "note": "United Arab Emirates Good Friday is a market holiday."
   },
   "NA::united arab emirates - hijri arabic new year::none": {
-    "note": "United Arab Emirates Hijri Arabic New Year reports a rate for this series."
+    "note": "United Arab Emirates Hijri Arabic New Year is a market holiday."
   },
   "NA::united arab emirates - islamic new year (hijri)::none": {
-    "note": "United Arab Emirates Islamic New Year (hijri) reports a rate for this series."
+    "note": "United Arab Emirates Islamic New Year (Hijri) is a market holiday."
   },
   "NA::united arab emirates - isra wal miraj::none": {
-    "note": "United Arab Emirates Isra Wal Miraj reports a rate for this series."
+    "note": "United Arab Emirates Isra Wal Miraj is a market holiday."
   },
   "NA::united arab emirates - martyr's day::none": {
-    "note": "United Arab Emirates Martyr's Day reports a rate for this series."
+    "note": "United Arab Emirates Martyr's Day is a market holiday."
   },
   "NA::united arab emirates - martyrs' day::none": {
-    "note": "United Arab Emirates Martyrs' Day reports a rate for this series."
+    "note": "United Arab Emirates Martyrs' Day is a market holiday."
   },
   "NA::united arab emirates - mawlid - al - nabi::none": {
-    "note": "United Arab Emirates Mawlid Al Nabi reports a rate for this series."
+    "note": "United Arab Emirates Mawlid Al Nabi is a market holiday."
   },
   "NA::united arab emirates - national day::none": {
-    "note": "United Arab Emirates National Day reports a rate for this series."
+    "note": "United Arab Emirates National Day is a market holiday."
   },
   "NA::united arab emirates - new hijri year::none": {
-    "note": "United Arab Emirates New Hijri Year reports a rate for this series."
+    "note": "United Arab Emirates New Hijri Year is a market holiday."
   },
   "NA::united arab emirates - new year's day::none": {
-    "note": "United Arab Emirates New Year's Day reports a rate for this series."
+    "note": "United Arab Emirates New Year's Day is a market holiday."
   },
   "NA::united arab emirates - prophet mohammad's birthday::none": {
-    "note": "United Arab Emirates Prophet Mohammad's Birthday reports a rate for this series."
+    "note": "United Arab Emirates Prophet Mohammad's Birthday is a market holiday."
   },
   "NA::united arab emirates - prophet's birthday::none": {
-    "note": "United Arab Emirates Prophet's Birthday reports a rate for this series."
+    "note": "United Arab Emirates Prophet's Birthday is a market holiday."
   },
   "NA::united arab emirates - ramadan holiday::none": {
     "note": "United Arab Emirates Ramadan Holiday is a market holiday."
   },
   "NA::united arab emirates - waqfat arafah::none": {
-    "note": "United Arab Emirates Waqfat Arafah reports a rate for this series."
+    "note": "United Arab Emirates Waqfat Arafah is a market holiday."
   },
   "NA::united kingdom - bank holiday::none": {
     "note": "United Kingdom Bank Holiday is a market holiday."
