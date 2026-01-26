@@ -1176,7 +1176,7 @@
     "note": "GDP measures year-over-year % growth in economic output."
   },
   "DKK::hicp::y/y": {
-    "note": "Hicp is a scheduled data release."
+    "note": "Denmark HICP is the EU-harmonised consumer price index, and this release shows the year-over-year change."
   },
   "DKK::industrial outlook::none": {
     "note": "Industrial Outlook is a scheduled data release."
@@ -1245,10 +1245,10 @@
     "note": "Austrian GDP measures quarter-over-quarter % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "EUR::austrian hicp::m/m": {
-    "note": "Austrian Hicp is a scheduled data release."
+    "note": "Austrian HICP is an EU-harmonised measure of consumer inflation, and this release shows the month-over-month change."
   },
   "EUR::austrian hicp::y/y": {
-    "note": "Austrian Hicp is a scheduled data release."
+    "note": "Austrian HICP is an EU-harmonised measure of consumer inflation, and this release shows the year-over-year change."
   },
   "EUR::austrian industrial production::y/y": {
     "note": "Austrian Industrial Production measures industrial output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -1725,10 +1725,10 @@
     "note": "French Government Budget Balance shows the government's budget balance, i.e., revenues (and grants) minus expenditures."
   },
   "EUR::french hicp::m/m": {
-    "note": "French Hicp is a scheduled data release."
+    "note": "French HICP is the harmonised consumer price index, and this release reports the month-over-month change."
   },
   "EUR::french hicp::y/y": {
-    "note": "French Hicp is a scheduled data release."
+    "note": "French HICP is the harmonised consumer price index, and this release reports the year-over-year change."
   },
   "EUR::french house price index::q/q": {
     "note": "INSEE house price index reports changes in prices of residential property in France and this series is the quarterly change."
@@ -1854,10 +1854,10 @@
     "note": "German GDP measures year-over-year % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "EUR::german hicp::m/m": {
-    "note": "German Hicp is a scheduled data release."
+    "note": "German HICP is the EU-harmonised consumer price index, and this release shows the month-over-month change."
   },
   "EUR::german hicp::y/y": {
-    "note": "German Hicp is a scheduled data release."
+    "note": "German HICP is the EU-harmonised consumer price index, and this release shows the year-over-year change."
   },
   "EUR::german house price index::m/m": {
     "note": "Destatis House Price Index measures changes in prices of residential property in Germany."
@@ -1953,7 +1953,7 @@
     "note": "Greek GDP measures year-over-year % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "EUR::greek hicp::y/y": {
-    "note": "Greek Hicp is a scheduled data release."
+    "note": "Greek HICP is an EU-harmonised consumer price index and this release shows the annual change."
   },
   "EUR::greek industrial production::y/y": {
     "note": "Greek Industrial Production measures industrial output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -2034,10 +2034,10 @@
     "note": "Hesse CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "EUR::hicp ex energy & food::y/y": {
-    "note": "Hicp ex Energy & Food is a scheduled data release."
+    "note": "Euro area HICP ex energy and food shows the year-over-year change in the HICP index excluding energy and food components."
   },
   "EUR::hicp ex energy and food::m/m": {
-    "note": "Hicp ex Energy and Food is a scheduled data release."
+    "note": "Euro area HICP ex energy and food shows the month-over-month change in the HICP index excluding energy and food components."
   },
   "EUR::industrial new orders::m/m": {
     "note": "Industrial New Orders is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -2076,10 +2076,10 @@
     "note": "Irish Gnp is a scheduled data release."
   },
   "EUR::irish hicp::m/m": {
-    "note": "Irish Hicp is a scheduled data release."
+    "note": "Irish HICP is the EU-harmonised CPI measure and this release shows the month-over-month change."
   },
   "EUR::irish hicp::y/y": {
-    "note": "Irish Hicp is a scheduled data release."
+    "note": "Irish HICP is the EU-harmonised CPI measure and this release shows the year-over-year change."
   },
   "EUR::irish retail sales::m/m": {
     "note": "Irish Retail Sales measures the month-over-month % change in retail spending. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -2154,10 +2154,10 @@
     "note": "Italian General Election is a scheduled data release."
   },
   "EUR::italian hicp::m/m": {
-    "note": "Italian Hicp is a scheduled data release."
+    "note": "Italian HICP is a harmonised CPI series for consumer prices and this release reports the monthly change."
   },
   "EUR::italian hicp::y/y": {
-    "note": "Italian Hicp is a scheduled data release."
+    "note": "Italian HICP is a harmonised CPI series for consumer prices and this release reports the yearly change."
   },
   "EUR::italian industrial new orders::m/m": {
     "note": "Italian Industrial New Orders is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -2493,10 +2493,10 @@
     "note": "Spanish Government Budget Balance shows the government's budget balance, based on revenues versus expenditures."
   },
   "EUR::spanish hicp::m/m": {
-    "note": "Spanish Hicp is a scheduled data release."
+    "note": "Spanish HICP is the harmonised index of consumer prices, and this release shows the month-over-month change."
   },
   "EUR::spanish hicp::y/y": {
-    "note": "Spanish Hicp is a scheduled data release."
+    "note": "Spanish HICP is the harmonised index of consumer prices, and this release shows the year-over-year change."
   },
   "EUR::spanish house price index::y/y": {
     "note": "Spain house price index (YoY) reports the annual change in residential property prices."
