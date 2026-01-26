@@ -3999,7 +3999,7 @@
     "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
   },
   "MZN::interest rate decision::m/m": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "Banco de Mocambique's Monetary Policy Committee sets the monetary policy rate, MIMO, after its policy meeting. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "NA::argentina - 1810 revolution day::none": {
     "note": "Argentina 1810 Revolution Day is a scheduled data release."
@@ -14148,7 +14148,7 @@
     "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
   },
   "ZMK::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "Bank of Zambia sets its Policy Rate (Monetary Policy Rate) as the main signal of its monetary policy stance. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "ZWL::cpi::m/m": {
     "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
