@@ -135,7 +135,7 @@
     "note": "Current Account reports the current account balance."
   },
   "AUD::employment change::none": {
-    "note": "Employment Change is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Employment Change reports the monthly change in the number of employed people in Australia."
   },
   "AUD::export price index::q/q": {
     "note": "ABS Export Price Index measures the quarterly change in prices received for exports of goods and services."
@@ -144,7 +144,7 @@
     "note": "ABS international trade release reports Australia's exports and this series is the monthly change."
   },
   "AUD::full employment change::none": {
-    "note": "Full Employment Change is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Full Employment Change reports the monthly change in the number of people employed full-time in Australia."
   },
   "AUD::gdp capital expenditure::none": {
     "note": "ABS national accounts report gross fixed capital formation as part of GDP expenditure, measuring investment spending in the economy."
@@ -642,7 +642,7 @@
     "note": "Current Account reports the current account balance."
   },
   "CAD::employment change::none": {
-    "note": "Employment Change is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Employment Change reports the monthly change in total employment in Canada from the Labour Force Survey."
   },
   "CAD::exports::none": {
     "note": "Statistics Canada merchandise exports report the value of goods shipped from Canada to foreign countries."
@@ -654,7 +654,7 @@
     "note": "Foreign Securities Purchases is a scheduled data release."
   },
   "CAD::full employment change::none": {
-    "note": "Full Employment Change is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Full Employment Change reports the monthly change in full-time employment in Canada (usually 30+ hours per week at the main job)."
   },
   "CAD::gdp annualized::q/q": {
     "note": "GDP Annualized measures quarter-over-quarter % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -1524,10 +1524,10 @@
     "note": "Ecofin Meetings is a scheduled data release."
   },
   "EUR::employment change::q/q": {
-    "note": "Employment Change is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Employment Change (QoQ) shows the quarter-over-quarter change in the euro area employment level."
   },
   "EUR::employment change::y/y": {
-    "note": "Employment Change is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Employment Change (YoY) shows the year-over-year change in the euro area employment level."
   },
   "EUR::employment overall::none": {
     "note": "Employment Overall is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -12057,7 +12057,7 @@
     "note": "Electronic Card Retail Sales measures retail spending. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "NZD::employment change::q/q": {
-    "note": "Employment Change is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Employment Change (QoQ) shows the quarterly change in the number of people in paid employment in New Zealand."
   },
   "NZD::exports::none": {
     "note": "Stats NZ exports report the value of goods exported during the period."
