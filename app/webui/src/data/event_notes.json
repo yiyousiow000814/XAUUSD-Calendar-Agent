@@ -315,7 +315,7 @@
     "note": "Thomson Reuters Ipsos Pcsi is a scheduled data release."
   },
   "AUD::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Australian Bureau of Statistics (ABS) publishes the goods and services trade balance in its International Trade in Goods and Services release. A larger surplus can support AUD, while a wider deficit can weigh on it."
   },
   "AUD::trimmed mean cpi::q/q": {
     "note": "Trimmed Mean CPI (Consumer Price Index, QoQ) measures the change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -1029,7 +1029,7 @@
     "note": "Trade Balance (usd) reports exports minus imports."
   },
   "CNY::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "China Customs (GACC) publishes China's total exports, imports, and export-import balance in its trade statistics. A stronger balance can support CNY, while a weaker balance can weigh on it."
   },
   "COP::colombian presidential election::none": {
     "note": "Colombian Presidential Election is a scheduled data release."
@@ -2526,7 +2526,7 @@
     "note": "Thomson Reuters Ipsos Pcsi is a scheduled data release."
   },
   "EUR::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Eurostat publishes euro area international trade in goods (imports, exports, and the trade balance). Larger surpluses can support EUR, while deficits can weigh on it."
   },
   "EUR::unemployment rate::none": {
     "note": "Unemployment Rate shows the share of the labor force that is unemployed. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -2946,7 +2946,7 @@
     "note": "Trade Balance Non Eu reports exports minus imports."
   },
   "GBP::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Office for National Statistics (ONS) publishes UK trade data (exports, imports, and the balance); headline series typically exclude non-monetary gold and other precious metals unless stated. Surprises can move GBP and rates and may spill into XAUUSD via risk sentiment."
   },
   "GBP::u.k. construction output::y/y": {
     "note": "U.k. Construction Output measures production for this series."
@@ -3282,7 +3282,7 @@
     "note": "Infrastructure Output measures production for this series."
   },
   "INR::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "Reserve Bank of India Monetary Policy Committee (MPC) publishes its resolution after each meeting, including the decision on the policy repo rate."
   },
   "INR::m3 money supply (2wk)::none": {
     "note": "M3 Money Supply (2wk) measures the money supply for this monetary aggregate."
@@ -3363,7 +3363,7 @@
     "note": "GDP measures year-over-year % growth in economic output."
   },
   "ISK::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "Central Bank of Iceland Monetary Policy Committee announces its key interest rate decision after the meeting."
   },
   "JPY::10 - year jgb auction::none": {
     "note": "10 Year Jgb Auction is a government bond auction. A weak auction can push yields higher and pressure XAUUSD; a strong auction can help ease yields and support it."
@@ -3684,7 +3684,7 @@
     "note": "Tokyo CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "JPY::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Japan Ministry of Finance Customs publishes monthly Trade Statistics covering exports and imports. The trade balance can influence JPY, especially when energy import swings are large."
   },
   "JPY::unemployment rate::none": {
     "note": "Unemployment Rate shows the share of the labor force that is unemployed. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -3825,13 +3825,13 @@
     "note": "The Bank of Mauritius sets the Key Repo Rate, used as its policy interest rate and determined by the Monetary Policy Committee. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "MWK::bank rate::none": {
-    "note": "Bank Rate sets the policy rate (the central bank)."
+    "note": "Reserve Bank of Malawi Bank Rate is the policy interest rate used to signal the stance of monetary policy."
   },
   "MWK::cpi::y/y": {
     "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
   },
   "MWK::interest rate decision::m/m": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "Reserve Bank of Malawi announces its policy rate decision after the Monetary Policy Committee meeting."
   },
   "MXN::1st half - month core cpi::none": {
     "note": "1st Half Month Core CPI (Consumer Price Index) measures the change in consumer prices excluding food and energy."
@@ -12411,7 +12411,7 @@
     "note": "Industrial Production measures industrial output."
   },
   "RON::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "National Bank of Romania Board announces its monetary policy decision, including the monetary policy rate."
   },
   "RON::ppi::y/y": {
     "note": "PPI (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers."
@@ -14067,7 +14067,7 @@
     "note": "Gold Production measures production for this series."
   },
   "ZAR::interest rate decision (2m)::none": {
-    "note": "Interest Rate Decision (2m) sets the policy rate (the central bank)."
+    "note": "South African Reserve Bank Monetary Policy Committee announces the policy rate decision (repo rate) at its scheduled meeting. Surprises can move ZAR and local rates, with potential spillovers into XAUUSD via risk sentiment."
   },
   "ZAR::interest rate decision::none": {
     "note": "South African Reserve Bank's Monetary Policy Committee (MPC) sets the repo rate in its monetary policy statement. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
