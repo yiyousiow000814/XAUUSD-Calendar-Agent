@@ -12,7 +12,7 @@
     "note": "Central Bank of the UAE (CBUAE) sets the Base Rate applicable to the Overnight Deposit Facility (ODF)."
   },
   "AED::m3 money supply::y/y": {
-    "note": "M3 Money Supply measures the money supply for this monetary aggregate."
+    "note": "UAE M3 money supply (YoY) reports the annual change in the broad money aggregate published by the central bank."
   },
   "AED::private sector loans::y/y": {
     "note": "Private Sector Loans measures credit or lending conditions."
@@ -33,7 +33,7 @@
     "note": "Banco Nacional de Angola (BNA) announces its key policy rate (Taxa BNA) after the Monetary Policy Committee meeting."
   },
   "ARS::argentina annual gdp::none": {
-    "note": "Argentina Annual GDP measures growth in economic output."
+    "note": "Argentina annual GDP reports the level or growth of economic output for the year."
   },
   "ARS::budget balance::none": {
     "note": "Argentina budget balance reports the government's fiscal balance (surplus or deficit) for the period."
@@ -147,13 +147,13 @@
     "note": "Full Employment Change is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "AUD::gdp capital expenditure::none": {
-    "note": "GDP Capital Expenditure measures growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "ABS national accounts report gross fixed capital formation as part of GDP expenditure, measuring investment spending in the economy."
   },
   "AUD::gdp chain price index::none": {
-    "note": "GDP Chain Price Index measures growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "ABS GDP chain price index is a deflator that reflects economy-wide price changes implied by nominal versus real GDP."
   },
   "AUD::gdp final consumption::none": {
-    "note": "GDP Final Consumption measures growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "ABS national accounts report final consumption expenditure as part of GDP expenditure, measuring household and government consumption."
   },
   "AUD::gdp::q/q": {
     "note": "GDP measures quarter-over-quarter % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -357,13 +357,13 @@
     "note": "Central Bank of Bahrain (CBB) sets its key policy interest rate on the one-week deposit facility."
   },
   "BHD::m2 money supply::none": {
-    "note": "M2 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Bahrain M2 money supply is a broad monetary aggregate published by the Central Bank of Bahrain."
   },
   "BHD::private sector credit::y/y": {
     "note": "Private Sector Credit measures credit or lending conditions."
   },
   "BRL::auto production::m/m": {
-    "note": "Auto Production measures production for this series."
+    "note": "ANFAVEA auto production reports the monthly change in vehicle production in Brazil."
   },
   "BRL::auto sales::m/m": {
     "note": "Auto Sales measures sales for this series."
@@ -447,7 +447,7 @@
     "note": "GDP measures year-over-year % growth in economic output."
   },
   "BRL::gross debt - to - gdp ratio::m/m": {
-    "note": "Gross Debt to GDP Ratio measures growth in economic output."
+    "note": "Brazil gross debt-to-GDP ratio reports gross government debt as a share of GDP."
   },
   "BRL::ibc - br economic activity::none": {
     "note": "Ibc Br Economic Activity is a scheduled data release."
@@ -486,7 +486,7 @@
     "note": "Mid Month CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
   },
   "BRL::net debt - to - gdp ratio::none": {
-    "note": "Net Debt to GDP Ratio measures growth in economic output."
+    "note": "Brazil net debt-to-GDP ratio reports net government debt as a share of GDP."
   },
   "BRL::retail sales::m/m": {
     "note": "Retail Sales measures the month-over-month % change in retail spending."
@@ -516,7 +516,7 @@
     "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
   },
   "BWP::gdp quarterly::none": {
-    "note": "GDP Quarterly measures growth in economic output."
+    "note": "Botswana quarterly GDP reports changes in economic output for the period."
   },
   "BWP::gdp::y/y": {
     "note": "GDP measures year-over-year % growth in economic output."
@@ -663,7 +663,7 @@
     "note": "GDP Implicit Price measures quarter-over-quarter % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "CAD::gdp::m/m": {
-    "note": "GDP measures growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Statistics Canada monthly GDP by industry measures the month-over-month change in real output across industries."
   },
   "CAD::gdp::q/q": {
     "note": "GDP measures quarter-over-quarter % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -792,7 +792,7 @@
     "note": "Kof Leading Indicators is a scheduled data release."
   },
   "CHF::m3 money supply::none": {
-    "note": "M3 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Swiss National Bank M3 money supply is a broad monetary aggregate published in its money stock statistics."
   },
   "CHF::manufacturing pmi::none": {
     "note": "procure.ch Switzerland Manufacturing PMI (often released with UBS) is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
@@ -876,13 +876,13 @@
     "note": "Chilean GDP measures year-over-year % growth in economic output."
   },
   "CLP::chilean manufacturing production::y/y": {
-    "note": "Chilean Manufacturing Production measures production for this series."
+    "note": "Chile manufacturing production (YoY) reports the annual change in manufacturing output for the period."
   },
   "CLP::copper exports (usd)::none": {
     "note": "Copper Exports (usd) is a scheduled data release."
   },
   "CLP::copper production::y/y": {
-    "note": "Copper Production measures production for this series."
+    "note": "Chile copper production (YoY) reports the annual change in copper output for the period."
   },
   "CLP::core cpi::m/m": {
     "note": "Core CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices excluding food and energy."
@@ -987,7 +987,7 @@
     "note": "Industrial Production measures industrial output. A weaker-than-expected reading (vs forecast) can hurt risk sentiment and support XAUUSD as a safe haven; stronger data can do the opposite."
   },
   "CNY::m2 money stock::y/y": {
-    "note": "M2 Money Stock measures the money supply for this monetary aggregate."
+    "note": "PBOC M2 money stock (YoY) reports the annual change in China's broad money aggregate."
   },
   "CNY::manufacturing pmi::none": {
     "note": "China NBS Manufacturing PMI is an official monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion). Weaker-than-expected readings can hurt risk sentiment and support XAUUSD; stronger readings can do the opposite."
@@ -1080,7 +1080,7 @@
     "note": "Car Registration is a scheduled data release."
   },
   "CZK::construction output::y/y": {
-    "note": "Construction Output measures production for this series."
+    "note": "Czech Statistical Office construction output (YoY) reports the annual change in construction activity for the period."
   },
   "CZK::cpi::m/m": {
     "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
@@ -1116,10 +1116,10 @@
     "note": "The Czech National Bank sets monetary policy rates including the 2W repo rate (its main instrument), plus the discount and Lombard rates. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "CZK::m2 money supply::y/y": {
-    "note": "M2 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Czech Republic M2 money supply (YoY) reports the annual change in the broad money aggregate published by the central bank."
   },
   "CZK::m3 money supply::none": {
-    "note": "M3 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Czech Republic M3 money supply is a broad monetary aggregate published by the Czech National Bank."
   },
   "CZK::ppi::m/m": {
     "note": "PPI (Producer Price Index, MoM) measures the month-over-month % change in prices received by producers."
@@ -1188,7 +1188,7 @@
     "note": "Danmarks Nationalbank lending rate is the interest rate on collateralised loans to monetary policy counterparties."
   },
   "DKK::m3 money supply::none": {
-    "note": "M3 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Denmark M3 money supply is a broad monetary aggregate published by Danmarks Nationalbank."
   },
   "DKK::manufacturing pmi::none": {
     "note": "DILF Denmark Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
@@ -1218,7 +1218,7 @@
     "note": "Central Bank of Egypt's Monetary Policy Committee sets key policy rates including the overnight deposit and lending rates and the discount rate. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "EGP::m2 money supply::y/y": {
-    "note": "M2 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Egypt M2 money supply (YoY) reports the annual change in broad money published by the Central Bank of Egypt."
   },
   "EGP::overnight lending rate::none": {
     "note": "Central Bank of Egypt overnight lending rate is the upper bound of its overnight corridor, set by the Monetary Policy Committee."
@@ -1335,7 +1335,7 @@
     "note": "Cftc Eur Speculative Net Positions is a scheduled data release."
   },
   "EUR::construction output::m/m": {
-    "note": "Construction Output measures production for this series."
+    "note": "Eurostat construction production index measures the monthly change in construction output in the euro area."
   },
   "EUR::consumer confidence::none": {
     "note": "Consumer Confidence is a survey-based sentiment reading."
@@ -1404,7 +1404,7 @@
     "note": "Dutch GDP measures year-over-year % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "EUR::dutch manufacturing production::m/m": {
-    "note": "Dutch Manufacturing Production measures production for this series."
+    "note": "Statistics Netherlands manufacturing production index measures the monthly change in manufacturing output."
   },
   "EUR::dutch retail sales::y/y": {
     "note": "Dutch Retail Sales measures retail spending. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -1539,7 +1539,7 @@
     "note": "Estonian CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "EUR::estonian current account % of gdp::none": {
-    "note": "Estonian Current Account % of GDP measures growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Estonia current account as a percent of GDP expresses the external balance (current account) relative to the size of the economy."
   },
   "EUR::estonian gdp::y/y": {
     "note": "Estonian GDP measures year-over-year % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -1620,7 +1620,7 @@
     "note": "Finnish Industrial Confidence is a survey-based sentiment reading."
   },
   "EUR::finnish industry output::y/y": {
-    "note": "Finnish Industry Output measures production for this series."
+    "note": "Statistics Finland industry output (YoY) reports the annual change in industrial production for the period."
   },
   "EUR::finnish ppi::y/y": {
     "note": "Finnish PPI (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -1842,10 +1842,10 @@
     "note": "German Federal Election is a scheduled data release."
   },
   "EUR::german gdp annual (12m)::none": {
-    "note": "German GDP Annual (12m) measures growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Germany GDP annual (12m) reports the year-over-year change in economic output over the past 12 months."
   },
   "EUR::german gdp annual::none": {
-    "note": "German GDP Annual measures growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Germany GDP annual reports the year-over-year change in economic output for the period."
   },
   "EUR::german gdp::q/q": {
     "note": "German GDP measures quarter-over-quarter % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -1929,10 +1929,10 @@
     "note": "Gfk German Consumer Climate is a scheduled data release."
   },
   "EUR::government budget to gdp::none": {
-    "note": "Government Budget to GDP measures growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "General government budget balance as a percent of GDP expresses the fiscal balance (surplus or deficit) relative to the size of the economy."
   },
   "EUR::government debt to gdp::none": {
-    "note": "Government Debt to GDP measures growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "General government debt-to-GDP ratio reports government debt as a share of GDP."
   },
   "EUR::greece 3 - month t - bill auction::none": {
     "note": "Greece 3 Month T Bill Auction is a government bond auction. A weak auction can push yields higher and pressure XAUUSD; a strong auction can help ease yields and support it."
@@ -2226,7 +2226,7 @@
     "note": "Latvian CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "EUR::latvian current account % of gdp::none": {
-    "note": "Latvian Current Account % of GDP measures growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Latvia current account as a percent of GDP expresses the external balance (current account) relative to the size of the economy."
   },
   "EUR::latvian gdp::y/y": {
     "note": "Latvian GDP measures year-over-year % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -2289,13 +2289,13 @@
     "note": "Loans to Non Financial Corporations measures credit or lending conditions."
   },
   "EUR::m3 money supply::none": {
-    "note": "M3 Money Supply measures the money supply for this monetary aggregate."
+    "note": "ECB broad money M3 is a key monetary aggregate for the euro area published in the monetary statistics."
   },
   "EUR::m3 money supply::y/y": {
-    "note": "M3 Money Supply measures the money supply for this monetary aggregate."
+    "note": "ECB broad money M3 (YoY) reports the annual growth rate of the euro area broad monetary aggregate."
   },
   "EUR::money - m3 3 - month - moving average::none": {
-    "note": "Money M3 3 Month Moving Average measures the money supply for this monetary aggregate."
+    "note": "ECB M3 3-month moving average smooths short-term volatility in broad money growth."
   },
   "EUR::net investment flow::none": {
     "note": "Net Investment Flow is a scheduled data release."
@@ -2718,7 +2718,7 @@
     "note": "Claimant Count Change is a scheduled data release."
   },
   "GBP::construction output::m/m": {
-    "note": "Construction Output measures production for this series."
+    "note": "ONS construction output (MoM) reports the monthly change in the volume of construction work done in the UK."
   },
   "GBP::core cpi::m/m": {
     "note": "Core CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices excluding food and energy. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -2769,7 +2769,7 @@
     "note": "GBP/USD index is a market exchange rate level for GBP versus USD, commonly shown as USD per 1 GBP."
   },
   "GBP::gdp::m/m": {
-    "note": "GDP measures growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "ONS monthly GDP estimate reports the month-over-month change in UK economic output."
   },
   "GBP::gdp::q/q": {
     "note": "GDP measures quarter-over-quarter % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -2817,19 +2817,19 @@
     "note": "Labour Productivity is a scheduled data release."
   },
   "GBP::m3 money supply::none": {
-    "note": "M3 Money Supply measures the money supply for this monetary aggregate."
+    "note": "UK M3 money supply is a broad monetary aggregate reported in Bank of England money and credit statistics."
   },
   "GBP::m4 money supply::m/m": {
-    "note": "M4 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Bank of England M4 money supply (MoM) reports the monthly change in a broad money measure for the UK."
   },
   "GBP::manufacturing production::m/m": {
-    "note": "Manufacturing Production measures production for this series."
+    "note": "ONS manufacturing production (MoM) reports the monthly change in UK manufacturing output."
   },
   "GBP::manufacturing production::y/y": {
-    "note": "Manufacturing Production measures production for this series."
+    "note": "ONS manufacturing production (YoY) reports the annual change in UK manufacturing output."
   },
   "GBP::monthly gdp 3m/3m change::none": {
-    "note": "Monthly GDP 3m/3m Change measures growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "ONS monthly GDP 3m/3m change compares output over the latest three months with the previous three months."
   },
   "GBP::mortgage approvals::none": {
     "note": "Mortgage Approvals is a scheduled data release."
@@ -2868,10 +2868,10 @@
     "note": "Net Lending to Individuals is a scheduled data release."
   },
   "GBP::niesr gdp estimate::none": {
-    "note": "Niesr GDP Estimate measures growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "NIESR monthly GDP estimate is an independent model-based estimate of UK output growth."
   },
   "GBP::niesr monthly gdp tracker::none": {
-    "note": "Niesr Monthly GDP Tracker measures growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "NIESR monthly GDP tracker is an independent indicator estimating near-term UK output growth."
   },
   "GBP::ppi input::m/m": {
     "note": "PPI Input (Producer Price Index, MoM) measures the month-over-month % change in prices received by producers. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -2937,7 +2937,7 @@
     "note": "Spring Statement communicates the policy outlook and guidance (the BoE). A more hawkish-than-expected message can lift global yields and pressure XAUUSD; a dovish surprise can support it."
   },
   "GBP::steel production (metric ton)::none": {
-    "note": "Steel Production (metric Ton) measures production for this series."
+    "note": "UK steel production reports the volume of crude steel produced, typically measured in metric tonnes."
   },
   "GBP::thomson reuters ipsos pcsi::none": {
     "note": "Thomson Reuters Ipsos Pcsi is a scheduled data release."
@@ -2949,7 +2949,7 @@
     "note": "Office for National Statistics (ONS) publishes UK trade data (exports, imports, and the balance); headline series typically exclude non-monetary gold and other precious metals unless stated. Surprises can move GBP and rates and may spill into XAUUSD via risk sentiment."
   },
   "GBP::u.k. construction output::y/y": {
-    "note": "U.k. Construction Output measures production for this series."
+    "note": "ONS construction output (YoY) reports the annual change in the volume of construction work done in the UK."
   },
   "GBP::u.k. general election::none": {
     "note": "U.k. General Election is a scheduled data release."
@@ -3027,7 +3027,7 @@
     "note": "HKMA announces the Base Rate, which underpins Discount Window rates and is set off the US federal funds target range and HIBOR measures. Usually limited direct impact on XAUUSD unless it moves broader USD funding conditions or risk sentiment."
   },
   "HKD::m3 money supply::none": {
-    "note": "M3 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Hong Kong M3 money supply is a broad monetary aggregate published by the Hong Kong Monetary Authority."
   },
   "HKD::ppi::y/y": {
     "note": "PPI (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers."
@@ -3072,7 +3072,7 @@
     "note": "Gross Wages is a scheduled data release."
   },
   "HUF::industrial output::y/y": {
-    "note": "Industrial Output measures production for this series."
+    "note": "Hungarian Central Statistical Office industrial output (YoY) reports the annual change in industrial production."
   },
   "HUF::interest rate decision::none": {
     "note": "Magyar Nemzeti Bank's Monetary Council sets the central bank base rate at its policy meeting. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
@@ -3108,7 +3108,7 @@
     "note": "Core Inflation is a scheduled data release."
   },
   "IDR::current account % of gdp::none": {
-    "note": "Current Account % of GDP measures growth in economic output."
+    "note": "Indonesia current account as a percent of GDP expresses the external balance (current account) relative to the size of the economy."
   },
   "IDR::deposit facility rate::none": {
     "note": "Bank Indonesia Deposit Facility rate is part of the policy corridor around the BI 7-Day Reverse Repo Rate and sets the return on banks' overnight placements at BI."
@@ -3126,10 +3126,10 @@
     "note": "Fx Reserves (usd) reports official foreign-exchange reserves."
   },
   "IDR::gdp annual (12m)::none": {
-    "note": "GDP Annual (12m) measures growth in economic output."
+    "note": "Indonesia GDP annual (12m) reports the year-over-year change in economic output over the past 12 months."
   },
   "IDR::gdp annual::none": {
-    "note": "GDP Annual measures growth in economic output."
+    "note": "Indonesia GDP annual reports the year-over-year change in economic output for the period."
   },
   "IDR::gdp::q/q": {
     "note": "GDP measures quarter-over-quarter % growth in economic output."
@@ -3156,7 +3156,7 @@
     "note": "Loans measures credit or lending conditions."
   },
   "IDR::m2 money supply::y/y": {
-    "note": "M2 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Bank Indonesia M2 money supply (YoY) reports the annual change in broad money (monetary aggregate M2)."
   },
   "IDR::motorbike sales::y/y": {
     "note": "Motorbike Sales measures sales for this series."
@@ -3192,13 +3192,13 @@
     "note": "Imports (usd) is a scheduled data release."
   },
   "ILS::industrial output::m/m": {
-    "note": "Industrial Output measures production for this series."
+    "note": "Israel industrial output (MoM) reports the monthly change in industrial production for the period."
   },
   "ILS::interest rate decision::none": {
     "note": "Bank of Israel's Monetary Committee announces the interest rate decision after its monetary policy meeting. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "ILS::m1 money supply::y/y": {
-    "note": "M1 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Bank of Israel M1 money supply (YoY) reports the annual change in a narrow money aggregate."
   },
   "ILS::quarterly unemployment rate::none": {
     "note": "Quarterly Unemployment Rate shows the share of the labor force that is unemployed."
@@ -3228,7 +3228,7 @@
     "note": "Cumulative Industrial Production measures industrial output."
   },
   "INR::current account % of gdp (yoy) (12m)::none": {
-    "note": "Current Account % of GDP (yoy) (12m) measures growth in economic output."
+    "note": "India current account as a percent of GDP expresses the external balance (current account) relative to the size of the economy."
   },
   "INR::current account % of gdp::q/q": {
     "note": "Current Account % of GDP measures quarter-over-quarter % growth in economic output."
@@ -3261,10 +3261,10 @@
     "note": "Fx Reserves, Usd reports official foreign-exchange reserves."
   },
   "INR::gdp annual (12m)::none": {
-    "note": "GDP Annual (12m) measures growth in economic output."
+    "note": "India GDP annual (12m) reports the year-over-year change in economic output over the past 12 months."
   },
   "INR::gdp annual::none": {
-    "note": "GDP Annual measures growth in economic output."
+    "note": "India GDP annual reports the year-over-year change in economic output for the period."
   },
   "INR::gdp quarterly::y/y": {
     "note": "GDP Quarterly measures year-over-year % growth in economic output."
@@ -3279,16 +3279,16 @@
     "note": "Industrial Production measures industrial output."
   },
   "INR::infrastructure output::y/y": {
-    "note": "Infrastructure Output measures production for this series."
+    "note": "India infrastructure output (core sector) reports the annual change in output of eight key infrastructure industries."
   },
   "INR::interest rate decision::none": {
     "note": "Reserve Bank of India Monetary Policy Committee (MPC) publishes its resolution after each meeting, including the decision on the policy repo rate."
   },
   "INR::m3 money supply (2wk)::none": {
-    "note": "M3 Money Supply (2wk) measures the money supply for this monetary aggregate."
+    "note": "RBI fortnightly M3 money supply reports India's broad money aggregate in the monetary statistics release."
   },
   "INR::m3 money supply::none": {
-    "note": "M3 Money Supply measures the money supply for this monetary aggregate."
+    "note": "RBI M3 money supply is India's broad money aggregate published in the monetary statistics."
   },
   "INR::manufacturing & services pmi::m/m": {
     "note": "HSBC India Composite PMI (from S&P Global) is a monthly survey-based diffusion index combining manufacturing and services (above 50 = expansion)."
@@ -3297,7 +3297,7 @@
     "note": "HSBC India Composite PMI (from S&P Global) is a monthly survey-based diffusion index combining manufacturing and services (above 50 = expansion)."
   },
   "INR::manufacturing output::m/m": {
-    "note": "Manufacturing Output measures production for this series."
+    "note": "India manufacturing output (MoM) reports the monthly change in manufacturing production for the period."
   },
   "INR::rbi financial stability report::none": {
     "note": "Rbi Financial Stability Report is a scheduled data release."
@@ -3591,10 +3591,10 @@
     "note": "Japan Cabinet Office Composite Index leading index is designed to signal turning points in the business cycle."
   },
   "JPY::m2 money stock::y/y": {
-    "note": "M2 Money Stock measures the money supply for this monetary aggregate."
+    "note": "Bank of Japan M2 money stock (YoY) reports the annual change in Japan's broad money measure."
   },
   "JPY::m3 money supply::none": {
-    "note": "M3 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Bank of Japan M3 money stock is a broad monetary aggregate published in its money stock statistics."
   },
   "JPY::machine tool orders::y/y": {
     "note": "Machine Tool Orders is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -3753,10 +3753,10 @@
     "note": "The Bank of Korea Monetary Policy Board sets the Base Rate, the Bank of Korea's reference policy rate for transactions with financial institutions. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "KRW::m2 money supply::none": {
-    "note": "M2 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Bank of Korea M2 money supply is a broad monetary aggregate published in the monetary and liquidity statistics."
   },
   "KRW::m3 money supply::none": {
-    "note": "M3 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Bank of Korea M3 money supply is a broad monetary aggregate published in the monetary and liquidity statistics."
   },
   "KRW::manufacturing bsi index::none": {
     "note": "Bank of Korea manufacturing Business Survey Index (BSI) is a sentiment index based on surveys of manufacturing firms."
@@ -3777,7 +3777,7 @@
     "note": "S&P Global South Korea Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "KRW::service sector output::m/m": {
-    "note": "Service Sector Output measures production for this series."
+    "note": "South Korea service sector output (MoM) reports the monthly change in output for the services industries."
   },
   "KRW::thomson reuters ipsos pcsi::m/m": {
     "note": "Thomson Reuters Ipsos Pcsi is a scheduled data release."
@@ -3807,7 +3807,7 @@
     "note": "The Central Bank of Kuwait announces its discount rate decision. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "KWD::m2 money supply::y/y": {
-    "note": "M2 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Kuwait M2 money supply (YoY) reports the annual change in broad money published by the Central Bank of Kuwait."
   },
   "LKR::interest rate decision::m/m": {
     "note": "Central Bank of Sri Lanka's Overnight Policy Rate (OPR) is its policy interest rate under the single policy interest rate mechanism. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
@@ -3816,10 +3816,10 @@
     "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
   },
   "MUR::gdp annual (12m)::none": {
-    "note": "GDP Annual (12m) measures growth in economic output."
+    "note": "Mauritius GDP annual (12m) reports the year-over-year change in economic output over the past 12 months."
   },
   "MUR::gdp annual::none": {
-    "note": "GDP Annual measures growth in economic output."
+    "note": "Mauritius GDP annual reports the year-over-year change in economic output for the period."
   },
   "MUR::interest rate decision::none": {
     "note": "The Bank of Mauritius sets the Key Repo Rate, used as its policy interest rate and determined by the Monetary Policy Committee. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
@@ -3864,7 +3864,7 @@
     "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
   },
   "MXN::current account % of gdp::none": {
-    "note": "Current Account % of GDP measures growth in economic output."
+    "note": "Mexico current account as a percent of GDP expresses the external balance (current account) relative to the size of the economy."
   },
   "MXN::current account (usd)::none": {
     "note": "Current Account (usd) reports the current account balance."
@@ -3984,7 +3984,7 @@
     "note": "S&P Global Malaysia Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "MYR::money supply::y/y": {
-    "note": "Money Supply measures the money supply for this monetary aggregate."
+    "note": "Bank Negara Malaysia money supply (YoY) reports the annual change in a broad money aggregate."
   },
   "MYR::overall net capital flow::none": {
     "note": "Overall Net Capital Flow is a scheduled data release."
@@ -11928,7 +11928,7 @@
     "note": "Nigeria GDP measures quarter-over-quarter % growth in economic output."
   },
   "NGN::oil production::none": {
-    "note": "Oil Production measures production for this series."
+    "note": "Nigeria oil production reports crude oil output for the period, typically measured in barrels per day."
   },
   "NGN::stanbic ibtc bank nigeria manufacturing pmi::none": {
     "note": "Stanbic IBTC Bank Nigeria PMI (from S&P Global) is a monthly survey-based diffusion index of private-sector conditions (above 50 = expansion)."
@@ -11979,13 +11979,13 @@
     "note": "Norges Bank announces the policy rate decision after its monetary policy meeting. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "NOK::m3 money supply::none": {
-    "note": "M3 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Norway M3 money supply is a broad monetary aggregate published in official monetary statistics."
   },
   "NOK::manufacturing pmi::none": {
     "note": "NIMA/DNB Markets Norway Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "NOK::manufacturing production::m/m": {
-    "note": "Manufacturing Production measures production for this series."
+    "note": "Statistics Norway manufacturing production (MoM) reports the monthly change in manufacturing output."
   },
   "NOK::norges bank regional network survey::none": {
     "note": "Norges Bank Regional Network Survey is a scheduled data release."
@@ -12039,7 +12039,7 @@
     "note": "Credit Card Spending measures credit or lending conditions."
   },
   "NZD::current account % of gdp::none": {
-    "note": "Current Account % of GDP measures growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "New Zealand current account as a percent of GDP expresses the external balance (current account) relative to the size of the economy."
   },
   "NZD::current account::q/q": {
     "note": "Current Account reports the current account balance."
@@ -12069,7 +12069,7 @@
     "note": "Fpi is a scheduled data release."
   },
   "NZD::gdp annual average::none": {
-    "note": "GDP Annual Average measures growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Stats NZ GDP annual average reports the average level or growth of economic output over the year."
   },
   "NZD::gdp expenditure::q/q": {
     "note": "GDP Expenditure measures quarter-over-quarter % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -12102,7 +12102,7 @@
     "note": "Stats NZ Labour Cost Index measures changes in wage and salary rates, adjusted for changes in the quantity and quality of work, and this series is the annual change."
   },
   "NZD::m3 money supply::none": {
-    "note": "M3 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Reserve Bank of New Zealand M3 money supply is a broad monetary aggregate published in monetary statistics."
   },
   "NZD::manufacturing sales volume::q/q": {
     "note": "Manufacturing Sales Volume measures sales for this series."
@@ -12216,7 +12216,7 @@
     "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
   },
   "OMR::m2 money supply::y/y": {
-    "note": "M2 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Oman M2 money supply (YoY) reports the annual change in broad money published by the Central Bank of Oman."
   },
   "OMR::total credit::y/y": {
     "note": "Total Credit measures credit or lending conditions."
@@ -12225,10 +12225,10 @@
     "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
   },
   "PEN::current account % of gdp::none": {
-    "note": "Current Account % of GDP measures growth in economic output."
+    "note": "Peru current account as a percent of GDP expresses the external balance (current account) relative to the size of the economy."
   },
   "PEN::fiscal balance % of gdp::none": {
-    "note": "Fiscal Balance % of GDP measures growth in economic output."
+    "note": "Peru fiscal balance as a percent of GDP expresses the government's fiscal result relative to the size of the economy."
   },
   "PEN::gdp::y/y": {
     "note": "GDP measures year-over-year % growth in economic output."
@@ -12327,7 +12327,7 @@
     "note": "Fx Reserves (eur) reports official foreign-exchange reserves."
   },
   "PLN::gdp (yoy) (12m)::none": {
-    "note": "GDP (yoy) (12m) measures growth in economic output."
+    "note": "Poland GDP (YoY) (12m) reports the year-over-year change in economic output over the past 12 months."
   },
   "PLN::gdp::q/q": {
     "note": "GDP measures quarter-over-quarter % growth in economic output."
@@ -12336,19 +12336,19 @@
     "note": "GDP measures year-over-year % growth in economic output."
   },
   "PLN::industrial output::y/y": {
-    "note": "Industrial Output measures production for this series."
+    "note": "Statistics Poland industrial output (YoY) reports the annual change in industrial production."
   },
   "PLN::interest rate decision::none": {
     "note": "Narodowy Bank Polski (NBP) sets its key interest rates, including the reference rate (minimum money market intervention rate), after the Monetary Policy Council decision. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "PLN::m3 money supply::y/y": {
-    "note": "M3 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Narodowy Bank Polski M3 money supply (YoY) reports the annual growth rate of the broad monetary aggregate."
   },
   "PLN::nbp financial stability report::none": {
     "note": "Nbp Financial Stability Report is a scheduled data release."
   },
   "PLN::nbp inflation and gdp projection::none": {
-    "note": "Nbp Inflation and GDP Projection measures growth in economic output."
+    "note": "Narodowy Bank Polski inflation and GDP projection publishes the central bank's macro forecast for inflation and economic growth."
   },
   "PLN::nbp monetary policy meeting minutes::none": {
     "note": "Nbp Monetary Policy Meeting Minutes provides detail on the latest policy meeting (the central bank)."
@@ -12387,7 +12387,7 @@
     "note": "Qatar Central Bank's Monetary Policy Committee sets QCB policy rates (deposit, lending, and repo rates) to manage short-term interbank rates. Usually limited direct impact on XAUUSD unless it moves broader USD liquidity or risk sentiment."
   },
   "QAR::m2 money supply::y/y": {
-    "note": "M2 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Qatar M2 money supply (YoY) reports the annual change in broad money published by the Qatar Central Bank."
   },
   "QAR::total credit::y/y": {
     "note": "Total Credit measures credit or lending conditions."
@@ -12432,7 +12432,7 @@
     "note": "National Bank of Serbia Executive Board sets the key policy rate and other interest rates used in monetary policy implementation."
   },
   "RUB::budget balance % of gdp::none": {
-    "note": "Budget Balance % of GDP measures growth in economic output."
+    "note": "Russia budget balance as a percent of GDP expresses the fiscal balance (surplus or deficit) relative to the size of the economy."
   },
   "RUB::business confidence::none": {
     "note": "Business Confidence is a survey-based sentiment reading."
@@ -12522,7 +12522,7 @@
     "note": "The Saudi Central Bank announces its repo and reverse repo rate decision to maintain monetary stability. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "SAR::m3 money supply::y/y": {
-    "note": "M3 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Saudi Arabia M3 money supply (YoY) reports the annual change in broad money published by the Saudi Central Bank."
   },
   "SAR::private sector loans::y/y": {
     "note": "Private Sector Loans measures credit or lending conditions."
@@ -12564,7 +12564,7 @@
     "note": "Current Account reports the current account balance."
   },
   "SEK::gdp::m/m": {
-    "note": "GDP measures growth in economic output."
+    "note": "Sweden GDP (MoM) reports the monthly change in economic output for the period."
   },
   "SEK::gdp::q/q": {
     "note": "GDP measures quarter-over-quarter % growth in economic output."
@@ -12594,7 +12594,7 @@
     "note": "Sveriges Riksbank announces its policy rate decision, its main monetary policy tool that influences other rates in Sweden. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "SEK::m3 money supply::none": {
-    "note": "M3 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Sweden M3 money supply is a broad monetary aggregate published in official monetary statistics."
   },
   "SEK::manufacturing confidence::none": {
     "note": "Manufacturing Confidence is a survey-based sentiment reading."
@@ -12714,7 +12714,7 @@
     "note": "Foreign Reserves (usd) reports official foreign-exchange reserves."
   },
   "THB::gdp annual::none": {
-    "note": "GDP Annual measures growth in economic output."
+    "note": "Thailand GDP annual reports the year-over-year change in economic output for the period."
   },
   "THB::gdp::q/q": {
     "note": "GDP measures quarter-over-quarter % growth in economic output."
@@ -12900,10 +12900,10 @@
     "note": "Central Bank of the Republic of China (Taiwan) discount rate is a key policy rate decided by its board."
   },
   "TWD::m2 money supply::none": {
-    "note": "M2 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Taiwan M2 money supply is a broad monetary aggregate published by the central bank."
   },
   "TWD::m3 money supply::none": {
-    "note": "M3 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Taiwan M3 money supply is a broad monetary aggregate published by the central bank."
   },
   "TWD::s&p global manufacturing pmi::none": {
     "note": "S&P Global Taiwan Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
@@ -12933,7 +12933,7 @@
     "note": "GDP measures year-over-year % growth in economic output."
   },
   "UAH::industrial output::y/y": {
-    "note": "Industrial Output measures production for this series."
+    "note": "Ukraine industrial output (YoY) reports the annual change in industrial production for the period."
   },
   "UAH::industrial production::m/m": {
     "note": "Industrial Production measures the month-over-month % change in industrial output."
@@ -14049,7 +14049,7 @@
     "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
   },
   "ZAR::current account % of gdp::none": {
-    "note": "Current Account % of GDP measures growth in economic output."
+    "note": "South Africa current account as a percent of GDP expresses the external balance (current account) relative to the size of the economy."
   },
   "ZAR::current account::none": {
     "note": "Current Account reports the current account balance."
@@ -14064,7 +14064,7 @@
     "note": "GDP measures year-over-year % growth in economic output."
   },
   "ZAR::gold production::y/y": {
-    "note": "Gold Production measures production for this series."
+    "note": "South Africa gold production (YoY) reports the annual change in gold mining output."
   },
   "ZAR::interest rate decision (2m)::none": {
     "note": "South African Reserve Bank Monetary Policy Committee announces the policy rate decision (repo rate) at its scheduled meeting. Surprises can move ZAR and local rates, with potential spillovers into XAUUSD via risk sentiment."
@@ -14076,19 +14076,19 @@
     "note": "Leading Indicators is a scheduled data release."
   },
   "ZAR::m3 money supply::y/y": {
-    "note": "M3 Money Supply measures the money supply for this monetary aggregate."
+    "note": "South African Reserve Bank M3 money supply (YoY) reports the annual change in broad money (monetary aggregate M3)."
   },
   "ZAR::manufacturing pmi::none": {
     "note": "Absa PMI (BER) is a monthly survey-based diffusion index of manufacturing conditions in South Africa (above 50 = expansion)."
   },
   "ZAR::manufacturing production::m/m": {
-    "note": "Manufacturing Production measures production for this series."
+    "note": "Statistics South Africa manufacturing production (MoM) reports the monthly change in manufacturing output."
   },
   "ZAR::manufacturing production::y/y": {
-    "note": "Manufacturing Production measures production for this series."
+    "note": "Statistics South Africa manufacturing production (YoY) reports the annual change in manufacturing output."
   },
   "ZAR::mining production::none": {
-    "note": "Mining Production measures production for this series."
+    "note": "Statistics South Africa mining production reports changes in the volume of mining output for the period."
   },
   "ZAR::net fx reserves (usd)::none": {
     "note": "Net Fx Reserves (usd) reports official foreign-exchange reserves."
