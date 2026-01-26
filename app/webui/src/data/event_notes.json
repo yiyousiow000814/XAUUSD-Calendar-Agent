@@ -3750,7 +3750,7 @@
     "note": "Industrial Production measures industrial output."
   },
   "KRW::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "The Bank of Korea Monetary Policy Board sets the Base Rate, the Bank of Korea's reference policy rate for transactions with financial institutions. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "KRW::m2 money supply::none": {
     "note": "M2 Money Supply measures the money supply for this monetary aggregate."
@@ -3897,7 +3897,7 @@
     "note": "Industrial Production measures industrial output."
   },
   "MXN::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "Banco de Mexico implements monetary policy via a target for the overnight interbank interest rate, announced after its policy decision meeting. Usually limited direct impact on XAUUSD unless it moves broader USD, yields, or risk sentiment."
   },
   "MXN::mexican general election::none": {
     "note": "Mexican General Election is a scheduled data release."
@@ -11976,7 +11976,7 @@
     "note": "Industrial Confidence is a survey-based sentiment reading."
   },
   "NOK::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "Norges Bank announces the policy rate decision after its monetary policy meeting. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "NOK::m3 money supply::none": {
     "note": "M3 Money Supply measures the money supply for this monetary aggregate."
@@ -12339,7 +12339,7 @@
     "note": "Industrial Output measures production for this series."
   },
   "PLN::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "Narodowy Bank Polski (NBP) sets its key interest rates, including the reference rate (minimum money market intervention rate), after the Monetary Policy Council decision. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "PLN::m3 money supply::y/y": {
     "note": "M3 Money Supply measures the money supply for this monetary aggregate."
@@ -12591,7 +12591,7 @@
     "note": "Industrial Production measures industrial output."
   },
   "SEK::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "Sveriges Riksbank announces its policy rate decision, its main monetary policy tool that influences other rates in Sweden. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "SEK::m3 money supply::none": {
     "note": "M3 Money Supply measures the money supply for this monetary aggregate."
@@ -12729,7 +12729,7 @@
     "note": "Industrial Production measures industrial output."
   },
   "THB::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "Bank of Thailand sets the policy interest rate, defined as the 1-day bilateral repurchase rate, following the Monetary Policy Committee decision. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "THB::manufacturing pmi::m/m": {
     "note": "Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
@@ -13008,10 +13008,10 @@
     "note": "8 Week Bill Auction is a government bond auction. A weak auction can push yields higher and pressure XAUUSD; a strong auction can help ease yields and support it."
   },
   "USD::adp employment change weekly::none": {
-    "note": "Adp Employment Change Weekly is a scheduled data release. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
+    "note": "ADP's weekly NER pulse provides a week-over-week read on US private-sector employment using anonymized payroll data. A stronger pulse can firm USD and often weighs on XAUUSD via higher yields; a softer pulse can support it."
   },
   "USD::adp nonfarm employment change::none": {
-    "note": "Adp Nonfarm Employment Change is a scheduled data release. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
+    "note": "The ADP National Employment Report estimates the monthly change in US private-sector employment using aggregated, anonymized payroll data. Big surprises can move yields and USD and often push XAUUSD the other way."
   },
   "USD::all car sales::none": {
     "note": "U.S. Bureau of Economic Analysis (BEA) reports motor vehicle retail sales for domestic and foreign autos."
@@ -13032,13 +13032,13 @@
     "note": "API's Weekly Statistical Bulletin reports inventories of major petroleum products, including motor gasoline."
   },
   "USD::atlanta fed gdpnow::none": {
-    "note": "Atlanta Fed Gdpnow measures growth in economic output. A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
+    "note": "Atlanta Fed GDPNow is a nowcasting model that produces a running estimate of US real GDP growth for the current quarter, updating as new data arrive. A stronger nowcast can lift yields and often weigh on XAUUSD; a weaker nowcast can support it."
   },
   "USD::average hourly earnings (yoy)::y/y": {
-    "note": "Average Hourly Earnings (yoy) is a scheduled data release. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
+    "note": "Year-over-year growth in BLS Average Hourly Earnings (from the payroll survey) is watched as a wage-inflation signal. Upside surprises can lift yields and often weigh on XAUUSD; downside surprises can be supportive."
   },
   "USD::average hourly earnings::m/m": {
-    "note": "Average Hourly Earnings is a scheduled data release. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
+    "note": "BLS payroll data (CES) publishes Average Hourly Earnings for employees on private nonfarm payrolls. Faster wage growth can lift yields and USD and often pressures XAUUSD; slower growth can help it."
   },
   "USD::average weekly hours::none": {
     "note": "BLS Current Employment Statistics (CES) publishes estimates of average weekly hours for nonfarm payroll employees."
@@ -13071,7 +13071,7 @@
     "note": "Cb Consumer Confidence is a survey-based sentiment reading."
   },
   "USD::cb employment trends index::none": {
-    "note": "Cb Employment Trends Index is an index reading for this series. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
+    "note": "The Conference Board Employment Trends Index (ETI) is a leading composite index for payroll employment; increases often signal employment growth ahead. A stronger ETI can support USD and often weighs on XAUUSD; a weaker ETI can support it."
   },
   "USD::cftc aluminium speculative net positions::none": {
     "note": "CFTC COT reports break down each Tuesday's open interest in futures and options; this series shows speculative net positions in aluminium."
@@ -13140,7 +13140,7 @@
     "note": "Chicago PMI is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
   },
   "USD::cleveland cpi::m/m": {
-    "note": "Cleveland CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "Cleveland Fed Median CPI is the one-month inflation rate of the CPI component whose expenditure weight sits at the 50th percentile of price changes (based on BLS CPI data). A higher median CPI can lift yields and often weigh on XAUUSD; a lower reading can support it."
   },
   "USD::construction spending::m/m": {
     "note": "Census Value of Construction Put in Place Survey provides monthly estimates of the total dollar value of construction work done in the U.S."
@@ -13152,31 +13152,31 @@
     "note": "Continuing Jobless Claims is the weekly number of new unemployment benefit claims. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
   },
   "USD::core cpi index::none": {
-    "note": "Core CPI Index (Consumer Price Index) measures the change in consumer prices excluding food and energy. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "BLS Core CPI (CPI-U less food and energy) index level reflects underlying inflation in prices paid by urban consumers. A firmer core reading can lift real yields and often weigh on XAUUSD; a softer core reading can support it."
   },
   "USD::core cpi::m/m": {
-    "note": "Core CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices excluding food and energy. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "Month-over-month change in BLS Core CPI (CPI-U less food and energy) is watched as a cleaner read on underlying inflation. Upside surprises can lift yields and often pressure XAUUSD; downside surprises can support it."
   },
   "USD::core cpi::y/y": {
-    "note": "Core CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices excluding food and energy. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "Year-over-year change in BLS Core CPI (CPI-U less food and energy) reflects the 12-month underlying inflation rate. Hot core inflation can lift USD and yields and often weighs on XAUUSD; cool core inflation can support it."
   },
   "USD::core durable goods orders::m/m": {
     "note": "Core Durable Goods Orders measures the month-over-month % change in new orders for long-lasting manufactured goods. A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
   },
   "USD::core pce price index::m/m": {
-    "note": "Core PCE Price Index (PCE price index, MoM) measures the month-over-month % change in consumer prices excluding food and energy. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "BEA Core PCE price index (PCE excluding food and energy) is released in the Personal Income and Outlays report. As a key Fed inflation gauge, a hotter print can lift yields and often weigh on XAUUSD; a softer print can support it."
   },
   "USD::core pce price index::y/y": {
-    "note": "Core PCE Price Index (PCE price index, YoY) measures the year-over-year % change in consumer prices excluding food and energy. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "Year-over-year change in the BEA Core PCE price index (PCE excluding food and energy) is closely watched for the inflation trend. Upside surprises can lift real yields and often pressure XAUUSD; downside surprises can support it."
   },
   "USD::core pce prices::none": {
-    "note": "Core PCE Prices (PCE price index) measures the change in consumer prices excluding food and energy. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "BEA Core PCE price index measures prices paid for goods and services purchased by consumers, excluding food and energy. A higher-than-expected reading can lift yields and often weigh on XAUUSD; a lower reading can support it."
   },
   "USD::core ppi::m/m": {
-    "note": "Core PPI (Producer Price Index, MoM) measures the month-over-month % change in prices received by producers excluding food and energy. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "BLS Core PPI measures month-over-month changes in selling prices received by domestic producers, excluding food and energy. A hotter reading can lift yields and often pressure XAUUSD; a cooler reading can support it."
   },
   "USD::core ppi::y/y": {
-    "note": "Core PPI (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers excluding food and energy. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "Year-over-year change in BLS Core PPI reflects producer-level inflation excluding food and energy. Upside surprises can lift USD and yields and often weigh on XAUUSD; downside surprises can support it."
   },
   "USD::core retail sales::m/m": {
     "note": "Core Retail Sales measures the month-over-month % change in retail spending. A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
@@ -13185,19 +13185,19 @@
     "note": "BEA corporate profits represent the portion of total income earned from current production accounted for by US corporations."
   },
   "USD::cpi index, n.s.a.::none": {
-    "note": "CPI Index, N.s.a. (Consumer Price Index) measures the change in consumer prices."
+    "note": "BLS CPI-U index (not seasonally adjusted) measures the average change over time in prices paid by urban consumers for a market basket of goods and services. A hotter reading can lift yields and often weighs on XAUUSD; a cooler reading can support it."
   },
   "USD::cpi index, s.a::none": {
-    "note": "CPI Index, S.a (Consumer Price Index) measures the change in consumer prices. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "Seasonally adjusted CPI-U index level from BLS, designed to remove predictable seasonal patterns in prices. Upside inflation surprises can lift yields and often pressure XAUUSD; downside surprises can support it."
   },
   "USD::cpi, n.s.a::m/m": {
-    "note": "CPI, N.s.a (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "Month-over-month change in the BLS CPI-U index (not seasonally adjusted), tracking prices paid by urban consumers. A stronger print can lift USD and yields and often weighs on XAUUSD; a weaker print can support it."
   },
   "USD::cpi::m/m": {
-    "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "BLS CPI-U month-over-month change measures short-term inflation in prices paid by urban consumers for a market basket. Hot inflation tends to lift yields and weigh on XAUUSD; softer inflation can support it."
   },
   "USD::cpi::y/y": {
-    "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "BLS CPI-U year-over-year change reflects the 12-month inflation rate in prices paid by urban consumers. Upside surprises can lift USD/real yields and often pressure XAUUSD; downside surprises can support it."
   },
   "USD::crude oil imports::none": {
     "note": "EIA Weekly Petroleum Status Report covers U.S. crude oil imports alongside other petroleum supply indicators."
@@ -13215,7 +13215,7 @@
     "note": "Dallas Fed Texas Manufacturing Outlook Survey indexes are calculated as the share reporting an increase minus the share reporting a decrease."
   },
   "USD::dallas fed pce::none": {
-    "note": "Dallas Fed PCE (PCE price index) measures the change in consumer prices . Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "Dallas Fed Trimmed Mean PCE inflation rate is an alternative core inflation measure based on BEA PCE price-index data. A higher-than-expected reading can lift yields and often weigh on XAUUSD; a lower reading can support it."
   },
   "USD::dallas fed services revenues::none": {
     "note": "Dallas Fed Texas Service Sector Outlook Survey asks firms whether revenue increased, decreased, or was unchanged over the previous month."
@@ -13254,13 +13254,13 @@
     "note": "EIA refinery utilization rate reflects utilization of atmospheric crude oil distillation units, calculated as gross input divided by last reported operable capacity."
   },
   "USD::employment benefits::q/q": {
-    "note": "Employment Benefits is a scheduled data release. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
+    "note": "BLS Employment Cost Index measures changes in employers' hourly labor costs; this subseries focuses on benefit costs. Hotter compensation growth can lift yields and often weighs on XAUUSD."
   },
   "USD::employment cost index::q/q": {
-    "note": "Employment Cost Index is an index reading for this series. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
+    "note": "The Employment Cost Index (ECI) measures the change in hourly labor cost to employers over time, including wages and salaries and benefits. Faster-than-expected cost growth can lift yields and often weighs on XAUUSD."
   },
   "USD::employment wages::q/q": {
-    "note": "Employment Wages is a scheduled data release. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
+    "note": "BLS Employment Cost Index (wages and salaries) measures changes in employers' hourly wage costs using a fixed labor basket. Faster wage-cost growth can support USD and often pressures XAUUSD via rates."
   },
   "USD::existing home sales::m/m": {
     "note": "National Association of Realtors (NAR) Existing-Home Sales covers sales and prices of existing homes (including condos and co-ops) with regional breakdowns."
@@ -13278,16 +13278,16 @@
     "note": "BEA defines exports of goods and services as goods and services sold by U.S. residents to foreign residents."
   },
   "USD::factory orders ex transportation::m/m": {
-    "note": "Factory Orders ex Transportation is a scheduled data release. A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
+    "note": "Factory Orders excluding transportation removes a volatile category from the Census M3 new-orders data. Strength can support USD and often weighs on XAUUSD; weakness can be supportive."
   },
   "USD::factory orders::m/m": {
-    "note": "Factory Orders is a scheduled data release. A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
+    "note": "US Census Bureau M3 provides monthly manufacturing shipments, inventories, and new orders (often called Factory Orders). Strong orders can support USD and weigh on XAUUSD; weak orders can support it."
   },
   "USD::fed bank stress test results::none": {
     "note": "The Fed's stress test is a forward-looking quantitative evaluation of bank capital under a hypothetical macroeconomic recession scenario."
   },
   "USD::fed barr testimony::none": {
-    "note": "Fed Barr Testimony is a scheduled data release. A more hawkish-than-expected message can lift USD and yields, often pressuring XAUUSD; a dovish surprise can support it."
+    "note": "Testimony by Fed Vice Chair for Supervision Michael Barr, often focused on bank oversight and regulation. A more hawkish policy tone can lift USD and yields and often pressures XAUUSD; a dovish tone can do the opposite."
   },
   "USD::fed chair powell speaks::none": {
     "note": "Speech by Fed Chair Jerome Powell."
@@ -13344,7 +13344,7 @@
     "note": "Fed Interest Rate Decision sets the policy rate (the Fed). A more hawkish-than-expected message can lift USD and yields, often pressuring XAUUSD; a dovish surprise can support it."
   },
   "USD::fed labor market conditions index::none": {
-    "note": "Fed Labor Market Conditions Index is an index reading for this series. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
+    "note": "Kansas City Fed Labor Market Conditions Indicators (LMCI) are two monthly measures based on 24 labor market variables, covering the level and momentum of labor-market activity. Stronger conditions can lift USD and often weigh on XAUUSD; weaker conditions can support it."
   },
   "USD::fed logan speaks::none": {
     "note": "Speech by Fed official Lorie Logan."
@@ -13368,7 +13368,7 @@
     "note": "The Federal Reserve publishes its balance sheet each week in the H.4.1 statistical release."
   },
   "USD::federal budget balance::none": {
-    "note": "Federal Budget Balance reports the government's fiscal balance (surplus/deficit)."
+    "note": "US Treasury's Monthly Treasury Statement summarizes federal receipts and outlays, producing the monthly budget surplus/deficit. A larger deficit can weigh on USD sentiment at the margin; a smaller deficit can be supportive."
   },
   "USD::fomc economic projections::none": {
     "note": "FOMC economic projections (SEP) are collected four times a year and include policymakers' projections for the appropriate target federal funds rate path."
@@ -13479,7 +13479,7 @@
     "note": "GDP Price Index measures quarter-over-quarter % growth in economic output. A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
   },
   "USD::gdp sales::none": {
-    "note": "GDP Sales measures growth in economic output. A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
+    "note": "BEA Final Sales of Domestic Product equals GDP minus the change in private inventories, often read as underlying demand. Stronger final sales can lift yields and often weigh on XAUUSD; weaker final sales can support it."
   },
   "USD::gdp::q/q": {
     "note": "GDP measures quarter-over-quarter % growth in economic output. A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
@@ -13491,7 +13491,7 @@
     "note": "The Kitco Global Index (KGX) is designed to determine whether changes in gold reflect actual value changes, shifts in the US dollar, or both."
   },
   "USD::goods orders non defense ex air::m/m": {
-    "note": "Goods Orders Non Defense ex Air is a scheduled data release. A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
+    "note": "Nondefense Capital Goods Excluding Aircraft (often called core capital goods) measures new orders for business-investment goods in the Census M3/durable goods data. Stronger orders can support USD and often weigh on XAUUSD; weaker orders can support it."
   },
   "USD::goods trade balance::none": {
     "note": "BEA and Census report monthly trade in goods and services; the goods trade balance is goods exports minus goods imports."
@@ -13641,10 +13641,10 @@
     "note": "MBA Weekly Mortgage Applications Survey Purchase Index measures mortgage loan application volume for home purchases."
   },
   "USD::michigan 1 - year inflation expectations::none": {
-    "note": "Michigan 1 Year Inflation Expectations is a scheduled data release. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "University of Michigan Surveys of Consumers reports year-ahead inflation expectations from its monthly consumer survey. Higher expected inflation can lift yields and often weighs on XAUUSD; lower expectations can support it."
   },
   "USD::michigan 5 - year inflation expectations::none": {
-    "note": "Michigan 5 Year Inflation Expectations is a scheduled data release. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "University of Michigan Surveys of Consumers reports longer-run inflation expectations (often treated as a 5-10 year outlook). Higher long-run expectations can lift real-rate expectations and often weigh on XAUUSD; lower can be supportive."
   },
   "USD::michigan consumer expectations::none": {
     "note": "University of Michigan Index of Consumer Expectations summarizes views on personal finances and the economy over the near and long term."
@@ -13662,7 +13662,7 @@
     "note": "Milk Auctions is a government bond auction. A weak auction can push yields higher and pressure XAUUSD; a strong auction can help ease yields and support it."
   },
   "USD::monster employment index::none": {
-    "note": "Monster Employment Index is an index reading for this series. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
+    "note": "Monster Employment Index was a monthly analysis of online job demand based on millions of job postings aggregated from career sites and job boards. A stronger reading can support USD and often weighs on XAUUSD; a weaker reading can support it."
   },
   "USD::mortgage market index::none": {
     "note": "MBA Weekly Mortgage Applications Survey Market Composite Index measures mortgage loan application volume."
@@ -13689,13 +13689,13 @@
     "note": "Nonfarm Payrolls measures the change in employment. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
   },
   "USD::nonfarm productivity::q/q": {
-    "note": "Nonfarm Productivity is a scheduled data release. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
+    "note": "BLS Productivity and Costs reports labor productivity (output per hour) in the nonfarm business sector. Higher productivity can temper inflation pressure and support XAUUSD if yields fall; weaker productivity can do the opposite."
   },
   "USD::ny empire state manufacturing index::none": {
     "note": "New York Fed Empire State Manufacturing Survey reports a seasonally adjusted diffusion index of business conditions for New York State manufacturers."
   },
   "USD::ny fed 1 - year consumer inflation expectations::none": {
-    "note": "Ny Fed 1 Year Consumer Inflation Expectations is a scheduled data release. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "NY Fed Survey of Consumer Expectations reports the median one-year-ahead inflation expectation. Higher expectations can push yields up and often weigh on XAUUSD; lower expectations can support it."
   },
   "USD::opec crude oil production algeria (barrel)::none": {
     "note": "OPEC Monthly Oil Market Report publishes crude oil production estimates for Algeria, based on secondary sources."
@@ -13761,19 +13761,19 @@
     "note": "Payrolls Benchmark measures the change in employment. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
   },
   "USD::pce deflator::m/m": {
-    "note": "PCE Deflator (PCE price index, MoM) measures the month-over-month % change in consumer prices . Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "BEA PCE price index (often called the PCE deflator) reflects changes in prices of goods and services purchased by consumers and is released in Personal Income and Outlays. Hotter PCE inflation can lift yields and often weigh on XAUUSD; softer inflation can support it."
   },
   "USD::pce deflator::y/y": {
-    "note": "PCE Deflator (PCE price index, YoY) measures the year-over-year % change in consumer prices . Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "Year-over-year change in the BEA PCE price index (PCE deflator) reflects the 12-month inflation trend in consumer expenditures. Upside surprises can lift real yields and often pressure XAUUSD; downside surprises can support it."
   },
   "USD::pce price index::m/m": {
-    "note": "PCE Price Index (PCE price index, MoM) measures the month-over-month % change in consumer prices . Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "BEA PCE Price Index is a key Fed inflation gauge in the Personal Income and Outlays release, covering prices paid for goods and services purchased by consumers. A higher-than-expected print can lift USD and yields and often weighs on XAUUSD; a lower print can support it."
   },
   "USD::pce price index::y/y": {
-    "note": "PCE Price Index (PCE price index, YoY) measures the year-over-year % change in consumer prices . Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "Year-over-year change in the BEA PCE Price Index reflects PCE inflation over the past 12 months. Hotter PCE inflation can lift USD/real yields and often pressure XAUUSD; cooler inflation can support it."
   },
   "USD::pce prices::none": {
-    "note": "PCE Prices (PCE price index) measures the change in consumer prices . Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "BEA PCE price index reflects prices paid for goods and services purchased by consumers (including some spending on their behalf). Higher-than-expected PCE inflation can lift yields and often weigh on XAUUSD; softer inflation can support it."
   },
   "USD::pending home sales index::none": {
     "note": "National Association of Realtors (NAR) Pending Home Sales Index measures housing contract activity based on signed real estate contracts for existing homes."
@@ -13797,10 +13797,10 @@
     "note": "Philadelphia Fed Manufacturing Business Outlook Survey includes a six-month-ahead capital expenditures diffusion index based on expected increases minus expected decreases."
   },
   "USD::philly fed employment::none": {
-    "note": "Philly Fed Employment is a scheduled data release. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
+    "note": "Philadelphia Fed Manufacturing Business Outlook Survey employment diffusion index is the share reporting higher employment minus the share reporting lower employment (midpoint 0). Stronger readings can support USD and often weigh on XAUUSD; weaker readings can support it."
   },
   "USD::philly fed new orders::none": {
-    "note": "Philly Fed New Orders is a scheduled data release. A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
+    "note": "Philadelphia Fed Manufacturing Business Outlook Survey new orders diffusion index is the share reporting higher new orders minus the share reporting lower new orders (midpoint 0). Stronger readings can support USD and often weigh on XAUUSD; weaker readings can support it."
   },
   "USD::philly fed prices paid::none": {
     "note": "Philadelphia Fed Manufacturing Business Outlook Survey uses diffusion indexes: % reporting an increase minus % reporting a decrease."
@@ -13812,10 +13812,10 @@
     "note": "PPI Ex. Food/energy/transport (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers."
   },
   "USD::ppi::m/m": {
-    "note": "PPI (Producer Price Index, MoM) measures the month-over-month % change in prices received by producers. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "BLS PPI measures changes in selling prices received by domestic producers for their output (often from the first commercial transaction). A hotter print can lift yields and often weigh on XAUUSD; a softer print can support it."
   },
   "USD::ppi::y/y": {
-    "note": "PPI (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
+    "note": "Year-over-year change in BLS PPI reflects producer-level inflation in selling prices received by domestic producers. Upside surprises can lift USD and yields and often pressure XAUUSD; downside surprises can support it."
   },
   "USD::presidential debate::none": {
     "note": "Commission on Presidential Debates (CPD) sponsors and produces quadrennial general election debates for President and Vice President."
@@ -13836,7 +13836,7 @@
     "note": "Real consumer spending is inflation-adjusted personal consumption expenditures (PCE) reported in chained dollars."
   },
   "USD::real earnings::m/m": {
-    "note": "Real Earnings is a scheduled data release. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
+    "note": "BLS Real Earnings reports inflation-adjusted (CPI-deflated) average hourly and weekly earnings. Stronger real earnings can support USD and often weighs on XAUUSD; weaker real earnings can support it."
   },
   "USD::real personal consumption::m/m": {
     "note": "Real personal consumption expenditures are reported in chained dollars (inflation-adjusted PCE)."
@@ -13965,7 +13965,7 @@
     "note": "Unemployment Rate shows the share of the labor force that is unemployed. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
   },
   "USD::unit labor costs::q/q": {
-    "note": "Unit Labor Costs is a scheduled data release. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
+    "note": "BLS Productivity and Costs reports unit labor costs (labor compensation per unit of output). Upside surprises can lift yields and often weigh on XAUUSD; downside surprises can support it."
   },
   "USD::us commercial banks deposits::none": {
     "note": "Fed H.8 release provides an estimated weekly aggregated balance sheet for all U.S. commercial banks, including deposit liabilities."

@@ -47,6 +47,67 @@ Principles:
 1. Each event still needs its own supporting excerpt (one line) and its own final note.
 2. Efficiency comes from reusing official sources (not reusing wording).
 
+## This Repo's Exact Workflow (What "Good" Looks Like Here)
+
+When following this skill in this repository, the expected workflow is:
+
+1. Pick exactly one event id to work on (for example, `USD::pce deflator::m/m`).
+2. Find at least one credible source line for that exact event (prefer official publisher pages).
+3. Cache sources under `tmp/` (gitignored), extract a one-line excerpt, and record it in `tmp/event_notes_research_log.md` (do not commit).
+4. Write/replace the note in `event_notes.json` in natural English (1-2 sentences).
+5. Run the repo quality gate (`python scripts/calendar/build_event_notes.py`) and rewrite if it flags anything.
+
+### Fast, reproducible web research (recommended)
+
+Use `r.jina.ai` for both search and fetching readable page text, then cache locally:
+
+```powershell
+$ProgressPreference = 'SilentlyContinue'
+New-Item -ItemType Directory -Force tmp/sources | Out-Null
+
+# 1) Search (DuckDuckGo HTML via r.jina.ai)
+$q = [uri]::EscapeDataString('BLS CPI definition prices paid by urban consumers market basket')
+(Invoke-WebRequest -UseBasicParsing "https://r.jina.ai/http://duckduckgo.com/html/?q=$q").Content |
+  Set-Content -Encoding utf8 tmp/sources/ddg_cpi.md
+
+# 2) Fetch the best official hit (again via r.jina.ai) and cache it
+$url = 'https://www.bls.gov/cpi/'
+(Invoke-WebRequest -UseBasicParsing "https://r.jina.ai/$url").Content |
+  Set-Content -Encoding utf8 tmp/sources/bls_cpi.md
+
+# 3) Extract one supporting excerpt line for evidence
+Select-String -Path tmp/sources/bls_cpi.md -Pattern 'average change over time' | Select-Object -First 1
+```
+
+You can also use the helper script for one event id:
+
+```powershell
+python scripts/calendar/research_event_note_sources.py --event-id "USD::pce deflator::m/m"
+```
+
+It does not edit JSON; it only helps you find/copy evidence lines faster.
+
+### Evidence logging (must do per event)
+
+Append one short block per event to `tmp/event_notes_research_log.md`:
+
+```text
+EVENT: USD::cpi::m/m
+SOURCE: https://www.bls.gov/cpi/
+EXCERPT: "The Consumer Price Index (CPI) is a measure of the average change over time in the prices paid by urban consumers for a market basket..."
+NOTE: (paste your final 1-2 sentence note)
+```
+
+## Repo Quality Gates (Important)
+
+This repo enforces a couple of non-obvious checks via `python scripts/calendar/build_event_notes.py`:
+
+1. Banned phrases: never use `tracks` or `growth indicator` anywhere in notes.
+2. Sentence limit: a simple punctuation heuristic counts `. ! ?` as sentence endings.
+   * Avoid abbreviations with periods like `U.S.` because they can be miscounted as extra sentences.
+   * Prefer `US` instead of `U.S.` and keep punctuation minimal.
+3. ASCII-safe text: avoid curly quotes (use `'` instead of `’`) so JSON stays clean and consistent.
+
 Recommended workflow:
 
 1. Identify the official publisher domain for the event (central bank, statistics office, exchange, etc.).
