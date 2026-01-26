@@ -1,18 +1,6 @@
 {
-  "generated_at": "25-01-2026 02:26",
+  "generated_at": "25-01-2026 15:38",
   "patches": [
-    {
-      "patch": "previous_missing_filled",
-      "event_id": "USD::u.s. baker hughes oil rig count::none",
-      "cur": "USD",
-      "event": "U.S. Baker Hughes Oil Rig Count",
-      "period": "",
-      "date": "2026-01-31",
-      "time": "02:00",
-      "previous_raw": "",
-      "prior_actual": "411",
-      "previous_effective": "411"
-    },
     {
       "patch": "previous_missing_filled",
       "event_id": "USD::fed interest rate decision::none",
@@ -84,18 +72,6 @@
       "previous_raw": "",
       "prior_actual": "16.00%",
       "previous_effective": "16.00%"
-    },
-    {
-      "patch": "previous_missing_filled",
-      "event_id": "USD::u.s. baker hughes total rig count::none",
-      "cur": "USD",
-      "event": "U.S. Baker Hughes Total Rig Count",
-      "period": "",
-      "date": "2026-01-31",
-      "time": "02:00",
-      "previous_raw": "",
-      "prior_actual": "544",
-      "previous_effective": "544"
     },
     {
       "patch": "previous_missing_filled",
