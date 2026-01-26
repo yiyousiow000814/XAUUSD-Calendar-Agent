@@ -225,7 +225,7 @@
     "note": "New Motor Vehicle Sales measures sales for this series."
   },
   "AUD::participation rate::none": {
-    "note": "Participation Rate reports a rate for this series."
+    "note": "ABS Labour Force Australia release reports the labour force participation rate alongside employment and unemployment."
   },
   "AUD::plant/machinery capital expenditure::q/q": {
     "note": "Australian Bureau of Statistics (ABS) Private New Capital Expenditure reports business investment spending on buildings and equipment, including plant and machinery."
@@ -1371,7 +1371,7 @@
     "note": "Current Account reports the current account balance."
   },
   "EUR::deposit facility rate::none": {
-    "note": "Deposit Facility Rate reports a rate for this series."
+    "note": "ECB deposit facility rate is the interest rate on overnight deposits that banks can place with the Eurosystem at a pre-set rate."
   },
   "EUR::dutch 10 - year bond auction::none": {
     "note": "Dutch 10 Year Bond Auction is a government bond auction. A weak auction can push yields higher and pressure XAUUSD; a strong auction can help ease yields and support it."
@@ -2838,7 +2838,7 @@
     "note": "Mortgage Lending is a scheduled data release."
   },
   "GBP::mortgage rate (gbp)::none": {
-    "note": "Mortgage Rate (gbp) reports a rate for this series."
+    "note": "Bank of England Effective interest rates release contains average rates across loan accounts with UK banks and building societies, including mortgage rates."
   },
   "GBP::mpc member fisher speaks::none": {
     "note": "Mpc Member Fisher Speaks is a scheduled data release."
@@ -2994,7 +2994,7 @@
     "note": "PPI (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers."
   },
   "GHS::prime interest rate::m/m": {
-    "note": "Prime Interest Rate reports a rate for this series."
+    "note": "Bank of Ghana publishes its Monetary Policy Committee decisions with the effective date and the BOG Policy Rate."
   },
   "GHS::whole economy pmi::m/m": {
     "note": "Whole Economy PMI is a diffusion index of business activity (50 = expansion)."
@@ -3318,7 +3318,7 @@
     "note": "Rbi Press Conference provides Q&A and messaging after the policy decision (the central bank)."
   },
   "INR::reverse repo rate::none": {
-    "note": "Reverse Repo Rate reports a rate for this series."
+    "note": "RBI reverse repo rate is the interest rate at which the RBI absorbs liquidity from banks against eligible government securities under the Liquidity Adjustment Facility (LAF)."
   },
   "INR::s&p global manufacturing pmi::none": {
     "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
@@ -12123,7 +12123,7 @@
     "note": "Nzier Qsbo Capacity Utilization is a scheduled data release."
   },
   "NZD::participation rate::none": {
-    "note": "Participation Rate reports a rate for this series."
+    "note": "Stats NZ publishes the labour force participation rate in its Labour market statistics based on the Household Labour Force Survey."
   },
   "NZD::performance of services index::none": {
     "note": "Performance of Services Index is an index reading for this series."
@@ -12429,7 +12429,7 @@
     "note": "GDP measures year-over-year % growth in economic output."
   },
   "RSD::serbian benchmark interest rate::none": {
-    "note": "Serbian Benchmark Interest Rate reports a rate for this series."
+    "note": "National Bank of Serbia Executive Board sets the key policy rate and other interest rates used in monetary policy implementation."
   },
   "RUB::budget balance % of gdp::none": {
     "note": "Budget Balance % of GDP measures growth in economic output."
@@ -12810,13 +12810,13 @@
     "note": "Net Fx Reserves reports official foreign-exchange reserves."
   },
   "TRY::one - week repo rate::none": {
-    "note": "One Week Repo Rate reports a rate for this series."
+    "note": "CBRT Monetary Policy Committee sets the policy rate (the one-week repo auction rate) in its Interest Rates decision."
   },
   "TRY::overnight borrowing rate::none": {
-    "note": "Overnight Borrowing Rate reports a rate for this series."
+    "note": "CBRT overnight borrowing rate is the interest rate used in Central Bank overnight borrowing operations, set alongside the policy rate decision."
   },
   "TRY::overnight lending rate::none": {
-    "note": "Overnight Lending Rate reports a rate for this series."
+    "note": "CBRT overnight lending rate is the interest rate used in Central Bank overnight lending operations, set alongside the policy rate decision."
   },
   "TRY::ppi::m/m": {
     "note": "PPI (Producer Price Index, MoM) measures the month-over-month % change in prices received by producers."
@@ -12852,7 +12852,7 @@
     "note": "Turkish Economic Confidence Index is a survey-based sentiment reading."
   },
   "TRY::turkish late liquidity window rate::none": {
-    "note": "Turkish Late Liquidity Window Rate reports a rate for this series."
+    "note": "CBRT publishes the Late Liquidity Window (LON) rate as part of its Central Bank Interest Rates series."
   },
   "TRY::turkish retail sales::m/m": {
     "note": "Turkish Retail Sales measures the month-over-month % change in retail spending."
