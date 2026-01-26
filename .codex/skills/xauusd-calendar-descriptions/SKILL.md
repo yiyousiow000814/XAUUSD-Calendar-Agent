@@ -47,6 +47,15 @@ Principles:
 1. Each event still needs its own supporting excerpt (one line) and its own final note.
 2. Efficiency comes from reusing official sources (not reusing wording).
 
+## Quota-Friendly Mode (No Agents)
+
+If you cannot use multiple agents (quota constraints), do not switch to generic template notes.
+Keep the same per-event evidence bar and make research faster by:
+
+1. Using the helper script to search and cache candidate pages (`tmp/sources/`).
+2. Restricting searches to official domains with `site:` (for example, `site:bls.gov`, `site:bea.gov`, `site:census.gov`).
+3. Reusing cached official "hub" pages for related variants (level, MoM, YoY) while still writing each event note individually.
+
 ## This Repo's Exact Workflow (What "Good" Looks Like Here)
 
 When following this skill in this repository, the expected workflow is:
@@ -86,6 +95,18 @@ python scripts/calendar/research_event_note_sources.py --event-id "USD::pce defl
 ```
 
 It does not edit JSON; it only helps you find/copy evidence lines faster.
+
+### When official sites block CLI fetching (WAF, SPA, 403)
+
+Some official sites are hard to fetch from a CLI (CloudFront 403, "Request Rejected", single-page apps).
+Do not fall back to generic template notes.
+
+Use this order:
+
+1. Official PDF press release / methodology note (often easier to fetch than the main site).
+2. Official API or machine-readable endpoint (JSON/CSV) if the institution provides it.
+3. An official secondary domain or a machine-readable mirror that contains the same text verbatim.
+4. Only if all official routes are blocked: a reputable secondary source (major financial calendar or major news outlet), and keep the note strictly definitional.
 
 ### Evidence logging (must do per event)
 
