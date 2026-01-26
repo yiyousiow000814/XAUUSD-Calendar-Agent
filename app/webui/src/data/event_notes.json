@@ -3699,7 +3699,7 @@
     "note": "GDP measures quarter-over-quarter % growth in economic output."
   },
   "KES::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "The Central Bank of Kenya publishes the Central Bank Rate (CBR), defined as the lowest interest rate it charges on loans to banks. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "KRW::bank of korea monetary policy board\u2019s policy setting meeting dates::m/m": {
     "note": "Bank of Korea Monetary Policy Board\u2019s Policy Setting Meeting Dates is a scheduled data release."
@@ -3804,7 +3804,7 @@
     "note": "Imports is a scheduled data release."
   },
   "KWD::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "The Central Bank of Kuwait announces its discount rate decision. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "KWD::m2 money supply::y/y": {
     "note": "M2 Money Supply measures the money supply for this monetary aggregate."
@@ -12384,7 +12384,7 @@
     "note": "GDP measures year-over-year % growth in economic output."
   },
   "QAR::interest rate decision::m/m": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "Qatar Central Bank's Monetary Policy Committee sets QCB policy rates (deposit, lending, and repo rates) to manage short-term interbank rates. Usually limited direct impact on XAUUSD unless it moves broader USD liquidity or risk sentiment."
   },
   "QAR::m2 money supply::y/y": {
     "note": "M2 Money Supply measures the money supply for this monetary aggregate."
@@ -12519,7 +12519,7 @@
     "note": "GDP measures year-over-year % growth in economic output."
   },
   "SAR::interest rate decision::m/m": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "The Saudi Central Bank announces its repo and reverse repo rate decision to maintain monetary stability. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "SAR::m3 money supply::y/y": {
     "note": "M3 Money Supply measures the money supply for this monetary aggregate."
