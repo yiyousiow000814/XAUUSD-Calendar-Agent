@@ -13065,7 +13065,7 @@
     "note": "Census M3 survey provides monthly data on manufacturing shipments; this series shows nondefense capital goods shipments excluding aircraft."
   },
   "USD::capacity utilization rate::none": {
-    "note": "Capacity Utilization Rate reports a rate for this series."
+    "note": "Federal Reserve capacity utilization rate equals an output index divided by a capacity index for manufacturing, mining, and utilities."
   },
   "USD::cb consumer confidence::none": {
     "note": "Cb Consumer Confidence is a survey-based sentiment reading."
@@ -13182,7 +13182,7 @@
     "note": "Core Retail Sales measures the month-over-month % change in retail spending. A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
   },
   "USD::corporate profits::q/q": {
-    "note": "Corporate Profits reports a rate for this series."
+    "note": "BEA corporate profits represent the portion of total income earned from current production accounted for by US corporations."
   },
   "USD::cpi index, n.s.a.::none": {
     "note": "CPI Index, N.s.a. (Consumer Price Index) measures the change in consumer prices."
@@ -13212,7 +13212,7 @@
     "note": "EIA Weekly Petroleum Status Report includes crude oil inventories at Cushing, Oklahoma."
   },
   "USD::dallas fed mfg business index::none": {
-    "note": "Dallas Fed Mfg Business Index is an index reading for this series."
+    "note": "Dallas Fed Texas Manufacturing Outlook Survey indexes are calculated as the share reporting an increase minus the share reporting a decrease."
   },
   "USD::dallas fed pce::none": {
     "note": "Dallas Fed PCE (PCE price index) measures the change in consumer prices . Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
@@ -13221,7 +13221,7 @@
     "note": "Dallas Fed Texas Service Sector Outlook Survey asks firms whether revenue increased, decreased, or was unchanged over the previous month."
   },
   "USD::discount rate::none": {
-    "note": "Discount Rate reports a rate for this series."
+    "note": "Federal Reserve discount window primary credit rate is the interest rate charged on primary credit advances to depository institutions."
   },
   "USD::distillate fuel production::none": {
     "note": "EIA reports refinery and blender net production of distillate fuel oil (net production = gross production minus gross inputs)."
@@ -13251,7 +13251,7 @@
     "note": "EIA Weekly Petroleum Status Report provides weekly estimates of distillate fuel oil inventories."
   },
   "USD::eia weekly refinery utilization rates::w/w": {
-    "note": "Eia Weekly Refinery Utilization Rates reports a rate for this series."
+    "note": "EIA refinery utilization rate reflects utilization of atmospheric crude oil distillation units, calculated as gross input divided by last reported operable capacity."
   },
   "USD::employment benefits::q/q": {
     "note": "Employment Benefits is a scheduled data release. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
@@ -13269,10 +13269,10 @@
     "note": "National Association of Realtors (NAR) Existing-Home Sales covers sales and prices of existing homes (including condos and co-ops) with regional breakdowns."
   },
   "USD::export price index::m/m": {
-    "note": "Export Price Index is an index reading for this series."
+    "note": "BLS US Export Price Index measures the change over time in prices of goods or services sold to foreign buyers by US residents."
   },
   "USD::export price index::y/y": {
-    "note": "Export Price Index is an index reading for this series."
+    "note": "BLS US Export Price Index measures the change over time in prices of goods or services sold to foreign buyers by US residents."
   },
   "USD::exports::none": {
     "note": "BEA defines exports of goods and services as goods and services sold by U.S. residents to foreign residents."
@@ -13488,13 +13488,13 @@
     "note": "Semiconductor Industry Association (SIA) reports monthly global semiconductor sales compiled by WSTS (three-month moving average)."
   },
   "USD::gold index::none": {
-    "note": "Gold Index is an index reading for this series."
+    "note": "The Kitco Global Index (KGX) is designed to determine whether changes in gold reflect actual value changes, shifts in the US dollar, or both."
   },
   "USD::goods orders non defense ex air::m/m": {
     "note": "Goods Orders Non Defense ex Air is a scheduled data release. A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
   },
   "USD::goods trade balance::none": {
-    "note": "Goods Trade Balance reports exports minus imports."
+    "note": "BEA and Census report monthly trade in goods and services; the goods trade balance is goods exports minus goods imports."
   },
   "USD::government payrolls::none": {
     "note": "Government Payrolls measures the change in employment. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
@@ -13503,13 +13503,13 @@
     "note": "EIA Weekly Petroleum Status Report includes distillate fuel oil inventories, commonly watched as heating oil stockpiles."
   },
   "USD::house price index::m/m": {
-    "note": "House Price Index is an index reading for this series."
+    "note": "FHFA House Price Index (HPI) measures changes in single-family home values."
   },
   "USD::house price index::none": {
-    "note": "House Price Index is an index reading for this series."
+    "note": "FHFA House Price Index (HPI) measures changes in single-family home values."
   },
   "USD::house price index::y/y": {
-    "note": "House Price Index is an index reading for this series."
+    "note": "FHFA House Price Index (HPI) measures changes in single-family home values."
   },
   "USD::housing starts::m/m": {
     "note": "Census New Residential Construction provides data on new privately-owned housing units started, under construction, and completed."
@@ -13527,13 +13527,13 @@
     "note": "IMF and World Bank Annual and Spring Meetings bring together central bankers, ministers, and other leaders to discuss the global economic outlook and international development."
   },
   "USD::import price index ex petroleum::m/m": {
-    "note": "Import Price Index ex Petroleum is an index reading for this series."
+    "note": "BLS US Import Price Index measures the change over time in prices of goods or services purchased from abroad by US residents, excluding petroleum."
   },
   "USD::import price index::m/m": {
-    "note": "Import Price Index is an index reading for this series."
+    "note": "BLS US Import Price Index measures the change over time in prices of goods or services purchased from abroad by US residents."
   },
   "USD::import price index::y/y": {
-    "note": "Import Price Index is an index reading for this series."
+    "note": "BLS US Import Price Index measures the change over time in prices of goods or services purchased from abroad by US residents."
   },
   "USD::imports::none": {
     "note": "BEA defines imports of goods and services as goods and services purchased by U.S. residents from foreign residents."
@@ -13548,19 +13548,19 @@
     "note": "Initial Jobless Claims is the weekly number of new unemployment benefit claims. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
   },
   "USD::interest rate projection - 1st yr::none": {
-    "note": "Interest Rate Projection 1st Yr reports a rate for this series."
+    "note": "FOMC Summary of Economic Projections reports participants' projected appropriate federal funds rate for one year ahead (midpoint of the target range)."
   },
   "USD::interest rate projection - 2nd yr::none": {
-    "note": "Interest Rate Projection 2nd Yr reports a rate for this series."
+    "note": "FOMC Summary of Economic Projections reports participants' projected appropriate federal funds rate for two years ahead (midpoint of the target range)."
   },
   "USD::interest rate projection - 3rd yr::none": {
-    "note": "Interest Rate Projection 3rd Yr reports a rate for this series."
+    "note": "FOMC Summary of Economic Projections reports participants' projected appropriate federal funds rate for three years ahead (midpoint of the target range)."
   },
   "USD::interest rate projection - current::none": {
-    "note": "Interest Rate Projection Current reports a rate for this series."
+    "note": "FOMC Summary of Economic Projections reports participants' projected appropriate federal funds rate for the current year (midpoint of the target range)."
   },
   "USD::interest rate projection - longer::none": {
-    "note": "Interest Rate Projection Longer reports a rate for this series."
+    "note": "FOMC Summary of Economic Projections reports participants' projected appropriate federal funds rate for the longer run (midpoint of the target range)."
   },
   "USD::ism - new york index::none": {
     "note": "ISM New York Index is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
@@ -13608,10 +13608,10 @@
     "note": "Speech by Fed official Kansas City FED President Hoenig."
   },
   "USD::kc fed composite index::none": {
-    "note": "Kc Fed Composite Index is an index reading for this series."
+    "note": "Kansas City Fed Manufacturing Survey composite index is a composite index based on diffusion indexes of five indicators: new orders, production, employment, supplier deliveries, and inventories."
   },
   "USD::kc fed manufacturing index::none": {
-    "note": "Kc Fed Manufacturing Index is an index reading for this series."
+    "note": "Kansas City Fed Manufacturing Survey diffusion indexes are calculated as the share reporting increases minus the share reporting declines."
   },
   "USD::loan officer survey::none": {
     "note": "Federal Reserve Senior Loan Officer Opinion Survey asks banks about changes in lending standards, terms, and demand for loans."
@@ -13629,16 +13629,16 @@
     "note": "BLS Mass Layoff Statistics (MLS) collects reports on mass layoff actions that result in workers being separated from their jobs."
   },
   "USD::mba 30 - year mortgage rate::none": {
-    "note": "Mba 30 Year Mortgage Rate reports a rate for this series."
+    "note": "MBA Weekly Mortgage Applications Survey reports the average contract interest rate for 30-year fixed-rate mortgages."
   },
   "USD::mba delinquency rates::q/q": {
-    "note": "Mba Delinquency Rates reports a rate for this series."
+    "note": "MBA National Delinquency Survey provides quarterly residential mortgage delinquency and foreclosure statistics."
   },
   "USD::mba mortgage applications::w/w": {
     "note": "MBA's Weekly Applications Survey provides a timely indicator of U.S. housing and mortgage market activity based on mortgage applications."
   },
   "USD::mba purchase index::none": {
-    "note": "Mba Purchase Index is an index reading for this series."
+    "note": "MBA Weekly Mortgage Applications Survey Purchase Index measures mortgage loan application volume for home purchases."
   },
   "USD::michigan 1 - year inflation expectations::none": {
     "note": "Michigan 1 Year Inflation Expectations is a scheduled data release. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
@@ -13665,13 +13665,13 @@
     "note": "Monster Employment Index is an index reading for this series. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
   },
   "USD::mortgage market index::none": {
-    "note": "Mortgage Market Index is an index reading for this series."
+    "note": "MBA Weekly Mortgage Applications Survey Market Composite Index measures mortgage loan application volume."
   },
   "USD::mortgage refinance index::none": {
-    "note": "Mortgage Refinance Index is an index reading for this series."
+    "note": "MBA Weekly Mortgage Applications Survey Refinance Index measures mortgage loan application volume for refinancing."
   },
   "USD::nahb housing market index::none": {
-    "note": "Nahb Housing Market Index is an index reading for this series."
+    "note": "NAHB/Wells Fargo Housing Market Index (HMI) measures single-family homebuilder sentiment on a 0-100 scale; readings above 50 indicate most builders are confident."
   },
   "USD::natural gas storage::none": {
     "note": "EIA publishes weekly estimates of working gas in underground storage for the Lower 48 states."
@@ -13692,7 +13692,7 @@
     "note": "Nonfarm Productivity is a scheduled data release. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
   },
   "USD::ny empire state manufacturing index::none": {
-    "note": "Ny Empire State Manufacturing Index is an index reading for this series."
+    "note": "New York Fed Empire State Manufacturing Survey reports a seasonally adjusted diffusion index of business conditions for New York State manufacturers."
   },
   "USD::ny fed 1 - year consumer inflation expectations::none": {
     "note": "Ny Fed 1 Year Consumer Inflation Expectations is a scheduled data release. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
@@ -13746,7 +13746,7 @@
     "note": "Treasury TIC data summarize cross-border capital flows, including net transactions in long-term securities."
   },
   "USD::participation rate::none": {
-    "note": "Participation Rate reports a rate for this series."
+    "note": "BLS labor force participation rate is the labor force as a percentage of the civilian noninstitutional population."
   },
   "USD::payrolls benchmark (12m)::none": {
     "note": "Payrolls Benchmark (12m) measures the change in employment. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
@@ -13776,7 +13776,7 @@
     "note": "PCE Prices (PCE price index) measures the change in consumer prices . Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
   },
   "USD::pending home sales index::none": {
-    "note": "Pending Home Sales Index is an index reading for this series."
+    "note": "National Association of Realtors (NAR) Pending Home Sales Index measures housing contract activity based on signed real estate contracts for existing homes."
   },
   "USD::pending home sales::m/m": {
     "note": "National Association of Realtors (NAR) Pending Home Sales Index measures housing contract activity based on signed contracts for existing homes."
@@ -13788,13 +13788,13 @@
     "note": "BEA personal consumption expenditures (PCE) measure the goods and services purchased by persons."
   },
   "USD::philadelphia fed manufacturing index::none": {
-    "note": "Philadelphia Fed Manufacturing Index is an index reading for this series."
+    "note": "Philadelphia Fed Manufacturing Business Outlook Survey diffusion indexes equal the share reporting an increase minus the share reporting a decrease."
   },
   "USD::philly fed business conditions::none": {
     "note": "Philadelphia Fed Manufacturing Business Outlook Survey uses diffusion indexes: % reporting an increase minus % reporting a decrease."
   },
   "USD::philly fed capex index::none": {
-    "note": "Philly Fed Capex Index is an index reading for this series."
+    "note": "Philadelphia Fed Manufacturing Business Outlook Survey includes a six-month-ahead capital expenditures diffusion index based on expected increases minus expected decreases."
   },
   "USD::philly fed employment::none": {
     "note": "Philly Fed Employment is a scheduled data release. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
@@ -13866,16 +13866,16 @@
     "note": "Retail Sales measures retail spending. A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
   },
   "USD::richmond manufacturing index::none": {
-    "note": "Richmond Manufacturing Index is an index reading for this series."
+    "note": "Richmond Fed monthly business surveys report diffusion indexes derived from survey responses from manufacturing firms."
   },
   "USD::richmond manufacturing shipments::none": {
     "note": "Richmond Fed manufacturing survey includes a shipments index summarizing firms' reported changes in shipments in the Fifth District."
   },
   "USD::richmond services index::none": {
-    "note": "Richmond Services Index is an index reading for this series."
+    "note": "Richmond Fed monthly business surveys report diffusion indexes derived from survey responses from service-sector firms."
   },
   "USD::s&p 500 index::none": {
-    "note": "S&p 500 Index is an index reading for this series."
+    "note": "S&P 500 is a stock market index tracking the performance of 500 large companies listed on US stock exchanges."
   },
   "USD::s&p global composite pmi::none": {
     "note": "S&p Global Composite PMI is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
@@ -13920,7 +13920,7 @@
     "note": "U.S. Bureau of Economic Analysis (BEA) publishes Total Vehicle Sales in its Supplemental Estimates, Motor Vehicles release."
   },
   "USD::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "BEA and Census report monthly trade in goods and services; the trade balance is the difference between exports and imports."
   },
   "USD::treasury department report::none": {
     "note": "The Treasury Bulletin contains narrative, tables, and charts on Treasury issues, federal financial operations, international statistics, and U.S. government financial commitments."
@@ -13956,7 +13956,7 @@
     "note": "USA.gov notes the process of electing a U.S. president takes almost two years from start to finish."
   },
   "USD::u.s. small business health index::none": {
-    "note": "U.s. Small Business Health Index is an index reading for this series."
+    "note": "Dun & Bradstreet Small Business Health Index measures year-over-year small business performance through payment patterns and credit use."
   },
   "USD::u6 unemployment rate::none": {
     "note": "U6 Unemployment Rate shows the share of the labor force that is unemployed. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
@@ -13977,7 +13977,7 @@
     "note": "Us Foreign Buying, T Bonds is a government bond auction. A weak auction can push yields higher and pressure XAUUSD; a strong auction can help ease yields and support it."
   },
   "USD::us leading index::m/m": {
-    "note": "Us Leading Index is an index reading for this series."
+    "note": "The Conference Board Leading Economic Index (LEI) is a composite average of individual leading indicators designed to signal peaks and troughs in the business cycle."
   },
   "USD::wasde report::none": {
     "note": "USDA's WASDE report provides monthly forecasts for supply and use of major U.S. and world agricultural commodities."
