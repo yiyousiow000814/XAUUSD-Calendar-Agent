@@ -1056,7 +1056,7 @@
     "note": "Industrial Production measures industrial output."
   },
   "COP::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "Banco de la Republica's Board of Directors sets the monetary policy interest rate (benchmark rate) after its policy meeting. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "COP::retail sales::y/y": {
     "note": "Retail Sales measures retail spending."
@@ -11922,7 +11922,7 @@
     "note": "GDP measures year-over-year % growth in economic output."
   },
   "NGN::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "The Central Bank of Nigeria's Monetary Policy Committee sets the Monetary Policy Rate (MPR). Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "NGN::nigeria gdp::q/q": {
     "note": "Nigeria GDP measures quarter-over-quarter % growth in economic output."
@@ -12234,7 +12234,7 @@
     "note": "GDP measures year-over-year % growth in economic output."
   },
   "PEN::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "The Central Reserve Bank of Peru (BCRP) Board sets the reference interest rate after its monetary policy decision. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "PEN::trade balance::none": {
     "note": "Trade Balance reports exports minus imports."
@@ -12282,7 +12282,7 @@
     "note": "Industrial Production measures industrial output."
   },
   "PHP::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "Bangko Sentral ng Pilipinas sets its policy rates, including the overnight reverse repurchase (RRP) rate. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "PHP::philippines foreign direct investment (usd)::none": {
     "note": "Philippines Foreign Direct Investment (usd) (Producer Price Index) measures the change in prices received by producers."
@@ -12471,7 +12471,7 @@
     "note": "Industrial Production measures industrial output."
   },
   "RUB::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "The Bank of Russia sets the key rate, its primary monetary policy tool, via decisions of the Board of Directors. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "RUB::ppi::m/m": {
     "note": "PPI (Producer Price Index, MoM) measures the month-over-month % change in prices received by producers."
@@ -12939,7 +12939,7 @@
     "note": "Industrial Production measures the month-over-month % change in industrial output."
   },
   "UAH::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "The National Bank of Ukraine sets the key policy rate (discount rate) by decision of the NBU Board. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "UAH::trade balance ytd (usd)::none": {
     "note": "Trade Balance Ytd (usd) reports exports minus imports."
