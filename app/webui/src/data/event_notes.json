@@ -18,7 +18,7 @@
     "note": "Private Sector Loans measures credit or lending conditions."
   },
   "AED::s&p global composite pmi::none": {
-    "note": "S&p Global Composite PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "S&P Global UAE Composite PMI is a monthly survey-based diffusion index of private-sector activity (above 50 = expansion)."
   },
   "AOA::cpi::m/m": {
     "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
@@ -186,13 +186,13 @@
     "note": "Australian Bureau of Statistics (ABS) Lending indicators reports new loan commitments for dwellings, including an investor series."
   },
   "AUD::judo bank manufacturing pmi::none": {
-    "note": "Judo Bank Manufacturing PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Judo Bank Australia Manufacturing PMI (from S&P Global) is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "AUD::judo bank services pmi::none": {
-    "note": "Judo Bank Services PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Judo Bank Australia Services PMI (from S&P Global) is a monthly survey-based diffusion index of services-sector conditions (above 50 = expansion)."
   },
   "AUD::manufacturing & services pmi::none": {
-    "note": "Manufacturing & Services PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Judo Bank Australia Composite PMI (from S&P Global) is a monthly survey-based diffusion index combining manufacturing and services (above 50 = expansion)."
   },
   "AUD::mi inflation expectations::none": {
     "note": "Mi Inflation Expectations is a scheduled data release. Higher-than-expected inflation (vs forecast) can lift yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -495,13 +495,13 @@
     "note": "IBGE retail sales (YoY) reports the year-over-year change in retail trade activity in Brazil."
   },
   "BRL::s&p global composite pmi::none": {
-    "note": "S&p Global Composite PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "S&P Global Brazil Composite PMI is a monthly survey-based diffusion index of private-sector output (above 50 = expansion)."
   },
   "BRL::s&p global manufacturing pmi::none": {
-    "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "S&P Global Brazil Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "BRL::s&p global services pmi::none": {
-    "note": "S&p Global Services PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "S&P Global Brazil Services PMI is a monthly survey-based diffusion index of services-sector conditions (above 50 = expansion)."
   },
   "BRL::trade balance::none": {
     "note": "Brazil trade balance reports the net balance of merchandise exports minus merchandise imports, published by the trade ministry (MDIC/SECEX)."
@@ -684,10 +684,10 @@
     "note": "Ippi (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "CAD::ivey pmi n.s.a::none": {
-    "note": "Ivey PMI N.s.a is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Ivey PMI (not seasonally adjusted) is a monthly Canada-wide survey-based diffusion index of purchasing activity (above 50 = expansion)."
   },
   "CAD::ivey pmi::none": {
-    "note": "Ivey PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Ivey PMI is a monthly Canada-wide survey-based diffusion index of purchasing activity (above 50 = expansion)."
   },
   "CAD::labor productivity::q/q": {
     "note": "Labor Productivity is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -729,13 +729,13 @@
     "note": "Rmpi is a scheduled data release."
   },
   "CAD::s&p global manufacturing pmi::none": {
-    "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "S&P Global Canada Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "CAD::services pmi::m/m": {
-    "note": "Services PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "S&P Global Canada Services PMI is a monthly survey-based diffusion index of services-sector conditions (above 50 = expansion)."
   },
   "CAD::services pmi::none": {
-    "note": "Services PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "S&P Global Canada Services PMI is a monthly survey-based diffusion index of services-sector conditions (above 50 = expansion)."
   },
   "CAD::thomson reuters ipsos pcsi::m/m": {
     "note": "Thomson Reuters Ipsos Pcsi is a scheduled data release."
@@ -795,7 +795,7 @@
     "note": "M3 Money Supply measures the money supply for this monetary aggregate."
   },
   "CHF::manufacturing pmi::none": {
-    "note": "Manufacturing PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "procure.ch Switzerland Manufacturing PMI (often released with UBS) is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "CHF::official reserves assets::none": {
     "note": "Official Reserves Assets reports official foreign-exchange reserves."
@@ -807,7 +807,7 @@
     "note": "PPI (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "CHF::procure.ch manufacturing pmi::none": {
-    "note": "Procure.ch Manufacturing PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "procure.ch Switzerland Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "CHF::retail sales::y/y": {
     "note": "Retail Sales measures retail spending. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -912,10 +912,10 @@
     "note": "Unemployment Rate shows the share of the labor force that is unemployed."
   },
   "CNY::caixin manufacturing pmi::m/m": {
-    "note": "Caixin Manufacturing PMI is a diffusion index of business activity (50 = expansion). A weaker-than-expected reading (vs forecast) can hurt risk sentiment and support XAUUSD as a safe haven; stronger data can do the opposite."
+    "note": "Caixin China Manufacturing PMI (from Caixin and S&P Global) is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion). Weaker-than-expected readings can hurt risk sentiment and support XAUUSD; stronger readings can do the opposite."
   },
   "CNY::caixin services pmi::none": {
-    "note": "Caixin Services PMI is a diffusion index of business activity (50 = expansion). A weaker-than-expected reading (vs forecast) can hurt risk sentiment and support XAUUSD as a safe haven; stronger data can do the opposite."
+    "note": "Caixin China Services PMI (from Caixin and S&P Global) is a monthly survey-based diffusion index of services-sector conditions (above 50 = expansion). Weaker-than-expected readings can hurt risk sentiment and support XAUUSD; stronger readings can do the opposite."
   },
   "CNY::china loan prime rate 5y::none": {
     "note": "China 5-year Loan Prime Rate is quoted by the National Interbank Funding Center from panel bank submissions and is a key benchmark for loan pricing, including mortgages."
@@ -924,7 +924,7 @@
     "note": "China Thomson Reuters Ipsos Pcsi is a scheduled data release."
   },
   "CNY::chinese composite pmi::none": {
-    "note": "Chinese Composite PMI is a diffusion index of business activity (50 = expansion). A weaker-than-expected reading (vs forecast) can hurt risk sentiment and support XAUUSD as a safe haven; stronger data can do the opposite."
+    "note": "China NBS Composite PMI is an official monthly survey-based diffusion index combining manufacturing and non-manufacturing (above 50 = expansion). Weaker-than-expected readings can hurt risk sentiment and support XAUUSD; stronger readings can do the opposite."
   },
   "CNY::chinese gdp ytd::y/y": {
     "note": "Chinese GDP Ytd measures year-over-year % growth in economic output. A weaker-than-expected reading (vs forecast) can hurt risk sentiment and support XAUUSD as a safe haven; stronger data can do the opposite."
@@ -990,7 +990,7 @@
     "note": "M2 Money Stock measures the money supply for this monetary aggregate."
   },
   "CNY::manufacturing pmi::none": {
-    "note": "Manufacturing PMI is a diffusion index of business activity (50 = expansion). A weaker-than-expected reading (vs forecast) can hurt risk sentiment and support XAUUSD as a safe haven; stronger data can do the opposite."
+    "note": "China NBS Manufacturing PMI is an official monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion). Weaker-than-expected readings can hurt risk sentiment and support XAUUSD; stronger readings can do the opposite."
   },
   "CNY::nbs press conference::none": {
     "note": "Nbs Press Conference provides Q&A and messaging after the policy decision (the PBoC). A policy surprise can shift risk sentiment and support XAUUSD on risk-off moves; a calmer tone can do the opposite."
@@ -999,7 +999,7 @@
     "note": "New Loans measures credit or lending conditions."
   },
   "CNY::non - manufacturing pmi::none": {
-    "note": "Non Manufacturing PMI is a diffusion index of business activity (50 = expansion). A weaker-than-expected reading (vs forecast) can hurt risk sentiment and support XAUUSD as a safe haven; stronger data can do the opposite."
+    "note": "China NBS Non-Manufacturing PMI is an official monthly survey-based diffusion index for services and construction (above 50 = expansion). Weaker-than-expected readings can hurt risk sentiment and support XAUUSD; stronger readings can do the opposite."
   },
   "CNY::outstanding loan growth::y/y": {
     "note": "Outstanding Loan Growth is a scheduled data release."
@@ -1134,7 +1134,7 @@
     "note": "Retailles Wda is a scheduled data release."
   },
   "CZK::s&p global czech republic manufacturing pmi::none": {
-    "note": "S&p Global Czech Republic Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "S&P Global Czech Republic Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "CZK::trade balance nra::none": {
     "note": "Trade Balance Nra reports exports minus imports."
@@ -1191,7 +1191,7 @@
     "note": "M3 Money Supply measures the money supply for this monetary aggregate."
   },
   "DKK::manufacturing pmi::none": {
-    "note": "Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "DILF Denmark Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "DKK::retail sales::y/y": {
     "note": "Statistics Denmark retail sales (YoY) reports the year-over-year change in retail trade turnover."
@@ -1224,10 +1224,10 @@
     "note": "Central Bank of Egypt overnight lending rate is the upper bound of its overnight corridor, set by the Monetary Policy Committee."
   },
   "EUR::aib ireland manufacturing pmi::none": {
-    "note": "Aib Ireland Manufacturing PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "AIB Ireland Manufacturing PMI (from S&P Global) is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "EUR::aib ireland services pmi::none": {
-    "note": "Aib Ireland Services PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "AIB Ireland Services PMI (from S&P Global) is a monthly survey-based diffusion index of services-sector conditions (above 50 = expansion)."
   },
   "EUR::austria 10 - year bond auction::none": {
     "note": "Austria 10 Year Bond Auction is a government bond auction. A weak auction can push yields higher and pressure XAUUSD; a strong auction can help ease yields and support it."
@@ -1281,7 +1281,7 @@
     "note": "Baden Wuerttemberg CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "EUR::bank austria manufacturing pmi::none": {
-    "note": "Bank Austria Manufacturing PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Bank Austria Manufacturing PMI (from S&P Global) is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "EUR::bavaria cpi::m/m": {
     "note": "Bavaria CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -1974,58 +1974,58 @@
     "note": "Greek Unemployment Rate shows the share of the labor force that is unemployed. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "EUR::hcob eurozone composite pmi::none": {
-    "note": "Hcob Eurozone Composite PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "HCOB Eurozone Composite PMI (from S&P Global) is a monthly survey-based diffusion index of private-sector activity (above 50 = expansion). A weaker-than-expected reading can hurt risk sentiment and support XAUUSD; a stronger reading can pressure it."
   },
   "EUR::hcob eurozone construction pmi::m/m": {
-    "note": "Hcob Eurozone Construction PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "HCOB Eurozone Construction PMI (from S&P Global) is a monthly survey-based diffusion index of construction-sector conditions (above 50 = expansion)."
   },
   "EUR::hcob eurozone manufacturing pmi::none": {
-    "note": "Hcob Eurozone Manufacturing PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "HCOB Eurozone Manufacturing PMI (from S&P Global) is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion). A weaker-than-expected reading can hurt risk sentiment and support XAUUSD; a stronger reading can pressure it."
   },
   "EUR::hcob eurozone services pmi::none": {
-    "note": "Hcob Eurozone Services PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "HCOB Eurozone Services PMI (from S&P Global) is a monthly survey-based diffusion index of services-sector conditions (above 50 = expansion). A weaker-than-expected reading can hurt risk sentiment and support XAUUSD; a stronger reading can pressure it."
   },
   "EUR::hcob france composite pmi::none": {
-    "note": "Hcob France Composite PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "HCOB France Composite PMI (from S&P Global) is a monthly survey-based diffusion index of private-sector activity in France (above 50 = expansion)."
   },
   "EUR::hcob france construction pmi::m/m": {
-    "note": "Hcob France Construction PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "HCOB France Construction PMI (from S&P Global) is a monthly survey-based diffusion index of construction-sector conditions in France (above 50 = expansion)."
   },
   "EUR::hcob france manufacturing pmi::none": {
-    "note": "Hcob France Manufacturing PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "HCOB France Manufacturing PMI (from S&P Global) is a monthly survey-based diffusion index of manufacturing conditions in France (above 50 = expansion)."
   },
   "EUR::hcob france services pmi::none": {
-    "note": "Hcob France Services PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "HCOB France Services PMI (from S&P Global) is a monthly survey-based diffusion index of services-sector conditions in France (above 50 = expansion)."
   },
   "EUR::hcob germany composite pmi::none": {
-    "note": "Hcob Germany Composite PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "HCOB Germany Composite PMI (from S&P Global) is a monthly survey-based diffusion index of private-sector activity in Germany (above 50 = expansion). Weaker-than-expected readings can hurt risk sentiment and support XAUUSD; stronger readings can do the opposite."
   },
   "EUR::hcob germany construction pmi::none": {
-    "note": "Hcob Germany Construction PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "HCOB Germany Construction PMI (from S&P Global) is a monthly survey-based diffusion index of construction-sector conditions in Germany (above 50 = expansion)."
   },
   "EUR::hcob germany manufacturing pmi::none": {
-    "note": "Hcob Germany Manufacturing PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "HCOB Germany Manufacturing PMI (from S&P Global) is a monthly survey-based diffusion index of manufacturing conditions in Germany (above 50 = expansion)."
   },
   "EUR::hcob germany services pmi::none": {
-    "note": "Hcob Germany Services PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "HCOB Germany Services PMI (from S&P Global) is a monthly survey-based diffusion index of services-sector conditions in Germany (above 50 = expansion)."
   },
   "EUR::hcob italy composite pmi::none": {
-    "note": "Hcob Italy Composite PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "HCOB Italy Composite PMI (from S&P Global) is a monthly survey-based diffusion index of private-sector activity in Italy (above 50 = expansion)."
   },
   "EUR::hcob italy construction pmi::m/m": {
-    "note": "Hcob Italy Construction PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "HCOB Italy Construction PMI (from S&P Global) is a monthly survey-based diffusion index of construction-sector conditions in Italy (above 50 = expansion)."
   },
   "EUR::hcob italy manufacturing pmi::none": {
-    "note": "Hcob Italy Manufacturing PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "HCOB Italy Manufacturing PMI (from S&P Global) is a monthly survey-based diffusion index of manufacturing conditions in Italy (above 50 = expansion)."
   },
   "EUR::hcob italy services pmi::none": {
-    "note": "Hcob Italy Services PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "HCOB Italy Services PMI (from S&P Global) is a monthly survey-based diffusion index of services-sector conditions in Italy (above 50 = expansion)."
   },
   "EUR::hcob spain manufacturing pmi::none": {
-    "note": "Hcob Spain Manufacturing PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "HCOB Spain Manufacturing PMI (from S&P Global) is a monthly survey-based diffusion index of manufacturing conditions in Spain (above 50 = expansion)."
   },
   "EUR::hcob spain services pmi::none": {
-    "note": "Hcob Spain Services PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "HCOB Spain Services PMI (from S&P Global) is a monthly survey-based diffusion index of services-sector conditions in Spain (above 50 = expansion)."
   },
   "EUR::hesse cpi::m/m": {
     "note": "Hesse CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -2364,7 +2364,7 @@
     "note": "Resi Prop Prices is a scheduled data release."
   },
   "EUR::retail pmi::none": {
-    "note": "Retail PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "S&P Global Eurozone Retail PMI is a monthly survey-based diffusion index of retail-sector conditions (above 50 = expansion)."
   },
   "EUR::retail sales::m/m": {
     "note": "Retail Sales measures the month-over-month % change in retail spending. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -2373,7 +2373,7 @@
     "note": "Retail Sales measures retail spending. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "EUR::s&p global greece manufacturing pmi::none": {
-    "note": "S&p Global Greece Manufacturing PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "S&P Global Greece Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "EUR::saxony cpi::m/m": {
     "note": "Saxony CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -2919,16 +2919,16 @@
     "note": "Rpi is a scheduled data release."
   },
   "GBP::s&p global composite pmi::none": {
-    "note": "S&p Global Composite PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "S&P Global UK Composite PMI is a monthly survey-based diffusion index of private-sector activity (above 50 = expansion). Weaker-than-expected readings can hurt risk sentiment and support XAUUSD; stronger readings can do the opposite."
   },
   "GBP::s&p global construction pmi::none": {
-    "note": "S&p Global Construction PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "S&P Global UK Construction PMI is a monthly survey-based diffusion index of construction-sector conditions (above 50 = expansion)."
   },
   "GBP::s&p global manufacturing pmi::none": {
-    "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "S&P Global UK Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion). Weaker-than-expected readings can hurt risk sentiment and support XAUUSD; stronger readings can do the opposite."
   },
   "GBP::s&p global services pmi::none": {
-    "note": "S&p Global Services PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "S&P Global UK Services PMI is a monthly survey-based diffusion index of services-sector conditions (above 50 = expansion)."
   },
   "GBP::spring forecast statement::none": {
     "note": "Spring Forecast Statement communicates the policy outlook and guidance (the BoE). A more hawkish-than-expected message can lift global yields and pressure XAUUSD; a dovish surprise can support it."
@@ -2997,7 +2997,7 @@
     "note": "Bank of Ghana publishes its Monetary Policy Committee decisions with the effective date and the BOG Policy Rate."
   },
   "GHS::whole economy pmi::m/m": {
-    "note": "Whole Economy PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "Stanbic Bank Ghana PMI (from S&P Global) is a monthly survey-based diffusion index of private-sector conditions (above 50 = expansion)."
   },
   "HKD::cpi::m/m": {
     "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
@@ -3036,7 +3036,7 @@
     "note": "Hong Kong retail sales (YoY) reports the year-over-year change in the value of retail sales."
   },
   "HKD::s&p global manufacturing pmi::none": {
-    "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "S&P Global Hong Kong SAR Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "HKD::trade balance::none": {
     "note": "Hong Kong Census and Statistics Department trade balance reports the net balance of merchandise exports minus merchandise imports."
@@ -3078,7 +3078,7 @@
     "note": "Magyar Nemzeti Bank's Monetary Council sets the central bank base rate at its policy meeting. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "HUF::manufacturing pmi::none": {
-    "note": "Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "HALPIM Hungary Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "HUF::ppi::y/y": {
     "note": "PPI (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers."
@@ -3165,7 +3165,7 @@
     "note": "Indonesia retail sales (YoY) reports the year-over-year change in retail activity for the period."
   },
   "IDR::s&p global manufacturing pmi::none": {
-    "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "S&P Global Indonesia Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "IDR::trade balance::none": {
     "note": "BPS Statistics Indonesia trade balance reports the net balance of merchandise exports minus merchandise imports."
@@ -3291,10 +3291,10 @@
     "note": "M3 Money Supply measures the money supply for this monetary aggregate."
   },
   "INR::manufacturing & services pmi::m/m": {
-    "note": "Manufacturing & Services PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "HSBC India Composite PMI (from S&P Global) is a monthly survey-based diffusion index combining manufacturing and services (above 50 = expansion)."
   },
   "INR::manufacturing & services pmi::none": {
-    "note": "Manufacturing & Services PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "HSBC India Composite PMI (from S&P Global) is a monthly survey-based diffusion index combining manufacturing and services (above 50 = expansion)."
   },
   "INR::manufacturing output::m/m": {
     "note": "Manufacturing Output measures production for this series."
@@ -3321,10 +3321,10 @@
     "note": "RBI reverse repo rate is the interest rate at which the RBI absorbs liquidity from banks against eligible government securities under the Liquidity Adjustment Facility (LAF)."
   },
   "INR::s&p global manufacturing pmi::none": {
-    "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "HSBC India Manufacturing PMI (from S&P Global) is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "INR::s&p global services pmi::none": {
-    "note": "S&p Global Services PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "HSBC India Services PMI (from S&P Global) is a monthly survey-based diffusion index of services-sector conditions (above 50 = expansion)."
   },
   "INR::thomson reuters ipsos pcsi::m/m": {
     "note": "Thomson Reuters Ipsos Pcsi is a scheduled data release."
@@ -3387,10 +3387,10 @@
     "note": "METI All Industry Activity Index summarizes monthly changes in activity across major industries in Japan."
   },
   "JPY::au jibun bank manufacturing pmi::none": {
-    "note": "Au Jibun Bank Manufacturing PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "au Jibun Bank Japan Manufacturing PMI (from S&P Global) is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "JPY::au jibun bank services pmi::none": {
-    "note": "Au Jibun Bank Services PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "au Jibun Bank Japan Services PMI (from S&P Global) is a monthly survey-based diffusion index of services-sector conditions (above 50 = expansion)."
   },
   "JPY::average cash earnings::y/y": {
     "note": "Average Cash Earnings is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -3600,10 +3600,10 @@
     "note": "Machine Tool Orders is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "JPY::manufacturing & services pmi::m/m": {
-    "note": "Manufacturing & Services PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "au Jibun Bank Japan Composite PMI (from S&P Global) is a monthly survey-based diffusion index combining manufacturing and services (above 50 = expansion). Weaker-than-expected readings can hurt risk sentiment and support XAUUSD; stronger readings can do the opposite."
   },
   "JPY::manufacturing & services pmi::none": {
-    "note": "Manufacturing & Services PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "au Jibun Bank Japan Composite PMI (from S&P Global) is a monthly survey-based diffusion index combining manufacturing and services (above 50 = expansion). Weaker-than-expected readings can hurt risk sentiment and support XAUUSD; stronger readings can do the opposite."
   },
   "JPY::monetary base::y/y": {
     "note": "Monetary Base is a scheduled data release."
@@ -3774,7 +3774,7 @@
     "note": "Retail Sales measures the month-over-month % change in retail spending."
   },
   "KRW::s&p global south korea manufacturing pmi::none": {
-    "note": "S&p Global South Korea Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "S&P Global South Korea Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "KRW::service sector output::m/m": {
     "note": "Service Sector Output measures production for this series."
@@ -3930,7 +3930,7 @@
     "note": "INEGI retail sales (YoY) reports the year-over-year change in retail trade activity in Mexico."
   },
   "MXN::s&p global manufacturing pmi::none": {
-    "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "S&P Global Mexico Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "MXN::thomson reuters ipsos pcsi::m/m": {
     "note": "Thomson Reuters Ipsos Pcsi is a scheduled data release."
@@ -3978,10 +3978,10 @@
     "note": "Bank Negara Malaysia Overnight Policy Rate (OPR) is the main policy rate set by the Monetary Policy Committee."
   },
   "MYR::manufacturing pmi::m/m": {
-    "note": "Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "S&P Global Malaysia Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "MYR::manufacturing pmi::none": {
-    "note": "Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "S&P Global Malaysia Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "MYR::money supply::y/y": {
     "note": "Money Supply measures the money supply for this monetary aggregate."
@@ -11931,10 +11931,10 @@
     "note": "Oil Production measures production for this series."
   },
   "NGN::stanbic ibtc bank nigeria manufacturing pmi::none": {
-    "note": "Stanbic Ibtc Bank Nigeria Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "Stanbic IBTC Bank Nigeria PMI (from S&P Global) is a monthly survey-based diffusion index of private-sector conditions (above 50 = expansion)."
   },
   "NGN::stanbic ibtc bank nigeria non - manufacturing pmi::none": {
-    "note": "Stanbic Ibtc Bank Nigeria Non Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "Stanbic IBTC Bank Nigeria non-manufacturing PMI (from S&P Global) is a monthly survey-based diffusion index for the non-manufacturing sector (above 50 = expansion)."
   },
   "NOK::central bank currency purchase::none": {
     "note": "Central Bank Currency Purchase is a scheduled data release."
@@ -11982,7 +11982,7 @@
     "note": "M3 Money Supply measures the money supply for this monetary aggregate."
   },
   "NOK::manufacturing pmi::none": {
-    "note": "Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "NIMA/DNB Markets Norway Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "NOK::manufacturing production::m/m": {
     "note": "Manufacturing Production measures production for this series."
@@ -12021,7 +12021,7 @@
     "note": "Building Consents is a scheduled data release."
   },
   "NZD::business nz pmi::none": {
-    "note": "Business Nz PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "BusinessNZ Performance of Manufacturing Index is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "NZD::cftc nzd speculative net positions::none": {
     "note": "Cftc Nzd Speculative Net Positions is a scheduled data release."
@@ -12294,7 +12294,7 @@
     "note": "Philippines Retail Price Index (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers."
   },
   "PHP::s&p global manufacturing pmi::none": {
-    "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "S&P Global Philippines Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "PHP::trade balance::none": {
     "note": "Philippine Statistics Authority trade balance reports the net balance of merchandise exports minus merchandise imports."
@@ -12363,7 +12363,7 @@
     "note": "Statistics Poland retail sales (YoY) reports the year-over-year change in retail trade turnover."
   },
   "PLN::s&p global manufacturing pmi::none": {
-    "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "S&P Global Poland Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "PLN::thomson reuters ipsos pcsi::m/m": {
     "note": "Thomson Reuters Ipsos Pcsi is a scheduled data release."
@@ -12492,10 +12492,10 @@
     "note": "Russian Real Wage Growth is a scheduled data release."
   },
   "RUB::s&p global manufacturing pmi::none": {
-    "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "S&P Global Russia Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "RUB::s&p global services pmi::none": {
-    "note": "S&p Global Services PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "S&P Global Russia Services PMI is a monthly survey-based diffusion index of services-sector conditions (above 50 = expansion)."
   },
   "RUB::trade balance::none": {
     "note": "Russia trade balance reports the net balance of exports minus imports, compiled for the external sector accounts."
@@ -12528,7 +12528,7 @@
     "note": "Private Sector Loans measures credit or lending conditions."
   },
   "SAR::riyad bank composite pmi::none": {
-    "note": "Riyad Bank Composite PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "Riyad Bank Saudi Arabia PMI (from S&P Global) is a monthly survey-based diffusion index of private-sector activity (above 50 = expansion)."
   },
   "SAR::thomson reuters ipsos pcsi::m/m": {
     "note": "Thomson Reuters Ipsos Pcsi is a scheduled data release."
@@ -12600,7 +12600,7 @@
     "note": "Manufacturing Confidence is a survey-based sentiment reading."
   },
   "SEK::manufacturing pmi::none": {
-    "note": "Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "Swedbank/SILF Sweden Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "SEK::ppi::m/m": {
     "note": "PPI (Producer Price Index, MoM) measures the month-over-month % change in prices received by producers."
@@ -12615,7 +12615,7 @@
     "note": "Statistics Sweden retail sales (YoY) reports the year-over-year change in retail trade turnover."
   },
   "SEK::services pmi::m/m": {
-    "note": "Services PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "Swedbank Sweden Services PMI is a monthly survey-based diffusion index of services-sector conditions (above 50 = expansion)."
   },
   "SEK::swedish monetary policy meeting minutes::none": {
     "note": "Swedish Monetary Policy Meeting Minutes provides detail on the latest policy meeting (the central bank)."
@@ -12672,7 +12672,7 @@
     "note": "Singapore retail sales (YoY) reports the year-over-year change in retail sales for the period."
   },
   "SGD::s&p global manufacturing pmi::none": {
-    "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "S&P Global Singapore Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "SGD::trade balance::none": {
     "note": "Singapore merchandise trade statistics are compiled by Enterprise Singapore and published via SingStat. The trade balance is the net difference between exports and imports."
@@ -12732,10 +12732,10 @@
     "note": "Bank of Thailand sets the policy interest rate, defined as the 1-day bilateral repurchase rate, following the Monetary Policy Committee decision. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "THB::manufacturing pmi::m/m": {
-    "note": "Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "S&P Global Thailand Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "THB::manufacturing pmi::none": {
-    "note": "Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "S&P Global Thailand Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "THB::private consumption::m/m": {
     "note": "Private Consumption is a scheduled data release."
@@ -12801,7 +12801,7 @@
     "note": "Industrial Production measures industrial output."
   },
   "TRY::istanbul chamber of industry manufacturing pmi::none": {
-    "note": "Istanbul Chamber of Industry Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "Istanbul Chamber of Industry Turkey Manufacturing PMI (from S&P Global) is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "TRY::manufacturing confidence::none": {
     "note": "Manufacturing Confidence is a survey-based sentiment reading."
@@ -12906,7 +12906,7 @@
     "note": "M3 Money Supply measures the money supply for this monetary aggregate."
   },
   "TWD::s&p global manufacturing pmi::none": {
-    "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "S&P Global Taiwan Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "TWD::trade balance::none": {
     "note": "Taiwan trade balance reports the net balance of exports minus imports of goods based on customs statistics."
@@ -14001,7 +14001,7 @@
     "note": "Venezuela retail sales (YoY) reports the year-over-year change in retail activity for the period."
   },
   "VND::s&p global manufacturing pmi::none": {
-    "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "S&P Global Vietnam Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "VND::trade balance::none": {
     "note": "Vietnam trade balance reports the net balance of merchandise exports minus merchandise imports, compiled by the statistics office."
@@ -14079,7 +14079,7 @@
     "note": "M3 Money Supply measures the money supply for this monetary aggregate."
   },
   "ZAR::manufacturing pmi::none": {
-    "note": "Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "Absa PMI (BER) is a monthly survey-based diffusion index of manufacturing conditions in South Africa (above 50 = expansion)."
   },
   "ZAR::manufacturing production::m/m": {
     "note": "Manufacturing Production measures production for this series."
@@ -14112,7 +14112,7 @@
     "note": "Statistics South Africa retail sales (YoY) reports the year-over-year change in retail trade sales."
   },
   "ZAR::s&p global manufacturing pmi::none": {
-    "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
+    "note": "S&P Global South Africa Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "ZAR::sarb financial stability review::none": {
     "note": "Sarb Financial Stability Review is a scheduled data release."
