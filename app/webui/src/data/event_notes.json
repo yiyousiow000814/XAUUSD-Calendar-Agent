@@ -1215,7 +1215,7 @@
     "note": "Foreign Reserves (usd) reports official foreign-exchange reserves."
   },
   "EGP::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "Central Bank of Egypt's Monetary Policy Committee sets key policy rates including the overnight deposit and lending rates and the discount rate. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "EGP::m2 money supply::y/y": {
     "note": "M2 Money Supply measures the money supply for this monetary aggregate."
@@ -3810,7 +3810,7 @@
     "note": "M2 Money Supply measures the money supply for this monetary aggregate."
   },
   "LKR::interest rate decision::m/m": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "Central Bank of Sri Lanka's Overnight Policy Rate (OPR) is its policy interest rate under the single policy interest rate mechanism. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "MUR::cpi::y/y": {
     "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
