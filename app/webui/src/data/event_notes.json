@@ -13128,16 +13128,16 @@
     "note": "Speech by Fed official Chicago FED President Evans."
   },
   "USD::chicago pmi employment::none": {
-    "note": "Chicago PMI Employment is a diffusion index of business activity (50 = expansion). Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
+    "note": "ISM-Chicago Business Barometer employment index is a diffusion index based on survey responses from Chicago-area purchasing managers (50 = no change). Stronger readings can lift USD and yields and often pressure XAUUSD; weaker readings can support XAUUSD."
   },
   "USD::chicago pmi new orders::none": {
-    "note": "Chicago PMI New Orders is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
+    "note": "ISM-Chicago Business Barometer new orders index is a diffusion index based on survey responses from Chicago-area purchasing managers (50 = no change). Stronger readings can lift USD and yields and often pressure XAUUSD; weaker readings can support XAUUSD."
   },
   "USD::chicago pmi prices::none": {
-    "note": "Chicago PMI Prices is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
+    "note": "ISM-Chicago Business Barometer prices paid index is a diffusion index based on survey responses from Chicago-area purchasing managers (50 = no change). Hotter price signals can lift yields and often pressure XAUUSD; cooler signals can support XAUUSD."
   },
   "USD::chicago pmi::none": {
-    "note": "Chicago PMI is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
+    "note": "ISM-Chicago Business Barometer (Chicago PMI) is a diffusion index based on survey responses from Chicago-area purchasing managers (50 = no change). A higher-than-expected reading can lift USD and yields and often pressure XAUUSD; a weaker reading can support XAUUSD."
   },
   "USD::cleveland cpi::m/m": {
     "note": "Cleveland Fed Median CPI is the one-month inflation rate of the CPI component whose expenditure weight sits at the 50th percentile of price changes (based on BLS CPI data). A higher median CPI can lift yields and often weigh on XAUUSD; a lower reading can support it."
@@ -13518,7 +13518,7 @@
     "note": "Census New Residential Construction provides national and regional counts of new privately-owned housing units started and completed."
   },
   "USD::ibd/tipp economic optimism::none": {
-    "note": "Ibd/tipp Economic Optimism is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
+    "note": "IBD/TIPP Economic Optimism Index is a monthly sentiment survey of US consumers, with 50 as the neutral level (above 50 = net optimism). Stronger sentiment can lift USD and yields and often pressure XAUUSD; weaker sentiment can support XAUUSD."
   },
   "USD::iea monthly report::none": {
     "note": "IEA Oil Market Report (OMR) provides data, forecasts and analysis on the global oil market, including oil supply, demand, inventories, prices, refining activity, and oil trade."
@@ -13563,37 +13563,37 @@
     "note": "FOMC Summary of Economic Projections reports participants' projected appropriate federal funds rate for the longer run (midpoint of the target range)."
   },
   "USD::ism - new york index::none": {
-    "note": "ISM New York Index is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
+    "note": "ISM-New York Business Report index is a diffusion index based on survey responses from firms in the New York area (50 = no change). A higher-than-expected reading can lift USD and yields and often pressure XAUUSD; a weaker reading can support XAUUSD."
   },
   "USD::ism manufacturing employment::none": {
-    "note": "ISM Manufacturing Employment is a diffusion index of business activity (50 = expansion). Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
+    "note": "ISM Manufacturing PMI employment index is a diffusion index from a monthly survey of purchasing managers (50 = no change). Stronger readings can lift USD and yields and often pressure XAUUSD; weaker readings can support XAUUSD."
   },
   "USD::ism manufacturing new orders index::none": {
-    "note": "ISM Manufacturing New Orders Index is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
+    "note": "ISM Manufacturing PMI new orders index is a diffusion index from a monthly survey of purchasing managers (50 = no change). Stronger demand signals can lift USD and yields and often pressure XAUUSD; weaker signals can support XAUUSD."
   },
   "USD::ism manufacturing pmi::none": {
-    "note": "ISM Manufacturing PMI is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
+    "note": "ISM Manufacturing PMI is a diffusion index from a monthly survey of purchasing managers in the manufacturing sector (50 = no change). A higher-than-expected reading can lift USD and yields and often pressure XAUUSD; a weaker reading can support XAUUSD."
   },
   "USD::ism manufacturing prices::none": {
-    "note": "ISM Manufacturing Prices is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
+    "note": "ISM Manufacturing PMI prices index is a diffusion index from a monthly survey of purchasing managers (50 = no change). Hotter price signals can lift yields and often pressure XAUUSD; cooler signals can support XAUUSD."
   },
   "USD::ism non - manufacturing business activity::none": {
-    "note": "ISM Non Manufacturing Business Activity is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
+    "note": "ISM Services PMI business activity index is a diffusion index from a monthly survey of purchasing managers in the services sector (50 = no change). Stronger readings can lift USD and yields and often pressure XAUUSD; weaker readings can support XAUUSD."
   },
   "USD::ism non - manufacturing employment::none": {
-    "note": "ISM Non Manufacturing Employment is a diffusion index of business activity (50 = expansion). Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
+    "note": "ISM Services PMI employment index is a diffusion index from a monthly survey of purchasing managers in the services sector (50 = no change). Stronger readings can lift USD and yields and often pressure XAUUSD; weaker readings can support XAUUSD."
   },
   "USD::ism non - manufacturing new orders::none": {
-    "note": "ISM Non Manufacturing New Orders is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
+    "note": "ISM Services PMI new orders index is a diffusion index from a monthly survey of purchasing managers in the services sector (50 = no change). Stronger demand signals can lift USD and yields and often pressure XAUUSD; weaker signals can support XAUUSD."
   },
   "USD::ism non - manufacturing pmi::none": {
-    "note": "ISM Non Manufacturing PMI is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
+    "note": "ISM Services PMI is a diffusion index from a monthly survey of purchasing managers in the services sector (50 = no change). A higher-than-expected reading can lift USD and yields and often pressure XAUUSD; a weaker reading can support XAUUSD."
   },
   "USD::ism non - manufacturing prices::none": {
-    "note": "ISM Non Manufacturing Prices is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
+    "note": "ISM Services PMI prices index is a diffusion index from a monthly survey of purchasing managers (50 = no change). Hotter price signals can lift yields and often pressure XAUUSD; cooler signals can support XAUUSD."
   },
   "USD::ism ny business conditions::none": {
-    "note": "ISM Ny Business Conditions is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
+    "note": "ISM-New York Business Conditions index is a diffusion index based on survey responses from firms in the New York area (50 = no change). A higher-than-expected reading can lift USD and yields and often pressure XAUUSD; a weaker reading can support XAUUSD."
   },
   "USD::jackson hole symposium::none": {
     "note": "Kansas City Fed hosts central bankers, policymakers, and economists at its annual economic policy symposium in Jackson Hole, Wyoming."
@@ -13683,7 +13683,7 @@
     "note": "U.S. Census Bureau New Residential Sales provides national and regional data on new single-family houses sold and for sale, plus price statistics."
   },
   "USD::nfib small business optimism::none": {
-    "note": "Nfib Small Business Optimism is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
+    "note": "NFIB Small Business Optimism Index is a monthly survey-based composite of sentiment among US small businesses. Stronger sentiment can lift USD and yields and often pressure XAUUSD; weaker sentiment can support XAUUSD."
   },
   "USD::nonfarm payrolls::none": {
     "note": "BLS Employment Situation (CES) reports the monthly change in total nonfarm payroll employment. A stronger print can lift USD and yields and often pressure XAUUSD; a weaker print can support XAUUSD."
@@ -13878,13 +13878,13 @@
     "note": "S&P 500 is a stock market index tracking the performance of 500 large companies listed on US stock exchanges."
   },
   "USD::s&p global composite pmi::none": {
-    "note": "S&p Global Composite PMI is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
+    "note": "S&P Global US Composite PMI is a diffusion index based on surveys of private-sector firms (50 = no change). A higher-than-expected reading can lift USD and yields and often pressure XAUUSD; a weaker reading can support XAUUSD."
   },
   "USD::s&p global manufacturing pmi::none": {
-    "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
+    "note": "S&P Global US Manufacturing PMI is a diffusion index based on surveys of manufacturing firms (50 = no change). A higher-than-expected reading can lift USD and yields and often pressure XAUUSD; a weaker reading can support XAUUSD."
   },
   "USD::s&p global services pmi::none": {
-    "note": "S&p Global Services PMI is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
+    "note": "S&P Global US Services PMI is a diffusion index based on surveys of services firms (50 = no change). A higher-than-expected reading can lift USD and yields and often pressure XAUUSD; a weaker reading can support XAUUSD."
   },
   "USD::s&p/cs hpi composite - 20 n.s.a.::m/m": {
     "note": "S&P Cotality Case-Shiller 20-City Composite Home Price Index (NSA, Jan 2000=100) shows monthly home price changes across 20 metro areas."
