@@ -852,7 +852,7 @@
     "note": "Snb Vice Chairman Schlegel Speaks is a scheduled data release."
   },
   "CHF::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Swiss Federal Office for Customs and Border Security (FOCBS) publishes Swiss foreign trade statistics covering imports and exports. The trade balance reflects the net difference between them."
   },
   "CHF::unemployment rate n.s.a.::none": {
     "note": "Unemployment Rate N.s.a. shows the share of the labor force that is unemployed."
@@ -1197,7 +1197,7 @@
     "note": "Retail Sales measures retail spending."
   },
   "DKK::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Statistics Denmark publishes international trade in goods and services as part of its balance of payments and external trade statistics. The trade balance reflects the relationship between imports and exports."
   },
   "DKK::unemployment rate::none": {
     "note": "Unemployment Rate shows the share of the labor force that is unemployed."
@@ -4020,10 +4020,10 @@
     "note": "Argentina Bridge Holiday is a market holiday."
   },
   "NA::argentina - carnival::none": {
-    "note": "Argentina Carnival is a scheduled data release."
+    "note": "Argentina Carnival is a market holiday."
   },
   "NA::argentina - christmas day::none": {
-    "note": "Argentina Christmas Day is a scheduled data release."
+    "note": "Argentina Christmas Day is a market holiday."
   },
   "NA::argentina - christmas::none": {
     "note": "Argentina Christmas is a scheduled data release."
@@ -4065,7 +4065,7 @@
     "note": "Argentina General D. Manuel Belgrano\u2019s Death is a scheduled data release."
   },
   "NA::argentina - good friday::none": {
-    "note": "Argentina Good Friday is a scheduled data release."
+    "note": "Argentina Good Friday is a market holiday."
   },
   "NA::argentina - holy friday::none": {
     "note": "Argentina Holy Friday is a scheduled data release."
@@ -4077,10 +4077,10 @@
     "note": "Argentina Immaculate Conception is a scheduled data release."
   },
   "NA::argentina - independence day::none": {
-    "note": "Argentina Independence Day is a scheduled data release."
+    "note": "Argentina Independence Day is a market holiday."
   },
   "NA::argentina - labor day::none": {
-    "note": "Argentina Labor Day is a scheduled data release."
+    "note": "Argentina Labor Day is a market holiday."
   },
   "NA::argentina - labour day::none": {
     "note": "Argentina Labour Day is a scheduled data release."
@@ -4095,13 +4095,13 @@
     "note": "Argentina Market Holiday is a market holiday."
   },
   "NA::argentina - markets closed::none": {
-    "note": "Argentina Markets Closed is a scheduled data release."
+    "note": "Argentina Markets Closed means local markets are closed."
   },
   "NA::argentina - mart\u00edn miguel de g\u00fcemes day::none": {
     "note": "Argentina Mart\u00edn Miguel De G\u00fcemes Day is a scheduled data release."
   },
   "NA::argentina - maundy thursday::none": {
-    "note": "Argentina Maundy Thursday is a scheduled data release."
+    "note": "Argentina Maundy Thursday is a market holiday."
   },
   "NA::argentina - memorial day::none": {
     "note": "Argentina Memorial Day is a scheduled data release."
@@ -4119,10 +4119,10 @@
     "note": "Argentina National Sovereignty and Children Day is a scheduled data release."
   },
   "NA::argentina - new year's day::none": {
-    "note": "Argentina New Year's Day is a scheduled data release."
+    "note": "Argentina New Year's Day is a market holiday."
   },
   "NA::argentina - new year's eve::none": {
-    "note": "Argentina New Year's Eve is a scheduled data release."
+    "note": "Argentina New Year's Eve is a market holiday."
   },
   "NA::argentina - public holiday::none": {
     "note": "Argentina Public Holiday is a market holiday."
@@ -4137,19 +4137,19 @@
     "note": "Argentina San Martin Day is a scheduled data release."
   },
   "NA::argentina - stock exchange closed::none": {
-    "note": "Argentina Stock Exchange Closed is a scheduled data release."
+    "note": "Argentina Stock Exchange Closed means local exchanges are closed."
   },
   "NA::australia - anzac day observance::none": {
-    "note": "Australia Anzac Day Observance is a scheduled data release."
+    "note": "Australia Anzac Day Observance is a market holiday."
   },
   "NA::australia - anzac day::none": {
-    "note": "Australia Anzac Day is a scheduled data release."
+    "note": "Australia Anzac Day is a market holiday."
   },
   "NA::australia - australia day::none": {
-    "note": "Australia Australia Day is a scheduled data release."
+    "note": "Australia Australia Day is a market holiday."
   },
   "NA::australia - boxing day::none": {
-    "note": "Australia Boxing Day is a scheduled data release."
+    "note": "Australia Boxing Day is a market holiday."
   },
   "NA::australia - christmas - early close at 14:00::none": {
     "note": "Australia Christmas Early Close At 14:00 is a scheduled data release."
@@ -4164,31 +4164,31 @@
     "note": "Australia Christmas Day / Boxing Day is a scheduled data release."
   },
   "NA::australia - christmas day::none": {
-    "note": "Australia Christmas Day is a scheduled data release."
+    "note": "Australia Christmas Day is a market holiday."
   },
   "NA::australia - christmas eve - early close at 14:00::none": {
-    "note": "Australia Christmas Eve Early Close At 14:00 is a scheduled data release."
+    "note": "Australia Christmas Eve Early Close At 14:00 is an early market close (14:00 local time)."
   },
   "NA::australia - christmas eve - early close at 14:10::none": {
-    "note": "Australia Christmas Eve Early Close At 14:10 is a scheduled data release."
+    "note": "Australia Christmas Eve Early Close At 14:10 is an early market close (14:10 local time)."
   },
   "NA::australia - christmas::none": {
     "note": "Australia Christmas is a scheduled data release."
   },
   "NA::australia - easter monday::none": {
-    "note": "Australia Easter Monday is a scheduled data release."
+    "note": "Australia Easter Monday is a market holiday."
   },
   "NA::australia - easter::none": {
     "note": "Australia Easter is a scheduled data release."
   },
   "NA::australia - good friday::none": {
-    "note": "Australia Good Friday is a scheduled data release."
+    "note": "Australia Good Friday is a market holiday."
   },
   "NA::australia - king's birthday::none": {
     "note": "Australia King's Birthday is a scheduled data release."
   },
   "NA::australia - last day of the year - early close at 14:10::none": {
-    "note": "Australia Last Day of the Year Early Close At 14:10 is a scheduled data release."
+    "note": "Australia Last Day of the Year Early Close At 14:10 is an early market close (14:10 local time)."
   },
   "NA::australia - national mourning day::none": {
     "note": "Australia National Mourning Day is a scheduled data release."
@@ -11994,7 +11994,7 @@
     "note": "PPI (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers."
   },
   "NOK::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Statistics Norway (SSB) publishes external trade in goods statistics with detailed imports and exports; it also reports the trade balance. The balance is the net difference between exports and imports."
   },
   "NOK::unemployment change::none": {
     "note": "Unemployment Change is a scheduled data release."
@@ -12675,7 +12675,7 @@
     "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
   },
   "SGD::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Singapore merchandise trade statistics are compiled by Enterprise Singapore and published via SingStat. The trade balance is the net difference between exports and imports."
   },
   "SGD::unemployment rate::none": {
     "note": "Unemployment Rate shows the share of the labor force that is unemployed."
