@@ -9,7 +9,7 @@
     "note": "GDP measures year-over-year % growth in economic output."
   },
   "AED::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "Central Bank of the UAE (CBUAE) sets the Base Rate applicable to the Overnight Deposit Facility (ODF)."
   },
   "AED::m3 money supply::y/y": {
     "note": "M3 Money Supply measures the money supply for this monetary aggregate."
@@ -30,7 +30,7 @@
     "note": "Fx Reserve reports official foreign-exchange reserves."
   },
   "AOA::interest rate decision::m/m": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "Banco Nacional de Angola (BNA) announces its key policy rate (Taxa BNA) after the Monetary Policy Committee meeting."
   },
   "ARS::argentina annual gdp::none": {
     "note": "Argentina Annual GDP measures growth in economic output."
@@ -84,46 +84,46 @@
     "note": "Aig Services Index is an index reading for this series."
   },
   "AUD::anz internet job ads::m/m": {
-    "note": "Anz Internet Job Ads is a scheduled data release."
+    "note": "ANZ-Indeed Australian Job Ads counts the average number of job ads carried by each of the sites contributing to the series."
   },
   "AUD::anz job advertisements::m/m": {
-    "note": "Anz Job Advertisements is a scheduled data release."
+    "note": "ANZ-Indeed Australian Job Ads counts the average number of job ads carried by each of the sites contributing to the series."
   },
   "AUD::anz newspaper job ads::m/m": {
-    "note": "Anz Newspaper Job Ads is a scheduled data release."
+    "note": "ANZ provides a historical newspaper job ads series (1975-2018)."
   },
   "AUD::aud/usd index::none": {
     "note": "Aud/usd Index is an index reading for this series."
   },
   "AUD::building approvals::m/m": {
-    "note": "Building Approvals is a scheduled data release."
+    "note": "Australian Bureau of Statistics (ABS) Building Approvals provides the number of dwelling units and value of buildings approved."
   },
   "AUD::building approvals::y/y": {
-    "note": "Building Approvals is a scheduled data release."
+    "note": "Australian Bureau of Statistics (ABS) Building Approvals provides the number of dwelling units and value of buildings approved."
   },
   "AUD::building capital expenditure::m/m": {
-    "note": "Building Capital Expenditure is a scheduled data release."
+    "note": "Australian Bureau of Statistics (ABS) Private New Capital Expenditure reports business investment spending on buildings and structures."
   },
   "AUD::business inventories::m/m": {
-    "note": "Business Inventories is a scheduled data release."
+    "note": "Australian Bureau of Statistics (ABS) Business Indicators includes quarterly estimates of private sector inventories."
   },
   "AUD::cftc aud speculative net positions::none": {
-    "note": "Cftc Aud Speculative Net Positions is a scheduled data release."
+    "note": "CFTC Commitments of Traders (COT) data provides a breakdown of open interest, including speculative positioning in Australian dollar futures."
   },
   "AUD::commodity prices::y/y": {
-    "note": "Commodity Prices is a scheduled data release."
+    "note": "Reserve Bank of Australia (RBA) Index of Commodity Prices measures price movements in rural and non-rural commodities."
   },
   "AUD::company gross operating profits::q/q": {
-    "note": "Company Gross Operating Profits is a scheduled data release."
+    "note": "Australian Bureau of Statistics (ABS) Business Indicators reports quarterly company gross operating profits."
   },
   "AUD::company profits pre - tax::q/q": {
-    "note": "Company Profits Pre Tax is a scheduled data release."
+    "note": "Australian Bureau of Statistics (ABS) Business Indicators reports quarterly company profits before income tax."
   },
   "AUD::construction work done::q/q": {
-    "note": "Construction Work Done is a scheduled data release."
+    "note": "Australian Bureau of Statistics (ABS) Construction Work Done provides estimates of the value of total construction work done, including building and engineering work."
   },
   "AUD::cpi index number::none": {
-    "note": "CPI Index Number (Consumer Price Index) measures the change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Australian Bureau of Statistics (ABS) CPI measures household inflation via price changes across categories of household expenditure. Higher-than-expected inflation (vs forecast) can lift yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "AUD::cpi::q/q": {
     "note": "CPI (Consumer Price Index, QoQ) measures the change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -174,7 +174,7 @@
     "note": "Housing Credit measures credit or lending conditions."
   },
   "AUD::housing starts::q/q": {
-    "note": "Housing Starts is a scheduled data release."
+    "note": "Australian Bureau of Statistics (ABS) Building Activity provides estimates of the number of dwellings commenced (housing starts)."
   },
   "AUD::import price index::q/q": {
     "note": "Import Price Index is an index reading for this series."
@@ -183,7 +183,7 @@
     "note": "Imports is a scheduled data release."
   },
   "AUD::invest housing finance::m/m": {
-    "note": "Invest Housing Finance is a scheduled data release."
+    "note": "Australian Bureau of Statistics (ABS) Lending indicators reports new loan commitments for dwellings, including an investor series."
   },
   "AUD::judo bank manufacturing pmi::none": {
     "note": "Judo Bank Manufacturing PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -228,7 +228,7 @@
     "note": "Participation Rate reports a rate for this series."
   },
   "AUD::plant/machinery capital expenditure::q/q": {
-    "note": "Plant/machinery Capital Expenditure is a scheduled data release."
+    "note": "Australian Bureau of Statistics (ABS) Private New Capital Expenditure reports business investment spending on buildings and equipment, including plant and machinery."
   },
   "AUD::ppi::q/q": {
     "note": "PPI (Producer Price Index, QoQ) measures the change in prices received by producers. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -240,7 +240,7 @@
     "note": "Private House Approvals is a scheduled data release."
   },
   "AUD::private new capital expenditure::q/q": {
-    "note": "Private New Capital Expenditure is a scheduled data release."
+    "note": "Australian Bureau of Statistics (ABS) Private New Capital Expenditure reports actual and expected business investment spend on buildings and equipment by industry."
   },
   "AUD::private sector credit::m/m": {
     "note": "Private Sector Credit measures credit or lending conditions."
@@ -264,16 +264,16 @@
     "note": "Rba Assistant Governor Jones Speaks is a scheduled data release."
   },
   "AUD::rba bulletin::none": {
-    "note": "Rba Bulletin is a scheduled data release."
+    "note": "Reserve Bank of Australia (RBA) Bulletin is a quarterly publication containing analysis and updates on economic and financial developments."
   },
   "AUD::rba cagliarini speaks::none": {
     "note": "Rba Cagliarini Speaks is a scheduled data release."
   },
   "AUD::rba chart pack release::none": {
-    "note": "Rba Chart Pack Release is a scheduled data release."
+    "note": "Reserve Bank of Australia (RBA) Chart Pack summarises macroeconomic and financial market trends in Australia."
   },
   "AUD::rba financial stability review::none": {
-    "note": "Rba Financial Stability Review is a scheduled data release."
+    "note": "Reserve Bank of Australia (RBA) Financial Stability Review (FSR) provides the RBA's assessment of the resilience of the financial system and potential risks to financial stability."
   },
   "AUD::rba gov bullock speaks::none": {
     "note": "Rba Gov Bullock Speaks is a scheduled data release."
@@ -354,7 +354,7 @@
     "note": "GDP measures year-over-year % growth in economic output."
   },
   "BHD::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "Central Bank of Bahrain (CBB) sets its key policy interest rate on the one-week deposit facility."
   },
   "BHD::m2 money supply::none": {
     "note": "M2 Money Supply measures the money supply for this monetary aggregate."
@@ -471,7 +471,7 @@
     "note": "Industrial Production measures industrial output."
   },
   "BRL::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "Banco Central do Brasil's Monetary Policy Committee (Copom) sets the target for the Selic policy rate."
   },
   "BRL::ipc - fipe inflation index::m/m": {
     "note": "Ipc Fipe Inflation Index is an index reading for this series."
@@ -13014,22 +13014,22 @@
     "note": "Adp Nonfarm Employment Change is a scheduled data release. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
   },
   "USD::all car sales::none": {
-    "note": "All Car Sales measures sales for this series."
+    "note": "U.S. Bureau of Economic Analysis (BEA) reports motor vehicle retail sales for domestic and foreign autos."
   },
   "USD::all truck sales::none": {
-    "note": "All Truck Sales measures sales for this series."
+    "note": "U.S. Bureau of Economic Analysis (BEA) reports motor vehicle retail sales for light weight trucks."
   },
   "USD::api weekly crude oil stock::none": {
-    "note": "Api Weekly Crude Oil Stock is a scheduled data release."
+    "note": "API's Weekly Statistical Bulletin reports total U.S. and regional crude inventories, alongside refinery operations and other petroleum supply data."
   },
   "USD::api weekly cushing crude oil stock::none": {
-    "note": "Api Weekly Cushing Crude Oil Stock is a scheduled data release."
+    "note": "API's Weekly Statistical Bulletin reports regional crude inventories, including stocks in Cushing, Oklahoma."
   },
   "USD::api weekly distillates stocks::none": {
-    "note": "Api Weekly Distillates Stocks is a scheduled data release."
+    "note": "API's Weekly Statistical Bulletin reports inventories of major petroleum products, including distillate fuel oil."
   },
   "USD::api weekly gasoline stock::none": {
-    "note": "Api Weekly Gasoline Stock is a scheduled data release."
+    "note": "API's Weekly Statistical Bulletin reports inventories of major petroleum products, including motor gasoline."
   },
   "USD::atlanta fed gdpnow::none": {
     "note": "Atlanta Fed Gdpnow measures growth in economic output. A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
@@ -13041,28 +13041,28 @@
     "note": "Average Hourly Earnings is a scheduled data release. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
   },
   "USD::average weekly hours::none": {
-    "note": "Average Weekly Hours is a scheduled data release."
+    "note": "BLS Current Employment Statistics (CES) publishes estimates of average weekly hours for nonfarm payroll employees."
   },
   "USD::bankruptcy filings::y/y": {
-    "note": "Bankruptcy Filings is a scheduled data release."
+    "note": "U.S. Courts bankruptcy filing statistics include quarterly bankruptcy filings data tables."
   },
   "USD::beige book::none": {
-    "note": "Beige Book is a scheduled data release."
+    "note": "The Federal Reserve's Beige Book summarizes anecdotal information on current economic conditions by District and sector."
   },
   "USD::bloomberg consumer confidence::none": {
     "note": "Bloomberg Consumer Confidence is a survey-based sentiment reading."
   },
   "USD::building permits::m/m": {
-    "note": "Building Permits is a scheduled data release."
+    "note": "Census Building Permits Survey provides statistics on the number and valuation of new privately-owned housing units authorized by building permits."
   },
   "USD::building permits::none": {
-    "note": "Building Permits is a scheduled data release."
+    "note": "Census Building Permits Survey reports the number and valuation of new privately-owned housing units authorized by building permits."
   },
   "USD::business inventories::m/m": {
-    "note": "Business Inventories is a scheduled data release."
+    "note": "Census MTIS report provides monthly measures of combined changes in retail, wholesale, and manufacturing activity, including total business inventories."
   },
   "USD::cap goods ship non defense ex air::m/m": {
-    "note": "Cap Goods Ship Non Defense ex Air is a scheduled data release."
+    "note": "Census M3 survey provides monthly data on manufacturing shipments; this series shows nondefense capital goods shipments excluding aircraft."
   },
   "USD::capacity utilization rate::none": {
     "note": "Capacity Utilization Rate reports a rate for this series."
@@ -13074,58 +13074,58 @@
     "note": "Cb Employment Trends Index is an index reading for this series. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
   },
   "USD::cftc aluminium speculative net positions::none": {
-    "note": "Cftc Aluminium Speculative Net Positions is a scheduled data release."
+    "note": "CFTC COT reports break down each Tuesday's open interest in futures and options; this series shows speculative net positions in aluminium."
   },
   "USD::cftc copper speculative net positions::none": {
-    "note": "Cftc Copper Speculative Net Positions is a scheduled data release."
+    "note": "CFTC COT reports break down each Tuesday's open interest in futures and options; this series shows speculative net positions in copper."
   },
   "USD::cftc corn speculative net positions::none": {
-    "note": "Cftc Corn Speculative Net Positions is a scheduled data release."
+    "note": "CFTC COT reports break down each Tuesday's open interest in futures and options; this series shows speculative net positions in corn."
   },
   "USD::cftc crude oil speculative net positions::none": {
-    "note": "Cftc Crude Oil Speculative Net Positions is a scheduled data release."
+    "note": "CFTC COT reports break down each Tuesday's open interest in futures and options; this series shows speculative net positions in crude oil."
   },
   "USD::cftc gold speculative net positions::none": {
-    "note": "Cftc Gold Speculative Net Positions is a scheduled data release."
+    "note": "CFTC COT reports break down each Tuesday's open interest in futures and options; this series shows speculative net positions in gold."
   },
   "USD::cftc nasdaq 100 speculative net positions::none": {
-    "note": "Cftc Nasdaq 100 Speculative Net Positions is a scheduled data release."
+    "note": "CFTC COT reports break down each Tuesday's open interest in futures and options; this series shows speculative net positions in Nasdaq 100."
   },
   "USD::cftc natural gas speculative net positions::none": {
-    "note": "Cftc Natural Gas Speculative Net Positions is a scheduled data release."
+    "note": "CFTC COT reports break down each Tuesday's open interest in futures and options; this series shows speculative net positions in natural gas."
   },
   "USD::cftc s&p 500 speculative net positions::none": {
-    "note": "Cftc S&p 500 Speculative Net Positions is a scheduled data release."
+    "note": "CFTC COT reports break down each Tuesday's open interest in futures and options; this series shows speculative net positions in S&P 500."
   },
   "USD::cftc silver speculative net positions::none": {
-    "note": "Cftc Silver Speculative Net Positions is a scheduled data release."
+    "note": "CFTC COT reports break down each Tuesday's open interest in futures and options; this series shows speculative net positions in silver."
   },
   "USD::cftc soybeans speculative net positions::none": {
-    "note": "Cftc Soybeans Speculative Net Positions is a scheduled data release."
+    "note": "CFTC COT reports break down each Tuesday's open interest in futures and options; this series shows speculative net positions in soybeans."
   },
   "USD::cftc wheat speculative net positions::none": {
-    "note": "Cftc Wheat Speculative Net Positions is a scheduled data release."
+    "note": "CFTC COT reports break down each Tuesday's open interest in futures and options; this series shows speculative net positions in wheat."
   },
   "USD::chain store sales::m/m": {
-    "note": "Chain Store Sales measures sales for this series."
+    "note": "The ICSC and Goldman Sachs Weekly Chain Store Sales Snapshot measures U.S. nominal comparable-store sales excluding restaurant and vehicle demand."
   },
   "USD::chain store sales::w/w": {
-    "note": "Chain Store Sales measures sales for this series."
+    "note": "The ICSC and Goldman Sachs Weekly Chain Store Sales Snapshot measures U.S. nominal comparable-store sales excluding restaurant and vehicle demand."
   },
   "USD::chain store sales::y/y": {
-    "note": "Chain Store Sales measures sales for this series."
+    "note": "The ICSC and Goldman Sachs Weekly Chain Store Sales Snapshot measures U.S. nominal comparable-store sales excluding restaurant and vehicle demand."
   },
   "USD::challenger job cuts::none": {
-    "note": "Challenger Job Cuts is a scheduled data release."
+    "note": "Challenger, Gray & Christmas reports the number of job cuts announced by U.S.-based employers."
   },
   "USD::challenger job cuts::y/y": {
-    "note": "Challenger Job Cuts is a scheduled data release."
+    "note": "Challenger, Gray & Christmas reports the year-over-year change in job cuts announced by U.S.-based employers."
   },
   "USD::chicago fed national activity::none": {
-    "note": "Chicago Fed National Activity is a scheduled data release."
+    "note": "Chicago Fed National Activity Index (CFNAI) is a monthly index designed to gauge overall economic activity and related inflationary pressure."
   },
   "USD::chicago fed president evans speaks::none": {
-    "note": "Chicago Fed President Evans Speaks is a scheduled data release."
+    "note": "Speech by Fed official Chicago FED President Evans."
   },
   "USD::chicago pmi employment::none": {
     "note": "Chicago PMI Employment is a diffusion index of business activity (50 = expansion). Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
@@ -13143,10 +13143,10 @@
     "note": "Cleveland CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
   },
   "USD::construction spending::m/m": {
-    "note": "Construction Spending is a scheduled data release."
+    "note": "Census Value of Construction Put in Place Survey provides monthly estimates of the total dollar value of construction work done in the U.S."
   },
   "USD::consumer credit::none": {
-    "note": "Consumer Credit measures credit or lending conditions."
+    "note": "Federal Reserve G.19 reports consumer credit outstanding (revolving and nonrevolving) excluding loans secured by real estate."
   },
   "USD::continuing jobless claims::none": {
     "note": "Continuing Jobless Claims is the weekly number of new unemployment benefit claims. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
@@ -13200,16 +13200,16 @@
     "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
   },
   "USD::crude oil imports::none": {
-    "note": "Crude Oil Imports is a scheduled data release."
+    "note": "EIA Weekly Petroleum Status Report covers U.S. crude oil imports alongside other petroleum supply indicators."
   },
   "USD::crude oil inventories::none": {
-    "note": "Crude Oil Inventories is a scheduled data release."
+    "note": "EIA Weekly Petroleum Status Report reports U.S. commercial crude oil inventories."
   },
   "USD::current account::none": {
     "note": "Current Account reports the current account balance."
   },
   "USD::cushing crude oil inventories::none": {
-    "note": "Cushing Crude Oil Inventories is a scheduled data release."
+    "note": "EIA Weekly Petroleum Status Report includes crude oil inventories at Cushing, Oklahoma."
   },
   "USD::dallas fed mfg business index::none": {
     "note": "Dallas Fed Mfg Business Index is an index reading for this series."
@@ -13218,37 +13218,37 @@
     "note": "Dallas Fed PCE (PCE price index) measures the change in consumer prices . Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
   },
   "USD::dallas fed services revenues::none": {
-    "note": "Dallas Fed Services Revenues is a scheduled data release."
+    "note": "Dallas Fed Texas Service Sector Outlook Survey asks firms whether revenue increased, decreased, or was unchanged over the previous month."
   },
   "USD::discount rate::none": {
     "note": "Discount Rate reports a rate for this series."
   },
   "USD::distillate fuel production::none": {
-    "note": "Distillate Fuel Production measures production for this series."
+    "note": "EIA reports refinery and blender net production of distillate fuel oil (net production = gross production minus gross inputs)."
   },
   "USD::domestic car sales::none": {
-    "note": "Domestic Car Sales measures sales for this series."
+    "note": "US Bureau of Economic Analysis (BEA) reports US sales of domestic autos (vehicles assembled in the US, Canada, and Mexico)."
   },
   "USD::domestic truck sales::none": {
-    "note": "Domestic Truck Sales measures sales for this series."
+    "note": "U.S. Bureau of Economic Analysis (BEA) reports motor vehicle retail sales for domestic light weight trucks."
   },
   "USD::durable goods orders::m/m": {
     "note": "Durable Goods Orders measures the month-over-month % change in new orders for long-lasting manufactured goods. A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
   },
   "USD::durables excluding defense::m/m": {
-    "note": "Durables excluding Defense is a scheduled data release."
+    "note": "Census M3 survey provides monthly statistics on manufacturing activity; this series is durable goods orders excluding defense."
   },
   "USD::durables excluding transport::m/m": {
-    "note": "Durables excluding Transport is a scheduled data release."
+    "note": "Census M3 survey provides monthly statistics on manufacturing activity; this series is durable goods orders excluding transportation."
   },
   "USD::eia refinery crude runs::w/w": {
-    "note": "Eia Refinery Crude Runs is a scheduled data release."
+    "note": "EIA Weekly Petroleum Status Report includes U.S. crude oil refinery inputs (refinery runs)."
   },
   "USD::eia short - term energy outlook::none": {
-    "note": "Eia Short Term Energy Outlook is a scheduled data release."
+    "note": "EIA Short-Term Energy Outlook provides monthly and yearly energy forecasts and analysis."
   },
   "USD::eia weekly distillates stocks::none": {
-    "note": "Eia Weekly Distillates Stocks is a scheduled data release."
+    "note": "EIA Weekly Petroleum Status Report provides weekly estimates of distillate fuel oil inventories."
   },
   "USD::eia weekly refinery utilization rates::w/w": {
     "note": "Eia Weekly Refinery Utilization Rates reports a rate for this series."
@@ -13263,10 +13263,10 @@
     "note": "Employment Wages is a scheduled data release. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
   },
   "USD::existing home sales::m/m": {
-    "note": "Existing Home Sales measures sales for this series."
+    "note": "National Association of Realtors (NAR) Existing-Home Sales covers sales and prices of existing homes (including condos and co-ops) with regional breakdowns."
   },
   "USD::existing home sales::none": {
-    "note": "Existing Home Sales measures sales for this series."
+    "note": "National Association of Realtors (NAR) Existing-Home Sales covers sales and prices of existing homes (including condos and co-ops) with regional breakdowns."
   },
   "USD::export price index::m/m": {
     "note": "Export Price Index is an index reading for this series."
@@ -13275,7 +13275,7 @@
     "note": "Export Price Index is an index reading for this series."
   },
   "USD::exports::none": {
-    "note": "Exports is a scheduled data release."
+    "note": "BEA defines exports of goods and services as goods and services sold by U.S. residents to foreign residents."
   },
   "USD::factory orders ex transportation::m/m": {
     "note": "Factory Orders ex Transportation is a scheduled data release. A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
@@ -13284,61 +13284,61 @@
     "note": "Factory Orders is a scheduled data release. A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
   },
   "USD::fed bank stress test results::none": {
-    "note": "Fed Bank Stress Test Results is a scheduled data release."
+    "note": "The Fed's stress test is a forward-looking quantitative evaluation of bank capital under a hypothetical macroeconomic recession scenario."
   },
   "USD::fed barr testimony::none": {
     "note": "Fed Barr Testimony is a scheduled data release. A more hawkish-than-expected message can lift USD and yields, often pressuring XAUUSD; a dovish surprise can support it."
   },
   "USD::fed chair powell speaks::none": {
-    "note": "Fed Chair Powell Speaks is a scheduled data release."
+    "note": "Speech by Fed Chair Jerome Powell."
   },
   "USD::fed chair powell testifies::none": {
-    "note": "Fed Chair Powell Testifies is a scheduled data release."
+    "note": "Testimony by Fed Chair Jerome Powell."
   },
   "USD::fed chair yellen speaks::none": {
-    "note": "Fed Chair Yellen Speaks is a scheduled data release."
+    "note": "Speech by Fed official Janet Yellen."
   },
   "USD::fed chair yellen testifies::none": {
-    "note": "Fed Chair Yellen Testifies is a scheduled data release."
+    "note": "Testimony by Fed official Janet Yellen."
   },
   "USD::fed chairman bernanke speaks::none": {
-    "note": "Fed Chairman Bernanke Speaks is a scheduled data release."
+    "note": "Speech by former Fed Chair Ben Bernanke."
   },
   "USD::fed chairman bernanke testifies::none": {
-    "note": "Fed Chairman Bernanke Testifies is a scheduled data release."
+    "note": "Testimony by former Fed Chair Ben Bernanke."
   },
   "USD::fed collins speaks::none": {
-    "note": "Fed Collins Speaks is a scheduled data release."
+    "note": "Speech by Fed official Collins."
   },
   "USD::fed gibson testifies::none": {
-    "note": "Fed Gibson Testifies is a scheduled data release."
+    "note": "Testimony by Fed official Gibson."
   },
   "USD::fed goolsbee speaks::none": {
-    "note": "Fed Goolsbee Speaks is a scheduled data release."
+    "note": "Speech by Fed official Austan Goolsbee."
   },
   "USD::fed governor cook speaks::none": {
-    "note": "Fed Governor Cook Speaks is a scheduled data release."
+    "note": "Speech by Fed Governor Lisa Cook."
   },
   "USD::fed governor cook testifies::none": {
-    "note": "Fed Governor Cook Testifies is a scheduled data release."
+    "note": "Testimony by Fed Governor Lisa Cook."
   },
   "USD::fed governor jefferson speaks::none": {
-    "note": "Fed Governor Jefferson Speaks is a scheduled data release."
+    "note": "Speech by Fed Governor Philip Jefferson."
   },
   "USD::fed governor jefferson testifies::none": {
-    "note": "Fed Governor Jefferson Testifies is a scheduled data release."
+    "note": "Testimony by Fed Governor Philip Jefferson."
   },
   "USD::fed governor kohn speaks::none": {
-    "note": "Fed Governor Kohn Speaks is a scheduled data release."
+    "note": "Speech by Fed official Kohn."
   },
   "USD::fed governor kroszner speaks::none": {
-    "note": "Fed Governor Kroszner Speaks is a scheduled data release."
+    "note": "Speech by Fed official Kroszner."
   },
   "USD::fed governor mishkin speaks::none": {
-    "note": "Fed Governor Mishkin Speaks is a scheduled data release."
+    "note": "Speech by Fed official Mishkin."
   },
   "USD::fed governor warsh speaks::none": {
-    "note": "Fed Governor Warsh Speaks is a scheduled data release."
+    "note": "Speech by Fed official Warsh."
   },
   "USD::fed interest rate decision::none": {
     "note": "Fed Interest Rate Decision sets the policy rate (the Fed). A more hawkish-than-expected message can lift USD and yields, often pressuring XAUUSD; a dovish surprise can support it."
@@ -13347,121 +13347,121 @@
     "note": "Fed Labor Market Conditions Index is an index reading for this series. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
   },
   "USD::fed logan speaks::none": {
-    "note": "Fed Logan Speaks is a scheduled data release."
+    "note": "Speech by Fed official Lorie Logan."
   },
   "USD::fed monetary policy report::none": {
-    "note": "Fed Monetary Policy Report is a scheduled data release."
+    "note": "The Fed's Monetary Policy Report is the semiannual report to Congress on monetary policy and economic developments."
   },
   "USD::fed statement::none": {
     "note": "Fed Statement communicates the policy outlook and guidance (the Fed). A more hawkish-than-expected message can lift USD and yields, often pressuring XAUUSD; a dovish surprise can support it."
   },
   "USD::fed vice chair brainard speaks::none": {
-    "note": "Fed Vice Chair Brainard Speaks is a scheduled data release."
+    "note": "Speech by Fed Vice Chair Lael Brainard."
   },
   "USD::fed vice chair for supervision barr speaks::none": {
-    "note": "Fed Vice Chair for Supervision Barr Speaks is a scheduled data release."
+    "note": "Speech by Fed Vice Chair for Supervision Michael Barr."
   },
   "USD::fed waller speaks::none": {
-    "note": "Fed Waller Speaks is a scheduled data release."
+    "note": "Speech by Fed Governor Christopher Waller."
   },
   "USD::fed's balance sheet::none": {
-    "note": "Fed's Balance Sheet is a scheduled data release."
+    "note": "The Federal Reserve publishes its balance sheet each week in the H.4.1 statistical release."
   },
   "USD::federal budget balance::none": {
     "note": "Federal Budget Balance reports the government's fiscal balance (surplus/deficit)."
   },
   "USD::fomc economic projections::none": {
-    "note": "FOMC Economic Projections is a scheduled data release."
+    "note": "FOMC economic projections (SEP) are collected four times a year and include policymakers' projections for the appropriate target federal funds rate path."
   },
   "USD::fomc meeting minutes::none": {
     "note": "FOMC Meeting Minutes provides detail on the latest policy meeting (the Fed). A more hawkish-than-expected message can lift USD and yields, often pressuring XAUUSD; a dovish surprise can support it."
   },
   "USD::fomc member barkin speaks::none": {
-    "note": "FOMC Member Barkin Speaks is a scheduled data release."
+    "note": "Speech by Fed official Barkin."
   },
   "USD::fomc member bostic speaks::none": {
-    "note": "FOMC Member Bostic Speaks is a scheduled data release."
+    "note": "Speech by Fed official Bostic."
   },
   "USD::fomc member bowman speaks::none": {
-    "note": "FOMC Member Bowman Speaks is a scheduled data release."
+    "note": "Speech by Fed official Bowman."
   },
   "USD::fomc member brainard speaks::none": {
-    "note": "FOMC Member Brainard Speaks is a scheduled data release."
+    "note": "Speech by Fed official Brainard."
   },
   "USD::fomc member bullard speaks::none": {
-    "note": "FOMC Member Bullard Speaks is a scheduled data release."
+    "note": "Speech by Fed official Bullard."
   },
   "USD::fomc member clarida speaks::none": {
-    "note": "FOMC Member Clarida Speaks is a scheduled data release."
+    "note": "Speech by Fed official Clarida."
   },
   "USD::fomc member daly speaks::none": {
-    "note": "FOMC Member Daly Speaks is a scheduled data release."
+    "note": "Speech by Fed official Daly."
   },
   "USD::fomc member dudley speaks::none": {
-    "note": "FOMC Member Dudley Speaks is a scheduled data release."
+    "note": "Speech by Fed official Dudley."
   },
   "USD::fomc member duke speaks::none": {
-    "note": "FOMC Member Duke Speaks is a scheduled data release."
+    "note": "Speech by Fed official Duke."
   },
   "USD::fomc member fisher speaks::none": {
-    "note": "FOMC Member Fisher Speaks is a scheduled data release."
+    "note": "Speech by Fed official Fisher."
   },
   "USD::fomc member george speaks::none": {
-    "note": "FOMC Member George Speaks is a scheduled data release."
+    "note": "Speech by Fed official George."
   },
   "USD::fomc member harker speaks::none": {
-    "note": "FOMC Member Harker Speaks is a scheduled data release."
+    "note": "Speech by Fed official Harker."
   },
   "USD::fomc member kaplan speaks::none": {
-    "note": "FOMC Member Kaplan Speaks is a scheduled data release."
+    "note": "Speech by Fed official Kaplan."
   },
   "USD::fomc member kashkari speaks::none": {
-    "note": "FOMC Member Kashkari Speaks is a scheduled data release."
+    "note": "Speech by Fed official Kashkari."
   },
   "USD::fomc member kocherlakota speaks::none": {
-    "note": "FOMC Member Kocherlakota Speaks is a scheduled data release."
+    "note": "Speech by Fed official Kocherlakota."
   },
   "USD::fomc member lacker speaks::none": {
-    "note": "FOMC Member Lacker Speaks is a scheduled data release."
+    "note": "Speech by Fed official Lacker."
   },
   "USD::fomc member lockhart speaks::none": {
-    "note": "FOMC Member Lockhart Speaks is a scheduled data release."
+    "note": "Speech by Fed official Lockhart."
   },
   "USD::fomc member mester speaks::none": {
-    "note": "FOMC Member Mester Speaks is a scheduled data release."
+    "note": "Speech by Fed official Mester."
   },
   "USD::fomc member pianalto speaks::none": {
-    "note": "FOMC Member Pianalto Speaks is a scheduled data release."
+    "note": "Speech by Fed official Pianalto."
   },
   "USD::fomc member plosser speaks::none": {
-    "note": "FOMC Member Plosser Speaks is a scheduled data release."
+    "note": "Speech by Fed official Plosser."
   },
   "USD::fomc member powell speaks::none": {
-    "note": "FOMC Member Powell Speaks is a scheduled data release."
+    "note": "Speech by Fed official Powell."
   },
   "USD::fomc member quarles speaks::none": {
-    "note": "FOMC Member Quarles Speaks is a scheduled data release."
+    "note": "Speech by Fed official Quarles."
   },
   "USD::fomc member raskin speaks::none": {
-    "note": "FOMC Member Raskin Speaks is a scheduled data release."
+    "note": "Speech by Fed official Raskin."
   },
   "USD::fomc member rosengren speaks::none": {
-    "note": "FOMC Member Rosengren Speaks is a scheduled data release."
+    "note": "Speech by Fed official Rosengren."
   },
   "USD::fomc member stanley fischer speaks::none": {
-    "note": "FOMC Member Stanley Fischer Speaks is a scheduled data release."
+    "note": "Speech by Fed official Stanley Fischer."
   },
   "USD::fomc member stein speaks::none": {
-    "note": "FOMC Member Stein Speaks is a scheduled data release."
+    "note": "Speech by Fed official Stein."
   },
   "USD::fomc member tarullo speaks::none": {
-    "note": "FOMC Member Tarullo Speaks is a scheduled data release."
+    "note": "Speech by Fed official Tarullo."
   },
   "USD::fomc member williams speaks::none": {
-    "note": "FOMC Member Williams Speaks is a scheduled data release."
+    "note": "Speech by Fed official Williams."
   },
   "USD::fomc member yellen speaks::none": {
-    "note": "FOMC Member Yellen Speaks is a scheduled data release."
+    "note": "Speech by Fed official Yellen."
   },
   "USD::fomc press conference::none": {
     "note": "FOMC Press Conference provides Q&A and messaging after the policy decision (the Fed). A more hawkish-than-expected message can lift USD and yields, often pressuring XAUUSD; a dovish surprise can support it."
@@ -13470,10 +13470,10 @@
     "note": "FOMC Statement communicates the policy outlook and guidance (the Fed). A more hawkish-than-expected message can lift USD and yields, often pressuring XAUUSD; a dovish surprise can support it."
   },
   "USD::gasoline inventories::none": {
-    "note": "Gasoline Inventories is a scheduled data release."
+    "note": "EIA Weekly Petroleum Status Report includes total motor gasoline inventories."
   },
   "USD::gasoline production::none": {
-    "note": "Gasoline Production measures production for this series."
+    "note": "EIA reports refinery and blender net production of gasoline (net production = gross production minus gross inputs)."
   },
   "USD::gdp price index::q/q": {
     "note": "GDP Price Index measures quarter-over-quarter % growth in economic output. A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
@@ -13485,7 +13485,7 @@
     "note": "GDP measures quarter-over-quarter % growth in economic output. A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
   },
   "USD::global semiconductor sales::m/m": {
-    "note": "Global Semiconductor Sales measures sales for this series."
+    "note": "Semiconductor Industry Association (SIA) reports monthly global semiconductor sales compiled by WSTS (three-month moving average)."
   },
   "USD::gold index::none": {
     "note": "Gold Index is an index reading for this series."
@@ -13500,7 +13500,7 @@
     "note": "Government Payrolls measures the change in employment. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
   },
   "USD::heating oil stockpiles::none": {
-    "note": "Heating Oil Stockpiles is a scheduled data release."
+    "note": "EIA Weekly Petroleum Status Report includes distillate fuel oil inventories, commonly watched as heating oil stockpiles."
   },
   "USD::house price index::m/m": {
     "note": "House Price Index is an index reading for this series."
@@ -13512,10 +13512,10 @@
     "note": "House Price Index is an index reading for this series."
   },
   "USD::housing starts::m/m": {
-    "note": "Housing Starts is a scheduled data release."
+    "note": "Census New Residential Construction provides data on new privately-owned housing units started, under construction, and completed."
   },
   "USD::housing starts::none": {
-    "note": "Housing Starts is a scheduled data release."
+    "note": "Census New Residential Construction provides national and regional counts of new privately-owned housing units started and completed."
   },
   "USD::ibd/tipp economic optimism::none": {
     "note": "Ibd/tipp Economic Optimism is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
@@ -13536,7 +13536,7 @@
     "note": "Import Price Index is an index reading for this series."
   },
   "USD::imports::none": {
-    "note": "Imports is a scheduled data release."
+    "note": "BEA defines imports of goods and services as goods and services purchased by U.S. residents from foreign residents."
   },
   "USD::industrial production::m/m": {
     "note": "Industrial Production measures the month-over-month % change in industrial output. A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
@@ -13596,16 +13596,16 @@
     "note": "ISM Ny Business Conditions is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
   },
   "USD::jackson hole symposium::none": {
-    "note": "Jackson Hole Symposium is a scheduled data release."
+    "note": "Kansas City Fed hosts central bankers, policymakers, and economists at its annual economic policy symposium in Jackson Hole, Wyoming."
   },
   "USD::jobless claims 4 - week avg.::none": {
     "note": "Jobless Claims 4 Week Avg. is the weekly number of new unemployment benefit claims."
   },
   "USD::jolts job openings::none": {
-    "note": "Jolts Job Openings is a scheduled data release."
+    "note": "BLS JOLTS program produces monthly estimates of job openings, hires, and separations; this entry is job openings."
   },
   "USD::kansas city fed president hoenig speaks::none": {
-    "note": "Kansas City Fed President Hoenig Speaks is a scheduled data release."
+    "note": "Speech by Fed official Kansas City FED President Hoenig."
   },
   "USD::kc fed composite index::none": {
     "note": "Kc Fed Composite Index is an index reading for this series."
@@ -13614,7 +13614,7 @@
     "note": "Kc Fed Manufacturing Index is an index reading for this series."
   },
   "USD::loan officer survey::none": {
-    "note": "Loan Officer Survey is a scheduled data release."
+    "note": "Federal Reserve Senior Loan Officer Opinion Survey asks banks about changes in lending standards, terms, and demand for loans."
   },
   "USD::m2 money supply::m/m": {
     "note": "M2 Money Supply measures the money supply for this monetary aggregate."
@@ -13623,10 +13623,10 @@
     "note": "Manufacturing Payrolls measures the change in employment. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
   },
   "USD::manufacturing production::m/m": {
-    "note": "Manufacturing Production measures production for this series."
+    "note": "Federal Reserve industrial production release reports a monthly index for manufacturing output (Industrial Production: Manufacturing)."
   },
   "USD::mass layoffs::none": {
-    "note": "Mass Layoffs is a scheduled data release."
+    "note": "BLS Mass Layoff Statistics (MLS) collects reports on mass layoff actions that result in workers being separated from their jobs."
   },
   "USD::mba 30 - year mortgage rate::none": {
     "note": "Mba 30 Year Mortgage Rate reports a rate for this series."
@@ -13635,7 +13635,7 @@
     "note": "Mba Delinquency Rates reports a rate for this series."
   },
   "USD::mba mortgage applications::w/w": {
-    "note": "Mba Mortgage Applications is a scheduled data release."
+    "note": "MBA's Weekly Applications Survey provides a timely indicator of U.S. housing and mortgage market activity based on mortgage applications."
   },
   "USD::mba purchase index::none": {
     "note": "Mba Purchase Index is an index reading for this series."
@@ -13647,16 +13647,16 @@
     "note": "Michigan 5 Year Inflation Expectations is a scheduled data release. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
   },
   "USD::michigan consumer expectations::none": {
-    "note": "Michigan Consumer Expectations is a scheduled data release."
+    "note": "University of Michigan Index of Consumer Expectations summarizes views on personal finances and the economy over the near and long term."
   },
   "USD::michigan consumer sentiment::none": {
     "note": "Michigan Consumer Sentiment is a survey-based sentiment reading."
   },
   "USD::michigan current conditions::none": {
-    "note": "Michigan Current Conditions is a scheduled data release."
+    "note": "University of Michigan Current Conditions component reflects respondents' appraisal of present market conditions and personal finances."
   },
   "USD::midwest manufacturing::none": {
-    "note": "Midwest Manufacturing is a scheduled data release."
+    "note": "Chicago Fed Midwest Manufacturing Index (CFMMI) was a monthly estimate of manufacturing output in the Seventh Federal Reserve District states."
   },
   "USD::milk auctions::none": {
     "note": "Milk Auctions is a government bond auction. A weak auction can push yields higher and pressure XAUUSD; a strong auction can help ease yields and support it."
@@ -13674,13 +13674,13 @@
     "note": "Nahb Housing Market Index is an index reading for this series."
   },
   "USD::natural gas storage::none": {
-    "note": "Natural Gas Storage is a scheduled data release."
+    "note": "EIA publishes weekly estimates of working gas in underground storage for the Lower 48 states."
   },
   "USD::new home sales::m/m": {
-    "note": "New Home Sales measures sales for this series."
+    "note": "U.S. Census Bureau New Residential Sales provides national and regional data on new single-family houses sold and for sale, plus price statistics."
   },
   "USD::new home sales::none": {
-    "note": "New Home Sales measures sales for this series."
+    "note": "U.S. Census Bureau New Residential Sales provides national and regional data on new single-family houses sold and for sale, plus price statistics."
   },
   "USD::nfib small business optimism::none": {
     "note": "Nfib Small Business Optimism is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
@@ -13698,43 +13698,43 @@
     "note": "Ny Fed 1 Year Consumer Inflation Expectations is a scheduled data release. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
   },
   "USD::opec crude oil production algeria (barrel)::none": {
-    "note": "OPEC Crude Oil Production Algeria (barrel) measures production for this series."
+    "note": "OPEC Monthly Oil Market Report publishes crude oil production estimates for Algeria, based on secondary sources."
   },
   "USD::opec crude oil production congo (barrel)::none": {
-    "note": "OPEC Crude Oil Production Congo (barrel) measures production for this series."
+    "note": "OPEC Monthly Oil Market Report publishes crude oil production estimates for Congo, based on secondary sources."
   },
   "USD::opec crude oil production ecuador (barrel)::none": {
-    "note": "OPEC Crude Oil Production Ecuador (barrel) measures production for this series."
+    "note": "OPEC Monthly Oil Market Report publishes crude oil production estimates for Ecuador, based on secondary sources."
   },
   "USD::opec crude oil production gabon (barrel)::none": {
-    "note": "OPEC Crude Oil Production Gabon (barrel) measures production for this series."
+    "note": "OPEC Monthly Oil Market Report publishes crude oil production estimates for Gabon, based on secondary sources."
   },
   "USD::opec crude oil production guinea (barrel)::none": {
-    "note": "OPEC Crude Oil Production Guinea (barrel) measures production for this series."
+    "note": "OPEC Monthly Oil Market Report publishes crude oil production estimates for Guinea, based on secondary sources."
   },
   "USD::opec crude oil production iran (barrel)::none": {
-    "note": "OPEC Crude Oil Production Iran (barrel) measures production for this series."
+    "note": "OPEC Monthly Oil Market Report publishes crude oil production estimates for Iran, based on secondary sources."
   },
   "USD::opec crude oil production iraq (barrel)::none": {
-    "note": "OPEC Crude Oil Production Iraq (barrel) measures production for this series."
+    "note": "OPEC Monthly Oil Market Report publishes crude oil production estimates for Iraq, based on secondary sources."
   },
   "USD::opec crude oil production kuwait (barrel)::none": {
-    "note": "OPEC Crude Oil Production Kuwait (barrel) measures production for this series."
+    "note": "OPEC Monthly Oil Market Report publishes crude oil production estimates for Kuwait, based on secondary sources."
   },
   "USD::opec crude oil production libya (barrel)::none": {
-    "note": "OPEC Crude Oil Production Libya (barrel) measures production for this series."
+    "note": "OPEC Monthly Oil Market Report publishes crude oil production estimates for Libya, based on secondary sources."
   },
   "USD::opec crude oil production nigeria (barrel)::none": {
-    "note": "OPEC Crude Oil Production Nigeria (barrel) measures production for this series."
+    "note": "OPEC Monthly Oil Market Report publishes crude oil production estimates for Nigeria, based on secondary sources."
   },
   "USD::opec crude oil production saudi arabia (barrel)::none": {
-    "note": "OPEC Crude Oil Production Saudi Arabia (barrel) measures production for this series."
+    "note": "OPEC Monthly Oil Market Report publishes crude oil production estimates for Saudi Arabia, based on secondary sources."
   },
   "USD::opec crude oil production uae (barrel)::none": {
-    "note": "OPEC Crude Oil Production Uae (barrel) measures production for this series."
+    "note": "OPEC Monthly Oil Market Report publishes crude oil production estimates for the UAE, based on secondary sources."
   },
   "USD::opec crude oil production venezuela (barrel)::none": {
-    "note": "OPEC Crude Oil Production Venezuela (barrel) measures production for this series."
+    "note": "OPEC Monthly Oil Market Report publishes crude oil production estimates for Venezuela, based on secondary sources."
   },
   "USD::opec meeting::none": {
     "note": "OPEC Meeting is a scheduled data release."
@@ -13743,7 +13743,7 @@
     "note": "OPEC Monthly Report is a scheduled data release."
   },
   "USD::overall net capital flow::none": {
-    "note": "Overall Net Capital Flow is a scheduled data release."
+    "note": "Treasury TIC data summarize cross-border capital flows, including net transactions in long-term securities."
   },
   "USD::participation rate::none": {
     "note": "Participation Rate reports a rate for this series."
@@ -13752,10 +13752,10 @@
     "note": "Payrolls Benchmark (12m) measures the change in employment. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
   },
   "USD::payrolls benchmark, n.s.a. (12m)::none": {
-    "note": "Payrolls Benchmark, N.s.a. (12m) measures the change in employment."
+    "note": "BLS annual benchmark revision aligns CES payroll employment estimates to Unemployment Insurance (UI) records via QCEW."
   },
   "USD::payrolls benchmark, n.s.a.::none": {
-    "note": "Payrolls Benchmark, N.s.a. measures the change in employment."
+    "note": "BLS annual benchmark revision aligns CES payroll employment estimates to Unemployment Insurance (UI) records via QCEW."
   },
   "USD::payrolls benchmark::none": {
     "note": "Payrolls Benchmark measures the change in employment. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
@@ -13779,19 +13779,19 @@
     "note": "Pending Home Sales Index is an index reading for this series."
   },
   "USD::pending home sales::m/m": {
-    "note": "Pending Home Sales measures sales for this series."
+    "note": "National Association of Realtors (NAR) Pending Home Sales Index measures housing contract activity based on signed contracts for existing homes."
   },
   "USD::personal income::m/m": {
-    "note": "Personal Income is a scheduled data release."
+    "note": "BEA defines personal income as income received by persons from all sources, including compensation and transfer payments."
   },
   "USD::personal spending::m/m": {
-    "note": "Personal Spending is a scheduled data release."
+    "note": "BEA personal consumption expenditures (PCE) measure the goods and services purchased by persons."
   },
   "USD::philadelphia fed manufacturing index::none": {
     "note": "Philadelphia Fed Manufacturing Index is an index reading for this series."
   },
   "USD::philly fed business conditions::none": {
-    "note": "Philly Fed Business Conditions is a scheduled data release."
+    "note": "Philadelphia Fed Manufacturing Business Outlook Survey uses diffusion indexes: % reporting an increase minus % reporting a decrease."
   },
   "USD::philly fed capex index::none": {
     "note": "Philly Fed Capex Index is an index reading for this series."
@@ -13803,7 +13803,7 @@
     "note": "Philly Fed New Orders is a scheduled data release. A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
   },
   "USD::philly fed prices paid::none": {
-    "note": "Philly Fed Prices Paid is a scheduled data release."
+    "note": "Philadelphia Fed Manufacturing Business Outlook Survey uses diffusion indexes: % reporting an increase minus % reporting a decrease."
   },
   "USD::ppi ex. food/energy/transport::m/m": {
     "note": "PPI Ex. Food/energy/transport (Producer Price Index, MoM) measures the month-over-month % change in prices received by producers."
@@ -13818,43 +13818,43 @@
     "note": "PPI (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers. Higher-than-expected inflation (vs forecast) can lift USD and yields, often pressuring XAUUSD; a softer reading can support it."
   },
   "USD::presidential debate::none": {
-    "note": "Presidential Debate is a scheduled data release."
+    "note": "Commission on Presidential Debates (CPD) sponsors and produces quadrennial general election debates for President and Vice President."
   },
   "USD::private nonfarm payrolls::none": {
     "note": "Private Nonfarm Payrolls measures the change in employment. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
   },
   "USD::qe mbs::none": {
-    "note": "Qe Mbs is a scheduled data release."
+    "note": "QE (MBS) refers to the Fed's purchases of mortgage-backed securities as part of large-scale asset purchases."
   },
   "USD::qe total::none": {
-    "note": "Qe Total is a scheduled data release."
+    "note": "QE refers to the Fed's large-scale asset purchases, including Treasury and mortgage-backed securities, which expand its balance sheet."
   },
   "USD::qe treasuries::none": {
-    "note": "Qe Treasuries is a scheduled data release."
+    "note": "QE (Treasuries) refers to the Fed's purchases of U.S. Treasury securities as part of large-scale asset purchases."
   },
   "USD::real consumer spending::none": {
-    "note": "Real Consumer Spending is a scheduled data release."
+    "note": "Real consumer spending is inflation-adjusted personal consumption expenditures (PCE) reported in chained dollars."
   },
   "USD::real earnings::m/m": {
     "note": "Real Earnings is a scheduled data release. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
   },
   "USD::real personal consumption::m/m": {
-    "note": "Real Personal Consumption is a scheduled data release."
+    "note": "Real personal consumption expenditures are reported in chained dollars (inflation-adjusted PCE)."
   },
   "USD::redbook::m/m": {
-    "note": "Redbook is a scheduled data release."
+    "note": "Redbook Research (Johnson Redbook Service) publishes statistics and analysis on U.S. retail and same-store sales trends."
   },
   "USD::redbook::y/y": {
-    "note": "Redbook is a scheduled data release."
+    "note": "Redbook Research publishes U.S. retail same-store sales trend statistics."
   },
   "USD::reserve balances with federal reserve banks::none": {
-    "note": "Reserve Balances With Federal Reserve Banks is a scheduled data release."
+    "note": "Reserve balances are funds depository institutions hold on deposit at the Federal Reserve."
   },
   "USD::retail control::m/m": {
-    "note": "Retail Control is a scheduled data release."
+    "note": "Retail control group excludes autos, building materials, gasoline, and food services, and is used in constructing personal consumption expenditures (PCE)."
   },
   "USD::retail inventories ex auto::none": {
-    "note": "Retail Inventories ex Auto is a scheduled data release."
+    "note": "Census Advance Economic Indicators report includes monthly estimates of retail inventories (end-of-month levels, not adjusted for price changes)."
   },
   "USD::retail sales ex gas/autos::m/m": {
     "note": "Retail Sales ex Gas/autos measures the month-over-month % change in retail spending. A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
@@ -13869,7 +13869,7 @@
     "note": "Richmond Manufacturing Index is an index reading for this series."
   },
   "USD::richmond manufacturing shipments::none": {
-    "note": "Richmond Manufacturing Shipments is a scheduled data release."
+    "note": "Richmond Fed manufacturing survey includes a shipments index summarizing firms' reported changes in shipments in the Fifth District."
   },
   "USD::richmond services index::none": {
     "note": "Richmond Services Index is an index reading for this series."
@@ -13887,16 +13887,16 @@
     "note": "S&p Global Services PMI is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
   },
   "USD::s&p/cs hpi composite - 20 n.s.a.::m/m": {
-    "note": "S&p/cs Hpi Composite 20 N.s.a. is a scheduled data release."
+    "note": "S&P Cotality Case-Shiller 20-City Composite Home Price Index (NSA, Jan 2000=100) shows monthly home price changes across 20 metro areas."
   },
   "USD::s&p/cs hpi composite - 20 n.s.a.::y/y": {
-    "note": "S&p/cs Hpi Composite 20 N.s.a. is a scheduled data release."
+    "note": "S&P Cotality Case-Shiller 20-City Composite Home Price Index (NSA, Jan 2000=100) shows the year-over-year change in home prices across 20 metro areas."
   },
   "USD::s&p/cs hpi composite - 20 s.a.::m/m": {
-    "note": "S&p/cs Hpi Composite 20 S.a. is a scheduled data release."
+    "note": "S&P Cotality Case-Shiller 20-City Composite Home Price Index (SA, Jan 2000=100) shows monthly home price changes across 20 metro areas."
   },
   "USD::sec kashkari speaks::none": {
-    "note": "Sec Kashkari Speaks is a scheduled data release."
+    "note": "Speech by Fed official Sec Kashkari."
   },
   "USD::seevol cushing storage report::none": {
     "note": "Seevol Cushing Storage Report is a scheduled data release."
@@ -13905,19 +13905,19 @@
     "note": "Semi Book/bill Ratio is a government bond auction. A weak auction can push yields higher and pressure XAUUSD; a strong auction can help ease yields and support it."
   },
   "USD::texas services sector outlook::none": {
-    "note": "Texas Services Sector Outlook is a scheduled data release."
+    "note": "Dallas Fed conducts the Texas Service Sector Outlook Survey monthly to assess service sector activity in Texas."
   },
   "USD::thomson reuters ipsos pcsi::none": {
-    "note": "Thomson Reuters Ipsos Pcsi is a scheduled data release."
+    "note": "LSEG/Ipsos Primary Consumer Sentiment Index (PCSI) is a monthly survey of consumer attitudes on the economy, personal finances, savings, and confidence to make major investments."
   },
   "USD::tic net long - term transactions including swaps::none": {
-    "note": "Tic Net Long Term Transactions Including Swaps is a scheduled data release."
+    "note": "Treasury TIC data report monthly transactions in long-term securities between U.S. and foreign residents; this variant includes swaps."
   },
   "USD::tic net long - term transactions::none": {
-    "note": "Tic Net Long Term Transactions is a scheduled data release."
+    "note": "Treasury TIC data report monthly transactions in long-term securities between U.S. and foreign residents."
   },
   "USD::total vehicle sales::none": {
-    "note": "Total Vehicle Sales measures sales for this series."
+    "note": "U.S. Bureau of Economic Analysis (BEA) publishes Total Vehicle Sales in its Supplemental Estimates, Motor Vehicles release."
   },
   "USD::trade balance::none": {
     "note": "Trade Balance reports exports minus imports."
@@ -13926,34 +13926,34 @@
     "note": "Treasury Department Report is a scheduled data release."
   },
   "USD::treasury secretary geithner speaks::none": {
-    "note": "Treasury Secretary Geithner Speaks is a scheduled data release."
+    "note": "Speech by Fed official Treasury Secretary Geithner."
   },
   "USD::treasury secretary lew speaks::none": {
-    "note": "Treasury Secretary Lew Speaks is a scheduled data release."
+    "note": "Speech by Fed official Treasury Secretary Lew."
   },
   "USD::treasury secretary mnuchin speaks::none": {
-    "note": "Treasury Secretary Mnuchin Speaks is a scheduled data release."
+    "note": "Speech by Fed official Treasury Secretary Mnuchin."
   },
   "USD::treasury secretary paulson speaks::none": {
-    "note": "Treasury Secretary Paulson Speaks is a scheduled data release."
+    "note": "Speech by Fed official Treasury Secretary Paulson."
   },
   "USD::treasury secretary yellen speaks::none": {
-    "note": "Treasury Secretary Yellen Speaks is a scheduled data release."
+    "note": "Speech by Fed official Treasury Secretary Yellen."
   },
   "USD::u.s. baker hughes oil rig count::none": {
-    "note": "U.s. Baker Hughes Oil Rig Count is a scheduled data release."
+    "note": "Baker Hughes issues weekly rig counts as a barometer for U.S. drilling activity, including the oil rig count."
   },
   "USD::u.s. baker hughes total rig count::none": {
-    "note": "U.s. Baker Hughes Total Rig Count is a scheduled data release."
+    "note": "Baker Hughes issues weekly rig counts as a barometer for U.S. drilling activity, including total rigs."
   },
   "USD::u.s. president biden speaks::none": {
-    "note": "U.s. President Biden Speaks is a scheduled data release."
+    "note": "Speech by Fed official U.s. President Biden."
   },
   "USD::u.s. president trump speaks::none": {
-    "note": "U.s. President Trump Speaks is a scheduled data release."
+    "note": "Speech by Fed official U.s. President Trump."
   },
   "USD::u.s. presidential election::none": {
-    "note": "U.s. Presidential Election is a scheduled data release."
+    "note": "USA.gov notes the process of electing a U.S. president takes almost two years from start to finish."
   },
   "USD::u.s. small business health index::none": {
     "note": "U.s. Small Business Health Index is an index reading for this series."
@@ -13968,10 +13968,10 @@
     "note": "Unit Labor Costs is a scheduled data release. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
   },
   "USD::us commercial banks deposits::none": {
-    "note": "Us Commercial Banks Deposits is a scheduled data release."
+    "note": "Fed H.8 release provides an estimated weekly aggregated balance sheet for all U.S. commercial banks, including deposit liabilities."
   },
   "USD::us federal budget::none": {
-    "note": "Us Federal Budget is a scheduled data release."
+    "note": "Treasury Monthly Treasury Statement provides information on receipts and outlays and the flow of money into and out of the U.S. Treasury."
   },
   "USD::us foreign buying, t - bonds::none": {
     "note": "Us Foreign Buying, T Bonds is a government bond auction. A weak auction can push yields higher and pressure XAUUSD; a strong auction can help ease yields and support it."
@@ -13980,13 +13980,13 @@
     "note": "Us Leading Index is an index reading for this series."
   },
   "USD::wasde report::none": {
-    "note": "Wasde Report is a scheduled data release."
+    "note": "USDA's WASDE report provides monthly forecasts for supply and use of major U.S. and world agricultural commodities."
   },
   "USD::wholesale inventories::m/m": {
-    "note": "Wholesale Inventories is a scheduled data release."
+    "note": "Census MTIS report provides monthly measures of combined retail, wholesale, and manufacturing activity, including wholesale inventories."
   },
   "USD::wholesale trade sales::m/m": {
-    "note": "Wholesale Trade Sales measures sales for this series."
+    "note": "U.S. Census Bureau Monthly Wholesale Trade report provides national estimates of wholesale sales, inventories, and inventories-to-sales ratios by kind of business."
   },
   "VEF::cpi::y/y": {
     "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
