@@ -36,7 +36,7 @@
     "note": "Argentina Annual GDP measures growth in economic output."
   },
   "ARS::budget balance::none": {
-    "note": "Budget Balance reports the government's fiscal balance (surplus/deficit)."
+    "note": "Argentina budget balance reports the government's fiscal balance (surplus or deficit) for the period."
   },
   "ARS::cpi::m/m": {
     "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
@@ -60,7 +60,7 @@
     "note": "National CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
   },
   "ARS::retail sales::y/y": {
-    "note": "Retail Sales measures retail spending."
+    "note": "Argentina retail sales (YoY) reports the year-over-year change in retail activity for the period."
   },
   "ARS::tax revenue::none": {
     "note": "Tax Revenue measures government tax receipts."
@@ -69,7 +69,7 @@
     "note": "Thomson Reuters Ipsos Pcsi is a scheduled data release."
   },
   "ARS::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "INDEC trade balance reports the net balance of Argentina's merchandise exports minus merchandise imports."
   },
   "ARS::unemployment rate::none": {
     "note": "Unemployment Rate shows the share of the labor force that is unemployed."
@@ -405,7 +405,7 @@
     "note": "Brics Summit is a scheduled data release."
   },
   "BRL::budget balance::none": {
-    "note": "Budget Balance reports the government's fiscal balance (surplus/deficit)."
+    "note": "Brazil central government budget balance (Tesouro Nacional) reports the fiscal result for the period (surplus or deficit)."
   },
   "BRL::budget surplus::none": {
     "note": "Budget Surplus is a scheduled data release."
@@ -477,7 +477,7 @@
     "note": "Ipc Fipe Inflation Index is an index reading for this series."
   },
   "BRL::long term interest rate tjlp::none": {
-    "note": "Long Term Interest Rate Tjlp reports a rate for this series."
+    "note": "TJLP (Taxa de Juros de Longo Prazo) is a long-term reference rate in Brazil set periodically by the National Monetary Council and used in BNDES lending."
   },
   "BRL::mid - month cpi::m/m": {
     "note": "Mid Month CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
@@ -492,7 +492,7 @@
     "note": "Retail Sales measures the month-over-month % change in retail spending."
   },
   "BRL::retail sales::y/y": {
-    "note": "Retail Sales measures retail spending."
+    "note": "IBGE retail sales (YoY) reports the year-over-year change in retail trade activity in Brazil."
   },
   "BRL::s&p global composite pmi::none": {
     "note": "S&p Global Composite PMI is a diffusion index of business activity (50 = expansion)."
@@ -504,7 +504,7 @@
     "note": "S&p Global Services PMI is a diffusion index of business activity (50 = expansion)."
   },
   "BRL::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Brazil trade balance reports the net balance of merchandise exports minus merchandise imports, published by the trade ministry (MDIC/SECEX)."
   },
   "BRL::unemployment rate::none": {
     "note": "Unemployment Rate shows the share of the labor force that is unemployed."
@@ -600,10 +600,10 @@
     "note": "Boc Summary of Deliberations is a scheduled data release."
   },
   "CAD::budget balance::none": {
-    "note": "Budget Balance reports the government's fiscal balance (surplus/deficit)."
+    "note": "Government of Canada budget balance reports the federal fiscal balance for the period (surplus or deficit)."
   },
   "CAD::budget balance::y/y": {
-    "note": "Budget Balance reports the government's fiscal balance (surplus/deficit)."
+    "note": "Government of Canada budget balance reports the federal fiscal balance for the period (surplus or deficit)."
   },
   "CAD::building permits::m/m": {
     "note": "Building Permits is a scheduled data release."
@@ -612,7 +612,7 @@
     "note": "Canadian Federal Election is a scheduled data release."
   },
   "CAD::capacity utilization rate::none": {
-    "note": "Capacity Utilization Rate reports a rate for this series."
+    "note": "Statistics Canada capacity utilization rate shows the percentage of industrial capacity that is in use."
   },
   "CAD::cftc cad speculative net positions::none": {
     "note": "Cftc Cad Speculative Net Positions is a scheduled data release."
@@ -630,7 +630,7 @@
     "note": "Core Retail Sales measures the month-over-month % change in retail spending. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "CAD::corporate profits::q/q": {
-    "note": "Corporate Profits reports a rate for this series."
+    "note": "Statistics Canada corporate profits measure profits of Canadian corporations from current production and this series reports the quarterly change."
   },
   "CAD::cpi::m/m": {
     "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -714,7 +714,7 @@
     "note": "Part Time Employment Change is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "CAD::participation rate::none": {
-    "note": "Participation Rate reports a rate for this series."
+    "note": "Statistics Canada Labour Force Survey participation rate is the share of the population age 15+ that is in the labour force (employed or unemployed)."
   },
   "CAD::reserve assets total::none": {
     "note": "Reserve Assets Total is a scheduled data release."
@@ -741,7 +741,7 @@
     "note": "Thomson Reuters Ipsos Pcsi is a scheduled data release."
   },
   "CAD::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Statistics Canada trade balance reports the net balance of exports minus imports for Canada's international trade."
   },
   "CAD::trimmed cpi::y/y": {
     "note": "Trimmed CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -903,10 +903,10 @@
     "note": "The Board of the Central Bank of Chile sets the Monetary Policy Rate at its Monetary Policy Meeting (RPM). Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "CLP::retail sales::y/y": {
-    "note": "Retail Sales measures retail spending."
+    "note": "Chile retail sales (YoY) reports the year-over-year change in retail trade activity for the period."
   },
   "CLP::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Chile trade balance reports the net balance of exports minus imports, reported in the external sector statistics."
   },
   "CLP::unemployment rate::none": {
     "note": "Unemployment Rate shows the share of the labor force that is unemployed."
@@ -918,7 +918,7 @@
     "note": "Caixin Services PMI is a diffusion index of business activity (50 = expansion). A weaker-than-expected reading (vs forecast) can hurt risk sentiment and support XAUUSD as a safe haven; stronger data can do the opposite."
   },
   "CNY::china loan prime rate 5y::none": {
-    "note": "China Loan Prime Rate 5y reports a rate for this series."
+    "note": "China 5-year Loan Prime Rate is quoted by the National Interbank Funding Center from panel bank submissions and is a key benchmark for loan pricing, including mortgages."
   },
   "CNY::china thomson reuters ipsos pcsi::none": {
     "note": "China Thomson Reuters Ipsos Pcsi is a scheduled data release."
@@ -1005,16 +1005,16 @@
     "note": "Outstanding Loan Growth is a scheduled data release."
   },
   "CNY::pboc deposit rate::none": {
-    "note": "Pboc Deposit Rate reports a rate for this series."
+    "note": "PBOC benchmark deposit rate is an administered reference rate published by the People's Bank of China for RMB deposits."
   },
   "CNY::pboc gov yi speaks::none": {
     "note": "Pboc Gov Yi Speaks is a scheduled data release."
   },
   "CNY::pboc interest rate::none": {
-    "note": "Pboc Interest Rate reports a rate for this series."
+    "note": "PBOC benchmark lending rate is an administered reference rate published by the People's Bank of China for RMB loans."
   },
   "CNY::pboc loan prime rate::none": {
-    "note": "Pboc Loan Prime Rate reports a rate for this series."
+    "note": "China Loan Prime Rate is quoted by the National Interbank Funding Center from panel bank submissions and is a key benchmark for RMB loan pricing."
   },
   "CNY::pboc reserve requirement ratio::none": {
     "note": "Pboc Reserve Requirement Ratio is a scheduled data release."
@@ -1059,7 +1059,7 @@
     "note": "Banco de la Republica's Board of Directors sets the monetary policy interest rate (benchmark rate) after its policy meeting. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "COP::retail sales::y/y": {
-    "note": "Retail Sales measures retail spending."
+    "note": "DANE retail sales (YoY) reports the year-over-year change in retail trade activity in Colombia."
   },
   "COP::trade balance (usd)::none": {
     "note": "Trade Balance (usd) reports exports minus imports."
@@ -1071,7 +1071,7 @@
     "note": "Urban Unemployment Rate shows the share of the labor force that is unemployed."
   },
   "CZK::budget balance::none": {
-    "note": "Budget Balance reports the government's fiscal balance (surplus/deficit)."
+    "note": "Czech Republic state budget balance reports the fiscal result for the period (surplus or deficit)."
   },
   "CZK::car registration::m/m": {
     "note": "Car Registration is a scheduled data release."
@@ -1128,7 +1128,7 @@
     "note": "PPI (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers."
   },
   "CZK::retail sales::y/y": {
-    "note": "Retail Sales measures retail spending."
+    "note": "Czech Statistical Office retail sales (YoY) reports the year-over-year change in retail trade turnover."
   },
   "CZK::retailles wda::y/y": {
     "note": "Retailles Wda is a scheduled data release."
@@ -1140,13 +1140,13 @@
     "note": "Trade Balance Nra reports exports minus imports."
   },
   "CZK::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Czech Statistical Office trade balance reports the net balance of exports minus imports of goods."
   },
   "CZK::unemployment rate::none": {
     "note": "Unemployment Rate shows the share of the labor force that is unemployed."
   },
   "DKK::cbank cod rate::none": {
-    "note": "Cbank Cod Rate reports a rate for this series."
+    "note": "Danmarks Nationalbank certificates of deposit rate is an official policy rate applied to certificates of deposit in its monetary policy operations."
   },
   "DKK::consumer confidence::none": {
     "note": "Consumer Confidence is a survey-based sentiment reading."
@@ -1167,7 +1167,7 @@
     "note": "Current Account reports the current account balance."
   },
   "DKK::discount rate::none": {
-    "note": "Discount Rate reports a rate for this series."
+    "note": "Danmarks Nationalbank discount rate is an official interest rate used as a reference in Denmark's monetary policy framework."
   },
   "DKK::gdp::q/q": {
     "note": "GDP measures quarter-over-quarter % growth in economic output."
@@ -1185,7 +1185,7 @@
     "note": "Industrial Production measures the month-over-month % change in industrial output."
   },
   "DKK::lending rate::none": {
-    "note": "Lending Rate reports a rate for this series."
+    "note": "Danmarks Nationalbank lending rate is the interest rate on collateralised loans to monetary policy counterparties."
   },
   "DKK::m3 money supply::none": {
     "note": "M3 Money Supply measures the money supply for this monetary aggregate."
@@ -1194,7 +1194,7 @@
     "note": "Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
   },
   "DKK::retail sales::y/y": {
-    "note": "Retail Sales measures retail spending."
+    "note": "Statistics Denmark retail sales (YoY) reports the year-over-year change in retail trade turnover."
   },
   "DKK::trade balance::none": {
     "note": "Statistics Denmark publishes international trade in goods and services as part of its balance of payments and external trade statistics. The trade balance reflects the relationship between imports and exports."
@@ -1221,7 +1221,7 @@
     "note": "M2 Money Supply measures the money supply for this monetary aggregate."
   },
   "EGP::overnight lending rate::none": {
-    "note": "Overnight Lending Rate reports a rate for this series."
+    "note": "Central Bank of Egypt overnight lending rate is the upper bound of its overnight corridor, set by the Monetary Policy Committee."
   },
   "EUR::aib ireland manufacturing pmi::none": {
     "note": "Aib Ireland Manufacturing PMI is a diffusion index of business activity (50 = expansion). A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -3033,19 +3033,19 @@
     "note": "PPI (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers."
   },
   "HKD::retail sales::y/y": {
-    "note": "Retail Sales measures retail spending."
+    "note": "Hong Kong retail sales (YoY) reports the year-over-year change in the value of retail sales."
   },
   "HKD::s&p global manufacturing pmi::none": {
     "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
   },
   "HKD::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Hong Kong Census and Statistics Department trade balance reports the net balance of merchandise exports minus merchandise imports."
   },
   "HKD::unemployment rate::none": {
     "note": "Unemployment Rate shows the share of the labor force that is unemployed."
   },
   "HUF::budget balance::none": {
-    "note": "Budget Balance reports the government's fiscal balance (surplus/deficit)."
+    "note": "Hungary budget balance reports the government's fiscal result for the period (surplus or deficit)."
   },
   "HUF::car registration::m/m": {
     "note": "Car Registration is a scheduled data release."
@@ -3087,7 +3087,7 @@
     "note": "Quarterly Unemployment Rate shows the share of the labor force that is unemployed."
   },
   "HUF::retail sales::y/y": {
-    "note": "Retail Sales measures retail spending."
+    "note": "Hungarian Central Statistical Office retail sales (YoY) reports the year-over-year change in retail trade volume."
   },
   "HUF::thomson reuters ipsos pcsi::m/m": {
     "note": "Thomson Reuters Ipsos Pcsi is a scheduled data release."
@@ -3111,7 +3111,7 @@
     "note": "Current Account % of GDP measures growth in economic output."
   },
   "IDR::deposit facility rate::none": {
-    "note": "Deposit Facility Rate reports a rate for this series."
+    "note": "Bank Indonesia Deposit Facility rate is part of the policy corridor around the BI 7-Day Reverse Repo Rate and sets the return on banks' overnight placements at BI."
   },
   "IDR::export growth::y/y": {
     "note": "Export Growth is a scheduled data release."
@@ -3150,7 +3150,7 @@
     "note": "Bank Indonesia sets its policy rate (BI-Rate, formerly the BI 7-Day Reverse Repo Rate) at its Board of Governors meeting. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "IDR::lending facility rate::none": {
-    "note": "Lending Facility Rate reports a rate for this series."
+    "note": "Bank Indonesia Lending Facility rate is part of the policy corridor around the BI 7-Day Reverse Repo Rate and sets the cost of banks' overnight borrowing from BI."
   },
   "IDR::loans::y/y": {
     "note": "Loans measures credit or lending conditions."
@@ -3162,16 +3162,16 @@
     "note": "Motorbike Sales measures sales for this series."
   },
   "IDR::retail sales::y/y": {
-    "note": "Retail Sales measures retail spending."
+    "note": "Indonesia retail sales (YoY) reports the year-over-year change in retail activity for the period."
   },
   "IDR::s&p global manufacturing pmi::none": {
     "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
   },
   "IDR::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "BPS Statistics Indonesia trade balance reports the net balance of merchandise exports minus merchandise imports."
   },
   "ILS::budget balance::none": {
-    "note": "Budget Balance reports the government's fiscal balance (surplus/deficit)."
+    "note": "Israel budget balance reports the government's fiscal result for the period (surplus or deficit), often reported on a rolling 12-month basis."
   },
   "ILS::cpi::m/m": {
     "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
@@ -3207,7 +3207,7 @@
     "note": "Thomson Reuters Ipsos Pcsi is a scheduled data release."
   },
   "ILS::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Israel Central Bureau of Statistics trade balance reports the net balance of goods exports minus goods imports."
   },
   "INR::balance of payments (usd)::none": {
     "note": "Balance of Payments (usd) is a scheduled data release."
@@ -3333,7 +3333,7 @@
     "note": "Trade Balance (usd) reports exports minus imports."
   },
   "INR::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "India merchandise trade balance reports the net balance of exports minus imports, published by the Ministry of Commerce and Industry."
   },
   "INR::wpi food::y/y": {
     "note": "Wpi Food is a scheduled data release."
@@ -3354,7 +3354,7 @@
     "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
   },
   "ISK::deposit rate::none": {
-    "note": "Deposit Rate reports a rate for this series."
+    "note": "Central Bank of Iceland term deposit rate is one of its key interest rates set by the Monetary Policy Committee."
   },
   "ISK::gdp::q/q": {
     "note": "GDP measures quarter-over-quarter % growth in economic output."
@@ -3783,7 +3783,7 @@
     "note": "Thomson Reuters Ipsos Pcsi is a scheduled data release."
   },
   "KRW::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Korea trade balance reports the net balance of merchandise exports minus merchandise imports, based on customs statistics."
   },
   "KRW::unemployment rate::none": {
     "note": "Unemployment Rate shows the share of the labor force that is unemployed."
@@ -3927,7 +3927,7 @@
     "note": "Retail Sales measures the month-over-month % change in retail spending."
   },
   "MXN::retail sales::y/y": {
-    "note": "Retail Sales measures retail spending."
+    "note": "INEGI retail sales (YoY) reports the year-over-year change in retail trade activity in Mexico."
   },
   "MXN::s&p global manufacturing pmi::none": {
     "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
@@ -3939,7 +3939,7 @@
     "note": "Trade Balance (usd) reports exports minus imports."
   },
   "MXN::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "INEGI trade balance reports the net balance of Mexico's merchandise exports minus merchandise imports."
   },
   "MXN::unemployment rate n.s.a.::none": {
     "note": "Unemployment Rate N.s.a. shows the share of the labor force that is unemployed."
@@ -3975,7 +3975,7 @@
     "note": "Industrial Production measures industrial output."
   },
   "MYR::interest rate::none": {
-    "note": "Interest Rate reports a rate for this series."
+    "note": "Bank Negara Malaysia Overnight Policy Rate (OPR) is the main policy rate set by the Monetary Policy Committee."
   },
   "MYR::manufacturing pmi::m/m": {
     "note": "Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
@@ -3990,7 +3990,7 @@
     "note": "Overall Net Capital Flow is a scheduled data release."
   },
   "MYR::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Department of Statistics Malaysia trade balance reports the net balance of merchandise exports minus merchandise imports."
   },
   "MYR::unemployment rate::none": {
     "note": "Unemployment Rate shows the share of the labor force that is unemployed."
@@ -12015,7 +12015,7 @@
     "note": "Anz Commodity Price Index is an index reading for this series."
   },
   "NZD::budget balance::none": {
-    "note": "Budget Balance reports the government's fiscal balance (surplus/deficit)."
+    "note": "New Zealand budget balance reports the government's fiscal result for the period (surplus or deficit)."
   },
   "NZD::building consents::m/m": {
     "note": "Building Consents is a scheduled data release."
@@ -12192,10 +12192,10 @@
     "note": "Terms of Trade Index is an index reading for this series."
   },
   "NZD::trade balance::m/m": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Stats NZ trade balance reports the net balance of New Zealand's merchandise exports minus merchandise imports."
   },
   "NZD::trade balance::y/y": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Stats NZ trade balance reports the net balance of New Zealand's merchandise exports minus merchandise imports."
   },
   "NZD::unemployment rate::none": {
     "note": "Unemployment Rate shows the share of the labor force that is unemployed. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -12207,7 +12207,7 @@
     "note": "Westpac Consumer Sentiment is a survey-based sentiment reading."
   },
   "OMR::budget balance::none": {
-    "note": "Budget Balance reports the government's fiscal balance (surplus/deficit)."
+    "note": "Oman budget balance reports the government's fiscal result for the period (surplus or deficit)."
   },
   "OMR::cpi::m/m": {
     "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
@@ -12237,7 +12237,7 @@
     "note": "The Central Reserve Bank of Peru (BCRP) Board sets the reference interest rate after its monetary policy decision. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "PEN::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Central Reserve Bank of Peru trade balance reports the net balance of exports minus imports within the balance of payments framework."
   },
   "PEN::unemployment rate::none": {
     "note": "Unemployment Rate shows the share of the labor force that is unemployed."
@@ -12252,7 +12252,7 @@
     "note": "Bsp Monetary Board Highlights Publication is a scheduled data release."
   },
   "PHP::budget balance::none": {
-    "note": "Budget Balance reports the government's fiscal balance (surplus/deficit)."
+    "note": "Philippines budget balance reports the government's fiscal result for the period (surplus or deficit)."
   },
   "PHP::core cpi::y/y": {
     "note": "Core CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices excluding food and energy."
@@ -12297,7 +12297,7 @@
     "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
   },
   "PHP::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Philippine Statistics Authority trade balance reports the net balance of merchandise exports minus merchandise imports."
   },
   "PLN::car registration::m/m": {
     "note": "Car Registration is a scheduled data release."
@@ -12360,7 +12360,7 @@
     "note": "Press Conference With Polish Central Bank Governor provides Q&A and messaging after the policy decision (the central bank)."
   },
   "PLN::retail sales::y/y": {
-    "note": "Retail Sales measures retail spending."
+    "note": "Statistics Poland retail sales (YoY) reports the year-over-year change in retail trade turnover."
   },
   "PLN::s&p global manufacturing pmi::none": {
     "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
@@ -12480,7 +12480,7 @@
     "note": "PPI (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers."
   },
   "RUB::retail sales::y/y": {
-    "note": "Retail Sales measures retail spending."
+    "note": "Russia retail sales (YoY) reports the year-over-year change in retail trade turnover."
   },
   "RUB::russia thomon reuters ipsos pcsi::none": {
     "note": "Russia Thomon Reuters Ipsos Pcsi is a scheduled data release."
@@ -12498,7 +12498,7 @@
     "note": "S&p Global Services PMI is a diffusion index of business activity (50 = expansion)."
   },
   "RUB::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Russia trade balance reports the net balance of exports minus imports, compiled for the external sector accounts."
   },
   "RUB::unemployment rate::none": {
     "note": "Unemployment Rate shows the share of the labor force that is unemployed."
@@ -12507,7 +12507,7 @@
     "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
   },
   "RWF::repo rate::none": {
-    "note": "Repo Rate reports a rate for this series."
+    "note": "National Bank of Rwanda Key Repo Rate is its main policy rate set by the Monetary Policy Committee."
   },
   "SAR::cpi::m/m": {
     "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
@@ -12612,7 +12612,7 @@
     "note": "Retail Sales measures the month-over-month % change in retail spending."
   },
   "SEK::retail sales::y/y": {
-    "note": "Retail Sales measures retail spending."
+    "note": "Statistics Sweden retail sales (YoY) reports the year-over-year change in retail trade turnover."
   },
   "SEK::services pmi::m/m": {
     "note": "Services PMI is a diffusion index of business activity (50 = expansion)."
@@ -12624,7 +12624,7 @@
     "note": "Thomson Reuters Ipsos Pcsi is a scheduled data release."
   },
   "SEK::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Statistics Sweden trade balance reports the net balance of Sweden's exports minus imports of goods."
   },
   "SEK::unemployment rate::none": {
     "note": "Unemployment Rate shows the share of the labor force that is unemployed."
@@ -12669,7 +12669,7 @@
     "note": "Retail Sales measures the month-over-month % change in retail spending."
   },
   "SGD::retail sales::y/y": {
-    "note": "Retail Sales measures retail spending."
+    "note": "Singapore retail sales (YoY) reports the year-over-year change in retail sales for the period."
   },
   "SGD::s&p global manufacturing pmi::none": {
     "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
@@ -12747,7 +12747,7 @@
     "note": "Trade Account is a scheduled data release."
   },
   "TRY::budget balance::none": {
-    "note": "Budget Balance reports the government's fiscal balance (surplus/deficit)."
+    "note": "Turkey central government budget balance reports the fiscal result for the period (surplus or deficit), published by the Ministry of Treasury and Finance."
   },
   "TRY::capacity utilization::none": {
     "note": "Capacity Utilization is a scheduled data release."
@@ -12831,7 +12831,7 @@
     "note": "Tourism Revenues is a diffusion index of business activity (50 = expansion)."
   },
   "TRY::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "TurkStat trade balance reports the net balance of Turkey's goods exports minus goods imports."
   },
   "TRY::trade ministry trade balance::none": {
     "note": "Trade Ministry Trade Balance reports exports minus imports."
@@ -12897,7 +12897,7 @@
     "note": "Industrial Production measures industrial output."
   },
   "TWD::interest rate::none": {
-    "note": "Interest Rate reports a rate for this series."
+    "note": "Central Bank of the Republic of China (Taiwan) discount rate is a key policy rate decided by its board."
   },
   "TWD::m2 money supply::none": {
     "note": "M2 Money Supply measures the money supply for this monetary aggregate."
@@ -12909,7 +12909,7 @@
     "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
   },
   "TWD::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Taiwan trade balance reports the net balance of exports minus imports of goods based on customs statistics."
   },
   "TWD::unemployment rate::none": {
     "note": "Unemployment Rate shows the share of the labor force that is unemployed."
@@ -13497,7 +13497,7 @@
     "note": "BEA and Census report monthly trade in goods and services; the goods trade balance is goods exports minus goods imports."
   },
   "USD::government payrolls::none": {
-    "note": "Government Payrolls measures the change in employment. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
+    "note": "BLS Employment Situation (CES) reports the change in government payroll employment as part of total nonfarm payrolls. A stronger print can lift USD and yields and often pressure XAUUSD; a weaker print can support XAUUSD."
   },
   "USD::heating oil stockpiles::none": {
     "note": "EIA Weekly Petroleum Status Report includes distillate fuel oil inventories, commonly watched as heating oil stockpiles."
@@ -13620,7 +13620,7 @@
     "note": "Federal Reserve H.6 Money Stock Measures publishes M2, a broad monetary aggregate that includes M1 plus small-denomination time deposits and retail money market funds."
   },
   "USD::manufacturing payrolls::none": {
-    "note": "Manufacturing Payrolls measures the change in employment. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
+    "note": "BLS Employment Situation (CES) reports the change in manufacturing payroll employment as part of total nonfarm payrolls. A stronger print can lift USD and yields and often pressure XAUUSD; a weaker print can support XAUUSD."
   },
   "USD::manufacturing production::m/m": {
     "note": "Federal Reserve industrial production release reports a monthly index for manufacturing output (Industrial Production: Manufacturing)."
@@ -13686,7 +13686,7 @@
     "note": "Nfib Small Business Optimism is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
   },
   "USD::nonfarm payrolls::none": {
-    "note": "Nonfarm Payrolls measures the change in employment. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
+    "note": "BLS Employment Situation (CES) reports the monthly change in total nonfarm payroll employment. A stronger print can lift USD and yields and often pressure XAUUSD; a weaker print can support XAUUSD."
   },
   "USD::nonfarm productivity::q/q": {
     "note": "BLS Productivity and Costs reports labor productivity (output per hour) in the nonfarm business sector. Higher productivity can temper inflation pressure and support XAUUSD if yields fall; weaker productivity can do the opposite."
@@ -13749,7 +13749,7 @@
     "note": "BLS labor force participation rate is the labor force as a percentage of the civilian noninstitutional population."
   },
   "USD::payrolls benchmark (12m)::none": {
-    "note": "Payrolls Benchmark (12m) measures the change in employment. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
+    "note": "BLS payroll benchmark (12m) reflects the annual benchmark revision to employment levels, aligning the CES survey to QCEW counts. Upward revisions can lift USD and yields and often pressure XAUUSD; downward revisions can support XAUUSD."
   },
   "USD::payrolls benchmark, n.s.a. (12m)::none": {
     "note": "BLS annual benchmark revision aligns CES payroll employment estimates to Unemployment Insurance (UI) records via QCEW."
@@ -13758,7 +13758,7 @@
     "note": "BLS annual benchmark revision aligns CES payroll employment estimates to Unemployment Insurance (UI) records via QCEW."
   },
   "USD::payrolls benchmark::none": {
-    "note": "Payrolls Benchmark measures the change in employment. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
+    "note": "BLS payroll benchmark revision updates CES employment levels using QCEW administrative counts and revised seasonal factors. Upward revisions can lift USD and yields and often pressure XAUUSD; downward revisions can support XAUUSD."
   },
   "USD::pce deflator::m/m": {
     "note": "BEA PCE price index (often called the PCE deflator) reflects changes in prices of goods and services purchased by consumers and is released in Personal Income and Outlays. Hotter PCE inflation can lift yields and often weigh on XAUUSD; softer inflation can support it."
@@ -13806,10 +13806,10 @@
     "note": "Philadelphia Fed Manufacturing Business Outlook Survey uses diffusion indexes: % reporting an increase minus % reporting a decrease."
   },
   "USD::ppi ex. food/energy/transport::m/m": {
-    "note": "PPI Ex. Food/energy/transport (Producer Price Index, MoM) measures the month-over-month % change in prices received by producers."
+    "note": "BLS core PPI (final demand excluding food, energy, and trade services) measures producer-level inflation in selling prices received by domestic producers. A hotter print can lift yields and often pressure XAUUSD; a softer print can support it."
   },
   "USD::ppi ex. food/energy/transport::y/y": {
-    "note": "PPI Ex. Food/energy/transport (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers."
+    "note": "Year-over-year change in BLS core PPI (final demand excluding food, energy, and trade services) reflects the 12-month trend in producer-level inflation. Upside surprises can lift USD and yields and often pressure XAUUSD; downside surprises can support it."
   },
   "USD::ppi::m/m": {
     "note": "BLS PPI measures changes in selling prices received by domestic producers for their output (often from the first commercial transaction). A hotter print can lift yields and often weigh on XAUUSD; a softer print can support it."
@@ -13821,7 +13821,7 @@
     "note": "Commission on Presidential Debates (CPD) sponsors and produces quadrennial general election debates for President and Vice President."
   },
   "USD::private nonfarm payrolls::none": {
-    "note": "Private Nonfarm Payrolls measures the change in employment. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
+    "note": "BLS Employment Situation (CES) reports the monthly change in total private payroll employment as part of total nonfarm payrolls. A stronger print can lift USD and yields and often pressure XAUUSD; a weaker print can support XAUUSD."
   },
   "USD::qe mbs::none": {
     "note": "QE (MBS) refers to the Fed's purchases of mortgage-backed securities as part of large-scale asset purchases."
@@ -13836,7 +13836,7 @@
     "note": "Real consumer spending is inflation-adjusted personal consumption expenditures (PCE) reported in chained dollars."
   },
   "USD::real earnings::m/m": {
-    "note": "BLS Real Earnings reports inflation-adjusted (CPI-deflated) average hourly and weekly earnings. Stronger real earnings can support USD and often weighs on XAUUSD; weaker real earnings can support it."
+    "note": "BLS Real Earnings reports inflation-adjusted (CPI-deflated) average hourly and weekly earnings. Stronger real earnings can support USD and often pressure XAUUSD; weaker real earnings can support XAUUSD."
   },
   "USD::real personal consumption::m/m": {
     "note": "Real personal consumption expenditures are reported in chained dollars (inflation-adjusted PCE)."
@@ -13998,13 +13998,13 @@
     "note": "Industrial Production measures industrial output."
   },
   "VEF::retail sales::y/y": {
-    "note": "Retail Sales measures retail spending."
+    "note": "Venezuela retail sales (YoY) reports the year-over-year change in retail activity for the period."
   },
   "VND::s&p global manufacturing pmi::none": {
     "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
   },
   "VND::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "Vietnam trade balance reports the net balance of merchandise exports minus merchandise imports, compiled by the statistics office."
   },
   "VND::vietnamese cpi::m/m": {
     "note": "Vietnamese CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
@@ -14028,10 +14028,10 @@
     "note": "Budget Balance (12m) reports the government's fiscal balance (surplus/deficit)."
   },
   "ZAR::budget balance::m/m": {
-    "note": "Budget Balance reports the government's fiscal balance (surplus/deficit)."
+    "note": "South Africa budget balance reports the fiscal result for the period (surplus or deficit), typically from National Treasury cash-flow figures."
   },
   "ZAR::budget balance::none": {
-    "note": "Budget Balance reports the government's fiscal balance (surplus/deficit)."
+    "note": "South Africa budget balance reports the fiscal result for the period (surplus or deficit), typically from National Treasury cash-flow figures."
   },
   "ZAR::business confidence::none": {
     "note": "Business Confidence is a survey-based sentiment reading."
@@ -14100,16 +14100,16 @@
     "note": "PPI (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers."
   },
   "ZAR::prime rate (2m)::none": {
-    "note": "Prime Rate (2m) reports a rate for this series."
+    "note": "South African prime lending rate (2m) is a quoted prime lending rate over a two-month tenor and typically moves with the SARB repo rate."
   },
   "ZAR::prime rate::none": {
-    "note": "Prime Rate reports a rate for this series."
+    "note": "South African prime lending rate is the rate banks charge prime borrowers and typically moves with the SARB repo rate."
   },
   "ZAR::private sector credit::none": {
     "note": "Private Sector Credit measures credit or lending conditions."
   },
   "ZAR::retail sales::y/y": {
-    "note": "Retail Sales measures retail spending."
+    "note": "Statistics South Africa retail sales (YoY) reports the year-over-year change in retail trade sales."
   },
   "ZAR::s&p global manufacturing pmi::none": {
     "note": "S&p Global Manufacturing PMI is a diffusion index of business activity (50 = expansion)."
@@ -14133,7 +14133,7 @@
     "note": "Total Vehicle Sales measures sales for this series."
   },
   "ZAR::trade balance::none": {
-    "note": "Trade Balance reports exports minus imports."
+    "note": "South Africa trade balance reports the net balance of merchandise exports minus merchandise imports based on customs data."
   },
   "ZAR::unemployment rate::none": {
     "note": "Unemployment Rate shows the share of the labor force that is unemployed."
