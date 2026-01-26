@@ -522,7 +522,7 @@
     "note": "GDP measures year-over-year % growth in economic output."
   },
   "BWP::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "The Bank of Botswana Monetary Policy Committee sets the Monetary Policy Rate (MoPR) at its policy meeting. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "CAD::adp nonfarm employment change::none": {
     "note": "Adp Nonfarm Employment Change is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -3822,7 +3822,7 @@
     "note": "GDP Annual measures growth in economic output."
   },
   "MUR::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "The Bank of Mauritius sets the Key Repo Rate, used as its policy interest rate and determined by the Monetary Policy Committee. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "MWK::bank rate::none": {
     "note": "Bank Rate sets the policy rate (the central bank)."
@@ -11907,7 +11907,7 @@
     "note": "GDP measures year-over-year % growth in economic output."
   },
   "NAD::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "The Bank of Namibia Monetary Policy Committee announces the repo rate decision, aimed at safeguarding the Namibia dollar peg to the South African rand. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "NGN::cpi::y/y": {
     "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
@@ -12957,7 +12957,7 @@
     "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
   },
   "UGX::interest rate decision::none": {
-    "note": "Interest Rate Decision sets the policy rate (the central bank)."
+    "note": "Bank of Uganda sets the Central Bank Rate (CBR), a policy interest rate used to influence borrowing costs and financial conditions. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "USD::10 - year note auction::none": {
     "note": "10 Year Note Auction is a government bond auction. A weak auction can push yields higher and pressure XAUUSD; a strong auction can help ease yields and support it."
