@@ -22,7 +22,6 @@ import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
-
 JINA_PREFIX = "https://r.jina.ai/"
 DDG_HTML = "http://duckduckgo.com/html/?q="
 
@@ -117,12 +116,16 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Fetch candidate sources + evidence lines for one event id."
     )
-    parser.add_argument("--event-id", required=True, help='e.g. "USD::m2 money supply::m/m"')
+    parser.add_argument(
+        "--event-id", required=True, help='e.g. "USD::m2 money supply::m/m"'
+    )
     parser.add_argument("--query", help="override search query")
     parser.add_argument("--max-results", type=int, default=5)
     parser.add_argument("--max-lines", type=int, default=8)
     parser.add_argument("--timeout", type=int, default=30, help="HTTP timeout seconds")
-    parser.add_argument("--cache-dir", default="tmp/sources", help="gitignored cache dir")
+    parser.add_argument(
+        "--cache-dir", default="tmp/sources", help="gitignored cache dir"
+    )
     args = parser.parse_args()
 
     cache_dir = Path(args.cache_dir)
@@ -156,7 +159,9 @@ def main() -> int:
     print(f"query: {query}")
     print(f"cached: {ddg_cache.as_posix()}")
     if not candidates:
-        print("No evidence lines extracted. Open cached pages under tmp/sources/ and grep manually.")
+        print(
+            "No evidence lines extracted. Open cached pages under tmp/sources/ and grep manually."
+        )
         return 0
 
     print("candidates:")
@@ -169,4 +174,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
