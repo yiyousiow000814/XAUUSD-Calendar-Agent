@@ -75,13 +75,13 @@
     "note": "Unemployment Rate shows the share of the labor force that is unemployed."
   },
   "AUD::aig construction index::none": {
-    "note": "Aig Construction Index is an index reading for this series."
+    "note": "Ai Group Performance of Construction Index is a diffusion index based on monthly surveys of construction businesses (50 = no change)."
   },
   "AUD::aig manufacturing index::none": {
-    "note": "Aig Manufacturing Index is an index reading for this series."
+    "note": "Ai Group Performance of Manufacturing Index is a diffusion index based on monthly surveys of manufacturers (50 = no change)."
   },
   "AUD::aig services index::none": {
-    "note": "Aig Services Index is an index reading for this series."
+    "note": "Ai Group Performance of Services Index is a diffusion index based on monthly surveys of service-sector businesses (50 = no change)."
   },
   "AUD::anz internet job ads::m/m": {
     "note": "ANZ-Indeed Australian Job Ads counts the average number of job ads carried by each of the sites contributing to the series."
@@ -138,7 +138,7 @@
     "note": "Employment Change is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "AUD::export price index::q/q": {
-    "note": "Export Price Index is an index reading for this series."
+    "note": "ABS Export Price Index measures the quarterly change in prices received for exports of goods and services."
   },
   "AUD::exports::m/m": {
     "note": "Exports is a scheduled data release."
@@ -177,7 +177,7 @@
     "note": "Australian Bureau of Statistics (ABS) Building Activity provides estimates of the number of dwellings commenced (housing starts)."
   },
   "AUD::import price index::q/q": {
-    "note": "Import Price Index is an index reading for this series."
+    "note": "ABS Import Price Index measures the quarterly change in prices paid for imports of goods and services."
   },
   "AUD::imports::m/m": {
     "note": "Imports is a scheduled data release."
@@ -201,7 +201,7 @@
     "note": "Mi Inflation Gauge is a scheduled data release. Higher-than-expected inflation (vs forecast) can lift yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "AUD::mi leading index::m/m": {
-    "note": "Mi Leading Index is an index reading for this series."
+    "note": "Westpac-Melbourne Institute Leading Index is a composite designed to signal the likely pace of Australian economic activity and this series is the monthly change."
   },
   "AUD::mid - year economic and fiscal outlook::none": {
     "note": "Mid Year Economic and Fiscal Outlook is a scheduled data release."
@@ -1863,7 +1863,7 @@
     "note": "German House Price Index is an index reading for this series."
   },
   "EUR::german ifo business climate index::none": {
-    "note": "German Ifo Business Climate Index is an index reading for this series."
+    "note": "Ifo Business Climate Index is based on a monthly survey of German firms and combines current assessment and expectations."
   },
   "EUR::german import price index::m/m": {
     "note": "German Import Price Index is an index reading for this series."
@@ -2784,10 +2784,10 @@
     "note": "Gross Mortgage Approvals is a scheduled data release."
   },
   "GBP::halifax house price index::m/m": {
-    "note": "Halifax House Price Index is an index reading for this series."
+    "note": "Halifax House Price Index (MoM) reports the monthly percentage change in UK house prices based on Halifax mortgage approvals."
   },
   "GBP::halifax house price index::y/y": {
-    "note": "Halifax House Price Index is an index reading for this series."
+    "note": "Halifax House Price Index (YoY) reports the 12-month percentage change in UK house prices based on Halifax mortgage approvals."
   },
   "GBP::house price index::y/y": {
     "note": "House Price Index is an index reading for this series."
@@ -3120,7 +3120,7 @@
     "note": "Foreign Direct Investment is a scheduled data release."
   },
   "IDR::foreign tourism::none": {
-    "note": "Foreign Tourism is a diffusion index of business activity (50 = expansion)."
+    "note": "Indonesia foreign tourism reports international visitor arrivals or visits for the period, published in the official tourism statistics."
   },
   "IDR::fx reserves (usd)::none": {
     "note": "Fx Reserves (usd) reports official foreign-exchange reserves."
@@ -3636,7 +3636,7 @@
     "note": "Retail Sales measures retail spending. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "JPY::reuters tankan index::none": {
-    "note": "Reuters Tankan Index is an index reading for this series."
+    "note": "Reuters Tankan is a monthly survey-based diffusion index of business sentiment among Japanese manufacturers."
   },
   "JPY::tankan all big industry capex::none": {
     "note": "Tankan All Big Industry Capex is a scheduled data release."
@@ -12012,7 +12012,7 @@
     "note": "Anz Business Confidence is a survey-based sentiment reading."
   },
   "NZD::anz commodity price index::m/m": {
-    "note": "Anz Commodity Price Index is an index reading for this series."
+    "note": "ANZ Commodity Price Index measures changes in a basket of world commodity prices relevant to New Zealand, expressed in NZD."
   },
   "NZD::budget balance::none": {
     "note": "New Zealand budget balance reports the government's fiscal result for the period (surplus or deficit)."
@@ -12681,7 +12681,7 @@
     "note": "Unemployment Rate shows the share of the labor force that is unemployed."
   },
   "SGD::ura property index::q/q": {
-    "note": "Ura Property Index is an index reading for this series."
+    "note": "URA Residential Property Price Index measures changes in prices of private residential property in Singapore."
   },
   "THB::consumer confidence::none": {
     "note": "Consumer Confidence is a survey-based sentiment reading."
@@ -12828,7 +12828,7 @@
     "note": "Quarterly 3 Month Jobless Average is a scheduled data release."
   },
   "TRY::tourism revenues::none": {
-    "note": "Tourism Revenues is a diffusion index of business activity (50 = expansion)."
+    "note": "TurkStat tourism revenues report income from tourism activities for the period, including spending by foreign visitors."
   },
   "TRY::trade balance::none": {
     "note": "TurkStat trade balance reports the net balance of Turkey's goods exports minus goods imports."
