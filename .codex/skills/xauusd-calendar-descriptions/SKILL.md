@@ -55,6 +55,21 @@ Recommended workflow:
 4. For each event, extract a one-line excerpt from cached content (or fetch a specific page if needed), then write the note.
 5. Record evidence per event (URL + excerpt) in `tmp/event_notes_research_log.md` (do not commit).
 
+Optional helper script:
+
+* Use `scripts/calendar/research_event_note_sources.py` to quickly collect candidate sources and
+  definition-like excerpt lines for one event id.
+* The script does not change any JSON; it only caches pages under `tmp/sources/` and prints
+  copy-paste evidence candidates.
+
+Examples:
+
+```powershell
+python scripts/calendar/research_event_note_sources.py --event-id "USD::m2 money supply::m/m"
+python scripts/calendar/research_event_note_sources.py --event-id "USD::opec monthly report::none" --max-results 8
+python scripts/calendar/research_event_note_sources.py --event-id "EUR::cpi::y/y" --query "site:ec.europa.eu HICP year-on-year change definition"
+```
+
 PowerShell caching pattern:
 
 ```powershell
@@ -179,4 +194,3 @@ Never use "tracks", never call everything a "growth indicator", never repeat the
 For PMI-style diffusion indexes, keep the threshold explanation when relevant (for example, 50 = expansion).
 If relevance is low, write only the definition (or optionally one very restrained line saying direct impact is usually limited). After writing, self-check and rewrite if any rule is violated.
 Do not output any code, placeholders, or batch-template text. Each description must read like it was individually written.
-

@@ -13521,10 +13521,10 @@
     "note": "Ibd/tipp Economic Optimism is a diffusion index of business activity (50 = expansion). A higher-than-expected reading (vs forecast) can lift USD and yields, often pressuring XAUUSD; a weaker reading can support it."
   },
   "USD::iea monthly report::none": {
-    "note": "Iea Monthly Report is a scheduled data release."
+    "note": "IEA Oil Market Report (OMR) provides data, forecasts and analysis on the global oil market, including oil supply, demand, inventories, prices, refining activity, and oil trade."
   },
   "USD::imf meetings::none": {
-    "note": "Imf Meetings is a scheduled data release."
+    "note": "IMF and World Bank Annual and Spring Meetings bring together central bankers, ministers, and other leaders to discuss the global economic outlook and international development."
   },
   "USD::import price index ex petroleum::m/m": {
     "note": "Import Price Index ex Petroleum is an index reading for this series."
@@ -13617,7 +13617,7 @@
     "note": "Federal Reserve Senior Loan Officer Opinion Survey asks banks about changes in lending standards, terms, and demand for loans."
   },
   "USD::m2 money supply::m/m": {
-    "note": "M2 Money Supply measures the money supply for this monetary aggregate."
+    "note": "Federal Reserve H.6 Money Stock Measures publishes M2, a broad monetary aggregate that includes M1 plus small-denomination time deposits and retail money market funds."
   },
   "USD::manufacturing payrolls::none": {
     "note": "Manufacturing Payrolls measures the change in employment. Stronger-than-expected labor data (vs forecast) can lift USD and yields, often pressuring XAUUSD; weaker data can support it."
@@ -13737,10 +13737,10 @@
     "note": "OPEC Monthly Oil Market Report publishes crude oil production estimates for Venezuela, based on secondary sources."
   },
   "USD::opec meeting::none": {
-    "note": "OPEC Meeting is a scheduled data release."
+    "note": "The OPEC Conference is the organisation's supreme authority and ordinarily meets at least twice a year to coordinate member countries' petroleum policies."
   },
   "USD::opec monthly report::none": {
-    "note": "OPEC Monthly Report is a scheduled data release."
+    "note": "OPEC Monthly Oil Market Report (MOMR) covers major issues affecting the world oil market and provides an outlook for oil demand, supply, and market balance."
   },
   "USD::overall net capital flow::none": {
     "note": "Treasury TIC data summarize cross-border capital flows, including net transactions in long-term securities."
@@ -13899,7 +13899,7 @@
     "note": "Speech by Fed official Sec Kashkari."
   },
   "USD::seevol cushing storage report::none": {
-    "note": "Seevol Cushing Storage Report is a scheduled data release."
+    "note": "Seevol Cushing Storage Report reports crude oil inventories at the Cushing, Oklahoma storage hub, the delivery point for WTI."
   },
   "USD::semi book/bill ratio::none": {
     "note": "Semi Book/bill Ratio is a government bond auction. A weak auction can push yields higher and pressure XAUUSD; a strong auction can help ease yields and support it."
@@ -13923,7 +13923,7 @@
     "note": "Trade Balance reports exports minus imports."
   },
   "USD::treasury department report::none": {
-    "note": "Treasury Department Report is a scheduled data release."
+    "note": "The Treasury Bulletin contains narrative, tables, and charts on Treasury issues, federal financial operations, international statistics, and U.S. government financial commitments."
   },
   "USD::treasury secretary geithner speaks::none": {
     "note": "Speech by Fed official Treasury Secretary Geithner."
