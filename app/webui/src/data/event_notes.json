@@ -1,9 +1,9 @@
 {
   "AED::cpi::m/m": {
-    "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services."
   },
   "AED::cpi::y/y": {
-    "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services."
   },
   "AED::gdp::y/y": {
     "note": "GDP measures year-over-year % growth in economic output."
@@ -21,10 +21,10 @@
     "note": "S&P Global UAE Composite PMI is a monthly survey-based diffusion index of private-sector activity (above 50 = expansion)."
   },
   "AOA::cpi::m/m": {
-    "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services."
   },
   "AOA::cpi::y/y": {
-    "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services."
   },
   "AOA::fx reserve::none": {
     "note": "Fx Reserve reports official foreign-exchange reserves."
@@ -39,10 +39,10 @@
     "note": "Argentina budget balance reports the government's fiscal balance (surplus or deficit) for the period."
   },
   "ARS::cpi::m/m": {
-    "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services."
   },
   "ARS::cpi::y/y": {
-    "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services."
   },
   "ARS::current account (usd)::none": {
     "note": "Current Account (usd) reports the current account balance."
@@ -57,7 +57,7 @@
     "note": "Industrial Production measures industrial output."
   },
   "ARS::national cpi::m/m": {
-    "note": "National CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services."
   },
   "ARS::retail sales::y/y": {
     "note": "Argentina retail sales (YoY) reports the year-over-year change in retail activity for the period."
@@ -126,7 +126,7 @@
     "note": "Australian Bureau of Statistics (ABS) CPI measures household inflation via price changes across categories of household expenditure. Higher-than-expected inflation (vs forecast) can lift yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "AUD::cpi::q/q": {
-    "note": "CPI (Consumer Price Index, QoQ) measures the change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the quarter-over-quarter % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift Australia yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "AUD::cpi::y/y": {
     "note": "Australia CPI measures household inflation and reports price changes across categories of household spending, and this release shows the year-over-year change. A higher reading can lift RBA expectations and may pressure XAUUSD via the global yields channel."
@@ -207,7 +207,7 @@
     "note": "MYEFO is an Australian Government mid-year update on the economic outlook and fiscal forecasts."
   },
   "AUD::monthly cpi indicator::y/y": {
-    "note": "Monthly CPI Indicator (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift Australia yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "AUD::nab business confidence::none": {
     "note": "Nab Business Confidence is a survey-based sentiment reading."
@@ -318,10 +318,10 @@
     "note": "Australian Bureau of Statistics (ABS) publishes the goods and services trade balance in its International Trade in Goods and Services release. A larger surplus can support AUD, while a wider deficit can weigh on it."
   },
   "AUD::trimmed mean cpi::q/q": {
-    "note": "Trimmed Mean CPI (Consumer Price Index, QoQ) measures the change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the quarter-over-quarter % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift Australia yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "AUD::trimmed mean cpi::y/y": {
-    "note": "Trimmed Mean CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift Australia yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "AUD::unemployment rate::none": {
     "note": "Unemployment Rate shows the share of the labor force that is unemployed. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -333,19 +333,19 @@
     "note": "ABS Wage Price Index measures changes in wages and salaries, holding the quality and composition of jobs constant, and this series reports the annual change."
   },
   "AUD::weighted mean cpi::q/q": {
-    "note": "Weighted Mean CPI (Consumer Price Index, QoQ) measures the change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the quarter-over-quarter % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift Australia yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "AUD::weighted mean cpi::y/y": {
-    "note": "Weighted Mean CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift Australia yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "AUD::westpac consumer sentiment::none": {
     "note": "Westpac Consumer Sentiment is a survey-based sentiment reading."
   },
   "BHD::cpi::m/m": {
-    "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services."
   },
   "BHD::cpi::y/y": {
-    "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services."
   },
   "BHD::gdp::q/q": {
     "note": "GDP measures quarter-over-quarter % growth in economic output."
@@ -420,10 +420,10 @@
     "note": "Measures capacity utilisation in the sector."
   },
   "BRL::cpi::m/m": {
-    "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services."
   },
   "BRL::cpi::y/y": {
-    "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services."
   },
   "BRL::current account (usd)::none": {
     "note": "Current Account (usd) reports the current account balance."
@@ -480,10 +480,10 @@
     "note": "TJLP (Taxa de Juros de Longo Prazo) is a long-term reference rate in Brazil set periodically by the National Monetary Council and used in BNDES lending."
   },
   "BRL::mid - month cpi::m/m": {
-    "note": "Mid Month CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services."
   },
   "BRL::mid - month cpi::y/y": {
-    "note": "Mid Month CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services."
   },
   "BRL::net debt - to - gdp ratio::none": {
     "note": "Brazil net debt-to-GDP ratio reports net government debt as a share of GDP."
@@ -510,10 +510,10 @@
     "note": "Unemployment Rate shows the share of the labor force that is unemployed."
   },
   "BWP::cpi::m/m": {
-    "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services."
   },
   "BWP::cpi::y/y": {
-    "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services."
   },
   "BWP::gdp quarterly::none": {
     "note": "Botswana quarterly GDP reports changes in economic output for the period."
@@ -618,7 +618,7 @@
     "note": "CFTC Commitments of Traders (COT) reports net speculative positioning for CAD futures."
   },
   "CAD::common cpi::y/y": {
-    "note": "Common CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift Canada yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "CAD::core cpi::m/m": {
     "note": "Core CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices excluding food and energy. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -633,7 +633,7 @@
     "note": "Statistics Canada corporate profits measure profits of Canadian corporations from current production and this series reports the quarterly change."
   },
   "CAD::cpi::m/m": {
-    "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift Canada yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "CAD::cpi::y/y": {
     "note": "Statistics Canada CPI represents changes in prices as experienced by Canadian consumers by comparing, through time, the cost of a fixed basket of goods and services. A stronger print can lift BoC rate expectations and may pressure XAUUSD via global yields."
@@ -702,7 +702,7 @@
     "note": "Manufacturing Sales measures monthly sales of goods manufactured, as reported in Statistics Canada's Monthly Survey on Manufacturing."
   },
   "CAD::median cpi::y/y": {
-    "note": "Median CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift Canada yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "CAD::new housing price index::m/m": {
     "note": "Statistics Canada New Housing Price Index measures changes in contractors' selling prices of new houses, excluding land, and this series reports the monthly change."
@@ -744,7 +744,7 @@
     "note": "Statistics Canada trade balance reports the net balance of exports minus imports for Canada's international trade."
   },
   "CAD::trimmed cpi::y/y": {
-    "note": "Trimmed CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift Canada yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "CAD::unemployment rate::none": {
     "note": "Unemployment Rate shows the share of the labor force that is unemployed. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -762,10 +762,10 @@
     "note": "Reports an indicator of household consumption conditions."
   },
   "CHF::cpi::m/m": {
-    "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift Switzerland yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "CHF::cpi::y/y": {
-    "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift Switzerland yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "CHF::employment level::none": {
     "note": "Reports the level of employment."
@@ -888,7 +888,7 @@
     "note": "Core CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices excluding food and energy."
   },
   "CLP::cpi::m/m": {
-    "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services."
   },
   "CLP::economic activity::y/y": {
     "note": "Chile Imacec is a monthly economic activity index and this series reports the annual change."
@@ -948,10 +948,10 @@
     "note": "Chinese Unemployment Rate shows the share of the labor force that is unemployed. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "CNY::cpi::m/m": {
-    "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can shift rate expectations and risk sentiment, influencing XAUUSD."
   },
   "CNY::cpi::y/y": {
-    "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can shift rate expectations and risk sentiment, influencing XAUUSD."
   },
   "CNY::exports::none": {
     "note": "China customs exports report the value of goods exported during the period."
@@ -1035,10 +1035,10 @@
     "note": "Colombian presidential election is a scheduled national vote to elect the President of Colombia."
   },
   "COP::cpi::m/m": {
-    "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services."
   },
   "COP::cpi::y/y": {
-    "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services."
   },
   "COP::exports::y/y": {
     "note": "Colombia exports (YoY) report the annual change in the value of goods exported."
@@ -1083,10 +1083,10 @@
     "note": "Czech Statistical Office construction output (YoY) reports the annual change in construction activity for the period."
   },
   "CZK::cpi::m/m": {
-    "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services."
   },
   "CZK::cpi::y/y": {
-    "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services."
   },
   "CZK::current account::none": {
     "note": "Current Account reports the current account balance."
@@ -1152,10 +1152,10 @@
     "note": "Consumer Confidence is a survey-based sentiment reading."
   },
   "DKK::cpi::m/m": {
-    "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services."
   },
   "DKK::cpi::y/y": {
-    "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services."
   },
   "DKK::currency reserves::none": {
     "note": "Currency Reserves reports official foreign-exchange reserves."
@@ -1206,7 +1206,7 @@
     "note": "Core CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices excluding food and energy."
   },
   "EGP::cpi::y/y": {
-    "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services."
   },
   "EGP::current account (usd)::none": {
     "note": "Current Account (usd) reports the current account balance."
@@ -1236,10 +1236,10 @@
     "note": "Austria 5 Year Bond Auction is a government bond auction. A weak auction can push yields higher and pressure XAUUSD; a strong auction can help ease yields and support it."
   },
   "EUR::austrian cpi::m/m": {
-    "note": "Austrian CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::austrian cpi::y/y": {
-    "note": "Austrian CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::austrian gdp::q/q": {
     "note": "Austrian GDP measures quarter-over-quarter % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -1275,19 +1275,19 @@
     "note": "Measures the year-over-year % change in wholesale prices."
   },
   "EUR::baden wuerttemberg cpi::m/m": {
-    "note": "Baden Wuerttemberg CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::baden wuerttemberg cpi::y/y": {
-    "note": "Baden Wuerttemberg CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::bank austria manufacturing pmi::none": {
     "note": "Bank Austria Manufacturing PMI (from S&P Global) is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "EUR::bavaria cpi::m/m": {
-    "note": "Bavaria CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::bavaria cpi::y/y": {
-    "note": "Bavaria CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::belgian gdp::q/q": {
     "note": "Belgian GDP measures quarter-over-quarter % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -1305,19 +1305,19 @@
     "note": "Belgium Consumer Confidence is a survey-based sentiment reading."
   },
   "EUR::belgium cpi::m/m": {
-    "note": "Belgium CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::belgium cpi::y/y": {
-    "note": "Belgium CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::belgium nbb business climate::none": {
     "note": "Reports the National Bank of Belgium's business survey indicator."
   },
   "EUR::brandenburg cpi::m/m": {
-    "note": "Brandenburg CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::brandenburg cpi::y/y": {
-    "note": "Brandenburg CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::business and consumer survey::none": {
     "note": "European Commission Business and Consumer Surveys collect qualitative information on households and firms."
@@ -1350,16 +1350,16 @@
     "note": "Core CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices excluding food and energy. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "EUR::cpi ex tobacco::m/m": {
-    "note": "CPI ex Tobacco (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::cpi ex tobacco::y/y": {
-    "note": "CPI ex Tobacco (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::cpi, n.s.a::none": {
-    "note": "CPI, N.s.a (Consumer Price Index) measures the change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) reports the index level for consumer prices (inflation). Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::cpi::m/m": {
-    "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::cpi::y/y": {
     "note": "Eurostat HICP is a cross-country comparable measure of inflation, reflecting changes over time in the prices paid by households for consumer goods and services. A higher reading can push euro area rate expectations higher and may pressure XAUUSD via the global yields channel."
@@ -1395,7 +1395,7 @@
     "note": "Measures changes in household consumer spending."
   },
   "EUR::dutch cpi::y/y": {
-    "note": "Dutch CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::dutch gdp::q/q": {
     "note": "Dutch GDP measures quarter-over-quarter % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -1533,10 +1533,10 @@
     "note": "EU Employment Overall reflects survey-based employment expectations reported in European Commission business surveys."
   },
   "EUR::estonian cpi::m/m": {
-    "note": "Estonian CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::estonian cpi::y/y": {
-    "note": "Estonian CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::estonian current account % of gdp::none": {
     "note": "Estonia current account as a percent of GDP expresses the external balance (current account) relative to the size of the economy."
@@ -1599,7 +1599,7 @@
     "note": "Finnish Consumer Confidence is a survey-based sentiment reading."
   },
   "EUR::finnish cpi::y/y": {
-    "note": "Finnish CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::finnish current account::none": {
     "note": "Finnish Current Account reports the current account balance."
@@ -1698,16 +1698,16 @@
     "note": "Measures changes in household consumer spending."
   },
   "EUR::french cpi nsa::m/m": {
-    "note": "French CPI Nsa (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::french cpi nsa::y/y": {
-    "note": "French CPI Nsa (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::french cpi::m/m": {
-    "note": "French CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::french cpi::y/y": {
-    "note": "French CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::french current account::none": {
     "note": "French Current Account reports the current account balance."
@@ -1821,10 +1821,10 @@
     "note": "Germany Car Registrations reports new passenger car registrations published by KBA."
   },
   "EUR::german cpi::m/m": {
-    "note": "German CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::german cpi::y/y": {
-    "note": "German CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::german current account balance n.s.a::none": {
     "note": "German Current Account Balance N.s.a reports the current account balance."
@@ -1941,7 +1941,7 @@
     "note": "Greece 6 Month T Bill Auction is a government bond auction. A weak auction can push yields higher and pressure XAUUSD; a strong auction can help ease yields and support it."
   },
   "EUR::greek cpi::y/y": {
-    "note": "Greek CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::greek credit expansion::y/y": {
     "note": "Greek Credit Expansion measures credit or lending conditions."
@@ -2028,10 +2028,10 @@
     "note": "HCOB Spain Services PMI (from S&P Global) is a monthly survey-based diffusion index of services-sector conditions in Spain (above 50 = expansion)."
   },
   "EUR::hesse cpi::m/m": {
-    "note": "Hesse CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::hesse cpi::y/y": {
-    "note": "Hesse CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::hicp ex energy & food::y/y": {
     "note": "Euro area HICP ex energy and food shows the year-over-year change in the HICP index excluding energy and food components."
@@ -2055,10 +2055,10 @@
     "note": "Irish Consumer Confidence is a survey-based sentiment reading."
   },
   "EUR::irish cpi::m/m": {
-    "note": "Irish CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::irish cpi::y/y": {
-    "note": "Irish CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::irish exchequer returns::none": {
     "note": "Reports monthly government receipts and expenditure in the Irish Exchequer."
@@ -2136,13 +2136,13 @@
     "note": "Italian Consumer Confidence is a survey-based sentiment reading."
   },
   "EUR::italian cpi ex tobacco::y/y": {
-    "note": "Italian CPI ex Tobacco (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::italian cpi::m/m": {
-    "note": "Italian CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::italian cpi::y/y": {
-    "note": "Italian CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::italian gdp::q/q": {
     "note": "Italian GDP measures quarter-over-quarter % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -2220,10 +2220,10 @@
     "note": "Eurostat Labour Cost Index measures the annual change in hourly labour costs (wages plus non-wage costs) for employees."
   },
   "EUR::latvian cpi::m/m": {
-    "note": "Latvian CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::latvian cpi::y/y": {
-    "note": "Latvian CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::latvian current account % of gdp::none": {
     "note": "Latvia current account as a percent of GDP expresses the external balance (current account) relative to the size of the economy."
@@ -2253,10 +2253,10 @@
     "note": "Latvian Trade Balance shows the value gap between goods exports and imports."
   },
   "EUR::lithuania cpi::m/m": {
-    "note": "Lithuania CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::lithuania cpi::y/y": {
-    "note": "Lithuania CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::lithuania current account::none": {
     "note": "Lithuania Current Account reports the current account balance."
@@ -2301,10 +2301,10 @@
     "note": "Reports net investment flows for the period."
   },
   "EUR::north rhine westphalia cpi::m/m": {
-    "note": "North Rhine Westphalia CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::north rhine westphalia cpi::y/y": {
-    "note": "North Rhine Westphalia CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::portugal 10 - year bond auction::none": {
     "note": "Portugal 10 Year Bond Auction is a government bond auction. A weak auction can push yields higher and pressure XAUUSD; a strong auction can help ease yields and support it."
@@ -2325,10 +2325,10 @@
     "note": "Portuguese Consumer Confidence is a survey-based sentiment reading."
   },
   "EUR::portuguese cpi::m/m": {
-    "note": "Portuguese CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::portuguese cpi::y/y": {
-    "note": "Portuguese CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::portuguese current account::none": {
     "note": "Portuguese Current Account reports the current account balance."
@@ -2376,10 +2376,10 @@
     "note": "S&P Global Greece Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "EUR::saxony cpi::m/m": {
-    "note": "Saxony CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::saxony cpi::y/y": {
-    "note": "Saxony CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::selling price expectations::none": {
     "note": "EU Selling Price Expectations reflects firms' expected changes in selling prices over the next 3 months in EC surveys."
@@ -2397,19 +2397,19 @@
     "note": "Slovak Core CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices excluding food and energy. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "EUR::slovak cpi::m/m": {
-    "note": "Slovak CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::slovak cpi::y/y": {
-    "note": "Slovak CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::slovak current account::none": {
     "note": "Slovak Current Account reports the current account balance."
   },
   "EUR::slovak eu normalized cpi::m/m": {
-    "note": "Slovak Eu Normalized CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::slovak eu normalized cpi::y/y": {
-    "note": "Slovak Eu Normalized CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::slovak gdp::y/y": {
     "note": "Slovak GDP measures year-over-year % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -2472,10 +2472,10 @@
     "note": "Spanish Consumer Confidence is a survey-based sentiment reading."
   },
   "EUR::spanish cpi::m/m": {
-    "note": "Spanish CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::spanish cpi::y/y": {
-    "note": "Spanish CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift euro area yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "EUR::spanish current account::none": {
     "note": "Spanish Current Account reports the current account balance."
@@ -2745,16 +2745,16 @@
     "note": "Measures the year-over-year % change in core retail prices index inflation."
   },
   "GBP::cpi, n.s.a::none": {
-    "note": "CPI, N.s.a (Consumer Price Index) measures the change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) reports the index level for consumer prices (inflation). Higher-than-expected inflation can lift UK yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "GBP::cpi::m/m": {
-    "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift UK yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "GBP::cpi::y/y": {
     "note": "UK CPI measures changes in the prices of consumer goods and services purchased in the UK, and this release shows the 12-month percentage change. An upside surprise can lift UK rate expectations and may pressure XAUUSD via global yields."
   },
   "GBP::cpih::y/y": {
-    "note": "Cpih (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. Higher-than-expected inflation can lift UK yield expectations and pressure XAUUSD; softer inflation can support it."
   },
   "GBP::current account::none": {
     "note": "Current Account reports the current account balance."
@@ -2988,7 +2988,7 @@
     "note": "Announcement of the winner of the Conservative Party leadership contest."
   },
   "GHS::cpi::y/y": {
-    "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services."
   },
   "GHS::ppi::y/y": {
     "note": "PPI (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers."
@@ -3000,10 +3000,10 @@
     "note": "Stanbic Bank Ghana PMI (from S&P Global) is a monthly survey-based diffusion index of private-sector conditions (above 50 = expansion)."
   },
   "HKD::cpi::m/m": {
-    "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services."
   },
   "HKD::cpi::y/y": {
-    "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services."
   },
   "HKD::exports::m/m": {
     "note": "Hong Kong merchandise exports (MoM) report the monthly change in the value of goods exported."
@@ -3057,10 +3057,10 @@
     "note": "Core CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices excluding food and energy."
   },
   "HUF::cpi::m/m": {
-    "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services."
   },
   "HUF::cpi::y/y": {
-    "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services."
   },
   "HUF::current account (eur)::q/q": {
     "note": "Current Account (eur) reports the current account balance."
@@ -3174,10 +3174,10 @@
     "note": "Israel budget balance reports the government's fiscal result for the period (surplus or deficit), often reported on a rolling 12-month basis."
   },
   "ILS::cpi::m/m": {
-    "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services."
   },
   "ILS::cpi::y/y": {
-    "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services."
   },
   "ILS::exports (usd)::none": {
     "note": "Exports (USD) reports the value of merchandise exports expressed in US dollars."
@@ -3222,7 +3222,7 @@
     "note": "Sets the cash reserve ratio requirement for banks."
   },
   "INR::cpi::y/y": {
-    "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services."
   },
   "INR::cumulative industrial production::none": {
     "note": "Cumulative Industrial Production measures industrial output."
@@ -3348,10 +3348,10 @@
     "note": "Measures the year-over-year % change in consumer inflation."
   },
   "ISK::cpi::m/m": {
-    "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services."
   },
   "ISK::cpi::y/y": {
-    "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services."
   },
   "ISK::deposit rate::none": {
     "note": "Central Bank of Iceland term deposit rate is one of its key interest rates set by the Monetary Policy Committee."
@@ -3504,10 +3504,10 @@
     "note": "Bank of Japan Corporate Services Price Index (CSPI) measures price changes in services traded between companies and this series is the annual change."
   },
   "JPY::cpi tokyo ex food & energy::y/y": {
-    "note": "CPI Tokyo ex Food & Energy (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the year-over-year % change in the price of a basket of consumer goods and services. A higher-than-expected print can lift Japan yield expectations and pressure XAUUSD; a downside surprise can support it."
   },
   "JPY::cpi tokyo ex food and energy::m/m": {
-    "note": "CPI Tokyo ex Food and Energy (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Consumer Price Index (CPI) measures the month-over-month % change in the price of a basket of consumer goods and services. A higher-than-expected print can lift Japan yield expectations and pressure XAUUSD; a downside surprise can support it."
   },
   "JPY::cpi, n.s.a::m/m": {
     "note": "CPI, N.s.a (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -13503,13 +13503,13 @@
     "note": "EIA Weekly Petroleum Status Report includes distillate fuel oil inventories, commonly watched as heating oil stockpiles."
   },
   "USD::house price index::m/m": {
-    "note": "FHFA House Price Index (HPI) measures changes in single-family home values."
+    "note": "FHFA House Price Index (HPI) measures the month-over-month % change in US single-family home values using a weighted, repeat-sales methodology."
   },
   "USD::house price index::none": {
-    "note": "FHFA House Price Index (HPI) measures changes in single-family home values."
+    "note": "FHFA House Price Index (HPI) reports the index level for US single-family house prices based on a weighted, repeat-sales methodology."
   },
   "USD::house price index::y/y": {
-    "note": "FHFA House Price Index (HPI) measures changes in single-family home values."
+    "note": "FHFA House Price Index (HPI) measures the year-over-year % change in US single-family home values using a weighted, repeat-sales methodology."
   },
   "USD::housing starts::m/m": {
     "note": "Census New Residential Construction provides data on new privately-owned housing units started, under construction, and completed."
