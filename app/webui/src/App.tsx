@@ -194,6 +194,8 @@ export default function App() {
     }
   });
   const [initError, setInitError] = useState<string>("");
+  const initOverlayTimerRef = useRef<number | null>(null);
+  const [showInitOverlay, setShowInitOverlay] = useState<boolean>(() => initState === "error");
   const initOverlayHoldAppliedRef = useRef(false);
   const [connecting, setConnecting] = useState<boolean>(isWebview());
   const [pullState, setPullState] = useState<"idle" | "loading" | "success" | "error">(
@@ -504,6 +506,42 @@ export default function App() {
     setConnecting(isWebview());
     void refresh();
   }, []);
+
+  useEffect(() => {
+    if (initOverlayTimerRef.current) {
+      window.clearTimeout(initOverlayTimerRef.current);
+      initOverlayTimerRef.current = null;
+    }
+
+    if (initState === "ready") {
+      setShowInitOverlay(false);
+      return;
+    }
+
+    if (initState === "error") {
+      setShowInitOverlay(true);
+      return;
+    }
+
+    const delayMs = isUiCheckRuntime ? 0 : 250;
+    if (delayMs <= 0) {
+      setShowInitOverlay(true);
+      return;
+    }
+
+    setShowInitOverlay(false);
+    initOverlayTimerRef.current = window.setTimeout(() => {
+      initOverlayTimerRef.current = null;
+      setShowInitOverlay(true);
+    }, delayMs);
+
+    return () => {
+      if (initOverlayTimerRef.current) {
+        window.clearTimeout(initOverlayTimerRef.current);
+        initOverlayTimerRef.current = null;
+      }
+    };
+  }, [initState, isUiCheckRuntime]);
 
   useEffect(() => {
     refreshRef.current = refresh;
@@ -3175,7 +3213,9 @@ export default function App() {
 
   return (
     <div className="app" data-qa="qa:app-shell">
-      <InitOverlay state={initState} error={initError} onRetry={handleInitRetry} />
+      {showInitOverlay ? (
+        <InitOverlay state={initState} error={initError} onRetry={handleInitRetry} />
+      ) : null}
       <AppBar
         snapshot={snapshot}
         outputDir={outputDir}

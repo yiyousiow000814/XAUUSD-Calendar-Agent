@@ -21,15 +21,55 @@ if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
 if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
     throw "cargo not found. Install Rust (rustup) first."
 }
-if (-not (Get-Command link.exe -ErrorAction SilentlyContinue)) {
-    throw @"
-MSVC linker not found (link.exe). Install Visual Studio Build Tools with C++ support, then re-run.
 
+function Import-MsvcDevEnvironment {
+    $vswhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\\Installer\\vswhere.exe"
+    if (-not (Test-Path $vswhere)) {
+        return $false
+    }
+
+    $installPath = & $vswhere `
+        -latest `
+        -products * `
+        -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
+        -property installationPath 2>$null
+
+    if (-not $installPath) {
+        return $false
+    }
+
+    $vsDevCmd = Join-Path $installPath "Common7\\Tools\\VsDevCmd.bat"
+    if (-not (Test-Path $vsDevCmd)) {
+        return $false
+    }
+
+    # Capture environment variables from VsDevCmd without restarting PowerShell.
+    $cmd = "call `"$vsDevCmd`" -no_logo -arch=x64 -host_arch=x64 >nul & set"
+    $envDump = & cmd.exe /d /s /c $cmd
+    foreach ($line in $envDump) {
+        $idx = $line.IndexOf("=")
+        if ($idx -le 0) { continue }
+        $name = $line.Substring(0, $idx)
+        $value = $line.Substring($idx + 1)
+        Set-Item -Path "env:$name" -Value $value
+    }
+
+    return $true
+}
+
+if (-not (Get-Command link.exe -ErrorAction SilentlyContinue)) {
+    $imported = Import-MsvcDevEnvironment
+    if (-not $imported -or -not (Get-Command link.exe -ErrorAction SilentlyContinue)) {
+        throw @"
+MSVC linker not found (link.exe).
+
+Install Visual Studio Build Tools with C++ support, then re-run.
 Recommended (winget):
   winget install -e --id Microsoft.VisualStudio.2022.BuildTools --accept-package-agreements --accept-source-agreements
 
-Then open "Developer PowerShell for VS 2022" (or restart the terminal) and run this script again.
+This script will auto-load the VS dev environment when available (no PowerShell restart needed).
 "@
+    }
 }
 if (-not (Test-Path (Join-Path $RepoRoot "app\\webui\\package.json"))) {
     throw "Web UI not found at app\\webui."
