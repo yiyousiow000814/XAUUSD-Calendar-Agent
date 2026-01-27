@@ -79,21 +79,24 @@ pub fn load_config() -> Value {
 
                         let from_repo = roaming.join("repo");
                         let to_repo = portable_dir.join("repo");
-                        if from_repo.exists()
-                            && !to_repo.exists()
-                            && copy_dir_recursive(&from_repo, &to_repo).is_ok()
-                        {
+                        if move_or_copy_dir(&from_repo, &to_repo).unwrap_or(false) {
                             migrated_any = true;
                         }
 
                         let from_logs = roaming.join("logs");
                         let to_logs = portable_dir.join("logs");
-                        if from_logs.exists() && !to_logs.exists() {
-                            let _ = copy_dir_recursive(&from_logs, &to_logs);
-                        }
+                        let _ = move_or_copy_dir(&from_logs, &to_logs);
 
+                        // Avoid blocking UI on large directory deletes. Best-effort: rename quickly,
+                        // then delete in the background.
                         if migrated_any {
-                            let _ = fs::remove_dir_all(&roaming);
+                            let deprecated = roaming.with_file_name(format!(
+                                "XAUUSDCalendar.deprecated-{}",
+                                std::process::id()
+                            ));
+                            if fs::rename(&roaming, &deprecated).is_ok() {
+                                schedule_delete_dir(deprecated);
+                            }
                         }
                     }
                 }
@@ -163,6 +166,28 @@ fn copy_dir_recursive(from: &Path, to: &Path) -> Result<(), String> {
         }
     }
     Ok(())
+}
+
+fn move_or_copy_dir(from: &Path, to: &Path) -> Result<bool, String> {
+    if !from.exists() || to.exists() {
+        return Ok(false);
+    }
+    if let Some(parent) = to.parent() {
+        fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+    match fs::rename(from, to) {
+        Ok(()) => Ok(true),
+        Err(_) => {
+            copy_dir_recursive(from, to)?;
+            Ok(true)
+        }
+    }
+}
+
+fn schedule_delete_dir(path: PathBuf) {
+    std::thread::spawn(move || {
+        let _ = fs::remove_dir_all(&path);
+    });
 }
 
 pub fn get_str(cfg: &Value, key: &str) -> String {

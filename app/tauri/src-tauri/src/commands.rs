@@ -1133,7 +1133,13 @@ fn verify_github_token_value(token: &str) -> Result<bool, String> {
     }
 
     let url = "https://api.github.com/user";
-    let resp = ureq::get(url)
+    let agent = ureq::AgentBuilder::new()
+        .timeout_connect(std::time::Duration::from_secs(5))
+        .timeout_read(std::time::Duration::from_secs(8))
+        .timeout_write(std::time::Duration::from_secs(8))
+        .build();
+    let resp = agent
+        .get(url)
         .set("User-Agent", "XAUUSDCalendarAgent")
         .set("Accept", "application/vnd.github+json")
         .set("X-GitHub-Api-Version", "2022-11-28")
@@ -1142,7 +1148,8 @@ fn verify_github_token_value(token: &str) -> Result<bool, String> {
 
     match resp {
         Ok(r) => Ok((200..=299).contains(&r.status())),
-        Err(ureq::Error::Status(code, _)) => Ok(code != 401 && (200..=299).contains(&code)),
+        Err(ureq::Error::Status(401, _)) => Ok(false),
+        Err(ureq::Error::Status(code, _)) => Err(format!("GitHub responded with HTTP {code}")),
         Err(e) => Err(format!("{e}")),
     }
 }
