@@ -231,8 +231,68 @@ fn get_calendar_settings(cfg: &Value) -> (String, i32) {
 
 #[tauri::command]
 pub fn get_snapshot(app: tauri::AppHandle, state: tauri::State<'_, Mutex<RuntimeState>>) -> Value {
-    let cfg = config::load_config();
-    ensure_calendar_loaded(app, cfg.clone(), state.clone());
+    let mut cfg = config::load_config();
+    ensure_calendar_loaded(app.clone(), cfg.clone(), state.clone());
+
+    // If github_token changed (e.g. edited in config.json), verify it once and surface a modal.
+    let token = config::get_str(&cfg, "github_token");
+    let token_last_seen = config::get_str(&cfg, "github_token_last_seen");
+    if !token.is_empty() && token != token_last_seen {
+        let _ = config::set_string(&mut cfg, "github_token_last_seen", token.clone());
+        let _ = config::save_config(&cfg);
+
+        let mut runtime = state.lock().expect("runtime lock");
+        if !runtime.token_check_started {
+            runtime.token_check_started = true;
+            drop(runtime);
+
+            let app_handle = app.clone();
+            tauri::async_runtime::spawn_blocking(move || {
+                let runtime_state = app_handle.state::<Mutex<RuntimeState>>();
+                let state_for_updates = app_handle.state::<Mutex<RuntimeState>>();
+                let valid = verify_github_token_value(&token);
+                let mut runtime = runtime_state.lock().expect("runtime lock");
+                let id = format!("github-token-{}", now_ms());
+                match valid {
+                    Ok(true) => {
+                        runtime.modal = json!({
+                            "id": id,
+                            "title": "GitHub Token",
+                            "message": "Token verified.\n\nUpdating data...",
+                            "tone": "info"
+                        });
+                        push_log(&mut runtime, "GitHub token verified.", "INFO");
+                        drop(runtime);
+                        let _ = check_updates(app_handle.clone(), state_for_updates);
+                    }
+                    Ok(false) => {
+                        runtime.modal = json!({
+                            "id": id,
+                            "title": "GitHub Token",
+                            "message": "Token Invalid.\n\nPlease check github_token in config.json",
+                            "tone": "error"
+                        });
+                        push_log(&mut runtime, "GitHub token invalid.", "ERROR");
+                    }
+                    Err(msg) => {
+                        runtime.modal = json!({
+                            "id": id,
+                            "title": "GitHub Token",
+                            "message": format!("Token check failed: {msg}\n\nPlease check github_token in config.json"),
+                            "tone": "error"
+                        });
+                        push_log(
+                            &mut runtime,
+                            &format!("GitHub token check failed: {msg}"),
+                            "ERROR",
+                        );
+                    }
+                }
+                let mut runtime = runtime_state.lock().expect("runtime lock");
+                runtime.token_check_started = false;
+            });
+        }
+    }
 
     let (tz_mode, utc_offset_minutes) = get_calendar_settings(&cfg);
     let currency_opts = currency_options();
@@ -349,7 +409,7 @@ pub fn get_snapshot(app: tauri::AppHandle, state: tauri::State<'_, Mutex<Runtime
         "syncActive": runtime.sync_active,
         "calendarStatus": calendar_status,
         "restartInSeconds": 0,
-        "modal": null
+        "modal": if runtime.modal.is_null() { Value::Null } else { runtime.modal.clone() }
     })
 }
 
@@ -1052,8 +1112,39 @@ pub fn uninstall(_payload: Value) -> Value {
 }
 
 #[tauri::command]
-pub fn dismiss_modal(_payload: Value) -> Value {
+pub fn dismiss_modal(payload: Value, state: tauri::State<'_, Mutex<RuntimeState>>) -> Value {
+    let id = payload.get("id").and_then(|v| v.as_str()).unwrap_or("");
+    let mut runtime = state.lock().expect("runtime lock");
+    let current_id = runtime
+        .modal
+        .get("id")
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+    if !id.is_empty() && id == current_id {
+        runtime.modal = Value::Null;
+    }
     json!({"ok": true})
+}
+
+fn verify_github_token_value(token: &str) -> Result<bool, String> {
+    let token = token.trim();
+    if token.is_empty() {
+        return Ok(false);
+    }
+
+    let url = "https://api.github.com/user";
+    let resp = ureq::get(url)
+        .set("User-Agent", "XAUUSDCalendarAgent")
+        .set("Accept", "application/vnd.github+json")
+        .set("X-GitHub-Api-Version", "2022-11-28")
+        .set("Authorization", &format!("Bearer {token}"))
+        .call();
+
+    match resp {
+        Ok(r) => Ok((200..=299).contains(&r.status())),
+        Err(ureq::Error::Status(code, _)) => Ok(code != 401 && (200..=299).contains(&code)),
+        Err(e) => Err(format!("{e}")),
+    }
 }
 
 #[tauri::command]

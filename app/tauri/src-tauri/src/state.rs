@@ -16,6 +16,7 @@ pub struct RuntimeState {
     pub boot_logged: bool,
     pub auto_pull_started: bool,
     pub auto_update_check_started: bool,
+    pub token_check_started: bool,
     pub last_pull: String,
     pub last_pull_at: String,
     pub last_sync: String,
@@ -25,5 +26,6 @@ pub struct RuntimeState {
     pub update_asset_url: String,
     pub output_dir: String,
     pub repo_path: String,
+    pub modal: Value,
     pub calendar: CalendarCache,
 }

@@ -104,7 +104,22 @@ pub fn load_config() -> Value {
     let text = fs::read_to_string(&path).unwrap_or_default();
     let parsed: Value = serde_json::from_str(&text).unwrap_or_else(|_| json!({}));
     let merged = merge_objects(defaults, parsed);
-    if !path.exists() {
+
+    // Normalize repo_path: in strict portable mode it must live under user-data.
+    let mut merged = merged;
+    let repo_path = get_str(&merged, "repo_path");
+    let legacy_repo = legacy_roaming_dir().map(|p| p.join("repo").to_string_lossy().to_string());
+    let portable_repo = repo_dir().to_string_lossy().to_string();
+    let needs_repo_fix = repo_path.is_empty()
+        || legacy_repo
+            .as_ref()
+            .map(|legacy| repo_path == *legacy)
+            .unwrap_or(false);
+    if needs_repo_fix {
+        let _ = set_string(&mut merged, "repo_path", portable_repo);
+    }
+
+    if !path.exists() || needs_repo_fix {
         let _ = save_config(&merged);
     }
     merged
@@ -194,17 +209,73 @@ pub fn set_number(cfg: &mut Value, key: &str, value: i64) -> Result<(), String> 
 fn default_config() -> Value {
     let mut base = Map::<String, Value>::new();
     base.insert("schema_version".to_string(), Value::Number(2.into()));
-    base.insert("repo_path".to_string(), Value::String("".to_string()));
+    base.insert(
+        "repo_path".to_string(),
+        Value::String(repo_dir().to_string_lossy().to_string()),
+    );
+    base.insert("sync_repo_path".to_string(), Value::String("".to_string()));
     base.insert("temporary_path".to_string(), Value::String("".to_string()));
+    base.insert("enable_sync_repo".to_string(), Value::Bool(false));
+    base.insert(
+        "sync_repo_confirmed_path".to_string(),
+        Value::String("".to_string()),
+    );
+    base.insert(
+        "sync_repo_confirmed_repo".to_string(),
+        Value::String("".to_string()),
+    );
+    base.insert(
+        "sync_repo_confirmed_mode".to_string(),
+        Value::String("".to_string()),
+    );
+    base.insert(
+        "sync_repo_confirmed_at".to_string(),
+        Value::String("".to_string()),
+    );
+    base.insert("repo_path_history".to_string(), json!([]));
+    base.insert("sync_repo_path_history".to_string(), json!([]));
+    base.insert("output_dir_history".to_string(), json!([]));
+    base.insert("temporary_path_history".to_string(), json!([]));
+    base.insert("successful_repo_paths".to_string(), json!([]));
+    base.insert("created_paths".to_string(), json!([]));
     base.insert("output_dir".to_string(), Value::String("".to_string()));
     base.insert("output_dir_last_sync_at".to_string(), json!({}));
+    base.insert("auto_pull_days".to_string(), Value::Number(1.into()));
+    base.insert(
+        "check_interval_minutes".to_string(),
+        Value::Number(360.into()),
+    );
     base.insert("enable_temporary_path".to_string(), Value::Bool(false));
+    base.insert(
+        "ui_min_interval_minutes".to_string(),
+        Value::Number(10.into()),
+    );
+    base.insert(
+        "ui_calendar_tick_seconds".to_string(),
+        Value::Number(60.into()),
+    );
+    base.insert(
+        "ui_settings_autosave_ms".to_string(),
+        Value::Number(400.into()),
+    );
+    base.insert(
+        "background_max_workers".to_string(),
+        Value::Number(4.into()),
+    );
     base.insert("auto_sync_after_pull".to_string(), Value::Bool(true));
     base.insert("debug".to_string(), Value::Bool(false));
     base.insert("last_pull_at".to_string(), Value::String("".to_string()));
     base.insert("last_sync_at".to_string(), Value::String("".to_string()));
     base.insert("last_pull_sha".to_string(), Value::String("".to_string()));
     base.insert("auto_update_enabled".to_string(), Value::Bool(true));
+    base.insert(
+        "auto_update_interval_minutes".to_string(),
+        Value::Number(60.into()),
+    );
+    base.insert(
+        "last_update_check_at".to_string(),
+        Value::String("".to_string()),
+    );
     base.insert(
         "github_repo".to_string(),
         Value::String("yiyousiow000814/XAUUSD-Calendar-Agent".to_string()),
@@ -218,6 +289,10 @@ fn default_config() -> Value {
         Value::String("Setup.exe".to_string()),
     );
     base.insert("github_token".to_string(), Value::String("".to_string()));
+    base.insert(
+        "github_token_last_seen".to_string(),
+        Value::String("".to_string()),
+    );
     base.insert("run_on_startup".to_string(), Value::Bool(true));
     base.insert(
         "autostart_launch_mode".to_string(),
