@@ -7,7 +7,7 @@ use crate::snapshot::{render_next_events, render_past_events};
 use crate::startup;
 use crate::state::{CalendarCache, RuntimeState};
 use crate::sync_util;
-use crate::time_util::{now_display_time, now_iso_time};
+use crate::time_util::{display_time_from_iso, now_display_time, now_iso_time};
 use chrono::Utc;
 use serde_json::{json, Value};
 use std::cmp::Ordering;
@@ -88,6 +88,25 @@ fn resolve_calendar_repo_path(cfg: &Value) -> Option<PathBuf> {
         return Some(repo);
     }
     None
+}
+
+fn repo_dir_for_git(cfg: &Value) -> PathBuf {
+    let explicit = config::get_str(cfg, "repo_path");
+    if !explicit.is_empty() {
+        return PathBuf::from(explicit);
+    }
+    config::repo_dir()
+}
+
+fn set_object_string(root: &mut Value, key: &str, subkey: &str, value: &str) {
+    if root.get(key).and_then(|v| v.as_object()).is_none() {
+        if let Some(obj) = root.as_object_mut() {
+            obj.insert(key.to_string(), json!({}));
+        }
+    }
+    if let Some(obj) = root.get_mut(key).and_then(|v| v.as_object_mut()) {
+        obj.insert(subkey.to_string(), Value::String(value.to_string()));
+    }
 }
 
 fn normalize_version_tag(tag: &str) -> String {
@@ -181,7 +200,7 @@ fn spawn_pull(app: tauri::AppHandle, state: tauri::State<'_, Mutex<RuntimeState>
     let cfg = config::load_config();
     let repo_slug = config::get_str(&cfg, "github_repo");
     let branch = config::get_str(&cfg, "github_branch");
-    let repo_dir = config::repo_dir();
+    let repo_dir = repo_dir_for_git(&cfg);
     {
         let mut runtime = state.lock().expect("runtime lock");
         if runtime.pull_active {
@@ -200,8 +219,9 @@ fn spawn_pull(app: tauri::AppHandle, state: tauri::State<'_, Mutex<RuntimeState>
         runtime.pull_active = false;
         match result {
             Ok(sha) => {
+                let last_pull_at = now_iso_time();
                 runtime.last_pull = now_display_time();
-                runtime.last_pull_at = now_iso_time();
+                runtime.last_pull_at = last_pull_at.clone();
                 let short = sha.chars().take(7).collect::<String>();
                 push_log(&mut runtime, &format!("Pull finished ({short})"), "INFO");
 
@@ -214,6 +234,16 @@ fn spawn_pull(app: tauri::AppHandle, state: tauri::State<'_, Mutex<RuntimeState>
                     runtime.calendar.status = "loaded".to_string();
                     runtime.calendar.events = events.iter().map(to_value).collect();
                 }
+
+                // Persist last pull per repo path.
+                drop(runtime);
+                let mut cfg = config::load_config();
+                let repo_key = repo_dir.to_string_lossy().to_string();
+                let _ = config::set_string(&mut cfg, "last_pull_at", last_pull_at.clone());
+                let _ = config::set_string(&mut cfg, "last_pull_sha", sha.clone());
+                set_object_string(&mut cfg, "repo_path_last_pull_at", &repo_key, &last_pull_at);
+                set_object_string(&mut cfg, "repo_path_last_pull_sha", &repo_key, &sha);
+                let _ = config::save_config(&cfg);
             }
             Err(err) => {
                 push_log(&mut runtime, &format!("Pull failed: {err}"), "ERROR");
@@ -244,6 +274,13 @@ pub fn get_snapshot(app: tauri::AppHandle, state: tauri::State<'_, Mutex<Runtime
         let mut runtime = state.lock().expect("runtime lock");
         if !runtime.token_check_started {
             runtime.token_check_started = true;
+            let id = format!("github-token-{}", now_ms());
+            runtime.modal = json!({
+                "id": id,
+                "title": "GitHub Token",
+                "message": "Checking token...",
+                "tone": "info"
+            });
             drop(runtime);
 
             let app_handle = app.clone();
@@ -252,11 +289,16 @@ pub fn get_snapshot(app: tauri::AppHandle, state: tauri::State<'_, Mutex<Runtime
                 let state_for_updates = app_handle.state::<Mutex<RuntimeState>>();
                 let valid = verify_github_token_value(&token);
                 let mut runtime = runtime_state.lock().expect("runtime lock");
-                let id = format!("github-token-{}", now_ms());
+                let modal_id = runtime
+                    .modal
+                    .get("id")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
                 match valid {
                     Ok(true) => {
                         runtime.modal = json!({
-                            "id": id,
+                            "id": modal_id,
                             "title": "GitHub Token",
                             "message": "Token verified.\n\nUpdating data...",
                             "tone": "info"
@@ -267,7 +309,7 @@ pub fn get_snapshot(app: tauri::AppHandle, state: tauri::State<'_, Mutex<Runtime
                     }
                     Ok(false) => {
                         runtime.modal = json!({
-                            "id": id,
+                            "id": modal_id,
                             "title": "GitHub Token",
                             "message": "Token Invalid.\n\nPlease check github_token in config.json",
                             "tone": "error"
@@ -276,7 +318,7 @@ pub fn get_snapshot(app: tauri::AppHandle, state: tauri::State<'_, Mutex<Runtime
                     }
                     Err(msg) => {
                         runtime.modal = json!({
-                            "id": id,
+                            "id": modal_id,
                             "title": "GitHub Token",
                             "message": format!("Token check failed: {msg}\n\nPlease check github_token in config.json"),
                             "tone": "error"
@@ -307,8 +349,42 @@ pub fn get_snapshot(app: tauri::AppHandle, state: tauri::State<'_, Mutex<Runtime
     if runtime.output_dir.is_empty() {
         runtime.output_dir = config::get_str(&cfg, "output_dir");
     }
-    if runtime.repo_path.is_empty() {
+    let configured_repo_path = config::get_str(&cfg, "repo_path");
+    if !configured_repo_path.is_empty() {
+        runtime.repo_path = configured_repo_path;
+    } else if runtime.repo_path.is_empty() {
         runtime.repo_path = config::repo_dir().to_string_lossy().to_string();
+    }
+
+    // Hydrate lastPull/lastSync from config so they persist across restarts and vary by path.
+    let repo_key = runtime.repo_path.clone();
+    let repo_last_pull_at = cfg
+        .get("repo_path_last_pull_at")
+        .and_then(|v| v.get(&repo_key))
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+    if !repo_last_pull_at.is_empty() {
+        runtime.last_pull_at = repo_last_pull_at.to_string();
+        if runtime.last_pull.is_empty() {
+            if let Some(display) = display_time_from_iso(repo_last_pull_at) {
+                runtime.last_pull = display;
+            }
+        }
+    }
+
+    let out = runtime.output_dir.clone();
+    let last_sync_at = cfg
+        .get("output_dir_last_sync_at")
+        .and_then(|v| v.get(&out))
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+    if !last_sync_at.is_empty() {
+        runtime.last_sync_at = last_sync_at.to_string();
+        if runtime.last_sync.is_empty() {
+            if let Some(display) = display_time_from_iso(last_sync_at) {
+                runtime.last_sync = display;
+            }
+        }
     }
 
     let calendar_events = runtime
@@ -785,7 +861,8 @@ pub fn sync_now(
 ) -> Result<Value, String> {
     let cfg = config::load_config();
     let output_dir = config::get_str(&cfg, "output_dir");
-    let repo_dir = config::repo_dir();
+    let output_dir_key = output_dir.clone();
+    let repo_dir = repo_dir_for_git(&cfg);
     {
         let mut runtime = state.lock().expect("runtime lock");
         runtime.sync_active = true;
@@ -808,7 +885,8 @@ pub fn sync_now(
         match result {
             Ok(res) => {
                 runtime.last_sync = now_display_time();
-                runtime.last_sync_at = now_iso_time();
+                let last_sync_at = now_iso_time();
+                runtime.last_sync_at = last_sync_at.clone();
                 push_log(
                     &mut runtime,
                     &format!(
@@ -817,6 +895,18 @@ pub fn sync_now(
                     ),
                     "INFO",
                 );
+
+                // Persist last sync per output dir.
+                drop(runtime);
+                let mut cfg = config::load_config();
+                let _ = config::set_string(&mut cfg, "last_sync_at", last_sync_at.clone());
+                set_object_string(
+                    &mut cfg,
+                    "output_dir_last_sync_at",
+                    &output_dir_key,
+                    &last_sync_at,
+                );
+                let _ = config::save_config(&cfg);
             }
             Err(err) => {
                 push_log(&mut runtime, &format!("Sync failed: {err}"), "ERROR");

@@ -265,6 +265,8 @@ fn default_config() -> Value {
     base.insert("created_paths".to_string(), json!([]));
     base.insert("output_dir".to_string(), Value::String("".to_string()));
     base.insert("output_dir_last_sync_at".to_string(), json!({}));
+    base.insert("repo_path_last_pull_at".to_string(), json!({}));
+    base.insert("repo_path_last_pull_sha".to_string(), json!({}));
     base.insert("auto_pull_days".to_string(), Value::Number(1.into()));
     base.insert(
         "check_interval_minutes".to_string(),

@@ -8,6 +8,19 @@ pub fn now_iso_time() -> String {
     Utc::now().to_rfc3339()
 }
 
+pub fn display_time_from_iso(iso: &str) -> Option<String> {
+    let iso = iso.trim();
+    if iso.is_empty() {
+        return None;
+    }
+    let dt = DateTime::parse_from_rfc3339(iso).ok()?;
+    Some(
+        dt.with_timezone(&Local)
+            .format("%d-%m-%Y %H:%M")
+            .to_string(),
+    )
+}
+
 pub fn format_display_time(dt: DateTime<Utc>, mode: &str, utc_offset_minutes: i32) -> String {
     if mode == "utc" {
         return dt.format("%d-%m-%Y %H:%M").to_string();

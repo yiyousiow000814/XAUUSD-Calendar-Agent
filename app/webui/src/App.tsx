@@ -395,6 +395,17 @@ export default function App() {
                   message: modal.message || "",
                   tone: modal.tone || "info"
                 });
+              } else if (modal && modal.id && modal.id === activeAlertIdRef.current) {
+                setAlertContext((prev) => {
+                  if (!prev || prev.id !== modal.id) return prev;
+                  const nextTitle = modal.title || prev.title;
+                  const nextMessage = modal.message || prev.message;
+                  const nextTone = (modal.tone as "info" | "error" | undefined) || prev.tone;
+                  if (nextTitle === prev.title && nextMessage === prev.message && nextTone === prev.tone) {
+                    return prev;
+                  }
+                  return { ...prev, title: nextTitle, message: nextMessage, tone: nextTone };
+                });
               }
               if (!settingsOpenRef.current) {
                 if (prefs) {
