@@ -19,6 +19,15 @@ use tauri::tray::TrayIconEvent;
 use tauri::Manager;
 use tauri::WindowEvent;
 
+fn show_main_window(handle: &tauri::AppHandle) {
+    let Some(win) = handle.get_webview_window("main") else {
+        return;
+    };
+    let _ = win.show();
+    let _ = win.unminimize();
+    let _ = win.set_focus();
+}
+
 fn main() {
     tauri::Builder::default()
         .manage(Mutex::new(RuntimeState {
@@ -26,6 +35,9 @@ fn main() {
             ..RuntimeState::default()
         }))
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            show_main_window(app);
+        }))
         .on_window_event(|window, event| {
             if window.label() != "main" {
                 return;
@@ -112,14 +124,9 @@ fn main() {
                     app.exit(0);
                     return;
                 }
-                let Some(win) = app.get_webview_window("main") else {
-                    return;
-                };
                 match id {
                     "tray:open" => {
-                        let _ = win.show();
-                        let _ = win.unminimize();
-                        let _ = win.set_focus();
+                        show_main_window(app);
                     }
                     _ => {}
                 }
@@ -139,12 +146,7 @@ fn main() {
                     }
                     _ => return,
                 };
-                let Some(win) = app.get_webview_window("main") else {
-                    return;
-                };
-                let _ = win.show();
-                let _ = win.unminimize();
-                let _ = win.set_focus();
+                show_main_window(app);
             });
 
             if launched_by_autostart && autostart_launch_mode == "tray" {
