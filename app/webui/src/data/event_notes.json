@@ -381,7 +381,7 @@
     "note": "BCB Monetary Policy Report presents Copom's policy guidelines, recent developments, and inflation projections."
   },
   "BRL::bcb national monetary council meeting::none": {
-    "note": "Bcb National Monetary Council Meeting is a scheduled data release."
+    "note": "A scheduled meeting of Brazil's Conselho Monetario Nacional (CMN), which issues broad rules and guidelines for monetary and credit policy."
   },
   "BRL::brazil thomson reuters ipsos pcsi::none": {
     "note": "Ipsos PCSI is a monthly consumer sentiment index for BRL that reflects households' confidence and outlook."
@@ -840,13 +840,13 @@
     "note": "Snb Interest Rate Decision sets the policy rate (the SNB). A more hawkish-than-expected message can lift global yields and pressure XAUUSD; a dovish surprise can support it."
   },
   "CHF::snb monetary policy assessment::none": {
-    "note": "Snb Monetary Policy Assessment is a scheduled data release."
+    "note": "The SNB publishes a monetary policy assessment that sets the SNB policy rate and presents its inflation forecast. A hawkish-than-expected assessment can lift yields and pressure XAUUSD; a dovish surprise can support it."
   },
   "CHF::snb press conference::none": {
     "note": "Snb Press Conference provides Q&A and messaging after the policy decision (the SNB). A more hawkish-than-expected message can lift global yields and pressure XAUUSD; a dovish surprise can support it."
   },
   "CHF::snb quarterly bulletin::none": {
-    "note": "Snb Quarterly Bulletin is a scheduled data release."
+    "note": "SNB Quarterly Bulletin is a quarterly publication with analysis of economic and monetary developments and selected statistics."
   },
   "CHF::snb vice chairman schlegel speaks::none": {
     "note": "Scheduled speech/remarks by a Swiss National Bank official."
@@ -1008,7 +1008,7 @@
     "note": "PBOC benchmark deposit rate is an administered reference rate published by the People's Bank of China for RMB deposits."
   },
   "CNY::pboc gov yi speaks::none": {
-    "note": "Pboc Gov Yi Speaks is a scheduled data release."
+    "note": "A scheduled speech by former PBoC Governor Yi Gang. More hawkish-than-expected remarks on inflation, liquidity, or FX policy can move risk sentiment and affect XAUUSD."
   },
   "CNY::pboc interest rate::none": {
     "note": "PBOC benchmark lending rate is an administered reference rate published by the People's Bank of China for RMB loans."
@@ -1179,7 +1179,7 @@
     "note": "Denmark HICP is the EU-harmonised consumer price index, and this release shows the year-over-year change."
   },
   "DKK::industrial outlook::none": {
-    "note": "Industrial Outlook is a scheduled data release."
+    "note": "Industrial Outlook is the EU industrial confidence indicator, built as the average of balances on production expectations, order books, and stocks of finished products (inverted)."
   },
   "DKK::industrial production::m/m": {
     "note": "Industrial Production measures the month-over-month % change in industrial output."
@@ -3300,7 +3300,7 @@
     "note": "India manufacturing output (MoM) reports the monthly change in manufacturing production for the period."
   },
   "INR::rbi financial stability report::none": {
-    "note": "Rbi Financial Stability Report is a scheduled data release."
+    "note": "RBI Financial Stability Report reflects the FSDC Sub-Committee's assessment of the resilience of the Indian financial system and risks to financial stability. Usually limited direct impact on XAUUSD unless it shifts broader risk sentiment."
   },
   "INR::rbi foreign exchange reserves report::none": {
     "note": "Rbi Foreign Exchange Reserves Report reports official foreign-exchange reserves."
@@ -3309,7 +3309,7 @@
     "note": "Rbi Monetary and Credit Information Review measures credit or lending conditions."
   },
   "INR::rbi monthly bulletin::none": {
-    "note": "Rbi Monthly Bulletin is a scheduled data release."
+    "note": "RBI Bulletin is a monthly publication featuring articles and a section of current statistics tables."
   },
   "INR::rbi mpc meeting minutes::none": {
     "note": "Rbi Mpc Meeting Minutes provides detail on the latest policy meeting (the central bank)."
@@ -3462,7 +3462,7 @@
     "note": "Boj Monetary Policy Statement communicates the policy outlook and guidance (the BoJ). A more hawkish-than-expected message can lift global yields and pressure XAUUSD; a dovish surprise can support it."
   },
   "JPY::boj monthly report::none": {
-    "note": "Boj Monthly Report is a scheduled data release."
+    "note": "A Bank of Japan report covering Japan's economic and financial developments and the Bank's policy stance. If it shifts expectations for BoJ policy, it can move JPY and risk sentiment, influencing XAUUSD."
   },
   "JPY::boj outlook report::y/y": {
     "note": "BoJ Outlook Report presents the Bank's outlook for economic activity and prices and its assessment of risks."
@@ -3477,7 +3477,7 @@
     "note": "Scheduled speech/remarks by a Bank of Japan official."
   },
   "JPY::bsi large manufacturing conditions::none": {
-    "note": "Bsi Large Manufacturing Conditions is a scheduled data release."
+    "note": "A diffusion-index style survey of business conditions among large Japanese manufacturers, calculated as the share reporting \\\"favorable\\\" minus \\\"unfavorable.\\\" A weaker-than-expected reading can weigh on risk sentiment and support XAUUSD as a safe haven."
   },
   "JPY::capacity utilization::m/m": {
     "note": "Japan capacity utilization index measures use of production capacity and this series is the monthly change."
@@ -3489,7 +3489,7 @@
     "note": "CFTC Commitments of Traders (COT) reports net speculative positioning for JPY futures."
   },
   "JPY::coincident indicator::m/m": {
-    "note": "Coincident Indicator is a scheduled data release."
+    "note": "Measures the month-over-month change in a coincident indicator that moves with the overall economy. It provides a snapshot of current business-cycle conditions."
   },
   "JPY::construction orders::y/y": {
     "note": "Measures the year-over-year % change in construction orders received."
@@ -3900,7 +3900,7 @@
     "note": "Banco de Mexico implements monetary policy via a target for the overnight interbank interest rate, announced after its policy decision meeting. Usually limited direct impact on XAUUSD unless it moves broader USD, yields, or risk sentiment."
   },
   "MXN::mexican general election::none": {
-    "note": "Mexican General Election is a scheduled data release."
+    "note": "A national election to choose Mexico's president and other offices. Political uncertainty around the outcome can affect MXN and risk sentiment, with potential spillover to XAUUSD."
   },
   "MXN::monetary policy meeting minutes::none": {
     "note": "Monetary Policy Meeting Minutes provides detail on the latest policy meeting (the central bank)."
@@ -11937,7 +11937,7 @@
     "note": "Stanbic IBTC Bank Nigeria non-manufacturing PMI (from S&P Global) is a monthly survey-based diffusion index for the non-manufacturing sector (above 50 = expansion)."
   },
   "NOK::central bank currency purchase::none": {
-    "note": "Central Bank Currency Purchase is a scheduled data release."
+    "note": "Reports central bank foreign-currency purchases or sales, which can influence NOK liquidity conditions. Usually limited direct impact on XAUUSD unless it meaningfully shifts risk sentiment."
   },
   "NOK::consumer confidence::none": {
     "note": "Consumer Confidence is a survey-based sentiment reading."
@@ -11988,7 +11988,7 @@
     "note": "Statistics Norway manufacturing production (MoM) reports the monthly change in manufacturing output."
   },
   "NOK::norges bank regional network survey::none": {
-    "note": "Norges Bank Regional Network Survey is a scheduled data release."
+    "note": "Norges Bank surveys executives from over 400 enterprises about recent economic developments and the outlook ahead. The results feed into the Bank's analysis before policy decisions."
   },
   "NOK::ppi::y/y": {
     "note": "PPI (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers."
@@ -12108,7 +12108,7 @@
     "note": "Manufacturing Sales Volume shows the quarterly change in manufacturing sales after removing the effect of price changes."
   },
   "NZD::nbnz own activity::none": {
-    "note": "Nbnz Own Activity is a scheduled data release."
+    "note": "A business survey gauge of firms' own-activity expectations over the coming months. It can influence NZD if it changes the perceived growth outlook."
   },
   "NZD::net debt forecast::none": {
     "note": "Provides an updated forecast for net government debt."
@@ -12138,19 +12138,19 @@
     "note": "PPI Output (Producer Price Index, QoQ) measures the change in prices received by producers. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "NZD::rbnz assist gov mcdermott speaks::none": {
-    "note": "Rbnz Assist Gov Mcdermott Speaks is a scheduled data release."
+    "note": "A scheduled speech by a Reserve Bank of New Zealand official. Markets listen for signals on the policy outlook; surprises can move NZD and risk sentiment."
   },
   "NZD::rbnz financial stability report::none": {
-    "note": "Rbnz Financial Stability Report is a scheduled data release."
+    "note": "RBNZ Financial Stability Report is the central bank's assessment of risks to New Zealand's financial system. Usually limited direct impact on XAUUSD unless it drives broader risk-off or risk-on."
   },
   "NZD::rbnz gov orr speaks::none": {
-    "note": "Rbnz Gov Orr Speaks is a scheduled data release."
+    "note": "A scheduled speech by RBNZ Governor Adrian Orr. More hawkish-than-expected remarks can lift rate expectations and pressure XAUUSD; a dovish surprise can support it."
   },
   "NZD::rbnz gov spencer speaks::none": {
-    "note": "Rbnz Gov Spencer Speaks is a scheduled data release."
+    "note": "A scheduled speech by a senior Reserve Bank of New Zealand official. Policy-signalling surprises can move NZD and risk sentiment, affecting XAUUSD."
   },
   "NZD::rbnz gov wheeler speaks::none": {
-    "note": "Rbnz Gov Wheeler Speaks is a scheduled data release."
+    "note": "A scheduled speech by former RBNZ Governor Graeme Wheeler. Comments that shift rate expectations can move NZD and risk sentiment, with potential spillover to XAUUSD."
   },
   "NZD::rbnz interest rate decision::none": {
     "note": "Rbnz Interest Rate Decision sets the policy rate (the RBNZ). A more hawkish-than-expected message can lift global yields and pressure XAUUSD; a dovish surprise can support it."
@@ -12159,7 +12159,7 @@
     "note": "Rbnz Monetary Policy Statement communicates the policy outlook and guidance (the RBNZ). A more hawkish-than-expected message can lift global yields and pressure XAUUSD; a dovish surprise can support it."
   },
   "NZD::rbnz offshore holdings::none": {
-    "note": "Rbnz Offshore Holdings is a scheduled data release."
+    "note": "Reports offshore holdings of New Zealand government securities, often used to gauge foreign participation in local markets."
   },
   "NZD::rbnz press conference::none": {
     "note": "Rbnz Press Conference provides Q&A and messaging after the policy decision (the RBNZ). A more hawkish-than-expected message can lift global yields and pressure XAUUSD; a dovish surprise can support it."
@@ -12243,13 +12243,13 @@
     "note": "Unemployment Rate shows the share of the labor force that is unemployed."
   },
   "PHP::bsp advisory committee meeting::none": {
-    "note": "Bsp Advisory Committee Meeting is a scheduled data release."
+    "note": "A scheduled meeting of a Bangko Sentral ng Pilipinas advisory committee discussing monetary and financial conditions. Usually limited direct impact on XAUUSD unless it changes broader risk sentiment."
   },
   "PHP::bsp inflation report press conference::none": {
     "note": "Bsp Inflation Report Press Conference provides Q&A and messaging after the policy decision (the central bank)."
   },
   "PHP::bsp monetary board highlights publication::none": {
-    "note": "Bsp Monetary Board Highlights Publication is a scheduled data release."
+    "note": "A publication summarising key decisions and discussions of the BSP Monetary Board. It can move PHP if it alters expectations for policy or regulation."
   },
   "PHP::budget balance::none": {
     "note": "Philippines budget balance reports the government's fiscal result for the period (surplus or deficit)."
@@ -12483,10 +12483,10 @@
     "note": "Russia retail sales (YoY) reports the year-over-year change in retail trade turnover."
   },
   "RUB::russia thomon reuters ipsos pcsi::none": {
-    "note": "Russia Thomon Reuters Ipsos Pcsi is a scheduled data release."
+    "note": "A consumer sentiment index that gauges households' confidence and spending outlook. Usually limited direct impact on XAUUSD unless it affects broader risk sentiment."
   },
   "RUB::russian forex intervention::none": {
-    "note": "Russian Forex Intervention is a scheduled data release."
+    "note": "Reports central bank foreign exchange market intervention activity. Large, unexpected operations can influence FX volatility and risk sentiment."
   },
   "RUB::russian real wage growth::y/y": {
     "note": "Measures the year-over-year % change in wages."
@@ -12705,7 +12705,7 @@
     "note": "Reports customs-based imports."
   },
   "THB::custom - based trade data (usd)::none": {
-    "note": "Custom Based Trade Data (usd) is a scheduled data release."
+    "note": "Reports Thailand's customs-based trade data in USD, covering exports and imports. It helps gauge external demand and trade flows."
   },
   "THB::exports::y/y": {
     "note": "Thailand exports (YoY) report the annual change in the value of goods exported."
@@ -12738,13 +12738,13 @@
     "note": "S&P Global Thailand Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "THB::private consumption::m/m": {
-    "note": "Private Consumption is a scheduled data release."
+    "note": "Measures the month-over-month % change in private consumption. It reflects household spending momentum."
   },
   "THB::private investment::m/m": {
-    "note": "Private Investment is a scheduled data release."
+    "note": "Measures the month-over-month % change in private investment. It reflects spending on fixed assets and capital goods."
   },
   "THB::trade account::none": {
-    "note": "Trade Account is a scheduled data release."
+    "note": "Reports the trade balance (exports minus imports) as part of the current account. It indicates whether trade adds to or subtracts from external financing needs."
   },
   "TRY::budget balance::none": {
     "note": "Turkey central government budget balance reports the fiscal result for the period (surplus or deficit), published by the Ministry of Treasury and Finance."
@@ -12753,19 +12753,19 @@
     "note": "CBRT capacity utilization rate is a survey-based measure of how much manufacturing capacity is in use."
   },
   "TRY::cbrt financial stability report::none": {
-    "note": "Cbrt Financial Stability Report is a scheduled data release."
+    "note": "CBRT Financial Stability Report assesses risks and vulnerabilities in Turkey's financial system. Usually limited direct impact on XAUUSD unless it shifts broader risk sentiment."
   },
   "TRY::cbrt gov cetinkaya speaks::none": {
-    "note": "Cbrt Gov Cetinkaya Speaks is a scheduled data release."
+    "note": "A scheduled speech by CBRT Governor Murat Cetinkaya. More hawkish-than-expected remarks can lift TRY rate expectations and pressure XAUUSD via higher yields; dovish surprises can support it."
   },
   "TRY::cbrt inflation report::none": {
-    "note": "Cbrt Inflation Report is a scheduled data release."
+    "note": "CBRT Inflation Report provides inflation analysis, forecasts, and policy communication. Larger-than-expected changes in the inflation outlook can move TRY and risk sentiment."
   },
   "TRY::cbrt monetary policy meeting minutes::none": {
     "note": "Cbrt Monetary Policy Meeting Minutes provides detail on the latest policy meeting (the central bank)."
   },
   "TRY::central government debt stock::none": {
-    "note": "Central Government Debt Stock is a scheduled data release."
+    "note": "Reports the outstanding stock of central government debt. It is a key gauge of fiscal financing conditions."
   },
   "TRY::consumer confidence::none": {
     "note": "Consumer Confidence is a survey-based sentiment reading."
@@ -12786,7 +12786,7 @@
     "note": "Turkey exports report the value of goods exported during the period."
   },
   "TRY::foreign arrivals::y/y": {
-    "note": "Foreign Arrivals is a scheduled data release."
+    "note": "Measures the year-over-year % change in foreign visitor arrivals, a proxy for tourism activity. It can matter for the current account through travel receipts."
   },
   "TRY::gdp::y/y": {
     "note": "GDP measures year-over-year % growth in economic output."
@@ -12825,7 +12825,7 @@
     "note": "PPI (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers."
   },
   "TRY::quarterly 3 - month jobless average::none": {
-    "note": "Quarterly 3 Month Jobless Average is a scheduled data release."
+    "note": "Reports the average unemployment rate over the latest three-month period. It summarises labour market conditions."
   },
   "TRY::tourism revenues::none": {
     "note": "TurkStat tourism revenues report income from tourism activities for the period, including spending by foreign visitors."
@@ -12837,7 +12837,7 @@
     "note": "Trade Ministry Trade Balance shows the gap between goods exports and imports."
   },
   "TRY::treasury cash balance::none": {
-    "note": "Treasury Cash Balance is a scheduled data release."
+    "note": "Reports the government's cash balance, reflecting near-term financing needs. Large deficits can raise funding concerns and affect local rates."
   },
   "TRY::turkey cpi ex e,f,b,t&g::m/m": {
     "note": "Turkey CPI ex E,f,b,t&g (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
@@ -12864,7 +12864,7 @@
     "note": "Unemployment Rate shows the share of the labor force that is unemployed."
   },
   "TWD::balance of payments (usd)::none": {
-    "note": "Balance of Payments (usd) is a scheduled data release."
+    "note": "Reports the balance of payments in USD, summarising current, capital, and financial account flows. It helps explain external financing and FX pressures."
   },
   "TWD::cpi nsa::m/m": {
     "note": "CPI Nsa (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
@@ -12879,7 +12879,7 @@
     "note": "Current Account Usd reports the current account balance."
   },
   "TWD::export orders::y/y": {
-    "note": "Export Orders is a scheduled data release."
+    "note": "Measures the year-over-year % change in export orders, reflecting demand for future shipments. It is often watched as a leading signal for manufacturing and trade."
   },
   "TWD::exports::y/y": {
     "note": "Taiwan exports (YoY) report the annual change in the value of goods exported."
@@ -12915,7 +12915,7 @@
     "note": "Unemployment Rate shows the share of the labor force that is unemployed."
   },
   "TWD::wholesale prices::m/m": {
-    "note": "Wholesale Prices is a scheduled data release."
+    "note": "Measures the month-over-month % change in wholesale prices. It can hint at pipeline price pressures."
   },
   "UAH::cpi::m/m": {
     "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
@@ -14115,13 +14115,13 @@
     "note": "S&P Global South Africa Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "ZAR::sarb financial stability review::none": {
-    "note": "Sarb Financial Stability Review is a scheduled data release."
+    "note": "SARB Financial Stability Review communicates the SARB's assessment of financial stability risks and mitigation actions. Usually limited direct impact on XAUUSD unless it shifts risk sentiment."
   },
   "ZAR::sarb monetary policy review::none": {
-    "note": "Sarb Monetary Policy Review is a scheduled data release."
+    "note": "SARB Monetary Policy Review is a periodic publication discussing monetary policy, inflation, and the economic outlook. It can move ZAR if it changes expectations for the policy path."
   },
   "ZAR::sarb quarterly bulletin::none": {
-    "note": "Sarb Quarterly Bulletin is a scheduled data release."
+    "note": "SARB Quarterly Bulletin provides access to current and historical publications and related data. It includes time series and statistical tables used to track the economy."
   },
   "ZAR::thomson reuters ipsos pcsi::m/m": {
     "note": "Thomson Reuters/Ipsos PCSI is a survey-based consumer sentiment index for the country and this series is the monthly change."
@@ -14139,7 +14139,7 @@
     "note": "Unemployment Rate shows the share of the labor force that is unemployed."
   },
   "ZAR::unemployment::none": {
-    "note": "Unemployment is a scheduled data release."
+    "note": "Reports the unemployment rate for the period. Higher unemployment can signal weaker domestic demand."
   },
   "ZMK::cpi::m/m": {
     "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
