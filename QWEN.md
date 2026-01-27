@@ -51,42 +51,32 @@ This document mirrors `AGENTS.md` and adds Qwen-specific tips.
 - Keep component styles co-located with the component (e.g., `SettingsModal.css`, `Select.css`), and reserve global styles for tokens and base rules only.
 
 ## Code Style Requirements
-We rely on automated tools to keep the Python codebase consistent and readable:
+We rely on automated tools to keep the Rust + TypeScript codebase consistent and readable:
 
-- **Black** formats code automatically.
-- **isort** groups and orders imports.
-- **Flake8** enforces PEP 8 and highlights potential issues.
-
-### Configuration Files
-- `pyproject.toml` provides the shared settings for both `black` and `isort`.
-- `.flake8` defines ignore rules and the maximum line length for linting.
-- `.pre-commit-config.yaml` specifies the `pre-commit` hooks that run these tools.
+- **rustfmt** formats Rust code.
+- **clippy** catches common Rust issues.
+- **vite/vitest** validates the Web UI build and tests.
 
 ### Required Tool Usage
-1. Install the tools:
+1. Format Rust:
    ```bash
-   pip install black isort flake8 pre-commit
+   cargo fmt
    ```
-2. Format the code:
+2. Lint Rust:
    ```bash
-   black .
-   isort .
+   cargo clippy -- -D warnings
    ```
-3. Lint the code:
+3. Web UI checks:
    ```bash
-   flake8 .
-   ```
-4. (Optional) Enable automatic checks:
-   ```bash
-   pre-commit install
+   npm --prefix app/webui ci
+   npm --prefix app/webui run test
+   npm --prefix app/webui run build
    ```
 
-Important: run **isort → black → flake8** before commit/push, and ensure all checks pass.
-
-Run these steps after every code change.
+Important: ensure these checks pass before commit/push.
 
 ### CI/CD Integration
-GitHub Actions runs the same formatting and linting checks on each push and pull request to enforce quality automatically.
+GitHub Actions runs equivalent checks on each push and pull request.
 
 ## PR/Issue Comment and Description Format (Important)
 To avoid literal `\n` appearing on GitHub, follow these conventions:
@@ -165,7 +155,7 @@ These conventions apply to all automated and manual interactions in this reposit
 ## Suggested Workflow (Qwen)
 1. Create a branch from `main` with a scoped name.
 2. Modify or add automation scripts/documentation.
-3. Run `isort`, `black`, then `flake8`; log unavoidable lint debt in your notes.
+3. Run `cargo fmt`, `cargo clippy -- -D warnings`, and Web UI checks; log unavoidable lint debt in your notes.
 4. Update `README.md` if behaviour or dependencies change.
 5. Push, open a PR, and summarise the change set in Chinese.
 6. Where practical, validate the automation against the target website/data source and describe the outcome for reviewers.

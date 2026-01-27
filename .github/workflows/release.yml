@@ -159,20 +159,17 @@ jobs:
           fetch-depth: 0
           ref: ${{ needs.prepare.outputs.resolved_sha }}
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-node@v4
         with:
-          python-version: "3.11"
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: |
+            app/webui/package-lock.json
+            app/tauri/package-lock.json
 
-      - name: Install Python build dependencies
-        shell: pwsh
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-app.txt
+      - uses: dtolnay/rust-toolchain@stable
 
-      - name: Install Inno Setup
-        shell: pwsh
-        run: |
-          choco install innosetup -y --no-progress
+      - uses: ilammy/msvc-dev-cmd@v1
 
       - name: Build installer
         shell: pwsh

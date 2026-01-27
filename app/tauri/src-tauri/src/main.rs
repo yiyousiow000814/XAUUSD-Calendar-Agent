@@ -14,6 +14,7 @@ use crate::commands::default_update_state;
 use crate::state::RuntimeState;
 use std::sync::Mutex;
 use tauri::menu::MenuBuilder;
+use tauri::tray::{MouseButton, MouseButtonState};
 use tauri::tray::TrayIconEvent;
 use tauri::Manager;
 use tauri::WindowEvent;
@@ -96,8 +97,7 @@ fn main() {
 
             // Build tray menu and handlers (tray icon is created by `tauri.conf.json` trayIcon config).
             let menu = MenuBuilder::new(handle)
-                .text("tray:show", "Show")
-                .text("tray:hide", "Hide")
+                .text("tray:open", "Open")
                 .separator()
                 .text("tray:exit", "Exit")
                 .build()?;
@@ -116,13 +116,10 @@ fn main() {
                     return;
                 };
                 match id {
-                    "tray:show" => {
+                    "tray:open" => {
                         let _ = win.show();
                         let _ = win.unminimize();
                         let _ = win.set_focus();
-                    }
-                    "tray:hide" => {
-                        let _ = win.hide();
                     }
                     _ => {}
                 }
@@ -130,20 +127,24 @@ fn main() {
 
             handle.on_tray_icon_event(|app, event| {
                 match event {
-                    TrayIconEvent::Click { .. } | TrayIconEvent::DoubleClick { .. } => {}
+                    TrayIconEvent::Click { button, button_state, .. } => {
+                        if button != MouseButton::Left || button_state != MouseButtonState::Up {
+                            return;
+                        }
+                    }
+                    TrayIconEvent::DoubleClick { button, .. } => {
+                        if button != MouseButton::Left {
+                            return;
+                        }
+                    }
                     _ => return,
-                }
+                };
                 let Some(win) = app.get_webview_window("main") else {
                     return;
                 };
-                let visible = win.is_visible().unwrap_or(true);
-                if visible {
-                    let _ = win.hide();
-                } else {
-                    let _ = win.show();
-                    let _ = win.unminimize();
-                    let _ = win.set_focus();
-                }
+                let _ = win.show();
+                let _ = win.unminimize();
+                let _ = win.set_focus();
             });
 
             if launched_by_autostart && autostart_launch_mode == "tray" {
