@@ -1,7 +1,6 @@
 use crate::time_util::parse_source_dt_to_utc;
 use chrono::{DateTime, Datelike, Utc};
 use serde::Deserialize;
-use serde_json::Value;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -157,17 +156,4 @@ pub fn currency_options() -> Vec<String> {
     .into_iter()
     .map(|s| s.to_string())
     .collect()
-}
-
-pub fn to_value(event: &CalendarEvent) -> Value {
-    serde_json::json!({
-        "dt_utc": event.dt_utc.to_rfc3339(),
-        "time_label": event.time_label,
-        "event": event.event,
-        "currency": event.currency,
-        "importance": event.importance,
-        "actual": event.actual,
-        "forecast": event.forecast,
-        "previous": event.previous,
-    })
 }

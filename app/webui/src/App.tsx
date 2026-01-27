@@ -534,7 +534,7 @@ export default function App() {
       return;
     }
 
-    const delayMs = isUiCheckRuntime ? 0 : 250;
+    const delayMs = isUiCheckRuntime ? 0 : 500;
     if (delayMs <= 0) {
       setShowInitOverlay(true);
       return;
@@ -2153,6 +2153,14 @@ export default function App() {
 
     const onFocus = () => reset();
     const onBlur = () => setAlertCountdownArmed(false);
+    const onMouseOut = (event: MouseEvent) => {
+      // Pause auto-close if the pointer leaves the app window (old behavior).
+      if (activeAlertIdRef.current !== alertContextId) return;
+      // When leaving the window, relatedTarget is typically null.
+      const related = (event as unknown as { relatedTarget?: EventTarget | null }).relatedTarget;
+      if (related != null) return;
+      setAlertCountdownArmed(false);
+    };
     const onVisibility = () => {
       if (document.visibilityState === "visible") {
         reset();
@@ -2163,6 +2171,13 @@ export default function App() {
     const onPointerMove = () => {
       if (activeAlertIdRef.current !== alertContextId) return;
       if (document.visibilityState !== "visible" || !document.hasFocus()) return;
+      if (
+        (alertContext?.title || "").toLowerCase() === "github token" &&
+        (alertContext?.message || "").toLowerCase().includes("checking token")
+      ) {
+        // Keep the token-check modal open until it has a final result.
+        return;
+      }
       setAlertCountdownArmed((prev) => {
         if (prev) return prev;
         setAlertCountdown(5);
@@ -2172,6 +2187,7 @@ export default function App() {
 
     window.addEventListener("focus", onFocus);
     window.addEventListener("blur", onBlur);
+    window.addEventListener("mouseout", onMouseOut);
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("pointermove", onPointerMove);
     window.addEventListener("mousemove", onPointerMove);
@@ -2188,6 +2204,12 @@ export default function App() {
       ) {
         return;
       }
+      if (
+        (alertContext?.title || "").toLowerCase() === "github token" &&
+        (alertContext?.message || "").toLowerCase().includes("checking token")
+      ) {
+        return;
+      }
       setAlertCountdown((prev) => {
         if (prev <= 1) {
           closeAlertModal();
@@ -2201,6 +2223,7 @@ export default function App() {
       window.clearInterval(timer);
       window.removeEventListener("focus", onFocus);
       window.removeEventListener("blur", onBlur);
+      window.removeEventListener("mouseout", onMouseOut);
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("mousemove", onPointerMove);

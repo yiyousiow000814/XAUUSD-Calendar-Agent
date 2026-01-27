@@ -1,10 +1,12 @@
+use crate::calendar::CalendarEvent;
 use serde_json::Value;
+use std::sync::Arc;
 
 #[derive(Default)]
 pub struct CalendarCache {
     pub status: String,
     pub last_loaded_at_ms: i64,
-    pub events: Vec<Value>,
+    pub events: Arc<Vec<CalendarEvent>>,
 }
 
 #[derive(Default)]
@@ -17,6 +19,7 @@ pub struct RuntimeState {
     pub auto_pull_started: bool,
     pub auto_update_check_started: bool,
     pub token_check_started: bool,
+    pub github_token_last_seen: String,
     pub last_pull: String,
     pub last_pull_at: String,
     pub last_sync: String,

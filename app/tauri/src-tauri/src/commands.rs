@@ -1,6 +1,4 @@
-use crate::calendar::{
-    currency_options, load_calendar_events, to_value, CALENDAR_SOURCE_UTC_OFFSET_MINUTES,
-};
+use crate::calendar::{currency_options, load_calendar_events, CALENDAR_SOURCE_UTC_OFFSET_MINUTES};
 use crate::config;
 use crate::git_ops;
 use crate::snapshot::{render_next_events, render_past_events};
@@ -8,10 +6,10 @@ use crate::startup;
 use crate::state::{CalendarCache, RuntimeState};
 use crate::sync_util;
 use crate::time_util::{display_time_from_iso, now_display_time, now_iso_time};
-use chrono::Utc;
 use serde_json::{json, Value};
 use std::cmp::Ordering;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+use std::sync::Arc;
 use std::sync::Mutex;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tauri::Manager;
@@ -161,7 +159,7 @@ fn ensure_calendar_loaded(
             runtime.calendar = CalendarCache {
                 status: "empty".to_string(),
                 last_loaded_at_ms: 0,
-                events: vec![],
+                events: Arc::new(vec![]),
             };
         }
         let stale = runtime.calendar.last_loaded_at_ms == 0
@@ -188,11 +186,11 @@ fn ensure_calendar_loaded(
         runtime.calendar.last_loaded_at_ms = now_ms();
         if events.is_empty() {
             runtime.calendar.status = "empty".to_string();
-            runtime.calendar.events.clear();
+            runtime.calendar.events = Arc::new(vec![]);
             return;
         }
         runtime.calendar.status = "loaded".to_string();
-        runtime.calendar.events = events.iter().map(to_value).collect();
+        runtime.calendar.events = Arc::new(events);
     });
 }
 
@@ -229,10 +227,10 @@ fn spawn_pull(app: tauri::AppHandle, state: tauri::State<'_, Mutex<RuntimeState>
                 runtime.calendar.last_loaded_at_ms = now_ms();
                 if events.is_empty() {
                     runtime.calendar.status = "empty".to_string();
-                    runtime.calendar.events.clear();
+                    runtime.calendar.events = Arc::new(vec![]);
                 } else {
                     runtime.calendar.status = "loaded".to_string();
-                    runtime.calendar.events = events.iter().map(to_value).collect();
+                    runtime.calendar.events = Arc::new(events);
                 }
 
                 // Persist last pull per repo path.
@@ -259,233 +257,243 @@ fn get_calendar_settings(cfg: &Value) -> (String, i32) {
     (tz_mode, minutes)
 }
 
+fn file_mtime_ms(path: &Path) -> Option<i64> {
+    let meta = std::fs::metadata(path).ok()?;
+    let modified = meta.modified().ok()?;
+    let dur = modified.duration_since(std::time::UNIX_EPOCH).ok()?;
+    Some(dur.as_millis() as i64)
+}
+
+fn try_begin_github_token_check(app: tauri::AppHandle, token: String) {
+    let token = token.trim().to_string();
+    let runtime_state = app.state::<Mutex<RuntimeState>>();
+    let mut runtime = runtime_state.lock().expect("runtime lock");
+
+    if token.is_empty() {
+        runtime.github_token_last_seen.clear();
+        return;
+    }
+
+    if runtime.token_check_started {
+        return;
+    }
+
+    if runtime.github_token_last_seen == token {
+        return;
+    }
+
+    runtime.github_token_last_seen = token.clone();
+    runtime.token_check_started = true;
+
+    let modal_id = format!("github-token-{}", now_ms());
+    runtime.modal = json!({
+        "id": modal_id,
+        "title": "GitHub Token",
+        "message": "Checking token...",
+        "tone": "info"
+    });
+    drop(runtime);
+
+    let app_handle = app.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let result = verify_github_token_value(&token);
+
+        let runtime_state = app_handle.state::<Mutex<RuntimeState>>();
+        let state_for_updates = app_handle.state::<Mutex<RuntimeState>>();
+        let mut runtime = runtime_state.lock().expect("runtime lock");
+
+        let current_modal_id = runtime
+            .modal
+            .get("id")
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+        let modal_still_active = current_modal_id == modal_id;
+
+        match result {
+            Ok(true) => {
+                if modal_still_active {
+                    runtime.modal = json!({
+                        "id": modal_id,
+                        "title": "GitHub Token",
+                        "message": "Token verified.\n\nUpdating data...",
+                        "tone": "info"
+                    });
+                }
+                push_log(&mut runtime, "GitHub token verified.", "INFO");
+                runtime.token_check_started = false;
+                drop(runtime);
+                let _ = check_updates(app_handle.clone(), state_for_updates);
+                return;
+            }
+            Ok(false) => {
+                if modal_still_active {
+                    runtime.modal = json!({
+                        "id": modal_id,
+                        "title": "GitHub Token",
+                        "message": "Token Invalid.\n\nPlease check github_token in config.json",
+                        "tone": "error"
+                    });
+                }
+                push_log(&mut runtime, "GitHub token invalid.", "ERROR");
+            }
+            Err(msg) => {
+                if modal_still_active {
+                    runtime.modal = json!({
+                        "id": modal_id,
+                        "title": "GitHub Token",
+                        "message": format!("Token check failed: {msg}\n\nPlease check github_token in config.json"),
+                        "tone": "error"
+                    });
+                }
+                push_log(
+                    &mut runtime,
+                    &format!("GitHub token check failed: {msg}"),
+                    "ERROR",
+                );
+            }
+        }
+        runtime.token_check_started = false;
+    });
+}
+
 #[tauri::command]
 pub fn get_snapshot(app: tauri::AppHandle, state: tauri::State<'_, Mutex<RuntimeState>>) -> Value {
-    let mut cfg = config::load_config();
+    let cfg = config::load_config();
     ensure_calendar_loaded(app.clone(), cfg.clone(), state.clone());
-
-    // If github_token changed (e.g. edited in config.json), verify it once and surface a modal.
-    let token = config::get_str(&cfg, "github_token");
-    let token_last_seen = config::get_str(&cfg, "github_token_last_seen");
-    if !token.is_empty() && token != token_last_seen {
-        let _ = config::set_string(&mut cfg, "github_token_last_seen", token.clone());
-        let _ = config::save_config(&cfg);
-
-        let mut runtime = state.lock().expect("runtime lock");
-        if !runtime.token_check_started {
-            runtime.token_check_started = true;
-            let id = format!("github-token-{}", now_ms());
-            runtime.modal = json!({
-                "id": id,
-                "title": "GitHub Token",
-                "message": "Checking token...",
-                "tone": "info"
-            });
-            drop(runtime);
-
-            let app_handle = app.clone();
-            tauri::async_runtime::spawn_blocking(move || {
-                let runtime_state = app_handle.state::<Mutex<RuntimeState>>();
-                let state_for_updates = app_handle.state::<Mutex<RuntimeState>>();
-                let valid = verify_github_token_value(&token);
-                let mut runtime = runtime_state.lock().expect("runtime lock");
-                let modal_id = runtime
-                    .modal
-                    .get("id")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("")
-                    .to_string();
-                match valid {
-                    Ok(true) => {
-                        runtime.modal = json!({
-                            "id": modal_id,
-                            "title": "GitHub Token",
-                            "message": "Token verified.\n\nUpdating data...",
-                            "tone": "info"
-                        });
-                        push_log(&mut runtime, "GitHub token verified.", "INFO");
-                        drop(runtime);
-                        let _ = check_updates(app_handle.clone(), state_for_updates);
-                    }
-                    Ok(false) => {
-                        runtime.modal = json!({
-                            "id": modal_id,
-                            "title": "GitHub Token",
-                            "message": "Token Invalid.\n\nPlease check github_token in config.json",
-                            "tone": "error"
-                        });
-                        push_log(&mut runtime, "GitHub token invalid.", "ERROR");
-                    }
-                    Err(msg) => {
-                        runtime.modal = json!({
-                            "id": modal_id,
-                            "title": "GitHub Token",
-                            "message": format!("Token check failed: {msg}\n\nPlease check github_token in config.json"),
-                            "tone": "error"
-                        });
-                        push_log(
-                            &mut runtime,
-                            &format!("GitHub token check failed: {msg}"),
-                            "ERROR",
-                        );
-                    }
-                }
-                let mut runtime = runtime_state.lock().expect("runtime lock");
-                runtime.token_check_started = false;
-            });
-        }
-    }
 
     let (tz_mode, utc_offset_minutes) = get_calendar_settings(&cfg);
     let currency_opts = currency_options();
 
-    let mut runtime = state.lock().expect("runtime lock");
-    if runtime.currency.is_empty() {
-        runtime.currency = "USD".to_string();
-    }
-    if runtime.update_state.is_null() {
-        runtime.update_state = default_update_state();
-    }
-    if runtime.output_dir.is_empty() {
-        runtime.output_dir = config::get_str(&cfg, "output_dir");
-    }
-    let configured_repo_path = config::get_str(&cfg, "repo_path");
-    if !configured_repo_path.is_empty() {
-        runtime.repo_path = configured_repo_path;
-    } else if runtime.repo_path.is_empty() {
-        runtime.repo_path = config::repo_dir().to_string_lossy().to_string();
-    }
+    // Keep lock scope small to avoid UI stalls (especially when rendering large history lists).
+    let (
+        currency,
+        output_dir,
+        repo_path,
+        last_pull,
+        last_pull_at,
+        last_sync,
+        last_sync_at,
+        logs,
+        modal,
+        pull_active,
+        sync_active,
+        calendar_status,
+        calendar_events,
+    ) = {
+        let mut runtime = state.lock().expect("runtime lock");
+        if runtime.currency.is_empty() {
+            runtime.currency = "USD".to_string();
+        }
+        if runtime.update_state.is_null() {
+            runtime.update_state = default_update_state();
+        }
+        if runtime.output_dir.is_empty() {
+            runtime.output_dir = config::get_str(&cfg, "output_dir");
+        }
+        let configured_repo_path = config::get_str(&cfg, "repo_path");
+        if !configured_repo_path.is_empty() {
+            runtime.repo_path = configured_repo_path;
+        } else if runtime.repo_path.is_empty() {
+            runtime.repo_path = config::repo_dir().to_string_lossy().to_string();
+        }
 
-    // Hydrate lastPull/lastSync from config so they persist across restarts and vary by path.
-    let repo_key = runtime.repo_path.clone();
-    let repo_last_pull_at = cfg
-        .get("repo_path_last_pull_at")
-        .and_then(|v| v.get(&repo_key))
-        .and_then(|v| v.as_str())
-        .unwrap_or("");
-    if !repo_last_pull_at.is_empty() {
-        runtime.last_pull_at = repo_last_pull_at.to_string();
-        if runtime.last_pull.is_empty() {
-            if let Some(display) = display_time_from_iso(repo_last_pull_at) {
-                runtime.last_pull = display;
+        // Hydrate lastPull/lastSync from config so they persist across restarts and vary by path.
+        let repo_key = runtime.repo_path.clone();
+        let repo_last_pull_at = cfg
+            .get("repo_path_last_pull_at")
+            .and_then(|v| v.get(&repo_key))
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+        if !repo_last_pull_at.is_empty() {
+            runtime.last_pull_at = repo_last_pull_at.to_string();
+            if runtime.last_pull.is_empty() {
+                if let Some(display) = display_time_from_iso(repo_last_pull_at) {
+                    runtime.last_pull = display;
+                }
             }
         }
-    }
 
-    let out = runtime.output_dir.clone();
-    let last_sync_at = cfg
-        .get("output_dir_last_sync_at")
-        .and_then(|v| v.get(&out))
-        .and_then(|v| v.as_str())
-        .unwrap_or("");
-    if !last_sync_at.is_empty() {
-        runtime.last_sync_at = last_sync_at.to_string();
-        if runtime.last_sync.is_empty() {
-            if let Some(display) = display_time_from_iso(last_sync_at) {
-                runtime.last_sync = display;
+        let out = runtime.output_dir.clone();
+        let last_sync_at_cfg = cfg
+            .get("output_dir_last_sync_at")
+            .and_then(|v| v.get(&out))
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+        if !last_sync_at_cfg.is_empty() {
+            runtime.last_sync_at = last_sync_at_cfg.to_string();
+            if runtime.last_sync.is_empty() {
+                if let Some(display) = display_time_from_iso(last_sync_at_cfg) {
+                    runtime.last_sync = display;
+                }
             }
         }
-    }
 
-    let calendar_events = runtime
-        .calendar
-        .events
-        .iter()
-        .filter_map(|v| {
-            let dt = v.get("dt_utc").and_then(|s| s.as_str())?;
-            let dt = chrono::DateTime::parse_from_rfc3339(dt)
-                .ok()?
-                .with_timezone(&Utc);
-            Some(crate::calendar::CalendarEvent {
-                dt_utc: dt,
-                time_label: v
-                    .get("time_label")
-                    .and_then(|s| s.as_str())
-                    .unwrap_or("")
-                    .to_string(),
-                event: v
-                    .get("event")
-                    .and_then(|s| s.as_str())
-                    .unwrap_or("")
-                    .to_string(),
-                currency: v
-                    .get("currency")
-                    .and_then(|s| s.as_str())
-                    .unwrap_or("")
-                    .to_string(),
-                importance: v
-                    .get("importance")
-                    .and_then(|s| s.as_str())
-                    .unwrap_or("")
-                    .to_string(),
-                actual: v
-                    .get("actual")
-                    .and_then(|s| s.as_str())
-                    .unwrap_or("")
-                    .to_string(),
-                forecast: v
-                    .get("forecast")
-                    .and_then(|s| s.as_str())
-                    .unwrap_or("")
-                    .to_string(),
-                previous: v
-                    .get("previous")
-                    .and_then(|s| s.as_str())
-                    .unwrap_or("")
-                    .to_string(),
-            })
-        })
-        .collect::<Vec<_>>();
+        let last_pull = if runtime.last_pull.is_empty() {
+            "Not yet".to_string()
+        } else {
+            runtime.last_pull.clone()
+        };
+        let last_sync = if runtime.last_sync.is_empty() {
+            "Not yet".to_string()
+        } else {
+            runtime.last_sync.clone()
+        };
+        let calendar_status = if runtime.calendar.status.is_empty() {
+            "empty".to_string()
+        } else {
+            runtime.calendar.status.clone()
+        };
+
+        (
+            runtime.currency.clone(),
+            runtime.output_dir.clone(),
+            runtime.repo_path.clone(),
+            last_pull,
+            runtime.last_pull_at.clone(),
+            last_sync,
+            runtime.last_sync_at.clone(),
+            runtime.logs.clone(),
+            runtime.modal.clone(),
+            runtime.pull_active,
+            runtime.sync_active,
+            calendar_status,
+            runtime.calendar.events.clone(),
+        )
+    };
 
     let next_events = render_next_events(
-        &calendar_events,
-        &runtime.currency,
+        calendar_events.as_slice(),
+        &currency,
         &tz_mode,
         utc_offset_minutes,
         CALENDAR_SOURCE_UTC_OFFSET_MINUTES,
     );
     let past_events = render_past_events(
-        &calendar_events,
-        &runtime.currency,
+        calendar_events.as_slice(),
+        &currency,
         &tz_mode,
         utc_offset_minutes,
         CALENDAR_SOURCE_UTC_OFFSET_MINUTES,
     );
 
-    let last_pull = if runtime.last_pull.is_empty() {
-        "Not yet".to_string()
-    } else {
-        runtime.last_pull.clone()
-    };
-    let last_sync = if runtime.last_sync.is_empty() {
-        "Not yet".to_string()
-    } else {
-        runtime.last_sync.clone()
-    };
-    let calendar_status = if runtime.calendar.status.is_empty() {
-        "empty".to_string()
-    } else {
-        runtime.calendar.status.clone()
-    };
-
     json!({
         "lastPull": last_pull,
         "lastSync": last_sync,
-        "lastPullAt": runtime.last_pull_at.clone(),
-        "lastSyncAt": runtime.last_sync_at.clone(),
-        "outputDir": runtime.output_dir.clone(),
-        "repoPath": runtime.repo_path.clone(),
-        "currency": runtime.currency.clone(),
+        "lastPullAt": last_pull_at,
+        "lastSyncAt": last_sync_at,
+        "outputDir": output_dir,
+        "repoPath": repo_path,
+        "currency": currency,
         "currencyOptions": currency_opts,
         "events": next_events,
         "pastEvents": past_events,
-        "logs": runtime.logs.clone(),
+        "logs": logs,
         "version": env!("APP_VERSION"),
-        "pullActive": runtime.pull_active,
-        "syncActive": runtime.sync_active,
+        "pullActive": pull_active,
+        "syncActive": sync_active,
         "calendarStatus": calendar_status,
         "restartInSeconds": 0,
-        "modal": if runtime.modal.is_null() { Value::Null } else { runtime.modal.clone() }
+        "modal": if modal.is_null() { Value::Null } else { modal }
     })
 }
 
@@ -747,7 +755,13 @@ pub fn check_updates(
     tauri::async_runtime::spawn_blocking(move || {
         let parsed: Result<(String, String, String), String> = (|| {
             let url = format!("https://api.github.com/repos/{repo_slug}/releases/latest");
-            let mut req = ureq::get(&url)
+            let agent = ureq::AgentBuilder::new()
+                .timeout_connect(std::time::Duration::from_secs(5))
+                .timeout_read(std::time::Duration::from_secs(10))
+                .timeout_write(std::time::Duration::from_secs(10))
+                .build();
+            let mut req = agent
+                .get(&url)
                 .set("User-Agent", "XAUUSDCalendarAgent")
                 .set("Accept", "application/vnd.github+json")
                 .set("X-GitHub-Api-Version", "2022-11-28");
@@ -961,6 +975,35 @@ pub fn start_background_tasks(app: tauri::AppHandle) {
             std::thread::sleep(interval);
             let state = app_handle.state::<Mutex<RuntimeState>>();
             spawn_pull(app_handle.clone(), state, "Scheduled pull started");
+        }
+    });
+
+    // Watch config changes (portable `user-data/config.json`) so edits (e.g. github_token) reflect
+    // immediately without waiting for a UI snapshot refresh.
+    let app_handle = app.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let config_path = config::config_path();
+        // Also check once at startup if a token exists and hasn't been seen yet.
+        {
+            let cfg = config::load_config();
+            let token = config::get_str(&cfg, "github_token");
+            if !token.is_empty() {
+                try_begin_github_token_check(app_handle.clone(), token);
+            }
+        }
+        let mut last_mtime = file_mtime_ms(&config_path).unwrap_or(0);
+        loop {
+            std::thread::sleep(Duration::from_millis(250));
+            let mtime = file_mtime_ms(&config_path).unwrap_or(0);
+            if mtime <= 0 || mtime == last_mtime {
+                continue;
+            }
+            last_mtime = mtime;
+            let cfg = config::load_config();
+            let token = config::get_str(&cfg, "github_token");
+            if !token.is_empty() {
+                try_begin_github_token_check(app_handle.clone(), token);
+            }
         }
     });
 }
