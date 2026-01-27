@@ -195,10 +195,10 @@
     "note": "Judo Bank Australia Composite PMI (from S&P Global) is a monthly survey-based diffusion index combining manufacturing and services (above 50 = expansion)."
   },
   "AUD::mi inflation expectations::none": {
-    "note": "Mi Inflation Expectations is a scheduled data release. Higher-than-expected inflation (vs forecast) can lift yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Reports expected inflation from a survey or market-based measure."
   },
   "AUD::mi inflation gauge::m/m": {
-    "note": "Mi Inflation Gauge is a scheduled data release. Higher-than-expected inflation (vs forecast) can lift yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Measures the month-over-month % change in consumer inflation."
   },
   "AUD::mi leading index::m/m": {
     "note": "Westpac-Melbourne Institute Leading Index is a composite designed to signal the likely pace of Australian economic activity and this series is the monthly change."
@@ -219,7 +219,7 @@
     "note": "Nab Quarterly Business Confidence is a survey-based sentiment reading."
   },
   "AUD::net exports contribution::none": {
-    "note": "Net Exports Contribution is a scheduled data release."
+    "note": "Reports the value of exports."
   },
   "AUD::new motor vehicle sales::m/m": {
     "note": "New Motor Vehicle Sales reports the monthly change in retail sales of new motor vehicles in Australia (from the VFACTS collection)."
@@ -387,7 +387,7 @@
     "note": "Ipsos PCSI is a monthly consumer sentiment index for BRL that reflects households' confidence and outlook."
   },
   "BRL::brazilian igp - m inflation::y/y": {
-    "note": "Brazilian Igp M Inflation is a scheduled data release."
+    "note": "Measures the year-over-year % change in consumer inflation."
   },
   "BRL::brazilian ipca inflation index sa::m/m": {
     "note": "IBGE IPCA is Brazil's official consumer inflation index and this series reports the seasonally adjusted monthly change."
@@ -396,10 +396,10 @@
     "note": "Brazilian PPI (Producer Price Index, MoM) measures the month-over-month % change in prices received by producers."
   },
   "BRL::brazilian service sector growth::m/m": {
-    "note": "Brazilian Service Sector Growth is a scheduled data release."
+    "note": "Measures the month-over-month % change in service sector output."
   },
   "BRL::brazilian service sector growth::y/y": {
-    "note": "Brazilian Service Sector Growth is a scheduled data release."
+    "note": "Measures the year-over-year % change in service sector output."
   },
   "BRL::brics summit::none": {
     "note": "BRICS Summit is a scheduled meeting related to the BRICS intergovernmental grouping."
@@ -417,7 +417,7 @@
     "note": "CFTC Commitments of Traders (COT) reports net speculative positioning for BRL futures."
   },
   "BRL::cni factory utilization::none": {
-    "note": "Cni Factory Utilization is a scheduled data release."
+    "note": "Measures capacity utilisation in the sector."
   },
   "BRL::cpi::m/m": {
     "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
@@ -525,13 +525,13 @@
     "note": "The Bank of Botswana Monetary Policy Committee sets the Monetary Policy Rate (MoPR) at its policy meeting. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "CAD::adp nonfarm employment change::none": {
-    "note": "Adp Nonfarm Employment Change is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Reports the change in nonfarm employment based on an ADP estimate."
   },
   "CAD::average weekly earnings::y/y": {
     "note": "Canada Average Weekly Earnings (YoY) reports the annual change in average weekly earnings from SEPH."
   },
   "CAD::avg hourly wages permanent employee::none": {
-    "note": "Avg Hourly Wages Permanent Employee is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Measures the year-over-year % change in average hourly earnings."
   },
   "CAD::boc business outlook survey::none": {
     "note": "Bank of Canada Business Outlook Survey summarizes interviews with firms about business conditions and expectations."
@@ -648,10 +648,10 @@
     "note": "Statistics Canada merchandise exports report the value of goods shipped from Canada to foreign countries."
   },
   "CAD::foreign securities purchases by canadians::none": {
-    "note": "Foreign Securities Purchases By Canadians is a scheduled data release."
+    "note": "Reports residents' purchases of foreign securities."
   },
   "CAD::foreign securities purchases::none": {
-    "note": "Foreign Securities Purchases is a scheduled data release."
+    "note": "Reports residents' purchases of foreign securities."
   },
   "CAD::full employment change::none": {
     "note": "Full Employment Change reports the monthly change in full-time employment in Canada (usually 30+ hours per week at the main job)."
@@ -759,7 +759,7 @@
     "note": "CFTC Commitments of Traders (COT) reports net speculative positioning for CHF futures."
   },
   "CHF::consumption indicator::none": {
-    "note": "Consumption Indicator is a scheduled data release."
+    "note": "Reports an indicator of household consumption conditions."
   },
   "CHF::cpi::m/m": {
     "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -768,7 +768,7 @@
     "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "CHF::employment level::none": {
-    "note": "Employment Level is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Reports the level of employment."
   },
   "CHF::foreign reserves (usd)::none": {
     "note": "Foreign Reserves (usd) reports official foreign-exchange reserves."
@@ -780,7 +780,7 @@
     "note": "GDP measures year-over-year % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "CHF::industrial orders::none": {
-    "note": "Industrial Orders is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Measures new orders received by industry."
   },
   "CHF::industrial production::q/q": {
     "note": "Industrial Production measures industrial output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -879,7 +879,7 @@
     "note": "Chile manufacturing production (YoY) reports the annual change in manufacturing output for the period."
   },
   "CLP::copper exports (usd)::none": {
-    "note": "Copper Exports (usd) is a scheduled data release."
+    "note": "Reports the value of copper exports in USD."
   },
   "CLP::copper production::y/y": {
     "note": "Chile copper production (YoY) reports the annual change in copper output for the period."
@@ -933,16 +933,16 @@
     "note": "Chinese Industrial Production Ytd measures industrial output. A weaker-than-expected reading (vs forecast) can hurt risk sentiment and support XAUUSD as a safe haven; stronger data can do the opposite."
   },
   "CNY::chinese industrial profit ytd::none": {
-    "note": "Chinese Industrial Profit Ytd is a scheduled data release."
+    "note": "Measures year-to-date industrial profits."
   },
   "CNY::chinese industrial profit::y/y": {
-    "note": "Chinese Industrial Profit is a scheduled data release."
+    "note": "Measures the year-over-year % change in industrial profits."
   },
   "CNY::chinese retail sales ytd::y/y": {
     "note": "Chinese Retail Sales Ytd measures retail spending. A weaker-than-expected reading (vs forecast) can hurt risk sentiment and support XAUUSD as a safe haven; stronger data can do the opposite."
   },
   "CNY::chinese total social financing::none": {
-    "note": "Chinese Total Social Financing is a scheduled data release."
+    "note": "Reports total social financing, a measure of overall credit and funding to the real economy."
   },
   "CNY::chinese unemployment rate::none": {
     "note": "Chinese Unemployment Rate shows the share of the labor force that is unemployed. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -963,7 +963,7 @@
     "note": "Foreign direct investment (FDI) is cross-border investment that establishes a direct investment relationship between economies."
   },
   "CNY::fixed asset investment::y/y": {
-    "note": "Fixed Asset Investment is a scheduled data release."
+    "note": "Measures the year-over-year % change in fixed asset investment."
   },
   "CNY::fx reserves (usd)::none": {
     "note": "Fx Reserves (usd) reports official foreign-exchange reserves."
@@ -975,7 +975,7 @@
     "note": "GDP measures year-over-year % growth in economic output. A weaker-than-expected reading (vs forecast) can hurt risk sentiment and support XAUUSD as a safe haven; stronger data can do the opposite."
   },
   "CNY::house prices::y/y": {
-    "note": "House Prices is a scheduled data release."
+    "note": "Measures the year-over-year % change in house prices."
   },
   "CNY::imports::none": {
     "note": "China customs imports report the value of goods imported during the period."
@@ -1002,7 +1002,7 @@
     "note": "China NBS Non-Manufacturing PMI is an official monthly survey-based diffusion index for services and construction (above 50 = expansion). Weaker-than-expected readings can hurt risk sentiment and support XAUUSD; stronger readings can do the opposite."
   },
   "CNY::outstanding loan growth::y/y": {
-    "note": "Outstanding Loan Growth is a scheduled data release."
+    "note": "Measures the year-over-year % change in outstanding loans."
   },
   "CNY::pboc deposit rate::none": {
     "note": "PBOC benchmark deposit rate is an administered reference rate published by the People's Bank of China for RMB deposits."
@@ -1017,7 +1017,7 @@
     "note": "China Loan Prime Rate is quoted by the National Interbank Funding Center from panel bank submissions and is a key benchmark for RMB loan pricing."
   },
   "CNY::pboc reserve requirement ratio::none": {
-    "note": "Pboc Reserve Requirement Ratio is a scheduled data release."
+    "note": "Sets the reserve requirement ratio for banks."
   },
   "CNY::ppi::y/y": {
     "note": "PPI (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -1092,7 +1092,7 @@
     "note": "Current Account reports the current account balance."
   },
   "CZK::foreign debt (eur)::none": {
-    "note": "Foreign Debt (eur) is a scheduled data release."
+    "note": "Reports the total external debt outstanding."
   },
   "CZK::fx reserves (eur)::none": {
     "note": "Fx Reserves (eur) reports official foreign-exchange reserves."
@@ -1107,7 +1107,7 @@
     "note": "GDP measures year-over-year % growth in economic output."
   },
   "CZK::gross wages::y/y": {
-    "note": "Gross Wages is a scheduled data release."
+    "note": "Measures the year-over-year % change in wages."
   },
   "CZK::industrial production::y/y": {
     "note": "Industrial Production measures industrial output."
@@ -1131,7 +1131,7 @@
     "note": "Czech Statistical Office retail sales (YoY) reports the year-over-year change in retail trade turnover."
   },
   "CZK::retailles wda::y/y": {
-    "note": "Retailles Wda is a scheduled data release."
+    "note": "Measures the year-over-year % change in retail sales."
   },
   "CZK::s&p global czech republic manufacturing pmi::none": {
     "note": "S&P Global Czech Republic Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
@@ -3069,7 +3069,7 @@
     "note": "GDP measures year-over-year % growth in economic output."
   },
   "HUF::gross wages::y/y": {
-    "note": "Gross Wages is a scheduled data release."
+    "note": "Measures the year-over-year % change in wages."
   },
   "HUF::industrial output::y/y": {
     "note": "Hungarian Central Statistical Office industrial output (YoY) reports the annual change in industrial production."
@@ -3096,7 +3096,7 @@
     "note": "Trade Balance (eur) reports exports minus imports."
   },
   "IDR::balance of payments (eur)::none": {
-    "note": "Balance of Payments (eur) is a scheduled data release."
+    "note": "Reports the balance of payments for the period."
   },
   "IDR::car sales::y/y": {
     "note": "Car Sales reflects the year-over-year change in vehicle wholesales (factory-to-dealer shipments) reported by GAIKINDO."
@@ -3105,7 +3105,7 @@
     "note": "Consumer Confidence is a survey-based sentiment reading."
   },
   "IDR::core inflation::y/y": {
-    "note": "Core Inflation is a scheduled data release."
+    "note": "Measures the year-over-year % change in consumer inflation excluding some volatile components."
   },
   "IDR::current account % of gdp::none": {
     "note": "Indonesia current account as a percent of GDP expresses the external balance (current account) relative to the size of the economy."
@@ -3114,7 +3114,7 @@
     "note": "Bank Indonesia Deposit Facility rate is part of the policy corridor around the BI 7-Day Reverse Repo Rate and sets the return on banks' overnight placements at BI."
   },
   "IDR::export growth::y/y": {
-    "note": "Export Growth is a scheduled data release."
+    "note": "Measures the year-over-year % change in exports."
   },
   "IDR::foreign direct investment::y/y": {
     "note": "Foreign direct investment (FDI) is cross-border investment that establishes a direct investment relationship between economies."
@@ -3138,13 +3138,13 @@
     "note": "GDP measures year-over-year % growth in economic output."
   },
   "IDR::import growth::y/y": {
-    "note": "Import Growth is a scheduled data release."
+    "note": "Measures the year-over-year % change in imports."
   },
   "IDR::inflation::m/m": {
-    "note": "Inflation is a scheduled data release."
+    "note": "Measures the month-over-month % change in consumer inflation."
   },
   "IDR::inflation::y/y": {
-    "note": "Inflation is a scheduled data release."
+    "note": "Measures the year-over-year % change in consumer inflation."
   },
   "IDR::interest rate decision::none": {
     "note": "Bank Indonesia sets its policy rate (BI-Rate, formerly the BI 7-Day Reverse Repo Rate) at its Board of Governors meeting. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
@@ -3210,16 +3210,16 @@
     "note": "Israel Central Bureau of Statistics trade balance reports the net balance of goods exports minus goods imports."
   },
   "INR::balance of payments (usd)::none": {
-    "note": "Balance of Payments (usd) is a scheduled data release."
+    "note": "Reports the balance of payments for the period."
   },
   "INR::bank loan growth (2wk)::none": {
-    "note": "Bank Loan Growth (2wk) is a scheduled data release."
+    "note": "Measures growth in bank lending."
   },
   "INR::bank loan growth::none": {
-    "note": "Bank Loan Growth is a scheduled data release."
+    "note": "Measures growth in bank lending."
   },
   "INR::cash reserve ratio::none": {
-    "note": "Cash Reserve Ratio is a scheduled data release."
+    "note": "Sets the cash reserve ratio requirement for banks."
   },
   "INR::cpi::y/y": {
     "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
@@ -3243,19 +3243,19 @@
     "note": "Current Account (usd) reports the current account balance."
   },
   "INR::deposit growth (2wk)::none": {
-    "note": "Deposit Growth (2wk) is a scheduled data release."
+    "note": "Measures growth in bank deposits."
   },
   "INR::deposit growth::none": {
-    "note": "Deposit Growth is a scheduled data release."
+    "note": "Measures growth in bank deposits."
   },
   "INR::exports (usd)::none": {
     "note": "Exports (USD) reports the value of merchandise exports expressed in US dollars."
   },
   "INR::federal fiscal deficit::none": {
-    "note": "Federal Fiscal Deficit is a scheduled data release."
+    "note": "Reports the federal fiscal deficit for the period."
   },
   "INR::foreign debt (usd)::none": {
-    "note": "Foreign Debt (usd) is a scheduled data release."
+    "note": "Reports the total external debt outstanding."
   },
   "INR::fx reserves, usd::none": {
     "note": "Fx Reserves, Usd reports official foreign-exchange reserves."
@@ -3273,7 +3273,7 @@
     "note": "Imports (USD) reports the value of merchandise imports expressed in US dollars."
   },
   "INR::indian union budget::none": {
-    "note": "Indian Union Budget is a scheduled data release."
+    "note": "A government budget announcement outlining revenue, spending, and financing plans."
   },
   "INR::industrial production::y/y": {
     "note": "Industrial Production measures industrial output."
@@ -3336,16 +3336,16 @@
     "note": "India merchandise trade balance reports the net balance of exports minus imports, published by the Ministry of Commerce and Industry."
   },
   "INR::wpi food::y/y": {
-    "note": "Wpi Food is a scheduled data release."
+    "note": "Measures the year-over-year % change in wholesale prices."
   },
   "INR::wpi fuel::y/y": {
-    "note": "Wpi Fuel is a scheduled data release."
+    "note": "Measures the year-over-year % change in wholesale prices."
   },
   "INR::wpi inflation::y/y": {
-    "note": "Wpi Inflation is a scheduled data release."
+    "note": "Measures the year-over-year % change in consumer inflation."
   },
   "INR::wpi manufacturing inflation::y/y": {
-    "note": "Wpi Manufacturing Inflation is a scheduled data release."
+    "note": "Measures the year-over-year % change in consumer inflation."
   },
   "ISK::cpi::m/m": {
     "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
@@ -3393,7 +3393,7 @@
     "note": "au Jibun Bank Japan Services PMI (from S&P Global) is a monthly survey-based diffusion index of services-sector conditions (above 50 = expansion)."
   },
   "JPY::average cash earnings::y/y": {
-    "note": "Average Cash Earnings is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Measures the year-over-year % change in average hourly earnings."
   },
   "JPY::bank lending::y/y": {
     "note": "Bank of Japan bank lending (YoY) reports the annual change in loans by domestically licensed banks."
@@ -3483,7 +3483,7 @@
     "note": "Japan capacity utilization index measures use of production capacity and this series is the monthly change."
   },
   "JPY::capital spending::y/y": {
-    "note": "Capital Spending is a scheduled data release."
+    "note": "Measures the year-over-year % change in capital spending."
   },
   "JPY::cftc jpy speculative net positions::none": {
     "note": "CFTC Commitments of Traders (COT) reports net speculative positioning for JPY futures."
@@ -3492,13 +3492,13 @@
     "note": "Coincident Indicator is a scheduled data release."
   },
   "JPY::construction orders::y/y": {
-    "note": "Construction Orders is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Measures the year-over-year % change in construction orders received."
   },
   "JPY::core machinery orders::m/m": {
-    "note": "Core Machinery Orders is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Measures the month-over-month % change in new orders received by industry."
   },
   "JPY::core machinery orders::y/y": {
-    "note": "Core Machinery Orders is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Measures the year-over-year % change in new orders received by industry."
   },
   "JPY::corporate services price index (cspi)::y/y": {
     "note": "Bank of Japan Corporate Services Price Index (CSPI) measures price changes in services traded between companies and this series is the annual change."
@@ -3525,7 +3525,7 @@
     "note": "Foreign Bonds Buying is a government bond auction. A weak auction can push yields higher and pressure XAUUSD; a strong auction can help ease yields and support it."
   },
   "JPY::foreign investments in japanese stocks::none": {
-    "note": "Foreign Investments in Japanese Stocks is a scheduled data release."
+    "note": "Reports foreign investment flows into Japanese stocks."
   },
   "JPY::foreign reserves (usd)::none": {
     "note": "Foreign Reserves (usd) reports official foreign-exchange reserves."
@@ -3555,13 +3555,13 @@
     "note": "Household Confidence is a survey-based sentiment reading."
   },
   "JPY::household spending::m/m": {
-    "note": "Household Spending is a scheduled data release."
+    "note": "Measures the month-over-month % change in household spending."
   },
   "JPY::household spending::y/y": {
-    "note": "Household Spending is a scheduled data release."
+    "note": "Measures the year-over-year % change in household spending."
   },
   "JPY::housing starts::y/y": {
-    "note": "Housing Starts is a scheduled data release."
+    "note": "Measures the year-over-year % change in housing starts."
   },
   "JPY::imports::y/y": {
     "note": "Japan imports (YoY) report the annual change in the value of goods imported."
@@ -3576,7 +3576,7 @@
     "note": "Industrial Production measures the month-over-month % change in industrial output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "JPY::jobs/applications ratio::none": {
-    "note": "Jobs/applications Ratio is a scheduled data release."
+    "note": "Reports the job openings-to-applicants ratio."
   },
   "JPY::large retailers' sales::m/m": {
     "note": "Large Retailers' Sales reflects the monthly change in sales at major retail formats covered by METI's Current Survey of Commerce."
@@ -3597,7 +3597,7 @@
     "note": "Bank of Japan M3 money stock is a broad monetary aggregate published in its money stock statistics."
   },
   "JPY::machine tool orders::y/y": {
-    "note": "Machine Tool Orders is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Measures the year-over-year % change in machine tool orders."
   },
   "JPY::manufacturing & services pmi::m/m": {
     "note": "au Jibun Bank Japan Composite PMI (from S&P Global) is a monthly survey-based diffusion index combining manufacturing and services (above 50 = expansion). Weaker-than-expected readings can hurt risk sentiment and support XAUUSD; stronger readings can do the opposite."
@@ -3606,7 +3606,7 @@
     "note": "au Jibun Bank Japan Composite PMI (from S&P Global) is a monthly survey-based diffusion index combining manufacturing and services (above 50 = expansion). Weaker-than-expected readings can hurt risk sentiment and support XAUUSD; stronger readings can do the opposite."
   },
   "JPY::monetary base::y/y": {
-    "note": "Monetary Base is a scheduled data release."
+    "note": "Measures the year-over-year % change in the monetary base."
   },
   "JPY::monetary policy meeting minutes::none": {
     "note": "Monetary Policy Meeting Minutes provides detail on the latest policy meeting (the BoJ). A more hawkish-than-expected message can lift global yields and pressure XAUUSD; a dovish surprise can support it."
@@ -3621,10 +3621,10 @@
     "note": "Japan CPI measures price changes for goods and services purchased by households nationwide, and this release shows the year-over-year change. A surprise can shift BoJ expectations and Japanese yields, with potential knock-on effects for global rates and XAUUSD."
   },
   "JPY::overall wage income of employees::none": {
-    "note": "Overall Wage Income of Employees is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Reports overall wage income of employees."
   },
   "JPY::overtime pay::y/y": {
-    "note": "Overtime Pay is a scheduled data release."
+    "note": "Measures the year-over-year % change in overtime pay."
   },
   "JPY::ppi::m/m": {
     "note": "PPI (Producer Price Index, MoM) measures the month-over-month % change in prices received by producers. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -3639,10 +3639,10 @@
     "note": "Reuters Tankan is a monthly survey-based diffusion index of business sentiment among Japanese manufacturers."
   },
   "JPY::tankan all big industry capex::none": {
-    "note": "Tankan All Big Industry Capex is a scheduled data release."
+    "note": "A Bank of Japan survey of business conditions."
   },
   "JPY::tankan all small industry capex::none": {
-    "note": "Tankan All Small Industry Capex is a scheduled data release."
+    "note": "A Bank of Japan survey of business conditions."
   },
   "JPY::tankan big manufacturing outlook index::none": {
     "note": "Bank of Japan Tankan large manufacturers outlook is a diffusion index computed as the share of firms reporting favourable conditions minus the share reporting unfavourable."
@@ -3840,10 +3840,10 @@
     "note": "1st Half Month CPI (Consumer Price Index) measures the change in consumer prices."
   },
   "MXN::aggregate demand::q/q": {
-    "note": "Aggregate Demand is a scheduled data release."
+    "note": "Measures the quarter-over-quarter % change in aggregate demand."
   },
   "MXN::aggregate demand::y/y": {
-    "note": "Aggregate Demand is a scheduled data release."
+    "note": "Measures the year-over-year % change in aggregate demand."
   },
   "MXN::cftc mxn speculative net positions::none": {
     "note": "CFTC Commitments of Traders (COT) reports net speculative positioning for MXN futures."
@@ -3885,10 +3885,10 @@
     "note": "GDP measures year-over-year % growth in economic output."
   },
   "MXN::gross fixed investments::m/m": {
-    "note": "Gross Fixed Investments is a scheduled data release."
+    "note": "Measures the month-over-month % change in gross fixed investment."
   },
   "MXN::gross fixed investments::y/y": {
-    "note": "Gross Fixed Investments is a scheduled data release."
+    "note": "Measures the year-over-year % change in gross fixed investment."
   },
   "MXN::industrial production::m/m": {
     "note": "Industrial Production measures the month-over-month % change in industrial output."
@@ -3906,10 +3906,10 @@
     "note": "Monetary Policy Meeting Minutes provides detail on the latest policy meeting (the central bank)."
   },
   "MXN::month core inflation::m/m": {
-    "note": "Month Core Inflation is a scheduled data release."
+    "note": "Measures the month-over-month % change in consumer inflation excluding some volatile components."
   },
   "MXN::month core inflation::y/y": {
-    "note": "Month Core Inflation is a scheduled data release."
+    "note": "Measures the year-over-year % change in consumer inflation excluding some volatile components."
   },
   "MXN::ppi::m/m": {
     "note": "PPI (Producer Price Index, MoM) measures the month-over-month % change in prices received by producers."
@@ -3918,10 +3918,10 @@
     "note": "PPI (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers."
   },
   "MXN::private spending::q/q": {
-    "note": "Private Spending is a scheduled data release."
+    "note": "Measures the quarter-over-quarter % change in household spending."
   },
   "MXN::private spending::y/y": {
-    "note": "Private Spending is a scheduled data release."
+    "note": "Measures the year-over-year % change in household spending."
   },
   "MXN::retail sales::m/m": {
     "note": "Retail Sales measures the month-over-month % change in retail spending."
@@ -3954,7 +3954,7 @@
     "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
   },
   "MYR::current acount::none": {
-    "note": "Current Acount is a scheduled data release."
+    "note": "Reports the current account balance for the period."
   },
   "MYR::exports::y/y": {
     "note": "Malaysia exports (YoY) report the annual change in the value of goods exported."
@@ -3987,7 +3987,7 @@
     "note": "Bank Negara Malaysia money supply (YoY) reports the annual change in a broad money aggregate."
   },
   "MYR::overall net capital flow::none": {
-    "note": "Overall Net Capital Flow is a scheduled data release."
+    "note": "Reports overall net capital flows for the period."
   },
   "MYR::trade balance::none": {
     "note": "Department of Statistics Malaysia trade balance reports the net balance of merchandise exports minus merchandise imports."
@@ -11913,7 +11913,7 @@
     "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
   },
   "NGN::food inflation::y/y": {
-    "note": "Food Inflation is a scheduled data release."
+    "note": "Measures the year-over-year % change in consumer inflation."
   },
   "NGN::foreign reserves (usd)::none": {
     "note": "Foreign Reserves (usd) reports official foreign-exchange reserves."
@@ -11946,7 +11946,7 @@
     "note": "Core CPI Ytd (Consumer Price Index) measures the change in consumer prices excluding food and energy."
   },
   "NOK::core inflation::m/m": {
-    "note": "Core Inflation is a scheduled data release."
+    "note": "Measures the month-over-month % change in consumer inflation excluding some volatile components."
   },
   "NOK::core retail sales::m/m": {
     "note": "Core Retail Sales measures the month-over-month % change in retail spending."
@@ -11997,7 +11997,7 @@
     "note": "Statistics Norway (SSB) publishes external trade in goods statistics with detailed imports and exports; it also reports the trade balance. The balance is the net difference between exports and imports."
   },
   "NOK::unemployment change::none": {
-    "note": "Unemployment Change is a scheduled data release."
+    "note": "Reports the change in the number of unemployed people."
   },
   "NOK::unemployment rate n.s.a.::none": {
     "note": "Unemployment Rate N.s.a. shows the share of the labor force that is unemployed."
@@ -12006,7 +12006,7 @@
     "note": "Unemployment Rate shows the share of the labor force that is unemployed."
   },
   "NZD::annual budget release::none": {
-    "note": "Annual Budget Release is a scheduled data release."
+    "note": "A government budget announcement outlining revenue, spending, and financing plans."
   },
   "NZD::anz business confidence::none": {
     "note": "Anz Business Confidence is a survey-based sentiment reading."
@@ -12018,7 +12018,7 @@
     "note": "New Zealand budget balance reports the government's fiscal result for the period (surplus or deficit)."
   },
   "NZD::building consents::m/m": {
-    "note": "Building Consents is a scheduled data release."
+    "note": "Measures the month-over-month % change in building consents."
   },
   "NZD::business nz pmi::none": {
     "note": "BusinessNZ Performance of Manufacturing Index is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
@@ -12048,7 +12048,7 @@
     "note": "Current Account reports the current account balance."
   },
   "NZD::economic forecast::none": {
-    "note": "Economic Forecast is a scheduled data release."
+    "note": "Provides updated economic projections."
   },
   "NZD::electronic card retail sales::m/m": {
     "note": "Electronic Card Retail Sales measures the month-over-month % change in retail spending. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -12063,10 +12063,10 @@
     "note": "Stats NZ exports report the value of goods exported during the period."
   },
   "NZD::external migration & visitors::none": {
-    "note": "External Migration & Visitors is a scheduled data release."
+    "note": "Reports visitor arrivals and migration flows."
   },
   "NZD::fpi::m/m": {
-    "note": "Fpi is a scheduled data release."
+    "note": "Measures the month-over-month % change in a food price index."
   },
   "NZD::gdp annual average::none": {
     "note": "Stats NZ GDP annual average reports the average level or growth of economic output over the year."
@@ -12084,16 +12084,16 @@
     "note": "GlobalDairyTrade price index summarizes price movements at GlobalDairyTrade auctions across major dairy products."
   },
   "NZD::government monthly debt::none": {
-    "note": "Government Monthly Debt is a scheduled data release."
+    "note": "Reports the government's monthly debt position."
   },
   "NZD::government operating balance::none": {
-    "note": "Government Operating Balance is a scheduled data release."
+    "note": "Reports the government's operating balance (surplus or deficit)."
   },
   "NZD::imports::none": {
     "note": "Stats NZ imports report the value of goods imported during the period."
   },
   "NZD::inflation expectations::q/q": {
-    "note": "Inflation Expectations is a scheduled data release. Higher-than-expected inflation (vs forecast) can lift yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Reports expected inflation from a survey or market-based measure."
   },
   "NZD::labor cost index::q/q": {
     "note": "Stats NZ Labour Cost Index measures changes in wage and salary rates, adjusted for changes in the quantity and quality of work, and this series is the quarterly change."
@@ -12111,7 +12111,7 @@
     "note": "Nbnz Own Activity is a scheduled data release."
   },
   "NZD::net debt forecast::none": {
-    "note": "Net Debt Forecast is a scheduled data release."
+    "note": "Provides an updated forecast for net government debt."
   },
   "NZD::nzd/usd index::none": {
     "note": "NZD/USD index is a market exchange rate level for NZD versus USD, commonly shown as USD per 1 NZD."
@@ -12120,7 +12120,7 @@
     "note": "Nzier Business Confidence is a survey-based sentiment reading."
   },
   "NZD::nzier qsbo capacity utilization::none": {
-    "note": "Nzier Qsbo Capacity Utilization is a scheduled data release."
+    "note": "Measures capacity utilisation in the sector."
   },
   "NZD::participation rate::none": {
     "note": "Stats NZ publishes the labour force participation rate in its Labour market statistics based on the Household Labour Force Survey."
@@ -12129,7 +12129,7 @@
     "note": "BusinessNZ Performance of Services Index is a monthly survey-based diffusion index for the services sector (50 = no change)."
   },
   "NZD::permanent/long - term migration::none": {
-    "note": "Permanent/long Term Migration is a scheduled data release."
+    "note": "Reports visitor arrivals and migration flows."
   },
   "NZD::ppi input::q/q": {
     "note": "PPI Input (Producer Price Index, QoQ) measures the change in prices received by producers. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -12180,13 +12180,13 @@
     "note": "Retail Sales measures retail spending. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "NZD::terms of trade - exports prices::none": {
-    "note": "Terms of Trade Exports Prices is a scheduled data release."
+    "note": "Reports the value of exports."
   },
   "NZD::terms of trade - exports volume::q/q": {
-    "note": "Terms of Trade Exports Volume is a scheduled data release."
+    "note": "Reports the value of exports."
   },
   "NZD::terms of trade - imports prices::none": {
-    "note": "Terms of Trade Imports Prices is a scheduled data release."
+    "note": "Reports the value of imports."
   },
   "NZD::terms of trade index::q/q": {
     "note": "Stats NZ terms of trade index measures the ratio of export prices to import prices and this series is the quarterly change."
@@ -12201,7 +12201,7 @@
     "note": "Unemployment Rate shows the share of the labor force that is unemployed. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "NZD::visitor arrivals::m/m": {
-    "note": "Visitor Arrivals is a scheduled data release."
+    "note": "Measures the month-over-month % change in visitor arrivals and migration flows."
   },
   "NZD::westpac consumer sentiment::none": {
     "note": "Westpac Consumer Sentiment is a survey-based sentiment reading."
@@ -12309,7 +12309,7 @@
     "note": "Core CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices excluding food and energy."
   },
   "PLN::corp. sector wages::y/y": {
-    "note": "Corp. Sector Wages is a scheduled data release."
+    "note": "Measures the year-over-year % change in wages."
   },
   "PLN::cpi::m/m": {
     "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
@@ -12321,7 +12321,7 @@
     "note": "Current Account (eur) reports the current account balance."
   },
   "PLN::employment growth::y/y": {
-    "note": "Employment Growth is a scheduled data release."
+    "note": "Measures the year-over-year % change in employment."
   },
   "PLN::fx reserves (eur)::none": {
     "note": "Fx Reserves (eur) reports official foreign-exchange reserves."
@@ -12489,7 +12489,7 @@
     "note": "Russian Forex Intervention is a scheduled data release."
   },
   "RUB::russian real wage growth::y/y": {
-    "note": "Russian Real Wage Growth is a scheduled data release."
+    "note": "Measures the year-over-year % change in wages."
   },
   "RUB::s&p global manufacturing pmi::none": {
     "note": "S&P Global Russia Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
@@ -12579,10 +12579,10 @@
     "note": "Household Confidence is a survey-based sentiment reading."
   },
   "SEK::household lending growth::y/y": {
-    "note": "Household Lending Growth is a scheduled data release."
+    "note": "Measures the year-over-year % change in household lending."
   },
   "SEK::industrial new orders::y/y": {
-    "note": "Industrial New Orders is a scheduled data release."
+    "note": "Measures the year-over-year % change in industrial new orders."
   },
   "SEK::industrial production::m/m": {
     "note": "Industrial Production measures the month-over-month % change in industrial output."
@@ -12633,7 +12633,7 @@
     "note": "Singapore bank lending reports outstanding loans in the banking system for the period."
   },
   "SGD::business expectations::none": {
-    "note": "Business Expectations is a scheduled data release."
+    "note": "Reports a survey-based business expectations index."
   },
   "SGD::core cpi::y/y": {
     "note": "Core CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices excluding food and energy."
@@ -12660,10 +12660,10 @@
     "note": "Industrial Production measures industrial output."
   },
   "SGD::non - oil exports::m/m": {
-    "note": "Non Oil Exports is a scheduled data release."
+    "note": "Reports the value of exports."
   },
   "SGD::non - oil exports::y/y": {
-    "note": "Non Oil Exports is a scheduled data release."
+    "note": "Reports the value of exports."
   },
   "SGD::retail sales::m/m": {
     "note": "Retail Sales measures the month-over-month % change in retail spending."
@@ -12693,16 +12693,16 @@
     "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
   },
   "THB::currency swaps (usd)::none": {
-    "note": "Currency Swaps (usd) is a scheduled data release."
+    "note": "Reports the value of currency swaps in USD."
   },
   "THB::current account::none": {
     "note": "Current Account reports the current account balance."
   },
   "THB::custom - based export data::none": {
-    "note": "Custom Based Export Data is a scheduled data release."
+    "note": "Reports customs-based exports."
   },
   "THB::custom - based import data::none": {
-    "note": "Custom Based Import Data is a scheduled data release."
+    "note": "Reports customs-based imports."
   },
   "THB::custom - based trade data (usd)::none": {
     "note": "Custom Based Trade Data (usd) is a scheduled data release."
