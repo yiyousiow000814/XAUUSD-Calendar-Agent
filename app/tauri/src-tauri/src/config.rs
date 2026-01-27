@@ -12,20 +12,15 @@ fn portable_data_dir() -> Option<PathBuf> {
     exe_dir().map(|dir| dir.join("user-data"))
 }
 
-fn roaming_data_dir() -> Option<PathBuf> {
-    if let Ok(override_dir) = std::env::var("XAUUSD_CALENDAR_AGENT_DATA_DIR") {
-        let trimmed = override_dir.trim().to_string();
-        if !trimmed.is_empty() {
-            return Some(PathBuf::from(trimmed));
+fn legacy_roaming_dir() -> Option<PathBuf> {
+    std::env::var("APPDATA").ok().and_then(|appdata| {
+        let trimmed = appdata.trim().to_string();
+        if trimmed.is_empty() {
+            None
+        } else {
+            Some(PathBuf::from(trimmed).join("XAUUSDCalendar"))
         }
-    }
-    if let Ok(appdata) = std::env::var("APPDATA") {
-        let appdata = appdata.trim().to_string();
-        if !appdata.is_empty() {
-            return Some(PathBuf::from(appdata).join("XAUUSDCalendar"));
-        }
-    }
-    None
+    })
 }
 
 pub fn appdata_dir() -> PathBuf {
@@ -36,16 +31,9 @@ pub fn appdata_dir() -> PathBuf {
         }
     }
 
-    // Portable mode: if a sibling `user-data/` folder exists next to the running executable,
-    // prefer it (matches the previous behavior where worktrees used a local `user-data` folder).
+    // Strict portable mode: always use a sibling `user-data/` folder next to the running executable.
+    // (No %APPDATA% fallback; matches the pre-Tauri behavior.)
     if let Some(dir) = portable_data_dir() {
-        if dir.exists() {
-            return dir;
-        }
-    }
-
-    // Default: use per-user roaming AppData on Windows.
-    if let Some(dir) = roaming_data_dir() {
         return dir;
     }
 
@@ -70,26 +58,42 @@ pub fn load_config() -> Value {
     let defaults = default_config();
     let path = config_path();
 
-    // If we're using a portable `user-data` folder but it doesn't have config yet, migrate from
-    // roaming AppData once (best-effort). This avoids losing existing settings when switching
-    // worktrees to portable mode.
+    // If we're using `user-data/` but it doesn't have config yet, migrate from the legacy roaming
+    // AppData location once (best-effort), then try to clean it up so data only lives in user-data.
     if !path.exists() {
         if let Some(portable_dir) = portable_data_dir() {
             if path.starts_with(&portable_dir) {
-                if let Some(roaming) = roaming_data_dir() {
-                    if roaming != portable_dir {
+                if let Some(roaming) = legacy_roaming_dir() {
+                    if roaming.exists() && roaming != portable_dir {
+                        let mut migrated_any = false;
+
                         let from = roaming.join("config.json");
                         if from.exists() {
                             if let Some(parent) = path.parent() {
                                 let _ = fs::create_dir_all(parent);
                             }
-                            let _ = fs::copy(&from, &path);
+                            if fs::copy(&from, &path).is_ok() {
+                                migrated_any = true;
+                            }
                         }
 
                         let from_repo = roaming.join("repo");
                         let to_repo = portable_dir.join("repo");
-                        if from_repo.exists() && !to_repo.exists() {
-                            let _ = copy_dir_recursive(&from_repo, &to_repo);
+                        if from_repo.exists()
+                            && !to_repo.exists()
+                            && copy_dir_recursive(&from_repo, &to_repo).is_ok()
+                        {
+                            migrated_any = true;
+                        }
+
+                        let from_logs = roaming.join("logs");
+                        let to_logs = portable_dir.join("logs");
+                        if from_logs.exists() && !to_logs.exists() {
+                            let _ = copy_dir_recursive(&from_logs, &to_logs);
+                        }
+
+                        if migrated_any {
+                            let _ = fs::remove_dir_all(&roaming);
                         }
                     }
                 }
