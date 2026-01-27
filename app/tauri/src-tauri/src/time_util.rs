@@ -13,10 +13,16 @@ pub fn format_display_time(dt: DateTime<Utc>, mode: &str, utc_offset_minutes: i3
         return dt.format("%d-%m-%Y %H:%M").to_string();
     }
     if utc_offset_minutes != 0 {
-        let offset = FixedOffset::east_opt(utc_offset_minutes * 60).unwrap_or_else(|| FixedOffset::east_opt(0).unwrap());
-        return dt.with_timezone(&offset).format("%d-%m-%Y %H:%M").to_string();
+        let offset = FixedOffset::east_opt(utc_offset_minutes * 60)
+            .unwrap_or_else(|| FixedOffset::east_opt(0).unwrap());
+        return dt
+            .with_timezone(&offset)
+            .format("%d-%m-%Y %H:%M")
+            .to_string();
     }
-    dt.with_timezone(&Local).format("%d-%m-%Y %H:%M").to_string()
+    dt.with_timezone(&Local)
+        .format("%d-%m-%Y %H:%M")
+        .to_string()
 }
 
 pub fn format_countdown(target_utc: DateTime<Utc>) -> String {
@@ -35,10 +41,15 @@ pub fn format_countdown(target_utc: DateTime<Utc>) -> String {
     format!("{hours}h {mins}m")
 }
 
-pub fn parse_source_dt_to_utc(date_iso: &str, time_hhmm: &str, source_utc_offset_minutes: i32) -> Option<DateTime<Utc>> {
+pub fn parse_source_dt_to_utc(
+    date_iso: &str,
+    time_hhmm: &str,
+    source_utc_offset_minutes: i32,
+) -> Option<DateTime<Utc>> {
     let date = chrono::NaiveDate::parse_from_str(date_iso, "%Y-%m-%d").ok()?;
     let time = if time_hhmm.contains(':') {
-        chrono::NaiveTime::parse_from_str(time_hhmm, "%H:%M").unwrap_or_else(|_| chrono::NaiveTime::from_hms_opt(0, 0, 0).unwrap())
+        chrono::NaiveTime::parse_from_str(time_hhmm, "%H:%M")
+            .unwrap_or_else(|_| chrono::NaiveTime::from_hms_opt(0, 0, 0).unwrap())
     } else {
         chrono::NaiveTime::from_hms_opt(0, 0, 0)?
     };

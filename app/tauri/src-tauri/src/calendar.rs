@@ -151,10 +151,12 @@ pub fn load_calendar_events(repo_path: &Path) -> Vec<CalendarEvent> {
 }
 
 pub fn currency_options() -> Vec<String> {
-    vec!["ALL", "USD", "EUR", "GBP", "JPY", "CHF", "CAD", "AUD", "NZD", "CNY"]
-        .into_iter()
-        .map(|s| s.to_string())
-        .collect()
+    vec![
+        "ALL", "USD", "EUR", "GBP", "JPY", "CHF", "CAD", "AUD", "NZD", "CNY",
+    ]
+    .into_iter()
+    .map(|s| s.to_string())
+    .collect()
 }
 
 pub fn to_value(event: &CalendarEvent) -> Value {

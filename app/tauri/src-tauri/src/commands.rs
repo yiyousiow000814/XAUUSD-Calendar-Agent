@@ -1,9 +1,11 @@
-use crate::calendar::{currency_options, load_calendar_events, to_value, CALENDAR_SOURCE_UTC_OFFSET_MINUTES};
+use crate::calendar::{
+    currency_options, load_calendar_events, to_value, CALENDAR_SOURCE_UTC_OFFSET_MINUTES,
+};
 use crate::config;
 use crate::git_ops;
 use crate::snapshot::{render_next_events, render_past_events};
-use crate::state::{CalendarCache, RuntimeState};
 use crate::startup;
+use crate::state::{CalendarCache, RuntimeState};
 use crate::sync_util;
 use crate::time_util::{now_display_time, now_iso_time};
 use chrono::Utc;
@@ -49,7 +51,13 @@ pub fn default_update_state() -> Value {
     })
 }
 
-fn set_update_state(runtime: &mut RuntimeState, phase: &str, message: &str, ok: bool, available_version: Option<&str>) {
+fn set_update_state(
+    runtime: &mut RuntimeState,
+    phase: &str,
+    message: &str,
+    ok: bool,
+    available_version: Option<&str>,
+) {
     if runtime.update_state.is_null() {
         runtime.update_state = default_update_state();
     }

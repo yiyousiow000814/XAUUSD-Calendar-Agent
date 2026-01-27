@@ -9,8 +9,7 @@ use windows_sys::Win32::Foundation::{ERROR_FILE_NOT_FOUND, ERROR_SUCCESS};
 
 #[cfg(target_os = "windows")]
 use windows_sys::Win32::System::Registry::{
-    RegCloseKey, RegCreateKeyW, RegDeleteValueW, RegSetValueExW, HKEY, HKEY_CURRENT_USER,
-    REG_SZ,
+    RegCloseKey, RegCreateKeyW, RegDeleteValueW, RegSetValueExW, HKEY, HKEY_CURRENT_USER, REG_SZ,
 };
 
 #[cfg(target_os = "windows")]
