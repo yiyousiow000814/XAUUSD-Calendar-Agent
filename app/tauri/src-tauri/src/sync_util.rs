@@ -80,13 +80,11 @@ pub fn mirror_sync(src_dir: &Path, dst_dir: &Path) -> Result<SyncResult, String>
     }
 
     for (rel, dst_path) in dst_files.iter() {
-        if rel == ".xauusd_calendar_agent_managed_output" {
-            continue;
-        }
-        if !src_files.contains_key(rel) {
-            if fs::remove_file(dst_path).is_ok() {
-                result.deleted += 1;
-            }
+        if rel != ".xauusd_calendar_agent_managed_output"
+            && !src_files.contains_key(rel)
+            && fs::remove_file(dst_path).is_ok()
+        {
+            result.deleted += 1;
         }
     }
 

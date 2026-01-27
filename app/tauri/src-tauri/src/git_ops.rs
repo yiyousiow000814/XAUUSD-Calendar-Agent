@@ -39,9 +39,7 @@ pub fn ensure_repo(repo_dir: &Path, repo_slug: &str, branch: &str) -> Result<(),
     {
         cmd.creation_flags(CREATE_NO_WINDOW);
     }
-    let status = cmd
-        .status()
-        .map_err(|e| format!("git clone failed: {e}"))?;
+    let status = cmd.status().map_err(|e| format!("git clone failed: {e}"))?;
     if !status.success() {
         return Err("git clone failed".to_string());
     }

@@ -5,8 +5,8 @@ mod commands;
 mod config;
 mod git_ops;
 mod snapshot;
-mod state;
 mod startup;
+mod state;
 mod sync_util;
 mod time_util;
 
@@ -14,8 +14,8 @@ use crate::commands::default_update_state;
 use crate::state::RuntimeState;
 use std::sync::Mutex;
 use tauri::menu::MenuBuilder;
-use tauri::tray::{MouseButton, MouseButtonState};
 use tauri::tray::TrayIconEvent;
+use tauri::tray::{MouseButton, MouseButtonState};
 use tauri::Manager;
 use tauri::WindowEvent;
 
@@ -124,17 +124,18 @@ fn main() {
                     app.exit(0);
                     return;
                 }
-                match id {
-                    "tray:open" => {
-                        show_main_window(app);
-                    }
-                    _ => {}
+                if id == "tray:open" {
+                    show_main_window(app);
                 }
             });
 
             handle.on_tray_icon_event(|app, event| {
                 match event {
-                    TrayIconEvent::Click { button, button_state, .. } => {
+                    TrayIconEvent::Click {
+                        button,
+                        button_state,
+                        ..
+                    } => {
                         if button != MouseButton::Left || button_state != MouseButtonState::Up {
                             return;
                         }

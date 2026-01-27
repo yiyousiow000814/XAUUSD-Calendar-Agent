@@ -68,7 +68,10 @@ fn set_update_state(
         if let Some(v) = available_version {
             obj.insert("availableVersion".to_string(), Value::String(v.to_string()));
         }
-        obj.insert("lastCheckedAt".to_string(), Value::String(now_display_time()));
+        obj.insert(
+            "lastCheckedAt".to_string(),
+            Value::String(now_display_time()),
+        );
     }
 }
 
@@ -128,7 +131,11 @@ fn cmp_versions(a: &str, b: &str) -> Ordering {
     Ordering::Equal
 }
 
-fn ensure_calendar_loaded(app: tauri::AppHandle, cfg: Value, state: tauri::State<'_, Mutex<RuntimeState>>) {
+fn ensure_calendar_loaded(
+    app: tauri::AppHandle,
+    cfg: Value,
+    state: tauri::State<'_, Mutex<RuntimeState>>,
+) {
     let should_start = {
         let mut runtime = state.lock().expect("runtime lock");
         if runtime.calendar.status.is_empty() {
@@ -138,8 +145,8 @@ fn ensure_calendar_loaded(app: tauri::AppHandle, cfg: Value, state: tauri::State
                 events: vec![],
             };
         }
-        let stale =
-            runtime.calendar.last_loaded_at_ms == 0 || (now_ms() - runtime.calendar.last_loaded_at_ms) > 90_000;
+        let stale = runtime.calendar.last_loaded_at_ms == 0
+            || (now_ms() - runtime.calendar.last_loaded_at_ms) > 90_000;
         let loading = runtime.calendar.status == "loading";
         if loading || !stale {
             return;
@@ -250,16 +257,46 @@ pub fn get_snapshot(app: tauri::AppHandle, state: tauri::State<'_, Mutex<Runtime
         .iter()
         .filter_map(|v| {
             let dt = v.get("dt_utc").and_then(|s| s.as_str())?;
-            let dt = chrono::DateTime::parse_from_rfc3339(dt).ok()?.with_timezone(&Utc);
+            let dt = chrono::DateTime::parse_from_rfc3339(dt)
+                .ok()?
+                .with_timezone(&Utc);
             Some(crate::calendar::CalendarEvent {
                 dt_utc: dt,
-                time_label: v.get("time_label").and_then(|s| s.as_str()).unwrap_or("").to_string(),
-                event: v.get("event").and_then(|s| s.as_str()).unwrap_or("").to_string(),
-                currency: v.get("currency").and_then(|s| s.as_str()).unwrap_or("").to_string(),
-                importance: v.get("importance").and_then(|s| s.as_str()).unwrap_or("").to_string(),
-                actual: v.get("actual").and_then(|s| s.as_str()).unwrap_or("").to_string(),
-                forecast: v.get("forecast").and_then(|s| s.as_str()).unwrap_or("").to_string(),
-                previous: v.get("previous").and_then(|s| s.as_str()).unwrap_or("").to_string(),
+                time_label: v
+                    .get("time_label")
+                    .and_then(|s| s.as_str())
+                    .unwrap_or("")
+                    .to_string(),
+                event: v
+                    .get("event")
+                    .and_then(|s| s.as_str())
+                    .unwrap_or("")
+                    .to_string(),
+                currency: v
+                    .get("currency")
+                    .and_then(|s| s.as_str())
+                    .unwrap_or("")
+                    .to_string(),
+                importance: v
+                    .get("importance")
+                    .and_then(|s| s.as_str())
+                    .unwrap_or("")
+                    .to_string(),
+                actual: v
+                    .get("actual")
+                    .and_then(|s| s.as_str())
+                    .unwrap_or("")
+                    .to_string(),
+                forecast: v
+                    .get("forecast")
+                    .and_then(|s| s.as_str())
+                    .unwrap_or("")
+                    .to_string(),
+                previous: v
+                    .get("previous")
+                    .and_then(|s| s.as_str())
+                    .unwrap_or("")
+                    .to_string(),
             })
         })
         .collect::<Vec<_>>();
@@ -330,7 +367,11 @@ pub fn get_settings(state: tauri::State<'_, Mutex<RuntimeState>>) -> Value {
     };
     let theme = {
         let v = config::get_str(&cfg, "theme_preference");
-        if v == "dark" || v == "light" { v } else { "system".to_string() }
+        if v == "dark" || v == "light" {
+            v
+        } else {
+            "system".to_string()
+        }
     };
     let calendar_timezone_mode = {
         let v = config::get_str(&cfg, "calendar_timezone_mode");
@@ -362,28 +403,119 @@ pub fn get_settings(state: tauri::State<'_, Mutex<RuntimeState>>) -> Value {
 }
 
 #[tauri::command]
-pub fn save_settings(payload: Value, state: tauri::State<'_, Mutex<RuntimeState>>) -> Result<Value, String> {
+pub fn save_settings(
+    payload: Value,
+    state: tauri::State<'_, Mutex<RuntimeState>>,
+) -> Result<Value, String> {
     let mut cfg = config::load_config();
-    config::set_bool(&mut cfg, "auto_sync_after_pull", payload.get("autoSyncAfterPull").and_then(|v| v.as_bool()).unwrap_or(true))?;
-    config::set_bool(&mut cfg, "auto_update_enabled", payload.get("autoUpdateEnabled").and_then(|v| v.as_bool()).unwrap_or(true))?;
-    let run_on_startup = payload.get("runOnStartup").and_then(|v| v.as_bool()).unwrap_or(true);
+    config::set_bool(
+        &mut cfg,
+        "auto_sync_after_pull",
+        payload
+            .get("autoSyncAfterPull")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(true),
+    )?;
+    config::set_bool(
+        &mut cfg,
+        "auto_update_enabled",
+        payload
+            .get("autoUpdateEnabled")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(true),
+    )?;
+    let run_on_startup = payload
+        .get("runOnStartup")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(true);
     config::set_bool(&mut cfg, "run_on_startup", run_on_startup)?;
-    config::set_string(&mut cfg, "autostart_launch_mode", payload.get("autostartLaunchMode").and_then(|v| v.as_str()).unwrap_or("tray").to_string())?;
-    config::set_string(&mut cfg, "close_behavior", payload.get("closeBehavior").and_then(|v| v.as_str()).unwrap_or("exit").to_string())?;
-    config::set_bool(&mut cfg, "debug", payload.get("debug").and_then(|v| v.as_bool()).unwrap_or(false))?;
-    config::set_bool(&mut cfg, "settings_auto_save", payload.get("autoSave").and_then(|v| v.as_bool()).unwrap_or(true))?;
+    config::set_string(
+        &mut cfg,
+        "autostart_launch_mode",
+        payload
+            .get("autostartLaunchMode")
+            .and_then(|v| v.as_str())
+            .unwrap_or("tray")
+            .to_string(),
+    )?;
+    config::set_string(
+        &mut cfg,
+        "close_behavior",
+        payload
+            .get("closeBehavior")
+            .and_then(|v| v.as_str())
+            .unwrap_or("exit")
+            .to_string(),
+    )?;
+    config::set_bool(
+        &mut cfg,
+        "debug",
+        payload
+            .get("debug")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false),
+    )?;
+    config::set_bool(
+        &mut cfg,
+        "settings_auto_save",
+        payload
+            .get("autoSave")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(true),
+    )?;
     if let Some(v) = payload.get("splitRatio").and_then(|v| v.as_f64()) {
         let obj = cfg.as_object_mut().ok_or("config invalid")?;
         obj.insert("split_ratio".to_string(), json!(v));
     }
-    config::set_bool(&mut cfg, "enable_system_theme", payload.get("enableSystemTheme").and_then(|v| v.as_bool()).unwrap_or(false))?;
-    config::set_string(&mut cfg, "theme_preference", payload.get("theme").and_then(|v| v.as_str()).unwrap_or("system").to_string())?;
-    config::set_string(&mut cfg, "calendar_timezone_mode", payload.get("calendarTimezoneMode").and_then(|v| v.as_str()).unwrap_or("system").to_string())?;
-    if let Some(minutes) = payload.get("calendarUtcOffsetMinutes").and_then(|v| v.as_i64()) {
+    config::set_bool(
+        &mut cfg,
+        "enable_system_theme",
+        payload
+            .get("enableSystemTheme")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false),
+    )?;
+    config::set_string(
+        &mut cfg,
+        "theme_preference",
+        payload
+            .get("theme")
+            .and_then(|v| v.as_str())
+            .unwrap_or("system")
+            .to_string(),
+    )?;
+    config::set_string(
+        &mut cfg,
+        "calendar_timezone_mode",
+        payload
+            .get("calendarTimezoneMode")
+            .and_then(|v| v.as_str())
+            .unwrap_or("system")
+            .to_string(),
+    )?;
+    if let Some(minutes) = payload
+        .get("calendarUtcOffsetMinutes")
+        .and_then(|v| v.as_i64())
+    {
         config::set_number(&mut cfg, "calendar_utc_offset_minutes", minutes)?;
     }
-    config::set_bool(&mut cfg, "enable_temporary_path", payload.get("enableTemporaryPath").and_then(|v| v.as_bool()).unwrap_or(false))?;
-    config::set_string(&mut cfg, "temporary_path", payload.get("temporaryPath").and_then(|v| v.as_str()).unwrap_or("").to_string())?;
+    config::set_bool(
+        &mut cfg,
+        "enable_temporary_path",
+        payload
+            .get("enableTemporaryPath")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false),
+    )?;
+    config::set_string(
+        &mut cfg,
+        "temporary_path",
+        payload
+            .get("temporaryPath")
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .to_string(),
+    )?;
     if let Some(repo_path) = payload.get("repoPath").and_then(|v| v.as_str()) {
         config::set_string(&mut cfg, "repo_path", repo_path.to_string())?;
     }
@@ -402,9 +534,20 @@ pub fn save_settings(payload: Value, state: tauri::State<'_, Mutex<RuntimeState>
 }
 
 #[tauri::command]
-pub fn add_log(payload: Value, state: tauri::State<'_, Mutex<RuntimeState>>) -> Result<Value, String> {
-    let message = payload.get("message").and_then(|v| v.as_str()).unwrap_or("").trim();
-    let level = payload.get("level").and_then(|v| v.as_str()).unwrap_or("INFO").trim();
+pub fn add_log(
+    payload: Value,
+    state: tauri::State<'_, Mutex<RuntimeState>>,
+) -> Result<Value, String> {
+    let message = payload
+        .get("message")
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .trim();
+    let level = payload
+        .get("level")
+        .and_then(|v| v.as_str())
+        .unwrap_or("INFO")
+        .trim();
     if message.is_empty() {
         return Ok(json!({"ok": false, "message": "message is required"}));
     }
@@ -421,10 +564,17 @@ pub fn clear_logs(state: tauri::State<'_, Mutex<RuntimeState>>) -> Result<Value,
 }
 
 #[tauri::command]
-pub fn set_currency(value: String, state: tauri::State<'_, Mutex<RuntimeState>>) -> Result<Value, String> {
+pub fn set_currency(
+    value: String,
+    state: tauri::State<'_, Mutex<RuntimeState>>,
+) -> Result<Value, String> {
     let value = value.trim().to_string();
     let mut runtime = state.lock().expect("runtime lock");
-    runtime.currency = if value.is_empty() { "USD".to_string() } else { value };
+    runtime.currency = if value.is_empty() {
+        "USD".to_string()
+    } else {
+        value
+    };
     Ok(json!({"ok": true}))
 }
 
@@ -438,13 +588,22 @@ pub fn get_update_state(state: tauri::State<'_, Mutex<RuntimeState>>) -> Value {
 }
 
 #[tauri::command]
-pub fn check_updates(app: tauri::AppHandle, state: tauri::State<'_, Mutex<RuntimeState>>) -> Result<Value, String> {
+pub fn check_updates(
+    app: tauri::AppHandle,
+    state: tauri::State<'_, Mutex<RuntimeState>>,
+) -> Result<Value, String> {
     let cfg = config::load_config();
     let repo_slug = config::get_str(&cfg, "github_repo");
     let asset_name = config::get_str(&cfg, "github_release_asset_name");
     let token = config::get_str(&cfg, "github_token");
     let mut runtime = state.lock().expect("runtime lock");
-    set_update_state(&mut runtime, "checking", "Checking for updates...", true, None);
+    set_update_state(
+        &mut runtime,
+        "checking",
+        "Checking for updates...",
+        true,
+        None,
+    );
     runtime.update_release_url.clear();
     runtime.update_asset_url.clear();
     drop(runtime);
@@ -465,10 +624,7 @@ pub fn check_updates(app: tauri::AppHandle, state: tauri::State<'_, Mutex<Runtim
             let body: serde_json::Value = resp
                 .into_json()
                 .map_err(|e| format!("failed to parse GitHub response: {e}"))?;
-            let tag = body
-                .get("tag_name")
-                .and_then(|v| v.as_str())
-                .unwrap_or("");
+            let tag = body.get("tag_name").and_then(|v| v.as_str()).unwrap_or("");
             let available = normalize_version_tag(tag);
             if available.is_empty() {
                 return Err("GitHub release tag_name missing".to_string());
@@ -513,14 +669,22 @@ pub fn check_updates(app: tauri::AppHandle, state: tauri::State<'_, Mutex<Runtim
                         true,
                         Some(&available),
                     );
-                    push_log(&mut runtime, &format!("Update available: {available}"), "INFO");
+                    push_log(
+                        &mut runtime,
+                        &format!("Update available: {available}"),
+                        "INFO",
+                    );
                 } else {
                     set_update_state(&mut runtime, "idle", "Up to date", true, Some(&available));
                 }
             }
             Err(msg) => {
                 set_update_state(&mut runtime, "error", &msg, false, None);
-                push_log(&mut runtime, &format!("Update check failed: {msg}"), "ERROR");
+                push_log(
+                    &mut runtime,
+                    &format!("Update check failed: {msg}"),
+                    "ERROR",
+                );
             }
         }
     });
@@ -546,13 +710,19 @@ pub fn update_now(state: tauri::State<'_, Mutex<RuntimeState>>) -> Result<Value,
 }
 
 #[tauri::command]
-pub fn pull_now(app: tauri::AppHandle, state: tauri::State<'_, Mutex<RuntimeState>>) -> Result<Value, String> {
+pub fn pull_now(
+    app: tauri::AppHandle,
+    state: tauri::State<'_, Mutex<RuntimeState>>,
+) -> Result<Value, String> {
     spawn_pull(app, state, "Manual pull started");
     Ok(json!({"ok": true}))
 }
 
 #[tauri::command]
-pub fn sync_now(app: tauri::AppHandle, state: tauri::State<'_, Mutex<RuntimeState>>) -> Result<Value, String> {
+pub fn sync_now(
+    app: tauri::AppHandle,
+    state: tauri::State<'_, Mutex<RuntimeState>>,
+) -> Result<Value, String> {
     let cfg = config::load_config();
     let output_dir = config::get_str(&cfg, "output_dir");
     let repo_dir = config::repo_dir();
@@ -597,7 +767,10 @@ pub fn sync_now(app: tauri::AppHandle, state: tauri::State<'_, Mutex<RuntimeStat
 }
 
 #[tauri::command]
-pub fn frontend_boot_complete(app: tauri::AppHandle, state: tauri::State<'_, Mutex<RuntimeState>>) -> Result<Value, String> {
+pub fn frontend_boot_complete(
+    app: tauri::AppHandle,
+    state: tauri::State<'_, Mutex<RuntimeState>>,
+) -> Result<Value, String> {
     let app = app.clone();
     let state = state.clone();
     let should_auto_pull = {
@@ -606,11 +779,7 @@ pub fn frontend_boot_complete(app: tauri::AppHandle, state: tauri::State<'_, Mut
             runtime.boot_logged = true;
             push_log(&mut runtime, "Boot complete", "INFO");
         }
-        if runtime.auto_pull_started || runtime.pull_active {
-            false
-        } else {
-            true
-        }
+        !(runtime.auto_pull_started || runtime.pull_active)
     };
     if should_auto_pull {
         {
@@ -705,7 +874,10 @@ pub fn browse_temporary_path(app: tauri::AppHandle) -> Value {
 }
 
 #[tauri::command]
-pub fn set_temporary_path(path: String, state: tauri::State<'_, Mutex<RuntimeState>>) -> Result<Value, String> {
+pub fn set_temporary_path(
+    path: String,
+    state: tauri::State<'_, Mutex<RuntimeState>>,
+) -> Result<Value, String> {
     let mut cfg = config::load_config();
     config::set_string(&mut cfg, "temporary_path", path.clone())?;
     config::save_config(&cfg)?;
@@ -723,7 +895,10 @@ pub fn browse_output_dir(app: tauri::AppHandle) -> Value {
 }
 
 #[tauri::command]
-pub fn set_output_dir(path: String, state: tauri::State<'_, Mutex<RuntimeState>>) -> Result<Value, String> {
+pub fn set_output_dir(
+    path: String,
+    state: tauri::State<'_, Mutex<RuntimeState>>,
+) -> Result<Value, String> {
     let mut cfg = config::load_config();
     config::set_string(&mut cfg, "output_dir", path.clone())?;
     config::save_config(&cfg)?;
@@ -800,8 +975,14 @@ pub fn uninstall(_payload: Value) -> Value {
         return json!({"ok": false, "message": "Confirm token invalid"});
     }
 
-    let remove_logs = _payload.get("removeLogs").and_then(|v| v.as_bool()).unwrap_or(true);
-    let remove_output = _payload.get("removeOutput").and_then(|v| v.as_bool()).unwrap_or(false);
+    let remove_logs = _payload
+        .get("removeLogs")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(true);
+    let remove_output = _payload
+        .get("removeOutput")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(false);
     let remove_temporary = _payload
         .get("removeTemporaryPaths")
         .and_then(|v| v.as_bool())
@@ -877,8 +1058,18 @@ pub fn dismiss_modal(_payload: Value) -> Value {
 
 #[tauri::command]
 pub fn get_event_history(_payload: Value) -> Value {
-    let event = _payload.get("event").and_then(|v| v.as_str()).unwrap_or("").trim().to_string();
-    let cur = _payload.get("cur").and_then(|v| v.as_str()).unwrap_or("").trim().to_uppercase();
+    let event = _payload
+        .get("event")
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .trim()
+        .to_string();
+    let cur = _payload
+        .get("cur")
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .trim()
+        .to_uppercase();
     if event.is_empty() || cur.is_empty() {
         return json!({"ok": false, "message": "event and cur are required"});
     }
@@ -950,14 +1141,20 @@ fn open_target(target: &str) -> bool {
                 SW_SHOWNORMAL,
             )
         };
-        return (result as isize) > 32;
+        (result as isize) > 32
     }
     #[cfg(target_os = "macos")]
     {
-        return std::process::Command::new("open").arg(target).spawn().is_ok();
+        std::process::Command::new("open")
+            .arg(target)
+            .spawn()
+            .is_ok()
     }
     #[cfg(all(unix, not(target_os = "macos")))]
     {
-        return std::process::Command::new("xdg-open").arg(target).spawn().is_ok();
+        std::process::Command::new("xdg-open")
+            .arg(target)
+            .spawn()
+            .is_ok()
     }
 }

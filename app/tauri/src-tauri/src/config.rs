@@ -2,6 +2,32 @@ use serde_json::{json, Map, Value};
 use std::fs;
 use std::path::{Path, PathBuf};
 
+fn exe_dir() -> Option<PathBuf> {
+    std::env::current_exe()
+        .ok()
+        .and_then(|p| p.parent().map(|p| p.to_path_buf()))
+}
+
+fn portable_data_dir() -> Option<PathBuf> {
+    exe_dir().map(|dir| dir.join("user-data"))
+}
+
+fn roaming_data_dir() -> Option<PathBuf> {
+    if let Ok(override_dir) = std::env::var("XAUUSD_CALENDAR_AGENT_DATA_DIR") {
+        let trimmed = override_dir.trim().to_string();
+        if !trimmed.is_empty() {
+            return Some(PathBuf::from(trimmed));
+        }
+    }
+    if let Ok(appdata) = std::env::var("APPDATA") {
+        let appdata = appdata.trim().to_string();
+        if !appdata.is_empty() {
+            return Some(PathBuf::from(appdata).join("XAUUSDCalendar"));
+        }
+    }
+    None
+}
+
 pub fn appdata_dir() -> PathBuf {
     if let Ok(override_dir) = std::env::var("XAUUSD_CALENDAR_AGENT_DATA_DIR") {
         let trimmed = override_dir.trim().to_string();
@@ -9,13 +35,23 @@ pub fn appdata_dir() -> PathBuf {
             return PathBuf::from(trimmed);
         }
     }
-    if let Ok(appdata) = std::env::var("APPDATA") {
-        let appdata = appdata.trim().to_string();
-        if !appdata.is_empty() {
-            return PathBuf::from(appdata).join("XAUUSDCalendar");
+
+    // Portable mode: if a sibling `user-data/` folder exists next to the running executable,
+    // prefer it (matches the previous behavior where worktrees used a local `user-data` folder).
+    if let Some(dir) = portable_data_dir() {
+        if dir.exists() {
+            return dir;
         }
     }
-    std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")).join("user-data")
+
+    // Default: use per-user roaming AppData on Windows.
+    if let Some(dir) = roaming_data_dir() {
+        return dir;
+    }
+
+    std::env::current_dir()
+        .unwrap_or_else(|_| PathBuf::from("."))
+        .join("user-data")
 }
 
 pub fn config_path() -> PathBuf {
@@ -33,6 +69,34 @@ pub fn log_dir() -> PathBuf {
 pub fn load_config() -> Value {
     let defaults = default_config();
     let path = config_path();
+
+    // If we're using a portable `user-data` folder but it doesn't have config yet, migrate from
+    // roaming AppData once (best-effort). This avoids losing existing settings when switching
+    // worktrees to portable mode.
+    if !path.exists() {
+        if let Some(portable_dir) = portable_data_dir() {
+            if path.starts_with(&portable_dir) {
+                if let Some(roaming) = roaming_data_dir() {
+                    if roaming != portable_dir {
+                        let from = roaming.join("config.json");
+                        if from.exists() {
+                            if let Some(parent) = path.parent() {
+                                let _ = fs::create_dir_all(parent);
+                            }
+                            let _ = fs::copy(&from, &path);
+                        }
+
+                        let from_repo = roaming.join("repo");
+                        let to_repo = portable_dir.join("repo");
+                        if from_repo.exists() && !to_repo.exists() {
+                            let _ = copy_dir_recursive(&from_repo, &to_repo);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     let text = fs::read_to_string(&path).unwrap_or_default();
     let parsed: Value = serde_json::from_str(&text).unwrap_or_else(|_| json!({}));
     let merged = merge_objects(defaults, parsed);
@@ -66,8 +130,28 @@ fn merge_objects(base: Value, overlay: Value) -> Value {
     }
 }
 
+fn copy_dir_recursive(from: &Path, to: &Path) -> Result<(), String> {
+    fs::create_dir_all(to).map_err(|e| e.to_string())?;
+    for entry in fs::read_dir(from).map_err(|e| e.to_string())? {
+        let entry = entry.map_err(|e| e.to_string())?;
+        let path = entry.path();
+        let dest = to.join(entry.file_name());
+        let file_type = entry.file_type().map_err(|e| e.to_string())?;
+        if file_type.is_dir() {
+            copy_dir_recursive(&path, &dest)?;
+        } else if file_type.is_file() {
+            fs::copy(&path, &dest).map_err(|e| e.to_string())?;
+        }
+    }
+    Ok(())
+}
+
 pub fn get_str(cfg: &Value, key: &str) -> String {
-    cfg.get(key).and_then(|v| v.as_str()).unwrap_or("").trim().to_string()
+    cfg.get(key)
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .trim()
+        .to_string()
 }
 
 pub fn get_bool(cfg: &Value, key: &str, fallback: bool) -> bool {
@@ -79,7 +163,10 @@ pub fn get_i64(cfg: &Value, key: &str, fallback: i64) -> i64 {
 }
 
 pub fn get_i32(cfg: &Value, key: &str, fallback: i32) -> i32 {
-    cfg.get(key).and_then(|v| v.as_i64()).map(|v| v as i32).unwrap_or(fallback)
+    cfg.get(key)
+        .and_then(|v| v.as_i64())
+        .map(|v| v as i32)
+        .unwrap_or(fallback)
 }
 
 pub fn set_string(cfg: &mut Value, key: &str, value: String) -> Result<(), String> {
@@ -114,19 +201,43 @@ fn default_config() -> Value {
     base.insert("last_sync_at".to_string(), Value::String("".to_string()));
     base.insert("last_pull_sha".to_string(), Value::String("".to_string()));
     base.insert("auto_update_enabled".to_string(), Value::Bool(true));
-    base.insert("github_repo".to_string(), Value::String("yiyousiow000814/XAUUSD-Calendar-Agent".to_string()));
-    base.insert("github_branch".to_string(), Value::String("main".to_string()));
-    base.insert("github_release_asset_name".to_string(), Value::String("Setup.exe".to_string()));
+    base.insert(
+        "github_repo".to_string(),
+        Value::String("yiyousiow000814/XAUUSD-Calendar-Agent".to_string()),
+    );
+    base.insert(
+        "github_branch".to_string(),
+        Value::String("main".to_string()),
+    );
+    base.insert(
+        "github_release_asset_name".to_string(),
+        Value::String("Setup.exe".to_string()),
+    );
     base.insert("github_token".to_string(), Value::String("".to_string()));
     base.insert("run_on_startup".to_string(), Value::Bool(true));
-    base.insert("autostart_launch_mode".to_string(), Value::String("tray".to_string()));
-    base.insert("close_behavior".to_string(), Value::String("exit".to_string()));
+    base.insert(
+        "autostart_launch_mode".to_string(),
+        Value::String("tray".to_string()),
+    );
+    base.insert(
+        "close_behavior".to_string(),
+        Value::String("exit".to_string()),
+    );
     base.insert("settings_auto_save".to_string(), Value::Bool(true));
-    base.insert("theme_preference".to_string(), Value::String("system".to_string()));
+    base.insert(
+        "theme_preference".to_string(),
+        Value::String("system".to_string()),
+    );
     base.insert("enable_system_theme".to_string(), Value::Bool(false));
     base.insert("split_ratio".to_string(), json!(0.66));
-    base.insert("calendar_timezone_mode".to_string(), Value::String("system".to_string()));
-    base.insert("calendar_utc_offset_minutes".to_string(), Value::Number(0.into()));
+    base.insert(
+        "calendar_timezone_mode".to_string(),
+        Value::String("system".to_string()),
+    );
+    base.insert(
+        "calendar_utc_offset_minutes".to_string(),
+        Value::Number(0.into()),
+    );
     Value::Object(base)
 }
 
