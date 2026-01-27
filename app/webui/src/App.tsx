@@ -908,8 +908,9 @@ export default function App() {
 
     const schedule = () => {
       if (cancelled) return;
-      const focused = document.visibilityState === "visible" && document.hasFocus();
-      const delay = focused ? 1200 : 8000;
+      // Always refresh on a short cadence so backend-driven alerts (e.g. GitHub token)
+      // show immediately even when the WebView doesn't receive focus until click (WebView2 quirk).
+      const delay = 1200;
       timer = window.setTimeout(() => {
         void refreshRef.current();
         schedule();
