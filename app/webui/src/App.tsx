@@ -615,6 +615,10 @@ export default function App() {
     window.addEventListener("pointermove", recordInput, { passive: true });
     window.addEventListener("wheel", recordInput, { passive: true });
     window.addEventListener("keydown", recordInput);
+    const onWakeup = () => {
+      void refreshRef.current();
+    };
+    window.addEventListener("xauusd:wakeup", onWakeup);
     const intervalId = window.setInterval(() => {
       sendUiState();
     }, UI_STATE_HEARTBEAT_MS);
@@ -626,6 +630,7 @@ export default function App() {
       window.removeEventListener("pointermove", recordInput);
       window.removeEventListener("wheel", recordInput);
       window.removeEventListener("keydown", recordInput);
+      window.removeEventListener("xauusd:wakeup", onWakeup);
       window.clearInterval(intervalId);
     };
   }, [sendUiState]);

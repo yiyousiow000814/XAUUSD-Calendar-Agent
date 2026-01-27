@@ -43,6 +43,14 @@ fn main() {
                 return;
             }
             match event {
+                WindowEvent::Focused(true) => {
+                    // WebView2 can throttle JS while unfocused. When the user returns to the app,
+                    // poke the WebView so it can immediately refresh and surface backend-driven
+                    // alerts without requiring an extra click.
+                    if let Some(webview) = window.get_webview_window(window.label()) {
+                        let _ = webview.eval("window.dispatchEvent(new Event('xauusd:wakeup'))");
+                    }
+                }
                 WindowEvent::CloseRequested { api, .. } => {
                     let cfg = config::load_config();
                     let close_behavior = config::get_str(&cfg, "close_behavior");
