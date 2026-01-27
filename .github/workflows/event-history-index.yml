@@ -1,0 +1,71 @@
+name: Update event history index
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "data/Economic_Calendar/**"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    if: |
+      github.repository == 'yiyousiow000814/XAUUSD-Calendar-Agent' &&
+      contains(github.event.head_commit.message, 'chore: update economic calendar data')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Extract calendar date range
+        id: range
+        env:
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          python - <<'PY'
+          import os
+          import re
+
+          message = os.environ.get("COMMIT_MESSAGE", "")
+          match = re.search(r"\((\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})\)", message)
+          if not match:
+              raise SystemExit(
+                  "Commit message must include date range like "
+                  "'(YYYY-MM-DD..YYYY-MM-DD)'."
+              )
+          start_date, end_date = match.group(1), match.group(2)
+          output = os.environ["GITHUB_OUTPUT"]
+          with open(output, "a", encoding="utf-8") as handle:
+              handle.write(f"start_date={start_date}\n")
+              handle.write(f"end_date={end_date}\n")
+          PY
+
+      - name: Build event history index
+        run: |
+          python scripts/calendar/build_event_history_index.py \
+            --start-date "${{ steps.range.outputs.start_date }}" \
+            --end-date "${{ steps.range.outputs.end_date }}"
+
+      - name: Commit and push updates
+        env:
+          START_DATE: ${{ steps.range.outputs.start_date }}
+          END_DATE: ${{ steps.range.outputs.end_date }}
+        run: |
+          if git diff --quiet; then
+            echo "No index changes detected."
+            exit 0
+          fi
+          git status --short
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/event_history_index
+          git commit -m "chore: update event history index (${START_DATE}..${END_DATE})"
+          git push origin HEAD:main
