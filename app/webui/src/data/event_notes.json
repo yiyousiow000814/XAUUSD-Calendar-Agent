@@ -204,7 +204,7 @@
     "note": "Westpac-Melbourne Institute Leading Index is a composite designed to signal the likely pace of Australian economic activity and this series is the monthly change."
   },
   "AUD::mid - year economic and fiscal outlook::none": {
-    "note": "Mid Year Economic and Fiscal Outlook is a scheduled data release."
+    "note": "MYEFO is an Australian Government mid-year update on the economic outlook and fiscal forecasts."
   },
   "AUD::monthly cpi indicator::y/y": {
     "note": "Monthly CPI Indicator (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -213,7 +213,7 @@
     "note": "Nab Business Confidence is a survey-based sentiment reading."
   },
   "AUD::nab business survey::none": {
-    "note": "Nab Business Survey is a scheduled data release."
+    "note": "NAB Business Survey is a survey-based update on Australian business conditions and confidence."
   },
   "AUD::nab quarterly business confidence::none": {
     "note": "Nab Quarterly Business Confidence is a survey-based sentiment reading."
@@ -237,7 +237,7 @@
     "note": "PPI (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "AUD::private house approvals::none": {
-    "note": "Private House Approvals is a scheduled data release."
+    "note": "Private House Approvals reports approvals for standalone houses within ABS Building Approvals."
   },
   "AUD::private new capital expenditure::q/q": {
     "note": "Australian Bureau of Statistics (ABS) Private New Capital Expenditure reports actual and expected business investment spend on buildings and equipment by industry."
@@ -375,16 +375,16 @@
     "note": "Bcb Copom Meeting Minutes provides detail on the latest policy meeting (the central bank)."
   },
   "BRL::bcb focus market readout::none": {
-    "note": "Bcb Focus Market Readout is a scheduled data release."
+    "note": "BCB Focus - Market Readout summarizes market expectations collected in the Focus survey and is released weekly."
   },
   "BRL::bcb inflation report::none": {
-    "note": "Bcb Inflation Report is a scheduled data release."
+    "note": "BCB Monetary Policy Report presents Copom's policy guidelines, recent developments, and inflation projections."
   },
   "BRL::bcb national monetary council meeting::none": {
     "note": "Bcb National Monetary Council Meeting is a scheduled data release."
   },
   "BRL::brazil thomson reuters ipsos pcsi::none": {
-    "note": "Brazil Thomson Reuters Ipsos Pcsi is a scheduled data release."
+    "note": "Ipsos PCSI is a monthly consumer sentiment index for BRL that reflects households' confidence and outlook."
   },
   "BRL::brazilian igp - m inflation::y/y": {
     "note": "Brazilian Igp M Inflation is a scheduled data release."
@@ -402,19 +402,19 @@
     "note": "Brazilian Service Sector Growth is a scheduled data release."
   },
   "BRL::brics summit::none": {
-    "note": "Brics Summit is a scheduled data release."
+    "note": "BRICS Summit is a scheduled meeting related to the BRICS intergovernmental grouping."
   },
   "BRL::budget balance::none": {
     "note": "Brazil central government budget balance (Tesouro Nacional) reports the fiscal result for the period (surplus or deficit)."
   },
   "BRL::budget surplus::none": {
-    "note": "Budget Surplus is a scheduled data release."
+    "note": "Budget Surplus reports the government fiscal balance (net lending/borrowing) over the period."
   },
   "BRL::caged net payroll jobs::none": {
     "note": "Caged Net Payroll Jobs measures the change in employment."
   },
   "BRL::cftc brl speculative net positions::none": {
-    "note": "Cftc Brl Speculative Net Positions is a scheduled data release."
+    "note": "CFTC Commitments of Traders (COT) reports net speculative positioning for BRL futures."
   },
   "BRL::cni factory utilization::none": {
     "note": "Cni Factory Utilization is a scheduled data release."
@@ -435,10 +435,10 @@
     "note": "Fgv Consumer Confidence is a survey-based sentiment reading."
   },
   "BRL::foreign direct investment (usd)::none": {
-    "note": "Foreign Direct Investment (usd) is a scheduled data release."
+    "note": "Foreign direct investment (FDI) is cross-border investment that establishes a direct investment relationship between economies."
   },
   "BRL::foreign exchange flows::none": {
-    "note": "Foreign Exchange Flows is a scheduled data release."
+    "note": "BCB Foreign Exchange Flows summarizes foreign exchange operations in Banco Central do Brasil weekly indicators."
   },
   "BRL::gdp::q/q": {
     "note": "GDP measures quarter-over-quarter % growth in economic output."
@@ -450,7 +450,7 @@
     "note": "Brazil gross debt-to-GDP ratio reports gross government debt as a share of GDP."
   },
   "BRL::ibc - br economic activity::none": {
-    "note": "Ibc Br Economic Activity is a scheduled data release."
+    "note": "BCB IBC-Br is a contemporary monthly indicator of Brazilian economic activity."
   },
   "BRL::igp - 10 inflation index::m/m": {
     "note": "FGV IGP-10 is a broad price index combining wholesale, consumer, and construction costs and this series reports the monthly change."
@@ -528,13 +528,13 @@
     "note": "Adp Nonfarm Employment Change is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "CAD::average weekly earnings::y/y": {
-    "note": "Average Weekly Earnings is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Canada Average Weekly Earnings (YoY) reports the annual change in average weekly earnings from SEPH."
   },
   "CAD::avg hourly wages permanent employee::none": {
     "note": "Avg Hourly Wages Permanent Employee is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "CAD::boc business outlook survey::none": {
-    "note": "Boc Business Outlook Survey is a scheduled data release."
+    "note": "Bank of Canada Business Outlook Survey summarizes interviews with firms about business conditions and expectations."
   },
   "CAD::boc deputy gov kozicki speaks::none": {
     "note": "Scheduled speech/remarks by a Bank of Canada official."
@@ -549,7 +549,7 @@
     "note": "Scheduled speech/remarks by a Bank of Canada official."
   },
   "CAD::boc financial system review::none": {
-    "note": "Boc Financial System Review is a scheduled data release."
+    "note": "Bank of Canada Financial System Review assesses risks and vulnerabilities in Canada's financial system."
   },
   "CAD::boc gov carney speaks::none": {
     "note": "Scheduled speech/remarks by a Bank of Canada official."
@@ -579,7 +579,7 @@
     "note": "The Bank of Canada implements monetary policy by adjusting its target for the overnight rate to influence short-term interest rates. Surprises can move CAD and Canadian yields and may affect XAUUSD through global rates and risk sentiment."
   },
   "CAD::boc monetary policy report::none": {
-    "note": "Boc Monetary Policy Report is a scheduled data release."
+    "note": "Bank of Canada Monetary Policy Report presents the Bank's base-case projection and risk assessment."
   },
   "CAD::boc press conference::none": {
     "note": "Boc Press Conference provides Q&A and messaging after the policy decision (the BoC). A more hawkish-than-expected message can lift global yields and pressure XAUUSD; a dovish surprise can support it."
@@ -588,16 +588,16 @@
     "note": "Boc Rate Statement communicates the policy outlook and guidance (the BoC). A more hawkish-than-expected message can lift global yields and pressure XAUUSD; a dovish surprise can support it."
   },
   "CAD::boc review::none": {
-    "note": "Boc Review is a scheduled data release."
+    "note": "Bank of Canada Review is a semi-annual publication featuring articles on the Canadian economy and central banking."
   },
   "CAD::boc senior deputy governor rogers speaks::none": {
     "note": "Scheduled speech/remarks by a Bank of Canada official."
   },
   "CAD::boc senior loan officer survey::none": {
-    "note": "Boc Senior Loan Officer Survey is a scheduled data release."
+    "note": "Bank of Canada Senior Loan Officer Survey reports business-lending practices and credit conditions at major institutions."
   },
   "CAD::boc summary of deliberations::none": {
-    "note": "Boc Summary of Deliberations is a scheduled data release."
+    "note": "Bank of Canada Summary of Deliberations provides an account of Governing Council discussions leading to policy decisions."
   },
   "CAD::budget balance::none": {
     "note": "Government of Canada budget balance reports the federal fiscal balance for the period (surplus or deficit)."
@@ -606,16 +606,16 @@
     "note": "Government of Canada budget balance reports the federal fiscal balance for the period (surplus or deficit)."
   },
   "CAD::building permits::m/m": {
-    "note": "Building Permits is a scheduled data release."
+    "note": "Canada Building Permits (MoM) reports the monthly change in the value of permits issued by municipalities."
   },
   "CAD::canadian federal election::none": {
-    "note": "Canadian Federal Election is a scheduled data release."
+    "note": "Canadian federal election is a scheduled national election to choose members of the House of Commons."
   },
   "CAD::capacity utilization rate::none": {
     "note": "Statistics Canada capacity utilization rate shows the percentage of industrial capacity that is in use."
   },
   "CAD::cftc cad speculative net positions::none": {
-    "note": "Cftc Cad Speculative Net Positions is a scheduled data release."
+    "note": "CFTC Commitments of Traders (COT) reports net speculative positioning for CAD futures."
   },
   "CAD::common cpi::y/y": {
     "note": "Common CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -672,7 +672,7 @@
     "note": "GDP measures year-over-year % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "CAD::housing starts::none": {
-    "note": "Housing Starts is a scheduled data release."
+    "note": "Canada Housing Starts reports residential construction starts from CMHC housing statistics."
   },
   "CAD::imports::none": {
     "note": "Statistics Canada merchandise imports report the value of goods brought into Canada from foreign countries."
@@ -690,13 +690,13 @@
     "note": "Ivey PMI is a monthly Canada-wide survey-based diffusion index of purchasing activity (above 50 = expansion)."
   },
   "CAD::labor productivity::q/q": {
-    "note": "Labor Productivity is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Canada Labour Productivity (QoQ) measures output per hour worked."
   },
   "CAD::leading index::m/m": {
     "note": "The Conference Board of Canada Leading Indicator is a composite designed to signal the near-term direction of the Canadian economy and this series reports the monthly change."
   },
   "CAD::leading indicators::m/m": {
-    "note": "Leading Indicators is a scheduled data release."
+    "note": "Canada Leading Indicators refers to the Composite Leading Indicator built from components that lead cyclical activity."
   },
   "CAD::manufacturing sales::m/m": {
     "note": "Manufacturing Sales measures monthly sales of goods manufactured, as reported in Statistics Canada's Monthly Survey on Manufacturing."
@@ -711,7 +711,7 @@
     "note": "New Motor Vehicle Sales reports monthly retail sales of new motor vehicles sold in Canada, in units and dollars."
   },
   "CAD::part time employment change::none": {
-    "note": "Part Time Employment Change is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Canada Part-Time Employment Change reports the change in the number of employed persons working part-time in the LFS."
   },
   "CAD::participation rate::none": {
     "note": "Statistics Canada Labour Force Survey participation rate is the share of the population age 15+ that is in the labour force (employed or unemployed)."
@@ -723,10 +723,10 @@
     "note": "Retail Sales measures the month-over-month % change in retail spending. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "CAD::rmpi::m/m": {
-    "note": "Rmpi is a scheduled data release."
+    "note": "Canada RMPI measures price changes for raw materials purchased for further processing by manufacturers."
   },
   "CAD::rmpi::y/y": {
-    "note": "Rmpi is a scheduled data release."
+    "note": "Canada RMPI measures price changes for raw materials purchased for further processing by manufacturers."
   },
   "CAD::s&p global manufacturing pmi::none": {
     "note": "S&P Global Canada Manufacturing PMI is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
@@ -756,7 +756,7 @@
     "note": "Wholesale Sales reflects monthly wholesale sales as reported in Statistics Canada's Monthly Wholesale Trade Survey."
   },
   "CHF::cftc chf speculative net positions::none": {
-    "note": "Cftc Chf Speculative Net Positions is a scheduled data release."
+    "note": "CFTC Commitments of Traders (COT) reports net speculative positioning for CHF futures."
   },
   "CHF::consumption indicator::none": {
     "note": "Consumption Indicator is a scheduled data release."
@@ -789,7 +789,7 @@
     "note": "Industrial Production measures industrial output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "CHF::kof leading indicators::none": {
-    "note": "Kof Leading Indicators is a scheduled data release."
+    "note": "KOF Economic Barometer is a leading composite indicator for Switzerland's economy."
   },
   "CHF::m3 money supply::none": {
     "note": "Swiss National Bank M3 money supply is a broad monetary aggregate published in its money stock statistics."
@@ -813,10 +813,10 @@
     "note": "Retail Sales measures retail spending. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "CHF::seco consumer climate::none": {
-    "note": "Seco Consumer Climate is a scheduled data release."
+    "note": "SECO Consumer Climate reports Switzerland consumer sentiment and its sub-indices."
   },
   "CHF::seco economic forecasts::none": {
-    "note": "Seco Economic Forecasts is a scheduled data release."
+    "note": "SECO Economic Forecasts summarize the Federal Government Expert Group projections for Swiss growth and related variables."
   },
   "CHF::snb board member jordan speaks::none": {
     "note": "Scheduled speech/remarks by a Swiss National Bank official."
@@ -864,10 +864,10 @@
     "note": "USD/CHF index is a market exchange rate level for USD versus CHF, commonly shown as CHF per 1 USD."
   },
   "CHF::world economic forum annual meetings::none": {
-    "note": "World Economic Forum Annual Meetings is a scheduled data release."
+    "note": "World Economic Forum Annual Meeting is a scheduled global policy and business conference held in Davos."
   },
   "CHF::zew expectations::none": {
-    "note": "Zew Expectations is a scheduled data release."
+    "note": "ZEW Expectations for Switzerland summarizes financial market experts' expectations for the Swiss economy."
   },
   "CLP::chilean gdp::q/q": {
     "note": "Chilean GDP measures quarter-over-quarter % growth in economic output."
@@ -921,7 +921,7 @@
     "note": "China 5-year Loan Prime Rate is quoted by the National Interbank Funding Center from panel bank submissions and is a key benchmark for loan pricing, including mortgages."
   },
   "CNY::china thomson reuters ipsos pcsi::none": {
-    "note": "China Thomson Reuters Ipsos Pcsi is a scheduled data release."
+    "note": "Ipsos PCSI is a monthly consumer sentiment index for CNY that reflects households' confidence and outlook."
   },
   "CNY::chinese composite pmi::none": {
     "note": "China NBS Composite PMI is an official monthly survey-based diffusion index combining manufacturing and non-manufacturing (above 50 = expansion). Weaker-than-expected readings can hurt risk sentiment and support XAUUSD; stronger readings can do the opposite."
@@ -960,7 +960,7 @@
     "note": "China customs exports (YoY) report the annual change in the value of goods exported."
   },
   "CNY::fdi::none": {
-    "note": "Fdi is a scheduled data release."
+    "note": "Foreign direct investment (FDI) is cross-border investment that establishes a direct investment relationship between economies."
   },
   "CNY::fixed asset investment::y/y": {
     "note": "Fixed Asset Investment is a scheduled data release."
@@ -1032,7 +1032,7 @@
     "note": "China Customs (GACC) publishes China's total exports, imports, and export-import balance in its trade statistics. A stronger balance can support CNY, while a weaker balance can weigh on it."
   },
   "COP::colombian presidential election::none": {
-    "note": "Colombian Presidential Election is a scheduled data release."
+    "note": "Colombian presidential election is a scheduled national vote to elect the President of Colombia."
   },
   "COP::cpi::m/m": {
     "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
@@ -1320,10 +1320,10 @@
     "note": "Brandenburg CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "EUR::business and consumer survey::none": {
-    "note": "Business and Consumer Survey is a scheduled data release."
+    "note": "European Commission Business and Consumer Surveys collect qualitative information on households and firms."
   },
   "EUR::business climate::none": {
-    "note": "Business Climate is a scheduled data release."
+    "note": "EU Business Climate Indicator is a composite measure for the euro area manufacturing sector built from industry survey balances."
   },
   "EUR::car registration::m/m": {
     "note": "New car registrations report the number of newly registered passenger cars and this series is the monthly change."
@@ -1332,7 +1332,7 @@
     "note": "New car registrations report the number of newly registered passenger cars and this series is the annual change."
   },
   "EUR::cftc eur speculative net positions::none": {
-    "note": "Cftc Eur Speculative Net Positions is a scheduled data release."
+    "note": "CFTC Commitments of Traders (COT) reports net speculative positioning for EUR futures."
   },
   "EUR::construction output::m/m": {
     "note": "Eurostat construction production index measures the monthly change in construction output in the euro area."
@@ -1341,7 +1341,7 @@
     "note": "Consumer Confidence is a survey-based sentiment reading."
   },
   "EUR::consumer inflation expectation::none": {
-    "note": "Consumer Inflation Expectation is a scheduled data release. Higher-than-expected inflation (vs forecast) can lift yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "EU Consumer Inflation Expectation reflects households' expected consumer price changes over the next 12 months."
   },
   "EUR::core cpi::m/m": {
     "note": "Core CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices excluding food and energy. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -1419,19 +1419,19 @@
     "note": "Scheduled speech/remarks by a senior European Union official."
   },
   "EUR::ecb annual report::none": {
-    "note": "Ecb Annual Report is a scheduled data release."
+    "note": "ECB Annual Report reviews the Eurosystem's activities and key developments over the year."
   },
   "EUR::ecb bank lending survey::none": {
-    "note": "Ecb Bank Lending Survey is a scheduled data release."
+    "note": "ECB Bank Lending Survey reports euro area banks' credit standards and loan demand."
   },
   "EUR::ecb economic bulletin::none": {
-    "note": "Ecb Economic Bulletin is a scheduled data release."
+    "note": "ECB Economic Bulletin provides analysis of economic and monetary developments in the euro area."
   },
   "EUR::ecb financial stability review::none": {
-    "note": "Ecb Financial Stability Review is a scheduled data release."
+    "note": "ECB Financial Stability Review assesses systemic risks and vulnerabilities in the euro area financial system."
   },
   "EUR::ecb forecast::none": {
-    "note": "Ecb Forecast is a scheduled data release."
+    "note": "ECB staff projections provide the outlook for inflation and economic activity in the euro area."
   },
   "EUR::ecb hakkarainen speaks::none": {
     "note": "Scheduled speech/remarks by a European Central Bank official."
@@ -1440,10 +1440,10 @@
     "note": "The ECB Governing Council sets key interest rates for the euro area (including the deposit facility rate and the main refinancing operations rate). Surprises can move EUR and euro area yields and may spill over into global rates that matter for XAUUSD."
   },
   "EUR::ecb ltro::none": {
-    "note": "Ecb Ltro is a scheduled data release."
+    "note": "ECB LTRO refers to longer-term refinancing operations providing longer-maturity liquidity to banks."
   },
   "EUR::ecb marginal lending facility::none": {
-    "note": "Ecb Marginal Lending Facility is a scheduled data release."
+    "note": "ECB Marginal Lending Facility is a standing facility that provides overnight liquidity to banks against eligible collateral."
   },
   "EUR::ecb mccaul speaks::none": {
     "note": "Scheduled speech/remarks by a European Central Bank official."
@@ -1464,7 +1464,7 @@
     "note": "Ecb Press Conference provides Q&A and messaging after the policy decision (the ECB). A more hawkish-than-expected message can lift global yields and pressure XAUUSD; a dovish surprise can support it."
   },
   "EUR::ecb publishes account of monetary policy meeting::none": {
-    "note": "Ecb Publishes Account of Monetary Policy Meeting is a scheduled data release."
+    "note": "ECB Accounts summarize the monetary policy meeting discussion and decision considerations."
   },
   "EUR::ecb supervisory board member fernandez - bollo speaks::none": {
     "note": "Scheduled speech/remarks by a European Central Bank official."
@@ -1521,7 +1521,7 @@
     "note": "Scheduled speech/remarks by a European Central Bank official."
   },
   "EUR::ecofin meetings::none": {
-    "note": "Ecofin Meetings is a scheduled data release."
+    "note": "ECOFIN meetings are Council of the EU sessions where finance ministers coordinate economic and financial policy."
   },
   "EUR::employment change::q/q": {
     "note": "Employment Change (QoQ) shows the quarter-over-quarter change in the euro area employment level."
@@ -1530,7 +1530,7 @@
     "note": "Employment Change (YoY) shows the year-over-year change in the euro area employment level."
   },
   "EUR::employment overall::none": {
-    "note": "Employment Overall is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "EU Employment Overall reflects survey-based employment expectations reported in European Commission business surveys."
   },
   "EUR::estonian cpi::m/m": {
     "note": "Estonian CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -1572,28 +1572,28 @@
     "note": "Scheduled speech/remarks by a senior European Union official."
   },
   "EUR::eu economic forecasts::none": {
-    "note": "Eu Economic Forecasts is a scheduled data release."
+    "note": "European Commission Economic Forecasts provide projections for growth, inflation and other macro variables in the EU."
   },
   "EUR::eu finance ministers meeting::none": {
-    "note": "Eu Finance Ministers Meeting is a scheduled data release."
+    "note": "ECOFIN meetings are Council of the EU sessions where finance ministers coordinate economic and financial policy."
   },
   "EUR::eu leaders summit::none": {
-    "note": "Eu Leaders Summit is a scheduled data release."
+    "note": "EU leaders summit refers to meetings of the European Council (EU heads of state or government)."
   },
   "EUR::eur/usd index::none": {
     "note": "EUR/USD index is a market exchange rate level for EUR versus USD, commonly shown as USD per 1 EUR."
   },
   "EUR::euro summit::none": {
-    "note": "Euro Summit is a scheduled data release."
+    "note": "Euro Summit is a meeting of euro area heads of state or government focused on euro area governance."
   },
   "EUR::eurogroup meetings::none": {
-    "note": "Eurogroup Meetings is a scheduled data release."
+    "note": "Eurogroup meetings bring together euro area finance ministers to discuss euro area policy issues."
   },
   "EUR::european central bank non - monetary policy meeting::none": {
     "note": "European Central Bank Non Monetary Policy Meeting is a scheduled data release."
   },
   "EUR::european parliament elections::none": {
-    "note": "European Parliament Elections is a scheduled data release."
+    "note": "European Parliament elections are scheduled elections held to choose Members of the European Parliament."
   },
   "EUR::finnish consumer confidence::none": {
     "note": "Finnish Consumer Confidence is a survey-based sentiment reading."
@@ -1638,7 +1638,7 @@
     "note": "France Jobseekers Total is a scheduled data release."
   },
   "EUR::france thomson reuters ipsos pcsi::none": {
-    "note": "France Thomson Reuters Ipsos Pcsi is a scheduled data release."
+    "note": "Ipsos PCSI is a monthly consumer sentiment index for EUR that reflects households' confidence and outlook."
   },
   "EUR::french 10 - year oat auction::none": {
     "note": "French 10 Year Oat Auction is a government bond auction. A weak auction can push yields higher and pressure XAUUSD; a strong auction can help ease yields and support it."
@@ -1797,7 +1797,7 @@
     "note": "Scheduled speech/remarks by a Deutsche Bundesbank official."
   },
   "EUR::german buba monthly report::none": {
-    "note": "German Buba Monthly Report is a scheduled data release."
+    "note": "Deutsche Bundesbank Monthly Report covers economic topics including monetary policy and financial/economic policy issues."
   },
   "EUR::german buba president nagel speaks::none": {
     "note": "Scheduled speech/remarks by a Deutsche Bundesbank official."
@@ -1812,13 +1812,13 @@
     "note": "Scheduled speech/remarks by a Deutsche Bundesbank official."
   },
   "EUR::german business expectations::none": {
-    "note": "German Business Expectations is a scheduled data release."
+    "note": "Ifo Business Climate components reflect firms' assessment of current conditions and expectations for the next months."
   },
   "EUR::german car registration::m/m": {
-    "note": "German Car Registration is a scheduled data release."
+    "note": "Germany Car Registrations reports new passenger car registrations published by KBA."
   },
   "EUR::german car registration::y/y": {
-    "note": "German Car Registration is a scheduled data release."
+    "note": "Germany Car Registrations reports new passenger car registrations published by KBA."
   },
   "EUR::german cpi::m/m": {
     "note": "German CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -1830,7 +1830,7 @@
     "note": "German Current Account Balance N.s.a reports the current account balance."
   },
   "EUR::german current assessment::none": {
-    "note": "German Current Assessment is a scheduled data release."
+    "note": "Ifo Business Climate components reflect firms' assessment of current conditions and expectations for the next months."
   },
   "EUR::german exports::m/m": {
     "note": "German Exports is a scheduled data release."
@@ -1917,16 +1917,16 @@
     "note": "German Wpi is a scheduled data release."
   },
   "EUR::german zew current conditions::none": {
-    "note": "German Zew Current Conditions is a scheduled data release."
+    "note": "ZEW Current Conditions reflects financial market experts' assessment of Germany's current economic situation."
   },
   "EUR::german zew economic sentiment::none": {
     "note": "German Zew Economic Sentiment is a survey-based sentiment reading."
   },
   "EUR::germany thomson reuters ipsos pcsi::none": {
-    "note": "Germany Thomson Reuters Ipsos Pcsi is a scheduled data release."
+    "note": "Ipsos PCSI is a monthly consumer sentiment index for EUR that reflects households' confidence and outlook."
   },
   "EUR::gfk german consumer climate::none": {
-    "note": "Gfk German Consumer Climate is a scheduled data release."
+    "note": "GfK Consumer Climate (NIM) is based on monthly consumer interviews and reflects German consumer sentiment."
   },
   "EUR::government budget to gdp::none": {
     "note": "General government budget balance as a percent of GDP expresses the fiscal balance (surplus or deficit) relative to the size of the economy."
@@ -2214,7 +2214,7 @@
     "note": "Italian Wage Inflation is a scheduled data release. Higher-than-expected inflation (vs forecast) can lift yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "EUR::italy thomson reuters ipsos pcsi::none": {
-    "note": "Italy Thomson Reuters Ipsos Pcsi is a scheduled data release."
+    "note": "Ipsos PCSI is a monthly consumer sentiment index for EUR that reflects households' confidence and outlook."
   },
   "EUR::labor cost index::y/y": {
     "note": "Eurostat Labour Cost Index measures the annual change in hourly labour costs (wages plus non-wage costs) for employees."
@@ -2382,7 +2382,7 @@
     "note": "Saxony CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "EUR::selling price expectations::none": {
-    "note": "Selling Price Expectations is a scheduled data release."
+    "note": "EU Selling Price Expectations reflects firms' expected changes in selling prices over the next 3 months in EC surveys."
   },
   "EUR::sentix investor confidence::none": {
     "note": "Sentix Investor Confidence is a survey-based sentiment reading."
@@ -2586,7 +2586,7 @@
     "note": "Scheduled speech/remarks by a Bank of England official."
   },
   "GBP::boe financial stability report::none": {
-    "note": "Boe Financial Stability Report is a scheduled data release."
+    "note": "BoE Financial Stability Report sets out the FPC's view of risks to the UK financial system and related actions."
   },
   "GBP::boe fpc meeting minutes::none": {
     "note": "Boe Fpc Meeting Minutes provides detail on the latest policy meeting (the BoE). A more hawkish-than-expected message can lift global yields and pressure XAUUSD; a dovish surprise can support it."
@@ -2604,10 +2604,10 @@
     "note": "Scheduled speech/remarks by a Bank of England official."
   },
   "GBP::boe inflation letter::none": {
-    "note": "Boe Inflation Letter is a scheduled data release. Higher-than-expected inflation (vs forecast) can lift yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "BoE Inflation Letter is the Governor's open letter explaining inflation deviations from target and the Bank's response."
   },
   "GBP::boe inflation report::none": {
-    "note": "Boe Inflation Report is a scheduled data release. Higher-than-expected inflation (vs forecast) can lift yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "BoE Monetary Policy Report sets out the economic analysis and inflation projections used for interest rate decisions."
   },
   "GBP::boe interest rate decision::none": {
     "note": "Bank Rate is the interest rate the Bank of England pays on reserves held by commercial banks and also charges on loans it makes to them. A more hawkish-than-expected decision can lift UK yields and may pressure XAUUSD via global rates."
@@ -2670,10 +2670,10 @@
     "note": "Boe Press Conference provides Q&A and messaging after the policy decision (the BoE). A more hawkish-than-expected message can lift global yields and pressure XAUUSD; a dovish surprise can support it."
   },
   "GBP::boe qe total::none": {
-    "note": "Boe Qe Total is a scheduled data release."
+    "note": "BoE QE Total refers to the asset stock held in the Bank of England's Asset Purchase Facility."
   },
   "GBP::boe quarterly bulletin::none": {
-    "note": "Boe Quarterly Bulletin is a scheduled data release."
+    "note": "BoE Quarterly Bulletin publishes analysis on monetary and financial stability and commentary on market operations."
   },
   "GBP::boe saporta speaks::none": {
     "note": "Scheduled speech/remarks by a Bank of England official."
@@ -2709,7 +2709,7 @@
     "note": "Cbi Industrial Trends Orders is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "GBP::cftc gbp speculative net positions::none": {
-    "note": "Cftc Gbp Speculative Net Positions is a scheduled data release."
+    "note": "CFTC Commitments of Traders (COT) reports net speculative positioning for GBP futures."
   },
   "GBP::chancellor jeremy hunt speaks::none": {
     "note": "Scheduled speech/remarks by a UK government official."
@@ -3117,7 +3117,7 @@
     "note": "Export Growth is a scheduled data release."
   },
   "IDR::foreign direct investment::y/y": {
-    "note": "Foreign Direct Investment is a scheduled data release."
+    "note": "Foreign direct investment (FDI) is cross-border investment that establishes a direct investment relationship between economies."
   },
   "IDR::foreign tourism::none": {
     "note": "Indonesia foreign tourism reports international visitor arrivals or visits for the period, published in the official tourism statistics."
@@ -3420,40 +3420,40 @@
     "note": "Scheduled speech/remarks by a Bank of Japan official."
   },
   "JPY::boj board member nakamura speaks::none": {
-    "note": "Boj Board Member Nakamura Speaks is a scheduled data release."
+    "note": "Scheduled speech/remarks by a Bank of Japan Policy Board member."
   },
   "JPY::boj board member nakaso speaks::none": {
-    "note": "Boj Board Member Nakaso Speaks is a scheduled data release."
+    "note": "Scheduled speech/remarks by a Bank of Japan Policy Board member."
   },
   "JPY::boj board member noguchi speaks::none": {
-    "note": "Boj Board Member Noguchi Speaks is a scheduled data release."
+    "note": "Scheduled speech/remarks by a Bank of Japan Policy Board member."
   },
   "JPY::boj board member sakurai speaks::none": {
-    "note": "Boj Board Member Sakurai Speaks is a scheduled data release."
+    "note": "Scheduled speech/remarks by a Bank of Japan Policy Board member."
   },
   "JPY::boj board member suzuki speaks::none": {
-    "note": "Boj Board Member Suzuki Speaks is a scheduled data release."
+    "note": "Scheduled speech/remarks by a Bank of Japan Policy Board member."
   },
   "JPY::boj core cpi::y/y": {
     "note": "Boj Core CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices excluding food and energy. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "JPY::boj deputy governor amamiya speaks::none": {
-    "note": "Boj Deputy Governor Amamiya Speaks is a scheduled data release."
+    "note": "Scheduled speech/remarks by a Bank of Japan Governor."
   },
   "JPY::boj deputy governor wakatabe speaks::none": {
-    "note": "Boj Deputy Governor Wakatabe Speaks is a scheduled data release."
+    "note": "Scheduled speech/remarks by a Bank of Japan Governor."
   },
   "JPY::boj gov ueda speaks::none": {
-    "note": "Boj Gov Ueda Speaks is a scheduled data release."
+    "note": "Scheduled speech/remarks by a Bank of Japan official."
   },
   "JPY::boj governor fukui speaks::none": {
-    "note": "Boj Governor Fukui Speaks is a scheduled data release."
+    "note": "Scheduled speech/remarks by a Bank of Japan Governor."
   },
   "JPY::boj governor kuroda speaks::none": {
-    "note": "Boj Governor Kuroda Speaks is a scheduled data release."
+    "note": "Scheduled speech/remarks by a Bank of Japan Governor."
   },
   "JPY::boj governor shirakawa speaks::none": {
-    "note": "Boj Governor Shirakawa Speaks is a scheduled data release."
+    "note": "Scheduled speech/remarks by a Bank of Japan Governor."
   },
   "JPY::boj interest rate decision::none": {
     "note": "At Monetary Policy Meetings, the BoJ Policy Board decides the guideline for money market operations and the Bank's monetary policy stance. Changes in policy guidance can affect JPY and global bond markets, which can influence XAUUSD."
@@ -3465,16 +3465,16 @@
     "note": "Boj Monthly Report is a scheduled data release."
   },
   "JPY::boj outlook report::y/y": {
-    "note": "Boj Outlook Report is a scheduled data release."
+    "note": "BoJ Outlook Report presents the Bank's outlook for economic activity and prices and its assessment of risks."
   },
   "JPY::boj press conference::none": {
     "note": "Boj Press Conference provides Q&A and messaging after the policy decision (the BoJ). A more hawkish-than-expected message can lift global yields and pressure XAUUSD; a dovish surprise can support it."
   },
   "JPY::boj summary of opinions::none": {
-    "note": "Boj Summary of Opinions is a scheduled data release."
+    "note": "BoJ Summary of Opinions is a short document compiled from Policy Board members' views expressed at the MPM."
   },
   "JPY::boj tamura speaks::none": {
-    "note": "Boj Tamura Speaks is a scheduled data release."
+    "note": "Scheduled speech/remarks by a Bank of Japan official."
   },
   "JPY::bsi large manufacturing conditions::none": {
     "note": "Bsi Large Manufacturing Conditions is a scheduled data release."
@@ -3486,7 +3486,7 @@
     "note": "Capital Spending is a scheduled data release."
   },
   "JPY::cftc jpy speculative net positions::none": {
-    "note": "Cftc Jpy Speculative Net Positions is a scheduled data release."
+    "note": "CFTC Commitments of Traders (COT) reports net speculative positioning for JPY futures."
   },
   "JPY::coincident indicator::m/m": {
     "note": "Coincident Indicator is a scheduled data release."
@@ -3702,10 +3702,10 @@
     "note": "The Central Bank of Kenya publishes the Central Bank Rate (CBR), defined as the lowest interest rate it charges on loans to banks. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "KRW::bank of korea monetary policy board\u2019s policy setting meeting dates::m/m": {
-    "note": "Bank of Korea Monetary Policy Board\u2019s Policy Setting Meeting Dates is a scheduled data release."
+    "note": "Bank of Korea publishes the schedule for Monetary Policy Board policy-setting meetings."
   },
   "KRW::bank of korea monetary policy board\u2019s policy setting meeting dates::none": {
-    "note": "Bank of Korea Monetary Policy Board\u2019s Policy Setting Meeting Dates is a scheduled data release."
+    "note": "Bank of Korea publishes the schedule for Monetary Policy Board policy-setting meetings."
   },
   "KRW::bok financial stability board meeting minutes::none": {
     "note": "Bok Financial Stability Board Meeting Minutes provides detail on the latest policy meeting (the central bank)."
@@ -3762,7 +3762,7 @@
     "note": "Bank of Korea manufacturing Business Survey Index (BSI) is a sentiment index based on surveys of manufacturing firms."
   },
   "KRW::monetary policy board's policy setting meeting dates::none": {
-    "note": "Monetary Policy Board's Policy Setting Meeting Dates is a scheduled data release."
+    "note": "Bank of Korea publishes the schedule for Monetary Policy Board policy-setting meetings."
   },
   "KRW::ppi::m/m": {
     "note": "PPI (Producer Price Index, MoM) measures the month-over-month % change in prices received by producers."
@@ -3846,7 +3846,7 @@
     "note": "Aggregate Demand is a scheduled data release."
   },
   "MXN::cftc mxn speculative net positions::none": {
-    "note": "Cftc Mxn Speculative Net Positions is a scheduled data release."
+    "note": "CFTC Commitments of Traders (COT) reports net speculative positioning for MXN futures."
   },
   "MXN::consumer confidence n.s.a.::none": {
     "note": "Consumer Confidence N.s.a. is a survey-based sentiment reading."
@@ -12024,7 +12024,7 @@
     "note": "BusinessNZ Performance of Manufacturing Index is a monthly survey-based diffusion index of manufacturing conditions (above 50 = expansion)."
   },
   "NZD::cftc nzd speculative net positions::none": {
-    "note": "Cftc Nzd Speculative Net Positions is a scheduled data release."
+    "note": "CFTC Commitments of Traders (COT) reports net speculative positioning for NZD futures."
   },
   "NZD::core retail sales::q/q": {
     "note": "Core Retail Sales measures retail spending. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -12345,7 +12345,7 @@
     "note": "Narodowy Bank Polski M3 money supply (YoY) reports the annual growth rate of the broad monetary aggregate."
   },
   "PLN::nbp financial stability report::none": {
-    "note": "Nbp Financial Stability Report is a scheduled data release."
+    "note": "NBP Financial Stability Report presents analysis of risks and resilience in Poland's financial system."
   },
   "PLN::nbp inflation and gdp projection::none": {
     "note": "Narodowy Bank Polski inflation and GDP projection publishes the central bank's macro forecast for inflation and economic growth."
@@ -12447,7 +12447,7 @@
     "note": "Central Bank Reserves (usd) reports official foreign-exchange reserves."
   },
   "RUB::cftc rub speculative positions::none": {
-    "note": "Cftc Rub Speculative Positions is a scheduled data release."
+    "note": "CFTC Commitments of Traders (COT) reports net speculative positioning for RUB futures."
   },
   "RUB::cpi::m/m": {
     "note": "CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices."
@@ -12846,7 +12846,7 @@
     "note": "Turkey CPI ex E,f,b,t&g (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
   },
   "TRY::turkey thomson reuters ipsos pcsi::none": {
-    "note": "Turkey Thomson Reuters Ipsos Pcsi is a scheduled data release."
+    "note": "Ipsos PCSI is a monthly consumer sentiment index for TRY that reflects households' confidence and outlook."
   },
   "TRY::turkish economic confidence index::none": {
     "note": "Turkish Economic Confidence Index is a survey-based sentiment reading."
@@ -14013,7 +14013,7 @@
     "note": "Vietnamese CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
   },
   "VND::vietnamese foreign direct investment (usd)::none": {
-    "note": "Vietnamese Foreign Direct Investment (usd) is a scheduled data release."
+    "note": "Foreign direct investment (FDI) is cross-border investment that establishes a direct investment relationship between economies."
   },
   "VND::vietnamese gdp::y/y": {
     "note": "Vietnamese GDP measures year-over-year % growth in economic output."
@@ -14073,7 +14073,7 @@
     "note": "South African Reserve Bank's Monetary Policy Committee (MPC) sets the repo rate in its monetary policy statement. Usually limited direct impact on XAUUSD unless it shifts broader yields or risk sentiment."
   },
   "ZAR::leading indicators::none": {
-    "note": "Leading Indicators is a scheduled data release."
+    "note": "South Africa Leading Indicators refers to SARB's composite leading business cycle indicator."
   },
   "ZAR::m3 money supply::y/y": {
     "note": "South African Reserve Bank M3 money supply (YoY) reports the annual change in broad money (monetary aggregate M3)."
