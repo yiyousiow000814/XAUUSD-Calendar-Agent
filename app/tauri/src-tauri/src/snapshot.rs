@@ -133,6 +133,8 @@ pub fn render_past_events(
     source_utc_offset_minutes: i32,
 ) -> Vec<serde_json::Value> {
     let now_utc = Utc::now();
+    // Keep "current" items out of History until the same grace window used by Next Events passes.
+    let grace_window = Duration::minutes(3);
     let cutoff = now_utc - Duration::days(31);
     let selected = currency.trim().to_uppercase();
     if events.is_empty() {
@@ -143,6 +145,10 @@ pub fn render_past_events(
     let mut rendered = vec![];
     for e in events.iter().rev() {
         if e.dt_utc >= now_utc || e.dt_utc < cutoff {
+            continue;
+        }
+        // Exclude items still considered "Current" in Next Events.
+        if (now_utc - e.dt_utc) <= grace_window {
             continue;
         }
         let cur = e.currency.to_uppercase();
@@ -212,4 +218,42 @@ pub fn render_past_events(
         }
     }
     rendered
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::calendar::CalendarEvent;
+    use chrono::Utc;
+
+    fn make_event(dt_utc: DateTime<Utc>) -> CalendarEvent {
+        CalendarEvent {
+            dt_utc,
+            time_label: "01:30".to_string(),
+            event: "Test".to_string(),
+            currency: "USD".to_string(),
+            importance: "High".to_string(),
+            actual: "1".to_string(),
+            forecast: "1".to_string(),
+            previous: "1".to_string(),
+        }
+    }
+
+    #[test]
+    fn past_events_excludes_current_grace_window() {
+        let now = Utc::now();
+        let current_like = make_event(now - Duration::minutes(1));
+        let past = make_event(now - Duration::minutes(10));
+
+        let events = vec![past.clone(), current_like.clone()];
+        let rendered = render_past_events(&events, "USD", "utc", 0, 0);
+
+        // Only the older item should appear.
+        assert_eq!(rendered.len(), 1);
+        assert_eq!(
+            rendered[0].get("event").and_then(|v| v.as_str()),
+            Some("Test")
+        );
+        assert_eq!(rendered[0].get("cur").and_then(|v| v.as_str()), Some("USD"));
+    }
 }
