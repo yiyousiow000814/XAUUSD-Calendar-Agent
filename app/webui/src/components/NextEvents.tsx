@@ -191,14 +191,14 @@ export function NextEvents({
       el.style.willChange = "transform";
       el.dataset.flipAnim = "1";
 
-      window.requestAnimationFrame(() => {
+      window.setTimeout(() => {
         el.style.transition = "transform var(--motion-med) var(--motion-ease)";
         el.style.transform = "";
         window.setTimeout(() => {
           if (el.style.willChange === "transform") el.style.willChange = "";
           if (el.dataset.flipAnim) delete el.dataset.flipAnim;
         }, 360);
-      });
+      }, 0);
     });
   }, [events, query, showSkeleton, filterSignature]);
 

@@ -25,6 +25,8 @@ app/tests-ui/node_modules/
 app/tests-ui/artifacts/
 app/tests-ui/playwright-report/
 node_modules/
+app/tauri/node_modules/
+app/tauri/src-tauri/target/
 
 # Local UI/self-check artifacts
 artifacts/

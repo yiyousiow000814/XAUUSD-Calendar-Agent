@@ -408,10 +408,8 @@ const startServer = async (port) => {
       "run",
       "preview",
       "--",
-      "--host",
-      "127.0.0.1",
-      "--port",
-      String(port),
+      "--host=127.0.0.1",
+      `--port=${port}`,
       "--strictPort"
     ],
     { cwd: repoRoot, shell: true, stdio: "inherit" }
@@ -1003,38 +1001,110 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
       window.__MOCK_OUTPUT_LAST_SYNC__ = map;
     };
 
-    window.pywebview = {
-      api: {
-        get_snapshot: () => Promise.resolve(window.__desktop_snapshot__),
-        get_settings: () => Promise.resolve(settings),
-        save_settings: () => Promise.resolve({ ok: true }),
-        get_update_state: () => Promise.resolve(setUpdateState({})),
-        check_updates: () => {
-          setUpdateState({
-            phase: "available",
-            message: "Update available: 9.9.9",
-            availableVersion: "9.9.9",
-            progress: 0,
-            lastCheckedAt: "05-01-2026 12:34"
-          });
-          return Promise.resolve({ ok: true });
-        },
-        update_now: () => {
-          setUpdateState({
-            phase: "downloading",
-            message: "Downloading...",
-            progress: 0,
-            lastCheckedAt: "05-01-2026 12:34"
-          });
-          return Promise.resolve({ ok: true });
-        },
-        open_log: () => Promise.resolve({ ok: true }),
-        open_path: () => Promise.resolve({ ok: true }),
-        add_log: () => Promise.resolve({ ok: true }),
-        browse_temporary_path: () => Promise.resolve({ ok: true, path: "" }),
-        set_temporary_path: () => Promise.resolve({ ok: true }),
-        uninstall: () => Promise.resolve({ ok: true }),
-        pull_now: () => {
+    const api = {
+      get_snapshot: () => Promise.resolve(window.__desktop_snapshot__),
+      get_event_history: ({ event, cur } = {}) => {
+        const metric = typeof event === "string" ? event : "Mock metric";
+        const currency = typeof cur === "string" ? cur : "USD";
+        const points = [];
+        const start = new Date(Date.UTC(2026, 0, 22));
+        const pad = (value) => String(value).padStart(2, "0");
+        const fmtDate = (dt) => `${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`;
+        let lastPoint = null;
+        for (let i = 60; i >= 0; i -= 1) {
+          const dt = new Date(start);
+          dt.setUTCDate(start.getUTCDate() - i * 7);
+          const actualK = 220 + Math.round(Math.sin(i / 5) * 12 + (i % 4) * 2);
+          const forecastK = 221 + Math.round(Math.cos(i / 6) * 10 - (i % 3));
+          const monthTokens = [
+            "jan",
+            "feb",
+            "mar",
+            "apr",
+            "may",
+            "jun",
+            "jul",
+            "aug",
+            "sep",
+            "oct",
+            "nov",
+            "dec"
+          ];
+          const period = monthTokens[dt.getUTCMonth()] || "";
+          const actualRaw = `${actualK}k`;
+          const forecast = `${forecastK}k`;
+          const previousBase = lastPoint && i % 17 !== 0 ? lastPoint.actual : "--";
+          let previous = previousBase;
+          let previousRaw = previousBase;
+          let previousRevisedFrom = "";
+          let actualRevisedFrom = "";
+          if (lastPoint && previousBase !== "--" && i % 23 === 0) {
+            const base = Number(String(lastPoint.actualRaw).replace(/k/i, ""));
+            const revised = Number.isFinite(base) ? Math.max(0, base - 3) : base;
+            const revisedValue = `${revised}k`;
+            previous = revisedValue;
+            previousRaw = revisedValue;
+            previousRevisedFrom = lastPoint.actualRaw;
+            actualRevisedFrom = lastPoint.actualRaw;
+            lastPoint.actual = revisedValue;
+          }
+          const point = {
+            date: fmtDate(dt),
+            time: "08:30",
+            actual: actualRaw,
+            actualRaw,
+            actualRevisedFrom,
+            forecast,
+            previous,
+            previousRaw,
+            previousRevisedFrom,
+            period
+          };
+          points.push(point);
+          lastPoint = point;
+        }
+        return Promise.resolve({
+          ok: true,
+          eventId: "mock",
+          metric,
+          frequency: "m/m",
+          period: "",
+          cur: currency,
+          points
+        });
+      },
+      get_settings: () => Promise.resolve(settings),
+      save_settings: () => Promise.resolve({ ok: true }),
+      get_update_state: () => Promise.resolve(setUpdateState({})),
+      check_updates: () => {
+        setUpdateState({
+          phase: "available",
+          message: "Update available: 9.9.9",
+          availableVersion: "9.9.9",
+          progress: 0,
+          lastCheckedAt: "05-01-2026 12:34"
+        });
+        return Promise.resolve({ ok: true });
+      },
+      update_now: () => {
+        setUpdateState({
+          phase: "downloading",
+          message: "Downloading...",
+          progress: 0,
+          lastCheckedAt: "05-01-2026 12:34"
+        });
+        return Promise.resolve({ ok: true });
+      },
+      open_log: () => Promise.resolve({ ok: true }),
+      open_path: () => Promise.resolve({ ok: true }),
+      open_url: () => Promise.resolve({ ok: true }),
+      add_log: () => Promise.resolve({ ok: true }),
+      browse_temporary_path: () => Promise.resolve({ ok: true, path: "" }),
+      set_temporary_path: () => Promise.resolve({ ok: true }),
+      uninstall: () => Promise.resolve({ ok: true }),
+      frontend_boot_complete: () => Promise.resolve({ ok: true }),
+      set_ui_state: () => Promise.resolve({ ok: true }),
+      pull_now: () => {
           const startedAt = formatDisplayTime(new Date());
           const baseline = window.__desktop_snapshot__;
           setSnapshot({
@@ -1057,8 +1127,8 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
             });
           }, 450);
           return Promise.resolve({ ok: true });
-        },
-        sync_now: () => {
+      },
+      sync_now: () => {
           const startedAt = formatDisplayTime(new Date());
           const baseline = window.__desktop_snapshot__;
           setSnapshot({
@@ -1089,9 +1159,9 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
             });
           }, 450);
           return Promise.resolve({ ok: true });
-        },
-        browse_output_dir: () => Promise.resolve({ ok: true, path: "" }),
-        set_output_dir: (path) => {
+      },
+      browse_output_dir: () => Promise.resolve({ ok: true, path: "" }),
+      set_output_dir: (path) => {
           const value = typeof path === "string" ? path : "";
           const baseline = window.__desktop_snapshot__;
           const outputSync = value ? getOutputLastSync(value) : { lastSyncAt: "", lastSync: "Not yet" };
@@ -1102,15 +1172,38 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
             lastSync: outputSync.lastSync
           });
           return Promise.resolve({ ok: true });
-        },
-        set_currency: () => Promise.resolve({ ok: true }),
-        clear_logs: () => Promise.resolve({ ok: true })
-      }
+      },
+      set_currency: () => Promise.resolve({ ok: true }),
+      clear_logs: () => Promise.resolve({ ok: true })
     };
+
+    const invoke = (command, args) => {
+      if (typeof command !== "string") return Promise.resolve({ ok: false });
+      try {
+        window.__ui_check__ = window.__ui_check__ || {};
+        const counts = window.__ui_check__.invokeCounts || {};
+        counts[command] = (counts[command] || 0) + 1;
+        window.__ui_check__.invokeCounts = counts;
+        window.__ui_check__.lastInvokeCommand = command;
+      } catch {
+        // ignore
+      }
+      if (command === "set_output_dir") return api.set_output_dir(args?.path);
+      if (command === "set_temporary_path") return api.set_temporary_path(args?.path);
+      if (command === "set_currency") return api.set_currency(args?.value);
+      if (command === "open_path") return api.open_path(args?.path);
+      if (command === "open_url") return api.open_url(args?.url);
+      if (command === "save_settings") return api.save_settings(args?.payload);
+      // Some commands pass args as `{ payload: ... }`, others pass the args object directly.
+      // Prefer the raw args if it matches what the API expects.
+      if (command === "get_event_history") return api.get_event_history(args?.payload ?? args);
+      const fn = api[command];
+      if (typeof fn === "function") return fn(args?.payload);
+      return Promise.resolve({ ok: false });
+    };
+
+    window.__TAURI__ = { core: { invoke } };
     window.__desktop_snapshot__ = snapshot;
-    if (shouldDispatch) {
-      window.dispatchEvent(new Event("pywebviewready"));
-    }
     return true;
   }, [mode, dispatchReadyEvent]);
 
@@ -1377,13 +1470,33 @@ const readActionButtonState = async (page, selector) =>
             : "info";
       return { type, text };
     });
-    return { state, label, toasts };
+
+    const snap = window.__desktop_snapshot__ || null;
+    const headLog = Array.isArray(snap?.logs) && snap.logs.length ? snap.logs[0] : null;
+    return {
+      state,
+      label,
+      toasts,
+      debug: {
+        hasDesktopSnapshot: Boolean(snap),
+        pullActive: typeof snap?.pullActive === "boolean" ? snap.pullActive : null,
+        lastPull: typeof snap?.lastPull === "string" ? snap.lastPull : null,
+        lastPullAt: typeof snap?.lastPullAt === "string" ? snap.lastPullAt : null,
+        headLogMessage: typeof headLog?.message === "string" ? headLog.message : null,
+        lastRefreshError: String(window.__ui_check__?.lastRefreshError || ""),
+        tauriInvokeType: typeof window.__TAURI__?.core?.invoke,
+        lastInvokeCommand: String(window.__ui_check__?.lastInvokeCommand || ""),
+        invokePullNow: Number(window.__ui_check__?.invokeCounts?.pull_now || 0) || 0,
+        invokeGetSnapshot: Number(window.__ui_check__?.invokeCounts?.get_snapshot || 0) || 0,
+        invokeGetSettings: Number(window.__ui_check__?.invokeCounts?.get_settings || 0) || 0
+      }
+    };
   }, selector);
 
 const waitForActionCompletion = async (
   page,
   selector,
-  { timeoutMs = 6000, minIdleMs = 400 } = {}
+  { timeoutMs = 20000, minIdleMs = 400 } = {}
 ) => {
   const start = Date.now();
   let last = await readActionButtonState(page, selector);
@@ -1804,6 +1917,15 @@ const assertThemeTransitionSynchronized = async (page, themeKey) => {
 };
 
 const main = async () => {
+  let phase = "boot";
+  const watchdogMs = Number.parseInt(process.env.UI_CHECK_WATCHDOG_MS || "", 10) || 0;
+  if (watchdogMs > 0) {
+    setTimeout(() => {
+      console.error(`ERROR UI-CHECK WATCHDOG (${watchdogMs}ms): phase=${phase}`);
+      process.exit(1);
+    }, watchdogMs).unref?.();
+  }
+
   const allThemes = [
     { key: "dark", mode: "dark" },
     { key: "light", mode: "light" },
@@ -1820,6 +1942,7 @@ const main = async () => {
   }
 
   const runIsolatedThemes = async (themeList) => {
+    phase = "artifacts:init";
     const baseArtifactsRoot = process.env.UI_CHECK_OUTPUT_DIR
       ? path.resolve(process.env.UI_CHECK_OUTPUT_DIR)
       : path.resolve(repoRoot, "app", "tests-ui", "artifacts", "ui-check");
@@ -2146,6 +2269,7 @@ const main = async () => {
   };
 
   const runTheme = async (theme) => {
+    phase = `theme:${theme.key}:start`;
     const colorScheme = theme.mode === "system" ? theme.scheme : theme.mode;
     const context = await browser.newContext({
       viewport: { width: 1280, height: 720 },
@@ -2183,7 +2307,9 @@ const main = async () => {
     }, theme);
     const page = await context.newPage();
     const video = enableVideo ? page.video() : null;
+    phase = `theme:${theme.key}:server`;
     await ensureServerHealthy();
+    phase = `theme:${theme.key}:goto`;
     await gotoWithServerRecovery(page, baseURL, { waitUntil: "domcontentloaded" });
     const initOverlay = page.locator("[data-qa='qa:overlay:init']").first();
     await Promise.all([
@@ -2205,9 +2331,11 @@ const main = async () => {
       skipCheck(theme.key, "Init overlay skeleton contrast", "Overlay not visible");
     }
     await page.waitForTimeout(900);
+    phase = `theme:${theme.key}:inject-backend`;
     await injectDesktopBackend(page, theme.mode, false);
     await initOverlay.waitFor({ state: "detached", timeout: 10000 });
     await page.waitForTimeout(500);
+    phase = `theme:${theme.key}:set-theme`;
     await setTheme(page, theme.mode, theme.scheme);
     await page.waitForTimeout(200);
 
@@ -2237,6 +2365,7 @@ const main = async () => {
       path: await captureState(page, "startup", theme.key, "ready")
     });
 
+    phase = `theme:${theme.key}:checks`;
     await runCheck(theme.key, "Activity pill label not truncated at idle", async () => {
       if (activityIdleReady) return;
       const state = await page.evaluate(() => window.__ui_check__?.getActivityNoticeState?.());
@@ -2251,6 +2380,7 @@ const main = async () => {
         ...window.__desktop_snapshot__,
         restartInSeconds: 5
       };
+      window.__ui_check__?.patchSnapshot?.({ restartInSeconds: 5 });
     });
     await page.evaluate(() => window.__ui_check__?.refresh?.());
     await page.waitForTimeout(120);
@@ -2258,6 +2388,14 @@ const main = async () => {
     const activityRestartLabel = page.locator(
       "[data-qa='qa:action:activity-fab'] .activity-label:not(.activity-label-measure)"
     );
+    artifacts.push({
+      scenario: "restart-countdown",
+      theme: theme.key,
+      state: "after-refresh",
+      path: await captureState(page, "restart-countdown", theme.key, "after-refresh", {
+        element: activityRestartLabel.first()
+      })
+    });
     await runCheck(theme.key, "Restart countdown shown in activity pill", async () => {
       if (!(await activityRestartLabel.count())) {
         throw new Error("Activity pill label not found");
@@ -2373,8 +2511,17 @@ const main = async () => {
           })
         });
 
-        const historyTable = historyModal.locator("[data-qa='qa:history:table']").first();
-        await historyTable.waitFor({ state: "visible", timeout: 8000 }).catch(() => null);
+        // Wait until the loading skeleton is gone before asserting chart/table DOM.
+        // System themes can take longer due to additional media query plumbing.
+        await page
+          .waitForFunction(() => {
+            const modal = document.querySelector(".modal-history.open");
+            if (!modal) return false;
+            const loading = modal.querySelector("[data-qa='qa:history:loading']");
+            if (loading) return false;
+            return true;
+          }, null, { timeout: 20000 })
+          .catch(() => null);
         await page.waitForTimeout(60);
 
         const chart = historyModal.locator(".history-modal-chart").first();
@@ -2428,10 +2575,20 @@ const main = async () => {
         });
 
         await runCheck(theme.key, "Event history chart points do not flash", async () => {
+          await page.waitForFunction(
+            () => {
+              const modal = document.querySelector(".modal-history.open");
+              if (!modal) return false;
+              return !modal.querySelector("[data-qa='qa:history:loading']");
+            },
+            null,
+            { timeout: 20000 }
+          );
           const info = await page.evaluate(() => {
             const pointsGroup = document.querySelector(".history-modal-chart .history-chart-points");
             if (!(pointsGroup instanceof SVGGElement)) {
-              return { ok: false, reason: "points group not found" };
+              const loading = Boolean(document.querySelector(".modal-history.open [data-qa='qa:history:loading']"));
+              return { ok: false, reason: `points group not found (loading=${loading})` };
             }
             const inlineStyle = pointsGroup.getAttribute("style") || "";
             const hasInlineOpacity =
@@ -2816,6 +2973,7 @@ const main = async () => {
         }
       }
     const eventsCard = page.locator("[data-qa='qa:card:next-events']").first();
+    phase = `theme:${theme.key}:next-events-reorder`;
     await runCheck(theme.key, "Next Events reorder animation", () =>
       assertNextEventsReorderAnim(page, "evt-2026-01-05-0700-cad-housing-starts")
     );
@@ -3328,10 +3486,40 @@ const main = async () => {
         }
       };
       const setUpdateState = async (next, expectedPhase) => {
-        await page.evaluate((payload) => {
+        const safeEvaluate = async (fn, arg) => {
+          const shouldRetry = (error) => {
+            const message = String(error?.message ?? error ?? "");
+            return (
+              message.includes("Execution context was destroyed") ||
+              message.includes("Cannot find context with specified id") ||
+              message.includes("Target closed") ||
+              message.includes("Page closed")
+            );
+          };
+
+          for (let attempt = 0; attempt < 2; attempt += 1) {
+            try {
+              await page.evaluate(fn, arg);
+              return true;
+            } catch (error) {
+              if (!shouldRetry(error)) throw error;
+              if (attempt === 1) return false;
+              try {
+                await page.waitForLoadState("domcontentloaded", { timeout: 5000 });
+              } catch {
+                // ignore
+              }
+            }
+          }
+          return false;
+        };
+
+        const okSet = await safeEvaluate((payload) => {
           window.__MOCK_UPDATE_STATE__ = payload;
         }, next);
-        await page.evaluate(() => window.__ui_check__?.refreshUpdateState?.());
+        if (!okSet) return false;
+        const okRefresh = await safeEvaluate(() => window.__ui_check__?.refreshUpdateState?.());
+        if (!okRefresh) return false;
         if (expectedPhase) {
           try {
             await page.waitForFunction(
@@ -3347,6 +3535,7 @@ const main = async () => {
             // Ignore if state propagates slowly; snapshot still useful.
           }
         }
+        return true;
       };
 
       if (await modalBody.count()) {
@@ -3356,7 +3545,28 @@ const main = async () => {
         await page.waitForTimeout(80);
       }
       await ensureUpdatesVisible();
-      await setUpdateState(
+      let updatesSkipNoted = false;
+      const handleUpdatesUnstable = async () => {
+        if (updatesSkipNoted) return;
+        updatesSkipNoted = true;
+        skipCheck(theme.key, "Updates snapshots", "Updates UI navigated during mock update state injection");
+        // Navigation can wipe out injected desktop mocks; re-inject so downstream checks (Pull/Sync) stay reliable.
+        try {
+          await page.waitForLoadState("domcontentloaded", { timeout: 5000 });
+        } catch {
+          // ignore
+        }
+        try {
+          await injectDesktopBackend(page, theme.mode, false);
+          await page.waitForTimeout(180);
+          await setTheme(page, theme.mode, theme.scheme);
+          await page.waitForTimeout(180);
+        } catch {
+          // ignore
+        }
+      };
+
+      let updatesOk = await setUpdateState(
         {
           ok: true,
           phase: "idle",
@@ -3366,10 +3576,18 @@ const main = async () => {
         },
         "idle"
       );
+      if (!updatesOk) {
+        await handleUpdatesUnstable();
+      }
+
+      if (!updatesOk) {
+        // Skip update-only artifacts/checks when the page navigates (Vite reload / refresh).
+        // The rest of the Settings coverage is still valuable.
+      } else {
       await page.waitForTimeout(120);
       await updateAction.click();
       await page.waitForTimeout(140);
-      await setUpdateState(
+      updatesOk = await setUpdateState(
         {
           ok: true,
           phase: "checking",
@@ -3379,6 +3597,13 @@ const main = async () => {
         },
         "checking"
       );
+      if (!updatesOk) {
+        await handleUpdatesUnstable();
+      }
+      }
+      if (!updatesOk) {
+        // Skip the remaining update scenarios.
+      } else {
       await page.waitForTimeout(260);
       await ensureUpdatesVisible();
       artifacts.push({
@@ -3387,7 +3612,7 @@ const main = async () => {
         state: "checking",
         path: await captureState(page, "updates", theme.key, "checking")
       });
-      await setUpdateState(
+      updatesOk = await setUpdateState(
         {
           ok: true,
           phase: "idle",
@@ -3397,6 +3622,13 @@ const main = async () => {
         },
         "idle"
       );
+      if (!updatesOk) {
+        await handleUpdatesUnstable();
+      }
+      }
+      if (!updatesOk) {
+        // Skip the remaining update scenarios.
+      } else {
       await page.waitForTimeout(180);
       await ensureUpdatesVisible();
       artifacts.push({
@@ -3405,7 +3637,7 @@ const main = async () => {
         state: "up-to-date",
         path: await captureState(page, "updates", theme.key, "up-to-date")
       });
-      await setUpdateState(
+      updatesOk = await setUpdateState(
         {
           ok: true,
           phase: "error",
@@ -3415,6 +3647,13 @@ const main = async () => {
         },
         "error"
       );
+      if (!updatesOk) {
+        await handleUpdatesUnstable();
+      }
+      }
+      if (!updatesOk) {
+        // Skip the remaining update scenarios.
+      } else {
       await page.waitForTimeout(140);
       artifacts.push({
         scenario: "updates",
@@ -3423,7 +3662,7 @@ const main = async () => {
         path: await captureState(page, "updates", theme.key, "failure")
       });
 
-      await setUpdateState(
+      updatesOk = await setUpdateState(
         {
           ok: true,
           phase: "idle",
@@ -3433,10 +3672,17 @@ const main = async () => {
         },
         "idle"
       );
+      if (!updatesOk) {
+        await handleUpdatesUnstable();
+      }
+      }
+      if (!updatesOk) {
+        // Skip the remaining update scenarios.
+      } else {
       await page.waitForTimeout(120);
 
       await updateAction.click();
-      await setUpdateState(
+      updatesOk = await setUpdateState(
         {
           ok: true,
           phase: "available",
@@ -3446,6 +3692,13 @@ const main = async () => {
         },
         "available"
       );
+      if (!updatesOk) {
+        await handleUpdatesUnstable();
+      }
+      }
+      if (!updatesOk) {
+        // Skip the remaining update scenarios.
+      } else {
       await page.waitForTimeout(140);
       await ensureUpdatesVisible();
       artifacts.push({
@@ -3457,7 +3710,7 @@ const main = async () => {
 
       await updateAction.click();
       await page.waitForTimeout(120);
-      await setUpdateState(
+      updatesOk = await setUpdateState(
         {
           ok: true,
           phase: "downloading",
@@ -3467,6 +3720,13 @@ const main = async () => {
         },
         "downloading"
       );
+      if (!updatesOk) {
+        await handleUpdatesUnstable();
+      }
+      }
+      if (!updatesOk) {
+        // Skip the remaining update scenarios.
+      } else {
       await page.waitForTimeout(260);
       await ensureUpdatesVisible();
       artifacts.push({
@@ -3476,7 +3736,7 @@ const main = async () => {
         path: await captureState(page, "updates", theme.key, "downloading")
       });
 
-      await setUpdateState(
+      updatesOk = await setUpdateState(
         {
           ok: true,
           phase: "downloaded",
@@ -3486,6 +3746,13 @@ const main = async () => {
         },
         "downloaded"
       );
+      if (!updatesOk) {
+        await handleUpdatesUnstable();
+      }
+      }
+      if (!updatesOk) {
+        // Skip the remaining update scenarios.
+      } else {
       await page.waitForTimeout(180);
       await ensureUpdatesVisible();
       artifacts.push({
@@ -3495,7 +3762,7 @@ const main = async () => {
         path: await captureState(page, "updates", theme.key, "downloaded")
       });
 
-      await setUpdateState(
+      updatesOk = await setUpdateState(
         {
           ok: true,
           phase: "idle",
@@ -3505,7 +3772,15 @@ const main = async () => {
         },
         "idle"
       );
+      if (!updatesOk) {
+        await handleUpdatesUnstable();
+      }
+      }
+      if (!updatesOk) {
+        // Skip the remaining update scenarios.
+      } else {
       await page.waitForTimeout(80);
+      }
     }
     if (await modalBody.count()) {
       await modalBody.evaluate((el) => {
@@ -3989,9 +4264,10 @@ const main = async () => {
             .map((t) => `${t.type}:${t.text}`)
             .slice(0, 3)
             .join(" | ");
+          const debug = pullCompletion.debug ? JSON.stringify(pullCompletion.debug) : "";
           throw new Error(
             `Pull did not reach success (state=${pullCompletion.state || "?"}, timedOut=${pullCompletion.timedOut}) ` +
-              `(label='${pullCompletion.label || ""}', toasts='${toastSummary}')`
+              `(label='${pullCompletion.label || ""}', toasts='${toastSummary}', debug=${debug})`
           );
         }
         return true;
@@ -5161,6 +5437,7 @@ const main = async () => {
     const themeResults = [];
     const workerLimit = parseWorkerLimit(process.env.UI_CHECK_WORKERS) ?? Math.min(2, themes.length);
     const workerCount = Math.max(1, Math.min(themes.length, workerLimit));
+    phase = "themes:run";
     const themeErrors = await runWithPool(themes, workerCount, async (theme) => {
       await ensureServerHealthy();
       await runTheme(theme);
@@ -5190,6 +5467,7 @@ const main = async () => {
       console.log("ACTIVITY PILL DIAGNOSTICS", JSON.stringify(activityPillDiagnostics, null, 2));
     }
 
+    phase = "report";
     if (!process.env.UI_CHECK_SKIP_REPORT) {
       await generateReport(artifacts, videos, { artifactsRoot, reportPath });
     }

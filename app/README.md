@@ -4,43 +4,29 @@ Lightweight desktop agent to keep `data/Economic_Calendar` synced with the lates
 `main` branch and mirror the calendar output into a user-selected folder.
 
 ## Features
-- Pulls `origin/main` on startup when the repo is stale (> 1 day) or has new commits.
+- Pulls the calendar repo from GitHub on demand.
 - Mirrors `data/Economic_Calendar` to `<output_dir>\\data\\Economic_Calendar` (add/replace/delete).
-- Shows last pull/sync time and a live activity log.
-- Optional startup task via Windows Task Scheduler.
-- Closing the window minimizes the app to the system tray.
-- Optional desktop shortcut prompt on first launch.
-- Debug logging to `%APPDATA%\\XAUUSDCalendar\\logs`.
+- Shows last pull/sync time and an activity log.
 
 ## Default Paths
 - App config: `%APPDATA%\\XAUUSDCalendar\\config.json`
 - Logs: `%APPDATA%\\XAUUSDCalendar\\logs\\app.log`
 
 ## Build (Windows)
-Recommended: build an installer so users only run a setup file.
+Recommended: build an installer so users run a single setup file.
 
-1) Install Inno Setup 6 (one-time).
-2) Install Node.js (for the web UI build).
-3) Run the build script:
+1) Install Node.js (for the web UI build).
+2) Install Rust (rustup) for the Tauri build.
+3) Run:
 
 ```powershell
-pip install -r requirements-app.txt
 .\app\installer\build_installer.ps1
 ```
 
 The installer will be written to `Setup.exe` in the repo root.
 
 ## Update Channel
-The agent checks GitHub Releases by default.
-
-Requirements:
-- Publish a release with the EXE asset named `XAUUSD Calendar Agent.exe` (or update
-  `github_release_asset_name` in the config).
-When auto update is enabled, the agent downloads the update and restarts to
-apply it automatically.
-
-The app checks for updates on startup. Periodic checks can be enabled by setting
-`auto_update_interval_minutes` to a value greater than 0.
+Installer builds are published via GitHub Releases as `Setup.exe`.
 
 ### Private Repos (GitHub Token)
 If `github_repo` is private, provide a GitHub token so the app can access:
@@ -57,6 +43,5 @@ If the default branch is not `main`, set `github_branch` accordingly.
 - All timestamps shown in the UI are `DD-MM-YYYY HH:MM`.
 
 ## Uninstall (Manual)
-- Delete the EXE file.
+- Uninstall the app from Windows “Apps & features” / “Installed apps”.
 - Remove config and logs: `%APPDATA%\\XAUUSDCalendar\\`.
-- If enabled, disable the startup task from the app or Windows Task Scheduler.

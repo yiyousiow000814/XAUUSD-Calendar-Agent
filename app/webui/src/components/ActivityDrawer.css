@@ -50,9 +50,6 @@
   opacity: 1;
   transform: none;
   overflow: hidden;
-  clip-path: inset(0 round var(--activity-clip-radius, 20px));
-  -webkit-mask-image: -webkit-radial-gradient(#fff, #fff);
-  mask-image: radial-gradient(#fff, #fff);
   contain: layout paint;
   isolation: isolate;
   --activity-drawer-bg: rgb(28, 34, 44);
@@ -113,7 +110,6 @@
   flex: 1;
   overflow: hidden;
   border-radius: inherit;
-  clip-path: inset(1px round var(--activity-clip-radius, 20px));
   transform: translateZ(0);
   padding: 14px;
   position: relative;
