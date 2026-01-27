@@ -1263,16 +1263,16 @@
     "note": "Austrian Trade Balance shows the difference between the value of goods exports and imports."
   },
   "EUR::austrian unemployment change::none": {
-    "note": "Austrian Unemployment Change is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Reports the change in the number of unemployed people."
   },
   "EUR::austrian unemployment rate::none": {
     "note": "Austrian Unemployment Rate shows the share of the labor force that is unemployed. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "EUR::austrian wholesale prices n.s.a::m/m": {
-    "note": "Austrian Wholesale Prices N.s.a is a scheduled data release."
+    "note": "Measures the month-over-month % change in wholesale prices."
   },
   "EUR::austrian wholesale prices n.s.a::y/y": {
-    "note": "Austrian Wholesale Prices N.s.a is a scheduled data release."
+    "note": "Measures the year-over-year % change in wholesale prices."
   },
   "EUR::baden wuerttemberg cpi::m/m": {
     "note": "Baden Wuerttemberg CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -1311,7 +1311,7 @@
     "note": "Belgium CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "EUR::belgium nbb business climate::none": {
-    "note": "Belgium Nbb Business Climate is a scheduled data release."
+    "note": "Reports the National Bank of Belgium's business survey indicator."
   },
   "EUR::brandenburg cpi::m/m": {
     "note": "Brandenburg CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -1392,7 +1392,7 @@
     "note": "Dutch Consumer Confidence is a survey-based sentiment reading."
   },
   "EUR::dutch consumer spending::none": {
-    "note": "Dutch Consumer Spending is a scheduled data release."
+    "note": "Measures changes in household consumer spending."
   },
   "EUR::dutch cpi::y/y": {
     "note": "Dutch CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -1590,7 +1590,7 @@
     "note": "Eurogroup meetings bring together euro area finance ministers to discuss euro area policy issues."
   },
   "EUR::european central bank non - monetary policy meeting::none": {
-    "note": "European Central Bank Non Monetary Policy Meeting is a scheduled data release."
+    "note": "A scheduled ECB meeting that does not include monetary policy decisions."
   },
   "EUR::european parliament elections::none": {
     "note": "European Parliament elections are scheduled elections held to choose Members of the European Parliament."
@@ -1632,10 +1632,10 @@
     "note": "Finnish Unemployment Rate shows the share of the labor force that is unemployed. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "EUR::france inflation ex - tobacco::y/y": {
-    "note": "France Inflation ex Tobacco is a scheduled data release. Higher-than-expected inflation (vs forecast) can lift yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Measures the year-over-year % change in consumer prices excluding tobacco."
   },
   "EUR::france jobseekers total::none": {
-    "note": "France Jobseekers Total is a scheduled data release."
+    "note": "Reports the total number of registered jobseekers."
   },
   "EUR::france thomson reuters ipsos pcsi::none": {
     "note": "Ipsos PCSI is a monthly consumer sentiment index for EUR that reflects households' confidence and outlook."
@@ -1683,19 +1683,19 @@
     "note": "French 9 Year Oat Auction is a government bond auction. A weak auction can push yields higher and pressure XAUUSD; a strong auction can help ease yields and support it."
   },
   "EUR::french business survey::none": {
-    "note": "French Business Survey is a scheduled data release."
+    "note": "Reports a business survey indicator on economic conditions in France."
   },
   "EUR::french car registration::m/m": {
-    "note": "French Car Registration is a scheduled data release."
+    "note": "Measures the month-over-month % change in new passenger car registrations."
   },
   "EUR::french car registration::y/y": {
-    "note": "French Car Registration is a scheduled data release."
+    "note": "Measures the year-over-year % change in new passenger car registrations."
   },
   "EUR::french consumer confidence::none": {
     "note": "French Consumer Confidence is a survey-based sentiment reading."
   },
   "EUR::french consumer spending::m/m": {
-    "note": "French Consumer Spending is a scheduled data release."
+    "note": "Measures changes in household consumer spending."
   },
   "EUR::french cpi nsa::m/m": {
     "note": "French CPI Nsa (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -1713,7 +1713,7 @@
     "note": "French Current Account reports the current account balance."
   },
   "EUR::french exports::none": {
-    "note": "French Exports is a scheduled data release."
+    "note": "Reports the value of goods exported."
   },
   "EUR::french gdp::q/q": {
     "note": "French GDP measures quarter-over-quarter % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -1734,10 +1734,10 @@
     "note": "INSEE house price index reports changes in prices of residential property in France and this series is the quarterly change."
   },
   "EUR::french imports::none": {
-    "note": "French Imports is a scheduled data release."
+    "note": "Reports the value of goods imported."
   },
   "EUR::french industrial investments::none": {
-    "note": "French Industrial Investments is a scheduled data release."
+    "note": "Reports investment spending in industry."
   },
   "EUR::french industrial production::m/m": {
     "note": "French Industrial Production measures the month-over-month % change in industrial output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -1749,13 +1749,13 @@
     "note": "French PPI (Producer Price Index, MoM) measures the month-over-month % change in prices received by producers. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "EUR::french presidential election - 1st round::none": {
-    "note": "French Presidential Election 1st Round is a scheduled data release."
+    "note": "A national election to choose the President of France."
   },
   "EUR::french presidential election - 2nd round::none": {
-    "note": "French Presidential Election 2nd Round is a scheduled data release."
+    "note": "A national election to choose the President of France."
   },
   "EUR::french reserve assets total::none": {
-    "note": "French Reserve Assets Total is a scheduled data release."
+    "note": "Reports the total value of official reserve assets."
   },
   "EUR::french trade balance::none": {
     "note": "French Trade Balance reports the goods trade surplus/deficit based on exports and imports."
@@ -1833,13 +1833,13 @@
     "note": "Ifo Business Climate components reflect firms' assessment of current conditions and expectations for the next months."
   },
   "EUR::german exports::m/m": {
-    "note": "German Exports is a scheduled data release."
+    "note": "Reports the month-over-month % change in the value of goods exported."
   },
   "EUR::german factory orders::m/m": {
-    "note": "German Factory Orders is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Measures the month-over-month % change in new orders received by manufacturers."
   },
   "EUR::german federal election::none": {
-    "note": "German Federal Election is a scheduled data release."
+    "note": "A national election to choose members of Germany's federal parliament."
   },
   "EUR::german gdp annual (12m)::none": {
     "note": "Germany GDP annual (12m) reports the year-over-year change in economic output over the past 12 months."
@@ -1872,7 +1872,7 @@
     "note": "Destatis import price index measures changes in prices of imported goods and this series is the annual change."
   },
   "EUR::german imports::m/m": {
-    "note": "German Imports is a scheduled data release."
+    "note": "Reports the month-over-month % change in the value of goods imported."
   },
   "EUR::german industrial production::m/m": {
     "note": "German Industrial Production measures the month-over-month % change in industrial output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -1899,22 +1899,22 @@
     "note": "German Trade Balance shows the goods trade balance, i.e., exports less imports."
   },
   "EUR::german unemployment change::none": {
-    "note": "German Unemployment Change is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Reports the change in the number of unemployed people."
   },
   "EUR::german unemployment n.s.a.::none": {
-    "note": "German Unemployment N.s.a. is a scheduled data release."
+    "note": "Reports the unemployment level (not seasonally adjusted)."
   },
   "EUR::german unemployment rate::none": {
     "note": "German Unemployment Rate shows the share of the labor force that is unemployed. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "EUR::german unemployment::none": {
-    "note": "German Unemployment is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Reports the unemployment level."
   },
   "EUR::german wpi::m/m": {
-    "note": "German Wpi is a scheduled data release."
+    "note": "Measures the month-over-month % change in wholesale prices."
   },
   "EUR::german wpi::y/y": {
-    "note": "German Wpi is a scheduled data release."
+    "note": "Measures the year-over-year % change in wholesale prices."
   },
   "EUR::german zew current conditions::none": {
     "note": "ZEW Current Conditions reflects financial market experts' assessment of Germany's current economic situation."
@@ -1965,7 +1965,7 @@
     "note": "Greek Quarterly Unemployment Rate shows the share of the labor force that is unemployed. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "EUR::greek referendum on bailout terms::none": {
-    "note": "Greek Referendum on Bailout Terms is a scheduled data release."
+    "note": "A national referendum on a major policy question."
   },
   "EUR::greek retail sales::y/y": {
     "note": "Greek Retail Sales measures retail spending. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -2040,7 +2040,7 @@
     "note": "Euro area HICP ex energy and food shows the month-over-month change in the HICP index excluding energy and food components."
   },
   "EUR::industrial new orders::m/m": {
-    "note": "Industrial New Orders is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Measures the month-over-month % change in the nominal value of new orders received by industry."
   },
   "EUR::industrial production::m/m": {
     "note": "Industrial Production measures the month-over-month % change in industrial output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -2061,7 +2061,7 @@
     "note": "Irish CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "EUR::irish exchequer returns::none": {
-    "note": "Irish Exchequer Returns is a scheduled data release."
+    "note": "Reports monthly government receipts and expenditure in the Irish Exchequer."
   },
   "EUR::irish gdp::q/q": {
     "note": "Irish GDP measures quarter-over-quarter % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -2070,10 +2070,10 @@
     "note": "Irish GDP measures year-over-year % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "EUR::irish gnp::q/q": {
-    "note": "Irish Gnp is a scheduled data release."
+    "note": "Measures the quarter-over-quarter % change in gross national product."
   },
   "EUR::irish gnp::y/y": {
-    "note": "Irish Gnp is a scheduled data release."
+    "note": "Measures the year-over-year % change in gross national product."
   },
   "EUR::irish hicp::m/m": {
     "note": "Irish HICP is the EU-harmonised CPI measure and this release shows the month-over-month change."
@@ -2088,7 +2088,7 @@
     "note": "Irish Retail Sales measures retail spending. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "EUR::irish unemployment::none": {
-    "note": "Irish Unemployment is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Reports the unemployment level."
   },
   "EUR::italian 10 - year btp auction::none": {
     "note": "Italian 10 Year Btp Auction is a government bond auction. A weak auction can push yields higher and pressure XAUUSD; a strong auction can help ease yields and support it."
@@ -2124,13 +2124,13 @@
     "note": "Italian Business Confidence is a survey-based sentiment reading."
   },
   "EUR::italian car registration::m/m": {
-    "note": "Italian Car Registration is a scheduled data release."
+    "note": "Measures the month-over-month % change in new passenger car registrations."
   },
   "EUR::italian car registration::y/y": {
-    "note": "Italian Car Registration is a scheduled data release."
+    "note": "Measures the year-over-year % change in new passenger car registrations."
   },
   "EUR::italian constitutional referendum::none": {
-    "note": "Italian Constitutional Referendum is a scheduled data release."
+    "note": "A national referendum on a major policy question."
   },
   "EUR::italian consumer confidence::none": {
     "note": "Italian Consumer Confidence is a survey-based sentiment reading."
@@ -2151,7 +2151,7 @@
     "note": "Italian GDP measures year-over-year % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "EUR::italian general election::none": {
-    "note": "Italian General Election is a scheduled data release."
+    "note": "A national general election."
   },
   "EUR::italian hicp::m/m": {
     "note": "Italian HICP is a harmonised CPI series for consumer prices and this release reports the monthly change."
@@ -2160,10 +2160,10 @@
     "note": "Italian HICP is a harmonised CPI series for consumer prices and this release reports the yearly change."
   },
   "EUR::italian industrial new orders::m/m": {
-    "note": "Italian Industrial New Orders is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Measures the month-over-month % change in the nominal value of new orders received by industry."
   },
   "EUR::italian industrial new orders::y/y": {
-    "note": "Italian Industrial New Orders is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Measures the year-over-year % change in the nominal value of new orders received by industry."
   },
   "EUR::italian industrial production::m/m": {
     "note": "Italian Industrial Production measures the month-over-month % change in industrial output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -2187,7 +2187,7 @@
     "note": "Italian PPI (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "EUR::italian public deficit::none": {
-    "note": "Italian Public Deficit is a scheduled data release."
+    "note": "Reports the government's budget balance (surplus or deficit)."
   },
   "EUR::italian quarterly unemployment rate::none": {
     "note": "Italian Quarterly Unemployment Rate shows the share of the labor force that is unemployed. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -2208,10 +2208,10 @@
     "note": "Italian Trade Balance reflects the net value of goods exports minus imports."
   },
   "EUR::italian wage inflation::m/m": {
-    "note": "Italian Wage Inflation is a scheduled data release. Higher-than-expected inflation (vs forecast) can lift yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Measures the month-over-month % change in wages."
   },
   "EUR::italian wage inflation::y/y": {
-    "note": "Italian Wage Inflation is a scheduled data release. Higher-than-expected inflation (vs forecast) can lift yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Measures the year-over-year % change in wages."
   },
   "EUR::italy thomson reuters ipsos pcsi::none": {
     "note": "Ipsos PCSI is a monthly consumer sentiment index for EUR that reflects households' confidence and outlook."
@@ -2298,7 +2298,7 @@
     "note": "ECB M3 3-month moving average smooths short-term volatility in broad money growth."
   },
   "EUR::net investment flow::none": {
-    "note": "Net Investment Flow is a scheduled data release."
+    "note": "Reports net investment flows for the period."
   },
   "EUR::north rhine westphalia cpi::m/m": {
     "note": "North Rhine Westphalia CPI (Consumer Price Index, MoM) measures the month-over-month % change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -2358,10 +2358,10 @@
     "note": "Euro area reserve assets total reports official reserve assets held by the monetary authority."
   },
   "EUR::resi prop prices::m/m": {
-    "note": "Resi Prop Prices is a scheduled data release."
+    "note": "Measures the month-over-month % change in residential property prices."
   },
   "EUR::resi prop prices::y/y": {
-    "note": "Resi Prop Prices is a scheduled data release."
+    "note": "Measures the year-over-year % change in residential property prices."
   },
   "EUR::retail pmi::none": {
     "note": "S&P Global Eurozone Retail PMI is a monthly survey-based diffusion index of retail-sector conditions (above 50 = expansion)."
@@ -2487,7 +2487,7 @@
     "note": "Spanish GDP measures year-over-year % growth in economic output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "EUR::spanish general election::none": {
-    "note": "Spanish General Election is a scheduled data release."
+    "note": "A national general election."
   },
   "EUR::spanish government budget balance::none": {
     "note": "Spanish Government Budget Balance shows the government's budget balance, based on revenues versus expenditures."
@@ -2502,7 +2502,7 @@
     "note": "Spain house price index (YoY) reports the annual change in residential property prices."
   },
   "EUR::spanish industrial new orders::y/y": {
-    "note": "Spanish Industrial New Orders is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Measures the year-over-year % change in the nominal value of new orders received by industry."
   },
   "EUR::spanish industrial production::y/y": {
     "note": "Spanish Industrial Production measures industrial output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -2517,7 +2517,7 @@
     "note": "Spanish Trade Balance shows whether Spain is running a goods trade surplus or deficit."
   },
   "EUR::spanish unemployment change::none": {
-    "note": "Spanish Unemployment Change is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Reports the change in the number of unemployed people."
   },
   "EUR::spanish unemployment rate::none": {
     "note": "Spanish Unemployment Rate shows the share of the labor force that is unemployed. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -2532,7 +2532,7 @@
     "note": "Unemployment Rate shows the share of the labor force that is unemployed. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "EUR::wages in euro zone::y/y": {
-    "note": "Wages in Euro Zone is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Measures the year-over-year % change in wages."
   },
   "EUR::zew economic sentiment::none": {
     "note": "Zew Economic Sentiment is a survey-based sentiment reading."
@@ -2568,7 +2568,7 @@
     "note": "Autumn Forecast Statement communicates the policy outlook and guidance (the BoE). A more hawkish-than-expected message can lift global yields and pressure XAUUSD; a dovish surprise can support it."
   },
   "GBP::average earnings ex bonus::none": {
-    "note": "Average Earnings ex Bonus is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Measures the year-over-year % change in average weekly earnings excluding bonuses."
   },
   "GBP::average earnings index +bonus::none": {
     "note": "ONS Average Weekly Earnings (total pay) reports wage growth including bonuses, typically shown as a 3-month average versus a year earlier."
@@ -2655,16 +2655,16 @@
     "note": "Scheduled speech/remarks by a Bank of England official."
   },
   "GBP::boe mpc treasury committee hearings::none": {
-    "note": "Boe Mpc Treasury Committee Hearings is a scheduled data release."
+    "note": "A parliamentary hearing where MPC members answer questions on monetary policy."
   },
   "GBP::boe mpc vote cut::none": {
-    "note": "Boe Mpc Vote Cut is a scheduled data release."
+    "note": "Reports how many MPC members voted to cut Bank Rate at the meeting."
   },
   "GBP::boe mpc vote hike::none": {
-    "note": "Boe Mpc Vote Hike is a scheduled data release."
+    "note": "Reports how many MPC members voted to raise Bank Rate at the meeting."
   },
   "GBP::boe mpc vote unchanged::none": {
-    "note": "Boe Mpc Vote Unchanged is a scheduled data release."
+    "note": "Reports how many MPC members voted to keep Bank Rate unchanged at the meeting."
   },
   "GBP::boe press conference::none": {
     "note": "Boe Press Conference provides Q&A and messaging after the policy decision (the BoE). A more hawkish-than-expected message can lift global yields and pressure XAUUSD; a dovish surprise can support it."
@@ -2688,13 +2688,13 @@
     "note": "BRC-NielsenIQ Shop Price Index (YoY) reports the annual change in shop prices across UK retail categories."
   },
   "GBP::brexit referendum::none": {
-    "note": "Brexit Referendum is a scheduled data release."
+    "note": "A national referendum on the UK's membership of the European Union."
   },
   "GBP::business investment::q/q": {
-    "note": "Business Investment is a scheduled data release."
+    "note": "Measures the quarter-over-quarter % change in business investment in non-financial assets."
   },
   "GBP::business investment::y/y": {
-    "note": "Business Investment is a scheduled data release."
+    "note": "Measures the year-over-year % change in business investment in non-financial assets."
   },
   "GBP::car registration::m/m": {
     "note": "New car registrations report the number of newly registered passenger cars and this series is the monthly change."
@@ -2703,10 +2703,10 @@
     "note": "New car registrations report the number of newly registered passenger cars and this series is the annual change."
   },
   "GBP::cbi distributive trades survey::none": {
-    "note": "Cbi Distributive Trades Survey is a scheduled data release."
+    "note": "A business survey on UK retail and wholesale conditions, including sales and orders."
   },
   "GBP::cbi industrial trends orders::none": {
-    "note": "Cbi Industrial Trends Orders is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "A business survey measure of order book conditions in UK manufacturing."
   },
   "GBP::cftc gbp speculative net positions::none": {
     "note": "CFTC Commitments of Traders (COT) reports net speculative positioning for GBP futures."
@@ -2715,7 +2715,7 @@
     "note": "Scheduled speech/remarks by a UK government official."
   },
   "GBP::claimant count change::none": {
-    "note": "Claimant Count Change is a scheduled data release."
+    "note": "Reports the change in the number of people receiving unemployment-related benefits."
   },
   "GBP::construction output::m/m": {
     "note": "ONS construction output (MoM) reports the monthly change in the volume of construction work done in the UK."
@@ -2739,10 +2739,10 @@
     "note": "Core Retail Sales measures retail spending. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "GBP::core rpi::m/m": {
-    "note": "Core Rpi is a scheduled data release."
+    "note": "Measures the month-over-month % change in core retail prices index inflation."
   },
   "GBP::core rpi::y/y": {
-    "note": "Core Rpi is a scheduled data release."
+    "note": "Measures the year-over-year % change in core retail prices index inflation."
   },
   "GBP::cpi, n.s.a::none": {
     "note": "CPI, N.s.a (Consumer Price Index) measures the change in consumer prices. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
@@ -2760,7 +2760,7 @@
     "note": "Current Account reports the current account balance."
   },
   "GBP::employment change 3m/3m::m/m": {
-    "note": "Employment Change 3m/3m is a scheduled data release. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
+    "note": "Reports the change in employment over the latest three months compared with the previous three months."
   },
   "GBP::exports::q/q": {
     "note": "UK exports (QoQ) report the quarterly change in the value of exports of goods and services."
@@ -2781,7 +2781,7 @@
     "note": "Gfk Consumer Confidence is a survey-based sentiment reading."
   },
   "GBP::gross mortgage approvals::none": {
-    "note": "Gross Mortgage Approvals is a scheduled data release."
+    "note": "Reports the number of mortgage approvals, including for house purchase and remortgaging."
   },
   "GBP::halifax house price index::m/m": {
     "note": "Halifax House Price Index (MoM) reports the monthly percentage change in UK house prices based on Halifax mortgage approvals."
@@ -2793,7 +2793,7 @@
     "note": "UK House Price Index (YoY) reports the annual change in residential property prices, compiled from property transaction data."
   },
   "GBP::housing equity withdrawal::q/q": {
-    "note": "Housing Equity Withdrawal is a scheduled data release."
+    "note": "Measures changes in households' housing equity withdrawal."
   },
   "GBP::imports::q/q": {
     "note": "UK imports (QoQ) report the quarterly change in the value of imports of goods and services."
@@ -2808,13 +2808,13 @@
     "note": "Industrial Production measures industrial output. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "GBP::inflation expectations::none": {
-    "note": "Inflation Expectations is a scheduled data release. Higher-than-expected inflation (vs forecast) can lift yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "Reports survey-based inflation expectations."
   },
   "GBP::inflation report hearings::none": {
-    "note": "Inflation Report Hearings is a scheduled data release. Higher-than-expected inflation (vs forecast) can lift yield expectations and pressure XAUUSD; a softer reading can support it."
+    "note": "A parliamentary hearing on the Bank of England's Monetary Policy Report."
   },
   "GBP::labour productivity::none": {
-    "note": "Labour Productivity is a scheduled data release."
+    "note": "Measures labour productivity (output per worker or per hour)."
   },
   "GBP::m3 money supply::none": {
     "note": "UK M3 money supply is a broad monetary aggregate reported in Bank of England money and credit statistics."
@@ -2832,10 +2832,10 @@
     "note": "ONS monthly GDP 3m/3m change compares output over the latest three months with the previous three months."
   },
   "GBP::mortgage approvals::none": {
-    "note": "Mortgage Approvals is a scheduled data release."
+    "note": "Reports the number of mortgage approvals, including for house purchase and remortgaging."
   },
   "GBP::mortgage lending::none": {
-    "note": "Mortgage Lending is a scheduled data release."
+    "note": "Reports net mortgage lending to individuals."
   },
   "GBP::mortgage rate (gbp)::none": {
     "note": "Bank of England Effective interest rates release contains average rates across loan accounts with UK banks and building societies, including mortgage rates."
@@ -2859,13 +2859,13 @@
     "note": "Nationwide Consumer Confidence is a survey-based sentiment reading."
   },
   "GBP::nationwide hpi::m/m": {
-    "note": "Nationwide Hpi is a scheduled data release."
+    "note": "Measures the month-over-month % change in Nationwide's house price index."
   },
   "GBP::nationwide hpi::y/y": {
-    "note": "Nationwide Hpi is a scheduled data release."
+    "note": "Measures the year-over-year % change in Nationwide's house price index."
   },
   "GBP::net lending to individuals::none": {
-    "note": "Net Lending to Individuals is a scheduled data release."
+    "note": "Reports net lending to individuals, including mortgages and consumer credit."
   },
   "GBP::niesr gdp estimate::none": {
     "note": "NIESR monthly GDP estimate is an independent model-based estimate of UK output growth."
@@ -2886,16 +2886,16 @@
     "note": "PPI Output (Producer Price Index, YoY) measures the year-over-year % change in prices received by producers. Higher-than-expected inflation (vs forecast) can lift global yield expectations and pressure XAUUSD; a softer reading can support it."
   },
   "GBP::pre - budget report::none": {
-    "note": "Pre Budget Report is a scheduled data release."
+    "note": "A government fiscal statement outlining budget plans."
   },
   "GBP::public sector net borrowing ex. interest::none": {
-    "note": "Public Sector Net Borrowing Ex. Interest is a scheduled data release."
+    "note": "Reports public sector net borrowing excluding interest payments."
   },
   "GBP::public sector net borrowing::none": {
-    "note": "Public Sector Net Borrowing is a scheduled data release."
+    "note": "Reports public sector net borrowing (the gap between expenditure and receipts)."
   },
   "GBP::public sector net cash requirement::none": {
-    "note": "Public Sector Net Cash Requirement is a scheduled data release."
+    "note": "Reports the cash needed by the public sector to finance its activities."
   },
   "GBP::retail sales::m/m": {
     "note": "Retail Sales measures the month-over-month % change in retail spending. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
@@ -2904,7 +2904,7 @@
     "note": "Retail Sales measures retail spending. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "GBP::rics house price balance::none": {
-    "note": "Rics House Price Balance is a scheduled data release."
+    "note": "A survey-based net balance of house price expectations (rises minus falls)."
   },
   "GBP::rightmove house price index::m/m": {
     "note": "Rightmove House Price Index (MoM) reports the monthly change in asking prices of property coming to market in the UK."
@@ -2913,10 +2913,10 @@
     "note": "Rightmove House Price Index (YoY) reports the annual change in asking prices of property coming to market in the UK."
   },
   "GBP::rpi::m/m": {
-    "note": "Rpi is a scheduled data release."
+    "note": "Measures the month-over-month % change in the retail prices index."
   },
   "GBP::rpi::y/y": {
-    "note": "Rpi is a scheduled data release."
+    "note": "Measures the year-over-year % change in the retail prices index."
   },
   "GBP::s&p global composite pmi::none": {
     "note": "S&P Global UK Composite PMI is a monthly survey-based diffusion index of private-sector activity (above 50 = expansion). Weaker-than-expected readings can hurt risk sentiment and support XAUUSD; stronger readings can do the opposite."
@@ -2952,7 +2952,7 @@
     "note": "ONS construction output (YoY) reports the annual change in the volume of construction work done in the UK."
   },
   "GBP::u.k. general election::none": {
-    "note": "U.k. General Election is a scheduled data release."
+    "note": "A general election to choose members of the UK Parliament."
   },
   "GBP::u.k. prime minister johnson speaks::none": {
     "note": "Scheduled speech/remarks by a UK government official."
@@ -2964,28 +2964,28 @@
     "note": "Uk Government No Confidence Vote is a survey-based sentiment reading."
   },
   "GBP::uk parliament indicative votes on brexit::none": {
-    "note": "Uk Parliament Indicative Votes on Brexit is a scheduled data release."
+    "note": "A parliamentary vote related to the UK's Brexit process."
   },
   "GBP::uk parliament vote on brexit deal::none": {
-    "note": "Uk Parliament Vote on Brexit Deal is a scheduled data release."
+    "note": "A parliamentary vote related to the UK's Brexit process."
   },
   "GBP::uk parliament vote on extension of brexit date::none": {
-    "note": "Uk Parliament Vote on Extension of Brexit Date is a scheduled data release."
+    "note": "A parliamentary vote related to the UK's Brexit process."
   },
   "GBP::uk parliament vote on no brexit deal::none": {
-    "note": "Uk Parliament Vote on No Brexit Deal is a scheduled data release."
+    "note": "A parliamentary vote related to the UK's Brexit process."
   },
   "GBP::uk supreme court decision::none": {
-    "note": "Uk Supreme Court Decision is a scheduled data release."
+    "note": "A UK Supreme Court decision in a major constitutional case."
   },
   "GBP::unemployment rate::none": {
     "note": "Unemployment Rate shows the share of the labor force that is unemployed. A stronger-than-expected reading (vs forecast) can lift yield expectations and pressure XAUUSD; a weaker reading can support it."
   },
   "GBP::united kingdom new passenger cars registration::none": {
-    "note": "United Kingdom New Passenger Cars Registration is a scheduled data release."
+    "note": "Reports new passenger car registrations."
   },
   "GBP::winner of conservative leadership announced::none": {
-    "note": "Winner of Conservative Leadership Announced is a scheduled data release."
+    "note": "Announcement of the winner of the Conservative Party leadership contest."
   },
   "GHS::cpi::y/y": {
     "note": "CPI (Consumer Price Index, YoY) measures the year-over-year % change in consumer prices."
