@@ -1,6 +1,6 @@
 ﻿import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { useCallback, useLayoutEffect } from "react";
-import { backend, isWebview } from "./api";
+import { backend, isWebview, tauriListen } from "./api";
 import type { EventHistoryResponse, FilterOption, Settings, Snapshot, ToastType } from "./types";
 import { ActivityDrawer } from "./components/ActivityDrawer";
 import { ActivityLog } from "./components/ActivityLog";
@@ -847,6 +847,57 @@ export default function App() {
     window.addEventListener("xauusd:modal", handler as EventListener);
     return () => {
       window.removeEventListener("xauusd:modal", handler as EventListener);
+    };
+  }, [isUiCheckRuntime, openAlertModal]);
+
+  useEffect(() => {
+    if (isUiCheckRuntime) return;
+    if (!isWebview()) return;
+    let unlisten: null | (() => void) = null;
+    let cancelled = false;
+
+    const start = async () => {
+      const un = await tauriListen<{
+        id?: string;
+        title?: string;
+        message?: string;
+        tone?: "info" | "error";
+      }>("xauusd:modal", (detail) => {
+        const id = (detail?.id || "").trim();
+        if (!id) return;
+        if (id === dismissedAlertIdRef.current) return;
+        if (id !== activeAlertIdRef.current) {
+          openAlertModal({
+            id,
+            title: detail?.title || "Notice",
+            message: detail?.message || "",
+            tone: detail?.tone === "error" ? "error" : "info"
+          });
+          return;
+        }
+        setAlertContext((prev) => {
+          if (!prev || prev.id !== id) return prev;
+          const nextTitle = detail?.title || prev.title;
+          const nextMessage = detail?.message || prev.message;
+          const nextTone = detail?.tone === "error" ? "error" : "info";
+          if (nextTitle === prev.title && nextMessage === prev.message && nextTone === prev.tone) {
+            return prev;
+          }
+          return { ...prev, title: nextTitle, message: nextMessage, tone: nextTone };
+        });
+      });
+
+      if (cancelled) {
+        if (un) un();
+        return;
+      }
+      unlisten = un;
+    };
+
+    void start();
+    return () => {
+      cancelled = true;
+      if (unlisten) unlisten();
     };
   }, [isUiCheckRuntime, openAlertModal]);
 

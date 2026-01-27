@@ -74,6 +74,9 @@ type BackendApi = {
   dismiss_modal?: (payload: { id: string }) => ApiResult<{ ok: boolean }>;
 };
 
+type TauriEventListen = (event: string, handler: (event: unknown) => void) => unknown;
+type TauriEventUnlisten = (id: unknown) => unknown;
+
 const isUiCheckRuntime = () => {
   if (typeof window === "undefined") return false;
   return (window as { __UI_CHECK_RUNTIME__?: boolean }).__UI_CHECK_RUNTIME__ === true;
@@ -101,6 +104,72 @@ const isTauri = () => {
 export const isWebview = () => {
   if (isUiCheckRuntime()) return false;
   return isTauri();
+};
+
+const getTauriListen = () => {
+  if (typeof window === "undefined") return null;
+  const win = window as unknown as {
+    __TAURI__?: { event?: { listen?: unknown; unlisten?: unknown } };
+    __TAURI_INTERNALS__?: { event?: { listen?: unknown; unlisten?: unknown } };
+  };
+  const listen =
+    (win.__TAURI__?.event?.listen as unknown) ??
+    (win.__TAURI_INTERNALS__?.event?.listen as unknown);
+  return typeof listen === "function" ? (listen as TauriEventListen) : null;
+};
+
+const getTauriUnlisten = () => {
+  if (typeof window === "undefined") return null;
+  const win = window as unknown as {
+    __TAURI__?: { event?: { unlisten?: unknown } };
+    __TAURI_INTERNALS__?: { event?: { unlisten?: unknown } };
+  };
+  const unlisten =
+    (win.__TAURI__?.event?.unlisten as unknown) ??
+    (win.__TAURI_INTERNALS__?.event?.unlisten as unknown);
+  return typeof unlisten === "function" ? (unlisten as TauriEventUnlisten) : null;
+};
+
+export const tauriListen = async <T,>(event: string, onPayload: (payload: T) => void) => {
+  if (isUiCheckRuntime()) return null;
+  const listen = getTauriListen();
+  if (!listen) return null;
+
+  const handler = (evt: unknown) => {
+    const payload = (evt as { payload?: unknown } | null)?.payload ?? evt;
+    onPayload(payload as T);
+  };
+
+  const res = listen(event, handler);
+
+  if (typeof res === "function") {
+    return res as () => void;
+  }
+  if (res && typeof (res as Promise<unknown>).then === "function") {
+    const awaited = await (res as Promise<unknown>);
+    if (typeof awaited === "function") return awaited as () => void;
+    const unlisten = getTauriUnlisten();
+    if (unlisten) {
+      return () => {
+        try {
+          void unlisten(awaited);
+        } catch {
+          // Ignore.
+        }
+      };
+    }
+    return null;
+  }
+
+  const unlisten = getTauriUnlisten();
+  if (!unlisten) return null;
+  return () => {
+    try {
+      void unlisten(res);
+    } catch {
+      // Ignore.
+    }
+  };
 };
 
 const tauriInvoke = async <T,>(command: string, payload?: Record<string, unknown>) => {

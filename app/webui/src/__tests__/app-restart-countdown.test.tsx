@@ -91,6 +91,7 @@ vi.mock("../api", () => ({
     dismissModal: vi.fn().mockResolvedValue({ ok: true }),
     uninstall: vi.fn().mockResolvedValue({ ok: true })
   },
+  tauriListen: vi.fn().mockResolvedValue(null),
   isWebview: () => true
 }));
 

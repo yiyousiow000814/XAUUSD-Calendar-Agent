@@ -12,6 +12,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use tauri::Emitter;
 use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
 
@@ -292,7 +293,9 @@ fn try_begin_github_token_check(app: tauri::AppHandle, token: String) {
         "message": "Checking token...",
         "tone": "info"
     });
+    let modal_payload = runtime.modal.clone();
     drop(runtime);
+    let _ = app.emit("xauusd:modal", modal_payload);
 
     let app_handle = app.clone();
     tauri::async_runtime::spawn_blocking(move || {
@@ -321,7 +324,15 @@ fn try_begin_github_token_check(app: tauri::AppHandle, token: String) {
                 }
                 push_log(&mut runtime, "GitHub token verified.", "INFO");
                 runtime.token_check_started = false;
+                let modal_payload = if modal_still_active {
+                    Some(runtime.modal.clone())
+                } else {
+                    None
+                };
                 drop(runtime);
+                if let Some(payload) = modal_payload {
+                    let _ = app_handle.emit("xauusd:modal", payload);
+                }
                 let _ = check_updates(app_handle.clone(), state_for_updates);
                 return;
             }
@@ -353,6 +364,11 @@ fn try_begin_github_token_check(app: tauri::AppHandle, token: String) {
             }
         }
         runtime.token_check_started = false;
+        if modal_still_active {
+            let modal_payload = runtime.modal.clone();
+            drop(runtime);
+            let _ = app_handle.emit("xauusd:modal", modal_payload);
+        }
     });
 }
 
