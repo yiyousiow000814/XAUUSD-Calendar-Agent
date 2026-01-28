@@ -12,6 +12,36 @@ fn portable_data_dir() -> Option<PathBuf> {
     exe_dir().map(|dir| dir.join("user-data"))
 }
 
+pub fn install_dir() -> PathBuf {
+    exe_dir().unwrap_or_else(|| {
+        std::env::current_dir()
+            .unwrap_or_else(|_| PathBuf::from("."))
+            .to_path_buf()
+    })
+}
+
+pub fn install_data_dir() -> PathBuf {
+    install_dir().join("data")
+}
+
+pub fn app_root_dir() -> PathBuf {
+    if let Ok(override_dir) = std::env::var("XAUUSD_CALENDAR_AGENT_DATA_DIR") {
+        let trimmed = override_dir.trim().to_string();
+        if !trimmed.is_empty() {
+            return PathBuf::from(trimmed);
+        }
+    }
+
+    // Portable mode: use a sibling `user-data/` folder next to the running executable.
+    if let Some(dir) = portable_data_dir() {
+        return dir;
+    }
+
+    std::env::current_dir()
+        .unwrap_or_else(|_| PathBuf::from("."))
+        .join("user-data")
+}
+
 fn legacy_roaming_dir() -> Option<PathBuf> {
     std::env::var("APPDATA").ok().and_then(|appdata| {
         let trimmed = appdata.trim().to_string();
@@ -24,30 +54,11 @@ fn legacy_roaming_dir() -> Option<PathBuf> {
 }
 
 pub fn appdata_dir() -> PathBuf {
-    if let Ok(override_dir) = std::env::var("XAUUSD_CALENDAR_AGENT_DATA_DIR") {
-        let trimmed = override_dir.trim().to_string();
-        if !trimmed.is_empty() {
-            return PathBuf::from(trimmed);
-        }
-    }
-
-    // Strict portable mode: always use a sibling `user-data/` folder next to the running executable.
-    // (No %APPDATA% fallback; matches the pre-Tauri behavior.)
-    if let Some(dir) = portable_data_dir() {
-        return dir;
-    }
-
-    std::env::current_dir()
-        .unwrap_or_else(|_| PathBuf::from("."))
-        .join("user-data")
+    app_root_dir()
 }
 
 pub fn config_path() -> PathBuf {
     appdata_dir().join("config.json")
-}
-
-pub fn repo_dir() -> PathBuf {
-    appdata_dir().join("repo")
 }
 
 pub fn log_dir() -> PathBuf {
@@ -65,38 +76,12 @@ pub fn load_config() -> Value {
             if path.starts_with(&portable_dir) {
                 if let Some(roaming) = legacy_roaming_dir() {
                     if roaming.exists() && roaming != portable_dir {
-                        let mut migrated_any = false;
-
                         let from = roaming.join("config.json");
                         if from.exists() {
                             if let Some(parent) = path.parent() {
                                 let _ = fs::create_dir_all(parent);
                             }
-                            if fs::copy(&from, &path).is_ok() {
-                                migrated_any = true;
-                            }
-                        }
-
-                        let from_repo = roaming.join("repo");
-                        let to_repo = portable_dir.join("repo");
-                        if move_or_copy_dir(&from_repo, &to_repo).unwrap_or(false) {
-                            migrated_any = true;
-                        }
-
-                        let from_logs = roaming.join("logs");
-                        let to_logs = portable_dir.join("logs");
-                        let _ = move_or_copy_dir(&from_logs, &to_logs);
-
-                        // Avoid blocking UI on large directory deletes. Best-effort: rename quickly,
-                        // then delete in the background.
-                        if migrated_any {
-                            let deprecated = roaming.with_file_name(format!(
-                                "XAUUSDCalendar.deprecated-{}",
-                                std::process::id()
-                            ));
-                            if fs::rename(&roaming, &deprecated).is_ok() {
-                                schedule_delete_dir(deprecated);
-                            }
+                            let _ = fs::copy(&from, &path);
                         }
                     }
                 }
@@ -108,21 +93,7 @@ pub fn load_config() -> Value {
     let parsed: Value = serde_json::from_str(&text).unwrap_or_else(|_| json!({}));
     let merged = merge_objects(defaults, parsed);
 
-    // Normalize repo_path: in strict portable mode it must live under user-data.
-    let mut merged = merged;
-    let repo_path = get_str(&merged, "repo_path");
-    let legacy_repo = legacy_roaming_dir().map(|p| p.join("repo").to_string_lossy().to_string());
-    let portable_repo = repo_dir().to_string_lossy().to_string();
-    let needs_repo_fix = repo_path.is_empty()
-        || legacy_repo
-            .as_ref()
-            .map(|legacy| repo_path == *legacy)
-            .unwrap_or(false);
-    if needs_repo_fix {
-        let _ = set_string(&mut merged, "repo_path", portable_repo);
-    }
-
-    if !path.exists() || needs_repo_fix {
+    if !path.exists() {
         let _ = save_config(&merged);
     }
     merged
@@ -150,44 +121,6 @@ fn merge_objects(base: Value, overlay: Value) -> Value {
         }
         (b, _) => b,
     }
-}
-
-fn copy_dir_recursive(from: &Path, to: &Path) -> Result<(), String> {
-    fs::create_dir_all(to).map_err(|e| e.to_string())?;
-    for entry in fs::read_dir(from).map_err(|e| e.to_string())? {
-        let entry = entry.map_err(|e| e.to_string())?;
-        let path = entry.path();
-        let dest = to.join(entry.file_name());
-        let file_type = entry.file_type().map_err(|e| e.to_string())?;
-        if file_type.is_dir() {
-            copy_dir_recursive(&path, &dest)?;
-        } else if file_type.is_file() {
-            fs::copy(&path, &dest).map_err(|e| e.to_string())?;
-        }
-    }
-    Ok(())
-}
-
-fn move_or_copy_dir(from: &Path, to: &Path) -> Result<bool, String> {
-    if !from.exists() || to.exists() {
-        return Ok(false);
-    }
-    if let Some(parent) = to.parent() {
-        fs::create_dir_all(parent).map_err(|e| e.to_string())?;
-    }
-    match fs::rename(from, to) {
-        Ok(()) => Ok(true),
-        Err(_) => {
-            copy_dir_recursive(from, to)?;
-            Ok(true)
-        }
-    }
-}
-
-fn schedule_delete_dir(path: PathBuf) {
-    std::thread::spawn(move || {
-        let _ = fs::remove_dir_all(&path);
-    });
 }
 
 pub fn get_str(cfg: &Value, key: &str) -> String {
@@ -234,10 +167,9 @@ pub fn set_number(cfg: &mut Value, key: &str, value: i64) -> Result<(), String> 
 fn default_config() -> Value {
     let mut base = Map::<String, Value>::new();
     base.insert("schema_version".to_string(), Value::Number(2.into()));
-    base.insert(
-        "repo_path".to_string(),
-        Value::String(repo_dir().to_string_lossy().to_string()),
-    );
+    // `repo_path` is only used as an internal git cache (if enabled).
+    // The app reads calendar data from the install-root `data/` folder.
+    base.insert("repo_path".to_string(), Value::String("".to_string()));
     base.insert("sync_repo_path".to_string(), Value::String("".to_string()));
     base.insert("temporary_path".to_string(), Value::String("".to_string()));
     base.insert("enable_sync_repo".to_string(), Value::Bool(false));

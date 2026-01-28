@@ -4,6 +4,7 @@ mod calendar;
 mod commands;
 mod config;
 mod git_ops;
+mod seed_repo;
 mod snapshot;
 mod startup;
 mod state;
@@ -103,6 +104,7 @@ fn main() {
             commands::get_event_history
         ])
         .setup(|app| {
+            seed_repo::ensure_seed_repo(app.handle());
             commands::start_background_tasks(app.handle().clone());
 
             let handle = app.handle();

@@ -409,11 +409,18 @@ export default function App() {
               }
               if (!settingsOpenRef.current) {
                 if (prefs) {
-                  setSettings(prefs);
-                  setSavedSettings(prefs);
+                  const normalizedPrefs =
+                    !prefs.enableSystemTheme && prefs.theme === "system"
+                      ? { ...prefs, theme: resolvedTheme }
+                      : prefs;
+                  setSettings(normalizedPrefs);
+                  setSavedSettings(normalizedPrefs);
                   if (!hasLoadedUiPrefsRef.current) {
                     hasLoadedUiPrefsRef.current = true;
-                    const ratio = typeof prefs.splitRatio === "number" ? prefs.splitRatio : 0.66;
+                    const ratio =
+                      typeof normalizedPrefs.splitRatio === "number"
+                        ? normalizedPrefs.splitRatio
+                        : 0.66;
                     setSplitRatio(Math.min(0.75, Math.max(0.55, ratio)));
                   }
                 }

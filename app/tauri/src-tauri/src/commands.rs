@@ -75,6 +75,12 @@ fn set_update_state(
 }
 
 fn resolve_calendar_repo_path(cfg: &Value) -> Option<PathBuf> {
+    let install = config::install_dir();
+    if config::path_is_usable_dir(&install.join("data").join("Economic_Calendar"))
+        && install.join("data").join("event_history_index").exists()
+    {
+        return Some(install);
+    }
     let explicit = config::get_str(cfg, "repo_path");
     if !explicit.is_empty() {
         let p = PathBuf::from(explicit);
@@ -82,19 +88,7 @@ fn resolve_calendar_repo_path(cfg: &Value) -> Option<PathBuf> {
             return Some(p);
         }
     }
-    let repo = config::repo_dir();
-    if config::path_is_usable_dir(&repo.join("data").join("Economic_Calendar")) {
-        return Some(repo);
-    }
     None
-}
-
-fn repo_dir_for_git(cfg: &Value) -> PathBuf {
-    let explicit = config::get_str(cfg, "repo_path");
-    if !explicit.is_empty() {
-        return PathBuf::from(explicit);
-    }
-    config::repo_dir()
 }
 
 fn set_object_string(root: &mut Value, key: &str, subkey: &str, value: &str) {
@@ -199,7 +193,6 @@ fn spawn_pull(app: tauri::AppHandle, state: tauri::State<'_, Mutex<RuntimeState>
     let cfg = config::load_config();
     let repo_slug = config::get_str(&cfg, "github_repo");
     let branch = config::get_str(&cfg, "github_branch");
-    let repo_dir = repo_dir_for_git(&cfg);
     {
         let mut runtime = state.lock().expect("runtime lock");
         if runtime.pull_active {
@@ -210,8 +203,39 @@ fn spawn_pull(app: tauri::AppHandle, state: tauri::State<'_, Mutex<RuntimeState>
     }
     tauri::async_runtime::spawn_blocking(move || {
         let result = (|| -> Result<String, String> {
-            git_ops::ensure_repo(&repo_dir, &repo_slug, &branch)?;
-            git_ops::pull_ff_only(&repo_dir)
+            // Pull only fetches `data/` (no full-repo checkout), and never persists a visible `repo/`
+            // directory under `user-data/`.
+            let remote_sha = git_ops::ls_remote_head_sha(&repo_slug, &branch).unwrap_or_default();
+            let last_sha = {
+                let cfg = config::load_config();
+                config::get_str(&cfg, "last_pull_sha")
+            };
+            if !remote_sha.is_empty()
+                && !last_sha.is_empty()
+                && remote_sha == last_sha
+                && config::install_data_dir()
+                    .join("Economic_Calendar")
+                    .exists()
+            {
+                return Ok(remote_sha);
+            }
+
+            let tmp = std::env::temp_dir().join(format!(
+                "xauusd-calendar-agent-pull-{}-{}",
+                std::process::id(),
+                now_ms()
+            ));
+            if tmp.exists() {
+                let _ = std::fs::remove_dir_all(&tmp);
+            }
+            let sha = git_ops::clone_sparse_data(&tmp, &repo_slug, &branch)?;
+            let src = tmp.join("data");
+            let dst = config::install_data_dir();
+            if src.exists() {
+                let _ = sync_util::mirror_sync(&src, &dst);
+            }
+            let _ = std::fs::remove_dir_all(&tmp);
+            Ok(sha)
         })();
         let runtime_state = app.state::<Mutex<RuntimeState>>();
         let mut runtime = runtime_state.lock().expect("runtime lock");
@@ -224,7 +248,7 @@ fn spawn_pull(app: tauri::AppHandle, state: tauri::State<'_, Mutex<RuntimeState>
                 let short = sha.chars().take(7).collect::<String>();
                 push_log(&mut runtime, &format!("Pull finished ({short})"), "INFO");
 
-                let events = load_calendar_events(&repo_dir);
+                let events = load_calendar_events(&config::install_dir());
                 runtime.calendar.last_loaded_at_ms = now_ms();
                 if events.is_empty() {
                     runtime.calendar.status = "empty".to_string();
@@ -234,14 +258,11 @@ fn spawn_pull(app: tauri::AppHandle, state: tauri::State<'_, Mutex<RuntimeState>
                     runtime.calendar.events = Arc::new(events);
                 }
 
-                // Persist last pull per repo path.
+                // Persist last pull.
                 drop(runtime);
                 let mut cfg = config::load_config();
-                let repo_key = repo_dir.to_string_lossy().to_string();
                 let _ = config::set_string(&mut cfg, "last_pull_at", last_pull_at.clone());
                 let _ = config::set_string(&mut cfg, "last_pull_sha", sha.clone());
-                set_object_string(&mut cfg, "repo_path_last_pull_at", &repo_key, &last_pull_at);
-                set_object_string(&mut cfg, "repo_path_last_pull_sha", &repo_key, &sha);
                 let _ = config::save_config(&cfg);
             }
             Err(err) => {
@@ -406,24 +427,14 @@ pub fn get_snapshot(app: tauri::AppHandle, state: tauri::State<'_, Mutex<Runtime
         if runtime.output_dir.is_empty() {
             runtime.output_dir = config::get_str(&cfg, "output_dir");
         }
-        let configured_repo_path = config::get_str(&cfg, "repo_path");
-        if !configured_repo_path.is_empty() {
-            runtime.repo_path = configured_repo_path;
-        } else if runtime.repo_path.is_empty() {
-            runtime.repo_path = config::repo_dir().to_string_lossy().to_string();
-        }
+        runtime.repo_path = config::install_dir().to_string_lossy().to_string();
 
-        // Hydrate lastPull/lastSync from config so they persist across restarts and vary by path.
-        let repo_key = runtime.repo_path.clone();
-        let repo_last_pull_at = cfg
-            .get("repo_path_last_pull_at")
-            .and_then(|v| v.get(&repo_key))
-            .and_then(|v| v.as_str())
-            .unwrap_or("");
-        if !repo_last_pull_at.is_empty() {
-            runtime.last_pull_at = repo_last_pull_at.to_string();
+        // Hydrate lastPull/lastSync from config so they persist across restarts.
+        let last_pull_at_cfg = config::get_str(&cfg, "last_pull_at");
+        if !last_pull_at_cfg.is_empty() {
+            runtime.last_pull_at = last_pull_at_cfg.to_string();
             if runtime.last_pull.is_empty() {
-                if let Some(display) = display_time_from_iso(repo_last_pull_at) {
+                if let Some(display) = display_time_from_iso(&last_pull_at_cfg) {
                     runtime.last_pull = display;
                 }
             }
@@ -514,9 +525,8 @@ pub fn get_snapshot(app: tauri::AppHandle, state: tauri::State<'_, Mutex<Runtime
 }
 
 #[tauri::command]
-pub fn get_settings(state: tauri::State<'_, Mutex<RuntimeState>>) -> Value {
+pub fn get_settings(_state: tauri::State<'_, Mutex<RuntimeState>>) -> Value {
     let cfg = config::load_config();
-    let runtime = state.lock().expect("runtime lock");
     let autostart_launch_mode = {
         let v = config::get_str(&cfg, "autostart_launch_mode");
         if v == "show" { "show" } else { "tray" }.to_string()
@@ -553,7 +563,7 @@ pub fn get_settings(state: tauri::State<'_, Mutex<RuntimeState>>) -> Value {
         "calendarUtcOffsetMinutes": config::get_i64(&cfg, "calendar_utc_offset_minutes", 0),
         "enableTemporaryPath": config::get_bool(&cfg, "enable_temporary_path", false),
         "temporaryPath": config::get_str(&cfg, "temporary_path"),
-        "repoPath": if runtime.repo_path.is_empty() { config::repo_dir().to_string_lossy().to_string() } else { runtime.repo_path.clone() },
+        "repoPath": config::install_dir().to_string_lossy().to_string(),
         "logPath": config::log_dir().join("app.log").to_string_lossy().to_string(),
         "removeLogs": true,
         "removeOutput": false,
@@ -892,7 +902,6 @@ pub fn sync_now(
     let cfg = config::load_config();
     let output_dir = config::get_str(&cfg, "output_dir");
     let output_dir_key = output_dir.clone();
-    let repo_dir = repo_dir_for_git(&cfg);
     {
         let mut runtime = state.lock().expect("runtime lock");
         runtime.sync_active = true;
@@ -903,11 +912,26 @@ pub fn sync_now(
             if output_dir.trim().is_empty() {
                 return Err("Output dir not configured".to_string());
             }
-            let src = repo_dir.join("data").join("Economic_Calendar");
-            let dst = PathBuf::from(output_dir)
-                .join("data")
-                .join("Economic_Calendar");
-            sync_util::mirror_sync(&src, &dst)
+            let base_src = config::install_data_dir();
+            let base_dst = PathBuf::from(output_dir).join("data");
+
+            let mut total = sync_util::SyncResult::default();
+
+            let cal_src = base_src.join("Economic_Calendar");
+            let cal_dst = base_dst.join("Economic_Calendar");
+            let cal = sync_util::mirror_sync(&cal_src, &cal_dst)?;
+            total.copied += cal.copied;
+            total.deleted += cal.deleted;
+            total.skipped += cal.skipped;
+
+            let hist_src = base_src.join("event_history_index");
+            let hist_dst = base_dst.join("event_history_index");
+            let hist = sync_util::mirror_sync(&hist_src, &hist_dst)?;
+            total.copied += hist.copied;
+            total.deleted += hist.deleted;
+            total.skipped += hist.skipped;
+
+            Ok(total)
         })();
         let runtime_state = app.state::<Mutex<RuntimeState>>();
         let mut runtime = runtime_state.lock().expect("runtime lock");
@@ -1210,19 +1234,21 @@ pub fn uninstall(_payload: Value) -> Value {
     }
 
     if remove_logs {
-        let repo_dir = config::repo_dir();
-        if repo_dir.exists() {
-            match std::fs::remove_dir_all(&repo_dir) {
-                Ok(_) => removed.push(repo_dir.to_string_lossy().to_string()),
-                Err(e) => failed.push(format!("repo: {e}")),
+        // Remove the portable `user-data/` directory (config/logs/repo cache).
+        let user_data = config::appdata_dir();
+        if user_data.exists() {
+            match std::fs::remove_dir_all(&user_data) {
+                Ok(_) => removed.push(user_data.to_string_lossy().to_string()),
+                Err(e) => failed.push(format!("user-data: {e}")),
             }
         }
 
-        let log_dir = config::log_dir();
-        if log_dir.exists() {
-            match std::fs::remove_dir_all(&log_dir) {
-                Ok(_) => removed.push(log_dir.to_string_lossy().to_string()),
-                Err(e) => failed.push(format!("logs: {e}")),
+        // Remove install-root `data/` (next to the app executable).
+        let data_dir = config::install_data_dir();
+        if data_dir.exists() {
+            match std::fs::remove_dir_all(&data_dir) {
+                Ok(_) => removed.push(data_dir.to_string_lossy().to_string()),
+                Err(e) => failed.push(format!("data: {e}")),
             }
         }
     }
