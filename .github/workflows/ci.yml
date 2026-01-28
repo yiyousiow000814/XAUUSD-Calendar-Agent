@@ -193,6 +193,16 @@ jobs:
       - name: Install tests-ui dependencies
         run: npm --prefix app/tests-ui ci
 
+      - name: Install Playwright browsers (Linux)
+        if: runner.os == 'Linux'
+        working-directory: app/tests-ui
+        run: npx playwright install --with-deps
+
+      - name: Install Playwright browsers (Windows)
+        if: runner.os == 'Windows'
+        working-directory: app/tests-ui
+        run: npx playwright install
+
       - name: UI check (Playwright)
         env:
           UI_CHECK_VIDEO: 0
