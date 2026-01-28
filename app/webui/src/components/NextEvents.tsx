@@ -329,7 +329,20 @@ export function NextEvents({
                     {loading
                       ? "Loading events..."
                       : downloading
-                        ? "Fetching calendar data..."
+                        ? (
+                            <span className="fetching-inline" data-qa="qa:status:fetching-calendar">
+                              <span className="loading-spinner" aria-hidden="true" />
+                              Fetching calendar data
+                              <span className="loading-dots" aria-hidden="true">
+                                <span>.</span>
+                                <span>.</span>
+                                <span>.</span>
+                              </span>
+                              <span className="fetching-hint">
+                                Usually takes 10-30 seconds. Please be patient.
+                              </span>
+                            </span>
+                          )
                         : "No upcoming events"}
                   </span>
                 </div>

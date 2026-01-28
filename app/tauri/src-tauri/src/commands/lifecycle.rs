@@ -14,4 +14,3 @@ pub fn dismiss_modal(payload: Value, state: tauri::State<'_, Mutex<RuntimeState>
     }
     json!({"ok": true})
 }
-

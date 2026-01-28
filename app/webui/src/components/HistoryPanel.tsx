@@ -419,9 +419,7 @@ export function HistoryPanel({
           <div className="history-empty">
             {loading
               ? "Loading history..."
-              : downloading
-                ? "Fetching calendar data..."
-                : "No past events yet."}
+              : "No past events yet."}
           </div>
         ) : (
           rows.map((row) => {
