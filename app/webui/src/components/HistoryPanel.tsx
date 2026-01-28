@@ -19,6 +19,7 @@ type HistoryRow =
 type HistoryPanelProps = {
   events: PastEventItem[];
   loading?: boolean;
+  downloading?: boolean;
   impactTone: (impact: string) => string;
   impactFilter: string[];
   onOpenHistory: (item: PastEventItem) => void;
@@ -193,6 +194,7 @@ const rangeToMs = (range: HistoryRange) => {
 export function HistoryPanel({
   events,
   loading = false,
+  downloading = false,
   impactTone,
   impactFilter,
   onOpenHistory
@@ -414,7 +416,11 @@ export function HistoryPanel({
             ))}
           </div>
         ) : groups.length === 0 ? (
-          <div className="history-empty">{loading ? "Loading history..." : "No past events yet."}</div>
+          <div className="history-empty">
+            {loading
+              ? "Loading history..."
+              : "No past events yet."}
+          </div>
         ) : (
           rows.map((row) => {
             if (row.type === "year") {

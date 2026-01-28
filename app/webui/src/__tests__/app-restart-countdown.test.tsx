@@ -39,11 +39,7 @@ vi.mock("../api", () => ({
       enableTemporaryPath: false,
       temporaryPath: "",
       repoPath: "",
-      logPath: "",
-      removeLogs: true,
-      removeOutput: false,
-      removeTemporaryPaths: true,
-      uninstallConfirm: ""
+      logPath: ""
     }),
     setCurrency: vi.fn().mockResolvedValue({ ok: true }),
     frontendBootComplete: vi.fn().mockResolvedValue({ ok: true }),
@@ -88,9 +84,9 @@ vi.mock("../api", () => ({
     temporaryPathUseAsIs: vi.fn().mockResolvedValue({ ok: true }),
     addLog: vi.fn().mockResolvedValue({ ok: true }),
     clearLogs: vi.fn().mockResolvedValue({ ok: true }),
-    dismissModal: vi.fn().mockResolvedValue({ ok: true }),
-    uninstall: vi.fn().mockResolvedValue({ ok: true })
+    dismissModal: vi.fn().mockResolvedValue({ ok: true })
   },
+  tauriListen: vi.fn().mockResolvedValue(null),
   isWebview: () => true
 }));
 

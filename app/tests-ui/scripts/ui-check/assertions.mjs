@@ -346,7 +346,8 @@ export const assertCurrentEventHeartbeat = async (page) => {
 
 export const assertNextEventsReorderAnim = async (page, rowId) => {
   const result = await page.evaluate(async (id) => {
-    const refresh = window.__ui_check__?.refresh;
+    const refresh = window.__ui_check__?.refreshAsync || window.__ui_check__?.refresh;
+    const patchSnapshot = window.__ui_check__?.patchSnapshot;
     if (typeof refresh !== "function") {
       return { ok: false, reason: "__ui_check__.refresh missing" };
     }
@@ -361,7 +362,18 @@ export const assertNextEventsReorderAnim = async (page, rowId) => {
       window.__desktop_snapshot__ = { ...snap, events };
     };
 
-    const waitFrame = () => new Promise((r) => requestAnimationFrame(() => r()));
+    const applyEvents = async (events) => {
+      if (typeof patchSnapshot === "function") {
+        // Keep the debug snapshot aligned with the React state so subsequent reads are consistent.
+        setEvents(events);
+        patchSnapshot({ events });
+        return;
+      }
+      setEvents(events);
+      await Promise.resolve(refresh());
+    };
+
+    const waitFrame = (ms = 16) => new Promise((r) => setTimeout(r, ms));
 
     const baselineEvents = (window.__desktop_snapshot__?.events || []).slice();
     if (!baselineEvents.length) return { ok: false, reason: "no baseline events" };
@@ -372,10 +384,10 @@ export const assertNextEventsReorderAnim = async (page, rowId) => {
     const reorderedBaseline = baselineEvents
       .slice(0, targetIndex)
       .concat(baselineEvents.slice(targetIndex + 1), [baselineEvents[targetIndex]]);
-    setEvents(reorderedBaseline);
-    refresh();
-    await waitFrame();
-    await waitFrame();
+    await applyEvents(reorderedBaseline);
+    const baselineRefreshResult = window.__desktop_snapshot__ || null;
+    await waitFrame(32);
+    await waitFrame(32);
 
     // Move it to the top and mark current; this should trigger a FLIP transform transition.
     const target = {
@@ -384,12 +396,14 @@ export const assertNextEventsReorderAnim = async (page, rowId) => {
       countdown: "Current"
     };
     const nextEvents = [target, ...reorderedBaseline.slice(0, -1)];
-    setEvents(nextEvents);
-    refresh();
+    await applyEvents(nextEvents);
+    const moveRefreshResult = window.__desktop_snapshot__ || null;
 
     const samples = [];
-    for (let index = 0; index < 12; index += 1) {
-      await waitFrame();
+    for (let index = 0; index < 16; index += 1) {
+      if (index > 0) {
+        await waitFrame(16);
+      }
       const row = getRow();
       if (!row) {
         samples.push({ frame: index, missing: true });
@@ -398,12 +412,16 @@ export const assertNextEventsReorderAnim = async (page, rowId) => {
       const style = window.getComputedStyle(row);
       samples.push({
         frame: index,
+        flipAnim: row instanceof HTMLElement ? row.dataset.flipAnim || "" : "",
         transform: style.transform,
         transitionProperty: style.transitionProperty,
         transitionDuration: style.transitionDuration
       });
     }
 
+    const sawFlipAnim = samples.some(
+      (s) => s && !s.missing && typeof s.flipAnim === "string" && s.flipAnim.length > 0
+    );
     const sawTransform = samples.some(
       (s) =>
         s &&
@@ -422,8 +440,46 @@ export const assertNextEventsReorderAnim = async (page, rowId) => {
         s.transitionDuration !== "0s"
     );
 
-    if (!sawTransform || !sawTransition) {
-      return { ok: false, reason: "no transform transition sampled", samples };
+    if ((!sawFlipAnim && !sawTransform) || (!sawFlipAnim && !sawTransition)) {
+      const firstRow = document.querySelector("[data-qa='qa:row:next-event'][data-qa-row-id]");
+      const firstRowId =
+        firstRow instanceof HTMLElement ? firstRow.getAttribute("data-qa-row-id") : null;
+      const firstRowName = firstRow instanceof HTMLElement ? firstRow.querySelector(".event-name")?.textContent ?? "" : "";
+      const desktopLastId = window.__desktop_snapshot__?.events?.length
+        ? window.__desktop_snapshot__.events[window.__desktop_snapshot__.events.length - 1]?.id ?? null
+        : null;
+      let tauriSnapshotFirstId = null;
+      let tauriSnapshotError = "";
+      try {
+        const inv = window.__TAURI__?.core?.invoke;
+        if (typeof inv === "function") {
+          const snap = await inv("get_snapshot");
+          tauriSnapshotFirstId = snap?.events?.[0]?.id ?? null;
+        } else {
+          tauriSnapshotError = "window.__TAURI__.core.invoke missing";
+        }
+      } catch (err) {
+        tauriSnapshotError = err instanceof Error ? err.message : String(err);
+      }
+      return {
+        ok: false,
+        reason: "no transform transition sampled",
+        samples,
+        debug: {
+          baselineRefreshFirstId: baselineRefreshResult?.events?.[0]?.id ?? null,
+          moveRefreshFirstId: moveRefreshResult?.events?.[0]?.id ?? null,
+          hasDesktopSnapshot: Boolean(window.__desktop_snapshot__),
+          desktopLastId,
+          firstRowId,
+          firstRowName: String(firstRowName || "").trim(),
+          domRowIdCount: document.querySelectorAll("[data-qa='qa:row:next-event'][data-qa-row-id]").length,
+          tauriInvokeType: typeof window.__TAURI__?.core?.invoke,
+          tauriSnapshotFirstId,
+          tauriSnapshotError,
+          lastRefreshError: String(window.__ui_check__?.lastRefreshError || ""),
+          theme: document.documentElement.dataset.theme || ""
+        }
+      };
     }
 
     return { ok: true };

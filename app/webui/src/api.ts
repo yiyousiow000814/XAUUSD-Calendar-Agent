@@ -59,12 +59,6 @@ type BackendApi = {
   add_log: (payload: { message: string; level?: string }) => ApiResult<{ ok: boolean }>;
   browse_temporary_path: () => ApiResult<{ ok: boolean; path?: string }>;
   set_temporary_path: (path: string) => ApiResult<{ ok: boolean }>;
-  uninstall: (payload: {
-    confirm: string;
-    removeLogs: boolean;
-    removeOutput: boolean;
-    removeTemporaryPaths: boolean;
-  }) => ApiResult<{ ok: boolean; message?: string }>;
   pull_now: () => ApiResult<{ ok: boolean }>;
   sync_now: () => ApiResult<{ ok: boolean }>;
   browse_output_dir: () => ApiResult<{ ok: boolean; path?: string }>;
@@ -74,74 +68,149 @@ type BackendApi = {
   dismiss_modal?: (payload: { id: string }) => ApiResult<{ ok: boolean }>;
 };
 
-const DESKTOP_USER_AGENT_TOKEN = "XAUUSDCalendar/";
+type TauriEventListen = (event: string, handler: (event: unknown) => void) => unknown;
+type TauriEventUnlisten = (id: unknown) => unknown;
 
 const isUiCheckRuntime = () => {
   if (typeof window === "undefined") return false;
   return (window as { __UI_CHECK_RUNTIME__?: boolean }).__UI_CHECK_RUNTIME__ === true;
 };
 
+const getTauriInvoke = () => {
+  if (typeof window === "undefined") return null;
+  const win = window as unknown as {
+    __TAURI__?: { core?: { invoke?: unknown }; invoke?: unknown };
+    __TAURI_INTERNALS__?: { invoke?: unknown };
+  };
+  const invoker =
+    (win.__TAURI__?.core?.invoke as unknown) ??
+    (win.__TAURI__?.invoke as unknown) ??
+    (win.__TAURI_INTERNALS__?.invoke as unknown);
+  return typeof invoker === "function"
+    ? (invoker as <U>(cmd: string, args?: Record<string, unknown>) => Promise<U>)
+    : null;
+};
+
+const isTauri = () => {
+  return getTauriInvoke() !== null;
+};
+
 export const isWebview = () => {
   if (isUiCheckRuntime()) return false;
-  if (typeof navigator === "undefined") return false;
-  return navigator.userAgent.includes(DESKTOP_USER_AGENT_TOKEN);
+  return isTauri();
 };
 
-const webviewApiRef = () =>
-  (window as unknown as { pywebview?: { api?: BackendApi } }).pywebview?.api ??
-  null;
-
-const hasBackendApi = () => {
-  const api = webviewApiRef();
-  if (!api) return false;
-  return typeof api.get_snapshot === "function" && typeof api.get_settings === "function";
+const getTauriListen = () => {
+  if (typeof window === "undefined") return null;
+  const win = window as unknown as {
+    __TAURI__?: { event?: { listen?: unknown; unlisten?: unknown } };
+    __TAURI_INTERNALS__?: { event?: { listen?: unknown; unlisten?: unknown } };
+  };
+  const listen =
+    (win.__TAURI__?.event?.listen as unknown) ??
+    (win.__TAURI_INTERNALS__?.event?.listen as unknown);
+  return typeof listen === "function" ? (listen as TauriEventListen) : null;
 };
 
-const waitForBackendApi = (timeoutMs = 30000) =>
-  new Promise<void>((resolve, reject) => {
-    if (!isWebview()) {
-      resolve();
-      return;
+const getTauriUnlisten = () => {
+  if (typeof window === "undefined") return null;
+  const win = window as unknown as {
+    __TAURI__?: { event?: { unlisten?: unknown } };
+    __TAURI_INTERNALS__?: { event?: { unlisten?: unknown } };
+  };
+  const unlisten =
+    (win.__TAURI__?.event?.unlisten as unknown) ??
+    (win.__TAURI_INTERNALS__?.event?.unlisten as unknown);
+  return typeof unlisten === "function" ? (unlisten as TauriEventUnlisten) : null;
+};
+
+export const tauriListen = async <T,>(event: string, onPayload: (payload: T) => void) => {
+  if (isUiCheckRuntime()) return null;
+  const listen = getTauriListen();
+  if (!listen) return null;
+
+  const handler = (evt: unknown) => {
+    const payload = (evt as { payload?: unknown } | null)?.payload ?? evt;
+    onPayload(payload as T);
+  };
+
+  const res = listen(event, handler);
+
+  if (typeof res === "function") {
+    return res as () => void;
+  }
+  if (res && typeof (res as Promise<unknown>).then === "function") {
+    const awaited = await (res as Promise<unknown>);
+    if (typeof awaited === "function") return awaited as () => void;
+    const unlisten = getTauriUnlisten();
+    if (unlisten) {
+      return () => {
+        try {
+          void unlisten(awaited);
+        } catch {
+          // Ignore.
+        }
+      };
     }
-    if (hasBackendApi()) {
-      resolve();
-      return;
+    return null;
+  }
+
+  const unlisten = getTauriUnlisten();
+  if (!unlisten) return null;
+  return () => {
+    try {
+      void unlisten(res);
+    } catch {
+      // Ignore.
     }
+  };
+};
 
-    let settled = false;
-    let readyEventSeen = false;
-    const settle = (fn: () => void) => {
-      if (settled) return;
-      settled = true;
-      window.removeEventListener("pywebviewready", onReady);
-      if (poll) window.clearInterval(poll);
-      if (timer) window.clearTimeout(timer);
-      fn();
-    };
+const tauriInvoke = async <T,>(command: string, payload?: Record<string, unknown>) => {
+  const invokeFn = getTauriInvoke();
+  if (!invokeFn) {
+    throw new Error("Tauri invoke unavailable");
+  }
+  const timeoutMs = 8000;
+  return Promise.race([
+    payload && Object.keys(payload).length > 0
+      ? invokeFn<T>(command, payload)
+      : invokeFn<T>(command),
+    new Promise<T>((_, reject) => {
+      window.setTimeout(() => {
+        reject(new Error(`Tauri invoke timeout (${timeoutMs}ms): ${command}`));
+      }, timeoutMs);
+    })
+  ]);
+};
 
-    const onReady = () => {
-      readyEventSeen = true;
-      if (hasBackendApi()) {
-        settle(resolve);
-      }
-    };
-    const poll = window.setInterval(() => {
-      if (hasBackendApi()) {
-        settle(resolve);
-        return;
-      }
-      // Some pywebview builds fire `pywebviewready` before the API is fully attached.
-      // Keep polling briefly after the event to avoid a startup flicker.
-      if (readyEventSeen) {
-        return;
-      }
-    }, 100);
-    const timer = window.setTimeout(() => {
-      settle(() => reject(new Error("Desktop backend not ready")));
-    }, timeoutMs);
-
-    window.addEventListener("pywebviewready", onReady, { once: true });
+const tauriApiRef = (): BackendApi | null => {
+  if (!isTauri()) return null;
+  return new Proxy({} as BackendApi, {
+    get: (_target, prop) => {
+      if (typeof prop !== "string") return undefined;
+      // Prevent the Proxy from being treated as a "thenable" (Promise-like) value.
+      // Some async flows (e.g. `await withApi()`) will probe `.then` and accidentally invoke it.
+      if (prop === "then") return undefined;
+      return (...args: unknown[]) => {
+        if (args.length === 0) return tauriInvoke(prop);
+        const first = args[0];
+        if (prop === "open_path" || prop === "set_output_dir" || prop === "set_temporary_path") {
+          return tauriInvoke(prop, { path: String(first ?? "") });
+        }
+        if (prop === "set_currency") {
+          return tauriInvoke(prop, { value: String(first ?? "") });
+        }
+        if (prop === "open_url") {
+          return tauriInvoke(prop, { url: String(first ?? "") });
+        }
+        return tauriInvoke(prop, { payload: first as Record<string, unknown> });
+      };
+    }
   });
+};
+
+const desktopApiRef = () => tauriApiRef();
 
 const baseMockSnapshot: Snapshot = {
   lastPull: "04-01-2026 06:51",
@@ -329,130 +398,131 @@ let mockSettings: Settings = {
   enableTemporaryPath: false,
   temporaryPath: "",
   repoPath: "",
-  logPath: "C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\XAUUSDCalendar\\\\logs\\\\app.log",
-  removeLogs: true,
-  removeOutput: false,
-  removeTemporaryPaths: true,
-  uninstallConfirm: ""
+  logPath: "C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\XAUUSDCalendar\\\\logs\\\\app.log"
 };
 
-const withApi = async () => {
-  await waitForBackendApi();
-  return webviewApiRef();
-};
+const withApi = async () => desktopApiRef();
 
 const hasMethod = (api: BackendApi | null, key: keyof BackendApi) =>
   Boolean(api && typeof api[key] === "function");
 
+const buildMockEventHistory = (payload: { event: string; cur: string }): EventHistoryResponse => {
+  const points = (() => {
+    const count = 120;
+    const start = new Date(Date.UTC(2026, 0, 22));
+    const pad = (value: number) => String(value).padStart(2, "0");
+    const fmtDate = (dt: Date) =>
+      `${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`;
+
+    const result: Array<{
+      date: string;
+      time: string;
+      actual: string;
+      actualRaw: string;
+      actualRevisedFrom: string;
+      forecast: string;
+      previous: string;
+      previousRaw: string;
+      previousRevisedFrom: string;
+      period: string;
+    }> = [];
+
+    let lastPoint: (typeof result)[number] | null = null;
+    // Build oldest -> newest to match backend sorting expectations.
+    for (let i = count - 1; i >= 0; i -= 1) {
+      const dt = new Date(start);
+      dt.setUTCDate(start.getUTCDate() - i * 7);
+      const actualK = 220 + Math.round(Math.sin(i / 5) * 12 + (i % 4) * 2);
+      const forecastK = 221 + Math.round(Math.cos(i / 6) * 10 - (i % 3));
+      const monthTokens = [
+        "jan",
+        "feb",
+        "mar",
+        "apr",
+        "may",
+        "jun",
+        "jul",
+        "aug",
+        "sep",
+        "oct",
+        "nov",
+        "dec"
+      ] as const;
+      const period = monthTokens[dt.getUTCMonth()] ?? "";
+
+      const actualRaw = `${actualK}k`;
+      const forecast = `${forecastK}k`;
+      const previousBase = lastPoint && i % 17 !== 0 ? lastPoint.actual : "--";
+      let previous = previousBase;
+      let previousRaw = previousBase;
+      let previousRevisedFrom = "";
+
+      // Simulate occasional revisions: the newer row's Previous value revises the older
+      // row's Actual. Keep the old value in `actualRevisedFrom` and surface the revision
+      // under the newer row's Previous.
+      if (lastPoint && previousBase !== "--" && i % 23 === 0) {
+        const base = Number(lastPoint.actualRaw.replace(/k/i, ""));
+        const revised = Number.isFinite(base) ? Math.max(0, base - 3) : base;
+        const revisedValue = `${revised}k`;
+        previous = revisedValue;
+        previousRaw = revisedValue;
+        previousRevisedFrom = lastPoint.actualRaw;
+        lastPoint.actualRevisedFrom = lastPoint.actualRaw;
+        lastPoint.actual = revisedValue;
+      }
+
+      const point = {
+        date: fmtDate(dt),
+        time: "08:30",
+        actual: actualRaw,
+        actualRaw,
+        actualRevisedFrom: "",
+        forecast,
+        previous,
+        previousRaw,
+        previousRevisedFrom,
+        period
+      };
+      result.push(point);
+      lastPoint = point;
+    }
+    return result;
+  })();
+
+  return {
+    ok: true,
+    eventId: "mock",
+    metric: payload.event,
+    frequency: "m/m",
+    period: "",
+    cur: payload.cur,
+    points
+  };
+};
+
 export const backend = {
   getSnapshot: async (): ApiResult<Snapshot> => {
-    const api = await withApi();
-    if (!api || !hasMethod(api, "get_snapshot")) {
-      if (isWebview() && !isUiCheckRuntime()) {
-        throw new Error("Desktop backend unavailable");
-      }
-      return Promise.resolve(getMockSnapshot());
+    if (isTauri()) {
+      return tauriInvoke("get_snapshot");
     }
-    return api.get_snapshot();
+    if (isWebview() && !isUiCheckRuntime()) {
+      throw new Error("Desktop backend unavailable");
+    }
+    return Promise.resolve(getMockSnapshot());
   },
   getEventHistory: async (payload: { event: string; cur: string }) => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockEventHistory(payload));
+    }
     const api = await withApi();
     if (!api || !hasMethod(api, "get_event_history")) {
       if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
-      const points = (() => {
-        const count = 120;
-        const start = new Date(Date.UTC(2026, 0, 22));
-        const pad = (value: number) => String(value).padStart(2, "0");
-        const fmtDate = (dt: Date) =>
-          `${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`;
-
-        const result: Array<{
-          date: string;
-          time: string;
-          actual: string;
-          actualRaw: string;
-          actualRevisedFrom: string;
-          forecast: string;
-          previous: string;
-          previousRaw: string;
-          previousRevisedFrom: string;
-          period: string;
-        }> = [];
-
-        let lastPoint: (typeof result)[number] | null = null;
-        // Build oldest -> newest to match backend sorting expectations.
-        for (let i = count - 1; i >= 0; i -= 1) {
-          const dt = new Date(start);
-          dt.setUTCDate(start.getUTCDate() - i * 7);
-          const actualK = 220 + Math.round(Math.sin(i / 5) * 12 + (i % 4) * 2);
-          const forecastK = 221 + Math.round(Math.cos(i / 6) * 10 - (i % 3));
-          const monthTokens = [
-            "jan",
-            "feb",
-            "mar",
-            "apr",
-            "may",
-            "jun",
-            "jul",
-            "aug",
-            "sep",
-            "oct",
-            "nov",
-            "dec"
-          ] as const;
-          const period = monthTokens[dt.getUTCMonth()] ?? "";
-
-          const actualRaw = `${actualK}k`;
-          const forecast = `${forecastK}k`;
-          const previousBase = lastPoint && i % 17 !== 0 ? lastPoint.actual : "--";
-          let previous = previousBase;
-          let previousRaw = previousBase;
-          let previousRevisedFrom = "";
-
-          // Simulate occasional revisions: the newer row's Previous value revises the older
-          // row's Actual. Keep the old value in `actualRevisedFrom` and surface the revision
-          // under the newer row's Previous.
-          if (lastPoint && previousBase !== "--" && i % 23 === 0) {
-            const base = Number(lastPoint.actualRaw.replace(/k/i, ""));
-            const revised = Number.isFinite(base) ? Math.max(0, base - 3) : base;
-            const revisedValue = `${revised}k`;
-            previous = revisedValue;
-            previousRaw = revisedValue;
-            previousRevisedFrom = lastPoint.actualRaw;
-            lastPoint.actualRevisedFrom = lastPoint.actualRaw;
-            lastPoint.actual = revisedValue;
-          }
-
-          const point = {
-            date: fmtDate(dt),
-            time: "08:30",
-            actual: actualRaw,
-            actualRaw,
-            actualRevisedFrom: "",
-            forecast,
-            previous,
-            previousRaw,
-            previousRevisedFrom,
-            period
-          };
-          result.push(point);
-          lastPoint = point;
-        }
-        return result;
-      })();
-      return Promise.resolve({
-        ok: true,
-        eventId: "mock",
-        metric: payload.event,
-        frequency: "m/m",
-        period: "",
-        cur: payload.cur,
-        points
-      });
+      return Promise.resolve(buildMockEventHistory(payload));
     }
-    return api.get_event_history(payload);
+    // Tauri invoke proxy wraps method args as `{ payload: ... }`, so align with that shape.
+    return api.get_event_history({ event: payload.event, cur: payload.cur } as any);
   },
   getUpdateState: async () => {
     const api = await withApi();
@@ -732,21 +802,6 @@ export const backend = {
       return { ok: true };
     }
     return api.temporary_path_reset({ temporaryPath });
-  },
-  uninstall: async (payload: {
-    confirm: string;
-    removeLogs: boolean;
-    removeOutput: boolean;
-    removeTemporaryPaths: boolean;
-  }) => {
-    const api = await withApi();
-    if (!api || !hasMethod(api, "uninstall")) {
-      if (isWebview() && !isUiCheckRuntime()) {
-        throw new Error("Desktop backend unavailable");
-      }
-      return { ok: true };
-    }
-    return api.uninstall(payload);
   },
   pullNow: async () => {
     const api = await withApi();

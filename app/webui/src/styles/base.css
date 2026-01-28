@@ -757,7 +757,7 @@
   --ui-backdrop-restart-pill: blur(10px);
 }
 
-/* Desktop (pywebview/WebView2) favors crisp text over glass effects. */
+/* Desktop (Tauri/WebView2) favors crisp text over glass effects. */
 :root[data-runtime="desktop"] {
   --ui-grain-opacity: 0;
   --ui-backdrop-appbar: none;

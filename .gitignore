@@ -25,6 +25,10 @@ app/tests-ui/node_modules/
 app/tests-ui/artifacts/
 app/tests-ui/playwright-report/
 node_modules/
+app/tauri/node_modules/
+app/tauri/src-tauri/target/
+app/tauri/resources/
+app/tauri/src-tauri/resources/
 
 # Local UI/self-check artifacts
 artifacts/
@@ -43,3 +47,6 @@ user-data/*
 # Installer / desktop build artifacts (publish via GitHub Releases, do not commit)
 Setup.exe
 XAUUSD Calendar Agent.exe
+
+# Local scratch binaries (never commit)
+app/assets/_touch_test.bin

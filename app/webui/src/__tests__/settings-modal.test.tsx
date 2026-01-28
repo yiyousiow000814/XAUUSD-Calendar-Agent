@@ -21,11 +21,7 @@ const baseSettings: Settings = {
   enableTemporaryPath: false,
   temporaryPath: "",
   repoPath: "",
-  logPath: "",
-  removeLogs: true,
-  removeOutput: false,
-  removeTemporaryPaths: true,
-  uninstallConfirm: ""
+  logPath: ""
 };
 
 const renderModal = (overrides: Partial<React.ComponentProps<typeof SettingsModal>> = {}) =>
@@ -69,7 +65,6 @@ const renderModal = (overrides: Partial<React.ComponentProps<typeof SettingsModa
       onOutputDirChange={vi.fn()}
       onOutputDirBlur={vi.fn()}
       onBrowseOutput={vi.fn()}
-      onOpenUninstall={vi.fn()}
       {...overrides}
     />
   );

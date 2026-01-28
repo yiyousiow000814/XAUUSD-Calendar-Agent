@@ -16,8 +16,11 @@ on:
     branches:
       - main
     paths:
-      - '**.py'
       - '.github/**'
+      - 'app/**'
+      - 'scripts/**'
+      - 'package.json'
+      - 'package-lock.json'
 
 permissions:
   contents: read
@@ -42,15 +45,14 @@ jobs:
             echo "Missing PR_DRAFT_TOKEN secret." >&2
             exit 1
           fi
-          payload="$(python - <<'PY'
-          import json, os
-          pr_id = os.environ["PR_NODE_ID"]
-          print(json.dumps({
-            "query": "mutation($id:ID!){ convertPullRequestToDraft(input:{pullRequestId:$id}){ pullRequest{ isDraft } } }",
-            "variables": {"id": pr_id},
-          }))
-          PY
-          )"
+          payload="$(node -e '
+          const prId = process.env.PR_NODE_ID;
+          const payload = {
+            query: "mutation($id:ID!){ convertPullRequestToDraft(input:{pullRequestId:$id}){ pullRequest{ isDraft } } }",
+            variables: { id: prId }
+          };
+          process.stdout.write(JSON.stringify(payload));
+          ')"
 
           resp="$(curl -fsS \
             -H "Authorization: bearer ${GH_TOKEN}" \
@@ -59,23 +61,19 @@ jobs:
             https://api.github.com/graphql \
             --data "${payload}")"
 
-          RESP="${resp}" python - <<'PY'
-          import json, os, sys
-          resp = json.loads(os.environ["RESP"])
-          if resp.get("errors"):
-            print(json.dumps(resp["errors"], indent=2), file=sys.stderr)
-            raise SystemExit(1)
-          is_draft = (
-            resp.get("data", {})
-            .get("convertPullRequestToDraft", {})
-            .get("pullRequest", {})
-            .get("isDraft")
-          )
-          if is_draft is not True:
-            print(resp, file=sys.stderr)
-            raise SystemExit(1)
-          print("converted_to_draft=true")
-          PY
+          RESP="${resp}" node -e '
+          const resp = JSON.parse(process.env.RESP || "{}");
+          if (resp.errors) {
+            console.error(JSON.stringify(resp.errors, null, 2));
+            process.exit(1);
+          }
+          const isDraft = resp?.data?.convertPullRequestToDraft?.pullRequest?.isDraft;
+          if (isDraft !== true) {
+            console.error(JSON.stringify(resp, null, 2));
+            process.exit(1);
+          }
+          console.log("converted_to_draft=true");
+          '
 
   changes:
     needs: pr_gate
@@ -105,11 +103,11 @@ jobs:
           run_ci=false
           for file in $CHANGED_FILES; do
             case "$file" in
-              *.py|**/*.py|.github/*|.github/**|pyproject.toml|requirements.txt|requirements-ci.txt|scripts/*|scripts/**)
+              .github/*|.github/**|scripts/*|scripts/**|package.json|package-lock.json)
                 run_ci=true
                 break
                 ;;
-              app/agent/currency_options.py|app/webui/src/constants/currencyOptions.ts)
+              app/tauri/*|app/tauri/**|app/webui/*|app/webui/**|app/tests-ui/*|app/tests-ui/**|app/agent/version.txt)
                 run_ci=true
                 break
                 ;;
@@ -125,34 +123,44 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v5
+
+      - uses: actions/setup-node@v4
         with:
-          python-version: '3.11'
-      - name: Cache pre-commit environments
-        uses: actions/cache@v4
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: |
+            app/webui/package-lock.json
+            app/tauri/package-lock.json
+            app/tests-ui/package-lock.json
+
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          path: ~/.cache/pre-commit
-          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
-          restore-keys: |
-            pre-commit-${{ runner.os }}-
-      - name: Install lint dependencies
-        run: pip install pre-commit
-      - name: Run pre-commit on pull request changes
-        if: github.event_name == 'pull_request'
+          components: rustfmt, clippy
+
+      - name: Install Linux Rust deps
+        if: runner.os == 'Linux'
         run: |
-          BASE_SHA='${{ github.event.pull_request.base.sha }}'
-          HEAD_SHA='${{ github.sha }}'
-          git fetch --no-tags --prune --depth=2 origin "$BASE_SHA"
-          pre-commit run --from-ref "$BASE_SHA" --to-ref "$HEAD_SHA"
-      - name: Run pre-commit on pushed commits
-        if: github.event_name != 'pull_request'
-        run: |
-          BASE_SHA=$(git rev-parse HEAD^ 2>/dev/null || echo "")
-          if [ -z "$BASE_SHA" ]; then
-            pre-commit run --all-files
-          else
-            pre-commit run --from-ref "$BASE_SHA" --to-ref HEAD
-          fi
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config \
+            libglib2.0-dev \
+            libgtk-3-dev \
+            libwebkit2gtk-4.1-dev
+
+      - name: Install web dependencies
+        run: npm --prefix app/webui ci
+
+      - name: Web unit tests
+        run: npm --prefix app/webui run test
+
+      - name: Web build
+        run: npm --prefix app/webui run build
+
+      - name: Rust format (check)
+        run: cargo fmt --manifest-path app/tauri/src-tauri/Cargo.toml --check
+
+      - name: Rust clippy
+        run: cargo clippy --manifest-path app/tauri/src-tauri/Cargo.toml -- -D warnings
 
   build:
     needs:
@@ -163,72 +171,41 @@ jobs:
     strategy:
       matrix:
         os:
-          - ubuntu-latest
           - windows-latest
     runs-on: ${{ matrix.os }}
-    env:
-      PYTHONPATH: .
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-node@v4
         with:
-          python-version: '3.11'
-      - name: Cache virtualenv (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        id: cache-venv-linux
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: Linux-venv-3.11-${{ hashFiles('requirements-ci.txt') }}
-          restore-keys: |
-            Linux-venv-3.11-
-      - name: Cache virtualenv (Windows)
-        if: matrix.os == 'windows-latest'
-        id: cache-venv-windows
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: Windows-venv-3.11-${{ hashFiles('requirements-ci.txt') }}
-          restore-keys: |
-            Windows-venv-3.11-
-      - name: Install dependencies (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          if [ "${{ steps.cache-venv-linux.outputs.cache-hit }}" != 'true' ]; then
-            rm -rf .venv
-            python -m venv .venv
-          fi
-          .venv/bin/pip install -r requirements-ci.txt
-      - name: Install dependencies (Windows)
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          if ('${{ steps.cache-venv-windows.outputs.cache-hit }}' -ne 'true') {
-            if (Test-Path ".venv") {
-              Remove-Item -Recurse -Force .venv
-            }
-            python -m venv .venv
-          }
-          .\.venv\Scripts\pip install -r requirements-ci.txt
-      - name: Run tests (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          set +e
-          .venv/bin/pytest -q
-          status=$?
-          if [ "$status" -eq 5 ]; then
-            echo "pytest reported no tests; skipping."
-            exit 0
-          fi
-          exit "$status"
-      - name: Run tests (Windows)
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          .\.venv\Scripts\pytest -q
-          $status = $LASTEXITCODE
-          if ($status -eq 5) {
-            Write-Host "pytest reported no tests; skipping."
-            exit 0
-          }
-          exit $status
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: |
+            app/webui/package-lock.json
+            app/tauri/package-lock.json
+            app/tests-ui/package-lock.json
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install web dependencies
+        run: npm --prefix app/webui ci
+
+      - name: Install tests-ui dependencies
+        run: npm --prefix app/tests-ui ci
+
+      - name: Install Playwright browsers (Linux)
+        if: runner.os == 'Linux'
+        working-directory: app/tests-ui
+        run: npx playwright install --with-deps
+
+      - name: Install Playwright browsers (Windows)
+        if: runner.os == 'Windows'
+        working-directory: app/tests-ui
+        run: npx playwright install
+
+      - name: UI check (Playwright)
+        env:
+          UI_CHECK_VIDEO: 0
+        run: npm --prefix app/tests-ui run ui-check
+
+      - name: Rust test
+        run: cargo test --manifest-path app/tauri/src-tauri/Cargo.toml --locked

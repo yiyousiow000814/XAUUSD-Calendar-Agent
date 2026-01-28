@@ -6,6 +6,7 @@ import "./NextEvents.css";
 type NextEventsProps = {
   events: EventItem[];
   loading?: boolean;
+  downloading?: boolean;
   currency: string;
   currencyOptions: string[];
   onCurrencyChange: (value: string) => void;
@@ -31,6 +32,7 @@ const impactHoverLabel: Record<string, string> = {
 export function NextEvents({
   events,
   loading = false,
+  downloading = false,
   currency,
   currencyOptions,
   onCurrencyChange,
@@ -191,14 +193,14 @@ export function NextEvents({
       el.style.willChange = "transform";
       el.dataset.flipAnim = "1";
 
-      window.requestAnimationFrame(() => {
+      window.setTimeout(() => {
         el.style.transition = "transform var(--motion-med) var(--motion-ease)";
         el.style.transform = "";
         window.setTimeout(() => {
           if (el.style.willChange === "transform") el.style.willChange = "";
           if (el.dataset.flipAnim) delete el.dataset.flipAnim;
         }, 360);
-      });
+      }, 0);
     });
   }, [events, query, showSkeleton, filterSignature]);
 
@@ -323,7 +325,26 @@ export function NextEvents({
               <span className="event-time mono">--</span>
               <div className="event-main">
                 <div className="event-title">
-                  <span className="event-name">{loading ? "Loading events..." : "No upcoming events"}</span>
+                  <span className="event-name">
+                    {loading
+                      ? "Loading events..."
+                      : downloading
+                        ? (
+                            <span className="fetching-inline" data-qa="qa:status:fetching-calendar">
+                              <span className="loading-spinner" aria-hidden="true" />
+                              Fetching calendar data
+                              <span className="loading-dots" aria-hidden="true">
+                                <span>.</span>
+                                <span>.</span>
+                                <span>.</span>
+                              </span>
+                              <span className="fetching-hint">
+                                Usually takes 10-30 seconds. Please be patient.
+                              </span>
+                            </span>
+                          )
+                        : "No upcoming events"}
+                  </span>
                 </div>
                 <div className="event-meta">
                   <span className="event-cur">--</span>
