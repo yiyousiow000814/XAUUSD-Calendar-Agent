@@ -6,6 +6,7 @@ import "./NextEvents.css";
 type NextEventsProps = {
   events: EventItem[];
   loading?: boolean;
+  downloading?: boolean;
   currency: string;
   currencyOptions: string[];
   onCurrencyChange: (value: string) => void;
@@ -31,6 +32,7 @@ const impactHoverLabel: Record<string, string> = {
 export function NextEvents({
   events,
   loading = false,
+  downloading = false,
   currency,
   currencyOptions,
   onCurrencyChange,
@@ -323,7 +325,13 @@ export function NextEvents({
               <span className="event-time mono">--</span>
               <div className="event-main">
                 <div className="event-title">
-                  <span className="event-name">{loading ? "Loading events..." : "No upcoming events"}</span>
+                  <span className="event-name">
+                    {loading
+                      ? "Loading events..."
+                      : downloading
+                        ? "正在拉取数据，请耐心等待…"
+                        : "No upcoming events"}
+                  </span>
                 </div>
                 <div className="event-meta">
                   <span className="event-cur">--</span>

@@ -3346,6 +3346,7 @@ export default function App() {
             <NextEvents
               events={snapshot.events}
               loading={snapshot.calendarStatus === "loading"}
+              downloading={snapshot.calendarStatus === "downloading"}
               currency={currency}
               currencyOptions={currencyOptions}
               onCurrencyChange={handleCurrency}
@@ -3360,6 +3361,7 @@ export default function App() {
             <HistoryPanel
               events={snapshot.pastEvents}
               loading={snapshot.calendarStatus === "loading"}
+              downloading={snapshot.calendarStatus === "downloading"}
               impactTone={impactTone}
               impactFilter={impactFilter}
               onOpenHistory={(item) => openEventHistory({ event: item.event, cur: item.cur })}
