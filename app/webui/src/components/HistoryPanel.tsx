@@ -420,7 +420,7 @@ export function HistoryPanel({
             {loading
               ? "Loading history..."
               : downloading
-                ? "正在拉取数据，请耐心等待…"
+                ? "Fetching calendar data..."
                 : "No past events yet."}
           </div>
         ) : (

@@ -329,7 +329,7 @@ export function NextEvents({
                     {loading
                       ? "Loading events..."
                       : downloading
-                        ? "正在拉取数据，请耐心等待…"
+                        ? "Fetching calendar data..."
                         : "No upcoming events"}
                   </span>
                 </div>
