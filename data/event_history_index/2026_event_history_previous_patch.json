@@ -1,5 +1,5 @@
 {
-  "generated_at": "26-01-2026 15:44",
+  "generated_at": "28-01-2026 15:46",
   "patches": [
     {
       "patch": "previous_missing_filled",
@@ -39,18 +39,6 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::monetary policy meeting minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2026-01-28",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "patch": "previous_missing_filled",
       "event_id": "RUB::interest rate decision::none",
       "cur": "RUB",
       "event": "Interest Rate Decision",
@@ -75,7 +63,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "USD::initial jobless claims::none",
+      "event_id": "USD::Initial Jobless Claims::",
       "cur": "USD",
       "event": "Initial Jobless Claims",
       "period": "",
@@ -87,7 +75,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "USD::jobless claims 4 - week avg.::none",
+      "event_id": "USD::Jobless Claims 4-Week Avg.::",
       "cur": "USD",
       "event": "Jobless Claims 4-Week Avg.",
       "period": "",
@@ -99,7 +87,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "USD::natural gas storage::none",
+      "event_id": "USD::Natural Gas Storage::",
       "cur": "USD",
       "event": "Natural Gas Storage",
       "period": "",
@@ -111,7 +99,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "USD::continuing jobless claims::none",
+      "event_id": "USD::Continuing Jobless Claims::",
       "cur": "USD",
       "event": "Continuing Jobless Claims",
       "period": "",
@@ -123,7 +111,79 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "TRY::gross fx reserves::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::",
+      "cur": "JPY",
+      "event": "Monetary Policy Meeting Minutes",
+      "period": "",
+      "date": "2026-01-28",
+      "time": "07:50",
+      "previous_raw": "",
+      "prior_actual": "0.00",
+      "previous_effective": "0.00"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "INR::FX Reserves, USD::",
+      "cur": "INR",
+      "event": "FX Reserves, USD",
+      "period": "",
+      "date": "2026-02-06",
+      "time": "19:30",
+      "previous_raw": "",
+      "prior_actual": "701.36B",
+      "previous_effective": "701.36B"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::4-Week Bill Auction::",
+      "cur": "USD",
+      "event": "4-Week Bill Auction",
+      "period": "",
+      "date": "2026-02-06",
+      "time": "00:30",
+      "previous_raw": "",
+      "prior_actual": "3.630%",
+      "previous_effective": "3.630%"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "TRY::Trade Balance::",
+      "cur": "TRY",
+      "event": "Trade Balance  (Jan)",
+      "period": "jan",
+      "date": "2026-02-03",
+      "time": "15:00",
+      "previous_raw": "",
+      "prior_actual": "-9.40B",
+      "previous_effective": "-9.40B"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "TRY::Exports::",
+      "cur": "TRY",
+      "event": "Exports  (Jan)",
+      "period": "jan",
+      "date": "2026-02-03",
+      "time": "15:00",
+      "previous_raw": "",
+      "prior_actual": "26.40B",
+      "previous_effective": "26.40B"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::8-Week Bill Auction::",
+      "cur": "USD",
+      "event": "8-Week Bill Auction",
+      "period": "",
+      "date": "2026-02-06",
+      "time": "00:30",
+      "previous_raw": "",
+      "prior_actual": "3.630%",
+      "previous_effective": "3.630%"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "TRY::Gross FX Reserves::",
       "cur": "TRY",
       "event": "Gross FX Reserves",
       "period": "",
