@@ -41,10 +41,6 @@ pub fn get_settings(_state: tauri::State<'_, Mutex<RuntimeState>>) -> Value {
         "temporaryPath": config::get_str(&cfg, "temporary_path"),
         "repoPath": config::install_dir().to_string_lossy().to_string(),
         "logPath": config::log_dir().join("app.log").to_string_lossy().to_string(),
-        "removeLogs": true,
-        "removeOutput": false,
-        "removeTemporaryPaths": true,
-        "uninstallConfirm": ""
     })
 }
 

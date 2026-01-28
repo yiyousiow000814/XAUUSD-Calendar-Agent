@@ -98,7 +98,6 @@ fn main() {
             commands::open::open_path,
             commands::open::open_url,
             commands::open::open_release_notes,
-            commands::lifecycle::uninstall,
             commands::lifecycle::dismiss_modal,
             commands::history::get_event_history
         ])

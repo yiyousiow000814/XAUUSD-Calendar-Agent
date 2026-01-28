@@ -15,7 +15,6 @@ import { NextEvents } from "./components/NextEvents";
 import { SettingsModal } from "./components/SettingsModal";
 import { TemporaryPathWarningModal, type TemporaryPathWarningMode } from "./components/TemporaryPathWarningModal";
 import { ToastStack } from "./components/ToastStack";
-import { UninstallModal } from "./components/UninstallModal";
 import { CURRENCY_OPTIONS } from "./constants/currencyOptions";
 import { impactTone, levelTone } from "./utils/ui";
 import "./App.css";
@@ -66,11 +65,7 @@ const emptySettings: Settings = {
   enableTemporaryPath: false,
   temporaryPath: "",
   repoPath: "",
-  logPath: "",
-  removeLogs: true,
-  removeOutput: false,
-  removeTemporaryPaths: true,
-  uninstallConfirm: ""
+  logPath: ""
 };
 
 type TemporaryPathWarningContext = {
@@ -148,9 +143,6 @@ export default function App() {
     lastSentAt: 0
   });
   const splitGutterPx = 30;
-  const [uninstallOpen, setUninstallOpen] = useState<boolean>(false);
-  const [uninstallClosing, setUninstallClosing] = useState<boolean>(false);
-  const [uninstallEntering, setUninstallEntering] = useState<boolean>(false);
   const [historyOpen, setHistoryOpen] = useState<boolean>(false);
   const [historyLoading, setHistoryLoading] = useState<boolean>(false);
   const [historyError, setHistoryError] = useState<string | null>(null);
@@ -2074,21 +2066,6 @@ export default function App() {
     setActivityPillSnapshot(null);
   };
 
-  const openUninstall = () => {
-    setUninstallOpen(true);
-    setUninstallClosing(false);
-    setUninstallEntering(true);
-  };
-
-  const closeUninstall = () => {
-    setUninstallClosing(true);
-    window.setTimeout(() => {
-      setUninstallOpen(false);
-      setUninstallClosing(false);
-      setUninstallEntering(false);
-    }, 240);
-  };
-
   const handleTemporaryPathWarningCancel = async () => {
     const context = temporaryPathWarningContext;
     if (!context) {
@@ -2312,12 +2289,6 @@ export default function App() {
   }, [activityOpen, activityEntering]);
 
   useEffect(() => {
-    if (!uninstallOpen) return;
-    const id = window.setTimeout(() => setUninstallEntering(false), 80);
-    return () => window.clearTimeout(id);
-  }, [uninstallOpen]);
-
-  useEffect(() => {
     splitRatioRef.current = splitRatio;
   }, [splitRatio]);
 
@@ -2368,11 +2339,11 @@ export default function App() {
 
   useEffect(() => {
     const body = document.body;
-    const isOpen = settingsOpen || uninstallOpen || historyOpen;
+    const isOpen = settingsOpen || historyOpen;
     body.classList.toggle("modal-open", isOpen);
     body.style.paddingRight = "";
     return () => body.classList.remove("modal-open");
-  }, [settingsOpen, uninstallOpen, historyOpen]);
+  }, [settingsOpen, historyOpen]);
 
   useEffect(() => {
     const handleMove = (event: MouseEvent) => {
@@ -3581,7 +3552,6 @@ export default function App() {
         }}
         onOutputDirBlur={() => {}}
         onBrowseOutput={handleBrowse}
-        onOpenUninstall={openUninstall}
       />
 
       <TemporaryPathWarningModal
@@ -3616,53 +3586,6 @@ export default function App() {
         onCancel={handleTemporaryPathWarningCancel}
         onUseAsIs={handleTemporaryPathWarningUseAsIs}
         onReset={handleTemporaryPathWarningReset}
-      />
-
-      <UninstallModal
-        isOpen={uninstallOpen}
-        isClosing={uninstallClosing}
-        isEntering={uninstallEntering}
-        settings={settings}
-        onClose={closeUninstall}
-        onRemoveLogs={(value) =>
-          setSettings((prev) => ({
-            ...prev,
-            removeLogs: value
-          }))
-        }
-        onRemoveOutput={(value) =>
-          setSettings((prev) => ({
-            ...prev,
-            removeOutput: value
-          }))
-        }
-        onRemoveTemporaryPaths={(value) =>
-          setSettings((prev) => ({
-            ...prev,
-            removeTemporaryPaths: value
-          }))
-        }
-        onConfirmChange={(value) =>
-          setSettings((prev) => ({
-            ...prev,
-            uninstallConfirm: value
-          }))
-        }
-        onConfirm={async () => {
-          const confirm = settings.uninstallConfirm.trim().toUpperCase();
-          const result = await backend.uninstall({
-            confirm,
-            removeLogs: settings.removeLogs,
-            removeOutput: settings.removeOutput,
-            removeTemporaryPaths: settings.removeTemporaryPaths
-          });
-          if (!result.ok) {
-            pushToast("error", result.message || "Uninstall failed");
-            return;
-          }
-          pushToast("success", "Uninstall completed");
-          closeUninstall();
-        }}
       />
 
       <AlertModal

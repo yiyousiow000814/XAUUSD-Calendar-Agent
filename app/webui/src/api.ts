@@ -59,12 +59,6 @@ type BackendApi = {
   add_log: (payload: { message: string; level?: string }) => ApiResult<{ ok: boolean }>;
   browse_temporary_path: () => ApiResult<{ ok: boolean; path?: string }>;
   set_temporary_path: (path: string) => ApiResult<{ ok: boolean }>;
-  uninstall: (payload: {
-    confirm: string;
-    removeLogs: boolean;
-    removeOutput: boolean;
-    removeTemporaryPaths: boolean;
-  }) => ApiResult<{ ok: boolean; message?: string }>;
   pull_now: () => ApiResult<{ ok: boolean }>;
   sync_now: () => ApiResult<{ ok: boolean }>;
   browse_output_dir: () => ApiResult<{ ok: boolean; path?: string }>;
@@ -404,11 +398,7 @@ let mockSettings: Settings = {
   enableTemporaryPath: false,
   temporaryPath: "",
   repoPath: "",
-  logPath: "C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\XAUUSDCalendar\\\\logs\\\\app.log",
-  removeLogs: true,
-  removeOutput: false,
-  removeTemporaryPaths: true,
-  uninstallConfirm: ""
+  logPath: "C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\XAUUSDCalendar\\\\logs\\\\app.log"
 };
 
 const withApi = async () => desktopApiRef();
@@ -812,21 +802,6 @@ export const backend = {
       return { ok: true };
     }
     return api.temporary_path_reset({ temporaryPath });
-  },
-  uninstall: async (payload: {
-    confirm: string;
-    removeLogs: boolean;
-    removeOutput: boolean;
-    removeTemporaryPaths: boolean;
-  }) => {
-    const api = await withApi();
-    if (!api || !hasMethod(api, "uninstall")) {
-      if (isWebview() && !isUiCheckRuntime()) {
-        throw new Error("Desktop backend unavailable");
-      }
-      return { ok: true };
-    }
-    return api.uninstall(payload);
   },
   pullNow: async () => {
     const api = await withApi();
