@@ -215,14 +215,47 @@ fn build_index_from_ndjson(path: &Path) -> Option<HashMap<String, u64>> {
             offset = offset.saturating_add(bytes as u64);
             continue;
         }
-        if let Ok(payload) = serde_json::from_str::<Value>(&line) {
-            if let Some(event_id) = payload.get("eventId").and_then(|v| v.as_str()) {
-                insert_index_variants(&mut map, event_id, offset);
+        match serde_json::from_str::<Value>(&line) {
+            Ok(payload) => {
+                if let Some(event_id) = payload.get("eventId").and_then(|v| v.as_str()) {
+                    insert_index_variants(&mut map, event_id, offset);
+                }
+            }
+            Err(err) => {
+                eprintln!("Invalid event history line at offset {offset}: {err}");
             }
         }
         offset = offset.saturating_add(bytes as u64);
     }
     Some(map)
+}
+
+fn write_index_file(path: &Path, index: &HashMap<String, u64>) -> std::io::Result<()> {
+    let mut entries: Vec<(&String, &u64)> = index.iter().collect();
+    entries.sort_by(|a, b| a.0.cmp(b.0));
+    let payload = json!({
+        "generated_at": chrono::Utc::now().format("%d-%m-%Y %H:%M").to_string(),
+        "version": 3,
+        "index": entries
+            .into_iter()
+            .map(|(k, v)| (k.clone(), json!(v)))
+            .collect::<serde_json::Map<String, Value>>()
+    });
+    std::fs::write(
+        path,
+        serde_json::to_string_pretty(&payload).unwrap_or_default(),
+    )
+}
+
+fn rebuild_index_and_persist(
+    ndjson_path: &Path,
+    index_path: &Path,
+) -> Option<HashMap<String, u64>> {
+    let index = build_index_from_ndjson(ndjson_path)?;
+    if let Err(err) = write_index_file(index_path, &index) {
+        eprintln!("Failed to write event history index: {err}");
+    }
+    Some(index)
 }
 
 fn read_ndjson_line(path: &Path, offset: u64) -> Option<String> {
@@ -359,7 +392,7 @@ pub fn get_event_history(_payload: Value) -> Value {
             None
         };
         if index.is_none() {
-            index = build_index_from_ndjson(&ndjson_path);
+            index = rebuild_index_and_persist(&ndjson_path, &index_path);
         }
         if let Some(index) = index {
             if let Some(offset) = candidates.iter().find_map(|key| index.get(key).copied()) {
@@ -377,7 +410,9 @@ pub fn get_event_history(_payload: Value) -> Value {
                             "cached": true
                         });
                     }
-                } else if let Some(fresh_index) = build_index_from_ndjson(&ndjson_path) {
+                } else if let Some(fresh_index) =
+                    rebuild_index_and_persist(&ndjson_path, &index_path)
+                {
                     if let Some(offset) = candidates
                         .iter()
                         .find_map(|key| fresh_index.get(key).copied())
