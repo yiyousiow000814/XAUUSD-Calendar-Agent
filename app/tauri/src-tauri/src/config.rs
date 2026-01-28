@@ -2,6 +2,9 @@ use serde_json::{json, Map, Value};
 use std::fs;
 use std::path::{Path, PathBuf};
 
+#[cfg(not(target_os = "windows"))]
+use directories::ProjectDirs;
+
 fn exe_dir() -> Option<PathBuf> {
     std::env::current_exe()
         .ok()
@@ -9,7 +12,20 @@ fn exe_dir() -> Option<PathBuf> {
 }
 
 fn portable_data_dir() -> Option<PathBuf> {
-    exe_dir().map(|dir| dir.join("user-data"))
+    // Opt-in portable mode:
+    // - If `user-data/` exists next to the executable, we treat it as portable.
+    // - Or explicitly force portable via env var (useful for dev / zipped builds).
+    if std::env::var("XAUUSD_CALENDAR_AGENT_PORTABLE")
+        .ok()
+        .as_deref()
+        == Some("1")
+    {
+        return exe_dir().map(|dir| dir.join("user-data"));
+    }
+
+    exe_dir()
+        .map(|dir| dir.join("user-data"))
+        .filter(|p| p.exists())
 }
 
 pub fn install_dir() -> PathBuf {
@@ -20,8 +36,17 @@ pub fn install_dir() -> PathBuf {
     })
 }
 
-pub fn install_data_dir() -> PathBuf {
-    install_dir().join("data")
+#[cfg(target_os = "windows")]
+fn platform_appdata_dir() -> Option<PathBuf> {
+    legacy_roaming_dir()
+}
+
+#[cfg(not(target_os = "windows"))]
+fn platform_appdata_dir() -> Option<PathBuf> {
+    // macOS: ~/Library/Application Support/<app>/
+    // Linux: ~/.local/share/<app>/
+    ProjectDirs::from("com", "xauusd", "XAUUSDCalendarAgent")
+        .map(|p| p.data_local_dir().to_path_buf())
 }
 
 pub fn app_root_dir() -> PathBuf {
@@ -32,14 +57,16 @@ pub fn app_root_dir() -> PathBuf {
         }
     }
 
-    // Portable mode: use a sibling `user-data/` folder next to the running executable.
+    // Portable mode: use a sibling `user-data/` folder next to the running executable (opt-in).
     if let Some(dir) = portable_data_dir() {
         return dir;
     }
 
-    std::env::current_dir()
-        .unwrap_or_else(|_| PathBuf::from("."))
-        .join("user-data")
+    platform_appdata_dir().unwrap_or_else(|| {
+        std::env::current_dir()
+            .unwrap_or_else(|_| PathBuf::from("."))
+            .join("user-data")
+    })
 }
 
 fn legacy_roaming_dir() -> Option<PathBuf> {
@@ -55,6 +82,20 @@ fn legacy_roaming_dir() -> Option<PathBuf> {
 
 pub fn appdata_dir() -> PathBuf {
     app_root_dir()
+}
+
+pub fn working_root_dir(cfg: &Value) -> PathBuf {
+    if get_bool(cfg, "enable_temporary_path", false) {
+        let temp = get_str(cfg, "temporary_path");
+        if !temp.is_empty() {
+            return PathBuf::from(temp);
+        }
+    }
+    appdata_dir()
+}
+
+pub fn working_data_dir(cfg: &Value) -> PathBuf {
+    working_root_dir(cfg).join("data")
 }
 
 pub fn config_path() -> PathBuf {

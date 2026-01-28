@@ -31,14 +31,6 @@
   },
   "bundle": {
     "active": true,
-    "resources": [
-      "resources/seed-repo/**/*"
-    ],
-    "windows": {
-      "nsis": {
-        "installerHooks": "installer_hooks.nsh"
-      }
-    },
     "icon": [
       "icons/icon.png",
       "../../assets/xauusd.ico"

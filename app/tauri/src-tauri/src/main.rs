@@ -4,14 +4,13 @@ mod calendar;
 mod commands;
 mod config;
 mod git_ops;
-mod seed_repo;
 mod snapshot;
 mod startup;
 mod state;
 mod sync_util;
 mod time_util;
 
-use crate::commands::default_update_state;
+use crate::commands::update::default_update_state;
 use crate::state::RuntimeState;
 use std::sync::Mutex;
 use tauri::menu::MenuBuilder;
@@ -74,38 +73,37 @@ fn main() {
             }
         })
         .invoke_handler(tauri::generate_handler![
-            commands::get_snapshot,
-            commands::get_settings,
-            commands::save_settings,
-            commands::add_log,
-            commands::clear_logs,
-            commands::set_currency,
-            commands::get_update_state,
-            commands::check_updates,
-            commands::update_now,
-            commands::pull_now,
-            commands::sync_now,
-            commands::frontend_boot_complete,
-            commands::set_ui_state,
-            commands::get_temporary_path_task,
-            commands::probe_temporary_path,
-            commands::temporary_path_use_as_is,
-            commands::temporary_path_reset,
-            commands::browse_temporary_path,
-            commands::set_temporary_path,
-            commands::browse_output_dir,
-            commands::set_output_dir,
-            commands::open_log,
-            commands::open_path,
-            commands::open_url,
-            commands::open_release_notes,
-            commands::uninstall,
-            commands::dismiss_modal,
-            commands::get_event_history
+            commands::snapshot_cmd::get_snapshot,
+            commands::settings::get_settings,
+            commands::settings::save_settings,
+            commands::logs::add_log,
+            commands::logs::clear_logs,
+            commands::settings::set_currency,
+            commands::update::get_update_state,
+            commands::update::check_updates,
+            commands::update::update_now,
+            commands::pull::pull_now,
+            commands::sync::sync_now,
+            commands::ui::frontend_boot_complete,
+            commands::ui::set_ui_state,
+            commands::settings::get_temporary_path_task,
+            commands::settings::probe_temporary_path,
+            commands::settings::temporary_path_use_as_is,
+            commands::settings::temporary_path_reset,
+            commands::settings::browse_temporary_path,
+            commands::settings::set_temporary_path,
+            commands::settings::browse_output_dir,
+            commands::settings::set_output_dir,
+            commands::open::open_log,
+            commands::open::open_path,
+            commands::open::open_url,
+            commands::open::open_release_notes,
+            commands::lifecycle::uninstall,
+            commands::lifecycle::dismiss_modal,
+            commands::history::get_event_history
         ])
         .setup(|app| {
-            seed_repo::ensure_seed_repo(app.handle());
-            commands::start_background_tasks(app.handle().clone());
+            commands::ui::start_background_tasks(app.handle().clone());
 
             let handle = app.handle();
             // Ensure startup setting is applied (Windows: HKCU Run entry).

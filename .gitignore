@@ -27,8 +27,8 @@ app/tests-ui/playwright-report/
 node_modules/
 app/tauri/node_modules/
 app/tauri/src-tauri/target/
-app/tauri/src-tauri/resources/seed-repo/
-app/tauri/resources/seed-repo/
+app/tauri/resources/
+app/tauri/src-tauri/resources/
 
 # Local UI/self-check artifacts
 artifacts/

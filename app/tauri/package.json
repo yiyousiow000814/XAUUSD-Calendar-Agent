@@ -4,9 +4,8 @@
   "version": "0.2.0",
   "type": "module",
   "scripts": {
-    "prepare:seed-repo": "node ../../scripts/prepare-seed-repo.mjs",
-    "dev": "npm run prepare:seed-repo && tauri dev",
-    "build": "npm run prepare:seed-repo && tauri build"
+    "dev": "tauri dev",
+    "build": "tauri build"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.0.0"
