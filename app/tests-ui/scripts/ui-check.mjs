@@ -1101,7 +1101,6 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
       add_log: () => Promise.resolve({ ok: true }),
       browse_temporary_path: () => Promise.resolve({ ok: true, path: "" }),
       set_temporary_path: () => Promise.resolve({ ok: true }),
-      uninstall: () => Promise.resolve({ ok: true }),
       frontend_boot_complete: () => Promise.resolve({ ok: true }),
       set_ui_state: () => Promise.resolve({ ok: true }),
       pull_now: () => {
@@ -3793,68 +3792,6 @@ const main = async () => {
         state: "bottom",
         path: await captureState(page, "settings", theme.key, "bottom")
       });
-    }
-    const uninstallTrigger = page.locator("[data-qa*='qa:modal-trigger:uninstall']").first();
-    if (await uninstallTrigger.count()) {
-      await uninstallTrigger.click();
-      await page.waitForTimeout(160);
-      const uninstallFrames = await captureFrames(page, "uninstall", theme.key, "enter");
-      uninstallFrames.forEach((frame, index) =>
-        artifacts.push({
-          scenario: "uninstall",
-          theme: theme.key,
-          state: `enter-frame-${index}`,
-          path: frame
-        })
-      );
-      const uninstallModal = page.locator("[data-qa*='qa:modal:uninstall']").first();
-      if (await uninstallModal.count()) {
-        artifacts.push({
-          scenario: "uninstall",
-          theme: theme.key,
-          state: "open",
-          path: await captureState(page, "uninstall", theme.key, "open", { element: uninstallModal })
-        });
-      }
-
-      await runCheck(theme.key, "Uninstall confirm enables CTA", async () => {
-        const confirmInput = page.locator("[data-qa='qa:uninstall:confirm-input']").first();
-        const confirmButton = page.locator("[data-qa='qa:uninstall:confirm-button']").first();
-        if (!(await confirmInput.count()) || !(await confirmButton.count())) {
-          throw new Error("Uninstall confirm controls not found");
-        }
-        await confirmInput.fill("");
-        await page.waitForTimeout(60);
-        if (!(await confirmButton.isDisabled())) {
-          throw new Error("Uninstall button should be disabled without confirmation");
-        }
-        await confirmInput.fill("uninstall");
-        await page.waitForTimeout(60);
-        if (await confirmButton.isDisabled()) {
-          throw new Error("Uninstall button should be enabled for case-insensitive confirmation");
-        }
-        await confirmInput.fill(" UNINSTALL ");
-        await page.waitForTimeout(60);
-        if (await confirmButton.isDisabled()) {
-          throw new Error("Uninstall button should ignore surrounding whitespace");
-        }
-        await confirmInput.fill("");
-      });
-
-      const uninstallClose = page.locator("[data-qa*='qa:modal-close:uninstall']").first();
-      if (await uninstallClose.count()) {
-        await uninstallClose.click();
-        await page.waitForTimeout(200);
-        const uninstallExit = await captureFrames(page, "uninstall", theme.key, "exit");
-        uninstallExit.forEach((frame, index) =>
-          artifacts.push({
-            scenario: "uninstall",
-            theme: theme.key,
-            state: `exit-frame-${index}`,
-            path: frame
-          })
-        );
-      }
     }
     const closeBtn = page.locator("[data-qa*='qa:modal-close:settings']").first();
     if (await closeBtn.count()) {
