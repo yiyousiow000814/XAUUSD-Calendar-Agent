@@ -1,6 +1,6 @@
 ﻿import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { useCallback, useLayoutEffect } from "react";
-import { backend, isWebview } from "./api";
+import { backend, isWebview, tauriListen } from "./api";
 import type { EventHistoryResponse, FilterOption, Settings, Snapshot, ToastType } from "./types";
 import { ActivityDrawer } from "./components/ActivityDrawer";
 import { ActivityLog } from "./components/ActivityLog";
@@ -15,7 +15,6 @@ import { NextEvents } from "./components/NextEvents";
 import { SettingsModal } from "./components/SettingsModal";
 import { TemporaryPathWarningModal, type TemporaryPathWarningMode } from "./components/TemporaryPathWarningModal";
 import { ToastStack } from "./components/ToastStack";
-import { UninstallModal } from "./components/UninstallModal";
 import { CURRENCY_OPTIONS } from "./constants/currencyOptions";
 import { impactTone, levelTone } from "./utils/ui";
 import "./App.css";
@@ -66,11 +65,7 @@ const emptySettings: Settings = {
   enableTemporaryPath: false,
   temporaryPath: "",
   repoPath: "",
-  logPath: "",
-  removeLogs: true,
-  removeOutput: false,
-  removeTemporaryPaths: true,
-  uninstallConfirm: ""
+  logPath: ""
 };
 
 type TemporaryPathWarningContext = {
@@ -148,9 +143,6 @@ export default function App() {
     lastSentAt: 0
   });
   const splitGutterPx = 30;
-  const [uninstallOpen, setUninstallOpen] = useState<boolean>(false);
-  const [uninstallClosing, setUninstallClosing] = useState<boolean>(false);
-  const [uninstallEntering, setUninstallEntering] = useState<boolean>(false);
   const [historyOpen, setHistoryOpen] = useState<boolean>(false);
   const [historyLoading, setHistoryLoading] = useState<boolean>(false);
   const [historyError, setHistoryError] = useState<string | null>(null);
@@ -185,10 +177,17 @@ export default function App() {
   const temporaryPathDisplayStartRef = useRef<number | null>(null);
   const temporaryPathDisplayTimerRef = useRef<number | null>(null);
   const temporaryPathDisplayFinishTimerRef = useRef<number | null>(null);
-  const [initState, setInitState] = useState<"loading" | "ready" | "error">(
-    isUiCheckRuntime ? "loading" : "ready"
-  );
+  const [initState, setInitState] = useState<"loading" | "ready" | "error">(() => {
+    if (isUiCheckRuntime) return "loading";
+    try {
+      return isWebview() ? "loading" : "ready";
+    } catch {
+      return "ready";
+    }
+  });
   const [initError, setInitError] = useState<string>("");
+  const initOverlayTimerRef = useRef<number | null>(null);
+  const [showInitOverlay, setShowInitOverlay] = useState<boolean>(() => initState === "error");
   const initOverlayHoldAppliedRef = useRef(false);
   const [connecting, setConnecting] = useState<boolean>(isWebview());
   const [pullState, setPullState] = useState<"idle" | "loading" | "success" | "error">(
@@ -291,154 +290,268 @@ export default function App() {
   const historyRequestRef = useRef(0);
   const hasManualCurrencyRef = useRef(false);
   const refreshInFlightRef = useRef(false);
+  const refreshTokenRef = useRef(0);
+  const refreshPendingRef = useRef(false);
+  const refreshWaitersRef = useRef<Array<(snapshot: Snapshot | null) => void>>([]);
+  const hasReachedReadyRef = useRef(false);
   const refreshRef = useRef<() => Promise<Snapshot | null>>(async () => null);
   const hasLoadedUiPrefsRef = useRef(false);
   const activeAlertIdRef = useRef<string>("");
   const dismissedAlertIdRef = useRef<string>("");
 
+  const withTimeout = useCallback(<T,>(promise: Promise<T>, timeoutMs: number, label: string) => {
+    let timer: number | null = null;
+    const timeout = new Promise<T>((_, reject) => {
+      timer = window.setTimeout(() => {
+        reject(new Error(`Timeout (${timeoutMs}ms): ${label}`));
+      }, timeoutMs);
+    });
+    return Promise.race([promise, timeout]).finally(() => {
+      if (timer) window.clearTimeout(timer);
+    });
+  }, []);
+
   const refresh = async (): Promise<Snapshot | null> => {
-    if (refreshInFlightRef.current) return null;
+    if (refreshInFlightRef.current) {
+      refreshPendingRef.current = true;
+      return new Promise((resolve) => {
+        refreshWaitersRef.current.push(resolve);
+      });
+    }
+
     refreshInFlightRef.current = true;
-    let resolvedSnapshot: Snapshot | null = null;
+    let latestSnapshot: Snapshot | null = null;
+
     try {
-      let data = await backend.getSnapshot();
-      let prefs: Settings | null = null;
-      if (!hasLoadedSettingsRef.current || settingsOpenRef.current) {
-        prefs = await backend.getSettings();
-      }
-      if (!hasLoadedSettingsRef.current && prefs) {
-        if (!startupTemporaryPathCapturedRef.current) {
-          startupTemporaryPathCapturedRef.current = true;
-          startupTemporaryPathEnabledRef.current = Boolean(prefs.enableTemporaryPath);
-          startupTemporaryPathPathRef.current = prefs.temporaryPath || "";
-        }
-        hasLoadedSettingsRef.current = true;
-      }
-      let normalizedOptions = normalizeCurrencyOptions(data.currencyOptions || []);
-      const nextCurrency = (() => {
-        if (!hasManualCurrencyRef.current) {
-          if (normalizedOptions.includes("USD")) return "USD";
-          if (normalizedOptions.includes("ALL")) return "ALL";
-          if (normalizedOptions.length) return normalizedOptions[0];
-          return "USD";
-        }
-        const base = (data.currency || currency || "USD").toUpperCase();
-        if (normalizedOptions.includes(base)) return base;
-        if (normalizedOptions.includes("USD")) return "USD";
-        if (normalizedOptions.includes("ALL")) return "ALL";
-        if (normalizedOptions.length) return normalizedOptions[0];
-        return "USD";
-      })();
+      // Drain any queued refresh requests in a single in-flight cycle so callers can await
+      // a stable snapshot (especially in ui-check where we patch the backend snapshot).
+      while (true) {
+        refreshPendingRef.current = false;
+        refreshTokenRef.current += 1;
 
-      if (nextCurrency !== data.currency) {
-        await backend.setCurrency(nextCurrency);
-        const refreshed = await backend.getSnapshot();
-        data = { ...refreshed, currency: nextCurrency };
-        normalizedOptions = normalizeCurrencyOptions(data.currencyOptions || []);
-      }
-
-      if (prefs) {
-        backendTemporaryPathPathRef.current = prefs.temporaryPath || "";
-      }
-      setSnapshot(data);
-      resolvedSnapshot = data;
-      const modal = data.modal;
-      if (
-        modal &&
-        modal.id &&
-        modal.id !== activeAlertIdRef.current &&
-        modal.id !== dismissedAlertIdRef.current
-      ) {
-        openAlertModal({
-          id: modal.id,
-          title: modal.title || "Notice",
-          message: modal.message || "",
-          tone: modal.tone || "info"
-        });
-      }
-      if (!settingsOpenRef.current) {
-        if (prefs) {
-          setSettings(prefs);
-          setSavedSettings(prefs);
-          if (!hasLoadedUiPrefsRef.current) {
-            hasLoadedUiPrefsRef.current = true;
-            const ratio = typeof prefs.splitRatio === "number" ? prefs.splitRatio : 0.66;
-            setSplitRatio(Math.min(0.75, Math.max(0.55, ratio)));
+        let resolvedSnapshot: Snapshot | null = null;
+        try {
+          let data = await withTimeout(backend.getSnapshot(), 10000, "backend.getSnapshot()");
+          let prefs: Settings | null = null;
+          if (!hasLoadedSettingsRef.current || settingsOpenRef.current) {
+            prefs = await withTimeout(backend.getSettings(), 10000, "backend.getSettings()");
           }
-        }
-        setOutputDir(data.outputDir || "");
-      } else {
-        setSettings((prev) => {
-          const next = {
-            ...prev,
-            repoPath: prefs?.repoPath ?? prev.repoPath,
-            logPath: prefs?.logPath ?? prev.logPath
-          };
-          if (!dirtyTemporaryPathRef.current) {
-            if (prefs) {
-              next.temporaryPath = prefs.temporaryPath;
-              next.enableTemporaryPath = prefs.enableTemporaryPath;
+
+          if (!hasLoadedSettingsRef.current && prefs) {
+            if (!startupTemporaryPathCapturedRef.current) {
+              startupTemporaryPathCapturedRef.current = true;
+              startupTemporaryPathEnabledRef.current = Boolean(prefs.enableTemporaryPath);
+              startupTemporaryPathPathRef.current = prefs.temporaryPath || "";
             }
+            hasLoadedSettingsRef.current = true;
           }
-          return next;
-        });
-        if (!dirtyOutputDirRef.current) {
-          setOutputDir(data.outputDir || "");
-        }
-      }
-      setCurrency(nextCurrency);
-      setConnecting(false);
-      try {
-        const task = await backend.getTemporaryPathTask();
-        if (task && task.ok) {
-          setTemporaryPathTask({
-            active: Boolean(task.active),
-            phase: task.phase || "idle",
-            progress: typeof task.progress === "number" ? task.progress : 0,
-            message: task.message || "",
-            path: task.path || ""
-          });
-          if (task.active) {
-            if (!temporaryPathTaskPollTimerRef.current) {
-              startTemporaryPathTaskPolling();
+
+          let normalizedOptions = normalizeCurrencyOptions(data.currencyOptions || []);
+          const nextCurrency = (() => {
+            if (!hasManualCurrencyRef.current) {
+              if (normalizedOptions.includes("USD")) return "USD";
+              if (normalizedOptions.includes("ALL")) return "ALL";
+              if (normalizedOptions.length) return normalizedOptions[0];
+              return "USD";
             }
-          } else {
-            stopTemporaryPathTaskPolling();
+            const base = (data.currency || currency || "USD").toUpperCase();
+            if (normalizedOptions.includes(base)) return base;
+            if (normalizedOptions.includes("USD")) return "USD";
+            if (normalizedOptions.includes("ALL")) return "ALL";
+            if (normalizedOptions.length) return normalizedOptions[0];
+            return "USD";
+          })();
+
+          if (nextCurrency !== data.currency) {
+            await withTimeout(backend.setCurrency(nextCurrency), 8000, "backend.setCurrency()");
+            const refreshed = await withTimeout(backend.getSnapshot(), 10000, "backend.getSnapshot()");
+            data = { ...refreshed, currency: nextCurrency };
+            normalizedOptions = normalizeCurrencyOptions(data.currencyOptions || []);
           }
+
+          if (prefs) {
+            backendTemporaryPathPathRef.current = prefs.temporaryPath || "";
+          }
+          setSnapshot(data);
+          resolvedSnapshot = data;
+          const modal = data.modal;
+              if (
+                modal &&
+                modal.id &&
+                modal.id !== activeAlertIdRef.current &&
+                modal.id !== dismissedAlertIdRef.current
+              ) {
+                openAlertModal({
+                  id: modal.id,
+                  title: modal.title || "Notice",
+                  message: modal.message || "",
+                  tone: modal.tone || "info"
+                });
+              } else if (modal && modal.id && modal.id === activeAlertIdRef.current) {
+                setAlertContext((prev) => {
+                  if (!prev || prev.id !== modal.id) return prev;
+                  const nextTitle = modal.title || prev.title;
+                  const nextMessage = modal.message || prev.message;
+                  const nextTone = (modal.tone as "info" | "error" | undefined) || prev.tone;
+                  if (nextTitle === prev.title && nextMessage === prev.message && nextTone === prev.tone) {
+                    return prev;
+                  }
+                  return { ...prev, title: nextTitle, message: nextMessage, tone: nextTone };
+                });
+              }
+              if (!settingsOpenRef.current) {
+                if (prefs) {
+                  const normalizedPrefs =
+                    !prefs.enableSystemTheme && prefs.theme === "system"
+                      ? { ...prefs, theme: resolvedTheme }
+                      : prefs;
+                  setSettings(normalizedPrefs);
+                  setSavedSettings(normalizedPrefs);
+                  if (!hasLoadedUiPrefsRef.current) {
+                    hasLoadedUiPrefsRef.current = true;
+                    const ratio =
+                      typeof normalizedPrefs.splitRatio === "number"
+                        ? normalizedPrefs.splitRatio
+                        : 0.66;
+                    setSplitRatio(Math.min(0.75, Math.max(0.55, ratio)));
+                  }
+                }
+                setOutputDir(data.outputDir || "");
+              } else {
+                setSettings((prev) => {
+                  const next = {
+                    ...prev,
+                    repoPath: prefs?.repoPath ?? prev.repoPath,
+                    logPath: prefs?.logPath ?? prev.logPath
+                  };
+                  if (!dirtyTemporaryPathRef.current) {
+                    if (prefs) {
+                      next.temporaryPath = prefs.temporaryPath;
+                      next.enableTemporaryPath = prefs.enableTemporaryPath;
+                    }
+                  }
+                  return next;
+                });
+                if (!dirtyOutputDirRef.current) {
+                  setOutputDir(data.outputDir || "");
+                }
+              }
+              setCurrency(nextCurrency);
+              setConnecting(false);
+              try {
+                const task = await backend.getTemporaryPathTask();
+                if (task && task.ok) {
+                  setTemporaryPathTask({
+                    active: Boolean(task.active),
+                    phase: task.phase || "idle",
+                    progress: typeof task.progress === "number" ? task.progress : 0,
+                    message: task.message || "",
+                    path: task.path || ""
+                  });
+                  if (task.active) {
+                    if (!temporaryPathTaskPollTimerRef.current) {
+                      startTemporaryPathTaskPolling();
+                    }
+                  } else {
+                    stopTemporaryPathTaskPolling();
+                  }
+                }
+              } catch {
+                // Ignore.
+              }
+
+              if (isUiCheckRuntime && !initOverlayHoldAppliedRef.current) {
+                initOverlayHoldAppliedRef.current = true;
+                const holdMs = Number(
+                  (window as unknown as { __ui_check__?: { holdInitOverlayMs?: number } })
+                    .__ui_check__?.holdInitOverlayMs ?? 0
+                );
+                if (Number.isFinite(holdMs) && holdMs > 0) {
+                  await new Promise((resolve) => window.setTimeout(resolve, holdMs));
+                }
+              }
+
+              setInitState("ready");
+              setInitError("");
+              hasReachedReadyRef.current = true;
+              backend.frontendBootComplete().catch(() => {});
+        } catch (err) {
+          const message = err instanceof Error ? err.message : "Initialization failed";
+          if (isUiCheckRuntime) {
+            const ui = window as unknown as { __ui_check__?: Record<string, unknown> };
+            ui.__ui_check__ = ui.__ui_check__ || {};
+            ui.__ui_check__.lastRefreshError = message;
+          }
+          if (!hasReachedReadyRef.current) {
+            setInitState("error");
+            setInitError(message);
+          }
+          setConnecting(false);
+          console.error(err);
+          backend
+            .addLog({ message: `Frontend init error: ${message}`, level: "ERROR" })
+            .catch(() => {});
+          resolvedSnapshot = null;
         }
-      } catch {
-        // Ignore.
+
+        latestSnapshot = resolvedSnapshot;
+        if (!refreshPendingRef.current) break;
       }
 
-      if (isUiCheckRuntime && !initOverlayHoldAppliedRef.current) {
-        initOverlayHoldAppliedRef.current = true;
-        const holdMs = Number(
-          (window as unknown as { __ui_check__?: { holdInitOverlayMs?: number } }).__ui_check__
-            ?.holdInitOverlayMs ?? 0
-        );
-        if (Number.isFinite(holdMs) && holdMs > 0) {
-          await new Promise((resolve) => window.setTimeout(resolve, holdMs));
-        }
-      }
-
-      setInitState("ready");
-      setInitError("");
-      backend.frontendBootComplete().catch(() => {});
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Initialization failed";
-      setInitState("error");
-      setInitError(message);
-      setConnecting(false);
-      console.error(err);
-      backend
-        .addLog({ message: `Frontend init error: ${message}`, level: "ERROR" })
-        .catch(() => {});
-      resolvedSnapshot = null;
+      return latestSnapshot;
     } finally {
       refreshInFlightRef.current = false;
+      const waiters = refreshWaitersRef.current.splice(0);
+      waiters.forEach((resolve) => resolve(latestSnapshot));
     }
-    return resolvedSnapshot;
   };
+
+  const handleInitRetry = useCallback(() => {
+    refreshTokenRef.current += 1;
+    refreshInFlightRef.current = false;
+    refreshPendingRef.current = false;
+    hasReachedReadyRef.current = false;
+    setInitState("loading");
+    setInitError("");
+    setConnecting(isWebview());
+    void refresh();
+  }, []);
+
+  useEffect(() => {
+    if (initOverlayTimerRef.current) {
+      window.clearTimeout(initOverlayTimerRef.current);
+      initOverlayTimerRef.current = null;
+    }
+
+    if (initState === "ready") {
+      setShowInitOverlay(false);
+      return;
+    }
+
+    if (initState === "error") {
+      setShowInitOverlay(true);
+      return;
+    }
+
+    const delayMs = isUiCheckRuntime ? 0 : 500;
+    if (delayMs <= 0) {
+      setShowInitOverlay(true);
+      return;
+    }
+
+    setShowInitOverlay(false);
+    initOverlayTimerRef.current = window.setTimeout(() => {
+      initOverlayTimerRef.current = null;
+      setShowInitOverlay(true);
+    }, delayMs);
+
+    return () => {
+      if (initOverlayTimerRef.current) {
+        window.clearTimeout(initOverlayTimerRef.current);
+        initOverlayTimerRef.current = null;
+      }
+    };
+  }, [initState, isUiCheckRuntime]);
 
   useEffect(() => {
     refreshRef.current = refresh;
@@ -501,6 +614,10 @@ export default function App() {
     window.addEventListener("pointermove", recordInput, { passive: true });
     window.addEventListener("wheel", recordInput, { passive: true });
     window.addEventListener("keydown", recordInput);
+    const onWakeup = () => {
+      void refreshRef.current();
+    };
+    window.addEventListener("xauusd:wakeup", onWakeup);
     const intervalId = window.setInterval(() => {
       sendUiState();
     }, UI_STATE_HEARTBEAT_MS);
@@ -512,6 +629,7 @@ export default function App() {
       window.removeEventListener("pointermove", recordInput);
       window.removeEventListener("wheel", recordInput);
       window.removeEventListener("keydown", recordInput);
+      window.removeEventListener("xauusd:wakeup", onWakeup);
       window.clearInterval(intervalId);
     };
   }, [sendUiState]);
@@ -687,11 +805,19 @@ export default function App() {
   };
 
   useEffect(() => {
-    const boot = window.requestAnimationFrame(() => {
+    const boot = window.setTimeout(() => {
       void refresh();
-    });
+    }, 0);
+    const watchdog = window.setTimeout(() => {
+      setInitState((prev) => {
+        if (prev !== "loading") return prev;
+        setInitError("Initialization timed out. Please retry.");
+        return "error";
+      });
+    }, 12000);
     return () => {
-      window.cancelAnimationFrame(boot);
+      window.clearTimeout(boot);
+      window.clearTimeout(watchdog);
       stopTemporaryPathTaskPolling();
     };
   }, []);
@@ -729,14 +855,66 @@ export default function App() {
   }, [isUiCheckRuntime, openAlertModal]);
 
   useEffect(() => {
+    if (isUiCheckRuntime) return;
+    if (!isWebview()) return;
+    let unlisten: null | (() => void) = null;
+    let cancelled = false;
+
+    const start = async () => {
+      const un = await tauriListen<{
+        id?: string;
+        title?: string;
+        message?: string;
+        tone?: "info" | "error";
+      }>("xauusd:modal", (detail) => {
+        const id = (detail?.id || "").trim();
+        if (!id) return;
+        if (id === dismissedAlertIdRef.current) return;
+        if (id !== activeAlertIdRef.current) {
+          openAlertModal({
+            id,
+            title: detail?.title || "Notice",
+            message: detail?.message || "",
+            tone: detail?.tone === "error" ? "error" : "info"
+          });
+          return;
+        }
+        setAlertContext((prev) => {
+          if (!prev || prev.id !== id) return prev;
+          const nextTitle = detail?.title || prev.title;
+          const nextMessage = detail?.message || prev.message;
+          const nextTone = detail?.tone === "error" ? "error" : "info";
+          if (nextTitle === prev.title && nextMessage === prev.message && nextTone === prev.tone) {
+            return prev;
+          }
+          return { ...prev, title: nextTitle, message: nextMessage, tone: nextTone };
+        });
+      });
+
+      if (cancelled) {
+        if (un) un();
+        return;
+      }
+      unlisten = un;
+    };
+
+    void start();
+    return () => {
+      cancelled = true;
+      if (unlisten) unlisten();
+    };
+  }, [isUiCheckRuntime, openAlertModal]);
+
+  useEffect(() => {
     if (initState !== "ready" || isUiCheckRuntime) return;
     let timer: number | null = null;
     let cancelled = false;
 
     const schedule = () => {
       if (cancelled) return;
-      const focused = document.visibilityState === "visible" && document.hasFocus();
-      const delay = focused ? 1200 : 8000;
+      // Always refresh on a short cadence so backend-driven alerts (e.g. GitHub token)
+      // show immediately even when the WebView doesn't receive focus until click (WebView2 quirk).
+      const delay = 1200;
       timer = window.setTimeout(() => {
         void refreshRef.current();
         schedule();
@@ -1888,21 +2066,6 @@ export default function App() {
     setActivityPillSnapshot(null);
   };
 
-  const openUninstall = () => {
-    setUninstallOpen(true);
-    setUninstallClosing(false);
-    setUninstallEntering(true);
-  };
-
-  const closeUninstall = () => {
-    setUninstallClosing(true);
-    window.setTimeout(() => {
-      setUninstallOpen(false);
-      setUninstallClosing(false);
-      setUninstallEntering(false);
-    }, 240);
-  };
-
   const handleTemporaryPathWarningCancel = async () => {
     const context = temporaryPathWarningContext;
     if (!context) {
@@ -2031,6 +2194,14 @@ export default function App() {
 
     const onFocus = () => reset();
     const onBlur = () => setAlertCountdownArmed(false);
+    const onMouseOut = (event: MouseEvent) => {
+      // Pause auto-close if the pointer leaves the app window (old behavior).
+      if (activeAlertIdRef.current !== alertContextId) return;
+      // When leaving the window, relatedTarget is typically null.
+      const related = (event as unknown as { relatedTarget?: EventTarget | null }).relatedTarget;
+      if (related != null) return;
+      setAlertCountdownArmed(false);
+    };
     const onVisibility = () => {
       if (document.visibilityState === "visible") {
         reset();
@@ -2041,6 +2212,13 @@ export default function App() {
     const onPointerMove = () => {
       if (activeAlertIdRef.current !== alertContextId) return;
       if (document.visibilityState !== "visible" || !document.hasFocus()) return;
+      if (
+        (alertContext?.title || "").toLowerCase() === "github token" &&
+        (alertContext?.message || "").toLowerCase().includes("checking token")
+      ) {
+        // Keep the token-check modal open until it has a final result.
+        return;
+      }
       setAlertCountdownArmed((prev) => {
         if (prev) return prev;
         setAlertCountdown(5);
@@ -2050,6 +2228,7 @@ export default function App() {
 
     window.addEventListener("focus", onFocus);
     window.addEventListener("blur", onBlur);
+    window.addEventListener("mouseout", onMouseOut);
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("pointermove", onPointerMove);
     window.addEventListener("mousemove", onPointerMove);
@@ -2066,6 +2245,12 @@ export default function App() {
       ) {
         return;
       }
+      if (
+        (alertContext?.title || "").toLowerCase() === "github token" &&
+        (alertContext?.message || "").toLowerCase().includes("checking token")
+      ) {
+        return;
+      }
       setAlertCountdown((prev) => {
         if (prev <= 1) {
           closeAlertModal();
@@ -2079,6 +2264,7 @@ export default function App() {
       window.clearInterval(timer);
       window.removeEventListener("focus", onFocus);
       window.removeEventListener("blur", onBlur);
+      window.removeEventListener("mouseout", onMouseOut);
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("mousemove", onPointerMove);
@@ -2101,12 +2287,6 @@ export default function App() {
       window.cancelAnimationFrame(raf2);
     };
   }, [activityOpen, activityEntering]);
-
-  useEffect(() => {
-    if (!uninstallOpen) return;
-    const id = window.setTimeout(() => setUninstallEntering(false), 80);
-    return () => window.clearTimeout(id);
-  }, [uninstallOpen]);
 
   useEffect(() => {
     splitRatioRef.current = splitRatio;
@@ -2159,11 +2339,11 @@ export default function App() {
 
   useEffect(() => {
     const body = document.body;
-    const isOpen = settingsOpen || uninstallOpen || historyOpen;
+    const isOpen = settingsOpen || historyOpen;
     body.classList.toggle("modal-open", isOpen);
     body.style.paddingRight = "";
     return () => body.classList.remove("modal-open");
-  }, [settingsOpen, uninstallOpen, historyOpen]);
+  }, [settingsOpen, historyOpen]);
 
   useEffect(() => {
     const handleMove = (event: MouseEvent) => {
@@ -2374,14 +2554,6 @@ export default function App() {
   }, [snapshot.events.length, initState]);
 
   useEffect(() => {
-    const handler = () => {
-      setConnecting(false);
-    };
-    window.addEventListener("pywebviewready", handler);
-    return () => window.removeEventListener("pywebviewready", handler);
-  }, []);
-
-  useEffect(() => {
     allowThemeAnimationRef.current = true;
     return () => {
       if (themeSwapTimerRef.current) {
@@ -2466,7 +2638,7 @@ export default function App() {
     (window as { __APP_BOOTSTRAPPED__?: boolean }).__APP_BOOTSTRAPPED__ = true;
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const resolveTheme = (theme: Settings["theme"]) => {
       if (theme !== "system") return theme;
       if (typeof window !== "undefined" && window.matchMedia) {
@@ -2479,6 +2651,8 @@ export default function App() {
         holdInitOverlayMs?: number;
         appendLog?: (message: string, level?: string) => void;
         refresh?: () => void;
+        refreshAsync?: () => Promise<Snapshot | null>;
+        patchSnapshot?: (next: Partial<Snapshot>) => void;
         refreshUpdateState?: () => Promise<void>;
         setActivityHover?: (active: boolean) => void;
         showAlertModal?: (payload: { title?: string; message?: string; tone?: "info" | "error" }) => void;
@@ -2544,7 +2718,19 @@ export default function App() {
       ...(window as unknown as { __ui_check__?: Record<string, unknown> }).__ui_check__,
       appendLog: (message: string, level = "INFO") => appendLogEntry(message, level),
       refresh: () => {
-        refresh();
+        void refresh();
+      },
+      refreshAsync: async () => {
+        const startedAt = Date.now();
+        while (Date.now() - startedAt < 15000) {
+          const result = await refresh();
+          if (result) return result;
+          await new Promise((resolve) => window.setTimeout(resolve, 40));
+        }
+        return null;
+      },
+      patchSnapshot: (next: Partial<Snapshot>) => {
+        setSnapshot((prev) => ({ ...prev, ...next }));
       },
       setActivityHover: (active) => {
         if (activityHoverTimerRef.current) {
@@ -3096,7 +3282,9 @@ export default function App() {
 
   return (
     <div className="app" data-qa="qa:app-shell">
-      <InitOverlay state={initState} error={initError} onRetry={refresh} />
+      {showInitOverlay ? (
+        <InitOverlay state={initState} error={initError} onRetry={handleInitRetry} />
+      ) : null}
       <AppBar
         snapshot={snapshot}
         outputDir={outputDir}
@@ -3129,6 +3317,7 @@ export default function App() {
             <NextEvents
               events={snapshot.events}
               loading={snapshot.calendarStatus === "loading"}
+              downloading={snapshot.calendarStatus === "downloading"}
               currency={currency}
               currencyOptions={currencyOptions}
               onCurrencyChange={handleCurrency}
@@ -3143,6 +3332,7 @@ export default function App() {
             <HistoryPanel
               events={snapshot.pastEvents}
               loading={snapshot.calendarStatus === "loading"}
+              downloading={snapshot.calendarStatus === "downloading"}
               impactTone={impactTone}
               impactFilter={impactFilter}
               onOpenHistory={(item) => openEventHistory({ event: item.event, cur: item.cur })}
@@ -3362,7 +3552,6 @@ export default function App() {
         }}
         onOutputDirBlur={() => {}}
         onBrowseOutput={handleBrowse}
-        onOpenUninstall={openUninstall}
       />
 
       <TemporaryPathWarningModal
@@ -3397,53 +3586,6 @@ export default function App() {
         onCancel={handleTemporaryPathWarningCancel}
         onUseAsIs={handleTemporaryPathWarningUseAsIs}
         onReset={handleTemporaryPathWarningReset}
-      />
-
-      <UninstallModal
-        isOpen={uninstallOpen}
-        isClosing={uninstallClosing}
-        isEntering={uninstallEntering}
-        settings={settings}
-        onClose={closeUninstall}
-        onRemoveLogs={(value) =>
-          setSettings((prev) => ({
-            ...prev,
-            removeLogs: value
-          }))
-        }
-        onRemoveOutput={(value) =>
-          setSettings((prev) => ({
-            ...prev,
-            removeOutput: value
-          }))
-        }
-        onRemoveTemporaryPaths={(value) =>
-          setSettings((prev) => ({
-            ...prev,
-            removeTemporaryPaths: value
-          }))
-        }
-        onConfirmChange={(value) =>
-          setSettings((prev) => ({
-            ...prev,
-            uninstallConfirm: value
-          }))
-        }
-        onConfirm={async () => {
-          const confirm = settings.uninstallConfirm.trim().toUpperCase();
-          const result = await backend.uninstall({
-            confirm,
-            removeLogs: settings.removeLogs,
-            removeOutput: settings.removeOutput,
-            removeTemporaryPaths: settings.removeTemporaryPaths
-          });
-          if (!result.ok) {
-            pushToast("error", result.message || "Uninstall failed");
-            return;
-          }
-          pushToast("success", "Uninstall completed");
-          closeUninstall();
-        }}
       />
 
       <AlertModal

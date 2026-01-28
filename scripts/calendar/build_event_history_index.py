@@ -13,11 +13,6 @@ from typing import Final
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
-# isort: off
-from app.agent.event_history import build_event_canonical_id  # noqa: E402
-
-# isort: on
-
 _MISSING_TOKENS = {"", "--", "-", "\u2014", "tba", "n/a", "na", "null"}
 _AUTO_PREVIOUS_FILL_PATCH: Final[str] = "previous_missing_filled"
 _MANUAL_OVERRIDE_PATCH: Final[str] = "manual_override"
@@ -62,6 +57,81 @@ _MONTH_ALIASES: Final[dict[str, str]] = {
 _PERIOD_TOKEN_RE: Final[re.Pattern[str]] = re.compile(
     r"^(?:q[1-4]|h[1-2])$", re.IGNORECASE
 )
+
+
+@dataclass(frozen=True)
+class EventIdentity:
+    metric: str
+    frequency: str
+    period: str
+
+
+_FREQ_TOKENS: Final[list[tuple[re.Pattern[str], str]]] = [
+    (re.compile(r"\b(?:yoy|y/y)\b", re.IGNORECASE), "y/y"),
+    (re.compile(r"\b(?:mom|m/m)\b", re.IGNORECASE), "m/m"),
+    (re.compile(r"\b(?:qoq|q/q)\b", re.IGNORECASE), "q/q"),
+    (re.compile(r"\b(?:wow|w/w)\b", re.IGNORECASE), "w/w"),
+]
+
+
+def _extract_parenthetical_tokens(text: str) -> list[str]:
+    return [m.group(1).strip() for m in re.finditer(r"\(([^)]+)\)", text)]
+
+
+def _looks_like_period_token(token: str) -> bool:
+    normalized = _normalize_period(token)
+    if normalized in _MONTH_ORDER or normalized in _MONTH_ALIASES:
+        return True
+    return bool(_PERIOD_TOKEN_RE.match(normalized))
+
+
+def _detect_frequency(text: str) -> str:
+    for pattern, normalized in _FREQ_TOKENS:
+        if pattern.search(text):
+            return normalized
+    return ""
+
+
+def _strip_known_suffixes(metric: str) -> str:
+    # Remove trailing parenthetical tokens that look like frequency or period.
+    tokens = _extract_parenthetical_tokens(metric)
+    if not tokens:
+        return metric
+    trimmed = metric
+    # Remove only from the end to avoid nuking important middle qualifiers.
+    while True:
+        match = re.search(r"\s*\(([^)]+)\)\s*$", trimmed)
+        if not match:
+            break
+        token = match.group(1).strip()
+        normalized = token.lower().replace(".", "").strip()
+        if _looks_like_period_token(token) or any(pat.search(normalized) for pat, _ in _FREQ_TOKENS):
+            trimmed = trimmed[: match.start()].rstrip()
+            continue
+        break
+    return trimmed
+
+
+def build_event_canonical_id(cur: str, event_name: str) -> tuple[str, EventIdentity]:
+    currency = (cur or "").strip().upper()
+    if currency in {"", "--", "-", "\u2014"}:
+        currency = "NA"
+
+    raw = (event_name or "").strip()
+    freq = _detect_frequency(raw)
+
+    period = ""
+    # Prefer a trailing "(Jan)" / "(Q1)" etc if present.
+    tail = re.search(r"\(([^)]+)\)\s*$", raw)
+    if tail and _looks_like_period_token(tail.group(1)):
+        period = tail.group(1).strip()
+
+    metric = _strip_known_suffixes(raw)
+    metric = re.sub(r"\s+", " ", metric).strip()
+    safe_metric = metric.replace("::", " ")
+
+    event_id = f"{currency}::{safe_metric}::{freq}"
+    return event_id, EventIdentity(metric=metric, frequency=freq, period=period)
 
 
 def _normalize_period(value: str) -> str:

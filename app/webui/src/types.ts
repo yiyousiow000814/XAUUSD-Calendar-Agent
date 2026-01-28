@@ -75,7 +75,7 @@ export type Snapshot = {
   version: string;
   pullActive?: boolean;
   syncActive?: boolean;
-  calendarStatus?: "loading" | "loaded" | "empty" | "error";
+  calendarStatus?: "loading" | "downloading" | "loaded" | "empty" | "error";
   restartInSeconds?: number;
   modal?: UiModal | null;
 };
@@ -98,8 +98,4 @@ export type Settings = {
   temporaryPath: string;
   repoPath: string;
   logPath: string;
-  removeLogs: boolean;
-  removeOutput: boolean;
-  removeTemporaryPaths: boolean;
-  uninstallConfirm: string;
 };

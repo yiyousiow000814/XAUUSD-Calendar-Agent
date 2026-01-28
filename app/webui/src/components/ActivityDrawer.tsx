@@ -136,8 +136,6 @@ export function ActivityDrawer({
       }
     };
 
-    const lastClipRadiusRef = { current: "" };
-
     const syncGhostPillWithExternal = () => {
       if (!pill || !externalPill) return;
       const style = window.getComputedStyle(externalPill);
@@ -242,13 +240,6 @@ export function ActivityDrawer({
         const rx = clamp(radiusScreenPx / safeScaleX, 0, 999);
         const ry = clamp(radiusScreenPx / safeScaleY, 0, 999);
         drawer.style.borderRadius = `${rx.toFixed(2)}px / ${ry.toFixed(2)}px`;
-
-        const clipRadiusPx = clamp(Math.min(rx, ry) + 1.2, 0, 999);
-        const clipRadius = `${clipRadiusPx.toFixed(2)}px`;
-        if (clipRadius !== lastClipRadiusRef.current) {
-          lastClipRadiusRef.current = clipRadius;
-          drawer.style.setProperty("--activity-clip-radius", clipRadius);
-        }
       };
 
       const setPillTransform = (scaleX: number, scaleY: number) => {
@@ -280,15 +271,15 @@ export function ActivityDrawer({
         bodyInner.style.transformOrigin = "top left";
         bodyInner.style.transform = `scale(${(1 / origin.sx).toFixed(6)}, ${(1 / origin.sy).toFixed(6)})`;
 
-        content.style.willChange = "opacity, transform, filter";
+        content.style.willChange = "opacity, transform";
         content.style.opacity = "0";
         content.style.transform = "translateY(10px)";
-        content.style.filter = prefersReducedMotion ? "none" : "blur(5px)";
+        content.style.filter = "";
 
         if (pill) {
-          pill.style.willChange = "opacity, transform, filter";
+          pill.style.willChange = "opacity, transform";
           pill.style.opacity = "1";
-          pill.style.filter = prefersReducedMotion ? "none" : "blur(2px)";
+          pill.style.filter = "";
           setPillTransform(origin.sx, origin.sy);
         }
         if (externalPill) {
@@ -332,10 +323,7 @@ export function ActivityDrawer({
             if (pill) {
               const pillOpacity = clamp(1 - materialP, 0, 1);
               pill.style.opacity = pillOpacity.toFixed(3);
-              if (!prefersReducedMotion) {
-                // Keep the pill a touch softer during the early morph.
-                pill.style.filter = `blur(${(pillOpacity * 2).toFixed(2)}px)`;
-              }
+              pill.style.filter = "";
             }
 
             // Keep early frames from reading "too crisp" while the drawer is still small.
@@ -343,9 +331,7 @@ export function ActivityDrawer({
             const contentP = easeOutCubic(contentRaw);
             content.style.opacity = contentP.toFixed(3);
             content.style.transform = `translateY(${((1 - contentP) * 10).toFixed(2)}px)`;
-            if (!prefersReducedMotion) {
-              content.style.filter = `blur(${((1 - contentP) * 5).toFixed(2)}px)`;
-            }
+            content.style.filter = "";
           },
           () => {
             cancelTweenRef.current = null;
@@ -353,7 +339,7 @@ export function ActivityDrawer({
             drawer.style.transformOrigin = "";
             drawer.style.transform = "";
             drawer.style.borderRadius = "";
-            drawer.style.removeProperty("--activity-clip-radius");
+
 
             setBackdrop(1);
 
@@ -417,10 +403,10 @@ export function ActivityDrawer({
         drawer.style.setProperty("--activity-morph-pill-opacity", "0");
         bodyInner.style.willChange = "transform";
         bodyInner.style.transformOrigin = "top left";
-        content.style.willChange = "opacity, transform, filter";
+        content.style.willChange = "opacity, transform";
         content.style.filter = "";
         if (pill) {
-          pill.style.willChange = "opacity, transform, filter";
+          pill.style.willChange = "opacity, transform";
           pill.style.opacity = "0";
           pill.style.filter = "";
           setPillTransform(1, 1);
@@ -480,9 +466,7 @@ export function ActivityDrawer({
             const contentOpacity = (1 - contentFadeP) * (1 - ghostP);
             content.style.opacity = contentOpacity.toFixed(3);
             content.style.transform = `translateY(${(contentFadeP * 10).toFixed(2)}px)`;
-            if (!prefersReducedMotion) {
-              content.style.filter = `blur(${(contentFadeP * 4 * (1 - ghostP)).toFixed(2)}px)`;
-            }
+            content.style.filter = "";
 
             drawer.style.setProperty("--activity-morph-panel-opacity", (1 - ghostP).toFixed(3));
             drawer.style.setProperty("--activity-morph-pill-opacity", ghostP.toFixed(3));
@@ -505,9 +489,7 @@ export function ActivityDrawer({
               const pillCrispP = easeOutCubic(pillCrispRaw);
               const pillOpacity = ghostP * (1 - handoffP) * (0.15 + 0.85 * pillCrispP);
               pill.style.opacity = pillOpacity.toFixed(3);
-              if (!prefersReducedMotion) {
-                pill.style.filter = `blur(${((1 - pillCrispP) * 5).toFixed(2)}px)`;
-              }
+              pill.style.filter = "";
               if (externalPill) {
                 externalPill.style.visibility = handoffP > 0.02 ? "visible" : "hidden";
                 externalPill.style.opacity = handoffP.toFixed(3);
@@ -522,7 +504,7 @@ export function ActivityDrawer({
             bodyInner.style.willChange = "";
             content.style.willChange = "";
             content.style.filter = "";
-            drawer.style.removeProperty("--activity-clip-radius");
+
             setBackdrop(0);
             if (pill) {
               pill.style.willChange = "";

@@ -1,14 +1,10 @@
 import { expect, test } from "@playwright/test";
 
 test("desktop runtime waits for backend instead of rendering mock events", async ({ browser }) => {
-  const context = await browser.newContext({ userAgent: "XAUUSDCalendar/1.0" });
-  await context.addInitScript(() => {
-    window.__UI_CHECK_RUNTIME__ = true;
-  });
+  const context = await browser.newContext();
   const page = await context.newPage();
 
   await page.addInitScript(() => {
-    // Test-only mock: the real app version is owned by the desktop backend (APP_VERSION).
     const snapshot = {
       lastPull: "Not yet",
       lastSync: "Not yet",
@@ -25,12 +21,17 @@ test("desktop runtime waits for backend instead of rendering mock events", async
     const settings = {
       autoSyncAfterPull: true,
       autoUpdateEnabled: true,
-      autoUpdateIntervalMinutes: 60,
       runOnStartup: true,
+      autostartLaunchMode: "tray",
+      closeBehavior: "exit",
       debug: false,
       autoSave: true,
+      splitRatio: 0.66,
       enableSystemTheme: false,
       theme: "dark",
+      calendarTimezoneMode: "system",
+      calendarUtcOffsetMinutes: 0,
+      enableTemporaryPath: false,
       temporaryPath: "",
       repoPath: "",
       logPath: "",
@@ -40,16 +41,19 @@ test("desktop runtime waits for backend instead of rendering mock events", async
       uninstallConfirm: ""
     };
 
-    window.setTimeout(() => {
-      (window as unknown as { pywebview?: unknown }).pywebview = {
-        api: {
-          get_snapshot: () => Promise.resolve(snapshot),
-          get_settings: () => Promise.resolve(settings),
-          set_currency: () => Promise.resolve({ ok: true })
-        }
-      };
-      window.dispatchEvent(new Event("pywebviewready"));
-    }, 300);
+    const invoke = (command: string, args?: Record<string, unknown>) =>
+      new Promise((resolve) => {
+        window.setTimeout(() => {
+          if (command === "get_snapshot") return resolve(snapshot);
+          if (command === "get_settings") return resolve(settings);
+          if (command === "set_currency") return resolve({ ok: true });
+          if (command === "frontend_boot_complete") return resolve({ ok: true });
+          if (command === "set_ui_state") return resolve({ ok: true });
+          return resolve({ ok: false });
+        }, 300);
+      });
+
+    (window as unknown as { __TAURI__?: unknown }).__TAURI__ = { core: { invoke } };
   });
 
   await page.goto("/");

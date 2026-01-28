@@ -1258,7 +1258,6 @@ USD::adp employment change weekly::none,2026-01-20,21:15,,8.00K,,11.25K
 TRY::central government debt stock::none,2026-01-20,22:30,dec,"13,656.0B",,"13,325.0B"
 NZD::globaldairytrade price index::none,2026-01-20,22:45,,1.5%,,6.3%
 USD::milk auctions::none,2026-01-20,22:45,,"3,615.0",,"3,533.0"
-NA::oman - al isra' wal - mi'raj::none,2026-01-21,All Day,,,,
 USD::3 - month bill auction::none,2026-01-21,00:30,,3.590%,,3.570%
 USD::6 - month bill auction::none,2026-01-21,00:30,,3.520%,,3.490%
 EUR::german buba president nagel speaks::none,2026-01-21,00:30,,,,
@@ -1321,7 +1320,6 @@ USD::construction spending::m/m,2026-01-21,23:00,sep,-0.6%,,0.4%
 USD::construction spending::m/m,2026-01-21,23:00,oct,0.5%,0.1%,-0.6%
 USD::pending home sales::m/m,2026-01-21,23:00,dec,-9.3%,-0.3%,3.3%
 USD::pending home sales index::none,2026-01-21,23:00,dec,71.8,,79.2
-NA::oman - al isra' wal - mi'raj::none,2026-01-22,All Day,,,,
 USD::atlanta fed gdpnow::none,2026-01-22,00:30,q4,5.4%,5.3%,5.3%
 EUR::ecb president lagarde speaks::none,2026-01-22,00:45,,,,
 BRL::foreign exchange flows::none,2026-01-22,01:30,,2.215B,,-1.696B
@@ -1412,7 +1410,6 @@ EUR::consumer confidence::none,2026-01-22,23:00,jan,-12.4,-13.0,-13.2
 USD::natural gas storage::none,2026-01-22,23:30,,-120B,-90B,-71B
 USD::kc fed composite index::none,2026-01-23,00:00,jan,0,,0
 USD::kc fed manufacturing index::none,2026-01-23,00:00,jan,-2,,-3
-NA::oman - al isra' wal - mi'raj::none,2026-01-23,All Day,,,,
 USD::4 - week bill auction::none,2026-01-23,00:30,,3.630%,,3.595%
 USD::8 - week bill auction::none,2026-01-23,00:30,,3.630%,,3.600%
 USD::atlanta fed gdpnow::none,2026-01-23,01:00,q4,5.4%,5.4%,5.4%
@@ -1499,7 +1496,6 @@ USD::michigan 5 - year inflation expectations::none,2026-01-23,23:00,jan,3.3%,3.
 USD::michigan consumer expectations::none,2026-01-23,23:00,jan,57.0,55.0,54.6
 USD::michigan consumer sentiment::none,2026-01-23,23:00,jan,56.4,54.0,52.9
 USD::michigan current conditions::none,2026-01-23,23:00,jan,55.4,52.4,50.4
-NA::oman - al isra' wal - mi'raj::none,2026-01-24,All Day,,,,
 USD::u.s. baker hughes oil rig count::none,2026-01-24,02:00,,411,411,410
 USD::u.s. baker hughes total rig count::none,2026-01-24,02:00,,544,,543
 AUD::cftc aud speculative net positions::none,2026-01-24,04:30,,-14.0K,,-18.8K
@@ -1522,131 +1518,126 @@ USD::cftc s&p 500 speculative net positions::none,2026-01-24,04:30,,-81.8K,,-122
 USD::cftc silver speculative net positions::none,2026-01-24,04:30,,25.2K,,32.1K
 USD::cftc soybeans speculative net positions::none,2026-01-24,04:30,,58.1K,,58.9K
 USD::cftc wheat speculative net positions::none,2026-01-24,04:30,,-93.7K,,-86.0K
-NA::egypt - revolution day::none,2026-01-25,All Day,,,,
-NA::oman - al isra' wal - mi'raj::none,2026-01-25,All Day,,,,
 ILS::industrial output::m/m,2026-01-25,19:00,nov,6.3%,,6.3%
 NA::australia - australia day::none,2026-01-26,All Day,,,,
 NA::india - republic day::none,2026-01-26,All Day,,,,
-NA::oman - al isra' wal - mi'raj::none,2026-01-26,All Day,,,,
-JPY::coincident indicator::m/m,2026-01-26,13:00,nov,,-0.7%,-1.3%
-JPY::leading index::none,2026-01-26,13:00,nov,,110.5,109.8
-JPY::leading index::m/m,2026-01-26,13:00,nov,,0.7%,0.9%
-SGD::industrial production::m/m,2026-01-26,13:00,dec,,-15.2%,-10.2%
-SGD::industrial production::y/y,2026-01-26,13:00,dec,,10.1%,14.3%
-EUR::finnish export price index::y/y,2026-01-26,14:00,dec,,,-1.1%
-EUR::finnish import price index::y/y,2026-01-26,14:00,dec,,,-2.7%
-EUR::finnish ppi::y/y,2026-01-26,14:00,dec,,,0.2%
-EUR::spanish ppi::y/y,2026-01-26,16:00,dec,,,-2.5%
-PLN::retail sales::y/y,2026-01-26,17:00,dec,,5.5%,2.8%
-EUR::german business expectations::none,2026-01-26,17:00,jan,,,89.7
-EUR::german current assessment::none,2026-01-26,17:00,jan,,,85.6
-EUR::german ifo business climate index::none,2026-01-26,17:00,jan,,88.3,87.6
+JPY::coincident indicator::m/m,2026-01-26,13:00,nov,-1.0%,-0.7%,-1.3%
+JPY::leading index::none,2026-01-26,13:00,nov,109.9,110.5,109.8
+JPY::leading index::m/m,2026-01-26,13:00,nov,0.1%,0.7%,0.9%
+SGD::industrial production::m/m,2026-01-26,13:00,dec,-13.3%,-15.2%,-7.8%
+SGD::industrial production::y/y,2026-01-26,13:00,dec,8.3%,10.1%,18.2%
+EUR::finnish export price index::y/y,2026-01-26,14:00,dec,-2.1%,,-1.1%
+EUR::finnish import price index::y/y,2026-01-26,14:00,dec,-1.8%,,-2.7%
+EUR::finnish ppi::y/y,2026-01-26,14:00,dec,-0.8%,,0.2%
+EUR::spanish ppi::y/y,2026-01-26,16:00,dec,-3.0%,,-2.5%
+PLN::retail sales::y/y,2026-01-26,17:00,dec,5.0%,5.5%,2.8%
+EUR::german business expectations::none,2026-01-26,17:00,jan,89.5,,89.7
+EUR::german current assessment::none,2026-01-26,17:00,jan,85.7,,85.6
+EUR::german ifo business climate index::none,2026-01-26,17:00,jan,87.6,88.3,87.6
 BRL::bcb focus market readout::none,2026-01-26,19:25,,,,
-BRL::current account (usd)::none,2026-01-26,19:30,dec,,,-4.94B
-BRL::foreign direct investment (usd)::none,2026-01-26,19:30,dec,,,9.82B
-MXN::unemployment rate::none,2026-01-26,20:00,dec,,,2.70%
-MXN::unemployment rate n.s.a.::none,2026-01-26,20:00,dec,,,2.70%
-PLN::m3 money supply::y/y,2026-01-26,21:00,dec,,10.4%,10.6%
-USD::chicago fed national activity::none,2026-01-26,21:30,nov,,,-0.21
-USD::core durable goods orders::m/m,2026-01-26,21:30,nov,,0.3%,0.1%
-USD::durable goods orders::m/m,2026-01-26,21:30,nov,,3.1%,-2.2%
-USD::durables excluding defense::m/m,2026-01-26,21:30,nov,,,-1.5%
-USD::goods orders non defense ex air::m/m,2026-01-26,21:30,nov,,,0.5%
-EUR::belgium nbb business climate::none,2026-01-26,22:00,jan,,-10.2,-11.9
-EUR::french 12 - month btf auction::none,2026-01-26,22:00,,,,2.085%
-EUR::french 3 - month btf auction::none,2026-01-26,22:00,,,,2.019%
-EUR::french 6 - month btf auction::none,2026-01-26,22:00,,,,2.048%
-USD::dallas fed mfg business index::none,2026-01-26,23:30,jan,,,-10.9
-USD::atlanta fed gdpnow::none,2026-01-26,23:30,q4,,5.4%,5.4%
-USD::3 - month bill auction::none,2026-01-27,00:30,,,,3.590%
-USD::6 - month bill auction::none,2026-01-27,00:30,,,,3.520%
-USD::2 - year note auction::none,2026-01-27,02:00,,,,3.499%
-KRW::consumer confidence::none,2026-01-27,05:00,jan,,,109.9
-AUD::nab business confidence::none,2026-01-27,08:30,dec,,,1
-AUD::nab business survey::none,2026-01-27,08:30,dec,,,7
-PHP::exports::y/y,2026-01-27,09:00,dec,,,21.3%
-PHP::imports::y/y,2026-01-27,09:00,dec,,,-2.0%
-PHP::trade balance::none,2026-01-27,09:00,dec,,,"-3,514.0M"
-CNY::chinese industrial profit ytd::none,2026-01-27,09:30,dec,,,0.1%
-NZD::credit card spending::y/y,2026-01-27,10:00,dec,,,4.7%
-CZK::car registration::m/m,2026-01-27,13:00,dec,,,-8.50%
-EUR::car registration::m/m,2026-01-27,13:00,dec,,,2.5%
-GBP::car registration::m/m,2026-01-27,13:00,dec,,,4.3%
-HUF::car registration::m/m,2026-01-27,13:00,dec,,,-0.50%
-PLN::car registration::m/m,2026-01-27,13:00,dec,,,-7.00%
-RON::car registration::m/m,2026-01-27,13:00,dec,,,8.10%
-CZK::car registration::y/y,2026-01-27,13:00,dec,,,3.30%
-EUR::car registration::y/y,2026-01-27,13:00,dec,,,3.3%
-GBP::car registration::y/y,2026-01-27,13:00,dec,,,-1.6%
-HUF::car registration::y/y,2026-01-27,13:00,dec,,,1.00%
-PLN::car registration::y/y,2026-01-27,13:00,dec,,,-0.30%
-RON::car registration::y/y,2026-01-27,13:00,dec,,,35.60%
-EUR::french car registration::m/m,2026-01-27,13:00,dec,,,-4.7%
-EUR::french car registration::y/y,2026-01-27,13:00,dec,,,-0.3%
-EUR::german car registration::m/m,2026-01-27,13:00,dec,,,0.2%
-EUR::german car registration::y/y,2026-01-27,13:00,dec,,,2.5%
-EUR::italian car registration::m/m,2026-01-27,13:00,dec,,,-1.4%
-EUR::italian car registration::y/y,2026-01-27,13:00,dec,,,0.0%
-EUR::finnish unemployment rate::none,2026-01-27,14:00,dec,,,10.6%
-EUR::finnish consumer confidence::none,2026-01-27,14:00,jan,,,-7.3
-EUR::finnish industrial confidence::none,2026-01-27,14:00,jan,,,0
-ZAR::leading indicators::none,2026-01-27,15:00,nov,,,116.70%
-EUR::lithuania industrial production::m/m,2026-01-27,15:00,dec,,,5.80%
-EUR::lithuania industrial production::y/y,2026-01-27,15:00,dec,,,2.60%
-EUR::lithuania retail sales::m/m,2026-01-27,15:00,dec,,,-2.4%
-EUR::lithuania retail sales::y/y,2026-01-27,15:00,dec,,,3.2%
-SEK::ppi::m/m,2026-01-27,15:00,dec,,,1.2%
-SEK::ppi::y/y,2026-01-27,15:00,dec,,,-1.4%
-DKK::retail sales::y/y,2026-01-27,15:00,dec,,,4.7%
-SEK::trade balance::none,2026-01-27,15:00,dec,,,11.60B
-EUR::french consumer confidence::none,2026-01-27,15:45,jan,,,90
-EUR::spanish unemployment rate::none,2026-01-27,16:00,q4,,10.60%,10.45%
-HKD::exports::m/m,2026-01-27,16:30,dec,,,18.8%
-HKD::imports::m/m,2026-01-27,16:30,dec,,,18.1%
-HKD::trade balance::none,2026-01-27,16:30,dec,,,-48.5B
-EUR::german 2 - year schatz auction::none,2026-01-27,18:30,,,,2.110%
-MXN::trade balance::none,2026-01-27,20:00,dec,,,0.663B
-MXN::trade balance (usd)::none,2026-01-27,20:00,dec,,,-0.274B
-BRL::mid - month cpi::m/m,2026-01-27,20:00,jan,,,0.25%
-BRL::mid - month cpi::y/y,2026-01-27,20:00,jan,,,4.41%
-KWD::bank lending::y/y,2026-01-27,21:00,dec,,,6.98%
-KWD::m2 money supply::y/y,2026-01-27,21:00,dec,,,3.27%
-HUF::interest rate decision::none,2026-01-27,21:00,jan,,6.50%,6.50%
-USD::adp employment change weekly::none,2026-01-27,21:15,,,,8.00K
-CAD::wholesale sales::m/m,2026-01-27,21:30,dec,,,-1.8%
-USD::redbook::y/y,2026-01-27,21:55,,,,5.5%
-USD::house price index::none,2026-01-27,22:00,nov,,,436.7
-USD::house price index::m/m,2026-01-27,22:00,nov,,0.3%,0.4%
-USD::house price index::y/y,2026-01-27,22:00,nov,,,1.7%
-USD::s&p/cs hpi composite - 20 n.s.a.::m/m,2026-01-27,22:00,nov,,,-0.3%
-USD::s&p/cs hpi composite - 20 n.s.a.::y/y,2026-01-27,22:00,nov,,1.2%,1.3%
-USD::s&p/cs hpi composite - 20 s.a.::m/m,2026-01-27,22:00,nov,,,0.3%
-CAD::boc rate statement::none,2026-01-27,22:45,,,,
-USD::cb consumer confidence::none,2026-01-27,23:00,jan,,90.1,89.1
-USD::richmond manufacturing index::none,2026-01-27,23:00,jan,,-5,-7
-USD::richmond manufacturing shipments::none,2026-01-27,23:00,jan,,,-11
-USD::richmond services index::none,2026-01-27,23:00,jan,,,-6
-USD::dallas fed services revenues::none,2026-01-27,23:30,jan,,,0.1
-USD::texas services sector outlook::none,2026-01-27,23:30,jan,,,-3.3
+BRL::current account (usd)::none,2026-01-26,19:30,dec,-3.36B,-5.30B,-4.94B
+BRL::foreign direct investment (usd)::none,2026-01-26,19:30,dec,-5.25B,1.00B,9.82B
+MXN::unemployment rate::none,2026-01-26,20:00,dec,2.60%,,2.70%
+MXN::unemployment rate n.s.a.::none,2026-01-26,20:00,dec,2.40%,2.60%,2.70%
+PLN::m3 money supply::y/y,2026-01-26,21:00,dec,10.4%,10.4%,10.6%
+USD::chicago fed national activity::none,2026-01-26,21:30,nov,-0.04,,-0.24
+USD::core durable goods orders::m/m,2026-01-26,21:30,nov,0.5%,0.3%,0.2%
+USD::durable goods orders::m/m,2026-01-26,21:30,nov,5.3%,3.1%,-2.1%
+USD::durables excluding defense::m/m,2026-01-26,21:30,nov,6.6%,,-1.3%
+USD::goods orders non defense ex air::m/m,2026-01-26,21:30,nov,0.7%,,0.3%
+EUR::belgium nbb business climate::none,2026-01-26,22:00,jan,-8.8,-10.2,-11.9
+EUR::french 12 - month btf auction::none,2026-01-26,22:00,,2.084%,,2.085%
+EUR::french 3 - month btf auction::none,2026-01-26,22:00,,2.021%,,2.019%
+EUR::french 6 - month btf auction::none,2026-01-26,22:00,,2.045%,,2.048%
+USD::dallas fed mfg business index::none,2026-01-26,23:30,jan,-1.2,,-11.3
+USD::3 - month bill auction::none,2026-01-27,00:30,,3.580%,,3.590%
+USD::6 - month bill auction::none,2026-01-27,00:30,,3.525%,,3.520%
+USD::2 - year note auction::none,2026-01-27,02:00,,3.580%,,3.499%
+KRW::consumer confidence::none,2026-01-27,05:00,jan,73.0,,70.0
+AUD::nab business confidence::none,2026-01-27,08:30,dec,3,,2
+AUD::nab business survey::none,2026-01-27,08:30,dec,9,,7
+PHP::exports::y/y,2026-01-27,09:00,dec,23.3%,,21.6%
+PHP::imports::y/y,2026-01-27,09:00,dec,7.1%,,2.3%
+PHP::trade balance::none,2026-01-27,09:00,dec,"-3,525.0M",,"-3,954.0M"
+CNY::chinese industrial profit ytd::none,2026-01-27,09:30,dec,0.6%,,0.1%
+NZD::credit card spending::y/y,2026-01-27,10:00,dec,-0.3%,,4.4%
+CZK::car registration::m/m,2026-01-27,13:00,dec,1.60%,,-8.50%
+EUR::car registration::m/m,2026-01-27,13:00,dec,36.5%,,2.5%
+GBP::car registration::m/m,2026-01-27,13:00,dec,-3.2%,,4.3%
+HUF::car registration::m/m,2026-01-27,13:00,dec,10.90%,,-0.50%
+PLN::car registration::m/m,2026-01-27,13:00,dec,38.30%,,-7.00%
+RON::car registration::m/m,2026-01-27,13:00,dec,53.50%,,8.10%
+CZK::car registration::y/y,2026-01-27,13:00,dec,21.10%,,3.30%
+EUR::car registration::y/y,2026-01-27,13:00,dec,31.9%,,3.3%
+GBP::car registration::y/y,2026-01-27,13:00,dec,3.9%,,-1.6%
+HUF::car registration::y/y,2026-01-27,13:00,dec,0.40%,,1.00%
+PLN::car registration::y/y,2026-01-27,13:00,dec,21.70%,,-0.30%
+RON::car registration::y/y,2026-01-27,13:00,dec,54.40%,,35.60%
+EUR::french car registration::m/m,2026-01-27,13:00,dec,30.1%,,-4.7%
+EUR::french car registration::y/y,2026-01-27,13:00,dec,-5.8%,,-0.3%
+EUR::german car registration::m/m,2026-01-27,13:00,dec,-1.7%,,0.2%
+EUR::german car registration::y/y,2026-01-27,13:00,dec,9.7%,,2.5%
+EUR::italian car registration::m/m,2026-01-27,13:00,dec,-13.0%,,-1.4%
+EUR::italian car registration::y/y,2026-01-27,13:00,dec,2.3%,,0.0%
+EUR::finnish unemployment rate::none,2026-01-27,14:00,dec,10.7%,,10.6%
+EUR::finnish consumer confidence::none,2026-01-27,14:00,jan,-8.7,,-7.3
+EUR::finnish industrial confidence::none,2026-01-27,14:00,jan,-1,,0
+ZAR::leading indicators::none,2026-01-27,15:00,nov,118.40%,,116.77%
+EUR::lithuania industrial production::m/m,2026-01-27,15:00,dec,-0.30%,,2.30%
+EUR::lithuania industrial production::y/y,2026-01-27,15:00,dec,3.60%,,2.10%
+EUR::lithuania retail sales::m/m,2026-01-27,15:00,dec,14.5%,,-2.3%
+EUR::lithuania retail sales::y/y,2026-01-27,15:00,dec,3.3%,,3.4%
+SEK::ppi::m/m,2026-01-27,15:00,dec,-1.1%,,1.2%
+SEK::ppi::y/y,2026-01-27,15:00,dec,-2.7%,,-1.4%
+DKK::retail sales::y/y,2026-01-27,15:00,dec,3.3%,,4.9%
+SEK::trade balance::none,2026-01-27,15:00,dec,7.40B,,9.60B
+EUR::french consumer confidence::none,2026-01-27,15:45,jan,90,90,90
+EUR::spanish unemployment rate::none,2026-01-27,16:00,q4,9.93%,10.20%,10.45%
+HKD::exports::m/m,2026-01-27,16:30,dec,26.1%,,18.8%
+HKD::imports::m/m,2026-01-27,16:30,dec,30.6%,,18.1%
+HKD::trade balance::none,2026-01-27,16:30,dec,-63.3B,,-48.5B
+EUR::german 2 - year schatz auction::none,2026-01-27,18:30,,2.140%,,2.110%
+MXN::trade balance::none,2026-01-27,20:00,dec,2.430B,1.640B,0.663B
+MXN::trade balance (usd)::none,2026-01-27,20:00,dec,-0.860B,,-0.340B
+BRL::mid - month cpi::m/m,2026-01-27,20:00,jan,0.20%,0.22%,0.25%
+BRL::mid - month cpi::y/y,2026-01-27,20:00,jan,4.50%,4.52%,4.41%
+KWD::bank lending::y/y,2026-01-27,21:00,dec,6.87%,,6.98%
+KWD::m2 money supply::y/y,2026-01-27,21:00,dec,3.61%,,3.39%
+HUF::interest rate decision::none,2026-01-27,21:00,jan,6.50%,6.50%,6.50%
+USD::adp employment change weekly::none,2026-01-27,21:15,,7.75K,,8.00K
+CAD::wholesale sales::m/m,2026-01-27,21:30,dec,2.1%,,-1.8%
+USD::redbook::y/y,2026-01-27,21:55,,7.1%,,5.5%
+USD::house price index::none,2026-01-27,22:00,nov,439.3,,436.8
+USD::house price index::m/m,2026-01-27,22:00,nov,0.6%,0.3%,0.4%
+USD::house price index::y/y,2026-01-27,22:00,nov,1.9%,,1.8%
+USD::s&p/cs hpi composite - 20 n.s.a.::m/m,2026-01-27,22:00,nov,0.0%,,-0.3%
+USD::s&p/cs hpi composite - 20 n.s.a.::y/y,2026-01-27,22:00,nov,1.4%,1.2%,1.3%
+USD::s&p/cs hpi composite - 20 s.a.::m/m,2026-01-27,22:00,nov,0.5%,,0.4%
+USD::cb consumer confidence::none,2026-01-27,23:00,jan,84.5,90.6,94.2
+USD::richmond manufacturing index::none,2026-01-27,23:00,jan,-6,-5,-7
+USD::richmond manufacturing shipments::none,2026-01-27,23:00,jan,-5,,-11
+USD::richmond services index::none,2026-01-27,23:00,jan,-3,,-6
+USD::dallas fed services revenues::none,2026-01-27,23:30,jan,7.8,,0.0
+USD::texas services sector outlook::none,2026-01-27,23:30,jan,2.7,,-5.0
 NA::malaysia - chinese new year - early close at 12:30::none,2026-01-28,,,,,
 USD::m2 money supply::m/m,2026-01-28,02:00,dec,,,22.30T
 USD::5 - year note auction::none,2026-01-28,02:00,,,,3.747%
 CLP::interest rate decision::none,2026-01-28,05:00,jan,,4.50%,4.50%
-USD::api weekly crude oil stock::none,2026-01-28,05:30,,,-0.700M,3.040M
+USD::api weekly crude oil stock::none,2026-01-28,05:30,,,1.450M,3.040M
 JPY::monetary policy meeting minutes::none,2026-01-28,07:50,,,,0.00
 AUD::monthly cpi indicator::y/y,2026-01-28,08:30,dec,,3.50%,3.40%
 AUD::cpi::q/q,2026-01-28,08:30,q4,,,1.3%
-AUD::cpi::y/y,2026-01-28,08:30,q4,,,3.2%
+AUD::cpi::y/y,2026-01-28,08:30,q4,,,3.0%
 LKR::interest rate decision::m/m,2026-01-28,10:00,,,,7.75%
 EUR::gfk german consumer climate::none,2026-01-28,15:00,feb,,-25.7,-26.9
-DKK::m3 money supply::none,2026-01-28,15:00,dec,,,"2,071,019.4B"
+DKK::m3 money supply::none,2026-01-28,15:00,dec,,,"2,071.0B"
 EUR::bank austria manufacturing pmi::none,2026-01-28,17:00,jan,,,49.3
-EUR::italian business confidence::none,2026-01-28,17:00,jan,,,88.4
-EUR::italian consumer confidence::none,2026-01-28,17:00,jan,,,96.6
+EUR::italian business confidence::none,2026-01-28,17:00,jan,,89.0,88.4
+EUR::italian consumer confidence::none,2026-01-28,17:00,jan,,97.0,96.6
 CHF::zew expectations::none,2026-01-28,17:00,jan,,,6.2
 EUR::italian 6 - month bot auction::none,2026-01-28,18:10,,,,2.036%
 INR::cumulative industrial production::none,2026-01-28,18:30,dec,,,3.30%
-INR::industrial production::y/y,2026-01-28,18:30,dec,,,6.7%
+INR::industrial production::y/y,2026-01-28,18:30,dec,,5.5%,6.7%
 INR::manufacturing output::m/m,2026-01-28,18:30,dec,,,8.0%
 EUR::german 10 - year bund auction::none,2026-01-28,18:30,,,,2.830%
 EUR::irish retail sales::m/m,2026-01-28,19:00,dec,,,0.5%
@@ -1669,10 +1660,10 @@ NA::malaysia - chinese new year::none,2026-01-29,All Day,,,,
 USD::fomc statement::none,2026-01-29,03:00,,,,
 USD::fed interest rate decision::none,2026-01-29,03:00,,,3.75%,3.75%
 USD::fomc press conference::none,2026-01-29,03:30,,,,
-BRL::interest rate decision::none,2026-01-29,05:30,,,,15.00%
+BRL::interest rate decision::none,2026-01-29,05:30,,,15.00%,15.00%
 NZD::exports::none,2026-01-29,05:45,dec,,,6.99B
 NZD::imports::none,2026-01-29,05:45,dec,,,7.15B
-NZD::trade balance::m/m,2026-01-29,05:45,dec,,40M,-163M
+NZD::trade balance::m/m,2026-01-29,05:45,dec,,30M,-163M
 NZD::trade balance::y/y,2026-01-29,05:45,dec,,,"-2,060M"
 NZD::anz business confidence::none,2026-01-29,08:00,jan,,,73.6
 AUD::export price index::q/q,2026-01-29,08:30,q4,,,-0.9%
@@ -1751,14 +1742,14 @@ USD::initial jobless claims::none,2026-01-29,21:30,,,202K,200K
 USD::jobless claims 4 - week avg.::none,2026-01-29,21:30,,,,201.50K
 SAR::m3 money supply::y/y,2026-01-29,22:00,dec,,,6.60%
 SAR::private sector loans::y/y,2026-01-29,22:00,dec,,,10.60%
-USD::durables excluding defense::m/m,2026-01-29,23:00,nov,,,-1.5%
-USD::durables excluding transport::m/m,2026-01-29,23:00,nov,,,0.1%
+USD::durables excluding defense::m/m,2026-01-29,23:00,nov,,,6.6%
+USD::durables excluding transport::m/m,2026-01-29,23:00,nov,,,0.5%
 USD::factory orders::m/m,2026-01-29,23:00,nov,,0.5%,-1.3%
 USD::factory orders ex transportation::m/m,2026-01-29,23:00,nov,,,-0.2%
 USD::wholesale inventories::m/m,2026-01-29,23:00,nov,,0.2%,0.5%
 USD::wholesale trade sales::m/m,2026-01-29,23:00,nov,,,-0.4%
 USD::natural gas storage::none,2026-01-29,23:30,,,,-120B
-USD::atlanta fed gdpnow::none,2026-01-30,01:00,q4,,,5.4%
+USD::atlanta fed gdpnow::none,2026-01-30,01:00,q4,,5.4%,5.4%
 KRW::industrial production::m/m,2026-01-30,07:00,dec,,,0.6%
 KRW::industrial production::y/y,2026-01-30,07:00,dec,,,-1.4%
 KRW::retail sales::m/m,2026-01-30,07:00,dec,,,-3.3%
@@ -1880,7 +1871,6 @@ MXN::fiscal balance::none,2026-01-31,03:00,dec,,,-200.52B
 CNY::chinese composite pmi::none,2026-01-31,09:30,jan,,,50.7
 CNY::manufacturing pmi::none,2026-01-31,09:30,jan,,50.2,50.1
 CNY::non - manufacturing pmi::none,2026-01-31,09:30,jan,,50.8,50.2
-KRW::trade balance::none,2026-02-01,08:00,jan,,,12.17B
 NA::malaysia - federal territory day::none,2026-02-02,All Day,,,,
 NA::mexico - constitution day::none,2026-02-02,All Day,,,,
 NA::sri lanka - independence day::none,2026-02-04,All Day,,,,
@@ -2192,20 +2182,17 @@ COP::retail sales::y/y,2026-01-23,22:30,nov,7.5%,8.6%,10.0%
 USD::us leading index::m/m,2026-01-23,23:59,oct,-0.1%,-0.2%,-0.3%
 USD::us leading index::m/m,2026-01-24,00:00,nov,-0.3%,-0.2%,-0.1%
 EUR::german buba president nagel speaks::none,2026-01-26,19:00,,,,
-USD::dallas fed pce::none,2026-01-26,19:30,nov,,,1.90%
 EUR::german buba president nagel speaks::none,2026-01-26,21:30,,,,
-JPY::corporate services price index (cspi)::y/y,2026-01-27,07:50,,,2.5%,2.7%
-EUR::irish consumer confidence::none,2026-01-27,08:00,jan,,,61.2
-GBP::brc shop price index::y/y,2026-01-27,08:00,,,0.7%,0.7%
-JPY::boj core cpi::y/y,2026-01-27,13:00,,,2.0%,2.2%
-PLN::unemployment rate::none,2026-01-27,17:00,dec,,,5.6%
-BRL::fgv consumer confidence::none,2026-01-27,19:00,jan,,,90.2
+JPY::corporate services price index (cspi)::y/y,2026-01-27,07:50,,2.6%,2.7%,2.7%
+EUR::irish consumer confidence::none,2026-01-27,08:00,jan,64.7,,61.2
+GBP::brc shop price index::y/y,2026-01-27,08:00,,1.5%,0.7%,0.7%
+JPY::boj core cpi::y/y,2026-01-27,13:00,,1.9%,2.0%,2.2%
+PLN::unemployment rate::none,2026-01-27,17:00,dec,5.7%,5.7%,5.6%
+BRL::fgv consumer confidence::none,2026-01-27,19:00,jan,87.3,,89.1
 EUR::german buba president nagel speaks::none,2026-01-28,01:00,,,,
-AUD::cpi index number::none,2026-01-28,08:30,q4,,,143.60
-AUD::trimmed mean cpi::q/q,2026-01-28,08:30,q4,,,1.0%
+AUD::cpi index number::none,2026-01-28,08:30,q4,,,100.10
+AUD::trimmed mean cpi::q/q,2026-01-28,08:30,q4,,0.8%,1.0%
 AUD::trimmed mean cpi::y/y,2026-01-28,08:30,q4,,,3.0%
-AUD::weighted mean cpi::q/q,2026-01-28,08:30,q4,,,1.0%
-AUD::weighted mean cpi::y/y,2026-01-28,08:30,q4,,,2.8%
 USD::crude oil imports::none,2026-01-28,23:30,,,,-0.027M
 USD::crude oil inventories::none,2026-01-28,23:30,,,,3.602M
 USD::cushing crude oil inventories::none,2026-01-28,23:30,,,,1.478M
@@ -2216,7 +2203,6 @@ USD::eia weekly refinery utilization rates::w/w,2026-01-28,23:30,,,,-2.0%
 USD::gasoline inventories::none,2026-01-28,23:30,,,,5.977M
 USD::gasoline production::none,2026-01-28,23:30,,,,-0.246M
 USD::heating oil stockpiles::none,2026-01-28,23:30,,,,0.279M
-CAD::boc rate statement::none,2026-01-29,03:00,,,,
 JPY::foreign bonds buying::none,2026-01-29,07:50,,,,-361.4B
 JPY::foreign investments in japanese stocks::none,2026-01-29,07:50,,,,874.0B
 UAH::interest rate decision::none,2026-01-29,10:20,,,,15.50%
@@ -2249,7 +2235,6 @@ KES::cpi::y/y,2026-01-30,16:00,jan,,,4.50%
 EUR::spanish gdp::q/q,2026-01-30,16:00,q4,,0.6%,0.6%
 EUR::spanish gdp::y/y,2026-01-30,16:00,q4,,,2.8%
 UGX::cpi::y/y,2026-01-30,16:30,jan,,,3.1%
-PLN::unemployment rate::none,2026-01-30,17:00,dec,,5.7%,5.6%
 EUR::bavaria cpi::m/m,2026-01-30,17:00,jan,,,0.0%
 EUR::bavaria cpi::y/y,2026-01-30,17:00,jan,,,1.7%
 EUR::brandenburg cpi::m/m,2026-01-30,17:00,jan,,,0.4%
@@ -2358,7 +2343,6 @@ USD::ism manufacturing new orders index::none,2026-02-02,23:00,jan,,,47.7
 USD::ism manufacturing pmi::none,2026-02-02,23:00,jan,,,47.9
 USD::ism manufacturing prices::none,2026-02-02,23:00,jan,,,58.5
 EUR::german buba balz speaks::none,2026-01-27,04:00,,,,
-USD::u.s. president trump speaks::none,2026-01-27,21:30,,,,
 EUR::ecb president lagarde speaks::none,2026-01-28,01:00,,,,
 EUR::ecb's elderson speaks::none,2026-01-28,18:00,,,,
 EUR::ecb's schnabel speaks::none,2026-01-29,02:00,,,,
@@ -2448,3 +2432,81 @@ USD::ism non - manufacturing employment::none,2026-02-04,23:00,jan,,,52.0
 USD::ism non - manufacturing new orders::none,2026-02-04,23:00,jan,,,57.9
 USD::ism non - manufacturing pmi::none,2026-02-04,23:00,jan,,,54.4
 USD::ism non - manufacturing prices::none,2026-02-04,23:00,jan,,,64.3
+USD::atlanta fed gdpnow::none,2026-01-26,23:00,q4,5.4%,5.4%,5.4%
+NA::egypt - revolution day::none,2026-01-29,All Day,,,,
+AUD::nab business confidence::none,2026-01-29,08:30,dec,,,1
+AUD::nab business survey::none,2026-01-29,08:30,dec,,,7
+THB::currency swaps (usd)::none,2026-01-30,15:30,,,,23.1B
+THB::foreign reserves (usd)::none,2026-01-30,15:30,,,,284.1B
+"INR::fx reserves, usd::none",2026-01-30,19:30,,,,701.36B
+KRW::trade balance::none,2026-02-01,08:00,dec,,,12.17B
+BRL::bcb focus market readout::none,2026-02-02,19:25,,,,
+RUB::industrial production::y/y,2026-02-05,00:00,dec,,,-0.7%
+KRW::fx reserves - usd::none,2026-02-05,05:00,jan,,,428.05B
+EUR::aib ireland services pmi::none,2026-02-05,09:00,jan,,,54.8
+PHP::core cpi::y/y,2026-02-05,09:00,jan,,,2.4%
+PHP::cpi::m/m,2026-02-05,09:00,jan,,,0.9%
+PHP::cpi::y/y,2026-02-05,09:00,jan,,,1.8%
+THB::core cpi::y/y,2026-02-05,12:00,jan,,,0.59%
+THB::cpi::y/y,2026-02-05,12:00,jan,,,-0.28%
+IDR::gdp::q/q,2026-02-05,12:00,q4,,,1.43%
+IDR::gdp::y/y,2026-02-05,12:00,q4,,,5.04%
+IDR::gdp annual::none,2026-02-05,12:00,,,,5.03%
+SGD::retail sales::m/m,2026-02-05,13:00,dec,,,0.0%
+SGD::retail sales::y/y,2026-02-05,13:00,dec,,,6.3%
+EUR::estonian industrial production::m/m,2026-02-05,14:00,nov,,,6.00%
+EUR::estonian industrial production::y/y,2026-02-05,14:00,nov,,,3.20%
+EUR::finnish trade balance::none,2026-02-05,15:00,dec,,,-0.30B
+EUR::german factory orders::m/m,2026-02-05,15:00,dec,,,5.6%
+EUR::french industrial production::m/m,2026-02-05,15:45,dec,,,-0.1%
+EUR::austrian trade balance::none,2026-02-05,16:00,nov,,,-84.6M
+CZK::retail sales::y/y,2026-02-05,16:00,dec,,,1.5%
+CZK::retailles wda::y/y,2026-02-05,16:00,dec,,,4.60%
+TWD::cpi nsa::m/m,2026-02-05,16:00,jan,,,0.07%
+TWD::cpi::m/m,2026-02-05,16:00,jan,,,0.14%
+TWD::cpi::y/y,2026-02-05,16:00,jan,,,1.31%
+TWD::fx reserves usd::none,2026-02-05,16:20,jan,,,602.55B
+EUR::hcob eurozone construction pmi::m/m,2026-02-05,16:30,jan,,,47.4
+EUR::hcob france construction pmi::m/m,2026-02-05,16:30,jan,,,43.4
+EUR::hcob germany construction pmi::none,2026-02-05,16:30,jan,,,50.3
+EUR::hcob italy construction pmi::m/m,2026-02-05,16:30,jan,,,47.9
+EUR::italian retail sales::m/m,2026-02-05,17:00,dec,,,0.5%
+EUR::italian retail sales::y/y,2026-02-05,17:00,dec,,,1.3%
+GBP::united kingdom new passenger cars registration::none,2026-02-05,17:00,jan,,,"146,249.0"
+GBP::s&p global construction pmi::none,2026-02-05,17:30,jan,,,40.1
+EUR::retail sales::m/m,2026-02-05,18:00,dec,,,0.2%
+EUR::retail sales::y/y,2026-02-05,18:00,dec,,,2.3%
+EUR::irish unemployment::none,2026-02-05,19:00,jan,,,5.0%
+TRY::gross fx reserves::none,2026-02-05,19:30,,,,84.15B
+USD::natural gas storage::none,2026-02-05,19:30,,,,-120B
+MXN::gross fixed investments::m/m,2026-02-05,20:00,nov,,,0.90%
+MXN::gross fixed investments::y/y,2026-02-05,20:00,nov,,,-5.50%
+GBP::boe interest rate decision::none,2026-02-05,20:00,feb,,,3.75%
+GBP::boe mpc vote cut::none,2026-02-05,20:00,feb,,,5
+GBP::boe mpc vote hike::none,2026-02-05,20:00,feb,,,0
+GBP::boe mpc vote unchanged::none,2026-02-05,20:00,feb,,,4
+USD::challenger job cuts::none,2026-02-05,20:30,jan,,,35.553K
+EUR::deposit facility rate::none,2026-02-05,21:15,feb,,,2.00%
+EUR::ecb interest rate decision::none,2026-02-05,21:15,feb,,,2.15%
+USD::nonfarm productivity::q/q,2026-02-05,21:30,q4,,,3.3%
+USD::unit labor costs::q/q,2026-02-05,21:30,q4,,,1.0%
+CZK::interest rate decision::none,2026-02-05,21:30,,,,3.50%
+USD::continuing jobless claims::none,2026-02-05,21:30,,,,"1,849K"
+USD::initial jobless claims::none,2026-02-05,21:30,,,,200K
+USD::jobless claims 4 - week avg.::none,2026-02-05,21:30,,,,201.50K
+INR::m3 money supply::none,2026-01-27,19:00,,10.5%,,12.1%
+USD::u.s. president trump speaks::none,2026-01-28,03:00,,,,
+AUD::weighted mean cpi::q/q,2026-01-28,08:30,dec,,,0.3%
+AUD::weighted mean cpi::y/y,2026-01-28,08:30,dec,,3.4%,3.4%
+ZMK::cpi::m/m,2026-01-28,18:00,jan,,,1.5%
+ZMK::cpi::y/y,2026-01-28,18:00,jan,,,11.2%
+CAD::boc rate statement::none,2026-01-28,22:45,,,,
+USD::dallas fed services revenues::none,2026-01-28,23:30,jan,,,0.1
+USD::texas services sector outlook::none,2026-01-28,23:30,jan,,,-3.3
+NZD::nbnz own activity::none,2026-01-29,08:00,jan,,,60.9%
+BRL::igp - m inflation index::m/m,2026-01-29,19:00,jan,,,-0.01%
+BRL::caged net payroll jobs::none,2026-01-30,01:30,dec,,,85.86K
+NOK::central bank currency purchase::none,2026-01-30,17:00,feb,,,-650.0M
+EUR::french 12 - month btf auction::none,2026-02-02,22:00,,,,2.084%
+USD::3 - month bill auction::none,2026-02-03,00:30,,,,3.580%
+USD::6 - month bill auction::none,2026-02-03,00:30,,,,3.525%

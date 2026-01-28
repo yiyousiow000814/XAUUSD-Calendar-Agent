@@ -76,7 +76,6 @@ type SettingsModalProps = {
   onOutputDirChange: (value: string) => void;
   onOutputDirBlur: () => void;
   onBrowseOutput: () => void;
-  onOpenUninstall: () => void;
 };
 
 export function SettingsModal({
@@ -121,8 +120,7 @@ export function SettingsModal({
   onOpenPath,
   onOutputDirChange,
   onOutputDirBlur,
-  onBrowseOutput,
-  onOpenUninstall
+  onBrowseOutput
 }: SettingsModalProps) {
   if (!isOpen) return null;
 
@@ -620,21 +618,6 @@ export function SettingsModal({
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-          <div className="section danger">
-            <div className="section-title">Danger Zone</div>
-            <div className="danger-row">
-              <button
-                className="btn danger"
-                onClick={onOpenUninstall}
-                data-qa="qa:action:uninstall qa:modal-trigger:uninstall"
-              >
-                Uninstall...
-              </button>
-              <p className="path-note">
-                Uninstall removes app data plus any folders you choose below.
-              </p>
             </div>
           </div>
         </div>
