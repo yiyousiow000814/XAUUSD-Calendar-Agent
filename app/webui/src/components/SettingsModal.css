@@ -645,7 +645,8 @@
 }
 
 .btn.update-cta[data-label="check"] .label-checking,
-.btn.update-cta[data-label="check"] .label-install {
+.btn.update-cta[data-label="check"] .label-install,
+.btn.update-cta[data-label="check"] .label-installing {
   opacity: 0;
   transform: translateY(8px);
   filter: blur(0.2px);
@@ -664,7 +665,8 @@
 }
 
 .btn.update-cta[data-label="checking"] .label-update,
-.btn.update-cta[data-label="checking"] .label-install {
+.btn.update-cta[data-label="checking"] .label-install,
+.btn.update-cta[data-label="checking"] .label-installing {
   opacity: 0;
   transform: translateY(8px);
   filter: blur(0.2px);
@@ -682,7 +684,8 @@
 }
 
 .btn.update-cta[data-label="update"] .label-checking,
-.btn.update-cta[data-label="update"] .label-install {
+.btn.update-cta[data-label="update"] .label-install,
+.btn.update-cta[data-label="update"] .label-installing {
   opacity: 0;
   transform: translateY(8px);
   filter: blur(0.2px);
@@ -694,7 +697,8 @@
 }
 
 .btn.update-cta[data-label="install"] .label-check,
-.btn.update-cta[data-label="install"] .label-update {
+.btn.update-cta[data-label="install"] .label-update,
+.btn.update-cta[data-label="install"] .label-installing {
   opacity: 0;
   transform: translateY(-8px);
   filter: blur(0.2px);
@@ -707,6 +711,20 @@
 }
 
 .btn.update-cta[data-label="install"] .label-install {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.btn.update-cta[data-label="installing"] .label-check,
+.btn.update-cta[data-label="installing"] .label-checking,
+.btn.update-cta[data-label="installing"] .label-update,
+.btn.update-cta[data-label="installing"] .label-install {
+  opacity: 0;
+  transform: translateY(-8px);
+  filter: blur(0.2px);
+}
+
+.btn.update-cta[data-label="installing"] .label-installing {
   opacity: 1;
   transform: translateY(0);
 }

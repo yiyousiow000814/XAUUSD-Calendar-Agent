@@ -74,6 +74,7 @@ vi.mock("../api", () => ({
     syncNow: vi.fn().mockResolvedValue({ ok: true }),
     checkUpdates: vi.fn().mockResolvedValue({ ok: true }),
     updateNow: vi.fn().mockResolvedValue({ ok: true }),
+    installUpdate: vi.fn().mockResolvedValue({ ok: true }),
     saveSettings: vi.fn().mockResolvedValue({ ok: true }),
     setTemporaryPathPath: vi.fn().mockResolvedValue({ ok: true }),
     openLog: vi.fn().mockResolvedValue({ ok: true }),

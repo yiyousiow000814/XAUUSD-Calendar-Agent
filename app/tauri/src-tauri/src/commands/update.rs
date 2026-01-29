@@ -85,41 +85,47 @@ fn update_download_dir() -> Result<std::path::PathBuf, String> {
     Ok(dir)
 }
 
-fn spawn_installer(path: &std::path::Path) -> Result<(), String> {
+fn spawn_installer(path: &std::path::Path) -> Result<std::process::Child, String> {
     if !path.exists() {
         return Err("update installer not found".to_string());
     }
     #[cfg(target_os = "windows")]
     {
         const CREATE_NO_WINDOW: u32 = 0x08000000;
-        let status = std::process::Command::new(path)
-            .arg("/S")
+        std::process::Command::new(path)
+            .args(["/S", "/NCRC"])
             .creation_flags(CREATE_NO_WINDOW)
-            .status()
-            .map_err(|e| format!("failed to start installer: {e}"))?;
-        if status.success() {
-            Ok(())
-        } else {
-            Err(format!(
-                "installer exited with code {}",
-                status.code().unwrap_or(-1)
-            ))
-        }
+            .spawn()
+            .map_err(|e| format!("failed to start installer: {e}"))
     }
     #[cfg(not(target_os = "windows"))]
     {
-        let status = std::process::Command::new(path)
-            .status()
-            .map_err(|e| format!("failed to start installer: {e}"))?;
-        if status.success() {
-            Ok(())
-        } else {
-            Err(format!(
-                "installer exited with code {}",
-                status.code().unwrap_or(-1)
-            ))
-        }
+        std::process::Command::new(path)
+            .spawn()
+            .map_err(|e| format!("failed to start installer: {e}"))
     }
+}
+
+#[cfg(target_os = "windows")]
+fn spawn_restart_after_install(installer_pid: u32) -> Result<(), String> {
+    use std::os::windows::process::CommandExt;
+    const CREATE_NO_WINDOW: u32 = 0x08000000;
+
+    let exe = std::env::current_exe().map_err(|e| format!("failed to locate exe: {e}"))?;
+    let exe_display = exe.display().to_string();
+    let escaped = exe_display.replace('\'', "''");
+    let command = format!(
+        "$pid={installer_pid}; \
+         try {{ Wait-Process -Id $pid -ErrorAction SilentlyContinue }} catch {{}}; \
+         Start-Process -FilePath '{escaped}'"
+    );
+
+    std::process::Command::new("powershell")
+        .args(["-NoProfile", "-WindowStyle", "Hidden", "-Command", &command])
+        .creation_flags(CREATE_NO_WINDOW)
+        .spawn()
+        .map(|_| ())
+        .map_err(|e| format!("failed to schedule restart: {e}"))
 }
 
 fn maybe_prompt_update(runtime: &mut RuntimeState, version: &str) -> Option<Value> {
@@ -482,11 +488,80 @@ pub fn update_now(
         {
             let state = app_handle.state::<Mutex<RuntimeState>>();
             let mut runtime = state.lock().expect("runtime lock");
-            set_update_state(&mut runtime, "installing", "Installing...", true, None);
+            set_update_state(&mut runtime, "downloaded", "Ready to install", true, None);
             set_update_progress(&mut runtime, 1, Some(1));
         }
+    });
 
-        if let Err(msg) = spawn_installer(&target_path) {
+    Ok(json!({"ok": true}))
+}
+
+#[tauri::command]
+pub fn install_update(
+    app: tauri::AppHandle,
+    state: tauri::State<'_, Mutex<RuntimeState>>,
+) -> Result<Value, String> {
+    let (url, available_version) = {
+        let runtime = state.lock().expect("runtime lock");
+        let version = runtime
+            .update_state
+            .get("availableVersion")
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .to_string();
+        (runtime.update_asset_url.trim().to_string(), version)
+    };
+    if url.is_empty() {
+        return Ok(json!({"ok": false, "message": "Update URL not available"}));
+    }
+
+    let cfg = config::load_config();
+    let asset_name = config::get_str(&cfg, "github_release_asset_name");
+    let filename = if !asset_name.is_empty() {
+        asset_name
+    } else {
+        filename_from_url(&url)
+    };
+    let target_dir = update_download_dir()?;
+    let target_path = target_dir.join(filename);
+    if !target_path.exists() {
+        return Ok(json!({"ok": false, "message": "Update not downloaded"}));
+    }
+
+    {
+        let mut runtime = state.lock().expect("runtime lock");
+        set_update_state(
+            &mut runtime,
+            "installing",
+            "Installing...",
+            true,
+            if available_version.is_empty() {
+                None
+            } else {
+                Some(&available_version)
+            },
+        );
+        set_update_progress(&mut runtime, 1, Some(1));
+    }
+
+    let app_handle = app.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let child = match spawn_installer(&target_path) {
+            Ok(child) => child,
+            Err(msg) => {
+                let state = app_handle.state::<Mutex<RuntimeState>>();
+                let mut runtime = state.lock().expect("runtime lock");
+                set_update_state(&mut runtime, "error", &msg, false, None);
+                push_log(
+                    &mut runtime,
+                    &format!("Update install failed: {msg}"),
+                    "ERROR",
+                );
+                return;
+            }
+        };
+        #[cfg(target_os = "windows")]
+        if let Err(msg) = spawn_restart_after_install(child.id()) {
             let state = app_handle.state::<Mutex<RuntimeState>>();
             let mut runtime = state.lock().expect("runtime lock");
             set_update_state(&mut runtime, "error", &msg, false, None);
@@ -498,11 +573,6 @@ pub fn update_now(
             return;
         }
 
-        {
-            let state = app_handle.state::<Mutex<RuntimeState>>();
-            let mut runtime = state.lock().expect("runtime lock");
-            set_update_state(&mut runtime, "restarting", "Restarting...", true, None);
-        }
         app_handle.exit(0);
     });
 

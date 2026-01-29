@@ -82,6 +82,7 @@ fn main() {
             commands::update::get_update_state,
             commands::update::check_updates,
             commands::update::update_now,
+            commands::update::install_update,
             commands::pull::pull_now,
             commands::sync::sync_now,
             commands::ui::frontend_boot_complete,

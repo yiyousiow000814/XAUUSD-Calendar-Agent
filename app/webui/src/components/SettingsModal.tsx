@@ -60,6 +60,7 @@ type SettingsModalProps = {
   onAutoUpdateEnabled: (value: boolean) => void;
   onCheckUpdates: () => void;
   onUpdateNow: () => void;
+  onInstallNow: () => void;
   onRunOnStartup: (value: boolean) => void;
   onAutostartLaunchModeChange: (value: Settings["autostartLaunchMode"]) => void;
   onCloseBehaviorChange: (value: Settings["closeBehavior"]) => void;
@@ -105,6 +106,7 @@ export function SettingsModal({
   onAutoUpdateEnabled,
   onCheckUpdates,
   onUpdateNow,
+  onInstallNow,
   onRunOnStartup,
   onAutostartLaunchModeChange,
   onCloseBehaviorChange,
@@ -156,21 +158,25 @@ export function SettingsModal({
   const updateLabelMode =
     updatePhase === "checking"
       ? "checking"
-      : updatePhase === "downloaded"
-        ? "install"
-        : updatePhase === "available" ||
-            updatePhase === "downloading" ||
-            updatePhase === "installing" ||
-            updatePhase === "restarting"
-          ? "update"
-          : "check";
+      : updatePhase === "installing"
+        ? "installing"
+        : updatePhase === "downloaded"
+          ? "install"
+          : updatePhase === "available" || updatePhase === "downloading"
+            ? "update"
+            : "check";
   const updateDisabled =
     updatePhase === "checking" ||
     updatePhase === "downloading" ||
     updatePhase === "installing" ||
     updatePhase === "restarting";
-  const updateOnClick = updateLabelMode === "update" || updateLabelMode === "install" ? onUpdateNow : onCheckUpdates;
-  const showProgress = updatePhase === "downloading" || updatePhase === "installing";
+  const updateOnClick =
+    updateLabelMode === "install"
+      ? onInstallNow
+      : updateLabelMode === "update"
+        ? onUpdateNow
+        : onCheckUpdates;
+  const showProgress = updatePhase === "downloading";
   const lastCheckedLabel = updateLastCheckedAt || "Not yet";
   const followSystemTimezone = settings.calendarTimezoneMode === "system";
   const utcOffsetValue = Number.isFinite(settings.calendarUtcOffsetMinutes)
@@ -291,10 +297,13 @@ export function SettingsModal({
                   </span>
                   <span className="update-cta-label label-update">Update now</span>
                   <span className="update-cta-label label-install">Install now</span>
+                  <span className="update-cta-label label-installing">Installing...</span>
                 </span>
                 <span className="sr-only">
                   {updateLabelMode === "checking"
                     ? "Checking"
+                    : updateLabelMode === "installing"
+                      ? "Installing"
                     : updateLabelMode === "install"
                       ? "Install now"
                       : updateLabelMode === "update"
