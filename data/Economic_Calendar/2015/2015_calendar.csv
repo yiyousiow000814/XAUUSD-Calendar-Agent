@@ -3789,7 +3789,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2015-03-20,Friday,19:00,EUR,Low,Latvian PPI (MoM)  (Feb),-0.1%,,0.1%
 2015-03-20,Friday,19:00,EUR,Low,Latvian PPI (YoY)  (Feb),-0.3%,,-0.3%
 2015-03-20,Friday,19:00,EUR,Low,Slovak Unemployment Rate  (Feb),12.3%,12.4%,12.4%
-2015-03-20,Friday,19:30,INR,Low,Bank Loan Growth  (2wk),,,10.4%
 2015-03-20,Friday,19:30,INR,Low,Deposit Growth  (2wk),,,11.9%
 2015-03-20,Friday,19:30,INR,Low,"FX Reserves, USD",335.73B,,337.79B
 2015-03-20,Friday,20:00,BRL,Low,Mid-Month CPI (MoM)  (Mar),1.24%,1.21%,1.33%
@@ -12219,7 +12218,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2015-09-16,Wednesday,06:45,NZD,Medium,Current Account (QoQ)  (Q2),-1.22B,-1.50B,0.66B
 2015-09-16,Wednesday,06:45,NZD,Medium,Current Account (YoY)  (Q2),-8.30B,-8.80B,-8.60B
 2015-09-16,Wednesday,07:30,AUD,Medium,RBA Assist Gov Debelle Speaks,,,
-2015-09-16,Wednesday,07:30,JPY,Low,Reuters Tankan Index  (Sep),,,17
 2015-09-16,Wednesday,08:30,AUD,Low,MI Leading Index (MoM),-0.3%,,0.1%
 2015-09-16,Wednesday,13:00,JPY,Medium,BoJ Monthly Report,,,
 2015-09-16,Wednesday,15:00,CZK,Low,PPI (MoM)  (Aug),-0.8%,-0.4%,-0.4%
@@ -12678,7 +12676,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2015-09-25,Friday,21:00,MXN,Low,Trade Balance  (Aug),-2.800B,-2.200B,-2.267B
 2015-09-25,Friday,21:00,MXN,Low,Trade Balance (USD)  (Aug),-2.010B,,-0.821B
 2015-09-25,Friday,21:15,USD,Medium,FOMC Member Bullard Speaks,,,
-2015-09-25,Friday,21:30,BRL,Low,Bank lending (MoM)  (Aug),,,0.3%
 2015-09-25,Friday,22:00,USD,Low,Michigan Current Conditions  (Sep),101.2,100.6,100.3
 2015-09-25,Friday,22:00,USD,Medium,Michigan 1-Year Inflation Expectations  (Sep),2.8%,,2.9%
 2015-09-25,Friday,22:00,USD,Medium,Michigan 5-Year Inflation Expectations  (Sep),2.70%,,2.80%
@@ -12934,7 +12931,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2015-09-30,Wednesday,20:00,ZAR,Low,Trade Balance  (Aug),-9.95B,-0.98B,-1.11B
 2015-09-30,Wednesday,20:15,USD,High,ADP Nonfarm Employment Change  (Sep),200K,194K,186K
 2015-09-30,Wednesday,20:30,CAD,Medium,GDP (MoM)  (Jul),0.3%,0.2%,0.4%
-2015-09-30,Wednesday,21:00,NGN,Low,Foreign Reserves (USD)  (Sep),,,31.43B
 2015-09-30,Wednesday,21:30,BRL,Low,Budget Balance  (Aug),-57.010B,-45.000B,-72.772B
 2015-09-30,Wednesday,21:30,BRL,Low,Budget Surplus  (Aug),-7.310B,-14.450B,-10.019B
 2015-09-30,Wednesday,21:30,BRL,Low,Net Debt-to-GDP ratio  (Aug),33.7%,34.3%,34.2%
@@ -16188,7 +16184,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2015-12-09,Wednesday,19:00,BRL,Low,CPI (MoM)  (Nov),1.01%,0.95%,0.82%
 2015-12-09,Wednesday,19:00,BRL,Medium,CPI (YoY)  (Nov),10.48%,10.41%,9.93%
 2015-12-09,Wednesday,19:00,ZAR,Low,Retail Sales (YoY)  (Oct),3.3%,2.5%,3.0%
-2015-12-09,Wednesday,20:00,INR,Low,M3 Money Supply  (2wk),,,11.2%
 2015-12-09,Wednesday,20:00,USD,Low,MBA 30-Year Mortgage Rate,4.14%,,4.12%
 2015-12-09,Wednesday,20:00,USD,Low,MBA Mortgage Applications (WoW),1.2%,,-0.2%
 2015-12-09,Wednesday,20:00,USD,Low,MBA Purchase Index,228.2,,228.1

@@ -4619,7 +4619,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2017-04-10,Monday,17:00,EUR,Low,Greek Industrial Production (YoY)  (Feb),10.8%,,7.1%
 2017-04-10,Monday,18:00,EUR,Low,Latvian CPI (MoM)  (Mar),0.90%,,0.40%
 2017-04-10,Monday,18:00,EUR,Low,Latvian CPI (YoY)  (Mar),3.40%,,3.30%
-2017-04-10,Monday,18:00,EUR,Low,Latvian Trade Balance  (Feb),,,-175.4M
 2017-04-10,Monday,18:00,EUR,Low,Portuguese Trade Balance  (Feb),-3.11B,,-3.11B
 2017-04-10,Monday,19:00,EGP,Low,Core CPI (YoY)  (Mar),32.25%,,33.10%
 2017-04-10,Monday,20:15,CAD,Medium,Housing Starts  (Mar),253.7K,216.0K,214.3K
@@ -17234,9 +17233,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2017-12-27,Wednesday,17:00,CHF,Low,ZEW Expectations  (Dec),52.0,,40.7
 2017-12-27,Wednesday,20:00,USD,Low,MBA 30-Year Mortgage Rate,,,4.16%
 2017-12-27,Wednesday,20:00,USD,Low,MBA Mortgage Applications (WoW),,,-4.9%
-2017-12-27,Wednesday,20:30,BRL,Low,Budget Balance  (Nov),,-49.700B,-30.494B
-2017-12-27,Wednesday,20:30,BRL,Low,Budget Surplus  (Nov),,-10.000B,4.758B
-2017-12-27,Wednesday,20:30,BRL,Low,Net Debt-to-GDP ratio  (Nov),,51.3%,50.7%
 2017-12-27,Wednesday,21:55,USD,Low,Redbook (MoM),0.1%,,-0.4%
 2017-12-27,Wednesday,21:55,USD,Low,Redbook (YoY),5.7%,,4.4%
 2017-12-27,Wednesday,22:00,MXN,Low,Trade Balance  (Nov),0.399B,-0.770B,-2.066B
@@ -17267,8 +17263,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2017-12-28,Thursday,07:50,JPY,Medium,Industrial Production (MoM)  (Nov),0.6%,0.5%,0.5%
 2017-12-28,Thursday,11:30,THB,Low,Industrial Production (YoY)  (Nov),4.23%,1.90%,-0.33%
 2017-12-28,Thursday,13:00,JPY,Medium,BoJ Core CPI (YoY),0.6%,,0.5%
-2017-12-28,Thursday,14:00,ZAR,Low,M3 Money Supply (YoY),,,5.01%
-2017-12-28,Thursday,14:00,ZAR,Low,Private Sector Credit,,,5.43%
 2017-12-28,Thursday,15:00,NOK,Low,Core Retail Sales (MoM)  (Nov),2.1%,0.6%,-0.2%
 2017-12-28,Thursday,16:30,HKD,Low,Exports (MoM)  (Nov),7.8%,,6.7%
 2017-12-28,Thursday,16:30,HKD,Low,Imports (MoM)  (Nov),8.6%,,7.9%
@@ -17291,7 +17285,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2017-12-28,Thursday,21:30,USD,Low,Wholesale Inventories (MoM),0.7%,0.4%,-0.5%
 2017-12-28,Thursday,21:30,USD,Medium,Continuing Jobless Claims,"1,943K","1,900K","1,936K"
 2017-12-28,Thursday,21:30,USD,Medium,Goods Trade Balance  (Nov),-69.68B,-67.60B,-68.10B
-2017-12-28,Thursday,22:00,BWP,Low,GDP (YoY)  (Q3),,,1.00%
 2017-12-28,Thursday,22:45,USD,High,Chicago PMI  (Dec),67.6,62.0,63.9
 2017-12-28,Thursday,22:45,USD,Low,Bloomberg Consumer Confidence,52.4,,50.8
 2017-12-28,Thursday,23:00,SAR,Low,M3 Money Supply (YoY)  (Nov),-1.40%,,-0.60%

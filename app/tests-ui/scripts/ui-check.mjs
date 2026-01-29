@@ -63,6 +63,32 @@ let baseURL = process.env.UI_BASE_URL || "http://127.0.0.1:4173";
 let shouldStartServer = !process.env.UI_BASE_URL;
 const defaultPort = Number.parseInt(process.env.UI_CHECK_PORT || "", 10) || 4183;
 let serverState = null;
+let browser = null;
+let shutdownStarted = false;
+
+const shutdown = async (reason) => {
+  if (shutdownStarted) return;
+  shutdownStarted = true;
+  try {
+    if (browser) {
+      await browser.close();
+      browser = null;
+    }
+  } catch {
+    // ignore
+  }
+  try {
+    if (serverState?.server) {
+      await stopServer(serverState.server);
+      serverState = null;
+    }
+  } catch {
+    // ignore
+  }
+  if (reason) {
+    console.warn(`WARN ui-check: shutdown (${reason})`);
+  }
+};
 
 const ensureDir = async (dir) => {
   await fs.mkdir(dir, { recursive: true });
@@ -428,7 +454,7 @@ const startServer = async (port) => {
   return server;
 };
 
-const stopServer = async (server) => {
+async function stopServer(server) {
   if (!server?.pid) return;
   if (process.platform === "win32") {
     await new Promise((resolve) => {
@@ -446,7 +472,7 @@ const stopServer = async (server) => {
   } catch {
     // ignore
   }
-};
+}
 
 const pickPort = async (start, count = 6) => {
   for (let i = 0; i < count; i += 1) {
@@ -2228,7 +2254,6 @@ const main = async () => {
     });
   };
 
-  let browser;
   const artifacts = [];
   const activityPillDiagnostics = [];
   try {
@@ -2522,6 +2547,137 @@ const main = async () => {
           }, null, { timeout: 20000 })
           .catch(() => null);
         await page.waitForTimeout(60);
+
+        const range5 = historyModal
+          .locator(".history-modal-toggle button.history-toggle")
+          .filter({ hasText: "Last 5" })
+          .first();
+        if (await range5.count()) {
+          await range5.click();
+          await page.waitForTimeout(80);
+        }
+
+        const historyTable = historyModal.locator("[data-qa='qa:history:table']").first();
+        await historyTable.waitFor({ state: "visible", timeout: 8000 }).catch(() => null);
+
+        const historyNotes = historyModal.locator("[data-qa='qa:history:notes']").first();
+        if (await historyNotes.count()) {
+          try {
+            await historyNotes.scrollIntoViewIfNeeded();
+          } catch {
+            // ignore
+          }
+          await page.waitForTimeout(80);
+          const historyDisclaimer = historyModal
+            .locator("[data-qa='qa:history:disclaimer']")
+            .first();
+          const notesBox = await historyNotes.boundingBox();
+          const disclaimerBox = (await historyDisclaimer.count())
+            ? await historyDisclaimer.boundingBox()
+            : null;
+          const tableBox = await historyTable.boundingBox();
+          let clip = null;
+          if (notesBox) {
+            const union = disclaimerBox
+              ? {
+                  x: Math.min(notesBox.x, disclaimerBox.x),
+                  y: Math.min(notesBox.y, disclaimerBox.y),
+                  width:
+                    Math.max(notesBox.x + notesBox.width, disclaimerBox.x + disclaimerBox.width) -
+                    Math.min(notesBox.x, disclaimerBox.x),
+                  height:
+                    Math.max(notesBox.y + notesBox.height, disclaimerBox.y + disclaimerBox.height) -
+                    Math.min(notesBox.y, disclaimerBox.y)
+                }
+              : notesBox;
+            const extended = tableBox
+              ? {
+                  x: Math.min(union.x, tableBox.x),
+                  y: union.y,
+                  width:
+                    Math.max(union.x + union.width, tableBox.x + tableBox.width) -
+                    Math.min(union.x, tableBox.x),
+                  height: union.height
+                }
+              : union;
+            clip = clipFromBox(extended, page.viewportSize());
+          }
+          const noteCaptureOptions = clip ? { clip } : { element: historyNotes };
+          artifacts.push({
+            scenario: "event-history-description",
+            theme: theme.key,
+            state: "notes",
+            label: "History description note",
+            path: await captureState(page, "event-history-description", theme.key, "notes", noteCaptureOptions)
+          });
+          await runCheck(theme.key, "History notes disclaimer aligns with text", async () => {
+            const result = await page.evaluate(() => {
+              const notesText = document.querySelector(".history-notes-text");
+              const disclaimer = document.querySelector(".history-notes-disclaimer");
+              const notesCard = document.querySelector(".history-notes-card");
+              if (
+                !(notesText instanceof HTMLElement) ||
+                !(disclaimer instanceof HTMLElement) ||
+                !(notesCard instanceof HTMLElement)
+              ) {
+                return { ok: false, reason: "notes text, card, or disclaimer missing" };
+              }
+              const textRect = notesText.getBoundingClientRect();
+              const disclaimerRect = disclaimer.getBoundingClientRect();
+              const cardRect = notesCard.getBoundingClientRect();
+              const paddingLeft = Number.parseFloat(
+                window.getComputedStyle(disclaimer).paddingLeft || "0"
+              );
+              const disclaimerTextLeft = disclaimerRect.left + paddingLeft;
+              const leftDelta = Math.abs(textRect.left - disclaimerTextLeft);
+              if (leftDelta > 1.5) {
+                return {
+                  ok: false,
+                  reason: `notes disclaimer left misaligned (delta=${leftDelta.toFixed(2)}px)`
+                };
+              }
+              const gap = disclaimerRect.top - cardRect.bottom;
+              if (gap < 6) {
+                return {
+                  ok: false,
+                  reason: `notes disclaimer gap too tight (gap=${gap.toFixed(2)}px)`
+                };
+              }
+              return { ok: true, reason: "" };
+            });
+            if (!result.ok) {
+              throw new Error(result.reason);
+            }
+          });
+          await runCheck(theme.key, "History notes card aligns with table bottom", async () => {
+            const result = await page.evaluate(() => {
+              const notesCard = document.querySelector(".history-notes-card");
+              const table = document.querySelector(".history-modal-table");
+              if (
+                !(notesCard instanceof HTMLElement) ||
+                !(table instanceof HTMLElement)
+              ) {
+                return { ok: false, reason: "notes card or table missing" };
+              }
+              const cardRect = notesCard.getBoundingClientRect();
+              const tableRect = table.getBoundingClientRect();
+              const delta = Math.abs(cardRect.bottom - tableRect.bottom);
+              if (delta > 1.5) {
+                return {
+                  ok: false,
+                  reason:
+                    "notes card bottom misaligned " +
+                    `(delta=${delta.toFixed(2)}px card=${cardRect.bottom.toFixed(2)} ` +
+                    `table=${tableRect.bottom.toFixed(2)})`
+                };
+              }
+              return { ok: true, reason: "" };
+            });
+            if (!result.ok) {
+              throw new Error(result.reason);
+            }
+          });
+        }
 
         const chart = historyModal.locator(".history-modal-chart").first();
         if (await chart.count()) {
@@ -2971,6 +3127,63 @@ const main = async () => {
           await historyClose.click();
         }
       }
+
+      // Some events (e.g. statements/speeches) have no metric series. In that case, the
+      // Description block should sit near the top (not pinned to the bottom).
+      const noChartRow = page
+        .locator("[data-qa='qa:row:next-event']")
+        .filter({ hasText: "FOMC Statement" })
+        .first();
+      if (await noChartRow.count()) {
+        await noChartRow.click();
+        const noChartModal = page.locator(".modal-history.open");
+        await noChartModal.waitFor({ state: "visible" });
+
+        const historyTable = noChartModal.locator("[data-qa='qa:history:table']").first();
+        await historyTable.waitFor({ state: "visible", timeout: 8000 }).catch(() => null);
+        await page.waitForTimeout(80);
+
+        const chart = noChartModal.locator(".history-modal-chart").first();
+        await runCheck(theme.key, "History notes not pinned when chart missing", async () => {
+          if (await chart.count()) return;
+          const result = await page.evaluate(() => {
+            const notesCard = document.querySelector(".history-notes-card");
+            const table = document.querySelector(".history-modal-table");
+            if (!(notesCard instanceof HTMLElement) || !(table instanceof HTMLElement)) {
+              return { ok: false, reason: "notes card or table missing" };
+            }
+            const cardRect = notesCard.getBoundingClientRect();
+            const tableRect = table.getBoundingClientRect();
+            const delta = Math.abs(cardRect.top - tableRect.top);
+            if (delta > 1.5) {
+              return {
+                ok: false,
+                reason:
+                  "notes card top misaligned when chart missing " +
+                  `(delta=${delta.toFixed(2)}px card=${cardRect.top.toFixed(2)} table=${tableRect.top.toFixed(2)})`
+              };
+            }
+            return { ok: true, reason: "" };
+          });
+          if (!result.ok) throw new Error(result.reason);
+        });
+
+        artifacts.push({
+          scenario: "event-history-modal",
+          theme: theme.key,
+          state: "no-chart",
+          label: "History modal without chart (notes near top)",
+          path: await captureState(page, "event-history-modal", theme.key, "no-chart", {
+            element: noChartModal
+          })
+        });
+
+        const historyClose = page.locator("[data-qa='qa:modal-close:history']").first();
+        if (await historyClose.count()) {
+          await historyClose.click();
+        }
+      }
+
     const eventsCard = page.locator("[data-qa='qa:card:next-events']").first();
     phase = `theme:${theme.key}:next-events-reorder`;
     await runCheck(theme.key, "Next Events reorder animation", () =>
@@ -5426,22 +5639,24 @@ const main = async () => {
       "utf-8"
     );
   } finally {
-    try {
-      if (browser) await browser.close();
-    } catch {
-      // ignore
-    }
-    try {
-      if (serverState?.server) await stopServer(serverState.server);
-    } catch {
-      // ignore
-    }
+    await shutdown("finally");
   }
 };
 
+const attachSignalHandlers = () => {
+  process.once("SIGINT", () => {
+    shutdown("SIGINT").finally(() => process.exit(130));
+  });
+  process.once("SIGTERM", () => {
+    shutdown("SIGTERM").finally(() => process.exit(143));
+  });
+};
+
+attachSignalHandlers();
+
 main().catch((err) => {
   console.error(err);
-  process.exit(1);
+  shutdown("error").finally(() => process.exit(1));
 });
 
 

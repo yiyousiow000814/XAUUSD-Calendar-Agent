@@ -1,6 +1,6 @@
 import os
 import re
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pandas as pd
@@ -27,6 +27,42 @@ COLUMN_WIDTH_OVERRIDES = {
 KEY_COLUMNS = ["Date", "Time", "Cur.", "Event"]
 MISSING_VALUE_TOKENS = {"tba", "tentative", "n/a", "na"}
 VALUE_COLUMNS = ["Actual", "Forecast", "Previous"]
+_MONTH_SUFFIX_RE = re.compile(
+    r"\s*\(\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*\)\s*$",
+    re.IGNORECASE,
+)
+
+
+def _has_month_suffix(event_name: str) -> bool:
+    return bool(_MONTH_SUFFIX_RE.search(event_name.strip()))
+
+
+def _strip_month_suffix(event_name: str) -> str:
+    # Collapse provider whitespace and remove trailing "(Nov)" style tags.
+    cleaned = re.sub(r"\s{2,}", " ", str(event_name or "").strip())
+    return _MONTH_SUFFIX_RE.sub("", cleaned).strip()
+
+
+def _event_datetime_source_tz(date_str: str, time_str: str) -> datetime | None:
+    if not date_str:
+        return None
+    try:
+        day = datetime.strptime(date_str.strip(), "%Y-%m-%d").date()
+    except ValueError:
+        return None
+
+    time_text = (time_str or "").strip()
+    if ":" in time_text:
+        try:
+            t = datetime.strptime(time_text, "%H:%M").time()
+        except ValueError:
+            t = datetime.min.time()
+    else:
+        # Treat all-day / missing time as end-of-day for "not in future" pruning.
+        t = datetime.strptime("23:59", "%H:%M").time()
+
+    source_tz = timezone(timedelta(hours=8))
+    return datetime.combine(day, t).replace(tzinfo=source_tz)
 
 
 def _sanitize_text_value(value: object) -> object:
@@ -533,6 +569,7 @@ def merge_calendar_frames(
         update_minutes = 60
 
     working = _apply_update_slot_dedup(working, threshold_minutes=update_minutes)
+    working = _drop_stale_month_placeholder_rows(working)
     working.drop(columns=["completeness_score", "_source_rank"], inplace=True)
 
     _snap_raw = (os.getenv("CALENDAR_TIME_SNAP_THRESHOLD_MINUTES") or "").strip()
@@ -564,6 +601,124 @@ def merge_calendar_frames(
 
     working = sort_calendar_dataframe(working)
     return working.reset_index(drop=True)
+
+
+def _drop_stale_month_placeholder_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """Drop stale placeholder duplicates that can show as TBA in the UI.
+
+    We only drop rows when:
+    - Same Cur., Imp., Previous
+    - Same month (YYYY-MM in Date)
+    - One row has Actual, another row is missing Actual
+    - And either:
+      - Event names are identical, OR
+      - Event names match after removing a trailing "(Nov)" month tag and exactly one row has it
+    - Both rows are not in the future relative to UTC+8 (calendar source timezone)
+
+    This avoids merging genuine month-to-month rows like \"(Aug)\" vs \"(Sep)\".
+    """
+    required = {"Date", "Time", "Cur.", "Imp.", "Event", "Actual", "Previous"}
+    if df.empty or not required.issubset(set(df.columns)):
+        return df.copy()
+
+    working = df.copy()
+
+    # Normalize key-ish columns used for matching.
+    for col in ["Cur.", "Imp.", "Previous", "Event"]:
+        working[col] = working[col].fillna("").astype(str).str.strip()
+    working["Actual"] = working["Actual"].fillna("").astype(str).str.strip()
+
+    working["_ym"] = working["Date"].astype(str).str.slice(0, 7)
+    working["_event_exact"] = working["Event"].map(
+        lambda v: re.sub(r"\s{2,}", " ", v).strip()
+    )
+    working["_event_base"] = working["_event_exact"].map(_strip_month_suffix)
+    working["_has_month"] = working["_event_exact"].map(_has_month_suffix)
+
+    now_source = datetime.now(timezone(timedelta(hours=8)))
+    dts = [
+        _event_datetime_source_tz(d, t)
+        for d, t in zip(
+            working["Date"].astype(str).tolist(), working["Time"].astype(str).tolist()
+        )
+    ]
+    working["_dt_source"] = dts
+    working["_not_future"] = working["_dt_source"].map(
+        lambda dt: bool(dt) and dt <= now_source
+    )
+
+    def actual_missing(series: pd.Series) -> pd.Series:
+        text = series.astype(str).str.strip().str.lower()
+        return (
+            text.eq("")
+            | text.isin(MISSING_VALUE_TOKENS)
+            | text.isin({"--", "-", "\u2014", "null"})
+        )
+
+    working["_actual_missing"] = actual_missing(working["Actual"])
+    working["_actual_present"] = ~working["_actual_missing"]
+
+    drop_mask = pd.Series(False, index=working.index)
+
+    group_cols_exact = ["_ym", "Cur.", "Imp.", "Previous", "_event_exact"]
+    exact_groups = working.groupby(group_cols_exact, dropna=False, sort=False)
+    for _, idxs in exact_groups.groups.items():
+        group = working.loc[list(idxs)]
+        if not group["_not_future"].any():
+            continue
+        present = group[group["_actual_present"] & group["_not_future"]]
+        if present.empty:
+            continue
+        missing = group[group["_actual_missing"] & group["_not_future"]]
+        if missing.empty:
+            continue
+        drop_mask.loc[missing.index] = True
+
+    group_cols_base = ["_ym", "Cur.", "Imp.", "Previous", "_event_base"]
+    base_groups = working.groupby(group_cols_base, dropna=False, sort=False)
+    for _, idxs in base_groups.groups.items():
+        group = working.loc[list(idxs)]
+        if group["_has_month"].nunique(dropna=False) < 2:
+            continue
+        if not group["_not_future"].any():
+            continue
+
+        month_actual = group[
+            group["_has_month"] & group["_actual_present"] & group["_not_future"]
+        ]
+        nomonth_actual = group[
+            (~group["_has_month"]) & group["_actual_present"] & group["_not_future"]
+        ]
+
+        month_missing = group[
+            group["_has_month"] & group["_actual_missing"] & group["_not_future"]
+        ]
+        nomonth_missing = group[
+            (~group["_has_month"]) & group["_actual_missing"] & group["_not_future"]
+        ]
+
+        # Drop only the side that has missing Actual when the opposite side has a value.
+        if not month_actual.empty and not nomonth_missing.empty:
+            drop_mask.loc[nomonth_missing.index] = True
+        if not nomonth_actual.empty and not month_missing.empty:
+            drop_mask.loc[month_missing.index] = True
+
+    cleaned = working.loc[~drop_mask].copy()
+    cleaned.drop(
+        columns=[
+            "_ym",
+            "_event_exact",
+            "_event_base",
+            "_has_month",
+            "_dt_source",
+            "_not_future",
+            "_actual_missing",
+            "_actual_present",
+        ],
+        inplace=True,
+        errors="ignore",
+    )
+    return cleaned
 
 
 def write_calendar_outputs(df: pd.DataFrame, excel_path: Path) -> None:

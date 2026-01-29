@@ -546,6 +546,65 @@ def _load_by_event_lines(
     return lines_by_event, in_range_event_ids, in_range_years
 
 
+def _point_sort_key(point: list[str]) -> tuple[datetime, tuple[int, int, str], str]:
+    date_value = str(point[0]) if len(point) > 0 else ""
+    time_value = str(point[1]) if len(point) > 1 else ""
+    period_value = str(point[-1]) if point else ""
+    date_key = _parse_history_datetime(date_value, time_value)
+    ref_month = date_key.month if date_key != datetime.min else None
+    return (
+        date_key,
+        _period_sort_value(period_value, reference_month=ref_month),
+        period_value,
+    )
+
+
+def _merge_points_by_date_range(
+    existing_points: list[list[str]],
+    new_points: list[list[str]],
+    *,
+    start_date: datetime.date,
+    end_date: datetime.date,
+) -> list[list[str]]:
+    new_in_range = [
+        point
+        for point in new_points
+        if _date_in_range(str(point[0]), start_date, end_date)
+    ]
+    existing_outside = [
+        point
+        for point in existing_points
+        if not _date_in_range(str(point[0]), start_date, end_date)
+    ]
+    merged = existing_outside + new_in_range
+    merged.sort(key=_point_sort_key)
+    return merged
+
+
+def _load_by_event_points(path: Path) -> dict[str, list[list[str]]]:
+    if not path.exists():
+        return {}
+    points_by_event: dict[str, list[list[str]]] = {}
+    try:
+        with path.open("r", encoding="utf-8") as handle:
+            for line in handle:
+                text = line.strip()
+                if not text:
+                    continue
+                try:
+                    payload = json.loads(text)
+                except json.JSONDecodeError:
+                    continue
+                event_id = str(payload.get("eventId", "")).strip()
+                points = payload.get("points", [])
+                if not event_id or not isinstance(points, list):
+                    continue
+                points_by_event[event_id] = points
+    except OSError:
+        return {}
+    return points_by_event
+
+
 def _write_ndjson_index(
     index_path: Path, index: dict[str, int], *, generated_at: str
 ) -> None:
@@ -1016,6 +1075,11 @@ def build_index(
             _write_csv_rows(clean_path, clean_header, rows_to_write)
 
         by_event_path = output_dir / _BY_EVENT_NDJSON_FILENAME
+        existing_by_event = (
+            _load_by_event_points(by_event_path)
+            if partial_update and by_event_path.exists()
+            else {}
+        )
         by_event_index: dict[str, int] = {}
         if partial_update and existing_lines:
             event_ids = sorted(set(grouped.keys()) | set(existing_lines.keys()))
@@ -1054,6 +1118,26 @@ def build_index(
                         # Insert before `period` so period stays at the end.
                         row.insert(-1, entry.previous_revised_from)
                     points.append(row)
+                if partial_update and existing_by_event:
+                    existing_points = existing_by_event.get(event_id, [])
+                    if existing_points:
+                        has_new_range = any(
+                            _date_in_range(str(point[0]), start_date, end_date)
+                            for point in points
+                        )
+                        has_existing_range = any(
+                            _date_in_range(str(point[0]), start_date, end_date)
+                            for point in existing_points
+                        )
+                        if not (has_new_range or has_existing_range):
+                            points = existing_points
+                        else:
+                            points = _merge_points_by_date_range(
+                                existing_points,
+                                points,
+                                start_date=start_date,
+                                end_date=end_date,
+                            )
                 payload = {
                     "eventId": event_id,
                     "points": points,

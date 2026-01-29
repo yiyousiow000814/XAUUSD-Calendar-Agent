@@ -220,8 +220,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2019-01-04,Friday,16:55,EUR,Low,German Unemployment n.s.a.  (Dec),2.210M,,2.186M
 2019-01-04,Friday,16:55,EUR,Medium,German Unemployment Change  (Dec),-14K,-12K,-16K
 2019-01-04,Friday,16:55,EUR,Medium,German Unemployment Rate  (Dec),5.0%,5.0%,5.0%
-2019-01-04,Friday,17:00,EUR,Low,Lithuania CPI (MoM),,,-0.1%
-2019-01-04,Friday,17:00,EUR,Low,Lithuania CPI (YoY),,,2.5%
 2019-01-04,Friday,17:00,PLN,Low,CPI (MoM)  (Dec),0.0%,0.1%,0.0%
 2019-01-04,Friday,17:00,PLN,Low,CPI (YoY)  (Dec),1.1%,1.1%,1.3%
 2019-01-04,Friday,17:00,TRY,Low,Exports  (Nov),13.90B,,15.70B
@@ -242,10 +240,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2019-01-04,Friday,18:00,EUR,Low,PPI (YoY)  (Nov),4.0%,4.1%,4.9%
 2019-01-04,Friday,18:00,EUR,Medium,Core CPI (YoY),1.0%,1.0%,1.0%
 2019-01-04,Friday,18:00,NOK,Low,House Price Index (YoY)  (Dec),2.80%,,2.00%
-2019-01-04,Friday,19:00,EUR,Low,Latvian CPI (MoM),,,-0.10%
-2019-01-04,Friday,19:00,EUR,Low,Latvian CPI (YoY),,,3.00%
-2019-01-04,Friday,19:00,EUR,Low,Latvian Industrial Production (MoM),,,-1.3%
-2019-01-04,Friday,19:00,EUR,Low,Latvian Industrial Production (YoY),,,-1.9%
 2019-01-04,Friday,19:30,INR,Low,Bank Loan Growth,15.1%,,15.1%
 2019-01-04,Friday,19:30,INR,Low,Deposit Growth,9.2%,,9.7%
 2019-01-04,Friday,19:30,INR,Low,"FX Reserves, USD",393.40B,,393.29B
@@ -285,9 +279,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2019-01-05,Saturday,02:00,USD,Medium,U.S. Baker Hughes Total Rig Count,"1,075",,"1,083"
 2019-01-05,Saturday,02:30,USD,Low,FOMC Member Barkin Speaks,,,
 2019-01-05,Saturday,02:30,USD,Medium,FOMC Member Bullard Speaks,,,
-2019-01-05,Saturday,15:45,EUR,Low,French Exports  (Nov),,,43.2B
-2019-01-05,Saturday,15:45,EUR,Low,French Imports  (Nov),,,47.3B
-2019-01-05,Saturday,15:45,EUR,Low,French Trade Balance  (Nov),,-6.0B,-4.1B
 2019-01-05,Saturday,17:55,CNY,Medium,PBoC Reserve Requirement Ratio,,,14.50%
 2019-01-05,Saturday,23:15,USD,Medium,FOMC Member Bostic Speaks,,,
 2019-01-05,Saturday,23:15,USD,Medium,FOMC Member Harker Speaks,,,
@@ -3268,8 +3259,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2019-03-06,Wednesday,05:00,KRW,Low,FX Reserves - USD  (Feb),404.67B,,405.51B
 2019-03-06,Wednesday,05:30,USD,Medium,API Weekly Crude Oil Stock,7.290M,,-4.200M
 2019-03-06,Wednesday,06:10,AUD,Medium,RBA Governor Lowe Speaks,,,
-2019-03-06,Wednesday,07:00,JPY,Medium,Household Spending (MoM)  (Jan),,,-0.1%
-2019-03-06,Wednesday,07:00,JPY,Medium,Household Spending (YoY)  (Jan),,-0.4%,0.1%
 2019-03-06,Wednesday,08:00,COP,Low,CPI (MoM)  (Feb),0.57%,0.74%,0.60%
 2019-03-06,Wednesday,08:00,COP,Low,CPI (YoY)  (Feb),3.01%,3.18%,3.15%
 2019-03-06,Wednesday,08:30,AUD,Low,GDP Capital Expenditure  (Q4),-1.0%,,0.6%
@@ -3928,7 +3917,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2019-03-16,Saturday,04:00,USD,Low,TIC Net Long-Term Transactions including Swaps  (Jan),-19.70B,,-66.70B
 2019-03-16,Saturday,04:00,USD,Low,"US Foreign Buying, T-bonds  (Jan)",23.00B,,15.00B
 2019-03-16,Saturday,04:00,USD,Medium,TIC Net Long-Term Transactions  (Jan),-7.2B,,-48.3B
-2019-03-16,Saturday,05:30,NZD,Medium,Business NZ PMI  (Feb),,,53.1
 2019-03-17,Sunday,All Day,,Holiday,Bangladesh - Holiday,,,
 2019-03-18,Monday,All Day,,Holiday,Mexico - Benito Juarez's Birthday Memorial,,,
 2019-03-18,Monday,07:50,JPY,Low,Imports (YoY)  (Feb),-6.7%,-5.8%,-0.8%
@@ -4360,7 +4348,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2019-03-27,Wednesday,03:00,ARS,Low,Current Account (USD)  (Q4),-2M,,8M
 2019-03-27,Wednesday,03:00,ARS,Low,Trade Balance  (Feb),460M,,372M
 2019-03-27,Wednesday,03:00,USD,Medium,FOMC Member Daly Speaks,,,
-2019-03-27,Wednesday,04:00,NZD,High,RBNZ Interest Rate Decision,,,1.75%
 2019-03-27,Wednesday,04:30,USD,Medium,API Weekly Crude Oil Stock,1.930M,,-2.133M
 2019-03-27,Wednesday,05:00,KRW,Low,Consumer Confidence  (Mar),100,,100
 2019-03-27,Wednesday,07:00,AUD,Medium,RBA Assist Gov Kent Speaks,,,
@@ -14782,7 +14769,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2019-10-05,Saturday,16:00,TWD,Low,CPI (MoM)  (Sep),0.42%,,-0.07%
 2019-10-05,Saturday,16:00,TWD,Low,CPI (YoY)  (Sep),0.43%,0.53%,0.43%
 2019-10-05,Saturday,16:00,TWD,Low,Wholesale Prices (MoM)  (Sep),-4.53%,,-3.44%
-2019-10-05,Saturday,16:20,TWD,Low,FX Reserves USD  (Sep),,,468.17B
 2019-10-06,Sunday,All Day,,Holiday,China - National Day,,,
 2019-10-06,Sunday,All Day,,Holiday,Egypt - Armed Forces Day,,,
 2019-10-06,Sunday,01:00,COP,Low,CPI (MoM)  (Sep),0.23%,0.16%,0.09%

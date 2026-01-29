@@ -599,7 +599,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - New Year's Day",
+        "Event":"Türkiye - New Year's Day",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -2678,7 +2678,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (Dec)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (Dec)",
         "Actual":"0.70%",
         "Forecast":null,
         "Previous":"0.70%"
@@ -2711,7 +2711,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)  (Dec)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)  (Dec)",
         "Actual":"1.00%",
         "Forecast":null,
         "Previous":"0.80%"
@@ -2865,7 +2865,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)  (Dec)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)  (Dec)",
         "Actual":"0.20%",
         "Forecast":null,
         "Previous":"-0.20%"
@@ -4724,7 +4724,7 @@
         "Time":"23:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"IBD\/TIPP Economic Optimism",
+        "Event":"IBD/TIPP Economic Optimism",
         "Actual":"46.5",
         "Forecast":"46.3",
         "Previous":"45.1"
@@ -9047,7 +9047,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"Brazil - S\u00e3o Paulo City Anniversary",
+        "Event":"Brazil - São Paulo City Anniversary",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -10070,7 +10070,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)",
         "Actual":"5.5%",
         "Forecast":"5.5%",
         "Previous":"4.2%"
@@ -13238,7 +13238,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (Jan)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (Jan)",
         "Actual":"0.70%",
         "Forecast":null,
         "Previous":"0.70%"
@@ -13271,7 +13271,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)  (Jan)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)  (Jan)",
         "Actual":"1.00%",
         "Forecast":null,
         "Previous":"1.00%"
@@ -13425,7 +13425,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)  (Jan)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)  (Jan)",
         "Actual":"0.00%",
         "Forecast":null,
         "Previous":"0.20%"
@@ -14107,7 +14107,7 @@
         "Time":"23:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"IBD\/TIPP Economic Optimism",
+        "Event":"IBD/TIPP Economic Optimism",
         "Actual":"47.3",
         "Forecast":"46.0",
         "Previous":"46.5"
@@ -19959,7 +19959,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)",
         "Actual":"6.8%",
         "Forecast":"6.6%",
         "Previous":"5.5%"
@@ -23226,7 +23226,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (Feb)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (Feb)",
         "Actual":"0.20%",
         "Forecast":null,
         "Previous":"0.70%"
@@ -23259,7 +23259,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)  (Feb)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)  (Feb)",
         "Actual":"1.10%",
         "Forecast":null,
         "Previous":"1.00%"
@@ -23413,7 +23413,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)  (Feb)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)  (Feb)",
         "Actual":"0.20%",
         "Forecast":null,
         "Previous":"0.00%"
@@ -24139,7 +24139,7 @@
         "Time":"23:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"IBD\/TIPP Economic Optimism",
+        "Event":"IBD/TIPP Economic Optimism",
         "Actual":"42.2",
         "Forecast":"46.3",
         "Previous":"47.3"
@@ -29837,7 +29837,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)",
         "Actual":"8.1%",
         "Forecast":"7.9%",
         "Previous":"6.8%"
@@ -34281,7 +34281,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (Mar)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (Mar)",
         "Actual":"-0.10%",
         "Forecast":null,
         "Previous":"0.20%"
@@ -34314,7 +34314,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)  (Mar)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)  (Mar)",
         "Actual":"1.50%",
         "Forecast":null,
         "Previous":"1.10%"
@@ -34468,7 +34468,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)  (Mar)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)  (Mar)",
         "Actual":"1.30%",
         "Forecast":null,
         "Previous":"0.20%"
@@ -34897,7 +34897,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"IBD\/TIPP Economic Optimism",
+        "Event":"IBD/TIPP Economic Optimism",
         "Actual":"46.2",
         "Forecast":"46.1",
         "Previous":"42.2"
@@ -40122,7 +40122,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - National Sovereignity Day",
+        "Event":"Türkiye - National Sovereignity Day",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -42575,7 +42575,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)",
         "Actual":"9.3%",
         "Forecast":"9.0%",
         "Previous":"8.1%"
@@ -43158,7 +43158,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Labor Day",
+        "Event":"Türkiye - Labor Day",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -45215,7 +45215,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (Apr)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (Apr)",
         "Actual":"-0.10%",
         "Forecast":null,
         "Previous":"-0.10%"
@@ -45248,7 +45248,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)  (Apr)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)  (Apr)",
         "Actual":"1.60%",
         "Forecast":null,
         "Previous":"1.50%"
@@ -47008,7 +47008,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"IBD\/TIPP Economic Optimism",
+        "Event":"IBD/TIPP Economic Optimism",
         "Actual":"45.1",
         "Forecast":"47.1",
         "Previous":"46.2"
@@ -50605,7 +50605,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Youth Day",
+        "Event":"Türkiye - Youth Day",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -52750,7 +52750,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)",
         "Actual":"1.4%",
         "Forecast":"0.7%",
         "Previous":"0.3%"
@@ -52761,7 +52761,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)",
         "Actual":"10.9%",
         "Forecast":"10.2%",
         "Previous":"9.3%"
@@ -53399,7 +53399,7 @@
         "Time":"09:30",
         "Cur.":"AUD",
         "Imp.":"Low",
-        "Event":"Plant\/Machinery Capital Expenditure (QoQ)",
+        "Event":"Plant/Machinery Capital Expenditure (QoQ)",
         "Actual":"-3.3%",
         "Forecast":"-2.0%",
         "Previous":"-3.3%"
@@ -55588,7 +55588,7 @@
         "Time":"17:00",
         "Cur.":"JPY",
         "Imp.":"Low",
-        "Event":"Jobs\/applications ratio  (May)",
+        "Event":"Jobs/applications ratio  (May)",
         "Actual":"0.90",
         "Forecast":null,
         "Previous":"0.88"
@@ -56611,7 +56611,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (May)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (May)",
         "Actual":"0.40%",
         "Forecast":null,
         "Previous":"-0.10%"
@@ -56644,7 +56644,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)  (May)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)  (May)",
         "Actual":"1.00%",
         "Forecast":null,
         "Previous":"1.60%"
@@ -57436,7 +57436,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"IBD\/TIPP Economic Optimism",
+        "Event":"IBD/TIPP Economic Optimism",
         "Actual":"49.0",
         "Forecast":"50.1",
         "Previous":"45.1"
@@ -64135,7 +64135,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)",
         "Actual":"2.5%",
         "Forecast":"1.1%",
         "Previous":"1.4%"
@@ -64146,7 +64146,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)",
         "Actual":"12.1%",
         "Forecast":"10.6%",
         "Previous":"10.9%"
@@ -67127,7 +67127,7 @@
         "Time":"17:00",
         "Cur.":"JPY",
         "Imp.":"Low",
-        "Event":"Jobs\/applications ratio  (Jun)",
+        "Event":"Jobs/applications ratio  (Jun)",
         "Actual":"0.92",
         "Forecast":null,
         "Previous":"0.90"
@@ -67996,7 +67996,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (Jun)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (Jun)",
         "Actual":"-0.20%",
         "Forecast":null,
         "Previous":"0.40%"
@@ -68029,7 +68029,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)  (Jun)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)  (Jun)",
         "Actual":"1.00%",
         "Forecast":null,
         "Previous":"1.00%"
@@ -68337,7 +68337,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"IBD\/TIPP Economic Optimism",
+        "Event":"IBD/TIPP Economic Optimism",
         "Actual":"47.1",
         "Forecast":"49.3",
         "Previous":"49.0"
@@ -74310,7 +74310,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"Venezuela - Sim\u00f3n Bol\u00edvar's Birthday",
+        "Event":"Venezuela - Simón Bolívar's Birthday",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -75238,17 +75238,6 @@
         "Actual":"1.867%",
         "Forecast":null,
         "Previous":"2.403%"
-    },
-    {
-        "Date":"2013-07-26",
-        "Day":"Friday",
-        "Time":"17:30",
-        "Cur.":"ZAR",
-        "Imp.":"Low",
-        "Event":"Unemployment Rate",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"25.20%"
     },
     {
         "Date":"2013-07-26",
@@ -76202,7 +76191,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)",
         "Actual":"2.4%",
         "Forecast":"2.3%",
         "Previous":"2.6%"
@@ -76213,7 +76202,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)",
         "Actual":"12.2%",
         "Forecast":"12.4%",
         "Previous":"12.1%"
@@ -77995,7 +77984,7 @@
         "Time":"17:00",
         "Cur.":"JPY",
         "Imp.":"Low",
-        "Event":"Jobs\/applications ratio  (Jul)",
+        "Event":"Jobs/applications ratio  (Jul)",
         "Actual":"0.94",
         "Forecast":null,
         "Previous":"0.92"
@@ -78908,7 +78897,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (Jul)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (Jul)",
         "Actual":"0.70%",
         "Forecast":null,
         "Previous":"-0.20%"
@@ -78941,7 +78930,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)  (Jul)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)  (Jul)",
         "Actual":"0.90%",
         "Forecast":null,
         "Previous":"1.00%"
@@ -80151,7 +80140,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"IBD\/TIPP Economic Optimism",
+        "Event":"IBD/TIPP Economic Optimism",
         "Actual":"45.1",
         "Forecast":"47.9",
         "Previous":"47.1"
@@ -80195,7 +80184,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"Colombia - Battle of Boyac\u00e1",
+        "Event":"Colombia - Battle of Boyacá",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -80690,7 +80679,7 @@
         "Time":"",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Eid al-Fitr - Early close at 13:00",
+        "Event":"Türkiye - Eid al-Fitr - Early close at 13:00",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -80822,7 +80811,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Eid al-Fitr",
+        "Event":"Türkiye - Eid al-Fitr",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -81405,7 +81394,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Eid al-Fitr",
+        "Event":"Türkiye - Eid al-Fitr",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -82021,7 +82010,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Eid al-Fitr",
+        "Event":"Türkiye - Eid al-Fitr",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -86828,7 +86817,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)",
         "Actual":"2.2%",
         "Forecast":"2.3%",
         "Previous":"2.5%"
@@ -86839,7 +86828,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)",
         "Actual":"12.1%",
         "Forecast":"12.1%",
         "Previous":"12.2%"
@@ -87235,7 +87224,7 @@
         "Time":"09:30",
         "Cur.":"AUD",
         "Imp.":"Low",
-        "Event":"Plant\/Machinery Capital Expenditure (QoQ)",
+        "Event":"Plant/Machinery Capital Expenditure (QoQ)",
         "Actual":"-1.2%",
         "Forecast":"-0.5%",
         "Previous":"-4.0%"
@@ -87697,7 +87686,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Victoria Day",
+        "Event":"Türkiye - Victoria Day",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -89512,7 +89501,7 @@
         "Time":"17:00",
         "Cur.":"JPY",
         "Imp.":"Low",
-        "Event":"Jobs\/applications ratio  (Aug)",
+        "Event":"Jobs/applications ratio  (Aug)",
         "Actual":"0.95",
         "Forecast":null,
         "Previous":"0.94"
@@ -89908,7 +89897,7 @@
         "Time":"17:00",
         "Cur.":"NZD",
         "Imp.":"Low",
-        "Event":"Permanent\/Long-Term Migration  (Aug)",
+        "Event":"Permanent/Long-Term Migration  (Aug)",
         "Actual":"2,150.00",
         "Forecast":null,
         "Previous":"2,020.00"
@@ -90700,7 +90689,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (Aug)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (Aug)",
         "Actual":"-0.20%",
         "Forecast":null,
         "Previous":"0.70%"
@@ -90733,7 +90722,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)  (Aug)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)  (Aug)",
         "Actual":"1.10%",
         "Forecast":null,
         "Previous":"0.90%"
@@ -91789,7 +91778,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"IBD\/TIPP Economic Optimism",
+        "Event":"IBD/TIPP Economic Optimism",
         "Actual":"46.0",
         "Forecast":"46.2",
         "Previous":"45.1"
@@ -98180,7 +98169,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)",
         "Actual":"1.8%",
         "Forecast":"2.0%",
         "Previous":"2.2%"
@@ -98191,7 +98180,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)",
         "Actual":"12.4%",
         "Forecast":"12.4%",
         "Previous":"12.1%"
@@ -101502,7 +101491,7 @@
         "Time":"17:00",
         "Cur.":"JPY",
         "Imp.":"Low",
-        "Event":"Jobs\/applications ratio  (Sep)",
+        "Event":"Jobs/applications ratio  (Sep)",
         "Actual":"0.96",
         "Forecast":null,
         "Previous":"0.95"
@@ -102382,7 +102371,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (Sep)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (Sep)",
         "Actual":"0.50%",
         "Forecast":null,
         "Previous":"-0.20%"
@@ -102415,7 +102404,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)  (Sep)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)  (Sep)",
         "Actual":"1.00%",
         "Forecast":null,
         "Previous":"1.10%"
@@ -104164,7 +104153,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"IBD\/TIPP Economic Optimism",
+        "Event":"IBD/TIPP Economic Optimism",
         "Actual":"38.4",
         "Forecast":"46.2",
         "Previous":"46.0"
@@ -106144,7 +106133,7 @@
         "Time":"",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Eid al-Adha - Early close at 13:00",
+        "Event":"Türkiye - Eid al-Adha - Early close at 13:00",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -106298,7 +106287,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Eid al-Adha",
+        "Event":"Türkiye - Eid al-Adha",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -106936,7 +106925,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Eid al-Adha",
+        "Event":"Türkiye - Eid al-Adha",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -107387,7 +107376,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Eid al-Adha",
+        "Event":"Türkiye - Eid al-Adha",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -107882,7 +107871,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Eid al-Adha",
+        "Event":"Türkiye - Eid al-Adha",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -110500,7 +110489,7 @@
         "Time":"",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Republic Day - Early close at 13:00",
+        "Event":"Türkiye - Republic Day - Early close at 13:00",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -110511,7 +110500,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Republic Day",
+        "Event":"Türkiye - Republic Day",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -110940,7 +110929,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)",
         "Actual":"1.3%",
         "Forecast":"0.8%",
         "Previous":"1.8%"
@@ -110951,7 +110940,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)",
         "Actual":"12.8%",
         "Forecast":"12.5%",
         "Previous":"12.3%"
@@ -113360,7 +113349,7 @@
         "Time":"17:00",
         "Cur.":"JPY",
         "Imp.":"Low",
-        "Event":"Jobs\/applications ratio  (Oct)",
+        "Event":"Jobs/applications ratio  (Oct)",
         "Actual":"0.99",
         "Forecast":null,
         "Previous":"0.96"
@@ -113767,7 +113756,7 @@
         "Time":"17:00",
         "Cur.":"NZD",
         "Imp.":"Low",
-        "Event":"Permanent\/Long-Term Migration  (Oct)",
+        "Event":"Permanent/Long-Term Migration  (Oct)",
         "Actual":"2,830.00",
         "Forecast":null,
         "Previous":"2,760.00"
@@ -114504,7 +114493,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (Oct)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (Oct)",
         "Actual":"0.30%",
         "Forecast":null,
         "Previous":"0.50%"
@@ -114537,7 +114526,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)  (Oct)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)  (Oct)",
         "Actual":"1.00%",
         "Forecast":null,
         "Previous":"1.00%"
@@ -115560,7 +115549,7 @@
         "Time":"23:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"IBD\/TIPP Economic Optimism",
+        "Event":"IBD/TIPP Economic Optimism",
         "Actual":"41.4",
         "Forecast":"41.1",
         "Previous":"38.4"
@@ -122622,7 +122611,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)",
         "Actual":"0.7%",
         "Forecast":"0.7%",
         "Previous":"1.3%"
@@ -122633,7 +122622,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)",
         "Actual":"13.3%",
         "Forecast":"13.0%",
         "Previous":"12.8%"
@@ -123370,7 +123359,7 @@
         "Time":"08:30",
         "Cur.":"AUD",
         "Imp.":"Low",
-        "Event":"Plant\/Machinery Capital Expenditure (QoQ)",
+        "Event":"Plant/Machinery Capital Expenditure (QoQ)",
         "Actual":"-1.5%",
         "Forecast":null,
         "Previous":"-0.7%"
@@ -125658,7 +125647,7 @@
         "Time":"17:00",
         "Cur.":"JPY",
         "Imp.":"Low",
-        "Event":"Jobs\/applications ratio  (Nov)",
+        "Event":"Jobs/applications ratio  (Nov)",
         "Actual":"1.01",
         "Forecast":null,
         "Previous":"0.99"
@@ -126054,7 +126043,7 @@
         "Time":"17:00",
         "Cur.":"NZD",
         "Imp.":"Low",
-        "Event":"Permanent\/Long-Term Migration  (Nov)",
+        "Event":"Permanent/Long-Term Migration  (Nov)",
         "Actual":"2,770.00",
         "Forecast":null,
         "Previous":"2,830.00"
@@ -126780,7 +126769,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (Nov)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (Nov)",
         "Actual":"0.20%",
         "Forecast":null,
         "Previous":"0.30%"
@@ -126813,7 +126802,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)  (Nov)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)  (Nov)",
         "Actual":"0.90%",
         "Forecast":null,
         "Previous":"1.00%"
@@ -127517,7 +127506,7 @@
         "Time":"23:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"IBD\/TIPP Economic Optimism",
+        "Event":"IBD/TIPP Economic Optimism",
         "Actual":"43.1",
         "Forecast":"43.2",
         "Previous":"41.4"
@@ -138143,7 +138132,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)",
         "Actual":"0.2%",
         "Forecast":"0.7%",
         "Previous":"0.7%"
@@ -138154,7 +138143,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)",
         "Actual":"13.6%",
         "Forecast":"13.0%",
         "Previous":"13.3%"

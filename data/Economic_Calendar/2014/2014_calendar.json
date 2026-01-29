@@ -577,7 +577,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - New Year's Day",
+        "Event":"Türkiye - New Year's Day",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -1633,7 +1633,7 @@
         "Time":"17:00",
         "Cur.":"JPY",
         "Imp.":"Low",
-        "Event":"Jobs\/applications ratio  (Dec)",
+        "Event":"Jobs/applications ratio  (Dec)",
         "Actual":"1.03",
         "Forecast":null,
         "Previous":"1.01"
@@ -2007,7 +2007,7 @@
         "Time":"17:00",
         "Cur.":"NZD",
         "Imp.":"Low",
-        "Event":"Permanent\/Long-Term Migration  (Dec)",
+        "Event":"Permanent/Long-Term Migration  (Dec)",
         "Actual":"3,060.00",
         "Forecast":null,
         "Previous":"2,770.00"
@@ -2733,7 +2733,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (Dec)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (Dec)",
         "Actual":"0.50%",
         "Forecast":null,
         "Previous":"0.20%"
@@ -2766,7 +2766,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)  (Dec)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)  (Dec)",
         "Actual":"0.70%",
         "Forecast":null,
         "Previous":"0.90%"
@@ -6077,7 +6077,7 @@
         "Time":"23:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"IBD\/TIPP Economic Optimism",
+        "Event":"IBD/TIPP Economic Optimism",
         "Actual":"45.2",
         "Forecast":"45.3",
         "Previous":"43.1"
@@ -11181,7 +11181,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)",
         "Actual":"-0.1%",
         "Forecast":"0.2%",
         "Previous":"0.2%"
@@ -11192,7 +11192,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)",
         "Actual":"13.7%",
         "Forecast":"13.7%",
         "Previous":"13.6%"
@@ -14118,7 +14118,7 @@
         "Time":"17:00",
         "Cur.":"JPY",
         "Imp.":"Low",
-        "Event":"Jobs\/applications ratio  (Jan)",
+        "Event":"Jobs/applications ratio  (Jan)",
         "Actual":"1.04",
         "Forecast":null,
         "Previous":"1.03"
@@ -14536,7 +14536,7 @@
         "Time":"17:00",
         "Cur.":"NZD",
         "Imp.":"Low",
-        "Event":"Permanent\/Long-Term Migration  (Jan)",
+        "Event":"Permanent/Long-Term Migration  (Jan)",
         "Actual":"3,120.00",
         "Forecast":null,
         "Previous":"3,060.00"
@@ -15229,7 +15229,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (Jan)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (Jan)",
         "Actual":"-1.00%",
         "Forecast":null,
         "Previous":"0.50%"
@@ -15262,7 +15262,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)  (Jan)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)  (Jan)",
         "Actual":"0.80%",
         "Forecast":null,
         "Previous":"0.70%"
@@ -16087,7 +16087,7 @@
         "Time":"23:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"IBD\/TIPP Economic Optimism",
+        "Event":"IBD/TIPP Economic Optimism",
         "Actual":"44.9",
         "Forecast":"46.1",
         "Previous":"45.2"
@@ -23094,7 +23094,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)",
         "Actual":"-0.1%",
         "Forecast":"-0.1%",
         "Previous":"-0.1%"
@@ -23105,7 +23105,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)",
         "Actual":"13.4%",
         "Forecast":"13.3%",
         "Previous":"13.7%"
@@ -23699,7 +23699,7 @@
         "Time":"08:30",
         "Cur.":"AUD",
         "Imp.":"Low",
-        "Event":"Plant\/Machinery Capital Expenditure (QoQ)",
+        "Event":"Plant/Machinery Capital Expenditure (QoQ)",
         "Actual":"-8.6%",
         "Forecast":"0.5%",
         "Previous":"-2.8%"
@@ -26163,7 +26163,7 @@
         "Time":"17:00",
         "Cur.":"JPY",
         "Imp.":"Low",
-        "Event":"Jobs\/applications ratio  (Feb)",
+        "Event":"Jobs/applications ratio  (Feb)",
         "Actual":"1.05",
         "Forecast":null,
         "Previous":"1.04"
@@ -26537,7 +26537,7 @@
         "Time":"17:00",
         "Cur.":"NZD",
         "Imp.":"Low",
-        "Event":"Permanent\/Long-Term Migration  (Feb)",
+        "Event":"Permanent/Long-Term Migration  (Feb)",
         "Actual":"3,680.00",
         "Forecast":null,
         "Previous":"3,120.00"
@@ -27208,7 +27208,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (Feb)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (Feb)",
         "Actual":"0.90%",
         "Forecast":null,
         "Previous":"-1.00%"
@@ -27241,7 +27241,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)  (Feb)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)  (Feb)",
         "Actual":"0.70%",
         "Forecast":null,
         "Previous":"0.80%"
@@ -28253,7 +28253,7 @@
         "Time":"23:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"IBD\/TIPP Economic Optimism",
+        "Event":"IBD/TIPP Economic Optimism",
         "Actual":"45.1",
         "Forecast":"45.6",
         "Previous":"44.9"
@@ -35403,7 +35403,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)",
         "Actual":"-0.1%",
         "Forecast":"-0.1%",
         "Previous":"-0.1%"
@@ -35414,7 +35414,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)",
         "Actual":"13.2%",
         "Forecast":"13.3%",
         "Previous":"13.4%"
@@ -38956,7 +38956,7 @@
         "Time":"17:00",
         "Cur.":"JPY",
         "Imp.":"Low",
-        "Event":"Jobs\/applications ratio  (Mar)",
+        "Event":"Jobs/applications ratio  (Mar)",
         "Actual":"1.07",
         "Forecast":null,
         "Previous":"1.05"
@@ -39220,7 +39220,7 @@
         "Time":"17:00",
         "Cur.":"NZD",
         "Imp.":"Low",
-        "Event":"Permanent\/Long-Term Migration  (Mar)",
+        "Event":"Permanent/Long-Term Migration  (Mar)",
         "Actual":"3,830.00",
         "Forecast":null,
         "Previous":"3,680.00"
@@ -39847,7 +39847,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (Mar)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (Mar)",
         "Actual":"1.20%",
         "Forecast":null,
         "Previous":"0.90%"
@@ -39880,7 +39880,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)  (Mar)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)  (Mar)",
         "Actual":"1.00%",
         "Forecast":null,
         "Previous":"0.70%"
@@ -41387,7 +41387,7 @@
         "Time":"18:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"50.1%",
         "Forecast":null,
         "Previous":null
@@ -41398,7 +41398,7 @@
         "Time":"18:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"62.2%",
         "Forecast":null,
         "Previous":null
@@ -41409,7 +41409,7 @@
         "Time":"18:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"62.5%",
         "Forecast":null,
         "Previous":null
@@ -41420,7 +41420,7 @@
         "Time":"18:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"40.3%",
         "Forecast":null,
         "Previous":null
@@ -41431,7 +41431,7 @@
         "Time":"18:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"40.7%",
         "Forecast":null,
         "Previous":null
@@ -41442,7 +41442,7 @@
         "Time":"18:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"74.5%",
         "Forecast":null,
         "Previous":null
@@ -41453,7 +41453,7 @@
         "Time":"18:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"41.9%",
         "Forecast":null,
         "Previous":null
@@ -48064,7 +48064,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - National Sovereignty and Children Day",
+        "Event":"Türkiye - National Sovereignty and Children Day",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -49571,7 +49571,7 @@
         "Time":"18:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"60.7%",
         "Forecast":null,
         "Previous":"50.1%"
@@ -49582,7 +49582,7 @@
         "Time":"18:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"53.4%",
         "Forecast":null,
         "Previous":"62.2%"
@@ -49593,7 +49593,7 @@
         "Time":"18:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"63.3%",
         "Forecast":null,
         "Previous":"62.5%"
@@ -49604,7 +49604,7 @@
         "Time":"18:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"43.5%",
         "Forecast":null,
         "Previous":"40.3%"
@@ -49615,7 +49615,7 @@
         "Time":"18:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"43.5%",
         "Forecast":null,
         "Previous":"40.7%"
@@ -49626,7 +49626,7 @@
         "Time":"18:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"69.4%",
         "Forecast":null,
         "Previous":"74.5%"
@@ -49637,7 +49637,7 @@
         "Time":"18:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"52.9%",
         "Forecast":null,
         "Previous":"41.9%"
@@ -50363,7 +50363,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)",
         "Actual":"0.0%",
         "Forecast":"0.0%",
         "Previous":"-0.1%"
@@ -50374,7 +50374,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)",
         "Actual":"12.9%",
         "Forecast":"13.0%",
         "Previous":"13.2%"
@@ -52090,7 +52090,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Labor and Solidarity Day",
+        "Event":"Türkiye - Labor and Solidarity Day",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -53344,7 +53344,7 @@
         "Time":"17:00",
         "Cur.":"JPY",
         "Imp.":"Low",
-        "Event":"Jobs\/applications ratio  (Apr)",
+        "Event":"Jobs/applications ratio  (Apr)",
         "Actual":"1.08",
         "Forecast":null,
         "Previous":"1.07"
@@ -53619,7 +53619,7 @@
         "Time":"17:00",
         "Cur.":"NZD",
         "Imp.":"Low",
-        "Event":"Permanent\/Long-Term Migration  (Apr)",
+        "Event":"Permanent/Long-Term Migration  (Apr)",
         "Actual":"4,080.00",
         "Forecast":null,
         "Previous":"3,830.00"
@@ -54257,7 +54257,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (Apr)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (Apr)",
         "Actual":"0.60%",
         "Forecast":null,
         "Previous":"1.20%"
@@ -54290,7 +54290,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)  (Apr)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)  (Apr)",
         "Actual":"0.20%",
         "Forecast":null,
         "Previous":"1.00%"
@@ -54994,7 +54994,7 @@
         "Time":"18:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"46.9%",
         "Forecast":null,
         "Previous":"60.7%"
@@ -55005,7 +55005,7 @@
         "Time":"18:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"52.0%",
         "Forecast":null,
         "Previous":"53.4%"
@@ -55016,7 +55016,7 @@
         "Time":"18:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"60.8%",
         "Forecast":null,
         "Previous":"63.3%"
@@ -55027,7 +55027,7 @@
         "Time":"18:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"41.1%",
         "Forecast":null,
         "Previous":"43.5%"
@@ -55038,7 +55038,7 @@
         "Time":"18:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"41.0%",
         "Forecast":null,
         "Previous":"43.5%"
@@ -55049,7 +55049,7 @@
         "Time":"18:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"67.6%",
         "Forecast":null,
         "Previous":"69.4%"
@@ -55060,7 +55060,7 @@
         "Time":"18:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"50.7%",
         "Forecast":null,
         "Previous":"52.9%"
@@ -55863,7 +55863,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"IBD\/TIPP Economic Optimism",
+        "Event":"IBD/TIPP Economic Optimism",
         "Actual":"45.8",
         "Forecast":"47.6",
         "Previous":"48.0"
@@ -57887,7 +57887,7 @@
         "Time":"12:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"48.4%",
         "Forecast":null,
         "Previous":"46.9%"
@@ -57898,7 +57898,7 @@
         "Time":"12:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"61.3%",
         "Forecast":null,
         "Previous":"52.0%"
@@ -57909,7 +57909,7 @@
         "Time":"12:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"55.7%",
         "Forecast":null,
         "Previous":"60.8%"
@@ -57920,7 +57920,7 @@
         "Time":"12:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"55.0%",
         "Forecast":null,
         "Previous":"41.1%"
@@ -57931,7 +57931,7 @@
         "Time":"12:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"47.9%",
         "Forecast":null,
         "Previous":"41.0%"
@@ -57942,7 +57942,7 @@
         "Time":"12:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"67.1%",
         "Forecast":null,
         "Previous":"67.6%"
@@ -57964,7 +57964,7 @@
         "Time":"12:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"49.3%",
         "Forecast":null,
         "Previous":"50.7%"
@@ -60692,7 +60692,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Youth and Sports Day",
+        "Event":"Türkiye - Youth and Sports Day",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -60769,7 +60769,7 @@
         "Time":"12:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"54.0%",
         "Forecast":null,
         "Previous":"48.4%"
@@ -60780,7 +60780,7 @@
         "Time":"12:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"58.3%",
         "Forecast":null,
         "Previous":"61.3%"
@@ -60791,7 +60791,7 @@
         "Time":"12:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"55.5%",
         "Forecast":null,
         "Previous":"55.7%"
@@ -60802,7 +60802,7 @@
         "Time":"12:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"41.0%",
         "Forecast":null,
         "Previous":"55.0%"
@@ -60813,7 +60813,7 @@
         "Time":"12:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"40.8%",
         "Forecast":null,
         "Previous":"47.9%"
@@ -60824,7 +60824,7 @@
         "Time":"12:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"74.9%",
         "Forecast":null,
         "Previous":"67.1%"
@@ -60835,7 +60835,7 @@
         "Time":"12:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"45.9%",
         "Forecast":null,
         "Previous":"49.3%"
@@ -63134,7 +63134,7 @@
         "Time":"12:30",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"61.6%",
         "Forecast":null,
         "Previous":"54.0%"
@@ -63145,7 +63145,7 @@
         "Time":"12:30",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"63.1%",
         "Forecast":null,
         "Previous":"58.3%"
@@ -63156,7 +63156,7 @@
         "Time":"12:30",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"50.7%",
         "Forecast":null,
         "Previous":"55.5%"
@@ -63167,7 +63167,7 @@
         "Time":"12:30",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"49.4%",
         "Forecast":null,
         "Previous":"41.0%"
@@ -63178,7 +63178,7 @@
         "Time":"12:30",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"46.4%",
         "Forecast":null,
         "Previous":"40.8%"
@@ -63189,7 +63189,7 @@
         "Time":"12:30",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"57.3%",
         "Forecast":null,
         "Previous":"74.9%"
@@ -63200,7 +63200,7 @@
         "Time":"12:30",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"51.7%",
         "Forecast":null,
         "Previous":"45.9%"
@@ -63717,7 +63717,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)",
         "Actual":"0.9%",
         "Forecast":"0.2%",
         "Previous":"0.0%"
@@ -63728,7 +63728,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)",
         "Actual":"12.4%",
         "Forecast":"11.8%",
         "Previous":"12.9%"
@@ -64586,7 +64586,7 @@
         "Time":"09:30",
         "Cur.":"AUD",
         "Imp.":"Low",
-        "Event":"Plant\/Machinery Capital Expenditure (QoQ)",
+        "Event":"Plant/Machinery Capital Expenditure (QoQ)",
         "Actual":"2.8%",
         "Forecast":null,
         "Previous":"-9.0%"
@@ -67017,7 +67017,7 @@
         "Time":"17:00",
         "Cur.":"JPY",
         "Imp.":"Low",
-        "Event":"Jobs\/applications ratio  (May)",
+        "Event":"Jobs/applications ratio  (May)",
         "Actual":"1.09",
         "Forecast":null,
         "Previous":"1.08"
@@ -67347,7 +67347,7 @@
         "Time":"17:00",
         "Cur.":"NZD",
         "Imp.":"Low",
-        "Event":"Permanent\/Long-Term Migration  (May)",
+        "Event":"Permanent/Long-Term Migration  (May)",
         "Actual":"4,020.00",
         "Forecast":null,
         "Previous":"4,080.00"
@@ -68029,7 +68029,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (May)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (May)",
         "Actual":"0.20%",
         "Forecast":null,
         "Previous":"0.60%"
@@ -68062,7 +68062,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)  (May)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)  (May)",
         "Actual":"-0.40%",
         "Forecast":null,
         "Previous":"0.20%"
@@ -68260,7 +68260,7 @@
         "Time":"10:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"53.6%",
         "Forecast":null,
         "Previous":"61.6%"
@@ -68271,7 +68271,7 @@
         "Time":"10:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"58.4%",
         "Forecast":null,
         "Previous":"63.1%"
@@ -68282,7 +68282,7 @@
         "Time":"10:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"52.7%",
         "Forecast":null,
         "Previous":"50.7%"
@@ -68293,7 +68293,7 @@
         "Time":"10:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"44.1%",
         "Forecast":null,
         "Previous":"49.4%"
@@ -68304,7 +68304,7 @@
         "Time":"10:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"47.7%",
         "Forecast":null,
         "Previous":"46.4%"
@@ -68315,7 +68315,7 @@
         "Time":"10:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"69.2%",
         "Forecast":null,
         "Previous":"57.3%"
@@ -68326,7 +68326,7 @@
         "Time":"10:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"53.7%",
         "Forecast":null,
         "Previous":"51.7%"
@@ -69129,7 +69129,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"IBD\/TIPP Economic Optimism",
+        "Event":"IBD/TIPP Economic Optimism",
         "Actual":"47.7",
         "Forecast":"46.5",
         "Previous":"45.8"
@@ -71131,7 +71131,7 @@
         "Time":"12:30",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"52.8%",
         "Forecast":null,
         "Previous":"53.6%"
@@ -71142,7 +71142,7 @@
         "Time":"12:30",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"52.6%",
         "Forecast":null,
         "Previous":"58.4%"
@@ -71153,7 +71153,7 @@
         "Time":"12:30",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"52.7%",
         "Forecast":null,
         "Previous":"52.7%"
@@ -71164,7 +71164,7 @@
         "Time":"12:30",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"36.5%",
         "Forecast":null,
         "Previous":"44.1%"
@@ -71175,7 +71175,7 @@
         "Time":"12:30",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"44.5%",
         "Forecast":null,
         "Previous":"47.7%"
@@ -71186,7 +71186,7 @@
         "Time":"12:30",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"69.1%",
         "Forecast":null,
         "Previous":"69.2%"
@@ -71197,7 +71197,7 @@
         "Time":"12:30",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"53.5%",
         "Forecast":null,
         "Previous":"53.7%"
@@ -73155,7 +73155,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"Russia - Non-trading day on MICEX\/RTS",
+        "Event":"Russia - Non-trading day on MICEX/RTS",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -73969,7 +73969,7 @@
         "Time":"12:30",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"54.0%",
         "Forecast":null,
         "Previous":"52.8%"
@@ -73980,7 +73980,7 @@
         "Time":"12:30",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"60.5%",
         "Forecast":null,
         "Previous":"52.6%"
@@ -73991,7 +73991,7 @@
         "Time":"12:30",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"48.8%",
         "Forecast":null,
         "Previous":"52.7%"
@@ -74002,7 +74002,7 @@
         "Time":"12:30",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"37.6%",
         "Forecast":null,
         "Previous":"36.5%"
@@ -74013,7 +74013,7 @@
         "Time":"12:30",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"39.4%",
         "Forecast":null,
         "Previous":"44.5%"
@@ -74024,7 +74024,7 @@
         "Time":"12:30",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"70.4%",
         "Forecast":null,
         "Previous":"69.1%"
@@ -74035,7 +74035,7 @@
         "Time":"12:30",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"43.7%",
         "Forecast":null,
         "Previous":"53.5%"
@@ -76367,7 +76367,7 @@
         "Time":"12:30",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"53.7%",
         "Forecast":null,
         "Previous":"54.0%"
@@ -76378,7 +76378,7 @@
         "Time":"12:30",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"64.3%",
         "Forecast":null,
         "Previous":"63.5%"
@@ -76389,7 +76389,7 @@
         "Time":"12:30",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"49.8%",
         "Forecast":null,
         "Previous":"48.8%"
@@ -76400,7 +76400,7 @@
         "Time":"12:30",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"36.1%",
         "Forecast":null,
         "Previous":"37.6%"
@@ -76411,7 +76411,7 @@
         "Time":"12:30",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"46.8%",
         "Forecast":null,
         "Previous":"39.4%"
@@ -76422,7 +76422,7 @@
         "Time":"12:30",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"60.4%",
         "Forecast":null,
         "Previous":"70.4%"
@@ -76433,7 +76433,7 @@
         "Time":"12:30",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"31.7%",
         "Forecast":null,
         "Previous":"43.7%"
@@ -77005,7 +77005,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)",
         "Actual":"1.1%",
         "Forecast":"0.8%",
         "Previous":"0.9%"
@@ -77016,7 +77016,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)",
         "Actual":"10.8%",
         "Forecast":"11.6%",
         "Previous":"12.4%"
@@ -78919,7 +78919,7 @@
         "Time":"13:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"53.5%",
         "Forecast":null,
         "Previous":"53.7%"
@@ -78930,7 +78930,7 @@
         "Time":"13:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"58.7%",
         "Forecast":null,
         "Previous":"64.3%"
@@ -78941,7 +78941,7 @@
         "Time":"13:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"62.8%",
         "Forecast":null,
         "Previous":"49.8%"
@@ -78952,7 +78952,7 @@
         "Time":"13:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"39.8%",
         "Forecast":null,
         "Previous":"36.1%"
@@ -78963,7 +78963,7 @@
         "Time":"13:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"40.2%",
         "Forecast":null,
         "Previous":"46.8%"
@@ -78996,7 +78996,7 @@
         "Time":"13:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"72.5%",
         "Forecast":null,
         "Previous":"60.4%"
@@ -79007,7 +79007,7 @@
         "Time":"13:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"34.1%",
         "Forecast":null,
         "Previous":"31.7%"
@@ -80866,7 +80866,7 @@
         "Time":"17:00",
         "Cur.":"JPY",
         "Imp.":"Low",
-        "Event":"Jobs\/applications ratio  (Jun)",
+        "Event":"Jobs/applications ratio  (Jun)",
         "Actual":"1.10",
         "Forecast":null,
         "Previous":"1.09"
@@ -81119,7 +81119,7 @@
         "Time":"17:00",
         "Cur.":"NZD",
         "Imp.":"Low",
-        "Event":"Permanent\/Long-Term Migration  (Jun)",
+        "Event":"Permanent/Long-Term Migration  (Jun)",
         "Actual":"4,290.00",
         "Forecast":null,
         "Previous":"4,020.00"
@@ -81724,7 +81724,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (Jun)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (Jun)",
         "Actual":"0.70%",
         "Forecast":null,
         "Previous":"0.20%"
@@ -81757,7 +81757,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)  (Jun)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)  (Jun)",
         "Actual":"-0.20%",
         "Forecast":null,
         "Previous":"-0.40%"
@@ -83220,7 +83220,7 @@
         "Time":"13:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"59.2%",
         "Forecast":null,
         "Previous":"53.5%"
@@ -83231,7 +83231,7 @@
         "Time":"13:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"59.0%",
         "Forecast":null,
         "Previous":"58.7%"
@@ -83242,7 +83242,7 @@
         "Time":"13:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"56.9%",
         "Forecast":null,
         "Previous":"62.8%"
@@ -83264,7 +83264,7 @@
         "Time":"13:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"39.6%",
         "Forecast":null,
         "Previous":"39.8%"
@@ -83275,7 +83275,7 @@
         "Time":"13:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"42.2%",
         "Forecast":null,
         "Previous":"40.2%"
@@ -83297,7 +83297,7 @@
         "Time":"13:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"56.8%",
         "Forecast":null,
         "Previous":"72.5%"
@@ -83308,7 +83308,7 @@
         "Time":"13:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"37.7%",
         "Forecast":null,
         "Previous":"34.1%"
@@ -85706,7 +85706,7 @@
         "Time":"13:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"54.1%",
         "Forecast":null,
         "Previous":"59.2%"
@@ -85717,7 +85717,7 @@
         "Time":"13:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"55.1%",
         "Forecast":null,
         "Previous":"59.0%"
@@ -85728,7 +85728,7 @@
         "Time":"13:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"59.7%",
         "Forecast":null,
         "Previous":"56.9%"
@@ -85739,7 +85739,7 @@
         "Time":"13:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"37.2%",
         "Forecast":null,
         "Previous":"39.6%"
@@ -85750,7 +85750,7 @@
         "Time":"13:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"37.8%",
         "Forecast":null,
         "Previous":"42.2%"
@@ -85761,7 +85761,7 @@
         "Time":"13:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"77.2%",
         "Forecast":null,
         "Previous":"56.8%"
@@ -85772,7 +85772,7 @@
         "Time":"13:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"38.5%",
         "Forecast":null,
         "Previous":"37.7%"
@@ -88247,7 +88247,7 @@
         "Time":"13:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"54.8%",
         "Forecast":null,
         "Previous":"54.1%"
@@ -88258,7 +88258,7 @@
         "Time":"13:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"50.1%",
         "Forecast":null,
         "Previous":"55.1%"
@@ -88269,7 +88269,7 @@
         "Time":"13:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"54.0%",
         "Forecast":null,
         "Previous":"59.7%"
@@ -88291,7 +88291,7 @@
         "Time":"13:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"42.3%",
         "Forecast":null,
         "Previous":"37.2%"
@@ -88302,7 +88302,7 @@
         "Time":"13:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"42.1%",
         "Forecast":null,
         "Previous":"37.8%"
@@ -88313,7 +88313,7 @@
         "Time":"13:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"70.6%",
         "Forecast":null,
         "Previous":"77.2%"
@@ -88324,7 +88324,7 @@
         "Time":"13:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"49.9%",
         "Forecast":null,
         "Previous":"38.5%"
@@ -89237,7 +89237,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"Venezuela - Sim\u00f3n Bol\u00edvar's Birthday",
+        "Event":"Venezuela - Simón Bolívar's Birthday",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -90425,7 +90425,7 @@
         "Time":"",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Ramadan Holiday - Early close at 13:30",
+        "Event":"Türkiye - Ramadan Holiday - Early close at 13:30",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -90601,7 +90601,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Ramadan Holiday",
+        "Event":"Türkiye - Ramadan Holiday",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -90623,7 +90623,7 @@
         "Time":"13:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"56.1%",
         "Forecast":null,
         "Previous":"54.8%"
@@ -90634,7 +90634,7 @@
         "Time":"13:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"44.5%",
         "Forecast":null,
         "Previous":"50.1%"
@@ -90645,7 +90645,7 @@
         "Time":"13:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"49.0%",
         "Forecast":null,
         "Previous":"54.0%"
@@ -90656,7 +90656,7 @@
         "Time":"13:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"38.4%",
         "Forecast":null,
         "Previous":"42.3%"
@@ -90667,7 +90667,7 @@
         "Time":"13:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"45.6%",
         "Forecast":null,
         "Previous":"42.1%"
@@ -90678,7 +90678,7 @@
         "Time":"13:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"64.2%",
         "Forecast":null,
         "Previous":"70.6%"
@@ -90689,7 +90689,7 @@
         "Time":"13:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"59.0%",
         "Forecast":null,
         "Previous":"49.9%"
@@ -91030,7 +91030,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Ramadan Holiday",
+        "Event":"Türkiye - Ramadan Holiday",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -91283,7 +91283,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)",
         "Actual":"1.1%",
         "Forecast":"1.5%",
         "Previous":"1.1%"
@@ -91294,7 +91294,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)",
         "Actual":"9.3%",
         "Forecast":"10.0%",
         "Previous":"10.8%"
@@ -91470,7 +91470,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Ramadan Holiday",
+        "Event":"Türkiye - Ramadan Holiday",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -94187,7 +94187,7 @@
         "Time":"17:00",
         "Cur.":"JPY",
         "Imp.":"Low",
-        "Event":"Jobs\/applications ratio  (Jul)",
+        "Event":"Jobs/applications ratio  (Jul)",
         "Actual":"1.10",
         "Forecast":null,
         "Previous":"1.10"
@@ -94528,7 +94528,7 @@
         "Time":"17:00",
         "Cur.":"NZD",
         "Imp.":"Low",
-        "Event":"Permanent\/Long-Term Migration  (Jul)",
+        "Event":"Permanent/Long-Term Migration  (Jul)",
         "Actual":"4,540.00",
         "Forecast":null,
         "Previous":"4,290.00"
@@ -95078,7 +95078,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (Jul)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (Jul)",
         "Actual":"0.20%",
         "Forecast":null,
         "Previous":"0.70%"
@@ -95496,7 +95496,7 @@
         "Time":"13:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"60.3%",
         "Forecast":null,
         "Previous":"56.1%"
@@ -95507,7 +95507,7 @@
         "Time":"13:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"39.0%",
         "Forecast":null,
         "Previous":"44.5%"
@@ -95518,7 +95518,7 @@
         "Time":"13:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"53.4%",
         "Forecast":null,
         "Previous":"49.0%"
@@ -95529,7 +95529,7 @@
         "Time":"13:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"38.2%",
         "Forecast":null,
         "Previous":"38.4%"
@@ -95540,7 +95540,7 @@
         "Time":"13:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"54.7%",
         "Forecast":null,
         "Previous":"45.6%"
@@ -95551,7 +95551,7 @@
         "Time":"13:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"67.8%",
         "Forecast":null,
         "Previous":"64.2%"
@@ -95562,7 +95562,7 @@
         "Time":"13:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"64.0%",
         "Forecast":null,
         "Previous":"59.0%"
@@ -96200,7 +96200,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"IBD\/TIPP Economic Optimism",
+        "Event":"IBD/TIPP Economic Optimism",
         "Actual":"44.5",
         "Forecast":"46.2",
         "Previous":"45.6"
@@ -96761,7 +96761,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"Colombia - Battle of Boyac\u00e1",
+        "Event":"Colombia - Battle of Boyacá",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -98147,7 +98147,7 @@
         "Time":"13:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"59.7%",
         "Forecast":null,
         "Previous":"60.3%"
@@ -98158,7 +98158,7 @@
         "Time":"13:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"35.3%",
         "Forecast":null,
         "Previous":"39.0%"
@@ -98169,7 +98169,7 @@
         "Time":"13:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"54.5%",
         "Forecast":null,
         "Previous":"53.4%"
@@ -98191,7 +98191,7 @@
         "Time":"13:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"34.0%",
         "Forecast":null,
         "Previous":"38.2%"
@@ -98202,7 +98202,7 @@
         "Time":"13:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"47.5%",
         "Forecast":null,
         "Previous":"54.7%"
@@ -98235,7 +98235,7 @@
         "Time":"13:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"76.9%",
         "Forecast":null,
         "Previous":"67.8%"
@@ -98246,7 +98246,7 @@
         "Time":"13:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"65.6%",
         "Forecast":null,
         "Previous":"64.0%"
@@ -101337,7 +101337,7 @@
         "Time":"13:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"56.8%",
         "Forecast":null,
         "Previous":"59.7%"
@@ -101348,7 +101348,7 @@
         "Time":"13:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"41.4%",
         "Forecast":null,
         "Previous":"35.3%"
@@ -101359,7 +101359,7 @@
         "Time":"13:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"54.8%",
         "Forecast":null,
         "Previous":"54.5%"
@@ -101370,7 +101370,7 @@
         "Time":"13:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"38.9%",
         "Forecast":null,
         "Previous":"34.0%"
@@ -101381,7 +101381,7 @@
         "Time":"13:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"62.6%",
         "Forecast":null,
         "Previous":"47.5%"
@@ -101392,7 +101392,7 @@
         "Time":"13:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"61.1%",
         "Forecast":null,
         "Previous":"76.9%"
@@ -101403,7 +101403,7 @@
         "Time":"13:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"65.7%",
         "Forecast":null,
         "Previous":"65.6%"
@@ -103482,7 +103482,7 @@
         "Time":"13:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"58.7%",
         "Forecast":null,
         "Previous":"56.8%"
@@ -103493,7 +103493,7 @@
         "Time":"13:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"46.1%",
         "Forecast":null,
         "Previous":"41.4%"
@@ -103504,7 +103504,7 @@
         "Time":"13:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"51.0%",
         "Forecast":null,
         "Previous":"54.8%"
@@ -103515,7 +103515,7 @@
         "Time":"13:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"41.9%",
         "Forecast":null,
         "Previous":"38.9%"
@@ -103526,7 +103526,7 @@
         "Time":"13:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"58.1%",
         "Forecast":null,
         "Previous":"62.6%"
@@ -103537,7 +103537,7 @@
         "Time":"13:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"58.1%",
         "Forecast":null,
         "Previous":"61.1%"
@@ -103548,7 +103548,7 @@
         "Time":"13:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"64.8%",
         "Forecast":null,
         "Previous":"65.7%"
@@ -104230,7 +104230,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)",
         "Actual":"-0.2%",
         "Forecast":"0.0%",
         "Previous":"-0.3%"
@@ -104241,7 +104241,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)",
         "Actual":"1.0%",
         "Forecast":"1.0%",
         "Previous":"1.2%"
@@ -104252,7 +104252,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)",
         "Actual":"8.1%",
         "Forecast":"8.4%",
         "Previous":"9.3%"
@@ -104736,7 +104736,7 @@
         "Time":"09:30",
         "Cur.":"AUD",
         "Imp.":"Low",
-        "Event":"Plant\/Machinery Capital Expenditure (QoQ)  (Q2)",
+        "Event":"Plant/Machinery Capital Expenditure (QoQ)  (Q2)",
         "Actual":"-0.9%",
         "Forecast":"-0.7%",
         "Previous":"2.1%"
@@ -106507,7 +106507,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Victory Day",
+        "Event":"Türkiye - Victory Day",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -107068,7 +107068,7 @@
         "Time":"14:35",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"61.6%",
         "Forecast":null,
         "Previous":"58.7%"
@@ -107079,7 +107079,7 @@
         "Time":"14:35",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"48.8%",
         "Forecast":null,
         "Previous":"46.1%"
@@ -107090,7 +107090,7 @@
         "Time":"14:35",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"51.0%",
         "Forecast":null,
         "Previous":"51.0%"
@@ -107101,7 +107101,7 @@
         "Time":"14:35",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"42.8%",
         "Forecast":null,
         "Previous":"41.9%"
@@ -107112,7 +107112,7 @@
         "Time":"14:35",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"58.8%",
         "Forecast":null,
         "Previous":"58.1%"
@@ -107123,7 +107123,7 @@
         "Time":"14:35",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"61.5%",
         "Forecast":null,
         "Previous":"58.1%"
@@ -107134,7 +107134,7 @@
         "Time":"14:35",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"65.0%",
         "Forecast":null,
         "Previous":"64.8%"
@@ -107838,7 +107838,7 @@
         "Time":"17:00",
         "Cur.":"JPY",
         "Imp.":"Low",
-        "Event":"Jobs\/applications ratio  (Aug)",
+        "Event":"Jobs/applications ratio  (Aug)",
         "Actual":"1.10",
         "Forecast":null,
         "Previous":"1.10"
@@ -108179,7 +108179,7 @@
         "Time":"17:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (Aug)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (Aug)",
         "Actual":"0.60%",
         "Forecast":null,
         "Previous":"0.20%"
@@ -108641,7 +108641,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"IBD\/TIPP Economic Optimism",
+        "Event":"IBD/TIPP Economic Optimism",
         "Actual":"45.2",
         "Forecast":"46.2",
         "Previous":"44.5"
@@ -110775,7 +110775,7 @@
         "Time":"13:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"59.6%",
         "Forecast":null,
         "Previous":"61.6%"
@@ -110786,7 +110786,7 @@
         "Time":"13:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"48.7%",
         "Forecast":null,
         "Previous":"48.8%"
@@ -110797,7 +110797,7 @@
         "Time":"13:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"49.5%",
         "Forecast":null,
         "Previous":"51.0%"
@@ -110819,7 +110819,7 @@
         "Time":"13:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"39.9%",
         "Forecast":null,
         "Previous":"42.8%"
@@ -110830,7 +110830,7 @@
         "Time":"13:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"54.3%",
         "Forecast":null,
         "Previous":"58.8%"
@@ -110852,7 +110852,7 @@
         "Time":"13:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"61.7%",
         "Forecast":null,
         "Previous":"61.5%"
@@ -110863,7 +110863,7 @@
         "Time":"13:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"61.9%",
         "Forecast":null,
         "Previous":"65.0%"
@@ -113877,7 +113877,7 @@
         "Time":"12:45",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"65.6%",
         "Forecast":null,
         "Previous":"59.6%"
@@ -113888,7 +113888,7 @@
         "Time":"12:45",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"40.2%",
         "Forecast":null,
         "Previous":"48.7%"
@@ -113899,7 +113899,7 @@
         "Time":"12:45",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"50.4%",
         "Forecast":null,
         "Previous":"49.5%"
@@ -113910,7 +113910,7 @@
         "Time":"12:45",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"39.5%",
         "Forecast":null,
         "Previous":"39.9%"
@@ -113921,7 +113921,7 @@
         "Time":"12:45",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"61.3%",
         "Forecast":null,
         "Previous":"54.3%"
@@ -113932,7 +113932,7 @@
         "Time":"12:45",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"51.3%",
         "Forecast":null,
         "Previous":"61.7%"
@@ -113943,7 +113943,7 @@
         "Time":"12:45",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"61.7%",
         "Forecast":null,
         "Previous":"61.9%"
@@ -116550,7 +116550,7 @@
         "Time":"06:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"SEMI Book\/Bill Ratio",
+        "Event":"SEMI Book/Bill Ratio",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -116572,7 +116572,7 @@
         "Time":"06:45",
         "Cur.":"NZD",
         "Imp.":"Low",
-        "Event":"Permanent\/Long-Term Migration",
+        "Event":"Permanent/Long-Term Migration",
         "Actual":"4,710",
         "Forecast":null,
         "Previous":"4,540"
@@ -117210,7 +117210,7 @@
         "Time":"10:35",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"56.5%",
         "Forecast":null,
         "Previous":"65.6%"
@@ -117221,7 +117221,7 @@
         "Time":"10:35",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"49.9%",
         "Forecast":null,
         "Previous":"40.2%"
@@ -117232,7 +117232,7 @@
         "Time":"10:35",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"51.0%",
         "Forecast":null,
         "Previous":"50.4%"
@@ -117243,7 +117243,7 @@
         "Time":"10:35",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"50.3%",
         "Forecast":null,
         "Previous":"39.5%"
@@ -117254,7 +117254,7 @@
         "Time":"10:35",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"45.0%",
         "Forecast":null,
         "Previous":"61.3%"
@@ -117265,7 +117265,7 @@
         "Time":"10:35",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"51.8%",
         "Forecast":null,
         "Previous":"51.3%"
@@ -117276,7 +117276,7 @@
         "Time":"10:35",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"56.8%",
         "Forecast":null,
         "Previous":"61.7%"
@@ -119850,7 +119850,7 @@
         "Time":"13:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"52.6%",
         "Forecast":null,
         "Previous":"56.5%"
@@ -119861,7 +119861,7 @@
         "Time":"13:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"49.4%",
         "Forecast":null,
         "Previous":"49.9%"
@@ -119872,7 +119872,7 @@
         "Time":"13:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"50.5%",
         "Forecast":null,
         "Previous":"51.0%"
@@ -119883,7 +119883,7 @@
         "Time":"13:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"41.3%",
         "Forecast":null,
         "Previous":"50.3%"
@@ -119894,7 +119894,7 @@
         "Time":"13:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"54.3%",
         "Forecast":null,
         "Previous":"45.0%"
@@ -119905,7 +119905,7 @@
         "Time":"13:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"63.9%",
         "Forecast":null,
         "Previous":"51.8%"
@@ -119916,7 +119916,7 @@
         "Time":"13:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"60.4%",
         "Forecast":null,
         "Previous":"56.8%"
@@ -121588,7 +121588,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)  (Jul)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)  (Jul)",
         "Actual":"-0.5%",
         "Forecast":"0.1%",
         "Previous":"-0.3%"
@@ -121599,7 +121599,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)  (Jul)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)  (Jul)",
         "Actual":"0.6%",
         "Forecast":"1.1%",
         "Previous":"1.0%"
@@ -121610,7 +121610,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)  (Jul)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)  (Jul)",
         "Actual":"6.7%",
         "Forecast":"7.5%",
         "Previous":"8.1%"
@@ -122457,7 +122457,7 @@
         "Time":"17:00",
         "Cur.":"JPY",
         "Imp.":"Low",
-        "Event":"Jobs\/applications ratio  (Sep)",
+        "Event":"Jobs/applications ratio  (Sep)",
         "Actual":"1.10",
         "Forecast":null,
         "Previous":"1.10"
@@ -123733,17 +123733,6 @@
         "Time":"19:30",
         "Cur.":"INR",
         "Imp.":"Low",
-        "Event":"Bank Loan Growth",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"9.7%"
-    },
-    {
-        "Date":"2014-10-03",
-        "Day":"Friday",
-        "Time":"19:30",
-        "Cur.":"INR",
-        "Imp.":"Low",
         "Event":"Deposit Growth",
         "Actual":null,
         "Forecast":null,
@@ -124008,7 +123997,7 @@
         "Time":"",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Feast of Sacrifice - Early close at 13:30",
+        "Event":"Türkiye - Feast of Sacrifice - Early close at 13:30",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -124107,7 +124096,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Feast of Sacrifice",
+        "Event":"Türkiye - Feast of Sacrifice",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -124404,7 +124393,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Feast of Sacrifice",
+        "Event":"Türkiye - Feast of Sacrifice",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -124613,7 +124602,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Feast of Sacrifice",
+        "Event":"Türkiye - Feast of Sacrifice",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -124701,7 +124690,7 @@
         "Time":"13:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"52.9%",
         "Forecast":null,
         "Previous":"52.6%"
@@ -124712,7 +124701,7 @@
         "Time":"13:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"51.1%",
         "Forecast":null,
         "Previous":"49.4%"
@@ -124723,7 +124712,7 @@
         "Time":"13:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"50.4%",
         "Forecast":null,
         "Previous":"50.5%"
@@ -124734,7 +124723,7 @@
         "Time":"13:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"44.5%",
         "Forecast":null,
         "Previous":"41.3%"
@@ -124745,7 +124734,7 @@
         "Time":"13:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"55.9%",
         "Forecast":null,
         "Previous":"54.3%"
@@ -124756,7 +124745,7 @@
         "Time":"13:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"62.2%",
         "Forecast":null,
         "Previous":"63.9%"
@@ -124767,7 +124756,7 @@
         "Time":"13:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"57.1%",
         "Forecast":null,
         "Previous":"60.4%"
@@ -125119,7 +125108,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Feast of Sacrifice",
+        "Event":"Türkiye - Feast of Sacrifice",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -125856,7 +125845,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"IBD\/TIPP Economic Optimism  (Oct)",
+        "Event":"IBD/TIPP Economic Optimism  (Oct)",
         "Actual":"45.2",
         "Forecast":"46.3",
         "Previous":"45.2"
@@ -128210,7 +128199,7 @@
         "Time":"13:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"44.4%",
         "Forecast":null,
         "Previous":"52.9%"
@@ -128221,7 +128210,7 @@
         "Time":"13:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"43.8%",
         "Forecast":null,
         "Previous":"51.1%"
@@ -128232,7 +128221,7 @@
         "Time":"13:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"54.5%",
         "Forecast":null,
         "Previous":"50.4%"
@@ -128243,7 +128232,7 @@
         "Time":"13:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"36.2%",
         "Forecast":null,
         "Previous":"44.5%"
@@ -128254,7 +128243,7 @@
         "Time":"13:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"49.1%",
         "Forecast":null,
         "Previous":"55.9%"
@@ -128265,7 +128254,7 @@
         "Time":"13:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"61.0%",
         "Forecast":null,
         "Previous":"62.2%"
@@ -128276,7 +128265,7 @@
         "Time":"13:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"57.2%",
         "Forecast":null,
         "Previous":"57.1%"
@@ -129915,7 +129904,7 @@
         "Time":"20:30",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (Sep)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (Sep)",
         "Actual":"-0.1%",
         "Forecast":"0.3%",
         "Previous":"0.5%"
@@ -131587,7 +131576,7 @@
         "Time":"10:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"51.5%",
         "Forecast":null,
         "Previous":"44.4%"
@@ -131598,7 +131587,7 @@
         "Time":"10:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"49.2%",
         "Forecast":null,
         "Previous":"43.8%"
@@ -131609,7 +131598,7 @@
         "Time":"10:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"58.7%",
         "Forecast":null,
         "Previous":"54.5%"
@@ -131620,7 +131609,7 @@
         "Time":"10:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"33.7%",
         "Forecast":null,
         "Previous":"36.2%"
@@ -131631,7 +131620,7 @@
         "Time":"10:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"50.1%",
         "Forecast":null,
         "Previous":"49.1%"
@@ -131642,7 +131631,7 @@
         "Time":"10:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"60.7%",
         "Forecast":null,
         "Previous":"61.0%"
@@ -131653,7 +131642,7 @@
         "Time":"10:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"56.6%",
         "Forecast":null,
         "Previous":"57.2%"
@@ -131994,7 +131983,7 @@
         "Time":"05:45",
         "Cur.":"NZD",
         "Imp.":"Low",
-        "Event":"Permanent\/Long-Term Migration  (Sep)",
+        "Event":"Permanent/Long-Term Migration  (Sep)",
         "Actual":"4,670",
         "Forecast":null,
         "Previous":"4,710"
@@ -132038,7 +132027,7 @@
         "Time":"06:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"SEMI Book\/Bill Ratio  (Sep)",
+        "Event":"SEMI Book/Bill Ratio  (Sep)",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -134348,7 +134337,7 @@
         "Time":"14:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"49.1%",
         "Forecast":null,
         "Previous":"51.5%"
@@ -134359,7 +134348,7 @@
         "Time":"14:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"52.2%",
         "Forecast":null,
         "Previous":"49.2%"
@@ -134370,7 +134359,7 @@
         "Time":"14:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"55.4%",
         "Forecast":null,
         "Previous":"58.7%"
@@ -134381,7 +134370,7 @@
         "Time":"14:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"37.3%",
         "Forecast":null,
         "Previous":"33.7%"
@@ -134392,7 +134381,7 @@
         "Time":"14:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"49.7%",
         "Forecast":null,
         "Previous":"50.1%"
@@ -134403,7 +134392,7 @@
         "Time":"14:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"55.1%",
         "Forecast":null,
         "Previous":"60.7%"
@@ -134414,7 +134403,7 @@
         "Time":"14:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"54.9%",
         "Forecast":null,
         "Previous":"56.6%"
@@ -135085,7 +135074,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)  (Aug)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)  (Aug)",
         "Actual":"-0.1%",
         "Forecast":"0.1%",
         "Previous":"-0.5%"
@@ -135096,7 +135085,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)  (Aug)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)  (Aug)",
         "Actual":"0.2%",
         "Forecast":"0.5%",
         "Previous":"0.6%"
@@ -135107,7 +135096,7 @@
         "Time":"21:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)  (Aug)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)  (Aug)",
         "Actual":"5.6%",
         "Forecast":"5.8%",
         "Previous":"6.7%"
@@ -135206,7 +135195,7 @@
         "Time":"",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Republic Day - Early close at 13:30",
+        "Event":"Türkiye - Republic Day - Early close at 13:30",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -135217,7 +135206,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"T\u00fcrkiye - Republic Day",
+        "Event":"Türkiye - Republic Day",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -136710,17 +136699,6 @@
     {
         "Date":"2014-10-31",
         "Day":"Friday",
-        "Time":"06:00",
-        "Cur.":"QAR",
-        "Imp.":"Low",
-        "Event":"Total Credit (YoY)  (Sep)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"9.00%"
-    },
-    {
-        "Date":"2014-10-31",
-        "Day":"Friday",
         "Time":"07:30",
         "Cur.":"JPY",
         "Imp.":"Low",
@@ -138088,7 +138066,7 @@
         "Time":"17:00",
         "Cur.":"JPY",
         "Imp.":"Low",
-        "Event":"Jobs\/applications ratio  (Oct)",
+        "Event":"Jobs/applications ratio  (Oct)",
         "Actual":"1.10",
         "Forecast":null,
         "Previous":"1.10"
@@ -139001,7 +138979,7 @@
         "Time":"15:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"50.6%",
         "Forecast":null,
         "Previous":"49.1%"
@@ -139012,7 +138990,7 @@
         "Time":"15:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"48.2%",
         "Forecast":null,
         "Previous":"52.2%"
@@ -139023,7 +139001,7 @@
         "Time":"15:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"54.7%",
         "Forecast":null,
         "Previous":"55.4%"
@@ -139034,7 +139012,7 @@
         "Time":"15:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"35.4%",
         "Forecast":null,
         "Previous":"37.3%"
@@ -139045,7 +139023,7 @@
         "Time":"15:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"51.3%",
         "Forecast":null,
         "Previous":"49.7%"
@@ -139056,7 +139034,7 @@
         "Time":"15:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"56.3%",
         "Forecast":null,
         "Previous":"55.1%"
@@ -139067,7 +139045,7 @@
         "Time":"15:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"55.0%",
         "Forecast":null,
         "Previous":"54.9%"
@@ -139298,7 +139276,7 @@
         "Time":"23:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"IBD\/TIPP Economic Optimism  (Nov)",
+        "Event":"IBD/TIPP Economic Optimism  (Nov)",
         "Actual":"46.4",
         "Forecast":"46.6",
         "Previous":"45.2"
@@ -141971,7 +141949,7 @@
         "Time":"13:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"46.9%",
         "Forecast":null,
         "Previous":"50.6%"
@@ -141982,7 +141960,7 @@
         "Time":"13:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"50.7%",
         "Forecast":null,
         "Previous":"48.2%"
@@ -141993,7 +141971,7 @@
         "Time":"13:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"56.0%",
         "Forecast":null,
         "Previous":"54.7%"
@@ -142004,7 +141982,7 @@
         "Time":"13:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"33.1%",
         "Forecast":null,
         "Previous":"35.4%"
@@ -142015,7 +141993,7 @@
         "Time":"13:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"52.4%",
         "Forecast":null,
         "Previous":"51.3%"
@@ -142026,7 +142004,7 @@
         "Time":"13:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"62.0%",
         "Forecast":null,
         "Previous":"56.3%"
@@ -142037,7 +142015,7 @@
         "Time":"13:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"53.2%",
         "Forecast":null,
         "Previous":"55.0%"
@@ -145271,7 +145249,7 @@
         "Time":"21:30",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (Oct)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (Oct)",
         "Actual":"0.6%",
         "Forecast":"0.4%",
         "Previous":"0.1%"
@@ -145843,7 +145821,7 @@
         "Time":"13:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"48.0%",
         "Forecast":null,
         "Previous":"46.9%"
@@ -145854,7 +145832,7 @@
         "Time":"13:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"54.1%",
         "Forecast":null,
         "Previous":"50.7%"
@@ -145865,7 +145843,7 @@
         "Time":"13:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"55.7%",
         "Forecast":null,
         "Previous":"56.0%"
@@ -145876,7 +145854,7 @@
         "Time":"13:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"39.2%",
         "Forecast":null,
         "Previous":"33.1%"
@@ -145887,7 +145865,7 @@
         "Time":"13:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"50.0%",
         "Forecast":null,
         "Previous":"52.4%"
@@ -145898,7 +145876,7 @@
         "Time":"13:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"64.3%",
         "Forecast":null,
         "Previous":"62.0%"
@@ -145909,7 +145887,7 @@
         "Time":"13:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"51.4%",
         "Forecast":null,
         "Previous":"53.2%"
@@ -148758,7 +148736,7 @@
         "Time":"05:45",
         "Cur.":"NZD",
         "Imp.":"Low",
-        "Event":"Permanent\/Long-Term Migration  (Oct)",
+        "Event":"Permanent/Long-Term Migration  (Oct)",
         "Actual":"5,250",
         "Forecast":null,
         "Previous":"4,670"
@@ -148802,7 +148780,7 @@
         "Time":"13:30",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"50.6%",
         "Forecast":null,
         "Previous":"48.0%"
@@ -148813,7 +148791,7 @@
         "Time":"13:30",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"53.0%",
         "Forecast":null,
         "Previous":"54.1%"
@@ -148824,7 +148802,7 @@
         "Time":"13:30",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"54.0%",
         "Forecast":null,
         "Previous":"55.7%"
@@ -148835,7 +148813,7 @@
         "Time":"13:30",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"38.6%",
         "Forecast":null,
         "Previous":"39.2%"
@@ -148846,7 +148824,7 @@
         "Time":"13:30",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"48.4%",
         "Forecast":null,
         "Previous":"50.0%"
@@ -148857,7 +148835,7 @@
         "Time":"13:30",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"66.0%",
         "Forecast":null,
         "Previous":"64.3%"
@@ -148868,7 +148846,7 @@
         "Time":"13:30",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"52.4%",
         "Forecast":null,
         "Previous":"51.4%"
@@ -149792,7 +149770,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)  (Sep)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)  (Sep)",
         "Actual":"0.3%",
         "Forecast":null,
         "Previous":"-0.1%"
@@ -149803,7 +149781,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)  (Sep)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)  (Sep)",
         "Actual":"0.0%",
         "Forecast":"0.0%",
         "Previous":"0.2%"
@@ -149814,7 +149792,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)  (Sep)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)  (Sep)",
         "Actual":"4.9%",
         "Forecast":"4.7%",
         "Previous":"5.6%"
@@ -150815,7 +150793,7 @@
         "Time":"08:30",
         "Cur.":"AUD",
         "Imp.":"Low",
-        "Event":"Plant\/Machinery Capital Expenditure (QoQ)  (Q3)",
+        "Event":"Plant/Machinery Capital Expenditure (QoQ)  (Q3)",
         "Actual":"4.4%",
         "Forecast":null,
         "Previous":"-0.9%"
@@ -153994,7 +153972,7 @@
         "Time":"15:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"44.3%",
         "Forecast":null,
         "Previous":"50.6%"
@@ -154005,7 +153983,7 @@
         "Time":"15:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"53.4%",
         "Forecast":null,
         "Previous":"53.0%"
@@ -154016,7 +153994,7 @@
         "Time":"15:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"59.6%",
         "Forecast":null,
         "Previous":"54.0%"
@@ -154027,7 +154005,7 @@
         "Time":"15:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"33.8%",
         "Forecast":null,
         "Previous":"38.6%"
@@ -154038,7 +154016,7 @@
         "Time":"15:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"42.3%",
         "Forecast":null,
         "Previous":"48.4%"
@@ -154049,7 +154027,7 @@
         "Time":"15:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"69.2%",
         "Forecast":null,
         "Previous":"66.0%"
@@ -154060,7 +154038,7 @@
         "Time":"15:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"50.7%",
         "Forecast":null,
         "Previous":"52.4%"
@@ -156579,7 +156557,7 @@
         "Time":"All Day",
         "Cur.":null,
         "Imp.":"Holiday",
-        "Event":"Argentina - Concepci\u00f3n de Mar\u00eda",
+        "Event":"Argentina - Concepción de María",
         "Actual":null,
         "Forecast":null,
         "Previous":null
@@ -156788,7 +156766,7 @@
         "Time":"09:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"50.0%",
         "Forecast":null,
         "Previous":"44.3%"
@@ -156799,7 +156777,7 @@
         "Time":"09:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"49.7%",
         "Forecast":null,
         "Previous":"53.4%"
@@ -156810,7 +156788,7 @@
         "Time":"09:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"56.7%",
         "Forecast":null,
         "Previous":"59.6%"
@@ -156821,7 +156799,7 @@
         "Time":"09:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"41.7%",
         "Forecast":null,
         "Previous":"33.8%"
@@ -156832,7 +156810,7 @@
         "Time":"09:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"48.6%",
         "Forecast":null,
         "Previous":"42.3%"
@@ -156843,7 +156821,7 @@
         "Time":"09:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"62.9%",
         "Forecast":null,
         "Previous":"69.2%"
@@ -156854,7 +156832,7 @@
         "Time":"09:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"57.8%",
         "Forecast":null,
         "Previous":"50.7%"
@@ -157866,7 +157844,7 @@
         "Time":"23:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"IBD\/TIPP Economic Optimism  (Dec)",
+        "Event":"IBD/TIPP Economic Optimism  (Dec)",
         "Actual":"48.4",
         "Forecast":"47.2",
         "Previous":"46.4"
@@ -159461,7 +159439,7 @@
         "Time":"21:30",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Retail Sales Ex Gas\/Autos (MoM)  (Nov)",
+        "Event":"Retail Sales Ex Gas/Autos (MoM)  (Nov)",
         "Actual":"0.6%",
         "Forecast":null,
         "Previous":"0.7%"
@@ -160649,7 +160627,7 @@
         "Time":"14:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"49.5%",
         "Forecast":null,
         "Previous":"50.0%"
@@ -160660,7 +160638,7 @@
         "Time":"14:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"47.0%",
         "Forecast":null,
         "Previous":"49.7%"
@@ -160671,7 +160649,7 @@
         "Time":"14:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"62.0%",
         "Forecast":null,
         "Previous":"56.7%"
@@ -160682,7 +160660,7 @@
         "Time":"14:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"39.8%",
         "Forecast":null,
         "Previous":"41.7%"
@@ -160693,7 +160671,7 @@
         "Time":"14:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"47.6%",
         "Forecast":null,
         "Previous":"48.6%"
@@ -160704,7 +160682,7 @@
         "Time":"14:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"64.3%",
         "Forecast":null,
         "Previous":"62.9%"
@@ -160715,7 +160693,7 @@
         "Time":"14:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"53.4%",
         "Forecast":null,
         "Previous":"57.8%"
@@ -163267,7 +163245,7 @@
         "Time":"05:45",
         "Cur.":"NZD",
         "Imp.":"Low",
-        "Event":"Permanent\/Long-Term Migration  (Nov)",
+        "Event":"Permanent/Long-Term Migration  (Nov)",
         "Actual":"5,010",
         "Forecast":null,
         "Previous":"5,250"
@@ -164092,7 +164070,7 @@
         "Time":"14:00",
         "Cur.":"AUD",
         "Imp.":"Medium",
-        "Event":"AUD\/USD Index",
+        "Event":"AUD/USD Index",
         "Actual":"57.0%",
         "Forecast":null,
         "Previous":"49.5%"
@@ -164103,7 +164081,7 @@
         "Time":"14:00",
         "Cur.":"CAD",
         "Imp.":"Medium",
-        "Event":"USD\/CAD Index",
+        "Event":"USD/CAD Index",
         "Actual":"48.4%",
         "Forecast":null,
         "Previous":"47.0%"
@@ -164114,7 +164092,7 @@
         "Time":"14:00",
         "Cur.":"CHF",
         "Imp.":"Medium",
-        "Event":"USD\/CHF Index",
+        "Event":"USD/CHF Index",
         "Actual":"47.7%",
         "Forecast":null,
         "Previous":"62.0%"
@@ -164147,7 +164125,7 @@
         "Time":"14:00",
         "Cur.":"EUR",
         "Imp.":"Medium",
-        "Event":"EUR\/USD Index",
+        "Event":"EUR/USD Index",
         "Actual":"45.2%",
         "Forecast":null,
         "Previous":"39.8%"
@@ -164158,7 +164136,7 @@
         "Time":"14:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"GBP\/USD Index",
+        "Event":"GBP/USD Index",
         "Actual":"51.2%",
         "Forecast":null,
         "Previous":"47.6%"
@@ -164169,7 +164147,7 @@
         "Time":"14:00",
         "Cur.":"JPY",
         "Imp.":"Medium",
-        "Event":"USD\/JPY Index",
+        "Event":"USD/JPY Index",
         "Actual":"61.1%",
         "Forecast":null,
         "Previous":"64.3%"
@@ -164180,7 +164158,7 @@
         "Time":"14:00",
         "Cur.":"NZD",
         "Imp.":"Medium",
-        "Event":"NZD\/USD Index",
+        "Event":"NZD/USD Index",
         "Actual":"52.9%",
         "Forecast":null,
         "Previous":"53.4%"
@@ -167491,7 +167469,7 @@
         "Time":"07:30",
         "Cur.":"JPY",
         "Imp.":"Low",
-        "Event":"Jobs\/applications ratio  (Nov)",
+        "Event":"Jobs/applications ratio  (Nov)",
         "Actual":"1.12",
         "Forecast":"1.10",
         "Previous":"1.10"
@@ -168778,7 +168756,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"S&P\/CS HPI Composite - 20 s.a. (MoM)  (Oct)",
+        "Event":"S&P/CS HPI Composite - 20 s.a. (MoM)  (Oct)",
         "Actual":"0.8%",
         "Forecast":"0.5%",
         "Previous":"0.2%"
@@ -168789,7 +168767,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (MoM)  (Oct)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (MoM)  (Oct)",
         "Actual":"-0.1%",
         "Forecast":"-0.1%",
         "Previous":"-0.1%"
@@ -168800,7 +168778,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"S&P\/CS HPI Composite - 20 n.s.a. (YoY)  (Oct)",
+        "Event":"S&P/CS HPI Composite - 20 n.s.a. (YoY)  (Oct)",
         "Actual":"4.5%",
         "Forecast":"4.5%",
         "Previous":"4.9%"
@@ -169414,17 +169392,6 @@
         "Date":"2014-12-31",
         "Day":"Wednesday",
         "Time":"17:00",
-        "Cur.":"NOK",
-        "Imp.":"Low",
-        "Event":"Central Bank Currency Purchase  (Jan)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"-300.0M"
-    },
-    {
-        "Date":"2014-12-31",
-        "Day":"Wednesday",
-        "Time":"17:00",
         "Cur.":"UGX",
         "Imp.":"Low",
         "Event":"CPI (YoY)  (Dec)",
@@ -169552,17 +169519,6 @@
         "Actual":"2,353K",
         "Forecast":"2,360K",
         "Previous":"2,406K"
-    },
-    {
-        "Date":"2014-12-31",
-        "Day":"Wednesday",
-        "Time":"22:05",
-        "Cur.":"EGP",
-        "Imp.":"Low",
-        "Event":"M2 Money Supply (YoY)  (Nov)",
-        "Actual":null,
-        "Forecast":null,
-        "Previous":"15.71%"
     },
     {
         "Date":"2014-12-31",

@@ -316,7 +316,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2018-01-05,Friday,21:30,USD,Medium,Private Nonfarm Payrolls  (Dec),146K,185K,239K
 2018-01-05,Friday,21:30,USD,Medium,Trade Balance  (Nov),-50.50B,-49.50B,-48.90B
 2018-01-05,Friday,21:30,USD,Medium,U6 Unemployment Rate  (Dec),8.1%,,8.0%
-2018-01-05,Friday,22:30,TRY,Low,Treasury Cash Balance,,,5.650B
 2018-01-05,Friday,23:00,CAD,Low,Ivey PMI n.s.a  (Dec),49.3,,62.4
 2018-01-05,Friday,23:00,CAD,Medium,Ivey PMI  (Dec),60.4,62.2,63.0
 2018-01-05,Friday,23:00,USD,High,ISM Non-Manufacturing PMI  (Dec),55.9,57.8,57.4
@@ -349,7 +348,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2018-01-06,Saturday,04:30,USD,Medium,CFTC Crude Oil speculative net positions,624.2K,,632.2K
 2018-01-06,Saturday,04:30,USD,Medium,CFTC Gold speculative net positions,163.3K,,135.9K
 2018-01-06,Saturday,04:30,USD,Medium,CFTC S&P 500 speculative net positions,172.6K,,104.7K
-2018-01-06,Saturday,07:00,KRW,Low,Current Account  (Nov),,,5.01B
 2018-01-06,Saturday,08:00,COP,Low,CPI (MoM)  (Dec),0.38%,0.28%,0.18%
 2018-01-06,Saturday,08:00,COP,Low,CPI (YoY)  (Dec),4.09%,3.98%,4.12%
 2018-01-06,Saturday,23:15,USD,Medium,FOMC Member Mester Speaks,,,
@@ -14293,7 +14291,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2018-10-08,Monday,All Day,,Holiday,Croatia - Independence Day,,,
 2018-10-08,Monday,All Day,,Holiday,Japan - Health-Sports Day,,,
 2018-10-08,Monday,All Day,,Holiday,Peru - Battle of Angamos,,,
-2018-10-08,Monday,07:00,KRW,Low,Current Account  (Aug),,,8.76B
 2018-10-08,Monday,08:30,AUD,Low,ANZ Job Advertisements (MoM),-0.8%,,-0.7%
 2018-10-08,Monday,13:30,AUD,Medium,AUD/USD Index,45.2%,,38.0%
 2018-10-08,Monday,13:30,CAD,Medium,USD/CAD Index,50.0%,,53.1%
@@ -14531,7 +14528,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2018-10-12,Friday,00:00,USD,Medium,WASDE Report,,,
 2018-10-12,Friday,01:00,USD,High,30-Year Bond Auction,3.344%,,3.088%
 2018-10-12,Friday,05:00,PEN,Low,Interest Rate Decision  (Oct),2.75%,2.75%,2.75%
-2018-10-12,Friday,05:00,USD,Low,Domestic Truck Sales  (Sep),,9.40M,9.37M
 2018-10-12,Friday,05:30,NZD,Medium,Business NZ PMI  (Sep),51.7,,52.0
 2018-10-12,Friday,07:00,KRW,Low,Unemployment Rate  (Sep),4.0%,,4.2%
 2018-10-12,Friday,07:50,JPY,Low,Foreign Bonds Buying,-200.5B,,380.8B
@@ -18035,7 +18031,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2018-12-20,Thursday,03:00,USD,High,FOMC Statement,,,
 2018-12-20,Thursday,03:00,USD,High,Fed Interest Rate Decision,2.50%,2.50%,2.25%
 2018-12-20,Thursday,03:30,USD,High,FOMC Press Conference,,,
-2018-12-20,Thursday,04:00,BRL,Low,CAGED Net Payroll Jobs  (Nov),,27.50K,57.73K
 2018-12-20,Thursday,04:30,USD,Medium,Fed's Balance Sheet,"4,084.27B",,"4,088.31B"
 2018-12-20,Thursday,05:45,NZD,Low,Exports  (Nov),4.94B,,4.82B
 2018-12-20,Thursday,05:45,NZD,Low,GDP (YoY)  (Q3),2.6%,2.8%,3.2%
