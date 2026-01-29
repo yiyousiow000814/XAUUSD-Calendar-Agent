@@ -1,5 +1,5 @@
 {
-  "generated_at": "29-01-2026 05:19",
+  "generated_at": "29-01-2026 15:47",
   "patches": [
     {
       "patch": "previous_missing_filled",
@@ -10,8 +10,8 @@
       "date": "2026-02-05",
       "time": "21:30",
       "previous_raw": "",
-      "prior_actual": "200K",
-      "previous_effective": "200K"
+      "prior_actual": "209K",
+      "previous_effective": "209K"
     },
     {
       "patch": "previous_missing_filled",
@@ -22,8 +22,8 @@
       "date": "2026-02-05",
       "time": "21:30",
       "previous_raw": "",
-      "prior_actual": "201.50K",
-      "previous_effective": "201.50K"
+      "prior_actual": "206.25K",
+      "previous_effective": "206.25K"
     },
     {
       "patch": "previous_missing_filled",
@@ -34,8 +34,8 @@
       "date": "2026-02-05",
       "time": "19:30",
       "previous_raw": "",
-      "prior_actual": "-120B",
-      "previous_effective": "-120B"
+      "prior_actual": "-242B",
+      "previous_effective": "-242B"
     },
     {
       "patch": "previous_missing_filled",
@@ -46,8 +46,8 @@
       "date": "2026-02-05",
       "time": "21:30",
       "previous_raw": "",
-      "prior_actual": "1,849K",
-      "previous_effective": "1,849K"
+      "prior_actual": "1,827K",
+      "previous_effective": "1,827K"
     },
     {
       "patch": "previous_missing_filled",
@@ -190,8 +190,44 @@
       "date": "2026-02-05",
       "time": "19:30",
       "previous_raw": "",
-      "prior_actual": "84.15B",
-      "previous_effective": "84.15B"
+      "prior_actual": "86.20B",
+      "previous_effective": "86.20B"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "CAD::GDP::m/m",
+      "cur": "CAD",
+      "event": "GDP (MoM)  (Dec)",
+      "period": "dec",
+      "date": "2026-01-30",
+      "time": "21:30",
+      "previous_raw": "",
+      "prior_actual": "0.1%",
+      "previous_effective": "0.1%"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::U.S. Baker Hughes Oil Rig Count::none",
+      "cur": "USD",
+      "event": "U.S. Baker Hughes Oil Rig Count",
+      "period": "",
+      "date": "2026-02-07",
+      "time": "02:00",
+      "previous_raw": "",
+      "prior_actual": "411",
+      "previous_effective": "411"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::U.S. Baker Hughes Total Rig Count::none",
+      "cur": "USD",
+      "event": "U.S. Baker Hughes Total Rig Count",
+      "period": "",
+      "date": "2026-02-07",
+      "time": "02:00",
+      "previous_raw": "",
+      "prior_actual": "544",
+      "previous_effective": "544"
     }
   ]
 }
