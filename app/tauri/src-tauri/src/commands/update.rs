@@ -561,16 +561,24 @@ pub fn install_update(
             }
         };
         #[cfg(target_os = "windows")]
-        if let Err(msg) = spawn_restart_after_install(child.id()) {
-            let state = app_handle.state::<Mutex<RuntimeState>>();
-            let mut runtime = state.lock().expect("runtime lock");
-            set_update_state(&mut runtime, "error", &msg, false, None);
-            push_log(
-                &mut runtime,
-                &format!("Update install failed: {msg}"),
-                "ERROR",
-            );
-            return;
+        {
+            let installer_pid = child.id();
+            if let Err(msg) = spawn_restart_after_install(installer_pid) {
+                let state = app_handle.state::<Mutex<RuntimeState>>();
+                let mut runtime = state.lock().expect("runtime lock");
+                set_update_state(&mut runtime, "error", &msg, false, None);
+                push_log(
+                    &mut runtime,
+                    &format!("Update install failed: {msg}"),
+                    "ERROR",
+                );
+                return;
+            }
+        }
+
+        #[cfg(not(target_os = "windows"))]
+        {
+            let _ = child;
         }
 
         app_handle.exit(0);
