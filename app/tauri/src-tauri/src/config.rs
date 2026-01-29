@@ -85,6 +85,21 @@ pub fn appdata_dir() -> PathBuf {
     app_root_dir()
 }
 
+const APPDATA_MARKER: &str = ".xauusdcalendar.marker";
+
+pub fn ensure_appdata_marker() -> Result<(), String> {
+    let Some(roaming) = legacy_roaming_dir() else {
+        return Ok(());
+    };
+    if appdata_dir() != roaming {
+        return Ok(());
+    }
+    fs::create_dir_all(&roaming).map_err(|e| e.to_string())?;
+    fs::write(roaming.join(APPDATA_MARKER), "XAUUSDCalendarAgent")
+        .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
 fn parse_generated_at(value: &str) -> Option<NaiveDateTime> {
     let trimmed = value.trim();
     if trimmed.is_empty() {

@@ -92,19 +92,33 @@ fn spawn_installer(path: &std::path::Path) -> Result<(), String> {
     #[cfg(target_os = "windows")]
     {
         const CREATE_NO_WINDOW: u32 = 0x08000000;
-        std::process::Command::new(path)
+        let status = std::process::Command::new(path)
             .arg("/S")
             .creation_flags(CREATE_NO_WINDOW)
-            .spawn()
-            .map(|_| ())
-            .map_err(|e| format!("failed to start installer: {e}"))
+            .status()
+            .map_err(|e| format!("failed to start installer: {e}"))?;
+        if status.success() {
+            Ok(())
+        } else {
+            Err(format!(
+                "installer exited with code {}",
+                status.code().unwrap_or(-1)
+            ))
+        }
     }
     #[cfg(not(target_os = "windows"))]
     {
-        std::process::Command::new(path)
-            .spawn()
-            .map(|_| ())
-            .map_err(|e| format!("failed to start installer: {e}"))
+        let status = std::process::Command::new(path)
+            .status()
+            .map_err(|e| format!("failed to start installer: {e}"))?;
+        if status.success() {
+            Ok(())
+        } else {
+            Err(format!(
+                "installer exited with code {}",
+                status.code().unwrap_or(-1)
+            ))
+        }
     }
 }
 
