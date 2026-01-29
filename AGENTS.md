@@ -32,13 +32,13 @@
 
 ## Codex Execution Policy
 - Avoid running commands that generate binary artifacts. When unavoidable, exclude them from commits.
+- Do not run `Get-Process -Name node -ErrorAction SilentlyContinue | Stop-Process -Force`; this terminates Codex immediately.
 - `.exe` are build outputs. They must remain gitignored and must never be committed.
 - After completing the verification checklist for a task (format/lint/tests as applicable), run `app/installer/build_installer.ps1` to regenerate the installer executables locally.
 - Publish installer executables via GitHub Releases assets, not in the repository.
 - If `app/installer/build_installer.ps1` fails due to the app being open or files being locked, force close the running app/process and re-run the build immediately.
 
 ## Clipboard Screenshots
-- Pasted images named `codex-clipboard-*.png` are saved in `%TEMP%` (e.g., `%USERPROFILE%\AppData\Local\Temp`) rather than root `/temp`.
 - If a request includes clipboard screenshots, open them with the image viewer tool before responding and explicitly note in the response that they were reviewed.
 - When a UI issue is found via images or ui-check artifacts, expand ui-check coverage (new assertions, screenshots, or multi-step scenarios) so the issue becomes detectable in future runs. Keep improving the subjective review loop based on those artifacts.
 - For each UI change, run `npm run ui:check` and generate a fresh `app/tests-ui/artifacts/ui-check/report.html`.

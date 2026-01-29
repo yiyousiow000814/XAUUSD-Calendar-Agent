@@ -2557,6 +2557,9 @@ const main = async () => {
           await page.waitForTimeout(80);
         }
 
+        const historyTable = historyModal.locator("[data-qa='qa:history:table']").first();
+        await historyTable.waitFor({ state: "visible", timeout: 8000 }).catch(() => null);
+
         const historyNotes = historyModal.locator("[data-qa='qa:history:notes']").first();
         if (await historyNotes.count()) {
           try {
