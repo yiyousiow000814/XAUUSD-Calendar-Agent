@@ -27,6 +27,7 @@ pub struct RuntimeState {
     pub update_state: Value,
     pub update_release_url: String,
     pub update_asset_url: String,
+    pub update_prompted_version: String,
     pub output_dir: String,
     pub repo_path: String,
     pub modal: Value,

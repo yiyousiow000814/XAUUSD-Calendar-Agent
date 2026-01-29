@@ -1505,7 +1505,6 @@ export default function App() {
 
   const handleUpdateNow = async () => {
     try {
-      const isInstall = updateState.phase === "downloaded";
       const result = await backend.updateNow();
       if (!result.ok) {
         setUpdateState((prev) => ({
@@ -1515,9 +1514,28 @@ export default function App() {
         }));
         return;
       }
-      startUpdatePolling((phase) =>
-        isInstall ? phase === "restarting" || phase === "error" : phase === "downloaded" || phase === "error"
-      );
+      startUpdatePolling((phase) => phase === "downloaded" || phase === "error");
+    } catch {
+      setUpdateState((prev) => ({
+        ...prev,
+        phase: "error",
+        message: "Update failed"
+      }));
+    }
+  };
+
+  const handleInstallNow = async () => {
+    try {
+      const result = await backend.installUpdate();
+      if (!result.ok) {
+        setUpdateState((prev) => ({
+          ...prev,
+          phase: "error",
+          message: result.message || "Update failed"
+        }));
+        return;
+      }
+      startUpdatePolling((phase) => phase === "restarting" || phase === "error");
     } catch {
       setUpdateState((prev) => ({
         ...prev,
@@ -3480,6 +3498,7 @@ export default function App() {
         }
         onCheckUpdates={handleCheckUpdates}
         onUpdateNow={handleUpdateNow}
+        onInstallNow={handleInstallNow}
         onRunOnStartup={(value) =>
           setSettings((prev) => {
             const next = { ...prev, runOnStartup: value };

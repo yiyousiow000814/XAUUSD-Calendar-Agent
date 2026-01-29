@@ -1,9 +1,9 @@
 {
-  "generated_at": "25-01-2026 15:38",
+  "generated_at": "29-01-2026 05:19",
   "patches": [
     {
       "patch": "previous_missing_filled",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
@@ -15,7 +15,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
@@ -27,7 +27,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
@@ -39,7 +39,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
@@ -51,7 +51,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
@@ -63,7 +63,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
@@ -75,7 +75,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
@@ -87,7 +87,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
@@ -99,7 +99,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
@@ -111,7 +111,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
@@ -123,7 +123,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
@@ -135,7 +135,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
@@ -147,7 +147,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
@@ -159,7 +159,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
@@ -171,7 +171,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
@@ -183,7 +183,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
@@ -195,7 +195,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
@@ -207,7 +207,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
@@ -219,7 +219,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
@@ -231,7 +231,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
@@ -243,7 +243,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
@@ -255,7 +255,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
@@ -267,7 +267,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
@@ -279,7 +279,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
@@ -291,7 +291,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
@@ -303,7 +303,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
@@ -315,7 +315,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
@@ -327,7 +327,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
@@ -339,7 +339,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
@@ -351,7 +351,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
@@ -363,7 +363,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "AUD::rba bulletin::none",
+      "event_id": "AUD::RBA Bulletin::none",
       "cur": "AUD",
       "event": "RBA Bulletin",
       "period": "",
@@ -375,7 +375,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "AUD::rba bulletin::none",
+      "event_id": "AUD::RBA Bulletin::none",
       "cur": "AUD",
       "event": "RBA Bulletin",
       "period": "",
@@ -387,7 +387,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "AUD::rba bulletin::none",
+      "event_id": "AUD::RBA Bulletin::none",
       "cur": "AUD",
       "event": "RBA Bulletin",
       "period": "",
@@ -399,7 +399,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "AUD::rba bulletin::none",
+      "event_id": "AUD::RBA Bulletin::none",
       "cur": "AUD",
       "event": "RBA Bulletin",
       "period": "",
@@ -411,7 +411,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "INR::cumulative industrial production::none",
+      "event_id": "INR::Cumulative Industrial Production::none",
       "cur": "INR",
       "event": "Cumulative Industrial Production  (May)",
       "period": "may",
@@ -423,7 +423,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::boj monthly report::none",
+      "event_id": "JPY::BoJ Monthly Report::none",
       "cur": "JPY",
       "event": "BoJ Monthly Report",
       "period": "",
@@ -435,7 +435,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::boj monthly report::none",
+      "event_id": "JPY::BoJ Monthly Report::none",
       "cur": "JPY",
       "event": "BoJ Monthly Report",
       "period": "",
@@ -447,7 +447,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::boj monthly report::none",
+      "event_id": "JPY::BoJ Monthly Report::none",
       "cur": "JPY",
       "event": "BoJ Monthly Report",
       "period": "",
@@ -459,7 +459,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::boj monthly report::none",
+      "event_id": "JPY::BoJ Monthly Report::none",
       "cur": "JPY",
       "event": "BoJ Monthly Report",
       "period": "",
@@ -471,7 +471,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::boj monthly report::none",
+      "event_id": "JPY::BoJ Monthly Report::none",
       "cur": "JPY",
       "event": "BoJ Monthly Report",
       "period": "",
@@ -483,7 +483,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::boj monthly report::none",
+      "event_id": "JPY::BoJ Monthly Report::none",
       "cur": "JPY",
       "event": "BoJ Monthly Report",
       "period": "",
@@ -495,7 +495,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::boj monthly report::none",
+      "event_id": "JPY::BoJ Monthly Report::none",
       "cur": "JPY",
       "event": "BoJ Monthly Report",
       "period": "",
@@ -507,7 +507,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::boj monthly report::none",
+      "event_id": "JPY::BoJ Monthly Report::none",
       "cur": "JPY",
       "event": "BoJ Monthly Report",
       "period": "",
@@ -519,7 +519,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::boj monthly report::none",
+      "event_id": "JPY::BoJ Monthly Report::none",
       "cur": "JPY",
       "event": "BoJ Monthly Report",
       "period": "",
@@ -531,7 +531,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::boj monthly report::none",
+      "event_id": "JPY::BoJ Monthly Report::none",
       "cur": "JPY",
       "event": "BoJ Monthly Report",
       "period": "",
@@ -543,7 +543,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::boj monthly report::none",
+      "event_id": "JPY::BoJ Monthly Report::none",
       "cur": "JPY",
       "event": "BoJ Monthly Report",
       "period": "",
@@ -555,7 +555,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "JPY::boj monthly report::none",
+      "event_id": "JPY::BoJ Monthly Report::none",
       "cur": "JPY",
       "event": "BoJ Monthly Report",
       "period": "",
@@ -567,7 +567,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "EUR::italian 6 - month bot auction::none",
+      "event_id": "EUR::Italian 6-Month BOT Auction::none",
       "cur": "EUR",
       "event": "Italian 6-Month BOT Auction",
       "period": "",
@@ -579,7 +579,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "AUD::imports::m/m",
+      "event_id": "AUD::Imports::m/m",
       "cur": "AUD",
       "event": "Imports (MoM)  (Aug)",
       "period": "aug",
@@ -591,7 +591,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "EUR::spanish 3 - year bonos auction::none",
+      "event_id": "EUR::Spanish 3-Year Bonos Auction::none",
       "cur": "EUR",
       "event": "Spanish 3-Year Bonos Auction",
       "period": "",
@@ -603,7 +603,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "EUR::irish cpi::y/y",
+      "event_id": "EUR::Irish CPI::y/y",
       "cur": "EUR",
       "event": "Irish CPI (YoY)  (Sep)",
       "period": "sep",
@@ -615,7 +615,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "MYR::money supply::y/y",
+      "event_id": "MYR::Money Supply::y/y",
       "cur": "MYR",
       "event": "Money Supply (YoY)  (Jan)",
       "period": "jan",
@@ -627,7 +627,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "EUR::greek credit expansion::y/y",
+      "event_id": "EUR::Greek Credit Expansion::y/y",
       "cur": "EUR",
       "event": "Greek Credit Expansion (YoY)  (Nov)",
       "period": "nov",
@@ -639,7 +639,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "EUR::greek credit expansion::y/y",
+      "event_id": "EUR::Greek Credit Expansion::y/y",
       "cur": "EUR",
       "event": "Greek Credit Expansion (YoY)  (Jan)",
       "period": "jan",
@@ -651,7 +651,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "OMR::budget balance::none",
+      "event_id": "OMR::Budget Balance::none",
       "cur": "OMR",
       "event": "Budget Balance  (Mar)",
       "period": "mar",
@@ -663,7 +663,7 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "MYR::overall net capital flow::none",
+      "event_id": "MYR::Overall Net Capital Flow::none",
       "cur": "MYR",
       "event": "Overall Net Capital Flow  (Q3)",
       "period": "q3",

@@ -82,6 +82,7 @@ fn main() {
             commands::update::get_update_state,
             commands::update::check_updates,
             commands::update::update_now,
+            commands::update::install_update,
             commands::pull::pull_now,
             commands::sync::sync_now,
             commands::ui::frontend_boot_complete,
@@ -102,6 +103,8 @@ fn main() {
             commands::history::get_event_history
         ])
         .setup(|app| {
+            let _ = config::maybe_seed_data_from_install();
+            let _ = config::ensure_appdata_marker();
             commands::ui::start_background_tasks(app.handle().clone());
 
             let handle = app.handle();

@@ -52,6 +52,7 @@ type BackendApi = {
   get_update_state: () => ApiResult<UpdateState>;
   check_updates: () => ApiResult<{ ok: boolean; message?: string }>;
   update_now: () => ApiResult<{ ok: boolean; message?: string }>;
+  install_update: () => ApiResult<{ ok: boolean; message?: string }>;
   open_log: () => ApiResult<{ ok: boolean; message?: string }>;
   open_path: (path: string) => ApiResult<{ ok: boolean; message?: string }>;
   open_url?: (url: string) => ApiResult<{ ok: boolean; message?: string }>;
@@ -563,22 +564,6 @@ export const backend = {
         throw new Error("Desktop backend unavailable");
       }
       const state = getMockUpdateState();
-      if (state.phase === "downloaded") {
-        setMockUpdateState({
-          phase: "restarting",
-          message: "Restarting...",
-          progress: 1
-        });
-        window.setTimeout(() => {
-          setMockUpdateState({
-            phase: "idle",
-            message: "",
-            progress: 0,
-            availableVersion: ""
-          });
-        }, 1200);
-        return Promise.resolve({ ok: true });
-      }
       if (!state.availableVersion) {
         setMockUpdateState({
           phase: "available",
@@ -600,23 +585,42 @@ export const backend = {
       mockUpdateTimers.download = window.setInterval(() => {
         const elapsed = Date.now() - startedAt;
         const progress = Math.min(1, elapsed / 1600);
-        if (progress >= 1) {
-          const timer = mockUpdateTimers.download;
-          if (typeof timer === "number") {
-            window.clearInterval(timer);
-          }
-          mockUpdateTimers.download = undefined;
-          setMockUpdateState({ phase: "installing", message: "Installing...", progress: 1 });
-          window.setTimeout(() => {
-            setMockUpdateState({ phase: "downloaded", message: "Install complete", progress: 1 });
-          }, 800);
-          return;
+      if (progress >= 1) {
+        const timer = mockUpdateTimers.download;
+        if (typeof timer === "number") {
+          window.clearInterval(timer);
         }
-        setMockUpdateState({ progress });
-      }, 120);
+        mockUpdateTimers.download = undefined;
+        setMockUpdateState({ phase: "downloaded", message: "Ready to install", progress: 1 });
+        return;
+      }
+      setMockUpdateState({ progress });
+    }, 120);
       return Promise.resolve({ ok: true });
     }
     return api.update_now();
+  },
+  installUpdate: async () => {
+    const api = await withApi();
+    if (!api || !hasMethod(api, "install_update")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      setMockUpdateState({
+        phase: "installing",
+        message: "Installing...",
+        progress: 1
+      });
+      window.setTimeout(() => {
+        setMockUpdateState({
+          phase: "restarting",
+          message: "Restarting...",
+          progress: 1
+        });
+      }, 600);
+      return Promise.resolve({ ok: true });
+    }
+    return api.install_update();
   },
   getSettings: async (): ApiResult<Settings> => {
     const api = await withApi();

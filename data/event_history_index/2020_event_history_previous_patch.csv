@@ -1,31 +1,31 @@
 Patch,EventId,Cur,Event,Period,Date,Time,PreviousRaw,PriorActual,PreviousEffective
-previous_missing_filled,USD::redbook::m/m,USD,Redbook (MoM),,2020-10-13,20:55,,0.0%,0.0%
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2020-01-16,03:00,,0.00,0.00
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2020-03-05,03:00,,0.00,0.00
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2020-04-16,02:00,,0.00,0.00
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2020-05-28,02:00,,0.00,0.00
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2020-07-16,02:00,,0.00,0.00
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2020-09-03,02:00,,0.00,0.00
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2020-10-22,02:00,,0.00,0.00
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2020-12-03,03:00,,0.00,0.00
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2020-05-01,07:50,,0.00,0.00
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2020-06-19,07:50,,0.00,0.00
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2020-07-20,07:50,,0.00,0.00
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2020-09-24,07:50,,0.00,0.00
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2020-12-23,07:50,,0.00,0.00
-previous_missing_filled,GBP::boe mpc treasury committee hearings::none,GBP,BoE MPC Treasury Committee Hearings,,2020-03-04,Tentative,,0.00,0.00
-previous_missing_filled,GBP::boe mpc treasury committee hearings::none,GBP,BoE MPC Treasury Committee Hearings,,2020-11-23,Tentative,,0.00,0.00
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2020-01-04,04:00,,0.00,0.00
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2020-02-20,03:00,,0.00,0.00
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2020-04-09,02:00,,0.00,0.00
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2020-05-21,02:00,,0.00,0.00
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2020-07-02,02:00,,0.00,0.00
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2020-08-20,02:00,,0.00,0.00
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2020-10-08,02:00,,0.00,0.00
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2020-11-26,03:00,,0.00,0.00
-previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2020-03-19,08:30,,0.00,0.00
-previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2020-06-18,09:30,,0.00,0.00
-previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2020-09-17,09:30,,0.00,0.00
-previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2020-12-10,08:30,,0.00,0.00
-previous_missing_filled,DKK::cpi::y/y,DKK,CPI (YoY)  (Jun),jun,2020-07-10,14:00,,0.0%,0.0%
-previous_missing_filled,EUR::slovak core cpi::m/m,EUR,Slovak Core CPI (MoM)  (Oct),oct,2020-11-12,16:00,,0.0%,0.0%
+previous_missing_filled,USD::Redbook::m/m,USD,Redbook (MoM),,2020-10-13,20:55,,0.0%,0.0%
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2020-01-16,03:00,,0.00,0.00
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2020-03-05,03:00,,0.00,0.00
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2020-04-16,02:00,,0.00,0.00
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2020-05-28,02:00,,0.00,0.00
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2020-07-16,02:00,,0.00,0.00
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2020-09-03,02:00,,0.00,0.00
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2020-10-22,02:00,,0.00,0.00
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2020-12-03,03:00,,0.00,0.00
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2020-05-01,07:50,,0.00,0.00
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2020-06-19,07:50,,0.00,0.00
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2020-07-20,07:50,,0.00,0.00
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2020-09-24,07:50,,0.00,0.00
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2020-12-23,07:50,,0.00,0.00
+previous_missing_filled,GBP::BoE MPC Treasury Committee Hearings::none,GBP,BoE MPC Treasury Committee Hearings,,2020-03-04,Tentative,,0.00,0.00
+previous_missing_filled,GBP::BoE MPC Treasury Committee Hearings::none,GBP,BoE MPC Treasury Committee Hearings,,2020-11-23,Tentative,,0.00,0.00
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2020-01-04,04:00,,0.00,0.00
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2020-02-20,03:00,,0.00,0.00
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2020-04-09,02:00,,0.00,0.00
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2020-05-21,02:00,,0.00,0.00
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2020-07-02,02:00,,0.00,0.00
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2020-08-20,02:00,,0.00,0.00
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2020-10-08,02:00,,0.00,0.00
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2020-11-26,03:00,,0.00,0.00
+previous_missing_filled,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2020-03-19,08:30,,0.00,0.00
+previous_missing_filled,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2020-06-18,09:30,,0.00,0.00
+previous_missing_filled,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2020-09-17,09:30,,0.00,0.00
+previous_missing_filled,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2020-12-10,08:30,,0.00,0.00
+previous_missing_filled,DKK::CPI::y/y,DKK,CPI (YoY)  (Jun),jun,2020-07-10,14:00,,0.0%,0.0%
+previous_missing_filled,EUR::Slovak Core CPI::m/m,EUR,Slovak Core CPI (MoM)  (Oct),oct,2020-11-12,16:00,,0.0%,0.0%

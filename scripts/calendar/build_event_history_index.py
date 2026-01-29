@@ -118,7 +118,7 @@ def build_event_canonical_id(cur: str, event_name: str) -> tuple[str, EventIdent
         currency = "NA"
 
     raw = (event_name or "").strip()
-    freq = _detect_frequency(raw)
+    freq = _detect_frequency(raw) or "none"
 
     period = ""
     # Prefer a trailing "(Jan)" / "(Q1)" etc if present.

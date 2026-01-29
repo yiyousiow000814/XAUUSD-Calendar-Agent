@@ -172,12 +172,30 @@ fn normalize_event_id(value: &str) -> String {
     let mut parts = value.split("::");
     let cur = parts.next().unwrap_or("").trim().to_lowercase();
     let metric = parts.next().unwrap_or("").trim();
-    let freq = parts.next().unwrap_or("").trim().to_lowercase();
-    if cur.is_empty() || metric.is_empty() || freq.is_empty() {
+    let mut freq = parts.next().unwrap_or("").trim().to_lowercase();
+    if freq == "none" {
+        freq.clear();
+    }
+    if cur.is_empty() || metric.is_empty() {
         return value.trim().to_lowercase();
     }
     let metric_norm = normalize_metric_key(metric);
     format!("{cur}::{metric_norm}::{freq}")
+}
+
+fn event_id_variants(value: &str) -> Vec<String> {
+    let normalized = normalize_event_id(value);
+    let mut parts = normalized.split("::");
+    let cur = parts.next().unwrap_or("").trim().to_string();
+    let metric = parts.next().unwrap_or("").trim().to_string();
+    let freq = parts.next().unwrap_or("").trim().to_string();
+    let mut variants = vec![normalized];
+    if freq.is_empty() {
+        variants.push(format!("{cur}::{metric}::none"));
+    } else if freq == "none" {
+        variants.push(format!("{cur}::{metric}::"));
+    }
+    variants
 }
 
 fn load_event_history_index(path: &Path) -> Option<HashMap<String, u64>> {
@@ -196,8 +214,9 @@ fn load_event_history_index(path: &Path) -> Option<HashMap<String, u64>> {
 fn insert_index_variants(map: &mut HashMap<String, u64>, key: &str, offset: u64) {
     map.entry(key.to_string()).or_insert(offset);
     map.entry(key.to_lowercase()).or_insert(offset);
-    let normalized = normalize_event_id(key);
-    map.entry(normalized).or_insert(offset);
+    for variant in event_id_variants(key) {
+        map.entry(variant).or_insert(offset);
+    }
 }
 
 fn build_index_from_ndjson(path: &Path) -> Option<HashMap<String, u64>> {
@@ -343,7 +362,16 @@ fn event_id_matches(candidate: &str, actual: &str) -> bool {
     if candidate.eq_ignore_ascii_case(actual) {
         return true;
     }
-    normalize_event_id(candidate) == normalize_event_id(actual)
+    let candidate_norm = normalize_event_id(candidate);
+    let actual_norm = normalize_event_id(actual);
+    if candidate_norm == actual_norm {
+        return true;
+    }
+    let candidate_variants = event_id_variants(&candidate_norm);
+    let actual_variants = event_id_variants(&actual_norm);
+    candidate_variants
+        .iter()
+        .any(|variant| actual_variants.iter().any(|v| v == variant))
 }
 
 fn payload_event_id_matches(payload: &Value, candidates: &[String]) -> bool {
@@ -384,7 +412,7 @@ pub fn get_event_history(_payload: Value) -> Value {
     let index_path = history_dir.join("event_history_by_event.index.json");
     let ndjson_path = history_dir.join("event_history_by_event.ndjson");
     let mut candidates = vec![event_id.clone(), event_id.to_lowercase()];
-    candidates.push(normalize_event_id(&event_id));
+    candidates.extend(event_id_variants(&event_id));
     if ndjson_path.exists() {
         let mut index = if index_path.exists() {
             load_event_history_index(&index_path)
