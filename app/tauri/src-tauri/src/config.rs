@@ -95,8 +95,7 @@ pub fn ensure_appdata_marker() -> Result<(), String> {
         return Ok(());
     }
     fs::create_dir_all(&roaming).map_err(|e| e.to_string())?;
-    fs::write(roaming.join(APPDATA_MARKER), "XAUUSDCalendarAgent")
-        .map_err(|e| e.to_string())?;
+    fs::write(roaming.join(APPDATA_MARKER), "XAUUSDCalendarAgent").map_err(|e| e.to_string())?;
     Ok(())
 }
 
