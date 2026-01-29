@@ -1,9 +1,9 @@
 {
-  "generated_at": "25-01-2026 15:38",
+  "generated_at": "29-01-2026 05:19",
   "issues": [
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::philly fed new orders::none",
+      "event_id": "USD::Philly Fed New Orders::none",
       "cur": "USD",
       "event": "Philly Fed New Orders  (May)",
       "period": "may",
@@ -15,7 +15,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "EUR::italian retail sales::m/m",
+      "event_id": "EUR::Italian Retail Sales::m/m",
       "cur": "EUR",
       "event": "Italian Retail Sales (MoM)  (Feb)",
       "period": "feb",
@@ -27,7 +27,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "KRW::ppi::m/m",
+      "event_id": "KRW::PPI::m/m",
       "cur": "KRW",
       "event": "PPI (MoM)  (Mar)",
       "period": "mar",
@@ -39,7 +39,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
@@ -51,7 +51,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
@@ -63,7 +63,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
@@ -75,7 +75,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
@@ -87,7 +87,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
@@ -99,7 +99,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
@@ -111,7 +111,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
@@ -123,7 +123,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
@@ -135,7 +135,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
@@ -147,7 +147,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
@@ -159,7 +159,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
@@ -171,7 +171,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
@@ -183,7 +183,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
@@ -195,7 +195,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
@@ -207,7 +207,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
@@ -219,7 +219,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
@@ -231,7 +231,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "INR::bank loan growth::none",
+      "event_id": "INR::Bank Loan Growth::none",
       "cur": "INR",
       "event": "Bank Loan Growth",
       "period": "",
@@ -243,7 +243,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
@@ -255,7 +255,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
@@ -267,7 +267,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
@@ -279,7 +279,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
@@ -291,7 +291,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
@@ -303,7 +303,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
@@ -315,7 +315,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
@@ -327,7 +327,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
@@ -339,7 +339,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "AUD::rba bulletin::none",
+      "event_id": "AUD::RBA Bulletin::none",
       "cur": "AUD",
       "event": "RBA Bulletin",
       "period": "",
@@ -351,7 +351,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "AUD::rba bulletin::none",
+      "event_id": "AUD::RBA Bulletin::none",
       "cur": "AUD",
       "event": "RBA Bulletin",
       "period": "",
@@ -363,7 +363,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "AUD::rba bulletin::none",
+      "event_id": "AUD::RBA Bulletin::none",
       "cur": "AUD",
       "event": "RBA Bulletin",
       "period": "",
@@ -375,7 +375,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "AUD::rba bulletin::none",
+      "event_id": "AUD::RBA Bulletin::none",
       "cur": "AUD",
       "event": "RBA Bulletin",
       "period": "",
@@ -387,7 +387,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "INR::deposit growth::none",
+      "event_id": "INR::Deposit Growth::none",
       "cur": "INR",
       "event": "Deposit Growth",
       "period": "",
@@ -399,7 +399,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "INR::fx reserves, usd::none",
+      "event_id": "INR::FX Reserves, USD::none",
       "cur": "INR",
       "event": "FX Reserves, USD",
       "period": "",
@@ -411,7 +411,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "INR::cumulative industrial production::none",
+      "event_id": "INR::Cumulative Industrial Production::none",
       "cur": "INR",
       "event": "Cumulative Industrial Production  (May)",
       "period": "may",
@@ -423,7 +423,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "UAH::gdp::y/y",
+      "event_id": "UAH::GDP::y/y",
       "cur": "UAH",
       "event": "GDP (YoY)  (Q4)",
       "period": "q4",
@@ -435,7 +435,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::5 - year tips auction::none",
+      "event_id": "USD::5-Year TIPS Auction::none",
       "cur": "USD",
       "event": "5-Year TIPS Auction",
       "period": "",
@@ -447,7 +447,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::5 - year tips auction::none",
+      "event_id": "USD::5-Year TIPS Auction::none",
       "cur": "USD",
       "event": "5-Year TIPS Auction",
       "period": "",
@@ -459,7 +459,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "ARS::trade balance::none",
+      "event_id": "ARS::Trade Balance::none",
       "cur": "ARS",
       "event": "Trade Balance  (Dec)",
       "period": "dec",
@@ -471,7 +471,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "EUR::french 6 - year oat auction::none",
+      "event_id": "EUR::French 6-Year OAT Auction::none",
       "cur": "EUR",
       "event": "French 6-Year OAT Auction",
       "period": "",
@@ -483,7 +483,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "MXN::private spending::q/q",
+      "event_id": "MXN::Private Spending::q/q",
       "cur": "MXN",
       "event": "Private Spending (QoQ)  (Q3)",
       "period": "q3",
@@ -495,7 +495,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "JPY::tokyo cpi::y/y",
+      "event_id": "JPY::Tokyo CPI::y/y",
       "cur": "JPY",
       "event": "Tokyo CPI (YoY)  (Jan)",
       "period": "jan",
@@ -507,7 +507,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "TRY::budget balance::none",
+      "event_id": "TRY::Budget balance::none",
       "cur": "TRY",
       "event": "Budget balance  (Sep)",
       "period": "sep",
@@ -519,7 +519,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "OMR::budget balance::none",
+      "event_id": "OMR::Budget Balance::none",
       "cur": "OMR",
       "event": "Budget Balance  (Mar)",
       "period": "mar",
@@ -531,7 +531,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "BHD::m2 money supply::none",
+      "event_id": "BHD::M2 Money Supply::none",
       "cur": "BHD",
       "event": "M2 Money Supply  (Sep)",
       "period": "sep",
@@ -543,7 +543,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "BHD::m2 money supply::none",
+      "event_id": "BHD::M2 Money Supply::none",
       "cur": "BHD",
       "event": "M2 Money Supply  (Nov)",
       "period": "nov",
@@ -555,7 +555,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "BHD::m2 money supply::none",
+      "event_id": "BHD::M2 Money Supply::none",
       "cur": "BHD",
       "event": "M2 Money Supply  (Feb)",
       "period": "feb",
@@ -567,7 +567,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "TRY::exports::none",
+      "event_id": "TRY::Exports::none",
       "cur": "TRY",
       "event": "Exports  (Jan)",
       "period": "jan",
@@ -579,7 +579,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "NAD::cpi::m/m",
+      "event_id": "NAD::CPI::m/m",
       "cur": "NAD",
       "event": "CPI (MoM)  (Oct)",
       "period": "oct",
@@ -591,7 +591,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "NAD::cpi::y/y",
+      "event_id": "NAD::CPI::y/y",
       "cur": "NAD",
       "event": "CPI (YoY)  (Oct)",
       "period": "oct",
@@ -603,7 +603,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "BHD::private sector credit::y/y",
+      "event_id": "BHD::Private Sector Credit::y/y",
       "cur": "BHD",
       "event": "Private Sector Credit (YoY)  (Sep)",
       "period": "sep",
@@ -615,7 +615,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "BHD::private sector credit::y/y",
+      "event_id": "BHD::Private Sector Credit::y/y",
       "cur": "BHD",
       "event": "Private Sector Credit (YoY)  (Nov)",
       "period": "nov",
@@ -627,7 +627,7 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "BHD::private sector credit::y/y",
+      "event_id": "BHD::Private Sector Credit::y/y",
       "cur": "BHD",
       "event": "Private Sector Credit (YoY)  (Feb)",
       "period": "feb",
@@ -639,833 +639,703 @@
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
       "date": "2016-01-14",
       "time": "03:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
       "date": "2016-03-03",
       "time": "03:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
       "date": "2016-04-14",
       "time": "02:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
       "date": "2016-06-02",
       "time": "02:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
       "date": "2016-07-14",
       "time": "02:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
       "date": "2016-09-08",
       "time": "02:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
       "date": "2016-10-20",
       "time": "02:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::beige book::none",
+      "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
       "period": "",
       "date": "2016-12-01",
       "time": "03:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
       "date": "2016-02-03",
       "time": "07:50",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
       "date": "2016-03-18",
       "time": "07:50",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
       "date": "2016-05-09",
       "time": "07:50",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
       "date": "2016-06-21",
       "time": "07:50",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
       "date": "2016-08-03",
       "time": "07:50",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
       "date": "2016-09-27",
       "time": "07:50",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
       "date": "2016-11-07",
       "time": "07:50",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::monetary policy meeting minutes::none",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
       "cur": "JPY",
       "event": "Monetary Policy Meeting Minutes",
       "period": "",
       "date": "2016-12-26",
       "time": "07:50",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "NZD::manufacturing sales volume::q/q",
-      "cur": "NZD",
-      "event": "Manufacturing Sales Volume (QoQ)  (Q3)",
-      "period": "q3",
-      "date": "2016-12-07",
-      "time": "05:45",
-      "cutoff": "21-01-2026 15:13"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
       "date": "2016-01-07",
       "time": "03:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
       "date": "2016-02-18",
       "time": "03:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
       "date": "2016-04-07",
       "time": "02:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
       "date": "2016-05-19",
       "time": "02:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
       "date": "2016-07-07",
       "time": "02:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
       "date": "2016-08-18",
       "time": "02:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
       "date": "2016-10-13",
       "time": "02:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::fomc meeting minutes::none",
+      "event_id": "USD::FOMC Meeting Minutes::none",
       "cur": "USD",
       "event": "FOMC Meeting Minutes",
       "period": "",
       "date": "2016-11-24",
       "time": "03:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "AUD::rba bulletin::none",
+      "event_id": "AUD::RBA Bulletin::none",
       "cur": "AUD",
       "event": "RBA Bulletin",
       "period": "",
       "date": "2016-03-17",
       "time": "08:30",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "AUD::rba bulletin::none",
+      "event_id": "AUD::RBA Bulletin::none",
       "cur": "AUD",
       "event": "RBA Bulletin",
       "period": "",
       "date": "2016-06-16",
       "time": "09:30",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "AUD::rba bulletin::none",
+      "event_id": "AUD::RBA Bulletin::none",
       "cur": "AUD",
       "event": "RBA Bulletin",
       "period": "",
       "date": "2016-09-15",
       "time": "09:30",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "AUD::rba bulletin::none",
+      "event_id": "AUD::RBA Bulletin::none",
       "cur": "AUD",
       "event": "RBA Bulletin",
       "period": "",
       "date": "2016-12-15",
       "time": "08:30",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "INR::cumulative industrial production::none",
+      "event_id": "INR::Cumulative Industrial Production::none",
       "cur": "INR",
       "event": "Cumulative Industrial Production  (Apr)",
       "period": "apr",
       "date": "2016-06-10",
       "time": "20:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "INR::infrastructure output::y/y",
+      "event_id": "INR::Infrastructure Output::y/y",
       "cur": "INR",
       "event": "Infrastructure Output (YoY)  (Dec)",
       "period": "dec",
       "date": "2016-01-29",
       "time": "19:30",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "INR::infrastructure output::y/y",
+      "event_id": "INR::Infrastructure Output::y/y",
       "cur": "INR",
       "event": "Infrastructure Output (YoY)",
       "period": "",
       "date": "2016-04-29",
       "time": "19:30",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "ARS::unemployment rate::none",
+      "event_id": "ARS::Unemployment Rate::none",
       "cur": "ARS",
       "event": "Unemployment Rate",
       "period": "",
       "date": "2016-04-30",
       "time": "03:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "INR::wpi manufacturing inflation::y/y",
-      "cur": "INR",
-      "event": "WPI Manufacturing Inflation (YoY)  (Mar)",
-      "period": "mar",
-      "date": "2016-04-14",
-      "time": "14:30",
-      "cutoff": "21-01-2026 15:13"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::german 12 - month bubill auction::none",
+      "event_id": "EUR::German 12-Month Bubill Auction::none",
       "cur": "EUR",
       "event": "German 12-Month Bubill Auction",
       "period": "",
       "date": "2016-11-22",
       "time": "19:40",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::greek cpi::y/y",
-      "cur": "EUR",
-      "event": "Greek CPI (YoY)  (Nov)",
-      "period": "nov",
-      "date": "2016-12-03",
-      "time": "18:00",
-      "cutoff": "21-01-2026 15:13"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "ARS::trade balance::none",
+      "event_id": "ARS::Trade Balance::none",
       "cur": "ARS",
       "event": "Trade Balance  (Nov)",
       "period": "nov",
       "date": "2016-01-19",
       "time": "03:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "ILS::budget balance::none",
+      "event_id": "ILS::Budget Balance::none",
       "cur": "ILS",
       "event": "Budget Balance  (Mar)",
       "period": "mar",
       "date": "2016-04-07",
       "time": "23:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "ILS::budget balance::none",
+      "event_id": "ILS::Budget Balance::none",
       "cur": "ILS",
       "event": "Budget Balance  (May)",
       "period": "may",
       "date": "2016-06-09",
       "time": "21:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "ILS::budget balance::none",
+      "event_id": "ILS::Budget Balance::none",
       "cur": "ILS",
       "event": "Budget Balance  (Sep)",
       "period": "sep",
       "date": "2016-10-06",
       "time": "23:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "ILS::budget balance::none",
+      "event_id": "ILS::Budget Balance::none",
       "cur": "ILS",
       "event": "Budget Balance",
       "period": "",
       "date": "2016-12-05",
       "time": "20:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "ILS::budget balance::none",
+      "event_id": "ILS::Budget Balance::none",
       "cur": "ILS",
       "event": "Budget Balance  (Nov)",
       "period": "nov",
       "date": "2016-12-12",
       "time": "23:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "ILS::budget balance::none",
+      "event_id": "ILS::Budget Balance::none",
       "cur": "ILS",
       "event": "Budget Balance  (Nov)",
       "period": "nov",
       "date": "2016-12-14",
       "time": "23:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "ARS::cpi::m/m",
+      "event_id": "ARS::CPI::m/m",
       "cur": "ARS",
       "event": "CPI (MoM)",
       "period": "",
       "date": "2016-01-19",
       "time": "03:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::irish exchequer returns::none",
-      "cur": "EUR",
-      "event": "Irish Exchequer Returns  (Apr)",
-      "period": "apr",
-      "date": "2016-05-03",
-      "time": "23:30",
-      "cutoff": "21-01-2026 15:13"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "THB::currency swaps (usd)::none",
-      "cur": "THB",
-      "event": "Currency Swaps (USD)",
-      "period": "",
-      "date": "2016-04-12",
-      "time": "15:30",
-      "cutoff": "21-01-2026 15:13"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "THB::foreign reserves (usd)::none",
-      "cur": "THB",
-      "event": "Foreign Reserves (USD)",
-      "period": "",
-      "date": "2016-04-12",
-      "time": "15:30",
-      "cutoff": "21-01-2026 15:13"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "PLN::current account (eur)::none",
-      "cur": "PLN",
-      "event": "Current Account (EUR)  (Dec)",
-      "period": "dec",
-      "date": "2016-02-05",
-      "time": "23:00",
-      "cutoff": "21-01-2026 15:13"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "NZD::nbnz own activity::none",
+      "event_id": "NZD::NBNZ Own Activity::none",
       "cur": "NZD",
       "event": "NBNZ Own Activity  (Jan)",
       "period": "jan",
       "date": "2016-01-29",
       "time": "08:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::greek credit expansion::y/y",
-      "cur": "EUR",
-      "event": "Greek Credit Expansion (YoY)  (Nov)",
-      "period": "nov",
-      "date": "2016-01-15",
-      "time": "18:00",
-      "cutoff": "21-01-2026 15:13"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "IDR::loans::y/y",
-      "cur": "IDR",
-      "event": "Loans (YoY)  (May)",
-      "period": "may",
-      "date": "2016-07-21",
-      "time": "18:00",
-      "cutoff": "21-01-2026 15:13"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "IDR::loans::y/y",
+      "event_id": "IDR::Loans::y/y",
       "cur": "IDR",
       "event": "Loans (YoY)",
       "period": "",
       "date": "2016-11-17",
       "time": "17:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "IDR::motorbike sales::y/y",
+      "event_id": "IDR::Motorbike Sales::y/y",
       "cur": "IDR",
       "event": "Motorbike Sales (YoY)  (Oct)",
       "period": "oct",
       "date": "2016-11-10",
       "time": "15:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "NZD::terms of trade - exports volume::q/q",
-      "cur": "NZD",
-      "event": "Terms of Trade - Exports Volume (QoQ)  (Q3)",
-      "period": "q3",
-      "date": "2016-12-01",
-      "time": "05:45",
-      "cutoff": "21-01-2026 15:13"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EGP::m2 money supply::y/y",
+      "event_id": "EGP::M2 Money Supply::y/y",
       "cur": "EGP",
       "event": "M2 Money Supply (YoY)  (May)",
       "period": "may",
       "date": "2016-07-15",
       "time": "06:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::slovak current account::none",
+      "event_id": "EUR::Slovak Current Account::none",
       "cur": "EUR",
       "event": "Slovak Current Account  (Oct)",
       "period": "oct",
       "date": "2016-12-13",
       "time": "21:30",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "KWD::bank lending::y/y",
+      "event_id": "KWD::Bank Lending::y/y",
       "cur": "KWD",
       "event": "Bank Lending (YoY)  (Feb)",
       "period": "feb",
       "date": "2016-04-25",
       "time": "20:25",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "KWD::bank lending::y/y",
+      "event_id": "KWD::Bank Lending::y/y",
       "cur": "KWD",
       "event": "Bank Lending (YoY)  (Mar)",
       "period": "mar",
       "date": "2016-05-28",
       "time": "05:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "KWD::m2 money supply::y/y",
+      "event_id": "KWD::M2 Money Supply::y/y",
       "cur": "KWD",
       "event": "M2 Money Supply (YoY)  (Feb)",
       "period": "feb",
       "date": "2016-04-25",
       "time": "20:25",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "KWD::m2 money supply::y/y",
+      "event_id": "KWD::M2 Money Supply::y/y",
       "cur": "KWD",
       "event": "M2 Money Supply (YoY)  (Mar)",
       "period": "mar",
       "date": "2016-05-28",
       "time": "05:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "OMR::budget balance::none",
+      "event_id": "OMR::Budget Balance::none",
       "cur": "OMR",
       "event": "Budget Balance  (Mar)",
       "period": "mar",
       "date": "2016-05-28",
       "time": "05:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "OMR::m2 money supply::y/y",
+      "event_id": "OMR::M2 Money Supply::y/y",
       "cur": "OMR",
       "event": "M2 Money Supply (YoY)  (Oct)",
       "period": "oct",
       "date": "2016-12-20",
       "time": "05:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "BHD::cpi::m/m",
+      "event_id": "BHD::CPI::m/m",
       "cur": "BHD",
       "event": "CPI (MoM)  (May)",
       "period": "may",
       "date": "2016-06-24",
       "time": "05:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "BHD::m2 money supply::none",
+      "event_id": "BHD::M2 Money Supply::none",
       "cur": "BHD",
       "event": "M2 Money Supply  (Sep)",
       "period": "sep",
       "date": "2016-01-13",
       "time": "06:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "BHD::m2 money supply::none",
+      "event_id": "BHD::M2 Money Supply::none",
       "cur": "BHD",
       "event": "M2 Money Supply  (Nov)",
       "period": "nov",
       "date": "2016-03-15",
       "time": "06:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "BHD::m2 money supply::none",
+      "event_id": "BHD::M2 Money Supply::none",
       "cur": "BHD",
       "event": "M2 Money Supply  (Feb)",
       "period": "feb",
       "date": "2016-06-16",
       "time": "05:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "MUR::cpi::y/y",
+      "event_id": "MUR::CPI::y/y",
       "cur": "MUR",
       "event": "CPI (YoY)  (Jan)",
       "period": "jan",
       "date": "2016-02-10",
       "time": "00:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "MUR::cpi::y/y",
+      "event_id": "MUR::CPI::y/y",
       "cur": "MUR",
       "event": "CPI (YoY)  (Feb)",
       "period": "feb",
       "date": "2016-03-08",
       "time": "00:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "MUR::cpi::y/y",
+      "event_id": "MUR::CPI::y/y",
       "cur": "MUR",
       "event": "CPI (YoY)  (Mar)",
       "period": "mar",
       "date": "2016-04-08",
       "time": "00:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "TRY::exports::none",
+      "event_id": "TRY::Exports::none",
       "cur": "TRY",
       "event": "Exports  (Dec)",
       "period": "dec",
       "date": "2016-01-01",
       "time": "17:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "NZD::current account % of gdp::none",
-      "cur": "NZD",
-      "event": "Current Account % of GDP  (Q3)",
-      "period": "q3",
-      "date": "2016-12-14",
-      "time": "05:45",
-      "cutoff": "21-01-2026 15:13"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "NZD::current account::y/y",
-      "cur": "NZD",
-      "event": "Current Account (YoY)  (Q3)",
-      "period": "q3",
-      "date": "2016-12-14",
-      "time": "05:45",
-      "cutoff": "21-01-2026 15:13"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "OMR::total credit::y/y",
+      "event_id": "OMR::Total Credit::y/y",
       "cur": "OMR",
       "event": "Total Credit (YoY)  (Oct)",
       "period": "oct",
       "date": "2016-12-20",
       "time": "05:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "UGX::cpi::y/y",
+      "event_id": "UGX::CPI::y/y",
       "cur": "UGX",
       "event": "CPI (YoY)  (Mar)",
       "period": "mar",
       "date": "2016-03-31",
       "time": "Tentative",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "ARS::tax revenue::none",
-      "cur": "ARS",
-      "event": "Tax Revenue  (Dec)",
-      "period": "dec",
-      "date": "2016-01-02",
-      "time": "05:00",
-      "cutoff": "21-01-2026 15:13"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "IDR::balance of payments (eur)::none",
+      "event_id": "IDR::Balance of Payments (EUR)::none",
       "cur": "IDR",
       "event": "Balance of Payments (EUR)  (Q2)",
       "period": "q2",
       "date": "2016-08-12",
       "time": "17:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "IDR::current account % of gdp::none",
+      "event_id": "IDR::Current Account % of GDP::none",
       "cur": "IDR",
       "event": "Current Account % of GDP  (Q2)",
       "period": "q2",
       "date": "2016-08-12",
       "time": "17:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "MXN::current account % of gdp::none",
+      "event_id": "MXN::Current Account % of GDP::none",
       "cur": "MXN",
       "event": "Current Account % of GDP  (Q1)",
       "period": "q1",
       "date": "2016-05-25",
       "time": "22:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "BHD::private sector credit::y/y",
+      "event_id": "BHD::Private Sector Credit::y/y",
       "cur": "BHD",
       "event": "Private Sector Credit (YoY)  (Sep)",
       "period": "sep",
       "date": "2016-01-13",
       "time": "06:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "BHD::private sector credit::y/y",
+      "event_id": "BHD::Private Sector Credit::y/y",
       "cur": "BHD",
       "event": "Private Sector Credit (YoY)  (Nov)",
       "period": "nov",
       "date": "2016-03-15",
       "time": "06:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "BHD::private sector credit::y/y",
+      "event_id": "BHD::Private Sector Credit::y/y",
       "cur": "BHD",
       "event": "Private Sector Credit (YoY)  (Feb)",
       "period": "feb",
       "date": "2016-06-16",
       "time": "05:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::payrolls benchmark (12m)::none",
+      "event_id": "USD::Payrolls Benchmark (12M)::none",
       "cur": "USD",
       "event": "Payrolls Benchmark  (12M)",
       "period": "",
       "date": "2016-09-07",
       "time": "22:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "PEN::current account % of gdp::none",
+      "event_id": "PEN::Current Account % of GDP::none",
       "cur": "PEN",
       "event": "Current Account % of GDP  (Q1)",
       "period": "q1",
       "date": "2016-05-20",
       "time": "21:00",
-      "cutoff": "21-01-2026 15:13"
+      "cutoff": "27-01-2026 05:19"
     }
   ]
 }

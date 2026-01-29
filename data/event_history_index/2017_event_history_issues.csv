@@ -1,79 +1,72 @@
 Issue,EventId,Cur,Event,Period,Date,Time,PreviousRaw,PriorActual,PreviousEffective,Details
-previous_missing_filled,KRW::ppi::m/m,KRW,PPI (MoM)  (Nov),nov,2017-12-19,05:00,,0.0%,0.0%,
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2017-01-19,03:00,,0.00,0.00,
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2017-03-02,03:00,,0.00,0.00,
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2017-04-20,02:00,,0.00,0.00,
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2017-06-01,02:00,,0.00,0.00,
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2017-07-13,02:00,,0.00,0.00,
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2017-09-07,02:00,,0.00,0.00,
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2017-10-19,02:00,,0.00,0.00,
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2017-11-30,03:00,,0.00,0.00,
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-02-03,07:50,,0.00,0.00,
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-03-22,07:50,,0.00,0.00,
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-05-02,07:50,,0.00,0.00,
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-06-21,07:50,,0.00,0.00,
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-07-25,07:50,,0.00,0.00,
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-09-26,07:50,,0.00,0.00,
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-11-06,07:50,,0.00,0.00,
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-12-26,07:50,,0.00,0.00,
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-01-05,03:00,,0.00,0.00,
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-02-23,03:00,,0.00,0.00,
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-04-06,02:00,,0.00,0.00,
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-05-25,02:00,,0.00,0.00,
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-07-06,02:00,,0.00,0.00,
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-08-17,02:00,,0.00,0.00,
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-10-12,02:00,,0.00,0.00,
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-11-23,03:00,,0.00,0.00,
-previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2017-03-16,08:30,,0.00,0.00,
-previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2017-06-15,09:30,,0.00,0.00,
-previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2017-09-21,09:30,,0.00,0.00,
-previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2017-12-21,08:30,,0.00,0.00,
-previous_missing_filled,USD::5 - year tips auction::none,USD,5-Year TIPS Auction,,2017-12-22,02:00,,0.117%,0.117%,
-previous_missing_filled,CZK::ppi::m/m,CZK,PPI (MoM)  (Nov),nov,2017-12-18,16:00,,0.0%,0.0%,
-previous_missing_filled,BWP::cpi::m/m,BWP,CPI (MoM)  (Nov),nov,2017-12-15,17:20,,0.1%,0.1%,
-previous_missing_filled,NOK::industrial confidence::none,NOK,Industrial Confidence  (Q1),q1,2017-04-21,14:00,,0.0,0.0,
-previous_missing_filled,UAH::current account (usd)::none,UAH,Current Account (USD)  (Jun),jun,2017-07-28,20:00,,0.000B,0.000B,
-stale_missing_actual_dropped,USD::mba 30 - year mortgage rate::none,USD,MBA 30-Year Mortgage Rate,,2017-12-27,20:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2017-01-19,03:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2017-03-02,03:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2017-04-20,02:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2017-06-01,02:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2017-07-13,02:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2017-09-07,02:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2017-10-19,02:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,USD::beige book::none,USD,Beige Book,,2017-11-30,03:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-02-03,07:50,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-03-22,07:50,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-05-02,07:50,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-06-21,07:50,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-07-25,07:50,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-09-26,07:50,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-11-06,07:50,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-12-26,07:50,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-01-05,03:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-02-23,03:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-04-06,02:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-05-25,02:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-07-06,02:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-08-17,02:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-10-12,02:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2017-11-23,03:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,AUD::rba bulletin::none,AUD,RBA Bulletin,,2017-03-16,08:30,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,AUD::rba bulletin::none,AUD,RBA Bulletin,,2017-06-15,09:30,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,AUD::rba bulletin::none,AUD,RBA Bulletin,,2017-09-21,09:30,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,AUD::rba bulletin::none,AUD,RBA Bulletin,,2017-12-21,08:30,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,USD::mba mortgage applications::w/w,USD,MBA Mortgage Applications (WoW),,2017-12-27,20:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,THB::industrial production::y/y,THB,Industrial Production (YoY)  (Nov),nov,2017-12-29,11:30,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,BRL::net debt - to - gdp ratio::none,BRL,Net Debt-to-GDP ratio  (Nov),nov,2017-12-27,20:30,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,BRL::budget balance::none,BRL,Budget Balance  (Nov),nov,2017-12-27,20:30,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,BRL::budget surplus::none,BRL,Budget Surplus  (Nov),nov,2017-12-27,20:30,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,PHP::budget balance::none,PHP,Budget Balance  (Jan),jan,2017-03-28,Tentative,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,EUR::net investment flow::none,EUR,Net Investment Flow  (Jan),jan,2017-03-22,Tentative,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,ZAR::m3 money supply::y/y,ZAR,M3 Money Supply (YoY),,2017-12-28,14:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,COP::unemployment rate::none,COP,Unemployment Rate  (Nov),nov,2017-12-30,01:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,EUR::latvian trade balance::none,EUR,Latvian Trade Balance  (Feb),feb,2017-04-10,18:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,ZAR::private sector credit::none,ZAR,Private Sector Credit,,2017-12-28,14:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,UGX::cpi::y/y,UGX,CPI (YoY)  (Jan),jan,2017-02-01,Tentative,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,BWP::gdp::y/y,BWP,GDP (YoY)  (Q3),q3,2017-12-28,22:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,USD::payrolls benchmark::none,USD,Payrolls Benchmark,,2017-09-06,22:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
-stale_missing_actual_dropped,UAH::foreign reserves (usd)::none,UAH,Foreign Reserves (USD)  (Jan),jan,2017-02-07,20:00,,,,"{""cutoff"": ""23-01-2026 02:26""}"
+previous_missing_filled,KRW::PPI::m/m,KRW,PPI (MoM)  (Nov),nov,2017-12-19,05:00,,0.0%,0.0%,
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2017-01-19,03:00,,0.00,0.00,
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2017-03-02,03:00,,0.00,0.00,
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2017-04-20,02:00,,0.00,0.00,
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2017-06-01,02:00,,0.00,0.00,
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2017-07-13,02:00,,0.00,0.00,
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2017-09-07,02:00,,0.00,0.00,
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2017-10-19,02:00,,0.00,0.00,
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2017-11-30,03:00,,0.00,0.00,
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-02-03,07:50,,0.00,0.00,
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-03-22,07:50,,0.00,0.00,
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-05-02,07:50,,0.00,0.00,
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-06-21,07:50,,0.00,0.00,
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-07-25,07:50,,0.00,0.00,
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-09-26,07:50,,0.00,0.00,
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-11-06,07:50,,0.00,0.00,
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-12-26,07:50,,0.00,0.00,
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2017-01-05,03:00,,0.00,0.00,
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2017-02-23,03:00,,0.00,0.00,
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2017-04-06,02:00,,0.00,0.00,
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2017-05-25,02:00,,0.00,0.00,
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2017-07-06,02:00,,0.00,0.00,
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2017-08-17,02:00,,0.00,0.00,
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2017-10-12,02:00,,0.00,0.00,
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2017-11-23,03:00,,0.00,0.00,
+previous_missing_filled,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2017-03-16,08:30,,0.00,0.00,
+previous_missing_filled,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2017-06-15,09:30,,0.00,0.00,
+previous_missing_filled,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2017-09-21,09:30,,0.00,0.00,
+previous_missing_filled,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2017-12-21,08:30,,0.00,0.00,
+previous_missing_filled,USD::5-Year TIPS Auction::none,USD,5-Year TIPS Auction,,2017-12-22,02:00,,0.117%,0.117%,
+previous_missing_filled,CZK::PPI::m/m,CZK,PPI (MoM)  (Nov),nov,2017-12-18,16:00,,0.0%,0.0%,
+previous_missing_filled,BWP::CPI::m/m,BWP,CPI (MoM)  (Nov),nov,2017-12-15,17:20,,0.1%,0.1%,
+previous_missing_filled,NOK::Industrial Confidence::none,NOK,Industrial Confidence  (Q1),q1,2017-04-21,14:00,,0.0,0.0,
+previous_missing_filled,UAH::Current Account (USD)::none,UAH,Current Account (USD)  (Jun),jun,2017-07-28,20:00,,0.000B,0.000B,
+stale_missing_actual_dropped,USD::MBA 30-Year Mortgage Rate::none,USD,MBA 30-Year Mortgage Rate,,2017-12-27,20:00,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,USD::Beige Book::none,USD,Beige Book,,2017-01-19,03:00,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,USD::Beige Book::none,USD,Beige Book,,2017-03-02,03:00,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,USD::Beige Book::none,USD,Beige Book,,2017-04-20,02:00,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,USD::Beige Book::none,USD,Beige Book,,2017-06-01,02:00,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,USD::Beige Book::none,USD,Beige Book,,2017-07-13,02:00,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,USD::Beige Book::none,USD,Beige Book,,2017-09-07,02:00,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,USD::Beige Book::none,USD,Beige Book,,2017-10-19,02:00,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,USD::Beige Book::none,USD,Beige Book,,2017-11-30,03:00,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-02-03,07:50,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-03-22,07:50,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-05-02,07:50,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-06-21,07:50,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-07-25,07:50,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-09-26,07:50,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-11-06,07:50,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2017-12-26,07:50,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2017-01-05,03:00,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2017-02-23,03:00,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2017-04-06,02:00,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2017-05-25,02:00,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2017-07-06,02:00,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2017-08-17,02:00,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2017-10-12,02:00,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2017-11-23,03:00,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2017-03-16,08:30,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2017-06-15,09:30,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2017-09-21,09:30,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2017-12-21,08:30,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,USD::MBA Mortgage Applications::w/w,USD,MBA Mortgage Applications (WoW),,2017-12-27,20:00,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,THB::Industrial Production::y/y,THB,Industrial Production (YoY)  (Nov),nov,2017-12-29,11:30,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,PHP::Budget Balance::none,PHP,Budget Balance  (Jan),jan,2017-03-28,Tentative,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,EUR::Net Investment Flow::none,EUR,Net Investment Flow  (Jan),jan,2017-03-22,Tentative,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,COP::Unemployment Rate::none,COP,Unemployment Rate  (Nov),nov,2017-12-30,01:00,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,UGX::CPI::y/y,UGX,CPI (YoY)  (Jan),jan,2017-02-01,Tentative,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,USD::Payrolls Benchmark::none,USD,Payrolls Benchmark,,2017-09-06,22:00,,,,"{""cutoff"": ""27-01-2026 05:19""}"
+stale_missing_actual_dropped,UAH::Foreign Reserves (USD)::none,UAH,Foreign Reserves (USD)  (Jan),jan,2017-02-07,20:00,,,,"{""cutoff"": ""27-01-2026 05:19""}"

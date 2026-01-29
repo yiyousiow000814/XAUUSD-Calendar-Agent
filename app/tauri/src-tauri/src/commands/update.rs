@@ -1,4 +1,9 @@
 use super::*;
+use std::fs;
+use std::io::{Read, Write};
+
+#[cfg(target_os = "windows")]
+use std::os::windows::process::CommandExt;
 
 pub fn default_update_state() -> Value {
     json!({
@@ -35,6 +40,90 @@ fn set_update_state(
             Value::String(now_display_time()),
         );
     }
+}
+
+fn set_update_progress(runtime: &mut RuntimeState, downloaded: u64, total: Option<u64>) {
+    if runtime.update_state.is_null() {
+        runtime.update_state = default_update_state();
+    }
+    if let Some(obj) = runtime.update_state.as_object_mut() {
+        obj.insert(
+            "downloadedBytes".to_string(),
+            Value::Number(downloaded.into()),
+        );
+        match total {
+            Some(value) => {
+                obj.insert("totalBytes".to_string(), Value::Number(value.into()));
+                let progress = if value > 0 {
+                    (downloaded as f64 / value as f64).clamp(0.0, 1.0)
+                } else {
+                    0.0
+                };
+                let progress_value = serde_json::Number::from_f64(progress)
+                    .unwrap_or_else(|| serde_json::Number::from(0));
+                obj.insert("progress".to_string(), Value::Number(progress_value));
+            }
+            None => {
+                obj.insert("totalBytes".to_string(), Value::Null);
+                obj.insert("progress".to_string(), Value::Number(0.into()));
+            }
+        }
+    }
+}
+
+fn filename_from_url(url: &str) -> String {
+    url.split('/')
+        .next_back()
+        .unwrap_or("xauusd_calendar_update.exe")
+        .trim()
+        .to_string()
+}
+
+fn update_download_dir() -> Result<std::path::PathBuf, String> {
+    let dir = config::appdata_dir().join("updates");
+    fs::create_dir_all(&dir).map_err(|e| format!("failed to create update dir: {e}"))?;
+    Ok(dir)
+}
+
+fn spawn_installer(path: &std::path::Path) -> Result<(), String> {
+    if !path.exists() {
+        return Err("update installer not found".to_string());
+    }
+    #[cfg(target_os = "windows")]
+    {
+        const CREATE_NO_WINDOW: u32 = 0x08000000;
+        std::process::Command::new(path)
+            .arg("/S")
+            .creation_flags(CREATE_NO_WINDOW)
+            .spawn()
+            .map(|_| ())
+            .map_err(|e| format!("failed to start installer: {e}"))
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        std::process::Command::new(path)
+            .spawn()
+            .map(|_| ())
+            .map_err(|e| format!("failed to start installer: {e}"))
+    }
+}
+
+fn maybe_prompt_update(runtime: &mut RuntimeState, version: &str) -> Option<Value> {
+    if version.is_empty() {
+        return None;
+    }
+    if runtime.update_prompted_version == version {
+        return None;
+    }
+    runtime.update_prompted_version = version.to_string();
+    let modal_id = format!("update-{}", now_ms());
+    runtime.modal = json!({
+        "id": modal_id,
+        "title": "Update available",
+        "message": format!("v{version} is ready.\n\nOpen Settings to update now, or check release notes."),
+        "tone": "info"
+    });
+    Some(runtime.modal.clone())
 }
 
 pub(super) fn try_begin_github_token_check(app: tauri::AppHandle, token: String) {
@@ -246,6 +335,11 @@ pub fn check_updates(
                         &format!("Update available: {available}"),
                         "INFO",
                     );
+                    let modal_payload = maybe_prompt_update(&mut runtime, &available);
+                    drop(runtime);
+                    if let Some(payload) = modal_payload {
+                        let _ = app.emit("xauusd:modal", payload);
+                    }
                 } else {
                     set_update_state(&mut runtime, "idle", "Up to date", true, Some(&available));
                 }
@@ -265,20 +359,140 @@ pub fn check_updates(
 }
 
 #[tauri::command]
-pub fn update_now(state: tauri::State<'_, Mutex<RuntimeState>>) -> Result<Value, String> {
-    let url = {
+pub fn update_now(
+    app: tauri::AppHandle,
+    state: tauri::State<'_, Mutex<RuntimeState>>,
+) -> Result<Value, String> {
+    let (url, available_version) = {
         let runtime = state.lock().expect("runtime lock");
-        runtime.update_asset_url.trim().to_string()
+        let version = runtime
+            .update_state
+            .get("availableVersion")
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .to_string();
+        (runtime.update_asset_url.trim().to_string(), version)
     };
     if url.is_empty() {
         return Ok(json!({"ok": false, "message": "Update URL not available"}));
     }
-    let ok = open_target(&url);
-    if ok {
-        Ok(json!({"ok": true}))
-    } else {
-        Ok(json!({"ok": false, "message": "failed to open update url"}))
+    {
+        let mut runtime = state.lock().expect("runtime lock");
+        set_update_state(
+            &mut runtime,
+            "downloading",
+            "Downloading...",
+            true,
+            if available_version.is_empty() {
+                None
+            } else {
+                Some(&available_version)
+            },
+        );
+        set_update_progress(&mut runtime, 0, None);
     }
+
+    let app_handle = app.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let cfg = config::load_config();
+        let token = config::get_str(&cfg, "github_token");
+        let asset_name = config::get_str(&cfg, "github_release_asset_name");
+        let filename = if !asset_name.is_empty() {
+            asset_name
+        } else {
+            filename_from_url(&url)
+        };
+        let target_dir = match update_download_dir() {
+            Ok(dir) => dir,
+            Err(msg) => {
+                let state = app_handle.state::<Mutex<RuntimeState>>();
+                let mut runtime = state.lock().expect("runtime lock");
+                set_update_state(&mut runtime, "error", &msg, false, None);
+                push_log(
+                    &mut runtime,
+                    &format!("Update download failed: {msg}"),
+                    "ERROR",
+                );
+                return;
+            }
+        };
+        let target_path = target_dir.join(filename);
+        let download_result: Result<(), String> = (|| {
+            let agent = ureq::AgentBuilder::new()
+                .timeout_connect(std::time::Duration::from_secs(10))
+                .timeout_read(std::time::Duration::from_secs(30))
+                .timeout_write(std::time::Duration::from_secs(30))
+                .build();
+            let mut req = agent.get(&url).set("User-Agent", "XAUUSDCalendarAgent");
+            if !token.is_empty() {
+                req = req.set("Authorization", &format!("Bearer {token}"));
+            }
+            let resp = req.call().map_err(|e| format!("download failed: {e}"))?;
+            let total = resp
+                .header("Content-Length")
+                .and_then(|v| v.parse::<u64>().ok());
+            let mut reader = resp.into_reader();
+            let mut file = fs::File::create(&target_path)
+                .map_err(|e| format!("failed to create installer: {e}"))?;
+            let mut buf = [0u8; 64 * 1024];
+            let mut downloaded: u64 = 0;
+            loop {
+                let n = reader
+                    .read(&mut buf)
+                    .map_err(|e| format!("read failed: {e}"))?;
+                if n == 0 {
+                    break;
+                }
+                file.write_all(&buf[..n])
+                    .map_err(|e| format!("write failed: {e}"))?;
+                downloaded += n as u64;
+                let state = app_handle.state::<Mutex<RuntimeState>>();
+                let mut runtime = state.lock().expect("runtime lock");
+                set_update_progress(&mut runtime, downloaded, total);
+            }
+            Ok(())
+        })();
+
+        if let Err(msg) = download_result {
+            let state = app_handle.state::<Mutex<RuntimeState>>();
+            let mut runtime = state.lock().expect("runtime lock");
+            set_update_state(&mut runtime, "error", &msg, false, None);
+            push_log(
+                &mut runtime,
+                &format!("Update download failed: {msg}"),
+                "ERROR",
+            );
+            return;
+        }
+
+        {
+            let state = app_handle.state::<Mutex<RuntimeState>>();
+            let mut runtime = state.lock().expect("runtime lock");
+            set_update_state(&mut runtime, "installing", "Installing...", true, None);
+            set_update_progress(&mut runtime, 1, Some(1));
+        }
+
+        if let Err(msg) = spawn_installer(&target_path) {
+            let state = app_handle.state::<Mutex<RuntimeState>>();
+            let mut runtime = state.lock().expect("runtime lock");
+            set_update_state(&mut runtime, "error", &msg, false, None);
+            push_log(
+                &mut runtime,
+                &format!("Update install failed: {msg}"),
+                "ERROR",
+            );
+            return;
+        }
+
+        {
+            let state = app_handle.state::<Mutex<RuntimeState>>();
+            let mut runtime = state.lock().expect("runtime lock");
+            set_update_state(&mut runtime, "restarting", "Restarting...", true, None);
+        }
+        app_handle.exit(0);
+    });
+
+    Ok(json!({"ok": true}))
 }
 
 fn verify_github_token_value(token: &str) -> Result<bool, String> {
