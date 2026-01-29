@@ -22,17 +22,34 @@ def load_json(path: Path) -> object:
         return json.load(handle)
 
 
-def normalize_notes(raw: object) -> dict[str, dict[str, str]]:
+def normalize_note_key(key: str) -> str:
+    normalized = key.strip()
+    if normalized.endswith("::"):
+        return f"{normalized}none"
+    return normalized
+
+
+def normalize_notes(
+    raw: object, index_lookup: dict[str, str]
+) -> dict[str, dict[str, str]]:
     if not isinstance(raw, dict):
         raise SystemExit(f"Invalid notes JSON (expected object): {OUTPUT_PATH}")
     out: dict[str, dict[str, str]] = {}
     for key, value in raw.items():
+        raw_key = str(key)
+        normalized_key = normalize_note_key(raw_key)
+        canonical = index_lookup.get(normalized_key.lower(), normalized_key)
         if isinstance(value, dict) and isinstance(value.get("note", ""), str):
-            out[str(key)] = {"note": value.get("note", "")}
+            note_value = value.get("note", "")
         elif isinstance(value, str):
-            out[str(key)] = {"note": value}
+            note_value = value
         else:
-            out[str(key)] = {"note": ""}
+            note_value = ""
+        existing = out.get(canonical, {}).get("note", "")
+        if not existing and note_value:
+            out[canonical] = {"note": note_value}
+        elif canonical not in out:
+            out[canonical] = {"note": note_value}
     return out
 
 
@@ -49,9 +66,10 @@ def main() -> None:
     event_ids = sorted((index_payload or {}).get("index", {}).keys())
     if not event_ids:
         raise SystemExit(f"Index file has no events: {INDEX_PATH}")
+    index_lookup = {event_id.lower(): event_id for event_id in event_ids}
 
     existing_raw = load_json(OUTPUT_PATH) if OUTPUT_PATH.exists() else {}
-    notes = normalize_notes(existing_raw)
+    notes = normalize_notes(existing_raw, index_lookup)
 
     missing = [event_id for event_id in event_ids if event_id not in notes]
     extras = [event_id for event_id in notes.keys() if event_id not in set(event_ids)]

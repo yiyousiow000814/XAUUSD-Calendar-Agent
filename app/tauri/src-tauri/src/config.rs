@@ -1,3 +1,4 @@
+use chrono::NaiveDateTime;
 use serde_json::{json, Map, Value};
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -82,6 +83,94 @@ fn legacy_roaming_dir() -> Option<PathBuf> {
 
 pub fn appdata_dir() -> PathBuf {
     app_root_dir()
+}
+
+const APPDATA_MARKER: &str = ".xauusdcalendar.marker";
+
+pub fn ensure_appdata_marker() -> Result<(), String> {
+    let Some(roaming) = legacy_roaming_dir() else {
+        return Ok(());
+    };
+    if appdata_dir() != roaming {
+        return Ok(());
+    }
+    fs::create_dir_all(&roaming).map_err(|e| e.to_string())?;
+    fs::write(roaming.join(APPDATA_MARKER), "XAUUSDCalendarAgent")
+        .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+fn parse_generated_at(value: &str) -> Option<NaiveDateTime> {
+    let trimmed = value.trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+    NaiveDateTime::parse_from_str(trimmed, "%d-%m-%Y %H:%M").ok()
+}
+
+fn read_generated_at(path: &Path) -> Option<NaiveDateTime> {
+    let text = fs::read_to_string(path).ok()?;
+    let parsed: Value = serde_json::from_str(&text).ok()?;
+    let value = parsed.get("generated_at")?.as_str()?;
+    parse_generated_at(value)
+}
+
+fn copy_dir_recursive(src: &Path, dst: &Path) -> Result<(), String> {
+    if !src.exists() {
+        return Err(format!("source not found: {}", src.display()));
+    }
+    if !dst.exists() {
+        fs::create_dir_all(dst).map_err(|e| e.to_string())?;
+    }
+    for entry in fs::read_dir(src).map_err(|e| e.to_string())? {
+        let entry = entry.map_err(|e| e.to_string())?;
+        let src_path = entry.path();
+        let dst_path = dst.join(entry.file_name());
+        if src_path.is_dir() {
+            copy_dir_recursive(&src_path, &dst_path)?;
+        } else {
+            if let Some(parent) = dst_path.parent() {
+                fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+            }
+            fs::copy(&src_path, &dst_path).map_err(|e| e.to_string())?;
+        }
+    }
+    Ok(())
+}
+
+pub fn maybe_seed_data_from_install() -> Result<bool, String> {
+    let install_data = install_dir().join("data");
+    let app_data = appdata_dir().join("data");
+    let install_index = install_data
+        .join("event_history_index")
+        .join("event_history_by_event.index.json");
+    let app_index = app_data
+        .join("event_history_index")
+        .join("event_history_by_event.index.json");
+
+    if !install_index.exists() {
+        return Ok(false);
+    }
+    if !app_index.exists() {
+        let _ = fs::remove_dir_all(&app_data);
+        copy_dir_recursive(&install_data, &app_data)?;
+        return Ok(true);
+    }
+
+    let install_time = read_generated_at(&install_index);
+    let app_time = read_generated_at(&app_index);
+    let should_copy = match (install_time, app_time) {
+        (Some(install_dt), Some(app_dt)) => install_dt > app_dt,
+        (Some(_), None) => true,
+        _ => false,
+    };
+    if should_copy {
+        let _ = fs::remove_dir_all(&app_data);
+        copy_dir_recursive(&install_data, &app_data)?;
+        return Ok(true);
+    }
+
+    Ok(false)
 }
 
 pub fn working_root_dir(cfg: &Value) -> PathBuf {

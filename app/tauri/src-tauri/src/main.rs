@@ -102,6 +102,8 @@ fn main() {
             commands::history::get_event_history
         ])
         .setup(|app| {
+            let _ = config::maybe_seed_data_from_install();
+            let _ = config::ensure_appdata_marker();
             commands::ui::start_background_tasks(app.handle().clone());
 
             let handle = app.handle();

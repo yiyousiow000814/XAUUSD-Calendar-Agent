@@ -1,57 +1,57 @@
 Patch,EventId,Cur,Event,Period,Date,Time,PreviousRaw,PriorActual,PreviousEffective
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2015-01-15,03:00,,0.00,0.00
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2015-03-05,03:00,,0.00,0.00
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2015-04-16,02:00,,0.00,0.00
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2015-06-04,02:00,,0.00,0.00
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2015-07-16,02:00,,0.00,0.00
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2015-09-03,02:00,,0.00,0.00
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2015-10-15,02:00,,0.00,0.00
-previous_missing_filled,USD::beige book::none,USD,Beige Book,,2015-12-03,03:00,,0.00,0.00
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-01-26,07:50,,0.00,0.00
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-02-23,07:50,,0.00,0.00
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-03-20,07:50,,0.00,0.00
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-04-13,07:50,,0.00,0.00
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-05-08,07:50,,0.00,0.00
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-05-27,07:50,,0.00,0.00
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-06-24,07:50,,0.00,0.00
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-07-21,07:50,,0.00,0.00
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-08-12,07:50,,0.00,0.00
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-09-18,07:50,,0.00,0.00
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-10-13,07:50,,0.00,0.00
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-11-05,07:50,,0.00,0.00
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-11-25,07:50,,0.00,0.00
-previous_missing_filled,JPY::monetary policy meeting minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-12-24,07:50,,0.00,0.00
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2015-01-08,03:00,,0.00,0.00
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2015-02-19,03:00,,0.00,0.00
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2015-04-09,02:00,,0.00,0.00
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2015-05-21,02:00,,0.00,0.00
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2015-07-09,02:00,,0.00,0.00
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2015-08-20,02:00,,0.00,0.00
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2015-10-09,02:00,,0.00,0.00
-previous_missing_filled,USD::fomc meeting minutes::none,USD,FOMC Meeting Minutes,,2015-11-19,03:00,,0.00,0.00
-previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2015-03-19,08:30,,0.00,0.00
-previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2015-06-18,09:30,,0.00,0.00
-previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2015-09-17,09:30,,0.00,0.00
-previous_missing_filled,AUD::rba bulletin::none,AUD,RBA Bulletin,,2015-12-17,08:30,,0.00,0.00
-previous_missing_filled,INR::cumulative industrial production::none,INR,Cumulative Industrial Production  (May),may,2015-07-10,20:00,,2.80%,2.80%
-previous_missing_filled,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2015-01-22,13:00,,0.00,0.00
-previous_missing_filled,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2015-02-19,13:00,,0.00,0.00
-previous_missing_filled,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2015-03-18,13:00,,0.00,0.00
-previous_missing_filled,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2015-04-09,13:00,,0.00,0.00
-previous_missing_filled,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2015-05-25,13:00,,0.00,0.00
-previous_missing_filled,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2015-06-22,13:00,,0.00,0.00
-previous_missing_filled,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2015-07-16,13:00,,0.00,0.00
-previous_missing_filled,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2015-08-10,13:00,,0.00,0.00
-previous_missing_filled,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2015-09-16,13:00,,0.00,0.00
-previous_missing_filled,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2015-10-08,13:00,,0.00,0.00
-previous_missing_filled,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2015-11-20,13:00,,0.00,0.00
-previous_missing_filled,JPY::boj monthly report::none,JPY,BoJ Monthly Report,,2015-12-21,13:00,,0.00,0.00
-previous_missing_filled,EUR::italian 6 - month bot auction::none,EUR,Italian 6-Month BOT Auction,,2015-03-25,17:10,,0.090%,0.090%
-previous_missing_filled,AUD::imports::m/m,AUD,Imports (MoM)  (Aug),aug,2015-10-06,08:30,,0%,0%
-previous_missing_filled,EUR::spanish 3 - year bonos auction::none,EUR,Spanish 3-Year Bonos Auction,,2015-05-21,16:50,,0.556%,0.556%
-previous_missing_filled,EUR::irish cpi::y/y,EUR,Irish CPI (YoY)  (Sep),sep,2015-10-08,18:00,,0.0%,0.0%
-previous_missing_filled,MYR::money supply::y/y,MYR,Money Supply (YoY)  (Jan),jan,2015-02-27,17:00,,7.1%,7.1%
-previous_missing_filled,EUR::greek credit expansion::y/y,EUR,Greek Credit Expansion (YoY)  (Nov),nov,2015-01-23,18:00,,-4.3%,-4.3%
-previous_missing_filled,EUR::greek credit expansion::y/y,EUR,Greek Credit Expansion (YoY)  (Jan),jan,2015-03-26,16:00,,-2.9%,-2.9%
-previous_missing_filled,OMR::budget balance::none,OMR,Budget Balance  (Mar),mar,2015-05-21,05:00,,-245.60M,-245.60M
-previous_missing_filled,MYR::overall net capital flow::none,MYR,Overall Net Capital Flow  (Q3),q3,2015-11-13,12:00,,-7.9B,-7.9B
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2015-01-15,03:00,,0.00,0.00
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2015-03-05,03:00,,0.00,0.00
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2015-04-16,02:00,,0.00,0.00
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2015-06-04,02:00,,0.00,0.00
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2015-07-16,02:00,,0.00,0.00
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2015-09-03,02:00,,0.00,0.00
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2015-10-15,02:00,,0.00,0.00
+previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2015-12-03,03:00,,0.00,0.00
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-01-26,07:50,,0.00,0.00
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-02-23,07:50,,0.00,0.00
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-03-20,07:50,,0.00,0.00
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-04-13,07:50,,0.00,0.00
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-05-08,07:50,,0.00,0.00
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-05-27,07:50,,0.00,0.00
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-06-24,07:50,,0.00,0.00
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-07-21,07:50,,0.00,0.00
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-08-12,07:50,,0.00,0.00
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-09-18,07:50,,0.00,0.00
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-10-13,07:50,,0.00,0.00
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-11-05,07:50,,0.00,0.00
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-11-25,07:50,,0.00,0.00
+previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-12-24,07:50,,0.00,0.00
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2015-01-08,03:00,,0.00,0.00
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2015-02-19,03:00,,0.00,0.00
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2015-04-09,02:00,,0.00,0.00
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2015-05-21,02:00,,0.00,0.00
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2015-07-09,02:00,,0.00,0.00
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2015-08-20,02:00,,0.00,0.00
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2015-10-09,02:00,,0.00,0.00
+previous_missing_filled,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2015-11-19,03:00,,0.00,0.00
+previous_missing_filled,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2015-03-19,08:30,,0.00,0.00
+previous_missing_filled,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2015-06-18,09:30,,0.00,0.00
+previous_missing_filled,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2015-09-17,09:30,,0.00,0.00
+previous_missing_filled,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2015-12-17,08:30,,0.00,0.00
+previous_missing_filled,INR::Cumulative Industrial Production::none,INR,Cumulative Industrial Production  (May),may,2015-07-10,20:00,,2.80%,2.80%
+previous_missing_filled,JPY::BoJ Monthly Report::none,JPY,BoJ Monthly Report,,2015-01-22,13:00,,0.00,0.00
+previous_missing_filled,JPY::BoJ Monthly Report::none,JPY,BoJ Monthly Report,,2015-02-19,13:00,,0.00,0.00
+previous_missing_filled,JPY::BoJ Monthly Report::none,JPY,BoJ Monthly Report,,2015-03-18,13:00,,0.00,0.00
+previous_missing_filled,JPY::BoJ Monthly Report::none,JPY,BoJ Monthly Report,,2015-04-09,13:00,,0.00,0.00
+previous_missing_filled,JPY::BoJ Monthly Report::none,JPY,BoJ Monthly Report,,2015-05-25,13:00,,0.00,0.00
+previous_missing_filled,JPY::BoJ Monthly Report::none,JPY,BoJ Monthly Report,,2015-06-22,13:00,,0.00,0.00
+previous_missing_filled,JPY::BoJ Monthly Report::none,JPY,BoJ Monthly Report,,2015-07-16,13:00,,0.00,0.00
+previous_missing_filled,JPY::BoJ Monthly Report::none,JPY,BoJ Monthly Report,,2015-08-10,13:00,,0.00,0.00
+previous_missing_filled,JPY::BoJ Monthly Report::none,JPY,BoJ Monthly Report,,2015-09-16,13:00,,0.00,0.00
+previous_missing_filled,JPY::BoJ Monthly Report::none,JPY,BoJ Monthly Report,,2015-10-08,13:00,,0.00,0.00
+previous_missing_filled,JPY::BoJ Monthly Report::none,JPY,BoJ Monthly Report,,2015-11-20,13:00,,0.00,0.00
+previous_missing_filled,JPY::BoJ Monthly Report::none,JPY,BoJ Monthly Report,,2015-12-21,13:00,,0.00,0.00
+previous_missing_filled,EUR::Italian 6-Month BOT Auction::none,EUR,Italian 6-Month BOT Auction,,2015-03-25,17:10,,0.090%,0.090%
+previous_missing_filled,AUD::Imports::m/m,AUD,Imports (MoM)  (Aug),aug,2015-10-06,08:30,,0%,0%
+previous_missing_filled,EUR::Spanish 3-Year Bonos Auction::none,EUR,Spanish 3-Year Bonos Auction,,2015-05-21,16:50,,0.556%,0.556%
+previous_missing_filled,EUR::Irish CPI::y/y,EUR,Irish CPI (YoY)  (Sep),sep,2015-10-08,18:00,,0.0%,0.0%
+previous_missing_filled,MYR::Money Supply::y/y,MYR,Money Supply (YoY)  (Jan),jan,2015-02-27,17:00,,7.1%,7.1%
+previous_missing_filled,EUR::Greek Credit Expansion::y/y,EUR,Greek Credit Expansion (YoY)  (Nov),nov,2015-01-23,18:00,,-4.3%,-4.3%
+previous_missing_filled,EUR::Greek Credit Expansion::y/y,EUR,Greek Credit Expansion (YoY)  (Jan),jan,2015-03-26,16:00,,-2.9%,-2.9%
+previous_missing_filled,OMR::Budget Balance::none,OMR,Budget Balance  (Mar),mar,2015-05-21,05:00,,-245.60M,-245.60M
+previous_missing_filled,MYR::Overall Net Capital Flow::none,MYR,Overall Net Capital Flow  (Q3),q3,2015-11-13,12:00,,-7.9B,-7.9B
