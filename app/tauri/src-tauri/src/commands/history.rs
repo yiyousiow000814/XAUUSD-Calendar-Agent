@@ -1,7 +1,6 @@
 use super::*;
 use crate::calendar::CALENDAR_SOURCE_UTC_OFFSET_MINUTES;
-use crate::time_util::format_display_time;
-use chrono::{FixedOffset, NaiveDate, NaiveDateTime, NaiveTime, TimeZone, Utc};
+use chrono::{Duration, FixedOffset, Local, NaiveDate, NaiveDateTime, NaiveTime, TimeZone, Utc};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Seek, SeekFrom};
@@ -314,15 +313,54 @@ fn parse_history_point_dt_to_utc(
         .or_else(|_| NaiveDate::parse_from_str(date_text, "%Y-%m-%d"))
         .ok()?;
     let time_text = time_text.trim();
-    let time = if time_text.contains(':') {
-        NaiveTime::parse_from_str(time_text, "%H:%M").ok()?
-    } else {
-        NaiveTime::from_hms_opt(0, 0, 0)?
-    };
+    // Only convert points that have an explicit HH:MM time. For "All Day" / empty / other labels
+    // we skip timezone conversion to avoid cross-day shifts.
+    if !time_text.contains(':') {
+        return None;
+    }
+    let time = NaiveTime::parse_from_str(time_text, "%H:%M").ok()?;
     let naive = NaiveDateTime::new(date, time);
     let offset = FixedOffset::east_opt(source_utc_offset_minutes * 60)?;
     let source = offset.from_local_datetime(&naive).single()?;
     Some(source.with_timezone(&Utc))
+}
+
+fn normalize_date_iso(value: &str) -> Option<String> {
+    let trimmed = value.trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+    let parsed = NaiveDate::parse_from_str(trimmed, "%Y-%m-%d")
+        .or_else(|_| NaiveDate::parse_from_str(trimmed, "%d-%m-%Y"))
+        .ok()?;
+    Some(parsed.format("%Y-%m-%d").to_string())
+}
+
+fn format_dt_parts(
+    dt_utc: chrono::DateTime<Utc>,
+    tz_mode: &str,
+    utc_offset_minutes: i32,
+) -> (String, String) {
+    if tz_mode == "utc" {
+        return (
+            dt_utc.format("%Y-%m-%d").to_string(),
+            dt_utc.format("%H:%M").to_string(),
+        );
+    }
+    if utc_offset_minutes != 0 {
+        let offset = FixedOffset::east_opt(utc_offset_minutes * 60)
+            .unwrap_or_else(|| FixedOffset::east_opt(0).unwrap());
+        let localized = dt_utc.with_timezone(&offset);
+        return (
+            localized.format("%Y-%m-%d").to_string(),
+            localized.format("%H:%M").to_string(),
+        );
+    }
+    let localized = dt_utc.with_timezone(&Local);
+    (
+        localized.format("%Y-%m-%d").to_string(),
+        localized.format("%H:%M").to_string(),
+    )
 }
 
 fn points_from_payload(payload: &Value, tz_mode: &str, utc_offset_minutes: i32) -> Vec<Value> {
@@ -350,13 +388,10 @@ fn points_from_payload(payload: &Value, tz_mode: &str, utc_offset_minutes: i32) 
         let (date, time) = if let Some(dt_utc) =
             parse_history_point_dt_to_utc(&date_raw, &time_raw, CALENDAR_SOURCE_UTC_OFFSET_MINUTES)
         {
-            let display = format_display_time(dt_utc, tz_mode, utc_offset_minutes);
-            match display.split_once(' ') {
-                Some((d, t)) => (d.to_string(), t.to_string()),
-                None => (date_raw.clone(), time_raw.clone()),
-            }
+            format_dt_parts(dt_utc, tz_mode, utc_offset_minutes)
         } else {
-            (date_raw, time_raw)
+            let date = normalize_date_iso(&date_raw).unwrap_or(date_raw);
+            (date, time_raw)
         };
         let actual = to_text(2);
         let forecast = to_text(3);
@@ -517,13 +552,18 @@ pub fn get_event_history(_payload: Value) -> Value {
         if item.event.trim() != event {
             continue;
         }
-        let display = format_display_time(item.dt_utc, &tz_mode, utc_offset_minutes);
-        let (date, time) = match display.split_once(' ') {
-            Some((d, t)) => (d.to_string(), t.to_string()),
-            None => (
-                item.dt_utc.format("%d-%m-%Y").to_string(),
+        let time_label = item.time_label.trim();
+        let (date, time) = if time_label.eq_ignore_ascii_case("all day")
+            || !time_label.contains(':')
+        {
+            // Preserve the original source date for "All Day" events.
+            let source = item.dt_utc + Duration::minutes(CALENDAR_SOURCE_UTC_OFFSET_MINUTES as i64);
+            (
+                source.format("%Y-%m-%d").to_string(),
                 item.time_label.clone(),
-            ),
+            )
+        } else {
+            format_dt_parts(item.dt_utc, &tz_mode, utc_offset_minutes)
         };
         points.push(json!({
             "date": date,
