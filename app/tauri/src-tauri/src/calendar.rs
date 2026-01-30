@@ -4,7 +4,8 @@ use serde::Deserialize;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-pub const CALENDAR_SOURCE_UTC_OFFSET_MINUTES: i32 = 0;
+// Economic calendar source timestamps are interpreted as UTC+8 (e.g., 21:30 in the dataset means 21:30 UTC+8).
+pub const CALENDAR_SOURCE_UTC_OFFSET_MINUTES: i32 = 8 * 60;
 
 #[derive(Clone, Debug)]
 pub struct CalendarEvent {
