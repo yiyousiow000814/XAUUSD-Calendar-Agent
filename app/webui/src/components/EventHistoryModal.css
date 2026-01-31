@@ -224,6 +224,10 @@
   padding-bottom: 12px;
 }
 
+.history-modal-layout.history-modal-layout--single {
+  grid-template-columns: 1fr;
+}
+
 .history-modal-layout-left,
 .history-modal-layout-right {
   display: flex;
@@ -332,6 +336,12 @@
   gap: 10px 14px;
 }
 
+.history-impact-panels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .history-impact-buckets {
   display: flex;
   flex-wrap: wrap;
@@ -344,6 +354,13 @@
   gap: 4px;
   margin-left: auto;
   text-align: right;
+}
+
+.history-impact-detail-toggles {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .history-impact-hint {

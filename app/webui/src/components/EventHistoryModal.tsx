@@ -32,6 +32,7 @@ const RANGE_STORAGE_KEY = "xauusd:event-history:range";
 const SERIES_STORAGE_KEY = "xauusd:event-history:series";
 const IMPACT_BUCKET_STORAGE_KEY = "xauusd:event-history:impact-bucket";
 const IMPACT_VIEW_STORAGE_KEY = "xauusd:event-history:impact-view";
+const IMPACT_PANEL_STORAGE_KEY = "xauusd:event-history:impact-panel";
 
 const resolveRange = (preferred: RangeKey, total: number): RangeKey => {
   if (preferred === "all") return "all";
@@ -247,6 +248,14 @@ export function EventHistoryModal({
       return false;
     }
   });
+  const [impactPanel, setImpactPanel] = useState<"event" | "deep">(() => {
+    if (typeof window === "undefined") return "event";
+    try {
+      return window.localStorage.getItem(IMPACT_PANEL_STORAGE_KEY) === "deep" ? "deep" : "event";
+    } catch {
+      return "event";
+    }
+  });
   const [impactBucket, setImpactBucket] = useState<EventImpactBucket>(() => {
     if (typeof window === "undefined") return "ap_gt_prev";
     try {
@@ -260,6 +269,8 @@ export function EventHistoryModal({
   const [impactLoading, setImpactLoading] = useState(false);
   const [impactError, setImpactError] = useState<string | null>(null);
   const [impactData, setImpactData] = useState<EventImpactResponse | null>(null);
+  const [impactShowDescription, setImpactShowDescription] = useState(false);
+  const [impactShowTable, setImpactShowTable] = useState(false);
   const points = data?.points ?? [];
   const eventNotes = useMemo(
     () => buildEventNotes(selectionLabel, data),
@@ -343,6 +354,15 @@ export function EventHistoryModal({
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
+      window.localStorage.setItem(IMPACT_PANEL_STORAGE_KEY, impactPanel);
+    } catch {
+      // ignore
+    }
+  }, [impactPanel]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
       window.localStorage.setItem(IMPACT_BUCKET_STORAGE_KEY, impactBucket);
     } catch {
       // ignore
@@ -352,6 +372,7 @@ export function EventHistoryModal({
   useEffect(() => {
     if (!isOpen || !impactOpen) return;
     if (!eventId) return;
+    if (impactPanel !== "event") return;
     if (!isUsdEvent) {
       setImpactError("Impact analysis is available for USD events only.");
       setImpactData(null);
@@ -389,7 +410,7 @@ export function EventHistoryModal({
     return () => {
       cancelled = true;
     };
-  }, [eventId, impactBucket, impactOpen, isOpen, isUsdEvent]);
+  }, [eventId, impactBucket, impactOpen, impactPanel, isOpen, isUsdEvent]);
 
   const impactSeries = useMemo(() => {
     const windows = impactData?.windowsMinutes ?? [];
@@ -1121,7 +1142,7 @@ export function EventHistoryModal({
                       </button>
                     </div>
                   </div>
-                  {rangeOptions.length ? (
+                  {rangeOptions.length && (!impactOpen || impactShowTable) ? (
                     <div className="history-modal-control">
                       <span className="history-modal-label">Range</span>
                       <div className="history-modal-toggle">
@@ -1174,7 +1195,11 @@ export function EventHistoryModal({
                     </div>
                   ) : null}
                 </div>
-                <div className="history-modal-layout">
+                <div
+                  className={`history-modal-layout${
+                    impactOpen && !impactShowTable ? " history-modal-layout--single" : ""
+                  }`}
+                >
                   <div
                     className={`history-modal-layout-left${
                       hasMetricValues ? "" : " history-modal-layout-left--no-chart"
@@ -1183,38 +1208,96 @@ export function EventHistoryModal({
                     {impactOpen ? (
                       <div className="history-impact">
                         <div className="history-impact-controls">
-                          <div className="history-impact-buckets" role="group" aria-label="Impact buckets">
+                          <div className="history-impact-panels" role="group" aria-label="Impact panels">
                             <button
                               type="button"
-                              className={`history-toggle${impactBucket === "ap_gt_prev" ? " active" : ""}`}
-                              onClick={() => setImpactBucket("ap_gt_prev")}
-                              aria-pressed={impactBucket === "ap_gt_prev"}
+                              className={`history-toggle${impactPanel === "event" ? " active" : ""}`}
+                              onClick={() => setImpactPanel("event")}
+                              aria-pressed={impactPanel === "event"}
                             >
-                              Actual &gt; Previous ({bucketCounts.ap_gt_prev})
+                              Event analysis
                             </button>
                             <button
                               type="button"
-                              className={`history-toggle${impactBucket === "ap_lt_prev" ? " active" : ""}`}
-                              onClick={() => setImpactBucket("ap_lt_prev")}
-                              aria-pressed={impactBucket === "ap_lt_prev"}
+                              className={`history-toggle${impactPanel === "deep" ? " active" : ""}`}
+                              onClick={() => setImpactPanel("deep")}
+                              aria-pressed={impactPanel === "deep"}
                             >
-                              Actual &lt; Previous ({bucketCounts.ap_lt_prev})
-                            </button>
-                            <button
-                              type="button"
-                              className={`history-toggle${impactBucket === "ap_eq_prev" ? " active" : ""}`}
-                              onClick={() => setImpactBucket("ap_eq_prev")}
-                              aria-pressed={impactBucket === "ap_eq_prev"}
-                            >
-                              Actual = Previous ({bucketCounts.ap_eq_prev})
+                              Deep analysis
                             </button>
                           </div>
+                          {impactPanel === "event" ? (
+                            <div
+                              className="history-impact-buckets"
+                              role="group"
+                              aria-label="Impact buckets"
+                            >
+                              <button
+                                type="button"
+                                className={`history-toggle${impactBucket === "ap_gt_prev" ? " active" : ""}`}
+                                onClick={() => setImpactBucket("ap_gt_prev")}
+                                aria-pressed={impactBucket === "ap_gt_prev"}
+                              >
+                                Actual &gt; Previous ({bucketCounts.ap_gt_prev})
+                              </button>
+                              <button
+                                type="button"
+                                className={`history-toggle${impactBucket === "ap_lt_prev" ? " active" : ""}`}
+                                onClick={() => setImpactBucket("ap_lt_prev")}
+                                aria-pressed={impactBucket === "ap_lt_prev"}
+                              >
+                                Actual &lt; Previous ({bucketCounts.ap_lt_prev})
+                              </button>
+                              <button
+                                type="button"
+                                className={`history-toggle${impactBucket === "ap_eq_prev" ? " active" : ""}`}
+                                onClick={() => setImpactBucket("ap_eq_prev")}
+                                aria-pressed={impactBucket === "ap_eq_prev"}
+                              >
+                                Actual = Previous ({bucketCounts.ap_eq_prev})
+                              </button>
+                            </div>
+                          ) : null}
                           <div className="history-impact-hints">
-                            <span className="history-impact-hint">XAUUSD % change (P10..P90 band)</span>
+                            <span className="history-impact-hint">
+                              {impactPanel === "event"
+                                ? "XAUUSD % change (P10..P90 band)"
+                                : "Multi-event attribution and overlap-aware analysis will be added later."}
+                            </span>
+                            <div
+                              className="history-impact-detail-toggles"
+                              role="group"
+                              aria-label="Impact details"
+                            >
+                              <button
+                                type="button"
+                                className={`history-toggle${impactShowDescription ? " active" : ""}`}
+                                onClick={() => setImpactShowDescription((value) => !value)}
+                                aria-pressed={impactShowDescription}
+                              >
+                                Description
+                              </button>
+                              <button
+                                type="button"
+                                className={`history-toggle${impactShowTable ? " active" : ""}`}
+                                onClick={() => setImpactShowTable((value) => !value)}
+                                aria-pressed={impactShowTable}
+                              >
+                                History
+                              </button>
+                            </div>
                           </div>
                         </div>
 
-                        {impactLoading ? (
+                        {impactPanel === "deep" ? (
+                          <div className="history-impact-deep" data-qa="qa:history:deep-placeholder">
+                            <div className="history-impact-deep-title">Deep analysis</div>
+                            <div className="history-impact-deep-body">
+                              Placeholder: future versions will account for nearby/overlapping events and multi-event
+                              attribution.
+                            </div>
+                          </div>
+                        ) : impactLoading ? (
                           <div className="history-impact-status">Loading impact analysis...</div>
                         ) : impactError ? (
                           <div className="history-impact-status error">{impactError}</div>
@@ -1268,7 +1351,8 @@ export function EventHistoryModal({
                                   if (offset === 0) return null;
                                   if (!stats || typeof stats.n !== "number" || stats.n <= 0) return null;
                                   if (typeof stats.best_p !== "number" || !stats.best_direction) return null;
-                                  const best = typeof stats.best_median_pct === "number" ? stats.best_median_pct : 0;
+                                  const best =
+                                    typeof stats.best_median_pct === "number" ? stats.best_median_pct : 0;
                                   const x = impactChart.xForOffset(offset);
                                   const y = impactChart.yFor(best);
                                   const direction = stats.best_direction === "up" ? "Up" : "Down";
@@ -1279,7 +1363,12 @@ export function EventHistoryModal({
                                       <text className="impact-prob" x={x} y={y - 10} textAnchor="middle">
                                         {direction} {pct}
                                       </text>
-                                      <text className="impact-x" x={x} y={impactChart.height - 18} textAnchor="middle">
+                                      <text
+                                        className="impact-x"
+                                        x={x}
+                                        y={impactChart.height - 18}
+                                        textAnchor="middle"
+                                      >
                                         {formatOffsetLabel(offset)}
                                       </text>
                                     </g>
@@ -1297,14 +1386,6 @@ export function EventHistoryModal({
                             </svg>
                           </div>
                         )}
-
-                        <div className="history-impact-deep" data-qa="qa:history:deep-placeholder">
-                          <div className="history-impact-deep-title">Deep analysis</div>
-                          <div className="history-impact-deep-body">
-                            Placeholder: future versions will account for nearby/overlapping events and multi-event
-                            attribution.
-                          </div>
-                        </div>
                       </div>
                     ) : null}
 
@@ -1565,7 +1646,7 @@ export function EventHistoryModal({
                         </div>
                       )
                     ) : null}
-                    {hasNotes ? (
+                    {hasNotes && (!impactOpen || impactShowDescription) ? (
                       <div className="history-notes-wrap">
                         <div className="history-notes-card" data-qa="qa:history:notes">
                           <div className="history-notes-title">Description</div>
@@ -1581,6 +1662,7 @@ export function EventHistoryModal({
                       </div>
                     ) : null}
                   </div>
+                  {!impactOpen || impactShowTable ? (
                   <div className="history-modal-layout-right">
                     <div
                       className={`history-modal-table${
@@ -1680,6 +1762,7 @@ export function EventHistoryModal({
                       })}
                     </div>
                   </div>
+                  ) : null}
                 </div>
               </div>
             ) : null}
