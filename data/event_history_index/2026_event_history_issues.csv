@@ -142,5 +142,5 @@ stale_missing_actual_dropped,AUD::Judo Bank Services PMI::none,AUD,Judo Bank Ser
 stale_missing_actual_dropped,AUD::Manufacturing & Services PMI::none,AUD,Manufacturing & Services PMI  (Dec),dec,2026-01-03,07:00,,,,"{""cutoff"": ""27-01-2026 05:19""}"
 stale_missing_actual_dropped,MYR::Manufacturing PMI::none,MYR,Manufacturing PMI  (Dec),dec,2026-01-01,08:30,,,,"{""cutoff"": ""27-01-2026 05:19""}"
 previous_missing_filled,USD::U.S. Baker Hughes Oil Rig Count::none,USD,U.S. Baker Hughes Oil Rig Count,,2026-02-07,02:00,,411,411,
-previous_missing_filled,USD::U.S. Baker Hughes Total Rig Count::none,USD,U.S. Baker Hughes Total Rig Count,,2026-02-07,02:00,,544,544,
-stale_missing_actual_dropped,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2026-01-28,07:50,,,,"{""cutoff"": ""28-01-2026 15:48""}"
+previous_missing_filled,USD::U.S. Baker Hughes Total Rig Count::none,USD,U.S. Baker Hughes Total Rig Count,,2026-02-07,02:00,,546,546,
+stale_missing_actual_dropped,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2026-01-28,07:50,,,,"{""cutoff"": ""29-01-2026 15:41""}"
