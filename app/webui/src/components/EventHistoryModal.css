@@ -334,17 +334,18 @@
   min-height: 0;
 }
 
-.history-impact-controls {
+.history-impact-toolbar {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding: 6px 0 10px;
 }
 
-.history-impact-row {
+.history-impact-toolbar-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   gap: 10px 12px;
 }
 
@@ -360,7 +361,7 @@
   gap: 6px;
 }
 
-.history-impact-hints {
+.history-impact-toolbar-hints {
   display: flex;
   flex-direction: column;
   gap: 4px;
