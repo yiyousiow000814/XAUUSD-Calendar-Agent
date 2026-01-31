@@ -225,6 +225,7 @@ export function EventHistoryModal({
     | null
   >(null);
   const wasLoadingRef = useRef(false);
+  const modalBodyRef = useRef<HTMLDivElement | null>(null);
   const tableRef = useRef<HTMLDivElement | null>(null);
   const [fitRowCount, setFitRowCount] = useState(0);
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
@@ -412,6 +413,14 @@ export function EventHistoryModal({
       cancelled = true;
     };
   }, [eventId, impactBucket, impactOpen, impactPanel, isOpen, isUsdEvent]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (!impactOpen) return;
+    // Switching Impact sub-panels should not leave the user scrolled mid-modal, otherwise
+    // the toolbar appears to "move" when content height changes.
+    modalBodyRef.current?.scrollTo({ top: 0 });
+  }, [impactOpen, impactPanel, isOpen]);
 
   const impactSeries = useMemo(() => {
     const windows = impactData?.windowsMinutes ?? [];
@@ -1102,7 +1111,7 @@ export function EventHistoryModal({
             Close
           </button>
         </div>
-        <div className="modal-body">
+        <div className="modal-body" ref={modalBodyRef}>
           {loading ? (
               <div className="history-modal-loading" data-qa="qa:history:loading">
                 <div className="history-loading-head">

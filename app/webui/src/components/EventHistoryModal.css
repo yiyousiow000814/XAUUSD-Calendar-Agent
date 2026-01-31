@@ -237,9 +237,10 @@
   min-width: 0;
 }
 
+/* In Impact mode we keep a single column, but it should still align with the modal padding. */
 .history-modal-layout--single .history-modal-layout-left {
-  max-width: 1120px;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
 }
 
 .history-modal-layout-left--no-chart .history-notes-wrap {
@@ -343,7 +344,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 10px 12px;
 }
 
@@ -363,8 +364,8 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin-left: auto;
-  text-align: right;
+  margin-left: 0;
+  text-align: left;
 }
 
 .history-impact-hint {
