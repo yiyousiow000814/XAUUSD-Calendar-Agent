@@ -20,17 +20,24 @@ pub fn get_event_impact_usd(payload: Value) -> Value {
         return json!({"ok": false, "message": "eventId and bucket are required"});
     }
 
-    // Stored locally (not committed). The generator script writes this file.
+    // Prefer user-writable cache in appdata, but allow a bundled seed in the install dir so
+    // users can view the analysis without generating it locally.
     let analysis_dir = config::analysis_dir();
     let path = analysis_dir.join("xauusd_event_impact_usd.json");
-    let text = match fs::read_to_string(&path) {
+    let install_path = config::install_dir()
+        .join("data")
+        .join("analysis")
+        .join("xauusd_event_impact_usd.json");
+
+    let text = match fs::read_to_string(&path).or_else(|_| fs::read_to_string(&install_path)) {
         Ok(v) => v,
         Err(_) => {
             return json!({
                 "ok": false,
                 "message": format!(
-                    "Impact analysis data not found at {}. Generate it locally first.",
-                    path.display()
+                    "Impact analysis data not found at {} or {}. Generate it locally first.",
+                    path.display(),
+                    install_path.display()
                 )
             })
         }

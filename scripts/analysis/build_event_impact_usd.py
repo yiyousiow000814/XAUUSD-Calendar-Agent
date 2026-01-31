@@ -69,9 +69,14 @@ def parse_event_dt_source_utc8(date_ddmmyyyy: str, time_hhmm: str) -> Optional[d
         return None
     if ":" not in time_text:
         return None
-    try:
-        dt = datetime.strptime(f"{date_text} {time_text}", "%d-%m-%Y %H:%M")
-    except ValueError:
+    dt = None
+    for fmt in ("%d-%m-%Y %H:%M", "%Y-%m-%d %H:%M"):
+        try:
+            dt = datetime.strptime(f"{date_text} {time_text}", fmt)
+            break
+        except ValueError:
+            continue
+    if dt is None:
         return None
     utc8 = timezone(timedelta(hours=8))
     return dt.replace(tzinfo=utc8)
