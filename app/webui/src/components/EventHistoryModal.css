@@ -367,13 +367,6 @@
   text-align: right;
 }
 
-.history-impact-detail-toggles {
-  display: flex;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
 .history-impact-hint {
   font-size: 12px;
   color: var(--muted);

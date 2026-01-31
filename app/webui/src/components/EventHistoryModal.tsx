@@ -272,8 +272,6 @@ export function EventHistoryModal({
   const [impactLoading, setImpactLoading] = useState(false);
   const [impactError, setImpactError] = useState<string | null>(null);
   const [impactData, setImpactData] = useState<EventImpactResponse | null>(null);
-  const [impactShowDescription, setImpactShowDescription] = useState(false);
-  const [impactShowTable, setImpactShowTable] = useState(false);
   const points = data?.points ?? [];
   const eventNotes = useMemo(
     () => buildEventNotes(selectionLabel, data),
@@ -461,7 +459,10 @@ export function EventHistoryModal({
     const rawMin = impactSeries.min;
     const rawMax = impactSeries.max;
     const domainSpan = rawMax - rawMin;
-    const pad = domainSpan > 0 ? domainSpan * 0.12 : 1;
+    const absMax = Math.max(Math.abs(rawMax), Math.abs(rawMin));
+    // Avoid a hardcoded +-1% pad which flattens small-magnitude results.
+    const minPad = Math.max(absMax * 0.08, 0.03);
+    const pad = Math.max(domainSpan * 0.15, minPad);
     const domainMin = rawMin - pad;
     const domainMax = rawMax + pad;
     const spanY = Math.max(1e-9, domainMax - domainMin);
@@ -1148,7 +1149,7 @@ export function EventHistoryModal({
                       </button>
                     </div>
                   </div>
-                  {rangeOptions.length && (!impactOpen || impactShowTable) ? (
+                  {rangeOptions.length && !impactOpen ? (
                     <div className="history-modal-control">
                       <span className="history-modal-label">Range</span>
                       <div className="history-modal-toggle">
@@ -1203,7 +1204,7 @@ export function EventHistoryModal({
                 </div>
                 <div
                   className={`history-modal-layout${
-                    impactOpen && !impactShowTable ? " history-modal-layout--single" : ""
+                    impactOpen ? " history-modal-layout--single" : ""
                   }`}
                 >
                   <div
@@ -1277,29 +1278,6 @@ export function EventHistoryModal({
                                   aria-pressed={impactBucket === "ap_eq_prev"}
                                 >
                                   Actual = Previous ({bucketCounts.ap_eq_prev})
-                                </button>
-                              </div>
-
-                              <div
-                                className="history-impact-detail-toggles"
-                                role="group"
-                                aria-label="Impact details"
-                              >
-                                <button
-                                  type="button"
-                                  className={`history-toggle${impactShowDescription ? " active" : ""}`}
-                                  onClick={() => setImpactShowDescription((value) => !value)}
-                                  aria-pressed={impactShowDescription}
-                                >
-                                  Description
-                                </button>
-                                <button
-                                  type="button"
-                                  className={`history-toggle${impactShowTable ? " active" : ""}`}
-                                  onClick={() => setImpactShowTable((value) => !value)}
-                                  aria-pressed={impactShowTable}
-                                >
-                                  History
                                 </button>
                               </div>
                             </div>
@@ -1669,7 +1647,7 @@ export function EventHistoryModal({
                         </div>
                       )
                     ) : null}
-                    {hasNotes && (!impactOpen || impactShowDescription) ? (
+                    {hasNotes && !impactOpen ? (
                       <div className="history-notes-wrap">
                         <div className="history-notes-card" data-qa="qa:history:notes">
                           <div className="history-notes-title">Description</div>
@@ -1685,7 +1663,7 @@ export function EventHistoryModal({
                       </div>
                     ) : null}
                   </div>
-                  {!impactOpen || impactShowTable ? (
+                  {!impactOpen ? (
                   <div className="history-modal-layout-right">
                     <div
                       className={`history-modal-table${
