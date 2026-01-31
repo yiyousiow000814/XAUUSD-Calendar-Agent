@@ -394,7 +394,7 @@
   border: 1px solid var(--panel-border);
   border-radius: 20px;
   padding: 14px 16px 12px;
-  min-height: 420px;
+  min-height: 520px;
   flex: 1;
   display: flex;
 }

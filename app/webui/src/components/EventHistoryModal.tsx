@@ -147,6 +147,9 @@ const formatOffsetLabel = (minutes: number) => {
   return `${sign}${abs}m`;
 };
 
+const IMPACT_AXIS_OFFSETS = [-12 * 60, -4 * 60, -60, 0, 60, 4 * 60, 12 * 60];
+const IMPACT_LABEL_OFFSETS = [-12 * 60, -4 * 60, -60, -15, -5, -1, 1, 5, 15, 60, 4 * 60, 12 * 60];
+
 const formatPct = (value: number) => {
   const abs = Math.abs(value);
   const digits = abs < 0.1 ? 3 : abs < 1 ? 2 : 2;
@@ -445,11 +448,15 @@ export function EventHistoryModal({
     const plotWidth = width - padding.left - padding.right;
     const plotHeight = height - padding.top - padding.bottom;
     const offsets = impactSeries.items.map((item) => item.offset);
-    const minOffset = offsets.length ? Math.min(...offsets) : -60;
-    const maxOffset = offsets.length ? Math.max(...offsets) : 60;
-    const span = Math.max(1, maxOffset - minOffset);
-    const xForOffset = (offset: number) =>
-      padding.left + ((offset - minOffset) / span) * plotWidth;
+
+    // Use ordinal spacing so points around 0 (1m/5m/15m...) don't collapse into a blob.
+    const offsetIndex = new Map<number, number>();
+    offsets.forEach((offset, index) => offsetIndex.set(offset, index));
+    const denom = Math.max(1, offsets.length - 1);
+    const xForOffset = (offset: number) => {
+      const idx = offsetIndex.get(offset) ?? 0;
+      return padding.left + (idx / denom) * plotWidth;
+    };
 
     const rawMin = impactSeries.min;
     const rawMax = impactSeries.max;
@@ -514,9 +521,7 @@ export function EventHistoryModal({
       { connectNulls: false }
     );
 
-    const xTicks = [-12 * 60, -4 * 60, -60, 0, 60, 4 * 60, 12 * 60].filter(
-      (t) => t >= minOffset && t <= maxOffset
-    );
+    const xTicks = IMPACT_AXIS_OFFSETS.filter((t) => offsetIndex.has(t));
 
     return {
       width,
@@ -1363,6 +1368,7 @@ export function EventHistoryModal({
                                   if (offset === 0) return null;
                                   if (!stats || typeof stats.n !== "number" || stats.n <= 0) return null;
                                   if (typeof stats.best_p !== "number" || !stats.best_direction) return null;
+                                  const showLabel = IMPACT_LABEL_OFFSETS.includes(offset);
                                   const best =
                                     typeof stats.best_median_pct === "number" ? stats.best_median_pct : 0;
                                   const x = impactChart.xForOffset(offset);
@@ -1372,20 +1378,25 @@ export function EventHistoryModal({
                                   return (
                                     <g key={`label-${offset}`}>
                                       <circle className="impact-dot" cx={x} cy={y} r={3.1} />
-                                      <text className="impact-prob" x={x} y={y - 10} textAnchor="middle">
-                                        {direction} {pct}
-                                      </text>
-                                      <text
-                                        className="impact-x"
-                                        x={x}
-                                        y={impactChart.height - 18}
-                                        textAnchor="middle"
-                                      >
-                                        {formatOffsetLabel(offset)}
-                                      </text>
+                                      {showLabel ? (
+                                        <text className="impact-prob" x={x} y={y - 10} textAnchor="middle">
+                                          {direction} {pct}
+                                        </text>
+                                      ) : null}
                                     </g>
                                   );
                                 })}
+                                {impactChart.xTicks.map((tick) => (
+                                  <text
+                                    key={`xt-${tick}`}
+                                    className="impact-x"
+                                    x={impactChart.xForOffset(tick)}
+                                    y={impactChart.height - 18}
+                                    textAnchor="middle"
+                                  >
+                                    {formatOffsetLabel(tick)}
+                                  </text>
+                                ))}
                                 <text
                                   className="impact-x impact-x-event"
                                   x={impactChart.xForOffset(0)}
