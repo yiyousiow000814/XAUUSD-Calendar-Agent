@@ -438,8 +438,9 @@ export function EventHistoryModal({
 
   const impactChart = useMemo(() => {
     if (!impactOpen) return null;
-    const width = 820;
-    const height = 360;
+    // Larger viewport so the Impact chart remains readable when the modal is wide.
+    const width = 1040;
+    const height = 460;
     const padding = { left: 52, right: 18, top: 18, bottom: 44 };
     const plotWidth = width - padding.left - padding.right;
     const plotHeight = height - padding.top - padding.bottom;
@@ -1208,85 +1209,96 @@ export function EventHistoryModal({
                     {impactOpen ? (
                       <div className="history-impact">
                         <div className="history-impact-controls">
-                          <div className="history-impact-panels" role="group" aria-label="Impact panels">
-                            <button
-                              type="button"
-                              className={`history-toggle${impactPanel === "event" ? " active" : ""}`}
-                              onClick={() => setImpactPanel("event")}
-                              aria-pressed={impactPanel === "event"}
-                            >
-                              Event analysis
-                            </button>
-                            <button
-                              type="button"
-                              className={`history-toggle${impactPanel === "deep" ? " active" : ""}`}
-                              onClick={() => setImpactPanel("deep")}
-                              aria-pressed={impactPanel === "deep"}
-                            >
-                              Deep analysis
-                            </button>
-                          </div>
-                          {impactPanel === "event" ? (
+                          <div className="history-impact-row">
                             <div
-                              className="history-impact-buckets"
+                              className="history-impact-panels"
                               role="group"
-                              aria-label="Impact buckets"
+                              aria-label="Impact panels"
                             >
                               <button
                                 type="button"
-                                className={`history-toggle${impactBucket === "ap_gt_prev" ? " active" : ""}`}
-                                onClick={() => setImpactBucket("ap_gt_prev")}
-                                aria-pressed={impactBucket === "ap_gt_prev"}
+                                className={`history-toggle${impactPanel === "event" ? " active" : ""}`}
+                                onClick={() => setImpactPanel("event")}
+                                aria-pressed={impactPanel === "event"}
                               >
-                                Actual &gt; Previous ({bucketCounts.ap_gt_prev})
+                                Event analysis
                               </button>
                               <button
                                 type="button"
-                                className={`history-toggle${impactBucket === "ap_lt_prev" ? " active" : ""}`}
-                                onClick={() => setImpactBucket("ap_lt_prev")}
-                                aria-pressed={impactBucket === "ap_lt_prev"}
+                                className={`history-toggle${impactPanel === "deep" ? " active" : ""}`}
+                                onClick={() => setImpactPanel("deep")}
+                                aria-pressed={impactPanel === "deep"}
                               >
-                                Actual &lt; Previous ({bucketCounts.ap_lt_prev})
+                                Deep analysis
                               </button>
-                              <button
-                                type="button"
-                                className={`history-toggle${impactBucket === "ap_eq_prev" ? " active" : ""}`}
-                                onClick={() => setImpactBucket("ap_eq_prev")}
-                                aria-pressed={impactBucket === "ap_eq_prev"}
+                            </div>
+
+                            <div className="history-impact-hints">
+                              <span className="history-impact-hint">
+                                {impactPanel === "event"
+                                  ? "XAUUSD % change (P10..P90 band)"
+                                  : "Multi-event attribution and overlap-aware analysis will be added later."}
+                              </span>
+                            </div>
+                          </div>
+
+                          {impactPanel === "event" ? (
+                            <div className="history-impact-row">
+                              <div
+                                className="history-impact-buckets"
+                                role="group"
+                                aria-label="Impact buckets"
                               >
-                                Actual = Previous ({bucketCounts.ap_eq_prev})
-                              </button>
+                                <button
+                                  type="button"
+                                  className={`history-toggle${impactBucket === "ap_gt_prev" ? " active" : ""}`}
+                                  onClick={() => setImpactBucket("ap_gt_prev")}
+                                  aria-pressed={impactBucket === "ap_gt_prev"}
+                                >
+                                  Actual &gt; Previous ({bucketCounts.ap_gt_prev})
+                                </button>
+                                <button
+                                  type="button"
+                                  className={`history-toggle${impactBucket === "ap_lt_prev" ? " active" : ""}`}
+                                  onClick={() => setImpactBucket("ap_lt_prev")}
+                                  aria-pressed={impactBucket === "ap_lt_prev"}
+                                >
+                                  Actual &lt; Previous ({bucketCounts.ap_lt_prev})
+                                </button>
+                                <button
+                                  type="button"
+                                  className={`history-toggle${impactBucket === "ap_eq_prev" ? " active" : ""}`}
+                                  onClick={() => setImpactBucket("ap_eq_prev")}
+                                  aria-pressed={impactBucket === "ap_eq_prev"}
+                                >
+                                  Actual = Previous ({bucketCounts.ap_eq_prev})
+                                </button>
+                              </div>
+
+                              <div
+                                className="history-impact-detail-toggles"
+                                role="group"
+                                aria-label="Impact details"
+                              >
+                                <button
+                                  type="button"
+                                  className={`history-toggle${impactShowDescription ? " active" : ""}`}
+                                  onClick={() => setImpactShowDescription((value) => !value)}
+                                  aria-pressed={impactShowDescription}
+                                >
+                                  Description
+                                </button>
+                                <button
+                                  type="button"
+                                  className={`history-toggle${impactShowTable ? " active" : ""}`}
+                                  onClick={() => setImpactShowTable((value) => !value)}
+                                  aria-pressed={impactShowTable}
+                                >
+                                  History
+                                </button>
+                              </div>
                             </div>
                           ) : null}
-                          <div className="history-impact-hints">
-                            <span className="history-impact-hint">
-                              {impactPanel === "event"
-                                ? "XAUUSD % change (P10..P90 band)"
-                                : "Multi-event attribution and overlap-aware analysis will be added later."}
-                            </span>
-                            <div
-                              className="history-impact-detail-toggles"
-                              role="group"
-                              aria-label="Impact details"
-                            >
-                              <button
-                                type="button"
-                                className={`history-toggle${impactShowDescription ? " active" : ""}`}
-                                onClick={() => setImpactShowDescription((value) => !value)}
-                                aria-pressed={impactShowDescription}
-                              >
-                                Description
-                              </button>
-                              <button
-                                type="button"
-                                className={`history-toggle${impactShowTable ? " active" : ""}`}
-                                onClick={() => setImpactShowTable((value) => !value)}
-                                aria-pressed={impactShowTable}
-                              >
-                                History
-                              </button>
-                            </div>
-                          </div>
                         </div>
 
                         {impactPanel === "deep" ? (

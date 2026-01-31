@@ -237,6 +237,11 @@
   min-width: 0;
 }
 
+.history-modal-layout--single .history-modal-layout-left {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
 .history-modal-layout-left--no-chart .history-notes-wrap {
   margin-top: 0;
 }
@@ -330,10 +335,16 @@
 
 .history-impact-controls {
   display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.history-impact-row {
+  display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 10px 14px;
+  gap: 10px 12px;
 }
 
 .history-impact-panels {
@@ -383,12 +394,14 @@
   border: 1px solid var(--panel-border);
   border-radius: 20px;
   padding: 14px 16px 12px;
-  min-height: 260px;
+  min-height: 420px;
+  flex: 1;
+  display: flex;
 }
 
 .history-impact-chart svg {
   width: 100%;
-  height: auto;
+  height: 100%;
   display: block;
 }
 
