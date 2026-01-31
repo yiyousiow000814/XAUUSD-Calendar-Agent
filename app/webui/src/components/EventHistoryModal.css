@@ -316,6 +316,147 @@
   display: block;
 }
 
+.history-impact {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+  min-height: 0;
+}
+
+.history-impact-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px 14px;
+}
+
+.history-impact-buckets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.history-impact-hints {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-left: auto;
+  text-align: right;
+}
+
+.history-impact-hint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.history-impact-status {
+  color: var(--muted);
+  font-size: 13px;
+  padding: 10px 4px;
+}
+
+.history-impact-status.error {
+  color: var(--danger);
+}
+
+.history-impact-chart {
+  background: var(--table-row-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 20px;
+  padding: 14px 16px 12px;
+  min-height: 260px;
+}
+
+.history-impact-chart svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.impact-grid line {
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 1;
+}
+
+[data-theme="light"] .impact-grid line {
+  stroke: rgba(15, 23, 42, 0.12);
+}
+
+.impact-band path {
+  fill: rgba(134, 201, 255, 0.12);
+  stroke: rgba(134, 201, 255, 0.45);
+  stroke-width: 1.1;
+}
+
+[data-theme="light"] .impact-band path {
+  fill: rgba(30, 75, 143, 0.1);
+  stroke: rgba(30, 75, 143, 0.32);
+}
+
+.impact-line path {
+  fill: none;
+  stroke: #ff8f7b;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.impact-dot {
+  fill: #ff8f7b;
+}
+
+.impact-labels text {
+  font-variant-numeric: tabular-nums;
+}
+
+.impact-prob {
+  fill: var(--text-strong);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.impact-x {
+  fill: var(--muted);
+  font-size: 11px;
+}
+
+.impact-x-event {
+  fill: var(--text-strong);
+  font-weight: 700;
+}
+
+.history-impact-deep {
+  border-radius: 16px;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.03),
+    rgba(18, 22, 30, 0.3)
+  );
+  padding: 12px 14px;
+}
+
+[data-theme="light"] .history-impact-deep {
+  border: 1px dashed rgba(15, 23, 42, 0.2);
+  background: linear-gradient(180deg, rgba(30, 75, 143, 0.06), rgba(255, 255, 255, 0.92));
+}
+
+.history-impact-deep-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.history-impact-deep-body {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.45;
+}
+
 .history-line {
   fill: none;
   stroke-linecap: round;

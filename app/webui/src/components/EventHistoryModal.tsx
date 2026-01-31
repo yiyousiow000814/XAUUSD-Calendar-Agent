@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import type { EventHistoryPoint, EventHistoryResponse } from "../types";
+import type {
+  EventHistoryPoint,
+  EventHistoryResponse,
+  EventImpactBucket,
+  EventImpactResponse,
+  EventImpactWindowStats
+} from "../types";
+import { backend } from "../api";
 import { buildEventNotes } from "../utils/eventNotes";
 import "./EventHistoryModal.css";
 
@@ -23,6 +30,8 @@ type RangeKey = NumericRangeKey | "all";
 
 const RANGE_STORAGE_KEY = "xauusd:event-history:range";
 const SERIES_STORAGE_KEY = "xauusd:event-history:series";
+const IMPACT_BUCKET_STORAGE_KEY = "xauusd:event-history:impact-bucket";
+const IMPACT_VIEW_STORAGE_KEY = "xauusd:event-history:impact-view";
 
 const resolveRange = (preferred: RangeKey, total: number): RangeKey => {
   if (preferred === "all") return "all";
@@ -91,6 +100,15 @@ const formatDisplayPeriod = (value: string | null | undefined) => {
 const formatDisplayValue = (value: string | null | undefined) =>
   isMissingValue(value) ? "--" : String(value ?? "").trim();
 
+const classifyImpactBucket = (actual: string, previous: string): EventImpactBucket | null => {
+  const actualValue = parseComparableNumber(actual);
+  const previousValue = parseComparableNumber(previous);
+  if (actualValue === null || previousValue === null) return null;
+  if (actualValue > previousValue) return "ap_gt_prev";
+  if (actualValue < previousValue) return "ap_lt_prev";
+  return "ap_eq_prev";
+};
+
 const extractSeries = (points: EventHistoryPoint[], key: keyof EventHistoryPoint) =>
   points.map((item) => parseComparableNumber(String(item[key] ?? "")));
 
@@ -117,6 +135,21 @@ const detectUnitLabel = (points: EventHistoryPoint[], keys: Array<keyof EventHis
     }
   }
   return "";
+};
+
+const formatOffsetLabel = (minutes: number) => {
+  if (minutes === 0) return "Event";
+  const abs = Math.abs(minutes);
+  const sign = minutes < 0 ? "-" : "+";
+  if (abs % (12 * 60) === 0) return `${sign}${abs / (12 * 60)}d`;
+  if (abs % 60 === 0) return `${sign}${abs / 60}h`;
+  return `${sign}${abs}m`;
+};
+
+const formatPct = (value: number) => {
+  const abs = Math.abs(value);
+  const digits = abs < 0.1 ? 3 : abs < 1 ? 2 : 2;
+  return `${value.toFixed(digits).replace(/0+$/, "").replace(/\.$/, "")}%`;
 };
 
 const buildPath = (
@@ -206,6 +239,27 @@ export function EventHistoryModal({
       return { actual: true, forecast: true };
     }
   });
+  const [impactOpen, setImpactOpen] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return window.localStorage.getItem(IMPACT_VIEW_STORAGE_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+  const [impactBucket, setImpactBucket] = useState<EventImpactBucket>(() => {
+    if (typeof window === "undefined") return "ap_gt_prev";
+    try {
+      const raw = window.localStorage.getItem(IMPACT_BUCKET_STORAGE_KEY);
+      if (raw === "ap_gt_prev" || raw === "ap_lt_prev" || raw === "ap_eq_prev") return raw;
+    } catch {
+      // ignore
+    }
+    return "ap_gt_prev";
+  });
+  const [impactLoading, setImpactLoading] = useState(false);
+  const [impactError, setImpactError] = useState<string | null>(null);
+  const [impactData, setImpactData] = useState<EventImpactResponse | null>(null);
   const points = data?.points ?? [];
   const eventNotes = useMemo(
     () => buildEventNotes(selectionLabel, data),
@@ -218,6 +272,24 @@ export function EventHistoryModal({
     return map;
   }, [points]);
   const hasData = points.length > 0;
+  const eventId = (data?.eventId ?? "").trim();
+  const isUsdEvent = eventId.startsWith("USD::");
+  const bucketCounts = useMemo(() => {
+    const counts: Record<EventImpactBucket, number> = {
+      ap_gt_prev: 0,
+      ap_lt_prev: 0,
+      ap_eq_prev: 0
+    };
+    for (const point of points) {
+      // Analysis excludes All Day / missing times. Mirror that rule for bucket availability hints.
+      const t = String(point.time ?? "").trim().toLowerCase();
+      if (!t || t === "all day" || !t.includes(":")) continue;
+      const bucket = classifyImpactBucket(point.actual, point.previous);
+      if (!bucket) continue;
+      counts[bucket] += 1;
+    }
+    return counts;
+  }, [points]);
   const hasForecastValues = useMemo(
     () => points.some((point) => !isMissingValue(point.forecast)),
     [points]
@@ -258,6 +330,185 @@ export function EventHistoryModal({
     // If there's only one valid option, hide the entire range control.
     return options.length > 1 ? options : [];
   }, [points.length]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(IMPACT_VIEW_STORAGE_KEY, impactOpen ? "1" : "0");
+    } catch {
+      // ignore
+    }
+  }, [impactOpen]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(IMPACT_BUCKET_STORAGE_KEY, impactBucket);
+    } catch {
+      // ignore
+    }
+  }, [impactBucket]);
+
+  useEffect(() => {
+    if (!isOpen || !impactOpen) return;
+    if (!eventId) return;
+    if (!isUsdEvent) {
+      setImpactError("Impact analysis is available for USD events only.");
+      setImpactData(null);
+      setImpactLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setImpactLoading(true);
+    setImpactError(null);
+    setImpactData(null);
+
+    backend
+      .getEventImpactUsd({ eventId, bucket: impactBucket })
+      .then((result) => {
+        if (cancelled) return;
+        if (!result.ok) {
+          setImpactError(result.message || "Impact analysis unavailable.");
+          setImpactData(null);
+          return;
+        }
+        setImpactData(result);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        const msg = err instanceof Error ? err.message : "Impact analysis failed";
+        setImpactError(msg);
+        setImpactData(null);
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setImpactLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [eventId, impactBucket, impactOpen, isOpen, isUsdEvent]);
+
+  const impactSeries = useMemo(() => {
+    const windows = impactData?.windowsMinutes ?? [];
+    const raw = impactData?.data ?? {};
+    const offsets = Array.from(new Set<number>([...windows, 0])).sort((a, b) => a - b);
+    const items = offsets.map((offset) => {
+      const key = String(offset);
+      const stats = (raw[key] as EventImpactWindowStats | undefined) ?? undefined;
+      return { offset, stats };
+    });
+
+    const bandValues: number[] = [];
+    const lineValues: number[] = [];
+    for (const item of items) {
+      if (!item.stats || typeof item.stats.n !== "number" || item.stats.n <= 0) continue;
+      if (typeof item.stats.p10 === "number") bandValues.push(item.stats.p10);
+      if (typeof item.stats.p90 === "number") bandValues.push(item.stats.p90);
+      if (typeof item.stats.best_median_pct === "number") lineValues.push(item.stats.best_median_pct);
+    }
+    const values = [...bandValues, ...lineValues, 0];
+    const min = values.length ? Math.min(...values) : -1;
+    const max = values.length ? Math.max(...values) : 1;
+    return { items, min, max };
+  }, [impactData]);
+
+  const impactChart = useMemo(() => {
+    if (!impactOpen) return null;
+    const width = 820;
+    const height = 360;
+    const padding = { left: 52, right: 18, top: 18, bottom: 44 };
+    const plotWidth = width - padding.left - padding.right;
+    const plotHeight = height - padding.top - padding.bottom;
+    const offsets = impactSeries.items.map((item) => item.offset);
+    const minOffset = offsets.length ? Math.min(...offsets) : -60;
+    const maxOffset = offsets.length ? Math.max(...offsets) : 60;
+    const span = Math.max(1, maxOffset - minOffset);
+    const xForOffset = (offset: number) =>
+      padding.left + ((offset - minOffset) / span) * plotWidth;
+
+    const rawMin = impactSeries.min;
+    const rawMax = impactSeries.max;
+    const domainSpan = rawMax - rawMin;
+    const pad = domainSpan > 0 ? domainSpan * 0.12 : 1;
+    const domainMin = rawMin - pad;
+    const domainMax = rawMax + pad;
+    const spanY = Math.max(1e-9, domainMax - domainMin);
+    const yFor = (value: number) => padding.top + ((domainMax - value) / spanY) * plotHeight;
+
+    const points = impactSeries.items.map((item) => {
+      if (item.offset === 0) {
+        return {
+          offset: 0,
+          x: xForOffset(0),
+          y: yFor(0),
+          bandLow: 0,
+          bandHigh: 0,
+          bestDirection: null,
+          bestP: null
+        };
+      }
+      const s = item.stats;
+      if (!s || typeof s.n !== "number" || s.n <= 0) return null;
+      const p10 = typeof s.p10 === "number" ? s.p10 : null;
+      const p90 = typeof s.p90 === "number" ? s.p90 : null;
+      const best = typeof s.best_median_pct === "number" ? s.best_median_pct : null;
+      if (p10 === null || p90 === null || best === null) return null;
+      return {
+        offset: item.offset,
+        x: xForOffset(item.offset),
+        y: yFor(best),
+        bandLow: p10,
+        bandHigh: p90,
+        bestDirection: s.best_direction ?? null,
+        bestP: typeof s.best_p === "number" ? s.best_p : null
+      };
+    });
+
+    const bandPoints = points.filter(Boolean) as Array<NonNullable<(typeof points)[number]>>;
+    const upper = bandPoints.map((p) => `L ${p.x.toFixed(2)} ${yFor(p.bandHigh).toFixed(2)}`);
+    const lower = bandPoints
+      .slice()
+      .reverse()
+      .map((p) => `L ${p.x.toFixed(2)} ${yFor(p.bandLow).toFixed(2)}`);
+    const bandPath =
+      bandPoints.length >= 2
+        ? `M ${bandPoints[0].x.toFixed(2)} ${yFor(bandPoints[0].bandHigh).toFixed(2)} ${upper.join(
+            " "
+          )} ${lower.join(" ")} Z`
+        : "";
+
+    const lineValues = impactSeries.items.map((item) => {
+      if (item.offset === 0) return 0;
+      const v = item.stats?.best_median_pct;
+      return typeof v === "number" ? v : null;
+    });
+    const linePath = buildPath(
+      lineValues,
+      (index) => xForOffset(impactSeries.items[index]?.offset ?? 0),
+      (value) => yFor(value),
+      { connectNulls: false }
+    );
+
+    const xTicks = [-12 * 60, -4 * 60, -60, 0, 60, 4 * 60, 12 * 60].filter(
+      (t) => t >= minOffset && t <= maxOffset
+    );
+
+    return {
+      width,
+      height,
+      padding,
+      xForOffset,
+      yFor,
+      bandPath,
+      linePath,
+      xTicks,
+      domainMin,
+      domainMax
+    };
+  }, [impactOpen, impactSeries]);
   const hasVisibleSeries = visibleSeries.actual || visibleSeries.forecast;
   const activeRange = useMemo(
     () => resolveRange(preferredRange, points.length),
@@ -849,6 +1100,27 @@ export function EventHistoryModal({
             {!loading && !error && hasData ? (
               <div className="history-modal-content">
                 <div className="history-modal-controls">
+                  <div className="history-modal-control">
+                    <span className="history-modal-label">View</span>
+                    <div className="history-modal-toggle">
+                      <button
+                        type="button"
+                        className={`history-toggle${!impactOpen ? " active" : ""}`}
+                        onClick={() => setImpactOpen(false)}
+                        aria-pressed={!impactOpen}
+                      >
+                        History
+                      </button>
+                      <button
+                        type="button"
+                        className={`history-toggle${impactOpen ? " active" : ""}`}
+                        onClick={() => setImpactOpen(true)}
+                        aria-pressed={impactOpen}
+                      >
+                        Impact
+                      </button>
+                    </div>
+                  </div>
                   {rangeOptions.length ? (
                     <div className="history-modal-control">
                       <span className="history-modal-label">Range</span>
@@ -869,7 +1141,7 @@ export function EventHistoryModal({
                       </div>
                     </div>
                   ) : null}
-                  {hasMetricValues ? (
+                  {hasMetricValues && !impactOpen ? (
                     <div
                       className="history-modal-series"
                       aria-label="Series toggles"
@@ -908,7 +1180,135 @@ export function EventHistoryModal({
                       hasMetricValues ? "" : " history-modal-layout-left--no-chart"
                     }`}
                   >
-                    {hasMetricValues ? (
+                    {impactOpen ? (
+                      <div className="history-impact">
+                        <div className="history-impact-controls">
+                          <div className="history-impact-buckets" role="group" aria-label="Impact buckets">
+                            <button
+                              type="button"
+                              className={`history-toggle${impactBucket === "ap_gt_prev" ? " active" : ""}`}
+                              onClick={() => setImpactBucket("ap_gt_prev")}
+                              aria-pressed={impactBucket === "ap_gt_prev"}
+                            >
+                              Actual &gt; Previous ({bucketCounts.ap_gt_prev})
+                            </button>
+                            <button
+                              type="button"
+                              className={`history-toggle${impactBucket === "ap_lt_prev" ? " active" : ""}`}
+                              onClick={() => setImpactBucket("ap_lt_prev")}
+                              aria-pressed={impactBucket === "ap_lt_prev"}
+                            >
+                              Actual &lt; Previous ({bucketCounts.ap_lt_prev})
+                            </button>
+                            <button
+                              type="button"
+                              className={`history-toggle${impactBucket === "ap_eq_prev" ? " active" : ""}`}
+                              onClick={() => setImpactBucket("ap_eq_prev")}
+                              aria-pressed={impactBucket === "ap_eq_prev"}
+                            >
+                              Actual = Previous ({bucketCounts.ap_eq_prev})
+                            </button>
+                          </div>
+                          <div className="history-impact-hints">
+                            <span className="history-impact-hint">XAUUSD % change (P10..P90 band)</span>
+                          </div>
+                        </div>
+
+                        {impactLoading ? (
+                          <div className="history-impact-status">Loading impact analysis...</div>
+                        ) : impactError ? (
+                          <div className="history-impact-status error">{impactError}</div>
+                        ) : !impactChart || !impactData?.ok ? (
+                          <div className="history-impact-status">
+                            Impact analysis not available. Generate it locally first.
+                          </div>
+                        ) : (
+                          <div className="history-impact-chart" data-qa="qa:history:impact-chart">
+                            <svg
+                              viewBox={`0 0 ${impactChart.width} ${impactChart.height}`}
+                              role="img"
+                              aria-label="Impact analysis chart"
+                            >
+                              <g className="impact-grid">
+                                {impactChart.xTicks.map((tick) => {
+                                  const x = Math.round(impactChart.xForOffset(tick)) + 0.5;
+                                  return (
+                                    <line
+                                      key={`x-${tick}`}
+                                      x1={x}
+                                      x2={x}
+                                      y1={impactChart.padding.top}
+                                      y2={impactChart.height - impactChart.padding.bottom}
+                                      vectorEffect="non-scaling-stroke"
+                                    />
+                                  );
+                                })}
+                                <line
+                                  x1={impactChart.padding.left}
+                                  x2={impactChart.width - impactChart.padding.right}
+                                  y1={Math.round(impactChart.yFor(0)) + 0.5}
+                                  y2={Math.round(impactChart.yFor(0)) + 0.5}
+                                  vectorEffect="non-scaling-stroke"
+                                />
+                              </g>
+                              <g className="impact-band">
+                                {impactChart.bandPath ? (
+                                  <path d={impactChart.bandPath} vectorEffect="non-scaling-stroke" />
+                                ) : null}
+                              </g>
+                              <g className="impact-line">
+                                {impactChart.linePath ? (
+                                  <path d={impactChart.linePath} vectorEffect="non-scaling-stroke" />
+                                ) : null}
+                              </g>
+                              <g className="impact-labels">
+                                {impactSeries.items.map((item) => {
+                                  const offset = item.offset;
+                                  const stats = item.stats;
+                                  if (offset === 0) return null;
+                                  if (!stats || typeof stats.n !== "number" || stats.n <= 0) return null;
+                                  if (typeof stats.best_p !== "number" || !stats.best_direction) return null;
+                                  const best = typeof stats.best_median_pct === "number" ? stats.best_median_pct : 0;
+                                  const x = impactChart.xForOffset(offset);
+                                  const y = impactChart.yFor(best);
+                                  const direction = stats.best_direction === "up" ? "Up" : "Down";
+                                  const pct = `${Math.round(stats.best_p * 100)}%`;
+                                  return (
+                                    <g key={`label-${offset}`}>
+                                      <circle className="impact-dot" cx={x} cy={y} r={3.1} />
+                                      <text className="impact-prob" x={x} y={y - 10} textAnchor="middle">
+                                        {direction} {pct}
+                                      </text>
+                                      <text className="impact-x" x={x} y={impactChart.height - 18} textAnchor="middle">
+                                        {formatOffsetLabel(offset)}
+                                      </text>
+                                    </g>
+                                  );
+                                })}
+                                <text
+                                  className="impact-x impact-x-event"
+                                  x={impactChart.xForOffset(0)}
+                                  y={impactChart.height - 18}
+                                  textAnchor="middle"
+                                >
+                                  Event
+                                </text>
+                              </g>
+                            </svg>
+                          </div>
+                        )}
+
+                        <div className="history-impact-deep" data-qa="qa:history:deep-placeholder">
+                          <div className="history-impact-deep-title">Deep analysis</div>
+                          <div className="history-impact-deep-body">
+                            Placeholder: future versions will account for nearby/overlapping events and multi-event
+                            attribution.
+                          </div>
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {!impactOpen && hasMetricValues ? (
                       chart ? (
                         <div
                           className="history-modal-chart"

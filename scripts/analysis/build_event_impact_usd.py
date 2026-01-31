@@ -9,8 +9,13 @@ This script is designed for local generation only:
 Usage (PowerShell):
   python scripts/analysis/build_event_impact_usd.py ^
     --price-csv data/XAUUSD_data/XAUUSD_data.csv ^
-    --event-ndjson user-data/data/event_history_index/event_history_by_event.ndjson ^
-    --out user-data/analysis/xauusd_event_impact_usd.json
+    --event-ndjson user-data/data/event_history_index/event_history_by_event.ndjson
+
+By default, output is written to:
+  %APPDATA%\\XAUUSDCalendar\\analysis\\xauusd_event_impact_usd.json
+
+Override the output path with:
+  --out <path>
 """
 
 from __future__ import annotations
@@ -19,6 +24,7 @@ import argparse
 import csv
 import json
 import math
+import os
 import re
 from bisect import bisect_left
 from dataclasses import dataclass
@@ -228,13 +234,31 @@ def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--price-csv", required=True)
     p.add_argument("--event-ndjson", required=True)
-    p.add_argument("--out", required=True)
+    p.add_argument("--out")
     p.add_argument("--eq-eps", type=float, default=0.0)
     args = p.parse_args()
 
     price_csv = Path(args.price_csv)
     event_ndjson = Path(args.event_ndjson)
-    out_path = Path(args.out)
+    out_path: Path
+    if args.out:
+        out_path = Path(args.out)
+    else:
+        # Match the desktop app's default data directory behavior on Windows.
+        # - Prefer an explicit override, if provided.
+        # - Otherwise, default to the legacy roaming folder name used by the app.
+        override_dir = (os.environ.get("XAUUSD_CALENDAR_AGENT_DATA_DIR") or "").strip()
+        if override_dir:
+            base = Path(override_dir)
+        else:
+            appdata = (os.environ.get("APPDATA") or "").strip()
+            if appdata:
+                base = Path(appdata) / "XAUUSDCalendar"
+            else:
+                # Fallback for non-Windows / unusual environments: use repo-local user-data.
+                repo_root = Path(__file__).resolve().parents[2]
+                base = repo_root / "user-data"
+        out_path = base / "analysis" / "xauusd_event_impact_usd.json"
 
     if not price_csv.exists():
         raise SystemExit(f"Missing price CSV: {price_csv}")
@@ -318,4 +342,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

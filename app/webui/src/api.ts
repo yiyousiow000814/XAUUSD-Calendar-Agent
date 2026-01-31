@@ -1,4 +1,4 @@
-import type { EventHistoryResponse, Settings, Snapshot } from "./types";
+import type { EventHistoryResponse, EventImpactResponse, Settings, Snapshot } from "./types";
 import { CURRENCY_OPTIONS } from "./constants/currencyOptions";
 
 type ApiResult<T> = Promise<T>;
@@ -17,6 +17,7 @@ type UpdateState = {
 type BackendApi = {
   get_snapshot: () => ApiResult<Snapshot>;
   get_event_history?: (payload: { event: string; cur: string }) => ApiResult<EventHistoryResponse>;
+  get_event_impact_usd?: (payload: { eventId: string; bucket: string }) => ApiResult<EventImpactResponse>;
   get_settings: () => ApiResult<Settings>;
   save_settings: (payload: Settings) => ApiResult<{ ok: boolean }>;
   frontend_boot_complete?: () => ApiResult<{ ok: boolean }>;
@@ -524,6 +525,16 @@ export const backend = {
     }
     // Tauri invoke proxy wraps method args as `{ payload: ... }`, so align with that shape.
     return api.get_event_history({ event: payload.event, cur: payload.cur } as any);
+  },
+  getEventImpactUsd: async (payload: { eventId: string; bucket: string }) => {
+    const api = await withApi();
+    if (!api || !hasMethod(api, "get_event_impact_usd")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve({ ok: false, message: "Impact analysis unavailable" });
+    }
+    return api.get_event_impact_usd({ eventId: payload.eventId, bucket: payload.bucket } as any);
   },
   getUpdateState: async () => {
     const api = await withApi();

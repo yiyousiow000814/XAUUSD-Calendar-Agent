@@ -194,6 +194,10 @@ pub fn log_dir() -> PathBuf {
     appdata_dir().join("logs")
 }
 
+pub fn analysis_dir() -> PathBuf {
+    appdata_dir().join("analysis")
+}
+
 pub fn load_config() -> Value {
     let defaults = default_config();
     let path = config_path();
