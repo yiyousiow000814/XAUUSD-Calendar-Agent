@@ -79,6 +79,15 @@ export type EventImpactResponse = {
   message?: string;
   eventId?: string;
   bucket?: EventImpactBucket;
+  generatedAtUtc?: string;
+  meta?: {
+    price_min_utc?: string | null;
+    price_max_utc?: string | null;
+    event_source_tz?: string | null;
+    event_min_utc?: string | null;
+    event_max_utc?: string | null;
+    sample_points?: number | null;
+  };
   windowsMinutes?: number[];
   data?: Record<string, EventImpactWindowStats>;
 };

@@ -67,6 +67,8 @@ pub fn get_event_impact_usd(payload: Value) -> Value {
         "ok": true,
         "eventId": event_id,
         "bucket": bucket,
+        "generatedAtUtc": parsed.get("generated_at_utc").cloned().unwrap_or(Value::Null),
+        "meta": parsed.get("meta").cloned().unwrap_or(Value::Null),
         "windowsMinutes": parsed.get("windows_minutes").cloned().unwrap_or(Value::Null),
         "data": data.clone()
     })

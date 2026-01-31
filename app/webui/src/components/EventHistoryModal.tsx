@@ -90,6 +90,16 @@ const formatDisplayDate = (value: string) => {
   return `${day}-${month}-${year}`;
 };
 
+const formatCoverage = (isoMin: string | null | undefined, isoMax: string | null | undefined) => {
+  const min = (isoMin ?? "").trim();
+  const max = (isoMax ?? "").trim();
+  if (!min || !max) return "";
+  const minDate = min.slice(0, 10);
+  const maxDate = max.slice(0, 10);
+  if (!minDate || !maxDate) return "";
+  return `${formatDisplayDate(minDate)}..${formatDisplayDate(maxDate)} UTC`;
+};
+
 const formatDisplayPeriod = (value: string | null | undefined) => {
   const token = (value ?? "").trim();
   if (!token) return "";
@@ -444,6 +454,14 @@ export function EventHistoryModal({
     const min = values.length ? Math.min(...values) : -1;
     const max = values.length ? Math.max(...values) : 1;
     return { items, min, max };
+  }, [impactData]);
+
+  const impactCoverage = useMemo(() => {
+    const meta = impactData?.meta;
+    if (!meta) return "";
+    // Prefer actual sample event range; it's the true coverage of computed stats.
+    const range = formatCoverage(meta.event_min_utc, meta.event_max_utc);
+    return range;
   }, [impactData]);
 
   const impactChart = useMemo(() => {
@@ -1247,6 +1265,9 @@ export function EventHistoryModal({
                             ? "XAUUSD % change (P10..P90 band)"
                             : "Multi-event attribution and overlap-aware analysis will be added later."}
                         </span>
+                        {impactPanel === "event" && impactCoverage ? (
+                          <span className="history-impact-hint">Coverage: {impactCoverage}</span>
+                        ) : null}
                       </div>
                     </div>
 

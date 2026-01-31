@@ -188,6 +188,8 @@ class WindowStats:
 def load_price_series(price_csv: Path) -> Tuple[List[int], List[float]]:
     minutes: List[int] = []
     mids: List[float] = []
+    min_dt: Optional[datetime] = None
+    max_dt: Optional[datetime] = None
     with price_csv.open("r", encoding="utf-8", newline="") as f:
         reader = csv.DictReader(f)
         required = {"bar_open_time_utc", "open", "high", "low", "close"}
@@ -196,6 +198,10 @@ def load_price_series(price_csv: Path) -> Tuple[List[int], List[float]]:
             raise SystemExit(f"Missing columns in price CSV: {sorted(missing)}")
         for row in reader:
             dt = parse_price_dt_utc(row["bar_open_time_utc"])
+            if min_dt is None or dt < min_dt:
+                min_dt = dt
+            if max_dt is None or dt > max_dt:
+                max_dt = dt
             minute = int(dt.timestamp() // 60)
             o = float(row["open"])
             h = float(row["high"])
@@ -204,10 +210,15 @@ def load_price_series(price_csv: Path) -> Tuple[List[int], List[float]]:
             mid = (o + h + l + c) / 4.0
             minutes.append(minute)
             mids.append(mid)
-    return minutes, mids
+    return minutes, mids, min_dt, max_dt
 
 
 def find_minute_index(minutes: List[int], minute: int) -> Optional[int]:
+    if not minutes:
+        return None
+    # If the event is earlier than the first available bar, we cannot align it reliably.
+    if minute < minutes[0]:
+        return None
     i = bisect_left(minutes, minute)
     if i >= len(minutes):
         return None
@@ -270,7 +281,7 @@ def main() -> None:
     if not event_ndjson.exists():
         raise SystemExit(f"Missing event NDJSON: {event_ndjson}")
 
-    minutes, mids = load_price_series(price_csv)
+    minutes, mids, price_min_dt, price_max_dt = load_price_series(price_csv)
     if not minutes:
         raise SystemExit("Empty price series")
 
@@ -278,11 +289,22 @@ def main() -> None:
         "schema": 1,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "windows_minutes": WINDOWS_MINUTES,
+        "meta": {
+            "price_min_utc": price_min_dt.isoformat() if price_min_dt else None,
+            "price_max_utc": price_max_dt.isoformat() if price_max_dt else None,
+            "event_source_tz": "UTC+08:00",
+            "event_min_utc": None,
+            "event_max_utc": None,
+            "sample_points": 0,
+        },
         "events": {},
     }
 
     # events[eventId][bucket][offset] = WindowStats
     events: Dict[str, Dict[str, Dict[int, WindowStats]]] = {}
+    event_min_dt_utc: Optional[datetime] = None
+    event_max_dt_utc: Optional[datetime] = None
+    sample_points = 0
 
     for payload in iter_ndjson(event_ndjson):
         event_id = str(payload.get("eventId") or "")
@@ -317,6 +339,7 @@ def main() -> None:
                 continue
 
             by_bucket = events.setdefault(event_id, {}).setdefault(bucket, {})
+            added_any = False
             for offset in WINDOWS_MINUTES:
                 target_minute = t0_minute + offset
                 j = find_exact_minute_index(minutes, target_minute)
@@ -328,6 +351,14 @@ def main() -> None:
                     stats = WindowStats(values=[])
                     by_bucket[offset] = stats
                 stats.add(pct)
+                added_any = True
+
+            if added_any:
+                sample_points += 1
+                if event_min_dt_utc is None or dt_utc < event_min_dt_utc:
+                    event_min_dt_utc = dt_utc
+                if event_max_dt_utc is None or dt_utc > event_max_dt_utc:
+                    event_max_dt_utc = dt_utc
 
     # Finalize
     out_events: Dict[str, Any] = {}
@@ -340,6 +371,9 @@ def main() -> None:
             out_buckets[bucket] = out_offsets
         out_events[event_id] = out_buckets
     result["events"] = out_events
+    result["meta"]["event_min_utc"] = event_min_dt_utc.isoformat() if event_min_dt_utc else None
+    result["meta"]["event_max_utc"] = event_max_dt_utc.isoformat() if event_max_dt_utc else None
+    result["meta"]["sample_points"] = sample_points
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
