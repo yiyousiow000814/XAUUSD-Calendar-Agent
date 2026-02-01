@@ -1474,7 +1474,6 @@ export function EventHistoryModal({
                                   aria-pressed={impactBucket === option.value}
                                   data-bucket={option.value}
                                 >
-                                  <span className="impact-bucket-dot" aria-hidden="true" />
                                   {option.label}
                                   {typeof option.count === "number" ? (
                                     <span className="impact-badge" aria-hidden="true">
