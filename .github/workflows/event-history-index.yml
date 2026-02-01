@@ -16,7 +16,7 @@ jobs:
       github.repository == 'yiyousiow000814/XAUUSD-Calendar-Agent' &&
       (
         contains(github.event.head_commit.message, 'chore: update economic calendar data') ||
-        contains(github.event.head_commit.message, 'chore: monthly economic calendar backfill')
+        contains(github.event.head_commit.message, 'chore: monthly economic calendar')
       )
     runs-on: ubuntu-latest
     steps:
