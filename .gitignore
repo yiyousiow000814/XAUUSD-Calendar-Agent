@@ -38,6 +38,9 @@ artifacts/
 # Local temporary scratch (do not commit)
 tmp/
 
+# Local Codex skill installs / experiments (do not commit)
+.codex/skills/codex-deepwiki/
+
 # Local per-install user data (config/logs/repo cache)
 user-data/*
 !user-data/.gitkeep

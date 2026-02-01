@@ -612,6 +612,109 @@ export const assertHistoryNoOverflow = async (page) => {
   }
 };
 
+export const assertHistoryImpactModalLayout = async (page) => {
+  const result = await page.evaluate(() => {
+    const modal = document.querySelector(".modal-history.open");
+    if (!modal) return { ok: false, reason: "history modal missing" };
+
+    const toolbar = modal.querySelector("[data-qa='qa:history:impact-controls']");
+    const chart = modal.querySelector("[data-qa='qa:history:impact-chart']");
+    // Impact view now reuses the same history table as the default History tab.
+    const side = modal.querySelector("[data-qa='qa:history:table']");
+    if (!(toolbar instanceof HTMLElement)) return { ok: false, reason: "impact toolbar missing" };
+    if (!(chart instanceof HTMLElement)) return { ok: false, reason: "impact chart missing" };
+    if (!(side instanceof HTMLElement)) return { ok: false, reason: "history table missing" };
+
+    const t = toolbar.getBoundingClientRect();
+    const c = chart.getBoundingClientRect();
+    const s = side.getBoundingClientRect();
+
+    const intersect = (a, b) => {
+      const left = Math.max(a.left, b.left);
+      const right = Math.min(a.right, b.right);
+      const top = Math.max(a.top, b.top);
+      const bottom = Math.min(a.bottom, b.bottom);
+      return { width: Math.max(0, right - left), height: Math.max(0, bottom - top) };
+    };
+
+    const overlap = intersect(c, s);
+    return {
+      ok: true,
+      chart: { width: c.width, height: c.height },
+      overlap
+    };
+  });
+
+  if (!result.ok) {
+    throw new Error(`Impact modal layout invalid: ${result.reason}`);
+  }
+
+  if (result.chart.width < 420 || result.chart.height < 260) {
+    throw new Error(
+      `Impact chart too small (width=${result.chart.width.toFixed(1)} height=${result.chart.height.toFixed(1)})`
+    );
+  }
+
+  if (result.overlap.width > 2 && result.overlap.height > 2) {
+    throw new Error(
+      `Impact chart overlaps side panel (overlap=${result.overlap.width.toFixed(1)}x${result.overlap.height.toFixed(1)})`
+    );
+  }
+};
+
+export const assertHistoryImpactLabelsReadable = async (page) => {
+  const result = await page.evaluate(() => {
+    const modal = document.querySelector(".modal-history.open");
+    if (!modal) return { ok: false, reason: "history modal missing" };
+
+    const chart = modal.querySelector("[data-qa='qa:history:impact-chart']");
+    if (!(chart instanceof HTMLElement)) return { ok: false, reason: "impact chart missing" };
+
+    const labels = Array.from(chart.querySelectorAll("text.impact-prob"));
+    const rects = labels.map((node) => {
+      const r = node.getBoundingClientRect();
+      return { left: r.left, right: r.right, top: r.top, bottom: r.bottom };
+    });
+
+    const overlaps = [];
+    for (let i = 0; i < rects.length; i += 1) {
+      for (let j = i + 1; j < rects.length; j += 1) {
+        const a = rects[i];
+        const b = rects[j];
+        const left = Math.max(a.left, b.left);
+        const right = Math.min(a.right, b.right);
+        const top = Math.max(a.top, b.top);
+        const bottom = Math.min(a.bottom, b.bottom);
+        const w = Math.max(0, right - left);
+        const h = Math.max(0, bottom - top);
+        // Bounding boxes can overlap by ~1-2px due to subpixel layout/antialiasing.
+        // Treat only clearly visible overlaps as regressions.
+        if (w > 6 && h > 6) {
+          overlaps.push({ i, j, w, h });
+        }
+      }
+    }
+
+    return {
+      ok: true,
+      labelCount: labels.length,
+      overlaps: overlaps.slice(0, 6)
+    };
+  });
+
+  if (!result.ok) {
+    throw new Error(`Impact labels check failed: ${result.reason}`);
+  }
+
+  // Keep the chart readable: too many labels or overlapping labels are regressions.
+  if (result.labelCount > 8) {
+    throw new Error(`Impact labels too dense (count=${result.labelCount})`);
+  }
+  if (result.overlaps.length) {
+    throw new Error(`Impact label overlap detected: ${JSON.stringify(result.overlaps)}`);
+  }
+};
+
 export const assertModalHeaderBlend = async (page) => {
   const result = await page.evaluate(() => {
     const header = document.querySelector(".modal-header");

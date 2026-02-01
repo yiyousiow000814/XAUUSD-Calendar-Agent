@@ -13,6 +13,8 @@ import {
   assertDropdownMenu,
   assertEventsLoaded,
   assertHistoryNoOverflow,
+  assertHistoryImpactModalLayout,
+  assertHistoryImpactLabelsReadable,
   assertImpactFilterNotStarved,
   assertHistoryRespectsImpactFilter,
   assertImpactTooltips,
@@ -3120,6 +3122,83 @@ const main = async () => {
             path: await captureState(page, "event-history-modal", theme.key, "all", {
               element: historyModal
             })
+          });
+        }
+
+        // Impact view should remain readable and keep controls anchored while switching panels.
+        const impactToggle = historyModal
+          .locator(".history-modal-toggle button.history-toggle")
+          .filter({ hasText: "Impact" })
+          .first();
+        if (await impactToggle.count()) {
+          await impactToggle.click();
+          await page.waitForTimeout(160);
+
+          const impactControls = historyModal.locator("[data-qa='qa:history:impact-controls']").first();
+          await impactControls.waitFor({ state: "visible", timeout: 8000 }).catch(() => null);
+          await page.waitForTimeout(120);
+
+          artifacts.push({
+            scenario: "event-history-modal",
+            theme: theme.key,
+            state: "impact",
+            label: "History modal Impact view",
+            path: await captureState(page, "event-history-modal", theme.key, "impact", {
+              element: historyModal
+            })
+          });
+
+          const impactChart = historyModal.locator("[data-qa='qa:history:impact-chart']").first();
+          if (await impactChart.count()) {
+            await runCheck(theme.key, "History modal Impact layout", () =>
+              assertHistoryImpactModalLayout(page)
+            );
+            await runCheck(theme.key, "History modal Impact labels readable", () =>
+              assertHistoryImpactLabelsReadable(page)
+            );
+          }
+
+          const deepToggle = impactControls
+            .locator("button.history-toggle")
+            .filter({ hasText: "Deep analysis" })
+            .first();
+          if (await deepToggle.count()) {
+            await deepToggle.click();
+            await page.waitForTimeout(160);
+            artifacts.push({
+              scenario: "event-history-modal",
+              theme: theme.key,
+              state: "impact-deep",
+              label: "History modal Impact deep analysis placeholder",
+              path: await captureState(page, "event-history-modal", theme.key, "impact-deep", {
+                element: historyModal
+              })
+            });
+          }
+
+          await runCheck(theme.key, "History modal Escape navigation", async () => {
+            const deep = historyModal.locator("[data-qa='qa:history:deep-placeholder']").first();
+            if (await deep.count()) {
+              await page.keyboard.press("Escape");
+              await page.waitForTimeout(120);
+              if (await deep.count()) {
+                throw new Error("Escape did not return from Deep analysis to Event analysis");
+              }
+            }
+
+            const impactControlsNow = historyModal.locator("[data-qa='qa:history:impact-controls']").first();
+            if (await impactControlsNow.count()) {
+              await page.keyboard.press("Escape");
+              await page.waitForTimeout(140);
+            }
+
+            const modalStillOpen = await historyModal.count();
+            if (!modalStillOpen) {
+              throw new Error("Escape closed history modal unexpectedly");
+            }
+            if (await impactControlsNow.count()) {
+              throw new Error("Escape did not return from Impact view to History view");
+            }
           });
         }
         const historyClose = page.locator("[data-qa='qa:modal-close:history']").first();

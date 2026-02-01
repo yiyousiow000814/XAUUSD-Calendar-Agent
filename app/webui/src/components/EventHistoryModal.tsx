@@ -8,6 +8,7 @@ import type {
 } from "../types";
 import { backend } from "../api";
 import { buildEventNotes } from "../utils/eventNotes";
+import { Select } from "./Select";
 import "./EventHistoryModal.css";
 
 type EventHistoryModalProps = {
@@ -158,7 +159,8 @@ const formatOffsetLabel = (minutes: number) => {
 };
 
 const IMPACT_AXIS_OFFSETS = [-12 * 60, -4 * 60, -60, 0, 60, 4 * 60, 12 * 60];
-const IMPACT_LABEL_OFFSETS = [-12 * 60, -4 * 60, -60, -15, -5, -1, 1, 5, 15, 60, 4 * 60, 12 * 60];
+// Keep labels sparse; dense labels around the event overlap and become unreadable.
+const IMPACT_LABEL_OFFSETS = [-12 * 60, -4 * 60, -60, 60, 4 * 60, 12 * 60];
 
 const formatPct = (value: number) => {
   const abs = Math.abs(value);
@@ -435,12 +437,14 @@ export function EventHistoryModal({
   const impactSeries = useMemo(() => {
     const windows = impactData?.windowsMinutes ?? [];
     const raw = impactData?.data ?? {};
-    const offsets = Array.from(new Set<number>([...windows, 0])).sort((a, b) => a - b);
-    const items = offsets.map((offset) => {
+    const offsetsAll = Array.from(new Set<number>([...windows, 0])).sort((a, b) => a - b);
+    const itemsAll = offsetsAll.map((offset) => {
       const key = String(offset);
       const stats = (raw[key] as EventImpactWindowStats | undefined) ?? undefined;
       return { offset, stats };
     });
+    // Hide offsets that have no samples to avoid breaking the path with invisible intermediate points.
+    const items = itemsAll.filter((item) => item.offset === 0 || (item.stats?.n ?? 0) > 0);
 
     const bandValues: number[] = [];
     const lineValues: number[] = [];
@@ -448,7 +452,9 @@ export function EventHistoryModal({
       if (!item.stats || typeof item.stats.n !== "number" || item.stats.n <= 0) continue;
       if (typeof item.stats.p10 === "number") bandValues.push(item.stats.p10);
       if (typeof item.stats.p90 === "number") bandValues.push(item.stats.p90);
-      if (typeof item.stats.best_median_pct === "number") lineValues.push(item.stats.best_median_pct);
+      if (typeof item.stats.best_median_pct === "number") {
+        lineValues.push(item.stats.best_median_pct);
+      }
     }
     const values = [...bandValues, ...lineValues, 0];
     const min = values.length ? Math.min(...values) : -1;
@@ -463,6 +469,17 @@ export function EventHistoryModal({
     const range = formatCoverage(meta.event_min_utc, meta.event_max_utc);
     return range;
   }, [impactData]);
+
+  const impactBucketOptions = useMemo(() => {
+    const opts = [
+      { value: "ap_gt_prev", label: `Actual > Previous (${bucketCounts.ap_gt_prev})` },
+      { value: "ap_lt_prev", label: `Actual < Previous (${bucketCounts.ap_lt_prev})` },
+      { value: "ap_eq_prev", label: `Actual = Previous (${bucketCounts.ap_eq_prev})` }
+    ];
+    return opts;
+  }, [bucketCounts]);
+
+  const impactSelectedBucketCount = bucketCounts[impactBucket] ?? 0;
 
   const impactChart = useMemo(() => {
     if (!impactOpen) return null;
@@ -511,12 +528,12 @@ export function EventHistoryModal({
       if (!s || typeof s.n !== "number" || s.n <= 0) return null;
       const p10 = typeof s.p10 === "number" ? s.p10 : null;
       const p90 = typeof s.p90 === "number" ? s.p90 : null;
-      const best = typeof s.best_median_pct === "number" ? s.best_median_pct : null;
-      if (p10 === null || p90 === null || best === null) return null;
+      const bestMedian = typeof s.best_median_pct === "number" ? s.best_median_pct : null;
+      if (p10 === null || p90 === null || bestMedian === null) return null;
       return {
         offset: item.offset,
         x: xForOffset(item.offset),
-        y: yFor(best),
+        y: yFor(bestMedian),
         bandLow: p10,
         bandHigh: p90,
         bestDirection: s.best_direction ?? null,
@@ -548,6 +565,10 @@ export function EventHistoryModal({
       (value) => yFor(value),
       { connectNulls: false }
     );
+
+    const clampY = (y: number) =>
+      Math.max(padding.top, Math.min(height - padding.bottom, y));
+    const yForClamped = (value: number) => clampY(yFor(value));
 
     const xTicks = IMPACT_AXIS_OFFSETS.filter((t) => offsetIndex.has(t));
 
@@ -616,6 +637,8 @@ export function EventHistoryModal({
       `${pointKeyPrefix}:${point.date}:${point.time}:${point.period ?? ""}`,
     [pointKeyPrefix]
   );
+
+
 
   const [tableRows, setTableRows] = useState<TableRowEntry[]>(() =>
     tablePoints.map((point) => ({ key: buildPointKey(point), point, exiting: false }))
@@ -774,6 +797,29 @@ export function EventHistoryModal({
       onClose();
     }, CLOSE_ANIMATION_MS);
   };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      const target = event.target as HTMLElement | null;
+      const tag = target?.tagName?.toLowerCase() ?? "";
+      if (tag === "input" || tag === "textarea" || target?.isContentEditable) return;
+
+      event.preventDefault();
+      if (impactOpen && impactPanel === "deep") {
+        setImpactPanel("event");
+        return;
+      }
+      if (impactOpen) {
+        setImpactOpen(false);
+        return;
+      }
+      requestClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [impactOpen, impactPanel, isOpen, requestClose]);
 
   useEffect(() => {
     return () => {
@@ -1038,6 +1084,8 @@ export function EventHistoryModal({
     row.scrollIntoView({ block: "center", behavior: "smooth" });
   }, []);
 
+
+
   const handleTableScroll = useCallback(
     (_event: React.UIEvent<HTMLDivElement>) => {
       if (headerShadowFrame.current !== null) return;
@@ -1156,161 +1204,133 @@ export function EventHistoryModal({
             <div className="history-modal-empty">No history available yet.</div>
           ) : null}
             {!loading && !error && hasData ? (
-              <div className="history-modal-content">
+                <div className="history-modal-content">
                 <div className="history-modal-controls">
-                  <div className="history-modal-control">
-                    <span className="history-modal-label">View</span>
-                    <div className="history-modal-toggle">
-                      <button
-                        type="button"
-                        className={`history-toggle${!impactOpen ? " active" : ""}`}
-                        onClick={() => setImpactOpen(false)}
-                        aria-pressed={!impactOpen}
-                      >
-                        History
-                      </button>
-                      <button
-                        type="button"
-                        className={`history-toggle${impactOpen ? " active" : ""}`}
-                        onClick={() => setImpactOpen(true)}
-                        aria-pressed={impactOpen}
-                      >
-                        Impact
-                      </button>
-                    </div>
-                  </div>
-                  {rangeOptions.length && !impactOpen ? (
+                  <div className="history-modal-controls-left">
                     <div className="history-modal-control">
-                      <span className="history-modal-label">Range</span>
+                      <span className="history-modal-label">View</span>
                       <div className="history-modal-toggle">
-                        {rangeOptions.map((option) => (
-                          <button
-                            key={String(option.key)}
-                            type="button"
-                            className={`history-toggle${
-                              activeRange === option.key ? " active" : ""
-                            }`}
-                            onClick={() => setPreferredRange(option.key)}
-                            aria-pressed={activeRange === option.key}
-                          >
-                            {option.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
-                  {hasMetricValues && !impactOpen ? (
-                    <div
-                      className="history-modal-series"
-                      aria-label="Series toggles"
-                      role="group"
-                    >
-                      <button
-                        type="button"
-                        className={`history-legend-item history-legend-item-actual${
-                          visibleSeries.actual ? " active" : ""
-                        }`}
-                        onClick={() => toggleSeries("actual")}
-                        aria-pressed={visibleSeries.actual}
-                      >
-                        <span className="history-legend-swatch history-line-actual" />
-                        Actual
-                      </button>
-                      {hasForecastValues ? (
                         <button
                           type="button"
-                          className={`history-legend-item history-legend-item-forecast${
-                            visibleSeries.forecast ? " active" : ""
-                          }`}
-                          onClick={() => toggleSeries("forecast")}
-                          aria-pressed={visibleSeries.forecast}
+                          className={`history-toggle${!impactOpen ? " active" : ""}`}
+                          onClick={() => setImpactOpen(false)}
+                          aria-pressed={!impactOpen}
                         >
-                          <span className="history-legend-swatch history-line-forecast" />
-                          Forecast
-                        </button>
-                      ) : null}
-                    </div>
-                  ) : null}
-                </div>
-
-                {impactOpen ? (
-                  <div className="history-impact-toolbar" data-qa="qa:history:impact-toolbar">
-                    <div className="history-impact-toolbar-row">
-                      <div
-                        className="history-impact-panels"
-                        role="group"
-                        aria-label="Impact panels"
-                      >
-                        <button
-                          type="button"
-                          className={`history-toggle${impactPanel === "event" ? " active" : ""}`}
-                          onClick={() => setImpactPanel("event")}
-                          aria-pressed={impactPanel === "event"}
-                        >
-                          Event analysis
+                          History
                         </button>
                         <button
                           type="button"
-                          className={`history-toggle${impactPanel === "deep" ? " active" : ""}`}
-                          onClick={() => setImpactPanel("deep")}
-                          aria-pressed={impactPanel === "deep"}
+                          className={`history-toggle${impactOpen ? " active" : ""}`}
+                          onClick={() => setImpactOpen(true)}
+                          aria-pressed={impactOpen}
                         >
-                          Deep analysis
+                          Impact
                         </button>
-                      </div>
-
-                      <div className="history-impact-toolbar-hints">
-                        <span className="history-impact-hint">
-                          {impactPanel === "event"
-                            ? "XAUUSD % change (P10..P90 band)"
-                            : "Multi-event attribution and overlap-aware analysis will be added later."}
-                        </span>
-                        {impactPanel === "event" && impactCoverage ? (
-                          <span className="history-impact-hint">Coverage: {impactCoverage}</span>
-                        ) : null}
                       </div>
                     </div>
 
-                    {impactPanel === "event" ? (
-                      <div className="history-impact-toolbar-row">
-                        <div
-                          className="history-impact-buckets"
-                          role="group"
-                          aria-label="Impact buckets"
-                        >
-                          <button
-                            type="button"
-                            className={`history-toggle${impactBucket === "ap_gt_prev" ? " active" : ""}`}
-                            onClick={() => setImpactBucket("ap_gt_prev")}
-                            aria-pressed={impactBucket === "ap_gt_prev"}
-                          >
-                            Actual &gt; Previous ({bucketCounts.ap_gt_prev})
-                          </button>
-                          <button
-                            type="button"
-                            className={`history-toggle${impactBucket === "ap_lt_prev" ? " active" : ""}`}
-                            onClick={() => setImpactBucket("ap_lt_prev")}
-                            aria-pressed={impactBucket === "ap_lt_prev"}
-                          >
-                            Actual &lt; Previous ({bucketCounts.ap_lt_prev})
-                          </button>
-                          <button
-                            type="button"
-                            className={`history-toggle${impactBucket === "ap_eq_prev" ? " active" : ""}`}
-                            onClick={() => setImpactBucket("ap_eq_prev")}
-                            aria-pressed={impactBucket === "ap_eq_prev"}
-                          >
-                            Actual = Previous ({bucketCounts.ap_eq_prev})
-                          </button>
+                    {rangeOptions.length ? (
+                      <div className="history-modal-control">
+                        <span className="history-modal-label">Range</span>
+                        <div className="history-modal-toggle">
+                          {rangeOptions.map((option) => (
+                            <button
+                              key={String(option.key)}
+                              type="button"
+                              className={`history-toggle${
+                                activeRange === option.key ? " active" : ""
+                              }`}
+                              onClick={() => setPreferredRange(option.key)}
+                              aria-pressed={activeRange === option.key}
+                            >
+                              {option.label}
+                            </button>
+                          ))}
                         </div>
                       </div>
                     ) : null}
                   </div>
-                ) : null}
+
+                  <div className="history-modal-controls-right">
+                    {impactOpen ? (
+                      <div className="history-impact-controls" data-qa="qa:history:impact-controls">
+                        <div className="history-impact-controls-row">
+                          <div
+                            className="history-impact-panels"
+                            role="group"
+                            aria-label="Impact panels"
+                          >
+                            <button
+                              type="button"
+                              className={`history-toggle compact${impactPanel === "event" ? " active" : ""}`}
+                              onClick={() => setImpactPanel("event")}
+                              aria-pressed={impactPanel === "event"}
+                            >
+                              Event analysis
+                            </button>
+                            <button
+                              type="button"
+                              className={`history-toggle compact${impactPanel === "deep" ? " active" : ""}`}
+                              onClick={() => setImpactPanel("deep")}
+                              aria-pressed={impactPanel === "deep"}
+                            >
+                              Deep analysis
+                            </button>
+                          </div>
+
+                          {impactPanel === "event" ? (
+                            <div
+                              className="history-impact-compact-select"
+                              data-qa="qa:history:impact:bucket-select"
+                            >
+                              <Select
+                                value={impactBucket}
+                                options={impactBucketOptions}
+                                onChange={(value) => setImpactBucket(value as EventImpactBucket)}
+                                qa="qa:history:impact:bucket"
+                              />
+                            </div>
+                          ) : null}
+                        </div>
+                      </div>
+                    ) : hasMetricValues ? (
+                      <div
+                        className="history-modal-series"
+                        aria-label="Series toggles"
+                        role="group"
+                      >
+                        <button
+                          type="button"
+                          className={`history-legend-item history-legend-item-actual${
+                            visibleSeries.actual ? " active" : ""
+                          }`}
+                          onClick={() => toggleSeries("actual")}
+                          aria-pressed={visibleSeries.actual}
+                        >
+                          <span className="history-legend-swatch history-line-actual" />
+                          Actual
+                        </button>
+                        {hasForecastValues ? (
+                          <button
+                            type="button"
+                            className={`history-legend-item history-legend-item-forecast${
+                              visibleSeries.forecast ? " active" : ""
+                            }`}
+                            onClick={() => toggleSeries("forecast")}
+                            aria-pressed={visibleSeries.forecast}
+                          >
+                            <span className="history-legend-swatch history-line-forecast" />
+                            Forecast
+                          </button>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
 
                 <div
                   className={`history-modal-layout${
-                    impactOpen ? " history-modal-layout--single" : ""
+                    impactOpen ? " history-modal-layout--impact" : ""
                   }`}
                 >
                   <div
@@ -1338,6 +1358,26 @@ export function EventHistoryModal({
                           </div>
                         ) : (
                           <div className="history-impact-chart" data-qa="qa:history:impact-chart">
+                            <div className="impact-chart-header" aria-hidden="true">
+                              <div className="impact-chart-meta">
+                                <span className="impact-chart-meta-item">
+                                  Line: most-likely median % change
+                                </span>
+                                <span className="impact-chart-meta-sep">•</span>
+                                <span className="impact-chart-meta-item">Band: P10..P90</span>
+                                <span className="impact-chart-meta-sep">•</span>
+                                <span className="impact-chart-meta-item">N={impactSelectedBucketCount}</span>
+                                {impactCoverage ? (
+                                  <>
+                                    <span className="impact-chart-meta-sep">•</span>
+                                    <span className="impact-chart-meta-item">
+                                      Coverage: {impactCoverage}
+                                    </span>
+                                  </>
+                                ) : null}
+                              </div>
+                            </div>
+                            <div className="impact-chart-body">
                             <svg
                               viewBox={`0 0 ${impactChart.width} ${impactChart.height}`}
                               role="img"
@@ -1383,18 +1423,40 @@ export function EventHistoryModal({
                                   if (!stats || typeof stats.n !== "number" || stats.n <= 0) return null;
                                   if (typeof stats.best_p !== "number" || !stats.best_direction) return null;
                                   const showLabel = IMPACT_LABEL_OFFSETS.includes(offset);
-                                  const best =
-                                    typeof stats.best_median_pct === "number" ? stats.best_median_pct : 0;
+                                  const median =
+                                    typeof stats.best_median_pct === "number"
+                                      ? stats.best_median_pct
+                                      : 0;
                                   const x = impactChart.xForOffset(offset);
-                                  const y = impactChart.yFor(best);
+                                  const y = impactChart.yFor(median);
                                   const direction = stats.best_direction === "up" ? "Up" : "Down";
                                   const pct = `${Math.round(stats.best_p * 100)}%`;
+                                  const move = formatPct(median);
+                                  // Reduce label collisions:
+                                  // - Anchor text away from the event (negative to the left, positive to the right)
+                                  // - Place +/- 1h labels below the line, longer horizons above the line
+                                  const absOffset = Math.abs(offset);
+                                  const placeBelow = absOffset <= 60;
+                                  const anchor = offset < 0 ? "end" : "start";
+                                  const xText = offset < 0 ? x - 8 : x + 8;
+                                  const yText = (() => {
+                                    const dy = placeBelow ? 16 : -10;
+                                    const raw = y + dy;
+                                    const top = impactChart.padding.top + 14;
+                                    const bottom = impactChart.height - impactChart.padding.bottom - 8;
+                                    return Math.max(top, Math.min(bottom, raw));
+                                  })();
                                   return (
                                     <g key={`label-${offset}`}>
                                       <circle className="impact-dot" cx={x} cy={y} r={3.1} />
                                       {showLabel ? (
-                                        <text className="impact-prob" x={x} y={y - 10} textAnchor="middle">
-                                          {direction} {pct}
+                                        <text
+                                          className="impact-prob"
+                                          x={xText}
+                                          y={yText}
+                                          textAnchor={anchor}
+                                        >
+                                          {direction} {pct} ({move})
                                         </text>
                                       ) : null}
                                     </g>
@@ -1421,6 +1483,7 @@ export function EventHistoryModal({
                                 </text>
                               </g>
                             </svg>
+                            </div>
                           </div>
                         )}
                       </div>
@@ -1683,7 +1746,7 @@ export function EventHistoryModal({
                         </div>
                       )
                     ) : null}
-                    {hasNotes && !impactOpen ? (
+                    {hasNotes ? (
                       <div className="history-notes-wrap">
                         <div className="history-notes-card" data-qa="qa:history:notes">
                           <div className="history-notes-title">Description</div>
@@ -1699,7 +1762,6 @@ export function EventHistoryModal({
                       </div>
                     ) : null}
                   </div>
-                  {!impactOpen ? (
                   <div className="history-modal-layout-right">
                     <div
                       className={`history-modal-table${
@@ -1752,7 +1814,10 @@ export function EventHistoryModal({
                                   <span className="history-value-main">
                                     {formatDisplayValue(actualValue)}
                                   </span>
-                                  <span className="history-value-sub placeholder" aria-hidden="true">
+                                  <span
+                                    className="history-value-sub placeholder"
+                                    aria-hidden="true"
+                                  >
                                     {"\u00A0"}
                                   </span>
                                 </span>
@@ -1760,7 +1825,10 @@ export function EventHistoryModal({
                                   <span className="history-value-main">
                                     {formatDisplayValue(point.forecast)}
                                   </span>
-                                  <span className="history-value-sub placeholder" aria-hidden="true">
+                                  <span
+                                    className="history-value-sub placeholder"
+                                    aria-hidden="true"
+                                  >
                                     {"\u00A0"}
                                   </span>
                                 </span>
@@ -1775,7 +1843,10 @@ export function EventHistoryModal({
                                   <span className="history-value-main">
                                     {formatDisplayValue(previousValue)}
                                   </span>
-                                  <span className="history-value-sub placeholder" aria-hidden="true">
+                                  <span
+                                    className="history-value-sub placeholder"
+                                    aria-hidden="true"
+                                  >
                                     {"\u00A0"}
                                   </span>
                                 </span>
@@ -1792,14 +1863,13 @@ export function EventHistoryModal({
                                 ) : null}
                               </>
                             ) : (
-                              <span className="disabled">--</span>
+                              <span className="disabled">{point.details || "--"}</span>
                             )}
                           </div>
                         );
                       })}
                     </div>
                   </div>
-                  ) : null}
                 </div>
               </div>
             ) : null}
