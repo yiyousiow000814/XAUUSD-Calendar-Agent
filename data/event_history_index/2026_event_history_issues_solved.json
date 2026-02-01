@@ -1,5 +1,5 @@
 {
-  "generated_at": "31-01-2026 15:41",
+  "generated_at": "01-02-2026 03:20",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -111,83 +111,13 @@
     },
     {
       "issue": "stale_missing_actual_dropped",
-      "event_id": "GBP::BRC Retail Sales Monitor::y/y",
-      "cur": "GBP",
-      "event": "BRC Retail Sales Monitor (YoY)",
-      "period": "",
-      "date": "2026-01-06",
-      "time": "08:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "MXN::Consumer Confidence::none",
-      "cur": "MXN",
-      "event": "Consumer Confidence",
-      "period": "",
-      "date": "2026-01-06",
-      "time": "20:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "MXN::Consumer Confidence n.s.a.::none",
-      "cur": "MXN",
-      "event": "Consumer Confidence n.s.a.",
-      "period": "",
-      "date": "2026-01-06",
-      "time": "20:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
       "event_id": "MXN::Fiscal Balance::none",
       "cur": "MXN",
       "event": "Fiscal Balance  (Nov)",
       "period": "nov",
       "date": "2026-01-01",
       "time": "03:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::MBA 30-Year Mortgage Rate::none",
-      "cur": "USD",
-      "event": "MBA 30-Year Mortgage Rate",
-      "period": "",
-      "date": "2026-01-02",
-      "time": "22:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::MBA Purchase Index::none",
-      "cur": "USD",
-      "event": "MBA Purchase Index",
-      "period": "",
-      "date": "2026-01-02",
-      "time": "22:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::Mortgage Market Index::none",
-      "cur": "USD",
-      "event": "Mortgage Market Index",
-      "period": "",
-      "date": "2026-01-02",
-      "time": "22:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::Mortgage Refinance Index::none",
-      "cur": "USD",
-      "event": "Mortgage Refinance Index",
-      "period": "",
-      "date": "2026-01-02",
-      "time": "22:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -197,7 +127,7 @@
       "period": "sep",
       "date": "2026-01-02",
       "time": "23:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -207,7 +137,7 @@
       "period": "oct",
       "date": "2026-01-02",
       "time": "23:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -217,17 +147,7 @@
       "period": "oct",
       "date": "2026-01-05",
       "time": "19:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::U.S. Baker Hughes Oil Rig Count::none",
-      "cur": "USD",
-      "event": "U.S. Baker Hughes Oil Rig Count",
-      "period": "",
-      "date": "2026-01-01",
-      "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -237,27 +157,7 @@
       "period": "dec",
       "date": "2026-01-01",
       "time": "15:30",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "CHF::Manufacturing PMI::none",
-      "cur": "CHF",
-      "event": "Manufacturing PMI  (Dec)",
-      "period": "dec",
-      "date": "2026-01-02",
-      "time": "16:30",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::Total Vehicle Sales::none",
-      "cur": "USD",
-      "event": "Total Vehicle Sales  (Dec)",
-      "period": "dec",
-      "date": "2026-01-06",
-      "time": "03:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -267,67 +167,7 @@
       "period": "",
       "date": "2026-01-15",
       "time": "03:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::Sentix Investor Confidence::none",
-      "cur": "EUR",
-      "event": "Sentix Investor Confidence  (Jan)",
-      "period": "jan",
-      "date": "2026-01-05",
-      "time": "17:30",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "CHF::SECO Consumer Climate::none",
-      "cur": "CHF",
-      "event": "SECO Consumer Climate  (Dec)",
-      "period": "dec",
-      "date": "2026-01-09",
-      "time": "16:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::Challenger Job Cuts::y/y",
-      "cur": "USD",
-      "event": "Challenger Job Cuts (YoY)",
-      "period": "",
-      "date": "2026-01-08",
-      "time": "20:30",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::MBA Mortgage Applications::w/w",
-      "cur": "USD",
-      "event": "MBA Mortgage Applications (WoW)",
-      "period": "",
-      "date": "2026-01-02",
-      "time": "22:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "NZD::GlobalDairyTrade Price Index::none",
-      "cur": "NZD",
-      "event": "GlobalDairyTrade Price Index",
-      "period": "",
-      "date": "2026-01-06",
-      "time": "20:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "NZD::GlobalDairyTrade Price Index::none",
-      "cur": "NZD",
-      "event": "GlobalDairyTrade Price Index",
-      "period": "",
-      "date": "2026-01-07",
-      "time": "23:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -337,27 +177,7 @@
       "period": "dec",
       "date": "2026-01-06",
       "time": "10:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "INR::M3 Money Supply::none",
-      "cur": "INR",
-      "event": "M3 Money Supply",
-      "period": "",
-      "date": "2026-01-07",
-      "time": "19:30",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "IDR::Trade Balance::none",
-      "cur": "IDR",
-      "event": "Trade Balance  (Nov)",
-      "period": "nov",
-      "date": "2026-01-01",
-      "time": "12:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -367,7 +187,7 @@
       "period": "dec",
       "date": "2026-01-06",
       "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -377,7 +197,7 @@
       "period": "dec",
       "date": "2026-01-07",
       "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -387,7 +207,7 @@
       "period": "q4",
       "date": "2026-01-02",
       "time": "08:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -397,17 +217,7 @@
       "period": "",
       "date": "2026-01-08",
       "time": "17:40",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "HUF::Quarterly Unemployment Rate::none",
-      "cur": "HUF",
-      "event": "Quarterly Unemployment Rate  (Nov)",
-      "period": "nov",
-      "date": "2026-01-02",
-      "time": "15:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -417,17 +227,7 @@
       "period": "dec",
       "date": "2026-01-02",
       "time": "17:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "PEN::CPI::m/m",
-      "cur": "PEN",
-      "event": "CPI (MoM)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-03",
-      "time": "00:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -437,7 +237,7 @@
       "period": "nov",
       "date": "2026-01-07",
       "time": "13:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -447,7 +247,7 @@
       "period": "dec",
       "date": "2026-01-01",
       "time": "16:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -457,17 +257,7 @@
       "period": "dec",
       "date": "2026-01-02",
       "time": "16:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::Spanish 3-Year Bonos Auction::none",
-      "cur": "EUR",
-      "event": "Spanish 3-Year Bonos Auction",
-      "period": "",
-      "date": "2026-01-08",
-      "time": "17:40",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -477,127 +267,7 @@
       "period": "nov",
       "date": "2026-01-09",
       "time": "15:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "BRL::Foreign Exchange Flows::none",
-      "cur": "BRL",
-      "event": "Foreign Exchange Flows",
-      "period": "",
-      "date": "2026-01-05",
-      "time": "19:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "THB::CPI::y/y",
-      "cur": "THB",
-      "event": "CPI (YoY)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-07",
-      "time": "12:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "IDR::Inflation::y/y",
-      "cur": "IDR",
-      "event": "Inflation (YoY)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-01",
-      "time": "12:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::Irish Consumer Confidence::none",
-      "cur": "EUR",
-      "event": "Irish Consumer Confidence  (Dec)",
-      "period": "dec",
-      "date": "2026-01-02",
-      "time": "11:30",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::Irish Consumer Confidence::none",
-      "cur": "EUR",
-      "event": "Irish Consumer Confidence  (Dec)",
-      "period": "dec",
-      "date": "2026-01-05",
-      "time": "11:30",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::Irish Consumer Confidence::none",
-      "cur": "EUR",
-      "event": "Irish Consumer Confidence  (Dec)",
-      "period": "dec",
-      "date": "2026-01-06",
-      "time": "11:30",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::Irish Consumer Confidence::none",
-      "cur": "EUR",
-      "event": "Irish Consumer Confidence  (Dec)",
-      "period": "dec",
-      "date": "2026-01-07",
-      "time": "11:30",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::Irish Consumer Confidence::none",
-      "cur": "EUR",
-      "event": "Irish Consumer Confidence  (Dec)",
-      "period": "dec",
-      "date": "2026-01-08",
-      "time": "11:30",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "IDR::Retail Sales::y/y",
-      "cur": "IDR",
-      "event": "Retail Sales (YoY)  (Nov)",
-      "period": "nov",
-      "date": "2026-01-09",
-      "time": "12:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::Spanish Unemployment Change::none",
-      "cur": "EUR",
-      "event": "Spanish Unemployment Change  (Dec)",
-      "period": "dec",
-      "date": "2026-01-02",
-      "time": "16:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "INR::GDP Annual::none",
-      "cur": "INR",
-      "event": "GDP Annual",
-      "period": "",
-      "date": "2026-01-07",
-      "time": "20:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "THB::Currency Swaps (USD)::none",
-      "cur": "THB",
-      "event": "Currency Swaps (USD)",
-      "period": "",
-      "date": "2026-01-02",
-      "time": "15:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -607,17 +277,7 @@
       "period": "",
       "date": "2026-01-02",
       "time": "15:30",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Foreign Reserves (USD)::none",
-      "cur": "JPY",
-      "event": "Foreign Reserves (USD)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-06",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -627,7 +287,7 @@
       "period": "dec",
       "date": "2026-01-07",
       "time": "17:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -637,77 +297,7 @@
       "period": "dec",
       "date": "2026-01-08",
       "time": "20:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "IDR::Car Sales::y/y",
-      "cur": "IDR",
-      "event": "Car Sales (YoY)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-09",
-      "time": "14:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "IDR::Core Inflation::y/y",
-      "cur": "IDR",
-      "event": "Core Inflation (YoY)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-01",
-      "time": "12:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "IDR::Export Growth::y/y",
-      "cur": "IDR",
-      "event": "Export Growth (YoY)  (Nov)",
-      "period": "nov",
-      "date": "2026-01-01",
-      "time": "12:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "IDR::Import Growth::y/y",
-      "cur": "IDR",
-      "event": "Import Growth (YoY)  (Nov)",
-      "period": "nov",
-      "date": "2026-01-01",
-      "time": "12:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "IDR::Inflation::m/m",
-      "cur": "IDR",
-      "event": "Inflation (MoM)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-01",
-      "time": "12:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EGP::Core CPI::y/y",
-      "cur": "EGP",
-      "event": "Core CPI (YoY)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-09",
-      "time": "21:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EGP::Core CPI::y/y",
-      "cur": "EGP",
-      "event": "Core CPI (YoY)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-10",
-      "time": "21:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -717,87 +307,7 @@
       "period": "q4",
       "date": "2026-01-02",
       "time": "08:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "CZK::Budget Balance::none",
-      "cur": "CZK",
-      "event": "Budget Balance  (Dec)",
-      "period": "dec",
-      "date": "2026-01-01",
-      "time": "21:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "CZK::Budget Balance::none",
-      "cur": "CZK",
-      "event": "Budget Balance  (Dec)",
-      "period": "dec",
-      "date": "2026-01-02",
-      "time": "22:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "CZK::Budget Balance::none",
-      "cur": "CZK",
-      "event": "Budget Balance  (Dec)",
-      "period": "dec",
-      "date": "2026-01-05",
-      "time": "19:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EGP::CPI::y/y",
-      "cur": "EGP",
-      "event": "CPI (YoY)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-09",
-      "time": "14:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EGP::Foreign Reserves (USD)::none",
-      "cur": "EGP",
-      "event": "Foreign Reserves (USD)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-07",
-      "time": "19:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EGP::M2 Money Supply::y/y",
-      "cur": "EGP",
-      "event": "M2 Money Supply (YoY)  (Nov)",
-      "period": "nov",
-      "date": "2026-01-01",
-      "time": "22:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EGP::M2 Money Supply::y/y",
-      "cur": "EGP",
-      "event": "M2 Money Supply (YoY)  (Nov)",
-      "period": "nov",
-      "date": "2026-01-05",
-      "time": "22:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EGP::M2 Money Supply::y/y",
-      "cur": "EGP",
-      "event": "M2 Money Supply (YoY)  (Nov)",
-      "period": "nov",
-      "date": "2026-01-06",
-      "time": "19:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -807,27 +317,7 @@
       "period": "dec",
       "date": "2026-01-07",
       "time": "22:30",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::Latvian Industrial Production::m/m",
-      "cur": "EUR",
-      "event": "Latvian Industrial Production (MoM)  (Nov)",
-      "period": "nov",
-      "date": "2026-01-05",
-      "time": "18:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::Latvian Industrial Production::y/y",
-      "cur": "EUR",
-      "event": "Latvian Industrial Production (YoY)  (Nov)",
-      "period": "nov",
-      "date": "2026-01-05",
-      "time": "18:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -837,7 +327,7 @@
       "period": "dec",
       "date": "2026-01-09",
       "time": "15:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -847,7 +337,7 @@
       "period": "nov",
       "date": "2026-01-03",
       "time": "04:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -857,7 +347,7 @@
       "period": "nov",
       "date": "2026-01-05",
       "time": "19:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -867,7 +357,7 @@
       "period": "nov",
       "date": "2026-01-09",
       "time": "15:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -877,17 +367,7 @@
       "period": "",
       "date": "2026-01-02",
       "time": "08:30",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "ARS::Tax Revenue::none",
-      "cur": "ARS",
-      "event": "Tax Revenue  (Dec)",
-      "period": "dec",
-      "date": "2026-01-06",
-      "time": "04:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -897,7 +377,7 @@
       "period": "nov",
       "date": "2026-01-03",
       "time": "04:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -907,37 +387,7 @@
       "period": "nov",
       "date": "2026-01-05",
       "time": "19:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "SAR::M3 Money Supply::y/y",
-      "cur": "SAR",
-      "event": "M3 Money Supply (YoY)  (Nov)",
-      "period": "nov",
-      "date": "2026-01-01",
-      "time": "22:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "SAR::Private Sector Loans::y/y",
-      "cur": "SAR",
-      "event": "Private Sector Loans (YoY)  (Nov)",
-      "period": "nov",
-      "date": "2026-01-01",
-      "time": "03:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "SAR::Private Sector Loans::y/y",
-      "cur": "SAR",
-      "event": "Private Sector Loans (YoY)  (Nov)",
-      "period": "nov",
-      "date": "2026-01-01",
-      "time": "22:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -947,7 +397,7 @@
       "period": "",
       "date": "2026-01-01",
       "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -957,127 +407,7 @@
       "period": "dec",
       "date": "2026-01-06",
       "time": "10:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "VND::Vietnamese Foreign Direct Investment (USD)::none",
-      "cur": "VND",
-      "event": "Vietnamese Foreign Direct Investment (USD)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-06",
-      "time": "10:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "VND::Vietnamese CPI::y/y",
-      "cur": "VND",
-      "event": "Vietnamese CPI (YoY)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-06",
-      "time": "10:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "VND::Vietnamese Industrial Production::y/y",
-      "cur": "VND",
-      "event": "Vietnamese Industrial Production (YoY)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-06",
-      "time": "10:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "VND::Vietnamese Retail Sales::y/y",
-      "cur": "VND",
-      "event": "Vietnamese Retail Sales (YoY)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-06",
-      "time": "10:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "PHP::Philippines Foreign Direct Investment (USD)::none",
-      "cur": "PHP",
-      "event": "Philippines Foreign Direct Investment (USD)  (Oct)",
-      "period": "oct",
-      "date": "2026-01-09",
-      "time": "09:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "PHP::Philippines Foreign Direct Investment (USD)::none",
-      "cur": "PHP",
-      "event": "Philippines Foreign Direct Investment (USD)  (Oct)",
-      "period": "oct",
-      "date": "2026-01-10",
-      "time": "09:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::French Car Registration::y/y",
-      "cur": "EUR",
-      "event": "French Car Registration (YoY)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-06",
-      "time": "01:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::Italian Car Registration::y/y",
-      "cur": "EUR",
-      "event": "Italian Car Registration (YoY)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-03",
-      "time": "01:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::Italian Car Registration::y/y",
-      "cur": "EUR",
-      "event": "Italian Car Registration (YoY)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-05",
-      "time": "19:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::Italian Car Registration::y/y",
-      "cur": "EUR",
-      "event": "Italian Car Registration (YoY)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-06",
-      "time": "01:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "VND::Vietnamese CPI::m/m",
-      "cur": "VND",
-      "event": "Vietnamese CPI (MoM)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-06",
-      "time": "10:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "GHS::CPI::y/y",
-      "cur": "GHS",
-      "event": "CPI (YoY)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-08",
-      "time": "18:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1087,7 +417,7 @@
       "period": "",
       "date": "2026-01-06",
       "time": "15:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1097,7 +427,7 @@
       "period": "",
       "date": "2026-01-06",
       "time": "15:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1107,237 +437,7 @@
       "period": "",
       "date": "2026-01-06",
       "time": "15:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "MZN::CPI::y/y",
-      "cur": "MZN",
-      "event": "CPI (YoY)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-09",
-      "time": "16:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "AOA::CPI::m/m",
-      "cur": "AOA",
-      "event": "CPI (MoM)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-08",
-      "time": "19:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "AOA::CPI::m/m",
-      "cur": "AOA",
-      "event": "CPI (MoM)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-09",
-      "time": "20:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "AOA::CPI::y/y",
-      "cur": "AOA",
-      "event": "CPI (YoY)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-08",
-      "time": "19:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "AOA::CPI::y/y",
-      "cur": "AOA",
-      "event": "CPI (YoY)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-09",
-      "time": "20:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::North Rhine Westphalia CPI::m/m",
-      "cur": "EUR",
-      "event": "North Rhine Westphalia CPI (MoM)",
-      "period": "",
-      "date": "2026-01-06",
-      "time": "17:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::North Rhine Westphalia CPI::y/y",
-      "cur": "EUR",
-      "event": "North Rhine Westphalia CPI (YoY)",
-      "period": "",
-      "date": "2026-01-06",
-      "time": "17:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::Baden Wuerttemberg CPI::m/m",
-      "cur": "EUR",
-      "event": "Baden Wuerttemberg CPI (MoM)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-05",
-      "time": "17:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::Baden Wuerttemberg CPI::m/m",
-      "cur": "EUR",
-      "event": "Baden Wuerttemberg CPI (MoM)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-06",
-      "time": "17:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::Baden Wuerttemberg CPI::y/y",
-      "cur": "EUR",
-      "event": "Baden Wuerttemberg CPI (YoY)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-05",
-      "time": "17:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::Baden Wuerttemberg CPI::y/y",
-      "cur": "EUR",
-      "event": "Baden Wuerttemberg CPI (YoY)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-06",
-      "time": "17:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::Bavaria CPI::m/m",
-      "cur": "EUR",
-      "event": "Bavaria CPI (MoM)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-06",
-      "time": "17:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::Bavaria CPI::m/m",
-      "cur": "EUR",
-      "event": "Bavaria CPI (MoM)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-07",
-      "time": "17:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::Bavaria CPI::y/y",
-      "cur": "EUR",
-      "event": "Bavaria CPI (YoY)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-06",
-      "time": "17:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::Bavaria CPI::y/y",
-      "cur": "EUR",
-      "event": "Bavaria CPI (YoY)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-07",
-      "time": "17:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::Car Registration::m/m",
-      "cur": "EUR",
-      "event": "Car Registration (MoM)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-01",
-      "time": "19:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::Car Registration::y/y",
-      "cur": "EUR",
-      "event": "Car Registration (YoY)  (Dec)",
-      "period": "dec",
-      "date": "2026-01-01",
-      "time": "19:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "AUD::Monthly CPI Indicator::y/y",
-      "cur": "AUD",
-      "event": "Monthly CPI Indicator (YoY)",
-      "period": "",
-      "date": "2026-01-07",
-      "time": "08:30",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "TRY::Gross FX Reserves::none",
-      "cur": "TRY",
-      "event": "Gross FX Reserves",
-      "period": "",
-      "date": "2026-01-01",
-      "time": "19:30",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "TRY::Net FX Reserves::none",
-      "cur": "TRY",
-      "event": "Net FX Reserves",
-      "period": "",
-      "date": "2026-01-01",
-      "time": "19:30",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::Milk Auctions::none",
-      "cur": "USD",
-      "event": "Milk Auctions",
-      "period": "",
-      "date": "2026-01-06",
-      "time": "20:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::Milk Auctions::none",
-      "cur": "USD",
-      "event": "Milk Auctions",
-      "period": "",
-      "date": "2026-01-07",
-      "time": "23:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::AIB Ireland Manufacturing PMI::none",
-      "cur": "EUR",
-      "event": "AIB Ireland Manufacturing PMI  (Dec)",
-      "period": "dec",
-      "date": "2026-01-01",
-      "time": "09:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1347,67 +447,7 @@
       "period": "dec",
       "date": "2026-01-02",
       "time": "14:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "PLN::S&P Global Manufacturing PMI::none",
-      "cur": "PLN",
-      "event": "S&P Global Manufacturing PMI  (Dec)",
-      "period": "dec",
-      "date": "2026-01-01",
-      "time": "16:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "TRY::Istanbul Chamber of Industry Manufacturing PMI::none",
-      "cur": "TRY",
-      "event": "Istanbul Chamber of Industry Manufacturing PMI  (Dec)",
-      "period": "dec",
-      "date": "2026-01-01",
-      "time": "15:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "EUR::S&P Global Greece Manufacturing PMI::none",
-      "cur": "EUR",
-      "event": "S&P Global Greece Manufacturing PMI  (Dec)",
-      "period": "dec",
-      "date": "2026-01-01",
-      "time": "17:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "BRL::S&P Global Manufacturing PMI::none",
-      "cur": "BRL",
-      "event": "S&P Global Manufacturing PMI  (Dec)",
-      "period": "dec",
-      "date": "2026-01-01",
-      "time": "21:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "MXN::S&P Global Manufacturing PMI::none",
-      "cur": "MXN",
-      "event": "S&P Global Manufacturing PMI  (Dec)",
-      "period": "dec",
-      "date": "2026-01-01",
-      "time": "23:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "CAD::S&P Global Manufacturing PMI::none",
-      "cur": "CAD",
-      "event": "S&P Global Manufacturing PMI  (Dec)",
-      "period": "dec",
-      "date": "2026-01-01",
-      "time": "21:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1417,7 +457,7 @@
       "period": "dec",
       "date": "2026-01-03",
       "time": "07:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1427,41 +467,7 @@
       "period": "dec",
       "date": "2026-01-03",
       "time": "07:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "MYR::Manufacturing PMI::none",
-      "cur": "MYR",
-      "event": "Manufacturing PMI  (Dec)",
-      "period": "dec",
-      "date": "2026-01-01",
-      "time": "08:30",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::U.S. Baker Hughes Oil Rig Count::none",
-      "cur": "USD",
-      "event": "U.S. Baker Hughes Oil Rig Count",
-      "period": "",
-      "date": "2026-02-07",
-      "time": "02:00",
-      "previous_raw": "",
-      "prior_actual": "411",
-      "previous_effective": "411"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::U.S. Baker Hughes Total Rig Count::none",
-      "cur": "USD",
-      "event": "U.S. Baker Hughes Total Rig Count",
-      "period": "",
-      "date": "2026-02-07",
-      "time": "02:00",
-      "previous_raw": "",
-      "prior_actual": "546",
-      "previous_effective": "546"
+      "cutoff": "30-01-2026 03:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1471,7 +477,17 @@
       "period": "",
       "date": "2026-01-28",
       "time": "07:50",
-      "cutoff": "29-01-2026 15:41"
+      "cutoff": "30-01-2026 03:20"
+    },
+    {
+      "issue": "stale_missing_actual_dropped",
+      "event_id": "RUB::CFTC RUB speculative positions::none",
+      "cur": "RUB",
+      "event": "CFTC RUB speculative positions",
+      "period": "",
+      "date": "2026-01-03",
+      "time": "04:30",
+      "cutoff": "30-01-2026 03:20"
     }
   ]
 }
