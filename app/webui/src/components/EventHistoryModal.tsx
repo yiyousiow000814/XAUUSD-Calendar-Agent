@@ -272,6 +272,7 @@ export function EventHistoryModal({
       return "event";
     }
   });
+  const prevImpactPanelRef = useRef<"event" | "deep">(impactPanel);
   const [impactBucket, setImpactBucket] = useState<EventImpactBucket>(() => {
     if (typeof window === "undefined") return "ap_gt_prev";
     try {
@@ -432,10 +433,16 @@ export function EventHistoryModal({
 
   useEffect(() => {
     if (!isOpen) return;
-    if (!impactOpen) return;
+    if (!impactOpen) {
+      prevImpactPanelRef.current = impactPanel;
+      return;
+    }
     // Switching Impact sub-panels should not leave the user scrolled mid-modal, otherwise
     // the toolbar appears to "move" when content height changes.
-    modalBodyRef.current?.scrollTo({ top: 0 });
+    if (prevImpactPanelRef.current !== impactPanel) {
+      modalBodyRef.current?.scrollTo({ top: 0 });
+    }
+    prevImpactPanelRef.current = impactPanel;
   }, [impactOpen, impactPanel, isOpen]);
 
   const impactSeries = useMemo(() => {
@@ -476,14 +483,20 @@ export function EventHistoryModal({
 
   const impactBucketOptions = useMemo(() => {
     const opts = [
-      { value: "ap_gt_prev", label: `Actual > Previous (${bucketCounts.ap_gt_prev})` },
-      { value: "ap_lt_prev", label: `Actual < Previous (${bucketCounts.ap_lt_prev})` },
-      { value: "ap_eq_prev", label: `Actual = Previous (${bucketCounts.ap_eq_prev})` }
+      { value: "ap_gt_prev", label: "A > Prev", count: bucketCounts.ap_gt_prev },
+      { value: "ap_lt_prev", label: "A < Prev", count: bucketCounts.ap_lt_prev },
+      { value: "ap_eq_prev", label: "A = Prev", count: bucketCounts.ap_eq_prev }
     ];
     return opts;
   }, [bucketCounts]);
 
   const impactSelectedBucketCount = bucketCounts[impactBucket] ?? 0;
+  const impactSamplesLabel = useMemo(() => {
+    const n = impactData?.meta?.sample_points;
+    if (typeof n === "number" && Number.isFinite(n) && n > 0) return String(n);
+    if (impactSelectedBucketCount > 0) return String(impactSelectedBucketCount);
+    return "";
+  }, [impactData, impactSelectedBucketCount]);
 
   const impactChart = useMemo(() => {
     if (!impactOpen) return null;
@@ -491,8 +504,8 @@ export function EventHistoryModal({
     // layout changes across themes / platforms).
     const width = impactViewport?.width ?? 1040;
     const height = impactViewport?.height ?? 600;
-    // Slightly smaller paddings so the plot occupies more of the card.
-    const padding = { left: 18, right: 6, top: 8, bottom: 50 };
+    // Leave enough room for Y axis labels and the X axis title.
+    const padding = { left: 56, right: 10, top: 12, bottom: 56 };
     const plotWidth = width - padding.left - padding.right;
     const plotHeight = height - padding.top - padding.bottom;
     const offsets = impactSeries.items.map((item) => item.offset);
@@ -519,6 +532,30 @@ export function EventHistoryModal({
     const domainMax = rawMax + pad;
     const spanY = Math.max(1e-9, domainMax - domainMin);
     const yFor = (value: number) => padding.top + ((domainMax - value) / spanY) * plotHeight;
+
+    const niceStep = (span: number, ticks: number) => {
+      const raw = span / Math.max(1, ticks);
+      if (!Number.isFinite(raw) || raw <= 0) return 1;
+      const power = Math.pow(10, Math.floor(Math.log10(raw)));
+      const base = raw / power;
+      const niceBase = base <= 1 ? 1 : base <= 2 ? 2 : base <= 5 ? 5 : 10;
+      return niceBase * power;
+    };
+
+    const buildNiceTicks = (min: number, max: number) => {
+      const span = max - min;
+      if (!Number.isFinite(span) || span <= 0) return [0];
+      const step = niceStep(span, 4);
+      const start = Math.floor(min / step) * step;
+      const end = Math.ceil(max / step) * step;
+      const ticks: number[] = [];
+      for (let v = start; v <= end + step * 0.5; v += step) {
+        ticks.push(Math.abs(v) <= 1e-12 ? 0 : v);
+      }
+      return ticks;
+    };
+
+    const yTicks = buildNiceTicks(domainMin, domainMax);
 
     const points = impactSeries.items.map((item) => {
       if (item.offset === 0) {
@@ -589,6 +626,7 @@ export function EventHistoryModal({
       bandPath,
       linePath,
       xTicks,
+      yTicks,
       domainMin,
       domainMax
     };
@@ -1273,21 +1311,24 @@ export function EventHistoryModal({
                     {rangeOptions.length ? (
                       <div className="history-modal-control">
                         <span className="history-modal-label">Range</span>
-                        <div className="history-modal-toggle">
-                          {rangeOptions.map((option) => (
-                            <button
-                              key={String(option.key)}
-                              type="button"
-                              className={`history-toggle${
-                                activeRange === option.key ? " active" : ""
-                              }`}
-                              onClick={() => setPreferredRange(option.key)}
-                              aria-pressed={activeRange === option.key}
-                            >
-                              {option.label}
-                            </button>
-                          ))}
-                        </div>
+                        <Select
+                          qa="qa:history:range"
+                          value={String(activeRange)}
+                          options={rangeOptions.map((option) => ({
+                            value: String(option.key),
+                            label: option.label
+                          }))}
+                          onChange={(raw) => {
+                            if (raw === "all") {
+                              setPreferredRange("all");
+                              return;
+                            }
+                            const parsed = Number(raw);
+                            if (NUMERIC_RANGE_KEYS.includes(parsed as NumericRangeKey)) {
+                              setPreferredRange(parsed as NumericRangeKey);
+                            }
+                          }}
+                        />
                       </div>
                     ) : null}
                   </div>
@@ -1296,14 +1337,12 @@ export function EventHistoryModal({
                     {impactOpen ? (
                       <div className="history-impact-controls" data-qa="qa:history:impact-controls">
                         <div className="history-impact-controls-row">
-                          <div
-                            className="history-impact-panels"
-                            role="group"
-                            aria-label="Impact panels"
-                          >
+                          <div className="history-impact-panels" role="group" aria-label="Impact panels">
                             <button
                               type="button"
-                              className={`history-toggle impact-toggle${impactPanel === "event" ? " active" : ""}`}
+                              className={`history-toggle impact-toggle${
+                                impactPanel === "event" ? " active" : ""
+                              }`}
                               onClick={() => setImpactPanel("event")}
                               aria-pressed={impactPanel === "event"}
                             >
@@ -1311,7 +1350,9 @@ export function EventHistoryModal({
                             </button>
                             <button
                               type="button"
-                              className={`history-toggle impact-toggle${impactPanel === "deep" ? " active" : ""}`}
+                              className={`history-toggle impact-toggle${
+                                impactPanel === "deep" ? " active" : ""
+                              }`}
                               onClick={() => setImpactPanel("deep")}
                               aria-pressed={impactPanel === "deep"}
                             >
@@ -1320,26 +1361,31 @@ export function EventHistoryModal({
                           </div>
 
                           {impactPanel === "event" ? (
-                            <div
-                              className="history-impact-compact-select"
-                              data-qa="qa:history:impact:bucket-select"
-                            >
-                              <Select
-                                value={impactBucket}
-                                options={impactBucketOptions}
-                                onChange={(value) => setImpactBucket(value as EventImpactBucket)}
-                                qa="qa:history:impact:bucket"
-                              />
+                            <div className="history-impact-buckets" role="group" aria-label="Impact bucket">
+                              {impactBucketOptions.map((option) => (
+                                <button
+                                  key={option.value}
+                                  type="button"
+                                  className={`history-toggle impact-toggle${
+                                    impactBucket === option.value ? " active" : ""
+                                  }`}
+                                  onClick={() => setImpactBucket(option.value as EventImpactBucket)}
+                                  aria-pressed={impactBucket === option.value}
+                                >
+                                  {option.label}
+                                  {typeof option.count === "number" ? (
+                                    <span className="impact-badge" aria-hidden="true">
+                                      {option.count}
+                                    </span>
+                                  ) : null}
+                                </button>
+                              ))}
                             </div>
                           ) : null}
                         </div>
                       </div>
                     ) : hasMetricValues ? (
-                      <div
-                        className="history-modal-series"
-                        aria-label="Series toggles"
-                        role="group"
-                      >
+                      <div className="history-modal-series" aria-label="Series toggles" role="group">
                         <button
                           type="button"
                           className={`history-legend-item history-legend-item-actual${
@@ -1397,27 +1443,42 @@ export function EventHistoryModal({
                           <div className="history-impact-status">
                             Impact analysis not available. Generate it locally first.
                           </div>
+                        ) : impactSeries.items.length < 2 ||
+                          (!impactChart.bandPath && !impactChart.linePath) ? (
+                          <div className="history-impact-status">
+                            Impact analysis is not available for this bucket (insufficient samples).
+                          </div>
                         ) : (
                           <div className="history-impact-chart" data-qa="qa:history:impact-chart">
-                            <div className="impact-chart-header" aria-hidden="true">
-                              <div className="impact-chart-meta">
-                                <span className="impact-chart-meta-item">
-                                  Line: most-likely median % change
-                                </span>
-                                <span className="impact-chart-meta-sep">•</span>
-                                <span className="impact-chart-meta-item">Band: P10..P90</span>
-                                <span className="impact-chart-meta-sep">•</span>
-                                <span className="impact-chart-meta-item">N={impactSelectedBucketCount}</span>
-                                {impactCoverage ? (
-                                  <>
-                                    <span className="impact-chart-meta-sep">•</span>
-                                    <span className="impact-chart-meta-item">
-                                      Coverage: {impactCoverage}
-                                    </span>
-                                  </>
-                                ) : null}
+                            {!impactLoading &&
+                            !impactError &&
+                            impactPanel === "event" &&
+                            impactData?.ok &&
+                            impactChart ? (
+                              <div className="impact-chart-header" aria-hidden="true">
+                                <div className="impact-chart-meta">
+                                  <span className="impact-chart-meta-item">
+                                    Line: median % change (most likely direction)
+                                  </span>
+                                  <span className="impact-chart-meta-sep">•</span>
+                                  <span className="impact-chart-meta-item">
+                                    Band: P10..P90 (most likely direction)
+                                  </span>
+                                  <span className="impact-chart-meta-sep">•</span>
+                                  <span className="impact-chart-meta-item">
+                                    {impactSamplesLabel ? `N=${impactSamplesLabel}` : "N=--"}
+                                  </span>
+                                  {impactCoverage ? (
+                                    <>
+                                      <span className="impact-chart-meta-sep">•</span>
+                                      <span className="impact-chart-meta-item">
+                                        Coverage: {impactCoverage}
+                                      </span>
+                                    </>
+                                  ) : null}
+                                </div>
                               </div>
-                            </div>
+                            ) : null}
                             <div className="impact-chart-body" ref={impactBodyRef}>
                             <svg
                               viewBox={`0 0 ${impactChart.width} ${impactChart.height}`}
@@ -1425,6 +1486,16 @@ export function EventHistoryModal({
                               aria-label="Impact analysis chart"
                             >
                               <g className="impact-grid">
+                                {impactChart.yTicks.map((tick) => (
+                                  <line
+                                    key={`y-${tick}`}
+                                    x1={impactChart.padding.left}
+                                    x2={impactChart.width - impactChart.padding.right}
+                                    y1={Math.round(impactChart.yFor(tick)) + 0.5}
+                                    y2={Math.round(impactChart.yFor(tick)) + 0.5}
+                                    vectorEffect="non-scaling-stroke"
+                                  />
+                                ))}
                                 {impactChart.xTicks.map((tick) => {
                                   const x = Math.round(impactChart.xForOffset(tick)) + 0.5;
                                   return (
@@ -1446,6 +1517,22 @@ export function EventHistoryModal({
                                   vectorEffect="non-scaling-stroke"
                                 />
                               </g>
+                              <g className="impact-axis">
+                                <line
+                                  x1={impactChart.padding.left + 0.5}
+                                  x2={impactChart.padding.left + 0.5}
+                                  y1={impactChart.padding.top}
+                                  y2={impactChart.height - impactChart.padding.bottom}
+                                  vectorEffect="non-scaling-stroke"
+                                />
+                                <line
+                                  x1={impactChart.padding.left}
+                                  x2={impactChart.width - impactChart.padding.right}
+                                  y1={impactChart.height - impactChart.padding.bottom + 0.5}
+                                  y2={impactChart.height - impactChart.padding.bottom + 0.5}
+                                  vectorEffect="non-scaling-stroke"
+                                />
+                              </g>
                               <g className="impact-band">
                                 {impactChart.bandPath ? (
                                   <path d={impactChart.bandPath} vectorEffect="non-scaling-stroke" />
@@ -1457,6 +1544,17 @@ export function EventHistoryModal({
                                 ) : null}
                               </g>
                               <g className="impact-labels">
+                                {impactChart.yTicks.map((tick) => (
+                                  <text
+                                    key={`yl-${tick}`}
+                                    className="impact-y"
+                                    x={impactChart.padding.left - 10}
+                                    y={impactChart.yFor(tick) + 4}
+                                    textAnchor="end"
+                                  >
+                                    {formatPct(tick)}
+                                  </text>
+                                ))}
                                 {impactSeries.items.map((item) => {
                                   const offset = item.offset;
                                   const stats = item.stats;
@@ -1535,6 +1633,27 @@ export function EventHistoryModal({
                                   textAnchor="middle"
                                 >
                                   Time offset
+                                </text>
+                                <text
+                                  className="impact-axis-label"
+                                  x={14}
+                                  y={
+                                    impactChart.padding.top +
+                                    (impactChart.height -
+                                      impactChart.padding.top -
+                                      impactChart.padding.bottom) /
+                                      2
+                                  }
+                                  textAnchor="middle"
+                                  transform={`rotate(-90 14 ${
+                                    impactChart.padding.top +
+                                    (impactChart.height -
+                                      impactChart.padding.top -
+                                      impactChart.padding.bottom) /
+                                      2
+                                  })`}
+                                >
+                                  Median % change
                                 </text>
                               </g>
                             </svg>

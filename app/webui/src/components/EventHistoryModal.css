@@ -252,7 +252,16 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px 18px;
-  align-items: start;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  background: var(--panel);
+  padding: 2px 0 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .history-modal-controls {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
 }
 
 .history-modal-controls-left {
@@ -275,6 +284,15 @@
   align-items: center;
   gap: 10px 12px;
   margin-left: 0;
+  max-width: min(760px, 52vw);
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+
+.history-impact-controls::-webkit-scrollbar {
+  height: 0;
 }
 
 .history-impact-controls-row {
@@ -282,6 +300,12 @@
   align-items: center;
   justify-content: flex-end;
   gap: 10px 12px;
+  flex-wrap: nowrap;
+}
+
+.history-impact-controls-row .history-impact-panels,
+.history-impact-controls-row .history-impact-buckets {
+  flex-wrap: nowrap;
 }
 
 .history-modal-control {
@@ -314,7 +338,7 @@
 
 .history-modal-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) clamp(340px, 32vw, 440px);
   grid-template-rows: minmax(0, 1fr);
   gap: 18px;
   align-items: stretch;
@@ -325,7 +349,7 @@
 
 .history-modal-layout.history-modal-layout--impact {
   /* Keep the right-side history width consistent between History and Impact views. */
-  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) clamp(340px, 32vw, 440px);
 }
 
 .history-modal-layout-left,
@@ -500,12 +524,14 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  min-width: 0;
 }
 
 .history-impact-buckets {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  min-width: 0;
 }
 
 .history-impact-compact-select {
@@ -569,6 +595,28 @@
   padding: 6px 10px;
 }
 
+.impact-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-left: 8px;
+  color: var(--text-strong);
+  background: rgba(134, 201, 255, 0.12);
+  border: 1px solid rgba(134, 201, 255, 0.35);
+}
+
+[data-theme="light"] .impact-badge {
+  background: rgba(30, 75, 143, 0.1);
+  border-color: rgba(30, 75, 143, 0.28);
+}
+
 .impact-chart-meta-item {
   min-width: 0;
   overflow-wrap: anywhere;
@@ -604,6 +652,15 @@
   stroke: rgba(15, 23, 42, 0.12);
 }
 
+.impact-axis line {
+  stroke: rgba(255, 255, 255, 0.18);
+  stroke-width: 1;
+}
+
+[data-theme="light"] .impact-axis line {
+  stroke: rgba(15, 23, 42, 0.22);
+}
+
 .impact-band path {
   fill: rgba(134, 201, 255, 0.12);
   stroke: rgba(134, 201, 255, 0.45);
@@ -635,6 +692,11 @@
   fill: var(--text-strong);
   font-size: 11px;
   font-weight: 600;
+}
+
+.impact-y {
+  fill: var(--muted);
+  font-size: 11px;
 }
 
 .impact-x {

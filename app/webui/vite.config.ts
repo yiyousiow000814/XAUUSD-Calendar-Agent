@@ -6,7 +6,9 @@ export default defineConfig({
   base: "./",
   build: {
     outDir: "dist",
-    emptyOutDir: true,
+    // Windows occasionally fails to delete `dist/assets` due to file locks during ui-check.
+    // Vite emits content-hashed asset names, so leaving stale assets is safe for local builds.
+    emptyOutDir: process.platform !== "win32",
     chunkSizeWarningLimit: 1100
   }
 });
