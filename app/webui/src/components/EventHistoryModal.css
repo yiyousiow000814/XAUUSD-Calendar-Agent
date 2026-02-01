@@ -50,6 +50,19 @@
   background: transparent;
 }
 
+.history-modal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.history-modal-header-view {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
 .history-modal-loading,
 .history-modal-empty,
 .history-modal-error {
@@ -418,7 +431,7 @@
   border-radius: 20px;
   padding: 10px 12px 10px;
   flex: 1;
-  min-height: 520px;
+  min-height: 600px;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -429,7 +442,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: flex-start;
-  padding: 2px 2px 8px;
+  padding: 0 2px 6px;
 }
 
 .impact-chart-meta {
@@ -509,13 +522,20 @@
   font-weight: 700;
 }
 
+.impact-axis-label {
+  fill: var(--text-strong);
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.92;
+}
+
 .history-impact-deep {
   border-radius: 20px;
   border: 1px solid var(--panel-border);
   background: var(--table-row-bg);
   padding: 18px 18px 16px;
   flex: 1;
-  min-height: 520px;
+  min-height: 600px;
   display: flex;
   flex-direction: column;
   justify-content: center;

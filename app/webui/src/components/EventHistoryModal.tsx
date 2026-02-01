@@ -485,9 +485,9 @@ export function EventHistoryModal({
     if (!impactOpen) return null;
     // Larger viewport so the Impact chart remains readable when the modal is wide.
     const width = 1040;
-    const height = 520;
+    const height = 600;
     // Slightly smaller paddings so the plot occupies more of the card.
-    const padding = { left: 40, right: 10, top: 10, bottom: 42 };
+    const padding = { left: 40, right: 10, top: 10, bottom: 58 };
     const plotWidth = width - padding.left - padding.right;
     const plotHeight = height - padding.top - padding.bottom;
     const offsets = impactSeries.items.map((item) => item.offset);
@@ -1172,14 +1172,38 @@ export function EventHistoryModal({
             <div className="modal-title-text">Event history</div>
             <div className="modal-subtitle">{selectionLabel}</div>
           </div>
-          <button
-            type="button"
-            className="btn ghost"
-            onClick={requestClose}
-            data-qa="qa:modal-close:history"
-          >
-            Close
-          </button>
+          <div className="history-modal-header-actions">
+            {!loading && !error && hasData ? (
+              <div className="history-modal-header-view" role="group" aria-label="View">
+                <div className="history-modal-toggle">
+                  <button
+                    type="button"
+                    className={`history-toggle compact${!impactOpen ? " active" : ""}`}
+                    onClick={() => setImpactOpen(false)}
+                    aria-pressed={!impactOpen}
+                  >
+                    History
+                  </button>
+                  <button
+                    type="button"
+                    className={`history-toggle compact${impactOpen ? " active" : ""}`}
+                    onClick={() => setImpactOpen(true)}
+                    aria-pressed={impactOpen}
+                  >
+                    Impact
+                  </button>
+                </div>
+              </div>
+            ) : null}
+            <button
+              type="button"
+              className="btn ghost"
+              onClick={requestClose}
+              data-qa="qa:modal-close:history"
+            >
+              Close
+            </button>
+          </div>
         </div>
         <div className="modal-body" ref={modalBodyRef}>
           {loading ? (
@@ -1208,28 +1232,6 @@ export function EventHistoryModal({
                 <div className="history-modal-content">
                 <div className="history-modal-controls">
                   <div className="history-modal-controls-left">
-                    <div className="history-modal-control">
-                      <span className="history-modal-label">View</span>
-                      <div className="history-modal-toggle">
-                        <button
-                          type="button"
-                          className={`history-toggle${!impactOpen ? " active" : ""}`}
-                          onClick={() => setImpactOpen(false)}
-                          aria-pressed={!impactOpen}
-                        >
-                          History
-                        </button>
-                        <button
-                          type="button"
-                          className={`history-toggle${impactOpen ? " active" : ""}`}
-                          onClick={() => setImpactOpen(true)}
-                          aria-pressed={impactOpen}
-                        >
-                          Impact
-                        </button>
-                      </div>
-                    </div>
-
                     {rangeOptions.length ? (
                       <div className="history-modal-control">
                         <span className="history-modal-label">Range</span>
@@ -1468,7 +1470,7 @@ export function EventHistoryModal({
                                     key={`xt-${tick}`}
                                     className="impact-x"
                                     x={impactChart.xForOffset(tick)}
-                                    y={impactChart.height - 18}
+                                    y={impactChart.height - 24}
                                     textAnchor="middle"
                                   >
                                     {formatOffsetLabel(tick)}
@@ -1477,10 +1479,24 @@ export function EventHistoryModal({
                                 <text
                                   className="impact-x impact-x-event"
                                   x={impactChart.xForOffset(0)}
-                                  y={impactChart.height - 18}
+                                  y={impactChart.height - 24}
                                   textAnchor="middle"
                                 >
                                   Event
+                                </text>
+                                <text
+                                  className="impact-axis-label"
+                                  x={
+                                    impactChart.padding.left +
+                                    (impactChart.width -
+                                      impactChart.padding.left -
+                                      impactChart.padding.right) /
+                                      2
+                                  }
+                                  y={impactChart.height - 8}
+                                  textAnchor="middle"
+                                >
+                                  Time offset
                                 </text>
                               </g>
                             </svg>
