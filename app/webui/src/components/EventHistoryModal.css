@@ -50,6 +50,22 @@
   background: transparent;
 }
 
+.modal.modal-history .modal-header .btn {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.modal.modal-history .modal-header .btn:hover,
+.modal.modal-history .modal-header .btn:active {
+  transform: none;
+}
+
 .history-modal-header-actions {
   display: flex;
   align-items: center;
@@ -61,6 +77,48 @@
   display: flex;
   align-items: center;
   min-width: 0;
+}
+
+.history-modal-header-actions .history-modal-toggle {
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+.history-toggle.header-toggle {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 12px;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  background: transparent;
+  border-color: var(--segmented-border);
+  box-shadow: none;
+}
+
+.history-toggle.header-toggle:hover {
+  transform: none;
+  border-color: var(--control-border-hover);
+  background: rgba(24, 30, 40, 0.22);
+  box-shadow: none;
+  color: var(--text);
+}
+
+[data-theme="light"] .history-toggle.header-toggle:hover {
+  background: rgba(30, 75, 143, 0.06);
+}
+
+.history-toggle.header-toggle.active {
+  background: rgba(134, 201, 255, 0.12);
+  border-color: rgba(134, 201, 255, 0.48);
+  color: var(--text-strong);
+}
+
+[data-theme="light"] .history-toggle.header-toggle.active {
+  background: rgba(30, 75, 143, 0.1);
+  border-color: rgba(30, 75, 143, 0.32);
 }
 
 .history-modal-loading,
@@ -277,6 +335,7 @@
   gap: 16px;
   min-height: 0;
   min-width: 0;
+  align-items: stretch;
 }
 
 /* Impact mode: keep the chart large while showing a side panel. */
@@ -329,6 +388,51 @@
 .history-toggle.compact {
   padding: 6px 10px;
   font-size: 12px;
+}
+
+.history-toggle.impact-toggle {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  text-transform: none;
+  letter-spacing: normal;
+  background: rgba(24, 30, 40, 0.55);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: none;
+  color: var(--text);
+}
+
+.history-toggle.impact-toggle:hover {
+  transform: none;
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(24, 30, 40, 0.62);
+  box-shadow: none;
+}
+
+.history-toggle.impact-toggle.active {
+  background: rgba(134, 201, 255, 0.12);
+  border-color: rgba(134, 201, 255, 0.48);
+  color: var(--text-strong);
+  box-shadow: none;
+}
+
+[data-theme="light"] .history-toggle.impact-toggle {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(18, 20, 26, 0.16);
+  color: var(--text);
+}
+
+[data-theme="light"] .history-toggle.impact-toggle:hover {
+  border-color: rgba(18, 20, 26, 0.42);
+  background: rgba(255, 255, 255, 0.98);
+}
+
+[data-theme="light"] .history-toggle.impact-toggle.active {
+  background: rgba(30, 75, 143, 0.1);
+  border-color: rgba(30, 75, 143, 0.32);
 }
 
 .history-toggle:hover {
@@ -389,12 +493,13 @@
   gap: 14px;
   flex: 1;
   min-height: 0;
+  align-items: stretch;
 }
 
 .history-impact-panels {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 10px;
 }
 
 .history-impact-buckets {
@@ -429,20 +534,22 @@
   background: var(--table-row-bg);
   border: 1px solid var(--panel-border);
   border-radius: 20px;
-  padding: 10px 12px 10px;
+  padding: 6px 8px 6px;
   flex: 1;
   min-height: 600px;
   display: flex;
   flex-direction: column;
   position: relative;
   z-index: 1;
+  width: 100%;
+  align-self: stretch;
 }
 
 .impact-chart-header {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: flex-start;
-  padding: 0 2px 6px;
+  padding: 2px 2px 8px;
 }
 
 .impact-chart-meta {
@@ -453,6 +560,24 @@
   flex-wrap: wrap;
   gap: 6px 8px;
   align-items: center;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 999px;
+  padding: 6px 10px;
+}
+
+.impact-chart-meta-item {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+[data-theme="dark"] .impact-chart-meta {
+  background: rgba(18, 22, 30, 0.62);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .impact-chart-meta-sep {

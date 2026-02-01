@@ -98,7 +98,7 @@ const formatCoverage = (isoMin: string | null | undefined, isoMax: string | null
   const minDate = min.slice(0, 10);
   const maxDate = max.slice(0, 10);
   if (!minDate || !maxDate) return "";
-  return `${formatDisplayDate(minDate)}..${formatDisplayDate(maxDate)} UTC`;
+  return `${formatDisplayDate(minDate)} to ${formatDisplayDate(maxDate)} UTC`;
 };
 
 const formatDisplayPeriod = (value: string | null | undefined) => {
@@ -285,6 +285,10 @@ export function EventHistoryModal({
   const [impactLoading, setImpactLoading] = useState(false);
   const [impactError, setImpactError] = useState<string | null>(null);
   const [impactData, setImpactData] = useState<EventImpactResponse | null>(null);
+  const impactBodyRef = useRef<HTMLDivElement | null>(null);
+  const [impactViewport, setImpactViewport] = useState<{ width: number; height: number } | null>(
+    null
+  );
   const points = data?.points ?? [];
   const eventNotes = useMemo(
     () => buildEventNotes(selectionLabel, data),
@@ -483,11 +487,12 @@ export function EventHistoryModal({
 
   const impactChart = useMemo(() => {
     if (!impactOpen) return null;
-    // Larger viewport so the Impact chart remains readable when the modal is wide.
-    const width = 1040;
-    const height = 600;
+    // Match the chart viewport to its on-screen size (avoids letterboxing when the modal
+    // layout changes across themes / platforms).
+    const width = impactViewport?.width ?? 1040;
+    const height = impactViewport?.height ?? 600;
     // Slightly smaller paddings so the plot occupies more of the card.
-    const padding = { left: 40, right: 10, top: 10, bottom: 58 };
+    const padding = { left: 18, right: 6, top: 8, bottom: 50 };
     const plotWidth = width - padding.left - padding.right;
     const plotHeight = height - padding.top - padding.bottom;
     const offsets = impactSeries.items.map((item) => item.offset);
@@ -506,8 +511,10 @@ export function EventHistoryModal({
     const domainSpan = rawMax - rawMin;
     const absMax = Math.max(Math.abs(rawMax), Math.abs(rawMin));
     // Avoid a hardcoded +-1% pad which flattens small-magnitude results.
-    const minPad = Math.max(absMax * 0.02, 0.008);
-    const pad = Math.max(domainSpan * 0.06, minPad);
+    // Keep the domain "tight" so small-magnitude results still read clearly.
+    // Values are in decimal pct-change (0.001 = 0.1%), so a tiny floor is enough.
+    const minPad = Math.max(absMax * 0.02, 0.0008);
+    const pad = Math.max(domainSpan * 0.03, minPad);
     const domainMin = rawMin - pad;
     const domainMax = rawMax + pad;
     const spanY = Math.max(1e-9, domainMax - domainMin);
@@ -585,7 +592,38 @@ export function EventHistoryModal({
       domainMin,
       domainMax
     };
-  }, [impactOpen, impactSeries]);
+  }, [impactOpen, impactSeries, impactViewport]);
+
+  useEffect(() => {
+    if (!impactOpen) return;
+    if (typeof window === "undefined") return;
+    if (typeof ResizeObserver === "undefined") return;
+    const node = impactBodyRef.current;
+    if (!node) return;
+
+    let frame: number | null = null;
+    const update = () => {
+      if (frame !== null) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = null;
+        const rect = node.getBoundingClientRect();
+        const width = Math.max(1, Math.floor(rect.width));
+        const height = Math.max(1, Math.floor(rect.height));
+        setImpactViewport((prev) => {
+          if (prev && prev.width === width && prev.height === height) return prev;
+          return { width, height };
+        });
+      });
+    };
+
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(node);
+    return () => {
+      if (frame !== null) window.cancelAnimationFrame(frame);
+      ro.disconnect();
+    };
+  }, [impactOpen]);
   const hasVisibleSeries = visibleSeries.actual || visibleSeries.forecast;
   const activeRange = useMemo(
     () => resolveRange(preferredRange, points.length),
@@ -1178,7 +1216,7 @@ export function EventHistoryModal({
                 <div className="history-modal-toggle">
                   <button
                     type="button"
-                    className={`history-toggle compact${!impactOpen ? " active" : ""}`}
+                    className={`history-toggle header-toggle${!impactOpen ? " active" : ""}`}
                     onClick={() => setImpactOpen(false)}
                     aria-pressed={!impactOpen}
                   >
@@ -1186,7 +1224,7 @@ export function EventHistoryModal({
                   </button>
                   <button
                     type="button"
-                    className={`history-toggle compact${impactOpen ? " active" : ""}`}
+                    className={`history-toggle header-toggle${impactOpen ? " active" : ""}`}
                     onClick={() => setImpactOpen(true)}
                     aria-pressed={impactOpen}
                   >
@@ -1201,7 +1239,7 @@ export function EventHistoryModal({
               onClick={requestClose}
               data-qa="qa:modal-close:history"
             >
-              Close
+              CLOSE
             </button>
           </div>
         </div>
@@ -1265,7 +1303,7 @@ export function EventHistoryModal({
                           >
                             <button
                               type="button"
-                              className={`history-toggle compact${impactPanel === "event" ? " active" : ""}`}
+                              className={`history-toggle impact-toggle${impactPanel === "event" ? " active" : ""}`}
                               onClick={() => setImpactPanel("event")}
                               aria-pressed={impactPanel === "event"}
                             >
@@ -1273,7 +1311,7 @@ export function EventHistoryModal({
                             </button>
                             <button
                               type="button"
-                              className={`history-toggle compact${impactPanel === "deep" ? " active" : ""}`}
+                              className={`history-toggle impact-toggle${impactPanel === "deep" ? " active" : ""}`}
                               onClick={() => setImpactPanel("deep")}
                               aria-pressed={impactPanel === "deep"}
                             >
@@ -1380,7 +1418,7 @@ export function EventHistoryModal({
                                 ) : null}
                               </div>
                             </div>
-                            <div className="impact-chart-body">
+                            <div className="impact-chart-body" ref={impactBodyRef}>
                             <svg
                               viewBox={`0 0 ${impactChart.width} ${impactChart.height}`}
                               role="img"
@@ -1470,7 +1508,7 @@ export function EventHistoryModal({
                                     key={`xt-${tick}`}
                                     className="impact-x"
                                     x={impactChart.xForOffset(tick)}
-                                    y={impactChart.height - 24}
+                                    y={impactChart.height - 22}
                                     textAnchor="middle"
                                   >
                                     {formatOffsetLabel(tick)}
@@ -1479,7 +1517,7 @@ export function EventHistoryModal({
                                 <text
                                   className="impact-x impact-x-event"
                                   x={impactChart.xForOffset(0)}
-                                  y={impactChart.height - 24}
+                                  y={impactChart.height - 22}
                                   textAnchor="middle"
                                 >
                                   Event
