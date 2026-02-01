@@ -221,7 +221,6 @@ export function EventHistoryModal({
     }
     return 10;
   });
-  const preferredRangeBeforeImpactRef = useRef<RangeKey | null>(null);
   const [phase, setPhase] = useState<"entering" | "open" | "closing">("entering");
   const closeTimerRef = useRef<number | null>(null);
   const [contentEnterToken, setContentEnterToken] = useState(0);
@@ -779,29 +778,11 @@ export function EventHistoryModal({
     };
   }, [impactOpen]);
   const hasVisibleSeries = visibleSeries.actual || visibleSeries.forecast;
+  const rangeKeyForView: RangeKey = impactOpen ? "all" : preferredRange;
   const activeRange = useMemo(
-    () => resolveRange(preferredRange, points.length),
-    [points.length, preferredRange]
+    () => resolveRange(rangeKeyForView, points.length),
+    [points.length, rangeKeyForView]
   );
-
-  // Impact view always uses the full history range (no dropdown).
-  // When leaving Impact, restore the user's previous range selection.
-  useEffect(() => {
-    if (!isOpen) return;
-    if (impactOpen) {
-      if (preferredRangeBeforeImpactRef.current === null) {
-        preferredRangeBeforeImpactRef.current = preferredRange;
-      }
-      if (preferredRange !== "all") setPreferredRange("all");
-      return;
-    }
-
-    const prev = preferredRangeBeforeImpactRef.current;
-    preferredRangeBeforeImpactRef.current = null;
-    if (prev && prev !== "all" && preferredRange === "all") {
-      setPreferredRange(prev);
-    }
-  }, [impactOpen, isOpen, preferredRange]);
 
   const headerShadowFrame = useRef<number | null>(null);
   const updateHeaderShadow = useCallback(() => {
@@ -868,13 +849,12 @@ export function EventHistoryModal({
 
   useEffect(() => {
     if (!isOpen) return;
-    if (impactOpen) return;
     try {
       window.localStorage.setItem(RANGE_STORAGE_KEY, String(preferredRange));
     } catch {
       // Ignore storage errors.
     }
-  }, [impactOpen, isOpen, preferredRange]);
+  }, [isOpen, preferredRange]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -1456,30 +1436,18 @@ export function EventHistoryModal({
                     {!impactOpen && rangeOptions.length ? (
                       <div className="history-modal-control">
                         <span className="history-modal-label">Range</span>
-                        <div className="history-range-buttons" data-qa="qa:history:range">
-                          {rangeOptions.map((option) => {
-                            const isActive = String(activeRange) === String(option.key);
-                            return (
-                              <button
-                                key={String(option.key)}
-                                type="button"
-                                className={`history-toggle range-toggle${isActive ? " active" : ""}`}
-                                onClick={() => {
-                                  if (option.key === "all") {
-                                    setPreferredRange("all");
-                                    return;
-                                  }
-                                  const parsed = Number(option.key);
-                                  if (NUMERIC_RANGE_KEYS.includes(parsed as NumericRangeKey)) {
-                                    setPreferredRange(parsed as NumericRangeKey);
-                                  }
-                                }}
-                                aria-pressed={isActive}
-                              >
-                                {option.label}
-                              </button>
-                            );
-                          })}
+                        <div className="history-modal-toggle" data-qa="qa:history:range">
+                          {rangeOptions.map((option) => (
+                            <button
+                              key={String(option.key)}
+                              type="button"
+                              className={`history-toggle${activeRange === option.key ? " active" : ""}`}
+                              onClick={() => setPreferredRange(option.key)}
+                              aria-pressed={activeRange === option.key}
+                            >
+                              {option.label}
+                            </button>
+                          ))}
                         </div>
                       </div>
                     ) : null}
