@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import type { MouseEvent as ReactMouseEvent } from "react";
 import type {
   EventHistoryPoint,
   EventHistoryResponse,
@@ -151,7 +150,7 @@ const detectUnitLabel = (points: EventHistoryPoint[], keys: Array<keyof EventHis
 };
 
 const formatOffsetLabel = (minutes: number) => {
-  if (minutes === 0) return "Event";
+  if (minutes === 0) return "0";
   const abs = Math.abs(minutes);
   const sign = minutes < 0 ? "-" : "+";
   if (abs % (12 * 60) === 0) return `${sign}${abs / (12 * 60)}d`;
@@ -669,18 +668,28 @@ export function EventHistoryModal({
       const xPx = clientX - rect.left;
       const yPx = clientY - rect.top;
 
+      // Only react inside the plot area, otherwise the hover feels jumpy near labels.
+      const xSvg = (xPx / rect.width) * impactChart.width;
+      const ySvg = (yPx / rect.height) * impactChart.height;
+      if (
+        xSvg < impactChart.padding.left ||
+        xSvg > impactChart.width - impactChart.padding.right ||
+        ySvg < impactChart.padding.top ||
+        ySvg > impactChart.height - impactChart.padding.bottom
+      ) {
+        setImpactHoverOffset(null);
+        return;
+      }
+
       let best: { offset: number; dist: number } | null = null;
       for (const p of impactChart.hoverPoints) {
-        const px = (p.x / impactChart.width) * rect.width;
-        const py = (p.y / impactChart.height) * rect.height;
-        const dx = px - xPx;
-        const dy = py - yPx;
-        const d = Math.sqrt(dx * dx + dy * dy);
+        const dx = p.x - xSvg;
+        const d = Math.abs(dx);
         if (!best || d < best.dist) best = { offset: p.offset, dist: d };
       }
 
-      // Only show tooltip when the cursor is close to a point.
-      if (!best || best.dist > 18) {
+      // Snap to the closest point along X; if it's too far, clear.
+      if (!best || best.dist > 80) {
         setImpactHoverOffset(null);
         return;
       }
@@ -710,9 +719,15 @@ export function EventHistoryModal({
 
     const x = impactChart.xForOffset(impactHoverOffset);
     const y = impactChart.yFor(stats.best_median_pct);
+    const leftPctRaw = (x / impactChart.width) * 100;
+    const topPctRaw = (y / impactChart.height) * 100;
+    const leftPct = Math.max(6, Math.min(94, leftPctRaw));
+    const topPct = Math.max(8, Math.min(92, topPctRaw));
     return {
-      leftPct: (x / impactChart.width) * 100,
-      topPct: (y / impactChart.height) * 100,
+      x,
+      y,
+      leftPct,
+      topPct,
       direction: stats.best_direction === "up" ? "Up" : "Down",
       pText: `${Math.round(stats.best_p * 100)}%`,
       move: formatPct(stats.best_median_pct)
@@ -1365,11 +1380,12 @@ export function EventHistoryModal({
             ) : null}
             <button
               type="button"
-              className="btn ghost"
+              className="btn ghost history-close"
               onClick={requestClose}
               data-qa="qa:modal-close:history"
+              aria-label="Close"
             >
-              CLOSE
+              X
             </button>
           </div>
         </div>
@@ -1452,6 +1468,10 @@ export function EventHistoryModal({
                             </div>
                           ) : null}
 
+                          {impactPanel === "event" ? (
+                            <span className="history-impact-divider" aria-hidden="true" />
+                          ) : null}
+
                           <div className="history-impact-panels" role="group" aria-label="Impact panels">
                             <button
                               type="button"
@@ -1461,7 +1481,7 @@ export function EventHistoryModal({
                               onClick={() => setImpactPanel("event")}
                               aria-pressed={impactPanel === "event"}
                             >
-                              Event analysis
+                              Event Analysis
                             </button>
                             <button
                               type="button"
@@ -1471,7 +1491,7 @@ export function EventHistoryModal({
                               onClick={() => setImpactPanel("deep")}
                               aria-pressed={impactPanel === "deep"}
                             >
-                              Deep analysis
+                              Deep Analysis
                             </button>
                           </div>
                         </div>
@@ -1521,7 +1541,7 @@ export function EventHistoryModal({
                       <div className="history-impact">
                         {impactPanel === "deep" ? (
                           <div className="history-impact-deep" data-qa="qa:history:deep-placeholder">
-                            <div className="history-impact-deep-title">Deep analysis</div>
+                            <div className="history-impact-deep-title">Deep Analysis</div>
                             <div className="history-impact-deep-body">
                               Placeholder: future versions will account for nearby/overlapping events and multi-event
                               attribution.
@@ -1647,18 +1667,39 @@ export function EventHistoryModal({
                                   <path d={impactChart.linePath} vectorEffect="non-scaling-stroke" />
                                 ) : null}
                               </g>
+                              {impactHover ? (
+                                <g className="impact-hover" aria-hidden="true">
+                                  <line
+                                    x1={Math.round(impactHover.x) + 0.5}
+                                    x2={Math.round(impactHover.x) + 0.5}
+                                    y1={impactChart.padding.top}
+                                    y2={impactChart.height - impactChart.padding.bottom}
+                                    vectorEffect="non-scaling-stroke"
+                                  />
+                                </g>
+                              ) : null}
                               <g className="impact-labels">
-                                {impactChart.yTicks.map((tick) => (
+                                {impactChart.yTicks.map((tick) => {
+                                  const y = impactChart.yFor(tick);
+                                  const yText = Math.max(
+                                    impactChart.padding.top + 10,
+                                    Math.min(
+                                      impactChart.height - impactChart.padding.bottom - 6,
+                                      y + 4
+                                    )
+                                  );
+                                  return (
                                   <text
                                     key={`yl-${tick}`}
                                     className="impact-y"
                                     x={impactChart.padding.left - 10}
-                                    y={impactChart.yFor(tick) + 4}
+                                    y={yText}
                                     textAnchor="end"
                                   >
                                     {formatPct(tick)}
                                   </text>
-                                ))}
+                                  );
+                                })}
                                 {impactSeries.items.map((item) => {
                                   const offset = item.offset;
                                   const stats = item.stats;
@@ -1680,17 +1721,18 @@ export function EventHistoryModal({
                                   // - Place +/- 1h labels below the line, longer horizons above the line
                                   const absOffset = Math.abs(offset);
                                   const placeBelow = absOffset <= 60;
-                                  const baseAnchor = offset < 0 ? "end" : "start";
-                                  const rawXText = offset < 0 ? x - 8 : x + 8;
-                                  const leftBound = impactChart.padding.left + 6;
-                                  const rightBound = impactChart.width - impactChart.padding.right - 6;
+                                  // Place labels towards the center so they don't get clipped at chart edges.
+                                  const baseAnchor = offset < 0 ? "start" : "end";
+                                  const rawXText = offset < 0 ? x + 10 : x - 10;
+                                  const leftBound = impactChart.padding.left + 10;
+                                  const rightBound = impactChart.width - impactChart.padding.right - 10;
                                   const xText = Math.max(leftBound, Math.min(rightBound, rawXText));
                                   const anchor =
                                     xText <= leftBound + 0.5
                                       ? "start"
-                                      : xText >= rightBound - 0.5
-                                        ? "end"
-                                        : baseAnchor;
+                                    : xText >= rightBound - 0.5
+                                      ? "end"
+                                      : baseAnchor;
                                   const yText = (() => {
                                     const dy = placeBelow ? 16 : -10;
                                     const raw = y + dy;
@@ -1731,14 +1773,6 @@ export function EventHistoryModal({
                                   </text>
                                 ))}
                                 <text
-                                  className="impact-x impact-x-event"
-                                  x={impactChart.xForOffset(0)}
-                                  y={impactChart.height - 22}
-                                  textAnchor="middle"
-                                >
-                                  Event
-                                </text>
-                                <text
                                   className="impact-axis-label"
                                   x={
                                     impactChart.padding.left +
@@ -1777,14 +1811,14 @@ export function EventHistoryModal({
                             </svg>
                             {impactHover ? (
                               <div
-                                className="impact-tooltip"
+                                className="impact-chart-tooltip"
                                 style={{ left: `${impactHover.leftPct}%`, top: `${impactHover.topPct}%` }}
                               >
-                                <span className="impact-tooltip-dir">{impactHover.direction}</span>
-                                <span className="impact-tooltip-sep">•</span>
-                                <span className="impact-tooltip-p">{impactHover.pText}</span>
-                                <span className="impact-tooltip-sep">•</span>
-                                <span className="impact-tooltip-move">{impactHover.move}</span>
+                                <span className="impact-chart-tooltip-dir">{impactHover.direction}</span>
+                                <span className="impact-chart-tooltip-sep">•</span>
+                                <span className="impact-chart-tooltip-p">{impactHover.pText}</span>
+                                <span className="impact-chart-tooltip-sep">•</span>
+                                <span className="impact-chart-tooltip-move">{impactHover.move}</span>
                               </div>
                             ) : null}
                             </div>

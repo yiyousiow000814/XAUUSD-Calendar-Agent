@@ -84,6 +84,13 @@
   background: rgba(255, 255, 255, 0.12);
 }
 
+.history-close {
+  width: 38px;
+  padding: 0;
+  justify-content: center;
+  letter-spacing: normal;
+}
+
 .history-modal-header-view {
   display: flex;
   align-items: center;
@@ -319,6 +326,17 @@
 .history-impact-controls-row .history-impact-panels,
 .history-impact-controls-row .history-impact-buckets {
   flex-wrap: nowrap;
+}
+
+.history-impact-divider {
+  width: 1px;
+  height: 22px;
+  background: rgba(18, 20, 26, 0.12);
+  align-self: center;
+}
+
+[data-theme="dark"] .history-impact-divider {
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .history-modal-control {
@@ -703,6 +721,16 @@
   fill: #ffb1a5;
 }
 
+.impact-hover line {
+  stroke: rgba(18, 20, 26, 0.22);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+
+[data-theme="dark"] .impact-hover line {
+  stroke: rgba(255, 255, 255, 0.22);
+}
+
 .impact-labels text {
   font-variant-numeric: tabular-nums;
 }
@@ -735,7 +763,7 @@
   opacity: 0.92;
 }
 
-.impact-tooltip {
+.impact-chart-tooltip {
   position: absolute;
   transform: translate(-50%, -120%);
   pointer-events: none;
@@ -753,13 +781,13 @@
   white-space: nowrap;
 }
 
-[data-theme="dark"] .impact-tooltip {
+[data-theme="dark"] .impact-chart-tooltip {
   background: rgba(18, 22, 30, 0.88);
   border-color: rgba(255, 255, 255, 0.14);
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
 }
 
-.impact-tooltip-sep {
+.impact-chart-tooltip-sep {
   opacity: 0.65;
 }
 

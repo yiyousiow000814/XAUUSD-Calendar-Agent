@@ -3182,7 +3182,7 @@ const main = async () => {
 
           const deepToggle = impactControls
             .locator("button.history-toggle")
-            .filter({ hasText: "Deep analysis" })
+            .filter({ hasText: "Deep Analysis" })
             .first();
           if (await deepToggle.count()) {
             await deepToggle.click();
@@ -3204,7 +3204,7 @@ const main = async () => {
               await page.keyboard.press("Escape");
               await page.waitForTimeout(120);
               if (await deep.count()) {
-                throw new Error("Escape did not return from Deep analysis to Event analysis");
+                throw new Error("Escape did not return from Deep Analysis to Event Analysis");
               }
             }
 
