@@ -97,11 +97,11 @@
 
 /* Ensure the close "X" keeps its accent color (more specific than shared .btn styles). */
 .modal.modal-history .modal-header .btn.history-close {
-  color: #ff6a3d;
+  color: #ff6a3d !important;
 }
 
 [data-theme="light"] .modal.modal-history .modal-header .btn.history-close {
-  color: #ff6a3d;
+  color: #ff6a3d !important;
 }
 
 .history-close:hover {
@@ -579,32 +579,48 @@
 
 .impact-bucket-toggle.active[data-bucket="lower"] {
   border-color: rgba(255, 143, 123, 0.72);
-  box-shadow: inset 0 0 0 1px rgba(255, 143, 123, 0.32);
+  box-shadow: 0 0 0 2px rgba(255, 143, 123, 0.16),
+    inset 0 0 0 1px var(--pill-shadow-hover);
 }
 
 .impact-bucket-toggle.active[data-bucket="neutral"] {
   border-color: rgba(134, 201, 255, 0.72);
-  box-shadow: inset 0 0 0 1px rgba(134, 201, 255, 0.28);
+  box-shadow: 0 0 0 2px rgba(134, 201, 255, 0.16),
+    inset 0 0 0 1px var(--pill-shadow-hover);
 }
 
 .impact-bucket-toggle.active[data-bucket="higher"] {
   border-color: rgba(120, 255, 203, 0.68);
-  box-shadow: inset 0 0 0 1px rgba(120, 255, 203, 0.25);
+  box-shadow: 0 0 0 2px rgba(120, 255, 203, 0.16),
+    inset 0 0 0 1px var(--pill-shadow-hover);
 }
 
 [data-theme="light"] .impact-bucket-toggle.active[data-bucket="lower"] {
   border-color: rgba(255, 122, 85, 0.72);
-  box-shadow: inset 0 0 0 1px rgba(255, 122, 85, 0.24);
+  box-shadow: 0 0 0 2px rgba(255, 122, 85, 0.16),
+    inset 0 0 0 1px var(--pill-shadow-hover);
 }
 
 [data-theme="light"] .impact-bucket-toggle.active[data-bucket="neutral"] {
   border-color: rgba(30, 75, 143, 0.46);
-  box-shadow: inset 0 0 0 1px rgba(30, 75, 143, 0.2);
+  box-shadow: 0 0 0 2px rgba(30, 75, 143, 0.16),
+    inset 0 0 0 1px var(--pill-shadow-hover);
 }
 
 [data-theme="light"] .impact-bucket-toggle.active[data-bucket="higher"] {
   border-color: rgba(16, 160, 110, 0.52);
-  box-shadow: inset 0 0 0 1px rgba(16, 160, 110, 0.18);
+  box-shadow: 0 0 0 2px rgba(16, 160, 110, 0.16),
+    inset 0 0 0 1px var(--pill-shadow-hover);
+}
+
+.impact-label-leader {
+  stroke: rgba(255, 255, 255, 0.22);
+  stroke-width: 1;
+  stroke-dasharray: 2 6;
+}
+
+[data-theme="light"] .impact-label-leader {
+  stroke: rgba(15, 23, 42, 0.18);
 }
 
 .history-toggle:hover {

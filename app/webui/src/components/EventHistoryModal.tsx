@@ -1745,17 +1745,11 @@ export function EventHistoryModal({
                                       const placeBelow = absOffset <= 60;
 
                                       // Place labels towards the center so they don't get clipped at chart edges.
-                                      const baseAnchor = offset < 0 ? "start" : "end";
-                                      const rawXText = offset < 0 ? x + 10 : x - 10;
                                       const leftBound = impactChart.padding.left + 10;
                                       const rightBound = impactChart.width - impactChart.padding.right - 10;
-                                      const xText = Math.max(leftBound, Math.min(rightBound, rawXText));
-                                      const anchor =
-                                        xText <= leftBound + 0.5
-                                          ? "start"
-                                          : xText >= rightBound - 0.5
-                                          ? "end"
-                                          : baseAnchor;
+                                      // Keep static labels off the line: pin them to chart edges.
+                                      const xText = offset < 0 ? leftBound : rightBound;
+                                      const anchor: "start" | "end" = offset < 0 ? "start" : "end";
 
                                       const yBase = (() => {
                                         const dy = placeBelow ? 16 : -10;
@@ -1819,18 +1813,12 @@ export function EventHistoryModal({
                                     const pct = `${Math.round(stats.best_p * 100)}%`;
                                     const move = formatPct(median);
 
-                                    const baseAnchor = offset < 0 ? "start" : "end";
-                                    const rawXText = offset < 0 ? x + 10 : x - 10;
                                     const leftBound = impactChart.padding.left + 10;
                                     const rightBound = impactChart.width - impactChart.padding.right - 10;
-                                    const xText = Math.max(leftBound, Math.min(rightBound, rawXText));
-                                    const anchor =
-                                      xText <= leftBound + 0.5
-                                        ? "start"
-                                        : xText >= rightBound - 0.5
-                                        ? "end"
-                                        : baseAnchor;
+                                    const xText = offset < 0 ? leftBound : rightBound;
+                                    const anchor: "start" | "end" = offset < 0 ? "start" : "end";
                                     const yText = showLabel ? yByOffset.get(offset) ?? y : y;
+                                    const leaderX2 = anchor === "start" ? xText - 6 : xText + 6;
 
                                     return (
                                       <g key={`label-${offset}`}>
@@ -1841,14 +1829,24 @@ export function EventHistoryModal({
                                           r={impactHoverOffset === offset ? 4.2 : 3.1}
                                         />
                                         {showLabel ? (
-                                          <text
-                                            className="impact-prob"
-                                            x={xText}
-                                            y={yText}
-                                            textAnchor={anchor}
-                                          >
-                                            {direction} {pct} ({move})
-                                          </text>
+                                          <>
+                                            <line
+                                              className="impact-label-leader"
+                                              x1={x}
+                                              y1={y}
+                                              x2={leaderX2}
+                                              y2={yText}
+                                              vectorEffect="non-scaling-stroke"
+                                            />
+                                            <text
+                                              className="impact-prob"
+                                              x={xText}
+                                              y={yText}
+                                              textAnchor={anchor}
+                                            >
+                                              {direction} {pct} ({move})
+                                            </text>
+                                          </>
                                         ) : null}
                                       </g>
                                     );
