@@ -1456,24 +1456,31 @@ export function EventHistoryModal({
                     {!impactOpen && rangeOptions.length ? (
                       <div className="history-modal-control">
                         <span className="history-modal-label">Range</span>
-                        <Select
-                          qa="qa:history:range"
-                          value={String(activeRange)}
-                          options={rangeOptions.map((option) => ({
-                            value: String(option.key),
-                            label: option.label
-                          }))}
-                          onChange={(raw) => {
-                            if (raw === "all") {
-                              setPreferredRange("all");
-                              return;
-                            }
-                            const parsed = Number(raw);
-                            if (NUMERIC_RANGE_KEYS.includes(parsed as NumericRangeKey)) {
-                              setPreferredRange(parsed as NumericRangeKey);
-                            }
-                          }}
-                        />
+                        <div className="history-range-buttons" data-qa="qa:history:range">
+                          {rangeOptions.map((option) => {
+                            const isActive = String(activeRange) === String(option.key);
+                            return (
+                              <button
+                                key={String(option.key)}
+                                type="button"
+                                className={`history-toggle range-toggle${isActive ? " active" : ""}`}
+                                onClick={() => {
+                                  if (option.key === "all") {
+                                    setPreferredRange("all");
+                                    return;
+                                  }
+                                  const parsed = Number(option.key);
+                                  if (NUMERIC_RANGE_KEYS.includes(parsed as NumericRangeKey)) {
+                                    setPreferredRange(parsed as NumericRangeKey);
+                                  }
+                                }}
+                                aria-pressed={isActive}
+                              >
+                                {option.label}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
                     ) : null}
                   </div>
