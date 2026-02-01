@@ -638,10 +638,19 @@ export const assertHistoryImpactModalLayout = async (page) => {
     };
 
     const overlap = intersect(c, s);
+
+    const linePath = chart.querySelector("g.impact-line path");
+    const bandPath = chart.querySelector("g.impact-band path");
+    const dLine = linePath?.getAttribute("d") ?? "";
+    const dBand = bandPath?.getAttribute("d") ?? "";
+    const hasLine = /\bL\b/.test(dLine);
+    const hasBand = dBand.trim().length > 8;
     return {
       ok: true,
       chart: { width: c.width, height: c.height },
-      overlap
+      overlap,
+      hasLine,
+      hasBand
     };
   });
 
@@ -659,6 +668,10 @@ export const assertHistoryImpactModalLayout = async (page) => {
     throw new Error(
       `Impact chart overlaps side panel (overlap=${result.overlap.width.toFixed(1)}x${result.overlap.height.toFixed(1)})`
     );
+  }
+
+  if (!result.hasLine && !result.hasBand) {
+    throw new Error("Impact chart rendered without line/band paths");
   }
 };
 

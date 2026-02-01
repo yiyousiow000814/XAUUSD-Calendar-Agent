@@ -3131,12 +3131,34 @@ const main = async () => {
           .filter({ hasText: "Impact" })
           .first();
         if (await impactToggle.count()) {
+          const sideBefore = await historyModal
+            .locator("[data-qa='qa:history:table']")
+            .first()
+            .boundingBox()
+            .catch(() => null);
+
           await impactToggle.click();
           await page.waitForTimeout(160);
 
           const impactControls = historyModal.locator("[data-qa='qa:history:impact-controls']").first();
           await impactControls.waitFor({ state: "visible", timeout: 8000 }).catch(() => null);
           await page.waitForTimeout(120);
+
+          // Switching to Impact should not shift the side history table vertically.
+          await runCheck(theme.key, "History modal side panel does not jump", async () => {
+            if (!sideBefore) return;
+            const sideAfter = await historyModal
+              .locator("[data-qa='qa:history:table']")
+              .first()
+              .boundingBox()
+              .catch(() => null);
+            if (!sideAfter) return;
+            const delta = Math.abs(sideBefore.y - sideAfter.y);
+            // Allow tiny subpixel variation but catch visible jumps.
+            if (delta > 1) {
+              throw new Error(`History side panel jumped (delta=${delta.toFixed(2)}px)`);
+            }
+          });
 
           artifacts.push({
             scenario: "event-history-modal",

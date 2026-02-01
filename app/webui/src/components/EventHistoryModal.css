@@ -253,6 +253,8 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px 18px;
   align-items: center;
+  /* Keep the layout stable when switching History <-> Impact on desktop. */
+  height: 56px;
   position: relative;
   z-index: 2;
   background: var(--panel);
@@ -287,7 +289,7 @@
   max-width: min(760px, 52vw);
   overflow-x: auto;
   overflow-y: hidden;
-  padding-bottom: 2px;
+  padding-bottom: 0;
   scrollbar-width: none;
 }
 
@@ -376,6 +378,7 @@
 @media (max-width: 940px) {
   .history-modal-controls {
     grid-template-columns: 1fr;
+    height: auto;
   }
 
   .history-modal-controls-right {

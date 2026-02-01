@@ -177,6 +177,7 @@ const buildPath = (
   if (values.length <= 1) return "";
   let path = "";
   let started = false;
+  let hasLineSegment = false;
   values.forEach((value, index) => {
     if (value === null) {
       if (!connectNulls) {
@@ -191,9 +192,11 @@ const buildPath = (
       started = true;
     } else {
       path += ` L ${x.toFixed(2)} ${y.toFixed(2)}`;
+      hasLineSegment = true;
     }
   });
-  return path;
+  // A path with only a move command renders nothing; treat it as empty.
+  return hasLineSegment ? path : "";
 };
 
 export function EventHistoryModal({
@@ -467,7 +470,7 @@ export function EventHistoryModal({
         lineValues.push(item.stats.best_median_pct);
       }
     }
-    const values = [...bandValues, ...lineValues, 0];
+    const values = [...bandValues, ...lineValues, 0].filter((v) => Number.isFinite(v));
     const min = values.length ? Math.min(...values) : -1;
     const max = values.length ? Math.max(...values) : 1;
     return { items, min, max };
@@ -502,8 +505,11 @@ export function EventHistoryModal({
     if (!impactOpen) return null;
     // Match the chart viewport to its on-screen size (avoids letterboxing when the modal
     // layout changes across themes / platforms).
-    const width = impactViewport?.width ?? 1040;
-    const height = impactViewport?.height ?? 600;
+    const measuredWidth = impactViewport?.width ?? 0;
+    const measuredHeight = impactViewport?.height ?? 0;
+    // Guard against transient 0/1px measurements during view switches (can render an empty chart).
+    const width = measuredWidth >= 320 ? measuredWidth : 1040;
+    const height = measuredHeight >= 220 ? measuredHeight : 600;
     // Leave enough room for Y axis labels and the X axis title.
     const padding = { left: 56, right: 10, top: 12, bottom: 56 };
     const plotWidth = width - padding.left - padding.right;
@@ -611,6 +617,18 @@ export function EventHistoryModal({
       { connectNulls: false }
     );
 
+    const isDrawablePath = (d: string) => {
+      const normalized = (d ?? "").trim();
+      if (!normalized) return false;
+      // Require at least one line command; a single "M" renders nothing.
+      return /\bL\b/.test(normalized) && !/NaN|Infinity/.test(normalized);
+    };
+
+    const bandPathSafe = /NaN|Infinity/.test(bandPath) ? "" : bandPath;
+    const linePathSafe = /NaN|Infinity/.test(linePath) ? "" : linePath;
+    const hasBand = bandPoints.length >= 2 && !!bandPathSafe;
+    const hasLine = isDrawablePath(linePathSafe);
+
     const clampY = (y: number) =>
       Math.max(padding.top, Math.min(height - padding.bottom, y));
     const yForClamped = (value: number) => clampY(yFor(value));
@@ -623,8 +641,10 @@ export function EventHistoryModal({
       padding,
       xForOffset,
       yFor,
-      bandPath,
-      linePath,
+      bandPath: bandPathSafe,
+      linePath: linePathSafe,
+      hasBand,
+      hasLine,
       xTicks,
       yTicks,
       domainMin,
@@ -647,6 +667,8 @@ export function EventHistoryModal({
         const rect = node.getBoundingClientRect();
         const width = Math.max(1, Math.floor(rect.width));
         const height = Math.max(1, Math.floor(rect.height));
+        // Ignore transient tiny measurements (e.g. during layout transitions).
+        if (width < 50 || height < 50) return;
         setImpactViewport((prev) => {
           if (prev && prev.width === width && prev.height === height) return prev;
           return { width, height };
@@ -1444,7 +1466,7 @@ export function EventHistoryModal({
                             Impact analysis not available. Generate it locally first.
                           </div>
                         ) : impactSeries.items.length < 2 ||
-                          (!impactChart.bandPath && !impactChart.linePath) ? (
+                          (!impactChart.hasBand && !impactChart.hasLine) ? (
                           <div className="history-impact-status">
                             Impact analysis is not available for this bucket (insufficient samples).
                           </div>
