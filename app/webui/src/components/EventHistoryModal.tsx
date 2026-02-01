@@ -635,9 +635,19 @@ export function EventHistoryModal({
     const yForClamped = (value: number) => clampY(yFor(value));
 
     const xTicks = IMPACT_AXIS_OFFSETS.filter((t) => offsetIndex.has(t));
-    const hoverPoints = bandPoints
-      .filter((p) => p.offset !== 0)
-      .map((p) => ({ offset: p.offset, x: p.x, y: p.y }));
+    const hoverPoints = bandPoints.map((p) => ({ offset: p.offset, x: p.x, y: p.y }));
+    const hoverSnapDist = (() => {
+      if (hoverPoints.length < 2) return 120;
+      const sorted = [...hoverPoints].sort((a, b) => a.x - b.x);
+      let min = Infinity;
+      for (let i = 1; i < sorted.length; i++) {
+        const dx = sorted[i].x - sorted[i - 1].x;
+        if (dx > 0 && dx < min) min = dx;
+      }
+      if (!Number.isFinite(min) || min <= 0) return 120;
+      // Allow hovering anywhere near the closest point; scale with point spacing so sparse charts still hover.
+      return Math.max(120, Math.min(240, min * 0.65));
+    })();
 
     return {
       width,
@@ -650,6 +660,7 @@ export function EventHistoryModal({
       hasBand,
       hasLine,
       hoverPoints,
+      hoverSnapDist,
       xTicks,
       yTicks,
       domainMin,
@@ -689,7 +700,7 @@ export function EventHistoryModal({
       }
 
       // Snap to the closest point along X; if it's too far, clear.
-      if (!best || best.dist > 80) {
+      if (!best || best.dist > (impactChart.hoverSnapDist ?? 120)) {
         setImpactHoverOffset(null);
         return;
       }
@@ -1355,10 +1366,15 @@ export function EventHistoryModal({
           <div className="history-modal-header-actions">
             {!loading && !error && hasData ? (
               <div className="history-modal-header-view" role="group" aria-label="View">
-                <div className="history-modal-toggle">
+                <div
+                  className="segmented history-modal-view-toggle"
+                  data-qa="qa:history:view-toggle"
+                  data-value={impactOpen ? "impact" : "history"}
+                  data-count="2"
+                >
                   <button
                     type="button"
-                    className={`history-toggle header-toggle${!impactOpen ? " active" : ""}`}
+                    className={`segment${!impactOpen ? " active" : ""}`}
                     onClick={() => setImpactOpen(false)}
                     aria-pressed={!impactOpen}
                   >
@@ -1366,7 +1382,7 @@ export function EventHistoryModal({
                   </button>
                   <button
                     type="button"
-                    className={`history-toggle header-toggle${impactOpen ? " active" : ""}`}
+                    className={`segment${impactOpen ? " active" : ""}`}
                     onClick={() => setImpactOpen(true)}
                     aria-pressed={impactOpen}
                   >
@@ -1446,17 +1462,25 @@ export function EventHistoryModal({
                       <div className="history-impact-controls" data-qa="qa:history:impact-controls">
                         <div className="history-impact-controls-row">
                           {impactPanel === "event" ? (
-                            <div className="history-impact-buckets" role="group" aria-label="Impact bucket">
+                            <div
+                              className="segmented history-impact-segmented history-impact-buckets"
+                              role="group"
+                              aria-label="Impact bucket"
+                              data-count="3"
+                              data-value={impactBucket}
+                            >
                               {impactBucketOptions.map((option) => (
                                 <button
                                   key={option.value}
                                   type="button"
-                                  className={`history-toggle impact-toggle${
+                                  className={`segment impact-segment${
                                     impactBucket === option.value ? " active" : ""
                                   }`}
                                   onClick={() => setImpactBucket(option.value as EventImpactBucket)}
                                   aria-pressed={impactBucket === option.value}
+                                  data-bucket={option.value}
                                 >
+                                  <span className="impact-bucket-dot" aria-hidden="true" />
                                   {option.label}
                                   {typeof option.count === "number" ? (
                                     <span className="impact-badge" aria-hidden="true">
@@ -1472,10 +1496,16 @@ export function EventHistoryModal({
                             <span className="history-impact-divider" aria-hidden="true" />
                           ) : null}
 
-                          <div className="history-impact-panels" role="group" aria-label="Impact panels">
+                          <div
+                            className="segmented history-impact-segmented history-impact-panels"
+                            role="group"
+                            aria-label="Impact panels"
+                            data-count="2"
+                            data-value={impactPanel}
+                          >
                             <button
                               type="button"
-                              className={`history-toggle impact-toggle${
+                              className={`segment impact-segment${
                                 impactPanel === "event" ? " active" : ""
                               }`}
                               onClick={() => setImpactPanel("event")}
@@ -1485,7 +1515,7 @@ export function EventHistoryModal({
                             </button>
                             <button
                               type="button"
-                              className={`history-toggle impact-toggle${
+                              className={`segment impact-segment${
                                 impactPanel === "deep" ? " active" : ""
                               }`}
                               onClick={() => setImpactPanel("deep")}
