@@ -65,6 +65,15 @@ export const assertAutosaveShift = async (page) => {
 
 export const assertContrast = async (page) => {
   const failures = await page.evaluate(() => {
+    const theme = document.documentElement.dataset.theme || "dark";
+    const textStrong = window
+      .getComputedStyle(document.documentElement)
+      .getPropertyValue("--text-strong")
+      .trim();
+    if (!textStrong) {
+      return [{ theme, reason: "Missing CSS variable: --text-strong" }];
+    }
+
     const toRgb = (value) => {
       const parts = value.match(/[\d.]+/g);
       if (!parts || parts.length < 3) return [0, 0, 0, 0];
