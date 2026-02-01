@@ -221,6 +221,7 @@ export function EventHistoryModal({
     }
     return 10;
   });
+  const preferredRangeBeforeImpactRef = useRef<RangeKey | null>(null);
   const [phase, setPhase] = useState<"entering" | "open" | "closing">("entering");
   const closeTimerRef = useRef<number | null>(null);
   const [contentEnterToken, setContentEnterToken] = useState(0);
@@ -783,6 +784,25 @@ export function EventHistoryModal({
     [points.length, preferredRange]
   );
 
+  // Impact view always uses the full history range (no dropdown).
+  // When leaving Impact, restore the user's previous range selection.
+  useEffect(() => {
+    if (!isOpen) return;
+    if (impactOpen) {
+      if (preferredRangeBeforeImpactRef.current === null) {
+        preferredRangeBeforeImpactRef.current = preferredRange;
+      }
+      if (preferredRange !== "all") setPreferredRange("all");
+      return;
+    }
+
+    const prev = preferredRangeBeforeImpactRef.current;
+    preferredRangeBeforeImpactRef.current = null;
+    if (prev && prev !== "all" && preferredRange === "all") {
+      setPreferredRange(prev);
+    }
+  }, [impactOpen, isOpen, preferredRange]);
+
   const headerShadowFrame = useRef<number | null>(null);
   const updateHeaderShadow = useCallback(() => {
     const node = tableRef.current;
@@ -848,12 +868,13 @@ export function EventHistoryModal({
 
   useEffect(() => {
     if (!isOpen) return;
+    if (impactOpen) return;
     try {
       window.localStorage.setItem(RANGE_STORAGE_KEY, String(preferredRange));
     } catch {
       // Ignore storage errors.
     }
-  }, [isOpen, preferredRange]);
+  }, [impactOpen, isOpen, preferredRange]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -1430,9 +1451,9 @@ export function EventHistoryModal({
           ) : null}
             {!loading && !error && hasData ? (
                 <div className="history-modal-content">
-                <div className="history-modal-controls">
-                  <div className="history-modal-controls-left">
-                    {rangeOptions.length ? (
+                  <div className="history-modal-controls">
+                    <div className="history-modal-controls-left">
+                    {!impactOpen && rangeOptions.length ? (
                       <div className="history-modal-control">
                         <span className="history-modal-label">Range</span>
                         <Select
