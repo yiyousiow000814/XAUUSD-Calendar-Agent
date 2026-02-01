@@ -160,7 +160,7 @@ const formatOffsetLabel = (minutes: number) => {
 
 const IMPACT_AXIS_OFFSETS = [-12 * 60, -4 * 60, -60, 0, 60, 4 * 60, 12 * 60];
 // Keep labels sparse; dense labels around the event overlap and become unreadable.
-const IMPACT_LABEL_OFFSETS = [-12 * 60, -4 * 60, -60, 60, 4 * 60, 12 * 60];
+const IMPACT_LABEL_OFFSETS = [-12 * 60, -4 * 60, 4 * 60, 12 * 60];
 
 const formatPct = (value: number) => {
   const abs = Math.abs(value);
@@ -485,8 +485,9 @@ export function EventHistoryModal({
     if (!impactOpen) return null;
     // Larger viewport so the Impact chart remains readable when the modal is wide.
     const width = 1040;
-    const height = 460;
-    const padding = { left: 52, right: 18, top: 18, bottom: 44 };
+    const height = 520;
+    // Slightly smaller paddings so the plot occupies more of the card.
+    const padding = { left: 40, right: 10, top: 10, bottom: 42 };
     const plotWidth = width - padding.left - padding.right;
     const plotHeight = height - padding.top - padding.bottom;
     const offsets = impactSeries.items.map((item) => item.offset);
@@ -505,8 +506,8 @@ export function EventHistoryModal({
     const domainSpan = rawMax - rawMin;
     const absMax = Math.max(Math.abs(rawMax), Math.abs(rawMin));
     // Avoid a hardcoded +-1% pad which flattens small-magnitude results.
-    const minPad = Math.max(absMax * 0.08, 0.03);
-    const pad = Math.max(domainSpan * 0.15, minPad);
+    const minPad = Math.max(absMax * 0.02, 0.008);
+    const pad = Math.max(domainSpan * 0.06, minPad);
     const domainMin = rawMin - pad;
     const domainMax = rawMax + pad;
     const spanY = Math.max(1e-9, domainMax - domainMin);
@@ -1746,7 +1747,7 @@ export function EventHistoryModal({
                         </div>
                       )
                     ) : null}
-                    {hasNotes ? (
+                    {hasNotes && !impactOpen ? (
                       <div className="history-notes-wrap">
                         <div className="history-notes-card" data-qa="qa:history:notes">
                           <div className="history-notes-title">Description</div>

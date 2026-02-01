@@ -253,7 +253,8 @@
 }
 
 .history-modal-layout.history-modal-layout--impact {
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  /* Keep the right-side history width consistent between History and Impact views. */
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
 }
 
 .history-modal-layout-left,
@@ -359,9 +360,8 @@
   padding: 18px 18px 12px;
   position: relative;
   display: flex;
-  flex: 0 0 auto;
-  height: clamp(320px, 44vh, 420px);
-  min-height: 320px;
+  flex: 1;
+  min-height: 240px;
 }
 
 .history-modal-chart svg {
@@ -416,10 +416,9 @@
   background: var(--table-row-bg);
   border: 1px solid var(--panel-border);
   border-radius: 20px;
-  padding: 14px 16px 12px;
-  flex: 0 0 auto;
-  height: clamp(320px, 44vh, 420px);
-  min-height: 320px;
+  padding: 10px 12px 10px;
+  flex: 1;
+  min-height: 520px;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -430,7 +429,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: flex-start;
-  padding: 2px 2px 10px;
+  padding: 2px 2px 8px;
 }
 
 .impact-chart-meta {
@@ -515,9 +514,8 @@
   border: 1px solid var(--panel-border);
   background: var(--table-row-bg);
   padding: 18px 18px 16px;
-  flex: 0 0 auto;
-  height: clamp(320px, 44vh, 420px);
-  min-height: 320px;
+  flex: 1;
+  min-height: 520px;
   display: flex;
   flex-direction: column;
   justify-content: center;
