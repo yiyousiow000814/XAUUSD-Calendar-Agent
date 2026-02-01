@@ -44,5 +44,5 @@ stale_missing_actual_dropped,DKK::Lending Rate::none,DKK,Lending Rate,,2026-01-0
 stale_missing_actual_dropped,RUB::S&P Global Manufacturing PMI::none,RUB,S&P Global Manufacturing PMI  (Dec),dec,2026-01-02,14:00,,,,"{""cutoff"": ""30-01-2026 03:20""}"
 stale_missing_actual_dropped,AUD::Judo Bank Services PMI::none,AUD,Judo Bank Services PMI  (Dec),dec,2026-01-03,07:00,,,,"{""cutoff"": ""30-01-2026 03:20""}"
 stale_missing_actual_dropped,AUD::Manufacturing & Services PMI::none,AUD,Manufacturing & Services PMI  (Dec),dec,2026-01-03,07:00,,,,"{""cutoff"": ""30-01-2026 03:20""}"
-stale_missing_actual_dropped,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2026-01-28,07:50,,,,"{""cutoff"": ""30-01-2026 03:20""}"
+stale_missing_actual_dropped,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2026-01-28,07:50,,,,"{""cutoff"": ""30-01-2026 15:42""}"
 stale_missing_actual_dropped,RUB::CFTC RUB speculative positions::none,RUB,CFTC RUB speculative positions,,2026-01-03,04:30,,,,"{""cutoff"": ""30-01-2026 03:20""}"

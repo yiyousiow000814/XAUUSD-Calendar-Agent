@@ -1,5 +1,5 @@
 {
-  "generated_at": "01-02-2026 03:20",
+  "generated_at": "01-02-2026 15:42",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -477,7 +477,7 @@
       "period": "",
       "date": "2026-01-28",
       "time": "07:50",
-      "cutoff": "30-01-2026 03:20"
+      "cutoff": "30-01-2026 15:42"
     },
     {
       "issue": "stale_missing_actual_dropped",
