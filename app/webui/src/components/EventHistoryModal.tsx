@@ -753,6 +753,10 @@ export function EventHistoryModal({
     if (!node) return;
 
     let frame: number | null = null;
+    // When switching History <-> Impact, layout can settle over a few frames.
+    // Require the size to be stable before committing a viewport update to avoid chart flicker.
+    let lastSample: { width: number; height: number } | null = null;
+    let stableHits = 0;
     const update = () => {
       if (frame !== null) return;
       frame = window.requestAnimationFrame(() => {
@@ -762,6 +766,16 @@ export function EventHistoryModal({
         const height = Math.max(1, Math.floor(rect.height));
         // Ignore transient tiny measurements (e.g. during layout transitions).
         if (width < 50 || height < 50) return;
+
+        if (lastSample && Math.abs(lastSample.width - width) <= 1 && Math.abs(lastSample.height - height) <= 1) {
+          stableHits += 1;
+        } else {
+          lastSample = { width, height };
+          stableHits = 0;
+        }
+
+        if (stableHits < 1) return;
+
         setImpactViewport((prev) => {
           if (prev && prev.width === width && prev.height === height) return prev;
           return { width, height };
@@ -1611,12 +1625,12 @@ export function EventHistoryModal({
                               </div>
                             ) : null}
                             <div className="impact-chart-body" ref={impactBodyRef}>
-                            <svg
-                              viewBox={`0 0 ${impactChart.width} ${impactChart.height}`}
-                              role="img"
-                              aria-label="Impact analysis chart"
-                              onMouseMove={handleImpactMouseMove}
-                              onMouseLeave={() => setImpactHoverOffset(null)}
+                              <svg
+                                viewBox={`0 0 ${impactChart.width} ${impactChart.height}`}
+                                role="img"
+                                aria-label="Impact analysis chart"
+                                onMouseMove={handleImpactMouseMove}
+                                onMouseLeave={() => setImpactHoverOffset(null)}
                               onTouchMove={(event) => {
                                 const touch = event.touches[0];
                                 if (!touch) return;
@@ -1629,7 +1643,15 @@ export function EventHistoryModal({
                               onTouchEnd={() => setImpactHoverOffset(null)}
                             >
                               <g className="impact-grid">
-                                {impactChart.yTicks.map((tick) => (
+                                {impactChart.yTicks
+                                  .filter((tick) => {
+                                    // Avoid a "double thick" bottom line when a tick lands on the axis baseline.
+                                    const y = Math.round(impactChart.yFor(tick)) + 0.5;
+                                    const baseline =
+                                      Math.round(impactChart.height - impactChart.padding.bottom) + 0.5;
+                                    return Math.abs(y - baseline) > 0.8;
+                                  })
+                                  .map((tick) => (
                                   <line
                                     key={`y-${tick}`}
                                     x1={impactChart.padding.left}
