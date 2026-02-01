@@ -1723,67 +1723,137 @@ export function EventHistoryModal({
                                   </text>
                                   );
                                 })}
-                                {impactSeries.items.map((item) => {
-                                  const offset = item.offset;
-                                  const stats = item.stats;
-                                  if (offset === 0) return null;
-                                  if (!stats || typeof stats.n !== "number" || stats.n <= 0) return null;
-                                  if (typeof stats.best_p !== "number" || !stats.best_direction) return null;
-                                  const showLabel = IMPACT_LABEL_OFFSETS.includes(offset);
-                                  const median =
-                                    typeof stats.best_median_pct === "number"
-                                      ? stats.best_median_pct
-                                      : 0;
-                                  const x = impactChart.xForOffset(offset);
-                                  const y = impactChart.yFor(median);
-                                  const direction = stats.best_direction === "up" ? "Up" : "Down";
-                                  const pct = `${Math.round(stats.best_p * 100)}%`;
-                                  const move = formatPct(median);
-                                  // Reduce label collisions:
-                                  // - Anchor text away from the event (negative to the left, positive to the right)
-                                  // - Place +/- 1h labels below the line, longer horizons above the line
-                                  const absOffset = Math.abs(offset);
-                                  const placeBelow = absOffset <= 60;
-                                  // Place labels towards the center so they don't get clipped at chart edges.
-                                  const baseAnchor = offset < 0 ? "start" : "end";
-                                  const rawXText = offset < 0 ? x + 10 : x - 10;
-                                  const leftBound = impactChart.padding.left + 10;
-                                  const rightBound = impactChart.width - impactChart.padding.right - 10;
-                                  const xText = Math.max(leftBound, Math.min(rightBound, rawXText));
-                                  const anchor =
-                                    xText <= leftBound + 0.5
-                                      ? "start"
-                                    : xText >= rightBound - 0.5
-                                      ? "end"
-                                      : baseAnchor;
-                                  const yText = (() => {
-                                    const dy = placeBelow ? 16 : -10;
-                                    const raw = y + dy;
-                                    const top = impactChart.padding.top + 14;
-                                    const bottom = impactChart.height - impactChart.padding.bottom - 8;
-                                    return Math.max(top, Math.min(bottom, raw));
-                                  })();
-                                  return (
-                                    <g key={`label-${offset}`}>
-                                      <circle
-                                        className={`impact-dot${impactHoverOffset === offset ? " hover" : ""}`}
-                                        cx={x}
-                                        cy={y}
-                                        r={impactHoverOffset === offset ? 4.2 : 3.1}
-                                      />
-                                      {showLabel ? (
-                                        <text
-                                          className="impact-prob"
-                                          x={xText}
-                                          y={yText}
-                                          textAnchor={anchor}
-                                        >
-                                          {direction} {pct} ({move})
-                                        </text>
-                                      ) : null}
-                                    </g>
-                                  );
-                                })}
+                                {(() => {
+                                  // Compute Y positions for the 4 static labels so they don't overlap.
+                                  const labelCandidates = impactSeries.items
+                                    .map((item) => {
+                                      const offset = item.offset;
+                                      const stats = item.stats;
+                                      if (offset === 0) return null;
+                                      if (!IMPACT_LABEL_OFFSETS.includes(offset)) return null;
+                                      if (!stats || typeof stats.n !== "number" || stats.n <= 0) return null;
+                                      if (typeof stats.best_p !== "number" || !stats.best_direction) return null;
+
+                                      const median =
+                                        typeof stats.best_median_pct === "number"
+                                          ? stats.best_median_pct
+                                          : 0;
+                                      const x = impactChart.xForOffset(offset);
+                                      const y = impactChart.yFor(median);
+
+                                      const absOffset = Math.abs(offset);
+                                      const placeBelow = absOffset <= 60;
+
+                                      // Place labels towards the center so they don't get clipped at chart edges.
+                                      const baseAnchor = offset < 0 ? "start" : "end";
+                                      const rawXText = offset < 0 ? x + 10 : x - 10;
+                                      const leftBound = impactChart.padding.left + 10;
+                                      const rightBound = impactChart.width - impactChart.padding.right - 10;
+                                      const xText = Math.max(leftBound, Math.min(rightBound, rawXText));
+                                      const anchor =
+                                        xText <= leftBound + 0.5
+                                          ? "start"
+                                          : xText >= rightBound - 0.5
+                                          ? "end"
+                                          : baseAnchor;
+
+                                      const yBase = (() => {
+                                        const dy = placeBelow ? 16 : -10;
+                                        const raw = y + dy;
+                                        const top = impactChart.padding.top + 14;
+                                        const bottom = impactChart.height - impactChart.padding.bottom - 8;
+                                        return Math.max(top, Math.min(bottom, raw));
+                                      })();
+
+                                      return { offset, xText, anchor, yText: yBase };
+                                    })
+                                    .filter(Boolean) as {
+                                    offset: number;
+                                    xText: number;
+                                    anchor: "start" | "end";
+                                    yText: number;
+                                  }[];
+
+                                  const top = impactChart.padding.top + 14;
+                                  const bottom = impactChart.height - impactChart.padding.bottom - 8;
+                                  const minGap = 14;
+                                  labelCandidates.sort((a, b) => a.yText - b.yText);
+                                  for (let i = 1; i < labelCandidates.length; i += 1) {
+                                    const prev = labelCandidates[i - 1];
+                                    const cur = labelCandidates[i];
+                                    if (cur.yText - prev.yText < minGap) {
+                                      cur.yText = prev.yText + minGap;
+                                    }
+                                  }
+                                  if (labelCandidates.length) {
+                                    const last = labelCandidates[labelCandidates.length - 1];
+                                    if (last.yText > bottom) {
+                                      last.yText = bottom;
+                                      for (let i = labelCandidates.length - 2; i >= 0; i -= 1) {
+                                        const next = labelCandidates[i + 1];
+                                        const cur = labelCandidates[i];
+                                        cur.yText = Math.min(cur.yText, next.yText - minGap);
+                                      }
+                                      labelCandidates[0].yText = Math.max(top, labelCandidates[0].yText);
+                                    }
+                                  }
+
+                                  const yByOffset = new Map<number, number>();
+                                  for (const c of labelCandidates) yByOffset.set(c.offset, c.yText);
+
+                                  return impactSeries.items.map((item) => {
+                                    const offset = item.offset;
+                                    const stats = item.stats;
+                                    if (offset === 0) return null;
+                                    if (!stats || typeof stats.n !== "number" || stats.n <= 0) return null;
+                                    if (typeof stats.best_p !== "number" || !stats.best_direction) return null;
+
+                                    const showLabel = IMPACT_LABEL_OFFSETS.includes(offset);
+                                    const median =
+                                      typeof stats.best_median_pct === "number"
+                                        ? stats.best_median_pct
+                                        : 0;
+                                    const x = impactChart.xForOffset(offset);
+                                    const y = impactChart.yFor(median);
+                                    const direction = stats.best_direction === "up" ? "Up" : "Down";
+                                    const pct = `${Math.round(stats.best_p * 100)}%`;
+                                    const move = formatPct(median);
+
+                                    const baseAnchor = offset < 0 ? "start" : "end";
+                                    const rawXText = offset < 0 ? x + 10 : x - 10;
+                                    const leftBound = impactChart.padding.left + 10;
+                                    const rightBound = impactChart.width - impactChart.padding.right - 10;
+                                    const xText = Math.max(leftBound, Math.min(rightBound, rawXText));
+                                    const anchor =
+                                      xText <= leftBound + 0.5
+                                        ? "start"
+                                        : xText >= rightBound - 0.5
+                                        ? "end"
+                                        : baseAnchor;
+                                    const yText = showLabel ? yByOffset.get(offset) ?? y : y;
+
+                                    return (
+                                      <g key={`label-${offset}`}>
+                                        <circle
+                                          className={`impact-dot${impactHoverOffset === offset ? " hover" : ""}`}
+                                          cx={x}
+                                          cy={y}
+                                          r={impactHoverOffset === offset ? 4.2 : 3.1}
+                                        />
+                                        {showLabel ? (
+                                          <text
+                                            className="impact-prob"
+                                            x={xText}
+                                            y={yText}
+                                            textAnchor={anchor}
+                                          >
+                                            {direction} {pct} ({move})
+                                          </text>
+                                        ) : null}
+                                      </g>
+                                    );
+                                  });
+                                })()}
                                 {impactChart.xTicks.map((tick) => (
                                   <text
                                     key={`xt-${tick}`}

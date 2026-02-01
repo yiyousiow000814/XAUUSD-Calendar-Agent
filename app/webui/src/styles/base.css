@@ -22,6 +22,7 @@
   --panel-glow: rgba(246, 180, 80, 0.12);
   --skeleton: rgba(255, 255, 255, 0.1);
   --text: #f4f3ee;
+  --text-strong: var(--text);
   --muted: #b2b6c2;
   --accent: #f6b450;
   --accent-2: #86c9ff;
@@ -840,6 +841,7 @@ body {
   --panel-glow: rgba(246, 180, 80, 0.08);
   --skeleton: rgba(18, 20, 26, 0.14);
   --text: #1d1f24;
+  --text-strong: var(--text);
   --muted: #4b515c;
   --accent: #8a4f10;
   --accent-2: #1e4b8f;

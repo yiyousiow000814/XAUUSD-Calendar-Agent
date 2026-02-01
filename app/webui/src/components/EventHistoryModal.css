@@ -95,6 +95,15 @@
   border-color: rgba(255, 255, 255, 0.22);
 }
 
+/* Ensure the close "X" keeps its accent color (more specific than shared .btn styles). */
+.modal.modal-history .modal-header .btn.history-close {
+  color: #ff6a3d;
+}
+
+[data-theme="light"] .modal.modal-history .modal-header .btn.history-close {
+  color: #ff6a3d;
+}
+
 .history-close:hover {
   transform: none;
   background: rgba(255, 255, 255, 0.08);
