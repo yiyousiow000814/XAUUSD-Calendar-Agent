@@ -140,37 +140,41 @@ class WindowStats:
             return {"n": 0}
         sorted_vals = sorted(self.values)
 
-        def percentile(q: float) -> float:
+        def percentile(sorted_list: List[float], q: float) -> float:
             # q in [0,1]
-            if n == 1:
-                return sorted_vals[0]
-            pos = q * (n - 1)
+            m = len(sorted_list)
+            if m == 0:
+                return 0.0
+            if m == 1:
+                return sorted_list[0]
+            pos = q * (m - 1)
             lo = int(math.floor(pos))
             hi = int(math.ceil(pos))
             if lo == hi:
-                return sorted_vals[lo]
+                return sorted_list[lo]
             w = pos - lo
-            return sorted_vals[lo] * (1 - w) + sorted_vals[hi] * w
+            return sorted_list[lo] * (1 - w) + sorted_list[hi] * w
 
-        p10 = percentile(0.10)
-        p50 = percentile(0.50)
-        p90 = percentile(0.90)
+        # Percentiles of *all* samples (kept for debugging / future UI).
+        p10_all = percentile(sorted_vals, 0.10)
+        p50_all = percentile(sorted_vals, 0.50)
+        p90_all = percentile(sorted_vals, 0.90)
         p_up = self.up / n
         p_down = self.down / n
 
         best_direction = "up" if p_up >= p_down else "down"
         best_p = p_up if best_direction == "up" else p_down
 
-        # Median pct among samples in the best direction.
+        # Percentiles among samples in the most likely direction.
         if best_direction == "up":
             dir_vals = [v for v in sorted_vals if v > 0]
         else:
             dir_vals = [v for v in sorted_vals if v < 0]
-        if not dir_vals:
-            best_median = 0.0
-        else:
-            mid = len(dir_vals) // 2
-            best_median = dir_vals[mid] if len(dir_vals) % 2 == 1 else (dir_vals[mid - 1] + dir_vals[mid]) / 2
+
+        p10 = percentile(dir_vals, 0.10)
+        p50 = percentile(dir_vals, 0.50)
+        p90 = percentile(dir_vals, 0.90)
+        best_median = p50
 
         return {
             "n": n,
@@ -179,6 +183,9 @@ class WindowStats:
             "p10": p10,
             "p50": p50,
             "p90": p90,
+            "p10_all": p10_all,
+            "p50_all": p50_all,
+            "p90_all": p90_all,
             "best_direction": best_direction,
             "best_p": best_p,
             "best_median_pct": best_median,

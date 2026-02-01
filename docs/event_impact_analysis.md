@@ -102,13 +102,14 @@ For each window `T`:
 - `n`: number of valid samples
 - `p_up`: count(pct(T) > 0) / n
 - `p_down`: count(pct(T) < 0) / n
-- `p10, p50, p90`: percentiles for `pct(T)` (suggested band: P10..P90)
+- `p10, p50, p90`: percentiles for `pct(T)` within the most likely direction (used for the UI band)
+- `p10_all, p50_all, p90_all`: percentiles for `pct(T)` across all samples (informational)
 
 Best-path metadata per `T`:
 
 - `best_direction`: `"up"` or `"down"` based on max(p_up, p_down)
 - `best_p`: that probability
-- `best_median_pct`: median of pct(T) for samples matching `best_direction`
+- `best_median_pct`: same as `p50` (median within the most likely direction)
 
 ## UI Integration
 
@@ -121,8 +122,8 @@ In Event History modal:
   - Bucket selector: `Actual > Previous`, `Actual < Previous`, optional `Actual = Previous`.
   - Single chart:
     - X axis: window offsets (pre -> event -> post)
-    - Range band: P10..P90 for `pct(T)`
-    - Line: best-path median pct(T)
+    - Range band: P10..P90 for `pct(T)` within the most likely direction
+    - Line: median % change within the most likely direction
     - Label: `Up 63%` / `Down 58%` at each point
 
 ### Deep analysis placeholder
