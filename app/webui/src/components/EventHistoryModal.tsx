@@ -1462,18 +1462,12 @@ export function EventHistoryModal({
                       <div className="history-impact-controls" data-qa="qa:history:impact-controls">
                         <div className="history-impact-controls-row">
                           {impactPanel === "event" ? (
-                            <div
-                              className="segmented history-impact-segmented history-impact-buckets"
-                              role="group"
-                              aria-label="Impact bucket"
-                              data-count="3"
-                              data-value={impactBucket}
-                            >
+                            <div className="history-impact-buckets" role="group" aria-label="Impact bucket">
                               {impactBucketOptions.map((option) => (
                                 <button
                                   key={option.value}
                                   type="button"
-                                  className={`segment impact-segment${
+                                  className={`history-toggle impact-toggle impact-bucket-toggle${
                                     impactBucket === option.value ? " active" : ""
                                   }`}
                                   onClick={() => setImpactBucket(option.value as EventImpactBucket)}
