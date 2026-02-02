@@ -1,4 +1,10 @@
-import { useLayoutEffect, useRef, type ReactNode, type RefObject } from "react";
+import {
+  useLayoutEffect,
+  useRef,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+  type RefObject
+} from "react";
 import "./ActivityDrawer.css";
 
 type ActivityDrawerProps = {
@@ -35,6 +41,7 @@ export function ActivityDrawer({
   const morphCleanupTimerRef = useRef<number | null>(null);
   const hasNotifiedClosedRef = useRef(false);
   const onClosedRef = useRef<ActivityDrawerProps["onClosed"]>(onClosed);
+  const backdropPressStartedOnSelfRef = useRef(false);
 
   useLayoutEffect(() => {
     onClosedRef.current = onClosed;
@@ -546,7 +553,18 @@ export function ActivityDrawer({
         isEntering ? " entering" : ""
       }`}
       data-qa="qa:drawer:activity-backdrop"
-      onClick={onClose}
+      onPointerDown={(event: ReactPointerEvent<HTMLDivElement>) => {
+        backdropPressStartedOnSelfRef.current = event.target === event.currentTarget;
+      }}
+      onPointerUp={(event: ReactPointerEvent<HTMLDivElement>) => {
+        const shouldClose =
+          backdropPressStartedOnSelfRef.current && event.target === event.currentTarget;
+        backdropPressStartedOnSelfRef.current = false;
+        if (shouldClose) onClose();
+      }}
+      onPointerCancel={() => {
+        backdropPressStartedOnSelfRef.current = false;
+      }}
       ref={backdropRef}
     >
       <aside

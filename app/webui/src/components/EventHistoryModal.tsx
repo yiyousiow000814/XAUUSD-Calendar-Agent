@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import type { PointerEvent as ReactPointerEvent } from "react";
 import type {
   EventHistoryPoint,
   EventHistoryResponse,
@@ -1221,6 +1222,25 @@ export function EventHistoryModal({
     }, CLOSE_ANIMATION_MS);
   };
 
+  // Only close when the pointer press starts AND ends on the backdrop itself.
+  // This avoids accidental closes when a drag starts inside the modal and ends outside.
+  const backdropPressStartedOnSelfRef = useRef(false);
+  const handleBackdropPointerDown = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    backdropPressStartedOnSelfRef.current = event.target === event.currentTarget;
+  }, []);
+  const handleBackdropPointerUp = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      const shouldClose =
+        backdropPressStartedOnSelfRef.current && event.target === event.currentTarget;
+      backdropPressStartedOnSelfRef.current = false;
+      if (shouldClose) requestClose();
+    },
+    [requestClose]
+  );
+  const handleBackdropPointerCancel = useCallback(() => {
+    backdropPressStartedOnSelfRef.current = false;
+  }, []);
+
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -1580,7 +1600,9 @@ export function EventHistoryModal({
         phase === "closing" ? " closing" : ""
       }`}
       role="presentation"
-      onClick={requestClose}
+      onPointerDown={handleBackdropPointerDown}
+      onPointerUp={handleBackdropPointerUp}
+      onPointerCancel={handleBackdropPointerCancel}
     >
       <div
         className={`modal modal-history${phase === "open" ? " open" : ""}${phase === "closing" ? " closing" : ""}`}
@@ -1660,7 +1682,11 @@ export function EventHistoryModal({
             <div className="history-modal-empty">No history available yet.</div>
           ) : null}
             {!loading && !error && hasData ? (
-                <div className="history-modal-content">
+                <div
+                  className={`history-modal-content${
+                    impactOpen ? " history-modal-content--impact" : ""
+                  }`}
+                >
                   <div className="history-modal-controls">
                     <div className="history-modal-controls-left">
                     {!impactOpen && rangeOptions.length ? (
@@ -1681,40 +1707,39 @@ export function EventHistoryModal({
                         </div>
                       </div>
                     ) : null}
+                    {impactOpen && impactPanel === "event" ? (
+                      <div
+                        className="history-impact-buckets"
+                        role="group"
+                        aria-label="Impact bucket"
+                      >
+                        {impactBucketOptions.map((option) => (
+                          <button
+                            key={option.value}
+                            type="button"
+                            className={`history-toggle impact-toggle impact-bucket-toggle${
+                              impactBucket === option.value ? " active" : ""
+                            }`}
+                            onClick={() => setImpactBucket(option.value as EventImpactBucket)}
+                            aria-pressed={impactBucket === option.value}
+                            data-bucket={option.value}
+                          >
+                            {option.label}
+                            {typeof option.count === "number" ? (
+                              <span className="impact-badge" aria-hidden="true">
+                                {option.count}
+                              </span>
+                            ) : null}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
 
                   <div className="history-modal-controls-right">
                     {impactOpen ? (
                       <div className="history-impact-controls" data-qa="qa:history:impact-controls">
                         <div className="history-impact-controls-row">
-                          {impactPanel === "event" ? (
-                            <div className="history-impact-buckets" role="group" aria-label="Impact bucket">
-                              {impactBucketOptions.map((option) => (
-                                <button
-                                  key={option.value}
-                                  type="button"
-                                  className={`history-toggle impact-toggle impact-bucket-toggle${
-                                    impactBucket === option.value ? " active" : ""
-                                  }`}
-                                  onClick={() => setImpactBucket(option.value as EventImpactBucket)}
-                                  aria-pressed={impactBucket === option.value}
-                                  data-bucket={option.value}
-                                >
-                                  {option.label}
-                                  {typeof option.count === "number" ? (
-                                    <span className="impact-badge" aria-hidden="true">
-                                      {option.count}
-                                    </span>
-                                  ) : null}
-                                </button>
-                              ))}
-                            </div>
-                          ) : null}
-
-                          {impactPanel === "event" ? (
-                            <span className="history-impact-divider" aria-hidden="true" />
-                          ) : null}
-
                           <div
                             className="segmented history-impact-segmented history-impact-panels"
                             role="group"

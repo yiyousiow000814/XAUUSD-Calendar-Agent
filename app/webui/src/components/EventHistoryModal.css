@@ -25,7 +25,7 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 18px 28px 28px;
+  padding: 5px 28px 28px;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -297,7 +297,7 @@
 .history-modal-content {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 10px;
   flex: 1;
   min-height: 0;
 }
@@ -308,16 +308,11 @@
   gap: 12px 18px;
   align-items: center;
   /* Keep the layout stable when switching History <-> Impact on desktop. */
-  height: 56px;
+  height: 50px;
   position: relative;
   z-index: 2;
   background: var(--panel);
-  padding: 2px 0 10px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-[data-theme="dark"] .history-modal-controls {
-  border-bottom-color: rgba(255, 255, 255, 0.08);
+  padding: 0 0 6px;
 }
 
 .history-modal-controls-left {
@@ -362,6 +357,11 @@
 .history-impact-controls-row .history-impact-panels,
 .history-impact-controls-row .history-impact-buckets {
   flex-wrap: nowrap;
+}
+
+/* Keep the 3 bucket buttons anchored on the left, while panel tabs stay on the right. */
+.history-impact-controls-row .history-impact-buckets {
+  margin-right: auto;
 }
 
 .history-impact-divider {
@@ -435,6 +435,12 @@
 .history-modal-layout--impact .history-modal-layout-right {
   max-width: none;
   margin: 0;
+}
+
+/* In Impact view, keep the chart card and the history table card perfectly aligned in height. */
+.history-modal-layout--impact .history-impact-chart,
+.history-modal-layout--impact .history-modal-table {
+  height: 100%;
 }
 
 .history-modal-layout-left--no-chart .history-notes-wrap {
@@ -743,10 +749,11 @@
 .history-impact-chart {
   background: var(--table-row-bg);
   border: 1px solid var(--panel-border);
+  /* Match the history table card sizing for a clean side-by-side alignment. */
   border-radius: 20px;
-  padding: 6px 8px 6px;
+  padding: 18px 18px 12px;
   flex: 1;
-  min-height: 600px;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   position: relative;
