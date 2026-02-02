@@ -433,6 +433,27 @@ export function EventHistoryModal({
     }
 
     setImpactOpen(true);
+
+    // Also try measuring the Impact viewport right after it mounts. This fixes a Tauri-specific case
+    // where ResizeObserver may not fire immediately on first open, leading to a blank chart until re-toggle.
+    if (typeof window !== "undefined") {
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          const measured = measureViewport(impactBodyRef.current);
+          if (!measured) return;
+          setImpactViewport((prev) => {
+            if (
+              prev &&
+              Math.abs(prev.width - measured.width) <= 1 &&
+              Math.abs(prev.height - measured.height) <= 1
+            ) {
+              return prev;
+            }
+            return measured;
+          });
+        });
+      });
+    }
   }, [eventId, impactBucket, impactOpen, impactPanel, isUsdEvent, measureViewport]);
 
   useEffect(() => {
@@ -1745,7 +1766,9 @@ export function EventHistoryModal({
                               <div className="history-impact-status">
                                 Impact analysis not available. Generate it locally first.
                               </div>
-                            ) : !impactChart ? null : impactSeries.items.length < 2 ||
+                            ) : !impactChart ? (
+                              <div className="history-impact-status">Loading impact chart...</div>
+                            ) : impactSeries.items.length < 2 ||
                               (!impactChart.hasBand && !impactChart.hasLine) ? (
                               <div className="history-impact-status">
                                 Impact analysis is not available for this bucket (insufficient samples).
@@ -1904,13 +1927,15 @@ export function EventHistoryModal({
                                         return Math.max(top, Math.min(bottom, raw));
                                       })();
 
-                                      return { offset, xText, anchor, yText: yBase };
+                                      return { offset, xText, anchor, yText: yBase, yPoint: y, preferBelow: placeBelow };
                                     })
                                     .filter(Boolean) as {
                                     offset: number;
                                     xText: number;
                                     anchor: "start" | "end";
                                     yText: number;
+                                    yPoint: number;
+                                    preferBelow: boolean;
                                   }[];
 
                                   const top = impactChart.padding.top + 14;
@@ -1923,30 +1948,47 @@ export function EventHistoryModal({
                                       xText: number;
                                       anchor: "start" | "end";
                                       yText: number;
+                                      yPoint: number;
+                                      preferBelow: boolean;
                                     }>
                                   ) => {
                                     if (group.length <= 1) return;
-                                    group.sort((a, b) => a.yText - b.yText);
-                                    // Forward pass: push down.
-                                    for (let i = 1; i < group.length; i += 1) {
-                                      const prev = group[i - 1];
-                                      const cur = group[i];
-                                      if (cur.yText - prev.yText < minGap) {
-                                        cur.yText = prev.yText + minGap;
+                                    const lineGap = 18;
+                                    const clamp = (v: number) => Math.max(top, Math.min(bottom, v));
+
+                                    // Run a couple of iterations: keep away from the line first, then solve overlaps.
+                                    for (let iter = 0; iter < 2; iter += 1) {
+                                      for (const item of group) {
+                                        if (item.preferBelow) {
+                                          item.yText = Math.max(item.yText, item.yPoint + lineGap);
+                                        } else {
+                                          item.yText = Math.min(item.yText, item.yPoint - lineGap);
+                                        }
+                                        item.yText = clamp(item.yText);
                                       }
-                                    }
-                                    // Backward pass if we overflow bottom: pull up.
-                                    const last = group[group.length - 1];
-                                    if (last.yText > bottom) {
-                                      last.yText = bottom;
-                                      for (let i = group.length - 2; i >= 0; i -= 1) {
-                                        const next = group[i + 1];
+
+                                      group.sort((a, b) => a.yText - b.yText);
+                                      // Forward pass: push down.
+                                      for (let i = 1; i < group.length; i += 1) {
+                                        const prev = group[i - 1];
                                         const cur = group[i];
-                                        cur.yText = Math.min(cur.yText, next.yText - minGap);
+                                        if (cur.yText - prev.yText < minGap) {
+                                          cur.yText = prev.yText + minGap;
+                                        }
                                       }
+                                      // Backward pass if we overflow bottom: pull up.
+                                      const last = group[group.length - 1];
+                                      if (last.yText > bottom) {
+                                        last.yText = bottom;
+                                        for (let i = group.length - 2; i >= 0; i -= 1) {
+                                          const next = group[i + 1];
+                                          const cur = group[i];
+                                          cur.yText = Math.min(cur.yText, next.yText - minGap);
+                                        }
+                                      }
+                                      // Clamp top.
+                                      group[0].yText = Math.max(top, group[0].yText);
                                     }
-                                    // Clamp top.
-                                    group[0].yText = Math.max(top, group[0].yText);
                                   };
 
                                   // Solve left/right label stacks separately so they don't push each other around.
