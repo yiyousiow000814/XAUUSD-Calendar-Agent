@@ -1,5 +1,5 @@
 {
-  "generated_at": "01-02-2026 15:42",
+  "generated_at": "02-02-2026 15:48",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -51,18 +51,6 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "INR::FX Reserves, USD::none",
-      "cur": "INR",
-      "event": "FX Reserves, USD",
-      "period": "",
-      "date": "2026-02-06",
-      "time": "19:30",
-      "previous_raw": "",
-      "prior_actual": "709.41B",
-      "previous_effective": "709.41B"
-    },
-    {
-      "issue": "previous_missing_filled",
       "event_id": "RUB::Interest Rate Decision::none",
       "cur": "RUB",
       "event": "Interest Rate Decision",
@@ -84,30 +72,6 @@
       "previous_raw": "",
       "prior_actual": "16.00%",
       "previous_effective": "16.00%"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "TRY::Trade Balance::none",
-      "cur": "TRY",
-      "event": "Trade Balance  (Jan)",
-      "period": "jan",
-      "date": "2026-02-03",
-      "time": "15:00",
-      "previous_raw": "",
-      "prior_actual": "-9.30B",
-      "previous_effective": "-9.30B"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "TRY::Exports::none",
-      "cur": "TRY",
-      "event": "Exports  (Jan)",
-      "period": "jan",
-      "date": "2026-02-03",
-      "time": "15:00",
-      "previous_raw": "",
-      "prior_actual": "26.40B",
-      "previous_effective": "26.40B"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -477,7 +441,7 @@
       "period": "",
       "date": "2026-01-28",
       "time": "07:50",
-      "cutoff": "30-01-2026 15:42"
+      "cutoff": "31-01-2026 15:48"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -488,6 +452,18 @@
       "date": "2026-01-03",
       "time": "04:30",
       "cutoff": "30-01-2026 03:20"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "USD::Atlanta Fed GDPNow::none",
+      "cur": "USD",
+      "event": "Atlanta Fed GDPNow  (Q4)",
+      "period": "q4",
+      "date": "2026-02-11",
+      "time": "00:30",
+      "previous_raw": "",
+      "prior_actual": "4.2%",
+      "previous_effective": "4.2%"
     }
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "generated_at": "01-02-2026 03:20",
+  "generated_at": "02-02-2026 15:48",
   "patches": [
     {
       "patch": "previous_missing_filled",
@@ -51,18 +51,6 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "INR::FX Reserves, USD::none",
-      "cur": "INR",
-      "event": "FX Reserves, USD",
-      "period": "",
-      "date": "2026-02-06",
-      "time": "19:30",
-      "previous_raw": "",
-      "prior_actual": "709.41B",
-      "previous_effective": "709.41B"
-    },
-    {
-      "patch": "previous_missing_filled",
       "event_id": "RUB::Interest Rate Decision::none",
       "cur": "RUB",
       "event": "Interest Rate Decision",
@@ -87,27 +75,15 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "TRY::Trade Balance::none",
-      "cur": "TRY",
-      "event": "Trade Balance  (Jan)",
-      "period": "jan",
-      "date": "2026-02-03",
-      "time": "15:00",
+      "event_id": "USD::Atlanta Fed GDPNow::none",
+      "cur": "USD",
+      "event": "Atlanta Fed GDPNow  (Q4)",
+      "period": "q4",
+      "date": "2026-02-11",
+      "time": "00:30",
       "previous_raw": "",
-      "prior_actual": "-9.30B",
-      "previous_effective": "-9.30B"
-    },
-    {
-      "patch": "previous_missing_filled",
-      "event_id": "TRY::Exports::none",
-      "cur": "TRY",
-      "event": "Exports  (Jan)",
-      "period": "jan",
-      "date": "2026-02-03",
-      "time": "15:00",
-      "previous_raw": "",
-      "prior_actual": "26.40B",
-      "previous_effective": "26.40B"
+      "prior_actual": "4.2%",
+      "previous_effective": "4.2%"
     }
   ]
 }

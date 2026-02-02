@@ -3,11 +3,8 @@ previous_missing_filled,USD::Fed Interest Rate Decision::none,USD,Fed Interest R
 previous_missing_filled,USD::Fed Interest Rate Decision::none,USD,Fed Interest Rate Decision,,2026-04-30,02:00,,3.75%,3.75%,
 previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2026-01-15,03:00,,0.00,0.00,
 previous_missing_filled,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2026-01-28,07:50,,0.00,0.00,
-previous_missing_filled,"INR::FX Reserves, USD::none",INR,"FX Reserves, USD",,2026-02-06,19:30,,709.41B,709.41B,
 previous_missing_filled,RUB::Interest Rate Decision::none,RUB,Interest Rate Decision,,2026-03-20,18:30,,16.00%,16.00%,
 previous_missing_filled,RUB::Interest Rate Decision::none,RUB,Interest Rate Decision,,2026-04-24,18:30,,16.00%,16.00%,
-previous_missing_filled,TRY::Trade Balance::none,TRY,Trade Balance  (Jan),jan,2026-02-03,15:00,,-9.30B,-9.30B,
-previous_missing_filled,TRY::Exports::none,TRY,Exports  (Jan),jan,2026-02-03,15:00,,26.40B,26.40B,
 stale_missing_actual_dropped,MXN::Fiscal Balance::none,MXN,Fiscal Balance  (Nov),nov,2026-01-01,03:00,,,,"{""cutoff"": ""30-01-2026 03:20""}"
 stale_missing_actual_dropped,USD::Construction Spending::m/m,USD,Construction Spending (MoM)  (Sep),sep,2026-01-02,23:00,,,,"{""cutoff"": ""30-01-2026 03:20""}"
 stale_missing_actual_dropped,USD::Construction Spending::m/m,USD,Construction Spending (MoM)  (Oct),oct,2026-01-02,23:00,,,,"{""cutoff"": ""30-01-2026 03:20""}"
@@ -44,5 +41,6 @@ stale_missing_actual_dropped,DKK::Lending Rate::none,DKK,Lending Rate,,2026-01-0
 stale_missing_actual_dropped,RUB::S&P Global Manufacturing PMI::none,RUB,S&P Global Manufacturing PMI  (Dec),dec,2026-01-02,14:00,,,,"{""cutoff"": ""30-01-2026 03:20""}"
 stale_missing_actual_dropped,AUD::Judo Bank Services PMI::none,AUD,Judo Bank Services PMI  (Dec),dec,2026-01-03,07:00,,,,"{""cutoff"": ""30-01-2026 03:20""}"
 stale_missing_actual_dropped,AUD::Manufacturing & Services PMI::none,AUD,Manufacturing & Services PMI  (Dec),dec,2026-01-03,07:00,,,,"{""cutoff"": ""30-01-2026 03:20""}"
-stale_missing_actual_dropped,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2026-01-28,07:50,,,,"{""cutoff"": ""30-01-2026 15:42""}"
+stale_missing_actual_dropped,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2026-01-28,07:50,,,,"{""cutoff"": ""31-01-2026 15:48""}"
 stale_missing_actual_dropped,RUB::CFTC RUB speculative positions::none,RUB,CFTC RUB speculative positions,,2026-01-03,04:30,,,,"{""cutoff"": ""30-01-2026 03:20""}"
+previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q4),q4,2026-02-11,00:30,,4.2%,4.2%,
