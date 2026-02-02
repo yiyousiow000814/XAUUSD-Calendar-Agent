@@ -146,7 +146,9 @@
   top: 3px;
   left: 3px;
   height: calc(100% - 6px);
-  width: calc((100% - 6px) / 2);
+  /* Avoid calc(/2) to reduce subpixel drift across platforms. */
+  right: 50%;
+  width: auto;
   border-radius: 10px;
 }
 
@@ -504,7 +506,9 @@
 }
 
 .history-impact-panels.segmented::before {
-  width: calc((100% - 6px) / 2);
+  /* Avoid calc(/2) to reduce subpixel drift across platforms. */
+  right: 50%;
+  width: auto;
 }
 
 .history-impact-panels.segmented[data-value="deep"]::before {
