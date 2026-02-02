@@ -1586,7 +1586,13 @@ export function EventHistoryModal({
                           <div className="history-impact-status">Loading impact analysis...</div>
                         ) : impactError ? (
                           <div className="history-impact-status error">{impactError}</div>
-                        ) : !impactChart || !impactData?.ok ? (
+                        ) : impactData?.ok && !impactChart ? (
+                          <div className="history-impact-chart" data-qa="qa:history:impact-chart">
+                            <div className="impact-chart-body" ref={impactBodyRef}>
+                              <div className="history-impact-status">Preparing chart...</div>
+                            </div>
+                          </div>
+                        ) : !impactData?.ok ? (
                           <div className="history-impact-status">
                             Impact analysis not available. Generate it locally first.
                           </div>
