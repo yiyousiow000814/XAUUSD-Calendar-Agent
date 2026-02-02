@@ -143,15 +143,8 @@
 }
 
 .history-modal-view-toggle.segmented::before {
-  top: 3px;
-  left: 3px;
-  height: calc(100% - 6px);
-  width: calc((100% - 6px) / 2);
-  border-radius: 10px;
-}
-
-.history-modal-view-toggle.segmented[data-value="impact"]::before {
-  transform: translateX(100%);
+  /* This toggle should not use the global sliding backdrop (::before). */
+  display: none;
 }
 
 .history-modal-view-toggle .segment {
@@ -164,6 +157,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.history-modal-view-toggle .segment.active {
+  background: var(--select-active-bg);
+  color: var(--select-active-text);
 }
 
 .history-modal-view-toggle .segment:not(.active):hover {
@@ -496,19 +494,9 @@
   border-radius: 12px;
 }
 
-.history-impact-segmented.segmented::before {
-  top: 3px;
-  left: 3px;
-  height: calc(100% - 6px);
-  border-radius: 10px;
-}
-
 .history-impact-panels.segmented::before {
-  width: calc((100% - 6px) / 2);
-}
-
-.history-impact-panels.segmented[data-value="deep"]::before {
-  transform: translateX(100%);
+  /* This toggle should not use the global sliding backdrop (::before). */
+  display: none;
 }
 
 .history-impact-segmented .impact-segment {
@@ -522,6 +510,11 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+}
+
+.history-impact-panels .segment.active {
+  background: var(--select-active-bg);
+  color: var(--select-active-text);
 }
 
 .history-impact-segmented .segment:not(.active):hover {
