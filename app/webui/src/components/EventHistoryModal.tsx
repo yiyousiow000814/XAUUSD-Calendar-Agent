@@ -456,6 +456,72 @@ export function EventHistoryModal({
     }
   }, [eventId, impactBucket, impactOpen, impactPanel, isUsdEvent, measureViewport]);
 
+  const ensureImpactViewport = useCallback(() => {
+    // Try the direct viewport first.
+    const direct = measureViewport(impactBodyRef.current);
+    if (direct) {
+      setImpactViewport((prev) => {
+        if (
+          prev &&
+          Math.abs(prev.width - direct.width) <= 1 &&
+          Math.abs(prev.height - direct.height) <= 1
+        ) {
+          return prev;
+        }
+        return direct;
+      });
+      return true;
+    }
+
+    // Fallback: measure the chart container (Tauri sometimes reports 0 for the flex child early on).
+    const body = impactBodyRef.current;
+    const container = body?.closest?.(".history-impact-chart");
+    if (container instanceof HTMLElement) {
+      const rect = container.getBoundingClientRect();
+      const width = Math.max(1, Math.floor(rect.width));
+      const height = Math.max(1, Math.floor(rect.height));
+      if (width >= 50 && height >= 50) {
+        setImpactViewport((prev) => {
+          if (
+            prev &&
+            Math.abs(prev.width - width) <= 1 &&
+            Math.abs(prev.height - height) <= 1
+          ) {
+            return prev;
+          }
+          return { width, height };
+        });
+        return true;
+      }
+    }
+    return false;
+  }, [measureViewport]);
+
+  // If the modal opens directly in Impact view (saved in localStorage), Tauri may not fire
+  // ResizeObserver immediately. Ensure we still get a usable viewport without requiring a manual re-toggle.
+  useEffect(() => {
+    if (!isOpen) return;
+    if (!impactOpen) return;
+    if (impactPanel !== "event") return;
+    if (impactViewport && impactViewport.width >= 50 && impactViewport.height >= 50) return;
+
+    let cancelled = false;
+    let tries = 0;
+    const tick = () => {
+      if (cancelled) return;
+      if (ensureImpactViewport()) return;
+      tries += 1;
+      if (tries > 24) return;
+      window.setTimeout(tick, 60);
+    };
+
+    // Give layout a couple of frames to settle.
+    window.requestAnimationFrame(() => window.requestAnimationFrame(tick));
+    return () => {
+      cancelled = true;
+    };
+  }, [ensureImpactViewport, impactOpen, impactPanel, impactViewport, isOpen]);
+
   useEffect(() => {
     if (!isOpen || !impactOpen) return;
     if (!eventId) return;
