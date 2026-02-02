@@ -508,9 +508,11 @@ export function EventHistoryModal({
     // layout changes across themes / platforms).
     const measuredWidth = impactViewport?.width ?? 0;
     const measuredHeight = impactViewport?.height ?? 0;
-    // Guard against transient 0/1px measurements during view switches (can render an empty chart).
-    const width = measuredWidth >= 320 ? measuredWidth : 1040;
-    const height = measuredHeight >= 220 ? measuredHeight : 600;
+    // Wait for a stable measurement; rendering with a fake size causes letterboxing or stretched text.
+    // Only guard the 0/1px transient state during layout switches; allow narrow windows to still render.
+    if (measuredWidth < 10 || measuredHeight < 10) return null;
+    const width = measuredWidth;
+    const height = measuredHeight;
     // Leave enough room for Y axis labels and the X axis title.
     const padding = { left: 56, right: 10, top: 12, bottom: 56 };
     const plotWidth = width - padding.left - padding.right;
@@ -1627,7 +1629,6 @@ export function EventHistoryModal({
                             <div className="impact-chart-body" ref={impactBodyRef}>
                             <svg
                               viewBox={`0 0 ${impactChart.width} ${impactChart.height}`}
-                              preserveAspectRatio="none"
                               role="img"
                               aria-label="Impact analysis chart"
                               onMouseMove={handleImpactMouseMove}
@@ -1849,14 +1850,6 @@ export function EventHistoryModal({
                                         />
                                         {showLabel ? (
                                           <>
-                                            <line
-                                              className="impact-label-leader"
-                                              x1={x}
-                                              y1={y}
-                                              x2={leaderX2}
-                                              y2={yText}
-                                              vectorEffect="non-scaling-stroke"
-                                            />
                                             <text
                                               className="impact-prob"
                                               x={xText}

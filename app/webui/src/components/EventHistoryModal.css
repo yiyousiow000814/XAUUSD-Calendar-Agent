@@ -612,16 +612,6 @@
     inset 0 0 0 1px var(--pill-shadow-hover);
 }
 
-.impact-label-leader {
-  stroke: rgba(255, 255, 255, 0.22);
-  stroke-width: 1;
-  stroke-dasharray: 2 6;
-}
-
-[data-theme="light"] .impact-label-leader {
-  stroke: rgba(15, 23, 42, 0.18);
-}
-
 .history-toggle:hover {
   border-color: var(--pill-border-hover);
   background: linear-gradient(180deg, var(--pill-bg-0-hover), var(--pill-bg-1-hover));
@@ -867,7 +857,6 @@
 .impact-hover line {
   stroke: rgba(18, 20, 26, 0.22);
   stroke-width: 1;
-  stroke-dasharray: 3 4;
 }
 
 [data-theme="dark"] .impact-hover line {
