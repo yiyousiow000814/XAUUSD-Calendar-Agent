@@ -755,10 +755,6 @@ export function EventHistoryModal({
     if (!node) return;
 
     let frame: number | null = null;
-    // When switching History <-> Impact, layout can settle over a few frames.
-    // Require the size to be stable before committing a viewport update to avoid chart flicker.
-    let lastSample: { width: number; height: number } | null = null;
-    let stableHits = 0;
     const update = () => {
       if (frame !== null) return;
       frame = window.requestAnimationFrame(() => {
@@ -769,17 +765,8 @@ export function EventHistoryModal({
         // Ignore transient tiny measurements (e.g. during layout transitions).
         if (width < 50 || height < 50) return;
 
-        if (lastSample && Math.abs(lastSample.width - width) <= 1 && Math.abs(lastSample.height - height) <= 1) {
-          stableHits += 1;
-        } else {
-          lastSample = { width, height };
-          stableHits = 0;
-        }
-
-        if (stableHits < 1) return;
-
         setImpactViewport((prev) => {
-          if (prev && prev.width === width && prev.height === height) return prev;
+          if (prev && Math.abs(prev.width - width) <= 1 && Math.abs(prev.height - height) <= 1) return prev;
           return { width, height };
         });
       });
