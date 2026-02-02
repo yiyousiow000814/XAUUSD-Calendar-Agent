@@ -290,9 +290,12 @@ export function EventHistoryModal({
   const [impactError, setImpactError] = useState<string | null>(null);
   const [impactData, setImpactData] = useState<EventImpactResponse | null>(null);
   const impactBodyRef = useRef<HTMLDivElement | null>(null);
+  // Cache impact payloads per (eventId, bucket) to avoid flicker when switching History <-> Impact.
+  const impactCacheRef = useRef<Map<string, EventImpactResponse>>(new Map());
   const [impactViewport, setImpactViewport] = useState<{ width: number; height: number } | null>(
     null
   );
+  const impactViewportFreezeUntilRef = useRef<number>(0);
   const [impactHoverOffset, setImpactHoverOffset] = useState<number | null>(null);
   const points = data?.points ?? [];
   const eventNotes = useMemo(
@@ -403,6 +406,15 @@ export function EventHistoryModal({
       return;
     }
 
+    const cacheKey = `${eventId}::${impactBucket}`;
+    const cached = impactCacheRef.current.get(cacheKey);
+    if (cached?.ok) {
+      setImpactError(null);
+      setImpactData(cached);
+      setImpactLoading(false);
+      return;
+    }
+
     let cancelled = false;
     setImpactLoading(true);
     setImpactError(null);
@@ -417,6 +429,7 @@ export function EventHistoryModal({
           setImpactData(null);
           return;
         }
+        impactCacheRef.current.set(cacheKey, result);
         setImpactData(result);
       })
       .catch((err) => {
@@ -434,6 +447,52 @@ export function EventHistoryModal({
       cancelled = true;
     };
   }, [eventId, impactBucket, impactOpen, impactPanel, isOpen, isUsdEvent]);
+
+  // Prefetch impact data while the modal is open so switching History -> Impact is instant.
+  useEffect(() => {
+    if (!isOpen) return;
+    if (!eventId) return;
+    if (!isUsdEvent) return;
+    if (impactPanel !== "event") return;
+
+    const cacheKey = `${eventId}::${impactBucket}`;
+    if (impactCacheRef.current.has(cacheKey)) return;
+    let cancelled = false;
+
+    backend
+      .getEventImpactUsd({ eventId, bucket: impactBucket })
+      .then((result) => {
+        if (cancelled) return;
+        if (!result.ok) return;
+        impactCacheRef.current.set(cacheKey, result);
+      })
+      .catch(() => {
+        // ignore: the explicit Impact open flow will surface errors
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [eventId, impactBucket, impactPanel, isOpen, isUsdEvent]);
+
+  // Measure the impact viewport during layout so the first paint can render the correct SVG size.
+  useLayoutEffect(() => {
+    if (!impactOpen) return;
+    if (!isOpen) return;
+    if (impactPanel !== "event") return;
+    const node = impactBodyRef.current;
+    if (!node) return;
+    const rect = node.getBoundingClientRect();
+    const width = Math.max(1, Math.floor(rect.width));
+    const height = Math.max(1, Math.floor(rect.height));
+    if (width < 50 || height < 50) return;
+    // Freeze rapid follow-up measurements right after switching panels; avoids multi-frame flicker.
+    impactViewportFreezeUntilRef.current = Date.now() + 220;
+    setImpactViewport((prev) => {
+      if (prev && Math.abs(prev.width - width) <= 1 && Math.abs(prev.height - height) <= 1) return prev;
+      return { width, height };
+    });
+  }, [impactOpen, impactPanel, isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -764,6 +823,10 @@ export function EventHistoryModal({
         const height = Math.max(1, Math.floor(rect.height));
         // Ignore transient tiny measurements (e.g. during layout transitions).
         if (width < 50 || height < 50) return;
+        // Avoid "strobing" during History <-> Impact switches when the layout settles over a few frames.
+        // Still allow the very first measurement through.
+        const now = Date.now();
+        if (impactViewport && now < impactViewportFreezeUntilRef.current) return;
 
         setImpactViewport((prev) => {
           if (prev && Math.abs(prev.width - width) <= 1 && Math.abs(prev.height - height) <= 1) return prev;
@@ -779,7 +842,7 @@ export function EventHistoryModal({
       if (frame !== null) window.cancelAnimationFrame(frame);
       ro.disconnect();
     };
-  }, [impactOpen]);
+  }, [impactOpen, impactViewport]);
   const hasVisibleSeries = visibleSeries.actual || visibleSeries.forecast;
   const rangeKeyForView: RangeKey = impactOpen ? "all" : preferredRange;
   const activeRange = useMemo(
@@ -1765,7 +1828,7 @@ export function EventHistoryModal({
                                       const anchor: "start" | "end" = offset < 0 ? "start" : "end";
 
                                       const yBase = (() => {
-                                        const dy = placeBelow ? 16 : -10;
+                                        const dy = placeBelow ? 20 : -14;
                                         const raw = y + dy;
                                         const top = impactChart.padding.top + 14;
                                         const bottom = impactChart.height - impactChart.padding.bottom - 8;
@@ -1783,7 +1846,8 @@ export function EventHistoryModal({
 
                                   const top = impactChart.padding.top + 14;
                                   const bottom = impactChart.height - impactChart.padding.bottom - 8;
-                                  const minGap = 14;
+                                  // Keep enough baseline spacing so labels never overlap even with ascent/descent.
+                                  const minGap = 26;
                                   labelCandidates.sort((a, b) => a.yText - b.yText);
                                   for (let i = 1; i < labelCandidates.length; i += 1) {
                                     const prev = labelCandidates[i - 1];
