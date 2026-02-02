@@ -1625,12 +1625,13 @@ export function EventHistoryModal({
                               </div>
                             ) : null}
                             <div className="impact-chart-body" ref={impactBodyRef}>
-                              <svg
-                                viewBox={`0 0 ${impactChart.width} ${impactChart.height}`}
-                                role="img"
-                                aria-label="Impact analysis chart"
-                                onMouseMove={handleImpactMouseMove}
-                                onMouseLeave={() => setImpactHoverOffset(null)}
+                            <svg
+                              viewBox={`0 0 ${impactChart.width} ${impactChart.height}`}
+                              preserveAspectRatio="none"
+                              role="img"
+                              aria-label="Impact analysis chart"
+                              onMouseMove={handleImpactMouseMove}
+                              onMouseLeave={() => setImpactHoverOffset(null)}
                               onTouchMove={(event) => {
                                 const touch = event.touches[0];
                                 if (!touch) return;
