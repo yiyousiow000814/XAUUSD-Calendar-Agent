@@ -145,15 +145,18 @@
 .history-modal-view-toggle.segmented::before {
   top: 3px;
   left: 3px;
-  height: calc(100% - 6px);
-  /* Avoid calc(/2) to reduce subpixel drift across platforms. */
-  right: 50%;
+  right: 3px;
+  bottom: 3px;
   width: auto;
+  height: auto;
   border-radius: 10px;
+  /* Avoid width calc(/2): use a fixed half-mask and slide the whole layer. */
+  clip-path: inset(0 50% 0 0 round 10px);
+  transform: translateX(0);
 }
 
 .history-modal-view-toggle.segmented[data-value="impact"]::before {
-  transform: translateX(100%);
+  transform: translateX(50%);
 }
 
 .history-modal-view-toggle .segment {
@@ -506,13 +509,19 @@
 }
 
 .history-impact-panels.segmented::before {
-  /* Avoid calc(/2) to reduce subpixel drift across platforms. */
-  right: 50%;
+  top: 3px;
+  left: 3px;
+  right: 3px;
+  bottom: 3px;
   width: auto;
+  height: auto;
+  /* Avoid width calc(/2): use a fixed half-mask and slide the whole layer. */
+  clip-path: inset(0 50% 0 0 round 10px);
+  transform: translateX(0);
 }
 
 .history-impact-panels.segmented[data-value="deep"]::before {
-  transform: translateX(100%);
+  transform: translateX(50%);
 }
 
 .history-impact-segmented .impact-segment {
