@@ -43,4 +43,3 @@ stale_missing_actual_dropped,AUD::Judo Bank Services PMI::none,AUD,Judo Bank Ser
 stale_missing_actual_dropped,AUD::Manufacturing & Services PMI::none,AUD,Manufacturing & Services PMI  (Dec),dec,2026-01-03,07:00,,,,"{""cutoff"": ""30-01-2026 03:20""}"
 stale_missing_actual_dropped,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2026-01-28,07:50,,,,"{""cutoff"": ""31-01-2026 15:48""}"
 stale_missing_actual_dropped,RUB::CFTC RUB speculative positions::none,RUB,CFTC RUB speculative positions,,2026-01-03,04:30,,,,"{""cutoff"": ""30-01-2026 03:20""}"
-previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q4),q4,2026-02-11,00:30,,4.2%,4.2%,

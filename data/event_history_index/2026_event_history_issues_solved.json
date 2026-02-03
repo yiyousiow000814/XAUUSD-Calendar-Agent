@@ -1,5 +1,5 @@
 {
-  "generated_at": "02-02-2026 15:48",
+  "generated_at": "03-02-2026 15:55",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -452,18 +452,6 @@
       "date": "2026-01-03",
       "time": "04:30",
       "cutoff": "30-01-2026 03:20"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::Atlanta Fed GDPNow::none",
-      "cur": "USD",
-      "event": "Atlanta Fed GDPNow  (Q4)",
-      "period": "q4",
-      "date": "2026-02-11",
-      "time": "00:30",
-      "previous_raw": "",
-      "prior_actual": "4.2%",
-      "previous_effective": "4.2%"
     }
   ]
 }
