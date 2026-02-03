@@ -1708,31 +1708,33 @@ export function EventHistoryModal({
                       </div>
                     ) : null}
                     {impactOpen && impactPanel === "event" ? (
-                      <div
-                        className="history-impact-buckets"
-                        role="group"
-                        aria-label="Impact bucket"
-                      >
-                        {impactBucketOptions.map((option) => (
-                          <button
-                            key={option.value}
-                            type="button"
-                            className={`history-toggle impact-toggle impact-bucket-toggle${
-                              impactBucket === option.value ? " active" : ""
-                            }`}
-                            onClick={() => setImpactBucket(option.value as EventImpactBucket)}
-                            aria-pressed={impactBucket === option.value}
-                            data-bucket={option.value}
-                          >
-                            {option.label}
-                            {typeof option.count === "number" ? (
-                              <span className="impact-badge" aria-hidden="true">
-                                {option.count}
-                              </span>
-                            ) : null}
-                          </button>
-                        ))}
-                      </div>
+                      <>
+                        <div
+                          className="history-impact-buckets"
+                          role="group"
+                          aria-label="Impact bucket"
+                        >
+                          {impactBucketOptions.map((option) => (
+                            <button
+                              key={option.value}
+                              type="button"
+                              className={`history-toggle impact-toggle impact-bucket-toggle${
+                                impactBucket === option.value ? " active" : ""
+                              }`}
+                              onClick={() => setImpactBucket(option.value as EventImpactBucket)}
+                              aria-pressed={impactBucket === option.value}
+                              data-bucket={option.value}
+                            >
+                              {option.label}
+                              {typeof option.count === "number" ? (
+                                <span className="impact-badge" aria-hidden="true">
+                                  {option.count}
+                                </span>
+                              ) : null}
+                            </button>
+                          ))}
+                        </div>
+                      </>
                     ) : null}
                   </div>
 
@@ -1883,6 +1885,24 @@ export function EventHistoryModal({
                               }}
                               onTouchEnd={() => setImpactHoverOffset(null)}
                             >
+                              <defs>
+                                <clipPath id="impact-clip">
+                                  <rect
+                                    x={impactChart.padding.left}
+                                    y={impactChart.padding.top}
+                                    width={
+                                      impactChart.width -
+                                      impactChart.padding.left -
+                                      impactChart.padding.right
+                                    }
+                                    height={
+                                      impactChart.height -
+                                      impactChart.padding.top -
+                                      impactChart.padding.bottom
+                                    }
+                                  />
+                                </clipPath>
+                              </defs>
                               <g className="impact-grid">
                                 {impactChart.yTicks
                                   .filter((tick) => {
@@ -1939,27 +1959,29 @@ export function EventHistoryModal({
                                   vectorEffect="non-scaling-stroke"
                                 />
                               </g>
-                              <g className="impact-band">
-                                {impactChart.bandPath ? (
-                                  <path d={impactChart.bandPath} vectorEffect="non-scaling-stroke" />
-                                ) : null}
-                              </g>
-                              <g className="impact-line">
-                                {impactChart.linePath ? (
-                                  <path d={impactChart.linePath} vectorEffect="non-scaling-stroke" />
-                                ) : null}
-                              </g>
-                              {impactHover ? (
-                                <g className="impact-hover" aria-hidden="true">
-                                  <line
-                                    x1={Math.round(impactHover.x) + 0.5}
-                                    x2={Math.round(impactHover.x) + 0.5}
-                                    y1={impactChart.padding.top}
-                                    y2={impactChart.height - impactChart.padding.bottom}
-                                    vectorEffect="non-scaling-stroke"
-                                  />
+                              <g clipPath="url(#impact-clip)">
+                                <g className="impact-band">
+                                  {impactChart.bandPath ? (
+                                    <path d={impactChart.bandPath} vectorEffect="non-scaling-stroke" />
+                                  ) : null}
                                 </g>
-                              ) : null}
+                                <g className="impact-line">
+                                  {impactChart.linePath ? (
+                                    <path d={impactChart.linePath} vectorEffect="non-scaling-stroke" />
+                                  ) : null}
+                                </g>
+                                {impactHover ? (
+                                  <g className="impact-hover" aria-hidden="true">
+                                    <line
+                                      x1={Math.round(impactHover.x) + 0.5}
+                                      x2={Math.round(impactHover.x) + 0.5}
+                                      y1={impactChart.padding.top}
+                                      y2={impactChart.height - impactChart.padding.bottom}
+                                      vectorEffect="non-scaling-stroke"
+                                    />
+                                  </g>
+                                ) : null}
+                              </g>
                               <g className="impact-labels">
                                 {impactChart.yTicks.map((tick) => {
                                   const y = impactChart.yFor(tick);
@@ -2118,12 +2140,14 @@ export function EventHistoryModal({
 
                                     return (
                                       <g key={`label-${offset}`}>
-                                        <circle
-                                          className={`impact-dot${impactHoverOffset === offset ? " hover" : ""}`}
-                                          cx={x}
-                                          cy={y}
-                                          r={impactHoverOffset === offset ? 4.2 : 3.1}
-                                        />
+                                        <g clipPath="url(#impact-clip)">
+                                          <circle
+                                            className={`impact-dot${impactHoverOffset === offset ? " hover" : ""}`}
+                                            cx={x}
+                                            cy={y}
+                                            r={impactHoverOffset === offset ? 4.2 : 3.1}
+                                          />
+                                        </g>
                                         {showLabel ? (
                                           <>
                                             <text
@@ -2475,8 +2499,8 @@ export function EventHistoryModal({
                           className="history-notes-disclaimer"
                           data-qa="qa:history:disclaimer"
                         >
-                          *XAUUSD impact guidance is based on experience, not yet backed by
-                          statistical analysis; quantitative validation will be added later.
+                          *XAUUSD impact guidance here is based on rule-of-thumb. For statistically
+                          backed analysis, please refer to the Impact page.
                         </div>
                       </div>
                     ) : null}

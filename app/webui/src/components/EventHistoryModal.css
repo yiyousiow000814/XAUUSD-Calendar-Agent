@@ -30,6 +30,7 @@
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  scrollbar-gutter: stable;
   overscroll-behavior: contain;
   scrollbar-width: none;
   scrollbar-color: transparent transparent;
@@ -136,6 +137,7 @@
 }
 
 .history-modal-view-toggle.segmented {
+  display: flex;
   height: 38px;
   padding: 3px;
   gap: 3px;
@@ -143,15 +145,7 @@
 }
 
 .history-modal-view-toggle.segmented::before {
-  top: 3px;
-  left: 3px;
-  height: calc(100% - 6px);
-  width: calc((100% - 6px) / 2);
-  border-radius: 10px;
-}
-
-.history-modal-view-toggle.segmented[data-value="impact"]::before {
-  transform: translateX(100%);
+  content: none;
 }
 
 .history-modal-view-toggle .segment {
@@ -164,6 +158,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: 1 1 0;
+}
+
+.history-modal-view-toggle .segment.active {
+  color: var(--select-active-text);
+  background: var(--select-active-bg);
+  box-shadow: inset 0 0 0 1px var(--segmented-border);
 }
 
 .history-modal-view-toggle .segment:not(.active):hover {
@@ -321,6 +322,7 @@
   align-items: center;
   gap: 12px 18px;
 }
+
 
 .history-modal-controls-right {
   display: flex;
@@ -490,24 +492,30 @@
 }
 
 .history-impact-segmented.segmented {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   height: 38px;
-  padding: 3px;
-  gap: 3px;
+  padding: 4px;
+  gap: 4px;
   border-radius: 12px;
+  width: 260px;
+  max-width: 100%;
 }
 
 .history-impact-segmented.segmented::before {
-  top: 3px;
-  left: 3px;
-  height: calc(100% - 6px);
+  content: "";
+  top: 4px;
+  left: 4px;
+  height: calc(100% - 8px);
+  width: calc((100% - 12px) / 2);
   border-radius: 10px;
+  background: var(--select-active-bg);
+  transition: transform var(--motion-med) var(--motion-ease),
+    background var(--motion-med) var(--motion-ease);
+  transform: translateX(0);
 }
 
-.history-impact-panels.segmented::before {
-  width: calc((100% - 6px) / 2);
-}
-
-.history-impact-panels.segmented[data-value="deep"]::before {
+.history-impact-segmented.segmented[data-value="deep"]::before {
   transform: translateX(100%);
 }
 
@@ -516,12 +524,14 @@
   padding: 0 12px;
   border-radius: 10px;
   text-transform: none;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   font-weight: 650;
+  font-size: 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  white-space: nowrap;
 }
 
 .history-impact-segmented .segment:not(.active):hover {
@@ -825,7 +835,7 @@
 
 .impact-chart-body {
   flex: 1;
-  min-height: 0;
+  min-height: 260px;
   position: relative;
 }
 
@@ -834,6 +844,7 @@
   height: 100%;
   display: block;
   cursor: crosshair;
+  overflow: hidden;
 }
 
 .impact-grid line {
@@ -1704,4 +1715,7 @@
   font-size: 11px;
   line-height: 1.4;
   color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
