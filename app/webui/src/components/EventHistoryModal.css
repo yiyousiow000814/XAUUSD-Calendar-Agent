@@ -847,6 +847,17 @@
   overflow: hidden;
 }
 
+.history-impact-chart svg.impact-chart-svg {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 200ms var(--motion-ease), transform 220ms var(--motion-ease);
+}
+
+.history-impact-chart svg.impact-chart-svg.impact-chart-svg--in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .impact-grid line {
   stroke: rgba(255, 255, 255, 0.08);
   stroke-width: 1;
@@ -929,6 +940,9 @@
 .impact-y {
   fill: var(--muted);
   font-size: 11px;
+  paint-order: stroke;
+  stroke: var(--table-row-bg);
+  stroke-width: 3;
 }
 
 .impact-x {

@@ -290,6 +290,7 @@ export function EventHistoryModal({
   const [impactLoading, setImpactLoading] = useState(false);
   const [impactError, setImpactError] = useState<string | null>(null);
   const [impactData, setImpactData] = useState<EventImpactResponse | null>(null);
+  const [impactChartIn, setImpactChartIn] = useState(false);
   const impactBodyRef = useRef<HTMLDivElement | null>(null);
   // Cache impact payloads per (eventId, bucket) to avoid flicker when switching History <-> Impact.
   const impactCacheRef = useRef<Map<string, EventImpactResponse>>(new Map());
@@ -438,7 +439,7 @@ export function EventHistoryModal({
           window.clearTimeout(impactViewportReadyTimerRef.current);
           impactViewportReadyTimerRef.current = null;
         }
-        impactViewportReadyDeadlineRef.current = now + 420;
+        impactViewportReadyDeadlineRef.current = now + 700;
       } else {
         const prev = impactViewportStableRef.current;
         if (
@@ -449,10 +450,10 @@ export function EventHistoryModal({
           const next = { width: measured.width, height: measured.height, count: prev.count + 1 };
           impactViewportStableRef.current = next;
           if (impactViewportReadyDeadlineRef.current === null) {
-            impactViewportReadyDeadlineRef.current = now + 420;
+            impactViewportReadyDeadlineRef.current = now + 700;
           }
           const shouldArmReady =
-            next.count >= 2 ||
+            next.count >= 3 ||
             (impactViewportReadyDeadlineRef.current !== null &&
               now >= impactViewportReadyDeadlineRef.current);
           if (shouldArmReady && impactViewportReadyTimerRef.current === null) {
@@ -463,7 +464,7 @@ export function EventHistoryModal({
                 stable &&
                 Math.abs(stable.width - measured.width) <= 1 &&
                 Math.abs(stable.height - measured.height) <= 1 &&
-                (stable.count >= 2 ||
+                (stable.count >= 3 ||
                   (impactViewportReadyDeadlineRef.current !== null &&
                     (typeof performance !== "undefined"
                       ? performance.now()
@@ -471,7 +472,7 @@ export function EventHistoryModal({
               ) {
                 setImpactViewportReady(true);
               }
-            }, 160);
+            }, 260);
           }
         } else {
           impactViewportStableRef.current = {
@@ -484,7 +485,7 @@ export function EventHistoryModal({
             window.clearTimeout(impactViewportReadyTimerRef.current);
             impactViewportReadyTimerRef.current = null;
           }
-          impactViewportReadyDeadlineRef.current = now + 420;
+          impactViewportReadyDeadlineRef.current = now + 700;
         }
       }
 
@@ -505,12 +506,7 @@ export function EventHistoryModal({
   const openImpact = useCallback(() => {
     if (impactOpen) return;
 
-    // Prime the Impact chart size from the currently-rendered History chart so the first Impact paint
-    // doesn't need to wait for ResizeObserver (Tauri can take a few frames to settle).
-    const seeded = measureViewport(chartContainerRef.current);
-    if (seeded) {
-      updateImpactViewport(seeded);
-    }
+    // Avoid seeding from the History chart; its size can be smaller and cause a flash.
 
     if (isUsdEvent && impactPanel === "event" && eventId) {
       const cacheKey = `${eventId}::${impactBucket}`;
@@ -1031,6 +1027,29 @@ export function EventHistoryModal({
       domainMax
     };
   }, [impactOpen, impactSeries, impactViewport, impactViewportReady]);
+
+  const impactChartKey = useMemo(
+    () => `${eventId ?? ""}::${impactBucket}::${impactData?.meta?.sample_points ?? 0}`,
+    [eventId, impactBucket, impactData?.meta?.sample_points]
+  );
+
+  useEffect(() => {
+    if (!impactOpen || impactPanel !== "event") {
+      setImpactChartIn(false);
+      return;
+    }
+    if (!impactViewportReady || !impactData?.ok || !impactChart) {
+      setImpactChartIn(false);
+      return;
+    }
+    const raf = window.requestAnimationFrame(() => {
+      setImpactChartIn(true);
+    });
+    return () => {
+      window.cancelAnimationFrame(raf);
+      setImpactChartIn(false);
+    };
+  }, [impactChart, impactChartKey, impactData?.ok, impactOpen, impactPanel, impactViewportReady]);
 
   const updateImpactHoverFromPointer = useCallback(
     (target: SVGSVGElement, clientX: number, clientY: number) => {
@@ -1978,23 +1997,26 @@ export function EventHistoryModal({
                               </div>
                             ) : (
                               <>
-                              <svg
-                              viewBox={`0 0 ${impactChart.width} ${impactChart.height}`}
-                              role="img"
-                              aria-label="Impact analysis chart"
-                              onMouseMove={handleImpactMouseMove}
-                              onMouseLeave={() => setImpactHoverOffset(null)}
-                              onTouchMove={(event) => {
-                                const touch = event.touches[0];
-                                if (!touch) return;
-                                updateImpactHoverFromPointer(
-                                  event.currentTarget,
-                                  touch.clientX,
-                                  touch.clientY
-                                );
-                              }}
-                              onTouchEnd={() => setImpactHoverOffset(null)}
-                            >
+                                <svg
+                                  viewBox={`0 0 ${impactChart.width} ${impactChart.height}`}
+                                  className={`impact-chart-svg${
+                                    impactChartIn ? " impact-chart-svg--in" : ""
+                                  }`}
+                                  role="img"
+                                  aria-label="Impact analysis chart"
+                                  onMouseMove={handleImpactMouseMove}
+                                  onMouseLeave={() => setImpactHoverOffset(null)}
+                                  onTouchMove={(event) => {
+                                    const touch = event.touches[0];
+                                    if (!touch) return;
+                                    updateImpactHoverFromPointer(
+                                      event.currentTarget,
+                                      touch.clientX,
+                                      touch.clientY
+                                    );
+                                  }}
+                                  onTouchEnd={() => setImpactHoverOffset(null)}
+                                >
                               <defs>
                                 <clipPath id="impact-clip">
                                   <rect
@@ -2013,17 +2035,16 @@ export function EventHistoryModal({
                                   />
                                 </clipPath>
                               </defs>
-                              <g clipPath="url(#impact-clip)">
-                                <g className="impact-grid">
-                                  {impactChart.yTicks
-                                    .filter((tick) => {
-                                      // Avoid a "double thick" bottom line when a tick lands on the axis baseline.
-                                      const y = Math.round(impactChart.yForClamped(tick)) + 0.5;
-                                      const baseline =
-                                        Math.round(impactChart.height - impactChart.padding.bottom) + 0.5;
-                                      return Math.abs(y - baseline) > 2;
-                                    })
-                                    .map((tick) => (
+                              <g className="impact-grid">
+                                {impactChart.yTicks
+                                  .filter((tick) => {
+                                    // Avoid a "double thick" bottom line when a tick lands near the axis baseline.
+                                    const y = Math.round(impactChart.yForClamped(tick)) + 0.5;
+                                    const baseline =
+                                      Math.round(impactChart.height - impactChart.padding.bottom) + 0.5;
+                                    return Math.abs(y - baseline) > 12;
+                                  })
+                                  .map((tick) => (
                                     <line
                                       key={`y-${tick}`}
                                       x1={impactChart.padding.left}
@@ -2033,20 +2054,24 @@ export function EventHistoryModal({
                                       vectorEffect="non-scaling-stroke"
                                     />
                                   ))}
-                                  {impactChart.xTicks.map((tick) => {
-                                    const x = Math.round(impactChart.xForOffset(tick)) + 0.5;
-                                    return (
-                                      <line
-                                        key={`x-${tick}`}
-                                        x1={x}
-                                        x2={x}
-                                        y1={impactChart.padding.top}
-                                        y2={impactChart.height - impactChart.padding.bottom}
-                                        vectorEffect="non-scaling-stroke"
-                                      />
-                                    );
-                                  })}
-                                </g>
+                                {impactChart.xTicks.map((tick) => {
+                                  const rawX = impactChart.xForOffset(tick);
+                                  const snapped = Math.round(rawX) + 0.5;
+                                  const minX = impactChart.padding.left + 0.5;
+                                  const maxX =
+                                    impactChart.width - impactChart.padding.right - 0.5;
+                                  const x = Math.max(minX, Math.min(maxX, snapped));
+                                  return (
+                                    <line
+                                      key={`x-${tick}`}
+                                      x1={x}
+                                      x2={x}
+                                      y1={impactChart.padding.top}
+                                      y2={impactChart.height - impactChart.padding.bottom}
+                                      vectorEffect="non-scaling-stroke"
+                                    />
+                                  );
+                                })}
                               </g>
                               <g className="impact-axis">
                                 <line
@@ -2088,27 +2113,47 @@ export function EventHistoryModal({
                                 ) : null}
                               </g>
                               <g className="impact-labels">
-                                {impactChart.yTicks.map((tick) => {
-                                  const y = impactChart.yFor(tick);
-                                  const yText = Math.max(
-                                    impactChart.padding.top + 10,
-                                    Math.min(
-                                      impactChart.height - impactChart.padding.bottom - 6,
-                                      y + 4
-                                    )
-                                  );
-                                  return (
-                                  <text
-                                    key={`yl-${tick}`}
-                                    className="impact-y"
-                                    x={impactChart.padding.left - 10}
-                                    y={yText}
-                                    textAnchor="end"
-                                  >
+                                {(() => {
+                                  const minGap = 14;
+                                  const baseline = impactChart.height - impactChart.padding.bottom + 0.5;
+                                  const minY = impactChart.padding.top + 8;
+                                  const maxY = baseline - 10;
+                                  const candidates = impactChart.yTicks
+                                    .map((tick) => ({
+                                      tick,
+                                      y: impactChart.yFor(tick),
+                                      label: formatPct(tick)
+                                    }))
+                                    .filter((item) => item.y >= minY && item.y <= maxY)
+                                    .sort((a, b) => a.y - b.y);
+                                  const filtered: Array<{ tick: number; y: number; label: string }> = [];
+                                  let lastY = -Infinity;
+                                  let lastLabel = "";
+                                  for (const item of candidates) {
+                                    if (item.y - lastY < minGap) continue;
+                                    if (item.label === lastLabel) continue;
+                                    filtered.push(item);
+                                    lastY = item.y;
+                                    lastLabel = item.label;
+                                  }
+                                  return filtered.map(({ tick, y }) => {
+                                    const yText = Math.max(
+                                      impactChart.padding.top + 10,
+                                      Math.min(baseline - 10, y + 4)
+                                    );
+                                    return (
+                                    <text
+                                      key={`yl-${tick}`}
+                                      className="impact-y"
+                                      x={impactChart.padding.left - 10}
+                                      y={yText}
+                                      textAnchor="end"
+                                    >
                                     {formatPct(tick)}
                                   </text>
                                   );
-                                })}
+                                  });
+                                })()}
                                 {(() => {
                                   // Compute Y positions for the 4 static labels so they don't overlap.
                                   const labelCandidates = impactSeries.items
