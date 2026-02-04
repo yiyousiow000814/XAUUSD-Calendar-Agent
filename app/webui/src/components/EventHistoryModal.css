@@ -847,15 +847,27 @@
   overflow: hidden;
 }
 
-.history-impact-chart svg.impact-chart-svg {
-  opacity: 0;
-  transform: translateY(6px);
-  transition: opacity 200ms var(--motion-ease), transform 220ms var(--motion-ease);
+.history-impact-chart .impact-chart-anim {
+  width: 100%;
+  height: 100%;
+  animation: impact-chart-in 220ms var(--motion-ease) both;
 }
 
-.history-impact-chart svg.impact-chart-svg.impact-chart-svg--in {
-  opacity: 1;
-  transform: translateY(0);
+.history-impact-chart svg.impact-chart-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+@keyframes impact-chart-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .impact-grid line {

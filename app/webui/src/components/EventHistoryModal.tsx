@@ -290,7 +290,7 @@ export function EventHistoryModal({
   const [impactLoading, setImpactLoading] = useState(false);
   const [impactError, setImpactError] = useState<string | null>(null);
   const [impactData, setImpactData] = useState<EventImpactResponse | null>(null);
-  const [impactChartIn, setImpactChartIn] = useState(false);
+  const [impactChartAnimKey, setImpactChartAnimKey] = useState(0);
   const impactBodyRef = useRef<HTMLDivElement | null>(null);
   // Cache impact payloads per (eventId, bucket) to avoid flicker when switching History <-> Impact.
   const impactCacheRef = useRef<Map<string, EventImpactResponse>>(new Map());
@@ -1028,28 +1028,11 @@ export function EventHistoryModal({
     };
   }, [impactOpen, impactSeries, impactViewport, impactViewportReady]);
 
-  const impactChartKey = useMemo(
-    () => `${eventId ?? ""}::${impactBucket}::${impactData?.meta?.sample_points ?? 0}`,
-    [eventId, impactBucket, impactData?.meta?.sample_points]
-  );
-
   useEffect(() => {
-    if (!impactOpen || impactPanel !== "event") {
-      setImpactChartIn(false);
-      return;
-    }
-    if (!impactViewportReady || !impactData?.ok || !impactChart) {
-      setImpactChartIn(false);
-      return;
-    }
-    const raf = window.requestAnimationFrame(() => {
-      setImpactChartIn(true);
-    });
-    return () => {
-      window.cancelAnimationFrame(raf);
-      setImpactChartIn(false);
-    };
-  }, [impactChart, impactChartKey, impactData?.ok, impactOpen, impactPanel, impactViewportReady]);
+    if (!impactOpen || impactPanel !== "event") return;
+    if (!impactViewportReady || !impactData?.ok || !impactChart) return;
+    setImpactChartAnimKey((key) => key + 1);
+  }, [impactBucket, impactChart, impactData?.ok, impactOpen, impactPanel, impactViewportReady]);
 
   const updateImpactHoverFromPointer = useCallback(
     (target: SVGSVGElement, clientX: number, clientY: number) => {
@@ -1997,26 +1980,28 @@ export function EventHistoryModal({
                               </div>
                             ) : (
                               <>
-                                <svg
-                                  viewBox={`0 0 ${impactChart.width} ${impactChart.height}`}
-                                  className={`impact-chart-svg${
-                                    impactChartIn ? " impact-chart-svg--in" : ""
-                                  }`}
-                                  role="img"
-                                  aria-label="Impact analysis chart"
-                                  onMouseMove={handleImpactMouseMove}
-                                  onMouseLeave={() => setImpactHoverOffset(null)}
-                                  onTouchMove={(event) => {
-                                    const touch = event.touches[0];
-                                    if (!touch) return;
-                                    updateImpactHoverFromPointer(
-                                      event.currentTarget,
-                                      touch.clientX,
-                                      touch.clientY
-                                    );
-                                  }}
-                                  onTouchEnd={() => setImpactHoverOffset(null)}
+                                <div
+                                  key={`impact-chart-${impactChartAnimKey}`}
+                                  className="impact-chart-anim"
                                 >
+                                  <svg
+                                    viewBox={`0 0 ${impactChart.width} ${impactChart.height}`}
+                                    className="impact-chart-svg"
+                                    role="img"
+                                    aria-label="Impact analysis chart"
+                                    onMouseMove={handleImpactMouseMove}
+                                    onMouseLeave={() => setImpactHoverOffset(null)}
+                                    onTouchMove={(event) => {
+                                      const touch = event.touches[0];
+                                      if (!touch) return;
+                                      updateImpactHoverFromPointer(
+                                        event.currentTarget,
+                                        touch.clientX,
+                                        touch.clientY
+                                      );
+                                    }}
+                                    onTouchEnd={() => setImpactHoverOffset(null)}
+                                  >
                               <defs>
                                 <clipPath id="impact-clip">
                                   <rect
@@ -2361,7 +2346,8 @@ export function EventHistoryModal({
                                   Median % change
                                 </text>
                               </g>
-                            </svg>
+                                  </svg>
+                                </div>
                             {impactHover ? (
                               <div
                                 className="impact-chart-tooltip"
