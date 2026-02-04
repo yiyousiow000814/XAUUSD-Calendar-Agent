@@ -296,6 +296,13 @@ export function EventHistoryModal({
   const [impactViewport, setImpactViewport] = useState<{ width: number; height: number } | null>(
     null
   );
+  const [impactViewportReady, setImpactViewportReady] = useState(false);
+  const impactViewportStableRef = useRef<{ width: number; height: number; count: number } | null>(
+    null
+  );
+  const impactViewportReadyTimerRef = useRef<number | null>(null);
+  const impactViewportReadyDeadlineRef = useRef<number | null>(null);
+  const impactViewportReadyFallbackRef = useRef<number | null>(null);
   const [impactHoverOffset, setImpactHoverOffset] = useState<number | null>(null);
   const points = data?.points ?? [];
   const eventNotes = useMemo(
@@ -397,12 +404,103 @@ export function EventHistoryModal({
 
   const measureViewport = useCallback((node: HTMLElement | null) => {
     if (!node) return null;
-    const rect = node.getBoundingClientRect();
-    const width = Math.max(1, Math.floor(rect.width));
-    const height = Math.max(1, Math.floor(rect.height));
+    const width = Math.max(1, Math.floor(node.offsetWidth || node.getBoundingClientRect().width));
+    const height = Math.max(1, Math.floor(node.offsetHeight || node.getBoundingClientRect().height));
     if (width < 50 || height < 50) return null;
     return { width, height };
   }, []);
+
+  const updateImpactViewport = useCallback(
+    (measured: { width: number; height: number }) => {
+      const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+      const canReady = phase === "open";
+      if (canReady && impactViewportReady) {
+        setImpactViewport((current) => {
+          if (
+            current &&
+            Math.abs(current.width - measured.width) <= 1 &&
+            Math.abs(current.height - measured.height) <= 1
+          ) {
+            return current;
+          }
+          return measured;
+        });
+        return;
+      }
+      if (!canReady) {
+        impactViewportStableRef.current = {
+          width: measured.width,
+          height: measured.height,
+          count: 1
+        };
+        setImpactViewportReady(false);
+        if (impactViewportReadyTimerRef.current !== null) {
+          window.clearTimeout(impactViewportReadyTimerRef.current);
+          impactViewportReadyTimerRef.current = null;
+        }
+        impactViewportReadyDeadlineRef.current = now + 420;
+      } else {
+        const prev = impactViewportStableRef.current;
+        if (
+          prev &&
+          Math.abs(prev.width - measured.width) <= 1 &&
+          Math.abs(prev.height - measured.height) <= 1
+        ) {
+          const next = { width: measured.width, height: measured.height, count: prev.count + 1 };
+          impactViewportStableRef.current = next;
+          if (impactViewportReadyDeadlineRef.current === null) {
+            impactViewportReadyDeadlineRef.current = now + 420;
+          }
+          const shouldArmReady =
+            next.count >= 2 ||
+            (impactViewportReadyDeadlineRef.current !== null &&
+              now >= impactViewportReadyDeadlineRef.current);
+          if (shouldArmReady && impactViewportReadyTimerRef.current === null) {
+            impactViewportReadyTimerRef.current = window.setTimeout(() => {
+              impactViewportReadyTimerRef.current = null;
+              const stable = impactViewportStableRef.current;
+              if (
+                stable &&
+                Math.abs(stable.width - measured.width) <= 1 &&
+                Math.abs(stable.height - measured.height) <= 1 &&
+                (stable.count >= 2 ||
+                  (impactViewportReadyDeadlineRef.current !== null &&
+                    (typeof performance !== "undefined"
+                      ? performance.now()
+                      : Date.now()) >= impactViewportReadyDeadlineRef.current))
+              ) {
+                setImpactViewportReady(true);
+              }
+            }, 160);
+          }
+        } else {
+          impactViewportStableRef.current = {
+            width: measured.width,
+            height: measured.height,
+            count: 1
+          };
+          setImpactViewportReady(false);
+          if (impactViewportReadyTimerRef.current !== null) {
+            window.clearTimeout(impactViewportReadyTimerRef.current);
+            impactViewportReadyTimerRef.current = null;
+          }
+          impactViewportReadyDeadlineRef.current = now + 420;
+        }
+      }
+
+      setImpactViewport((current) => {
+        if (
+          current &&
+          Math.abs(current.width - measured.width) <= 1 &&
+          Math.abs(current.height - measured.height) <= 1
+        ) {
+          return current;
+        }
+        return measured;
+      });
+    },
+    [impactViewportReady, phase]
+  );
 
   const openImpact = useCallback(() => {
     if (impactOpen) return;
@@ -411,12 +509,7 @@ export function EventHistoryModal({
     // doesn't need to wait for ResizeObserver (Tauri can take a few frames to settle).
     const seeded = measureViewport(chartContainerRef.current);
     if (seeded) {
-      setImpactViewport((prev) => {
-        if (prev && Math.abs(prev.width - seeded.width) <= 1 && Math.abs(prev.height - seeded.height) <= 1) {
-          return prev;
-        }
-        return seeded;
-      });
+      updateImpactViewport(seeded);
     }
 
     if (isUsdEvent && impactPanel === "event" && eventId) {
@@ -442,35 +535,17 @@ export function EventHistoryModal({
         window.requestAnimationFrame(() => {
           const measured = measureViewport(impactBodyRef.current);
           if (!measured) return;
-          setImpactViewport((prev) => {
-            if (
-              prev &&
-              Math.abs(prev.width - measured.width) <= 1 &&
-              Math.abs(prev.height - measured.height) <= 1
-            ) {
-              return prev;
-            }
-            return measured;
-          });
+          updateImpactViewport(measured);
         });
       });
     }
-  }, [eventId, impactBucket, impactOpen, impactPanel, isUsdEvent, measureViewport]);
+  }, [eventId, impactBucket, impactOpen, impactPanel, isUsdEvent, measureViewport, updateImpactViewport]);
 
   const ensureImpactViewport = useCallback(() => {
     // Try the direct viewport first.
     const direct = measureViewport(impactBodyRef.current);
     if (direct) {
-      setImpactViewport((prev) => {
-        if (
-          prev &&
-          Math.abs(prev.width - direct.width) <= 1 &&
-          Math.abs(prev.height - direct.height) <= 1
-        ) {
-          return prev;
-        }
-        return direct;
-      });
+      updateImpactViewport(direct);
       return true;
     }
 
@@ -478,25 +553,21 @@ export function EventHistoryModal({
     const body = impactBodyRef.current;
     const container = body?.closest?.(".history-impact-chart");
     if (container instanceof HTMLElement) {
-      const rect = container.getBoundingClientRect();
-      const width = Math.max(1, Math.floor(rect.width));
-      const height = Math.max(1, Math.floor(rect.height));
+      const width = Math.max(
+        1,
+        Math.floor(container.offsetWidth || container.getBoundingClientRect().width)
+      );
+      const height = Math.max(
+        1,
+        Math.floor(container.offsetHeight || container.getBoundingClientRect().height)
+      );
       if (width >= 50 && height >= 50) {
-        setImpactViewport((prev) => {
-          if (
-            prev &&
-            Math.abs(prev.width - width) <= 1 &&
-            Math.abs(prev.height - height) <= 1
-          ) {
-            return prev;
-          }
-          return { width, height };
-        });
+        updateImpactViewport({ width, height });
         return true;
       }
     }
     return false;
-  }, [measureViewport]);
+  }, [measureViewport, updateImpactViewport]);
 
   // If the modal opens directly in Impact view (saved in localStorage), Tauri may not fire
   // ResizeObserver immediately. Ensure we still get a usable viewport without requiring a manual re-toggle.
@@ -617,16 +688,7 @@ export function EventHistoryModal({
       if (cancelled) return;
       const measured = measureViewport(node);
       if (measured) {
-        setImpactViewport((prev) => {
-          if (
-            prev &&
-            Math.abs(prev.width - measured.width) <= 1 &&
-            Math.abs(prev.height - measured.height) <= 1
-          ) {
-            return prev;
-          }
-          return measured;
-        });
+        updateImpactViewport(measured);
         return;
       }
 
@@ -639,7 +701,100 @@ export function EventHistoryModal({
     return () => {
       cancelled = true;
     };
-  }, [impactOpen, impactPanel, isOpen, measureViewport]);
+  }, [impactOpen, impactPanel, isOpen, measureViewport, updateImpactViewport]);
+
+  useEffect(() => {
+    if (!impactOpen) return;
+    if (!isOpen) return;
+    if (impactPanel !== "event") return;
+    const node = impactBodyRef.current;
+    if (!node || typeof ResizeObserver === "undefined") return;
+    let cancelled = false;
+
+    const observer = new ResizeObserver(() => {
+      if (cancelled) return;
+      const measured = measureViewport(node);
+      if (!measured) return;
+      updateImpactViewport(measured);
+    });
+
+    observer.observe(node);
+    return () => {
+      cancelled = true;
+      observer.disconnect();
+    };
+  }, [impactOpen, impactPanel, isOpen, measureViewport, updateImpactViewport]);
+
+  useEffect(() => {
+    if (!impactOpen) return;
+    if (!isOpen) return;
+    if (impactPanel !== "event") return;
+    const node = impactBodyRef.current;
+    if (!node) return;
+    let cancelled = false;
+
+    const remeasure = () => {
+      if (cancelled) return;
+      const measured = measureViewport(node);
+      if (!measured) return;
+      updateImpactViewport(measured);
+    };
+
+    const t1 = window.setTimeout(remeasure, 280);
+    const t2 = window.setTimeout(remeasure, 520);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, [impactOpen, impactPanel, isOpen, measureViewport, updateImpactViewport]);
+
+  useEffect(() => {
+    if (!impactOpen || !isOpen || impactPanel !== "event") {
+      setImpactViewportReady(false);
+      impactViewportStableRef.current = null;
+      if (impactViewportReadyTimerRef.current !== null) {
+        window.clearTimeout(impactViewportReadyTimerRef.current);
+        impactViewportReadyTimerRef.current = null;
+      }
+      impactViewportReadyDeadlineRef.current = null;
+      if (impactViewportReadyFallbackRef.current !== null) {
+        window.clearTimeout(impactViewportReadyFallbackRef.current);
+        impactViewportReadyFallbackRef.current = null;
+      }
+    }
+  }, [impactOpen, impactPanel, isOpen]);
+
+  useEffect(() => {
+    if (phase !== "open") return;
+    if (!impactOpen || !isOpen || impactPanel !== "event") return;
+    const measured = measureViewport(impactBodyRef.current);
+    if (measured) {
+      updateImpactViewport(measured);
+    }
+  }, [impactOpen, impactPanel, isOpen, measureViewport, phase, updateImpactViewport]);
+
+  useEffect(() => {
+    if (!impactOpen || !isOpen || impactPanel !== "event") return;
+    if (impactViewportReadyFallbackRef.current !== null) {
+      window.clearTimeout(impactViewportReadyFallbackRef.current);
+      impactViewportReadyFallbackRef.current = null;
+    }
+    impactViewportReadyFallbackRef.current = window.setTimeout(() => {
+      impactViewportReadyFallbackRef.current = null;
+      const measured = measureViewport(impactBodyRef.current);
+      if (!measured) return;
+      updateImpactViewport(measured);
+      setImpactViewportReady(true);
+    }, 420);
+    return () => {
+      if (impactViewportReadyFallbackRef.current !== null) {
+        window.clearTimeout(impactViewportReadyFallbackRef.current);
+        impactViewportReadyFallbackRef.current = null;
+      }
+    };
+  }, [impactOpen, impactPanel, isOpen, measureViewport, updateImpactViewport]);
+
 
   useEffect(() => {
     if (!isOpen) return;
@@ -709,7 +864,7 @@ export function EventHistoryModal({
   }, [impactData, impactSelectedBucketCount]);
 
   const impactChart = useMemo(() => {
-    if (!impactOpen) return null;
+    if (!impactOpen || !impactViewportReady) return null;
     // Match the chart viewport to its on-screen size (avoids letterboxing when the modal
     // layout changes across themes / platforms).
     const measuredWidth = impactViewport?.width ?? 0;
@@ -871,10 +1026,11 @@ export function EventHistoryModal({
       hoverSnapDist,
       xTicks,
       yTicks,
+      yForClamped,
       domainMin,
       domainMax
     };
-  }, [impactOpen, impactSeries, impactViewport]);
+  }, [impactOpen, impactSeries, impactViewport, impactViewportReady]);
 
   const updateImpactHoverFromPointer = useCallback(
     (target: SVGSVGElement, clientX: number, clientY: number) => {
@@ -953,61 +1109,6 @@ export function EventHistoryModal({
     };
   }, [impactChart, impactData, impactHoverOffset, impactOpen, impactPanel]);
 
-  useEffect(() => {
-    if (!impactOpen) return;
-    if (typeof window === "undefined") return;
-    const node = impactBodyRef.current;
-    if (!node) return;
-
-    let frame: number | null = null;
-    let debounceTimer: number | null = null;
-    let pending: { width: number; height: number } | null = null;
-
-    const flush = () => {
-      if (debounceTimer !== null) {
-        window.clearTimeout(debounceTimer);
-        debounceTimer = null;
-      }
-      if (!pending) return;
-      const next = pending;
-      pending = null;
-      setImpactViewport((prev) => {
-        if (prev && Math.abs(prev.width - next.width) <= 1 && Math.abs(prev.height - next.height) <= 1) return prev;
-        return next;
-      });
-    };
-
-    const sample = () => {
-      const rect = node.getBoundingClientRect();
-      const width = Math.max(1, Math.floor(rect.width));
-      const height = Math.max(1, Math.floor(rect.height));
-      if (width < 50 || height < 50) return;
-      pending = { width, height };
-      if (debounceTimer !== null) return;
-      debounceTimer = window.setTimeout(flush, 80);
-    };
-
-    const schedule = () => {
-      if (frame !== null) return;
-      frame = window.requestAnimationFrame(() => {
-        frame = null;
-        sample();
-      });
-    };
-
-    schedule();
-    let ro: ResizeObserver | null = null;
-    if ("ResizeObserver" in window) {
-      ro = new ResizeObserver(schedule);
-      ro.observe(node);
-    }
-
-    return () => {
-      if (frame !== null) window.cancelAnimationFrame(frame);
-      if (debounceTimer !== null) window.clearTimeout(debounceTimer);
-      ro?.disconnect();
-    };
-  }, [impactOpen]);
   const hasVisibleSeries = visibleSeries.actual || visibleSeries.forecast;
   const rangeKeyForView: RangeKey = impactOpen ? "all" : preferredRange;
   const activeRange = useMemo(
@@ -1268,6 +1369,15 @@ export function EventHistoryModal({
     return () => {
       if (closeTimerRef.current) {
         window.clearTimeout(closeTimerRef.current);
+      }
+      if (impactViewportReadyTimerRef.current !== null) {
+        window.clearTimeout(impactViewportReadyTimerRef.current);
+        impactViewportReadyTimerRef.current = null;
+      }
+      impactViewportReadyDeadlineRef.current = null;
+      if (impactViewportReadyFallbackRef.current !== null) {
+        window.clearTimeout(impactViewportReadyFallbackRef.current);
+        impactViewportReadyFallbackRef.current = null;
       }
       if (actualStrokeCleanupTimerRef.current) {
         window.clearTimeout(actualStrokeCleanupTimerRef.current);
@@ -1903,45 +2013,40 @@ export function EventHistoryModal({
                                   />
                                 </clipPath>
                               </defs>
-                              <g className="impact-grid">
-                                {impactChart.yTicks
-                                  .filter((tick) => {
-                                    // Avoid a "double thick" bottom line when a tick lands on the axis baseline.
-                                    const y = Math.round(impactChart.yFor(tick)) + 0.5;
-                                    const baseline =
-                                      Math.round(impactChart.height - impactChart.padding.bottom) + 0.5;
-                                    return Math.abs(y - baseline) > 0.8;
-                                  })
-                                  .map((tick) => (
-                                  <line
-                                    key={`y-${tick}`}
-                                    x1={impactChart.padding.left}
-                                    x2={impactChart.width - impactChart.padding.right}
-                                    y1={Math.round(impactChart.yFor(tick)) + 0.5}
-                                    y2={Math.round(impactChart.yFor(tick)) + 0.5}
-                                    vectorEffect="non-scaling-stroke"
-                                  />
-                                ))}
-                                {impactChart.xTicks.map((tick) => {
-                                  const x = Math.round(impactChart.xForOffset(tick)) + 0.5;
-                                  return (
+                              <g clipPath="url(#impact-clip)">
+                                <g className="impact-grid">
+                                  {impactChart.yTicks
+                                    .filter((tick) => {
+                                      // Avoid a "double thick" bottom line when a tick lands on the axis baseline.
+                                      const y = Math.round(impactChart.yForClamped(tick)) + 0.5;
+                                      const baseline =
+                                        Math.round(impactChart.height - impactChart.padding.bottom) + 0.5;
+                                      return Math.abs(y - baseline) > 2;
+                                    })
+                                    .map((tick) => (
                                     <line
-                                      key={`x-${tick}`}
-                                      x1={x}
-                                      x2={x}
-                                      y1={impactChart.padding.top}
-                                      y2={impactChart.height - impactChart.padding.bottom}
+                                      key={`y-${tick}`}
+                                      x1={impactChart.padding.left}
+                                      x2={impactChart.width - impactChart.padding.right}
+                                      y1={Math.round(impactChart.yForClamped(tick)) + 0.5}
+                                      y2={Math.round(impactChart.yForClamped(tick)) + 0.5}
                                       vectorEffect="non-scaling-stroke"
                                     />
-                                  );
-                                })}
-                                <line
-                                  x1={impactChart.padding.left}
-                                  x2={impactChart.width - impactChart.padding.right}
-                                  y1={Math.round(impactChart.yFor(0)) + 0.5}
-                                  y2={Math.round(impactChart.yFor(0)) + 0.5}
-                                  vectorEffect="non-scaling-stroke"
-                                />
+                                  ))}
+                                  {impactChart.xTicks.map((tick) => {
+                                    const x = Math.round(impactChart.xForOffset(tick)) + 0.5;
+                                    return (
+                                      <line
+                                        key={`x-${tick}`}
+                                        x1={x}
+                                        x2={x}
+                                        y1={impactChart.padding.top}
+                                        y2={impactChart.height - impactChart.padding.bottom}
+                                        vectorEffect="non-scaling-stroke"
+                                      />
+                                    );
+                                  })}
+                                </g>
                               </g>
                               <g className="impact-axis">
                                 <line

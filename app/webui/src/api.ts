@@ -507,6 +507,9 @@ const buildMockEventImpactUsd = (payload: {
   eventId: string;
   bucket: string;
 }): EventImpactResponse => {
+  if (!payload.eventId.startsWith("USD::")) {
+    return { ok: false, message: "Impact analysis unavailable." };
+  }
   const windowsMinutes = [-12 * 60, -4 * 60, -60, -15, -5, -1, 0, 1, 5, 15, 60, 4 * 60, 12 * 60];
 
   const data: Record<string, any> = {};

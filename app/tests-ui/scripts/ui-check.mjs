@@ -1093,12 +1093,56 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
         }
         return Promise.resolve({
           ok: true,
-          eventId: "mock",
+          eventId: "USD::mock-impact",
           metric,
           frequency: "m/m",
           period: "",
           cur: currency,
           points
+        });
+      },
+      get_event_impact_usd: ({ eventId, bucket }) => {
+        if (eventId !== "USD::mock-impact") {
+          return Promise.resolve({ ok: false, message: "Impact data not available." });
+        }
+        const windowsMinutes = [-12 * 60, -4 * 60, -60, 0, 60, 4 * 60, 12 * 60];
+        const base = bucket === "ap_gt_prev" ? 0.12 : bucket === "ap_lt_prev" ? -0.12 : 0.02;
+        const data = Object.fromEntries(
+          windowsMinutes.map((offset, index) => {
+            if (offset === 0) return [String(offset), { n: 0 }];
+            const swing = base + (index % 2 === 0 ? 0.05 : -0.03);
+            const median = swing / 100;
+            return [
+              String(offset),
+              {
+                n: 28 + index * 2,
+                p_up: swing > 0 ? 0.62 : 0.38,
+                p_down: swing > 0 ? 0.38 : 0.62,
+                p10: median - 0.0015,
+                p50: median,
+                p90: median + 0.0018,
+                best_direction: swing > 0 ? "up" : "down",
+                best_p: 0.62,
+                best_median_pct: median
+              }
+            ];
+          })
+        );
+        return Promise.resolve({
+          ok: true,
+          eventId,
+          bucket,
+          generatedAtUtc: "06-01-2026 14:00",
+          meta: {
+            price_min_utc: "05-01-2026 00:00",
+            price_max_utc: "06-01-2026 23:59",
+            event_source_tz: "UTC",
+            event_min_utc: "01-01-2026 00:00",
+            event_max_utc: "05-01-2026 00:00",
+            sample_points: 168
+          },
+          windowsMinutes,
+          data
         });
       },
       get_settings: () => Promise.resolve(settings),
@@ -3127,7 +3171,7 @@ const main = async () => {
 
         // Impact view should remain readable and keep controls anchored while switching panels.
         const impactToggle = historyModal
-          .locator(".history-modal-toggle button.history-toggle")
+          .locator("[data-qa='qa:history:view-toggle'] button")
           .filter({ hasText: "Impact" })
           .first();
         if (await impactToggle.count()) {
@@ -3143,6 +3187,48 @@ const main = async () => {
           const impactControls = historyModal.locator("[data-qa='qa:history:impact-controls']").first();
           await impactControls.waitFor({ state: "visible", timeout: 8000 }).catch(() => null);
           await page.waitForTimeout(120);
+
+          const impactChartGate = historyModal.locator("[data-qa='qa:history:impact-chart']").first();
+          if (await impactChartGate.count()) {
+            await page
+              .waitForFunction(
+                () => {
+                  const chart = document.querySelector("[data-qa='qa:history:impact-chart']");
+                  if (!chart) return false;
+                  const loading = chart.querySelector(".history-impact-status");
+                  if (loading && /loading/i.test(loading.textContent || "")) return false;
+                  const line = chart.querySelector("g.impact-line path");
+                  const band = chart.querySelector("g.impact-band path");
+                  const dLine = line?.getAttribute("d") ?? "";
+                  const dBand = band?.getAttribute("d") ?? "";
+                  return /\bL\b/.test(dLine) || dBand.trim().length > 8;
+                },
+                null,
+                { timeout: 9000 }
+              )
+              .catch(() => null);
+          }
+
+          const impactBody = historyModal.locator(".impact-chart-body").first();
+          if (await impactBody.count()) {
+            await runCheck(theme.key, "History modal Impact chart width stable", async () => {
+              const widthA = await impactBody.evaluate(
+                (el) => el.offsetWidth || el.getBoundingClientRect().width
+              );
+              await page.waitForTimeout(280);
+              const widthB = await impactBody.evaluate(
+                (el) => el.offsetWidth || el.getBoundingClientRect().width
+              );
+              const delta = Math.abs(widthB - widthA);
+              if (delta > 2) {
+                throw new Error(
+                  `Impact chart width drifted (before=${widthA.toFixed(1)} after=${widthB.toFixed(
+                    1
+                  )} delta=${delta.toFixed(1)}px)`
+                );
+              }
+            });
+          }
 
           // Switching to Impact should not shift the side history table vertically.
           await runCheck(theme.key, "History modal side panel does not jump", async () => {
@@ -3172,6 +3258,42 @@ const main = async () => {
 
           const impactChart = historyModal.locator("[data-qa='qa:history:impact-chart']").first();
           if (await impactChart.count()) {
+            await page
+              .waitForFunction(
+                () => {
+                  const chart = document.querySelector("[data-qa='qa:history:impact-chart']");
+                  if (!chart) return false;
+                  const line = chart.querySelector("g.impact-line path");
+                  const band = chart.querySelector("g.impact-band path");
+                  const dLine = line?.getAttribute("d") ?? "";
+                  const dBand = band?.getAttribute("d") ?? "";
+                  return /\bL\b/.test(dLine) || dBand.trim().length > 8;
+                },
+                null,
+                { timeout: 8000 }
+              )
+              .catch(() => null);
+            const impactChartAnim = historyModal
+              .locator("[data-qa='qa:history:impact-chart']")
+              .first();
+            if (await impactChartAnim.count()) {
+              const frames = await captureFrames(
+                page,
+                "event-history-modal",
+                theme.key,
+                "impact-anim",
+                { count: 5, gapMs: 140, element: impactChartAnim }
+              );
+              artifacts.push({
+                scenario: "event-history-modal",
+                theme: theme.key,
+                state: "impact-anim",
+                label: "Impact chart layout settle",
+                path: frames[0],
+                frames,
+                frameGapMs: 140
+              });
+            }
             await runCheck(theme.key, "History modal Impact layout", () =>
               assertHistoryImpactModalLayout(page)
             );
