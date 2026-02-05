@@ -1,4 +1,4 @@
-import type { EventHistoryResponse, Settings, Snapshot } from "./types";
+import type { EventHistoryResponse, EventImpactResponse, Settings, Snapshot } from "./types";
 import { CURRENCY_OPTIONS } from "./constants/currencyOptions";
 
 type ApiResult<T> = Promise<T>;
@@ -17,6 +17,7 @@ type UpdateState = {
 type BackendApi = {
   get_snapshot: () => ApiResult<Snapshot>;
   get_event_history?: (payload: { event: string; cur: string }) => ApiResult<EventHistoryResponse>;
+  get_event_impact_usd?: (payload: { eventId: string; bucket: string }) => ApiResult<EventImpactResponse>;
   get_settings: () => ApiResult<Settings>;
   save_settings: (payload: Settings) => ApiResult<{ ok: boolean }>;
   frontend_boot_complete?: () => ApiResult<{ ok: boolean }>;
@@ -492,12 +493,66 @@ const buildMockEventHistory = (payload: { event: string; cur: string }): EventHi
 
   return {
     ok: true,
-    eventId: "mock",
+    // Keep the mock payload aligned with production semantics (e.g. Impact analysis gating checks `USD::` prefix).
+    eventId: `${payload.cur}::${payload.event}`,
     metric: payload.event,
     frequency: "m/m",
     period: "",
     cur: payload.cur,
     points
+  };
+};
+
+const buildMockEventImpactUsd = (payload: {
+  eventId: string;
+  bucket: string;
+}): EventImpactResponse => {
+  if (!payload.eventId.startsWith("USD::")) {
+    return { ok: false, message: "Impact analysis unavailable." };
+  }
+  const windowsMinutes = [-12 * 60, -4 * 60, -60, -15, -5, -1, 0, 1, 5, 15, 60, 4 * 60, 12 * 60];
+
+  const data: Record<string, any> = {};
+  for (const offset of windowsMinutes) {
+    const key = String(offset);
+    if (offset === 0) {
+      data[key] = { n: 80, p10: 0, p50: 0, p90: 0, best_direction: "up", best_p: 0.5, best_median_pct: 0 };
+      continue;
+    }
+    const abs = Math.abs(offset);
+    const norm = Math.min(1, abs / (4 * 60));
+    const tilt = offset < 0 ? -1 : 1;
+    const median = tilt * (0.06 + 0.08 * norm) * (0.6 + 0.4 * Math.sin(abs / 90));
+    const spread = 0.12 + 0.1 * norm;
+    const p10 = median - spread;
+    const p90 = median + spread;
+    const bestDirection = median >= 0 ? "up" : "down";
+    data[key] = {
+      n: 80,
+      p10,
+      p50: median,
+      p90,
+      best_direction: bestDirection,
+      best_p: 0.63,
+      best_median_pct: median
+    };
+  }
+
+  return {
+    ok: true,
+    eventId: payload.eventId,
+    bucket: payload.bucket as any,
+    generatedAtUtc: "2026-01-31T00:00:00Z",
+    meta: {
+      event_source_tz: "UTC+8",
+      event_min_utc: "2016-10-18T00:00:00Z",
+      event_max_utc: "2026-01-30T00:00:00Z",
+      sample_points: 80,
+      price_min_utc: "2016-10-18T00:00:00Z",
+      price_max_utc: "2026-01-30T00:00:00Z"
+    },
+    windowsMinutes,
+    data
   };
 };
 
@@ -524,6 +579,19 @@ export const backend = {
     }
     // Tauri invoke proxy wraps method args as `{ payload: ... }`, so align with that shape.
     return api.get_event_history({ event: payload.event, cur: payload.cur } as any);
+  },
+  getEventImpactUsd: async (payload: { eventId: string; bucket: string }) => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockEventImpactUsd(payload));
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "get_event_impact_usd")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve({ ok: false, message: "Impact analysis unavailable" });
+    }
+    return api.get_event_impact_usd({ eventId: payload.eventId, bucket: payload.bucket } as any);
   },
   getUpdateState: async () => {
     const api = await withApi();

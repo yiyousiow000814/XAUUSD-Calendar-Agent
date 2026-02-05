@@ -1,6 +1,15 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import type { EventHistoryPoint, EventHistoryResponse } from "../types";
+import type { PointerEvent as ReactPointerEvent } from "react";
+import type {
+  EventHistoryPoint,
+  EventHistoryResponse,
+  EventImpactBucket,
+  EventImpactResponse,
+  EventImpactWindowStats
+} from "../types";
+import { backend } from "../api";
 import { buildEventNotes } from "../utils/eventNotes";
+import { Select } from "./Select";
 import "./EventHistoryModal.css";
 
 type EventHistoryModalProps = {
@@ -23,6 +32,9 @@ type RangeKey = NumericRangeKey | "all";
 
 const RANGE_STORAGE_KEY = "xauusd:event-history:range";
 const SERIES_STORAGE_KEY = "xauusd:event-history:series";
+const IMPACT_BUCKET_STORAGE_KEY = "xauusd:event-history:impact-bucket";
+const IMPACT_VIEW_STORAGE_KEY = "xauusd:event-history:impact-view";
+const IMPACT_PANEL_STORAGE_KEY = "xauusd:event-history:impact-panel";
 
 const resolveRange = (preferred: RangeKey, total: number): RangeKey => {
   if (preferred === "all") return "all";
@@ -80,6 +92,16 @@ const formatDisplayDate = (value: string) => {
   return `${day}-${month}-${year}`;
 };
 
+const formatCoverage = (isoMin: string | null | undefined, isoMax: string | null | undefined) => {
+  const min = (isoMin ?? "").trim();
+  const max = (isoMax ?? "").trim();
+  if (!min || !max) return "";
+  const minDate = min.slice(0, 10);
+  const maxDate = max.slice(0, 10);
+  if (!minDate || !maxDate) return "";
+  return `${formatDisplayDate(minDate)} to ${formatDisplayDate(maxDate)} UTC`;
+};
+
 const formatDisplayPeriod = (value: string | null | undefined) => {
   const token = (value ?? "").trim();
   if (!token) return "";
@@ -90,6 +112,15 @@ const formatDisplayPeriod = (value: string | null | undefined) => {
 
 const formatDisplayValue = (value: string | null | undefined) =>
   isMissingValue(value) ? "--" : String(value ?? "").trim();
+
+const classifyImpactBucket = (actual: string, previous: string): EventImpactBucket | null => {
+  const actualValue = parseComparableNumber(actual);
+  const previousValue = parseComparableNumber(previous);
+  if (actualValue === null || previousValue === null) return null;
+  if (actualValue > previousValue) return "ap_gt_prev";
+  if (actualValue < previousValue) return "ap_lt_prev";
+  return "ap_eq_prev";
+};
 
 const extractSeries = (points: EventHistoryPoint[], key: keyof EventHistoryPoint) =>
   points.map((item) => parseComparableNumber(String(item[key] ?? "")));
@@ -119,6 +150,25 @@ const detectUnitLabel = (points: EventHistoryPoint[], keys: Array<keyof EventHis
   return "";
 };
 
+const formatOffsetLabel = (minutes: number) => {
+  if (minutes === 0) return "0";
+  const abs = Math.abs(minutes);
+  const sign = minutes < 0 ? "-" : "+";
+  if (abs % (12 * 60) === 0) return `${sign}${abs / (12 * 60)}d`;
+  if (abs % 60 === 0) return `${sign}${abs / 60}h`;
+  return `${sign}${abs}m`;
+};
+
+const IMPACT_AXIS_OFFSETS = [-12 * 60, -4 * 60, -60, 0, 60, 4 * 60, 12 * 60];
+// Keep labels sparse; dense labels around the event overlap and become unreadable.
+const IMPACT_LABEL_OFFSETS = [-12 * 60, -4 * 60, 4 * 60, 12 * 60];
+
+const formatPct = (value: number) => {
+  const abs = Math.abs(value);
+  const digits = abs < 0.1 ? 3 : abs < 1 ? 2 : 2;
+  return `${value.toFixed(digits).replace(/0+$/, "").replace(/\.$/, "")}%`;
+};
+
 const buildPath = (
   values: Array<number | null>,
   xForIndex: (index: number) => number,
@@ -128,6 +178,7 @@ const buildPath = (
   if (values.length <= 1) return "";
   let path = "";
   let started = false;
+  let hasLineSegment = false;
   values.forEach((value, index) => {
     if (value === null) {
       if (!connectNulls) {
@@ -142,9 +193,11 @@ const buildPath = (
       started = true;
     } else {
       path += ` L ${x.toFixed(2)} ${y.toFixed(2)}`;
+      hasLineSegment = true;
     }
   });
-  return path;
+  // A path with only a move command renders nothing; treat it as empty.
+  return hasLineSegment ? path : "";
 };
 
 export function EventHistoryModal({
@@ -188,6 +241,7 @@ export function EventHistoryModal({
     | null
   >(null);
   const wasLoadingRef = useRef(false);
+  const modalBodyRef = useRef<HTMLDivElement | null>(null);
   const tableRef = useRef<HTMLDivElement | null>(null);
   const [fitRowCount, setFitRowCount] = useState(0);
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
@@ -206,6 +260,51 @@ export function EventHistoryModal({
       return { actual: true, forecast: true };
     }
   });
+  const [impactOpen, setImpactOpen] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return window.localStorage.getItem(IMPACT_VIEW_STORAGE_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+  const [impactPanel, setImpactPanel] = useState<"event" | "deep">(() => {
+    if (typeof window === "undefined") return "event";
+    try {
+      return window.localStorage.getItem(IMPACT_PANEL_STORAGE_KEY) === "deep" ? "deep" : "event";
+    } catch {
+      return "event";
+    }
+  });
+  const prevImpactPanelRef = useRef<"event" | "deep">(impactPanel);
+  const [impactBucket, setImpactBucket] = useState<EventImpactBucket>(() => {
+    if (typeof window === "undefined") return "ap_gt_prev";
+    try {
+      const raw = window.localStorage.getItem(IMPACT_BUCKET_STORAGE_KEY);
+      if (raw === "ap_gt_prev" || raw === "ap_lt_prev" || raw === "ap_eq_prev") return raw;
+    } catch {
+      // ignore
+    }
+    return "ap_gt_prev";
+  });
+  const [impactLoading, setImpactLoading] = useState(false);
+  const [impactError, setImpactError] = useState<string | null>(null);
+  const [impactData, setImpactData] = useState<EventImpactResponse | null>(null);
+  const [impactChartAnimKey, setImpactChartAnimKey] = useState(0);
+  const impactBodyRef = useRef<HTMLDivElement | null>(null);
+  // Cache impact payloads per (eventId, bucket) to avoid flicker when switching History <-> Impact.
+  const impactCacheRef = useRef<Map<string, EventImpactResponse>>(new Map());
+  const [impactViewport, setImpactViewport] = useState<{ width: number; height: number } | null>(
+    null
+  );
+  const [impactViewportReady, setImpactViewportReady] = useState(false);
+  const impactViewportStableRef = useRef<{ width: number; height: number; count: number } | null>(
+    null
+  );
+  const impactViewportReadyTimerRef = useRef<number | null>(null);
+  const impactViewportReadyDeadlineRef = useRef<number | null>(null);
+  const impactViewportReadyFallbackRef = useRef<number | null>(null);
+  const [impactHoverOffset, setImpactHoverOffset] = useState<number | null>(null);
   const points = data?.points ?? [];
   const eventNotes = useMemo(
     () => buildEventNotes(selectionLabel, data),
@@ -218,6 +317,24 @@ export function EventHistoryModal({
     return map;
   }, [points]);
   const hasData = points.length > 0;
+  const eventId = (data?.eventId ?? "").trim();
+  const isUsdEvent = eventId.startsWith("USD::");
+  const bucketCounts = useMemo(() => {
+    const counts: Record<EventImpactBucket, number> = {
+      ap_gt_prev: 0,
+      ap_lt_prev: 0,
+      ap_eq_prev: 0
+    };
+    for (const point of points) {
+      // Analysis excludes All Day / missing times. Mirror that rule for bucket availability hints.
+      const t = String(point.time ?? "").trim().toLowerCase();
+      if (!t || t === "all day" || !t.includes(":")) continue;
+      const bucket = classifyImpactBucket(point.actual, point.previous);
+      if (!bucket) continue;
+      counts[bucket] += 1;
+    }
+    return counts;
+  }, [points]);
   const hasForecastValues = useMemo(
     () => points.some((point) => !isMissingValue(point.forecast)),
     [points]
@@ -258,10 +375,747 @@ export function EventHistoryModal({
     // If there's only one valid option, hide the entire range control.
     return options.length > 1 ? options : [];
   }, [points.length]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(IMPACT_VIEW_STORAGE_KEY, impactOpen ? "1" : "0");
+    } catch {
+      // ignore
+    }
+  }, [impactOpen]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(IMPACT_PANEL_STORAGE_KEY, impactPanel);
+    } catch {
+      // ignore
+    }
+  }, [impactPanel]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(IMPACT_BUCKET_STORAGE_KEY, impactBucket);
+    } catch {
+      // ignore
+    }
+  }, [impactBucket]);
+
+  const measureViewport = useCallback((node: HTMLElement | null) => {
+    if (!node) return null;
+    const width = Math.max(1, Math.floor(node.offsetWidth || node.getBoundingClientRect().width));
+    const height = Math.max(1, Math.floor(node.offsetHeight || node.getBoundingClientRect().height));
+    if (width < 50 || height < 50) return null;
+    return { width, height };
+  }, []);
+
+  const updateImpactViewport = useCallback(
+    (measured: { width: number; height: number }) => {
+      const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+      const canReady = phase === "open";
+      if (canReady && impactViewportReady) {
+        setImpactViewport((current) => {
+          if (
+            current &&
+            Math.abs(current.width - measured.width) <= 1 &&
+            Math.abs(current.height - measured.height) <= 1
+          ) {
+            return current;
+          }
+          return measured;
+        });
+        return;
+      }
+      if (!canReady) {
+        impactViewportStableRef.current = {
+          width: measured.width,
+          height: measured.height,
+          count: 1
+        };
+        setImpactViewportReady(false);
+        if (impactViewportReadyTimerRef.current !== null) {
+          window.clearTimeout(impactViewportReadyTimerRef.current);
+          impactViewportReadyTimerRef.current = null;
+        }
+        impactViewportReadyDeadlineRef.current = now + 700;
+      } else {
+        const prev = impactViewportStableRef.current;
+        if (
+          prev &&
+          Math.abs(prev.width - measured.width) <= 1 &&
+          Math.abs(prev.height - measured.height) <= 1
+        ) {
+          const next = { width: measured.width, height: measured.height, count: prev.count + 1 };
+          impactViewportStableRef.current = next;
+          if (impactViewportReadyDeadlineRef.current === null) {
+            impactViewportReadyDeadlineRef.current = now + 700;
+          }
+          const shouldArmReady =
+            next.count >= 3 ||
+            (impactViewportReadyDeadlineRef.current !== null &&
+              now >= impactViewportReadyDeadlineRef.current);
+          if (shouldArmReady && impactViewportReadyTimerRef.current === null) {
+            impactViewportReadyTimerRef.current = window.setTimeout(() => {
+              impactViewportReadyTimerRef.current = null;
+              const stable = impactViewportStableRef.current;
+              if (
+                stable &&
+                Math.abs(stable.width - measured.width) <= 1 &&
+                Math.abs(stable.height - measured.height) <= 1 &&
+                (stable.count >= 3 ||
+                  (impactViewportReadyDeadlineRef.current !== null &&
+                    (typeof performance !== "undefined"
+                      ? performance.now()
+                      : Date.now()) >= impactViewportReadyDeadlineRef.current))
+              ) {
+                setImpactViewportReady(true);
+              }
+            }, 260);
+          }
+        } else {
+          impactViewportStableRef.current = {
+            width: measured.width,
+            height: measured.height,
+            count: 1
+          };
+          setImpactViewportReady(false);
+          if (impactViewportReadyTimerRef.current !== null) {
+            window.clearTimeout(impactViewportReadyTimerRef.current);
+            impactViewportReadyTimerRef.current = null;
+          }
+          impactViewportReadyDeadlineRef.current = now + 700;
+        }
+      }
+
+      setImpactViewport((current) => {
+        if (
+          current &&
+          Math.abs(current.width - measured.width) <= 1 &&
+          Math.abs(current.height - measured.height) <= 1
+        ) {
+          return current;
+        }
+        return measured;
+      });
+    },
+    [impactViewportReady, phase]
+  );
+
+  const openImpact = useCallback(() => {
+    if (impactOpen) return;
+
+    // Avoid seeding from the History chart; its size can be smaller and cause a flash.
+
+    if (isUsdEvent && impactPanel === "event" && eventId) {
+      const cacheKey = `${eventId}::${impactBucket}`;
+      const cached = impactCacheRef.current.get(cacheKey);
+      if (cached?.ok) {
+        setImpactError(null);
+        setImpactData(cached);
+        setImpactLoading(false);
+      } else {
+        // Avoid a "not available" flash before the fetch effect kicks in.
+        setImpactError(null);
+        setImpactLoading(true);
+      }
+    }
+
+    setImpactOpen(true);
+
+    // Also try measuring the Impact viewport right after it mounts. This fixes a Tauri-specific case
+    // where ResizeObserver may not fire immediately on first open, leading to a blank chart until re-toggle.
+    if (typeof window !== "undefined") {
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          const measured = measureViewport(impactBodyRef.current);
+          if (!measured) return;
+          updateImpactViewport(measured);
+        });
+      });
+    }
+  }, [eventId, impactBucket, impactOpen, impactPanel, isUsdEvent, measureViewport, updateImpactViewport]);
+
+  const ensureImpactViewport = useCallback(() => {
+    // Try the direct viewport first.
+    const direct = measureViewport(impactBodyRef.current);
+    if (direct) {
+      updateImpactViewport(direct);
+      return true;
+    }
+
+    // Fallback: measure the chart container (Tauri sometimes reports 0 for the flex child early on).
+    const body = impactBodyRef.current;
+    const container = body?.closest?.(".history-impact-chart");
+    if (container instanceof HTMLElement) {
+      const width = Math.max(
+        1,
+        Math.floor(container.offsetWidth || container.getBoundingClientRect().width)
+      );
+      const height = Math.max(
+        1,
+        Math.floor(container.offsetHeight || container.getBoundingClientRect().height)
+      );
+      if (width >= 50 && height >= 50) {
+        updateImpactViewport({ width, height });
+        return true;
+      }
+    }
+    return false;
+  }, [measureViewport, updateImpactViewport]);
+
+  // If the modal opens directly in Impact view (saved in localStorage), Tauri may not fire
+  // ResizeObserver immediately. Ensure we still get a usable viewport without requiring a manual re-toggle.
+  useEffect(() => {
+    if (!isOpen) return;
+    if (!impactOpen) return;
+    if (impactPanel !== "event") return;
+    if (impactViewport && impactViewport.width >= 50 && impactViewport.height >= 50) return;
+
+    let cancelled = false;
+    let tries = 0;
+    const tick = () => {
+      if (cancelled) return;
+      if (ensureImpactViewport()) return;
+      tries += 1;
+      if (tries > 24) return;
+      window.setTimeout(tick, 60);
+    };
+
+    // Give layout a couple of frames to settle.
+    window.requestAnimationFrame(() => window.requestAnimationFrame(tick));
+    return () => {
+      cancelled = true;
+    };
+  }, [ensureImpactViewport, impactOpen, impactPanel, impactViewport, isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !impactOpen) return;
+    if (!eventId) return;
+    if (impactPanel !== "event") return;
+    if (!isUsdEvent) {
+      setImpactError("Impact analysis is available for USD events only.");
+      setImpactData(null);
+      setImpactLoading(false);
+      return;
+    }
+
+    const cacheKey = `${eventId}::${impactBucket}`;
+    const cached = impactCacheRef.current.get(cacheKey);
+    if (cached?.ok) {
+      setImpactError(null);
+      setImpactData(cached);
+      setImpactLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setImpactLoading(true);
+    setImpactError(null);
+    setImpactData(null);
+
+    backend
+      .getEventImpactUsd({ eventId, bucket: impactBucket })
+      .then((result) => {
+        if (cancelled) return;
+        if (!result.ok) {
+          setImpactError(result.message || "Impact analysis unavailable.");
+          setImpactData(null);
+          return;
+        }
+        impactCacheRef.current.set(cacheKey, result);
+        setImpactData(result);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        const msg = err instanceof Error ? err.message : "Impact analysis failed";
+        setImpactError(msg);
+        setImpactData(null);
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setImpactLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [eventId, impactBucket, impactOpen, impactPanel, isOpen, isUsdEvent]);
+
+  // Prefetch impact data while the modal is open so switching History -> Impact is instant.
+  useEffect(() => {
+    if (!isOpen) return;
+    if (!eventId) return;
+    if (!isUsdEvent) return;
+    if (impactPanel !== "event") return;
+
+    const cacheKey = `${eventId}::${impactBucket}`;
+    if (impactCacheRef.current.has(cacheKey)) return;
+    let cancelled = false;
+
+    backend
+      .getEventImpactUsd({ eventId, bucket: impactBucket })
+      .then((result) => {
+        if (cancelled) return;
+        if (!result.ok) return;
+        impactCacheRef.current.set(cacheKey, result);
+      })
+      .catch(() => {
+        // ignore: the explicit Impact open flow will surface errors
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [eventId, impactBucket, impactPanel, isOpen, isUsdEvent]);
+
+  // Measure the impact viewport during layout so the first paint can render the correct SVG size.
+  useLayoutEffect(() => {
+    if (!impactOpen) return;
+    if (!isOpen) return;
+    if (impactPanel !== "event") return;
+    const node = impactBodyRef.current;
+    if (!node) return;
+    let cancelled = false;
+    let tries = 0;
+
+    const tick = () => {
+      if (cancelled) return;
+      const measured = measureViewport(node);
+      if (measured) {
+        updateImpactViewport(measured);
+        return;
+      }
+
+      tries += 1;
+      if (tries > 18) return;
+      window.requestAnimationFrame(tick);
+    };
+
+    tick();
+    return () => {
+      cancelled = true;
+    };
+  }, [impactOpen, impactPanel, isOpen, measureViewport, updateImpactViewport]);
+
+  useEffect(() => {
+    if (!impactOpen) return;
+    if (!isOpen) return;
+    if (impactPanel !== "event") return;
+    const node = impactBodyRef.current;
+    if (!node || typeof ResizeObserver === "undefined") return;
+    let cancelled = false;
+
+    const observer = new ResizeObserver(() => {
+      if (cancelled) return;
+      const measured = measureViewport(node);
+      if (!measured) return;
+      updateImpactViewport(measured);
+    });
+
+    observer.observe(node);
+    return () => {
+      cancelled = true;
+      observer.disconnect();
+    };
+  }, [impactOpen, impactPanel, isOpen, measureViewport, updateImpactViewport]);
+
+  useEffect(() => {
+    if (!impactOpen) return;
+    if (!isOpen) return;
+    if (impactPanel !== "event") return;
+    const node = impactBodyRef.current;
+    if (!node) return;
+    let cancelled = false;
+
+    const remeasure = () => {
+      if (cancelled) return;
+      const measured = measureViewport(node);
+      if (!measured) return;
+      updateImpactViewport(measured);
+    };
+
+    const t1 = window.setTimeout(remeasure, 280);
+    const t2 = window.setTimeout(remeasure, 520);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, [impactOpen, impactPanel, isOpen, measureViewport, updateImpactViewport]);
+
+  useEffect(() => {
+    if (!impactOpen || !isOpen || impactPanel !== "event") {
+      setImpactViewportReady(false);
+      impactViewportStableRef.current = null;
+      if (impactViewportReadyTimerRef.current !== null) {
+        window.clearTimeout(impactViewportReadyTimerRef.current);
+        impactViewportReadyTimerRef.current = null;
+      }
+      impactViewportReadyDeadlineRef.current = null;
+      if (impactViewportReadyFallbackRef.current !== null) {
+        window.clearTimeout(impactViewportReadyFallbackRef.current);
+        impactViewportReadyFallbackRef.current = null;
+      }
+    }
+  }, [impactOpen, impactPanel, isOpen]);
+
+  useEffect(() => {
+    if (phase !== "open") return;
+    if (!impactOpen || !isOpen || impactPanel !== "event") return;
+    const measured = measureViewport(impactBodyRef.current);
+    if (measured) {
+      updateImpactViewport(measured);
+    }
+  }, [impactOpen, impactPanel, isOpen, measureViewport, phase, updateImpactViewport]);
+
+  useEffect(() => {
+    if (!impactOpen || !isOpen || impactPanel !== "event") return;
+    if (impactViewportReadyFallbackRef.current !== null) {
+      window.clearTimeout(impactViewportReadyFallbackRef.current);
+      impactViewportReadyFallbackRef.current = null;
+    }
+    impactViewportReadyFallbackRef.current = window.setTimeout(() => {
+      impactViewportReadyFallbackRef.current = null;
+      const measured = measureViewport(impactBodyRef.current);
+      if (!measured) return;
+      updateImpactViewport(measured);
+      setImpactViewportReady(true);
+    }, 420);
+    return () => {
+      if (impactViewportReadyFallbackRef.current !== null) {
+        window.clearTimeout(impactViewportReadyFallbackRef.current);
+        impactViewportReadyFallbackRef.current = null;
+      }
+    };
+  }, [impactOpen, impactPanel, isOpen, measureViewport, updateImpactViewport]);
+
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (!impactOpen) {
+      prevImpactPanelRef.current = impactPanel;
+      return;
+    }
+    // Switching Impact sub-panels should not leave the user scrolled mid-modal, otherwise
+    // the toolbar appears to "move" when content height changes.
+    if (prevImpactPanelRef.current !== impactPanel) {
+      modalBodyRef.current?.scrollTo({ top: 0 });
+    }
+    prevImpactPanelRef.current = impactPanel;
+  }, [impactOpen, impactPanel, isOpen]);
+
+  const impactSeries = useMemo(() => {
+    const windows = impactData?.windowsMinutes ?? [];
+    const raw = impactData?.data ?? {};
+    const offsetsAll = Array.from(new Set<number>([...windows, 0])).sort((a, b) => a - b);
+    const itemsAll = offsetsAll.map((offset) => {
+      const key = String(offset);
+      const stats = (raw[key] as EventImpactWindowStats | undefined) ?? undefined;
+      return { offset, stats };
+    });
+    // Hide offsets that have no samples to avoid breaking the path with invisible intermediate points.
+    const items = itemsAll.filter((item) => item.offset === 0 || (item.stats?.n ?? 0) > 0);
+
+    const bandValues: number[] = [];
+    const lineValues: number[] = [];
+    for (const item of items) {
+      if (!item.stats || typeof item.stats.n !== "number" || item.stats.n <= 0) continue;
+      if (typeof item.stats.p10 === "number") bandValues.push(item.stats.p10);
+      if (typeof item.stats.p90 === "number") bandValues.push(item.stats.p90);
+      if (typeof item.stats.best_median_pct === "number") {
+        lineValues.push(item.stats.best_median_pct);
+      }
+    }
+    const values = [...bandValues, ...lineValues, 0].filter((v) => Number.isFinite(v));
+    const min = values.length ? Math.min(...values) : -1;
+    const max = values.length ? Math.max(...values) : 1;
+    return { items, min, max };
+  }, [impactData]);
+
+  const impactCoverage = useMemo(() => {
+    const meta = impactData?.meta;
+    if (!meta) return "";
+    // Prefer actual sample event range; it's the true coverage of computed stats.
+    const range = formatCoverage(meta.event_min_utc, meta.event_max_utc);
+    return range;
+  }, [impactData]);
+
+  const impactBucketOptions = useMemo(() => {
+    const opts = [
+      { value: "ap_gt_prev", label: "A > Prev", count: bucketCounts.ap_gt_prev },
+      { value: "ap_lt_prev", label: "A < Prev", count: bucketCounts.ap_lt_prev },
+      { value: "ap_eq_prev", label: "A = Prev", count: bucketCounts.ap_eq_prev }
+    ];
+    return opts;
+  }, [bucketCounts]);
+
+  const impactSelectedBucketCount = bucketCounts[impactBucket] ?? 0;
+  const impactSamplesLabel = useMemo(() => {
+    const n = impactData?.meta?.sample_points;
+    if (typeof n === "number" && Number.isFinite(n) && n > 0) return String(n);
+    if (impactSelectedBucketCount > 0) return String(impactSelectedBucketCount);
+    return "";
+  }, [impactData, impactSelectedBucketCount]);
+
+  const impactChart = useMemo(() => {
+    if (!impactOpen || !impactViewportReady) return null;
+    // Match the chart viewport to its on-screen size (avoids letterboxing when the modal
+    // layout changes across themes / platforms).
+    const measuredWidth = impactViewport?.width ?? 0;
+    const measuredHeight = impactViewport?.height ?? 0;
+    // Wait for a stable measurement; rendering with a fake size causes letterboxing or stretched text.
+    // Only guard the 0/1px transient state during layout switches; allow narrow windows to still render.
+    if (measuredWidth < 10 || measuredHeight < 10) return null;
+    const width = measuredWidth;
+    const height = measuredHeight;
+    // Leave enough room for Y axis labels and the X axis title.
+    const padding = { left: 56, right: 10, top: 12, bottom: 56 };
+    const plotWidth = width - padding.left - padding.right;
+    const plotHeight = height - padding.top - padding.bottom;
+    const offsets = impactSeries.items.map((item) => item.offset);
+
+    // Use ordinal spacing so points around 0 (1m/5m/15m...) don't collapse into a blob.
+    const offsetIndex = new Map<number, number>();
+    offsets.forEach((offset, index) => offsetIndex.set(offset, index));
+    const denom = Math.max(1, offsets.length - 1);
+    const xForOffset = (offset: number) => {
+      const idx = offsetIndex.get(offset) ?? 0;
+      return padding.left + (idx / denom) * plotWidth;
+    };
+
+    const rawMin = impactSeries.min;
+    const rawMax = impactSeries.max;
+    const domainSpan = rawMax - rawMin;
+    const absMax = Math.max(Math.abs(rawMax), Math.abs(rawMin));
+    // Avoid a hardcoded +-1% pad which flattens small-magnitude results.
+    // Keep the domain "tight" so small-magnitude results still read clearly.
+    // Values are in decimal pct-change (0.001 = 0.1%), so a tiny floor is enough.
+    const minPad = Math.max(absMax * 0.02, 0.0008);
+    const pad = Math.max(domainSpan * 0.03, minPad);
+    const domainMin = rawMin - pad;
+    const domainMax = rawMax + pad;
+    const spanY = Math.max(1e-9, domainMax - domainMin);
+    const yFor = (value: number) => padding.top + ((domainMax - value) / spanY) * plotHeight;
+
+    const niceStep = (span: number, ticks: number) => {
+      const raw = span / Math.max(1, ticks);
+      if (!Number.isFinite(raw) || raw <= 0) return 1;
+      const power = Math.pow(10, Math.floor(Math.log10(raw)));
+      const base = raw / power;
+      const niceBase = base <= 1 ? 1 : base <= 2 ? 2 : base <= 5 ? 5 : 10;
+      return niceBase * power;
+    };
+
+    const buildNiceTicks = (min: number, max: number) => {
+      const span = max - min;
+      if (!Number.isFinite(span) || span <= 0) return [0];
+      const step = niceStep(span, 4);
+      const start = Math.floor(min / step) * step;
+      const end = Math.ceil(max / step) * step;
+      const ticks: number[] = [];
+      for (let v = start; v <= end + step * 0.5; v += step) {
+        ticks.push(Math.abs(v) <= 1e-12 ? 0 : v);
+      }
+      return ticks;
+    };
+
+    const yTicks = buildNiceTicks(domainMin, domainMax);
+
+    const points = impactSeries.items.map((item) => {
+      if (item.offset === 0) {
+        return {
+          offset: 0,
+          x: xForOffset(0),
+          y: yFor(0),
+          bandLow: 0,
+          bandHigh: 0,
+          bestDirection: null,
+          bestP: null
+        };
+      }
+      const s = item.stats;
+      if (!s || typeof s.n !== "number" || s.n <= 0) return null;
+      const p10 = typeof s.p10 === "number" ? s.p10 : null;
+      const p90 = typeof s.p90 === "number" ? s.p90 : null;
+      const bestMedian = typeof s.best_median_pct === "number" ? s.best_median_pct : null;
+      if (p10 === null || p90 === null || bestMedian === null) return null;
+      return {
+        offset: item.offset,
+        x: xForOffset(item.offset),
+        y: yFor(bestMedian),
+        bandLow: p10,
+        bandHigh: p90,
+        bestDirection: s.best_direction ?? null,
+        bestP: typeof s.best_p === "number" ? s.best_p : null
+      };
+    });
+
+    const bandPoints = points.filter(Boolean) as Array<NonNullable<(typeof points)[number]>>;
+    const upper = bandPoints.map((p) => `L ${p.x.toFixed(2)} ${yFor(p.bandHigh).toFixed(2)}`);
+    const lower = bandPoints
+      .slice()
+      .reverse()
+      .map((p) => `L ${p.x.toFixed(2)} ${yFor(p.bandLow).toFixed(2)}`);
+    const bandPath =
+      bandPoints.length >= 2
+        ? `M ${bandPoints[0].x.toFixed(2)} ${yFor(bandPoints[0].bandHigh).toFixed(2)} ${upper.join(
+            " "
+          )} ${lower.join(" ")} Z`
+        : "";
+
+    const lineValues = impactSeries.items.map((item) => {
+      if (item.offset === 0) return 0;
+      const v = item.stats?.best_median_pct;
+      return typeof v === "number" ? v : null;
+    });
+    const linePath = buildPath(
+      lineValues,
+      (index) => xForOffset(impactSeries.items[index]?.offset ?? 0),
+      (value) => yFor(value),
+      { connectNulls: false }
+    );
+
+    const isDrawablePath = (d: string) => {
+      const normalized = (d ?? "").trim();
+      if (!normalized) return false;
+      // Require at least one line command; a single "M" renders nothing.
+      return /\bL\b/.test(normalized) && !/NaN|Infinity/.test(normalized);
+    };
+
+    const bandPathSafe = /NaN|Infinity/.test(bandPath) ? "" : bandPath;
+    const linePathSafe = /NaN|Infinity/.test(linePath) ? "" : linePath;
+    const hasBand = bandPoints.length >= 2 && !!bandPathSafe;
+    const hasLine = isDrawablePath(linePathSafe);
+
+    const clampY = (y: number) =>
+      Math.max(padding.top, Math.min(height - padding.bottom, y));
+    const yForClamped = (value: number) => clampY(yFor(value));
+
+    const xTicks = IMPACT_AXIS_OFFSETS.filter((t) => offsetIndex.has(t));
+    const hoverPoints = bandPoints.map((p) => ({ offset: p.offset, x: p.x, y: p.y }));
+    const hoverSnapDist = (() => {
+      if (hoverPoints.length < 2) return 120;
+      const sorted = [...hoverPoints].sort((a, b) => a.x - b.x);
+      let min = Infinity;
+      for (let i = 1; i < sorted.length; i++) {
+        const dx = sorted[i].x - sorted[i - 1].x;
+        if (dx > 0 && dx < min) min = dx;
+      }
+      if (!Number.isFinite(min) || min <= 0) return 120;
+      // Allow hovering anywhere near the closest point; scale with point spacing so sparse charts still hover.
+      return Math.max(120, Math.min(240, min * 0.65));
+    })();
+
+    return {
+      width,
+      height,
+      padding,
+      xForOffset,
+      yFor,
+      bandPath: bandPathSafe,
+      linePath: linePathSafe,
+      hasBand,
+      hasLine,
+      hoverPoints,
+      hoverSnapDist,
+      xTicks,
+      yTicks,
+      yForClamped,
+      domainMin,
+      domainMax
+    };
+  }, [impactOpen, impactSeries, impactViewport, impactViewportReady]);
+
+  useEffect(() => {
+    if (!impactOpen || impactPanel !== "event") return;
+    if (!impactViewportReady || !impactData?.ok || !impactChart) return;
+    setImpactChartAnimKey((key) => key + 1);
+  }, [impactBucket, impactChart, impactData?.ok, impactOpen, impactPanel, impactViewportReady]);
+
+  const updateImpactHoverFromPointer = useCallback(
+    (target: SVGSVGElement, clientX: number, clientY: number) => {
+      if (!impactOpen) return;
+      if (impactPanel !== "event") return;
+      if (!impactChart?.hoverPoints?.length) return;
+
+      const rect = target.getBoundingClientRect();
+      if (rect.width <= 1 || rect.height <= 1) return;
+      const xPx = clientX - rect.left;
+      const yPx = clientY - rect.top;
+
+      // Only react inside the plot area, otherwise the hover feels jumpy near labels.
+      const xSvg = (xPx / rect.width) * impactChart.width;
+      const ySvg = (yPx / rect.height) * impactChart.height;
+      if (
+        xSvg < impactChart.padding.left ||
+        xSvg > impactChart.width - impactChart.padding.right ||
+        ySvg < impactChart.padding.top ||
+        ySvg > impactChart.height - impactChart.padding.bottom
+      ) {
+        setImpactHoverOffset(null);
+        return;
+      }
+
+      let best: { offset: number; dist: number } | null = null;
+      for (const p of impactChart.hoverPoints) {
+        const dx = p.x - xSvg;
+        const d = Math.abs(dx);
+        if (!best || d < best.dist) best = { offset: p.offset, dist: d };
+      }
+
+      // Snap to the closest point along X; if it's too far, clear.
+      if (!best || best.dist > (impactChart.hoverSnapDist ?? 120)) {
+        setImpactHoverOffset(null);
+        return;
+      }
+      setImpactHoverOffset(best.offset);
+    },
+    [impactChart, impactOpen, impactPanel]
+  );
+
+  const handleImpactMouseMove = useCallback(
+    (event: ReactMouseEvent<SVGSVGElement>) => {
+      updateImpactHoverFromPointer(event.currentTarget, event.clientX, event.clientY);
+    },
+    [updateImpactHoverFromPointer]
+  );
+
+  const impactHover = useMemo(() => {
+    if (!impactOpen) return null;
+    if (impactPanel !== "event") return null;
+    if (!impactChart) return null;
+    if (impactHoverOffset === null) return null;
+    const stats =
+      (impactData?.data?.[String(impactHoverOffset)] as EventImpactWindowStats | undefined) ??
+      undefined;
+    if (!stats || typeof stats.n !== "number" || stats.n <= 0) return null;
+    if (typeof stats.best_median_pct !== "number") return null;
+    if (!stats.best_direction || typeof stats.best_p !== "number") return null;
+
+    const x = impactChart.xForOffset(impactHoverOffset);
+    const y = impactChart.yFor(stats.best_median_pct);
+    const leftPctRaw = (x / impactChart.width) * 100;
+    const topPctRaw = (y / impactChart.height) * 100;
+    const leftPct = Math.max(6, Math.min(94, leftPctRaw));
+    const topPct = Math.max(8, Math.min(92, topPctRaw));
+    return {
+      x,
+      y,
+      leftPct,
+      topPct,
+      direction: stats.best_direction === "up" ? "Up" : "Down",
+      pText: `${Math.round(stats.best_p * 100)}%`,
+      move: formatPct(stats.best_median_pct)
+    };
+  }, [impactChart, impactData, impactHoverOffset, impactOpen, impactPanel]);
+
   const hasVisibleSeries = visibleSeries.actual || visibleSeries.forecast;
+  const rangeKeyForView: RangeKey = impactOpen ? "all" : preferredRange;
   const activeRange = useMemo(
-    () => resolveRange(preferredRange, points.length),
-    [points.length, preferredRange]
+    () => resolveRange(rangeKeyForView, points.length),
+    [points.length, rangeKeyForView]
   );
 
   const headerShadowFrame = useRef<number | null>(null);
@@ -291,8 +1145,10 @@ export function EventHistoryModal({
   const tablePoints = useMemo(() => {
     if (activeRange === "all") return listPoints;
     if (activeRange > 10) return listPoints;
-    const fallback = listPoints.length ? 1 : 0;
-    const limit = fitRowCount > 0 ? fitRowCount : fallback;
+    // Default to showing all rows in-range. `fitRowCount` is just an optimization to avoid
+    // overflow for small ranges; it should never collapse to a single row before measuring.
+    const target = Math.min(listPoints.length, activeRange);
+    const limit = fitRowCount > 0 ? Math.min(fitRowCount, target) : target;
     return listPoints.slice(0, limit);
   }, [activeRange, fitRowCount, listPoints]);
 
@@ -308,6 +1164,8 @@ export function EventHistoryModal({
       `${pointKeyPrefix}:${point.date}:${point.time}:${point.period ?? ""}`,
     [pointKeyPrefix]
   );
+
+
 
   const [tableRows, setTableRows] = useState<TableRowEntry[]>(() =>
     tablePoints.map((point) => ({ key: buildPointKey(point), point, exiting: false }))
@@ -363,7 +1221,8 @@ export function EventHistoryModal({
       const rowHeight = row?.getBoundingClientRect().height ?? 0;
       if (!rowHeight) return;
       const available = Math.max(0, containerHeight - headerHeight);
-      const next = Math.max(1, Math.floor(available / rowHeight));
+      const maxRows = Math.min(listPoints.length, activeRange);
+      const next = Math.max(1, Math.min(maxRows, Math.floor(available / rowHeight)));
       setFitRowCount((prev) => (prev === next ? prev : next));
     };
     const scheduleMeasure = () => {
@@ -390,7 +1249,7 @@ export function EventHistoryModal({
       window.removeEventListener("resize", scheduleMeasure);
       if (rafId) window.cancelAnimationFrame(rafId);
     };
-  }, [activeRange, contentEnterToken, hasMetricValues, isOpen, selectionLabel]);
+  }, [activeRange, contentEnterToken, hasMetricValues, isOpen, listPoints.length, selectionLabel]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -466,10 +1325,61 @@ export function EventHistoryModal({
     }, CLOSE_ANIMATION_MS);
   };
 
+  // Only close when the pointer press starts AND ends on the backdrop itself.
+  // This avoids accidental closes when a drag starts inside the modal and ends outside.
+  const backdropPressStartedOnSelfRef = useRef(false);
+  const handleBackdropPointerDown = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    backdropPressStartedOnSelfRef.current = event.target === event.currentTarget;
+  }, []);
+  const handleBackdropPointerUp = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      const shouldClose =
+        backdropPressStartedOnSelfRef.current && event.target === event.currentTarget;
+      backdropPressStartedOnSelfRef.current = false;
+      if (shouldClose) requestClose();
+    },
+    [requestClose]
+  );
+  const handleBackdropPointerCancel = useCallback(() => {
+    backdropPressStartedOnSelfRef.current = false;
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      const target = event.target as HTMLElement | null;
+      const tag = target?.tagName?.toLowerCase() ?? "";
+      if (tag === "input" || tag === "textarea" || target?.isContentEditable) return;
+
+      event.preventDefault();
+      if (impactOpen && impactPanel === "deep") {
+        setImpactPanel("event");
+        return;
+      }
+      if (impactOpen) {
+        setImpactOpen(false);
+        return;
+      }
+      requestClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [impactOpen, impactPanel, isOpen, requestClose]);
+
   useEffect(() => {
     return () => {
       if (closeTimerRef.current) {
         window.clearTimeout(closeTimerRef.current);
+      }
+      if (impactViewportReadyTimerRef.current !== null) {
+        window.clearTimeout(impactViewportReadyTimerRef.current);
+        impactViewportReadyTimerRef.current = null;
+      }
+      impactViewportReadyDeadlineRef.current = null;
+      if (impactViewportReadyFallbackRef.current !== null) {
+        window.clearTimeout(impactViewportReadyFallbackRef.current);
+        impactViewportReadyFallbackRef.current = null;
       }
       if (actualStrokeCleanupTimerRef.current) {
         window.clearTimeout(actualStrokeCleanupTimerRef.current);
@@ -729,6 +1639,8 @@ export function EventHistoryModal({
     row.scrollIntoView({ block: "center", behavior: "smooth" });
   }, []);
 
+
+
   const handleTableScroll = useCallback(
     (_event: React.UIEvent<HTMLDivElement>) => {
       if (headerShadowFrame.current !== null) return;
@@ -800,7 +1712,9 @@ export function EventHistoryModal({
         phase === "closing" ? " closing" : ""
       }`}
       role="presentation"
-      onClick={requestClose}
+      onPointerDown={handleBackdropPointerDown}
+      onPointerUp={handleBackdropPointerUp}
+      onPointerCancel={handleBackdropPointerCancel}
     >
       <div
         className={`modal modal-history${phase === "open" ? " open" : ""}${phase === "closing" ? " closing" : ""}`}
@@ -814,16 +1728,49 @@ export function EventHistoryModal({
             <div className="modal-title-text">Event history</div>
             <div className="modal-subtitle">{selectionLabel}</div>
           </div>
-          <button
-            type="button"
-            className="btn ghost"
-            onClick={requestClose}
-            data-qa="qa:modal-close:history"
-          >
-            Close
-          </button>
+          <div className="history-modal-header-actions">
+            {!loading && !error && hasData ? (
+              <div className="history-modal-header-view" role="group" aria-label="View">
+                <div
+                  className="segmented history-modal-view-toggle"
+                  data-qa="qa:history:view-toggle"
+                  data-value={impactOpen ? "impact" : "history"}
+                  data-count="2"
+                >
+                  <button
+                    type="button"
+                    className={`segment${!impactOpen ? " active" : ""}`}
+                    onClick={() => setImpactOpen(false)}
+                    aria-pressed={!impactOpen}
+                  >
+                    History
+                  </button>
+                  <button
+                    type="button"
+                    className={`segment${impactOpen ? " active" : ""}`}
+                    onClick={openImpact}
+                    aria-pressed={impactOpen}
+                  >
+                    Impact
+                  </button>
+                </div>
+              </div>
+            ) : null}
+            {!loading && !error && hasData ? (
+              <span className="history-modal-header-divider" aria-hidden="true" />
+            ) : null}
+            <button
+              type="button"
+              className="btn ghost history-close"
+              onClick={requestClose}
+              data-qa="qa:modal-close:history"
+              aria-label="Close"
+            >
+              X
+            </button>
+          </div>
         </div>
-        <div className="modal-body">
+        <div className="modal-body" ref={modalBodyRef}>
           {loading ? (
               <div className="history-modal-loading" data-qa="qa:history:loading">
                 <div className="history-loading-head">
@@ -847,68 +1794,581 @@ export function EventHistoryModal({
             <div className="history-modal-empty">No history available yet.</div>
           ) : null}
             {!loading && !error && hasData ? (
-              <div className="history-modal-content">
-                <div className="history-modal-controls">
-                  {rangeOptions.length ? (
-                    <div className="history-modal-control">
-                      <span className="history-modal-label">Range</span>
-                      <div className="history-modal-toggle">
-                        {rangeOptions.map((option) => (
-                          <button
-                            key={String(option.key)}
-                            type="button"
-                            className={`history-toggle${
-                              activeRange === option.key ? " active" : ""
-                            }`}
-                            onClick={() => setPreferredRange(option.key)}
-                            aria-pressed={activeRange === option.key}
-                          >
-                            {option.label}
-                          </button>
-                        ))}
+                <div
+                  className={`history-modal-content${
+                    impactOpen ? " history-modal-content--impact" : ""
+                  }`}
+                >
+                  <div className="history-modal-controls">
+                    <div className="history-modal-controls-left">
+                    {!impactOpen && rangeOptions.length ? (
+                      <div className="history-modal-control">
+                        <span className="history-modal-label">Range</span>
+                        <div className="history-modal-toggle" data-qa="qa:history:range">
+                          {rangeOptions.map((option) => (
+                            <button
+                              key={String(option.key)}
+                              type="button"
+                              className={`history-toggle${activeRange === option.key ? " active" : ""}`}
+                              onClick={() => setPreferredRange(option.key)}
+                              aria-pressed={activeRange === option.key}
+                            >
+                              {option.label}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ) : null}
-                  {hasMetricValues ? (
-                    <div
-                      className="history-modal-series"
-                      aria-label="Series toggles"
-                      role="group"
-                    >
-                      <button
-                        type="button"
-                        className={`history-legend-item history-legend-item-actual${
-                          visibleSeries.actual ? " active" : ""
-                        }`}
-                        onClick={() => toggleSeries("actual")}
-                        aria-pressed={visibleSeries.actual}
-                      >
-                        <span className="history-legend-swatch history-line-actual" />
-                        Actual
-                      </button>
-                      {hasForecastValues ? (
+                    ) : null}
+                    {impactOpen && impactPanel === "event" ? (
+                      <>
+                        <div
+                          className="history-impact-buckets"
+                          role="group"
+                          aria-label="Impact bucket"
+                        >
+                          {impactBucketOptions.map((option) => (
+                            <button
+                              key={option.value}
+                              type="button"
+                              className={`history-toggle impact-toggle impact-bucket-toggle${
+                                impactBucket === option.value ? " active" : ""
+                              }`}
+                              onClick={() => setImpactBucket(option.value as EventImpactBucket)}
+                              aria-pressed={impactBucket === option.value}
+                              data-bucket={option.value}
+                            >
+                              {option.label}
+                              {typeof option.count === "number" ? (
+                                <span className="impact-badge" aria-hidden="true">
+                                  {option.count}
+                                </span>
+                              ) : null}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    ) : null}
+                  </div>
+
+                  <div className="history-modal-controls-right">
+                    {impactOpen ? (
+                      <div className="history-impact-controls" data-qa="qa:history:impact-controls">
+                        <div className="history-impact-controls-row">
+                          <div
+                            className="segmented history-impact-segmented history-impact-panels"
+                            role="group"
+                            aria-label="Impact panels"
+                            data-count="2"
+                            data-value={impactPanel}
+                          >
+                            <button
+                              type="button"
+                              className={`segment impact-segment${
+                                impactPanel === "event" ? " active" : ""
+                              }`}
+                              onClick={() => setImpactPanel("event")}
+                              aria-pressed={impactPanel === "event"}
+                            >
+                              Event Analysis
+                            </button>
+                            <button
+                              type="button"
+                              className={`segment impact-segment${
+                                impactPanel === "deep" ? " active" : ""
+                              }`}
+                              onClick={() => setImpactPanel("deep")}
+                              aria-pressed={impactPanel === "deep"}
+                            >
+                              Deep Analysis
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ) : hasMetricValues ? (
+                      <div className="history-modal-series" aria-label="Series toggles" role="group">
                         <button
                           type="button"
-                          className={`history-legend-item history-legend-item-forecast${
-                            visibleSeries.forecast ? " active" : ""
+                          className={`history-legend-item history-legend-item-actual${
+                            visibleSeries.actual ? " active" : ""
                           }`}
-                          onClick={() => toggleSeries("forecast")}
-                          aria-pressed={visibleSeries.forecast}
+                          onClick={() => toggleSeries("actual")}
+                          aria-pressed={visibleSeries.actual}
                         >
-                          <span className="history-legend-swatch history-line-forecast" />
-                          Forecast
+                          <span className="history-legend-swatch history-line-actual" />
+                          Actual
                         </button>
-                      ) : null}
-                    </div>
-                  ) : null}
+                        {hasForecastValues ? (
+                          <button
+                            type="button"
+                            className={`history-legend-item history-legend-item-forecast${
+                              visibleSeries.forecast ? " active" : ""
+                            }`}
+                            onClick={() => toggleSeries("forecast")}
+                            aria-pressed={visibleSeries.forecast}
+                          >
+                            <span className="history-legend-swatch history-line-forecast" />
+                            Forecast
+                          </button>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
-                <div className="history-modal-layout">
+
+                <div
+                  className={`history-modal-layout${
+                    impactOpen ? " history-modal-layout--impact" : ""
+                  }`}
+                >
                   <div
                     className={`history-modal-layout-left${
                       hasMetricValues ? "" : " history-modal-layout-left--no-chart"
                     }`}
                   >
-                    {hasMetricValues ? (
+                    {impactOpen ? (
+                      <div className="history-impact">
+                        {impactPanel === "deep" ? (
+                          <div className="history-impact-deep" data-qa="qa:history:deep-placeholder">
+                            <div className="history-impact-deep-title">Deep Analysis</div>
+                            <div className="history-impact-deep-body">
+                              Placeholder: future versions will account for nearby/overlapping events and multi-event
+                              attribution.
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="history-impact-chart" data-qa="qa:history:impact-chart">
+                            {!impactLoading && !impactError && impactData?.ok && impactChart ? (
+                              <div className="impact-chart-header" aria-hidden="true">
+                                <div className="impact-chart-meta">
+                                  <span className="impact-chart-meta-item">
+                                    Line: median % change (most likely direction)
+                                  </span>
+                                  <span className="impact-chart-meta-sep">•</span>
+                                  <span className="impact-chart-meta-item">
+                                    Band: P10..P90 (most likely direction)
+                                  </span>
+                                  <span className="impact-chart-meta-sep">•</span>
+                                  <span className="impact-chart-meta-item">
+                                    {impactSamplesLabel ? `N=${impactSamplesLabel}` : "N=--"}
+                                  </span>
+                                  {impactCoverage ? (
+                                    <>
+                                      <span className="impact-chart-meta-sep">•</span>
+                                      <span className="impact-chart-meta-item">
+                                        Coverage: {impactCoverage}
+                                      </span>
+                                    </>
+                                  ) : null}
+                                </div>
+                              </div>
+                            ) : null}
+                            <div className="impact-chart-body" ref={impactBodyRef}>
+                            {impactError ? (
+                              <div className="history-impact-status error">{impactError}</div>
+                            ) : impactLoading || !impactData ? (
+                              <div className="history-impact-status">Loading impact analysis...</div>
+                            ) : !impactData.ok ? (
+                              <div className="history-impact-status">
+                                Impact analysis not available. Generate it locally first.
+                              </div>
+                            ) : !impactChart ? (
+                              <div className="history-impact-status">Loading impact chart...</div>
+                            ) : impactSeries.items.length < 2 ||
+                              (!impactChart.hasBand && !impactChart.hasLine) ? (
+                              <div className="history-impact-status">
+                                Impact analysis is not available for this bucket (insufficient samples).
+                              </div>
+                            ) : (
+                              <>
+                                <div
+                                  key={`impact-chart-${impactChartAnimKey}`}
+                                  className="impact-chart-anim"
+                                >
+                                  <svg
+                                    viewBox={`0 0 ${impactChart.width} ${impactChart.height}`}
+                                    className="impact-chart-svg"
+                                    role="img"
+                                    aria-label="Impact analysis chart"
+                                    onMouseMove={handleImpactMouseMove}
+                                    onMouseLeave={() => setImpactHoverOffset(null)}
+                                    onTouchMove={(event) => {
+                                      const touch = event.touches[0];
+                                      if (!touch) return;
+                                      updateImpactHoverFromPointer(
+                                        event.currentTarget,
+                                        touch.clientX,
+                                        touch.clientY
+                                      );
+                                    }}
+                                    onTouchEnd={() => setImpactHoverOffset(null)}
+                                  >
+                              <defs>
+                                <clipPath id="impact-clip">
+                                  <rect
+                                    x={impactChart.padding.left}
+                                    y={impactChart.padding.top}
+                                    width={
+                                      impactChart.width -
+                                      impactChart.padding.left -
+                                      impactChart.padding.right
+                                    }
+                                    height={
+                                      impactChart.height -
+                                      impactChart.padding.top -
+                                      impactChart.padding.bottom
+                                    }
+                                  />
+                                </clipPath>
+                              </defs>
+                              <g className="impact-grid">
+                                {impactChart.yTicks
+                                  .filter((tick) => {
+                                    // Avoid a "double thick" bottom line when a tick lands near the axis baseline.
+                                    const y = Math.round(impactChart.yForClamped(tick)) + 0.5;
+                                    const baseline =
+                                      Math.round(impactChart.height - impactChart.padding.bottom) + 0.5;
+                                    return Math.abs(y - baseline) > 12;
+                                  })
+                                  .map((tick) => (
+                                    <line
+                                      key={`y-${tick}`}
+                                      x1={impactChart.padding.left}
+                                      x2={impactChart.width - impactChart.padding.right}
+                                      y1={Math.round(impactChart.yForClamped(tick)) + 0.5}
+                                      y2={Math.round(impactChart.yForClamped(tick)) + 0.5}
+                                      vectorEffect="non-scaling-stroke"
+                                    />
+                                  ))}
+                                {impactChart.xTicks.map((tick) => {
+                                  const rawX = impactChart.xForOffset(tick);
+                                  const snapped = Math.round(rawX) + 0.5;
+                                  const minX = impactChart.padding.left + 0.5;
+                                  const maxX =
+                                    impactChart.width - impactChart.padding.right - 0.5;
+                                  const x = Math.max(minX, Math.min(maxX, snapped));
+                                  return (
+                                    <line
+                                      key={`x-${tick}`}
+                                      x1={x}
+                                      x2={x}
+                                      y1={impactChart.padding.top}
+                                      y2={impactChart.height - impactChart.padding.bottom}
+                                      vectorEffect="non-scaling-stroke"
+                                    />
+                                  );
+                                })}
+                              </g>
+                              <g className="impact-axis">
+                                <line
+                                  x1={impactChart.padding.left + 0.5}
+                                  x2={impactChart.padding.left + 0.5}
+                                  y1={impactChart.padding.top}
+                                  y2={impactChart.height - impactChart.padding.bottom}
+                                  vectorEffect="non-scaling-stroke"
+                                />
+                                <line
+                                  x1={impactChart.padding.left}
+                                  x2={impactChart.width - impactChart.padding.right}
+                                  y1={impactChart.height - impactChart.padding.bottom + 0.5}
+                                  y2={impactChart.height - impactChart.padding.bottom + 0.5}
+                                  vectorEffect="non-scaling-stroke"
+                                />
+                              </g>
+                              <g clipPath="url(#impact-clip)">
+                                <g className="impact-band">
+                                  {impactChart.bandPath ? (
+                                    <path d={impactChart.bandPath} vectorEffect="non-scaling-stroke" />
+                                  ) : null}
+                                </g>
+                                <g className="impact-line">
+                                  {impactChart.linePath ? (
+                                    <path d={impactChart.linePath} vectorEffect="non-scaling-stroke" />
+                                  ) : null}
+                                </g>
+                                {impactHover ? (
+                                  <g className="impact-hover" aria-hidden="true">
+                                    <line
+                                      x1={Math.round(impactHover.x) + 0.5}
+                                      x2={Math.round(impactHover.x) + 0.5}
+                                      y1={impactChart.padding.top}
+                                      y2={impactChart.height - impactChart.padding.bottom}
+                                      vectorEffect="non-scaling-stroke"
+                                    />
+                                  </g>
+                                ) : null}
+                              </g>
+                              <g className="impact-labels">
+                                {(() => {
+                                  const minGap = 14;
+                                  const baseline = impactChart.height - impactChart.padding.bottom + 0.5;
+                                  const minY = impactChart.padding.top + 8;
+                                  const maxY = baseline - 10;
+                                  const candidates = impactChart.yTicks
+                                    .map((tick) => ({
+                                      tick,
+                                      y: impactChart.yFor(tick),
+                                      label: formatPct(tick)
+                                    }))
+                                    .filter((item) => item.y >= minY && item.y <= maxY)
+                                    .sort((a, b) => a.y - b.y);
+                                  const filtered: Array<{ tick: number; y: number; label: string }> = [];
+                                  let lastY = -Infinity;
+                                  let lastLabel = "";
+                                  for (const item of candidates) {
+                                    if (item.y - lastY < minGap) continue;
+                                    if (item.label === lastLabel) continue;
+                                    filtered.push(item);
+                                    lastY = item.y;
+                                    lastLabel = item.label;
+                                  }
+                                  return filtered.map(({ tick, y }) => {
+                                    const yText = Math.max(
+                                      impactChart.padding.top + 10,
+                                      Math.min(baseline - 10, y + 4)
+                                    );
+                                    return (
+                                    <text
+                                      key={`yl-${tick}`}
+                                      className="impact-y"
+                                      x={impactChart.padding.left - 10}
+                                      y={yText}
+                                      textAnchor="end"
+                                    >
+                                    {formatPct(tick)}
+                                  </text>
+                                  );
+                                  });
+                                })()}
+                                {(() => {
+                                  // Compute Y positions for the 4 static labels so they don't overlap.
+                                  const labelCandidates = impactSeries.items
+                                    .map((item) => {
+                                      const offset = item.offset;
+                                      const stats = item.stats;
+                                      if (offset === 0) return null;
+                                      if (!IMPACT_LABEL_OFFSETS.includes(offset)) return null;
+                                      if (!stats || typeof stats.n !== "number" || stats.n <= 0) return null;
+                                      if (typeof stats.best_p !== "number" || !stats.best_direction) return null;
+
+                                      const median =
+                                        typeof stats.best_median_pct === "number"
+                                          ? stats.best_median_pct
+                                          : 0;
+                                      const x = impactChart.xForOffset(offset);
+                                      const y = impactChart.yFor(median);
+
+                                      const absOffset = Math.abs(offset);
+                                      const placeBelow = absOffset <= 60;
+
+                                      // Place labels towards the center so they don't get clipped at chart edges.
+                                      const leftBound = impactChart.padding.left + 10;
+                                      const rightBound = impactChart.width - impactChart.padding.right - 10;
+                                      // Keep static labels off the line: pin them to chart edges.
+                                      const xText = offset < 0 ? leftBound : rightBound;
+                                      const anchor: "start" | "end" = offset < 0 ? "start" : "end";
+
+                                      const yBase = (() => {
+                                        const dy = placeBelow ? 20 : -14;
+                                        const raw = y + dy;
+                                        const top = impactChart.padding.top + 14;
+                                        const bottom = impactChart.height - impactChart.padding.bottom - 8;
+                                        return Math.max(top, Math.min(bottom, raw));
+                                      })();
+
+                                      return { offset, xText, anchor, yText: yBase, yPoint: y, preferBelow: placeBelow };
+                                    })
+                                    .filter(Boolean) as {
+                                    offset: number;
+                                    xText: number;
+                                    anchor: "start" | "end";
+                                    yText: number;
+                                    yPoint: number;
+                                    preferBelow: boolean;
+                                  }[];
+
+                                  const top = impactChart.padding.top + 14;
+                                  const bottom = impactChart.height - impactChart.padding.bottom - 8;
+                                  // Keep enough baseline spacing so labels never overlap even with ascent/descent.
+                                  const minGap = 26;
+                                  const distribute = (
+                                    group: Array<{
+                                      offset: number;
+                                      xText: number;
+                                      anchor: "start" | "end";
+                                      yText: number;
+                                      yPoint: number;
+                                      preferBelow: boolean;
+                                    }>
+                                  ) => {
+                                    if (group.length <= 1) return;
+                                    const lineGap = 18;
+                                    const clamp = (v: number) => Math.max(top, Math.min(bottom, v));
+
+                                    // Run a couple of iterations: keep away from the line first, then solve overlaps.
+                                    for (let iter = 0; iter < 2; iter += 1) {
+                                      for (const item of group) {
+                                        if (item.preferBelow) {
+                                          item.yText = Math.max(item.yText, item.yPoint + lineGap);
+                                        } else {
+                                          item.yText = Math.min(item.yText, item.yPoint - lineGap);
+                                        }
+                                        item.yText = clamp(item.yText);
+                                      }
+
+                                      group.sort((a, b) => a.yText - b.yText);
+                                      // Forward pass: push down.
+                                      for (let i = 1; i < group.length; i += 1) {
+                                        const prev = group[i - 1];
+                                        const cur = group[i];
+                                        if (cur.yText - prev.yText < minGap) {
+                                          cur.yText = prev.yText + minGap;
+                                        }
+                                      }
+                                      // Backward pass if we overflow bottom: pull up.
+                                      const last = group[group.length - 1];
+                                      if (last.yText > bottom) {
+                                        last.yText = bottom;
+                                        for (let i = group.length - 2; i >= 0; i -= 1) {
+                                          const next = group[i + 1];
+                                          const cur = group[i];
+                                          cur.yText = Math.min(cur.yText, next.yText - minGap);
+                                        }
+                                      }
+                                      // Clamp top.
+                                      group[0].yText = Math.max(top, group[0].yText);
+                                    }
+                                  };
+
+                                  // Solve left/right label stacks separately so they don't push each other around.
+                                  const leftLabels = labelCandidates.filter((c) => c.anchor === "start");
+                                  const rightLabels = labelCandidates.filter((c) => c.anchor === "end");
+                                  distribute(leftLabels);
+                                  distribute(rightLabels);
+
+                                  const yByOffset = new Map<number, number>();
+                                  for (const c of leftLabels) yByOffset.set(c.offset, c.yText);
+                                  for (const c of rightLabels) yByOffset.set(c.offset, c.yText);
+
+                                  return impactSeries.items.map((item) => {
+                                    const offset = item.offset;
+                                    const stats = item.stats;
+                                    if (offset === 0) return null;
+                                    if (!stats || typeof stats.n !== "number" || stats.n <= 0) return null;
+                                    if (typeof stats.best_p !== "number" || !stats.best_direction) return null;
+
+                                    const showLabel = IMPACT_LABEL_OFFSETS.includes(offset);
+                                    const median =
+                                      typeof stats.best_median_pct === "number"
+                                        ? stats.best_median_pct
+                                        : 0;
+                                    const x = impactChart.xForOffset(offset);
+                                    const y = impactChart.yFor(median);
+                                    const direction = stats.best_direction === "up" ? "Up" : "Down";
+                                    const pct = `${Math.round(stats.best_p * 100)}%`;
+                                    const move = formatPct(median);
+
+                                    const leftBound = impactChart.padding.left + 10;
+                                    const rightBound = impactChart.width - impactChart.padding.right - 10;
+                                    const xText = offset < 0 ? leftBound : rightBound;
+                                    const anchor: "start" | "end" = offset < 0 ? "start" : "end";
+                                    const yText = showLabel ? yByOffset.get(offset) ?? y : y;
+
+                                    return (
+                                      <g key={`label-${offset}`}>
+                                        <g clipPath="url(#impact-clip)">
+                                          <circle
+                                            className={`impact-dot${impactHoverOffset === offset ? " hover" : ""}`}
+                                            cx={x}
+                                            cy={y}
+                                            r={impactHoverOffset === offset ? 4.2 : 3.1}
+                                          />
+                                        </g>
+                                        {showLabel ? (
+                                          <>
+                                            <text
+                                              className="impact-prob"
+                                              x={xText}
+                                              y={yText}
+                                              textAnchor={anchor}
+                                            >
+                                              {direction} {pct} ({move})
+                                            </text>
+                                          </>
+                                        ) : null}
+                                      </g>
+                                    );
+                                  });
+                                })()}
+                                {impactChart.xTicks.map((tick) => (
+                                  <text
+                                    key={`xt-${tick}`}
+                                    className="impact-x"
+                                    x={impactChart.xForOffset(tick)}
+                                    y={impactChart.height - 22}
+                                    textAnchor="middle"
+                                  >
+                                    {formatOffsetLabel(tick)}
+                                  </text>
+                                ))}
+                                <text
+                                  className="impact-axis-label"
+                                  x={
+                                    impactChart.padding.left +
+                                    (impactChart.width -
+                                      impactChart.padding.left -
+                                      impactChart.padding.right) /
+                                      2
+                                  }
+                                  y={impactChart.height - 8}
+                                  textAnchor="middle"
+                                >
+                                  Time offset
+                                </text>
+                                <text
+                                  className="impact-axis-label"
+                                  x={14}
+                                  y={
+                                    impactChart.padding.top +
+                                    (impactChart.height -
+                                      impactChart.padding.top -
+                                      impactChart.padding.bottom) /
+                                      2
+                                  }
+                                  textAnchor="middle"
+                                  transform={`rotate(-90 14 ${
+                                    impactChart.padding.top +
+                                    (impactChart.height -
+                                      impactChart.padding.top -
+                                      impactChart.padding.bottom) /
+                                      2
+                                  })`}
+                                >
+                                  Median % change
+                                </text>
+                              </g>
+                                  </svg>
+                                </div>
+                            {impactHover ? (
+                              <div
+                                className="impact-chart-tooltip"
+                                style={{ left: `${impactHover.leftPct}%`, top: `${impactHover.topPct}%` }}
+                              >
+                                <span className="impact-chart-tooltip-dir">{impactHover.direction}</span>
+                                <span className="impact-chart-tooltip-sep">•</span>
+                                <span className="impact-chart-tooltip-p">{impactHover.pText}</span>
+                                <span className="impact-chart-tooltip-sep">•</span>
+                                <span className="impact-chart-tooltip-move">{impactHover.move}</span>
+                              </div>
+                            ) : null}
+                              </>
+                            )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : null}
+
+                    {!impactOpen && hasMetricValues ? (
                       chart ? (
                         <div
                           className="history-modal-chart"
@@ -1165,7 +2625,7 @@ export function EventHistoryModal({
                         </div>
                       )
                     ) : null}
-                    {hasNotes ? (
+                    {hasNotes && !impactOpen ? (
                       <div className="history-notes-wrap">
                         <div className="history-notes-card" data-qa="qa:history:notes">
                           <div className="history-notes-title">Description</div>
@@ -1175,8 +2635,8 @@ export function EventHistoryModal({
                           className="history-notes-disclaimer"
                           data-qa="qa:history:disclaimer"
                         >
-                          *XAUUSD impact guidance is based on experience, not yet backed by
-                          statistical analysis; quantitative validation will be added later.
+                          *XAUUSD impact guidance here is based on rule-of-thumb. For statistically
+                          backed analysis, please refer to the Impact page.
                         </div>
                       </div>
                     ) : null}
@@ -1233,7 +2693,10 @@ export function EventHistoryModal({
                                   <span className="history-value-main">
                                     {formatDisplayValue(actualValue)}
                                   </span>
-                                  <span className="history-value-sub placeholder" aria-hidden="true">
+                                  <span
+                                    className="history-value-sub placeholder"
+                                    aria-hidden="true"
+                                  >
                                     {"\u00A0"}
                                   </span>
                                 </span>
@@ -1241,7 +2704,10 @@ export function EventHistoryModal({
                                   <span className="history-value-main">
                                     {formatDisplayValue(point.forecast)}
                                   </span>
-                                  <span className="history-value-sub placeholder" aria-hidden="true">
+                                  <span
+                                    className="history-value-sub placeholder"
+                                    aria-hidden="true"
+                                  >
                                     {"\u00A0"}
                                   </span>
                                 </span>
@@ -1256,7 +2722,10 @@ export function EventHistoryModal({
                                   <span className="history-value-main">
                                     {formatDisplayValue(previousValue)}
                                   </span>
-                                  <span className="history-value-sub placeholder" aria-hidden="true">
+                                  <span
+                                    className="history-value-sub placeholder"
+                                    aria-hidden="true"
+                                  >
                                     {"\u00A0"}
                                   </span>
                                 </span>
@@ -1273,7 +2742,7 @@ export function EventHistoryModal({
                                 ) : null}
                               </>
                             ) : (
-                              <span className="disabled">--</span>
+                              <span className="disabled">{point.details || "--"}</span>
                             )}
                           </div>
                         );

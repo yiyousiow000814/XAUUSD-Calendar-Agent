@@ -26,6 +26,12 @@
     box-shadow var(--motion-fast) var(--motion-ease);
 }
 
+.select-trigger > span:first-child {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .select-trigger:hover {
   border-color: rgba(255, 255, 255, 0.28);
 }

@@ -25,11 +25,12 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 18px 28px 28px;
+  padding: 5px 28px 28px;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  scrollbar-gutter: stable;
   overscroll-behavior: contain;
   scrollbar-width: none;
   scrollbar-color: transparent transparent;
@@ -48,6 +49,131 @@
 
 .modal.modal-history .modal-body::-webkit-scrollbar-track {
   background: transparent;
+}
+
+.modal.modal-history .modal-header .btn {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.modal.modal-history .modal-header .btn:hover,
+.modal.modal-history .modal-header .btn:active {
+  transform: none;
+}
+
+.history-modal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.history-modal-header-divider {
+  width: 1px;
+  height: 22px;
+  background: rgba(18, 20, 26, 0.12);
+  align-self: center;
+}
+
+[data-theme="dark"] .history-modal-header-divider {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.history-close {
+  width: 38px;
+  padding: 0;
+  justify-content: center;
+  letter-spacing: normal;
+  text-transform: none;
+  background: transparent;
+  color: #ff6a3d;
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+/* Ensure the close "X" keeps its accent color (more specific than shared .btn styles). */
+.modal.modal-history .modal-header .btn.history-close {
+  color: #ff6a3d !important;
+}
+
+[data-theme="light"] .modal.modal-history .modal-header .btn.history-close {
+  color: #ff6a3d !important;
+}
+
+.history-close:hover {
+  transform: none;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #ff6a3d;
+}
+
+[data-theme="light"] .history-close:hover {
+  background: rgba(15, 23, 42, 0.05);
+  border-color: rgba(15, 23, 42, 0.55);
+}
+
+.history-close:active {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="light"] .history-close:active {
+  background: rgba(15, 23, 42, 0.08);
+  border-color: rgba(15, 23, 42, 0.62);
+}
+
+[data-theme="light"] .history-close {
+  border-color: rgba(15, 23, 42, 0.7);
+}
+
+.history-modal-header-view {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.history-modal-view-toggle.segmented {
+  display: flex;
+  height: 38px;
+  padding: 3px;
+  gap: 3px;
+  border-radius: 12px;
+}
+
+.history-modal-view-toggle.segmented::before {
+  content: none;
+}
+
+.history-modal-view-toggle .segment {
+  height: 100%;
+  padding: 0 14px;
+  border-radius: 10px;
+  text-transform: none;
+  letter-spacing: 0.08em;
+  font-weight: 650;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 0;
+}
+
+.history-modal-view-toggle .segment.active {
+  color: var(--select-active-text);
+  background: var(--select-active-bg);
+  box-shadow: inset 0 0 0 1px var(--segmented-border);
+}
+
+.history-modal-view-toggle .segment:not(.active):hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+}
+
+[data-theme="light"] .history-modal-view-toggle .segment:not(.active):hover {
+  background: rgba(15, 23, 42, 0.05);
 }
 
 .history-modal-loading,
@@ -172,17 +298,83 @@
 .history-modal-content {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 10px;
   flex: 1;
   min-height: 0;
 }
 
 .history-modal-controls {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px 18px;
   align-items: center;
-  justify-content: space-between;
+  /* Keep the layout stable when switching History <-> Impact on desktop. */
+  height: 50px;
+  position: relative;
+  z-index: 2;
+  background: var(--panel);
+  padding: 0 0 6px;
+}
+
+.history-modal-controls-left {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+}
+
+
+.history-modal-controls-right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-width: 0;
+}
+
+.history-impact-controls {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 10px 12px;
+  margin-left: 0;
+  max-width: min(760px, 52vw);
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 0;
+  scrollbar-width: none;
+}
+
+.history-impact-controls::-webkit-scrollbar {
+  height: 0;
+}
+
+.history-impact-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px 12px;
+  flex-wrap: nowrap;
+}
+
+.history-impact-controls-row .history-impact-panels,
+.history-impact-controls-row .history-impact-buckets {
+  flex-wrap: nowrap;
+}
+
+/* Keep the 3 bucket buttons anchored on the left, while panel tabs stay on the right. */
+.history-impact-controls-row .history-impact-buckets {
+  margin-right: auto;
+}
+
+.history-impact-divider {
+  width: 1px;
+  height: 22px;
+  background: rgba(18, 20, 26, 0.12);
+  align-self: center;
+}
+
+[data-theme="dark"] .history-impact-divider {
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .history-modal-control {
@@ -190,6 +382,7 @@
   align-items: center;
   gap: 10px;
 }
+
 
 .history-modal-label {
   font-size: 11px;
@@ -210,18 +403,23 @@
   flex-wrap: wrap;
   gap: 10px;
   justify-content: flex-end;
-  margin-left: auto;
+  margin-left: 0;
 }
 
 .history-modal-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) clamp(340px, 32vw, 440px);
   grid-template-rows: minmax(0, 1fr);
-  gap: 22px;
+  gap: 18px;
   align-items: stretch;
   flex: 1;
   min-height: 0;
   padding-bottom: 12px;
+}
+
+.history-modal-layout.history-modal-layout--impact {
+  /* Keep the right-side history width consistent between History and Impact views. */
+  grid-template-columns: minmax(0, 1fr) clamp(340px, 32vw, 440px);
 }
 
 .history-modal-layout-left,
@@ -231,6 +429,20 @@
   gap: 16px;
   min-height: 0;
   min-width: 0;
+  align-items: stretch;
+}
+
+/* Impact mode: keep the chart large while showing a side panel. */
+.history-modal-layout--impact .history-modal-layout-left,
+.history-modal-layout--impact .history-modal-layout-right {
+  max-width: none;
+  margin: 0;
+}
+
+/* In Impact view, keep the chart card and the history table card perfectly aligned in height. */
+.history-modal-layout--impact .history-impact-chart,
+.history-modal-layout--impact .history-modal-table {
+  height: 100%;
 }
 
 .history-modal-layout-left--no-chart .history-notes-wrap {
@@ -238,6 +450,19 @@
 }
 
 @media (max-width: 940px) {
+  .history-modal-controls {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .history-modal-controls-right {
+    justify-content: flex-start;
+  }
+
+  .history-impact-controls {
+    flex-wrap: wrap;
+  }
+
   .history-modal-layout {
     grid-template-columns: 1fr;
   }
@@ -261,6 +486,171 @@
     transform var(--motion-fast) var(--motion-ease);
 }
 
+.history-toggle.compact {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.history-impact-segmented.segmented {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  height: 38px;
+  padding: 4px;
+  gap: 4px;
+  border-radius: 12px;
+  width: 260px;
+  max-width: 100%;
+}
+
+.history-impact-segmented.segmented::before {
+  content: "";
+  top: 4px;
+  left: 4px;
+  height: calc(100% - 8px);
+  width: calc((100% - 12px) / 2);
+  border-radius: 10px;
+  background: var(--select-active-bg);
+  transition: transform var(--motion-med) var(--motion-ease),
+    background var(--motion-med) var(--motion-ease);
+  transform: translateX(0);
+}
+
+.history-impact-segmented.segmented[data-value="deep"]::before {
+  transform: translateX(100%);
+}
+
+.history-impact-segmented .impact-segment {
+  height: 100%;
+  padding: 0 12px;
+  border-radius: 10px;
+  text-transform: none;
+  letter-spacing: 0.04em;
+  font-weight: 650;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.history-impact-segmented .segment:not(.active):hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+}
+
+[data-theme="light"] .history-impact-segmented .segment:not(.active):hover {
+  background: rgba(15, 23, 42, 0.05);
+}
+
+.history-impact-segmented .impact-badge {
+  margin-left: 0;
+}
+
+.history-toggle.impact-bucket-toggle {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  text-transform: none;
+  letter-spacing: normal;
+  background: rgba(24, 30, 40, 0.55);
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: none;
+  color: var(--text);
+  position: relative;
+  z-index: 0;
+  overflow: visible;
+}
+
+.history-toggle.impact-bucket-toggle:hover {
+  transform: none;
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(24, 30, 40, 0.62);
+  box-shadow: none;
+}
+
+.history-toggle.impact-bucket-toggle.active:hover {
+  /* Keep active state visually stable (avoid the badge looking like it "brightens" on hover). */
+  border-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(24, 30, 40, 0.78);
+}
+
+.history-toggle.impact-bucket-toggle:active {
+  /* Prevent parent filter from brightening the badge text (the whole button is rendered as one layer). */
+  filter: none;
+}
+
+.history-toggle.impact-bucket-toggle.active {
+  /* Subtle active tint (avoid full solid fill). Bucket-specific accents are added via background-image. */
+  background-color: rgba(24, 30, 40, 0.78);
+  background-image: none;
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow: none;
+  color: #fff;
+}
+
+[data-theme="light"] .history-toggle.impact-bucket-toggle {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(18, 20, 26, 0.18);
+  color: var(--text);
+}
+
+[data-theme="light"] .history-toggle.impact-bucket-toggle:hover {
+  border-color: rgba(18, 20, 26, 0.42);
+  background: rgba(255, 255, 255, 0.98);
+}
+
+[data-theme="light"] .history-toggle.impact-bucket-toggle.active:hover {
+  border-color: rgba(18, 20, 26, 0.55);
+  background-color: rgba(255, 255, 255, 0.98);
+}
+
+[data-theme="light"] .history-toggle.impact-bucket-toggle:active {
+  filter: none;
+}
+
+[data-theme="light"] .history-toggle.impact-bucket-toggle.active {
+  background-color: rgba(255, 255, 255, 0.98);
+  background-image: none;
+  border-color: rgba(18, 20, 26, 0.32);
+  box-shadow: none;
+  color: rgba(15, 23, 42, 0.98);
+}
+
+/* Bucket buttons (A > Prev / A < Prev / A = Prev): use orange outline for active
+   so active != hover, while staying consistent with the app's accent. */
+.history-toggle.impact-bucket-toggle.active[data-bucket] {
+  border-color: rgba(255, 106, 61, 0.85); /* #ff6a3d */
+  background-image: none;
+}
+
+[data-theme="light"] .history-toggle.impact-bucket-toggle.active[data-bucket] {
+  border-color: rgba(255, 106, 61, 0.72);
+}
+
+.history-toggle.impact-bucket-toggle.active[data-bucket] .impact-badge {
+  border-color: rgba(255, 106, 61, 0.45);
+}
+
+[data-theme="light"] .history-toggle.impact-bucket-toggle.active[data-bucket] .impact-badge {
+  border-color: rgba(255, 106, 61, 0.38);
+}
+
+
+.impact-bucket-toggle.active .impact-badge {
+  color: rgba(15, 23, 42, 0.92);
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+[data-theme="light"] .impact-bucket-toggle.active .impact-badge {
+  background: rgba(15, 23, 42, 0.04);
+  border-color: rgba(15, 23, 42, 0.22);
+}
+
 .history-toggle:hover {
   border-color: var(--pill-border-hover);
   background: linear-gradient(180deg, var(--pill-bg-0-hover), var(--pill-bg-1-hover));
@@ -269,7 +659,6 @@
 }
 
 .history-toggle:active {
-  transform: translate3d(0, 2px, 0);
   filter: brightness(1.06);
 }
 
@@ -287,16 +676,25 @@
   );
   border-color: rgba(134, 201, 255, 0.45);
   color: var(--text-strong);
-  font-weight: 600;
-  box-shadow: 0 0 0 3px rgba(134, 201, 255, 0.16),
-    inset 0 0 0 1px var(--pill-shadow-hover);
+  /* Avoid "growing" glow; keep active state stable and compact. */
+  box-shadow: inset 0 0 0 1px var(--pill-shadow-hover);
 }
 
 [data-theme="light"] .history-toggle.active {
   background: linear-gradient(180deg, rgba(30, 75, 143, 0.1), rgba(255, 255, 255, 0.92));
   border-color: rgba(30, 75, 143, 0.32);
-  box-shadow: 0 0 0 3px rgba(30, 75, 143, 0.16),
-    inset 0 0 0 1px var(--pill-shadow-hover);
+  box-shadow: inset 0 0 0 1px var(--pill-shadow-hover);
+}
+
+/* Bucket pills: override the generic active gradient so the selected state stays clean. */
+.history-toggle.impact-bucket-toggle.active {
+  background: rgba(18, 22, 30, 0.78);
+  color: var(--text-strong);
+}
+
+[data-theme="light"] .history-toggle.impact-bucket-toggle.active {
+  background: rgba(255, 255, 255, 0.98);
+  color: rgba(15, 23, 42, 0.92);
 }
 
 .history-modal-chart {
@@ -314,6 +712,453 @@
   width: 100%;
   height: 100%;
   display: block;
+}
+
+.history-impact {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+  min-height: 0;
+  align-items: stretch;
+}
+
+.history-impact-panels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-width: 0;
+}
+
+.history-impact-buckets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-width: 0;
+}
+
+.history-impact-compact-select {
+  min-width: 220px;
+}
+
+.history-impact-status {
+  color: var(--muted);
+  font-size: 13px;
+  padding: 10px 4px;
+}
+
+.history-impact-status.error {
+  color: var(--danger);
+}
+
+.history-impact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.history-impact-chart {
+  background: var(--table-row-bg);
+  border: 1px solid var(--panel-border);
+  /* Match the history table card sizing for a clean side-by-side alignment. */
+  border-radius: 20px;
+  padding: 18px 18px 12px;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  align-self: stretch;
+}
+
+.impact-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 2px 2px 8px;
+}
+
+.impact-chart-meta {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.01em;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  align-items: center;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 999px;
+  padding: 6px 10px;
+}
+
+.impact-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-left: 8px;
+  color: var(--text-strong);
+  background: rgba(134, 201, 255, 0.12);
+  border: 1px solid rgba(134, 201, 255, 0.35);
+}
+
+[data-theme="light"] .impact-badge {
+  background: rgba(30, 75, 143, 0.1);
+  border-color: rgba(30, 75, 143, 0.28);
+}
+
+.impact-chart-meta-item {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+[data-theme="dark"] .impact-chart-meta {
+  background: rgba(18, 22, 30, 0.62);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.impact-chart-meta-sep {
+  opacity: 0.7;
+}
+
+.impact-chart-body {
+  flex: 1;
+  min-height: 260px;
+  position: relative;
+}
+
+.history-impact-chart svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: crosshair;
+  overflow: hidden;
+}
+
+.history-impact-chart .impact-chart-anim {
+  width: 100%;
+  height: 100%;
+  animation: impact-chart-in 220ms var(--motion-ease) both;
+}
+
+.history-impact-chart svg.impact-chart-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+@keyframes impact-chart-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.impact-grid line {
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 1;
+}
+
+[data-theme="light"] .impact-grid line {
+  stroke: rgba(15, 23, 42, 0.12);
+}
+
+.impact-axis line {
+  stroke: rgba(255, 255, 255, 0.18);
+  stroke-width: 1;
+}
+
+[data-theme="light"] .impact-axis line {
+  stroke: rgba(15, 23, 42, 0.22);
+}
+
+.impact-band path {
+  fill: rgba(134, 201, 255, 0.12);
+  stroke: rgba(134, 201, 255, 0.45);
+  stroke-width: 1.1;
+}
+
+[data-theme="light"] .impact-band path {
+  fill: rgba(30, 75, 143, 0.1);
+  stroke: rgba(30, 75, 143, 0.32);
+}
+
+.impact-line path {
+  fill: none;
+  stroke: #ff8f7b;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.impact-dot {
+  fill: #ff8f7b;
+}
+
+.impact-dot.hover {
+  fill: #ffb1a5;
+}
+
+.impact-hover line {
+  stroke: rgba(18, 20, 26, 0.22);
+  stroke-width: 1;
+}
+
+[data-theme="dark"] .impact-hover line {
+  stroke: rgba(255, 255, 255, 0.22);
+}
+
+.impact-labels text {
+  font-variant-numeric: tabular-nums;
+}
+
+.impact-prob {
+  /* Keep labels readable over the band without adding more UI chrome. */
+  paint-order: stroke;
+  stroke-width: 4.5;
+  stroke-linejoin: round;
+}
+
+[data-theme="dark"] .impact-prob {
+  stroke: rgba(18, 22, 30, 0.9);
+}
+
+[data-theme="light"] .impact-prob {
+  stroke: rgba(255, 255, 255, 0.92);
+}
+
+.impact-prob {
+  fill: var(--text-strong);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.impact-y {
+  fill: var(--muted);
+  font-size: 11px;
+  paint-order: stroke;
+  stroke: var(--table-row-bg);
+  stroke-width: 3;
+}
+
+.impact-x {
+  fill: var(--muted);
+  font-size: 11px;
+}
+
+.impact-x-event {
+  fill: var(--text-strong);
+  font-weight: 700;
+}
+
+.impact-axis-label {
+  fill: var(--text-strong);
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.92;
+}
+
+.impact-chart-tooltip {
+  position: absolute;
+  transform: translate(-50%, -120%);
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-strong);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(18, 20, 26, 0.12);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .impact-chart-tooltip {
+  background: rgba(18, 22, 30, 0.88);
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
+}
+
+.impact-chart-tooltip-sep {
+  opacity: 0.65;
+}
+
+.history-impact-deep {
+  border-radius: 20px;
+  border: 1px solid var(--panel-border);
+  background: var(--table-row-bg);
+  padding: 18px 18px 16px;
+  flex: 1;
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+[data-theme="light"] .history-impact-deep {
+  background: var(--table-row-bg);
+}
+
+.history-impact-deep-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.history-impact-deep-body {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.45;
+  max-width: 640px;
+  margin: 0;
+}
+
+.history-impact-side {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+}
+
+.history-impact-side-notes {
+  margin: 0;
+}
+
+.history-impact-history-card {
+  border: 1px solid var(--panel-border);
+  background: var(--table-row-bg);
+  border-radius: 14px;
+  padding: 12px 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 0 0 auto;
+  max-height: 300px;
+  min-height: 0;
+  width: 100%;
+  max-width: none;
+  align-self: stretch;
+}
+
+.history-modal-layout--impact .history-impact-history-card {
+  flex: 1;
+  max-height: none;
+}
+
+.history-impact-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.history-impact-history-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.history-impact-history-table {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  min-height: 0;
+  flex: 1;
+}
+
+.history-impact-history-table.metrics .impact-history-row {
+  grid-template-columns: 92px 64px minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.history-impact-history-table.schedule .impact-history-row {
+  grid-template-columns: 92px 64px minmax(0, 1fr);
+}
+
+.impact-history-row {
+  display: grid;
+  gap: 10px;
+  padding: 10px 12px;
+  align-items: center;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.impact-history-header {
+  font-size: 12px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.02);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+[data-theme="light"] .impact-history-header {
+  background: rgba(15, 23, 42, 0.04);
+}
+
+.impact-history-header.underlay {
+  /* Frosted header only when rows scroll underneath. */
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.1));
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+}
+
+[data-theme="light"] .impact-history-header.underlay {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.62));
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+}
+
+.impact-history-row:not(.impact-history-header) {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="light"] .impact-history-row:not(.impact-history-header) {
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.impact-history-row.active {
+  background: rgba(134, 201, 255, 0.12);
+}
+
+[data-theme="light"] .impact-history-row.active {
+  background: rgba(30, 75, 143, 0.08);
+}
+
+.history-impact-history-footnote {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 0 2px 2px;
 }
 
 .history-line {
@@ -899,4 +1744,7 @@
   font-size: 11px;
   line-height: 1.4;
   color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

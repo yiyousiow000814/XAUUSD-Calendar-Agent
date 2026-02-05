@@ -16,6 +16,7 @@ use tauri::Emitter;
 use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
 
+pub(crate) mod analysis;
 pub(crate) mod history;
 pub(crate) mod lifecycle;
 pub(crate) mod logs;

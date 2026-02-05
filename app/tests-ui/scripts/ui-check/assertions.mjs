@@ -65,6 +65,15 @@ export const assertAutosaveShift = async (page) => {
 
 export const assertContrast = async (page) => {
   const failures = await page.evaluate(() => {
+    const theme = document.documentElement.dataset.theme || "dark";
+    const textStrong = window
+      .getComputedStyle(document.documentElement)
+      .getPropertyValue("--text-strong")
+      .trim();
+    if (!textStrong) {
+      return [{ theme, reason: "Missing CSS variable: --text-strong" }];
+    }
+
     const toRgb = (value) => {
       const parts = value.match(/[\d.]+/g);
       if (!parts || parts.length < 3) return [0, 0, 0, 0];
@@ -609,6 +618,144 @@ export const assertHistoryNoOverflow = async (page) => {
   });
   if (!result.ok) {
     throw new Error(`History overflow detected: ${JSON.stringify(result)}`);
+  }
+};
+
+export const assertHistoryImpactModalLayout = async (page) => {
+  const result = await page.evaluate(() => {
+    const modal = document.querySelector(".modal-history.open");
+    if (!modal) return { ok: false, reason: "history modal missing" };
+
+    const toolbar = modal.querySelector("[data-qa='qa:history:impact-controls']");
+    const chart = modal.querySelector("[data-qa='qa:history:impact-chart']");
+    // Impact view now reuses the same history table as the default History tab.
+    const side = modal.querySelector("[data-qa='qa:history:table']");
+    if (!(toolbar instanceof HTMLElement)) return { ok: false, reason: "impact toolbar missing" };
+    if (!(chart instanceof HTMLElement)) return { ok: false, reason: "impact chart missing" };
+    if (!(side instanceof HTMLElement)) return { ok: false, reason: "history table missing" };
+
+    const t = toolbar.getBoundingClientRect();
+    const c = chart.getBoundingClientRect();
+    const s = side.getBoundingClientRect();
+
+    const svg = chart.querySelector("svg");
+    const body = chart.querySelector(".impact-chart-body");
+    const svgRect = svg?.getBoundingClientRect();
+    const bodyRect = body?.getBoundingClientRect();
+
+    const intersect = (a, b) => {
+      const left = Math.max(a.left, b.left);
+      const right = Math.min(a.right, b.right);
+      const top = Math.max(a.top, b.top);
+      const bottom = Math.min(a.bottom, b.bottom);
+      return { width: Math.max(0, right - left), height: Math.max(0, bottom - top) };
+    };
+
+    const overlap = intersect(c, s);
+
+    const linePath = chart.querySelector("g.impact-line path");
+    const bandPath = chart.querySelector("g.impact-band path");
+    const dLine = linePath?.getAttribute("d") ?? "";
+    const dBand = bandPath?.getAttribute("d") ?? "";
+    const hasLine = /\bL\b/.test(dLine);
+    const hasBand = dBand.trim().length > 8;
+    return {
+      ok: true,
+      chart: { width: c.width, height: c.height },
+      fill: svgRect && bodyRect
+        ? {
+            svg: { width: svgRect.width, height: svgRect.height },
+            body: { width: bodyRect.width, height: bodyRect.height }
+          }
+        : null,
+      overlap,
+      hasLine,
+      hasBand
+    };
+  });
+
+  if (!result.ok) {
+    throw new Error(`Impact modal layout invalid: ${result.reason}`);
+  }
+
+  if (result.chart.width < 420 || result.chart.height < 260) {
+    throw new Error(
+      `Impact chart too small (width=${result.chart.width.toFixed(1)} height=${result.chart.height.toFixed(1)})`
+    );
+  }
+
+  if (result.overlap.width > 2 && result.overlap.height > 2) {
+    throw new Error(
+      `Impact chart overlaps side panel (overlap=${result.overlap.width.toFixed(1)}x${result.overlap.height.toFixed(1)})`
+    );
+  }
+
+  if (!result.hasLine && !result.hasBand) {
+    throw new Error("Impact chart rendered without line/band paths");
+  }
+
+  if (result.fill) {
+    const wRatio = result.fill.svg.width / Math.max(1, result.fill.body.width);
+    const hRatio = result.fill.svg.height / Math.max(1, result.fill.body.height);
+    // The SVG should fill the available body area; otherwise it "letterboxes" and looks small.
+    if (wRatio < 0.96 || hRatio < 0.96) {
+      throw new Error(
+        `Impact chart SVG does not fill container (wRatio=${wRatio.toFixed(3)} hRatio=${hRatio.toFixed(3)})`
+      );
+    }
+  }
+};
+
+export const assertHistoryImpactLabelsReadable = async (page) => {
+  const result = await page.evaluate(() => {
+    const modal = document.querySelector(".modal-history.open");
+    if (!modal) return { ok: false, reason: "history modal missing" };
+
+    const chart = modal.querySelector("[data-qa='qa:history:impact-chart']");
+    if (!(chart instanceof HTMLElement)) return { ok: false, reason: "impact chart missing" };
+
+    const labels = Array.from(chart.querySelectorAll("text.impact-prob"));
+    const rects = labels.map((node) => {
+      const r = node.getBoundingClientRect();
+      return { left: r.left, right: r.right, top: r.top, bottom: r.bottom };
+    });
+
+    const overlaps = [];
+    for (let i = 0; i < rects.length; i += 1) {
+      for (let j = i + 1; j < rects.length; j += 1) {
+        const a = rects[i];
+        const b = rects[j];
+        const left = Math.max(a.left, b.left);
+        const right = Math.min(a.right, b.right);
+        const top = Math.max(a.top, b.top);
+        const bottom = Math.min(a.bottom, b.bottom);
+        const w = Math.max(0, right - left);
+        const h = Math.max(0, bottom - top);
+        // Bounding boxes can overlap by ~1-2px due to subpixel layout/antialiasing.
+        // Treat only clearly visible overlaps as regressions.
+        if (w > 6 && h > 6) {
+          overlaps.push({ i, j, w, h });
+        }
+      }
+    }
+
+    return {
+      ok: true,
+      labelCount: labels.length,
+      overlaps: overlaps.slice(0, 6)
+    };
+  });
+
+  if (!result.ok) {
+    throw new Error(`Impact labels check failed: ${result.reason}`);
+  }
+
+  // Keep the chart readable: too many labels or overlapping labels are regressions.
+  if (result.labelCount > 8) {
+    throw new Error(`Impact labels too dense (count=${result.labelCount})`);
+  }
+  if (result.overlaps.length) {
+    throw new Error(`Impact label overlap detected: ${JSON.stringify(result.overlaps)}`);
   }
 };
 

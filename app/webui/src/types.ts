@@ -60,6 +60,38 @@ export type EventHistoryResponse = {
   message?: string;
 };
 
+export type EventImpactBucket = "ap_gt_prev" | "ap_lt_prev" | "ap_eq_prev";
+
+export type EventImpactWindowStats = {
+  n: number;
+  p_up?: number;
+  p_down?: number;
+  p10?: number;
+  p50?: number;
+  p90?: number;
+  best_direction?: "up" | "down";
+  best_p?: number;
+  best_median_pct?: number;
+};
+
+export type EventImpactResponse = {
+  ok: boolean;
+  message?: string;
+  eventId?: string;
+  bucket?: EventImpactBucket;
+  generatedAtUtc?: string;
+  meta?: {
+    price_min_utc?: string | null;
+    price_max_utc?: string | null;
+    event_source_tz?: string | null;
+    event_min_utc?: string | null;
+    event_max_utc?: string | null;
+    sample_points?: number | null;
+  };
+  windowsMinutes?: number[];
+  data?: Record<string, EventImpactWindowStats>;
+};
+
 export type Snapshot = {
   lastPull: string;
   lastSync: string;

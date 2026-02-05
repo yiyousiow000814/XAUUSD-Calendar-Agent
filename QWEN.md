@@ -82,6 +82,7 @@ GitHub Actions runs equivalent checks on each push and pull request.
 To avoid literal `\n` appearing on GitHub, follow these conventions:
 
 - **Language Requirements**: Descriptions and comments default to Simplified Chinese; titles must stay in English. Automatically generated Codex replies (reviews or regular comments) should also be in Chinese unless the request starts with `[EN]`.
+- **PR Body Format**: PR bodies must include `## What`, `## Why`, `## Changes`, and `## Verify`. If the PR is long, add `## TL;DR` at the very top.
 - Use `--body-file` or standard input for multi-line content. Avoid `--body` with escaped newlines.
 - Recommended pattern using a here document (Bash/Zsh):
 

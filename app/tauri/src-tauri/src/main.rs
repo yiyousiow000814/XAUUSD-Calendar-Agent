@@ -100,7 +100,8 @@ fn main() {
             commands::open::open_url,
             commands::open::open_release_notes,
             commands::lifecycle::dismiss_modal,
-            commands::history::get_event_history
+            commands::history::get_event_history,
+            commands::analysis::get_event_impact_usd
         ])
         .setup(|app| {
             let _ = config::maybe_seed_data_from_install();

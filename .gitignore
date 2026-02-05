@@ -4,6 +4,8 @@ data/*
 !data/Economic_Calendar/**
 !data/event_history_index/
 !data/event_history_index/**
+!data/analysis/
+!data/analysis/**
 data/Economic_Calendar/backup/
 data/XAUUSD_1m_data/
 
@@ -35,6 +37,9 @@ artifacts/
 
 # Local temporary scratch (do not commit)
 tmp/
+
+# Local Codex skill installs / experiments (do not commit)
+.codex/skills/codex-deepwiki/
 
 # Local per-install user data (config/logs/repo cache)
 user-data/*
