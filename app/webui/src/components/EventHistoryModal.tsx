@@ -9,6 +9,11 @@ import type {
 } from "../types";
 import { backend } from "../api";
 import { buildEventNotes } from "../utils/eventNotes";
+import {
+  formatTimeOffsetMinutes,
+  getEffectiveCalendarUtcOffsetMinutes,
+  parseDisplayTimeToUtcMs
+} from "../utils/calendarTime";
 import { Select } from "./Select";
 import "./EventHistoryModal.css";
 
@@ -92,16 +97,6 @@ const formatDisplayDate = (value: string) => {
   const [year, month, day] = value.split("-");
   if (!year || !month || !day) return value;
   return `${day}-${month}-${year}`;
-};
-
-const parseDisplayTzToUtcMs = (dateIso: string, time24h: string, displayOffsetMinutes: number) => {
-  // dateIso: YYYY-MM-DD, time24h: HH:mm (as displayed in the UI / selected display timezone)
-  // Returns UTC ms so it can be compared with Date.now() regardless of the user's local timezone.
-  const [y, m, d] = dateIso.split("-").map((t) => Number(t));
-  const [hh, mm] = time24h.split(":").map((t) => Number(t));
-  if (![y, m, d, hh, mm].every((v) => Number.isFinite(v))) return null;
-  const ms = Date.UTC(y, m - 1, d, hh, mm, 0, 0) - displayOffsetMinutes * 60_000;
-  return Number.isFinite(ms) ? ms : null;
 };
 
 const formatCoverage = (isoMin: string | null | undefined, isoMax: string | null | undefined) => {
@@ -321,15 +316,11 @@ export function EventHistoryModal({
   const [impactHoverOffset, setImpactHoverOffset] = useState<number | null>(null);
   const [impactNowMs, setImpactNowMs] = useState(() => Date.now());
   const effectiveCalendarOffsetMinutes = useMemo(() => {
-    if (calendarTimezoneMode === "system") {
-      try {
-        // Mirror BottomClock: use the system offset (minutes) for "now" to keep UI consistent.
-        return -new Date(impactNowMs).getTimezoneOffset();
-      } catch {
-        return 0;
-      }
-    }
-    return Number.isFinite(calendarUtcOffsetMinutes) ? calendarUtcOffsetMinutes : 0;
+    return getEffectiveCalendarUtcOffsetMinutes({
+      calendarTimezoneMode,
+      calendarUtcOffsetMinutes,
+      nowMs: impactNowMs
+    });
   }, [calendarTimezoneMode, calendarUtcOffsetMinutes, impactNowMs]);
   const points = data?.points ?? [];
   const eventNotes = useMemo(
@@ -1100,7 +1091,7 @@ export function EventHistoryModal({
     for (const point of points) {
       const t = String(point.time ?? "").trim();
       if (!t || !t.includes(":")) continue;
-      const ms = parseDisplayTzToUtcMs(point.date, t, effectiveCalendarOffsetMinutes);
+      const ms = parseDisplayTimeToUtcMs(point.date, t, effectiveCalendarOffsetMinutes);
       if (ms === null) continue;
       const delta = ms - impactNowMs; // + = future
       candidates.push({ ms, delta });
@@ -1234,6 +1225,7 @@ export function EventHistoryModal({
       y,
       leftPct,
       topPct,
+      offsetLabel: formatTimeOffsetMinutes(impactHoverOffset),
       direction: stats.best_direction === "up" ? "Up" : "Down",
       pText: `${Math.round(stats.best_p * 100)}%`,
       move: formatPct(stats.best_median_pct)
@@ -2558,6 +2550,8 @@ export function EventHistoryModal({
                                 className="impact-chart-tooltip"
                                 style={{ left: `${impactHover.leftPct}%`, top: `${impactHover.topPct}%` }}
                               >
+                                <span className="impact-chart-tooltip-offset">{`@${impactHover.offsetLabel}`}</span>
+                                <span className="impact-chart-tooltip-sep">•</span>
                                 <span className="impact-chart-tooltip-dir">{impactHover.direction}</span>
                                 <span className="impact-chart-tooltip-sep">•</span>
                                 <span className="impact-chart-tooltip-p">{impactHover.pText}</span>

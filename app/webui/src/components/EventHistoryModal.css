@@ -946,11 +946,22 @@
   animation: impact-now-pulse 1.35s var(--motion-ease) infinite;
 }
 
+[data-theme="dark"] .impact-now-pulse {
+  /* Dark theme needs a stronger pulse to read against the band fill. */
+  stroke: rgba(255, 143, 123, 0.92);
+  stroke-width: 2.4;
+  opacity: 0.95;
+}
+
 .impact-now-tag {
   font-size: 10px;
   font-weight: 750;
   letter-spacing: 0.16em;
   fill: rgba(255, 143, 123, 0.95);
+}
+
+.impact-chart-tooltip-offset {
+  opacity: 0.82;
 }
 
 .impact-now-label rect {

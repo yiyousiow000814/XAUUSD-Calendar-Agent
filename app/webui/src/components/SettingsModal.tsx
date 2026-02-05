@@ -1,19 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Settings } from "../types";
+import { formatUtcOffset, getSystemUtcOffsetMinutes } from "../utils/calendarTime";
 import { Select } from "./Select";
 import "./SettingsModal.css";
-
-const formatUtcOffset = (offsetMinutes: number) => {
-  const sign = offsetMinutes >= 0 ? "+" : "-";
-  const minutesAbs = Math.abs(offsetMinutes);
-  const hours = Math.floor(minutesAbs / 60);
-  const mins = minutesAbs % 60;
-  const hourLabel = String(hours).padStart(2, "0");
-  if (mins) {
-    return `UTC${sign}${hourLabel}:${String(mins).padStart(2, "0")}`;
-  }
-  return `UTC${sign}${hourLabel}`;
-};
 
 const utcOffsetOptions: number[] = (() => {
   const result = new Set<number>();
@@ -182,13 +171,7 @@ export function SettingsModal({
   const utcOffsetValue = Number.isFinite(settings.calendarUtcOffsetMinutes)
     ? settings.calendarUtcOffsetMinutes
     : 0;
-  const systemOffsetMinutes = (() => {
-    try {
-      return -new Date().getTimezoneOffset();
-    } catch {
-      return 0;
-    }
-  })();
+  const systemOffsetMinutes = getSystemUtcOffsetMinutes(Date.now());
   const effectiveOffsetMinutes = followSystemTimezone ? systemOffsetMinutes : utcOffsetValue;
   const offsetOptions = useMemo(() => {
     const options = new Set(utcOffsetOptions);
