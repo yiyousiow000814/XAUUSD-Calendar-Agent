@@ -880,14 +880,18 @@
 
 .impact-line path {
   fill: none;
-  stroke: #ff8f7b;
-  stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
 .impact-dot {
   fill: #ff8f7b;
+  stroke: rgba(255, 255, 255, 0.92);
+  stroke-width: 1.2;
+}
+
+[data-theme="light"] .impact-dot {
+  stroke: rgba(15, 23, 42, 0.28);
 }
 
 .impact-dot.hover {

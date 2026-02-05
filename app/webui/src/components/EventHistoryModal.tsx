@@ -1014,6 +1014,28 @@ export function EventHistoryModal({
           )} ${lower.join(" ")} Z`
         : "";
 
+    const computeConfidence = (p: number | null | undefined) => {
+      if (typeof p !== "number" || !Number.isFinite(p)) return 0;
+      // best_p is the probability of best_direction; treat 50% as 0 confidence, 100% as 1.
+      return Math.max(0, Math.min(1, (p - 0.5) / 0.5));
+    };
+    const resolveLineStyle = (stats?: EventImpactWindowStats) => {
+      const dir = stats?.best_direction;
+      const p = stats?.best_p;
+      const confidence = computeConfidence(p);
+      const stroke =
+        dir === "up" ? "var(--success)" : dir === "down" ? "var(--danger)" : "#ff8f7b";
+      const strokeOpacity = 0.5 + confidence * 0.45;
+      const strokeWidth = 1.7 + confidence * 1.1;
+      return { stroke, strokeOpacity, strokeWidth };
+    };
+
+    const lineStyleByOffset = new Map<number, { stroke: string; strokeOpacity: number; strokeWidth: number }>();
+    impactSeries.items.forEach((item) => {
+      if (item.offset === 0) return;
+      lineStyleByOffset.set(item.offset, resolveLineStyle(item.stats));
+    });
+
     const lineValues = impactSeries.items.map((item) => {
       if (item.offset === 0) return 0;
       const v = item.stats?.best_median_pct;
@@ -1026,6 +1048,34 @@ export function EventHistoryModal({
       { connectNulls: false }
     );
 
+    const lineSegments = (() => {
+      const segments: Array<{ d: string; stroke: string; strokeOpacity: number; strokeWidth: number }> =
+        [];
+      for (let i = 1; i < impactSeries.items.length; i += 1) {
+        const leftItem = impactSeries.items[i - 1];
+        const rightItem = impactSeries.items[i];
+        const v0 = leftItem?.offset === 0 ? 0 : leftItem?.stats?.best_median_pct;
+        const v1 = rightItem?.offset === 0 ? 0 : rightItem?.stats?.best_median_pct;
+        if (typeof v0 !== "number" || typeof v1 !== "number") continue;
+        if (!Number.isFinite(v0) || !Number.isFinite(v1)) continue;
+        const x0 = xForOffset(leftItem.offset);
+        const x1 = xForOffset(rightItem.offset);
+        const y0 = yFor(v0);
+        const y1 = yFor(v1);
+
+        const style =
+          (rightItem.offset !== 0 ? lineStyleByOffset.get(rightItem.offset) : null) ??
+          (leftItem.offset !== 0 ? lineStyleByOffset.get(leftItem.offset) : null) ??
+          resolveLineStyle(undefined);
+
+        segments.push({
+          d: `M ${x0.toFixed(2)} ${y0.toFixed(2)} L ${x1.toFixed(2)} ${y1.toFixed(2)}`,
+          ...style
+        });
+      }
+      return segments;
+    })();
+
     const isDrawablePath = (d: string) => {
       const normalized = (d ?? "").trim();
       if (!normalized) return false;
@@ -1036,7 +1086,7 @@ export function EventHistoryModal({
     const bandPathSafe = /NaN|Infinity/.test(bandPath) ? "" : bandPath;
     const linePathSafe = /NaN|Infinity/.test(linePath) ? "" : linePath;
     const hasBand = bandPoints.length >= 2 && !!bandPathSafe;
-    const hasLine = isDrawablePath(linePathSafe);
+    const hasLine = lineSegments.length >= 1 && isDrawablePath(linePathSafe);
 
     const clampY = (y: number) =>
       Math.max(padding.top, Math.min(height - padding.bottom, y));
@@ -1066,6 +1116,8 @@ export function EventHistoryModal({
       yFor,
       bandPath: bandPathSafe,
       linePath: linePathSafe,
+      lineSegments,
+      lineStyleByOffset,
       hasBand,
       hasLine,
       hoverPoints,
@@ -2228,9 +2280,18 @@ export function EventHistoryModal({
                                   </g>
                                 ) : null}
                                 <g className="impact-line">
-                                  {impactChart.linePath ? (
-                                    <path d={impactChart.linePath} vectorEffect="non-scaling-stroke" />
-                                  ) : null}
+                                  {impactChart.lineSegments?.length
+                                    ? impactChart.lineSegments.map((seg, idx) => (
+                                        <path
+                                          key={`seg-${idx}`}
+                                          d={seg.d}
+                                          vectorEffect="non-scaling-stroke"
+                                          stroke={seg.stroke}
+                                          strokeOpacity={seg.strokeOpacity}
+                                          strokeWidth={seg.strokeWidth}
+                                        />
+                                      ))
+                                    : null}
                                 </g>
                                 {impactNowMarker ? (
                                   <g className="impact-now" aria-hidden="true">
@@ -2474,6 +2535,16 @@ export function EventHistoryModal({
                                             cx={x}
                                             cy={y}
                                             r={impactHoverOffset === offset ? 4.2 : 3.1}
+                                            style={
+                                              impactHoverOffset === offset
+                                                ? undefined
+                                                : impactChart.lineStyleByOffset?.get(offset)
+                                                  ? {
+                                                      fill: impactChart.lineStyleByOffset.get(offset)?.stroke,
+                                                      opacity: impactChart.lineStyleByOffset.get(offset)?.strokeOpacity
+                                                    }
+                                                  : undefined
+                                            }
                                           />
                                         </g>
                                         {showLabel ? (
