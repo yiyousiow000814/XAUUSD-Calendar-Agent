@@ -626,6 +626,14 @@
   color: var(--muted);
 }
 
+[data-theme="light"] .history-toggle.impact-bucket-toggle.active {
+  border-color: rgba(30, 75, 143, 0.32);
+}
+
+[data-theme="dark"] .history-toggle.impact-bucket-toggle.active {
+  border-color: rgba(134, 201, 255, 0.45);
+}
+
 [data-theme="light"] .history-toggle.impact-bucket-toggle.active:hover,
 [data-theme="dark"] .history-toggle.impact-bucket-toggle.active:hover {
   border-color: var(--pill-border-hover);
@@ -774,14 +782,15 @@
 
 /* Selected impact bucket: turn the count badge into the app's standard active blue. */
 .history-toggle.impact-bucket-toggle.active .impact-badge {
-  /* No fill; just a blue outline so the selected state is clear without adding a colored chip. */
-  background: transparent;
+  /* Blue outline + subtle light-blue fill (match the rest of the app). */
+  background: rgba(134, 201, 255, 0.12);
   color: rgba(134, 201, 255, 0.95);
   border-color: rgba(134, 201, 255, 0.55);
 }
 
 [data-theme="light"] .history-toggle.impact-bucket-toggle.active .impact-badge {
-  color: rgba(30, 75, 143, 0.9);
+  background: var(--select-active-bg);
+  color: rgba(30, 75, 143, 0.92);
   border-color: rgba(30, 75, 143, 0.5);
 }
 
