@@ -1,5 +1,5 @@
 {
-  "generated_at": "04-02-2026 15:49",
+  "generated_at": "05-02-2026 15:48",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -462,8 +462,8 @@
       "date": "2026-02-12",
       "time": "21:30",
       "previous_raw": "",
-      "prior_actual": "209K",
-      "previous_effective": "209K"
+      "prior_actual": "231K",
+      "previous_effective": "231K"
     },
     {
       "issue": "previous_missing_filled",
@@ -474,8 +474,8 @@
       "date": "2026-02-12",
       "time": "21:30",
       "previous_raw": "",
-      "prior_actual": "206.25K",
-      "previous_effective": "206.25K"
+      "prior_actual": "212.25K",
+      "previous_effective": "212.25K"
     },
     {
       "issue": "previous_missing_filled",
@@ -486,8 +486,8 @@
       "date": "2026-02-12",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "-242B",
-      "previous_effective": "-242B"
+      "prior_actual": "-360B",
+      "previous_effective": "-360B"
     },
     {
       "issue": "previous_missing_filled",
@@ -498,8 +498,8 @@
       "date": "2026-02-12",
       "time": "21:30",
       "previous_raw": "",
-      "prior_actual": "1,827K",
-      "previous_effective": "1,827K"
+      "prior_actual": "1,844K",
+      "previous_effective": "1,844K"
     },
     {
       "issue": "previous_missing_filled",
@@ -534,8 +534,32 @@
       "date": "2026-02-12",
       "time": "19:30",
       "previous_raw": "",
-      "prior_actual": "86.20B",
-      "previous_effective": "86.20B"
+      "prior_actual": "84.41B",
+      "previous_effective": "84.41B"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "USD::U.S. Baker Hughes Oil Rig Count::none",
+      "cur": "USD",
+      "event": "U.S. Baker Hughes Oil Rig Count",
+      "period": "",
+      "date": "2026-02-14",
+      "time": "02:00",
+      "previous_raw": "",
+      "prior_actual": "411",
+      "previous_effective": "411"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "USD::U.S. Baker Hughes Total Rig Count::none",
+      "cur": "USD",
+      "event": "U.S. Baker Hughes Total Rig Count",
+      "period": "",
+      "date": "2026-02-14",
+      "time": "02:00",
+      "previous_raw": "",
+      "prior_actual": "546",
+      "previous_effective": "546"
     }
   ]
 }
