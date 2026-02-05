@@ -162,19 +162,30 @@ class WindowStats:
         p_up = self.up / n
         p_down = self.down / n
 
+        up_vals = [v for v in sorted_vals if v > 0]
+        down_vals = [v for v in sorted_vals if v < 0]
+
         best_direction = "up" if p_up >= p_down else "down"
         best_p = p_up if best_direction == "up" else p_down
 
         # Percentiles among samples in the most likely direction.
         if best_direction == "up":
-            dir_vals = [v for v in sorted_vals if v > 0]
+            dir_vals = up_vals
         else:
-            dir_vals = [v for v in sorted_vals if v < 0]
+            dir_vals = down_vals
 
         p10 = percentile(dir_vals, 0.10)
         p50 = percentile(dir_vals, 0.50)
         p90 = percentile(dir_vals, 0.90)
         best_median = p50
+
+        # Direction-conditional percentiles (used by UI to communicate risk/reward clearly).
+        up_p10 = percentile(up_vals, 0.10) if up_vals else None
+        up_p50 = percentile(up_vals, 0.50) if up_vals else None
+        up_p90 = percentile(up_vals, 0.90) if up_vals else None
+        down_p10 = percentile(down_vals, 0.10) if down_vals else None
+        down_p50 = percentile(down_vals, 0.50) if down_vals else None
+        down_p90 = percentile(down_vals, 0.90) if down_vals else None
 
         return {
             "n": n,
@@ -186,6 +197,14 @@ class WindowStats:
             "p10_all": p10_all,
             "p50_all": p50_all,
             "p90_all": p90_all,
+            "up_n": len(up_vals),
+            "down_n": len(down_vals),
+            "up_p10": up_p10,
+            "up_p50": up_p50,
+            "up_p90": up_p90,
+            "down_p10": down_p10,
+            "down_p50": down_p50,
+            "down_p90": down_p90,
             "best_direction": best_direction,
             "best_p": best_p,
             "best_median_pct": best_median,

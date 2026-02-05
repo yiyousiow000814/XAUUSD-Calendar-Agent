@@ -848,8 +848,10 @@ export function EventHistoryModal({
     const lineValues: number[] = [];
     for (const item of items) {
       if (!item.stats || typeof item.stats.n !== "number" || item.stats.n <= 0) continue;
-      if (typeof item.stats.p10 === "number") bandValues.push(item.stats.p10);
-      if (typeof item.stats.p90 === "number") bandValues.push(item.stats.p90);
+      if (typeof item.stats.up_p10 === "number") bandValues.push(item.stats.up_p10);
+      if (typeof item.stats.up_p90 === "number") bandValues.push(item.stats.up_p90);
+      if (typeof item.stats.down_p10 === "number") bandValues.push(item.stats.down_p10);
+      if (typeof item.stats.down_p90 === "number") bandValues.push(item.stats.down_p90);
       if (typeof item.stats.best_median_pct === "number") {
         lineValues.push(item.stats.best_median_pct);
       }
@@ -977,42 +979,69 @@ export function EventHistoryModal({
           offset: 0,
           x: xForOffset(0),
           y: yFor(0),
-          bandLow: 0,
-          bandHigh: 0,
+          upLow: null,
+          upHigh: null,
+          downLow: null,
+          downHigh: null,
           bestDirection: null,
           bestP: null
         };
       }
       const s = item.stats;
       if (!s || typeof s.n !== "number" || s.n <= 0) return null;
-      const p10 = typeof s.p10 === "number" ? s.p10 : null;
-      const p90 = typeof s.p90 === "number" ? s.p90 : null;
       const bestMedian = typeof s.best_median_pct === "number" ? s.best_median_pct : null;
-      if (p10 === null || p90 === null || bestMedian === null) return null;
+      if (bestMedian === null) return null;
+      const upLow = typeof s.up_p10 === "number" ? s.up_p10 : null;
+      const upHigh = typeof s.up_p90 === "number" ? s.up_p90 : null;
+      const downLow = typeof s.down_p10 === "number" ? s.down_p10 : null;
+      const downHigh = typeof s.down_p90 === "number" ? s.down_p90 : null;
       medianByOffset.set(item.offset, bestMedian);
       return {
         offset: item.offset,
         x: xForOffset(item.offset),
         y: yFor(bestMedian),
-        bandLow: p10,
-        bandHigh: p90,
+        upLow,
+        upHigh,
+        downLow,
+        downHigh,
         bestDirection: s.best_direction ?? null,
         bestP: typeof s.best_p === "number" ? s.best_p : null
       };
     });
 
     const bandPoints = points.filter(Boolean) as Array<NonNullable<(typeof points)[number]>>;
-    const upper = bandPoints.map((p) => `L ${p.x.toFixed(2)} ${yFor(p.bandHigh).toFixed(2)}`);
-    const lower = bandPoints
-      .slice()
-      .reverse()
-      .map((p) => `L ${p.x.toFixed(2)} ${yFor(p.bandLow).toFixed(2)}`);
-    const bandPath =
-      bandPoints.length >= 2
-        ? `M ${bandPoints[0].x.toFixed(2)} ${yFor(bandPoints[0].bandHigh).toFixed(2)} ${upper.join(
-            " "
-          )} ${lower.join(" ")} Z`
-        : "";
+    const buildBandPath = (
+      items: Array<{ x: number; low: number; high: number }>,
+      yForValue: (v: number) => number
+    ) => {
+      if (items.length < 2) return "";
+      const upper = items.map((p) => `L ${p.x.toFixed(2)} ${yForValue(p.high).toFixed(2)}`);
+      const lower = items
+        .slice()
+        .reverse()
+        .map((p) => `L ${p.x.toFixed(2)} ${yForValue(p.low).toFixed(2)}`);
+      return `M ${items[0].x.toFixed(2)} ${yForValue(items[0].high).toFixed(2)} ${upper.join(
+        " "
+      )} ${lower.join(" ")} Z`;
+    };
+
+    const upBandItems = bandPoints
+      .map((p) =>
+        typeof p.upLow === "number" && typeof p.upHigh === "number"
+          ? { x: p.x, low: p.upLow, high: p.upHigh }
+          : null
+      )
+      .filter(Boolean) as Array<{ x: number; low: number; high: number }>;
+    const downBandItems = bandPoints
+      .map((p) =>
+        typeof p.downLow === "number" && typeof p.downHigh === "number"
+          ? { x: p.x, low: p.downLow, high: p.downHigh }
+          : null
+      )
+      .filter(Boolean) as Array<{ x: number; low: number; high: number }>;
+
+    const upBandPath = buildBandPath(upBandItems, yFor);
+    const downBandPath = buildBandPath(downBandItems, yFor);
 
     const computeConfidence = (p: number | null | undefined) => {
       if (typeof p !== "number" || !Number.isFinite(p)) return 0;
@@ -1079,30 +1108,6 @@ export function EventHistoryModal({
       return segments;
     })();
 
-    const probRibbon = (() => {
-      const segments: Array<{ x: number; width: number; fill: string; opacity: number }> = [];
-      for (let i = 1; i < impactSeries.items.length; i += 1) {
-        const leftItem = impactSeries.items[i - 1];
-        const rightItem = impactSeries.items[i];
-        if (!leftItem || !rightItem) continue;
-
-        const x0 = xForOffset(leftItem.offset);
-        const x1 = xForOffset(rightItem.offset);
-        const x = Math.min(x0, x1);
-        const width = Math.abs(x1 - x0);
-        if (!Number.isFinite(x) || !Number.isFinite(width) || width < 1) continue;
-
-        const style =
-          (rightItem.offset !== 0 ? lineStyleByOffset.get(rightItem.offset) : null) ??
-          (leftItem.offset !== 0 ? lineStyleByOffset.get(leftItem.offset) : null) ??
-          resolveLineStyle(undefined);
-        // Keep the ribbon subtle but clearly directional; confidence controls intensity.
-        const opacity = 0.12 + style.confidence * 0.38;
-        segments.push({ x, width, fill: style.stroke, opacity });
-      }
-      return segments;
-    })();
-
     const isDrawablePath = (d: string) => {
       const normalized = (d ?? "").trim();
       if (!normalized) return false;
@@ -1110,9 +1115,12 @@ export function EventHistoryModal({
       return /\bL\b/.test(normalized) && !/NaN|Infinity/.test(normalized);
     };
 
-    const bandPathSafe = /NaN|Infinity/.test(bandPath) ? "" : bandPath;
+    const upBandPathSafe = /NaN|Infinity/.test(upBandPath) ? "" : upBandPath;
+    const downBandPathSafe = /NaN|Infinity/.test(downBandPath) ? "" : downBandPath;
     const linePathSafe = /NaN|Infinity/.test(linePath) ? "" : linePath;
-    const hasBand = bandPoints.length >= 2 && !!bandPathSafe;
+    const hasBand =
+      (upBandItems.length >= 2 && !!upBandPathSafe) ||
+      (downBandItems.length >= 2 && !!downBandPathSafe);
     const hasLine = lineSegments.length >= 1 && isDrawablePath(linePathSafe);
 
     const clampY = (y: number) =>
@@ -1141,11 +1149,11 @@ export function EventHistoryModal({
       xForOffset,
       xForOffsetContinuous,
       yFor,
-      bandPath: bandPathSafe,
+      upBandPath: upBandPathSafe,
+      downBandPath: downBandPathSafe,
       linePath: linePathSafe,
       lineSegments,
       lineStyleByOffset,
-      probRibbon,
       hasBand,
       hasLine,
       hoverPoints,
@@ -1296,15 +1304,21 @@ export function EventHistoryModal({
     const topPctRaw = (y / impactChart.height) * 100;
     const leftPct = Math.max(6, Math.min(94, leftPctRaw));
     const topPct = Math.max(8, Math.min(92, topPctRaw));
+    const upP = typeof stats.p_up === "number" ? stats.p_up : null;
+    const downP = typeof stats.p_down === "number" ? stats.p_down : null;
+    const upMove = typeof stats.up_p50 === "number" ? stats.up_p50 : null;
+    const downMove = typeof stats.down_p50 === "number" ? stats.down_p50 : null;
+
     return {
       x,
       y,
       leftPct,
       topPct,
       offsetLabel: formatTimeOffsetMinutes(impactHoverOffset),
-      direction: stats.best_direction === "up" ? "Up" : "Down",
-      pText: `${Math.round(stats.best_p * 100)}%`,
-      move: formatPct(stats.best_median_pct)
+      upP,
+      downP,
+      upMove,
+      downMove
     };
   }, [impactChart, impactData, impactHoverOffset, impactOpen, impactPanel]);
 
@@ -2152,10 +2166,8 @@ export function EventHistoryModal({
                                   </span>
                                   <span className="impact-chart-meta-sep">•</span>
                                   <span className="impact-chart-meta-item">
-                                    Band: P10..P90 (median range)
+                                    Bands: Up P10..P90 + Down P10..P90
                                   </span>
-                                  <span className="impact-chart-meta-sep">•</span>
-                                  <span className="impact-chart-meta-item">Ribbon: direction probability</span>
                                   <span className="impact-chart-meta-sep">•</span>
                                   <span className="impact-chart-meta-item">
                                     {impactSamplesLabel ? `N=${impactSamplesLabel}` : "N=--"}
@@ -2283,37 +2295,17 @@ export function EventHistoryModal({
                                   vectorEffect="non-scaling-stroke"
                                 />
                               </g>
-                              <g clipPath="url(#impact-clip)">
-                                <g className="impact-band">
-                                  {impactChart.bandPath ? (
-                                    <path d={impactChart.bandPath} vectorEffect="non-scaling-stroke" />
+                                <g clipPath="url(#impact-clip)">
+                                <g className="impact-band up">
+                                  {impactChart.upBandPath ? (
+                                    <path d={impactChart.upBandPath} vectorEffect="non-scaling-stroke" />
                                   ) : null}
                                 </g>
-                                {impactChart.probRibbon?.length ? (
-                                  <g className="impact-prob-ribbon" aria-hidden="true">
-                                    {(() => {
-                                      const ribbonHeight = 7;
-                                      const y =
-                                        impactChart.height -
-                                        impactChart.padding.bottom -
-                                        ribbonHeight -
-                                        2;
-                                      return impactChart.probRibbon.map((seg, idx) => (
-                                        <rect
-                                          key={`rib-${idx}`}
-                                          x={seg.x}
-                                          y={y}
-                                          width={seg.width}
-                                          height={ribbonHeight}
-                                          rx={3.5}
-                                          ry={3.5}
-                                          fill={seg.fill}
-                                          opacity={seg.opacity}
-                                        />
-                                      ));
-                                    })()}
-                                  </g>
-                                ) : null}
+                                <g className="impact-band down">
+                                  {impactChart.downBandPath ? (
+                                    <path d={impactChart.downBandPath} vectorEffect="non-scaling-stroke" />
+                                  ) : null}
+                                </g>
                                 {impactNowMarker ? (
                                   <g className="impact-now" aria-hidden="true">
                                     <line
@@ -2566,15 +2558,21 @@ export function EventHistoryModal({
                                     if (typeof stats.best_p !== "number" || !stats.best_direction) return null;
 
                                     const showLabel = IMPACT_LABEL_OFFSETS.includes(offset);
-                                    const median =
-                                      typeof stats.best_median_pct === "number"
+                                    const dirMedian = (() => {
+                                      if (stats.best_direction === "up") {
+                                        if (typeof stats.up_p50 === "number") return stats.up_p50;
+                                      } else if (stats.best_direction === "down") {
+                                        if (typeof stats.down_p50 === "number") return stats.down_p50;
+                                      }
+                                      return typeof stats.best_median_pct === "number"
                                         ? stats.best_median_pct
                                         : 0;
+                                    })();
                                     const x = impactChart.xForOffset(offset);
-                                    const y = impactChart.yFor(median);
+                                    const y = impactChart.yFor(dirMedian);
                                     const direction = stats.best_direction === "up" ? "Up" : "Down";
                                     const pct = `${Math.round(stats.best_p * 100)}%`;
-                                    const move = formatPct(median);
+                                    const move = formatPct(dirMedian);
 
                                     const leftBound = impactChart.padding.left + 10;
                                     const rightBound = impactChart.width - impactChart.padding.right - 10;
@@ -2674,11 +2672,19 @@ export function EventHistoryModal({
                               >
                                 <span className="impact-chart-tooltip-offset">{`@${impactHover.offsetLabel}`}</span>
                                 <span className="impact-chart-tooltip-sep">•</span>
-                                <span className="impact-chart-tooltip-dir">{impactHover.direction}</span>
+                                <span className="impact-chart-tooltip-dir">
+                                  {`Up ${impactHover.upP === null ? "--" : Math.round(impactHover.upP * 100)}%`}
+                                </span>
+                                <span className="impact-chart-tooltip-move">
+                                  {impactHover.upMove === null ? "--" : formatPct(impactHover.upMove)}
+                                </span>
                                 <span className="impact-chart-tooltip-sep">•</span>
-                                <span className="impact-chart-tooltip-p">{impactHover.pText}</span>
-                                <span className="impact-chart-tooltip-sep">•</span>
-                                <span className="impact-chart-tooltip-move">{impactHover.move}</span>
+                                <span className="impact-chart-tooltip-dir">
+                                  {`Down ${impactHover.downP === null ? "--" : Math.round(impactHover.downP * 100)}%`}
+                                </span>
+                                <span className="impact-chart-tooltip-move">
+                                  {impactHover.downMove === null ? "--" : formatPct(impactHover.downMove)}
+                                </span>
                               </div>
                             ) : null}
                               </>

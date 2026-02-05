@@ -507,7 +507,25 @@ const buildMockEventImpactUsd = (payload: {
   for (const offset of windowsMinutes) {
     const key = String(offset);
     if (offset === 0) {
-      data[key] = { n: 80, p10: 0, p50: 0, p90: 0, best_direction: "up", best_p: 0.5, best_median_pct: 0 };
+      data[key] = {
+        n: 80,
+        p_up: 0.5,
+        p_down: 0.5,
+        p10: 0,
+        p50: 0,
+        p90: 0,
+        up_n: 40,
+        down_n: 40,
+        up_p10: 0,
+        up_p50: 0,
+        up_p90: 0,
+        down_p10: 0,
+        down_p50: 0,
+        down_p90: 0,
+        best_direction: "up",
+        best_p: 0.5,
+        best_median_pct: 0
+      };
       continue;
     }
     const abs = Math.abs(offset);
@@ -515,17 +533,33 @@ const buildMockEventImpactUsd = (payload: {
     const tilt = offset < 0 ? -1 : 1;
     const median = tilt * (0.06 + 0.08 * norm) * (0.6 + 0.4 * Math.sin(abs / 90));
     const spread = 0.12 + 0.1 * norm;
-    const p10 = median - spread;
-    const p90 = median + spread;
+    const upMedian = Math.abs(median) * 0.92;
+    const downMedian = -Math.abs(median) * 1.04;
+    const upP10 = upMedian - spread * 0.55;
+    const upP90 = upMedian + spread * 0.6;
+    const downP10 = downMedian - spread * 0.6;
+    const downP90 = downMedian + spread * 0.55;
     const bestDirection = median >= 0 ? "up" : "down";
+    const pUp = bestDirection === "up" ? 0.63 : 0.37;
+    const pDown = 1 - pUp;
     data[key] = {
       n: 80,
-      p10,
-      p50: median,
-      p90,
+      p_up: pUp,
+      p_down: pDown,
+      p10: bestDirection === "up" ? upP10 : downP10,
+      p50: bestDirection === "up" ? upMedian : downMedian,
+      p90: bestDirection === "up" ? upP90 : downP90,
+      up_n: Math.round(80 * pUp),
+      down_n: Math.round(80 * pDown),
+      up_p10: upP10,
+      up_p50: upMedian,
+      up_p90: upP90,
+      down_p10: downP10,
+      down_p50: downMedian,
+      down_p90: downP90,
       best_direction: bestDirection,
-      best_p: 0.63,
-      best_median_pct: median
+      best_p: Math.max(pUp, pDown),
+      best_median_pct: bestDirection === "up" ? upMedian : downMedian
     };
   }
 

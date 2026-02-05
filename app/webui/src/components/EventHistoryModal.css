@@ -867,16 +867,24 @@
   stroke: rgba(15, 23, 42, 0.22);
 }
 
-.impact-band path {
-  /* Neutral uncertainty band; keep direction encoded by the line/ribbon colors. */
-  fill: rgba(255, 255, 255, 0.06);
-  stroke: rgba(255, 255, 255, 0.18);
+.impact-band.up path {
+  fill: color-mix(in oklab, var(--success) 16%, transparent);
+  stroke: color-mix(in oklab, var(--success) 40%, transparent);
   stroke-width: 1.1;
 }
 
-[data-theme="light"] .impact-band path {
-  fill: rgba(18, 20, 26, 0.06);
-  stroke: rgba(18, 20, 26, 0.18);
+.impact-band.down path {
+  fill: color-mix(in oklab, var(--danger) 14%, transparent);
+  stroke: color-mix(in oklab, var(--danger) 38%, transparent);
+  stroke-width: 1.1;
+}
+
+[data-theme="dark"] .impact-band.up path {
+  fill: color-mix(in oklab, var(--success) 18%, transparent);
+}
+
+[data-theme="dark"] .impact-band.down path {
+  fill: color-mix(in oklab, var(--danger) 16%, transparent);
 }
 
 .impact-line path {

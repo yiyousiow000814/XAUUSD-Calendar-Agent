@@ -69,6 +69,14 @@ export type EventImpactWindowStats = {
   p10?: number;
   p50?: number;
   p90?: number;
+  up_n?: number;
+  down_n?: number;
+  up_p10?: number | null;
+  up_p50?: number | null;
+  up_p90?: number | null;
+  down_p10?: number | null;
+  down_p50?: number | null;
+  down_p90?: number | null;
   best_direction?: "up" | "down";
   best_p?: number;
   best_median_pct?: number;
