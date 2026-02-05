@@ -18,6 +18,8 @@ type EventHistoryModalProps = {
   error: string | null;
   selectionLabel: string;
   data: EventHistoryResponse | null;
+  calendarTimezoneMode: "utc" | "system";
+  calendarUtcOffsetMinutes: number;
   onClose: () => void;
 };
 
@@ -92,13 +94,13 @@ const formatDisplayDate = (value: string) => {
   return `${day}-${month}-${year}`;
 };
 
-const parseLocalMs = (dateIso: string, time24h: string) => {
-  // dateIso: YYYY-MM-DD, time24h: HH:mm (as displayed in the UI / local timezone)
+const parseDisplayTzToUtcMs = (dateIso: string, time24h: string, displayOffsetMinutes: number) => {
+  // dateIso: YYYY-MM-DD, time24h: HH:mm (as displayed in the UI / selected display timezone)
+  // Returns UTC ms so it can be compared with Date.now() regardless of the user's local timezone.
   const [y, m, d] = dateIso.split("-").map((t) => Number(t));
   const [hh, mm] = time24h.split(":").map((t) => Number(t));
   if (![y, m, d, hh, mm].every((v) => Number.isFinite(v))) return null;
-  const dt = new Date(y, m - 1, d, hh, mm, 0, 0);
-  const ms = dt.getTime();
+  const ms = Date.UTC(y, m - 1, d, hh, mm, 0, 0) - displayOffsetMinutes * 60_000;
   return Number.isFinite(ms) ? ms : null;
 };
 
@@ -216,6 +218,8 @@ export function EventHistoryModal({
   error,
   selectionLabel,
   data,
+  calendarTimezoneMode,
+  calendarUtcOffsetMinutes,
   onClose
 }: EventHistoryModalProps) {
   const [preferredRange, setPreferredRange] = useState<RangeKey>(() => {
@@ -316,6 +320,17 @@ export function EventHistoryModal({
   const impactViewportReadyFallbackRef = useRef<number | null>(null);
   const [impactHoverOffset, setImpactHoverOffset] = useState<number | null>(null);
   const [impactNowMs, setImpactNowMs] = useState(() => Date.now());
+  const effectiveCalendarOffsetMinutes = useMemo(() => {
+    if (calendarTimezoneMode === "system") {
+      try {
+        // Mirror BottomClock: use the system offset (minutes) for "now" to keep UI consistent.
+        return -new Date(impactNowMs).getTimezoneOffset();
+      } catch {
+        return 0;
+      }
+    }
+    return Number.isFinite(calendarUtcOffsetMinutes) ? calendarUtcOffsetMinutes : 0;
+  }, [calendarTimezoneMode, calendarUtcOffsetMinutes, impactNowMs]);
   const points = data?.points ?? [];
   const eventNotes = useMemo(
     () => buildEventNotes(selectionLabel, data),
@@ -1079,13 +1094,13 @@ export function EventHistoryModal({
     if (!impactChart?.offsets?.length) return null;
     if (!impactChart?.medianByOffset) return null;
 
-    // Anchor to the nearest scheduled occurrence (local time) so the marker matches the table time display.
+    // Anchor to the nearest scheduled occurrence (display time) so the marker matches the table time display.
     const WINDOW_MS = 24 * 60 * 60 * 1000;
     const candidates: Array<{ ms: number; delta: number }> = [];
     for (const point of points) {
       const t = String(point.time ?? "").trim();
       if (!t || !t.includes(":")) continue;
-      const ms = parseLocalMs(point.date, t);
+      const ms = parseDisplayTzToUtcMs(point.date, t, effectiveCalendarOffsetMinutes);
       if (ms === null) continue;
       const delta = ms - impactNowMs; // + = future
       candidates.push({ ms, delta });
@@ -1106,9 +1121,9 @@ export function EventHistoryModal({
     const offsetMinutes = (impactNowMs - anchorMs) / 60_000;
     const minOffset = impactChart.offsets[0] ?? -1440;
     const maxOffset = impactChart.offsets[impactChart.offsets.length - 1] ?? 1440;
-    if (offsetMinutes < minOffset || offsetMinutes > maxOffset) return null;
+    const offsetMinutesClamped = Math.max(minOffset, Math.min(maxOffset, offsetMinutes));
 
-    const x = impactChart.xForOffsetContinuous(offsetMinutes);
+    const x = impactChart.xForOffsetContinuous(offsetMinutesClamped);
 
     // Interpolate the median between two neighbor offsets when possible.
     const sorted = impactChart.offsets;
@@ -1116,7 +1131,7 @@ export function EventHistoryModal({
     let right = sorted[sorted.length - 1];
     for (let i = 1; i < sorted.length; i++) {
       const r = sorted[i];
-      if (offsetMinutes <= r) {
+      if (offsetMinutesClamped <= r) {
         left = sorted[i - 1];
         right = r;
         break;
@@ -1126,7 +1141,7 @@ export function EventHistoryModal({
     const vR = impactChart.medianByOffset.get(right);
     let median = vL ?? vR ?? 0;
     if (typeof vL === "number" && typeof vR === "number" && right !== left) {
-      const t = (offsetMinutes - left) / (right - left);
+      const t = (offsetMinutesClamped - left) / (right - left);
       median = vL + t * (vR - vL);
     }
     const y = impactChart.yForClamped(median);
@@ -1140,7 +1155,7 @@ export function EventHistoryModal({
     const label = anchor.delta >= 0 ? `LIVE in ${rel}` : `LIVE +${rel}`;
 
     return { x, y, label };
-  }, [impactChart, impactNowMs, impactOpen, impactPanel, points]);
+  }, [effectiveCalendarOffsetMinutes, impactChart, impactNowMs, impactOpen, impactPanel, points]);
 
   useEffect(() => {
     if (!impactOpen || impactPanel !== "event") return;

@@ -3426,6 +3426,8 @@ export default function App() {
         error={historyError}
         selectionLabel={historySelectionLabel}
         data={historyData}
+        calendarTimezoneMode={settings.calendarTimezoneMode}
+        calendarUtcOffsetMinutes={settings.calendarUtcOffsetMinutes}
         onClose={closeHistoryModal}
       />
 

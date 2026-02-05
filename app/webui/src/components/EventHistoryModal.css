@@ -955,13 +955,12 @@
 
 .impact-now-label rect {
   fill: rgba(255, 255, 255, 0.92);
-  stroke: rgba(255, 143, 123, 0.28);
-  stroke-width: 1;
+  stroke: none;
 }
 
 [data-theme="dark"] .impact-now-label rect {
   fill: rgba(18, 22, 30, 0.78);
-  stroke: rgba(255, 143, 123, 0.35);
+  stroke: none;
 }
 
 [data-theme="dark"] .impact-now-tag {
