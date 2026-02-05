@@ -192,7 +192,9 @@ class WindowStats:
         }
 
 
-def load_price_series(price_csv: Path) -> Tuple[List[int], List[float]]:
+def load_price_series(
+    price_csv: Path,
+) -> Tuple[List[int], List[float], Optional[datetime], Optional[datetime]]:
     minutes: List[int] = []
     mids: List[float] = []
     min_dt: Optional[datetime] = None
@@ -228,8 +230,6 @@ def find_minute_index(minutes: List[int], minute: int) -> Optional[int]:
         return None
     i = bisect_left(minutes, minute)
     if i >= len(minutes):
-        return None
-    if minutes[i] < minute:
         return None
     return i
 
