@@ -628,12 +628,19 @@
   border-color: rgba(134, 201, 255, 0.45);
 }
 
-[data-theme="light"] .history-toggle.impact-bucket-toggle.active:hover,
+/* Selected bucket: keep hover visually stable (hover cues are for non-selected options). */
+[data-theme="light"] .history-toggle.impact-bucket-toggle.active:hover {
+  border-color: rgba(30, 75, 143, 0.32);
+  background: linear-gradient(180deg, var(--pill-bg-0), var(--pill-bg-1));
+  box-shadow: inset 0 0 0 1px var(--pill-shadow);
+  color: var(--muted);
+}
+
 [data-theme="dark"] .history-toggle.impact-bucket-toggle.active:hover {
-  border-color: var(--pill-border-hover);
-  background: linear-gradient(180deg, var(--pill-bg-0-hover), var(--pill-bg-1-hover));
-  box-shadow: inset 0 0 0 1px var(--pill-shadow-hover);
-  color: var(--text);
+  border-color: rgba(134, 201, 255, 0.45);
+  background: linear-gradient(180deg, var(--pill-bg-0), var(--pill-bg-1));
+  box-shadow: inset 0 0 0 1px var(--pill-shadow);
+  color: var(--muted);
 }
 
 .history-modal-chart {
