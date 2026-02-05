@@ -903,6 +903,32 @@
   stroke: rgba(255, 255, 255, 0.22);
 }
 
+.impact-now {
+  pointer-events: none;
+}
+
+.impact-now line {
+  stroke: rgba(15, 23, 42, 0.55);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 6 10;
+}
+
+[data-theme="dark"] .impact-now line {
+  stroke: rgba(255, 255, 255, 0.55);
+}
+
+.impact-now circle {
+  fill: rgba(15, 23, 42, 0.78);
+  stroke: rgba(255, 255, 255, 0.86);
+  stroke-width: 1.6;
+}
+
+[data-theme="dark"] .impact-now circle {
+  fill: rgba(255, 255, 255, 0.72);
+  stroke: rgba(18, 22, 30, 0.88);
+}
+
 .impact-labels text {
   font-variant-numeric: tabular-nums;
 }

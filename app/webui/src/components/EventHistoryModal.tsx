@@ -92,6 +92,14 @@ const formatDisplayDate = (value: string) => {
   return `${day}-${month}-${year}`;
 };
 
+const parseUtcMs = (dateIso: string, time24h: string) => {
+  // dateIso: YYYY-MM-DD, time24h: HH:mm
+  const [y, m, d] = dateIso.split("-").map((t) => Number(t));
+  const [hh, mm] = time24h.split(":").map((t) => Number(t));
+  if (![y, m, d, hh, mm].every((v) => Number.isFinite(v))) return null;
+  return Date.UTC(y, m - 1, d, hh, mm, 0, 0);
+};
+
 const formatCoverage = (isoMin: string | null | undefined, isoMax: string | null | undefined) => {
   const min = (isoMin ?? "").trim();
   const max = (isoMax ?? "").trim();
@@ -305,6 +313,7 @@ export function EventHistoryModal({
   const impactViewportReadyDeadlineRef = useRef<number | null>(null);
   const impactViewportReadyFallbackRef = useRef<number | null>(null);
   const [impactHoverOffset, setImpactHoverOffset] = useState<number | null>(null);
+  const [impactNowMs, setImpactNowMs] = useState(() => Date.now());
   const points = data?.points ?? [];
   const eventNotes = useMemo(
     () => buildEventNotes(selectionLabel, data),
@@ -384,6 +393,14 @@ export function EventHistoryModal({
       // ignore
     }
   }, [impactOpen]);
+
+  // Drive the "now" marker in the Impact chart.
+  useEffect(() => {
+    if (!impactOpen || impactPanel !== "event") return;
+    if (typeof window === "undefined") return;
+    const id = window.setInterval(() => setImpactNowMs(Date.now()), 15_000);
+    return () => window.clearInterval(id);
+  }, [impactOpen, impactPanel]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -885,6 +902,26 @@ export function EventHistoryModal({
       const idx = offsetIndex.get(offset) ?? 0;
       return padding.left + (idx / denom) * plotWidth;
     };
+    const xForOffsetContinuous = (offset: number) => {
+      if (!Number.isFinite(offset)) return xForOffset(0);
+      if (offsets.length === 0) return xForOffset(0);
+      if (offset <= offsets[0]) return xForOffset(offsets[0]);
+      const last = offsets[offsets.length - 1];
+      if (offset >= last) return xForOffset(last);
+      for (let i = 1; i < offsets.length; i++) {
+        const right = offsets[i];
+        if (offset <= right) {
+          const left = offsets[i - 1];
+          const x0 = xForOffset(left);
+          const x1 = xForOffset(right);
+          const span = right - left;
+          if (!Number.isFinite(span) || span === 0) return x0;
+          const t = (offset - left) / span;
+          return x0 + t * (x1 - x0);
+        }
+      }
+      return xForOffset(last);
+    };
 
     const rawMin = impactSeries.min;
     const rawMax = impactSeries.max;
@@ -924,8 +961,10 @@ export function EventHistoryModal({
 
     const yTicks = buildNiceTicks(domainMin, domainMax);
 
+    const medianByOffset = new Map<number, number>();
     const points = impactSeries.items.map((item) => {
       if (item.offset === 0) {
+        medianByOffset.set(0, 0);
         return {
           offset: 0,
           x: xForOffset(0),
@@ -942,6 +981,7 @@ export function EventHistoryModal({
       const p90 = typeof s.p90 === "number" ? s.p90 : null;
       const bestMedian = typeof s.best_median_pct === "number" ? s.best_median_pct : null;
       if (p10 === null || p90 === null || bestMedian === null) return null;
+      medianByOffset.set(item.offset, bestMedian);
       return {
         offset: item.offset,
         x: xForOffset(item.offset),
@@ -1014,6 +1054,7 @@ export function EventHistoryModal({
       height,
       padding,
       xForOffset,
+      xForOffsetContinuous,
       yFor,
       bandPath: bandPathSafe,
       linePath: linePathSafe,
@@ -1025,9 +1066,63 @@ export function EventHistoryModal({
       yTicks,
       yForClamped,
       domainMin,
-      domainMax
+      domainMax,
+      offsets,
+      medianByOffset
     };
   }, [impactOpen, impactSeries, impactViewport, impactViewportReady]);
+
+  const impactNowMarker = useMemo(() => {
+    if (!impactOpen || impactPanel !== "event") return null;
+    if (!impactChart?.offsets?.length) return null;
+    if (!impactChart?.medianByOffset) return null;
+
+    // Anchor to the nearest scheduled occurrence (UTC) so the marker works for both past and upcoming events.
+    let anchorMs: number | null = null;
+    let bestAbs = Infinity;
+    for (const point of points) {
+      const t = String(point.time ?? "").trim();
+      if (!t || !t.includes(":")) continue;
+      const ms = parseUtcMs(point.date, t);
+      if (ms === null) continue;
+      const abs = Math.abs(impactNowMs - ms);
+      if (abs < bestAbs) {
+        bestAbs = abs;
+        anchorMs = ms;
+      }
+    }
+    if (anchorMs === null || !Number.isFinite(bestAbs)) return null;
+    if (bestAbs > 24 * 60 * 60 * 1000) return null;
+
+    const offsetMinutes = (impactNowMs - anchorMs) / 60_000;
+    const minOffset = impactChart.offsets[0] ?? -1440;
+    const maxOffset = impactChart.offsets[impactChart.offsets.length - 1] ?? 1440;
+    if (offsetMinutes < minOffset || offsetMinutes > maxOffset) return null;
+
+    const x = impactChart.xForOffsetContinuous(offsetMinutes);
+
+    // Interpolate the median between two neighbor offsets when possible.
+    const sorted = impactChart.offsets;
+    let left = sorted[0];
+    let right = sorted[sorted.length - 1];
+    for (let i = 1; i < sorted.length; i++) {
+      const r = sorted[i];
+      if (offsetMinutes <= r) {
+        left = sorted[i - 1];
+        right = r;
+        break;
+      }
+    }
+    const vL = impactChart.medianByOffset.get(left);
+    const vR = impactChart.medianByOffset.get(right);
+    let median = vL ?? vR ?? 0;
+    if (typeof vL === "number" && typeof vR === "number" && right !== left) {
+      const t = (offsetMinutes - left) / (right - left);
+      median = vL + t * (vR - vL);
+    }
+    const y = impactChart.yForClamped(median);
+    return { x, y };
+  }, [impactChart, impactNowMs, impactOpen, impactPanel, points]);
 
   useEffect(() => {
     if (!impactOpen || impactPanel !== "event") return;
@@ -2096,6 +2191,23 @@ export function EventHistoryModal({
                                     <path d={impactChart.linePath} vectorEffect="non-scaling-stroke" />
                                   ) : null}
                                 </g>
+                                {impactNowMarker ? (
+                                  <g className="impact-now" aria-hidden="true">
+                                    <line
+                                      x1={Math.round(impactNowMarker.x) + 0.5}
+                                      x2={Math.round(impactNowMarker.x) + 0.5}
+                                      y1={impactChart.padding.top}
+                                      y2={impactChart.height - impactChart.padding.bottom}
+                                      vectorEffect="non-scaling-stroke"
+                                    />
+                                    <circle
+                                      cx={impactNowMarker.x}
+                                      cy={impactNowMarker.y}
+                                      r={4.6}
+                                      vectorEffect="non-scaling-stroke"
+                                    />
+                                  </g>
+                                ) : null}
                                 {impactHover ? (
                                   <g className="impact-hover" aria-hidden="true">
                                     <line
