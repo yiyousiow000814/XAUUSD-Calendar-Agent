@@ -572,13 +572,10 @@
 /* Impact bucket pills: keep the pill background neutral; use the count badge to show selection. */
 .history-toggle.impact-bucket-toggle.active {
   background: linear-gradient(180deg, var(--pill-bg-0), var(--pill-bg-1));
-  border-color: var(--pill-border-hover);
-  box-shadow: inset 0 0 0 1px var(--pill-shadow-hover);
-  color: var(--text);
-}
-
-.history-toggle.impact-bucket-toggle.active:hover {
-  background: linear-gradient(180deg, var(--pill-bg-0-hover), var(--pill-bg-1-hover));
+  /* Match the unselected state; selection is communicated via the count badge only. */
+  border-color: var(--pill-border);
+  box-shadow: inset 0 0 0 1px var(--pill-shadow);
+  color: var(--muted);
 }
 
 .impact-bucket-toggle.active .impact-badge {
@@ -625,6 +622,22 @@
   background: linear-gradient(180deg, rgba(30, 75, 143, 0.1), rgba(255, 255, 255, 0.92));
   border-color: rgba(30, 75, 143, 0.32);
   box-shadow: inset 0 0 0 1px var(--pill-shadow-hover);
+}
+
+/* Impact bucket pills: selected state should NOT tint the whole pill (avoid the light-blue fill).
+   Selection is communicated via the count badge outline only. */
+.history-toggle.impact-bucket-toggle.active {
+  background: linear-gradient(180deg, var(--pill-bg-0), var(--pill-bg-1));
+  border-color: var(--pill-border);
+  box-shadow: inset 0 0 0 1px var(--pill-shadow);
+  color: var(--muted);
+}
+
+.history-toggle.impact-bucket-toggle.active:hover {
+  border-color: var(--pill-border-hover);
+  background: linear-gradient(180deg, var(--pill-bg-0-hover), var(--pill-bg-1-hover));
+  box-shadow: inset 0 0 0 1px var(--pill-shadow-hover);
+  color: var(--text);
 }
 
 .history-modal-chart {
