@@ -92,12 +92,14 @@ const formatDisplayDate = (value: string) => {
   return `${day}-${month}-${year}`;
 };
 
-const parseUtcMs = (dateIso: string, time24h: string) => {
-  // dateIso: YYYY-MM-DD, time24h: HH:mm
+const parseLocalMs = (dateIso: string, time24h: string) => {
+  // dateIso: YYYY-MM-DD, time24h: HH:mm (as displayed in the UI / local timezone)
   const [y, m, d] = dateIso.split("-").map((t) => Number(t));
   const [hh, mm] = time24h.split(":").map((t) => Number(t));
   if (![y, m, d, hh, mm].every((v) => Number.isFinite(v))) return null;
-  return Date.UTC(y, m - 1, d, hh, mm, 0, 0);
+  const dt = new Date(y, m - 1, d, hh, mm, 0, 0);
+  const ms = dt.getTime();
+  return Number.isFinite(ms) ? ms : null;
 };
 
 const formatCoverage = (isoMin: string | null | undefined, isoMax: string | null | undefined) => {
@@ -1077,22 +1079,29 @@ export function EventHistoryModal({
     if (!impactChart?.offsets?.length) return null;
     if (!impactChart?.medianByOffset) return null;
 
-    // Anchor to the nearest scheduled occurrence (UTC) so the marker works for both past and upcoming events.
-    let anchorMs: number | null = null;
-    let bestAbs = Infinity;
+    // Anchor to the nearest scheduled occurrence (local time) so the marker matches the table time display.
+    const WINDOW_MS = 24 * 60 * 60 * 1000;
+    const candidates: Array<{ ms: number; delta: number }> = [];
     for (const point of points) {
       const t = String(point.time ?? "").trim();
       if (!t || !t.includes(":")) continue;
-      const ms = parseUtcMs(point.date, t);
+      const ms = parseLocalMs(point.date, t);
       if (ms === null) continue;
-      const abs = Math.abs(impactNowMs - ms);
-      if (abs < bestAbs) {
-        bestAbs = abs;
-        anchorMs = ms;
-      }
+      const delta = ms - impactNowMs; // + = future
+      candidates.push({ ms, delta });
     }
-    if (anchorMs === null || !Number.isFinite(bestAbs)) return null;
-    if (bestAbs > 24 * 60 * 60 * 1000) return null;
+    if (!candidates.length) return null;
+
+    // Prefer the upcoming occurrence within 24h (matches "countdown" expectation).
+    const upcoming = candidates
+      .filter((c) => c.delta >= 0 && c.delta <= WINDOW_MS)
+      .sort((a, b) => a.delta - b.delta)[0];
+    const nearest = candidates
+      .filter((c) => Math.abs(c.delta) <= WINDOW_MS)
+      .sort((a, b) => Math.abs(a.delta) - Math.abs(b.delta))[0];
+    const anchor = upcoming ?? nearest;
+    if (!anchor) return null;
+    const anchorMs = anchor.ms;
 
     const offsetMinutes = (impactNowMs - anchorMs) / 60_000;
     const minOffset = impactChart.offsets[0] ?? -1440;
