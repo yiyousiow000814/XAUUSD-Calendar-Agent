@@ -868,14 +868,15 @@
 }
 
 .impact-band path {
-  fill: rgba(134, 201, 255, 0.12);
-  stroke: rgba(134, 201, 255, 0.45);
+  /* Neutral uncertainty band; keep direction encoded by the line/ribbon colors. */
+  fill: rgba(255, 255, 255, 0.06);
+  stroke: rgba(255, 255, 255, 0.18);
   stroke-width: 1.1;
 }
 
 [data-theme="light"] .impact-band path {
-  fill: rgba(30, 75, 143, 0.1);
-  stroke: rgba(30, 75, 143, 0.32);
+  fill: rgba(18, 20, 26, 0.06);
+  stroke: rgba(18, 20, 26, 0.18);
 }
 
 .impact-line path {

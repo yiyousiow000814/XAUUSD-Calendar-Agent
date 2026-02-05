@@ -1027,10 +1027,13 @@ export function EventHistoryModal({
         dir === "up" ? "var(--success)" : dir === "down" ? "var(--danger)" : "#ff8f7b";
       const strokeOpacity = 0.5 + confidence * 0.45;
       const strokeWidth = 1.7 + confidence * 1.1;
-      return { stroke, strokeOpacity, strokeWidth };
+      return { stroke, strokeOpacity, strokeWidth, confidence };
     };
 
-    const lineStyleByOffset = new Map<number, { stroke: string; strokeOpacity: number; strokeWidth: number }>();
+    const lineStyleByOffset = new Map<
+      number,
+      { stroke: string; strokeOpacity: number; strokeWidth: number; confidence: number }
+    >();
     impactSeries.items.forEach((item) => {
       if (item.offset === 0) return;
       lineStyleByOffset.set(item.offset, resolveLineStyle(item.stats));
@@ -1072,6 +1075,30 @@ export function EventHistoryModal({
           d: `M ${x0.toFixed(2)} ${y0.toFixed(2)} L ${x1.toFixed(2)} ${y1.toFixed(2)}`,
           ...style
         });
+      }
+      return segments;
+    })();
+
+    const probRibbon = (() => {
+      const segments: Array<{ x: number; width: number; fill: string; opacity: number }> = [];
+      for (let i = 1; i < impactSeries.items.length; i += 1) {
+        const leftItem = impactSeries.items[i - 1];
+        const rightItem = impactSeries.items[i];
+        if (!leftItem || !rightItem) continue;
+
+        const x0 = xForOffset(leftItem.offset);
+        const x1 = xForOffset(rightItem.offset);
+        const x = Math.min(x0, x1);
+        const width = Math.abs(x1 - x0);
+        if (!Number.isFinite(x) || !Number.isFinite(width) || width < 1) continue;
+
+        const style =
+          (rightItem.offset !== 0 ? lineStyleByOffset.get(rightItem.offset) : null) ??
+          (leftItem.offset !== 0 ? lineStyleByOffset.get(leftItem.offset) : null) ??
+          resolveLineStyle(undefined);
+        // Keep the ribbon subtle but clearly directional; confidence controls intensity.
+        const opacity = 0.12 + style.confidence * 0.38;
+        segments.push({ x, width, fill: style.stroke, opacity });
       }
       return segments;
     })();
@@ -1118,6 +1145,7 @@ export function EventHistoryModal({
       linePath: linePathSafe,
       lineSegments,
       lineStyleByOffset,
+      probRibbon,
       hasBand,
       hasLine,
       hoverPoints,
@@ -2120,12 +2148,14 @@ export function EventHistoryModal({
                               <div className="impact-chart-header" aria-hidden="true">
                                 <div className="impact-chart-meta">
                                   <span className="impact-chart-meta-item">
-                                    Line: median % change (most likely direction)
+                                    Line: most likely direction (color) + confidence (thickness)
                                   </span>
                                   <span className="impact-chart-meta-sep">•</span>
                                   <span className="impact-chart-meta-item">
-                                    Band: P10..P90 (most likely direction)
+                                    Band: P10..P90 (median range)
                                   </span>
+                                  <span className="impact-chart-meta-sep">•</span>
+                                  <span className="impact-chart-meta-item">Ribbon: direction probability</span>
                                   <span className="impact-chart-meta-sep">•</span>
                                   <span className="impact-chart-meta-item">
                                     {impactSamplesLabel ? `N=${impactSamplesLabel}` : "N=--"}
@@ -2259,6 +2289,31 @@ export function EventHistoryModal({
                                     <path d={impactChart.bandPath} vectorEffect="non-scaling-stroke" />
                                   ) : null}
                                 </g>
+                                {impactChart.probRibbon?.length ? (
+                                  <g className="impact-prob-ribbon" aria-hidden="true">
+                                    {(() => {
+                                      const ribbonHeight = 7;
+                                      const y =
+                                        impactChart.height -
+                                        impactChart.padding.bottom -
+                                        ribbonHeight -
+                                        2;
+                                      return impactChart.probRibbon.map((seg, idx) => (
+                                        <rect
+                                          key={`rib-${idx}`}
+                                          x={seg.x}
+                                          y={y}
+                                          width={seg.width}
+                                          height={ribbonHeight}
+                                          rx={3.5}
+                                          ry={3.5}
+                                          fill={seg.fill}
+                                          opacity={seg.opacity}
+                                        />
+                                      ));
+                                    })()}
+                                  </g>
+                                ) : null}
                                 {impactNowMarker ? (
                                   <g className="impact-now" aria-hidden="true">
                                     <line
