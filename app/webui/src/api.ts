@@ -1,5 +1,6 @@
 import type { EventHistoryResponse, EventImpactResponse, Settings, Snapshot } from "./types";
 import { CURRENCY_OPTIONS } from "./constants/currencyOptions";
+import { formatLocalDateTime } from "./utils/calendarTime";
 
 type ApiResult<T> = Promise<T>;
 
@@ -323,16 +324,6 @@ const baseMockSnapshot: Snapshot = {
 const getMockSnapshot = () =>
   ((window as unknown as { __MOCK_SNAPSHOT__?: Snapshot }).__MOCK_SNAPSHOT__ ??
     baseMockSnapshot) as Snapshot;
-
-const formatDisplayTime = (date: Date) => {
-  const pad = (value: number) => String(value).padStart(2, "0");
-  const dd = pad(date.getDate());
-  const mm = pad(date.getMonth() + 1);
-  const yyyy = String(date.getFullYear());
-  const hh = pad(date.getHours());
-  const min = pad(date.getMinutes());
-  return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
-};
 
 const setMockSnapshot = (next: Snapshot) => {
   (window as unknown as { __MOCK_SNAPSHOT__?: Snapshot }).__MOCK_SNAPSHOT__ = next;
@@ -882,7 +873,7 @@ export const backend = {
         throw new Error("Desktop backend unavailable");
       }
       const baseline = getMockSnapshot();
-      const startedAt = formatDisplayTime(new Date());
+      const startedAt = formatLocalDateTime(new Date());
       setMockSnapshot({
         ...baseline,
         pullActive: true,
@@ -890,7 +881,7 @@ export const backend = {
       });
       window.setTimeout(() => {
         const current = getMockSnapshot();
-        const finishedAt = formatDisplayTime(new Date());
+        const finishedAt = formatLocalDateTime(new Date());
         setMockSnapshot({
           ...current,
           pullActive: false,
@@ -913,7 +904,7 @@ export const backend = {
         throw new Error("Desktop backend unavailable");
       }
       const baseline = getMockSnapshot();
-      const startedAt = formatDisplayTime(new Date());
+      const startedAt = formatLocalDateTime(new Date());
       setMockSnapshot({
         ...baseline,
         syncActive: true,
@@ -921,7 +912,7 @@ export const backend = {
       });
       window.setTimeout(() => {
         const current = getMockSnapshot();
-        const finishedAt = formatDisplayTime(new Date());
+        const finishedAt = formatLocalDateTime(new Date());
         const outputDir = String(current.outputDir || "").trim();
         if (!outputDir) {
           setMockSnapshot({

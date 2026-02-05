@@ -16,6 +16,7 @@ import { SettingsModal } from "./components/SettingsModal";
 import { TemporaryPathWarningModal, type TemporaryPathWarningMode } from "./components/TemporaryPathWarningModal";
 import { ToastStack } from "./components/ToastStack";
 import { CURRENCY_OPTIONS } from "./constants/currencyOptions";
+import { formatLocalDateTime } from "./utils/calendarTime";
 import { impactTone, levelTone } from "./utils/ui";
 import "./App.css";
 
@@ -1474,16 +1475,7 @@ export default function App() {
   };
 
   const handleCheckUpdates = async () => {
-    const formatDisplayTime = (date: Date) => {
-      const pad = (value: number) => String(value).padStart(2, "0");
-      const dd = pad(date.getDate());
-      const mm = pad(date.getMonth() + 1);
-      const yyyy = String(date.getFullYear());
-      const hh = pad(date.getHours());
-      const min = pad(date.getMinutes());
-      return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
-    };
-    const optimisticLastChecked = formatDisplayTime(new Date());
+    const optimisticLastChecked = formatLocalDateTime(new Date());
     try {
       setUpdateState((prev) => ({
         ...prev,
@@ -2825,17 +2817,15 @@ export default function App() {
         }
       },
       seedHistoryOverflow: (days = 18, itemsPerDay = 6) => {
-        const makeLabel = (n: number) => String(n).padStart(2, "0");
         const now = new Date();
         const pastEvents = Array.from({ length: days }).flatMap((_, dayIndex) => {
           const date = new Date(now);
           date.setDate(now.getDate() - dayIndex);
-          const dd = makeLabel(date.getDate());
-          const mm = makeLabel(date.getMonth() + 1);
-          const yyyy = String(date.getFullYear());
           return Array.from({ length: itemsPerDay }).map((__, idx) => {
-            const hh = makeLabel(2 + (idx * 3) % 20);
-            const min = makeLabel((idx * 7) % 60);
+            const hour = 2 + (idx * 3) % 20;
+            const minute = (idx * 7) % 60;
+            const at = new Date(date);
+            at.setHours(hour, minute, 0, 0);
             const impact = idx % 7 === 0 ? "High" : idx % 3 === 0 ? "Medium" : "Low";
             const cur =
               idx % 4 === 0 ? "USD" : idx % 4 === 1 ? "EUR" : idx % 4 === 2 ? "GBP" : "JPY";
@@ -2846,7 +2836,7 @@ export default function App() {
             const includeActual = idx % 5 !== 4;
             const includePrevious = idx % 7 !== 6;
             return {
-              time: `${dd}-${mm}-${yyyy} ${hh}:${min}`,
+              time: formatLocalDateTime(at),
               cur,
               impact,
               event: `Mock Past Event ${dayIndex + 1}.${idx + 1}`,
@@ -2865,14 +2855,6 @@ export default function App() {
       seedNextEventsImpactOverflow: (lowFirst = 40, mediumLater = 10, highLater = 10) => {
         const now = new Date();
         const makeLabel = (n: number) => String(n).padStart(2, "0");
-        const makeTime = (date: Date) => {
-          const dd = makeLabel(date.getDate());
-          const mm = makeLabel(date.getMonth() + 1);
-          const yyyy = String(date.getFullYear());
-          const hh = makeLabel(date.getHours());
-          const min = makeLabel(date.getMinutes());
-          return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
-        };
         const makeCountdown = (minutesAhead: number) => {
           const hours = Math.floor(minutesAhead / 60);
           const mins = minutesAhead % 60;
@@ -2892,7 +2874,7 @@ export default function App() {
           rendered.push({
             id,
             state: "upcoming",
-            time: makeTime(date),
+            time: formatLocalDateTime(date),
             cur: "USD",
             impact,
             event: `${impact} Impact Event ${suffix}`,
@@ -3347,10 +3329,12 @@ export default function App() {
           </div>
           <div className="split-divider" onMouseDown={startSplitDrag} data-qa="qa:split:divider" />
           <div className="split-pane">
-            <HistoryPanel
+          <HistoryPanel
               events={snapshot.pastEvents}
               loading={snapshot.calendarStatus === "loading"}
               downloading={snapshot.calendarStatus === "downloading"}
+              calendarTimezoneMode={settings.calendarTimezoneMode}
+              calendarUtcOffsetMinutes={settings.calendarUtcOffsetMinutes}
               impactTone={impactTone}
               impactFilter={impactFilter}
               onOpenHistory={(item) => openEventHistory({ event: item.event, cur: item.cur })}

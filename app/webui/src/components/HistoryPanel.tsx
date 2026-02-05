@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { PastEventItem } from "../types";
+import type { PastEventItem, Settings } from "../types";
+import {
+  getEffectiveCalendarUtcOffsetMinutes,
+  parseDisplayDateTimeToUtcMs,
+  toDisplayMs
+} from "../utils/calendarTime";
 import { normalizeAcronyms } from "../utils/normalizeAcronyms";
 import "./HistoryPanel.css";
 
@@ -9,7 +14,8 @@ type HistoryGroup = {
   key: string;
   label: string;
   subLabel: string;
-  date: Date;
+  dateMs: number; // display ms at start of day (used for sorting)
+  year: number;
   items: PastEventItem[];
 };
 
@@ -21,6 +27,8 @@ type HistoryPanelProps = {
   events: PastEventItem[];
   loading?: boolean;
   downloading?: boolean;
+  calendarTimezoneMode: Settings["calendarTimezoneMode"];
+  calendarUtcOffsetMinutes: Settings["calendarUtcOffsetMinutes"];
   impactTone: (impact: string) => string;
   impactFilter: string[];
   onOpenHistory: (item: PastEventItem) => void;
@@ -157,25 +165,23 @@ function TrendIcon({ trend }: { trend: Exclude<HistoryTrend, "tba"> }) {
   );
 }
 
-const parseEventDate = (value: string) => {
-  const [datePart, timePart] = value.split(" ");
-  if (!datePart) return null;
-  const [day, month, year] = datePart.split("-").map((part) => Number(part));
-  const [hour, minute] = timePart ? timePart.split(":").map((part) => Number(part)) : [0, 0];
-  if (!day || !month || !year) return null;
-  return new Date(year, month - 1, day, hour || 0, minute || 0);
+const formatDayLabel = (displayMs: number) =>
+  new Intl.DateTimeFormat("en", {
+    weekday: "short",
+    day: "2-digit",
+    month: "short",
+    timeZone: "UTC"
+  }).format(new Date(displayMs));
+
+const startOfDisplayDayMs = (displayMs: number) => {
+  const d = new Date(displayMs);
+  return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
 };
 
-const formatDayLabel = (date: Date) =>
-  new Intl.DateTimeFormat("en", { weekday: "short", day: "2-digit", month: "short" }).format(
-    date
-  );
-
-const getRelativeLabel = (date: Date) => {
-  const today = new Date();
-  const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  const startOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  const diffDays = Math.floor((startOfToday.getTime() - startOfDay.getTime()) / 86400000);
+const getRelativeLabel = (displayMs: number, nowDisplayMs: number) => {
+  const startOfToday = startOfDisplayDayMs(nowDisplayMs);
+  const startOfDay = startOfDisplayDayMs(displayMs);
+  const diffDays = Math.floor((startOfToday - startOfDay) / 86400000);
   if (diffDays <= 0) return "Today";
   if (diffDays === 1) return "Yesterday";
   if (diffDays <= 7) return "Last week";
@@ -196,6 +202,8 @@ export function HistoryPanel({
   events,
   loading = false,
   downloading = false,
+  calendarTimezoneMode,
+  calendarUtcOffsetMinutes,
   impactTone,
   impactFilter,
   onOpenHistory
@@ -261,50 +269,68 @@ export function HistoryPanel({
     };
   }, []);
 
+  const effectiveOffsetMinutes = useMemo(
+    () =>
+      getEffectiveCalendarUtcOffsetMinutes({
+        calendarTimezoneMode,
+        calendarUtcOffsetMinutes,
+        nowMs: Date.now()
+      }),
+    [calendarTimezoneMode, calendarUtcOffsetMinutes]
+  );
+
   const view = useMemo(() => {
     const cutoff = Date.now() - rangeToMs(range);
     const normalizedImpactFilter = impactFilter.map((value) => value.toLowerCase());
+    const nowDisplayMs = Date.now() + effectiveOffsetMinutes * 60_000;
     const parsed = events
       .map((entry) => ({
         entry,
-        date: parseEventDate(entry.time)
+        utcMs: parseDisplayDateTimeToUtcMs(entry.time, effectiveOffsetMinutes)
       }))
       .filter((item) => {
-        if (!item.date || item.date.getTime() < cutoff) return false;
+        if (item.utcMs === null || item.utcMs < cutoff) return false;
         if (normalizedImpactFilter.length === 0) return true;
         const impact = item.entry.impact.toLowerCase();
         return normalizedImpactFilter.some((selected) => impact.includes(selected));
       }) as {
       entry: PastEventItem;
-      date: Date;
+      utcMs: number;
     }[];
 
-    parsed.sort((a, b) => b.date.getTime() - a.date.getTime());
+    parsed.sort((a, b) => b.utcMs - a.utcMs);
 
-    const includeYear = new Set(parsed.map((item) => item.date.getFullYear())).size > 1;
+    const includeYear =
+      new Set(
+        parsed.map((item) => new Date(toDisplayMs(item.utcMs, effectiveOffsetMinutes)).getUTCFullYear())
+      ).size > 1;
     const grouped = new Map<string, HistoryGroup>();
-    parsed.forEach(({ entry, date }) => {
-      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
-        date.getDate()
-      ).padStart(2, "0")}`;
+    parsed.forEach(({ entry, utcMs }) => {
+      const displayMs = toDisplayMs(utcMs, effectiveOffsetMinutes);
+      const d = new Date(displayMs);
+      const year = d.getUTCFullYear();
+      const month = String(d.getUTCMonth() + 1).padStart(2, "0");
+      const day = String(d.getUTCDate()).padStart(2, "0");
+      const key = `${year}-${month}-${day}`;
       if (!grouped.has(key)) {
         grouped.set(key, {
           key,
-          label: formatDayLabel(date),
-          subLabel: getRelativeLabel(date),
-          date,
+          label: formatDayLabel(displayMs),
+          subLabel: getRelativeLabel(displayMs, nowDisplayMs),
+          dateMs: startOfDisplayDayMs(displayMs),
+          year,
           items: []
         });
       }
       grouped.get(key)?.items.push(entry);
     });
 
-    const groups = Array.from(grouped.values()).sort((a, b) => b.date.getTime() - a.date.getTime());
+    const groups = Array.from(grouped.values()).sort((a, b) => b.dateMs - a.dateMs);
     const rows: HistoryRow[] = [];
     if (includeYear) {
       let currentYear: number | null = null;
       groups.forEach((group) => {
-        const year = group.date.getFullYear();
+        const year = group.year;
         if (year !== currentYear) {
           currentYear = year;
           rows.push({ type: "year", key: `year-${year}`, year });
@@ -315,7 +341,7 @@ export function HistoryPanel({
       groups.forEach((group) => rows.push({ type: "group", key: `group-${group.key}`, group }));
     }
     return { groups, rows };
-  }, [events, range, impactFilter]);
+  }, [effectiveOffsetMinutes, events, range, impactFilter]);
   const groups = view.groups;
   const rows = view.rows;
 
