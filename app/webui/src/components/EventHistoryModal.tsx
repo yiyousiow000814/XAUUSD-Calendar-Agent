@@ -1740,6 +1740,11 @@ export function EventHistoryModal({
                   <button
                     type="button"
                     className={`segment${!impactOpen ? " active" : ""}`}
+                    onPointerDown={(event) => {
+                      if (event.button !== 0) return;
+                      // Update the visual state immediately on press (click only fires on release).
+                      setImpactOpen(false);
+                    }}
                     onClick={() => setImpactOpen(false)}
                     aria-pressed={!impactOpen}
                   >
@@ -1748,6 +1753,11 @@ export function EventHistoryModal({
                   <button
                     type="button"
                     className={`segment${impactOpen ? " active" : ""}`}
+                    onPointerDown={(event) => {
+                      if (event.button !== 0) return;
+                      // Update the visual state immediately on press (click only fires on release).
+                      openImpact();
+                    }}
                     onClick={openImpact}
                     aria-pressed={impactOpen}
                   >
