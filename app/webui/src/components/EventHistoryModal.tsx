@@ -1109,10 +1109,10 @@ export function EventHistoryModal({
     if (!anchor) return null;
     const anchorMs = anchor.ms;
 
-    const offsetMinutes = (impactNowMs - anchorMs) / 60_000;
+    const offsetMinutesRaw = (impactNowMs - anchorMs) / 60_000;
     const minOffset = impactChart.offsets[0] ?? -1440;
     const maxOffset = impactChart.offsets[impactChart.offsets.length - 1] ?? 1440;
-    const offsetMinutesClamped = Math.max(minOffset, Math.min(maxOffset, offsetMinutes));
+    const offsetMinutesClamped = Math.max(minOffset, Math.min(maxOffset, offsetMinutesRaw));
 
     const x = impactChart.xForOffsetContinuous(offsetMinutesClamped);
 
@@ -1137,13 +1137,9 @@ export function EventHistoryModal({
     }
     const y = impactChart.yForClamped(median);
 
-    // Label: show time-to-event when upcoming; otherwise time since.
-    const minutesAbs = Math.round(Math.abs(anchor.delta) / 60_000);
-    const hours = Math.floor(minutesAbs / 60);
-    const minutes = minutesAbs % 60;
-    const rel =
-      hours > 0 ? `${hours}h ${minutes.toString().padStart(2, "0")}m` : `${minutesAbs}m`;
-    const label = anchor.delta >= 0 ? `LIVE in ${rel}` : `LIVE +${rel}`;
+    // Label: signed time relative to the next/nearest scheduled occurrence.
+    // Future => negative (e.g. -22h 36m), past => positive (e.g. +48m).
+    const label = formatTimeOffsetMinutes(offsetMinutesRaw);
 
     return { x, y, label };
   }, [effectiveCalendarOffsetMinutes, impactChart, impactNowMs, impactOpen, impactPanel, points]);
