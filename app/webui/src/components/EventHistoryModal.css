@@ -907,9 +907,20 @@
   pointer-events: none;
 }
 
-.impact-now line {
+.impact-now-underlay {
+  stroke: rgba(255, 255, 255, 0.92);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 6 10;
+}
+
+[data-theme="dark"] .impact-now-underlay {
+  stroke: rgba(18, 22, 30, 0.85);
+}
+
+.impact-now-line {
   /* Use the chart's orange accent (same family as the median line) for immediate meaning. */
-  stroke: rgba(255, 143, 123, 0.7);
+  stroke: rgba(255, 143, 123, 0.75);
   stroke-width: 2;
   stroke-linecap: round;
   stroke-dasharray: 6 10;
@@ -939,11 +950,22 @@
   font-size: 10px;
   font-weight: 750;
   letter-spacing: 0.16em;
-  fill: rgba(255, 143, 123, 0.92);
+  fill: rgba(255, 143, 123, 0.95);
 }
 
-[data-theme="light"] .impact-now-tag {
-  fill: rgba(30, 75, 143, 0.7);
+.impact-now-label rect {
+  fill: rgba(255, 255, 255, 0.92);
+  stroke: rgba(255, 143, 123, 0.28);
+  stroke-width: 1;
+}
+
+[data-theme="dark"] .impact-now-label rect {
+  fill: rgba(18, 22, 30, 0.78);
+  stroke: rgba(255, 143, 123, 0.35);
+}
+
+[data-theme="dark"] .impact-now-tag {
+  fill: rgba(255, 143, 123, 0.92);
 }
 
 @keyframes impact-now-pulse {

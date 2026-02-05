@@ -1130,7 +1130,16 @@ export function EventHistoryModal({
       median = vL + t * (vR - vL);
     }
     const y = impactChart.yForClamped(median);
-    return { x, y };
+
+    // Label: show time-to-event when upcoming; otherwise time since.
+    const minutesAbs = Math.round(Math.abs(anchor.delta) / 60_000);
+    const hours = Math.floor(minutesAbs / 60);
+    const minutes = minutesAbs % 60;
+    const rel =
+      hours > 0 ? `${hours}h ${minutes.toString().padStart(2, "0")}m` : `${minutesAbs}m`;
+    const label = anchor.delta >= 0 ? `LIVE in ${rel}` : `LIVE +${rel}`;
+
+    return { x, y, label };
   }, [impactChart, impactNowMs, impactOpen, impactPanel, points]);
 
   useEffect(() => {
@@ -2195,6 +2204,26 @@ export function EventHistoryModal({
                                     <path d={impactChart.bandPath} vectorEffect="non-scaling-stroke" />
                                   ) : null}
                                 </g>
+                                {impactNowMarker ? (
+                                  <g className="impact-now" aria-hidden="true">
+                                    <line
+                                      className="impact-now-underlay"
+                                      x1={Math.round(impactNowMarker.x) + 0.5}
+                                      x2={Math.round(impactNowMarker.x) + 0.5}
+                                      y1={impactChart.padding.top}
+                                      y2={impactChart.height - impactChart.padding.bottom}
+                                      vectorEffect="non-scaling-stroke"
+                                    />
+                                    <line
+                                      className="impact-now-line"
+                                      x1={Math.round(impactNowMarker.x) + 0.5}
+                                      x2={Math.round(impactNowMarker.x) + 0.5}
+                                      y1={impactChart.padding.top}
+                                      y2={impactChart.height - impactChart.padding.bottom}
+                                      vectorEffect="non-scaling-stroke"
+                                    />
+                                  </g>
+                                ) : null}
                                 <g className="impact-line">
                                   {impactChart.linePath ? (
                                     <path d={impactChart.linePath} vectorEffect="non-scaling-stroke" />
@@ -2202,13 +2231,6 @@ export function EventHistoryModal({
                                 </g>
                                 {impactNowMarker ? (
                                   <g className="impact-now" aria-hidden="true">
-                                    <line
-                                      x1={Math.round(impactNowMarker.x) + 0.5}
-                                      x2={Math.round(impactNowMarker.x) + 0.5}
-                                      y1={impactChart.padding.top}
-                                      y2={impactChart.height - impactChart.padding.bottom}
-                                      vectorEffect="non-scaling-stroke"
-                                    />
                                     <circle
                                       className="impact-now-pulse"
                                       cx={impactNowMarker.x}
@@ -2223,14 +2245,6 @@ export function EventHistoryModal({
                                       r={4.6}
                                       vectorEffect="non-scaling-stroke"
                                     />
-                                    <text
-                                      className="impact-now-tag"
-                                      x={impactNowMarker.x}
-                                      y={impactChart.height - impactChart.padding.bottom + 18}
-                                      textAnchor="middle"
-                                    >
-                                      LIVE
-                                    </text>
                                   </g>
                                 ) : null}
                                 {impactHover ? (
@@ -2246,6 +2260,34 @@ export function EventHistoryModal({
                                 ) : null}
                               </g>
                               <g className="impact-labels">
+                                {impactNowMarker ? (
+                                  (() => {
+                                    const text = impactNowMarker.label;
+                                    // Approximate width: 6.6px per char at 10px font-size + padding.
+                                    const w = Math.min(
+                                      140,
+                                      Math.max(44, Math.round(text.length * 6.6 + 18))
+                                    );
+                                    const h = 18;
+                                    const x = impactNowMarker.x;
+                                    const y = impactChart.height - impactChart.padding.bottom + 18;
+                                    return (
+                                      <g className="impact-now-label" aria-hidden="true">
+                                        <rect
+                                          x={Math.round(x - w / 2)}
+                                          y={Math.round(y - h + 4)}
+                                          width={w}
+                                          height={h}
+                                          rx={9}
+                                          ry={9}
+                                        />
+                                        <text x={x} y={y} textAnchor="middle" className="impact-now-tag">
+                                          {text}
+                                        </text>
+                                      </g>
+                                    );
+                                  })()
+                                ) : null}
                                 {(() => {
                                   const minGap = 14;
                                   const baseline = impactChart.height - impactChart.padding.bottom + 0.5;
