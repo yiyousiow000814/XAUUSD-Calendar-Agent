@@ -155,6 +155,8 @@
   text-transform: none;
   letter-spacing: 0.08em;
   font-weight: 650;
+  /* Make the active background snap immediately (avoid a "late" blue on click). */
+  transition: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
