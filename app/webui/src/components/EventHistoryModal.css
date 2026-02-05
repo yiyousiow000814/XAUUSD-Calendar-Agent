@@ -908,25 +908,57 @@
 }
 
 .impact-now line {
-  stroke: rgba(15, 23, 42, 0.55);
+  /* Use the chart's orange accent (same family as the median line) for immediate meaning. */
+  stroke: rgba(255, 143, 123, 0.7);
   stroke-width: 2;
   stroke-linecap: round;
   stroke-dasharray: 6 10;
 }
 
-[data-theme="dark"] .impact-now line {
-  stroke: rgba(255, 255, 255, 0.55);
-}
-
-.impact-now circle {
-  fill: rgba(15, 23, 42, 0.78);
-  stroke: rgba(255, 255, 255, 0.86);
+.impact-now-core {
+  fill: #ff8f7b;
+  stroke: rgba(255, 255, 255, 0.92);
   stroke-width: 1.6;
 }
 
-[data-theme="dark"] .impact-now circle {
-  fill: rgba(255, 255, 255, 0.72);
-  stroke: rgba(18, 22, 30, 0.88);
+[data-theme="light"] .impact-now-core {
+  stroke: rgba(15, 23, 42, 0.28);
+}
+
+.impact-now-pulse {
+  fill: none;
+  stroke: rgba(255, 143, 123, 0.65);
+  stroke-width: 2;
+  opacity: 0.75;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: impact-now-pulse 1.35s var(--motion-ease) infinite;
+}
+
+.impact-now-tag {
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.16em;
+  fill: rgba(255, 143, 123, 0.92);
+}
+
+[data-theme="light"] .impact-now-tag {
+  fill: rgba(30, 75, 143, 0.7);
+}
+
+@keyframes impact-now-pulse {
+  0% {
+    transform: scale(0.86);
+    opacity: 0.55;
+  }
+  55% {
+    transform: scale(1.05);
+    opacity: 0.28;
+  }
+  100% {
+    transform: scale(1.18);
+    opacity: 0;
+  }
 }
 
 .impact-labels text {

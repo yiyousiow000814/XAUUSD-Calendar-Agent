@@ -2210,11 +2210,27 @@ export function EventHistoryModal({
                                       vectorEffect="non-scaling-stroke"
                                     />
                                     <circle
+                                      className="impact-now-pulse"
+                                      cx={impactNowMarker.x}
+                                      cy={impactNowMarker.y}
+                                      r={9.5}
+                                      vectorEffect="non-scaling-stroke"
+                                    />
+                                    <circle
+                                      className="impact-now-core"
                                       cx={impactNowMarker.x}
                                       cy={impactNowMarker.y}
                                       r={4.6}
                                       vectorEffect="non-scaling-stroke"
                                     />
+                                    <text
+                                      className="impact-now-tag"
+                                      x={impactNowMarker.x}
+                                      y={impactChart.height - impactChart.padding.bottom + 18}
+                                      textAnchor="middle"
+                                    >
+                                      LIVE
+                                    </text>
                                   </g>
                                 ) : null}
                                 {impactHover ? (
