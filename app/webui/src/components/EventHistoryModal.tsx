@@ -506,6 +506,9 @@ export function EventHistoryModal({
   const openImpact = useCallback(() => {
     if (impactOpen) return;
 
+    // Flip the visual state immediately (click only fires on release; this avoids a perceived "lag").
+    setImpactOpen(true);
+
     // Avoid seeding from the History chart; its size can be smaller and cause a flash.
 
     if (isUsdEvent && impactPanel === "event" && eventId) {
@@ -521,8 +524,6 @@ export function EventHistoryModal({
         setImpactLoading(true);
       }
     }
-
-    setImpactOpen(true);
 
     // Also try measuring the Impact viewport right after it mounts. This fixes a Tauri-specific case
     // where ResizeObserver may not fire immediately on first open, leading to a blank chart until re-toggle.
@@ -1740,6 +1741,11 @@ export function EventHistoryModal({
                   <button
                     type="button"
                     className={`segment${!impactOpen ? " active" : ""}`}
+                    onPointerDown={(event) => {
+                      if (event.button !== 0) return;
+                      // Update the visual state immediately on press (click only fires on release).
+                      setImpactOpen(false);
+                    }}
                     onClick={() => setImpactOpen(false)}
                     aria-pressed={!impactOpen}
                   >
@@ -1748,6 +1754,11 @@ export function EventHistoryModal({
                   <button
                     type="button"
                     className={`segment${impactOpen ? " active" : ""}`}
+                    onPointerDown={(event) => {
+                      if (event.button !== 0) return;
+                      // Update the visual state immediately on press (click only fires on release).
+                      openImpact();
+                    }}
                     onClick={openImpact}
                     aria-pressed={impactOpen}
                   >
