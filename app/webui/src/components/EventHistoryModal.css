@@ -537,12 +537,13 @@
 }
 
 .history-impact-segmented .segment:not(.active):hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text);
+  /* Keep hover neutral; only the active slider indicates selection. */
+  background: transparent;
+  color: inherit;
 }
 
 [data-theme="light"] .history-impact-segmented .segment:not(.active):hover {
-  background: rgba(15, 23, 42, 0.05);
+  background: transparent;
 }
 
 .history-impact-segmented .impact-badge {
