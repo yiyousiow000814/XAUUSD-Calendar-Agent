@@ -610,7 +610,7 @@
 }
 
 /* Impact bucket pills: selected state should NOT tint the whole pill (avoid the light-blue fill).
-   Keep selected styling identical to the default pill (no active visuals).
+   Keep the pill background neutral; only add a blue outline + badge fill after click (on release).
    Use theme-qualified selectors to override [data-theme="light"] .history-toggle.active. */
 [data-theme="light"] .history-toggle.impact-bucket-toggle.active,
 [data-theme="dark"] .history-toggle.impact-bucket-toggle.active {
@@ -618,6 +618,14 @@
   border-color: var(--pill-border);
   box-shadow: inset 0 0 0 1px var(--pill-shadow);
   color: var(--muted);
+}
+
+[data-theme="light"] .history-toggle.impact-bucket-toggle.active {
+  border-color: rgba(30, 75, 143, 0.32);
+}
+
+[data-theme="dark"] .history-toggle.impact-bucket-toggle.active {
+  border-color: rgba(134, 201, 255, 0.45);
 }
 
 [data-theme="light"] .history-toggle.impact-bucket-toggle.active:hover,
@@ -768,16 +776,15 @@
 
 /* Selected impact bucket: turn the count badge into the app's standard active blue. */
 .history-toggle.impact-bucket-toggle.active .impact-badge {
-  /* Keep the badge identical to the default (no active visuals). */
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.18);
-  color: rgba(255, 255, 255, 0.82);
+  background: rgba(134, 201, 255, 0.12);
+  border-color: rgba(134, 201, 255, 0.35);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 [data-theme="light"] .history-toggle.impact-bucket-toggle.active .impact-badge {
-  background: rgba(0, 0, 0, 0.04);
-  border-color: rgba(0, 0, 0, 0.16);
-  color: rgba(15, 23, 42, 0.78);
+  background: var(--select-active-bg);
+  border-color: rgba(30, 75, 143, 0.28);
+  color: rgba(15, 23, 42, 0.82);
 }
 
 .impact-chart-meta-item {
