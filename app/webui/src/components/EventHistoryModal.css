@@ -560,6 +560,9 @@
   border-color: rgba(255, 255, 255, 0.14);
   box-shadow: none;
   color: var(--text);
+  position: relative;
+  z-index: 0;
+  overflow: visible;
 }
 
 .history-toggle.impact-bucket-toggle:hover {
@@ -572,7 +575,7 @@
 .history-toggle.impact-bucket-toggle.active:hover {
   /* Keep active state visually stable (avoid the badge looking like it "brightens" on hover). */
   border-color: rgba(255, 255, 255, 0.3);
-  background: rgba(18, 22, 30, 0.78);
+  background-color: rgba(24, 30, 40, 0.78);
 }
 
 .history-toggle.impact-bucket-toggle:active {
@@ -581,9 +584,12 @@
 }
 
 .history-toggle.impact-bucket-toggle.active {
-  background: rgba(18, 22, 30, 0.78);
-  border-color: rgba(255, 255, 255, 0.3);
-  color: var(--text-strong);
+  /* Subtle active tint (avoid full solid fill). Bucket-specific accents are added via background-image. */
+  background-color: rgba(24, 30, 40, 0.78);
+  background-image: none;
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow: none;
+  color: #fff;
 }
 
 [data-theme="light"] .history-toggle.impact-bucket-toggle {
@@ -599,7 +605,7 @@
 
 [data-theme="light"] .history-toggle.impact-bucket-toggle.active:hover {
   border-color: rgba(18, 20, 26, 0.55);
-  background: rgba(255, 255, 255, 0.98);
+  background-color: rgba(255, 255, 255, 0.98);
 }
 
 [data-theme="light"] .history-toggle.impact-bucket-toggle:active {
@@ -607,45 +613,42 @@
 }
 
 [data-theme="light"] .history-toggle.impact-bucket-toggle.active {
-  background: rgba(255, 255, 255, 0.98);
-  border-color: rgba(18, 20, 26, 0.55);
+  background-color: rgba(255, 255, 255, 0.98);
+  background-image: none;
+  border-color: rgba(18, 20, 26, 0.32);
+  box-shadow: none;
+  color: rgba(15, 23, 42, 0.98);
+}
+
+/* Bucket buttons (A > Prev / A < Prev / A = Prev): use orange outline for active
+   so active != hover, while staying consistent with the app's accent. */
+.history-toggle.impact-bucket-toggle.active[data-bucket] {
+  border-color: rgba(255, 106, 61, 0.85); /* #ff6a3d */
+  background-image: none;
+}
+
+[data-theme="light"] .history-toggle.impact-bucket-toggle.active[data-bucket] {
+  border-color: rgba(255, 106, 61, 0.72);
+}
+
+.history-toggle.impact-bucket-toggle.active[data-bucket] .impact-badge {
+  border-color: rgba(255, 106, 61, 0.45);
+}
+
+[data-theme="light"] .history-toggle.impact-bucket-toggle.active[data-bucket] .impact-badge {
+  border-color: rgba(255, 106, 61, 0.38);
+}
+
+
+.impact-bucket-toggle.active .impact-badge {
   color: rgba(15, 23, 42, 0.92);
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(255, 255, 255, 0.32);
 }
 
-.impact-bucket-toggle.active[data-bucket="lower"] {
-  border-color: rgba(255, 143, 123, 0.72);
-  box-shadow: 0 0 0 2px rgba(255, 143, 123, 0.16),
-    inset 0 0 0 1px var(--pill-shadow-hover);
-}
-
-.impact-bucket-toggle.active[data-bucket="neutral"] {
-  border-color: rgba(134, 201, 255, 0.72);
-  box-shadow: 0 0 0 2px rgba(134, 201, 255, 0.16),
-    inset 0 0 0 1px var(--pill-shadow-hover);
-}
-
-.impact-bucket-toggle.active[data-bucket="higher"] {
-  border-color: rgba(120, 255, 203, 0.68);
-  box-shadow: 0 0 0 2px rgba(120, 255, 203, 0.16),
-    inset 0 0 0 1px var(--pill-shadow-hover);
-}
-
-[data-theme="light"] .impact-bucket-toggle.active[data-bucket="lower"] {
-  border-color: rgba(255, 122, 85, 0.72);
-  box-shadow: 0 0 0 2px rgba(255, 122, 85, 0.16),
-    inset 0 0 0 1px var(--pill-shadow-hover);
-}
-
-[data-theme="light"] .impact-bucket-toggle.active[data-bucket="neutral"] {
-  border-color: rgba(30, 75, 143, 0.46);
-  box-shadow: 0 0 0 2px rgba(30, 75, 143, 0.16),
-    inset 0 0 0 1px var(--pill-shadow-hover);
-}
-
-[data-theme="light"] .impact-bucket-toggle.active[data-bucket="higher"] {
-  border-color: rgba(16, 160, 110, 0.52);
-  box-shadow: 0 0 0 2px rgba(16, 160, 110, 0.16),
-    inset 0 0 0 1px var(--pill-shadow-hover);
+[data-theme="light"] .impact-bucket-toggle.active .impact-badge {
+  background: rgba(15, 23, 42, 0.04);
+  border-color: rgba(15, 23, 42, 0.22);
 }
 
 .history-toggle:hover {
