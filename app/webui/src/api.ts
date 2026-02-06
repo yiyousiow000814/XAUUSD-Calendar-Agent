@@ -535,10 +535,14 @@ const buildMockEventImpactUsd = (payload: {
     const spread = 0.12 + 0.1 * norm;
     const upMedian = Math.abs(median) * 0.92;
     const downMedian = -Math.abs(median) * 1.04;
-    const upP10 = Math.max(1e-6, upMedian - spread * 0.55);
+    // Keep conditional bands on their natural side of 0 without hard clamps:
+    // choose a spread that can't cross 0 given the conditional median sign.
+    const upSpread = Math.min(spread * 0.55, Math.abs(upMedian) * 0.85);
+    const downSpread = Math.min(spread * 0.55, Math.abs(downMedian) * 0.85);
+    const upP10 = upMedian - upSpread;
     const upP90 = upMedian + spread * 0.6;
     const downP10 = downMedian - spread * 0.6;
-    const downP90 = Math.min(-1e-6, downMedian + spread * 0.55);
+    const downP90 = downMedian + downSpread;
     const bestDirection = median >= 0 ? "up" : "down";
     const pUp = bestDirection === "up" ? 0.63 : 0.37;
     const pDown = 1 - pUp;
