@@ -878,28 +878,28 @@
 
 .impact-band-90 path {
   /* Outermost band: lightest */
-  fill: rgba(15, 23, 42, 0.04);
+  fill: rgba(0, 0, 0, 0.04);
 }
 
 .impact-band-80 path {
-  fill: rgba(15, 23, 42, 0.06);
+  fill: rgba(0, 0, 0, 0.07);
 }
 
 .impact-band-50 path {
   /* Innermost band: darkest */
-  fill: rgba(15, 23, 42, 0.09);
+  fill: rgba(0, 0, 0, 0.11);
 }
 
 [data-theme="dark"] .impact-band-90 path {
-  fill: rgba(255, 255, 255, 0.08);
+  fill: rgba(255, 255, 255, 0.09);
 }
 
 [data-theme="dark"] .impact-band-80 path {
-  fill: rgba(255, 255, 255, 0.12);
+  fill: rgba(255, 255, 255, 0.14);
 }
 
 [data-theme="dark"] .impact-band-50 path {
-  fill: rgba(255, 255, 255, 0.18);
+  fill: rgba(255, 255, 255, 0.22);
 }
 
 .impact-line path {
