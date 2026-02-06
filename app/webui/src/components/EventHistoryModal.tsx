@@ -2504,7 +2504,9 @@ export function EventHistoryModal({
                                       );
 
                                       const yBase = (() => {
-                                        const dy = placeBelow ? 20 : -14;
+                                        // Keep labels far enough away that the series line doesn't visually run through
+                                        // the glyphs (we don't mask the line behind text).
+                                        const dy = placeBelow ? 30 : -24;
                                         const raw = y + dy;
                                         const top = impactChart.padding.top + 14;
                                         const bottom = impactChart.height - impactChart.padding.bottom - 8;
@@ -2547,7 +2549,8 @@ export function EventHistoryModal({
                                     }>
                                   ) => {
                                     if (group.length <= 1) return;
-                                    const lineGap = 18;
+                                    // Bigger than the text's ascender/descender so the line/band doesn't sit behind text.
+                                    const lineGap = 28;
                                     const clamp = (v: number) => Math.max(top, Math.min(bottom, v));
                                     const labelH = 14;
                                     const now = impactNowMarker;
