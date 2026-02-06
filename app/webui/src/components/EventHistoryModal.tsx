@@ -2379,24 +2379,6 @@ export function EventHistoryModal({
                                         )
                                       : null}
                                 </g>
-                                {impactNowMarker ? (
-                                  <g className="impact-now" aria-hidden="true">
-                                    <circle
-                                      className="impact-now-pulse"
-                                      cx={impactNowMarker.x}
-                                      cy={impactNowMarker.y}
-                                      r={9.5}
-                                      vectorEffect="non-scaling-stroke"
-                                    />
-                                    <circle
-                                      className="impact-now-core"
-                                      cx={impactNowMarker.x}
-                                      cy={impactNowMarker.y}
-                                      r={4.6}
-                                      vectorEffect="non-scaling-stroke"
-                                    />
-                                  </g>
-                                ) : null}
                                 {impactHover ? (
                                   <g className="impact-hover" aria-hidden="true">
                                     <line
@@ -2612,6 +2594,7 @@ export function EventHistoryModal({
                                     const direction = stats.best_direction === "up" ? "Up" : "Down";
                                     const pct = `${Math.round(stats.best_p * 100)}%`;
                                     const move = formatPct(dirMedian);
+                                    const labelText = `${direction} ${pct} (${move})`;
 
                                     const leftBound = impactChart.padding.left + 10;
                                     const rightBound = impactChart.width - impactChart.padding.right - 10;
@@ -2641,14 +2624,41 @@ export function EventHistoryModal({
                                         </g>
                                         {showLabel ? (
                                           <>
-                                            <text
-                                              className="impact-prob"
-                                              x={xText}
-                                              y={yText}
-                                              textAnchor={anchor}
-                                            >
-                                              {direction} {pct} ({move})
-                                            </text>
+                                            {(() => {
+                                              // Small backdrop so the chart line/band never visually cuts through the label.
+                                              const w = Math.min(
+                                                180,
+                                                Math.max(72, Math.round(labelText.length * 6.6 + 14))
+                                              );
+                                              const h = 18;
+                                              const padX = 6;
+                                              const xLeft =
+                                                anchor === "start"
+                                                  ? Math.round(xText - padX)
+                                                  : Math.round(xText - w + padX);
+                                              const yTop = Math.round(yText - h + 5);
+                                              return (
+                                                <g className="impact-prob-wrap" aria-hidden="true">
+                                                  <rect
+                                                    className="impact-prob-bg"
+                                                    x={xLeft}
+                                                    y={yTop}
+                                                    width={w}
+                                                    height={h}
+                                                    rx={6}
+                                                    ry={6}
+                                                  />
+                                                  <text
+                                                    className="impact-prob"
+                                                    x={xText}
+                                                    y={yText}
+                                                    textAnchor={anchor}
+                                                  >
+                                                    {labelText}
+                                                  </text>
+                                                </g>
+                                              );
+                                            })()}
                                           </>
                                         ) : null}
                                       </g>
@@ -2702,6 +2712,26 @@ export function EventHistoryModal({
                                   Median % change
                                 </text>
                               </g>
+                              {impactNowMarker ? (
+                                <g clipPath="url(#impact-clip)">
+                                  <g className="impact-now" aria-hidden="true">
+                                    <circle
+                                      className="impact-now-pulse"
+                                      cx={impactNowMarker.x}
+                                      cy={impactNowMarker.y}
+                                      r={9.5}
+                                      vectorEffect="non-scaling-stroke"
+                                    />
+                                    <circle
+                                      className="impact-now-core"
+                                      cx={impactNowMarker.x}
+                                      cy={impactNowMarker.y}
+                                      r={4.6}
+                                      vectorEffect="non-scaling-stroke"
+                                    />
+                                  </g>
+                                </g>
+                              ) : null}
                                   </svg>
                                 </div>
                             {impactHover ? (

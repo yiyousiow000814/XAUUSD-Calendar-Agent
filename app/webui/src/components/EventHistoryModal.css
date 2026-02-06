@@ -878,28 +878,28 @@
 
 .impact-band-90 path {
   /* Outermost band: lightest */
-  fill: rgba(0, 0, 0, 0.04);
+  fill: rgba(0, 0, 0, 0.03);
 }
 
 .impact-band-80 path {
-  fill: rgba(0, 0, 0, 0.07);
+  fill: rgba(0, 0, 0, 0.05);
 }
 
 .impact-band-50 path {
   /* Innermost band: darkest */
-  fill: rgba(0, 0, 0, 0.11);
+  fill: rgba(0, 0, 0, 0.07);
 }
 
 [data-theme="dark"] .impact-band-90 path {
-  fill: rgba(255, 255, 255, 0.09);
+  fill: rgba(255, 255, 255, 0.07);
 }
 
 [data-theme="dark"] .impact-band-80 path {
-  fill: rgba(255, 255, 255, 0.14);
+  fill: rgba(255, 255, 255, 0.1);
 }
 
 [data-theme="dark"] .impact-band-50 path {
-  fill: rgba(255, 255, 255, 0.22);
+  fill: rgba(255, 255, 255, 0.14);
 }
 
 .impact-line path {
@@ -1030,6 +1030,18 @@
   paint-order: stroke;
   stroke-width: 4.5;
   stroke-linejoin: round;
+}
+
+.impact-prob-wrap {
+  pointer-events: none;
+}
+
+.impact-prob-bg {
+  fill: rgba(255, 255, 255, 0.86);
+}
+
+[data-theme="dark"] .impact-prob-bg {
+  fill: rgba(18, 22, 30, 0.62);
 }
 
 [data-theme="dark"] .impact-prob {
