@@ -2767,12 +2767,57 @@ export function EventHistoryModal({
                                         item.yText = clamp(item.yText);
 
                                         // Ensure the line doesn't run through the label text (dynamic at render-time).
-                                        // Try a few pushes; if we hit bounds, we accept the best effort.
-                                        for (let tries = 0; tries < 3; tries += 1) {
-                                          const r = rectForLabel(item.xText, item.yText, item.anchor, item.labelW, labelH);
-                                          if (!hitsLine(r)) break;
-                                          const push = item.preferBelow ? minGap : -minGap;
-                                          item.yText = clamp(item.yText + push);
+                                        // Search for the *nearest* Y that avoids the line (and live marker), instead of
+                                        // repeatedly pushing by a large fixed amount (which can send labels too far).
+                                        {
+                                          const yTarget = item.yText;
+                                          let bestY = item.yText;
+                                          let bestPenalty = Number.POSITIVE_INFINITY;
+
+                                          const step = 6;
+                                          const maxSteps = 14; // ~84px
+                                          const deltas: number[] = [0];
+                                          for (let k = 1; k <= maxSteps; k += 1) {
+                                            deltas.push(k * step, -k * step);
+                                          }
+
+                                          for (const delta of deltas) {
+                                            const yCand = clamp(yTarget + delta);
+                                            const r = rectForLabel(
+                                              item.xText,
+                                              yCand,
+                                              item.anchor,
+                                              item.labelW,
+                                              labelH
+                                            );
+                                            const collidesLine = hitsLine(r);
+                                            const collidesNow = now
+                                              ? (() => {
+                                                  const nx0 = now.x - nowR;
+                                                  const nx1 = now.x + nowR;
+                                                  const ny0 = now.y - nowR;
+                                                  const ny1 = now.y + nowR;
+                                                  return r.x0 < nx1 && r.x1 > nx0 && r.y0 < ny1 && r.y1 > ny0;
+                                                })()
+                                              : false;
+
+                                            // Hard reject collisions first, but keep a best-effort fallback if needed.
+                                            const penalty =
+                                              (collidesLine ? 1_000_000 : 0) +
+                                              (collidesNow ? 1_000_000 : 0) +
+                                              Math.abs(delta) +
+                                              // Mild preference: keep the label on the intended side of the point.
+                                              (item.preferBelow ? Math.max(0, item.yPoint - yCand) : Math.max(0, yCand - item.yPoint)) *
+                                                3;
+
+                                            if (penalty < bestPenalty) {
+                                              bestPenalty = penalty;
+                                              bestY = yCand;
+                                              if (!collidesLine && !collidesNow && delta === 0) break;
+                                            }
+                                          }
+
+                                          item.yText = bestY;
                                         }
 
                                         // Keep labels away from the live-now dot (even though the dot is rendered above,
