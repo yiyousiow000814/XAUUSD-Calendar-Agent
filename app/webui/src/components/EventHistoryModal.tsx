@@ -848,10 +848,36 @@ export function EventHistoryModal({
     const lineValues: number[] = [];
     for (const item of items) {
       if (!item.stats || typeof item.stats.n !== "number" || item.stats.n <= 0) continue;
-      if (typeof item.stats.up_p10 === "number") bandValues.push(item.stats.up_p10);
-      if (typeof item.stats.up_p90 === "number") bandValues.push(item.stats.up_p90);
-      if (typeof item.stats.down_p10 === "number") bandValues.push(item.stats.down_p10);
-      if (typeof item.stats.down_p90 === "number") bandValues.push(item.stats.down_p90);
+      const s = item.stats;
+      // Back-compat: older analysis files only have p10/p50/p90 (no *_all fields).
+      // Use legacy quantiles when the newer "all-samples" ones are missing so the density band still renders.
+      const legacyP10 = typeof s.p10 === "number" ? s.p10 : null;
+      const legacyP50 = typeof s.p50 === "number" ? s.p50 : null;
+      const legacyP90 = typeof s.p90 === "number" ? s.p90 : null;
+
+      const p05All = typeof s.p05_all === "number" ? s.p05_all : legacyP10;
+      const p10All = typeof s.p10_all === "number" ? s.p10_all : legacyP10;
+      const p25All =
+        typeof s.p25_all === "number"
+          ? s.p25_all
+          : legacyP10 !== null && legacyP50 !== null
+            ? legacyP10 + (legacyP50 - legacyP10) * 0.5
+            : null;
+      const p75All =
+        typeof s.p75_all === "number"
+          ? s.p75_all
+          : legacyP50 !== null && legacyP90 !== null
+            ? legacyP50 + (legacyP90 - legacyP50) * 0.5
+            : null;
+      const p90All = typeof s.p90_all === "number" ? s.p90_all : legacyP90;
+      const p95All = typeof s.p95_all === "number" ? s.p95_all : legacyP90;
+
+      if (p05All !== null) bandValues.push(p05All);
+      if (p10All !== null) bandValues.push(p10All);
+      if (p25All !== null) bandValues.push(p25All);
+      if (p75All !== null) bandValues.push(p75All);
+      if (p90All !== null) bandValues.push(p90All);
+      if (p95All !== null) bandValues.push(p95All);
       if (typeof item.stats.best_median_pct === "number") {
         lineValues.push(item.stats.best_median_pct);
       }
@@ -991,19 +1017,38 @@ export function EventHistoryModal({
       if (!s || typeof s.n !== "number" || s.n <= 0) return null;
       const bestMedian = typeof s.best_median_pct === "number" ? s.best_median_pct : null;
       if (bestMedian === null) return null;
-      const upLow = typeof s.up_p10 === "number" ? s.up_p10 : null;
-      const upHigh = typeof s.up_p90 === "number" ? s.up_p90 : null;
-      const downLow = typeof s.down_p10 === "number" ? s.down_p10 : null;
-      const downHigh = typeof s.down_p90 === "number" ? s.down_p90 : null;
+      // Back-compat fallback to legacy p10/p50/p90 when *_all is missing.
+      const legacyP10 = typeof s.p10 === "number" ? s.p10 : null;
+      const legacyP50 = typeof s.p50 === "number" ? s.p50 : null;
+      const legacyP90 = typeof s.p90 === "number" ? s.p90 : null;
+
+      const p05All = typeof s.p05_all === "number" ? s.p05_all : legacyP10;
+      const p10All = typeof s.p10_all === "number" ? s.p10_all : legacyP10;
+      const p25All =
+        typeof s.p25_all === "number"
+          ? s.p25_all
+          : legacyP10 !== null && legacyP50 !== null
+            ? legacyP10 + (legacyP50 - legacyP10) * 0.5
+            : null;
+      const p75All =
+        typeof s.p75_all === "number"
+          ? s.p75_all
+          : legacyP50 !== null && legacyP90 !== null
+            ? legacyP50 + (legacyP90 - legacyP50) * 0.5
+            : null;
+      const p90All = typeof s.p90_all === "number" ? s.p90_all : legacyP90;
+      const p95All = typeof s.p95_all === "number" ? s.p95_all : legacyP90;
       medianByOffset.set(item.offset, bestMedian);
       return {
         offset: item.offset,
         x: xForOffset(item.offset),
         y: yFor(bestMedian),
-        upLow,
-        upHigh,
-        downLow,
-        downHigh,
+        p05All,
+        p10All,
+        p25All,
+        p75All,
+        p90All,
+        p95All,
         bestDirection: s.best_direction ?? null,
         bestP: typeof s.best_p === "number" ? s.best_p : null
       };
@@ -1025,23 +1070,22 @@ export function EventHistoryModal({
       )} ${lower.join(" ")} Z`;
     };
 
-    const upBandItems = bandPoints
-      .map((p) =>
-        typeof p.upLow === "number" && typeof p.upHigh === "number"
-          ? { x: p.x, low: p.upLow, high: p.upHigh }
-          : null
-      )
-      .filter(Boolean) as Array<{ x: number; low: number; high: number }>;
-    const downBandItems = bandPoints
-      .map((p) =>
-        typeof p.downLow === "number" && typeof p.downHigh === "number"
-          ? { x: p.x, low: p.downLow, high: p.downHigh }
-          : null
-      )
-      .filter(Boolean) as Array<{ x: number; low: number; high: number }>;
+    const makeItems = (lowKey: "p25All" | "p10All" | "p05All", highKey: "p75All" | "p90All" | "p95All") =>
+      bandPoints
+        .map((p) =>
+          typeof p[lowKey] === "number" && typeof p[highKey] === "number"
+            ? { x: p.x, low: p[lowKey] as number, high: p[highKey] as number }
+            : null
+        )
+        .filter(Boolean) as Array<{ x: number; low: number; high: number }>;
 
-    const upBandPath = buildBandPath(upBandItems, yFor);
-    const downBandPath = buildBandPath(downBandItems, yFor);
+    const band50Items = makeItems("p25All", "p75All");
+    const band80Items = makeItems("p10All", "p90All");
+    const band90Items = makeItems("p05All", "p95All");
+
+    const band50Path = buildBandPath(band50Items, yFor);
+    const band80Path = buildBandPath(band80Items, yFor);
+    const band90Path = buildBandPath(band90Items, yFor);
 
     const computeConfidence = (p: number | null | undefined) => {
       if (typeof p !== "number" || !Number.isFinite(p)) return 0;
@@ -1115,12 +1159,14 @@ export function EventHistoryModal({
       return /\bL\b/.test(normalized) && !/NaN|Infinity/.test(normalized);
     };
 
-    const upBandPathSafe = /NaN|Infinity/.test(upBandPath) ? "" : upBandPath;
-    const downBandPathSafe = /NaN|Infinity/.test(downBandPath) ? "" : downBandPath;
+    const band50PathSafe = /NaN|Infinity/.test(band50Path) ? "" : band50Path;
+    const band80PathSafe = /NaN|Infinity/.test(band80Path) ? "" : band80Path;
+    const band90PathSafe = /NaN|Infinity/.test(band90Path) ? "" : band90Path;
     const linePathSafe = /NaN|Infinity/.test(linePath) ? "" : linePath;
     const hasBand =
-      (upBandItems.length >= 2 && !!upBandPathSafe) ||
-      (downBandItems.length >= 2 && !!downBandPathSafe);
+      (band50Items.length >= 2 && !!band50PathSafe) ||
+      (band80Items.length >= 2 && !!band80PathSafe) ||
+      (band90Items.length >= 2 && !!band90PathSafe);
     const hasLine = lineSegments.length >= 1 && isDrawablePath(linePathSafe);
 
     const clampY = (y: number) =>
@@ -1149,8 +1195,9 @@ export function EventHistoryModal({
       xForOffset,
       xForOffsetContinuous,
       yFor,
-      upBandPath: upBandPathSafe,
-      downBandPath: downBandPathSafe,
+      band50Path: band50PathSafe,
+      band80Path: band80PathSafe,
+      band90Path: band90PathSafe,
       linePath: linePathSafe,
       lineSegments,
       lineStyleByOffset,
@@ -2166,7 +2213,7 @@ export function EventHistoryModal({
                                   </span>
                                   <span className="impact-chart-meta-sep">•</span>
                                   <span className="impact-chart-meta-item">
-                                    Bands: Up P10..P90 + Down P10..P90
+                                    Bands: P25..P75 (dark) + P10..P90 + P05..P95 (light)
                                   </span>
                                   <span className="impact-chart-meta-sep">•</span>
                                   <span className="impact-chart-meta-item">
@@ -2296,14 +2343,19 @@ export function EventHistoryModal({
                                 />
                               </g>
                                 <g clipPath="url(#impact-clip)">
-                                <g className="impact-band up">
-                                  {impactChart.upBandPath ? (
-                                    <path d={impactChart.upBandPath} vectorEffect="non-scaling-stroke" />
+                                <g className="impact-band impact-band-90">
+                                  {impactChart.band90Path ? (
+                                    <path d={impactChart.band90Path} vectorEffect="non-scaling-stroke" />
                                   ) : null}
                                 </g>
-                                <g className="impact-band down">
-                                  {impactChart.downBandPath ? (
-                                    <path d={impactChart.downBandPath} vectorEffect="non-scaling-stroke" />
+                                <g className="impact-band impact-band-80">
+                                  {impactChart.band80Path ? (
+                                    <path d={impactChart.band80Path} vectorEffect="non-scaling-stroke" />
+                                  ) : null}
+                                </g>
+                                <g className="impact-band impact-band-50">
+                                  {impactChart.band50Path ? (
+                                    <path d={impactChart.band50Path} vectorEffect="non-scaling-stroke" />
                                   ) : null}
                                 </g>
                                 {impactNowMarker ? (
@@ -2338,7 +2390,17 @@ export function EventHistoryModal({
                                           strokeWidth={seg.strokeWidth}
                                         />
                                       ))
-                                    : null}
+                                    : impactChart.linePath
+                                      ? (
+                                          <path
+                                            d={impactChart.linePath}
+                                            vectorEffect="non-scaling-stroke"
+                                            stroke="#ff8f7b"
+                                            strokeOpacity={0.85}
+                                            strokeWidth={2}
+                                          />
+                                        )
+                                      : null}
                                 </g>
                                 {impactNowMarker ? (
                                   <g className="impact-now" aria-hidden="true">

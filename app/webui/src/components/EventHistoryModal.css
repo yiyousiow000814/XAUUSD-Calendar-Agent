@@ -867,24 +867,26 @@
   stroke: rgba(15, 23, 42, 0.22);
 }
 
-.impact-band.up path {
-  fill: color-mix(in oklab, var(--success) 16%, transparent);
-  stroke: color-mix(in oklab, var(--success) 40%, transparent);
-  stroke-width: 1.1;
+.impact-band path {
+  /* Single neutral density band (no up/down coloring). */
+  fill: rgba(15, 23, 42, 0.12);
+  stroke: none;
 }
 
-.impact-band.down path {
-  fill: color-mix(in oklab, var(--danger) 14%, transparent);
-  stroke: color-mix(in oklab, var(--danger) 38%, transparent);
-  stroke-width: 1.1;
+[data-theme="dark"] .impact-band path {
+  fill: rgba(255, 255, 255, 0.16);
 }
 
-[data-theme="dark"] .impact-band.up path {
-  fill: color-mix(in oklab, var(--success) 18%, transparent);
+.impact-band-90 path {
+  opacity: 0.22;
 }
 
-[data-theme="dark"] .impact-band.down path {
-  fill: color-mix(in oklab, var(--danger) 16%, transparent);
+.impact-band-80 path {
+  opacity: 0.34;
+}
+
+.impact-band-50 path {
+  opacity: 0.5;
 }
 
 .impact-line path {

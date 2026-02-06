@@ -156,9 +156,13 @@ class WindowStats:
             return sorted_list[lo] * (1 - w) + sorted_list[hi] * w
 
         # Percentiles of *all* samples (kept for debugging / future UI).
+        p05_all = percentile(sorted_vals, 0.05)
         p10_all = percentile(sorted_vals, 0.10)
+        p25_all = percentile(sorted_vals, 0.25)
         p50_all = percentile(sorted_vals, 0.50)
+        p75_all = percentile(sorted_vals, 0.75)
         p90_all = percentile(sorted_vals, 0.90)
+        p95_all = percentile(sorted_vals, 0.95)
         p_up = self.up / n
         p_down = self.down / n
 
@@ -194,9 +198,13 @@ class WindowStats:
             "p10": p10,
             "p50": p50,
             "p90": p90,
+            "p05_all": p05_all,
             "p10_all": p10_all,
+            "p25_all": p25_all,
             "p50_all": p50_all,
+            "p75_all": p75_all,
             "p90_all": p90_all,
+            "p95_all": p95_all,
             "up_n": len(up_vals),
             "down_n": len(down_vals),
             "up_p10": up_p10,

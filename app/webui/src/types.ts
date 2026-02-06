@@ -69,6 +69,7 @@ export type EventImpactWindowStats = {
   p10?: number;
   p50?: number;
   p90?: number;
+  p05_all?: number;
   up_n?: number;
   down_n?: number;
   up_p10?: number | null;
@@ -80,6 +81,12 @@ export type EventImpactWindowStats = {
   best_direction?: "up" | "down";
   best_p?: number;
   best_median_pct?: number;
+  p10_all?: number;
+  p25_all?: number;
+  p50_all?: number;
+  p75_all?: number;
+  p90_all?: number;
+  p95_all?: number;
 };
 
 export type EventImpactResponse = {

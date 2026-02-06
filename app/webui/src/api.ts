@@ -514,6 +514,13 @@ const buildMockEventImpactUsd = (payload: {
         p10: 0,
         p50: 0,
         p90: 0,
+        p05_all: 0,
+        p10_all: 0,
+        p25_all: 0,
+        p50_all: 0,
+        p75_all: 0,
+        p90_all: 0,
+        p95_all: 0,
         up_n: 40,
         down_n: 40,
         up_p10: 0,
@@ -535,17 +542,26 @@ const buildMockEventImpactUsd = (payload: {
     const spread = 0.12 + 0.1 * norm;
     const upMedian = Math.abs(median) * 0.92;
     const downMedian = -Math.abs(median) * 1.04;
-    // Keep conditional bands on their natural side of 0 without hard clamps:
-    // choose a spread that can't cross 0 given the conditional median sign.
+    const bestDirection = median >= 0 ? "up" : "down";
+    const pUp = bestDirection === "up" ? 0.63 : 0.37;
+    const pDown = 1 - pUp;
+    // Mock all-sample distribution (used by the UI's density bands).
+    const allMedian = (pUp * upMedian + pDown * downMedian) / Math.max(1e-9, pUp + pDown);
+    const allSpread = spread * 0.9;
+    const p05All = allMedian - allSpread * 1.35;
+    const p10All = allMedian - allSpread * 1.0;
+    const p25All = allMedian - allSpread * 0.55;
+    const p75All = allMedian + allSpread * 0.55;
+    const p90All = allMedian + allSpread * 1.0;
+    const p95All = allMedian + allSpread * 1.35;
+
+    // Keep conditional stats in the mock (still used by tooltip), but UI may choose not to render them.
     const upSpread = Math.min(spread * 0.55, Math.abs(upMedian) * 0.85);
     const downSpread = Math.min(spread * 0.55, Math.abs(downMedian) * 0.85);
     const upP10 = upMedian - upSpread;
     const upP90 = upMedian + spread * 0.6;
     const downP10 = downMedian - spread * 0.6;
     const downP90 = downMedian + downSpread;
-    const bestDirection = median >= 0 ? "up" : "down";
-    const pUp = bestDirection === "up" ? 0.63 : 0.37;
-    const pDown = 1 - pUp;
     data[key] = {
       n: 80,
       p_up: pUp,
@@ -553,6 +569,13 @@ const buildMockEventImpactUsd = (payload: {
       p10: bestDirection === "up" ? upP10 : downP10,
       p50: bestDirection === "up" ? upMedian : downMedian,
       p90: bestDirection === "up" ? upP90 : downP90,
+      p05_all: p05All,
+      p10_all: p10All,
+      p25_all: p25All,
+      p50_all: allMedian,
+      p75_all: p75All,
+      p90_all: p90All,
+      p95_all: p95All,
       up_n: Math.round(80 * pUp),
       down_n: Math.round(80 * pDown),
       up_p10: upP10,

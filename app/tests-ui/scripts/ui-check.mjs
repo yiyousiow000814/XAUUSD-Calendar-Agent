@@ -1123,6 +1123,8 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
             const bestDir = swing > 0 ? "up" : "down";
             const pUp = swing > 0 ? 0.62 : 0.38;
             const pDown = 1 - pUp;
+            const allMedian = (pUp * upMedian + pDown * downMedian) / Math.max(1e-9, pUp + pDown);
+            const allSpread = 0.0015;
             return [
               String(offset),
               {
@@ -1132,6 +1134,13 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
                 p10: bestDir === "up" ? upP10 : downP10,
                 p50: bestDir === "up" ? upMedian : downMedian,
                 p90: bestDir === "up" ? upP90 : downP90,
+                p05_all: allMedian - allSpread * 1.35,
+                p10_all: allMedian - allSpread,
+                p25_all: allMedian - allSpread * 0.55,
+                p50_all: allMedian,
+                p75_all: allMedian + allSpread * 0.55,
+                p90_all: allMedian + allSpread,
+                p95_all: allMedian + allSpread * 1.35,
                 up_n: Math.round((28 + index * 2) * pUp),
                 down_n: Math.round((28 + index * 2) * pDown),
                 up_p10: upP10,
