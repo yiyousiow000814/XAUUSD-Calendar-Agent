@@ -2515,6 +2515,7 @@ export function EventHistoryModal({
 
                                       return {
                                         offset,
+                                        xPoint: x,
                                         xText,
                                         anchor,
                                         yText: yBase,
@@ -2525,6 +2526,7 @@ export function EventHistoryModal({
                                     })
                                     .filter(Boolean) as {
                                     offset: number;
+                                    xPoint: number;
                                     xText: number;
                                     anchor: "start" | "end";
                                     yText: number;
@@ -2649,6 +2651,7 @@ export function EventHistoryModal({
                                   const distribute = (
                                     group: Array<{
                                       offset: number;
+                                      xPoint: number;
                                       xText: number;
                                       anchor: "start" | "end";
                                       yText: number;
@@ -2657,13 +2660,101 @@ export function EventHistoryModal({
                                       labelW: number;
                                     }>
                                   ) => {
-                                    if (group.length <= 1) return;
+                                    if (!group.length) return;
                                     // Bigger than the text's ascender/descender so the line/band doesn't sit behind text.
                                     const lineGap = 28;
                                     const clamp = (v: number) => Math.max(top, Math.min(bottom, v));
                                     const labelH = 14;
                                     const now = impactNowMarker;
                                     const nowR = 12;
+
+                                    const leftBound = impactChart.padding.left + 10;
+                                    const rightBound = impactChart.width - impactChart.padding.right - 10;
+
+                                    const overlapsRect = (
+                                      a: { x0: number; y0: number; x1: number; y1: number },
+                                      b: { x0: number; y0: number; x1: number; y1: number }
+                                    ) =>
+                                      a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0;
+
+                                    const inflate = (
+                                      r: { x0: number; y0: number; x1: number; y1: number },
+                                      pad: number
+                                    ) => ({ x0: r.x0 - pad, y0: r.y0 - pad, x1: r.x1 + pad, y1: r.y1 + pad });
+
+                                    const hitsNow = (r: { x0: number; y0: number; x1: number; y1: number }) => {
+                                      if (!now) return false;
+                                      const n = { x0: now.x - nowR, y0: now.y - nowR, x1: now.x + nowR, y1: now.y + nowR };
+                                      return overlapsRect(r, n);
+                                    };
+
+                                    const buildCandidates = (item: (typeof group)[number]) => {
+                                      const preferRight = item.offset < 0;
+                                      const dxPrimary = preferRight ? [14, 22, 30] : [-14, -22, -30];
+                                      const dxFallback = preferRight ? [-14] : [14];
+                                      const dyPrimary = item.preferBelow ? [24, 36, 48] : [-20, -32, -44];
+                                      const dyFallback = item.preferBelow ? [-20, -32] : [24, 36];
+
+                                      const candidates: Array<{
+                                        xText: number;
+                                        yText: number;
+                                        anchor: "start" | "end";
+                                        edgePinned: boolean;
+                                        scoreBase: number;
+                                      }> = [];
+
+                                      const push = (dx: number, dy: number, edgePinned: boolean) => {
+                                        const anchor: "start" | "end" = dx >= 0 ? "start" : "end";
+                                        const xText = clamp(item.xPoint + dx, leftBound, rightBound);
+                                        const yText = clamp(item.yPoint + dy, top, bottom);
+                                        const r = rectForLabel(xText, yText, anchor, item.labelW, labelH);
+                                        // Keep fully inside the plot.
+                                        if (r.x0 < leftBound || r.x1 > rightBound) return;
+                                        if (r.y0 < top || r.y1 > bottom) return;
+                                        const dist = Math.abs(dx) * 0.8 + Math.abs(dy) * 1.1;
+                                        candidates.push({ xText, yText, anchor, edgePinned, scoreBase: dist });
+                                      };
+
+                                      for (const dx of dxPrimary) {
+                                        for (const dy of dyPrimary) push(dx, dy, false);
+                                      }
+                                      for (const dx of dxPrimary) {
+                                        for (const dy of dyFallback) push(dx, dy, false);
+                                      }
+                                      for (const dx of dxFallback) {
+                                        for (const dy of dyPrimary) push(dx, dy, false);
+                                      }
+
+                                      // Edge pinned fallback (high penalty) if everything else fails.
+                                      const xEdge = item.offset < 0 ? leftBound : rightBound;
+                                      const edgeAnchor: "start" | "end" = item.offset < 0 ? "start" : "end";
+                                      const yEdge = clamp(item.yPoint + (item.preferBelow ? 30 : -24), top, bottom);
+                                      candidates.push({ xText: xEdge, yText: yEdge, anchor: edgeAnchor, edgePinned: true, scoreBase: 220 });
+
+                                      // Sort by score, then by how close it stays to the preferred side.
+                                      candidates.sort((a, b) => a.scoreBase - b.scoreBase);
+                                      return candidates;
+                                    };
+
+                                    // Choose a near-by x/y/anchor per label first, then keep adjusting y to avoid collisions.
+                                    const placed: Array<{ x0: number; y0: number; x1: number; y1: number }> = [];
+                                    const order = [...group].sort((a, b) => Math.abs(a.offset) - Math.abs(b.offset));
+                                    for (const item of order) {
+                                      const cands = buildCandidates(item);
+                                      let chosen = cands[0] ?? null;
+                                      for (const cand of cands) {
+                                        const r = rectForLabel(cand.xText, cand.yText, cand.anchor, item.labelW, labelH);
+                                        if (hitsLine(r) || hitsNow(r)) continue;
+                                        if (placed.some((p) => overlapsRect(inflate(p, 6), inflate(r, 6)))) continue;
+                                        chosen = cand;
+                                        break;
+                                      }
+                                      if (!chosen) continue;
+                                      item.xText = chosen.xText;
+                                      item.yText = chosen.yText;
+                                      item.anchor = chosen.anchor;
+                                      placed.push(rectForLabel(item.xText, item.yText, item.anchor, item.labelW, labelH));
+                                    }
 
                                     // Run a couple of iterations: keep away from the line first, then solve overlaps.
                                     for (let iter = 0; iter < 2; iter += 1) {
@@ -2738,8 +2829,18 @@ export function EventHistoryModal({
                                   distribute(rightLabels);
 
                                   const yByOffset = new Map<number, number>();
+                                  const xByOffset = new Map<number, number>();
+                                  const anchorByOffset = new Map<number, "start" | "end">();
                                   for (const c of leftLabels) yByOffset.set(c.offset, c.yText);
                                   for (const c of rightLabels) yByOffset.set(c.offset, c.yText);
+                                  for (const c of leftLabels) {
+                                    xByOffset.set(c.offset, c.xText);
+                                    anchorByOffset.set(c.offset, c.anchor);
+                                  }
+                                  for (const c of rightLabels) {
+                                    xByOffset.set(c.offset, c.xText);
+                                    anchorByOffset.set(c.offset, c.anchor);
+                                  }
 
                                   return impactSeries.items.map((item) => {
                                     const offset = item.offset;
@@ -2765,10 +2866,14 @@ export function EventHistoryModal({
                                     const pct = `${Math.round(stats.best_p * 100)}%`;
                                     const move = formatPct(dirMedian);
 
-                                    const leftBound = impactChart.padding.left + 10;
-                                    const rightBound = impactChart.width - impactChart.padding.right - 10;
-                                    const xText = offset < 0 ? leftBound : rightBound;
-                                    const anchor: "start" | "end" = offset < 0 ? "start" : "end";
+                                    const fallbackLeft = impactChart.padding.left + 10;
+                                    const fallbackRight = impactChart.width - impactChart.padding.right - 10;
+                                    const xText = showLabel
+                                      ? xByOffset.get(offset) ?? (offset < 0 ? fallbackLeft : fallbackRight)
+                                      : offset < 0 ? fallbackLeft : fallbackRight;
+                                    const anchor: "start" | "end" = showLabel
+                                      ? anchorByOffset.get(offset) ?? (offset < 0 ? "start" : "end")
+                                      : offset < 0 ? "start" : "end";
                                     const yText = showLabel ? yByOffset.get(offset) ?? y : y;
 
                                     return (
