@@ -849,35 +849,13 @@ export function EventHistoryModal({
     for (const item of items) {
       if (!item.stats || typeof item.stats.n !== "number" || item.stats.n <= 0) continue;
       const s = item.stats;
-      // Back-compat: older analysis files only have p10/p50/p90 (no *_all fields).
-      // Use legacy quantiles when the newer "all-samples" ones are missing so the density band still renders.
-      const legacyP10 = typeof s.p10 === "number" ? s.p10 : null;
-      const legacyP50 = typeof s.p50 === "number" ? s.p50 : null;
-      const legacyP90 = typeof s.p90 === "number" ? s.p90 : null;
-
-      const p05All = typeof s.p05_all === "number" ? s.p05_all : legacyP10;
-      const p10All = typeof s.p10_all === "number" ? s.p10_all : legacyP10;
-      const p25All =
-        typeof s.p25_all === "number"
-          ? s.p25_all
-          : legacyP10 !== null && legacyP50 !== null
-            ? legacyP10 + (legacyP50 - legacyP10) * 0.5
-            : null;
-      const p75All =
-        typeof s.p75_all === "number"
-          ? s.p75_all
-          : legacyP50 !== null && legacyP90 !== null
-            ? legacyP50 + (legacyP90 - legacyP50) * 0.5
-            : null;
-      const p90All = typeof s.p90_all === "number" ? s.p90_all : legacyP90;
-      const p95All = typeof s.p95_all === "number" ? s.p95_all : legacyP90;
-
-      if (p05All !== null) bandValues.push(p05All);
-      if (p10All !== null) bandValues.push(p10All);
-      if (p25All !== null) bandValues.push(p25All);
-      if (p75All !== null) bandValues.push(p75All);
-      if (p90All !== null) bandValues.push(p90All);
-      if (p95All !== null) bandValues.push(p95All);
+      // Density band requires the all-samples quantiles. If missing (old cache), we simply don't draw it.
+      if (typeof s.p05_all === "number") bandValues.push(s.p05_all);
+      if (typeof s.p10_all === "number") bandValues.push(s.p10_all);
+      if (typeof s.p25_all === "number") bandValues.push(s.p25_all);
+      if (typeof s.p75_all === "number") bandValues.push(s.p75_all);
+      if (typeof s.p90_all === "number") bandValues.push(s.p90_all);
+      if (typeof s.p95_all === "number") bandValues.push(s.p95_all);
       if (typeof item.stats.best_median_pct === "number") {
         lineValues.push(item.stats.best_median_pct);
       }
@@ -1017,27 +995,13 @@ export function EventHistoryModal({
       if (!s || typeof s.n !== "number" || s.n <= 0) return null;
       const bestMedian = typeof s.best_median_pct === "number" ? s.best_median_pct : null;
       if (bestMedian === null) return null;
-      // Back-compat fallback to legacy p10/p50/p90 when *_all is missing.
-      const legacyP10 = typeof s.p10 === "number" ? s.p10 : null;
-      const legacyP50 = typeof s.p50 === "number" ? s.p50 : null;
-      const legacyP90 = typeof s.p90 === "number" ? s.p90 : null;
-
-      const p05All = typeof s.p05_all === "number" ? s.p05_all : legacyP10;
-      const p10All = typeof s.p10_all === "number" ? s.p10_all : legacyP10;
-      const p25All =
-        typeof s.p25_all === "number"
-          ? s.p25_all
-          : legacyP10 !== null && legacyP50 !== null
-            ? legacyP10 + (legacyP50 - legacyP10) * 0.5
-            : null;
-      const p75All =
-        typeof s.p75_all === "number"
-          ? s.p75_all
-          : legacyP50 !== null && legacyP90 !== null
-            ? legacyP50 + (legacyP90 - legacyP50) * 0.5
-            : null;
-      const p90All = typeof s.p90_all === "number" ? s.p90_all : legacyP90;
-      const p95All = typeof s.p95_all === "number" ? s.p95_all : legacyP90;
+      // Density band requires *_all quantiles. If missing (old cache), the band won't render for this point.
+      const p05All = typeof s.p05_all === "number" ? s.p05_all : null;
+      const p10All = typeof s.p10_all === "number" ? s.p10_all : null;
+      const p25All = typeof s.p25_all === "number" ? s.p25_all : null;
+      const p75All = typeof s.p75_all === "number" ? s.p75_all : null;
+      const p90All = typeof s.p90_all === "number" ? s.p90_all : null;
+      const p95All = typeof s.p95_all === "number" ? s.p95_all : null;
       medianByOffset.set(item.offset, bestMedian);
       return {
         offset: item.offset,
@@ -1353,8 +1317,21 @@ export function EventHistoryModal({
     const topPct = Math.max(8, Math.min(92, topPctRaw));
     const upP = typeof stats.p_up === "number" ? stats.p_up : null;
     const downP = typeof stats.p_down === "number" ? stats.p_down : null;
-    const upMove = typeof stats.up_p50 === "number" ? stats.up_p50 : null;
-    const downMove = typeof stats.down_p50 === "number" ? stats.down_p50 : null;
+    const legacyDirMedian = typeof stats.p50 === "number" ? stats.p50 : null;
+    // Back-compat: older analysis files don't have up_p50/down_p50; use the legacy direction-median
+    // for the best direction so the tooltip doesn't degrade to "-- --".
+    const upMove =
+      typeof stats.up_p50 === "number"
+        ? stats.up_p50
+        : stats.best_direction === "up"
+          ? legacyDirMedian
+          : null;
+    const downMove =
+      typeof stats.down_p50 === "number"
+        ? stats.down_p50
+        : stats.best_direction === "down"
+          ? legacyDirMedian
+          : null;
 
     return {
       x,
