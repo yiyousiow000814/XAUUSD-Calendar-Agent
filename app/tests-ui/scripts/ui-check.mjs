@@ -1114,10 +1114,10 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
             const median = swing / 100;
             const upMedian = Math.abs(median) * 0.92;
             const downMedian = -Math.abs(median) * 1.04;
-            const upP10 = upMedian - 0.0012;
+            const upP10 = Math.max(1e-6, upMedian - 0.0012);
             const upP90 = upMedian + 0.0016;
             const downP10 = downMedian - 0.0016;
-            const downP90 = downMedian + 0.0012;
+            const downP90 = Math.min(-1e-6, downMedian + 0.0012);
             const bestDir = swing > 0 ? "up" : "down";
             const pUp = swing > 0 ? 0.62 : 0.38;
             const pDown = 1 - pUp;

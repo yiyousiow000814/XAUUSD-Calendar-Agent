@@ -535,10 +535,10 @@ const buildMockEventImpactUsd = (payload: {
     const spread = 0.12 + 0.1 * norm;
     const upMedian = Math.abs(median) * 0.92;
     const downMedian = -Math.abs(median) * 1.04;
-    const upP10 = upMedian - spread * 0.55;
+    const upP10 = Math.max(1e-6, upMedian - spread * 0.55);
     const upP90 = upMedian + spread * 0.6;
     const downP10 = downMedian - spread * 0.6;
-    const downP90 = downMedian + spread * 0.55;
+    const downP90 = Math.min(-1e-6, downMedian + spread * 0.55);
     const bestDirection = median >= 0 ? "up" : "down";
     const pUp = bestDirection === "up" ? 0.63 : 0.37;
     const pDown = 1 - pUp;
