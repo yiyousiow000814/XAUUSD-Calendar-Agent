@@ -2535,6 +2535,115 @@ export function EventHistoryModal({
 
                                   const top = impactChart.padding.top + 14;
                                   const bottom = impactChart.height - impactChart.padding.bottom - 8;
+
+                                  // Build the polyline for the rendered "most likely" line (best_median_pct).
+                                  // We use it to place labels so the line never visually runs through glyphs.
+                                  const linePoints = impactSeries.items
+                                    .map((it) => {
+                                      if (it.offset === 0) {
+                                        return { x: impactChart.xForOffset(0), y: impactChart.yFor(0) };
+                                      }
+                                      const s = it.stats;
+                                      if (!s || typeof s.best_median_pct !== "number") return null;
+                                      return {
+                                        x: impactChart.xForOffset(it.offset),
+                                        y: impactChart.yFor(s.best_median_pct)
+                                      };
+                                    })
+                                    .filter(Boolean) as Array<{ x: number; y: number }>;
+
+                                  const rectForLabel = (
+                                    xText: number,
+                                    yText: number,
+                                    anchor: "start" | "end",
+                                    w: number,
+                                    h: number
+                                  ) => {
+                                    const x0 = anchor === "start" ? xText : xText - w;
+                                    const y0 = yText - h + 2;
+                                    return { x0, y0, x1: x0 + w, y1: y0 + h };
+                                  };
+
+                                  const segsIntersect = (
+                                    ax: number,
+                                    ay: number,
+                                    bx: number,
+                                    by: number,
+                                    cx: number,
+                                    cy: number,
+                                    dx: number,
+                                    dy: number
+                                  ) => {
+                                    const orient = (
+                                      x1: number,
+                                      y1: number,
+                                      x2: number,
+                                      y2: number,
+                                      x3: number,
+                                      y3: number
+                                    ) => (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1);
+                                    const onSeg = (
+                                      x1: number,
+                                      y1: number,
+                                      x2: number,
+                                      y2: number,
+                                      x3: number,
+                                      y3: number
+                                    ) =>
+                                      Math.min(x1, x2) - 1e-9 <= x3 &&
+                                      x3 <= Math.max(x1, x2) + 1e-9 &&
+                                      Math.min(y1, y2) - 1e-9 <= y3 &&
+                                      y3 <= Math.max(y1, y2) + 1e-9;
+                                    const o1 = orient(ax, ay, bx, by, cx, cy);
+                                    const o2 = orient(ax, ay, bx, by, dx, dy);
+                                    const o3 = orient(cx, cy, dx, dy, ax, ay);
+                                    const o4 = orient(cx, cy, dx, dy, bx, by);
+                                    if (o1 === 0 && onSeg(ax, ay, bx, by, cx, cy)) return true;
+                                    if (o2 === 0 && onSeg(ax, ay, bx, by, dx, dy)) return true;
+                                    if (o3 === 0 && onSeg(cx, cy, dx, dy, ax, ay)) return true;
+                                    if (o4 === 0 && onSeg(cx, cy, dx, dy, bx, by)) return true;
+                                    return (o1 > 0) !== (o2 > 0) && (o3 > 0) !== (o4 > 0);
+                                  };
+
+                                  const segmentHitsRect = (
+                                    ax: number,
+                                    ay: number,
+                                    bx: number,
+                                    by: number,
+                                    r: { x0: number; y0: number; x1: number; y1: number }
+                                  ) => {
+                                    // Quick reject by bbox.
+                                    const minX = Math.min(ax, bx);
+                                    const maxX = Math.max(ax, bx);
+                                    const minY = Math.min(ay, by);
+                                    const maxY = Math.max(ay, by);
+                                    if (maxX < r.x0 || minX > r.x1 || maxY < r.y0 || minY > r.y1) return false;
+
+                                    const inside =
+                                      (ax >= r.x0 && ax <= r.x1 && ay >= r.y0 && ay <= r.y1) ||
+                                      (bx >= r.x0 && bx <= r.x1 && by >= r.y0 && by <= r.y1);
+                                    if (inside) return true;
+
+                                    return (
+                                      segsIntersect(ax, ay, bx, by, r.x0, r.y0, r.x1, r.y0) ||
+                                      segsIntersect(ax, ay, bx, by, r.x1, r.y0, r.x1, r.y1) ||
+                                      segsIntersect(ax, ay, bx, by, r.x1, r.y1, r.x0, r.y1) ||
+                                      segsIntersect(ax, ay, bx, by, r.x0, r.y1, r.x0, r.y0)
+                                    );
+                                  };
+
+                                  const hitsLine = (r: { x0: number; y0: number; x1: number; y1: number }) => {
+                                    // Inflate a bit so the line doesn't graze text.
+                                    const pad = 6;
+                                    const rr = { x0: r.x0 - pad, y0: r.y0 - pad, x1: r.x1 + pad, y1: r.y1 + pad };
+                                    for (let i = 1; i < linePoints.length; i += 1) {
+                                      const a = linePoints[i - 1];
+                                      const b = linePoints[i];
+                                      if (segmentHitsRect(a.x, a.y, b.x, b.y, rr)) return true;
+                                    }
+                                    return false;
+                                  };
+
                                   // Keep enough baseline spacing so labels never overlap even with ascent/descent.
                                   const minGap = 26;
                                   const distribute = (
@@ -2565,6 +2674,15 @@ export function EventHistoryModal({
                                           item.yText = Math.min(item.yText, item.yPoint - lineGap);
                                         }
                                         item.yText = clamp(item.yText);
+
+                                        // Ensure the line doesn't run through the label text (dynamic at render-time).
+                                        // Try a few pushes; if we hit bounds, we accept the best effort.
+                                        for (let tries = 0; tries < 3; tries += 1) {
+                                          const r = rectForLabel(item.xText, item.yText, item.anchor, item.labelW, labelH);
+                                          if (!hitsLine(r)) break;
+                                          const push = item.preferBelow ? minGap : -minGap;
+                                          item.yText = clamp(item.yText + push);
+                                        }
 
                                         // Keep labels away from the live-now dot (even though the dot is rendered above,
                                         // overlap still looks messy).
