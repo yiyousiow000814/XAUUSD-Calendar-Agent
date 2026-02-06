@@ -1,5 +1,5 @@
 {
-  "generated_at": "05-02-2026 15:48",
+  "generated_at": "06-02-2026 15:49",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -452,90 +452,6 @@
       "date": "2026-01-03",
       "time": "04:30",
       "cutoff": "30-01-2026 03:20"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::Initial Jobless Claims::none",
-      "cur": "USD",
-      "event": "Initial Jobless Claims",
-      "period": "",
-      "date": "2026-02-12",
-      "time": "21:30",
-      "previous_raw": "",
-      "prior_actual": "231K",
-      "previous_effective": "231K"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::Jobless Claims 4-Week Avg.::none",
-      "cur": "USD",
-      "event": "Jobless Claims 4-Week Avg.",
-      "period": "",
-      "date": "2026-02-12",
-      "time": "21:30",
-      "previous_raw": "",
-      "prior_actual": "212.25K",
-      "previous_effective": "212.25K"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::Natural Gas Storage::none",
-      "cur": "USD",
-      "event": "Natural Gas Storage",
-      "period": "",
-      "date": "2026-02-12",
-      "time": "23:30",
-      "previous_raw": "",
-      "prior_actual": "-360B",
-      "previous_effective": "-360B"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::Continuing Jobless Claims::none",
-      "cur": "USD",
-      "event": "Continuing Jobless Claims",
-      "period": "",
-      "date": "2026-02-12",
-      "time": "21:30",
-      "previous_raw": "",
-      "prior_actual": "1,844K",
-      "previous_effective": "1,844K"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::4-Week Bill Auction::none",
-      "cur": "USD",
-      "event": "4-Week Bill Auction",
-      "period": "",
-      "date": "2026-02-13",
-      "time": "00:30",
-      "previous_raw": "",
-      "prior_actual": "3.630%",
-      "previous_effective": "3.630%"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::8-Week Bill Auction::none",
-      "cur": "USD",
-      "event": "8-Week Bill Auction",
-      "period": "",
-      "date": "2026-02-13",
-      "time": "00:30",
-      "previous_raw": "",
-      "prior_actual": "3.635%",
-      "previous_effective": "3.635%"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "TRY::Gross FX Reserves::none",
-      "cur": "TRY",
-      "event": "Gross FX Reserves",
-      "period": "",
-      "date": "2026-02-12",
-      "time": "19:30",
-      "previous_raw": "",
-      "prior_actual": "84.41B",
-      "previous_effective": "84.41B"
     },
     {
       "issue": "previous_missing_filled",
