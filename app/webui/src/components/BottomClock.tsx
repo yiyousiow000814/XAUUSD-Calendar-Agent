@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { useEffect, useMemo, useState } from "react";
 import type { Settings } from "../types";
 import { formatUtcOffset, getEffectiveCalendarUtcOffsetMinutes } from "../utils/calendarTime";
 import "./BottomClock.css";

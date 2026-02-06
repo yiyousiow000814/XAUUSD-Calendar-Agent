@@ -208,6 +208,7 @@ export function HistoryPanel({
   impactFilter,
   onOpenHistory
 }: HistoryPanelProps) {
+  const [nowMs, setNowMs] = useState(() => Date.now());
   const rangeStorageKey = "xauusd:history:range";
   const scrollStorageKey = "xauusd:scroll:history";
   const [range, setRange] = useState<HistoryRange>(() => {
@@ -269,14 +270,21 @@ export function HistoryPanel({
     };
   }, []);
 
+  useEffect(() => {
+    // Keep system timezone offsets (DST) fresh for long-running sessions.
+    setNowMs(Date.now());
+    const interval = window.setInterval(() => setNowMs(Date.now()), 60_000);
+    return () => window.clearInterval(interval);
+  }, []);
+
   const effectiveOffsetMinutes = useMemo(
     () =>
       getEffectiveCalendarUtcOffsetMinutes({
         calendarTimezoneMode,
         calendarUtcOffsetMinutes,
-        nowMs: Date.now()
+        nowMs
       }),
-    [calendarTimezoneMode, calendarUtcOffsetMinutes]
+    [calendarTimezoneMode, calendarUtcOffsetMinutes, nowMs]
   );
 
   const view = useMemo(() => {
