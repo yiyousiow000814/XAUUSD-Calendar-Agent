@@ -2472,12 +2472,18 @@ export function EventHistoryModal({
                                       if (!stats || typeof stats.n !== "number" || stats.n <= 0) return null;
                                       if (typeof stats.best_p !== "number" || !stats.best_direction) return null;
 
-                                      const median =
-                                        typeof stats.best_median_pct === "number"
+                                      const dirMedian = (() => {
+                                        if (stats.best_direction === "up") {
+                                          if (typeof stats.up_p50 === "number") return stats.up_p50;
+                                        } else if (stats.best_direction === "down") {
+                                          if (typeof stats.down_p50 === "number") return stats.down_p50;
+                                        }
+                                        return typeof stats.best_median_pct === "number"
                                           ? stats.best_median_pct
                                           : 0;
+                                      })();
                                       const x = impactChart.xForOffset(offset);
-                                      const y = impactChart.yFor(median);
+                                      const y = impactChart.yFor(dirMedian);
 
                                       const absOffset = Math.abs(offset);
                                       const placeBelow = absOffset <= 60;
@@ -2488,6 +2494,14 @@ export function EventHistoryModal({
                                       // Keep static labels off the line: pin them to chart edges.
                                       const xText = offset < 0 ? leftBound : rightBound;
                                       const anchor: "start" | "end" = offset < 0 ? "start" : "end";
+                                      const direction = stats.best_direction === "up" ? "Up" : "Down";
+                                      const pct = `${Math.round(stats.best_p * 100)}%`;
+                                      const move = formatPct(dirMedian);
+                                      const labelText = `${direction} ${pct} (${move})`;
+                                      const labelW = Math.min(
+                                        180,
+                                        Math.max(72, Math.round(labelText.length * 6.6 + 14))
+                                      );
 
                                       const yBase = (() => {
                                         const dy = placeBelow ? 20 : -14;
@@ -2497,7 +2511,15 @@ export function EventHistoryModal({
                                         return Math.max(top, Math.min(bottom, raw));
                                       })();
 
-                                      return { offset, xText, anchor, yText: yBase, yPoint: y, preferBelow: placeBelow };
+                                      return {
+                                        offset,
+                                        xText,
+                                        anchor,
+                                        yText: yBase,
+                                        yPoint: y,
+                                        preferBelow: placeBelow,
+                                        labelW
+                                      };
                                     })
                                     .filter(Boolean) as {
                                     offset: number;
@@ -2506,6 +2528,7 @@ export function EventHistoryModal({
                                     yText: number;
                                     yPoint: number;
                                     preferBelow: boolean;
+                                    labelW: number;
                                   }[];
 
                                   const top = impactChart.padding.top + 14;
@@ -2520,11 +2543,15 @@ export function EventHistoryModal({
                                       yText: number;
                                       yPoint: number;
                                       preferBelow: boolean;
+                                      labelW: number;
                                     }>
                                   ) => {
                                     if (group.length <= 1) return;
                                     const lineGap = 18;
                                     const clamp = (v: number) => Math.max(top, Math.min(bottom, v));
+                                    const labelH = 14;
+                                    const now = impactNowMarker;
+                                    const nowR = 12;
 
                                     // Run a couple of iterations: keep away from the line first, then solve overlaps.
                                     for (let iter = 0; iter < 2; iter += 1) {
@@ -2535,6 +2562,28 @@ export function EventHistoryModal({
                                           item.yText = Math.min(item.yText, item.yPoint - lineGap);
                                         }
                                         item.yText = clamp(item.yText);
+
+                                        // Keep labels away from the live-now dot (even though the dot is rendered above,
+                                        // overlap still looks messy).
+                                        if (now) {
+                                          const x0 =
+                                            item.anchor === "start" ? item.xText : item.xText - item.labelW;
+                                          const x1 =
+                                            item.anchor === "start" ? item.xText + item.labelW : item.xText;
+                                          const y0 = item.yText - labelH + 2;
+                                          const y1 = item.yText + 2;
+                                          const nx0 = now.x - nowR;
+                                          const nx1 = now.x + nowR;
+                                          const ny0 = now.y - nowR;
+                                          const ny1 = now.y + nowR;
+                                          const overlaps =
+                                            x0 < nx1 && x1 > nx0 && y0 < ny1 && y1 > ny0;
+                                          if (overlaps) {
+                                            // Push away from the dot.
+                                            const push = item.yText <= now.y ? -minGap : minGap;
+                                            item.yText = clamp(item.yText + push);
+                                          }
+                                        }
                                       }
 
                                       group.sort((a, b) => a.yText - b.yText);
@@ -2594,7 +2643,6 @@ export function EventHistoryModal({
                                     const direction = stats.best_direction === "up" ? "Up" : "Down";
                                     const pct = `${Math.round(stats.best_p * 100)}%`;
                                     const move = formatPct(dirMedian);
-                                    const labelText = `${direction} ${pct} (${move})`;
 
                                     const leftBound = impactChart.padding.left + 10;
                                     const rightBound = impactChart.width - impactChart.padding.right - 10;
@@ -2624,41 +2672,14 @@ export function EventHistoryModal({
                                         </g>
                                         {showLabel ? (
                                           <>
-                                            {(() => {
-                                              // Small backdrop so the chart line/band never visually cuts through the label.
-                                              const w = Math.min(
-                                                180,
-                                                Math.max(72, Math.round(labelText.length * 6.6 + 14))
-                                              );
-                                              const h = 18;
-                                              const padX = 6;
-                                              const xLeft =
-                                                anchor === "start"
-                                                  ? Math.round(xText - padX)
-                                                  : Math.round(xText - w + padX);
-                                              const yTop = Math.round(yText - h + 5);
-                                              return (
-                                                <g className="impact-prob-wrap" aria-hidden="true">
-                                                  <rect
-                                                    className="impact-prob-bg"
-                                                    x={xLeft}
-                                                    y={yTop}
-                                                    width={w}
-                                                    height={h}
-                                                    rx={6}
-                                                    ry={6}
-                                                  />
-                                                  <text
-                                                    className="impact-prob"
-                                                    x={xText}
-                                                    y={yText}
-                                                    textAnchor={anchor}
-                                                  >
-                                                    {labelText}
-                                                  </text>
-                                                </g>
-                                              );
-                                            })()}
+                                            <text
+                                              className="impact-prob"
+                                              x={xText}
+                                              y={yText}
+                                              textAnchor={anchor}
+                                            >
+                                              {direction} {pct} ({move})
+                                            </text>
                                           </>
                                         ) : null}
                                       </g>

@@ -1032,18 +1032,6 @@
   stroke-linejoin: round;
 }
 
-.impact-prob-wrap {
-  pointer-events: none;
-}
-
-.impact-prob-bg {
-  fill: rgba(255, 255, 255, 0.86);
-}
-
-[data-theme="dark"] .impact-prob-bg {
-  fill: rgba(18, 22, 30, 0.62);
-}
-
 [data-theme="dark"] .impact-prob {
   stroke: rgba(18, 22, 30, 0.9);
 }
