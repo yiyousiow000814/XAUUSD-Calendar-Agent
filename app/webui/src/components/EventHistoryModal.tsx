@@ -167,8 +167,9 @@ const formatOffsetLabel = (minutes: number) => {
 };
 
 const IMPACT_AXIS_OFFSETS = [-12 * 60, -4 * 60, -60, 0, 60, 4 * 60, 12 * 60];
-// Keep labels sparse; dense labels around the event overlap and become unreadable.
-const IMPACT_LABEL_OFFSETS = [-12 * 60, -4 * 60, 4 * 60, 12 * 60];
+// Disable in-chart probability labels (they frequently overlap and add visual noise).
+// Tooltip still provides per-window details on hover.
+const IMPACT_LABEL_OFFSETS: number[] = [];
 
 const formatPct = (value: number) => {
   const abs = Math.abs(value);
