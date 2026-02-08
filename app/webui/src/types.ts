@@ -89,7 +89,7 @@ export type EventImpactWindowStats = {
   p95_all?: number;
 };
 
-export type EventImpactResponse = {
+export type EventImpactResponse = { 
   ok: boolean;
   message?: string;
   eventId?: string;
@@ -105,6 +105,43 @@ export type EventImpactResponse = {
   };
   windowsMinutes?: number[];
   data?: Record<string, EventImpactWindowStats>;
+}; 
+
+export type DeepAnalysisPrediction = {
+  // Probability in [0, 1].
+  p?: number;
+  // Sample size / training events count (if available).
+  n?: number;
+  // Optional calibrated confidence label for UI.
+  confidence?: "low" | "medium" | "high";
+  // Human-readable explanation items (already ranked in the exporter).
+  reasons?: string[];
+};
+
+export type EventDeepAnalysisData = {
+  // Predict the release outcome (the economic number).
+  predictRelease?: {
+    // Probability that actual > forecast.
+    actualGtForecast?: DeepAnalysisPrediction;
+    // Probability that actual > previous.
+    actualGtPrevious?: DeepAnalysisPrediction;
+  };
+  // Predict the market reaction (XAUUSD). Optional for now.
+  predictMarket?: {
+    // e.g. { "15m": { pUp: 0.58, n: 120 }, "60m": ... }
+    horizons?: Record<string, { pUp?: number; n?: number; moveP50?: number | null }>;
+  };
+  // Raw signal flags / context (preheat/path/joint/trend/etc).
+  signals?: Record<string, unknown>;
+};
+
+export type EventDeepAnalysisResponse = {
+  ok: boolean;
+  message?: string;
+  eventId?: string;
+  generatedAtUtc?: string;
+  meta?: Record<string, unknown> | null;
+  data?: EventDeepAnalysisData | Record<string, unknown>;
 };
 
 export type Snapshot = {

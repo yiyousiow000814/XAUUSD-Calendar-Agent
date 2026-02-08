@@ -1123,12 +1123,64 @@
   margin-bottom: 8px;
 }
 
-.history-impact-deep-body {
-  font-size: 13px;
-  color: var(--text);
-  line-height: 1.45;
-  max-width: 640px;
-  margin: 0;
+.history-impact-deep-body { 
+  font-size: 13px; 
+  color: var(--text); 
+  line-height: 1.45; 
+  max-width: 640px; 
+  margin: 0; 
+  width: 100%;
+} 
+
+.deep-block-title {
+  margin-top: 12px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.deep-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  align-items: stretch;
+}
+
+.deep-card {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 12px 12px 10px;
+}
+
+[data-theme="light"] .deep-card {
+  border-color: rgba(18, 20, 26, 0.08);
+  background: rgba(18, 20, 26, 0.02);
+}
+
+.deep-card-k {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.deep-card-v {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-strong);
+  letter-spacing: -0.01em;
+}
+
+.deep-card-sub {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.deep-muted {
+  color: var(--muted);
+  font-size: 12.5px;
 }
 
 .history-impact-side {

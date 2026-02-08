@@ -1,4 +1,10 @@
-import type { EventHistoryResponse, EventImpactResponse, Settings, Snapshot } from "./types";
+import type {
+  EventDeepAnalysisResponse,
+  EventHistoryResponse,
+  EventImpactResponse,
+  Settings,
+  Snapshot
+} from "./types";
 import { CURRENCY_OPTIONS } from "./constants/currencyOptions";
 import { formatLocalDateTime } from "./utils/calendarTime";
 
@@ -15,14 +21,15 @@ type UpdateState = {
   lastCheckedAt?: string;
 };
 
-type BackendApi = {
-  get_snapshot: () => ApiResult<Snapshot>;
-  get_event_history?: (payload: { event: string; cur: string }) => ApiResult<EventHistoryResponse>;
-  get_event_impact_usd?: (payload: { eventId: string; bucket: string }) => ApiResult<EventImpactResponse>;
-  get_settings: () => ApiResult<Settings>;
-  save_settings: (payload: Settings) => ApiResult<{ ok: boolean }>;
-  frontend_boot_complete?: () => ApiResult<{ ok: boolean }>;
-  set_ui_state?: (payload: { visible: boolean; focused: boolean; lastInputAt: number }) => ApiResult<{ ok: boolean }>;
+type BackendApi = { 
+  get_snapshot: () => ApiResult<Snapshot>; 
+  get_event_history?: (payload: { event: string; cur: string }) => ApiResult<EventHistoryResponse>; 
+  get_event_impact_usd?: (payload: { eventId: string; bucket: string }) => ApiResult<EventImpactResponse>; 
+  get_event_deep_analysis_usd?: (payload: { eventId: string }) => ApiResult<EventDeepAnalysisResponse>;
+  get_settings: () => ApiResult<Settings>; 
+  save_settings: (payload: Settings) => ApiResult<{ ok: boolean }>; 
+  frontend_boot_complete?: () => ApiResult<{ ok: boolean }>; 
+  set_ui_state?: (payload: { visible: boolean; focused: boolean; lastInputAt: number }) => ApiResult<{ ok: boolean }>; 
   get_temporary_path_task: () => ApiResult<{
     ok: boolean;
     active: boolean;
@@ -608,7 +615,7 @@ const buildMockEventImpactUsd = (payload: {
   };
 };
 
-export const backend = {
+export const backend = { 
   getSnapshot: async (): ApiResult<Snapshot> => {
     if (isTauri()) {
       return tauriInvoke("get_snapshot");
@@ -632,7 +639,7 @@ export const backend = {
     // Tauri invoke proxy wraps method args as `{ payload: ... }`, so align with that shape.
     return api.get_event_history({ event: payload.event, cur: payload.cur } as any);
   },
-  getEventImpactUsd: async (payload: { eventId: string; bucket: string }) => {
+  getEventImpactUsd: async (payload: { eventId: string; bucket: string }) => { 
     if (isUiCheckRuntime()) {
       return Promise.resolve(buildMockEventImpactUsd(payload));
     }
@@ -643,11 +650,24 @@ export const backend = {
       }
       return Promise.resolve({ ok: false, message: "Impact analysis unavailable" });
     }
-    return api.get_event_impact_usd({ eventId: payload.eventId, bucket: payload.bucket } as any);
-  },
-  getUpdateState: async () => {
+    return api.get_event_impact_usd({ eventId: payload.eventId, bucket: payload.bucket } as any); 
+  }, 
+  getEventDeepAnalysisUsd: async (payload: { eventId: string }) => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve({ ok: false, message: "Deep analysis unavailable in ui-check runtime" });
+    }
     const api = await withApi();
-    if (!api || !hasMethod(api, "get_update_state")) {
+    if (!api || !hasMethod(api, "get_event_deep_analysis_usd")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve({ ok: false, message: "Deep analysis unavailable" });
+    }
+    return api.get_event_deep_analysis_usd({ eventId: payload.eventId } as any);
+  },
+  getUpdateState: async () => { 
+    const api = await withApi(); 
+    if (!api || !hasMethod(api, "get_update_state")) { 
       if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }

@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
-import type {
-  EventHistoryPoint,
-  EventHistoryResponse,
-  EventImpactBucket,
-  EventImpactResponse,
-  EventImpactWindowStats
-} from "../types";
+import type { 
+  EventHistoryPoint, 
+  EventHistoryResponse, 
+  EventDeepAnalysisResponse,
+  EventImpactBucket, 
+  EventImpactResponse, 
+  EventImpactWindowStats 
+} from "../types"; 
 import { backend } from "../api";
 import { buildEventNotes } from "../utils/eventNotes";
 import {
@@ -300,6 +301,10 @@ export function EventHistoryModal({
   const [impactLoading, setImpactLoading] = useState(false);
   const [impactError, setImpactError] = useState<string | null>(null);
   const [impactData, setImpactData] = useState<EventImpactResponse | null>(null);
+  const [deepLoading, setDeepLoading] = useState(false);
+  const [deepError, setDeepError] = useState<string | null>(null);
+  const [deepData, setDeepData] = useState<EventDeepAnalysisResponse | null>(null);
+  const deepCacheRef = useRef<Map<string, EventDeepAnalysisResponse>>(new Map());
   const [impactChartAnimKey, setImpactChartAnimKey] = useState(0);
   const impactBodyRef = useRef<HTMLDivElement | null>(null);
   // Cache impact payloads per (eventId, bucket) to avoid flicker when switching History <-> Impact.
@@ -673,6 +678,55 @@ export function EventHistoryModal({
       cancelled = true;
     };
   }, [eventId, impactBucket, impactOpen, impactPanel, isOpen, isUsdEvent]);
+
+  useEffect(() => {
+    if (!isOpen || !impactOpen) return;
+    if (!eventId) return;
+    if (impactPanel !== "deep") return;
+    if (!isUsdEvent) {
+      setDeepError("Deep analysis is available for USD events only.");
+      setDeepData(null);
+      setDeepLoading(false);
+      return;
+    }
+
+    const cacheKey = eventId;
+    const cached = deepCacheRef.current.get(cacheKey);
+    if (cached?.ok) {
+      setDeepError(null);
+      setDeepData(cached);
+      setDeepLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setDeepLoading(true);
+    setDeepError(null);
+    setDeepData(null);
+
+    backend
+      .getEventDeepAnalysisUsd({ eventId })
+      .then((result) => {
+        if (cancelled) return;
+        setDeepError(null);
+        setDeepData(result);
+        if (result.ok) deepCacheRef.current.set(cacheKey, result);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        const msg = err instanceof Error ? err.message : "Deep analysis failed";
+        setDeepError(msg);
+        setDeepData(null);
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setDeepLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [eventId, impactOpen, impactPanel, isOpen, isUsdEvent]);
 
   // Prefetch impact data while the modal is open so switching History -> Impact is instant.
   useEffect(() => {
@@ -2218,18 +2272,144 @@ export function EventHistoryModal({
                       hasMetricValues ? "" : " history-modal-layout-left--no-chart"
                     }`}
                   >
-                    {impactOpen ? (
-                      <div className="history-impact">
-                        {impactPanel === "deep" ? (
-                          <div className="history-impact-deep" data-qa="qa:history:deep-placeholder">
-                            <div className="history-impact-deep-title">Deep Analysis</div>
-                            <div className="history-impact-deep-body">
-                              Placeholder: future versions will account for nearby/overlapping events and multi-event
-                              attribution.
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="history-impact-chart" data-qa="qa:history:impact-chart">
+                    {impactOpen ? ( 
+                      <div className="history-impact"> 
+                        {impactPanel === "deep" ? ( 
+                          <div className="history-impact-deep" data-qa="qa:history:deep-analysis"> 
+                            <div className="history-impact-deep-title">Deep Analysis</div> 
+                            {deepError ? ( 
+                              <div className="history-impact-status error">{deepError}</div> 
+                            ) : deepLoading ? ( 
+                              <div className="history-impact-status">Loading deep analysis...</div> 
+                            ) : !deepData ? ( 
+                              <div className="history-impact-status">Loading deep analysis...</div> 
+                            ) : ( 
+                              <div className="history-impact-deep-body"> 
+                                {(() => { 
+                                  const parseNumber = (raw: unknown): number | null => {
+                                    const text = String(raw ?? "").trim();
+                                    if (!text) return null;
+                                    const lowered = text.toLowerCase();
+                                    if (
+                                      lowered === "--" ||
+                                      lowered === "—" ||
+                                      lowered === "-" ||
+                                      lowered === "tba" ||
+                                      lowered === "n/a" ||
+                                      lowered === "na" ||
+                                      lowered === "null"
+                                    ) {
+                                      return null;
+                                    }
+                                    const cleaned = text.replace(/,/g, "").replace(/%/g, "").replace(/\s+/g, "");
+                                    const m = cleaned.match(/^([+-]?\d+(?:\.\d+)?)([kmb])?$/i);
+                                    if (!m) return null;
+                                    const base = Number(m[1]);
+                                    if (!Number.isFinite(base)) return null;
+                                    const suf = (m[2] || "").toLowerCase();
+                                    if (suf === "k") return base * 1_000;
+                                    if (suf === "m") return base * 1_000_000;
+                                    if (suf === "b") return base * 1_000_000_000;
+                                    return base;
+                                  };
+
+                                  const localPredict = () => {
+                                    const rows = points
+                                      .map((p) => ({
+                                        a: parseNumber(p.actualRaw ?? p.actual),
+                                        f: parseNumber(p.forecast),
+                                        prev: parseNumber(p.previousRaw ?? p.previous)
+                                      }))
+                                      .filter((r) => r.a !== null);
+
+                                    const sign = (v: number) => (v > 0 ? 1 : v < 0 ? -1 : 0);
+                                    const sPrev: number[] = [];
+                                    const sFc: number[] = [];
+                                    for (const r of rows) {
+                                      if (typeof r.prev === "number") sPrev.push(sign(r.a! - r.prev));
+                                      if (typeof r.f === "number") sFc.push(sign(r.a! - r.f));
+                                    }
+
+                                    const build = (arr: number[]) => {
+                                      const usable = arr.filter((s) => s !== 0);
+                                      const up = usable.filter((s) => s > 0).length;
+                                      const n = usable.length;
+                                      const baseUp = n > 0 ? up / n : null;
+                                      let repeat: number | null = null;
+                                      let tN = 0;
+                                      let tSame = 0;
+                                      for (let i = 1; i < usable.length; i += 1) {
+                                        tN += 1;
+                                        if (usable[i] === usable[i - 1]) tSame += 1;
+                                      }
+                                      if (tN > 0) repeat = tSame / tN;
+                                      const last = usable.length ? usable[usable.length - 1] : 0;
+                                      const pUpNext =
+                                        repeat === null || last === 0
+                                          ? baseUp
+                                          : last > 0
+                                            ? repeat
+                                            : 1 - repeat;
+                                      return { n, baseUp, repeat, last, pUpNext };
+                                    };
+
+                                    return { vsPrev: build(sPrev), vsForecast: build(sFc) };
+                                  };
+
+                                  const fmtPct = (p: number | null | undefined) =>
+                                    typeof p === "number" && Number.isFinite(p) ? `${Math.round(p * 100)}%` : "--";
+                                  const data = (deepData.data as any) ?? {};
+                                  const predictRelease = data.predictRelease ?? {};
+                                  const fmtP = (p?: number) => 
+                                    typeof p === "number" && Number.isFinite(p) 
+                                      ? `${Math.round(p * 100)}%` 
+                                      : "--"; 
+                                  const fmtN = (n?: number) => 
+                                    typeof n === "number" && Number.isFinite(n) ? `N=${n}` : "N=--"; 
+ 
+                                  const aGtF = predictRelease.actualGtForecast ?? predictRelease.actual_gt_forecast; 
+                                  const aGtP = predictRelease.actualGtPrevious ?? predictRelease.actual_gt_previous; 
+ 
+                                  const local = localPredict();
+
+                                  return ( 
+                                    <> 
+                                      <div className="deep-block-title">Predict Release</div> 
+                                      <div className="deep-grid"> 
+                                        <div className="deep-card"> 
+                                          <div className="deep-card-k">Actual &gt; Forecast</div> 
+                                          <div className="deep-card-v">
+                                            {deepData.ok ? fmtP(aGtF?.p) : fmtPct(local.vsForecast.pUpNext)}
+                                          </div> 
+                                          <div className="deep-card-sub">
+                                            {deepData.ok ? fmtN(aGtF?.n) : `N=${local.vsForecast.n}`}
+                                          </div> 
+                                        </div> 
+                                        <div className="deep-card"> 
+                                          <div className="deep-card-k">Actual &gt; Previous</div> 
+                                          <div className="deep-card-v">
+                                            {deepData.ok ? fmtP(aGtP?.p) : fmtPct(local.vsPrev.pUpNext)}
+                                          </div> 
+                                          <div className="deep-card-sub">
+                                            {deepData.ok ? fmtN(aGtP?.n) : `N=${local.vsPrev.n}`}
+                                          </div> 
+                                        </div> 
+                                      </div> 
+                                      <div className="deep-block-title">Notes</div> 
+                                      <div className="deep-muted"> 
+                                        {deepData.ok
+                                          ? "Deep analysis data is loaded from local analysis JSON (appdata/install seed)."
+                                          : deepData.message ||
+                                            "Deep analysis JSON not found; showing a simple history-only predictor. Generate deep analysis locally for joint-event attribution, preheat signals, path dependency, prototypes, trend features, and uncertainty."}
+                                      </div> 
+                                    </> 
+                                  ); 
+                                })()} 
+                              </div> 
+                            )} 
+                          </div> 
+                        ) : ( 
+                          <div className="history-impact-chart" data-qa="qa:history:impact-chart"> 
                             {!impactLoading && !impactError && impactData?.ok && impactChart ? (
                               <div className="impact-chart-header" aria-hidden="true">
                                 <div className="impact-chart-meta">
