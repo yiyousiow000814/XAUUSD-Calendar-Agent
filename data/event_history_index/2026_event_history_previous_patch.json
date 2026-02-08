@@ -1,5 +1,5 @@
 {
-  "generated_at": "07-02-2026 15:42",
+  "generated_at": "08-02-2026 15:43",
   "patches": [
     {
       "patch": "previous_missing_filled",
@@ -72,30 +72,6 @@
       "previous_raw": "",
       "prior_actual": "16.00%",
       "previous_effective": "16.00%"
-    },
-    {
-      "patch": "previous_missing_filled",
-      "event_id": "USD::U.S. Baker Hughes Oil Rig Count::none",
-      "cur": "USD",
-      "event": "U.S. Baker Hughes Oil Rig Count",
-      "period": "",
-      "date": "2026-02-14",
-      "time": "02:00",
-      "previous_raw": "",
-      "prior_actual": "412",
-      "previous_effective": "412"
-    },
-    {
-      "patch": "previous_missing_filled",
-      "event_id": "USD::U.S. Baker Hughes Total Rig Count::none",
-      "cur": "USD",
-      "event": "U.S. Baker Hughes Total Rig Count",
-      "period": "",
-      "date": "2026-02-14",
-      "time": "02:00",
-      "previous_raw": "",
-      "prior_actual": "551",
-      "previous_effective": "551"
     }
   ]
 }
