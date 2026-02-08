@@ -27,6 +27,22 @@ fn lerp(a: f64, b: f64, t: f64) -> f64 {
     a + (b - a) * t
 }
 
+fn sigmoid(x: f64) -> f64 {
+    1.0 / (1.0 + (-x).exp())
+}
+
+fn logit(p: f64) -> f64 {
+    let p = p.clamp(1e-6, 1.0 - 1e-6);
+    (p / (1.0 - p)).ln()
+}
+
+fn exp_decay_weight(minutes: i64, tau_minutes: f64) -> f64 {
+    if tau_minutes <= 0.0 {
+        return 1.0;
+    }
+    (-(minutes.abs() as f64) / tau_minutes).exp()
+}
+
 fn interp_piecewise(offsets: &[i64], values: &[f64], x: i64, default: f64) -> f64 {
     if offsets.len() < 2 || offsets.len() != values.len() {
         return default;
@@ -209,19 +225,31 @@ fn build_unified_outlook_fallback(
         return None;
     }
 
+    // Make the fallback less "flat" by focusing on near-term events and combining deltas in logit-space.
+    // If we average too many weak signals over +/-24h, it collapses toward ~0.5 (which looks like a dead-flat market).
+    let tau_minutes = 240.0; // ~4h half-ish decay
+    let delta_scale = 4.0; // amplify small deltas so the path has visible curvature
+
     let mut series: Vec<f64> = vec![];
     for t in grid.iter().copied() {
         let abs = anchor_dt_utc + Duration::minutes(t);
         let mut sum_w = 0.0;
-        let mut sum_delta = 0.0;
+        let mut sum_logit = 0.0;
         for e in nearby.iter() {
             let rel = (abs - e.dt_utc).num_minutes();
             let pup = interp_piecewise(&e.offsets, &e.p_up, rel, 0.5);
-            sum_w += e.weight;
-            sum_delta += e.weight * (pup - 0.5);
+            let decay = exp_decay_weight(rel, tau_minutes);
+            let w = e.weight * decay;
+            if w <= 1e-9 {
+                continue;
+            }
+            sum_w += w;
+            sum_logit += w * (logit(pup) - logit(0.5));
         }
         let p = if sum_w > 0.0 {
-            (0.5 + sum_delta / sum_w).clamp(0.0, 1.0)
+            // Base is 0.5 -> logit 0; combine relative logits, then map back to probability.
+            let z = (sum_logit / sum_w) * delta_scale;
+            sigmoid(z).clamp(0.0, 1.0)
         } else {
             0.5
         };
