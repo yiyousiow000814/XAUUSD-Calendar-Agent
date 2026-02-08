@@ -630,7 +630,9 @@ export function EventHistoryModal({
   useEffect(() => {
     if (!isOpen || !impactOpen) return;
     if (!eventId) return;
-    if (impactPanel !== "event") return;
+    // Deep Analysis reuses Impact stats for the fallback Unified Outlook P(t).
+    // Keep the impact dataset warm for both sub-panels.
+    if (impactPanel !== "event" && impactPanel !== "deep") return;
     if (!isUsdEvent) {
       setImpactError("Impact analysis is available for USD events only.");
       setImpactData(null);

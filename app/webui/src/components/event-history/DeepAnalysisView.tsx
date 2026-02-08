@@ -331,10 +331,10 @@ export function DeepAnalysisView({
 
   const content = (
     <>
-      <div className="deep-block-title">Predict Release</div>
+      <div className="deep-block-title">Predict Release (baseline)</div>
       <div className="deep-grid">
         <div className="deep-card">
-          <div className="deep-card-k">Actual &gt; Forecast</div>
+          <div className="deep-card-k">P(Actual &gt; Forecast)</div>
           <div className="deep-card-v">
             {deepData.ok ? fmtP(aGtF?.p) : fmtPct(localPredict.vsForecast.pUpNext)}
           </div>
@@ -343,7 +343,7 @@ export function DeepAnalysisView({
           </div>
         </div>
         <div className="deep-card">
-          <div className="deep-card-k">Actual &gt; Previous</div>
+          <div className="deep-card-k">P(Actual &gt; Previous)</div>
           <div className="deep-card-v">
             {deepData.ok ? fmtP(aGtP?.p) : fmtPct(localPredict.vsPrev.pUpNext)}
           </div>
@@ -410,7 +410,9 @@ export function DeepAnalysisView({
             </svg>
           </div>
         ) : (
-          <div className="history-impact-status">Unified outlook is not available yet (insufficient samples).</div>
+          <div className="history-impact-status">
+            {impactSeriesItems.length === 0 ? "Loading unified outlook..." : "Unified outlook is unavailable."}
+          </div>
         )}
 
         <div className="deep-outlook-note">
@@ -577,12 +579,11 @@ export function DeepAnalysisView({
         </div>
       )}
 
-      {deepData.ok ? null : deepData.message ? (
-        <details className="deep-details">
-          <summary>Details</summary>
-          <div className="deep-details-body">{deepData.message}</div>
-        </details>
-      ) : null}
+      {deepData.ok ? null : (
+        <div className="deep-muted" style={{ marginTop: 10 }}>
+          Deep JSON is not available for this event yet. Showing a baseline fallback from this event’s release history.
+        </div>
+      )}
     </>
   );
 
@@ -673,9 +674,19 @@ export function DeepAnalysisView({
                 <div className="deep-method-block">
                   <div className="deep-method-h">What you are seeing</div>
                   <div className="deep-method-p">
-                    Deep Analysis is designed to be predictive: it estimates release outcome probabilities and (when
-                    available) a single unified market outlook path P(t) for the +/-24h window.
+                    This panel has two parts:
                   </div>
+                  <ul className="deep-method-ul">
+                    <li>
+                      <strong>Predict Release</strong>: baseline probabilities like P(Actual &gt; Forecast) and
+                      P(Actual &gt; Previous) derived from this event’s past releases.
+                    </li>
+                    <li>
+                      <strong>Unified Outlook P(t)</strong>: one main probability path of the market bias within
+                      +/-24h of the selected event. When deep JSON is available, nearby events contribute weighted
+                      deltas to this path (clicking an event only highlights its contribution).
+                    </li>
+                  </ul>
                 </div>
 
                 <div className="deep-method-block">
@@ -684,9 +695,9 @@ export function DeepAnalysisView({
                     const method = data.method ?? null;
                     const steps = Array.isArray(method?.steps) ? method.steps : null;
                     const fallbackSteps = [
-                      "Build a comparable numeric history series (Actual, Forecast, Previous) from past releases for this event.",
-                      "Compute base rates: P(Actual > Forecast) and P(Actual > Previous), plus stability features like repeat rate (whether the next sign tends to match the previous sign).",
-                      "If deep JSON is available, apply additional signals (joint-event context, preheat/leak monitoring, path dependency, trend, prototype clusters, uncertainty) and combine them into a unified outlook path P(t). Each nearby event contributes a weighted delta Delta_i(t)."
+                      "Collect numeric history from past releases for this event (Actual / Forecast / Previous).",
+                      "Compute baseline outcome statistics (base rate + repeat rate on the sign of surprises).",
+                      "Use the Impact model as the fallback P(t). When deep JSON is available, combine multiple signals and nearby-event contributions into a single unified P(t)."
                     ];
                     const finalSteps = steps && steps.length ? steps : fallbackSteps;
                     return (
@@ -697,13 +708,18 @@ export function DeepAnalysisView({
                       </ol>
                     );
                   })()}
+                  <div className="deep-method-p" style={{ marginTop: 8 }}>
+                    Note: Predict Release does <strong>not</strong> use today’s Forecast as a “feature” to predict the
+                    outcome. It is a probability estimate from historical releases (and additional signals when deep
+                    JSON is present).
+                  </div>
                 </div>
 
                 <div className="deep-method-block">
                   <div className="deep-method-h">Credibility / confidence</div>
                   <div className="deep-method-p">
-                    Confidence is driven by sample size (N), signal agreement, and how stable the historical
-                    relationships are for the current regime. It is a probabilistic guide, not a guarantee.
+                    Higher N and more stable patterns improve credibility. This is a probabilistic guide, not a
+                    guarantee.
                   </div>
                   <div className="deep-method-kv">
                     <span className="deep-method-k">Current history N</span>
@@ -711,15 +727,17 @@ export function DeepAnalysisView({
                   </div>
                   <div className="deep-method-kv">
                     <span className="deep-method-k">Current model</span>
-                    <span className="deep-method-v">{deepData.ok ? "Deep JSON model" : "Fallback: base rate + repeat rate"}</span>
+                    <span className="deep-method-v">
+                      {deepData.ok ? "Deep JSON model" : "Fallback: base rate + repeat rate"}
+                    </span>
                   </div>
                 </div>
 
                 <div className="deep-method-block">
                   <div className="deep-method-h">Signals</div>
                   <div className="deep-method-p">
-                    When deep JSON is present, the panel can display many signals beyond the 6 core categories. If
-                    deep JSON is missing, only the fallback statistics are used.
+                    When deep JSON is present, more signals are used. Without deep JSON, only baseline statistics are
+                    used.
                   </div>
                   <div className="deep-method-signals">
                     {(() => {
