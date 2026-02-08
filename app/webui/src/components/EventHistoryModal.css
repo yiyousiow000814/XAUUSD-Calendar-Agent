@@ -1307,25 +1307,66 @@
 }
 
 .deep-spark-line.actual {
-  stroke: rgba(148, 163, 184, 0.95);
+  stroke: rgba(226, 232, 240, 0.92);
   stroke-width: 2.2;
 }
 
 .deep-spark-line.forecast {
-  stroke: rgba(148, 163, 184, 0.55);
+  stroke: rgba(148, 163, 184, 0.62);
   stroke-width: 1.8;
   stroke-dasharray: 5 6;
 }
 
 .deep-spark-line.previous {
-  stroke: rgba(148, 163, 184, 0.42);
+  stroke: rgba(148, 163, 184, 0.5);
   stroke-width: 1.6;
   stroke-dasharray: 2 7;
+}
+
+[data-theme="light"] .deep-spark-line.actual {
+  stroke: rgba(30, 41, 59, 0.86);
+}
+
+[data-theme="light"] .deep-spark-line.forecast {
+  stroke: rgba(71, 85, 105, 0.62);
+}
+
+[data-theme="light"] .deep-spark-line.previous {
+  stroke: rgba(100, 116, 139, 0.5);
 }
 
 .deep-muted {
   color: var(--muted);
   font-size: 12.5px;
+}
+
+.deep-details {
+  margin-top: 8px;
+  color: var(--muted);
+}
+
+.deep-details summary {
+  cursor: pointer;
+  user-select: none;
+  font-weight: 700;
+  color: var(--text-strong);
+  opacity: 0.78;
+}
+
+.deep-details-body {
+  margin-top: 6px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 12px;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+[data-theme="light"] .deep-details-body {
+  border-color: rgba(18, 20, 26, 0.08);
+  background: rgba(18, 20, 26, 0.015);
 }
 
 .history-impact-side {

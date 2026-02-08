@@ -2383,8 +2383,19 @@ export function EventHistoryModal({
                                       if (typeof r.previous === "number") values.push(r.previous); 
                                     } 
                                     if (values.length < 2) return null; 
-                                    let min = Math.min(...values); 
-                                    let max = Math.max(...values); 
+                                    // Robust range (p05..p95) so one-off outliers don't flatten the whole chart.
+                                    const sorted = [...values].sort((a, b) => a - b);
+                                    const q = (p: number) => {
+                                      const idx = (sorted.length - 1) * p;
+                                      const lo = Math.floor(idx);
+                                      const hi = Math.ceil(idx);
+                                      const t = idx - lo;
+                                      const vLo = sorted[lo] ?? sorted[sorted.length - 1];
+                                      const vHi = sorted[hi] ?? sorted[sorted.length - 1];
+                                      return vLo + (vHi - vLo) * t;
+                                    };
+                                    let min = q(0.05);
+                                    let max = q(0.95);
                                     if (!Number.isFinite(min) || !Number.isFinite(max)) return null; 
                                     if (min === max) { 
                                       min -= 1; 
@@ -2407,8 +2418,9 @@ export function EventHistoryModal({
                                           started = false; 
                                           continue; 
                                         } 
+                                        const vv = Math.max(min, Math.min(max, v));
                                         const x = xFor(i); 
-                                        const y = yFor(v); 
+                                        const y = yFor(vv); 
                                         if (!started) { 
                                           d += `M ${x},${y}`; 
                                           started = true; 
@@ -2567,15 +2579,24 @@ export function EventHistoryModal({
  
                                       <div className="deep-block-title">Notes</div>  
                                       <div className="deep-muted">  
-                                        {deepData.ok 
-                                          ? "Deep analysis data is loaded from local analysis JSON (appdata/install seed)." 
-                                          : deepData.message ||
-                                            "Deep analysis JSON not found; showing a simple history-only predictor. Generate deep analysis locally for joint-event attribution, preheat signals, path dependency, prototypes, trend features, and uncertainty."}
-                                      </div> 
-                                    </> 
+                                        {deepData.ok ? (
+                                          "Deep analysis file loaded. Predictions and signals may include joint-event attribution, preheat flags, path dependency, prototypes, trend features, and uncertainty."
+                                        ) : (
+                                          <>
+                                            Deep analysis file not found. Showing a fallback based on past releases only.
+                                            {deepData.message ? (
+                                              <details className="deep-details">
+                                                <summary>Details</summary>
+                                                <div className="deep-details-body">{deepData.message}</div>
+                                              </details>
+                                            ) : null}
+                                          </>
+                                        )} 
+                                      </div>  
+                                    </>  
                                   ); 
-                                })()} 
-                              </div> 
+                                })()}  
+                              </div>  
                             )} 
                           </div> 
                         ) : ( 
