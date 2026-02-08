@@ -12,6 +12,10 @@ type DeepAnalysisViewProps = {
   deepError: string | null;
   deepData: EventDeepAnalysisResponse | null;
   impactSeriesItems: ImpactSeriesItem[];
+  // UTC time for the selected release instance (the center of the +/-24h unified window).
+  anchorDtUtc: string;
+  // Display offset minutes (calendar timezone), used to show the anchor time label without leaking local timezone.
+  displayOffsetMinutes: number;
 };
 
 export function DeepAnalysisView({
@@ -20,7 +24,9 @@ export function DeepAnalysisView({
   deepLoading,
   deepError,
   deepData,
-  impactSeriesItems
+  impactSeriesItems,
+  anchorDtUtc,
+  displayOffsetMinutes
 }: DeepAnalysisViewProps) {
   const [methodOpen, setMethodOpen] = useState(false);
   const [fullOpen, setFullOpen] = useState(false);
@@ -82,6 +88,21 @@ export function DeepAnalysisView({
   const fmtP = (p?: number) =>
     typeof p === "number" && Number.isFinite(p) ? `${Math.round(p * 100)}%` : "--";
   const fmtN = (n?: number) => (typeof n === "number" && Number.isFinite(n) ? `N=${n}` : "N=--");
+
+  const anchorLabel = useMemo(() => {
+    const raw = String(anchorDtUtc || "").trim();
+    if (!raw) return "";
+    const utcMs = Date.parse(raw);
+    if (!Number.isFinite(utcMs)) return "";
+    const shifted = new Date(utcMs + (Number(displayOffsetMinutes) || 0) * 60_000);
+    const pad = (v: number) => String(v).padStart(2, "0");
+    // Use UTC getters because we've already applied the display offset in ms.
+    const dd = pad(shifted.getUTCDate());
+    const mm = pad(shifted.getUTCMonth() + 1);
+    const hh = pad(shifted.getUTCHours());
+    const min = pad(shifted.getUTCMinutes());
+    return `${dd}-${mm} ${hh}:${min}`;
+  }, [anchorDtUtc, displayOffsetMinutes]);
 
   const localPredict = useMemo(() => {
     const rows = points
@@ -309,9 +330,10 @@ export function DeepAnalysisView({
       baselineY,
       x0,
       firstLabel: typeof firstOffset === "number" ? formatTimeOffsetMinutes(firstOffset) : "",
-      lastLabel: typeof lastOffset === "number" ? formatTimeOffsetMinutes(lastOffset) : ""
+      lastLabel: typeof lastOffset === "number" ? formatTimeOffsetMinutes(lastOffset) : "",
+      anchorLabel
     };
-  }, [deepData, highlightId, impactSeriesItems]);
+  }, [deepData, highlightId, impactSeriesItems, anchorLabel]);
 
   if (!isUsdEvent) {
     return <div className="history-impact-status error">Deep analysis is available for USD events only.</div>;
@@ -419,6 +441,16 @@ export function DeepAnalysisView({
               <text x={unifiedOutlook.pad.l} y={unifiedOutlook.h - 10} className="deep-outlook-axis">
                 {unifiedOutlook.firstLabel}
               </text>
+              {typeof unifiedOutlook.x0 === "number" && unifiedOutlook.anchorLabel ? (
+                <text
+                  x={Math.round(unifiedOutlook.x0)}
+                  y={unifiedOutlook.h - 10}
+                  textAnchor="middle"
+                  className="deep-outlook-axis"
+                >
+                  {unifiedOutlook.anchorLabel}
+                </text>
+              ) : null}
               <text
                 x={unifiedOutlook.w - unifiedOutlook.pad.r}
                 y={unifiedOutlook.h - 10}

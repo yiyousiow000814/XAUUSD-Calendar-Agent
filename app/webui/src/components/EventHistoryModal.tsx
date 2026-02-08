@@ -2288,6 +2288,8 @@ export function EventHistoryModal({
                             deepError={deepError}
                             deepData={deepData}
                             impactSeriesItems={impactSeries.items}
+                            anchorDtUtc={anchorDtUtc}
+                            displayOffsetMinutes={effectiveCalendarOffsetMinutes}
                           />
                         ) : (
                           <div className="history-impact-chart" data-qa="qa:history:impact-chart"> 
