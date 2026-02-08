@@ -115,9 +115,12 @@ fn build_unified_outlook_fallback(
 
     let events_obj = impact.get("events").and_then(|v| v.as_object())?;
 
-    // Nearby scheduled events within +/-24h drive the unified outlook.
-    let start = anchor_dt_utc - Duration::minutes(1440);
-    let end = anchor_dt_utc + Duration::minutes(1440);
+    // Compute P(t) for the +/-24h display window, but include a wider buffer of events so a
+    // 1-hour shift of the anchor doesn't drastically change the event set.
+    let display_half_minutes: i64 = 1440;
+    let include_half_minutes: i64 = 2880; // +/-48h for stability
+    let start = anchor_dt_utc - Duration::minutes(include_half_minutes);
+    let end = anchor_dt_utc + Duration::minutes(include_half_minutes);
     struct NearbyEvent {
         id: String,
         label: String,
@@ -125,6 +128,9 @@ fn build_unified_outlook_fallback(
         weight: f64,
         offsets: Vec<i64>,
         p_up: Vec<f64>,
+        in_display_window: bool,
+        w_by_grid: Vec<f64>,
+        logit_delta_by_grid: Vec<f64>,
     }
 
     let mut nearby: Vec<NearbyEvent> = vec![];
@@ -211,6 +217,8 @@ fn build_unified_outlook_fallback(
         let w = importance_weight(&e.importance);
         // Per-release instance id (unique) for contributions highlighting.
         let instance_id = format!("{metric_id}@{}", e.dt_utc.to_rfc3339());
+        let in_display_window =
+            (e.dt_utc - anchor_dt_utc).num_minutes().abs() <= display_half_minutes;
         nearby.push(NearbyEvent {
             id: instance_id,
             label: e.event.clone(),
@@ -218,6 +226,9 @@ fn build_unified_outlook_fallback(
             weight: w,
             offsets,
             p_up,
+            in_display_window,
+            w_by_grid: vec![0.0; grid.len()],
+            logit_delta_by_grid: vec![0.0; grid.len()],
         });
     }
 
@@ -230,12 +241,15 @@ fn build_unified_outlook_fallback(
     let tau_minutes = 180.0; // focus on the nearer schedule window (~3h decay)
     let delta_scale = 6.0; // amplify small deltas so the path has visible curvature
 
+    let mut sum_w_by_grid: Vec<f64> = vec![0.0; grid.len()];
+    let mut sum_logit_by_grid: Vec<f64> = vec![0.0; grid.len()];
+
     let mut series: Vec<f64> = vec![];
-    for t in grid.iter().copied() {
+    for (idx, t) in grid.iter().copied().enumerate() {
         let abs = anchor_dt_utc + Duration::minutes(t);
         let mut sum_w = 0.0;
         let mut sum_logit = 0.0;
-        for e in nearby.iter() {
+        for e in nearby.iter_mut() {
             let rel = (abs - e.dt_utc).num_minutes();
             let pup = interp_piecewise(&e.offsets, &e.p_up, rel, 0.5);
             let decay = exp_decay_weight(rel, tau_minutes);
@@ -243,8 +257,11 @@ fn build_unified_outlook_fallback(
             if w <= 1e-9 {
                 continue;
             }
+            let logit_delta = logit(pup) - logit(0.5);
             sum_w += w;
-            sum_logit += w * (logit(pup) - logit(0.5));
+            sum_logit += w * logit_delta;
+            e.w_by_grid[idx] = w;
+            e.logit_delta_by_grid[idx] = logit_delta;
         }
         let p = if sum_w > 0.0 {
             // Base is 0.5 -> logit 0; combine relative logits, then map back to probability.
@@ -253,16 +270,32 @@ fn build_unified_outlook_fallback(
         } else {
             0.5
         };
+        sum_w_by_grid[idx] = sum_w;
+        sum_logit_by_grid[idx] = sum_logit;
         series.push(p);
     }
 
     let contributions: Vec<Value> = nearby
         .iter()
+        .filter(|e| e.in_display_window)
         .map(|e| {
+            let mut delta_p_up: Vec<f64> = vec![0.0; grid.len()];
+            for (idx, _t) in grid.iter().copied().enumerate() {
+                let sw = sum_w_by_grid[idx] - e.w_by_grid[idx];
+                let sl = sum_logit_by_grid[idx] - e.w_by_grid[idx] * e.logit_delta_by_grid[idx];
+                let p_without = if sw > 1e-9 {
+                    sigmoid((sl / sw) * delta_scale).clamp(0.0, 1.0)
+                } else {
+                    0.5
+                };
+                delta_p_up[idx] = (series[idx] - p_without).clamp(-1.0, 1.0);
+            }
             json!({
                 "eventId": e.id,
                 "label": format!("{} · {}", e.label.trim(), e.dt_utc.format("%d-%m-%Y %H:%M")),
-                "weight": e.weight
+                "weight": e.weight,
+                // For UI: dashed path shows P(t) without this event (base - delta).
+                "deltaPUp": delta_p_up
             })
         })
         .collect();

@@ -89,6 +89,9 @@ export function DeepAnalysisView({
     typeof p === "number" && Number.isFinite(p) ? `${Math.round(p * 100)}%` : "--";
   const fmtN = (n?: number) => (typeof n === "number" && Number.isFinite(n) ? `N=${n}` : "N=--");
 
+  const fmtPctNum = (p: number | null) =>
+    typeof p === "number" && Number.isFinite(p) ? `${Math.round(p * 100)}%` : "--";
+
   const anchorLabel = useMemo(() => {
     const raw = String(anchorDtUtc || "").trim();
     if (!raw) return "";
@@ -125,8 +128,12 @@ export function DeepAnalysisView({
     const build = (arr: number[]) => {
       const usable = arr.filter((v) => v !== 0);
       const n = usable.length;
-      const up = usable.filter((v) => v > 0).length;
-      const baseUp = n > 0 ? up / n : null;
+      const gt = usable.filter((v) => v > 0).length;
+      const lt = usable.filter((v) => v < 0).length;
+      const eq = Math.max(0, n - gt - lt);
+      const pGt = n > 0 ? gt / n : null;
+      const pEq = n > 0 ? eq / n : null;
+      const pLt = n > 0 ? lt / n : null;
       let repeat: number | null = null;
       let tN = 0;
       let tSame = 0;
@@ -136,9 +143,9 @@ export function DeepAnalysisView({
       }
       if (tN > 0) repeat = tSame / tN;
       const last = usable.length ? usable[usable.length - 1] : 0;
-      const pUpNext =
-        repeat === null || last === 0 ? baseUp : last > 0 ? repeat : 1 - repeat;
-      return { n, baseUp, repeat, last, pUpNext };
+      const pGtNext =
+        repeat === null || last === 0 ? pGt : last > 0 ? repeat : 1 - repeat;
+      return { n, pGt, pEq, pLt, repeat, last, pGtNext };
     };
 
     return { vsPrev: build(sPrev), vsForecast: build(sFc) };
@@ -351,14 +358,16 @@ export function DeepAnalysisView({
   const predictRelease = data.predictRelease ?? {};
   const aGtF = predictRelease.actualGtForecast ?? predictRelease.actual_gt_forecast;
   const aGtP = predictRelease.actualGtPrevious ?? predictRelease.actual_gt_previous;
-  const hasDeepAGtF =
+  // Deep JSON has only two baseline probabilities today; the UI shows a clearer 3-way breakdown from local history.
+  // Keep these for future expansions, but don't gate the main Predict Release UI on them.
+  const _hasDeepAGtF =
     Boolean(deepData.ok) &&
     typeof aGtF?.p === "number" &&
     Number.isFinite(aGtF.p) &&
     typeof aGtF?.n === "number" &&
     Number.isFinite(aGtF.n) &&
     aGtF.n > 0;
-  const hasDeepAGtP =
+  const _hasDeepAGtP =
     Boolean(deepData.ok) &&
     typeof aGtP?.p === "number" &&
     Number.isFinite(aGtP.p) &&
@@ -371,30 +380,64 @@ export function DeepAnalysisView({
       <div className="deep-block-title">Predict Release (baseline)</div>
       <div className="deep-grid">
         <div className="deep-card">
-          <div className="deep-card-k">P(Actual &gt; Forecast)</div>
-          <div className="deep-card-v">
-            {hasDeepAGtF ? fmtP(aGtF?.p) : fmtPct(localPredict.vsForecast.pUpNext)}
-          </div>
+          <div className="deep-card-k">Actual vs Forecast</div>
+          <div className="deep-card-v">{fmtPctNum(localPredict.vsForecast.pGt)}</div>
           <div className="deep-card-sub">
-            {hasDeepAGtF
-              ? fmtN(aGtF?.n)
-              : localPredict.vsForecast.n > 0
-                ? `N=${localPredict.vsForecast.n}`
-                : "No forecast history"}
+            {localPredict.vsForecast.n > 0 ? `N=${localPredict.vsForecast.n}` : "No forecast history"}
           </div>
+          {localPredict.vsForecast.n > 0 ? (
+            <>
+              <div className="deep-tri" aria-hidden="true">
+                <div
+                  className="deep-tri-gt"
+                  style={{ width: `${Math.round((localPredict.vsForecast.pGt ?? 0) * 100)}%` }}
+                />
+                <div
+                  className="deep-tri-eq"
+                  style={{ width: `${Math.round((localPredict.vsForecast.pEq ?? 0) * 100)}%` }}
+                />
+                <div
+                  className="deep-tri-lt"
+                  style={{ width: `${Math.round((localPredict.vsForecast.pLt ?? 0) * 100)}%` }}
+                />
+              </div>
+              <div className="deep-tri-legend">
+                <span className="deep-tri-chip gt">{`> ${fmtPctNum(localPredict.vsForecast.pGt)}`}</span>
+                <span className="deep-tri-chip eq">{`= ${fmtPctNum(localPredict.vsForecast.pEq)}`}</span>
+                <span className="deep-tri-chip lt">{`< ${fmtPctNum(localPredict.vsForecast.pLt)}`}</span>
+              </div>
+            </>
+          ) : null}
         </div>
         <div className="deep-card">
-          <div className="deep-card-k">P(Actual &gt; Previous)</div>
-          <div className="deep-card-v">
-            {hasDeepAGtP ? fmtP(aGtP?.p) : fmtPct(localPredict.vsPrev.pUpNext)}
-          </div>
+          <div className="deep-card-k">Actual vs Previous</div>
+          <div className="deep-card-v">{fmtPctNum(localPredict.vsPrev.pGt)}</div>
           <div className="deep-card-sub">
-            {hasDeepAGtP
-              ? fmtN(aGtP?.n)
-              : localPredict.vsPrev.n > 0
-                ? `N=${localPredict.vsPrev.n}`
-                : "No previous history"}
+            {localPredict.vsPrev.n > 0 ? `N=${localPredict.vsPrev.n}` : "No previous history"}
           </div>
+          {localPredict.vsPrev.n > 0 ? (
+            <>
+              <div className="deep-tri" aria-hidden="true">
+                <div
+                  className="deep-tri-gt"
+                  style={{ width: `${Math.round((localPredict.vsPrev.pGt ?? 0) * 100)}%` }}
+                />
+                <div
+                  className="deep-tri-eq"
+                  style={{ width: `${Math.round((localPredict.vsPrev.pEq ?? 0) * 100)}%` }}
+                />
+                <div
+                  className="deep-tri-lt"
+                  style={{ width: `${Math.round((localPredict.vsPrev.pLt ?? 0) * 100)}%` }}
+                />
+              </div>
+              <div className="deep-tri-legend">
+                <span className="deep-tri-chip gt">{`> ${fmtPctNum(localPredict.vsPrev.pGt)}`}</span>
+                <span className="deep-tri-chip eq">{`= ${fmtPctNum(localPredict.vsPrev.pEq)}`}</span>
+                <span className="deep-tri-chip lt">{`< ${fmtPctNum(localPredict.vsPrev.pLt)}`}</span>
+              </div>
+            </>
+          ) : null}
         </div>
       </div>
 
@@ -508,7 +551,7 @@ export function DeepAnalysisView({
                       key={c.eventId}
                       type="button"
                       className={`deep-contrib-item${active ? " active" : ""}`}
-                      onClick={() => setHighlightId(c.eventId)}
+                      onClick={() => setHighlightId((prev) => (prev === c.eventId ? null : c.eventId))}
                     >
                       <span className="deep-contrib-label">{c.label || c.eventId}</span>
                       <span className="deep-contrib-w">
@@ -726,74 +769,68 @@ export function DeepAnalysisView({
               </div>
 
               <div className="deep-method-body">
-                <div className="deep-method-block">
-                  <div className="deep-method-h">What you are seeing</div>
-                  <div className="deep-method-p">
-                    This panel has two parts:
+                <div className="deep-method-grid">
+                  <div className="deep-method-card">
+                    <div className="deep-method-h">TL;DR</div>
+                    <div className="deep-method-p">
+                      Deep Analysis is a forecasting view: it estimates release outcome tendencies and a single
+                      unified market bias path P(t) around the selected event.
+                    </div>
+                    <div className="deep-method-mini">
+                      Think of it as: “What is likely to happen, and why do we think so?”
+                    </div>
                   </div>
-                  <ul className="deep-method-ul">
-                    <li>
-                      <strong>Predict Release</strong>: baseline probabilities like P(Actual &gt; Forecast) and
-                      P(Actual &gt; Previous) derived from this event’s past releases.
-                    </li>
-                    <li>
-                      <strong>Unified Outlook P(t)</strong>: one main probability path of the market bias within
-                      +/-24h of the selected event. When deep JSON is available, nearby events contribute weighted
-                      deltas to this path (clicking an event only highlights its contribution).
-                    </li>
-                  </ul>
+
+                  <div className="deep-method-card">
+                    <div className="deep-method-h">How to read it</div>
+                    <ul className="deep-method-ul">
+                      <li>
+                        <strong>Predict Release</strong>: uses this event’s past releases to show how often Actual is
+                        above / equal / below.
+                      </li>
+                      <li>
+                        <strong>Unified Outlook P(t)</strong>: one path. Clicking an event highlights what it changes
+                        (dashed line = “without this event” when available).
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="deep-method-card">
+                    <div className="deep-method-h">Inputs</div>
+                    <ul className="deep-method-ul">
+                      <li>Historical releases of this event (Actual / Forecast / Previous).</li>
+                      <li>Nearby scheduled events within the +/-24h window (for unified outlook).</li>
+                      <li>Impact model statistics (fallback when deep JSON is missing).</li>
+                    </ul>
+                  </div>
+
+                  <div className="deep-method-card">
+                    <div className="deep-method-h">Computation (high level)</div>
+                    <ol className="deep-method-ol">
+                      <li>Collect numeric history for this event.</li>
+                      <li>Compute baseline outcome statistics from history.</li>
+                      <li>Combine nearby-event contributions into one unified P(t) (deep JSON refines this).</li>
+                    </ol>
+                    <div className="deep-method-mini" style={{ marginTop: 8 }}>
+                      Predict Release does <strong>not</strong> use today’s Forecast as a “feature”.
+                    </div>
+                  </div>
                 </div>
 
-                <div className="deep-method-block">
-                  <div className="deep-method-h">How it is computed (high level)</div>
-                  {(() => {
-                    const method = data.method ?? null;
-                    const steps = Array.isArray(method?.steps) ? method.steps : null;
-                    const fallbackSteps = [
-                      "Collect numeric history from past releases for this event (Actual / Forecast / Previous).",
-                      "Compute baseline outcome statistics (base rate + repeat rate on the sign of surprises).",
-                      "Use the Impact model as the fallback P(t). When deep JSON is available, combine multiple signals and nearby-event contributions into a single unified P(t)."
-                    ];
-                    const finalSteps = steps && steps.length ? steps : fallbackSteps;
-                    return (
-                      <ol className="deep-method-ol">
-                        {finalSteps.slice(0, 12).map((s: string, idx: number) => (
-                          <li key={idx}>{s}</li>
-                        ))}
-                      </ol>
-                    );
-                  })()}
-                  <div className="deep-method-p" style={{ marginTop: 8 }}>
-                    Note: Predict Release does <strong>not</strong> use today’s Forecast as a “feature” to predict the
-                    outcome. It is a probability estimate from historical releases (and additional signals when deep
-                    JSON is present).
-                  </div>
-                </div>
-
-                <div className="deep-method-block">
-                  <div className="deep-method-h">Credibility / confidence</div>
-                  <div className="deep-method-p">
-                    Higher N and more stable patterns improve credibility. This is a probabilistic guide, not a
-                    guarantee.
-                  </div>
+                <div className="deep-method-block" style={{ marginTop: 14 }}>
+                  <div className="deep-method-h">Credibility</div>
                   <div className="deep-method-kv">
-                    <span className="deep-method-k">Current history N</span>
+                    <span className="deep-method-k">History N</span>
                     <span className="deep-method-v">{points.length}</span>
                   </div>
                   <div className="deep-method-kv">
-                    <span className="deep-method-k">Current model</span>
-                    <span className="deep-method-v">
-                      {deepData.ok ? "Deep JSON model" : "Fallback: base rate + repeat rate"}
-                    </span>
+                    <span className="deep-method-k">Model</span>
+                    <span className="deep-method-v">{deepData.ok ? "Deep JSON model" : "Fallback model"}</span>
                   </div>
                 </div>
 
                 <div className="deep-method-block">
                   <div className="deep-method-h">Signals</div>
-                  <div className="deep-method-p">
-                    When deep JSON is present, more signals are used. Without deep JSON, only baseline statistics are
-                    used.
-                  </div>
                   <div className="deep-method-signals">
                     {(() => {
                       const used = Array.isArray(data.signalsUsed) ? data.signalsUsed : null;
@@ -806,8 +843,8 @@ export function DeepAnalysisView({
                       }
                       return (
                         <>
-                          <span className="deep-signal-chip">Base rate</span>
-                          <span className="deep-signal-chip">Repeat rate</span>
+                          <span className="deep-signal-chip">History base rate</span>
+                          <span className="deep-signal-chip">Joint-event window</span>
                         </>
                       );
                     })()}
@@ -816,23 +853,11 @@ export function DeepAnalysisView({
 
                 <div className="deep-method-block">
                   <div className="deep-method-h">Limitations</div>
-                  {(() => {
-                    const method = data.method ?? null;
-                    const limitations = Array.isArray(method?.limitations)
-                      ? method.limitations
-                      : [
-                          "Macro regimes change; correlations can break.",
-                          "Events are correlated; attribution is approximate.",
-                          "Data quality (revisions / missing values) affects results."
-                        ];
-                    return (
-                      <ul className="deep-method-ul">
-                        {limitations.slice(0, 10).map((s: string, idx: number) => (
-                          <li key={idx}>{s}</li>
-                        ))}
-                      </ul>
-                    );
-                  })()}
+                  <ul className="deep-method-ul">
+                    <li>Macro regimes change; relationships can break.</li>
+                    <li>Events are correlated; attribution is approximate.</li>
+                    <li>Revisions / missing values affect the stats.</li>
+                  </ul>
                 </div>
               </div>
             </div>

@@ -34,6 +34,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  padding-top: 2px;
 }
 
 .deep-help-btn {
@@ -74,6 +75,9 @@
   overflow: auto;
   padding-right: 6px;
   overscroll-behavior: contain;
+  scrollbar-gutter: stable both-edges;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.32) transparent;
 }
 
 .deep-panel-scroll::-webkit-scrollbar {
@@ -81,12 +85,121 @@
 }
 
 .deep-panel-scroll::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.22);
+  background: rgba(148, 163, 184, 0.32);
   border-radius: 999px;
 }
 
+[data-theme="light"] .deep-panel-scroll {
+  scrollbar-color: rgba(71, 85, 105, 0.28) transparent;
+}
+
 [data-theme="light"] .deep-panel-scroll::-webkit-scrollbar-thumb {
-  background: rgba(71, 85, 105, 0.18);
+  background: rgba(71, 85, 105, 0.28);
+}
+
+.deep-panel-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.deep-panel-scroll:hover::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.42);
+}
+
+[data-theme="light"] .deep-panel-scroll:hover::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.36);
+}
+
+.deep-tri {
+  margin-top: 10px;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  display: flex;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .deep-tri {
+  background: rgba(18, 20, 26, 0.03);
+  border-color: rgba(18, 20, 26, 0.08);
+}
+
+.deep-tri-gt {
+  background: rgba(34, 197, 94, 0.42);
+}
+
+.deep-tri-eq {
+  background: rgba(148, 163, 184, 0.34);
+}
+
+[data-theme="light"] .deep-tri-eq {
+  background: rgba(71, 85, 105, 0.26);
+}
+
+.deep-tri-lt {
+  background: rgba(239, 68, 68, 0.36);
+}
+
+.deep-tri-legend {
+  margin-top: 6px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.deep-tri-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.deep-tri-chip::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.32);
+}
+
+.deep-tri-chip.gt::before {
+  background: rgba(34, 197, 94, 0.7);
+}
+.deep-tri-chip.eq::before {
+  background: rgba(148, 163, 184, 0.55);
+}
+.deep-tri-chip.lt::before {
+  background: rgba(239, 68, 68, 0.62);
+}
+
+.deep-method-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.deep-method-card {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 12px 12px 10px;
+}
+
+[data-theme="light"] .deep-method-card {
+  border-color: rgba(18, 20, 26, 0.08);
+  background: rgba(18, 20, 26, 0.015);
+}
+
+.deep-method-card .deep-method-h {
+  margin-bottom: 6px;
+}
+
+.deep-method-mini {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.45;
 }
 
 .modal-backdrop.modal-backdrop-deep-full {
