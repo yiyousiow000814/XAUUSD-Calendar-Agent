@@ -2276,16 +2276,16 @@ export function EventHistoryModal({
                     {impactOpen ? ( 
                       <div className="history-impact"> 
                         {impactPanel === "deep" ? (
-  <DeepAnalysisView
-    points={points}
-    isUsdEvent={isUsdEvent}
-    deepLoading={deepLoading}
-    deepError={deepError}
-    deepData={deepData}
-    impactSeriesItems={impactSeries.items}
-  />
-) : (
-  <div className="history-impact-chart" data-qa="qa:history:impact-chart"> 
+                          <DeepAnalysisView
+                            points={points}
+                            isUsdEvent={isUsdEvent}
+                            deepLoading={deepLoading}
+                            deepError={deepError}
+                            deepData={deepData}
+                            impactSeriesItems={impactSeries.items}
+                          />
+                        ) : (
+                          <div className="history-impact-chart" data-qa="qa:history:impact-chart"> 
                             {!impactLoading && !impactError && impactData?.ok && impactChart ? (
                               <div className="impact-chart-header" aria-hidden="true">
                                 <div className="impact-chart-meta">
