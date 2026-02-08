@@ -227,8 +227,8 @@ fn build_unified_outlook_fallback(
 
     // Make the fallback less "flat" by focusing on near-term events and combining deltas in logit-space.
     // If we average too many weak signals over +/-24h, it collapses toward ~0.5 (which looks like a dead-flat market).
-    let tau_minutes = 240.0; // ~4h half-ish decay
-    let delta_scale = 4.0; // amplify small deltas so the path has visible curvature
+    let tau_minutes = 180.0; // focus on the nearer schedule window (~3h decay)
+    let delta_scale = 6.0; // amplify small deltas so the path has visible curvature
 
     let mut series: Vec<f64> = vec![];
     for t in grid.iter().copied() {
