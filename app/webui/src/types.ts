@@ -19,6 +19,8 @@ export type EventItem = {
   id: string;
   state?: "upcoming" | "current";
   time: string;
+  // UTC timestamp for the specific release instance (used for Deep Analysis unified outlook window).
+  dtUtc?: string;
   cur: string;
   impact: string;
   event: string;
@@ -27,6 +29,8 @@ export type EventItem = {
 
 export type PastEventItem = {
   time: string;
+  // UTC timestamp for the specific release instance (used for Deep Analysis unified outlook window).
+  dtUtc?: string;
   cur: string;
   impact: string;
   event: string;

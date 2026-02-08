@@ -652,7 +652,7 @@ export const backend = {
     }
     return api.get_event_impact_usd({ eventId: payload.eventId, bucket: payload.bucket } as any); 
   }, 
-  getEventDeepAnalysisUsd: async (payload: { eventId: string }) => {
+  getEventDeepAnalysisUsd: async (payload: { eventId: string; anchorDtUtc?: string }) => {
     if (isUiCheckRuntime()) {
       return Promise.resolve({ ok: false, message: "Deep analysis unavailable in ui-check runtime" });
     }
@@ -663,7 +663,7 @@ export const backend = {
       }
       return Promise.resolve({ ok: false, message: "Deep analysis unavailable" });
     }
-    return api.get_event_deep_analysis_usd({ eventId: payload.eventId } as any);
+    return api.get_event_deep_analysis_usd({ eventId: payload.eventId, anchorDtUtc: payload.anchorDtUtc } as any);
   },
   getUpdateState: async () => { 
     const api = await withApi(); 

@@ -25,6 +25,8 @@ type EventHistoryModalProps = {
   error: string | null;
   selectionLabel: string;
   data: EventHistoryResponse | null;
+  // UTC timestamp for the selected release instance (used for Deep Analysis unified outlook window).
+  anchorDtUtc: string;
   calendarTimezoneMode: "utc" | "system";
   calendarUtcOffsetMinutes: number;
   onClose: () => void;
@@ -216,6 +218,7 @@ export function EventHistoryModal({
   error,
   selectionLabel,
   data,
+  anchorDtUtc,
   calendarTimezoneMode,
   calendarUtcOffsetMinutes,
   onClose
@@ -693,7 +696,7 @@ export function EventHistoryModal({
       return;
     }
 
-    const cacheKey = eventId;
+    const cacheKey = `${eventId}::${(anchorDtUtc || "").trim()}`;
     const cached = deepCacheRef.current.get(cacheKey);
     if (cached?.ok) {
       setDeepError(null);
@@ -708,7 +711,7 @@ export function EventHistoryModal({
     setDeepData(null);
 
     backend
-      .getEventDeepAnalysisUsd({ eventId })
+      .getEventDeepAnalysisUsd({ eventId, anchorDtUtc })
       .then((result) => {
         if (cancelled) return;
         setDeepError(null);
@@ -729,7 +732,7 @@ export function EventHistoryModal({
     return () => {
       cancelled = true;
     };
-  }, [eventId, impactOpen, impactPanel, isOpen, isUsdEvent]);
+  }, [eventId, impactOpen, impactPanel, isOpen, isUsdEvent, anchorDtUtc]);
 
   // Prefetch impact data while the modal is open so switching History -> Impact is instant.
   useEffect(() => {

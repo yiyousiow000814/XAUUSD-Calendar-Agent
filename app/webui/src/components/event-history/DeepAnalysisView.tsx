@@ -215,7 +215,6 @@ export function DeepAnalysisView({
     const pm = data.predictMarket ?? null;
     const unified = pm?.unifiedPath ?? null;
     const useUnified =
-      !!deepData?.ok &&
       unified &&
       Array.isArray(unified.offsetsMinutes) &&
       Array.isArray(unified.pUp) &&
@@ -325,9 +324,25 @@ export function DeepAnalysisView({
   }
 
   const data = (deepData.data as any) ?? {};
+  const meta = (deepData.meta as any) ?? {};
+  const isFallback = String(meta?.source ?? "").toLowerCase() === "fallback";
   const predictRelease = data.predictRelease ?? {};
   const aGtF = predictRelease.actualGtForecast ?? predictRelease.actual_gt_forecast;
   const aGtP = predictRelease.actualGtPrevious ?? predictRelease.actual_gt_previous;
+  const hasDeepAGtF =
+    Boolean(deepData.ok) &&
+    typeof aGtF?.p === "number" &&
+    Number.isFinite(aGtF.p) &&
+    typeof aGtF?.n === "number" &&
+    Number.isFinite(aGtF.n) &&
+    aGtF.n > 0;
+  const hasDeepAGtP =
+    Boolean(deepData.ok) &&
+    typeof aGtP?.p === "number" &&
+    Number.isFinite(aGtP.p) &&
+    typeof aGtP?.n === "number" &&
+    Number.isFinite(aGtP.n) &&
+    aGtP.n > 0;
 
   const content = (
     <>
@@ -336,19 +351,27 @@ export function DeepAnalysisView({
         <div className="deep-card">
           <div className="deep-card-k">P(Actual &gt; Forecast)</div>
           <div className="deep-card-v">
-            {deepData.ok ? fmtP(aGtF?.p) : fmtPct(localPredict.vsForecast.pUpNext)}
+            {hasDeepAGtF ? fmtP(aGtF?.p) : fmtPct(localPredict.vsForecast.pUpNext)}
           </div>
           <div className="deep-card-sub">
-            {deepData.ok ? fmtN(aGtF?.n) : `N=${localPredict.vsForecast.n}`}
+            {hasDeepAGtF
+              ? fmtN(aGtF?.n)
+              : localPredict.vsForecast.n > 0
+                ? `N=${localPredict.vsForecast.n}`
+                : "No forecast history"}
           </div>
         </div>
         <div className="deep-card">
           <div className="deep-card-k">P(Actual &gt; Previous)</div>
           <div className="deep-card-v">
-            {deepData.ok ? fmtP(aGtP?.p) : fmtPct(localPredict.vsPrev.pUpNext)}
+            {hasDeepAGtP ? fmtP(aGtP?.p) : fmtPct(localPredict.vsPrev.pUpNext)}
           </div>
           <div className="deep-card-sub">
-            {deepData.ok ? fmtN(aGtP?.n) : `N=${localPredict.vsPrev.n}`}
+            {hasDeepAGtP
+              ? fmtN(aGtP?.n)
+              : localPredict.vsPrev.n > 0
+                ? `N=${localPredict.vsPrev.n}`
+                : "No previous history"}
           </div>
         </div>
       </div>
@@ -423,10 +446,10 @@ export function DeepAnalysisView({
         {(() => {
           const pm = data.predictMarket ?? null;
           const contribs = Array.isArray(pm?.contributions) ? pm.contributions : [];
-          if (!deepData.ok || contribs.length === 0) {
+          if (contribs.length === 0) {
             return (
               <div className="deep-muted" style={{ marginTop: 8 }}>
-                Per-event contributions are available when deep analysis JSON is present.
+                No nearby-event contributions found in the +/-24h window.
               </div>
             );
           }
@@ -579,9 +602,9 @@ export function DeepAnalysisView({
         </div>
       )}
 
-      {deepData.ok ? null : (
+      {!isFallback ? null : (
         <div className="deep-muted" style={{ marginTop: 10 }}>
-          Deep JSON is not available for this event yet. Showing a baseline fallback from this event’s release history.
+          Deep JSON is not available for this event yet. Showing a fallback unified outlook from the scheduled window.
         </div>
       )}
     </>

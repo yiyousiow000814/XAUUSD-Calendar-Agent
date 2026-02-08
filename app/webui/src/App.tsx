@@ -149,6 +149,7 @@ export default function App() {
   const [historyError, setHistoryError] = useState<string | null>(null);
   const [historySelection, setHistorySelection] = useState<{ event: string; cur: string } | null>(null);
   const [historyData, setHistoryData] = useState<EventHistoryResponse | null>(null);
+  const [historyAnchorDtUtc, setHistoryAnchorDtUtc] = useState<string>("");
   const [temporaryPathNote, setTemporaryPathNote] = useState<{
     tone: "info" | "warn" | "error";
     text: string;
@@ -1884,11 +1885,13 @@ export default function App() {
     setHistoryError(null);
     setHistoryData(null);
     setHistorySelection(null);
+    setHistoryAnchorDtUtc("");
   };
 
-  const openEventHistory = async (payload: { event: string; cur: string }) => {
+  const openEventHistory = async (payload: { event: string; cur: string; dtUtc?: string }) => {
     const eventName = payload.event || "";
     const currencyCode = payload.cur || "";
+    setHistoryAnchorDtUtc(String(payload.dtUtc || ""));
     historyRequestRef.current += 1;
     const requestId = historyRequestRef.current;
     setHistorySelection({ event: eventName, cur: currencyCode });
@@ -3324,7 +3327,7 @@ export default function App() {
               impactTone={impactTone}
               impactFilter={impactFilter}
               onImpactFilterChange={setImpactFilter}
-              onOpenHistory={(item) => openEventHistory({ event: item.event, cur: item.cur })}
+              onOpenHistory={(item) => openEventHistory({ event: item.event, cur: item.cur, dtUtc: item.dtUtc })}
             />
           </div>
           <div className="split-divider" onMouseDown={startSplitDrag} data-qa="qa:split:divider" />
@@ -3337,7 +3340,7 @@ export default function App() {
               calendarUtcOffsetMinutes={settings.calendarUtcOffsetMinutes}
               impactTone={impactTone}
               impactFilter={impactFilter}
-              onOpenHistory={(item) => openEventHistory({ event: item.event, cur: item.cur })}
+              onOpenHistory={(item) => openEventHistory({ event: item.event, cur: item.cur, dtUtc: item.dtUtc })}
             />
           </div>
         </div>
@@ -3410,6 +3413,7 @@ export default function App() {
         error={historyError}
         selectionLabel={historySelectionLabel}
         data={historyData}
+        anchorDtUtc={historyAnchorDtUtc}
         calendarTimezoneMode={settings.calendarTimezoneMode}
         calendarUtcOffsetMinutes={settings.calendarUtcOffsetMinutes}
         onClose={closeHistoryModal}

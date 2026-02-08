@@ -113,6 +113,7 @@ pub fn render_next_events(
             "id": id,
             "state": if is_current { "current" } else { "upcoming" },
             "time": time_text,
+            "dtUtc": e.dt_utc.to_rfc3339(),
             "cur": cur_display,
             "impact": impact_display,
             "event": e.event.clone(),
@@ -206,6 +207,7 @@ pub fn render_past_events(
 
         rendered.push(json!({
             "time": time_text,
+            "dtUtc": e.dt_utc.to_rfc3339(),
             "cur": cur_display,
             "impact": impact_display,
             "event": e.event.clone(),

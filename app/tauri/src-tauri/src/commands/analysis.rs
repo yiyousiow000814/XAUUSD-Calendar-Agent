@@ -1,6 +1,256 @@
 use crate::config;
+use crate::state::RuntimeState;
+use chrono::{DateTime, Duration, Utc};
 use serde_json::{json, Value};
 use std::fs;
+use std::sync::Mutex;
+
+fn parse_anchor_dt_utc(payload: &Value) -> DateTime<Utc> {
+    payload
+        .get("anchorDtUtc")
+        .and_then(|v| v.as_str())
+        .and_then(|raw| DateTime::parse_from_rfc3339(raw).ok())
+        .map(|dt| dt.with_timezone(&Utc))
+        .unwrap_or_else(Utc::now)
+}
+
+fn importance_weight(raw: &str) -> f64 {
+    match raw.trim().to_lowercase().as_str() {
+        "high" => 1.0,
+        "medium" => 0.7,
+        "low" => 0.4,
+        _ => 0.5,
+    }
+}
+
+fn lerp(a: f64, b: f64, t: f64) -> f64 {
+    a + (b - a) * t
+}
+
+fn interp_piecewise(offsets: &[i64], values: &[f64], x: i64, default: f64) -> f64 {
+    if offsets.len() < 2 || offsets.len() != values.len() {
+        return default;
+    }
+    if x <= offsets[0] {
+        return values[0];
+    }
+    if x >= offsets[offsets.len() - 1] {
+        return values[values.len() - 1];
+    }
+    for i in 1..offsets.len() {
+        let x1 = offsets[i];
+        if x <= x1 {
+            let x0 = offsets[i - 1];
+            let y0 = values[i - 1];
+            let y1 = values[i];
+            let span = (x1 - x0) as f64;
+            if span <= 0.0 {
+                return y1;
+            }
+            let t = (x - x0) as f64 / span;
+            return lerp(y0, y1, t);
+        }
+    }
+    default
+}
+
+fn read_impact_json() -> Option<Value> {
+    let analysis_dir = config::analysis_dir();
+    let path = analysis_dir.join("xauusd_event_impact_usd.json");
+    let install_path = config::install_dir()
+        .join("data")
+        .join("analysis")
+        .join("xauusd_event_impact_usd.json");
+    let text = fs::read_to_string(&path)
+        .or_else(|_| fs::read_to_string(&install_path))
+        .ok()?;
+    serde_json::from_str(&text).ok()
+}
+
+fn build_unified_outlook_fallback(
+    event_id: &str,
+    anchor_dt_utc: DateTime<Utc>,
+    state: &Mutex<RuntimeState>,
+) -> Option<Value> {
+    let impact = read_impact_json()?;
+    if impact.get("schema").and_then(|v| v.as_i64()).unwrap_or(0) != 1 {
+        return None;
+    }
+    let windows: Vec<i64> = impact
+        .get("windows_minutes")
+        .and_then(|v| v.as_array())
+        .map(|arr| arr.iter().filter_map(|v| v.as_i64()).collect::<Vec<i64>>())
+        .unwrap_or_default();
+    if windows.len() < 2 {
+        return None;
+    }
+    let windows_sorted = {
+        let mut w = windows.clone();
+        w.sort();
+        w
+    };
+
+    // Use a fixed grid for display: +/-24h, plus the key short windows used elsewhere.
+    let mut grid: Vec<i64> = vec![
+        -1440, -720, -240, -60, -30, -15, -5, -1, 0, 1, 5, 15, 30, 60, 240, 720, 1440,
+    ];
+    grid.sort();
+    grid.dedup();
+
+    let events_obj = impact.get("events").and_then(|v| v.as_object())?;
+
+    // Nearby scheduled events within +/-24h drive the unified outlook.
+    let start = anchor_dt_utc - Duration::minutes(1440);
+    let end = anchor_dt_utc + Duration::minutes(1440);
+    struct NearbyEvent {
+        id: String,
+        label: String,
+        dt_utc: DateTime<Utc>,
+        weight: f64,
+        offsets: Vec<i64>,
+        p_up: Vec<f64>,
+    }
+
+    let mut nearby: Vec<NearbyEvent> = vec![];
+    let runtime = state.lock().ok()?;
+    if runtime.calendar.events.is_empty() {
+        return None;
+    }
+    for e in runtime.calendar.events.iter() {
+        if e.dt_utc < start || e.dt_utc > end {
+            continue;
+        }
+        if e.currency.trim().to_uppercase() != "USD" {
+            continue;
+        }
+        // Impact JSON uses metric-level ids like "USD::Foo::none" (not per-release instance).
+        let metric_id = format!("USD::{}::none", e.event.trim());
+        let Some(metric_entry) = events_obj.get(&metric_id) else {
+            continue;
+        };
+        let Some(buckets) = metric_entry.as_object() else {
+            continue;
+        };
+
+        // Derive unconditional P(up) by mixing buckets using bucket sample sizes.
+        // We pick a reference offset (closest to 0) to estimate bucket weights.
+        let ref_offset = windows_sorted
+            .iter()
+            .copied()
+            .min_by_key(|v| v.abs())
+            .unwrap_or(windows_sorted[0]);
+        let ref_key = ref_offset.to_string();
+
+        let mut bucket_weights: Vec<(String, f64)> = vec![];
+        for b in ["ap_gt_prev", "ap_lt_prev", "ap_eq_prev"] {
+            let n = buckets
+                .get(b)
+                .and_then(|v| v.get(&ref_key))
+                .and_then(|v| v.get("n"))
+                .and_then(|v| v.as_f64())
+                .unwrap_or(0.0);
+            if n > 0.0 {
+                bucket_weights.push((b.to_string(), n));
+            }
+        }
+        let denom: f64 = bucket_weights.iter().map(|(_, w)| *w).sum();
+        if denom <= 0.0 {
+            continue;
+        }
+        for (_, w) in bucket_weights.iter_mut() {
+            *w /= denom;
+        }
+
+        let mut offsets: Vec<i64> = vec![];
+        let mut p_up: Vec<f64> = vec![];
+        for off in windows_sorted.iter().copied() {
+            let key = off.to_string();
+            let mut pup = 0.5;
+            let mut used = false;
+            for (b, w) in bucket_weights.iter() {
+                let stats = buckets.get(b).and_then(|v| v.get(&key));
+                let Some(stats) = stats else {
+                    continue;
+                };
+                let p = stats.get("p_up").and_then(|v| v.as_f64()).or_else(|| {
+                    stats
+                        .get("p_down")
+                        .and_then(|v| v.as_f64())
+                        .map(|d| 1.0 - d)
+                });
+                if let Some(p) = p {
+                    pup += (p - 0.5) * *w;
+                    used = true;
+                }
+            }
+            if used {
+                offsets.push(off);
+                p_up.push(pup.clamp(0.0, 1.0));
+            }
+        }
+        if offsets.len() < 2 {
+            continue;
+        }
+
+        let w = importance_weight(&e.importance);
+        // Per-release instance id (unique) for contributions highlighting.
+        let instance_id = format!("{metric_id}@{}", e.dt_utc.to_rfc3339());
+        nearby.push(NearbyEvent {
+            id: instance_id,
+            label: e.event.clone(),
+            dt_utc: e.dt_utc,
+            weight: w,
+            offsets,
+            p_up,
+        });
+    }
+
+    if nearby.is_empty() {
+        return None;
+    }
+
+    let mut series: Vec<f64> = vec![];
+    for t in grid.iter().copied() {
+        let abs = anchor_dt_utc + Duration::minutes(t);
+        let mut sum_w = 0.0;
+        let mut sum_delta = 0.0;
+        for e in nearby.iter() {
+            let rel = (abs - e.dt_utc).num_minutes();
+            let pup = interp_piecewise(&e.offsets, &e.p_up, rel, 0.5);
+            sum_w += e.weight;
+            sum_delta += e.weight * (pup - 0.5);
+        }
+        let p = if sum_w > 0.0 {
+            (0.5 + sum_delta / sum_w).clamp(0.0, 1.0)
+        } else {
+            0.5
+        };
+        series.push(p);
+    }
+
+    let contributions: Vec<Value> = nearby
+        .iter()
+        .map(|e| {
+            json!({
+                "eventId": e.id,
+                "label": format!("{} · {}", e.label.trim(), e.dt_utc.format("%d-%m-%Y %H:%M")),
+                "weight": e.weight
+            })
+        })
+        .collect();
+
+    Some(json!({
+        "unifiedPath": {
+            "offsetsMinutes": grid,
+            "pUp": series
+        },
+        "contributions": contributions,
+        "fallback": {
+            "anchorEventId": event_id,
+            "nearbyEvents": contributions.len()
+        }
+    }))
+}
 
 #[tauri::command]
 pub fn get_event_impact_usd(payload: Value) -> Value {
@@ -75,7 +325,10 @@ pub fn get_event_impact_usd(payload: Value) -> Value {
 }
 
 #[tauri::command]
-pub fn get_event_deep_analysis_usd(payload: Value) -> Value {
+pub fn get_event_deep_analysis_usd(
+    payload: Value,
+    state: tauri::State<'_, Mutex<RuntimeState>>,
+) -> Value {
     let event_id = payload
         .get("eventId")
         .and_then(|v| v.as_str())
@@ -85,6 +338,7 @@ pub fn get_event_deep_analysis_usd(payload: Value) -> Value {
     if event_id.is_empty() {
         return json!({"ok": false, "message": "eventId is required"});
     }
+    let anchor_dt_utc = parse_anchor_dt_utc(&payload);
 
     // Same lookup policy as impact: prefer appdata cache, fall back to bundled seed file.
     let analysis_dir = config::analysis_dir();
@@ -94,41 +348,50 @@ pub fn get_event_deep_analysis_usd(payload: Value) -> Value {
         .join("analysis")
         .join("xauusd_event_deep_analysis_usd.json");
 
-    let text = match fs::read_to_string(&path).or_else(|_| fs::read_to_string(&install_path)) {
-        Ok(v) => v,
-        Err(_) => {
-            return json!({
-                "ok": false,
-                "message": format!(
-                    "Deep analysis data not found at {} or {}. Generate it locally first.",
-                    path.display(),
-                    install_path.display()
-                )
-            })
+    let text = fs::read_to_string(&path).or_else(|_| fs::read_to_string(&install_path));
+    let parsed: Option<Value> = text
+        .ok()
+        .and_then(|t| serde_json::from_str::<Value>(&t).ok())
+        .filter(|v| v.get("schema").and_then(|v| v.as_i64()).unwrap_or(0) == 1);
+
+    if let Some(parsed) = parsed {
+        if let Some(events) = parsed.get("events").and_then(|v| v.as_object()) {
+            if let Some(event) = events.get(&event_id) {
+                // Deep JSON is present for this metric; return as-is.
+                return json!({
+                    "ok": true,
+                    "eventId": event_id,
+                    "generatedAtUtc": parsed.get("generated_at_utc").cloned().unwrap_or(Value::Null),
+                    "meta": parsed.get("meta").cloned().unwrap_or(json!({})),
+                    "data": event.clone()
+                });
+            }
         }
-    };
-    let parsed: Value = match serde_json::from_str(&text) {
-        Ok(v) => v,
-        Err(e) => {
-            return json!({"ok": false, "message": format!("Invalid deep analysis JSON: {e}")})
-        }
-    };
-    if parsed.get("schema").and_then(|v| v.as_i64()).unwrap_or(0) != 1 {
-        return json!({"ok": false, "message": "Unsupported deep analysis JSON schema"});
     }
-    let events = parsed.get("events").and_then(|v| v.as_object());
-    let Some(events) = events else {
-        return json!({"ok": false, "message": "Deep analysis JSON missing events"});
-    };
-    let Some(event) = events.get(&event_id) else {
-        return json!({"ok": false, "message": "No deep analysis for this eventId"});
-    };
+
+    // Fallback: build a unified outlook window from scheduled nearby events + impact model buckets.
+    let predict_market = build_unified_outlook_fallback(&event_id, anchor_dt_utc, &state)
+        .unwrap_or_else(|| json!({}));
 
     json!({
         "ok": true,
         "eventId": event_id,
-        "generatedAtUtc": parsed.get("generated_at_utc").cloned().unwrap_or(Value::Null),
-        "meta": parsed.get("meta").cloned().unwrap_or(Value::Null),
-        "data": event.clone()
+        "generatedAtUtc": Utc::now().to_rfc3339(),
+        "meta": {
+            "source": "fallback",
+            "anchorDtUtc": anchor_dt_utc.to_rfc3339()
+        },
+        "data": {
+            "predictMarket": predict_market,
+            "method": {
+                "name": "fallback-unified-outlook",
+                "version": "1",
+                "summary": "Fallback unified outlook computed from scheduled nearby events and the impact model. Deep JSON will replace this when available."
+            },
+            "signalsUsed": [
+                { "id": "joint_event_context", "title": "Joint-event context (schedule window)" },
+                { "id": "impact_model", "title": "Impact model (bucket-mixed baseline)" }
+            ]
+        }
     })
 }
