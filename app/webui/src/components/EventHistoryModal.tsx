@@ -314,7 +314,11 @@ export function EventHistoryModal({
   const impactViewportReadyTimerRef = useRef<number | null>(null);
   const impactViewportReadyDeadlineRef = useRef<number | null>(null);
   const impactViewportReadyFallbackRef = useRef<number | null>(null);
-  const [impactHoverOffset, setImpactHoverOffset] = useState<number | null>(null);
+  const [impactHoverOffset, setImpactHoverOffset] = useState<number | null>(null); 
+  const impactTooltipRef = useRef<HTMLDivElement | null>(null);
+  const [impactTooltipPos, setImpactTooltipPos] = useState<{ leftPct: number; topPct: number } | null>(
+    null
+  );
   const [impactNowMs, setImpactNowMs] = useState(() => Date.now());
   const effectiveCalendarOffsetMinutes = useMemo(() => {
     return getEffectiveCalendarUtcOffsetMinutes({
@@ -1298,7 +1302,7 @@ export function EventHistoryModal({
     [updateImpactHoverFromPointer]
   );
 
-  const impactHover = useMemo(() => {
+  const impactHover = useMemo(() => { 
     if (!impactOpen) return null;
     if (impactPanel !== "event") return null;
     if (!impactChart) return null;
@@ -1312,10 +1316,8 @@ export function EventHistoryModal({
 
     const x = impactChart.xForOffset(impactHoverOffset);
     const y = impactChart.yFor(stats.best_median_pct);
-    const leftPctRaw = (x / impactChart.width) * 100;
-    const topPctRaw = (y / impactChart.height) * 100;
-    const leftPct = Math.max(6, Math.min(94, leftPctRaw));
-    const topPct = Math.max(8, Math.min(92, topPctRaw));
+    const leftPct = (x / impactChart.width) * 100;
+    const topPct = (y / impactChart.height) * 100;
     const upP = typeof stats.p_up === "number" ? stats.p_up : null;
     const downP = typeof stats.p_down === "number" ? stats.p_down : null;
     const legacyDirMedian = typeof stats.p50 === "number" ? stats.p50 : null;
@@ -1334,18 +1336,63 @@ export function EventHistoryModal({
           ? legacyDirMedian
           : null;
 
-    return {
-      x,
-      y,
-      leftPct,
-      topPct,
+    return { 
+      x, 
+      y, 
+      leftPct, 
+      topPct, 
       offsetLabel: formatTimeOffsetMinutes(impactHoverOffset),
       upP,
       downP,
       upMove,
       downMove
     };
-  }, [impactChart, impactData, impactHoverOffset, impactOpen, impactPanel]);
+  }, [impactChart, impactData, impactHoverOffset, impactOpen, impactPanel]); 
+
+  // Keep the impact tooltip fully inside the chart body (no clipping at the edges).
+  // We measure the actual tooltip width/height and clamp the anchor point accordingly.
+  useLayoutEffect(() => {
+    if (!impactHover) {
+      setImpactTooltipPos(null);
+      return;
+    }
+    const body = impactBodyRef.current;
+    const tip = impactTooltipRef.current;
+    if (!body || !tip) {
+      setImpactTooltipPos({ leftPct: impactHover.leftPct, topPct: impactHover.topPct });
+      return;
+    }
+
+    const raf = window.requestAnimationFrame(() => {
+      const bodyRect = body.getBoundingClientRect();
+      const tipRect = tip.getBoundingClientRect();
+      if (bodyRect.width <= 1 || bodyRect.height <= 1 || tipRect.width <= 1 || tipRect.height <= 1) {
+        setImpactTooltipPos({ leftPct: impactHover.leftPct, topPct: impactHover.topPct });
+        return;
+      }
+
+      // Convert current % anchor to px in the body box.
+      const xPx = (impactHover.leftPct / 100) * bodyRect.width;
+      const yPx = (impactHover.topPct / 100) * bodyRect.height;
+
+      const pad = 10;
+      const halfW = tipRect.width / 2;
+      const liftY = tipRect.height * 1.2; // matches translateY(-120%)
+
+      const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+
+      const xClamped = clamp(xPx, pad + halfW, bodyRect.width - pad - halfW);
+      // Ensure the tooltip (lifted up) doesn't go above the body.
+      const yClamped = clamp(yPx, pad + liftY, bodyRect.height - pad);
+
+      setImpactTooltipPos({
+        leftPct: (xClamped / bodyRect.width) * 100,
+        topPct: (yClamped / bodyRect.height) * 100
+      });
+    });
+
+    return () => window.cancelAnimationFrame(raf);
+  }, [impactHover]);
 
   const hasVisibleSeries = visibleSeries.actual || visibleSeries.forecast;
   const rangeKeyForView: RangeKey = impactOpen ? "all" : preferredRange;
@@ -3027,11 +3074,15 @@ export function EventHistoryModal({
                               ) : null}
                                   </svg>
                                 </div>
-                            {impactHover ? (
-                              <div
-                                className="impact-chart-tooltip"
-                                style={{ left: `${impactHover.leftPct}%`, top: `${impactHover.topPct}%` }}
-                              >
+                            {impactHover ? ( 
+                              <div 
+                                className="impact-chart-tooltip" 
+                                ref={impactTooltipRef}
+                                style={{ 
+                                  left: `${(impactTooltipPos ?? impactHover).leftPct}%`, 
+                                  top: `${(impactTooltipPos ?? impactHover).topPct}%` 
+                                }} 
+                              > 
                                 <span className="impact-chart-tooltip-offset">{`@${impactHover.offsetLabel}`}</span>
                                 <span className="impact-chart-tooltip-sep">•</span>
                                 <span className="impact-chart-tooltip-dir">
