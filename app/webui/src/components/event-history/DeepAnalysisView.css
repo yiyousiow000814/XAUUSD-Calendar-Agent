@@ -29,6 +29,12 @@
   gap: 10px;
 }
 
+.deep-head-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .deep-help-btn {
   border: 1px solid rgba(148, 163, 184, 0.25);
   background: rgba(148, 163, 184, 0.08);
@@ -49,6 +55,53 @@
 .deep-help-btn:hover {
   border-color: rgba(148, 163, 184, 0.4);
   background: rgba(148, 163, 184, 0.12);
+}
+
+.deep-expand-btn {
+  border-color: rgba(96, 165, 250, 0.3);
+  background: rgba(96, 165, 250, 0.12);
+}
+
+[data-theme="light"] .deep-expand-btn {
+  border-color: rgba(59, 130, 246, 0.26);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.deep-panel-scroll {
+  /* If content is long, keep it inside a local scroller (like Impact chart body). */
+  max-height: 520px;
+  overflow: auto;
+  padding-right: 6px;
+  overscroll-behavior: contain;
+}
+
+.deep-panel-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.deep-panel-scroll::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.22);
+  border-radius: 999px;
+}
+
+[data-theme="light"] .deep-panel-scroll::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.18);
+}
+
+.modal-backdrop.modal-backdrop-deep-full {
+  z-index: 41;
+}
+
+.modal.modal-deep-full {
+  width: min(980px, 94vw);
+  max-height: min(86vh, 880px);
+  overflow: hidden;
+}
+
+.deep-full-body {
+  padding: 0 16px 16px;
+  overflow: auto;
+  max-height: calc(min(86vh, 880px) - 52px);
 }
 
 .history-impact-deep-body {
@@ -556,4 +609,3 @@
   border-color: rgba(71, 85, 105, 0.18);
   background: rgba(71, 85, 105, 0.06);
 }
-

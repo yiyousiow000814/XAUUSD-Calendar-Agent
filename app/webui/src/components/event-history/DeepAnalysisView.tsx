@@ -23,6 +23,7 @@ export function DeepAnalysisView({
   impactSeriesItems
 }: DeepAnalysisViewProps) {
   const [methodOpen, setMethodOpen] = useState(false);
+  const [fullOpen, setFullOpen] = useState(false);
   const [highlightId, setHighlightId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -33,6 +34,15 @@ export function DeepAnalysisView({
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [methodOpen]);
+
+  useEffect(() => {
+    if (!fullOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setFullOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [fullOpen]);
 
   useEffect(() => {
     if (!deepData?.ok) {
@@ -319,21 +329,319 @@ export function DeepAnalysisView({
   const aGtF = predictRelease.actualGtForecast ?? predictRelease.actual_gt_forecast;
   const aGtP = predictRelease.actualGtPrevious ?? predictRelease.actual_gt_previous;
 
+  const content = (
+    <>
+      <div className="deep-block-title">Predict Release</div>
+      <div className="deep-grid">
+        <div className="deep-card">
+          <div className="deep-card-k">Actual &gt; Forecast</div>
+          <div className="deep-card-v">
+            {deepData.ok ? fmtP(aGtF?.p) : fmtPct(localPredict.vsForecast.pUpNext)}
+          </div>
+          <div className="deep-card-sub">
+            {deepData.ok ? fmtN(aGtF?.n) : `N=${localPredict.vsForecast.n}`}
+          </div>
+        </div>
+        <div className="deep-card">
+          <div className="deep-card-k">Actual &gt; Previous</div>
+          <div className="deep-card-v">
+            {deepData.ok ? fmtP(aGtP?.p) : fmtPct(localPredict.vsPrev.pUpNext)}
+          </div>
+          <div className="deep-card-sub">
+            {deepData.ok ? fmtN(aGtP?.n) : `N=${localPredict.vsPrev.n}`}
+          </div>
+        </div>
+      </div>
+
+      <div className="deep-block-title">Unified Outlook P(t)</div>
+      <div className="deep-outlook">
+        {unifiedOutlook ? (
+          <div className="deep-outlook-chart">
+            <svg
+              viewBox={`0 0 ${unifiedOutlook.w} ${unifiedOutlook.h}`}
+              className="deep-outlook-svg"
+              role="img"
+              aria-label="Unified outlook probability path"
+            >
+              <line
+                x1={unifiedOutlook.pad.l}
+                x2={unifiedOutlook.w - unifiedOutlook.pad.r}
+                y1={Math.round(unifiedOutlook.baselineY) + 0.5}
+                y2={Math.round(unifiedOutlook.baselineY) + 0.5}
+                className="deep-outlook-baseline"
+                vectorEffect="non-scaling-stroke"
+              />
+              {typeof unifiedOutlook.x0 === "number" ? (
+                <line
+                  x1={Math.round(unifiedOutlook.x0) + 0.5}
+                  x2={Math.round(unifiedOutlook.x0) + 0.5}
+                  y1={unifiedOutlook.pad.t}
+                  y2={unifiedOutlook.h - unifiedOutlook.pad.b}
+                  className="deep-outlook-now"
+                  vectorEffect="non-scaling-stroke"
+                />
+              ) : null}
+              <path
+                d={unifiedOutlook.dMain}
+                className="deep-outlook-line"
+                vectorEffect="non-scaling-stroke"
+              />
+              {unifiedOutlook.dWithout ? (
+                <path
+                  d={unifiedOutlook.dWithout}
+                  className="deep-outlook-line deep-outlook-line--without"
+                  vectorEffect="non-scaling-stroke"
+                />
+              ) : null}
+              <text x={unifiedOutlook.pad.l} y={unifiedOutlook.h - 10} className="deep-outlook-axis">
+                {unifiedOutlook.firstLabel}
+              </text>
+              <text
+                x={unifiedOutlook.w - unifiedOutlook.pad.r}
+                y={unifiedOutlook.h - 10}
+                textAnchor="end"
+                className="deep-outlook-axis"
+              >
+                {unifiedOutlook.lastLabel}
+              </text>
+              <text x={unifiedOutlook.pad.l} y={unifiedOutlook.pad.t + 12} className="deep-outlook-axis">
+                P(up)
+              </text>
+            </svg>
+          </div>
+        ) : (
+          <div className="history-impact-status">Unified outlook is not available yet (insufficient samples).</div>
+        )}
+
+        <div className="deep-outlook-note">
+          One main path P(t) is shown. When deep JSON is available, nearby events contribute weighted deltas to this
+          path; clicking an event highlights its local contribution without switching to a different direction.
+        </div>
+
+        {(() => {
+          const pm = data.predictMarket ?? null;
+          const contribs = Array.isArray(pm?.contributions) ? pm.contributions : [];
+          if (!deepData.ok || contribs.length === 0) {
+            return (
+              <div className="deep-muted" style={{ marginTop: 8 }}>
+                Per-event contributions are available when deep analysis JSON is present.
+              </div>
+            );
+          }
+
+          const ranked = [...contribs]
+            .map((c: any) => ({
+              eventId: String(c?.eventId ?? "").trim(),
+              label: String(c?.label ?? c?.eventId ?? "").trim(),
+              weight: typeof c?.weight === "number" && Number.isFinite(c.weight) ? c.weight : null
+            }))
+            .filter((c) => c.eventId.length > 0);
+          ranked.sort((a, b) => Math.abs(b.weight ?? 0) - Math.abs(a.weight ?? 0));
+          const top = ranked.slice(0, 12);
+
+          const hl = (highlightId ?? "").trim();
+          return (
+            <div className="deep-contrib">
+              <div className="deep-contrib-title">Event contributions (top)</div>
+              <div className="deep-contrib-list">
+                {top.map((c) => {
+                  const active = hl === c.eventId;
+                  return (
+                    <button
+                      key={c.eventId}
+                      type="button"
+                      className={`deep-contrib-item${active ? " active" : ""}`}
+                      onClick={() => setHighlightId(c.eventId)}
+                    >
+                      <span className="deep-contrib-label">{c.label || c.eventId}</span>
+                      <span className="deep-contrib-w">
+                        {typeof c.weight === "number" ? c.weight.toFixed(2) : "--"}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="deep-muted" style={{ marginTop: 8 }}>
+                Tip: selecting an event overlays a dashed line showing P(t) without that event (if Delta_i(t) is
+                available).
+              </div>
+            </div>
+          );
+        })()}
+      </div>
+
+      <div className="deep-block-title">Evidence</div>
+      <div className="deep-evidence">
+        <div className="deep-evidence-row">
+          <span className="deep-evidence-k">History points</span>
+          <span className="deep-evidence-v">{points.length}</span>
+        </div>
+        <div className="deep-evidence-row">
+          <span className="deep-evidence-k">Model</span>
+          <span className="deep-evidence-v">
+            {deepData.ok ? "Deep JSON model" : "Fallback: base rate + repeat rate"}
+          </span>
+        </div>
+      </div>
+
+      <div className="deep-grid deep-grid--bars">
+        <div className="deep-card deep-card--bar">
+          <div className="deep-card-k">Actual vs Forecast (sign)</div>
+          <div className="deep-bar">
+            {(() => {
+              const up = localPredict.vsForecast.baseUp === null ? 0 : localPredict.vsForecast.baseUp;
+              const upW = Math.round(up * 100);
+              const downW = Math.max(0, 100 - upW);
+              return (
+                <>
+                  <span className="deep-bar-up" style={{ width: `${upW}%` }} />
+                  <span className="deep-bar-down" style={{ width: `${downW}%` }} />
+                </>
+              );
+            })()}
+          </div>
+          <div className="deep-card-sub">
+            Up {fmtPct(localPredict.vsForecast.baseUp)} · Repeat {fmtPct(localPredict.vsForecast.repeat)}
+          </div>
+        </div>
+
+        <div className="deep-card deep-card--bar">
+          <div className="deep-card-k">Actual vs Previous (sign)</div>
+          <div className="deep-bar">
+            {(() => {
+              const up = localPredict.vsPrev.baseUp === null ? 0 : localPredict.vsPrev.baseUp;
+              const upW = Math.round(up * 100);
+              const downW = Math.max(0, 100 - upW);
+              return (
+                <>
+                  <span className="deep-bar-up" style={{ width: `${upW}%` }} />
+                  <span className="deep-bar-down" style={{ width: `${downW}%` }} />
+                </>
+              );
+            })()}
+          </div>
+          <div className="deep-card-sub">
+            Up {fmtPct(localPredict.vsPrev.baseUp)} · Repeat {fmtPct(localPredict.vsPrev.repeat)}
+          </div>
+        </div>
+      </div>
+
+      {releaseSpark ? (
+        <div className="deep-spark-wrap">
+          <div className="deep-spark-legend">
+            <span className="deep-spark-key actual">Actual</span>
+            <span className="deep-spark-key forecast">Forecast</span>
+            <span className="deep-spark-key previous">Previous</span>
+          </div>
+          <svg viewBox={`0 0 ${releaseSpark.w} ${releaseSpark.h}`} className="deep-spark" role="img">
+            <g className="deep-spark-grid">
+              <line
+                x1={releaseSpark.pad.l}
+                x2={releaseSpark.w - releaseSpark.pad.r}
+                y1={releaseSpark.pad.t}
+                y2={releaseSpark.pad.t}
+              />
+              <line
+                x1={releaseSpark.pad.l}
+                x2={releaseSpark.w - releaseSpark.pad.r}
+                y1={releaseSpark.h - releaseSpark.pad.b}
+                y2={releaseSpark.h - releaseSpark.pad.b}
+              />
+            </g>
+            {releaseSpark.dPrevious ? (
+              <path
+                d={releaseSpark.dPrevious}
+                className="deep-spark-line previous"
+                vectorEffect="non-scaling-stroke"
+              />
+            ) : null}
+            {releaseSpark.dForecast ? (
+              <path
+                d={releaseSpark.dForecast}
+                className="deep-spark-line forecast"
+                vectorEffect="non-scaling-stroke"
+              />
+            ) : null}
+            {releaseSpark.dActual ? (
+              <path
+                d={releaseSpark.dActual}
+                className="deep-spark-line actual"
+                vectorEffect="non-scaling-stroke"
+              />
+            ) : null}
+          </svg>
+        </div>
+      ) : (
+        <div className="deep-muted" style={{ marginTop: 8 }}>
+          Release history sparkline is not available (insufficient numeric points).
+        </div>
+      )}
+
+      {deepData.ok ? null : deepData.message ? (
+        <details className="deep-details">
+          <summary>Details</summary>
+          <div className="deep-details-body">{deepData.message}</div>
+        </details>
+      ) : null}
+    </>
+  );
+
   return (
     <div className="history-impact-deep" data-qa="qa:history:deep-analysis">
       <div className="history-impact-deep-head">
         <div className="history-impact-deep-title">Deep Analysis</div>
-        <button
-          type="button"
-          className="deep-help-btn"
-          onClick={() => setMethodOpen(true)}
-          data-qa="qa:deep:how"
-        >
-          How it's computed
-        </button>
+        <div className="deep-head-actions">
+          <button
+            type="button"
+            className="deep-help-btn"
+            onClick={() => setMethodOpen(true)}
+            data-qa="qa:deep:how"
+          >
+            How it's computed
+          </button>
+          <button
+            type="button"
+            className="deep-help-btn deep-expand-btn"
+            onClick={() => setFullOpen(true)}
+            data-qa="qa:deep:expand"
+          >
+            Open
+          </button>
+        </div>
       </div>
 
       <div className="history-impact-deep-body">
+        {fullOpen ? (
+          <div
+            className="modal-backdrop modal-backdrop-deep-full open"
+            data-qa="qa:modal-backdrop:deep-full"
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) setFullOpen(false);
+            }}
+          >
+            <div
+              className="modal modal-deep-full open"
+              data-qa="qa:modal:deep-full"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Deep analysis"
+            >
+              <div className="deep-method-header">
+                <div className="deep-method-title">Deep Analysis</div>
+                <button
+                  type="button"
+                  className="deep-method-close"
+                  onClick={() => setFullOpen(false)}
+                  aria-label="Close"
+                >
+                  Close
+                </button>
+              </div>
+              <div className="deep-full-body">{content}</div>
+            </div>
+          </div>
+        ) : null}
+
         {methodOpen ? (
           <div
             className="modal-backdrop modal-backdrop-deep-method open"
@@ -458,229 +766,8 @@ export function DeepAnalysisView({
           </div>
         ) : null}
 
-        <div className="deep-block-title">Predict Release</div>
-        <div className="deep-grid">
-          <div className="deep-card">
-            <div className="deep-card-k">Actual &gt; Forecast</div>
-            <div className="deep-card-v">{deepData.ok ? fmtP(aGtF?.p) : fmtPct(localPredict.vsForecast.pUpNext)}</div>
-            <div className="deep-card-sub">{deepData.ok ? fmtN(aGtF?.n) : `N=${localPredict.vsForecast.n}`}</div>
-          </div>
-          <div className="deep-card">
-            <div className="deep-card-k">Actual &gt; Previous</div>
-            <div className="deep-card-v">{deepData.ok ? fmtP(aGtP?.p) : fmtPct(localPredict.vsPrev.pUpNext)}</div>
-            <div className="deep-card-sub">{deepData.ok ? fmtN(aGtP?.n) : `N=${localPredict.vsPrev.n}`}</div>
-          </div>
-        </div>
-
-        <div className="deep-block-title">Unified Outlook P(t)</div>
-        <div className="deep-outlook">
-          {unifiedOutlook ? (
-            <div className="deep-outlook-chart">
-              <svg
-                viewBox={`0 0 ${unifiedOutlook.w} ${unifiedOutlook.h}`}
-                className="deep-outlook-svg"
-                role="img"
-                aria-label="Unified outlook probability path"
-              >
-                <line
-                  x1={unifiedOutlook.pad.l}
-                  x2={unifiedOutlook.w - unifiedOutlook.pad.r}
-                  y1={Math.round(unifiedOutlook.baselineY) + 0.5}
-                  y2={Math.round(unifiedOutlook.baselineY) + 0.5}
-                  className="deep-outlook-baseline"
-                  vectorEffect="non-scaling-stroke"
-                />
-                {typeof unifiedOutlook.x0 === "number" ? (
-                  <line
-                    x1={Math.round(unifiedOutlook.x0) + 0.5}
-                    x2={Math.round(unifiedOutlook.x0) + 0.5}
-                    y1={unifiedOutlook.pad.t}
-                    y2={unifiedOutlook.h - unifiedOutlook.pad.b}
-                    className="deep-outlook-now"
-                    vectorEffect="non-scaling-stroke"
-                  />
-                ) : null}
-                <path d={unifiedOutlook.dMain} className="deep-outlook-line" vectorEffect="non-scaling-stroke" />
-                {unifiedOutlook.dWithout ? (
-                  <path
-                    d={unifiedOutlook.dWithout}
-                    className="deep-outlook-line deep-outlook-line--without"
-                    vectorEffect="non-scaling-stroke"
-                  />
-                ) : null}
-                <text x={unifiedOutlook.pad.l} y={unifiedOutlook.h - 10} className="deep-outlook-axis">
-                  {unifiedOutlook.firstLabel}
-                </text>
-                <text
-                  x={unifiedOutlook.w - unifiedOutlook.pad.r}
-                  y={unifiedOutlook.h - 10}
-                  textAnchor="end"
-                  className="deep-outlook-axis"
-                >
-                  {unifiedOutlook.lastLabel}
-                </text>
-                <text x={unifiedOutlook.pad.l} y={unifiedOutlook.pad.t + 12} className="deep-outlook-axis">
-                  P(up)
-                </text>
-              </svg>
-            </div>
-          ) : (
-            <div className="history-impact-status">Unified outlook is not available yet (insufficient samples).</div>
-          )}
-
-          <div className="deep-outlook-note">
-            One main path P(t) is shown. When deep JSON is available, nearby events contribute weighted deltas to this
-            path; clicking an event highlights its local contribution without switching to a different direction.
-          </div>
-
-          {(() => {
-            const pm = data.predictMarket ?? null;
-            const contribs = Array.isArray(pm?.contributions) ? pm.contributions : [];
-            if (!deepData.ok || contribs.length === 0) {
-              return (
-                <div className="deep-muted" style={{ marginTop: 8 }}>
-                  Per-event contributions are available when deep analysis JSON is present.
-                </div>
-              );
-            }
-
-            const ranked = [...contribs]
-              .map((c: any) => ({
-                eventId: String(c?.eventId ?? "").trim(),
-                label: String(c?.label ?? c?.eventId ?? "").trim(),
-                weight: typeof c?.weight === "number" && Number.isFinite(c.weight) ? c.weight : null
-              }))
-              .filter((c) => c.eventId.length > 0);
-            ranked.sort((a, b) => Math.abs(b.weight ?? 0) - Math.abs(a.weight ?? 0));
-            const top = ranked.slice(0, 12);
-
-            const hl = (highlightId ?? "").trim();
-            return (
-              <div className="deep-contrib">
-                <div className="deep-contrib-title">Event contributions (top)</div>
-                <div className="deep-contrib-list">
-                  {top.map((c) => {
-                    const active = hl === c.eventId;
-                    return (
-                      <button
-                        key={c.eventId}
-                        type="button"
-                        className={`deep-contrib-item${active ? " active" : ""}`}
-                        onClick={() => setHighlightId(c.eventId)}
-                      >
-                        <span className="deep-contrib-label">{c.label || c.eventId}</span>
-                        <span className="deep-contrib-w">
-                          {typeof c.weight === "number" ? c.weight.toFixed(2) : "--"}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-                <div className="deep-muted" style={{ marginTop: 8 }}>
-                  Tip: selecting an event overlays a dashed line showing P(t) without that event (if Delta_i(t) is
-                  available).
-                </div>
-              </div>
-            );
-          })()}
-        </div>
-
-        <div className="deep-block-title">Evidence</div>
-        <div className="deep-evidence">
-          <div className="deep-evidence-row">
-            <span className="deep-evidence-k">History points</span>
-            <span className="deep-evidence-v">{points.length}</span>
-          </div>
-          <div className="deep-evidence-row">
-            <span className="deep-evidence-k">Model</span>
-            <span className="deep-evidence-v">{deepData.ok ? "Deep JSON model" : "Fallback: base rate + repeat rate"}</span>
-          </div>
-        </div>
-
-        <div className="deep-grid deep-grid--bars">
-          <div className="deep-card deep-card--bar">
-            <div className="deep-card-k">Actual vs Forecast (sign)</div>
-            <div className="deep-bar">
-              {(() => {
-                const up = localPredict.vsForecast.baseUp === null ? 0 : localPredict.vsForecast.baseUp;
-                const upW = Math.round(up * 100);
-                const downW = Math.max(0, 100 - upW);
-                return (
-                  <>
-                    <span className="deep-bar-up" style={{ width: `${upW}%` }} />
-                    <span className="deep-bar-down" style={{ width: `${downW}%` }} />
-                  </>
-                );
-              })()}
-            </div>
-            <div className="deep-card-sub">
-              Up {fmtPct(localPredict.vsForecast.baseUp)} · Repeat {fmtPct(localPredict.vsForecast.repeat)}
-            </div>
-          </div>
-
-          <div className="deep-card deep-card--bar">
-            <div className="deep-card-k">Actual vs Previous (sign)</div>
-            <div className="deep-bar">
-              {(() => {
-                const up = localPredict.vsPrev.baseUp === null ? 0 : localPredict.vsPrev.baseUp;
-                const upW = Math.round(up * 100);
-                const downW = Math.max(0, 100 - upW);
-                return (
-                  <>
-                    <span className="deep-bar-up" style={{ width: `${upW}%` }} />
-                    <span className="deep-bar-down" style={{ width: `${downW}%` }} />
-                  </>
-                );
-              })()}
-            </div>
-            <div className="deep-card-sub">
-              Up {fmtPct(localPredict.vsPrev.baseUp)} · Repeat {fmtPct(localPredict.vsPrev.repeat)}
-            </div>
-          </div>
-        </div>
-
-        {releaseSpark ? (
-          <div className="deep-spark-wrap">
-            <div className="deep-spark-legend">
-              <span className="deep-spark-key actual">Actual</span>
-              <span className="deep-spark-key forecast">Forecast</span>
-              <span className="deep-spark-key previous">Previous</span>
-            </div>
-            <svg viewBox={`0 0 ${releaseSpark.w} ${releaseSpark.h}`} className="deep-spark" role="img">
-              <g className="deep-spark-grid">
-                <line x1={releaseSpark.pad.l} x2={releaseSpark.w - releaseSpark.pad.r} y1={releaseSpark.pad.t} y2={releaseSpark.pad.t} />
-                <line
-                  x1={releaseSpark.pad.l}
-                  x2={releaseSpark.w - releaseSpark.pad.r}
-                  y1={releaseSpark.h - releaseSpark.pad.b}
-                  y2={releaseSpark.h - releaseSpark.pad.b}
-                />
-              </g>
-              {releaseSpark.dPrevious ? (
-                <path d={releaseSpark.dPrevious} className="deep-spark-line previous" vectorEffect="non-scaling-stroke" />
-              ) : null}
-              {releaseSpark.dForecast ? (
-                <path d={releaseSpark.dForecast} className="deep-spark-line forecast" vectorEffect="non-scaling-stroke" />
-              ) : null}
-              {releaseSpark.dActual ? (
-                <path d={releaseSpark.dActual} className="deep-spark-line actual" vectorEffect="non-scaling-stroke" />
-              ) : null}
-            </svg>
-          </div>
-        ) : (
-          <div className="deep-muted" style={{ marginTop: 8 }}>
-            Release history sparkline is not available (insufficient numeric points).
-          </div>
-        )}
-
-        {deepData.ok ? null : deepData.message ? (
-          <details className="deep-details">
-            <summary>Details</summary>
-            <div className="deep-details-body">{deepData.message}</div>
-          </details>
-        ) : null}
+        <div className="deep-panel-scroll">{content}</div>
       </div>
     </div>
   );
 }
-
