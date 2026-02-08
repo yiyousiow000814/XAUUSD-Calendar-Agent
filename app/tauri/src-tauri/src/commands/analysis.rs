@@ -106,19 +106,24 @@ fn build_unified_outlook_fallback(
         w
     };
 
-    // Use a fixed grid for display: +/-24h, plus the key short windows used elsewhere.
-    let mut grid: Vec<i64> = vec![
-        -1440, -720, -240, -60, -30, -15, -5, -1, 0, 1, 5, 15, 30, 60, 240, 720, 1440,
-    ];
-    grid.sort();
-    grid.dedup();
-
-    let events_obj = impact.get("events").and_then(|v| v.as_object())?;
-
     // Compute P(t) for the +/-24h display window, but include a wider buffer of events so a
     // 1-hour shift of the anchor doesn't drastically change the event set.
     let display_half_minutes: i64 = 1440;
     let include_half_minutes: i64 = 2880; // +/-48h for stability
+
+    // Use a uniform time grid so that moving the anchor by 1 hour shifts the window
+    // smoothly (overlapping segments stay consistent).
+    let step_minutes: i64 = 15;
+    let mut grid: Vec<i64> =
+        Vec::with_capacity(((display_half_minutes * 2) / step_minutes + 1) as usize);
+    let mut t = -display_half_minutes;
+    while t <= display_half_minutes {
+        grid.push(t);
+        t += step_minutes;
+    }
+
+    let events_obj = impact.get("events").and_then(|v| v.as_object())?;
+
     let start = anchor_dt_utc - Duration::minutes(include_half_minutes);
     let end = anchor_dt_utc + Duration::minutes(include_half_minutes);
     struct NearbyEvent {

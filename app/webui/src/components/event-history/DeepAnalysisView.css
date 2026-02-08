@@ -4,10 +4,10 @@
   background: var(--table-row-bg);
   padding: 18px 18px 16px;
   flex: 1;
-  min-height: 600px;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 [data-theme="light"] .history-impact-deep {
@@ -72,7 +72,8 @@
 .deep-panel-scroll {
   /* If content is long, keep it inside a local scroller (like Impact chart body). */
   max-height: 520px;
-  overflow: auto;
+  overflow-y: scroll;
+  overflow-x: hidden;
   padding-right: 6px;
   overscroll-behavior: contain;
   scrollbar-gutter: stable both-edges;

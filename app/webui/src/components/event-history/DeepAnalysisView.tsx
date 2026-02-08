@@ -379,36 +379,36 @@ export function DeepAnalysisView({
     <>
       <div className="deep-block-title">Predict Release (baseline)</div>
       <div className="deep-grid">
-        <div className="deep-card">
+        {localPredict.vsForecast.n > 0 ? (
+          <div className="deep-card">
           <div className="deep-card-k">Actual vs Forecast</div>
           <div className="deep-card-v">{fmtPctNum(localPredict.vsForecast.pGt)}</div>
           <div className="deep-card-sub">
             {localPredict.vsForecast.n > 0 ? `N=${localPredict.vsForecast.n}` : "No forecast history"}
           </div>
-          {localPredict.vsForecast.n > 0 ? (
-            <>
-              <div className="deep-tri" aria-hidden="true">
-                <div
-                  className="deep-tri-gt"
-                  style={{ width: `${Math.round((localPredict.vsForecast.pGt ?? 0) * 100)}%` }}
-                />
-                <div
-                  className="deep-tri-eq"
-                  style={{ width: `${Math.round((localPredict.vsForecast.pEq ?? 0) * 100)}%` }}
-                />
-                <div
-                  className="deep-tri-lt"
-                  style={{ width: `${Math.round((localPredict.vsForecast.pLt ?? 0) * 100)}%` }}
-                />
-              </div>
-              <div className="deep-tri-legend">
-                <span className="deep-tri-chip gt">{`> ${fmtPctNum(localPredict.vsForecast.pGt)}`}</span>
-                <span className="deep-tri-chip eq">{`= ${fmtPctNum(localPredict.vsForecast.pEq)}`}</span>
-                <span className="deep-tri-chip lt">{`< ${fmtPctNum(localPredict.vsForecast.pLt)}`}</span>
-              </div>
-            </>
-          ) : null}
-        </div>
+          <>
+            <div className="deep-tri" aria-hidden="true">
+              <div
+                className="deep-tri-gt"
+                style={{ width: `${Math.round((localPredict.vsForecast.pGt ?? 0) * 100)}%` }}
+              />
+              <div
+                className="deep-tri-eq"
+                style={{ width: `${Math.round((localPredict.vsForecast.pEq ?? 0) * 100)}%` }}
+              />
+              <div
+                className="deep-tri-lt"
+                style={{ width: `${Math.round((localPredict.vsForecast.pLt ?? 0) * 100)}%` }}
+              />
+            </div>
+            <div className="deep-tri-legend">
+              <span className="deep-tri-chip gt">{`> ${fmtPctNum(localPredict.vsForecast.pGt)}`}</span>
+              <span className="deep-tri-chip eq">{`= ${fmtPctNum(localPredict.vsForecast.pEq)}`}</span>
+              <span className="deep-tri-chip lt">{`< ${fmtPctNum(localPredict.vsForecast.pLt)}`}</span>
+            </div>
+          </>
+          </div>
+        ) : null}
         <div className="deep-card">
           <div className="deep-card-k">Actual vs Previous</div>
           <div className="deep-card-v">{fmtPctNum(localPredict.vsPrev.pGt)}</div>
@@ -576,53 +576,11 @@ export function DeepAnalysisView({
           <span className="deep-evidence-k">History points</span>
           <span className="deep-evidence-v">{points.length}</span>
         </div>
-        <div className="deep-evidence-row">
+      <div className="deep-evidence-row">
           <span className="deep-evidence-k">Model</span>
           <span className="deep-evidence-v">
-            {deepData.ok ? "Deep JSON model" : "Fallback: base rate + repeat rate"}
+            {isFallback ? "Fallback model" : "Deep JSON model"}
           </span>
-        </div>
-      </div>
-
-      <div className="deep-grid deep-grid--bars">
-        <div className="deep-card deep-card--bar">
-          <div className="deep-card-k">Actual vs Forecast (sign)</div>
-          <div className="deep-bar">
-            {(() => {
-              const up = localPredict.vsForecast.baseUp === null ? 0 : localPredict.vsForecast.baseUp;
-              const upW = Math.round(up * 100);
-              const downW = Math.max(0, 100 - upW);
-              return (
-                <>
-                  <span className="deep-bar-up" style={{ width: `${upW}%` }} />
-                  <span className="deep-bar-down" style={{ width: `${downW}%` }} />
-                </>
-              );
-            })()}
-          </div>
-          <div className="deep-card-sub">
-            Up {fmtPct(localPredict.vsForecast.baseUp)} · Repeat {fmtPct(localPredict.vsForecast.repeat)}
-          </div>
-        </div>
-
-        <div className="deep-card deep-card--bar">
-          <div className="deep-card-k">Actual vs Previous (sign)</div>
-          <div className="deep-bar">
-            {(() => {
-              const up = localPredict.vsPrev.baseUp === null ? 0 : localPredict.vsPrev.baseUp;
-              const upW = Math.round(up * 100);
-              const downW = Math.max(0, 100 - upW);
-              return (
-                <>
-                  <span className="deep-bar-up" style={{ width: `${upW}%` }} />
-                  <span className="deep-bar-down" style={{ width: `${downW}%` }} />
-                </>
-              );
-            })()}
-          </div>
-          <div className="deep-card-sub">
-            Up {fmtPct(localPredict.vsPrev.baseUp)} · Repeat {fmtPct(localPredict.vsPrev.repeat)}
-          </div>
         </div>
       </div>
 
@@ -825,7 +783,7 @@ export function DeepAnalysisView({
                   </div>
                   <div className="deep-method-kv">
                     <span className="deep-method-k">Model</span>
-                    <span className="deep-method-v">{deepData.ok ? "Deep JSON model" : "Fallback model"}</span>
+                    <span className="deep-method-v">{isFallback ? "Fallback model" : "Deep JSON model"}</span>
                   </div>
                 </div>
 
