@@ -1,0 +1,559 @@
+.history-impact-deep {
+  border-radius: 20px;
+  border: 1px solid var(--panel-border);
+  background: var(--table-row-bg);
+  padding: 18px 18px 16px;
+  flex: 1;
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+[data-theme="light"] .history-impact-deep {
+  background: var(--table-row-bg);
+}
+
+.history-impact-deep-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.history-impact-deep-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.deep-help-btn {
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(148, 163, 184, 0.08);
+  color: var(--text-strong);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+[data-theme="light"] .deep-help-btn {
+  border-color: rgba(71, 85, 105, 0.18);
+  background: rgba(71, 85, 105, 0.06);
+}
+
+.deep-help-btn:hover {
+  border-color: rgba(148, 163, 184, 0.4);
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.history-impact-deep-body {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.45;
+  max-width: 640px;
+  margin: 0;
+  width: 100%;
+}
+
+.deep-block-title {
+  margin-top: 12px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.deep-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  align-items: stretch;
+}
+
+.deep-grid--bars {
+  margin-top: 10px;
+}
+
+.deep-card {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 12px 12px 10px;
+}
+
+[data-theme="light"] .deep-card {
+  border-color: rgba(18, 20, 26, 0.08);
+  background: rgba(18, 20, 26, 0.02);
+}
+
+.deep-card-k {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.deep-card-v {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-strong);
+  letter-spacing: -0.01em;
+}
+
+.deep-card-sub {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.deep-card--bar {
+  padding-bottom: 12px;
+}
+
+.deep-bar {
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  display: flex;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .deep-bar {
+  background: rgba(18, 20, 26, 0.03);
+  border-color: rgba(18, 20, 26, 0.08);
+}
+
+.deep-bar-up {
+  background: rgba(34, 197, 94, 0.5);
+}
+
+.deep-bar-down {
+  background: rgba(239, 68, 68, 0.42);
+}
+
+.deep-evidence {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px 12px;
+}
+
+[data-theme="light"] .deep-evidence {
+  border-color: rgba(18, 20, 26, 0.08);
+  background: rgba(18, 20, 26, 0.015);
+}
+
+.deep-evidence-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.deep-evidence-k {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.deep-evidence-v {
+  color: var(--text-strong);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.deep-spark-wrap {
+  margin-top: 6px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px 10px 8px;
+}
+
+[data-theme="light"] .deep-spark-wrap {
+  border-color: rgba(18, 20, 26, 0.08);
+  background: rgba(18, 20, 26, 0.015);
+}
+
+.deep-spark-legend {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.deep-spark-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.deep-spark-key::before {
+  content: "";
+  width: 12px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.55);
+}
+
+.deep-spark-key.actual::before {
+  background: rgba(148, 163, 184, 0.95);
+}
+
+.deep-spark-key.forecast::before {
+  background: rgba(148, 163, 184, 0.55);
+}
+
+.deep-spark-key.previous::before {
+  background: rgba(148, 163, 184, 0.42);
+}
+
+.deep-spark {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.deep-spark-grid line {
+  stroke: rgba(148, 163, 184, 0.22);
+}
+
+[data-theme="light"] .deep-spark-grid line {
+  stroke: rgba(30, 41, 59, 0.12);
+}
+
+.deep-spark-line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.deep-spark-line.actual {
+  stroke: rgba(226, 232, 240, 0.92);
+  stroke-width: 2.2;
+}
+
+.deep-spark-line.forecast {
+  stroke: rgba(148, 163, 184, 0.62);
+  stroke-width: 1.8;
+  stroke-dasharray: 5 6;
+}
+
+.deep-spark-line.previous {
+  stroke: rgba(148, 163, 184, 0.5);
+  stroke-width: 1.6;
+  stroke-dasharray: 2 7;
+}
+
+[data-theme="light"] .deep-spark-line.actual {
+  stroke: rgba(30, 41, 59, 0.86);
+}
+
+[data-theme="light"] .deep-spark-line.forecast {
+  stroke: rgba(71, 85, 105, 0.62);
+}
+
+[data-theme="light"] .deep-spark-line.previous {
+  stroke: rgba(100, 116, 139, 0.5);
+}
+
+.deep-muted {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.deep-details {
+  margin-top: 8px;
+  color: var(--muted);
+}
+
+.deep-details summary {
+  cursor: pointer;
+  user-select: none;
+  font-weight: 700;
+  color: var(--text-strong);
+  opacity: 0.78;
+}
+
+.deep-details-body {
+  margin-top: 6px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 12px;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+[data-theme="light"] .deep-details-body {
+  border-color: rgba(18, 20, 26, 0.08);
+  background: rgba(18, 20, 26, 0.015);
+}
+
+.deep-outlook {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px 10px 10px;
+}
+
+[data-theme="light"] .deep-outlook {
+  border-color: rgba(18, 20, 26, 0.08);
+  background: rgba(18, 20, 26, 0.015);
+}
+
+.deep-outlook-chart {
+  width: 100%;
+  max-width: 640px;
+}
+
+.deep-outlook-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.deep-outlook-baseline {
+  stroke: rgba(148, 163, 184, 0.22);
+  stroke-width: 1;
+  stroke-dasharray: 4 6;
+}
+
+[data-theme="light"] .deep-outlook-baseline {
+  stroke: rgba(71, 85, 105, 0.18);
+}
+
+.deep-outlook-now {
+  stroke: rgba(148, 163, 184, 0.22);
+  stroke-width: 1;
+}
+
+[data-theme="light"] .deep-outlook-now {
+  stroke: rgba(71, 85, 105, 0.18);
+}
+
+.deep-outlook-line {
+  fill: none;
+  stroke: rgba(96, 165, 250, 0.92);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+[data-theme="light"] .deep-outlook-line {
+  stroke: rgba(59, 130, 246, 0.86);
+}
+
+.deep-outlook-line.deep-outlook-line--without {
+  stroke: rgba(148, 163, 184, 0.65);
+  stroke-width: 2;
+  stroke-dasharray: 5 7;
+}
+
+[data-theme="light"] .deep-outlook-line.deep-outlook-line--without {
+  stroke: rgba(71, 85, 105, 0.55);
+}
+
+.deep-outlook-axis {
+  font-size: 11px;
+  fill: rgba(148, 163, 184, 0.85);
+}
+
+[data-theme="light"] .deep-outlook-axis {
+  fill: rgba(71, 85, 105, 0.82);
+}
+
+.deep-outlook-note {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.deep-contrib {
+  margin-top: 10px;
+}
+
+.deep-contrib-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-strong);
+  margin-bottom: 8px;
+}
+
+.deep-contrib-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.deep-contrib-item {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(148, 163, 184, 0.06);
+  color: var(--text-strong);
+  border-radius: 12px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  text-align: left;
+}
+
+[data-theme="light"] .deep-contrib-item {
+  border-color: rgba(71, 85, 105, 0.16);
+  background: rgba(71, 85, 105, 0.05);
+}
+
+.deep-contrib-item:hover {
+  border-color: rgba(148, 163, 184, 0.35);
+  background: rgba(148, 163, 184, 0.1);
+}
+
+.deep-contrib-item.active {
+  border-color: rgba(96, 165, 250, 0.6);
+  background: rgba(96, 165, 250, 0.12);
+}
+
+[data-theme="light"] .deep-contrib-item.active {
+  border-color: rgba(59, 130, 246, 0.52);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.deep-contrib-label {
+  font-size: 12px;
+  color: var(--text-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.deep-contrib-w {
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.modal-backdrop.modal-backdrop-deep-method {
+  z-index: 40;
+}
+
+.modal.modal-deep-method {
+  width: min(720px, 92vw);
+  max-height: min(78vh, 680px);
+  overflow: hidden;
+}
+
+.deep-method-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 16px 12px;
+}
+
+.deep-method-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-strong);
+}
+
+.deep-method-close {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: transparent;
+  color: var(--text-strong);
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.deep-method-close:hover {
+  border-color: rgba(148, 163, 184, 0.38);
+  background: rgba(148, 163, 184, 0.08);
+}
+
+[data-theme="light"] .deep-method-close {
+  border-color: rgba(71, 85, 105, 0.18);
+}
+
+.deep-method-body {
+  padding: 0 16px 16px;
+  overflow: auto;
+  max-height: calc(min(78vh, 680px) - 52px);
+}
+
+.deep-method-block {
+  margin-top: 12px;
+}
+
+.deep-method-h {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-strong);
+  margin-bottom: 6px;
+}
+
+.deep-method-p {
+  font-size: 12.5px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.deep-method-ol,
+.deep-method-ul {
+  margin: 6px 0 0 18px;
+  padding: 0;
+  font-size: 12.5px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.deep-method-kv {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.deep-method-k {
+  color: var(--muted);
+}
+
+.deep-method-v {
+  color: var(--text-strong);
+  font-weight: 700;
+}
+
+.deep-method-signals {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.deep-signal-chip {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(148, 163, 184, 0.08);
+  color: var(--text-strong);
+  border-radius: 999px;
+  padding: 5px 8px;
+  font-size: 12px;
+}
+
+[data-theme="light"] .deep-signal-chip {
+  border-color: rgba(71, 85, 105, 0.18);
+  background: rgba(71, 85, 105, 0.06);
+}
+

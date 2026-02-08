@@ -130,7 +130,30 @@ export type EventDeepAnalysisData = {
   predictMarket?: {
     // e.g. { "15m": { pUp: 0.58, n: 120 }, "60m": ... }
     horizons?: Record<string, { pUp?: number; n?: number; moveP50?: number | null }>;
+    // Single unified outlook path P(t) for a window; events should contribute weighted deltas to it.
+    unifiedPath?: {
+      offsetsMinutes: number[];
+      // Probability that XAUUSD is up at each offset.
+      pUp: number[];
+    };
+    // Optional contributions (deltas) per event; UI can highlight without changing the main path.
+    contributions?: Array<{
+      eventId: string;
+      label?: string;
+      weight?: number;
+      deltaPUp?: number[];
+    }>;
   };
+  // Optional method metadata for "How it's computed" UI.
+  method?: {
+    name?: string;
+    version?: string;
+    summary?: string;
+    steps?: string[];
+    limitations?: string[];
+  };
+  // Optional list of signal descriptors used by the exporter.
+  signalsUsed?: Array<{ id?: string; title?: string; weight?: number; note?: string } | string>;
   // Raw signal flags / context (preheat/path/joint/trend/etc).
   signals?: Record<string, unknown>;
 };
