@@ -9,6 +9,11 @@ import type {
 } from "../types";
 import { backend } from "../api";
 import { buildEventNotes } from "../utils/eventNotes";
+import {
+  formatTimeOffsetMinutes,
+  getEffectiveCalendarUtcOffsetMinutes,
+  parseDisplayTimeToUtcMs
+} from "../utils/calendarTime";
 import { Select } from "./Select";
 import "./EventHistoryModal.css";
 
@@ -18,6 +23,8 @@ type EventHistoryModalProps = {
   error: string | null;
   selectionLabel: string;
   data: EventHistoryResponse | null;
+  calendarTimezoneMode: "utc" | "system";
+  calendarUtcOffsetMinutes: number;
   onClose: () => void;
 };
 
@@ -160,8 +167,9 @@ const formatOffsetLabel = (minutes: number) => {
 };
 
 const IMPACT_AXIS_OFFSETS = [-12 * 60, -4 * 60, -60, 0, 60, 4 * 60, 12 * 60];
-// Keep labels sparse; dense labels around the event overlap and become unreadable.
-const IMPACT_LABEL_OFFSETS = [-12 * 60, -4 * 60, 4 * 60, 12 * 60];
+// Disable in-chart probability labels (they frequently overlap and add visual noise).
+// Tooltip still provides per-window details on hover.
+const IMPACT_LABEL_OFFSETS: number[] = [];
 
 const formatPct = (value: number) => {
   const abs = Math.abs(value);
@@ -206,6 +214,8 @@ export function EventHistoryModal({
   error,
   selectionLabel,
   data,
+  calendarTimezoneMode,
+  calendarUtcOffsetMinutes,
   onClose
 }: EventHistoryModalProps) {
   const [preferredRange, setPreferredRange] = useState<RangeKey>(() => {
@@ -304,7 +314,19 @@ export function EventHistoryModal({
   const impactViewportReadyTimerRef = useRef<number | null>(null);
   const impactViewportReadyDeadlineRef = useRef<number | null>(null);
   const impactViewportReadyFallbackRef = useRef<number | null>(null);
-  const [impactHoverOffset, setImpactHoverOffset] = useState<number | null>(null);
+  const [impactHoverOffset, setImpactHoverOffset] = useState<number | null>(null); 
+  const impactTooltipRef = useRef<HTMLDivElement | null>(null);
+  const [impactTooltipPos, setImpactTooltipPos] = useState<{ leftPct: number; topPct: number } | null>(
+    null
+  );
+  const [impactNowMs, setImpactNowMs] = useState(() => Date.now());
+  const effectiveCalendarOffsetMinutes = useMemo(() => {
+    return getEffectiveCalendarUtcOffsetMinutes({
+      calendarTimezoneMode,
+      calendarUtcOffsetMinutes,
+      nowMs: impactNowMs
+    });
+  }, [calendarTimezoneMode, calendarUtcOffsetMinutes, impactNowMs]);
   const points = data?.points ?? [];
   const eventNotes = useMemo(
     () => buildEventNotes(selectionLabel, data),
@@ -384,6 +406,14 @@ export function EventHistoryModal({
       // ignore
     }
   }, [impactOpen]);
+
+  // Drive the "now" marker in the Impact chart.
+  useEffect(() => {
+    if (!impactOpen || impactPanel !== "event") return;
+    if (typeof window === "undefined") return;
+    const id = window.setInterval(() => setImpactNowMs(Date.now()), 15_000);
+    return () => window.clearInterval(id);
+  }, [impactOpen, impactPanel]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -823,8 +853,14 @@ export function EventHistoryModal({
     const lineValues: number[] = [];
     for (const item of items) {
       if (!item.stats || typeof item.stats.n !== "number" || item.stats.n <= 0) continue;
-      if (typeof item.stats.p10 === "number") bandValues.push(item.stats.p10);
-      if (typeof item.stats.p90 === "number") bandValues.push(item.stats.p90);
+      const s = item.stats;
+      // Density band requires the all-samples quantiles. If missing (old cache), we simply don't draw it.
+      if (typeof s.p05_all === "number") bandValues.push(s.p05_all);
+      if (typeof s.p10_all === "number") bandValues.push(s.p10_all);
+      if (typeof s.p25_all === "number") bandValues.push(s.p25_all);
+      if (typeof s.p75_all === "number") bandValues.push(s.p75_all);
+      if (typeof s.p90_all === "number") bandValues.push(s.p90_all);
+      if (typeof s.p95_all === "number") bandValues.push(s.p95_all);
       if (typeof item.stats.best_median_pct === "number") {
         lineValues.push(item.stats.best_median_pct);
       }
@@ -885,6 +921,26 @@ export function EventHistoryModal({
       const idx = offsetIndex.get(offset) ?? 0;
       return padding.left + (idx / denom) * plotWidth;
     };
+    const xForOffsetContinuous = (offset: number) => {
+      if (!Number.isFinite(offset)) return xForOffset(0);
+      if (offsets.length === 0) return xForOffset(0);
+      if (offset <= offsets[0]) return xForOffset(offsets[0]);
+      const last = offsets[offsets.length - 1];
+      if (offset >= last) return xForOffset(last);
+      for (let i = 1; i < offsets.length; i++) {
+        const right = offsets[i];
+        if (offset <= right) {
+          const left = offsets[i - 1];
+          const x0 = xForOffset(left);
+          const x1 = xForOffset(right);
+          const span = right - left;
+          if (!Number.isFinite(span) || span === 0) return x0;
+          const t = (offset - left) / span;
+          return x0 + t * (x1 - x0);
+        }
+      }
+      return xForOffset(last);
+    };
 
     const rawMin = impactSeries.min;
     const rawMax = impactSeries.max;
@@ -924,47 +980,106 @@ export function EventHistoryModal({
 
     const yTicks = buildNiceTicks(domainMin, domainMax);
 
+    const medianByOffset = new Map<number, number>();
     const points = impactSeries.items.map((item) => {
       if (item.offset === 0) {
+        medianByOffset.set(0, 0);
         return {
           offset: 0,
           x: xForOffset(0),
           y: yFor(0),
-          bandLow: 0,
-          bandHigh: 0,
+          upLow: null,
+          upHigh: null,
+          downLow: null,
+          downHigh: null,
           bestDirection: null,
           bestP: null
         };
       }
       const s = item.stats;
       if (!s || typeof s.n !== "number" || s.n <= 0) return null;
-      const p10 = typeof s.p10 === "number" ? s.p10 : null;
-      const p90 = typeof s.p90 === "number" ? s.p90 : null;
       const bestMedian = typeof s.best_median_pct === "number" ? s.best_median_pct : null;
-      if (p10 === null || p90 === null || bestMedian === null) return null;
+      if (bestMedian === null) return null;
+      // Density band requires *_all quantiles. If missing (old cache), the band won't render for this point.
+      const p05All = typeof s.p05_all === "number" ? s.p05_all : null;
+      const p10All = typeof s.p10_all === "number" ? s.p10_all : null;
+      const p25All = typeof s.p25_all === "number" ? s.p25_all : null;
+      const p75All = typeof s.p75_all === "number" ? s.p75_all : null;
+      const p90All = typeof s.p90_all === "number" ? s.p90_all : null;
+      const p95All = typeof s.p95_all === "number" ? s.p95_all : null;
+      medianByOffset.set(item.offset, bestMedian);
       return {
         offset: item.offset,
         x: xForOffset(item.offset),
         y: yFor(bestMedian),
-        bandLow: p10,
-        bandHigh: p90,
+        p05All,
+        p10All,
+        p25All,
+        p75All,
+        p90All,
+        p95All,
         bestDirection: s.best_direction ?? null,
         bestP: typeof s.best_p === "number" ? s.best_p : null
       };
     });
 
     const bandPoints = points.filter(Boolean) as Array<NonNullable<(typeof points)[number]>>;
-    const upper = bandPoints.map((p) => `L ${p.x.toFixed(2)} ${yFor(p.bandHigh).toFixed(2)}`);
-    const lower = bandPoints
-      .slice()
-      .reverse()
-      .map((p) => `L ${p.x.toFixed(2)} ${yFor(p.bandLow).toFixed(2)}`);
-    const bandPath =
-      bandPoints.length >= 2
-        ? `M ${bandPoints[0].x.toFixed(2)} ${yFor(bandPoints[0].bandHigh).toFixed(2)} ${upper.join(
-            " "
-          )} ${lower.join(" ")} Z`
-        : "";
+    const buildBandPath = (
+      items: Array<{ x: number; low: number; high: number }>,
+      yForValue: (v: number) => number
+    ) => {
+      if (items.length < 2) return "";
+      const upper = items.map((p) => `L ${p.x.toFixed(2)} ${yForValue(p.high).toFixed(2)}`);
+      const lower = items
+        .slice()
+        .reverse()
+        .map((p) => `L ${p.x.toFixed(2)} ${yForValue(p.low).toFixed(2)}`);
+      return `M ${items[0].x.toFixed(2)} ${yForValue(items[0].high).toFixed(2)} ${upper.join(
+        " "
+      )} ${lower.join(" ")} Z`;
+    };
+
+    const makeItems = (lowKey: "p25All" | "p10All" | "p05All", highKey: "p75All" | "p90All" | "p95All") =>
+      bandPoints
+        .map((p) =>
+          typeof p[lowKey] === "number" && typeof p[highKey] === "number"
+            ? { x: p.x, low: p[lowKey] as number, high: p[highKey] as number }
+            : null
+        )
+        .filter(Boolean) as Array<{ x: number; low: number; high: number }>;
+
+    const band50Items = makeItems("p25All", "p75All");
+    const band80Items = makeItems("p10All", "p90All");
+    const band90Items = makeItems("p05All", "p95All");
+
+    const band50Path = buildBandPath(band50Items, yFor);
+    const band80Path = buildBandPath(band80Items, yFor);
+    const band90Path = buildBandPath(band90Items, yFor);
+
+    const computeConfidence = (p: number | null | undefined) => {
+      if (typeof p !== "number" || !Number.isFinite(p)) return 0;
+      // best_p is the probability of best_direction; treat 50% as 0 confidence, 100% as 1.
+      return Math.max(0, Math.min(1, (p - 0.5) / 0.5));
+    };
+    const resolveLineStyle = (stats?: EventImpactWindowStats) => {
+      const dir = stats?.best_direction;
+      const p = stats?.best_p;
+      const confidence = computeConfidence(p);
+      const stroke =
+        dir === "up" ? "var(--success)" : dir === "down" ? "var(--danger)" : "#ff8f7b";
+      const strokeOpacity = 0.5 + confidence * 0.45;
+      const strokeWidth = 1.7 + confidence * 1.1;
+      return { stroke, strokeOpacity, strokeWidth, confidence };
+    };
+
+    const lineStyleByOffset = new Map<
+      number,
+      { stroke: string; strokeOpacity: number; strokeWidth: number; confidence: number }
+    >();
+    impactSeries.items.forEach((item) => {
+      if (item.offset === 0) return;
+      lineStyleByOffset.set(item.offset, resolveLineStyle(item.stats));
+    });
 
     const lineValues = impactSeries.items.map((item) => {
       if (item.offset === 0) return 0;
@@ -978,6 +1093,34 @@ export function EventHistoryModal({
       { connectNulls: false }
     );
 
+    const lineSegments = (() => {
+      const segments: Array<{ d: string; stroke: string; strokeOpacity: number; strokeWidth: number }> =
+        [];
+      for (let i = 1; i < impactSeries.items.length; i += 1) {
+        const leftItem = impactSeries.items[i - 1];
+        const rightItem = impactSeries.items[i];
+        const v0 = leftItem?.offset === 0 ? 0 : leftItem?.stats?.best_median_pct;
+        const v1 = rightItem?.offset === 0 ? 0 : rightItem?.stats?.best_median_pct;
+        if (typeof v0 !== "number" || typeof v1 !== "number") continue;
+        if (!Number.isFinite(v0) || !Number.isFinite(v1)) continue;
+        const x0 = xForOffset(leftItem.offset);
+        const x1 = xForOffset(rightItem.offset);
+        const y0 = yFor(v0);
+        const y1 = yFor(v1);
+
+        const style =
+          (rightItem.offset !== 0 ? lineStyleByOffset.get(rightItem.offset) : null) ??
+          (leftItem.offset !== 0 ? lineStyleByOffset.get(leftItem.offset) : null) ??
+          resolveLineStyle(undefined);
+
+        segments.push({
+          d: `M ${x0.toFixed(2)} ${y0.toFixed(2)} L ${x1.toFixed(2)} ${y1.toFixed(2)}`,
+          ...style
+        });
+      }
+      return segments;
+    })();
+
     const isDrawablePath = (d: string) => {
       const normalized = (d ?? "").trim();
       if (!normalized) return false;
@@ -985,10 +1128,15 @@ export function EventHistoryModal({
       return /\bL\b/.test(normalized) && !/NaN|Infinity/.test(normalized);
     };
 
-    const bandPathSafe = /NaN|Infinity/.test(bandPath) ? "" : bandPath;
+    const band50PathSafe = /NaN|Infinity/.test(band50Path) ? "" : band50Path;
+    const band80PathSafe = /NaN|Infinity/.test(band80Path) ? "" : band80Path;
+    const band90PathSafe = /NaN|Infinity/.test(band90Path) ? "" : band90Path;
     const linePathSafe = /NaN|Infinity/.test(linePath) ? "" : linePath;
-    const hasBand = bandPoints.length >= 2 && !!bandPathSafe;
-    const hasLine = isDrawablePath(linePathSafe);
+    const hasBand =
+      (band50Items.length >= 2 && !!band50PathSafe) ||
+      (band80Items.length >= 2 && !!band80PathSafe) ||
+      (band90Items.length >= 2 && !!band90PathSafe);
+    const hasLine = lineSegments.length >= 1 && isDrawablePath(linePathSafe);
 
     const clampY = (y: number) =>
       Math.max(padding.top, Math.min(height - padding.bottom, y));
@@ -1014,9 +1162,14 @@ export function EventHistoryModal({
       height,
       padding,
       xForOffset,
+      xForOffsetContinuous,
       yFor,
-      bandPath: bandPathSafe,
+      band50Path: band50PathSafe,
+      band80Path: band80PathSafe,
+      band90Path: band90PathSafe,
       linePath: linePathSafe,
+      lineSegments,
+      lineStyleByOffset,
       hasBand,
       hasLine,
       hoverPoints,
@@ -1025,9 +1178,75 @@ export function EventHistoryModal({
       yTicks,
       yForClamped,
       domainMin,
-      domainMax
+      domainMax,
+      offsets,
+      medianByOffset
     };
   }, [impactOpen, impactSeries, impactViewport, impactViewportReady]);
+
+  const impactNowMarker = useMemo(() => {
+    if (!impactOpen || impactPanel !== "event") return null;
+    if (!impactChart?.offsets?.length) return null;
+    if (!impactChart?.medianByOffset) return null;
+
+    // Anchor to the nearest scheduled occurrence (display time) so the marker matches the table time display.
+    const WINDOW_MS = 24 * 60 * 60 * 1000;
+    const candidates: Array<{ ms: number; delta: number }> = [];
+    for (const point of points) {
+      const t = String(point.time ?? "").trim();
+      if (!t || !t.includes(":")) continue;
+      const ms = parseDisplayTimeToUtcMs(point.date, t, effectiveCalendarOffsetMinutes);
+      if (ms === null) continue;
+      const delta = ms - impactNowMs; // + = future
+      candidates.push({ ms, delta });
+    }
+    if (!candidates.length) return null;
+
+    // Prefer the upcoming occurrence within 24h (matches "countdown" expectation).
+    const upcoming = candidates
+      .filter((c) => c.delta >= 0 && c.delta <= WINDOW_MS)
+      .sort((a, b) => a.delta - b.delta)[0];
+    const nearest = candidates
+      .filter((c) => Math.abs(c.delta) <= WINDOW_MS)
+      .sort((a, b) => Math.abs(a.delta) - Math.abs(b.delta))[0];
+    const anchor = upcoming ?? nearest;
+    if (!anchor) return null;
+    const anchorMs = anchor.ms;
+
+    const offsetMinutesRaw = (impactNowMs - anchorMs) / 60_000;
+    const minOffset = impactChart.offsets[0] ?? -1440;
+    const maxOffset = impactChart.offsets[impactChart.offsets.length - 1] ?? 1440;
+    const offsetMinutesClamped = Math.max(minOffset, Math.min(maxOffset, offsetMinutesRaw));
+
+    const x = impactChart.xForOffsetContinuous(offsetMinutesClamped);
+
+    // Interpolate the median between two neighbor offsets when possible.
+    const sorted = impactChart.offsets;
+    let left = sorted[0];
+    let right = sorted[sorted.length - 1];
+    for (let i = 1; i < sorted.length; i++) {
+      const r = sorted[i];
+      if (offsetMinutesClamped <= r) {
+        left = sorted[i - 1];
+        right = r;
+        break;
+      }
+    }
+    const vL = impactChart.medianByOffset.get(left);
+    const vR = impactChart.medianByOffset.get(right);
+    let median = vL ?? vR ?? 0;
+    if (typeof vL === "number" && typeof vR === "number" && right !== left) {
+      const t = (offsetMinutesClamped - left) / (right - left);
+      median = vL + t * (vR - vL);
+    }
+    const y = impactChart.yForClamped(median);
+
+    // Label: signed time relative to the next/nearest scheduled occurrence.
+    // Future => negative (e.g. -22h 36m), past => positive (e.g. +48m).
+    const label = formatTimeOffsetMinutes(offsetMinutesRaw);
+
+    return { x, y, label };
+  }, [effectiveCalendarOffsetMinutes, impactChart, impactNowMs, impactOpen, impactPanel, points]);
 
   useEffect(() => {
     if (!impactOpen || impactPanel !== "event") return;
@@ -1083,7 +1302,7 @@ export function EventHistoryModal({
     [updateImpactHoverFromPointer]
   );
 
-  const impactHover = useMemo(() => {
+  const impactHover = useMemo(() => { 
     if (!impactOpen) return null;
     if (impactPanel !== "event") return null;
     if (!impactChart) return null;
@@ -1097,20 +1316,83 @@ export function EventHistoryModal({
 
     const x = impactChart.xForOffset(impactHoverOffset);
     const y = impactChart.yFor(stats.best_median_pct);
-    const leftPctRaw = (x / impactChart.width) * 100;
-    const topPctRaw = (y / impactChart.height) * 100;
-    const leftPct = Math.max(6, Math.min(94, leftPctRaw));
-    const topPct = Math.max(8, Math.min(92, topPctRaw));
-    return {
-      x,
-      y,
-      leftPct,
-      topPct,
-      direction: stats.best_direction === "up" ? "Up" : "Down",
-      pText: `${Math.round(stats.best_p * 100)}%`,
-      move: formatPct(stats.best_median_pct)
+    const leftPct = (x / impactChart.width) * 100;
+    const topPct = (y / impactChart.height) * 100;
+    const upP = typeof stats.p_up === "number" ? stats.p_up : null;
+    const downP = typeof stats.p_down === "number" ? stats.p_down : null;
+    const legacyDirMedian = typeof stats.p50 === "number" ? stats.p50 : null;
+    // Back-compat: older analysis files don't have up_p50/down_p50; use the legacy direction-median
+    // for the best direction so the tooltip doesn't degrade to "-- --".
+    const upMove =
+      typeof stats.up_p50 === "number"
+        ? stats.up_p50
+        : stats.best_direction === "up"
+          ? legacyDirMedian
+          : null;
+    const downMove =
+      typeof stats.down_p50 === "number"
+        ? stats.down_p50
+        : stats.best_direction === "down"
+          ? legacyDirMedian
+          : null;
+
+    return { 
+      x, 
+      y, 
+      leftPct, 
+      topPct, 
+      offsetLabel: formatTimeOffsetMinutes(impactHoverOffset),
+      upP,
+      downP,
+      upMove,
+      downMove
     };
-  }, [impactChart, impactData, impactHoverOffset, impactOpen, impactPanel]);
+  }, [impactChart, impactData, impactHoverOffset, impactOpen, impactPanel]); 
+
+  // Keep the impact tooltip fully inside the chart body (no clipping at the edges).
+  // We measure the actual tooltip width/height and clamp the anchor point accordingly.
+  useLayoutEffect(() => {
+    if (!impactHover) {
+      setImpactTooltipPos(null);
+      return;
+    }
+    const body = impactBodyRef.current;
+    const tip = impactTooltipRef.current;
+    if (!body || !tip) {
+      setImpactTooltipPos({ leftPct: impactHover.leftPct, topPct: impactHover.topPct });
+      return;
+    }
+
+    const raf = window.requestAnimationFrame(() => {
+      const bodyRect = body.getBoundingClientRect();
+      const tipRect = tip.getBoundingClientRect();
+      if (bodyRect.width <= 1 || bodyRect.height <= 1 || tipRect.width <= 1 || tipRect.height <= 1) {
+        setImpactTooltipPos({ leftPct: impactHover.leftPct, topPct: impactHover.topPct });
+        return;
+      }
+
+      // Convert current % anchor to px in the body box.
+      const xPx = (impactHover.leftPct / 100) * bodyRect.width;
+      const yPx = (impactHover.topPct / 100) * bodyRect.height;
+
+      const pad = 10;
+      const halfW = tipRect.width / 2;
+      const liftY = tipRect.height * 1.2; // matches translateY(-120%)
+
+      const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+
+      const xClamped = clamp(xPx, pad + halfW, bodyRect.width - pad - halfW);
+      // Ensure the tooltip (lifted up) doesn't go above the body.
+      const yClamped = clamp(yPx, pad + liftY, bodyRect.height - pad);
+
+      setImpactTooltipPos({
+        leftPct: (xClamped / bodyRect.width) * 100,
+        topPct: (yClamped / bodyRect.height) * 100
+      });
+    });
+
+    return () => window.cancelAnimationFrame(raf);
+  }, [impactHover]);
 
   const hasVisibleSeries = visibleSeries.actual || visibleSeries.forecast;
   const rangeKeyForView: RangeKey = impactOpen ? "all" : preferredRange;
@@ -1952,11 +2234,11 @@ export function EventHistoryModal({
                               <div className="impact-chart-header" aria-hidden="true">
                                 <div className="impact-chart-meta">
                                   <span className="impact-chart-meta-item">
-                                    Line: median % change (most likely direction)
+                                    Line: most likely direction (color) + confidence (thickness)
                                   </span>
                                   <span className="impact-chart-meta-sep">•</span>
                                   <span className="impact-chart-meta-item">
-                                    Band: P10..P90 (most likely direction)
+                                    Bands: P25..P75 (dark) + P10..P90 + P05..P95 (light)
                                   </span>
                                   <span className="impact-chart-meta-sep">•</span>
                                   <span className="impact-chart-meta-item">
@@ -2085,16 +2367,65 @@ export function EventHistoryModal({
                                   vectorEffect="non-scaling-stroke"
                                 />
                               </g>
-                              <g clipPath="url(#impact-clip)">
-                                <g className="impact-band">
-                                  {impactChart.bandPath ? (
-                                    <path d={impactChart.bandPath} vectorEffect="non-scaling-stroke" />
+                                <g clipPath="url(#impact-clip)">
+                                <g className="impact-band impact-band-90">
+                                  {impactChart.band90Path ? (
+                                    <path d={impactChart.band90Path} vectorEffect="non-scaling-stroke" />
                                   ) : null}
                                 </g>
-                                <g className="impact-line">
-                                  {impactChart.linePath ? (
-                                    <path d={impactChart.linePath} vectorEffect="non-scaling-stroke" />
+                                <g className="impact-band impact-band-80">
+                                  {impactChart.band80Path ? (
+                                    <path d={impactChart.band80Path} vectorEffect="non-scaling-stroke" />
                                   ) : null}
+                                </g>
+                                <g className="impact-band impact-band-50">
+                                  {impactChart.band50Path ? (
+                                    <path d={impactChart.band50Path} vectorEffect="non-scaling-stroke" />
+                                  ) : null}
+                                </g>
+                                {impactNowMarker ? (
+                                  <g className="impact-now" aria-hidden="true">
+                                    <line
+                                      className="impact-now-underlay"
+                                      x1={Math.round(impactNowMarker.x) + 0.5}
+                                      x2={Math.round(impactNowMarker.x) + 0.5}
+                                      y1={impactChart.padding.top}
+                                      y2={impactChart.height - impactChart.padding.bottom}
+                                      vectorEffect="non-scaling-stroke"
+                                    />
+                                    <line
+                                      className="impact-now-line"
+                                      x1={Math.round(impactNowMarker.x) + 0.5}
+                                      x2={Math.round(impactNowMarker.x) + 0.5}
+                                      y1={impactChart.padding.top}
+                                      y2={impactChart.height - impactChart.padding.bottom}
+                                      vectorEffect="non-scaling-stroke"
+                                    />
+                                  </g>
+                                ) : null}
+                                <g className="impact-line">
+                                  {impactChart.lineSegments?.length
+                                    ? impactChart.lineSegments.map((seg, idx) => (
+                                        <path
+                                          key={`seg-${idx}`}
+                                          d={seg.d}
+                                          vectorEffect="non-scaling-stroke"
+                                          stroke={seg.stroke}
+                                          strokeOpacity={seg.strokeOpacity}
+                                          strokeWidth={seg.strokeWidth}
+                                        />
+                                      ))
+                                    : impactChart.linePath
+                                      ? (
+                                          <path
+                                            d={impactChart.linePath}
+                                            vectorEffect="non-scaling-stroke"
+                                            stroke="#ff8f7b"
+                                            strokeOpacity={0.85}
+                                            strokeWidth={2}
+                                          />
+                                        )
+                                      : null}
                                 </g>
                                 {impactHover ? (
                                   <g className="impact-hover" aria-hidden="true">
@@ -2109,6 +2440,34 @@ export function EventHistoryModal({
                                 ) : null}
                               </g>
                               <g className="impact-labels">
+                                {impactNowMarker ? (
+                                  (() => {
+                                    const text = impactNowMarker.label;
+                                    // Approximate width: 6.6px per char at 10px font-size + padding.
+                                    const w = Math.min(
+                                      140,
+                                      Math.max(44, Math.round(text.length * 6.6 + 18))
+                                    );
+                                    const h = 18;
+                                    const x = impactNowMarker.x;
+                                    const y = impactChart.height - impactChart.padding.bottom + 18;
+                                    return (
+                                      <g className="impact-now-label" aria-hidden="true">
+                                        <rect
+                                          x={Math.round(x - w / 2)}
+                                          y={Math.round(y - h + 4)}
+                                          width={w}
+                                          height={h}
+                                          rx={9}
+                                          ry={9}
+                                        />
+                                        <text x={x} y={y} textAnchor="middle" className="impact-now-tag">
+                                          {text}
+                                        </text>
+                                      </g>
+                                    );
+                                  })()
+                                ) : null}
                                 {(() => {
                                   const minGap = 14;
                                   const baseline = impactChart.height - impactChart.padding.bottom + 0.5;
@@ -2161,12 +2520,18 @@ export function EventHistoryModal({
                                       if (!stats || typeof stats.n !== "number" || stats.n <= 0) return null;
                                       if (typeof stats.best_p !== "number" || !stats.best_direction) return null;
 
-                                      const median =
-                                        typeof stats.best_median_pct === "number"
+                                      const dirMedian = (() => {
+                                        if (stats.best_direction === "up") {
+                                          if (typeof stats.up_p50 === "number") return stats.up_p50;
+                                        } else if (stats.best_direction === "down") {
+                                          if (typeof stats.down_p50 === "number") return stats.down_p50;
+                                        }
+                                        return typeof stats.best_median_pct === "number"
                                           ? stats.best_median_pct
                                           : 0;
+                                      })();
                                       const x = impactChart.xForOffset(offset);
-                                      const y = impactChart.yFor(median);
+                                      const y = impactChart.yFor(dirMedian);
 
                                       const absOffset = Math.abs(offset);
                                       const placeBelow = absOffset <= 60;
@@ -2177,43 +2542,267 @@ export function EventHistoryModal({
                                       // Keep static labels off the line: pin them to chart edges.
                                       const xText = offset < 0 ? leftBound : rightBound;
                                       const anchor: "start" | "end" = offset < 0 ? "start" : "end";
+                                      const direction = stats.best_direction === "up" ? "Up" : "Down";
+                                      const pct = `${Math.round(stats.best_p * 100)}%`;
+                                      const move = formatPct(dirMedian);
+                                      const labelText = `${direction} ${pct} (${move})`;
+                                      const labelW = Math.min(
+                                        180,
+                                        Math.max(72, Math.round(labelText.length * 6.6 + 14))
+                                      );
 
                                       const yBase = (() => {
-                                        const dy = placeBelow ? 20 : -14;
+                                        // Keep labels far enough away that the series line doesn't visually run through
+                                        // the glyphs (we don't mask the line behind text).
+                                        const dy = placeBelow ? 30 : -24;
                                         const raw = y + dy;
                                         const top = impactChart.padding.top + 14;
                                         const bottom = impactChart.height - impactChart.padding.bottom - 8;
                                         return Math.max(top, Math.min(bottom, raw));
                                       })();
 
-                                      return { offset, xText, anchor, yText: yBase, yPoint: y, preferBelow: placeBelow };
+                                      return {
+                                        offset,
+                                        xPoint: x,
+                                        xText,
+                                        anchor,
+                                        yText: yBase,
+                                        yPoint: y,
+                                        preferBelow: placeBelow,
+                                        labelW
+                                      };
                                     })
                                     .filter(Boolean) as {
                                     offset: number;
+                                    xPoint: number;
                                     xText: number;
                                     anchor: "start" | "end";
                                     yText: number;
                                     yPoint: number;
                                     preferBelow: boolean;
+                                    labelW: number;
                                   }[];
 
                                   const top = impactChart.padding.top + 14;
                                   const bottom = impactChart.height - impactChart.padding.bottom - 8;
+
+                                  // Build the polyline for the rendered "most likely" line (best_median_pct).
+                                  // We use it to place labels so the line never visually runs through glyphs.
+                                  const linePoints = impactSeries.items
+                                    .map((it) => {
+                                      if (it.offset === 0) {
+                                        return { x: impactChart.xForOffset(0), y: impactChart.yFor(0) };
+                                      }
+                                      const s = it.stats;
+                                      if (!s || typeof s.best_median_pct !== "number") return null;
+                                      return {
+                                        x: impactChart.xForOffset(it.offset),
+                                        y: impactChart.yFor(s.best_median_pct)
+                                      };
+                                    })
+                                    .filter(Boolean) as Array<{ x: number; y: number }>;
+
+                                  const rectForLabel = (
+                                    xText: number,
+                                    yText: number,
+                                    anchor: "start" | "end",
+                                    w: number,
+                                    h: number
+                                  ) => {
+                                    const x0 = anchor === "start" ? xText : xText - w;
+                                    const y0 = yText - h + 2;
+                                    return { x0, y0, x1: x0 + w, y1: y0 + h };
+                                  };
+
+                                  const segsIntersect = (
+                                    ax: number,
+                                    ay: number,
+                                    bx: number,
+                                    by: number,
+                                    cx: number,
+                                    cy: number,
+                                    dx: number,
+                                    dy: number
+                                  ) => {
+                                    const orient = (
+                                      x1: number,
+                                      y1: number,
+                                      x2: number,
+                                      y2: number,
+                                      x3: number,
+                                      y3: number
+                                    ) => (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1);
+                                    const onSeg = (
+                                      x1: number,
+                                      y1: number,
+                                      x2: number,
+                                      y2: number,
+                                      x3: number,
+                                      y3: number
+                                    ) =>
+                                      Math.min(x1, x2) - 1e-9 <= x3 &&
+                                      x3 <= Math.max(x1, x2) + 1e-9 &&
+                                      Math.min(y1, y2) - 1e-9 <= y3 &&
+                                      y3 <= Math.max(y1, y2) + 1e-9;
+                                    const o1 = orient(ax, ay, bx, by, cx, cy);
+                                    const o2 = orient(ax, ay, bx, by, dx, dy);
+                                    const o3 = orient(cx, cy, dx, dy, ax, ay);
+                                    const o4 = orient(cx, cy, dx, dy, bx, by);
+                                    if (o1 === 0 && onSeg(ax, ay, bx, by, cx, cy)) return true;
+                                    if (o2 === 0 && onSeg(ax, ay, bx, by, dx, dy)) return true;
+                                    if (o3 === 0 && onSeg(cx, cy, dx, dy, ax, ay)) return true;
+                                    if (o4 === 0 && onSeg(cx, cy, dx, dy, bx, by)) return true;
+                                    return (o1 > 0) !== (o2 > 0) && (o3 > 0) !== (o4 > 0);
+                                  };
+
+                                  const segmentHitsRect = (
+                                    ax: number,
+                                    ay: number,
+                                    bx: number,
+                                    by: number,
+                                    r: { x0: number; y0: number; x1: number; y1: number }
+                                  ) => {
+                                    // Quick reject by bbox.
+                                    const minX = Math.min(ax, bx);
+                                    const maxX = Math.max(ax, bx);
+                                    const minY = Math.min(ay, by);
+                                    const maxY = Math.max(ay, by);
+                                    if (maxX < r.x0 || minX > r.x1 || maxY < r.y0 || minY > r.y1) return false;
+
+                                    const inside =
+                                      (ax >= r.x0 && ax <= r.x1 && ay >= r.y0 && ay <= r.y1) ||
+                                      (bx >= r.x0 && bx <= r.x1 && by >= r.y0 && by <= r.y1);
+                                    if (inside) return true;
+
+                                    return (
+                                      segsIntersect(ax, ay, bx, by, r.x0, r.y0, r.x1, r.y0) ||
+                                      segsIntersect(ax, ay, bx, by, r.x1, r.y0, r.x1, r.y1) ||
+                                      segsIntersect(ax, ay, bx, by, r.x1, r.y1, r.x0, r.y1) ||
+                                      segsIntersect(ax, ay, bx, by, r.x0, r.y1, r.x0, r.y0)
+                                    );
+                                  };
+
+                                  const hitsLine = (r: { x0: number; y0: number; x1: number; y1: number }) => {
+                                    // Inflate a bit so the line doesn't graze text.
+                                    const pad = 6;
+                                    const rr = { x0: r.x0 - pad, y0: r.y0 - pad, x1: r.x1 + pad, y1: r.y1 + pad };
+                                    for (let i = 1; i < linePoints.length; i += 1) {
+                                      const a = linePoints[i - 1];
+                                      const b = linePoints[i];
+                                      if (segmentHitsRect(a.x, a.y, b.x, b.y, rr)) return true;
+                                    }
+                                    return false;
+                                  };
+
                                   // Keep enough baseline spacing so labels never overlap even with ascent/descent.
                                   const minGap = 26;
                                   const distribute = (
                                     group: Array<{
                                       offset: number;
+                                      xPoint: number;
                                       xText: number;
                                       anchor: "start" | "end";
                                       yText: number;
                                       yPoint: number;
                                       preferBelow: boolean;
+                                      labelW: number;
                                     }>
                                   ) => {
-                                    if (group.length <= 1) return;
-                                    const lineGap = 18;
+                                    if (!group.length) return;
+                                    // Bigger than the text's ascender/descender so the line/band doesn't sit behind text.
+                                    const lineGap = 28;
                                     const clamp = (v: number) => Math.max(top, Math.min(bottom, v));
+                                    const labelH = 14;
+                                    const now = impactNowMarker;
+                                    const nowR = 12;
+
+                                    const leftBound = impactChart.padding.left + 10;
+                                    const rightBound = impactChart.width - impactChart.padding.right - 10;
+
+                                    const overlapsRect = (
+                                      a: { x0: number; y0: number; x1: number; y1: number },
+                                      b: { x0: number; y0: number; x1: number; y1: number }
+                                    ) =>
+                                      a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0;
+
+                                    const inflate = (
+                                      r: { x0: number; y0: number; x1: number; y1: number },
+                                      pad: number
+                                    ) => ({ x0: r.x0 - pad, y0: r.y0 - pad, x1: r.x1 + pad, y1: r.y1 + pad });
+
+                                    const hitsNow = (r: { x0: number; y0: number; x1: number; y1: number }) => {
+                                      if (!now) return false;
+                                      const n = { x0: now.x - nowR, y0: now.y - nowR, x1: now.x + nowR, y1: now.y + nowR };
+                                      return overlapsRect(r, n);
+                                    };
+
+                                    const buildCandidates = (item: (typeof group)[number]) => {
+                                      const preferRight = item.offset < 0;
+                                      const dxPrimary = preferRight ? [14, 22, 30] : [-14, -22, -30];
+                                      const dxFallback = preferRight ? [-14] : [14];
+                                      const dyPrimary = item.preferBelow ? [24, 36, 48] : [-20, -32, -44];
+                                      const dyFallback = item.preferBelow ? [-20, -32] : [24, 36];
+
+                                      const candidates: Array<{
+                                        xText: number;
+                                        yText: number;
+                                        anchor: "start" | "end";
+                                        edgePinned: boolean;
+                                        scoreBase: number;
+                                      }> = [];
+
+                                      const push = (dx: number, dy: number, edgePinned: boolean) => {
+                                        const anchor: "start" | "end" = dx >= 0 ? "start" : "end";
+                                        const xText = clamp(item.xPoint + dx, leftBound, rightBound);
+                                        const yText = clamp(item.yPoint + dy, top, bottom);
+                                        const r = rectForLabel(xText, yText, anchor, item.labelW, labelH);
+                                        // Keep fully inside the plot.
+                                        if (r.x0 < leftBound || r.x1 > rightBound) return;
+                                        if (r.y0 < top || r.y1 > bottom) return;
+                                        const dist = Math.abs(dx) * 0.8 + Math.abs(dy) * 1.1;
+                                        candidates.push({ xText, yText, anchor, edgePinned, scoreBase: dist });
+                                      };
+
+                                      for (const dx of dxPrimary) {
+                                        for (const dy of dyPrimary) push(dx, dy, false);
+                                      }
+                                      for (const dx of dxPrimary) {
+                                        for (const dy of dyFallback) push(dx, dy, false);
+                                      }
+                                      for (const dx of dxFallback) {
+                                        for (const dy of dyPrimary) push(dx, dy, false);
+                                      }
+
+                                      // Edge pinned fallback (high penalty) if everything else fails.
+                                      const xEdge = item.offset < 0 ? leftBound : rightBound;
+                                      const edgeAnchor: "start" | "end" = item.offset < 0 ? "start" : "end";
+                                      const yEdge = clamp(item.yPoint + (item.preferBelow ? 30 : -24), top, bottom);
+                                      candidates.push({ xText: xEdge, yText: yEdge, anchor: edgeAnchor, edgePinned: true, scoreBase: 220 });
+
+                                      // Sort by score, then by how close it stays to the preferred side.
+                                      candidates.sort((a, b) => a.scoreBase - b.scoreBase);
+                                      return candidates;
+                                    };
+
+                                    // Choose a near-by x/y/anchor per label first, then keep adjusting y to avoid collisions.
+                                    const placed: Array<{ x0: number; y0: number; x1: number; y1: number }> = [];
+                                    const order = [...group].sort((a, b) => Math.abs(a.offset) - Math.abs(b.offset));
+                                    for (const item of order) {
+                                      const cands = buildCandidates(item);
+                                      let chosen = cands[0] ?? null;
+                                      for (const cand of cands) {
+                                        const r = rectForLabel(cand.xText, cand.yText, cand.anchor, item.labelW, labelH);
+                                        if (hitsLine(r) || hitsNow(r)) continue;
+                                        if (placed.some((p) => overlapsRect(inflate(p, 6), inflate(r, 6)))) continue;
+                                        chosen = cand;
+                                        break;
+                                      }
+                                      if (!chosen) continue;
+                                      item.xText = chosen.xText;
+                                      item.yText = chosen.yText;
+                                      item.anchor = chosen.anchor;
+                                      placed.push(rectForLabel(item.xText, item.yText, item.anchor, item.labelW, labelH));
+                                    }
 
                                     // Run a couple of iterations: keep away from the line first, then solve overlaps.
                                     for (let iter = 0; iter < 2; iter += 1) {
@@ -2224,6 +2813,82 @@ export function EventHistoryModal({
                                           item.yText = Math.min(item.yText, item.yPoint - lineGap);
                                         }
                                         item.yText = clamp(item.yText);
+
+                                        // Ensure the line doesn't run through the label text (dynamic at render-time).
+                                        // Search for the *nearest* Y that avoids the line (and live marker), instead of
+                                        // repeatedly pushing by a large fixed amount (which can send labels too far).
+                                        {
+                                          const yTarget = item.yText;
+                                          let bestY = item.yText;
+                                          let bestPenalty = Number.POSITIVE_INFINITY;
+
+                                          const step = 6;
+                                          const maxSteps = 14; // ~84px
+                                          const deltas: number[] = [0];
+                                          for (let k = 1; k <= maxSteps; k += 1) {
+                                            deltas.push(k * step, -k * step);
+                                          }
+
+                                          for (const delta of deltas) {
+                                            const yCand = clamp(yTarget + delta);
+                                            const r = rectForLabel(
+                                              item.xText,
+                                              yCand,
+                                              item.anchor,
+                                              item.labelW,
+                                              labelH
+                                            );
+                                            const collidesLine = hitsLine(r);
+                                            const collidesNow = now
+                                              ? (() => {
+                                                  const nx0 = now.x - nowR;
+                                                  const nx1 = now.x + nowR;
+                                                  const ny0 = now.y - nowR;
+                                                  const ny1 = now.y + nowR;
+                                                  return r.x0 < nx1 && r.x1 > nx0 && r.y0 < ny1 && r.y1 > ny0;
+                                                })()
+                                              : false;
+
+                                            // Hard reject collisions first, but keep a best-effort fallback if needed.
+                                            const penalty =
+                                              (collidesLine ? 1_000_000 : 0) +
+                                              (collidesNow ? 1_000_000 : 0) +
+                                              Math.abs(delta) +
+                                              // Mild preference: keep the label on the intended side of the point.
+                                              (item.preferBelow ? Math.max(0, item.yPoint - yCand) : Math.max(0, yCand - item.yPoint)) *
+                                                3;
+
+                                            if (penalty < bestPenalty) {
+                                              bestPenalty = penalty;
+                                              bestY = yCand;
+                                              if (!collidesLine && !collidesNow && delta === 0) break;
+                                            }
+                                          }
+
+                                          item.yText = bestY;
+                                        }
+
+                                        // Keep labels away from the live-now dot (even though the dot is rendered above,
+                                        // overlap still looks messy).
+                                        if (now) {
+                                          const x0 =
+                                            item.anchor === "start" ? item.xText : item.xText - item.labelW;
+                                          const x1 =
+                                            item.anchor === "start" ? item.xText + item.labelW : item.xText;
+                                          const y0 = item.yText - labelH + 2;
+                                          const y1 = item.yText + 2;
+                                          const nx0 = now.x - nowR;
+                                          const nx1 = now.x + nowR;
+                                          const ny0 = now.y - nowR;
+                                          const ny1 = now.y + nowR;
+                                          const overlaps =
+                                            x0 < nx1 && x1 > nx0 && y0 < ny1 && y1 > ny0;
+                                          if (overlaps) {
+                                            // Push away from the dot.
+                                            const push = item.yText <= now.y ? -minGap : minGap;
+                                            item.yText = clamp(item.yText + push);
+                                          }
+                                        }
                                       }
 
                                       group.sort((a, b) => a.yText - b.yText);
@@ -2257,8 +2922,18 @@ export function EventHistoryModal({
                                   distribute(rightLabels);
 
                                   const yByOffset = new Map<number, number>();
+                                  const xByOffset = new Map<number, number>();
+                                  const anchorByOffset = new Map<number, "start" | "end">();
                                   for (const c of leftLabels) yByOffset.set(c.offset, c.yText);
                                   for (const c of rightLabels) yByOffset.set(c.offset, c.yText);
+                                  for (const c of leftLabels) {
+                                    xByOffset.set(c.offset, c.xText);
+                                    anchorByOffset.set(c.offset, c.anchor);
+                                  }
+                                  for (const c of rightLabels) {
+                                    xByOffset.set(c.offset, c.xText);
+                                    anchorByOffset.set(c.offset, c.anchor);
+                                  }
 
                                   return impactSeries.items.map((item) => {
                                     const offset = item.offset;
@@ -2268,20 +2943,30 @@ export function EventHistoryModal({
                                     if (typeof stats.best_p !== "number" || !stats.best_direction) return null;
 
                                     const showLabel = IMPACT_LABEL_OFFSETS.includes(offset);
-                                    const median =
-                                      typeof stats.best_median_pct === "number"
+                                    const dirMedian = (() => {
+                                      if (stats.best_direction === "up") {
+                                        if (typeof stats.up_p50 === "number") return stats.up_p50;
+                                      } else if (stats.best_direction === "down") {
+                                        if (typeof stats.down_p50 === "number") return stats.down_p50;
+                                      }
+                                      return typeof stats.best_median_pct === "number"
                                         ? stats.best_median_pct
                                         : 0;
+                                    })();
                                     const x = impactChart.xForOffset(offset);
-                                    const y = impactChart.yFor(median);
+                                    const y = impactChart.yFor(dirMedian);
                                     const direction = stats.best_direction === "up" ? "Up" : "Down";
                                     const pct = `${Math.round(stats.best_p * 100)}%`;
-                                    const move = formatPct(median);
+                                    const move = formatPct(dirMedian);
 
-                                    const leftBound = impactChart.padding.left + 10;
-                                    const rightBound = impactChart.width - impactChart.padding.right - 10;
-                                    const xText = offset < 0 ? leftBound : rightBound;
-                                    const anchor: "start" | "end" = offset < 0 ? "start" : "end";
+                                    const fallbackLeft = impactChart.padding.left + 10;
+                                    const fallbackRight = impactChart.width - impactChart.padding.right - 10;
+                                    const xText = showLabel
+                                      ? xByOffset.get(offset) ?? (offset < 0 ? fallbackLeft : fallbackRight)
+                                      : offset < 0 ? fallbackLeft : fallbackRight;
+                                    const anchor: "start" | "end" = showLabel
+                                      ? anchorByOffset.get(offset) ?? (offset < 0 ? "start" : "end")
+                                      : offset < 0 ? "start" : "end";
                                     const yText = showLabel ? yByOffset.get(offset) ?? y : y;
 
                                     return (
@@ -2292,6 +2977,16 @@ export function EventHistoryModal({
                                             cx={x}
                                             cy={y}
                                             r={impactHoverOffset === offset ? 4.2 : 3.1}
+                                            style={
+                                              impactHoverOffset === offset
+                                                ? undefined
+                                                : impactChart.lineStyleByOffset?.get(offset)
+                                                  ? {
+                                                      fill: impactChart.lineStyleByOffset.get(offset)?.stroke,
+                                                      opacity: impactChart.lineStyleByOffset.get(offset)?.strokeOpacity
+                                                    }
+                                                  : undefined
+                                            }
                                           />
                                         </g>
                                         {showLabel ? (
@@ -2357,18 +3052,52 @@ export function EventHistoryModal({
                                   Median % change
                                 </text>
                               </g>
+                              {impactNowMarker ? (
+                                <g clipPath="url(#impact-clip)">
+                                  <g className="impact-now" aria-hidden="true">
+                                    <circle
+                                      className="impact-now-pulse"
+                                      cx={impactNowMarker.x}
+                                      cy={impactNowMarker.y}
+                                      r={9.5}
+                                      vectorEffect="non-scaling-stroke"
+                                    />
+                                    <circle
+                                      className="impact-now-core"
+                                      cx={impactNowMarker.x}
+                                      cy={impactNowMarker.y}
+                                      r={4.6}
+                                      vectorEffect="non-scaling-stroke"
+                                    />
+                                  </g>
+                                </g>
+                              ) : null}
                                   </svg>
                                 </div>
-                            {impactHover ? (
-                              <div
-                                className="impact-chart-tooltip"
-                                style={{ left: `${impactHover.leftPct}%`, top: `${impactHover.topPct}%` }}
-                              >
-                                <span className="impact-chart-tooltip-dir">{impactHover.direction}</span>
+                            {impactHover ? ( 
+                              <div 
+                                className="impact-chart-tooltip" 
+                                ref={impactTooltipRef}
+                                style={{ 
+                                  left: `${(impactTooltipPos ?? impactHover).leftPct}%`, 
+                                  top: `${(impactTooltipPos ?? impactHover).topPct}%` 
+                                }} 
+                              > 
+                                <span className="impact-chart-tooltip-offset">{`@${impactHover.offsetLabel}`}</span>
                                 <span className="impact-chart-tooltip-sep">•</span>
-                                <span className="impact-chart-tooltip-p">{impactHover.pText}</span>
+                                <span className="impact-chart-tooltip-dir">
+                                  {`Up ${impactHover.upP === null ? "--" : Math.round(impactHover.upP * 100)}%`}
+                                </span>
+                                <span className="impact-chart-tooltip-move">
+                                  {impactHover.upMove === null ? "--" : formatPct(impactHover.upMove)}
+                                </span>
                                 <span className="impact-chart-tooltip-sep">•</span>
-                                <span className="impact-chart-tooltip-move">{impactHover.move}</span>
+                                <span className="impact-chart-tooltip-dir">
+                                  {`Down ${impactHover.downP === null ? "--" : Math.round(impactHover.downP * 100)}%`}
+                                </span>
+                                <span className="impact-chart-tooltip-move">
+                                  {impactHover.downMove === null ? "--" : formatPct(impactHover.downMove)}
+                                </span>
                               </div>
                             ) : null}
                               </>

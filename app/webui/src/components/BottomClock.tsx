@@ -1,34 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Settings } from "../types";
+import { formatUtcOffset, getEffectiveCalendarUtcOffsetMinutes } from "../utils/calendarTime";
 import "./BottomClock.css";
 
 type BottomClockProps = Pick<Settings, "calendarTimezoneMode" | "calendarUtcOffsetMinutes">;
-
-const formatUtcOffset = (offsetMinutes: number) => {
-  const sign = offsetMinutes >= 0 ? "+" : "-";
-  const minutesAbs = Math.abs(offsetMinutes);
-  const hours = Math.floor(minutesAbs / 60);
-  const mins = minutesAbs % 60;
-  const hourLabel = String(hours).padStart(2, "0");
-  if (mins) {
-    return `UTC${sign}${hourLabel}:${String(mins).padStart(2, "0")}`;
-  }
-  return `UTC${sign}${hourLabel}`;
-};
 
 export function BottomClock({ calendarTimezoneMode, calendarUtcOffsetMinutes }: BottomClockProps) {
   const [nowMs, setNowMs] = useState(() => Date.now());
   const followSystemTimezone = calendarTimezoneMode === "system";
   const effectiveOffsetMinutes = useMemo(() => {
-    if (followSystemTimezone) {
-      try {
-        return -new Date().getTimezoneOffset();
-      } catch {
-        return 0;
-      }
-    }
-    return Number.isFinite(calendarUtcOffsetMinutes) ? calendarUtcOffsetMinutes : 0;
-  }, [calendarUtcOffsetMinutes, followSystemTimezone]);
+    return getEffectiveCalendarUtcOffsetMinutes({
+      calendarTimezoneMode,
+      calendarUtcOffsetMinutes,
+      nowMs
+    });
+  }, [calendarTimezoneMode, calendarUtcOffsetMinutes, nowMs]);
 
   useEffect(() => {
     setNowMs(Date.now());

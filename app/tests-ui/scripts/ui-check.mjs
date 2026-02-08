@@ -1112,18 +1112,46 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
             if (offset === 0) return [String(offset), { n: 0 }];
             const swing = base + (index % 2 === 0 ? 0.05 : -0.03);
             const median = swing / 100;
+            const upMedian = Math.abs(median) * 0.92;
+            const downMedian = -Math.abs(median) * 1.04;
+            const upSpread = Math.min(0.0012, Math.abs(upMedian) * 0.85);
+            const downSpread = Math.min(0.0012, Math.abs(downMedian) * 0.85);
+            const upP10 = upMedian - upSpread;
+            const upP90 = upMedian + 0.0016;
+            const downP10 = downMedian - 0.0016;
+            const downP90 = downMedian + downSpread;
+            const bestDir = swing > 0 ? "up" : "down";
+            const pUp = swing > 0 ? 0.62 : 0.38;
+            const pDown = 1 - pUp;
+            const allMedian = (pUp * upMedian + pDown * downMedian) / Math.max(1e-9, pUp + pDown);
+            const allSpread = 0.0015;
             return [
               String(offset),
               {
                 n: 28 + index * 2,
-                p_up: swing > 0 ? 0.62 : 0.38,
-                p_down: swing > 0 ? 0.38 : 0.62,
-                p10: median - 0.0015,
-                p50: median,
-                p90: median + 0.0018,
-                best_direction: swing > 0 ? "up" : "down",
-                best_p: 0.62,
-                best_median_pct: median
+                p_up: pUp,
+                p_down: pDown,
+                p10: bestDir === "up" ? upP10 : downP10,
+                p50: bestDir === "up" ? upMedian : downMedian,
+                p90: bestDir === "up" ? upP90 : downP90,
+                p05_all: allMedian - allSpread * 1.35,
+                p10_all: allMedian - allSpread,
+                p25_all: allMedian - allSpread * 0.55,
+                p50_all: allMedian,
+                p75_all: allMedian + allSpread * 0.55,
+                p90_all: allMedian + allSpread,
+                p95_all: allMedian + allSpread * 1.35,
+                up_n: Math.round((28 + index * 2) * pUp),
+                down_n: Math.round((28 + index * 2) * pDown),
+                up_p10: upP10,
+                up_p50: upMedian,
+                up_p90: upP90,
+                down_p10: downP10,
+                down_p50: downMedian,
+                down_p90: downP90,
+                best_direction: bestDir,
+                best_p: Math.max(pUp, pDown),
+                best_median_pct: bestDir === "up" ? upMedian : downMedian
               }
             ];
           })

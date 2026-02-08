@@ -868,26 +868,54 @@
 }
 
 .impact-band path {
-  fill: rgba(134, 201, 255, 0.12);
-  stroke: rgba(134, 201, 255, 0.45);
-  stroke-width: 1.1;
+  /* Single neutral density band (no up/down coloring). */
+  stroke: none;
 }
 
-[data-theme="light"] .impact-band path {
-  fill: rgba(30, 75, 143, 0.1);
-  stroke: rgba(30, 75, 143, 0.32);
+[data-theme="dark"] .impact-band path {
+  fill: rgba(255, 255, 255, 0.14);
+}
+
+.impact-band-90 path {
+  /* Outermost band: lightest */
+  fill: rgba(0, 0, 0, 0.03);
+}
+
+.impact-band-80 path {
+  fill: rgba(0, 0, 0, 0.05);
+}
+
+.impact-band-50 path {
+  /* Innermost band: darkest */
+  fill: rgba(0, 0, 0, 0.07);
+}
+
+[data-theme="dark"] .impact-band-90 path {
+  fill: rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="dark"] .impact-band-80 path {
+  fill: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .impact-band-50 path {
+  fill: rgba(255, 255, 255, 0.14);
 }
 
 .impact-line path {
   fill: none;
-  stroke: #ff8f7b;
-  stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
 .impact-dot {
   fill: #ff8f7b;
+  stroke: rgba(255, 255, 255, 0.92);
+  stroke-width: 1.2;
+}
+
+[data-theme="light"] .impact-dot {
+  stroke: rgba(15, 23, 42, 0.28);
 }
 
 .impact-dot.hover {
@@ -901,6 +929,96 @@
 
 [data-theme="dark"] .impact-hover line {
   stroke: rgba(255, 255, 255, 0.22);
+}
+
+.impact-now {
+  pointer-events: none;
+}
+
+.impact-now-underlay {
+  stroke: rgba(255, 255, 255, 0.92);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 6 10;
+}
+
+[data-theme="dark"] .impact-now-underlay {
+  stroke: rgba(18, 22, 30, 0.85);
+}
+
+.impact-now-line {
+  /* Use the chart's orange accent (same family as the median line) for immediate meaning. */
+  stroke: rgba(255, 143, 123, 0.75);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 6 10;
+}
+
+.impact-now-core {
+  fill: #ff8f7b;
+  stroke: rgba(255, 255, 255, 0.92);
+  stroke-width: 1.6;
+}
+
+[data-theme="light"] .impact-now-core {
+  stroke: rgba(15, 23, 42, 0.28);
+}
+
+.impact-now-pulse {
+  fill: none;
+  stroke: rgba(255, 143, 123, 0.65);
+  stroke-width: 2;
+  opacity: 0.75;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: impact-now-pulse 1.35s var(--motion-ease) infinite;
+}
+
+[data-theme="dark"] .impact-now-pulse {
+  /* Dark theme needs a stronger pulse to read against the band fill. */
+  stroke: rgba(255, 143, 123, 0.92);
+  stroke-width: 2.4;
+  opacity: 0.95;
+}
+
+.impact-now-tag {
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.16em;
+  fill: rgba(255, 143, 123, 0.95);
+}
+
+.impact-chart-tooltip-offset {
+  opacity: 0.82;
+}
+
+.impact-now-label rect {
+  fill: rgba(255, 255, 255, 0.92);
+  stroke: none;
+}
+
+[data-theme="dark"] .impact-now-label rect {
+  fill: rgba(18, 22, 30, 0.78);
+  stroke: none;
+}
+
+[data-theme="dark"] .impact-now-tag {
+  fill: rgba(255, 143, 123, 0.92);
+}
+
+@keyframes impact-now-pulse {
+  0% {
+    transform: scale(0.86);
+    opacity: 0.55;
+  }
+  55% {
+    transform: scale(1.05);
+    opacity: 0.28;
+  }
+  100% {
+    transform: scale(1.18);
+    opacity: 0;
+  }
 }
 
 .impact-labels text {
