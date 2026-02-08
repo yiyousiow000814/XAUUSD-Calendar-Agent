@@ -2313,14 +2313,14 @@ export function EventHistoryModal({
                                     return base;
                                   };
 
-                                  const localPredict = () => {
-                                    const rows = points
-                                      .map((p) => ({
-                                        a: parseNumber(p.actualRaw ?? p.actual),
-                                        f: parseNumber(p.forecast),
-                                        prev: parseNumber(p.previousRaw ?? p.previous)
-                                      }))
-                                      .filter((r) => r.a !== null);
+                                  const localPredict = () => { 
+                                    const rows = points 
+                                      .map((p) => ({ 
+                                        a: parseNumber(p.actualRaw ?? p.actual), 
+                                        f: parseNumber(p.forecast), 
+                                        prev: parseNumber(p.previousRaw ?? p.previous) 
+                                      })) 
+                                      .filter((r) => r.a !== null); 
 
                                     const sign = (v: number) => (v > 0 ? 1 : v < 0 ? -1 : 0);
                                     const sPrev: number[] = [];
@@ -2353,8 +2353,85 @@ export function EventHistoryModal({
                                       return { n, baseUp, repeat, last, pUpNext };
                                     };
 
-                                    return { vsPrev: build(sPrev), vsForecast: build(sFc) };
-                                  };
+                                    return { vsPrev: build(sPrev), vsForecast: build(sFc) }; 
+                                  }; 
+ 
+                                  const buildSeries = (maxPoints = 48) => { 
+                                    const slice = points.length > maxPoints ? points.slice(-maxPoints) : points; 
+                                    return slice.map((p) => ({ 
+                                      label: `${p.date} ${p.time}`, 
+                                      actual: parseNumber(p.actualRaw ?? p.actual), 
+                                      forecast: parseNumber(p.forecast), 
+                                      previous: parseNumber(p.previousRaw ?? p.previous) 
+                                    })); 
+                                  }; 
+ 
+                                  const series = buildSeries(); 
+                                  const hasAny = (k: "actual" | "forecast" | "previous") => 
+                                    series.some((r) => typeof r[k] === "number" && Number.isFinite(r[k] as number)); 
+ 
+                                  const spark = (() => { 
+                                    const w = 560; 
+                                    const h = 150; 
+                                    const pad = { l: 14, r: 12, t: 12, b: 18 }; 
+                                    const innerW = w - pad.l - pad.r; 
+                                    const innerH = h - pad.t - pad.b; 
+                                    const values: number[] = []; 
+                                    for (const r of series) { 
+                                      if (typeof r.actual === "number") values.push(r.actual); 
+                                      if (typeof r.forecast === "number") values.push(r.forecast); 
+                                      if (typeof r.previous === "number") values.push(r.previous); 
+                                    } 
+                                    if (values.length < 2) return null; 
+                                    let min = Math.min(...values); 
+                                    let max = Math.max(...values); 
+                                    if (!Number.isFinite(min) || !Number.isFinite(max)) return null; 
+                                    if (min === max) { 
+                                      min -= 1; 
+                                      max += 1; 
+                                    } else { 
+                                      const padY = (max - min) * 0.08; 
+                                      min -= padY; 
+                                      max += padY; 
+                                    } 
+                                    const xFor = (i: number) => 
+                                      pad.l + (series.length <= 1 ? innerW / 2 : (i / (series.length - 1)) * innerW); 
+                                    const yFor = (v: number) => pad.t + (1 - (v - min) / (max - min)) * innerH; 
+ 
+                                    const pathFor = (k: "actual" | "forecast" | "previous") => { 
+                                      let d = ""; 
+                                      let started = false; 
+                                      for (let i = 0; i < series.length; i += 1) { 
+                                        const v = series[i]?.[k]; 
+                                        if (typeof v !== "number" || !Number.isFinite(v)) { 
+                                          started = false; 
+                                          continue; 
+                                        } 
+                                        const x = xFor(i); 
+                                        const y = yFor(v); 
+                                        if (!started) { 
+                                          d += `M ${x},${y}`; 
+                                          started = true; 
+                                        } else { 
+                                          d += ` L ${x},${y}`; 
+                                        } 
+                                      } 
+                                      return d; 
+                                    }; 
+ 
+                                    return { 
+                                      w, 
+                                      h, 
+                                      pad, 
+                                      xFor, 
+                                      yFor, 
+                                      min, 
+                                      max, 
+                                      dActual: pathFor("actual"), 
+                                      dForecast: pathFor("forecast"), 
+                                      dPrevious: pathFor("previous") 
+                                    }; 
+                                  })(); 
 
                                   const fmtPct = (p: number | null | undefined) =>
                                     typeof p === "number" && Number.isFinite(p) ? `${Math.round(p * 100)}%` : "--";
@@ -2370,12 +2447,12 @@ export function EventHistoryModal({
                                   const aGtF = predictRelease.actualGtForecast ?? predictRelease.actual_gt_forecast; 
                                   const aGtP = predictRelease.actualGtPrevious ?? predictRelease.actual_gt_previous; 
  
-                                  const local = localPredict();
-
-                                  return ( 
-                                    <> 
-                                      <div className="deep-block-title">Predict Release</div> 
-                                      <div className="deep-grid"> 
+                                  const local = localPredict(); 
+ 
+                                  return (  
+                                    <>  
+                                      <div className="deep-block-title">Predict Release</div>  
+                                      <div className="deep-grid">  
                                         <div className="deep-card"> 
                                           <div className="deep-card-k">Actual &gt; Forecast</div> 
                                           <div className="deep-card-v">
@@ -2393,12 +2470,105 @@ export function EventHistoryModal({
                                           <div className="deep-card-sub">
                                             {deepData.ok ? fmtN(aGtP?.n) : `N=${local.vsPrev.n}`}
                                           </div> 
+                                        </div>  
+                                      </div>  
+ 
+                                      <div className="deep-block-title">Evidence</div> 
+                                      <div className="deep-evidence"> 
+                                        <div className="deep-evidence-row"> 
+                                          <span className="deep-evidence-k">History points</span> 
+                                          <span className="deep-evidence-v">{points.length}</span> 
+                                        </div> 
+                                        <div className="deep-evidence-row"> 
+                                          <span className="deep-evidence-k">Model (fallback)</span> 
+                                          <span className="deep-evidence-v">Base rate + repeat rate</span> 
                                         </div> 
                                       </div> 
-                                      <div className="deep-block-title">Notes</div> 
-                                      <div className="deep-muted"> 
-                                        {deepData.ok
-                                          ? "Deep analysis data is loaded from local analysis JSON (appdata/install seed)."
+ 
+                                      <div className="deep-grid deep-grid--bars"> 
+                                        <div className="deep-card deep-card--bar"> 
+                                          <div className="deep-card-k">Actual vs Forecast (sign)</div> 
+                                          <div className="deep-bar"> 
+                                            {(() => { 
+                                              const up = local.vsForecast.baseUp === null ? 0 : local.vsForecast.baseUp; 
+                                              const down = local.vsForecast.baseUp === null ? 0 : 1 - local.vsForecast.baseUp; 
+                                              const upW = Math.round(up * 100); 
+                                              const downW = Math.max(0, 100 - upW); 
+                                              return ( 
+                                                <> 
+                                                  <span className="deep-bar-up" style={{ width: `${upW}%` }} /> 
+                                                  <span className="deep-bar-down" style={{ width: `${downW}%` }} /> 
+                                                </> 
+                                              ); 
+                                            })()} 
+                                          </div> 
+                                          <div className="deep-card-sub"> 
+                                            Up {fmtPct(local.vsForecast.baseUp)} · Repeat {fmtPct(local.vsForecast.repeat)} 
+                                          </div> 
+                                        </div> 
+                                        <div className="deep-card deep-card--bar"> 
+                                          <div className="deep-card-k">Actual vs Previous (sign)</div> 
+                                          <div className="deep-bar"> 
+                                            {(() => { 
+                                              const up = local.vsPrev.baseUp === null ? 0 : local.vsPrev.baseUp; 
+                                              const down = local.vsPrev.baseUp === null ? 0 : 1 - local.vsPrev.baseUp; 
+                                              const upW = Math.round(up * 100); 
+                                              const downW = Math.max(0, 100 - upW); 
+                                              return ( 
+                                                <> 
+                                                  <span className="deep-bar-up" style={{ width: `${upW}%` }} /> 
+                                                  <span className="deep-bar-down" style={{ width: `${downW}%` }} /> 
+                                                </> 
+                                              ); 
+                                            })()} 
+                                          </div> 
+                                          <div className="deep-card-sub"> 
+                                            Up {fmtPct(local.vsPrev.baseUp)} · Repeat {fmtPct(local.vsPrev.repeat)} 
+                                          </div> 
+                                        </div> 
+                                      </div> 
+ 
+                                      {spark && (hasAny("actual") || hasAny("forecast") || hasAny("previous")) ? ( 
+                                        <> 
+                                          <div className="deep-block-title">Release History</div> 
+                                          <div className="deep-spark-wrap" aria-hidden="true"> 
+                                            <div className="deep-spark-legend"> 
+                                              <span className="deep-spark-key actual">Actual</span> 
+                                              <span className="deep-spark-key forecast">Forecast</span> 
+                                              <span className="deep-spark-key previous">Previous</span> 
+                                            </div> 
+                                            <svg 
+                                              className="deep-spark" 
+                                              viewBox={`0 0 ${spark.w} ${spark.h}`} 
+                                              role="img" 
+                                              aria-label="Release history (actual/forecast/previous)" 
+                                            > 
+                                              <g className="deep-spark-grid"> 
+                                                <line 
+                                                  x1={spark.pad.l} 
+                                                  x2={spark.w - spark.pad.r} 
+                                                  y1={spark.h - spark.pad.b + 0.5} 
+                                                  y2={spark.h - spark.pad.b + 0.5} 
+                                                /> 
+                                              </g> 
+                                              {spark.dPrevious ? ( 
+                                                <path className="deep-spark-line previous" d={spark.dPrevious} /> 
+                                              ) : null} 
+                                              {spark.dForecast ? ( 
+                                                <path className="deep-spark-line forecast" d={spark.dForecast} /> 
+                                              ) : null} 
+                                              {spark.dActual ? ( 
+                                                <path className="deep-spark-line actual" d={spark.dActual} /> 
+                                              ) : null} 
+                                            </svg> 
+                                          </div> 
+                                        </> 
+                                      ) : null} 
+ 
+                                      <div className="deep-block-title">Notes</div>  
+                                      <div className="deep-muted">  
+                                        {deepData.ok 
+                                          ? "Deep analysis data is loaded from local analysis JSON (appdata/install seed)." 
                                           : deepData.message ||
                                             "Deep analysis JSON not found; showing a simple history-only predictor. Generate deep analysis locally for joint-event attribution, preheat signals, path dependency, prototypes, trend features, and uncertainty."}
                                       </div> 

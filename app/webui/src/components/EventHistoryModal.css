@@ -1147,6 +1147,10 @@
   align-items: stretch;
 }
 
+.deep-grid--bars {
+  margin-top: 10px;
+}
+
 .deep-card {
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -1176,6 +1180,147 @@
   margin-top: 4px;
   font-size: 12px;
   color: var(--muted);
+}
+
+.deep-card--bar {
+  padding-bottom: 12px;
+}
+
+.deep-bar {
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  display: flex;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .deep-bar {
+  background: rgba(18, 20, 26, 0.03);
+  border-color: rgba(18, 20, 26, 0.08);
+}
+
+.deep-bar-up {
+  background: rgba(34, 197, 94, 0.5);
+}
+
+.deep-bar-down {
+  background: rgba(239, 68, 68, 0.42);
+}
+
+.deep-evidence {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px 12px;
+}
+
+[data-theme="light"] .deep-evidence {
+  border-color: rgba(18, 20, 26, 0.08);
+  background: rgba(18, 20, 26, 0.015);
+}
+
+.deep-evidence-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.deep-evidence-k {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.deep-evidence-v {
+  color: var(--text-strong);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.deep-spark-wrap {
+  margin-top: 6px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px 10px 8px;
+}
+
+[data-theme="light"] .deep-spark-wrap {
+  border-color: rgba(18, 20, 26, 0.08);
+  background: rgba(18, 20, 26, 0.015);
+}
+
+.deep-spark-legend {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.deep-spark-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.deep-spark-key::before {
+  content: "";
+  width: 12px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.55);
+}
+
+.deep-spark-key.actual::before {
+  background: rgba(148, 163, 184, 0.95);
+}
+
+.deep-spark-key.forecast::before {
+  background: rgba(148, 163, 184, 0.55);
+}
+
+.deep-spark-key.previous::before {
+  background: rgba(148, 163, 184, 0.42);
+}
+
+.deep-spark {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.deep-spark-grid line {
+  stroke: rgba(148, 163, 184, 0.22);
+}
+
+[data-theme="light"] .deep-spark-grid line {
+  stroke: rgba(30, 41, 59, 0.12);
+}
+
+.deep-spark-line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.deep-spark-line.actual {
+  stroke: rgba(148, 163, 184, 0.95);
+  stroke-width: 2.2;
+}
+
+.deep-spark-line.forecast {
+  stroke: rgba(148, 163, 184, 0.55);
+  stroke-width: 1.8;
+  stroke-dasharray: 5 6;
+}
+
+.deep-spark-line.previous {
+  stroke: rgba(148, 163, 184, 0.42);
+  stroke-width: 1.6;
+  stroke-dasharray: 2 7;
 }
 
 .deep-muted {
