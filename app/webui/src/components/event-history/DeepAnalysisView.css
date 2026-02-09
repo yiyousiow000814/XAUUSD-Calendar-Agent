@@ -250,6 +250,10 @@
   align-items: stretch;
 }
 
+.deep-grid.is-single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .deep-grid--bars {
   margin-top: 10px;
 }

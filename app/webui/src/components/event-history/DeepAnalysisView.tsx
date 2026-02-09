@@ -657,7 +657,7 @@ export function DeepAnalysisView({
   const content = (
     <>
       <div className="deep-block-title">Predict Release</div>
-      <div className="deep-grid">
+      <div className="deep-grid is-single">
         <div className="deep-card">
           <div className="deep-card-k">Actual vs Previous</div>
           {(() => {
