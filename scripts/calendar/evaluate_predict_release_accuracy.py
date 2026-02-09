@@ -455,28 +455,25 @@ def _proxy_only_vs_prev(df: pd.DataFrame, eq_factor: float) -> Confusion:
             continue
         eps = max(1e-9, float(np.median(diffs)) * float(eq_factor))
 
+        # Keep history strictly in the past (do not leak the current Actual into the proxy model).
         past_actuals: list[float] = []
         for _, r in g.iterrows():
-            a0 = r["a"]
-            if a0 is not None and np.isfinite(a0):
-                past_actuals.append(float(a0))
-
             a = r["a"]
             p = r["p"]
-            if a is None or p is None:
-                continue
-            if not (np.isfinite(a) and np.isfinite(p)):
-                continue
+            f = r["f"]
 
-            proxy = r["f"]
-            if proxy is None or (isinstance(proxy, float) and not np.isfinite(proxy)):
-                proxy = _linreg_forecast_hat(past_actuals)
-            if proxy is None or (isinstance(proxy, float) and not np.isfinite(proxy)):
-                continue
+            if a is not None and p is not None and np.isfinite(a) and np.isfinite(p):
+                proxy = float(f) if (f is not None and np.isfinite(f)) else None
+                if proxy is None:
+                    proxy = _linreg_forecast_hat(past_actuals)
+                if proxy is not None and np.isfinite(proxy):
+                    truth = _truth(float(a), float(p), eps)
+                    pred = _label3(float(proxy) - float(p), eps)
+                    out.add(truth, pred)
 
-            truth = _truth(float(a), float(p), eps)
-            pred = _label3(float(proxy) - float(p), eps)
-            out.add(truth, pred)
+            # Advance after scoring.
+            if a is not None and np.isfinite(a):
+                past_actuals.append(float(a))
     return out
 
 
@@ -545,16 +542,14 @@ def _meta_ensemble_vs_prev(df: pd.DataFrame, eq_factor: float, *, recent_k: int 
             p = r["p"]
             f = r["f"]
 
-            # Update actual series (allowed even if p missing).
-            if a is not None and np.isfinite(a):
-                past_actuals.append(float(a))
-
-            if a is None or p is None:
+            if a is None or not np.isfinite(a):
                 continue
-            if not (np.isfinite(a) and np.isfinite(p)):
-                continue
-
             a = float(a)
+            if p is None or not np.isfinite(p):
+                # Keep the level series for trend/proxy models, but do not score this point
+                # (we don't have a Previous to define the truth label).
+                past_actuals.append(a)
+                continue
             p = float(p)
             truth = _truth(a, p, eps)
 
@@ -611,6 +606,9 @@ def _meta_ensemble_vs_prev(df: pd.DataFrame, eq_factor: float, *, recent_k: int 
             past_meanrev_pred.append(pred_meanrev or "=")
             past_trend_pred.append(pred_trend or "=")
             diffs_ap_hist.append(a - p)
+
+            # Advance the actual series after scoring so proxy/trend never sees the current release.
+            past_actuals.append(a)
 
     return out
 
