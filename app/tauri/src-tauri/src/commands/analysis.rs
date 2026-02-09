@@ -5,6 +5,45 @@ use serde_json::{json, Value};
 use std::fs;
 use std::sync::Mutex;
 
+fn parse_numeric(raw: &str) -> Option<f64> {
+    let text = raw.trim();
+    if text.is_empty() {
+        return None;
+    }
+    let lowered = text.to_lowercase();
+    if matches!(
+        lowered.as_str(),
+        "--" | "—" | "-" | "tba" | "n/a" | "na" | "null"
+    ) {
+        return None;
+    }
+
+    // Support "1,234", "1.23%", and suffix "k/m/b".
+    let mut s = text.replace(',', "");
+    let mut mult = 1.0_f64;
+    if let Some(stripped) = s.strip_suffix('%') {
+        s = stripped.to_string();
+        mult *= 0.01;
+    }
+    if let Some(last) = s.chars().last() {
+        let suf = last.to_ascii_lowercase();
+        if suf == 'k' || suf == 'm' || suf == 'b' {
+            s.pop();
+            mult *= match suf {
+                'k' => 1_000.0,
+                'm' => 1_000_000.0,
+                'b' => 1_000_000_000.0,
+                _ => 1.0,
+            };
+        }
+    }
+    let base: f64 = s.parse().ok()?;
+    if !base.is_finite() {
+        return None;
+    }
+    Some(base * mult)
+}
+
 fn parse_anchor_dt_utc(payload: &Value) -> DateTime<Utc> {
     payload
         .get("anchorDtUtc")
@@ -159,39 +198,82 @@ fn build_unified_outlook_fallback(
             continue;
         };
 
-        // Derive unconditional P(up) by mixing buckets using bucket sample sizes.
-        // We pick a reference offset (closest to 0) to estimate bucket weights.
-        let ref_offset = windows_sorted
-            .iter()
-            .copied()
-            .min_by_key(|v| v.abs())
-            .unwrap_or(windows_sorted[0]);
-        let ref_key = ref_offset.to_string();
-
-        let mut bucket_weights: Vec<(String, f64)> = vec![];
-        for b in ["ap_gt_prev", "ap_lt_prev", "ap_eq_prev"] {
-            let n = buckets
-                .get(b)
-                .and_then(|v| v.get(&ref_key))
-                .and_then(|v| v.get("n"))
-                .and_then(|v| v.as_f64())
-                .unwrap_or(0.0);
-            if n > 0.0 {
-                bucket_weights.push((b.to_string(), n));
+        // Prefer a per-instance bucket curve based on this release's own Forecast vs Previous direction.
+        // This improves unified path accuracy because it avoids diluting signals by mixing incompatible buckets.
+        let bucket_choice = {
+            let f = parse_numeric(&e.forecast);
+            let p = parse_numeric(&e.previous);
+            if let (Some(f), Some(p)) = (f, p) {
+                let d = f - p;
+                if d > 0.0 {
+                    Some("ap_gt_prev")
+                } else if d < 0.0 {
+                    Some("ap_lt_prev")
+                } else {
+                    Some("ap_eq_prev")
+                }
+            } else {
+                None
             }
-        }
-        let denom: f64 = bucket_weights.iter().map(|(_, w)| *w).sum();
-        if denom <= 0.0 {
-            continue;
-        }
-        for (_, w) in bucket_weights.iter_mut() {
-            *w /= denom;
-        }
+        };
+
+        // Fallback: unconditional P(up) by mixing buckets using bucket sample sizes.
+        // We pick a reference offset (closest to 0) to estimate bucket weights.
+        let fallback_bucket_weights = || {
+            let ref_offset = windows_sorted
+                .iter()
+                .copied()
+                .min_by_key(|v| v.abs())
+                .unwrap_or(windows_sorted[0]);
+            let ref_key = ref_offset.to_string();
+
+            let mut bucket_weights: Vec<(String, f64)> = vec![];
+            for b in ["ap_gt_prev", "ap_lt_prev", "ap_eq_prev"] {
+                let n = buckets
+                    .get(b)
+                    .and_then(|v| v.get(&ref_key))
+                    .and_then(|v| v.get("n"))
+                    .and_then(|v| v.as_f64())
+                    .unwrap_or(0.0);
+                if n > 0.0 {
+                    bucket_weights.push((b.to_string(), n));
+                }
+            }
+            let denom: f64 = bucket_weights.iter().map(|(_, w)| *w).sum();
+            if denom <= 0.0 {
+                return None;
+            }
+            for (_, w) in bucket_weights.iter_mut() {
+                *w /= denom;
+            }
+            Some(bucket_weights)
+        };
 
         let mut offsets: Vec<i64> = vec![];
         let mut p_up: Vec<f64> = vec![];
         for off in windows_sorted.iter().copied() {
             let key = off.to_string();
+            // Selected bucket first.
+            if let Some(bk) = bucket_choice {
+                if let Some(stats) = buckets.get(bk).and_then(|v| v.get(&key)) {
+                    let p = stats.get("p_up").and_then(|v| v.as_f64()).or_else(|| {
+                        stats
+                            .get("p_down")
+                            .and_then(|v| v.as_f64())
+                            .map(|d| 1.0 - d)
+                    });
+                    if let Some(p) = p {
+                        offsets.push(off);
+                        p_up.push(p.clamp(0.0, 1.0));
+                        continue;
+                    }
+                }
+            }
+
+            // Otherwise: unconditional mix.
+            let Some(bucket_weights) = fallback_bucket_weights() else {
+                break;
+            };
             let mut pup = 0.5;
             let mut used = false;
             for (b, w) in bucket_weights.iter() {
@@ -243,7 +325,9 @@ fn build_unified_outlook_fallback(
 
     // Make the fallback less "flat" by focusing on near-term events and combining deltas in logit-space.
     // If we average too many weak signals over +/-24h, it collapses toward ~0.5 (which looks like a dead-flat market).
-    let tau_minutes = 180.0; // focus on the nearer schedule window (~3h decay)
+    // A longer tau improves directional alignment across the forward window (0..+24h).
+    // It keeps "macro regime" signals from nearby events around longer, instead of decaying too quickly.
+    let tau_minutes = 480.0; // ~8h decay
     let delta_scale = 6.0; // amplify small deltas so the path has visible curvature
 
     let mut sum_w_by_grid: Vec<f64> = vec![0.0; grid.len()];
