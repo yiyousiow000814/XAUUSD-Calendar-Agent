@@ -295,6 +295,7 @@ export function DeepAnalysisView({
     const p0 = parseNumber(selectionPrevious);
 
     const label3 = (d: number, eps: number) => (Math.abs(d) <= eps ? 0 : d > 0 ? 1 : -1);
+    const label3Sym = (d: number, eps: number) => (Math.abs(d) <= eps ? "=" : d > 0 ? ">" : "<");
 
     const linregForecastHat = (series: number[]) => {
       // 6-point trend model is intentionally short/higher-reactivity; it backtests better for vsPrevious.
@@ -352,7 +353,7 @@ export function DeepAnalysisView({
       }
       if (proxy0 === null || typeof p0 !== "number") return null;
 
-      const pred0 = label3(proxy0 - p0, eps);
+      const pred0 = label3Sym(proxy0 - p0, eps);
 
       // Backtest the proxy rule on recent history (no leakage):
       // for each point i, if Forecast missing, compute Model from past actuals only.
@@ -395,7 +396,7 @@ export function DeepAnalysisView({
         else ltAll += 1;
         if (truth === pred) matchAll += 1;
 
-        if (pred === pred0) {
+        if (label3Sym(proxy - r.prev, eps) === pred0) {
           nCond += 1;
           if (truth === 1) gtCond += 1;
           else if (truth === 0) eqCond += 1;
@@ -674,7 +675,15 @@ export function DeepAnalysisView({
             const fallbackProb =
               pv ? Math.max(pv.pGt ?? 0, pv.pEq ?? 0, pv.pLt ?? 0) : null;
             const shownProb = predProb ?? fallbackProb;
-            const shownLabel = pred ?? (pv ? (pv.pGt >= (pv.pEq ?? 0) && pv.pGt >= (pv.pLt ?? 0) ? ">" : (pv.pEq ?? 0) >= (pv.pLt ?? 0) ? "=" : "<") : "");
+            const shownLabel =
+              pred ??
+              (pv
+                ? pv.pGt >= (pv.pEq ?? 0) && pv.pGt >= (pv.pLt ?? 0)
+                  ? ">"
+                  : (pv.pEq ?? 0) >= (pv.pLt ?? 0)
+                    ? "="
+                    : "<"
+                : "");
             return <div className="deep-card-v">{`${shownLabel} ${fmtPctNum(shownProb)}`}</div>;
           })()}
           <div className="deep-card-sub">
