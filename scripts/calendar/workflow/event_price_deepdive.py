@@ -9,6 +9,8 @@ from typing import Optional, Sequence
 
 import pandas as pd
 
+from scripts.calendar.table_io import read_table, write_table
+
 BASE_OUTPUT_DIR = Path("data/calendar_outputs/event_price_deepdive")
 DEFAULT_ALIGNMENT_PATH = Path(
     "data/calendar_outputs/event_price_alignment/event_price_alignment.parquet"
@@ -130,7 +132,7 @@ def _ensure_dataframe(
             raise FileNotFoundError(
                 f"Alignment dataset not found: {config.alignment_path}"
             )
-        df = pd.read_parquet(config.alignment_path)
+        df = read_table(config.alignment_path, parse_dates=("event_time",))
     if df.empty:
         raise SystemExit("Alignment dataset is empty; nothing to process.")
     if "event_name" not in df.columns or "event_time" not in df.columns:
@@ -511,7 +513,7 @@ def run_deepdive(
     )
 
     config.heatmap_output_parquet.parent.mkdir(parents=True, exist_ok=True)
-    heatmap.to_parquet(config.heatmap_output_parquet, index=False)
+    write_table(heatmap, config.heatmap_output_parquet, index=False)
     if config.heatmap_output_csv is not None:
         config.heatmap_output_csv.parent.mkdir(parents=True, exist_ok=True)
         heatmap.to_csv(config.heatmap_output_csv, index=False)
@@ -520,7 +522,7 @@ def run_deepdive(
     thresholds.to_csv(config.thresholds_output_csv, index=False)
 
     config.flags_output_parquet.parent.mkdir(parents=True, exist_ok=True)
-    flags.to_parquet(config.flags_output_parquet, index=False)
+    write_table(flags, config.flags_output_parquet, index=False)
     if config.flags_output_csv is not None:
         config.flags_output_csv.parent.mkdir(parents=True, exist_ok=True)
         flags.to_csv(config.flags_output_csv, index=False)

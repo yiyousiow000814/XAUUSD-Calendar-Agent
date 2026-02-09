@@ -24,6 +24,9 @@ type EventHistoryModalProps = {
   loading: boolean;
   error: string | null;
   selectionLabel: string;
+  selectionActual?: string;
+  selectionForecast?: string;
+  selectionPrevious?: string;
   data: EventHistoryResponse | null;
   // UTC timestamp for the selected release instance (used for Deep Analysis unified outlook window).
   anchorDtUtc: string;
@@ -217,6 +220,9 @@ export function EventHistoryModal({
   loading,
   error,
   selectionLabel,
+  selectionActual,
+  selectionForecast,
+  selectionPrevious,
   data,
   anchorDtUtc,
   calendarTimezoneMode,
@@ -2290,6 +2296,9 @@ export function EventHistoryModal({
                             impactSeriesItems={impactSeries.items}
                             anchorDtUtc={anchorDtUtc}
                             displayOffsetMinutes={effectiveCalendarOffsetMinutes}
+                            selectionActual={selectionActual}
+                            selectionForecast={selectionForecast}
+                            selectionPrevious={selectionPrevious}
                           />
                         ) : (
                           <div className="history-impact-chart" data-qa="qa:history:impact-chart"> 

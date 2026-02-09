@@ -9,6 +9,8 @@ from typing import Optional, Sequence
 
 import pandas as pd
 
+from scripts.calendar.table_io import read_table, write_table
+
 BASE_OUTPUT_DIR = Path("data/calendar_outputs/event_preheat_monitor")
 DEFAULT_ALIGNMENT_PATH = Path(
     "data/calendar_outputs/event_price_alignment/event_price_alignment.parquet"
@@ -80,7 +82,7 @@ class PreheatResult:
 def _load_alignment(path: Path) -> pd.DataFrame:
     if not path.exists():
         raise FileNotFoundError(f"Alignment dataset not found: {path}")
-    df = pd.read_parquet(path)
+    df = read_table(path, parse_dates=("event_time",))
     if df.empty:
         raise SystemExit("Alignment dataset is empty; nothing to process.")
     return df
@@ -359,13 +361,13 @@ def run_preheat_monitor(
     flags = metrics[metrics["requires_preheat_review"].fillna(False)].copy()
 
     config.metrics_output_parquet.parent.mkdir(parents=True, exist_ok=True)
-    metrics.to_parquet(config.metrics_output_parquet, index=False)
+    write_table(metrics, config.metrics_output_parquet, index=False)
     if config.metrics_output_csv is not None:
         config.metrics_output_csv.parent.mkdir(parents=True, exist_ok=True)
         metrics.to_csv(config.metrics_output_csv, index=False)
 
     config.flags_output_parquet.parent.mkdir(parents=True, exist_ok=True)
-    flags.to_parquet(config.flags_output_parquet, index=False)
+    write_table(flags, config.flags_output_parquet, index=False)
     if config.flags_output_csv is not None:
         config.flags_output_csv.parent.mkdir(parents=True, exist_ok=True)
         flags.to_csv(config.flags_output_csv, index=False)
@@ -374,7 +376,7 @@ def run_preheat_monitor(
     thresholds.to_csv(config.thresholds_output_csv, index=False)
 
     config.summary_output_parquet.parent.mkdir(parents=True, exist_ok=True)
-    summary.to_parquet(config.summary_output_parquet, index=False)
+    write_table(summary, config.summary_output_parquet, index=False)
     if config.summary_output_csv is not None:
         config.summary_output_csv.parent.mkdir(parents=True, exist_ok=True)
         summary.to_csv(config.summary_output_csv, index=False)

@@ -406,7 +406,19 @@ pub fn get_event_deep_analysis_usd(
     }
     let anchor_dt_utc = parse_anchor_dt_utc(&payload);
 
-    // Same lookup policy as impact: prefer appdata cache, fall back to bundled seed file.
+    // Lookup policy:
+    // - Prefer the working calendar repo data/analysis so users can get updated deep JSON
+    //   by pulling the calendar repo (no app rebuild needed).
+    // - Fall back to appdata cache, then bundled seed file.
+    let cfg = config::load_config();
+    let repo_path = super::resolve_calendar_repo_path(&cfg);
+
+    let repo_path_json = repo_path.as_deref().map(|p| {
+        p.join("data")
+            .join("analysis")
+            .join("xauusd_event_deep_analysis_usd.json")
+    });
+
     let analysis_dir = config::analysis_dir();
     let path = analysis_dir.join("xauusd_event_deep_analysis_usd.json");
     let install_path = config::install_dir()
@@ -414,9 +426,12 @@ pub fn get_event_deep_analysis_usd(
         .join("analysis")
         .join("xauusd_event_deep_analysis_usd.json");
 
-    let text = fs::read_to_string(&path).or_else(|_| fs::read_to_string(&install_path));
+    let text = repo_path_json
+        .as_ref()
+        .and_then(|p| fs::read_to_string(p).ok())
+        .or_else(|| fs::read_to_string(&path).ok())
+        .or_else(|| fs::read_to_string(&install_path).ok());
     let parsed: Option<Value> = text
-        .ok()
         .and_then(|t| serde_json::from_str::<Value>(&t).ok())
         .filter(|v| v.get("schema").and_then(|v| v.as_i64()).unwrap_or(0) == 1);
 

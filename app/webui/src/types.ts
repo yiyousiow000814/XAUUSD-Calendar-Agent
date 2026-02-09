@@ -24,6 +24,9 @@ export type EventItem = {
   cur: string;
   impact: string;
   event: string;
+  actual?: string;
+  forecast?: string;
+  previous?: string;
   countdown: string;
 };
 

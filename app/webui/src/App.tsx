@@ -147,7 +147,9 @@ export default function App() {
   const [historyOpen, setHistoryOpen] = useState<boolean>(false);
   const [historyLoading, setHistoryLoading] = useState<boolean>(false);
   const [historyError, setHistoryError] = useState<string | null>(null);
-  const [historySelection, setHistorySelection] = useState<{ event: string; cur: string } | null>(null);
+  const [historySelection, setHistorySelection] = useState<
+    { event: string; cur: string; actual?: string; forecast?: string; previous?: string } | null
+  >(null);
   const [historyData, setHistoryData] = useState<EventHistoryResponse | null>(null);
   const [historyAnchorDtUtc, setHistoryAnchorDtUtc] = useState<string>("");
   const [temporaryPathNote, setTemporaryPathNote] = useState<{
@@ -1888,13 +1890,26 @@ export default function App() {
     setHistoryAnchorDtUtc("");
   };
 
-  const openEventHistory = async (payload: { event: string; cur: string; dtUtc?: string }) => {
+  const openEventHistory = async (payload: {
+    event: string;
+    cur: string;
+    dtUtc?: string;
+    actual?: string;
+    forecast?: string;
+    previous?: string;
+  }) => {
     const eventName = payload.event || "";
     const currencyCode = payload.cur || "";
     setHistoryAnchorDtUtc(String(payload.dtUtc || ""));
     historyRequestRef.current += 1;
     const requestId = historyRequestRef.current;
-    setHistorySelection({ event: eventName, cur: currencyCode });
+    setHistorySelection({
+      event: eventName,
+      cur: currencyCode,
+      actual: payload.actual,
+      forecast: payload.forecast,
+      previous: payload.previous
+    });
     setHistoryOpen(true);
     setHistoryLoading(true);
     setHistoryError(null);
@@ -3327,7 +3342,16 @@ export default function App() {
               impactTone={impactTone}
               impactFilter={impactFilter}
               onImpactFilterChange={setImpactFilter}
-              onOpenHistory={(item) => openEventHistory({ event: item.event, cur: item.cur, dtUtc: item.dtUtc })}
+              onOpenHistory={(item) =>
+                openEventHistory({
+                  event: item.event,
+                  cur: item.cur,
+                  dtUtc: item.dtUtc,
+                  actual: item.actual,
+                  forecast: item.forecast,
+                  previous: item.previous
+                })
+              }
             />
           </div>
           <div className="split-divider" onMouseDown={startSplitDrag} data-qa="qa:split:divider" />
@@ -3340,7 +3364,16 @@ export default function App() {
               calendarUtcOffsetMinutes={settings.calendarUtcOffsetMinutes}
               impactTone={impactTone}
               impactFilter={impactFilter}
-              onOpenHistory={(item) => openEventHistory({ event: item.event, cur: item.cur, dtUtc: item.dtUtc })}
+              onOpenHistory={(item) =>
+                openEventHistory({
+                  event: item.event,
+                  cur: item.cur,
+                  dtUtc: item.dtUtc,
+                  actual: item.actual,
+                  forecast: item.forecast,
+                  previous: item.previous
+                })
+              }
             />
           </div>
         </div>
@@ -3412,6 +3445,9 @@ export default function App() {
         loading={historyLoading}
         error={historyError}
         selectionLabel={historySelectionLabel}
+        selectionActual={historySelection?.actual}
+        selectionForecast={historySelection?.forecast}
+        selectionPrevious={historySelection?.previous}
         data={historyData}
         anchorDtUtc={historyAnchorDtUtc}
         calendarTimezoneMode={settings.calendarTimezoneMode}

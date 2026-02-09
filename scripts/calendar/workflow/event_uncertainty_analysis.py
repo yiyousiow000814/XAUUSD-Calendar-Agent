@@ -10,6 +10,8 @@ from typing import Optional, Sequence
 
 import pandas as pd
 
+from scripts.calendar.table_io import read_table, write_table
+
 try:
     from .event_price_deepdive import _normalise_surprise_direction
 except ImportError:  # pragma: no cover
@@ -111,7 +113,7 @@ def _load_alignment(
             raise FileNotFoundError(
                 f"Alignment dataset not found: {config.alignment_path}"
             )
-        df = pd.read_parquet(config.alignment_path)
+        df = read_table(config.alignment_path, parse_dates=("event_time",))
     if df.empty:
         raise SystemExit("Alignment dataset is empty; nothing to process.")
     df["event_time"] = pd.to_datetime(df["event_time"])
@@ -333,19 +335,19 @@ def run_uncertainty_analysis(
     calibration = _build_calibration_summary(event_predictions, config)
 
     config.summary_output_parquet.parent.mkdir(parents=True, exist_ok=True)
-    summary.to_parquet(config.summary_output_parquet, index=False)
+    write_table(summary, config.summary_output_parquet, index=False)
     if config.summary_output_csv is not None:
         config.summary_output_csv.parent.mkdir(parents=True, exist_ok=True)
         summary.to_csv(config.summary_output_csv, index=False)
 
     config.calibration_output_parquet.parent.mkdir(parents=True, exist_ok=True)
-    calibration.to_parquet(config.calibration_output_parquet, index=False)
+    write_table(calibration, config.calibration_output_parquet, index=False)
     if config.calibration_output_csv is not None:
         config.calibration_output_csv.parent.mkdir(parents=True, exist_ok=True)
         calibration.to_csv(config.calibration_output_csv, index=False)
 
     config.event_output_parquet.parent.mkdir(parents=True, exist_ok=True)
-    event_predictions.to_parquet(config.event_output_parquet, index=False)
+    write_table(event_predictions, config.event_output_parquet, index=False)
     if config.event_output_csv is not None:
         config.event_output_csv.parent.mkdir(parents=True, exist_ok=True)
         event_predictions.to_csv(config.event_output_csv, index=False)

@@ -16,6 +16,7 @@
 - `workflow/event_priority_routing.py`：Stage C 事件优先级调度，在信号冲突时生成治理顺序与解读。
 - `workflow/event_uncertainty_analysis.py`：Stage C 预测不确定性，输出置信区间与校准曲线。
 - `run_stage_workflow.py`：Stage A/B 封装脚本，串接上述步骤，减少手动操作。
+- `build_event_deep_analysis_json.py`：把 Stage A/B/C 的产物汇总成 `xauusd_event_deep_analysis_usd.json`（schema=1），供桌面端 Deep Analysis 作为“权威 deep JSON 数据源”读取。
 
 ## 下载经济日历
 ```bash
@@ -54,6 +55,16 @@ python scripts/calendar/run_stage_workflow.py \
 - Stage B 趋势分析可用 `--trend-monthly-windows`、`--trend-min-events`、`--trend-top-corr-pairs` 与 `--trend-no-*-csv` 控制窗口长度、纳入阈值与输出格式。
 
 运行结束后会在 `data/calendar_outputs/minute_event_datasets/<年份>/`、`data/calendar_outputs/event_price_alignment/`、`data/calendar_outputs/event_price_deepdive/`、`data/calendar_outputs/event_prototypes/`、`data/calendar_outputs/path_dependency/`、`data/calendar_outputs/component_decomposition/`、`data/calendar_outputs/event_preheat_monitor/` 与 `data/calendar_outputs/event_trend_analysis/` 写出阶段成果；若想纯内存跳过 Stage A 落盘，可加 `--memory-only-stage-a`（如需额外写出 CSV 请加 `--pipeline-csv`，但完整 CSV 体积巨大，建议改用 Parquet；样本可用 `--no-pipeline-xlsx` 关闭）。
+
+默认情况下（可用 `--no-export-deep-json` 关闭），`run_stage_workflow.py` 还会把 Stage A/B/C 的关键产物汇总导出为：
+`data/analysis/xauusd_event_deep_analysis_usd.json`（schema=1），供桌面端 Deep Analysis 直接读取与展示。
+
+### Deep Analysis 推理文件（无需本地价格数据）
+`data/analysis/xauusd_event_deep_analysis_usd.json` 可以视为一份“推理文件 / 答案文件”（inference artifact）：
+- **普通用户**：只要拉取最新的 `data/Economic_Calendar/*` + 这份推理文件，就能在 App 里看到 Deep Analysis；不需要本机放置 `data/XAUUSD_data/XAUUSD_data.csv` 或分钟行情。
+- **维护者/CI**：当你希望“把新历史价格反应纳入模型”时，才需要在有 XAUUSD 分钟价格数据的环境里运行 Stage A/B/C，然后重新导出并更新这份推理文件。
+
+这份推理文件按 App 的 `EventId`（`CUR::Metric::freq`）聚合，因此体积很小，适合直接提交到 GitHub。
 
 ## Stage A：行情 × 事件整合管线
 ```bash

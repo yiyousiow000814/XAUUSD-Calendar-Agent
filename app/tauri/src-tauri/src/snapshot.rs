@@ -117,6 +117,9 @@ pub fn render_next_events(
             "cur": cur_display,
             "impact": impact_display,
             "event": e.event.clone(),
+            "actual": e.actual.clone(),
+            "forecast": e.forecast.clone(),
+            "previous": e.previous.clone(),
             "countdown": if is_current { "Current".to_string() } else { format_countdown(e.dt_utc) },
         }));
         if rendered.len() >= 240 {

@@ -33,6 +33,8 @@ from typing import Dict, Optional, Sequence
 
 import pandas as pd
 
+from scripts.calendar.table_io import read_table
+
 TZ_NAME = "Asia/Shanghai"
 TIME_COLUMNS = {"Date", "Time"}
 IGNORED_TIMES = {"All Day", "Tentative", None, ""}
@@ -144,13 +146,50 @@ class PipelineResult:
 def _load_price_minutes(price_path: Path) -> pd.DataFrame:
     """Load minute-level price data and ensure timestamps are tz-aware."""
 
-    if price_path.suffix == ".parquet":
-        df = pd.read_parquet(price_path)
+    if price_path.suffix.lower() == ".csv":
+        # Keep only the columns required by downstream stages whenever possible.
+        preferred_cols = [
+            "timestamp",
+            "bar_open_time_utc",
+            "bar_close_time_utc",
+            "open",
+            "high",
+            "low",
+            "close",
+            "tick_volume",
+        ]
+        df = pd.read_csv(
+            price_path,
+            usecols=lambda c: c in preferred_cols,  # type: ignore[arg-type]
+        )
     else:
-        df = pd.read_csv(price_path)
+        df = read_table(price_path)
+
+    # Support the repo's bundled `data/XAUUSD_data/XAUUSD_data.csv` (UTC bars)
+    # without forcing a separate preprocessing step.
     if "timestamp" not in df.columns:
-        raise ValueError("Price data must contain a 'timestamp' column")
-    ts = pd.to_datetime(df["timestamp"], errors="coerce")
+        if "bar_open_time_utc" in df.columns:
+            ts = pd.to_datetime(
+                df["bar_open_time_utc"],
+                format="%d-%m-%Y %H:%M:%S.%f",
+                errors="coerce",
+                utc=True,
+            )
+            df["timestamp"] = ts
+        elif "bar_close_time_utc" in df.columns:
+            ts = pd.to_datetime(
+                df["bar_close_time_utc"],
+                format="%d-%m-%Y %H:%M:%S.%f",
+                errors="coerce",
+                utc=True,
+            )
+            df["timestamp"] = ts
+        else:
+            raise ValueError(
+                "Price data must contain 'timestamp' or bar_open_time_utc/bar_close_time_utc columns"
+            )
+
+    ts = pd.to_datetime(df["timestamp"], errors="coerce", utc=False)
     if ts.isna().any():
         raise ValueError("Found invalid timestamps in price data")
     if ts.dt.tz is None:
@@ -460,7 +499,10 @@ def run_pipeline(config: CalendarPriceConfig) -> PipelineResult:
 
         if config.write_parquet:
             parquet_path = year_dir / "xauusd_minutes_with_events.parquet"
-            merged.to_parquet(parquet_path, index=False)
+            # Use table_io fallback when a parquet engine isn't available.
+            from scripts.calendar.table_io import write_table
+
+            write_table(merged, parquet_path, index=False)
             output_paths.append(parquet_path)
 
         if config.write_csv or config.write_xlsx:

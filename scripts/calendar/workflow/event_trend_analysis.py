@@ -13,6 +13,8 @@ from typing import Optional, Sequence
 import numpy as np
 import pandas as pd
 
+from scripts.calendar.table_io import read_table, write_table
+
 BASE_OUTPUT_DIR = Path("data/calendar_outputs/event_trend_analysis")
 DEFAULT_ALIGNMENT_PATH = Path(
     "data/calendar_outputs/event_price_alignment/event_price_alignment.parquet"
@@ -454,7 +456,7 @@ def run_trend_analysis(
     df = (
         alignment_df.copy()
         if alignment_df is not None
-        else pd.read_parquet(config.alignment_path)
+        else read_table(config.alignment_path, parse_dates=("event_time",))
     )
     if df.empty:
         raise SystemExit("Alignment dataset is empty; nothing to analyse.")
@@ -499,17 +501,17 @@ def run_trend_analysis(
     monthly_to_store = monthly_filtered.copy()
     if "month_period" in monthly_to_store.columns:
         monthly_to_store["month_period"] = monthly_to_store["month_period"].astype(str)
-    monthly_to_store.to_parquet(config.monthly_output_parquet, index=False)
+    write_table(monthly_to_store, config.monthly_output_parquet, index=False)
     if config.monthly_output_csv is not None:
         monthly_to_store.to_csv(config.monthly_output_csv, index=False)
 
     config.summary_output_parquet.parent.mkdir(parents=True, exist_ok=True)
-    event_summary.to_parquet(config.summary_output_parquet, index=False)
+    write_table(event_summary, config.summary_output_parquet, index=False)
     if config.summary_output_csv is not None:
         event_summary.to_csv(config.summary_output_csv, index=False)
 
     config.correlation_output_parquet.parent.mkdir(parents=True, exist_ok=True)
-    correlation_pairs.to_parquet(config.correlation_output_parquet, index=False)
+    write_table(correlation_pairs, config.correlation_output_parquet, index=False)
     if config.correlation_output_csv is not None:
         correlation_pairs.to_csv(config.correlation_output_csv, index=False)
 

@@ -9,6 +9,8 @@ from typing import Iterable, Mapping, Optional
 
 import pandas as pd
 
+from scripts.calendar.table_io import read_table, write_table
+
 EPSILON = 1e-6
 SHOCK_PERCENT_THRESHOLD = 0.25
 SHOCK_ABS_THRESHOLD = 1e-6
@@ -68,7 +70,7 @@ def load_year(
     path = minutes_dir / str(year) / "xauusd_minutes_with_events.parquet"
     if not path.exists():
         raise FileNotFoundError(f"Stage A dataset not found: {path}")
-    df = pd.read_parquet(path)
+    df = read_table(path, parse_dates=("timestamp", "event_time"))
     if "event_id" not in df.columns:
         raise ValueError(f"Dataset {path} is missing required event columns")
     return df
@@ -402,7 +404,7 @@ def run_alignment(
     combined = combined.sort_values(["event_time", "event_id"]).reset_index(drop=True)
 
     config.output_parquet.parent.mkdir(parents=True, exist_ok=True)
-    combined.to_parquet(config.output_parquet, index=False)
+    write_table(combined, config.output_parquet, index=False)
     if config.output_csv is not None:
         config.output_csv.parent.mkdir(parents=True, exist_ok=True)
         combined.to_csv(config.output_csv, index=False)
