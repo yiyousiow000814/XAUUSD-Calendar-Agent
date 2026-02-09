@@ -97,8 +97,11 @@ export function DeepAnalysisView({
     typeof p === "number" && Number.isFinite(p) ? `${Math.round(p * 100)}%` : "--";
   const fmtN = (n?: number) => (typeof n === "number" && Number.isFinite(n) ? `N=${n}` : "N=--");
 
-  const fmtPctNum = (p: number | null) =>
-    typeof p === "number" && Number.isFinite(p) ? `${Math.round(p * 100)}%` : "--";
+  const fmtPctNum = (p: number | null) => {
+    if (typeof p !== "number" || !Number.isFinite(p)) return "--";
+    if (p > 0 && p < 0.01) return "<1%";
+    return `${Math.round(p * 100)}%`;
+  };
 
   const anchorLabel = useMemo(() => {
     const raw = String(anchorDtUtc || "").trim();
@@ -409,9 +412,15 @@ export function DeepAnalysisView({
 
       const useCond = nCond >= 8;
       const n = useCond ? nCond : nAll;
-      const pGt = useCond ? gtCond / nCond : gtAll / nAll;
-      const pEq = useCond ? eqCond / nCond : eqAll / nAll;
-      const pLt = useCond ? ltCond / nCond : ltAll / nAll;
+      // Light smoothing to avoid hard 0% when one bucket is absent in a small sample.
+      const alpha = 0.35;
+      const cGt = (useCond ? gtCond : gtAll) + alpha;
+      const cEq = (useCond ? eqCond : eqAll) + alpha;
+      const cLt = (useCond ? ltCond : ltAll) + alpha;
+      const denom = cGt + cEq + cLt;
+      const pGt = cGt / denom;
+      const pEq = cEq / denom;
+      const pLt = cLt / denom;
 
       return {
         pred0,
