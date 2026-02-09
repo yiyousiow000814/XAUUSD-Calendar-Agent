@@ -190,7 +190,7 @@ export function DeepAnalysisMethodModal({
 
         <div className="deep-method-body deep-tut">
           <div className="deep-tut-lead">
-            Think of Deep Analysis as a "best guess + why" page. It is not magic, but it tries to be honest and useful.
+            Deep Analysis is a "best guess + why" page. It is designed to be quick to scan, and easy to sanity-check.
           </div>
 
           <Step n="1" title="What you see (with small examples)">
@@ -200,15 +200,22 @@ export function DeepAnalysisMethodModal({
                 <div className="deep-tut-card-text">
                   <div className="deep-tut-card-h">Predict Release</div>
                   <div className="deep-tut-card-p">
-                    We look at the recent releases of this metric (about 1-6 months) and estimate how often Actual was
-                    above / equal / below.
+                    We estimate the chance that the next release will be above / approx equal / below the{" "}
+                    <b>Previous</b>.
                   </div>
                   <div className="deep-tut-example">
-                    Example: If this month behaves differently from old history, "recent" adapts faster.
+                    Read it like this: <b>&gt; 88%</b> means <b>P(Actual &gt; Previous) ≈ 88%</b>.
                   </div>
                   <div className="deep-tut-example">
-                    Tip: For "Actual vs Previous", we also condition on the direction of (Forecast - Previous) when it
-                    is available.
+                    How we form the guess:
+                    <span className="deep-tut-inline">
+                      (1) build a proxy (Forecast, or a tiny trend model) &rarr; (2) compare Proxy - Previous &rarr; (3)
+                      look up similar history to estimate &gt; / = / &lt;.
+                    </span>
+                  </div>
+                  <div className="deep-tut-example">
+                    Sanity check: we show <b>N</b> (how many historical samples were used) and a recent{" "}
+                    <b>reliability</b> hint.
                   </div>
                 </div>
               </div>
@@ -229,7 +236,9 @@ export function DeepAnalysisMethodModal({
                   <div className="deep-tut-card-p">
                     "=" is approximate, not strict. Small differences are treated as "close enough".
                   </div>
-                  <div className="deep-tut-example">Example: 3.20 vs 3.19 can count as "=" for some metrics.</div>
+                  <div className="deep-tut-example">
+                    Example: if the typical month-to-month change is tiny, we treat tiny noise as "=".
+                  </div>
                 </div>
               </div>
             </div>
