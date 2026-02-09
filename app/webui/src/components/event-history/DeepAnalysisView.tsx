@@ -659,7 +659,24 @@ export function DeepAnalysisView({
       <div className="deep-grid">
         <div className="deep-card">
           <div className="deep-card-k">Actual vs Previous</div>
-          <div className="deep-card-v">{fmtPctNum(localPredict.proxyVsPrev ? Math.max(localPredict.proxyVsPrev.pGt, localPredict.proxyVsPrev.pEq, localPredict.proxyVsPrev.pLt) : null)}</div>
+          {(() => {
+            const pv = localPredict.proxyVsPrev;
+            const pred = pv?.pred0 ?? null;
+            const predProb =
+              pred === ">"
+                ? pv?.pGt ?? null
+                : pred === "="
+                  ? pv?.pEq ?? null
+                  : pred === "<"
+                    ? pv?.pLt ?? null
+                    : null;
+            // Fallback to the max bucket if we don't have a specific predicted label.
+            const fallbackProb =
+              pv ? Math.max(pv.pGt ?? 0, pv.pEq ?? 0, pv.pLt ?? 0) : null;
+            const shownProb = predProb ?? fallbackProb;
+            const shownLabel = pred ?? (pv ? (pv.pGt >= (pv.pEq ?? 0) && pv.pGt >= (pv.pLt ?? 0) ? ">" : (pv.pEq ?? 0) >= (pv.pLt ?? 0) ? "=" : "<") : "");
+            return <div className="deep-card-v">{`${shownLabel} ${fmtPctNum(shownProb)}`}</div>;
+          })()}
           <div className="deep-card-sub">
             <div>
               {localPredict.proxyVsPrev?.n
@@ -698,9 +715,15 @@ export function DeepAnalysisView({
                 />
               </div>
               <div className="deep-tri-legend">
-                <span className="deep-tri-chip gt">{`> ${fmtPctNum(localPredict.proxyVsPrev?.pGt ?? null)}`}</span>
-                <span className="deep-tri-chip eq">{`= ${fmtPctNum(localPredict.proxyVsPrev?.pEq ?? null)}`}</span>
-                <span className="deep-tri-chip lt">{`< ${fmtPctNum(localPredict.proxyVsPrev?.pLt ?? null)}`}</span>
+                <span
+                  className={`deep-tri-chip gt${localPredict.proxyVsPrev?.pred0 === ">" ? " is-picked" : ""}`}
+                >{`> ${fmtPctNum(localPredict.proxyVsPrev?.pGt ?? null)}`}</span>
+                <span
+                  className={`deep-tri-chip eq${localPredict.proxyVsPrev?.pred0 === "=" ? " is-picked" : ""}`}
+                >{`= ${fmtPctNum(localPredict.proxyVsPrev?.pEq ?? null)}`}</span>
+                <span
+                  className={`deep-tri-chip lt${localPredict.proxyVsPrev?.pred0 === "<" ? " is-picked" : ""}`}
+                >{`< ${fmtPctNum(localPredict.proxyVsPrev?.pLt ?? null)}`}</span>
               </div>
             </>
           ) : null}

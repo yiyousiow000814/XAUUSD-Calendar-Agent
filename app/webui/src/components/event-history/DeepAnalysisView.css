@@ -157,6 +157,11 @@
   white-space: nowrap;
 }
 
+.deep-tri-chip.is-picked {
+  font-weight: 700;
+  color: var(--text);
+}
+
 .deep-tri-chip::before {
   content: "";
   width: 8px;
