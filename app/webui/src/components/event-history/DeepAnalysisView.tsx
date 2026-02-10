@@ -1,6 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { EventDeepAnalysisResponse, EventHistoryPoint, EventImpactWindowStats } from "../../types";
-import { formatTimeOffsetMinutes } from "../../utils/calendarTime";
+import { backend } from "../../api";
+import { formatTimeOffsetMinutes, parseDisplayTimeToUtcMs } from "../../utils/calendarTime";
+import {
+  DEFAULT_PREDICT_RELEASE_MODEL_USD,
+  dotFeatures,
+  estimateBacktestAccAtThreshold,
+  softmax1d
+} from "../../utils/predictReleaseModel";
 import { DeepAnalysisMethodModal } from "./DeepAnalysisMethodModal";
 import "./DeepAnalysisView.css";
 
@@ -8,6 +15,8 @@ type ImpactSeriesItem = { offset: number; stats?: EventImpactWindowStats };
 
 type DeepAnalysisViewProps = {
   points: EventHistoryPoint[];
+  metricKey: string;
+  cur: string;
   isUsdEvent: boolean;
   deepLoading: boolean;
   deepError: string | null;
@@ -25,6 +34,8 @@ type DeepAnalysisViewProps = {
 
 export function DeepAnalysisView({
   points,
+  metricKey,
+  cur,
   isUsdEvent,
   deepLoading,
   deepError,
@@ -39,6 +50,19 @@ export function DeepAnalysisView({
   const [methodOpen, setMethodOpen] = useState(false);
   const [fullOpen, setFullOpen] = useState(false);
   const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [predictModel, setPredictModel] = useState<any>(DEFAULT_PREDICT_RELEASE_MODEL_USD);
+  const zApCacheRef = useRef(new Map<string, { series: Array<{ ms: number; z: number }> }>());
+  const [nowcastVsPrev, setNowcastVsPrev] = useState<{
+    pred0: ">" | "=" | "<";
+    conf: number;
+    threshold: number;
+    reliable: boolean;
+    sourcesUsed: number;
+    pEq: number;
+    pGt: number;
+    pLt: number;
+    backtestAcc?: number;
+  } | null>(null);
 
   useEffect(() => {
     if (!methodOpen) return;
@@ -64,6 +88,25 @@ export function DeepAnalysisView({
     }
   }, [deepData?.ok]);
 
+  useEffect(() => {
+    let mounted = true;
+    // Optional: desktop backend can provide an updated model from the calendar repo.
+    backend
+      .getPredictReleaseModelUsd()
+      .then((res: any) => {
+        if (!mounted) return;
+        if (res?.ok && res?.data && Number(res.data.schema) === 1) {
+          setPredictModel(res.data);
+        }
+      })
+      .catch(() => {
+        // ignore; fallback model stays in use
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const parseNumber = (raw: unknown): number | null => {
     const text = String(raw ?? "").trim();
     if (!text) return null;
@@ -80,7 +123,7 @@ export function DeepAnalysisView({
       return null;
     }
     const cleaned = text.replace(/,/g, "").replace(/%/g, "").replace(/\s+/g, "");
-    const m = cleaned.match(/^([+-]?\d+(?:\.\d+)?)([kmb])?$/i);
+    const m = cleaned.match(/^([+-]?\d+(?:\.\d+)?)([kmbt])?$/i);
     if (!m) return null;
     const base = Number(m[1]);
     if (!Number.isFinite(base)) return null;
@@ -88,7 +131,23 @@ export function DeepAnalysisView({
     if (suf === "k") return base * 1_000;
     if (suf === "m") return base * 1_000_000;
     if (suf === "b") return base * 1_000_000_000;
+    if (suf === "t") return base * 1_000_000_000_000;
     return base;
+  };
+
+  const median = (arr: number[]) => {
+    if (!arr.length) return 0;
+    const s = [...arr].sort((a, b) => a - b);
+    const mid = (s.length - 1) / 2;
+    const lo = s[Math.floor(mid)] ?? 0;
+    const hi = s[Math.ceil(mid)] ?? 0;
+    return (lo + hi) / 2;
+  };
+
+  const labelZ = (z: number, eqFactor: number) => {
+    if (!Number.isFinite(z)) return 0;
+    if (Math.abs(z) <= eqFactor) return 0;
+    return z > 0 ? 1 : 2; // 0="=", 1=">", 2="<"
   };
 
   const fmtPct = (p: number | null | undefined) =>
@@ -118,35 +177,207 @@ export function DeepAnalysisView({
     return `${dd}-${mm} ${hh}:${min}`;
   }, [anchorDtUtc, displayOffsetMinutes]);
 
+  useEffect(() => {
+    const metric = String(metricKey || "").trim();
+    const curCode = String(cur || "").trim().toUpperCase();
+    const anchorMsRaw = Date.parse(String(anchorDtUtc || "").trim());
+    const refMs = Number.isFinite(anchorMsRaw) ? Math.min(anchorMsRaw, Date.now()) : Date.now();
+
+    const f0 = parseNumber(selectionForecast);
+    const p0 = parseNumber(selectionPrevious);
+    const hasForecast0 =
+      typeof f0 === "number" &&
+      Number.isFinite(f0) &&
+      typeof p0 === "number" &&
+      Number.isFinite(p0);
+
+    // Only for USD no-forecast selections (this predictor is trained for USD history).
+    if (!isUsdEvent || hasForecast0 || !metric || curCode !== "USD") {
+      setNowcastVsPrev(null);
+      return;
+    }
+
+    const model: any = predictModel;
+    const eqFactor =
+      typeof model?.meta?.eq_factor === "number" && Number.isFinite(model.meta.eq_factor)
+        ? Number(model.meta.eq_factor)
+        : 0.10;
+
+    const relRoot = model?.models?.ap_no_forecast?.relationships;
+    const predictor = relRoot?.predictor ?? null;
+    const enabled = predictor?.enabled_metrics?.[metric] ?? null;
+    const rels: Array<{ metric: string; corr: number }> = Array.isArray(relRoot?.by_metric?.[metric])
+      ? relRoot.by_metric[metric]
+      : [];
+    if (!enabled || !rels.length) {
+      setNowcastVsPrev(null);
+      return;
+    }
+
+    const recommendedTh =
+      typeof predictor?.recommended_threshold === "number" && Number.isFinite(predictor.recommended_threshold)
+        ? Number(predictor.recommended_threshold)
+        : 0.10;
+    const metricTh =
+      typeof enabled?.th === "number" && Number.isFinite(enabled.th)
+        ? Number(enabled.th)
+        : recommendedTh;
+    const recentDays =
+      typeof model?.meta?.relationships?.recent_days === "number" && Number.isFinite(model.meta.relationships.recent_days)
+        ? Number(model.meta.relationships.recent_days)
+        : 180;
+    const recentMs = Math.max(1, recentDays) * 86_400_000;
+
+    const parsePointUtcMs = (p: EventHistoryPoint): number | null => {
+      const dRaw = String(p.date ?? "").trim();
+      const tRaw = String(p.time ?? "").trim();
+      if (!dRaw) return null;
+      const tt = tRaw || "00:00";
+      const m1 = dRaw.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+      const dateIso = m1 ? `${m1[3]}-${m1[2]}-${m1[1]}` : dRaw;
+      const ms = parseDisplayTimeToUtcMs(dateIso, tt, Number(displayOffsetMinutes) || 0);
+      return typeof ms === "number" && Number.isFinite(ms) ? ms : null;
+    };
+
+    const buildZApSeries = async (mKey: string, kind: "ap" | "af") => {
+      const cacheKey = `${kind}:${mKey}`;
+      const cached = zApCacheRef.current.get(cacheKey);
+      if (cached) return cached;
+      const res = await backend.getEventHistory({ event: mKey, cur: curCode });
+      if (!res?.ok || !Array.isArray(res.points)) return null;
+
+      const rows = res.points
+        .map((p: EventHistoryPoint) => {
+          const ms = parsePointUtcMs(p);
+          const a = parseNumber(p.actualRaw ?? p.actual);
+          const b =
+            kind === "af"
+              ? parseNumber(p.forecast)
+              : parseNumber(p.previousRaw ?? p.previous);
+          if (ms === null || typeof a !== "number" || typeof b !== "number") return null;
+          if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
+          return { ms, diff: a - b };
+        })
+        .filter((r): r is { ms: number; diff: number } => Boolean(r))
+        .sort((x, y) => x.ms - y.ms);
+
+      if (rows.length < 12) return null;
+      const scale = Math.max(1e-9, median(rows.map((r) => Math.abs(r.diff))));
+      const series = rows.map((r) => ({ ms: r.ms, z: r.diff / scale }));
+      const built = { series };
+      zApCacheRef.current.set(cacheKey, built);
+      return built;
+    };
+
+    let alive = true;
+    (async () => {
+      let vEq = 0;
+      let vGt = 0;
+      let vLt = 0;
+      let used = 0;
+      const candidates = rels
+        .map((it) => ({
+          srcKey: String(it?.metric || "").trim(),
+          kind: String((it as any)?.kind || "ap")
+            .trim()
+            .toLowerCase(),
+          corr: Number(it?.corr ?? 0)
+        }))
+        .filter(
+          (it) =>
+            it.srcKey &&
+            (it.kind === "ap" || it.kind === "af") &&
+            Number.isFinite(it.corr) &&
+            Math.abs(it.corr) > 1e-12
+        );
+      const seriesList = await Promise.all(
+        candidates.map((it) => buildZApSeries(it.srcKey, it.kind as "ap" | "af"))
+      );
+
+      for (let idx = 0; idx < candidates.length; idx += 1) {
+        const { srcKey, corr } = candidates[idx]!;
+        const src = seriesList[idx];
+        if (!src) continue;
+        const series = src.series;
+        let j = series.length - 1;
+        while (j >= 0) {
+          const ms = series[j]!.ms;
+          if (ms < refMs && refMs - ms <= recentMs) break;
+          j -= 1;
+        }
+        if (j < 0) continue;
+        const z = series[j]!.z;
+        let lab = labelZ(z, eqFactor); // 0="=", 1=">", 2="<"
+        if (lab === 1 && corr < 0) lab = 2;
+        else if (lab === 2 && corr < 0) lab = 1;
+        const w = Math.abs(corr) * Math.min(3, Math.abs(z));
+        if (!Number.isFinite(w) || w <= 0) continue;
+        used += 1;
+        if (lab === 0) vEq += w;
+        else if (lab === 1) vGt += w;
+        else vLt += w;
+      }
+
+      if (!alive) return;
+      const sum = vEq + vGt + vLt;
+      if (!(sum > 0) || used <= 0) {
+        setNowcastVsPrev(null);
+        return;
+      }
+      const pEq = vEq / sum;
+      const pGt = vGt / sum;
+      const pLt = vLt / sum;
+      const probs = [pEq, pGt, pLt];
+      const idx = probs.reduce((best, v, i) => (v > (probs[best] ?? 0) ? i : best), 0);
+      const pred0 = (idx === 1 ? ">" : idx === 2 ? "<" : "=") as ">" | "=" | "<";
+      const sorted = [...probs].sort((a, b) => b - a);
+      const max1 = sorted[0] ?? 0;
+      const max2 = sorted[1] ?? 0;
+      const score = max1 * Math.max(0, max1 - max2);
+      const backtestAcc =
+        typeof enabled?.acc === "number" && Number.isFinite(enabled.acc) ? Number(enabled.acc) : undefined;
+
+      setNowcastVsPrev({
+        pred0,
+        conf: score,
+        threshold: metricTh,
+        reliable: score >= metricTh,
+        sourcesUsed: used,
+        pEq,
+        pGt,
+        pLt,
+        backtestAcc
+      });
+    })().catch(() => {
+      if (alive) setNowcastVsPrev(null);
+    });
+
+    return () => {
+      alive = false;
+    };
+  }, [
+    anchorDtUtc,
+    cur,
+    displayOffsetMinutes,
+    isUsdEvent,
+    metricKey,
+    predictModel,
+    selectionForecast,
+    selectionPrevious
+  ]);
+
   const localPredict = useMemo(() => {
     const EQ_FACTOR = 0.05; // Wider "approx equal" than strict matching; tuned for calendar numeric noise.
     const parsePointUtcMs = (p: EventHistoryPoint): number | null => {
-      const d = String(p.date ?? "").trim();
-      const t = String(p.time ?? "").trim();
-      if (!d) return null;
-      const tt = t || "00:00";
+      const dRaw = String(p.date ?? "").trim();
+      const tRaw = String(p.time ?? "").trim();
+      if (!dRaw) return null;
+      const tt = tRaw || "00:00";
       // Support dd-mm-yyyy (repo default) and yyyy-mm-dd.
-      const m1 = d.match(/^(\d{2})-(\d{2})-(\d{4})$/);
-      const m2 = d.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-      const h = Number(tt.split(":")[0] ?? 0);
-      const min = Number(tt.split(":")[1] ?? 0);
-      if (m1) {
-        const dd = Number(m1[1]);
-        const mm = Number(m1[2]);
-        const yy = Number(m1[3]);
-        const ms = Date.UTC(yy, mm - 1, dd, h, min, 0, 0);
-        return Number.isFinite(ms) ? ms : null;
-      }
-      if (m2) {
-        const yy = Number(m2[1]);
-        const mm = Number(m2[2]);
-        const dd = Number(m2[3]);
-        const ms = Date.UTC(yy, mm - 1, dd, h, min, 0, 0);
-        return Number.isFinite(ms) ? ms : null;
-      }
-      // Last resort: let Date.parse try.
-      const ms = Date.parse(`${d} ${tt}`);
-      return Number.isFinite(ms) ? ms : null;
+      const m1 = dRaw.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+      const dateIso = m1 ? `${m1[3]}-${m1[2]}-${m1[1]}` : dRaw;
+      const ms = parseDisplayTimeToUtcMs(dateIso, tt, Number(displayOffsetMinutes) || 0);
+      return typeof ms === "number" && Number.isFinite(ms) ? ms : null;
     };
 
     const anchorMs = Date.parse(String(anchorDtUtc || "").trim());
@@ -173,15 +404,6 @@ export function DeepAnalysisView({
     const subsetMonths = (months: number, ref: number) => {
       const start = monthStartMsFor(ref, months);
       return rows.filter((r) => r.ms >= start && r.ms < ref);
-    };
-
-    const median = (arr: number[]) => {
-      if (!arr.length) return 0;
-      const s = [...arr].sort((a, b) => a - b);
-      const mid = (s.length - 1) / 2;
-      const lo = s[Math.floor(mid)] ?? 0;
-      const hi = s[Math.ceil(mid)] ?? 0;
-      return (lo + hi) / 2;
     };
 
     const build3way = (sub: typeof rows, kind: "forecast" | "prev") => {
@@ -436,8 +658,148 @@ export function DeepAnalysisView({
 
     const proxyVsPrev = buildProxyVsPrev();
 
-    return { recentMonths, recent, all, proxyVsPrev };
-  }, [points, anchorDtUtc, selectionActual, selectionForecast, selectionPrevious]);
+    const buildModelVsPrev = () => {
+      const model: any = predictModel;
+      const classes: string[] = Array.isArray(model?.classes) ? model.classes : ["=", ">", "<"];
+      const sub: any = (typeof f0 === "number" && Number.isFinite(f0))
+        ? model?.models?.ap_with_forecast
+        : model?.models?.ap_no_forecast;
+      const weights: number[][] = Array.isArray(sub?.weights) ? sub.weights : [];
+      if (weights.length < 2) return null;
+
+      const diffsAp = rows
+        .filter(
+          (r) =>
+            typeof r.a === "number" &&
+            Number.isFinite(r.a) &&
+            typeof r.prev === "number" &&
+            Number.isFinite(r.prev)
+        )
+        .map((r) => (r.a as number) - (r.prev as number));
+      if (diffsAp.length < 12) return null;
+      const scaleAp = Math.max(1e-9, median(diffsAp.map((v) => Math.abs(v))));
+
+      const actualSeries = rows
+        .filter((r) => typeof r.a === "number" && Number.isFinite(r.a))
+        .map((r) => r.a as number);
+      if (actualSeries.length < 12) return null;
+      const medianCenter = median(actualSeries);
+      const mad = median(actualSeries.map((v) => Math.abs(v - medianCenter)));
+      const madA = Math.max(1e-9, mad);
+
+      const diffsFp = rows
+        .filter(
+          (r) =>
+            typeof r.f === "number" &&
+            Number.isFinite(r.f) &&
+            typeof r.prev === "number" &&
+            Number.isFinite(r.prev)
+        )
+        .map((r) => (r.f as number) - (r.prev as number));
+      const scaleFp = Math.max(1e-9, median(diffsFp.map((v) => Math.abs(v))));
+
+      const diffsAf = rows
+        .filter((r) => typeof r.a === "number" && Number.isFinite(r.a) && typeof r.f === "number" && Number.isFinite(r.f))
+        .map((r) => (r.a as number) - (r.f as number));
+      const scaleAf = Math.max(1e-9, median(diffsAf.map((v) => Math.abs(v))));
+
+      const lastDiffs6 = diffsAp.slice(-6);
+      const lastDiffs3 = diffsAp.slice(-3);
+      const lastA6 = actualSeries.slice(-6);
+      const lastA = actualSeries[actualSeries.length - 1] as number;
+
+      const zAp1 = (lastDiffs6[lastDiffs6.length - 1] as number) / scaleAp;
+      const zAp3 = (lastDiffs3.reduce((a, b) => a + b, 0) / Math.max(1, lastDiffs3.length)) / scaleAp;
+      const zAp6 = (lastDiffs6.reduce((a, b) => a + b, 0) / Math.max(1, lastDiffs6.length)) / scaleAp;
+      const zALevel = (lastA - medianCenter) / madA;
+
+      const slope6 = (() => {
+        if (lastA6.length < 2) return 0;
+        const n = lastA6.length;
+        let sumX = 0;
+        let sumY = 0;
+        let sumXX = 0;
+        let sumXY = 0;
+        for (let i = 0; i < n; i += 1) {
+          const x = i;
+          const y = lastA6[i] as number;
+          sumX += x;
+          sumY += y;
+          sumXX += x * x;
+          sumXY += x * y;
+        }
+        const denom = n * sumXX - sumX * sumX;
+        if (!denom) return 0;
+        return (n * sumXY - sumX * sumY) / denom;
+      })();
+      const zASlope6 = slope6 / scaleAp;
+
+      const zAf1 = (() => {
+        for (let i = rows.length - 1; i >= 0; i -= 1) {
+          const r = rows[i];
+          if (!r) continue;
+          if (typeof r.a !== "number" || typeof r.f !== "number") continue;
+          if (!Number.isFinite(r.a) || !Number.isFinite(r.f)) continue;
+          return ((r.a as number) - (r.f as number)) / scaleAf;
+        }
+        return 0;
+      })();
+
+      const hasForecast0 = typeof f0 === "number" && Number.isFinite(f0) && typeof p0 === "number" && Number.isFinite(p0);
+      const zFp = hasForecast0 ? ((f0 as number) - (p0 as number)) / scaleFp : 0;
+
+      const gapDays = (() => {
+        const anchorMs = Date.parse(String(anchorDtUtc || "").trim());
+        if (!Number.isFinite(anchorMs)) return 0;
+        const last = rows[rows.length - 1];
+        if (!last || typeof last.ms !== "number") return 0;
+        const d = (anchorMs - (last.ms as number)) / 86_400_000;
+        return Number.isFinite(d) ? d : 0;
+      })();
+
+      const aHat = !hasForecast0 ? linregForecastHat(actualSeries) : null;
+      const zHatAp =
+        !hasForecast0 && typeof aHat === "number" && Number.isFinite(aHat) && typeof p0 === "number" && Number.isFinite(p0)
+          ? (aHat - (p0 as number)) / scaleAp
+          : 0;
+      const zHatDa =
+        !hasForecast0 && typeof aHat === "number" && Number.isFinite(aHat)
+          ? (aHat - lastA) / scaleAp
+          : 0;
+
+      const features = hasForecast0
+        ? [1, zFp, zAp1, zAp3, zAp6, zALevel, zASlope6, zAf1]
+        : [1, zAp1, zAp3, zAp6, zALevel, zASlope6, zHatAp, zHatDa, gapDays];
+
+      const probs = softmax1d(dotFeatures(weights, features));
+      if (probs.length < 3) return null;
+      const idx = probs.reduce((best, v, i) => (v > (probs[best] ?? 0) ? i : best), 0);
+      const pred0 = classes[idx] ?? "";
+      const max1 = Math.max(...probs);
+      const sorted = [...probs].sort((a, b) => b - a);
+      const max2 = sorted[1] ?? 0;
+      // Confidence score (matches the offline trainer): maxProb * (maxProb - secondMaxProb)
+      const score = max1 * Math.max(0, max1 - max2);
+      const th = typeof sub?.recommended_threshold === "number" ? sub.recommended_threshold : hasForecast0 ? 0.25 : 0.5;
+      const backtestAcc = estimateBacktestAccAtThreshold(sub);
+
+      return {
+        pred0,
+        conf: score,
+        threshold: th,
+        reliable: score >= th,
+        n: diffsAp.length,
+        pEq: probs[0],
+        pGt: probs[1],
+        pLt: probs[2],
+        backtestAcc
+      };
+    };
+
+    const modelVsPrev = buildModelVsPrev();
+
+    return { recentMonths, recent, all, proxyVsPrev, modelVsPrev };
+  }, [points, anchorDtUtc, displayOffsetMinutes, selectionActual, selectionForecast, selectionPrevious, predictModel]);
 
   const releaseSpark = useMemo(() => {
     const buildSeries = (maxPoints = 48) => {
@@ -663,6 +1025,11 @@ export function DeepAnalysisView({
     Number.isFinite(aGtP.n) &&
     aGtP.n > 0;
 
+  const pvNowcast = nowcastVsPrev && nowcastVsPrev.reliable ? nowcastVsPrev : null;
+  const pvChoice = pvNowcast ?? localPredict.modelVsPrev ?? localPredict.proxyVsPrev;
+  const pvKind: "nowcast" | "model" | "proxy" =
+    pvNowcast ? "nowcast" : localPredict.modelVsPrev ? "model" : "proxy";
+
   const content = (
     <>
       <div className="deep-block-title">Predict Release</div>
@@ -670,7 +1037,8 @@ export function DeepAnalysisView({
         <div className="deep-card">
           <div className="deep-card-k">Actual vs Previous</div>
           {(() => {
-            const pv = localPredict.proxyVsPrev;
+            const pv = pvChoice;
+            const isModel = pvKind !== "proxy";
             const pred = pv?.pred0 ?? null;
             const predProb =
               pred === ">"
@@ -693,55 +1061,93 @@ export function DeepAnalysisView({
                     ? "="
                     : "<"
                 : "");
-            return <div className="deep-card-v">{`${shownLabel} ${fmtPctNum(shownProb)}`}</div>;
+            const canShow = !isModel || Boolean(pv?.reliable);
+            return <div className="deep-card-v">{canShow ? `${shownLabel} ${fmtPctNum(shownProb)}` : "--"}</div>;
           })()}
           <div className="deep-card-sub">
             <div>
-              {localPredict.proxyVsPrev?.n
-                ? `${localPredict.proxyVsPrev.conditioned ? "Conditioned on " : "Based on "}${localPredict.proxyVsPrev.proxyLabel} - Previous: N=${localPredict.proxyVsPrev.n}`
-                : "No previous history"}
+              {(() => {
+                if (!localPredict.all.vsPrev.n) return "No previous history";
+                if (pvKind === "nowcast" && pvChoice) {
+                  const pv = pvChoice as any;
+                  const confPct = Math.round((pv?.conf ?? 0) * 100);
+                  const thPct = Math.round((pv?.threshold ?? 0) * 100);
+                  const src = pv?.sourcesUsed ?? 0;
+                  return `Nowcast chain: score=${confPct}% (th>=${thPct}%) · sources=${src}`;
+                }
+                if (pvKind === "model" && localPredict.modelVsPrev) {
+                  const pv = localPredict.modelVsPrev;
+                  const confPct = Math.round((pv.conf ?? 0) * 100);
+                  const thPct = Math.round((pv.threshold ?? 0) * 100);
+                  return `Calendar model: score=${confPct}% (th>=${thPct}%) · N=${pv.n}`;
+                }
+                return `${localPredict.proxyVsPrev.conditioned ? "Conditioned on " : "Based on "}${localPredict.proxyVsPrev.proxyLabel} - Previous: N=${localPredict.proxyVsPrev.n}`;
+              })()}
             </div>
-            {localPredict.proxyVsPrev?.matchRate ? (
-              <div className="deep-card-sub2">{`Reliability (recent match rate): ${Math.round(
-                localPredict.proxyVsPrev.matchRate * 100
-              )}%`}</div>
-            ) : null}
+            {(() => {
+              if (pvKind === "nowcast" && pvChoice) {
+                const pv = pvChoice as any;
+                if (typeof pv?.backtestAcc === "number" && Number.isFinite(pv.backtestAcc)) {
+                  return <div className="deep-card-sub2">{`Backtest reliability (enabled metric): ${Math.round(pv.backtestAcc * 100)}%`}</div>;
+                }
+                return pv?.reliable ? null : <div className="deep-card-sub2">Low confidence: unable to predict</div>;
+              }
+              if (pvKind === "model" && localPredict.modelVsPrev) {
+                const pv = localPredict.modelVsPrev;
+                if (typeof pv.backtestAcc === "number" && Number.isFinite(pv.backtestAcc)) {
+                  const thPct = Math.round((pv.threshold ?? 0) * 100);
+                  return <div className="deep-card-sub2">{`Backtest reliability (score>=${thPct}%): ${Math.round(pv.backtestAcc * 100)}%`}</div>;
+                }
+                return pv.reliable ? null : <div className="deep-card-sub2">Low confidence: unable to predict</div>;
+              }
+              return localPredict.proxyVsPrev?.matchRate ? (
+                <div className="deep-card-sub2">{`Reliability (recent match rate): ${Math.round(
+                  localPredict.proxyVsPrev.matchRate * 100
+                )}%`}</div>
+              ) : null;
+            })()}
             {localPredict.all.vsPrev.n > 0 ? (
               <div className="deep-card-sub2">{`All history: N=${localPredict.all.vsPrev.n}`}</div>
             ) : null}
           </div>
-          {(localPredict.proxyVsPrev?.n ?? 0) > 0 ? (
+          {pvChoice && localPredict.all.vsPrev.n > 0 ? (
             <>
               <div className="deep-tri" aria-hidden="true">
                 <div
                   className="deep-tri-gt"
                   style={{
-                    width: `${Math.round(((localPredict.proxyVsPrev?.pGt ?? 0) ?? 0) * 100)}%`
+                    width: `${Math.round(
+                      (((pvChoice as any)?.pGt ?? 0) ?? 0) * 100
+                    )}%`
                   }}
                 />
                 <div
                   className="deep-tri-eq"
                   style={{
-                    width: `${Math.round(((localPredict.proxyVsPrev?.pEq ?? 0) ?? 0) * 100)}%`
+                    width: `${Math.round(
+                      (((pvChoice as any)?.pEq ?? 0) ?? 0) * 100
+                    )}%`
                   }}
                 />
                 <div
                   className="deep-tri-lt"
                   style={{
-                    width: `${Math.round(((localPredict.proxyVsPrev?.pLt ?? 0) ?? 0) * 100)}%`
+                    width: `${Math.round(
+                      (((pvChoice as any)?.pLt ?? 0) ?? 0) * 100
+                    )}%`
                   }}
                 />
               </div>
               <div className="deep-tri-legend">
                 <span
-                  className={`deep-tri-chip gt${localPredict.proxyVsPrev?.pred0 === ">" ? " is-picked" : ""}`}
-                >{`> ${fmtPctNum(localPredict.proxyVsPrev?.pGt ?? null)}`}</span>
+                  className={`deep-tri-chip gt${(pvChoice as any)?.pred0 === ">" ? " is-picked" : ""}`}
+                >{`> ${fmtPctNum((pvChoice as any)?.pGt ?? null)}`}</span>
                 <span
-                  className={`deep-tri-chip eq${localPredict.proxyVsPrev?.pred0 === "=" ? " is-picked" : ""}`}
-                >{`= ${fmtPctNum(localPredict.proxyVsPrev?.pEq ?? null)}`}</span>
+                  className={`deep-tri-chip eq${(pvChoice as any)?.pred0 === "=" ? " is-picked" : ""}`}
+                >{`= ${fmtPctNum((pvChoice as any)?.pEq ?? null)}`}</span>
                 <span
-                  className={`deep-tri-chip lt${localPredict.proxyVsPrev?.pred0 === "<" ? " is-picked" : ""}`}
-                >{`< ${fmtPctNum(localPredict.proxyVsPrev?.pLt ?? null)}`}</span>
+                  className={`deep-tri-chip lt${(pvChoice as any)?.pred0 === "<" ? " is-picked" : ""}`}
+                >{`< ${fmtPctNum((pvChoice as any)?.pLt ?? null)}`}</span>
               </div>
             </>
           ) : null}

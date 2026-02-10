@@ -102,6 +102,7 @@ fn main() {
             commands::lifecycle::dismiss_modal,
             commands::history::get_event_history,
             commands::analysis::get_event_impact_usd,
+            commands::analysis::get_predict_release_model_usd,
             commands::analysis::get_event_deep_analysis_usd
         ])
         .setup(|app| {

@@ -39,9 +39,14 @@ def _parse_numeric(value: object) -> Optional[float]:
         mult = 0.01
         text = text[:-1]
     suf = text[-1].lower() if text else ""
-    if suf in {"k", "m", "b"}:
+    if suf in {"k", "m", "b", "t"}:
         text = text[:-1]
-        mult *= {"k": 1_000, "m": 1_000_000, "b": 1_000_000_000}[suf]
+        mult *= {
+            "k": 1_000,
+            "m": 1_000_000,
+            "b": 1_000_000_000,
+            "t": 1_000_000_000_000,
+        }[suf]
     text = text.replace(",", "")
     try:
         return float(text) * mult

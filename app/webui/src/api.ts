@@ -2,6 +2,7 @@ import type {
   EventDeepAnalysisResponse,
   EventHistoryResponse,
   EventImpactResponse,
+  PredictReleaseModelResponse,
   Settings,
   Snapshot
 } from "./types";
@@ -26,6 +27,7 @@ type BackendApi = {
   get_event_history?: (payload: { event: string; cur: string }) => ApiResult<EventHistoryResponse>; 
   get_event_impact_usd?: (payload: { eventId: string; bucket: string }) => ApiResult<EventImpactResponse>; 
   get_event_deep_analysis_usd?: (payload: { eventId: string }) => ApiResult<EventDeepAnalysisResponse>;
+  get_predict_release_model_usd?: () => ApiResult<PredictReleaseModelResponse>;
   get_settings: () => ApiResult<Settings>; 
   save_settings: (payload: Settings) => ApiResult<{ ok: boolean }>; 
   frontend_boot_complete?: () => ApiResult<{ ok: boolean }>; 
@@ -664,6 +666,19 @@ export const backend = {
       return Promise.resolve({ ok: false, message: "Deep analysis unavailable" });
     }
     return api.get_event_deep_analysis_usd({ eventId: payload.eventId, anchorDtUtc: payload.anchorDtUtc } as any);
+  },
+  getPredictReleaseModelUsd: async (): ApiResult<PredictReleaseModelResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve({ ok: false, message: "Predict release model unavailable in ui-check runtime" });
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "get_predict_release_model_usd")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve({ ok: false, message: "Predict release model unavailable" });
+    }
+    return api.get_predict_release_model_usd();
   },
   getUpdateState: async () => { 
     const api = await withApi(); 

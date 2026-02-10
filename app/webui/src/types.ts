@@ -174,6 +174,21 @@ export type EventDeepAnalysisResponse = {
   data?: EventDeepAnalysisData | Record<string, unknown>;
 };
 
+export type PredictReleaseModel = {
+  schema: number;
+  generated_at_utc?: string;
+  meta?: Record<string, unknown>;
+  classes?: string[];
+  models?: Record<string, unknown>;
+};
+
+export type PredictReleaseModelResponse = {
+  ok: boolean;
+  message?: string;
+  source?: string;
+  data?: PredictReleaseModel | Record<string, unknown>;
+};
+
 export type Snapshot = {
   lastPull: string;
   lastSync: string;

@@ -236,7 +236,7 @@ def _parse_numeric(value: Optional[str]) -> Optional[float]:
     if value.endswith("%"):
         multiplier = 0.01
         value = value[:-1]
-    suffix_multiplier = {"k": 1_000, "m": 1_000_000, "b": 1_000_000_000}
+    suffix_multiplier = {"k": 1_000, "m": 1_000_000, "b": 1_000_000_000, "t": 1_000_000_000_000}
     if value and value[-1].lower() in suffix_multiplier:
         multiplier *= suffix_multiplier[value[-1].lower()]
         value = value[:-1]

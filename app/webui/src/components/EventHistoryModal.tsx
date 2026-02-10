@@ -80,7 +80,7 @@ const parseComparableNumber = (rawValue: string) => {
     .replaceAll(",", "")
     .replaceAll("%", "");
   // Some calendar sources append notes like "(rev.)" or "*"; accept the first numeric token.
-  const match = cleaned.match(/([+-]?\d+(?:\.\d+)?)([kmb])?/i);
+  const match = cleaned.match(/([+-]?\d+(?:\.\d+)?)([kmbt])?/i);
   if (!match) return null;
   const base = Number(match[1]);
   if (!Number.isFinite(base)) return null;
@@ -88,6 +88,7 @@ const parseComparableNumber = (rawValue: string) => {
   if (suffix === "k") return base * 1_000;
   if (suffix === "m") return base * 1_000_000;
   if (suffix === "b") return base * 1_000_000_000;
+  if (suffix === "t") return base * 1_000_000_000_000;
   return base;
 };
 
@@ -145,6 +146,7 @@ const formatTickNumber = (value: number) => {
     const text = num.toFixed(abs < 1 ? 2 : abs < 10 ? 2 : abs < 100 ? 1 : 0);
     return text.replace(/\.0+$/, "").replace(/(\.\d*[1-9])0+$/, "$1");
   };
+  if (abs >= 1_000_000_000_000) return `${format(value / 1_000_000_000_000)}T`;
   if (abs >= 1_000_000_000) return `${format(value / 1_000_000_000)}B`;
   if (abs >= 1_000_000) return `${format(value / 1_000_000)}M`;
   if (abs >= 1_000) return `${format(value / 1_000)}K`;
@@ -157,7 +159,7 @@ const detectUnitLabel = (points: EventHistoryPoint[], keys: Array<keyof EventHis
       const raw = String(point[key] ?? "").trim();
       if (isMissingValue(raw)) continue;
       if (raw.includes("%")) return "%";
-      const suffix = raw.match(/[kmb]$/i)?.[0];
+      const suffix = raw.match(/[kmbt]$/i)?.[0];
       if (suffix) return suffix.toUpperCase();
     }
   }
@@ -2289,6 +2291,8 @@ export function EventHistoryModal({
                         {impactPanel === "deep" ? (
                           <DeepAnalysisView
                             points={points}
+                            metricKey={String(data?.metric ?? "")}
+                            cur={String(data?.cur ?? "")}
                             isUsdEvent={isUsdEvent}
                             deepLoading={deepLoading}
                             deepError={deepError}

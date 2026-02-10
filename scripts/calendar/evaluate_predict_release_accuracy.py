@@ -1,10 +1,19 @@
 """
 Evaluate Predict Release accuracy against Economic_Calendar history.
 
-This script mirrors the current WebUI logic in DeepAnalysisView:
-  - "Recent" window is auto-chosen within 1..6 months via a lightweight backtest
-  - "=" means approximate (dynamic tolerance = 10% of median absolute diff in window)
-  - Prediction is argmax of {>,=,<} in that window (tie-break prefers "=")
+This script provides two perspectives:
+
+1) Legacy heuristic predictor (baseline / research):
+   - "Recent" window auto-chosen within 1..6 months via a lightweight backtest
+   - "=" means approximate (dynamic tolerance = 10% of median abs diff in window)
+   - Prediction is argmax of {>,=,<} in that window (tie-break prefers "=")
+
+2) Calendar model predictor (mirrors the app's Predict Release UI):
+   - Multinomial logistic regression model stored at data/analysis/predict_release_model_usd.json
+   - Task: Actual vs Previous (A-P) in {>,=,<}
+   - Uses confidence gating: only show predictions when score >= threshold,
+     otherwise the UI displays "--" (unable to predict).
+   - Confidence score: maxProb * (maxProb - secondMaxProb)
 
 It reports accuracy + a small confusion matrix for:
   - Actual vs Forecast
@@ -42,9 +51,14 @@ def _parse_numeric(value: object) -> Optional[float]:
         mult = 0.01
         text = text[:-1]
     suf = text[-1].lower() if text else ""
-    if suf in {"k", "m", "b"}:
+    if suf in {"k", "m", "b", "t"}:
         text = text[:-1]
-        mult *= {"k": 1_000, "m": 1_000_000, "b": 1_000_000_000}[suf]
+        mult *= {
+            "k": 1_000,
+            "m": 1_000_000,
+            "b": 1_000_000_000,
+            "t": 1_000_000_000_000,
+        }[suf]
     text = text.replace(",", "")
     try:
         return float(text) * mult
@@ -173,6 +187,33 @@ def _load_calendar_rows(calendar_dir: Path) -> pd.DataFrame:
     out = out[["dt_utc", "currency", "importance", "event_name", "a", "f", "p"]].copy()
     out.loc[:, "metric_key"] = out["event_name"].map(_normalize_metric_key)
     return out
+
+
+def _load_predict_release_model(path: Path) -> Optional[dict]:
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    try:
+        model = json.loads(text)
+    except json.JSONDecodeError:
+        return None
+    if int(model.get("schema") or 0) != 1:
+        return None
+    return model
+
+
+def _find_eval_row(sub: dict) -> Optional[dict]:
+    th = sub.get("recommended_threshold")
+    rows = (sub.get("eval") or {}).get("thresholds") or []
+    if not isinstance(th, (int, float)) or not isinstance(rows, list):
+        return None
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        if abs(float(row.get("th", 0.0)) - float(th)) <= 1e-9:
+            return row
+    return None
 
 
 def _subset_months(df: pd.DataFrame, ref_dt: pd.Timestamp, months: int) -> pd.DataFrame:
@@ -798,6 +839,12 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
     ap.add_argument("--calendar-dir", type=Path, default=Path("data/Economic_Calendar"))
     ap.add_argument("--currency", type=str, default="USD")
     ap.add_argument("--importance", nargs="*", default=["Medium", "High"])
+    ap.add_argument(
+        "--model-json",
+        type=Path,
+        default=Path("data/analysis/predict_release_model_usd.json"),
+        help="Predict Release model JSON to report app-like backtest stats.",
+    )
     ap.add_argument("--min-releases", type=int, default=18, help="Only evaluate metrics with at least N releases.")
     ap.add_argument(
         "--max-releases-per-metric",
@@ -953,7 +1000,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
                 return (c.correct() / tot) if tot else 0.0
             per_metric_rows.append((name, _acc(c_f), c_f.total(), _acc(c_p), c_p.total()))
 
-    print("Predict Release evaluation (mirrors DeepAnalysisView logic)")
+    print("Predict Release evaluation (baselines + app model backtest)")
     print(f"currency={args.currency.upper()} importance={','.join([s.title() for s in args.importance])}")
     print("")
     print("Actual vs Forecast:", _fmt_conf(total_f))
@@ -964,6 +1011,47 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
     print("Proxy-only vs Previous (no gating):", _fmt_conf(proxy_only))
     print("Meta-ensemble vs Previous (no gating):", _fmt_conf(meta_ens))
     print(f'Approx "=" tolerance: eq_factor={float(args.eq_factor):.2f}')
+
+    # Report the actual model used by the app (if available).
+    model = _load_predict_release_model(Path(args.model_json))
+    if model:
+        wf = (model.get("models") or {}).get("ap_with_forecast") or {}
+        nf = (model.get("models") or {}).get("ap_no_forecast") or {}
+        wf_row = _find_eval_row(wf)
+        nf_row = _find_eval_row(nf)
+
+        wf_n = int((wf.get("eval") or {}).get("n") or 0)
+        nf_n = int((nf.get("eval") or {}).get("n") or 0)
+        wf_th = float(wf.get("recommended_threshold") or 0.0)
+        nf_th = float(nf.get("recommended_threshold") or 0.0)
+        wf_raw = float((wf.get("eval") or {}).get("acc") or 0.0)
+        nf_raw = float((nf.get("eval") or {}).get("acc") or 0.0)
+
+        wf_shown_n = int(wf_row.get("n") or 0) if wf_row else 0
+        nf_shown_n = int(nf_row.get("n") or 0) if nf_row else 0
+        wf_shown_acc = float(wf_row.get("acc") or 0.0) if wf_row else 0.0
+        nf_shown_acc = float(nf_row.get("acc") or 0.0) if nf_row else 0.0
+        wf_cov = float(wf_row.get("coverage") or 0.0) if wf_row else 0.0
+        nf_cov = float(nf_row.get("coverage") or 0.0) if nf_row else 0.0
+
+        denom = wf_shown_n + nf_shown_n
+        shown_acc = ((wf_shown_n * wf_shown_acc + nf_shown_n * nf_shown_acc) / denom) if denom else 0.0
+        shown_cov = (denom / (wf_n + nf_n)) if (wf_n + nf_n) else 0.0
+
+        print("")
+        print("Calendar model backtest (Actual vs Previous; time-split 80/20):")
+        conf_desc = (wf.get("eval") or {}).get("confidence") or (nf.get("eval") or {}).get("confidence") or ""
+        if conf_desc:
+            print(f"  - confidence score: {conf_desc}")
+        print(
+            f"  - with Forecast: raw acc={wf_raw:.3f} n={wf_n} | "
+            f"shown th={wf_th:.2f} acc={wf_shown_acc:.3f} cov={wf_cov:.3f}"
+        )
+        print(
+            f"  - no Forecast:  raw acc={nf_raw:.3f} n={nf_n} | "
+            f"shown th={nf_th:.2f} acc={nf_shown_acc:.3f} cov={nf_cov:.3f}"
+        )
+        print(f"  - combined shown: acc={shown_acc:.3f} cov={shown_cov:.3f}")
     if thresholds:
         print("")
         print("Confident-only (coverage/accuracy):")
@@ -1008,10 +1096,3 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-    df.attrs["_eq_factor"] = float(args.eq_factor)
-    # Fixed eps for proxy vs previous (computed from all available history for this metric slice).
-    eq_factor = float(df.attrs.get("_eq_factor", 0.1))
-    ap_diffs = np.abs(a - p)
-    ap_diffs = ap_diffs[np.isfinite(ap_diffs)]
-    med_ap = float(np.median(ap_diffs)) if ap_diffs.size else 0.0
-    eps_fixed_ap = max(1e-9, med_ap * eq_factor)

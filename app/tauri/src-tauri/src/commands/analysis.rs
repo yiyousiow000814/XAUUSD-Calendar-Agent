@@ -18,7 +18,7 @@ fn parse_numeric(raw: &str) -> Option<f64> {
         return None;
     }
 
-    // Support "1,234", "1.23%", and suffix "k/m/b".
+    // Support "1,234", "1.23%", and suffix "k/m/b/t".
     let mut s = text.replace(',', "");
     let mut mult = 1.0_f64;
     if let Some(stripped) = s.strip_suffix('%') {
@@ -27,12 +27,13 @@ fn parse_numeric(raw: &str) -> Option<f64> {
     }
     if let Some(last) = s.chars().last() {
         let suf = last.to_ascii_lowercase();
-        if suf == 'k' || suf == 'm' || suf == 'b' {
+        if suf == 'k' || suf == 'm' || suf == 'b' || suf == 't' {
             s.pop();
             mult *= match suf {
                 'k' => 1_000.0,
                 'm' => 1_000_000.0,
                 'b' => 1_000_000_000.0,
+                't' => 1_000_000_000_000.0,
                 _ => 1.0,
             };
         }
@@ -120,6 +121,63 @@ fn read_impact_json() -> Option<Value> {
         .or_else(|_| fs::read_to_string(&install_path))
         .ok()?;
     serde_json::from_str(&text).ok()
+}
+
+#[tauri::command]
+pub fn get_predict_release_model_usd() -> Value {
+    // Allow updating the model by pulling the calendar repo (no app rebuild required),
+    // but keep appdata + bundled seed fallbacks.
+    let cfg = config::load_config();
+    let repo_path = super::resolve_calendar_repo_path(&cfg);
+    let repo_path_json = repo_path.as_deref().map(|p| {
+        p.join("data")
+            .join("analysis")
+            .join("predict_release_model_usd.json")
+    });
+
+    let analysis_dir = config::analysis_dir();
+    let path = analysis_dir.join("predict_release_model_usd.json");
+    let install_path = config::install_dir()
+        .join("data")
+        .join("analysis")
+        .join("predict_release_model_usd.json");
+
+    let (text, source) = match repo_path_json
+        .as_ref()
+        .and_then(|p| fs::read_to_string(p).ok())
+        .map(|t| (t, "repo"))
+        .or_else(|| fs::read_to_string(&path).ok().map(|t| (t, "appdata")))
+        .or_else(|| {
+            fs::read_to_string(&install_path)
+                .ok()
+                .map(|t| (t, "install"))
+        }) {
+        Some(v) => v,
+        None => {
+            return json!({
+                "ok": false,
+                "message": format!(
+                    "Predict release model not found at {} or {}.",
+                    path.display(),
+                    install_path.display()
+                )
+            })
+        }
+    };
+
+    let parsed: Value = match serde_json::from_str(&text) {
+        Ok(v) => v,
+        Err(e) => return json!({"ok": false, "message": format!("Invalid model JSON: {e}")}),
+    };
+    if parsed.get("schema").and_then(|v| v.as_i64()).unwrap_or(0) != 1 {
+        return json!({"ok": false, "message": "Unsupported model JSON schema"});
+    }
+
+    json!({
+        "ok": true,
+        "source": source,
+        "data": parsed
+    })
 }
 
 fn build_unified_outlook_fallback(

@@ -30,6 +30,43 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
+_MONTH_TOKENS = {
+    "jan",
+    "feb",
+    "mar",
+    "apr",
+    "may",
+    "jun",
+    "jul",
+    "aug",
+    "sep",
+    "oct",
+    "nov",
+    "dec",
+}
+
+
+def _normalize_metric_key(raw: object) -> str:
+    # Mirror app grouping: remove trailing period tokens like "(Jan)" / "(Q1)" but keep "(MoM)/(YoY)" etc.
+    text = str(raw or "").strip()
+    if not text:
+        return ""
+    if text.endswith(")"):
+        open_idx = text.rfind("(")
+        if open_idx >= 0:
+            token = text[open_idx + 1 : -1].strip()
+            tl = token.lower()
+            is_period = False
+            if tl in _MONTH_TOKENS:
+                is_period = True
+            elif tl.startswith("q") and tl[1:] in {"1", "2", "3", "4"}:
+                is_period = True
+            elif tl.isdigit() and len(tl) == 4:
+                is_period = True
+            if is_period:
+                text = text[:open_idx].rstrip()
+    return text
+
 
 def _parse_numeric(value: object) -> Optional[float]:
     if value is None:
@@ -42,9 +79,14 @@ def _parse_numeric(value: object) -> Optional[float]:
         mult = 0.01
         text = text[:-1]
     suf = text[-1].lower() if text else ""
-    if suf in {"k", "m", "b"}:
+    if suf in {"k", "m", "b", "t"}:
         text = text[:-1]
-        mult *= {"k": 1_000, "m": 1_000_000, "b": 1_000_000_000}[suf]
+        mult *= {
+            "k": 1_000,
+            "m": 1_000_000,
+            "b": 1_000_000_000,
+            "t": 1_000_000_000_000,
+        }[suf]
     text = text.replace(",", "")
     try:
         return float(text) * mult
@@ -130,7 +172,9 @@ def _load_calendar_rows(calendar_dir: Path) -> pd.DataFrame:
     out.loc[:, "dt_utc"] = pd.to_datetime(out["dt_utc"], utc=True, errors="coerce")
     out = out.dropna(subset=["dt_utc"]).copy()
     out = out.sort_values("dt_utc").reset_index(drop=True)
-    return out[["dt_utc", "currency", "importance", "event_name", "a", "f", "p"]].copy()
+    out = out[["dt_utc", "currency", "importance", "event_name", "a", "f", "p"]].copy()
+    out.loc[:, "metric_key"] = out["event_name"].map(_normalize_metric_key)
+    return out
 
 
 def _eps_from_recent(diffs_abs: np.ndarray) -> float:
@@ -139,12 +183,28 @@ def _eps_from_recent(diffs_abs: np.ndarray) -> float:
     med = float(np.median(diffs_abs))
     return max(1e-9, med * 0.1)
 
+def _scale_from_hist(diffs_abs: np.ndarray) -> float:
+    # Robust scale for normalising heterogeneous metrics.
+    if diffs_abs.size == 0:
+        return 1.0
+    med = float(np.median(diffs_abs))
+    if not math.isfinite(med) or med <= 1e-12:
+        return 1.0
+    return med
+
 
 def _label(d: float, eps: float) -> int:
     # 1 => ">", 0 => "=", -1 => "<"
     if abs(d) <= eps:
         return 0
     return 1 if d > 0 else -1
+
+def _label_z(z: float, eq_factor: float) -> int:
+    # Same 3-way label, but in normalised z-space:
+    # if z = diff / median_abs_diff, then "approx equal" is abs(z) <= eq_factor.
+    if abs(z) <= float(eq_factor):
+        return 0
+    return 1 if z > 0 else -1
 
 
 @dataclass(frozen=True)
@@ -241,6 +301,12 @@ def main() -> int:
     ap.add_argument("--lookback-days", type=int, default=45)
     ap.add_argument("--topk", type=int, default=6)
     ap.add_argument("--recent-months", type=int, default=6, help="Use recent months for source signal sampling.")
+    ap.add_argument(
+        "--eq-factor",
+        type=float,
+        default=0.1,
+        help='Approx "=" tolerance in z-space. If z = diff/median_abs_diff, then "=" is abs(z)<=factor.',
+    )
     args = ap.parse_args()
 
     df = _load_calendar_rows(args.calendar_dir)
@@ -249,7 +315,23 @@ def main() -> int:
         print("No rows.")
         return 1
 
-    by_metric = {k: g.sort_values("dt_utc") for k, g in df.groupby("event_name", sort=False)}
+    by_metric = {k: g.sort_values("dt_utc") for k, g in df.groupby("metric_key", sort=False)}
+
+    # Precompute per-metric robust scales so correlations and scores are comparable across metrics.
+    # This uses all available history (leaky for research), but significantly reduces unit-mismatch.
+    # The production pipeline should compute these scales without leakage (walk-forward / cutoff).
+    scales_f: dict[str, float] = {}
+    scales_p: dict[str, float] = {}
+    for m, g in by_metric.items():
+        aa = g["a"].to_numpy(dtype="float64")
+        ff = g["f"].to_numpy(dtype="float64")
+        pp = g["p"].to_numpy(dtype="float64")
+        df_f = np.abs(aa - ff)
+        df_f = df_f[np.isfinite(df_f)]
+        df_p = np.abs(aa - pp)
+        df_p = df_p[np.isfinite(df_p)]
+        scales_f[m] = _scale_from_hist(df_f)
+        scales_p[m] = _scale_from_hist(df_p)
 
     totals_f = Totals()
     totals_p = Totals()
@@ -282,9 +364,11 @@ def main() -> int:
 
             # vs Forecast
             if pd.notna(tgt.loc[i, "a"]) and pd.notna(tgt.loc[i, "f"]):
-                d_hist = (hist_recent["a"] - hist_recent["f"]).dropna().to_numpy(dtype="float64")
-                eps = _eps_from_recent(np.abs(d_hist))
-                y_true = _label(float(tgt.loc[i, "a"] - tgt.loc[i, "f"]), eps)
+                scale_t = float(scales_f.get(m, 1.0))
+                if scale_t <= 0:
+                    scale_t = 1.0
+                z_true = float(tgt.loc[i, "a"] - tgt.loc[i, "f"]) / scale_t
+                y_true = _label_z(z_true, float(args.eq_factor))
 
                 # Learn top correlated sources on history only.
                 corrs: list[tuple[str, float]] = []
@@ -294,8 +378,14 @@ def main() -> int:
                     src_hist = src[src["dt_utc"] < ref_dt].copy()
                     if len(src_hist) < 12:
                         continue
-                    pair = _pair_source_to_target(src_hist, hist, lookback_days=int(args.lookback_days), kind="forecast")
-                    c = _corr(pair.x, pair.y)
+                    pair = _pair_source_to_target(
+                        src_hist, hist, lookback_days=int(args.lookback_days), kind="forecast"
+                    )
+                    if pair.x.size == 0 or pair.y.size == 0:
+                        continue
+                    xs = pair.x / float(scales_f.get(s, 1.0))
+                    ys = pair.y / float(scales_f.get(m, 1.0))
+                    c = _corr(xs, ys)
                     if abs(c) >= 0.12:
                         corrs.append((s, c))
                 corrs.sort(key=lambda x: -abs(x[1]))
@@ -312,19 +402,21 @@ def main() -> int:
                     dd = (src_recent["a"] - src_recent["f"]).dropna().to_numpy(dtype="float64")
                     if dd.size == 0:
                         continue
-                    ss = float(dd[-1])
+                    ss = float(dd[-1]) / float(scales_f.get(s, 1.0))
                     score += c * ss
                     wsum += abs(c)
 
                 if wsum > 0:
-                    pred = _label(score / (wsum + 1e-9), eps)
+                    pred = _label_z(score / (wsum + 1e-9), float(args.eq_factor))
                     totals_f.add(pred == y_true)
 
             # vs Previous
             if pd.notna(tgt.loc[i, "a"]) and pd.notna(tgt.loc[i, "p"]):
-                d_hist = (hist_recent["a"] - hist_recent["p"]).dropna().to_numpy(dtype="float64")
-                eps = _eps_from_recent(np.abs(d_hist))
-                y_true = _label(float(tgt.loc[i, "a"] - tgt.loc[i, "p"]), eps)
+                scale_t = float(scales_p.get(m, 1.0))
+                if scale_t <= 0:
+                    scale_t = 1.0
+                z_true = float(tgt.loc[i, "a"] - tgt.loc[i, "p"]) / scale_t
+                y_true = _label_z(z_true, float(args.eq_factor))
 
                 corrs = []
                 for s in sources:
@@ -332,8 +424,14 @@ def main() -> int:
                     src_hist = src[src["dt_utc"] < ref_dt].copy()
                     if len(src_hist) < 12:
                         continue
-                    pair = _pair_source_to_target(src_hist, hist, lookback_days=int(args.lookback_days), kind="prev")
-                    c = _corr(pair.x, pair.y)
+                    pair = _pair_source_to_target(
+                        src_hist, hist, lookback_days=int(args.lookback_days), kind="prev"
+                    )
+                    if pair.x.size == 0 or pair.y.size == 0:
+                        continue
+                    xs = pair.x / float(scales_p.get(s, 1.0))
+                    ys = pair.y / float(scales_p.get(m, 1.0))
+                    c = _corr(xs, ys)
                     if abs(c) >= 0.12:
                         corrs.append((s, c))
                 corrs.sort(key=lambda x: -abs(x[1]))
@@ -349,11 +447,11 @@ def main() -> int:
                     dd = (src_recent["a"] - src_recent["p"]).dropna().to_numpy(dtype="float64")
                     if dd.size == 0:
                         continue
-                    ss = float(dd[-1])
+                    ss = float(dd[-1]) / float(scales_p.get(s, 1.0))
                     score += c * ss
                     wsum += abs(c)
                 if wsum > 0:
-                    pred = _label(score / (wsum + 1e-9), eps)
+                    pred = _label_z(score / (wsum + 1e-9), float(args.eq_factor))
                     totals_p.add(pred == y_true)
 
     print("Relationship-based (walk-forward)")
@@ -364,4 +462,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

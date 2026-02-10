@@ -82,7 +82,7 @@ def parse_event_dt_source_utc8(date_ddmmyyyy: str, time_hhmm: str) -> Optional[d
     return dt.replace(tzinfo=utc8)
 
 
-_NUM_SUFFIX_RE = re.compile(r"^([+-]?\d+(?:\.\d+)?)([kmb])?$", re.IGNORECASE)
+_NUM_SUFFIX_RE = re.compile(r"^([+-]?\d+(?:\.\d+)?)([kmbt])?$", re.IGNORECASE)
 
 
 def parse_number(raw: str) -> Optional[float]:
@@ -104,6 +104,8 @@ def parse_number(raw: str) -> Optional[float]:
         return base * 1_000_000.0
     if suf == "b":
         return base * 1_000_000_000.0
+    if suf == "t":
+        return base * 1_000_000_000_000.0
     return base
 
 

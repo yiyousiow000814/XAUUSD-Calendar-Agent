@@ -1,0 +1,5514 @@
+{
+  "schema": 1,
+  "generated_at_utc": "2026-02-10T10:38:31.157172+00:00",
+  "meta": {
+    "currency": "USD",
+    "importance": [
+      "Medium",
+      "High"
+    ],
+    "eq_factor": 0.1,
+    "min_metric_points": 60,
+    "relationships": {
+      "kind": "actual_vs_previous",
+      "source_kinds": [
+        "ap",
+        "af"
+      ],
+      "min_metric_points": 24,
+      "min_test_samples": 20,
+      "min_shown_samples": 8,
+      "target_min_acc": 0.7,
+      "target_min_cov": 0.15,
+      "lookback_days": 90,
+      "recent_days": 180,
+      "topk": 10,
+      "min_abs_corr": 0.08,
+      "min_pairs": 12
+    }
+  },
+  "classes": [
+    "=",
+    ">",
+    "<"
+  ],
+  "models": {
+    "ap_with_forecast": {
+      "task": "actual_vs_previous",
+      "requires_forecast": true,
+      "features": [
+        "bias",
+        "z_fp",
+        "z_ap_1",
+        "z_ap_3",
+        "z_ap_6",
+        "z_a_level",
+        "z_a_slope6",
+        "z_af_1"
+      ],
+      "weights": [
+        [
+          -0.7746626164191209,
+          0.39284007360745427,
+          0.38182254281166744
+        ],
+        [
+          0.025982896779554288,
+          0.4027590461717495,
+          -0.4287419429513029
+        ],
+        [
+          0.004248802320305486,
+          0.00839246458700414,
+          -0.012641266907309592
+        ],
+        [
+          0.010753773218972702,
+          -0.03318954552024722,
+          0.02243577230127457
+        ],
+        [
+          -0.00892400835946538,
+          0.006417786841777805,
+          0.002506221517687557
+        ],
+        [
+          0.0049818892598618245,
+          -0.02098363259904692,
+          0.016001743339185096
+        ],
+        [
+          -0.0036197048289698212,
+          0.008219191016878246,
+          -0.004599486187908452
+        ],
+        [
+          -0.006004748205680898,
+          -0.02366396663872897,
+          0.029668714844409916
+        ]
+      ],
+      "recommended_threshold": 0.1,
+      "eval": {
+        "acc": 0.6869446343130554,
+        "n": 2926,
+        "confidence": "maxp*(maxp-second)",
+        "thresholds": [
+          {
+            "th": 0.1,
+            "acc": 0.7819253438113949,
+            "n": 2036,
+            "coverage": 0.6958304853041695
+          },
+          {
+            "th": 0.15,
+            "acc": 0.8054626532887402,
+            "n": 1794,
+            "coverage": 0.6131237183868763
+          },
+          {
+            "th": 0.2,
+            "acc": 0.8329065300896287,
+            "n": 1562,
+            "coverage": 0.5338345864661654
+          },
+          {
+            "th": 0.25,
+            "acc": 0.8609539207760711,
+            "n": 1237,
+            "coverage": 0.42276144907723856
+          },
+          {
+            "th": 0.3,
+            "acc": 0.8733826247689463,
+            "n": 1082,
+            "coverage": 0.3697881066302119
+          },
+          {
+            "th": 0.35,
+            "acc": 0.8833333333333333,
+            "n": 960,
+            "coverage": 0.32809295967190705
+          },
+          {
+            "th": 0.4,
+            "acc": 0.8956109134045077,
+            "n": 843,
+            "coverage": 0.28810663021189337
+          },
+          {
+            "th": 0.45,
+            "acc": 0.9083665338645418,
+            "n": 753,
+            "coverage": 0.2573479152426521
+          },
+          {
+            "th": 0.5,
+            "acc": 0.9199372056514914,
+            "n": 637,
+            "coverage": 0.21770334928229665
+          },
+          {
+            "th": 0.55,
+            "acc": 0.9264705882352942,
+            "n": 544,
+            "coverage": 0.18591934381408065
+          },
+          {
+            "th": 0.6,
+            "acc": 0.9404255319148936,
+            "n": 470,
+            "coverage": 0.16062884483937115
+          }
+        ]
+      }
+    },
+    "ap_no_forecast": {
+      "task": "actual_vs_previous",
+      "requires_forecast": false,
+      "features": [
+        "bias",
+        "z_ap_1",
+        "z_ap_3",
+        "z_ap_6",
+        "z_a_level",
+        "z_a_slope6",
+        "z_hat_ap",
+        "z_hat_da",
+        "gap_days"
+      ],
+      "weights": [
+        [
+          -0.816951343197258,
+          0.5924437914682794,
+          0.22450755172897877
+        ],
+        [
+          -0.06078135607395732,
+          0.08226655140031433,
+          -0.021485195326356912
+        ],
+        [
+          0.05700459784919353,
+          -0.046134199065377975,
+          -0.010870398783815533
+        ],
+        [
+          0.04076687927654396,
+          0.18023149726735826,
+          -0.22099837654390267
+        ],
+        [
+          0.013302341104390908,
+          -0.23398260769194798,
+          0.22068026658755702
+        ],
+        [
+          -0.023171360780945862,
+          0.10724364163779815,
+          -0.08407228085685217
+        ],
+        [
+          -0.08211846006321992,
+          0.14595127034790897,
+          -0.06383281028468901
+        ],
+        [
+          0.04971013576657571,
+          -0.15829486924722289,
+          0.10858473348064715
+        ],
+        [
+          0.0934009435933209,
+          -0.18313771809964913,
+          0.08973677450632944
+        ]
+      ],
+      "recommended_threshold": 0.5,
+      "eval": {
+        "acc": 0.49463327370304117,
+        "n": 2236,
+        "confidence": "maxp*(maxp-second)",
+        "thresholds": [
+          {
+            "th": 0.1,
+            "acc": 0.49789227166276345,
+            "n": 2135,
+            "coverage": 0.9548300536672629
+          },
+          {
+            "th": 0.15,
+            "acc": 0.5084577114427861,
+            "n": 2010,
+            "coverage": 0.8989266547406082
+          },
+          {
+            "th": 0.2,
+            "acc": 0.5208333333333334,
+            "n": 1776,
+            "coverage": 0.7942754919499105
+          },
+          {
+            "th": 0.25,
+            "acc": 0.5488505747126436,
+            "n": 1392,
+            "coverage": 0.6225402504472272
+          },
+          {
+            "th": 0.3,
+            "acc": 0.5820610687022901,
+            "n": 1048,
+            "coverage": 0.46869409660107336
+          },
+          {
+            "th": 0.35,
+            "acc": 0.6031957390146472,
+            "n": 751,
+            "coverage": 0.3358676207513417
+          },
+          {
+            "th": 0.4,
+            "acc": 0.605683836589698,
+            "n": 563,
+            "coverage": 0.25178890876565296
+          },
+          {
+            "th": 0.45,
+            "acc": 0.6130536130536131,
+            "n": 429,
+            "coverage": 0.19186046511627908
+          },
+          {
+            "th": 0.5,
+            "acc": 0.6266233766233766,
+            "n": 308,
+            "coverage": 0.13774597495527727
+          },
+          {
+            "th": 0.55,
+            "acc": 0.6256410256410256,
+            "n": 195,
+            "coverage": 0.0872093023255814
+          },
+          {
+            "th": 0.6,
+            "acc": 0.616,
+            "n": 125,
+            "coverage": 0.05590339892665474
+          }
+        ]
+      },
+      "relationships": {
+        "by_metric": {
+          "ISM Non-Manufacturing PMI": [
+            {
+              "metric": "NY Empire State Manufacturing Index",
+              "kind": "ap",
+              "corr": 0.44558958551769823
+            },
+            {
+              "metric": "NY Empire State Manufacturing Index",
+              "kind": "af",
+              "corr": 0.44468720618494806
+            },
+            {
+              "metric": "Philadelphia Fed Manufacturing Index",
+              "kind": "ap",
+              "corr": 0.43468335142320536
+            },
+            {
+              "metric": "ISM Manufacturing PMI",
+              "kind": "ap",
+              "corr": 0.40466945493692646
+            },
+            {
+              "metric": "Chicago PMI",
+              "kind": "ap",
+              "corr": 0.3737428946773658
+            },
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": 0.3683441665192949
+            },
+            {
+              "metric": "PCE price index (MoM)",
+              "kind": "ap",
+              "corr": 0.364771016896175
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.36132239283633966
+            },
+            {
+              "metric": "Philadelphia Fed Manufacturing Index",
+              "kind": "af",
+              "corr": 0.348949452847282
+            },
+            {
+              "metric": "US Leading Index (MoM)",
+              "kind": "ap",
+              "corr": 0.3470969282254974
+            }
+          ],
+          "ISM Non-Manufacturing Prices": [
+            {
+              "metric": "CFTC Nasdaq 100 speculative net positions",
+              "kind": "ap",
+              "corr": -0.5564049073272543
+            },
+            {
+              "metric": "20-Year Bond Auction",
+              "kind": "ap",
+              "corr": 0.28058934578923556
+            },
+            {
+              "metric": "ISM Manufacturing Prices",
+              "kind": "af",
+              "corr": 0.2786857822722865
+            },
+            {
+              "metric": "ISM Manufacturing Prices",
+              "kind": "ap",
+              "corr": 0.24545452070077645
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "ap",
+              "corr": 0.23533977783189441
+            },
+            {
+              "metric": "TIC Net Long-Term Transactions",
+              "kind": "af",
+              "corr": 0.2137915549314048
+            },
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "af",
+              "corr": 0.21306411299234726
+            },
+            {
+              "metric": "30-Year Bond Auction",
+              "kind": "ap",
+              "corr": 0.21144424201055448
+            },
+            {
+              "metric": "5-Year TIPS Auction",
+              "kind": "ap",
+              "corr": -0.19416248495090874
+            },
+            {
+              "metric": "NY Empire State Manufacturing Index",
+              "kind": "af",
+              "corr": 0.17423572219171116
+            }
+          ],
+          "Initial Jobless Claims": [
+            {
+              "metric": "Fed's Balance Sheet",
+              "kind": "ap",
+              "corr": 0.41670484326885815
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "ap",
+              "corr": -0.25919768838857454
+            },
+            {
+              "metric": "3-Year Note Auction",
+              "kind": "ap",
+              "corr": -0.17679691202536807
+            },
+            {
+              "metric": "30-Year Bond Auction",
+              "kind": "ap",
+              "corr": -0.165516859619808
+            },
+            {
+              "metric": "Participation Rate",
+              "kind": "ap",
+              "corr": 0.1488062840731317
+            },
+            {
+              "metric": "Seevol Cushing Storage Report",
+              "kind": "ap",
+              "corr": 0.14802256662452085
+            },
+            {
+              "metric": "Fed Interest Rate Decision",
+              "kind": "ap",
+              "corr": -0.14788408469772438
+            },
+            {
+              "metric": "Industrial Production (YoY)",
+              "kind": "ap",
+              "corr": 0.14590640755157336
+            },
+            {
+              "metric": "2-Year Note Auction",
+              "kind": "ap",
+              "corr": -0.1447583756480891
+            },
+            {
+              "metric": "Industrial Production (MoM)",
+              "kind": "ap",
+              "corr": 0.14261600324656684
+            }
+          ],
+          "JOLTS Job Openings": [
+            {
+              "metric": "PCE Price index (YoY)",
+              "kind": "ap",
+              "corr": 0.5788125939570448
+            },
+            {
+              "metric": "Industrial Production (YoY)",
+              "kind": "ap",
+              "corr": 0.5064182934718586
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "ap",
+              "corr": 0.43046668916851294
+            },
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "af",
+              "corr": 0.3697051342702313
+            },
+            {
+              "metric": "Exports",
+              "kind": "ap",
+              "corr": 0.3531482835354693
+            },
+            {
+              "metric": "Core CPI (YoY)",
+              "kind": "ap",
+              "corr": 0.34011323553473655
+            },
+            {
+              "metric": "Core CPI (YoY)",
+              "kind": "af",
+              "corr": 0.3378225427063982
+            },
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "af",
+              "corr": 0.33470814929639453
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "af",
+              "corr": -0.33023524744414784
+            },
+            {
+              "metric": "Michigan 5-Year Inflation Expectations",
+              "kind": "af",
+              "corr": -0.32944863943464314
+            }
+          ],
+          "New Home Sales": [
+            {
+              "metric": "20-Year Bond Auction",
+              "kind": "ap",
+              "corr": -0.3226277553597391
+            },
+            {
+              "metric": "Retail Sales (MoM)",
+              "kind": "af",
+              "corr": 0.2882946189119541
+            },
+            {
+              "metric": "CFTC Nasdaq 100 speculative net positions",
+              "kind": "ap",
+              "corr": -0.2522087717407348
+            },
+            {
+              "metric": "Goods Trade Balance",
+              "kind": "af",
+              "corr": 0.2520933159183224
+            },
+            {
+              "metric": "Building Permits",
+              "kind": "ap",
+              "corr": 0.23895987670090665
+            },
+            {
+              "metric": "Retail Sales (MoM)",
+              "kind": "ap",
+              "corr": 0.23127300590959737
+            },
+            {
+              "metric": "Core Retail Sales (MoM)",
+              "kind": "af",
+              "corr": 0.22258600407662132
+            },
+            {
+              "metric": "Existing Home Sales",
+              "kind": "ap",
+              "corr": 0.21017004345823725
+            },
+            {
+              "metric": "Core Retail Sales (MoM)",
+              "kind": "ap",
+              "corr": 0.20985136577205182
+            },
+            {
+              "metric": "New Home Sales (MoM)",
+              "kind": "af",
+              "corr": -0.20606357331495959
+            }
+          ],
+          "Philadelphia Fed Manufacturing Index": [
+            {
+              "metric": "Exports",
+              "kind": "ap",
+              "corr": -0.5115985825272118
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.45417783898222785
+            },
+            {
+              "metric": "Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.42110639522325344
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "af",
+              "corr": 0.3970837349058825
+            },
+            {
+              "metric": "Unemployment Rate",
+              "kind": "af",
+              "corr": -0.38826572799717557
+            },
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "af",
+              "corr": -0.3660028298530321
+            },
+            {
+              "metric": "Michigan 1-Year Inflation Expectations",
+              "kind": "af",
+              "corr": 0.35983607051782973
+            },
+            {
+              "metric": "PCE Price index (YoY)",
+              "kind": "ap",
+              "corr": -0.35022515142832344
+            },
+            {
+              "metric": "NY Empire State Manufacturing Index",
+              "kind": "ap",
+              "corr": 0.34865284716145883
+            },
+            {
+              "metric": "Core Durable Goods Orders (MoM)",
+              "kind": "af",
+              "corr": 0.3279605765425621
+            }
+          ],
+          "Retail Sales (MoM)": [
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "af",
+              "corr": -0.8670157623659698
+            },
+            {
+              "metric": "Core Retail Sales (MoM)",
+              "kind": "af",
+              "corr": -0.8244007325363943
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "af",
+              "corr": 0.7447434791032052
+            },
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "ap",
+              "corr": -0.6951863311817416
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "ap",
+              "corr": 0.6811616102917721
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.6781053711789053
+            },
+            {
+              "metric": "Nonfarm Payrolls",
+              "kind": "ap",
+              "corr": 0.6724454001023653
+            },
+            {
+              "metric": "Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.6706563618929904
+            },
+            {
+              "metric": "Average Hourly Earnings (MoM)",
+              "kind": "ap",
+              "corr": -0.6611780963962419
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "ap",
+              "corr": -0.6377452858959957
+            }
+          ],
+          "Housing Starts": [
+            {
+              "metric": "Housing Starts (MoM)",
+              "kind": "af",
+              "corr": -0.609073109463059
+            },
+            {
+              "metric": "Seevol Cushing Storage Report",
+              "kind": "ap",
+              "corr": 0.44645375211568866
+            },
+            {
+              "metric": "PCE price index (MoM)",
+              "kind": "ap",
+              "corr": 0.4187044259714372
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "af",
+              "corr": -0.40650524103495456
+            },
+            {
+              "metric": "U6 Unemployment Rate",
+              "kind": "ap",
+              "corr": -0.36143162026554065
+            },
+            {
+              "metric": "Unemployment Rate",
+              "kind": "ap",
+              "corr": -0.3462074747944108
+            },
+            {
+              "metric": "Initial Jobless Claims",
+              "kind": "af",
+              "corr": -0.333062538284055
+            },
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": 0.325265533578833
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "ap",
+              "corr": -0.31833385863154445
+            },
+            {
+              "metric": "Participation Rate",
+              "kind": "ap",
+              "corr": 0.31576540479570003
+            }
+          ],
+          "Housing Starts (MoM)": [
+            {
+              "metric": "Housing Starts",
+              "kind": "af",
+              "corr": -0.7549245900145554
+            },
+            {
+              "metric": "Housing Starts",
+              "kind": "ap",
+              "corr": -0.7255136879320189
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "af",
+              "corr": -0.2995767346500372
+            },
+            {
+              "metric": "Exports",
+              "kind": "ap",
+              "corr": -0.2883169218818278
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "af",
+              "corr": 0.2694845129889252
+            },
+            {
+              "metric": "Michigan 1-Year Inflation Expectations",
+              "kind": "af",
+              "corr": 0.2646166644362756
+            },
+            {
+              "metric": "Durable Goods Orders (MoM)",
+              "kind": "af",
+              "corr": -0.23332288860674705
+            },
+            {
+              "metric": "Imports",
+              "kind": "ap",
+              "corr": -0.22106339897029686
+            },
+            {
+              "metric": "CFTC Nasdaq 100 speculative net positions",
+              "kind": "ap",
+              "corr": 0.21996394680843903
+            },
+            {
+              "metric": "Retail Sales (MoM)",
+              "kind": "ap",
+              "corr": 0.21279594043851338
+            }
+          ],
+          "ISM Manufacturing Employment": [
+            {
+              "metric": "CFTC Nasdaq 100 speculative net positions",
+              "kind": "ap",
+              "corr": 0.5923431978782747
+            },
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": 0.4485011419484999
+            },
+            {
+              "metric": "Philadelphia Fed Manufacturing Index",
+              "kind": "ap",
+              "corr": 0.3881445054331073
+            },
+            {
+              "metric": "US Leading Index (MoM)",
+              "kind": "ap",
+              "corr": 0.35170663123499346
+            },
+            {
+              "metric": "Michigan Consumer Sentiment",
+              "kind": "ap",
+              "corr": 0.34802817838599587
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.33184508916536043
+            },
+            {
+              "metric": "Unemployment Rate",
+              "kind": "af",
+              "corr": -0.32694227654427227
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "ap",
+              "corr": -0.3261403208838581
+            },
+            {
+              "metric": "Philadelphia Fed Manufacturing Index",
+              "kind": "af",
+              "corr": 0.3055111705536164
+            },
+            {
+              "metric": "Housing Starts (MoM)",
+              "kind": "af",
+              "corr": -0.303693715609685
+            }
+          ],
+          "ISM Non-Manufacturing Employment": [
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": 0.5042881173885521
+            },
+            {
+              "metric": "Philadelphia Fed Manufacturing Index",
+              "kind": "ap",
+              "corr": 0.4390480128067596
+            },
+            {
+              "metric": "Philadelphia Fed Manufacturing Index",
+              "kind": "af",
+              "corr": 0.3771339004763744
+            },
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "af",
+              "corr": 0.36065575409181294
+            },
+            {
+              "metric": "ISM Manufacturing Employment",
+              "kind": "ap",
+              "corr": 0.34945536162203844
+            },
+            {
+              "metric": "US Leading Index (MoM)",
+              "kind": "ap",
+              "corr": 0.336916108655781
+            },
+            {
+              "metric": "10-Year TIPS Auction",
+              "kind": "ap",
+              "corr": -0.3127552042850811
+            },
+            {
+              "metric": "NY Empire State Manufacturing Index",
+              "kind": "ap",
+              "corr": 0.3095097588480698
+            },
+            {
+              "metric": "NY Empire State Manufacturing Index",
+              "kind": "af",
+              "corr": 0.30931591437973616
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "ap",
+              "corr": -0.29249284292163874
+            }
+          ],
+          "Import Price Index (MoM)": [
+            {
+              "metric": "Export Price Index (MoM)",
+              "kind": "af",
+              "corr": -0.5345721507011518
+            },
+            {
+              "metric": "Exports",
+              "kind": "ap",
+              "corr": -0.5042442090238964
+            },
+            {
+              "metric": "Imports",
+              "kind": "ap",
+              "corr": -0.48309620714491874
+            },
+            {
+              "metric": "CFTC S&P 500 speculative net positions",
+              "kind": "ap",
+              "corr": 0.4023053517832124
+            },
+            {
+              "metric": "PCE Price index (YoY)",
+              "kind": "ap",
+              "corr": -0.3895291588582465
+            },
+            {
+              "metric": "Michigan 1-Year Inflation Expectations",
+              "kind": "af",
+              "corr": 0.38655040473369995
+            },
+            {
+              "metric": "ISM Non-Manufacturing Prices",
+              "kind": "ap",
+              "corr": 0.37050470342421543
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.35942752723682375
+            },
+            {
+              "metric": "PCE price index (MoM)",
+              "kind": "ap",
+              "corr": -0.3010660070934366
+            },
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "af",
+              "corr": -0.296711041555195
+            }
+          ],
+          "Industrial Production (MoM)": [
+            {
+              "metric": "Nonfarm Payrolls",
+              "kind": "ap",
+              "corr": 0.7163726614557173
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "ap",
+              "corr": 0.7142142653877704
+            },
+            {
+              "metric": "Retail Sales (MoM)",
+              "kind": "ap",
+              "corr": 0.6993879262679091
+            },
+            {
+              "metric": "Core Retail Sales (MoM)",
+              "kind": "ap",
+              "corr": 0.6924300029804722
+            },
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "ap",
+              "corr": 0.6715165818960083
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.6661154459247303
+            },
+            {
+              "metric": "Retail Sales (MoM)",
+              "kind": "af",
+              "corr": 0.6533253344177611
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "ap",
+              "corr": 0.6468082747523608
+            },
+            {
+              "metric": "Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.6385761137887686
+            },
+            {
+              "metric": "Average Hourly Earnings (MoM)",
+              "kind": "ap",
+              "corr": -0.6245463302963059
+            }
+          ],
+          "Michigan 1-Year Inflation Expectations": [
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "af",
+              "corr": 0.4604031614474244
+            },
+            {
+              "metric": "Seevol Cushing Storage Report",
+              "kind": "ap",
+              "corr": -0.3340536520276559
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "af",
+              "corr": -0.3067069535665892
+            },
+            {
+              "metric": "Unemployment Rate",
+              "kind": "ap",
+              "corr": 0.276399820098005
+            },
+            {
+              "metric": "Participation Rate",
+              "kind": "ap",
+              "corr": -0.25834602795131373
+            },
+            {
+              "metric": "U6 Unemployment Rate",
+              "kind": "ap",
+              "corr": 0.2557586758614475
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "ap",
+              "corr": -0.25076937986106573
+            },
+            {
+              "metric": "Average Hourly Earnings (MoM)",
+              "kind": "af",
+              "corr": 0.24997969183693639
+            },
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "af",
+              "corr": -0.2426869879878154
+            },
+            {
+              "metric": "Nonfarm Payrolls",
+              "kind": "ap",
+              "corr": -0.21878221550807095
+            }
+          ],
+          "Michigan 5-Year Inflation Expectations": [
+            {
+              "metric": "Michigan 1-Year Inflation Expectations",
+              "kind": "af",
+              "corr": -0.2845385475740849
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "af",
+              "corr": 0.20583994813776155
+            },
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": -0.18192793684488895
+            },
+            {
+              "metric": "API Weekly Crude Oil Stock",
+              "kind": "ap",
+              "corr": 0.17968952715602327
+            },
+            {
+              "metric": "Michigan Consumer Sentiment",
+              "kind": "ap",
+              "corr": -0.1562120505085698
+            },
+            {
+              "metric": "Average Hourly Earnings (MoM)",
+              "kind": "ap",
+              "corr": 0.15381778802025894
+            },
+            {
+              "metric": "Retail Sales (MoM)",
+              "kind": "ap",
+              "corr": -0.15362065486526125
+            },
+            {
+              "metric": "Imports",
+              "kind": "ap",
+              "corr": 0.1474459504201349
+            },
+            {
+              "metric": "Export Price Index (MoM)",
+              "kind": "af",
+              "corr": -0.14423733906269706
+            },
+            {
+              "metric": "ISM Non-Manufacturing PMI",
+              "kind": "af",
+              "corr": 0.14321054585186696
+            }
+          ],
+          "Michigan Consumer Expectations": [
+            {
+              "metric": "Michigan 1-Year Inflation Expectations",
+              "kind": "af",
+              "corr": 0.2587085219373277
+            },
+            {
+              "metric": "2-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.24381484538668785
+            },
+            {
+              "metric": "CB Consumer Confidence",
+              "kind": "ap",
+              "corr": 0.22966374198274278
+            },
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": 0.21998539494876254
+            },
+            {
+              "metric": "Fed's Balance Sheet",
+              "kind": "ap",
+              "corr": -0.20612642749312193
+            },
+            {
+              "metric": "ISM Manufacturing Employment",
+              "kind": "af",
+              "corr": 0.20341295359114664
+            },
+            {
+              "metric": "Initial Jobless Claims",
+              "kind": "af",
+              "corr": -0.2011877986261772
+            },
+            {
+              "metric": "Seevol Cushing Storage Report",
+              "kind": "ap",
+              "corr": 0.1890318019266975
+            },
+            {
+              "metric": "CFTC S&P 500 speculative net positions",
+              "kind": "ap",
+              "corr": 0.1870042278142193
+            },
+            {
+              "metric": "3-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.18317216675999307
+            }
+          ],
+          "Michigan Consumer Sentiment": [
+            {
+              "metric": "CFTC Nasdaq 100 speculative net positions",
+              "kind": "ap",
+              "corr": -0.3739360303899461
+            },
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": 0.3537141680410228
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "ap",
+              "corr": -0.3160356930194689
+            },
+            {
+              "metric": "Michigan 1-Year Inflation Expectations",
+              "kind": "af",
+              "corr": 0.29242052206729685
+            },
+            {
+              "metric": "2-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.2876918476042451
+            },
+            {
+              "metric": "Michigan Consumer Expectations",
+              "kind": "af",
+              "corr": 0.28207493064695516
+            },
+            {
+              "metric": "Fed's Balance Sheet",
+              "kind": "ap",
+              "corr": -0.2595246820350453
+            },
+            {
+              "metric": "CFTC S&P 500 speculative net positions",
+              "kind": "ap",
+              "corr": 0.23949342722789838
+            },
+            {
+              "metric": "10-Year TIPS Auction",
+              "kind": "ap",
+              "corr": -0.23512563134395598
+            },
+            {
+              "metric": "Philadelphia Fed Manufacturing Index",
+              "kind": "ap",
+              "corr": 0.22488724297564797
+            }
+          ],
+          "NY Empire State Manufacturing Index": [
+            {
+              "metric": "Michigan 1-Year Inflation Expectations",
+              "kind": "af",
+              "corr": 0.44165880135953045
+            },
+            {
+              "metric": "Seevol Cushing Storage Report",
+              "kind": "ap",
+              "corr": -0.42377808211930146
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.37932427972068167
+            },
+            {
+              "metric": "Michigan Consumer Expectations",
+              "kind": "af",
+              "corr": 0.3781167418269698
+            },
+            {
+              "metric": "Imports",
+              "kind": "ap",
+              "corr": -0.37732646130624986
+            },
+            {
+              "metric": "Unemployment Rate",
+              "kind": "af",
+              "corr": -0.36578741232003587
+            },
+            {
+              "metric": "Exports",
+              "kind": "ap",
+              "corr": -0.3475215876699146
+            },
+            {
+              "metric": "Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.33824838440235966
+            },
+            {
+              "metric": "PCE Price index (YoY)",
+              "kind": "ap",
+              "corr": -0.3289893182871602
+            },
+            {
+              "metric": "Personal Spending (MoM)",
+              "kind": "af",
+              "corr": -0.3185618971904533
+            }
+          ],
+          "New Home Sales (MoM)": [
+            {
+              "metric": "New Home Sales",
+              "kind": "ap",
+              "corr": -0.6245528985020874
+            },
+            {
+              "metric": "New Home Sales",
+              "kind": "af",
+              "corr": -0.5387960870955505
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "ap",
+              "corr": -0.2646857645657656
+            },
+            {
+              "metric": "PCE price index (MoM)",
+              "kind": "ap",
+              "corr": -0.264379119127624
+            },
+            {
+              "metric": "Imports",
+              "kind": "ap",
+              "corr": -0.26392154598109846
+            },
+            {
+              "metric": "PCE Price index (YoY)",
+              "kind": "ap",
+              "corr": -0.2637787202370867
+            },
+            {
+              "metric": "20-Year Bond Auction",
+              "kind": "ap",
+              "corr": -0.24079302990465043
+            },
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "af",
+              "corr": -0.23346897595974422
+            },
+            {
+              "metric": "US Leading Index (MoM)",
+              "kind": "ap",
+              "corr": 0.2270852428129349
+            },
+            {
+              "metric": "ISM Non-Manufacturing PMI",
+              "kind": "af",
+              "corr": 0.21276922698951198
+            }
+          ],
+          "Pending Home Sales (MoM)": [
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.6186792158533224
+            },
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "af",
+              "corr": -0.6048206478122692
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "af",
+              "corr": 0.5881737661098652
+            },
+            {
+              "metric": "Exports",
+              "kind": "ap",
+              "corr": -0.5850744553118943
+            },
+            {
+              "metric": "US Leading Index (MoM)",
+              "kind": "ap",
+              "corr": 0.5843676208570087
+            },
+            {
+              "metric": "Retail Sales (MoM)",
+              "kind": "ap",
+              "corr": 0.5818206572564564
+            },
+            {
+              "metric": "Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.5391869630373256
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "ap",
+              "corr": 0.5390435633690943
+            },
+            {
+              "metric": "Unemployment Rate",
+              "kind": "af",
+              "corr": -0.5050160669653524
+            },
+            {
+              "metric": "Core Retail Sales (MoM)",
+              "kind": "ap",
+              "corr": 0.48992292471626425
+            }
+          ],
+          "Personal Spending (MoM)": [
+            {
+              "metric": "Retail Sales (MoM)",
+              "kind": "ap",
+              "corr": 0.9480350181410735
+            },
+            {
+              "metric": "Core Retail Sales (MoM)",
+              "kind": "ap",
+              "corr": 0.9255150695494376
+            },
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "ap",
+              "corr": 0.8280735391216846
+            },
+            {
+              "metric": "Retail Sales (MoM)",
+              "kind": "af",
+              "corr": 0.8105043878708934
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "af",
+              "corr": 0.8015199961164735
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "ap",
+              "corr": 0.7907952356337656
+            },
+            {
+              "metric": "Nonfarm Payrolls",
+              "kind": "ap",
+              "corr": 0.7834505805822811
+            },
+            {
+              "metric": "Industrial Production (MoM)",
+              "kind": "ap",
+              "corr": 0.7658731881900916
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.7499078740619769
+            },
+            {
+              "metric": "Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.7454397234507547
+            }
+          ],
+          "Philly Fed Employment": [
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "ap",
+              "corr": -0.3780350528484159
+            },
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "af",
+              "corr": -0.3400944593056114
+            },
+            {
+              "metric": "Michigan Consumer Sentiment",
+              "kind": "ap",
+              "corr": 0.31660237554948023
+            },
+            {
+              "metric": "NY Empire State Manufacturing Index",
+              "kind": "ap",
+              "corr": 0.3048761187823946
+            },
+            {
+              "metric": "Personal Spending (MoM)",
+              "kind": "af",
+              "corr": -0.30037102331784954
+            },
+            {
+              "metric": "NY Empire State Manufacturing Index",
+              "kind": "af",
+              "corr": 0.3003365849495828
+            },
+            {
+              "metric": "Initial Jobless Claims",
+              "kind": "af",
+              "corr": -0.29381605639662767
+            },
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": 0.26517634976296944
+            },
+            {
+              "metric": "Retail Sales (MoM)",
+              "kind": "ap",
+              "corr": 0.24985839493442216
+            },
+            {
+              "metric": "Unemployment Rate",
+              "kind": "af",
+              "corr": -0.24948238035703582
+            }
+          ],
+          "Private Nonfarm Payrolls": [
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "ap",
+              "corr": 0.9752857693891929
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "af",
+              "corr": 0.7697767265799424
+            },
+            {
+              "metric": "Unemployment Rate",
+              "kind": "ap",
+              "corr": 0.6758736381960293
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "af",
+              "corr": 0.6555936763972361
+            },
+            {
+              "metric": "U6 Unemployment Rate",
+              "kind": "ap",
+              "corr": 0.6509330629949324
+            },
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "af",
+              "corr": -0.6339474157115831
+            },
+            {
+              "metric": "Average Hourly Earnings (MoM)",
+              "kind": "af",
+              "corr": 0.5919740870140474
+            },
+            {
+              "metric": "US Leading Index (MoM)",
+              "kind": "ap",
+              "corr": 0.5123983958574425
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "ap",
+              "corr": 0.5072534767595241
+            },
+            {
+              "metric": "Participation Rate",
+              "kind": "ap",
+              "corr": -0.49640844943721385
+            }
+          ],
+          "Retail Control (MoM)": [
+            {
+              "metric": "Core Retail Sales (MoM)",
+              "kind": "af",
+              "corr": -0.7594282901795479
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "ap",
+              "corr": 0.7369341872046724
+            },
+            {
+              "metric": "Nonfarm Payrolls",
+              "kind": "ap",
+              "corr": 0.7366794845754779
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "ap",
+              "corr": 0.7292346132378441
+            },
+            {
+              "metric": "Average Hourly Earnings (MoM)",
+              "kind": "ap",
+              "corr": -0.6888407121677076
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "af",
+              "corr": -0.6113604220653449
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "af",
+              "corr": 0.5965028880238045
+            },
+            {
+              "metric": "Average Hourly Earnings (MoM)",
+              "kind": "af",
+              "corr": -0.5923379615504729
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "af",
+              "corr": 0.5881181573451668
+            },
+            {
+              "metric": "Retail Sales (MoM)",
+              "kind": "af",
+              "corr": -0.5682069413921121
+            }
+          ],
+          "S&P/CS HPI Composite - 20 n.s.a. (MoM)": [
+            {
+              "metric": "Seevol Cushing Storage Report",
+              "kind": "ap",
+              "corr": -0.3737757551610835
+            },
+            {
+              "metric": "Imports",
+              "kind": "ap",
+              "corr": 0.307245929478821
+            },
+            {
+              "metric": "Participation Rate",
+              "kind": "ap",
+              "corr": -0.2705333919210017
+            },
+            {
+              "metric": "CFTC Nasdaq 100 speculative net positions",
+              "kind": "ap",
+              "corr": -0.2689716035405378
+            },
+            {
+              "metric": "20-Year Bond Auction",
+              "kind": "ap",
+              "corr": 0.2626196823607411
+            },
+            {
+              "metric": "Michigan 1-Year Inflation Expectations",
+              "kind": "af",
+              "corr": -0.2576676152363057
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "af",
+              "corr": 0.25030921810065626
+            },
+            {
+              "metric": "Michigan 1-Year Inflation Expectations",
+              "kind": "ap",
+              "corr": 0.24364366288582173
+            },
+            {
+              "metric": "30-Year TIPS Auction",
+              "kind": "ap",
+              "corr": -0.23051048336135072
+            },
+            {
+              "metric": "PCE Price index (YoY)",
+              "kind": "ap",
+              "corr": 0.2145107862674884
+            }
+          ],
+          "S&P/CS HPI Composite - 20 n.s.a. (YoY)": [
+            {
+              "metric": "Seevol Cushing Storage Report",
+              "kind": "ap",
+              "corr": 0.4629565623308876
+            },
+            {
+              "metric": "Core PCE Prices",
+              "kind": "ap",
+              "corr": 0.35870204596691163
+            },
+            {
+              "metric": "Export Price Index (MoM)",
+              "kind": "af",
+              "corr": 0.31726309578180495
+            },
+            {
+              "metric": "Goods Trade Balance",
+              "kind": "af",
+              "corr": -0.31123686702135733
+            },
+            {
+              "metric": "S&P/CS HPI Composite - 20 n.s.a. (MoM)",
+              "kind": "af",
+              "corr": 0.2652526444824197
+            },
+            {
+              "metric": "JOLTS Job Openings",
+              "kind": "af",
+              "corr": 0.24919643326005939
+            },
+            {
+              "metric": "PCE price index (MoM)",
+              "kind": "ap",
+              "corr": -0.24429552732998264
+            },
+            {
+              "metric": "Fed Interest Rate Decision",
+              "kind": "ap",
+              "corr": 0.23975162366000782
+            },
+            {
+              "metric": "Michigan 1-Year Inflation Expectations",
+              "kind": "af",
+              "corr": 0.234509535160179
+            },
+            {
+              "metric": "Core PCE Price Index (MoM)",
+              "kind": "af",
+              "corr": -0.22626556052417185
+            }
+          ],
+          "TIC Net Long-Term Transactions": [
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "ap",
+              "corr": -0.5152841278947552
+            },
+            {
+              "metric": "Industrial Production (YoY)",
+              "kind": "ap",
+              "corr": 0.41541137576458104
+            },
+            {
+              "metric": "Personal Spending (MoM)",
+              "kind": "ap",
+              "corr": 0.37036399889688976
+            },
+            {
+              "metric": "Michigan 1-Year Inflation Expectations",
+              "kind": "af",
+              "corr": -0.3695356287565252
+            },
+            {
+              "metric": "PCE price index (MoM)",
+              "kind": "ap",
+              "corr": 0.3342347133401901
+            },
+            {
+              "metric": "20-Year Bond Auction",
+              "kind": "ap",
+              "corr": -0.32297757533431337
+            },
+            {
+              "metric": "US Leading Index (MoM)",
+              "kind": "ap",
+              "corr": 0.29900927044474684
+            },
+            {
+              "metric": "Participation Rate",
+              "kind": "ap",
+              "corr": 0.2813798724842377
+            },
+            {
+              "metric": "ISM Manufacturing Employment",
+              "kind": "ap",
+              "corr": 0.2732441267124331
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "ap",
+              "corr": 0.2535868077854484
+            }
+          ],
+          "Trade Balance": [
+            {
+              "metric": "Goods Trade Balance",
+              "kind": "ap",
+              "corr": 0.9125238148496267
+            },
+            {
+              "metric": "Goods Trade Balance",
+              "kind": "af",
+              "corr": 0.790784664114594
+            },
+            {
+              "metric": "Core PPI (MoM)",
+              "kind": "ap",
+              "corr": -0.3085020479605707
+            },
+            {
+              "metric": "Imports",
+              "kind": "ap",
+              "corr": 0.29017766499413944
+            },
+            {
+              "metric": "Core PPI (MoM)",
+              "kind": "af",
+              "corr": -0.26423064634289084
+            },
+            {
+              "metric": "PCE price index (MoM)",
+              "kind": "ap",
+              "corr": -0.25511143154079907
+            },
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "af",
+              "corr": -0.2546690091240867
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "af",
+              "corr": -0.2463330576117999
+            },
+            {
+              "metric": "Industrial Production (YoY)",
+              "kind": "ap",
+              "corr": 0.23886151607525719
+            },
+            {
+              "metric": "Retail Inventories Ex Auto",
+              "kind": "ap",
+              "corr": -0.2361073938711419
+            }
+          ],
+          "Federal Budget Balance": [
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "af",
+              "corr": -0.3587512945532607
+            },
+            {
+              "metric": "20-Year Bond Auction",
+              "kind": "ap",
+              "corr": -0.3300811562686406
+            },
+            {
+              "metric": "PCE price index (MoM)",
+              "kind": "ap",
+              "corr": 0.3275037114961506
+            },
+            {
+              "metric": "Core PCE Prices",
+              "kind": "af",
+              "corr": -0.30591120464342497
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "ap",
+              "corr": -0.30211370936231946
+            },
+            {
+              "metric": "PCE Price index (YoY)",
+              "kind": "ap",
+              "corr": 0.29751755014602493
+            },
+            {
+              "metric": "Retail Inventories Ex Auto",
+              "kind": "ap",
+              "corr": 0.29572700654974154
+            },
+            {
+              "metric": "Exports",
+              "kind": "ap",
+              "corr": 0.29184536910794384
+            },
+            {
+              "metric": "Imports",
+              "kind": "ap",
+              "corr": 0.29043004330976174
+            },
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "af",
+              "corr": -0.28554265628208536
+            }
+          ],
+          "Factory Orders (MoM)": [
+            {
+              "metric": "Durable Goods Orders (MoM)",
+              "kind": "ap",
+              "corr": 0.9644310852645813
+            },
+            {
+              "metric": "PCE price index (MoM)",
+              "kind": "ap",
+              "corr": 0.5971840142552083
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "ap",
+              "corr": 0.5511754747405032
+            },
+            {
+              "metric": "US Leading Index (MoM)",
+              "kind": "ap",
+              "corr": 0.5313313456512435
+            },
+            {
+              "metric": "Industrial Production (MoM)",
+              "kind": "ap",
+              "corr": 0.4685720309933345
+            },
+            {
+              "metric": "Personal Spending (MoM)",
+              "kind": "ap",
+              "corr": 0.46853840806205327
+            },
+            {
+              "metric": "Durable Goods Orders (MoM)",
+              "kind": "af",
+              "corr": 0.467494226221172
+            },
+            {
+              "metric": "Retail Sales (MoM)",
+              "kind": "ap",
+              "corr": 0.42548014566977627
+            },
+            {
+              "metric": "Core Retail Sales (MoM)",
+              "kind": "ap",
+              "corr": 0.4222267014051026
+            },
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "af",
+              "corr": 0.4046965657648918
+            }
+          ],
+          "Export Price Index (MoM)": [
+            {
+              "metric": "Imports",
+              "kind": "ap",
+              "corr": -0.4342586406105015
+            },
+            {
+              "metric": "Import Price Index (MoM)",
+              "kind": "af",
+              "corr": -0.3514335335454072
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.34018082281661505
+            },
+            {
+              "metric": "Exports",
+              "kind": "ap",
+              "corr": -0.3291660894007434
+            },
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "af",
+              "corr": -0.3239263980527265
+            },
+            {
+              "metric": "PCE Price index (YoY)",
+              "kind": "ap",
+              "corr": -0.3161940997340401
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "ap",
+              "corr": 0.3096340176916083
+            },
+            {
+              "metric": "Nonfarm Payrolls",
+              "kind": "ap",
+              "corr": 0.30954492264425176
+            },
+            {
+              "metric": "Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.3030838417375825
+            },
+            {
+              "metric": "Participation Rate",
+              "kind": "ap",
+              "corr": 0.28991213858163634
+            }
+          ],
+          "Existing Home Sales (MoM)": [
+            {
+              "metric": "Existing Home Sales",
+              "kind": "af",
+              "corr": -0.6996047806357378
+            },
+            {
+              "metric": "Existing Home Sales",
+              "kind": "ap",
+              "corr": -0.6687002391112746
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "ap",
+              "corr": 0.41880805414985417
+            },
+            {
+              "metric": "Pending Home Sales (MoM)",
+              "kind": "ap",
+              "corr": 0.37045459423953636
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "af",
+              "corr": 0.3497666987672691
+            },
+            {
+              "metric": "US Leading Index (MoM)",
+              "kind": "ap",
+              "corr": 0.3305682265576174
+            },
+            {
+              "metric": "PCE price index (MoM)",
+              "kind": "ap",
+              "corr": 0.2969800636369148
+            },
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": 0.26650160923658844
+            },
+            {
+              "metric": "Personal Spending (MoM)",
+              "kind": "ap",
+              "corr": 0.25327514540871976
+            },
+            {
+              "metric": "ISM Non-Manufacturing PMI",
+              "kind": "ap",
+              "corr": 0.25253746460240145
+            }
+          ],
+          "ISM Manufacturing Prices": [
+            {
+              "metric": "Michigan 1-Year Inflation Expectations",
+              "kind": "af",
+              "corr": 0.3651804798667365
+            },
+            {
+              "metric": "5-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.3209513246176494
+            },
+            {
+              "metric": "Philadelphia Fed Manufacturing Index",
+              "kind": "ap",
+              "corr": 0.32065371085724337
+            },
+            {
+              "metric": "30-Year Bond Auction",
+              "kind": "ap",
+              "corr": 0.31844463149599855
+            },
+            {
+              "metric": "Exports",
+              "kind": "ap",
+              "corr": -0.3128730444058505
+            },
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "af",
+              "corr": -0.28917358661309794
+            },
+            {
+              "metric": "Import Price Index (MoM)",
+              "kind": "ap",
+              "corr": 0.2877157382702107
+            },
+            {
+              "metric": "7-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.2829776034860976
+            },
+            {
+              "metric": "20-Year Bond Auction",
+              "kind": "ap",
+              "corr": 0.2688631482819841
+            },
+            {
+              "metric": "ISM Non-Manufacturing Prices",
+              "kind": "ap",
+              "corr": 0.26842610570775566
+            }
+          ],
+          "5-Year Note Auction": [
+            {
+              "metric": "2-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.7069802288834868
+            },
+            {
+              "metric": "20-Year Bond Auction",
+              "kind": "ap",
+              "corr": 0.6261590564501995
+            },
+            {
+              "metric": "30-Year Bond Auction",
+              "kind": "ap",
+              "corr": 0.43840921394203064
+            },
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": 0.36057856669440286
+            },
+            {
+              "metric": "Export Price Index (MoM)",
+              "kind": "af",
+              "corr": 0.297152509743684
+            },
+            {
+              "metric": "7-Year Note Auction",
+              "kind": "ap",
+              "corr": -0.2970444174185024
+            },
+            {
+              "metric": "10-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.27939681189498694
+            },
+            {
+              "metric": "3-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.2784998556099566
+            },
+            {
+              "metric": "Fed Interest Rate Decision",
+              "kind": "ap",
+              "corr": 0.2526329588194815
+            },
+            {
+              "metric": "Goods Trade Balance",
+              "kind": "af",
+              "corr": -0.25203801119405134
+            }
+          ],
+          "Business Inventories (MoM)": [
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "af",
+              "corr": 0.4045643890025003
+            },
+            {
+              "metric": "Retail Inventories Ex Auto",
+              "kind": "ap",
+              "corr": 0.40451637847208366
+            },
+            {
+              "metric": "Michigan 5-Year Inflation Expectations",
+              "kind": "af",
+              "corr": 0.3535057019341848
+            },
+            {
+              "metric": "Seevol Cushing Storage Report",
+              "kind": "ap",
+              "corr": 0.327347165590546
+            },
+            {
+              "metric": "Chicago PMI",
+              "kind": "ap",
+              "corr": 0.29729794043445673
+            },
+            {
+              "metric": "Chicago PMI",
+              "kind": "af",
+              "corr": 0.29538216623168095
+            },
+            {
+              "metric": "Imports",
+              "kind": "ap",
+              "corr": 0.2865878483039632
+            },
+            {
+              "metric": "Core PCE Prices",
+              "kind": "ap",
+              "corr": -0.2711153871553006
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "af",
+              "corr": -0.2525795753252058
+            },
+            {
+              "metric": "Nonfarm Productivity (QoQ)",
+              "kind": "af",
+              "corr": 0.2312845674544137
+            }
+          ],
+          "Construction Spending (MoM)": [
+            {
+              "metric": "20-Year Bond Auction",
+              "kind": "ap",
+              "corr": -0.4887179998838913
+            },
+            {
+              "metric": "Seevol Cushing Storage Report",
+              "kind": "ap",
+              "corr": -0.47889585487950864
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "ap",
+              "corr": 0.463834760235234
+            },
+            {
+              "metric": "CFTC Nasdaq 100 speculative net positions",
+              "kind": "ap",
+              "corr": -0.44322643054412936
+            },
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "af",
+              "corr": 0.3863420511286895
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "af",
+              "corr": -0.36272293290888896
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "af",
+              "corr": 0.36087978014305355
+            },
+            {
+              "metric": "Average Hourly Earnings (MoM)",
+              "kind": "ap",
+              "corr": -0.300152764333238
+            },
+            {
+              "metric": "Average Hourly Earnings (MoM)",
+              "kind": "af",
+              "corr": -0.29460885869020953
+            },
+            {
+              "metric": "Unemployment Rate",
+              "kind": "ap",
+              "corr": -0.2782200661191858
+            }
+          ],
+          "Consumer Credit": [
+            {
+              "metric": "PCE price index (MoM)",
+              "kind": "ap",
+              "corr": 0.5441881005458855
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "ap",
+              "corr": 0.500770265783531
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "af",
+              "corr": -0.41041477172711943
+            },
+            {
+              "metric": "Average Hourly Earnings (MoM)",
+              "kind": "ap",
+              "corr": 0.38137098836182604
+            },
+            {
+              "metric": "Seevol Cushing Storage Report",
+              "kind": "ap",
+              "corr": 0.37645819302166295
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "ap",
+              "corr": -0.3599550246089184
+            },
+            {
+              "metric": "Retail Sales (MoM)",
+              "kind": "af",
+              "corr": 0.3585771571876156
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "af",
+              "corr": 0.35129437668794433
+            },
+            {
+              "metric": "PCE Price index (YoY)",
+              "kind": "ap",
+              "corr": 0.3457484369237736
+            },
+            {
+              "metric": "Nonfarm Payrolls",
+              "kind": "ap",
+              "corr": -0.3436355310970047
+            }
+          ],
+          "Continuing Jobless Claims": [
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": -0.6385333861715159
+            },
+            {
+              "metric": "Initial Jobless Claims",
+              "kind": "af",
+              "corr": 0.5918413026183194
+            },
+            {
+              "metric": "Housing Starts (MoM)",
+              "kind": "af",
+              "corr": 0.4189274527199171
+            },
+            {
+              "metric": "US Leading Index (MoM)",
+              "kind": "ap",
+              "corr": -0.3827457592818939
+            },
+            {
+              "metric": "Michigan Consumer Sentiment",
+              "kind": "ap",
+              "corr": -0.3637863605905946
+            },
+            {
+              "metric": "Philly Fed Employment",
+              "kind": "ap",
+              "corr": -0.3548463634670269
+            },
+            {
+              "metric": "10-Year TIPS Auction",
+              "kind": "ap",
+              "corr": 0.35228393666039914
+            },
+            {
+              "metric": "Philadelphia Fed Manufacturing Index",
+              "kind": "ap",
+              "corr": -0.34551117665542463
+            },
+            {
+              "metric": "NY Empire State Manufacturing Index",
+              "kind": "ap",
+              "corr": -0.3408509725687219
+            },
+            {
+              "metric": "Fed Interest Rate Decision",
+              "kind": "ap",
+              "corr": -0.3205090000265692
+            }
+          ],
+          "ISM Manufacturing PMI": [
+            {
+              "metric": "CFTC Nasdaq 100 speculative net positions",
+              "kind": "ap",
+              "corr": 0.4959430373538146
+            },
+            {
+              "metric": "Philadelphia Fed Manufacturing Index",
+              "kind": "ap",
+              "corr": 0.47195359403583365
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.4477493236415453
+            },
+            {
+              "metric": "Philadelphia Fed Manufacturing Index",
+              "kind": "af",
+              "corr": 0.42056440326217653
+            },
+            {
+              "metric": "Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.41407726345163454
+            },
+            {
+              "metric": "Unemployment Rate",
+              "kind": "af",
+              "corr": -0.4085361937475034
+            },
+            {
+              "metric": "US Leading Index (MoM)",
+              "kind": "ap",
+              "corr": 0.36332371758321547
+            },
+            {
+              "metric": "Consumer Credit",
+              "kind": "af",
+              "corr": -0.33451367178572444
+            },
+            {
+              "metric": "Exports",
+              "kind": "ap",
+              "corr": -0.33086967568592307
+            },
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": 0.31718594962342667
+            }
+          ],
+          "Crude Oil Inventories": [
+            {
+              "metric": "API Weekly Crude Oil Stock",
+              "kind": "ap",
+              "corr": 0.6517677422691845
+            },
+            {
+              "metric": "API Weekly Crude Oil Stock",
+              "kind": "af",
+              "corr": 0.40324267715262035
+            },
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "af",
+              "corr": -0.1333060310445301
+            },
+            {
+              "metric": "Gold Index",
+              "kind": "ap",
+              "corr": 0.08815177499535454
+            }
+          ],
+          "Existing Home Sales": [
+            {
+              "metric": "Pending Home Sales (MoM)",
+              "kind": "af",
+              "corr": 0.43185213415834545
+            },
+            {
+              "metric": "Core PCE Prices",
+              "kind": "af",
+              "corr": -0.4018799520666695
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "af",
+              "corr": 0.3832840886907761
+            },
+            {
+              "metric": "Existing Home Sales (MoM)",
+              "kind": "af",
+              "corr": -0.3810142921904011
+            },
+            {
+              "metric": "PCE price index (MoM)",
+              "kind": "ap",
+              "corr": 0.37203609114757824
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "ap",
+              "corr": 0.36351071520660777
+            },
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": 0.34400768820236766
+            },
+            {
+              "metric": "U6 Unemployment Rate",
+              "kind": "ap",
+              "corr": -0.3273694551060425
+            },
+            {
+              "metric": "Existing Home Sales (MoM)",
+              "kind": "ap",
+              "corr": 0.3105085467457979
+            },
+            {
+              "metric": "Participation Rate",
+              "kind": "ap",
+              "corr": 0.30666498703523404
+            }
+          ],
+          "10-Year Note Auction": [
+            {
+              "metric": "3-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.43083615892373356
+            },
+            {
+              "metric": "2-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.38807833395765673
+            },
+            {
+              "metric": "20-Year Bond Auction",
+              "kind": "ap",
+              "corr": 0.2815669408548035
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "ap",
+              "corr": -0.26316138095447605
+            },
+            {
+              "metric": "7-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.2266328178999486
+            },
+            {
+              "metric": "Philadelphia Fed Manufacturing Index",
+              "kind": "af",
+              "corr": 0.22217409501026358
+            },
+            {
+              "metric": "Imports",
+              "kind": "ap",
+              "corr": 0.20916431281215656
+            },
+            {
+              "metric": "5-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.20909553129182615
+            },
+            {
+              "metric": "Import Price Index (MoM)",
+              "kind": "ap",
+              "corr": -0.20590624172615793
+            },
+            {
+              "metric": "PPI (MoM)",
+              "kind": "ap",
+              "corr": -0.2052820093246526
+            }
+          ],
+          "Average Hourly Earnings (MoM)": [
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "ap",
+              "corr": -0.887529142782632
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "af",
+              "corr": -0.7466109808859075
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "af",
+              "corr": -0.6933008575860915
+            },
+            {
+              "metric": "Unemployment Rate",
+              "kind": "ap",
+              "corr": -0.6641011665422591
+            },
+            {
+              "metric": "U6 Unemployment Rate",
+              "kind": "ap",
+              "corr": -0.6397036543082187
+            },
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "af",
+              "corr": 0.6087811038398557
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "af",
+              "corr": 0.6061689126539146
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "ap",
+              "corr": -0.559121452011503
+            },
+            {
+              "metric": "20-Year Bond Auction",
+              "kind": "ap",
+              "corr": -0.5538977470680165
+            },
+            {
+              "metric": "Participation Rate",
+              "kind": "ap",
+              "corr": 0.48897439586243135
+            }
+          ],
+          "CB Consumer Confidence": [
+            {
+              "metric": "CFTC Nasdaq 100 speculative net positions",
+              "kind": "ap",
+              "corr": 0.4990248960032747
+            },
+            {
+              "metric": "Retail Inventories Ex Auto",
+              "kind": "ap",
+              "corr": 0.44771968359536424
+            },
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": 0.43046991001002916
+            },
+            {
+              "metric": "Michigan Consumer Sentiment",
+              "kind": "ap",
+              "corr": 0.4257295601172159
+            },
+            {
+              "metric": "NY Empire State Manufacturing Index",
+              "kind": "af",
+              "corr": 0.3900909309530061
+            },
+            {
+              "metric": "NY Empire State Manufacturing Index",
+              "kind": "ap",
+              "corr": 0.37381366948782596
+            },
+            {
+              "metric": "Philadelphia Fed Manufacturing Index",
+              "kind": "ap",
+              "corr": 0.34773603719817825
+            },
+            {
+              "metric": "Fed Interest Rate Decision",
+              "kind": "ap",
+              "corr": 0.32082054461826914
+            },
+            {
+              "metric": "Existing Home Sales (MoM)",
+              "kind": "af",
+              "corr": -0.28268287622057486
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "ap",
+              "corr": -0.2797226724766152
+            }
+          ],
+          "Chicago PMI": [
+            {
+              "metric": "Retail Inventories Ex Auto",
+              "kind": "ap",
+              "corr": 0.2981591109158665
+            },
+            {
+              "metric": "Core PCE Prices",
+              "kind": "af",
+              "corr": -0.28261859414229706
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "ap",
+              "corr": -0.2504978026186362
+            },
+            {
+              "metric": "Industrial Production (YoY)",
+              "kind": "ap",
+              "corr": 0.24789562616937794
+            },
+            {
+              "metric": "CFTC Nasdaq 100 speculative net positions",
+              "kind": "ap",
+              "corr": 0.24767433658936697
+            },
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": 0.24362726696787929
+            },
+            {
+              "metric": "CB Consumer Confidence",
+              "kind": "ap",
+              "corr": 0.2412082892663705
+            },
+            {
+              "metric": "20-Year Bond Auction",
+              "kind": "ap",
+              "corr": -0.2400188842679084
+            },
+            {
+              "metric": "ISM Manufacturing PMI",
+              "kind": "ap",
+              "corr": 0.23895370998911836
+            },
+            {
+              "metric": "Existing Home Sales (MoM)",
+              "kind": "ap",
+              "corr": 0.23788706467629667
+            }
+          ],
+          "Core PCE Price Index (MoM)": [
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "ap",
+              "corr": -0.5729403942424522
+            },
+            {
+              "metric": "Core CPI (MoM)",
+              "kind": "ap",
+              "corr": 0.5714681678531034
+            },
+            {
+              "metric": "Industrial Production (YoY)",
+              "kind": "ap",
+              "corr": 0.5403644725217787
+            },
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "af",
+              "corr": -0.5318526505486029
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "ap",
+              "corr": 0.4872487886382042
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "af",
+              "corr": -0.41282963184424654
+            },
+            {
+              "metric": "Seevol Cushing Storage Report",
+              "kind": "ap",
+              "corr": 0.3794354586961142
+            },
+            {
+              "metric": "Nonfarm Payrolls",
+              "kind": "ap",
+              "corr": 0.3746307796986362
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "ap",
+              "corr": 0.3720467266931348
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "ap",
+              "corr": 0.3718170551200855
+            }
+          ],
+          "Core PCE Price Index (YoY)": [
+            {
+              "metric": "Core CPI (YoY)",
+              "kind": "ap",
+              "corr": 0.7080883895829316
+            },
+            {
+              "metric": "Industrial Production (YoY)",
+              "kind": "ap",
+              "corr": 0.6911984033273657
+            },
+            {
+              "metric": "Core CPI (YoY)",
+              "kind": "af",
+              "corr": 0.608031260475136
+            },
+            {
+              "metric": "PCE Price index (YoY)",
+              "kind": "ap",
+              "corr": 0.5967796791753623
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "ap",
+              "corr": -0.5778297730347207
+            },
+            {
+              "metric": "CPI (YoY)",
+              "kind": "ap",
+              "corr": 0.4783541089990855
+            },
+            {
+              "metric": "Core CPI (MoM)",
+              "kind": "af",
+              "corr": 0.4757749582429869
+            },
+            {
+              "metric": "CPI (YoY)",
+              "kind": "af",
+              "corr": 0.4649247096566924
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "af",
+              "corr": -0.4380317103857586
+            },
+            {
+              "metric": "Participation Rate",
+              "kind": "ap",
+              "corr": 0.3916224692857446
+            }
+          ],
+          "Core Retail Sales (MoM)": [
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "af",
+              "corr": -0.8650174913101142
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "ap",
+              "corr": 0.7491195323379334
+            },
+            {
+              "metric": "Nonfarm Payrolls",
+              "kind": "ap",
+              "corr": 0.7443523530293799
+            },
+            {
+              "metric": "Average Hourly Earnings (MoM)",
+              "kind": "ap",
+              "corr": -0.7359119280345411
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "ap",
+              "corr": 0.7152622223396081
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "af",
+              "corr": 0.7095367088394712
+            },
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "ap",
+              "corr": -0.6363313219320434
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.6361317373696204
+            },
+            {
+              "metric": "Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.6307226208649912
+            },
+            {
+              "metric": "Retail Sales (MoM)",
+              "kind": "af",
+              "corr": -0.5913053838541927
+            }
+          ],
+          "Fed's Balance Sheet": [
+            {
+              "metric": "Housing Starts (MoM)",
+              "kind": "af",
+              "corr": 0.44168969736446534
+            },
+            {
+              "metric": "Initial Jobless Claims",
+              "kind": "af",
+              "corr": 0.4299854001812155
+            },
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": -0.4275752739558791
+            },
+            {
+              "metric": "2-Year Note Auction",
+              "kind": "ap",
+              "corr": -0.38134155545892234
+            },
+            {
+              "metric": "Fed Interest Rate Decision",
+              "kind": "ap",
+              "corr": -0.34561006009440876
+            },
+            {
+              "metric": "Initial Jobless Claims",
+              "kind": "ap",
+              "corr": 0.2938880036948741
+            },
+            {
+              "metric": "NY Empire State Manufacturing Index",
+              "kind": "ap",
+              "corr": -0.28512934034426735
+            },
+            {
+              "metric": "NY Empire State Manufacturing Index",
+              "kind": "af",
+              "corr": -0.2657639775889766
+            },
+            {
+              "metric": "Participation Rate",
+              "kind": "ap",
+              "corr": -0.24927902795857892
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "ap",
+              "corr": 0.2491489247386695
+            }
+          ],
+          "Nonfarm Payrolls": [
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "ap",
+              "corr": 0.9755489021008834
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "af",
+              "corr": 0.7550829886224936
+            },
+            {
+              "metric": "Unemployment Rate",
+              "kind": "ap",
+              "corr": 0.6633038385891193
+            },
+            {
+              "metric": "U6 Unemployment Rate",
+              "kind": "ap",
+              "corr": 0.6387764984790899
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "af",
+              "corr": 0.63837213210195
+            },
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "af",
+              "corr": -0.6244769728430041
+            },
+            {
+              "metric": "Average Hourly Earnings (MoM)",
+              "kind": "af",
+              "corr": 0.5707725452745446
+            },
+            {
+              "metric": "US Leading Index (MoM)",
+              "kind": "ap",
+              "corr": 0.5270954538476276
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "ap",
+              "corr": 0.4951772828847789
+            },
+            {
+              "metric": "Participation Rate",
+              "kind": "ap",
+              "corr": -0.4807792396960634
+            }
+          ],
+          "U.S. Baker Hughes Oil Rig Count": [
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": 0.6856555695096407
+            },
+            {
+              "metric": "PCE Price index (YoY)",
+              "kind": "ap",
+              "corr": 0.3188551702901332
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "ap",
+              "corr": -0.31018073829711296
+            },
+            {
+              "metric": "Imports",
+              "kind": "ap",
+              "corr": 0.29552239629359867
+            },
+            {
+              "metric": "Exports",
+              "kind": "ap",
+              "corr": 0.2789272781501974
+            },
+            {
+              "metric": "2-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.27494908417170594
+            },
+            {
+              "metric": "Initial Jobless Claims",
+              "kind": "af",
+              "corr": -0.26417170936543777
+            },
+            {
+              "metric": "Industrial Production (YoY)",
+              "kind": "ap",
+              "corr": 0.2400467462816151
+            },
+            {
+              "metric": "CPI (YoY)",
+              "kind": "ap",
+              "corr": 0.2355853665241029
+            },
+            {
+              "metric": "5-Year TIPS Auction",
+              "kind": "ap",
+              "corr": -0.2217622982980335
+            }
+          ],
+          "CFTC Crude Oil speculative net positions": [
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "af",
+              "corr": 0.23216569762159786
+            },
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": -0.18147867746354143
+            },
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "ap",
+              "corr": -0.13830343064568987
+            },
+            {
+              "metric": "CFTC Nasdaq 100 speculative net positions",
+              "kind": "ap",
+              "corr": 0.1350838551459549
+            },
+            {
+              "metric": "Seevol Cushing Storage Report",
+              "kind": "ap",
+              "corr": -0.1297985921506308
+            },
+            {
+              "metric": "Housing Starts (MoM)",
+              "kind": "af",
+              "corr": 0.12149547550961654
+            },
+            {
+              "metric": "ISM Manufacturing Employment",
+              "kind": "af",
+              "corr": 0.11142225055124817
+            },
+            {
+              "metric": "Existing Home Sales (MoM)",
+              "kind": "af",
+              "corr": 0.10926381254596164
+            },
+            {
+              "metric": "Construction Spending (MoM)",
+              "kind": "af",
+              "corr": 0.09808267725053733
+            },
+            {
+              "metric": "2-Year Note Auction",
+              "kind": "ap",
+              "corr": -0.09662882401978429
+            }
+          ],
+          "Core CPI (YoY)": [
+            {
+              "metric": "PCE Price index (YoY)",
+              "kind": "ap",
+              "corr": 0.6935665452939548
+            },
+            {
+              "metric": "Core PCE Price Index (YoY)",
+              "kind": "ap",
+              "corr": 0.5725843522701116
+            },
+            {
+              "metric": "Industrial Production (YoY)",
+              "kind": "ap",
+              "corr": 0.5195058184055067
+            },
+            {
+              "metric": "CPI (YoY)",
+              "kind": "ap",
+              "corr": 0.43044053122072123
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "ap",
+              "corr": -0.39068182638005833
+            },
+            {
+              "metric": "S&P/CS HPI Composite - 20 n.s.a. (MoM)",
+              "kind": "af",
+              "corr": -0.3874967519833939
+            },
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "af",
+              "corr": 0.3769493369315044
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "ap",
+              "corr": 0.34980448155486454
+            },
+            {
+              "metric": "Core CPI (MoM)",
+              "kind": "af",
+              "corr": 0.3413002246792112
+            },
+            {
+              "metric": "Housing Starts (MoM)",
+              "kind": "af",
+              "corr": -0.3282753818553182
+            }
+          ],
+          "Core CPI (MoM)": [
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "ap",
+              "corr": -0.49814586342309997
+            },
+            {
+              "metric": "Core CPI (YoY)",
+              "kind": "af",
+              "corr": -0.3875204383679881
+            },
+            {
+              "metric": "PCE price index (MoM)",
+              "kind": "ap",
+              "corr": 0.353824260304668
+            },
+            {
+              "metric": "Core PCE Prices",
+              "kind": "af",
+              "corr": -0.35055825808368657
+            },
+            {
+              "metric": "CPI (YoY)",
+              "kind": "af",
+              "corr": -0.3220509225947222
+            },
+            {
+              "metric": "Core CPI (YoY)",
+              "kind": "ap",
+              "corr": -0.28500427216145097
+            },
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "af",
+              "corr": 0.2779981567472624
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "ap",
+              "corr": 0.26193641130688816
+            },
+            {
+              "metric": "Seevol Cushing Storage Report",
+              "kind": "ap",
+              "corr": 0.25676762892961325
+            },
+            {
+              "metric": "US Leading Index (MoM)",
+              "kind": "ap",
+              "corr": 0.24697375283447318
+            }
+          ],
+          "CPI (MoM)": [
+            {
+              "metric": "Import Price Index (MoM)",
+              "kind": "ap",
+              "corr": 0.5585399387205499
+            },
+            {
+              "metric": "ISM Non-Manufacturing Prices",
+              "kind": "ap",
+              "corr": 0.4908185829889628
+            },
+            {
+              "metric": "Imports",
+              "kind": "ap",
+              "corr": -0.429822028170845
+            },
+            {
+              "metric": "CPI (YoY)",
+              "kind": "ap",
+              "corr": -0.3651519461087345
+            },
+            {
+              "metric": "Export Price Index (MoM)",
+              "kind": "ap",
+              "corr": 0.3531020486738715
+            },
+            {
+              "metric": "Seevol Cushing Storage Report",
+              "kind": "ap",
+              "corr": 0.3525444257238232
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "af",
+              "corr": -0.33311617787987496
+            },
+            {
+              "metric": "PPI (MoM)",
+              "kind": "ap",
+              "corr": 0.32628300177834213
+            },
+            {
+              "metric": "ISM Manufacturing Prices",
+              "kind": "af",
+              "corr": 0.2941713193735227
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "ap",
+              "corr": -0.29142437141290006
+            }
+          ],
+          "CPI (YoY)": [
+            {
+              "metric": "PCE Price index (YoY)",
+              "kind": "ap",
+              "corr": 0.5992577943957806
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "ap",
+              "corr": -0.5065452392150844
+            },
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": 0.49771859886002695
+            },
+            {
+              "metric": "ISM Non-Manufacturing Prices",
+              "kind": "ap",
+              "corr": 0.47891402632308605
+            },
+            {
+              "metric": "Industrial Production (YoY)",
+              "kind": "ap",
+              "corr": 0.4576648356540514
+            },
+            {
+              "metric": "Participation Rate",
+              "kind": "ap",
+              "corr": 0.42417982363302625
+            },
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "af",
+              "corr": 0.40540435794731905
+            },
+            {
+              "metric": "ISM Manufacturing Prices",
+              "kind": "ap",
+              "corr": 0.36681139784641537
+            },
+            {
+              "metric": "ISM Manufacturing Prices",
+              "kind": "af",
+              "corr": 0.3656586174080799
+            },
+            {
+              "metric": "Exports",
+              "kind": "ap",
+              "corr": 0.3609594395267474
+            }
+          ],
+          "US Leading Index (MoM)": [
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.7147680072614175
+            },
+            {
+              "metric": "Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.6859901053380769
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "af",
+              "corr": 0.6625539178420775
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "af",
+              "corr": 0.6613953368511966
+            },
+            {
+              "metric": "Unemployment Rate",
+              "kind": "af",
+              "corr": -0.6506289097186846
+            },
+            {
+              "metric": "Exports",
+              "kind": "ap",
+              "corr": -0.6338564720626383
+            },
+            {
+              "metric": "Retail Sales (MoM)",
+              "kind": "ap",
+              "corr": 0.5828741988794979
+            },
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "af",
+              "corr": -0.5277470545877471
+            },
+            {
+              "metric": "Industrial Production (MoM)",
+              "kind": "ap",
+              "corr": 0.5116803655557765
+            },
+            {
+              "metric": "Core Retail Sales (MoM)",
+              "kind": "ap",
+              "corr": 0.4910389530102017
+            }
+          ],
+          "Fed Interest Rate Decision": [
+            {
+              "metric": "3-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.48139628135518997
+            },
+            {
+              "metric": "2-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.428809659620686
+            },
+            {
+              "metric": "Housing Starts (MoM)",
+              "kind": "af",
+              "corr": -0.41740033670481125
+            },
+            {
+              "metric": "20-Year Bond Auction",
+              "kind": "ap",
+              "corr": 0.40529914928407934
+            },
+            {
+              "metric": "5-Year TIPS Auction",
+              "kind": "ap",
+              "corr": 0.3926562583985177
+            },
+            {
+              "metric": "Michigan 1-Year Inflation Expectations",
+              "kind": "af",
+              "corr": -0.3306303640361889
+            },
+            {
+              "metric": "10-Year TIPS Auction",
+              "kind": "ap",
+              "corr": 0.33026238570161587
+            },
+            {
+              "metric": "30-Year TIPS Auction",
+              "kind": "ap",
+              "corr": 0.3264533203658442
+            },
+            {
+              "metric": "JOLTS Job Openings",
+              "kind": "af",
+              "corr": 0.3261394890480734
+            },
+            {
+              "metric": "Export Price Index (MoM)",
+              "kind": "af",
+              "corr": 0.30637490667847694
+            }
+          ],
+          "CFTC Gold speculative net positions": [
+            {
+              "metric": "Gold Index",
+              "kind": "ap",
+              "corr": -0.1386394348838022
+            },
+            {
+              "metric": "Goods Trade Balance",
+              "kind": "af",
+              "corr": -0.10284757538132022
+            },
+            {
+              "metric": "Employment Cost Index (QoQ)",
+              "kind": "ap",
+              "corr": -0.10088066936612695
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "af",
+              "corr": 0.09861409428506593
+            },
+            {
+              "metric": "Unit Labor Costs (QoQ)",
+              "kind": "af",
+              "corr": -0.0866376090519583
+            },
+            {
+              "metric": "Import Price Index (MoM)",
+              "kind": "ap",
+              "corr": 0.08530446997974926
+            },
+            {
+              "metric": "Export Price Index (MoM)",
+              "kind": "ap",
+              "corr": 0.08384498172966498
+            }
+          ],
+          "Building Permits": [
+            {
+              "metric": "Seevol Cushing Storage Report",
+              "kind": "ap",
+              "corr": 0.46631662352086584
+            },
+            {
+              "metric": "Housing Starts (MoM)",
+              "kind": "af",
+              "corr": -0.40300577047238345
+            },
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "af",
+              "corr": 0.39460437361997436
+            },
+            {
+              "metric": "Core Retail Sales (MoM)",
+              "kind": "af",
+              "corr": 0.3815243872765292
+            },
+            {
+              "metric": "U6 Unemployment Rate",
+              "kind": "ap",
+              "corr": -0.37913415703970677
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "ap",
+              "corr": -0.3640391841544153
+            },
+            {
+              "metric": "Core PCE Prices",
+              "kind": "af",
+              "corr": -0.36287903419553225
+            },
+            {
+              "metric": "Unemployment Rate",
+              "kind": "ap",
+              "corr": -0.3589937295037304
+            },
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "ap",
+              "corr": 0.3576067206964806
+            },
+            {
+              "metric": "20-Year Bond Auction",
+              "kind": "ap",
+              "corr": -0.3531198856419107
+            }
+          ],
+          "PPI (MoM)": [
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "af",
+              "corr": -0.5054783786787059
+            },
+            {
+              "metric": "Import Price Index (MoM)",
+              "kind": "ap",
+              "corr": 0.5016445454764241
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "ap",
+              "corr": -0.44882871994169854
+            },
+            {
+              "metric": "Core PPI (MoM)",
+              "kind": "af",
+              "corr": -0.4252583068716633
+            },
+            {
+              "metric": "ISM Non-Manufacturing Prices",
+              "kind": "ap",
+              "corr": 0.41708166469145275
+            },
+            {
+              "metric": "Core PPI (MoM)",
+              "kind": "ap",
+              "corr": -0.4163321178383031
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "af",
+              "corr": -0.3689911898101452
+            },
+            {
+              "metric": "Imports",
+              "kind": "ap",
+              "corr": -0.3468318509837909
+            },
+            {
+              "metric": "Michigan 1-Year Inflation Expectations",
+              "kind": "af",
+              "corr": 0.33293492969536803
+            },
+            {
+              "metric": "Export Price Index (MoM)",
+              "kind": "ap",
+              "corr": 0.2812104881182445
+            }
+          ],
+          "Core Durable Goods Orders (MoM)": [
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "af",
+              "corr": -0.709899164590538
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "af",
+              "corr": -0.6527303786712627
+            },
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "af",
+              "corr": 0.558973107896661
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.5034747223130436
+            },
+            {
+              "metric": "Exports",
+              "kind": "ap",
+              "corr": -0.4955644304659221
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "ap",
+              "corr": -0.4825274111908865
+            },
+            {
+              "metric": "Imports",
+              "kind": "ap",
+              "corr": -0.4604322598432661
+            },
+            {
+              "metric": "Core Retail Sales (MoM)",
+              "kind": "ap",
+              "corr": 0.43363848612641337
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "ap",
+              "corr": 0.4318840134459054
+            },
+            {
+              "metric": "Nonfarm Payrolls",
+              "kind": "ap",
+              "corr": 0.4274074514141503
+            }
+          ],
+          "Durable Goods Orders (MoM)": [
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "af",
+              "corr": -0.5916037302528365
+            },
+            {
+              "metric": "Exports",
+              "kind": "ap",
+              "corr": -0.508771249177653
+            },
+            {
+              "metric": "US Leading Index (MoM)",
+              "kind": "ap",
+              "corr": 0.4831564982550067
+            },
+            {
+              "metric": "Factory Orders (MoM)",
+              "kind": "ap",
+              "corr": -0.4804551060411645
+            },
+            {
+              "metric": "Imports",
+              "kind": "ap",
+              "corr": -0.45443145184968586
+            },
+            {
+              "metric": "Industrial Production (MoM)",
+              "kind": "ap",
+              "corr": 0.3934243402625532
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.38793754780530754
+            },
+            {
+              "metric": "Nonfarm Payrolls",
+              "kind": "af",
+              "corr": 0.3720997925108929
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "af",
+              "corr": 0.3642237754660763
+            },
+            {
+              "metric": "Retail Sales (MoM)",
+              "kind": "ap",
+              "corr": 0.34901052611489547
+            }
+          ],
+          "GDP (QoQ)": [
+            {
+              "metric": "Business Inventories (MoM)",
+              "kind": "ap",
+              "corr": 0.6608488637920548
+            },
+            {
+              "metric": "Seevol Cushing Storage Report",
+              "kind": "ap",
+              "corr": -0.46963740614797184
+            },
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "af",
+              "corr": 0.39321067700070444
+            },
+            {
+              "metric": "Core PCE Prices",
+              "kind": "ap",
+              "corr": -0.34758988737059593
+            },
+            {
+              "metric": "Michigan 5-Year Inflation Expectations",
+              "kind": "af",
+              "corr": 0.3301734661029434
+            },
+            {
+              "metric": "Housing Starts (MoM)",
+              "kind": "af",
+              "corr": -0.31445772168398856
+            },
+            {
+              "metric": "Personal Spending (MoM)",
+              "kind": "ap",
+              "corr": -0.28574445256178715
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "af",
+              "corr": 0.2793615149155029
+            },
+            {
+              "metric": "Consumer Credit",
+              "kind": "ap",
+              "corr": -0.2705093520322695
+            },
+            {
+              "metric": "Michigan 1-Year Inflation Expectations",
+              "kind": "af",
+              "corr": -0.2690957027718505
+            }
+          ],
+          "GDP Price Index (QoQ)": [
+            {
+              "metric": "Goods Trade Balance",
+              "kind": "af",
+              "corr": -0.31146824393314804
+            },
+            {
+              "metric": "PCE price index (MoM)",
+              "kind": "ap",
+              "corr": -0.30897441655528135
+            },
+            {
+              "metric": "Business Inventories (MoM)",
+              "kind": "ap",
+              "corr": 0.3015274658449035
+            },
+            {
+              "metric": "Seevol Cushing Storage Report",
+              "kind": "ap",
+              "corr": -0.28548873996246943
+            },
+            {
+              "metric": "S&P/CS HPI Composite - 20 n.s.a. (YoY)",
+              "kind": "af",
+              "corr": 0.2849140703016344
+            },
+            {
+              "metric": "Personal Spending (MoM)",
+              "kind": "ap",
+              "corr": -0.2831283797456332
+            },
+            {
+              "metric": "Core PCE Prices",
+              "kind": "af",
+              "corr": 0.2638056087515137
+            },
+            {
+              "metric": "S&P/CS HPI Composite - 20 n.s.a. (MoM)",
+              "kind": "af",
+              "corr": 0.2556131186438855
+            },
+            {
+              "metric": "Current Account",
+              "kind": "ap",
+              "corr": -0.2484043657558513
+            },
+            {
+              "metric": "CPI (MoM)",
+              "kind": "ap",
+              "corr": -0.22023928971819745
+            }
+          ],
+          "ADP Nonfarm Employment Change": [
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "ap",
+              "corr": -0.86916418466661
+            },
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "af",
+              "corr": -0.615184789614665
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "af",
+              "corr": 0.5684764558635048
+            },
+            {
+              "metric": "Unemployment Rate",
+              "kind": "ap",
+              "corr": 0.5575028989033843
+            },
+            {
+              "metric": "U6 Unemployment Rate",
+              "kind": "ap",
+              "corr": 0.5307807039531676
+            },
+            {
+              "metric": "Average Hourly Earnings (MoM)",
+              "kind": "af",
+              "corr": 0.5133970718631079
+            },
+            {
+              "metric": "US Leading Index (MoM)",
+              "kind": "ap",
+              "corr": 0.5129171892935065
+            },
+            {
+              "metric": "Philly Fed Employment",
+              "kind": "ap",
+              "corr": 0.4577886883724102
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "ap",
+              "corr": 0.43568889058179205
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "af",
+              "corr": -0.43537960483690225
+            }
+          ],
+          "Nonfarm Productivity (QoQ)": [
+            {
+              "metric": "GDP (QoQ)",
+              "kind": "af",
+              "corr": 0.4999524737347569
+            },
+            {
+              "metric": "20-Year Bond Auction",
+              "kind": "ap",
+              "corr": -0.4922084736132522
+            },
+            {
+              "metric": "Michigan 1-Year Inflation Expectations",
+              "kind": "af",
+              "corr": -0.39933025748440637
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "ap",
+              "corr": 0.37654639437743875
+            },
+            {
+              "metric": "S&P/CS HPI Composite - 20 n.s.a. (MoM)",
+              "kind": "af",
+              "corr": -0.3192349017574888
+            },
+            {
+              "metric": "Housing Starts (MoM)",
+              "kind": "af",
+              "corr": -0.3044102452034762
+            },
+            {
+              "metric": "Industrial Production (YoY)",
+              "kind": "ap",
+              "corr": 0.26839237189110965
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "ap",
+              "corr": -0.2551962904253545
+            },
+            {
+              "metric": "Employment Cost Index (QoQ)",
+              "kind": "ap",
+              "corr": -0.24592560486426204
+            },
+            {
+              "metric": "New Home Sales",
+              "kind": "ap",
+              "corr": 0.2415147790082626
+            }
+          ],
+          "Unit Labor Costs (QoQ)": [
+            {
+              "metric": "GDP (QoQ)",
+              "kind": "ap",
+              "corr": -0.6539013908224269
+            },
+            {
+              "metric": "Core PCE Prices",
+              "kind": "ap",
+              "corr": -0.5613518279630654
+            },
+            {
+              "metric": "GDP (QoQ)",
+              "kind": "af",
+              "corr": -0.44682030365236397
+            },
+            {
+              "metric": "Business Inventories (MoM)",
+              "kind": "ap",
+              "corr": -0.407144185810019
+            },
+            {
+              "metric": "GDP Price Index (QoQ)",
+              "kind": "ap",
+              "corr": -0.3794615232279004
+            },
+            {
+              "metric": "Michigan 1-Year Inflation Expectations",
+              "kind": "af",
+              "corr": 0.32598818779918565
+            },
+            {
+              "metric": "Current Account",
+              "kind": "ap",
+              "corr": 0.3150924872132006
+            },
+            {
+              "metric": "ISM Manufacturing Employment",
+              "kind": "af",
+              "corr": -0.3063639465825798
+            },
+            {
+              "metric": "Existing Home Sales (MoM)",
+              "kind": "af",
+              "corr": -0.2863069275635489
+            },
+            {
+              "metric": "Employment Cost Index (QoQ)",
+              "kind": "af",
+              "corr": 0.274380335238978
+            }
+          ],
+          "Current Account": [
+            {
+              "metric": "PCE price index (MoM)",
+              "kind": "ap",
+              "corr": 0.5858398005212974
+            },
+            {
+              "metric": "CFTC S&P 500 speculative net positions",
+              "kind": "ap",
+              "corr": -0.5652171595868046
+            },
+            {
+              "metric": "CPI (YoY)",
+              "kind": "af",
+              "corr": -0.5466436379321005
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "ap",
+              "corr": 0.5167413776688685
+            },
+            {
+              "metric": "5-Year TIPS Auction",
+              "kind": "ap",
+              "corr": -0.46023413243563477
+            },
+            {
+              "metric": "Export Price Index (MoM)",
+              "kind": "af",
+              "corr": -0.42190647253674585
+            },
+            {
+              "metric": "Housing Starts (MoM)",
+              "kind": "af",
+              "corr": 0.41767696257704623
+            },
+            {
+              "metric": "Exports",
+              "kind": "ap",
+              "corr": -0.4168813962836448
+            },
+            {
+              "metric": "U6 Unemployment Rate",
+              "kind": "ap",
+              "corr": 0.416813587714759
+            },
+            {
+              "metric": "Housing Starts",
+              "kind": "ap",
+              "corr": 0.4122476367008988
+            }
+          ],
+          "Core PPI (MoM)": [
+            {
+              "metric": "PPI (MoM)",
+              "kind": "af",
+              "corr": -0.46669753954283183
+            },
+            {
+              "metric": "Retail Inventories Ex Auto",
+              "kind": "ap",
+              "corr": 0.3396217202776467
+            },
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "af",
+              "corr": -0.30445186288881226
+            },
+            {
+              "metric": "ISM Non-Manufacturing Employment",
+              "kind": "ap",
+              "corr": 0.28058255881209015
+            },
+            {
+              "metric": "Goods Trade Balance",
+              "kind": "ap",
+              "corr": 0.2581062806191252
+            },
+            {
+              "metric": "Goods Trade Balance",
+              "kind": "af",
+              "corr": 0.2570850972804891
+            },
+            {
+              "metric": "Trade Balance",
+              "kind": "ap",
+              "corr": 0.2457674104318882
+            },
+            {
+              "metric": "CPI (MoM)",
+              "kind": "ap",
+              "corr": 0.23279406713961615
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "af",
+              "corr": -0.23084291882577063
+            },
+            {
+              "metric": "Seevol Cushing Storage Report",
+              "kind": "ap",
+              "corr": 0.22963211799680797
+            }
+          ],
+          "Employment Cost Index (QoQ)": [
+            {
+              "metric": "Michigan 5-Year Inflation Expectations",
+              "kind": "af",
+              "corr": 0.43511566290007664
+            },
+            {
+              "metric": "30-Year Bond Auction",
+              "kind": "ap",
+              "corr": 0.3923374265803362
+            },
+            {
+              "metric": "CFTC S&P 500 speculative net positions",
+              "kind": "ap",
+              "corr": -0.3520322172565562
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "ap",
+              "corr": -0.3489191917200054
+            },
+            {
+              "metric": "Export Price Index (MoM)",
+              "kind": "af",
+              "corr": 0.33843122977484347
+            },
+            {
+              "metric": "Core CPI (MoM)",
+              "kind": "ap",
+              "corr": -0.33392136513369536
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "af",
+              "corr": -0.32222721001203025
+            },
+            {
+              "metric": "Core CPI (YoY)",
+              "kind": "af",
+              "corr": -0.3205593664134847
+            },
+            {
+              "metric": "Retail Inventories Ex Auto",
+              "kind": "ap",
+              "corr": -0.31656897640589826
+            },
+            {
+              "metric": "CFTC Gold speculative net positions",
+              "kind": "ap",
+              "corr": 0.30342084368875905
+            }
+          ],
+          "Unemployment Rate": [
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "ap",
+              "corr": 0.9098733848209838
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "ap",
+              "corr": -0.7620896562637427
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "af",
+              "corr": 0.6549244536208285
+            },
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": -0.6375261329506073
+            },
+            {
+              "metric": "Personal Spending (MoM)",
+              "kind": "af",
+              "corr": -0.6088930116759802
+            },
+            {
+              "metric": "US Leading Index (MoM)",
+              "kind": "ap",
+              "corr": -0.5660316170738489
+            },
+            {
+              "metric": "Michigan Consumer Sentiment",
+              "kind": "ap",
+              "corr": -0.5329346318273236
+            },
+            {
+              "metric": "ISM Manufacturing Employment",
+              "kind": "ap",
+              "corr": -0.4745196552117374
+            },
+            {
+              "metric": "Philly Fed Employment",
+              "kind": "ap",
+              "corr": -0.46254004112867764
+            },
+            {
+              "metric": "NY Empire State Manufacturing Index",
+              "kind": "ap",
+              "corr": -0.4100250390285407
+            }
+          ],
+          "U6 Unemployment Rate": [
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "ap",
+              "corr": 0.9181607701393628
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "ap",
+              "corr": -0.7392861182235332
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "af",
+              "corr": 0.6497384580107538
+            },
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": -0.6496940814880513
+            },
+            {
+              "metric": "Michigan Consumer Sentiment",
+              "kind": "ap",
+              "corr": -0.5815789770980493
+            },
+            {
+              "metric": "Personal Spending (MoM)",
+              "kind": "af",
+              "corr": -0.5791268316712919
+            },
+            {
+              "metric": "US Leading Index (MoM)",
+              "kind": "ap",
+              "corr": -0.5679687366210933
+            },
+            {
+              "metric": "ISM Manufacturing Employment",
+              "kind": "ap",
+              "corr": -0.4883067552721247
+            },
+            {
+              "metric": "Philly Fed Employment",
+              "kind": "ap",
+              "corr": -0.4792653320522964
+            },
+            {
+              "metric": "NY Empire State Manufacturing Index",
+              "kind": "ap",
+              "corr": -0.43897498029507376
+            }
+          ],
+          "3-Year Note Auction": [
+            {
+              "metric": "2-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.5843646928256535
+            },
+            {
+              "metric": "Seevol Cushing Storage Report",
+              "kind": "ap",
+              "corr": 0.4504076592365328
+            },
+            {
+              "metric": "Fed Interest Rate Decision",
+              "kind": "ap",
+              "corr": 0.332000164467703
+            },
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "ap",
+              "corr": 0.30831406409092954
+            },
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": 0.2958115993551927
+            },
+            {
+              "metric": "Fed Interest Rate Decision",
+              "kind": "af",
+              "corr": 0.25286487034138494
+            },
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "af",
+              "corr": 0.2386681780038004
+            },
+            {
+              "metric": "20-Year Bond Auction",
+              "kind": "ap",
+              "corr": 0.2246958581174918
+            },
+            {
+              "metric": "CFTC S&P 500 speculative net positions",
+              "kind": "ap",
+              "corr": 0.21827508990963174
+            },
+            {
+              "metric": "Housing Starts (MoM)",
+              "kind": "ap",
+              "corr": 0.21128216624932594
+            }
+          ],
+          "30-Year Bond Auction": [
+            {
+              "metric": "10-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.5005754558088984
+            },
+            {
+              "metric": "3-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.4016557094961486
+            },
+            {
+              "metric": "Michigan 5-Year Inflation Expectations",
+              "kind": "af",
+              "corr": 0.2675406419299494
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "ap",
+              "corr": -0.24162565299787284
+            },
+            {
+              "metric": "Michigan Consumer Expectations",
+              "kind": "ap",
+              "corr": 0.23369774738451224
+            },
+            {
+              "metric": "ISM Non-Manufacturing Prices",
+              "kind": "ap",
+              "corr": 0.20761001063764614
+            },
+            {
+              "metric": "Seevol Cushing Storage Report",
+              "kind": "ap",
+              "corr": -0.2056052273964439
+            },
+            {
+              "metric": "Imports",
+              "kind": "ap",
+              "corr": 0.20340454788955542
+            },
+            {
+              "metric": "CFTC Crude Oil speculative net positions",
+              "kind": "ap",
+              "corr": 0.20212117053472314
+            },
+            {
+              "metric": "Michigan 1-Year Inflation Expectations",
+              "kind": "af",
+              "corr": -0.19735435190800937
+            }
+          ],
+          "7-Year Note Auction": [
+            {
+              "metric": "20-Year Bond Auction",
+              "kind": "ap",
+              "corr": 0.6194916781208365
+            },
+            {
+              "metric": "2-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.5974850617135548
+            },
+            {
+              "metric": "30-Year Bond Auction",
+              "kind": "ap",
+              "corr": 0.3883482844635957
+            },
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": 0.3192981955245494
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "af",
+              "corr": -0.31731230468459737
+            },
+            {
+              "metric": "Export Price Index (MoM)",
+              "kind": "af",
+              "corr": 0.276967422914537
+            },
+            {
+              "metric": "10-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.2736381376252882
+            },
+            {
+              "metric": "Philadelphia Fed Manufacturing Index",
+              "kind": "af",
+              "corr": 0.25515662529032146
+            },
+            {
+              "metric": "Philadelphia Fed Manufacturing Index",
+              "kind": "ap",
+              "corr": 0.22643900107768328
+            },
+            {
+              "metric": "CFTC S&P 500 speculative net positions",
+              "kind": "ap",
+              "corr": -0.21893633615697097
+            }
+          ],
+          "Participation Rate": [
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "ap",
+              "corr": -0.774292628816465
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "ap",
+              "corr": 0.7305617044514932
+            },
+            {
+              "metric": "US Leading Index (MoM)",
+              "kind": "ap",
+              "corr": 0.6567081797021689
+            },
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": 0.6170220635261933
+            },
+            {
+              "metric": "ISM Manufacturing Employment",
+              "kind": "ap",
+              "corr": 0.5654513588296288
+            },
+            {
+              "metric": "Michigan Consumer Sentiment",
+              "kind": "ap",
+              "corr": 0.529517093508831
+            },
+            {
+              "metric": "Philadelphia Fed Manufacturing Index",
+              "kind": "ap",
+              "corr": 0.4985798505518252
+            },
+            {
+              "metric": "Personal Spending (MoM)",
+              "kind": "af",
+              "corr": 0.47844694352008194
+            },
+            {
+              "metric": "CB Consumer Confidence",
+              "kind": "ap",
+              "corr": 0.47473137513566527
+            },
+            {
+              "metric": "ISM Manufacturing PMI",
+              "kind": "ap",
+              "corr": 0.4738747319065952
+            }
+          ],
+          "10-Year TIPS Auction": [
+            {
+              "metric": "20-Year Bond Auction",
+              "kind": "ap",
+              "corr": 0.6513958894010217
+            },
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": 0.5874959760626542
+            },
+            {
+              "metric": "NY Empire State Manufacturing Index",
+              "kind": "ap",
+              "corr": -0.5729285768070291
+            },
+            {
+              "metric": "Exports",
+              "kind": "ap",
+              "corr": 0.5578085934381944
+            },
+            {
+              "metric": "PCE Price index (YoY)",
+              "kind": "ap",
+              "corr": 0.5534766531680818
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "af",
+              "corr": -0.541807031658412
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "ap",
+              "corr": 0.5119170097010486
+            },
+            {
+              "metric": "Personal Spending (MoM)",
+              "kind": "af",
+              "corr": 0.5077684807980477
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "ap",
+              "corr": 0.4935244322228583
+            },
+            {
+              "metric": "Nonfarm Payrolls",
+              "kind": "ap",
+              "corr": 0.4837722938739225
+            }
+          ],
+          "30-Year TIPS Auction": [
+            {
+              "metric": "10-Year TIPS Auction",
+              "kind": "ap",
+              "corr": 0.7260308710445668
+            },
+            {
+              "metric": "Core PCE Price Index (YoY)",
+              "kind": "af",
+              "corr": 0.5013687760198311
+            },
+            {
+              "metric": "Core Durable Goods Orders (MoM)",
+              "kind": "ap",
+              "corr": 0.48268441691859343
+            },
+            {
+              "metric": "Core PCE Prices",
+              "kind": "af",
+              "corr": 0.4819648335221695
+            },
+            {
+              "metric": "Existing Home Sales",
+              "kind": "ap",
+              "corr": -0.475350509902081
+            },
+            {
+              "metric": "ISM Manufacturing Employment",
+              "kind": "af",
+              "corr": 0.4746362160945433
+            },
+            {
+              "metric": "Core Durable Goods Orders (MoM)",
+              "kind": "af",
+              "corr": 0.4684455352728435
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "af",
+              "corr": 0.4542675117955414
+            },
+            {
+              "metric": "Goods Trade Balance",
+              "kind": "af",
+              "corr": -0.4424007581546445
+            },
+            {
+              "metric": "Industrial Production (MoM)",
+              "kind": "af",
+              "corr": 0.432603115812597
+            }
+          ],
+          "5-Year TIPS Auction": [
+            {
+              "metric": "3-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.6503871302848687
+            },
+            {
+              "metric": "CFTC S&P 500 speculative net positions",
+              "kind": "ap",
+              "corr": 0.5753593528484888
+            },
+            {
+              "metric": "Participation Rate",
+              "kind": "ap",
+              "corr": 0.5381597906658442
+            },
+            {
+              "metric": "Michigan 5-Year Inflation Expectations",
+              "kind": "ap",
+              "corr": 0.4981604180623306
+            },
+            {
+              "metric": "Fed Interest Rate Decision",
+              "kind": "ap",
+              "corr": 0.4833782668322866
+            },
+            {
+              "metric": "New Home Sales",
+              "kind": "af",
+              "corr": -0.4787413412767491
+            },
+            {
+              "metric": "5-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.4757763225603964
+            },
+            {
+              "metric": "Housing Starts (MoM)",
+              "kind": "af",
+              "corr": 0.46069799116686083
+            },
+            {
+              "metric": "30-Year TIPS Auction",
+              "kind": "ap",
+              "corr": 0.4455447321449133
+            },
+            {
+              "metric": "2-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.4359438330834126
+            }
+          ],
+          "2-Year Note Auction": [
+            {
+              "metric": "3-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.5902274134175435
+            },
+            {
+              "metric": "10-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.4196091425189678
+            },
+            {
+              "metric": "30-Year Bond Auction",
+              "kind": "ap",
+              "corr": 0.38480477148227715
+            },
+            {
+              "metric": "Retail Inventories Ex Auto",
+              "kind": "ap",
+              "corr": -0.33015490388787105
+            },
+            {
+              "metric": "U.S. Baker Hughes Total Rig Count",
+              "kind": "ap",
+              "corr": 0.3127189300615024
+            },
+            {
+              "metric": "Philadelphia Fed Manufacturing Index",
+              "kind": "ap",
+              "corr": 0.27330310483421083
+            },
+            {
+              "metric": "Fed Interest Rate Decision",
+              "kind": "ap",
+              "corr": 0.26594926503804894
+            },
+            {
+              "metric": "30-Year TIPS Auction",
+              "kind": "ap",
+              "corr": 0.2576574800822921
+            },
+            {
+              "metric": "5-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.25736789173238445
+            },
+            {
+              "metric": "Fed Interest Rate Decision",
+              "kind": "af",
+              "corr": -0.2564411390800778
+            }
+          ],
+          "API Weekly Crude Oil Stock": [
+            {
+              "metric": "Crude Oil Inventories",
+              "kind": "af",
+              "corr": -0.4024453001758374
+            },
+            {
+              "metric": "Crude Oil Inventories",
+              "kind": "ap",
+              "corr": -0.3190608806637874
+            },
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "af",
+              "corr": -0.09758655537930877
+            },
+            {
+              "metric": "Gold Index",
+              "kind": "ap",
+              "corr": 0.09616012795332214
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "af",
+              "corr": 0.09070960004805374
+            },
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "ap",
+              "corr": -0.08535602783982534
+            }
+          ],
+          "Gold Index": [
+            {
+              "metric": "CFTC Gold speculative net positions",
+              "kind": "ap",
+              "corr": 0.5788823218947228
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "af",
+              "corr": 0.11911958495788731
+            }
+          ],
+          "Core PCE Prices": [
+            {
+              "metric": "S&P/CS HPI Composite - 20 n.s.a. (YoY)",
+              "kind": "af",
+              "corr": 0.5397694049661799
+            },
+            {
+              "metric": "S&P/CS HPI Composite - 20 n.s.a. (MoM)",
+              "kind": "af",
+              "corr": 0.5188712379910789
+            },
+            {
+              "metric": "S&P/CS HPI Composite - 20 n.s.a. (YoY)",
+              "kind": "ap",
+              "corr": 0.5134950515006181
+            },
+            {
+              "metric": "GDP Price Index (QoQ)",
+              "kind": "ap",
+              "corr": 0.4573910198662992
+            },
+            {
+              "metric": "GDP (QoQ)",
+              "kind": "ap",
+              "corr": 0.45416726903893045
+            },
+            {
+              "metric": "Unit Labor Costs (QoQ)",
+              "kind": "ap",
+              "corr": -0.39258842790458415
+            },
+            {
+              "metric": "GDP Price Index (QoQ)",
+              "kind": "af",
+              "corr": 0.3536594292922823
+            },
+            {
+              "metric": "Goods Trade Balance",
+              "kind": "af",
+              "corr": -0.286689079953974
+            },
+            {
+              "metric": "Business Inventories (MoM)",
+              "kind": "ap",
+              "corr": 0.2860423207702365
+            },
+            {
+              "metric": "Import Price Index (MoM)",
+              "kind": "af",
+              "corr": -0.2795626559163033
+            }
+          ],
+          "CFTC S&P 500 speculative net positions": [
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "ap",
+              "corr": 0.20424443329847553
+            },
+            {
+              "metric": "PCE price index (MoM)",
+              "kind": "ap",
+              "corr": 0.18183426175852407
+            },
+            {
+              "metric": "NY Empire State Manufacturing Index",
+              "kind": "af",
+              "corr": 0.1681359298607884
+            },
+            {
+              "metric": "NY Empire State Manufacturing Index",
+              "kind": "ap",
+              "corr": 0.1618892477713596
+            },
+            {
+              "metric": "Trade Balance",
+              "kind": "ap",
+              "corr": -0.13889628393267284
+            },
+            {
+              "metric": "CFTC Crude Oil speculative net positions",
+              "kind": "ap",
+              "corr": 0.13623802259327425
+            },
+            {
+              "metric": "Unemployment Rate",
+              "kind": "af",
+              "corr": -0.13485251478718024
+            },
+            {
+              "metric": "Exports",
+              "kind": "ap",
+              "corr": -0.13460061196890172
+            },
+            {
+              "metric": "Philadelphia Fed Manufacturing Index",
+              "kind": "ap",
+              "corr": 0.13294897231139327
+            },
+            {
+              "metric": "10-Year TIPS Auction",
+              "kind": "ap",
+              "corr": -0.1298818014111433
+            }
+          ],
+          "Goods Trade Balance": [
+            {
+              "metric": "Michigan Consumer Sentiment",
+              "kind": "af",
+              "corr": -0.40635260819717867
+            },
+            {
+              "metric": "Seevol Cushing Storage Report",
+              "kind": "ap",
+              "corr": -0.3780078815143039
+            },
+            {
+              "metric": "Michigan Consumer Expectations",
+              "kind": "af",
+              "corr": -0.35590939629374374
+            },
+            {
+              "metric": "Michigan 5-Year Inflation Expectations",
+              "kind": "af",
+              "corr": 0.3549171958736833
+            },
+            {
+              "metric": "3-Year Note Auction",
+              "kind": "ap",
+              "corr": -0.35095913164639725
+            },
+            {
+              "metric": "Trade Balance",
+              "kind": "ap",
+              "corr": -0.3460142209114548
+            },
+            {
+              "metric": "Michigan Consumer Expectations",
+              "kind": "ap",
+              "corr": -0.3361707699231592
+            },
+            {
+              "metric": "10-Year Note Auction",
+              "kind": "ap",
+              "corr": -0.3297185554443767
+            },
+            {
+              "metric": "Nonfarm Productivity (QoQ)",
+              "kind": "ap",
+              "corr": -0.3109507117185048
+            },
+            {
+              "metric": "Core PPI (MoM)",
+              "kind": "ap",
+              "corr": -0.30618248115212565
+            }
+          ],
+          "Cushing Crude Oil Inventories": [
+            {
+              "metric": "Seevol Cushing Storage Report",
+              "kind": "ap",
+              "corr": 0.699403164090325
+            },
+            {
+              "metric": "Initial Jobless Claims",
+              "kind": "ap",
+              "corr": 0.18854994785550927
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "ap",
+              "corr": -0.16451689156249905
+            },
+            {
+              "metric": "US Leading Index (MoM)",
+              "kind": "ap",
+              "corr": 0.1617624976032791
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "ap",
+              "corr": 0.131167258711092
+            },
+            {
+              "metric": "Import Price Index (MoM)",
+              "kind": "ap",
+              "corr": 0.12706382805080313
+            },
+            {
+              "metric": "Industrial Production (MoM)",
+              "kind": "ap",
+              "corr": 0.12024533328474805
+            },
+            {
+              "metric": "API Weekly Crude Oil Stock",
+              "kind": "ap",
+              "corr": 0.11462070218221311
+            },
+            {
+              "metric": "CB Consumer Confidence",
+              "kind": "ap",
+              "corr": 0.11225583513134124
+            },
+            {
+              "metric": "Initial Jobless Claims",
+              "kind": "af",
+              "corr": 0.11025839512230995
+            }
+          ],
+          "Exports": [
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "af",
+              "corr": 0.7873667587382838
+            },
+            {
+              "metric": "U6 Unemployment Rate",
+              "kind": "ap",
+              "corr": -0.7744786405182026
+            },
+            {
+              "metric": "Unemployment Rate",
+              "kind": "ap",
+              "corr": -0.7516596774996255
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "af",
+              "corr": -0.7297179992315821
+            },
+            {
+              "metric": "Participation Rate",
+              "kind": "ap",
+              "corr": 0.7165776447127005
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "ap",
+              "corr": -0.7101753705904721
+            },
+            {
+              "metric": "Core Durable Goods Orders (MoM)",
+              "kind": "af",
+              "corr": -0.7030494128665682
+            },
+            {
+              "metric": "CPI (YoY)",
+              "kind": "ap",
+              "corr": 0.6385683366301975
+            },
+            {
+              "metric": "Personal Spending (MoM)",
+              "kind": "af",
+              "corr": 0.6200526018882265
+            },
+            {
+              "metric": "PCE Price index (YoY)",
+              "kind": "ap",
+              "corr": 0.5879946117011469
+            }
+          ],
+          "Imports": [
+            {
+              "metric": "U6 Unemployment Rate",
+              "kind": "ap",
+              "corr": -0.5945435455819997
+            },
+            {
+              "metric": "Unemployment Rate",
+              "kind": "ap",
+              "corr": -0.5753780341816408
+            },
+            {
+              "metric": "Housing Starts",
+              "kind": "ap",
+              "corr": 0.5643969146303223
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "af",
+              "corr": 0.5610356006812025
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "af",
+              "corr": -0.5414740870741174
+            },
+            {
+              "metric": "CPI (YoY)",
+              "kind": "ap",
+              "corr": 0.5400879055229736
+            },
+            {
+              "metric": "PCE Price index (YoY)",
+              "kind": "ap",
+              "corr": 0.5333105660142942
+            },
+            {
+              "metric": "Participation Rate",
+              "kind": "ap",
+              "corr": 0.5250358911590045
+            },
+            {
+              "metric": "Goods Trade Balance",
+              "kind": "af",
+              "corr": -0.5180427254091515
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "ap",
+              "corr": -0.5121671724734422
+            }
+          ],
+          "U.S. Baker Hughes Total Rig Count": [
+            {
+              "metric": "U.S. Baker Hughes Oil Rig Count",
+              "kind": "ap",
+              "corr": 0.6883623824069306
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "ap",
+              "corr": -0.5962955729746439
+            },
+            {
+              "metric": "Housing Starts (MoM)",
+              "kind": "af",
+              "corr": -0.576450065767845
+            },
+            {
+              "metric": "Fed Interest Rate Decision",
+              "kind": "ap",
+              "corr": 0.5697009800373325
+            },
+            {
+              "metric": "2-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.5522016945401335
+            },
+            {
+              "metric": "Fed's Balance Sheet",
+              "kind": "ap",
+              "corr": -0.5465323837365119
+            },
+            {
+              "metric": "Initial Jobless Claims",
+              "kind": "af",
+              "corr": -0.5415392773255444
+            },
+            {
+              "metric": "5-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.5126660489810723
+            },
+            {
+              "metric": "7-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.48546330781600866
+            },
+            {
+              "metric": "3-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.44499189433594
+            }
+          ],
+          "Cap Goods Ship Non Defense Ex Air (MoM)": [
+            {
+              "metric": "Retail Sales (MoM)",
+              "kind": "af",
+              "corr": 0.8352281377825637
+            },
+            {
+              "metric": "Core Retail Sales (MoM)",
+              "kind": "ap",
+              "corr": 0.8175875490475963
+            },
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "ap",
+              "corr": 0.816879226381881
+            },
+            {
+              "metric": "Industrial Production (MoM)",
+              "kind": "ap",
+              "corr": 0.806726068331024
+            },
+            {
+              "metric": "Core Retail Sales (MoM)",
+              "kind": "af",
+              "corr": 0.760468421828395
+            },
+            {
+              "metric": "Retail Sales (MoM)",
+              "kind": "ap",
+              "corr": 0.740924638366748
+            },
+            {
+              "metric": "Export Price Index (MoM)",
+              "kind": "ap",
+              "corr": 0.6962251633482776
+            },
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "af",
+              "corr": 0.6806461242492677
+            },
+            {
+              "metric": "Nonfarm Payrolls",
+              "kind": "ap",
+              "corr": 0.6671926632718883
+            },
+            {
+              "metric": "Private Nonfarm Payrolls",
+              "kind": "ap",
+              "corr": 0.6568267475750813
+            }
+          ],
+          "Industrial Production (YoY)": [
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "ap",
+              "corr": -0.8400592561713556
+            },
+            {
+              "metric": "CPI (YoY)",
+              "kind": "ap",
+              "corr": 0.6302561034392774
+            },
+            {
+              "metric": "Housing Starts (MoM)",
+              "kind": "af",
+              "corr": -0.6034203927241361
+            },
+            {
+              "metric": "Core CPI (MoM)",
+              "kind": "ap",
+              "corr": 0.5585702049388267
+            },
+            {
+              "metric": "Participation Rate",
+              "kind": "ap",
+              "corr": 0.5373582527687961
+            },
+            {
+              "metric": "CB Consumer Confidence",
+              "kind": "ap",
+              "corr": 0.5338747174377798
+            },
+            {
+              "metric": "Core CPI (YoY)",
+              "kind": "ap",
+              "corr": 0.5322464015801366
+            },
+            {
+              "metric": "U6 Unemployment Rate",
+              "kind": "ap",
+              "corr": -0.4970821641370476
+            },
+            {
+              "metric": "Core CPI (YoY)",
+              "kind": "af",
+              "corr": 0.4939781893022806
+            },
+            {
+              "metric": "Unemployment Rate",
+              "kind": "ap",
+              "corr": -0.4786142412594089
+            }
+          ],
+          "Average Hourly Earnings (YoY) (YoY)": [
+            {
+              "metric": "US Leading Index (MoM)",
+              "kind": "ap",
+              "corr": -0.61698251480061
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "ap",
+              "corr": -0.6104711858859013
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "ap",
+              "corr": 0.5743265453429728
+            },
+            {
+              "metric": "CB Consumer Confidence",
+              "kind": "ap",
+              "corr": -0.5526857841790052
+            },
+            {
+              "metric": "Michigan Consumer Sentiment",
+              "kind": "ap",
+              "corr": -0.5243934579174496
+            },
+            {
+              "metric": "NY Empire State Manufacturing Index",
+              "kind": "ap",
+              "corr": -0.5039918582324957
+            },
+            {
+              "metric": "ISM Non-Manufacturing Employment",
+              "kind": "ap",
+              "corr": -0.4998108704514948
+            },
+            {
+              "metric": "Philly Fed Employment",
+              "kind": "ap",
+              "corr": -0.4914543675630673
+            },
+            {
+              "metric": "Factory Orders (MoM)",
+              "kind": "ap",
+              "corr": -0.4858562582337364
+            },
+            {
+              "metric": "Personal Spending (MoM)",
+              "kind": "ap",
+              "corr": -0.4759868979605391
+            }
+          ],
+          "Retail Inventories Ex Auto": [
+            {
+              "metric": "Export Price Index (MoM)",
+              "kind": "af",
+              "corr": -0.3283944775821957
+            },
+            {
+              "metric": "30-Year TIPS Auction",
+              "kind": "ap",
+              "corr": -0.31805265930875476
+            },
+            {
+              "metric": "Export Price Index (MoM)",
+              "kind": "ap",
+              "corr": -0.26463695689822386
+            },
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "af",
+              "corr": -0.25128855906916814
+            },
+            {
+              "metric": "Housing Starts",
+              "kind": "af",
+              "corr": 0.2464510962320696
+            },
+            {
+              "metric": "API Weekly Crude Oil Stock",
+              "kind": "af",
+              "corr": -0.2449048789292031
+            },
+            {
+              "metric": "PPI (MoM)",
+              "kind": "af",
+              "corr": -0.24403440918680822
+            },
+            {
+              "metric": "Core Retail Sales (MoM)",
+              "kind": "af",
+              "corr": -0.2310625431498959
+            },
+            {
+              "metric": "CFTC S&P 500 speculative net positions",
+              "kind": "ap",
+              "corr": 0.22655372527202966
+            },
+            {
+              "metric": "Retail Control (MoM)",
+              "kind": "ap",
+              "corr": -0.22089126086997551
+            }
+          ],
+          "CFTC Nasdaq 100 speculative net positions": [
+            {
+              "metric": "Core Durable Goods Orders (MoM)",
+              "kind": "af",
+              "corr": -0.196007495345772
+            },
+            {
+              "metric": "Michigan Consumer Expectations",
+              "kind": "af",
+              "corr": -0.1663951861323248
+            },
+            {
+              "metric": "CFTC Crude Oil speculative net positions",
+              "kind": "ap",
+              "corr": 0.14503336853701798
+            },
+            {
+              "metric": "Michigan Consumer Sentiment",
+              "kind": "af",
+              "corr": -0.12088248588308827
+            },
+            {
+              "metric": "Continuing Jobless Claims",
+              "kind": "af",
+              "corr": -0.10609935860438321
+            },
+            {
+              "metric": "S&P/CS HPI Composite - 20 n.s.a. (MoM)",
+              "kind": "af",
+              "corr": 0.0977788943026974
+            },
+            {
+              "metric": "Trade Balance",
+              "kind": "af",
+              "corr": 0.09714548722705914
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "ap",
+              "corr": -0.09624970142987609
+            },
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "af",
+              "corr": 0.09587430966552135
+            },
+            {
+              "metric": "CB Consumer Confidence",
+              "kind": "af",
+              "corr": 0.0873594127918057
+            }
+          ],
+          "PCE Price index (YoY)": [
+            {
+              "metric": "CPI (YoY)",
+              "kind": "ap",
+              "corr": 0.9290136299789318
+            },
+            {
+              "metric": "Industrial Production (YoY)",
+              "kind": "ap",
+              "corr": 0.7432794365065164
+            },
+            {
+              "metric": "Core CPI (YoY)",
+              "kind": "ap",
+              "corr": 0.7248189386352996
+            },
+            {
+              "metric": "Average Hourly Earnings (YoY) (YoY)",
+              "kind": "ap",
+              "corr": -0.6034993061496873
+            },
+            {
+              "metric": "Core Durable Goods Orders (MoM)",
+              "kind": "af",
+              "corr": -0.5808887376109955
+            },
+            {
+              "metric": "Participation Rate",
+              "kind": "ap",
+              "corr": 0.5566445647339545
+            },
+            {
+              "metric": "S&P/CS HPI Composite - 20 n.s.a. (MoM)",
+              "kind": "af",
+              "corr": -0.5529138748664052
+            },
+            {
+              "metric": "Core CPI (YoY)",
+              "kind": "af",
+              "corr": 0.5501221250772942
+            },
+            {
+              "metric": "ISM Non-Manufacturing Employment",
+              "kind": "ap",
+              "corr": 0.5466638393636536
+            },
+            {
+              "metric": "30-Year TIPS Auction",
+              "kind": "ap",
+              "corr": 0.5262519384152851
+            }
+          ],
+          "PCE price index (MoM)": [
+            {
+              "metric": "CPI (MoM)",
+              "kind": "ap",
+              "corr": 0.8798337924964985
+            },
+            {
+              "metric": "Import Price Index (MoM)",
+              "kind": "ap",
+              "corr": 0.6996874478062006
+            },
+            {
+              "metric": "Export Price Index (MoM)",
+              "kind": "ap",
+              "corr": 0.6458294924526862
+            },
+            {
+              "metric": "NY Empire State Manufacturing Index",
+              "kind": "ap",
+              "corr": 0.6063311729503587
+            },
+            {
+              "metric": "30-Year TIPS Auction",
+              "kind": "ap",
+              "corr": 0.5902878332447546
+            },
+            {
+              "metric": "Industrial Production (MoM)",
+              "kind": "ap",
+              "corr": 0.5757979843653059
+            },
+            {
+              "metric": "Cap Goods Ship Non Defense Ex Air (MoM)",
+              "kind": "ap",
+              "corr": 0.5714968431625809
+            },
+            {
+              "metric": "Core Durable Goods Orders (MoM)",
+              "kind": "ap",
+              "corr": 0.5572844269218256
+            },
+            {
+              "metric": "Imports",
+              "kind": "ap",
+              "corr": -0.5496869113047617
+            },
+            {
+              "metric": "Retail Sales (MoM)",
+              "kind": "af",
+              "corr": 0.5453478682453371
+            }
+          ],
+          "Seevol Cushing Storage Report": [
+            {
+              "metric": "Cushing Crude Oil Inventories",
+              "kind": "af",
+              "corr": 0.6034530896592535
+            },
+            {
+              "metric": "Crude Oil Inventories",
+              "kind": "ap",
+              "corr": 0.429742705752502
+            },
+            {
+              "metric": "Initial Jobless Claims",
+              "kind": "ap",
+              "corr": 0.32444045227533624
+            },
+            {
+              "metric": "Crude Oil Inventories",
+              "kind": "af",
+              "corr": 0.3153062657104657
+            },
+            {
+              "metric": "Gold Index",
+              "kind": "ap",
+              "corr": -0.31182918571582047
+            },
+            {
+              "metric": "ADP Nonfarm Employment Change",
+              "kind": "ap",
+              "corr": 0.29329699944657983
+            },
+            {
+              "metric": "CB Consumer Confidence",
+              "kind": "ap",
+              "corr": 0.261719424560416
+            },
+            {
+              "metric": "Import Price Index (MoM)",
+              "kind": "ap",
+              "corr": 0.24947707913228903
+            },
+            {
+              "metric": "ISM Manufacturing Employment",
+              "kind": "ap",
+              "corr": 0.23630884951137496
+            },
+            {
+              "metric": "TIC Net Long-Term Transactions",
+              "kind": "af",
+              "corr": 0.23158638871135098
+            }
+          ],
+          "20-Year Bond Auction": [
+            {
+              "metric": "10-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.7054093620459916
+            },
+            {
+              "metric": "30-Year Bond Auction",
+              "kind": "ap",
+              "corr": 0.6619119580540874
+            },
+            {
+              "metric": "API Weekly Crude Oil Stock",
+              "kind": "ap",
+              "corr": -0.5406441554814224
+            },
+            {
+              "metric": "Crude Oil Inventories",
+              "kind": "ap",
+              "corr": -0.5331023545772614
+            },
+            {
+              "metric": "Fed's Balance Sheet",
+              "kind": "ap",
+              "corr": -0.49911101979299766
+            },
+            {
+              "metric": "3-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.4877109838625474
+            },
+            {
+              "metric": "ISM Non-Manufacturing PMI",
+              "kind": "ap",
+              "corr": -0.4876888731789377
+            },
+            {
+              "metric": "7-Year Note Auction",
+              "kind": "ap",
+              "corr": 0.48017006804305146
+            },
+            {
+              "metric": "ISM Non-Manufacturing PMI",
+              "kind": "af",
+              "corr": -0.4795129854806402
+            },
+            {
+              "metric": "Core PCE Price Index (MoM)",
+              "kind": "af",
+              "corr": 0.4738765068111925
+            }
+          ]
+        },
+        "predictor": {
+          "kind": "vote_last",
+          "confidence": "maxp*(maxp-second)",
+          "recommended_threshold": 0.25,
+          "enabled_metrics": {
+            "Housing Starts (MoM)": {
+              "acc": 0.8,
+              "n": 25,
+              "coverage": 0.8333333333333334,
+              "th": 0.1,
+              "n_test": 30
+            },
+            "Industrial Production (YoY)": {
+              "acc": 0.7142857142857143,
+              "n": 14,
+              "coverage": 0.4375,
+              "th": 0.25,
+              "n_test": 32
+            },
+            "20-Year Bond Auction": {
+              "acc": 0.75,
+              "n": 12,
+              "coverage": 0.2857142857142857,
+              "th": 0.6,
+              "n_test": 42
+            },
+            "Existing Home Sales (MoM)": {
+              "acc": 0.76,
+              "n": 25,
+              "coverage": 0.8064516129032258,
+              "th": 0.1,
+              "n_test": 31
+            },
+            "New Home Sales (MoM)": {
+              "acc": 0.7058823529411765,
+              "n": 17,
+              "coverage": 0.6071428571428571,
+              "th": 0.35,
+              "n_test": 28
+            },
+            "2-Year Note Auction": {
+              "acc": 0.7037037037037037,
+              "n": 27,
+              "coverage": 0.6428571428571429,
+              "th": 0.25,
+              "n_test": 42
+            },
+            "5-Year Note Auction": {
+              "acc": 0.8285714285714286,
+              "n": 35,
+              "coverage": 0.8333333333333334,
+              "th": 0.1,
+              "n_test": 42
+            },
+            "7-Year Note Auction": {
+              "acc": 0.8108108108108109,
+              "n": 37,
+              "coverage": 0.8809523809523809,
+              "th": 0.1,
+              "n_test": 42
+            },
+            "Imports": {
+              "acc": 0.7,
+              "n": 10,
+              "coverage": 0.2777777777777778,
+              "th": 0.3,
+              "n_test": 36
+            },
+            "3-Year Note Auction": {
+              "acc": 0.7142857142857143,
+              "n": 35,
+              "coverage": 0.8536585365853658,
+              "th": 0.1,
+              "n_test": 41
+            },
+            "10-Year Note Auction": {
+              "acc": 0.7777777777777778,
+              "n": 36,
+              "coverage": 0.8780487804878049,
+              "th": 0.1,
+              "n_test": 41
+            },
+            "30-Year Bond Auction": {
+              "acc": 0.7837837837837838,
+              "n": 37,
+              "coverage": 0.9024390243902439,
+              "th": 0.1,
+              "n_test": 41
+            }
+          },
+          "eval": {
+            "acc": 0.7101063829787234,
+            "n": 376,
+            "confidence": "maxp*(maxp-second)",
+            "thresholds": [
+              {
+                "th": 0.1,
+                "acc": 0.7101063829787234,
+                "n": 376,
+                "coverage": 0.8392857142857143
+              },
+              {
+                "th": 0.15,
+                "acc": 0.7343283582089553,
+                "n": 335,
+                "coverage": 0.7477678571428571
+              },
+              {
+                "th": 0.2,
+                "acc": 0.7467105263157895,
+                "n": 304,
+                "coverage": 0.6785714285714286
+              },
+              {
+                "th": 0.25,
+                "acc": 0.762589928057554,
+                "n": 278,
+                "coverage": 0.6205357142857143
+              },
+              {
+                "th": 0.3,
+                "acc": 0.7790697674418605,
+                "n": 258,
+                "coverage": 0.5758928571428571
+              },
+              {
+                "th": 0.35,
+                "acc": 0.7914893617021277,
+                "n": 235,
+                "coverage": 0.5245535714285714
+              },
+              {
+                "th": 0.4,
+                "acc": 0.8076923076923077,
+                "n": 208,
+                "coverage": 0.4642857142857143
+              },
+              {
+                "th": 0.45,
+                "acc": 0.7978723404255319,
+                "n": 188,
+                "coverage": 0.41964285714285715
+              },
+              {
+                "th": 0.5,
+                "acc": 0.8083832335329342,
+                "n": 167,
+                "coverage": 0.37276785714285715
+              },
+              {
+                "th": 0.55,
+                "acc": 0.8273381294964028,
+                "n": 139,
+                "coverage": 0.31026785714285715
+              },
+              {
+                "th": 0.6,
+                "acc": 0.8173913043478261,
+                "n": 115,
+                "coverage": 0.25669642857142855
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

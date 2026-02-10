@@ -58,7 +58,7 @@ const parseComparableNumber = (rawValue: string) => {
     .replaceAll("%", "")
     .replaceAll(" ", "");
 
-  const match = cleaned.match(/^([+-]?\d+(?:\.\d+)?)([kmb])?$/i);
+  const match = cleaned.match(/^([+-]?\d+(?:\.\d+)?)([kmbt])?$/i);
   if (!match) return null;
 
   const base = Number(match[1]);
@@ -68,6 +68,7 @@ const parseComparableNumber = (rawValue: string) => {
   if (suffix === "k") return base * 1_000;
   if (suffix === "m") return base * 1_000_000;
   if (suffix === "b") return base * 1_000_000_000;
+  if (suffix === "t") return base * 1_000_000_000_000;
   return base;
 };
 
