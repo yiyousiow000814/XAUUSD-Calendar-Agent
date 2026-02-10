@@ -239,6 +239,7 @@ fn build_unified_outlook_fallback(
         bucket_mode: BucketMode,
         offsets: Vec<i64>,
         p_up: Vec<f64>,
+        p50_all: Vec<f64>,
         in_display_window: bool,
         w_by_grid: Vec<f64>,
         logit_delta_by_grid: Vec<f64>,
@@ -250,6 +251,7 @@ fn build_unified_outlook_fallback(
     }
     let now_utc = Utc::now();
 
+    let shrink_k = 40.0;
     let build_nearby = |use_actual: bool| -> Vec<NearbyEvent> {
         let mut nearby: Vec<NearbyEvent> = vec![];
         for e in runtime.calendar.events.iter() {
@@ -332,20 +334,30 @@ fn build_unified_outlook_fallback(
 
             let mut offsets: Vec<i64> = vec![];
             let mut p_up: Vec<f64> = vec![];
+            let mut p50_all: Vec<f64> = vec![];
             for off in windows_sorted.iter().copied() {
                 let key = off.to_string();
                 // Selected bucket first.
                 if let Some(bk) = bucket_choice {
                     if let Some(stats) = buckets.get(bk).and_then(|v| v.get(&key)) {
-                        let p = stats.get("p_up").and_then(|v| v.as_f64()).or_else(|| {
+                        let p_raw = stats.get("p_up").and_then(|v| v.as_f64()).or_else(|| {
                             stats
                                 .get("p_down")
                                 .and_then(|v| v.as_f64())
                                 .map(|d| 1.0 - d)
                         });
-                        if let Some(p) = p {
+                        if let Some(p) = p_raw {
+                            let n = stats
+                                .get("n")
+                                .and_then(|v| v.as_f64())
+                                .unwrap_or(0.0)
+                                .max(0.0);
+                            let shrink = if n > 0.0 { n / (n + shrink_k) } else { 0.0 };
+                            let p = 0.5 + (p - 0.5) * shrink;
+                            let med = stats.get("p50_all").and_then(|v| v.as_f64()).unwrap_or(0.0);
                             offsets.push(off);
                             p_up.push(p.clamp(0.0, 1.0));
+                            p50_all.push(med);
                             continue;
                         }
                     }
@@ -356,12 +368,16 @@ fn build_unified_outlook_fallback(
                     break;
                 };
                 let mut pup = 0.5;
+                let mut p50 = 0.0;
+                let mut n_total = 0.0;
                 let mut used = false;
                 for (b, w) in bucket_weights.iter() {
                     let stats = buckets.get(b).and_then(|v| v.get(&key));
                     let Some(stats) = stats else {
                         continue;
                     };
+                    let n = stats.get("n").and_then(|v| v.as_f64()).unwrap_or(0.0);
+                    n_total += n.max(0.0);
                     let p = stats.get("p_up").and_then(|v| v.as_f64()).or_else(|| {
                         stats
                             .get("p_down")
@@ -372,13 +388,23 @@ fn build_unified_outlook_fallback(
                         pup += (p - 0.5) * *w;
                         used = true;
                     }
+                    if let Some(m) = stats.get("p50_all").and_then(|v| v.as_f64()) {
+                        p50 += m * *w;
+                    }
                 }
                 if used {
+                    let shrink = if n_total > 0.0 {
+                        n_total / (n_total + shrink_k)
+                    } else {
+                        0.0
+                    };
+                    pup = 0.5 + (pup - 0.5) * shrink;
                     offsets.push(off);
                     p_up.push(pup.clamp(0.0, 1.0));
+                    p50_all.push(p50);
                 }
             }
-            if offsets.len() < 2 {
+            if offsets.len() < 2 || p50_all.len() != offsets.len() || p_up.len() != offsets.len() {
                 continue;
             }
 
@@ -401,6 +427,7 @@ fn build_unified_outlook_fallback(
                 bucket_mode,
                 offsets,
                 p_up,
+                p50_all,
                 in_display_window,
                 w_by_grid: vec![0.0; grid.len()],
                 logit_delta_by_grid: vec![0.0; grid.len()],
@@ -415,6 +442,7 @@ fn build_unified_outlook_fallback(
     // It keeps "macro regime" signals from nearby events around longer, instead of decaying too quickly.
     let tau_minutes = 480.0; // ~8h decay
     let delta_scale = 6.0; // amplify small deltas so the path has visible curvature
+    let mag_ref = 0.05; // typical median move magnitude where signal starts to matter
 
     let mut nearby = build_nearby(true);
     if nearby.is_empty() {
@@ -449,7 +477,14 @@ fn build_unified_outlook_fallback(
             if w <= 1e-9 {
                 continue;
             }
-            let logit_delta = logit(pup) - logit(0.5);
+            let med = interp_piecewise(&e.offsets, &e.p50_all, rel, 0.0);
+            let mag = med.abs();
+            let mag_factor = if mag_ref > 0.0 {
+                mag / (mag + mag_ref)
+            } else {
+                1.0
+            };
+            let logit_delta = (logit(pup) - logit(0.5)) * mag_factor;
             sum_w += w;
             sum_logit += w * logit_delta;
             e.w_by_grid[idx] = w;
@@ -486,7 +521,14 @@ fn build_unified_outlook_fallback(
                     if w <= 1e-9 {
                         continue;
                     }
-                    let logit_delta = logit(pup) - logit(0.5);
+                    let med = interp_piecewise(&e.offsets, &e.p50_all, rel, 0.0);
+                    let mag = med.abs();
+                    let mag_factor = if mag_ref > 0.0 {
+                        mag / (mag + mag_ref)
+                    } else {
+                        1.0
+                    };
+                    let logit_delta = (logit(pup) - logit(0.5)) * mag_factor;
                     sum_w += w;
                     sum_logit += w * logit_delta;
                 }

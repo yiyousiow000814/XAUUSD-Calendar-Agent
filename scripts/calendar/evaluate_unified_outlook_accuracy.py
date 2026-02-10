@@ -5,7 +5,9 @@ This mirrors the Rust fallback builder in `commands/analysis.rs::build_unified_o
   - Impact model: `data/analysis/xauusd_event_impact_usd.json` (bucket-mixed baseline)
   - Schedule context: use historical release instances from `data/event_history_index/*_event_history_clean.csv`
   - Time grid: -24h..+24h, 15m step
-  - Combine contributions in logit space with exp-decay (tau=180m) and delta_scale=6
+  - Combine contributions in logit space with exp-decay (tau=480m) and delta_scale=6
+  - Shrink low-N bucket probabilities toward 0.5 (shrink_k=40)
+  - Scale each logit delta by median-move magnitude (p50_all) so tiny moves don't dominate (mag_ref=0.05)
 
 Accuracy definition (directional):
   - For each anchor release and each horizon, we compare:
@@ -148,6 +150,8 @@ def _interp_piecewise(xs: list[int], ys: list[float], x: int, default: float) ->
 class ImpactMetric:
     offsets: list[int]
     p_up: list[float]
+    p50_all: list[float]
+    n: list[float]
 
 
 def _load_impact(path: Path) -> tuple[list[int], dict[str, dict], dict[str, ImpactMetric]]:
@@ -188,14 +192,22 @@ def _load_impact(path: Path) -> tuple[list[int], dict[str, dict], dict[str, Impa
 
         offs: list[int] = []
         pups: list[float] = []
+        p50s: list[float] = []
+        ns: list[float] = []
         for off in windows_sorted:
             key = str(off)
             pup = 0.5
+            p50 = 0.0
+            n_total = 0.0
             used = False
             for b, w in bucket_weights:
                 stats = (buckets.get(b) or {}).get(key)
                 if not isinstance(stats, dict):
                     continue
+                try:
+                    n_total += float(stats.get("n") or 0.0)
+                except Exception:
+                    pass
                 p = stats.get("p_up")
                 if p is None:
                     d = stats.get("p_down")
@@ -203,12 +215,19 @@ def _load_impact(path: Path) -> tuple[list[int], dict[str, dict], dict[str, Impa
                 if p is None:
                     continue
                 pup += (float(p) - 0.5) * float(w)
+                # Use weighted average of per-bucket median as a rough "typical move" magnitude proxy.
+                try:
+                    p50 += float(stats.get("p50_all") or 0.0) * float(w)
+                except Exception:
+                    pass
                 used = True
             if used:
                 offs.append(int(off))
                 pups.append(float(np.clip(pup, 0.0, 1.0)))
+                p50s.append(float(p50))
+                ns.append(float(n_total))
         if len(offs) >= 2:
-            curves[metric_id] = ImpactMetric(offsets=offs, p_up=pups)
+            curves[metric_id] = ImpactMetric(offsets=offs, p_up=pups, p50_all=p50s, n=ns)
 
     return windows_sorted, events_obj, curves
 
@@ -324,7 +343,7 @@ def _compute_unified_path_for_anchor(
     impact_events_obj: dict[str, dict],
     grid_minutes: list[int],
     include_half_minutes: int = 2880,
-    tau_minutes: float = 180.0,
+    tau_minutes: float = 480.0,
     delta_scale: float = 6.0,
 ) -> Optional[list[float]]:
     start = anchor_dt_utc - timedelta(minutes=include_half_minutes)
@@ -378,8 +397,14 @@ def _compute_unified_path_for_anchor(
         if not isinstance(bucket, dict):
             return base
 
+        # Shrink p_up toward 0.5 when the sample size is small to reduce noise
+        # from low-N buckets (which can look unrealistically extreme).
+        shrink_k = 40.0
+
         offs: list[int] = []
         pups: list[float] = []
+        p50s: list[float] = []
+        ns: list[float] = []
         for off_s, stats in bucket.items():
             if not isinstance(stats, dict):
                 continue
@@ -393,14 +418,28 @@ def _compute_unified_path_for_anchor(
                 p_up = (1.0 - float(dwn)) if dwn is not None else None
             if p_up is None:
                 continue
+            try:
+                n = float(stats.get("n") or 0.0)
+            except Exception:
+                n = 0.0
+            shrink = n / (n + shrink_k) if n > 0 else 0.0
+            p_up = 0.5 + (float(p_up) - 0.5) * float(shrink)
+            try:
+                p50 = float(stats.get("p50_all") or 0.0)
+            except Exception:
+                p50 = 0.0
             offs.append(off)
             pups.append(float(np.clip(float(p_up), 0.0, 1.0)))
-        if len(offs) < 2:
+            p50s.append(float(p50))
+            ns.append(float(n))
+        if len(offs) < 2 or len(p50s) != len(offs) or len(ns) != len(offs):
             return base
-        pairs = sorted(zip(offs, pups), key=lambda x: x[0])
-        offs = [o for o, _ in pairs]
-        pups = [v for _, v in pairs]
-        return ImpactMetric(offsets=offs, p_up=pups)
+        triples = sorted(zip(offs, pups, p50s, ns), key=lambda x: x[0])
+        offs = [o for o, _, _, _ in triples]
+        pups = [v for _, v, _, _ in triples]
+        p50s = [v for _, _, v, _ in triples]
+        ns = [v for _, _, _, v in triples]
+        return ImpactMetric(offsets=offs, p_up=pups, p50_all=p50s, n=ns)
 
     for _, r in window.iterrows():
         ev_name = str(r["event"])
@@ -415,6 +454,9 @@ def _compute_unified_path_for_anchor(
 
     series: list[float] = []
     logit_05 = _logit(0.5)
+    # Scale down weak/low-magnitude signals so the aggregate isn't dominated by
+    # tiny moves that are effectively noise at the 15m..24h horizons.
+    mag_ref = 0.05
     for t in grid_minutes:
         abs_dt = anchor_dt_utc + timedelta(minutes=int(t))
         sum_w = 0.0
@@ -426,7 +468,10 @@ def _compute_unified_path_for_anchor(
             w = float(ev_w) * float(decay)
             if w <= 1e-9:
                 continue
-            logit_delta = _logit(pup) - logit_05
+            med = _interp_piecewise(curve.offsets, curve.p50_all, rel, 0.0)
+            mag = abs(float(med))
+            mag_factor = mag / (mag + mag_ref) if mag_ref > 0 else 1.0
+            logit_delta = (_logit(pup) - logit_05) * float(mag_factor)
             sum_w += w
             sum_logit += w * logit_delta
         if sum_w > 0.0:
@@ -453,7 +498,7 @@ def main() -> int:
     ap.add_argument("--max-anchors", type=int, default=800, help="Limit anchors for speed (most recent first).")
     ap.add_argument("--years", type=str, default="2017-2026", help="Inclusive year range, e.g. 2019-2025")
     ap.add_argument("--grid-step-minutes", type=int, default=15, help="Time grid step in minutes (default 15).")
-    ap.add_argument("--tau-minutes", type=float, default=180.0, help="Exp-decay tau in minutes (default 180).")
+    ap.add_argument("--tau-minutes", type=float, default=480.0, help="Exp-decay tau in minutes (default 480).")
     ap.add_argument("--delta-scale", type=float, default=6.0, help="Logit delta scale (default 6).")
     ap.add_argument(
         "--eval-from-minutes",
