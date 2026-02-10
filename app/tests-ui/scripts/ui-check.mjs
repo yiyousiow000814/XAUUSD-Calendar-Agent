@@ -3331,28 +3331,69 @@ const main = async () => {
           }
 
           const deepToggle = impactControls
-            .locator("button.history-toggle")
+            .locator("button.segment")
             .filter({ hasText: "Deep Analysis" })
             .first();
           if (await deepToggle.count()) {
             await deepToggle.click();
-            await page.waitForTimeout(160);
+            const deepRoot = historyModal.locator("[data-qa='qa:history:deep-analysis']").first();
+            await deepRoot.waitFor({ state: "visible", timeout: 8000 }).catch(() => null);
+            await page.waitForTimeout(180);
+
             artifacts.push({
               scenario: "event-history-modal",
               theme: theme.key,
               state: "impact-deep",
-              label: "History modal Impact deep analysis placeholder",
+              label: "History modal Impact deep analysis",
               path: await captureState(page, "event-history-modal", theme.key, "impact-deep", {
                 element: historyModal
               })
             });
+
+            await runCheck(theme.key, "Deep analysis Predict Release bars aligned", async () => {
+              const result = await page.evaluate(() => {
+                const root = document.querySelector("[data-qa='qa:history:deep-analysis']");
+                if (!root) return { ok: true, skipped: true, reason: "deep-analysis not visible" };
+                const tris = Array.from(root.querySelectorAll(".deep-grid .deep-tri"));
+                if (tris.length < 2) return { ok: true, skipped: true, reason: "not enough tri bars" };
+                const a = tris[0]?.getBoundingClientRect();
+                const b = tris[1]?.getBoundingClientRect();
+                if (!a || !b) return { ok: true, skipped: true, reason: "missing rects" };
+                // If the grid collapses to one column, skip (bars won't share a baseline).
+                if (Math.abs(a.x - b.x) < 10) return { ok: true, skipped: true, reason: "single-column layout" };
+                const diff = Math.abs(a.bottom - b.bottom);
+                return { ok: diff <= 1.5, diff };
+              });
+              if (result?.skipped) return;
+              if (!result?.ok) {
+                throw new Error(`Predict Release bars not aligned (bottom diff=${result?.diff})`);
+              }
+            });
+
+            const compareBtn = deepRoot
+              .locator("button.deep-help-btn")
+              .filter({ hasText: "Compare: forecast-only" })
+              .first();
+            if (await compareBtn.count()) {
+              await compareBtn.click();
+              await page.waitForTimeout(160);
+              artifacts.push({
+                scenario: "event-history-modal",
+                theme: theme.key,
+                state: "impact-deep-compare",
+                label: "Deep analysis compare: forecast-only leads into adjusted",
+                path: await captureState(page, "event-history-modal", theme.key, "impact-deep-compare", {
+                  element: historyModal
+                })
+              });
+            }
           }
 
           await runCheck(theme.key, "History modal Escape navigation", async () => {
-            const deep = historyModal.locator("[data-qa='qa:history:deep-placeholder']").first();
+            const deep = historyModal.locator("[data-qa='qa:history:deep-analysis']").first();
             if (await deep.count()) {
               await page.keyboard.press("Escape");
-              await page.waitForTimeout(120);
+              await page.waitForTimeout(140);
               if (await deep.count()) {
                 throw new Error("Escape did not return from Deep Analysis to Event Analysis");
               }
@@ -5909,5 +5950,3 @@ main().catch((err) => {
   console.error(err);
   shutdown("error").finally(() => process.exit(1));
 });
-
-
