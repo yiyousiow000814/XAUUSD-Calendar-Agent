@@ -4,13 +4,15 @@ Train a small, dependency-light Predict Release model from Economic_Calendar his
 We intentionally keep the model simple and portable:
   - Multinomial (3-way) logistic regression (softmax) trained with plain numpy
   - Features derived from the metric's own recent history (+ Forecast/Previous when available)
-  - Two sub-models:
-      1) Actual vs Previous (A-P), when Forecast exists for the selected release ("with_forecast")
-      2) Actual vs Previous (A-P), when Forecast is missing ("no_forecast")
+  - Three sub-models:
+      1) Actual vs Previous (A-P), when Forecast exists for the selected release ("ap_with_forecast")
+      2) Actual vs Previous (A-P), when Forecast is missing ("ap_no_forecast")
+      3) Actual vs Forecast (A-F), when Forecast exists ("af_with_forecast")
 
-Why (A-P) instead of (A-F)?
-  Predicting surprise sign (Actual-Forecast) is much harder and often close to a coin-flip.
-  (A-P) is more stable, works for events without Forecast, and is still useful for planning.
+Notes:
+  - A-P is the "main" task because it's more stable and applies to no-forecast events.
+  - A-F ("expectations surprise") is important for market reactions, but is harder to predict. Treat it as
+    lower-confidence unless the model's confidence score is high.
 
 The output JSON is designed to be consumed by the desktop app at runtime.
 No price data is required.
@@ -477,6 +479,79 @@ def _build_dataset_ap(
     return Dataset(X=X[order], y=y[order], t=t[order])
 
 
+def _build_dataset_af(
+    df: pd.DataFrame,
+    *,
+    eq_factor: float,
+    min_metric_points: int,
+) -> Dataset:
+    """Build samples for Actual vs Forecast (A-F) when Forecast exists.
+
+    This mirrors the app-side feature computation so the UI can run the same model
+    without extra dependencies.
+    """
+    X_rows: list[list[float]] = []
+    y_rows: list[int] = []
+    t_rows: list[np.datetime64] = []
+
+    grouped = df.groupby("metric_key", sort=False)
+    for _metric_key, g in grouped:
+        g = g.sort_values("dt_utc").reset_index(drop=True)
+        if len(g) < int(min_metric_points):
+            continue
+
+        a_all = g["a"].to_numpy(dtype="float64")
+        f_all = g["f"].to_numpy(dtype="float64")
+        p_all = g["p"].to_numpy(dtype="float64")
+        dt_all = g["dt_utc"].to_numpy(dtype="datetime64[ns]")
+
+        scale_ap = _median_abs(a_all - p_all)
+        scale_fp = _median_abs(f_all - p_all)
+        scale_af = _median_abs(a_all - f_all)
+        med_a, mad_a = _robust_loc_scale(a_all)
+
+        for i in range(6, len(g)):
+            # Need Actual and Forecast for the label.
+            if not np.isfinite(a_all[i]) or not np.isfinite(f_all[i]):
+                continue
+
+            # Feature windows (past only): need A/P history.
+            idxs = [i - 1, i - 2, i - 3, i - 4, i - 5, i - 6]
+            if not np.all(np.isfinite(a_all[idxs])) or not np.all(np.isfinite(p_all[idxs])):
+                continue
+
+            z_ap_1 = float((a_all[i - 1] - p_all[i - 1]) / scale_ap)
+            z_ap_3 = float(np.mean((a_all[i - 3 : i] - p_all[i - 3 : i]) / scale_ap))
+            z_ap_6 = float(np.mean((a_all[i - 6 : i] - p_all[i - 6 : i]) / scale_ap))
+            z_a_level = float((a_all[i - 1] - med_a) / mad_a)
+            z_a_slope6 = float(_slope(a_all[i - 6 : i]) / scale_ap)
+
+            # Forecast vs Previous for the selected release; if Previous is missing, treat as neutral.
+            z_fp = float((f_all[i] - p_all[i]) / scale_fp) if np.isfinite(p_all[i]) else 0.0
+
+            # Last surprise (optional when the previous release had Forecast).
+            z_af_1 = (
+                float((a_all[i - 1] - f_all[i - 1]) / scale_af) if np.isfinite(f_all[i - 1]) else 0.0
+            )
+
+            feats = [1.0, z_fp, z_ap_1, z_ap_3, z_ap_6, z_a_level, z_a_slope6, z_af_1]
+            if not np.all(np.isfinite(feats)):
+                continue
+
+            z_true = float((a_all[i] - f_all[i]) / scale_af)
+            y = _label_z(z_true, float(eq_factor))
+
+            X_rows.append(feats)
+            y_rows.append(int(y))
+            t_rows.append(dt_all[i])
+
+    X = np.asarray(X_rows, dtype="float64")
+    y = np.asarray(y_rows, dtype="int64")
+    t = np.asarray(t_rows)
+    order = np.argsort(t)
+    return Dataset(X=X[order], y=y[order], t=t[order])
+
+
 def _evaluate_model(
     X: np.ndarray,
     y: np.ndarray,
@@ -598,6 +673,11 @@ def main() -> int:
         eq_factor=eq_factor,
         min_metric_points=int(args.min_metric_points),
     )
+    ds_af = _build_dataset_af(
+        df,
+        eq_factor=eq_factor,
+        min_metric_points=int(args.min_metric_points),
+    )
 
     # Learn related metrics from the training-time cutoff only (avoid leaking test-period structure).
     n_nf = int(ds_no_f.t.size)
@@ -624,14 +704,17 @@ def main() -> int:
 
     train_wf, test_wf = split(ds_with_f)
     train_nf, test_nf = split(ds_no_f)
+    train_af, test_af = split(ds_af)
 
     # Train.
     W_wf = _train_softmax(train_wf.X, train_wf.y, l2=2e-2, lr=0.05, iters=1400)
     W_nf = _train_softmax(train_nf.X, train_nf.y, l2=3e-2, lr=0.04, iters=1800)
+    W_af = _train_softmax(train_af.X, train_af.y, l2=2e-2, lr=0.05, iters=1600)
 
     # Evaluate.
     eval_wf = _evaluate_model(test_wf.X, test_wf.y, W_wf, thresholds=thresholds)
     eval_nf = _evaluate_model(test_nf.X, test_nf.y, W_nf, thresholds=thresholds)
+    eval_af = _evaluate_model(test_af.X, test_af.y, W_af, thresholds=thresholds)
 
     # Evaluate relationship ("nowcast chain") predictor on no-forecast test samples, per metric.
     #
@@ -807,6 +890,9 @@ def main() -> int:
     # - No-Forecast: noisier; keep a stricter gate and let relationship-nowcast fill gaps.
     th_wf = _pick_threshold(eval_wf.get("thresholds", []), min_acc=0.78, min_coverage=0.65)
     th_nf = _pick_threshold(eval_nf.get("thresholds", []), min_acc=0.62, min_coverage=0.10)
+    # A-F is harder; pick a slightly looser gate so the UI can still show it often,
+    # but keep a reliability hint so users can sanity-check.
+    th_af = _pick_threshold(eval_af.get("thresholds", []), min_acc=0.60, min_coverage=0.40)
 
     payload: dict[str, Any] = {
         "schema": 1,
@@ -878,17 +964,36 @@ def main() -> int:
                     },
                 },
             },
+            "af_with_forecast": {
+                "task": "actual_vs_forecast",
+                "requires_forecast": True,
+                "features": [
+                    "bias",
+                    "z_fp",
+                    "z_ap_1",
+                    "z_ap_3",
+                    "z_ap_6",
+                    "z_a_level",
+                    "z_a_slope6",
+                    "z_af_1",
+                ],
+                "weights": W_af.tolist(),
+                "recommended_threshold": th_af,
+                "eval": eval_af,
+            },
         },
     }
 
     out_path = Path(args.out_json).expanduser().resolve()
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    # Write with LF so the JSON is stable across Windows/Linux checkouts.
+    out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8", newline="\n")
 
     print(f"Wrote model: {out_path}")
     print("ap_with_forecast test:", json.dumps(eval_wf, ensure_ascii=False))
     print("ap_no_forecast test:", json.dumps(eval_nf, ensure_ascii=False))
-    print(f"Recommended thresholds: with_forecast={th_wf:.2f} no_forecast={th_nf:.2f}")
+    print("af_with_forecast test:", json.dumps(eval_af, ensure_ascii=False))
+    print(f"Recommended thresholds: ap_with_forecast={th_wf:.2f} ap_no_forecast={th_nf:.2f} af_with_forecast={th_af:.2f}")
     return 0
 
 
