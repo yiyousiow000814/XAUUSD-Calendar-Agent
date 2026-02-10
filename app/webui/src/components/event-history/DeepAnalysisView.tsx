@@ -1038,6 +1038,7 @@ export function DeepAnalysisView({
           <div className="deep-card-k">Actual vs Previous</div>
           {(() => {
             const pv = pvChoice;
+            if (!pv) return <div className="deep-card-v">--</div>;
             const isModel = pvKind !== "proxy";
             const pred = pv?.pred0 ?? null;
             const predProb =
@@ -1081,7 +1082,9 @@ export function DeepAnalysisView({
                   const thPct = Math.round((pv.threshold ?? 0) * 100);
                   return `Calendar model: score=${confPct}% (th>=${thPct}%) · N=${pv.n}`;
                 }
-                return `${localPredict.proxyVsPrev.conditioned ? "Conditioned on " : "Based on "}${localPredict.proxyVsPrev.proxyLabel} - Previous: N=${localPredict.proxyVsPrev.n}`;
+                const proxy = localPredict.proxyVsPrev;
+                if (!proxy) return "Insufficient history for proxy baseline";
+                return `${proxy.conditioned ? "Conditioned on " : "Based on "}${proxy.proxyLabel} - Previous: N=${proxy.n}`;
               })()}
             </div>
             {(() => {
