@@ -277,13 +277,45 @@
 }
 
 .deep-card-v {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
   font-size: 20px;
   font-weight: 800;
   color: var(--text-strong);
   letter-spacing: -0.01em;
 }
 
-.deep-card-v.is-low {
+.deep-card-v-main {
+  line-height: 1.15;
+}
+
+.deep-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  user-select: none;
+}
+
+.deep-pill--low {
+  color: color-mix(in oklab, var(--accent) 88%, var(--text));
+  background: color-mix(in oklab, var(--accent) 14%, transparent);
+  border: 1px solid color-mix(in oklab, var(--accent) 42%, transparent);
+}
+
+[data-theme="light"] .deep-pill--low {
+  color: color-mix(in oklab, var(--accent) 78%, #0b0f14);
+  background: color-mix(in oklab, var(--accent) 12%, transparent);
+  border-color: color-mix(in oklab, var(--accent) 36%, transparent);
+}
+
+.deep-card-v.is-low .deep-card-v-main {
   opacity: 0.78;
 }
 

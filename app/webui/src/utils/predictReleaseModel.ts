@@ -35,6 +35,8 @@ export type PredictReleaseModelFile = {
   models: {
     ap_with_forecast: PredictReleaseSubModel;
     ap_no_forecast: PredictReleaseSubModel;
+    // Optional: expectation/surprise view when Forecast exists.
+    af_with_forecast?: PredictReleaseSubModel;
   };
 };
 

@@ -29,6 +29,26 @@ function MiniBars() {
   );
 }
 
+function MiniSurprise() {
+  // A tiny diagram: Actual around Forecast (beat / close / miss).
+  return (
+    <svg className="deep-tut-svg" viewBox="0 0 240 80" role="img" aria-label="Actual vs Forecast surprise">
+      <rect x="10" y="18" width="220" height="44" rx="10" className="deep-tut-surface" />
+      <line x1="22" y1="56" x2="224" y2="56" className="deep-tut-axis" />
+      <line x1="124" y1="26" x2="124" y2="60" className="deep-tut-tick" />
+      <circle cx="90" cy="46" r="3.8" className="deep-tut-dot soft" />
+      <circle cx="124" cy="40" r="3.8" className="deep-tut-dot" />
+      <circle cx="160" cy="34" r="3.8" className="deep-tut-dot soft" />
+      <text x="26" y="16" className="deep-tut-svg-label">
+        Surprise vs Forecast
+      </text>
+      <text x="108" y="72" className="deep-tut-svg-mini">
+        beat / close / miss
+      </text>
+    </svg>
+  );
+}
+
 function MiniApproxEq() {
   // A tiny diagram: "approx equal" as a tolerance band around Forecast.
   return (
@@ -201,10 +221,14 @@ export function DeepAnalysisMethodModal({
                   <div className="deep-tut-card-h">Predict Release</div>
                   <div className="deep-tut-card-p">
                     We estimate the chance that the next release will be above / approx equal / below the{" "}
-                    <b>Previous</b>.
+                    <b>Previous</b>. When Forecast exists, we also show the same breakdown vs <b>Forecast</b>{" "}
+                    (beat/miss expectations).
                   </div>
                   <div className="deep-tut-example">
                     Read it like this: <b>&gt; 88%</b> means <b>P(Actual &gt; Previous) ≈ 88%</b>.
+                  </div>
+                  <div className="deep-tut-example">
+                    Expectation example: <b>&lt; 66%</b> means <b>P(Actual &lt; Forecast) ≈ 66%</b>.
                   </div>
                   <div className="deep-tut-example">
                     How we form the guess:
@@ -217,6 +241,20 @@ export function DeepAnalysisMethodModal({
                   <div className="deep-tut-example">
                     Sanity check: we show <b>N</b> (history size), a confidence score, and a backtest reliability hint.
                     If confidence is low, treat the top line as a rough guess.
+                  </div>
+                </div>
+              </div>
+              <div className="deep-tut-card">
+                <MiniSurprise />
+                <div className="deep-tut-card-text">
+                  <div className="deep-tut-card-h">Why Forecast matters</div>
+                  <div className="deep-tut-card-p">
+                    Many short-term reactions are driven by <b>surprise</b>: Actual vs what the market expected
+                    (Forecast). That is why we show both comparisons.
+                  </div>
+                  <div className="deep-tut-example">
+                    If our A-P and A-F signals disagree, it usually means higher “surprise risk” (treat with extra
+                    caution).
                   </div>
                 </div>
               </div>

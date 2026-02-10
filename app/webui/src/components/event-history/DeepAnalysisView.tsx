@@ -798,7 +798,136 @@ export function DeepAnalysisView({
 
     const modelVsPrev = buildModelVsPrev();
 
-    return { recentMonths, recent, all, proxyVsPrev, modelVsPrev };
+    const buildModelVsForecast = () => {
+      const model: any = predictModel;
+      const classes: string[] = Array.isArray(model?.classes) ? model.classes : ["=", ">", "<"];
+      const sub: any = model?.models?.af_with_forecast;
+      const weights: number[][] = Array.isArray(sub?.weights) ? sub.weights : [];
+      if (weights.length < 2) return null;
+
+      // A-F requires Forecast for the selected release instance.
+      const hasForecast0 = typeof f0 === "number" && Number.isFinite(f0);
+      if (!hasForecast0) return null;
+
+      const diffsAp = rows
+        .filter(
+          (r) =>
+            typeof r.a === "number" &&
+            Number.isFinite(r.a) &&
+            typeof r.prev === "number" &&
+            Number.isFinite(r.prev)
+        )
+        .map((r) => (r.a as number) - (r.prev as number));
+      if (diffsAp.length < 12) return null;
+      const scaleAp = Math.max(1e-9, median(diffsAp.map((v) => Math.abs(v))));
+
+      const actualSeries = rows
+        .filter((r) => typeof r.a === "number" && Number.isFinite(r.a))
+        .map((r) => r.a as number);
+      if (actualSeries.length < 12) return null;
+      const medianCenter = median(actualSeries);
+      const mad = median(actualSeries.map((v) => Math.abs(v - medianCenter)));
+      const madA = Math.max(1e-9, mad);
+
+      const diffsFp = rows
+        .filter(
+          (r) =>
+            typeof r.f === "number" &&
+            Number.isFinite(r.f) &&
+            typeof r.prev === "number" &&
+            Number.isFinite(r.prev)
+        )
+        .map((r) => (r.f as number) - (r.prev as number));
+      const scaleFp = Math.max(1e-9, median(diffsFp.map((v) => Math.abs(v))));
+
+      const diffsAf = rows
+        .filter(
+          (r) =>
+            typeof r.a === "number" &&
+            Number.isFinite(r.a) &&
+            typeof r.f === "number" &&
+            Number.isFinite(r.f)
+        )
+        .map((r) => (r.a as number) - (r.f as number));
+      if (diffsAf.length < 12) return null;
+      const scaleAf = Math.max(1e-9, median(diffsAf.map((v) => Math.abs(v))));
+
+      const lastDiffs6 = diffsAp.slice(-6);
+      const lastDiffs3 = diffsAp.slice(-3);
+      const lastA6 = actualSeries.slice(-6);
+      const lastA = actualSeries[actualSeries.length - 1] as number;
+
+      const zAp1 = (lastDiffs6[lastDiffs6.length - 1] as number) / scaleAp;
+      const zAp3 = (lastDiffs3.reduce((a, b) => a + b, 0) / Math.max(1, lastDiffs3.length)) / scaleAp;
+      const zAp6 = (lastDiffs6.reduce((a, b) => a + b, 0) / Math.max(1, lastDiffs6.length)) / scaleAp;
+      const zALevel = (lastA - medianCenter) / madA;
+
+      const slope6 = (() => {
+        if (lastA6.length < 2) return 0;
+        const n = lastA6.length;
+        let sumX = 0;
+        let sumY = 0;
+        let sumXX = 0;
+        let sumXY = 0;
+        for (let i = 0; i < n; i += 1) {
+          const x = i;
+          const y = lastA6[i] as number;
+          sumX += x;
+          sumY += y;
+          sumXX += x * x;
+          sumXY += x * y;
+        }
+        const denom = n * sumXX - sumX * sumX;
+        if (!denom) return 0;
+        return (n * sumXY - sumX * sumY) / denom;
+      })();
+      const zASlope6 = slope6 / scaleAp;
+
+      const zAf1 = (() => {
+        for (let i = rows.length - 1; i >= 0; i -= 1) {
+          const r = rows[i];
+          if (!r) continue;
+          if (typeof r.a !== "number" || typeof r.f !== "number") continue;
+          if (!Number.isFinite(r.a) || !Number.isFinite(r.f)) continue;
+          return ((r.a as number) - (r.f as number)) / scaleAf;
+        }
+        return 0;
+      })();
+
+      const zFp =
+        typeof p0 === "number" && Number.isFinite(p0) && typeof f0 === "number" && Number.isFinite(f0)
+          ? ((f0 as number) - (p0 as number)) / scaleFp
+          : 0;
+
+      const features = [1, zFp, zAp1, zAp3, zAp6, zALevel, zASlope6, zAf1];
+
+      const probs = softmax1d(dotFeatures(weights, features));
+      if (probs.length < 3) return null;
+      const idx = probs.reduce((best, v, i) => (v > (probs[best] ?? 0) ? i : best), 0);
+      const pred0 = classes[idx] ?? "";
+      const max1 = Math.max(...probs);
+      const sorted = [...probs].sort((a, b) => b - a);
+      const max2 = sorted[1] ?? 0;
+      const score = max1 * Math.max(0, max1 - max2);
+      const th = typeof sub?.recommended_threshold === "number" ? sub.recommended_threshold : 0.25;
+      const backtestAcc = estimateBacktestAccAtThreshold(sub);
+
+      return {
+        pred0,
+        conf: score,
+        threshold: th,
+        reliable: score >= th,
+        n: diffsAf.length,
+        pEq: probs[0],
+        pGt: probs[1],
+        pLt: probs[2],
+        backtestAcc
+      };
+    };
+
+    const modelVsForecast = buildModelVsForecast();
+
+    return { recentMonths, recent, all, proxyVsPrev, modelVsPrev, modelVsForecast };
   }, [points, anchorDtUtc, displayOffsetMinutes, selectionActual, selectionForecast, selectionPrevious, predictModel]);
 
   const releaseSpark = useMemo(() => {
@@ -1033,7 +1162,7 @@ export function DeepAnalysisView({
   const content = (
     <>
       <div className="deep-block-title">Predict Release</div>
-      <div className="deep-grid is-single">
+      <div className="deep-grid">
         <div className="deep-card">
           <div className="deep-card-k">Actual vs Previous</div>
           {(() => {
@@ -1065,7 +1194,12 @@ export function DeepAnalysisView({
             const isLowConfidence = isModel && pv && !pv.reliable;
             return (
               <div className={`deep-card-v${isLowConfidence ? " is-low" : ""}`}>
-                {`${shownLabel} ${fmtPctNum(shownProb)}`}
+                <span className="deep-card-v-main">{`${shownLabel} ${fmtPctNum(shownProb)}`}</span>
+                {isLowConfidence ? (
+                  <span className="deep-pill deep-pill--low" title="Below confidence threshold">
+                    Low confidence
+                  </span>
+                ) : null}
               </div>
             );
           })()}
@@ -1168,6 +1302,179 @@ export function DeepAnalysisView({
               </div>
             </>
           ) : null}
+        </div>
+
+        <div className="deep-card">
+          <div className="deep-card-k">Actual vs Forecast</div>
+          {(() => {
+            const f0 = parseNumber(selectionForecast);
+            if (typeof f0 !== "number" || !Number.isFinite(f0)) return <div className="deep-card-v">--</div>;
+
+            const afModel = localPredict.modelVsForecast;
+            const hist = localPredict.recent.vsForecast;
+            const afHist =
+              hist?.n > 0
+                ? (() => {
+                    const pGt = typeof hist.pGt === "number" && Number.isFinite(hist.pGt) ? hist.pGt : 0;
+                    const pEq = typeof hist.pEq === "number" && Number.isFinite(hist.pEq) ? hist.pEq : 0;
+                    const pLt = typeof hist.pLt === "number" && Number.isFinite(hist.pLt) ? hist.pLt : 0;
+                    const items: Array<[">" | "=" | "<", number]> = [
+                      ["=", pEq],
+                      [">", pGt],
+                      ["<", pLt]
+                    ];
+                    items.sort((a, b) => (b[1] - a[1] !== 0 ? b[1] - a[1] : a[0].localeCompare(b[0])));
+                    const pred0 = items[0]?.[0] ?? "=";
+                    const sorted = [pEq, pGt, pLt].sort((a, b) => b - a);
+                    const max1 = sorted[0] ?? 0;
+                    const max2 = sorted[1] ?? 0;
+                    const score = max1 * Math.max(0, max1 - max2);
+                    const th = 0.12;
+                    return {
+                      source: "history" as const,
+                      pred0,
+                      conf: score,
+                      threshold: th,
+                      reliable: hist.n >= 12 && score >= th,
+                      n: hist.n,
+                      pEq,
+                      pGt,
+                      pLt
+                    };
+                  })()
+                : null;
+
+            const usingModel = Boolean(afModel && (afModel.reliable || !afHist));
+            const af = usingModel ? afModel : afHist;
+            const pred = (af?.pred0 ?? null) as ">" | "=" | "<" | null;
+            const predProb =
+              pred === ">"
+                ? (af?.pGt ?? null)
+                : pred === "="
+                  ? (af?.pEq ?? null)
+                  : pred === "<"
+                    ? (af?.pLt ?? null)
+                    : null;
+            const fallbackProb = af ? Math.max(af.pGt ?? 0, af.pEq ?? 0, af.pLt ?? 0) : null;
+            const shownProb = predProb ?? fallbackProb;
+            const shownLabel =
+              pred ??
+              (af
+                ? af.pGt >= (af.pEq ?? 0) && af.pGt >= (af.pLt ?? 0)
+                  ? ">"
+                  : (af.pEq ?? 0) >= (af.pLt ?? 0)
+                    ? "="
+                    : "<"
+                : "");
+            const isLowConfidence = Boolean(af && !af.reliable);
+            return (
+              <div className={`deep-card-v${isLowConfidence ? " is-low" : ""}`}>
+                <span className="deep-card-v-main">{`${shownLabel} ${fmtPctNum(shownProb)}`}</span>
+                {isLowConfidence ? (
+                  <span className="deep-pill deep-pill--low" title="Below confidence threshold">
+                    Low confidence
+                  </span>
+                ) : null}
+              </div>
+            );
+          })()}
+          <div className="deep-card-sub">
+            <div>
+              {(() => {
+                const f0 = parseNumber(selectionForecast);
+                if (typeof f0 !== "number" || !Number.isFinite(f0)) return "No forecast for this release";
+                const afModel = localPredict.modelVsForecast;
+                const hist = localPredict.recent.vsForecast;
+                const hasHist = Boolean(hist?.n);
+                if (afModel && (afModel.reliable || !hasHist)) {
+                  const confPct = Math.round((afModel.conf ?? 0) * 100);
+                  const thPct = Math.round((afModel.threshold ?? 0) * 100);
+                  return `Calendar model (A-F): score=${confPct}% (th>=${thPct}%) · N=${afModel.n}`;
+                }
+                if (!hist?.n) return "No forecast history";
+                return `History baseline (last ${localPredict.recentMonths}m): N=${hist.n}`;
+              })()}
+            </div>
+            {(() => {
+              const afModel = localPredict.modelVsForecast;
+              const hist = localPredict.recent.vsForecast;
+              const hasHist = Boolean(hist?.n);
+              const af = afModel && (afModel.reliable || !hasHist) ? afModel : null;
+              if (!af) return null;
+              if (typeof af.backtestAcc === "number" && Number.isFinite(af.backtestAcc)) {
+                const thPct = Math.round((af.threshold ?? 0) * 100);
+                const note = af.reliable ? "" : " · below confidence threshold";
+                return (
+                  <div className="deep-card-sub2">{`Backtest reliability (score>=${thPct}%): ${Math.round(
+                    af.backtestAcc * 100
+                  )}%${note}`}</div>
+                );
+              }
+              return af.reliable ? null : <div className="deep-card-sub2">Low confidence: treat as a rough guess</div>;
+            })()}
+            {localPredict.all.vsForecast.n > 0 ? (
+              <div className="deep-card-sub2">{`All history: N=${localPredict.all.vsForecast.n}`}</div>
+            ) : null}
+          </div>
+          {(() => {
+            const f0 = parseNumber(selectionForecast);
+            if (typeof f0 !== "number" || !Number.isFinite(f0)) return null;
+            const afModel = localPredict.modelVsForecast;
+            const hist = localPredict.recent.vsForecast;
+            const hasHist = Boolean(hist?.n);
+            const af =
+              afModel && (afModel.reliable || !hasHist)
+                ? afModel
+                : hist?.n
+                  ? {
+                      pred0:
+                        (hist.pGt ?? 0) >= (hist.pEq ?? 0) && (hist.pGt ?? 0) >= (hist.pLt ?? 0)
+                          ? ">"
+                          : (hist.pEq ?? 0) >= (hist.pLt ?? 0)
+                            ? "="
+                            : "<",
+                      pGt: hist.pGt ?? 0,
+                      pEq: hist.pEq ?? 0,
+                      pLt: hist.pLt ?? 0
+                    }
+                  : null;
+            if (!af || localPredict.all.vsForecast.n <= 0) return null;
+            return (
+              <>
+                <div className="deep-tri" aria-hidden="true">
+                  <div
+                    className="deep-tri-gt"
+                    style={{
+                      width: `${Math.round((af.pGt ?? 0) * 100)}%`
+                    }}
+                  />
+                  <div
+                    className="deep-tri-eq"
+                    style={{
+                      width: `${Math.round((af.pEq ?? 0) * 100)}%`
+                    }}
+                  />
+                  <div
+                    className="deep-tri-lt"
+                    style={{
+                      width: `${Math.round((af.pLt ?? 0) * 100)}%`
+                    }}
+                  />
+                </div>
+                <div className="deep-tri-legend">
+                  <span className={`deep-tri-chip gt${af.pred0 === ">" ? " is-picked" : ""}`}>{`> ${fmtPctNum(
+                    af.pGt ?? null
+                  )}`}</span>
+                  <span className={`deep-tri-chip eq${af.pred0 === "=" ? " is-picked" : ""}`}>{`= ${fmtPctNum(
+                    af.pEq ?? null
+                  )}`}</span>
+                  <span className={`deep-tri-chip lt${af.pred0 === "<" ? " is-picked" : ""}`}>{`< ${fmtPctNum(
+                    af.pLt ?? null
+                  )}`}</span>
+                </div>
+              </>
+            );
+          })()}
         </div>
       </div>
 
