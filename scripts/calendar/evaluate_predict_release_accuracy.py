@@ -11,7 +11,7 @@ This script provides two perspectives:
 2) Calendar model predictor (mirrors the app's Predict Release UI):
    - Multinomial logistic regression model stored at data/analysis/predict_release_model_usd.json
    - Task: Actual vs Previous (A-P) in {>,=,<}
-   - Uses confidence gating: only show predictions when score >= threshold,
+- Uses confidence gating: only show predictions when score >= threshold,
      otherwise the UI displays "--" (unable to predict).
    - Confidence score: maxProb * (maxProb - secondMaxProb)
 
@@ -25,6 +25,11 @@ It also reports stronger baselines for Actual vs Previous:
     linreg(10) pseudo-forecast from the last 10 Actual values (per-metric).
 
 No price data is needed.
+
+Note (repo behavior):
+  - The desktop app may additionally apply per-metric confidence gates and a relationship-based
+    "nowcast chain" to fill gaps for no-forecast releases. For an app-style combined evaluation,
+    use: scripts/calendar/evaluate_predict_release_combined.py
 """
 
 from __future__ import annotations
@@ -1047,10 +1052,16 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
             f"  - with Forecast: raw acc={wf_raw:.3f} n={wf_n} | "
             f"shown th={wf_th:.2f} acc={wf_shown_acc:.3f} cov={wf_cov:.3f}"
         )
-        print(
-            f"  - no Forecast:  raw acc={nf_raw:.3f} n={nf_n} | "
-            f"shown th={nf_th:.2f} acc={nf_shown_acc:.3f} cov={nf_cov:.3f}"
-        )
+        if nf_th >= 0.95:
+            print(
+                f"  - no Forecast:  raw acc={nf_raw:.3f} n={nf_n} | "
+                f"global gate disabled (th={nf_th:.2f}); see combined eval for app-style output"
+            )
+        else:
+            print(
+                f"  - no Forecast:  raw acc={nf_raw:.3f} n={nf_n} | "
+                f"shown th={nf_th:.2f} acc={nf_shown_acc:.3f} cov={nf_cov:.3f}"
+            )
         print(f"  - combined shown: acc={shown_acc:.3f} cov={shown_cov:.3f}")
     if thresholds:
         print("")
