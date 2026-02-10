@@ -102,6 +102,11 @@ def main() -> int:
     ap.add_argument("--currency", type=str, default="USD")
     ap.add_argument("--importance", nargs="*", default=["Medium", "High"])
     ap.add_argument("--model-json", type=Path, default=Path("data/analysis/predict_release_model_usd.json"))
+    ap.add_argument(
+        "--include-forecast",
+        action="store_true",
+        help="Also evaluate releases that have Forecast (still predicting Actual vs Previous).",
+    )
     args = ap.parse_args()
 
     model = json.loads(args.model_json.read_text(encoding="utf-8"))
@@ -134,7 +139,7 @@ def main() -> int:
     series_by_metric_ap = _build_metric_ap_series(df)
     series_by_metric_af = _build_metric_af_series(df)
 
-    # Build no-forecast samples (needs 6 past points for z history).
+    # Build samples (needs 6 past points for z history).
     samples: list[tuple[int, str, int]] = []
     for metric_key, g in df.groupby("metric_key", sort=False):
         metric_key = str(metric_key)
@@ -152,7 +157,7 @@ def main() -> int:
         for i in range(6, len(g)):
             if not (np.isfinite(a[i]) and np.isfinite(p[i])):
                 continue
-            if np.isfinite(f[i]):
+            if (not bool(args.include_forecast)) and np.isfinite(f[i]):
                 continue
             back = [i - 1, i - 2, i - 3, i - 4, i - 5, i - 6]
             if not np.all(np.isfinite(a[back])) or not np.all(np.isfinite(p[back])):
@@ -178,7 +183,8 @@ def main() -> int:
             continue
         enabled_total += 1
 
-        th = float(cfg.get("th") or global_th)
+        th_raw = cfg.get("th", None)
+        th = float(th_raw) if isinstance(th_raw, (int, float)) and np.isfinite(float(th_raw)) else float(global_th)
         res = _rel_vote_predict(
             metric,
             t_ns,
