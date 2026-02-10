@@ -1062,8 +1062,12 @@ export function DeepAnalysisView({
                     ? "="
                     : "<"
                 : "");
-            const canShow = !isModel || Boolean(pv?.reliable);
-            return <div className="deep-card-v">{canShow ? `${shownLabel} ${fmtPctNum(shownProb)}` : "--"}</div>;
+            const isLowConfidence = isModel && pv && !pv.reliable;
+            return (
+              <div className={`deep-card-v${isLowConfidence ? " is-low" : ""}`}>
+                {`${shownLabel} ${fmtPctNum(shownProb)}`}
+              </div>
+            );
           })()}
           <div className="deep-card-sub">
             <div>
@@ -1091,17 +1095,27 @@ export function DeepAnalysisView({
               if (pvKind === "nowcast" && pvChoice) {
                 const pv = pvChoice as any;
                 if (typeof pv?.backtestAcc === "number" && Number.isFinite(pv.backtestAcc)) {
-                  return <div className="deep-card-sub2">{`Backtest reliability (enabled metric): ${Math.round(pv.backtestAcc * 100)}%`}</div>;
+                  const note = pv?.reliable ? "" : " · below confidence threshold";
+                  return (
+                    <div className="deep-card-sub2">{`Backtest reliability (enabled metric): ${Math.round(
+                      pv.backtestAcc * 100
+                    )}%${note}`}</div>
+                  );
                 }
-                return pv?.reliable ? null : <div className="deep-card-sub2">Low confidence: unable to predict</div>;
+                return pv?.reliable ? null : <div className="deep-card-sub2">Low confidence: treat as a rough guess</div>;
               }
               if (pvKind === "model" && localPredict.modelVsPrev) {
                 const pv = localPredict.modelVsPrev;
                 if (typeof pv.backtestAcc === "number" && Number.isFinite(pv.backtestAcc)) {
                   const thPct = Math.round((pv.threshold ?? 0) * 100);
-                  return <div className="deep-card-sub2">{`Backtest reliability (score>=${thPct}%): ${Math.round(pv.backtestAcc * 100)}%`}</div>;
+                  const note = pv.reliable ? "" : " · below confidence threshold";
+                  return (
+                    <div className="deep-card-sub2">{`Backtest reliability (score>=${thPct}%): ${Math.round(
+                      pv.backtestAcc * 100
+                    )}%${note}`}</div>
+                  );
                 }
-                return pv.reliable ? null : <div className="deep-card-sub2">Low confidence: unable to predict</div>;
+                return pv.reliable ? null : <div className="deep-card-sub2">Low confidence: treat as a rough guess</div>;
               }
               return localPredict.proxyVsPrev?.matchRate ? (
                 <div className="deep-card-sub2">{`Reliability (recent match rate): ${Math.round(

@@ -240,6 +240,7 @@ fn build_unified_outlook_fallback(
     if runtime.calendar.events.is_empty() {
         return None;
     }
+    let now_utc = Utc::now();
     for e in runtime.calendar.events.iter() {
         if e.dt_utc < start || e.dt_utc > end {
             continue;
@@ -258,21 +259,33 @@ fn build_unified_outlook_fallback(
 
         // Prefer a per-instance bucket curve based on this release's own Forecast vs Previous direction.
         // This improves unified path accuracy because it avoids diluting signals by mixing incompatible buckets.
-        let bucket_choice = {
-            let f = parse_numeric(&e.forecast);
-            let p = parse_numeric(&e.previous);
-            if let (Some(f), Some(p)) = (f, p) {
-                let d = f - p;
-                if d > 0.0 {
-                    Some("ap_gt_prev")
-                } else if d < 0.0 {
-                    Some("ap_lt_prev")
+        let bucket_choice = match parse_numeric(&e.previous) {
+            Some(p) => {
+                let classify = |d: f64| {
+                    if d > 0.0 {
+                        "ap_gt_prev"
+                    } else if d < 0.0 {
+                        "ap_lt_prev"
+                    } else {
+                        "ap_eq_prev"
+                    }
+                };
+
+                // If the release is already known (in the past), use Actual vs Previous as the bucket.
+                // This makes the unified path react to the latest outcomes, instead of looking template-like.
+                if e.dt_utc <= now_utc {
+                    if let Some(a) = parse_numeric(&e.actual) {
+                        Some(classify(a - p))
+                    } else {
+                        // Otherwise (or if Actual is missing), fall back to Forecast vs Previous as a prior.
+                        parse_numeric(&e.forecast).map(|f| classify(f - p))
+                    }
                 } else {
-                    Some("ap_eq_prev")
+                    // Otherwise (or if Actual is missing), fall back to Forecast vs Previous as a prior.
+                    parse_numeric(&e.forecast).map(|f| classify(f - p))
                 }
-            } else {
-                None
             }
+            None => None,
         };
 
         // Fallback: unconditional P(up) by mixing buckets using bucket sample sizes.

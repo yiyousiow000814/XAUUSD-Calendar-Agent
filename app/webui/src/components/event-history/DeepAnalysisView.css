@@ -283,6 +283,10 @@
   letter-spacing: -0.01em;
 }
 
+.deep-card-v.is-low {
+  opacity: 0.78;
+}
+
 .deep-card-sub {
   margin-top: 4px;
   font-size: 12px;

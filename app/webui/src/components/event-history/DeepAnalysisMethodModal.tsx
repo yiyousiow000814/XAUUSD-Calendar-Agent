@@ -209,13 +209,14 @@ export function DeepAnalysisMethodModal({
                   <div className="deep-tut-example">
                     How we form the guess:
                     <span className="deep-tut-inline">
-                      (1) build a proxy (Forecast, or a tiny trend model) &rarr; (2) compare Proxy - Previous &rarr; (3)
-                      look up similar history to estimate &gt; / = / &lt;.
+                      (1) a small calendar model turns recent history (+ Forecast/Previous when available) into{" "}
+                      probabilities &rarr; (2) we compute a confidence score &rarr; (3) if Forecast is missing, we may
+                      also use a relationship-based “nowcast chain” (recent correlated releases).
                     </span>
                   </div>
                   <div className="deep-tut-example">
-                    Sanity check: we show <b>N</b> (how many historical samples were used) and a recent{" "}
-                    <b>reliability</b> hint.
+                    Sanity check: we show <b>N</b> (history size), a confidence score, and a backtest reliability hint.
+                    If confidence is low, treat the top line as a rough guess.
                   </div>
                 </div>
               </div>
@@ -259,8 +260,8 @@ export function DeepAnalysisMethodModal({
               <MiniFlow />
               <div className="deep-tut-flow-notes">
                 <div className="deep-tut-li">
-                  <span className="deep-tut-dot2" aria-hidden="true" /> Deep signals appear only when deep JSON is
-                  available.
+                  <span className="deep-tut-dot2" aria-hidden="true" /> Predict Release is computed from release
+                  history (no price data required).
                 </div>
                 <div className="deep-tut-li">
                   <span className="deep-tut-dot2" aria-hidden="true" /> If deep JSON is missing, we fall back to a
