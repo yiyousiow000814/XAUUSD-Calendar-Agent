@@ -234,8 +234,9 @@ export function DeepAnalysisMethodModal({
                     How we form the guess:
                     <span className="deep-tut-inline">
                       (1) a small calendar model turns recent history (+ Forecast/Previous when available) into{" "}
-                      probabilities &rarr; (2) we compute a confidence score &rarr; (3) if Forecast is missing, we may
-                      also use a relationship-based “nowcast chain” (recent correlated releases).
+                      probabilities &rarr; (2) we compute a confidence score &rarr; (3) when available, we may also use
+                      a relationship-based “nowcast chain” (recent correlated releases) to cross-check or replace
+                      low-confidence outputs.
                     </span>
                   </div>
                   <div className="deep-tut-example">

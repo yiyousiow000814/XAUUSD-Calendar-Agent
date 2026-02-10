@@ -151,6 +151,16 @@ class Dataset:
     t: np.ndarray
 
 
+def _confidence_score(P: np.ndarray) -> np.ndarray:
+    # Same score used in trainer + app: maxProb * (maxProb - secondMaxProb)
+    if P.size == 0:
+        return np.asarray([], dtype="float64")
+    maxp = np.max(P, axis=1)
+    sorted_p = np.sort(P, axis=1)
+    margin = sorted_p[:, -1] - sorted_p[:, -2]
+    return (maxp * margin).astype("float64")
+
+
 def _build_metric_ap_series(df: pd.DataFrame) -> dict[str, dict[str, Any]]:
     # Build per-metric series used for relationship ("nowcast chain") features.
     #
@@ -311,6 +321,7 @@ def _compute_relationships_ap(
     series_by_metric: dict[str, dict[str, Any]],
     series_by_metric_af: dict[str, dict[str, Any]] | None = None,
     *,
+    eq_factor: float,
     cutoff_t: np.int64,
     lookback_days: int,
     topk: int,
@@ -357,7 +368,8 @@ def _compute_relationships_ap(
                     tgt_z,
                     lookback_days=int(lookback_days),
                 )
-                c = _corr(x, y, min_pairs=int(min_pairs))
+                # Directional association is more aligned with the app task (>,=,<) than raw correlation.
+                c = _dir_assoc(x, y, min_pairs=int(min_pairs), eq_factor=float(eq_factor))
                 if abs(c) + 1e-12 >= float(min_abs_corr):
                     corrs.append((src, "ap", c))
 
@@ -377,7 +389,7 @@ def _compute_relationships_ap(
                         tgt_z,
                         lookback_days=int(lookback_days),
                     )
-                    c = _corr(x, y, min_pairs=int(min_pairs))
+                    c = _dir_assoc(x, y, min_pairs=int(min_pairs), eq_factor=float(eq_factor))
                     if abs(c) + 1e-12 >= float(min_abs_corr):
                         corrs.append((src, "af", c))
 
@@ -564,10 +576,7 @@ def _evaluate_model(
     # Confidence score (better than raw max-prob for selecting "easy" samples):
     #   score = maxProb * (maxProb - secondMaxProb)
     # This tends to improve coverage for the same target accuracy on no-forecast releases.
-    maxp = np.max(P, axis=1)
-    sorted_p = np.sort(P, axis=1)
-    margin = sorted_p[:, -1] - sorted_p[:, -2]
-    conf = maxp * margin
+    conf = _confidence_score(P)
 
     out: dict[str, Any] = {
         "acc": _acc(y, y_pred),
@@ -605,7 +614,7 @@ def _pick_threshold(th_stats: list[dict[str, Any]], *, min_acc: float, min_cover
         # Fallback: choose the threshold with best accuracy, then highest coverage.
         th_stats_sorted = sorted(th_stats, key=lambda r: (-float(r.get("acc", 0.0)), -float(r.get("coverage", 0.0))))
         best = float(th_stats_sorted[0].get("th", 0.6))
-    return float(best or 0.6)
+    return float(best) if best is not None else 0.6
 
 
 def main() -> int:
@@ -639,7 +648,10 @@ def main() -> int:
 
     eq_factor = float(args.eq_factor)
     # Thresholds for the confidence score (not raw max-prob).
-    thresholds = [0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60]
+    #
+    # Include 0.00 / 0.05 so we can tune toward higher "reliable" coverage when a sub-model is strong
+    # (especially the with-Forecast case), without forcing the UI to hide most outputs.
+    thresholds = [0.00, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60]
 
     # Relationship ("nowcast chain") configuration (no-forecast fallback):
     # use other metrics' most recent signals in the last 1-6 months as a lightweight nowcast.
@@ -652,10 +664,10 @@ def main() -> int:
     rel_min_abs_corr = 0.08
     rel_min_pairs = 12
     rel_min_metric_points = int(args.rel_min_metric_points)
-    rel_min_test_samples = 20  # per-metric test points (post-split) to trust a threshold
-    rel_min_shown_samples = 8  # per-metric shown points at a threshold
-    rel_target_min_acc = 0.70
-    rel_target_min_cov = 0.15
+    rel_min_test_samples = 15  # per-metric test points (post-split) to trust a threshold
+    rel_min_shown_samples = 6  # per-metric shown points at a threshold
+    rel_target_min_acc = 0.71
+    rel_target_min_cov = 0.10
 
     series_by_metric_ap = _build_metric_ap_series(df)
     series_by_metric_af = _build_metric_af_series(df)
@@ -687,6 +699,7 @@ def main() -> int:
     relationships_ap = _compute_relationships_ap(
         series_by_metric_ap,
         series_by_metric_af=series_by_metric_af,
+        eq_factor=float(eq_factor),
         cutoff_t=cutoff_t,
         lookback_days=int(rel_lookback_days),
         topk=int(rel_topk),
@@ -716,11 +729,157 @@ def main() -> int:
     eval_nf = _evaluate_model(test_nf.X, test_nf.y, W_nf, thresholds=thresholds)
     eval_af = _evaluate_model(test_af.X, test_af.y, W_af, thresholds=thresholds)
 
+    # Metric-specific confidence gates for the logistic models.
+    #
+    # Goal: increase "reliable" coverage for stable metrics without lowering global thresholds.
+    # We only enable a metric gate if it has enough test samples, and if there exists a threshold
+    # that meets both target accuracy and coverage on the post-split segment.
+    def build_metric_gates_ap(
+        *,
+        require_forecast: bool,
+        W: np.ndarray,
+        target_min_acc: float,
+        target_min_cov: float,
+        min_test_samples: int,
+        min_shown_samples: int,
+    ) -> dict[str, dict[str, Any]]:
+        pred_rows: list[tuple[int, str, int, int, float]] = []  # (t_ns, metric, y, pred, score)
+        grouped = df.groupby("metric_key", sort=False)
+        for metric_key, g in grouped:
+            metric_key = str(metric_key)
+            g = g.sort_values("dt_utc").reset_index(drop=True)
+            if len(g) < int(args.min_metric_points):
+                continue
+
+            a_all = g["a"].to_numpy(dtype="float64")
+            f_all = g["f"].to_numpy(dtype="float64")
+            p_all = g["p"].to_numpy(dtype="float64")
+            dt_all = g["dt_utc"].to_numpy(dtype="datetime64[ns]")
+
+            scale_ap = _median_abs(a_all - p_all)
+            scale_fp = _median_abs(f_all - p_all)
+            scale_af = _median_abs(a_all - f_all)
+            med_a, mad_a = _robust_loc_scale(a_all)
+
+            for i in range(6, len(g)):
+                if not np.isfinite(a_all[i]) or not np.isfinite(p_all[i]):
+                    continue
+                has_forecast = bool(np.isfinite(f_all[i]))
+                if bool(require_forecast) != has_forecast:
+                    continue
+
+                idxs = [i - 1, i - 2, i - 3, i - 4, i - 5, i - 6]
+                if not np.all(np.isfinite(a_all[idxs])) or not np.all(np.isfinite(p_all[idxs])):
+                    continue
+
+                z_ap_1 = float((a_all[i - 1] - p_all[i - 1]) / scale_ap)
+                z_ap_3 = float(np.mean((a_all[i - 3 : i] - p_all[i - 3 : i]) / scale_ap))
+                z_ap_6 = float(np.mean((a_all[i - 6 : i] - p_all[i - 6 : i]) / scale_ap))
+                z_a_level = float((a_all[i - 1] - med_a) / mad_a)
+                z_a_slope6 = float(_slope(a_all[i - 6 : i]) / scale_ap)
+
+                z_af_1 = (
+                    float((a_all[i - 1] - f_all[i - 1]) / scale_af) if np.isfinite(f_all[i - 1]) else 0.0
+                )
+
+                if require_forecast:
+                    z_fp = float((f_all[i] - p_all[i]) / scale_fp) if np.isfinite(f_all[i]) else 0.0
+                    feats = [1.0, z_fp, z_ap_1, z_ap_3, z_ap_6, z_a_level, z_a_slope6, z_af_1]
+                else:
+                    gap_days = float((dt_all[i] - dt_all[i - 1]).astype("timedelta64[D]").astype(int))
+                    a_hat = _linreg_next(a_all[i - 6 : i])
+                    z_hat_ap = float((a_hat - p_all[i]) / scale_ap) if a_hat is not None else 0.0
+                    z_hat_da = float((a_hat - a_all[i - 1]) / scale_ap) if a_hat is not None else 0.0
+                    feats = [1.0, z_ap_1, z_ap_3, z_ap_6, z_a_level, z_a_slope6, z_hat_ap, z_hat_da, gap_days]
+
+                if not np.all(np.isfinite(feats)):
+                    continue
+
+                P = _softmax(np.asarray([feats], dtype="float64") @ W)
+                if P.size < 3:
+                    continue
+                pred = int(np.argmax(P[0]))
+                score = float(_confidence_score(P)[0])
+                z_true = float((a_all[i] - p_all[i]) / scale_ap)
+                y = int(_label_z(z_true, float(eq_factor)))
+                pred_rows.append((int(dt_all[i].astype("int64")), metric_key, y, pred, score))
+
+        if not pred_rows:
+            return {}
+        pred_rows.sort(key=lambda it: it[0])
+        cut = int(len(pred_rows) * 0.8)
+        test_rows = pred_rows[cut:]
+
+        by_metric: dict[str, list[tuple[int, int, float]]] = {}
+        for _t, m, y, pred, score in test_rows:
+            by_metric.setdefault(m, []).append((y, pred, float(score)))
+
+        enabled: dict[str, dict[str, Any]] = {}
+        for metric, rows in by_metric.items():
+            total = int(len(rows))
+            if total < int(min_test_samples):
+                continue
+            sweep: list[dict[str, Any]] = []
+            for th in thresholds:
+                shown = [r for r in rows if float(r[2]) + 1e-12 >= float(th)]
+                if len(shown) < int(min_shown_samples):
+                    continue
+                ok = sum(1 for y, pred, _s in shown if int(pred) == int(y))
+                sweep.append(
+                    {
+                        "th": float(th),
+                        "acc": float(ok / len(shown)),
+                        "n": int(len(shown)),
+                        "coverage": float(len(shown) / total),
+                    }
+                )
+
+            candidates = [
+                r
+                for r in sweep
+                if float(r.get("acc") or 0.0) + 1e-12 >= float(target_min_acc)
+                and float(r.get("coverage") or 0.0) + 1e-12 >= float(target_min_cov)
+            ]
+            if not candidates:
+                continue
+            chosen_th = min(float(r.get("th") or 0.0) for r in candidates)
+            chosen_row = next((r for r in candidates if abs(float(r.get("th") or 0.0) - chosen_th) <= 1e-12), None)
+            if not chosen_row:
+                continue
+            enabled[metric] = {
+                "th": float(chosen_th),
+                "acc": float(chosen_row.get("acc") or 0.0),
+                "n": int(chosen_row.get("n") or 0),
+                "coverage": float(chosen_row.get("coverage") or 0.0),
+                "n_test": total,
+            }
+        return enabled
+
+    metric_gates_wf = build_metric_gates_ap(
+        require_forecast=True,
+        W=W_wf,
+        target_min_acc=0.80,
+        target_min_cov=0.50,
+        min_test_samples=30,
+        min_shown_samples=15,
+    )
+    metric_gates_nf = build_metric_gates_ap(
+        require_forecast=False,
+        W=W_nf,
+        target_min_acc=0.70,
+        target_min_cov=0.25,
+        min_test_samples=30,
+        min_shown_samples=12,
+    )
+
     # Evaluate relationship ("nowcast chain") predictor on no-forecast test samples, per metric.
     #
     # This is intentionally simple: we only apply it to metrics where it backtests well,
     # to avoid degrading the overall reliability for noisy series.
-    def build_nf_samples() -> list[tuple[int, str, int]]:
+    #
+    # Important: we calibrate it on *all* A-P releases (not just no-forecast), so it can
+    # support high-importance macro metrics that often *do* have Forecast.
+    def build_rel_samples() -> list[tuple[int, str, int]]:
         out: list[tuple[int, str, int]] = []
         grouped = df.groupby("metric_key", sort=False)
         for metric_key, g in grouped:
@@ -736,8 +895,6 @@ def main() -> int:
 
             for i in range(6, len(g)):
                 if not np.isfinite(a_all[i]) or not np.isfinite(p_all[i]):
-                    continue
-                if np.isfinite(f_all[i]):
                     continue
                 idxs = [i - 1, i - 2, i - 3, i - 4, i - 5, i - 6]
                 if not np.all(np.isfinite(a_all[idxs])) or not np.all(np.isfinite(p_all[idxs])):
@@ -797,7 +954,7 @@ def main() -> int:
         score = maxp * max(0.0, maxp - second)
         return pred, [float(probs[0]), float(probs[1]), float(probs[2])], float(score)
 
-    rel_samples = build_nf_samples()
+    rel_samples = build_rel_samples()
     rel_enabled: dict[str, dict[str, Any]] = {}
     rel_pred_rows: list[dict[str, Any]] = []
     if rel_samples:
@@ -888,11 +1045,20 @@ def main() -> int:
     # Recommend thresholds to meet the UX goal:
     # - With-Forecast: aim for high coverage while keeping "shown" accuracy comfortably above random.
     # - No-Forecast: noisier; keep a stricter gate and let relationship-nowcast fill gaps.
-    th_wf = _pick_threshold(eval_wf.get("thresholds", []), min_acc=0.78, min_coverage=0.65)
-    th_nf = _pick_threshold(eval_nf.get("thresholds", []), min_acc=0.62, min_coverage=0.10)
+    th_wf = _pick_threshold(eval_wf.get("thresholds", []), min_acc=0.75, min_coverage=0.78)
+    # A-P without Forecast is noisy with a single global softmax model.
+    # We keep the global gate effectively "off" and rely on:
+    #   - per-metric gates for stable series, and/or
+    #   - the relationship-based nowcast chain to fill gaps.
+    #
+    # The UI still shows the model probabilities, but marks most of them as low confidence.
+    th_nf = 0.99
     # A-F is harder; pick a slightly looser gate so the UI can still show it often,
     # but keep a reliability hint so users can sanity-check.
-    th_af = _pick_threshold(eval_af.get("thresholds", []), min_acc=0.60, min_coverage=0.40)
+    # A-F (Actual vs Forecast) is much harder and often low-confidence.
+    # Keep a strict recommended threshold so the UI can treat it as "advisory"
+    # and fall back to a simple recent-history baseline when the model isn't confident.
+    th_af = 0.60
 
     payload: dict[str, Any] = {
         "schema": 1,
@@ -934,6 +1100,14 @@ def main() -> int:
                 ],
                 "weights": W_wf.tolist(),
                 "recommended_threshold": th_wf,
+                "metric_gates": {
+                    "kind": "per_metric_threshold",
+                    "target_min_acc": 0.80,
+                    "target_min_cov": 0.50,
+                    "min_test_samples": 30,
+                    "min_shown_samples": 15,
+                    "enabled_metrics": metric_gates_wf,
+                },
                 "eval": eval_wf,
             },
             "ap_no_forecast": {
@@ -952,6 +1126,14 @@ def main() -> int:
                 ],
                 "weights": W_nf.tolist(),
                 "recommended_threshold": th_nf,
+                "metric_gates": {
+                    "kind": "per_metric_threshold",
+                    "target_min_acc": 0.70,
+                    "target_min_cov": 0.25,
+                    "min_test_samples": 30,
+                    "min_shown_samples": 12,
+                    "enabled_metrics": metric_gates_nf,
+                },
                 "eval": eval_nf,
                 "relationships": {
                     "by_metric": relationships_ap,

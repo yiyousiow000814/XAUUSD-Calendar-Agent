@@ -14,6 +14,23 @@ export type PredictReleaseSubModel = {
   // Shape: [featureCount][3] for classes ["="," >", "<"] in this exact order.
   weights: number[][];
   recommended_threshold: number;
+  metric_gates?: {
+    kind?: string;
+    target_min_acc?: number;
+    target_min_cov?: number;
+    min_test_samples?: number;
+    min_shown_samples?: number;
+    enabled_metrics?: Record<
+      string,
+      {
+        th: number;
+        acc?: number;
+        n?: number;
+        coverage?: number;
+        n_test?: number;
+      }
+    >;
+  };
   eval?: {
     acc?: number;
     n?: number;
@@ -75,4 +92,18 @@ export function estimateBacktestAccAtThreshold(sub: PredictReleaseSubModel): num
   const hit = rows.find((r) => Math.abs(r.th - th) <= 1e-9);
   if (hit && typeof hit.acc === "number" && Number.isFinite(hit.acc)) return hit.acc;
   return null;
+}
+
+export function pickThresholdForMetric(sub: PredictReleaseSubModel, metricKey?: string | null): number {
+  const m = String(metricKey ?? "").trim();
+  const gate = m ? sub.metric_gates?.enabled_metrics?.[m] : null;
+  if (gate && typeof gate.th === "number" && Number.isFinite(gate.th)) return gate.th;
+  return sub.recommended_threshold;
+}
+
+export function estimateBacktestAccForMetric(sub: PredictReleaseSubModel, metricKey?: string | null): number | null {
+  const m = String(metricKey ?? "").trim();
+  const gate = m ? sub.metric_gates?.enabled_metrics?.[m] : null;
+  if (gate && typeof gate.acc === "number" && Number.isFinite(gate.acc)) return gate.acc;
+  return estimateBacktestAccAtThreshold(sub);
 }

@@ -5,7 +5,9 @@ import { formatTimeOffsetMinutes, parseDisplayTimeToUtcMs } from "../../utils/ca
 import {
   DEFAULT_PREDICT_RELEASE_MODEL_USD,
   dotFeatures,
+  estimateBacktestAccForMetric,
   estimateBacktestAccAtThreshold,
+  pickThresholdForMetric,
   softmax1d
 } from "../../utils/predictReleaseModel";
 import { DeepAnalysisMethodModal } from "./DeepAnalysisMethodModal";
@@ -196,16 +198,12 @@ export function DeepAnalysisView({
     const anchorMsRaw = Date.parse(String(anchorDtUtc || "").trim());
     const refMs = Number.isFinite(anchorMsRaw) ? Math.min(anchorMsRaw, Date.now()) : Date.now();
 
-    const f0 = parseNumber(selectionForecast);
     const p0 = parseNumber(selectionPrevious);
-    const hasForecast0 =
-      typeof f0 === "number" &&
-      Number.isFinite(f0) &&
-      typeof p0 === "number" &&
-      Number.isFinite(p0);
+    const hasPrev0 = typeof p0 === "number" && Number.isFinite(p0);
 
-    // Only for USD no-forecast selections (this predictor is trained for USD history).
-    if (!isUsdEvent || hasForecast0 || !metric || curCode !== "USD") {
+    // Only for USD selections with a usable Previous (A vs Previous direction).
+    // This predictor is trained on USD calendar history.
+    if (!isUsdEvent || !hasPrev0 || !metric || curCode !== "USD") {
       setNowcastVsPrev(null);
       return;
     }
@@ -381,6 +379,7 @@ export function DeepAnalysisView({
 
   const localPredict = useMemo(() => {
     const EQ_FACTOR = 0.05; // Wider "approx equal" than strict matching; tuned for calendar numeric noise.
+    const metric = String(metricKey || "").trim();
     const parsePointUtcMs = (p: EventHistoryPoint): number | null => {
       const dRaw = String(p.date ?? "").trim();
       const tRaw = String(p.time ?? "").trim();
@@ -793,8 +792,10 @@ export function DeepAnalysisView({
       const max2 = sorted[1] ?? 0;
       // Confidence score (matches the offline trainer): maxProb * (maxProb - secondMaxProb)
       const score = max1 * Math.max(0, max1 - max2);
-      const th = typeof sub?.recommended_threshold === "number" ? sub.recommended_threshold : hasForecast0 ? 0.25 : 0.5;
-      const backtestAcc = estimateBacktestAccAtThreshold(sub);
+      const baseTh = typeof sub?.recommended_threshold === "number" ? sub.recommended_threshold : hasForecast0 ? 0.25 : 0.5;
+      const metricTh = pickThresholdForMetric(sub as any, metric);
+      const th = typeof metricTh === "number" && Number.isFinite(metricTh) ? metricTh : baseTh;
+      const backtestAcc = estimateBacktestAccForMetric(sub as any, metric) ?? estimateBacktestAccAtThreshold(sub);
 
       return {
         pred0,
@@ -922,8 +923,10 @@ export function DeepAnalysisView({
       const sorted = [...probs].sort((a, b) => b - a);
       const max2 = sorted[1] ?? 0;
       const score = max1 * Math.max(0, max1 - max2);
-      const th = typeof sub?.recommended_threshold === "number" ? sub.recommended_threshold : 0.25;
-      const backtestAcc = estimateBacktestAccAtThreshold(sub);
+      const baseTh = typeof sub?.recommended_threshold === "number" ? sub.recommended_threshold : 0.25;
+      const metricTh = pickThresholdForMetric(sub as any, metric);
+      const th = typeof metricTh === "number" && Number.isFinite(metricTh) ? metricTh : baseTh;
+      const backtestAcc = estimateBacktestAccForMetric(sub as any, metric) ?? estimateBacktestAccAtThreshold(sub);
 
       return {
         pred0,
@@ -1212,10 +1215,30 @@ export function DeepAnalysisView({
     Number.isFinite(aGtP.n) &&
     aGtP.n > 0;
 
-  const pvNowcast = nowcastVsPrev && nowcastVsPrev.reliable ? nowcastVsPrev : null;
-  const pvChoice = pvNowcast ?? localPredict.modelVsPrev ?? localPredict.proxyVsPrev;
-  const pvKind: "nowcast" | "model" | "proxy" =
-    pvNowcast ? "nowcast" : localPredict.modelVsPrev ? "model" : "proxy";
+  const modelPv = localPredict.modelVsPrev;
+  const nowPv = nowcastVsPrev;
+  const modelAcc =
+    modelPv && typeof (modelPv as any).backtestAcc === "number" && Number.isFinite((modelPv as any).backtestAcc)
+      ? Number((modelPv as any).backtestAcc)
+      : null;
+  const nowAcc =
+    nowPv && typeof (nowPv as any).backtestAcc === "number" && Number.isFinite((nowPv as any).backtestAcc)
+      ? Number((nowPv as any).backtestAcc)
+      : null;
+
+  const shouldUseNowcast =
+    Boolean(nowPv?.reliable) &&
+    (!modelPv ||
+      !modelPv.reliable ||
+      (typeof nowAcc === "number" &&
+        typeof modelAcc === "number" &&
+        Number.isFinite(nowAcc) &&
+        Number.isFinite(modelAcc) &&
+        nowAcc + 1e-12 >= modelAcc + 1e-12));
+
+  const pvNowcast = shouldUseNowcast ? nowPv : null;
+  const pvChoice = pvNowcast ?? modelPv ?? localPredict.proxyVsPrev;
+  const pvKind: "nowcast" | "model" | "proxy" = pvNowcast ? "nowcast" : modelPv ? "model" : "proxy";
 
   const content = (
     <>
