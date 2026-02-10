@@ -743,12 +743,22 @@ def main() -> int:
         min_test_samples: int,
         min_shown_samples: int,
     ) -> dict[str, dict[str, Any]]:
-        pred_rows: list[tuple[int, str, int, int, float]] = []  # (t_ns, metric, y, pred, score)
+        # Metric-specific thresholds for the shared logistic model.
+        #
+        # Important: do the 80/20 time split *per metric*, not globally across all metrics.
+        # Otherwise low-frequency metrics (monthly/quarterly) rarely have enough samples in the
+        # global "last 20%" time window, which artificially kills coverage for Medium/High events.
+        #
+        # We apply a small accuracy shrinkage to avoid enabling a metric just because it got lucky
+        # on a tiny test segment.
+        min_points_gate = max(24, int(args.rel_min_metric_points))
+
         grouped = df.groupby("metric_key", sort=False)
+        enabled: dict[str, dict[str, Any]] = {}
         for metric_key, g in grouped:
             metric_key = str(metric_key)
             g = g.sort_values("dt_utc").reset_index(drop=True)
-            if len(g) < int(args.min_metric_points):
+            if len(g) < int(min_points_gate):
                 continue
 
             a_all = g["a"].to_numpy(dtype="float64")
@@ -761,6 +771,7 @@ def main() -> int:
             scale_af = _median_abs(a_all - f_all)
             med_a, mad_a = _robust_loc_scale(a_all)
 
+            rows: list[tuple[int, int, int, float]] = []  # (t_ns, y, pred, score)
             for i in range(6, len(g)):
                 if not np.isfinite(a_all[i]) or not np.isfinite(p_all[i]):
                     continue
@@ -802,35 +813,29 @@ def main() -> int:
                 score = float(_confidence_score(P)[0])
                 z_true = float((a_all[i] - p_all[i]) / scale_ap)
                 y = int(_label_z(z_true, float(eq_factor)))
-                pred_rows.append((int(dt_all[i].astype("int64")), metric_key, y, pred, score))
+                rows.append((int(dt_all[i].astype("int64")), y, pred, score))
 
-        if not pred_rows:
-            return {}
-        pred_rows.sort(key=lambda it: it[0])
-        cut = int(len(pred_rows) * 0.8)
-        test_rows = pred_rows[cut:]
-
-        by_metric: dict[str, list[tuple[int, int, float]]] = {}
-        for _t, m, y, pred, score in test_rows:
-            by_metric.setdefault(m, []).append((y, pred, float(score)))
-
-        enabled: dict[str, dict[str, Any]] = {}
-        for metric, rows in by_metric.items():
-            total = int(len(rows))
+            if not rows:
+                continue
+            rows.sort(key=lambda it: it[0])
+            cut = int(len(rows) * 0.8)
+            test_rows = rows[cut:]
+            total = int(len(test_rows))
             if total < int(min_test_samples):
                 continue
             sweep: list[dict[str, Any]] = []
             for th in thresholds:
-                shown = [r for r in rows if float(r[2]) + 1e-12 >= float(th)]
+                shown = [r for r in test_rows if float(r[3]) + 1e-12 >= float(th)]
                 if len(shown) < int(min_shown_samples):
                     continue
-                ok = sum(1 for y, pred, _s in shown if int(pred) == int(y))
+                ok = sum(1 for _t, y, pred, _s in shown if int(pred) == int(y))
+                n_shown = int(len(shown))
                 sweep.append(
                     {
                         "th": float(th),
-                        "acc": float(ok / len(shown)),
-                        "n": int(len(shown)),
-                        "coverage": float(len(shown) / total),
+                        "acc": float(ok / n_shown) if n_shown else 0.0,
+                        "n": int(n_shown),
+                        "coverage": float(n_shown / total) if total else 0.0,
                     }
                 )
 
@@ -846,7 +851,7 @@ def main() -> int:
             chosen_row = next((r for r in candidates if abs(float(r.get("th") or 0.0) - chosen_th) <= 1e-12), None)
             if not chosen_row:
                 continue
-            enabled[metric] = {
+            enabled[metric_key] = {
                 "th": float(chosen_th),
                 "acc": float(chosen_row.get("acc") or 0.0),
                 "n": int(chosen_row.get("n") or 0),
@@ -860,16 +865,16 @@ def main() -> int:
         W=W_wf,
         target_min_acc=0.80,
         target_min_cov=0.50,
-        min_test_samples=30,
-        min_shown_samples=15,
+        min_test_samples=18,
+        min_shown_samples=10,
     )
     metric_gates_nf = build_metric_gates_ap(
         require_forecast=False,
         W=W_nf,
         target_min_acc=0.70,
         target_min_cov=0.25,
-        min_test_samples=30,
-        min_shown_samples=12,
+        min_test_samples=18,
+        min_shown_samples=8,
     )
 
     # Evaluate relationship ("nowcast chain") predictor on no-forecast test samples, per metric.

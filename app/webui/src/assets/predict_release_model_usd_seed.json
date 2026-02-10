@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at_utc": "2026-02-10T20:05:01.328218+00:00",
+  "generated_at_utc": "2026-02-10T21:32:04.702953+00:00",
   "meta": {
     "currency": "USD",
     "importance": [
@@ -96,257 +96,306 @@
         "min_test_samples": 30,
         "min_shown_samples": 15,
         "enabled_metrics": {
-          "API Weekly Crude Oil Stock": {
-            "th": 0.0,
-            "acc": 0.8091603053435115,
-            "n": 131,
-            "coverage": 1.0,
-            "n_test": 131
+          "Philadelphia Fed Manufacturing Index": {
+            "th": 0.15,
+            "acc": 0.8055555555555556,
+            "n": 36,
+            "coverage": 0.8372093023255814,
+            "n_test": 43
           },
-          "GDP (QoQ)": {
+          "Retail Sales (MoM)": {
             "th": 0.0,
-            "acc": 0.9375,
+            "acc": 0.9302325581395349,
+            "n": 43,
+            "coverage": 1.0,
+            "n_test": 43
+          },
+          "Housing Starts": {
+            "th": 0.1,
+            "acc": 0.84375,
             "n": 32,
-            "coverage": 1.0,
-            "n_test": 32
+            "coverage": 0.7619047619047619,
+            "n_test": 42
           },
-          "GDP Price Index (QoQ)": {
+          "ISM Manufacturing Employment": {
+            "th": 0.1,
+            "acc": 0.8125,
+            "n": 16,
+            "coverage": 0.7272727272727273,
+            "n_test": 22
+          },
+          "Import Price Index (MoM)": {
+            "th": 0.1,
+            "acc": 0.8,
+            "n": 25,
+            "coverage": 0.5813953488372093,
+            "n_test": 43
+          },
+          "Industrial Production (MoM)": {
+            "th": 0.1,
+            "acc": 0.8214285714285714,
+            "n": 28,
+            "coverage": 0.6666666666666666,
+            "n_test": 42
+          },
+          "Michigan 1-Year Inflation Expectations": {
+            "th": 0.05,
+            "acc": 0.8,
+            "n": 15,
+            "coverage": 0.7142857142857143,
+            "n_test": 21
+          },
+          "Michigan 5-Year Inflation Expectations": {
             "th": 0.0,
-            "acc": 0.96875,
-            "n": 32,
+            "acc": 0.8,
+            "n": 20,
             "coverage": 1.0,
-            "n_test": 32
+            "n_test": 20
           },
-          "Core PCE Prices": {
+          "Michigan Consumer Sentiment": {
+            "th": 0.05,
+            "acc": 0.8142857142857143,
+            "n": 70,
+            "coverage": 0.8333333333333334,
+            "n_test": 84
+          },
+          "NY Empire State Manufacturing Index": {
+            "th": 0.05,
+            "acc": 0.8421052631578947,
+            "n": 38,
+            "coverage": 0.8837209302325582,
+            "n_test": 43
+          },
+          "New Home Sales (MoM)": {
             "th": 0.0,
-            "acc": 0.90625,
-            "n": 32,
+            "acc": 0.8095238095238095,
+            "n": 21,
             "coverage": 1.0,
-            "n_test": 32
+            "n_test": 21
           },
-          "Crude Oil Inventories": {
-            "th": 0.2,
-            "acc": 0.8085106382978723,
-            "n": 94,
-            "coverage": 0.6103896103896104,
-            "n_test": 154
+          "Pending Home Sales (MoM)": {
+            "th": 0.0,
+            "acc": 0.8095238095238095,
+            "n": 42,
+            "coverage": 1.0,
+            "n_test": 42
           },
           "Personal Spending (MoM)": {
             "th": 0.0,
-            "acc": 0.90625,
-            "n": 32,
+            "acc": 0.875,
+            "n": 40,
             "coverage": 1.0,
-            "n_test": 32
+            "n_test": 40
+          },
+          "Retail Control (MoM)": {
+            "th": 0.05,
+            "acc": 0.8181818181818182,
+            "n": 22,
+            "coverage": 0.9166666666666666,
+            "n_test": 24
+          },
+          "S&P/CS HPI Composite - 20 n.s.a. (YoY)": {
+            "th": 0.0,
+            "acc": 0.8863636363636364,
+            "n": 44,
+            "coverage": 1.0,
+            "n_test": 44
+          },
+          "Trade Balance": {
+            "th": 0.0,
+            "acc": 0.8604651162790697,
+            "n": 43,
+            "coverage": 1.0,
+            "n_test": 43
+          },
+          "Federal Budget Balance": {
+            "th": 0.0,
+            "acc": 0.8536585365853658,
+            "n": 41,
+            "coverage": 1.0,
+            "n_test": 41
+          },
+          "Factory Orders (MoM)": {
+            "th": 0.0,
+            "acc": 0.8333333333333334,
+            "n": 42,
+            "coverage": 1.0,
+            "n_test": 42
+          },
+          "Export Price Index (MoM)": {
+            "th": 0.05,
+            "acc": 0.8076923076923077,
+            "n": 26,
+            "coverage": 0.9629629629629629,
+            "n_test": 27
+          },
+          "Existing Home Sales (MoM)": {
+            "th": 0.05,
+            "acc": 0.8333333333333334,
+            "n": 18,
+            "coverage": 0.8181818181818182,
+            "n_test": 22
+          },
+          "ISM Manufacturing Prices": {
+            "th": 0.1,
+            "acc": 0.9,
+            "n": 20,
+            "coverage": 0.6060606060606061,
+            "n_test": 33
+          },
+          "Business Inventories (MoM)": {
+            "th": 0.05,
+            "acc": 0.967741935483871,
+            "n": 31,
+            "coverage": 0.7209302325581395,
+            "n_test": 43
+          },
+          "Construction Spending (MoM)": {
+            "th": 0.1,
+            "acc": 0.8571428571428571,
+            "n": 21,
+            "coverage": 0.6363636363636364,
+            "n_test": 33
+          },
+          "Consumer Credit": {
+            "th": 0.0,
+            "acc": 0.8372093023255814,
+            "n": 43,
+            "coverage": 1.0,
+            "n_test": 43
+          },
+          "Crude Oil Inventories": {
+            "th": 0.2,
+            "acc": 0.8080808080808081,
+            "n": 99,
+            "coverage": 0.6073619631901841,
+            "n_test": 163
+          },
+          "Existing Home Sales": {
+            "th": 0.05,
+            "acc": 0.8055555555555556,
+            "n": 36,
+            "coverage": 0.8372093023255814,
+            "n_test": 43
+          },
+          "CB Consumer Confidence": {
+            "th": 0.15,
+            "acc": 0.8125,
+            "n": 32,
+            "coverage": 0.7441860465116279,
+            "n_test": 43
           },
           "Core PCE Price Index (MoM)": {
             "th": 0.05,
-            "acc": 0.9411764705882353,
-            "n": 17,
-            "coverage": 0.53125,
-            "n_test": 32
+            "acc": 0.9565217391304348,
+            "n": 23,
+            "coverage": 0.5897435897435898,
+            "n_test": 39
           },
-          "PCE Price index (YoY)": {
+          "Core Retail Sales (MoM)": {
             "th": 0.05,
-            "acc": 0.8461538461538461,
-            "n": 26,
-            "coverage": 0.8387096774193549,
-            "n_test": 31
+            "acc": 0.8285714285714286,
+            "n": 35,
+            "coverage": 0.813953488372093,
+            "n_test": 43
           },
-          "PCE price index (MoM)": {
+          "Core CPI (YoY)": {
             "th": 0.05,
-            "acc": 0.9,
-            "n": 20,
-            "coverage": 0.625,
-            "n_test": 32
+            "acc": 0.8095238095238095,
+            "n": 21,
+            "coverage": 0.6363636363636364,
+            "n_test": 33
           },
-          "New Home Sales": {
-            "th": 0.15,
-            "acc": 0.8,
-            "n": 20,
-            "coverage": 0.625,
-            "n_test": 32
-          },
-          "Michigan Consumer Sentiment": {
+          "CPI (MoM)": {
             "th": 0.1,
-            "acc": 0.8166666666666667,
-            "n": 60,
-            "coverage": 0.8450704225352113,
-            "n_test": 71
+            "acc": 0.8260869565217391,
+            "n": 23,
+            "coverage": 0.5348837209302325,
+            "n_test": 43
+          },
+          "CPI (YoY)": {
+            "th": 0.0,
+            "acc": 0.8181818181818182,
+            "n": 33,
+            "coverage": 1.0,
+            "n_test": 33
+          },
+          "US Leading Index (MoM)": {
+            "th": 0.1,
+            "acc": 0.896551724137931,
+            "n": 29,
+            "coverage": 0.6590909090909091,
+            "n_test": 44
+          },
+          "Building Permits": {
+            "th": 0.05,
+            "acc": 0.8,
+            "n": 40,
+            "coverage": 0.8333333333333334,
+            "n_test": 48
+          },
+          "PPI (MoM)": {
+            "th": 0.1,
+            "acc": 0.8888888888888888,
+            "n": 27,
+            "coverage": 0.6428571428571429,
+            "n_test": 42
           },
           "Core Durable Goods Orders (MoM)": {
             "th": 0.05,
-            "acc": 0.8,
-            "n": 20,
-            "coverage": 0.625,
-            "n_test": 32
+            "acc": 0.84,
+            "n": 25,
+            "coverage": 0.5952380952380952,
+            "n_test": 42
           },
           "Durable Goods Orders (MoM)": {
             "th": 0.05,
             "acc": 0.8,
-            "n": 30,
-            "coverage": 0.9375,
-            "n_test": 32
-          },
-          "Pending Home Sales (MoM)": {
-            "th": 0.05,
-            "acc": 0.8,
-            "n": 30,
+            "n": 35,
             "coverage": 0.8333333333333334,
-            "n_test": 36
+            "n_test": 42
           },
-          "S&P/CS HPI Composite - 20 n.s.a. (YoY)": {
+          "GDP (QoQ)": {
             "th": 0.0,
-            "acc": 0.8888888888888888,
-            "n": 36,
+            "acc": 0.9024390243902439,
+            "n": 41,
             "coverage": 1.0,
-            "n_test": 36
+            "n_test": 41
           },
-          "CB Consumer Confidence": {
-            "th": 0.2,
-            "acc": 0.8148148148148148,
+          "GDP Price Index (QoQ)": {
+            "th": 0.0,
+            "acc": 0.8780487804878049,
+            "n": 41,
+            "coverage": 1.0,
+            "n_test": 41
+          },
+          "Nonfarm Productivity (QoQ)": {
+            "th": 0.0,
+            "acc": 0.9629629629629629,
             "n": 27,
-            "coverage": 0.75,
-            "n_test": 36
+            "coverage": 1.0,
+            "n_test": 27
           },
-          "ISM Manufacturing Prices": {
-            "th": 0.1,
-            "acc": 0.9047619047619048,
-            "n": 21,
-            "coverage": 0.5833333333333334,
-            "n_test": 36
+          "Unit Labor Costs (QoQ)": {
+            "th": 0.0,
+            "acc": 0.9259259259259259,
+            "n": 27,
+            "coverage": 1.0,
+            "n_test": 27
           },
-          "Construction Spending (MoM)": {
-            "th": 0.1,
-            "acc": 0.85,
+          "API Weekly Crude Oil Stock": {
+            "th": 0.0,
+            "acc": 0.8130841121495327,
+            "n": 107,
+            "coverage": 1.0,
+            "n_test": 107
+          },
+          "Core PCE Prices": {
+            "th": 0.0,
+            "acc": 0.9,
             "n": 20,
-            "coverage": 0.6451612903225806,
-            "n_test": 31
-          },
-          "Factory Orders (MoM)": {
-            "th": 0.0,
-            "acc": 0.8709677419354839,
-            "n": 31,
             "coverage": 1.0,
-            "n_test": 31
-          },
-          "Consumer Credit": {
-            "th": 0.0,
-            "acc": 0.8285714285714286,
-            "n": 35,
-            "coverage": 1.0,
-            "n_test": 35
-          },
-          "Trade Balance": {
-            "th": 0.0,
-            "acc": 0.8387096774193549,
-            "n": 31,
-            "coverage": 1.0,
-            "n_test": 31
-          },
-          "Federal Budget Balance": {
-            "th": 0.0,
-            "acc": 0.8857142857142857,
-            "n": 35,
-            "coverage": 1.0,
-            "n_test": 35
-          },
-          "Core CPI (YoY)": {
-            "th": 0.05,
-            "acc": 0.8,
-            "n": 20,
-            "coverage": 0.625,
-            "n_test": 32
-          },
-          "CPI (YoY)": {
-            "th": 0.0,
-            "acc": 0.8125,
-            "n": 32,
-            "coverage": 1.0,
-            "n_test": 32
-          },
-          "Retail Sales (MoM)": {
-            "th": 0.0,
-            "acc": 0.9354838709677419,
-            "n": 31,
-            "coverage": 1.0,
-            "n_test": 31
-          },
-          "NY Empire State Manufacturing Index": {
-            "th": 0.05,
-            "acc": 0.8387096774193549,
-            "n": 31,
-            "coverage": 0.8857142857142857,
-            "n_test": 35
-          },
-          "Core Retail Sales (MoM)": {
-            "th": 0.05,
-            "acc": 0.8,
-            "n": 25,
-            "coverage": 0.8064516129032258,
-            "n_test": 31
-          },
-          "PPI (MoM)": {
-            "th": 0.05,
-            "acc": 0.8,
-            "n": 25,
-            "coverage": 0.8064516129032258,
-            "n_test": 31
-          },
-          "Business Inventories (MoM)": {
-            "th": 0.05,
-            "acc": 0.9565217391304348,
-            "n": 23,
-            "coverage": 0.7419354838709677,
-            "n_test": 31
-          },
-          "Retail Inventories Ex Auto": {
-            "th": 0.0,
-            "acc": 0.8064516129032258,
-            "n": 31,
-            "coverage": 1.0,
-            "n_test": 31
-          },
-          "Philadelphia Fed Manufacturing Index": {
-            "th": 0.15,
-            "acc": 0.8,
-            "n": 30,
-            "coverage": 0.8571428571428571,
-            "n_test": 35
-          },
-          "Housing Starts": {
-            "th": 0.1,
-            "acc": 0.8695652173913043,
-            "n": 23,
-            "coverage": 0.7419354838709677,
-            "n_test": 31
-          },
-          "Export Price Index (MoM)": {
-            "th": 0.05,
-            "acc": 0.8,
-            "n": 30,
-            "coverage": 0.967741935483871,
-            "n_test": 31
-          },
-          "Building Permits": {
-            "th": 0.05,
-            "acc": 0.82,
-            "n": 50,
-            "coverage": 0.8064516129032258,
-            "n_test": 62
-          },
-          "Industrial Production (MoM)": {
-            "th": 0.0,
-            "acc": 0.8387096774193549,
-            "n": 31,
-            "coverage": 1.0,
-            "n_test": 31
-          },
-          "US Leading Index (MoM)": {
-            "th": 0.05,
-            "acc": 0.875,
-            "n": 24,
-            "coverage": 0.7741935483870968,
-            "n_test": 31
+            "n_test": 20
           }
         }
       },
@@ -505,54 +554,54 @@
         "min_test_samples": 30,
         "min_shown_samples": 12,
         "enabled_metrics": {
-          "Cushing Crude Oil Inventories": {
-            "th": 0.3,
-            "acc": 0.7142857142857143,
-            "n": 49,
-            "coverage": 0.30625,
-            "n_test": 160
-          },
-          "Fed's Balance Sheet": {
-            "th": 0.45,
-            "acc": 0.7183098591549296,
-            "n": 142,
-            "coverage": 0.7634408602150538,
-            "n_test": 186
-          },
-          "Industrial Production (YoY)": {
-            "th": 0.3,
-            "acc": 0.75,
-            "n": 12,
-            "coverage": 0.36363636363636365,
-            "n_test": 33
-          },
           "Housing Starts (MoM)": {
-            "th": 0.3,
-            "acc": 0.7333333333333333,
-            "n": 15,
-            "coverage": 0.4838709677419355,
-            "n_test": 31
-          },
-          "Existing Home Sales (MoM)": {
             "th": 0.3,
             "acc": 0.7142857142857143,
             "n": 14,
-            "coverage": 0.4375,
-            "n_test": 32
+            "coverage": 0.4827586206896552,
+            "n_test": 29
           },
-          "Philly Fed Employment": {
+          "ISM Non-Manufacturing Employment": {
             "th": 0.3,
-            "acc": 0.7647058823529411,
-            "n": 17,
-            "coverage": 0.4473684210526316,
-            "n_test": 38
+            "acc": 0.7142857142857143,
+            "n": 14,
+            "coverage": 0.358974358974359,
+            "n_test": 39
+          },
+          "Retail Control (MoM)": {
+            "th": 0.35,
+            "acc": 0.8888888888888888,
+            "n": 9,
+            "coverage": 0.47368421052631576,
+            "n_test": 19
           },
           "S&P/CS HPI Composite - 20 n.s.a. (MoM)": {
             "th": 0.35,
-            "acc": 0.8125,
-            "n": 16,
-            "coverage": 0.45714285714285713,
-            "n_test": 35
+            "acc": 0.8333333333333334,
+            "n": 12,
+            "coverage": 0.3870967741935484,
+            "n_test": 31
+          },
+          "Crude Oil Inventories": {
+            "th": 0.25,
+            "acc": 0.75,
+            "n": 12,
+            "coverage": 0.48,
+            "n_test": 25
+          },
+          "Fed's Balance Sheet": {
+            "th": 0.5,
+            "acc": 0.7226890756302521,
+            "n": 119,
+            "coverage": 0.601010101010101,
+            "n_test": 198
+          },
+          "API Weekly Crude Oil Stock": {
+            "th": 0.25,
+            "acc": 0.7333333333333333,
+            "n": 15,
+            "coverage": 0.4411764705882353,
+            "n_test": 34
           }
         }
       },
