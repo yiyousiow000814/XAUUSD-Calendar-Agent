@@ -50,6 +50,7 @@ export function DeepAnalysisView({
   const [methodOpen, setMethodOpen] = useState(false);
   const [fullOpen, setFullOpen] = useState(false);
   const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [showUnifiedPrior, setShowUnifiedPrior] = useState(false);
   const [predictModel, setPredictModel] = useState<any>(DEFAULT_PREDICT_RELEASE_MODEL_USD);
   const zApCacheRef = useRef(new Map<string, { series: Array<{ ms: number; z: number }> }>());
   const [nowcastVsPrev, setNowcastVsPrev] = useState<{
@@ -160,6 +161,18 @@ export function DeepAnalysisView({
     if (typeof p !== "number" || !Number.isFinite(p)) return "--";
     if (p > 0 && p < 0.01) return "<1%";
     return `${Math.round(p * 100)}%`;
+  };
+
+  const fmtUtcShort = (raw: string) => {
+    const ms = Date.parse(String(raw || "").trim());
+    if (!Number.isFinite(ms)) return "";
+    const d = new Date(ms);
+    const pad = (v: number) => String(v).padStart(2, "0");
+    const dd = pad(d.getUTCDate());
+    const mm = pad(d.getUTCMonth() + 1);
+    const hh = pad(d.getUTCHours());
+    const min = pad(d.getUTCMinutes());
+    return `${dd}-${mm} ${hh}:${min} UTC`;
   };
 
   const anchorLabel = useMemo(() => {
@@ -1021,6 +1034,7 @@ export function DeepAnalysisView({
     const data = (deepData?.data as any) ?? {};
     const pm = data.predictMarket ?? null;
     const unified = pm?.unifiedPath ?? null;
+    const prior = pm?.unifiedPathPrior ?? null;
     const useUnified =
       unified &&
       Array.isArray(unified.offsetsMinutes) &&
@@ -1057,6 +1071,18 @@ export function DeepAnalysisView({
       .filter((v): v is { idx: number; offset: number; pUp: number } => !!v);
     if (pts.length < 2) return null;
 
+    const usePrior =
+      !highlightId &&
+      showUnifiedPrior &&
+      prior &&
+      Array.isArray(prior.offsetsMinutes) &&
+      Array.isArray(prior.pUp) &&
+      prior.offsetsMinutes.length === offsets.length &&
+      prior.pUp.length === offsets.length;
+    const pUpPrior: (number | null)[] = usePrior
+      ? prior.pUp.map((v: any) => (typeof v === "number" && Number.isFinite(v) ? v : null))
+      : [];
+
     const w = 520;
     const h = 140;
     const pad = { l: 44, r: 12, t: 10, b: 30 };
@@ -1075,6 +1101,7 @@ export function DeepAnalysisView({
     }
 
     let dWithout: string | null = null;
+    let dPrior: string | null = null;
     const contribs = Array.isArray(pm?.contributions) ? pm.contributions : [];
     const hlId = (highlightId ?? "").trim();
     if (hlId && contribs.length) {
@@ -1100,6 +1127,17 @@ export function DeepAnalysisView({
         }
         if (d2) dWithout = d2;
       }
+    } else if (usePrior && pUpPrior.length === offsets.length) {
+      let d2 = "";
+      for (let i = 0; i < offsets.length; i += 1) {
+        const base = pUpPrior[i];
+        if (typeof base !== "number" || !Number.isFinite(base)) continue;
+        const pUp = Math.max(0, Math.min(1, base));
+        const x = xForIdx(i);
+        const y = yForP(pUp);
+        d2 += d2 ? ` L ${x},${y}` : `M ${x},${y}`;
+      }
+      if (d2) dPrior = d2;
     }
 
     const idx0 = offsets.findIndex((v) => v === 0);
@@ -1112,14 +1150,16 @@ export function DeepAnalysisView({
       h,
       pad,
       dMain,
+      dPrior,
       dWithout,
       baselineY,
       x0,
       firstLabel: typeof firstOffset === "number" ? formatTimeOffsetMinutes(firstOffset) : "",
       lastLabel: typeof lastOffset === "number" ? formatTimeOffsetMinutes(lastOffset) : "",
-      anchorLabel
+      anchorLabel,
+      hasPrior: useUnified && prior && Array.isArray(prior.pUp) && prior.pUp.length === offsets.length
     };
-  }, [deepData, highlightId, impactSeriesItems, anchorLabel]);
+  }, [deepData, highlightId, impactSeriesItems, anchorLabel, showUnifiedPrior]);
 
   if (!isUsdEvent) {
     return <div className="history-impact-status error">Deep analysis is available for USD events only.</div>;
@@ -1256,6 +1296,24 @@ export function DeepAnalysisView({
                   localPredict.proxyVsPrev.matchRate * 100
                 )}%`}</div>
               ) : null;
+            })()}
+            {(() => {
+              const a0 = parseNumber(selectionActual);
+              const p0 = parseNumber(selectionPrevious);
+              if (typeof a0 !== "number" || !Number.isFinite(a0)) return null;
+              if (typeof p0 !== "number" || !Number.isFinite(p0)) return null;
+              const epsRaw = (localPredict.recent?.vsPrev as any)?.eps ?? (localPredict.all?.vsPrev as any)?.eps ?? 0;
+              const eps = typeof epsRaw === "number" && Number.isFinite(epsRaw) ? Math.max(0, epsRaw) : 0;
+              const d = a0 - p0;
+              const truth = Math.abs(d) <= eps ? "=" : d > 0 ? ">" : "<";
+              const pred = (pvChoice as any)?.pred0 as ">" | "=" | "<" | undefined;
+              if (!pred) return null;
+              const ok = truth === pred;
+              return (
+                <div className="deep-card-sub2">
+                  {`Released: ${truth} (Actual vs Previous) · ${ok ? "matched" : "did not match"} prediction · Unified Outlook uses Actual`}
+                </div>
+              );
             })()}
             {localPredict.all.vsPrev.n > 0 ? (
               <div className="deep-card-sub2">{`All history: N=${localPredict.all.vsPrev.n}`}</div>
@@ -1478,7 +1536,21 @@ export function DeepAnalysisView({
         </div>
       </div>
 
-      <div className="deep-block-title">Unified Outlook P(t)</div>
+      {(() => {
+        const pm = data.predictMarket ?? null;
+        const um = pm?.unifiedMeta ?? pm?.fallback ?? null;
+        const adjustedByActual = Boolean(um?.adjustedByActual);
+        return (
+          <div className="deep-block-title deep-block-title--row">
+            <span>Unified Outlook P(t)</span>
+            {adjustedByActual ? (
+              <span className="deep-pill deep-pill--adjusted" title="Adjusted using released Actual data">
+                Adjusted
+              </span>
+            ) : null}
+          </div>
+        );
+      })()}
       <div className="deep-outlook">
         {unifiedOutlook ? (
           <div className="deep-outlook-chart">
@@ -1503,6 +1575,13 @@ export function DeepAnalysisView({
                   y1={unifiedOutlook.pad.t}
                   y2={unifiedOutlook.h - unifiedOutlook.pad.b}
                   className="deep-outlook-now"
+                  vectorEffect="non-scaling-stroke"
+                />
+              ) : null}
+              {unifiedOutlook.dPrior ? (
+                <path
+                  d={unifiedOutlook.dPrior}
+                  className="deep-outlook-line deep-outlook-line--prior"
                   vectorEffect="non-scaling-stroke"
                 />
               ) : null}
@@ -1551,9 +1630,46 @@ export function DeepAnalysisView({
         )}
 
         <div className="deep-outlook-note">
-          One main path P(t) is shown. When deep JSON is available, nearby events contribute weighted deltas to this
-          path; clicking an event highlights its local contribution without switching to a different direction.
+          {(() => {
+            const pm = data.predictMarket ?? null;
+            const um = pm?.unifiedMeta ?? pm?.fallback ?? null;
+            const adjustedByActual = Boolean(um?.adjustedByActual);
+            const usedActual =
+              typeof um?.usedActualEvents === "number" && Number.isFinite(um.usedActualEvents)
+                ? Math.max(0, Math.round(um.usedActualEvents))
+                : null;
+            const asOf =
+              typeof um?.asOfUtc === "string" ? fmtUtcShort(String(um.asOfUtc)) : "";
+            return (
+              <>
+                One main path P(t) is shown. It is computed from the scheduled +/-24h window (using the impact model),
+                and it updates as nearby events release Actuals.
+                {adjustedByActual ? (
+                  <span className="deep-outlook-note-strong">
+                    {" "}
+                    Adjusted using released Actuals{typeof usedActual === "number" ? ` (${usedActual} events)` : ""}.
+                  </span>
+                ) : (
+                  <span className="deep-outlook-note-strong"> Forecast-only (no released Actuals in-window yet).</span>
+                )}
+                {asOf ? <span className="deep-outlook-note-sub">{` As of ${asOf}.`}</span> : null}
+              </>
+            );
+          })()}
         </div>
+        {unifiedOutlook?.hasPrior ? (
+          <div className="deep-outlook-actions">
+            <button
+              type="button"
+              className="deep-help-btn"
+              disabled={Boolean(highlightId)}
+              onClick={() => setShowUnifiedPrior((v) => !v)}
+              title={highlightId ? "Clear the selected contribution to compare forecast-only vs adjusted" : undefined}
+            >
+              {showUnifiedPrior ? "Hide forecast-only" : "Compare: forecast-only"}
+            </button>
+          </div>
+        ) : null}
 
         {(() => {
           const pm = data.predictMarket ?? null;

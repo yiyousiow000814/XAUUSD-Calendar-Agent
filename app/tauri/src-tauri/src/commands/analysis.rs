@@ -223,11 +223,20 @@ fn build_unified_outlook_fallback(
 
     let start = anchor_dt_utc - Duration::minutes(include_half_minutes);
     let end = anchor_dt_utc + Duration::minutes(include_half_minutes);
+
+    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+    enum BucketMode {
+        Actual,
+        Forecast,
+        Unconditional,
+    }
+
     struct NearbyEvent {
         id: String,
         label: String,
         dt_utc: DateTime<Utc>,
         weight: f64,
+        bucket_mode: BucketMode,
         offsets: Vec<i64>,
         p_up: Vec<f64>,
         in_display_window: bool,
@@ -235,32 +244,37 @@ fn build_unified_outlook_fallback(
         logit_delta_by_grid: Vec<f64>,
     }
 
-    let mut nearby: Vec<NearbyEvent> = vec![];
     let runtime = state.lock().ok()?;
     if runtime.calendar.events.is_empty() {
         return None;
     }
     let now_utc = Utc::now();
-    for e in runtime.calendar.events.iter() {
-        if e.dt_utc < start || e.dt_utc > end {
-            continue;
-        }
-        if e.currency.trim().to_uppercase() != "USD" {
-            continue;
-        }
-        // Impact JSON uses metric-level ids like "USD::Foo::none" (not per-release instance).
-        let metric_id = format!("USD::{}::none", e.event.trim());
-        let Some(metric_entry) = events_obj.get(&metric_id) else {
-            continue;
-        };
-        let Some(buckets) = metric_entry.as_object() else {
-            continue;
-        };
 
-        // Prefer a per-instance bucket curve based on this release's own Forecast vs Previous direction.
-        // This improves unified path accuracy because it avoids diluting signals by mixing incompatible buckets.
-        let bucket_choice = match parse_numeric(&e.previous) {
-            Some(p) => {
+    let build_nearby = |use_actual: bool| -> Vec<NearbyEvent> {
+        let mut nearby: Vec<NearbyEvent> = vec![];
+        for e in runtime.calendar.events.iter() {
+            if e.dt_utc < start || e.dt_utc > end {
+                continue;
+            }
+            if e.currency.trim().to_uppercase() != "USD" {
+                continue;
+            }
+            // Impact JSON uses metric-level ids like "USD::Foo::none" (not per-release instance).
+            let metric_id = format!("USD::{}::none", e.event.trim());
+            let Some(metric_entry) = events_obj.get(&metric_id) else {
+                continue;
+            };
+            let Some(buckets) = metric_entry.as_object() else {
+                continue;
+            };
+
+            // Prefer a per-instance bucket curve based on this release's own A-P direction:
+            // - before release: use Forecast vs Previous as a prior (if both exist)
+            // - after release: use Actual vs Previous (if enabled and Actual exists)
+            // This makes the unified path react to realized outcomes, instead of looking template-like.
+            let mut bucket_mode = BucketMode::Unconditional;
+            let mut bucket_choice: Option<&'static str> = None;
+            if let Some(p) = parse_numeric(&e.previous) {
                 let classify = |d: f64| {
                     if d > 0.0 {
                         "ap_gt_prev"
@@ -270,63 +284,84 @@ fn build_unified_outlook_fallback(
                         "ap_eq_prev"
                     }
                 };
-
-                // If the release is already known (in the past), use Actual vs Previous as the bucket.
-                // This makes the unified path react to the latest outcomes, instead of looking template-like.
-                if e.dt_utc <= now_utc {
+                if use_actual && e.dt_utc <= now_utc {
                     if let Some(a) = parse_numeric(&e.actual) {
-                        Some(classify(a - p))
-                    } else {
-                        // Otherwise (or if Actual is missing), fall back to Forecast vs Previous as a prior.
-                        parse_numeric(&e.forecast).map(|f| classify(f - p))
+                        bucket_choice = Some(classify(a - p));
+                        bucket_mode = BucketMode::Actual;
+                    } else if let Some(f) = parse_numeric(&e.forecast) {
+                        bucket_choice = Some(classify(f - p));
+                        bucket_mode = BucketMode::Forecast;
                     }
-                } else {
-                    // Otherwise (or if Actual is missing), fall back to Forecast vs Previous as a prior.
-                    parse_numeric(&e.forecast).map(|f| classify(f - p))
+                } else if let Some(f) = parse_numeric(&e.forecast) {
+                    bucket_choice = Some(classify(f - p));
+                    bucket_mode = BucketMode::Forecast;
                 }
             }
-            None => None,
-        };
 
-        // Fallback: unconditional P(up) by mixing buckets using bucket sample sizes.
-        // We pick a reference offset (closest to 0) to estimate bucket weights.
-        let fallback_bucket_weights = || {
-            let ref_offset = windows_sorted
-                .iter()
-                .copied()
-                .min_by_key(|v| v.abs())
-                .unwrap_or(windows_sorted[0]);
-            let ref_key = ref_offset.to_string();
+            // Fallback: unconditional P(up) by mixing buckets using bucket sample sizes.
+            // We pick a reference offset (closest to 0) to estimate bucket weights.
+            let fallback_bucket_weights = || {
+                let ref_offset = windows_sorted
+                    .iter()
+                    .copied()
+                    .min_by_key(|v| v.abs())
+                    .unwrap_or(windows_sorted[0]);
+                let ref_key = ref_offset.to_string();
 
-            let mut bucket_weights: Vec<(String, f64)> = vec![];
-            for b in ["ap_gt_prev", "ap_lt_prev", "ap_eq_prev"] {
-                let n = buckets
-                    .get(b)
-                    .and_then(|v| v.get(&ref_key))
-                    .and_then(|v| v.get("n"))
-                    .and_then(|v| v.as_f64())
-                    .unwrap_or(0.0);
-                if n > 0.0 {
-                    bucket_weights.push((b.to_string(), n));
+                let mut bucket_weights: Vec<(String, f64)> = vec![];
+                for b in ["ap_gt_prev", "ap_lt_prev", "ap_eq_prev"] {
+                    let n = buckets
+                        .get(b)
+                        .and_then(|v| v.get(&ref_key))
+                        .and_then(|v| v.get("n"))
+                        .and_then(|v| v.as_f64())
+                        .unwrap_or(0.0);
+                    if n > 0.0 {
+                        bucket_weights.push((b.to_string(), n));
+                    }
                 }
-            }
-            let denom: f64 = bucket_weights.iter().map(|(_, w)| *w).sum();
-            if denom <= 0.0 {
-                return None;
-            }
-            for (_, w) in bucket_weights.iter_mut() {
-                *w /= denom;
-            }
-            Some(bucket_weights)
-        };
+                let denom: f64 = bucket_weights.iter().map(|(_, w)| *w).sum();
+                if denom <= 0.0 {
+                    return None;
+                }
+                for (_, w) in bucket_weights.iter_mut() {
+                    *w /= denom;
+                }
+                Some(bucket_weights)
+            };
 
-        let mut offsets: Vec<i64> = vec![];
-        let mut p_up: Vec<f64> = vec![];
-        for off in windows_sorted.iter().copied() {
-            let key = off.to_string();
-            // Selected bucket first.
-            if let Some(bk) = bucket_choice {
-                if let Some(stats) = buckets.get(bk).and_then(|v| v.get(&key)) {
+            let mut offsets: Vec<i64> = vec![];
+            let mut p_up: Vec<f64> = vec![];
+            for off in windows_sorted.iter().copied() {
+                let key = off.to_string();
+                // Selected bucket first.
+                if let Some(bk) = bucket_choice {
+                    if let Some(stats) = buckets.get(bk).and_then(|v| v.get(&key)) {
+                        let p = stats.get("p_up").and_then(|v| v.as_f64()).or_else(|| {
+                            stats
+                                .get("p_down")
+                                .and_then(|v| v.as_f64())
+                                .map(|d| 1.0 - d)
+                        });
+                        if let Some(p) = p {
+                            offsets.push(off);
+                            p_up.push(p.clamp(0.0, 1.0));
+                            continue;
+                        }
+                    }
+                }
+
+                // Otherwise: unconditional mix.
+                let Some(bucket_weights) = fallback_bucket_weights() else {
+                    break;
+                };
+                let mut pup = 0.5;
+                let mut used = false;
+                for (b, w) in bucket_weights.iter() {
+                    let stats = buckets.get(b).and_then(|v| v.get(&key));
+                    let Some(stats) = stats else {
+                        continue;
+                    };
                     let p = stats.get("p_up").and_then(|v| v.as_f64()).or_else(|| {
                         stats
                             .get("p_down")
@@ -334,65 +369,45 @@ fn build_unified_outlook_fallback(
                             .map(|d| 1.0 - d)
                     });
                     if let Some(p) = p {
-                        offsets.push(off);
-                        p_up.push(p.clamp(0.0, 1.0));
-                        continue;
+                        pup += (p - 0.5) * *w;
+                        used = true;
                     }
                 }
-            }
-
-            // Otherwise: unconditional mix.
-            let Some(bucket_weights) = fallback_bucket_weights() else {
-                break;
-            };
-            let mut pup = 0.5;
-            let mut used = false;
-            for (b, w) in bucket_weights.iter() {
-                let stats = buckets.get(b).and_then(|v| v.get(&key));
-                let Some(stats) = stats else {
-                    continue;
-                };
-                let p = stats.get("p_up").and_then(|v| v.as_f64()).or_else(|| {
-                    stats
-                        .get("p_down")
-                        .and_then(|v| v.as_f64())
-                        .map(|d| 1.0 - d)
-                });
-                if let Some(p) = p {
-                    pup += (p - 0.5) * *w;
-                    used = true;
+                if used {
+                    offsets.push(off);
+                    p_up.push(pup.clamp(0.0, 1.0));
                 }
             }
-            if used {
-                offsets.push(off);
-                p_up.push(pup.clamp(0.0, 1.0));
+            if offsets.len() < 2 {
+                continue;
             }
-        }
-        if offsets.len() < 2 {
-            continue;
-        }
 
-        let w = importance_weight(&e.importance);
-        // Per-release instance id (unique) for contributions highlighting.
-        let instance_id = format!("{metric_id}@{}", e.dt_utc.to_rfc3339());
-        let in_display_window =
-            (e.dt_utc - anchor_dt_utc).num_minutes().abs() <= display_half_minutes;
-        nearby.push(NearbyEvent {
-            id: instance_id,
-            label: e.event.clone(),
-            dt_utc: e.dt_utc,
-            weight: w,
-            offsets,
-            p_up,
-            in_display_window,
-            w_by_grid: vec![0.0; grid.len()],
-            logit_delta_by_grid: vec![0.0; grid.len()],
-        });
-    }
+            // If we failed to pick a bucket, or if we had to fall back to unconditional mixing,
+            // expose it as Unconditional for meta counting.
+            if bucket_choice.is_none() {
+                bucket_mode = BucketMode::Unconditional;
+            }
 
-    if nearby.is_empty() {
-        return None;
-    }
+            let w = importance_weight(&e.importance);
+            // Per-release instance id (unique) for contributions highlighting.
+            let instance_id = format!("{metric_id}@{}", e.dt_utc.to_rfc3339());
+            let in_display_window =
+                (e.dt_utc - anchor_dt_utc).num_minutes().abs() <= display_half_minutes;
+            nearby.push(NearbyEvent {
+                id: instance_id,
+                label: e.event.clone(),
+                dt_utc: e.dt_utc,
+                weight: w,
+                bucket_mode,
+                offsets,
+                p_up,
+                in_display_window,
+                w_by_grid: vec![0.0; grid.len()],
+                logit_delta_by_grid: vec![0.0; grid.len()],
+            });
+        }
+        nearby
+    };
 
     // Make the fallback less "flat" by focusing on near-term events and combining deltas in logit-space.
     // If we average too many weak signals over +/-24h, it collapses toward ~0.5 (which looks like a dead-flat market).
@@ -400,6 +415,23 @@ fn build_unified_outlook_fallback(
     // It keeps "macro regime" signals from nearby events around longer, instead of decaying too quickly.
     let tau_minutes = 480.0; // ~8h decay
     let delta_scale = 6.0; // amplify small deltas so the path has visible curvature
+
+    let mut nearby = build_nearby(true);
+    if nearby.is_empty() {
+        return None;
+    }
+
+    let mut used_actual_events = 0usize;
+    let mut used_forecast_events = 0usize;
+    let mut used_unconditional_events = 0usize;
+    for e in nearby.iter() {
+        match e.bucket_mode {
+            BucketMode::Actual => used_actual_events += 1,
+            BucketMode::Forecast => used_forecast_events += 1,
+            BucketMode::Unconditional => used_unconditional_events += 1,
+        }
+    }
+    let adjusted_by_actual = used_actual_events > 0;
 
     let mut sum_w_by_grid: Vec<f64> = vec![0.0; grid.len()];
     let mut sum_logit_by_grid: Vec<f64> = vec![0.0; grid.len()];
@@ -435,6 +467,42 @@ fn build_unified_outlook_fallback(
         series.push(p);
     }
 
+    let prior_series = if adjusted_by_actual {
+        let mut prior_nearby = build_nearby(false);
+        if prior_nearby.is_empty() {
+            None
+        } else {
+            // Compute only the prior series (no need for contributions); reuse the same transform as the main path.
+            let mut prior: Vec<f64> = vec![];
+            for t in grid.iter().copied() {
+                let abs = anchor_dt_utc + Duration::minutes(t);
+                let mut sum_w = 0.0;
+                let mut sum_logit = 0.0;
+                for e in prior_nearby.iter_mut() {
+                    let rel = (abs - e.dt_utc).num_minutes();
+                    let pup = interp_piecewise(&e.offsets, &e.p_up, rel, 0.5);
+                    let decay = exp_decay_weight(rel, tau_minutes);
+                    let w = e.weight * decay;
+                    if w <= 1e-9 {
+                        continue;
+                    }
+                    let logit_delta = logit(pup) - logit(0.5);
+                    sum_w += w;
+                    sum_logit += w * logit_delta;
+                }
+                let p = if sum_w > 0.0 {
+                    sigmoid((sum_logit / sum_w) * delta_scale).clamp(0.0, 1.0)
+                } else {
+                    0.5
+                };
+                prior.push(p);
+            }
+            Some(prior)
+        }
+    } else {
+        None
+    };
+
     let contributions: Vec<Value> = nearby
         .iter()
         .filter(|e| e.in_display_window)
@@ -462,13 +530,28 @@ fn build_unified_outlook_fallback(
 
     Some(json!({
         "unifiedPath": {
-            "offsetsMinutes": grid,
+            "offsetsMinutes": &grid,
             "pUp": series
         },
+        "unifiedPathPrior": prior_series.map(|p| json!({
+            "offsetsMinutes": &grid,
+            "pUp": p
+        })),
         "contributions": contributions,
-        "fallback": {
+        "unifiedMeta": {
+            "source": "schedule+impact",
             "anchorEventId": event_id,
-            "nearbyEvents": contributions.len()
+            "anchorDtUtc": anchor_dt_utc.to_rfc3339(),
+            "asOfUtc": now_utc.to_rfc3339(),
+            "displayWindowMinutes": display_half_minutes,
+            "includeWindowMinutes": include_half_minutes,
+            "stepMinutes": step_minutes,
+            "nearbyEvents": nearby.len(),
+            "displayEvents": contributions.len(),
+            "usedActualEvents": used_actual_events,
+            "usedForecastEvents": used_forecast_events,
+            "usedUnconditionalEvents": used_unconditional_events,
+            "adjustedByActual": adjusted_by_actual,
         }
     }))
 }
@@ -560,6 +643,8 @@ pub fn get_event_deep_analysis_usd(
         return json!({"ok": false, "message": "eventId is required"});
     }
     let anchor_dt_utc = parse_anchor_dt_utc(&payload);
+    let predict_market_ctx =
+        build_unified_outlook_fallback(&event_id, anchor_dt_utc, state.inner());
 
     // Lookup policy:
     // - Prefer the working calendar repo data/analysis so users can get updated deep JSON
@@ -593,20 +678,50 @@ pub fn get_event_deep_analysis_usd(
     if let Some(parsed) = parsed {
         if let Some(events) = parsed.get("events").and_then(|v| v.as_object()) {
             if let Some(event) = events.get(&event_id) {
-                // Deep JSON is present for this metric; return as-is.
+                // Deep JSON is present for this metric.
+                //
+                // Important: Unified Outlook is instance-sensitive (depends on the anchor time and which nearby
+                // events have released Actuals). Deep JSON is metric-level, so we always attach a context-aware
+                // Unified Outlook computed from the current schedule window.
+                let mut out_event = event.clone();
+                if let Some(ctx) = predict_market_ctx {
+                    if let Some(ev_obj) = out_event.as_object_mut() {
+                        let pm_val = ev_obj.entry("predictMarket").or_insert_with(|| json!({}));
+                        if !pm_val.is_object() {
+                            *pm_val = json!({});
+                        }
+                        if let Some(pm_obj) = pm_val.as_object_mut() {
+                            if let Some(ctx_obj) = ctx.as_object() {
+                                for (k, v) in ctx_obj.iter() {
+                                    pm_obj.insert(k.to_string(), v.clone());
+                                }
+                            }
+                        }
+
+                        // Ensure we surface the additional signal in the "How it's computed" modal.
+                        if let Some(arr) =
+                            ev_obj.get_mut("signalsUsed").and_then(|v| v.as_array_mut())
+                        {
+                            arr.push(json!({
+                                "id": "unified_outlook_context",
+                                "title": "Unified Outlook context (scheduled nearby events + impact buckets)"
+                            }));
+                        }
+                    }
+                }
                 return json!({
                     "ok": true,
                     "eventId": event_id,
                     "generatedAtUtc": parsed.get("generated_at_utc").cloned().unwrap_or(Value::Null),
                     "meta": parsed.get("meta").cloned().unwrap_or(json!({})),
-                    "data": event.clone()
+                    "data": out_event
                 });
             }
         }
     }
 
     // Fallback: build a unified outlook window from scheduled nearby events + impact model buckets.
-    let predict_market = build_unified_outlook_fallback(&event_id, anchor_dt_utc, &state)
+    let predict_market = build_unified_outlook_fallback(&event_id, anchor_dt_utc, state.inner())
         .unwrap_or_else(|| json!({}));
 
     json!({
