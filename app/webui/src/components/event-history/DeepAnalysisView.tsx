@@ -1093,12 +1093,37 @@ export function DeepAnalysisView({
     const yForP = (p: number) => pad.t + (1 - p) * innerH;
     const baselineY = yForP(0.5);
 
-    let dMain = "";
-    for (const p of pts) {
-      const x = xForIdx(p.idx);
-      const y = yForP(p.pUp);
-      dMain += dMain ? ` L ${x},${y}` : `M ${x},${y}`;
-    }
+    const idx0 = offsets.findIndex((v) => v === 0);
+
+    const buildPath = (
+      vals: (number | null)[],
+      startIdx: number,
+      endIdx: number,
+      opts?: { overrideEnd?: number | null }
+    ) => {
+      let d = "";
+      let started = false;
+      const step = startIdx <= endIdx ? 1 : -1;
+      for (let i = startIdx; step > 0 ? i <= endIdx : i >= endIdx; i += step) {
+        const ov =
+          i === endIdx && opts && typeof opts.overrideEnd === "number" && Number.isFinite(opts.overrideEnd)
+            ? opts.overrideEnd
+            : null;
+        const v = ov ?? vals[i];
+        if (typeof v !== "number" || !Number.isFinite(v)) {
+          started = false;
+          continue;
+        }
+        const pUp = Math.max(0, Math.min(1, v));
+        const x = xForIdx(i);
+        const y = yForP(pUp);
+        d += started ? ` L ${x},${y}` : `M ${x},${y}`;
+        started = true;
+      }
+      return d;
+    };
+
+    let dMain = buildPath(pUpSeries, 0, offsets.length - 1);
 
     let dWithout: string | null = null;
     let dPrior: string | null = null;
@@ -1127,20 +1152,13 @@ export function DeepAnalysisView({
         }
         if (d2) dWithout = d2;
       }
-    } else if (usePrior && pUpPrior.length === offsets.length) {
-      let d2 = "";
-      for (let i = 0; i < offsets.length; i += 1) {
-        const base = pUpPrior[i];
-        if (typeof base !== "number" || !Number.isFinite(base)) continue;
-        const pUp = Math.max(0, Math.min(1, base));
-        const x = xForIdx(i);
-        const y = yForP(pUp);
-        d2 += d2 ? ` L ${x},${y}` : `M ${x},${y}`;
-      }
-      if (d2) dPrior = d2;
+    } else if (usePrior && pUpPrior.length === offsets.length && idx0 >= 0) {
+      // Make the "compare" mode feel like one continuous story: forecast-only leads into adjusted,
+      // rather than drawing two full-length overlapping curves.
+      const endOverride = pUpSeries[idx0];
+      dPrior = buildPath(pUpPrior, 0, idx0, { overrideEnd: endOverride });
+      dMain = buildPath(pUpSeries, idx0, offsets.length - 1);
     }
-
-    const idx0 = offsets.findIndex((v) => v === 0);
     const x0 = idx0 >= 0 ? xForIdx(idx0) : null;
     const firstOffset = offsets[0] ?? null;
     const lastOffset = offsets[offsets.length - 1] ?? null;
@@ -1320,7 +1338,7 @@ export function DeepAnalysisView({
             ) : null}
           </div>
           {pvChoice && localPredict.all.vsPrev.n > 0 ? (
-            <>
+            <div className="deep-card-tail">
               <div className="deep-tri" aria-hidden="true">
                 <div
                   className="deep-tri-gt"
@@ -1358,7 +1376,7 @@ export function DeepAnalysisView({
                   className={`deep-tri-chip lt${(pvChoice as any)?.pred0 === "<" ? " is-picked" : ""}`}
                 >{`< ${fmtPctNum((pvChoice as any)?.pLt ?? null)}`}</span>
               </div>
-            </>
+            </div>
           ) : null}
         </div>
 
@@ -1498,7 +1516,7 @@ export function DeepAnalysisView({
                   : null;
             if (!af || localPredict.all.vsForecast.n <= 0) return null;
             return (
-              <>
+              <div className="deep-card-tail">
                 <div className="deep-tri" aria-hidden="true">
                   <div
                     className="deep-tri-gt"
@@ -1530,7 +1548,7 @@ export function DeepAnalysisView({
                     af.pLt ?? null
                   )}`}</span>
                 </div>
-              </>
+              </div>
             );
           })()}
         </div>

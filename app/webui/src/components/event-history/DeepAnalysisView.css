@@ -265,6 +265,8 @@
 }
 
 .deep-card {
+  display: flex;
+  flex-direction: column;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.04);
@@ -274,6 +276,10 @@
 [data-theme="light"] .deep-card {
   border-color: rgba(18, 20, 26, 0.08);
   background: rgba(18, 20, 26, 0.02);
+}
+
+.deep-card-tail {
+  margin-top: auto;
 }
 
 .deep-card-k {
