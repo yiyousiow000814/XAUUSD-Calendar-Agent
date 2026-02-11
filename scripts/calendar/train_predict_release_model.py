@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -315,7 +316,6 @@ def _dir_assoc(x: np.ndarray, y: np.ndarray, *, min_pairs: int, eq_factor: float
     if not np.isfinite(strength):
         return 0.0
     return max(-1.0, min(1.0, float(strength)))
-
 
 def _compute_relationships_ap(
     series_by_metric: dict[str, dict[str, Any]],
@@ -658,15 +658,16 @@ def main() -> int:
     # Relationship ("nowcast chain") is intentionally lightweight, but we want decent coverage.
     # Wider lookback + slightly lower corr threshold helps bring more metrics into the graph,
     # while per-metric confidence thresholds keep reliability acceptable.
-    rel_lookback_days = 90
+    rel_lookback_days = 180
     rel_recent_days = 180
-    rel_topk = 10
-    rel_min_abs_corr = 0.08
-    rel_min_pairs = 12
+    rel_vote_half_life_days = 60
+    rel_topk = 15
+    rel_min_abs_corr = 0.06
+    rel_min_pairs = 10
     rel_min_metric_points = int(args.rel_min_metric_points)
-    rel_min_test_samples = 15  # per-metric test points (post-split) to trust a threshold
-    rel_min_shown_samples = 6  # per-metric shown points at a threshold
-    rel_target_min_acc = 0.71
+    rel_min_test_samples = 10  # per-metric test points (post-split) to trust a threshold
+    rel_min_shown_samples = 4  # per-metric shown points at a threshold
+    rel_target_min_acc = 0.70
     rel_target_min_cov = 0.10
 
     series_by_metric_ap = _build_metric_ap_series(df)
@@ -872,18 +873,19 @@ def main() -> int:
         require_forecast=False,
         W=W_nf,
         target_min_acc=0.70,
-        target_min_cov=0.25,
+        target_min_cov=0.10,
         min_test_samples=18,
-        min_shown_samples=8,
+        min_shown_samples=4,
     )
 
-    # Evaluate relationship ("nowcast chain") predictor on no-forecast test samples, per metric.
+    # Evaluate relationship ("nowcast chain") predictor on *no-forecast* samples, per metric.
     #
     # This is intentionally simple: we only apply it to metrics where it backtests well,
     # to avoid degrading the overall reliability for noisy series.
     #
-    # Important: we calibrate it on *all* A-P releases (not just no-forecast), so it can
-    # support high-importance macro metrics that often *do* have Forecast.
+    # Important: we calibrate it on releases where the selected release lacks Forecast.
+    # This matches how the UI uses the nowcast-chain (fallback for no-forecast events),
+    # and avoids degrading High-importance metrics that already have a better with-Forecast model.
     def build_rel_samples() -> list[tuple[int, str, int]]:
         out: list[tuple[int, str, int]] = []
         grouped = df.groupby("metric_key", sort=False)
@@ -901,6 +903,9 @@ def main() -> int:
             for i in range(6, len(g)):
                 if not np.isfinite(a_all[i]) or not np.isfinite(p_all[i]):
                     continue
+                # Nowcast-chain is used as the no-forecast fallback; only calibrate on no-forecast targets.
+                if np.isfinite(f_all[i]):
+                    continue
                 idxs = [i - 1, i - 2, i - 3, i - 4, i - 5, i - 6]
                 if not np.all(np.isfinite(a_all[idxs])) or not np.all(np.isfinite(p_all[idxs])):
                     continue
@@ -917,6 +922,7 @@ def main() -> int:
         votes = np.zeros(3, dtype="float64")
         used = 0
         recent_ns = int(rel_recent_days) * 24 * 3600 * 1_000_000_000
+        half_life_ns = float(rel_vote_half_life_days) * 24.0 * 3600.0 * 1_000_000_000.0
         for item in rels:
             src_key = str(item.get("metric") or "")
             kind = str(item.get("kind") or "ap").strip().lower()
@@ -939,12 +945,18 @@ def main() -> int:
             z_last = float(src_z[j])
             if not np.isfinite(z_last):
                 continue
-            lab = int(_label_z(z_last, float(eq_factor)))  # 0="=", 1=">", 2="<"
+            z_last = float(np.clip(z_last, -3.0, 3.0))
+            # Older signals still count, but decay their influence (still within recent window).
+            w_time = math.exp(-float(age) / max(1.0, half_life_ns))
+            w = abs(c) * min(3.0, abs(z_last)) * w_time
+            src_lab = int(_label_z(z_last, float(eq_factor)))  # 0="=", 1=">", 2="<"
+
+            # Back-compat fallback: treat corr sign as a hard inversion for ">" / "<".
+            lab = src_lab
             if lab == 1 and c < 0:
                 lab = 2
             elif lab == 2 and c < 0:
                 lab = 1
-            w = abs(c) * min(3.0, abs(z_last))
             votes[lab] += w
             used += 1
         if used <= 0 or float(votes.sum()) <= 0:
@@ -1083,6 +1095,7 @@ def main() -> int:
                 "target_min_cov": float(rel_target_min_cov),
                 "lookback_days": int(rel_lookback_days),
                 "recent_days": int(rel_recent_days),
+                "vote_half_life_days": int(rel_vote_half_life_days),
                 "topk": int(rel_topk),
                 "min_abs_corr": float(rel_min_abs_corr),
                 "min_pairs": int(rel_min_pairs),

@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from pathlib import Path
 from typing import Any, Optional
@@ -45,6 +46,9 @@ def _rel_vote_predict(
     used = 0
 
 
+    vote_half_life_days = 60
+    half_life_ns = float(vote_half_life_days) * 24.0 * 3600.0 * 1_000_000_000.0
+
     for item in rels:
         src_key = str(item.get("metric") or "").strip()
         kind = str(item.get("kind") or "ap").strip().lower()
@@ -67,17 +71,19 @@ def _rel_vote_predict(
         z_last = float(src_z[j])
         if not np.isfinite(z_last):
             continue
+        z_last = float(np.clip(z_last, -3.0, 3.0))
 
-        lab = int(_label_z(z_last, float(eq_factor)))  # 0="=", 1=">", 2="<"
+        src_lab = int(_label_z(z_last, float(eq_factor)))  # 0="=", 1=">", 2="<"
+        w_time = math.exp(-float(age) / max(1.0, half_life_ns))
+        w = abs(c) * min(3.0, abs(z_last)) * w_time
+        if not np.isfinite(w) or w <= 0:
+            continue
+
+        lab = src_lab
         if lab == 1 and c < 0:
             lab = 2
         elif lab == 2 and c < 0:
             lab = 1
-
-        w = abs(c) * min(3.0, abs(z_last))
-        if not np.isfinite(w) or w <= 0:
-            continue
-
         votes[lab] += w
         used += 1
 

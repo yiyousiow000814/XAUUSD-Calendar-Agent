@@ -200,10 +200,13 @@ export function DeepAnalysisView({
 
     const p0 = parseNumber(selectionPrevious);
     const hasPrev0 = typeof p0 === "number" && Number.isFinite(p0);
+    const f0 = parseNumber(selectionForecast);
+    const hasForecast0 = typeof f0 === "number" && Number.isFinite(f0);
 
     // Only for USD selections with a usable Previous (A vs Previous direction).
     // This predictor is trained on USD calendar history.
-    if (!isUsdEvent || !hasPrev0 || !metric || curCode !== "USD") {
+    // Nowcast-chain is only used as the no-forecast fallback. When Forecast exists, prefer the model.
+    if (!isUsdEvent || !hasPrev0 || !metric || curCode !== "USD" || hasForecast0) {
       setNowcastVsPrev(null);
       return;
     }
@@ -238,6 +241,12 @@ export function DeepAnalysisView({
         ? Number(model.meta.relationships.recent_days)
         : 180;
     const recentMs = Math.max(1, recentDays) * 86_400_000;
+    const halfLifeDays =
+      typeof model?.meta?.relationships?.vote_half_life_days === "number" &&
+      Number.isFinite(model.meta.relationships.vote_half_life_days)
+        ? Number(model.meta.relationships.vote_half_life_days)
+        : 60;
+    const halfLifeMs = Math.max(1, halfLifeDays) * 86_400_000;
 
     const parsePointUtcMs = (p: EventHistoryPoint): number | null => {
       const dRaw = String(p.date ?? "").trim();
@@ -292,7 +301,7 @@ export function DeepAnalysisView({
           kind: String((it as any)?.kind || "ap")
             .trim()
             .toLowerCase(),
-          corr: Number(it?.corr ?? 0)
+          corr: Number((it as any)?.corr ?? 0)
         }))
         .filter(
           (it) =>
@@ -306,10 +315,12 @@ export function DeepAnalysisView({
       );
 
       for (let idx = 0; idx < candidates.length; idx += 1) {
-        const { srcKey, corr } = candidates[idx]!;
+        const { corr } = candidates[idx]!;
         const src = seriesList[idx];
         if (!src) continue;
         const series = src.series;
+        // Use the most recent source signal (within the recent window), but decay older signals
+        // so the last 1-6 months dominate without forcing a hard cutoff.
         let j = series.length - 1;
         while (j >= 0) {
           const ms = series[j]!.ms;
@@ -317,13 +328,18 @@ export function DeepAnalysisView({
           j -= 1;
         }
         if (j < 0) continue;
-        const z = series[j]!.z;
-        let lab = labelZ(z, eqFactor); // 0="=", 1=">", 2="<"
-        if (lab === 1 && corr < 0) lab = 2;
-        else if (lab === 2 && corr < 0) lab = 1;
-        const w = Math.abs(corr) * Math.min(3, Math.abs(z));
+        const age = refMs - series[j]!.ms;
+        const z = Math.max(-3, Math.min(3, series[j]!.z));
+        const wTime = Math.exp(-age / halfLifeMs);
+
+        const srcLab = labelZ(z, eqFactor); // 0="=", 1=">", 2="<"
+        const w = Math.abs(corr) * Math.min(3, Math.abs(z)) * wTime;
         if (!Number.isFinite(w) || w <= 0) continue;
         used += 1;
+
+        let lab = srcLab;
+        if (lab === 1 && corr < 0) lab = 2;
+        else if (lab === 2 && corr < 0) lab = 1;
         if (lab === 0) vEq += w;
         else if (lab === 1) vGt += w;
         else vLt += w;
