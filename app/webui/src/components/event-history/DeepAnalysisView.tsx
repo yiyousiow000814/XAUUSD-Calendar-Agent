@@ -1,16 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { EventDeepAnalysisResponse, EventHistoryPoint, EventImpactWindowStats } from "../../types";
 import { backend } from "../../api";
-import { formatTimeOffsetMinutes, parseDisplayTimeToUtcMs } from "../../utils/calendarTime";
-import {
-  DEFAULT_PREDICT_RELEASE_MODEL_USD,
-  dotFeatures,
-  estimateBacktestAccForMetric,
-  estimateBacktestAccAtThreshold,
-  pickThresholdForMetric,
-  softmax1d
-} from "../../utils/predictReleaseModel";
+import { formatTimeOffsetMinutes } from "../../utils/calendarTime";
+import { DEFAULT_PREDICT_RELEASE_MODEL_USD } from "../../utils/predictReleaseModel";
 import { DeepAnalysisMethodModal } from "./DeepAnalysisMethodModal";
+import { useLocalPredictRelease } from "./deep-analysis/useLocalPredictRelease";
+import { useNowcastVsPrev } from "./deep-analysis/useNowcastVsPrev";
+import { parseNumber } from "./deep-analysis/utils";
 import "./DeepAnalysisView.css";
 
 type ImpactSeriesItem = { offset: number; stats?: EventImpactWindowStats };
@@ -28,6 +24,8 @@ type DeepAnalysisViewProps = {
   anchorDtUtc: string;
   // Display offset minutes (calendar timezone), used to show the anchor time label without leaking local timezone.
   displayOffsetMinutes: number;
+  // "Low/Medium/High" importance label from the calendar list.
+  selectionImpact?: string;
   // Values for the selected release instance (from the calendar list). These allow conditional predictions.
   selectionActual?: string;
   selectionForecast?: string;
@@ -45,6 +43,7 @@ export function DeepAnalysisView({
   impactSeriesItems,
   anchorDtUtc,
   displayOffsetMinutes,
+  selectionImpact,
   selectionActual,
   selectionForecast,
   selectionPrevious
@@ -54,18 +53,16 @@ export function DeepAnalysisView({
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const [showUnifiedPrior, setShowUnifiedPrior] = useState(false);
   const [predictModel, setPredictModel] = useState<any>(DEFAULT_PREDICT_RELEASE_MODEL_USD);
-  const zApCacheRef = useRef(new Map<string, { series: Array<{ ms: number; z: number }> }>());
-  const [nowcastVsPrev, setNowcastVsPrev] = useState<{
-    pred0: ">" | "=" | "<";
-    conf: number;
-    threshold: number;
-    reliable: boolean;
-    sourcesUsed: number;
-    pEq: number;
-    pGt: number;
-    pLt: number;
-    backtestAcc?: number;
-  } | null>(null);
+  const nowcastVsPrev = useNowcastVsPrev({
+    isUsdEvent,
+    metricKey,
+    cur,
+    anchorDtUtc,
+    displayOffsetMinutes,
+    selectionForecast,
+    selectionPrevious,
+    predictModel
+  });
 
   useEffect(() => {
     if (!methodOpen) return;
@@ -110,49 +107,6 @@ export function DeepAnalysisView({
     };
   }, []);
 
-  const parseNumber = (raw: unknown): number | null => {
-    const text = String(raw ?? "").trim();
-    if (!text) return null;
-    const lowered = text.toLowerCase();
-    if (
-      lowered === "--" ||
-      lowered === "\u2014" ||
-      lowered === "-" ||
-      lowered === "tba" ||
-      lowered === "n/a" ||
-      lowered === "na" ||
-      lowered === "null"
-    ) {
-      return null;
-    }
-    const cleaned = text.replace(/,/g, "").replace(/%/g, "").replace(/\s+/g, "");
-    const m = cleaned.match(/^([+-]?\d+(?:\.\d+)?)([kmbt])?$/i);
-    if (!m) return null;
-    const base = Number(m[1]);
-    if (!Number.isFinite(base)) return null;
-    const suf = (m[2] || "").toLowerCase();
-    if (suf === "k") return base * 1_000;
-    if (suf === "m") return base * 1_000_000;
-    if (suf === "b") return base * 1_000_000_000;
-    if (suf === "t") return base * 1_000_000_000_000;
-    return base;
-  };
-
-  const median = (arr: number[]) => {
-    if (!arr.length) return 0;
-    const s = [...arr].sort((a, b) => a - b);
-    const mid = (s.length - 1) / 2;
-    const lo = s[Math.floor(mid)] ?? 0;
-    const hi = s[Math.ceil(mid)] ?? 0;
-    return (lo + hi) / 2;
-  };
-
-  const labelZ = (z: number, eqFactor: number) => {
-    if (!Number.isFinite(z)) return 0;
-    if (Math.abs(z) <= eqFactor) return 0;
-    return z > 0 ? 1 : 2; // 0="=", 1=">", 2="<"
-  };
-
   const fmtPct = (p: number | null | undefined) =>
     typeof p === "number" && Number.isFinite(p) ? `${Math.round(p * 100)}%` : "--";
   const fmtP = (p?: number) =>
@@ -192,775 +146,18 @@ export function DeepAnalysisView({
     return `${dd}-${mm} ${hh}:${min}`;
   }, [anchorDtUtc, displayOffsetMinutes]);
 
-  useEffect(() => {
-    const metric = String(metricKey || "").trim();
-    const curCode = String(cur || "").trim().toUpperCase();
-    const anchorMsRaw = Date.parse(String(anchorDtUtc || "").trim());
-    const refMs = Number.isFinite(anchorMsRaw) ? Math.min(anchorMsRaw, Date.now()) : Date.now();
 
-    const p0 = parseNumber(selectionPrevious);
-    const hasPrev0 = typeof p0 === "number" && Number.isFinite(p0);
-    const f0 = parseNumber(selectionForecast);
-    const hasForecast0 = typeof f0 === "number" && Number.isFinite(f0);
-
-    // Only for USD selections with a usable Previous (A vs Previous direction).
-    // This predictor is trained on USD calendar history.
-    // Nowcast-chain is only used as the no-forecast fallback. When Forecast exists, prefer the model.
-    if (!isUsdEvent || !hasPrev0 || !metric || curCode !== "USD" || hasForecast0) {
-      setNowcastVsPrev(null);
-      return;
-    }
-
-    const model: any = predictModel;
-    const eqFactor =
-      typeof model?.meta?.eq_factor === "number" && Number.isFinite(model.meta.eq_factor)
-        ? Number(model.meta.eq_factor)
-        : 0.10;
-
-    const relRoot = model?.models?.ap_no_forecast?.relationships;
-    const predictor = relRoot?.predictor ?? null;
-    const enabled = predictor?.enabled_metrics?.[metric] ?? null;
-    const rels: Array<{ metric: string; corr: number }> = Array.isArray(relRoot?.by_metric?.[metric])
-      ? relRoot.by_metric[metric]
-      : [];
-    if (!enabled || !rels.length) {
-      setNowcastVsPrev(null);
-      return;
-    }
-
-    const recommendedTh =
-      typeof predictor?.recommended_threshold === "number" && Number.isFinite(predictor.recommended_threshold)
-        ? Number(predictor.recommended_threshold)
-        : 0.10;
-    const metricTh =
-      typeof enabled?.th === "number" && Number.isFinite(enabled.th)
-        ? Number(enabled.th)
-        : recommendedTh;
-    const recentDays =
-      typeof model?.meta?.relationships?.recent_days === "number" && Number.isFinite(model.meta.relationships.recent_days)
-        ? Number(model.meta.relationships.recent_days)
-        : 180;
-    const recentMs = Math.max(1, recentDays) * 86_400_000;
-    const halfLifeDays =
-      typeof model?.meta?.relationships?.vote_half_life_days === "number" &&
-      Number.isFinite(model.meta.relationships.vote_half_life_days)
-        ? Number(model.meta.relationships.vote_half_life_days)
-        : 60;
-    const halfLifeMs = Math.max(1, halfLifeDays) * 86_400_000;
-
-    const parsePointUtcMs = (p: EventHistoryPoint): number | null => {
-      const dRaw = String(p.date ?? "").trim();
-      const tRaw = String(p.time ?? "").trim();
-      if (!dRaw) return null;
-      const tt = tRaw || "00:00";
-      const m1 = dRaw.match(/^(\d{2})-(\d{2})-(\d{4})$/);
-      const dateIso = m1 ? `${m1[3]}-${m1[2]}-${m1[1]}` : dRaw;
-      const ms = parseDisplayTimeToUtcMs(dateIso, tt, Number(displayOffsetMinutes) || 0);
-      return typeof ms === "number" && Number.isFinite(ms) ? ms : null;
-    };
-
-    const buildZApSeries = async (mKey: string, kind: "ap" | "af") => {
-      const cacheKey = `${kind}:${mKey}`;
-      const cached = zApCacheRef.current.get(cacheKey);
-      if (cached) return cached;
-      const res = await backend.getEventHistory({ event: mKey, cur: curCode });
-      if (!res?.ok || !Array.isArray(res.points)) return null;
-
-      const rows = res.points
-        .map((p: EventHistoryPoint) => {
-          const ms = parsePointUtcMs(p);
-          const a = parseNumber(p.actualRaw ?? p.actual);
-          const b =
-            kind === "af"
-              ? parseNumber(p.forecast)
-              : parseNumber(p.previousRaw ?? p.previous);
-          if (ms === null || typeof a !== "number" || typeof b !== "number") return null;
-          if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
-          return { ms, diff: a - b };
-        })
-        .filter((r): r is { ms: number; diff: number } => Boolean(r))
-        .sort((x, y) => x.ms - y.ms);
-
-      if (rows.length < 12) return null;
-      const scale = Math.max(1e-9, median(rows.map((r) => Math.abs(r.diff))));
-      const series = rows.map((r) => ({ ms: r.ms, z: r.diff / scale }));
-      const built = { series };
-      zApCacheRef.current.set(cacheKey, built);
-      return built;
-    };
-
-    let alive = true;
-    (async () => {
-      let vEq = 0;
-      let vGt = 0;
-      let vLt = 0;
-      let used = 0;
-      const candidates = rels
-        .map((it) => ({
-          srcKey: String(it?.metric || "").trim(),
-          kind: String((it as any)?.kind || "ap")
-            .trim()
-            .toLowerCase(),
-          corr: Number((it as any)?.corr ?? 0)
-        }))
-        .filter(
-          (it) =>
-            it.srcKey &&
-            (it.kind === "ap" || it.kind === "af") &&
-            Number.isFinite(it.corr) &&
-            Math.abs(it.corr) > 1e-12
-        );
-      const seriesList = await Promise.all(
-        candidates.map((it) => buildZApSeries(it.srcKey, it.kind as "ap" | "af"))
-      );
-
-      for (let idx = 0; idx < candidates.length; idx += 1) {
-        const { corr } = candidates[idx]!;
-        const src = seriesList[idx];
-        if (!src) continue;
-        const series = src.series;
-        // Use the most recent source signal (within the recent window), but decay older signals
-        // so the last 1-6 months dominate without forcing a hard cutoff.
-        let j = series.length - 1;
-        while (j >= 0) {
-          const ms = series[j]!.ms;
-          if (ms < refMs && refMs - ms <= recentMs) break;
-          j -= 1;
-        }
-        if (j < 0) continue;
-        const age = refMs - series[j]!.ms;
-        const z = Math.max(-3, Math.min(3, series[j]!.z));
-        const wTime = Math.exp(-age / halfLifeMs);
-
-        const srcLab = labelZ(z, eqFactor); // 0="=", 1=">", 2="<"
-        const w = Math.abs(corr) * Math.min(3, Math.abs(z)) * wTime;
-        if (!Number.isFinite(w) || w <= 0) continue;
-        used += 1;
-
-        let lab = srcLab;
-        if (lab === 1 && corr < 0) lab = 2;
-        else if (lab === 2 && corr < 0) lab = 1;
-        if (lab === 0) vEq += w;
-        else if (lab === 1) vGt += w;
-        else vLt += w;
-      }
-
-      if (!alive) return;
-      const sum = vEq + vGt + vLt;
-      if (!(sum > 0) || used <= 0) {
-        setNowcastVsPrev(null);
-        return;
-      }
-      const pEq = vEq / sum;
-      const pGt = vGt / sum;
-      const pLt = vLt / sum;
-      const probs = [pEq, pGt, pLt];
-      const idx = probs.reduce((best, v, i) => (v > (probs[best] ?? 0) ? i : best), 0);
-      const pred0 = (idx === 1 ? ">" : idx === 2 ? "<" : "=") as ">" | "=" | "<";
-      const sorted = [...probs].sort((a, b) => b - a);
-      const max1 = sorted[0] ?? 0;
-      const max2 = sorted[1] ?? 0;
-      const score = max1 * Math.max(0, max1 - max2);
-      const backtestAcc =
-        typeof enabled?.acc === "number" && Number.isFinite(enabled.acc) ? Number(enabled.acc) : undefined;
-
-      setNowcastVsPrev({
-        pred0,
-        conf: score,
-        threshold: metricTh,
-        reliable: score >= metricTh,
-        sourcesUsed: used,
-        pEq,
-        pGt,
-        pLt,
-        backtestAcc
-      });
-    })().catch(() => {
-      if (alive) setNowcastVsPrev(null);
-    });
-
-    return () => {
-      alive = false;
-    };
-  }, [
-    anchorDtUtc,
-    cur,
-    displayOffsetMinutes,
-    isUsdEvent,
+  const localPredict = useLocalPredictRelease({
+    points,
     metricKey,
-    predictModel,
+    anchorDtUtc,
+    displayOffsetMinutes,
+    selectionImpact,
+    selectionActual,
     selectionForecast,
-    selectionPrevious
-  ]);
-
-  const localPredict = useMemo(() => {
-    const EQ_FACTOR = 0.05; // Wider "approx equal" than strict matching; tuned for calendar numeric noise.
-    const metric = String(metricKey || "").trim();
-    const parsePointUtcMs = (p: EventHistoryPoint): number | null => {
-      const dRaw = String(p.date ?? "").trim();
-      const tRaw = String(p.time ?? "").trim();
-      if (!dRaw) return null;
-      const tt = tRaw || "00:00";
-      // Support dd-mm-yyyy (repo default) and yyyy-mm-dd.
-      const m1 = dRaw.match(/^(\d{2})-(\d{2})-(\d{4})$/);
-      const dateIso = m1 ? `${m1[3]}-${m1[2]}-${m1[1]}` : dRaw;
-      const ms = parseDisplayTimeToUtcMs(dateIso, tt, Number(displayOffsetMinutes) || 0);
-      return typeof ms === "number" && Number.isFinite(ms) ? ms : null;
-    };
-
-    const anchorMs = Date.parse(String(anchorDtUtc || "").trim());
-    const refMs = Number.isFinite(anchorMs) ? Math.min(anchorMs, Date.now()) : Date.now();
-
-    const rows = points
-      .map((p) => ({
-        ms: parsePointUtcMs(p),
-        a: parseNumber(p.actualRaw ?? p.actual),
-        f: parseNumber(p.forecast),
-        prev: parseNumber(p.previousRaw ?? p.previous)
-      }))
-      .filter((r) => r.ms !== null && typeof r.a === "number" && Number.isFinite(r.a as number))
-      .map((r) => ({ ...r, ms: r.ms as number }))
-      .filter((r) => r.ms <= refMs)
-      .sort((x, y) => x.ms - y.ms);
-
-    const monthStartMsFor = (ref: number, months: number) => {
-      const d = new Date(ref);
-      d.setUTCMonth(d.getUTCMonth() - Math.max(0, Math.min(6, months)));
-      return d.getTime();
-    };
-
-    const subsetMonths = (months: number, ref: number) => {
-      const start = monthStartMsFor(ref, months);
-      return rows.filter((r) => r.ms >= start && r.ms < ref);
-    };
-
-    const build3way = (sub: typeof rows, kind: "forecast" | "prev") => {
-      const diffs: number[] = [];
-      for (const r of sub) {
-        const a = r.a as number;
-        const b = kind === "forecast" ? r.f : r.prev;
-        if (typeof b !== "number" || !Number.isFinite(b)) continue;
-        diffs.push(Math.abs(a - b));
-      }
-      // "Approx equal": dynamic tolerance based on typical surprise magnitude in the chosen window.
-      const med = median(diffs);
-      const eps = Math.max(1e-9, med * EQ_FACTOR);
-
-      let n = 0;
-      let gt = 0;
-      let eq = 0;
-      let lt = 0;
-      for (const r of sub) {
-        const a = r.a as number;
-        const b = kind === "forecast" ? r.f : r.prev;
-        if (typeof b !== "number" || !Number.isFinite(b)) continue;
-        const d = a - b;
-        n += 1;
-        if (Math.abs(d) <= eps) eq += 1;
-        else if (d > 0) gt += 1;
-        else lt += 1;
-      }
-      const pGt = n > 0 ? gt / n : null;
-      const pEq = n > 0 ? eq / n : null;
-      const pLt = n > 0 ? lt / n : null;
-      return { n, pGt, pEq, pLt, eps };
-    };
-
-    const argmax3 = (pGt: number, pEq: number, pLt: number) => {
-      // Prefer "=" in ties (usually safer), then ">".
-      const items: Array<[">" | "=" | "<", number]> = [
-        ["=", pEq],
-        [">", pGt],
-        ["<", pLt]
-      ];
-      items.sort((a, b) => (b[1] - a[1] !== 0 ? b[1] - a[1] : a[0].localeCompare(b[0])));
-      return items[0][0];
-    };
-
-    const truthLabel = (a: number, b: number, eps: number) => {
-      const d = a - b;
-      if (Math.abs(d) <= eps) return "=";
-      return d > 0 ? ">" : "<";
-    };
-
-    const pickBestMonths = (kind: "forecast" | "prev") => {
-      const hasAny = kind === "forecast" ? rows.some((r) => typeof r.f === "number") : rows.some((r) => typeof r.prev === "number");
-      if (!hasAny) return 6;
-
-      const candidates = [1, 2, 3, 4, 5, 6];
-      let bestM = 6;
-      let bestAcc = -1;
-
-      // Backtest on the most recent releases first to reduce old-regime influence.
-      const evalRows = rows
-        .filter((r) => {
-          const b = kind === "forecast" ? r.f : r.prev;
-          return typeof r.a === "number" && Number.isFinite(r.a) && typeof b === "number" && Number.isFinite(b);
-        })
-        .slice(-36); // last ~36 releases is enough for a stable choice
-
-      for (const m of candidates) {
-        let correct = 0;
-        let total = 0;
-        for (let i = 0; i < evalRows.length; i += 1) {
-          const ref = evalRows[i]!.ms;
-          const hist = subsetMonths(m, ref);
-          const stats = build3way(hist, kind);
-          if (stats.n < 8) continue; // avoid tiny windows dominating by noise
-          const pGt = stats.pGt ?? 0;
-          const pEq = stats.pEq ?? 0;
-          const pLt = stats.pLt ?? 0;
-          const pred = argmax3(pGt, pEq, pLt);
-          const a = evalRows[i]!.a as number;
-          const b = (kind === "forecast" ? evalRows[i]!.f : evalRows[i]!.prev) as number;
-          const truth = truthLabel(a, b, stats.eps);
-          total += 1;
-          if (pred === truth) correct += 1;
-        }
-        if (total < 8) continue;
-        const acc = correct / total;
-        // Prefer smaller m on ties (more reactive).
-        if (acc > bestAcc + 1e-9 || (Math.abs(acc - bestAcc) <= 1e-9 && m < bestM)) {
-          bestAcc = acc;
-          bestM = m;
-        }
-      }
-      return bestM;
-    };
-
-    const buildPredict = (sub: typeof rows) => ({
-      vsForecast: build3way(sub, "forecast"),
-      vsPrev: build3way(sub, "prev")
-    });
-
-    const all = buildPredict(rows);
-
-    const bestF = pickBestMonths("forecast");
-    const bestP = pickBestMonths("prev");
-    // Pick one window months for display (single decision): favor Forecast if available, else Previous.
-    const recentMonths = all.vsForecast.n > 0 ? bestF : bestP;
-
-    const recentRows = subsetMonths(recentMonths, refMs);
-    const recent = buildPredict(recentRows);
-
-    // Conditional predictor for Actual vs Previous using the direction of (Forecast - Previous) for the selected release.
-    const f0 = parseNumber(selectionForecast);
-    const p0 = parseNumber(selectionPrevious);
-
-    const label3 = (d: number, eps: number) => (Math.abs(d) <= eps ? 0 : d > 0 ? 1 : -1);
-    const label3Sym = (d: number, eps: number) => (Math.abs(d) <= eps ? "=" : d > 0 ? ">" : "<");
-
-    const linregForecastHat = (series: number[]) => {
-      // 6-point trend model is intentionally short/higher-reactivity; it backtests better for vsPrevious.
-      if (series.length < 6) return null;
-      const y = series.slice(-6);
-      const n = y.length;
-      let sumX = 0;
-      let sumY = 0;
-      let sumXX = 0;
-      let sumXY = 0;
-      for (let i = 0; i < n; i += 1) {
-        const x = i;
-        const yy = y[i] as number;
-        sumX += x;
-        sumY += yy;
-        sumXX += x * x;
-        sumXY += x * yy;
-      }
-      const denom = n * sumXX - sumX * sumX;
-      if (!denom) return null;
-      const slope = (n * sumXY - sumX * sumY) / denom;
-      const intercept = (sumY - slope * sumX) / n;
-      // predict next point at x=n
-      return slope * n + intercept;
-    };
-
-    const buildProxyVsPrev = () => {
-      // Use a fixed per-metric tolerance for "approx equal" (mirrors the offline evaluation script):
-      // eps = median(|Actual-Previous|) * EQ_FACTOR
-      const apDiffs: number[] = [];
-      for (const r of rows) {
-        if (typeof r.a !== "number" || typeof r.prev !== "number") continue;
-        apDiffs.push(Math.abs(r.a - r.prev));
-      }
-      const eps = Math.max(1e-9, median(apDiffs) * EQ_FACTOR);
-      if (eps <= 0) return null;
-
-      // Proxy for the *selected* release instance.
-      let proxy0: number | null = null;
-      let proxyLabel = "";
-      if (typeof p0 === "number" && Number.isFinite(p0)) {
-        if (typeof f0 === "number" && Number.isFinite(f0)) {
-          proxy0 = f0;
-          proxyLabel = "Forecast";
-        } else {
-          const actualSeries = rows
-            .filter((r) => typeof r.a === "number" && Number.isFinite(r.a))
-            .map((r) => r.a as number);
-          const hat = linregForecastHat(actualSeries);
-          if (typeof hat === "number" && Number.isFinite(hat)) {
-            proxy0 = hat;
-            proxyLabel = "Model";
-          }
-        }
-      }
-      if (proxy0 === null || typeof p0 !== "number") return null;
-
-      const pred0 = label3Sym(proxy0 - p0, eps);
-
-      // Backtest the proxy rule on recent history (no leakage):
-      // for each point i, if Forecast missing, compute Model from past actuals only.
-      let nAll = 0;
-      let matchAll = 0;
-      let gtAll = 0;
-      let eqAll = 0;
-      let ltAll = 0;
-
-      let nCond = 0;
-      let gtCond = 0;
-      let eqCond = 0;
-      let ltCond = 0;
-      let matchCond = 0;
-
-      const histActualSeries: number[] = [];
-      for (const r of rows) {
-        if (typeof r.a !== "number" || typeof r.prev !== "number") {
-          if (typeof r.a === "number" && Number.isFinite(r.a)) histActualSeries.push(r.a);
-          continue;
-        }
-
-        const proxy = (() => {
-          if (typeof r.f === "number" && Number.isFinite(r.f)) return r.f;
-          const hat = linregForecastHat(histActualSeries);
-          return typeof hat === "number" && Number.isFinite(hat) ? hat : null;
-        })();
-
-        // Update actual series after building proxy (so the model never sees current actual).
-        if (typeof r.a === "number" && Number.isFinite(r.a)) histActualSeries.push(r.a);
-
-        if (proxy === null) continue;
-
-        const truth = label3(r.a - r.prev, eps);
-        const pred = label3(proxy - r.prev, eps);
-
-        nAll += 1;
-        if (truth === 1) gtAll += 1;
-        else if (truth === 0) eqAll += 1;
-        else ltAll += 1;
-        if (truth === pred) matchAll += 1;
-
-        if (label3Sym(proxy - r.prev, eps) === pred0) {
-          nCond += 1;
-          if (truth === 1) gtCond += 1;
-          else if (truth === 0) eqCond += 1;
-          else ltCond += 1;
-          if (truth === pred) matchCond += 1;
-        }
-      }
-
-      if (nAll < 12) return null;
-
-      const useCond = nCond >= 8;
-      const n = useCond ? nCond : nAll;
-      // Light smoothing to avoid hard 0% when one bucket is absent in a small sample.
-      const alpha = 0.35;
-      const cGt = (useCond ? gtCond : gtAll) + alpha;
-      const cEq = (useCond ? eqCond : eqAll) + alpha;
-      const cLt = (useCond ? ltCond : ltAll) + alpha;
-      const denom = cGt + cEq + cLt;
-      const pGt = cGt / denom;
-      const pEq = cEq / denom;
-      const pLt = cLt / denom;
-
-      return {
-        pred0,
-        n,
-        pGt,
-        pEq,
-        pLt,
-        matchRate: matchAll / nAll,
-        proxyLabel,
-        conditioned: useCond
-      };
-    };
-
-    const proxyVsPrev = buildProxyVsPrev();
-
-    const buildModelVsPrev = () => {
-      const model: any = predictModel;
-      const classes: string[] = Array.isArray(model?.classes) ? model.classes : ["=", ">", "<"];
-      const sub: any = (typeof f0 === "number" && Number.isFinite(f0))
-        ? model?.models?.ap_with_forecast
-        : model?.models?.ap_no_forecast;
-      const weights: number[][] = Array.isArray(sub?.weights) ? sub.weights : [];
-      if (weights.length < 2) return null;
-
-      const diffsAp = rows
-        .filter(
-          (r) =>
-            typeof r.a === "number" &&
-            Number.isFinite(r.a) &&
-            typeof r.prev === "number" &&
-            Number.isFinite(r.prev)
-        )
-        .map((r) => (r.a as number) - (r.prev as number));
-      if (diffsAp.length < 12) return null;
-      const scaleAp = Math.max(1e-9, median(diffsAp.map((v) => Math.abs(v))));
-
-      const actualSeries = rows
-        .filter((r) => typeof r.a === "number" && Number.isFinite(r.a))
-        .map((r) => r.a as number);
-      if (actualSeries.length < 12) return null;
-      const medianCenter = median(actualSeries);
-      const mad = median(actualSeries.map((v) => Math.abs(v - medianCenter)));
-      const madA = Math.max(1e-9, mad);
-
-      const diffsFp = rows
-        .filter(
-          (r) =>
-            typeof r.f === "number" &&
-            Number.isFinite(r.f) &&
-            typeof r.prev === "number" &&
-            Number.isFinite(r.prev)
-        )
-        .map((r) => (r.f as number) - (r.prev as number));
-      const scaleFp = Math.max(1e-9, median(diffsFp.map((v) => Math.abs(v))));
-
-      const diffsAf = rows
-        .filter((r) => typeof r.a === "number" && Number.isFinite(r.a) && typeof r.f === "number" && Number.isFinite(r.f))
-        .map((r) => (r.a as number) - (r.f as number));
-      const scaleAf = Math.max(1e-9, median(diffsAf.map((v) => Math.abs(v))));
-
-      const lastDiffs6 = diffsAp.slice(-6);
-      const lastDiffs3 = diffsAp.slice(-3);
-      const lastA6 = actualSeries.slice(-6);
-      const lastA = actualSeries[actualSeries.length - 1] as number;
-
-      const zAp1 = (lastDiffs6[lastDiffs6.length - 1] as number) / scaleAp;
-      const zAp3 = (lastDiffs3.reduce((a, b) => a + b, 0) / Math.max(1, lastDiffs3.length)) / scaleAp;
-      const zAp6 = (lastDiffs6.reduce((a, b) => a + b, 0) / Math.max(1, lastDiffs6.length)) / scaleAp;
-      const zALevel = (lastA - medianCenter) / madA;
-
-      const slope6 = (() => {
-        if (lastA6.length < 2) return 0;
-        const n = lastA6.length;
-        let sumX = 0;
-        let sumY = 0;
-        let sumXX = 0;
-        let sumXY = 0;
-        for (let i = 0; i < n; i += 1) {
-          const x = i;
-          const y = lastA6[i] as number;
-          sumX += x;
-          sumY += y;
-          sumXX += x * x;
-          sumXY += x * y;
-        }
-        const denom = n * sumXX - sumX * sumX;
-        if (!denom) return 0;
-        return (n * sumXY - sumX * sumY) / denom;
-      })();
-      const zASlope6 = slope6 / scaleAp;
-
-      const zAf1 = (() => {
-        for (let i = rows.length - 1; i >= 0; i -= 1) {
-          const r = rows[i];
-          if (!r) continue;
-          if (typeof r.a !== "number" || typeof r.f !== "number") continue;
-          if (!Number.isFinite(r.a) || !Number.isFinite(r.f)) continue;
-          return ((r.a as number) - (r.f as number)) / scaleAf;
-        }
-        return 0;
-      })();
-
-      const hasForecast0 = typeof f0 === "number" && Number.isFinite(f0) && typeof p0 === "number" && Number.isFinite(p0);
-      const zFp = hasForecast0 ? ((f0 as number) - (p0 as number)) / scaleFp : 0;
-
-      const gapDays = (() => {
-        const anchorMs = Date.parse(String(anchorDtUtc || "").trim());
-        if (!Number.isFinite(anchorMs)) return 0;
-        const last = rows[rows.length - 1];
-        if (!last || typeof last.ms !== "number") return 0;
-        const d = (anchorMs - (last.ms as number)) / 86_400_000;
-        return Number.isFinite(d) ? d : 0;
-      })();
-
-      const aHat = !hasForecast0 ? linregForecastHat(actualSeries) : null;
-      const zHatAp =
-        !hasForecast0 && typeof aHat === "number" && Number.isFinite(aHat) && typeof p0 === "number" && Number.isFinite(p0)
-          ? (aHat - (p0 as number)) / scaleAp
-          : 0;
-      const zHatDa =
-        !hasForecast0 && typeof aHat === "number" && Number.isFinite(aHat)
-          ? (aHat - lastA) / scaleAp
-          : 0;
-
-      const features = hasForecast0
-        ? [1, zFp, zAp1, zAp3, zAp6, zALevel, zASlope6, zAf1]
-        : [1, zAp1, zAp3, zAp6, zALevel, zASlope6, zHatAp, zHatDa, gapDays];
-
-      const probs = softmax1d(dotFeatures(weights, features));
-      if (probs.length < 3) return null;
-      const idx = probs.reduce((best, v, i) => (v > (probs[best] ?? 0) ? i : best), 0);
-      const pred0 = classes[idx] ?? "";
-      const max1 = Math.max(...probs);
-      const sorted = [...probs].sort((a, b) => b - a);
-      const max2 = sorted[1] ?? 0;
-      // Confidence score (matches the offline trainer): maxProb * (maxProb - secondMaxProb)
-      const score = max1 * Math.max(0, max1 - max2);
-      const baseTh = typeof sub?.recommended_threshold === "number" ? sub.recommended_threshold : hasForecast0 ? 0.25 : 0.5;
-      const metricTh = pickThresholdForMetric(sub as any, metric);
-      const th = typeof metricTh === "number" && Number.isFinite(metricTh) ? metricTh : baseTh;
-      const backtestAcc = estimateBacktestAccForMetric(sub as any, metric) ?? estimateBacktestAccAtThreshold(sub);
-
-      return {
-        pred0,
-        conf: score,
-        threshold: th,
-        reliable: score >= th,
-        n: diffsAp.length,
-        pEq: probs[0],
-        pGt: probs[1],
-        pLt: probs[2],
-        backtestAcc
-      };
-    };
-
-    const modelVsPrev = buildModelVsPrev();
-
-    const buildModelVsForecast = () => {
-      const model: any = predictModel;
-      const classes: string[] = Array.isArray(model?.classes) ? model.classes : ["=", ">", "<"];
-      const sub: any = model?.models?.af_with_forecast;
-      const weights: number[][] = Array.isArray(sub?.weights) ? sub.weights : [];
-      if (weights.length < 2) return null;
-
-      // A-F requires Forecast for the selected release instance.
-      const hasForecast0 = typeof f0 === "number" && Number.isFinite(f0);
-      if (!hasForecast0) return null;
-
-      const diffsAp = rows
-        .filter(
-          (r) =>
-            typeof r.a === "number" &&
-            Number.isFinite(r.a) &&
-            typeof r.prev === "number" &&
-            Number.isFinite(r.prev)
-        )
-        .map((r) => (r.a as number) - (r.prev as number));
-      if (diffsAp.length < 12) return null;
-      const scaleAp = Math.max(1e-9, median(diffsAp.map((v) => Math.abs(v))));
-
-      const actualSeries = rows
-        .filter((r) => typeof r.a === "number" && Number.isFinite(r.a))
-        .map((r) => r.a as number);
-      if (actualSeries.length < 12) return null;
-      const medianCenter = median(actualSeries);
-      const mad = median(actualSeries.map((v) => Math.abs(v - medianCenter)));
-      const madA = Math.max(1e-9, mad);
-
-      const diffsFp = rows
-        .filter(
-          (r) =>
-            typeof r.f === "number" &&
-            Number.isFinite(r.f) &&
-            typeof r.prev === "number" &&
-            Number.isFinite(r.prev)
-        )
-        .map((r) => (r.f as number) - (r.prev as number));
-      const scaleFp = Math.max(1e-9, median(diffsFp.map((v) => Math.abs(v))));
-
-      const diffsAf = rows
-        .filter(
-          (r) =>
-            typeof r.a === "number" &&
-            Number.isFinite(r.a) &&
-            typeof r.f === "number" &&
-            Number.isFinite(r.f)
-        )
-        .map((r) => (r.a as number) - (r.f as number));
-      if (diffsAf.length < 12) return null;
-      const scaleAf = Math.max(1e-9, median(diffsAf.map((v) => Math.abs(v))));
-
-      const lastDiffs6 = diffsAp.slice(-6);
-      const lastDiffs3 = diffsAp.slice(-3);
-      const lastA6 = actualSeries.slice(-6);
-      const lastA = actualSeries[actualSeries.length - 1] as number;
-
-      const zAp1 = (lastDiffs6[lastDiffs6.length - 1] as number) / scaleAp;
-      const zAp3 = (lastDiffs3.reduce((a, b) => a + b, 0) / Math.max(1, lastDiffs3.length)) / scaleAp;
-      const zAp6 = (lastDiffs6.reduce((a, b) => a + b, 0) / Math.max(1, lastDiffs6.length)) / scaleAp;
-      const zALevel = (lastA - medianCenter) / madA;
-
-      const slope6 = (() => {
-        if (lastA6.length < 2) return 0;
-        const n = lastA6.length;
-        let sumX = 0;
-        let sumY = 0;
-        let sumXX = 0;
-        let sumXY = 0;
-        for (let i = 0; i < n; i += 1) {
-          const x = i;
-          const y = lastA6[i] as number;
-          sumX += x;
-          sumY += y;
-          sumXX += x * x;
-          sumXY += x * y;
-        }
-        const denom = n * sumXX - sumX * sumX;
-        if (!denom) return 0;
-        return (n * sumXY - sumX * sumY) / denom;
-      })();
-      const zASlope6 = slope6 / scaleAp;
-
-      const zAf1 = (() => {
-        for (let i = rows.length - 1; i >= 0; i -= 1) {
-          const r = rows[i];
-          if (!r) continue;
-          if (typeof r.a !== "number" || typeof r.f !== "number") continue;
-          if (!Number.isFinite(r.a) || !Number.isFinite(r.f)) continue;
-          return ((r.a as number) - (r.f as number)) / scaleAf;
-        }
-        return 0;
-      })();
-
-      const zFp =
-        typeof p0 === "number" && Number.isFinite(p0) && typeof f0 === "number" && Number.isFinite(f0)
-          ? ((f0 as number) - (p0 as number)) / scaleFp
-          : 0;
-
-      const features = [1, zFp, zAp1, zAp3, zAp6, zALevel, zASlope6, zAf1];
-
-      const probs = softmax1d(dotFeatures(weights, features));
-      if (probs.length < 3) return null;
-      const idx = probs.reduce((best, v, i) => (v > (probs[best] ?? 0) ? i : best), 0);
-      const pred0 = classes[idx] ?? "";
-      const max1 = Math.max(...probs);
-      const sorted = [...probs].sort((a, b) => b - a);
-      const max2 = sorted[1] ?? 0;
-      const score = max1 * Math.max(0, max1 - max2);
-      const baseTh = typeof sub?.recommended_threshold === "number" ? sub.recommended_threshold : 0.25;
-      const metricTh = pickThresholdForMetric(sub as any, metric);
-      const th = typeof metricTh === "number" && Number.isFinite(metricTh) ? metricTh : baseTh;
-      const backtestAcc = estimateBacktestAccForMetric(sub as any, metric) ?? estimateBacktestAccAtThreshold(sub);
-
-      return {
-        pred0,
-        conf: score,
-        threshold: th,
-        reliable: score >= th,
-        n: diffsAf.length,
-        pEq: probs[0],
-        pGt: probs[1],
-        pLt: probs[2],
-        backtestAcc
-      };
-    };
-
-    const modelVsForecast = buildModelVsForecast();
-
-    return { recentMonths, recent, all, proxyVsPrev, modelVsPrev, modelVsForecast };
-  }, [points, anchorDtUtc, displayOffsetMinutes, selectionActual, selectionForecast, selectionPrevious, predictModel]);
+    selectionPrevious,
+    predictModel
+  });
 
   const releaseSpark = useMemo(() => {
     const buildSeries = (maxPoints = 48) => {
@@ -1233,6 +430,8 @@ export function DeepAnalysisView({
 
   const modelPv = localPredict.modelVsPrev;
   const nowPv = nowcastVsPrev;
+  const f0 = parseNumber(selectionForecast);
+  const hasForecast0 = typeof f0 === "number" && Number.isFinite(f0);
   const modelAcc =
     modelPv && typeof (modelPv as any).backtestAcc === "number" && Number.isFinite((modelPv as any).backtestAcc)
       ? Number((modelPv as any).backtestAcc)
@@ -1242,15 +441,30 @@ export function DeepAnalysisView({
       ? Number((nowPv as any).backtestAcc)
       : null;
 
+  // With Forecast, we already have a stronger dedicated model. Only let the nowcast-chain
+  // fill low-confidence gaps when it backtests well; never override a reliable model.
+  const NOWCAST_MIN_ACC_WF = 0.75;
+  const NOWCAST_MIN_SOURCES_WF = 4;
+
   const shouldUseNowcast =
     Boolean(nowPv?.reliable) &&
-    (!modelPv ||
-      !modelPv.reliable ||
-      (typeof nowAcc === "number" &&
-        typeof modelAcc === "number" &&
-        Number.isFinite(nowAcc) &&
-        Number.isFinite(modelAcc) &&
-        nowAcc + 1e-12 >= modelAcc + 1e-12));
+    (hasForecast0
+      ? // With Forecast: only fill gaps.
+        ((!modelPv || !modelPv.reliable) &&
+          typeof nowAcc === "number" &&
+          Number.isFinite(nowAcc) &&
+          nowAcc + 1e-12 >= NOWCAST_MIN_ACC_WF &&
+          typeof (nowPv as any)?.sourcesUsed === "number" &&
+          Number.isFinite((nowPv as any).sourcesUsed) &&
+          Number((nowPv as any).sourcesUsed) >= NOWCAST_MIN_SOURCES_WF)
+      : // No Forecast: allow nowcast to override when it is reliable and at least as good as the model.
+        (!modelPv ||
+          !modelPv.reliable ||
+          (typeof nowAcc === "number" &&
+            typeof modelAcc === "number" &&
+            Number.isFinite(nowAcc) &&
+            Number.isFinite(modelAcc) &&
+            nowAcc + 1e-12 >= modelAcc + 1e-12)));
 
   const pvNowcast = shouldUseNowcast ? nowPv : null;
   const pvChoice = pvNowcast ?? modelPv ?? localPredict.proxyVsPrev;

@@ -243,6 +243,9 @@ export function DeepAnalysisMethodModal({
                     Sanity check: we show <b>N</b> (history size), a confidence score, and a backtest reliability hint.
                     If confidence is low, treat the top line as a rough guess.
                   </div>
+                  <div className="deep-tut-example">
+                    High-impact releases use a stricter confidence threshold before we label the result as “reliable”.
+                  </div>
                 </div>
               </div>
               <div className="deep-tut-card">

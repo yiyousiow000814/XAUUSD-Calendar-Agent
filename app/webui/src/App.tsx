@@ -148,7 +148,7 @@ export default function App() {
   const [historyLoading, setHistoryLoading] = useState<boolean>(false);
   const [historyError, setHistoryError] = useState<string | null>(null);
   const [historySelection, setHistorySelection] = useState<
-    { event: string; cur: string; actual?: string; forecast?: string; previous?: string } | null
+    { event: string; cur: string; impact?: string; actual?: string; forecast?: string; previous?: string } | null
   >(null);
   const [historyData, setHistoryData] = useState<EventHistoryResponse | null>(null);
   const [historyAnchorDtUtc, setHistoryAnchorDtUtc] = useState<string>("");
@@ -1894,6 +1894,7 @@ export default function App() {
     event: string;
     cur: string;
     dtUtc?: string;
+    impact?: string;
     actual?: string;
     forecast?: string;
     previous?: string;
@@ -1906,6 +1907,7 @@ export default function App() {
     setHistorySelection({
       event: eventName,
       cur: currencyCode,
+      impact: payload.impact,
       actual: payload.actual,
       forecast: payload.forecast,
       previous: payload.previous
@@ -3347,6 +3349,7 @@ export default function App() {
                   event: item.event,
                   cur: item.cur,
                   dtUtc: item.dtUtc,
+                  impact: item.impact,
                   actual: item.actual,
                   forecast: item.forecast,
                   previous: item.previous
@@ -3369,6 +3372,7 @@ export default function App() {
                   event: item.event,
                   cur: item.cur,
                   dtUtc: item.dtUtc,
+                  impact: item.impact,
                   actual: item.actual,
                   forecast: item.forecast,
                   previous: item.previous
@@ -3445,6 +3449,7 @@ export default function App() {
         loading={historyLoading}
         error={historyError}
         selectionLabel={historySelectionLabel}
+        selectionImpact={historySelection?.impact}
         selectionActual={historySelection?.actual}
         selectionForecast={historySelection?.forecast}
         selectionPrevious={historySelection?.previous}

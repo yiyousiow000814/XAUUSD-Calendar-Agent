@@ -24,6 +24,7 @@ type EventHistoryModalProps = {
   loading: boolean;
   error: string | null;
   selectionLabel: string;
+  selectionImpact?: string;
   selectionActual?: string;
   selectionForecast?: string;
   selectionPrevious?: string;
@@ -222,6 +223,7 @@ export function EventHistoryModal({
   loading,
   error,
   selectionLabel,
+  selectionImpact,
   selectionActual,
   selectionForecast,
   selectionPrevious,
@@ -2300,6 +2302,7 @@ export function EventHistoryModal({
                             impactSeriesItems={impactSeries.items}
                             anchorDtUtc={anchorDtUtc}
                             displayOffsetMinutes={effectiveCalendarOffsetMinutes}
+                            selectionImpact={selectionImpact}
                             selectionActual={selectionActual}
                             selectionForecast={selectionForecast}
                             selectionPrevious={selectionPrevious}
