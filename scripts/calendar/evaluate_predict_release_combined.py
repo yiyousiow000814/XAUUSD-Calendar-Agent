@@ -116,15 +116,17 @@ class SubModel:
 
 @dataclass(frozen=True)
 class Model:
-    eq_factor: float
-    ap_with_forecast: SubModel
-    ap_no_forecast: SubModel
-    model_gate_with_forecast: dict[str, dict[str, Any]]
-    model_gate_no_forecast: dict[str, dict[str, Any]]
-    relationships_by_metric: dict[str, list[dict[str, Any]]]
-    nowcast_enabled: dict[str, dict[str, Any]]
-    nowcast_global_th: float
-    nowcast_recent_days: int
+  eq_factor: float
+  ap_with_forecast: SubModel
+  ap_no_forecast: SubModel
+  model_gate_with_forecast: dict[str, dict[str, Any]]
+  model_gate_no_forecast: dict[str, dict[str, Any]]
+  relationships_by_metric: dict[str, list[dict[str, Any]]]
+  nowcast_enabled_nf: dict[str, dict[str, Any]]
+  nowcast_global_th_nf: float
+  nowcast_enabled_wf: dict[str, dict[str, Any]]
+  nowcast_global_th_wf: float
+  nowcast_recent_days: int
 
 
 def _load_model(path: Path) -> Model:
@@ -167,9 +169,28 @@ def _load_model(path: Path) -> Model:
 
     rel_root = ((raw.get("models") or {}).get("ap_no_forecast") or {}).get("relationships") or {}
     relationships_by_metric = rel_root.get("by_metric") or {}
-    predictor = rel_root.get("predictor") or {}
-    nowcast_enabled = predictor.get("enabled_metrics") or {}
-    nowcast_global_th = float(predictor.get("recommended_threshold") or 0.10)
+    pred_nf = rel_root.get("predictor") or {}
+    pred_wf = rel_root.get("predictor_with_forecast") or {}
+
+    nowcast_enabled_nf = pred_nf.get("enabled_metrics") or {}
+    nowcast_global_th_nf = float(pred_nf.get("recommended_threshold") or 0.10)
+
+    # Optional: a separately calibrated nowcast-chain for targets that have Forecast.
+    # If missing (older model JSON), fall back to the no-forecast predictor.
+    nowcast_enabled_wf = pred_wf.get("enabled_metrics") if isinstance(pred_wf, dict) else None
+    nowcast_enabled_wf = (
+        nowcast_enabled_wf if isinstance(nowcast_enabled_wf, dict) else dict(nowcast_enabled_nf)
+    )
+    nowcast_global_th_wf = pred_wf.get("recommended_threshold") if isinstance(pred_wf, dict) else None
+    try:
+        nowcast_global_th_wf = (
+            float(nowcast_global_th_wf)
+            if nowcast_global_th_wf is not None
+            else float(nowcast_global_th_nf)
+        )
+    except Exception:
+        nowcast_global_th_wf = float(nowcast_global_th_nf)
+
     rel_meta = meta.get("relationships") or {}
     nowcast_recent_days = int(rel_meta.get("recent_days") or 180)
 
@@ -180,8 +201,10 @@ def _load_model(path: Path) -> Model:
         model_gate_with_forecast=wf_enabled,
         model_gate_no_forecast=nf_enabled,
         relationships_by_metric=relationships_by_metric,
-        nowcast_enabled=nowcast_enabled,
-        nowcast_global_th=float(nowcast_global_th),
+        nowcast_enabled_nf=nowcast_enabled_nf if isinstance(nowcast_enabled_nf, dict) else {},
+        nowcast_global_th_nf=float(nowcast_global_th_nf),
+        nowcast_enabled_wf=nowcast_enabled_wf,
+        nowcast_global_th_wf=float(nowcast_global_th_wf),
         nowcast_recent_days=int(nowcast_recent_days),
     )
 
@@ -280,7 +303,7 @@ def _rel_vote_predict(
     series_by_metric_af: dict[str, dict[str, Any]],
     eq_factor: float,
     recent_ns: int,
-) -> Optional[tuple[int, np.ndarray, float]]:
+) -> Optional[tuple[int, np.ndarray, float, int]]:
     rels = relationships_by_metric.get(metric) or []
     if not rels:
         return None
@@ -295,6 +318,7 @@ def _rel_vote_predict(
         src_key = str(item.get("metric") or "").strip()
         kind = str(item.get("kind") or "ap").strip().lower()
         c = float(item.get("corr") or 0.0)
+        cond = item.get("cond")
         if not src_key or not np.isfinite(c) or abs(c) <= 1e-12:
             continue
 
@@ -321,12 +345,29 @@ def _rel_vote_predict(
         if not np.isfinite(w) or w <= 0:
             continue
 
-        lab = src_lab
-        if lab == 1 and c < 0:
-            lab = 2
-        elif lab == 2 and c < 0:
-            lab = 1
-        votes[lab] += w
+        if (
+            isinstance(cond, list)
+            and len(cond) == 3
+            and isinstance(cond[src_lab], list)
+            and len(cond[src_lab]) == 3
+        ):
+            row = cond[src_lab]
+            best = 0
+            best_v = float(row[0] or 0.0)
+            for k in (1, 2):
+                v = float(row[k] or 0.0)
+                if v > best_v:
+                    best = k
+                    best_v = v
+            votes[int(best)] += w
+        else:
+            # Back-compat fallback: treat corr sign as a hard inversion for ">" / "<".
+            lab = src_lab
+            if lab == 1 and c < 0:
+                lab = 2
+            elif lab == 2 and c < 0:
+                lab = 1
+            votes[lab] += w
         used += 1
 
     if used <= 0 or not (float(votes.sum()) > 0):
@@ -335,7 +376,7 @@ def _rel_vote_predict(
     probs = (votes / float(votes.sum())).astype("float64")
     pred = int(np.argmax(probs))
     score = _confidence_score(probs)
-    return pred, probs, float(score)
+    return pred, probs, float(score), int(used)
 
 
 @dataclass
@@ -375,13 +416,15 @@ def main() -> int:
 
     # Build per-metric arrays for feature computation + labels.
     grouped = df.groupby("metric_key", sort=False)
-    samples: list[tuple[int, str, int, bool]] = []
+    # (t_ns, metric_key, y_true, has_forecast, is_high)
+    samples: list[tuple[int, str, int, bool, bool]] = []
     for metric_key, g in grouped:
         metric_key = str(metric_key)
         g = g.sort_values("dt_utc").reset_index(drop=True)
         a = g["a"].to_numpy(dtype="float64")
         f = g["f"].to_numpy(dtype="float64")
         p = g["p"].to_numpy(dtype="float64")
+        imp = g["importance"].astype(str).to_numpy()
         t_ns = g["dt_utc"].to_numpy(dtype="datetime64[ns]").astype("int64")
         scale_ap = _median_abs(a - p)
         if not np.isfinite(scale_ap) or scale_ap <= 1e-12:
@@ -395,7 +438,8 @@ def main() -> int:
             z_true = float((a[i] - p[i]) / float(scale_ap))
             y = int(_label_z(z_true, float(eq_factor)))
             has_f = bool(np.isfinite(f[i]) and np.isfinite(p[i]))
-            samples.append((int(t_ns[i]), metric_key, y, has_f))
+            is_high = str(imp[i]).strip().lower() == "high"
+            samples.append((int(t_ns[i]), metric_key, y, has_f, bool(is_high)))
 
     samples.sort(key=lambda it: it[0])
     cut = int(len(samples) * float(args.time_split))
@@ -427,7 +471,7 @@ def main() -> int:
             g["dt_utc"].to_numpy(dtype="datetime64[ns]").astype("int64"),
         )
 
-    for t_ns, metric, y_true, has_f in test:
+    for t_ns, metric, y_true, has_f, is_high in test:
         arr = by_metric_arrays.get(metric)
         if arr is None:
             continue
@@ -446,6 +490,9 @@ def main() -> int:
             if isinstance(th_raw, (int, float)) and np.isfinite(float(th_raw))
             else float(sub.threshold)
         )
+        if bool(has_f) and bool(is_high):
+            # App behavior: treat High-impact releases as more sensitive; require stronger confidence.
+            m_th = max(float(m_th), 0.18)
         mod_acc = None
         acc_raw = gate_cfg.get("acc", None) if isinstance(gate_cfg, dict) else None
         if isinstance(acc_raw, (int, float)) and np.isfinite(float(acc_raw)):
@@ -471,14 +518,23 @@ def main() -> int:
             model_rel.add(bool(mp == y_true))
 
         # Nowcast chain (only if enabled for the metric).
-        nc_pred: Optional[tuple[int, np.ndarray, float, bool]] = None
-        cfg = model.nowcast_enabled.get(metric)
+        # (pred, probs, conf_score, reliable, sources_used)
+        nc_pred: Optional[tuple[int, np.ndarray, float, bool, int]] = None
+        now_map = model.nowcast_enabled_wf if bool(has_f) else model.nowcast_enabled_nf
+        default_th = model.nowcast_global_th_wf if bool(has_f) else model.nowcast_global_th_nf
+        cfg = now_map.get(metric)
+        if (not bool(has_f)) and (not isinstance(cfg, dict)):
+            # Some releases occasionally lack Forecast even though the metric is usually forecastable.
+            # In that case, fall back to the with-Forecast nowcast calibration (more data / steadier gates).
+            now_map = model.nowcast_enabled_wf
+            default_th = model.nowcast_global_th_wf
+            cfg = now_map.get(metric)
         if isinstance(cfg, dict):
-            th_raw = cfg.get("th", None) if isinstance(cfg, dict) else None
+            th_raw = cfg.get("th", None)
             th = (
                 float(th_raw)
                 if isinstance(th_raw, (int, float)) and np.isfinite(float(th_raw))
-                else float(model.nowcast_global_th)
+                else float(default_th)
             )
             res = _rel_vote_predict(
                 metric,
@@ -490,12 +546,12 @@ def main() -> int:
                 recent_ns=int(recent_ns),
             )
             if res is not None:
-                npred, nprobs, nscore = res
+                npred, nprobs, nscore, nused = res
                 nrel = bool(float(nscore) + 1e-12 >= float(th))
                 now_all.add(bool(npred == y_true))
                 if nrel:
                     now_rel.add(bool(npred == y_true))
-                nc_pred = (npred, nprobs, nscore, nrel)
+                nc_pred = (npred, nprobs, nscore, nrel, int(nused))
 
         # Combined selection (app-style): use nowcast to fill gaps only.
         #
@@ -509,12 +565,16 @@ def main() -> int:
             if bool(has_f):
                 # With-Forecast: only use nowcast to fill gaps.
                 if not bool(mrel):
-                    final_pred = int(nc_pred[0])
-                    final_rel = True
+                    # Keep this strict: nowcast-with-forecast is a gap filler, only when it is
+                    # clearly reliable (per-metric backtest + at least 2 sources).
+                    now_acc = float(cfg.get("acc") or 0.0) if isinstance(cfg, dict) else 0.0
+                    if float(now_acc) + 1e-12 >= 0.75 and int(nc_pred[4]) >= 4:
+                        final_pred = int(nc_pred[0])
+                        final_rel = True
             else:
                 # No-Forecast: allow nowcast to override the weaker model when it is reliable
                 # and has good per-metric backtest performance.
-                now_acc = float((model.nowcast_enabled.get(metric) or {}).get("acc") or 0.0)
+                now_acc = float(cfg.get("acc") or 0.0) if isinstance(cfg, dict) else 0.0
                 mod_acc2 = float(mod_acc) if mod_acc is not None else 0.0
                 if (not bool(mrel)) or (now_acc + 1e-12 >= mod_acc2 + 1e-12):
                     final_pred = int(nc_pred[0])
@@ -536,7 +596,12 @@ def main() -> int:
     print("Predict Release combined evaluation (A vs Previous; time-split 80/20)")
     print(f"currency={str(args.currency).upper()} importance={','.join([s.title() for s in args.importance])} eq_factor={eq_factor:.2f}")
     print(f"model: withF_th={model.ap_with_forecast.threshold:.2f} noF_th={model.ap_no_forecast.threshold:.2f}")
-    print(f"nowcast: enabled_metrics={len(model.nowcast_enabled)} recent_days={model.nowcast_recent_days} global_th={model.nowcast_global_th:.2f}")
+    print(
+        "nowcast: "
+        f"nf_enabled={len(model.nowcast_enabled_nf)} nf_th={model.nowcast_global_th_nf:.2f} "
+        f"| wf_enabled={len(model.nowcast_enabled_wf)} wf_th={model.nowcast_global_th_wf:.2f} "
+        f"| recent_days={model.nowcast_recent_days}"
+    )
     print("")
     print(f"MODEL(raw):      acc={model_all.acc():.3f} n={model_all.total}")
     print(f"MODEL(reliable): acc={model_rel.acc():.3f} n={model_rel.total}")

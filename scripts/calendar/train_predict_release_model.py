@@ -317,6 +317,49 @@ def _dir_assoc(x: np.ndarray, y: np.ndarray, *, min_pairs: int, eq_factor: float
         return 0.0
     return max(-1.0, min(1.0, float(strength)))
 
+
+def _cond_probs_3way(
+    x: np.ndarray,
+    y: np.ndarray,
+    *,
+    min_pairs: int,
+    eq_factor: float,
+    alpha: float = 1.0,
+) -> list[list[float]] | None:
+    """Estimate P(target_label | source_label) in the 3-way label space.
+
+    Labels follow the app/model convention:
+      0="=", 1=">", 2="<"   (in z-space)
+    """
+    x = np.asarray(x, dtype="float64")
+    y = np.asarray(y, dtype="float64")
+    n = int(min(x.size, y.size))
+    if n < int(min_pairs):
+        return None
+
+    # Vectorised label mapping to 0/1/2.
+    xl = np.zeros(n, dtype="int64")
+    yl = np.zeros(n, dtype="int64")
+    xx = x[:n]
+    yy = y[:n]
+    xl[xx > float(eq_factor)] = 1
+    xl[xx < -float(eq_factor)] = 2
+    yl[yy > float(eq_factor)] = 1
+    yl[yy < -float(eq_factor)] = 2
+
+    counts = np.zeros((3, 3), dtype="float64")
+    for i in range(n):
+        counts[int(xl[i]), int(yl[i])] += 1.0
+
+    # Light smoothing keeps probabilities sane for short-ish histories.
+    a = float(alpha)
+    if a > 0:
+        counts += a
+    row_sums = counts.sum(axis=1, keepdims=True)
+    row_sums[row_sums <= 0] = 1.0
+    probs = counts / row_sums
+    return [[float(v) for v in row] for row in probs.tolist()]
+
 def _compute_relationships_ap(
     series_by_metric: dict[str, dict[str, Any]],
     series_by_metric_af: dict[str, dict[str, Any]] | None = None,
@@ -348,7 +391,7 @@ def _compute_relationships_ap(
         if tgt_t.size < int(min_pairs):
             continue
 
-        corrs: list[tuple[str, str, float]] = []
+        corrs: list[tuple[str, str, float, list[list[float]] | None, int]] = []
         for src in metrics:
             if src == tgt:
                 continue
@@ -371,7 +414,14 @@ def _compute_relationships_ap(
                 # Directional association is more aligned with the app task (>,=,<) than raw correlation.
                 c = _dir_assoc(x, y, min_pairs=int(min_pairs), eq_factor=float(eq_factor))
                 if abs(c) + 1e-12 >= float(min_abs_corr):
-                    corrs.append((src, "ap", c))
+                    cond = _cond_probs_3way(
+                        x,
+                        y,
+                        min_pairs=int(min_pairs),
+                        eq_factor=float(eq_factor),
+                        alpha=1.0,
+                    )
+                    corrs.append((src, "ap", c, cond, int(min(x.size, y.size))))
 
             # Source signal: Actual vs Forecast (A-F), when available.
             if series_by_metric_af is not None:
@@ -391,13 +441,29 @@ def _compute_relationships_ap(
                     )
                     c = _dir_assoc(x, y, min_pairs=int(min_pairs), eq_factor=float(eq_factor))
                     if abs(c) + 1e-12 >= float(min_abs_corr):
-                        corrs.append((src, "af", c))
+                        cond = _cond_probs_3way(
+                            x,
+                            y,
+                            min_pairs=int(min_pairs),
+                            eq_factor=float(eq_factor),
+                            alpha=1.0,
+                        )
+                        corrs.append((src, "af", c, cond, int(min(x.size, y.size))))
 
         if not corrs:
             continue
         corrs.sort(key=lambda it: -abs(it[2]))
         picked = corrs[: int(topk)]
-        rel[tgt] = [{"metric": m, "kind": kind, "corr": float(c)} for m, kind, c in picked]
+        rel[tgt] = [
+            {
+                "metric": m,
+                "kind": kind,
+                "corr": float(c),
+                "cond": cond,
+                "n_pairs": int(n_pairs),
+            }
+            for m, kind, c, cond, n_pairs in picked
+        ]
 
     return rel
 
@@ -617,6 +683,23 @@ def _pick_threshold(th_stats: list[dict[str, Any]], *, min_acc: float, min_cover
     return float(best) if best is not None else 0.6
 
 
+def _pick_threshold_max_coverage(th_stats: list[dict[str, Any]], *, min_acc: float, default: float) -> float:
+    # Pick the threshold that gives the highest coverage while meeting the accuracy floor.
+    # (coverage typically decreases as threshold increases, but we don't assume monotonicity.)
+    best_th = None
+    best_cov = -1.0
+    for row in th_stats:
+        acc = float(row.get("acc", 0.0))
+        cov = float(row.get("coverage", 0.0))
+        th = float(row.get("th", 0.0))
+        if acc + 1e-12 < float(min_acc):
+            continue
+        if cov > best_cov + 1e-12 or (abs(cov - best_cov) <= 1e-12 and (best_th is None or th < best_th)):
+            best_cov = cov
+            best_th = th
+    return float(best_th) if best_th is not None else float(default)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--calendar-dir", type=Path, default=Path("data/Economic_Calendar"))
@@ -651,7 +734,8 @@ def main() -> int:
     #
     # Include 0.00 / 0.05 so we can tune toward higher "reliable" coverage when a sub-model is strong
     # (especially the with-Forecast case), without forcing the UI to hide most outputs.
-    thresholds = [0.00, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60]
+    # Include a few low-end thresholds so we can trade accuracy/coverage more smoothly in the UI.
+    thresholds = [0.00, 0.02, 0.03, 0.04, 0.05, 0.07, 0.10, 0.12, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60]
 
     # Relationship ("nowcast chain") configuration (no-forecast fallback):
     # use other metrics' most recent signals in the last 1-6 months as a lightweight nowcast.
@@ -878,15 +962,15 @@ def main() -> int:
         min_shown_samples=4,
     )
 
-    # Evaluate relationship ("nowcast chain") predictor on *no-forecast* samples, per metric.
+    # Evaluate relationship ("nowcast chain") predictor.
     #
     # This is intentionally simple: we only apply it to metrics where it backtests well,
     # to avoid degrading the overall reliability for noisy series.
     #
-    # Important: we calibrate it on releases where the selected release lacks Forecast.
-    # This matches how the UI uses the nowcast-chain (fallback for no-forecast events),
-    # and avoids degrading High-importance metrics that already have a better with-Forecast model.
-    def build_rel_samples() -> list[tuple[int, str, int]]:
+    # We calibrate two variants:
+    #  - predictor: targets WITHOUT Forecast (primary no-forecast fallback)
+    #  - predictor_with_forecast: targets WITH Forecast (used only to fill low-confidence gaps)
+    def build_rel_samples(*, require_forecast: bool) -> list[tuple[int, str, int]]:
         out: list[tuple[int, str, int]] = []
         grouped = df.groupby("metric_key", sort=False)
         for metric_key, g in grouped:
@@ -903,8 +987,8 @@ def main() -> int:
             for i in range(6, len(g)):
                 if not np.isfinite(a_all[i]) or not np.isfinite(p_all[i]):
                     continue
-                # Nowcast-chain is used as the no-forecast fallback; only calibrate on no-forecast targets.
-                if np.isfinite(f_all[i]):
+                has_f = bool(np.isfinite(f_all[i]))
+                if bool(require_forecast) != has_f:
                     continue
                 idxs = [i - 1, i - 2, i - 3, i - 4, i - 5, i - 6]
                 if not np.all(np.isfinite(a_all[idxs])) or not np.all(np.isfinite(p_all[idxs])):
@@ -927,6 +1011,7 @@ def main() -> int:
             src_key = str(item.get("metric") or "")
             kind = str(item.get("kind") or "ap").strip().lower()
             c = float(item.get("corr") or 0.0)
+            cond = item.get("cond")
             if not src_key or not np.isfinite(c) or abs(c) <= 1e-12:
                 continue
             src_s = (series_by_metric_af if kind == "af" else series_by_metric_ap).get(src_key)
@@ -951,13 +1036,34 @@ def main() -> int:
             w = abs(c) * min(3.0, abs(z_last)) * w_time
             src_lab = int(_label_z(z_last, float(eq_factor)))  # 0="=", 1=">", 2="<"
 
-            # Back-compat fallback: treat corr sign as a hard inversion for ">" / "<".
-            lab = src_lab
-            if lab == 1 and c < 0:
-                lab = 2
-            elif lab == 2 and c < 0:
-                lab = 1
-            votes[lab] += w
+            # Prefer the learned conditional distribution if available:
+            #   P(target_label | source_label)
+            # This handles asymmetric relationships and keeps "=" meaningful.
+            if (
+                isinstance(cond, list)
+                and len(cond) == 3
+                and isinstance(cond[src_lab], list)
+                and len(cond[src_lab]) == 3
+            ):
+                row = cond[src_lab]
+                # Use a hard mapping (argmax) to keep the vote decisive.
+                # Spreading votes by probabilities tends to dilute confidence too much.
+                best = 0
+                best_v = float(row[0] or 0.0)
+                for k in (1, 2):
+                    v = float(row[k] or 0.0)
+                    if v > best_v:
+                        best = k
+                        best_v = v
+                votes[int(best)] += w
+            else:
+                # Back-compat fallback: treat corr sign as a hard inversion for ">" / "<".
+                lab = src_lab
+                if lab == 1 and c < 0:
+                    lab = 2
+                elif lab == 2 and c < 0:
+                    lab = 1
+                votes[lab] += w
             used += 1
         if used <= 0 or float(votes.sum()) <= 0:
             return None
@@ -971,98 +1077,134 @@ def main() -> int:
         score = maxp * max(0.0, maxp - second)
         return pred, [float(probs[0]), float(probs[1]), float(probs[2])], float(score)
 
-    rel_samples = build_rel_samples()
-    rel_enabled: dict[str, dict[str, Any]] = {}
-    rel_pred_rows: list[dict[str, Any]] = []
-    if rel_samples:
-        rel_cut = int(len(rel_samples) * 0.8)
-        rel_test = rel_samples[rel_cut:]
-        for t_ns, metric, y_true in rel_test:
-            res = rel_vote_predict(metric, t_ns)
-            if res is None:
-                continue
-            pred, probs, score = res
-            rel_pred_rows.append({"metric": metric, "t": t_ns, "y": y_true, "pred": pred, "score": score})
+    def calibrate_rel_predictor(
+        *,
+        require_forecast: bool,
+        target_min_acc: float,
+        target_min_cov: float,
+    ) -> tuple[dict[str, dict[str, Any]], float, dict[str, Any]]:
+        rel_samples = build_rel_samples(require_forecast=require_forecast)
+        rel_enabled: dict[str, dict[str, Any]] = {}
+        rel_pred_rows: list[dict[str, Any]] = []
 
-        # Enable nowcast-chain per metric using a *per-metric* threshold picked from a small sweep.
-        # This is much less strict than a single global gate and increases coverage without
-        # making low-signal metrics spam predictions.
-        by_metric_rows: dict[str, list[dict[str, Any]]] = {}
-        for r in rel_pred_rows:
-            m = str(r.get("metric") or "")
-            if not m:
-                continue
-            by_metric_rows.setdefault(m, []).append(r)
-
-        for metric, rows in by_metric_rows.items():
-            total = int(len(rows))
-            if total < int(rel_min_test_samples):
-                continue
-            sweep: list[dict[str, Any]] = []
-            for th in thresholds:
-                shown = [r for r in rows if float(r.get("score") or 0.0) + 1e-12 >= float(th)]
-                if len(shown) < int(rel_min_shown_samples):
+        if rel_samples:
+            rel_cut = int(len(rel_samples) * 0.8)
+            rel_test = rel_samples[rel_cut:]
+            for t_ns, metric, y_true in rel_test:
+                res = rel_vote_predict(metric, t_ns)
+                if res is None:
                     continue
-                ok = sum(1 for r in shown if int(r.get("pred")) == int(r.get("y")))
-                sweep.append(
-                    {
-                        "th": float(th),
-                        "acc": float(ok / len(shown)),
-                        "n": int(len(shown)),
-                        "coverage": float(len(shown) / total),
-                    }
-                )
+                pred, _probs, score = res
+                rel_pred_rows.append({"metric": metric, "t": t_ns, "y": y_true, "pred": pred, "score": score})
 
-            # Pick the smallest threshold that reaches the target accuracy and coverage.
-            candidates = [
-                row
-                for row in sweep
-                if float(row.get("acc") or 0.0) + 1e-12 >= float(rel_target_min_acc)
-                and float(row.get("coverage") or 0.0) + 1e-12 >= float(rel_target_min_cov)
-            ]
-            if not candidates:
-                continue
-            chosen_th = min(float(r.get("th") or 0.0) for r in candidates)
-            chosen_row = next((r for r in candidates if abs(float(r.get("th") or 0.0) - chosen_th) <= 1e-12), None)
-            if not chosen_row:
-                continue
-            rel_enabled[metric] = {
-                "acc": float(chosen_row.get("acc") or 0.0),
-                "n": int(chosen_row.get("n") or 0),
-                "coverage": float(chosen_row.get("coverage") or 0.0),
-                "th": float(chosen_th),
-                "n_test": total,
-            }
-
-    # Recommend a confidence threshold for the enabled metrics so we only show "reasonably reliable" nowcasts.
-    rel_th = 0.0
-    rel_eval: dict[str, Any] = {"acc": 0.0, "n": 0, "confidence": "maxp*(maxp-second)", "thresholds": []}
-    if rel_enabled and rel_pred_rows:
-        # Build threshold sweep on enabled-metric predictions.
-        enabled_set = set(rel_enabled.keys())
-        enabled_rows = [r for r in rel_pred_rows if r.get("metric") in enabled_set]
-        total_enabled = len(enabled_rows)
-        if total_enabled:
-            for th in thresholds:
-                shown = [r for r in enabled_rows if float(r.get("score") or 0.0) + 1e-12 >= float(th)]
-                if not shown:
+            # Enable nowcast-chain per metric using a *per-metric* threshold picked from a small sweep.
+            # This is much less strict than a single global gate and increases coverage without
+            # making low-signal metrics spam predictions.
+            by_metric_rows: dict[str, list[dict[str, Any]]] = {}
+            for r in rel_pred_rows:
+                m = str(r.get("metric") or "")
+                if not m:
                     continue
-                ok = sum(1 for r in shown if int(r.get("pred")) == int(r.get("y")))
-                rel_eval["thresholds"].append(
-                    {"th": float(th), "acc": float(ok / len(shown)), "n": int(len(shown)), "coverage": float(len(shown) / total_enabled)}
+                by_metric_rows.setdefault(m, []).append(r)
+
+            for metric, rows in by_metric_rows.items():
+                total = int(len(rows))
+                if total < int(rel_min_test_samples):
+                    continue
+                sweep: list[dict[str, Any]] = []
+                for th in thresholds:
+                    shown = [r for r in rows if float(r.get("score") or 0.0) + 1e-12 >= float(th)]
+                    if len(shown) < int(rel_min_shown_samples):
+                        continue
+                    ok = sum(1 for r in shown if int(r.get("pred")) == int(r.get("y")))
+                    sweep.append(
+                        {
+                            "th": float(th),
+                            "acc": float(ok / len(shown)),
+                            "n": int(len(shown)),
+                            "coverage": float(len(shown) / total),
+                        }
+                    )
+
+                # Pick the smallest threshold that reaches the target accuracy and coverage.
+                candidates = [
+                    row
+                    for row in sweep
+                    if float(row.get("acc") or 0.0) + 1e-12 >= float(target_min_acc)
+                    and float(row.get("coverage") or 0.0) + 1e-12 >= float(target_min_cov)
+                ]
+                if not candidates:
+                    continue
+                chosen_th = min(float(r.get("th") or 0.0) for r in candidates)
+                chosen_row = next(
+                    (r for r in candidates if abs(float(r.get("th") or 0.0) - chosen_th) <= 1e-12), None
                 )
-            # Target: >=75% accuracy with >=50% coverage on enabled metrics.
-            rel_th = _pick_threshold(rel_eval.get("thresholds", []), min_acc=0.75, min_coverage=0.50)
-            # Record raw stats at th=0 (if present in sweep).
-            hit0 = next((r for r in rel_eval["thresholds"] if abs(float(r.get("th")) - float(thresholds[0])) <= 1e-9), None)
-            if hit0:
-                rel_eval["acc"] = float(hit0.get("acc") or 0.0)
-                rel_eval["n"] = int(hit0.get("n") or 0)
+                if not chosen_row:
+                    continue
+                rel_enabled[metric] = {
+                    "acc": float(chosen_row.get("acc") or 0.0),
+                    "n": int(chosen_row.get("n") or 0),
+                    "coverage": float(chosen_row.get("coverage") or 0.0),
+                    "th": float(chosen_th),
+                    "n_test": total,
+                }
+
+        # Recommend a confidence threshold for the enabled metrics so we only show "reasonably reliable" nowcasts.
+        rel_th = 0.0
+        rel_eval: dict[str, Any] = {"acc": 0.0, "n": 0, "confidence": "maxp*(maxp-second)", "thresholds": []}
+        if rel_enabled and rel_pred_rows:
+            enabled_set = set(rel_enabled.keys())
+            enabled_rows = [r for r in rel_pred_rows if r.get("metric") in enabled_set]
+            total_enabled = len(enabled_rows)
+            if total_enabled:
+                for th in thresholds:
+                    shown = [r for r in enabled_rows if float(r.get("score") or 0.0) + 1e-12 >= float(th)]
+                    if not shown:
+                        continue
+                    ok = sum(1 for r in shown if int(r.get("pred")) == int(r.get("y")))
+                    rel_eval["thresholds"].append(
+                        {
+                            "th": float(th),
+                            "acc": float(ok / len(shown)),
+                            "n": int(len(shown)),
+                            "coverage": float(len(shown) / total_enabled),
+                        }
+                    )
+
+                # Target: >=75% accuracy with >=50% coverage on enabled metrics.
+                rel_th = _pick_threshold(rel_eval.get("thresholds", []), min_acc=0.75, min_coverage=0.50)
+
+                # Record raw stats at th=0 (if present in sweep).
+                hit0 = next(
+                    (r for r in rel_eval["thresholds"] if abs(float(r.get("th")) - float(thresholds[0])) <= 1e-9),
+                    None,
+                )
+                if hit0:
+                    rel_eval["acc"] = float(hit0.get("acc") or 0.0)
+                    rel_eval["n"] = int(hit0.get("n") or 0)
+
+        return rel_enabled, rel_th, rel_eval
+
+    # These targets are tuned for "usable coverage" while keeping the average accuracy
+    # above random. Forecastable events already have a stronger model, so the with-Forecast
+    # nowcast-chain can be slightly looser (it is only used to fill low-confidence gaps).
+    rel_enabled_nf, rel_th_nf, rel_eval_nf = calibrate_rel_predictor(
+        require_forecast=False,
+        target_min_acc=0.67,
+        target_min_cov=0.10,
+    )
+    rel_enabled_wf, rel_th_wf, rel_eval_wf = calibrate_rel_predictor(
+        require_forecast=True,
+        target_min_acc=0.67,
+        target_min_cov=0.10,
+    )
 
     # Recommend thresholds to meet the UX goal:
     # - With-Forecast: aim for high coverage while keeping "shown" accuracy comfortably above random.
     # - No-Forecast: noisier; keep a stricter gate and let relationship-nowcast fill gaps.
-    th_wf = _pick_threshold(eval_wf.get("thresholds", []), min_acc=0.75, min_coverage=0.78)
+    # With-Forecast: keep a moderately high accuracy floor, but prefer higher coverage so the UI
+    # can show more events as "reliable" (especially for Medium/High).
+    th_wf = _pick_threshold_max_coverage(eval_wf.get("thresholds", []), min_acc=0.77, default=0.15)
     # A-P without Forecast is noisy with a single global softmax model.
     # We keep the global gate effectively "off" and rely on:
     #   - per-metric gates for stable series, and/or
@@ -1158,9 +1300,18 @@ def main() -> int:
                     "predictor": {
                         "kind": "vote_last",
                         "confidence": "maxp*(maxp-second)",
-                        "recommended_threshold": float(rel_th),
-                        "enabled_metrics": rel_enabled,
-                        "eval": rel_eval,
+                        "recommended_threshold": float(rel_th_nf),
+                        "enabled_metrics": rel_enabled_nf,
+                        "eval": rel_eval_nf,
+                        "target_filter": "no_forecast",
+                    },
+                    "predictor_with_forecast": {
+                        "kind": "vote_last",
+                        "confidence": "maxp*(maxp-second)",
+                        "recommended_threshold": float(rel_th_wf),
+                        "enabled_metrics": rel_enabled_wf,
+                        "eval": rel_eval_wf,
+                        "target_filter": "with_forecast",
                     },
                 },
             },
