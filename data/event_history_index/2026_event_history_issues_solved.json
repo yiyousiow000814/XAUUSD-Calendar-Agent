@@ -1,5 +1,5 @@
 {
-  "generated_at": "09-02-2026 15:51",
+  "generated_at": "11-02-2026 15:53",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -520,22 +520,58 @@
       "event": "Atlanta Fed GDPNow  (Q4)",
       "period": "q4",
       "date": "2026-02-19",
-      "time": "00:00",
+      "time": "23:00",
       "previous_raw": "",
-      "prior_actual": "4.2%",
-      "previous_effective": "4.2%"
+      "prior_actual": "3.7%",
+      "previous_effective": "3.7%"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "USD::FOMC Meeting Minutes::none",
+      "cur": "USD",
+      "event": "FOMC Meeting Minutes",
+      "period": "",
+      "date": "2026-02-19",
+      "time": "03:00",
+      "previous_raw": "",
+      "prior_actual": "0.00",
+      "previous_effective": "0.00"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "USD::4-Week Bill Auction::none",
+      "cur": "USD",
+      "event": "4-Week Bill Auction",
+      "period": "",
+      "date": "2026-02-20",
+      "time": "00:30",
+      "previous_raw": "",
+      "prior_actual": "3.630%",
+      "previous_effective": "3.630%"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "USD::8-Week Bill Auction::none",
+      "cur": "USD",
+      "event": "8-Week Bill Auction",
+      "period": "",
+      "date": "2026-02-20",
+      "time": "00:30",
+      "previous_raw": "",
+      "prior_actual": "3.630%",
+      "previous_effective": "3.630%"
     },
     {
       "issue": "previous_missing_filled",
       "event_id": "USD::Atlanta Fed GDPNow::none",
       "cur": "USD",
-      "event": "Atlanta Fed GDPNow  (Q4)",
-      "period": "q4",
-      "date": "2026-02-19",
+      "event": "Atlanta Fed GDPNow  (Q1)",
+      "period": "q1",
+      "date": "2026-02-20",
       "time": "23:00",
       "previous_raw": "",
-      "prior_actual": "4.2%",
-      "previous_effective": "4.2%"
+      "prior_actual": "3.7%",
+      "previous_effective": "3.7%"
     }
   ]
 }
