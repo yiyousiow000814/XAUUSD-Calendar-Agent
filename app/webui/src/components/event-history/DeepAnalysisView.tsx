@@ -109,12 +109,6 @@ export function DeepAnalysisView({
     };
   }, []);
 
-  const fmtPct = (p: number | null | undefined) =>
-    typeof p === "number" && Number.isFinite(p) ? `${Math.round(p * 100)}%` : "--";
-  const fmtP = (p?: number) =>
-    typeof p === "number" && Number.isFinite(p) ? `${Math.round(p * 100)}%` : "--";
-  const fmtN = (n?: number) => (typeof n === "number" && Number.isFinite(n) ? `N=${n}` : "N=--");
-
   const fmtPctNum = (p: number | null) => {
     if (typeof p !== "number" || !Number.isFinite(p)) return "--";
     if (p > 0 && p < 0.01) return "<1%";
@@ -539,7 +533,7 @@ export function DeepAnalysisView({
             typeof modelAcc === "number" &&
             Number.isFinite(nowAcc) &&
             Number.isFinite(modelAcc) &&
-            nowAcc + 1e-12 >= modelAcc + 1e-12)));
+            nowAcc + 1e-12 >= modelAcc)));
 
   const pvNowcast = shouldUseNowcast ? nowPv : null;
   const pvChoice = pvNowcast ?? modelPv ?? localPredict.proxyVsPrev;

@@ -26,7 +26,7 @@ type BackendApi = {
   get_snapshot: () => ApiResult<Snapshot>; 
   get_event_history?: (payload: { event: string; cur: string }) => ApiResult<EventHistoryResponse>; 
   get_event_impact_usd?: (payload: { eventId: string; bucket: string }) => ApiResult<EventImpactResponse>; 
-  get_event_deep_analysis_usd?: (payload: { eventId: string }) => ApiResult<EventDeepAnalysisResponse>;
+  get_event_deep_analysis_usd?: (payload: { eventId: string; anchorDtUtc?: string }) => ApiResult<EventDeepAnalysisResponse>;
   get_predict_release_model_usd?: () => ApiResult<PredictReleaseModelResponse>;
   get_settings: () => ApiResult<Settings>; 
   save_settings: (payload: Settings) => ApiResult<{ ok: boolean }>; 
@@ -752,7 +752,7 @@ export const backend = {
       }
       return Promise.resolve({ ok: false, message: "Deep analysis unavailable" });
     }
-    return api.get_event_deep_analysis_usd({ eventId: payload.eventId, anchorDtUtc: payload.anchorDtUtc } as any);
+    return api.get_event_deep_analysis_usd({ eventId: payload.eventId, anchorDtUtc: payload.anchorDtUtc });
   },
   getPredictReleaseModelUsd: async (): ApiResult<PredictReleaseModelResponse> => {
     if (isUiCheckRuntime()) {
