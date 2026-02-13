@@ -176,6 +176,7 @@ export function useNowcastVsPrev({
       let cursor = 0;
       const worker = async () => {
         while (cursor < candidates.length) {
+          // Single-threaded JS invariant: idx reservation happens before await, so workers don't collide.
           const idx = cursor;
           cursor += 1;
           const item = candidates[idx];

@@ -35,7 +35,9 @@ export function useLocalPredictRelease({
   predictModel
 }: UseLocalPredictReleaseArgs) {
   return useMemo(() => {
-    const EQ_FACTOR = 0.05; // Wider "approx equal" than strict matching; tuned for calendar numeric noise.
+    // Intentional: heuristic proxy tolerance is independent from model.meta.eq_factor.
+    // This baseline uses a tighter local gate to avoid over-labeling "=" in sparse windows.
+    const EQ_FACTOR = 0.05;
     const metric = String(metricKey || "").trim();
     const isHighImpact = String(selectionImpact || "").trim().toLowerCase() === "high";
     const parsePointUtcMs = (p: EventHistoryPoint): number | null => {
@@ -621,5 +623,5 @@ export function useLocalPredictRelease({
     const modelVsForecast = buildModelVsForecast();
 
     return { recentMonths, recent, all, proxyVsPrev, modelVsPrev, modelVsForecast };
-  }, [points, anchorDtUtc, displayOffsetMinutes, selectionActual, selectionForecast, selectionImpact, selectionPrevious, predictModel]);
+  }, [points, metricKey, anchorDtUtc, displayOffsetMinutes, selectionActual, selectionForecast, selectionImpact, selectionPrevious, predictModel]);
 }
