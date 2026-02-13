@@ -331,6 +331,12 @@ export function useLocalPredictRelease({
     const buildModelVsPrev = () => {
       const model: any = predictModel;
       const classes: string[] = Array.isArray(model?.classes) ? model.classes : ["=", ">", "<"];
+      const classIndex = {
+        eq: classes.indexOf("="),
+        gt: classes.indexOf(">"),
+        lt: classes.indexOf("<")
+      };
+      if (classIndex.eq < 0 || classIndex.gt < 0 || classIndex.lt < 0) return null;
       const sub: any = (typeof f0 === "number" && Number.isFinite(f0))
         ? model?.models?.ap_with_forecast
         : model?.models?.ap_no_forecast;
@@ -465,9 +471,9 @@ export function useLocalPredictRelease({
         threshold: th,
         reliable: score >= th,
         n: diffsAp.length,
-        pEq: probs[0],
-        pGt: probs[1],
-        pLt: probs[2],
+        pEq: probs[classIndex.eq] ?? 0,
+        pGt: probs[classIndex.gt] ?? 0,
+        pLt: probs[classIndex.lt] ?? 0,
         backtestAcc
       };
     };
@@ -477,6 +483,12 @@ export function useLocalPredictRelease({
     const buildModelVsForecast = () => {
       const model: any = predictModel;
       const classes: string[] = Array.isArray(model?.classes) ? model.classes : ["=", ">", "<"];
+      const classIndex = {
+        eq: classes.indexOf("="),
+        gt: classes.indexOf(">"),
+        lt: classes.indexOf("<")
+      };
+      if (classIndex.eq < 0 || classIndex.gt < 0 || classIndex.lt < 0) return null;
       const sub: any = model?.models?.af_with_forecast;
       const weights: number[][] = Array.isArray(sub?.weights) ? sub.weights : [];
       if (weights.length < 2) return null;
@@ -599,9 +611,9 @@ export function useLocalPredictRelease({
         threshold: th,
         reliable: score >= th,
         n: diffsAf.length,
-        pEq: probs[0],
-        pGt: probs[1],
-        pLt: probs[2],
+        pEq: probs[classIndex.eq] ?? 0,
+        pGt: probs[classIndex.gt] ?? 0,
+        pLt: probs[classIndex.lt] ?? 0,
         backtestAcc
       };
     };

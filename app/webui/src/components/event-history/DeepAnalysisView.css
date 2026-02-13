@@ -72,7 +72,7 @@
 .deep-panel-scroll {
   /* If content is long, keep it inside a local scroller (like Impact chart body). */
   max-height: 520px;
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
   padding-right: 6px;
   overscroll-behavior: contain;

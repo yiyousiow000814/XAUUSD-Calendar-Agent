@@ -998,13 +998,22 @@ export const assertSpinnerAnim = async (page, selector, label) => {
   const sample = async () =>
     page.evaluate((sel) => {
       const node = document.querySelector(sel);
-      if (!node) return { exists: false, transform: null, animationName: null, animationDuration: null };
+      if (!node) {
+        return {
+          exists: false,
+          transform: null,
+          animationName: null,
+          animationDuration: null,
+          animationPlayState: null
+        };
+      }
       const style = window.getComputedStyle(node);
       return {
         exists: true,
         transform: style.transform || "",
         animationName: style.animationName || "",
-        animationDuration: style.animationDuration || ""
+        animationDuration: style.animationDuration || "",
+        animationPlayState: style.animationPlayState || ""
       };
     }, selector);
 
@@ -1027,7 +1036,8 @@ export const assertSpinnerAnim = async (page, selector, label) => {
         snap.animationName &&
         snap.animationName !== "none" &&
         snap.animationDuration &&
-        snap.animationDuration !== "0s"
+        snap.animationDuration !== "0s" &&
+        snap.animationPlayState !== "paused"
       ) {
         sawCssAnimation = true;
       }

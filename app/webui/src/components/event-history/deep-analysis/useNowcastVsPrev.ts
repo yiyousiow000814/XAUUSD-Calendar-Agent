@@ -40,6 +40,7 @@ export function useNowcastVsPrev({
 }: UseNowcastVsPrevArgs): NowcastVsPrev | null {
   const zApCacheRef = useRef(new Map<string, { series: Array<{ ms: number; z: number }> }>());
   const [nowcastVsPrev, setNowcastVsPrev] = useState<NowcastVsPrev | null>(null);
+  const MAX_PARALLEL_HISTORY_FETCH = 4;
 
   useEffect(() => {
     const metric = String(metricKey || "").trim();
@@ -115,7 +116,7 @@ export function useNowcastVsPrev({
       const tRaw = String(p.time ?? "").trim();
       if (!dRaw) return null;
       const tt = tRaw || "00:00";
-      const m1 = dRaw.match(/^(\\d{2})-(\\d{2})-(\\d{4})$/);
+      const m1 = dRaw.match(/^(\d{2})-(\d{2})-(\d{4})$/);
       const dateIso = m1 ? `${m1[3]}-${m1[2]}-${m1[1]}` : dRaw;
       const ms = parseDisplayTimeToUtcMs(dateIso, tt, Number(displayOffsetMinutes) || 0);
       return typeof ms === "number" && Number.isFinite(ms) ? ms : null;
@@ -170,8 +171,23 @@ export function useNowcastVsPrev({
             Number.isFinite(it.corr) &&
             Math.abs(it.corr) > 1e-12
         );
-      const seriesList = await Promise.all(
-        candidates.map((it) => buildZApSeries(it.srcKey, it.kind as "ap" | "af"))
+      const seriesList: Array<{ series: Array<{ ms: number; z: number }> } | null> = new Array(candidates.length)
+        .fill(null);
+      let cursor = 0;
+      const worker = async () => {
+        while (cursor < candidates.length) {
+          const idx = cursor;
+          cursor += 1;
+          const item = candidates[idx];
+          if (!item) continue;
+          seriesList[idx] = await buildZApSeries(item.srcKey, item.kind as "ap" | "af");
+        }
+      };
+      await Promise.all(
+        Array.from(
+          { length: Math.max(1, Math.min(MAX_PARALLEL_HISTORY_FETCH, candidates.length)) },
+          () => worker()
+        )
       );
 
       for (let idx = 0; idx < candidates.length; idx += 1) {
