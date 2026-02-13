@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -226,6 +227,31 @@ def _signals_used(payload: dict[str, Any]) -> list[dict[str, Any]]:
     if "uncertainty" in signals:
         used.append({"id": "uncertainty", "title": "Uncertainty & calibration"})
     return used
+
+
+def _sanitize_json(value: Any) -> Any:
+    # Enforce strict JSON output:
+    # - Replace NaN/inf with null
+    # - Replace pandas NA with null
+    # - Convert timestamps into ISO strings
+    try:
+        if value is None:
+            return None
+        if isinstance(value, float):
+            return value if math.isfinite(value) else None
+        if isinstance(value, (bool, int, str)):
+            return value
+        if isinstance(value, dict):
+            return {str(k): _sanitize_json(v) for k, v in value.items()}
+        if isinstance(value, list):
+            return [_sanitize_json(v) for v in value]
+        if isinstance(value, (datetime, pd.Timestamp)):
+            return value.isoformat()
+        if pd.isna(value):
+            return None
+    except Exception:
+        pass
+    return value
 
 
 def build_deep_analysis_json(currency: str, alignment: pd.DataFrame, paths: Paths) -> dict[str, Any]:
@@ -494,13 +520,13 @@ def main() -> None:
 
     alignment = read_table(alignment_path, parse_dates=("event_time",))
     payload = build_deep_analysis_json(args.currency, alignment, paths)
+    payload = _sanitize_json(payload)
 
     out_path = Path(args.output_json).expanduser().resolve()
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")
     print(f"Wrote {out_path} (events={len(payload.get('events', {}))}).")
 
 
 if __name__ == "__main__":
     main()
-

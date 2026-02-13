@@ -3370,6 +3370,102 @@ const main = async () => {
               }
             });
 
+            await runCheck(theme.key, "Deep analysis Unified Outlook quick read visible", async () => {
+              const result = await page.evaluate(() => {
+                const root = document.querySelector("[data-qa='qa:history:deep-analysis']");
+                if (!root) return { ok: true, skipped: true, reason: "deep-analysis not visible" };
+
+                const quick = root.querySelector(".deep-outlook-quick");
+                if (!quick) return { ok: true, skipped: true, reason: "no quick read section" };
+
+                const hasEdgePill = Boolean(
+                  root.querySelector("[data-qa='qa:deep:trade-guide'] .deep-pill--hint")
+                );
+                const items = Array.from(quick.querySelectorAll(".deep-outlook-quick-item"));
+                const empty = quick.querySelector(".deep-outlook-quick-empty");
+
+                if (!items.length) {
+                  const msg = (empty?.textContent || "").trim();
+                  const ok = Boolean(empty) && /no clear/i.test(msg) && hasEdgePill;
+                  return { ok, mode: "empty", msg, hasEdgePill };
+                }
+
+                const text = items.map((el) => (el?.textContent || "").trim()).filter(Boolean);
+                const joined = text.join(" | ");
+                const hasHorizon = joined.includes("+1h") || joined.includes("+4h") || joined.includes("+12h");
+                const hasDir = joined.includes("Up") || joined.includes("Down");
+                const hasEdge = joined.toLowerCase().includes("edge") && joined.includes("pp");
+                return {
+                  ok: items.length >= 1 && hasHorizon && hasDir && hasEdge && hasEdgePill,
+                  mode: "items",
+                  count: items.length,
+                  joined,
+                  hasHorizon,
+                  hasDir,
+                  hasEdge,
+                  hasEdgePill
+                };
+              });
+              if (result?.skipped) return;
+              if (!result?.ok) {
+                throw new Error(
+                  `Unified Outlook quick read not ready (mode=${result?.mode}, count=${result?.count}, hasHorizon=${result?.hasHorizon}, hasDir=${result?.hasDir}, hasEdge=${result?.hasEdge}, hasEdgePill=${result?.hasEdgePill})`
+                );
+              }
+            });
+
+            const howBtn = deepRoot
+              .locator("button.deep-help-btn")
+              .filter({ hasText: "How it's computed" })
+              .first();
+            if (await howBtn.count()) {
+              await howBtn.click();
+              const methodModal = page.locator("[data-qa='qa:modal:deep-method']").first();
+              await methodModal.waitFor({ state: "visible", timeout: 8000 }).catch(() => null);
+              await page.waitForTimeout(140);
+
+              artifacts.push({
+                scenario: "event-history-modal",
+                theme: theme.key,
+                state: "impact-deep-method",
+                label: "Deep analysis method modal",
+                path: await captureState(page, "event-history-modal", theme.key, "impact-deep-method", {
+                  element: methodModal
+                })
+              });
+
+              await runCheck(theme.key, "Deep analysis method flow subtitle not clipped", async () => {
+                const result = await page.evaluate(() => {
+                  const modal = document.querySelector("[data-qa='qa:modal:deep-method']");
+                  if (!modal) return { ok: true, skipped: true, reason: "method modal not visible" };
+                  const svg = modal.querySelector("svg[aria-label='Where the numbers come from (flow)']");
+                  if (!(svg instanceof SVGElement)) return { ok: true, skipped: true, reason: "flow svg missing" };
+
+                  const box = svg.querySelector("rect.deep-tut-flow-box:not(.soft)");
+                  const subs = Array.from(svg.querySelectorAll("text.deep-tut-flow-s"));
+                  const sub = subs.find((el) => (el?.textContent || "").includes("Actual / Forecast / Previous"));
+                  if (!(box instanceof SVGGraphicsElement) || !(sub instanceof SVGGraphicsElement)) {
+                    return { ok: true, skipped: true, reason: "flow elements missing" };
+                  }
+
+                  const b = box.getBBox();
+                  const t = sub.getBBox();
+                  const gap = b.y + b.height - (t.y + t.height);
+                  return { ok: gap >= 1.0, gap };
+                });
+                if (result?.skipped) return;
+                if (!result?.ok) {
+                  throw new Error(`Flow subtitle touches box edge (gap=${result?.gap})`);
+                }
+              });
+
+              const closeBtn = methodModal.locator("button").filter({ hasText: "Close" }).first();
+              if (await closeBtn.count()) {
+                await closeBtn.click();
+                await page.waitForTimeout(140);
+              }
+            }
+
             const compareBtn = deepRoot
               .locator("button.deep-help-btn")
               .filter({ hasText: "Compare: forecast-only" })

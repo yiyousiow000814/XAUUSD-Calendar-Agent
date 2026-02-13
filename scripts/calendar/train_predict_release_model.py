@@ -718,6 +718,22 @@ def main() -> int:
         default=24,
         help="Minimum releases for metrics to participate in relationship (nowcast chain) learning/eval.",
     )
+    # Relationship ("nowcast chain") tuning knobs. These affect only the relationship-based
+    # predictor (used as a no-forecast fallback + low-confidence gap filler).
+    ap.add_argument("--rel-lookback-days", type=int, default=180)
+    ap.add_argument("--rel-recent-days", type=int, default=180)
+    ap.add_argument("--rel-vote-half-life-days", type=int, default=60)
+    ap.add_argument(
+        "--rel-tail-limit",
+        type=int,
+        default=6,
+        help="Max recent source releases per relationship edge for nowcast chain (per metric).",
+    )
+    ap.add_argument("--rel-topk", type=int, default=15)
+    ap.add_argument("--rel-min-abs-corr", type=float, default=0.06)
+    ap.add_argument("--rel-min-pairs", type=int, default=10)
+    ap.add_argument("--rel-target-min-acc", type=float, default=0.65)
+    ap.add_argument("--rel-target-min-cov", type=float, default=0.08)
     ap.add_argument("--out-json", type=Path, default=Path("data/analysis/predict_release_model_usd.json"))
     args = ap.parse_args()
 
@@ -735,24 +751,59 @@ def main() -> int:
     # Include 0.00 / 0.05 so we can tune toward higher "reliable" coverage when a sub-model is strong
     # (especially the with-Forecast case), without forcing the UI to hide most outputs.
     # Include a few low-end thresholds so we can trade accuracy/coverage more smoothly in the UI.
-    thresholds = [0.00, 0.02, 0.03, 0.04, 0.05, 0.07, 0.10, 0.12, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60]
+    thresholds = [
+        0.00,
+        0.01,
+        0.015,
+        0.02,
+        0.025,
+        0.03,
+        0.035,
+        0.04,
+        0.045,
+        0.05,
+        0.06,
+        0.07,
+        0.08,
+        0.09,
+        0.10,
+        0.12,
+        0.15,
+        0.18,
+        0.20,
+        0.25,
+        0.30,
+        0.35,
+        0.40,
+        0.45,
+        0.50,
+        0.55,
+        0.60,
+    ]
 
     # Relationship ("nowcast chain") configuration (no-forecast fallback):
     # use other metrics' most recent signals in the last 1-6 months as a lightweight nowcast.
     # Relationship ("nowcast chain") is intentionally lightweight, but we want decent coverage.
     # Wider lookback + slightly lower corr threshold helps bring more metrics into the graph,
     # while per-metric confidence thresholds keep reliability acceptable.
-    rel_lookback_days = 180
-    rel_recent_days = 180
-    rel_vote_half_life_days = 60
-    rel_topk = 15
-    rel_min_abs_corr = 0.06
-    rel_min_pairs = 10
+    rel_lookback_days = int(args.rel_lookback_days)
+    rel_recent_days = int(args.rel_recent_days)
+    rel_vote_half_life_days = int(args.rel_vote_half_life_days)
+    rel_tail_limit = int(args.rel_tail_limit)
+    rel_tail_limit = max(1, min(256, int(rel_tail_limit)))
+    rel_topk = int(args.rel_topk)
+    rel_min_abs_corr = float(args.rel_min_abs_corr)
+    rel_min_pairs = int(args.rel_min_pairs)
     rel_min_metric_points = int(args.rel_min_metric_points)
     rel_min_test_samples = 10  # per-metric test points (post-split) to trust a threshold
     rel_min_shown_samples = 4  # per-metric shown points at a threshold
-    rel_target_min_acc = 0.70
-    rel_target_min_cov = 0.10
+    # Per-metric enabling targets for the nowcast chain.
+    #
+    # We keep this slightly looser than the main softmax model gating so more
+    # Medium/High metrics can get relationship-based coverage, while the
+    # confidence thresholds still protect users from low-signal spam.
+    rel_target_min_acc = float(args.rel_target_min_acc)
+    rel_target_min_cov = float(args.rel_target_min_cov)
 
     series_by_metric_ap = _build_metric_ap_series(df)
     series_by_metric_af = _build_metric_af_series(df)
@@ -945,6 +996,118 @@ def main() -> int:
             }
         return enabled
 
+    def build_metric_gates_af(
+        *,
+        W: np.ndarray,
+        target_min_acc: float,
+        target_min_cov: float,
+        min_test_samples: int,
+        min_shown_samples: int,
+    ) -> dict[str, dict[str, Any]]:
+        # Metric-specific thresholds for the shared A-F logistic model.
+        #
+        # A-F is harder and more "efficient" (forecasts already absorb information), so we only
+        # enable gates for metrics that have a measurable edge on the post-split segment.
+        min_points_gate = max(24, int(args.rel_min_metric_points))
+
+        grouped = df.groupby("metric_key", sort=False)
+        enabled: dict[str, dict[str, Any]] = {}
+        for metric_key, g in grouped:
+            metric_key = str(metric_key)
+            g = g.sort_values("dt_utc").reset_index(drop=True)
+            if len(g) < int(min_points_gate):
+                continue
+
+            a_all = g["a"].to_numpy(dtype="float64")
+            f_all = g["f"].to_numpy(dtype="float64")
+            p_all = g["p"].to_numpy(dtype="float64")
+            dt_all = g["dt_utc"].to_numpy(dtype="datetime64[ns]")
+
+            scale_ap = _median_abs(a_all - p_all)
+            scale_fp = _median_abs(f_all - p_all)
+            scale_af = _median_abs(a_all - f_all)
+            med_a, mad_a = _robust_loc_scale(a_all)
+
+            rows: list[tuple[int, int, int, float]] = []  # (t_ns, y, pred, score)
+            for i in range(6, len(g)):
+                if not np.isfinite(a_all[i]) or not np.isfinite(f_all[i]):
+                    continue
+                idxs = [i - 1, i - 2, i - 3, i - 4, i - 5, i - 6]
+                if not np.all(np.isfinite(a_all[idxs])) or not np.all(np.isfinite(p_all[idxs])):
+                    continue
+
+                z_ap_1 = float((a_all[i - 1] - p_all[i - 1]) / scale_ap)
+                z_ap_3 = float(np.mean((a_all[i - 3 : i] - p_all[i - 3 : i]) / scale_ap))
+                z_ap_6 = float(np.mean((a_all[i - 6 : i] - p_all[i - 6 : i]) / scale_ap))
+                z_a_level = float((a_all[i - 1] - med_a) / mad_a)
+                z_a_slope6 = float(_slope(a_all[i - 6 : i]) / scale_ap)
+
+                z_fp = float((f_all[i] - p_all[i]) / scale_fp) if np.isfinite(p_all[i]) else 0.0
+                z_af_1 = (
+                    float((a_all[i - 1] - f_all[i - 1]) / scale_af) if np.isfinite(f_all[i - 1]) else 0.0
+                )
+
+                feats = [1.0, z_fp, z_ap_1, z_ap_3, z_ap_6, z_a_level, z_a_slope6, z_af_1]
+                if not np.all(np.isfinite(feats)):
+                    continue
+
+                P = _softmax(np.asarray([feats], dtype="float64") @ W)
+                if P.size < 3:
+                    continue
+                pred = int(np.argmax(P[0]))
+                score = float(_confidence_score(P)[0])
+                z_true = float((a_all[i] - f_all[i]) / scale_af)
+                y = int(_label_z(z_true, float(eq_factor)))
+                rows.append((int(dt_all[i].astype("int64")), y, pred, score))
+
+            if not rows:
+                continue
+            rows.sort(key=lambda it: it[0])
+            cut = int(len(rows) * 0.8)
+            test_rows = rows[cut:]
+            total = int(len(test_rows))
+            if total < int(min_test_samples):
+                continue
+
+            sweep: list[dict[str, Any]] = []
+            for th in thresholds:
+                shown = [r for r in test_rows if float(r[3]) + 1e-12 >= float(th)]
+                if len(shown) < int(min_shown_samples):
+                    continue
+                ok = sum(1 for _t, y, pred, _s in shown if int(pred) == int(y))
+                n_shown = int(len(shown))
+                sweep.append(
+                    {
+                        "th": float(th),
+                        "acc": float(ok / n_shown) if n_shown else 0.0,
+                        "n": int(n_shown),
+                        "coverage": float(n_shown / total) if total else 0.0,
+                    }
+                )
+
+            candidates = [
+                r
+                for r in sweep
+                if float(r.get("acc") or 0.0) + 1e-12 >= float(target_min_acc)
+                and float(r.get("coverage") or 0.0) + 1e-12 >= float(target_min_cov)
+            ]
+            if not candidates:
+                continue
+            chosen_th = min(float(r.get("th") or 0.0) for r in candidates)
+            chosen_row = next(
+                (r for r in candidates if abs(float(r.get("th") or 0.0) - chosen_th) <= 1e-12), None
+            )
+            if not chosen_row:
+                continue
+            enabled[metric_key] = {
+                "th": float(chosen_th),
+                "acc": float(chosen_row.get("acc") or 0.0),
+                "n": int(chosen_row.get("n") or 0),
+                "coverage": float(chosen_row.get("coverage") or 0.0),
+                "n_test": total,
+            }
+        return enabled
+
     metric_gates_wf = build_metric_gates_ap(
         require_forecast=True,
         W=W_wf,
@@ -960,6 +1123,13 @@ def main() -> int:
         target_min_cov=0.10,
         min_test_samples=18,
         min_shown_samples=4,
+    )
+    metric_gates_af = build_metric_gates_af(
+        W=W_af,
+        target_min_acc=0.55,
+        target_min_cov=0.15,
+        min_test_samples=18,
+        min_shown_samples=6,
     )
 
     # Evaluate relationship ("nowcast chain") predictor.
@@ -1004,9 +1174,13 @@ def main() -> int:
         if not rels:
             return None
         votes = np.zeros(3, dtype="float64")
-        used = 0
+        used = 0  # number of source metrics that contributed (not number of points)
         recent_ns = int(rel_recent_days) * 24 * 3600 * 1_000_000_000
         half_life_ns = float(rel_vote_half_life_days) * 24.0 * 3600.0 * 1_000_000_000.0
+        # Use multiple recent releases per source metric (within the recent window) instead of
+        # only the last one. This aligns better with the "recent 1-6 months" heuristic and makes
+        # nowcast votes less brittle for noisy metrics.
+        tail_limit = int(rel_tail_limit)
         for item in rels:
             src_key = str(item.get("metric") or "")
             kind = str(item.get("kind") or "ap").strip().lower()
@@ -1024,47 +1198,66 @@ def main() -> int:
             j = int(np.searchsorted(src_t, np.int64(t_ns), side="left") - 1)
             if j < 0:
                 continue
-            age = int(t_ns) - int(src_t[j])
-            if age < 0 or age > recent_ns:
-                continue
-            z_last = float(src_z[j])
-            if not np.isfinite(z_last):
-                continue
-            z_last = float(np.clip(z_last, -3.0, 3.0))
-            # Older signals still count, but decay their influence (still within recent window).
-            w_time = math.exp(-float(age) / max(1.0, half_life_ns))
-            w = abs(c) * min(3.0, abs(z_last)) * w_time
-            src_lab = int(_label_z(z_last, float(eq_factor)))  # 0="=", 1=">", 2="<"
 
-            # Prefer the learned conditional distribution if available:
-            #   P(target_label | source_label)
-            # This handles asymmetric relationships and keeps "=" meaningful.
-            if (
-                isinstance(cond, list)
-                and len(cond) == 3
-                and isinstance(cond[src_lab], list)
-                and len(cond[src_lab]) == 3
-            ):
-                row = cond[src_lab]
-                # Use a hard mapping (argmax) to keep the vote decisive.
-                # Spreading votes by probabilities tends to dilute confidence too much.
-                best = 0
-                best_v = float(row[0] or 0.0)
-                for k in (1, 2):
-                    v = float(row[k] or 0.0)
-                    if v > best_v:
-                        best = k
-                        best_v = v
-                votes[int(best)] += w
-            else:
-                # Back-compat fallback: treat corr sign as a hard inversion for ">" / "<".
-                lab = src_lab
-                if lab == 1 and c < 0:
-                    lab = 2
-                elif lab == 2 and c < 0:
-                    lab = 1
-                votes[lab] += w
-            used += 1
+            edge_used = False
+            taken = 0
+            while j >= 0 and taken < tail_limit:
+                age = int(t_ns) - int(src_t[j])
+                if age < 0:
+                    j -= 1
+                    continue
+                if age > recent_ns:
+                    break
+
+                z_last = float(src_z[j])
+                if not np.isfinite(z_last):
+                    j -= 1
+                    continue
+                z_last = float(np.clip(z_last, -3.0, 3.0))
+
+                src_lab = int(_label_z(z_last, float(eq_factor)))  # 0="=", 1=">", 2="<"
+                # Older signals still count, but decay their influence (still within recent window).
+                w_time = math.exp(-float(age) / max(1.0, half_life_ns))
+                w = abs(c) * min(3.0, abs(z_last)) * w_time
+                if not np.isfinite(w) or w <= 0.0:
+                    j -= 1
+                    taken += 1
+                    continue
+
+                # Prefer the learned conditional distribution if available:
+                #   P(target_label | source_label)
+                # This handles asymmetric relationships and keeps "=" meaningful.
+                if (
+                    isinstance(cond, list)
+                    and len(cond) == 3
+                    and isinstance(cond[src_lab], list)
+                    and len(cond[src_lab]) == 3
+                ):
+                    row = cond[src_lab]
+                    # Add the full conditional distribution to reduce overconfident "winner-take-all" votes.
+                    # Calibration (threshold sweep) will adapt the confidence gate accordingly.
+                    for k in (0, 1, 2):
+                        try:
+                            p = float(row[k] or 0.0)
+                        except Exception:
+                            p = 0.0
+                        if np.isfinite(p) and p > 0.0:
+                            votes[int(k)] += float(w) * float(p)
+                else:
+                    # Back-compat fallback: treat corr sign as a hard inversion for ">" / "<".
+                    lab = src_lab
+                    if lab == 1 and c < 0:
+                        lab = 2
+                    elif lab == 2 and c < 0:
+                        lab = 1
+                    votes[lab] += w
+
+                edge_used = True
+                j -= 1
+                taken += 1
+
+            if edge_used:
+                used += 1
         if used <= 0 or float(votes.sum()) <= 0:
             return None
         probs = (votes / votes.sum()).astype("float64")
@@ -1126,7 +1319,9 @@ def main() -> int:
                         }
                     )
 
-                # Pick the smallest threshold that reaches the target accuracy and coverage.
+                # Pick the threshold that maximizes per-metric accuracy while keeping a minimum
+                # coverage. This is more aligned with "only show when it is worth showing"
+                # than always favoring the smallest threshold.
                 candidates = [
                     row
                     for row in sweep
@@ -1135,12 +1330,15 @@ def main() -> int:
                 ]
                 if not candidates:
                     continue
-                chosen_th = min(float(r.get("th") or 0.0) for r in candidates)
-                chosen_row = next(
-                    (r for r in candidates if abs(float(r.get("th") or 0.0) - chosen_th) <= 1e-12), None
+                chosen_row = max(
+                    candidates,
+                    key=lambda r: (
+                        float(r.get("acc") or 0.0),
+                        float(r.get("coverage") or 0.0),
+                        -float(r.get("th") or 0.0),
+                    ),
                 )
-                if not chosen_row:
-                    continue
+                chosen_th = float(chosen_row.get("th") or 0.0)
                 rel_enabled[metric] = {
                     "acc": float(chosen_row.get("acc") or 0.0),
                     "n": int(chosen_row.get("n") or 0),
@@ -1190,21 +1388,24 @@ def main() -> int:
     # nowcast-chain can be slightly looser (it is only used to fill low-confidence gaps).
     rel_enabled_nf, rel_th_nf, rel_eval_nf = calibrate_rel_predictor(
         require_forecast=False,
-        target_min_acc=0.67,
-        target_min_cov=0.10,
+        target_min_acc=float(rel_target_min_acc),
+        target_min_cov=float(rel_target_min_cov),
     )
     rel_enabled_wf, rel_th_wf, rel_eval_wf = calibrate_rel_predictor(
         require_forecast=True,
-        target_min_acc=0.67,
-        target_min_cov=0.10,
+        target_min_acc=float(rel_target_min_acc),
+        target_min_cov=float(rel_target_min_cov),
     )
 
     # Recommend thresholds to meet the UX goal:
     # - With-Forecast: aim for high coverage while keeping "shown" accuracy comfortably above random.
     # - No-Forecast: noisier; keep a stricter gate and let relationship-nowcast fill gaps.
-    # With-Forecast: keep a moderately high accuracy floor, but prefer higher coverage so the UI
-    # can show more events as "reliable" (especially for Medium/High).
-    th_wf = _pick_threshold_max_coverage(eval_wf.get("thresholds", []), min_acc=0.77, default=0.15)
+    # With-Forecast: prefer higher coverage as long as accuracy stays comfortably above random.
+    #
+    # This threshold also affects downstream consumers (e.g. unified outlook bucket mixing), so we
+    # tune it toward a practical tradeoff: show "reliable" predictions for most Medium/High releases
+    # while keeping the shown accuracy around ~75%+ on the time-split backtest.
+    th_wf = _pick_threshold_max_coverage(eval_wf.get("thresholds", []), min_acc=0.75, default=0.15)
     # A-P without Forecast is noisy with a single global softmax model.
     # We keep the global gate effectively "off" and rely on:
     #   - per-metric gates for stable series, and/or
@@ -1238,6 +1439,7 @@ def main() -> int:
                 "lookback_days": int(rel_lookback_days),
                 "recent_days": int(rel_recent_days),
                 "vote_half_life_days": int(rel_vote_half_life_days),
+                "tail_limit": int(rel_tail_limit),
                 "topk": int(rel_topk),
                 "min_abs_corr": float(rel_min_abs_corr),
                 "min_pairs": int(rel_min_pairs),
@@ -1330,6 +1532,14 @@ def main() -> int:
                 ],
                 "weights": W_af.tolist(),
                 "recommended_threshold": th_af,
+                "metric_gates": {
+                    "kind": "per_metric_threshold",
+                    "target_min_acc": 0.55,
+                    "target_min_cov": 0.15,
+                    "min_test_samples": 18,
+                    "min_shown_samples": 6,
+                    "enabled_metrics": metric_gates_af,
+                },
                 "eval": eval_af,
             },
         },

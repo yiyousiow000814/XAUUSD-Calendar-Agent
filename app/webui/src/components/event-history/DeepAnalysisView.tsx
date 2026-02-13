@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import type { EventDeepAnalysisResponse, EventHistoryPoint, EventImpactWindowStats } from "../../types";
 import { backend } from "../../api";
-import { formatTimeOffsetMinutes } from "../../utils/calendarTime";
+import { formatTimeOffsetMinutes, formatUtcOffset } from "../../utils/calendarTime";
 import { DEFAULT_PREDICT_RELEASE_MODEL_USD } from "../../utils/predictReleaseModel";
 import { DeepAnalysisMethodModal } from "./DeepAnalysisMethodModal";
+import { DeepSignalsPanel } from "./deep-analysis/DeepSignalsPanel";
+import { TradeBiasPanel } from "./deep-analysis/TradeBiasPanel";
 import { useLocalPredictRelease } from "./deep-analysis/useLocalPredictRelease";
 import { useNowcastVsPrev } from "./deep-analysis/useNowcastVsPrev";
 import { parseNumber } from "./deep-analysis/utils";
@@ -119,17 +121,7 @@ export function DeepAnalysisView({
     return `${Math.round(p * 100)}%`;
   };
 
-  const fmtUtcShort = (raw: string) => {
-    const ms = Date.parse(String(raw || "").trim());
-    if (!Number.isFinite(ms)) return "";
-    const d = new Date(ms);
-    const pad = (v: number) => String(v).padStart(2, "0");
-    const dd = pad(d.getUTCDate());
-    const mm = pad(d.getUTCMonth() + 1);
-    const hh = pad(d.getUTCHours());
-    const min = pad(d.getUTCMinutes());
-    return `${dd}-${mm} ${hh}:${min} UTC`;
-  };
+  const displayTzLabel = useMemo(() => formatUtcOffset(Number(displayOffsetMinutes) || 0), [displayOffsetMinutes]);
 
   const anchorLabel = useMemo(() => {
     const raw = String(anchorDtUtc || "").trim();
@@ -143,7 +135,7 @@ export function DeepAnalysisView({
     const mm = pad(shifted.getUTCMonth() + 1);
     const hh = pad(shifted.getUTCHours());
     const min = pad(shifted.getUTCMinutes());
-    return `${dd}-${mm} ${hh}:${min}`;
+    return `${dd}-${mm} ${hh}:${min} ${displayTzLabel}`;
   }, [anchorDtUtc, displayOffsetMinutes]);
 
 
@@ -383,17 +375,78 @@ export function DeepAnalysisView({
       w,
       h,
       pad,
+      offsets,
+      pUpSeries,
       dMain,
       dPrior,
       dWithout,
       baselineY,
       x0,
+      idx0,
       firstLabel: typeof firstOffset === "number" ? formatTimeOffsetMinutes(firstOffset) : "",
       lastLabel: typeof lastOffset === "number" ? formatTimeOffsetMinutes(lastOffset) : "",
       anchorLabel,
       hasPrior: useUnified && prior && Array.isArray(prior.pUp) && prior.pUp.length === offsets.length
     };
   }, [deepData, highlightId, impactSeriesItems, anchorLabel, showUnifiedPrior]);
+
+  const unifiedQuickRead = useMemo(() => {
+    if (!unifiedOutlook) return { all: [], strong: [], edgeTh: 0.1, best: null };
+    const offsets = Array.isArray((unifiedOutlook as any).offsets) ? ((unifiedOutlook as any).offsets as number[]) : [];
+    const pUpSeries = Array.isArray((unifiedOutlook as any).pUpSeries)
+      ? ((unifiedOutlook as any).pUpSeries as Array<number | null>)
+      : [];
+    const edgeTh = 0.1; // Show only "usable" edges (>=10pp) in Quick read.
+    if (offsets.length < 2 || pUpSeries.length !== offsets.length) return { all: [], strong: [], edgeTh, best: null };
+
+    const at = (m: number) => {
+      const idx = offsets.indexOf(m);
+      if (idx < 0) return null;
+      const v = pUpSeries[idx];
+      return typeof v === "number" && Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : null;
+    };
+
+    const horizons = [
+      { label: "+1h", minutes: 60 },
+      { label: "+4h", minutes: 240 },
+      { label: "+12h", minutes: 720 }
+    ];
+
+    const all = horizons
+      .map((h) => {
+        const pUp = at(h.minutes);
+        if (typeof pUp !== "number") return null;
+        const up = pUp >= 0.5;
+        const prob = up ? pUp : 1 - pUp;
+        const edge = Math.abs(pUp - 0.5);
+        const edgePp = Math.round(edge * 100);
+        const cls = edge + 1e-12 >= edgeTh ? "is-strong" : "is-weak";
+        return {
+          key: h.label,
+          label: h.label,
+          minutes: h.minutes,
+          dir: up ? "Up" : "Down",
+          prob,
+          edge,
+          edgePp,
+          className: cls
+        };
+      })
+      .filter((v): v is NonNullable<typeof v> => Boolean(v));
+
+    const strong = all.filter((it) => it.edge + 1e-12 >= edgeTh);
+    const order: Record<string, number> = { "+1h": 1, "+4h": 2, "+12h": 3 };
+    const best =
+      all.length > 0
+        ? [...all].sort((a, b) => {
+            if (Math.abs(b.edge - a.edge) > 1e-12) return b.edge - a.edge;
+            const oa = order[a.label] ?? 99;
+            const ob = order[b.label] ?? 99;
+            return oa - ob;
+          })[0] ?? null
+        : null;
+    return { all, strong, edgeTh, best };
+  }, [unifiedOutlook]);
 
   if (!isUsdEvent) {
     return <div className="history-impact-status error">Deep analysis is available for USD events only.</div>;
@@ -408,6 +461,28 @@ export function DeepAnalysisView({
   const data = (deepData.data as any) ?? {};
   const meta = (deepData.meta as any) ?? {};
   const isFallback = String(meta?.source ?? "").toLowerCase() === "fallback";
+  const pm = data.predictMarket ?? null;
+  const um = pm?.unifiedMeta ?? pm?.fallback ?? null;
+  const adjustedByActual = Boolean(um?.adjustedByActual);
+  const usedActualEvents =
+    typeof um?.usedActualEvents === "number" && Number.isFinite(um.usedActualEvents)
+      ? Math.max(0, Math.round(um.usedActualEvents))
+      : null;
+  const asOfUtcLabel =
+    typeof um?.asOfUtc === "string"
+      ? (() => {
+          const raw = String(um.asOfUtc || "").trim();
+          const ms = Date.parse(raw);
+          if (!Number.isFinite(ms)) return "";
+          const shifted = new Date(ms + (Number(displayOffsetMinutes) || 0) * 60_000);
+          const pad = (v: number) => String(v).padStart(2, "0");
+          const dd = pad(shifted.getUTCDate());
+          const mm = pad(shifted.getUTCMonth() + 1);
+          const hh = pad(shifted.getUTCHours());
+          const min = pad(shifted.getUTCMinutes());
+          return `${dd}-${mm} ${hh}:${min} ${displayTzLabel}`;
+        })()
+      : "";
   const predictRelease = data.predictRelease ?? {};
   const aGtF = predictRelease.actualGtForecast ?? predictRelease.actual_gt_forecast;
   const aGtP = predictRelease.actualGtPrevious ?? predictRelease.actual_gt_previous;
@@ -469,6 +544,7 @@ export function DeepAnalysisView({
   const pvNowcast = shouldUseNowcast ? nowPv : null;
   const pvChoice = pvNowcast ?? modelPv ?? localPredict.proxyVsPrev;
   const pvKind: "nowcast" | "model" | "proxy" = pvNowcast ? "nowcast" : modelPv ? "model" : "proxy";
+  const pvReliable = pvKind !== "proxy" && Boolean((pvChoice as any)?.reliable);
 
   const content = (
     <>
@@ -808,9 +884,6 @@ export function DeepAnalysisView({
       </div>
 
       {(() => {
-        const pm = data.predictMarket ?? null;
-        const um = pm?.unifiedMeta ?? pm?.fallback ?? null;
-        const adjustedByActual = Boolean(um?.adjustedByActual);
         return (
           <div className="deep-block-title deep-block-title--row">
             <span>Unified Outlook P(t)</span>
@@ -823,6 +896,44 @@ export function DeepAnalysisView({
         );
       })()}
       <div className="deep-outlook">
+        {unifiedOutlook ? (
+          <TradeBiasPanel
+            unified={unifiedQuickRead}
+            adjustedByActual={adjustedByActual}
+            usedActualEvents={usedActualEvents}
+            hasForecast={hasForecast0}
+            pvReliable={pvReliable}
+          />
+        ) : null}
+
+        {unifiedOutlook ? (
+          <div className="deep-outlook-quick">
+            <div className="deep-outlook-quick-title-row" title="Edge = |P(up) - 50%|. Small edges are usually noise.">
+              <div className="deep-outlook-quick-title">Quick read</div>
+            </div>
+            {unifiedQuickRead.strong.length ? (
+              <div className="deep-outlook-quick-row">
+                {unifiedQuickRead.strong.map((it) => (
+                  <div
+                    key={it.key}
+                    className={`deep-outlook-quick-item ${it.className}${
+                      unifiedQuickRead.best?.key === it.key ? " is-picked" : ""
+                    }`}
+                  >
+                    <span className="k">{it.label}</span>
+                    <span className="v">{`${it.dir} ${fmtPctNum(it.prob)}`}</span>
+                    <span className="e">{`edge ${it.edgePp}pp`}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="deep-outlook-quick-empty" title="P(up) is close to 50%, so there is no clear advantage.">
+                No clear edge (P is close to 50%).
+              </div>
+            )}
+          </div>
+        ) : null}
+
         {unifiedOutlook ? (
           <div className="deep-outlook-chart">
             <svg
@@ -861,6 +972,42 @@ export function DeepAnalysisView({
                 className="deep-outlook-line"
                 vectorEffect="non-scaling-stroke"
               />
+              {(() => {
+                // Mark the selected "best" horizon on the curve so the number visually maps to the path.
+                const best = unifiedQuickRead.best;
+                if (!best) return null;
+                const idx = unifiedOutlook.offsets.indexOf(best.minutes);
+                if (idx < 0) return null;
+                const p = unifiedOutlook.pUpSeries[idx];
+                if (typeof p !== "number" || !Number.isFinite(p)) return null;
+                const denom = Math.max(1, unifiedOutlook.offsets.length - 1);
+                const innerW = unifiedOutlook.w - unifiedOutlook.pad.l - unifiedOutlook.pad.r;
+                const innerH = unifiedOutlook.h - unifiedOutlook.pad.t - unifiedOutlook.pad.b;
+                const x = unifiedOutlook.pad.l + (idx / denom) * innerW;
+                const y = unifiedOutlook.pad.t + (1 - Math.max(0, Math.min(1, p))) * innerH;
+                const label = `P(up) ${Math.round(p * 100)}%`;
+                const placeBelow = y < unifiedOutlook.pad.t + 14;
+                const ty = placeBelow ? y + 16 : y - 10;
+                return (
+                  <g className="deep-outlook-marker">
+                    <circle
+                      cx={x}
+                      cy={y}
+                      r={4.2}
+                      className="deep-outlook-marker-dot"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                    <text
+                      x={x}
+                      y={ty}
+                      textAnchor="middle"
+                      className="deep-outlook-marker-label"
+                    >
+                      {label}
+                    </text>
+                  </g>
+                );
+              })()}
               {unifiedOutlook.dWithout ? (
                 <path
                   d={unifiedOutlook.dWithout}
@@ -902,15 +1049,6 @@ export function DeepAnalysisView({
 
         <div className="deep-outlook-note">
           {(() => {
-            const pm = data.predictMarket ?? null;
-            const um = pm?.unifiedMeta ?? pm?.fallback ?? null;
-            const adjustedByActual = Boolean(um?.adjustedByActual);
-            const usedActual =
-              typeof um?.usedActualEvents === "number" && Number.isFinite(um.usedActualEvents)
-                ? Math.max(0, Math.round(um.usedActualEvents))
-                : null;
-            const asOf =
-              typeof um?.asOfUtc === "string" ? fmtUtcShort(String(um.asOfUtc)) : "";
             return (
               <>
                 One main path P(t) is shown. It is computed from the scheduled +/-24h window (using the impact model),
@@ -918,12 +1056,13 @@ export function DeepAnalysisView({
                 {adjustedByActual ? (
                   <span className="deep-outlook-note-strong">
                     {" "}
-                    Adjusted using released Actuals{typeof usedActual === "number" ? ` (${usedActual} events)` : ""}.
+                    Adjusted using released Actuals
+                    {typeof usedActualEvents === "number" ? ` (${usedActualEvents} events)` : ""}.
                   </span>
                 ) : (
                   <span className="deep-outlook-note-strong"> Forecast-only (no released Actuals in-window yet).</span>
                 )}
-                {asOf ? <span className="deep-outlook-note-sub">{` As of ${asOf}.`}</span> : null}
+                {asOfUtcLabel ? <span className="deep-outlook-note-sub">{` As of ${asOfUtcLabel}.`}</span> : null}
               </>
             );
           })()}
@@ -993,6 +1132,8 @@ export function DeepAnalysisView({
           );
         })()}
       </div>
+
+      <DeepSignalsPanel signals={(data as any)?.signals} />
 
       <div className="deep-block-title">Evidence</div>
       <div className="deep-evidence">

@@ -4,8 +4,8 @@ Evaluate the relationship-based "nowcast chain" used by Predict Release (no-fore
 This mirrors the desktop app logic:
   - Task: predict (Actual - Previous) direction in {>,=,<} for releases where Forecast is missing.
   - Use a learned relationship graph (top-K correlated metrics) stored in the model JSON.
-  - At each target release time, sample each source metric's most recent (A-P) z-signal
-    within a recent window, apply a weighted vote, then confidence-gate the result.
+  - At each target release time, sample each source metric's recent (A-P) z-signals
+    within a recent window (time-decayed; capped), apply a weighted vote, then confidence-gate.
 
 No price data is used.
 """
@@ -37,22 +37,23 @@ def _rel_vote_predict(
     series_by_metric_af: dict[str, dict[str, Any]],
     eq_factor: float,
     recent_ns: int,
+    tail_limit: int,
 ) -> Optional[tuple[int, float]]:
     rels = relationships_by_metric.get(metric) or []
     if not rels:
         return None
 
     votes = np.zeros(3, dtype="float64")
-    used = 0
-
-
+    used = 0  # number of source metrics that contributed (not number of points)
     vote_half_life_days = 60
     half_life_ns = float(vote_half_life_days) * 24.0 * 3600.0 * 1_000_000_000.0
+    tail_limit = max(1, min(256, int(tail_limit)))
 
     for item in rels:
         src_key = str(item.get("metric") or "").strip()
         kind = str(item.get("kind") or "ap").strip().lower()
         c = float(item.get("corr") or 0.0)
+        cond = item.get("cond")
         if not src_key or not np.isfinite(c) or abs(c) <= 1e-12:
             continue
 
@@ -65,27 +66,60 @@ def _rel_vote_predict(
         j = int(np.searchsorted(src_t, np.int64(t_ns), side="left") - 1)
         if j < 0:
             continue
-        age = int(t_ns) - int(src_t[j])
-        if age < 0 or age > int(recent_ns):
-            continue
-        z_last = float(src_z[j])
-        if not np.isfinite(z_last):
-            continue
-        z_last = float(np.clip(z_last, -3.0, 3.0))
 
-        src_lab = int(_label_z(z_last, float(eq_factor)))  # 0="=", 1=">", 2="<"
-        w_time = math.exp(-float(age) / max(1.0, half_life_ns))
-        w = abs(c) * min(3.0, abs(z_last)) * w_time
-        if not np.isfinite(w) or w <= 0:
-            continue
+        edge_used = False
+        taken = 0
+        while j >= 0 and taken < tail_limit:
+            age = int(t_ns) - int(src_t[j])
+            if age < 0:
+                j -= 1
+                continue
+            if age > int(recent_ns):
+                break
+            z_last = float(src_z[j])
+            if not np.isfinite(z_last):
+                j -= 1
+                continue
+            z_last = float(np.clip(z_last, -3.0, 3.0))
 
-        lab = src_lab
-        if lab == 1 and c < 0:
-            lab = 2
-        elif lab == 2 and c < 0:
-            lab = 1
-        votes[lab] += w
-        used += 1
+            src_lab = int(_label_z(z_last, float(eq_factor)))  # 0="=", 1=">", 2="<"
+            w_time = math.exp(-float(age) / max(1.0, half_life_ns))
+            w = abs(c) * min(3.0, abs(z_last)) * w_time
+            if not np.isfinite(w) or w <= 0:
+                j -= 1
+                taken += 1
+                continue
+
+            if (
+                isinstance(cond, list)
+                and len(cond) == 3
+                and isinstance(cond[src_lab], list)
+                and len(cond[src_lab]) == 3
+            ):
+                # Add the full conditional distribution to avoid overconfident "winner-take-all" votes.
+                row = cond[src_lab]
+                for k in (0, 1, 2):
+                    try:
+                        p = float(row[k] or 0.0)
+                    except Exception:
+                        p = 0.0
+                    if np.isfinite(p) and p > 0.0:
+                        votes[int(k)] += float(w) * float(p)
+            else:
+                # Back-compat fallback: treat corr sign as a hard inversion for ">" / "<".
+                lab = src_lab
+                if lab == 1 and c < 0:
+                    lab = 2
+                elif lab == 2 and c < 0:
+                    lab = 1
+                votes[lab] += w
+
+            edge_used = True
+            j -= 1
+            taken += 1
+
+        if edge_used:
+            used += 1
 
     if used <= 0 or not (float(votes.sum()) > 0):
         return None
@@ -125,6 +159,8 @@ def main() -> int:
     rel_meta = meta.get("relationships") or {}
     recent_days = int(rel_meta.get("recent_days") or 180)
     recent_ns = int(recent_days) * 24 * 3600 * 1_000_000_000
+    tail_limit = int(rel_meta.get("tail_limit") or 6)
+    tail_limit = max(1, min(256, int(tail_limit)))
 
     nf = (model.get("models") or {}).get("ap_no_forecast") or {}
     rel_root = nf.get("relationships") or {}
@@ -199,6 +235,7 @@ def main() -> int:
             series_by_metric_af=series_by_metric_af,
             eq_factor=float(eq_factor),
             recent_ns=int(recent_ns),
+            tail_limit=int(tail_limit),
         )
         if res is None:
             continue

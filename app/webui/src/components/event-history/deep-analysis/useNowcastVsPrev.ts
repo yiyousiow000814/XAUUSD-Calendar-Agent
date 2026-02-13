@@ -98,6 +98,11 @@ export function useNowcastVsPrev({
         ? Number(model.meta.relationships.recent_days)
         : 180;
     const recentMs = Math.max(1, recentDays) * 86_400_000;
+    const tailLimit =
+      typeof model?.meta?.relationships?.tail_limit === "number" &&
+      Number.isFinite(model.meta.relationships.tail_limit)
+        ? Math.max(1, Math.min(256, Math.floor(Number(model.meta.relationships.tail_limit))))
+        : 6;
     const halfLifeDays =
       typeof model?.meta?.relationships?.vote_half_life_days === "number" &&
       Number.isFinite(model.meta.relationships.vote_half_life_days)
@@ -174,8 +179,8 @@ export function useNowcastVsPrev({
         const src = seriesList[idx];
         if (!src) continue;
         const series = src.series;
-        // Use the most recent source signal (within the recent window), but decay older signals
-        // so the last 1-6 months dominate without forcing a hard cutoff.
+        // Use recent 1-6 months worth of signals (within the recent window), but decay older ones
+        // so the latest prints dominate without forcing a hard cutoff.
         let j = series.length - 1;
         while (j >= 0) {
           const ms = series[j]!.ms;
@@ -183,38 +188,63 @@ export function useNowcastVsPrev({
           j -= 1;
         }
         if (j < 0) continue;
-        const age = refMs - series[j]!.ms;
-        const z = Math.max(-3, Math.min(3, series[j]!.z));
-        const wTime = Math.exp(-age / halfLifeMs);
 
-        const srcLab = labelZ(z, eqFactor); // 0="=", 1=">", 2="<"
-        const w = Math.abs(corr) * Math.min(3, Math.abs(z)) * wTime;
-        if (!Number.isFinite(w) || w <= 0) continue;
-        used += 1;
+        let edgeUsed = false;
+        let taken = 0;
+        while (j >= 0 && taken < tailLimit) {
+          const ms = series[j]!.ms;
+          const age = refMs - ms;
+          if (age < 0) {
+            j -= 1;
+            taken += 1;
+            continue;
+          }
+          if (age > recentMs) break;
 
-        const condRow =
-          Array.isArray((candidates[idx] as any).cond) &&
-          Array.isArray(((candidates[idx] as any).cond as any)[srcLab])
-            ? ((candidates[idx] as any).cond as any)[srcLab]
-            : null;
+          const z = Math.max(-3, Math.min(3, series[j]!.z));
+          const wTime = Math.exp(-age / halfLifeMs);
 
-        if (Array.isArray(condRow) && condRow.length === 3) {
-          const p0 = Number(condRow[0]) || 0;
-          const p1 = Number(condRow[1]) || 0;
-          const p2 = Number(condRow[2]) || 0;
-          const best = p1 > p0 && p1 >= p2 ? 1 : p2 > p0 && p2 > p1 ? 2 : 0;
-          if (best === 0) vEq += w;
-          else if (best === 1) vGt += w;
-          else vLt += w;
-        } else {
-          // Back-compat fallback: treat corr sign as a hard inversion for ">" / "<".
-          let lab = srcLab;
-          if (lab === 1 && corr < 0) lab = 2;
-          else if (lab === 2 && corr < 0) lab = 1;
-          if (lab === 0) vEq += w;
-          else if (lab === 1) vGt += w;
-          else vLt += w;
+          const srcLab = labelZ(z, eqFactor); // 0="=", 1=">", 2="<"
+          const w = Math.abs(corr) * Math.min(3, Math.abs(z)) * wTime;
+          if (!Number.isFinite(w) || w <= 0) {
+            j -= 1;
+            taken += 1;
+            continue;
+          }
+
+          const condRow =
+            Array.isArray((candidates[idx] as any).cond) &&
+            Array.isArray(((candidates[idx] as any).cond as any)[srcLab])
+              ? ((candidates[idx] as any).cond as any)[srcLab]
+              : null;
+
+          if (Array.isArray(condRow) && condRow.length === 3) {
+            // Prefer the learned conditional distribution:
+            //   P(target_label | source_label), labels in order ["=", ">", "<"].
+            // Add the full row to avoid overconfident "winner-take-all" votes
+            // (aligns with the offline trainer + Rust fallback).
+            const p0 = Number(condRow[0]);
+            const p1 = Number(condRow[1]);
+            const p2 = Number(condRow[2]);
+            if (Number.isFinite(p0) && p0 > 0) vEq += w * p0;
+            if (Number.isFinite(p1) && p1 > 0) vGt += w * p1;
+            if (Number.isFinite(p2) && p2 > 0) vLt += w * p2;
+          } else {
+            // Back-compat fallback: treat corr sign as a hard inversion for ">" / "<".
+            let lab = srcLab;
+            if (lab === 1 && corr < 0) lab = 2;
+            else if (lab === 2 && corr < 0) lab = 1;
+            if (lab === 0) vEq += w;
+            else if (lab === 1) vGt += w;
+            else vLt += w;
+          }
+
+          edgeUsed = true;
+          j -= 1;
+          taken += 1;
         }
+
+        if (edgeUsed) used += 1;
       }
 
       if (!alive) return;
@@ -267,4 +297,3 @@ export function useNowcastVsPrev({
 
   return nowcastVsPrev;
 }
-

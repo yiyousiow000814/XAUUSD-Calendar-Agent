@@ -127,6 +127,7 @@ class Model:
   nowcast_enabled_wf: dict[str, dict[str, Any]]
   nowcast_global_th_wf: float
   nowcast_recent_days: int
+  nowcast_tail_limit: int
 
 
 def _load_model(path: Path) -> Model:
@@ -193,6 +194,8 @@ def _load_model(path: Path) -> Model:
 
     rel_meta = meta.get("relationships") or {}
     nowcast_recent_days = int(rel_meta.get("recent_days") or 180)
+    nowcast_tail_limit = int(rel_meta.get("tail_limit") or 6)
+    nowcast_tail_limit = max(1, min(256, int(nowcast_tail_limit)))
 
     return Model(
         eq_factor=float(eq_factor),
@@ -206,6 +209,7 @@ def _load_model(path: Path) -> Model:
         nowcast_enabled_wf=nowcast_enabled_wf,
         nowcast_global_th_wf=float(nowcast_global_th_wf),
         nowcast_recent_days=int(nowcast_recent_days),
+        nowcast_tail_limit=int(nowcast_tail_limit),
     )
 
 
@@ -303,16 +307,19 @@ def _rel_vote_predict(
     series_by_metric_af: dict[str, dict[str, Any]],
     eq_factor: float,
     recent_ns: int,
+    tail_limit: int,
 ) -> Optional[tuple[int, np.ndarray, float, int]]:
     rels = relationships_by_metric.get(metric) or []
     if not rels:
         return None
 
     votes = np.zeros(3, dtype="float64")
-    used = 0
+    used = 0  # number of source metrics that contributed (not number of points)
 
     vote_half_life_days = 60
     half_life_ns = float(vote_half_life_days) * 24.0 * 3600.0 * 1_000_000_000.0
+    # Match trainer/app behavior: use multiple recent releases per source metric (within the recent window).
+    tail_limit = max(1, min(256, int(tail_limit)))
 
     for item in rels:
         src_key = str(item.get("metric") or "").strip()
@@ -331,44 +338,61 @@ def _rel_vote_predict(
         j = int(np.searchsorted(src_t, np.int64(t_ns), side="left") - 1)
         if j < 0:
             continue
-        age = int(t_ns) - int(src_t[j])
-        if age < 0 or age > int(recent_ns):
-            continue
-        z_last = float(src_z[j])
-        if not np.isfinite(z_last):
-            continue
-        z_last = float(np.clip(z_last, -3.0, 3.0))
 
-        src_lab = int(_label_z(z_last, float(eq_factor)))  # 0="=", 1=">", 2="<"
-        w_time = math.exp(-float(age) / max(1.0, half_life_ns))
-        w = abs(c) * min(3.0, abs(z_last)) * w_time
-        if not np.isfinite(w) or w <= 0:
-            continue
+        edge_used = False
+        taken = 0
+        while j >= 0 and taken < tail_limit:
+            age = int(t_ns) - int(src_t[j])
+            if age < 0:
+                j -= 1
+                continue
+            if age > int(recent_ns):
+                break
 
-        if (
-            isinstance(cond, list)
-            and len(cond) == 3
-            and isinstance(cond[src_lab], list)
-            and len(cond[src_lab]) == 3
-        ):
-            row = cond[src_lab]
-            best = 0
-            best_v = float(row[0] or 0.0)
-            for k in (1, 2):
-                v = float(row[k] or 0.0)
-                if v > best_v:
-                    best = k
-                    best_v = v
-            votes[int(best)] += w
-        else:
-            # Back-compat fallback: treat corr sign as a hard inversion for ">" / "<".
-            lab = src_lab
-            if lab == 1 and c < 0:
-                lab = 2
-            elif lab == 2 and c < 0:
-                lab = 1
-            votes[lab] += w
-        used += 1
+            z_last = float(src_z[j])
+            if not np.isfinite(z_last):
+                j -= 1
+                continue
+            z_last = float(np.clip(z_last, -3.0, 3.0))
+
+            src_lab = int(_label_z(z_last, float(eq_factor)))  # 0="=", 1=">", 2="<"
+            w_time = math.exp(-float(age) / max(1.0, half_life_ns))
+            w = abs(c) * min(3.0, abs(z_last)) * w_time
+            if not np.isfinite(w) or w <= 0:
+                j -= 1
+                taken += 1
+                continue
+
+            if (
+                isinstance(cond, list)
+                and len(cond) == 3
+                and isinstance(cond[src_lab], list)
+                and len(cond[src_lab]) == 3
+            ):
+                # Add the full conditional distribution to avoid overconfident "winner-take-all" votes.
+                row = cond[src_lab]
+                for k in (0, 1, 2):
+                    try:
+                        p = float(row[k] or 0.0)
+                    except Exception:
+                        p = 0.0
+                    if np.isfinite(p) and p > 0.0:
+                        votes[int(k)] += float(w) * float(p)
+            else:
+                # Back-compat fallback: treat corr sign as a hard inversion for ">" / "<".
+                lab = src_lab
+                if lab == 1 and c < 0:
+                    lab = 2
+                elif lab == 2 and c < 0:
+                    lab = 1
+                votes[lab] += w
+
+            edge_used = True
+            j -= 1
+            taken += 1
+
+        if edge_used:
+            used += 1
 
     if used <= 0 or not (float(votes.sum()) > 0):
         return None
@@ -544,6 +568,7 @@ def main() -> int:
                 series_by_metric_af=series_by_metric_af,
                 eq_factor=eq_factor,
                 recent_ns=int(recent_ns),
+                tail_limit=int(model.nowcast_tail_limit),
             )
             if res is not None:
                 npred, nprobs, nscore, nused = res

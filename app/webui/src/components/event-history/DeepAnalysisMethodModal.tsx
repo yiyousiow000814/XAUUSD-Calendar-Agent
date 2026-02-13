@@ -120,7 +120,8 @@ function MiniFlow() {
     >
       <rect x="10" y="10" width="500" height="120" rx="16" className="deep-tut-surface" />
 
-      <rect x="26" y="30" width="158" height="40" rx="12" className="deep-tut-flow-box" />
+      {/* Slightly taller so the subtitle doesn't kiss the bottom edge. */}
+      <rect x="26" y="30" width="158" height="44" rx="12" className="deep-tut-flow-box" />
       <text x="38" y="54" className="deep-tut-flow-t">
         Release history
       </text>
@@ -133,9 +134,9 @@ function MiniFlow() {
         Deep signals
       </text>
 
-      <path d="M 194 50 L 238 50" className="deep-tut-flow-arrow" />
+      <path d="M 194 52 L 238 52" className="deep-tut-flow-arrow" />
       <path d="M 194 100 L 238 100" className="deep-tut-flow-arrow" />
-      <path d="M 238 50 L 232 46 L 232 54 Z" className="deep-tut-flow-arrowhead" />
+      <path d="M 238 52 L 232 48 L 232 56 Z" className="deep-tut-flow-arrowhead" />
       <path d="M 238 100 L 232 96 L 232 104 Z" className="deep-tut-flow-arrowhead" />
 
       <rect x="250" y="28" width="244" height="44" rx="12" className="deep-tut-flow-out" />
@@ -270,6 +271,10 @@ export function DeepAnalysisMethodModal({
                     One single line that summarizes the market bias around the selected event time (t=0).
                   </div>
                   <div className="deep-tut-example">Example: You always see one main path, not one path per event.</div>
+                  <div className="deep-tut-example">
+                    Quick read: we only surface horizons with a meaningful edge (e.g. 10pp+ away from 50%). If none
+                    qualify, we show “No clear edge”. Edge means |P(up) - 50%|; very small edges are usually noise.
+                  </div>
                 </div>
               </div>
               <div className="deep-tut-card">
