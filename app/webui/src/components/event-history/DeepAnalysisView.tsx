@@ -130,7 +130,7 @@ export function DeepAnalysisView({
     const hh = pad(shifted.getUTCHours());
     const min = pad(shifted.getUTCMinutes());
     return `${dd}-${mm} ${hh}:${min} ${displayTzLabel}`;
-  }, [anchorDtUtc, displayOffsetMinutes]);
+  }, [anchorDtUtc, displayOffsetMinutes, displayTzLabel]);
 
 
   const localPredict = useLocalPredictRelease({
@@ -1135,7 +1135,7 @@ export function DeepAnalysisView({
           <span className="deep-evidence-k">History points</span>
           <span className="deep-evidence-v">{points.length}</span>
         </div>
-      <div className="deep-evidence-row">
+        <div className="deep-evidence-row">
           <span className="deep-evidence-k">Model</span>
           <span className="deep-evidence-v">
             {isFallback ? "Fallback model" : "Deep JSON model"}
@@ -1266,7 +1266,7 @@ export function DeepAnalysisView({
           signalsUsed={Array.isArray(data.signalsUsed) ? data.signalsUsed : null}
         />
 
-        <div className="deep-panel-scroll">{content}</div>
+        {fullOpen ? null : <div className="deep-panel-scroll">{content}</div>}
       </div>
     </div>
   );
