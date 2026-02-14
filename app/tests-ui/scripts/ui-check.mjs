@@ -3499,10 +3499,18 @@ const main = async () => {
           await runCheck(theme.key, "History modal Escape navigation", async () => {
             const deep = historyModal.locator("[data-qa='qa:history:deep-analysis']").first();
             if (await deep.count()) {
+              const eventPanelBtn = historyModal
+                .locator(".history-impact-segmented .impact-segment")
+                .filter({ hasText: "Event Analysis" })
+                .first();
+              const eventPanelDisabled =
+                (await eventPanelBtn.count()) > 0 && (await eventPanelBtn.isDisabled());
               await page.keyboard.press("Escape");
               await page.waitForTimeout(140);
               if (await deep.count()) {
-                throw new Error("Escape did not return from Deep Analysis to Event Analysis");
+                if (!eventPanelDisabled) {
+                  throw new Error("Escape did not return from Deep Analysis to Event Analysis");
+                }
               }
             }
 

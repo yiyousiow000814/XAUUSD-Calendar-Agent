@@ -537,12 +537,18 @@ export function DeepAnalysisView({
   const pvChoice = pvNowcast ?? modelPv ?? localPredict.proxyVsPrev;
   const pvKind: "nowcast" | "model" | "proxy" = pvNowcast ? "nowcast" : modelPv ? "model" : "proxy";
   const pvReliable = pvKind !== "proxy" && Boolean((pvChoice as any)?.reliable);
+  const hasPredictReleaseInputs = [selectionActual, selectionForecast, selectionPrevious].some((value) => {
+    const parsed = parseNumber(value);
+    return typeof parsed === "number" && Number.isFinite(parsed);
+  });
 
   const content = (
     <>
-      <div className="deep-block-title">Predict Release</div>
-      <div className="deep-grid">
-        <div className="deep-card">
+      {hasPredictReleaseInputs ? (
+        <>
+          <div className="deep-block-title">Predict Release</div>
+          <div className="deep-grid">
+            <div className="deep-card">
           <div className="deep-card-k">Actual vs Previous</div>
           {(() => {
             const pv = pvChoice;
@@ -699,9 +705,9 @@ export function DeepAnalysisView({
               </div>
             </div>
           ) : null}
-        </div>
+            </div>
 
-        <div className="deep-card">
+            <div className="deep-card">
           <div className="deep-card-k">Actual vs Forecast</div>
           {(() => {
             const f0 = parseNumber(selectionForecast);
@@ -872,8 +878,10 @@ export function DeepAnalysisView({
               </div>
             );
           })()}
-        </div>
-      </div>
+            </div>
+          </div>
+        </>
+      ) : null}
 
       {(() => {
         return (
