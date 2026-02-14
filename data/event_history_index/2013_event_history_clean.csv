@@ -323,6 +323,7 @@ BRL::Foreign Exchange Flows::none,BRL,Foreign Exchange Flows,,2013-01-03,22:30,-
 USD::Bloomberg Consumer Confidence::none,USD,Bloomberg Consumer Confidence,,2013-01-03,22:45,34.1,34.1,,,33.95,33.95,
 USD::ISM-New York Index::none,USD,ISM-New York Index,,2013-01-03,22:45,563.20,564.90,563.20,,561.10,561.10,
 NA::Russia - New Year's Day::none,,Russia - New Year's Day,,2013-01-04,All Day,,,,,,,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2013-01-04,03:00,,,,,,,
 AUD::CFTC AUD speculative net positions::none,AUD,CFTC AUD speculative net positions,,2013-01-04,04:30,79.5K,79.5K,,,75.4K,75.4K,
 CAD::CFTC CAD speculative net positions::none,CAD,CFTC CAD speculative net positions,,2013-01-04,04:30,65.9K,65.9K,,,63.4K,63.4K,
 CHF::CFTC CHF speculative net positions::none,CHF,CFTC CHF speculative net positions,,2013-01-04,04:30,11.6K,11.6K,,,11.4K,11.4K,
@@ -826,6 +827,7 @@ NA::Tunisia - Prophet's Birthday::none,,Tunisia - Prophet's Birthday,,2013-01-25
 ARS::Industrial Production::y/y,ARS,Industrial Production (YoY),,2013-01-25,03:00,-3.4%,-3.4%,,-0.6%,-1.4%,-1.4%,
 JPY::National Core CPI::y/y,JPY,National Core CPI (YoY),,2013-01-25,07:30,-0.2%,-0.2%,,-0.2%,-0.1%,-0.1%,
 JPY::Tokyo Core CPI::y/y,JPY,Tokyo Core CPI (YoY),,2013-01-25,07:30,-0.5%,-0.5%,,-0.5%,-0.6%,-0.6%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2013-01-25,07:50,,,,,,,
 PHP::Trade Balance::none,PHP,Trade Balance,,2013-01-25,09:00,"-1,586.0M","-1,586.0M",,-778.0M,-832.0M,-832.0M,
 SGD::Industrial Production::y/y,SGD,Industrial Production (YoY),,2013-01-25,13:00,-0.6%,1.3%,-0.6%,-4.3%,2.9%,2.9%,3.1%
 HUF::Retail Sales::y/y,HUF,Retail Sales (YoY),,2013-01-25,16:00,-4.10%,-4.10%,,-3.00%,-3.70%,-3.70%,
@@ -1616,6 +1618,7 @@ EUR::French 3-Month BTF Auction::none,EUR,French 3-Month BTF Auction,,2013-02-18
 EUR::French 6-Month BTF Auction::none,EUR,French 6-Month BTF Auction,,2013-02-18,22:00,0.050%,0.050%,,,0.048%,0.048%,
 MXN::GDP::y/y,MXN,GDP (YoY),,2013-02-18,22:00,3.20%,3.20%,,3.57%,3.20%,3.20%,3.30%
 EUR::ECB President Draghi Speaks::none,EUR,ECB President Draghi Speaks,,2013-02-18,22:30,,,,,,,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2013-02-19,07:50,,,,,,,
 AUD::RBA Meeting Minutes::none,AUD,RBA Meeting Minutes,,2013-02-19,08:30,,,,,,,
 JPY::5-Year JGB Auction::none,JPY,5-Year JGB Auction,,2013-02-19,10:45,0.122%,0.122%,,,0.156%,0.156%,
 EUR::Finnish CPI::y/y,EUR,Finnish CPI (YoY),,2013-02-19,15:00,1.60%,1.60%,,,2.40%,2.40%,
@@ -1678,6 +1681,7 @@ USD::Redbook::m/m,USD,Redbook (MoM),,2013-02-20,21:55,1.50%,1.50%,,,1.10%,1.10%,
 EUR::Consumer Confidence::none,EUR,Consumer Confidence,,2013-02-20,23:00,-23.6,-23.9,-23.6,-23.1,-23.9,-23.9,-24.0
 BRL::Foreign Exchange Flows::none,BRL,Foreign Exchange Flows,,2013-02-20,23:30,-0.82B,-0.82B,,,-0.07B,-0.07B,
 USD::4-Week Bill Auction::none,USD,4-Week Bill Auction,,2013-02-21,00:30,0.115%,0.115%,,,0.080%,0.080%,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2013-02-21,03:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2013-02-21,04:30,"3,095.15B","3,095.15B",,,"3,074.23B","3,074.23B",
 USD::API Weekly Crude Oil Stock::none,USD,API Weekly Crude Oil Stock,,2013-02-21,05:30,2.96M,2.96M,,2.35M,-2.31M,-2.31M,
 USD::API Weekly Gasoline Stock::none,USD,API Weekly Gasoline Stock,,2013-02-21,05:30,-0.12M,-0.12M,,-1.18M,-0.81M,-0.81M,
@@ -2355,6 +2359,7 @@ USD::3-Month Bill Auction::none,USD,3-Month Bill Auction,,2013-03-11,23:30,0.095
 USD::6-Month Bill Auction::none,USD,6-Month Bill Auction,,2013-03-11,23:30,0.115%,0.115%,,,0.120%,0.120%,
 NA::Indonesia - Hari Raya Nyepi::none,,Indonesia - Hari Raya Nyepi,,2013-03-12,All Day,,,,,,,
 JPY::BSI Large Manufacturing Conditions::none,JPY,BSI Large Manufacturing Conditions,,2013-03-12,07:50,-4.6,-4.6,,-6.2,-10.3,-10.3,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2013-03-12,07:50,,,,,,,
 JPY::PPI::y/y,JPY,PPI (YoY),,2013-03-12,07:50,-0.1%,-0.1%,,-0.1%,-0.2%,-0.2%,
 JPY::Tertiary Industry Activity Index::m/m,JPY,Tertiary Industry Activity Index (MoM),,2013-03-12,07:50,-1.1%,-1.5%,-1.1%,-0.1%,1.1%,1.1%,1.4%
 AUD::NAB Business Confidence::none,AUD,NAB Business Confidence,,2013-03-12,08:30,1,1,,,3,3,
@@ -3288,6 +3293,7 @@ NA::Philippines - Araw ng Kagitingan::none,,Philippines - Araw ng Kagitingan,,20
 NA::Tunisia - Martyr's Day::none,,Tunisia - Martyr's Day,,2013-04-09,All Day,,,,,,,
 NZD::NZIER Business Confidence::none,NZD,NZIER Business Confidence,,2013-04-09,06:00,23,23,,,20,20,
 GBP::BRC Retail Sales Monitor::y/y,GBP,BRC Retail Sales Monitor (YoY),,2013-04-09,07:00,1.9%,1.9%,,2.5%,2.7%,2.7%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2013-04-09,07:50,,,,,,,
 CNY::CPI::m/m,CNY,CPI (MoM),,2013-04-09,09:30,-0.9%,-0.9%,,-0.6%,1.1%,1.1%,
 CNY::CPI::y/y,CNY,CPI (YoY),,2013-04-09,09:30,2.1%,2.1%,,2.4%,3.2%,3.2%,
 AUD::NAB Business Confidence::none,AUD,NAB Business Confidence,,2013-04-09,09:30,2,2,,,1,1,
@@ -3353,6 +3359,7 @@ RUB::Trade Balance::none,RUB,Trade Balance,,2013-04-10,18:00,15.90B,15.90B,,16.5
 PLN::Interest Rate Decision::none,PLN,Interest Rate Decision,,2013-04-10,19:00,3.25%,3.25%,,3.25%,3.25%,3.25%,
 USD::MBA Mortgage Applications::w/w,USD,MBA Mortgage Applications (WoW),,2013-04-10,19:00,4.5%,4.5%,,,-4.0%,-4.0%,
 BRL::CPI::y/y,BRL,CPI (YoY),,2013-04-10,20:00,6.59%,6.59%,,6.62%,6.31%,6.31%,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2013-04-10,21:00,,,,,,,
 PEN::Trade Balance::none,PEN,Trade Balance,,2013-04-10,21:00,0.00M,-378.00M,0.00M,-200.00M,-484.00M,-484.00M,-468.00M
 USD::Crude Oil Inventories::none,USD,Crude Oil Inventories,,2013-04-10,22:30,0.250M,0.250M,,1.400M,2.707M,2.707M,
 USD::Gasoline Inventories::none,USD,Gasoline Inventories,,2013-04-10,22:30,1.699M,1.699M,,-1.089M,-0.572M,-0.572M,
@@ -4114,6 +4121,7 @@ USD::Total Vehicle Sales::none,USD,Total Vehicle Sales,,2013-05-02,04:00,14.90M,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2013-05-02,04:30,"3,317.19B","3,317.19B",,,"3,318.65B","3,318.65B",
 CAD::BoC Gov Carney Speaks::none,CAD,BoC Gov Carney Speaks,,2013-05-02,06:05,,,,,,,
 JPY::Monetary Base::y/y,JPY,Monetary Base (YoY),,2013-05-02,07:50,23.1%,23.1%,,,19.8%,19.8%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2013-05-02,07:50,,,,,,,
 KRW::S&P Global South Korea Manufacturing PMI::none,KRW,S&P Global South Korea Manufacturing PMI,,2013-05-02,08:00,52.60,51.10,52.60,,52.00,52.00,
 NZD::ANZ Commodity Price Index::m/m,NZD,ANZ Commodity Price Index (MoM),,2013-05-02,09:00,12.6%,12.6%,,,7.4%,7.4%,
 AUD::Building Approvals::m/m,AUD,Building Approvals (MoM),,2013-05-02,09:30,-5.5%,-5.5%,,1.3%,3.0%,3.0%,3.1%
@@ -4662,6 +4670,7 @@ USD::Treasury Secretary Lew Speaks::none,USD,Treasury Secretary Lew Speaks,,2013
 USD::Crude Oil Inventories::none,USD,Crude Oil Inventories,,2013-05-22,22:30,-0.338M,-0.338M,,-0.778M,-0.624M,-0.624M,
 USD::Gasoline Inventories::none,USD,Gasoline Inventories,,2013-05-22,22:30,3.015M,3.015M,,0.022M,2.588M,2.588M,
 BRL::Foreign Exchange Flows::none,BRL,Foreign Exchange Flows,,2013-05-22,23:30,7.36B,7.36B,,,0.86B,0.86B,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2013-05-23,02:00,,,,,,,
 ARS::Trade Balance::none,ARS,Trade Balance,,2013-05-23,03:00,"1,151M","1,152M","1,151M","1,400M",510M,510M,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2013-05-23,04:30,"3,398.71B","3,398.71B",,,"3,354.27B","3,354.27B",
 SGD::GDP::y/y,SGD,GDP (YoY),,2013-05-23,08:00,0.2%,0.2%,,-0.5%,1.5%,1.5%,-0.6%
@@ -4742,6 +4751,7 @@ JPY::BoJ Governor Kuroda Speaks::none,JPY,BoJ Governor Kuroda Speaks,,2013-05-26
 NA::United Kingdom - Bank Holiday::none,,United Kingdom - Bank Holiday,,2013-05-27,All Day,,,,,,,
 NA::United States - Memorial Day::none,,United States - Memorial Day,,2013-05-27,All Day,,,,,,,
 KRW::Consumer Confidence::none,KRW,Consumer Confidence,,2013-05-27,05:00,104,104,,103,102,102,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2013-05-27,07:50,,,,,,,
 EUR::Dutch Business Confidence::none,EUR,Dutch Business Confidence,,2013-05-27,15:30,-4.20,-4.20,,,-5.60,-5.60,
 SEK::Retail Sales::m/m,SEK,Retail Sales (MoM),,2013-05-27,15:30,0.10%,-0.10%,0.10%,0.50%,-0.60%,-0.60%,-0.40%
 NOK::Unemployment Rate::none,NOK,Unemployment Rate,,2013-05-27,16:00,3.70%,3.70%,,3.50%,3.60%,3.60%,3.50%
@@ -5501,6 +5511,7 @@ EUR::German Buba President Weidmann Speaks::none,EUR,German Buba President Weidm
 CLP::Interest Rate Decision::none,CLP,Interest Rate Decision,,2013-06-14,06:00,5.00%,5.00%,,5.00%,5.00%,5.00%,
 NZD::Business NZ PMI::none,NZD,Business NZ PMI,,2013-06-14,06:30,59.2,59.0,59.2,,55.2,55.2,54.5
 NZD::FPI::m/m,NZD,FPI (MoM),,2013-06-14,06:45,0.3%,0.3%,,,0.2%,0.2%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2013-06-14,07:50,,,,,,,
 PEN::Interest Rate Decision::none,PEN,Interest Rate Decision,,2013-06-14,08:00,4.25%,4.25%,,4.25%,4.25%,4.25%,
 JPY::5-Year JGB Auction::none,JPY,5-Year JGB Auction,,2013-06-14,10:45,0.361%,0.361%,,,0.404%,0.404%,
 KRW::Trade Balance::none,KRW,Trade Balance,,2013-06-14,11:00,5.92B,5.92B,,,6.03B,6.03B,
@@ -6406,6 +6417,7 @@ PEN::Trade Balance::none,PEN,Trade Balance,,2013-07-10,23:00,-404.00M,-404.00M,,
 BRL::Foreign Exchange Flows::none,BRL,Foreign Exchange Flows,,2013-07-10,23:30,-0.78B,-0.78B,,,-2.64B,-2.64B,
 NA::Pakistan - Bank Holiday::none,,Pakistan - Bank Holiday,,2013-07-11,All Day,,,,,,,
 USD::10-Year Note Auction::none,USD,10-Year Note Auction,,2013-07-11,01:00,2.670%,2.670%,,,2.209%,2.209%,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2013-07-11,02:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2013-07-11,04:30,"3,504.10B","3,504.10B",,,"3,492.74B","3,492.74B",
 BRL::Interest Rate Decision::none,BRL,Interest Rate Decision,,2013-07-11,05:45,8.50%,8.50%,,8.50%,8.00%,8.00%,
 NZD::Business NZ PMI::none,NZD,Business NZ PMI,,2013-07-11,06:30,54.7,54.7,,,59.0,59.0,59.2
@@ -6576,6 +6588,7 @@ USD::Cleveland CPI::m/m,USD,Cleveland CPI (MoM),,2013-07-16,23:30,0.2%,0.2%,,,0.
 NZD::GlobalDairyTrade Price Index::none,NZD,GlobalDairyTrade Price Index,,2013-07-17,04:00,5.30%,5.30%,,,0.70%,0.70%,
 KRW::PPI::m/m,KRW,PPI (MoM),,2013-07-17,05:00,0.00%,0.00%,,,-0.40%,-0.40%,
 KRW::PPI::y/y,KRW,PPI (YoY),,2013-07-17,05:00,-1.40%,-1.40%,,,-2.60%,-2.60%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2013-07-17,07:50,,,,,,,
 AUD::MI Leading Index::m/m,AUD,MI Leading Index (MoM),,2013-07-17,08:30,0.2%,0.2%,,,0.7%,0.7%,0.6%
 CNY::FDI::none,CNY,FDI,,2013-07-17,10:00,4.90%,4.90%,,,1.03%,1.03%,
 JPY::5-Year JGB Auction::none,JPY,5-Year JGB Auction,,2013-07-17,11:45,0.295%,0.295%,,,0.361%,0.361%,
@@ -7478,6 +7491,7 @@ NA::Tunisia - Women's Day::none,,Tunisia - Women's Day,,2013-08-13,All Day,,,,,,
 USD::Federal Budget Balance::none,USD,Federal Budget Balance,,2013-08-13,02:00,-97.6B,-97.6B,,-96.0B,116.5B,116.5B,
 JPY::Core Machinery Orders::m/m,JPY,Core Machinery Orders (MoM),,2013-08-13,07:50,-2.7%,-2.7%,,-7.2%,10.5%,10.5%,
 JPY::Core Machinery Orders::y/y,JPY,Core Machinery Orders (YoY),,2013-08-13,07:50,4.9%,4.9%,,2.4%,16.5%,16.5%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2013-08-13,07:50,,,,,,,
 AUD::NAB Business Confidence::none,AUD,NAB Business Confidence,,2013-08-13,09:30,-3,-3,,,0,0,
 AUD::NAB Business Survey::none,AUD,NAB Business Survey,,2013-08-13,09:30,-7.00,-7.00,,,-7.00,-7.00,-8.00
 JPY::5-Year JGB Auction::none,JPY,5-Year JGB Auction,,2013-08-13,11:45,0.285%,0.285%,,,0.295%,0.295%,
@@ -7743,6 +7757,7 @@ USD::Crude Oil Inventories::none,USD,Crude Oil Inventories,,2013-08-21,22:30,-1.
 USD::EIA Weekly Distillates Stocks::none,USD,EIA Weekly Distillates Stocks,,2013-08-21,22:30,0.871M,0.871M,,0.857M,2.027M,2.027M,
 USD::Gasoline Inventories::none,USD,Gasoline Inventories,,2013-08-21,22:30,-4.029M,-4.029M,,-1.486M,-1.169M,-1.169M,
 BRL::Foreign Exchange Flows::none,BRL,Foreign Exchange Flows,,2013-08-21,23:30,-0.28B,-0.28B,,,-1.09B,-1.09B,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2013-08-22,02:00,,,,,,,
 ARS::Trade Balance::none,ARS,Trade Balance,,2013-08-22,03:00,770M,770M,,"1,100M","1,155M","1,155M",
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2013-08-22,04:30,"3,645.67B","3,645.67B",,,"3,646.32B","3,646.32B",
 JPY::Foreign Bonds Buying::none,JPY,Foreign Bonds Buying,,2013-08-22,07:50,-903.8B,-903.6B,-903.8B,,"1,625.2B","1,625.2B","1,614.8B"
@@ -8461,6 +8476,7 @@ USD::3-Month Bill Auction::none,USD,3-Month Bill Auction,,2013-09-09,23:30,0.020
 USD::6-Month Bill Auction::none,USD,6-Month Bill Auction,,2013-09-09,23:30,0.035%,0.035%,,,0.055%,0.055%,
 USD::Consumer Credit::none,USD,Consumer Credit,,2013-09-10,03:00,10.44B,10.40B,10.44B,12.50B,11.92B,11.92B,13.80B
 JPY::M2 Money Stock::y/y,JPY,M2 Money Stock (YoY),,2013-09-10,07:50,3.7%,3.8%,3.7%,3.8%,3.7%,3.7%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2013-09-10,07:50,,,,,,,
 JPY::Tertiary Industry Activity Index::m/m,JPY,Tertiary Industry Activity Index (MoM),,2013-09-10,07:50,-0.4%,-0.4%,,-0.4%,-0.5%,-0.5%,-0.3%
 AUD::NAB Business Confidence::none,AUD,NAB Business Confidence,,2013-09-10,09:30,6,4,6,,-3,-3,
 AUD::NAB Business Survey::none,AUD,NAB Business Survey,,2013-09-10,09:30,-6.00,-7.00,-6.00,,-7.00,-7.00,
@@ -9428,6 +9444,7 @@ USD::API Weekly Distillates Stocks::none,USD,API Weekly Distillates Stocks,,2013
 USD::API Weekly Gasoline Stock::none,USD,API Weekly Gasoline Stock,,2013-10-09,04:30,-2.80M,-2.80M,,1.30M,,3.30M,
 GBP::BRC Shop Price Index::y/y,GBP,BRC Shop Price Index (YoY),,2013-10-09,07:00,-0.2%,-0.2%,,,-0.5%,-0.5%,
 AUD::Westpac Consumer Sentiment::none,AUD,Westpac Consumer Sentiment,,2013-10-09,07:30,-2.10%,-2.10%,,,4.70%,4.70%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2013-10-09,07:50,,,,,,,
 KRW::M2 Money supply::none,KRW,M2 Money supply,,2013-10-09,11:00,7.30%,7.30%,,,6.80%,6.80%,
 INR::Exports (USD)::none,INR,Exports (USD),,2013-10-09,14:00,27.68B,27.68B,,,26.14B,26.14B,
 INR::Imports (USD)::none,INR,Imports (USD),,2013-10-09,14:00,34.44B,34.44B,,,37.05B,37.05B,
@@ -9459,6 +9476,7 @@ USD::Gasoline Inventories::none,USD,Gasoline Inventories,,2013-10-09,22:30,0.149
 BRL::Foreign Exchange Flows::none,BRL,Foreign Exchange Flows,,2013-10-09,23:30,-2.21B,-2.21B,,,-2.57B,-2.57B,
 NA::Taiwan - National Day::none,,Taiwan - National Day,,2013-10-10,All Day,,,,,,,
 USD::10-Year Note Auction::none,USD,10-Year Note Auction,,2013-10-10,01:00,2.657%,2.657%,,,2.946%,2.946%,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2013-10-10,02:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2013-10-10,04:30,"3,758.66B","3,758.66B",,,"3,747.39B","3,747.39B",
 NZD::Business NZ PMI::none,NZD,Business NZ PMI,,2013-10-10,05:30,54.3,54.2,54.3,,57.1,57.1,57.5
 BRL::Interest Rate Decision::none,BRL,Interest Rate Decision,,2013-10-10,05:45,9.50%,9.50%,,9.50%,9.00%,9.00%,
@@ -10461,6 +10479,7 @@ USD::API Weekly Gasoline Stock::none,USD,API Weekly Gasoline Stock,,2013-11-06,0
 NZD::Employment Change::q/q,NZD,Employment Change (QoQ),,2013-11-06,05:45,1.2%,1.2%,,0.6%,0.4%,0.4%,
 NZD::Labor Cost Index::q/q,NZD,Labor Cost Index (QoQ),,2013-11-06,05:45,0.4%,0.4%,,0.5%,0.4%,0.4%,
 NZD::Unemployment Rate::none,NZD,Unemployment Rate,,2013-11-06,05:45,6.2%,6.2%,,6.3%,6.4%,6.4%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2013-11-06,07:50,,,,,,,
 GBP::BRC Shop Price Index::y/y,GBP,BRC Shop Price Index (YoY),,2013-11-06,08:00,-0.5%,-0.5%,,0.1%,-0.2%,-0.2%,
 COP::CPI::y/y,COP,CPI (YoY),,2013-11-06,08:00,1.84%,1.84%,,2.23%,2.27%,2.27%,
 AUD::Trade Balance::none,AUD,Trade Balance,,2013-11-06,08:30,-0.284B,-0.271B,-0.284B,-0.450B,-0.693B,-0.693B,-0.815B
@@ -10951,6 +10970,7 @@ USD::EIA Weekly Distillates Stocks::none,USD,EIA Weekly Distillates Stocks,,2013
 USD::Gasoline Inventories::none,USD,Gasoline Inventories,,2013-11-20,23:30,-0.345M,-0.345M,,-0.256M,-0.838M,-0.838M,
 USD::Cleveland CPI::m/m,USD,Cleveland CPI (MoM),,2013-11-21,00:30,0.1%,0.1%,,,0.2%,0.2%,
 USD::FOMC Member Bullard Speaks::none,USD,FOMC Member Bullard Speaks,,2013-11-21,01:10,,,,,,,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2013-11-21,03:00,,,,,,,
 ARS::Unemployment Rate::none,ARS,Unemployment Rate,,2013-11-21,03:00,6.8%,6.8%,,7.0%,7.2%,7.2%,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2013-11-21,04:30,"3,906.62B","3,906.62B",,,"3,907.42B","3,907.42B",
 COP::Industrial Production::y/y,COP,Industrial Production (YoY),,2013-11-21,05:00,-1.8%,-1.6%,-1.8%,-0.5%,-3.9%,-3.9%,
@@ -11065,6 +11085,7 @@ KRW::Consumer Confidence::none,KRW,Consumer Confidence,,2013-11-26,05:00,107,107
 EUR::German Buba President Weidmann Speaks::none,EUR,German Buba President Weidmann Speaks,,2013-11-26,05:15,,,,,,,
 AUD::RBA Governor Lowe Speaks::none,AUD,RBA Governor Lowe Speaks,,2013-11-26,06:15,,,,,,,
 JPY::Corporate Services Price Index (CSPI)::y/y,JPY,Corporate Services Price Index (CSPI) (YoY),,2013-11-26,07:50,0.8%,0.8%,,0.9%,0.7%,0.7%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2013-11-26,07:50,,,,,,,
 PHP::Trade Balance::none,PHP,Trade Balance,,2013-11-26,09:00,-666M,-666M,,95M,-961M,-961M,
 SGD::Industrial Production::y/y,SGD,Industrial Production (YoY),,2013-11-26,13:00,8.0%,8.3%,8.0%,9.2%,9.2%,9.2%,9.3%
 EUR::Finnish Unemployment Rate::none,EUR,Finnish Unemployment Rate,,2013-11-26,15:00,8.20%,8.40%,8.20%,,8.10%,8.10%,
@@ -12370,6 +12391,7 @@ NA::United Kingdom - Boxing Day::none,,United Kingdom - Boxing Day,,2013-12-26,A
 NA::Zimbabwe - Public Holiday::none,,Zimbabwe - Public Holiday,,2013-12-26,All Day,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2013-12-26,04:30,"4,032.58B","4,032.58B",,,"4,008.06B","4,008.06B",
 KRW::Consumer Confidence::none,KRW,Consumer Confidence,,2013-12-26,05:00,107,107,,106,107,107,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2013-12-26,07:50,,,,,,,
 JPY::Construction Orders::y/y,JPY,Construction Orders (YoY),,2013-12-26,13:00,2.2%,2.2%,,,61.1%,61.1%,
 JPY::Housing Starts::y/y,JPY,Housing Starts (YoY),,2013-12-26,13:00,14.1%,14.1%,,9.2%,7.1%,7.1%,
 SGD::Industrial Production::y/y,SGD,Industrial Production (YoY),,2013-12-26,13:00,4.0%,4.0%,,5.7%,8.3%,8.3%,8.0%

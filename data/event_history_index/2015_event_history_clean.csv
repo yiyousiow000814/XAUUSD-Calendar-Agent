@@ -334,6 +334,7 @@ CAD::Ivey PMI n.s.a::none,CAD,Ivey PMI n.s.a  (Dec),dec,2015-01-07,23:00,46.7,46
 USD::Crude Oil Inventories::none,USD,Crude Oil Inventories,,2015-01-07,23:30,-3.062M,-3.062M,,0.880M,-1.754M,-1.754M,
 USD::EIA Weekly Distillates Stocks::none,USD,EIA Weekly Distillates Stocks,,2015-01-07,23:30,11.205M,11.205M,,1.860M,1.874M,1.874M,
 USD::Gasoline Inventories::none,USD,Gasoline Inventories,,2015-01-07,23:30,8.115M,8.115M,,3.380M,2.951M,2.951M,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2015-01-08,03:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2015-01-08,04:30,"4,499.52B","4,499.52B",,,"4,497.66B","4,497.66B",
 USD::Chicago Fed President Evans Speaks::none,USD,Chicago Fed President Evans Speaks,,2015-01-08,07:30,,,,,,,
 JPY::Foreign Bonds Buying::none,JPY,Foreign Bonds Buying,,2015-01-08,07:50,19.7B,20.1B,19.7B,,"-1,362.3B","-1,362.3B",
@@ -1080,6 +1081,7 @@ JPY::Exports::y/y,JPY,Exports (YoY)  (Dec),dec,2015-01-26,07:50,12.9%,12.9%,,11.
 JPY::Imports::y/y,JPY,Imports (YoY)  (Dec),dec,2015-01-26,07:50,1.9%,1.9%,,2.3%,-1.7%,-1.7%,
 JPY::Trade Balance::none,JPY,Trade Balance  (Dec),dec,2015-01-26,07:50,-661B,-661B,,-740B,-892B,-892B,
 JPY::Adjusted Trade Balance::none,JPY,Adjusted Trade Balance,,2015-01-26,07:50,-0.71T,-0.62T,-0.71T,-0.74T,-0.83T,-0.83T,-0.93T
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-01-26,07:50,,,,,,,
 NZD::Credit Card Spending::y/y,NZD,Credit Card Spending (YoY),,2015-01-26,10:00,4.5%,4.5%,,,5.1%,5.1%,5.2%
 SGD::Industrial Production::m/m,SGD,Industrial Production (MoM)  (Dec),dec,2015-01-26,13:00,1.8%,2.4%,1.8%,1.4%,-1.0%,-1.0%,-1.4%
 SGD::Industrial Production::y/y,SGD,Industrial Production (YoY)  (Dec),dec,2015-01-26,13:00,-1.9%,-1.9%,,-3.9%,-2.1%,-2.1%,-2.8%
@@ -2257,6 +2259,7 @@ NA::Vietnam - Lunar New Year::none,,Vietnam - Lunar New Year,,2015-02-19,All Day
 NA::Zambia - No equity trades today::none,,Zambia - No equity trades today,,2015-02-19,All Day,,,,,,,
 USD::4-Week Bill Auction::none,USD,4-Week Bill Auction,,2015-02-19,00:30,0.010%,0.010%,,,0.015%,0.015%,
 ARS::Unemployment Rate::none,ARS,Unemployment Rate  (Q4),q4,2015-02-19,03:00,6.9%,6.9%,,7.4%,7.5%,7.5%,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2015-02-19,03:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2015-02-19,04:30,"4,496.85B","4,496.85B",,,"4,501.69B","4,501.69B",
 USD::Overall Net Capital Flow::none,USD,Overall Net Capital Flow  (Dec),dec,2015-02-19,05:00,-174.80B,-176.80B,-174.80B,,-14.30B,-14.30B,-6.30B
 USD::TIC Net Long-Term Transactions::none,USD,TIC Net Long-Term Transactions  (Dec),dec,2015-02-19,05:00,35.4B,39.2B,35.4B,41.3B,33.5B,33.5B,
@@ -2398,6 +2401,7 @@ NA::Russia - Defender of the Fatherland Day::none,,Russia - Defender of the Fath
 NA::Taiwan - Lunar New Year::none,,Taiwan - Lunar New Year,,2015-02-23,All Day,,,,,,,
 NA::Vietnam - Lunar New Year::none,,Vietnam - Lunar New Year,,2015-02-23,All Day,,,,,,,
 NGN::GDP::y/y,NGN,GDP (YoY)  (Q4),q4,2015-02-23,02:00,5.94%,5.94%,,,6.23%,6.23%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-02-23,07:50,,,,,,,
 NZD::Credit Card Spending::y/y,NZD,Credit Card Spending (YoY),,2015-02-23,10:00,6.2%,6.2%,,,4.5%,4.5%,
 SGD::CPI::y/y,SGD,CPI (YoY)  (Jan),jan,2015-02-23,13:00,-0.4%,-0.4%,,-0.3%,-0.2%,-0.2%,
 AUD::AUD/USD Index::none,AUD,AUD/USD Index,,2015-02-23,14:30,52.9%,52.9%,,,32.2%,32.2%,
@@ -3740,6 +3744,7 @@ NZD::Permanent/Long-Term Migration::none,NZD,Permanent/Long-Term Migration  (Feb
 NZD::Visitor Arrivals::m/m,NZD,Visitor Arrivals (MoM),,2015-03-20,05:45,6.9%,6.8%,6.9%,,1.2%,1.2%,0.8%
 USD::SEMI Book/Bill Ratio::none,USD,SEMI Book/Bill Ratio  (Feb),feb,2015-03-20,06:00,,,,,,,
 CLP::Interest Rate Decision::none,CLP,Interest Rate Decision  (Mar),mar,2015-03-20,06:00,3.00%,3.00%,,3.00%,3.00%,3.00%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-03-20,07:50,,,,,,,
 NZD::Credit Card Spending::y/y,NZD,Credit Card Spending (YoY),,2015-03-20,10:00,5.8%,5.8%,,,6.2%,6.2%,
 AUD::RBA Governor Stevens Speaks::none,AUD,RBA Governor Stevens Speaks,,2015-03-20,10:10,,,,,,,
 MYR::CPI::y/y,MYR,CPI (YoY)  (Feb),feb,2015-03-20,12:00,0.1%,0.1%,,0.2%,1.0%,1.0%,
@@ -4701,6 +4706,7 @@ NA::Israel - Passover II Eve::none,,Israel - Passover II Eve,,2015-04-09,All Day
 NA::Philippines - Araw ng Kagitingan::none,,Philippines - Araw ng Kagitingan,,2015-04-09,All Day,,,,,,,
 NA::Tunisia - Martyr's Day::none,,Tunisia - Martyr's Day,,2015-04-09,All Day,,,,,,,
 USD::10-Year Note Auction::none,USD,10-Year Note Auction,,2015-04-09,01:00,1.925%,1.925%,,,2.139%,2.139%,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2015-04-09,02:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2015-04-09,04:30,"4,483.42B","4,483.42B",,,"4,481.80B","4,481.80B",
 AUD::AIG Construction Index::none,AUD,AIG Construction Index  (Mar),mar,2015-04-09,07:30,50.1,50.0,50.1,,44.0,44.0,43.9
 JPY::Foreign Bonds Buying::none,JPY,Foreign Bonds Buying,,2015-04-09,07:50,"-3,073.5B","-3,072.5B","-3,073.5B",,"1,043.1B","1,043.1B","1,017.2B"
@@ -4865,6 +4871,7 @@ JPY::Core Machinery Orders::y/y,JPY,Core Machinery Orders (YoY)  (Feb),feb,2015-
 JPY::PPI::m/m,JPY,PPI (MoM)  (Mar),mar,2015-04-13,07:50,0.3%,0.3%,,-0.1%,-0.1%,-0.1%,0.0%
 JPY::PPI::y/y,JPY,PPI (YoY)  (Mar),mar,2015-04-13,07:50,0.7%,0.7%,,0.4%,0.4%,0.4%,0.5%
 JPY::M2 Money Stock::y/y,JPY,M2 Money Stock (YoY),,2015-04-13,07:50,3.6%,3.6%,,3.6%,3.5%,3.5%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-04-13,07:50,,,,,,,
 CNY::Exports::y/y,CNY,Exports (YoY)  (Mar),mar,2015-04-13,10:20,-15.0%,-15.0%,,12.0%,48.3%,48.3%,
 CNY::Imports::y/y,CNY,Imports (YoY)  (Mar),mar,2015-04-13,10:20,-12.7%,-12.7%,,-11.7%,-20.5%,-20.5%,
 CNY::Trade Balance (USD)::none,CNY,Trade Balance (USD)  (Mar),mar,2015-04-13,10:20,3.08B,3.08B,,45.35B,60.60B,60.60B,
@@ -6078,6 +6085,7 @@ USD::Natural Gas Storage::none,USD,Natural Gas Storage,,2015-05-07,22:30,76B,76B
 NA::Czech Republic - Liberation from Fascism::none,,Czech Republic - Liberation from Fascism,,2015-05-08,All Day,,,,,,,
 NA::Slovakia - End of World War II::none,,Slovakia - End of World War II,,2015-05-08,All Day,,,,,,,
 USD::Consumer Credit::none,USD,Consumer Credit  (Mar),mar,2015-05-08,03:00,20.52B,21.35B,20.52B,16.00B,14.79B,14.79B,15.52B
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-05-08,07:50,,,,,,,
 AUD::RBA Monetary Policy Statement::none,AUD,RBA Monetary Policy Statement,,2015-05-08,09:30,,,,,,,
 CNY::Exports::y/y,CNY,Exports (YoY)  (Apr),apr,2015-05-08,10:10,-6.4%,-6.4%,,2.4%,-15.0%,-15.0%,
 CNY::Imports::y/y,CNY,Imports (YoY)  (Apr),apr,2015-05-08,10:10,-16.2%,-16.2%,,-12.0%,-12.7%,-12.7%,
@@ -6675,6 +6683,7 @@ USD::Gasoline Inventories::none,USD,Gasoline Inventories,,2015-05-20,22:30,-2.77
 BRL::Foreign Exchange Flows::none,BRL,Foreign Exchange Flows,,2015-05-20,23:30,-1.58B,-1.58B,,,-2.56B,-2.56B,
 USD::U.S. Small Business Health Index::none,USD,U.S. Small Business Health Index,,2015-05-20,23:30,51.67,51.67,,,49.03,49.03,47.96
 NA::Chile - Navy Day::none,,Chile - Navy Day,,2015-05-21,All Day,,,,,,,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2015-05-21,02:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2015-05-21,04:30,"4,480.38B","4,480.38B",,,"4,501.19B","4,501.19B",
 NZD::External Migration & Visitors::none,NZD,External Migration & Visitors  (Apr),apr,2015-05-21,06:45,6.10%,6.10%,,,15.10%,15.10%,
 NZD::Permanent/Long-Term Migration::none,NZD,Permanent/Long-Term Migration  (Apr),apr,2015-05-21,06:45,"4,740","4,740",,,"5,000","5,000",
@@ -6933,6 +6942,7 @@ USD::FOMC Member Stanley Fischer Speaks::none,USD,FOMC Member Stanley Fischer Sp
 USD::2-Year Note Auction::none,USD,2-Year Note Auction,,2015-05-27,01:00,0.648%,0.648%,,,0.540%,0.540%,
 ARS::Economic Activity::y/y,ARS,Economic Activity (YoY)  (Mar),mar,2015-05-27,03:00,2.0%,2.0%,,1.5%,1.4%,1.4%,
 ARS::Industrial Production::y/y,ARS,Industrial Production (YoY)  (Apr),apr,2015-05-27,03:00,-1.5%,-1.5%,,-1.0%,-1.6%,-1.6%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-05-27,07:50,,,,,,,
 AUD::MI Leading Index::m/m,AUD,MI Leading Index (MoM),,2015-05-27,08:30,0.1%,0.0%,0.1%,,-0.3%,-0.3%,
 AUD::RBA Governor Lowe Speaks::none,AUD,RBA Governor Lowe Speaks,,2015-05-27,08:45,,,,,,,
 AUD::Construction Work Done::q/q,AUD,Construction Work Done (QoQ)  (Q1),q1,2015-05-27,09:30,-2.4%,-0.8%,-2.4%,-1.5%,-0.6%,-0.6%,-0.2%
@@ -8287,6 +8297,7 @@ USD::API Weekly Crude Oil Stock::none,USD,API Weekly Crude Oil Stock,,2015-06-24
 COP::Imports::y/y,COP,Imports (YoY)  (Apr),apr,2015-06-24,06:00,-18.20%,-18.20%,,,-5.50%,-5.50%,
 COP::Trade Balance (USD)::none,COP,Trade Balance (USD)  (Apr),apr,2015-06-24,06:00,-1.039B,-1.039B,,-0.900B,-1.048B,-1.048B,-1.010B
 JPY::Corporate Services Price Index (CSPI)::y/y,JPY,Corporate Services Price Index (CSPI) (YoY),,2015-06-24,07:50,0.6%,0.6%,,0.4%,0.7%,0.7%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-06-24,07:50,,,,,,,
 EUR::French GDP::q/q,EUR,French GDP (QoQ)  (Q1),q1,2015-06-24,13:30,0.6%,0.7%,0.6%,0.6%,0.6%,0.6%,
 CHF::Consumption Indicator::none,CHF,Consumption Indicator  (May),may,2015-06-24,14:00,1.73,1.62,1.73,,1.67,1.67,1.25
 EUR::Finnish Export Price Index::y/y,EUR,Finnish Export Price Index (YoY)  (May),may,2015-06-24,14:00,0.3%,0.3%,,,0.6%,0.6%,
@@ -8994,6 +9005,7 @@ NA::Argentina - Independence Day::none,,Argentina - Independence Day,,2015-07-09
 NA::Brazil - Sao Paulo State Rebellion Day::none,,Brazil - Sao Paulo State Rebellion Day,,2015-07-09,All Day,,,,,,,
 NA::Greece - Bank Holiday::none,,Greece - Bank Holiday,,2015-07-09,All Day,,,,,,,
 USD::10-Year Note Auction::none,USD,10-Year Note Auction,,2015-07-09,01:00,2.225%,2.225%,,,2.461%,2.461%,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2015-07-09,02:00,,,,,,,
 USD::FOMC Member Williams Speaks::none,USD,FOMC Member Williams Speaks,,2015-07-09,02:00,,,,,,,
 USD::Consumer Credit::none,USD,Consumer Credit  (May),may,2015-07-09,03:00,16.09B,16.52B,16.09B,18.50B,21.40B,21.40B,20.54B
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2015-07-09,04:30,"4,481.29B","4,481.29B",,,"4,479.13B","4,479.13B",
@@ -9567,6 +9579,7 @@ NZD::External Migration & Visitors::none,NZD,External Migration & Visitors  (Jun
 NZD::Permanent/Long-Term Migration::none,NZD,Permanent/Long-Term Migration  (Jun),jun,2015-07-21,06:45,"4,800","4,800",,,"5,140","5,140",
 NZD::Visitor Arrivals::m/m,NZD,Visitor Arrivals (MoM),,2015-07-21,06:45,-0.2%,-0.5%,-0.2%,,0.1%,0.1%,
 JPY::Reuters Tankan Index::none,JPY,Reuters Tankan Index  (Jul),jul,2015-07-21,07:30,14,14,,,14,14,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-07-21,07:50,,,,,,,
 AUD::RBA Meeting Minutes::none,AUD,RBA Meeting Minutes,,2015-07-21,09:30,,,,,,,
 NZD::Credit Card Spending::y/y,NZD,Credit Card Spending (YoY),,2015-07-21,11:00,6.5%,6.6%,6.5%,,7.2%,7.2%,7.1%
 JPY::Leading Index::none,JPY,Leading Index,,2015-07-21,13:00,106.2,106.2,,106.2,106.2,106.2,
@@ -10543,6 +10556,7 @@ USD::API Weekly Crude Oil Stock::none,USD,API Weekly Crude Oil Stock,,2015-08-12
 KRW::Unemployment Rate::none,KRW,Unemployment Rate  (Jul),jul,2015-08-12,07:00,3.7%,3.7%,,3.9%,3.9%,3.9%,
 JPY::PPI::m/m,JPY,PPI (MoM)  (Jul),jul,2015-08-12,07:50,-0.2%,-0.2%,,-0.1%,-0.2%,-0.2%,
 JPY::PPI::y/y,JPY,PPI (YoY)  (Jul),jul,2015-08-12,07:50,-3.0%,-3.0%,,-2.9%,-2.4%,-2.4%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-08-12,07:50,,,,,,,
 AUD::Westpac Consumer Sentiment::none,AUD,Westpac Consumer Sentiment  (Aug),aug,2015-08-12,08:30,7.8%,7.8%,,,-3.2%,-3.2%,
 AUD::Wage Price Index::q/q,AUD,Wage Price Index (QoQ)  (Q2),q2,2015-08-12,09:30,0.6%,0.6%,,0.6%,0.5%,0.5%,
 AUD::Wage Price Index::y/y,AUD,Wage Price Index (YoY)  (Q2),q2,2015-08-12,09:30,2.3%,2.3%,,2.3%,2.3%,2.3%,
@@ -10914,6 +10928,7 @@ BRL::Foreign Exchange Flows::none,BRL,Foreign Exchange Flows,,2015-08-19,23:30,0
 NA::Estonia - Restoration Estonia::none,,Estonia - Restoration Estonia,,2015-08-20,All Day,,,,,,,
 NA::Hungary - National Day::none,,Hungary - National Day,,2015-08-20,All Day,,,,,,,
 NA::Morocco - Day of the Kind and People Revolution::none,,Morocco - Day of the Kind and People Revolution,,2015-08-20,All Day,,,,,,,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2015-08-20,02:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2015-08-20,04:30,"4,487.21B","4,487.21B",,,"4,489.25B","4,489.25B",
 JPY::Reuters Tankan Index::none,JPY,Reuters Tankan Index  (Aug),aug,2015-08-20,07:30,17,17,,,14,14,
 JPY::Foreign Bonds Buying::none,JPY,Foreign Bonds Buying,,2015-08-20,07:50,600.3B,591.5B,600.3B,,110.8B,110.8B,124.4B
@@ -12272,6 +12287,7 @@ USD::FOMC Press Conference::none,USD,FOMC Press Conference,,2015-09-18,02:30,,,,
 KRW::PPI::m/m,KRW,PPI (MoM)  (Aug),aug,2015-09-18,05:00,-0.5%,-0.6%,-0.5%,,-0.4%,-0.4%,-0.3%
 KRW::PPI::y/y,KRW,PPI (YoY)  (Aug),aug,2015-09-18,05:00,-4.4%,-4.5%,-4.4%,,-4.0%,-4.0%,
 AUD::RBA Governor Stevens Speaks::none,AUD,RBA Governor Stevens Speaks,,2015-09-18,07:30,,,,,,,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-09-18,07:50,,,,,,,
 CNY::House Prices::y/y,CNY,House Prices (YoY)  (Aug),aug,2015-09-18,09:30,-2.3%,-2.3%,,,-3.7%,-3.7%,
 EUR::Dutch Consumer Spending::none,EUR,Dutch Consumer Spending  (Jul),jul,2015-09-18,12:45,1.3%,1.3%,,,2.4%,2.4%,2.2%
 HUF::Gross Wages::y/y,HUF,Gross Wages (YoY)  (Jul),jul,2015-09-18,15:00,3.1%,3.1%,,,3.6%,3.6%,
@@ -13244,6 +13260,7 @@ NA::Taiwan - National Day::none,,Taiwan - National Day,,2015-10-09,All Day,,,,,,
 NA::Uganda - Independence Day::none,,Uganda - Independence Day,,2015-10-09,All Day,,,,,,,
 USD::30-Year Bond Auction::none,USD,30-Year Bond Auction,,2015-10-09,01:00,2.914%,2.914%,,,2.980%,2.980%,
 GBP::BoE Gov Carney Speaks::none,GBP,BoE Gov Carney Speaks,,2015-10-09,02:00,,,,,,,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2015-10-09,02:00,,,,,,,
 USD::FOMC Member Williams Speaks::none,USD,FOMC Member Williams Speaks,,2015-10-09,03:30,,,,,,,
 NZD::Electronic Card Retail Sales::m/m,NZD,Electronic Card Retail Sales (MoM)  (Sep),sep,2015-10-09,05:45,0.9%,0.9%,,,0.5%,0.5%,
 NZD::Electronic Card Retail Sales::y/y,NZD,Electronic Card Retail Sales (YoY)  (Sep),sep,2015-10-09,05:45,6.1%,6.1%,,,4.2%,4.2%,
@@ -13363,6 +13380,7 @@ AUD::RBA Governor Lowe Speaks::none,AUD,RBA Governor Lowe Speaks,,2015-10-13,05:
 NZD::FPI::m/m,NZD,FPI (MoM)  (Sep),sep,2015-10-13,05:45,-0.5%,-0.5%,,-0.5%,-0.5%,-0.5%,
 GBP::BRC Retail Sales Monitor::y/y,GBP,BRC Retail Sales Monitor (YoY)  (Sep),sep,2015-10-13,07:00,2.6%,2.6%,,1.5%,-1.0%,-1.0%,
 JPY::Bank Lending::y/y,JPY,Bank Lending (YoY)  (Sep),sep,2015-10-13,07:50,2.6%,2.6%,,,2.7%,2.7%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-10-13,07:50,,,,,,,
 AUD::NAB Business Confidence::none,AUD,NAB Business Confidence  (Sep),sep,2015-10-13,08:30,5,5,,4,1,1,
 AUD::NAB Business Survey::none,AUD,NAB Business Survey  (Sep),sep,2015-10-13,08:30,9,9,,,11,11,
 CNY::Exports::y/y,CNY,Exports (YoY)  (Sep),sep,2015-10-13,11:10,-3.7%,-3.7%,,-6.3%,-5.5%,-5.5%,
@@ -14397,6 +14415,7 @@ USD::FOMC Member Dudley Speaks::none,USD,FOMC Member Dudley Speaks,,2015-11-05,0
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2015-11-05,04:30,"4,489.70B","4,489.70B",,,"4,489.34B","4,489.34B",
 COP::Exports::y/y,COP,Exports (YoY)  (Sep),sep,2015-11-05,06:00,-43.40%,-43.40%,,,-41.60%,-41.60%,
 AUD::RBA Governor Stevens Speaks::none,AUD,RBA Governor Stevens Speaks,,2015-11-05,06:25,,,,,,,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-11-05,07:50,,,,,,,
 TWD::CPI::m/m,TWD,CPI (MoM)  (Oct),oct,2015-11-05,08:30,0.25%,0.25%,,,0.15%,0.15%,
 TWD::CPI::y/y,TWD,CPI (YoY)  (Oct),oct,2015-11-05,08:30,0.31%,0.31%,,0.12%,0.28%,0.28%,
 TWD::Wholesale Prices::m/m,TWD,Wholesale Prices (MoM)  (Oct),oct,2015-11-05,08:30,-8.47%,-8.47%,,-8.20%,-8.57%,-8.57%,
@@ -15092,6 +15111,7 @@ USD::Crude Oil Inventories::none,USD,Crude Oil Inventories,,2015-11-18,23:30,0.2
 USD::EIA Weekly Distillates Stocks::none,USD,EIA Weekly Distillates Stocks,,2015-11-18,23:30,-0.791M,-0.791M,,-0.533M,0.352M,0.352M,
 USD::Gasoline Inventories::none,USD,Gasoline Inventories,,2015-11-18,23:30,1.009M,1.009M,,-0.367M,-2.102M,-2.102M,
 NA::Oman - National Day::none,,Oman - National Day,,2015-11-19,All Day,,,,,,,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2015-11-19,03:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2015-11-19,04:30,"4,486.72B","4,486.72B",,,"4,492.01B","4,492.01B",
 KRW::PPI::m/m,KRW,PPI (MoM)  (Oct),oct,2015-11-19,05:00,-0.6%,-0.7%,-0.6%,,-0.4%,-0.4%,-0.3%
 KRW::PPI::y/y,KRW,PPI (YoY)  (Oct),oct,2015-11-19,05:00,-4.5%,-4.6%,-4.5%,,-4.6%,-4.6%,-4.5%
@@ -15326,6 +15346,7 @@ USD::5-Year Note Auction::none,USD,5-Year Note Auction,,2015-11-25,02:00,1.670%,
 ARS::Trade Balance::none,ARS,Trade Balance  (Oct),oct,2015-11-25,03:00,254M,254M,,52M,65M,65M,
 USD::API Weekly Crude Oil Stock::none,USD,API Weekly Crude Oil Stock,,2015-11-25,05:35,2.600M,2.600M,,-0.200M,-0.482M,-0.482M,
 JPY::Corporate Services Price Index (CSPI)::y/y,JPY,Corporate Services Price Index (CSPI) (YoY),,2015-11-25,07:50,0.5%,0.4%,0.5%,0.6%,0.5%,0.5%,0.6%
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-11-25,07:50,,,,,,,
 SGD::GDP::q/q,SGD,GDP (QoQ)  (Q3),q3,2015-11-25,08:00,1.9%,1.7%,1.9%,-0.1%,-2.6%,-2.6%,0.1%
 SGD::GDP::y/y,SGD,GDP (YoY)  (Q3),q3,2015-11-25,08:00,1.9%,1.8%,1.9%,1.4%,1.4%,1.4%,
 AUD::Construction Work Done::q/q,AUD,Construction Work Done (QoQ)  (Q3),q3,2015-11-25,08:30,-3.6%,-1.8%,-3.6%,-2.1%,2.1%,2.1%,1.6%
@@ -16818,6 +16839,7 @@ USD::Dallas Fed PCE::none,USD,Dallas Fed PCE  (Nov),nov,2015-12-24,02:00,1.60%,1
 USD::U.S. Baker Hughes Oil Rig Count::none,USD,U.S. Baker Hughes Oil Rig Count,,2015-12-24,02:00,538,538,,,541,541,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2015-12-24,04:30,"4,496.52B","4,496.52B",,,"4,489.59B","4,489.59B",
 KRW::Consumer Confidence::none,KRW,Consumer Confidence  (Dec),dec,2015-12-24,05:00,103,103,,,106,106,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2015-12-24,07:50,,,,,,,
 JPY::BoJ Governor Kuroda Speaks::none,JPY,BoJ Governor Kuroda Speaks,,2015-12-24,12:00,,,,,,,
 SGD::Industrial Production::m/m,SGD,Industrial Production (MoM)  (Nov),nov,2015-12-24,13:00,-3.6%,-3.9%,-3.6%,0.8%,2.9%,2.9%,2.5%
 SGD::Industrial Production::y/y,SGD,Industrial Production (YoY)  (Nov),nov,2015-12-24,13:00,-5.5%,-6.4%,-5.5%,-2.7%,-4.7%,-4.7%,-5.4%

@@ -483,6 +483,7 @@ PHP::BSP Monetary Board Highlights Publication::none,PHP,BSP Monetary Board High
 INR::RBI Monthly Bulletin::none,INR,RBI Monthly Bulletin,,2019-01-10,Tentative,,,,,,,
 USD::FOMC Member Rosengren Speaks::none,USD,FOMC Member Rosengren Speaks,,2019-01-10,00:30,,,,,,,
 USD::10-Year Note Auction::none,USD,10-Year Note Auction,,2019-01-10,02:00,2.728%,2.728%,,,2.915%,2.915%,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2019-01-10,03:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2019-01-10,04:30,"4,056.56B","4,056.56B",,,"4,058.38B","4,058.38B",
 JPY::Foreign Reserves (USD)::none,JPY,Foreign Reserves (USD)  (Dec),dec,2019-01-10,07:50,"1,271.0B","1,271.0B",,,"1,258.3B","1,258.3B",
 JPY::Foreign Bonds Buying::none,JPY,Foreign Bonds Buying,,2019-01-10,07:50,"-1,004.3B","-1,003.3B","-1,004.3B",,-312.2B,-312.2B,
@@ -1181,6 +1182,7 @@ USD::U.S. Baker Hughes Oil Rig Count::none,USD,U.S. Baker Hughes Oil Rig Count,,
 USD::U.S. Baker Hughes Total Rig Count::none,USD,U.S. Baker Hughes Total Rig Count,,2019-01-26,02:00,"1,059","1,059",,,"1,050","1,050",
 NA::Australia - Australia Day::none,,Australia - Australia Day,,2019-01-28,All Day,,,,,,,
 JPY::Corporate Services Price Index (CSPI)::y/y,JPY,Corporate Services Price Index (CSPI) (YoY),,2019-01-28,07:50,1.1%,1.1%,,1.2%,1.2%,1.2%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2019-01-28,07:50,,,,,,,
 VND::Vietnamese Foreign Direct Investment (USD)::none,VND,Vietnamese Foreign Direct Investment (USD),,2019-01-28,11:30,1.55B,1.55B,,,19.10B,19.10B,
 AUD::AUD/USD Index::none,AUD,AUD/USD Index,,2019-01-28,14:30,47.2%,47.2%,,,48.2%,48.2%,
 EUR::EUR/USD Index::none,EUR,EUR/USD Index,,2019-01-28,14:30,42.0%,42.0%,,,48.5%,48.5%,
@@ -2478,6 +2480,7 @@ UAH::Ukraine Retail Sales::m/m,UAH,Ukraine Retail Sales (MoM),,2019-02-21,00:00,
 UAH::Ukraine Retail Sales::y/y,UAH,Ukraine Retail Sales (YoY),,2019-02-21,00:00,6.3%,6.3%,,,4.9%,4.9%,
 NA::Zimbabwe - Youth Day::none,,Zimbabwe - Youth Day,,2019-02-21,All Day,,,,,,,
 USD::FOMC Member Kaplan Speaks::none,USD,FOMC Member Kaplan Speaks,,2019-02-21,02:10,,,,,,,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2019-02-21,03:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2019-02-21,04:30,"3,981.42B","3,981.42B",,,"4,028.43B","4,028.43B",
 USD::API Weekly Crude Oil Stock::none,USD,API Weekly Crude Oil Stock,,2019-02-21,05:30,1.260M,1.260M,,,-0.998M,-0.998M,
 JPY::Foreign Bonds Buying::none,JPY,Foreign Bonds Buying,,2019-02-21,07:50,193.7B,196.2B,193.7B,,996.6B,996.6B,992.4B
@@ -4003,6 +4006,7 @@ NZD::Current Account::q/q,NZD,Current Account (QoQ)  (Q4),q4,2019-03-20,05:45,-3
 NZD::Current Account::y/y,NZD,Current Account (YoY)  (Q4),q4,2019-03-20,05:45,-10.97B,-10.97B,,-11.30B,-10.54B,-10.54B,
 JPY::Reuters Tankan Index::none,JPY,Reuters Tankan Index  (Mar),mar,2019-03-20,07:00,10,10,,,13,13,
 AUD::MI Leading Index::m/m,AUD,MI Leading Index (MoM),,2019-03-20,07:30,0.0%,0.0%,,,0.1%,0.1%,0.0%
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2019-03-20,07:50,,,,,,,
 AUD::RBA Assist Gov Bullock Speaks::none,AUD,RBA Assist Gov Bullock Speaks,,2019-03-20,08:00,,,,,,,
 JPY::Leading Index::none,JPY,Leading Index,,2019-03-20,13:00,95.9,96.5,95.9,95.9,97.5,97.5,95.9
 EUR::Estonian PPI::m/m,EUR,Estonian PPI (MoM)  (Feb),feb,2019-03-20,14:00,-0.5%,-0.5%,,,0.6%,0.6%,
@@ -5197,6 +5201,7 @@ NA::Costa Rica - Juan Santa Maria Day::none,,Costa Rica - Juan Santa Maria Day,,
 USD::10-Year Note Auction::none,USD,10-Year Note Auction,,2019-04-11,01:00,2.466%,2.466%,,,2.615%,2.615%,
 USD::Federal Budget Balance::none,USD,Federal Budget Balance  (Mar),mar,2019-04-11,02:00,-147.0B,-147.0B,,-194.7B,-234.0B,-234.0B,
 EUR::ECB's Coeure Speaks::none,EUR,ECB's Coeure Speaks,,2019-04-11,02:00,,,,,,,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2019-04-11,02:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2019-04-11,04:30,"3,936.78B","3,936.78B",,,"3,935.51B","3,935.51B",
 NZD::FPI::m/m,NZD,FPI (MoM)  (Mar),mar,2019-04-11,06:45,0.5%,0.5%,,,0.4%,0.4%,
 JPY::Foreign Bonds Buying::none,JPY,Foreign Bonds Buying,,2019-04-11,07:50,"-1,753.4B","-1,742.5B","-1,753.4B",,"1,243.9B","1,243.9B","1,243.5B"
@@ -6733,6 +6738,7 @@ USD::API Weekly Crude Oil Stock::none,USD,API Weekly Crude Oil Stock,,2019-05-08
 KRW::Current Account::none,KRW,Current Account  (Mar),mar,2019-05-08,07:00,4.82B,4.82B,,,3.60B,3.60B,
 GBP::BRC Retail Sales Monitor::y/y,GBP,BRC Retail Sales Monitor (YoY)  (Apr),apr,2019-05-08,07:00,3.7%,-1.1%,3.7%,2.4%,-1.1%,-1.1%,
 JPY::Monetary Base::y/y,JPY,Monetary Base (YoY),,2019-05-08,07:50,3.1%,3.1%,,3.6%,3.8%,3.8%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2019-05-08,07:50,,,,,,,
 PHP::Exports::y/y,PHP,Exports (YoY)  (Mar),mar,2019-05-08,09:00,-2.5%,-2.5%,,,-0.9%,-0.9%,
 PHP::Imports::y/y,PHP,Imports (YoY)  (Mar),mar,2019-05-08,09:00,7.8%,7.8%,,,2.6%,2.6%,
 PHP::Trade Balance::none,PHP,Trade Balance  (Mar),mar,2019-05-08,09:00,"-3,138.0M","-3,138.0M",,,"-2,788.0M","-2,788.0M",
@@ -7545,6 +7551,7 @@ USD::Heating Oil Stockpiles::none,USD,Heating Oil Stockpiles,,2019-05-22,22:30,-
 BRL::Foreign Exchange Flows::none,BRL,Foreign Exchange Flows,,2019-05-22,23:30,1.796B,1.796B,,,1.226B,1.226B,
 EUR::European Parliament Elections::none,EUR,European Parliament Elections,,2019-05-23,Tentative,,,,,,,
 NA::Jamaica - Labour Day::none,,Jamaica - Labour Day,,2019-05-23,All Day,,,,,,,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2019-05-23,02:00,,,,,,,
 ARS::Economic Activity::y/y,ARS,Economic Activity (YoY)  (Mar),mar,2019-05-23,03:00,-6.8%,-6.8%,,-6.0%,-4.8%,-4.8%,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2019-05-23,04:30,"3,860.44B","3,860.44B",,,"3,864.75B","3,864.75B",
 JPY::Foreign Bonds Buying::none,JPY,Foreign Bonds Buying,,2019-05-23,07:50,"1,355.7B","1,359.0B","1,355.7B",,"1,169.5B","1,169.5B",20.8B
@@ -9319,6 +9326,7 @@ NZD::Imports::none,NZD,Imports  (May),may,2019-06-25,06:45,5.54B,5.57B,5.54B,5.4
 NZD::Trade Balance::m/m,NZD,Trade Balance (MoM)  (May),may,2019-06-25,06:45,264M,175M,264M,200M,383M,383M,433M
 NZD::Trade Balance::y/y,NZD,Trade Balance (YoY)  (May),may,2019-06-25,06:45,"-5,490M","-5,590M","-5,490M","-5,530M","-5,560M","-5,560M","-5,480M"
 JPY::Corporate Services Price Index (CSPI)::y/y,JPY,Corporate Services Price Index (CSPI) (YoY),,2019-06-25,07:50,0.8%,0.9%,0.8%,1.1%,1.0%,1.0%,0.9%
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2019-06-25,07:50,,,,,,,
 PHP::Budget Balance::none,PHP,Budget Balance  (May),may,2019-06-25,11:00,2.6B,2.6B,,,86.9B,86.9B,
 IDR::Motorbike Sales::y/y,IDR,Motorbike Sales (YoY)  (May),may,2019-06-25,11:00,-4.70%,-11.30%,-4.70%,,3.00%,3.00%,8.40%
 THB::Industrial Production::y/y,THB,Industrial Production (YoY)  (May),may,2019-06-25,12:00,-3.99%,-3.99%,,-0.10%,2.03%,2.03%,
@@ -10189,6 +10197,7 @@ NA::Mongolia - Naadam festival::none,,Mongolia - Naadam festival,,2019-07-11,All
 USD::10-Year Note Auction::none,USD,10-Year Note Auction,,2019-07-11,01:00,2.064%,2.064%,,,2.130%,2.130%,
 GBP::MPC Member Tenreyro Speaks::none,GBP,MPC Member Tenreyro Speaks,,2019-07-11,01:10,,,,,,,
 USD::FOMC Member Bullard Speaks::none,USD,FOMC Member Bullard Speaks,,2019-07-11,01:30,,,,,,,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2019-07-11,02:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2019-07-11,04:30,"3,815.04B","3,815.04B",,,"3,813.20B","3,813.20B",
 NZD::Electronic Card Retail Sales::m/m,NZD,Electronic Card Retail Sales (MoM)  (Jun),jun,2019-07-11,06:45,0.0%,0.0%,,0.7%,-0.5%,-0.5%,
 NZD::Electronic Card Retail Sales::y/y,NZD,Electronic Card Retail Sales (YoY)  (Jun),jun,2019-07-11,06:45,1.1%,1.1%,,,3.2%,3.2%,
@@ -11270,6 +11279,7 @@ BRL::Trade Balance::none,BRL,Trade Balance  (Jul),jul,2019-08-02,03:00,2.29B,2.2
 USD::Total Vehicle Sales::none,USD,Total Vehicle Sales,,2019-08-02,03:00,16.80M,16.80M,,16.90M,17.30M,17.30M,
 ARS::Tax Revenue::none,ARS,Tax Revenue,,2019-08-02,04:00,450.90B,450.90B,,,454.44B,454.44B,
 JPY::Monetary Base::y/y,JPY,Monetary Base (YoY),,2019-08-02,07:50,3.7%,3.7%,,3.8%,4.0%,4.0%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2019-08-02,07:50,,,,,,,
 MYR::Exports::y/y,MYR,Exports (YoY)  (Jun),jun,2019-08-02,09:00,-3.1%,-3.1%,,1.8%,2.5%,2.5%,
 MYR::Imports::y/y,MYR,Imports (YoY)  (Jun),jun,2019-08-02,09:00,-9.2%,-9.2%,,1.1%,1.4%,1.4%,
 MYR::Trade Balance::none,MYR,Trade Balance  (Jun),jun,2019-08-02,09:00,10.30B,10.30B,,8.40B,9.10B,9.10B,
@@ -12319,6 +12329,7 @@ USD::Gasoline Production::none,USD,Gasoline Production,,2019-08-21,22:30,-0.306M
 USD::Heating Oil Stockpiles::none,USD,Heating Oil Stockpiles,,2019-08-21,22:30,0.228M,0.228M,,,0.205M,0.205M,
 BRL::Foreign Exchange Flows::none,BRL,Foreign Exchange Flows,,2019-08-21,23:30,-0.802B,-0.802B,,,0.169B,0.169B,
 PLN::NBP Monetary Policy Meeting Minutes::none,PLN,NBP Monetary Policy Meeting Minutes,,2019-08-22,Tentative,,,,,,,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2019-08-22,02:00,,,,,,,
 ARS::Trade Balance::none,ARS,Trade Balance  (Jul),jul,2019-08-22,03:00,951M,951M,,684M,"1,062M","1,062M","1,061M"
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2019-08-22,04:30,"3,764.87B","3,764.87B",,,"3,786.02B","3,786.02B",
 JPY::Foreign Bonds Buying::none,JPY,Foreign Bonds Buying,,2019-08-22,07:50,499.7B,499.8B,499.7B,,175.8B,175.8B,173.1B
@@ -14072,6 +14083,7 @@ NZD::Imports::none,NZD,Imports  (Aug),aug,2019-09-25,06:45,5.69B,5.71B,5.69B,,5.
 NZD::Trade Balance::m/m,NZD,Trade Balance (MoM)  (Aug),aug,2019-09-25,06:45,"-1,565M","-1,628M","-1,565M","-1,464M",-700M,-700M,-685M
 NZD::Trade Balance::y/y,NZD,Trade Balance (YoY)  (Aug),aug,2019-09-25,06:45,"-5,480M","-5,550M","-5,480M",,"-5,490M","-5,490M","-5,460M"
 JPY::Corporate Services Price Index (CSPI)::y/y,JPY,Corporate Services Price Index (CSPI) (YoY),,2019-09-25,07:50,0.6%,0.6%,,0.5%,0.6%,0.6%,0.5%
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2019-09-25,07:50,,,,,,,
 JPY::BoJ Board Member Masai Speaks::none,JPY,BoJ Board Member Masai Speaks,,2019-09-25,09:30,,,,,,,
 NZD::RBNZ Interest Rate Decision::none,NZD,RBNZ Interest Rate Decision,,2019-09-25,10:00,1.00%,1.00%,,1.00%,1.00%,1.00%,
 NZD::RBNZ Rate Statement::none,NZD,RBNZ Rate Statement,,2019-09-25,10:00,,,,,,,
@@ -14931,6 +14943,7 @@ GBP::NIESR GDP Estimate::none,GBP,NIESR GDP Estimate,,2019-10-10,Tentative,0.5%,
 NA::Taiwan - Double Tenth Day::none,,Taiwan - Double Tenth Day,,2019-10-10,All Day,,,,,,,
 USD::10-Year Note Auction::none,USD,10-Year Note Auction,,2019-10-10,01:00,1.590%,1.590%,,,1.739%,1.739%,
 BRL::Foreign Exchange Flows::none,BRL,Foreign Exchange Flows,,2019-10-10,01:30,-3.673B,-3.673B,,,-6.035B,-6.035B,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2019-10-10,02:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2019-10-10,04:30,"3,949.96B","3,949.96B",,,"3,945.83B","3,945.83B",
 NZD::FPI::m/m,NZD,FPI (MoM)  (Sep),sep,2019-10-10,05:45,0.0%,0.0%,,,0.7%,0.7%,
 JPY::Reuters Tankan Index::none,JPY,Reuters Tankan Index  (Oct),oct,2019-10-10,07:00,-5,-5,,,-7,-7,
@@ -16349,6 +16362,7 @@ NZD::Participation Rate::none,NZD,Participation Rate  (Q3),q3,2019-11-06,05:45,7
 NZD::Unemployment Rate::none,NZD,Unemployment Rate  (Q3),q3,2019-11-06,05:45,4.2%,4.1%,4.2%,4.1%,3.9%,3.9%,
 KRW::Current Account::none,KRW,Current Account  (Sep),sep,2019-11-06,07:00,7.48B,7.48B,,8.45B,5.27B,5.27B,
 USD::FOMC Member Kashkari Speaks::none,USD,FOMC Member Kashkari Speaks,,2019-11-06,07:00,,,,,,,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2019-11-06,07:50,,,,,,,
 COP::CPI::m/m,COP,CPI (MoM)  (Oct),oct,2019-11-06,08:00,0.16%,0.16%,,0.19%,0.23%,0.23%,
 COP::CPI::y/y,COP,CPI (YoY)  (Oct),oct,2019-11-06,08:00,3.86%,3.86%,,3.89%,3.82%,3.82%,
 EUR::Irish Consumer Confidence::none,EUR,Irish Consumer Confidence,,2019-11-06,08:00,69.5,69.5,,,75.3,75.3,69.5
@@ -17220,6 +17234,7 @@ USD::Gasoline Inventories::none,USD,Gasoline Inventories,,2019-11-20,23:30,1.756
 USD::Gasoline Production::none,USD,Gasoline Production,,2019-11-20,23:30,-0.120M,-0.120M,,,0.137M,0.137M,
 USD::Heating Oil Stockpiles::none,USD,Heating Oil Stockpiles,,2019-11-20,23:30,0.373M,0.373M,,,-0.407M,-0.407M,
 PLN::NBP Monetary Policy Meeting Minutes::none,PLN,NBP Monetary Policy Meeting Minutes,,2019-11-21,Tentative,,,,,,,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2019-11-21,03:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2019-11-21,04:30,"4,030.25B","4,030.25B",,,"4,047.88B","4,047.88B",
 JPY::Foreign Bonds Buying::none,JPY,Foreign Bonds Buying,,2019-11-21,07:50,119.4B,123.4B,119.4B,,530.0B,530.0B,528.8B
 JPY::Foreign Investments in Japanese Stocks::none,JPY,Foreign Investments in Japanese Stocks,,2019-11-21,07:50,110.3B,111.0B,110.3B,,569.8B,569.8B,569.5B
@@ -17448,6 +17463,7 @@ USD::Richmond Manufacturing Shipments::none,USD,Richmond Manufacturing Shipments
 USD::Richmond Services Index::none,USD,Richmond Services Index  (Nov),nov,2019-11-26,23:00,15,15,,,24,24,
 USD::Dallas Fed Services Revenues::none,USD,Dallas Fed Services Revenues  (Nov),nov,2019-11-26,23:30,12.2,12.2,,,15.4,15.4,
 USD::Texas Services Sector Outlook::none,USD,Texas Services Sector Outlook  (Nov),nov,2019-11-26,23:30,4.7,4.7,,,1.8,1.8,
+GBP::BoE MPC Treasury Committee Hearings::none,GBP,BoE MPC Treasury Committee Hearings,,2019-11-27,Tentative,,,,,,,
 ARS::Economic Activity::y/y,ARS,Economic Activity (YoY)  (Sep),sep,2019-11-27,01:00,-2.1%,-2.1%,,,-3.8%,-3.8%,
 USD::5-Year Note Auction::none,USD,5-Year Note Auction,,2019-11-27,02:00,1.587%,1.587%,,,1.570%,1.570%,
 USD::FOMC Member Brainard Speaks::none,USD,FOMC Member Brainard Speaks,,2019-11-27,02:00,,,,,,,
@@ -17832,6 +17848,7 @@ USD::ISM Manufacturing Employment::none,USD,ISM Manufacturing Employment  (Nov),
 USD::ISM Manufacturing New Orders Index::none,USD,ISM Manufacturing New Orders Index  (Nov),nov,2019-12-02,23:00,47.2,47.2,,,49.1,49.1,
 USD::ISM Manufacturing PMI::none,USD,ISM Manufacturing PMI  (Nov),nov,2019-12-02,23:00,48.1,48.1,,49.2,48.3,48.3,
 USD::ISM Manufacturing Prices::none,USD,ISM Manufacturing Prices  (Nov),nov,2019-12-02,23:00,46.7,46.7,,47.0,45.5,45.5,
+GBP::BoE MPC Treasury Committee Hearings::none,GBP,BoE MPC Treasury Committee Hearings,,2019-12-03,Tentative,,,,,,,
 NA::United Arab Emirates - National Day::none,,United Arab Emirates - National Day,,2019-12-03,All Day,,,,,,,
 USD::3-Month Bill Auction::none,USD,3-Month Bill Auction,,2019-12-03,00:30,1.560%,1.560%,,,1.560%,1.560%,
 USD::6-Month Bill Auction::none,USD,6-Month Bill Auction,,2019-12-03,00:30,1.565%,1.565%,,,1.580%,1.580%,
@@ -19115,6 +19132,7 @@ USD::2-Year Note Auction::none,USD,2-Year Note Auction,,2019-12-24,02:00,1.653%,
 UAH::Ukraine Unemployment Rate::none,UAH,Ukraine Unemployment Rate,,2019-12-24,02:30,7.3,7.3,,,7.8,7.8,
 ARS::Economic Activity::y/y,ARS,Economic Activity (YoY)  (Oct),oct,2019-12-24,03:00,0.9%,0.9%,,,-2.1%,-2.1%,
 ARS::Trade Balance::none,ARS,Trade Balance  (Nov),nov,2019-12-24,03:00,"2,445M","2,445M",,"1,647M","1,768M","1,768M",
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2019-12-24,07:50,,,,,,,
 JPY::BoJ Core CPI::y/y,JPY,BoJ Core CPI (YoY),,2019-12-24,13:00,0.2%,0.2%,,,0.3%,0.3%,
 EUR::Dutch GDP::q/q,EUR,Dutch GDP (QoQ)  (Q3),q3,2019-12-24,13:30,0.4%,0.4%,,0.4%,0.4%,0.4%,
 EUR::Dutch GDP::y/y,EUR,Dutch GDP (YoY)  (Q3),q3,2019-12-24,13:30,1.9%,1.9%,,1.9%,1.8%,1.8%,1.9%

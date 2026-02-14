@@ -233,6 +233,7 @@ CAD::RMPI::m/m,CAD,RMPI (MoM),,2009-01-06,21:30,-13.4%,-13.4%,,-8.3%,-12.5%,-12.
 USD::Factory Orders::m/m,USD,Factory Orders (MoM),,2009-01-06,23:00,-4.6%,-4.6%,,-2.8%,-5.1%,-5.1%,
 USD::ISM Non-Manufacturing PMI::none,USD,ISM Non-Manufacturing PMI,,2009-01-06,23:00,40.6,40.1,40.6,36.8,37.3,37.3,
 USD::Pending Home Sales::m/m,USD,Pending Home Sales (MoM),,2009-01-06,23:00,-4.0%,-4.0%,,-0.8%,-0.7%,-0.7%,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2009-01-07,03:00,,,,,,,
 NZD::Trade Balance::m/m,NZD,Trade Balance (MoM),,2009-01-07,05:45,-520M,-520M,,-838M,-942M,-942M,
 EUR::German Unemployment Rate::none,EUR,German Unemployment Rate,,2009-01-07,08:00,7.7%,7.7%,,7.7%,7.6%,7.6%,7.8%
 GBP::Nationwide Consumer Confidence::none,GBP,Nationwide Consumer Confidence,,2009-01-07,08:00,47,47,,,50,50,
@@ -431,6 +432,7 @@ GBP::Gross Mortgage Approvals::none,GBP,Gross Mortgage Approvals,,2009-01-26,17:
 USD::US Leading Index::m/m,USD,US Leading Index (MoM)  (Dec),dec,2009-01-26,23:00,0.3%,0.2%,0.3%,-0.2%,-0.4%,-0.4%,
 USD::Existing Home Sales::none,USD,Existing Home Sales,,2009-01-26,23:00,4.74M,4.74M,,4.40M,4.49M,4.49M,
 JPY::Corporate Services Price Index (CSPI)::y/y,JPY,Corporate Services Price Index (CSPI) (YoY),,2009-01-27,07:50,-2.5%,-2.5%,,-2.4%,-1.9%,-1.9%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2009-01-27,07:50,,,,,,,
 AUD::NAB Business Confidence::none,AUD,NAB Business Confidence,,2009-01-27,08:30,-20,-20,,,-30,-30,
 AUD::PPI::q/q,AUD,PPI (QoQ),,2009-01-27,08:30,1.3%,1.3%,,0.4%,2.0%,2.0%,
 AUD::MI Leading Index::m/m,AUD,MI Leading Index (MoM),,2009-01-27,09:00,-1.0%,-0.6%,-1.0%,,-0.2%,-0.2%,-0.1%
@@ -874,6 +876,7 @@ USD::Import Price Index::m/m,USD,Import Price Index (MoM),,2009-02-18,21:30,-1.1
 USD::Capacity Utilization Rate::none,USD,Capacity Utilization Rate,,2009-02-18,22:15,72.0%,72.0%,,72.5%,73.6%,73.6%,
 USD::Industrial Production::m/m,USD,Industrial Production (MoM),,2009-02-18,22:15,-1.8%,-1.8%,,-1.3%,-2.0%,-2.0%,
 JPY::BoJ Press Conference::none,JPY,BoJ Press Conference,,2009-02-19,Tentative,,,,,,,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2009-02-19,03:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2009-02-19,04:30,"1,915.56B","1,915.56B",,,"1,843.40B","1,843.40B",
 AUD::New Motor Vehicle Sales::m/m,AUD,New Motor Vehicle Sales (MoM),,2009-02-19,08:30,-1.1%,-1.1%,,,1.8%,1.8%,
 CHF::Trade Balance::none,CHF,Trade Balance,,2009-02-19,15:15,2.030B,2.030B,,0.620B,0.220B,0.220B,
@@ -915,6 +918,7 @@ NZD::Credit Card Spending::y/y,NZD,Credit Card Spending (YoY),,2009-02-23,10:05,
 CAD::Core Retail Sales::m/m,CAD,Core Retail Sales (MoM),,2009-02-23,21:30,-3.2%,-3.2%,,-2.0%,-2.3%,-2.3%,
 CAD::Retail Sales::m/m,CAD,Retail Sales (MoM),,2009-02-23,21:30,-5.4%,-5.4%,,-2.7%,-2.4%,-2.4%,
 JPY::Corporate Services Price Index (CSPI)::y/y,JPY,Corporate Services Price Index (CSPI) (YoY),,2009-02-24,07:50,-2.2%,-2.2%,,-2.5%,-2.5%,-2.5%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2009-02-24,07:50,,,,,,,
 EUR::French Consumer Spending::m/m,EUR,French Consumer Spending (MoM),,2009-02-24,15:45,1.8%,1.7%,1.8%,0.2%,-0.9%,-0.9%,
 CHF::Employment Level::none,CHF,Employment Level,,2009-02-24,16:15,3.96M,3.96M,,3.91M,3.96M,3.96M,
 CHF::Consumption Indicator::none,CHF,Consumption Indicator,,2009-02-24,17:00,0.99,0.99,,,1.15,1.15,
@@ -1369,6 +1373,7 @@ CAD::Labor Productivity::q/q,CAD,Labor Productivity (QoQ),,2009-03-17,20:30,-0.5
 CAD::Manufacturing Sales::m/m,CAD,Manufacturing Sales (MoM),,2009-03-17,20:30,-5.40%,-5.30%,-5.40%,-5.70%,-8.20%,-8.20%,-8.00%
 USD::PPI::m/m,USD,PPI (MoM),,2009-03-17,20:30,0.1%,0.1%,,0.3%,0.8%,0.8%,
 JPY::BoJ Press Conference::none,JPY,BoJ Press Conference,,2009-03-18,Tentative,,,,,,,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2009-03-18,Tentative,,,,,,,
 CHF::Retail Sales::y/y,CHF,Retail Sales (YoY),,2009-03-18,16:15,1.2%,1.2%,,1.8%,3.6%,3.6%,
 EUR::Italian Industrial Production::m/m,EUR,Italian Industrial Production (MoM),,2009-03-18,17:00,-0.2%,-0.2%,,-2.2%,-2.5%,-2.5%,
 GBP::Average Earnings Index +Bonus::none,GBP,Average Earnings Index +Bonus,,2009-03-18,17:30,1.8%,1.7%,1.8%,3.0%,3.2%,3.2%,
@@ -1423,6 +1428,7 @@ JPY::BSI Large Manufacturing Conditions::none,JPY,BSI Large Manufacturing Condit
 EUR::Trade Balance::none,EUR,Trade Balance,,2009-03-23,18:00,-5.5B,-5.5B,,-1.9B,-0.3B,-0.3B,
 CAD::Leading Indicators::m/m,CAD,Leading Indicators (MoM),,2009-03-23,20:30,-1.1%,-1.4%,-1.1%,-0.9%,-0.8%,-0.8%,
 USD::Existing Home Sales::none,USD,Existing Home Sales,,2009-03-23,22:00,4.72M,4.72M,,4.45M,4.49M,4.49M,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2009-03-24,07:50,,,,,,,
 EUR::French Consumer Spending::m/m,EUR,French Consumer Spending (MoM),,2009-03-24,15:45,-2.0%,-1.8%,-2.0%,-1.0%,1.7%,1.7%,1.8%
 EUR::Current Account::none,EUR,Current Account,,2009-03-24,17:00,-12.7B,-12.7B,,-6.7B,-7.6B,-7.6B,-7.3B
 GBP::BOE Inflation Letter::none,GBP,BOE Inflation Letter,,2009-03-24,17:30,,,,,,,
@@ -1773,6 +1779,7 @@ CAD::Housing Starts::none,CAD,Housing Starts,,2009-04-08,20:15,155.00K,147.00K,1
 EUR::Deposit Facility Rate::none,EUR,Deposit Facility Rate,,2009-04-08,20:45,0.25%,0.25%,,,0.50%,0.50%,
 USD::Wholesale Inventories::m/m,USD,Wholesale Inventories (MoM),,2009-04-08,22:00,-1.5%,-1.7%,-1.5%,-0.6%,-0.9%,-0.9%,-0.7%
 USD::Crude Oil Inventories::none,USD,Crude Oil Inventories,,2009-04-08,22:30,1.700M,1.700M,,,2.800M,2.800M,3.300M
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2009-04-09,02:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2009-04-09,04:30,"2,088.57B","2,088.57B",,,"2,078.94B","2,078.94B",
 JPY::Core Machinery Orders::m/m,JPY,Core Machinery Orders (MoM),,2009-04-09,07:50,1.4%,0.6%,1.4%,-6.8%,-3.2%,-3.2%,
 AUD::MI Inflation Expectations::none,AUD,MI Inflation Expectations,,2009-04-09,09:00,2.4%,2.4%,,,2.2%,2.2%,
@@ -2249,6 +2256,7 @@ USD::Initial Jobless Claims::none,USD,Initial Jobless Claims,,2009-05-07,20:30,6
 USD::Nonfarm Productivity::q/q,USD,Nonfarm Productivity (QoQ),,2009-05-07,20:30,0.8%,0.8%,,0.9%,-0.6%,-0.6%,-0.4%
 USD::Unit Labor Costs::q/q,USD,Unit Labor Costs (QoQ),,2009-05-07,20:30,3.3%,3.3%,,2.6%,5.7%,5.7%,
 USD::Consumer Credit::none,USD,Consumer Credit,,2009-05-08,03:00,-11.10B,-16.60B,-11.10B,-4.10B,-8.10B,-8.10B,-7.50B
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2009-05-08,07:50,,,,,,,
 CHF::Unemployment Rate s.a.::none,CHF,Unemployment Rate s.a.,,2009-05-08,13:45,3.4%,3.4%,,3.4%,3.3%,3.3%,
 EUR::German Trade Balance::none,EUR,German Trade Balance,,2009-05-08,14:00,8.9B,8.9B,,8.0B,8.9B,8.9B,
 GBP::PPI Input::m/m,GBP,PPI Input (MoM),,2009-05-08,16:30,-1.0%,-1.7%,-1.0%,0.7%,1.3%,1.3%,1.0%
@@ -2389,6 +2397,7 @@ USD::MBA Mortgage Applications::w/w,USD,MBA Mortgage Applications (WoW),,2009-05
 CAD::Leading Indicators::m/m,CAD,Leading Indicators (MoM),,2009-05-20,20:30,-1.1%,-0.9%,-1.1%,-0.9%,-1.5%,-1.5%,-1.3%
 USD::Treasury Secretary Geithner Speaks::none,USD,Treasury Secretary Geithner Speaks,,2009-05-20,21:30,,,,,,,
 USD::Crude Oil Inventories::none,USD,Crude Oil Inventories,,2009-05-20,22:30,-2.100M,-2.100M,,,-4.700M,-4.700M,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2009-05-21,02:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2009-05-21,04:30,"2,181.63B","2,181.63B",,,"2,196.35B","2,196.35B",
 NZD::Visitor Arrivals::m/m,NZD,Visitor Arrivals (MoM),,2009-05-21,06:45,2.4%,2.5%,2.4%,,-0.5%,-0.5%,
 JPY::Tertiary Industry Activity Index::m/m,JPY,Tertiary Industry Activity Index (MoM),,2009-05-21,07:50,-4.0%,-2.8%,-4.0%,-1.5%,-1.3%,-1.3%,-0.8%
@@ -2443,6 +2452,7 @@ USD::CB Consumer Confidence::none,USD,CB Consumer Confidence,,2009-05-26,22:00,5
 USD::Richmond Manufacturing Index::none,USD,Richmond Manufacturing Index,,2009-05-26,22:00,4,4,,-7,-9,-9,
 USD::Bloomberg Consumer Confidence::none,USD,Bloomberg Consumer Confidence,,2009-05-27,05:00,26.5,26.5,,,27.5,27.5,
 JPY::Adjusted Trade Balance::none,JPY,Adjusted Trade Balance,,2009-05-27,07:50,-0.05T,0.08T,-0.05T,-0.02T,-0.51T,-0.51T,-0.10T
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2009-05-27,07:50,,,,,,,
 AUD::MI Leading Index::m/m,AUD,MI Leading Index (MoM),,2009-05-27,08:30,0.3%,0.4%,0.3%,,-0.5%,-0.5%,-0.3%
 AUD::Construction Work Done::q/q,AUD,Construction Work Done (QoQ),,2009-05-27,09:30,-3.7%,-2.2%,-3.7%,-3.0%,2.3%,2.3%,1.7%
 NZD::ANZ Business Confidence::none,NZD,ANZ Business Confidence,,2009-05-27,11:00,1.90,1.90,,,-14.50,-14.50,
@@ -2901,6 +2911,7 @@ USD::Philadelphia Fed Manufacturing Index::none,USD,Philadelphia Fed Manufacturi
 USD::Natural Gas Storage::none,USD,Natural Gas Storage,,2009-06-18,22:30,114B,114B,,,106B,106B,
 USD::US Leading Index::m/m,USD,US Leading Index (MoM)  (May),may,2009-06-18,23:00,1.2%,1.3%,1.2%,0.8%,1.1%,1.1%,1%
 USD::Treasury Secretary Geithner Speaks::none,USD,Treasury Secretary Geithner Speaks,,2009-06-19,01:30,,,,,,,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2009-06-19,07:50,,,,,,,
 EUR::German PPI::m/m,EUR,German PPI (MoM),,2009-06-19,14:00,0.0%,0.0%,,-0.2%,-1.4%,-1.4%,
 EUR::Italian Quarterly Unemployment Rate::none,EUR,Italian Quarterly Unemployment Rate,,2009-06-19,16:00,7.3%,7.3%,,7.3%,7.0%,7.0%,6.9%
 CAD::Core Retail Sales::m/m,CAD,Core Retail Sales (MoM),,2009-06-19,20:30,-0.5%,-0.5%,,-0.1%,-0.3%,-0.3%,-0.2%
@@ -3355,6 +3366,7 @@ USD::Capacity Utilization Rate::none,USD,Capacity Utilization Rate,,2009-07-15,2
 USD::Industrial Production::m/m,USD,Industrial Production (MoM),,2009-07-15,21:15,-0.4%,-0.4%,,-0.6%,-1.2%,-1.2%,-1.1%
 USD::Crude Oil Inventories::none,USD,Crude Oil Inventories,,2009-07-15,22:30,-2.800M,-2.800M,,,-2.900M,-2.900M,
 ILS::CPI::y/y,ILS,CPI (YoY)  (Jun),jun,2009-07-15,23:00,3.6%,3.6%,,,2.8%,2.8%,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2009-07-16,02:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2009-07-16,04:30,"2,072.45B","2,072.45B",,,"1,992.74B","1,992.74B",
 NZD::Business NZ PMI::none,NZD,Business NZ PMI,,2009-07-16,06:30,46.2,46.5,46.2,,43.1,43.1,42.7
 NZD::CPI::q/q,NZD,CPI (QoQ),,2009-07-16,06:45,0.6%,0.6%,,0.5%,0.3%,0.3%,
@@ -3397,6 +3409,7 @@ CAD::Foreign Securities Purchases::none,CAD,Foreign Securities Purchases,,2009-0
 CAD::Wholesale Sales::m/m,CAD,Wholesale Sales (MoM),,2009-07-20,20:30,-0.3%,-0.2%,-0.3%,-2.5%,-0.7%,-0.7%,-0.6%
 USD::US Leading Index::m/m,USD,US Leading Index (MoM)  (Jun),jun,2009-07-20,23:00,0.7%,0.8%,0.7%,0.5%,1.3%,1.3%,1.2%
 NZD::Visitor Arrivals::m/m,NZD,Visitor Arrivals (MoM),,2009-07-21,06:45,-3.8%,-3.8%,,,-0.1%,-0.1%,0.2%
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2009-07-21,07:50,,,,,,,
 AUD::New Motor Vehicle Sales::m/m,AUD,New Motor Vehicle Sales (MoM),,2009-07-21,09:30,5.7%,5.8%,5.7%,,5.4%,5.4%,
 AUD::RBA Meeting Minutes::none,AUD,RBA Meeting Minutes,,2009-07-21,09:30,,,,,,,
 NZD::Credit Card Spending::y/y,NZD,Credit Card Spending (YoY),,2009-07-21,11:00,-2.1%,-2.1%,,,-2.4%,-2.4%,
@@ -3841,6 +3854,7 @@ USD::Retail Sales::m/m,USD,Retail Sales (MoM),,2009-08-13,20:30,-0.1%,-0.2%,-0.1
 USD::Business Inventories::m/m,USD,Business Inventories (MoM),,2009-08-13,22:00,-1.1%,-1.4%,-1.1%,-0.9%,-1.2%,-1.2%,-1.0%
 USD::Natural Gas Storage::none,USD,Natural Gas Storage,,2009-08-13,22:30,63B,63B,,,66B,66B,
 AUD::RBA Governor Stevens Speaks::none,AUD,RBA Governor Stevens Speaks,,2009-08-14,07:30,,,,,,,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2009-08-14,07:50,,,,,,,
 JPY::Tertiary Industry Activity Index::m/m,JPY,Tertiary Industry Activity Index (MoM),,2009-08-14,07:50,0.1%,0.2%,0.1%,-0.3%,-0.3%,-0.3%,-0.1%
 EUR::French Non-Farm Payrolls::q/q,EUR,French Non-Farm Payrolls (QoQ),,2009-08-14,14:45,-0.5%,-0.5%,,-0.9%,-1.1%,-1.1%,-1.2%
 EUR::CPI::y/y,EUR,CPI (YoY),,2009-08-14,17:00,-0.7%,-0.7%,,-0.6%,-0.6%,-0.6%,
@@ -4225,6 +4239,7 @@ USD::Nonfarm Productivity::q/q,USD,Nonfarm Productivity (QoQ),,2009-09-02,20:30,
 USD::Unit Labor Costs::q/q,USD,Unit Labor Costs (QoQ),,2009-09-02,20:30,-5.9%,-6.1%,-5.9%,-5.3%,-5.8%,-5.8%,
 USD::Factory Orders::m/m,USD,Factory Orders (MoM),,2009-09-02,22:00,1.3%,1.4%,1.3%,1.5%,0.9%,0.9%,0.4%
 USD::Crude Oil Inventories::none,USD,Crude Oil Inventories,,2009-09-02,22:30,-0.400M,-0.400M,,,0.200M,0.200M,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2009-09-03,02:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2009-09-03,04:30,"2,083.72B","2,083.72B",,,"2,074.90B","2,074.90B",
 AUD::AIG Services Index::none,AUD,AIG Services Index,,2009-09-03,07:30,48.0,48.0,,,44.1,44.1,
 AUD::Trade Balance::none,AUD,Trade Balance,,2009-09-03,09:30,-1.56B,-1.78B,-1.56B,-0.80B,-0.54B,-0.54B,-0.44B
@@ -4471,6 +4486,7 @@ USD::Existing Home Sales::none,USD,Existing Home Sales,,2009-09-24,22:00,5.10M,5
 USD::Natural Gas Storage::none,USD,Natural Gas Storage,,2009-09-24,22:30,67B,64B,67B,,66B,66B,
 NZD::Trade Balance::m/m,NZD,Trade Balance (MoM),,2009-09-25,06:45,-725M,-719M,-725M,-310M,-175M,-175M,-163M
 JPY::Corporate Services Price Index (CSPI)::y/y,JPY,Corporate Services Price Index (CSPI) (YoY),,2009-09-25,07:50,-3.5%,-3.5%,,-3.5%,-3.4%,-3.4%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2009-09-25,07:50,,,,,,,
 EUR::GfK German Consumer Climate::none,EUR,GfK German Consumer Climate,,2009-09-25,14:00,4.3,4.2,4.3,3.8,3.8,3.8,3.7
 EUR::Italian Retail Sales::m/m,EUR,Italian Retail Sales (MoM),,2009-09-25,16:00,-0.4%,-0.3%,-0.4%,0.2%,-0.4%,-0.4%,
 EUR::M3 Money Supply::y/y,EUR,M3 Money Supply (YoY),,2009-09-25,16:00,2.5%,2.6%,2.5%,2.7%,3.0%,3.0%,
@@ -4859,6 +4875,7 @@ USD::Import Price Index::m/m,USD,Import Price Index (MoM),,2009-10-14,20:30,0.1%
 CAD::New Motor Vehicle Sales::m/m,CAD,New Motor Vehicle Sales (MoM),,2009-10-14,20:30,-0.3%,-0.2%,-0.3%,0.0%,5.2%,5.2%,5.3%
 USD::Retail Sales::m/m,USD,Retail Sales (MoM),,2009-10-14,20:30,-1.5%,-2.3%,-1.5%,-2.0%,2.2%,2.2%,2.7%
 USD::Business Inventories::m/m,USD,Business Inventories (MoM),,2009-10-14,22:00,-1.5%,-1.6%,-1.5%,-0.9%,-1.1%,-1.1%,-1.0%
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2009-10-15,02:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2009-10-15,04:30,"2,192.79B","2,192.79B",,,"2,138.09B","2,138.09B",
 NZD::Business NZ PMI::none,NZD,Business NZ PMI,,2009-10-15,05:30,51.7,51.5,51.7,,48.8,48.8,48.7
 NZD::CPI::q/q,NZD,CPI (QoQ),,2009-10-15,05:45,1.3%,1.3%,,0.8%,0.6%,0.6%,
@@ -4907,6 +4924,7 @@ USD::Federal Budget Balance::none,USD,Federal Budget Balance,,2009-10-17,03:30,-
 USD::CFTC Crude Oil speculative net positions::none,USD,CFTC Crude Oil speculative net positions,,2009-10-17,04:30,68.8k,68.8k,,,50.0k,50.0k,
 RUB::CFTC RUB speculative positions::none,RUB,CFTC RUB speculative positions,,2009-10-17,04:30,2.2K,2.2K,,,2.1K,2.1K,
 GBP::Rightmove House Price Index::m/m,GBP,Rightmove House Price Index (MoM),,2009-10-19,07:00,2.8%,2.8%,,,0.6%,0.6%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2009-10-19,07:50,,,,,,,
 JPY::Tertiary Industry Activity Index::m/m,JPY,Tertiary Industry Activity Index (MoM),,2009-10-19,07:50,0.3%,0.3%,,0.1%,0.6%,0.6%,
 CAD::Foreign Securities Purchases::none,CAD,Foreign Securities Purchases,,2009-10-19,20:30,5.08B,5.07B,5.08B,1.20B,0.37B,0.37B,0.35B
 USD::NAHB Housing Market Index::none,USD,NAHB Housing Market Index,,2009-10-20,01:00,18,17,18,20,19,19,
@@ -5277,6 +5295,7 @@ USD::Fed Interest Rate Decision::none,USD,Fed Interest Rate Decision,,2009-11-05
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2009-11-05,04:30,"2,165.07B","2,165.07B",,,"2,161.54B","2,161.54B",
 NZD::Employment Change::q/q,NZD,Employment Change (QoQ),,2009-11-05,05:45,-0.8%,-0.8%,,-0.3%,-0.4%,-0.4%,
 NZD::Unemployment Rate::none,NZD,Unemployment Rate,,2009-11-05,05:45,6.5%,6.5%,,6.4%,6.0%,6.0%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2009-11-05,07:50,,,,,,,
 AUD::Trade Balance::none,AUD,Trade Balance,,2009-11-05,08:30,-1.85B,-1.85B,,-2.20B,-1.65B,-1.65B,-1.52B
 CHF::SECO Consumer Climate::none,CHF,SECO Consumer Climate,,2009-11-05,14:45,-30,-14,-30,-37,-42,-42,
 CHF::CPI::m/m,CHF,CPI (MoM),,2009-11-05,16:15,0.6%,0.6%,,0.6%,0.0%,0.0%,
@@ -5493,6 +5512,7 @@ USD::S&P/CS HPI Composite - 20 n.s.a.::y/y,USD,S&P/CS HPI Composite - 20 n.s.a. 
 USD::CB Consumer Confidence::none,USD,CB Consumer Confidence,,2009-11-24,23:00,49.5,50.6,49.5,47.7,48.7,48.7,47.7
 USD::House Price Index::m/m,USD,House Price Index (MoM),,2009-11-24,23:00,0.0%,0.4%,0.0%,0.2%,-0.5%,-0.5%,-0.3%
 USD::Richmond Manufacturing Index::none,USD,Richmond Manufacturing Index,,2009-11-24,23:00,1,1,,10,7,7,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2009-11-25,03:00,,,,,,,
 USD::Bloomberg Consumer Confidence::none,USD,Bloomberg Consumer Confidence,,2009-11-25,06:00,26.5,26.5,,,27.5,27.5,
 JPY::Adjusted Trade Balance::none,JPY,Adjusted Trade Balance,,2009-11-25,07:50,0.42T,0.46T,0.42T,0.30T,0.06T,0.06T,
 JPY::Corporate Services Price Index (CSPI)::y/y,JPY,Corporate Services Price Index (CSPI) (YoY),,2009-11-25,07:50,-2.2%,-2.3%,-2.2%,-2.5%,-3.2%,-3.2%,
@@ -5516,6 +5536,7 @@ EUR::German CPI::m/m,EUR,German CPI (MoM),,2009-11-26,Tentative,-0.2%,-0.2%,,0.0
 USD::Natural Gas Storage::none,USD,Natural Gas Storage,,2009-11-26,01:00,2B,2B,,,20B,20B,
 USD::U.S. Baker Hughes Oil Rig Count::none,USD,U.S. Baker Hughes Oil Rig Count,,2009-11-26,01:00,379,379,,,375,375,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2009-11-26,04:30,"2,206.36B","2,206.36B",,,"2,208.72B","2,208.72B",
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2009-11-26,07:50,,,,,,,
 AUD::Private New Capital Expenditure::q/q,AUD,Private New Capital Expenditure (QoQ),,2009-11-26,08:30,-3.9%,-5.2%,-3.9%,1.1%,2.1%,2.1%,3.3%
 NZD::ANZ Business Confidence::none,NZD,ANZ Business Confidence,,2009-11-26,10:00,43.40,43.40,,,48.20,48.20,
 EUR::M3 Money Supply::y/y,EUR,M3 Money Supply (YoY),,2009-11-26,17:00,0.3%,0.3%,,0.7%,1.8%,1.8%,
@@ -6036,6 +6057,7 @@ USD::Crude Oil Inventories::none,USD,Crude Oil Inventories,,2009-12-23,23:30,-4.
 USD::U.S. Baker Hughes Oil Rig Count::none,USD,U.S. Baker Hughes Oil Rig Count,,2009-12-24,01:00,416,416,,,409,409,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2009-12-24,04:30,"2,235.80B","2,235.80B",,,"2,235.76B","2,235.76B",
 JPY::BSI Large Manufacturing Conditions::none,JPY,BSI Large Manufacturing Conditions,,2009-12-24,07:50,13.2,13.2,,11.5,15.5,15.5,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2009-12-24,07:50,,,,,,,
 JPY::BoJ Governor Shirakawa Speaks::none,JPY,BoJ Governor Shirakawa Speaks,,2009-12-24,13:15,,,,,,,
 USD::Core Durable Goods Orders::m/m,USD,Core Durable Goods Orders (MoM),,2009-12-24,21:30,2.0%,2.1%,2.0%,1.0%,-0.7%,-0.7%,-1.3%
 USD::Durable Goods Orders::m/m,USD,Durable Goods Orders (MoM),,2009-12-24,21:30,0.2%,-0.4%,0.2%,0.5%,-0.6%,-0.6%,

@@ -1,5 +1,5 @@
 {
-  "generated_at": "29-01-2026 05:19",
+  "generated_at": "14-02-2026 11:55",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -111,186 +111,6 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2020-05-01",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2020-06-19",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2020-07-20",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2020-09-24",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2020-12-23",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "GBP::BoE MPC Treasury Committee Hearings::none",
-      "cur": "GBP",
-      "event": "BoE MPC Treasury Committee Hearings",
-      "period": "",
-      "date": "2020-03-04",
-      "time": "Tentative",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "GBP::BoE MPC Treasury Committee Hearings::none",
-      "cur": "GBP",
-      "event": "BoE MPC Treasury Committee Hearings",
-      "period": "",
-      "date": "2020-11-23",
-      "time": "Tentative",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2020-01-04",
-      "time": "04:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2020-02-20",
-      "time": "03:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2020-04-09",
-      "time": "02:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2020-05-21",
-      "time": "02:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2020-07-02",
-      "time": "02:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2020-08-20",
-      "time": "02:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2020-10-08",
-      "time": "02:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2020-11-26",
-      "time": "03:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
       "event_id": "AUD::RBA Bulletin::none",
       "cur": "AUD",
       "event": "RBA Bulletin",
@@ -369,7 +189,7 @@
       "period": "",
       "date": "2020-10-03",
       "time": "15:45",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -379,7 +199,7 @@
       "period": "",
       "date": "2020-01-16",
       "time": "03:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -389,7 +209,7 @@
       "period": "",
       "date": "2020-03-05",
       "time": "03:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -399,7 +219,7 @@
       "period": "",
       "date": "2020-04-16",
       "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -409,7 +229,7 @@
       "period": "",
       "date": "2020-05-28",
       "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -419,7 +239,7 @@
       "period": "",
       "date": "2020-07-16",
       "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -429,7 +249,7 @@
       "period": "",
       "date": "2020-09-03",
       "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -439,7 +259,7 @@
       "period": "",
       "date": "2020-10-22",
       "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -449,157 +269,7 @@
       "period": "",
       "date": "2020-12-03",
       "time": "03:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2020-05-01",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2020-06-19",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2020-07-20",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2020-09-24",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2020-12-23",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "GBP::BoE MPC Treasury Committee Hearings::none",
-      "cur": "GBP",
-      "event": "BoE MPC Treasury Committee Hearings",
-      "period": "",
-      "date": "2020-03-04",
-      "time": "Tentative",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "GBP::BoE MPC Treasury Committee Hearings::none",
-      "cur": "GBP",
-      "event": "BoE MPC Treasury Committee Hearings",
-      "period": "",
-      "date": "2020-11-23",
-      "time": "Tentative",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2020-01-04",
-      "time": "04:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2020-02-20",
-      "time": "03:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2020-04-09",
-      "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2020-05-21",
-      "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2020-07-02",
-      "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2020-08-20",
-      "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2020-10-08",
-      "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2020-11-26",
-      "time": "03:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -609,7 +279,7 @@
       "period": "",
       "date": "2020-03-19",
       "time": "08:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -619,7 +289,7 @@
       "period": "",
       "date": "2020-06-18",
       "time": "09:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -629,7 +299,7 @@
       "period": "",
       "date": "2020-09-17",
       "time": "09:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -639,7 +309,7 @@
       "period": "",
       "date": "2020-12-10",
       "time": "08:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -649,7 +319,7 @@
       "period": "dec",
       "date": "2020-01-25",
       "time": "04:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     }
   ]
 }

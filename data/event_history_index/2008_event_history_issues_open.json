@@ -1,4 +1,41 @@
 {
-  "generated_at": "29-01-2026 05:19",
-  "issues": []
+  "generated_at": "14-02-2026 11:55",
+  "issues": [
+    {
+      "issue": "text_release_zero_triplet_normalized",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
+      "cur": "JPY",
+      "event": "Monetary Policy Meeting Minutes",
+      "period": "",
+      "date": "2008-03-12",
+      "time": "07:50"
+    },
+    {
+      "issue": "text_release_zero_triplet_normalized",
+      "event_id": "GBP::BoE MPC Treasury Committee Hearings::none",
+      "cur": "GBP",
+      "event": "BoE MPC Treasury Committee Hearings",
+      "period": "",
+      "date": "2008-03-26",
+      "time": "17:30"
+    },
+    {
+      "issue": "text_release_zero_triplet_normalized",
+      "event_id": "USD::FOMC Meeting Minutes::none",
+      "cur": "USD",
+      "event": "FOMC Meeting Minutes",
+      "period": "",
+      "date": "2008-04-09",
+      "time": "02:00"
+    },
+    {
+      "issue": "text_release_zero_triplet_normalized",
+      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
+      "cur": "JPY",
+      "event": "Monetary Policy Meeting Minutes",
+      "period": "",
+      "date": "2008-04-14",
+      "time": "07:50"
+    }
+  ]
 }

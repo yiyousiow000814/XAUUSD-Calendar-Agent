@@ -1,5 +1,5 @@
 {
-  "generated_at": "29-01-2026 05:19",
+  "generated_at": "14-02-2026 11:55",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -164,270 +164,6 @@
       "event": "Beige Book",
       "period": "",
       "date": "2014-12-04",
-      "time": "03:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-01-27",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-02-21",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-03-14",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-04-11",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-05-07",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-05-26",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-06-18",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-07-18",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-08-13",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-09-09",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-10-10",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-11-06",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-11-25",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-12-25",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2014-01-09",
-      "time": "03:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2014-02-20",
-      "time": "03:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2014-04-10",
-      "time": "02:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2014-05-22",
-      "time": "02:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2014-07-10",
-      "time": "02:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2014-08-21",
-      "time": "02:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2014-10-09",
-      "time": "02:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2014-11-20",
       "time": "03:00",
       "previous_raw": "",
       "prior_actual": "0.00",
@@ -741,7 +477,7 @@
       "period": "",
       "date": "2014-06-27",
       "time": "23:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -751,7 +487,7 @@
       "period": "",
       "date": "2014-06-27",
       "time": "23:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -761,7 +497,7 @@
       "period": "sep",
       "date": "2014-10-31",
       "time": "04:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -771,7 +507,7 @@
       "period": "",
       "date": "2014-07-10",
       "time": "20:45",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -781,7 +517,7 @@
       "period": "",
       "date": "2014-08-07",
       "time": "20:45",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -791,7 +527,7 @@
       "period": "oct",
       "date": "2014-11-07",
       "time": "01:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -801,7 +537,7 @@
       "period": "oct",
       "date": "2014-11-26",
       "time": "21:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -811,7 +547,7 @@
       "period": "nov",
       "date": "2014-12-29",
       "time": "21:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -821,7 +557,7 @@
       "period": "",
       "date": "2014-01-04",
       "time": "03:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -831,7 +567,7 @@
       "period": "",
       "date": "2014-01-17",
       "time": "00:10",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -841,7 +577,7 @@
       "period": "",
       "date": "2014-01-16",
       "time": "03:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -851,7 +587,7 @@
       "period": "",
       "date": "2014-03-06",
       "time": "03:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -861,7 +597,7 @@
       "period": "",
       "date": "2014-04-17",
       "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -871,7 +607,7 @@
       "period": "",
       "date": "2014-06-05",
       "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -881,7 +617,7 @@
       "period": "",
       "date": "2014-07-17",
       "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -891,7 +627,7 @@
       "period": "",
       "date": "2014-09-04",
       "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -901,7 +637,7 @@
       "period": "",
       "date": "2014-10-16",
       "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -911,227 +647,7 @@
       "period": "",
       "date": "2014-12-04",
       "time": "03:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-01-27",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-02-21",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-03-14",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-04-11",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-05-07",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-05-26",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-06-18",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-07-18",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-08-13",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-09-09",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-10-10",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-11-06",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-11-25",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2014-12-25",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2014-01-09",
-      "time": "03:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2014-02-20",
-      "time": "03:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2014-04-10",
-      "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2014-05-22",
-      "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2014-07-10",
-      "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2014-08-21",
-      "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2014-10-09",
-      "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2014-11-20",
-      "time": "03:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1141,7 +657,7 @@
       "period": "",
       "date": "2014-03-20",
       "time": "08:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1151,7 +667,7 @@
       "period": "",
       "date": "2014-06-19",
       "time": "09:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1161,7 +677,7 @@
       "period": "",
       "date": "2014-09-18",
       "time": "09:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1171,7 +687,7 @@
       "period": "",
       "date": "2014-12-18",
       "time": "08:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1181,7 +697,7 @@
       "period": "",
       "date": "2014-10-03",
       "time": "19:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1191,7 +707,7 @@
       "period": "",
       "date": "2014-01-23",
       "time": "13:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1201,7 +717,7 @@
       "period": "",
       "date": "2014-02-19",
       "time": "13:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1211,7 +727,7 @@
       "period": "",
       "date": "2014-03-12",
       "time": "13:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1221,7 +737,7 @@
       "period": "",
       "date": "2014-04-09",
       "time": "14:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1231,7 +747,7 @@
       "period": "",
       "date": "2014-05-22",
       "time": "13:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1241,7 +757,7 @@
       "period": "",
       "date": "2014-06-16",
       "time": "13:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1251,7 +767,7 @@
       "period": "",
       "date": "2014-07-16",
       "time": "13:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1261,7 +777,7 @@
       "period": "",
       "date": "2014-08-11",
       "time": "13:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1271,7 +787,7 @@
       "period": "",
       "date": "2014-10-08",
       "time": "13:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1281,7 +797,7 @@
       "period": "",
       "date": "2014-11-20",
       "time": "13:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1291,7 +807,7 @@
       "period": "",
       "date": "2014-12-22",
       "time": "13:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1301,7 +817,7 @@
       "period": "",
       "date": "2014-09-12",
       "time": "Tentative",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1311,7 +827,7 @@
       "period": "",
       "date": "2014-07-16",
       "time": "23:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1321,7 +837,7 @@
       "period": "",
       "date": "2014-08-20",
       "time": "07:35",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1331,7 +847,7 @@
       "period": "",
       "date": "2014-09-20",
       "time": "07:35",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1341,7 +857,7 @@
       "period": "sep",
       "date": "2014-10-20",
       "time": "07:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1351,7 +867,7 @@
       "period": "",
       "date": "2014-06-05",
       "time": "21:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1361,7 +877,7 @@
       "period": "",
       "date": "2014-04-10",
       "time": "10:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1371,7 +887,7 @@
       "period": "",
       "date": "2014-08-15",
       "time": "16:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1381,7 +897,7 @@
       "period": "nov",
       "date": "2014-12-30",
       "time": "18:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1391,7 +907,7 @@
       "period": "",
       "date": "2014-05-12",
       "time": "08:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1401,7 +917,7 @@
       "period": "",
       "date": "2014-07-04",
       "time": "20:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1411,7 +927,7 @@
       "period": "",
       "date": "2014-08-06",
       "time": "14:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1421,7 +937,7 @@
       "period": "sep",
       "date": "2014-10-02",
       "time": "09:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1431,7 +947,7 @@
       "period": "nov",
       "date": "2014-12-04",
       "time": "10:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1441,7 +957,7 @@
       "period": "",
       "date": "2014-04-07",
       "time": "10:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1451,7 +967,7 @@
       "period": "",
       "date": "2014-06-06",
       "time": "08:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1461,7 +977,7 @@
       "period": "oct",
       "date": "2014-10-31",
       "time": "20:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1471,7 +987,7 @@
       "period": "",
       "date": "2014-07-25",
       "time": "14:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1481,7 +997,7 @@
       "period": "oct",
       "date": "2014-11-09",
       "time": "08:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1491,7 +1007,7 @@
       "period": "nov",
       "date": "2014-12-15",
       "time": "21:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1501,7 +1017,7 @@
       "period": "nov",
       "date": "2014-12-31",
       "time": "06:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1511,7 +1027,7 @@
       "period": "",
       "date": "2014-09-01",
       "time": "19:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1521,7 +1037,7 @@
       "period": "",
       "date": "2014-09-01",
       "time": "19:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1531,7 +1047,7 @@
       "period": "oct",
       "date": "2014-11-19",
       "time": "06:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1541,7 +1057,7 @@
       "period": "q3",
       "date": "2014-12-19",
       "time": "16:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1551,7 +1067,7 @@
       "period": "q3",
       "date": "2014-12-31",
       "time": "17:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1561,7 +1077,7 @@
       "period": "sep",
       "date": "2014-10-15",
       "time": "05:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1571,7 +1087,7 @@
       "period": "sep",
       "date": "2014-10-15",
       "time": "05:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 11:55"
     }
   ]
 }

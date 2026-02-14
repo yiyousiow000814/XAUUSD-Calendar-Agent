@@ -1,1 +1,5 @@
 Issue,EventId,Cur,Event,Period,Date,Time,PreviousRaw,PriorActual,PreviousEffective,Details
+text_release_zero_triplet_normalized,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2008-03-12,07:50,,,,
+text_release_zero_triplet_normalized,GBP::BoE MPC Treasury Committee Hearings::none,GBP,BoE MPC Treasury Committee Hearings,,2008-03-26,17:30,,,,
+text_release_zero_triplet_normalized,USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2008-04-09,02:00,,,,
+text_release_zero_triplet_normalized,JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2008-04-14,07:50,,,,

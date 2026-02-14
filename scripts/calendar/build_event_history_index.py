@@ -25,6 +25,15 @@ _MANUAL_APPLIED_JSON_FILENAME: Final[str] = "event_history_manual_patch_applied.
 # If an event has historical actual values but a specific release remains missing
 # its actual for too long, drop it from the clean index to avoid confusing charts.
 _STALE_MISSING_ACTUAL_DAYS: Final[int] = 2
+_TEXT_RELEASE_KEYWORDS: Final[tuple[str, ...]] = (
+    "minutes",
+    "statement",
+    "speech",
+    "testimony",
+    "hearing",
+    "remarks",
+    "press conference",
+)
 
 _MONTH_ORDER: Final[dict[str, int]] = {
     "jan": 1,
@@ -329,6 +338,16 @@ def _safe_text(value: object) -> str:
         return ""
     text = str(value)
     return text.strip()
+
+
+def _is_zero_number_text(value: str) -> bool:
+    token = (value or "").strip()
+    return token in {"0", "0.0", "0.00"}
+
+
+def _looks_like_text_release(event_name: str) -> bool:
+    lowered = (event_name or "").strip().lower()
+    return any(keyword in lowered for keyword in _TEXT_RELEASE_KEYWORDS)
 
 
 def _load_manual_overrides(
@@ -692,6 +711,7 @@ def build_index(
 
     rows_written = 0
     entries: list[HistoryRow] = []
+    issues: list[dict] = []
     for year in years:
         year_dir = calendar_dir / str(year)
         rows = _load_year_rows(year_dir, year)
@@ -709,6 +729,30 @@ def build_index(
             actual_value = _safe_text(row.get("Actual"))
             forecast_value = _safe_text(row.get("Forecast"))
             previous_value = _safe_text(row.get("Previous"))
+            # Some old calendar rows encode text-style releases with a synthetic
+            # 0.00 / 0.00 / 0.00 triplet. Treat those as missing values so they do
+            # not contaminate history cleanup and revision logic.
+            normalized_text_triplet = (
+                _looks_like_text_release(event)
+                and _is_zero_number_text(actual_value)
+                and _is_zero_number_text(forecast_value)
+                and _is_zero_number_text(previous_value)
+            )
+            if normalized_text_triplet:
+                actual_value = ""
+                forecast_value = ""
+                previous_value = ""
+                issues.append(
+                    {
+                        "issue": "text_release_zero_triplet_normalized",
+                        "event_id": event_id,
+                        "cur": cur,
+                        "event": event,
+                        "period": period_value,
+                        "date": date_value,
+                        "time": time_value,
+                    }
+                )
 
             manual_key = (event_id, date_value, time_value, period_value)
             manual = manual_overrides.get(manual_key)
@@ -765,7 +809,6 @@ def build_index(
         else set(years)
     )
 
-    issues: list[dict] = []
     patches: list[dict] = []
     manual_applied: list[dict] = []
     existing_keys: set[tuple[str, str, str, str]] = set()

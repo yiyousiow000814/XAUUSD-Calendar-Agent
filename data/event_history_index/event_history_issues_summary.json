@@ -1,10 +1,10 @@
 {
-  "generated_at": "29-01-2026 05:19",
+  "generated_at": "14-02-2026 11:55",
   "output_dir": "data/event_history_index",
   "totals": {
-    "all": 3299,
-    "open": 0,
-    "solved": 3299
+    "all": 2496,
+    "open": 4,
+    "solved": 2492
   },
   "globs": {
     "all_csv": "*_event_history_issues.csv",
@@ -16,9 +16,9 @@
   },
   "by_year": {
     "2008": {
-      "all": 208,
-      "open": 0,
-      "solved": 208,
+      "all": 178,
+      "open": 4,
+      "solved": 174,
       "files": {
         "all": {
           "csv": "2008_event_history_issues.csv",
@@ -35,9 +35,9 @@
       }
     },
     "2009": {
-      "all": 297,
+      "all": 253,
       "open": 0,
-      "solved": 297,
+      "solved": 253,
       "files": {
         "all": {
           "csv": "2009_event_history_issues.csv",
@@ -54,9 +54,9 @@
       }
     },
     "2010": {
-      "all": 240,
+      "all": 196,
       "open": 0,
-      "solved": 240,
+      "solved": 196,
       "files": {
         "all": {
           "csv": "2010_event_history_issues.csv",
@@ -73,9 +73,9 @@
       }
     },
     "2011": {
-      "all": 235,
+      "all": 191,
       "open": 0,
-      "solved": 235,
+      "solved": 191,
       "files": {
         "all": {
           "csv": "2011_event_history_issues.csv",
@@ -92,9 +92,9 @@
       }
     },
     "2012": {
-      "all": 149,
+      "all": 103,
       "open": 0,
-      "solved": 149,
+      "solved": 103,
       "files": {
         "all": {
           "csv": "2012_event_history_issues.csv",
@@ -111,9 +111,9 @@
       }
     },
     "2013": {
-      "all": 140,
+      "all": 96,
       "open": 0,
-      "solved": 140,
+      "solved": 96,
       "files": {
         "all": {
           "csv": "2013_event_history_issues.csv",
@@ -130,9 +130,9 @@
       }
     },
     "2014": {
-      "all": 145,
+      "all": 101,
       "open": 0,
-      "solved": 145,
+      "solved": 101,
       "files": {
         "all": {
           "csv": "2014_event_history_issues.csv",
@@ -149,9 +149,9 @@
       }
     },
     "2015": {
-      "all": 157,
+      "all": 113,
       "open": 0,
-      "solved": 157,
+      "solved": 113,
       "files": {
         "all": {
           "csv": "2015_event_history_issues.csv",
@@ -168,9 +168,9 @@
       }
     },
     "2016": {
-      "all": 123,
+      "all": 91,
       "open": 0,
-      "solved": 123,
+      "solved": 91,
       "files": {
         "all": {
           "csv": "2016_event_history_issues.csv",
@@ -187,9 +187,9 @@
       }
     },
     "2017": {
-      "all": 71,
+      "all": 39,
       "open": 0,
-      "solved": 71,
+      "solved": 39,
       "files": {
         "all": {
           "csv": "2017_event_history_issues.csv",
@@ -206,9 +206,9 @@
       }
     },
     "2018": {
-      "all": 64,
+      "all": 32,
       "open": 0,
-      "solved": 64,
+      "solved": 32,
       "files": {
         "all": {
           "csv": "2018_event_history_issues.csv",
@@ -225,9 +225,9 @@
       }
     },
     "2019": {
-      "all": 85,
+      "all": 49,
       "open": 0,
-      "solved": 85,
+      "solved": 49,
       "files": {
         "all": {
           "csv": "2019_event_history_issues.csv",
@@ -244,9 +244,9 @@
       }
     },
     "2020": {
-      "all": 59,
+      "all": 29,
       "open": 0,
-      "solved": 59,
+      "solved": 29,
       "files": {
         "all": {
           "csv": "2020_event_history_issues.csv",
@@ -263,9 +263,9 @@
       }
     },
     "2021": {
-      "all": 90,
+      "all": 50,
       "open": 0,
-      "solved": 90,
+      "solved": 50,
       "files": {
         "all": {
           "csv": "2021_event_history_issues.csv",
@@ -282,9 +282,9 @@
       }
     },
     "2022": {
-      "all": 89,
+      "all": 49,
       "open": 0,
-      "solved": 89,
+      "solved": 49,
       "files": {
         "all": {
           "csv": "2022_event_history_issues.csv",
@@ -301,9 +301,9 @@
       }
     },
     "2023": {
-      "all": 72,
+      "all": 32,
       "open": 0,
-      "solved": 72,
+      "solved": 32,
       "files": {
         "all": {
           "csv": "2023_event_history_issues.csv",
@@ -320,9 +320,9 @@
       }
     },
     "2024": {
-      "all": 123,
+      "all": 87,
       "open": 0,
-      "solved": 123,
+      "solved": 87,
       "files": {
         "all": {
           "csv": "2024_event_history_issues.csv",
@@ -339,9 +339,9 @@
       }
     },
     "2025": {
-      "all": 803,
+      "all": 761,
       "open": 0,
-      "solved": 803,
+      "solved": 761,
       "files": {
         "all": {
           "csv": "2025_event_history_issues.csv",
@@ -358,9 +358,9 @@
       }
     },
     "2026": {
-      "all": 149,
+      "all": 46,
       "open": 0,
-      "solved": 149,
+      "solved": 46,
       "files": {
         "all": {
           "csv": "2026_event_history_issues.csv",
