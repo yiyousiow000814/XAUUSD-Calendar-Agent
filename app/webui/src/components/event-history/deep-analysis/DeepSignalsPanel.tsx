@@ -11,11 +11,12 @@ function fmtPct01(v: any): string {
   return n === null ? "--" : `${Math.round(n * 100)}%`;
 }
 
-function fmtPct01Clamped(v: any): string {
+function fmtPct01Readable(v: any): string {
   const n = safeNum(v);
   if (n === null) return "--";
-  const clamped = Math.max(0, Math.min(1, n));
-  return `${Math.round(clamped * 100)}%`;
+  if (n < 0) return "0%";
+  if (n > 1) return "100%+";
+  return `${Math.round(n * 100)}%`;
 }
 
 function fmtPct100(v: any): string {
@@ -32,10 +33,10 @@ function fmtSignedPct100(v: any, digits = 3): string {
 
 function trendDirectionText(slope: number | null): string {
   if (slope === null) return "--";
-  if (Math.abs(slope) < 1e-4) return "Flat";
+  const flatEpsilon = 1e-4;
+  if (Math.abs(slope) < flatEpsilon) return "Flat";
   if (slope > 0) return "Up";
-  if (slope < 0) return "Down";
-  return "--";
+  return "Down";
 }
 
 export function DeepSignalsPanel({ signals }: DeepSignalsPanelProps) {
@@ -85,7 +86,7 @@ export function DeepSignalsPanel({ signals }: DeepSignalsPanelProps) {
             </span>
           </div>
           <div className="deep-card-sub">
-            {`Direction from long-term trend · Seasonality: ${fmtPct01Clamped(
+            {`Direction from long-term trend · Seasonality: ${fmtPct01Readable(
               trend?.seasonality_strength
             )} · Years: ${
               typeof trend?.years_covered === "number" ? String(trend.years_covered) : "--"
