@@ -2087,7 +2087,7 @@ export function EventHistoryModal({
               <div
                 className={`history-modal-header-impact-panels${impactOpen ? "" : " is-collapsed"}`}
                 data-qa="qa:history:impact-controls"
-                aria-hidden={!impactOpen}
+                aria-hidden={impactOpen ? undefined : true}
               >
                 <div
                   className="segmented history-impact-segmented history-impact-panels"
