@@ -365,6 +365,7 @@ export function EventHistoryModal({
     const previous = parseComparableNumber(String(selectionPrevious ?? ""));
     return actual !== null || forecast !== null || previous !== null;
   }, [selectionActual, selectionForecast, selectionPrevious]);
+  const prevEventAnalysisAvailableRef = useRef(isEventAnalysisAvailable);
   const eventId = (data?.eventId ?? "").trim();
   const isUsdEvent = eventId.startsWith("USD::");
   const bucketCounts = useMemo(() => {
@@ -452,7 +453,19 @@ export function EventHistoryModal({
   }, [impactPanel, isEventAnalysisAvailable]);
 
   useEffect(() => {
+    const wasAvailable = prevEventAnalysisAvailableRef.current;
+    prevEventAnalysisAvailableRef.current = isEventAnalysisAvailable;
+    // Restore remembered panel once when availability flips back to true.
+    if (!wasAvailable && isEventAnalysisAvailable) {
+      const preferredPanel = impactPanelMemoryRef.current;
+      if (impactPanel !== preferredPanel) {
+        setImpactPanel(preferredPanel);
+        return;
+      }
+    }
     if (!isEventAnalysisAvailable) return;
+    // On false->true transition, do not overwrite memory before restore runs.
+    if (!wasAvailable) return;
     impactPanelMemoryRef.current = impactPanel;
   }, [impactPanel, isEventAnalysisAvailable]);
 
@@ -460,13 +473,6 @@ export function EventHistoryModal({
     if (isEventAnalysisAvailable) return;
     if (impactPanel !== "event") return;
     setImpactPanel("deep");
-  }, [impactPanel, isEventAnalysisAvailable]);
-
-  useEffect(() => {
-    if (!isEventAnalysisAvailable) return;
-    const preferredPanel = impactPanelMemoryRef.current;
-    if (impactPanel === preferredPanel) return;
-    setImpactPanel(preferredPanel);
   }, [impactPanel, isEventAnalysisAvailable]);
 
   useEffect(() => {
@@ -1734,7 +1740,11 @@ export function EventHistoryModal({
 
       event.preventDefault();
       if (impactOpen && impactPanel === "deep") {
-        setImpactPanel("event");
+        if (isEventAnalysisAvailable) {
+          setImpactPanel("event");
+        } else {
+          setImpactOpen(false);
+        }
         return;
       }
       if (impactOpen) {
@@ -1745,7 +1755,7 @@ export function EventHistoryModal({
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [impactOpen, impactPanel, isOpen, requestClose]);
+  }, [impactOpen, impactPanel, isEventAnalysisAvailable, isOpen, requestClose]);
 
   useEffect(() => {
     return () => {
