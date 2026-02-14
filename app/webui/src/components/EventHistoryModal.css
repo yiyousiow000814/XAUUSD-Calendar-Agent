@@ -70,8 +70,32 @@
 .history-modal-header-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 12px;
   min-width: 0;
+}
+
+.history-modal-header-impact-panels {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  order: 0;
+  overflow: hidden;
+  max-width: 320px;
+  opacity: 1;
+  transform: translateY(0);
+  transition: max-width 320ms var(--motion-ease),
+    opacity 220ms var(--motion-ease),
+    transform 320ms var(--motion-ease),
+    margin 320ms var(--motion-ease);
+}
+
+.history-modal-header-impact-panels.is-collapsed {
+  max-width: 0;
+  opacity: 0;
+  transform: translateY(-4px);
+  margin-left: -6px;
+  pointer-events: none;
 }
 
 .history-modal-header-divider {
@@ -79,6 +103,7 @@
   height: 22px;
   background: rgba(18, 20, 26, 0.12);
   align-self: center;
+  order: 3;
 }
 
 [data-theme="dark"] .history-modal-header-divider {
@@ -94,6 +119,7 @@
   background: transparent;
   color: #ff6a3d;
   border-color: rgba(255, 255, 255, 0.22);
+  order: 4;
 }
 
 /* Ensure the close "X" keeps its accent color (more specific than shared .btn styles). */
@@ -134,6 +160,7 @@
   display: flex;
   align-items: center;
   min-width: 0;
+  order: 2;
 }
 
 .history-modal-view-toggle.segmented {
@@ -304,6 +331,13 @@
   gap: 10px;
   flex: 1;
   min-height: 0;
+  transition: gap 320ms var(--motion-ease), transform 320ms var(--motion-ease);
+}
+
+.history-modal-content--impact {
+  /* Impact view uses denser chrome so chart/table can occupy more vertical space. */
+  gap: 4px;
+  transform: translateY(-2px);
 }
 
 .history-modal-controls {
@@ -315,8 +349,20 @@
   height: 50px;
   position: relative;
   z-index: 2;
-  background: var(--panel);
+  background: transparent;
   padding: 0 0 6px;
+  overflow: hidden;
+  transition: height 320ms var(--motion-ease),
+    padding 320ms var(--motion-ease),
+    opacity 220ms var(--motion-ease);
+}
+
+.history-modal-controls.is-collapsed {
+  height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .history-modal-controls-left {
@@ -456,6 +502,10 @@
   .history-modal-controls {
     grid-template-columns: 1fr;
     height: auto;
+  }
+
+  .history-modal-controls.is-collapsed {
+    height: 0;
   }
 
   .history-modal-controls-right {
@@ -700,6 +750,52 @@
   color: var(--danger);
 }
 
+.history-impact-fallback {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+}
+
+.history-impact-mock {
+  flex: 1;
+  min-height: 220px;
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  background:
+    linear-gradient(transparent 24%, rgba(255, 255, 255, 0.06) 25%, transparent 26%) 0 0 / 100% 25%,
+    linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, 0.05) 25%, transparent 26%) 0 0 / 25% 100%,
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015));
+  position: relative;
+}
+
+[data-theme="light"] .history-impact-mock {
+  border-color: rgba(15, 23, 42, 0.18);
+  background:
+    linear-gradient(transparent 24%, rgba(15, 23, 42, 0.06) 25%, transparent 26%) 0 0 / 100% 25%,
+    linear-gradient(90deg, transparent 24%, rgba(15, 23, 42, 0.06) 25%, transparent 26%) 0 0 / 25% 100%,
+    linear-gradient(180deg, rgba(15, 23, 42, 0.03), rgba(15, 23, 42, 0.01));
+}
+
+.history-impact-mock::before {
+  content: "";
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  top: 56%;
+  height: 2px;
+  background: linear-gradient(90deg, #d15d55, #d19555, #58b6a4);
+  opacity: 0.66;
+}
+
+.history-impact-mock-note {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
 .history-impact-actions {
   display: flex;
   flex-wrap: wrap;
@@ -726,9 +822,15 @@
 
 .impact-chart-header {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   justify-content: flex-start;
+  gap: 8px;
   padding: 2px 2px 8px;
+}
+
+.impact-chart-buckets {
+  align-self: flex-start;
 }
 
 .impact-chart-meta {

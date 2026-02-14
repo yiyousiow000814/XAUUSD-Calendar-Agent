@@ -2082,7 +2082,39 @@ export function EventHistoryModal({
             <div className="modal-title-text">Event history</div>
             <div className="modal-subtitle">{selectionLabel}</div>
           </div>
-          <div className="history-modal-header-actions">
+          <div className={`history-modal-header-actions${impactOpen ? " history-modal-header-actions--impact" : ""}`}>
+            {!loading && !error && hasData ? (
+              <div
+                className={`history-modal-header-impact-panels${impactOpen ? "" : " is-collapsed"}`}
+                data-qa="qa:history:impact-controls"
+                aria-hidden={!impactOpen}
+              >
+                <div
+                  className="segmented history-impact-segmented history-impact-panels"
+                  role="group"
+                  aria-label="Impact panels"
+                  data-count="2"
+                  data-value={impactPanel}
+                >
+                  <button
+                    type="button"
+                    className={`segment impact-segment${impactPanel === "event" ? " active" : ""}`}
+                    onClick={() => setImpactPanel("event")}
+                    aria-pressed={impactPanel === "event"}
+                  >
+                    Event Analysis
+                  </button>
+                  <button
+                    type="button"
+                    className={`segment impact-segment${impactPanel === "deep" ? " active" : ""}`}
+                    onClick={() => setImpactPanel("deep")}
+                    aria-pressed={impactPanel === "deep"}
+                  >
+                    Deep Analysis
+                  </button>
+                </div>
+              </div>
+            ) : null}
             {!loading && !error && hasData ? (
               <div className="history-modal-header-view" role="group" aria-label="View">
                 <div
@@ -2091,19 +2123,6 @@ export function EventHistoryModal({
                   data-value={impactOpen ? "impact" : "history"}
                   data-count="2"
                 >
-                  <button
-                    type="button"
-                    className={`segment${!impactOpen ? " active" : ""}`}
-                    onPointerDown={(event) => {
-                      if (event.button !== 0) return;
-                      // Update the visual state immediately on press (click only fires on release).
-                      setImpactOpen(false);
-                    }}
-                    onClick={() => setImpactOpen(false)}
-                    aria-pressed={!impactOpen}
-                  >
-                    History
-                  </button>
                   <button
                     type="button"
                     className={`segment${impactOpen ? " active" : ""}`}
@@ -2116,6 +2135,19 @@ export function EventHistoryModal({
                     aria-pressed={impactOpen}
                   >
                     Impact
+                  </button>
+                  <button
+                    type="button"
+                    className={`segment${!impactOpen ? " active" : ""}`}
+                    onPointerDown={(event) => {
+                      if (event.button !== 0) return;
+                      // Update the visual state immediately on press (click only fires on release).
+                      setImpactOpen(false);
+                    }}
+                    onClick={() => setImpactOpen(false)}
+                    aria-pressed={!impactOpen}
+                  >
+                    History
                   </button>
                 </div>
               </div>
@@ -2163,121 +2195,66 @@ export function EventHistoryModal({
                     impactOpen ? " history-modal-content--impact" : ""
                   }`}
                 >
-                  <div className="history-modal-controls">
-                    <div className="history-modal-controls-left">
-                    {!impactOpen && rangeOptions.length ? (
-                      <div className="history-modal-control">
-                        <span className="history-modal-label">Range</span>
-                        <div className="history-modal-toggle" data-qa="qa:history:range">
-                          {rangeOptions.map((option) => (
-                            <button
-                              key={String(option.key)}
-                              type="button"
-                              className={`history-toggle${activeRange === option.key ? " active" : ""}`}
-                              onClick={() => setPreferredRange(option.key)}
-                              aria-pressed={activeRange === option.key}
-                            >
-                              {option.label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
-                    {impactOpen && impactPanel === "event" ? (
+                  <div
+                    className={`history-modal-controls${impactOpen ? " is-collapsed" : ""}`}
+                    aria-hidden={impactOpen}
+                  >
+                    {!impactOpen ? (
                       <>
-                        <div
-                          className="history-impact-buckets"
-                          role="group"
-                          aria-label="Impact bucket"
-                        >
-                          {impactBucketOptions.map((option) => (
-                            <button
-                              key={option.value}
-                              type="button"
-                              className={`history-toggle impact-toggle impact-bucket-toggle${
-                                impactBucket === option.value ? " active" : ""
-                              }`}
-                              onClick={() => setImpactBucket(option.value as EventImpactBucket)}
-                              aria-pressed={impactBucket === option.value}
-                              data-bucket={option.value}
-                            >
-                              {option.label}
-                              {typeof option.count === "number" ? (
-                                <span className="impact-badge" aria-hidden="true">
-                                  {option.count}
-                                </span>
+                        <div className="history-modal-controls-left">
+                          {rangeOptions.length ? (
+                            <div className="history-modal-control">
+                              <span className="history-modal-label">Range</span>
+                              <div className="history-modal-toggle" data-qa="qa:history:range">
+                                {rangeOptions.map((option) => (
+                                  <button
+                                    key={String(option.key)}
+                                    type="button"
+                                    className={`history-toggle${activeRange === option.key ? " active" : ""}`}
+                                    onClick={() => setPreferredRange(option.key)}
+                                    aria-pressed={activeRange === option.key}
+                                  >
+                                    {option.label}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          ) : null}
+                        </div>
+
+                        <div className="history-modal-controls-right">
+                          {hasMetricValues ? (
+                            <div className="history-modal-series" aria-label="Series toggles" role="group">
+                              <button
+                                type="button"
+                                className={`history-legend-item history-legend-item-actual${
+                                  visibleSeries.actual ? " active" : ""
+                                }`}
+                                onClick={() => toggleSeries("actual")}
+                                aria-pressed={visibleSeries.actual}
+                              >
+                                <span className="history-legend-swatch history-line-actual" />
+                                Actual
+                              </button>
+                              {hasForecastValues ? (
+                                <button
+                                  type="button"
+                                  className={`history-legend-item history-legend-item-forecast${
+                                    visibleSeries.forecast ? " active" : ""
+                                  }`}
+                                  onClick={() => toggleSeries("forecast")}
+                                  aria-pressed={visibleSeries.forecast}
+                                >
+                                  <span className="history-legend-swatch history-line-forecast" />
+                                  Forecast
+                                </button>
                               ) : null}
-                            </button>
-                          ))}
+                            </div>
+                          ) : null}
                         </div>
                       </>
                     ) : null}
                   </div>
-
-                  <div className="history-modal-controls-right">
-                    {impactOpen ? (
-                      <div className="history-impact-controls" data-qa="qa:history:impact-controls">
-                        <div className="history-impact-controls-row">
-                          <div
-                            className="segmented history-impact-segmented history-impact-panels"
-                            role="group"
-                            aria-label="Impact panels"
-                            data-count="2"
-                            data-value={impactPanel}
-                          >
-                            <button
-                              type="button"
-                              className={`segment impact-segment${
-                                impactPanel === "event" ? " active" : ""
-                              }`}
-                              onClick={() => setImpactPanel("event")}
-                              aria-pressed={impactPanel === "event"}
-                            >
-                              Event Analysis
-                            </button>
-                            <button
-                              type="button"
-                              className={`segment impact-segment${
-                                impactPanel === "deep" ? " active" : ""
-                              }`}
-                              onClick={() => setImpactPanel("deep")}
-                              aria-pressed={impactPanel === "deep"}
-                            >
-                              Deep Analysis
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ) : hasMetricValues ? (
-                      <div className="history-modal-series" aria-label="Series toggles" role="group">
-                        <button
-                          type="button"
-                          className={`history-legend-item history-legend-item-actual${
-                            visibleSeries.actual ? " active" : ""
-                          }`}
-                          onClick={() => toggleSeries("actual")}
-                          aria-pressed={visibleSeries.actual}
-                        >
-                          <span className="history-legend-swatch history-line-actual" />
-                          Actual
-                        </button>
-                        {hasForecastValues ? (
-                          <button
-                            type="button"
-                            className={`history-legend-item history-legend-item-forecast${
-                              visibleSeries.forecast ? " active" : ""
-                            }`}
-                            onClick={() => toggleSeries("forecast")}
-                            aria-pressed={visibleSeries.forecast}
-                          >
-                            <span className="history-legend-swatch history-line-forecast" />
-                            Forecast
-                          </button>
-                        ) : null}
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
 
                 <div
                   className={`history-modal-layout${
@@ -2310,8 +2287,33 @@ export function EventHistoryModal({
                           />
                         ) : (
                           <div className="history-impact-chart" data-qa="qa:history:impact-chart"> 
-                            {!impactLoading && !impactError && impactData?.ok && impactChart ? (
-                              <div className="impact-chart-header" aria-hidden="true">
+                            <div className="impact-chart-header" aria-hidden="true">
+                                <div
+                                  className="history-impact-buckets impact-chart-buckets"
+                                  role="group"
+                                  aria-label="Impact bucket"
+                                >
+                                  {impactBucketOptions.map((option) => (
+                                    <button
+                                      key={option.value}
+                                      type="button"
+                                      className={`history-toggle impact-toggle impact-bucket-toggle${
+                                        impactBucket === option.value ? " active" : ""
+                                      }`}
+                                      onClick={() => setImpactBucket(option.value as EventImpactBucket)}
+                                      aria-pressed={impactBucket === option.value}
+                                      data-bucket={option.value}
+                                    >
+                                      {option.label}
+                                      {typeof option.count === "number" ? (
+                                        <span className="impact-badge" aria-hidden="true">
+                                          {option.count}
+                                        </span>
+                                      ) : null}
+                                    </button>
+                                  ))}
+                                </div>
+                                {!impactLoading && !impactError && impactData?.ok && impactChart ? (
                                 <div className="impact-chart-meta">
                                   <span className="impact-chart-meta-item">
                                     Line: most likely direction (color) + confidence (thickness)
@@ -2333,23 +2335,38 @@ export function EventHistoryModal({
                                     </>
                                   ) : null}
                                 </div>
+                                ) : null}
                               </div>
-                            ) : null}
                             <div className="impact-chart-body" ref={impactBodyRef}>
                             {impactError ? (
-                              <div className="history-impact-status error">{impactError}</div>
+                              <div className="history-impact-fallback">
+                                <div className="history-impact-status error">{impactError}</div>
+                                <div className="history-impact-mock" aria-hidden="true">
+                                  <div className="history-impact-mock-note">Preview layout (mock)</div>
+                                </div>
+                              </div>
                             ) : impactLoading || !impactData ? (
                               <div className="history-impact-status">Loading impact analysis...</div>
                             ) : !impactData.ok ? (
-                              <div className="history-impact-status">
-                                Impact analysis not available. Generate it locally first.
+                              <div className="history-impact-fallback">
+                                <div className="history-impact-status">
+                                  Impact analysis not available. Generate it locally first.
+                                </div>
+                                <div className="history-impact-mock" aria-hidden="true">
+                                  <div className="history-impact-mock-note">Preview layout (mock)</div>
+                                </div>
                               </div>
                             ) : !impactChart ? (
                               <div className="history-impact-status">Loading impact chart...</div>
                             ) : impactSeries.items.length < 2 ||
                               (!impactChart.hasBand && !impactChart.hasLine) ? (
-                              <div className="history-impact-status">
-                                Impact analysis is not available for this bucket (insufficient samples).
+                              <div className="history-impact-fallback">
+                                <div className="history-impact-status">
+                                  Impact analysis is not available for this bucket (insufficient samples).
+                                </div>
+                                <div className="history-impact-mock" aria-hidden="true">
+                                  <div className="history-impact-mock-note">Preview layout (mock)</div>
+                                </div>
                               </div>
                             ) : (
                               <>
