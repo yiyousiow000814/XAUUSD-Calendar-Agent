@@ -244,6 +244,7 @@ USD::Challenger Job Cuts::y/y,USD,Challenger Job Cuts (YoY),,2010-01-06,20:30,-7
 USD::ADP Nonfarm Employment Change::none,USD,ADP Nonfarm Employment Change,,2010-01-06,21:15,-84K,-61K,-84K,-75K,-145K,-145K,-169K
 USD::ISM Non-Manufacturing PMI::none,USD,ISM Non-Manufacturing PMI,,2010-01-06,23:00,50.1,49.8,50.1,50.5,48.7,48.7,
 USD::Crude Oil Inventories::none,USD,Crude Oil Inventories,,2010-01-06,23:30,1.300M,1.300M,,,-1.500M,-1.500M,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2010-01-07,03:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2010-01-07,04:30,"2,235.30B","2,235.30B",,,"2,234.07B","2,234.07B",
 NZD::Trade Balance::m/m,NZD,Trade Balance (MoM),,2010-01-07,05:45,-269M,-276M,-269M,-400M,-495M,-495M,-487M
 AUD::Retail Sales::m/m,AUD,Retail Sales (MoM),,2010-01-07,08:30,1.4%,1.5%,1.4%,0.4%,0.4%,0.4%,0.3%
@@ -486,6 +487,7 @@ JPY::National Core CPI::y/y,JPY,National Core CPI (YoY),,2010-01-29,07:30,-1.3%,
 JPY::Tokyo Core CPI::y/y,JPY,Tokyo Core CPI (YoY),,2010-01-29,07:30,-2.0%,-2.0%,,-1.8%,-1.9%,-1.9%,
 JPY::Unemployment Rate::none,JPY,Unemployment Rate,,2010-01-29,07:30,5.1%,5.2%,5.1%,5.3%,5.2%,5.2%,
 JPY::Industrial Production::m/m,JPY,Industrial Production (MoM),,2010-01-29,07:50,2.2%,2.2%,,2.5%,2.2%,2.2%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2010-01-29,07:50,,,,,,,
 GBP::GfK Consumer Confidence::none,GBP,GfK Consumer Confidence,,2010-01-29,08:00,-17,-17,,-18,-19,-19,
 AUD::Private Sector Credit::m/m,AUD,Private Sector Credit (MoM),,2010-01-29,08:30,0.3%,0.3%,,0.1%,0.1%,0.1%,
 JPY::BoJ Governor Shirakawa Speaks::none,JPY,BoJ Governor Shirakawa Speaks,,2010-01-29,11:30,,,,,,,
@@ -906,6 +908,7 @@ USD::Import Price Index::m/m,USD,Import Price Index (MoM),,2010-02-17,21:30,1.4%
 CAD::Wholesale Sales::m/m,CAD,Wholesale Sales (MoM),,2010-02-17,21:30,0.7%,0.9%,0.7%,0.6%,2.7%,2.7%,2.5%
 USD::Capacity Utilization Rate::none,USD,Capacity Utilization Rate,,2010-02-17,22:15,72.6%,72.5%,72.6%,72.6%,71.9%,71.9%,72.0%
 USD::Industrial Production::m/m,USD,Industrial Production (MoM),,2010-02-17,22:15,0.9%,0.9%,,0.7%,0.7%,0.7%,0.6%
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2010-02-18,03:00,,,,,,,
 USD::Federal Budget Balance::none,USD,Federal Budget Balance,,2010-02-18,03:00,-42.6B,-42.6B,,-46.0B,-91.9B,-91.9B,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2010-02-18,04:30,"2,277.57B","2,277.57B",,,"2,256.68B","2,256.68B",
 AUD::NAB Quarterly Business Confidence::none,AUD,NAB Quarterly Business Confidence,,2010-02-18,08:30,18.00,18.00,,,16.00,16.00,
@@ -958,6 +961,7 @@ THB::GDP::y/y,THB,GDP (YoY),,2010-02-22,10:30,5.8%,5.8%,,3.1%,-2.8%,-2.8%,
 TWD::GDP::y/y,TWD,GDP (YoY),,2010-02-22,13:30,9.20%,9.20%,,8.40%,-1.30%,-1.30%,
 MXN::GDP::y/y,MXN,GDP (YoY),,2010-02-22,22:00,-2.30%,-2.30%,,-2.50%,-6.20%,-6.20%,
 ARS::Unemployment Rate::none,ARS,Unemployment Rate,,2010-02-23,03:00,8.4%,8.4%,,8.4%,9.1%,9.1%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2010-02-23,07:50,,,,,,,
 NZD::Inflation Expectations::q/q,NZD,Inflation Expectations (QoQ),,2010-02-23,10:00,2.7%,2.7%,,,2.6%,2.6%,
 CHF::Consumption Indicator::none,CHF,Consumption Indicator,,2010-02-23,15:00,1.36,1.32,1.36,,1.19,1.19,1.20
 EUR::French CPI::m/m,EUR,French CPI (MoM),,2010-02-23,15:45,-0.2%,-0.2%,,-0.3%,0.3%,0.3%,
@@ -1480,6 +1484,7 @@ RUB::CFTC RUB speculative positions::none,RUB,CFTC RUB speculative positions,,20
 AUD::New Motor Vehicle Sales::m/m,AUD,New Motor Vehicle Sales (MoM),,2010-03-22,08:30,-1.9%,-1.9%,,,-3.5%,-3.5%,-3.4%
 GBP::BoE Gov King Speaks::none,GBP,BoE Gov King Speaks,,2010-03-22,23:30,,,,,,,
 USD::Treasury Secretary Geithner Speaks::none,USD,Treasury Secretary Geithner Speaks,,2010-03-23,04:30,,,,,,,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2010-03-23,07:50,,,,,,,
 GBP::CPI::y/y,GBP,CPI (YoY),,2010-03-23,17:30,3.0%,3.0%,,3.1%,3.5%,3.5%,
 GBP::Core CPI::y/y,GBP,Core CPI (YoY),,2010-03-23,17:30,2.9%,2.9%,,3.0%,3.1%,3.1%,
 GBP::Gross Mortgage Approvals::none,GBP,Gross Mortgage Approvals,,2010-03-23,17:30,35.3K,33.4K,35.3K,34.0K,35.2K,35.2K,35.1K
@@ -1819,6 +1824,7 @@ JPY::Leading Index::none,JPY,Leading Index,,2010-04-06,13:00,97.9,97.9,,97.9,96.
 CHF::CPI::m/m,CHF,CPI (MoM),,2010-04-06,15:15,0.1%,0.1%,,0.1%,0.1%,0.1%,
 GBP::Housing Equity Withdrawal::q/q,GBP,Housing Equity Withdrawal (QoQ),,2010-04-06,16:30,-4.0B,-3.4B,-4.0B,-3.0B,-5.1B,-5.1B,-4.9B
 EUR::Sentix Investor Confidence::none,EUR,Sentix Investor Confidence,,2010-04-06,16:30,2.5,2.5,,-6.0,-7.5,-7.5,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2010-04-07,02:00,,,,,,,
 NZD::GlobalDairyTrade Price Index::none,NZD,GlobalDairyTrade Price Index,,2010-04-07,04:00,22.60%,22.60%,,,0.10%,0.10%,
 USD::Bloomberg Consumer Confidence::none,USD,Bloomberg Consumer Confidence,,2010-04-07,05:00,28.5,28.5,,,27.5,27.5,
 GBP::BRC Shop Price Index::y/y,GBP,BRC Shop Price Index (YoY),,2010-04-07,07:00,1.2%,1.2%,,,1.7%,1.7%,
@@ -1882,6 +1888,7 @@ RUB::CFTC RUB speculative positions::none,RUB,CFTC RUB speculative positions,,20
 GBP::Construction Output::m/m,GBP,Construction Output (MoM)  (Feb),feb,2010-04-10,17:30,4.80%,4.80%,,,,,
 JPY::Bank Lending::y/y,JPY,Bank Lending (YoY),,2010-04-12,07:50,-1.8%,-1.8%,,,-1.5%,-1.5%,
 JPY::M2 Money Stock::y/y,JPY,M2 Money Stock (YoY),,2010-04-12,07:50,2.6%,2.7%,2.6%,2.7%,2.7%,2.7%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2010-04-12,07:50,,,,,,,
 AUD::Home Loans::m/m,AUD,Home Loans (MoM),,2010-04-12,09:30,-1.8%,-2.0%,-1.8%,-0.9%,-7.3%,-7.3%,-7.9%
 EUR::Italian Industrial Production::m/m,EUR,Italian Industrial Production (MoM),,2010-04-12,16:00,0.0%,0.0%,,0.4%,1.9%,1.9%,2.6%
 CAD::Housing Starts::none,CAD,Housing Starts,,2010-04-12,20:15,197.00K,199.00K,197.00K,201.00K,200.00K,200.00K,197.00K
@@ -2382,6 +2389,7 @@ NZD::CFTC NZD speculative net positions::none,NZD,CFTC NZD speculative net posit
 USD::CFTC Silver speculative net positions::none,USD,CFTC Silver speculative net positions,,2010-05-08,03:30,38.7K,38.7K,,,40.6K,40.6K,
 USD::CFTC Crude Oil speculative net positions::none,USD,CFTC Crude Oil speculative net positions,,2010-05-08,04:30,109.9k,109.9k,,,109.3k,109.3k,
 RUB::CFTC RUB speculative positions::none,RUB,CFTC RUB speculative positions,,2010-05-08,04:30,2.2K,2.2K,,,1.7K,1.7K,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2010-05-10,07:50,,,,,,,
 AUD::ANZ Job Advertisements::m/m,AUD,ANZ Job Advertisements (MoM),,2010-05-10,09:30,-1.20%,-1.20%,,,1.80%,1.80%,
 AUD::NAB Business Confidence::none,AUD,NAB Business Confidence,,2010-05-10,09:30,13,13,,,16,16,
 JPY::BoJ Interest Rate Decision::none,JPY,BoJ Interest Rate Decision,,2010-05-10,11:10,0.10%,0.10%,,0.10%,0.10%,0.10%,
@@ -2509,6 +2517,7 @@ USD::Core CPI::m/m,USD,Core CPI (MoM),,2010-05-19,20:30,0.0%,0.0%,,0.1%,0.0%,0.0
 CAD::Wholesale Sales::m/m,CAD,Wholesale Sales (MoM),,2010-05-19,20:30,1.4%,1.2%,1.4%,0.3%,-1.5%,-1.5%,-1.2%
 USD::Crude Oil Inventories::none,USD,Crude Oil Inventories,,2010-05-19,22:30,0.200M,0.200M,,,1.900M,1.900M,
 USD::MBA Delinquency Rates::q/q,USD,MBA Delinquency Rates (QoQ),,2010-05-19,23:00,10.06%,10.06%,,9.12%,9.47%,9.47%,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2010-05-20,02:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2010-05-20,04:30,"2,350.89B","2,350.89B",,,"2,336.10B","2,336.10B",
 JPY::GDP::q/q,JPY,GDP (QoQ),,2010-05-20,07:50,1.2%,1.2%,,1.4%,1.0%,1.0%,0.9%
 JPY::GDP Price Index::y/y,JPY,GDP Price Index (YoY),,2010-05-20,07:50,-3.0%,-3.0%,,-2.9%,-2.7%,-2.7%,-2.8%
@@ -2571,6 +2580,7 @@ USD::Richmond Manufacturing Index::none,USD,Richmond Manufacturing Index,,2010-0
 VEF::GDP::y/y,VEF,GDP (YoY),,2010-05-26,01:00,-5.8%,-5.8%,,,-5.8%,-5.8%,
 USD::Bloomberg Consumer Confidence::none,USD,Bloomberg Consumer Confidence,,2010-05-26,05:00,27.5,27.5,,,28,28,
 JPY::Corporate Services Price Index (CSPI)::y/y,JPY,Corporate Services Price Index (CSPI) (YoY),,2010-05-26,07:50,-1.1%,-1.1%,,,-1.2%,-1.2%,-1.1%
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2010-05-26,07:50,,,,,,,
 JPY::BoJ Governor Shirakawa Speaks::none,JPY,BoJ Governor Shirakawa Speaks,,2010-05-26,08:30,,,,,,,
 AUD::MI Leading Index::m/m,AUD,MI Leading Index (MoM),,2010-05-26,08:30,0.9%,1.0%,0.9%,,0.5%,0.5%,
 AUD::Construction Work Done::q/q,AUD,Construction Work Done (QoQ),,2010-05-26,09:30,1.9%,4.2%,1.9%,4.1%,-0.2%,-0.2%,2.6%
@@ -3059,6 +3069,7 @@ CAD::Wholesale Sales::m/m,CAD,Wholesale Sales (MoM),,2010-06-17,20:30,-0.3%,-0.2
 USD::Philadelphia Fed Manufacturing Index::none,USD,Philadelphia Fed Manufacturing Index,,2010-06-17,22:00,8.0,8.0,,18.8,21.4,21.4,
 USD::Natural Gas Storage::none,USD,Natural Gas Storage,,2010-06-17,22:30,87B,87B,,,99B,99B,
 USD::US Leading Index::m/m,USD,US Leading Index (MoM)  (May),may,2010-06-17,23:00,0.4%,0.5%,0.4%,0.4%,0%,0%,-0.1%
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2010-06-18,07:50,,,,,,,
 EUR::German PPI::m/m,EUR,German PPI (MoM),,2010-06-18,14:00,0.3%,0.3%,,0.2%,0.8%,0.8%,
 GBP::M4 Money Supply::m/m,GBP,M4 Money Supply (MoM),,2010-06-18,16:30,0.0%,-0.1%,0.0%,0.2%,0.1%,0.1%,0.0%
 GBP::Mortgage Approvals::none,GBP,Mortgage Approvals,,2010-06-18,16:30,51K,51K,,49K,48K,48K,50K
@@ -3532,6 +3543,7 @@ USD::Import Price Index::m/m,USD,Import Price Index (MoM),,2010-07-14,20:30,-1.3
 USD::Retail Sales::m/m,USD,Retail Sales (MoM),,2010-07-14,20:30,-0.5%,-0.3%,-0.5%,-0.2%,-1.1%,-1.1%,-1.2%
 USD::Business Inventories::m/m,USD,Business Inventories (MoM),,2010-07-14,22:00,0.1%,0.2%,0.1%,0.2%,0.4%,0.4%,
 USD::Crude Oil Inventories::none,USD,Crude Oil Inventories,,2010-07-14,22:30,-5.100M,-5.100M,,,-5.000M,-5.000M,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2010-07-15,02:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2010-07-15,04:30,"2,340.72B","2,340.72B",,,"2,332.02B","2,332.02B",
 NZD::Business NZ PMI::none,NZD,Business NZ PMI,,2010-07-15,06:30,56.2,55.9,56.2,,54.0,54.0,54.5
 AUD::MI Inflation Expectations::none,AUD,MI Inflation Expectations,,2010-07-15,09:00,3.3%,3.3%,,,3.4%,3.4%,
@@ -3597,6 +3609,7 @@ USD::Housing Starts::none,USD,Housing Starts,,2010-07-20,20:30,0.550M,0.540M,0.5
 CAD::BoC Interest Rate Decision::none,CAD,BoC Interest Rate Decision,,2010-07-20,21:00,0.75%,0.75%,,0.75%,0.50%,0.50%,0.25%
 USD::Bloomberg Consumer Confidence::none,USD,Bloomberg Consumer Confidence,,2010-07-21,05:00,27.5,27.5,,,28,28,
 NZD::Visitor Arrivals::m/m,NZD,Visitor Arrivals (MoM),,2010-07-21,06:45,0.3%,0.7%,0.3%,,1.1%,1.1%,1.0%
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2010-07-21,07:50,,,,,,,
 AUD::MI Leading Index::m/m,AUD,MI Leading Index (MoM),,2010-07-21,08:30,0.2%,0.3%,0.2%,,0.0%,0.0%,
 NZD::Credit Card Spending::y/y,NZD,Credit Card Spending (YoY),,2010-07-21,11:00,4.5%,4.4%,4.5%,,3.4%,3.4%,
 GBP::BoE MPC Meeting Minutes::none,GBP,BoE MPC Meeting Minutes,,2010-07-21,16:30,,,,,,,
@@ -4090,6 +4103,7 @@ USD::Natural Gas Storage::none,USD,Natural Gas Storage,,2010-08-12,22:30,37B,37B
 INR::Industrial Production::y/y,INR,Industrial Production (YoY),,2010-08-13,02:30,7.1%,7.2%,7.1%,8.2%,12.2%,12.2%,11.5%
 NZD::Core Retail Sales::q/q,NZD,Core Retail Sales (QoQ),,2010-08-13,06:45,0.9%,0.9%,,,-0.5%,-0.5%,
 NZD::Retail Sales::q/q,NZD,Retail Sales (QoQ),,2010-08-13,06:45,1.3%,1.5%,1.3%,0.3%,0.2%,0.2%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2010-08-13,07:50,,,,,,,
 SGD::Retail Sales::y/y,SGD,Retail Sales (YoY),,2010-08-13,13:00,-4.9%,-4.9%,,-2.5%,-3.4%,-3.4%,
 EUR::German GDP::q/q,EUR,German GDP (QoQ),,2010-08-13,14:00,2.2%,2.2%,,1.3%,0.5%,0.5%,0.2%
 EUR::French CPI::m/m,EUR,French CPI (MoM),,2010-08-13,14:45,-0.3%,-0.3%,,-0.4%,0.0%,0.0%,
@@ -4321,6 +4335,7 @@ CAD::GDP::m/m,CAD,GDP (MoM),,2010-08-31,20:30,0.2%,0.2%,,0.2%,0.1%,0.1%,
 USD::S&P/CS HPI Composite - 20 n.s.a.::y/y,USD,S&P/CS HPI Composite - 20 n.s.a. (YoY),,2010-08-31,21:00,4.2%,4.2%,,3.5%,4.6%,4.6%,
 USD::Chicago PMI::none,USD,Chicago PMI,,2010-08-31,21:45,56.7,56.7,,57.5,62.3,62.3,
 USD::CB Consumer Confidence::none,USD,CB Consumer Confidence,,2010-08-31,22:00,53.5,53.2,53.5,50.0,51.0,51.0,50.4
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2010-09-01,02:00,,,,,,,
 USD::Bloomberg Consumer Confidence::none,USD,Bloomberg Consumer Confidence,,2010-09-01,05:00,27.5,27.5,,,28,28,
 AUD::AIG Manufacturing Index::none,AUD,AIG Manufacturing Index,,2010-09-01,07:30,51.7,51.7,,,54.4,54.4,
 AUD::GDP::q/q,AUD,GDP (QoQ),,2010-09-01,09:30,1.2%,1.1%,1.2%,0.9%,0.7%,0.7%,0.5%
@@ -4631,6 +4646,7 @@ NZD::Terms of Trade Index::q/q,NZD,Terms of Trade Index (QoQ),,2010-09-10,06:45,
 PEN::Interest Rate Decision::none,PEN,Interest Rate Decision,,2010-09-10,07:00,3.00%,3.00%,,3.00%,2.50%,2.50%,
 JPY::GDP::q/q,JPY,GDP (QoQ),,2010-09-10,07:50,0.4%,0.4%,,0.4%,0.1%,0.1%,
 JPY::GDP Price Index::y/y,JPY,GDP Price Index (YoY),,2010-09-10,07:50,-1.7%,-1.7%,,-1.8%,-1.8%,-1.8%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2010-09-10,07:50,,,,,,,
 JPY::PPI::y/y,JPY,PPI (YoY),,2010-09-10,07:50,0.0%,0.0%,,-0.2%,-0.1%,-0.1%,
 EUR::French Industrial Production::m/m,EUR,French Industrial Production (MoM),,2010-09-10,14:45,0.9%,0.8%,0.9%,0.8%,-1.7%,-1.7%,
 HUF::CPI::y/y,HUF,CPI (YoY),,2010-09-10,16:00,3.7%,3.7%,,3.9%,4.0%,4.0%,
@@ -5158,6 +5174,7 @@ MXN::CPI::y/y,MXN,CPI (YoY),,2010-10-07,23:00,3.70%,3.70%,,3.80%,3.70%,3.70%,
 USD::Consumer Credit::none,USD,Consumer Credit,,2010-10-08,03:00,-3.30B,-4.90B,-3.30B,-3.00B,-4.10B,-4.10B,-3.60B
 PEN::Interest Rate Decision::none,PEN,Interest Rate Decision,,2010-10-08,07:00,3.00%,3.00%,,3.25%,3.00%,3.00%,
 JPY::Adjusted Current Account::none,JPY,Adjusted Current Account,,2010-10-08,07:50,1.18T,1.18T,,1.09T,1.46T,1.46T,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2010-10-08,07:50,,,,,,,
 JPY::Economy Watchers Current Index::none,JPY,Economy Watchers Current Index,,2010-10-08,13:00,41.2,41.2,,44.8,45.1,45.1,
 CHF::Unemployment Rate s.a.::none,CHF,Unemployment Rate s.a.,,2010-10-08,13:45,3.7%,3.7%,,3.7%,3.8%,3.8%,
 EUR::German Trade Balance::none,EUR,German Trade Balance,,2010-10-08,14:00,11.7B,12.0B,11.7B,12.2B,12.6B,12.6B,12.7B
@@ -5208,6 +5225,7 @@ GBP::RPI::y/y,GBP,RPI (YoY),,2010-10-12,16:30,4.6%,4.6%,,4.4%,4.7%,4.7%,
 GBP::Trade Balance::none,GBP,Trade Balance,,2010-10-12,16:30,-8.2B,-8.5B,-8.2B,-8.0B,-8.7B,-8.7B,
 USD::IBD/TIPP Economic Optimism::none,USD,IBD/TIPP Economic Optimism,,2010-10-12,22:00,46.4,46.4,,46.7,45.3,45.3,
 MXN::Industrial Production::y/y,MXN,Industrial Production (YoY),,2010-10-12,23:00,8.1%,8.1%,,4.6%,5.4%,5.4%,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2010-10-13,02:00,,,,,,,
 USD::Bloomberg Consumer Confidence::none,USD,Bloomberg Consumer Confidence,,2010-10-13,05:00,27.5,27.5,,,26.5,26.5,
 NZD::FPI::m/m,NZD,FPI (MoM),,2010-10-13,05:45,0.7%,0.7%,,,-0.1%,-0.1%,
 GBP::Nationwide Consumer Confidence::none,GBP,Nationwide Consumer Confidence,,2010-10-13,07:00,53,53,,64,62,62,61
@@ -5661,6 +5679,7 @@ SEK::Unemployment Rate::none,SEK,Unemployment Rate  (Oct),oct,2010-11-01,17:00,7
 CHF::Unemployment Rate n.s.a.::none,CHF,Unemployment Rate n.s.a.  (Oct),oct,2010-11-01,17:00,3.20%,3.20%,,,3.20%,3.20%,
 NZD::Labor Cost Index::q/q,NZD,Labor Cost Index (QoQ),,2010-11-02,05:45,0.6%,0.6%,,0.5%,0.4%,0.4%,
 JPY::Monetary Base::y/y,JPY,Monetary Base (YoY),,2010-11-02,07:50,6.4%,6.4%,,5.6%,5.8%,5.8%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2010-11-02,07:50,,,,,,,
 AUD::RBA Interest Rate Decision::none,AUD,RBA Interest Rate Decision,,2010-11-02,11:30,4.75%,4.75%,,4.50%,4.50%,4.50%,
 AUD::RBA Rate Statement::none,AUD,RBA Rate Statement,,2010-11-02,11:30,,,,,,,
 NA::Japan - Culture Day::none,,Japan - Culture Day,,2010-11-03,All Day,,,,,,,
@@ -5903,6 +5922,7 @@ USD::Philadelphia Fed Manufacturing Index::none,USD,Philadelphia Fed Manufacturi
 CAD::BoC Review::none,CAD,BoC Review,,2010-11-18,23:30,,,,,,,
 USD::Natural Gas Storage::none,USD,Natural Gas Storage,,2010-11-18,23:30,3B,3B,,11B,19B,19B,
 COP::Industrial Production::y/y,COP,Industrial Production (YoY),,2010-11-19,05:00,2.8%,2.8%,,4.0%,4.4%,4.4%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2010-11-19,07:50,,,,,,,
 NZD::Credit Card Spending::y/y,NZD,Credit Card Spending (YoY),,2010-11-19,10:00,4.6%,4.6%,,,4.2%,4.2%,4.1%
 JPY::All Industries Activity Index::m/m,JPY,All Industries Activity Index (MoM),,2010-11-19,12:30,-0.8%,-0.8%,,-0.6%,-0.2%,-0.2%,-0.4%
 EUR::German PPI::m/m,EUR,German PPI (MoM),,2010-11-19,15:00,0.4%,0.4%,,0.3%,0.3%,0.3%,
@@ -5945,6 +5965,7 @@ USD::Existing Home Sales::none,USD,Existing Home Sales,,2010-11-23,23:00,4.43M,4
 USD::Mass Layoffs::none,USD,Mass Layoffs,,2010-11-23,23:00,1.65K,1.65K,,,1.49K,1.49K,
 MXN::Retail Sales::y/y,MXN,Retail Sales (YoY),,2010-11-23,23:00,4.1%,4.1%,,4.8%,4.4%,4.4%,
 USD::Richmond Manufacturing Index::none,USD,Richmond Manufacturing Index,,2010-11-23,23:00,9,9,,6,5,5,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2010-11-24,03:00,,,,,,,
 ARS::Unemployment Rate::none,ARS,Unemployment Rate,,2010-11-24,03:00,7.5%,7.5%,,8.1%,7.9%,7.9%,
 USD::Bloomberg Consumer Confidence::none,USD,Bloomberg Consumer Confidence,,2010-11-24,05:00,26.5,26.5,,,26.5,26.5,
 AUD::Construction Work Done::q/q,AUD,Construction Work Done (QoQ),,2010-11-24,08:30,-2.1%,-1.5%,-2.1%,2.1%,4.5%,4.5%,3.5%
@@ -6640,6 +6661,7 @@ NA::Hong Kong - Christmas::none,,Hong Kong - Christmas,,2010-12-27,All Day,,,,,,
 NA::South Africa - Christmas::none,,South Africa - Christmas,,2010-12-27,All Day,,,,,,,
 NA::United Kingdom - Christmas::none,,United Kingdom - Christmas,,2010-12-27,All Day,,,,,,,
 JPY::Corporate Services Price Index (CSPI)::y/y,JPY,Corporate Services Price Index (CSPI) (YoY),,2010-12-27,07:50,-1.1%,-1.1%,,-1.1%,-1.3%,-1.3%,-1.2%
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2010-12-27,07:50,,,,,,,
 JPY::Housing Starts::y/y,JPY,Housing Starts (YoY),,2010-12-27,13:00,6.8%,6.8%,,5.0%,6.4%,6.4%,
 NA::Australia - Boxing Day::none,,Australia - Boxing Day,,2010-12-28,All Day,,,,,,,
 NA::United Kingdom - Christmas::none,,United Kingdom - Christmas,,2010-12-28,All Day,,,,,,,

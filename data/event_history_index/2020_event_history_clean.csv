@@ -214,6 +214,7 @@ USD::U.S. Baker Hughes Oil Rig Count::none,USD,U.S. Baker Hughes Oil Rig Count,,
 USD::U.S. Baker Hughes Total Rig Count::none,USD,U.S. Baker Hughes Total Rig Count,,2020-01-04,02:00,796,796,,,805,805,
 CAD::BoC Gov Council Member Wilkins Speaks::none,CAD,BoC Gov Council Member Wilkins Speaks,,2020-01-04,02:15,,,,,,,
 USD::FOMC Member Brainard Speaks::none,USD,FOMC Member Brainard Speaks,,2020-01-04,02:15,,,,,,,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2020-01-04,04:00,,,,,,,
 USD::FOMC Member Kaplan Speaks::none,USD,FOMC Member Kaplan Speaks,,2020-01-04,04:30,,,,,,,
 USD::Total Vehicle Sales::none,USD,Total Vehicle Sales,,2020-01-04,07:00,16.70M,16.70M,,17.00M,17.10M,17.10M,
 COP::CPI::m/m,COP,CPI (MoM)  (Dec),dec,2020-01-04,08:00,0.26%,0.26%,,0.28%,0.10%,0.10%,
@@ -2710,6 +2711,7 @@ EUR::German Buba Wuermeling Speaks::none,EUR,German Buba Wuermeling Speaks,,2020
 USD::FOMC Member Kashkari Speaks::none,USD,FOMC Member Kashkari Speaks,,2020-02-20,00:45,,,,,,,
 BRL::Foreign Exchange Flows::none,BRL,Foreign Exchange Flows,,2020-02-20,01:30,1.878B,1.878B,,,3.698B,3.698B,
 USD::FOMC Member Kaplan Speaks::none,USD,FOMC Member Kaplan Speaks,,2020-02-20,02:30,,,,,,,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2020-02-20,03:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2020-02-20,04:30,"4,171.57B","4,171.57B",,,"4,182.69B","4,182.69B",
 KRW::PPI::m/m,KRW,PPI (MoM)  (Jan),jan,2020-02-20,05:00,0.2%,0.4%,0.2%,0.4%,0.3%,0.3%,
 KRW::PPI::y/y,KRW,PPI (YoY)  (Jan),jan,2020-02-20,05:00,1.0%,1.1%,1.0%,1.4%,0.7%,0.7%,
@@ -3492,6 +3494,7 @@ USD::ISM-New York Index::none,USD,ISM-New York Index  (Feb),feb,2020-03-03,22:45
 USD::Fed Interest Rate Decision::none,USD,Fed Interest Rate Decision,,2020-03-03,23:00,1.25%,1.25%,,,1.75%,1.75%,
 USD::IBD/TIPP Economic Optimism::none,USD,IBD/TIPP Economic Optimism,,2020-03-03,23:00,53.9,53.9,,,59.8,59.8,
 NZD::GlobalDairyTrade Price Index::none,NZD,GlobalDairyTrade Price Index,,2020-03-03,23:20,-1.2%,-1.2%,,,-2.9%,-2.9%,
+GBP::BoE MPC Treasury Committee Hearings::none,GBP,BoE MPC Treasury Committee Hearings,,2020-03-04,Tentative,,,,,,,
 EUR::Irish Exchequer Returns::none,EUR,Irish Exchequer Returns  (Feb),feb,2020-03-04,00:30,1.001B,1.001B,,,1.666B,1.666B,
 AED::Interest Rate Decision::none,AED,Interest Rate Decision,,2020-03-04,00:50,1.50%,1.50%,,,2.00%,2.00%,
 USD::FOMC Member Mester Speaks::none,USD,FOMC Member Mester Speaks,,2020-03-04,03:50,,,,,,,
@@ -5481,6 +5484,7 @@ NA::Tunisia - Martyrs' Day::none,,Tunisia - Martyrs' Day,,2020-04-09,All Day,,,,
 NA::Venezuela - Maundy Thursday::none,,Venezuela - Maundy Thursday,,2020-04-09,All Day,,,,,,,
 USD::30-Year Bond Auction::none,USD,30-Year Bond Auction,,2020-04-09,01:00,1.325%,1.325%,,,1.320%,1.320%,
 BRL::Foreign Exchange Flows::none,BRL,Foreign Exchange Flows,,2020-04-09,01:30,-1.726B,-1.726B,,,-5.999B,-5.999B,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2020-04-09,02:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2020-04-09,04:30,"6,083.14B","6,083.14B",,,"5,811.61B","5,811.61B",
 PEN::Trade Balance::none,PEN,Trade Balance  (Feb),feb,2020-04-09,06:30,392M,489M,392M,,287M,287M,0M
 NZD::Electronic Card Retail Sales::m/m,NZD,Electronic Card Retail Sales (MoM)  (Mar),mar,2020-04-09,06:45,-3.9%,-4.6%,-3.9%,,0.5%,0.5%,0.6%
@@ -6856,6 +6860,7 @@ JPY::Tokyo CPI::y/y,JPY,Tokyo CPI (YoY)  (Apr),apr,2020-05-01,07:30,0.2%,0.2%,,,
 JPY::Tokyo Core CPI::y/y,JPY,Tokyo Core CPI (YoY)  (Apr),apr,2020-05-01,07:30,-0.1%,-0.1%,,0.1%,0.4%,0.4%,
 JPY::Foreign Bonds Buying::none,JPY,Foreign Bonds Buying,,2020-05-01,07:50,-149.2B,"-1,107.6B",-149.2B,,-423.2B,-423.2B,-431.5B
 JPY::Foreign Investments in Japanese Stocks::none,JPY,Foreign Investments in Japanese Stocks,,2020-05-01,07:50,-393.7B,-271.9B,-393.7B,,-2.6B,-2.6B,-3.5B
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2020-05-01,07:50,,,,,,,
 KRW::Exports::y/y,KRW,Exports (YoY)  (Apr),apr,2020-05-01,08:00,-24.3%,-24.3%,,-25.4%,-0.7%,-0.7%,
 KRW::Imports::y/y,KRW,Imports (YoY)  (Apr),apr,2020-05-01,08:00,-15.9%,-15.9%,,-17.1%,0.3%,0.3%,
 KRW::Trade Balance::none,KRW,Trade Balance  (Apr),apr,2020-05-01,08:00,-0.95B,-0.95B,,4.59B,4.59B,4.59B,
@@ -7988,6 +7993,7 @@ NA::Tunisia - Ramadan Holiday::none,,Tunisia - Ramadan Holiday,,2020-05-21,All D
 NA::Venezuela - Ascension Day::none,,Venezuela - Ascension Day,,2020-05-21,All Day,,,,,,,
 BRL::Foreign Exchange Flows::none,BRL,Foreign Exchange Flows,,2020-05-21,01:30,2.337B,2.337B,,,0.439B,0.439B,
 CAD::BoC Gov Council Member Lane Speaks::none,CAD,BoC Gov Council Member Lane Speaks,,2020-05-21,02:00,,,,,,,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2020-05-21,02:00,,,,,,,
 ARS::Economic Activity::y/y,ARS,Economic Activity (YoY)  (Mar),mar,2020-05-21,03:00,-11.5%,-11.5%,,-8.7%,-2.2%,-2.2%,
 USD::20-Year Bond Auction::none,USD,20-Year Bond Auction,,2020-05-21,03:00,1.220%,1.220%,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2020-05-21,04:30,"7,037.26B","7,037.26B",,,"6,934.23B","6,934.23B",
@@ -9710,6 +9716,7 @@ GBP::GfK Consumer Confidence::none,GBP,GfK Consumer Confidence  (Jun),jun,2020-0
 JPY::National CPI::y/y,JPY,National CPI (YoY)  (May),may,2020-06-19,07:30,0.1%,0.1%,,,0.1%,0.1%,
 JPY::National Core CPI::y/y,JPY,National Core CPI (YoY)  (May),may,2020-06-19,07:30,-0.2%,-0.2%,,-0.1%,-0.2%,-0.2%,
 JPY::National CPI::m/m,JPY,National CPI (MoM),,2020-06-19,07:30,0.0%,0.0%,,,-0.2%,-0.2%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2020-06-19,07:50,,,,,,,
 AUD::Retail Sales::m/m,AUD,Retail Sales (MoM),,2020-06-19,09:30,16.3%,-17.7%,16.3%,33.6%,-17.7%,-17.7%,
 GBP::Core Retail Sales::m/m,GBP,Core Retail Sales (MoM)  (May),may,2020-06-19,14:00,10.2%,10.6%,10.2%,4.5%,-15.0%,-15.0%,-15.2%
 GBP::Core Retail Sales::y/y,GBP,Core Retail Sales (YoY)  (May),may,2020-06-19,14:00,-9.8%,-9.6%,-9.8%,-14.4%,-18.5%,-18.5%,-18.4%
@@ -10440,6 +10447,7 @@ EUR::German Buba Wuermeling Speaks::none,EUR,German Buba Wuermeling Speaks,,2020
 PEN::CPI::m/m,PEN,CPI (MoM)  (Jun),jun,2020-07-01,23:15,-0.27%,-0.27%,,-0.10%,0.20%,0.20%,
 BRL::Foreign Exchange Flows::none,BRL,Foreign Exchange Flows,,2020-07-02,01:30,-2.927B,-2.927B,,,-2.930B,-2.930B,
 BRL::Trade Balance::none,BRL,Trade Balance  (Jun),jun,2020-07-02,02:00,7.46B,7.50B,7.46B,6.95B,4.50B,4.50B,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2020-07-02,02:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2020-07-02,04:30,"7,009.04B","7,009.04B",,,"7,082.30B","7,082.30B",
 KRW::CPI::m/m,KRW,CPI (MoM)  (Jun),jun,2020-07-02,07:00,0.2%,0.2%,,0.1%,-0.2%,-0.2%,
 KRW::CPI::y/y,KRW,CPI (YoY)  (Jun),jun,2020-07-02,07:00,0.0%,0.0%,,-0.1%,-0.3%,-0.3%,
@@ -11333,6 +11341,7 @@ JPY::Exports::y/y,JPY,Exports (YoY)  (Jun),jun,2020-07-20,07:50,-26.2%,-26.2%,,-
 JPY::Imports::y/y,JPY,Imports (YoY)  (Jun),jun,2020-07-20,07:50,-14.4%,-14.4%,,-16.8%,-26.2%,-26.2%,
 JPY::Trade Balance::none,JPY,Trade Balance  (Jun),jun,2020-07-20,07:50,-268.8B,-269.3B,-268.8B,-35.8B,-838.2B,-838.2B,-833.4B
 JPY::Adjusted Trade Balance::none,JPY,Adjusted Trade Balance,,2020-07-20,07:50,-0.42T,-0.42T,,,-0.59T,-0.59T,-0.60T
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2020-07-20,07:50,,,,,,,
 CNY::PBoC Loan Prime Rate::none,CNY,PBoC Loan Prime Rate,,2020-07-20,09:30,3.85%,3.85%,,3.85%,3.85%,3.85%,
 EUR::Estonian PPI::m/m,EUR,Estonian PPI (MoM)  (Jun),jun,2020-07-20,13:00,1.7%,1.7%,,,0.1%,0.1%,
 EUR::Estonian PPI::y/y,EUR,Estonian PPI (YoY)  (Jun),jun,2020-07-20,13:00,-2.3%,-2.3%,,,-3.9%,-3.9%,
@@ -13044,6 +13053,7 @@ NA::Palestinian Territory - Islamic New Year (Hijri)::none,,Palestinian Territor
 NA::Tunisia - Al- Hijri(Islamic New year)::none,,Tunisia - Al- Hijri(Islamic New year),,2020-08-20,All Day,,,,,,,
 USD::20-Year Bond Auction::none,USD,20-Year Bond Auction,,2020-08-20,01:00,1.185%,1.185%,,,1.059%,1.059%,
 BRL::Foreign Exchange Flows::none,BRL,Foreign Exchange Flows,,2020-08-20,01:30,0.632B,0.632B,,,2.566B,2.566B,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2020-08-20,02:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2020-08-20,04:30,"7,010.64B","7,010.64B",,,"6,957.28B","6,957.28B",
 JPY::Foreign Bonds Buying::none,JPY,Foreign Bonds Buying,,2020-08-20,07:50,-182.2B,-182.1B,-182.2B,,"1,442.9B","1,442.9B","1,434.9B"
 JPY::Foreign Investments in Japanese Stocks::none,JPY,Foreign Investments in Japanese Stocks,,2020-08-20,07:50,371.0B,370.8B,371.0B,,165.5B,165.5B,233.8B
@@ -14914,6 +14924,7 @@ NZD::Exports::none,NZD,Exports  (Aug),aug,2020-09-24,06:45,4.41B,4.41B,,,5.04B,5
 NZD::Imports::none,NZD,Imports  (Aug),aug,2020-09-24,06:45,4.76B,4.69B,4.76B,,4.59B,4.59B,4.63B
 NZD::Trade Balance::m/m,NZD,Trade Balance (MoM)  (Aug),aug,2020-09-24,06:45,-353M,-282M,-353M,,447M,447M,282M
 NZD::Trade Balance::y/y,NZD,Trade Balance (YoY)  (Aug),aug,2020-09-24,06:45,"1,340M","1,420M","1,340M",,50M,50M,-120M
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2020-09-24,07:50,,,,,,,
 EUR::Finnish Export Price Index::y/y,EUR,Finnish Export Price Index (YoY)  (Aug),aug,2020-09-24,13:00,-5.4%,-5.4%,,,-5.0%,-5.0%,
 EUR::Finnish Import Price Index::y/y,EUR,Finnish Import Price Index (YoY)  (Aug),aug,2020-09-24,13:00,-5.9%,-5.9%,,,-6.8%,-6.8%,
 EUR::Finnish PPI::y/y,EUR,Finnish PPI (YoY)  (Aug),aug,2020-09-24,13:00,-4.1%,-4.1%,,,-5.0%,-5.0%,
@@ -15731,6 +15742,7 @@ NA::Peru - Battle of Angamos::none,,Peru - Battle of Angamos,,2020-10-08,All Day
 USD::10-Year Note Auction::none,USD,10-Year Note Auction,,2020-10-08,01:00,0.765%,0.765%,,,0.704%,0.704%,
 USD::FOMC Member Kashkari Speaks::none,USD,FOMC Member Kashkari Speaks,,2020-10-08,01:00,,,,,,,
 BRL::Foreign Exchange Flows::none,BRL,Foreign Exchange Flows,,2020-10-08,01:30,0.029B,0.029B,,,-4.477B,-4.477B,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2020-10-08,02:00,,,,,,,
 USD::FOMC Member Williams Speaks::none,USD,FOMC Member Williams Speaks,,2020-10-08,02:00,,,,,,,
 USD::FOMC Statement::none,USD,FOMC Statement,,2020-10-08,02:00,,,,,,,
 USD::Consumer Credit::none,USD,Consumer Credit  (Aug),aug,2020-10-08,03:00,-7.22B,-6.93B,-7.22B,14.00B,14.67B,14.67B,12.25B
@@ -18271,6 +18283,7 @@ USD::CFTC Silver speculative net positions::none,USD,CFTC Silver speculative net
 USD::CFTC Soybeans speculative net positions::none,USD,CFTC Soybeans speculative net positions,,2020-11-21,04:30,276.3K,276.3K,,,282.1K,282.1K,
 USD::CFTC Wheat speculative net positions::none,USD,CFTC Wheat speculative net positions,,2020-11-21,04:30,18.4K,18.4K,,,33.5K,33.5K,
 NA::Argentina - National Sovereignity Day::none,,Argentina - National Sovereignity Day,,2020-11-23,All Day,,,,,,,
+GBP::BoE MPC Treasury Committee Hearings::none,GBP,BoE MPC Treasury Committee Hearings,,2020-11-23,Tentative,,,,,,,
 NA::Japan - Workers Day::none,,Japan - Workers Day,,2020-11-23,All Day,,,,,,,
 NZD::Retail Sales::q/q,NZD,Retail Sales (QoQ)  (Q3),q3,2020-11-23,05:45,28.0%,28.0%,,,-14.6%,-14.6%,
 NZD::Retail Sales Quarterly Vs. Year Ago::none,NZD,Retail Sales Quarterly Vs. Year Ago  (Q3),q3,2020-11-23,05:45,8.3%,8.3%,,,-14.2%,-14.2%,
@@ -18464,6 +18477,7 @@ USD::Natural Gas Storage::none,USD,Natural Gas Storage,,2020-11-26,01:00,-18B,-1
 USD::U.S. Baker Hughes Oil Rig Count::none,USD,U.S. Baker Hughes Oil Rig Count,,2020-11-26,02:00,241,241,,,231,231,
 USD::U.S. Baker Hughes Total Rig Count::none,USD,U.S. Baker Hughes Total Rig Count,,2020-11-26,02:00,320,320,,,310,310,
 BRL::Foreign Exchange Flows::none,BRL,Foreign Exchange Flows,,2020-11-26,02:30,1.161B,1.161B,,,3.337B,3.337B,-3.337B
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2020-11-26,03:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2020-11-26,04:30,"7,216.48B","7,216.48B",,,"7,243.08B","7,243.08B",
 NZD::Exports::none,NZD,Exports  (Oct),oct,2020-11-26,05:45,4.78B,4.80B,4.78B,,4.01B,4.01B,
 NZD::Imports::none,NZD,Imports  (Oct),oct,2020-11-26,05:45,5.29B,5.27B,5.29B,,5.02B,5.02B,
@@ -20035,6 +20049,7 @@ ARS::Budget Balance::none,ARS,Budget Balance  (Nov),nov,2020-12-23,00:00,"-58,69
 USD::5-Year TIPS Auction::none,USD,5-Year TIPS Auction,,2020-12-23,02:00,-1.575%,-1.575%,,,-1.320%,-1.320%,
 ARS::Trade Balance::none,ARS,Trade Balance  (Nov),nov,2020-12-23,03:00,271M,271M,,"1,059M",666M,666M,612M
 USD::API Weekly Crude Oil Stock::none,USD,API Weekly Crude Oil Stock,,2020-12-23,05:30,2.700M,2.700M,,-3.250M,1.973M,1.973M,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2020-12-23,07:50,,,,,,,
 AUD::Housing Credit::none,AUD,Housing Credit  (Nov),nov,2020-12-23,08:30,0.3%,0.3%,,,0.3%,0.3%,
 AUD::Private Sector Credit::m/m,AUD,Private Sector Credit (MoM)  (Nov),nov,2020-12-23,08:30,0.1%,0.1%,,,0.0%,0.0%,
 THB::Custom-Based Export Data::none,THB,Custom-Based Export Data  (Nov),nov,2020-12-23,11:30,-3.65%,-3.65%,,-3.20%,-6.71%,-6.71%,

@@ -225,6 +225,7 @@ GBP::Net Lending to Individuals::none,GBP,Net Lending to Individuals,,2011-01-04
 EUR::CPI::y/y,EUR,CPI (YoY),,2011-01-04,18:00,2.2%,2.2%,,2.0%,1.9%,1.9%,
 EUR::Italian CPI::m/m,EUR,Italian CPI (MoM),,2011-01-04,18:00,0.4%,0.4%,,0.2%,0.0%,0.0%,
 USD::Factory Orders::m/m,USD,Factory Orders (MoM),,2011-01-04,23:00,0.7%,1.3%,0.7%,-0.4%,-0.7%,-0.7%,-0.9%
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2011-01-05,03:00,,,,,,,
 NZD::GlobalDairyTrade Price Index::none,NZD,GlobalDairyTrade Price Index,,2011-01-05,04:00,5.80%,5.80%,,,2.30%,2.30%,
 USD::Bloomberg Consumer Confidence::none,USD,Bloomberg Consumer Confidence,,2011-01-05,06:00,27.5,27.5,,,28,28,
 USD::Total Vehicle Sales::none,USD,Total Vehicle Sales,,2011-01-05,06:00,12.60M,12.60M,,12.30M,12.30M,12.30M,
@@ -574,6 +575,7 @@ JPY::Household Spending::y/y,JPY,Household Spending (YoY),,2011-01-28,07:30,-3.3
 JPY::National Core CPI::y/y,JPY,National Core CPI (YoY),,2011-01-28,07:30,-0.4%,-0.4%,,-0.4%,-0.5%,-0.5%,
 JPY::Tokyo Core CPI::y/y,JPY,Tokyo Core CPI (YoY),,2011-01-28,07:30,-0.2%,-0.2%,,-0.3%,-0.4%,-0.4%,
 JPY::Unemployment Rate::none,JPY,Unemployment Rate,,2011-01-28,07:30,4.9%,4.9%,,5.1%,5.1%,5.1%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2011-01-28,07:50,,,,,,,
 JPY::Retail Sales::y/y,JPY,Retail Sales (YoY),,2011-01-28,07:50,-2.0%,-2.1%,-2.0%,0.6%,1.5%,1.5%,1.3%
 GBP::GfK Consumer Confidence::none,GBP,GfK Consumer Confidence,,2011-01-28,08:00,-29,-29,,-20,-21,-21,
 VND::Trade Balance::none,VND,Trade Balance,,2011-01-28,09:10,"-1,000.00M",-880.00M,"-1,000.00M","-1,500.00M","-1,300.00M","-1,300.00M","-1,400.00M"
@@ -1074,6 +1076,7 @@ USD::Crude Oil Inventories::none,USD,Crude Oil Inventories,,2011-02-16,23:30,0.9
 USD::Gasoline Inventories::none,USD,Gasoline Inventories,,2011-02-16,23:30,0.200M,0.200M,,1.850M,4.700M,4.700M,
 NA::Egypt - Markets Closed::none,,Egypt - Markets Closed,,2011-02-17,All Day,,,,,,,
 NA::Morocco - Prophet's Birthday::none,,Morocco - Prophet's Birthday,,2011-02-17,All Day,,,,,,,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2011-02-17,03:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2011-02-17,04:30,"2,508.87B","2,508.87B",,,"2,500.48B","2,500.48B",
 NZD::Business NZ PMI::none,NZD,Business NZ PMI,,2011-02-17,05:30,53.7,53.2,53.7,,53.2,53.2,53.1
 NZD::PPI Input::q/q,NZD,PPI Input (QoQ),,2011-02-17,05:45,0.9%,0.9%,,0.4%,0.7%,0.7%,
@@ -1104,6 +1107,7 @@ CAD::BoC Review::none,CAD,BoC Review,,2011-02-17,23:30,,,,,,,
 USD::Natural Gas Storage::none,USD,Natural Gas Storage,,2011-02-17,23:30,-233B,-233B,,-233B,-209B,-209B,
 USD::FOMC Member Fisher Speaks::none,USD,FOMC Member Fisher Speaks,,2011-02-18,02:10,,,,,,,
 CLP::Interest Rate Decision::none,CLP,Interest Rate Decision,,2011-02-18,05:00,3.50%,3.50%,,3.25%,3.25%,3.25%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2011-02-18,07:50,,,,,,,
 EUR::German PPI::m/m,EUR,German PPI (MoM),,2011-02-18,15:00,1.2%,1.2%,,0.6%,0.7%,0.7%,
 EUR::French Business Survey::none,EUR,French Business Survey,,2011-02-18,15:45,106,106,,109,108,108,
 MYR::GDP::y/y,MYR,GDP (YoY),,2011-02-18,17:00,4.8%,4.8%,,5.0%,5.3%,5.3%,
@@ -1755,6 +1759,7 @@ USD::Natural Gas Storage::none,USD,Natural Gas Storage,,2011-03-17,22:30,-56B,-5
 USD::US Leading Index::m/m,USD,US Leading Index (MoM)  (Feb),feb,2011-03-17,23:00,0.8%,1%,0.8%,0.9%,0.1%,0.1%,
 COP::Industrial Production::y/y,COP,Industrial Production (YoY),,2011-03-18,05:00,6.2%,6.5%,6.2%,4.6%,4.0%,4.0%,
 CLP::Interest Rate Decision::none,CLP,Interest Rate Decision,,2011-03-18,06:00,4.00%,4.00%,,3.75%,3.50%,3.50%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2011-03-18,07:50,,,,,,,
 GBP::Nationwide Consumer Confidence::none,GBP,Nationwide Consumer Confidence,,2011-03-18,08:00,38,39,38,48,48,48,47
 EUR::German PPI::m/m,EUR,German PPI (MoM),,2011-03-18,15:00,0.7%,0.7%,,0.7%,1.2%,1.2%,
 CHF::PPI::m/m,CHF,PPI (MoM),,2011-03-18,16:15,0.2%,0.2%,,0.4%,0.1%,0.1%,
@@ -2189,6 +2194,7 @@ CLP::Economic Activity::y/y,CLP,Economic Activity (YoY),,2011-04-05,19:30,7.2%,7
 PLN::Interest Rate Decision::none,PLN,Interest Rate Decision,,2011-04-05,20:00,4.00%,4.00%,,3.75%,3.75%,3.75%,
 USD::ISM Non-Manufacturing PMI::none,USD,ISM Non-Manufacturing PMI,,2011-04-05,22:00,57.3,57.3,,60.0,59.7,59.7,
 VEF::CPI::y/y,VEF,CPI (YoY),,2011-04-06,01:00,28.7%,28.7%,,,29.8%,29.8%,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2011-04-06,02:00,,,,,,,
 NZD::GlobalDairyTrade Price Index::none,NZD,GlobalDairyTrade Price Index,,2011-04-06,04:00,-3.80%,-3.80%,,,-8.40%,-8.40%,
 GBP::BRC Shop Price Index::y/y,GBP,BRC Shop Price Index (YoY),,2011-04-06,07:00,2.4%,2.4%,,,2.7%,2.7%,
 AUD::Home Loans::m/m,AUD,Home Loans (MoM),,2011-04-06,09:30,-5.6%,-4.7%,-5.6%,-2.6%,-6.3%,-6.3%,-4.5%
@@ -2271,6 +2277,7 @@ USD::Chicago Fed President Evans Speaks::none,USD,Chicago Fed President Evans Sp
 GBP::BRC Retail Sales Monitor::y/y,GBP,BRC Retail Sales Monitor (YoY),,2011-04-12,07:00,-3.5%,-3.5%,,,-0.4%,-0.4%,
 JPY::Bank Lending::y/y,JPY,Bank Lending (YoY),,2011-04-12,07:50,-1.7%,-1.7%,,,-1.8%,-1.8%,
 JPY::M2 Money Stock::y/y,JPY,M2 Money Stock (YoY),,2011-04-12,07:50,2.7%,2.6%,2.7%,2.5%,2.4%,2.4%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2011-04-12,07:50,,,,,,,
 AUD::NAB Business Confidence::none,AUD,NAB Business Confidence,,2011-04-12,09:30,9,9,,,14,14,
 KRW::Interest Rate Decision::none,KRW,Interest Rate Decision,,2011-04-12,10:30,3.00%,3.00%,,3.00%,3.00%,3.00%,
 EUR::German CPI::m/m,EUR,German CPI (MoM),,2011-04-12,14:00,0.5%,0.5%,,0.5%,0.5%,0.5%,
@@ -2941,6 +2948,7 @@ USD::CFTC Crude Oil speculative net positions::none,USD,CFTC Crude Oil speculati
 RUB::CFTC RUB speculative positions::none,RUB,CFTC RUB speculative positions,,2011-05-07,04:30,13.7K,13.7K,,,13.5K,13.5K,
 NA::Israel - Memorial Day::none,,Israel - Memorial Day,,2011-05-09,All Day,,,,,,,
 NA::Russia - Victory Day::none,,Russia - Victory Day,,2011-05-09,All Day,,,,,,,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2011-05-09,07:50,,,,,,,
 AUD::ANZ Job Advertisements::m/m,AUD,ANZ Job Advertisements (MoM),,2011-05-09,09:30,1.00%,-0.40%,1.00%,,1.30%,1.30%,
 AUD::NAB Business Confidence::none,AUD,NAB Business Confidence,,2011-05-09,09:30,7,7,,,9,9,
 EUR::German Trade Balance::none,EUR,German Trade Balance,,2011-05-09,14:00,15.2B,15.1B,15.2B,12.5B,11.2B,11.2B,11.4B
@@ -3108,6 +3116,7 @@ CAD::Wholesale Sales::m/m,CAD,Wholesale Sales (MoM),,2011-05-18,20:30,0.1%,0.3%,
 USD::Crude Oil Inventories::none,USD,Crude Oil Inventories,,2011-05-18,22:30,0.000M,0.000M,,1.500M,3.800M,3.800M,
 USD::Gasoline Inventories::none,USD,Gasoline Inventories,,2011-05-18,22:30,0.100M,0.100M,,1.000M,1.300M,1.300M,
 USD::FOMC Member Fisher Speaks::none,USD,FOMC Member Fisher Speaks,,2011-05-19,01:30,,,,,,,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2011-05-19,02:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2011-05-19,04:30,"2,758.01B","2,758.01B",,,"2,744.50B","2,744.50B",
 GBP::Nationwide Consumer Confidence::none,GBP,Nationwide Consumer Confidence,,2011-05-19,07:00,43,44,43,48,45,45,44
 JPY::GDP::q/q,JPY,GDP (QoQ),,2011-05-19,07:50,-0.9%,-0.9%,,-0.5%,-0.8%,-0.8%,-0.3%
@@ -3189,6 +3198,7 @@ NA::Argentina - 1810 Revolution Day::none,,Argentina - 1810 Revolution Day,,2011
 NA::Jordan - Independence Day::none,,Jordan - Independence Day,,2011-05-25,All Day,,,,,,,
 NA::Lebanon - Resistance and Liberation Day::none,,Lebanon - Resistance and Liberation Day,,2011-05-25,All Day,,,,,,,
 JPY::Adjusted Trade Balance::none,JPY,Adjusted Trade Balance,,2011-05-25,07:50,-0.50T,-0.47T,-0.50T,-0.59T,0.00T,0.00T,0.10T
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2011-05-25,07:50,,,,,,,
 AUD::MI Leading Index::m/m,AUD,MI Leading Index (MoM),,2011-05-25,08:30,0.5%,0.6%,0.5%,,0.5%,0.5%,0.4%
 AUD::Construction Work Done::q/q,AUD,Construction Work Done (QoQ),,2011-05-25,09:30,0.7%,0.7%,,1.4%,1.4%,1.4%,0.8%
 JPY::BoJ Governor Shirakawa Speaks::none,JPY,BoJ Governor Shirakawa Speaks,,2011-05-25,11:30,,,,,,,
@@ -3783,6 +3793,7 @@ USD::Bloomberg Consumer Confidence::none,USD,Bloomberg Consumer Confidence,,2011
 USD::Philadelphia Fed Manufacturing Index::none,USD,Philadelphia Fed Manufacturing Index,,2011-06-16,22:00,-7.7,-7.7,,7.0,3.9,3.9,
 USD::Natural Gas Storage::none,USD,Natural Gas Storage,,2011-06-16,22:30,69B,69B,,67B,80B,80B,
 USD::FOMC Member Fisher Speaks::none,USD,FOMC Member Fisher Speaks,,2011-06-17,01:10,,,,,,,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2011-06-17,07:50,,,,,,,
 SGD::Trade Balance::none,SGD,Trade Balance,,2011-06-17,13:15,4.53B,3.05B,4.53B,,4.33B,4.33B,4.44B
 EUR::Italian Trade Balance::none,EUR,Italian Trade Balance,,2011-06-17,16:00,-3.76B,-3.77B,-3.76B,-2.14B,-3.94B,-3.94B,
 EUR::German House Price Index::m/m,EUR,German House Price Index (MoM),,2011-06-17,17:00,1.6%,1.6%,,,1.5%,1.5%,
@@ -4338,6 +4349,7 @@ CAD::Trade Balance::none,CAD,Trade Balance,,2011-07-12,20:30,-0.8B,-1.0B,-0.8B,-
 USD::Trade Balance::none,USD,Trade Balance,,2011-07-12,20:30,-50.2B,-50.8B,-50.2B,-44.0B,-43.6B,-43.6B,-43.7B
 MXN::Industrial Production::y/y,MXN,Industrial Production (YoY),,2011-07-12,21:00,4.6%,4.6%,,1.6%,1.8%,1.8%,1.4%
 USD::IBD/TIPP Economic Optimism::none,USD,IBD/TIPP Economic Optimism,,2011-07-12,22:00,41.4,41.4,,43.9,44.6,44.6,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2011-07-13,02:00,,,,,,,
 NZD::FPI::m/m,NZD,FPI (MoM),,2011-07-13,06:45,1.4%,1.4%,,,0.5%,0.5%,
 KRW::Unemployment Rate::none,KRW,Unemployment Rate,,2011-07-13,08:00,3.3%,3.3%,,3.3%,3.3%,3.3%,
 AUD::Westpac Consumer Sentiment::none,AUD,Westpac Consumer Sentiment,,2011-07-13,08:30,-8.30%,-8.30%,,,-2.60%,-2.60%,
@@ -4384,6 +4396,7 @@ USD::Business Inventories::m/m,USD,Business Inventories (MoM),,2011-07-14,22:00,
 USD::Fed Chairman Bernanke Testifies::none,USD,Fed Chairman Bernanke Testifies,,2011-07-14,22:00,,,,,,,
 USD::Natural Gas Storage::none,USD,Natural Gas Storage,,2011-07-14,22:30,84B,84B,,78B,95B,95B,
 CLP::Interest Rate Decision::none,CLP,Interest Rate Decision,,2011-07-15,06:00,5.25%,5.25%,,5.25%,5.25%,5.25%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2011-07-15,07:50,,,,,,,
 EUR::German New Motor Sales::y/y,EUR,German New Motor Sales (YoY),,2011-07-15,13:00,0.20%,0.20%,,,3.00%,3.00%,
 RUB::Industrial Production::y/y,RUB,Industrial Production (YoY),,2011-07-15,13:00,5.70%,5.70%,,4.00%,4.10%,4.10%,
 SGD::Retail Sales::y/y,SGD,Retail Sales (YoY),,2011-07-15,13:00,10.0%,9.6%,10.0%,8.0%,8.5%,8.5%,8.1%
@@ -4925,6 +4938,7 @@ NA::Singapore - National Holiday::none,,Singapore - National Holiday,,2011-08-09
 NA::South Africa - National Women's Day::none,,South Africa - National Women's Day,,2011-08-09,All Day,,,,,,,
 GBP::BRC Retail Sales Monitor::y/y,GBP,BRC Retail Sales Monitor (YoY),,2011-08-09,07:00,0.6%,0.6%,,-0.5%,-0.6%,-0.6%,
 JPY::M2 Money Stock::y/y,JPY,M2 Money Stock (YoY),,2011-08-09,07:50,2.9%,3.0%,2.9%,2.9%,2.9%,2.9%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2011-08-09,07:50,,,,,,,
 AUD::Home Loans::m/m,AUD,Home Loans (MoM),,2011-08-09,09:30,0.0%,0.6%,0.0%,0.8%,2.8%,2.8%,4.4%
 AUD::NAB Business Confidence::none,AUD,NAB Business Confidence,,2011-08-09,09:30,2,2,,,0,0,
 CNY::CPI::y/y,CNY,CPI (YoY),,2011-08-09,10:00,6.5%,6.5%,,6.4%,6.4%,6.4%,
@@ -5265,6 +5279,7 @@ NA::Jordan - Eid al-Fitr::none,,Jordan - Eid al-Fitr,,2011-08-31,All Day,,,,,,,
 NA::Morocco - Eid al-Fitr::none,,Morocco - Eid al-Fitr,,2011-08-31,All Day,,,,,,,
 NA::Saudi Arabia - Eid al-Fitr::none,,Saudi Arabia - Eid al-Fitr,,2011-08-31,All Day,,,,,,,
 NA::United Arab Emirates - Eid al-Fitr::none,,United Arab Emirates - Eid al-Fitr,,2011-08-31,All Day,,,,,,,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2011-08-31,02:00,,,,,,,
 GBP::GfK Consumer Confidence::none,GBP,GfK Consumer Confidence,,2011-08-31,07:00,-31,-31,,-31,-30,-30,
 JPY::Industrial Production::m/m,JPY,Industrial Production (MoM),,2011-08-31,07:50,0.6%,0.6%,,1.6%,3.8%,3.8%,
 KRW::Industrial Production::y/y,KRW,Industrial Production (YoY),,2011-08-31,08:00,3.8%,4.0%,3.8%,7.0%,6.5%,6.5%,6.4%
@@ -5651,6 +5666,7 @@ GBP::Construction Output::m/m,GBP,Construction Output (MoM)  (Jul),jul,2011-09-1
 GBP::U.K. Construction Output::y/y,GBP,U.K. Construction Output (YoY)  (Jul),jul,2011-09-10,17:30,1.90%,1.90%,,,1.30%,1.30%,
 CNY::M2 Money Stock::y/y,CNY,M2 Money Stock (YoY),,2011-09-11,10:30,13.5%,13.5%,,14.3%,14.7%,14.7%,
 JPY::BSI Large Manufacturing Conditions::none,JPY,BSI Large Manufacturing Conditions,,2011-09-12,07:50,10.3,10.3,,,-23.3,-23.3,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2011-09-12,07:50,,,,,,,
 JPY::PPI::y/y,JPY,PPI (YoY),,2011-09-12,07:50,2.6%,2.6%,,2.7%,2.9%,2.9%,
 JPY::Tertiary Industry Activity Index::m/m,JPY,Tertiary Industry Activity Index (MoM),,2011-09-12,07:50,-0.1%,-0.3%,-0.1%,0.3%,1.8%,1.8%,1.9%
 AUD::Trade Balance::none,AUD,Trade Balance,,2011-09-12,09:30,1.83B,1.82B,1.83B,1.90B,1.82B,1.82B,2.05B
@@ -6291,10 +6307,12 @@ MXN::Industrial Production::y/y,MXN,Industrial Production (YoY),,2011-10-12,21:0
 NA::Hungary - Bridge Holiday::none,,Hungary - Bridge Holiday,,2011-10-13,All Day,,,,,,,
 NA::Israel - Feast of Tabernacles (Sukkot)::none,,Israel - Feast of Tabernacles (Sukkot),,2011-10-13,All Day,,,,,,,
 USD::FOMC Member Fisher Speaks::none,USD,FOMC Member Fisher Speaks,,2011-10-13,01:20,,,,,,,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2011-10-13,02:00,,,,,,,
 USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2011-10-13,04:30,"2,860.82B","2,860.82B",,,"2,859.70B","2,859.70B",
 NZD::Business NZ PMI::none,NZD,Business NZ PMI,,2011-10-13,05:30,50.8,50.6,50.8,,52.7,52.7,52.9
 NZD::FPI::m/m,NZD,FPI (MoM),,2011-10-13,05:45,-1.0%,-1.0%,,,-1.3%,-1.3%,
 JPY::Bank Lending::y/y,JPY,Bank Lending (YoY),,2011-10-13,07:50,-0.3%,-0.3%,,-0.5%,-0.5%,-0.5%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2011-10-13,07:50,,,,,,,
 JPY::Tertiary Industry Activity Index::m/m,JPY,Tertiary Industry Activity Index (MoM),,2011-10-13,07:50,-0.2%,0.0%,-0.2%,-0.3%,-0.3%,-0.3%,-0.1%
 AUD::MI Inflation Expectations::none,AUD,MI Inflation Expectations,,2011-10-13,08:00,3.1%,3.1%,,,2.8%,2.8%,
 AUD::Employment Change::none,AUD,Employment Change,,2011-10-13,08:30,20.4K,22.5K,20.4K,10.0K,-10.5K,-10.5K,-9.7K
@@ -6588,6 +6606,7 @@ NA::Poland - All Saint's Day::none,,Poland - All Saint's Day,,2011-11-01,All Day
 NZD::Labor Cost Index::q/q,NZD,Labor Cost Index (QoQ),,2011-11-01,05:45,0.5%,0.5%,,0.9%,0.5%,0.5%,
 AUD::AIG Manufacturing Index::none,AUD,AIG Manufacturing Index,,2011-11-01,06:30,47.4,47.4,,,42.3,42.3,
 KRW::CPI::y/y,KRW,CPI (YoY),,2011-11-01,07:00,3.9%,3.9%,,4.1%,4.3%,4.3%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2011-11-01,07:50,,,,,,,
 NZD::ANZ Commodity Price Index::m/m,NZD,ANZ Commodity Price Index (MoM),,2011-11-01,08:00,-3.5%,-3.5%,,,-1.3%,-1.3%,
 AUD::HIA New Home Sales::m/m,AUD,HIA New Home Sales (MoM),,2011-11-01,08:00,-3.5%,-3.5%,,,1.1%,1.1%,
 AUD::House Price Index::q/q,AUD,House Price Index (QoQ),,2011-11-01,08:30,-1.20%,-1.90%,-1.20%,-1.50%,-0.50%,-0.50%,-0.10%
@@ -7099,6 +7118,7 @@ RUB::CFTC RUB speculative positions::none,RUB,CFTC RUB speculative positions,,20
 USD::CFTC Silver speculative net positions::none,USD,CFTC Silver speculative net positions,,2011-11-19,04:30,14.4K,14.4K,,,12.9K,12.9K,
 COP::Industrial Production::y/y,COP,Industrial Production (YoY),,2011-11-19,05:00,5.2%,5.1%,5.2%,5.6%,9.7%,9.7%,9.5%
 JPY::Adjusted Trade Balance::none,JPY,Adjusted Trade Balance,,2011-11-21,07:50,-0.46T,-0.50T,-0.46T,-0.20T,-0.01T,-0.01T,-0.02T
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2011-11-21,07:50,,,,,,,
 GBP::Rightmove House Price Index::m/m,GBP,Rightmove House Price Index (MoM),,2011-11-21,08:00,-3.1%,-3.1%,,,2.8%,2.8%,
 SGD::GDP::y/y,SGD,GDP (YoY),,2011-11-21,09:00,6.1%,6.1%,,6.0%,1.0%,1.0%,0.9%
 NZD::Credit Card Spending::y/y,NZD,Credit Card Spending (YoY),,2011-11-21,10:00,7.9%,7.8%,7.9%,,5.3%,5.3%,5.2%
@@ -7127,6 +7147,7 @@ EUR::Consumer Confidence::none,EUR,Consumer Confidence,,2011-11-22,23:00,-20.0,-
 USD::Mass Layoffs::none,USD,Mass Layoffs,,2011-11-22,23:00,1.35K,1.35K,,,1.49K,1.49K,
 USD::Richmond Manufacturing Index::none,USD,Richmond Manufacturing Index,,2011-11-22,23:00,0,0,,-2,-6,-6,
 NA::Japan - Labour Thanksgiving Day::none,,Japan - Labour Thanksgiving Day,,2011-11-23,All Day,,,,,,,
+USD::FOMC Meeting Minutes::none,USD,FOMC Meeting Minutes,,2011-11-23,03:00,,,,,,,
 AUD::Construction Work Done::q/q,AUD,Construction Work Done (QoQ),,2011-11-23,08:30,12.5%,11.7%,12.5%,2.0%,-0.1%,-0.1%,0.7%
 EUR::French Business Survey::none,EUR,French Business Survey,,2011-11-23,15:45,95,96,95,95,97,97,
 TWD::Industrial Production::y/y,TWD,Industrial Production (YoY),,2011-11-23,16:00,1.40%,1.00%,1.40%,2.50%,1.80%,1.80%,1.60%
@@ -7878,6 +7899,7 @@ NA::Hong Kong - Christmas::none,,Hong Kong - Christmas,,2011-12-27,All Day,,,,,,
 NA::United Kingdom - Boxing Day::none,,United Kingdom - Boxing Day,,2011-12-27,All Day,,,,,,,
 KRW::Consumer Confidence::none,KRW,Consumer Confidence,,2011-12-27,05:00,99,99,,102,103,103,
 JPY::Corporate Services Price Index (CSPI)::y/y,JPY,Corporate Services Price Index (CSPI) (YoY),,2011-12-27,07:50,-0.2%,-0.1%,-0.2%,0.1%,0.1%,0.1%,
+JPY::Monetary Policy Meeting Minutes::none,JPY,Monetary Policy Meeting Minutes,,2011-12-27,07:50,,,,,,,
 PHP::Industrial Production::y/y,PHP,Industrial Production (YoY),,2011-12-27,11:30,-6.3%,-10.8%,-6.3%,1.7%,2.5%,2.5%,1.3%
 JPY::Housing Starts::y/y,JPY,Housing Starts (YoY),,2011-12-27,13:00,-0.3%,-0.3%,,-4.8%,-5.8%,-5.8%,
 CHF::Consumption Indicator::none,CHF,Consumption Indicator,,2011-12-27,15:00,0.81,0.78,0.81,,0.90,0.90,0.91

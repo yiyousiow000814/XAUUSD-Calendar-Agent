@@ -1,5 +1,5 @@
 {
-  "generated_at": "29-01-2026 05:19",
+  "generated_at": "14-02-2026 12:22",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -104,198 +104,6 @@
       "event": "Beige Book",
       "period": "",
       "date": "2017-11-30",
-      "time": "03:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2017-02-03",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2017-03-22",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2017-05-02",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2017-06-21",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2017-07-25",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2017-09-26",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2017-11-06",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2017-12-26",
-      "time": "07:50",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2017-01-05",
-      "time": "03:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2017-02-23",
-      "time": "03:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2017-04-06",
-      "time": "02:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2017-05-25",
-      "time": "02:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2017-07-06",
-      "time": "02:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2017-08-17",
-      "time": "02:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2017-10-12",
-      "time": "02:00",
-      "previous_raw": "",
-      "prior_actual": "0.00",
-      "previous_effective": "0.00"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2017-11-23",
       "time": "03:00",
       "previous_raw": "",
       "prior_actual": "0.00",
@@ -417,7 +225,7 @@
       "period": "",
       "date": "2017-12-27",
       "time": "20:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -427,7 +235,7 @@
       "period": "",
       "date": "2017-01-19",
       "time": "03:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -437,7 +245,7 @@
       "period": "",
       "date": "2017-03-02",
       "time": "03:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -447,7 +255,7 @@
       "period": "",
       "date": "2017-04-20",
       "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -457,7 +265,7 @@
       "period": "",
       "date": "2017-06-01",
       "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -467,7 +275,7 @@
       "period": "",
       "date": "2017-07-13",
       "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -477,7 +285,7 @@
       "period": "",
       "date": "2017-09-07",
       "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -487,7 +295,7 @@
       "period": "",
       "date": "2017-10-19",
       "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -497,167 +305,7 @@
       "period": "",
       "date": "2017-11-30",
       "time": "03:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2017-02-03",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2017-03-22",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2017-05-02",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2017-06-21",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2017-07-25",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2017-09-26",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2017-11-06",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "JPY::Monetary Policy Meeting Minutes::none",
-      "cur": "JPY",
-      "event": "Monetary Policy Meeting Minutes",
-      "period": "",
-      "date": "2017-12-26",
-      "time": "07:50",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2017-01-05",
-      "time": "03:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2017-02-23",
-      "time": "03:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2017-04-06",
-      "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2017-05-25",
-      "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2017-07-06",
-      "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2017-08-17",
-      "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2017-10-12",
-      "time": "02:00",
-      "cutoff": "27-01-2026 05:19"
-    },
-    {
-      "issue": "stale_missing_actual_dropped",
-      "event_id": "USD::FOMC Meeting Minutes::none",
-      "cur": "USD",
-      "event": "FOMC Meeting Minutes",
-      "period": "",
-      "date": "2017-11-23",
-      "time": "03:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -667,7 +315,7 @@
       "period": "",
       "date": "2017-03-16",
       "time": "08:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -677,7 +325,7 @@
       "period": "",
       "date": "2017-06-15",
       "time": "09:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -687,7 +335,7 @@
       "period": "",
       "date": "2017-09-21",
       "time": "09:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -697,7 +345,7 @@
       "period": "",
       "date": "2017-12-21",
       "time": "08:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -707,7 +355,7 @@
       "period": "",
       "date": "2017-12-27",
       "time": "20:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -717,7 +365,7 @@
       "period": "nov",
       "date": "2017-12-29",
       "time": "11:30",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -727,7 +375,7 @@
       "period": "jan",
       "date": "2017-03-28",
       "time": "Tentative",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -737,7 +385,7 @@
       "period": "jan",
       "date": "2017-03-22",
       "time": "Tentative",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -747,7 +395,7 @@
       "period": "nov",
       "date": "2017-12-30",
       "time": "01:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -757,7 +405,7 @@
       "period": "jan",
       "date": "2017-02-01",
       "time": "Tentative",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -767,7 +415,7 @@
       "period": "",
       "date": "2017-09-06",
       "time": "22:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -777,7 +425,7 @@
       "period": "jan",
       "date": "2017-02-07",
       "time": "20:00",
-      "cutoff": "27-01-2026 05:19"
+      "cutoff": "12-02-2026 12:22"
     }
   ]
 }

@@ -498,6 +498,7 @@ USD::Natural Gas Storage::none,2025-01-09,01:00,,-40B,-39B,-116B
 BRL::Foreign Exchange Flows::none,2025-01-09,01:30,,-5.602B,,-5.890B
 USD::30-Year Bond Auction::none,2025-01-09,02:00,,4.913%,,4.535%
 ARS::Industrial Production::y/y,2025-01-09,03:00,nov,-1.7%,,-1.9%
+USD::FOMC Meeting Minutes::none,2025-01-09,03:00,,,,
 USD::Consumer Credit::none,2025-01-09,04:00,nov,-7.49B,10.30B,17.32B
 JPY::Overall wage income of employees::none,2025-01-09,07:30,nov,3.0%,,2.2%
 JPY::Overtime Pay::y/y,2025-01-09,07:30,nov,1.60%,,0.70%
@@ -1573,6 +1574,7 @@ USD::M2 Money Supply::m/m,2025-01-29,02:00,dec,21.53T,,21.45T
 USD::7-Year Note Auction::none,2025-01-29,02:00,,4.457%,,4.532%
 CLP::Interest Rate Decision::none,2025-01-29,05:00,jan,5.00%,5.00%,5.00%
 USD::API Weekly Crude Oil Stock::none,2025-01-29,05:30,,2.860M,3.700M,1.000M
+JPY::Monetary Policy Meeting Minutes::none,2025-01-29,07:50,,,,
 AUD::Monthly CPI Indicator::y/y,2025-01-29,08:30,dec,2.50%,2.50%,2.30%
 AUD::CPI::q/q,2025-01-29,08:30,q4,0.2%,0.3%,0.2%
 AUD::CPI::y/y,2025-01-29,08:30,q4,2.4%,2.5%,2.8%
@@ -2980,6 +2982,7 @@ RUB::PPI::y/y,2025-02-20,00:00,jan,9.7%,,7.9%
 NZD::RBNZ Press Conference::none,2025-02-20,00:00,,,,
 BRL::Foreign Exchange Flows::none,2025-02-20,01:30,,-1.984B,,-0.350B
 USD::20-Year Bond Auction::none,2025-02-20,02:00,,4.830%,,4.900%
+USD::FOMC Meeting Minutes::none,2025-02-20,03:00,,,,
 NZD::RBNZ Gov Orr Speaks::none,2025-02-20,03:10,,,,
 KRW::PPI::m/m,2025-02-20,05:00,jan,0.6%,,0.3%
 KRW::PPI::y/y,2025-02-20,05:00,jan,1.7%,,1.7%
@@ -3871,6 +3874,7 @@ USD::OPEC Crude oil Production UAE (Barrel)::none,2025-03-05,22:00,,2.92M,,2.94M
 USD::OPEC Crude oil Production Venezuela (Barrel)::none,2025-03-05,22:00,,0.91M,,0.90M
 GBP::BoE Gov Bailey Speaks::none,2025-03-05,22:30,,,,
 GBP::BoE MPC Member Pill Speaks::none,2025-03-05,22:30,,,,
+GBP::BoE MPC Treasury Committee Hearings::none,2025-03-05,22:30,,,,
 USD::Durables Excluding Defense::m/m,2025-03-05,23:00,jan,3.5%,,3.5%
 USD::Durables Excluding Transport::m/m,2025-03-05,23:00,jan,0.0%,,0.0%
 USD::Factory Orders::m/m,2025-03-05,23:00,jan,1.7%,1.7%,-0.6%
@@ -4980,6 +4984,7 @@ GBP::BoE Gov Bailey Speaks::none,2025-03-25,02:00,,,,
 USD::Fed Vice Chair for Supervision Barr Speaks::none,2025-03-25,03:10,,,,
 KRW::Consumer Confidence::none,2025-03-25,05:00,mar,93.4,,95.2
 AUD::RBA Assistant Governor Jones Speaks::none,2025-03-25,07:10,,,,
+JPY::Monetary Policy Meeting Minutes::none,2025-03-25,07:50,,,,
 CZK::Car Registration::m/m,2025-03-25,13:00,feb,-8.10%,,8.20%
 EUR::Car Registration::m/m,2025-03-25,13:00,feb,-15.2%,,-11.5%
 GBP::Car Registration::m/m,2025-03-25,13:00,feb,-39.7%,,-1.0%
@@ -6025,6 +6030,7 @@ NA::India - Mahavir Jayanti::none,2025-04-10,All Day,,,,
 USD::FOMC Member Barkin Speaks::none,2025-04-10,00:30,,,,
 USD::10-Year Note Auction::none,2025-04-10,01:00,,4.435%,,4.310%
 BRL::Foreign Exchange Flows::none,2025-04-10,01:30,,3.467B,,-2.085B
+USD::FOMC Meeting Minutes::none,2025-04-10,02:00,,,,
 ARS::Industrial Production::y/y,2025-04-10,03:00,feb,5.6%,,7.6%
 JPY::Bank Lending::y/y,2025-04-10,07:50,mar,2.8%,3.1%,3.0%
 JPY::PPI::m/m,2025-04-10,07:50,mar,0.4%,0.2%,0.2%
@@ -7821,6 +7827,7 @@ USD::FOMC Press Conference::none,2025-05-08,02:30,,,,
 USD::Consumer Credit::none,2025-05-08,03:00,mar,10.17B,9.80B,-0.61B
 KRW::FX Reserves - USD::none,2025-05-08,05:00,apr,404.67B,,409.66B
 BRL::Interest Rate Decision::none,2025-05-08,05:30,,14.75%,14.75%,14.25%
+JPY::Monetary Policy Meeting Minutes::none,2025-05-08,07:50,,,,
 PHP::GDP::q/q,2025-05-08,10:00,q1,1.2%,,1.5%
 PHP::GDP::y/y,2025-05-08,10:00,q1,5.4%,5.6%,5.3%
 IDR::FX Reserves (USD)::none,2025-05-08,11:00,apr,152.50B,,157.10B
@@ -9033,6 +9040,7 @@ SAR::Private Sector Loans::y/y,2025-05-29,00:20,apr,15.20%,,15.00%
 USD::5-Year Note Auction::none,2025-05-29,01:00,,4.071%,,3.995%
 NZD::RBNZ Press Conference::none,2025-05-29,01:00,,,,
 BRL::Foreign Exchange Flows::none,2025-05-29,01:30,,-0.089B,,-0.235B
+USD::FOMC Meeting Minutes::none,2025-05-29,02:00,,,,
 BRL::CAGED Net Payroll Jobs::none,2025-05-29,02:30,apr,257.53K,175.00K,71.58K
 USD::API Weekly Crude Oil Stock::none,2025-05-29,04:30,,-4.236M,1.000M,2.499M
 JPY::Foreign Bonds Buying::none,2025-05-29,07:50,,92.0B,,"2,833.9B"
@@ -9435,6 +9443,7 @@ EUR::Core CPI::y/y,2025-06-03,17:00,may,2.3%,2.4%,2.7%
 EUR::HICP ex Energy & Food::y/y,2025-06-03,17:00,may,2.4%,2.4%,2.7%
 EUR::HICP ex Energy and Food::m/m,2025-06-03,17:00,may,0.1%,,0.9%
 NGN::Foreign Reserves (USD)::none,2025-06-03,17:00,,38.45B,,37.90B
+GBP::BoE MPC Treasury Committee Hearings::none,2025-06-03,17:15,,,,
 ZAR::GDP::y/y,2025-06-03,17:30,q1,0.8%,,0.8%
 ZAR::GDP Annualized::q/q,2025-06-03,17:30,q1,0.1%,0.0%,0.6%
 EUR::German 2-Year Schatz Auction::none,2025-06-03,17:50,,1.780%,,1.940%
@@ -10526,6 +10535,7 @@ GBP::GfK Consumer Confidence::none,2025-06-20,07:00,jun,-18,-19,-20
 JPY::National CPI::m/m,2025-06-20,07:30,may,0.3%,,0.1%
 JPY::National CPI::y/y,2025-06-20,07:30,may,3.5%,3.5%,3.6%
 JPY::National Core CPI::y/y,2025-06-20,07:30,may,3.7%,3.6%,3.5%
+JPY::Monetary Policy Meeting Minutes::none,2025-06-20,07:50,,,,
 CNY::China Loan Prime Rate 5Y::none,2025-06-20,09:00,jun,3.50%,3.50%,3.50%
 CNY::PBoC Loan Prime Rate::none,2025-06-20,09:00,,3.00%,3.00%,3.00%
 MYR::Exports::y/y,2025-06-20,12:00,may,-1.1%,8.9%,16.4%
@@ -11684,6 +11694,7 @@ EGP::Core CPI::y/y,2025-07-10,01:00,jun,11.40%,,13.10%
 USD::Atlanta Fed GDPNow::none,2025-07-10,01:00,q2,2.6%,2.6%,2.6%
 USD::10-Year Note Auction::none,2025-07-10,01:00,,4.362%,,4.421%
 BRL::Foreign Exchange Flows::none,2025-07-10,01:30,,-2.148B,,-2.268B
+USD::FOMC Meeting Minutes::none,2025-07-10,02:00,,,,
 NZD::External Migration & Visitors::none,2025-07-10,06:45,may,6.10%,,18.80%
 NZD::Permanent/Long-Term Migration::none,2025-07-10,06:45,may,"1,530",,"1,090"
 NZD::Visitor Arrivals::m/m,2025-07-10,06:45,,-0.9%,,2.2%
@@ -13050,6 +13061,7 @@ USD::Loan Officer Survey::none,2025-08-05,02:00,,,,
 KRW::FX Reserves - USD::none,2025-08-05,05:00,jul,411.33B,,410.20B
 KRW::CPI::m/m,2025-08-05,07:00,jul,0.2%,0.2%,0.0%
 KRW::CPI::y/y,2025-08-05,07:00,jul,2.1%,2.1%,2.2%
+JPY::Monetary Policy Meeting Minutes::none,2025-08-05,07:50,,,,
 PHP::CPI::m/m,2025-08-05,09:00,jul,0.3%,,0.1%
 PHP::CPI::y/y,2025-08-05,09:00,jul,0.9%,1.1%,1.4%
 PHP::Core CPI::y/y,2025-08-05,09:00,jul,2.3%,,2.2%
@@ -13995,6 +14007,7 @@ NA::Morocco - Youth Day::none,2025-08-21,All Day,,,,
 NA::Philippines - Ninoy Aquino Day::none,2025-08-21,All Day,,,,
 USD::20-Year Bond Auction::none,2025-08-21,01:00,,4.876%,,4.935%
 BRL::Foreign Exchange Flows::none,2025-08-21,01:30,,0.031B,,-0.305B
+USD::FOMC Meeting Minutes::none,2025-08-21,02:00,,,,
 ARS::Economic Activity::y/y,2025-08-21,03:00,jun,6.4%,6.4%,5.0%
 ARS::Trade Balance::none,2025-08-21,03:00,jul,988M,690M,906M
 USD::FOMC Member Bostic Speaks::none,2025-08-21,03:00,,,,
@@ -14820,6 +14833,7 @@ USD::Redbook::y/y,2025-09-03,20:55,,6.5%,,6.5%
 BRL::S&P Global Composite PMI::none,2025-09-03,21:00,aug,48.8,,46.6
 BRL::S&P Global Services PMI::none,2025-09-03,21:00,aug,49.3,,46.3
 GBP::BoE Gov Bailey Speaks::none,2025-09-03,21:15,,,,
+GBP::BoE MPC Treasury Committee Hearings::none,2025-09-03,21:15,,,,
 USD::Durables Excluding Defense::m/m,2025-09-03,22:00,jul,-2.5%,-2.5%,-2.5%
 USD::Durables Excluding Transport::m/m,2025-09-03,22:00,jul,1.0%,,1.1%
 USD::Factory Orders::m/m,2025-09-03,22:00,jul,-1.3%,-1.3%,-4.8%
@@ -16050,6 +16064,7 @@ BRL::Foreign Exchange Flows::none,2025-09-25,01:30,,-0.660B,,-0.163B
 ARS::Economic Activity::y/y,2025-09-25,03:00,jul,2.9%,3.3%,6.4%
 USD::FOMC Member Daly Speaks::none,2025-09-25,04:10,,,,
 JPY::Corporate Services Price Index (CSPI)::y/y,2025-09-25,07:50,,2.7%,2.9%,2.6%
+JPY::Monetary Policy Meeting Minutes::none,2025-09-25,07:50,,,,
 CZK::Car Registration::m/m,2025-09-25,12:00,aug,-15.40%,,-6.30%
 EUR::Car Registration::m/m,2025-09-25,12:00,aug,-20.8%,,-4.1%
 GBP::Car Registration::m/m,2025-09-25,12:00,aug,-40.8%,,-26.7%
@@ -16985,7 +17000,9 @@ NA::South Korea - Hangul Day::none,2025-10-09,All Day,,,,
 USD::10-Year Note Auction::none,2025-10-09,01:00,,4.117%,,4.033%
 USD::Fed Logan Speaks::none,2025-10-09,01:15,,,,
 BRL::Foreign Exchange Flows::none,2025-10-09,01:30,,-1.056B,,1.141B
+USD::FOMC Meeting Minutes::none,2025-10-09,02:00,,,,
 ARS::Industrial Production::y/y,2025-10-09,03:00,aug,-4.4%,,-0.9%
+USD::FOMC Meeting Minutes::none,2025-10-09,03:00,,,,
 USD::FOMC Member Kashkari Speaks::none,2025-10-09,03:15,,,,
 USD::Fed Vice Chair for Supervision Barr Speaks::none,2025-10-09,05:45,,,,
 IDR::Motorbike Sales::y/y,2025-10-09,06:50,sep,7.30%,,0.70%
@@ -18424,6 +18441,7 @@ NZD::RBNZ Gov Orr Speaks::none,2025-11-05,06:00,,,,
 USD::OPEC Crude Oil Production Guinea (Barrel)::none,2025-11-05,06:05,,0.06M,,0.05M
 USD::OPEC Crude oil Production Saudi Arabia (Barrel)::none,2025-11-05,06:05,,9.90M,,9.85M
 JPY::Monetary Base::y/y,2025-11-05,07:50,oct,-7.9%,-4.8%,-6.1%
+JPY::Monetary Policy Meeting Minutes::none,2025-11-05,07:50,,,,
 NZD::ANZ Commodity Price Index::m/m,2025-11-05,08:00,,-0.3%,,-1.1%
 NZD::RBNZ Press Conference::none,2025-11-05,08:00,,,,
 HKD::S&P Global Manufacturing PMI::none,2025-11-05,08:30,oct,51.2,,50.4
@@ -19324,6 +19342,7 @@ BRL::Foreign Exchange Flows::none,2025-11-20,01:30,,-1.219B,,-1.786B
 USD::FOMC Member Barkin Speaks::none,2025-11-20,01:45,,,,
 USD::20-Year Bond Auction::none,2025-11-20,02:00,,4.706%,,4.506%
 ARS::Trade Balance::none,2025-11-20,03:00,oct,800M,728M,921M
+USD::FOMC Meeting Minutes::none,2025-11-20,03:00,,,,
 USD::FOMC Member Williams Speaks::none,2025-11-20,03:00,,,,
 AUD::CFTC AUD speculative net positions::none,2025-11-20,04:30,,-64.6K,,-59.6K
 USD::CFTC Aluminium speculative net positions::none,2025-11-20,04:30,,0.4K,,0.7K
@@ -21673,6 +21692,7 @@ USD::CFTC Wheat speculative net positions::none,2025-12-24,04:30,,-50.2K,,-29.1K
 KRW::Consumer Confidence::none,2025-12-24,05:00,dec,109.9,,112.4
 USD::API Weekly Crude Oil Stock::none,2025-12-24,05:30,,2.400M,,-9.300M
 JPY::Corporate Services Price Index (CSPI)::y/y,2025-12-24,07:50,,2.7%,2.7%,2.7%
+JPY::Monetary Policy Meeting Minutes::none,2025-12-24,07:50,,,,
 JPY::Leading Index::none,2025-12-24,13:00,nov,109.8,110.0,108.6
 EUR::Dutch GDP::q/q,2025-12-24,13:30,q3,0.5%,0.4%,0.3%
 EUR::Dutch GDP::y/y,2025-12-24,13:30,q3,1.8%,1.6%,1.7%
@@ -21985,6 +22005,7 @@ MXN::Fiscal Balance::none,2025-12-31,02:00,nov,"-1,083.10B",,-779.60B
 USD::U.S. Baker Hughes Oil Rig Count::none,2025-12-31,02:00,,412,,409
 USD::U.S. Baker Hughes Total Rig Count::none,2025-12-31,02:00,,546,,545
 MXN::Fiscal Balance::none,2025-12-31,03:00,nov,-200.52B,,-16.75B
+USD::FOMC Meeting Minutes::none,2025-12-31,03:00,,,,
 USD::API Weekly Crude Oil Stock::none,2025-12-31,05:30,,1.700M,,2.400M
 KRW::CPI::m/m,2025-12-31,07:00,dec,0.3%,0.2%,-0.2%
 KRW::CPI::y/y,2025-12-31,07:00,dec,2.3%,2.3%,2.4%

@@ -191,6 +191,7 @@ USD::ISM Manufacturing PMI::none,2018-01-03,23:00,dec,59.7,58.1,58.2
 USD::ISM Manufacturing Prices::none,2018-01-03,23:00,dec,69.0,64.8,65.5
 NA::Montenegro - New Year::none,2018-01-04,All Day,,,,
 EUR::Irish Exchequer Returns::none,2018-01-04,00:30,dec,1.909B,,4.596B
+USD::FOMC Meeting Minutes::none,2018-01-04,03:00,,,,
 USD::All Truck Sales::none,2018-01-04,04:30,dec,11.76M,,11.21M
 USD::Domestic Truck Sales::none,2018-01-04,04:30,dec,9.61M,9.07M,9.17M
 USD::Domestic Car Sales::none,2018-01-04,04:30,,4.40M,,4.61M
@@ -1212,6 +1213,7 @@ JPY::Tokyo CPI::y/y,2018-01-26,07:30,jan,1.3%,1.1%,1.0%
 JPY::Tokyo Core CPI::y/y,2018-01-26,07:30,jan,0.7%,0.8%,0.8%
 JPY::National CPI::m/m,2018-01-26,07:30,,0.2%,,0.7%
 JPY::Corporate Services Price Index (CSPI)::y/y,2018-01-26,07:50,,0.8%,0.8%,0.8%
+JPY::Monetary Policy Meeting Minutes::none,2018-01-26,07:50,,,,
 SGD::URA Property Index::q/q,2018-01-26,08:30,q4,0.80%,,0.70%
 SGD::Unemployment Rate::none,2018-01-26,10:30,q4,2.1%,,2.2%
 SGD::Industrial Production::m/m,2018-01-26,13:00,dec,-2.0%,1.5%,-2.1%
@@ -2555,6 +2557,7 @@ BRL::BCB National Monetary Council Meeting::none,2018-02-22,Tentative,,,,
 PLN::NBP Monetary Policy Meeting Minutes::none,2018-02-22,Tentative,,,,
 USD::5-Year Note Auction::none,2018-02-22,02:00,,2.658%,,2.434%
 ARS::Trade Balance::none,2018-02-22,03:00,jan,-986M,-464M,-847M
+USD::FOMC Meeting Minutes::none,2018-02-22,03:00,,,,
 ARS::Budget Balance::none,2018-02-22,04:00,jan,"3,929M",,"-119,607M"
 USD::Fed's Balance Sheet::none,2018-02-22,04:30,,"4,411.66B",,"4,434.86B"
 USD::API Weekly Crude Oil Stock::none,2018-02-22,05:35,,-0.907M,1.300M,3.947M
@@ -3641,6 +3644,7 @@ KRW::Unemployment Rate::none,2018-03-14,07:00,feb,3.6%,,3.6%
 AUD::Westpac Consumer Sentiment::none,2018-03-14,07:30,mar,0.2%,,-2.3%
 JPY::Core Machinery Orders::m/m,2018-03-14,07:50,jan,8.2%,5.3%,-9.3%
 JPY::Core Machinery Orders::y/y,2018-03-14,07:50,jan,2.9%,0.6%,-5.0%
+JPY::Monetary Policy Meeting Minutes::none,2018-03-14,07:50,,,,
 CNY::Fixed Asset Investment::y/y,2018-03-14,10:00,feb,7.9%,7.0%,7.2%
 CNY::Industrial Production::y/y,2018-03-14,10:00,feb,7.2%,6.3%,6.2%
 CNY::Retail Sales::y/y,2018-03-14,10:00,feb,9.7%,10.0%,9.4%
@@ -5208,6 +5212,7 @@ USD::Cleveland CPI::m/m,2018-04-11,23:00,mar,0.3%,,0.2%
 BRL::Foreign Exchange Flows::none,2018-04-11,23:30,,2.69B,,-3.94B
 USD::10-Year Note Auction::none,2018-04-12,01:00,,2.795%,,2.889%
 USD::Federal Budget Balance::none,2018-04-12,02:00,mar,-209.0B,-191.0B,-215.0B
+USD::FOMC Meeting Minutes::none,2018-04-12,02:00,,,,
 USD::Fed's Balance Sheet::none,2018-04-12,04:30,,"4,383.68B",,"4,386.10B"
 NZD::Electronic Card Retail Sales::m/m,2018-04-12,06:45,mar,1.0%,0.5%,-0.2%
 NZD::Electronic Card Retail Sales::y/y,2018-04-12,06:45,mar,6.0%,,3.3%
@@ -6475,6 +6480,7 @@ NA::Sri Lanka - May day::none,2018-05-07,All Day,,,,
 NA::United Kingdom - Early May Bank Holiday::none,2018-05-07,All Day,,,,
 AUD::AIG Construction Index::none,2018-05-07,06:30,apr,55.4,,57.2
 USD::FOMC Member Quarles Speaks::none,2018-05-07,07:00,,,,
+JPY::Monetary Policy Meeting Minutes::none,2018-05-07,07:50,,,,
 AUD::NAB Business Confidence::none,2018-05-07,09:30,apr,10,,8
 AUD::NAB Business Survey::none,2018-05-07,09:30,apr,21,,15
 AUD::ANZ Job Advertisements::m/m,2018-05-07,09:30,,-0.2%,,-0.1%
@@ -7372,6 +7378,7 @@ KRW::BOK Financial Stability Board Meeting Minutes::none,2018-05-24,Tentative,,,
 NA::Bulgaria - Cyrillic Alphabet and Slavic Culture Day::none,2018-05-24,All Day,,,,
 EUR::Eurogroup Meetings::none,2018-05-24,Tentative,,,,
 USD::5-Year Note Auction::none,2018-05-24,01:00,,2.864%,,2.837%
+USD::FOMC Meeting Minutes::none,2018-05-24,02:00,,,,
 USD::FOMC Member Kashkari Speaks::none,2018-05-24,02:15,,,,
 ARS::Trade Balance::none,2018-05-24,03:00,apr,-938M,-219M,-599M
 USD::Fed's Balance Sheet::none,2018-05-24,04:30,,"4,337.30B",,"4,337.61B"
@@ -8816,6 +8823,7 @@ NZD::Current Account % of GDP::none,2018-06-20,06:45,q1,-2.80%,-2.80%,-2.70%
 NZD::Current Account::q/q,2018-06-20,06:45,q1,0.18B,0.05B,-2.77B
 NZD::Current Account::y/y,2018-06-20,06:45,q1,-7.91B,-8.07B,-7.72B
 JPY::Reuters Tankan Index::none,2018-06-20,07:00,jun,26,,22
+JPY::Monetary Policy Meeting Minutes::none,2018-06-20,07:50,,,,
 AUD::MI Leading Index::m/m,2018-06-20,08:30,,-0.2%,,0.2%
 MYR::CPI::y/y,2018-06-20,12:00,may,1.8%,1.8%,1.4%
 EUR::Estonian PPI::m/m,2018-06-20,13:00,may,0.1%,,-0.5%
@@ -9643,6 +9651,7 @@ NA::Kazakhstan - Day of Capital::none,2018-07-06,All Day,,,,
 NA::Lithuania - State Holiday::none,2018-07-06,All Day,,,,
 NA::Malawi - Independence Day::none,2018-07-06,All Day,,,,
 INR::RBI Foreign Exchange Reserves Report::none,2018-07-06,Tentative,,,,
+USD::FOMC Meeting Minutes::none,2018-07-06,02:00,,,,
 AUD::AIG Construction Index::none,2018-07-06,06:30,jun,50.6,,54.0
 JPY::Household Spending::m/m,2018-07-06,07:30,may,-0.2%,-0.1%,-1.6%
 JPY::Household Spending::y/y,2018-07-06,07:30,may,-3.9%,-1.5%,-1.3%
@@ -10984,6 +10993,7 @@ MXN::Interest Rate Decision::none,2018-08-03,03:00,jun,7.75%,7.75%,7.50%
 KRW::FX Reserves - USD::none,2018-08-03,05:00,,402.45B,,400.30B
 AUD::AIG Services Index::none,2018-08-03,06:30,jul,53.6,,63.0
 KRW::Current Account::none,2018-08-03,07:00,jun,7.38B,,8.68B
+JPY::Monetary Policy Meeting Minutes::none,2018-08-03,07:50,,,,
 AUD::Retail Sales::m/m,2018-08-03,09:30,jun,0.4%,0.3%,0.4%
 AUD::Retail Sales::q/q,2018-08-03,09:30,q2,1.2%,0.8%,0.2%
 MYR::Exports::y/y,2018-08-03,12:00,jun,7.6%,11.5%,3.4%
@@ -11955,6 +11965,7 @@ NA::Qatar - Eid al-Adha::none,2018-08-23,All Day,,,,
 NA::Saudi Arabia - Eid al-Adha::none,2018-08-23,All Day,,,,
 NA::Türkiye - Eid al-Adha::none,2018-08-23,All Day,,,,
 NA::United Arab Emirates - Eid al-Adha::none,2018-08-23,All Day,,,,
+USD::FOMC Meeting Minutes::none,2018-08-23,02:00,,,,
 ARS::Trade Balance::none,2018-08-23,03:00,jul,-789M,-150M,-382M
 BRL::CAGED Net Payroll Jobs::none,2018-08-23,03:30,jul,47.32K,,-0.66K
 USD::Fed's Balance Sheet::none,2018-08-23,04:30,,"4,228.82B",,"4,228.92B"
@@ -13562,6 +13573,7 @@ NA::South Korea - Chuseok - Thanksgiving Day::none,2018-09-25,All Day,,,,
 USD::2-Year Note Auction::none,2018-09-25,01:00,,2.829%,,2.655%
 ARS::Retail Sales::y/y,2018-09-25,06:00,,21.3%,,31.2%
 JPY::Corporate Services Price Index (CSPI)::y/y,2018-09-25,07:50,,1.3%,1.1%,1.1%
+JPY::Monetary Policy Meeting Minutes::none,2018-09-25,07:50,,,,
 THB::Industrial Production::y/y,2018-09-25,12:00,aug,0.70%,3.10%,4.90%
 JPY::Leading Index::none,2018-09-25,13:00,,103.9,103.5,104.6
 JPY::BoJ Governor Kuroda Speaks::none,2018-09-25,13:35,,,,
@@ -14788,6 +14800,7 @@ NA::Zambia - Prayer Day::none,2018-10-18,All Day,,,,
 USD::FOMC Member Brainard Speaks::none,2018-10-18,00:10,,,,
 EUR::German Buba President Weidmann Speaks::none,2018-10-18,00:30,,,,
 GBP::BoE MPC Member Broadbent Speaks::none,2018-10-18,01:00,,,,
+USD::FOMC Meeting Minutes::none,2018-10-18,02:00,,,,
 ARS::CPI::m/m,2018-10-18,03:00,sep,6.6%,,4.1%
 USD::Fed's Balance Sheet::none,2018-10-18,04:30,,"4,175.45B",,"4,176.91B"
 USD::Treasury Department Report::none,2018-10-18,05:00,,,,
@@ -15605,6 +15618,7 @@ NA::Russia - Unity Day::none,2018-11-05,All Day,,,,
 NA::Venezuela - All Saint's Day::none,2018-11-05,All Day,,,,
 KRW::FX Reserves - USD::none,2018-11-05,05:00,,402.75B,,403.00B
 AUD::AIG Services Index::none,2018-11-05,05:30,oct,51.1,,52.5
+JPY::Monetary Policy Meeting Minutes::none,2018-11-05,07:50,,,,
 NZD::ANZ Commodity Price Index::m/m,2018-11-05,08:00,,-2.4%,,-2.4%
 AUD::MI Inflation Gauge::m/m,2018-11-05,08:00,,0.1%,,0.3%
 AUD::ANZ Job Advertisements::m/m,2018-11-05,08:30,,0.2%,,-0.7%
@@ -16882,6 +16896,7 @@ INR::RBI Monetary and Credit Information Review::none,2018-11-30,Tentative,,,,
 NA::Romania - St. Andrew's Day::none,2018-11-30,All Day,,,,
 USD::Dallas Fed PCE::none,2018-11-30,02:45,oct,1.60%,,1.50%
 USD::Chicago Fed President Evans Speaks::none,2018-11-30,03:00,,,,
+USD::FOMC Meeting Minutes::none,2018-11-30,03:00,,,,
 NZD::Building Consents::m/m,2018-11-30,05:45,oct,1.5%,,-1.3%
 KRW::Industrial Production::m/m,2018-11-30,07:00,oct,1.0%,1.1%,-2.7%
 KRW::Industrial Production::y/y,2018-11-30,07:00,oct,10.7%,6.9%,-8.4%
@@ -18413,6 +18428,7 @@ NA::Tanzania - Boxing Day::none,2018-12-26,All Day,,,,
 NA::Uganda - Boxing Day::none,2018-12-26,All Day,,,,
 NA::United Kingdom - Boxing Day::none,2018-12-26,All Day,,,,
 NA::Zimbabwe - Public Holiday::none,2018-12-26,All Day,,,,
+JPY::Monetary Policy Meeting Minutes::none,2018-12-26,07:50,,,,
 VND::Vietnamese Foreign Direct Investment (USD)::none,2018-12-26,11:30,,19.10B,,16.50B
 JPY::BoJ Governor Kuroda Speaks::none,2018-12-26,12:00,,,,
 SGD::Industrial Production::m/m,2018-12-26,13:00,nov,2.8%,1.6%,2.4%
