@@ -2277,6 +2277,7 @@ export function EventHistoryModal({
                             deepLoading={deepLoading}
                             deepError={deepError}
                             deepData={deepData}
+                            impactLoading={impactLoading}
                             impactSeriesItems={impactSeries.items}
                             anchorDtUtc={anchorDtUtc}
                             displayOffsetMinutes={effectiveCalendarOffsetMinutes}
