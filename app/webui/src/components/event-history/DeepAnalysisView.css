@@ -71,13 +71,15 @@
 }
 
 .deep-panel-scroll {
-  /* If content is long, keep it inside a local scroller (like Impact chart body). */
-  max-height: 520px;
+  /* Fill the available deep-analysis body area so we don't leave a blank block at the bottom. */
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: 6px;
+  padding-bottom: 10px;
   overscroll-behavior: contain;
-  scrollbar-gutter: stable both-edges;
+  scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color: rgba(148, 163, 184, 0.32) transparent;
 }
@@ -234,6 +236,10 @@
   max-width: 640px;
   margin: 0;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
 .deep-block-title {
