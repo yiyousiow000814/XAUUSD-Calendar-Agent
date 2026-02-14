@@ -37,9 +37,10 @@ export function useNowcastVsPrev({
   selectionForecast,
   selectionPrevious,
   predictModel
-}: UseNowcastVsPrevArgs): NowcastVsPrev | null {
+}: UseNowcastVsPrevArgs): { value: NowcastVsPrev | null; ready: boolean } {
   const zApCacheRef = useRef(new Map<string, { series: Array<{ ms: number; z: number }> }>());
   const [nowcastVsPrev, setNowcastVsPrev] = useState<NowcastVsPrev | null>(null);
+  const [ready, setReady] = useState(false);
   const MAX_PARALLEL_HISTORY_FETCH = 4;
 
   useEffect(() => {
@@ -59,6 +60,7 @@ export function useNowcastVsPrev({
     // low-confidence gaps for forecastable metrics (when the model is unsure).
     if (!isUsdEvent || !hasPrev0 || !metric || curCode !== "USD") {
       setNowcastVsPrev(null);
+      setReady(true);
       return;
     }
 
@@ -83,6 +85,7 @@ export function useNowcastVsPrev({
       : [];
     if (!enabled || !rels.length) {
       setNowcastVsPrev(null);
+      setReady(true);
       return;
     }
 
@@ -150,6 +153,7 @@ export function useNowcastVsPrev({
     };
 
     let alive = true;
+    setReady(false);
     (async () => {
       let vEq = 0;
       let vGt = 0;
@@ -269,6 +273,7 @@ export function useNowcastVsPrev({
       const sum = vEq + vGt + vLt;
       if (!(sum > 0) || used <= 0) {
         setNowcastVsPrev(null);
+        setReady(true);
         return;
       }
       const pEq = vEq / sum;
@@ -295,8 +300,12 @@ export function useNowcastVsPrev({
         pLt,
         backtestAcc
       });
+      setReady(true);
     })().catch(() => {
-      if (alive) setNowcastVsPrev(null);
+      if (alive) {
+        setNowcastVsPrev(null);
+        setReady(true);
+      }
     });
 
     return () => {
@@ -313,5 +322,5 @@ export function useNowcastVsPrev({
     selectionPrevious
   ]);
 
-  return nowcastVsPrev;
+  return { value: nowcastVsPrev, ready };
 }

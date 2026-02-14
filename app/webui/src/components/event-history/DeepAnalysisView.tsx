@@ -21,6 +21,7 @@ type DeepAnalysisViewProps = {
   deepLoading: boolean;
   deepError: string | null;
   deepData: EventDeepAnalysisResponse | null;
+  impactLoading: boolean;
   impactSeriesItems: ImpactSeriesItem[];
   // UTC time for the selected release instance (the center of the +/-24h unified window).
   anchorDtUtc: string;
@@ -42,6 +43,7 @@ export function DeepAnalysisView({
   deepLoading,
   deepError,
   deepData,
+  impactLoading,
   impactSeriesItems,
   anchorDtUtc,
   displayOffsetMinutes,
@@ -55,7 +57,7 @@ export function DeepAnalysisView({
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const [showUnifiedPrior, setShowUnifiedPrior] = useState(false);
   const [predictModel, setPredictModel] = useState<any>(DEFAULT_PREDICT_RELEASE_MODEL_USD);
-  const nowcastVsPrev = useNowcastVsPrev({
+  const nowcastVsPrevState = useNowcastVsPrev({
     isUsdEvent,
     metricKey,
     cur,
@@ -65,6 +67,8 @@ export function DeepAnalysisView({
     selectionPrevious,
     predictModel
   });
+  const nowcastVsPrev = nowcastVsPrevState.value;
+  const [predictModelReady, setPredictModelReady] = useState(false);
 
   useEffect(() => {
     if (!methodOpen && !fullOpen) return;
@@ -101,6 +105,10 @@ export function DeepAnalysisView({
       })
       .catch(() => {
         // ignore; fallback model stays in use
+      })
+      .finally(() => {
+        if (!mounted) return;
+        setPredictModelReady(true);
       });
     return () => {
       mounted = false;
@@ -446,13 +454,16 @@ export function DeepAnalysisView({
   if (deepError) {
     return <div className="history-impact-status error">{deepError}</div>;
   }
-  if (deepLoading || !deepData) {
+  if (deepLoading || !deepData || !predictModelReady || !nowcastVsPrevState.ready) {
     return <div className="history-impact-status">Loading deep analysis...</div>;
   }
 
   const data = (deepData.data as any) ?? {};
   const meta = (deepData.meta as any) ?? {};
   const isFallback = String(meta?.source ?? "").toLowerCase() === "fallback";
+  if (isFallback && impactLoading && impactSeriesItems.length < 2) {
+    return <div className="history-impact-status">Loading deep analysis...</div>;
+  }
   const pm = data.predictMarket ?? null;
   const um = pm?.unifiedMeta ?? pm?.fallback ?? null;
   const adjustedByActual = Boolean(um?.adjustedByActual);
