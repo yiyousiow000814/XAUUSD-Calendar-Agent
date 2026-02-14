@@ -3507,7 +3507,10 @@ const main = async () => {
             }
 
             const impactControlsNow = historyModal.locator("[data-qa='qa:history:impact-controls']").first();
-            if (await impactControlsNow.count()) {
+            const impactControlsVisible =
+              (await impactControlsNow.count()) > 0 &&
+              (await impactControlsNow.getAttribute("aria-hidden")) !== "true";
+            if (impactControlsVisible) {
               await page.keyboard.press("Escape");
               await page.waitForTimeout(140);
             }
@@ -3516,7 +3519,10 @@ const main = async () => {
             if (!modalStillOpen) {
               throw new Error("Escape closed history modal unexpectedly");
             }
-            if (await impactControlsNow.count()) {
+            const impactControlsHidden =
+              !(await impactControlsNow.count()) ||
+              (await impactControlsNow.getAttribute("aria-hidden")) === "true";
+            if (!impactControlsHidden) {
               throw new Error("Escape did not return from Impact view to History view");
             }
           });

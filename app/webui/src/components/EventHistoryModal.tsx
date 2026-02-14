@@ -2287,7 +2287,7 @@ export function EventHistoryModal({
                           />
                         ) : (
                           <div className="history-impact-chart" data-qa="qa:history:impact-chart"> 
-                            <div className="impact-chart-header" aria-hidden="true">
+                            <div className="impact-chart-header">
                                 <div
                                   className="history-impact-buckets impact-chart-buckets"
                                   role="group"
@@ -2314,7 +2314,7 @@ export function EventHistoryModal({
                                   ))}
                                 </div>
                                 {!impactLoading && !impactError && impactData?.ok && impactChart ? (
-                                <div className="impact-chart-meta">
+                                <div className="impact-chart-meta" aria-hidden="true">
                                   <span className="impact-chart-meta-item">
                                     Line: most likely direction (color) + confidence (thickness)
                                   </span>
