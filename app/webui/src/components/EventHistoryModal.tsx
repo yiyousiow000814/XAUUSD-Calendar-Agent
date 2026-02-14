@@ -301,6 +301,7 @@ export function EventHistoryModal({
       return "event";
     }
   });
+  const impactPanelMemoryRef = useRef<"event" | "deep">(impactPanel);
   const prevImpactPanelRef = useRef<"event" | "deep">(impactPanel);
   const [impactBucket, setImpactBucket] = useState<EventImpactBucket>(() => {
     if (typeof window === "undefined") return "ap_gt_prev";
@@ -358,6 +359,12 @@ export function EventHistoryModal({
     return map;
   }, [points]);
   const hasData = points.length > 0;
+  const isEventAnalysisAvailable = useMemo(() => {
+    const actual = parseComparableNumber(String(selectionActual ?? ""));
+    const forecast = parseComparableNumber(String(selectionForecast ?? ""));
+    const previous = parseComparableNumber(String(selectionPrevious ?? ""));
+    return actual !== null || forecast !== null || previous !== null;
+  }, [selectionActual, selectionForecast, selectionPrevious]);
   const eventId = (data?.eventId ?? "").trim();
   const isUsdEvent = eventId.startsWith("USD::");
   const bucketCounts = useMemo(() => {
@@ -436,12 +443,31 @@ export function EventHistoryModal({
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (!isEventAnalysisAvailable) return;
     try {
       window.localStorage.setItem(IMPACT_PANEL_STORAGE_KEY, impactPanel);
     } catch {
       // ignore
     }
-  }, [impactPanel]);
+  }, [impactPanel, isEventAnalysisAvailable]);
+
+  useEffect(() => {
+    if (!isEventAnalysisAvailable) return;
+    impactPanelMemoryRef.current = impactPanel;
+  }, [impactPanel, isEventAnalysisAvailable]);
+
+  useLayoutEffect(() => {
+    if (isEventAnalysisAvailable) return;
+    if (impactPanel !== "event") return;
+    setImpactPanel("deep");
+  }, [impactPanel, isEventAnalysisAvailable]);
+
+  useEffect(() => {
+    if (!isEventAnalysisAvailable) return;
+    const preferredPanel = impactPanelMemoryRef.current;
+    if (impactPanel === preferredPanel) return;
+    setImpactPanel(preferredPanel);
+  }, [impactPanel, isEventAnalysisAvailable]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -2094,13 +2120,17 @@ export function EventHistoryModal({
                   role="group"
                   aria-label="Impact panels"
                   data-count="2"
-                  data-value={impactPanel}
+                  data-value={isEventAnalysisAvailable ? impactPanel : "deep"}
                 >
                   <button
                     type="button"
-                    className={`segment impact-segment${impactPanel === "event" ? " active" : ""}`}
+                    className={`segment impact-segment${
+                      isEventAnalysisAvailable && impactPanel === "event" ? " active" : ""
+                    }`}
                     onClick={() => setImpactPanel("event")}
-                    aria-pressed={impactPanel === "event"}
+                    aria-pressed={isEventAnalysisAvailable && impactPanel === "event"}
+                    disabled={!isEventAnalysisAvailable}
+                    title={!isEventAnalysisAvailable ? "Event Analysis requires Actual/Forecast/Previous values" : undefined}
                   >
                     Event Analysis
                   </button>
