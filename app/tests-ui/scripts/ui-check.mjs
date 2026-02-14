@@ -3258,8 +3258,9 @@ const main = async () => {
             });
           }
 
-          // Switching to Impact should not shift the side history table vertically.
-          await runCheck(theme.key, "History modal side panel does not jump", async () => {
+          // In Impact mode, the content area intentionally lifts up to use more vertical space.
+          // Verify the lift exists and then quickly settles (no ongoing drift/jitter).
+          await runCheck(theme.key, "History modal side panel lifts and settles", async () => {
             if (!sideBefore) return;
             const sideAfter = await historyModal
               .locator("[data-qa='qa:history:table']")
@@ -3267,10 +3268,20 @@ const main = async () => {
               .boundingBox()
               .catch(() => null);
             if (!sideAfter) return;
-            const delta = Math.abs(sideBefore.y - sideAfter.y);
-            // Allow tiny subpixel variation but catch visible jumps.
-            if (delta > 1) {
-              throw new Error(`History side panel jumped (delta=${delta.toFixed(2)}px)`);
+            const lift = sideBefore.y - sideAfter.y;
+            if (lift < 8) {
+              throw new Error(`History side panel did not lift as expected (lift=${lift.toFixed(2)}px)`);
+            }
+            await page.waitForTimeout(280);
+            const sideSettled = await historyModal
+              .locator("[data-qa='qa:history:table']")
+              .first()
+              .boundingBox()
+              .catch(() => null);
+            if (!sideSettled) return;
+            const settleDelta = Math.abs(sideSettled.y - sideAfter.y);
+            if (settleDelta > 1) {
+              throw new Error(`History side panel still drifting after lift (delta=${settleDelta.toFixed(2)}px)`);
             }
           });
 
@@ -3496,7 +3507,10 @@ const main = async () => {
             }
 
             const impactControlsNow = historyModal.locator("[data-qa='qa:history:impact-controls']").first();
-            if (await impactControlsNow.count()) {
+            const impactControlsVisible =
+              (await impactControlsNow.count()) > 0 &&
+              (await impactControlsNow.getAttribute("aria-hidden")) !== "true";
+            if (impactControlsVisible) {
               await page.keyboard.press("Escape");
               await page.waitForTimeout(140);
             }
@@ -3505,7 +3519,10 @@ const main = async () => {
             if (!modalStillOpen) {
               throw new Error("Escape closed history modal unexpectedly");
             }
-            if (await impactControlsNow.count()) {
+            const impactControlsHidden =
+              !(await impactControlsNow.count()) ||
+              (await impactControlsNow.getAttribute("aria-hidden")) === "true";
+            if (!impactControlsHidden) {
               throw new Error("Escape did not return from Impact view to History view");
             }
           });
