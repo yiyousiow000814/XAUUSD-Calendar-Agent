@@ -2371,9 +2371,7 @@ export function EventHistoryModal({
                             {impactError ? (
                               <div className="history-impact-fallback">
                                 <div className="history-impact-status error">{impactError}</div>
-                                <div className="history-impact-mock" aria-hidden="true">
-                                  <div className="history-impact-mock-note">Preview layout (mock)</div>
-                                </div>
+                                <div className="history-impact-mock" aria-hidden="true" />
                               </div>
                             ) : impactLoading || !impactData ? (
                               <div className="history-impact-status">Loading impact analysis...</div>
@@ -2382,9 +2380,7 @@ export function EventHistoryModal({
                                 <div className="history-impact-status">
                                   Impact analysis not available. Generate it locally first.
                                 </div>
-                                <div className="history-impact-mock" aria-hidden="true">
-                                  <div className="history-impact-mock-note">Preview layout (mock)</div>
-                                </div>
+                                <div className="history-impact-mock" aria-hidden="true" />
                               </div>
                             ) : !impactChart ? (
                               <div className="history-impact-status">Loading impact chart...</div>
@@ -2394,9 +2390,7 @@ export function EventHistoryModal({
                                 <div className="history-impact-status">
                                   Impact analysis is not available for this bucket (insufficient samples).
                                 </div>
-                                <div className="history-impact-mock" aria-hidden="true">
-                                  <div className="history-impact-mock-note">Preview layout (mock)</div>
-                                </div>
+                                <div className="history-impact-mock" aria-hidden="true" />
                               </div>
                             ) : (
                               <>
