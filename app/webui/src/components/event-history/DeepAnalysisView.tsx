@@ -67,22 +67,19 @@ export function DeepAnalysisView({
   });
 
   useEffect(() => {
-    if (!methodOpen) return;
+    if (!methodOpen && !fullOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMethodOpen(false);
+      if (event.key !== "Escape") return;
+      // Close only the top-most deep modal layer.
+      if (methodOpen) {
+        setMethodOpen(false);
+        return;
+      }
+      if (fullOpen) setFullOpen(false);
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [methodOpen]);
-
-  useEffect(() => {
-    if (!fullOpen) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setFullOpen(false);
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [fullOpen]);
+  }, [methodOpen, fullOpen]);
 
   useEffect(() => {
     if (!deepData?.ok) {
@@ -566,7 +563,7 @@ export function DeepAnalysisView({
             const shownLabel =
               pred ??
               (pv
-                ? pv.pGt >= (pv.pEq ?? 0) && pv.pGt >= (pv.pLt ?? 0)
+                ? (pv.pGt ?? 0) >= (pv.pEq ?? 0) && (pv.pGt ?? 0) >= (pv.pLt ?? 0)
                   ? ">"
                   : (pv.pEq ?? 0) >= (pv.pLt ?? 0)
                     ? "="

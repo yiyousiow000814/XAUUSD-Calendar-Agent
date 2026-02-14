@@ -201,6 +201,7 @@ export function useNowcastVsPrev({
         let j = series.length - 1;
         while (j >= 0) {
           const ms = series[j]!.ms;
+          // Find the latest point that is both before refMs and inside the recent window.
           if (ms < refMs && refMs - ms <= recentMs) break;
           j -= 1;
         }
