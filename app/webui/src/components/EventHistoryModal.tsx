@@ -1701,6 +1701,7 @@ export function EventHistoryModal({
     if (!isOpen) return;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
+      if (event.defaultPrevented) return;
       const target = event.target as HTMLElement | null;
       const tag = target?.tagName?.toLowerCase() ?? "";
       if (tag === "input" || tag === "textarea" || target?.isContentEditable) return;

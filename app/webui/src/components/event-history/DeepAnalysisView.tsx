@@ -70,6 +70,7 @@ export function DeepAnalysisView({
     if (!methodOpen && !fullOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
+      event.preventDefault();
       // Close only the top-most deep modal layer.
       if (methodOpen) {
         setMethodOpen(false);

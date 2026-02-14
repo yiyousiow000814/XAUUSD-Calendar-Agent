@@ -524,7 +524,11 @@ def main() -> None:
 
     out_path = Path(args.output_json).expanduser().resolve()
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")
+    out_path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2, allow_nan=False),
+        encoding="utf-8",
+        newline="\n",
+    )
     print(f"Wrote {out_path} (events={len(payload.get('events', {}))}).")
 
 
