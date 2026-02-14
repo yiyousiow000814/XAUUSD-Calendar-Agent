@@ -23,6 +23,13 @@ function fmtSignedPct100(v: any, digits = 3): string {
   return `${sign}${n.toFixed(digits)}%`;
 }
 
+function trendDirectionText(slope: number | null): string {
+  if (slope === null) return "--";
+  if (slope > 0) return "Up";
+  if (slope < 0) return "Down";
+  return "Flat";
+}
+
 export function DeepSignalsPanel({ signals }: DeepSignalsPanelProps) {
   if (!signals || typeof signals !== "object") return null;
 
@@ -65,14 +72,12 @@ export function DeepSignalsPanel({ signals }: DeepSignalsPanelProps) {
             <span className="deep-card-v-main">
               {(() => {
                 const slope = safeNum(trend?.trend_slope_per_year);
-                if (slope === null) return "--";
-                const dir = slope > 0 ? "Up" : slope < 0 ? "Down" : "Flat";
-                return `${dir} ${slope.toFixed(4)}`;
+                return trendDirectionText(slope);
               })()}
             </span>
           </div>
           <div className="deep-card-sub">
-            {`Seasonality: ${fmtPct01(trend?.seasonality_strength)} · Years: ${
+            {`Direction from long-term trend · Seasonality: ${fmtPct01(trend?.seasonality_strength)} · Years: ${
               typeof trend?.years_covered === "number" ? String(trend.years_covered) : "--"
             }`}
           </div>
@@ -136,4 +141,3 @@ export function DeepSignalsPanel({ signals }: DeepSignalsPanelProps) {
     </>
   );
 }
-
