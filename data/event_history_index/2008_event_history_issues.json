@@ -1,5 +1,5 @@
 {
-  "generated_at": "14-02-2026 11:55",
+  "generated_at": "14-02-2026 12:22",
   "issues": [
     {
       "issue": "text_release_zero_triplet_normalized",
@@ -1101,7 +1101,7 @@
       "period": "",
       "date": "2008-06-09",
       "time": "23:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1111,7 +1111,7 @@
       "period": "",
       "date": "2008-09-12",
       "time": "23:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1121,7 +1121,7 @@
       "period": "",
       "date": "2008-11-28",
       "time": "00:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1131,7 +1131,7 @@
       "period": "",
       "date": "2008-12-04",
       "time": "00:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1141,7 +1141,7 @@
       "period": "",
       "date": "2008-06-02",
       "time": "22:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1151,7 +1151,7 @@
       "period": "",
       "date": "2008-06-03",
       "time": "22:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1161,7 +1161,7 @@
       "period": "",
       "date": "2008-06-04",
       "time": "16:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1171,7 +1171,7 @@
       "period": "",
       "date": "2008-06-10",
       "time": "01:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1181,7 +1181,7 @@
       "period": "",
       "date": "2008-06-21",
       "time": "00:45",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1191,7 +1191,7 @@
       "period": "",
       "date": "2008-06-25",
       "time": "16:15",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1201,7 +1201,7 @@
       "period": "",
       "date": "2008-07-02",
       "time": "15:15",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1211,7 +1211,7 @@
       "period": "",
       "date": "2008-07-03",
       "time": "20:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1221,7 +1221,7 @@
       "period": "",
       "date": "2008-07-05",
       "time": "18:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1231,7 +1231,7 @@
       "period": "",
       "date": "2008-07-06",
       "time": "18:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1241,7 +1241,7 @@
       "period": "",
       "date": "2008-07-09",
       "time": "15:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1251,7 +1251,7 @@
       "period": "",
       "date": "2008-07-11",
       "time": "01:45",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1261,7 +1261,7 @@
       "period": "",
       "date": "2008-09-06",
       "time": "14:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1271,7 +1271,7 @@
       "period": "",
       "date": "2008-09-10",
       "time": "15:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1281,7 +1281,7 @@
       "period": "",
       "date": "2008-09-12",
       "time": "02:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1291,7 +1291,7 @@
       "period": "",
       "date": "2008-09-15",
       "time": "17:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1301,7 +1301,7 @@
       "period": "",
       "date": "2008-09-21",
       "time": "22:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1311,7 +1311,7 @@
       "period": "",
       "date": "2008-09-22",
       "time": "15:15",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1321,7 +1321,7 @@
       "period": "",
       "date": "2008-10-01",
       "time": "00:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1331,7 +1331,7 @@
       "period": "",
       "date": "2008-10-07",
       "time": "21:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1341,7 +1341,7 @@
       "period": "",
       "date": "2008-10-10",
       "time": "01:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1351,7 +1351,7 @@
       "period": "",
       "date": "2008-10-15",
       "time": "00:15",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1361,7 +1361,7 @@
       "period": "",
       "date": "2008-10-27",
       "time": "21:55",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1371,7 +1371,7 @@
       "period": "",
       "date": "2008-11-10",
       "time": "23:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1381,7 +1381,7 @@
       "period": "",
       "date": "2008-11-13",
       "time": "02:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1391,7 +1391,7 @@
       "period": "",
       "date": "2008-11-14",
       "time": "16:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1401,7 +1401,7 @@
       "period": "",
       "date": "2008-11-19",
       "time": "02:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1411,7 +1411,7 @@
       "period": "",
       "date": "2008-12-08",
       "time": "22:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1421,7 +1421,7 @@
       "period": "",
       "date": "2008-12-11",
       "time": "16:05",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1431,7 +1431,7 @@
       "period": "",
       "date": "2008-12-16",
       "time": "01:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1441,7 +1441,7 @@
       "period": "",
       "date": "2008-12-24",
       "time": "01:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1451,7 +1451,7 @@
       "period": "",
       "date": "2008-05-30",
       "time": "03:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1461,7 +1461,7 @@
       "period": "",
       "date": "2008-06-03",
       "time": "22:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1471,7 +1471,7 @@
       "period": "",
       "date": "2008-06-05",
       "time": "03:45",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1481,7 +1481,7 @@
       "period": "",
       "date": "2008-06-10",
       "time": "09:15",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1491,7 +1491,7 @@
       "period": "",
       "date": "2008-06-16",
       "time": "22:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1501,7 +1501,7 @@
       "period": "",
       "date": "2008-07-08",
       "time": "20:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1511,7 +1511,7 @@
       "period": "",
       "date": "2008-08-22",
       "time": "22:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1521,7 +1521,7 @@
       "period": "",
       "date": "2008-09-09",
       "time": "21:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1531,7 +1531,7 @@
       "period": "",
       "date": "2008-10-08",
       "time": "01:15",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1541,7 +1541,7 @@
       "period": "",
       "date": "2008-10-16",
       "time": "00:15",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1551,7 +1551,7 @@
       "period": "",
       "date": "2008-11-01",
       "time": "02:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1561,7 +1561,7 @@
       "period": "",
       "date": "2008-11-14",
       "time": "21:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1571,7 +1571,7 @@
       "period": "",
       "date": "2008-12-05",
       "time": "00:15",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1581,7 +1581,7 @@
       "period": "",
       "date": "2008-06-20",
       "time": "03:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1591,7 +1591,7 @@
       "period": "",
       "date": "2008-07-18",
       "time": "22:45",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1601,7 +1601,7 @@
       "period": "",
       "date": "2008-09-22",
       "time": "16:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1611,7 +1611,7 @@
       "period": "",
       "date": "2008-10-28",
       "time": "08:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1621,7 +1621,7 @@
       "period": "",
       "date": "2008-11-20",
       "time": "02:40",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1631,7 +1631,7 @@
       "period": "",
       "date": "2008-06-12",
       "time": "03:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1641,7 +1641,7 @@
       "period": "",
       "date": "2008-07-24",
       "time": "02:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1651,7 +1651,7 @@
       "period": "",
       "date": "2008-09-04",
       "time": "02:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1661,7 +1661,7 @@
       "period": "",
       "date": "2008-10-16",
       "time": "02:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1671,7 +1671,7 @@
       "period": "",
       "date": "2008-07-02",
       "time": "23:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1681,7 +1681,7 @@
       "period": "",
       "date": "2008-07-22",
       "time": "20:10",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1691,7 +1691,7 @@
       "period": "",
       "date": "2008-08-01",
       "time": "01:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1701,7 +1701,7 @@
       "period": "",
       "date": "2008-09-16",
       "time": "22:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1711,7 +1711,7 @@
       "period": "",
       "date": "2008-10-22",
       "time": "07:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1721,7 +1721,7 @@
       "period": "",
       "date": "2008-10-28",
       "time": "22:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1731,7 +1731,7 @@
       "period": "",
       "date": "2008-11-18",
       "time": "22:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1741,7 +1741,7 @@
       "period": "",
       "date": "2008-11-21",
       "time": "03:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1751,7 +1751,7 @@
       "period": "",
       "date": "2008-12-03",
       "time": "00:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1761,7 +1761,7 @@
       "period": "",
       "date": "2008-05-22",
       "time": "02:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1771,7 +1771,7 @@
       "period": "",
       "date": "2008-06-19",
       "time": "09:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1781,7 +1781,7 @@
       "period": "",
       "date": "2008-07-17",
       "time": "09:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1791,7 +1791,7 @@
       "period": "",
       "date": "2008-08-21",
       "time": "09:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1801,7 +1801,7 @@
       "period": "",
       "date": "2008-09-18",
       "time": "09:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1811,7 +1811,7 @@
       "period": "",
       "date": "2008-10-15",
       "time": "08:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1821,7 +1821,7 @@
       "period": "",
       "date": "2008-11-20",
       "time": "08:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1831,7 +1831,7 @@
       "period": "",
       "date": "2008-12-18",
       "time": "08:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1841,7 +1841,7 @@
       "period": "",
       "date": "2008-07-15",
       "time": "16:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1851,7 +1851,7 @@
       "period": "",
       "date": "2008-10-13",
       "time": "18:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1861,7 +1861,7 @@
       "period": "",
       "date": "2008-12-09",
       "time": "22:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1871,7 +1871,7 @@
       "period": "",
       "date": "2008-06-06",
       "time": "18:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1881,7 +1881,7 @@
       "period": "",
       "date": "2008-06-12",
       "time": "19:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1891,7 +1891,7 @@
       "period": "",
       "date": "2008-10-30",
       "time": "02:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1901,7 +1901,7 @@
       "period": "",
       "date": "2008-07-15",
       "time": "14:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1911,7 +1911,7 @@
       "period": "",
       "date": "2008-08-20",
       "time": "14:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1921,7 +1921,7 @@
       "period": "",
       "date": "2008-09-18",
       "time": "13:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1931,7 +1931,7 @@
       "period": "",
       "date": "2008-10-08",
       "time": "13:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1941,7 +1941,7 @@
       "period": "",
       "date": "2008-11-25",
       "time": "14:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -1951,7 +1951,7 @@
       "period": "",
       "date": "2008-12-22",
       "time": "13:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     }
   ]
 }

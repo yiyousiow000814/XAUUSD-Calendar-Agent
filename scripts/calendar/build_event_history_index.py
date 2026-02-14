@@ -1367,6 +1367,7 @@ def build_index(
     solved_issue_types = {
         _AUTO_PREVIOUS_FILL_PATCH,
         "stale_missing_actual_dropped",
+        "text_release_zero_triplet_normalized",
     }
 
     def write_issue_files(stem: str, issue_rows: list[dict]) -> None:

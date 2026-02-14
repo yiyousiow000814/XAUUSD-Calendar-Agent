@@ -1,5 +1,5 @@
 {
-  "generated_at": "14-02-2026 11:55",
+  "generated_at": "14-02-2026 12:22",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -225,7 +225,7 @@
       "period": "",
       "date": "2017-12-27",
       "time": "20:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -235,7 +235,7 @@
       "period": "",
       "date": "2017-01-19",
       "time": "03:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -245,7 +245,7 @@
       "period": "",
       "date": "2017-03-02",
       "time": "03:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -255,7 +255,7 @@
       "period": "",
       "date": "2017-04-20",
       "time": "02:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -265,7 +265,7 @@
       "period": "",
       "date": "2017-06-01",
       "time": "02:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -275,7 +275,7 @@
       "period": "",
       "date": "2017-07-13",
       "time": "02:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -285,7 +285,7 @@
       "period": "",
       "date": "2017-09-07",
       "time": "02:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -295,7 +295,7 @@
       "period": "",
       "date": "2017-10-19",
       "time": "02:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -305,7 +305,7 @@
       "period": "",
       "date": "2017-11-30",
       "time": "03:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -315,7 +315,7 @@
       "period": "",
       "date": "2017-03-16",
       "time": "08:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -325,7 +325,7 @@
       "period": "",
       "date": "2017-06-15",
       "time": "09:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -335,7 +335,7 @@
       "period": "",
       "date": "2017-09-21",
       "time": "09:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -345,7 +345,7 @@
       "period": "",
       "date": "2017-12-21",
       "time": "08:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -355,7 +355,7 @@
       "period": "",
       "date": "2017-12-27",
       "time": "20:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -365,7 +365,7 @@
       "period": "nov",
       "date": "2017-12-29",
       "time": "11:30",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -375,7 +375,7 @@
       "period": "jan",
       "date": "2017-03-28",
       "time": "Tentative",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -385,7 +385,7 @@
       "period": "jan",
       "date": "2017-03-22",
       "time": "Tentative",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -395,7 +395,7 @@
       "period": "nov",
       "date": "2017-12-30",
       "time": "01:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -405,7 +405,7 @@
       "period": "jan",
       "date": "2017-02-01",
       "time": "Tentative",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -415,7 +415,7 @@
       "period": "",
       "date": "2017-09-06",
       "time": "22:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -425,7 +425,7 @@
       "period": "jan",
       "date": "2017-02-07",
       "time": "20:00",
-      "cutoff": "12-02-2026 11:55"
+      "cutoff": "12-02-2026 12:22"
     }
   ]
 }
