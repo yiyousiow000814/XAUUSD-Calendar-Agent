@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import sys
+import json
 from pathlib import Path
 from typing import Optional, Sequence
+
+import pandas as pd
 
 try:
     from .stage_workflow_args import parse_args
@@ -143,6 +146,8 @@ def main() -> None:
         datasets_by_year = pipeline_result.datasets_by_year
         if not memory_only_stage_a:
             minutes_dir = args.output_dir
+            # Avoid holding multi-year minute data in memory when we persisted it to disk.
+            datasets_by_year = None
 
     alignment_df = None
     if not args.skip_alignment:
@@ -438,37 +443,78 @@ def main() -> None:
             adaptive_result=adaptive_result,
         )
 
-    if args.skip_uncertainty:
-        return
+    if not args.skip_uncertainty:
+        uncertainty_config = UncertaintyConfig(
+            alignment_path=args.alignment_output_parquet,
+            summary_output_parquet=args.uncertainty_summary_output_parquet,
+            summary_output_csv=(
+                None
+                if args.uncertainty_no_summary_csv
+                else args.uncertainty_summary_output_csv
+            ),
+            calibration_output_parquet=args.uncertainty_calibration_output_parquet,
+            calibration_output_csv=(
+                None
+                if args.uncertainty_no_calibration_csv
+                else args.uncertainty_calibration_output_csv
+            ),
+            event_output_parquet=args.uncertainty_event_output_parquet,
+            event_output_csv=(
+                None
+                if args.uncertainty_no_event_csv
+                else args.uncertainty_event_output_csv
+            ),
+            windows=args.uncertainty_windows,
+            quantiles=args.uncertainty_quantiles,
+            calibration_bins=args.uncertainty_calibration_bins,
+            min_samples=args.uncertainty_min_samples,
+            min_calibration=args.uncertainty_min_calibration,
+        )
+        run_uncertainty_analysis(
+            uncertainty_config,
+            alignment_df=alignment_df,
+        )
 
-    uncertainty_config = UncertaintyConfig(
-        alignment_path=args.alignment_output_parquet,
-        summary_output_parquet=args.uncertainty_summary_output_parquet,
-        summary_output_csv=(
-            None
-            if args.uncertainty_no_summary_csv
-            else args.uncertainty_summary_output_csv
-        ),
-        calibration_output_parquet=args.uncertainty_calibration_output_parquet,
-        calibration_output_csv=(
-            None
-            if args.uncertainty_no_calibration_csv
-            else args.uncertainty_calibration_output_csv
-        ),
-        event_output_parquet=args.uncertainty_event_output_parquet,
-        event_output_csv=(
-            None if args.uncertainty_no_event_csv else args.uncertainty_event_output_csv
-        ),
-        windows=args.uncertainty_windows,
-        quantiles=args.uncertainty_quantiles,
-        calibration_bins=args.uncertainty_calibration_bins,
-        min_samples=args.uncertainty_min_samples,
-        min_calibration=args.uncertainty_min_calibration,
-    )
-    run_uncertainty_analysis(
-        uncertainty_config,
-        alignment_df=alignment_df,
-    )
+    if getattr(args, "export_deep_json", False):
+        try:
+            from .build_event_deep_analysis_json import (  # type: ignore
+                Paths as DeepPaths,
+                build_deep_analysis_json,
+            )
+        except ImportError:  # pragma: no cover
+            sys.path.append(str(Path(__file__).resolve().parents[2]))
+            from scripts.calendar.build_event_deep_analysis_json import (  # type: ignore[import-not-found]
+                Paths as DeepPaths,
+                build_deep_analysis_json,
+            )
+
+        # Use the in-memory alignment dataframe if available to avoid re-reading parquet.
+        if alignment_df is None:
+            try:
+                from .table_io import read_table  # type: ignore
+            except ImportError:  # pragma: no cover
+                sys.path.append(str(Path(__file__).resolve().parents[2]))
+                from scripts.calendar.table_io import read_table  # type: ignore[import-not-found]
+
+            alignment_path = Path(args.alignment_output_parquet)
+            alignment_df = read_table(alignment_path, parse_dates=("event_time",))
+
+        deep_paths = DeepPaths(
+            alignment=Path(args.alignment_output_parquet),
+            preheat_summary=Path(args.preheat_summary_output_parquet),
+            trend_summary=Path(args.trend_summary_output_parquet),
+            component_breakdown=Path(args.components_detail_output_parquet),
+            path_summary=Path(args.path_summary_output_parquet),
+            priority_scores=Path(args.priority_event_output_parquet),
+            priority_rules=Path(args.priority_rules_output_json),
+            uncertainty_intervals=Path(args.uncertainty_summary_output_parquet),
+            uncertainty_event_predictions=Path(args.uncertainty_event_output_parquet),
+        )
+        payload = build_deep_analysis_json("USD", alignment_df, deep_paths)
+        out_path = Path(args.deep_json_output)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"Wrote deep JSON export: {out_path} (events={len(payload.get('events', {}))}).")
 
 
 if __name__ == "__main__":

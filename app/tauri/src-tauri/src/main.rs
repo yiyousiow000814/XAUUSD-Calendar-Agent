@@ -101,7 +101,9 @@ fn main() {
             commands::open::open_release_notes,
             commands::lifecycle::dismiss_modal,
             commands::history::get_event_history,
-            commands::analysis::get_event_impact_usd
+            commands::analysis::get_event_impact_usd,
+            commands::analysis::get_predict_release_model_usd,
+            commands::analysis::get_event_deep_analysis_usd
         ])
         .setup(|app| {
             let _ = config::maybe_seed_data_from_install();

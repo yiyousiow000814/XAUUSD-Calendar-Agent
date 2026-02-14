@@ -34,7 +34,9 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 
 WINDOWS_MINUTES: List[int] = [
+    -24 * 60,
     -12 * 60,
+    -8 * 60,
     -4 * 60,
     -60,
     -30,
@@ -47,12 +49,18 @@ WINDOWS_MINUTES: List[int] = [
     30,
     60,
     4 * 60,
+    8 * 60,
     12 * 60,
+    24 * 60,
 ]
 
 BUCKET_GT = "ap_gt_prev"
 BUCKET_LT = "ap_lt_prev"
 BUCKET_EQ = "ap_eq_prev"
+
+BUCKET_AF_GT = "af_gt_forecast"
+BUCKET_AF_LT = "af_lt_forecast"
+BUCKET_AF_EQ = "af_eq_forecast"
 
 
 def parse_price_dt_utc(value: str) -> datetime:
@@ -82,7 +90,7 @@ def parse_event_dt_source_utc8(date_ddmmyyyy: str, time_hhmm: str) -> Optional[d
     return dt.replace(tzinfo=utc8)
 
 
-_NUM_SUFFIX_RE = re.compile(r"^([+-]?\d+(?:\.\d+)?)([kmb])?$", re.IGNORECASE)
+_NUM_SUFFIX_RE = re.compile(r"^([+-]?\d+(?:\.\d+)?)([kmbt])?$", re.IGNORECASE)
 
 
 def parse_number(raw: str) -> Optional[float]:
@@ -104,21 +112,53 @@ def parse_number(raw: str) -> Optional[float]:
         return base * 1_000_000.0
     if suf == "b":
         return base * 1_000_000_000.0
+    if suf == "t":
+        return base * 1_000_000_000_000.0
     return base
 
 
-def classify_bucket(actual: str, previous: str, eq_eps: float = 0.0) -> Optional[str]:
+def classify_bucket_cmp(
+    actual: str,
+    baseline: str,
+    *,
+    eq_eps: float = 0.0,
+    bucket_gt: str,
+    bucket_lt: str,
+    bucket_eq: str,
+) -> Optional[str]:
     a = parse_number(actual)
-    p = parse_number(previous)
-    if a is None or p is None:
+    b = parse_number(baseline)
+    if a is None or b is None:
         return None
-    if eq_eps > 0 and abs(a - p) <= eq_eps:
-        return BUCKET_EQ
-    if a > p:
-        return BUCKET_GT
-    if a < p:
-        return BUCKET_LT
-    return BUCKET_EQ
+    if eq_eps > 0 and abs(a - b) <= eq_eps:
+        return bucket_eq
+    if a > b:
+        return bucket_gt
+    if a < b:
+        return bucket_lt
+    return bucket_eq
+
+
+def classify_bucket_ap(actual: str, previous: str, eq_eps: float = 0.0) -> Optional[str]:
+    return classify_bucket_cmp(
+        actual,
+        previous,
+        eq_eps=eq_eps,
+        bucket_gt=BUCKET_GT,
+        bucket_lt=BUCKET_LT,
+        bucket_eq=BUCKET_EQ,
+    )
+
+
+def classify_bucket_af(actual: str, forecast: str, eq_eps: float = 0.0) -> Optional[str]:
+    return classify_bucket_cmp(
+        actual,
+        forecast,
+        eq_eps=eq_eps,
+        bucket_gt=BUCKET_AF_GT,
+        bucket_lt=BUCKET_AF_LT,
+        bucket_eq=BUCKET_AF_EQ,
+    )
 
 
 @dataclass
@@ -353,13 +393,15 @@ def main() -> None:
             date_text = str(row[0] or "").strip()
             time_text = str(row[1] or "").strip()
             actual = str(row[2] or "")
+            forecast = str(row[3] or "")
             previous = str(row[4] or "")
 
             dt_source = parse_event_dt_source_utc8(date_text, time_text)
             if dt_source is None:
                 continue
-            bucket = classify_bucket(actual, previous, eq_eps=args.eq_eps)
-            if bucket is None:
+            bucket_ap = classify_bucket_ap(actual, previous, eq_eps=args.eq_eps)
+            bucket_af = classify_bucket_af(actual, forecast, eq_eps=args.eq_eps)
+            if bucket_ap is None and bucket_af is None:
                 continue
 
             dt_utc = dt_source.astimezone(timezone.utc)
@@ -372,27 +414,46 @@ def main() -> None:
             if not (t0_mid > 0):
                 continue
 
-            by_bucket = events.setdefault(event_id, {}).setdefault(bucket, {})
-            added_any = False
+            pct_by_offset: Dict[int, float] = {}
             for offset in WINDOWS_MINUTES:
                 target_minute = t0_minute + offset
                 j = find_exact_minute_index(minutes, target_minute)
                 if j is None:
                     continue
-                pct = (mids[j] - t0_mid) / t0_mid * 100.0
-                stats = by_bucket.get(offset)
-                if stats is None:
-                    stats = WindowStats(values=[])
-                    by_bucket[offset] = stats
-                stats.add(pct)
-                added_any = True
+                # Offsets are interpreted as "minutes relative to the event".
+                # For positive offsets, pct is event -> future.
+                #
+                # For negative offsets, we want the intuitive "past -> event" move
+                # (i.e., the price drift into the release), not "event -> past".
+                #
+                # We keep the event mid as the denominator for symmetry with the
+                # positive side and just flip the sign for negative offsets.
+                raw = (mids[j] - t0_mid) / t0_mid * 100.0
+                pct = raw if offset >= 0 else -raw
+                pct_by_offset[offset] = pct
 
-            if added_any:
-                sample_points += 1
-                if event_min_dt_utc is None or dt_utc < event_min_dt_utc:
-                    event_min_dt_utc = dt_utc
-                if event_max_dt_utc is None or dt_utc > event_max_dt_utc:
-                    event_max_dt_utc = dt_utc
+            if not pct_by_offset:
+                continue
+
+            def add_bucket(bucket_key: str) -> None:
+                by_bucket = events.setdefault(event_id, {}).setdefault(bucket_key, {})
+                for offset, pct in pct_by_offset.items():
+                    stats = by_bucket.get(offset)
+                    if stats is None:
+                        stats = WindowStats(values=[])
+                        by_bucket[offset] = stats
+                    stats.add(pct)
+
+            if bucket_ap is not None:
+                add_bucket(bucket_ap)
+            if bucket_af is not None:
+                add_bucket(bucket_af)
+
+            sample_points += 1
+            if event_min_dt_utc is None or dt_utc < event_min_dt_utc:
+                event_min_dt_utc = dt_utc
+            if event_max_dt_utc is None or dt_utc > event_max_dt_utc:
+                event_max_dt_utc = dt_utc
 
     # Finalize
     out_events: Dict[str, Any] = {}
@@ -410,7 +471,10 @@ def main() -> None:
     result["meta"]["sample_points"] = sample_points
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    # Force LF so Windows checkouts don't flip the entire JSON to CRLF and create noisy diffs.
+    text = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
+    with out_path.open("w", encoding="utf-8", newline="\n") as f:
+        f.write(text)
 
 
 if __name__ == "__main__":

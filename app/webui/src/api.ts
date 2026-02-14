@@ -1,4 +1,11 @@
-import type { EventHistoryResponse, EventImpactResponse, Settings, Snapshot } from "./types";
+import type {
+  EventDeepAnalysisResponse,
+  EventHistoryResponse,
+  EventImpactResponse,
+  PredictReleaseModelResponse,
+  Settings,
+  Snapshot
+} from "./types";
 import { CURRENCY_OPTIONS } from "./constants/currencyOptions";
 import { formatLocalDateTime } from "./utils/calendarTime";
 
@@ -15,14 +22,16 @@ type UpdateState = {
   lastCheckedAt?: string;
 };
 
-type BackendApi = {
-  get_snapshot: () => ApiResult<Snapshot>;
-  get_event_history?: (payload: { event: string; cur: string }) => ApiResult<EventHistoryResponse>;
-  get_event_impact_usd?: (payload: { eventId: string; bucket: string }) => ApiResult<EventImpactResponse>;
-  get_settings: () => ApiResult<Settings>;
-  save_settings: (payload: Settings) => ApiResult<{ ok: boolean }>;
-  frontend_boot_complete?: () => ApiResult<{ ok: boolean }>;
-  set_ui_state?: (payload: { visible: boolean; focused: boolean; lastInputAt: number }) => ApiResult<{ ok: boolean }>;
+type BackendApi = { 
+  get_snapshot: () => ApiResult<Snapshot>; 
+  get_event_history?: (payload: { event: string; cur: string }) => ApiResult<EventHistoryResponse>; 
+  get_event_impact_usd?: (payload: { eventId: string; bucket: string }) => ApiResult<EventImpactResponse>; 
+  get_event_deep_analysis_usd?: (payload: { eventId: string; anchorDtUtc?: string }) => ApiResult<EventDeepAnalysisResponse>;
+  get_predict_release_model_usd?: () => ApiResult<PredictReleaseModelResponse>;
+  get_settings: () => ApiResult<Settings>; 
+  save_settings: (payload: Settings) => ApiResult<{ ok: boolean }>; 
+  frontend_boot_complete?: () => ApiResult<{ ok: boolean }>; 
+  set_ui_state?: (payload: { visible: boolean; focused: boolean; lastInputAt: number }) => ApiResult<{ ok: boolean }>; 
   get_temporary_path_task: () => ApiResult<{
     ok: boolean;
     active: boolean;
@@ -608,7 +617,94 @@ const buildMockEventImpactUsd = (payload: {
   };
 };
 
-export const backend = {
+const buildMockEventDeepAnalysisUsd = (payload: {
+  eventId: string;
+  anchorDtUtc?: string;
+}): EventDeepAnalysisResponse => {
+  if (!payload.eventId.startsWith("USD::")) {
+    return { ok: false, message: "Deep analysis unavailable." };
+  }
+
+  const stepMinutes = 15;
+  const displayHalfMinutes = 24 * 60;
+  const offsetsMinutes: number[] = [];
+  for (let t = -displayHalfMinutes; t <= displayHalfMinutes; t += stepMinutes) {
+    offsetsMinutes.push(t);
+  }
+
+  const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
+  const pUp = offsetsMinutes.map((t) => {
+    const x = t / displayHalfMinutes; // -1..+1
+    const s = Math.tanh(x * 1.4); // smooth regime drift
+    const w = Math.sin(t / 180) * 0.04 + Math.sin(t / 520) * 0.02; // small waves
+    return clamp01(0.5 + 0.16 * s + w);
+  });
+  const pUpPrior = pUp.map((p, idx) => {
+    const t = offsetsMinutes[idx] ?? 0;
+    const wobble = Math.sin(t / 260) * 0.02;
+    return clamp01(0.5 + (p - 0.5) * 0.72 + wobble);
+  });
+
+  // Keep labels stable in ui-check: use the anchor when present.
+  const asOfUtc = String(payload.anchorDtUtc || "2026-01-30T08:30:00Z");
+
+  return {
+    ok: true,
+    eventId: payload.eventId,
+    generatedAtUtc: asOfUtc,
+    meta: {
+      source: "ui-check-mock"
+    },
+    data: {
+      predictMarket: {
+        unifiedPath: {
+          offsetsMinutes,
+          pUp
+        },
+        unifiedPathPrior: {
+          offsetsMinutes,
+          pUp: pUpPrior
+        },
+        contributions: [
+          {
+            eventId: `${payload.eventId}@mock-1`,
+            label: "Mock nearby event · 30-01-2026 08:30",
+            weight: 1,
+            deltaPUp: offsetsMinutes.map((t) => Math.sin(t / 260) * 0.02)
+          },
+          {
+            eventId: `${payload.eventId}@mock-2`,
+            label: "Mock nearby event · 30-01-2026 09:30",
+            weight: 0.8,
+            deltaPUp: offsetsMinutes.map((t) => Math.cos(t / 320) * 0.015)
+          }
+        ],
+        unifiedMeta: {
+          source: "ui-check-mock",
+          anchorEventId: payload.eventId,
+          anchorDtUtc: asOfUtc,
+          asOfUtc,
+          displayWindowMinutes: displayHalfMinutes,
+          includeWindowMinutes: displayHalfMinutes * 2,
+          stepMinutes,
+          nearbyEvents: 8,
+          displayEvents: 2,
+          usedActualEvents: 2,
+          usedForecastEvents: 2,
+          usedUnconditionalEvents: 0,
+          adjustedByActual: true
+        }
+      },
+      method: {
+        name: "ui-check-mock",
+        version: "1",
+        summary: "Mock deep analysis payload used by ui-check to validate layout and interactions."
+      }
+    }
+  };
+};
+
+export const backend = { 
   getSnapshot: async (): ApiResult<Snapshot> => {
     if (isTauri()) {
       return tauriInvoke("get_snapshot");
@@ -632,7 +728,7 @@ export const backend = {
     // Tauri invoke proxy wraps method args as `{ payload: ... }`, so align with that shape.
     return api.get_event_history({ event: payload.event, cur: payload.cur } as any);
   },
-  getEventImpactUsd: async (payload: { eventId: string; bucket: string }) => {
+  getEventImpactUsd: async (payload: { eventId: string; bucket: string }) => { 
     if (isUiCheckRuntime()) {
       return Promise.resolve(buildMockEventImpactUsd(payload));
     }
@@ -643,11 +739,37 @@ export const backend = {
       }
       return Promise.resolve({ ok: false, message: "Impact analysis unavailable" });
     }
-    return api.get_event_impact_usd({ eventId: payload.eventId, bucket: payload.bucket } as any);
-  },
-  getUpdateState: async () => {
+    return api.get_event_impact_usd({ eventId: payload.eventId, bucket: payload.bucket } as any); 
+  }, 
+  getEventDeepAnalysisUsd: async (payload: { eventId: string; anchorDtUtc?: string }) => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockEventDeepAnalysisUsd(payload));
+    }
     const api = await withApi();
-    if (!api || !hasMethod(api, "get_update_state")) {
+    if (!api || !hasMethod(api, "get_event_deep_analysis_usd")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve({ ok: false, message: "Deep analysis unavailable" });
+    }
+    return api.get_event_deep_analysis_usd({ eventId: payload.eventId, anchorDtUtc: payload.anchorDtUtc });
+  },
+  getPredictReleaseModelUsd: async (): ApiResult<PredictReleaseModelResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve({ ok: false, message: "Predict release model unavailable in ui-check runtime" });
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "get_predict_release_model_usd")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve({ ok: false, message: "Predict release model unavailable" });
+    }
+    return api.get_predict_release_model_usd();
+  },
+  getUpdateState: async () => { 
+    const api = await withApi(); 
+    if (!api || !hasMethod(api, "get_update_state")) { 
       if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }

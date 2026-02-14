@@ -1,0 +1,446 @@
+.deep-tut {
+  --tut-surface: rgba(255, 255, 255, 0.06);
+  --tut-surface-border: rgba(255, 255, 255, 0.09);
+  --tut-axis: rgba(148, 163, 184, 0.22);
+  --tut-ink: rgba(226, 232, 240, 0.92);
+  --tut-ink2: rgba(148, 163, 184, 0.92);
+}
+
+[data-theme="light"] .deep-tut {
+  --tut-surface: rgba(2, 6, 23, 0.04);
+  --tut-surface-border: rgba(2, 6, 23, 0.08);
+  --tut-axis: rgba(71, 85, 105, 0.22);
+  --tut-ink: rgba(15, 23, 42, 0.92);
+  --tut-ink2: rgba(71, 85, 105, 0.92);
+}
+
+.deep-tut-lead {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text);
+  margin: 6px 0 14px;
+}
+
+.deep-tut-step {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.deep-tut-step:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.deep-tut-step-n {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-strong);
+  background: rgba(148, 163, 184, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+[data-theme="light"] .deep-tut-step-n {
+  background: rgba(71, 85, 105, 0.06);
+  border-color: rgba(71, 85, 105, 0.14);
+}
+
+.deep-tut-step-title {
+  font-size: 12.5px;
+  font-weight: 900;
+  color: var(--text-strong);
+  margin-bottom: 8px;
+}
+
+.deep-tut-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 980px) {
+  .deep-tut-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .deep-tut-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.deep-tut-card {
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(2, 6, 23, 0.12);
+  padding: 10px 10px 10px;
+  display: grid;
+  gap: 8px;
+}
+
+[data-theme="light"] .deep-tut-card {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(71, 85, 105, 0.14);
+}
+
+.deep-tut-card-h {
+  font-size: 12.5px;
+  font-weight: 900;
+  color: var(--text-strong);
+}
+
+.deep-tut-card-p {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.deep-tut-example {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--tut-ink2);
+}
+
+.deep-tut-inline {
+  display: inline;
+  margin-left: 6px;
+  color: var(--text);
+}
+
+.deep-tut-wide {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+@media (max-width: 760px) {
+  .deep-tut-wide {
+    grid-template-columns: 1fr;
+  }
+}
+
+.deep-tut-wide-text {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+.deep-tut-list {
+  display: grid;
+  gap: 8px;
+}
+
+.deep-tut-li {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text);
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.deep-tut-flow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.deep-tut-flow-notes {
+  display: grid;
+  gap: 8px;
+}
+
+.deep-tut-dot2 {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.55);
+  margin-top: 6px;
+  flex: 0 0 auto;
+}
+
+.deep-tut-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+@media (max-width: 760px) {
+  .deep-tut-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+.deep-tut-box {
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(2, 6, 23, 0.1);
+  padding: 10px 12px;
+}
+
+[data-theme="light"] .deep-tut-box {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(71, 85, 105, 0.14);
+}
+
+.deep-tut-box-h {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--text-strong);
+  margin-bottom: 6px;
+}
+
+.deep-tut-mini {
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.deep-tut-foot {
+  margin-top: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  background: rgba(148, 163, 184, 0.06);
+  padding: 10px 12px;
+}
+
+[data-theme="light"] .deep-tut-foot {
+  border-color: rgba(71, 85, 105, 0.12);
+  background: rgba(71, 85, 105, 0.05);
+}
+
+.deep-tut-foot-h {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--text-strong);
+  margin-bottom: 6px;
+}
+
+.deep-tut-foot-line {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+.deep-tut-badges {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+@media (max-width: 980px) {
+  .deep-tut-badges {
+    grid-template-columns: 1fr;
+  }
+}
+
+.deep-tut-badge {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  background: rgba(2, 6, 23, 0.08);
+}
+
+[data-theme="light"] .deep-tut-badge {
+  border-color: rgba(71, 85, 105, 0.12);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.deep-tut-badge-ic {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  margin-top: 2px;
+  background: rgba(251, 146, 60, 0.6);
+  box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.12);
+  flex: 0 0 auto;
+}
+
+[data-theme="light"] .deep-tut-badge-ic {
+  box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.09);
+}
+
+.deep-tut-badge-t {
+  font-size: 12.5px;
+  font-weight: 900;
+  color: var(--text-strong);
+  line-height: 1.2;
+}
+
+.deep-tut-badge-s {
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.deep-tut-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.deep-tut-svg--flow {
+  height: 168px;
+}
+
+@media (max-width: 760px) {
+  .deep-tut-svg--flow {
+    height: 150px;
+  }
+}
+
+.deep-tut-surface {
+  fill: var(--tut-surface);
+  stroke: var(--tut-surface-border);
+}
+
+.deep-tut-svg-label {
+  font-size: 10px;
+  font-weight: 800;
+  fill: var(--tut-ink2);
+}
+
+.deep-tut-svg-mini {
+  font-size: 9px;
+  font-weight: 700;
+  fill: var(--tut-ink2);
+}
+
+.deep-tut-flow-box {
+  fill: rgba(148, 163, 184, 0.1);
+  stroke: rgba(148, 163, 184, 0.18);
+}
+
+[data-theme="light"] .deep-tut-flow-box {
+  fill: rgba(71, 85, 105, 0.06);
+  stroke: rgba(71, 85, 105, 0.14);
+}
+
+.deep-tut-flow-box.soft {
+  fill: rgba(148, 163, 184, 0.06);
+  stroke: rgba(148, 163, 184, 0.14);
+}
+
+[data-theme="light"] .deep-tut-flow-box.soft {
+  fill: rgba(71, 85, 105, 0.04);
+  stroke: rgba(71, 85, 105, 0.12);
+}
+
+.deep-tut-flow-out {
+  fill: rgba(2, 6, 23, 0.06);
+  stroke: rgba(251, 146, 60, 0.18);
+}
+
+[data-theme="light"] .deep-tut-flow-out {
+  fill: rgba(255, 255, 255, 0.35);
+  stroke: rgba(251, 146, 60, 0.2);
+}
+
+.deep-tut-flow-arrow {
+  stroke: rgba(148, 163, 184, 0.6);
+  stroke-width: 1.3;
+  stroke-linecap: round;
+}
+
+.deep-tut-flow-arrowhead {
+  fill: rgba(148, 163, 184, 0.6);
+}
+
+.deep-tut-flow-t {
+  font-size: 11px;
+  font-weight: 900;
+  fill: var(--tut-ink);
+}
+
+.deep-tut-flow-s {
+  font-size: 9.5px;
+  font-weight: 700;
+  fill: var(--tut-ink2);
+}
+
+.deep-tut-bar {
+  opacity: 0.95;
+}
+
+.deep-tut-bar.gt {
+  fill: rgba(96, 165, 250, 0.55);
+}
+
+.deep-tut-bar.eq {
+  fill: rgba(148, 163, 184, 0.38);
+}
+
+.deep-tut-bar.lt {
+  fill: rgba(251, 146, 60, 0.45);
+}
+
+.deep-tut-eqband {
+  fill: rgba(148, 163, 184, 0.18);
+  stroke: rgba(148, 163, 184, 0.18);
+}
+
+[data-theme="light"] .deep-tut-eqband {
+  fill: rgba(71, 85, 105, 0.12);
+  stroke: rgba(71, 85, 105, 0.12);
+}
+
+.deep-tut-tick {
+  stroke: rgba(148, 163, 184, 0.65);
+  stroke-width: 1.1;
+}
+
+[data-theme="light"] .deep-tut-tick {
+  stroke: rgba(71, 85, 105, 0.55);
+}
+
+.deep-tut-axis {
+  stroke: var(--tut-axis);
+  stroke-width: 1;
+}
+
+.deep-tut-anchor {
+  stroke: rgba(148, 163, 184, 0.55);
+  stroke-width: 1.1;
+}
+
+.deep-tut-line {
+  fill: none;
+  stroke: rgba(226, 232, 240, 0.85);
+  stroke-width: 2.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+[data-theme="light"] .deep-tut-line {
+  stroke: rgba(15, 23, 42, 0.8);
+}
+
+.deep-tut-line.dashed {
+  stroke-dasharray: 4 4;
+  opacity: 0.55;
+}
+
+.deep-tut-dot {
+  fill: rgba(251, 146, 60, 0.92);
+}
+
+.deep-tut-dot.soft {
+  fill: rgba(148, 163, 184, 0.7);
+}

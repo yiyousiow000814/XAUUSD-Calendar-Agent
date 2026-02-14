@@ -1,0 +1,15 @@
+# Keep line endings consistent across Windows/macOS/Linux.
+# This avoids noisy LF/CRLF diffs when contributors have different git settings.
+* text=auto eol=lf
+
+# Common binary formats (never normalize line endings).
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.7z binary
+*.exe binary
+*.dll binary

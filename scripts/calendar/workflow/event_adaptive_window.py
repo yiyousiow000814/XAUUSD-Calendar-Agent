@@ -11,6 +11,8 @@ from typing import Iterable, Optional, Sequence
 import numpy as np
 import pandas as pd
 
+from scripts.calendar.table_io import read_table, write_table
+
 try:
     from .event_price_deepdive import _normalise_surprise_direction
 except ImportError:  # pragma: no cover
@@ -47,7 +49,7 @@ def _ensure_alignment(path: Path, df: Optional[pd.DataFrame]) -> pd.DataFrame:
     else:
         if not path.exists():
             raise FileNotFoundError(f"Alignment dataset not found: {path}")
-        frame = pd.read_parquet(path)
+        frame = read_table(path, parse_dates=("event_time",))
     if frame.empty:
         raise SystemExit("Alignment dataset is empty; nothing to process.")
     required = {"event_id", "event_time", "event_name", "currency"}
@@ -408,14 +410,14 @@ def run_adaptive_window(
     recommendations = _build_recommendations(summary, config.fallback_windows)
 
     config.events_output_parquet.parent.mkdir(parents=True, exist_ok=True)
-    events.to_parquet(config.events_output_parquet, index=False)
+    write_table(events, config.events_output_parquet, index=False)
     if config.events_output_csv is not None:
         config.events_output_csv.parent.mkdir(parents=True, exist_ok=True)
         events.to_csv(config.events_output_csv, index=False)
 
     if not summary.empty:
         config.summary_output_parquet.parent.mkdir(parents=True, exist_ok=True)
-        summary.to_parquet(config.summary_output_parquet, index=False)
+        write_table(summary, config.summary_output_parquet, index=False)
         if config.summary_output_csv is not None:
             config.summary_output_csv.parent.mkdir(parents=True, exist_ok=True)
             summary.to_csv(config.summary_output_csv, index=False)

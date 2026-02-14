@@ -56,6 +56,26 @@ def add_stage_args_part1(parser):
         help="Skip the Stage C predictive uncertainty analysis.",
     )
 
+    parser.add_argument(
+        "--export-deep-json",
+        dest="export_deep_json",
+        action="store_true",
+        help="Export Stage outputs into data/analysis/xauusd_event_deep_analysis_usd.json for the desktop app.",
+    )
+    parser.add_argument(
+        "--no-export-deep-json",
+        dest="export_deep_json",
+        action="store_false",
+        help="Skip exporting the deep JSON file for the desktop app.",
+    )
+    parser.set_defaults(export_deep_json=True)
+    parser.add_argument(
+        "--deep-json-output",
+        type=Path,
+        default=Path("data/analysis/xauusd_event_deep_analysis_usd.json"),
+        help="Output path for the deep JSON export (schema=1).",
+    )
+
     parser.add_argument("--price-path", type=Path, default=DEFAULT_PRICE_PATH)
     parser.add_argument("--calendar-dir", type=Path, default=DEFAULT_CALENDAR_DIR)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)

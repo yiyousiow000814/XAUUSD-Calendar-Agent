@@ -208,7 +208,7 @@ def _parse_numeric(value: str) -> float | None:
     if not text:
         return None
 
-    match = re.search(r"([+-]?\d+(?:\.\d+)?)([kmb])?", text, re.IGNORECASE)
+    match = re.search(r"([+-]?\d+(?:\.\d+)?)([kmbt])?", text, re.IGNORECASE)
     if not match:
         return None
 
@@ -220,6 +220,8 @@ def _parse_numeric(value: str) -> float | None:
         multiplier = 1_000_000.0
     elif suffix == "b":
         multiplier = 1_000_000_000.0
+    elif suffix == "t":
+        multiplier = 1_000_000_000_000.0
 
     try:
         return float(match.group(1)) * multiplier

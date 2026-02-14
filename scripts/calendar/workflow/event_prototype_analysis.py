@@ -15,6 +15,7 @@ from .event_component_decomposition import (
     _extract_frequency,
     _normalise_base_indicator,
 )
+from scripts.calendar.table_io import read_table, write_table
 
 BASE_OUTPUT_DIR = Path("data/calendar_outputs/event_prototypes")
 DEFAULT_ALIGNMENT_PATH = Path(
@@ -123,7 +124,7 @@ def _load_alignment(
     if alignment_df is None:
         if not config.alignment_path.exists():
             raise FileNotFoundError(config.alignment_path)
-        alignment_df = pd.read_parquet(config.alignment_path)
+        alignment_df = read_table(config.alignment_path, parse_dates=("event_time",))
 
     if alignment_df.empty:
         raise SystemExit("Alignment dataset is empty; nothing to analyse.")
@@ -329,7 +330,7 @@ def run_prototype_analysis(
 
     if not detail.empty:
         config.detail_output_parquet.parent.mkdir(parents=True, exist_ok=True)
-        detail.to_parquet(config.detail_output_parquet, index=False)
+        write_table(detail, config.detail_output_parquet, index=False)
         if config.detail_output_csv is not None:
             config.detail_output_csv.parent.mkdir(parents=True, exist_ok=True)
             detail.to_csv(config.detail_output_csv, index=False)
@@ -338,7 +339,7 @@ def run_prototype_analysis(
 
     if not summary.empty:
         config.summary_output_parquet.parent.mkdir(parents=True, exist_ok=True)
-        summary.to_parquet(config.summary_output_parquet, index=False)
+        write_table(summary, config.summary_output_parquet, index=False)
         if config.summary_output_csv is not None:
             config.summary_output_csv.parent.mkdir(parents=True, exist_ok=True)
             summary.to_csv(config.summary_output_csv, index=False)
@@ -347,7 +348,7 @@ def run_prototype_analysis(
 
     if not centroids.empty:
         config.centroid_output_parquet.parent.mkdir(parents=True, exist_ok=True)
-        centroids.to_parquet(config.centroid_output_parquet, index=False)
+        write_table(centroids, config.centroid_output_parquet, index=False)
         if config.centroid_output_csv is not None:
             config.centroid_output_csv.parent.mkdir(parents=True, exist_ok=True)
             centroids.to_csv(config.centroid_output_csv, index=False)

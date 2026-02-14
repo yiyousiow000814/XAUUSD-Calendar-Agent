@@ -1,12 +1,13 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+﻿import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
-import type {
-  EventHistoryPoint,
-  EventHistoryResponse,
-  EventImpactBucket,
-  EventImpactResponse,
-  EventImpactWindowStats
-} from "../types";
+import type { 
+  EventHistoryPoint, 
+  EventHistoryResponse, 
+  EventDeepAnalysisResponse,
+  EventImpactBucket, 
+  EventImpactResponse, 
+  EventImpactWindowStats 
+} from "../types"; 
 import { backend } from "../api";
 import { buildEventNotes } from "../utils/eventNotes";
 import {
@@ -14,6 +15,7 @@ import {
   getEffectiveCalendarUtcOffsetMinutes,
   parseDisplayTimeToUtcMs
 } from "../utils/calendarTime";
+import { DeepAnalysisView } from "./event-history/DeepAnalysisView";
 import { Select } from "./Select";
 import "./EventHistoryModal.css";
 
@@ -22,7 +24,13 @@ type EventHistoryModalProps = {
   loading: boolean;
   error: string | null;
   selectionLabel: string;
+  selectionImpact?: string;
+  selectionActual?: string;
+  selectionForecast?: string;
+  selectionPrevious?: string;
   data: EventHistoryResponse | null;
+  // UTC timestamp for the selected release instance (used for Deep Analysis unified outlook window).
+  anchorDtUtc: string;
   calendarTimezoneMode: "utc" | "system";
   calendarUtcOffsetMinutes: number;
   onClose: () => void;
@@ -73,7 +81,7 @@ const parseComparableNumber = (rawValue: string) => {
     .replaceAll(",", "")
     .replaceAll("%", "");
   // Some calendar sources append notes like "(rev.)" or "*"; accept the first numeric token.
-  const match = cleaned.match(/([+-]?\d+(?:\.\d+)?)([kmb])?/i);
+  const match = cleaned.match(/([+-]?\d+(?:\.\d+)?)([kmbt])?/i);
   if (!match) return null;
   const base = Number(match[1]);
   if (!Number.isFinite(base)) return null;
@@ -81,6 +89,7 @@ const parseComparableNumber = (rawValue: string) => {
   if (suffix === "k") return base * 1_000;
   if (suffix === "m") return base * 1_000_000;
   if (suffix === "b") return base * 1_000_000_000;
+  if (suffix === "t") return base * 1_000_000_000_000;
   return base;
 };
 
@@ -138,6 +147,7 @@ const formatTickNumber = (value: number) => {
     const text = num.toFixed(abs < 1 ? 2 : abs < 10 ? 2 : abs < 100 ? 1 : 0);
     return text.replace(/\.0+$/, "").replace(/(\.\d*[1-9])0+$/, "$1");
   };
+  if (abs >= 1_000_000_000_000) return `${format(value / 1_000_000_000_000)}T`;
   if (abs >= 1_000_000_000) return `${format(value / 1_000_000_000)}B`;
   if (abs >= 1_000_000) return `${format(value / 1_000_000)}M`;
   if (abs >= 1_000) return `${format(value / 1_000)}K`;
@@ -150,7 +160,7 @@ const detectUnitLabel = (points: EventHistoryPoint[], keys: Array<keyof EventHis
       const raw = String(point[key] ?? "").trim();
       if (isMissingValue(raw)) continue;
       if (raw.includes("%")) return "%";
-      const suffix = raw.match(/[kmb]$/i)?.[0];
+      const suffix = raw.match(/[kmbt]$/i)?.[0];
       if (suffix) return suffix.toUpperCase();
     }
   }
@@ -213,7 +223,12 @@ export function EventHistoryModal({
   loading,
   error,
   selectionLabel,
+  selectionImpact,
+  selectionActual,
+  selectionForecast,
+  selectionPrevious,
   data,
+  anchorDtUtc,
   calendarTimezoneMode,
   calendarUtcOffsetMinutes,
   onClose
@@ -300,6 +315,10 @@ export function EventHistoryModal({
   const [impactLoading, setImpactLoading] = useState(false);
   const [impactError, setImpactError] = useState<string | null>(null);
   const [impactData, setImpactData] = useState<EventImpactResponse | null>(null);
+  const [deepLoading, setDeepLoading] = useState(false);
+  const [deepError, setDeepError] = useState<string | null>(null);
+  const [deepData, setDeepData] = useState<EventDeepAnalysisResponse | null>(null);
+  const deepCacheRef = useRef<Map<string, EventDeepAnalysisResponse>>(new Map());
   const [impactChartAnimKey, setImpactChartAnimKey] = useState(0);
   const impactBodyRef = useRef<HTMLDivElement | null>(null);
   // Cache impact payloads per (eventId, bucket) to avoid flicker when switching History <-> Impact.
@@ -624,7 +643,9 @@ export function EventHistoryModal({
   useEffect(() => {
     if (!isOpen || !impactOpen) return;
     if (!eventId) return;
-    if (impactPanel !== "event") return;
+    // Deep Analysis reuses Impact stats for the fallback Unified Outlook P(t).
+    // Keep the impact dataset warm for both sub-panels.
+    if (impactPanel !== "event" && impactPanel !== "deep") return;
     if (!isUsdEvent) {
       setImpactError("Impact analysis is available for USD events only.");
       setImpactData(null);
@@ -673,6 +694,55 @@ export function EventHistoryModal({
       cancelled = true;
     };
   }, [eventId, impactBucket, impactOpen, impactPanel, isOpen, isUsdEvent]);
+
+  useEffect(() => {
+    if (!isOpen || !impactOpen) return;
+    if (!eventId) return;
+    if (impactPanel !== "deep") return;
+    if (!isUsdEvent) {
+      setDeepError("Deep analysis is available for USD events only.");
+      setDeepData(null);
+      setDeepLoading(false);
+      return;
+    }
+
+    const cacheKey = `${eventId}::${(anchorDtUtc || "").trim()}`;
+    const cached = deepCacheRef.current.get(cacheKey);
+    if (cached?.ok) {
+      setDeepError(null);
+      setDeepData(cached);
+      setDeepLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setDeepLoading(true);
+    setDeepError(null);
+    setDeepData(null);
+
+    backend
+      .getEventDeepAnalysisUsd({ eventId, anchorDtUtc })
+      .then((result) => {
+        if (cancelled) return;
+        setDeepError(null);
+        setDeepData(result);
+        if (result.ok) deepCacheRef.current.set(cacheKey, result);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        const msg = err instanceof Error ? err.message : "Deep analysis failed";
+        setDeepError(msg);
+        setDeepData(null);
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setDeepLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [eventId, impactOpen, impactPanel, isOpen, isUsdEvent, anchorDtUtc]);
 
   // Prefetch impact data while the modal is open so switching History -> Impact is instant.
   useEffect(() => {
@@ -1631,6 +1701,7 @@ export function EventHistoryModal({
     if (!isOpen) return;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
+      if (event.defaultPrevented) return;
       const target = event.target as HTMLElement | null;
       const tag = target?.tagName?.toLowerCase() ?? "";
       if (tag === "input" || tag === "textarea" || target?.isContentEditable) return;
@@ -2218,18 +2289,27 @@ export function EventHistoryModal({
                       hasMetricValues ? "" : " history-modal-layout-left--no-chart"
                     }`}
                   >
-                    {impactOpen ? (
-                      <div className="history-impact">
+                    {impactOpen ? ( 
+                      <div className="history-impact"> 
                         {impactPanel === "deep" ? (
-                          <div className="history-impact-deep" data-qa="qa:history:deep-placeholder">
-                            <div className="history-impact-deep-title">Deep Analysis</div>
-                            <div className="history-impact-deep-body">
-                              Placeholder: future versions will account for nearby/overlapping events and multi-event
-                              attribution.
-                            </div>
-                          </div>
+                          <DeepAnalysisView
+                            points={points}
+                            metricKey={String(data?.metric ?? "")}
+                            cur={String(data?.cur ?? "")}
+                            isUsdEvent={isUsdEvent}
+                            deepLoading={deepLoading}
+                            deepError={deepError}
+                            deepData={deepData}
+                            impactSeriesItems={impactSeries.items}
+                            anchorDtUtc={anchorDtUtc}
+                            displayOffsetMinutes={effectiveCalendarOffsetMinutes}
+                            selectionImpact={selectionImpact}
+                            selectionActual={selectionActual}
+                            selectionForecast={selectionForecast}
+                            selectionPrevious={selectionPrevious}
+                          />
                         ) : (
-                          <div className="history-impact-chart" data-qa="qa:history:impact-chart">
+                          <div className="history-impact-chart" data-qa="qa:history:impact-chart"> 
                             {!impactLoading && !impactError && impactData?.ok && impactChart ? (
                               <div className="impact-chart-header" aria-hidden="true">
                                 <div className="impact-chart-meta">

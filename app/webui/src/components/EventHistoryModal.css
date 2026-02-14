@@ -1099,38 +1099,6 @@
   opacity: 0.65;
 }
 
-.history-impact-deep {
-  border-radius: 20px;
-  border: 1px solid var(--panel-border);
-  background: var(--table-row-bg);
-  padding: 18px 18px 16px;
-  flex: 1;
-  min-height: 600px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-[data-theme="light"] .history-impact-deep {
-  background: var(--table-row-bg);
-}
-
-.history-impact-deep-title {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-  margin-bottom: 8px;
-}
-
-.history-impact-deep-body {
-  font-size: 13px;
-  color: var(--text);
-  line-height: 1.45;
-  max-width: 640px;
-  margin: 0;
-}
-
 .history-impact-side {
   display: flex;
   flex-direction: column;

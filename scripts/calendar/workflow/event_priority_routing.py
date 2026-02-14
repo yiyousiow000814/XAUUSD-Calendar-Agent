@@ -11,6 +11,8 @@ from typing import Optional
 
 import pandas as pd
 
+from scripts.calendar.table_io import read_table, write_table
+
 try:
     from .event_adaptive_window import AdaptiveWindowResult
 except ImportError:  # pragma: no cover - fallback when running as module
@@ -120,7 +122,7 @@ def _load_alignment(
             raise FileNotFoundError(
                 f"Alignment dataset not found: {config.alignment_path}"
             )
-        df = pd.read_parquet(config.alignment_path)
+        df = read_table(config.alignment_path, parse_dates=("event_time",))
     if df.empty:
         raise SystemExit("Alignment dataset is empty; nothing to process.")
     df["event_time"] = pd.to_datetime(df["event_time"])
@@ -140,7 +142,7 @@ def _load_adaptive(
                 "Adaptive window dataset not found; run Stage C adaptive window first "
                 "or provide the path via --adaptive-events-path."
             )
-        events = pd.read_parquet(config.adaptive_events_path)
+        events = read_table(config.adaptive_events_path, parse_dates=("event_time",))
     if events.empty:
         raise SystemExit("Adaptive window dataset is empty; nothing to process.")
     drop_cols = [
@@ -331,14 +333,14 @@ def _write_outputs(
     config: PriorityConfig, events: pd.DataFrame, groups: pd.DataFrame
 ) -> None:
     config.event_output_parquet.parent.mkdir(parents=True, exist_ok=True)
-    events.to_parquet(config.event_output_parquet, index=False)
+    write_table(events, config.event_output_parquet, index=False)
     if config.event_output_csv is not None:
         config.event_output_csv.parent.mkdir(parents=True, exist_ok=True)
         events.to_csv(config.event_output_csv, index=False)
 
     if not groups.empty:
         config.group_output_parquet.parent.mkdir(parents=True, exist_ok=True)
-        groups.to_parquet(config.group_output_parquet, index=False)
+        write_table(groups, config.group_output_parquet, index=False)
         if config.group_output_csv is not None:
             config.group_output_csv.parent.mkdir(parents=True, exist_ok=True)
             groups.to_csv(config.group_output_csv, index=False)

@@ -10,6 +10,8 @@ from typing import Iterable, Optional, Sequence
 
 import pandas as pd
 
+from scripts.calendar.table_io import read_table, write_table
+
 BASE_OUTPUT_DIR = Path("data/calendar_outputs/component_decomposition")
 DEFAULT_ALIGNMENT_PATH = Path(
     "data/calendar_outputs/event_price_alignment/event_price_alignment.parquet"
@@ -84,7 +86,7 @@ def _ensure_alignment_df(
     if alignment_df is None:
         if not config.alignment_path.exists():
             raise FileNotFoundError(config.alignment_path)
-        alignment_df = pd.read_parquet(config.alignment_path)
+        alignment_df = read_table(config.alignment_path, parse_dates=("event_time",))
 
     if alignment_df.empty:
         raise SystemExit("Alignment dataset is empty; nothing to analyse.")
@@ -289,13 +291,13 @@ def run_component_decomposition(
     )
 
     config.detail_output_parquet.parent.mkdir(parents=True, exist_ok=True)
-    detail.to_parquet(config.detail_output_parquet, index=False)
+    write_table(detail, config.detail_output_parquet, index=False)
     if config.detail_output_csv is not None:
         config.detail_output_csv.parent.mkdir(parents=True, exist_ok=True)
         detail.to_csv(config.detail_output_csv, index=False)
 
     config.summary_output_parquet.parent.mkdir(parents=True, exist_ok=True)
-    summary.to_parquet(config.summary_output_parquet, index=False)
+    write_table(summary, config.summary_output_parquet, index=False)
     if config.summary_output_csv is not None:
         config.summary_output_csv.parent.mkdir(parents=True, exist_ok=True)
         summary.to_csv(config.summary_output_csv, index=False)

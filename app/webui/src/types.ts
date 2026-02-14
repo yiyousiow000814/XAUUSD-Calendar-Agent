@@ -19,14 +19,21 @@ export type EventItem = {
   id: string;
   state?: "upcoming" | "current";
   time: string;
+  // UTC timestamp for the specific release instance (used for Deep Analysis unified outlook window).
+  dtUtc?: string;
   cur: string;
   impact: string;
   event: string;
+  actual?: string;
+  forecast?: string;
+  previous?: string;
   countdown: string;
 };
 
 export type PastEventItem = {
   time: string;
+  // UTC timestamp for the specific release instance (used for Deep Analysis unified outlook window).
+  dtUtc?: string;
   cur: string;
   impact: string;
   event: string;
@@ -89,7 +96,7 @@ export type EventImpactWindowStats = {
   p95_all?: number;
 };
 
-export type EventImpactResponse = {
+export type EventImpactResponse = { 
   ok: boolean;
   message?: string;
   eventId?: string;
@@ -105,6 +112,81 @@ export type EventImpactResponse = {
   };
   windowsMinutes?: number[];
   data?: Record<string, EventImpactWindowStats>;
+}; 
+
+export type DeepAnalysisPrediction = {
+  // Probability in [0, 1].
+  p?: number;
+  // Sample size / training events count (if available).
+  n?: number;
+  // Optional calibrated confidence label for UI.
+  confidence?: "low" | "medium" | "high";
+  // Human-readable explanation items (already ranked in the exporter).
+  reasons?: string[];
+};
+
+export type EventDeepAnalysisData = {
+  // Predict the release outcome (the economic number).
+  predictRelease?: {
+    // Probability that actual > forecast.
+    actualGtForecast?: DeepAnalysisPrediction;
+    // Probability that actual > previous.
+    actualGtPrevious?: DeepAnalysisPrediction;
+  };
+  // Predict the market reaction (XAUUSD). Optional for now.
+  predictMarket?: {
+    // e.g. { "15m": { pUp: 0.58, n: 120 }, "60m": ... }
+    horizons?: Record<string, { pUp?: number; n?: number; moveP50?: number | null }>;
+    // Single unified outlook path P(t) for a window; events should contribute weighted deltas to it.
+    unifiedPath?: {
+      offsetsMinutes: number[];
+      // Probability that XAUUSD is up at each offset.
+      pUp: number[];
+    };
+    // Optional contributions (deltas) per event; UI can highlight without changing the main path.
+    contributions?: Array<{
+      eventId: string;
+      label?: string;
+      weight?: number;
+      deltaPUp?: number[];
+    }>;
+  };
+  // Optional method metadata for "How it's computed" UI.
+  method?: {
+    name?: string;
+    version?: string;
+    summary?: string;
+    steps?: string[];
+    limitations?: string[];
+  };
+  // Optional list of signal descriptors used by the exporter.
+  signalsUsed?: Array<{ id?: string; title?: string; weight?: number; note?: string } | string>;
+  // Raw signal flags / context (preheat/path/joint/trend/etc).
+  signals?: Record<string, unknown>;
+};
+
+export type EventDeepAnalysisResponse = {
+  ok: boolean;
+  message?: string;
+  eventId?: string;
+  generatedAtUtc?: string;
+  meta?: Record<string, unknown> | null;
+  data?: EventDeepAnalysisData | Record<string, unknown>;
+};
+
+export type PredictReleaseModel = {
+  schema: number;
+  generated_at_utc?: string;
+  meta?: Record<string, unknown>;
+  classes?: string[];
+  models?: Record<string, unknown>;
+};
+
+export type PredictReleaseModelResponse = {
+  ok: boolean;
+  message?: string;
+  source?: string;
+  data?: PredictReleaseModel | Record<string, unknown>;
 };
 
 export type Snapshot = {
