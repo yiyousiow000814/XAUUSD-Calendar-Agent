@@ -301,6 +301,7 @@ export function EventHistoryModal({
       return "event";
     }
   });
+  const impactOpenRef = useRef(impactOpen);
   const impactPanelMemoryRef = useRef<"event" | "deep">(impactPanel);
   const prevImpactPanelRef = useRef<"event" | "deep">(impactPanel);
   const [impactBucket, setImpactBucket] = useState<EventImpactBucket>(() => {
@@ -432,6 +433,10 @@ export function EventHistoryModal({
     } catch {
       // ignore
     }
+  }, [impactOpen]);
+
+  useEffect(() => {
+    impactOpenRef.current = impactOpen;
   }, [impactOpen]);
 
   // Drive the "now" marker in the Impact chart.
@@ -585,7 +590,8 @@ export function EventHistoryModal({
   );
 
   const openImpact = useCallback(() => {
-    if (impactOpen) return;
+    if (impactOpenRef.current) return;
+    impactOpenRef.current = true;
 
     // Flip the visual state immediately (click only fires on release; this avoids a perceived "lag").
     setImpactOpen(true);
@@ -617,7 +623,13 @@ export function EventHistoryModal({
         });
       });
     }
-  }, [eventId, impactBucket, impactOpen, impactPanel, isUsdEvent, measureViewport, updateImpactViewport]);
+  }, [eventId, impactBucket, impactPanel, isUsdEvent, measureViewport, updateImpactViewport]);
+
+  const closeImpact = useCallback(() => {
+    if (!impactOpenRef.current) return;
+    impactOpenRef.current = false;
+    setImpactOpen(false);
+  }, []);
 
   const ensureImpactViewport = useCallback(() => {
     // Try the direct viewport first.
@@ -1743,19 +1755,19 @@ export function EventHistoryModal({
         if (isEventAnalysisAvailable) {
           setImpactPanel("event");
         } else {
-          setImpactOpen(false);
+          closeImpact();
         }
         return;
       }
       if (impactOpen) {
-        setImpactOpen(false);
+        closeImpact();
         return;
       }
       requestClose();
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [impactOpen, impactPanel, isEventAnalysisAvailable, isOpen, requestClose]);
+  }, [closeImpact, impactOpen, impactPanel, isEventAnalysisAvailable, isOpen, requestClose]);
 
   useEffect(() => {
     return () => {
@@ -2182,9 +2194,9 @@ export function EventHistoryModal({
                     onPointerDown={(event) => {
                       if (event.button !== 0) return;
                       // Update the visual state immediately on press (click only fires on release).
-                      setImpactOpen(false);
+                      closeImpact();
                     }}
-                    onClick={() => setImpactOpen(false)}
+                    onClick={closeImpact}
                     aria-pressed={!impactOpen}
                   >
                     History
