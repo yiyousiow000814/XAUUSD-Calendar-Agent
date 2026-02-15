@@ -266,7 +266,7 @@ export function DeepAnalysisMethodModal({
               <div className="deep-tut-card">
                 <MiniPath />
                 <div className="deep-tut-card-text">
-                  <div className="deep-tut-card-h">Unified Outlook P(t)</div>
+                  <div className="deep-tut-card-h">Unified Outlook P(t) + Decision Card</div>
                   <div className="deep-tut-card-p">
                     One single line that summarizes the market bias around the selected event time (t=0).
                   </div>
@@ -274,6 +274,10 @@ export function DeepAnalysisMethodModal({
                   <div className="deep-tut-example">
                     Quick read: we only surface horizons with a meaningful edge (e.g. 10pp+ away from 50%). If none
                     qualify, we show “No clear edge”. Edge means |P(up) - 50%|; very small edges are usually noise.
+                  </div>
+                  <div className="deep-tut-example">
+                    Decision Card only enables a trade bias when guardrails pass together: sample size, recent share,
+                    model coverage, backtest accuracy, and calibration gap.
                   </div>
                 </div>
               </div>
@@ -313,6 +317,10 @@ export function DeepAnalysisMethodModal({
                 <div className="deep-tut-li">
                   <span className="deep-tut-dot2" aria-hidden="true" /> If deep JSON is missing, we fall back to a
                   schedule-window estimate (less detailed).
+                </div>
+                <div className="deep-tut-li">
+                  <span className="deep-tut-dot2" aria-hidden="true" /> Trade bias is disabled by design when
+                  confidence gates fail (to avoid forced low-quality calls).
                 </div>
               </div>
             </div>

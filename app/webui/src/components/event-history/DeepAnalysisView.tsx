@@ -548,6 +548,96 @@ export function DeepAnalysisView({
   const pvChoice = pvNowcast ?? modelPv ?? localPredict.proxyVsPrev;
   const pvKind: "nowcast" | "model" | "proxy" = pvNowcast ? "nowcast" : modelPv ? "model" : "proxy";
   const pvReliable = pvKind !== "proxy" && Boolean((pvChoice as any)?.reliable);
+  const relRoot = (predictModel as any)?.models?.ap_no_forecast?.relationships ?? null;
+  const nowcastPredictor = (() => {
+    if (!relRoot) return null;
+    if (hasForecast0) return relRoot?.predictor_with_forecast ?? relRoot?.predictor ?? null;
+    return relRoot?.predictor ?? relRoot?.predictor_with_forecast ?? null;
+  })();
+  const nowcastMetricGate = (() => {
+    const metric = String(metricKey || "").trim();
+    if (!metric) return null;
+    return nowcastPredictor?.enabled_metrics?.[metric] ?? null;
+  })();
+  const gateCurrentSamples = (() => {
+    if (pvKind === "nowcast") {
+      const nTest =
+        nowcastMetricGate && typeof nowcastMetricGate.n_test === "number" && Number.isFinite(nowcastMetricGate.n_test)
+          ? Number(nowcastMetricGate.n_test)
+          : null;
+      if (typeof nTest === "number" && Number.isFinite(nTest)) return nTest;
+      const n =
+        nowcastMetricGate && typeof nowcastMetricGate.n === "number" && Number.isFinite(nowcastMetricGate.n)
+          ? Number(nowcastMetricGate.n)
+          : null;
+      if (typeof n === "number" && Number.isFinite(n)) return n;
+    }
+    if (pvChoice && typeof (pvChoice as any).n === "number" && Number.isFinite((pvChoice as any).n)) {
+      return Number((pvChoice as any).n);
+    }
+    return localPredict.recent.vsPrev.n > 0 ? localPredict.recent.vsPrev.n : null;
+  })();
+  const gateCurrentRecentShare =
+    localPredict.all.vsPrev.n > 0 ? localPredict.recent.vsPrev.n / localPredict.all.vsPrev.n : null;
+  const gateCurrentBacktestAcc =
+    pvKind === "nowcast"
+      ? nowAcc
+      : pvKind === "model"
+        ? modelAcc
+        : localPredict.proxyVsPrev?.matchRate ?? null;
+  const activeSubModel =
+    typeof f0 === "number" && Number.isFinite(f0)
+      ? (predictModel as any)?.models?.ap_with_forecast
+      : (predictModel as any)?.models?.ap_no_forecast;
+  const activeMetricGate = (() => {
+    const metric = String(metricKey || "").trim();
+    if (!metric) return null;
+    return (activeSubModel as any)?.metric_gates?.enabled_metrics?.[metric] ?? null;
+  })();
+  const gateCurrentCoverage = (() => {
+    const pickedGate = pvKind === "nowcast" ? nowcastMetricGate : activeMetricGate;
+    if (pickedGate && typeof pickedGate.coverage === "number" && Number.isFinite(pickedGate.coverage)) {
+      return Number(pickedGate.coverage);
+    }
+    return null;
+  })();
+  const gateCurrentCalibrationGap = (() => {
+    const p = pvChoice as any;
+    const pred = p?.pred0 as ">" | "=" | "<" | undefined;
+    const predProb =
+      pred === ">" ? p?.pGt : pred === "=" ? p?.pEq : pred === "<" ? p?.pLt : null;
+    if (typeof predProb !== "number" || !Number.isFinite(predProb)) return null;
+    if (typeof gateCurrentBacktestAcc !== "number" || !Number.isFinite(gateCurrentBacktestAcc)) return null;
+    return Math.abs(predProb - gateCurrentBacktestAcc);
+  })();
+  const decisionGateProfile =
+    pvKind === "nowcast"
+      ? {
+          minSamples: 24,
+          minRecentShare: 0.15,
+          minCoverage: 0.08,
+          minBacktestAcc: 0.65,
+          maxCalibrationGap: 0.12
+        }
+      : {
+          minSamples: 40,
+          minRecentShare: 0.3,
+          minCoverage: 0.35,
+          minBacktestAcc: 0.62,
+          maxCalibrationGap: 0.08
+        };
+  const decisionGate = {
+    minSamples: decisionGateProfile.minSamples,
+    currentSamples: gateCurrentSamples,
+    minRecentShare: decisionGateProfile.minRecentShare,
+    currentRecentShare: gateCurrentRecentShare,
+    minCoverage: decisionGateProfile.minCoverage,
+    currentCoverage: gateCurrentCoverage,
+    minBacktestAcc: decisionGateProfile.minBacktestAcc,
+    currentBacktestAcc: gateCurrentBacktestAcc,
+    maxCalibrationGap: decisionGateProfile.maxCalibrationGap,
+    currentCalibrationGap: gateCurrentCalibrationGap
+  };
   const hasPredictReleaseInputs = [selectionActual, selectionForecast, selectionPrevious].some((value) => {
     const parsed = parseNumber(value);
     return typeof parsed === "number" && Number.isFinite(parsed);
@@ -914,6 +1004,7 @@ export function DeepAnalysisView({
             usedActualEvents={usedActualEvents}
             hasForecast={hasForecast0}
             pvReliable={pvReliable}
+            decisionGate={decisionGate}
           />
         ) : null}
 
