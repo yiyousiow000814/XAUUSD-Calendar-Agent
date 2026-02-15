@@ -82,9 +82,19 @@ export function TradeBiasPanel({
     typeof decisionGate.currentCalibrationGap !== "number" ||
     decisionGate.currentCalibrationGap - 1e-12 <= decisionGate.maxCalibrationGap;
   const passAll = clear && passSamples && passRecentShare && passCoverage && passBacktestAcc && passCalibration;
+  const hardFailSamples =
+    typeof decisionGate.currentSamples === "number" &&
+    decisionGate.currentSamples < Math.max(12, Math.round(decisionGate.minSamples * 0.4));
+  const hardFailAcc =
+    typeof decisionGate.currentBacktestAcc === "number" && decisionGate.currentBacktestAcc + 1e-12 < 0.55;
+  const hardFailCalibration =
+    typeof decisionGate.currentCalibrationGap === "number" &&
+    decisionGate.currentCalibrationGap - 1e-12 > 0.18;
+  const hardFail = !clear || hardFailSamples || hardFailAcc || hardFailCalibration;
+  const passProbe = !hardFail;
 
-  const bias = passAll ? `${best.dir} ${fmtPctNum(best.prob)}` : "Neutral";
-  const edgeBadge = passAll ? `Edge ${best.edgePp}pp` : "Insufficient confidence";
+  const bias = clear ? `${best.dir} ${fmtPctNum(best.prob)}` : "Neutral";
+  const edgeBadge = passAll ? `Trade setup · Edge ${best.edgePp}pp` : passProbe ? "Watch / Probe setup" : "Insufficient confidence";
   const confidence = (() => {
     const edgeScore = Math.max(0, Math.min(1, best.edge / 0.25));
     const accScore =
@@ -102,15 +112,20 @@ export function TradeBiasPanel({
     ? adjustedByActual
       ? "Follow bias with risk control"
       : "Wait release confirmation / small probe only"
-    : "No-trade setup";
+    : passProbe
+      ? "Probe small (0.25x-0.5x) / watch"
+      : "No-trade setup";
   const invalidation = passAll
     ? "Release+5m if bias flips and edge < 8pp, invalidate."
-    : "Any new data can change this view.";
-  const windowTxt = passAll ? `${best.label} (primary)` : `${best.label} (watch only)`;
+    : passProbe
+      ? "If edge < 8pp or signal flips, stand down."
+      : "Any new data can change this view.";
+  const windowTxt = passAll ? `${best.label} (primary)` : passProbe ? `${best.label} (probe)` : `${best.label} (watch only)`;
 
   const note = (() => {
     if (!clear) return `Edge is below ${edgeThPp}pp (P is close to 50%).`;
-    if (!passAll) return "Prediction is gated off by quality rules; keep as context only.";
+    if (!passAll && passProbe) return "Some guardrails are weak, but signal is still usable for small-size probing.";
+    if (!passAll) return "Prediction is gated off by hard stops; keep as context only.";
     if (!adjustedByActual) {
       if (!pvReliable) {
         return "This is a pre-release estimate, and the release-side signal is low confidence. Consider waiting for the release.";
@@ -151,7 +166,7 @@ export function TradeBiasPanel({
       </div>
       <div className="deep-outlook-trade-action deep-outlook-trade-action--checks">
         <span className="k">Guardrails</span>
-        <span className="v">{passAll ? "Enabled" : "Disabled by guardrails"}</span>
+        <span className="v">{passAll ? "Enabled" : passProbe ? "Partial (watch/probe)" : "Disabled by hard stops"}</span>
       </div>
       <div className="deep-outlook-trade-checks">
         <span className={passSamples ? "ok" : "bad"}>{`N ${decisionGate.currentSamples ?? "--"}/${decisionGate.minSamples}`}</span>

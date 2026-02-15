@@ -614,15 +614,15 @@ export function DeepAnalysisView({
     pvKind === "nowcast"
       ? {
           minSamples: 24,
-          minRecentShare: 0.15,
-          minCoverage: 0.08,
+          minRecentShare: 0.08,
+          minCoverage: 0.05,
           minBacktestAcc: 0.65,
           maxCalibrationGap: 0.12
         }
       : {
           minSamples: 40,
-          minRecentShare: 0.3,
-          minCoverage: 0.35,
+          minRecentShare: 0.12,
+          minCoverage: 0.2,
           minBacktestAcc: 0.62,
           maxCalibrationGap: 0.08
         };
