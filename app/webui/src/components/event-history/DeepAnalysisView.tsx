@@ -396,7 +396,7 @@ export function DeepAnalysisView({
     const pUpSeries = Array.isArray((unifiedOutlook as any).pUpSeries)
       ? ((unifiedOutlook as any).pUpSeries as Array<number | null>)
       : [];
-    const edgeTh = 0.1; // Show only "usable" edges (>=10pp) in Quick read.
+    const edgeTh = 0.06; // Show "usable" edges from >=6pp so Decision Card has practical coverage.
     if (offsets.length < 2 || pUpSeries.length !== offsets.length) return { all: [], strong: [], edgeTh, best: null };
 
     const at = (m: number) => {

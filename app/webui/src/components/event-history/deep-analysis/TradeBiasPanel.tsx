@@ -82,15 +82,16 @@ export function TradeBiasPanel({
     typeof decisionGate.currentCalibrationGap !== "number" ||
     decisionGate.currentCalibrationGap - 1e-12 <= decisionGate.maxCalibrationGap;
   const passAll = clear && passSamples && passRecentShare && passCoverage && passBacktestAcc && passCalibration;
+  const hardFailEdge = best.edge + 1e-12 < 0.06;
   const hardFailSamples =
     typeof decisionGate.currentSamples === "number" &&
-    decisionGate.currentSamples < Math.max(12, Math.round(decisionGate.minSamples * 0.4));
+    decisionGate.currentSamples < Math.max(8, Math.round(decisionGate.minSamples * 0.25));
   const hardFailAcc =
-    typeof decisionGate.currentBacktestAcc === "number" && decisionGate.currentBacktestAcc + 1e-12 < 0.55;
+    typeof decisionGate.currentBacktestAcc === "number" && decisionGate.currentBacktestAcc + 1e-12 < 0.5;
   const hardFailCalibration =
     typeof decisionGate.currentCalibrationGap === "number" &&
     decisionGate.currentCalibrationGap - 1e-12 > 0.18;
-  const hardFail = !clear || hardFailSamples || hardFailAcc || hardFailCalibration;
+  const hardFail = hardFailEdge || hardFailSamples || hardFailAcc || hardFailCalibration;
   const passProbe = !hardFail;
 
   const bias = clear ? `${best.dir} ${fmtPctNum(best.prob)}` : "Neutral";
