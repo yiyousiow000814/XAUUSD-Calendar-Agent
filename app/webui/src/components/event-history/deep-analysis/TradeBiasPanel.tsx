@@ -119,7 +119,7 @@ export function TradeBiasPanel({
   const invalidation = passAll
     ? "Release+5m if bias flips and edge < 8pp, invalidate."
     : passProbe
-      ? "If edge < 8pp or signal flips, stand down."
+      ? "If +12h direction changes, stand down."
       : "Any new data can change this view.";
   const windowTxt = passAll ? `${best.label} (primary)` : passProbe ? `${best.label} (probe)` : `${best.label} (watch only)`;
 
