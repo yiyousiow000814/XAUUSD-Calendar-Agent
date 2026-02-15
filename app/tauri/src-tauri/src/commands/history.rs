@@ -1,6 +1,6 @@
 use super::*;
 use crate::calendar::CALENDAR_SOURCE_UTC_OFFSET_MINUTES;
-use chrono::{Duration, FixedOffset, Local, NaiveDate, NaiveDateTime, NaiveTime, TimeZone, Utc};
+use chrono::{FixedOffset, Local, NaiveDate, NaiveDateTime, NaiveTime, TimeZone, Utc};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Seek, SeekFrom};
@@ -78,6 +78,24 @@ fn detect_frequency(raw: &str) -> String {
         return "w/w".to_string();
     }
     String::new()
+}
+
+fn metric_key_with_frequency(metric: &str, frequency: &str) -> String {
+    let m = metric.trim();
+    if m.is_empty() {
+        return String::new();
+    }
+    let label = match frequency.trim().to_lowercase().as_str() {
+        "m/m" => Some("MoM"),
+        "y/y" => Some("YoY"),
+        "q/q" => Some("QoQ"),
+        "w/w" => Some("WoW"),
+        _ => None,
+    };
+    match label {
+        Some(s) => format!("{m} ({s})"),
+        None => m.to_string(),
+    }
 }
 
 fn strip_known_suffixes(raw: &str) -> String {
@@ -483,6 +501,8 @@ pub fn get_event_history(_payload: Value) -> Value {
     };
 
     let (event_id, metric, period) = build_event_id(&cur, &event);
+    let frequency = detect_frequency(&event);
+    let metric_key = metric_key_with_frequency(&metric, &frequency);
     let history_dir = repo_path.join("data").join("event_history_index");
     let index_path = history_dir.join("event_history_by_event.index.json");
     let ndjson_path = history_dir.join("event_history_by_event.ndjson");
@@ -505,8 +525,8 @@ pub fn get_event_history(_payload: Value) -> Value {
                         return json!({
                             "ok": true,
                             "eventId": payload.get("eventId").and_then(|v| v.as_str()).unwrap_or(&event_id),
-                            "metric": metric,
-                            "frequency": detect_frequency(&event),
+                            "metric": metric_key,
+                            "frequency": frequency,
                             "period": period,
                             "cur": cur,
                             "points": points,
@@ -529,8 +549,8 @@ pub fn get_event_history(_payload: Value) -> Value {
                                 return json!({
                                     "ok": true,
                                     "eventId": payload.get("eventId").and_then(|v| v.as_str()).unwrap_or(&event_id),
-                                    "metric": metric,
-                                    "frequency": detect_frequency(&event),
+                                    "metric": metric_key,
+                                    "frequency": frequency,
                                     "period": period,
                                     "cur": cur,
                                     "points": points,
@@ -544,54 +564,11 @@ pub fn get_event_history(_payload: Value) -> Value {
         }
     }
 
-    let mut points = vec![];
-    for item in load_calendar_events(&repo_path) {
-        if item.currency.to_uppercase() != cur {
-            continue;
-        }
-        if item.event.trim() != event {
-            continue;
-        }
-        let time_label = item.time_label.trim();
-        let (date, time) = if time_label.eq_ignore_ascii_case("all day")
-            || !time_label.contains(':')
-        {
-            // Preserve the original source date for "All Day" events.
-            let source = item.dt_utc + Duration::minutes(CALENDAR_SOURCE_UTC_OFFSET_MINUTES as i64);
-            (
-                source.format("%Y-%m-%d").to_string(),
-                item.time_label.clone(),
-            )
-        } else {
-            format_dt_parts(item.dt_utc, &tz_mode, utc_offset_minutes)
-        };
-        points.push(json!({
-            "date": date,
-            "time": time,
-            "actual": item.actual,
-            "forecast": item.forecast,
-            "previous": item.previous
-        }));
-    }
-
-    if points.is_empty() {
-        return json!({
-            "ok": false,
-            "eventId": event_id,
-            "metric": event,
-            "cur": cur,
-            "message": "No history points found in the event history index or loaded calendar window."
-        });
-    }
-
     json!({
-        "ok": true,
+        "ok": false,
         "eventId": event_id,
-        "metric": event,
-        "frequency": detect_frequency(&event),
-        "period": period,
+        "metric": metric_key,
         "cur": cur,
-        "points": points,
-        "cached": false
+        "message": "No history points found in event history index. Run build_event_history_index.py to refresh index."
     })
 }
