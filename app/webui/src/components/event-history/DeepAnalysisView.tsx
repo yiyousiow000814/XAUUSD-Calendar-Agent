@@ -138,6 +138,21 @@ export function DeepAnalysisView({
     return `${dd}-${mm} ${hh}:${min} ${displayTzLabel}`;
   }, [anchorDtUtc, displayOffsetMinutes, displayTzLabel]);
 
+  const anchorUtcKey = useMemo(() => {
+    const raw = String(anchorDtUtc || "").trim();
+    if (!raw) return "";
+    const utcMs = Date.parse(raw);
+    if (!Number.isFinite(utcMs)) return "";
+    const d = new Date(utcMs);
+    const pad = (v: number) => String(v).padStart(2, "0");
+    const dd = pad(d.getUTCDate());
+    const mm = pad(d.getUTCMonth() + 1);
+    const yyyy = String(d.getUTCFullYear());
+    const hh = pad(d.getUTCHours());
+    const min = pad(d.getUTCMinutes());
+    return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
+  }, [anchorDtUtc]);
+
 
   const localPredict = useLocalPredictRelease({
     points,
@@ -336,6 +351,19 @@ export function DeepAnalysisView({
     let dWithout: string | null = null;
     let dPrior: string | null = null;
     const contribs = Array.isArray(pm?.contributions) ? pm.contributions : [];
+    const sameTimeCount = (() => {
+      const key = String(anchorUtcKey || "").trim();
+      if (!key || !contribs.length) return null;
+      let n = 0;
+      for (const c of contribs) {
+        const label = String((c as any)?.label ?? "");
+        if (!label) continue;
+        const parts = label.split("·");
+        const dt = String(parts.length ? parts[parts.length - 1] : "").trim();
+        if (dt === key) n += 1;
+      }
+      return n > 1 ? n : null;
+    })();
     const hlId = (highlightId ?? "").trim();
     if (hlId && contribs.length) {
       const hit = contribs.find((c: any) => String(c?.eventId ?? "") === hlId);
@@ -386,9 +414,10 @@ export function DeepAnalysisView({
       firstLabel: typeof firstOffset === "number" ? formatTimeOffsetMinutes(firstOffset) : "",
       lastLabel: typeof lastOffset === "number" ? formatTimeOffsetMinutes(lastOffset) : "",
       anchorLabel,
+      sameTimeCount,
       hasPrior: useUnified && prior && Array.isArray(prior.pUp) && prior.pUp.length === offsets.length
     };
-  }, [deepData, highlightId, impactSeriesItems, anchorLabel, showUnifiedPrior]);
+  }, [deepData, highlightId, impactSeriesItems, anchorLabel, showUnifiedPrior, anchorUtcKey]);
 
   const unifiedQuickRead = useMemo(() => {
     if (!unifiedOutlook) return { all: [], strong: [], edgeTh: 0.1, best: null };
@@ -1043,6 +1072,7 @@ export function DeepAnalysisView({
           <TradeBiasPanel
             unified={unifiedQuickRead}
             stability={unifiedStability}
+            sameTimeCount={(unifiedOutlook as any)?.sameTimeCount ?? null}
             adjustedByActual={adjustedByActual}
             usedActualEvents={usedActualEvents}
             hasForecast={hasForecast0}

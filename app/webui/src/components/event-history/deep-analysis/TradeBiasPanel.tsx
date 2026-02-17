@@ -36,6 +36,7 @@ type DecisionGate = {
 type TradeBiasPanelProps = {
   unified: UnifiedQuickRead;
   stability: UnifiedStability | null;
+  sameTimeCount: number | null;
   adjustedByActual: boolean;
   usedActualEvents: number | null;
   hasForecast: boolean;
@@ -64,6 +65,7 @@ function fmtPctNum(p: number | null | undefined): string {
 export function TradeBiasPanel({
   unified,
   stability,
+  sameTimeCount,
   adjustedByActual,
   usedActualEvents,
   hasForecast,
@@ -212,6 +214,11 @@ export function TradeBiasPanel({
         </span>
       </div>
       <div className="deep-outlook-trade-checks">
+        {typeof sameTimeCount === "number" && sameTimeCount > 1 ? (
+          <span title="Multiple releases share the same timestamp. Treat it as one setup (avoid stacking positions).">
+            {`Same-time ${sameTimeCount}`}
+          </span>
+        ) : null}
         <span className={passStability ? "ok" : "bad"}>{`Stable ${passStability ? "yes" : "no"}`}</span>
         <span className={passSamples ? "ok" : "bad"}>{`N ${decisionGate.currentSamples ?? "--"}/${decisionGate.minSamples}`}</span>
         <span className={passRecentShare ? "ok" : "bad"}>
