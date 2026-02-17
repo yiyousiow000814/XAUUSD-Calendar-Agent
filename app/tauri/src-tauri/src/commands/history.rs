@@ -110,10 +110,10 @@ fn contains_word_token(haystack: &str, token: &str) -> bool {
 fn has_frequency_token(lowered: &str, freq: &str) -> bool {
     match freq {
         // Match as a standalone token (roughly mirroring Python's `\b...\b` behavior).
-        "y/y" => lowered.contains("y/y") || contains_word_token(lowered, "yoy"),
-        "m/m" => lowered.contains("m/m") || contains_word_token(lowered, "mom"),
-        "q/q" => lowered.contains("q/q") || contains_word_token(lowered, "qoq"),
-        "w/w" => lowered.contains("w/w") || contains_word_token(lowered, "wow"),
+        "y/y" => contains_word_token(lowered, "y/y") || contains_word_token(lowered, "yoy"),
+        "m/m" => contains_word_token(lowered, "m/m") || contains_word_token(lowered, "mom"),
+        "q/q" => contains_word_token(lowered, "q/q") || contains_word_token(lowered, "qoq"),
+        "w/w" => contains_word_token(lowered, "w/w") || contains_word_token(lowered, "wow"),
         _ => false,
     }
 }
