@@ -36,6 +36,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -43,6 +44,11 @@ from typing import Iterable, Optional
 
 import pandas as pd
 import numpy as np
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    # Allow running as `python scripts/calendar/evaluate_predict_release_accuracy.py ...`.
+    sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.calendar.build_event_history_index import build_event_canonical_id
 
