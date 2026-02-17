@@ -485,14 +485,52 @@ export function DeepAnalysisView({
       return null;
     }
 
-    // Sample a few key future horizons. We use a small set so the gate is stable and cheap.
+    // Sample a few key future horizons.
+    //
+    // Important: offsets can come from either the unified path or a sparse impact-window series.
+    // We therefore interpolate between available points instead of requiring exact offsets.
     const sampleMinutes = [0, 60, 120, 240, 360, 720, 1440];
+    const pairs = offsets
+      .map((off, idx) => {
+        const v = pUpSeries[idx];
+        if (typeof off !== "number" || !Number.isFinite(off)) return null;
+        if (typeof v !== "number" || !Number.isFinite(v)) return null;
+        return { off, v: Math.max(0, Math.min(1, v)) };
+      })
+      .filter((p): p is { off: number; v: number } => Boolean(p))
+      .sort((a, b) => a.off - b.off);
+    if (pairs.length < 3) return null;
+
+    const offArr = pairs.map((p) => p.off);
+    const valArr = pairs.map((p) => p.v);
+    const minOff = offArr[0] ?? 0;
+    const maxOff = offArr[offArr.length - 1] ?? 0;
+
+    const at = (m: number): number | null => {
+      if (!Number.isFinite(m)) return null;
+      if (m <= minOff) return valArr[0] ?? null;
+      if (m >= maxOff) return valArr[valArr.length - 1] ?? null;
+
+      // Find the first offset >= m (linear scan is fine: the series is small).
+      let hi = 0;
+      while (hi < offArr.length && offArr[hi] < m) hi += 1;
+      if (hi <= 0) return valArr[0] ?? null;
+      if (hi >= offArr.length) return valArr[valArr.length - 1] ?? null;
+      const lo = hi - 1;
+      const o0 = offArr[lo] ?? m;
+      const o1 = offArr[hi] ?? m;
+      const v0 = valArr[lo] ?? 0.5;
+      const v1 = valArr[hi] ?? 0.5;
+      if (o0 === o1) return v1;
+      const t = (m - o0) / (o1 - o0);
+      return v0 + (v1 - v0) * t;
+    };
+
+    const usableMinutes = sampleMinutes.filter((m) => m >= minOff - 1e-9 && m <= maxOff + 1e-9);
     const vals: number[] = [];
-    for (const m of sampleMinutes) {
-      const idx = offsets.indexOf(m);
-      if (idx < 0) return null;
-      const v = pUpSeries[idx];
-      if (typeof v !== "number" || !Number.isFinite(v)) return null;
+    for (const m of usableMinutes) {
+      const v = at(m);
+      if (typeof v !== "number" || !Number.isFinite(v)) continue;
       vals.push(Math.max(0, Math.min(1, v)));
     }
     if (vals.length < 3) return null;

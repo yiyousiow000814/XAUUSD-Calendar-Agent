@@ -96,13 +96,11 @@ export function TradeBiasPanel({
     Boolean(stability) &&
     // If the curve flips direction across horizons, treat it as a contested signal.
     stability!.flips === 0 &&
-    // Require a meaningful swing (avoid "looks strong" due to scaling noise).
-    stability!.amp + 1e-12 >= 0.2 &&
     // Avoid overly wiggly / unstable curves.
     stability!.variance - 1e-12 <= 0.02;
   const passAll =
     clear && passSamples && passRecentShare && passCoverage && passBacktestAcc && passCalibration && passStability;
-  const hardFailEdge = best.edge + 1e-12 < 0.06;
+  const hardFailEdge = best.edge + 1e-12 < unified.edgeTh;
   const hardFailSamples =
     typeof decisionGate.currentSamples === "number" &&
     decisionGate.currentSamples < Math.max(8, Math.round(decisionGate.minSamples * 0.25));
@@ -250,7 +248,7 @@ export function TradeBiasPanel({
           }/${Math.round(decisionGate.minBacktestAcc * 100)}%`}
         </span>
         <span className={passCalibration ? "ok" : "bad"}>
-          {`Calib ${
+          {`P-Acc ${
             typeof decisionGate.currentCalibrationGap === "number"
               ? `${Math.round(decisionGate.currentCalibrationGap * 100)}%`
               : "--"
