@@ -609,6 +609,14 @@
   gap: 8px;
 }
 
+.deep-outlook-trade-head-pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
 .deep-outlook-trade-title {
   font-size: 12px;
   font-weight: 900;

@@ -75,6 +75,8 @@ export function TradeBiasPanel({
   const best = pickBest(unified.all);
   if (!best) return null;
 
+  const isSameTimeBatch = typeof sameTimeCount === "number" && sameTimeCount > 1;
+
   const clear = best.edge + 1e-12 >= unified.edgeTh;
   const edgeThPp = Math.round(unified.edgeTh * 100);
   const passSamples =
@@ -187,7 +189,17 @@ export function TradeBiasPanel({
     <div className="deep-outlook-trade" data-qa="qa:deep:trade-guide">
       <div className="deep-outlook-trade-head">
         <div className="deep-outlook-trade-title">Decision Card</div>
-        <span className="deep-pill deep-pill--hint">{edgeBadge}</span>
+        <div className="deep-outlook-trade-head-pills">
+          {isSameTimeBatch ? (
+            <span
+              className="deep-pill deep-pill--hint"
+              title="Multiple releases share the same timestamp. Treat it as ONE setup (avoid stacking positions)."
+            >
+              {`Batch x${sameTimeCount}`}
+            </span>
+          ) : null}
+          <span className="deep-pill deep-pill--hint">{edgeBadge}</span>
+        </div>
       </div>
       <div className="deep-outlook-trade-main">
         <span className={`deep-outlook-trade-bias${passAll ? " is-clear" : " is-unclear"}`}>{bias}</span>
@@ -214,11 +226,6 @@ export function TradeBiasPanel({
         </span>
       </div>
       <div className="deep-outlook-trade-checks">
-        {typeof sameTimeCount === "number" && sameTimeCount > 1 ? (
-          <span title="Multiple releases share the same timestamp. Treat it as one setup (avoid stacking positions).">
-            {`Same-time ${sameTimeCount}`}
-          </span>
-        ) : null}
         <span className={passStability ? "ok" : "bad"}>{`Stable ${passStability ? "yes" : "no"}`}</span>
         <span className={passSamples ? "ok" : "bad"}>{`N ${decisionGate.currentSamples ?? "--"}/${decisionGate.minSamples}`}</span>
         <span className={passRecentShare ? "ok" : "bad"}>
