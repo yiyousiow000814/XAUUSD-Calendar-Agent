@@ -710,13 +710,15 @@ export function DeepAnalysisView({
     }
     return null;
   })();
-  const gateCurrentCalibrationGap = (() => {
+  const gateCurrentProbAccGap = (() => {
     const p = pvChoice as any;
     const pred = p?.pred0 as ">" | "=" | "<" | undefined;
     const predProb =
       pred === ">" ? p?.pGt : pred === "=" ? p?.pEq : pred === "<" ? p?.pLt : null;
     if (typeof predProb !== "number" || !Number.isFinite(predProb)) return null;
     if (typeof gateCurrentBacktestAcc !== "number" || !Number.isFinite(gateCurrentBacktestAcc)) return null;
+    // Heuristic proxy (not true calibration): if the model says "88%" but historically only hits ~65%,
+    // treat the gap as a guardrail against over-confidence.
     return Math.abs(predProb - gateCurrentBacktestAcc);
   })();
   const decisionGateProfile =
@@ -745,7 +747,7 @@ export function DeepAnalysisView({
     minBacktestAcc: decisionGateProfile.minBacktestAcc,
     currentBacktestAcc: gateCurrentBacktestAcc,
     maxCalibrationGap: decisionGateProfile.maxCalibrationGap,
-    currentCalibrationGap: gateCurrentCalibrationGap
+    currentCalibrationGap: gateCurrentProbAccGap
   };
   const hasPredictReleaseInputs = [selectionActual, selectionForecast, selectionPrevious].some((value) => {
     const parsed = parseNumber(value);
