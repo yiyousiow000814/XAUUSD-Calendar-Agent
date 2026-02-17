@@ -448,6 +448,48 @@ export function DeepAnalysisView({
     return { all, strong, edgeTh, best };
   }, [unifiedOutlook]);
 
+  const unifiedStability = useMemo(() => {
+    if (!unifiedOutlook) return null;
+    const offsets = unifiedOutlook.offsets;
+    const pUpSeries = unifiedOutlook.pUpSeries;
+    if (!Array.isArray(offsets) || !Array.isArray(pUpSeries) || offsets.length < 2 || pUpSeries.length !== offsets.length) {
+      return null;
+    }
+
+    // Sample a few key future horizons. We use a small set so the gate is stable and cheap.
+    const sampleMinutes = [0, 60, 120, 240, 360, 720, 1440];
+    const vals: number[] = [];
+    for (const m of sampleMinutes) {
+      const idx = offsets.indexOf(m);
+      if (idx < 0) return null;
+      const v = pUpSeries[idx];
+      if (typeof v !== "number" || !Number.isFinite(v)) return null;
+      vals.push(Math.max(0, Math.min(1, v)));
+    }
+    if (vals.length < 3) return null;
+
+    // Count sign flips of (P(up)-50%) across the sampled horizons.
+    const s: number[] = vals.map((v) => (v > 0.5 ? 1 : v < 0.5 ? -1 : 0));
+    for (let i = 1; i < s.length; i++) {
+      if (s[i] === 0) s[i] = s[i - 1] ?? 0;
+    }
+    for (let i = s.length - 2; i >= 0; i--) {
+      if (s[i] === 0) s[i] = s[i + 1] ?? 0;
+    }
+    let flips = 0;
+    for (let i = 1; i < s.length; i++) {
+      if (s[i] !== 0 && s[i - 1] !== 0 && s[i] !== s[i - 1]) flips += 1;
+    }
+
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
+    const amp = max - min;
+    const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+    const variance = vals.reduce((a, b) => a + (b - mean) * (b - mean), 0) / vals.length;
+
+    return { flips, amp, variance };
+  }, [unifiedOutlook]);
+
   if (!isUsdEvent) {
     return <div className="history-impact-status error">Deep analysis is available for USD events only.</div>;
   }
@@ -1000,6 +1042,7 @@ export function DeepAnalysisView({
         {unifiedOutlook ? (
           <TradeBiasPanel
             unified={unifiedQuickRead}
+            stability={unifiedStability}
             adjustedByActual={adjustedByActual}
             usedActualEvents={usedActualEvents}
             hasForecast={hasForecast0}
