@@ -68,7 +68,6 @@ export function DeepAnalysisView({
     predictModel
   });
   const nowcastVsPrev = nowcastVsPrevState.value;
-  const [predictModelReady, setPredictModelReady] = useState(false);
 
   useEffect(() => {
     if (!methodOpen && !fullOpen) return;
@@ -105,10 +104,6 @@ export function DeepAnalysisView({
       })
       .catch(() => {
         // ignore; fallback model stays in use
-      })
-      .finally(() => {
-        if (!mounted) return;
-        setPredictModelReady(true);
       });
     return () => {
       mounted = false;
@@ -569,7 +564,10 @@ export function DeepAnalysisView({
   if (deepError) {
     return <div className="history-impact-status error">{deepError}</div>;
   }
-  if (deepLoading || !deepData || !predictModelReady || !nowcastVsPrevState.ready) {
+  // Don't block the full UI on optional background work (model refresh / nowcast chain).
+  // We can render immediately once the Deep Analysis payload is available, and let other
+  // pieces fill in as they become ready.
+  if (deepLoading || !deepData) {
     return <div className="history-impact-status">Loading deep analysis...</div>;
   }
 
