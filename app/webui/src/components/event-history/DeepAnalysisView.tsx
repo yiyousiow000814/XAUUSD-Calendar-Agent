@@ -356,6 +356,12 @@ export function DeepAnalysisView({
       if (!key || !contribs.length) return null;
       let n = 0;
       for (const c of contribs) {
+        const dtKey = String((c as any)?.dtKey ?? "").trim();
+        if (dtKey) {
+          if (dtKey === key) n += 1;
+          continue;
+        }
+        // Back-compat: older builds only include dt inside the label.
         const label = String((c as any)?.label ?? "");
         if (!label) continue;
         const parts = label.split("·");

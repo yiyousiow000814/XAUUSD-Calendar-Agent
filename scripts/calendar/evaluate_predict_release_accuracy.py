@@ -97,7 +97,8 @@ def _normalize_metric_key(raw: object) -> str:
     text = str(raw or "").strip()
     if not text:
         return ""
-    _, identity = build_event_canonical_id("USD", text)
+    # Currency doesn't affect metric/frequency parsing; we only use `identity` here.
+    _, identity = build_event_canonical_id("", text)
     return _metric_key_from_identity(identity.metric, identity.frequency)
 
 

@@ -78,7 +78,11 @@ export function TradeBiasPanel({
   const isSameTimeBatch = typeof sameTimeCount === "number" && sameTimeCount > 1;
 
   const clear = best.edge + 1e-12 >= unified.edgeTh;
+  // Trade setups should require a larger edge than "clear enough to discuss".
+  const tradeEdgeMin = 0.08;
+  const passTradeEdge = best.edge + 1e-12 >= tradeEdgeMin;
   const edgeThPp = Math.round(unified.edgeTh * 100);
+  const tradeEdgePp = Math.round(tradeEdgeMin * 100);
   const passSamples =
     typeof decisionGate.currentSamples === "number" && decisionGate.currentSamples >= decisionGate.minSamples;
   const passRecentShare =
@@ -99,7 +103,7 @@ export function TradeBiasPanel({
     // Avoid overly wiggly / unstable curves.
     stability!.variance - 1e-12 <= 0.02;
   const passAll =
-    clear && passSamples && passRecentShare && passCoverage && passBacktestAcc && passCalibration && passStability;
+    passTradeEdge && passSamples && passRecentShare && passCoverage && passBacktestAcc && passCalibration && passStability;
   const hardFailEdge = best.edge + 1e-12 < unified.edgeTh;
   const hardFailSamples =
     typeof decisionGate.currentSamples === "number" &&
@@ -166,6 +170,8 @@ export function TradeBiasPanel({
 
   const note = (() => {
     if (!clear) return `Edge is below ${edgeThPp}pp (P is close to 50%).`;
+    if (!passTradeEdge) return `Edge is below ${tradeEdgePp}pp (watch only).`;
+    if (!hasCoverage || !hasCalibration) return "Coverage/calibration stats are unavailable for this metric; keep as context only.";
     if (!passAll && probeAllowed) return "Some guardrails are weak, but signal is still usable for small-size probing.";
     if (!passAll && passProbe) return "Guardrails are not strong enough for trading; keep as context only.";
     if (!passAll) return "Prediction is gated off by hard stops; keep as context only.";
@@ -201,7 +207,10 @@ export function TradeBiasPanel({
       </div>
       <div className="deep-outlook-trade-main">
         <span className={`deep-outlook-trade-bias${passAll ? " is-clear" : " is-unclear"}`}>{bias}</span>
-        <span className="deep-outlook-trade-meta">{`Confidence ${confidence}%`}</span>
+        <span
+          className="deep-outlook-trade-meta"
+          title="Heuristic score from edge + backtest + recency (not a probability)."
+        >{`Score ${confidence}%`}</span>
       </div>
       <div className="deep-outlook-trade-grid">
         <div className="deep-outlook-trade-row">
