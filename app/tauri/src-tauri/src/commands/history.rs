@@ -65,19 +65,57 @@ fn looks_like_period(token: &str) -> bool {
 
 fn detect_frequency(raw: &str) -> String {
     let lowered = raw.to_lowercase();
-    if lowered.contains("y/y") || lowered.contains("yoy") {
+    if has_frequency_token(&lowered, "y/y") {
         return "y/y".to_string();
     }
-    if lowered.contains("m/m") || lowered.contains("mom") {
+    if has_frequency_token(&lowered, "m/m") {
         return "m/m".to_string();
     }
-    if lowered.contains("q/q") || lowered.contains("qoq") {
+    if has_frequency_token(&lowered, "q/q") {
         return "q/q".to_string();
     }
-    if lowered.contains("w/w") || lowered.contains("wow") {
+    if has_frequency_token(&lowered, "w/w") {
         return "w/w".to_string();
     }
     String::new()
+}
+
+fn is_word_char(b: u8) -> bool {
+    b.is_ascii_alphanumeric() || b == b'_'
+}
+
+fn contains_word_token(haystack: &str, token: &str) -> bool {
+    if token.is_empty() || haystack.is_empty() {
+        return false;
+    }
+    let bytes = haystack.as_bytes();
+    let tlen = token.len();
+    let mut i = 0usize;
+    while i < haystack.len() {
+        let Some(pos) = haystack[i..].find(token) else {
+            break;
+        };
+        let start = i + pos;
+        let end = start + tlen;
+        let prev_ok = start == 0 || !is_word_char(bytes[start - 1]);
+        let next_ok = end >= bytes.len() || !is_word_char(bytes[end]);
+        if prev_ok && next_ok {
+            return true;
+        }
+        i = start + 1;
+    }
+    false
+}
+
+fn has_frequency_token(lowered: &str, freq: &str) -> bool {
+    match freq {
+        // Match as a standalone token (roughly mirroring Python's `\b...\b` behavior).
+        "y/y" => lowered.contains("y/y") || contains_word_token(lowered, "yoy"),
+        "m/m" => lowered.contains("m/m") || contains_word_token(lowered, "mom"),
+        "q/q" => lowered.contains("q/q") || contains_word_token(lowered, "qoq"),
+        "w/w" => lowered.contains("w/w") || contains_word_token(lowered, "wow"),
+        _ => false,
+    }
 }
 
 fn metric_key_with_frequency(metric: &str, frequency: &str) -> String {
@@ -111,14 +149,10 @@ fn strip_known_suffixes(raw: &str) -> String {
         };
         let token = end[open_idx + 1..end.len() - 1].trim();
         let normalized = token.to_lowercase().replace('.', "");
-        let is_freq = normalized.contains("y/y")
-            || normalized.contains("yoy")
-            || normalized.contains("m/m")
-            || normalized.contains("mom")
-            || normalized.contains("q/q")
-            || normalized.contains("qoq")
-            || normalized.contains("w/w")
-            || normalized.contains("wow");
+        let is_freq = has_frequency_token(&normalized, "y/y")
+            || has_frequency_token(&normalized, "m/m")
+            || has_frequency_token(&normalized, "q/q")
+            || has_frequency_token(&normalized, "w/w");
         if looks_like_period(token) || is_freq {
             trimmed = end[..open_idx].trim_end().to_string();
             continue;
