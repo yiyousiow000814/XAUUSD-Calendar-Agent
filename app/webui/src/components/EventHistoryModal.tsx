@@ -390,7 +390,9 @@ export function EventHistoryModal({
     }
 
     const deltaY = prevRect.top - nextRect.top;
-    if (Math.abs(deltaY) < 2) return;
+    // Keep the transform on whole pixels to reduce text/border shimmer during the lift/drop.
+    const deltaPx = Math.round(deltaY);
+    if (Math.abs(deltaPx) < 2) return;
 
     if (historyLayoutAnimCleanupRef.current) {
       historyLayoutAnimCleanupRef.current();
@@ -404,7 +406,7 @@ export function EventHistoryModal({
     // Invert then animate to the new layout position using transform (GPU friendly).
     el.style.willChange = "transform";
     el.style.transition = "none";
-    el.style.transform = `translateY(${deltaY.toFixed(2)}px)`;
+    el.style.transform = `translateY(${deltaPx}px)`;
     // Force style flush so the next transition runs.
     void el.getBoundingClientRect();
     el.style.transition = `transform 260ms var(--motion-ease)`;
