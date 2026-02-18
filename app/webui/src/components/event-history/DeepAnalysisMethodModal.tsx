@@ -123,15 +123,15 @@ function MiniFlow() {
 
       {/* Slightly taller so the subtitle doesn't kiss the bottom edge. */}
       <rect x="26" y="30" width="158" height="44" rx="12" className="deep-tut-flow-box" />
-      <text x="38" y="54" className="deep-tut-flow-t">
+      <text x="38" y="48" className="deep-tut-flow-t">
         Release history
       </text>
-      <text x="38" y="70" className="deep-tut-flow-s">
+      <text x="38" y="64" className="deep-tut-flow-s">
         Actual / Forecast / Previous
       </text>
 
       <rect x="26" y="84" width="158" height="32" rx="12" className="deep-tut-flow-box soft" />
-      <text x="38" y="105" className="deep-tut-flow-t">
+      <text x="38" y="104" className="deep-tut-flow-t">
         Deep signals
       </text>
 

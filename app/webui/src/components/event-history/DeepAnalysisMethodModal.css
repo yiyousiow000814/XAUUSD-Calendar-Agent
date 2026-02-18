@@ -84,6 +84,9 @@
   padding: 10px 10px 10px;
   display: grid;
   gap: 8px;
+  /* Cards in the same grid row stretch to equal height; keep inner content anchored to the top. */
+  align-content: start;
+  align-items: start;
 }
 
 .deep-tut-card.deep-tut-card--wide {
