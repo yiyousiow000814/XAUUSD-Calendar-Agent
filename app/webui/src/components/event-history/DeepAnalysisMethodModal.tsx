@@ -5,7 +5,9 @@ import "./DeepAnalysisMethodModal.css";
 type SignalChip = { id?: string; title?: string; note?: string; weight?: number } | string;
 
 type DeepAnalysisMethodModalProps = {
-  open: boolean;
+  isOpen: boolean;
+  isClosing: boolean;
+  isEntering: boolean;
   onClose: () => void;
   pointsCount: number;
   modelLabel: string;
@@ -178,27 +180,29 @@ function Step({ n, title, children }: { n: string; title: string; children: Reac
 }
 
 export function DeepAnalysisMethodModal({
-  open,
+  isOpen,
+  isClosing,
+  isEntering,
   onClose,
   pointsCount,
   modelLabel,
   signalsUsed
 }: DeepAnalysisMethodModalProps) {
-  if (!open) return null;
+  if (!isOpen) return null;
   if (typeof document === "undefined") return null;
 
   const used = Array.isArray(signalsUsed) ? signalsUsed : [];
 
   return createPortal(
     <div
-      className="modal-backdrop modal-backdrop-deep-method open"
+      className={`modal-backdrop modal-backdrop-deep-method${isClosing ? " closing" : isEntering ? "" : " open"}`}
       data-qa="qa:modal-backdrop:deep-method"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
     >
       <div
-        className="modal modal-deep-method open"
+        className={`modal modal-deep-method${isClosing ? " closing" : isEntering ? "" : " open"}`}
         data-qa="qa:modal:deep-method"
         role="dialog"
         aria-modal="true"
