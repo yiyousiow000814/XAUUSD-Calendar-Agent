@@ -146,19 +146,31 @@ export function DeepAnalysisView({
       const tag = target?.tagName?.toLowerCase() ?? "";
       if (tag === "input" || tag === "textarea" || target?.isContentEditable) return;
 
-      event.preventDefault();
       // Close only the top-most deep modal layer.
-      if (methodOpen) {
+      // If the layer is already closing (animation running), treat it as "already handled"
+      // so ESC can propagate to the parent modal on the next press.
+      if (methodOpen && !methodClosing) {
+        event.preventDefault();
         closeMethodModal();
         return;
       }
-      if (fullOpen) closeFullModal();
+      if (fullOpen && !fullClosing) {
+        event.preventDefault();
+        closeFullModal();
+      }
     };
     // Use capture so this handler runs before the parent EventHistoryModal's bubble handler.
     // The parent checks event.defaultPrevented to decide whether to close itself.
     window.addEventListener("keydown", onKeyDown, { capture: true });
     return () => window.removeEventListener("keydown", onKeyDown, { capture: true });
-  }, [closeFullModal, closeMethodModal, fullOpen, methodOpen]);
+  }, [
+    closeFullModal,
+    closeMethodModal,
+    fullClosing,
+    fullOpen,
+    methodClosing,
+    methodOpen
+  ]);
 
   useEffect(() => {
     if (!methodOpen || !methodEntering) return;
