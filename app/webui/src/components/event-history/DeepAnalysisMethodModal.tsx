@@ -141,18 +141,18 @@ function MiniFlow() {
       <path d="M 238 100 L 232 96 L 232 104 Z" className="deep-tut-flow-arrowhead" />
 
       <rect x="250" y="28" width="244" height="44" rx="12" className="deep-tut-flow-out" />
-      <text x="264" y="52" className="deep-tut-flow-t">
+      <text x="264" y="46" className="deep-tut-flow-t">
         Predict Release
       </text>
-      <text x="264" y="68" className="deep-tut-flow-s">
+      <text x="264" y="62" className="deep-tut-flow-s">
         recent 1-6 months + approx "="
       </text>
 
       <rect x="250" y="80" width="244" height="44" rx="12" className="deep-tut-flow-out" />
-      <text x="264" y="104" className="deep-tut-flow-t">
+      <text x="264" y="98" className="deep-tut-flow-t">
         Unified Outlook P(t)
       </text>
-      <text x="264" y="120" className="deep-tut-flow-s">
+      <text x="264" y="114" className="deep-tut-flow-s">
         one main path + contributions
       </text>
 
