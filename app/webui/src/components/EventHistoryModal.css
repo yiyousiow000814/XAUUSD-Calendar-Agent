@@ -462,6 +462,9 @@
   flex: 1;
   min-height: 0;
   padding-bottom: 12px;
+  /* Keep a stable compositing layer so History <-> Impact FLIP transforms don't "snap" by ~1px on Windows. */
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
 }
 
 .history-modal-layout.history-modal-layout--impact {
