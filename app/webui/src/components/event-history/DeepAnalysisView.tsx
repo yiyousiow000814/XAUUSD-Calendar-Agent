@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { EventDeepAnalysisResponse, EventHistoryPoint, EventImpactWindowStats } from "../../types";
 import { backend } from "../../api";
@@ -13,6 +13,8 @@ import { parseNumber } from "./deep-analysis/utils";
 import "./DeepAnalysisView.css";
 
 type ImpactSeriesItem = { offset: number; stats?: EventImpactWindowStats };
+
+const DEEP_MODAL_CLOSE_MS = 260; // Keep in sync with `--motion-slow` in styles/base.css.
 
 type DeepAnalysisViewProps = {
   points: EventHistoryPoint[];
@@ -87,7 +89,7 @@ export function DeepAnalysisView({
     };
   }, []);
 
-  const openMethodModal = () => {
+  const openMethodModal = useCallback(() => {
     if (methodCloseTimerRef.current) {
       window.clearTimeout(methodCloseTimerRef.current);
       methodCloseTimerRef.current = null;
@@ -95,9 +97,9 @@ export function DeepAnalysisView({
     setMethodOpen(true);
     setMethodClosing(false);
     setMethodEntering(true);
-  };
+  }, []);
 
-  const closeMethodModal = () => {
+  const closeMethodModal = useCallback(() => {
     if (methodCloseTimerRef.current) {
       window.clearTimeout(methodCloseTimerRef.current);
       methodCloseTimerRef.current = null;
@@ -108,10 +110,10 @@ export function DeepAnalysisView({
       setMethodClosing(false);
       setMethodEntering(false);
       methodCloseTimerRef.current = null;
-    }, 240);
-  };
+    }, DEEP_MODAL_CLOSE_MS);
+  }, []);
 
-  const openFullModal = () => {
+  const openFullModal = useCallback(() => {
     if (fullCloseTimerRef.current) {
       window.clearTimeout(fullCloseTimerRef.current);
       fullCloseTimerRef.current = null;
@@ -119,9 +121,9 @@ export function DeepAnalysisView({
     setFullOpen(true);
     setFullClosing(false);
     setFullEntering(true);
-  };
+  }, []);
 
-  const closeFullModal = () => {
+  const closeFullModal = useCallback(() => {
     if (fullCloseTimerRef.current) {
       window.clearTimeout(fullCloseTimerRef.current);
       fullCloseTimerRef.current = null;
@@ -132,13 +134,18 @@ export function DeepAnalysisView({
       setFullClosing(false);
       setFullEntering(false);
       fullCloseTimerRef.current = null;
-    }, 240);
-  };
+    }, DEEP_MODAL_CLOSE_MS);
+  }, []);
 
   useEffect(() => {
     if (!methodOpen && !fullOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
+      if (event.defaultPrevented) return;
+      const target = event.target as HTMLElement | null;
+      const tag = target?.tagName?.toLowerCase() ?? "";
+      if (tag === "input" || tag === "textarea" || target?.isContentEditable) return;
+
       event.preventDefault();
       // Close only the top-most deep modal layer.
       if (methodOpen) {
@@ -147,9 +154,11 @@ export function DeepAnalysisView({
       }
       if (fullOpen) closeFullModal();
     };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [methodOpen, fullOpen]);
+    // Use capture so this handler runs before the parent EventHistoryModal's bubble handler.
+    // The parent checks event.defaultPrevented to decide whether to close itself.
+    window.addEventListener("keydown", onKeyDown, { capture: true });
+    return () => window.removeEventListener("keydown", onKeyDown, { capture: true });
+  }, [closeFullModal, closeMethodModal, fullOpen, methodOpen]);
 
   useEffect(() => {
     if (!methodOpen || !methodEntering) return;
