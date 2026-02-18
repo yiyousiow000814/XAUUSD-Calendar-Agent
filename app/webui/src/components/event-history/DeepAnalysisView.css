@@ -212,9 +212,10 @@
 }
 
 .modal-backdrop.modal-backdrop-deep-full {
-  z-index: 41;
-  /* Make nested modal backdrops more opaque so the underlying history modal border doesn't read as an "extra frame". */
-  background: rgba(5, 7, 10, 0.86);
+  /* Above tooltips/popovers, below init/diagnostics overlays. */
+  z-index: 240;
+  /* Slightly dimmer than the default modal backdrop, but not pitch-black. */
+  background: rgba(5, 7, 10, 0.74);
 }
 
 .modal.modal-deep-full {
@@ -225,8 +226,44 @@
 
 .deep-full-body {
   padding: 0 16px 16px;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   max-height: calc(min(86vh, 880px) - 52px);
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.32) transparent;
+}
+
+.deep-full-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.deep-full-body::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.26);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.deep-full-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.deep-full-body:hover::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+}
+
+[data-theme="light"] .deep-full-body {
+  scrollbar-color: rgba(71, 85, 105, 0.28) transparent;
+}
+
+[data-theme="light"] .deep-full-body::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.24);
+}
+
+[data-theme="light"] .deep-full-body:hover::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.36);
 }
 
 .history-impact-deep-body {
@@ -1005,14 +1042,14 @@
 }
 
 .modal-backdrop.modal-backdrop-deep-method {
-  z-index: 40;
-  /* Same as deep-full: hide the underlying modal chrome to avoid a visible outer frame. */
-  background: rgba(5, 7, 10, 0.86);
+  z-index: 241;
+  /* Same as deep-full: keep the backdrop readable without over-darkening. */
+  background: rgba(5, 7, 10, 0.74);
 }
 
 .modal.modal-deep-method {
-  width: min(720px, 92vw);
-  max-height: min(78vh, 680px);
+  width: min(980px, 94vw);
+  max-height: min(86vh, 820px);
   overflow: hidden;
 }
 
@@ -1051,8 +1088,44 @@
 
 .deep-method-body {
   padding: 0 16px 16px;
-  overflow: auto;
-  max-height: calc(min(78vh, 680px) - 52px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: calc(min(86vh, 820px) - 52px);
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.32) transparent;
+}
+
+.deep-method-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.deep-method-body::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.26);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.deep-method-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.deep-method-body:hover::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+}
+
+[data-theme="light"] .deep-method-body {
+  scrollbar-color: rgba(71, 85, 105, 0.28) transparent;
+}
+
+[data-theme="light"] .deep-method-body::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.24);
+}
+
+[data-theme="light"] .deep-method-body:hover::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.36);
 }
 
 .deep-method-block {

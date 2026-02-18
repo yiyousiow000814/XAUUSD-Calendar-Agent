@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { EventDeepAnalysisResponse, EventHistoryPoint, EventImpactWindowStats } from "../../types";
 import { backend } from "../../api";
 import { formatTimeOffsetMinutes, formatUtcOffset } from "../../utils/calendarTime";
@@ -12,6 +13,8 @@ import { parseNumber } from "./deep-analysis/utils";
 import "./DeepAnalysisView.css";
 
 type ImpactSeriesItem = { offset: number; stats?: EventImpactWindowStats };
+
+const DEEP_MODAL_CLOSE_MS = 260; // Keep in sync with `--motion-slow` in styles/base.css.
 
 type DeepAnalysisViewProps = {
   points: EventHistoryPoint[];
@@ -53,7 +56,13 @@ export function DeepAnalysisView({
   selectionPrevious
 }: DeepAnalysisViewProps) {
   const [methodOpen, setMethodOpen] = useState(false);
+  const [methodClosing, setMethodClosing] = useState(false);
+  const [methodEntering, setMethodEntering] = useState(false);
   const [fullOpen, setFullOpen] = useState(false);
+  const [fullClosing, setFullClosing] = useState(false);
+  const [fullEntering, setFullEntering] = useState(false);
+  const methodCloseTimerRef = useRef<number | null>(null);
+  const fullCloseTimerRef = useRef<number | null>(null);
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const [showUnifiedPrior, setShowUnifiedPrior] = useState(false);
   const [predictModel, setPredictModel] = useState<any>(DEFAULT_PREDICT_RELEASE_MODEL_USD);
@@ -70,20 +79,124 @@ export function DeepAnalysisView({
   const nowcastVsPrev = nowcastVsPrevState.value;
 
   useEffect(() => {
+    return () => {
+      if (methodCloseTimerRef.current) {
+        window.clearTimeout(methodCloseTimerRef.current);
+      }
+      if (fullCloseTimerRef.current) {
+        window.clearTimeout(fullCloseTimerRef.current);
+      }
+    };
+  }, []);
+
+  const openMethodModal = useCallback(() => {
+    if (methodCloseTimerRef.current) {
+      window.clearTimeout(methodCloseTimerRef.current);
+      methodCloseTimerRef.current = null;
+    }
+    setMethodOpen(true);
+    setMethodClosing(false);
+    setMethodEntering(true);
+  }, []);
+
+  const closeMethodModal = useCallback(() => {
+    if (methodCloseTimerRef.current) {
+      window.clearTimeout(methodCloseTimerRef.current);
+      methodCloseTimerRef.current = null;
+    }
+    setMethodClosing(true);
+    methodCloseTimerRef.current = window.setTimeout(() => {
+      setMethodOpen(false);
+      setMethodClosing(false);
+      setMethodEntering(false);
+      methodCloseTimerRef.current = null;
+    }, DEEP_MODAL_CLOSE_MS);
+  }, []);
+
+  const openFullModal = useCallback(() => {
+    if (fullCloseTimerRef.current) {
+      window.clearTimeout(fullCloseTimerRef.current);
+      fullCloseTimerRef.current = null;
+    }
+    setFullOpen(true);
+    setFullClosing(false);
+    setFullEntering(true);
+  }, []);
+
+  const closeFullModal = useCallback(() => {
+    if (fullCloseTimerRef.current) {
+      window.clearTimeout(fullCloseTimerRef.current);
+      fullCloseTimerRef.current = null;
+    }
+    setFullClosing(true);
+    fullCloseTimerRef.current = window.setTimeout(() => {
+      setFullOpen(false);
+      setFullClosing(false);
+      setFullEntering(false);
+      fullCloseTimerRef.current = null;
+    }, DEEP_MODAL_CLOSE_MS);
+  }, []);
+
+  useEffect(() => {
     if (!methodOpen && !fullOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
-      event.preventDefault();
+      if (event.defaultPrevented) return;
+      const target = event.target as HTMLElement | null;
+      const tag = target?.tagName?.toLowerCase() ?? "";
+      if (tag === "input" || tag === "textarea" || target?.isContentEditable) return;
+
       // Close only the top-most deep modal layer.
-      if (methodOpen) {
-        setMethodOpen(false);
+      // If the layer is already closing (animation running), treat it as "already handled"
+      // so ESC can propagate to the parent modal on the next press.
+      if (methodOpen && !methodClosing) {
+        event.preventDefault();
+        closeMethodModal();
         return;
       }
-      if (fullOpen) setFullOpen(false);
+      if (fullOpen && !fullClosing) {
+        event.preventDefault();
+        closeFullModal();
+      }
     };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [methodOpen, fullOpen]);
+    // Use capture so this handler runs before the parent EventHistoryModal's bubble handler.
+    // The parent checks event.defaultPrevented to decide whether to close itself.
+    window.addEventListener("keydown", onKeyDown, { capture: true });
+    return () => window.removeEventListener("keydown", onKeyDown, { capture: true });
+  }, [
+    closeFullModal,
+    closeMethodModal,
+    fullClosing,
+    fullOpen,
+    methodClosing,
+    methodOpen
+  ]);
+
+  useEffect(() => {
+    if (!methodOpen || !methodEntering) return;
+    let raf1 = 0;
+    let raf2 = 0;
+    raf1 = window.requestAnimationFrame(() => {
+      raf2 = window.requestAnimationFrame(() => setMethodEntering(false));
+    });
+    return () => {
+      window.cancelAnimationFrame(raf1);
+      window.cancelAnimationFrame(raf2);
+    };
+  }, [methodOpen, methodEntering]);
+
+  useEffect(() => {
+    if (!fullOpen || !fullEntering) return;
+    let raf1 = 0;
+    let raf2 = 0;
+    raf1 = window.requestAnimationFrame(() => {
+      raf2 = window.requestAnimationFrame(() => setFullEntering(false));
+    });
+    return () => {
+      window.cancelAnimationFrame(raf1);
+      window.cancelAnimationFrame(raf2);
+    };
+  }, [fullOpen, fullEntering]);
 
   useEffect(() => {
     if (!deepData?.ok) {
@@ -1435,7 +1548,7 @@ export function DeepAnalysisView({
           <button
             type="button"
             className="deep-help-btn"
-            onClick={() => setMethodOpen(true)}
+            onClick={openMethodModal}
             data-qa="qa:deep:how"
           >
             How it's computed
@@ -1443,7 +1556,7 @@ export function DeepAnalysisView({
           <button
             type="button"
             className="deep-help-btn deep-expand-btn"
-            onClick={() => setFullOpen(true)}
+            onClick={openFullModal}
             data-qa="qa:deep:expand"
           >
             Open
@@ -1452,40 +1565,47 @@ export function DeepAnalysisView({
       </div>
 
       <div className="history-impact-deep-body">
-        {fullOpen ? (
-          <div
-            className="modal-backdrop modal-backdrop-deep-full open"
-            data-qa="qa:modal-backdrop:deep-full"
-            onMouseDown={(event) => {
-              if (event.target === event.currentTarget) setFullOpen(false);
-            }}
-          >
-            <div
-              className="modal modal-deep-full open"
-              data-qa="qa:modal:deep-full"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Deep analysis"
-            >
-              <div className="deep-method-header">
-                <div className="deep-method-title">Deep Analysis</div>
-                <button
-                  type="button"
-                  className="deep-method-close"
-                  onClick={() => setFullOpen(false)}
-                  aria-label="Close"
+        {fullOpen && typeof document !== "undefined"
+          ? createPortal(
+              <div
+                className={`modal-backdrop modal-backdrop-deep-full${
+                  fullClosing ? " closing" : fullEntering ? "" : " open"
+                }`}
+                data-qa="qa:modal-backdrop:deep-full"
+                onMouseDown={(event) => {
+                  if (event.target === event.currentTarget) closeFullModal();
+                }}
+              >
+                <div
+                  className={`modal modal-deep-full${fullClosing ? " closing" : fullEntering ? "" : " open"}`}
+                  data-qa="qa:modal:deep-full"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Deep analysis"
                 >
-                  Close
-                </button>
-              </div>
-              <div className="deep-full-body">{content}</div>
-            </div>
-          </div>
-        ) : null}
+                  <div className="deep-method-header">
+                    <div className="deep-method-title">Deep Analysis</div>
+                    <button
+                      type="button"
+                      className="deep-method-close"
+                      onClick={closeFullModal}
+                      aria-label="Close"
+                    >
+                      Close
+                    </button>
+                  </div>
+                  <div className="deep-full-body">{content}</div>
+                </div>
+              </div>,
+              document.body
+            )
+          : null}
 
         <DeepAnalysisMethodModal
-          open={methodOpen}
-          onClose={() => setMethodOpen(false)}
+          isOpen={methodOpen}
+          isClosing={methodClosing}
+          isEntering={methodEntering}
+          onClose={closeMethodModal}
           pointsCount={points.length}
           modelLabel={isFallback ? "Fallback model" : "Deep JSON model"}
           signalsUsed={Array.isArray(data.signalsUsed) ? data.signalsUsed : null}

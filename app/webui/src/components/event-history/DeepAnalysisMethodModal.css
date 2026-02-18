@@ -84,6 +84,22 @@
   padding: 10px 10px 10px;
   display: grid;
   gap: 8px;
+  /* Cards in the same grid row stretch to equal height; keep inner content anchored to the top. */
+  align-content: start;
+  align-items: start;
+}
+
+.deep-tut-card.deep-tut-card--wide {
+  grid-column: 1 / -1;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .deep-tut-card.deep-tut-card--wide {
+    grid-template-columns: 1fr;
+  }
 }
 
 [data-theme="light"] .deep-tut-card {
