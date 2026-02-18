@@ -237,17 +237,17 @@ export function DeepAnalysisMethodModal({
                     How we form the guess:
                     <span className="deep-tut-inline">
                       (1) a small calendar model turns recent history (+ Forecast/Previous when available) into{" "}
-                      probabilities &rarr; (2) we compute a confidence score &rarr; (3) when available, we may also use
+                      probabilities &rarr; (2) we compute a score &rarr; (3) when available, we may also use
                       a relationship-based “nowcast chain” (recent correlated releases) to cross-check or replace
                       low-confidence outputs.
                     </span>
                   </div>
                   <div className="deep-tut-example">
-                    Sanity check: we show <b>N</b> (history size), a confidence score, and a backtest reliability hint.
-                    If confidence is low, treat the top line as a rough guess.
+                    Sanity check: we show <b>N</b> (history size), a score, and a backtest reliability hint. If score is
+                    low, treat the top line as a rough guess.
                   </div>
                   <div className="deep-tut-example">
-                    High-impact releases use a stricter confidence threshold before we label the result as “reliable”.
+                    High-impact releases use a stricter score threshold before we label the result as “reliable”.
                   </div>
                 </div>
               </div>
@@ -274,8 +274,9 @@ export function DeepAnalysisMethodModal({
                   </div>
                   <div className="deep-tut-example">Example: You always see one main path, not one path per event.</div>
                   <div className="deep-tut-example">
-                    Quick read: we only surface horizons with a meaningful edge (e.g. 10pp+ away from 50%). If none
+                    Quick read: we only surface horizons with a meaningful edge (e.g. 6pp+ away from 50%). If none
                     qualify, we show “No clear edge”. Edge means |P(up) - 50%|; very small edges are usually noise.
+                    Trade setup uses a stricter edge threshold (8pp+) plus guardrails.
                   </div>
                   <div className="deep-tut-example">
                     Decision Card only enables a trade bias when guardrails pass together: sample size, recent share,
@@ -322,7 +323,7 @@ export function DeepAnalysisMethodModal({
                 </div>
                 <div className="deep-tut-li">
                   <span className="deep-tut-dot2" aria-hidden="true" /> Trade bias is disabled by design when
-                  confidence gates fail (to avoid forced low-quality calls).
+                  guardrails fail (to avoid forced low-quality calls).
                 </div>
               </div>
             </div>
