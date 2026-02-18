@@ -1047,8 +1047,8 @@
 }
 
 .modal.modal-deep-method {
-  width: min(720px, 92vw);
-  max-height: min(78vh, 680px);
+  width: min(980px, 94vw);
+  max-height: min(86vh, 820px);
   overflow: hidden;
 }
 
@@ -1089,7 +1089,7 @@
   padding: 0 16px 16px;
   overflow-y: auto;
   overflow-x: hidden;
-  max-height: calc(min(78vh, 680px) - 52px);
+  max-height: calc(min(86vh, 820px) - 52px);
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
