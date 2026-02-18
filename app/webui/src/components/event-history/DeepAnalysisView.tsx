@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { EventDeepAnalysisResponse, EventHistoryPoint, EventImpactWindowStats } from "../../types";
 import { backend } from "../../api";
@@ -59,6 +59,8 @@ export function DeepAnalysisView({
   const [fullOpen, setFullOpen] = useState(false);
   const [fullClosing, setFullClosing] = useState(false);
   const [fullEntering, setFullEntering] = useState(false);
+  const methodCloseTimerRef = useRef<number | null>(null);
+  const fullCloseTimerRef = useRef<number | null>(null);
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const [showUnifiedPrior, setShowUnifiedPrior] = useState(false);
   const [predictModel, setPredictModel] = useState<any>(DEFAULT_PREDICT_RELEASE_MODEL_USD);
@@ -74,33 +76,62 @@ export function DeepAnalysisView({
   });
   const nowcastVsPrev = nowcastVsPrevState.value;
 
+  useEffect(() => {
+    return () => {
+      if (methodCloseTimerRef.current) {
+        window.clearTimeout(methodCloseTimerRef.current);
+      }
+      if (fullCloseTimerRef.current) {
+        window.clearTimeout(fullCloseTimerRef.current);
+      }
+    };
+  }, []);
+
   const openMethodModal = () => {
+    if (methodCloseTimerRef.current) {
+      window.clearTimeout(methodCloseTimerRef.current);
+      methodCloseTimerRef.current = null;
+    }
     setMethodOpen(true);
     setMethodClosing(false);
     setMethodEntering(true);
   };
 
   const closeMethodModal = () => {
+    if (methodCloseTimerRef.current) {
+      window.clearTimeout(methodCloseTimerRef.current);
+      methodCloseTimerRef.current = null;
+    }
     setMethodClosing(true);
-    window.setTimeout(() => {
+    methodCloseTimerRef.current = window.setTimeout(() => {
       setMethodOpen(false);
       setMethodClosing(false);
       setMethodEntering(false);
+      methodCloseTimerRef.current = null;
     }, 240);
   };
 
   const openFullModal = () => {
+    if (fullCloseTimerRef.current) {
+      window.clearTimeout(fullCloseTimerRef.current);
+      fullCloseTimerRef.current = null;
+    }
     setFullOpen(true);
     setFullClosing(false);
     setFullEntering(true);
   };
 
   const closeFullModal = () => {
+    if (fullCloseTimerRef.current) {
+      window.clearTimeout(fullCloseTimerRef.current);
+      fullCloseTimerRef.current = null;
+    }
     setFullClosing(true);
-    window.setTimeout(() => {
+    fullCloseTimerRef.current = window.setTimeout(() => {
       setFullOpen(false);
       setFullClosing(false);
       setFullEntering(false);
+      fullCloseTimerRef.current = null;
     }, 240);
   };
 
