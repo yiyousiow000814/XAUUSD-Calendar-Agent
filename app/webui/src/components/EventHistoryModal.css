@@ -331,14 +331,11 @@
   gap: 10px;
   flex: 1;
   min-height: 0;
-  /* Avoid animating layout properties (gap) to reduce reflow jank while switching views. */
-  transition: transform 320ms var(--motion-ease);
 }
 
 .history-modal-content--impact {
   /* Impact view uses denser chrome so chart/table can occupy more vertical space. */
   gap: 4px;
-  transform: translateY(-2px);
 }
 
 .history-modal-controls {

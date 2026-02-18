@@ -390,7 +390,13 @@ export function EventHistoryModal({
     }
 
     const deltaY = prevRect.top - nextRect.top;
-    if (Math.abs(deltaY) < 2) return;
+    // Align to physical pixels (Windows fractional scaling can otherwise cause "shimmer" on thin borders/text).
+    const dpr =
+      typeof window !== "undefined" && typeof window.devicePixelRatio === "number" && window.devicePixelRatio > 0
+        ? window.devicePixelRatio
+        : 1;
+    const deltaPx = Math.round(deltaY * dpr) / dpr;
+    if (Math.abs(deltaPx) < 2) return;
 
     if (historyLayoutAnimCleanupRef.current) {
       historyLayoutAnimCleanupRef.current();
@@ -404,7 +410,7 @@ export function EventHistoryModal({
     // Invert then animate to the new layout position using transform (GPU friendly).
     el.style.willChange = "transform";
     el.style.transition = "none";
-    el.style.transform = `translateY(${deltaY.toFixed(2)}px)`;
+    el.style.transform = `translate3d(0, ${deltaPx.toFixed(3)}px, 0)`;
     // Force style flush so the next transition runs.
     void el.getBoundingClientRect();
     el.style.transition = `transform 260ms var(--motion-ease)`;
