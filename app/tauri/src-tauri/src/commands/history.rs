@@ -1,6 +1,6 @@
 use super::*;
 use crate::calendar::CALENDAR_SOURCE_UTC_OFFSET_MINUTES;
-use chrono::{Duration, FixedOffset, Local, NaiveDate, NaiveDateTime, NaiveTime, TimeZone, Utc};
+use chrono::{FixedOffset, Local, NaiveDate, NaiveDateTime, NaiveTime, TimeZone, Utc};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Seek, SeekFrom};
@@ -65,19 +65,75 @@ fn looks_like_period(token: &str) -> bool {
 
 fn detect_frequency(raw: &str) -> String {
     let lowered = raw.to_lowercase();
-    if lowered.contains("y/y") || lowered.contains("yoy") {
+    if has_frequency_token(&lowered, "y/y") {
         return "y/y".to_string();
     }
-    if lowered.contains("m/m") || lowered.contains("mom") {
+    if has_frequency_token(&lowered, "m/m") {
         return "m/m".to_string();
     }
-    if lowered.contains("q/q") || lowered.contains("qoq") {
+    if has_frequency_token(&lowered, "q/q") {
         return "q/q".to_string();
     }
-    if lowered.contains("w/w") || lowered.contains("wow") {
+    if has_frequency_token(&lowered, "w/w") {
         return "w/w".to_string();
     }
     String::new()
+}
+
+fn is_word_char(b: u8) -> bool {
+    b.is_ascii_alphanumeric() || b == b'_'
+}
+
+fn contains_word_token(haystack: &str, token: &str) -> bool {
+    if token.is_empty() || haystack.is_empty() {
+        return false;
+    }
+    let bytes = haystack.as_bytes();
+    let tlen = token.len();
+    let mut i = 0usize;
+    while i < haystack.len() {
+        let Some(pos) = haystack[i..].find(token) else {
+            break;
+        };
+        let start = i + pos;
+        let end = start + tlen;
+        let prev_ok = start == 0 || !is_word_char(bytes[start - 1]);
+        let next_ok = end >= bytes.len() || !is_word_char(bytes[end]);
+        if prev_ok && next_ok {
+            return true;
+        }
+        i = start + 1;
+    }
+    false
+}
+
+fn has_frequency_token(lowered: &str, freq: &str) -> bool {
+    match freq {
+        // Match as a standalone token (roughly mirroring Python's `\b...\b` behavior).
+        "y/y" => contains_word_token(lowered, "y/y") || contains_word_token(lowered, "yoy"),
+        "m/m" => contains_word_token(lowered, "m/m") || contains_word_token(lowered, "mom"),
+        "q/q" => contains_word_token(lowered, "q/q") || contains_word_token(lowered, "qoq"),
+        "w/w" => contains_word_token(lowered, "w/w") || contains_word_token(lowered, "wow"),
+        _ => false,
+    }
+}
+
+fn metric_key_with_frequency(metric: &str, frequency: &str) -> String {
+    let m = metric.trim();
+    if m.is_empty() {
+        return String::new();
+    }
+    let label = match frequency.trim().to_lowercase().as_str() {
+        "m/m" => Some("MoM"),
+        "y/y" => Some("YoY"),
+        "q/q" => Some("QoQ"),
+        "w/w" => Some("WoW"),
+        _ => None,
+    };
+    match label {
+        Some(s) => format!("{m} ({s})"),
+        None => m.to_string(),
+    }
 }
 
 fn strip_known_suffixes(raw: &str) -> String {
@@ -93,14 +149,10 @@ fn strip_known_suffixes(raw: &str) -> String {
         };
         let token = end[open_idx + 1..end.len() - 1].trim();
         let normalized = token.to_lowercase().replace('.', "");
-        let is_freq = normalized.contains("y/y")
-            || normalized.contains("yoy")
-            || normalized.contains("m/m")
-            || normalized.contains("mom")
-            || normalized.contains("q/q")
-            || normalized.contains("qoq")
-            || normalized.contains("w/w")
-            || normalized.contains("wow");
+        let is_freq = has_frequency_token(&normalized, "y/y")
+            || has_frequency_token(&normalized, "m/m")
+            || has_frequency_token(&normalized, "q/q")
+            || has_frequency_token(&normalized, "w/w");
         if looks_like_period(token) || is_freq {
             trimmed = end[..open_idx].trim_end().to_string();
             continue;
@@ -483,6 +535,8 @@ pub fn get_event_history(_payload: Value) -> Value {
     };
 
     let (event_id, metric, period) = build_event_id(&cur, &event);
+    let frequency = detect_frequency(&event);
+    let metric_key = metric_key_with_frequency(&metric, &frequency);
     let history_dir = repo_path.join("data").join("event_history_index");
     let index_path = history_dir.join("event_history_by_event.index.json");
     let ndjson_path = history_dir.join("event_history_by_event.ndjson");
@@ -505,8 +559,8 @@ pub fn get_event_history(_payload: Value) -> Value {
                         return json!({
                             "ok": true,
                             "eventId": payload.get("eventId").and_then(|v| v.as_str()).unwrap_or(&event_id),
-                            "metric": metric,
-                            "frequency": detect_frequency(&event),
+                            "metric": metric_key,
+                            "frequency": frequency,
                             "period": period,
                             "cur": cur,
                             "points": points,
@@ -529,8 +583,8 @@ pub fn get_event_history(_payload: Value) -> Value {
                                 return json!({
                                     "ok": true,
                                     "eventId": payload.get("eventId").and_then(|v| v.as_str()).unwrap_or(&event_id),
-                                    "metric": metric,
-                                    "frequency": detect_frequency(&event),
+                                    "metric": metric_key,
+                                    "frequency": frequency,
                                     "period": period,
                                     "cur": cur,
                                     "points": points,
@@ -544,54 +598,11 @@ pub fn get_event_history(_payload: Value) -> Value {
         }
     }
 
-    let mut points = vec![];
-    for item in load_calendar_events(&repo_path) {
-        if item.currency.to_uppercase() != cur {
-            continue;
-        }
-        if item.event.trim() != event {
-            continue;
-        }
-        let time_label = item.time_label.trim();
-        let (date, time) = if time_label.eq_ignore_ascii_case("all day")
-            || !time_label.contains(':')
-        {
-            // Preserve the original source date for "All Day" events.
-            let source = item.dt_utc + Duration::minutes(CALENDAR_SOURCE_UTC_OFFSET_MINUTES as i64);
-            (
-                source.format("%Y-%m-%d").to_string(),
-                item.time_label.clone(),
-            )
-        } else {
-            format_dt_parts(item.dt_utc, &tz_mode, utc_offset_minutes)
-        };
-        points.push(json!({
-            "date": date,
-            "time": time,
-            "actual": item.actual,
-            "forecast": item.forecast,
-            "previous": item.previous
-        }));
-    }
-
-    if points.is_empty() {
-        return json!({
-            "ok": false,
-            "eventId": event_id,
-            "metric": event,
-            "cur": cur,
-            "message": "No history points found in the event history index or loaded calendar window."
-        });
-    }
-
     json!({
-        "ok": true,
+        "ok": false,
         "eventId": event_id,
-        "metric": event,
-        "frequency": detect_frequency(&event),
-        "period": period,
+        "metric": metric_key,
         "cur": cur,
-        "points": points,
-        "cached": false
+        "message": "No history points found in event history index. Run build_event_history_index.py to refresh index."
     })
 }

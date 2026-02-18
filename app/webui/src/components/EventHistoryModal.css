@@ -331,7 +331,8 @@
   gap: 10px;
   flex: 1;
   min-height: 0;
-  transition: gap 320ms var(--motion-ease), transform 320ms var(--motion-ease);
+  /* Avoid animating layout properties (gap) to reduce reflow jank while switching views. */
+  transition: transform 320ms var(--motion-ease);
 }
 
 .history-modal-content--impact {
@@ -352,9 +353,8 @@
   background: transparent;
   padding: 0 0 6px;
   overflow: visible;
-  transition: height 320ms var(--motion-ease),
-    padding 320ms var(--motion-ease),
-    opacity 220ms var(--motion-ease);
+  /* Avoid animating height/padding: it causes per-frame relayout in a heavy modal (dropped frames). */
+  transition: opacity 220ms var(--motion-ease);
 }
 
 .history-modal-controls.is-collapsed {

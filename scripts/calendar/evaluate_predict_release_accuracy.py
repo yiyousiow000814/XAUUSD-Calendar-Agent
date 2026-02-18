@@ -36,6 +36,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -43,6 +44,31 @@ from typing import Iterable, Optional
 
 import pandas as pd
 import numpy as np
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    # Allow running as `python scripts/calendar/evaluate_predict_release_accuracy.py ...`.
+    sys.path.insert(0, str(REPO_ROOT))
+
+from scripts.calendar.build_event_history_index import build_event_canonical_id
+
+_FREQ_LABELS = {
+    "m/m": "MoM",
+    "y/y": "YoY",
+    "q/q": "QoQ",
+    "w/w": "WoW",
+}
+
+
+def _metric_key_from_identity(metric: str, frequency: str) -> str:
+    m = str(metric or "").strip()
+    f = str(frequency or "").strip().lower()
+    if not m:
+        return ""
+    label = _FREQ_LABELS.get(f)
+    if not label:
+        return m
+    return f"{m} ({label})"
 
 
 def _parse_numeric(value: object) -> Optional[float]:
@@ -71,42 +97,15 @@ def _parse_numeric(value: object) -> Optional[float]:
         return None
 
 
-_MONTH_TOKENS = {
-    "jan",
-    "feb",
-    "mar",
-    "apr",
-    "may",
-    "jun",
-    "jul",
-    "aug",
-    "sep",
-    "oct",
-    "nov",
-    "dec",
-}
-
-
 def _normalize_metric_key(raw: object) -> str:
-    # Mirror app grouping: remove trailing period tokens like "(Jan)" / "(Q1)" but keep "(MoM)/(YoY)" etc.
+    # Keep training/eval metric identity aligned with runtime eventId canonicalization.
+    # This strips trailing period/frequency suffixes in the same way as index generation.
     text = str(raw or "").strip()
     if not text:
         return ""
-    if text.endswith(")"):
-        open_idx = text.rfind("(")
-        if open_idx >= 0:
-            token = text[open_idx + 1 : -1].strip()
-            tl = token.lower()
-            is_period = False
-            if tl in _MONTH_TOKENS:
-                is_period = True
-            elif tl.startswith("q") and tl[1:] in {"1", "2", "3", "4"}:
-                is_period = True
-            elif tl.isdigit() and len(tl) == 4:
-                is_period = True
-            if is_period:
-                text = text[:open_idx].rstrip()
-    return text
+    # Currency doesn't affect metric/frequency parsing; we only use `identity` here.
+    _, identity = build_event_canonical_id("", text)
+    return _metric_key_from_identity(identity.metric, identity.frequency)
 
 
 def _parse_event_dt_utc(date_str: str, time_str: str) -> Optional[datetime]:

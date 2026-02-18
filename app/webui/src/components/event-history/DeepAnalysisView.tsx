@@ -68,7 +68,6 @@ export function DeepAnalysisView({
     predictModel
   });
   const nowcastVsPrev = nowcastVsPrevState.value;
-  const [predictModelReady, setPredictModelReady] = useState(false);
 
   useEffect(() => {
     if (!methodOpen && !fullOpen) return;
@@ -105,10 +104,6 @@ export function DeepAnalysisView({
       })
       .catch(() => {
         // ignore; fallback model stays in use
-      })
-      .finally(() => {
-        if (!mounted) return;
-        setPredictModelReady(true);
       });
     return () => {
       mounted = false;
@@ -137,6 +132,21 @@ export function DeepAnalysisView({
     const min = pad(shifted.getUTCMinutes());
     return `${dd}-${mm} ${hh}:${min} ${displayTzLabel}`;
   }, [anchorDtUtc, displayOffsetMinutes, displayTzLabel]);
+
+  const anchorUtcKey = useMemo(() => {
+    const raw = String(anchorDtUtc || "").trim();
+    if (!raw) return "";
+    const utcMs = Date.parse(raw);
+    if (!Number.isFinite(utcMs)) return "";
+    const d = new Date(utcMs);
+    const pad = (v: number) => String(v).padStart(2, "0");
+    const dd = pad(d.getUTCDate());
+    const mm = pad(d.getUTCMonth() + 1);
+    const yyyy = String(d.getUTCFullYear());
+    const hh = pad(d.getUTCHours());
+    const min = pad(d.getUTCMinutes());
+    return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
+  }, [anchorDtUtc]);
 
 
   const localPredict = useLocalPredictRelease({
@@ -336,6 +346,25 @@ export function DeepAnalysisView({
     let dWithout: string | null = null;
     let dPrior: string | null = null;
     const contribs = Array.isArray(pm?.contributions) ? pm.contributions : [];
+    const sameTimeCount = (() => {
+      const key = String(anchorUtcKey || "").trim();
+      if (!key || !contribs.length) return null;
+      let n = 0;
+      for (const c of contribs) {
+        const dtKey = String((c as any)?.dtKey ?? "").trim();
+        if (dtKey) {
+          if (dtKey === key) n += 1;
+          continue;
+        }
+        // Back-compat: older builds only include dt inside the label.
+        const label = String((c as any)?.label ?? "");
+        if (!label) continue;
+        const parts = label.split("·");
+        const dt = String(parts.length ? parts[parts.length - 1] : "").trim();
+        if (dt === key) n += 1;
+      }
+      return n > 1 ? n : null;
+    })();
     const hlId = (highlightId ?? "").trim();
     if (hlId && contribs.length) {
       const hit = contribs.find((c: any) => String(c?.eventId ?? "") === hlId);
@@ -386,9 +415,10 @@ export function DeepAnalysisView({
       firstLabel: typeof firstOffset === "number" ? formatTimeOffsetMinutes(firstOffset) : "",
       lastLabel: typeof lastOffset === "number" ? formatTimeOffsetMinutes(lastOffset) : "",
       anchorLabel,
+      sameTimeCount,
       hasPrior: useUnified && prior && Array.isArray(prior.pUp) && prior.pUp.length === offsets.length
     };
-  }, [deepData, highlightId, impactSeriesItems, anchorLabel, showUnifiedPrior]);
+  }, [deepData, highlightId, impactSeriesItems, anchorLabel, showUnifiedPrior, anchorUtcKey]);
 
   const unifiedQuickRead = useMemo(() => {
     if (!unifiedOutlook) return { all: [], strong: [], edgeTh: 0.1, best: null };
@@ -396,7 +426,7 @@ export function DeepAnalysisView({
     const pUpSeries = Array.isArray((unifiedOutlook as any).pUpSeries)
       ? ((unifiedOutlook as any).pUpSeries as Array<number | null>)
       : [];
-    const edgeTh = 0.1; // Show only "usable" edges (>=10pp) in Quick read.
+    const edgeTh = 0.06; // Show "usable" edges from >=6pp so Decision Card has practical coverage.
     if (offsets.length < 2 || pUpSeries.length !== offsets.length) return { all: [], strong: [], edgeTh, best: null };
 
     const at = (m: number) => {
@@ -448,13 +478,96 @@ export function DeepAnalysisView({
     return { all, strong, edgeTh, best };
   }, [unifiedOutlook]);
 
+  const unifiedStability = useMemo(() => {
+    if (!unifiedOutlook) return null;
+    const offsets = unifiedOutlook.offsets;
+    const pUpSeries = unifiedOutlook.pUpSeries;
+    if (!Array.isArray(offsets) || !Array.isArray(pUpSeries) || offsets.length < 2 || pUpSeries.length !== offsets.length) {
+      return null;
+    }
+
+    // Sample a few key future horizons.
+    //
+    // Important: offsets can come from either the unified path or a sparse impact-window series.
+    // We therefore interpolate between available points instead of requiring exact offsets.
+    const sampleMinutes = [0, 60, 120, 240, 360, 720, 1440];
+    const pairs = offsets
+      .map((off, idx) => {
+        const v = pUpSeries[idx];
+        if (typeof off !== "number" || !Number.isFinite(off)) return null;
+        if (typeof v !== "number" || !Number.isFinite(v)) return null;
+        return { off, v: Math.max(0, Math.min(1, v)) };
+      })
+      .filter((p): p is { off: number; v: number } => Boolean(p))
+      .sort((a, b) => a.off - b.off);
+    if (pairs.length < 3) return null;
+
+    const offArr = pairs.map((p) => p.off);
+    const valArr = pairs.map((p) => p.v);
+    const minOff = offArr[0] ?? 0;
+    const maxOff = offArr[offArr.length - 1] ?? 0;
+
+    const at = (m: number): number | null => {
+      if (!Number.isFinite(m)) return null;
+      if (m <= minOff) return valArr[0] ?? null;
+      if (m >= maxOff) return valArr[valArr.length - 1] ?? null;
+
+      // Find the first offset >= m (linear scan is fine: the series is small).
+      let hi = 0;
+      while (hi < offArr.length && offArr[hi] < m) hi += 1;
+      if (hi <= 0) return valArr[0] ?? null;
+      if (hi >= offArr.length) return valArr[valArr.length - 1] ?? null;
+      const lo = hi - 1;
+      const o0 = offArr[lo] ?? m;
+      const o1 = offArr[hi] ?? m;
+      const v0 = valArr[lo] ?? 0.5;
+      const v1 = valArr[hi] ?? 0.5;
+      if (o0 === o1) return v1;
+      const t = (m - o0) / (o1 - o0);
+      return v0 + (v1 - v0) * t;
+    };
+
+    const usableMinutes = sampleMinutes.filter((m) => m >= minOff - 1e-9 && m <= maxOff + 1e-9);
+    const vals: number[] = [];
+    for (const m of usableMinutes) {
+      const v = at(m);
+      if (typeof v !== "number" || !Number.isFinite(v)) continue;
+      vals.push(Math.max(0, Math.min(1, v)));
+    }
+    if (vals.length < 3) return null;
+
+    // Count sign flips of (P(up)-50%) across the sampled horizons.
+    const s: number[] = vals.map((v) => (v > 0.5 ? 1 : v < 0.5 ? -1 : 0));
+    for (let i = 1; i < s.length; i++) {
+      if (s[i] === 0) s[i] = s[i - 1] ?? 0;
+    }
+    for (let i = s.length - 2; i >= 0; i--) {
+      if (s[i] === 0) s[i] = s[i + 1] ?? 0;
+    }
+    let flips = 0;
+    for (let i = 1; i < s.length; i++) {
+      if (s[i] !== 0 && s[i - 1] !== 0 && s[i] !== s[i - 1]) flips += 1;
+    }
+
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
+    const amp = max - min;
+    const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+    const variance = vals.reduce((a, b) => a + (b - mean) * (b - mean), 0) / vals.length;
+
+    return { flips, amp, variance };
+  }, [unifiedOutlook]);
+
   if (!isUsdEvent) {
     return <div className="history-impact-status error">Deep analysis is available for USD events only.</div>;
   }
   if (deepError) {
     return <div className="history-impact-status error">{deepError}</div>;
   }
-  if (deepLoading || !deepData || !predictModelReady || !nowcastVsPrevState.ready) {
+  // Don't block the full UI on optional background work (model refresh / nowcast chain).
+  // We can render immediately once the Deep Analysis payload is available, and let other
+  // pieces fill in as they become ready.
+  if (deepLoading || !deepData) {
     return <div className="history-impact-status">Loading deep analysis...</div>;
   }
 
@@ -548,6 +661,98 @@ export function DeepAnalysisView({
   const pvChoice = pvNowcast ?? modelPv ?? localPredict.proxyVsPrev;
   const pvKind: "nowcast" | "model" | "proxy" = pvNowcast ? "nowcast" : modelPv ? "model" : "proxy";
   const pvReliable = pvKind !== "proxy" && Boolean((pvChoice as any)?.reliable);
+  const relRoot = (predictModel as any)?.models?.ap_no_forecast?.relationships ?? null;
+  const nowcastPredictor = (() => {
+    if (!relRoot) return null;
+    if (hasForecast0) return relRoot?.predictor_with_forecast ?? relRoot?.predictor ?? null;
+    return relRoot?.predictor ?? relRoot?.predictor_with_forecast ?? null;
+  })();
+  const nowcastMetricGate = (() => {
+    const metric = String(metricKey || "").trim();
+    if (!metric) return null;
+    return nowcastPredictor?.enabled_metrics?.[metric] ?? null;
+  })();
+  const gateCurrentSamples = (() => {
+    if (pvKind === "nowcast") {
+      const nTest =
+        nowcastMetricGate && typeof nowcastMetricGate.n_test === "number" && Number.isFinite(nowcastMetricGate.n_test)
+          ? Number(nowcastMetricGate.n_test)
+          : null;
+      if (typeof nTest === "number" && Number.isFinite(nTest)) return nTest;
+      const n =
+        nowcastMetricGate && typeof nowcastMetricGate.n === "number" && Number.isFinite(nowcastMetricGate.n)
+          ? Number(nowcastMetricGate.n)
+          : null;
+      if (typeof n === "number" && Number.isFinite(n)) return n;
+    }
+    if (pvChoice && typeof (pvChoice as any).n === "number" && Number.isFinite((pvChoice as any).n)) {
+      return Number((pvChoice as any).n);
+    }
+    return localPredict.recent.vsPrev.n > 0 ? localPredict.recent.vsPrev.n : null;
+  })();
+  const gateCurrentRecentShare =
+    localPredict.all.vsPrev.n > 0 ? localPredict.recent.vsPrev.n / localPredict.all.vsPrev.n : null;
+  const gateCurrentBacktestAcc =
+    pvKind === "nowcast"
+      ? nowAcc
+      : pvKind === "model"
+        ? modelAcc
+        : localPredict.proxyVsPrev?.matchRate ?? null;
+  const activeSubModel =
+    typeof f0 === "number" && Number.isFinite(f0)
+      ? (predictModel as any)?.models?.ap_with_forecast
+      : (predictModel as any)?.models?.ap_no_forecast;
+  const activeMetricGate = (() => {
+    const metric = String(metricKey || "").trim();
+    if (!metric) return null;
+    return (activeSubModel as any)?.metric_gates?.enabled_metrics?.[metric] ?? null;
+  })();
+  const gateCurrentCoverage = (() => {
+    const pickedGate = pvKind === "nowcast" ? nowcastMetricGate : activeMetricGate;
+    if (pickedGate && typeof pickedGate.coverage === "number" && Number.isFinite(pickedGate.coverage)) {
+      return Number(pickedGate.coverage);
+    }
+    return null;
+  })();
+  const gateCurrentProbAccGap = (() => {
+    const p = pvChoice as any;
+    const pred = p?.pred0 as ">" | "=" | "<" | undefined;
+    const predProb =
+      pred === ">" ? p?.pGt : pred === "=" ? p?.pEq : pred === "<" ? p?.pLt : null;
+    if (typeof predProb !== "number" || !Number.isFinite(predProb)) return null;
+    if (typeof gateCurrentBacktestAcc !== "number" || !Number.isFinite(gateCurrentBacktestAcc)) return null;
+    // Heuristic proxy (not true calibration): if the model says "88%" but historically only hits ~65%,
+    // treat the gap as a guardrail against over-confidence.
+    return Math.abs(predProb - gateCurrentBacktestAcc);
+  })();
+  const decisionGateProfile =
+    pvKind === "nowcast"
+      ? {
+          minSamples: 24,
+          minRecentShare: 0.08,
+          minCoverage: 0.05,
+          minBacktestAcc: 0.65,
+          maxCalibrationGap: 0.12
+        }
+      : {
+          minSamples: 40,
+          minRecentShare: 0.12,
+          minCoverage: 0.2,
+          minBacktestAcc: 0.62,
+          maxCalibrationGap: 0.08
+        };
+  const decisionGate = {
+    minSamples: decisionGateProfile.minSamples,
+    currentSamples: gateCurrentSamples,
+    minRecentShare: decisionGateProfile.minRecentShare,
+    currentRecentShare: gateCurrentRecentShare,
+    minCoverage: decisionGateProfile.minCoverage,
+    currentCoverage: gateCurrentCoverage,
+    minBacktestAcc: decisionGateProfile.minBacktestAcc,
+    currentBacktestAcc: gateCurrentBacktestAcc,
+    maxCalibrationGap: decisionGateProfile.maxCalibrationGap,
+    currentCalibrationGap: gateCurrentProbAccGap
+  };
   const hasPredictReleaseInputs = [selectionActual, selectionForecast, selectionPrevious].some((value) => {
     const parsed = parseNumber(value);
     return typeof parsed === "number" && Number.isFinite(parsed);
@@ -910,10 +1115,13 @@ export function DeepAnalysisView({
         {unifiedOutlook ? (
           <TradeBiasPanel
             unified={unifiedQuickRead}
+            stability={unifiedStability}
+            sameTimeCount={(unifiedOutlook as any)?.sameTimeCount ?? null}
             adjustedByActual={adjustedByActual}
             usedActualEvents={usedActualEvents}
             hasForecast={hasForecast0}
             pvReliable={pvReliable}
+            decisionGate={decisionGate}
           />
         ) : null}
 

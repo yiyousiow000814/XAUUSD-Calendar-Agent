@@ -2527,9 +2527,11 @@ fn build_unified_outlook_fallback(
                 };
                 delta_p_up[idx] = (series[idx] - p_without).clamp(-1.0, 1.0);
             }
+            let dt_key = e.dt_utc.format("%d-%m-%Y %H:%M").to_string();
             json!({
                 "eventId": e.id,
-                "label": format!("{} · {}", e.label.trim(), e.dt_utc.format("%d-%m-%Y %H:%M")),
+                "dtKey": dt_key,
+                "label": format!("{} · {}", e.label.trim(), dt_key),
                 "weight": e.weight,
                 // For UI: dashed path shows P(t) without this event (base - delta).
                 "deltaPUp": delta_p_up

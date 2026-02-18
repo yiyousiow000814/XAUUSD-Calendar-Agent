@@ -323,6 +323,10 @@ export function EventHistoryModal({
   const deepCacheRef = useRef<Map<string, EventDeepAnalysisResponse>>(new Map());
   const [impactChartAnimKey, setImpactChartAnimKey] = useState(0);
   const impactBodyRef = useRef<HTMLDivElement | null>(null);
+  const historyLayoutRef = useRef<HTMLDivElement | null>(null);
+  const historyLayoutPrevRectRef = useRef<DOMRect | null>(null);
+  const historyLayoutAnimCleanupRef = useRef<(() => void) | null>(null);
+  const prevImpactOpenForLayoutAnimRef = useRef<boolean | null>(null);
   // Cache impact payloads per (eventId, bucket) to avoid flicker when switching History <-> Impact.
   const impactCacheRef = useRef<Map<string, EventImpactResponse>>(new Map());
   const [impactViewport, setImpactViewport] = useState<{ width: number; height: number } | null>(
@@ -360,6 +364,73 @@ export function EventHistoryModal({
     return map;
   }, [points]);
   const hasData = points.length > 0;
+
+  // Smooth the History <-> Impact layout lift/drop without animating layout properties (height/gap),
+  // which can cause dropped frames in a heavy modal. This uses a lightweight FLIP-style transform.
+  useLayoutEffect(() => {
+    const el = historyLayoutRef.current;
+    if (!el) return;
+
+    const prevRect = historyLayoutPrevRectRef.current;
+    const prevImpactOpen = prevImpactOpenForLayoutAnimRef.current;
+    const nextRect = el.getBoundingClientRect();
+    historyLayoutPrevRectRef.current = nextRect;
+    prevImpactOpenForLayoutAnimRef.current = impactOpen;
+
+    if (phase !== "open") return;
+    if (!isOpen || loading || Boolean(error) || !hasData) return;
+    if (prevImpactOpen === null || prevImpactOpen === impactOpen) return;
+    if (!prevRect) return;
+    if (typeof window !== "undefined") {
+      try {
+        if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
+      } catch {
+        // ignore
+      }
+    }
+
+    const deltaY = prevRect.top - nextRect.top;
+    if (Math.abs(deltaY) < 2) return;
+
+    if (historyLayoutAnimCleanupRef.current) {
+      historyLayoutAnimCleanupRef.current();
+      historyLayoutAnimCleanupRef.current = null;
+    }
+
+    const prevTransition = el.style.transition;
+    const prevTransform = el.style.transform;
+    const prevWillChange = el.style.willChange;
+
+    // Invert then animate to the new layout position using transform (GPU friendly).
+    el.style.willChange = "transform";
+    el.style.transition = "none";
+    el.style.transform = `translateY(${deltaY.toFixed(2)}px)`;
+    // Force style flush so the next transition runs.
+    void el.getBoundingClientRect();
+    el.style.transition = `transform 260ms var(--motion-ease)`;
+    el.style.transform = prevTransform || "";
+
+    let settled = false;
+    const cleanup = () => {
+      if (settled) return;
+      settled = true;
+      el.style.transition = prevTransition;
+      el.style.transform = prevTransform;
+      el.style.willChange = prevWillChange;
+      el.removeEventListener("transitionend", onEnd);
+      if (typeof window !== "undefined") window.clearTimeout(timer);
+    };
+
+    const onEnd = (event: TransitionEvent) => {
+      if (event.propertyName !== "transform") return;
+      cleanup();
+    };
+
+    const timer = typeof window !== "undefined" ? window.setTimeout(cleanup, 340) : (0 as any);
+    el.addEventListener("transitionend", onEnd);
+    historyLayoutAnimCleanupRef.current = cleanup;
+    return cleanup;
+  }, [error, hasData, impactOpen, isOpen, loading, phase]);
   const isEventAnalysisAvailable = useMemo(() => {
     const actual = parseComparableNumber(String(selectionActual ?? ""));
     const forecast = parseComparableNumber(String(selectionForecast ?? ""));
@@ -2312,6 +2383,7 @@ export function EventHistoryModal({
                   className={`history-modal-layout${
                     impactOpen ? " history-modal-layout--impact" : ""
                   }`}
+                  ref={historyLayoutRef}
                 >
                   <div
                     className={`history-modal-layout-left${
