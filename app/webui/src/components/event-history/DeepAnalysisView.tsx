@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import type { EventDeepAnalysisResponse, EventHistoryPoint, EventImpactWindowStats } from "../../types";
 import { backend } from "../../api";
 import { formatTimeOffsetMinutes, formatUtcOffset } from "../../utils/calendarTime";
@@ -1452,36 +1453,39 @@ export function DeepAnalysisView({
       </div>
 
       <div className="history-impact-deep-body">
-        {fullOpen ? (
-          <div
-            className="modal-backdrop modal-backdrop-deep-full open"
-            data-qa="qa:modal-backdrop:deep-full"
-            onMouseDown={(event) => {
-              if (event.target === event.currentTarget) setFullOpen(false);
-            }}
-          >
-            <div
-              className="modal modal-deep-full open"
-              data-qa="qa:modal:deep-full"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Deep analysis"
-            >
-              <div className="deep-method-header">
-                <div className="deep-method-title">Deep Analysis</div>
-                <button
-                  type="button"
-                  className="deep-method-close"
-                  onClick={() => setFullOpen(false)}
-                  aria-label="Close"
+        {fullOpen && typeof document !== "undefined"
+          ? createPortal(
+              <div
+                className="modal-backdrop modal-backdrop-deep-full open"
+                data-qa="qa:modal-backdrop:deep-full"
+                onMouseDown={(event) => {
+                  if (event.target === event.currentTarget) setFullOpen(false);
+                }}
+              >
+                <div
+                  className="modal modal-deep-full open"
+                  data-qa="qa:modal:deep-full"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Deep analysis"
                 >
-                  Close
-                </button>
-              </div>
-              <div className="deep-full-body">{content}</div>
-            </div>
-          </div>
-        ) : null}
+                  <div className="deep-method-header">
+                    <div className="deep-method-title">Deep Analysis</div>
+                    <button
+                      type="button"
+                      className="deep-method-close"
+                      onClick={() => setFullOpen(false)}
+                      aria-label="Close"
+                    >
+                      Close
+                    </button>
+                  </div>
+                  <div className="deep-full-body">{content}</div>
+                </div>
+              </div>,
+              document.body
+            )
+          : null}
 
         <DeepAnalysisMethodModal
           open={methodOpen}

@@ -212,7 +212,7 @@
 }
 
 .modal-backdrop.modal-backdrop-deep-full {
-  z-index: 41;
+  z-index: 220;
   /* Make nested modal backdrops more opaque so the underlying history modal border doesn't read as an "extra frame". */
   background: rgba(5, 7, 10, 0.86);
 }
@@ -1005,7 +1005,7 @@
 }
 
 .modal-backdrop.modal-backdrop-deep-method {
-  z-index: 40;
+  z-index: 221;
   /* Same as deep-full: hide the underlying modal chrome to avoid a visible outer frame. */
   background: rgba(5, 7, 10, 0.86);
 }

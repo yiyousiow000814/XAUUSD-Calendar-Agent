@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { createPortal } from "react-dom";
 import "./DeepAnalysisMethodModal.css";
 
 type SignalChip = { id?: string; title?: string; note?: string; weight?: number } | string;
@@ -184,10 +185,11 @@ export function DeepAnalysisMethodModal({
   signalsUsed
 }: DeepAnalysisMethodModalProps) {
   if (!open) return null;
+  if (typeof document === "undefined") return null;
 
   const used = Array.isArray(signalsUsed) ? signalsUsed : [];
 
-  return (
+  return createPortal(
     <div
       className="modal-backdrop modal-backdrop-deep-method open"
       data-qa="qa:modal-backdrop:deep-method"
@@ -386,6 +388,7 @@ export function DeepAnalysisMethodModal({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
