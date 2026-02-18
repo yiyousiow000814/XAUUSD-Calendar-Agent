@@ -283,7 +283,7 @@ export function DeepAnalysisMethodModal({
                   </div>
                 </div>
               </div>
-              <div className="deep-tut-card">
+              <div className="deep-tut-card deep-tut-card--wide">
                 <MiniApproxEq />
                 <div className="deep-tut-card-text">
                   <div className="deep-tut-card-h">Approx equal ("=")</div>

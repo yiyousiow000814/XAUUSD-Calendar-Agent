@@ -86,6 +86,19 @@
   gap: 8px;
 }
 
+.deep-tut-card.deep-tut-card--wide {
+  grid-column: 1 / -1;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .deep-tut-card.deep-tut-card--wide {
+    grid-template-columns: 1fr;
+  }
+}
+
 [data-theme="light"] .deep-tut-card {
   background: rgba(255, 255, 255, 0.7);
   border-color: rgba(71, 85, 105, 0.14);
