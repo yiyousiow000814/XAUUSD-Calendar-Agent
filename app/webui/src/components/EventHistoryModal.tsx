@@ -322,6 +322,10 @@ export function EventHistoryModal({
   const [deepData, setDeepData] = useState<EventDeepAnalysisResponse | null>(null);
   const deepCacheRef = useRef<Map<string, EventDeepAnalysisResponse>>(new Map());
   const [impactChartAnimKey, setImpactChartAnimKey] = useState(0);
+  // Avoid a "double load" feel on first open:
+  // when Impact becomes ready we want the first paint to appear once, and only re-animate on meaningful changes
+  // (bucket/event), not on late viewport measurements.
+  const impactChartAnimStateRef = useRef<{ painted: boolean; key: string | null } | null>(null);
   const impactBodyRef = useRef<HTMLDivElement | null>(null);
   const historyLayoutRef = useRef<HTMLDivElement | null>(null);
   const historyLayoutPrevRectRef = useRef<DOMRect | null>(null);
@@ -1442,8 +1446,22 @@ export function EventHistoryModal({
   useEffect(() => {
     if (!impactOpen || impactPanel !== "event") return;
     if (!impactViewportReady || !impactData?.ok || !impactChart) return;
-    setImpactChartAnimKey((key) => key + 1);
-  }, [impactBucket, impactChart, impactData?.ok, impactOpen, impactPanel, impactViewportReady]);
+    const animKey = `${eventId}::${impactBucket}`;
+    const prev = impactChartAnimStateRef.current;
+    if (!prev || !prev.painted) {
+      impactChartAnimStateRef.current = { painted: true, key: animKey };
+      return;
+    }
+    if (prev.key !== animKey) {
+      setImpactChartAnimKey((key) => key + 1);
+      impactChartAnimStateRef.current = { painted: true, key: animKey };
+    }
+  }, [eventId, impactBucket, impactData?.ok, impactOpen, impactPanel, impactViewportReady, impactChart]);
+  useEffect(() => {
+    if (!impactOpen || impactPanel !== "event") {
+      impactChartAnimStateRef.current = null;
+    }
+  }, [impactOpen, impactPanel]);
 
   const updateImpactHoverFromPointer = useCallback(
     (target: SVGSVGElement, clientX: number, clientY: number) => {
