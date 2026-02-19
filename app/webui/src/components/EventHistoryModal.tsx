@@ -323,8 +323,8 @@ export function EventHistoryModal({
   const [deepError, setDeepError] = useState<string | null>(null);
   const [deepData, setDeepData] = useState<EventDeepAnalysisResponse | null>(null);
   const [deepDataKey, setDeepDataKey] = useState<string | null>(null);
-  const deepInFlightKeyRef = useRef<string | null>(null);
   const deepCacheRef = useRef<Map<string, EventDeepAnalysisResponse>>(new Map());
+  const deepRequestRef = useRef<Map<string, Promise<EventDeepAnalysisResponse>>>(new Map());
   const [impactChartAnimKey, setImpactChartAnimKey] = useState(0);
   // Avoid a "double load" feel on first open:
   // when Impact becomes ready we want the first paint to appear once, and only re-animate on meaningful changes
@@ -766,6 +766,18 @@ export function EventHistoryModal({
     []
   );
 
+  const requestDeep = useCallback((cacheKey: string, eventIdParam: string, anchorDtUtcParam: string) => {
+    const inFlight = deepRequestRef.current.get(cacheKey);
+    if (inFlight) return inFlight;
+    const request = backend
+      .getEventDeepAnalysisUsd({ eventId: eventIdParam, anchorDtUtc: anchorDtUtcParam })
+      .finally(() => {
+        deepRequestRef.current.delete(cacheKey);
+      });
+    deepRequestRef.current.set(cacheKey, request);
+    return request;
+  }, []);
+
   // If the modal opens directly in Impact view (saved in localStorage), Tauri may not fire
   // ResizeObserver immediately. Ensure we still get a usable viewport without requiring a manual re-toggle.
   useEffect(() => {
@@ -875,7 +887,6 @@ export function EventHistoryModal({
     const cacheKey = `${eventId}::${(anchorDtUtc || "").trim()}`;
     const cached = deepCacheRef.current.get(cacheKey);
     if (cached?.ok) {
-      deepInFlightKeyRef.current = null;
       setDeepError(null);
       setDeepDataKey(cacheKey);
       setDeepData(cached);
@@ -883,15 +894,11 @@ export function EventHistoryModal({
       return;
     }
 
-    if (deepInFlightKeyRef.current === cacheKey) return;
-    deepInFlightKeyRef.current = cacheKey;
-
     let cancelled = false;
     setDeepLoading(true);
     setDeepError(null);
 
-    backend
-      .getEventDeepAnalysisUsd({ eventId, anchorDtUtc })
+    requestDeep(cacheKey, eventId, anchorDtUtc)
       .then((result) => {
         if (cancelled) return;
         setDeepError(null);
@@ -907,20 +914,14 @@ export function EventHistoryModal({
         setDeepData(null);
       })
       .finally(() => {
-        if (deepInFlightKeyRef.current === cacheKey) {
-          deepInFlightKeyRef.current = null;
-        }
         if (cancelled) return;
         setDeepLoading(false);
       });
 
     return () => {
       cancelled = true;
-      if (deepInFlightKeyRef.current === cacheKey) {
-        deepInFlightKeyRef.current = null;
-      }
     };
-  }, [eventId, impactOpen, impactPanel, isOpen, isUsdEvent, anchorDtUtc]);
+  }, [eventId, impactOpen, impactPanel, isOpen, isUsdEvent, anchorDtUtc, requestDeep]);
 
   // Prefetch impact data while the modal is open so switching History -> Impact is instant.
   useEffect(() => {
