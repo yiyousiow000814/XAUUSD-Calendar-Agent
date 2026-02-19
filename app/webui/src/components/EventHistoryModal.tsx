@@ -901,10 +901,16 @@ export function EventHistoryModal({
     requestDeep(cacheKey, eventId, anchorDtUtc)
       .then((result) => {
         if (cancelled) return;
+        if (!result.ok) {
+          setDeepError(result.message || "Deep analysis unavailable.");
+          setDeepDataKey(null);
+          setDeepData(null);
+          return;
+        }
         setDeepError(null);
         setDeepDataKey(cacheKey);
         setDeepData(result);
-        if (result.ok) deepCacheRef.current.set(cacheKey, result);
+        deepCacheRef.current.set(cacheKey, result);
       })
       .catch((err) => {
         if (cancelled) return;
