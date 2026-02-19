@@ -317,10 +317,14 @@ export function EventHistoryModal({
   const [impactLoading, setImpactLoading] = useState(false);
   const [impactError, setImpactError] = useState<string | null>(null);
   const [impactData, setImpactData] = useState<EventImpactResponse | null>(null);
+  const [impactDataKey, setImpactDataKey] = useState<string | null>(null);
+  const impactInFlightKeyRef = useRef<string | null>(null);
   const [deepLoading, setDeepLoading] = useState(false);
   const [deepError, setDeepError] = useState<string | null>(null);
   const [deepData, setDeepData] = useState<EventDeepAnalysisResponse | null>(null);
+  const [deepDataKey, setDeepDataKey] = useState<string | null>(null);
   const deepCacheRef = useRef<Map<string, EventDeepAnalysisResponse>>(new Map());
+  const deepRequestRef = useRef<Map<string, Promise<EventDeepAnalysisResponse>>>(new Map());
   const [impactChartAnimKey, setImpactChartAnimKey] = useState(0);
   // Avoid a "double load" feel on first open:
   // when Impact becomes ready we want the first paint to appear once, and only re-animate on meaningful changes
@@ -333,6 +337,7 @@ export function EventHistoryModal({
   const prevImpactOpenForLayoutAnimRef = useRef<boolean | null>(null);
   // Cache impact payloads per (eventId, bucket) to avoid flicker when switching History <-> Impact.
   const impactCacheRef = useRef<Map<string, EventImpactResponse>>(new Map());
+  const impactRequestRef = useRef<Map<string, Promise<EventImpactResponse>>>(new Map());
   const [impactViewport, setImpactViewport] = useState<{ width: number; height: number } | null>(
     null
   );
@@ -449,6 +454,11 @@ export function EventHistoryModal({
   }, [selectionActual, selectionForecast, selectionPrevious]);
   const prevEventAnalysisAvailableRef = useRef(isEventAnalysisAvailable);
   const eventId = (data?.eventId ?? "").trim();
+  const activeImpactKey = eventId ? `${eventId}::${impactBucket}` : null;
+  const activeImpactData =
+    activeImpactKey && impactDataKey === activeImpactKey ? impactData : null;
+  const activeDeepKey = eventId ? `${eventId}::${(anchorDtUtc || "").trim()}` : null;
+  const activeDeepData = activeDeepKey && deepDataKey === activeDeepKey ? deepData : null;
   const isUsdEvent = eventId.startsWith("USD::");
   const bucketCounts = useMemo(() => {
     const counts: Record<EventImpactBucket, number> = {
@@ -684,6 +694,7 @@ export function EventHistoryModal({
       const cached = impactCacheRef.current.get(cacheKey);
       if (cached?.ok) {
         setImpactError(null);
+        setImpactDataKey(cacheKey);
         setImpactData(cached);
         setImpactLoading(false);
       } else {
@@ -740,6 +751,33 @@ export function EventHistoryModal({
     return false;
   }, [measureViewport, updateImpactViewport]);
 
+  const requestImpact = useCallback(
+    (cacheKey: string, eventIdParam: string, bucketParam: EventImpactBucket) => {
+      const inFlight = impactRequestRef.current.get(cacheKey);
+      if (inFlight) return inFlight;
+      const request = backend
+        .getEventImpactUsd({ eventId: eventIdParam, bucket: bucketParam })
+        .finally(() => {
+          impactRequestRef.current.delete(cacheKey);
+        });
+      impactRequestRef.current.set(cacheKey, request);
+      return request;
+    },
+    []
+  );
+
+  const requestDeep = useCallback((cacheKey: string, eventIdParam: string, anchorDtUtcParam: string) => {
+    const inFlight = deepRequestRef.current.get(cacheKey);
+    if (inFlight) return inFlight;
+    const request = backend
+      .getEventDeepAnalysisUsd({ eventId: eventIdParam, anchorDtUtc: anchorDtUtcParam })
+      .finally(() => {
+        deepRequestRef.current.delete(cacheKey);
+      });
+    deepRequestRef.current.set(cacheKey, request);
+    return request;
+  }, []);
+
   // If the modal opens directly in Impact view (saved in localStorage), Tauri may not fire
   // ResizeObserver immediately. Ensure we still get a usable viewport without requiring a manual re-toggle.
   useEffect(() => {
@@ -773,6 +811,7 @@ export function EventHistoryModal({
     if (impactPanel !== "event" && impactPanel !== "deep") return;
     if (!isUsdEvent) {
       setImpactError("Impact analysis is available for USD events only.");
+      setImpactDataKey(null);
       setImpactData(null);
       setImpactLoading(false);
       return;
@@ -781,44 +820,57 @@ export function EventHistoryModal({
     const cacheKey = `${eventId}::${impactBucket}`;
     const cached = impactCacheRef.current.get(cacheKey);
     if (cached?.ok) {
+      impactInFlightKeyRef.current = null;
       setImpactError(null);
+      setImpactDataKey(cacheKey);
       setImpactData(cached);
       setImpactLoading(false);
       return;
     }
 
+    // Guard against duplicate requests for the same key (can happen during quick modal state transitions).
+    if (impactInFlightKeyRef.current === cacheKey) return;
+    impactInFlightKeyRef.current = cacheKey;
+
     let cancelled = false;
     setImpactLoading(true);
     setImpactError(null);
-    setImpactData(null);
 
-    backend
-      .getEventImpactUsd({ eventId, bucket: impactBucket })
+    requestImpact(cacheKey, eventId, impactBucket)
       .then((result) => {
         if (cancelled) return;
         if (!result.ok) {
           setImpactError(result.message || "Impact analysis unavailable.");
+          setImpactDataKey(null);
           setImpactData(null);
           return;
         }
         impactCacheRef.current.set(cacheKey, result);
+        setImpactDataKey(cacheKey);
         setImpactData(result);
       })
       .catch((err) => {
         if (cancelled) return;
         const msg = err instanceof Error ? err.message : "Impact analysis failed";
         setImpactError(msg);
+        setImpactDataKey(null);
         setImpactData(null);
       })
       .finally(() => {
+        if (impactInFlightKeyRef.current === cacheKey) {
+          impactInFlightKeyRef.current = null;
+        }
         if (cancelled) return;
         setImpactLoading(false);
       });
 
     return () => {
       cancelled = true;
+      if (impactInFlightKeyRef.current === cacheKey) {
+        impactInFlightKeyRef.current = null;
+      }
     };
-  }, [eventId, impactBucket, impactOpen, impactPanel, isOpen, isUsdEvent]);
+  }, [eventId, impactBucket, impactOpen, impactPanel, isOpen, isUsdEvent, requestImpact]);
 
   useEffect(() => {
     if (!isOpen || !impactOpen) return;
@@ -826,6 +878,7 @@ export function EventHistoryModal({
     if (impactPanel !== "deep") return;
     if (!isUsdEvent) {
       setDeepError("Deep analysis is available for USD events only.");
+      setDeepDataKey(null);
       setDeepData(null);
       setDeepLoading(false);
       return;
@@ -835,6 +888,7 @@ export function EventHistoryModal({
     const cached = deepCacheRef.current.get(cacheKey);
     if (cached?.ok) {
       setDeepError(null);
+      setDeepDataKey(cacheKey);
       setDeepData(cached);
       setDeepLoading(false);
       return;
@@ -843,20 +897,26 @@ export function EventHistoryModal({
     let cancelled = false;
     setDeepLoading(true);
     setDeepError(null);
-    setDeepData(null);
 
-    backend
-      .getEventDeepAnalysisUsd({ eventId, anchorDtUtc })
+    requestDeep(cacheKey, eventId, anchorDtUtc)
       .then((result) => {
         if (cancelled) return;
+        if (!result.ok) {
+          setDeepError(result.message || "Deep analysis unavailable.");
+          setDeepDataKey(null);
+          setDeepData(null);
+          return;
+        }
         setDeepError(null);
+        setDeepDataKey(cacheKey);
         setDeepData(result);
-        if (result.ok) deepCacheRef.current.set(cacheKey, result);
+        deepCacheRef.current.set(cacheKey, result);
       })
       .catch((err) => {
         if (cancelled) return;
         const msg = err instanceof Error ? err.message : "Deep analysis failed";
         setDeepError(msg);
+        setDeepDataKey(null);
         setDeepData(null);
       })
       .finally(() => {
@@ -867,11 +927,12 @@ export function EventHistoryModal({
     return () => {
       cancelled = true;
     };
-  }, [eventId, impactOpen, impactPanel, isOpen, isUsdEvent, anchorDtUtc]);
+  }, [eventId, impactOpen, impactPanel, isOpen, isUsdEvent, anchorDtUtc, requestDeep]);
 
   // Prefetch impact data while the modal is open so switching History -> Impact is instant.
   useEffect(() => {
     if (!isOpen) return;
+    if (impactOpen) return;
     if (!eventId) return;
     if (!isUsdEvent) return;
     if (impactPanel !== "event") return;
@@ -880,8 +941,7 @@ export function EventHistoryModal({
     if (impactCacheRef.current.has(cacheKey)) return;
     let cancelled = false;
 
-    backend
-      .getEventImpactUsd({ eventId, bucket: impactBucket })
+    requestImpact(cacheKey, eventId, impactBucket)
       .then((result) => {
         if (cancelled) return;
         if (!result.ok) return;
@@ -894,7 +954,7 @@ export function EventHistoryModal({
     return () => {
       cancelled = true;
     };
-  }, [eventId, impactBucket, impactPanel, isOpen, isUsdEvent]);
+  }, [eventId, impactBucket, impactOpen, impactPanel, isOpen, isUsdEvent, requestImpact]);
 
   // Measure the impact viewport during layout so the first paint can render the correct SVG size.
   useLayoutEffect(() => {
@@ -1033,8 +1093,8 @@ export function EventHistoryModal({
   }, [impactOpen, impactPanel, isOpen]);
 
   const impactSeries = useMemo(() => {
-    const windows = impactData?.windowsMinutes ?? [];
-    const raw = impactData?.data ?? {};
+    const windows = activeImpactData?.windowsMinutes ?? [];
+    const raw = activeImpactData?.data ?? {};
     const offsetsAll = Array.from(new Set<number>([...windows, 0])).sort((a, b) => a - b);
     const itemsAll = offsetsAll.map((offset) => {
       const key = String(offset);
@@ -1064,15 +1124,15 @@ export function EventHistoryModal({
     const min = values.length ? Math.min(...values) : -1;
     const max = values.length ? Math.max(...values) : 1;
     return { items, min, max };
-  }, [impactData]);
+  }, [activeImpactData]);
 
   const impactCoverage = useMemo(() => {
-    const meta = impactData?.meta;
+    const meta = activeImpactData?.meta;
     if (!meta) return "";
     // Prefer actual sample event range; it's the true coverage of computed stats.
     const range = formatCoverage(meta.event_min_utc, meta.event_max_utc);
     return range;
-  }, [impactData]);
+  }, [activeImpactData]);
 
   const impactBucketOptions = useMemo(() => {
     const opts = [
@@ -1085,11 +1145,11 @@ export function EventHistoryModal({
 
   const impactSelectedBucketCount = bucketCounts[impactBucket] ?? 0;
   const impactSamplesLabel = useMemo(() => {
-    const n = impactData?.meta?.sample_points;
+    const n = activeImpactData?.meta?.sample_points;
     if (typeof n === "number" && Number.isFinite(n) && n > 0) return String(n);
     if (impactSelectedBucketCount > 0) return String(impactSelectedBucketCount);
     return "";
-  }, [impactData, impactSelectedBucketCount]);
+  }, [activeImpactData, impactSelectedBucketCount]);
 
   const impactChart = useMemo(() => {
     if (!impactOpen || !impactViewportReady) return null;
@@ -1445,7 +1505,7 @@ export function EventHistoryModal({
 
   useEffect(() => {
     if (!impactOpen || impactPanel !== "event") return;
-    if (!impactViewportReady || !impactData?.ok || !impactChart) return;
+    if (!impactViewportReady || !activeImpactData?.ok || !impactChart) return;
     const animKey = `${eventId}::${impactBucket}`;
     const prev = impactChartAnimStateRef.current;
     if (!prev || !prev.painted) {
@@ -1456,7 +1516,15 @@ export function EventHistoryModal({
       setImpactChartAnimKey((key) => key + 1);
       impactChartAnimStateRef.current = { painted: true, key: animKey };
     }
-  }, [eventId, impactBucket, impactData?.ok, impactOpen, impactPanel, impactViewportReady, impactChart]);
+  }, [
+    activeImpactData?.ok,
+    eventId,
+    impactBucket,
+    impactOpen,
+    impactPanel,
+    impactViewportReady,
+    impactChart
+  ]);
   useEffect(() => {
     if (!impactOpen || impactPanel !== "event") {
       impactChartAnimStateRef.current = null;
@@ -1517,7 +1585,7 @@ export function EventHistoryModal({
     if (!impactChart) return null;
     if (impactHoverOffset === null) return null;
     const stats =
-      (impactData?.data?.[String(impactHoverOffset)] as EventImpactWindowStats | undefined) ??
+      (activeImpactData?.data?.[String(impactHoverOffset)] as EventImpactWindowStats | undefined) ??
       undefined;
     if (!stats || typeof stats.n !== "number" || stats.n <= 0) return null;
     if (typeof stats.best_median_pct !== "number") return null;
@@ -1556,7 +1624,7 @@ export function EventHistoryModal({
       upMove,
       downMove
     };
-  }, [impactChart, impactData, impactHoverOffset, impactOpen, impactPanel]); 
+  }, [impactChart, activeImpactData, impactHoverOffset, impactOpen, impactPanel]); 
 
   // Keep the impact tooltip fully inside the chart body (no clipping at the edges).
   // We measure the actual tooltip width/height and clamp the anchor point accordingly.
@@ -2424,7 +2492,7 @@ export function EventHistoryModal({
                             isUsdEvent={isUsdEvent}
                             deepLoading={deepLoading}
                             deepError={deepError}
-                            deepData={deepData}
+                            deepData={activeDeepData}
                             impactLoading={impactLoading}
                             impactSeriesItems={impactSeries.items}
                             anchorDtUtc={anchorDtUtc}
@@ -2462,7 +2530,7 @@ export function EventHistoryModal({
                                     </button>
                                   ))}
                                 </div>
-                                {!impactLoading && !impactError && impactData?.ok && impactChart ? (
+                                {!impactLoading && !impactError && activeImpactData?.ok && impactChart ? (
                                 <div className="impact-chart-meta" aria-hidden="true">
                                   <span className="impact-chart-meta-item">
                                     Line: most likely direction (color) + confidence (thickness)
@@ -2492,9 +2560,9 @@ export function EventHistoryModal({
                                 <div className="history-impact-status error">{impactError}</div>
                                 <div className="history-impact-mock" aria-hidden="true" />
                               </div>
-                            ) : impactLoading || !impactData ? (
+                            ) : !activeImpactData ? (
                               <div className="history-impact-status">Loading impact analysis...</div>
-                            ) : !impactData.ok ? (
+                            ) : !activeImpactData.ok ? (
                               <div className="history-impact-fallback">
                                 <div className="history-impact-status">
                                   Impact analysis not available. Generate it locally first.
