@@ -1,5 +1,5 @@
 {
-  "generated_at": "17-02-2026 15:51",
+  "generated_at": "19-02-2026 15:50",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -65,25 +65,13 @@
       "issue": "previous_missing_filled",
       "event_id": "USD::Atlanta Fed GDPNow::none",
       "cur": "USD",
-      "event": "Atlanta Fed GDPNow  (Q4)",
-      "period": "q4",
-      "date": "2026-02-19",
-      "time": "23:00",
-      "previous_raw": "",
-      "prior_actual": "3.7%",
-      "previous_effective": "3.7%"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::Atlanta Fed GDPNow::none",
-      "cur": "USD",
       "event": "Atlanta Fed GDPNow  (Q1)",
       "period": "q1",
       "date": "2026-02-20",
       "time": "23:00",
       "previous_raw": "",
-      "prior_actual": "3.7%",
-      "previous_effective": "3.7%"
+      "prior_actual": "3.6%",
+      "previous_effective": "3.6%"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -457,18 +445,6 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "CAD::GDP::m/m",
-      "cur": "CAD",
-      "event": "GDP (MoM)",
-      "period": "",
-      "date": "2026-02-27",
-      "time": "21:35",
-      "previous_raw": "",
-      "prior_actual": "0.1%",
-      "previous_effective": "0.1%"
-    },
-    {
-      "issue": "previous_missing_filled",
       "event_id": "USD::Initial Jobless Claims::none",
       "cur": "USD",
       "event": "Initial Jobless Claims",
@@ -476,8 +452,8 @@
       "date": "2026-02-26",
       "time": "21:30",
       "previous_raw": "",
-      "prior_actual": "227K",
-      "previous_effective": "227K"
+      "prior_actual": "206K",
+      "previous_effective": "206K"
     },
     {
       "issue": "previous_missing_filled",
@@ -488,8 +464,8 @@
       "date": "2026-02-26",
       "time": "21:30",
       "previous_raw": "",
-      "prior_actual": "219.50K",
-      "previous_effective": "219.50K"
+      "prior_actual": "219.00K",
+      "previous_effective": "219.00K"
     },
     {
       "issue": "previous_missing_filled",
@@ -500,8 +476,8 @@
       "date": "2026-02-26",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "-249B",
-      "previous_effective": "-249B"
+      "prior_actual": "-144B",
+      "previous_effective": "-144B"
     },
     {
       "issue": "previous_missing_filled",
@@ -512,8 +488,8 @@
       "date": "2026-02-26",
       "time": "21:30",
       "previous_raw": "",
-      "prior_actual": "1,862K",
-      "previous_effective": "1,862K"
+      "prior_actual": "1,869K",
+      "previous_effective": "1,869K"
     },
     {
       "issue": "previous_missing_filled",
@@ -548,8 +524,8 @@
       "date": "2026-02-26",
       "time": "19:30",
       "previous_raw": "",
-      "prior_actual": "78.87B",
-      "previous_effective": "78.87B"
+      "prior_actual": "79.59B",
+      "previous_effective": "79.59B"
     },
     {
       "issue": "previous_missing_filled",
@@ -560,8 +536,32 @@
       "date": "2026-02-25",
       "time": "00:30",
       "previous_raw": "",
-      "prior_actual": "3.7%",
-      "previous_effective": "3.7%"
+      "prior_actual": "3.6%",
+      "previous_effective": "3.6%"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "CAD::GDP::m/m",
+      "cur": "CAD",
+      "event": "GDP (MoM)  (Jan)",
+      "period": "jan",
+      "date": "2026-02-27",
+      "time": "21:30",
+      "previous_raw": "",
+      "prior_actual": "0.1%",
+      "previous_effective": "0.1%"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "INR::FX Reserves, USD::none",
+      "cur": "INR",
+      "event": "FX Reserves, USD",
+      "period": "",
+      "date": "2026-02-27",
+      "time": "19:30",
+      "previous_raw": "",
+      "prior_actual": "717.06B",
+      "previous_effective": "717.06B"
     }
   ]
 }
