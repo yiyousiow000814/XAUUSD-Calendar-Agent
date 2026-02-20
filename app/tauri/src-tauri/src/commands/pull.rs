@@ -91,7 +91,7 @@ pub(super) fn spawn_pull(
                             "INFO",
                         );
                     } else {
-                        super::sync::spawn_sync(app.clone(), "Auto sync after pull started");
+                        let _ = super::sync::request_auto_sync_after_pull(app.clone());
                     }
                 }
             }

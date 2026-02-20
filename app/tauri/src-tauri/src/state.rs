@@ -15,6 +15,7 @@ pub struct RuntimeState {
     pub currency: String,
     pub pull_active: bool,
     pub sync_active: bool,
+    pub sync_after_pull_pending: bool,
     pub boot_logged: bool,
     pub auto_pull_started: bool,
     pub auto_update_check_started: bool,
