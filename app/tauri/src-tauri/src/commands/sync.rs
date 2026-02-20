@@ -5,7 +5,11 @@ pub(super) enum SpawnSyncStatus {
     AlreadyRunning,
 }
 
-pub(super) fn spawn_sync(app: tauri::AppHandle, reason: &str) -> SpawnSyncStatus {
+pub(super) fn spawn_sync(
+    app: tauri::AppHandle,
+    reason: &str,
+    clear_pending_on_start: bool,
+) -> SpawnSyncStatus {
     let cfg = config::load_config();
     let output_dir = config::get_str(&cfg, "output_dir");
     let output_dir_key = output_dir.clone();
@@ -19,6 +23,9 @@ pub(super) fn spawn_sync(app: tauri::AppHandle, reason: &str) -> SpawnSyncStatus
                 "INFO",
             );
             return SpawnSyncStatus::AlreadyRunning;
+        }
+        if clear_pending_on_start {
+            runtime.sync_after_pull_pending = false;
         }
         runtime.sync_active = true;
         push_log(&mut runtime, reason, "INFO");
@@ -99,7 +106,7 @@ pub(super) fn spawn_sync(app: tauri::AppHandle, reason: &str) -> SpawnSyncStatus
                 let _ = config::save_config(&cfg);
             }
             if rerun_auto_sync {
-                let _ = spawn_sync(app.clone(), "Auto sync after pull started");
+                let _ = spawn_sync(app.clone(), "Auto sync after pull started", true);
             }
         }
     });
@@ -110,8 +117,10 @@ pub(super) fn request_auto_sync_after_pull(app: tauri::AppHandle) -> SpawnSyncSt
     let runtime_state = app.state::<Mutex<RuntimeState>>();
     {
         let mut runtime = runtime_state.lock().expect("runtime lock");
+        // Mark pending first so an interleaving manual sync cannot cause this auto-sync request
+        // to be dropped between lock release and spawn attempt.
+        runtime.sync_after_pull_pending = true;
         if runtime.sync_active {
-            runtime.sync_after_pull_pending = true;
             push_log(
                 &mut runtime,
                 "Auto sync after pull queued (sync already running)",
@@ -120,7 +129,7 @@ pub(super) fn request_auto_sync_after_pull(app: tauri::AppHandle) -> SpawnSyncSt
             return SpawnSyncStatus::AlreadyRunning;
         }
     }
-    spawn_sync(app, "Auto sync after pull started")
+    spawn_sync(app, "Auto sync after pull started", true)
 }
 
 #[tauri::command]
@@ -128,7 +137,7 @@ pub fn sync_now(
     app: tauri::AppHandle,
     _state: tauri::State<'_, Mutex<RuntimeState>>,
 ) -> Result<Value, String> {
-    match spawn_sync(app, "Manual sync started") {
+    match spawn_sync(app, "Manual sync started", false) {
         SpawnSyncStatus::Started => Ok(json!({"ok": true, "started": true})),
         SpawnSyncStatus::AlreadyRunning => {
             Ok(json!({"ok": true, "started": false, "reason": "sync already running"}))
