@@ -1,17 +1,17 @@
 use super::*;
 
-#[tauri::command]
-pub fn sync_now(
-    app: tauri::AppHandle,
-    state: tauri::State<'_, Mutex<RuntimeState>>,
-) -> Result<Value, String> {
+pub(super) fn spawn_sync(app: tauri::AppHandle, reason: &str) {
     let cfg = config::load_config();
     let output_dir = config::get_str(&cfg, "output_dir");
     let output_dir_key = output_dir.clone();
     {
-        let mut runtime = state.lock().expect("runtime lock");
+        let runtime_state = app.state::<Mutex<RuntimeState>>();
+        let mut runtime = runtime_state.lock().expect("runtime lock");
+        if runtime.sync_active {
+            return;
+        }
         runtime.sync_active = true;
-        push_log(&mut runtime, "Sync started", "INFO");
+        push_log(&mut runtime, reason, "INFO");
     }
     tauri::async_runtime::spawn(async move {
         let result = (|| -> Result<sync_util::SyncResult, String> {
@@ -73,5 +73,13 @@ pub fn sync_now(
             }
         }
     });
+}
+
+#[tauri::command]
+pub fn sync_now(
+    app: tauri::AppHandle,
+    _state: tauri::State<'_, Mutex<RuntimeState>>,
+) -> Result<Value, String> {
+    spawn_sync(app, "Manual sync started");
     Ok(json!({"ok": true}))
 }

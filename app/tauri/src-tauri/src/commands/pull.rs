@@ -79,6 +79,21 @@ pub(super) fn spawn_pull(
                 let _ = config::set_string(&mut cfg, "last_pull_at", last_pull_at.clone());
                 let _ = config::set_string(&mut cfg, "last_pull_sha", sha.clone());
                 let _ = config::save_config(&cfg);
+                let auto_sync_after_pull = config::get_bool(&cfg, "auto_sync_after_pull", true);
+                if auto_sync_after_pull {
+                    let output_dir = config::get_str(&cfg, "output_dir");
+                    if output_dir.trim().is_empty() {
+                        let runtime_state = app.state::<Mutex<RuntimeState>>();
+                        let mut runtime = runtime_state.lock().expect("runtime lock");
+                        push_log(
+                            &mut runtime,
+                            "Auto sync after pull skipped: output dir not configured",
+                            "INFO",
+                        );
+                    } else {
+                        super::sync::spawn_sync(app.clone(), "Auto sync after pull started");
+                    }
+                }
             }
             Err(err) => {
                 push_log(&mut runtime, &format!("Pull failed: {err}"), "ERROR");
