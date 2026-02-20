@@ -19,7 +19,7 @@ pub(super) fn spawn_pull(
         push_log(&mut runtime, reason, "INFO");
     }
     tauri::async_runtime::spawn_blocking(move || {
-        let result = (|| -> Result<String, String> {
+        let result = (|| -> Result<(String, bool), String> {
             // Pull only fetches `data/` (no full-repo checkout), and never persists a visible `repo/`
             // directory under `user-data/`.
             let remote_sha = git_ops::ls_remote_head_sha(&repo_slug, &branch).unwrap_or_default();
@@ -32,7 +32,7 @@ pub(super) fn spawn_pull(
                 && remote_sha == last_sha
                 && work_data_dir.join("Economic_Calendar").exists()
             {
-                return Ok(remote_sha);
+                return Ok((remote_sha, false));
             }
 
             let tmp = std::env::temp_dir().join(format!(
@@ -50,13 +50,13 @@ pub(super) fn spawn_pull(
                 let _ = sync_util::mirror_sync(&src, &dst);
             }
             let _ = std::fs::remove_dir_all(&tmp);
-            Ok(sha)
+            Ok((sha, true))
         })();
         let runtime_state = app.state::<Mutex<RuntimeState>>();
         let mut runtime = runtime_state.lock().expect("runtime lock");
         runtime.pull_active = false;
         match result {
-            Ok(sha) => {
+            Ok((sha, pull_had_changes)) => {
                 let last_pull_at = now_iso_time();
                 runtime.last_pull = now_display_time();
                 runtime.last_pull_at = last_pull_at.clone();
@@ -80,7 +80,7 @@ pub(super) fn spawn_pull(
                 let _ = config::set_string(&mut cfg, "last_pull_sha", sha.clone());
                 let _ = config::save_config(&cfg);
                 let auto_sync_after_pull = config::get_bool(&cfg, "auto_sync_after_pull", true);
-                if auto_sync_after_pull {
+                if auto_sync_after_pull && pull_had_changes {
                     let output_dir = config::get_str(&cfg, "output_dir");
                     if output_dir.trim().is_empty() {
                         let runtime_state = app.state::<Mutex<RuntimeState>>();
@@ -93,6 +93,15 @@ pub(super) fn spawn_pull(
                     } else {
                         let _ = super::sync::request_auto_sync_after_pull(app.clone());
                     }
+                }
+                if auto_sync_after_pull && !pull_had_changes {
+                    let runtime_state = app.state::<Mutex<RuntimeState>>();
+                    let mut runtime = runtime_state.lock().expect("runtime lock");
+                    push_log(
+                        &mut runtime,
+                        "Auto sync after pull skipped: no upstream data changes",
+                        "INFO",
+                    );
                 }
             }
             Err(err) => {
