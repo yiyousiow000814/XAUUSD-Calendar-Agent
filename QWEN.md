@@ -12,7 +12,6 @@ This document mirrors `AGENTS.md` and adds Qwen-specific tips.
 - **Terminology Preservation**: Do not translate proper nouns such as `Selenium`, `XAUUSD`, `PostgreSQL`, or API names.
 - **Location References (Replies)**: Prefer file/module names (e.g., `prob_gate`) over explicit paths or line numbers.
 - **Date/Time Format**: Always use day-month-year ordering; never use month-day-year in outputs or docs.
-- **Known Issues Format**: Use numbered lists (e.g., `1. item`), not bullet lists (e.g., `- item`).
 - **Evidence Requirement**: Every conclusion must be backed by reproducible commands or scrape steps. Describe the original state (A), the change you made, and the resulting state (B).
 - **GitHub Language Convention**: PR and issue titles stay in English. Descriptions and regular comments default to Simplified Chinese, unless the request explicitly begins with `[EN]`.
 - **PR Comment Policy**: Do not create PR comments unless the user explicitly asks for them.
