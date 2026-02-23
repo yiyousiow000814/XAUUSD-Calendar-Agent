@@ -3223,7 +3223,6 @@ USD::U.S. Baker Hughes Oil Rig Count::none,2026-02-21,02:00,,409,,409
 USD::U.S. Baker Hughes Total Rig Count::none,2026-02-21,02:00,,551,,551
 USD::Fed Logan Speaks::none,2026-02-21,02:15,,,,
 NA::Saudi Arabia - National Day::none,2026-02-22,All Day,,,,
-NZD::Core Retail Sales::q/q,2026-02-22,05:45,,,,1.2%
 NA::China - Chinese New Year::none,2026-02-23,All Day,,,,
 NA::Cyprus - Clean Monday::none,2026-02-23,All Day,,,,
 NA::Greece - Ash Monday::none,2026-02-23,All Day,,,,
@@ -3505,38 +3504,35 @@ USD::CFTC S&P 500 speculative net positions::none,2026-02-21,04:30,,-177.8K,,-10
 USD::CFTC Silver speculative net positions::none,2026-02-21,04:30,,24.0K,,23.0K
 USD::CFTC Soybeans speculative net positions::none,2026-02-21,04:30,,191.8K,,146.3K
 USD::CFTC Wheat speculative net positions::none,2026-02-21,04:30,,-55.1K,,-71.3K
-NZD::Retail Sales Quarterly Vs. Year Ago::none,2026-02-23,05:45,q4,,,4.5%
-NZD::Retail Sales::q/q,2026-02-23,05:45,q4,,0.6%,1.9%
-IDR::M2 Money Supply::y/y,2026-02-23,12:00,jan,,,9.60%
-SGD::CPI::m/m,2026-02-23,13:00,jan,,,0.30%
-SGD::CPI::y/y,2026-02-23,13:00,jan,,,1.2%
-SGD::Core CPI::y/y,2026-02-23,13:00,jan,,,1.20%
-CHF::PPI::m/m,2026-02-23,15:30,jan,,0.1%,-0.2%
-CHF::PPI::y/y,2026-02-23,15:30,jan,,,-1.8%
-CHF::M3 Money Supply::none,2026-02-23,16:00,jan,,,"1,210,858.0B"
-EUR::Italian CPI Ex Tobacco::y/y,2026-02-23,17:00,jan,,,1.1%
-EUR::Italian CPI::m/m,2026-02-23,17:00,jan,,0.4%,0.4%
-EUR::Italian CPI::y/y,2026-02-23,17:00,jan,,1.0%,1.0%
-EUR::Italian HICP::m/m,2026-02-23,17:00,jan,,-1.0%,-1.0%
-EUR::Italian HICP::y/y,2026-02-23,17:00,jan,,1.0%,1.0%
-PLN::Retail Sales::y/y,2026-02-23,17:00,jan,,,5.0%
-EUR::German Business Expectations::none,2026-02-23,17:00,feb,,90.5,89.5
-EUR::German Current Assessment::none,2026-02-23,17:00,feb,,86.1,85.7
-EUR::German Ifo Business Climate Index::none,2026-02-23,17:00,feb,,88.4,87.6
-BRL::FGV Consumer confidence::none,2026-02-23,19:00,feb,,,87.3
-MXN::Economic Activity::m/m,2026-02-23,20:00,dec,,,-0.20%
-MXN::Economic Activity::y/y,2026-02-23,20:00,dec,,,-0.10%
-MXN::GDP::q/q,2026-02-23,20:00,q4,,0.8%,0.8%
-MXN::GDP::y/y,2026-02-23,20:00,q4,,1.6%,1.6%
-PLN::M3 Money Supply::y/y,2026-02-23,21:00,jan,,10.4%,10.4%
-USD::Chicago Fed National Activity::none,2026-02-23,21:30,jan,,,-0.04
-EUR::Belgium NBB Business Climate::none,2026-02-23,22:00,feb,,-7.5,-8.8
-ILS::Interest Rate Decision::none,2026-02-23,22:00,feb,,3.75%,4.00%
-USD::Durables Excluding Defense::m/m,2026-02-23,23:00,dec,,-2.5%,-2.5%
-USD::Durables Excluding Transport::m/m,2026-02-23,23:00,dec,,,0.9%
-USD::Factory Orders::m/m,2026-02-23,23:00,dec,,-0.4%,2.7%
-USD::Factory orders ex transportation::m/m,2026-02-23,23:00,dec,,,0.2%
-USD::Dallas Fed Mfg Business Index::none,2026-02-23,23:30,feb,,,-1.2
+NZD::Retail Sales Quarterly Vs. Year Ago::none,2026-02-23,05:45,q4,4.4%,,4.5%
+NZD::Retail Sales::q/q,2026-02-23,05:45,q4,0.9%,0.6%,1.9%
+SGD::CPI::m/m,2026-02-23,13:00,jan,-0.50%,,0.30%
+SGD::CPI::y/y,2026-02-23,13:00,jan,1.4%,,1.2%
+SGD::Core CPI::y/y,2026-02-23,13:00,jan,1.00%,,1.20%
+CHF::PPI::m/m,2026-02-23,15:30,jan,-0.2%,0.1%,-0.2%
+CHF::PPI::y/y,2026-02-23,15:30,jan,-2.2%,,-1.8%
+CHF::M3 Money Supply::none,2026-02-23,16:00,jan,"1,212.0B",,"1,209.0B"
+EUR::Italian CPI Ex Tobacco::y/y,2026-02-23,17:00,jan,-17.0%,,1.1%
+EUR::Italian CPI::m/m,2026-02-23,17:00,jan,0.4%,0.4%,0.2%
+EUR::Italian CPI::y/y,2026-02-23,17:00,jan,1.0%,1.0%,1.2%
+EUR::Italian HICP::m/m,2026-02-23,17:00,jan,-1.0%,-1.0%,0.2%
+EUR::Italian HICP::y/y,2026-02-23,17:00,jan,1.0%,1.0%,1.2%
+PLN::Retail Sales::y/y,2026-02-23,17:00,jan,3.9%,3.1%,5.0%
+EUR::German Business Expectations::none,2026-02-23,17:00,feb,90.5,90.5,89.6
+EUR::German Current Assessment::none,2026-02-23,17:00,feb,86.7,86.1,85.7
+EUR::German Ifo Business Climate Index::none,2026-02-23,17:00,feb,88.6,88.4,87.6
+MXN::Economic Activity::m/m,2026-02-23,20:00,dec,0.40%,0.20%,-0.10%
+MXN::Economic Activity::y/y,2026-02-23,20:00,dec,3.30%,2.60%,-0.10%
+MXN::GDP::q/q,2026-02-23,20:00,q4,0.9%,0.8%,-0.3%
+MXN::GDP::y/y,2026-02-23,20:00,q4,1.8%,1.6%,-0.1%
+USD::Chicago Fed National Activity::none,2026-02-23,21:30,jan,0.18,,-0.15
+EUR::Belgium NBB Business Climate::none,2026-02-23,22:00,feb,-13.7,-7.5,-8.8
+ILS::Interest Rate Decision::none,2026-02-23,22:00,feb,4.00%,3.75%,4.00%
+USD::Durables Excluding Defense::m/m,2026-02-23,23:00,dec,-2.4%,-2.5%,-2.5%
+USD::Durables Excluding Transport::m/m,2026-02-23,23:00,dec,1.0%,,0.9%
+USD::Factory Orders::m/m,2026-02-23,23:00,dec,-0.7%,-0.4%,2.7%
+USD::Factory orders ex transportation::m/m,2026-02-23,23:00,dec,0.4%,,0.1%
+USD::Dallas Fed Mfg Business Index::none,2026-02-23,23:30,feb,0.2,,-1.2
 KRW::PPI::m/m,2026-02-24,05:00,jan,,,0.4%
 KRW::PPI::y/y,2026-02-24,05:00,jan,,,1.9%
 KRW::Consumer Confidence::none,2026-02-24,05:00,feb,,,110.8
@@ -3565,11 +3561,11 @@ NOK::Credit Indicator::y/y,2026-02-24,15:00,jan,,,4.4%
 NOK::M3 Money Supply::none,2026-02-24,15:00,jan,,,"3,422.1B"
 EUR::French Business Survey::none,2026-02-24,15:45,feb,,104,105
 PLN::Unemployment Rate::none,2026-02-24,17:00,jan,,,5.7%
-GBP::CBI Distributive Trades Survey::none,2026-02-24,19:00,feb,,-16,-17
-BRL::Current Account (USD)::none,2026-02-24,19:30,jan,,,-3.36B
-BRL::Foreign direct investment (USD)::none,2026-02-24,19:30,jan,,,-5.25B
-MXN::1st Half-Month CPI::none,2026-02-24,20:00,feb,,,0.31%
-MXN::1st Half-Month Core CPI::none,2026-02-24,20:00,feb,,,0.43%
+GBP::CBI Distributive Trades Survey::none,2026-02-24,19:00,feb,,-26,-17
+BRL::Current Account (USD)::none,2026-02-24,19:30,jan,,-6.60B,-3.36B
+BRL::Foreign direct investment (USD)::none,2026-02-24,19:30,jan,,7.00B,-5.25B
+MXN::1st Half-Month CPI::none,2026-02-24,20:00,feb,,0.21%,0.31%
+MXN::1st Half-Month Core CPI::none,2026-02-24,20:00,feb,,0.27%,0.43%
 HUF::Interest Rate Decision::none,2026-02-24,21:00,feb,,6.25%,6.50%
 USD::House Price Index::m/m,2026-02-24,22:00,dec,,0.3%,0.6%
 USD::House Price Index::none,2026-02-24,22:00,dec,,,439.3
@@ -3621,9 +3617,9 @@ BRL::BCB Focus Market Readout::none,2026-02-23,19:25,,,,
 JPY::5-Year JGB Auction::none,2026-02-17,11:35,,1.640%,,1.639%
 EUR::German 2-Year Schatz Auction::none,2026-02-17,18:50,,2.020%,,2.140%
 ZAR::Business Confidence::none,2026-02-18,17:30,jan,131.4,,133.2
-EUR::French 12-Month BTF Auction::none,2026-02-23,22:00,,,,2.040%
-EUR::French 3-Month BTF Auction::none,2026-02-23,22:00,,,,2.004%
-EUR::French 6-Month BTF Auction::none,2026-02-23,22:00,,,,2.026%
+EUR::French 12-Month BTF Auction::none,2026-02-23,22:00,,2.055%,,2.040%
+EUR::French 3-Month BTF Auction::none,2026-02-23,22:00,,2.008%,,2.004%
+EUR::French 6-Month BTF Auction::none,2026-02-23,22:00,,2.027%,,2.026%
 CNY::FDI::none,2026-02-24,19:00,jan,,,-9.50%
 USD::Atlanta Fed GDPNow::none,2026-02-25,00:30,q1,,3.1%,3.1%
 ARS::Economic Activity::y/y,2026-02-25,03:00,dec,,,-0.3%
@@ -3869,13 +3865,10 @@ USD::Building Permits::none,2026-02-18,21:30,nov,1.388M,,1.411M
 USD::Housing Starts::m/m,2026-02-18,21:30,nov,3.9%,,-4.6%
 USD::Housing Starts::none,2026-02-18,21:30,nov,1.322M,,1.246M
 USD::US Leading Index::m/m,2026-02-19,23:00,dec,-0.2%,-0.2%,-0.3%
-NZD::Credit Card Spending::y/y,2026-02-23,10:00,jan,,,-0.3%
-RWF::Repo Rate::none,2026-02-23,17:30,,,,6.75%
+NZD::Credit Card Spending::y/y,2026-02-23,10:00,jan,1.0%,,-0.2%
 USD::3-Month Bill Auction::none,2026-02-24,00:30,,,,3.600%
 USD::6-Month Bill Auction::none,2026-02-24,00:30,,,,3.500%
 MYR::FX Reserves USD::none,2026-02-24,15:00,,,,126.9B
-KWD::Bank Lending::y/y,2026-02-24,21:00,jan,,,6.87%
-KWD::M2 Money Supply::y/y,2026-02-24,21:00,jan,,,3.61%
 USD::Fed Goolsbee Speaks::none,2026-02-24,21:00,,,,
 USD::ADP Employment Change Weekly::none,2026-02-24,21:15,,,,10.30K
 USD::Redbook::y/y,2026-02-24,21:55,,,,7.2%
@@ -3902,9 +3895,9 @@ OMR::CPI::y/y,2026-02-19,20:00,jan,1.4%,,1.6%
 USD::Atlanta Fed GDPNow::none,2026-02-20,00:00,q4,3.0%,3.6%,3.6%
 IDR::Balance of Payments (EUR)::none,2026-02-20,11:00,q4,6.1B,,-6.4B
 IDR::Current Account % of GDP::none,2026-02-20,11:00,q4,-0.70%,,1.10%
-THB::Custom-Based Export Data::none,2026-02-23,11:30,jan,,,16.80%
-THB::Custom-Based Import Data::none,2026-02-23,11:30,jan,,,18.80%
-THB::Custom-Based Trade Data (USD)::none,2026-02-23,11:30,jan,,,-0.350B
+THB::Custom-Based Export Data::none,2026-02-23,11:30,jan,24.40%,,16.80%
+THB::Custom-Based Import Data::none,2026-02-23,11:30,jan,29.40%,,18.80%
+THB::Custom-Based Trade Data (USD)::none,2026-02-23,11:30,jan,-3.300B,,-0.350B
 USD::Fed Waller Speaks::none,2026-02-23,21:00,,,,
 EUR::ECB President Lagarde Speaks::none,2026-02-24,01:30,,,,
 USD::FOMC Member Bostic Speaks::none,2026-02-24,22:00,,,,
@@ -3987,7 +3980,6 @@ PEN::Fiscal Balance % of GDP::none,2026-02-20,14:35,q4,-4.50%,,-4.10%
 INR::Infrastructure Output::y/y,2026-02-20,19:30,jan,4.0%,,4.7%
 USD::Atlanta Fed GDPNow::none,2026-02-21,00:00,q1,3.1%,3.0%,3.0%
 EUR::German Buba Balz Speaks::none,2026-02-23,18:00,,,,
-USD::Dallas Fed PCE::none,2026-02-23,23:00,dec,,,1.50%
 CNY::China Loan Prime Rate 5Y::none,2026-02-24,09:00,feb,,3.50%,3.50%
 CNY::PBoC Loan Prime Rate::none,2026-02-24,09:00,,,3.00%,3.00%
 USD::Fed Collins Speaks::none,2026-02-24,22:00,,,,
@@ -4160,12 +4152,12 @@ BRL::IPC-Fipe Inflation Index::m/m,2026-03-03,18:00,feb,,,0.21%
 "EUR::CPI, n.s.a::none",2026-03-03,18:00,feb,,,100.08
 EUR::CPI::y/y,2026-03-03,18:00,feb,,,1.9%
 EUR::HICP ex Energy & Food::y/y,2026-03-03,18:00,feb,,,2.3%
-EUR::Italian CPI::m/m,2026-03-03,18:00,feb,,,0.2%
-EUR::Italian CPI::y/y,2026-03-03,18:00,feb,,,1.2%
-EUR::Italian HICP::m/m,2026-03-03,18:00,feb,,,0.2%
-EUR::Italian HICP::y/y,2026-03-03,18:00,feb,,,1.2%
+EUR::Italian CPI::m/m,2026-03-03,18:00,feb,,,0.4%
+EUR::Italian CPI::y/y,2026-03-03,18:00,feb,,,1.0%
+EUR::Italian HICP::m/m,2026-03-03,18:00,feb,,,-1.0%
+EUR::Italian HICP::y/y,2026-03-03,18:00,feb,,,1.0%
 COP::Exports::y/y,2026-03-03,23:00,jan,,,1.30%
-NZD::Core Retail Sales::q/q,2026-02-23,05:45,,,,1.2%
+NZD::Core Retail Sales::q/q,2026-02-23,05:45,,1.5%,0.4%,1.2%
 GBP::BoE Gov Bailey Speaks::none,2026-02-24,22:15,,,,
 GBP::BoE MPC Member Pill Speaks::none,2026-02-24,22:15,,,,
 EUR::ECB Supervisory Board Member Tuominen Speaks::none,2026-02-25,00:00,,,,
@@ -4174,3 +4166,20 @@ AUD::RBA Bulletin::none,2026-02-26,08:30,,,,0.00
 EUR::Finnish GDP::y/y,2026-02-27,14:00,q4,,,-0.6%
 UAH::Current Account (USD)::none,2026-02-28,01:35,jan,,,-31.900B
 ZAR::Budget Balance::m/m,2026-02-28,01:35,jan,,,38.44B
+IDR::M2 Money Supply::y/y,2026-02-23,11:00,jan,10.00%,,9.60%
+KWD::Bank Lending::y/y,2026-02-23,17:30,jan,7.06%,,6.87%
+KWD::M2 Money Supply::y/y,2026-02-23,17:30,jan,3.62%,,3.61%
+PLN::M3 Money Supply::y/y,2026-02-23,21:00,feb,10.0%,10.4%,10.4%
+USD::Chicago Fed National Activity::none,2026-02-23,21:30,dec,-0.21,,-0.04
+THB::Custom-Based Export Data::none,2026-02-24,11:30,jan,,,16.80%
+THB::Custom-Based Import Data::none,2026-02-24,11:30,jan,,,18.80%
+THB::Custom-Based Trade Data (USD)::none,2026-02-24,11:30,jan,,,-0.350B
+BRL::FGV Consumer confidence::none,2026-02-24,22:00,feb,,,87.3
+USD::Dallas Fed PCE::none,2026-02-24,23:30,dec,,,1.50%
+EUR::Irish Consumer Confidence::none,2026-02-25,08:00,feb,,,64.7
+ZMK::CPI::m/m,2026-02-25,16:00,feb,,,0.5%
+ZMK::CPI::y/y,2026-02-25,16:00,feb,,,9.4%
+THB::Industrial Production::y/y,2026-02-26,12:00,jan,,,2.52%
+THB::Currency Swaps (USD)::none,2026-02-27,15:30,,,,22.1B
+THB::Foreign Reserves (USD)::none,2026-02-27,15:30,,,,292.4B
+RUB::Central Bank reserves (USD)::none,2026-02-27,21:00,,,,806.1B
