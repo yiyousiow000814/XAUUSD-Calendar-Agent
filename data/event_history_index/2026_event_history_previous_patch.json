@@ -1,5 +1,5 @@
 {
-  "generated_at": "23-02-2026 15:50",
+  "generated_at": "24-02-2026 15:52",
   "patches": [
     {
       "patch": "previous_missing_filled",
@@ -96,6 +96,18 @@
       "previous_raw": "",
       "prior_actual": "0.00",
       "previous_effective": "0.00"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::Atlanta Fed GDPNow::none",
+      "cur": "USD",
+      "event": "Atlanta Fed GDPNow  (Q1)",
+      "period": "q1",
+      "date": "2026-02-21",
+      "time": "00:00",
+      "previous_raw": "",
+      "prior_actual": "3.0%",
+      "previous_effective": "3.0%"
     }
   ]
 }
