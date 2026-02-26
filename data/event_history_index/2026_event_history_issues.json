@@ -1,5 +1,5 @@
 {
-  "generated_at": "25-02-2026 15:52",
+  "generated_at": "26-02-2026 15:50",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -476,8 +476,8 @@
       "date": "2026-03-05",
       "time": "21:30",
       "previous_raw": "",
-      "prior_actual": "206K",
-      "previous_effective": "206K"
+      "prior_actual": "212K",
+      "previous_effective": "212K"
     },
     {
       "issue": "previous_missing_filled",
@@ -488,8 +488,8 @@
       "date": "2026-03-05",
       "time": "21:30",
       "previous_raw": "",
-      "prior_actual": "219.00K",
-      "previous_effective": "219.00K"
+      "prior_actual": "220.25K",
+      "previous_effective": "220.25K"
     },
     {
       "issue": "previous_missing_filled",
@@ -500,8 +500,8 @@
       "date": "2026-03-05",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "-144B",
-      "previous_effective": "-144B"
+      "prior_actual": "-52B",
+      "previous_effective": "-52B"
     },
     {
       "issue": "previous_missing_filled",
@@ -512,8 +512,8 @@
       "date": "2026-03-05",
       "time": "21:30",
       "previous_raw": "",
-      "prior_actual": "1,869K",
-      "previous_effective": "1,869K"
+      "prior_actual": "1,833K",
+      "previous_effective": "1,833K"
     },
     {
       "issue": "previous_missing_filled",
@@ -529,30 +529,6 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "CZK::CPI::m/m",
-      "cur": "CZK",
-      "event": "CPI (MoM)  (Feb)",
-      "period": "feb",
-      "date": "2026-03-04",
-      "time": "16:00",
-      "previous_raw": "",
-      "prior_actual": "0.9%",
-      "previous_effective": "0.9%"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "INR::M3 Money Supply::none",
-      "cur": "INR",
-      "event": "M3 Money Supply",
-      "period": "",
-      "date": "2026-03-04",
-      "time": "19:30",
-      "previous_raw": "",
-      "prior_actual": "12.0%",
-      "previous_effective": "12.0%"
-    },
-    {
-      "issue": "previous_missing_filled",
       "event_id": "TRY::Trade Balance::none",
       "cur": "TRY",
       "event": "Trade Balance  (Feb)",
@@ -560,20 +536,8 @@
       "date": "2026-03-04",
       "time": "15:00",
       "previous_raw": "",
-      "prior_actual": "-8.40B",
-      "previous_effective": "-8.40B"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "CZK::CPI::y/y",
-      "cur": "CZK",
-      "event": "CPI (YoY)  (Feb)",
-      "period": "feb",
-      "date": "2026-03-04",
-      "time": "16:00",
-      "previous_raw": "",
-      "prior_actual": "1.6%",
-      "previous_effective": "1.6%"
+      "prior_actual": "-8.38B",
+      "previous_effective": "-8.38B"
     },
     {
       "issue": "previous_missing_filled",
@@ -596,8 +560,80 @@
       "date": "2026-03-05",
       "time": "19:30",
       "previous_raw": "",
-      "prior_actual": "79.59B",
-      "previous_effective": "79.59B"
+      "prior_actual": "73.65B",
+      "previous_effective": "73.65B"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "CAD::GDP::m/m",
+      "cur": "CAD",
+      "event": "GDP (MoM)  (Jan)",
+      "period": "jan",
+      "date": "2026-02-27",
+      "time": "21:30",
+      "previous_raw": "",
+      "prior_actual": "0.1%",
+      "previous_effective": "0.1%"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "INR::Bank Loan Growth::none",
+      "cur": "INR",
+      "event": "Bank Loan Growth",
+      "period": "",
+      "date": "2026-03-06",
+      "time": "19:30",
+      "previous_raw": "",
+      "prior_actual": "14.6%",
+      "previous_effective": "14.6%"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "INR::Deposit Growth::none",
+      "cur": "INR",
+      "event": "Deposit Growth",
+      "period": "",
+      "date": "2026-03-06",
+      "time": "19:30",
+      "previous_raw": "",
+      "prior_actual": "12.5%",
+      "previous_effective": "12.5%"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "INR::FX Reserves, USD::none",
+      "cur": "INR",
+      "event": "FX Reserves, USD",
+      "period": "",
+      "date": "2026-03-06",
+      "time": "19:30",
+      "previous_raw": "",
+      "prior_actual": "725.73B",
+      "previous_effective": "725.73B"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "USD::4-Week Bill Auction::none",
+      "cur": "USD",
+      "event": "4-Week Bill Auction",
+      "period": "",
+      "date": "2026-03-06",
+      "time": "00:30",
+      "previous_raw": "",
+      "prior_actual": "3.625%",
+      "previous_effective": "3.625%"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "USD::8-Week Bill Auction::none",
+      "cur": "USD",
+      "event": "8-Week Bill Auction",
+      "period": "",
+      "date": "2026-03-06",
+      "time": "00:30",
+      "previous_raw": "",
+      "prior_actual": "3.630%",
+      "previous_effective": "3.630%"
     }
   ]
 }
