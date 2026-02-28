@@ -42103,20 +42103,9 @@
         "Cur.":"CAD",
         "Imp.":"Low",
         "Event":"Budget Balance  (Dec)",
-        "Actual":"",
+        "Actual":"0.20B",
         "Forecast":null,
         "Previous":"-8.02B"
-    },
-    {
-        "Date":"2026-02-28",
-        "Day":"Saturday",
-        "Time":"00:00",
-        "Cur.":"CAD",
-        "Imp.":"Low",
-        "Event":"Budget Balance (YoY)  (Dec)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"-26.39B"
     },
     {
         "Date":"2026-02-28",
@@ -42125,31 +42114,20 @@
         "Cur.":"RUB",
         "Imp.":"Low",
         "Event":"Industrial Production (YoY)  (Jan)",
-        "Actual":"",
+        "Actual":"-0.8%",
         "Forecast":null,
         "Previous":"3.7%"
     },
     {
         "Date":"2026-02-28",
         "Day":"Saturday",
-        "Time":"00:30",
+        "Time":"01:30",
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"Atlanta Fed GDPNow  (Q1)",
-        "Actual":"",
+        "Actual":"3.0%",
         "Forecast":"3.1%",
         "Previous":"3.1%"
-    },
-    {
-        "Date":"2026-02-28",
-        "Day":"Saturday",
-        "Time":"01:30",
-        "Cur.":"BRL",
-        "Imp.":"Low",
-        "Event":"CAGED Net Payroll Jobs  (Jan)",
-        "Actual":"",
-        "Forecast":"90.00K",
-        "Previous":"-618.16K"
     },
     {
         "Date":"2026-02-28",
@@ -42158,7 +42136,7 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"U.S. Baker Hughes Oil Rig Count",
-        "Actual":"",
+        "Actual":"407",
         "Forecast":null,
         "Previous":"409"
     },
@@ -42169,7 +42147,7 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"U.S. Baker Hughes Total Rig Count",
-        "Actual":"",
+        "Actual":"550",
         "Forecast":null,
         "Previous":"551"
     },
@@ -42180,7 +42158,7 @@
         "Cur.":"AUD",
         "Imp.":"Medium",
         "Event":"CFTC AUD speculative net positions",
-        "Actual":"",
+        "Actual":"52.6K",
         "Forecast":null,
         "Previous":"45.9K"
     },
@@ -42191,7 +42169,7 @@
         "Cur.":"BRL",
         "Imp.":"Medium",
         "Event":"CFTC BRL speculative net positions",
-        "Actual":"",
+        "Actual":"36.7K",
         "Forecast":null,
         "Previous":"34.7K"
     },
@@ -42202,7 +42180,7 @@
         "Cur.":"CAD",
         "Imp.":"Low",
         "Event":"CFTC CAD speculative net positions",
-        "Actual":"",
+        "Actual":"27.6K",
         "Forecast":null,
         "Previous":"25.8K"
     },
@@ -42213,7 +42191,7 @@
         "Cur.":"CHF",
         "Imp.":"Low",
         "Event":"CFTC CHF speculative net positions",
-        "Actual":"",
+        "Actual":"-41.2K",
         "Forecast":null,
         "Previous":"-40.9K"
     },
@@ -42224,7 +42202,7 @@
         "Cur.":"EUR",
         "Imp.":"Medium",
         "Event":"CFTC EUR speculative net positions",
-        "Actual":"",
+        "Actual":"156.9K",
         "Forecast":null,
         "Previous":"174.5K"
     },
@@ -42235,7 +42213,7 @@
         "Cur.":"GBP",
         "Imp.":"Medium",
         "Event":"CFTC GBP speculative net positions",
-        "Actual":"",
+        "Actual":"-57.1K",
         "Forecast":null,
         "Previous":"-42.4K"
     },
@@ -42246,7 +42224,7 @@
         "Cur.":"JPY",
         "Imp.":"Medium",
         "Event":"CFTC JPY speculative net positions",
-        "Actual":"",
+        "Actual":"11.5K",
         "Forecast":null,
         "Previous":"13.0K"
     },
@@ -42257,7 +42235,7 @@
         "Cur.":"MXN",
         "Imp.":"Low",
         "Event":"CFTC MXN speculative net positions",
-        "Actual":"",
+        "Actual":"82.9K",
         "Forecast":null,
         "Previous":"84.1K"
     },
@@ -42268,7 +42246,7 @@
         "Cur.":"NZD",
         "Imp.":"Low",
         "Event":"CFTC NZD speculative net positions",
-        "Actual":"",
+        "Actual":"-29.6K",
         "Forecast":null,
         "Previous":"-35.0K"
     },
@@ -42279,7 +42257,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"CFTC Aluminium speculative net positions",
-        "Actual":"",
+        "Actual":"-2.9K",
         "Forecast":null,
         "Previous":"-2.7K"
     },
@@ -42290,7 +42268,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"CFTC Copper speculative net positions",
-        "Actual":"",
+        "Actual":"58.4K",
         "Forecast":null,
         "Previous":"59.3K"
     },
@@ -42301,7 +42279,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"CFTC Corn speculative net positions",
-        "Actual":"",
+        "Actual":"8.8K",
         "Forecast":null,
         "Previous":"-7.8K"
     },
@@ -42312,7 +42290,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"CFTC Natural Gas speculative net positions",
-        "Actual":"",
+        "Actual":"-198.5K",
         "Forecast":null,
         "Previous":"-185.8K"
     },
@@ -42323,7 +42301,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"CFTC Silver speculative net positions",
-        "Actual":"",
+        "Actual":"22.3K",
         "Forecast":null,
         "Previous":"24.0K"
     },
@@ -42334,7 +42312,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"CFTC Soybeans speculative net positions",
-        "Actual":"",
+        "Actual":"210.3K",
         "Forecast":null,
         "Previous":"191.8K"
     },
@@ -42345,7 +42323,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"CFTC Wheat speculative net positions",
-        "Actual":"",
+        "Actual":"-16.1K",
         "Forecast":null,
         "Previous":"-55.1K"
     },
@@ -42356,7 +42334,7 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"CFTC Crude Oil speculative net positions",
-        "Actual":"",
+        "Actual":"172.7K",
         "Forecast":null,
         "Previous":"141.3K"
     },
@@ -42367,7 +42345,7 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"CFTC Gold speculative net positions",
-        "Actual":"",
+        "Actual":"159.2K",
         "Forecast":null,
         "Previous":"159.9K"
     },
@@ -42378,7 +42356,7 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"CFTC Nasdaq 100 speculative net positions",
-        "Actual":"",
+        "Actual":"10.8K",
         "Forecast":null,
         "Previous":"24.4K"
     },
@@ -42389,53 +42367,9 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"CFTC S&P 500 speculative net positions",
-        "Actual":"",
+        "Actual":"-193.5K",
         "Forecast":null,
         "Previous":"-177.8K"
-    },
-    {
-        "Date":"2026-02-28",
-        "Day":"Saturday",
-        "Time":"18:30",
-        "Cur.":"INR",
-        "Imp.":"Low",
-        "Event":"Cumulative Industrial Production  (Jan)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"3.90%"
-    },
-    {
-        "Date":"2026-02-28",
-        "Day":"Saturday",
-        "Time":"18:30",
-        "Cur.":"INR",
-        "Imp.":"Low",
-        "Event":"Federal Fiscal Deficit  (Jan)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"8,558.42B"
-    },
-    {
-        "Date":"2026-02-28",
-        "Day":"Saturday",
-        "Time":"18:30",
-        "Cur.":"INR",
-        "Imp.":"Low",
-        "Event":"Industrial Production (YoY)  (Jan)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"7.8%"
-    },
-    {
-        "Date":"2026-02-28",
-        "Day":"Saturday",
-        "Time":"18:30",
-        "Cur.":"INR",
-        "Imp.":"Low",
-        "Event":"Manufacturing Output (MoM)  (Jan)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"8.1%"
     },
     {
         "Date":"2026-03-01",
@@ -42513,6 +42447,28 @@
         "Actual":"",
         "Forecast":null,
         "Previous":""
+    },
+    {
+        "Date":"2026-03-02",
+        "Day":"Monday",
+        "Time":"00:00",
+        "Cur.":"CAD",
+        "Imp.":"Low",
+        "Event":"Budget Balance (YoY)  (Dec)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-26.39B"
+    },
+    {
+        "Date":"2026-03-02",
+        "Day":"Monday",
+        "Time":"02:30",
+        "Cur.":"BRL",
+        "Imp.":"Low",
+        "Event":"CAGED Net Payroll Jobs  (Jan)",
+        "Actual":"",
+        "Forecast":"90.00K",
+        "Previous":"-618.16K"
     },
     {
         "Date":"2026-03-02",
@@ -43202,6 +43158,28 @@
         "Time":"18:30",
         "Cur.":"INR",
         "Imp.":"Low",
+        "Event":"Cumulative Industrial Production  (Jan)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3.90%"
+    },
+    {
+        "Date":"2026-03-02",
+        "Day":"Monday",
+        "Time":"18:30",
+        "Cur.":"INR",
+        "Imp.":"Low",
+        "Event":"Federal Fiscal Deficit  (Jan)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"8,558.42B"
+    },
+    {
+        "Date":"2026-03-02",
+        "Day":"Monday",
+        "Time":"18:30",
+        "Cur.":"INR",
+        "Imp.":"Low",
         "Event":"Industrial Production (YoY)  (Jan)",
         "Actual":"",
         "Forecast":"6.5%",
@@ -43447,7 +43425,7 @@
         "Event":"S&P Global Manufacturing PMI  (Feb)",
         "Actual":"",
         "Forecast":"51.2",
-        "Previous":"52.4"
+        "Previous":"51.2"
     },
     {
         "Date":"2026-03-02",
@@ -43589,8 +43567,8 @@
         "Imp.":"Medium",
         "Event":"Atlanta Fed GDPNow  (Q1)",
         "Actual":"",
-        "Forecast":null,
-        "Previous":""
+        "Forecast":"3.0%",
+        "Previous":"3.0%"
     },
     {
         "Date":"2026-03-03",
@@ -45262,7 +45240,7 @@
         "Event":"S&P Global Services PMI  (Feb)",
         "Actual":"",
         "Forecast":"52.3",
-        "Previous":"52.7"
+        "Previous":"52.3"
     },
     {
         "Date":"2026-03-04",
@@ -45604,6 +45582,28 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"425.91B"
+    },
+    {
+        "Date":"2026-03-05",
+        "Day":"Thursday",
+        "Time":"07:50",
+        "Cur.":"JPY",
+        "Imp.":"Low",
+        "Event":"Foreign Bonds Buying",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-1,898.8B"
+    },
+    {
+        "Date":"2026-03-05",
+        "Day":"Thursday",
+        "Time":"07:50",
+        "Cur.":"JPY",
+        "Imp.":"Low",
+        "Event":"Foreign Investments in Japanese Stocks",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"402.0B"
     },
     {
         "Date":"2026-03-05",
@@ -46264,6 +46264,17 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"-1.9%"
+    },
+    {
+        "Date":"2026-03-05",
+        "Day":"Thursday",
+        "Time":"23:00",
+        "Cur.":"RUB",
+        "Imp.":"Low",
+        "Event":"Central Bank reserves (USD)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"797.2B"
     },
     {
         "Date":"2026-03-05",
@@ -47353,6 +47364,226 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"24.05B"
+    },
+    {
+        "Date":"2026-03-07",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"AUD",
+        "Imp.":"Medium",
+        "Event":"CFTC AUD speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"52.6K"
+    },
+    {
+        "Date":"2026-03-07",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"BRL",
+        "Imp.":"Medium",
+        "Event":"CFTC BRL speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"36.7K"
+    },
+    {
+        "Date":"2026-03-07",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"CAD",
+        "Imp.":"Low",
+        "Event":"CFTC CAD speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"27.6K"
+    },
+    {
+        "Date":"2026-03-07",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"CHF",
+        "Imp.":"Low",
+        "Event":"CFTC CHF speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-41.2K"
+    },
+    {
+        "Date":"2026-03-07",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"EUR",
+        "Imp.":"Medium",
+        "Event":"CFTC EUR speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"156.9K"
+    },
+    {
+        "Date":"2026-03-07",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"GBP",
+        "Imp.":"Medium",
+        "Event":"CFTC GBP speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-57.1K"
+    },
+    {
+        "Date":"2026-03-07",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"JPY",
+        "Imp.":"Medium",
+        "Event":"CFTC JPY speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"11.5K"
+    },
+    {
+        "Date":"2026-03-07",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"MXN",
+        "Imp.":"Low",
+        "Event":"CFTC MXN speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"82.9K"
+    },
+    {
+        "Date":"2026-03-07",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"NZD",
+        "Imp.":"Low",
+        "Event":"CFTC NZD speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-29.6K"
+    },
+    {
+        "Date":"2026-03-07",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"CFTC Aluminium speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-2.9K"
+    },
+    {
+        "Date":"2026-03-07",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"CFTC Copper speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"58.4K"
+    },
+    {
+        "Date":"2026-03-07",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"CFTC Corn speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"8.8K"
+    },
+    {
+        "Date":"2026-03-07",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"CFTC Natural Gas speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-198.5K"
+    },
+    {
+        "Date":"2026-03-07",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"CFTC Silver speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"22.3K"
+    },
+    {
+        "Date":"2026-03-07",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"CFTC Soybeans speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"210.3K"
+    },
+    {
+        "Date":"2026-03-07",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"CFTC Wheat speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-16.1K"
+    },
+    {
+        "Date":"2026-03-07",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"CFTC Crude Oil speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"172.7K"
+    },
+    {
+        "Date":"2026-03-07",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"CFTC Gold speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"159.2K"
+    },
+    {
+        "Date":"2026-03-07",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"CFTC Nasdaq 100 speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"10.8K"
+    },
+    {
+        "Date":"2026-03-07",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"CFTC S&P 500 speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-193.5K"
     },
     {
         "Date":"2026-03-07",
