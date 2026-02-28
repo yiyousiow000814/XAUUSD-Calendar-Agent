@@ -1,5 +1,5 @@
 {
-  "generated_at": "27-02-2026 15:48",
+  "generated_at": "28-02-2026 15:41",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -433,18 +433,6 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::Atlanta Fed GDPNow::none",
-      "cur": "USD",
-      "event": "Atlanta Fed GDPNow  (Q1)",
-      "period": "q1",
-      "date": "2026-03-03",
-      "time": "00:30",
-      "previous_raw": "",
-      "prior_actual": "3.1%",
-      "previous_effective": "3.1%"
-    },
-    {
-      "issue": "previous_missing_filled",
       "event_id": "AUD::RBA Bulletin::none",
       "cur": "AUD",
       "event": "RBA Bulletin",
@@ -548,8 +536,8 @@
       "date": "2026-03-07",
       "time": "02:00",
       "previous_raw": "",
-      "prior_actual": "409",
-      "previous_effective": "409"
+      "prior_actual": "407",
+      "previous_effective": "407"
     },
     {
       "issue": "previous_missing_filled",
@@ -560,8 +548,18 @@
       "date": "2026-03-07",
       "time": "02:00",
       "previous_raw": "",
-      "prior_actual": "551",
-      "previous_effective": "551"
+      "prior_actual": "550",
+      "previous_effective": "550"
+    },
+    {
+      "issue": "stale_missing_actual_dropped",
+      "event_id": "AUD::RBA Bulletin::none",
+      "cur": "AUD",
+      "event": "RBA Bulletin",
+      "period": "",
+      "date": "2026-02-26",
+      "time": "08:30",
+      "cutoff": "26-02-2026 15:40"
     }
   ]
 }
