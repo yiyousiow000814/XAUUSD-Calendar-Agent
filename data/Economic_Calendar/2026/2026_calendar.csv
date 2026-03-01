@@ -2052,7 +2052,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-02-01,Sunday,18:00,USD,Medium,OPEC Meeting,,,
 2026-02-02,Monday,All Day,,Holiday,Malaysia - Federal Territory Day,,,
 2026-02-02,Monday,All Day,,Holiday,Mexico - Constitution Day,,,
-2026-02-02,Monday,06:00,AUD,Low,Judo Bank Manufacturing PMI  (Jan),52.3,52.4,51.6
+2026-02-02,Monday,06:00,AUD,Low,S&P Global Manufacturing PMI  (Jan),52.3,52.4,51.6
 2026-02-02,Monday,07:30,PEN,Low,CPI (MoM)  (Jan),0.10%,,0.24%
 2026-02-02,Monday,07:50,JPY,Low,BoJ Summary of Opinions,,,
 2026-02-02,Monday,08:00,AUD,Low,MI Inflation Gauge (MoM)  (Jan),0.2%,,1.0%
@@ -2100,7 +2100,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-02-02,Monday,17:30,GBP,Medium,S&P Global Manufacturing PMI  (Jan),51.8,51.6,50.6
 2026-02-02,Monday,19:00,EUR,Low,Car Registration (YoY)  (Jan),1.10%,,-2.20%
 2026-02-02,Monday,19:00,RSD,Low,GDP (YoY)  (Q4),2.20%,,2.00%
-2026-02-02,Monday,19:00,TRY,Low,Exports  (Jan),20.30B,26.40B,22.50B
+2026-02-02,Monday,19:00,TRY,Low,Exports  (Jan),20.30B,26.40B,26.40B
 2026-02-02,Monday,19:00,TRY,Low,Trade Balance  (Jan),-8.40B,,-9.30B
 2026-02-02,Monday,19:00,TRY,Low,Trade Ministry Trade Balance  (Jan),-8.40B,,-9.40B
 2026-02-02,Monday,19:25,BRL,Low,BCB Focus Market Readout,,,
@@ -2154,6 +2154,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-02-03,Tuesday,15:45,EUR,Medium,French HICP (MoM)  (Jan),-0.3%,,0.1%
 2026-02-03,Tuesday,16:00,EUR,Medium,Spanish Unemployment Change  (Jan),30.4K,13.4K,-16.3K
 2026-02-03,Tuesday,16:20,EUR,Low,French Car Registration (YoY)  (Jan),-6.6%,,-5.8%
+2026-02-03,Tuesday,16:30,EUR,Low,Car Registration (YoY)  (Jan),-18.70%,,23.20%
 2026-02-03,Tuesday,16:30,HKD,Low,Retail Sales (YoY)  (Dec),6.6%,,6.5%
 2026-02-03,Tuesday,17:00,BRL,Medium,IPC-Fipe Inflation Index (MoM)  (Jan),0.21%,,0.32%
 2026-02-03,Tuesday,17:00,EUR,Low,ECB Bank Lending Survey,,,
@@ -2181,8 +2182,8 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-02-04,Wednesday,05:45,NZD,Low,Unemployment Rate  (Q4),5.4%,5.3%,5.3%
 2026-02-04,Wednesday,06:00,AUD,Low,AIG Construction Index  (Jan),5.2,,-16.9
 2026-02-04,Wednesday,06:00,AUD,Low,AIG Manufacturing Index  (Jan),-19.4,,-18.3
-2026-02-04,Wednesday,06:00,AUD,Low,Judo Bank Services PMI  (Jan),56.3,56.0,51.1
-2026-02-04,Wednesday,06:00,AUD,Low,Manufacturing & Services PMI  (Jan),55.70,55.50,51.00
+2026-02-04,Wednesday,06:00,AUD,Low,S&P Global Manufacturing & Services PMI  (Jan),55.70,55.50,51.00
+2026-02-04,Wednesday,06:00,AUD,Low,S&P Global Services PMI  (Jan),56.3,56.0,51.1
 2026-02-04,Wednesday,07:00,NZD,Low,GlobalDairyTrade Price Index,6.7%,,1.5%
 2026-02-04,Wednesday,07:00,USD,Low,Milk Auctions,"3,830.0",,"3,615.0"
 2026-02-04,Wednesday,08:00,NZD,Low,ANZ Commodity Price Index (MoM),2.0%,,-2.1%
@@ -2192,7 +2193,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-02-04,Wednesday,09:45,CNY,Medium,RatingDog Services PMI  (Jan),52.3,52.0,52.0
 2026-02-04,Wednesday,12:15,AED,Low,S&P Global Composite PMI  (Jan),54.9,,54.2
 2026-02-04,Wednesday,13:00,INR,Low,HSBC India Services PMI  (Jan),58.5,59.3,58.0
-2026-02-04,Wednesday,13:00,INR,Low,Manufacturing & Services PMI  (Jan),58.40,59.50,57.80
+2026-02-04,Wednesday,13:00,INR,Low,HSBC Manufacturing & Services PMI  (Jan),58.40,59.50,57.80
 2026-02-04,Wednesday,13:10,AUD,Low,RBA Assistant Governor Jones Speaks,,,
 2026-02-04,Wednesday,13:30,EUR,Low,Dutch CPI (YoY)  (Jan),2.4%,,2.8%
 2026-02-04,Wednesday,14:00,RUB,Medium,S&P Global Services PMI  (Jan),53.1,,52.3
@@ -2307,6 +2308,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-02-05,Thursday,16:30,EUR,Low,HCOB France Construction PMI (MoM)  (Jan),43.5,,43.4
 2026-02-05,Thursday,16:30,EUR,Low,HCOB Germany Construction PMI  (Jan),44.7,,50.3
 2026-02-05,Thursday,16:30,EUR,Low,HCOB Italy Construction PMI (MoM)  (Jan),47.7,,47.9
+2026-02-05,Thursday,16:30,TWD,Low,Wholesale Prices (MoM)  (Jan),-2.01%,,-2.57%
 2026-02-05,Thursday,17:00,EUR,Low,Italian Retail Sales (MoM)  (Dec),-0.8%,-0.4%,0.5%
 2026-02-05,Thursday,17:00,EUR,Low,Italian Retail Sales (YoY)  (Dec),0.9%,,1.3%
 2026-02-05,Thursday,17:00,GBP,Low,Car Registration (YoY)  (Jan),3.4%,,3.9%
@@ -3145,6 +3147,8 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-02-19,Thursday,13:30,EUR,Low,Dutch Consumer Confidence  (Feb),-24.0,,-23.0
 2026-02-19,Thursday,13:30,EUR,Low,Dutch Unemployment Rate  (Jan),4.0%,,4.0%
 2026-02-19,Thursday,14:00,EUR,Low,CPI (MoM)  (Jan),-0.20%,,0.20%
+2026-02-19,Thursday,14:00,EUR,Low,Estonian CPI (MoM)  (Jan),1.00%,,-0.60%
+2026-02-19,Thursday,14:00,EUR,Low,Estonian CPI (YoY)  (Jan),3.70%,,4.10%
 2026-02-19,Thursday,14:00,EUR,Low,Finnish CPI (YoY)  (Jan),-0.2%,,0.2%
 2026-02-19,Thursday,15:00,CHF,Low,Trade Balance  (Jan),3.818B,,0.934B
 2026-02-19,Thursday,15:00,DKK,Low,Consumer Confidence  (Feb),-13.1,,-13.4
@@ -3644,6 +3648,8 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-02-26,Thursday,21:30,USD,High,Initial Jobless Claims,212K,217K,208K
 2026-02-26,Thursday,21:30,USD,Low,Jobless Claims 4-Week Avg.,220.25K,,219.50K
 2026-02-26,Thursday,21:30,USD,Medium,Continuing Jobless Claims,"1,833K","1,860K","1,864K"
+2026-02-26,Thursday,22:30,SAR,Low,M3 Money Supply (YoY)  (Jan),8.50%,,8.40%
+2026-02-26,Thursday,22:30,SAR,Low,Private Sector Loans (YoY)  (Jan),9.60%,,10.20%
 2026-02-26,Thursday,23:00,USD,Medium,FOMC Member Bowman Speaks,,,
 2026-02-26,Thursday,23:30,USD,Low,Natural Gas Storage,-52B,-36B,-144B
 2026-02-27,Friday,All Day,,Holiday,Taiwan - Peace Memorial Day,,,
@@ -3824,7 +3830,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-02-27,Friday,22:45,USD,High,Chicago PMI  (Feb),57.7,52.0,54.0
 2026-02-27,Friday,23:00,COP,Low,Unemployment Rate  (Jan),10.9%,,8.0%
 2026-02-27,Friday,23:00,COP,Low,Urban Unemployment Rate  (Jan),10.6%,,7.8%
-2026-02-27,Friday,23:00,SAR,Low,M3 Money Supply (YoY)  (Jan),8.50%,,8.40%
 2026-02-27,Friday,23:00,USD,Medium,Construction Spending (MoM)  (Dec),0.3%,0.2%,-0.1%
 2026-02-28,Saturday,00:00,CAD,Low,Budget Balance  (Dec),0.20B,,-8.02B
 2026-02-28,Saturday,00:00,RUB,Low,Industrial Production (YoY)  (Jan),-0.8%,,3.7%

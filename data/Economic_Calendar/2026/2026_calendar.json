@@ -22588,7 +22588,7 @@
         "Time":"06:00",
         "Cur.":"AUD",
         "Imp.":"Low",
-        "Event":"Judo Bank Manufacturing PMI  (Jan)",
+        "Event":"S&P Global Manufacturing PMI  (Jan)",
         "Actual":"52.3",
         "Forecast":"52.4",
         "Previous":"51.6"
@@ -23119,7 +23119,7 @@
         "Event":"Exports  (Jan)",
         "Actual":"20.30B",
         "Forecast":"26.40B",
-        "Previous":"22.50B"
+        "Previous":"26.40B"
     },
     {
         "Date":"2026-02-02",
@@ -23708,6 +23708,17 @@
         "Date":"2026-02-03",
         "Day":"Tuesday",
         "Time":"16:30",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Car Registration (YoY)  (Jan)",
+        "Actual":"-18.70%",
+        "Forecast":null,
+        "Previous":"23.20%"
+    },
+    {
+        "Date":"2026-02-03",
+        "Day":"Tuesday",
+        "Time":"16:30",
         "Cur.":"HKD",
         "Imp.":"Low",
         "Event":"Retail Sales (YoY)  (Dec)",
@@ -24007,10 +24018,10 @@
         "Time":"06:00",
         "Cur.":"AUD",
         "Imp.":"Low",
-        "Event":"Judo Bank Services PMI  (Jan)",
-        "Actual":"56.3",
-        "Forecast":"56.0",
-        "Previous":"51.1"
+        "Event":"S&P Global Manufacturing & Services PMI  (Jan)",
+        "Actual":"55.70",
+        "Forecast":"55.50",
+        "Previous":"51.00"
     },
     {
         "Date":"2026-02-04",
@@ -24018,10 +24029,10 @@
         "Time":"06:00",
         "Cur.":"AUD",
         "Imp.":"Low",
-        "Event":"Manufacturing & Services PMI  (Jan)",
-        "Actual":"55.70",
-        "Forecast":"55.50",
-        "Previous":"51.00"
+        "Event":"S&P Global Services PMI  (Jan)",
+        "Actual":"56.3",
+        "Forecast":"56.0",
+        "Previous":"51.1"
     },
     {
         "Date":"2026-02-04",
@@ -24128,7 +24139,7 @@
         "Time":"13:00",
         "Cur.":"INR",
         "Imp.":"Low",
-        "Event":"Manufacturing & Services PMI  (Jan)",
+        "Event":"HSBC Manufacturing & Services PMI  (Jan)",
         "Actual":"58.40",
         "Forecast":"59.50",
         "Previous":"57.80"
@@ -25386,6 +25397,17 @@
         "Actual":"47.7",
         "Forecast":null,
         "Previous":"47.9"
+    },
+    {
+        "Date":"2026-02-05",
+        "Day":"Thursday",
+        "Time":"16:30",
+        "Cur.":"TWD",
+        "Imp.":"Low",
+        "Event":"Wholesale Prices (MoM)  (Jan)",
+        "Actual":"-2.01%",
+        "Forecast":null,
+        "Previous":"-2.57%"
     },
     {
         "Date":"2026-02-05",
@@ -34611,6 +34633,28 @@
         "Time":"14:00",
         "Cur.":"EUR",
         "Imp.":"Low",
+        "Event":"Estonian CPI (MoM)  (Jan)",
+        "Actual":"1.00%",
+        "Forecast":null,
+        "Previous":"-0.60%"
+    },
+    {
+        "Date":"2026-02-19",
+        "Day":"Thursday",
+        "Time":"14:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Estonian CPI (YoY)  (Jan)",
+        "Actual":"3.70%",
+        "Forecast":null,
+        "Previous":"4.10%"
+    },
+    {
+        "Date":"2026-02-19",
+        "Day":"Thursday",
+        "Time":"14:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
         "Event":"Finnish CPI (YoY)  (Jan)",
         "Actual":"-0.2%",
         "Forecast":null,
@@ -40097,6 +40141,28 @@
     {
         "Date":"2026-02-26",
         "Day":"Thursday",
+        "Time":"22:30",
+        "Cur.":"SAR",
+        "Imp.":"Low",
+        "Event":"M3 Money Supply (YoY)  (Jan)",
+        "Actual":"8.50%",
+        "Forecast":null,
+        "Previous":"8.40%"
+    },
+    {
+        "Date":"2026-02-26",
+        "Day":"Thursday",
+        "Time":"22:30",
+        "Cur.":"SAR",
+        "Imp.":"Low",
+        "Event":"Private Sector Loans (YoY)  (Jan)",
+        "Actual":"9.60%",
+        "Forecast":null,
+        "Previous":"10.20%"
+    },
+    {
+        "Date":"2026-02-26",
+        "Day":"Thursday",
         "Time":"23:00",
         "Cur.":"USD",
         "Imp.":"Medium",
@@ -42073,17 +42139,6 @@
         "Actual":"10.6%",
         "Forecast":null,
         "Previous":"7.8%"
-    },
-    {
-        "Date":"2026-02-27",
-        "Day":"Friday",
-        "Time":"23:00",
-        "Cur.":"SAR",
-        "Imp.":"Low",
-        "Event":"M3 Money Supply (YoY)  (Jan)",
-        "Actual":"8.50%",
-        "Forecast":null,
-        "Previous":"8.40%"
     },
     {
         "Date":"2026-02-27",
