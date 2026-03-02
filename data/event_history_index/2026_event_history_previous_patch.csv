@@ -11,4 +11,3 @@ previous_missing_filled,TRY::Trade Balance::none,TRY,Trade Balance  (Feb),feb,20
 previous_missing_filled,TRY::Exports::none,TRY,Exports  (Feb),feb,2026-03-04,15:00,,20.30B,20.30B
 previous_missing_filled,INR::Bank Loan Growth::none,INR,Bank Loan Growth,,2026-03-06,19:30,,13.6%,13.6%
 previous_missing_filled,INR::Deposit Growth::none,INR,Deposit Growth,,2026-03-06,19:30,,11.2%,11.2%
-previous_missing_filled,"INR::FX Reserves, USD::none",INR,"FX Reserves, USD",,2026-03-06,19:30,,723.61B,723.61B
