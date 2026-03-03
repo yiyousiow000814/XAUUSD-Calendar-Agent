@@ -1,5 +1,5 @@
 {
-  "generated_at": "02-03-2026 15:49",
+  "generated_at": "03-03-2026 15:50",
   "patches": [
     {
       "patch": "previous_missing_filled",
@@ -96,30 +96,6 @@
       "previous_raw": "",
       "prior_actual": "0.00",
       "previous_effective": "0.00"
-    },
-    {
-      "patch": "previous_missing_filled",
-      "event_id": "TRY::Trade Balance::none",
-      "cur": "TRY",
-      "event": "Trade Balance  (Feb)",
-      "period": "feb",
-      "date": "2026-03-04",
-      "time": "15:00",
-      "previous_raw": "",
-      "prior_actual": "-8.38B",
-      "previous_effective": "-8.38B"
-    },
-    {
-      "patch": "previous_missing_filled",
-      "event_id": "TRY::Exports::none",
-      "cur": "TRY",
-      "event": "Exports  (Feb)",
-      "period": "feb",
-      "date": "2026-03-04",
-      "time": "15:00",
-      "previous_raw": "",
-      "prior_actual": "20.30B",
-      "previous_effective": "20.30B"
     },
     {
       "patch": "previous_missing_filled",

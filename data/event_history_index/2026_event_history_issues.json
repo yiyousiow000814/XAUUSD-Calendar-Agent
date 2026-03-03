@@ -1,5 +1,5 @@
 {
-  "generated_at": "02-03-2026 15:49",
+  "generated_at": "03-03-2026 15:50",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -469,30 +469,6 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "TRY::Trade Balance::none",
-      "cur": "TRY",
-      "event": "Trade Balance  (Feb)",
-      "period": "feb",
-      "date": "2026-03-04",
-      "time": "15:00",
-      "previous_raw": "",
-      "prior_actual": "-8.38B",
-      "previous_effective": "-8.38B"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "TRY::Exports::none",
-      "cur": "TRY",
-      "event": "Exports  (Feb)",
-      "period": "feb",
-      "date": "2026-03-04",
-      "time": "15:00",
-      "previous_raw": "",
-      "prior_actual": "20.30B",
-      "previous_effective": "20.30B"
-    },
-    {
-      "issue": "previous_missing_filled",
       "event_id": "INR::Bank Loan Growth::none",
       "cur": "INR",
       "event": "Bank Loan Growth",
@@ -523,7 +499,7 @@
       "period": "",
       "date": "2026-02-26",
       "time": "08:30",
-      "cutoff": "28-02-2026 15:49"
+      "cutoff": "01-03-2026 15:50"
     }
   ]
 }
