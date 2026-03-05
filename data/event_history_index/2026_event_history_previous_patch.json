@@ -1,5 +1,5 @@
 {
-  "generated_at": "04-03-2026 15:49",
+  "generated_at": "05-03-2026 15:50",
   "patches": [
     {
       "patch": "previous_missing_filled",
@@ -130,8 +130,8 @@
       "date": "2026-03-12",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "212K",
-      "previous_effective": "212K"
+      "prior_actual": "213K",
+      "previous_effective": "213K"
     },
     {
       "patch": "previous_missing_filled",
@@ -142,8 +142,8 @@
       "date": "2026-03-12",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "220.25K",
-      "previous_effective": "220.25K"
+      "prior_actual": "215.75K",
+      "previous_effective": "215.75K"
     },
     {
       "patch": "previous_missing_filled",
@@ -154,8 +154,8 @@
       "date": "2026-03-12",
       "time": "22:30",
       "previous_raw": "",
-      "prior_actual": "-52B",
-      "previous_effective": "-52B"
+      "prior_actual": "-132B",
+      "previous_effective": "-132B"
     },
     {
       "patch": "previous_missing_filled",
@@ -166,8 +166,8 @@
       "date": "2026-03-12",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "1,833K",
-      "previous_effective": "1,833K"
+      "prior_actual": "1,868K",
+      "previous_effective": "1,868K"
     },
     {
       "patch": "previous_missing_filled",
@@ -195,15 +195,51 @@
     },
     {
       "patch": "previous_missing_filled",
+      "event_id": "INR::FX Reserves, USD::none",
+      "cur": "INR",
+      "event": "FX Reserves, USD",
+      "period": "",
+      "date": "2026-03-13",
+      "time": "19:30",
+      "previous_raw": "",
+      "prior_actual": "723.61B",
+      "previous_effective": "723.61B"
+    },
+    {
+      "patch": "previous_missing_filled",
       "event_id": "TRY::Gross FX Reserves::none",
       "cur": "TRY",
       "event": "Gross FX Reserves",
       "period": "",
       "date": "2026-03-12",
+      "time": "19:30",
+      "previous_raw": "",
+      "prior_actual": "73.43B",
+      "previous_effective": "73.43B"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::Atlanta Fed GDPNow::none",
+      "cur": "USD",
+      "event": "Atlanta Fed GDPNow  (Q1)",
+      "period": "q1",
+      "date": "2026-03-13",
+      "time": "01:00",
+      "previous_raw": "",
+      "prior_actual": "3.0%",
+      "previous_effective": "3.0%"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::Atlanta Fed GDPNow::none",
+      "cur": "USD",
+      "event": "Atlanta Fed GDPNow  (Q1)",
+      "period": "q1",
+      "date": "2026-03-13",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "73.65B",
-      "previous_effective": "73.65B"
+      "prior_actual": "3.0%",
+      "previous_effective": "3.0%"
     }
   ]
 }
