@@ -4227,7 +4227,6 @@ RUB::Retail Sales::y/y,2026-03-05,00:00,jan,0.7%,1.7%,3.9%
 RUB::Unemployment Rate::none,2026-03-05,00:00,jan,2.2%,2.3%,2.2%
 RUB::Business Confidence::none,2026-03-05,00:00,feb,0.4,,0.5
 EUR::Irish Exchequer Returns::none,2026-03-05,00:30,feb,-1.800B,,0.100B
-USD::Beige Book::none,2026-03-05,03:00,,,,0.00
 KRW::FX Reserves - USD::none,2026-03-05,05:00,feb,427.62B,,425.91B
 AUD::Exports::m/m,2026-03-05,08:30,jan,-0.9%,,0.9%
 AUD::Imports::m/m,2026-03-05,08:30,jan,0.8%,,-1.8%
@@ -4417,37 +4416,37 @@ USD::Challenger Job Cuts::y/y,2026-03-05,20:30,,-71.9%,,117.8%
 EUR::German Buba Balz Speaks::none,2026-03-06,00:30,,,,
 EUR::ECB President Lagarde Speaks::none,2026-03-06,01:00,,,,
 USD::Fed's Balance Sheet::none,2026-03-06,05:30,,"6,629B",,"6,614B"
-USD::U.S. Baker Hughes Oil Rig Count::none,2026-03-07,02:00,,,,407
-USD::U.S. Baker Hughes Total Rig Count::none,2026-03-07,02:00,,,,550
-ARS::Industrial Production::y/y,2026-03-07,03:00,jan,,,-3.9%
-USD::Consumer Credit::none,2026-03-07,04:00,jan,,12.40B,24.05B
-COP::CPI::m/m,2026-03-07,07:00,feb,,1.27%,1.18%
-COP::CPI::y/y,2026-03-07,07:00,feb,,5.49%,5.35%
+USD::U.S. Baker Hughes Oil Rig Count::none,2026-03-07,02:00,,411,,407
+USD::U.S. Baker Hughes Total Rig Count::none,2026-03-07,02:00,,551,,550
+ARS::Industrial Production::y/y,2026-03-07,03:00,jan,-3.2%,,-4.0%
+USD::Consumer Credit::none,2026-03-07,04:00,jan,8.05B,12.40B,25.20B
+COP::CPI::m/m,2026-03-07,07:00,feb,1.08%,1.27%,1.18%
+COP::CPI::y/y,2026-03-07,07:00,feb,5.29%,5.49%,5.35%
 CNY::FX Reserves (USD)::none,2026-03-07,16:00,feb,,,3.399T
 USD::Atlanta Fed GDPNow::none,2026-02-28,01:30,q1,3.0%,3.1%,3.1%
 INR::Cumulative Industrial Production::none,2026-03-02,18:30,jan,4.00%,,3.90%
 JPY::Foreign Bonds Buying::none,2026-03-05,07:50,,-673.1B,,"-1,900.8B"
 JPY::Foreign Investments in Japanese Stocks::none,2026-03-05,07:50,,973.9B,,399.7B
-AUD::CFTC AUD speculative net positions::none,2026-03-07,04:30,,,,52.6K
-BRL::CFTC BRL speculative net positions::none,2026-03-07,04:30,,,,36.7K
-CAD::CFTC CAD speculative net positions::none,2026-03-07,04:30,,,,27.6K
-CHF::CFTC CHF speculative net positions::none,2026-03-07,04:30,,,,-41.2K
-EUR::CFTC EUR speculative net positions::none,2026-03-07,04:30,,,,156.9K
-GBP::CFTC GBP speculative net positions::none,2026-03-07,04:30,,,,-57.1K
-JPY::CFTC JPY speculative net positions::none,2026-03-07,04:30,,,,11.5K
-MXN::CFTC MXN speculative net positions::none,2026-03-07,04:30,,,,82.9K
-NZD::CFTC NZD speculative net positions::none,2026-03-07,04:30,,,,-29.6K
-USD::CFTC Aluminium speculative net positions::none,2026-03-07,04:30,,,,-2.9K
-USD::CFTC Copper speculative net positions::none,2026-03-07,04:30,,,,58.4K
-USD::CFTC Corn speculative net positions::none,2026-03-07,04:30,,,,8.8K
-USD::CFTC Crude Oil speculative net positions::none,2026-03-07,04:30,,,,172.7K
-USD::CFTC Gold speculative net positions::none,2026-03-07,04:30,,,,159.2K
-USD::CFTC Nasdaq 100 speculative net positions::none,2026-03-07,04:30,,,,10.8K
-USD::CFTC Natural Gas speculative net positions::none,2026-03-07,04:30,,,,-198.5K
-USD::CFTC S&P 500 speculative net positions::none,2026-03-07,04:30,,,,-193.5K
-USD::CFTC Silver speculative net positions::none,2026-03-07,04:30,,,,22.3K
-USD::CFTC Soybeans speculative net positions::none,2026-03-07,04:30,,,,210.3K
-USD::CFTC Wheat speculative net positions::none,2026-03-07,04:30,,,,-16.1K
+AUD::CFTC AUD speculative net positions::none,2026-03-07,04:30,,67.8K,,52.6K
+BRL::CFTC BRL speculative net positions::none,2026-03-07,04:30,,45.0K,,36.7K
+CAD::CFTC CAD speculative net positions::none,2026-03-07,04:30,,21.1K,,27.6K
+CHF::CFTC CHF speculative net positions::none,2026-03-07,04:30,,-41.3K,,-41.2K
+EUR::CFTC EUR speculative net positions::none,2026-03-07,04:30,,136.5K,,156.9K
+GBP::CFTC GBP speculative net positions::none,2026-03-07,04:30,,-72.7K,,-57.1K
+JPY::CFTC JPY speculative net positions::none,2026-03-07,04:30,,-16.6K,,11.5K
+MXN::CFTC MXN speculative net positions::none,2026-03-07,04:30,,77.0K,,82.9K
+NZD::CFTC NZD speculative net positions::none,2026-03-07,04:30,,-34.3K,,-29.6K
+USD::CFTC Aluminium speculative net positions::none,2026-03-07,04:30,,-2.3K,,-2.9K
+USD::CFTC Copper speculative net positions::none,2026-03-07,04:30,,57.7K,,58.4K
+USD::CFTC Corn speculative net positions::none,2026-03-07,04:30,,90.1K,,8.8K
+USD::CFTC Crude Oil speculative net positions::none,2026-03-07,04:30,,172.2K,,172.7K
+USD::CFTC Gold speculative net positions::none,2026-03-07,04:30,,160.1K,,159.2K
+USD::CFTC Nasdaq 100 speculative net positions::none,2026-03-07,04:30,,2.4K,,10.8K
+USD::CFTC Natural Gas speculative net positions::none,2026-03-07,04:30,,-206.4K,,-198.5K
+USD::CFTC S&P 500 speculative net positions::none,2026-03-07,04:30,,-168.2K,,-193.5K
+USD::CFTC Silver speculative net positions::none,2026-03-07,04:30,,23.3K,,22.3K
+USD::CFTC Soybeans speculative net positions::none,2026-03-07,04:30,,221.9K,,210.3K
+USD::CFTC Wheat speculative net positions::none,2026-03-07,04:30,,-26.0K,,-16.1K
 AUD::S&P Global Manufacturing PMI::none,2026-02-02,06:00,jan,52.3,52.4,51.6
 EUR::Car Registration::y/y,2026-02-03,16:30,jan,-18.70%,,23.20%
 AUD::S&P Global Manufacturing & Services PMI::none,2026-02-04,06:00,jan,55.70,55.50,51.00
@@ -4489,7 +4488,7 @@ THB::Currency Swaps (USD)::none,2026-03-06,15:30,,22.3B,,22.3B
 THB::Foreign Reserves (USD)::none,2026-03-06,15:30,,293.9B,,291.8B
 HKD::Foreign Reserves (USD)::none,2026-03-06,16:30,feb,439.20B,,435.60B
 JPY::Overall wage income of employees::none,2026-03-09,07:30,jan,,,2.4%
-JPY::Overtime Pay::y/y,2026-03-09,07:30,jan,,,0.90%
+JPY::Overtime Pay::y/y,2026-03-09,07:30,jan,,,1.50%
 JPY::Adjusted Current Account::none,2026-03-09,07:50,jan,,,2.70T
 JPY::Current Account n.s.a.::none,2026-03-09,07:50,jan,,0.960T,0.729T
 JPY::Bank Lending::y/y,2026-03-09,07:50,feb,,,4.5%
@@ -4532,12 +4531,12 @@ JPY::Household Spending::m/m,2026-03-10,07:30,jan,,,-2.9%
 JPY::Household Spending::y/y,2026-03-10,07:30,jan,,,-2.6%
 AUD::Westpac Consumer Sentiment::none,2026-03-10,07:30,mar,,,-2.6%
 JPY::M3 Money Supply::none,2026-03-10,07:50,feb,,,"2,244.9B"
-JPY::GDP Annualized::q/q,2026-03-10,07:50,q4,,,-2.3%
+JPY::GDP Annualized::q/q,2026-03-10,07:50,q4,,,0.2%
 JPY::GDP Capital Expenditure::q/q,2026-03-10,07:50,q4,,0.2%,-0.2%
 JPY::GDP External Demand::q/q,2026-03-10,07:50,q4,,0.0%,-0.2%
 JPY::GDP Price Index::y/y,2026-03-10,07:50,q4,,3.4%,3.4%
 JPY::GDP Private Consumption::q/q,2026-03-10,07:50,q4,,0.1%,0.2%
-JPY::GDP::q/q,2026-03-10,07:50,q4,,0.1%,-0.6%
+JPY::GDP::q/q,2026-03-10,07:50,q4,,0.1%,0.1%
 GBP::BRC Retail Sales Monitor::y/y,2026-03-10,08:00,feb,,,2.3%
 AUD::NAB Business Confidence::none,2026-03-10,08:30,feb,,,3
 AUD::NAB Business Survey::none,2026-03-10,08:30,feb,,,7
@@ -4603,7 +4602,7 @@ EUR::German HICP::y/y,2026-03-11,15:00,feb,,2.0%,2.1%
 EUR::Slovak Trade Balance::none,2026-03-11,16:00,jan,,,-162.7M
 EUR::Spanish Retail Sales::y/y,2026-03-11,16:00,jan,,,2.9%
 EUR::Portuguese CPI::m/m,2026-03-11,19:00,feb,,0.1%,-0.7%
-EUR::Portuguese CPI::y/y,2026-03-11,19:00,feb,,2.1%,1.9%
+EUR::Portuguese CPI::y/y,2026-03-11,19:00,feb,,2.1%,2.1%
 BRL::Retail Sales::m/m,2026-03-11,20:00,jan,,,-0.4%
 BRL::Retail Sales::y/y,2026-03-11,20:00,jan,,,2.3%
 "USD::CPI Index, n.s.a.::none",2026-03-11,20:30,feb,,,325.25
@@ -4714,7 +4713,7 @@ EUR::Estonian Trade Balance::none,2026-03-12,14:00,jan,,,-270.0M
 EUR::Finnish Trade Balance::none,2026-03-12,15:00,jan,,,-0.21B
 RON::Trade Balance (EUR)::none,2026-03-12,15:00,jan,,,-2.687M
 TRY::Current Account (USD)::none,2026-03-12,15:00,jan,,,-7.25B
-SEK::CPI::m/m,2026-03-12,15:00,feb,,0.6%,0.1%
+SEK::CPI::m/m,2026-03-12,15:00,feb,,0.6%,0.6%
 SEK::CPI::y/y,2026-03-12,15:00,feb,,0.5%,0.5%
 SEK::CPIF (CPI at constant interest rates)::m/m,2026-03-12,15:00,feb,,0.6%,0.3%
 SEK::CPIF (CPI at constant interest rates)::y/y,2026-03-12,15:00,feb,,1.7%,2.0%
@@ -4786,10 +4785,8 @@ USD::8-Week Bill Auction::none,2026-03-12,23:30,,,,3.630%
 JPY::30-Year JGB Auction::none,2026-03-05,11:35,,3.398%,,3.615%
 GBP::Car Registration::y/y,2026-03-05,17:00,feb,7.2%,,3.4%
 GBP::5-Year Treasury Gilt Auction::none,2026-03-05,18:30,,3.810%,,4.001%
-RUB::Central Bank reserves (USD)::none,2026-03-05,21:00,,811.1B,,797.2B
 USD::Fed Goolsbee Speaks::none,2026-03-06,08:00,,,,
 USD::FOMC Member Daly Speaks::none,2026-03-06,23:15,,,,
-USD::Atlanta Fed GDPNow::none,2026-03-07,01:00,q1,,3.0%,3.0%
 USD::Fed Collins Speaks::none,2026-03-07,02:20,,,,
 GBP::BoE Hauser Speaks::none,2026-03-07,02:30,,,,
 EUR::Eurogroup Meetings::none,2026-03-09,18:00,,,,
@@ -4816,7 +4813,7 @@ JPY::Foreign Investments in Japanese Stocks::none,2026-03-12,07:50,,,,973.9B
 THB::Consumer Confidence::none,2026-03-12,11:00,feb,,,52.8
 GBP::BoE Gov Bailey Speaks::none,2026-03-12,17:30,,,,
 TRY::Gross FX Reserves::none,2026-03-12,19:30,,,,73.43B
-USD::Atlanta Fed GDPNow::none,2026-03-13,01:00,q1,,,3.0%
+USD::Atlanta Fed GDPNow::none,2026-03-13,01:00,q1,,2.1%,2.1%
 ARS::CPI::m/m,2026-03-13,03:00,feb,,,2.9%
 ARS::CPI::y/y,2026-03-13,03:00,feb,,,32.4%
 NZD::Business NZ PMI::none,2026-03-13,05:30,feb,,,55.2
@@ -4917,7 +4914,7 @@ USD::Michigan 5-Year Inflation Expectations::none,2026-03-13,22:00,mar,,,3.3%
 USD::Michigan Consumer Expectations::none,2026-03-13,22:00,mar,,,56.6
 USD::Michigan Consumer Sentiment::none,2026-03-13,22:00,mar,,,56.6
 USD::Michigan Current Conditions::none,2026-03-13,22:00,mar,,,56.6
-USD::Atlanta Fed GDPNow::none,2026-03-13,23:30,q1,,,3.0%
+USD::Atlanta Fed GDPNow::none,2026-03-13,23:30,q1,,,2.1%
 MXN::Consumer Confidence n.s.a.::none,2026-03-05,19:00,feb,44.5,,44.3
 MXN::Consumer Confidence::none,2026-03-05,20:00,feb,44.4,,44.1
 USD::Reserve Balances with Federal Reserve Banks::none,2026-03-06,05:30,,3.014T,,3.004T
@@ -4942,7 +4939,6 @@ USD::Fed Goolsbee Speaks::none,2026-03-06,22:50,,,,
 EUR::German Factory Orders::m/m,2026-03-09,15:00,jan,,-4.1%,7.8%
 AOA::CPI::m/m,2026-03-09,19:00,feb,,,0.68%
 AOA::CPI::y/y,2026-03-09,19:00,feb,,,14.56%
-USD::Wholesale Inventories::m/m,2026-03-09,19:30,jan,,,0.2%
 ILS::FX Reserve - USD::none,2026-03-09,19:30,feb,,,233.044B
 EUR::German Buba Mauderer Speaks::none,2026-03-11,20:30,,,,
 USD::FOMC Member Bowman Speaks::none,2026-03-11,20:30,,,,
@@ -4962,9 +4958,39 @@ RUB::CPI::m/m,2026-03-14,00:00,feb,,0.6%,1.6%
 RUB::CPI::y/y,2026-03-14,00:00,feb,,5.7%,6.0%
 BWP::CPI::m/m,2026-03-14,01:35,feb,,,0.6%
 BWP::CPI::y/y,2026-03-14,01:35,feb,,,4.1%
-USD::U.S. Baker Hughes Oil Rig Count::none,2026-03-14,02:00,,,,407
-USD::U.S. Baker Hughes Total Rig Count::none,2026-03-14,02:00,,,,550
+USD::U.S. Baker Hughes Oil Rig Count::none,2026-03-14,02:00,,,,411
+USD::U.S. Baker Hughes Total Rig Count::none,2026-03-14,02:00,,,,551
 CNY::Chinese Total Social Financing::none,2026-03-14,17:00,feb,,,"7,220.0B"
 CNY::M2 Money Stock::y/y,2026-03-14,17:00,feb,,,9.0%
 CNY::New Loans::none,2026-03-14,17:00,feb,,,"4,710.0B"
 CNY::Outstanding Loan Growth::y/y,2026-03-14,17:00,feb,,,6.1%
+USD::Atlanta Fed GDPNow::none,2026-03-07,00:30,q1,2.1%,3.0%,3.0%
+AOA::CPI::m/m,2026-03-07,19:00,feb,,,0.68%
+AOA::CPI::y/y,2026-03-07,19:00,feb,,,14.56%
+RUB::Central Bank reserves (USD)::none,2026-03-07,23:00,,,,797.2B
+EUR::Latvian CPI::m/m,2026-03-09,19:00,feb,,,0.00%
+AUD::CFTC AUD speculative net positions::none,2026-03-14,04:30,,,,67.8K
+BRL::CFTC BRL speculative net positions::none,2026-03-14,04:30,,,,45.0K
+CAD::CFTC CAD speculative net positions::none,2026-03-14,04:30,,,,21.1K
+CHF::CFTC CHF speculative net positions::none,2026-03-14,04:30,,,,-41.3K
+EUR::CFTC EUR speculative net positions::none,2026-03-14,04:30,,,,136.5K
+GBP::CFTC GBP speculative net positions::none,2026-03-14,04:30,,,,-72.7K
+JPY::CFTC JPY speculative net positions::none,2026-03-14,04:30,,,,-16.6K
+MXN::CFTC MXN speculative net positions::none,2026-03-14,04:30,,,,77.0K
+NZD::CFTC NZD speculative net positions::none,2026-03-14,04:30,,,,-34.3K
+USD::CFTC Aluminium speculative net positions::none,2026-03-14,04:30,,,,-2.3K
+USD::CFTC Copper speculative net positions::none,2026-03-14,04:30,,,,57.7K
+USD::CFTC Corn speculative net positions::none,2026-03-14,04:30,,,,90.1K
+USD::CFTC Crude Oil speculative net positions::none,2026-03-14,04:30,,,,172.2K
+USD::CFTC Gold speculative net positions::none,2026-03-14,04:30,,,,160.1K
+USD::CFTC Nasdaq 100 speculative net positions::none,2026-03-14,04:30,,,,2.4K
+USD::CFTC Natural Gas speculative net positions::none,2026-03-14,04:30,,,,-206.4K
+USD::CFTC S&P 500 speculative net positions::none,2026-03-14,04:30,,,,-168.2K
+USD::CFTC Silver speculative net positions::none,2026-03-14,04:30,,,,23.3K
+USD::CFTC Soybeans speculative net positions::none,2026-03-14,04:30,,,,221.9K
+USD::CFTC Wheat speculative net positions::none,2026-03-14,04:30,,,,-26.0K
+KRW::Exports::y/y,2026-03-15,08:00,feb,,29.0%,33.8%
+KRW::Imports::y/y,2026-03-15,08:00,feb,,7.5%,7.5%
+KRW::Trade Balance::none,2026-03-15,08:00,feb,,15.51B,8.72B
+SAR::CPI::m/m,2026-03-15,14:00,feb,,,0.2%
+SAR::CPI::y/y,2026-03-15,14:00,feb,,,1.8%

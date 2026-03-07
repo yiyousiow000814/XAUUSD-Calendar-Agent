@@ -1,5 +1,5 @@
 {
-  "generated_at": "06-03-2026 15:49",
+  "generated_at": "07-03-2026 15:41",
   "patches": [
     {
       "patch": "previous_missing_filled",
@@ -116,22 +116,10 @@
       "event": "Atlanta Fed GDPNow  (Q1)",
       "period": "q1",
       "date": "2026-03-13",
-      "time": "01:00",
-      "previous_raw": "",
-      "prior_actual": "3.0%",
-      "previous_effective": "3.0%"
-    },
-    {
-      "patch": "previous_missing_filled",
-      "event_id": "USD::Atlanta Fed GDPNow::none",
-      "cur": "USD",
-      "event": "Atlanta Fed GDPNow  (Q1)",
-      "period": "q1",
-      "date": "2026-03-13",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "3.0%",
-      "previous_effective": "3.0%"
+      "prior_actual": "2.1%",
+      "previous_effective": "2.1%"
     },
     {
       "patch": "previous_missing_filled",
@@ -142,8 +130,8 @@
       "date": "2026-03-14",
       "time": "02:00",
       "previous_raw": "",
-      "prior_actual": "407",
-      "previous_effective": "407"
+      "prior_actual": "411",
+      "previous_effective": "411"
     },
     {
       "patch": "previous_missing_filled",
@@ -154,8 +142,8 @@
       "date": "2026-03-14",
       "time": "02:00",
       "previous_raw": "",
-      "prior_actual": "550",
-      "previous_effective": "550"
+      "prior_actual": "551",
+      "previous_effective": "551"
     }
   ]
 }
