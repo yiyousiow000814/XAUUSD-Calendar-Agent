@@ -1,5 +1,5 @@
 {
-  "generated_at": "08-03-2026 15:41",
+  "generated_at": "09-03-2026 15:53",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -479,18 +479,6 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "INR::FX Reserves, USD::none",
-      "cur": "INR",
-      "event": "FX Reserves, USD",
-      "period": "",
-      "date": "2026-03-13",
-      "time": "19:30",
-      "previous_raw": "",
-      "prior_actual": "728.49B",
-      "previous_effective": "728.49B"
-    },
-    {
-      "issue": "previous_missing_filled",
       "event_id": "USD::Atlanta Fed GDPNow::none",
       "cur": "USD",
       "event": "Atlanta Fed GDPNow  (Q1)",
@@ -509,7 +497,7 @@
       "period": "",
       "date": "2026-03-05",
       "time": "03:00",
-      "cutoff": "06-03-2026 15:41"
+      "cutoff": "07-03-2026 15:53"
     }
   ]
 }

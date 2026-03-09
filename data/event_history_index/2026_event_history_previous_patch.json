@@ -1,5 +1,5 @@
 {
-  "generated_at": "08-03-2026 15:41",
+  "generated_at": "09-03-2026 15:53",
   "patches": [
     {
       "patch": "previous_missing_filled",
@@ -96,18 +96,6 @@
       "previous_raw": "",
       "prior_actual": "0.00",
       "previous_effective": "0.00"
-    },
-    {
-      "patch": "previous_missing_filled",
-      "event_id": "INR::FX Reserves, USD::none",
-      "cur": "INR",
-      "event": "FX Reserves, USD",
-      "period": "",
-      "date": "2026-03-13",
-      "time": "19:30",
-      "previous_raw": "",
-      "prior_actual": "728.49B",
-      "previous_effective": "728.49B"
     },
     {
       "patch": "previous_missing_filled",
