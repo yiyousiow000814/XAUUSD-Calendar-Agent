@@ -45,5 +45,4 @@ previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2026-03-05,03:00,,
 stale_missing_actual_dropped,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2026-02-26,08:30,,,,"{""cutoff"": ""01-03-2026 15:50""}"
 stale_missing_actual_dropped,USD::Beige Book::none,USD,Beige Book,,2026-03-05,03:00,,,,"{""cutoff"": ""08-03-2026 15:55""}"
 previous_missing_filled,INR::Deposit Growth::none,INR,Deposit Growth,,2026-03-20,19:30,,11.9%,11.9%,
-previous_missing_filled,"INR::FX Reserves, USD::none",INR,"FX Reserves, USD",,2026-03-20,19:30,,716.81B,716.81B,
 previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q1),q1,2026-03-24,01:00,,2.7%,2.7%,
