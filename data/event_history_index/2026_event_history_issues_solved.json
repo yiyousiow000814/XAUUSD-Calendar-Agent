@@ -1,5 +1,5 @@
 {
-  "generated_at": "17-03-2026 15:52",
+  "generated_at": "19-03-2026 15:50",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -477,18 +477,6 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::Atlanta Fed GDPNow::none",
-      "cur": "USD",
-      "event": "Atlanta Fed GDPNow  (Q1)",
-      "period": "q1",
-      "date": "2026-03-24",
-      "time": "01:00",
-      "previous_raw": "",
-      "prior_actual": "2.7%",
-      "previous_effective": "2.7%"
-    },
-    {
-      "issue": "previous_missing_filled",
       "event_id": "USD::Initial Jobless Claims::none",
       "cur": "USD",
       "event": "Initial Jobless Claims",
@@ -496,8 +484,8 @@
       "date": "2026-03-26",
       "time": "20:20",
       "previous_raw": "",
-      "prior_actual": "213K",
-      "previous_effective": "213K"
+      "prior_actual": "205K",
+      "previous_effective": "205K"
     },
     {
       "issue": "previous_missing_filled",
@@ -508,8 +496,8 @@
       "date": "2026-03-26",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "212.00K",
-      "previous_effective": "212.00K"
+      "prior_actual": "210.75K",
+      "previous_effective": "210.75K"
     },
     {
       "issue": "previous_missing_filled",
@@ -520,8 +508,8 @@
       "date": "2026-03-26",
       "time": "22:30",
       "previous_raw": "",
-      "prior_actual": "-38B",
-      "previous_effective": "-38B"
+      "prior_actual": "35B",
+      "previous_effective": "35B"
     },
     {
       "issue": "previous_missing_filled",
@@ -532,8 +520,8 @@
       "date": "2026-03-26",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "1,850K",
-      "previous_effective": "1,850K"
+      "prior_actual": "1,857K",
+      "previous_effective": "1,857K"
     },
     {
       "issue": "previous_missing_filled",
@@ -544,8 +532,8 @@
       "date": "2026-03-26",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "3.640%",
-      "previous_effective": "3.640%"
+      "prior_actual": "3.615%",
+      "previous_effective": "3.615%"
     },
     {
       "issue": "previous_missing_filled",
@@ -556,8 +544,8 @@
       "date": "2026-03-26",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "3.625%",
-      "previous_effective": "3.625%"
+      "prior_actual": "3.635%",
+      "previous_effective": "3.635%"
     },
     {
       "issue": "previous_missing_filled",
@@ -570,6 +558,18 @@
       "previous_raw": "",
       "prior_actual": "62.77B",
       "previous_effective": "62.77B"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "CAD::Retail Sales::m/m",
+      "cur": "CAD",
+      "event": "Retail Sales (MoM)  (Feb)",
+      "period": "feb",
+      "date": "2026-03-20",
+      "time": "20:30",
+      "previous_raw": "",
+      "prior_actual": "-0.4%",
+      "previous_effective": "-0.4%"
     }
   ]
 }
