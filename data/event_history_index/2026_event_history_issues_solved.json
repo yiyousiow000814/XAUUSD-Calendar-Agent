@@ -1,5 +1,5 @@
 {
-  "generated_at": "22-03-2026 15:42",
+  "generated_at": "23-03-2026 15:52",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -462,18 +462,6 @@
       "date": "2026-03-05",
       "time": "03:00",
       "cutoff": "08-03-2026 15:55"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "INR::FX Reserves, USD::none",
-      "cur": "INR",
-      "event": "FX Reserves, USD",
-      "period": "",
-      "date": "2026-03-27",
-      "time": "19:30",
-      "previous_raw": "",
-      "prior_actual": "709.76B",
-      "previous_effective": "709.76B"
     },
     {
       "issue": "previous_missing_filled",

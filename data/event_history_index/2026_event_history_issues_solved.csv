@@ -44,5 +44,4 @@ previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q
 previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2026-03-05,03:00,,0.00,0.00,
 stale_missing_actual_dropped,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2026-02-26,08:30,,,,"{""cutoff"": ""01-03-2026 15:50""}"
 stale_missing_actual_dropped,USD::Beige Book::none,USD,Beige Book,,2026-03-05,03:00,,,,"{""cutoff"": ""08-03-2026 15:55""}"
-previous_missing_filled,"INR::FX Reserves, USD::none",INR,"FX Reserves, USD",,2026-03-27,19:30,,709.76B,709.76B,
 previous_missing_filled,JPY::BoJ Monthly Report::none,JPY,BoJ Monthly Report,,2026-03-23,19:00,,0.00,0.00,
