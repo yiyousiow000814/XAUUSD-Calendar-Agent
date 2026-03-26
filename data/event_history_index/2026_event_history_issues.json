@@ -1,5 +1,5 @@
 {
-  "generated_at": "25-03-2026 15:55",
+  "generated_at": "26-03-2026 15:57",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -496,8 +496,8 @@
       "date": "2026-04-02",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "205K",
-      "previous_effective": "205K"
+      "prior_actual": "210K",
+      "previous_effective": "210K"
     },
     {
       "issue": "previous_missing_filled",
@@ -508,8 +508,8 @@
       "date": "2026-04-02",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "210.75K",
-      "previous_effective": "210.75K"
+      "prior_actual": "210.50K",
+      "previous_effective": "210.50K"
     },
     {
       "issue": "previous_missing_filled",
@@ -520,8 +520,8 @@
       "date": "2026-04-02",
       "time": "22:30",
       "previous_raw": "",
-      "prior_actual": "35B",
-      "previous_effective": "35B"
+      "prior_actual": "-54B",
+      "previous_effective": "-54B"
     },
     {
       "issue": "previous_missing_filled",
@@ -532,20 +532,8 @@
       "date": "2026-04-02",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "1,857K",
-      "previous_effective": "1,857K"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "EUR::Consumer Confidence::none",
-      "cur": "EUR",
-      "event": "Consumer Confidence  (Mar)",
-      "period": "mar",
-      "date": "2026-03-30",
-      "time": "17:00",
-      "previous_raw": "",
-      "prior_actual": "-16.3",
-      "previous_effective": "-16.3"
+      "prior_actual": "1,819K",
+      "previous_effective": "1,819K"
     },
     {
       "issue": "previous_missing_filled",
@@ -592,8 +580,8 @@
       "date": "2026-04-02",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "3.615%",
-      "previous_effective": "3.615%"
+      "prior_actual": "3.620%",
+      "previous_effective": "3.620%"
     },
     {
       "issue": "previous_missing_filled",
@@ -604,8 +592,8 @@
       "date": "2026-04-02",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "3.635%",
-      "previous_effective": "3.635%"
+      "prior_actual": "3.630%",
+      "previous_effective": "3.630%"
     },
     {
       "issue": "previous_missing_filled",
@@ -616,8 +604,30 @@
       "date": "2026-04-02",
       "time": "19:30",
       "previous_raw": "",
-      "prior_actual": "55.49B",
-      "previous_effective": "55.49B"
+      "prior_actual": "61.29B",
+      "previous_effective": "61.29B"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "USD::Atlanta Fed GDPNow::none",
+      "cur": "USD",
+      "event": "Atlanta Fed GDPNow  (Q1)",
+      "period": "q1",
+      "date": "2026-04-02",
+      "time": "23:30",
+      "previous_raw": "",
+      "prior_actual": "2.0%",
+      "previous_effective": "2.0%"
+    },
+    {
+      "issue": "stale_missing_actual_dropped",
+      "event_id": "JPY::BoJ Monthly Report::none",
+      "cur": "JPY",
+      "event": "BoJ Monthly Report",
+      "period": "",
+      "date": "2026-03-23",
+      "time": "19:00",
+      "cutoff": "24-03-2026 15:57"
     }
   ]
 }
