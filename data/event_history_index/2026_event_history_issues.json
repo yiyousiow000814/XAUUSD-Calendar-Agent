@@ -1,5 +1,5 @@
 {
-  "generated_at": "27-03-2026 15:50",
+  "generated_at": "28-03-2026 15:46",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -477,18 +477,6 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "CAD::GDP::m/m",
-      "cur": "CAD",
-      "event": "GDP (MoM)  (Feb)",
-      "period": "feb",
-      "date": "2026-03-31",
-      "time": "20:30",
-      "previous_raw": "",
-      "prior_actual": "0.0%",
-      "previous_effective": "0.0%"
-    },
-    {
-      "issue": "previous_missing_filled",
       "event_id": "INR::Bank Loan Growth::none",
       "cur": "INR",
       "event": "Bank Loan Growth",
@@ -543,31 +531,7 @@
       "period": "",
       "date": "2026-03-23",
       "time": "19:00",
-      "cutoff": "25-03-2026 15:50"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::U.S. Baker Hughes Oil Rig Count::none",
-      "cur": "USD",
-      "event": "U.S. Baker Hughes Oil Rig Count",
-      "period": "",
-      "date": "2026-04-04",
-      "time": "01:00",
-      "previous_raw": "",
-      "prior_actual": "414",
-      "previous_effective": "414"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::U.S. Baker Hughes Total Rig Count::none",
-      "cur": "USD",
-      "event": "U.S. Baker Hughes Total Rig Count",
-      "period": "",
-      "date": "2026-04-04",
-      "time": "01:00",
-      "previous_raw": "",
-      "prior_actual": "552",
-      "previous_effective": "552"
+      "cutoff": "26-03-2026 15:46"
     }
   ]
 }
