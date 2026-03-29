@@ -5611,7 +5611,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-03-28,Saturday,05:30,USD,High,U.S. President Trump Speaks,,,
 2026-03-28,Saturday,18:00,EUR,Low,ECOFIN Meetings,,,
 2026-03-29,Sunday,04:00,HUF,Low,Current Account (EUR) (QoQ)  (Q4),,,0.932B
-2026-03-29,Sunday,19:00,ILS,Low,Industrial Output (MoM)  (Jan),,,-4.3%
+2026-03-30,Monday,06:30,USD,High,U.S. President Trump Speaks,,,
 2026-03-30,Monday,07:50,JPY,Low,BoJ Summary of Opinions,,,
 2026-03-30,Monday,12:30,EUR,Low,Dutch Business Confidence  (Mar),,,-1.1
 2026-03-30,Monday,13:00,EUR,Low,Estonian Retail Sales (MoM)  (Feb),,,-13.60%
@@ -5690,6 +5690,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-03-31,Tuesday,All Day,,Holiday,Malta - Freedom Day,,,
 2026-03-31,Tuesday,All Day,,Holiday,Pakistan - Eid al-Fitr,,,
 2026-03-31,Tuesday,03:00,MXN,Low,Fiscal Balance  (Feb),,,-19.32B
+2026-03-31,Tuesday,04:00,HUF,Low,Current Account (EUR) (QoQ)  (Q4),,,0.932B
 2026-03-31,Tuesday,04:00,USD,Medium,FOMC Member Williams Speaks,,,
 2026-03-31,Tuesday,07:00,GBP,Low,BRC Shop Price Index (YoY)  (Mar),,1.3%,1.1%
 2026-03-31,Tuesday,07:00,KRW,Low,Industrial Production (MoM)  (Feb),,,-1.9%

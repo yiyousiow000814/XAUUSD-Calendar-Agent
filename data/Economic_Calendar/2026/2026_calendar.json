@@ -61732,15 +61732,15 @@
         "Previous":"0.932B"
     },
     {
-        "Date":"2026-03-29",
-        "Day":"Sunday",
-        "Time":"19:00",
-        "Cur.":"ILS",
-        "Imp.":"Low",
-        "Event":"Industrial Output (MoM)  (Jan)",
+        "Date":"2026-03-30",
+        "Day":"Monday",
+        "Time":"06:30",
+        "Cur.":"USD",
+        "Imp.":"High",
+        "Event":"U.S. President Trump Speaks",
         "Actual":"",
         "Forecast":null,
-        "Previous":"-4.3%"
+        "Previous":""
     },
     {
         "Date":"2026-03-30",
@@ -62599,6 +62599,17 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"-19.32B"
+    },
+    {
+        "Date":"2026-03-31",
+        "Day":"Tuesday",
+        "Time":"04:00",
+        "Cur.":"HUF",
+        "Imp.":"Low",
+        "Event":"Current Account (EUR) (QoQ)  (Q4)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.932B"
     },
     {
         "Date":"2026-03-31",
