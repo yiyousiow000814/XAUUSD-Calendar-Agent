@@ -3340,7 +3340,6 @@ NA::Iceland - Good Friday::none,2026-04-03,All Day,,,,
 NA::India - Good Friday::none,2026-04-03,All Day,,,,
 NA::Indonesia - Good Friday::none,2026-04-03,All Day,,,,
 NA::Ireland - Good Friday::none,2026-04-03,All Day,,,,
-NA::Israel - Passover::none,2026-04-03,All Day,,,,
 NA::Italy - Good Friday::none,2026-04-03,All Day,,,,
 NA::Jamaica - Good Friday::none,2026-04-03,All Day,,,,
 NA::Kenya - Good Friday::none,2026-04-03,All Day,,,,
@@ -3379,7 +3378,6 @@ NA::Austria - Easter::none,2026-04-06,All Day,,,,
 NA::Belgium - Easter::none,2026-04-06,All Day,,,,
 NA::Bosnia-Herzegovina - Easter::none,2026-04-06,All Day,,,,
 NA::Botswana - Easter::none,2026-04-06,All Day,,,,
-NA::Cayman Islands - Easter::none,2026-04-06,All Day,,,,
 NA::China - Ching Ming Festival::none,2026-04-06,All Day,,,,
 NA::Croatia - Easter::none,2026-04-06,All Day,,,,
 NA::Cyprus - Easter::none,2026-04-06,All Day,,,,
@@ -3393,7 +3391,6 @@ NA::Hong Kong - Ching Ming Festival::none,2026-04-06,All Day,,,,
 NA::Hungary - Easter Monday::none,2026-04-06,All Day,,,,
 NA::Iceland - Easter::none,2026-04-06,All Day,,,,
 NA::Ireland - Easter::none,2026-04-06,All Day,,,,
-NA::Israel - Passover::none,2026-04-06,All Day,,,,
 NA::Italy - Easter::none,2026-04-06,All Day,,,,
 NA::Jamaica - Easter::none,2026-04-06,All Day,,,,
 NA::Kenya - Easter::none,2026-04-06,All Day,,,,
@@ -5666,37 +5663,34 @@ USD::U.S. Baker Hughes Total Rig Count::none,2026-03-28,01:00,,543,,552
 EUR::ECOFIN Meetings::none,2026-03-28,18:00,,,,
 HUF::Current Account (EUR)::q/q,2026-03-29,04:00,q4,,,0.932B
 JPY::BoJ Summary of Opinions::none,2026-03-30,07:50,,,,
-ZAR::M3 Money Supply::y/y,2026-03-30,14:00,feb,,,7.44%
-ZAR::Private Sector Credit::none,2026-03-30,14:00,feb,,,8.83%
-EUR::Austrian PPI::m/m,2026-03-30,15:00,feb,,,0.1%
-EUR::Austrian PPI::y/y,2026-03-30,15:00,feb,,,-1.4%
-CHF::KOF Leading Indicators::none,2026-03-30,15:00,mar,,101.1,104.2
-TRY::Turkish Economic Confidence Index::none,2026-03-30,15:00,mar,,,100.70
-HUF::Trade Balance (EUR)::m/m,2026-03-30,15:30,feb,,,12.0M
-EUR::Italian PPI::m/m,2026-03-30,16:00,feb,,,1.5%
-EUR::Italian PPI::y/y,2026-03-30,16:00,feb,,,-1.6%
-EUR::Bavaria CPI::m/m,2026-03-30,16:00,mar,,,0.2%
-EUR::Bavaria CPI::y/y,2026-03-30,16:00,mar,,,1.9%
-EUR::North Rhine Westphalia CPI::y/y,2026-03-30,16:00,mar,,,1.8%
-GBP::BoE Consumer Credit::none,2026-03-30,16:30,feb,,,1.812B
-GBP::M3 Money Supply::none,2026-03-30,16:30,feb,,,"3,207.7B"
-GBP::M4 Money Supply::m/m,2026-03-30,16:30,feb,,0.1%,-0.1%
-GBP::Mortgage Approvals::none,2026-03-30,16:30,feb,,61.00K,60.00K
-GBP::Mortgage Lending::none,2026-03-30,16:30,feb,,,4.08B
-EUR::Portuguese Business Confidence::none,2026-03-30,16:30,mar,,,2.9
-EUR::Portuguese Consumer Confidence::none,2026-03-30,16:30,mar,,,-15.30
-EUR::Greek PPI::y/y,2026-03-30,17:00,feb,,,-3.7%
-EUR::Belgium CPI::m/m,2026-03-30,18:30,mar,,,0.54%
-EUR::Belgium CPI::y/y,2026-03-30,18:30,mar,,,1.45%
-BRL::IGP-M Inflation Index::m/m,2026-03-30,19:00,mar,,,-0.73%
-BRL::Bank lending::m/m,2026-03-30,19:30,feb,,,-0.2%
-CLP::Unemployment Rate::none,2026-03-30,20:00,feb,,,8.3%
-EUR::German CPI::m/m,2026-03-30,20:00,mar,,0.9%,0.2%
-EUR::German CPI::y/y,2026-03-30,20:00,mar,,,1.9%
-EUR::German HICP::m/m,2026-03-30,20:00,mar,,,0.4%
-EUR::German HICP::y/y,2026-03-30,20:00,mar,,,2.0%
-ILS::Interest Rate Decision::none,2026-03-30,21:00,mar,,4.00%,4.00%
-USD::Dallas Fed Mfg Business Index::none,2026-03-30,22:30,mar,,,0.2
+ZAR::M3 Money Supply::y/y,2026-03-30,14:00,feb,8.39%,,7.44%
+ZAR::Private Sector Credit::none,2026-03-30,14:00,feb,10.50%,,8.83%
+EUR::Austrian PPI::m/m,2026-03-30,15:00,feb,0.1%,,0.1%
+EUR::Austrian PPI::y/y,2026-03-30,15:00,feb,-1.4%,,-1.4%
+CHF::KOF Leading Indicators::none,2026-03-30,15:00,mar,96.1,101.1,103.8
+TRY::Turkish Economic Confidence Index::none,2026-03-30,15:00,mar,97.90,,100.70
+EUR::Italian PPI::m/m,2026-03-30,16:00,feb,-0.4%,,1.5%
+EUR::Italian PPI::y/y,2026-03-30,16:00,feb,-2.7%,,-1.6%
+EUR::Bavaria CPI::m/m,2026-03-30,16:00,mar,1.2%,,0.2%
+EUR::Bavaria CPI::y/y,2026-03-30,16:00,mar,2.8%,,1.9%
+EUR::North Rhine Westphalia CPI::y/y,2026-03-30,16:00,mar,2.7%,,1.8%
+GBP::BoE Consumer Credit::none,2026-03-30,16:30,feb,1.935B,1.600B,1.828B
+GBP::M3 Money Supply::none,2026-03-30,16:30,feb,"3,228.4B",,"3,210.2B"
+GBP::M4 Money Supply::m/m,2026-03-30,16:30,feb,0.6%,0.1%,-0.1%
+GBP::Mortgage Approvals::none,2026-03-30,16:30,feb,62.58K,61.00K,60.25K
+GBP::Mortgage Lending::none,2026-03-30,16:30,feb,4.84B,4.10B,4.21B
+EUR::Portuguese Business Confidence::none,2026-03-30,16:30,mar,2.6,,2.9
+EUR::Portuguese Consumer Confidence::none,2026-03-30,16:30,mar,-18.70,,-15.30
+EUR::Greek PPI::y/y,2026-03-30,17:00,feb,-1.7%,,-3.7%
+BRL::IGP-M Inflation Index::m/m,2026-03-30,19:00,mar,0.52%,,-0.73%
+BRL::Bank lending::m/m,2026-03-30,19:30,feb,0.4%,,-0.2%
+CLP::Unemployment Rate::none,2026-03-30,20:00,feb,8.3%,8.5%,8.3%
+EUR::German CPI::m/m,2026-03-30,20:00,mar,1.1%,1.1%,0.2%
+EUR::German CPI::y/y,2026-03-30,20:00,mar,2.7%,2.7%,1.9%
+EUR::German HICP::m/m,2026-03-30,20:00,mar,1.2%,1.2%,0.4%
+EUR::German HICP::y/y,2026-03-30,20:00,mar,2.8%,2.8%,2.0%
+ILS::Interest Rate Decision::none,2026-03-30,21:00,mar,4.00%,4.00%,4.00%
+USD::Dallas Fed Mfg Business Index::none,2026-03-30,22:30,mar,-0.2,,0.2
 EUR::ECB's Lane Speaks::none,2026-03-24,00:00,,,,
 EUR::ECB's Lane Speaks::none,2026-03-24,23:45,,,,
 CHF::SNB Chairman Schlegel Speaks::none,2026-03-25,01:00,,,,
@@ -5706,8 +5700,8 @@ EUR::ECB's De Guindos Speaks::none,2026-03-26,17:00,,,,
 EUR::ECB Supervisory Board Member Tuominen Speaks::none,2026-03-27,15:45,,,,
 EUR::ECB's Schnabel Speaks::none,2026-03-28,00:00,,,,
 MXN::Fiscal Balance::none,2026-03-31,03:00,feb,,,-19.32B
-KRW::Industrial Production::m/m,2026-03-31,07:00,feb,,,-1.9%
-KRW::Industrial Production::y/y,2026-03-31,07:00,feb,,,7.1%
+KRW::Industrial Production::m/m,2026-03-31,07:00,feb,,1.8%,-1.9%
+KRW::Industrial Production::y/y,2026-03-31,07:00,feb,,6.0%,7.1%
 KRW::Retail Sales::m/m,2026-03-31,07:00,feb,,,2.3%
 KRW::Service Sector Output::m/m,2026-03-31,07:00,feb,,,0.0%
 JPY::Jobs/applications ratio::none,2026-03-31,07:30,feb,,1.18,1.18
@@ -5732,19 +5726,19 @@ NZD::M3 Money Supply::none,2026-03-31,10:00,feb,,,"441,739.0B"
 DKK::Unemployment Rate::none,2026-03-31,14:00,feb,,,2.6%
 EUR::German Retail Sales::m/m,2026-03-31,14:00,feb,,0.3%,-0.9%
 EUR::German Retail Sales::y/y,2026-03-31,14:00,feb,,1.0%,1.2%
-DKK::GDP::q/q,2026-03-31,14:00,q4,,0.2%,0.2%
-DKK::GDP::y/y,2026-03-31,14:00,q4,,,3.00%
-GBP::Business Investment::q/q,2026-03-31,14:00,q4,,-2.7%,-2.7%
-GBP::Business Investment::y/y,2026-03-31,14:00,q4,,2.0%,2.0%
+DKK::GDP::q/q,2026-03-31,14:00,q4,,0.2%,2.2%
+DKK::GDP::y/y,2026-03-31,14:00,q4,,,4.00%
+GBP::Business Investment::q/q,2026-03-31,14:00,q4,,-2.7%,1.6%
+GBP::Business Investment::y/y,2026-03-31,14:00,q4,,2.0%,2.5%
 GBP::Current Account::none,2026-03-31,14:00,q4,,-23.9B,-12.1B
 GBP::GDP::q/q,2026-03-31,14:00,q4,,0.1%,0.1%
-GBP::GDP::y/y,2026-03-31,14:00,q4,,1.0%,1.0%
+GBP::GDP::y/y,2026-03-31,14:00,q4,,1.0%,1.2%
 HUF::Gross Wages::y/y,2026-03-31,14:30,jan,,,8.5%
 EUR::French Consumer Spending::m/m,2026-03-31,14:45,feb,,-0.4%,0.5%
-EUR::French PPI::m/m,2026-03-31,14:45,feb,,,0.5%
+EUR::French PPI::m/m,2026-03-31,14:45,feb,,-0.2%,0.5%
 EUR::PPI::y/y,2026-03-31,14:45,feb,,,-2.30%
 EUR::French CPI::m/m,2026-03-31,14:45,mar,,0.8%,0.6%
-EUR::French CPI::y/y,2026-03-31,14:45,mar,,,0.9%
+EUR::French CPI::y/y,2026-03-31,14:45,mar,,1.6%,0.9%
 MYR::Money Supply::y/y,2026-03-31,15:00,feb,,,3.4%
 THB::Current account::none,2026-03-31,15:00,feb,,,0.700B
 THB::Exports::y/y,2026-03-31,15:00,feb,,,23.60%
@@ -5754,14 +5748,13 @@ THB::Private Investment::m/m,2026-03-31,15:00,feb,,,2.7%
 THB::Trade account::none,2026-03-31,15:00,feb,,,-0.70B
 TRY::Trade Balance::none,2026-03-31,15:00,feb,,-9.20B,-8.38B
 TRY::Unemployment Rate::m/m,2026-03-31,15:00,feb,,,8.1%
-CZK::GDP::q/q,2026-03-31,15:00,q4,,0.6%,0.6%
-CZK::GDP::y/y,2026-03-31,15:00,q4,,2.6%,2.6%
+CZK::GDP::q/q,2026-03-31,15:00,q4,,0.6%,0.8%
+CZK::GDP::y/y,2026-03-31,15:00,q4,,2.6%,2.8%
 HUF::PPI::y/y,2026-03-31,15:30,feb,,,-2.9%
 EUR::German Unemployment Change::none,2026-03-31,15:55,mar,,2K,1K
-EUR::German Unemployment Rate::none,2026-03-31,15:55,mar,,,6.3%
+EUR::German Unemployment Rate::none,2026-03-31,15:55,mar,,6.3%,6.3%
 EUR::German Unemployment n.s.a.::none,2026-03-31,15:55,mar,,,3.070M
 EUR::German Unemployment::none,2026-03-31,15:55,mar,,,2.977M
-CHF::Official Reserves Assets::none,2026-03-31,16:00,feb,,,853.1B
 CZK::M3 Money Supply::none,2026-03-31,16:00,feb,,,5.3%
 HKD::M3 Money Supply::none,2026-03-31,16:30,feb,,,3.8%
 NOK::Central Bank Currency Purchase::none,2026-03-31,17:00,apr,,,-600.0M
@@ -5777,8 +5770,6 @@ EUR::Italian HICP::y/y,2026-03-31,17:00,mar,,,1.5%
 EUR::Italian Industrial Sales::m/m,2026-03-31,18:00,jan,,,0.50%
 EUR::Italian Industrial Sales::y/y,2026-03-31,18:00,jan,,,3.60%
 INR::Federal Fiscal Deficit::none,2026-03-31,18:00,feb,,,"9,814.07B"
-EUR::Portuguese CPI::m/m,2026-03-31,18:00,mar,,,0.1%
-EUR::Portuguese CPI::y/y,2026-03-31,18:00,mar,,,2.1%
 BRL::Budget Balance::none,2026-03-31,19:30,feb,,,40.062B
 BRL::Budget Surplus::none,2026-03-31,19:30,feb,,,103.689B
 BRL::Gross Debt-to-GDP ratio::m/m,2026-03-31,19:30,feb,,,78.7%
@@ -5801,7 +5792,7 @@ USD::S&P/CS HPI Composite - 20 n.s.a.::m/m,2026-03-31,21:00,jan,,,-0.1%
 USD::S&P/CS HPI Composite - 20 n.s.a.::y/y,2026-03-31,21:00,jan,,1.4%,1.4%
 USD::S&P/CS HPI Composite - 20 s.a.::m/m,2026-03-31,21:00,jan,,,0.5%
 NGN::Foreign Reserves (USD)::none,2026-03-31,21:00,mar,,,49.51B
-USD::Chicago PMI::none,2026-03-31,21:45,mar,,54.7,57.7
+USD::Chicago PMI::none,2026-03-31,21:45,mar,,54.5,57.7
 USD::JOLTS Job Openings::none,2026-03-31,22:00,feb,,6.900M,6.946M
 USD::CB Consumer Confidence::none,2026-03-31,22:00,mar,,88.0,91.2
 USD::Dallas Fed Services Revenues::none,2026-03-31,22:30,mar,,,4.1
@@ -5810,7 +5801,7 @@ COP::Interest Rate Decision::none,2026-04-01,02:00,mar,,11.25%,10.25%
 NZD::Building Consents::m/m,2026-04-01,05:45,feb,,,1.9%
 AUD::AIG Construction Index::none,2026-04-01,06:00,mar,,,-8.2
 AUD::AIG Manufacturing Index::none,2026-04-01,06:00,mar,,,-15.6
-AUD::S&P Global Manufacturing PMI::none,2026-04-01,06:00,mar,,50.1,50.1
+AUD::S&P Global Manufacturing PMI::none,2026-04-01,06:00,mar,,50.1,51.0
 JPY::Tankan All Big Industry CAPEX::none,2026-04-01,07:50,q1,,,12.6%
 JPY::Tankan All Small Industry CAPEX::none,2026-04-01,07:50,q1,,,0.1%
 JPY::Tankan Big Manufacturing Outlook Index::none,2026-04-01,07:50,q1,,13,15
@@ -5907,23 +5898,23 @@ GBP::BoE MPC Member Pill Speaks::none,2026-03-24,21:25,,,,
 RUB::Industrial Production::y/y,2026-03-26,00:00,feb,-0.9%,1.1%,-0.8%
 RUB::Central Bank reserves (USD)::none,2026-03-26,21:00,,776.8B,,803.2B
 THB::Industrial Production::y/y,2026-03-27,12:00,feb,-0.04%,2.30%,1.64%
-EUR::Estonian Retail Sales::m/m,2026-03-30,13:00,feb,,,-13.60%
-EUR::Estonian Retail Sales::y/y,2026-03-30,13:00,feb,,,8.20%
-EUR::Brandenburg CPI::m/m,2026-03-30,16:00,mar,,,0.4%
-EUR::Brandenburg CPI::y/y,2026-03-30,16:00,mar,,,2.0%
-EUR::Hesse CPI::m/m,2026-03-30,16:00,mar,,,0.4%
-EUR::Hesse CPI::y/y,2026-03-30,16:00,mar,,,2.2%
-EUR::North Rhine Westphalia CPI::m/m,2026-03-30,16:00,mar,,,0.2%
-EUR::Saxony CPI::m/m,2026-03-30,16:00,mar,,,0.3%
-EUR::Saxony CPI::y/y,2026-03-30,16:00,mar,,,2.3%
+EUR::Estonian Retail Sales::m/m,2026-03-30,13:00,feb,-5.80%,,-13.60%
+EUR::Estonian Retail Sales::y/y,2026-03-30,13:00,feb,4.80%,,8.20%
+EUR::Brandenburg CPI::m/m,2026-03-30,16:00,mar,1.1%,,0.4%
+EUR::Brandenburg CPI::y/y,2026-03-30,16:00,mar,2.8%,,2.0%
+EUR::Hesse CPI::m/m,2026-03-30,16:00,mar,1.1%,,0.4%
+EUR::Hesse CPI::y/y,2026-03-30,16:00,mar,2.9%,,2.2%
+EUR::North Rhine Westphalia CPI::m/m,2026-03-30,16:00,mar,1.2%,,0.2%
+EUR::Saxony CPI::m/m,2026-03-30,16:00,mar,1.1%,,0.3%
+EUR::Saxony CPI::y/y,2026-03-30,16:00,mar,2.8%,,2.3%
 BRL::BCB Focus Market Readout::none,2026-03-30,19:25,,,,
-EUR::French 12-Month BTF Auction::none,2026-03-30,21:00,,,,2.585%
-EUR::French 3-Month BTF Auction::none,2026-03-30,21:00,,,,2.226%
-EUR::French 6-Month BTF Auction::none,2026-03-30,21:00,,,,2.412%
-USD::3-Month Bill Auction::none,2026-03-30,23:30,,,,3.635%
-USD::6-Month Bill Auction::none,2026-03-30,23:30,,,,3.630%
+EUR::French 12-Month BTF Auction::none,2026-03-30,21:00,,2.660%,,2.585%
+EUR::French 3-Month BTF Auction::none,2026-03-30,21:00,,2.238%,,2.226%
+EUR::French 6-Month BTF Auction::none,2026-03-30,21:00,,2.407%,,2.412%
+USD::3-Month Bill Auction::none,2026-03-30,23:30,,3.620%,,3.635%
+USD::6-Month Bill Auction::none,2026-03-30,23:30,,3.605%,,3.630%
 EUR::French HICP::m/m,2026-03-31,14:45,mar,,,0.7%
-EUR::French HICP::y/y,2026-03-31,14:45,mar,,,1.1%
+EUR::French HICP::y/y,2026-03-31,14:45,mar,,1.9%,1.1%
 EUR::Austrian CPI::m/m,2026-03-31,15:00,mar,,,0.80%
 EUR::Austrian CPI::y/y,2026-03-31,15:00,mar,,,2.30%
 EUR::Austrian HICP::m/m,2026-03-31,15:00,mar,,,0.8%
@@ -5934,12 +5925,10 @@ JPY::Leading Index::none,2026-03-25,13:00,jan,112.1,112.4,110.4
 CHF::ZEW Expectations::none,2026-03-25,17:00,mar,-35.0,,9.8
 EUR::German 30-Year Bund Auction::none,2026-03-25,18:50,,3.420%,,3.450%
 USD::U.S. President Trump Speaks::none,2026-03-26,07:20,,,,
-JPY::Housing Starts::y/y,2026-03-30,13:00,feb,,-4.7%,-0.4%
-GBP::Net Lending to Individuals::none,2026-03-30,16:30,feb,,5.600B,5.900B
-EUR::Consumer Confidence::none,2026-03-30,17:00,mar,,-16.3,-16.3
-EUR::Irish HICP::m/m,2026-03-30,18:00,mar,,,0.8%
-EUR::Irish HICP::y/y,2026-03-30,18:00,mar,,,2.5%
-EUR::Spanish Business Confidence::none,2026-03-30,19:00,mar,,,-2.6
+GBP::Net Lending to Individuals::none,2026-03-30,16:30,feb,6.800B,5.600B,5.900B
+EUR::Consumer Confidence::none,2026-03-30,17:00,mar,-16.3,-16.3,-16.3
+EUR::Irish HICP::m/m,2026-03-30,18:00,mar,1.8%,,0.8%
+EUR::Irish HICP::y/y,2026-03-30,18:00,mar,3.6%,,2.5%
 USD::FOMC Member Williams Speaks::none,2026-03-31,04:00,,,,
 GBP::BRC Shop Price Index::y/y,2026-03-31,07:00,mar,,1.3%,1.1%
 JPY::Large Retailers' Sales::m/m,2026-03-31,07:50,feb,,,4.1%
@@ -6067,8 +6056,8 @@ HUF::Current Account (EUR)::q/q,2026-03-27,15:30,q4,0.321B,-0.400B,1.082B
 EUR::Eurogroup Meetings::none,2026-03-27,18:00,,,,
 CAD::Wholesale Sales::m/m,2026-03-27,20:30,feb,2.3%,,-1.0%
 USD::FOMC Member Barkin Speaks::none,2026-03-27,23:00,,,,
-INR::Industrial Production::y/y,2026-03-30,18:30,feb,,4.7%,4.8%
-INR::Manufacturing Output::m/m,2026-03-30,18:30,feb,,,4.8%
+INR::Industrial Production::y/y,2026-03-30,18:30,feb,5.2%,4.7%,5.1%
+INR::Manufacturing Output::m/m,2026-03-30,18:30,feb,6.0%,,5.3%
 INR::RBI Monetary and Credit Information Review::none,2026-03-31,19:30,,,,
 AUD::Commodity Prices::y/y,2026-04-01,13:30,,,,2.7%
 GBP::BoE FPC Meeting Minutes::none,2026-04-01,17:30,,,,
@@ -6094,7 +6083,6 @@ EUR::Lithuania Retail Sales::y/y,2026-03-27,14:00,feb,2.2%,,8.0%
 DKK::Unemployment Rate::none,2026-03-27,15:00,feb,2.7%,,2.6%
 EUR::Italian 10-Year BTP Auction::none,2026-03-27,18:20,,4.09%,,3.31%
 EUR::Italian 5-Year BTP Auction::none,2026-03-27,18:20,,3.48%,,2.62%
-BRL::IGP-M Inflation Index::m/m,2026-03-27,19:00,mar,,,-0.73%
 AUD::CFTC AUD speculative net positions::none,2026-03-28,03:30,,70.9K,,69.1K
 BRL::CFTC BRL speculative net positions::none,2026-03-28,03:30,,49.2K,,49.3K
 CAD::CFTC CAD speculative net positions::none,2026-03-28,03:30,,-1.6K,,0.9K
@@ -6115,18 +6103,17 @@ USD::CFTC S&P 500 speculative net positions::none,2026-03-28,03:30,,-80.9K,,-113
 USD::CFTC Silver speculative net positions::none,2026-03-28,03:30,,24.7K,,21.9K
 USD::CFTC Soybeans speculative net positions::none,2026-03-28,03:30,,215.2K,,221.1K
 USD::CFTC Wheat speculative net positions::none,2026-03-28,03:30,,-17.1K,,-25.7K
-SEK::Retail Sales::m/m,2026-03-30,14:00,feb,,,0.1%
-SEK::Retail Sales::y/y,2026-03-30,14:00,feb,,,4.1%
-EUR::Business Climate::none,2026-03-30,17:00,mar,,,-0.36
-EUR::Business and Consumer Survey::none,2026-03-30,17:00,mar,,96.5,98.3
-EUR::Consumer Inflation Expectation::none,2026-03-30,17:00,mar,,,25.8
-EUR::Industrial Sentiment::none,2026-03-30,17:00,mar,,-9.0,-7.1
-EUR::Selling Price Expectations::none,2026-03-30,17:00,mar,,,11.5
-EUR::Services Sentiment::none,2026-03-30,17:00,mar,,4.0,5.0
-INR::Cumulative Industrial Production::none,2026-03-30,18:30,feb,,,4.00%
+SEK::Retail Sales::m/m,2026-03-30,14:00,feb,-0.6%,,-0.1%
+SEK::Retail Sales::y/y,2026-03-30,14:00,feb,2.4%,,3.9%
+EUR::Business Climate::none,2026-03-30,17:00,mar,-0.27,,-0.36
+EUR::Business and Consumer Survey::none,2026-03-30,17:00,mar,96.6,96.5,98.2
+EUR::Consumer Inflation Expectation::none,2026-03-30,17:00,mar,43.4,,26.2
+EUR::Industrial Sentiment::none,2026-03-30,17:00,mar,-7.0,-9.0,-7.2
+EUR::Selling Price Expectations::none,2026-03-30,17:00,mar,19.7,,12.3
+EUR::Services Sentiment::none,2026-03-30,17:00,mar,4.9,4.0,5.0
+INR::Cumulative Industrial Production::none,2026-03-30,18:30,feb,4.10%,,4.00%
 USD::Fed Chair Powell Speaks::none,2026-03-30,22:30,,,,
 ZAR::SARB Quarterly Bulletin::none,2026-03-31,16:00,,,,
-BRL::CAGED Net Payroll Jobs::none,2026-04-01,01:30,feb,,,112.33K
 USD::Fed Vice Chair for Supervision Barr Speaks::none,2026-04-01,03:00,,,,
 USD::FOMC Member Bowman Speaks::none,2026-04-01,05:10,,,,
 USD::Fed Vice Chair for Supervision Barr Speaks::none,2026-04-01,21:10,,,,
@@ -6142,18 +6129,10 @@ MXN::Consumer Confidence::none,2026-04-04,20:00,mar,,,44.4
 SAR::Riyad Bank Composite PMI::none,2026-04-05,12:15,mar,,,56.1
 ARS::Current Account (USD)::none,2026-03-28,01:00,q4,2.294B,,-1.580B
 USD::U.S. President Trump Speaks::none,2026-03-28,05:30,,,,
-EUR::Dutch Business Confidence::none,2026-03-30,12:30,mar,,,-1.1
-EUR::Spanish Retail Sales::y/y,2026-03-30,16:00,feb,,3.8%,4.0%
-EUR::Baden Wuerttemberg CPI::m/m,2026-03-30,17:00,mar,,,0.2%
-EUR::Baden Wuerttemberg CPI::y/y,2026-03-30,17:00,mar,,,1.8%
-INR::Foreign Debt (USD)::none,2026-03-30,20:00,q4,,,746.0B
-USD::Retail Inventories Ex Auto::none,2026-03-30,21:00,feb,,,0.4%
-USD::Wholesale Inventories::m/m,2026-03-30,21:00,feb,,,0.2%
-ZAR::Budget Balance::m/m,2026-03-30,23:50,feb,,,-69.69B
+EUR::Dutch Business Confidence::none,2026-03-30,12:30,mar,-0.7,,-1.1
+INR::Foreign Debt (USD)::none,2026-03-30,20:00,q4,765.5B,,746.0B
 JPY::Construction Orders::y/y,2026-03-31,13:00,feb,,,5.7%
 JPY::Housing Starts::y/y,2026-03-31,13:00,feb,,-4.6%,-0.4%
-EUR::German Import Price Index::m/m,2026-03-31,15:00,feb,,0.2%,1.1%
-EUR::German Import Price Index::y/y,2026-03-31,15:00,feb,,,-2.3%
 PLN::CPI::m/m,2026-03-31,15:30,mar,,,0.0%
 PLN::CPI::y/y,2026-03-31,15:30,mar,,,2.4%
 RUB::GDP Monthly::y/y,2026-04-01,23:50,feb,,,-2.1%
@@ -6182,3 +6161,43 @@ USD::CFTC Soybeans speculative net positions::none,2026-04-04,03:30,,,,215.2K
 USD::CFTC Wheat speculative net positions::none,2026-04-04,03:30,,,,-17.1K
 USD::U.S. President Trump Speaks::none,2026-03-30,06:30,,,,
 HUF::Current Account (EUR)::q/q,2026-03-31,04:00,q4,,,0.932B
+HUF::Trade Balance (EUR)::m/m,2026-03-30,14:30,feb,664.6M,,292.0M
+EUR::Spanish Retail Sales::y/y,2026-03-30,15:00,feb,2.2%,3.8%,3.8%
+EUR::Baden Wuerttemberg CPI::m/m,2026-03-30,16:00,mar,0.9%,,0.2%
+EUR::Baden Wuerttemberg CPI::y/y,2026-03-30,16:00,mar,2.5%,,1.8%
+INR::Federal Fiscal Deficit::none,2026-03-30,18:00,feb,"12,526.49B",,"9,814.07B"
+EUR::Belgium CPI::m/m,2026-03-30,18:00,mar,0.12%,,0.54%
+EUR::Belgium CPI::y/y,2026-03-30,18:00,mar,1.65%,,1.45%
+ZAR::Budget Balance::m/m,2026-03-30,19:45,feb,27.28B,,-69.69B
+COP::Unemployment Rate::none,2026-03-30,23:00,feb,9.2%,,10.9%
+COP::Urban Unemployment Rate::none,2026-03-30,23:00,feb,9.2%,,10.6%
+BRL::CAGED Net Payroll Jobs::none,2026-03-31,01:30,feb,,270.00K,112.33K
+EUR::German Import Price Index::m/m,2026-03-31,14:00,feb,,0.2%,1.1%
+EUR::German Import Price Index::y/y,2026-03-31,14:00,feb,,,-2.3%
+CHF::Official Reserves Assets::none,2026-03-31,15:00,feb,,,853.1B
+EUR::Portuguese CPI::m/m,2026-03-31,16:30,mar,,,0.1%
+EUR::Portuguese CPI::y/y,2026-03-31,16:30,mar,,,2.1%
+EUR::Spanish Business Confidence::none,2026-03-31,19:30,mar,,,-2.6
+CAD::GDP::m/m,2026-03-31,20:30,feb,,,0.0%
+THB::Currency Swaps (USD)::none,2026-04-03,15:30,,,,22.1B
+THB::Foreign Reserves (USD)::none,2026-04-03,15:30,,,,280.0B
+NA::Israel - Passover - Early close at 14:30::none,2026-04-06,,,,,
+EUR::Estonian Industrial Production::m/m,2026-04-06,13:00,feb,,,-0.90%
+EUR::Estonian Industrial Production::y/y,2026-04-06,13:00,feb,,,5.90%
+SGD::Retail Sales::m/m,2026-04-06,13:00,feb,,,6.1%
+SGD::Retail Sales::y/y,2026-04-06,13:00,feb,,,-0.4%
+INR::HSBC India Services PMI::none,2026-04-06,13:00,mar,,,57.2
+INR::HSBC Manufacturing & Services PMI::none,2026-04-06,13:00,mar,,,56.50
+EUR::Sentix Investor Confidence::none,2026-04-06,16:30,apr,,,-3.1
+BRL::BCB Focus Market Readout::none,2026-04-06,19:25,,,,
+MXN::Gross Fixed Investments::m/m,2026-04-06,20:00,jan,,,0.50%
+MXN::Gross Fixed Investments::y/y,2026-04-06,20:00,jan,,,0.00%
+BRL::S&P Global Composite PMI::none,2026-04-06,21:00,mar,,,51.3
+BRL::S&P Global Services PMI::none,2026-04-06,21:00,mar,,,53.1
+RUB::Russian Forex Intervention::none,2026-04-06,22:00,mar,,,-226.8B
+USD::CB Employment Trends Index::none,2026-04-06,22:00,mar,,,105.37
+USD::ISM Non-Manufacturing Business Activity::none,2026-04-06,22:00,mar,,,59.9
+USD::ISM Non-Manufacturing Employment::none,2026-04-06,22:00,mar,,,51.8
+USD::ISM Non-Manufacturing New Orders::none,2026-04-06,22:00,mar,,,58.6
+USD::ISM Non-Manufacturing PMI::none,2026-04-06,22:00,mar,,,56.1
+USD::ISM Non-Manufacturing Prices::none,2026-04-06,22:00,mar,,,63.0
