@@ -3865,14 +3865,12 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-03-01,Sunday,23:00,EUR,Medium,German Buba President Nagel Speaks,,,
 2026-03-02,Monday,All Day,,Holiday,South Korea - Independence Movement Day Alternative Holiday,,,
 2026-03-02,Monday,All Day,,Holiday,Sri Lanka - Madin Full Moon Poya Day,,,
-2026-03-02,Monday,06:00,AUD,Low,S&P Global Manufacturing PMI  (Feb),51.0,51.5,52.3
 2026-03-02,Monday,08:00,AUD,Low,MI Inflation Gauge (MoM)  (Feb),-0.2%,,0.2%
 2026-03-02,Monday,08:30,AUD,Low,ANZ Job Advertisements (MoM)  (Feb),3.2%,,5.2%
 2026-03-02,Monday,08:30,AUD,Low,Business inventories (MoM)  (Q4),-0.1%,,-0.8%
 2026-03-02,Monday,08:30,AUD,Low,Company Profits Pre-Tax (QoQ)  (Q4),1.6%,,0.4%
 2026-03-02,Monday,08:30,AUD,Medium,Company Gross Operating Profits (QoQ)  (Q4),5.8%,1.8%,1.5%
 2026-03-02,Monday,08:30,IDR,Low,S&P Global Manufacturing PMI  (Feb),53.8,,52.6
-2026-03-02,Monday,08:30,JPY,Low,S&P Global Manufacturing PMI  (Feb),53.0,52.8,51.5
 2026-03-02,Monday,08:30,MYR,Low,Manufacturing PMI  (Feb),49.30,,50.20
 2026-03-02,Monday,08:30,PHP,Low,S&P Global Manufacturing PMI  (Feb),54.6,,52.9
 2026-03-02,Monday,08:30,THB,Low,Manufacturing PMI  (Feb),53.50,,52.70
@@ -3886,8 +3884,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-03-02,Monday,12:00,IDR,Low,Inflation (MoM)  (Feb),0.68%,,-0.15%
 2026-03-02,Monday,12:00,IDR,Low,Inflation (YoY)  (Feb),4.76%,,3.55%
 2026-03-02,Monday,12:00,IDR,Low,Trade Balance  (Jan),0.96B,2.76B,2.52B
-2026-03-02,Monday,13:00,INR,Low,HSBC India Manufacturing PMI  (Feb),56.9,57.5,55.4
-2026-03-02,Monday,13:30,AUD,Low,Commodity Prices (YoY)  (Feb),2.7%,,2.7%
+2026-03-02,Monday,13:30,AUD,Low,Commodity Prices (YoY)  (Feb),3.4%,,2.7%
 2026-03-02,Monday,13:30,EUR,Low,Dutch Retail Sales (YoY)  (Jan),2.5%,,4.3%
 2026-03-02,Monday,14:00,EUR,Low,Estonian GDP (YoY)  (Q4),0.7%,,1.1%
 2026-03-02,Monday,14:00,EUR,Low,Estonian Retail Sales (MoM)  (Jan),-13.60%,,13.20%
@@ -3913,12 +3910,9 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-03-02,Monday,16:30,CZK,Low,S&P Global Czech Republic Manufacturing PMI  (Feb),50.0,50.4,49.8
 2026-03-02,Monday,16:30,EUR,Low,Austrian Unemployment Rate  (Feb),8.3%,,8.8%
 2026-03-02,Monday,16:45,EUR,Medium,HCOB Italy Manufacturing PMI  (Feb),50.6,49.1,48.1
-2026-03-02,Monday,16:50,EUR,Medium,HCOB France Manufacturing PMI  (Feb),50.1,49.9,51.2
-2026-03-02,Monday,16:55,EUR,Medium,HCOB Germany Manufacturing PMI  (Feb),50.9,50.7,49.1
 2026-03-02,Monday,17:00,CZK,Low,M3 Money Supply  (Jan),5.3%,,4.6%
 2026-03-02,Monday,17:00,EUR,Low,Austrian Unemployment Change  (Feb),357.5K,,379.8K
 2026-03-02,Monday,17:00,EUR,Low,S&P Global Greece Manufacturing PMI  (Feb),54.4,,54.2
-2026-03-02,Monday,17:00,EUR,Medium,HCOB Eurozone Manufacturing PMI  (Feb),50.8,50.8,49.5
 2026-03-02,Monday,17:00,PLN,Medium,GDP (QoQ)  (Q4),1.0%,1.0%,0.9%
 2026-03-02,Monday,17:00,PLN,Medium,GDP (YoY)  (Q4),4.0%,4.0%,3.8%
 2026-03-02,Monday,17:00,ZAR,Low,Manufacturing PMI  (Feb),47.4,,48.7
@@ -3929,7 +3923,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-03-02,Monday,17:30,GBP,Low,Mortgage Approvals  (Jan),60.00K,62.00K,61.01K
 2026-03-02,Monday,17:30,GBP,Low,Mortgage Lending  (Jan),4.08B,,4.49B
 2026-03-02,Monday,17:30,GBP,Low,Net Lending to Individuals  (Jan),5.900B,6.200B,6.100B
-2026-03-02,Monday,17:30,GBP,Medium,S&P Global Manufacturing PMI  (Feb),51.7,52.0,52.0
 2026-03-02,Monday,18:30,INR,Low,Cumulative Industrial Production  (Jan),4.00%,,3.90%
 2026-03-02,Monday,18:30,INR,Low,Industrial Production (YoY)  (Jan),4.8%,6.5%,7.8%
 2026-03-02,Monday,18:30,INR,Low,Manufacturing Output (MoM)  (Jan),4.8%,,8.1%
@@ -3956,7 +3949,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-03-02,Monday,22:00,EUR,Medium,ECB President Lagarde Speaks,,,
 2026-03-02,Monday,22:10,EUR,Medium,German Buba President Nagel Speaks,,,
 2026-03-02,Monday,22:30,CAD,Low,S&P Global Manufacturing PMI  (Feb),51.0,,50.4
-2026-03-02,Monday,22:45,USD,High,S&P Global Manufacturing PMI  (Feb),51.6,51.2,51.2
+2026-03-02,Monday,22:45,USD,High,S&P Global Manufacturing PMI,51.6,51.2,51.2
 2026-03-02,Monday,23:00,MXN,Low,S&P Global Manufacturing PMI  (Feb),47.10,,46.30
 2026-03-02,Monday,23:00,USD,High,ISM Manufacturing PMI  (Feb),52.4,51.7,52.6
 2026-03-02,Monday,23:00,USD,High,ISM Manufacturing Prices  (Feb),70.5,60.6,59.0
@@ -4051,8 +4044,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-03-04,Wednesday,05:45,NZD,Low,Terms of Trade Index (QoQ)  (Q4),3.7%,-0.1%,-2.1%
 2026-03-04,Wednesday,06:00,AUD,Low,AIG Construction Index  (Feb),-8.2,,4.6
 2026-03-04,Wednesday,06:00,AUD,Low,AIG Manufacturing Index  (Feb),-15.6,,-19.0
-2026-03-04,Wednesday,06:00,AUD,Low,S&P Global Manufacturing & Services PMI  (Feb),52.40,52.00,55.70
-2026-03-04,Wednesday,06:00,AUD,Low,S&P Global Services PMI  (Feb),52.8,52.2,56.3
 2026-03-04,Wednesday,07:00,KRW,Low,Industrial Production (MoM)  (Jan),-1.9%,0.5%,1.5%
 2026-03-04,Wednesday,07:00,KRW,Low,Industrial Production (YoY)  (Jan),7.1%,2.2%,1.4%
 2026-03-04,Wednesday,07:00,KRW,Low,Retail Sales (MoM)  (Jan),2.3%,,0.6%
@@ -4065,8 +4056,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-03-04,Wednesday,08:30,AUD,Medium,GDP (QoQ)  (Q4),0.8%,0.7%,0.5%
 2026-03-04,Wednesday,08:30,AUD,Medium,GDP (YoY)  (Q4),2.6%,2.2%,2.1%
 2026-03-04,Wednesday,08:30,HKD,Low,S&P Global Manufacturing PMI  (Feb),53.3,,52.3
-2026-03-04,Wednesday,08:30,JPY,Low,Manufacturing & Services PMI  (Feb),53.90,53.80,53.10
-2026-03-04,Wednesday,08:30,JPY,Medium,S&P Global Services PMI  (Feb),53.8,53.8,53.7
 2026-03-04,Wednesday,09:00,EUR,Low,AIB Ireland Services PMI  (Feb),51.8,,54.5
 2026-03-04,Wednesday,09:30,CNY,High,Manufacturing PMI  (Feb),49.0,49.1,49.3
 2026-03-04,Wednesday,09:30,CNY,Medium,Chinese Composite PMI  (Feb),49.5,,49.8
@@ -4074,8 +4063,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-03-04,Wednesday,09:45,CNY,Medium,RatingDog Manufacturing PMI (MoM)  (Feb),52.1,50.1,50.3
 2026-03-04,Wednesday,09:45,CNY,Medium,RatingDog Services PMI  (Feb),56.7,52.3,52.3
 2026-03-04,Wednesday,12:15,AED,Low,S&P Global Composite PMI  (Feb),55.0,,54.9
-2026-03-04,Wednesday,13:00,INR,Low,HSBC India Services PMI  (Feb),58.1,58.4,58.5
-2026-03-04,Wednesday,13:00,INR,Low,HSBC Manufacturing & Services PMI  (Feb),58.90,59.30,58.40
 2026-03-04,Wednesday,13:00,JPY,Low,Household Confidence  (Feb),40.0,38.2,37.9
 2026-03-04,Wednesday,14:00,RUB,Medium,S&P Global Services PMI  (Feb),51.3,,53.1
 2026-03-04,Wednesday,15:00,NOK,Low,Current Account  (Q4),153.1B,,177.4B
@@ -4090,19 +4077,11 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-03-04,Wednesday,16:30,HKD,Low,Retail Sales (YoY)  (Jan),5.5%,,6.6%
 2026-03-04,Wednesday,16:45,EUR,Low,HCOB Italy Composite PMI  (Feb),52.1,,51.4
 2026-03-04,Wednesday,16:45,EUR,Medium,HCOB Italy Services PMI  (Feb),52.3,52.6,52.9
-2026-03-04,Wednesday,16:50,EUR,Low,HCOB France Composite PMI  (Feb),49.9,49.9,49.9
-2026-03-04,Wednesday,16:50,EUR,Medium,HCOB France Services PMI  (Feb),49.6,49.6,49.6
-2026-03-04,Wednesday,16:55,EUR,Low,HCOB Germany Composite PMI  (Feb),53.2,53.1,53.1
-2026-03-04,Wednesday,16:55,EUR,Medium,HCOB Germany Services PMI  (Feb),53.5,53.4,53.4
 2026-03-04,Wednesday,17:00,EUR,Low,Italian GDP (QoQ)  (Q4),0.3%,0.3%,0.2%
 2026-03-04,Wednesday,17:00,EUR,Low,Italian GDP (YoY)  (Q4),0.8%,0.8%,0.7%
 2026-03-04,Wednesday,17:00,EUR,Low,Italian Monthly Unemployment Rate  (Jan),5.1%,5.6%,5.5%
-2026-03-04,Wednesday,17:00,EUR,Medium,HCOB Eurozone Composite PMI  (Feb),51.9,51.9,51.9
-2026-03-04,Wednesday,17:00,EUR,Medium,HCOB Eurozone Services PMI  (Feb),51.9,51.8,51.8
 2026-03-04,Wednesday,17:00,GHS,Low,Whole Economy PMI (MoM)  (Feb),49.20%,,48.50%
 2026-03-04,Wednesday,17:30,CHF,Medium,SNB Press Conference,,,
-2026-03-04,Wednesday,17:30,GBP,Medium,S&P Global Composite PMI  (Feb),53.7,53.9,53.9
-2026-03-04,Wednesday,17:30,GBP,Medium,S&P Global Services PMI  (Feb),53.9,53.9,53.9
 2026-03-04,Wednesday,18:00,EUR,Low,PPI (MoM)  (Jan),0.7%,0.2%,-0.3%
 2026-03-04,Wednesday,18:00,EUR,Low,PPI (YoY)  (Jan),-2.1%,-2.7%,-2.0%
 2026-03-04,Wednesday,18:00,EUR,Medium,Unemployment Rate  (Jan),6.1%,6.2%,6.2%
@@ -4124,8 +4103,8 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-03-04,Wednesday,21:30,EUR,Medium,ECB's De Guindos Speaks,,,
 2026-03-04,Wednesday,21:55,PLN,Medium,Interest Rate Decision  (Mar),3.75%,3.75%,4.00%
 2026-03-04,Wednesday,22:30,CAD,Low,S&P Global Services PMI  (Feb),46.50,,45.80
-2026-03-04,Wednesday,22:45,USD,High,S&P Global Services PMI  (Feb),51.7,52.3,52.7
-2026-03-04,Wednesday,22:45,USD,Medium,S&P Global Composite PMI  (Feb),51.9,52.3,53.0
+2026-03-04,Wednesday,22:45,USD,High,S&P Global Services PMI,51.7,52.3,52.7
+2026-03-04,Wednesday,22:45,USD,Medium,S&P Global Composite PMI,51.9,52.3,53.0
 2026-03-04,Wednesday,23:00,USD,High,ISM Non-Manufacturing PMI  (Feb),56.1,53.5,53.8
 2026-03-04,Wednesday,23:00,USD,High,ISM Non-Manufacturing Prices  (Feb),63.0,68.3,66.6
 2026-03-04,Wednesday,23:00,USD,Low,All Car Sales  (Feb),2.68M,,2.60M
@@ -4342,6 +4321,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-03-07,Saturday,04:30,JPY,Medium,CFTC JPY speculative net positions,-16.6K,,11.5K
 2026-03-07,Saturday,04:30,MXN,Low,CFTC MXN speculative net positions,77.0K,,82.9K
 2026-03-07,Saturday,04:30,NZD,Low,CFTC NZD speculative net positions,-34.3K,,-29.6K
+2026-03-07,Saturday,04:30,RUB,Medium,CFTC RUB speculative positions,,,-29.9K
 2026-03-07,Saturday,04:30,USD,Low,CFTC Aluminium speculative net positions,-2.3K,,-2.9K
 2026-03-07,Saturday,04:30,USD,Low,CFTC Copper speculative net positions,57.7K,,58.4K
 2026-03-07,Saturday,04:30,USD,Low,CFTC Corn speculative net positions,90.1K,,8.8K
@@ -4440,7 +4420,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-03-10,Tuesday,08:30,AUD,Medium,NAB Business Confidence  (Feb),-1,,4
 2026-03-10,Tuesday,11:00,CNY,Low,Exports  (Feb),36.10M,,5.20M
 2026-03-10,Tuesday,11:00,CNY,Low,Imports  (Feb),10.90M,,4.40M
-2026-03-10,Tuesday,11:00,CNY,Low,Trade Balance  (Feb),637.55B,"1,250.00B",808.55B
+2026-03-10,Tuesday,11:00,CNY,Low,Trade Balance  (Feb),"1,503.00B","1,250.00B",808.55B
 2026-03-10,Tuesday,11:00,CNY,Medium,Exports (YoY)  (Feb),21.8%,7.1%,6.6%
 2026-03-10,Tuesday,11:00,CNY,Medium,Imports (YoY)  (Feb),19.8%,6.3%,5.7%
 2026-03-10,Tuesday,11:00,CNY,Medium,Trade Balance (USD)  (Feb),213.62B,177.40B,114.11B
@@ -4593,6 +4573,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-03-12,Thursday,15:00,SEK,Medium,CPI (MoM)  (Feb),0.6%,0.6%,0.1%
 2026-03-12,Thursday,15:00,SEK,Medium,CPI (YoY)  (Feb),0.5%,0.5%,0.5%
 2026-03-12,Thursday,15:00,TRY,Low,Current Account (USD)  (Jan),-6.81B,,-7.40B
+2026-03-12,Thursday,16:00,CZK,Low,Construction Output (YoY)  (Jan),-1.5%,,6.9%
 2026-03-12,Thursday,16:00,CZK,Low,Industrial Production (YoY)  (Jan),2.8%,4.1%,3.8%
 2026-03-12,Thursday,16:00,CZK,Low,Retail Sales (YoY)  (Jan),3.8%,,1.8%
 2026-03-12,Thursday,16:00,CZK,Low,Retailles WDA (YoY)  (Jan),5.00%,2.80%,1.80%
@@ -4605,6 +4586,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-03-12,Thursday,17:30,GBP,Medium,BoE Gov Bailey Speaks,,,
 2026-03-12,Thursday,17:30,ZAR,Low,Gold Production (YoY)  (Jan),0.7%,,2.0%
 2026-03-12,Thursday,17:30,ZAR,Low,Mining Production  (Jan),4.6%,,2.8%
+2026-03-12,Thursday,18:00,EUR,Low,Spanish Consumer Confidence  (Feb),83.9,,80.5
 2026-03-12,Thursday,18:10,EUR,Low,Italian 15-Year BTP Auction,3.85%,,4.03%
 2026-03-12,Thursday,18:10,EUR,Low,Italian 3-Year BTP Auction,2.75%,,2.36%
 2026-03-12,Thursday,18:10,EUR,Low,Italian 7-Year BTP Auction,3.34%,,3.02%
@@ -4805,6 +4787,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-03-14,Saturday,03:30,USD,Medium,CFTC Gold speculative net positions,163.1K,,160.1K
 2026-03-14,Saturday,03:30,USD,Medium,CFTC Nasdaq 100 speculative net positions,24.9K,,2.4K
 2026-03-14,Saturday,03:30,USD,Medium,CFTC S&P 500 speculative net positions,-134.5K,,-168.2K
+2026-03-14,Saturday,04:30,RUB,Medium,CFTC RUB speculative positions,,,-30.7K
 2026-03-15,Sunday,08:00,KRW,Low,Exports (YoY)  (Feb),28.7%,29.0%,33.8%
 2026-03-15,Sunday,08:00,KRW,Low,Imports (YoY)  (Feb),7.5%,7.5%,11.6%
 2026-03-15,Sunday,08:00,KRW,Low,Trade Balance  (Feb),15.38B,15.51B,8.72B
@@ -5677,6 +5660,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-03-30,Monday,21:00,EUR,Low,French 3-Month BTF Auction,2.238%,,2.226%
 2026-03-30,Monday,21:00,EUR,Low,French 6-Month BTF Auction,2.407%,,2.412%
 2026-03-30,Monday,21:00,ILS,Low,Interest Rate Decision  (Mar),4.00%,4.00%,4.00%
+2026-03-30,Monday,21:20,EUR,Low,Spanish Business Confidence  (Mar),-4.2,,-2.7
 2026-03-30,Monday,22:30,USD,High,Fed Chair Powell Speaks,,,
 2026-03-30,Monday,22:30,USD,Low,Dallas Fed Mfg Business Index  (Mar),-0.2,,0.2
 2026-03-30,Monday,23:00,COP,Low,Unemployment Rate  (Feb),9.2%,,10.9%
@@ -5687,152 +5671,155 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-03-31,Tuesday,All Day,,Holiday,India - Mahavir Jayanti,,,
 2026-03-31,Tuesday,All Day,,Holiday,Malta - Freedom Day,,,
 2026-03-31,Tuesday,All Day,,Holiday,Pakistan - Eid al-Fitr,,,
-2026-03-31,Tuesday,01:30,BRL,Low,CAGED Net Payroll Jobs  (Feb),,270.00K,112.33K
-2026-03-31,Tuesday,03:00,MXN,Low,Fiscal Balance  (Feb),,,-19.32B
-2026-03-31,Tuesday,04:00,HUF,Low,Current Account (EUR) (QoQ)  (Q4),,,0.932B
+2026-03-31,Tuesday,03:00,MXN,Low,Fiscal Balance  (Feb),-50.73B,,-19.32B
 2026-03-31,Tuesday,04:00,USD,Medium,FOMC Member Williams Speaks,,,
-2026-03-31,Tuesday,07:00,GBP,Low,BRC Shop Price Index (YoY)  (Mar),,1.3%,1.1%
-2026-03-31,Tuesday,07:00,KRW,Low,Industrial Production (MoM)  (Feb),,1.8%,-1.9%
-2026-03-31,Tuesday,07:00,KRW,Low,Industrial Production (YoY)  (Feb),,6.0%,7.1%
-2026-03-31,Tuesday,07:00,KRW,Low,Retail Sales (MoM)  (Feb),,,2.3%
-2026-03-31,Tuesday,07:00,KRW,Low,Service Sector Output (MoM)  (Feb),,,0.0%
-2026-03-31,Tuesday,07:30,JPY,Low,CPI Tokyo Ex Food & Energy (YoY)  (Mar),,,1.5%
-2026-03-31,Tuesday,07:30,JPY,Low,CPI Tokyo Ex Food and Energy (MoM)  (Mar),,,0.3%
-2026-03-31,Tuesday,07:30,JPY,Low,Jobs/applications ratio  (Feb),,1.18,1.18
-2026-03-31,Tuesday,07:30,JPY,Low,Tokyo CPI (YoY)  (Mar),,,1.6%
-2026-03-31,Tuesday,07:30,JPY,Low,Unemployment Rate  (Feb),,2.7%,2.7%
-2026-03-31,Tuesday,07:30,JPY,Medium,Tokyo Core CPI (YoY)  (Mar),,1.8%,1.8%
-2026-03-31,Tuesday,07:50,JPY,Low,Industrial Production forecast 1m ahead (MoM)  (Mar),,,-0.5%
-2026-03-31,Tuesday,07:50,JPY,Low,Industrial Production forecast 2m ahead (MoM)  (Apr),,,-2.6%
-2026-03-31,Tuesday,07:50,JPY,Low,Large Retailers' Sales (MoM)  (Feb),,,4.1%
-2026-03-31,Tuesday,07:50,JPY,Low,Large Scale Retail Sales YoY (YoY)  (Feb),,,3.0%
-2026-03-31,Tuesday,07:50,JPY,Low,Retail Sales (YoY)  (Feb),,0.9%,1.8%
-2026-03-31,Tuesday,07:50,JPY,Medium,Industrial Production (MoM)  (Feb),,-2.0%,4.3%
-2026-03-31,Tuesday,08:00,NZD,Low,ANZ Business Confidence  (Mar),,,59.2
-2026-03-31,Tuesday,08:00,NZD,Low,NBNZ Own Activity  (Mar),,,52.6%
-2026-03-31,Tuesday,08:30,AUD,Low,Housing Credit  (Feb),,,0.6%
-2026-03-31,Tuesday,08:30,AUD,Low,Private Sector Credit (MoM)  (Feb),,0.6%,0.5%
+2026-03-31,Tuesday,07:00,GBP,Low,BRC Shop Price Index (YoY)  (Mar),1.2%,1.2%,1.1%
+2026-03-31,Tuesday,07:00,KRW,Low,Industrial Production (MoM)  (Feb),5.4%,1.8%,-2.4%
+2026-03-31,Tuesday,07:00,KRW,Low,Industrial Production (YoY)  (Feb),-2.2%,6.0%,6.8%
+2026-03-31,Tuesday,07:00,KRW,Low,Retail Sales (MoM)  (Feb),0.0%,,2.9%
+2026-03-31,Tuesday,07:00,KRW,Low,Service Sector Output (MoM)  (Feb),0.5%,,-0.2%
+2026-03-31,Tuesday,07:30,JPY,Low,CPI Tokyo Ex Food & Energy (YoY)  (Mar),1.4%,,1.5%
+2026-03-31,Tuesday,07:30,JPY,Low,CPI Tokyo Ex Food and Energy (MoM)  (Mar),0.4%,,0.3%
+2026-03-31,Tuesday,07:30,JPY,Low,Jobs/applications ratio  (Feb),1.19,1.18,1.18
+2026-03-31,Tuesday,07:30,JPY,Low,Tokyo CPI (YoY)  (Mar),1.4%,,1.6%
+2026-03-31,Tuesday,07:30,JPY,Low,Unemployment Rate  (Feb),2.6%,2.7%,2.7%
+2026-03-31,Tuesday,07:30,JPY,Medium,Tokyo Core CPI (YoY)  (Mar),1.7%,1.8%,1.8%
+2026-03-31,Tuesday,07:50,JPY,Low,Industrial Production forecast 1m ahead (MoM)  (Mar),3.8%,,-0.5%
+2026-03-31,Tuesday,07:50,JPY,Low,Industrial Production forecast 2m ahead (MoM)  (Apr),3.3%,,-2.6%
+2026-03-31,Tuesday,07:50,JPY,Low,Large Retailers' Sales (MoM)  (Feb),-2.0%,,3.0%
+2026-03-31,Tuesday,07:50,JPY,Low,Large Scale Retail Sales YoY (YoY)  (Feb),3.0%,,3.0%
+2026-03-31,Tuesday,07:50,JPY,Low,Retail Sales (YoY)  (Feb),-0.2%,0.9%,1.8%
+2026-03-31,Tuesday,07:50,JPY,Medium,Industrial Production (MoM)  (Feb),-2.1%,-2.1%,4.3%
+2026-03-31,Tuesday,08:00,NZD,Low,ANZ Business Confidence  (Mar),32.5,,59.2
+2026-03-31,Tuesday,08:00,NZD,Low,NBNZ Own Activity  (Mar),39.3%,,52.6%
 2026-03-31,Tuesday,08:30,AUD,Medium,RBA Meeting Minutes,,,
-2026-03-31,Tuesday,09:30,CNY,High,Manufacturing PMI  (Mar),,50.2,49.0
-2026-03-31,Tuesday,09:30,CNY,Medium,Chinese Composite PMI  (Mar),,,49.5
-2026-03-31,Tuesday,09:30,CNY,Medium,Non-Manufacturing PMI  (Mar),,49.9,49.5
-2026-03-31,Tuesday,10:00,NZD,Low,M3 Money Supply  (Feb),,,"441,739.0B"
-2026-03-31,Tuesday,10:00,SGD,Low,Bank Lending  (Feb),,,887.5B
-2026-03-31,Tuesday,11:35,JPY,Low,2-Year JGB Auction,,,1.244%
-2026-03-31,Tuesday,12:30,EUR,Low,Dutch Business Confidence  (Mar),,,-1.1
-2026-03-31,Tuesday,12:30,EUR,Low,Dutch CPI (YoY)  (Mar),,,2.4%
-2026-03-31,Tuesday,13:00,JPY,Low,Construction Orders (YoY)  (Feb),,,5.7%
-2026-03-31,Tuesday,13:00,JPY,Low,Housing Starts (YoY)  (Feb),,-4.6%,-0.4%
-2026-03-31,Tuesday,14:00,DKK,Low,GDP (QoQ)  (Q4),,0.2%,2.2%
-2026-03-31,Tuesday,14:00,DKK,Low,GDP (YoY)  (Q4),,,4.00%
-2026-03-31,Tuesday,14:00,DKK,Low,Unemployment Rate  (Feb),,,2.6%
-2026-03-31,Tuesday,14:00,EUR,Low,German Import Price Index (MoM)  (Feb),,0.2%,1.1%
-2026-03-31,Tuesday,14:00,EUR,Low,German Import Price Index (YoY)  (Feb),,,-2.3%
-2026-03-31,Tuesday,14:00,EUR,Low,German Retail Sales (YoY)  (Feb),,1.0%,1.2%
-2026-03-31,Tuesday,14:00,EUR,Medium,German Retail Sales (MoM)  (Feb),,0.3%,-0.9%
-2026-03-31,Tuesday,14:00,GBP,High,GDP (QoQ)  (Q4),,0.1%,0.1%
-2026-03-31,Tuesday,14:00,GBP,High,GDP (YoY)  (Q4),,1.0%,1.2%
-2026-03-31,Tuesday,14:00,GBP,Low,Business Investment (YoY)  (Q4),,2.0%,2.5%
-2026-03-31,Tuesday,14:00,GBP,Medium,Business Investment (QoQ)  (Q4),,-2.7%,1.6%
-2026-03-31,Tuesday,14:00,GBP,Medium,Current Account  (Q4),,-23.9B,-12.1B
-2026-03-31,Tuesday,14:00,GBP,Medium,Nationwide HPI (MoM)  (Mar),,0.0%,0.3%
-2026-03-31,Tuesday,14:00,GBP,Medium,Nationwide HPI (YoY)  (Mar),,,1.0%
-2026-03-31,Tuesday,14:30,HUF,Low,Gross Wages (YoY)  (Jan),,,8.5%
-2026-03-31,Tuesday,14:45,EUR,Low,French CPI (YoY)  (Mar),,1.6%,0.9%
-2026-03-31,Tuesday,14:45,EUR,Low,French HICP (YoY)  (Mar),,1.9%,1.1%
-2026-03-31,Tuesday,14:45,EUR,Low,French PPI (MoM)  (Feb),,-0.2%,0.5%
-2026-03-31,Tuesday,14:45,EUR,Low,PPI (YoY)  (Feb),,,-2.30%
-2026-03-31,Tuesday,14:45,EUR,Medium,French CPI (MoM)  (Mar),,0.8%,0.6%
-2026-03-31,Tuesday,14:45,EUR,Medium,French Consumer Spending (MoM)  (Feb),,-0.4%,0.5%
-2026-03-31,Tuesday,14:45,EUR,Medium,French HICP (MoM)  (Mar),,,0.7%
-2026-03-31,Tuesday,15:00,CHF,Low,Official Reserves Assets  (Feb),,,853.1B
-2026-03-31,Tuesday,15:00,CZK,Low,GDP (QoQ)  (Q4),,0.6%,0.8%
-2026-03-31,Tuesday,15:00,CZK,Low,GDP (YoY)  (Q4),,2.6%,2.8%
-2026-03-31,Tuesday,15:00,EUR,Low,Austrian CPI (MoM)  (Mar),,,0.80%
-2026-03-31,Tuesday,15:00,EUR,Low,Austrian CPI (YoY)  (Mar),,,2.30%
-2026-03-31,Tuesday,15:00,EUR,Low,Austrian HICP (MoM)  (Mar),,,0.8%
-2026-03-31,Tuesday,15:00,EUR,Low,Austrian HICP (YoY)  (Mar),,,2.3%
-2026-03-31,Tuesday,15:00,MYR,Low,Money Supply (YoY)  (Feb),,,3.4%
-2026-03-31,Tuesday,15:00,THB,Low,Current account  (Feb),,,0.700B
-2026-03-31,Tuesday,15:00,THB,Low,Exports (YoY)  (Feb),,,23.60%
-2026-03-31,Tuesday,15:00,THB,Low,Imports (YoY)  (Feb),,,30.10%
-2026-03-31,Tuesday,15:00,THB,Low,Private Consumption (MoM)  (Feb),,,1.0%
-2026-03-31,Tuesday,15:00,THB,Low,Private Investment (MoM)  (Feb),,,2.7%
-2026-03-31,Tuesday,15:00,THB,Low,Trade account  (Feb),,,-0.70B
-2026-03-31,Tuesday,15:00,TRY,Low,Exports  (Feb),,21.10B,20.30B
-2026-03-31,Tuesday,15:00,TRY,Low,Trade Balance  (Feb),,-9.20B,-8.38B
-2026-03-31,Tuesday,15:00,TRY,Low,Unemployment Rate (MoM)  (Feb),,,8.1%
-2026-03-31,Tuesday,15:30,HUF,Low,PPI (YoY)  (Feb),,,-2.9%
-2026-03-31,Tuesday,15:30,PLN,Low,CPI (MoM)  (Mar),,,0.0%
-2026-03-31,Tuesday,15:30,PLN,Low,CPI (YoY)  (Mar),,,2.4%
-2026-03-31,Tuesday,15:55,EUR,Low,German Unemployment  (Mar),,,2.977M
-2026-03-31,Tuesday,15:55,EUR,Low,German Unemployment n.s.a.  (Mar),,,3.070M
-2026-03-31,Tuesday,15:55,EUR,Medium,German Unemployment Change  (Mar),,2K,1K
-2026-03-31,Tuesday,15:55,EUR,Medium,German Unemployment Rate  (Mar),,6.3%,6.3%
-2026-03-31,Tuesday,16:00,CZK,Low,M3 Money Supply  (Feb),,,5.3%
-2026-03-31,Tuesday,16:00,KES,Low,CPI (YoY)  (Mar),,,4.30%
-2026-03-31,Tuesday,16:00,KES,Low,GDP (QoQ)  (Q4),,,4.90%
+2026-03-31,Tuesday,09:30,AUD,Low,Housing Credit  (Mar),0.6%,,0.6%
+2026-03-31,Tuesday,09:30,AUD,Low,Private Sector Credit (MoM)  (Mar),0.6%,0.6%,0.5%
+2026-03-31,Tuesday,09:30,CNY,High,Manufacturing PMI  (Mar),50.4,50.1,49.0
+2026-03-31,Tuesday,09:30,CNY,Medium,Chinese Composite PMI  (Mar),50.5,,49.5
+2026-03-31,Tuesday,09:30,CNY,Medium,Non-Manufacturing PMI  (Mar),50.1,49.9,49.5
+2026-03-31,Tuesday,10:00,NZD,Low,M3 Money Supply  (Feb),445.9B,,441.7B
+2026-03-31,Tuesday,10:00,SGD,Low,Bank Lending  (Feb),893.6B,,887.5B
+2026-03-31,Tuesday,11:35,JPY,Low,2-Year JGB Auction,1.370%,,1.244%
+2026-03-31,Tuesday,12:30,EUR,Low,Dutch CPI (YoY)  (Mar),2.7%,,2.4%
+2026-03-31,Tuesday,13:00,JPY,Low,Construction Orders (YoY)  (Feb),42.7%,,5.7%
+2026-03-31,Tuesday,13:00,JPY,Low,Housing Starts (YoY)  (Feb),-4.9%,-4.5%,-0.4%
+2026-03-31,Tuesday,14:00,DKK,Low,GDP (QoQ)  (Q4),0.2%,0.2%,2.2%
+2026-03-31,Tuesday,14:00,DKK,Low,GDP (YoY)  (Q4),3.10%,,4.00%
+2026-03-31,Tuesday,14:00,EUR,Low,German Import Price Index (MoM)  (Feb),0.3%,0.7%,1.1%
+2026-03-31,Tuesday,14:00,EUR,Low,German Import Price Index (YoY)  (Feb),-2.3%,,-2.3%
+2026-03-31,Tuesday,14:00,EUR,Low,German Retail Sales (YoY)  (Feb),0.7%,1.0%,0.9%
+2026-03-31,Tuesday,14:00,EUR,Medium,German Retail Sales (MoM)  (Feb),-0.6%,0.3%,-1.1%
+2026-03-31,Tuesday,14:00,GBP,High,GDP (QoQ)  (Q4),0.1%,0.1%,0.1%
+2026-03-31,Tuesday,14:00,GBP,High,GDP (YoY)  (Q4),1.0%,1.0%,1.2%
+2026-03-31,Tuesday,14:00,GBP,Low,Business Investment (YoY)  (Q4),2.0%,2.0%,3.5%
+2026-03-31,Tuesday,14:00,GBP,Medium,Business Investment (QoQ)  (Q4),-2.5%,-2.7%,1.1%
+2026-03-31,Tuesday,14:00,GBP,Medium,Current Account  (Q4),-18.4B,-24.0B,-10.7B
+2026-03-31,Tuesday,14:00,GBP,Medium,Nationwide HPI (MoM)  (Mar),0.9%,0.0%,0.3%
+2026-03-31,Tuesday,14:00,GBP,Medium,Nationwide HPI (YoY)  (Mar),2.2%,,1.0%
+2026-03-31,Tuesday,14:30,HUF,Low,Gross Wages (YoY)  (Jan),26.3%,,8.5%
+2026-03-31,Tuesday,14:30,HUF,Low,PPI (YoY)  (Feb),-3.3%,,-2.9%
+2026-03-31,Tuesday,14:45,EUR,Low,French CPI (YoY)  (Mar),1.7%,1.6%,0.9%
+2026-03-31,Tuesday,14:45,EUR,Low,French HICP (YoY)  (Mar),1.9%,1.9%,1.1%
+2026-03-31,Tuesday,14:45,EUR,Low,French PPI (MoM)  (Feb),-0.2%,-0.2%,0.5%
+2026-03-31,Tuesday,14:45,EUR,Low,PPI (YoY)  (Feb),-2.40%,,-2.30%
+2026-03-31,Tuesday,14:45,EUR,Medium,French CPI (MoM)  (Mar),0.9%,0.9%,0.6%
+2026-03-31,Tuesday,14:45,EUR,Medium,French Consumer Spending (MoM)  (Feb),-1.4%,-0.3%,0.4%
+2026-03-31,Tuesday,14:45,EUR,Medium,French HICP (MoM)  (Mar),1.1%,,0.7%
+2026-03-31,Tuesday,15:00,BWP,Low,GDP (YoY)  (Q4),-5.40%,,8.20%
+2026-03-31,Tuesday,15:00,BWP,Low,GDP Quarterly  (Q4),-11.40%,,10.90%
+2026-03-31,Tuesday,15:00,CHF,Low,Official Reserves Assets  (Feb),856.0B,,853.1B
+2026-03-31,Tuesday,15:00,CZK,Low,GDP (QoQ)  (Q4),0.7%,0.6%,0.8%
+2026-03-31,Tuesday,15:00,CZK,Low,GDP (YoY)  (Q4),2.7%,2.6%,2.8%
+2026-03-31,Tuesday,15:00,EUR,Low,Austrian CPI (MoM)  (Mar),1.10%,,0.80%
+2026-03-31,Tuesday,15:00,EUR,Low,Austrian CPI (YoY)  (Mar),3.10%,,2.30%
+2026-03-31,Tuesday,15:00,EUR,Low,Austrian HICP (MoM)  (Mar),1.1%,,0.8%
+2026-03-31,Tuesday,15:00,EUR,Low,Austrian HICP (YoY)  (Mar),3.1%,,2.3%
+2026-03-31,Tuesday,15:00,INR,Low,Balance of Payments (USD)  (Q4),-24.400B,,-24.400B
+2026-03-31,Tuesday,15:00,INR,Low,Current Account % of GDP (QoQ)  (Q4),-1.30%,,-1.30%
+2026-03-31,Tuesday,15:00,INR,Low,Current Account (USD)  (Q4),-13.20B,,-13.20B
+2026-03-31,Tuesday,15:00,INR,Low,Trade Balance (USD)  (Q3),-87.400B,,-93.600B
+2026-03-31,Tuesday,15:00,MYR,Low,Money Supply (YoY)  (Feb),4.3%,,3.4%
+2026-03-31,Tuesday,15:00,THB,Low,Current account  (Feb),2.100B,,0.700B
+2026-03-31,Tuesday,15:00,THB,Low,Exports (YoY)  (Feb),10.60%,,23.60%
+2026-03-31,Tuesday,15:00,THB,Low,Imports (YoY)  (Feb),31.70%,,30.10%
+2026-03-31,Tuesday,15:00,THB,Low,Private Consumption (MoM)  (Feb),-1.8%,,1.0%
+2026-03-31,Tuesday,15:00,THB,Low,Private Investment (MoM)  (Feb),1.9%,,2.7%
+2026-03-31,Tuesday,15:00,THB,Low,Trade account  (Feb),0.60B,,-0.70B
+2026-03-31,Tuesday,15:00,TRY,Low,Trade Balance  (Feb),-9.03B,-9.20B,-8.38B
+2026-03-31,Tuesday,15:00,TRY,Low,Unemployment Rate (MoM)  (Feb),8.5%,,8.2%
+2026-03-31,Tuesday,15:30,PLN,Low,CPI (MoM)  (Mar),1.0%,,0.0%
+2026-03-31,Tuesday,15:30,PLN,Low,CPI (YoY)  (Mar),3.0%,,2.4%
+2026-03-31,Tuesday,15:55,EUR,Low,German Unemployment  (Mar),2.977M,,2.977M
+2026-03-31,Tuesday,15:55,EUR,Low,German Unemployment n.s.a.  (Mar),3.021M,,3.070M
+2026-03-31,Tuesday,15:55,EUR,Medium,German Unemployment Change  (Mar),0K,2K,1K
+2026-03-31,Tuesday,15:55,EUR,Medium,German Unemployment Rate  (Mar),6.3%,6.3%,6.3%
+2026-03-31,Tuesday,16:00,CZK,Low,M3 Money Supply  (Feb),5.5%,,5.3%
+2026-03-31,Tuesday,16:00,EUR,Low,Spanish Current account  (Jan),2.73B,,1.80B
+2026-03-31,Tuesday,16:00,NOK,Low,Central Bank Currency Purchase  (Apr),-50.0M,,-600.0M
 2026-03-31,Tuesday,16:00,ZAR,Low,SARB Quarterly Bulletin,,,
-2026-03-31,Tuesday,16:30,EUR,Low,Portuguese CPI (MoM)  (Mar),,,0.1%
-2026-03-31,Tuesday,16:30,EUR,Low,Portuguese CPI (YoY)  (Mar),,,2.1%
-2026-03-31,Tuesday,16:30,HKD,Low,M3 Money Supply  (Feb),,,3.8%
-2026-03-31,Tuesday,16:30,UGX,Low,CPI (YoY)  (Mar),,,2.9%
-2026-03-31,Tuesday,17:00,EUR,High,CPI (YoY)  (Mar),,2.5%,1.9%
-2026-03-31,Tuesday,17:00,EUR,Low,"CPI, n.s.a  (Mar)",,,100.71
-2026-03-31,Tuesday,17:00,EUR,Low,Core CPI (MoM)  (Mar),,,0.8%
-2026-03-31,Tuesday,17:00,EUR,Low,Greek Retail Sales (YoY)  (Jan),,,5.1%
-2026-03-31,Tuesday,17:00,EUR,Low,HICP ex Energy & Food (YoY)  (Mar),,,2.3%
-2026-03-31,Tuesday,17:00,EUR,Low,HICP ex Energy and Food (MoM)  (Mar),,,0.6%
-2026-03-31,Tuesday,17:00,EUR,Low,Italian CPI (MoM)  (Mar),,0.6%,0.7%
-2026-03-31,Tuesday,17:00,EUR,Low,Italian CPI (YoY)  (Mar),,,1.5%
-2026-03-31,Tuesday,17:00,EUR,Low,Italian HICP (MoM)  (Mar),,,0.5%
-2026-03-31,Tuesday,17:00,EUR,Low,Italian HICP (YoY)  (Mar),,,1.5%
-2026-03-31,Tuesday,17:00,EUR,Low,Spanish Current account  (Jan),,,1.80B
-2026-03-31,Tuesday,17:00,EUR,Medium,CPI (MoM)  (Mar),,,0.6%
-2026-03-31,Tuesday,17:00,EUR,Medium,Core CPI (YoY)  (Mar),,2.4%,2.4%
-2026-03-31,Tuesday,17:00,NOK,Low,Central Bank Currency Purchase  (Apr),,,-600.0M
-2026-03-31,Tuesday,17:30,EUR,Low,German 2-Year Schatz Auction,,,2.270%
-2026-03-31,Tuesday,18:00,EUR,Low,Italian Industrial Sales (MoM)  (Jan),,,0.50%
-2026-03-31,Tuesday,18:00,EUR,Low,Italian Industrial Sales (YoY)  (Jan),,,3.60%
-2026-03-31,Tuesday,18:00,INR,Low,Federal Fiscal Deficit  (Feb),,,"9,814.07B"
-2026-03-31,Tuesday,19:30,BRL,Low,Budget Balance  (Feb),,,40.062B
-2026-03-31,Tuesday,19:30,BRL,Low,Budget Surplus  (Feb),,,103.689B
-2026-03-31,Tuesday,19:30,BRL,Low,Net Debt-to-GDP ratio  (Feb),,,65.0%
-2026-03-31,Tuesday,19:30,BRL,Medium,Gross Debt-to-GDP ratio (MoM)  (Feb),,,78.7%
-2026-03-31,Tuesday,19:30,EUR,Low,Spanish Business Confidence  (Mar),,,-2.6
-2026-03-31,Tuesday,19:30,INR,Low,Balance of Payments (USD)  (Q4),,,-24.400B
-2026-03-31,Tuesday,19:30,INR,Low,Current Account % of GDP (QoQ)  (Q4),,,-1.30%
-2026-03-31,Tuesday,19:30,INR,Low,Current Account (USD)  (Q4),,,-13.20B
+2026-03-31,Tuesday,16:30,EUR,Low,Portuguese CPI (MoM)  (Mar),2.0%,,0.1%
+2026-03-31,Tuesday,16:30,EUR,Low,Portuguese CPI (YoY)  (Mar),2.7%,,2.1%
+2026-03-31,Tuesday,16:30,HKD,Low,M3 Money Supply  (Feb),2.1%,,3.8%
+2026-03-31,Tuesday,16:40,UGX,Low,CPI (YoY)  (Mar),2.8%,,2.9%
+2026-03-31,Tuesday,17:00,EUR,High,CPI (YoY)  (Mar),2.5%,2.6%,1.9%
+2026-03-31,Tuesday,17:00,EUR,Low,"CPI, n.s.a  (Mar)",101.96,,100.71
+2026-03-31,Tuesday,17:00,EUR,Low,Core CPI (MoM)  (Mar),0.8%,,0.8%
+2026-03-31,Tuesday,17:00,EUR,Low,Greek Retail Sales (YoY)  (Jan),4.5%,,4.7%
+2026-03-31,Tuesday,17:00,EUR,Low,HICP ex Energy & Food (YoY)  (Mar),2.2%,,2.3%
+2026-03-31,Tuesday,17:00,EUR,Low,HICP ex Energy and Food (MoM)  (Mar),0.7%,,0.6%
+2026-03-31,Tuesday,17:00,EUR,Low,Italian CPI (MoM)  (Mar),0.5%,0.6%,0.7%
+2026-03-31,Tuesday,17:00,EUR,Low,Italian CPI (YoY)  (Mar),1.7%,,1.5%
+2026-03-31,Tuesday,17:00,EUR,Low,Italian HICP (MoM)  (Mar),1.6%,,0.5%
+2026-03-31,Tuesday,17:00,EUR,Low,Italian HICP (YoY)  (Mar),1.5%,,1.5%
+2026-03-31,Tuesday,17:00,EUR,Medium,CPI (MoM)  (Mar),1.2%,,0.6%
+2026-03-31,Tuesday,17:00,EUR,Medium,Core CPI (YoY)  (Mar),2.3%,2.4%,2.4%
+2026-03-31,Tuesday,17:30,EUR,Low,German 2-Year Schatz Auction,2.620%,,2.270%
+2026-03-31,Tuesday,17:50,KES,Low,CPI (YoY)  (Mar),4.40%,,4.30%
+2026-03-31,Tuesday,18:00,EUR,Low,Italian Industrial Sales (MoM)  (Jan),-0.30%,,0.60%
+2026-03-31,Tuesday,18:00,EUR,Low,Italian Industrial Sales (YoY)  (Jan),-1.00%,,3.50%
+2026-03-31,Tuesday,18:20,KWD,Low,Bank Lending (YoY)  (Feb),7.61%,,7.06%
+2026-03-31,Tuesday,18:20,KWD,Low,M2 Money Supply (YoY)  (Feb),3.47%,,3.62%
+2026-03-31,Tuesday,19:00,QAR,Low,GDP (QoQ)  (Q4),-0.40%,,2.30%
+2026-03-31,Tuesday,19:00,QAR,Low,GDP (YoY)  (Q4),2.00%,,2.90%
+2026-03-31,Tuesday,19:30,BRL,Low,Budget Balance  (Feb),-100.589B,,40.062B
+2026-03-31,Tuesday,19:30,BRL,Low,Budget Surplus  (Feb),-16.388B,,103.689B
+2026-03-31,Tuesday,19:30,BRL,Low,Net Debt-to-GDP ratio  (Feb),65.5%,,65.0%
+2026-03-31,Tuesday,19:30,BRL,Medium,Gross Debt-to-GDP ratio (MoM)  (Feb),79.2%,,78.7%
 2026-03-31,Tuesday,19:30,INR,Low,RBI Monetary and Credit Information Review,,,
-2026-03-31,Tuesday,19:30,INR,Low,Trade Balance (USD)  (Q3),,,-93.600B
-2026-03-31,Tuesday,20:00,BRL,Low,Brazilian PPI (MoM)  (Feb),,,0.34%
-2026-03-31,Tuesday,20:00,BRL,Low,Long Term Interest Rate TJLP  (Q2),,,9.19%
-2026-03-31,Tuesday,20:00,BWP,Low,GDP (YoY)  (Q4),,,8.20%
-2026-03-31,Tuesday,20:00,BWP,Low,GDP Quarterly  (Q4),,,10.90%
-2026-03-31,Tuesday,20:00,CLP,Low,Chilean Manufacturing Production (YoY)  (Feb),,,-3.8%
-2026-03-31,Tuesday,20:00,CLP,Low,Copper Production (YoY)  (Feb),,,-3.0%
-2026-03-31,Tuesday,20:00,CLP,Low,Retail Sales (YoY)  (Feb),,,3.7%
-2026-03-31,Tuesday,20:00,INR,Low,Foreign Debt (USD)  (Q4),,,746.0B
-2026-03-31,Tuesday,20:00,MUR,Low,GDP Annual,,,4.70%
-2026-03-31,Tuesday,20:00,ZAR,Low,Trade Balance  (Feb),,,9.31B
-2026-03-31,Tuesday,20:30,CAD,Medium,GDP (MoM)  (Feb),,,
-2026-03-31,Tuesday,20:30,CAD,Medium,GDP (MoM)  (Jan),,0.0%,0.2%
-2026-03-31,Tuesday,20:40,UAH,Low,Current Account (USD)  (Feb),,,-0.630B
-2026-03-31,Tuesday,20:55,USD,Low,Redbook (YoY),,,6.7%
-2026-03-31,Tuesday,21:00,NGN,Low,Foreign Reserves (USD)  (Mar),,,49.51B
-2026-03-31,Tuesday,21:00,USD,Low,House Price Index  (Jan),,,440.4
-2026-03-31,Tuesday,21:00,USD,Low,House Price Index (MoM)  (Jan),,0.1%,0.1%
-2026-03-31,Tuesday,21:00,USD,Low,House Price Index (YoY)  (Jan),,,1.8%
-2026-03-31,Tuesday,21:00,USD,Low,S&P/CS HPI Composite - 20 s.a. (MoM)  (Jan),,,0.5%
-2026-03-31,Tuesday,21:00,USD,Medium,S&P/CS HPI Composite - 20 n.s.a. (MoM)  (Jan),,,-0.1%
-2026-03-31,Tuesday,21:00,USD,Medium,S&P/CS HPI Composite - 20 n.s.a. (YoY)  (Jan),,1.4%,1.4%
-2026-03-31,Tuesday,21:45,USD,High,Chicago PMI  (Mar),,54.5,57.7
-2026-03-31,Tuesday,22:00,SAR,Low,M3 Money Supply (YoY)  (Feb),,,8.50%
-2026-03-31,Tuesday,22:00,SAR,Low,Private Sector Loans (YoY)  (Feb),,,9.60%
-2026-03-31,Tuesday,22:00,USD,High,CB Consumer Confidence  (Mar),,88.0,91.2
-2026-03-31,Tuesday,22:00,USD,High,JOLTS Job Openings  (Feb),,6.900M,6.946M
-2026-03-31,Tuesday,22:30,USD,Low,Dallas Fed Services Revenues  (Mar),,,4.1
-2026-03-31,Tuesday,22:30,USD,Low,Texas Services Sector Outlook  (Mar),,,-3.2
+2026-03-31,Tuesday,20:00,BRL,Low,Brazilian PPI (MoM)  (Feb),-0.25%,,0.32%
+2026-03-31,Tuesday,20:00,BRL,Low,Long Term Interest Rate TJLP  (Q2),9.13%,,9.19%
+2026-03-31,Tuesday,20:00,CLP,Low,Chilean Manufacturing Production (YoY)  (Feb),-3.0%,,-3.8%
+2026-03-31,Tuesday,20:00,CLP,Low,Copper Production (YoY)  (Feb),-4.8%,,-3.0%
+2026-03-31,Tuesday,20:00,CLP,Low,Retail Sales (YoY)  (Feb),5.4%,,3.6%
+2026-03-31,Tuesday,20:00,MUR,Low,GDP Annual,3.20%,,4.90%
+2026-03-31,Tuesday,20:00,ZAR,Low,Trade Balance  (Feb),36.92B,,8.50B
+2026-03-31,Tuesday,20:30,CAD,Medium,GDP (MoM)  (Feb),0.2%,,0.1%
+2026-03-31,Tuesday,20:30,CAD,Medium,GDP (MoM)  (Jan),0.1%,0.0%,0.2%
+2026-03-31,Tuesday,20:55,USD,Low,Redbook (YoY),6.9%,,6.7%
+2026-03-31,Tuesday,21:00,NGN,Low,Foreign Reserves (USD)  (Mar),49.44B,,49.51B
+2026-03-31,Tuesday,21:00,USD,Low,House Price Index  (Jan),441.0,,440.7
+2026-03-31,Tuesday,21:00,USD,Low,House Price Index (MoM)  (Jan),0.1%,0.1%,0.3%
+2026-03-31,Tuesday,21:00,USD,Low,House Price Index (YoY)  (Jan),1.6%,,1.9%
+2026-03-31,Tuesday,21:00,USD,Low,S&P/CS HPI Composite - 20 s.a. (MoM)  (Jan),0.2%,,0.5%
+2026-03-31,Tuesday,21:00,USD,Medium,S&P/CS HPI Composite - 20 n.s.a. (MoM)  (Jan),-0.1%,,-0.1%
+2026-03-31,Tuesday,21:00,USD,Medium,S&P/CS HPI Composite - 20 n.s.a. (YoY)  (Jan),1.2%,1.4%,1.4%
+2026-03-31,Tuesday,21:15,UAH,Low,Current Account (USD)  (Feb),-5.500B,,-0.754B
+2026-03-31,Tuesday,21:45,USD,High,Chicago PMI  (Mar),52.8,54.8,57.7
+2026-03-31,Tuesday,22:00,USD,High,CB Consumer Confidence  (Mar),91.8,87.8,91.0
+2026-03-31,Tuesday,22:00,USD,High,JOLTS Job Openings  (Feb),6.882M,6.890M,7.240M
+2026-03-31,Tuesday,22:30,USD,Low,Dallas Fed Services Revenues  (Mar),1.3,,4.1
+2026-03-31,Tuesday,22:30,USD,Low,Texas Services Sector Outlook  (Mar),-13.3,,-3.2
+2026-03-31,Tuesday,23:00,USD,Low,OPEC Crude Oil Production Algeria (Barrel),0.96M,,0.96M
+2026-03-31,Tuesday,23:00,USD,Low,OPEC Crude Oil Production Congo (Barrel),0.26M,,0.26M
+2026-03-31,Tuesday,23:00,USD,Low,OPEC Crude Oil Production Gabon (Barrel),0.23M,,0.23M
+2026-03-31,Tuesday,23:00,USD,Low,OPEC Crude Oil Production Kuwait (Barrel),1.20M,,2.56M
+2026-03-31,Tuesday,23:00,USD,Low,OPEC Crude Oil Production Libya (Barrel),1.22M,,1.27M
+2026-03-31,Tuesday,23:00,USD,Low,OPEC Crude Oil Production Nigeria (Barrel),1.57M,,1.53M
+2026-03-31,Tuesday,23:00,USD,Low,OPEC Crude oil Production Iran (Barrel),3.10M,,3.30M
+2026-03-31,Tuesday,23:00,USD,Low,OPEC Crude oil Production Iraq (Barrel),1.40M,,4.15M
+2026-03-31,Tuesday,23:00,USD,Low,OPEC Crude oil Production UAE (Barrel),2.10M,,3.39M
+2026-03-31,Tuesday,23:00,USD,Low,OPEC Crude oil Production Venezuela (Barrel),0.98M,,0.88M
 2026-04-01,Wednesday,All Day,,Holiday,Cyprus - National Day,,,
 2026-04-01,Wednesday,All Day,,Holiday,Israel - Passover I Eve,,,
 2026-04-01,Wednesday,All Day,,Holiday,Sri Lanka - Bak Full Moon Poya Day,,,
