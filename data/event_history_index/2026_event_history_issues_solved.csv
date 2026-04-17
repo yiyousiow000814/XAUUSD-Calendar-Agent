@@ -43,10 +43,12 @@ previous_missing_filled,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2026-02-26,08:
 previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q1),q1,2026-02-21,00:00,,3.0%,3.0%,
 previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2026-03-05,03:00,,0.00,0.00,
 stale_missing_actual_dropped,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2026-02-26,08:30,,,,"{""cutoff"": ""01-03-2026 15:50""}"
-stale_missing_actual_dropped,USD::Beige Book::none,USD,Beige Book,,2026-03-05,03:00,,,,"{""cutoff"": ""08-03-2026 15:55""}"
+stale_missing_actual_dropped,USD::Beige Book::none,USD,Beige Book,,2026-03-05,03:00,,,,"{""cutoff"": ""15-04-2026 15:36""}"
 previous_missing_filled,JPY::BoJ Monthly Report::none,JPY,BoJ Monthly Report,,2026-03-23,19:00,,0.00,0.00,
 previous_missing_filled,INR::Bank Loan Growth::none,INR,Bank Loan Growth,,2026-04-03,19:30,,13.8%,13.8%,
 previous_missing_filled,INR::Deposit Growth::none,INR,Deposit Growth,,2026-04-03,19:30,,10.8%,10.8%,
 previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q1),q1,2026-04-02,23:30,,2.0%,2.0%,
-stale_missing_actual_dropped,JPY::BoJ Monthly Report::none,JPY,BoJ Monthly Report,,2026-03-23,19:00,,,,"{""cutoff"": ""26-03-2026 15:46""}"
-previous_missing_filled,CAD::GDP::m/m,CAD,GDP (MoM)  (Feb),feb,2026-03-31,20:30,,0.0%,0.0%,
+stale_missing_actual_dropped,JPY::BoJ Monthly Report::none,JPY,BoJ Monthly Report,,2026-03-23,19:00,,,,"{""cutoff"": ""15-04-2026 15:36""}"
+stale_missing_actual_dropped,RUB::CFTC RUB speculative positions::none,RUB,CFTC RUB speculative positions,,2026-03-07,04:30,,,,"{""cutoff"": ""15-04-2026 15:36""}"
+stale_missing_actual_dropped,RUB::CFTC RUB speculative positions::none,RUB,CFTC RUB speculative positions,,2026-03-14,04:30,,,,"{""cutoff"": ""15-04-2026 15:36""}"
+stale_missing_actual_dropped,HUF::Current Account (EUR)::q/q,HUF,Current Account (EUR) (QoQ)  (Q4),q4,2026-03-29,04:00,,,,"{""cutoff"": ""15-04-2026 15:36""}"
