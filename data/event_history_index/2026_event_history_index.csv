@@ -6361,7 +6361,6 @@ CHF::SNB Chairman Schlegel Speaks::none,2026-04-16,01:00,,,,
 BRL::Foreign Exchange Flows::none,2026-04-16,01:30,,-1.303B,,-2.654B
 USD::FOMC Member Bowman Speaks::none,2026-04-16,01:45,,,,
 GBP::BoE Gov Bailey Speaks::none,2026-04-16,02:00,,,,
-USD::Beige Book::none,2026-04-16,02:00,,,,0.00
 EUR::ECB President Lagarde Speaks::none,2026-04-16,03:30,,,,
 USD::Overall Net Capital Flow::none,2026-04-16,04:00,feb,184.50B,,-38.40B
 USD::TIC Net Long-Term Transactions including Swaps::none,2026-04-16,04:00,feb,58.60B,,2.40B
@@ -6501,31 +6500,31 @@ CAD::Foreign Securities Purchases::none,2026-04-17,20:30,feb,6.17B,23.81B,46.79B
 EUR::German Buba Vice President Buch Speaks::none,2026-04-17,22:30,,,,
 USD::FOMC Member Daly Speaks::none,2026-04-17,23:30,,,,
 USD::FOMC Member Barkin Speaks::none,2026-04-18,00:15,,,,
-USD::U.S. Baker Hughes Oil Rig Count::none,2026-04-18,01:00,,,,411
-USD::U.S. Baker Hughes Total Rig Count::none,2026-04-18,01:00,,,,545
+USD::U.S. Baker Hughes Oil Rig Count::none,2026-04-18,01:00,,410,,411
+USD::U.S. Baker Hughes Total Rig Count::none,2026-04-18,01:00,,543,,545
 KES::GDP::q/q,2026-04-18,02:00,q4,,,4.90%
 USD::Fed Waller Speaks::none,2026-04-18,02:00,,,,
 USD::U.S. President Trump Speaks::none,2026-04-18,02:00,,,,
-AUD::CFTC AUD speculative net positions::none,2026-04-18,03:30,,,,70.8K
-BRL::CFTC BRL speculative net positions::none,2026-04-18,03:30,,,,40.1K
-CAD::CFTC CAD speculative net positions::none,2026-04-18,03:30,,,,-55.6K
-CHF::CFTC CHF speculative net positions::none,2026-04-18,03:30,,,,-30.7K
-EUR::CFTC EUR speculative net positions::none,2026-04-18,03:30,,,,-7.5K
-GBP::CFTC GBP speculative net positions::none,2026-04-18,03:30,,,,-56.4K
-JPY::CFTC JPY speculative net positions::none,2026-04-18,03:30,,,,-93.7K
-MXN::CFTC MXN speculative net positions::none,2026-04-18,03:30,,,,57.5K
-NZD::CFTC NZD speculative net positions::none,2026-04-18,03:30,,,,-36.1K
-USD::CFTC Aluminium speculative net positions::none,2026-04-18,03:30,,,,0.3K
-USD::CFTC Copper speculative net positions::none,2026-04-18,03:30,,,,40.2K
-USD::CFTC Corn speculative net positions::none,2026-04-18,03:30,,,,290.8K
-USD::CFTC Crude Oil speculative net positions::none,2026-04-18,03:30,,,,202.2K
-USD::CFTC Gold speculative net positions::none,2026-04-18,03:30,,,,156.3K
-USD::CFTC Nasdaq 100 speculative net positions::none,2026-04-18,03:30,,,,12.5K
-USD::CFTC Natural Gas speculative net positions::none,2026-04-18,03:30,,,,-184.0K
-USD::CFTC S&P 500 speculative net positions::none,2026-04-18,03:30,,,,-45.7K
-USD::CFTC Silver speculative net positions::none,2026-04-18,03:30,,,,23.4K
-USD::CFTC Soybeans speculative net positions::none,2026-04-18,03:30,,,,208.5K
-USD::CFTC Wheat speculative net positions::none,2026-04-18,03:30,,,,-18.7K
+AUD::CFTC AUD speculative net positions::none,2026-04-18,03:30,,65.1K,,70.8K
+BRL::CFTC BRL speculative net positions::none,2026-04-18,03:30,,40.0K,,40.1K
+CAD::CFTC CAD speculative net positions::none,2026-04-18,03:30,,-78.3K,,-55.6K
+CHF::CFTC CHF speculative net positions::none,2026-04-18,03:30,,-34.1K,,-30.7K
+EUR::CFTC EUR speculative net positions::none,2026-04-18,03:30,,26.0K,,-7.5K
+GBP::CFTC GBP speculative net positions::none,2026-04-18,03:30,,-54.7K,,-56.4K
+JPY::CFTC JPY speculative net positions::none,2026-04-18,03:30,,-83.2K,,-93.7K
+MXN::CFTC MXN speculative net positions::none,2026-04-18,03:30,,59.0K,,57.5K
+NZD::CFTC NZD speculative net positions::none,2026-04-18,03:30,,-42.3K,,-36.1K
+USD::CFTC Aluminium speculative net positions::none,2026-04-18,03:30,,0.5K,,0.3K
+USD::CFTC Copper speculative net positions::none,2026-04-18,03:30,,55.1K,,40.2K
+USD::CFTC Corn speculative net positions::none,2026-04-18,03:30,,248.9K,,290.8K
+USD::CFTC Crude Oil speculative net positions::none,2026-04-18,03:30,,206.5K,,202.2K
+USD::CFTC Gold speculative net positions::none,2026-04-18,03:30,,162.5K,,156.3K
+USD::CFTC Nasdaq 100 speculative net positions::none,2026-04-18,03:30,,10.8K,,12.5K
+USD::CFTC Natural Gas speculative net positions::none,2026-04-18,03:30,,-186.9K,,-184.0K
+USD::CFTC S&P 500 speculative net positions::none,2026-04-18,03:30,,-115.8K,,-45.7K
+USD::CFTC Silver speculative net positions::none,2026-04-18,03:30,,23.6K,,23.4K
+USD::CFTC Soybeans speculative net positions::none,2026-04-18,03:30,,201.7K,,208.5K
+USD::CFTC Wheat speculative net positions::none,2026-04-18,03:30,,-18.4K,,-18.7K
 EUR::Slovak Current Account::none,2026-04-18,04:00,feb,,,-490.0M
 USD::IMF Meetings::none,2026-04-18,18:00,,,,
 NZD::Exports::none,2026-04-20,06:45,mar,,,6.63B
@@ -6586,7 +6585,7 @@ GBP::Unemployment Rate::none,2026-04-21,14:00,feb,,,5.2%
 CHF::Trade Balance::none,2026-04-21,14:00,mar,,,4.204B
 GBP::Claimant Count Change::none,2026-04-21,14:00,mar,,,24.7K
 EUR::German Buba President Nagel Speaks::none,2026-04-21,14:30,,,,
-CHF::M3 Money Supply::none,2026-04-21,15:00,mar,,,"1,216.0B"
+CHF::M3 Money Supply::none,2026-04-21,15:00,mar,,,"1,216,014.0B"
 TRY::Capacity Utilization::none,2026-04-21,15:00,apr,,,73.3%
 TRY::Manufacturing Confidence::none,2026-04-21,15:00,apr,,,101.0
 PLN::Corp. Sector Wages::y/y,2026-04-21,15:30,mar,,,6.1%
@@ -6844,7 +6843,7 @@ USD::Michigan Consumer Sentiment::none,2026-04-24,22:00,apr,,47.6,53.3
 USD::Michigan Current Conditions::none,2026-04-24,22:00,apr,,50.1,55.8
 CAD::Budget Balance::none,2026-04-24,23:00,feb,,,-5.07B
 CAD::Budget Balance::y/y,2026-04-24,23:00,feb,,,-31.21B
-USD::U.S. Baker Hughes Oil Rig Count::none,2026-04-25,01:00,,,,409
+USD::U.S. Baker Hughes Oil Rig Count::none,2026-04-25,01:00,,,,410
 USD::U.S. Baker Hughes Total Rig Count::none,2026-04-25,01:00,,,,543
 GBP::GfK Consumer Confidence::none,2026-04-25,07:00,apr,,,-21
 JPY::Tokyo CPI::y/y,2026-04-25,07:30,,,,1.4%
@@ -7317,3 +7316,9 @@ USD::CFTC S&P 500 speculative net positions::none,2026-04-11,03:30,,-45.7K,,-42.
 USD::CFTC Silver speculative net positions::none,2026-04-11,03:30,,23.4K,,23.9K
 USD::CFTC Soybeans speculative net positions::none,2026-04-11,03:30,,208.5K,,227.8K
 USD::CFTC Wheat speculative net positions::none,2026-04-11,03:30,,-18.7K,,-9.4K
+EUR::Slovak Current Account::none,2026-04-17,15:00,feb,-398.0M,,-731.0M
+KES::GDP::q/q,2026-04-21,02:00,q4,,,4.90%
+JPY::Exports::y/y,2026-04-22,07:50,mar,,,4.0%
+JPY::Imports::y/y,2026-04-22,07:50,mar,,,10.3%
+JPY::Trade Balance::none,2026-04-22,07:50,mar,,,44.3B
+CAD::New Housing Price Index::m/m,2026-04-22,20:30,mar,,,0.3%

@@ -6162,7 +6162,7 @@ NZD::Performance of Services Index::none,NZD,Performance of Services Index  (Mar
 JPY::M3 Money Supply::none,JPY,M3 Money Supply  (Mar),mar,2026-04-13,07:50,"2,280.3B","2,280.3B",,,"2,274.5B","2,274.5B","2,275.3B"
 JPY::M2 Money Stock::y/y,JPY,M2 Money Stock (YoY),,2026-04-13,07:50,2.0%,2.0%,,1.6%,1.7%,1.7%,
 IDR::Retail Sales::y/y,IDR,Retail Sales (YoY)  (Feb),feb,2026-04-13,11:00,6.5%,6.5%,,,5.7%,5.7%,
-EUR::Dutch Trade Balance::none,EUR,Dutch Trade Balance  (Feb),feb,2026-04-13,12:30,9.90B,9.90B,,,9.55B,9.55B,8.06B
+EUR::Dutch Trade Balance::none,EUR,Dutch Trade Balance  (Feb),feb,2026-04-13,12:30,9.90B,9.90B,,,9.55B,9.55B,72.90B
 EUR::Finnish Current Account::none,EUR,Finnish Current Account  (Feb),feb,2026-04-13,13:00,-0.20B,-0.20B,,,0.30B,0.30B,
 TRY::Current Account (USD)::none,TRY,Current Account (USD)  (Feb),feb,2026-04-13,15:00,-7.50B,-7.50B,,-7.50B,-7.04B,-7.04B,-6.81B
 TRY::Turkish Retail Sales::m/m,TRY,Turkish Retail Sales (MoM)  (Feb),feb,2026-04-13,15:00,-0.2%,-0.2%,,,2.8%,2.8%,2.4%
@@ -6188,13 +6188,13 @@ PLN::Current Account (EUR)::none,PLN,Current Account (EUR)  (Feb),feb,2026-04-13
 EUR::ECB's De Guindos Speaks::none,EUR,ECB's De Guindos Speaks,,2026-04-13,20:15,,,,,,,
 CAD::Building Permits::m/m,CAD,Building Permits (MoM)  (Feb),feb,2026-04-13,20:30,-8.4%,-8.4%,,-0.4%,3.5%,3.5%,4.8%
 RUB::Trade Balance::none,RUB,Trade Balance  (Feb),feb,2026-04-13,21:00,5.35B,5.35B,,,6.45B,6.45B,6.60B
-EUR::French 12-Month BTF Auction::none,EUR,French 12-Month BTF Auction,,2026-04-13,21:00,2.634%,2.634%,,,2.694%,2.694%,2.660%
-EUR::French 3-Month BTF Auction::none,EUR,French 3-Month BTF Auction,,2026-04-13,21:00,2.248%,2.248%,,,2.253%,2.253%,2.238%
-EUR::French 6-Month BTF Auction::none,EUR,French 6-Month BTF Auction,,2026-04-13,21:00,2.448%,2.448%,,,2.509%,2.509%,2.407%
+EUR::French 12-Month BTF Auction::none,EUR,French 12-Month BTF Auction,,2026-04-13,21:00,2.634%,2.634%,,,2.694%,2.694%,
+EUR::French 3-Month BTF Auction::none,EUR,French 3-Month BTF Auction,,2026-04-13,21:00,2.248%,2.248%,,,2.253%,2.253%,
+EUR::French 6-Month BTF Auction::none,EUR,French 6-Month BTF Auction,,2026-04-13,21:00,2.448%,2.448%,,,2.509%,2.509%,
 USD::Existing Home Sales::none,USD,Existing Home Sales  (Mar),mar,2026-04-13,22:00,3.98M,3.98M,,4.07M,4.13M,4.13M,4.09M
 USD::Existing Home Sales::m/m,USD,Existing Home Sales (MoM)  (Mar),mar,2026-04-13,22:00,-3.6%,-3.6%,,,2.7%,2.7%,1.7%
-USD::3-Month Bill Auction::none,USD,3-Month Bill Auction,,2026-04-13,23:30,3.620%,3.620%,,,3.635%,3.635%,3.620%
-USD::6-Month Bill Auction::none,USD,6-Month Bill Auction,,2026-04-13,23:30,3.610%,3.610%,,,3.615%,3.615%,3.605%
+USD::3-Month Bill Auction::none,USD,3-Month Bill Auction,,2026-04-13,23:30,3.620%,3.620%,,,3.635%,3.635%,
+USD::6-Month Bill Auction::none,USD,6-Month Bill Auction,,2026-04-13,23:30,3.610%,3.610%,,,3.615%,3.615%,
 MZN::CPI::y/y,MZN,CPI (YoY)  (Mar),mar,2026-04-14,00:00,3.40%,3.40%,,,3.20%,3.20%,
 EUR::German Buba Balz Speaks::none,EUR,German Buba Balz Speaks,,2026-04-14,00:00,,,,,,,
 NZD::External Migration & Visitors::none,NZD,External Migration & Visitors  (Feb),feb,2026-04-14,06:45,15.20%,15.20%,,,4.10%,4.10%,
@@ -6214,19 +6214,19 @@ CNY::Trade Balance::none,CNY,Trade Balance  (Mar),mar,2026-04-14,11:00,354.75B,3
 CNY::Trade Balance (USD)::none,CNY,Trade Balance (USD)  (Mar),mar,2026-04-14,11:00,51.13B,51.13B,,107.20B,213.62B,213.62B,
 JPY::Capacity Utilization::m/m,JPY,Capacity Utilization (MoM)  (Feb),feb,2026-04-14,12:30,-0.1%,-0.1%,,,2.9%,2.9%,
 JPY::Industrial Production::m/m,JPY,Industrial Production (MoM)  (Feb),feb,2026-04-14,12:30,-2.0%,-2.0%,,-2.1%,4.3%,4.3%,-2.1%
-EUR::CPI::m/m,EUR,CPI (MoM)  (Mar),mar,2026-04-14,13:00,0.70%,0.6%,0.70%,,1.10%,1.10%,1.2%
+EUR::CPI::m/m,EUR,CPI (MoM)  (Mar),mar,2026-04-14,13:00,0.70%,0.6%,0.70%,,1.10%,1.10%,0.70%
 EUR::Finnish CPI::y/y,EUR,Finnish CPI (YoY)  (Mar),mar,2026-04-14,13:00,1.3%,1.3%,,,0.6%,0.6%,
-SEK::CPI::m/m,SEK,CPI (MoM)  (Mar),mar,2026-04-14,14:00,-0.6%,-0.6%,,-0.6%,0.6%,0.6%,
+SEK::CPI::m/m,SEK,CPI (MoM)  (Mar),mar,2026-04-14,14:00,-0.6%,-0.6%,,-0.6%,0.6%,0.6%,-0.6%
 RON::CPI::y/y,RON,CPI (YoY)  (Mar),mar,2026-04-14,14:00,9.9%,9.9%,,10.4%,9.3%,9.3%,
-SEK::CPI::y/y,SEK,CPI (YoY)  (Mar),mar,2026-04-14,14:00,0.5%,0.5%,,0.6%,0.5%,0.5%,
-SEK::CPIF (CPI at constant interest rates)::m/m,SEK,CPIF (CPI at constant interest rates) (MoM)  (Mar),mar,2026-04-14,14:00,-0.6%,-0.6%,,-0.6%,0.6%,0.6%,
-SEK::CPIF (CPI at constant interest rates)::y/y,SEK,CPIF (CPI at constant interest rates) (YoY)  (Mar),mar,2026-04-14,14:00,1.6%,1.6%,,1.6%,1.7%,1.7%,
+SEK::CPI::y/y,SEK,CPI (YoY)  (Mar),mar,2026-04-14,14:00,0.5%,0.5%,,0.6%,0.5%,0.5%,0.6%
+SEK::CPIF (CPI at constant interest rates)::m/m,SEK,CPIF (CPI at constant interest rates) (MoM)  (Mar),mar,2026-04-14,14:00,-0.6%,-0.6%,,-0.6%,0.6%,0.6%,-0.6%
+SEK::CPIF (CPI at constant interest rates)::y/y,SEK,CPIF (CPI at constant interest rates) (YoY)  (Mar),mar,2026-04-14,14:00,1.6%,1.6%,,1.6%,1.7%,1.7%,1.6%
 SEK::CPIF Ex Energy MoM::m/m,SEK,CPIF Ex Energy MoM (MoM)  (Mar),mar,2026-04-14,14:00,-0.30%,-0.30%,,,-0.30%,-0.30%,0.60%
 SEK::CPIF Ex Energy YoY::y/y,SEK,CPIF Ex Energy YoY (YoY)  (Mar),mar,2026-04-14,14:00,1.10%,1.10%,,,1.10%,1.10%,1.40%
 EUR::German WPI::m/m,EUR,German WPI (MoM)  (Mar),mar,2026-04-14,14:00,2.7%,2.7%,,0.4%,0.6%,0.6%,
 EUR::German WPI::y/y,EUR,German WPI (YoY)  (Mar),mar,2026-04-14,14:00,4.1%,4.1%,,,1.2%,1.2%,
-CZK::CPI::m/m,CZK,CPI (MoM)  (Mar),mar,2026-04-14,15:00,0.6%,0.6%,,0.6%,-0.1%,-0.1%,
-CZK::CPI::y/y,CZK,CPI (YoY)  (Mar),mar,2026-04-14,15:00,1.9%,1.9%,,1.9%,1.4%,1.4%,
+CZK::CPI::m/m,CZK,CPI (MoM)  (Mar),mar,2026-04-14,15:00,0.6%,0.6%,,0.6%,-0.1%,-0.1%,0.6%
+CZK::CPI::y/y,CZK,CPI (YoY)  (Mar),mar,2026-04-14,15:00,1.9%,1.9%,,1.9%,1.4%,1.4%,1.9%
 EUR::Core CPI::y/y,EUR,Core CPI (YoY)  (Mar),mar,2026-04-14,15:00,2.9%,2.4%,2.9%,2.7%,2.7%,2.7%,2.3%
 EUR::Spanish CPI::m/m,EUR,Spanish CPI (MoM)  (Mar),mar,2026-04-14,15:00,1.2%,1.2%,,1.0%,0.4%,0.4%,1.0%
 EUR::Spanish CPI::y/y,EUR,Spanish CPI (YoY)  (Mar),mar,2026-04-14,15:00,3.4%,3.4%,,3.3%,2.3%,2.3%,3.3%
@@ -6247,7 +6247,7 @@ ILS::M1 Money Supply::y/y,ILS,M1 Money Supply (YoY)  (Mar),mar,2026-04-14,19:00,
 BRL::Brazilian Service Sector Growth::m/m,BRL,Brazilian Service Sector Growth (MoM)  (Feb),feb,2026-04-14,20:00,0.1%,0.1%,,,0.2%,0.2%,0.3%
 BRL::Brazilian Service Sector Growth::y/y,BRL,Brazilian Service Sector Growth (YoY)  (Feb),feb,2026-04-14,20:00,0.5%,0.5%,,,3.2%,3.2%,3.3%
 BHD::GDP::y/y,BHD,GDP (YoY)  (Q4),q4,2026-04-14,20:00,4.60%,4.60%,,,4.00%,4.00%,
-USD::ADP Employment Change Weekly::none,USD,ADP Employment Change Weekly,,2026-04-14,20:15,39.30K,39.30K,,,26.00K,26.00K,10.00K
+USD::ADP Employment Change Weekly::none,USD,ADP Employment Change Weekly,,2026-04-14,20:15,39.30K,39.30K,,,26.00K,26.00K,
 USD::Core PPI::m/m,USD,Core PPI (MoM)  (Mar),mar,2026-04-14,20:30,0.1%,0.1%,,0.4%,0.3%,0.3%,0.5%
 USD::Core PPI::y/y,USD,Core PPI (YoY)  (Mar),mar,2026-04-14,20:30,3.8%,3.8%,,4.2%,3.8%,3.8%,3.9%
 USD::PPI::m/m,USD,PPI (MoM)  (Mar),mar,2026-04-14,20:30,0.5%,0.5%,,1.1%,0.5%,0.5%,0.7%
@@ -6255,7 +6255,7 @@ USD::PPI::y/y,USD,PPI (YoY)  (Mar),mar,2026-04-14,20:30,4.0%,4.0%,,4.6%,3.4%,3.4
 USD::PPI ex. Food/Energy/Transport::m/m,USD,PPI ex. Food/Energy/Transport (MoM)  (Mar),mar,2026-04-14,20:30,0.2%,0.2%,,,0.5%,0.5%,
 USD::PPI ex. Food/Energy/Transport::y/y,USD,PPI ex. Food/Energy/Transport (YoY)  (Mar),mar,2026-04-14,20:30,3.6%,3.6%,,,3.5%,3.5%,
 EGP::Current Account (USD)::none,EGP,Current Account (USD),,2026-04-14,20:45,-10M,-10M,,,-15M,-15M,
-USD::Redbook::y/y,USD,Redbook (YoY),,2026-04-14,20:55,7.0%,7.0%,,,7.6%,7.6%,6.9%
+USD::Redbook::y/y,USD,Redbook (YoY),,2026-04-14,20:55,7.0%,7.0%,,,7.6%,7.6%,
 USD::Fed Goolsbee Speaks::none,USD,Fed Goolsbee Speaks,,2026-04-14,21:45,,,,,,,
 EUR::ECB's Lane Speaks::none,EUR,ECB's Lane Speaks,,2026-04-14,22:00,,,,,,,
 USD::Fed Goolsbee Speaks::none,USD,Fed Goolsbee Speaks,,2026-04-14,22:15,,,,,,,
@@ -6269,7 +6269,7 @@ EUR::German Buba Balz Speaks::none,EUR,German Buba Balz Speaks,,2026-04-15,01:00
 ARS::CPI::m/m,ARS,CPI (MoM)  (Mar),mar,2026-04-15,03:00,3.4%,3.4%,,3.0%,2.9%,2.9%,
 ARS::CPI::y/y,ARS,CPI (YoY)  (Mar),mar,2026-04-15,03:00,32.6%,32.6%,,32.2%,33.2%,33.2%,
 GBP::BoE Breeden Speaks::none,GBP,BoE Breeden Speaks,,2026-04-15,04:10,,,,,,,
-USD::API Weekly Crude Oil Stock::none,USD,API Weekly Crude Oil Stock,,2026-04-15,04:30,6.100M,6.100M,,-1.300M,3.719M,3.719M,2.300M
+USD::API Weekly Crude Oil Stock::none,USD,API Weekly Crude Oil Stock,,2026-04-15,04:30,6.100M,6.100M,,-1.300M,3.719M,3.719M,
 KRW::Export Price Index::y/y,KRW,Export Price Index (YoY)  (Mar),mar,2026-04-15,05:00,28.7%,28.7%,,,11.1%,11.1%,10.7%
 KRW::Import Price Index::y/y,KRW,Import Price Index (YoY)  (Mar),mar,2026-04-15,05:00,18.4%,18.4%,,,1.6%,1.6%,1.2%
 EUR::ECB President Lagarde Speaks::none,EUR,ECB President Lagarde Speaks,,2026-04-15,05:00,,,,,,,
@@ -6277,9 +6277,9 @@ KRW::Unemployment Rate::none,KRW,Unemployment Rate  (Mar),mar,2026-04-15,07:00,2
 JPY::Reuters Tankan Index::none,JPY,Reuters Tankan Index  (Apr),apr,2026-04-15,07:00,7,7,,,18,18,
 JPY::Core Machinery Orders::m/m,JPY,Core Machinery Orders (MoM)  (Feb),feb,2026-04-15,07:50,13.6%,13.6%,,-1.1%,-5.5%,-5.5%,
 JPY::Core Machinery Orders::y/y,JPY,Core Machinery Orders (YoY)  (Feb),feb,2026-04-15,07:50,24.7%,24.7%,,8.5%,13.7%,13.7%,
-KRW::Exports::y/y,KRW,Exports (YoY)  (Mar),mar,2026-04-15,08:00,49.2%,49.2%,,48.3%,28.7%,28.7%,
-KRW::Imports::y/y,KRW,Imports (YoY)  (Mar),mar,2026-04-15,08:00,13.2%,13.2%,,13.2%,7.5%,7.5%,
-KRW::Trade Balance::none,KRW,Trade Balance  (Mar),mar,2026-04-15,08:00,26.24B,26.24B,,25.74B,15.38B,15.38B,
+KRW::Exports::y/y,KRW,Exports (YoY)  (Mar),mar,2026-04-15,08:00,49.2%,49.2%,,48.3%,28.7%,28.7%,48.3%
+KRW::Imports::y/y,KRW,Imports (YoY)  (Mar),mar,2026-04-15,08:00,13.2%,13.2%,,13.2%,7.5%,7.5%,13.2%
+KRW::Trade Balance::none,KRW,Trade Balance  (Mar),mar,2026-04-15,08:00,26.24B,26.24B,,25.74B,15.38B,15.38B,25.74B
 KRW::M2 Money supply::none,KRW,M2 Money supply  (Feb),feb,2026-04-15,11:00,8.00%,8.00%,,,7.30%,7.30%,7.10%
 KRW::M3 Money Supply::none,KRW,M3 Money Supply  (Feb),feb,2026-04-15,11:00,"6,160.5B","6,160.5B",,,"6,107.3B","6,107.3B","6,102.1B"
 RON::Industrial Production::m/m,RON,Industrial Production (MoM)  (Feb),feb,2026-04-15,14:00,-0.4%,-0.4%,,,-3.0%,-3.0%,-3.3%
@@ -6287,7 +6287,7 @@ RON::Industrial Production::y/y,RON,Industrial Production (YoY)  (Feb),feb,2026-
 SAR::CPI::m/m,SAR,CPI (MoM)  (Mar),mar,2026-04-15,14:00,0.3%,0.3%,,,0.0%,0.0%,
 SAR::CPI::y/y,SAR,CPI (YoY)  (Mar),mar,2026-04-15,14:00,1.8%,1.8%,,,1.7%,1.7%,
 NOK::Trade Balance::none,NOK,Trade Balance  (Mar),mar,2026-04-15,14:00,97.5B,97.5B,,,44.8B,44.8B,
-HUF::Industrial Output::y/y,HUF,Industrial Output (YoY)  (Feb),feb,2026-04-15,14:30,-1.5%,-1.5%,,-1.5%,-1.5%,-1.5%,-2.5%
+HUF::Industrial Output::y/y,HUF,Industrial Output (YoY)  (Feb),feb,2026-04-15,14:30,-1.5%,-1.5%,,-1.5%,-1.5%,-1.5%,
 INR::WPI Food::y/y,INR,WPI Food (YoY)  (Mar),mar,2026-04-15,14:30,1.90%,1.90%,,,2.19%,2.19%,
 INR::WPI Fuel::y/y,INR,WPI Fuel (YoY)  (Mar),mar,2026-04-15,14:30,1.05%,1.05%,,,-3.78%,-3.78%,
 INR::WPI Inflation::y/y,INR,WPI Inflation (YoY)  (Mar),mar,2026-04-15,14:30,3.88%,3.88%,,3.00%,2.13%,2.13%,
@@ -6321,11 +6321,11 @@ ILS::Budget Balance::none,ILS,Budget Balance  (Mar),mar,2026-04-15,18:30,-2B,-2B
 BWP::CPI::m/m,BWP,CPI (MoM)  (Mar),mar,2026-04-15,18:30,0.4%,0.4%,,,0.2%,0.2%,
 BWP::CPI::y/y,BWP,CPI (YoY)  (Mar),mar,2026-04-15,18:30,4.2%,4.2%,,,4.0%,4.0%,
 BRL::IGP-10 Inflation Index::m/m,BRL,IGP-10 Inflation Index (MoM)  (Apr),apr,2026-04-15,19:00,2.9%,2.9%,,,-0.2%,-0.2%,
-USD::MBA 30-Year Mortgage Rate::none,USD,MBA 30-Year Mortgage Rate,,2026-04-15,19:00,6.42%,6.42%,,,6.51%,6.51%,6.43%
-USD::MBA Mortgage Applications::w/w,USD,MBA Mortgage Applications (WoW),,2026-04-15,19:00,1.8%,1.8%,,,-0.8%,-0.8%,-10.5%
-USD::MBA Purchase Index::none,USD,MBA Purchase Index,,2026-04-15,19:00,159.5,159.5,,,161.1,161.1,163.6
-USD::Mortgage Market Index::none,USD,Mortgage Market Index,,2026-04-15,19:00,281.0,281.0,,,276.0,276.0,310.7
-USD::Mortgage Refinance Index::none,USD,Mortgage Refinance Index,,2026-04-15,19:00,966.8,966.8,,,919.9,919.9,"1,145.0"
+USD::MBA 30-Year Mortgage Rate::none,USD,MBA 30-Year Mortgage Rate,,2026-04-15,19:00,6.42%,6.42%,,,6.51%,6.51%,
+USD::MBA Mortgage Applications::w/w,USD,MBA Mortgage Applications (WoW),,2026-04-15,19:00,1.8%,1.8%,,,-0.8%,-0.8%,
+USD::MBA Purchase Index::none,USD,MBA Purchase Index,,2026-04-15,19:00,159.5,159.5,,,161.1,161.1,
+USD::Mortgage Market Index::none,USD,Mortgage Market Index,,2026-04-15,19:00,281.0,281.0,,,276.0,276.0,
+USD::Mortgage Refinance Index::none,USD,Mortgage Refinance Index,,2026-04-15,19:00,966.8,966.8,,,919.9,919.9,
 INR::Exports (USD)::none,INR,Exports (USD)  (Mar),mar,2026-04-15,19:30,38.92B,38.92B,,,36.61B,36.61B,
 INR::Imports (USD)::none,INR,Imports (USD)  (Mar),mar,2026-04-15,19:30,59.59B,59.59B,,,63.71B,63.71B,
 INR::Trade Balance::none,INR,Trade Balance  (Mar),mar,2026-04-15,19:30,-20.67B,-20.67B,,-32.75B,-27.10B,-27.10B,
@@ -6342,25 +6342,24 @@ USD::Fed Vice Chair for Supervision Barr Speaks::none,USD,Fed Vice Chair for Sup
 NGN::CPI::y/y,NGN,CPI (YoY)  (Mar),mar,2026-04-15,21:40,15.38%,15.38%,,,15.06%,15.06%,
 NGN::Food Inflation::y/y,NGN,Food Inflation (YoY)  (Mar),mar,2026-04-15,21:40,14.31%,14.31%,,,12.12%,12.12%,
 USD::NAHB Housing Market Index::none,USD,NAHB Housing Market Index  (Apr),apr,2026-04-15,22:00,34,34,,37,38,38,
-USD::Crude Oil Imports::none,USD,Crude Oil Imports,,2026-04-15,22:30,-2.109M,-2.109M,,,-0.758M,-0.758M,0.846M
-USD::Crude Oil Inventories::none,USD,Crude Oil Inventories,,2026-04-15,22:30,-0.913M,-0.913M,,2.100M,3.081M,3.081M,6.926M
-USD::Cushing Crude Oil Inventories::none,USD,Cushing Crude Oil Inventories,,2026-04-15,22:30,-1.727M,-1.727M,,,0.024M,0.024M,3.421M
-USD::Distillate Fuel Production::none,USD,Distillate Fuel Production,,2026-04-15,22:30,-0.169M,-0.169M,,,0.009M,0.009M,0.157M
-USD::EIA Refinery Crude Runs::w/w,USD,EIA Refinery Crude Runs  (WoW),,2026-04-15,22:30,-0.208M,-0.208M,,,-0.129M,-0.129M,0.366M
-USD::EIA Weekly Distillates Stocks::none,USD,EIA Weekly Distillates Stocks,,2026-04-15,22:30,-3.122M,-3.122M,,-2.400M,-3.144M,-3.144M,3.032M
-USD::EIA Weekly Refinery Utilization Rates::w/w,USD,EIA Weekly Refinery Utilization Rates (WoW),,2026-04-15,22:30,-2.4%,-2.4%,,,-0.1%,-0.1%,1.5%
-USD::Gasoline Inventories::none,USD,Gasoline Inventories,,2026-04-15,22:30,-6.328M,-6.328M,,-2.100M,-1.589M,-1.589M,-2.593M
-USD::Gasoline Production::none,USD,Gasoline Production,,2026-04-15,22:30,0.392M,0.392M,,,-0.214M,-0.214M,0.309M
-USD::Heating Oil Stockpiles::none,USD,Heating Oil Stockpiles,,2026-04-15,22:30,-0.463M,-0.463M,,,0.233M,0.233M,-0.241M
+USD::Crude Oil Imports::none,USD,Crude Oil Imports,,2026-04-15,22:30,-2.109M,-2.109M,,,-0.758M,-0.758M,
+USD::Crude Oil Inventories::none,USD,Crude Oil Inventories,,2026-04-15,22:30,-0.913M,-0.913M,,2.100M,3.081M,3.081M,
+USD::Cushing Crude Oil Inventories::none,USD,Cushing Crude Oil Inventories,,2026-04-15,22:30,-1.727M,-1.727M,,,0.024M,0.024M,
+USD::Distillate Fuel Production::none,USD,Distillate Fuel Production,,2026-04-15,22:30,-0.169M,-0.169M,,,0.009M,0.009M,
+USD::EIA Refinery Crude Runs::w/w,USD,EIA Refinery Crude Runs  (WoW),,2026-04-15,22:30,-0.208M,-0.208M,,,-0.129M,-0.129M,
+USD::EIA Weekly Distillates Stocks::none,USD,EIA Weekly Distillates Stocks,,2026-04-15,22:30,-3.122M,-3.122M,,-2.400M,-3.144M,-3.144M,
+USD::EIA Weekly Refinery Utilization Rates::w/w,USD,EIA Weekly Refinery Utilization Rates (WoW),,2026-04-15,22:30,-2.4%,-2.4%,,,-0.1%,-0.1%,
+USD::Gasoline Inventories::none,USD,Gasoline Inventories,,2026-04-15,22:30,-6.328M,-6.328M,,-2.100M,-1.589M,-1.589M,
+USD::Gasoline Production::none,USD,Gasoline Production,,2026-04-15,22:30,0.392M,0.392M,,,-0.214M,-0.214M,
+USD::Heating Oil Stockpiles::none,USD,Heating Oil Stockpiles,,2026-04-15,22:30,-0.463M,-0.463M,,,0.233M,0.233M,
 PEN::GDP::y/y,PEN,GDP (YoY)  (Feb),feb,2026-04-15,23:00,3.68%,3.68%,,3.10%,3.54%,3.54%,
 PEN::Unemployment Rate::none,PEN,Unemployment Rate  (Mar),mar,2026-04-15,23:00,6.8%,6.8%,,,6.4%,6.4%,
 ILS::CPI::m/m,ILS,CPI (MoM)  (Mar),mar,2026-04-15,23:30,0.4%,0.4%,,0.5%,0.2%,0.2%,
 ILS::CPI::y/y,ILS,CPI (YoY)  (Mar),mar,2026-04-15,23:30,1.9%,1.9%,,2.0%,2.0%,2.0%,
 GBP::BoE Gov Bailey Speaks::none,GBP,BoE Gov Bailey Speaks,,2026-04-15,23:50,,,,,,,
 CHF::SNB Chairman Schlegel Speaks::none,CHF,SNB Chairman Schlegel Speaks,,2026-04-16,01:00,,,,,,,
-BRL::Foreign Exchange Flows::none,BRL,Foreign Exchange Flows,,2026-04-16,01:30,-1.303B,-1.303B,,,-2.654B,-2.654B,-0.119B
+BRL::Foreign Exchange Flows::none,BRL,Foreign Exchange Flows,,2026-04-16,01:30,-1.303B,-1.303B,,,-2.654B,-2.654B,
 USD::FOMC Member Bowman Speaks::none,USD,FOMC Member Bowman Speaks,,2026-04-16,01:45,,,,,,,
-USD::Beige Book::none,USD,Beige Book,,2026-04-16,02:00,,,,,,0.00,
 GBP::BoE Gov Bailey Speaks::none,GBP,BoE Gov Bailey Speaks,,2026-04-16,02:00,,,,,,,
 EUR::ECB President Lagarde Speaks::none,EUR,ECB President Lagarde Speaks,,2026-04-16,03:30,,,,,,,
 USD::Overall Net Capital Flow::none,USD,Overall Net Capital Flow  (Feb),feb,2026-04-16,04:00,184.50B,184.50B,,,-38.40B,-38.40B,-25.00B
@@ -6368,8 +6367,8 @@ USD::TIC Net Long-Term Transactions::none,USD,TIC Net Long-Term Transactions  (F
 USD::TIC Net Long-Term Transactions including Swaps::none,USD,TIC Net Long-Term Transactions including Swaps  (Feb),feb,2026-04-16,04:00,58.60B,58.60B,,,2.40B,2.40B,15.50B
 "USD::US Foreign Buying, T-bonds::none",USD,"US Foreign Buying, T-bonds  (Feb)",feb,2026-04-16,04:00,2.00B,2.00B,,,36.80B,36.80B,49.90B
 EUR::ECB's Schnabel Speaks::none,EUR,ECB's Schnabel Speaks,,2026-04-16,04:00,,,,,,,
-JPY::Foreign Bonds Buying::none,JPY,Foreign Bonds Buying,,2026-04-16,07:50,696.2B,696.2B,,,"-2,480.9B","-2,480.9B",-635.3B
-JPY::Foreign Investments in Japanese Stocks::none,JPY,Foreign Investments in Japanese Stocks,,2026-04-16,07:50,"3,943.3B","3,943.3B",,,"2,951.8B","2,951.8B","-2,509.7B"
+JPY::Foreign Bonds Buying::none,JPY,Foreign Bonds Buying,,2026-04-16,07:50,696.2B,696.2B,,,"-2,480.9B","-2,480.9B","-2,462.4B"
+JPY::Foreign Investments in Japanese Stocks::none,JPY,Foreign Investments in Japanese Stocks,,2026-04-16,07:50,"3,943.3B","3,943.3B",,,"2,951.8B","2,951.8B","2,959.6B"
 AUD::MI Inflation Expectations::none,AUD,MI Inflation Expectations  (Apr),apr,2026-04-16,09:00,5.9%,5.9%,,,5.2%,5.2%,
 AUD::Employment Change::none,AUD,Employment Change  (Mar),mar,2026-04-16,09:30,17.9K,17.9K,,19.1K,49.7K,49.7K,48.9K
 AUD::Full Employment Change::none,AUD,Full Employment Change  (Mar),mar,2026-04-16,09:30,52.5K,52.5K,,,-27.7K,-27.7K,-30.5K
@@ -6417,7 +6416,7 @@ EUR::Italian CPI Ex Tobacco::y/y,EUR,Italian CPI Ex Tobacco (YoY)  (Mar),mar,202
 EUR::Italian HICP::m/m,EUR,Italian HICP (MoM)  (Mar),mar,2026-04-16,16:00,1.7%,1.7%,,1.6%,0.5%,0.5%,1.6%
 EUR::Italian HICP::y/y,EUR,Italian HICP (YoY)  (Mar),mar,2026-04-16,16:00,1.6%,1.6%,,1.5%,1.5%,1.5%,
 EUR::Spanish 15-Year Obligacion Auction::none,EUR,Spanish 15-Year Obligacion Auction,,2026-04-16,16:40,3.845%,3.845%,,,3.605%,3.605%,
-EUR::Spanish 5-Year Bonos Auction::none,EUR,Spanish 5-Year Bonos Auction,,2026-04-16,16:40,2.911%,2.911%,,,2.915%,2.915%,2.934%
+EUR::Spanish 5-Year Bonos Auction::none,EUR,Spanish 5-Year Bonos Auction,,2026-04-16,16:40,2.911%,2.911%,,,2.915%,2.915%,
 EUR::Spanish 7-Year Obligacion Auction::none,EUR,Spanish 7-Year Obligacion Auction,,2026-04-16,16:40,3.107%,3.107%,,,3.079%,3.079%,
 EUR::CPI::m/m,EUR,CPI (MoM)  (Mar),mar,2026-04-16,17:00,1.3%,1.3%,,1.2%,0.6%,0.6%,0.70%
 EUR::CPI::y/y,EUR,CPI (YoY)  (Mar),mar,2026-04-16,17:00,2.6%,2.6%,,2.5%,1.9%,1.9%,2.5%
@@ -6434,8 +6433,8 @@ EUR::German Buba Monthly Report::none,EUR,German Buba Monthly Report,,2026-04-16
 USD::IMF Meetings::none,USD,IMF Meetings,,2026-04-16,18:00,,,,,,,
 EUR::German Buba Mauderer Speaks::none,EUR,German Buba Mauderer Speaks,,2026-04-16,18:45,,,,,,,
 EUR::ECB Publishes Account of Monetary Policy Meeting::none,EUR,ECB Publishes Account of Monetary Policy Meeting,,2026-04-16,19:30,,,,,,,
-TRY::Gross FX Reserves::none,TRY,Gross FX Reserves,,2026-04-16,19:30,64.07B,64.07B,,,58.42B,58.42B,61.29B
-TRY::Net FX Reserves::none,TRY,Net FX Reserves,,2026-04-16,19:30,55.59%,55.59%,,,45.66%,45.66%,57.41%
+TRY::Gross FX Reserves::none,TRY,Gross FX Reserves,,2026-04-16,19:30,64.07B,64.07B,,,58.42B,58.42B,
+TRY::Net FX Reserves::none,TRY,Net FX Reserves,,2026-04-16,19:30,55.59%,55.59%,,,45.66%,45.66%,
 BRL::IBC-Br Economic Activity::none,BRL,IBC-Br Economic Activity  (Feb),feb,2026-04-16,20:00,0.60%,0.60%,,0.50%,0.80%,0.80%,
 PLN::Core CPI::y/y,PLN,Core CPI (YoY)  (Mar),mar,2026-04-16,20:00,2.7%,2.7%,,2.5%,2.5%,2.5%,
 CAD::New Motor Vehicle Sales::m/m,CAD,New Motor Vehicle Sales (MoM)  (Feb),feb,2026-04-16,20:30,124.0K,124.0K,,,114.4K,114.4K,
@@ -6445,11 +6444,11 @@ USD::Philly Fed CAPEX Index::none,USD,Philly Fed CAPEX Index  (Apr),apr,2026-04-
 USD::Philly Fed Employment::none,USD,Philly Fed Employment  (Apr),apr,2026-04-16,20:30,-5.1,-5.1,,,0.8,0.8,
 USD::Philly Fed New Orders::none,USD,Philly Fed New Orders  (Apr),apr,2026-04-16,20:30,33.0,33.0,,,8.6,8.6,
 USD::Philly Fed Prices Paid::none,USD,Philly Fed Prices Paid  (Apr),apr,2026-04-16,20:30,59.30,59.30,,,44.70,44.70,
-USD::Continuing Jobless Claims::none,USD,Continuing Jobless Claims,,2026-04-16,20:30,"1,818K","1,818K",,"1,810K","1,787K","1,787K","1,819K"
-USD::Initial Jobless Claims::none,USD,Initial Jobless Claims,,2026-04-16,20:30,207K,207K,,213K,218K,218K,210K
-USD::Jobless Claims 4-Week Avg.::none,USD,Jobless Claims 4-Week Avg.,,2026-04-16,20:30,209.75K,209.75K,,,209.25K,209.25K,210.50K
+USD::Continuing Jobless Claims::none,USD,Continuing Jobless Claims,,2026-04-16,20:30,"1,818K","1,818K",,"1,810K","1,787K","1,787K","1,794K"
+USD::Initial Jobless Claims::none,USD,Initial Jobless Claims,,2026-04-16,20:30,207K,207K,,213K,218K,218K,219K
+USD::Jobless Claims 4-Week Avg.::none,USD,Jobless Claims 4-Week Avg.,,2026-04-16,20:30,209.75K,209.75K,,,209.25K,209.25K,209.50K
 USD::FOMC Member Williams Speaks::none,USD,FOMC Member Williams Speaks,,2026-04-16,20:35,,,,,,,
-RUB::Central Bank reserves (USD)::none,RUB,Central Bank reserves (USD),,2026-04-16,21:00,774.8B,774.8B,,,767.5B,767.5B,776.8B
+RUB::Central Bank reserves (USD)::none,RUB,Central Bank reserves (USD),,2026-04-16,21:00,774.8B,774.8B,,,767.5B,767.5B,
 EUR::ECB's Schnabel Speaks::none,EUR,ECB's Schnabel Speaks,,2026-04-16,21:00,,,,,,,
 USD::Capacity Utilization Rate::none,USD,Capacity Utilization Rate  (Mar),mar,2026-04-16,21:15,75.7%,75.7%,,76.3%,76.1%,76.1%,76.3%
 USD::Industrial Production::m/m,USD,Industrial Production (MoM)  (Mar),mar,2026-04-16,21:15,-0.5%,-0.5%,,0.1%,0.7%,0.7%,0.2%
@@ -6457,16 +6456,16 @@ USD::Industrial Production::y/y,USD,Industrial Production (YoY)  (Mar),mar,2026-
 USD::Manufacturing Production::m/m,USD,Manufacturing Production (MoM)  (Mar),mar,2026-04-16,21:15,-0.1%,-0.1%,,0.1%,0.4%,0.4%,0.2%
 GBP::NIESR Monthly GDP Tracker::none,GBP,NIESR Monthly GDP Tracker  (Mar),mar,2026-04-16,21:30,0.6%,0.6%,,,0.5%,0.5%,0.3%
 ARS::Budget Balance::none,ARS,Budget Balance  (Mar),mar,2026-04-16,22:05,930M,930M,,,"1,411M","1,411M",
-USD::Natural Gas Storage::none,USD,Natural Gas Storage,,2026-04-16,22:30,59B,59B,,55B,50B,50B,-54B
+USD::Natural Gas Storage::none,USD,Natural Gas Storage,,2026-04-16,22:30,59B,59B,,55B,50B,50B,
 COP::Industrial Production::y/y,COP,Industrial Production (YoY)  (Feb),feb,2026-04-16,23:00,1.4%,1.4%,,0.6%,-0.5%,-0.5%,
 COP::Retail Sales::y/y,COP,Retail Sales (YoY)  (Feb),feb,2026-04-16,23:00,10.9%,10.9%,,9.8%,7.8%,7.8%,
-USD::4-Week Bill Auction::none,USD,4-Week Bill Auction,,2026-04-16,23:30,3.595%,3.595%,,,3.560%,3.560%,3.620%
-USD::8-Week Bill Auction::none,USD,8-Week Bill Auction,,2026-04-16,23:30,3.615%,3.615%,,,3.575%,3.575%,3.630%
+USD::4-Week Bill Auction::none,USD,4-Week Bill Auction,,2026-04-16,23:30,3.595%,3.595%,,,3.560%,3.560%,
+USD::8-Week Bill Auction::none,USD,8-Week Bill Auction,,2026-04-16,23:30,3.615%,3.615%,,,3.575%,3.575%,
 GBP::BoE Deputy Governor Woods Speaks::none,GBP,BoE Deputy Governor Woods Speaks,,2026-04-16,23:40,,,,,,,
 EUR::German Buba President Nagel Speaks::none,EUR,German Buba President Nagel Speaks,,2026-04-17,00:45,,,,,,,
 EUR::ECB's Lane Speaks::none,EUR,ECB's Lane Speaks,,2026-04-17,02:30,,,,,,,
-USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2026-04-17,04:30,"6,706B","6,706B",,,"6,694B","6,694B","6,657B"
-USD::Reserve Balances with Federal Reserve Banks::none,USD,Reserve Balances with Federal Reserve Banks,,2026-04-17,04:30,2.980T,2.980T,,,3.184T,3.184T,3.036T
+USD::Fed's Balance Sheet::none,USD,Fed's Balance Sheet,,2026-04-17,04:30,"6,706B","6,706B",,,"6,694B","6,694B",
+USD::Reserve Balances with Federal Reserve Banks::none,USD,Reserve Balances with Federal Reserve Banks,,2026-04-17,04:30,2.980T,2.980T,,,3.184T,3.184T,
 NZD::Electronic Card Retail Sales::m/m,NZD,Electronic Card Retail Sales (MoM)  (Mar),mar,2026-04-17,06:45,0.7%,0.7%,,,1.4%,1.4%,
 NZD::Electronic Card Retail Sales::y/y,NZD,Electronic Card Retail Sales (YoY)  (Mar),mar,2026-04-17,06:45,2.7%,2.7%,,,1.5%,1.5%,
 NZD::FPI::m/m,NZD,FPI (MoM)  (Mar),mar,2026-04-17,06:45,-0.6%,-0.6%,,,-0.1%,-0.1%,
@@ -6480,8 +6479,8 @@ MYR::CPI::y/y,MYR,CPI (YoY)  (Mar),mar,2026-04-17,12:00,1.7%,1.7%,,1.7%,1.4%,1.4
 MYR::GDP::y/y,MYR,GDP (YoY)  (Q1),q1,2026-04-17,12:00,5.3%,5.3%,,,6.3%,6.3%,
 HUF::Gross Wages::y/y,HUF,Gross Wages (YoY)  (Feb),feb,2026-04-17,14:30,9.7%,9.7%,,,26.3%,26.3%,
 TRY::End Year CPI Forecast::none,TRY,End Year CPI Forecast  (Apr),apr,2026-04-17,15:00,27.53%,27.53%,,,25.38%,25.38%,
-THB::Currency Swaps (USD)::none,THB,Currency Swaps (USD),,2026-04-17,15:30,22.8B,22.8B,,,23.1B,23.1B,22.1B
-THB::Foreign Reserves (USD)::none,THB,Foreign Reserves (USD),,2026-04-17,15:30,285.5B,285.5B,,,281.0B,281.0B,280.0B
+THB::Currency Swaps (USD)::none,THB,Currency Swaps (USD),,2026-04-17,15:30,22.8B,22.8B,,,23.1B,23.1B,
+THB::Foreign Reserves (USD)::none,THB,Foreign Reserves (USD),,2026-04-17,15:30,285.5B,285.5B,,,281.0B,281.0B,
 EUR::Current Account::none,EUR,Current Account  (Feb),feb,2026-04-17,16:00,24.9B,24.9B,,29.8B,40.4B,40.4B,37.9B
 EUR::Current Account n.s.a.::none,EUR,Current Account n.s.a.  (Feb),feb,2026-04-17,16:00,21.1B,21.1B,,,15.4B,15.4B,13.0B
 EUR::Italian Trade Balance::none,EUR,Italian Trade Balance  (Feb),feb,2026-04-17,16:00,4.944B,4.944B,,3.830B,1.129B,1.129B,1.089B
@@ -6493,7 +6492,7 @@ USD::IMF Meetings::none,USD,IMF Meetings,,2026-04-17,18:00,,,,,,,
 MWK::CPI::y/y,MWK,CPI (YoY)  (Mar),mar,2026-04-17,19:00,23.8%,23.8%,,,24.1%,24.1%,
 INR::Bank Loan Growth::none,INR,Bank Loan Growth,,2026-04-17,19:30,16.1%,16.1%,,,13.8%,13.8%,
 INR::Deposit Growth::none,INR,Deposit Growth,,2026-04-17,19:30,13.5%,13.5%,,,10.8%,10.8%,
-"INR::FX Reserves, USD::none",INR,"FX Reserves, USD",,2026-04-17,19:30,700.95B,700.95B,,,697.12B,697.12B,698.35B
+"INR::FX Reserves, USD::none",INR,"FX Reserves, USD",,2026-04-17,19:30,700.95B,700.95B,,,697.12B,697.12B,
 GBP::BoE MPC Member Pill Speaks::none,GBP,BoE MPC Member Pill Speaks,,2026-04-17,20:00,,,,,,,
 CAD::Housing Starts::none,CAD,Housing Starts  (Mar),mar,2026-04-17,20:15,235.9K,235.9K,,258.0K,251.0K,251.0K,250.9K
 CAD::Foreign Securities Purchases::none,CAD,Foreign Securities Purchases  (Feb),feb,2026-04-17,20:30,6.17B,6.17B,,23.81B,46.79B,46.79B,46.73B
@@ -6501,31 +6500,31 @@ CAD::Foreign Securities Purchases by Canadians::none,CAD,Foreign Securities Purc
 EUR::German Buba Vice President Buch Speaks::none,EUR,German Buba Vice President Buch Speaks,,2026-04-17,22:30,,,,,,,
 USD::FOMC Member Daly Speaks::none,USD,FOMC Member Daly Speaks,,2026-04-17,23:30,,,,,,,
 USD::FOMC Member Barkin Speaks::none,USD,FOMC Member Barkin Speaks,,2026-04-18,00:15,,,,,,,
-USD::U.S. Baker Hughes Oil Rig Count::none,USD,U.S. Baker Hughes Oil Rig Count,,2026-04-18,01:00,,,,,411,411,
-USD::U.S. Baker Hughes Total Rig Count::none,USD,U.S. Baker Hughes Total Rig Count,,2026-04-18,01:00,,,,,545,545,
+USD::U.S. Baker Hughes Oil Rig Count::none,USD,U.S. Baker Hughes Oil Rig Count,,2026-04-18,01:00,410,410,,,411,411,
+USD::U.S. Baker Hughes Total Rig Count::none,USD,U.S. Baker Hughes Total Rig Count,,2026-04-18,01:00,543,543,,,545,545,
 KES::GDP::q/q,KES,GDP (QoQ)  (Q4),q4,2026-04-18,02:00,,,,,4.90%,4.90%,
 USD::Fed Waller Speaks::none,USD,Fed Waller Speaks,,2026-04-18,02:00,,,,,,,
 USD::U.S. President Trump Speaks::none,USD,U.S. President Trump Speaks,,2026-04-18,02:00,,,,,,,
-AUD::CFTC AUD speculative net positions::none,AUD,CFTC AUD speculative net positions,,2026-04-18,03:30,,,,,70.8K,70.8K,
-USD::CFTC Aluminium speculative net positions::none,USD,CFTC Aluminium speculative net positions,,2026-04-18,03:30,,,,,0.3K,0.3K,
-BRL::CFTC BRL speculative net positions::none,BRL,CFTC BRL speculative net positions,,2026-04-18,03:30,,,,,40.1K,40.1K,
-CAD::CFTC CAD speculative net positions::none,CAD,CFTC CAD speculative net positions,,2026-04-18,03:30,,,,,-55.6K,-55.6K,
-CHF::CFTC CHF speculative net positions::none,CHF,CFTC CHF speculative net positions,,2026-04-18,03:30,,,,,-30.7K,-30.7K,
-USD::CFTC Copper speculative net positions::none,USD,CFTC Copper speculative net positions,,2026-04-18,03:30,,,,,40.2K,40.2K,
-USD::CFTC Corn speculative net positions::none,USD,CFTC Corn speculative net positions,,2026-04-18,03:30,,,,,290.8K,290.8K,
-USD::CFTC Crude Oil speculative net positions::none,USD,CFTC Crude Oil speculative net positions,,2026-04-18,03:30,,,,,202.2K,202.2K,
-EUR::CFTC EUR speculative net positions::none,EUR,CFTC EUR speculative net positions,,2026-04-18,03:30,,,,,-7.5K,-7.5K,
-GBP::CFTC GBP speculative net positions::none,GBP,CFTC GBP speculative net positions,,2026-04-18,03:30,,,,,-56.4K,-56.4K,
-USD::CFTC Gold speculative net positions::none,USD,CFTC Gold speculative net positions,,2026-04-18,03:30,,,,,156.3K,156.3K,
-JPY::CFTC JPY speculative net positions::none,JPY,CFTC JPY speculative net positions,,2026-04-18,03:30,,,,,-93.7K,-93.7K,
-MXN::CFTC MXN speculative net positions::none,MXN,CFTC MXN speculative net positions,,2026-04-18,03:30,,,,,57.5K,57.5K,
-NZD::CFTC NZD speculative net positions::none,NZD,CFTC NZD speculative net positions,,2026-04-18,03:30,,,,,-36.1K,-36.1K,
-USD::CFTC Nasdaq 100 speculative net positions::none,USD,CFTC Nasdaq 100 speculative net positions,,2026-04-18,03:30,,,,,12.5K,12.5K,
-USD::CFTC Natural Gas speculative net positions::none,USD,CFTC Natural Gas speculative net positions,,2026-04-18,03:30,,,,,-184.0K,-184.0K,
-USD::CFTC S&P 500 speculative net positions::none,USD,CFTC S&P 500 speculative net positions,,2026-04-18,03:30,,,,,-45.7K,-45.7K,
-USD::CFTC Silver speculative net positions::none,USD,CFTC Silver speculative net positions,,2026-04-18,03:30,,,,,23.4K,23.4K,
-USD::CFTC Soybeans speculative net positions::none,USD,CFTC Soybeans speculative net positions,,2026-04-18,03:30,,,,,208.5K,208.5K,
-USD::CFTC Wheat speculative net positions::none,USD,CFTC Wheat speculative net positions,,2026-04-18,03:30,,,,,-18.7K,-18.7K,
+AUD::CFTC AUD speculative net positions::none,AUD,CFTC AUD speculative net positions,,2026-04-18,03:30,65.1K,65.1K,,,70.8K,70.8K,
+USD::CFTC Aluminium speculative net positions::none,USD,CFTC Aluminium speculative net positions,,2026-04-18,03:30,0.5K,0.5K,,,0.3K,0.3K,
+BRL::CFTC BRL speculative net positions::none,BRL,CFTC BRL speculative net positions,,2026-04-18,03:30,40.0K,40.0K,,,40.1K,40.1K,
+CAD::CFTC CAD speculative net positions::none,CAD,CFTC CAD speculative net positions,,2026-04-18,03:30,-78.3K,-78.3K,,,-55.6K,-55.6K,
+CHF::CFTC CHF speculative net positions::none,CHF,CFTC CHF speculative net positions,,2026-04-18,03:30,-34.1K,-34.1K,,,-30.7K,-30.7K,
+USD::CFTC Copper speculative net positions::none,USD,CFTC Copper speculative net positions,,2026-04-18,03:30,55.1K,55.1K,,,40.2K,40.2K,
+USD::CFTC Corn speculative net positions::none,USD,CFTC Corn speculative net positions,,2026-04-18,03:30,248.9K,248.9K,,,290.8K,290.8K,
+USD::CFTC Crude Oil speculative net positions::none,USD,CFTC Crude Oil speculative net positions,,2026-04-18,03:30,206.5K,206.5K,,,202.2K,202.2K,
+EUR::CFTC EUR speculative net positions::none,EUR,CFTC EUR speculative net positions,,2026-04-18,03:30,26.0K,26.0K,,,-7.5K,-7.5K,
+GBP::CFTC GBP speculative net positions::none,GBP,CFTC GBP speculative net positions,,2026-04-18,03:30,-54.7K,-54.7K,,,-56.4K,-56.4K,
+USD::CFTC Gold speculative net positions::none,USD,CFTC Gold speculative net positions,,2026-04-18,03:30,162.5K,162.5K,,,156.3K,156.3K,
+JPY::CFTC JPY speculative net positions::none,JPY,CFTC JPY speculative net positions,,2026-04-18,03:30,-83.2K,-83.2K,,,-93.7K,-93.7K,
+MXN::CFTC MXN speculative net positions::none,MXN,CFTC MXN speculative net positions,,2026-04-18,03:30,59.0K,59.0K,,,57.5K,57.5K,
+NZD::CFTC NZD speculative net positions::none,NZD,CFTC NZD speculative net positions,,2026-04-18,03:30,-42.3K,-42.3K,,,-36.1K,-36.1K,
+USD::CFTC Nasdaq 100 speculative net positions::none,USD,CFTC Nasdaq 100 speculative net positions,,2026-04-18,03:30,10.8K,10.8K,,,12.5K,12.5K,
+USD::CFTC Natural Gas speculative net positions::none,USD,CFTC Natural Gas speculative net positions,,2026-04-18,03:30,-186.9K,-186.9K,,,-184.0K,-184.0K,
+USD::CFTC S&P 500 speculative net positions::none,USD,CFTC S&P 500 speculative net positions,,2026-04-18,03:30,-115.8K,-115.8K,,,-45.7K,-45.7K,
+USD::CFTC Silver speculative net positions::none,USD,CFTC Silver speculative net positions,,2026-04-18,03:30,23.6K,23.6K,,,23.4K,23.4K,
+USD::CFTC Soybeans speculative net positions::none,USD,CFTC Soybeans speculative net positions,,2026-04-18,03:30,201.7K,201.7K,,,208.5K,208.5K,
+USD::CFTC Wheat speculative net positions::none,USD,CFTC Wheat speculative net positions,,2026-04-18,03:30,-18.4K,-18.4K,,,-18.7K,-18.7K,
 EUR::Slovak Current Account::none,EUR,Slovak Current Account  (Feb),feb,2026-04-18,04:00,,,,,-490.0M,-490.0M,
 USD::IMF Meetings::none,USD,IMF Meetings,,2026-04-18,18:00,,,,,,,
 NZD::Exports::none,NZD,Exports  (Mar),mar,2026-04-20,06:45,,,,,6.63B,6.63B,
@@ -6586,7 +6585,7 @@ GBP::Unemployment Rate::none,GBP,Unemployment Rate  (Feb),feb,2026-04-21,14:00,,
 GBP::Claimant Count Change::none,GBP,Claimant Count Change  (Mar),mar,2026-04-21,14:00,,,,,24.7K,24.7K,
 CHF::Trade Balance::none,CHF,Trade Balance  (Mar),mar,2026-04-21,14:00,,,,,4.204B,4.204B,
 EUR::German Buba President Nagel Speaks::none,EUR,German Buba President Nagel Speaks,,2026-04-21,14:30,,,,,,,
-CHF::M3 Money Supply::none,CHF,M3 Money Supply  (Mar),mar,2026-04-21,15:00,,,,,"1,216.0B","1,216.0B",
+CHF::M3 Money Supply::none,CHF,M3 Money Supply  (Mar),mar,2026-04-21,15:00,,,,,"1,216,014.0B","1,216,014.0B",
 TRY::Capacity Utilization::none,TRY,Capacity Utilization  (Apr),apr,2026-04-21,15:00,,,,,73.3%,73.3%,
 TRY::Manufacturing Confidence::none,TRY,Manufacturing Confidence  (Apr),apr,2026-04-21,15:00,,,,,101.0,101.0,
 PLN::Corp. Sector Wages::y/y,PLN,Corp. Sector Wages (YoY)  (Mar),mar,2026-04-21,15:30,,,,,6.1%,6.1%,
@@ -6844,7 +6843,7 @@ USD::Michigan Consumer Sentiment::none,USD,Michigan Consumer Sentiment  (Apr),ap
 USD::Michigan Current Conditions::none,USD,Michigan Current Conditions  (Apr),apr,2026-04-24,22:00,,,,50.1,55.8,55.8,
 CAD::Budget Balance::none,CAD,Budget Balance  (Feb),feb,2026-04-24,23:00,,,,,-5.07B,-5.07B,
 CAD::Budget Balance::y/y,CAD,Budget Balance (YoY)  (Feb),feb,2026-04-24,23:00,,,,,-31.21B,-31.21B,
-USD::U.S. Baker Hughes Oil Rig Count::none,USD,U.S. Baker Hughes Oil Rig Count,,2026-04-25,01:00,,,,,,409,
+USD::U.S. Baker Hughes Oil Rig Count::none,USD,U.S. Baker Hughes Oil Rig Count,,2026-04-25,01:00,,,,,,410,
 USD::U.S. Baker Hughes Total Rig Count::none,USD,U.S. Baker Hughes Total Rig Count,,2026-04-25,01:00,,,,,,543,
 GBP::GfK Consumer Confidence::none,GBP,GfK Consumer Confidence  (Apr),apr,2026-04-25,07:00,,,,,-21,-21,
 JPY::Tokyo CPI::y/y,JPY,Tokyo CPI (YoY),,2026-04-25,07:30,,,,,1.4%,1.4%,
@@ -7317,3 +7316,9 @@ USD::CFTC S&P 500 speculative net positions::none,USD,CFTC S&P 500 speculative n
 USD::CFTC Silver speculative net positions::none,USD,CFTC Silver speculative net positions,,2026-04-11,03:30,23.4K,23.4K,,,23.9K,23.9K,
 USD::CFTC Soybeans speculative net positions::none,USD,CFTC Soybeans speculative net positions,,2026-04-11,03:30,208.5K,208.5K,,,227.8K,227.8K,
 USD::CFTC Wheat speculative net positions::none,USD,CFTC Wheat speculative net positions,,2026-04-11,03:30,-18.7K,-18.7K,,,-9.4K,-9.4K,
+EUR::Slovak Current Account::none,EUR,Slovak Current Account  (Feb),feb,2026-04-17,15:00,-398.0M,-398.0M,,,-731.0M,-731.0M,-489.8M
+KES::GDP::q/q,KES,GDP (QoQ)  (Q4),q4,2026-04-21,02:00,,,,,4.90%,4.90%,
+JPY::Exports::y/y,JPY,Exports (YoY)  (Mar),mar,2026-04-22,07:50,,,,,4.0%,4.0%,
+JPY::Imports::y/y,JPY,Imports (YoY)  (Mar),mar,2026-04-22,07:50,,,,,10.3%,10.3%,
+JPY::Trade Balance::none,JPY,Trade Balance  (Mar),mar,2026-04-22,07:50,,,,,44.3B,44.3B,
+CAD::New Housing Price Index::m/m,CAD,New Housing Price Index (MoM)  (Mar),mar,2026-04-22,20:30,,,,,0.3%,0.3%,

@@ -49,6 +49,7 @@ stale_missing_actual_dropped,RUB::CFTC RUB speculative positions::none,RUB,CFTC 
 stale_missing_actual_dropped,RUB::CFTC RUB speculative positions::none,RUB,CFTC RUB speculative positions,,2026-03-14,04:30,,,,"{""cutoff"": ""15-04-2026 15:36""}"
 stale_missing_actual_dropped,HUF::Current Account (EUR)::q/q,HUF,Current Account (EUR) (QoQ)  (Q4),q4,2026-03-29,04:00,,,,"{""cutoff"": ""15-04-2026 15:36""}"
 previous_missing_filled,CAD::Retail Sales::m/m,CAD,Retail Sales (MoM)  (Mar),mar,2026-04-24,20:30,,0.9%,0.9%,
-previous_missing_filled,USD::U.S. Baker Hughes Oil Rig Count::none,USD,U.S. Baker Hughes Oil Rig Count,,2026-04-25,01:00,,409,409,
+previous_missing_filled,USD::U.S. Baker Hughes Oil Rig Count::none,USD,U.S. Baker Hughes Oil Rig Count,,2026-04-25,01:00,,410,410,
 previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2026-04-16,02:00,,0.00,0.00,
 previous_missing_filled,USD::U.S. Baker Hughes Total Rig Count::none,USD,U.S. Baker Hughes Total Rig Count,,2026-04-25,01:00,,543,543,
+stale_missing_actual_dropped,USD::Beige Book::none,USD,Beige Book,,2026-04-16,02:00,,,,"{""cutoff"": ""16-04-2026 15:48""}"
