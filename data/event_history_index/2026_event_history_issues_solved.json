@@ -1,5 +1,5 @@
 {
-  "generated_at": "18-04-2026 15:48",
+  "generated_at": "19-04-2026 15:48",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -505,18 +505,6 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "CAD::Retail Sales::m/m",
-      "cur": "CAD",
-      "event": "Retail Sales (MoM)  (Mar)",
-      "period": "mar",
-      "date": "2026-04-24",
-      "time": "20:30",
-      "previous_raw": "",
-      "prior_actual": "0.9%",
-      "previous_effective": "0.9%"
-    },
-    {
-      "issue": "previous_missing_filled",
       "event_id": "USD::U.S. Baker Hughes Oil Rig Count::none",
       "cur": "USD",
       "event": "U.S. Baker Hughes Oil Rig Count",
@@ -559,7 +547,7 @@
       "period": "",
       "date": "2026-04-16",
       "time": "02:00",
-      "cutoff": "16-04-2026 15:48"
+      "cutoff": "17-04-2026 15:47"
     }
   ]
 }
