@@ -51,4 +51,4 @@ stale_missing_actual_dropped,HUF::Current Account (EUR)::q/q,HUF,Current Account
 previous_missing_filled,USD::U.S. Baker Hughes Oil Rig Count::none,USD,U.S. Baker Hughes Oil Rig Count,,2026-04-25,01:00,,410,410,
 previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2026-04-16,02:00,,0.00,0.00,
 previous_missing_filled,USD::U.S. Baker Hughes Total Rig Count::none,USD,U.S. Baker Hughes Total Rig Count,,2026-04-25,01:00,,543,543,
-stale_missing_actual_dropped,USD::Beige Book::none,USD,Beige Book,,2026-04-16,02:00,,,,"{""cutoff"": ""17-04-2026 15:47""}"
+stale_missing_actual_dropped,USD::Beige Book::none,USD,Beige Book,,2026-04-16,02:00,,,,"{""cutoff"": ""18-04-2026 15:58""}"
