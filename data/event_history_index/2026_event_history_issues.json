@@ -1,5 +1,5 @@
 {
-  "generated_at": "24-04-2026 15:55",
+  "generated_at": "25-04-2026 15:48",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -527,18 +527,6 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "CAD::GDP::m/m",
-      "cur": "CAD",
-      "event": "GDP (MoM)  (Mar)",
-      "period": "mar",
-      "date": "2026-04-30",
-      "time": "20:30",
-      "previous_raw": "",
-      "prior_actual": "0.2%",
-      "previous_effective": "0.2%"
-    },
-    {
-      "issue": "previous_missing_filled",
       "event_id": "USD::U.S. Baker Hughes Oil Rig Count::none",
       "cur": "USD",
       "event": "U.S. Baker Hughes Oil Rig Count",
@@ -546,8 +534,8 @@
       "date": "2026-05-02",
       "time": "01:00",
       "previous_raw": "",
-      "prior_actual": "410",
-      "previous_effective": "410"
+      "prior_actual": "407",
+      "previous_effective": "407"
     },
     {
       "issue": "previous_missing_filled",
@@ -563,18 +551,6 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "TRY::Gross FX Reserves::none",
-      "cur": "TRY",
-      "event": "Gross FX Reserves",
-      "period": "",
-      "date": "2026-04-30",
-      "time": "19:30",
-      "previous_raw": "",
-      "prior_actual": "61.82B",
-      "previous_effective": "61.82B"
-    },
-    {
-      "issue": "previous_missing_filled",
       "event_id": "USD::Atlanta Fed GDPNow::none",
       "cur": "USD",
       "event": "Atlanta Fed GDPNow  (Q2)",
@@ -584,6 +560,18 @@
       "previous_raw": "",
       "prior_actual": "1.2%",
       "previous_effective": "1.2%"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "USD::U.S. Baker Hughes Total Rig Count::none",
+      "cur": "USD",
+      "event": "U.S. Baker Hughes Total Rig Count",
+      "period": "",
+      "date": "2026-05-02",
+      "time": "01:00",
+      "previous_raw": "",
+      "prior_actual": "544",
+      "previous_effective": "544"
     }
   ]
 }
