@@ -50,5 +50,5 @@ stale_missing_actual_dropped,HUF::Current Account (EUR)::q/q,HUF,Current Account
 previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2026-04-16,02:00,,0.00,0.00,
 stale_missing_actual_dropped,USD::Beige Book::none,USD,Beige Book,,2026-04-16,02:00,,,,"{""cutoff"": ""19-04-2026 15:58""}"
 previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q2),q2,2026-04-30,22:00,,1.2%,1.2%,
-previous_missing_filled,"INR::FX Reserves, USD::none",INR,"FX Reserves, USD",,2026-05-01,19:30,,703.31B,703.31B,
 previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q2),q2,2026-05-01,23:30,,1.2%,1.2%,
+previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q2),q2,2026-05-05,23:30,,1.2%,1.2%,

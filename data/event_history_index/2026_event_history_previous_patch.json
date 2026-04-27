@@ -1,5 +1,5 @@
 {
-  "generated_at": "26-04-2026 15:48",
+  "generated_at": "27-04-2026 16:06",
   "patches": [
     {
       "patch": "previous_missing_filled",
@@ -87,15 +87,15 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "INR::FX Reserves, USD::none",
-      "cur": "INR",
-      "event": "FX Reserves, USD",
-      "period": "",
+      "event_id": "USD::Atlanta Fed GDPNow::none",
+      "cur": "USD",
+      "event": "Atlanta Fed GDPNow  (Q2)",
+      "period": "q2",
       "date": "2026-05-01",
-      "time": "19:30",
+      "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "703.31B",
-      "previous_effective": "703.31B"
+      "prior_actual": "1.2%",
+      "previous_effective": "1.2%"
     },
     {
       "patch": "previous_missing_filled",
@@ -103,7 +103,7 @@
       "cur": "USD",
       "event": "Atlanta Fed GDPNow  (Q2)",
       "period": "q2",
-      "date": "2026-05-01",
+      "date": "2026-05-05",
       "time": "23:30",
       "previous_raw": "",
       "prior_actual": "1.2%",
