@@ -7323,34 +7323,34 @@ THB::Custom-Based Import Data::none,2026-04-24,15:00,mar,35.70%,,31.80%
 THB::Custom-Based Trade Data (USD)::none,2026-04-24,15:00,mar,-3.340B,,-2.830B
 THB::Currency Swaps (USD)::none,2026-04-24,15:30,,22.6B,,22.8B
 THB::Foreign Reserves (USD)::none,2026-04-24,15:30,,288.8B,,285.5B
-JPY::BoJ Interest Rate Decision::none,2026-04-28,11:00,,,0.75%,0.75%
-SEK::Trade Balance::none,2026-04-28,14:00,mar,,,1.80B
-ZAR::Leading Indicators::none,2026-04-28,15:00,feb,,,118.20%
-EUR::Spanish Retail Sales::y/y,2026-04-28,15:00,mar,,,2.2%
-EUR::Spanish Unemployment Rate::none,2026-04-28,15:00,q1,,9.80%,9.93%
-EUR::Italian Industrial Sales::m/m,2026-04-28,16:00,feb,,,-0.30%
-EUR::Italian Industrial Sales::y/y,2026-04-28,16:00,feb,,,-1.00%
-EUR::Bank Austria Manufacturing PMI::none,2026-04-28,16:00,apr,,,52.4
-HKD::Exports::m/m,2026-04-28,16:30,mar,,,24.7%
-HKD::Imports::m/m,2026-04-28,16:30,mar,,,29.9%
-EUR::Italian PPI::m/m,2026-04-28,17:00,mar,,,-0.4%
-EUR::Italian PPI::y/y,2026-04-28,17:00,mar,,,-2.7%
-INR::Cumulative Industrial Production::none,2026-04-28,18:30,mar,,,4.10%
-INR::Industrial Production::y/y,2026-04-28,18:30,mar,,4.0%,5.2%
-INR::Manufacturing Output::m/m,2026-04-28,18:30,mar,,,6.0%
-HUF::Interest Rate Decision::none,2026-04-28,20:00,apr,,6.25%,6.25%
-USD::House Price Index::m/m,2026-04-28,21:00,feb,,0.1%,0.1%
-USD::House Price Index::none,2026-04-28,21:00,feb,,,441.0
-USD::House Price Index::y/y,2026-04-28,21:00,feb,,,1.6%
-USD::S&P/CS HPI Composite - 20 n.s.a.::m/m,2026-04-28,21:00,feb,,,-0.1%
-USD::S&P/CS HPI Composite - 20 n.s.a.::y/y,2026-04-28,21:00,feb,,1.0%,1.2%
-USD::S&P/CS HPI Composite - 20 s.a.::m/m,2026-04-28,21:00,feb,,,0.2%
-USD::CB Consumer Confidence::none,2026-04-28,22:00,apr,,89.4,91.8
-USD::Richmond Manufacturing Index::none,2026-04-28,22:00,apr,,-4,0
-USD::Richmond Manufacturing Shipments::none,2026-04-28,22:00,apr,,,-2
-USD::Richmond Services Index::none,2026-04-28,22:00,apr,,,9
-USD::Dallas Fed Services Revenues::none,2026-04-28,22:30,apr,,,1.3
-USD::Texas Services Sector Outlook::none,2026-04-28,22:30,apr,,,-13.3
+JPY::BoJ Interest Rate Decision::none,2026-04-28,11:00,,0.75%,0.75%,0.75%
+SEK::Trade Balance::none,2026-04-28,14:00,mar,9.30B,,0.70B
+ZAR::Leading Indicators::none,2026-04-28,15:00,feb,120.20%,,119.61%
+EUR::Spanish Retail Sales::y/y,2026-04-28,15:00,mar,4.1%,,2.3%
+EUR::Spanish Unemployment Rate::none,2026-04-28,15:00,q1,10.83%,9.80%,9.93%
+EUR::Italian Industrial Sales::m/m,2026-04-28,16:00,feb,0.60%,,-0.20%
+EUR::Italian Industrial Sales::y/y,2026-04-28,16:00,feb,0.50%,,-0.80%
+EUR::Bank Austria Manufacturing PMI::none,2026-04-28,16:00,apr,51.2,,52.4
+HKD::Exports::m/m,2026-04-28,16:30,mar,35.8%,,24.7%
+HKD::Imports::m/m,2026-04-28,16:30,mar,41.2%,,29.9%
+EUR::Italian PPI::m/m,2026-04-28,17:00,mar,4.4%,,-0.4%
+EUR::Italian PPI::y/y,2026-04-28,17:00,mar,4.2%,,-2.7%
+INR::Cumulative Industrial Production::none,2026-04-28,18:30,mar,4.10%,,4.10%
+INR::Industrial Production::y/y,2026-04-28,18:30,mar,4.1%,3.7%,5.1%
+INR::Manufacturing Output::m/m,2026-04-28,18:30,mar,4.3%,,5.9%
+HUF::Interest Rate Decision::none,2026-04-28,20:00,apr,6.25%,6.25%,6.25%
+USD::House Price Index::m/m,2026-04-28,21:00,feb,0.0%,0.1%,0.2%
+USD::House Price Index::none,2026-04-28,21:00,feb,441.4,,441.5
+USD::House Price Index::y/y,2026-04-28,21:00,feb,1.7%,,1.8%
+USD::S&P/CS HPI Composite - 20 n.s.a.::m/m,2026-04-28,21:00,feb,0.4%,,-0.1%
+USD::S&P/CS HPI Composite - 20 n.s.a.::y/y,2026-04-28,21:00,feb,0.9%,1.1%,1.2%
+USD::S&P/CS HPI Composite - 20 s.a.::m/m,2026-04-28,21:00,feb,-0.1%,,0.2%
+USD::CB Consumer Confidence::none,2026-04-28,22:00,apr,92.8,89.0,92.2
+USD::Richmond Manufacturing Index::none,2026-04-28,22:00,apr,3,2,0
+USD::Richmond Manufacturing Shipments::none,2026-04-28,22:00,apr,-2,,-2
+USD::Richmond Services Index::none,2026-04-28,22:00,apr,9,,9
+USD::Dallas Fed Services Revenues::none,2026-04-28,22:30,apr,4.3,,1.3
+USD::Texas Services Sector Outlook::none,2026-04-28,22:30,apr,-9.9,,-13.3
 EUR::Spanish Trade Balance::none,2026-04-21,15:30,feb,-3.30B,,-4.00B
 ZAR::Business Confidence::none,2026-04-21,17:30,feb,134.6,,133.2
 KWD::CPI::m/m,2026-04-21,18:00,mar,0.43%,,0.14%
@@ -7364,25 +7364,25 @@ USD::Atlanta Fed GDPNow::none,2026-04-22,00:00,q1,1.2%,1.3%,1.3%
 NA::Türkiye - National Sovereignty and Children's Day::none,2026-04-23,All Day,,,,
 DKK::Retail Sales::y/y,2026-04-24,14:00,mar,7.1%,,1.9%
 AUD::CPI Index Number::none,2026-04-29,09:30,q1,,,100.32
-AUD::CPI::q/q,2026-04-29,09:30,q1,,,0.6%
+AUD::CPI::q/q,2026-04-29,09:30,q1,,1.4%,0.6%
 AUD::CPI::y/y,2026-04-29,09:30,q1,,,3.6%
-AUD::Trimmed Mean CPI::q/q,2026-04-29,09:30,q1,,,0.9%
-AUD::Trimmed Mean CPI::y/y,2026-04-29,09:30,q1,,,3.4%
+AUD::Trimmed Mean CPI::q/q,2026-04-29,09:30,q1,,0.9%,0.9%
+AUD::Trimmed Mean CPI::y/y,2026-04-29,09:30,q1,,3.5%,3.4%
 AUD::Weighted mean CPI::q/q,2026-04-29,09:30,q1,,,0.9%
 AUD::Weighted mean CPI::y/y,2026-04-29,09:30,q1,,,3.2%
 NOK::Core Retail Sales::m/m,2026-04-29,14:00,mar,,,-1.1%
 SEK::GDP::m/m,2026-04-29,14:00,mar,,,0.0%
 SEK::Household Lending Growth::y/y,2026-04-29,14:00,mar,,,3.0%
-SEK::M3 Money Supply::none,2026-04-29,14:00,mar,,,"5,034,335.0B"
+SEK::M3 Money Supply::none,2026-04-29,14:00,mar,,,"5,034.3B"
 SEK::Retail Sales::m/m,2026-04-29,14:00,mar,,,-0.6%
 SEK::Retail Sales::y/y,2026-04-29,14:00,mar,,,2.4%
-SEK::GDP::q/q,2026-04-29,14:00,q1,,,0.5%
-SEK::GDP::y/y,2026-04-29,14:00,q1,,,2.1%
+SEK::GDP::q/q,2026-04-29,14:00,q1,,0.1%,0.5%
+SEK::GDP::y/y,2026-04-29,14:00,q1,,2.1%,2.1%
 TRY::Unemployment Rate::m/m,2026-04-29,15:00,mar,,,8.5%
-EUR::Spanish CPI::m/m,2026-04-29,15:00,apr,,,1.2%
-EUR::Spanish CPI::y/y,2026-04-29,15:00,apr,,,3.4%
-EUR::Spanish HICP::m/m,2026-04-29,15:00,apr,,,1.7%
-EUR::Spanish HICP::y/y,2026-04-29,15:00,apr,,3.6%,3.4%
+EUR::Spanish CPI::m/m,2026-04-29,15:00,apr,,0.6%,1.2%
+EUR::Spanish CPI::y/y,2026-04-29,15:00,apr,,3.5%,3.4%
+EUR::Spanish HICP::m/m,2026-04-29,15:00,apr,,0.6%,1.7%
+EUR::Spanish HICP::y/y,2026-04-29,15:00,apr,,3.5%,3.4%
 SEK::Consumer Confidence::none,2026-04-29,15:00,apr,,,95.2
 SEK::Manufacturing Confidence::none,2026-04-29,15:00,apr,,,100.7
 TRY::Turkish Economic Confidence Index::none,2026-04-29,15:00,apr,,,97.90
@@ -7395,19 +7395,19 @@ EUR::Baden Wuerttemberg CPI::m/m,2026-04-29,16:00,apr,,,0.9%
 EUR::Baden Wuerttemberg CPI::y/y,2026-04-29,16:00,apr,,,2.5%
 EUR::Bavaria CPI::m/m,2026-04-29,16:00,apr,,,1.2%
 EUR::Bavaria CPI::y/y,2026-04-29,16:00,apr,,,2.8%
-EUR::Italian Business Confidence::none,2026-04-29,16:00,apr,,,88.8
-EUR::Italian Consumer Confidence::none,2026-04-29,16:00,apr,,,92.6
+EUR::Italian Business Confidence::none,2026-04-29,16:00,apr,,88.0,88.8
+EUR::Italian Consumer Confidence::none,2026-04-29,16:00,apr,,91.2,92.6
 EUR::North Rhine Westphalia CPI::y/y,2026-04-29,16:00,apr,,,2.7%
 EUR::Portuguese Business Confidence::none,2026-04-29,16:30,apr,,,2.6
 EUR::Portuguese Consumer Confidence::none,2026-04-29,16:30,apr,,,-18.70
 EUR::Greek Unemployment Rate::none,2026-04-29,17:00,mar,,,8.5%
 EUR::Business Climate::none,2026-04-29,17:00,apr,,,-0.27
 EUR::Business and Consumer Survey::none,2026-04-29,17:00,apr,,95.5,96.6
-EUR::Consumer Confidence::none,2026-04-29,17:00,apr,,-20.6,-20.6
+EUR::Consumer Confidence::none,2026-04-29,17:00,apr,,-20.6,-16.3
 EUR::Consumer Inflation Expectation::none,2026-04-29,17:00,apr,,,43.4
-EUR::Industrial Sentiment::none,2026-04-29,17:00,apr,,-8.0,-7.0
+EUR::Industrial Sentiment::none,2026-04-29,17:00,apr,,-7.2,-7.0
 EUR::Selling Price Expectations::none,2026-04-29,17:00,apr,,,19.7
-EUR::Services Sentiment::none,2026-04-29,17:00,apr,,,4.9
+EUR::Services Sentiment::none,2026-04-29,17:00,apr,,3.5,4.9
 ISK::CPI::m/m,2026-04-29,17:00,apr,,,0.6%
 ISK::CPI::y/y,2026-04-29,17:00,apr,,,5.4%
 NAD::Interest Rate Decision::none,2026-04-29,17:00,apr,,,6.50%
@@ -7417,37 +7417,37 @@ EUR::Latvian Retail Sales::m/m,2026-04-29,18:00,mar,,,-1.10%
 EUR::Latvian Retail Sales::y/y,2026-04-29,18:00,mar,,,4.30%
 EUR::Belgium CPI::m/m,2026-04-29,18:30,apr,,,0.12%
 EUR::Belgium CPI::y/y,2026-04-29,18:30,apr,,,1.65%
-BRL::IGP-M Inflation Index::m/m,2026-04-29,19:00,apr,,,0.52%
+BRL::IGP-M Inflation Index::m/m,2026-04-29,19:00,apr,,2.50%,0.52%
 BRL::Brazilian PPI::m/m,2026-04-29,20:00,mar,,,-0.25%
 EUR::German CPI::m/m,2026-04-29,20:00,apr,,0.7%,1.1%
 EUR::German CPI::y/y,2026-04-29,20:00,apr,,3.0%,2.7%
-EUR::German HICP::m/m,2026-04-29,20:00,apr,,,1.2%
+EUR::German HICP::m/m,2026-04-29,20:00,apr,,0.8%,1.2%
 EUR::German HICP::y/y,2026-04-29,20:00,apr,,3.1%,2.8%
 USD::Building Permits::m/m,2026-04-29,20:30,mar,,,-4.7%
 USD::Building Permits::none,2026-04-29,20:30,mar,,1.390M,1.386M
-USD::Core Durable Goods Orders::m/m,2026-04-29,20:30,mar,,0.4%,0.9%
-USD::Durable Goods Orders::m/m,2026-04-29,20:30,mar,,0.5%,-1.3%
+USD::Core Durable Goods Orders::m/m,2026-04-29,20:30,mar,,0.4%,0.8%
+USD::Durable Goods Orders::m/m,2026-04-29,20:30,mar,,0.4%,-1.3%
 USD::Durables Excluding Defense::m/m,2026-04-29,20:30,mar,,,-1.1%
-USD::Goods Orders Non Defense Ex Air::m/m,2026-04-29,20:30,mar,,,0.7%
-USD::Goods Trade Balance::none,2026-04-29,20:30,mar,,-86.30B,-98.53B
+USD::Goods Orders Non Defense Ex Air::m/m,2026-04-29,20:30,mar,,0.5%,0.6%
+USD::Goods Trade Balance::none,2026-04-29,20:30,mar,,-87.50B,-83.50B
 USD::Housing Starts::m/m,2026-04-29,20:30,mar,,,7.2%
-USD::Housing Starts::none,2026-04-29,20:30,mar,,1.400M,1.487M
+USD::Housing Starts::none,2026-04-29,20:30,mar,,1.380M,1.487M
 USD::Retail Inventories Ex Auto::none,2026-04-29,20:30,mar,,,0.4%
-CLP::Unemployment Rate::none,2026-04-29,21:00,mar,,,8.3%
+CLP::Unemployment Rate::none,2026-04-29,21:00,mar,,8.6%,8.3%
 CAD::BoC Interest Rate Decision::none,2026-04-29,21:45,,,2.25%,2.25%
 USD::Atlanta Fed GDPNow::none,2026-04-29,22:00,q1,,1.2%,1.2%
 RUB::Russian Real Wage Growth::y/y,2026-04-30,00:00,feb,,,8.6%
 RUB::Retail Sales::y/y,2026-04-30,00:00,mar,,,0.3%
 RUB::Unemployment Rate::none,2026-04-30,00:00,mar,,,2.1%
-BRL::Interest Rate Decision::none,2026-04-30,05:30,,,,14.75%
-KRW::Industrial Production::m/m,2026-04-30,07:00,mar,,,5.4%
-KRW::Industrial Production::y/y,2026-04-30,07:00,mar,,,-2.2%
+BRL::Interest Rate Decision::none,2026-04-30,05:30,,,14.75%,14.75%
+KRW::Industrial Production::m/m,2026-04-30,07:00,mar,,0.2%,5.4%
+KRW::Industrial Production::y/y,2026-04-30,07:00,mar,,3.8%,-2.2%
 KRW::Retail Sales::m/m,2026-04-30,07:00,mar,,,0.0%
 KRW::Service Sector Output::m/m,2026-04-30,07:00,mar,,,0.5%
 JPY::Industrial Production forecast 2m ahead::m/m,2026-04-30,07:50,may,,,3.3%
-JPY::Industrial Production::m/m,2026-04-30,07:50,mar,,0.9%,-2.0%
-JPY::Large Scale Retail Sales YoY::y/y,2026-04-30,07:50,mar,,,2.0%
-JPY::Retail Sales::y/y,2026-04-30,07:50,mar,,1.0%,-0.1%
+JPY::Industrial Production::m/m,2026-04-30,07:50,mar,,1.0%,-2.0%
+JPY::Large Scale Retail Sales YoY::y/y,2026-04-30,07:50,mar,,,3.0%
+JPY::Retail Sales::y/y,2026-04-30,07:50,mar,,0.9%,-0.2%
 JPY::Industrial Production forecast 1m ahead::m/m,2026-04-30,07:50,apr,,,3.8%
 PHP::Exports::y/y,2026-04-30,09:00,mar,,,8.0%
 PHP::Imports::y/y,2026-04-30,09:00,mar,,,12.6%
@@ -7578,7 +7578,7 @@ EUR::Belgium Consumer Confidence::none,2026-04-22,17:00,apr,-9,,-6
 QAR::Total Credit::y/y,2026-04-22,19:00,mar,0.80%,,2.40%
 BRL::Foreign Exchange Flows::none,2026-04-24,01:30,,-2.450B,,-1.303B
 NA::Egypt - Sinai Liberation Day::none,2026-04-25,All Day,,,,
-USD::Redbook::y/y,2026-04-28,20:55,,,,6.7%
+USD::Redbook::y/y,2026-04-28,20:55,,7.7%,,6.7%
 EUR::Irish Retail Sales::m/m,2026-04-29,18:00,mar,,,-0.8%
 EUR::Irish Retail Sales::y/y,2026-04-29,18:00,mar,,,0.8%
 PHP::Interest Rate Decision::none,2026-04-23,14:30,,4.50%,4.25%,4.25%
@@ -7593,17 +7593,16 @@ EUR::French 12-Month BTF Auction::none,2026-04-27,21:00,,2.551%,,2.476%
 EUR::French 3-Month BTF Auction::none,2026-04-27,21:00,,2.192%,,2.159%
 EUR::French 6-Month BTF Auction::none,2026-04-27,21:00,,2.342%,,2.319%
 USD::6-Month Bill Auction::none,2026-04-27,23:30,,3.590%,,3.590%
-USD::5-Year Note Auction::none,2026-04-28,01:00,,,,3.980%
-GBP::BRC Shop Price Index::y/y,2026-04-28,07:00,apr,,1.4%,1.2%
+USD::5-Year Note Auction::none,2026-04-28,01:00,,3.955%,,3.980%
+GBP::BRC Shop Price Index::y/y,2026-04-28,07:00,apr,1.0%,1.4%,1.2%
 JPY::BoJ Monetary Policy Statement::none,2026-04-28,10:30,,,,
 JPY::BoJ Outlook Report::y/y,2026-04-28,11:00,,,,
-EUR::Lithuania Retail Sales::m/m,2026-04-28,14:00,mar,,,-9.0%
-EUR::Lithuania Retail Sales::y/y,2026-04-28,14:00,mar,,,2.2%
+EUR::Lithuania Retail Sales::m/m,2026-04-28,14:00,mar,17.8%,,-8.6%
+EUR::Lithuania Retail Sales::y/y,2026-04-28,14:00,mar,7.2%,,2.8%
 JPY::BoJ Press Conference::none,2026-04-28,14:30,,,,
-HKD::Trade Balance::none,2026-04-28,16:30,mar,,,-64.2B
-EUR::Italian 6-Month BOT Auction::none,2026-04-28,17:10,,,,2.482%
-EUR::France Jobseekers Total::none,2026-04-28,18:00,mar,,,"3,108.2K"
-USD::ADP Employment Change Weekly::none,2026-04-28,20:15,,,,54.75K
+HKD::Trade Balance::none,2026-04-28,16:30,mar,-89.1B,,-64.2B
+EUR::France Jobseekers Total::none,2026-04-28,18:00,mar,"3,109.1K",,"3,073.5K"
+USD::ADP Employment Change Weekly::none,2026-04-28,20:15,,39.30K,,40.25K
 USD::M2 Money Supply::m/m,2026-04-29,01:00,mar,,,22.65T
 USD::7-Year Note Auction::none,2026-04-29,01:00,,,,4.255%
 USD::API Weekly Crude Oil Stock::none,2026-04-29,04:30,,,,-4.400M
@@ -7636,7 +7635,7 @@ USD::MBA Purchase Index::none,2026-04-29,19:00,,,,175.6
 USD::Mortgage Market Index::none,2026-04-29,19:00,,,,303.3
 USD::Mortgage Refinance Index::none,2026-04-29,19:00,,,,"1,023.1"
 INR::M3 Money Supply::none,2026-04-29,19:30,,,,13.0%
-USD::Wholesale Inventories::m/m,2026-04-29,20:30,mar,,0.3%,0.8%
+USD::Wholesale Inventories::m/m,2026-04-29,20:30,mar,,0.4%,0.8%
 CAD::BoC Monetary Policy Report::none,2026-04-29,21:45,,,,
 CAD::BoC Rate Statement::none,2026-04-29,21:45,,,,
 CAD::BOC Press Conference::none,2026-04-29,22:30,,,,
@@ -7800,8 +7799,6 @@ GBP::BoE MPC Member Pill Speaks::none,2026-05-01,19:15,,,,
 INR::Bank Loan Growth::none,2026-05-01,19:30,,,,16.1%
 INR::Deposit Growth::none,2026-05-01,19:30,,,,13.5%
 "INR::FX Reserves, USD::none",2026-05-01,19:30,,,,703.31B
-ZAR::Total Vehicle Sales::none,2026-05-01,20:15,apr,,,58.06K
-ZAR::Total Vehicle Sales::y/y,2026-05-01,20:15,apr,,,17.30%
 CAD::S&P Global Manufacturing PMI::none,2026-05-01,21:30,apr,,,50.0
 USD::S&P Global Manufacturing PMI::none,2026-05-01,21:45,apr,,54.0,54.0
 USD::ISM Manufacturing Employment::none,2026-05-01,22:00,apr,,,48.7
@@ -7880,7 +7877,7 @@ CAD::Retail Sales::m/m,2026-04-24,20:30,mar,0.6%,,0.7%
 JPY::Coincident Indicator::m/m,2026-04-27,13:00,feb,-1.8%,-1.6%,3.4%
 JPY::Leading Index::m/m,2026-04-27,13:00,feb,1.3%,0.3%,1.7%
 JPY::Leading Index::none,2026-04-27,13:00,feb,113.3,112.4,112.0
-JPY::BoJ Core CPI::y/y,2026-04-28,13:00,,,,2.2%
+JPY::BoJ Core CPI::y/y,2026-04-28,13:00,,2.5%,,2.2%
 EUR::ECB Bank Lending Survey::none,2026-04-28,16:00,,,,
 EUR::German Buba Balz Speaks::none,2026-04-29,14:00,,,,
 EUR::Spanish Consumer Confidence::none,2026-04-29,18:00,mar,,,83.9
@@ -7888,18 +7885,16 @@ INR::RBI Monetary and Credit Information Review::none,2026-04-30,19:30,,,,
 RUB::Central Bank reserves (USD)::none,2026-04-30,21:00,,,,779.5B
 COP::Interest Rate Decision::none,2026-05-01,02:00,may,,,11.25%
 USD::U.S. President Trump Speaks::none,2026-04-26,00:00,,,,
-CLP::Interest Rate Decision::none,2026-04-28,06:00,apr,,,4.50%
-JPY::Jobs/applications ratio::none,2026-04-28,07:30,mar,,1.18,1.19
-JPY::Unemployment Rate::none,2026-04-28,07:30,mar,,2.6%,2.6%
-EUR::Lithuania Industrial Production::m/m,2026-04-28,14:00,mar,,,0.90%
-EUR::Lithuania Industrial Production::y/y,2026-04-28,14:00,mar,,,1.60%
+JPY::Jobs/applications ratio::none,2026-04-28,07:30,mar,1.18,1.18,1.19
+JPY::Unemployment Rate::none,2026-04-28,07:30,mar,2.7%,2.6%,2.6%
+EUR::Lithuania Industrial Production::m/m,2026-04-28,14:00,mar,2.80%,,0.50%
+EUR::Lithuania Industrial Production::y/y,2026-04-28,14:00,mar,4.80%,,1.80%
 EUR::Greek PPI::y/y,2026-04-29,17:00,mar,,,-1.7%
 BRL::Foreign Exchange Flows::none,2026-04-30,01:30,,,,-2.450B
 THB::Industrial Production::y/y,2026-04-30,12:00,mar,,,-0.04%
 EUR::Dutch Business Confidence::none,2026-04-30,12:30,apr,,,-0.7
 JPY::Construction Orders::y/y,2026-04-30,13:00,mar,,,42.7%
 JPY::Housing Starts::y/y,2026-04-30,13:00,mar,,-28.9%,-4.9%
-CHF::KOF Leading Indicators::none,2026-04-30,14:00,apr,,95.9,96.1
 HUF::Trade Balance (EUR)::m/m,2026-04-30,15:30,mar,,664.6M,665.0M
 HUF::GDP::y/y,2026-04-30,15:30,q1,,,0.8%
 THB::Currency Swaps (USD)::none,2026-04-30,15:30,,,,22.6B
@@ -7955,11 +7950,8 @@ BHD::CPI::y/y,2026-04-27,10:20,mar,1.10%,,0.50%
 IDR::Foreign Direct Investment::y/y,2026-04-27,12:00,q1,8.50%,,4.30%
 EUR::GfK German Consumer Climate::none,2026-04-27,14:00,may,-33.3,-30.2,-28.1
 USD::2-Year Note Auction::none,2026-04-27,23:30,,3.812%,,3.936%
-USD::3-Month Bill Auction::none,2026-04-28,00:30,,,,3.610%
-EUR::Italian 3-Month BOT Auction::none,2026-04-28,17:10,,,,0.509%
-BRL::Mid-Month CPI::m/m,2026-04-28,20:00,apr,,1.00%,0.44%
-BRL::Mid-Month CPI::y/y,2026-04-28,20:00,apr,,4.48%,3.90%
-EUR::Irish Consumer Confidence::none,2026-04-29,07:00,apr,,,56.7
+BRL::Mid-Month CPI::m/m,2026-04-28,20:00,apr,0.89%,1.00%,0.44%
+BRL::Mid-Month CPI::y/y,2026-04-28,20:00,apr,4.37%,4.48%,3.90%
 ILS::Industrial Output::m/m,2026-04-30,18:00,feb,,,2.7%
 HUF::PPI::y/y,2026-05-04,14:30,mar,,,-3.3%
 BRL::BCB Focus Market Readout::none,2026-05-04,19:25,,,,
@@ -8009,7 +8001,6 @@ COP::Exports::y/y,2026-05-05,23:00,mar,,,11.40%
 USD::Atlanta Fed GDPNow::none,2026-05-05,23:30,q2,,,1.2%
 NA::Bulgaria - St. George`s Day::none,2026-05-06,All Day,,,,
 NA::Japan - Constitution Day::none,2026-05-06,All Day,,,,
-RUB::Russian Forex Intervention::none,2026-05-06,01:20,mar,,,-226.8B
 NZD::Employment Change::q/q,2026-05-06,06:45,q1,,,0.5%
 NZD::Labor Cost Index::q/q,2026-05-06,06:45,q1,,,0.4%
 NZD::Labor Cost Index::y/y,2026-05-06,06:45,q1,,,2.0%
@@ -8066,3 +8057,18 @@ BRL::S&P Global Composite PMI::none,2026-05-06,21:00,apr,,,49.9
 BRL::S&P Global Services PMI::none,2026-05-06,21:00,apr,,,50.1
 CAD::Ivey PMI n.s.a::none,2026-05-06,22:00,apr,,,56.5
 CAD::Ivey PMI::none,2026-05-06,22:00,apr,,,49.7
+USD::3-Month Bill Auction::none,2026-04-28,01:00,,3.590%,,3.610%
+EUR::Irish Consumer Confidence::none,2026-04-28,08:00,apr,53.3,,56.7
+EUR::Italian 6-Month BOT Auction::none,2026-04-28,17:40,,2.161%,,2.482%
+BRL::Federal Tax Revenue::none,2026-04-28,20:00,mar,229.25B,,222.12B
+JPY::Housing Starts::y/y,2026-04-29,13:00,mar,,-28.5%,-4.9%
+KES::GDP::q/q,2026-04-29,17:15,q4,,,4.90%
+CHF::KOF Leading Indicators::none,2026-04-30,15:00,apr,,95.9,96.1
+ZAR::Total Vehicle Sales::none,2026-05-04,20:00,apr,,,58.06K
+ZAR::Total Vehicle Sales::y/y,2026-05-04,20:00,apr,,,17.30%
+EUR::French 12-Month BTF Auction::none,2026-05-04,21:00,,,,2.551%
+EUR::French 3-Month BTF Auction::none,2026-05-04,21:00,,,,2.192%
+EUR::French 6-Month BTF Auction::none,2026-05-04,21:00,,,,2.342%
+USD::3-Month Bill Auction::none,2026-05-04,23:30,,,,3.590%
+USD::6-Month Bill Auction::none,2026-05-04,23:30,,,,3.590%
+RUB::Russian Forex Intervention::none,2026-05-06,21:35,mar,,,-226.8B
