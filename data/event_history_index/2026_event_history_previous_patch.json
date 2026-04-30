@@ -1,5 +1,5 @@
 {
-  "generated_at": "29-04-2026 16:09",
+  "generated_at": "30-04-2026 16:04",
   "patches": [
     {
       "patch": "previous_missing_filled",
@@ -79,47 +79,11 @@
       "cur": "USD",
       "event": "Atlanta Fed GDPNow  (Q2)",
       "period": "q2",
-      "date": "2026-04-30",
-      "time": "22:00",
-      "previous_raw": "",
-      "prior_actual": "1.2%",
-      "previous_effective": "1.2%"
-    },
-    {
-      "patch": "previous_missing_filled",
-      "event_id": "USD::Atlanta Fed GDPNow::none",
-      "cur": "USD",
-      "event": "Atlanta Fed GDPNow  (Q2)",
-      "period": "q2",
-      "date": "2026-05-01",
-      "time": "23:30",
-      "previous_raw": "",
-      "prior_actual": "1.2%",
-      "previous_effective": "1.2%"
-    },
-    {
-      "patch": "previous_missing_filled",
-      "event_id": "USD::Atlanta Fed GDPNow::none",
-      "cur": "USD",
-      "event": "Atlanta Fed GDPNow  (Q2)",
-      "period": "q2",
       "date": "2026-05-05",
       "time": "23:30",
       "previous_raw": "",
       "prior_actual": "1.2%",
       "previous_effective": "1.2%"
-    },
-    {
-      "patch": "previous_missing_filled",
-      "event_id": "CAD::GDP::m/m",
-      "cur": "CAD",
-      "event": "GDP (MoM)  (Mar)",
-      "period": "mar",
-      "date": "2026-04-30",
-      "time": "20:30",
-      "previous_raw": "",
-      "prior_actual": "0.2%",
-      "previous_effective": "0.2%"
     },
     {
       "patch": "previous_missing_filled",
@@ -130,8 +94,8 @@
       "date": "2026-05-07",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "214K",
-      "previous_effective": "214K"
+      "prior_actual": "189K",
+      "previous_effective": "189K"
     },
     {
       "patch": "previous_missing_filled",
@@ -142,8 +106,8 @@
       "date": "2026-05-07",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "210.75K",
-      "previous_effective": "210.75K"
+      "prior_actual": "207.50K",
+      "previous_effective": "207.50K"
     },
     {
       "patch": "previous_missing_filled",
@@ -166,8 +130,8 @@
       "date": "2026-05-07",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "1,821K",
-      "previous_effective": "1,821K"
+      "prior_actual": "1,785K",
+      "previous_effective": "1,785K"
     },
     {
       "patch": "previous_missing_filled",
@@ -238,8 +202,8 @@
       "date": "2026-05-07",
       "time": "19:30",
       "previous_raw": "",
-      "prior_actual": "61.82B",
-      "previous_effective": "61.82B"
+      "prior_actual": "60.95B",
+      "previous_effective": "60.95B"
     },
     {
       "patch": "previous_missing_filled",
