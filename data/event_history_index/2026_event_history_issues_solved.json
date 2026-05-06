@@ -1,5 +1,5 @@
 {
-  "generated_at": "05-05-2026 16:08",
+  "generated_at": "06-05-2026 16:12",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -519,18 +519,6 @@
       "cur": "USD",
       "event": "Atlanta Fed GDPNow  (Q2)",
       "period": "q2",
-      "date": "2026-05-07",
-      "time": "23:30",
-      "previous_raw": "",
-      "prior_actual": "3.7%",
-      "previous_effective": "3.7%"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::Atlanta Fed GDPNow::none",
-      "cur": "USD",
-      "event": "Atlanta Fed GDPNow  (Q2)",
-      "period": "q2",
       "date": "2026-05-08",
       "time": "23:30",
       "previous_raw": "",
@@ -656,6 +644,18 @@
       "previous_raw": "",
       "prior_actual": "3.7%",
       "previous_effective": "3.7%"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "INR::FX Reserves, USD::none",
+      "cur": "INR",
+      "event": "FX Reserves, USD",
+      "period": "",
+      "date": "2026-05-15",
+      "time": "19:30",
+      "previous_raw": "",
+      "prior_actual": "698.49B",
+      "previous_effective": "698.49B"
     }
   ]
 }
