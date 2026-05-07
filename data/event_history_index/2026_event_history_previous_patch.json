@@ -1,5 +1,5 @@
 {
-  "generated_at": "06-05-2026 16:12",
+  "generated_at": "07-05-2026 16:16",
   "patches": [
     {
       "patch": "previous_missing_filled",
@@ -75,18 +75,6 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "USD::Atlanta Fed GDPNow::none",
-      "cur": "USD",
-      "event": "Atlanta Fed GDPNow  (Q2)",
-      "period": "q2",
-      "date": "2026-05-08",
-      "time": "23:30",
-      "previous_raw": "",
-      "prior_actual": "3.7%",
-      "previous_effective": "3.7%"
-    },
-    {
-      "patch": "previous_missing_filled",
       "event_id": "USD::Initial Jobless Claims::none",
       "cur": "USD",
       "event": "Initial Jobless Claims",
@@ -94,8 +82,8 @@
       "date": "2026-05-14",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "189K",
-      "previous_effective": "189K"
+      "prior_actual": "200K",
+      "previous_effective": "200K"
     },
     {
       "patch": "previous_missing_filled",
@@ -106,8 +94,8 @@
       "date": "2026-05-14",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "207.50K",
-      "previous_effective": "207.50K"
+      "prior_actual": "203.25K",
+      "previous_effective": "203.25K"
     },
     {
       "patch": "previous_missing_filled",
@@ -118,8 +106,8 @@
       "date": "2026-05-14",
       "time": "22:30",
       "previous_raw": "",
-      "prior_actual": "103B",
-      "previous_effective": "103B"
+      "prior_actual": "63B",
+      "previous_effective": "63B"
     },
     {
       "patch": "previous_missing_filled",
@@ -130,8 +118,8 @@
       "date": "2026-05-14",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "1,785K",
-      "previous_effective": "1,785K"
+      "prior_actual": "1,766K",
+      "previous_effective": "1,766K"
     },
     {
       "patch": "previous_missing_filled",
@@ -154,8 +142,8 @@
       "date": "2026-05-14",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "3.595%",
-      "previous_effective": "3.595%"
+      "prior_actual": "3.610%",
+      "previous_effective": "3.610%"
     },
     {
       "patch": "previous_missing_filled",
@@ -178,8 +166,8 @@
       "date": "2026-05-14",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "3.605%",
-      "previous_effective": "3.605%"
+      "prior_actual": "3.595%",
+      "previous_effective": "3.595%"
     },
     {
       "patch": "previous_missing_filled",
@@ -190,8 +178,8 @@
       "date": "2026-05-14",
       "time": "19:30",
       "previous_raw": "",
-      "prior_actual": "60.95B",
-      "previous_effective": "60.95B"
+      "prior_actual": "56.60B",
+      "previous_effective": "56.60B"
     },
     {
       "patch": "previous_missing_filled",
