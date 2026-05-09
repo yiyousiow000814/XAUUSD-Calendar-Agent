@@ -92340,7 +92340,7 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"U.S. Baker Hughes Oil Rig Count",
-        "Actual":"",
+        "Actual":"410",
         "Forecast":null,
         "Previous":"408"
     },
@@ -92351,7 +92351,7 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"U.S. Baker Hughes Total Rig Count",
-        "Actual":"",
+        "Actual":"548",
         "Forecast":null,
         "Previous":"547"
     },
@@ -92362,7 +92362,7 @@
         "Cur.":"AUD",
         "Imp.":"Medium",
         "Event":"CFTC AUD speculative net positions",
-        "Actual":"",
+        "Actual":"78.7K",
         "Forecast":null,
         "Previous":"71.9K"
     },
@@ -92373,7 +92373,7 @@
         "Cur.":"BRL",
         "Imp.":"Medium",
         "Event":"CFTC BRL speculative net positions",
-        "Actual":"",
+        "Actual":"66.8K",
         "Forecast":null,
         "Previous":"46.4K"
     },
@@ -92384,7 +92384,7 @@
         "Cur.":"CAD",
         "Imp.":"Low",
         "Event":"CFTC CAD speculative net positions",
-        "Actual":"",
+        "Actual":"-14.7K",
         "Forecast":null,
         "Previous":"-38.5K"
     },
@@ -92395,7 +92395,7 @@
         "Cur.":"CHF",
         "Imp.":"Low",
         "Event":"CFTC CHF speculative net positions",
-        "Actual":"",
+        "Actual":"-34.5K",
         "Forecast":null,
         "Previous":"-35.2K"
     },
@@ -92406,7 +92406,7 @@
         "Cur.":"EUR",
         "Imp.":"Medium",
         "Event":"CFTC EUR speculative net positions",
-        "Actual":"",
+        "Actual":"32.2K",
         "Forecast":null,
         "Previous":"35.7K"
     },
@@ -92417,7 +92417,7 @@
         "Cur.":"GBP",
         "Imp.":"Medium",
         "Event":"CFTC GBP speculative net positions",
-        "Actual":"",
+        "Actual":"-63.9K",
         "Forecast":null,
         "Previous":"-60.6K"
     },
@@ -92428,7 +92428,7 @@
         "Cur.":"JPY",
         "Imp.":"Medium",
         "Event":"CFTC JPY speculative net positions",
-        "Actual":"",
+        "Actual":"-61.7K",
         "Forecast":null,
         "Previous":"-102.1K"
     },
@@ -92439,7 +92439,7 @@
         "Cur.":"MXN",
         "Imp.":"Low",
         "Event":"CFTC MXN speculative net positions",
-        "Actual":"",
+        "Actual":"62.1K",
         "Forecast":null,
         "Previous":"67.8K"
     },
@@ -92450,7 +92450,7 @@
         "Cur.":"NZD",
         "Imp.":"Low",
         "Event":"CFTC NZD speculative net positions",
-        "Actual":"",
+        "Actual":"-48.3K",
         "Forecast":null,
         "Previous":"-46.3K"
     },
@@ -92461,7 +92461,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"CFTC Aluminium speculative net positions",
-        "Actual":"",
+        "Actual":"0.4K",
         "Forecast":null,
         "Previous":"-0.0K"
     },
@@ -92472,7 +92472,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"CFTC Copper speculative net positions",
-        "Actual":"",
+        "Actual":"62.8K",
         "Forecast":null,
         "Previous":"63.3K"
     },
@@ -92483,7 +92483,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"CFTC Corn speculative net positions",
-        "Actual":"",
+        "Actual":"433.4K",
         "Forecast":null,
         "Previous":"340.7K"
     },
@@ -92494,7 +92494,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"CFTC Natural Gas speculative net positions",
-        "Actual":"",
+        "Actual":"-166.6K",
         "Forecast":null,
         "Previous":"-166.3K"
     },
@@ -92505,7 +92505,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"CFTC Silver speculative net positions",
-        "Actual":"",
+        "Actual":"23.9K",
         "Forecast":null,
         "Previous":"24.2K"
     },
@@ -92516,7 +92516,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"CFTC Soybeans speculative net positions",
-        "Actual":"",
+        "Actual":"232.2K",
         "Forecast":null,
         "Previous":"193.9K"
     },
@@ -92527,7 +92527,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"CFTC Wheat speculative net positions",
-        "Actual":"",
+        "Actual":"-16.7K",
         "Forecast":null,
         "Previous":"0.9K"
     },
@@ -92538,7 +92538,7 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"CFTC Crude Oil speculative net positions",
-        "Actual":"",
+        "Actual":"178.8K",
         "Forecast":null,
         "Previous":"191.9K"
     },
@@ -92549,7 +92549,7 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"CFTC Gold speculative net positions",
-        "Actual":"",
+        "Actual":"163.3K",
         "Forecast":null,
         "Previous":"159.6K"
     },
@@ -92560,7 +92560,7 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"CFTC Nasdaq 100 speculative net positions",
-        "Actual":"",
+        "Actual":"1.2K",
         "Forecast":null,
         "Previous":"-2.3K"
     },
@@ -92571,7 +92571,7 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"CFTC S&P 500 speculative net positions",
-        "Actual":"",
+        "Actual":"-103.9K",
         "Forecast":null,
         "Previous":"-101.4K"
     },
@@ -92582,7 +92582,7 @@
         "Cur.":"COP",
         "Imp.":"Low",
         "Event":"CPI (MoM)  (Apr)",
-        "Actual":"",
+        "Actual":"0.78%",
         "Forecast":"0.73%",
         "Previous":"0.78%"
     },
@@ -92593,7 +92593,7 @@
         "Cur.":"COP",
         "Imp.":"Low",
         "Event":"CPI (YoY)  (Apr)",
-        "Actual":"",
+        "Actual":"5.68%",
         "Forecast":"5.63%",
         "Previous":"5.56%"
     },
@@ -92640,6 +92640,72 @@
         "Actual":"",
         "Forecast":null,
         "Previous":""
+    },
+    {
+        "Date":"2026-05-09",
+        "Day":"Saturday",
+        "Time":"10:45",
+        "Cur.":"CNY",
+        "Imp.":"Medium",
+        "Event":"Trade Balance (USD)  (Apr)",
+        "Actual":"84.80B",
+        "Forecast":"82.40B",
+        "Previous":"51.13B"
+    },
+    {
+        "Date":"2026-05-09",
+        "Day":"Saturday",
+        "Time":"11:05",
+        "Cur.":"CNY",
+        "Imp.":"Low",
+        "Event":"Exports  (Apr)",
+        "Actual":"9.80M",
+        "Forecast":null,
+        "Previous":"-0.70M"
+    },
+    {
+        "Date":"2026-05-09",
+        "Day":"Saturday",
+        "Time":"11:05",
+        "Cur.":"CNY",
+        "Imp.":"Low",
+        "Event":"Imports  (Apr)",
+        "Actual":"20.60M",
+        "Forecast":null,
+        "Previous":"23.80M"
+    },
+    {
+        "Date":"2026-05-09",
+        "Day":"Saturday",
+        "Time":"11:05",
+        "Cur.":"CNY",
+        "Imp.":"Low",
+        "Event":"Trade Balance  (Apr)",
+        "Actual":"585.60B",
+        "Forecast":"570.00B",
+        "Previous":"354.75B"
+    },
+    {
+        "Date":"2026-05-09",
+        "Day":"Saturday",
+        "Time":"11:05",
+        "Cur.":"CNY",
+        "Imp.":"Medium",
+        "Event":"Exports (YoY)  (Apr)",
+        "Actual":"14.1%",
+        "Forecast":null,
+        "Previous":"2.5%"
+    },
+    {
+        "Date":"2026-05-09",
+        "Day":"Saturday",
+        "Time":"11:05",
+        "Cur.":"CNY",
+        "Imp.":"Medium",
+        "Event":"Imports (YoY)  (Apr)",
+        "Actual":"25.3%",
+        "Forecast":null,
+        "Previous":"27.8%"
     },
     {
         "Date":"2026-05-10",
@@ -92724,10 +92790,32 @@
         "Time":"20:00",
         "Cur.":"EGP",
         "Imp.":"Low",
+        "Event":"CPI (YoY)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"14.90%"
+    },
+    {
+        "Date":"2026-05-10",
+        "Day":"Sunday",
+        "Time":"20:00",
+        "Cur.":"EGP",
+        "Imp.":"Low",
         "Event":"Core CPI (YoY)  (Apr)",
         "Actual":"",
         "Forecast":null,
         "Previous":"14.00%"
+    },
+    {
+        "Date":"2026-05-10",
+        "Day":"Sunday",
+        "Time":"20:00",
+        "Cur.":"EGP",
+        "Imp.":"Low",
+        "Event":"Core CPI (YoY)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"13.80%"
     },
     {
         "Date":"2026-05-10",
@@ -93431,7 +93519,7 @@
         "Event":"German CPI (MoM)  (Apr)",
         "Actual":"",
         "Forecast":"0.6%",
-        "Previous":"1.1%"
+        "Previous":"0.6%"
     },
     {
         "Date":"2026-05-12",
@@ -93442,7 +93530,7 @@
         "Event":"German HICP (MoM)  (Apr)",
         "Actual":"",
         "Forecast":"0.5%",
-        "Previous":"1.2%"
+        "Previous":"0.5%"
     },
     {
         "Date":"2026-05-12",
@@ -93453,7 +93541,7 @@
         "Event":"German HICP (YoY)  (Apr)",
         "Actual":"",
         "Forecast":"2.9%",
-        "Previous":"2.8%"
+        "Previous":"2.9%"
     },
     {
         "Date":"2026-05-12",
@@ -93486,7 +93574,7 @@
         "Event":"German CPI (YoY)  (Apr)",
         "Actual":"",
         "Forecast":"2.9%",
-        "Previous":"2.7%"
+        "Previous":"2.9%"
     },
     {
         "Date":"2026-05-12",
@@ -94311,7 +94399,7 @@
         "Event":"CPIF (CPI at constant interest rates) (YoY)  (Apr)",
         "Actual":"",
         "Forecast":"0.8%",
-        "Previous":"1.6%"
+        "Previous":"0.8%"
     },
     {
         "Date":"2026-05-13",
@@ -94333,7 +94421,7 @@
         "Event":"CPIF Ex Energy YoY (YoY)  (Apr)",
         "Actual":"",
         "Forecast":null,
-        "Previous":"1.10%"
+        "Previous":"0.00%"
     },
     {
         "Date":"2026-05-13",
@@ -94355,7 +94443,7 @@
         "Event":"CPI (YoY)  (Apr)",
         "Actual":"",
         "Forecast":"-0.1%",
-        "Previous":"0.5%"
+        "Previous":"-0.2%"
     },
     {
         "Date":"2026-05-13",
@@ -94366,7 +94454,7 @@
         "Event":"Industrial Output (YoY)  (Mar)",
         "Actual":"",
         "Forecast":"6.7%",
-        "Previous":"-1.5%"
+        "Previous":"6.7%"
     },
     {
         "Date":"2026-05-13",
@@ -94421,7 +94509,7 @@
         "Event":"French HICP (YoY)  (Apr)",
         "Actual":"",
         "Forecast":"2.5%",
-        "Previous":"2.0%"
+        "Previous":"2.5%"
     },
     {
         "Date":"2026-05-13",
@@ -94443,7 +94531,7 @@
         "Event":"French HICP (MoM)  (Apr)",
         "Actual":"",
         "Forecast":"1.2%",
-        "Previous":"1.1%"
+        "Previous":"1.2%"
     },
     {
         "Date":"2026-05-13",
@@ -94454,7 +94542,7 @@
         "Event":"CPI (MoM)  (Apr)",
         "Actual":"",
         "Forecast":"0.5%",
-        "Previous":"0.6%"
+        "Previous":"0.5%"
     },
     {
         "Date":"2026-05-13",
@@ -94465,7 +94553,7 @@
         "Event":"CPI (YoY)  (Apr)",
         "Actual":"",
         "Forecast":"2.5%",
-        "Previous":"1.9%"
+        "Previous":"2.5%"
     },
     {
         "Date":"2026-05-13",
@@ -94553,7 +94641,7 @@
         "Event":"GDP (QoQ)  (Q1)",
         "Actual":"",
         "Forecast":"0.1%",
-        "Previous":"0.2%"
+        "Previous":"0.1%"
     },
     {
         "Date":"2026-05-13",
@@ -94564,7 +94652,7 @@
         "Event":"GDP (YoY)  (Q1)",
         "Actual":"",
         "Forecast":"0.8%",
-        "Previous":"1.2%"
+        "Previous":"0.8%"
     },
     {
         "Date":"2026-05-13",
@@ -94619,7 +94707,7 @@
         "Event":"Portuguese CPI (MoM)  (Apr)",
         "Actual":"",
         "Forecast":"1.4%",
-        "Previous":"2.0%"
+        "Previous":"1.4%"
     },
     {
         "Date":"2026-05-13",
@@ -94630,7 +94718,7 @@
         "Event":"Portuguese CPI (YoY)  (Apr)",
         "Actual":"",
         "Forecast":"3.4%",
-        "Previous":"2.7%"
+        "Previous":"3.4%"
     },
     {
         "Date":"2026-05-13",
@@ -94993,7 +95081,7 @@
         "Event":"Thomson Reuters IPSOS PCSI  (May)",
         "Actual":"",
         "Forecast":null,
-        "Previous":"46.07"
+        "Previous":"40.35"
     },
     {
         "Date":"2026-05-13",
@@ -95620,7 +95708,7 @@
         "Event":"Spanish CPI (MoM)  (Apr)",
         "Actual":"",
         "Forecast":"0.4%",
-        "Previous":"1.2%"
+        "Previous":"0.4%"
     },
     {
         "Date":"2026-05-14",
@@ -95631,7 +95719,7 @@
         "Event":"Spanish HICP (MoM)  (Apr)",
         "Actual":"",
         "Forecast":"0.7%",
-        "Previous":"1.7%"
+        "Previous":"0.7%"
     },
     {
         "Date":"2026-05-14",
@@ -95642,7 +95730,7 @@
         "Event":"Spanish CPI (YoY)  (Apr)",
         "Actual":"",
         "Forecast":"3.2%",
-        "Previous":"3.4%"
+        "Previous":"3.2%"
     },
     {
         "Date":"2026-05-14",
@@ -95653,7 +95741,7 @@
         "Event":"Spanish HICP (YoY)  (Apr)",
         "Actual":"",
         "Forecast":"3.5%",
-        "Previous":"3.4%"
+        "Previous":"3.5%"
     },
     {
         "Date":"2026-05-14",
@@ -95917,7 +96005,7 @@
         "Event":"Turkey Thomson Reuters IPSOS PCSI  (May)",
         "Actual":"",
         "Forecast":null,
-        "Previous":"25.7"
+        "Previous":"34.8"
     },
     {
         "Date":"2026-05-14",
@@ -95928,7 +96016,7 @@
         "Event":"Thomson Reuters IPSOS PCSI  (May)",
         "Actual":"",
         "Forecast":null,
-        "Previous":"38.32"
+        "Previous":"48.49"
     },
     {
         "Date":"2026-05-14",
@@ -96181,7 +96269,7 @@
         "Event":"Retail Inventories Ex Auto  (Mar)",
         "Actual":"",
         "Forecast":"0.5%",
-        "Previous":"0.3%"
+        "Previous":"0.5%"
     },
     {
         "Date":"2026-05-14",
@@ -96285,6 +96373,17 @@
     {
         "Date":"2026-05-15",
         "Day":"Friday",
+        "Time":"03:00",
+        "Cur.":"ARS",
+        "Imp.":"Low",
+        "Event":"National CPI (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3.40%"
+    },
+    {
+        "Date":"2026-05-15",
+        "Day":"Friday",
         "Time":"05:00",
         "Cur.":"KRW",
         "Imp.":"Low",
@@ -96347,6 +96446,17 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"-0.6%"
+    },
+    {
+        "Date":"2026-05-15",
+        "Day":"Friday",
+        "Time":"07:00",
+        "Cur.":"GBP",
+        "Imp.":"Medium",
+        "Event":"RICS House Price Balance  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-23%"
     },
     {
         "Date":"2026-05-15",
@@ -96599,7 +96709,7 @@
         "Event":"CPI (MoM)  (Apr)",
         "Actual":"",
         "Forecast":"0.6%",
-        "Previous":"1.1%"
+        "Previous":"0.6%"
     },
     {
         "Date":"2026-05-15",
@@ -96610,7 +96720,7 @@
         "Event":"CPI (YoY)  (Apr)",
         "Actual":"",
         "Forecast":"3.2%",
-        "Previous":"3.0%"
+        "Previous":"3.2%"
     },
     {
         "Date":"2026-05-15",
@@ -96676,7 +96786,7 @@
         "Event":"Italian HICP (YoY)  (Apr)",
         "Actual":"",
         "Forecast":"2.9%",
-        "Previous":"1.6%"
+        "Previous":"2.9%"
     },
     {
         "Date":"2026-05-15",
@@ -96720,7 +96830,7 @@
         "Event":"GDP (QoQ)  (Q1)",
         "Actual":"",
         "Forecast":"2.9%",
-        "Previous":"1.0%"
+        "Previous":"2.9%"
     },
     {
         "Date":"2026-05-15",
@@ -96731,7 +96841,7 @@
         "Event":"GDP (YoY)  (Q1)",
         "Actual":"",
         "Forecast":"5.9%",
-        "Previous":"3.8%"
+        "Previous":"5.9%"
     },
     {
         "Date":"2026-05-15",
@@ -97185,6 +97295,226 @@
         "Previous":"4.2%"
     },
     {
+        "Date":"2026-05-16",
+        "Day":"Saturday",
+        "Time":"03:30",
+        "Cur.":"AUD",
+        "Imp.":"Medium",
+        "Event":"CFTC AUD speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"78.7K"
+    },
+    {
+        "Date":"2026-05-16",
+        "Day":"Saturday",
+        "Time":"03:30",
+        "Cur.":"BRL",
+        "Imp.":"Medium",
+        "Event":"CFTC BRL speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"66.8K"
+    },
+    {
+        "Date":"2026-05-16",
+        "Day":"Saturday",
+        "Time":"03:30",
+        "Cur.":"CAD",
+        "Imp.":"Low",
+        "Event":"CFTC CAD speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-14.7K"
+    },
+    {
+        "Date":"2026-05-16",
+        "Day":"Saturday",
+        "Time":"03:30",
+        "Cur.":"CHF",
+        "Imp.":"Low",
+        "Event":"CFTC CHF speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-34.5K"
+    },
+    {
+        "Date":"2026-05-16",
+        "Day":"Saturday",
+        "Time":"03:30",
+        "Cur.":"EUR",
+        "Imp.":"Medium",
+        "Event":"CFTC EUR speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"32.2K"
+    },
+    {
+        "Date":"2026-05-16",
+        "Day":"Saturday",
+        "Time":"03:30",
+        "Cur.":"GBP",
+        "Imp.":"Medium",
+        "Event":"CFTC GBP speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-63.9K"
+    },
+    {
+        "Date":"2026-05-16",
+        "Day":"Saturday",
+        "Time":"03:30",
+        "Cur.":"JPY",
+        "Imp.":"Medium",
+        "Event":"CFTC JPY speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-61.7K"
+    },
+    {
+        "Date":"2026-05-16",
+        "Day":"Saturday",
+        "Time":"03:30",
+        "Cur.":"MXN",
+        "Imp.":"Low",
+        "Event":"CFTC MXN speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"62.1K"
+    },
+    {
+        "Date":"2026-05-16",
+        "Day":"Saturday",
+        "Time":"03:30",
+        "Cur.":"NZD",
+        "Imp.":"Low",
+        "Event":"CFTC NZD speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-48.3K"
+    },
+    {
+        "Date":"2026-05-16",
+        "Day":"Saturday",
+        "Time":"03:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"CFTC Aluminium speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.4K"
+    },
+    {
+        "Date":"2026-05-16",
+        "Day":"Saturday",
+        "Time":"03:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"CFTC Copper speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"62.8K"
+    },
+    {
+        "Date":"2026-05-16",
+        "Day":"Saturday",
+        "Time":"03:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"CFTC Corn speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"433.4K"
+    },
+    {
+        "Date":"2026-05-16",
+        "Day":"Saturday",
+        "Time":"03:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"CFTC Natural Gas speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-166.6K"
+    },
+    {
+        "Date":"2026-05-16",
+        "Day":"Saturday",
+        "Time":"03:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"CFTC Silver speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"23.9K"
+    },
+    {
+        "Date":"2026-05-16",
+        "Day":"Saturday",
+        "Time":"03:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"CFTC Soybeans speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"232.2K"
+    },
+    {
+        "Date":"2026-05-16",
+        "Day":"Saturday",
+        "Time":"03:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"CFTC Wheat speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-16.7K"
+    },
+    {
+        "Date":"2026-05-16",
+        "Day":"Saturday",
+        "Time":"03:30",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"CFTC Crude Oil speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"178.8K"
+    },
+    {
+        "Date":"2026-05-16",
+        "Day":"Saturday",
+        "Time":"03:30",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"CFTC Gold speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"163.3K"
+    },
+    {
+        "Date":"2026-05-16",
+        "Day":"Saturday",
+        "Time":"03:30",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"CFTC Nasdaq 100 speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"1.2K"
+    },
+    {
+        "Date":"2026-05-16",
+        "Day":"Saturday",
+        "Time":"03:30",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"CFTC S&P 500 speculative net positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-103.9K"
+    },
+    {
         "Date":"2026-05-17",
         "Day":"Sunday",
         "Time":"18:00",
@@ -97469,5 +97799,478 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"34"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"All Day",
+        "Cur.":"",
+        "Imp.":"Holiday",
+        "Event":"T\u00fcrkiye - Youth and Sports Day",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"03:00",
+        "Cur.":"ARS",
+        "Imp.":"Low",
+        "Event":"Budget Balance  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"930M"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"04:00",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"Overall Net Capital Flow  (Mar)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"184.50B"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"04:00",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"TIC Net Long-Term Transactions including Swaps  (Mar)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"58.60B"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"04:00",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"US Foreign Buying, T-bonds  (Mar)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.00B"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"04:00",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"TIC Net Long-Term Transactions  (Mar)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"58.6B"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"06:45",
+        "Cur.":"NZD",
+        "Imp.":"Low",
+        "Event":"Electronic Card Retail Sales (YoY)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.7%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"06:45",
+        "Cur.":"NZD",
+        "Imp.":"Low",
+        "Event":"PPI Output (QoQ)  (Q1)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.1%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"06:45",
+        "Cur.":"NZD",
+        "Imp.":"Medium",
+        "Event":"Electronic Card Retail Sales (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.7%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"06:45",
+        "Cur.":"NZD",
+        "Imp.":"Medium",
+        "Event":"PPI Input (QoQ)  (Q1)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-0.5%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"07:00",
+        "Cur.":"GBP",
+        "Imp.":"Low",
+        "Event":"Rightmove House Price Index (YoY)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-0.9%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"07:50",
+        "Cur.":"JPY",
+        "Imp.":"High",
+        "Event":"GDP (QoQ)  (Q1)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.3%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"07:50",
+        "Cur.":"JPY",
+        "Imp.":"Low",
+        "Event":"GDP Capital Expenditure (QoQ)  (Q1)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"1.3%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"07:50",
+        "Cur.":"JPY",
+        "Imp.":"Low",
+        "Event":"GDP External Demand (QoQ)  (Q1)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.0%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"07:50",
+        "Cur.":"JPY",
+        "Imp.":"Low",
+        "Event":"GDP Private Consumption (QoQ)  (Q1)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.3%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"07:50",
+        "Cur.":"JPY",
+        "Imp.":"Medium",
+        "Event":"GDP (YoY)  (Q1)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"1.3%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"07:50",
+        "Cur.":"JPY",
+        "Imp.":"Medium",
+        "Event":"GDP Price Index (YoY)  (Q1)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3.4%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"12:00",
+        "Cur.":"MYR",
+        "Imp.":"Low",
+        "Event":"CPI (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.30%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"12:00",
+        "Cur.":"MYR",
+        "Imp.":"Medium",
+        "Event":"CPI (YoY)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"1.7%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"12:30",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Dutch Trade Balance  (Mar)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"9.90B"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"12:30",
+        "Cur.":"JPY",
+        "Imp.":"Low",
+        "Event":"Capacity Utilization (MoM)  (Mar)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-0.1%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"12:30",
+        "Cur.":"JPY",
+        "Imp.":"Low",
+        "Event":"Tertiary Industry Activity Index  (Mar)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-0.70"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"12:30",
+        "Cur.":"JPY",
+        "Imp.":"Medium",
+        "Event":"Industrial Production (MoM)  (Mar)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-0.5%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"14:00",
+        "Cur.":"GBP",
+        "Imp.":"Low",
+        "Event":"Average Earnings ex Bonus  (Mar)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3.6%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"14:00",
+        "Cur.":"GBP",
+        "Imp.":"Medium",
+        "Event":"Average Earnings Index +Bonus  (Mar)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3.8%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"14:00",
+        "Cur.":"GBP",
+        "Imp.":"Medium",
+        "Event":"Claimant Count Change  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"26.8K"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"14:00",
+        "Cur.":"GBP",
+        "Imp.":"Medium",
+        "Event":"Employment Change 3M\/3M (MoM)  (Mar)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"25K"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"14:00",
+        "Cur.":"GBP",
+        "Imp.":"Medium",
+        "Event":"Unemployment Rate  (Mar)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"4.9%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"16:30",
+        "Cur.":"GBP",
+        "Imp.":"Medium",
+        "Event":"Labour Productivity  (Q4)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"1.1%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"16:30",
+        "Cur.":"HKD",
+        "Imp.":"Low",
+        "Event":"Unemployment Rate  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3.7%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"17:00",
+        "Cur.":"EUR",
+        "Imp.":"Medium",
+        "Event":"Trade Balance  (Mar)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"11.5B"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"20:30",
+        "Cur.":"CAD",
+        "Imp.":"Low",
+        "Event":"CPI (YoY)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.4%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"20:30",
+        "Cur.":"CAD",
+        "Imp.":"Low",
+        "Event":"Common CPI (YoY)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.6%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"20:30",
+        "Cur.":"CAD",
+        "Imp.":"Low",
+        "Event":"Median CPI (YoY)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.3%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"20:30",
+        "Cur.":"CAD",
+        "Imp.":"Low",
+        "Event":"Trimmed CPI (YoY)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.2%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"20:30",
+        "Cur.":"CAD",
+        "Imp.":"Medium",
+        "Event":"Building Permits (MoM)  (Mar)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-8.4%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"20:30",
+        "Cur.":"CAD",
+        "Imp.":"Medium",
+        "Event":"CPI (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.9%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"20:30",
+        "Cur.":"CAD",
+        "Imp.":"Medium",
+        "Event":"Core CPI (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.2%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"20:30",
+        "Cur.":"CAD",
+        "Imp.":"Medium",
+        "Event":"Core CPI (YoY)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.5%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"22:00",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"Pending Home Sales Index  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"73.7"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"22:00",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"Pending Home Sales (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"1.5%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"23:00",
+        "Cur.":"COP",
+        "Imp.":"Low",
+        "Event":"Imports (YoY)  (Mar)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"7.80%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"23:00",
+        "Cur.":"COP",
+        "Imp.":"Low",
+        "Event":"Trade Balance (USD)  (Mar)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-1.235B"
     }
 ]
