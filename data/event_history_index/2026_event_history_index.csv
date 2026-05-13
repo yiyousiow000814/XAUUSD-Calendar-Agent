@@ -8400,70 +8400,64 @@ THB::Foreign Reserves (USD)::none,2026-05-08,15:30,,287.0B,,287.2B
 RUB::Central Bank reserves (USD)::none,2026-05-08,21:00,,757.5B,,771.7B
 BRL::BCB Focus Market Readout::none,2026-05-11,19:25,,,,
 NA::Sweden - Ascension Day - Early close at 13:00::none,2026-05-13,,,,,
-USD::Federal Budget Balance::none,2026-05-13,02:00,apr,,157.2B,-164.0B
-KRW::Unemployment Rate::none,2026-05-13,07:00,apr,,,2.7%
-JPY::Adjusted Current Account::none,2026-05-13,07:50,mar,,2.95T,270.90T
-JPY::Current Account n.s.a.::none,2026-05-13,07:50,mar,,3.879T,3.933T
-JPY::Bank Lending::y/y,2026-05-13,07:50,apr,,4.6%,4.8%
-AUD::Wage Price Index::q/q,2026-05-13,09:30,q1,,0.8%,0.8%
-AUD::Wage Price Index::y/y,2026-05-13,09:30,q1,,3.3%,3.4%
-KRW::M2 Money supply::none,2026-05-13,11:00,mar,,,8.00%
-KRW::M3 Money Supply::none,2026-05-13,11:00,mar,,,"6,160.5B"
-SEK::Unemployment Rate::none,2026-05-13,12:00,apr,,,6.6%
-EUR::CPI::m/m,2026-05-13,12:30,apr,,,0.70%
-EUR::Dutch CPI::y/y,2026-05-13,12:30,apr,,2.8%,2.7%
-EUR::CPI::m/m,2026-05-13,13:00,apr,,,0.70%
-EUR::Finnish CPI::y/y,2026-05-13,13:00,apr,,,1.3%
-JPY::Economy Watchers Current Index::none,2026-05-13,13:00,apr,,41.5,42.2
-EUR::French Unemployment Rate::none,2026-05-13,13:30,q1,,7.8%,7.9%
-RON::Industrial Production::m/m,2026-05-13,14:00,mar,,,-0.4%
-RON::Industrial Production::y/y,2026-05-13,14:00,mar,,,-1.5%
-RON::CPI::y/y,2026-05-13,14:00,apr,,,9.9%
-SEK::CPI::m/m,2026-05-13,14:00,apr,,-0.6%,-0.6%
-SEK::CPI::y/y,2026-05-13,14:00,apr,,-0.1%,-0.2%
-SEK::CPIF (CPI at constant interest rates)::m/m,2026-05-13,14:00,apr,,-0.6%,-0.6%
-SEK::CPIF (CPI at constant interest rates)::y/y,2026-05-13,14:00,apr,,0.8%,0.8%
-SEK::CPIF Ex Energy MoM::m/m,2026-05-13,14:00,apr,,,-0.60%
-SEK::CPIF Ex Energy YoY::y/y,2026-05-13,14:00,apr,,,0.00%
-RON::GDP::y/y,2026-05-13,14:00,q1,,,0.2%
-HUF::Industrial Output::y/y,2026-05-13,14:30,mar,,6.7%,6.7%
-EUR::France Inflation Ex-Tobacco::y/y,2026-05-13,14:45,apr,,,1.70%
-EUR::French CPI NSA::m/m,2026-05-13,14:45,apr,,,1.00%
-EUR::French CPI NSA::y/y,2026-05-13,14:45,apr,,,2.20%
-EUR::French CPI::m/m,2026-05-13,14:45,apr,,1.0%,1.0%
-EUR::French HICP::m/m,2026-05-13,14:45,apr,,1.2%,1.1%
-EUR::French HICP::y/y,2026-05-13,14:45,apr,,2.5%,2.5%
-TRY::Current Account (USD)::none,2026-05-13,15:00,mar,,-9.60B,-7.50B
-CZK::CPI::m/m,2026-05-13,15:00,apr,,0.5%,0.6%
-CZK::CPI::y/y,2026-05-13,15:00,apr,,2.5%,1.9%
-EUR::Slovak GDP::y/y,2026-05-13,15:00,q1,,0.9%,1.0%
-EUR::Industrial Production::m/m,2026-05-13,17:00,mar,,0.2%,0.4%
-EUR::Industrial Production::y/y,2026-05-13,17:00,mar,,-1.8%,-0.6%
-ZMK::Interest Rate Decision::none,2026-05-13,17:00,may,,,13.50%
-EUR::Employment Overall::none,2026-05-13,17:00,q1,,,"172,571.6K"
-EUR::GDP::q/q,2026-05-13,17:00,q1,,0.1%,0.1%
-EUR::GDP::y/y,2026-05-13,17:00,q1,,0.8%,0.8%
-EUR::Resi Prop Prices::m/m,2026-05-13,18:00,mar,,,-0.20%
-EUR::Resi Prop Prices::y/y,2026-05-13,18:00,mar,,,6.80%
-EUR::Portuguese CPI::m/m,2026-05-13,18:00,apr,,1.4%,1.4%
-EUR::Portuguese CPI::y/y,2026-05-13,18:00,apr,,3.4%,3.4%
-ILS::Exports (USD)::none,2026-05-13,18:00,apr,,,"5,288.6M"
-ILS::Imports (USD)::none,2026-05-13,18:00,apr,,,"8,402.8M"
-ILS::Trade Balance::none,2026-05-13,18:00,apr,,,"-3,114.2M"
-BRL::Retail Sales::m/m,2026-05-13,20:00,mar,,0.0%,0.6%
-BRL::Retail Sales::y/y,2026-05-13,20:00,mar,,2.8%,0.2%
-EUR::German Current Account Balance n.s.a::none,2026-05-13,20:00,mar,,,22.0B
-USD::Core PPI::m/m,2026-05-13,20:30,apr,,0.3%,0.1%
-USD::Core PPI::y/y,2026-05-13,20:30,apr,,4.3%,3.8%
-USD::PPI ex. Food/Energy/Transport::m/m,2026-05-13,20:30,apr,,,0.2%
-USD::PPI ex. Food/Energy/Transport::y/y,2026-05-13,20:30,apr,,,3.6%
-USD::PPI::m/m,2026-05-13,20:30,apr,,0.5%,0.5%
-USD::PPI::y/y,2026-05-13,20:30,apr,,4.9%,4.0%
-ARS::Thomson Reuters IPSOS PCSI::none,2026-05-13,23:00,may,,,40.35
-BRL::Brazil Thomson Reuters IPSOS PCSI::none,2026-05-13,23:00,may,,,49.22
-CAD::Thomson Reuters IPSOS PCSI::none,2026-05-13,23:00,may,,,45.59
-MXN::Thomson Reuters IPSOS PCSI::none,2026-05-13,23:00,may,,,54.00
-USD::Thomson Reuters IPSOS PCSI::none,2026-05-13,23:00,may,,,49.95
+USD::Federal Budget Balance::none,2026-05-13,02:00,apr,215.0B,157.2B,-164.0B
+KRW::Unemployment Rate::none,2026-05-13,07:00,apr,2.8%,,2.7%
+JPY::Adjusted Current Account::none,2026-05-13,07:50,mar,3.90T,2.95T,2.70T
+JPY::Current Account n.s.a.::none,2026-05-13,07:50,mar,4.682T,3.879T,3.933T
+JPY::Bank Lending::y/y,2026-05-13,07:50,apr,5.4%,4.6%,4.8%
+AUD::Wage Price Index::q/q,2026-05-13,09:30,q1,0.8%,0.8%,0.8%
+AUD::Wage Price Index::y/y,2026-05-13,09:30,q1,3.3%,3.3%,3.4%
+KRW::M2 Money supply::none,2026-05-13,11:00,mar,7.20%,,8.20%
+KRW::M3 Money Supply::none,2026-05-13,11:00,mar,"6,142.5B",,"6,171.3B"
+SEK::Unemployment Rate::none,2026-05-13,12:00,apr,6.5%,,6.6%
+EUR::CPI::m/m,2026-05-13,13:00,apr,0.10%,,0.70%
+EUR::Finnish CPI::y/y,2026-05-13,13:00,apr,1.5%,,1.3%
+JPY::Economy Watchers Current Index::none,2026-05-13,13:00,apr,40.8,41.5,42.2
+EUR::French Unemployment Rate::none,2026-05-13,13:30,q1,8.1%,7.8%,7.9%
+RON::Industrial Production::m/m,2026-05-13,14:00,mar,0.3%,,-0.4%
+RON::Industrial Production::y/y,2026-05-13,14:00,mar,-2.2%,,-1.5%
+RON::CPI::y/y,2026-05-13,14:00,apr,10.7%,10.7%,9.9%
+SEK::CPI::m/m,2026-05-13,14:00,apr,-0.6%,-0.6%,-0.6%
+SEK::CPI::y/y,2026-05-13,14:00,apr,-0.1%,-0.1%,-0.2%
+SEK::CPIF (CPI at constant interest rates)::m/m,2026-05-13,14:00,apr,-0.6%,-0.6%,-0.6%
+SEK::CPIF (CPI at constant interest rates)::y/y,2026-05-13,14:00,apr,0.8%,0.8%,1.6%
+SEK::CPIF Ex Energy MoM::m/m,2026-05-13,14:00,apr,-0.60%,,-0.60%
+SEK::CPIF Ex Energy YoY::y/y,2026-05-13,14:00,apr,0.00%,,0.00%
+RON::GDP::y/y,2026-05-13,14:00,q1,-1.7%,,0.2%
+HUF::Industrial Output::y/y,2026-05-13,14:30,mar,6.7%,6.7%,-1.5%
+EUR::French CPI NSA::m/m,2026-05-13,14:45,apr,1.00%,,1.00%
+EUR::French CPI NSA::y/y,2026-05-13,14:45,apr,2.20%,,1.70%
+EUR::French CPI::m/m,2026-05-13,14:45,apr,1.0%,1.0%,1.0%
+EUR::French HICP::m/m,2026-05-13,14:45,apr,1.2%,1.2%,1.1%
+EUR::French HICP::y/y,2026-05-13,14:45,apr,2.5%,2.5%,2.0%
+TRY::Current Account (USD)::none,2026-05-13,15:00,mar,-9.67B,-9.60B,-7.32B
+CZK::CPI::m/m,2026-05-13,15:00,apr,0.5%,0.5%,0.6%
+CZK::CPI::y/y,2026-05-13,15:00,apr,2.5%,2.5%,1.9%
+EUR::Slovak GDP::y/y,2026-05-13,15:00,q1,0.9%,0.9%,1.0%
+EUR::Industrial Production::m/m,2026-05-13,17:00,mar,0.2%,0.3%,0.2%
+EUR::Industrial Production::y/y,2026-05-13,17:00,mar,-2.1%,-1.7%,-0.8%
+ZMK::Interest Rate Decision::none,2026-05-13,17:00,may,13.25%,,13.50%
+EUR::Employment Overall::none,2026-05-13,17:00,q1,"176,412.0K",,"172,613.0K"
+EUR::GDP::q/q,2026-05-13,17:00,q1,0.1%,0.1%,0.2%
+EUR::GDP::y/y,2026-05-13,17:00,q1,0.8%,0.8%,1.2%
+EUR::Resi Prop Prices::m/m,2026-05-13,18:00,mar,0.00%,,-0.20%
+EUR::Resi Prop Prices::y/y,2026-05-13,18:00,mar,6.50%,,6.80%
+EUR::Portuguese CPI::m/m,2026-05-13,18:00,apr,1.3%,1.4%,2.0%
+EUR::Portuguese CPI::y/y,2026-05-13,18:00,apr,3.3%,3.4%,2.7%
+BRL::Retail Sales::m/m,2026-05-13,20:00,mar,0.5%,0.0%,0.7%
+BRL::Retail Sales::y/y,2026-05-13,20:00,mar,4.0%,2.8%,0.4%
+EUR::German Current Account Balance n.s.a::none,2026-05-13,20:00,mar,23.6B,,20.5B
+USD::Core PPI::m/m,2026-05-13,20:30,apr,1.0%,0.3%,0.2%
+USD::Core PPI::y/y,2026-05-13,20:30,apr,5.2%,4.3%,4.0%
+USD::PPI ex. Food/Energy/Transport::m/m,2026-05-13,20:30,apr,0.6%,,0.2%
+USD::PPI ex. Food/Energy/Transport::y/y,2026-05-13,20:30,apr,4.4%,,3.7%
+USD::PPI::m/m,2026-05-13,20:30,apr,1.4%,0.5%,0.7%
+USD::PPI::y/y,2026-05-13,20:30,apr,6.0%,4.9%,4.3%
+ARS::Thomson Reuters IPSOS PCSI::none,2026-05-13,23:00,may,40.81,,40.35
+BRL::Brazil Thomson Reuters IPSOS PCSI::none,2026-05-13,23:00,may,52.35,,49.22
+CAD::Thomson Reuters IPSOS PCSI::none,2026-05-13,23:00,may,47.58,,45.59
+MXN::Thomson Reuters IPSOS PCSI::none,2026-05-13,23:00,may,50.97,,54.00
+USD::Thomson Reuters IPSOS PCSI::none,2026-05-13,23:00,may,49.65,,49.95
 EUR::French Car Registration::y/y,2026-05-04,19:40,apr,-0.3%,,12.9%
 EUR::Italian Car Registration::y/y,2026-05-05,00:30,apr,11.6%,,7.6%
 ARS::Tax Revenue::none,2026-05-05,04:15,apr,"17,400.83B",,"16,071.03B"
@@ -8498,20 +8492,20 @@ NZD::External Migration & Visitors::none,2026-05-14,06:45,mar,,,15.20%
 NZD::Permanent/Long-Term Migration::none,2026-05-14,06:45,mar,,,"3,970"
 JPY::M3 Money Supply::none,2026-05-14,07:50,apr,,,"2,280.3B"
 GBP::Construction Output::m/m,2026-05-14,14:00,mar,,-0.5%,1.0%
-GBP::GDP::m/m,2026-05-14,14:00,mar,,-0.2%,0.5%
-GBP::GDP::y/y,2026-05-14,14:00,mar,,,1.0%
-GBP::Industrial Production::m/m,2026-05-14,14:00,mar,,-0.3%,0.5%
+GBP::GDP::m/m,2026-05-14,14:00,mar,,-0.1%,0.5%
+GBP::GDP::y/y,2026-05-14,14:00,mar,,0.7%,1.0%
+GBP::Industrial Production::m/m,2026-05-14,14:00,mar,,-0.2%,0.5%
 GBP::Industrial Production::y/y,2026-05-14,14:00,mar,,,-0.4%
 GBP::Manufacturing Production::m/m,2026-05-14,14:00,mar,,-0.1%,-0.1%
-GBP::Manufacturing Production::y/y,2026-05-14,14:00,mar,,,-0.5%
-GBP::Monthly GDP 3M/3M Change::none,2026-05-14,14:00,mar,,,0.5%
+GBP::Manufacturing Production::y/y,2026-05-14,14:00,mar,,0.0%,-0.5%
+GBP::Monthly GDP 3M/3M Change::none,2026-05-14,14:00,mar,,0.6%,0.5%
 GBP::Trade Balance Non-EU::none,2026-05-14,14:00,mar,,,-7.10B
-GBP::Trade Balance::none,2026-05-14,14:00,mar,,-20.10B,-18.79B
-GBP::U.K. Construction Output::y/y,2026-05-14,14:00,mar,,,-1.0%
+GBP::Trade Balance::none,2026-05-14,14:00,mar,,-19.80B,-18.79B
+GBP::U.K. Construction Output::y/y,2026-05-14,14:00,mar,,-2.5%,-1.0%
 GBP::Business Investment::q/q,2026-05-14,14:00,q1,,1.1%,-2.5%
 GBP::Business Investment::y/y,2026-05-14,14:00,q1,,,2.0%
 GBP::GDP::q/q,2026-05-14,14:00,q1,,0.6%,0.1%
-GBP::GDP::y/y,2026-05-14,14:00,q1,,,1.0%
+GBP::GDP::y/y,2026-05-14,14:00,q1,,0.8%,1.0%
 INR::WPI Food::y/y,2026-05-14,14:30,apr,,,1.90%
 INR::WPI Fuel::y/y,2026-05-14,14:30,apr,,,1.05%
 INR::WPI Inflation::y/y,2026-05-14,14:30,apr,,4.40%,3.88%
@@ -8531,12 +8525,12 @@ ZAR::Gold Production::y/y,2026-05-14,17:30,mar,,,12.8%
 ZAR::Mining Production::none,2026-05-14,17:30,mar,,,9.7%
 EUR::France Thomson Reuters IPSOS PCSI::none,2026-05-14,18:00,may,,,38.08
 EUR::Germany Thomson Reuters IPSOS PCSI::none,2026-05-14,18:00,may,,,41.80
-EUR::Italy Thomson Reuters IPSOS PCSI::none,2026-05-14,18:00,may,,,38.80
+EUR::Italy Thomson Reuters IPSOS PCSI::none,2026-05-14,18:00,may,,,43.12
 EUR::Thomson Reuters IPSOS PCSI::none,2026-05-14,18:00,may,,,47.16
 GBP::Thomson Reuters IPSOS PCSI::none,2026-05-14,18:00,may,,,43.3
 HUF::Thomson Reuters IPSOS PCSI::none,2026-05-14,18:00,may,,,40.67
 ILS::Thomson Reuters IPSOS PCSI::none,2026-05-14,18:00,may,,,47.88
-PLN::Thomson Reuters IPSOS PCSI::none,2026-05-14,18:00,may,,,39.02
+PLN::Thomson Reuters IPSOS PCSI::none,2026-05-14,18:00,may,,,46.32
 SAR::Thomson Reuters IPSOS PCSI::none,2026-05-14,18:00,may,,,71.54
 SEK::Thomson Reuters IPSOS PCSI::none,2026-05-14,18:00,may,,,55.86
 TRY::Turkey Thomson Reuters IPSOS PCSI::none,2026-05-14,18:00,may,,,34.8
@@ -8544,36 +8538,36 @@ ZAR::Thomson Reuters IPSOS PCSI::none,2026-05-14,18:00,may,,,48.49
 UGX::Interest Rate Decision::none,2026-05-14,18:30,,,,9.75%
 ILS::M1 Money Supply::y/y,2026-05-14,19:00,apr,,,2.7%
 TRY::Gross FX Reserves::none,2026-05-14,19:30,,,,56.60B
-CAD::Wholesale Sales::m/m,2026-05-14,20:30,mar,,1.4%,2.0%
-USD::Core Retail Sales::m/m,2026-05-14,20:30,apr,,0.6%,1.9%
-USD::Export Price Index::m/m,2026-05-14,20:30,apr,,,1.6%
+CAD::Wholesale Sales::m/m,2026-05-14,20:30,mar,,1.3%,2.0%
+USD::Core Retail Sales::m/m,2026-05-14,20:30,apr,,0.7%,1.9%
+USD::Export Price Index::m/m,2026-05-14,20:30,apr,,1.1%,1.6%
 USD::Import Price Index::m/m,2026-05-14,20:30,apr,,1.0%,0.8%
-USD::Retail Control::m/m,2026-05-14,20:30,apr,,,0.7%
+USD::Retail Control::m/m,2026-05-14,20:30,apr,,0.4%,0.7%
 USD::Retail Sales Ex Gas/Autos::m/m,2026-05-14,20:30,apr,,,0.6%
-USD::Retail Sales::m/m,2026-05-14,20:30,apr,,0.6%,1.7%
+USD::Retail Sales::m/m,2026-05-14,20:30,apr,,0.5%,1.7%
 USD::Retail Sales::y/y,2026-05-14,20:30,apr,,,3.97%
-USD::Continuing Jobless Claims::none,2026-05-14,20:30,,,,"1,766K"
-USD::Initial Jobless Claims::none,2026-05-14,20:30,,,206K,200K
+USD::Continuing Jobless Claims::none,2026-05-14,20:30,,,"1,790K","1,766K"
+USD::Initial Jobless Claims::none,2026-05-14,20:30,,,205K,200K
 USD::Jobless Claims 4-Week Avg.::none,2026-05-14,20:30,,,,203.25K
-RUB::Trade Balance::none,2026-05-14,21:00,mar,,11.80B,5.35B
-USD::Business Inventories::m/m,2026-05-14,22:00,mar,,0.3%,0.4%
+RUB::Trade Balance::none,2026-05-14,21:00,mar,,11.75B,5.35B
+USD::Business Inventories::m/m,2026-05-14,22:00,mar,,0.8%,0.4%
 USD::Retail Inventories Ex Auto::none,2026-05-14,22:00,mar,,0.5%,0.5%
 AOA::Interest Rate Decision::m/m,2026-05-14,22:00,,,,17.50%
-USD::Natural Gas Storage::none,2026-05-14,22:30,,,,63B
+USD::Natural Gas Storage::none,2026-05-14,22:30,,,86B,63B
 USD::Atlanta Fed GDPNow::none,2026-05-14,23:30,q2,,,3.7%
 USD::4-Week Bill Auction::none,2026-05-14,23:30,,,,3.610%
 USD::8-Week Bill Auction::none,2026-05-14,23:30,,,,3.595%
 NA::Denmark - Market Holiday::none,2026-05-15,All Day,,,,
 NA::Indonesia - Ascension Day::none,2026-05-15,All Day,,,,
-ARS::CPI::m/m,2026-05-15,03:00,apr,,,3.4%
-ARS::CPI::y/y,2026-05-15,03:00,apr,,,32.6%
+ARS::CPI::m/m,2026-05-15,03:00,apr,,2.5%,3.4%
+ARS::CPI::y/y,2026-05-15,03:00,apr,,32.4%,32.6%
 KRW::Export Price Index::y/y,2026-05-15,05:00,apr,,,28.7%
 KRW::Import Price Index::y/y,2026-05-15,05:00,apr,,,18.4%
 NZD::Business NZ PMI::none,2026-05-15,06:30,apr,,,53.2
 NZD::FPI::m/m,2026-05-15,06:45,apr,,,-0.6%
-PEN::Interest Rate Decision::none,2026-05-15,07:00,may,,,4.25%
+PEN::Interest Rate Decision::none,2026-05-15,07:00,may,,4.25%,4.25%
 PEN::Trade Balance::none,2026-05-15,07:30,mar,,,"4,189M"
-JPY::PPI::m/m,2026-05-15,07:50,apr,,,0.8%
+JPY::PPI::m/m,2026-05-15,07:50,apr,,0.7%,0.8%
 JPY::PPI::y/y,2026-05-15,07:50,apr,,3.0%,2.6%
 KRW::Exports::y/y,2026-05-15,08:00,apr,,48.0%,48.0%
 KRW::Imports::y/y,2026-05-15,08:00,apr,,16.7%,16.7%
@@ -8650,29 +8644,27 @@ USD::ADP Employment Change Weekly::none,2026-05-12,20:15,,33.00K,,39.25K
 USD::Redbook::y/y,2026-05-12,20:55,,9.6%,,7.8%
 USD::52-Week Bill Auction::none,2026-05-12,23:30,,3.650%,,3.485%
 USD::WASDE Report::none,2026-05-13,00:00,,,,
-USD::10-Year Note Auction::none,2026-05-13,01:00,,,,4.282%
-USD::API Weekly Crude Oil Stock::none,2026-05-13,04:30,,,,-8.100M
-AUD::Home Loans::m/m,2026-05-13,09:30,q1,,,10.6%
-NZD::Inflation Expectations::q/q,2026-05-13,11:00,q2,,,2.4%
-EUR::Finnish Current Account::none,2026-05-13,13:00,mar,,,-0.20B
-EUR::French CPI::y/y,2026-05-13,14:45,apr,,2.2%,1.7%
+USD::10-Year Note Auction::none,2026-05-13,01:00,,4.468%,,4.282%
+USD::API Weekly Crude Oil Stock::none,2026-05-13,04:30,,-2.188M,-1.650M,-8.100M
+AUD::Home Loans::m/m,2026-05-13,09:30,q1,-4.3%,,9.4%
+NZD::Inflation Expectations::q/q,2026-05-13,11:00,q2,2.5%,,2.4%
+EUR::Finnish Current Account::none,2026-05-13,13:00,mar,0.30B,,-0.20B
+EUR::French CPI::y/y,2026-05-13,14:45,apr,2.2%,2.2%,1.7%
 SEK::Swedish Monetary Policy Meeting Minutes::none,2026-05-13,15:30,,,,
-EUR::Employment Change::q/q,2026-05-13,17:00,q1,,0.1%,0.2%
-EUR::Employment Change::y/y,2026-05-13,17:00,q1,,,0.7%
+EUR::Employment Change::q/q,2026-05-13,17:00,q1,0.1%,0.0%,0.2%
+EUR::Employment Change::y/y,2026-05-13,17:00,q1,0.5%,,0.7%
 USD::IEA Monthly Report::none,2026-05-13,17:00,,,,
-EUR::German 30-Year Bund Auction::none,2026-05-13,17:30,,,,3.570%
 USD::OPEC Monthly Report::none,2026-05-13,18:00,,,,
-USD::MBA 30-Year Mortgage Rate::none,2026-05-13,19:00,,,,6.45%
-USD::MBA Mortgage Applications::w/w,2026-05-13,19:00,,,,-4.4%
-USD::MBA Purchase Index::none,2026-05-13,19:00,,,,171.1
-USD::Mortgage Market Index::none,2026-05-13,19:00,,,,285.3
-USD::Mortgage Refinance Index::none,2026-05-13,19:00,,,,928.6
-INR::M3 Money Supply::none,2026-05-13,19:30,,,,11.9%
+USD::MBA 30-Year Mortgage Rate::none,2026-05-13,19:00,,6.46%,,6.45%
+USD::MBA Mortgage Applications::w/w,2026-05-13,19:00,,1.7%,,-4.4%
+USD::MBA Purchase Index::none,2026-05-13,19:00,,177.7,,171.1
+USD::Mortgage Market Index::none,2026-05-13,19:00,,290.1,,285.3
+USD::Mortgage Refinance Index::none,2026-05-13,19:00,,921.1,,928.6
 USD::30-Year Bond Auction::none,2026-05-14,01:00,,,,4.876%
 AUD::MI Inflation Expectations::none,2026-05-14,09:00,may,,,5.9%
 JPY::30-Year JGB Auction::none,2026-05-14,11:35,,,,3.697%
-SAR::CPI::m/m,2026-05-14,14:00,apr,,,0.3%
-SAR::CPI::y/y,2026-05-14,14:00,apr,,,1.8%
+SAR::CPI::m/m,2026-05-14,14:00,apr,,0.4%,0.3%
+SAR::CPI::y/y,2026-05-14,14:00,apr,,1.8%,1.8%
 TRY::CBRT Inflation Report::none,2026-05-14,15:30,,,,
 CNY::Chinese Total Social Financing::none,2026-05-14,17:00,apr,,"1,500.0B","5,230.0B"
 CNY::M2 Money Stock::y/y,2026-05-14,17:00,apr,,8.5%,8.5%
@@ -8728,16 +8720,16 @@ ZAR::Unemployment::none,2026-05-12,17:00,q1,8.137M,,7.836M
 USD::EIA Short-Term Energy Outlook::none,2026-05-13,00:00,,,,
 GBP::BoE Deputy Governor Woods Speaks::none,2026-05-13,01:30,,,,
 GBP::BoE MPC Member Mann Speaks::none,2026-05-13,22:00,,,,
-USD::Crude Oil Imports::none,2026-05-13,22:30,,,,1.415M
-USD::Crude Oil Inventories::none,2026-05-13,22:30,,,-1.600M,-2.313M
-USD::Cushing Crude Oil Inventories::none,2026-05-13,22:30,,,,-0.648M
-USD::Distillate Fuel Production::none,2026-05-13,22:30,,,,-0.024M
-USD::EIA Refinery Crude Runs::w/w,2026-05-13,22:30,,,,-0.042M
-USD::EIA Weekly Distillates Stocks::none,2026-05-13,22:30,,,,-1.294M
-USD::EIA Weekly Refinery Utilization Rates::w/w,2026-05-13,22:30,,,,0.5%
-USD::Gasoline Inventories::none,2026-05-13,22:30,,,,-2.504M
-USD::Gasoline Production::none,2026-05-13,22:30,,,,-0.275M
-USD::Heating Oil Stockpiles::none,2026-05-13,22:30,,,,-0.038M
+USD::Crude Oil Imports::none,2026-05-13,22:30,,-0.318M,,1.415M
+USD::Crude Oil Inventories::none,2026-05-13,22:30,,-4.306M,-2.000M,-2.313M
+USD::Cushing Crude Oil Inventories::none,2026-05-13,22:30,,-1.702M,,-0.648M
+USD::Distillate Fuel Production::none,2026-05-13,22:30,,-0.124M,,-0.024M
+USD::EIA Refinery Crude Runs::w/w,2026-05-13,22:30,,0.370M,,-0.042M
+USD::EIA Weekly Distillates Stocks::none,2026-05-13,22:30,,0.190M,-2.830M,-1.294M
+USD::EIA Weekly Refinery Utilization Rates::w/w,2026-05-13,22:30,,1.6%,,0.5%
+USD::Gasoline Inventories::none,2026-05-13,22:30,,-4.084M,-2.850M,-2.504M
+USD::Gasoline Production::none,2026-05-13,22:30,,0.222M,,-0.275M
+USD::Heating Oil Stockpiles::none,2026-05-13,22:30,,0.153M,,-0.038M
 GBP::BoE MPC Member Mann Speaks::none,2026-05-14,01:00,,,,
 CAD::BOC Summary of Deliberations::none,2026-05-14,01:30,,,,
 JPY::Foreign Bonds Buying::none,2026-05-14,07:50,,,,-887.7B
@@ -8760,8 +8752,8 @@ USD::U.S. President Trump Speaks::none,2026-05-09,00:00,,,,
 EUR::German Buba Mauderer Speaks::none,2026-05-12,00:15,,,,
 USD::FOMC Member Williams Speaks::none,2026-05-12,15:15,,,,
 USD::Fed Goolsbee Speaks::none,2026-05-13,01:00,,,,
-EUR::German WPI::m/m,2026-05-13,14:00,apr,,1.8%,2.7%
-EUR::German WPI::y/y,2026-05-13,14:00,apr,,,4.1%
+EUR::German WPI::m/m,2026-05-13,14:00,apr,2.0%,1.7%,2.7%
+EUR::German WPI::y/y,2026-05-13,14:00,apr,6.3%,,4.1%
 USD::Fed Collins Speaks::none,2026-05-13,23:30,,,,
 USD::FOMC Member Kashkari Speaks::none,2026-05-14,01:15,,,,
 BRL::Foreign Exchange Flows::none,2026-05-14,01:30,,,,3.307B
@@ -8769,7 +8761,6 @@ NZD::Visitor Arrivals::m/m,2026-05-14,06:45,,,,1.7%
 JPY::M2 Money Stock::y/y,2026-05-14,07:50,,,1.9%,2.0%
 GBP::Index of Services::none,2026-05-14,14:00,,,0.6%,0.5%
 TRY::Net FX Reserves::none,2026-05-14,19:30,,,,53.67%
-USD::Fed Vice Chair for Supervision Barr Speaks::none,2026-05-15,05:30,,,,
 USD::FOMC Member Williams Speaks::none,2026-05-15,05:45,,,,
 ILS::GDP Annualized::q/q,2026-05-17,18:00,q1,,,3.3%
 NA::Canada - Victoria Day::none,2026-05-18,All Day,,,,
@@ -8797,10 +8788,7 @@ PLN::Core CPI::y/y,2026-05-18,20:00,apr,,,2.7%
 CLP::Chilean GDP::q/q,2026-05-18,20:30,q1,,,0.60%
 CLP::Chilean GDP::y/y,2026-05-18,20:30,q1,,,1.6%
 USD::NAHB Housing Market Index::none,2026-05-18,22:00,may,,,34
-EGP::CPI::y/y,2026-05-10,20:00,may,,,14.90%
-EGP::Core CPI::y/y,2026-05-10,20:00,may,,,13.80%
 ARS::National CPI::m/m,2026-05-15,03:00,apr,,,3.40%
-GBP::RICS House Price Balance::none,2026-05-15,07:00,apr,,,-23%
 AUD::CFTC AUD speculative net positions::none,2026-05-16,03:30,,,,78.7K
 BRL::CFTC BRL speculative net positions::none,2026-05-16,03:30,,,,66.8K
 CAD::CFTC CAD speculative net positions::none,2026-05-16,03:30,,,,-14.7K
@@ -8973,10 +8961,6 @@ IDR::Retail Sales::y/y,2026-05-12,12:00,mar,3.4%,,6.5%
 EUR::German Buba President Nagel Speaks::none,2026-05-12,15:15,,,,
 EUR::Italian 12-Month BOT Auction::none,2026-05-12,17:20,,2.699%,,2.604%
 GBP::5-Year Treasury Gilt Auction::none,2026-05-12,17:30,,4.651%,,4.228%
-AUD::Westpac Consumer Sentiment::none,2026-05-13,09:30,may,,,-12.5%
-EUR::Italian 3-Year BTP Auction::none,2026-05-13,17:10,,,,2.91%
-EUR::Italian 7-Year BTP Auction::none,2026-05-13,17:10,,,,3.51%
-USD::Cleveland CPI::m/m,2026-05-13,23:00,apr,,,0.2%
 THB::Consumer Confidence::none,2026-05-14,11:30,apr,,,51.8
 EUR::French 12-Month BTF Auction::none,2026-05-18,21:00,,,,2.613%
 EUR::French 3-Month BTF Auction::none,2026-05-18,21:00,,,,2.234%
@@ -9071,3 +9055,112 @@ USD::KC Fed Composite Index::none,2026-05-21,23:00,may,,,10
 USD::KC Fed Manufacturing Index::none,2026-05-21,23:00,may,,,10
 USD::4-Week Bill Auction::none,2026-05-21,23:30,,,,3.610%
 USD::8-Week Bill Auction::none,2026-05-21,23:30,,,,3.595%
+ILS::Exports (USD)::none,2026-05-13,17:30,apr,"4,997.1M",,"4,913.9M"
+ILS::Imports (USD)::none,2026-05-13,17:30,apr,"9,185.8M",,"8,446.3M"
+ILS::Trade Balance::none,2026-05-13,17:30,apr,"-4,188.7M",,"-3,532.4M"
+EUR::Italian 3-Year BTP Auction::none,2026-05-13,17:30,,2.98%,,2.91%
+EUR::Italian 7-Year BTP Auction::none,2026-05-13,17:30,,3.55%,,3.51%
+EUR::German 30-Year Bund Auction::none,2026-05-13,17:40,,3.620%,,3.570%
+BWP::CPI::m/m,2026-05-13,23:30,apr,6.7%,,0.4%
+BWP::CPI::y/y,2026-05-13,23:30,apr,10.3%,,4.2%
+GBP::RICS House Price Balance::none,2026-05-14,07:00,apr,,,-23%
+AUD::Westpac Consumer Sentiment::none,2026-05-14,09:30,may,,,-12.5%
+USD::Fed Vice Chair for Supervision Barr Speaks::none,2026-05-15,07:00,,,,
+SGD::Trade Balance::none,2026-05-18,08:30,apr,,,11.218B
+JPY::5-Year JGB Auction::none,2026-05-18,11:35,,,,1.826%
+CHF::GDP::q/q,2026-05-18,15:00,q1,,,0.1%
+CNY::FDI::none,2026-05-18,17:00,apr,,,-7.30%
+AUD::RBA Meeting Minutes::none,2026-05-19,09:30,,,,
+EUR::Spanish Trade Balance::none,2026-05-19,16:00,mar,,,-3.30B
+EUR::German 5-Year Bobl Auction::none,2026-05-19,17:30,,,,2.740%
+NZD::GlobalDairyTrade Price Index::none,2026-05-19,20:00,,,,1.5%
+USD::Milk Auctions::none,2026-05-19,20:00,,,,"4,127.0"
+USD::ADP Employment Change Weekly::none,2026-05-19,20:15,,,,33.00K
+USD::Redbook::y/y,2026-05-19,20:55,,,,9.6%
+USD::API Weekly Crude Oil Stock::none,2026-05-20,04:30,,,,-2.188M
+CNY::PBoC Loan Prime Rate::none,2026-05-20,09:15,,,,3.00%
+EUR::German PPI::m/m,2026-05-20,14:00,apr,,,2.5%
+EUR::German PPI::y/y,2026-05-20,14:00,apr,,,-0.2%
+EUR::Slovak Current Account::none,2026-05-20,15:00,mar,,,-398.0M
+EUR::European Central Bank Non-monetary Policy Meeting::none,2026-05-20,15:00,,,,
+IDR::Interest Rate Decision::none,2026-05-20,15:30,,,,4.75%
+"EUR::CPI, n.s.a::none",2026-05-20,17:00,apr,,103.05,101.99
+EUR::German 10-Year Bund Auction::none,2026-05-20,17:30,,,,3.080%
+EUR::Slovak Unemployment Rate::none,2026-05-20,18:00,apr,,,5.2%
+GHS::PPI::y/y,2026-05-20,18:00,apr,,,1.50%
+USD::MBA 30-Year Mortgage Rate::none,2026-05-20,19:00,,,,6.46%
+USD::MBA Mortgage Applications::w/w,2026-05-20,19:00,,,,1.7%
+USD::MBA Purchase Index::none,2026-05-20,19:00,,,,177.7
+USD::Mortgage Market Index::none,2026-05-20,19:00,,,,290.1
+USD::Mortgage Refinance Index::none,2026-05-20,19:00,,,,921.1
+INR::Infrastructure Output::y/y,2026-05-20,19:30,apr,,,-0.4%
+USD::FOMC Meeting Minutes::none,2026-05-21,02:00,,,,
+NZD::Credit Card Spending::y/y,2026-05-21,11:00,apr,,,2.1%
+EUR::Labor Cost Index::y/y,2026-05-21,17:00,q1,,,3.30%
+PEN::Current Account % of GDP::none,2026-05-21,20:30,,,,1.70%
+NA::Bermuda - National Day::none,2026-05-22,All Day,,,,
+NA::Israel - Shavuot::none,2026-05-22,All Day,,,,
+NA::Montenegro - Independence Day::none,2026-05-22,All Day,,,,
+EGP::Interest Rate Decision::none,2026-05-22,01:00,,,,19.00%
+EGP::Overnight Lending Rate::none,2026-05-22,01:00,,,,20.00%
+USD::10-Year TIPS Auction::none,2026-05-22,01:00,,,,1.896%
+ARS::Economic Activity::y/y,2026-05-22,03:00,mar,,,-2.1%
+KRW::Consumer Confidence::none,2026-05-22,05:00,may,,,99.2
+NZD::Retail Sales Quarterly Vs. Year Ago::none,2026-05-22,06:45,q1,,,4.4%
+NZD::Retail Sales::q/q,2026-05-22,06:45,q1,,,0.9%
+GBP::GfK Consumer Confidence::none,2026-05-22,07:00,may,,,-25
+"JPY::CPI, n.s.a::m/m",2026-05-22,07:30,apr,,,0.4%
+JPY::National CPI::m/m,2026-05-22,07:30,apr,,,0.4%
+JPY::National CPI::y/y,2026-05-22,07:30,apr,,,1.5%
+JPY::National Core CPI::y/y,2026-05-22,07:30,apr,,,1.8%
+EUR::Irish Consumer Confidence::none,2026-05-22,08:00,may,,,53.3
+IDR::M2 Money Supply::y/y,2026-05-22,11:00,apr,,,9.70%
+IDR::Balance of Payments (EUR)::none,2026-05-22,11:00,q1,,,6.1B
+IDR::Current Account % of GDP::none,2026-05-22,11:00,q1,,,-0.70%
+EUR::GfK German Consumer Climate::none,2026-05-22,14:00,jun,,,-33.3
+DKK::Retail Sales::y/y,2026-05-22,14:00,apr,,,7.1%
+GBP::Core Retail Sales::m/m,2026-05-22,14:00,apr,,,0.2%
+GBP::Core Retail Sales::y/y,2026-05-22,14:00,apr,,,1.7%
+GBP::Public Sector Net Cash Requirement::none,2026-05-22,14:00,apr,,,28.519B
+GBP::Retail Sales::m/m,2026-05-22,14:00,apr,,,0.7%
+GBP::Retail Sales::y/y,2026-05-22,14:00,apr,,,1.7%
+EUR::German GDP::q/q,2026-05-22,14:00,q1,,,0.3%
+EUR::German GDP::y/y,2026-05-22,14:00,q1,,,0.3%
+EUR::French Business Survey::none,2026-05-22,14:45,may,,,100
+TRY::Exports::none,2026-05-22,15:00,apr,,,25.40B
+TRY::Trade Balance::none,2026-05-22,15:00,apr,,,-11.22B
+TRY::Capacity Utilization::none,2026-05-22,15:00,may,,,73.8%
+TRY::Manufacturing Confidence::none,2026-05-22,15:00,may,,,100.6
+EUR::Greek Current Account::y/y,2026-05-22,16:00,mar,,,-1.286B
+TRY::Foreign Arrivals::y/y,2026-05-22,16:00,apr,,,5.00%
+TWD::Unemployment Rate::none,2026-05-22,16:00,apr,,,3.35%
+EUR::German Business Expectations::none,2026-05-22,16:00,may,,,83.3
+EUR::German Current Assessment::none,2026-05-22,16:00,may,,,85.4
+EUR::German Ifo Business Climate Index::none,2026-05-22,16:00,may,,,84.4
+TWD::M2 Money Supply::none,2026-05-22,16:20,apr,,,5.79%
+TWD::M3 Money Supply::none,2026-05-22,16:20,apr,,,"68,598.0B"
+INR::Bank Loan Growth::none,2026-05-22,19:30,,,,16.0%
+INR::Deposit Growth::none,2026-05-22,19:30,,,,12.3%
+MXN::Economic Activity::m/m,2026-05-22,20:00,mar,,,0.10%
+MXN::Economic Activity::y/y,2026-05-22,20:00,mar,,,-0.30%
+MXN::1st Half-Month CPI::none,2026-05-22,20:00,may,,,0.11%
+MXN::1st Half-Month Core CPI::none,2026-05-22,20:00,may,,,0.18%
+MXN::GDP::q/q,2026-05-22,20:00,q1,,,-0.8%
+MXN::GDP::y/y,2026-05-22,20:00,q1,,,0.1%
+CAD::Core Retail Sales::m/m,2026-05-22,20:30,mar,,,0.5%
+CAD::Retail Sales::m/m,2026-05-22,20:30,mar,,,0.7%
+CAD::IPPI::m/m,2026-05-22,20:30,apr,,,2.4%
+CAD::IPPI::y/y,2026-05-22,20:30,apr,,,7.8%
+CAD::RMPI::m/m,2026-05-22,20:30,apr,,,12.0%
+CAD::RMPI::y/y,2026-05-22,20:30,apr,,,23.6%
+EUR::Greek Credit Expansion::y/y,2026-05-22,20:45,mar,,,4.9%
+EUR::Belgium NBB Business Climate::none,2026-05-22,21:00,may,,,-14.2
+USD::US Leading Index::m/m,2026-05-22,22:00,apr,,,-0.6%
+USD::Michigan 1-Year Inflation Expectations::none,2026-05-22,22:00,may,,,4.5%
+USD::Michigan 5-Year Inflation Expectations::none,2026-05-22,22:00,may,,,3.4%
+USD::Michigan Consumer Expectations::none,2026-05-22,22:00,may,,,48.5
+USD::Michigan Consumer Sentiment::none,2026-05-22,22:00,may,,,48.2
+USD::Michigan Current Conditions::none,2026-05-22,22:00,may,,,47.8
+USD::U.S. Baker Hughes Oil Rig Count::none,2026-05-23,01:00,,,,410
+USD::U.S. Baker Hughes Total Rig Count::none,2026-05-23,01:00,,,,548
+ARS::Retail Sales::y/y,2026-05-23,03:00,mar,,,23.5%

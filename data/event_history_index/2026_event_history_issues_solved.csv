@@ -58,3 +58,7 @@ previous_missing_filled,USD::4-Week Bill Auction::none,USD,4-Week Bill Auction,,
 previous_missing_filled,USD::8-Week Bill Auction::none,USD,8-Week Bill Auction,,2026-05-21,23:30,,3.595%,3.595%,
 previous_missing_filled,TRY::Gross FX Reserves::none,TRY,Gross FX Reserves,,2026-05-21,19:30,,56.60B,56.60B,
 previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q2),q2,2026-05-21,22:00,,3.7%,3.7%,
+previous_missing_filled,USD::U.S. Baker Hughes Oil Rig Count::none,USD,U.S. Baker Hughes Oil Rig Count,,2026-05-23,01:00,,410,410,
+previous_missing_filled,USD::U.S. Baker Hughes Total Rig Count::none,USD,U.S. Baker Hughes Total Rig Count,,2026-05-23,01:00,,548,548,
+stale_missing_actual_dropped,EGP::Core CPI::y/y,EGP,Core CPI (YoY)  (May),may,2026-05-10,20:00,,,,"{""cutoff"": ""11-05-2026 16:20""}"
+stale_missing_actual_dropped,EGP::CPI::y/y,EGP,CPI (YoY)  (May),may,2026-05-10,20:00,,,,"{""cutoff"": ""11-05-2026 16:20""}"
