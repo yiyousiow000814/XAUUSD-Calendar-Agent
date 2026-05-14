@@ -49,16 +49,15 @@ stale_missing_actual_dropped,RUB::CFTC RUB speculative positions::none,RUB,CFTC 
 stale_missing_actual_dropped,HUF::Current Account (EUR)::q/q,HUF,Current Account (EUR) (QoQ)  (Q4),q4,2026-03-29,04:00,,,,"{""cutoff"": ""15-04-2026 15:36""}"
 previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2026-04-16,02:00,,0.00,0.00,
 stale_missing_actual_dropped,USD::Beige Book::none,USD,Beige Book,,2026-04-16,02:00,,,,"{""cutoff"": ""19-04-2026 15:58""}"
-previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q2),q2,2026-05-14,23:30,,3.7%,3.7%,
-previous_missing_filled,USD::Initial Jobless Claims::none,USD,Initial Jobless Claims,,2026-05-21,20:30,,200K,200K,
-previous_missing_filled,USD::Jobless Claims 4-Week Avg.::none,USD,Jobless Claims 4-Week Avg.,,2026-05-21,20:30,,203.25K,203.25K,
-previous_missing_filled,USD::Natural Gas Storage::none,USD,Natural Gas Storage,,2026-05-21,22:30,,63B,63B,
-previous_missing_filled,USD::Continuing Jobless Claims::none,USD,Continuing Jobless Claims,,2026-05-21,20:30,,"1,766K","1,766K",
-previous_missing_filled,USD::4-Week Bill Auction::none,USD,4-Week Bill Auction,,2026-05-21,23:30,,3.610%,3.610%,
-previous_missing_filled,USD::8-Week Bill Auction::none,USD,8-Week Bill Auction,,2026-05-21,23:30,,3.595%,3.595%,
-previous_missing_filled,TRY::Gross FX Reserves::none,TRY,Gross FX Reserves,,2026-05-21,19:30,,56.60B,56.60B,
-previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q2),q2,2026-05-21,22:00,,3.7%,3.7%,
+previous_missing_filled,USD::Initial Jobless Claims::none,USD,Initial Jobless Claims,,2026-05-21,20:30,,211K,211K,
+previous_missing_filled,USD::Jobless Claims 4-Week Avg.::none,USD,Jobless Claims 4-Week Avg.,,2026-05-21,20:30,,203.75K,203.75K,
+previous_missing_filled,USD::Natural Gas Storage::none,USD,Natural Gas Storage,,2026-05-21,22:30,,85B,85B,
+previous_missing_filled,USD::Continuing Jobless Claims::none,USD,Continuing Jobless Claims,,2026-05-21,20:30,,"1,782K","1,782K",
+previous_missing_filled,USD::4-Week Bill Auction::none,USD,4-Week Bill Auction,,2026-05-21,23:30,,3.605%,3.605%,
+previous_missing_filled,USD::8-Week Bill Auction::none,USD,8-Week Bill Auction,,2026-05-21,23:30,,3.610%,3.610%,
+previous_missing_filled,TRY::Gross FX Reserves::none,TRY,Gross FX Reserves,,2026-05-21,19:30,,60.56B,60.56B,
 previous_missing_filled,USD::U.S. Baker Hughes Oil Rig Count::none,USD,U.S. Baker Hughes Oil Rig Count,,2026-05-23,01:00,,410,410,
 previous_missing_filled,USD::U.S. Baker Hughes Total Rig Count::none,USD,U.S. Baker Hughes Total Rig Count,,2026-05-23,01:00,,548,548,
-stale_missing_actual_dropped,EGP::Core CPI::y/y,EGP,Core CPI (YoY)  (May),may,2026-05-10,20:00,,,,"{""cutoff"": ""11-05-2026 16:20""}"
-stale_missing_actual_dropped,EGP::CPI::y/y,EGP,CPI (YoY)  (May),may,2026-05-10,20:00,,,,"{""cutoff"": ""11-05-2026 16:20""}"
+stale_missing_actual_dropped,EGP::Core CPI::y/y,EGP,Core CPI (YoY)  (May),may,2026-05-10,20:00,,,,"{""cutoff"": ""12-05-2026 16:17""}"
+stale_missing_actual_dropped,EGP::CPI::y/y,EGP,CPI (YoY)  (May),may,2026-05-10,20:00,,,,"{""cutoff"": ""12-05-2026 16:17""}"
+previous_missing_filled,CAD::Retail Sales::m/m,CAD,Retail Sales (MoM)  (Apr),apr,2026-05-22,20:30,,0.6%,0.6%,

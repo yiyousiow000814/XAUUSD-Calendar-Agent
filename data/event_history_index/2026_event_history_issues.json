@@ -1,5 +1,5 @@
 {
-  "generated_at": "13-05-2026 16:20",
+  "generated_at": "14-05-2026 16:17",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -515,18 +515,6 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::Atlanta Fed GDPNow::none",
-      "cur": "USD",
-      "event": "Atlanta Fed GDPNow  (Q2)",
-      "period": "q2",
-      "date": "2026-05-14",
-      "time": "23:30",
-      "previous_raw": "",
-      "prior_actual": "3.7%",
-      "previous_effective": "3.7%"
-    },
-    {
-      "issue": "previous_missing_filled",
       "event_id": "USD::Initial Jobless Claims::none",
       "cur": "USD",
       "event": "Initial Jobless Claims",
@@ -534,8 +522,8 @@
       "date": "2026-05-21",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "200K",
-      "previous_effective": "200K"
+      "prior_actual": "211K",
+      "previous_effective": "211K"
     },
     {
       "issue": "previous_missing_filled",
@@ -546,8 +534,8 @@
       "date": "2026-05-21",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "203.25K",
-      "previous_effective": "203.25K"
+      "prior_actual": "203.75K",
+      "previous_effective": "203.75K"
     },
     {
       "issue": "previous_missing_filled",
@@ -558,8 +546,8 @@
       "date": "2026-05-21",
       "time": "22:30",
       "previous_raw": "",
-      "prior_actual": "63B",
-      "previous_effective": "63B"
+      "prior_actual": "85B",
+      "previous_effective": "85B"
     },
     {
       "issue": "previous_missing_filled",
@@ -570,8 +558,8 @@
       "date": "2026-05-21",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "1,766K",
-      "previous_effective": "1,766K"
+      "prior_actual": "1,782K",
+      "previous_effective": "1,782K"
     },
     {
       "issue": "previous_missing_filled",
@@ -582,8 +570,8 @@
       "date": "2026-05-21",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "3.610%",
-      "previous_effective": "3.610%"
+      "prior_actual": "3.605%",
+      "previous_effective": "3.605%"
     },
     {
       "issue": "previous_missing_filled",
@@ -594,8 +582,8 @@
       "date": "2026-05-21",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "3.595%",
-      "previous_effective": "3.595%"
+      "prior_actual": "3.610%",
+      "previous_effective": "3.610%"
     },
     {
       "issue": "previous_missing_filled",
@@ -606,20 +594,8 @@
       "date": "2026-05-21",
       "time": "19:30",
       "previous_raw": "",
-      "prior_actual": "56.60B",
-      "previous_effective": "56.60B"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::Atlanta Fed GDPNow::none",
-      "cur": "USD",
-      "event": "Atlanta Fed GDPNow  (Q2)",
-      "period": "q2",
-      "date": "2026-05-21",
-      "time": "22:00",
-      "previous_raw": "",
-      "prior_actual": "3.7%",
-      "previous_effective": "3.7%"
+      "prior_actual": "60.56B",
+      "previous_effective": "60.56B"
     },
     {
       "issue": "previous_missing_filled",
@@ -653,7 +629,7 @@
       "period": "may",
       "date": "2026-05-10",
       "time": "20:00",
-      "cutoff": "11-05-2026 16:20"
+      "cutoff": "12-05-2026 16:17"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -663,7 +639,19 @@
       "period": "may",
       "date": "2026-05-10",
       "time": "20:00",
-      "cutoff": "11-05-2026 16:20"
+      "cutoff": "12-05-2026 16:17"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "CAD::Retail Sales::m/m",
+      "cur": "CAD",
+      "event": "Retail Sales (MoM)  (Apr)",
+      "period": "apr",
+      "date": "2026-05-22",
+      "time": "20:30",
+      "previous_raw": "",
+      "prior_actual": "0.6%",
+      "previous_effective": "0.6%"
     }
   ]
 }
