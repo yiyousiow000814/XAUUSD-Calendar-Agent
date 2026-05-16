@@ -1,5 +1,5 @@
 {
-  "generated_at": "15-05-2026 16:15",
+  "generated_at": "16-05-2026 15:51",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -522,8 +522,8 @@
       "date": "2026-05-23",
       "time": "01:00",
       "previous_raw": "",
-      "prior_actual": "410",
-      "previous_effective": "410"
+      "prior_actual": "415",
+      "previous_effective": "415"
     },
     {
       "issue": "previous_missing_filled",
@@ -534,8 +534,8 @@
       "date": "2026-05-23",
       "time": "01:00",
       "previous_raw": "",
-      "prior_actual": "548",
-      "previous_effective": "548"
+      "prior_actual": "551",
+      "previous_effective": "551"
     },
     {
       "issue": "stale_missing_actual_dropped",
