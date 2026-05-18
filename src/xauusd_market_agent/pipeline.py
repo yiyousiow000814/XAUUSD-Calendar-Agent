@@ -3,8 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from .detectors import detect_market_trigger
+from .driver_attention import DriverAttentionManager
 from .evidence import build_evidence_gate_result
-from .models import AnalysisResult, MarketState, ScenarioFixture
+from .models import AnalysisResult, DriverAttentionSnapshot, MarketState, ProviderHealth, ScenarioFixture
+from .provider_health import build_fixture_provider_health, health_to_dict
 from .validator import validate_llm_output
 
 
@@ -59,9 +61,35 @@ def _driver_summary(main_driver: str) -> tuple[str, list[str]]:
     return mapping.get(main_driver, mapping["unknown"])
 
 
-def _select_main_driver(allowed: list[str], bias: str) -> tuple[str, str | None]:
+def _select_main_driver(
+    allowed: list[str],
+    bias: str,
+    attention_snapshot: DriverAttentionSnapshot,
+) -> tuple[str, str | None]:
     if bias == "bullish_gold" and "risk_sentiment" in allowed:
         return "risk_sentiment", "yields" if "yields" in allowed else None
+    active_order = [
+        item["driver_id"]
+        for item in sorted(
+            attention_snapshot.active_driver_states,
+            key=lambda item: attention_snapshot.states[item["driver_id"]].relevance_score,
+            reverse=True,
+        )
+    ]
+    for driver in active_order:
+        if driver in allowed:
+            if driver == "risk_sentiment":
+                return "risk_sentiment", "yields" if "yields" in allowed else None
+            if driver == "oil_inflation":
+                return "oil_inflation", "yields" if "yields" in allowed else None
+            if driver == "yields":
+                return "yields", "usd" if "usd" in allowed else None
+            if driver == "usd":
+                return "usd", None
+            if driver == "geopolitics":
+                return "geopolitics", None
+            if driver == "technical_liquidation":
+                return "technical_liquidation", None
     if "oil_inflation" in allowed:
         return "oil_inflation", "yields" if "yields" in allowed else None
     if "yields" in allowed:
@@ -110,11 +138,28 @@ def _timeline(fixture: ScenarioFixture) -> list[dict[str, str]]:
 def build_llm_evidence_packet(
     fixture: ScenarioFixture,
     previous_state: MarketState | dict[str, object] | None = None,
+    provider_health: dict[str, ProviderHealth] | None = None,
+    attention_snapshot: DriverAttentionSnapshot | None = None,
+    data_mode: str = "live_seen",
 ) -> dict[str, object]:
-    evidence = build_evidence_gate_result(fixture)
+    provider_health = provider_health or build_fixture_provider_health(fixture, data_mode=data_mode)
+    attention_snapshot = attention_snapshot or DriverAttentionManager().evaluate(
+        fixture=fixture,
+        provider_health=provider_health,
+        evidence_status={
+            **build_evidence_gate_result(fixture, provider_health=provider_health).evidence_status,
+        },
+        data_mode=data_mode,
+    )
+    evidence = build_evidence_gate_result(
+        fixture,
+        provider_health=provider_health,
+        attention_snapshot=attention_snapshot,
+    )
     normalized_previous_state = asdict(previous_state) if isinstance(previous_state, MarketState) else previous_state
     return {
         "as_of_myt": fixture.as_of_myt,
+        "data_mode": data_mode,
         "market_move": {
             "symbol": fixture.market.symbol,
             "from_price": fixture.market.from_price,
@@ -122,6 +167,10 @@ def build_llm_evidence_packet(
             "move_percent": fixture.market.move_percent,
             "window_minutes": fixture.market.window_minutes,
         },
+        "provider_health": health_to_dict(provider_health),
+        "active_driver_states": attention_snapshot.active_driver_states,
+        "dormant_driver_states": attention_snapshot.dormant_driver_states,
+        "driver_attention_summary": attention_snapshot.driver_attention_summary,
         "allowed_candidate_drivers": evidence.allowed_candidate_drivers,
         "blocked_drivers": evidence.blocked_drivers,
         "cross_asset_confirmation": evidence.cross_asset_confirmation,
@@ -135,7 +184,11 @@ def build_llm_evidence_packet(
     }
 
 
-def build_rule_based_analysis(fixture: ScenarioFixture) -> AnalysisResult:
+def build_rule_based_analysis(
+    fixture: ScenarioFixture,
+    provider_health: dict[str, ProviderHealth] | None = None,
+    attention_snapshot: DriverAttentionSnapshot | None = None,
+) -> AnalysisResult:
     trigger = detect_market_trigger(fixture)
     if not trigger.triggered:
         return AnalysisResult(
@@ -174,9 +227,20 @@ def build_rule_based_analysis(fixture: ScenarioFixture) -> AnalysisResult:
             summary="No meaningful change.",
         )
 
-    evidence = build_evidence_gate_result(fixture)
+    provider_health = provider_health or build_fixture_provider_health(fixture)
+    initial_evidence = build_evidence_gate_result(fixture, provider_health=provider_health)
+    attention_snapshot = attention_snapshot or DriverAttentionManager().evaluate(
+        fixture=fixture,
+        provider_health=provider_health,
+        evidence_status=initial_evidence.evidence_status,
+    )
+    evidence = build_evidence_gate_result(
+        fixture,
+        provider_health=provider_health,
+        attention_snapshot=attention_snapshot,
+    )
     bias = _bias_for_move(fixture)
-    main_driver, secondary_driver = _select_main_driver(evidence.allowed_candidate_drivers, bias)
+    main_driver, secondary_driver = _select_main_driver(evidence.allowed_candidate_drivers, bias, attention_snapshot)
     has_direct_news = bool(fixture.news or fixture.calendar_events)
     if main_driver in {"technical_liquidation", "unknown"}:
         cause_status = "unconfirmed"
@@ -241,12 +305,36 @@ def analyze_fixture_with_optional_llm(
     fixture: ScenarioFixture,
     llm_client=None,
     previous_state: MarketState | dict[str, object] | None = None,
+    provider_health: dict[str, ProviderHealth] | None = None,
+    attention_snapshot: DriverAttentionSnapshot | None = None,
+    data_mode: str = "live_seen",
 ) -> AnalysisResult:
-    fallback = build_rule_based_analysis(fixture)
+    provider_health = provider_health or build_fixture_provider_health(fixture, data_mode=data_mode)
+    attention_snapshot = attention_snapshot or DriverAttentionManager().evaluate(
+        fixture=fixture,
+        provider_health=provider_health,
+        evidence_status=build_evidence_gate_result(fixture, provider_health=provider_health).evidence_status,
+        data_mode=data_mode,
+    )
+    fallback = build_rule_based_analysis(
+        fixture,
+        provider_health=provider_health,
+        attention_snapshot=attention_snapshot,
+    )
     if llm_client is None:
         return fallback
-    evidence = build_evidence_gate_result(fixture)
-    evidence_packet = build_llm_evidence_packet(fixture, previous_state=previous_state)
+    evidence = build_evidence_gate_result(
+        fixture,
+        provider_health=provider_health,
+        attention_snapshot=attention_snapshot,
+    )
+    evidence_packet = build_llm_evidence_packet(
+        fixture,
+        previous_state=previous_state,
+        provider_health=provider_health,
+        attention_snapshot=attention_snapshot,
+        data_mode=data_mode,
+    )
 
     def _call_llm(*, repair: bool) -> object:
         try:

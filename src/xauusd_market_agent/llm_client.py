@@ -25,7 +25,12 @@ class LocalLLMClient:
     def _build_prompt(self, evidence_packet: dict[str, Any]) -> str:
         compact_packet = {
             "as_of_myt": evidence_packet.get("as_of_myt"),
+            "data_mode": evidence_packet.get("data_mode"),
             "market_move": evidence_packet.get("market_move"),
+            "provider_health": evidence_packet.get("provider_health"),
+            "active_driver_states": evidence_packet.get("active_driver_states"),
+            "dormant_driver_states": evidence_packet.get("dormant_driver_states"),
+            "driver_attention_summary": evidence_packet.get("driver_attention_summary"),
             "allowed_candidate_drivers": evidence_packet.get("allowed_candidate_drivers"),
             "blocked_drivers": evidence_packet.get("blocked_drivers"),
             "cross_asset_confirmation": evidence_packet.get("cross_asset_confirmation"),

@@ -81,12 +81,19 @@ class MarketAgentConfig:
             REPO_ROOT / "user-data" / "market_agent_state.json",
         )
     )
+    timeline_store_path: Path = field(
+        default_factory=lambda: _env_path(
+            "MARKET_AGENT_TIMELINE_STORE_PATH",
+            REPO_ROOT / "user-data" / "market_agent_timeline.sqlite",
+        )
+    )
     alerts_output_path: Path = field(
         default_factory=lambda: _env_path(
             "MARKET_AGENT_ALERTS_OUTPUT_PATH",
             REPO_ROOT / "user-data" / "market_agent_alerts.ndjson",
         )
     )
+    backfill_gap_minutes: int = int(os.getenv("MARKET_AGENT_BACKFILL_GAP_MINUTES", "120"))
     notification_cooldown_minutes: int = int(
         os.getenv("MARKET_AGENT_NOTIFICATION_COOLDOWN_MINUTES", "30")
     )

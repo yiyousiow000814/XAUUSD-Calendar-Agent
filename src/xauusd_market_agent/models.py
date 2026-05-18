@@ -107,6 +107,70 @@ class EvidenceGateResult:
 
 
 @dataclass(frozen=True)
+class ProviderHealth:
+    source: str
+    source_type: str
+    fetched_at: str
+    data_timestamp: str
+    data_mode: str
+    is_available: bool
+    is_stale: bool
+    stale_reason: str = ""
+    error: str = ""
+    raw_source_id: str = ""
+    current_value: float | None = None
+    previous_value: float | None = None
+    change_value: float | None = None
+    change_unit: str = ""
+
+
+@dataclass(frozen=True)
+class DriverDefinition:
+    driver_id: str
+    label: str
+    category: str
+    priority: str
+    linked_assets: tuple[str, ...] = ()
+    required_evidence_gates: tuple[str, ...] = ()
+    optional_evidence_gates: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class DriverAttentionState:
+    driver_id: str
+    label: str
+    category: str
+    current_state: str
+    priority: str
+    relevance_score: float
+    activation_reason: str
+    deactivation_reason: str
+    first_activated_at: str
+    last_confirmed_at: str
+    last_evidence_at: str
+    decay_deadline: str
+    linked_assets: tuple[str, ...]
+    required_evidence_gates: tuple[str, ...]
+    optional_evidence_gates: tuple[str, ...]
+    current_evidence_summary: str
+    current_counter_evidence: str
+    confidence: str
+    source_count: int
+    related_news_count: int
+    related_calendar_events: int
+    notes: str
+    data_mode: str
+
+
+@dataclass(frozen=True)
+class DriverAttentionSnapshot:
+    states: dict[str, DriverAttentionState]
+    active_driver_states: list[dict[str, str]]
+    dormant_driver_states: list[dict[str, str]]
+    driver_attention_summary: dict[str, object]
+
+
+@dataclass(frozen=True)
 class AnalysisResult:
     bias: str
     main_driver: str

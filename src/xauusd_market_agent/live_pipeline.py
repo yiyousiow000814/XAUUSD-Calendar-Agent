@@ -7,11 +7,13 @@ from pathlib import Path
 from typing import Any
 
 from .config import MarketAgentConfig
+from .driver_attention import DriverAttentionManager
 from .evidence import build_evidence_gate_result
 from .llm_client import LocalLLMClient
 from .notification_policy import decide_notification
 from .notifier import FileNotificationSink, TelegramNotificationSink
 from .models import CrossAssetSnapshot, ScenarioFixture
+from .provider_health import build_fixture_provider_health, health_to_dict
 from .pipeline import analyze_fixture_with_optional_llm
 from .providers.calendar_events import load_calendar_events_in_window
 from .providers.market_prices import load_recent_market_snapshot
@@ -21,6 +23,7 @@ from .providers.related_assets import (
     load_related_assets_timeseries_snapshot,
 )
 from .state_store import JsonStateStore
+from .timeline_store import TimelineStore
 
 
 def _load_related_assets(
@@ -102,11 +105,25 @@ def build_live_evidence_packet(
     config: MarketAgentConfig,
     anchor_time: datetime,
     news_headlines: list[dict[str, Any]] | None = None,
+    previous_state=None,
+    data_mode: str = "live_seen",
 ) -> dict[str, Any]:
     fixture = build_live_fixture(config, anchor_time=anchor_time, news_headlines=news_headlines)
-    evidence = build_evidence_gate_result(fixture)
+    provider_health = build_fixture_provider_health(fixture, data_mode=data_mode)
+    attention_snapshot = DriverAttentionManager().evaluate(
+        fixture=fixture,
+        provider_health=provider_health,
+        evidence_status=build_evidence_gate_result(fixture, provider_health=provider_health).evidence_status,
+        data_mode=data_mode,
+    )
+    evidence = build_evidence_gate_result(
+        fixture,
+        provider_health=provider_health,
+        attention_snapshot=attention_snapshot,
+    )
     return {
         "as_of_myt": fixture.as_of_myt,
+        "data_mode": data_mode,
         "market_move": {
             "symbol": fixture.market.symbol,
             "from_price": fixture.market.from_price,
@@ -114,6 +131,11 @@ def build_live_evidence_packet(
             "move_percent": fixture.market.move_percent,
             "window_minutes": fixture.market.window_minutes,
         },
+        "provider_health": health_to_dict(provider_health),
+        "active_driver_states": attention_snapshot.active_driver_states,
+        "dormant_driver_states": attention_snapshot.dormant_driver_states,
+        "driver_attention_summary": attention_snapshot.driver_attention_summary,
+        "previous_state": asdict(previous_state) if previous_state is not None and hasattr(previous_state, "__dataclass_fields__") else previous_state,
         "calendar_events": [
             {
                 "timestamp_myt": item.timestamp_myt,
@@ -143,15 +165,40 @@ def run_live_once(
     news_headlines: list[dict[str, Any]] | None = None,
     llm_client=None,
     previous_state=None,
+    data_mode: str = "live_seen",
 ) -> tuple[ScenarioFixture, Any]:
     anchor = anchor_time or datetime.now().astimezone()
     fixture = build_live_fixture(config, anchor_time=anchor, news_headlines=news_headlines)
+    provider_health = build_fixture_provider_health(fixture, data_mode=data_mode)
+    attention_snapshot = DriverAttentionManager().evaluate(
+        fixture=fixture,
+        provider_health=provider_health,
+        evidence_status=build_evidence_gate_result(fixture, provider_health=provider_health).evidence_status,
+        data_mode=data_mode,
+    )
     result = analyze_fixture_with_optional_llm(
         fixture,
         llm_client=llm_client or LocalLLMClient(),
         previous_state=previous_state,
+        provider_health=provider_health,
+        attention_snapshot=attention_snapshot,
+        data_mode=data_mode,
     )
     return fixture, result
+
+
+def _detect_gap(
+    *,
+    previous_run_at: str | None,
+    anchor: datetime,
+    gap_minutes: int,
+) -> tuple[bool, str]:
+    if not previous_run_at:
+        return False, "live"
+    delta = anchor - datetime.fromisoformat(previous_run_at)
+    if delta.total_seconds() / 60.0 > gap_minutes:
+        return True, "recovery"
+    return False, "live"
 
 
 def run_monitored_live_once(
@@ -161,16 +208,28 @@ def run_monitored_live_once(
     alerts_path: Path | None = None,
     cooldown_minutes: int | None = None,
     news_headlines: list[dict[str, Any]] | None = None,
+    timeline_store_path: Path | None = None,
+    llm_client=None,
 ) -> dict[str, Any]:
     anchor = anchor_time or datetime.now().astimezone()
     state_store = JsonStateStore(state_path or config.state_store_path)
+    timeline_store = TimelineStore(timeline_store_path or config.timeline_store_path)
     sink = FileNotificationSink(alerts_path or config.alerts_output_path)
     previous_state = state_store.load()
+    last_successful_run_at = timeline_store.get_last_successful_run_at()
+    backfill_required, run_type = _detect_gap(
+        previous_run_at=last_successful_run_at,
+        anchor=anchor,
+        gap_minutes=config.backfill_gap_minutes,
+    )
+    data_mode = "backfilled" if backfill_required else "live_seen"
     fixture, analysis = run_live_once(
         config,
         anchor_time=anchor,
         news_headlines=news_headlines,
+        llm_client=llm_client,
         previous_state=previous_state,
+        data_mode=data_mode,
     )
     decision = decide_notification(
         previous_state=previous_state,
@@ -200,8 +259,85 @@ def run_monitored_live_once(
                 timeout_seconds=config.telegram_timeout_seconds,
             ).emit({"message": message})
     state_store.save(decision.next_state)
-    packet = build_live_evidence_packet(config, anchor_time=anchor, news_headlines=news_headlines)
+    packet = build_live_evidence_packet(
+        config,
+        anchor_time=anchor,
+        news_headlines=news_headlines,
+        previous_state=previous_state,
+        data_mode=data_mode,
+    )
+    monitor_run_id = timeline_store.record_monitor_run(
+        run_started_at=anchor.isoformat(),
+        run_type=run_type,
+        data_mode=data_mode,
+        backfill_required=backfill_required,
+        last_successful_run_at=last_successful_run_at,
+        no_news_found=bool(analysis.no_news_found),
+        alert_suppressed_reason="" if decision.should_notify else decision.reason,
+    )
+    timeline_store.record_provider_health(monitor_run_id, packet["provider_health"])
+    attention_states = {}
+    for entry in packet["active_driver_states"] + packet["dormant_driver_states"]:
+        driver_id = entry["driver_id"]
+        # rebuild from current evidence packet snapshot for persistence without losing detailed shape
+        attention_states[driver_id] = next(
+            (
+                state
+                for state in DriverAttentionManager().evaluate(
+                    fixture=fixture,
+                    provider_health=build_fixture_provider_health(fixture, data_mode=data_mode),
+                    evidence_status=build_evidence_gate_result(
+                        fixture,
+                        provider_health=build_fixture_provider_health(fixture, data_mode=data_mode),
+                    ).evidence_status,
+                    data_mode=data_mode,
+                ).states.values()
+                if state.driver_id == driver_id
+            ),
+            None,
+        )
+    timeline_store.record_driver_attention_states(
+        monitor_run_id,
+        {key: asdict(value) for key, value in attention_states.items() if value is not None},
+    )
+    timeline_store.record_evidence_packet(monitor_run_id, packet)
+    timeline_store.record_analysis_result(
+        monitor_run_id,
+        analysis.to_dict(),
+        rejected_driver=getattr(analysis, "rejected_driver", None),
+        rejection_reason=getattr(analysis, "rejection_reason", None),
+    )
+    timeline_store.record_alert(monitor_run_id, {
+        "should_notify": decision.should_notify,
+        "notification_level": decision.notification_level,
+        "reason": decision.reason,
+    })
+    timeline_store.record_state_transition(monitor_run_id, {
+        "is_new_state": decision.is_new_state,
+        "is_continuation": decision.is_continuation,
+        "previous_state_invalidated": decision.previous_state_invalidated,
+        "state_change_reason": decision.state_change_reason,
+        "confidence_changed": decision.confidence_changed,
+        "confidence_delta": decision.confidence_delta,
+        "invalidation_triggered_by": decision.invalidation_triggered_by,
+        "next_state": asdict(decision.next_state),
+    })
+    timeline_store.record_timeline_event(
+        monitor_run_id,
+        event_time=anchor.isoformat(),
+        event_type="analysis",
+        label=analysis.main_driver,
+        payload={
+            "run_type": run_type,
+            "data_mode": data_mode,
+            "analysis": analysis.to_dict(),
+        },
+    )
     return {
+        "monitor_run_id": monitor_run_id,
+        "run_type": run_type,
+        "backfill_required": backfill_required,
+        "last_successful_run_at": last_successful_run_at,
         "evidence_packet": packet,
         "analysis": analysis.to_dict(),
         "notification": {
@@ -230,6 +366,7 @@ def run_monitor_loop(
     state_path: Path | None = None,
     alerts_path: Path | None = None,
     cooldown_minutes: int | None = None,
+    timeline_store_path: Path | None = None,
 ) -> list[dict[str, Any]]:
     outcomes: list[dict[str, Any]] = []
     iteration = 0
@@ -246,6 +383,7 @@ def run_monitor_loop(
                 state_path=state_path,
                 alerts_path=alerts_path,
                 cooldown_minutes=cooldown_minutes,
+                timeline_store_path=timeline_store_path,
             )
         )
         iteration += 1

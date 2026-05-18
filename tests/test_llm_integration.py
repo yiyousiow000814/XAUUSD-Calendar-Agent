@@ -143,6 +143,11 @@ def test_local_llm_prompt_contains_compact_evidence_packet(monkeypatch) -> None:
     assert "evidence_status" in prompt
     assert "timeline" in prompt
     assert "market_move" in prompt
+    assert "provider_health" in prompt
+    assert "active_driver_states" in prompt
+    assert "dormant_driver_states" in prompt
+    assert "driver_attention_summary" in prompt
+    assert "data_mode" in prompt
     assert "previous_state" in prompt
 
 
@@ -200,4 +205,4 @@ def test_enabled_local_llm_blocked_driver_claim_falls_back_to_unknown(monkeypatc
 
     assert result.main_driver == "unknown"
     assert result.rejected_driver == "fed_rates"
-    assert result.rejection_reason == "No Fed headline and yields did not confirm."
+    assert result.rejection_reason == "Fed/rates evidence is missing or stale."
