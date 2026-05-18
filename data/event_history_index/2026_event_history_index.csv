@@ -8737,29 +8737,29 @@ USD::FOMC Member Williams Speaks::none,2026-05-15,05:45,,,,
 ILS::GDP Annualized::q/q,2026-05-17,18:00,q1,-3.3%,,2.9%
 NA::Canada - Victoria Day::none,2026-05-18,All Day,,,,
 NA::Colombia - Ascension Day::none,2026-05-18,All Day,,,,
-NZD::Performance of Services Index::none,2026-05-18,06:30,apr,,,46.0
-GBP::Rightmove House Price Index::y/y,2026-05-18,07:00,may,,,-0.9%
-SGD::Non-Oil Exports::m/m,2026-05-18,08:30,apr,,,3.00%
-SGD::Non-Oil Exports::y/y,2026-05-18,08:30,apr,,,15.30%
-CNY::House Prices::y/y,2026-05-18,09:30,apr,,,-3.4%
-CNY::Chinese Industrial Production YTD::y/y,2026-05-18,10:00,apr,,,6.1%
-CNY::Chinese Retail Sales YTD::y/y,2026-05-18,10:00,apr,,,2.43%
-CNY::Chinese Unemployment Rate::none,2026-05-18,10:00,apr,,5.3%,5.4%
-CNY::Fixed Asset Investment::y/y,2026-05-18,10:00,apr,,1.7%,1.7%
-CNY::Industrial Production::y/y,2026-05-18,10:00,apr,,6.0%,5.7%
-CNY::Retail Sales::y/y,2026-05-18,10:00,apr,,2.0%,1.7%
-THB::GDP::q/q,2026-05-18,10:30,q1,,0.10%,1.90%
-THB::GDP::y/y,2026-05-18,10:30,q1,,2.2%,2.5%
-NZD::RBNZ Offshore Holdings::none,2026-05-18,11:00,apr,,,56.70%
-TRY::Consumer Confidence::none,2026-05-18,15:00,may,,,85.5
-EUR::Italian Trade Balance EU::none,2026-05-18,16:00,mar,,,-0.65B
-EUR::Italian Trade Balance::none,2026-05-18,16:00,mar,,5.250B,4.944B
-BRL::IGP-10 Inflation Index::m/m,2026-05-18,19:00,may,,,2.9%
-BRL::IBC-Br Economic Activity::none,2026-05-18,20:00,mar,,,0.60%
-PLN::Core CPI::y/y,2026-05-18,20:00,apr,,2.9%,2.7%
-CLP::Chilean GDP::q/q,2026-05-18,20:30,q1,,,0.60%
-CLP::Chilean GDP::y/y,2026-05-18,20:30,q1,,,1.6%
-USD::NAHB Housing Market Index::none,2026-05-18,22:00,may,,34,34
+NZD::Performance of Services Index::none,2026-05-18,06:30,apr,48.9,,46.2
+GBP::Rightmove House Price Index::y/y,2026-05-18,07:00,may,-0.3%,,-0.9%
+SGD::Non-Oil Exports::m/m,2026-05-18,08:30,apr,11.00%,,3.00%
+SGD::Non-Oil Exports::y/y,2026-05-18,08:30,apr,24.50%,,15.30%
+CNY::House Prices::y/y,2026-05-18,09:30,apr,-3.5%,,-3.4%
+CNY::Chinese Industrial Production YTD::y/y,2026-05-18,10:00,apr,5.6%,,6.1%
+CNY::Chinese Retail Sales YTD::y/y,2026-05-18,10:00,apr,1.91%,,2.43%
+CNY::Chinese Unemployment Rate::none,2026-05-18,10:00,apr,5.2%,5.3%,5.4%
+CNY::Fixed Asset Investment::y/y,2026-05-18,10:00,apr,-1.6%,1.7%,1.7%
+CNY::Industrial Production::y/y,2026-05-18,10:00,apr,4.1%,6.0%,5.7%
+CNY::Retail Sales::y/y,2026-05-18,10:00,apr,0.2%,2.0%,1.7%
+THB::GDP::q/q,2026-05-18,10:30,q1,0.70%,0.10%,1.90%
+THB::GDP::y/y,2026-05-18,10:30,q1,2.8%,2.2%,2.5%
+NZD::RBNZ Offshore Holdings::none,2026-05-18,11:00,apr,57.10%,,56.70%
+TRY::Consumer Confidence::none,2026-05-18,15:00,may,85.8,,85.5
+EUR::Italian Trade Balance EU::none,2026-05-18,16:00,mar,-1.08B,,-0.61B
+EUR::Italian Trade Balance::none,2026-05-18,16:00,mar,4.709B,5.250B,4.983B
+BRL::IGP-10 Inflation Index::m/m,2026-05-18,19:00,may,0.9%,,2.9%
+BRL::IBC-Br Economic Activity::none,2026-05-18,20:00,mar,-0.70%,-0.20%,0.60%
+PLN::Core CPI::y/y,2026-05-18,20:00,apr,3.0%,2.9%,2.7%
+CLP::Chilean GDP::q/q,2026-05-18,20:30,q1,-0.30%,-0.20%,0.60%
+CLP::Chilean GDP::y/y,2026-05-18,20:30,q1,-0.5%,0.1%,1.6%
+USD::NAHB Housing Market Index::none,2026-05-18,22:00,may,37,34,34
 AUD::CFTC AUD speculative net positions::none,2026-05-16,03:30,,85.0K,,78.7K
 BRL::CFTC BRL speculative net positions::none,2026-05-16,03:30,,68.6K,,66.8K
 CAD::CFTC CAD speculative net positions::none,2026-05-16,03:30,,-16.2K,,-14.7K
@@ -8781,7 +8781,6 @@ USD::CFTC Silver speculative net positions::none,2026-05-16,03:30,,26.1K,,23.9K
 USD::CFTC Soybeans speculative net positions::none,2026-05-16,03:30,,224.0K,,232.2K
 USD::CFTC Wheat speculative net positions::none,2026-05-16,03:30,,-14.4K,,-16.7K
 NA::Türkiye - Youth and Sports Day::none,2026-05-19,All Day,,,,
-ARS::Budget Balance::none,2026-05-19,03:00,apr,,,930M
 USD::Overall Net Capital Flow::none,2026-05-19,04:00,mar,,,184.50B
 USD::TIC Net Long-Term Transactions including Swaps::none,2026-05-19,04:00,mar,,82.40B,58.60B
 USD::TIC Net Long-Term Transactions::none,2026-05-19,04:00,mar,,,58.6B
@@ -8797,14 +8796,14 @@ JPY::GDP Private Consumption::q/q,2026-05-19,07:50,q1,,0.2%,0.3%
 JPY::GDP::q/q,2026-05-19,07:50,q1,,0.4%,0.3%
 JPY::GDP::y/y,2026-05-19,07:50,q1,,1.7%,1.3%
 MYR::CPI::m/m,2026-05-19,12:00,apr,,,0.30%
-MYR::CPI::y/y,2026-05-19,12:00,apr,,,1.7%
+MYR::CPI::y/y,2026-05-19,12:00,apr,,1.9%,1.7%
 EUR::Dutch Trade Balance::none,2026-05-19,12:30,mar,,,9.90B
 JPY::Capacity Utilization::m/m,2026-05-19,12:30,mar,,,-0.1%
-JPY::Industrial Production::m/m,2026-05-19,12:30,mar,,-0.5%,-0.5%
+JPY::Industrial Production::m/m,2026-05-19,12:30,mar,,-0.5%,-2.0%
 JPY::Tertiary Industry Activity Index::none,2026-05-19,12:30,mar,,-0.30,-0.70
 GBP::Average Earnings Index +Bonus::none,2026-05-19,14:00,mar,,3.8%,3.8%
-GBP::Average Earnings ex Bonus::none,2026-05-19,14:00,mar,,3.5%,3.6%
-GBP::Employment Change 3M/3M::m/m,2026-05-19,14:00,mar,,,25K
+GBP::Average Earnings ex Bonus::none,2026-05-19,14:00,mar,,3.4%,3.6%
+GBP::Employment Change 3M/3M::m/m,2026-05-19,14:00,mar,,107K,25K
 GBP::Unemployment Rate::none,2026-05-19,14:00,mar,,4.9%,4.9%
 GBP::Claimant Count Change::none,2026-05-19,14:00,apr,,25.9K,26.8K
 HKD::Unemployment Rate::none,2026-05-19,16:30,apr,,,3.7%
@@ -8812,12 +8811,12 @@ GBP::Labour Productivity::none,2026-05-19,16:30,q4,,,1.1%
 EUR::Trade Balance::none,2026-05-19,17:00,mar,,6.5B,11.5B
 CAD::Building Permits::m/m,2026-05-19,20:30,mar,,2.1%,-8.4%
 CAD::CPI::m/m,2026-05-19,20:30,apr,,0.6%,0.9%
-CAD::CPI::y/y,2026-05-19,20:30,apr,,,2.4%
+CAD::CPI::y/y,2026-05-19,20:30,apr,,3.1%,2.4%
 CAD::Common CPI::y/y,2026-05-19,20:30,apr,,2.6%,2.6%
 CAD::Core CPI::m/m,2026-05-19,20:30,apr,,,0.2%
 CAD::Core CPI::y/y,2026-05-19,20:30,apr,,,2.5%
 CAD::Median CPI::y/y,2026-05-19,20:30,apr,,2.2%,2.3%
-CAD::Trimmed CPI::y/y,2026-05-19,20:30,apr,,2.3%,2.2%
+CAD::Trimmed CPI::y/y,2026-05-19,20:30,apr,,2.2%,2.2%
 USD::Pending Home Sales Index::none,2026-05-19,22:00,apr,,,73.7
 USD::Pending Home Sales::m/m,2026-05-19,22:00,apr,,1.2%,1.5%
 COP::Imports::y/y,2026-05-19,23:00,mar,,,7.80%
@@ -8931,11 +8930,11 @@ IDR::Retail Sales::y/y,2026-05-12,12:00,mar,3.4%,,6.5%
 EUR::German Buba President Nagel Speaks::none,2026-05-12,15:15,,,,
 EUR::Italian 12-Month BOT Auction::none,2026-05-12,17:20,,2.699%,,2.604%
 GBP::5-Year Treasury Gilt Auction::none,2026-05-12,17:30,,4.651%,,4.228%
-EUR::French 12-Month BTF Auction::none,2026-05-18,21:00,,,,2.613%
-EUR::French 3-Month BTF Auction::none,2026-05-18,21:00,,,,2.234%
-EUR::French 6-Month BTF Auction::none,2026-05-18,21:00,,,,2.421%
-USD::3-Month Bill Auction::none,2026-05-18,23:30,,,,3.610%
-USD::6-Month Bill Auction::none,2026-05-18,23:30,,,,3.615%
+EUR::French 12-Month BTF Auction::none,2026-05-18,21:00,,2.642%,,2.613%
+EUR::French 3-Month BTF Auction::none,2026-05-18,21:00,,2.250%,,2.234%
+EUR::French 6-Month BTF Auction::none,2026-05-18,21:00,,2.412%,,2.421%
+USD::3-Month Bill Auction::none,2026-05-18,23:30,,3.600%,,3.610%
+USD::6-Month Bill Auction::none,2026-05-18,23:30,,3.615%,,3.615%
 AUD::Westpac Consumer Sentiment::none,2026-05-19,08:30,may,,,-12.5%
 RUB::PPI::m/m,2026-05-21,00:00,apr,,,2.0%
 RUB::PPI::y/y,2026-05-21,00:00,apr,,,-1.8%
@@ -9033,14 +9032,12 @@ EUR::German 30-Year Bund Auction::none,2026-05-13,17:40,,3.620%,,3.570%
 BWP::CPI::m/m,2026-05-13,23:30,apr,6.7%,,0.4%
 BWP::CPI::y/y,2026-05-13,23:30,apr,10.3%,,4.2%
 USD::Fed Vice Chair for Supervision Barr Speaks::none,2026-05-15,07:00,,,,
-SGD::Trade Balance::none,2026-05-18,08:30,apr,,,11.218B
-JPY::5-Year JGB Auction::none,2026-05-18,11:35,,,,1.826%
-CHF::GDP::q/q,2026-05-18,15:00,q1,,,0.1%
-CNY::FDI::none,2026-05-18,17:00,apr,,,-7.30%
+SGD::Trade Balance::none,2026-05-18,08:30,apr,13.068B,,11.120B
+JPY::5-Year JGB Auction::none,2026-05-18,11:35,,2.024%,,1.826%
+CHF::GDP::q/q,2026-05-18,15:00,q1,0.5%,,0.1%
 AUD::RBA Meeting Minutes::none,2026-05-19,09:30,,,,
 EUR::Spanish Trade Balance::none,2026-05-19,16:00,mar,,,-3.30B
 EUR::German 5-Year Bobl Auction::none,2026-05-19,17:30,,,,2.740%
-NZD::GlobalDairyTrade Price Index::none,2026-05-19,20:00,,,,1.5%
 USD::Milk Auctions::none,2026-05-19,20:00,,,,"4,127.0"
 USD::ADP Employment Change Weekly::none,2026-05-19,20:15,,,,33.00K
 USD::Redbook::y/y,2026-05-19,20:55,,,,9.6%
@@ -9166,7 +9163,6 @@ COP::Industrial Production::y/y,2026-05-15,22:45,mar,3.9%,1.8%,1.4%
 PEN::GDP::y/y,2026-05-15,23:00,mar,3.21%,2.20%,3.68%
 PEN::Unemployment Rate::none,2026-05-15,23:00,apr,5.3%,,6.8%
 RUB::GDP Quarterly::y/y,2026-05-16,00:00,q1,-0.2%,,1.0%
-AOA::FX Reserve::none,2026-05-18,19:00,apr,,,15.4B
 MWK::CPI::y/y,2026-05-19,01:00,apr,,,23.8%
 GBP::BoE Breeden Speaks::none,2026-05-19,16:10,,,,
 USD::Fed Waller Speaks::none,2026-05-19,20:00,,,,
@@ -9230,8 +9226,6 @@ PLN::Retail Sales::y/y,2026-05-25,15:30,apr,,,9.8%
 EUR::Latvian PPI::m/m,2026-05-25,18:00,apr,,,-1.2%
 EUR::Latvian PPI::y/y,2026-05-25,18:00,apr,,,0.8%
 BRL::FGV Consumer confidence::none,2026-05-25,19:00,may,,,89.1
-BRL::Current Account (USD)::none,2026-05-25,19:30,apr,,,-6.04B
-BRL::Foreign direct investment (USD)::none,2026-05-25,19:30,apr,,,6.04B
 MXN::Trade Balance (USD)::none,2026-05-25,20:00,apr,,,2.499B
 MXN::Trade Balance::none,2026-05-25,20:00,apr,,,5.932B
 PLN::M3 Money Supply::y/y,2026-05-25,20:00,apr,,,11.5%
@@ -9240,7 +9234,7 @@ MXN::Current Account % of GDP::none,2026-05-25,23:00,q1,,,1.60%
 MXN::Current Account (USD)::none,2026-05-25,23:00,q1,,,"7,702M"
 NGN::CPI::y/y,2026-05-15,21:30,apr,15.69%,,15.38%
 NGN::Food Inflation::y/y,2026-05-15,21:30,apr,16.06%,,14.31%
-GBP::Rightmove House Price Index::m/m,2026-05-18,07:00,may,,,0.8%
+GBP::Rightmove House Price Index::m/m,2026-05-18,07:00,may,1.2%,,0.8%
 EUR::ECB's Elderson Speaks::none,2026-05-18,15:30,,,,
 EUR::ECB's Lane Speaks::none,2026-05-19,20:00,,,,
 EUR::Spanish 7-Year Obligacion Auction::none,2026-05-21,16:40,,,,3.107%
@@ -9340,3 +9334,19 @@ USD::Richmond Manufacturing Shipments::none,2026-05-27,22:00,may,,,-2
 USD::Richmond Services Index::none,2026-05-27,22:00,may,,,9
 USD::Dallas Fed Services Revenues::none,2026-05-27,22:30,may,,,4.3
 USD::Texas Services Sector Outlook::none,2026-05-27,22:30,may,,,-9.9
+KWD::CPI::m/m,2026-05-18,16:30,apr,0.65%,,0.43%
+KWD::CPI::y/y,2026-05-18,16:30,apr,2.57%,,2.06%
+QAR::CPI::m/m,2026-05-18,20:00,apr,-0.74%,,0.76%
+QAR::CPI::y/y,2026-05-18,20:00,apr,2.62%,,4.17%
+ARS::Budget Balance::none,2026-05-18,22:55,apr,633M,,930M
+CNY::FDI::none,2026-05-19,19:00,apr,,,-7.30%
+EUR::German Buba Vice President Buch Speaks::none,2026-05-19,20:10,,,,
+NZD::GlobalDairyTrade Price Index::none,2026-05-19,23:00,,,,1.5%
+MYR::FX Reserves USD::none,2026-05-22,15:00,,,,129.7B
+THB::Currency Swaps (USD)::none,2026-05-22,15:30,,,,21.8B
+THB::Foreign Reserves (USD)::none,2026-05-22,15:30,,,,290.2B
+"INR::FX Reserves, USD::none",2026-05-22,19:30,,,,696.99B
+SGD::GDP::y/y,2026-05-25,08:00,q1,,,4.6%
+BRL::BCB Focus Market Readout::none,2026-05-25,19:25,,,,
+BRL::Current Account (USD)::none,2026-05-26,19:30,apr,,,-6.04B
+BRL::Foreign direct investment (USD)::none,2026-05-26,19:30,apr,,,6.04B
