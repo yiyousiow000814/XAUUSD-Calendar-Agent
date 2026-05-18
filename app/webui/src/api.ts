@@ -2,6 +2,7 @@ import type {
   EventDeepAnalysisResponse,
   EventHistoryResponse,
   EventImpactResponse,
+  MarketAgentSnapshotResponse,
   PredictReleaseModelResponse,
   Settings,
   Snapshot
@@ -28,6 +29,7 @@ type BackendApi = {
   get_event_impact_usd?: (payload: { eventId: string; bucket: string }) => ApiResult<EventImpactResponse>; 
   get_event_deep_analysis_usd?: (payload: { eventId: string; anchorDtUtc?: string }) => ApiResult<EventDeepAnalysisResponse>;
   get_predict_release_model_usd?: () => ApiResult<PredictReleaseModelResponse>;
+  get_market_agent_snapshot?: (payload: { limit?: number }) => ApiResult<MarketAgentSnapshotResponse>;
   get_settings: () => ApiResult<Settings>; 
   save_settings: (payload: Settings) => ApiResult<{ ok: boolean }>; 
   frontend_boot_complete?: () => ApiResult<{ ok: boolean }>; 
@@ -403,6 +405,45 @@ let mockSettings: Settings = {
   logPath: "C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\XAUUSDCalendar\\\\logs\\\\app.log"
 };
 
+const buildMockMarketAgentSnapshot = (): MarketAgentSnapshotResponse => ({
+  ok: true,
+  available: true,
+  state_path: "user-data/market_agent_state.json",
+  alerts_path: "user-data/market_agent_alerts.ndjson",
+  state: {
+    current_bias: "bearish_gold",
+    main_driver: "yields",
+    secondary_driver: "usd",
+    risk_driver: null,
+    confidence: "high",
+    cause_status: "confirmed",
+    last_alert_time: "2026-05-19T08:00:00+08:00",
+    last_alert_summary: "Gold remains under pressure.",
+    last_analysis_time: "2026-05-19T08:05:00+08:00",
+    last_notification_level: "level_3",
+    state_change_reason: "main_driver usd -> yields",
+    invalidation_triggered: false,
+    invalidation_triggered_by: [],
+    invalidation_conditions: ["US10Y drops more than 7 bps"]
+  },
+  alerts: [
+    {
+      time: "2026-05-19T08:00:00+08:00",
+      notification_level: "level_3",
+      message: "Gold remains under pressure.",
+      main_driver: "yields",
+      bias: "bearish_gold"
+    },
+    {
+      time: "2026-05-19T07:10:00+08:00",
+      notification_level: "level_1",
+      message: "XAUUSD rebounded, but cross-asset confirmation stayed mixed.",
+      main_driver: "unknown",
+      bias: "unknown"
+    }
+  ]
+});
+
 const withApi = async () => desktopApiRef();
 
 const hasMethod = (api: BackendApi | null, key: keyof BackendApi) =>
@@ -766,6 +807,19 @@ export const backend = {
       return Promise.resolve({ ok: false, message: "Predict release model unavailable" });
     }
     return api.get_predict_release_model_usd();
+  },
+  getMarketAgentSnapshot: async (limit = 5): ApiResult<MarketAgentSnapshotResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockMarketAgentSnapshot());
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "get_market_agent_snapshot")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentSnapshot());
+    }
+    return api.get_market_agent_snapshot({ limit });
   },
   getUpdateState: async () => { 
     const api = await withApi(); 

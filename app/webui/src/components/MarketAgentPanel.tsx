@@ -1,0 +1,97 @@
+import type { MarketAgentSnapshotResponse } from "../types";
+import "./MarketAgentPanel.css";
+
+type MarketAgentPanelProps = {
+  data: MarketAgentSnapshotResponse | null;
+};
+
+const formatValue = (value: string | null | undefined, fallback = "--") =>
+  value && String(value).trim() ? value : fallback;
+
+export function MarketAgentPanel({ data }: MarketAgentPanelProps) {
+  if (!data?.available) {
+    return (
+      <section className="market-agent-card" data-qa="qa:card:market-agent">
+        <div className="market-agent-header">
+          <div>
+            <h2>Market Situation Agent</h2>
+            <span className="hint">State and recent alerts</span>
+          </div>
+        </div>
+        <div className="market-agent-empty">
+          {data?.message || "Market agent artifacts are not available yet."}
+        </div>
+      </section>
+    );
+  }
+
+  const state = data.state;
+  const alerts = data.alerts || [];
+
+  return (
+    <section className="market-agent-card" data-qa="qa:card:market-agent">
+      <div className="market-agent-header">
+        <div>
+          <h2>Market Situation Agent</h2>
+          <span className="hint">State and recent alerts</span>
+        </div>
+      </div>
+
+      <div className="market-agent-grid">
+        <div className="market-agent-stat">
+          <span className="market-agent-label">Bias</span>
+          <span className="market-agent-value">{formatValue(state?.current_bias)}</span>
+        </div>
+        <div className="market-agent-stat">
+          <span className="market-agent-label">Main driver</span>
+          <span className="market-agent-value">{formatValue(state?.main_driver)}</span>
+        </div>
+        <div className="market-agent-stat">
+          <span className="market-agent-label">Cause status</span>
+          <span className="market-agent-value">{formatValue(state?.cause_status)}</span>
+        </div>
+        <div className="market-agent-stat">
+          <span className="market-agent-label">Confidence</span>
+          <span className="market-agent-value">{formatValue(state?.confidence)}</span>
+        </div>
+      </div>
+
+      <div className="market-agent-summary">
+        <div className="market-agent-summary-title">Current thesis</div>
+        <div className="market-agent-summary-text">
+          {formatValue(state?.last_alert_summary, "No alert summary yet.")}
+        </div>
+        <div className="market-agent-meta">
+          <span>Last analysis: {formatValue(state?.last_analysis_time)}</span>
+          <span>Last level: {formatValue(state?.last_notification_level, "none")}</span>
+        </div>
+        <div className="market-agent-reason">
+          <span className="market-agent-label">State change</span>
+          <span>{formatValue(state?.state_change_reason, "No state change reason recorded.")}</span>
+        </div>
+      </div>
+
+      <div className="market-agent-history">
+        <div className="market-agent-history-title">Recent alerts</div>
+        {alerts.length === 0 ? (
+          <div className="market-agent-empty">No market-agent alerts recorded yet.</div>
+        ) : (
+          <div className="market-agent-alert-list">
+            {alerts.map((alert, index) => (
+              <div
+                key={`${alert.time}-${alert.notification_level}-${index}`}
+                className="market-agent-alert"
+              >
+                <div className="market-agent-alert-head">
+                  <span className="market-agent-pill">{formatValue(alert.notification_level)}</span>
+                  <span className="mono market-agent-time">{formatValue(alert.time)}</span>
+                </div>
+                <div className="market-agent-alert-message">{formatValue(alert.message)}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}

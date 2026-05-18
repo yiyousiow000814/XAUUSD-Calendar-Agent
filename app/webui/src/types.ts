@@ -189,6 +189,45 @@ export type PredictReleaseModelResponse = {
   data?: PredictReleaseModel | Record<string, unknown>;
 };
 
+export type MarketAgentState = {
+  current_bias: string;
+  main_driver: string;
+  secondary_driver?: string | null;
+  risk_driver?: string | null;
+  confidence: string;
+  cause_status: string;
+  last_alert_time: string;
+  last_alert_summary: string;
+  last_analysis_time?: string;
+  last_notification_level?: string;
+  state_change_reason?: string;
+  invalidation_triggered?: boolean;
+  invalidation_triggered_by?: string[];
+  invalidation_conditions?: string[];
+};
+
+export type MarketAgentAlert = {
+  time: string;
+  notification_level: string;
+  message: string;
+  main_driver?: string;
+  bias?: string;
+  state_change_reason?: string;
+  confidence_delta?: string;
+  previous_state_invalidated?: boolean;
+  invalidation_triggered_by?: string[];
+};
+
+export type MarketAgentSnapshotResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  state_path?: string;
+  alerts_path?: string;
+  state: MarketAgentState | null;
+  alerts: MarketAgentAlert[];
+};
+
 export type Snapshot = {
   lastPull: string;
   lastSync: string;

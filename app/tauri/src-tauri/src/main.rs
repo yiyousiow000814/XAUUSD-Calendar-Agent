@@ -103,7 +103,8 @@ fn main() {
             commands::history::get_event_history,
             commands::analysis::get_event_impact_usd,
             commands::analysis::get_predict_release_model_usd,
-            commands::analysis::get_event_deep_analysis_usd
+            commands::analysis::get_event_deep_analysis_usd,
+            commands::market_agent::get_market_agent_snapshot
         ])
         .setup(|app| {
             let _ = config::maybe_seed_data_from_install();

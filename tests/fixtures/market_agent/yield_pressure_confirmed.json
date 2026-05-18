@@ -1,0 +1,44 @@
+{
+  "scenario_id": "yield_pressure_confirmed",
+  "as_of_myt": "18-05-2026 15:42",
+  "market": {
+    "symbol": "XAUUSD",
+    "from_price": 4562.0,
+    "to_price": 4540.0,
+    "move_percent": -0.48,
+    "move_percent_15m": -0.48,
+    "move_percent_1h": -0.62,
+    "window_minutes": 15,
+    "breaks": ["asia_low", "session_low"]
+  },
+  "cross_asset": {
+    "dxy_percent": 0.21,
+    "us10y_bps": 5.1,
+    "us2y_bps": 4.3,
+    "wti_percent": 0.2,
+    "brent_percent": 0.1,
+    "vix_percent": 0.0,
+    "spx_percent": 0.0,
+    "nasdaq_percent": 0.0
+  },
+  "calendar_events": [
+    {
+      "timestamp_myt": "18-05-2026 14:55",
+      "source": "Economic Calendar",
+      "title": "Fed speaker warns inflation progress remains uneven",
+      "relevance_reason": "Fed tone can raise rate expectations and yields",
+      "impact_direction_on_gold": "bearish"
+    }
+  ],
+  "news": [
+    {
+      "timestamp_myt": "18-05-2026 14:55",
+      "source": "Reuters",
+      "title": "Fed speaker says restrictive policy may need more time",
+      "relevance_reason": "Supports higher-for-longer rates narrative",
+      "impact_direction_on_gold": "bearish",
+      "tags": ["fed", "rates"]
+    }
+  ],
+  "expected_llm_claim": null
+}

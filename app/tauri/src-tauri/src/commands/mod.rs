@@ -20,6 +20,7 @@ pub(crate) mod analysis;
 pub(crate) mod history;
 pub(crate) mod lifecycle;
 pub(crate) mod logs;
+pub(crate) mod market_agent;
 pub(crate) mod open;
 pub(crate) mod pull;
 pub(crate) mod settings;

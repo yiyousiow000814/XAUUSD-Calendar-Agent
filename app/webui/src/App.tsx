@@ -11,6 +11,7 @@ import { EventHistoryModal } from "./components/EventHistoryModal";
 import { Footer } from "./components/Footer";
 import { HistoryPanel } from "./components/HistoryPanel";
 import { InitOverlay } from "./components/InitOverlay";
+import { MarketAgentPanel } from "./components/MarketAgentPanel";
 import { NextEvents } from "./components/NextEvents";
 import { SettingsModal } from "./components/SettingsModal";
 import { TemporaryPathWarningModal, type TemporaryPathWarningMode } from "./components/TemporaryPathWarningModal";
@@ -19,6 +20,7 @@ import { CURRENCY_OPTIONS } from "./constants/currencyOptions";
 import { formatLocalDateTime } from "./utils/calendarTime";
 import { impactTone, levelTone } from "./utils/ui";
 import "./App.css";
+import type { MarketAgentSnapshotResponse } from "./types";
 
 const defaultCurrencyOptions = Array.from(CURRENCY_OPTIONS);
 const impactOptions = ["Low", "Medium", "High"];
@@ -233,6 +235,7 @@ export default function App() {
   const activityLabelRef = useRef<HTMLSpanElement | null>(null);
   const activityLabelMeasureRef = useRef<HTMLSpanElement | null>(null);
   const [activityLabelWidth, setActivityLabelWidth] = useState<number>(92);
+  const [marketAgentSnapshot, setMarketAgentSnapshot] = useState<MarketAgentSnapshotResponse | null>(null);
   const activityLabelWidthRef = useRef(92);
   const activityLabelIdleRafRef = useRef<number | null>(null);
   const activityOpenIntentRef = useRef(false);
@@ -314,6 +317,27 @@ export default function App() {
       if (timer) window.clearTimeout(timer);
     });
   }, []);
+
+  const refreshMarketAgentSnapshot = useCallback(async () => {
+    try {
+      const next = await withTimeout(
+        backend.getMarketAgentSnapshot(5),
+        8000,
+        "backend.getMarketAgentSnapshot()"
+      );
+      setMarketAgentSnapshot(next);
+      return next;
+    } catch {
+      setMarketAgentSnapshot({
+        ok: false,
+        available: false,
+        message: "Unable to load market situation artifacts.",
+        state: null,
+        alerts: []
+      });
+      return null;
+    }
+  }, [withTimeout]);
 
   const refresh = async (): Promise<Snapshot | null> => {
     if (refreshInFlightRef.current) {
@@ -3299,6 +3323,11 @@ export default function App() {
     ? `${historySelection.cur || "--"} ${historySelection.event}`.trim()
     : "";
 
+  useEffect(() => {
+    if (!activityOpen) return;
+    void refreshMarketAgentSnapshot();
+  }, [activityOpen, refreshMarketAgentSnapshot]);
+
 
   return (
     <div className="app" data-qa="qa:app-shell">
@@ -3681,6 +3710,7 @@ export default function App() {
               </button>
             }
           />
+          <MarketAgentPanel data={marketAgentSnapshot} />
           {temporaryPathDisplayActive ? (
             <div className="temporary-path-progress" data-qa="qa:temporary-path:progress">
               <div className="temporary-path-progress-header">
