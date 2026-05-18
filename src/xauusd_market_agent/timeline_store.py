@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+from dataclasses import asdict
 import json
 import sqlite3
 from pathlib import Path
 from typing import Any
+
+from .models import DriverAttentionState
 
 
 class TimelineStore:
@@ -36,6 +39,61 @@ class TimelineStore:
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     monitor_run_id INTEGER NOT NULL,
                     provider_key TEXT NOT NULL,
+                    payload_json TEXT NOT NULL,
+                    FOREIGN KEY(monitor_run_id) REFERENCES monitor_runs(id)
+                );
+                CREATE TABLE IF NOT EXISTS market_price_bars (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    monitor_run_id INTEGER NOT NULL,
+                    symbol TEXT NOT NULL,
+                    data_timestamp TEXT NOT NULL,
+                    open_price REAL,
+                    high_price REAL,
+                    low_price REAL,
+                    close_price REAL NOT NULL,
+                    move_percent REAL,
+                    data_mode TEXT NOT NULL,
+                    source_type TEXT NOT NULL,
+                    payload_json TEXT NOT NULL,
+                    FOREIGN KEY(monitor_run_id) REFERENCES monitor_runs(id)
+                );
+                CREATE TABLE IF NOT EXISTS related_asset_bars (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    monitor_run_id INTEGER NOT NULL,
+                    symbol TEXT NOT NULL,
+                    data_timestamp TEXT NOT NULL,
+                    change_value REAL NOT NULL,
+                    change_unit TEXT NOT NULL,
+                    data_mode TEXT NOT NULL,
+                    source_type TEXT NOT NULL,
+                    payload_json TEXT NOT NULL,
+                    FOREIGN KEY(monitor_run_id) REFERENCES monitor_runs(id)
+                );
+                CREATE TABLE IF NOT EXISTS news_items (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    monitor_run_id INTEGER NOT NULL,
+                    published_at TEXT NOT NULL,
+                    first_seen_at TEXT NOT NULL,
+                    backfilled_at TEXT,
+                    is_backfilled INTEGER NOT NULL,
+                    source TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    link TEXT,
+                    relevance_reason TEXT NOT NULL,
+                    impact_direction_on_gold TEXT NOT NULL,
+                    data_mode TEXT NOT NULL,
+                    payload_json TEXT NOT NULL,
+                    FOREIGN KEY(monitor_run_id) REFERENCES monitor_runs(id)
+                );
+                CREATE TABLE IF NOT EXISTS calendar_events (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    monitor_run_id INTEGER NOT NULL,
+                    scheduled_at TEXT NOT NULL,
+                    source TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    relevance_reason TEXT NOT NULL,
+                    impact_direction_on_gold TEXT NOT NULL,
+                    data_mode TEXT NOT NULL,
                     payload_json TEXT NOT NULL,
                     FOREIGN KEY(monitor_run_id) REFERENCES monitor_runs(id)
                 );
@@ -106,6 +164,47 @@ class TimelineStore:
             ).fetchone()
         return None if row is None else str(row["run_started_at"])
 
+    def load_latest_driver_attention_states(self) -> dict[str, DriverAttentionState]:
+        with self._connect() as connection:
+            run_row = connection.execute(
+                "SELECT id FROM monitor_runs ORDER BY id DESC LIMIT 1"
+            ).fetchone()
+            if run_row is None:
+                return {}
+            rows = connection.execute(
+                "SELECT payload_json FROM driver_attention_states WHERE monitor_run_id = ?",
+                (int(run_row["id"]),),
+            ).fetchall()
+        states: dict[str, DriverAttentionState] = {}
+        for row in rows:
+            payload = json.loads(str(row["payload_json"]))
+            states[payload["driver_id"]] = DriverAttentionState(
+                driver_id=payload["driver_id"],
+                label=payload["label"],
+                category=payload["category"],
+                current_state=payload["current_state"],
+                priority=payload["priority"],
+                relevance_score=float(payload["relevance_score"]),
+                activation_reason=payload["activation_reason"],
+                deactivation_reason=payload["deactivation_reason"],
+                first_activated_at=payload["first_activated_at"],
+                last_confirmed_at=payload["last_confirmed_at"],
+                last_evidence_at=payload["last_evidence_at"],
+                decay_deadline=payload["decay_deadline"],
+                linked_assets=tuple(payload["linked_assets"]),
+                required_evidence_gates=tuple(payload["required_evidence_gates"]),
+                optional_evidence_gates=tuple(payload["optional_evidence_gates"]),
+                current_evidence_summary=payload["current_evidence_summary"],
+                current_counter_evidence=payload["current_counter_evidence"],
+                confidence=payload["confidence"],
+                source_count=int(payload["source_count"]),
+                related_news_count=int(payload["related_news_count"]),
+                related_calendar_events=int(payload["related_calendar_events"]),
+                notes=payload["notes"],
+                data_mode=payload["data_mode"],
+            )
+        return states
+
     def record_monitor_run(
         self,
         *,
@@ -146,6 +245,120 @@ class TimelineStore:
                 [
                     (monitor_run_id, key, json.dumps(value, ensure_ascii=False))
                     for key, value in provider_health.items()
+                ],
+            )
+            connection.commit()
+
+    def record_market_price_bars(self, monitor_run_id: int, bars: list[dict[str, Any]]) -> None:
+        if not bars:
+            return
+        with self._connect() as connection:
+            connection.executemany(
+                """
+                INSERT INTO market_price_bars (
+                    monitor_run_id, symbol, data_timestamp, open_price, high_price,
+                    low_price, close_price, move_percent, data_mode, source_type, payload_json
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                [
+                    (
+                        monitor_run_id,
+                        bar["symbol"],
+                        bar["data_timestamp"],
+                        bar.get("open_price"),
+                        bar.get("high_price"),
+                        bar.get("low_price"),
+                        bar["close_price"],
+                        bar.get("move_percent"),
+                        bar["data_mode"],
+                        bar["source_type"],
+                        json.dumps(bar, ensure_ascii=False),
+                    )
+                    for bar in bars
+                ],
+            )
+            connection.commit()
+
+    def record_related_asset_bars(self, monitor_run_id: int, bars: list[dict[str, Any]]) -> None:
+        if not bars:
+            return
+        with self._connect() as connection:
+            connection.executemany(
+                """
+                INSERT INTO related_asset_bars (
+                    monitor_run_id, symbol, data_timestamp, change_value, change_unit, data_mode, source_type, payload_json
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                [
+                    (
+                        monitor_run_id,
+                        bar["symbol"],
+                        bar["data_timestamp"],
+                        bar["change_value"],
+                        bar["change_unit"],
+                        bar["data_mode"],
+                        bar["source_type"],
+                        json.dumps(bar, ensure_ascii=False),
+                    )
+                    for bar in bars
+                ],
+            )
+            connection.commit()
+
+    def record_news_items(self, monitor_run_id: int, items: list[dict[str, Any]]) -> None:
+        if not items:
+            return
+        with self._connect() as connection:
+            connection.executemany(
+                """
+                INSERT INTO news_items (
+                    monitor_run_id, published_at, first_seen_at, backfilled_at, is_backfilled,
+                    source, title, link, relevance_reason, impact_direction_on_gold, data_mode, payload_json
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                [
+                    (
+                        monitor_run_id,
+                        item["published_at"],
+                        item["first_seen_at"],
+                        item.get("backfilled_at"),
+                        int(item["is_backfilled"]),
+                        item["source"],
+                        item["title"],
+                        item.get("link"),
+                        item["relevance_reason"],
+                        item["impact_direction_on_gold"],
+                        item["data_mode"],
+                        json.dumps(item, ensure_ascii=False),
+                    )
+                    for item in items
+                ],
+            )
+            connection.commit()
+
+    def record_calendar_events(self, monitor_run_id: int, items: list[dict[str, Any]]) -> None:
+        if not items:
+            return
+        with self._connect() as connection:
+            connection.executemany(
+                """
+                INSERT INTO calendar_events (
+                    monitor_run_id, scheduled_at, source, title, relevance_reason,
+                    impact_direction_on_gold, data_mode, payload_json
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                [
+                    (
+                        monitor_run_id,
+                        item["scheduled_at"],
+                        item["source"],
+                        item["title"],
+                        item["relevance_reason"],
+                        item["impact_direction_on_gold"],
+                        item["data_mode"],
+                        json.dumps(item, ensure_ascii=False),
+                    )
+                    for item in items
                 ],
             )
             connection.commit()

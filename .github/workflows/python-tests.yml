@@ -40,4 +40,7 @@ jobs:
             tests/test_dry_run_cli.py `
             tests/test_llm_integration.py `
             tests/test_llm_repair.py `
+            tests/test_driver_attention.py `
+            tests/test_provider_health.py `
+            tests/test_timeline_store.py `
             -v

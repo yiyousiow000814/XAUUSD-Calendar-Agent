@@ -53,11 +53,72 @@ def test_every_monitor_run_persists_even_when_alert_is_suppressed(tmp_path) -> N
         no_news_found = connection.execute(
             "SELECT no_news_found FROM monitor_runs ORDER BY id DESC LIMIT 1"
         ).fetchone()[0]
+        attention_rows = connection.execute(
+            "SELECT COUNT(*) FROM driver_attention_states"
+        ).fetchone()[0]
 
     assert first["notification"]["should_notify"] is True
     assert second["notification"]["should_notify"] is False
     assert run_count == 2
     assert no_news_found == 1
+    assert attention_rows > 0
+
+
+def test_driver_attention_persists_across_monitor_runs(tmp_path) -> None:
+    price_path = tmp_path / "prices.csv"
+    price_path.write_text(
+        "timestamp,open,high,low,close\n"
+        "2026-05-19T07:00:00+08:00,4500,4502,4499,4501\n"
+        "2026-05-19T07:15:00+08:00,4501,4503,4475,4479\n",
+        encoding="utf-8",
+    )
+    related_path = tmp_path / "related_assets.json"
+    related_path.write_text(
+        json.dumps({"dxy_percent": 0.0, "us10y_bps": 5.1, "us2y_bps": 4.4, "wti_percent": 2.1, "brent_percent": 1.8}),
+        encoding="utf-8",
+    )
+    year_dir = tmp_path / "calendar" / "2026"
+    year_dir.mkdir(parents=True)
+    (year_dir / "2026_calendar.json").write_text("[]", encoding="utf-8")
+    cfg = MarketAgentConfig(
+        repo_root=tmp_path,
+        price_data_path=price_path,
+        calendar_dir=tmp_path / "calendar",
+        related_assets_path=related_path,
+        rss_feeds=[],
+        timeline_store_path=tmp_path / "timeline.sqlite",
+    )
+
+    run_monitored_live_once(
+        config=cfg,
+        anchor_time=datetime.fromisoformat("2026-05-19T07:15:00+08:00"),
+        state_path=tmp_path / "state.json",
+        alerts_path=tmp_path / "alerts.ndjson",
+        timeline_store_path=tmp_path / "timeline.sqlite",
+    )
+    related_path.write_text(
+        json.dumps({"dxy_percent": 0.0, "us10y_bps": 0.0, "us2y_bps": 0.0, "wti_percent": 0.0, "brent_percent": 0.0}),
+        encoding="utf-8",
+    )
+    run_monitored_live_once(
+        config=cfg,
+        anchor_time=datetime.fromisoformat("2026-05-19T07:30:00+08:00"),
+        state_path=tmp_path / "state.json",
+        alerts_path=tmp_path / "alerts.ndjson",
+        timeline_store_path=tmp_path / "timeline.sqlite",
+    )
+
+    with sqlite3.connect(tmp_path / "timeline.sqlite") as connection:
+        row = connection.execute(
+            """
+            SELECT current_state
+            FROM driver_attention_states
+            WHERE driver_id = 'oil_inflation'
+            ORDER BY id DESC LIMIT 1
+            """
+        ).fetchone()
+
+    assert row[0] in {"cooling", "retired", "dormant", "watching"}
 
 
 def test_recovery_run_is_stored_with_backfilled_mode(tmp_path) -> None:
@@ -105,6 +166,77 @@ def test_recovery_run_is_stored_with_backfilled_mode(tmp_path) -> None:
 
     assert row == ("recovery", "backfilled", 1)
     assert timeline[0]["event_type"] == "recovery_analysis"
+
+
+def test_recovery_run_persists_price_news_calendar_and_evidence(tmp_path) -> None:
+    price_path = tmp_path / "prices.csv"
+    price_path.write_text(
+        "timestamp,open,high,low,close\n"
+        "2026-05-19T07:00:00+08:00,4500,4502,4499,4501\n"
+        "2026-05-19T07:15:00+08:00,4501,4503,4475,4479\n",
+        encoding="utf-8",
+    )
+    related_path = tmp_path / "related_assets.json"
+    related_path.write_text(
+        json.dumps({"dxy_percent": 0.22, "us10y_bps": 5.1, "us2y_bps": 4.4}),
+        encoding="utf-8",
+    )
+    year_dir = tmp_path / "calendar" / "2026"
+    year_dir.mkdir(parents=True)
+    (year_dir / "2026_calendar.json").write_text(
+        json.dumps(
+            [{"Date": "2026-05-19", "Time": "07:00", "Currency": "USD", "Event": "CPI", "Imp.": "High"}]
+        ),
+        encoding="utf-8",
+    )
+    cfg = MarketAgentConfig(
+        repo_root=tmp_path,
+        price_data_path=price_path,
+        calendar_dir=tmp_path / "calendar",
+        related_assets_path=related_path,
+        rss_feeds=[],
+        timeline_store_path=tmp_path / "timeline.sqlite",
+        backfill_gap_minutes=30,
+    )
+
+    store = TimelineStore(tmp_path / "timeline.sqlite")
+    store.record_monitor_run(
+        run_started_at="2026-05-19T00:00:00+08:00",
+        run_type="live",
+        data_mode="live_seen",
+        backfill_required=False,
+        last_successful_run_at=None,
+        no_news_found=False,
+        alert_suppressed_reason="",
+    )
+
+    run_monitored_live_once(
+        config=cfg,
+        anchor_time=datetime.fromisoformat("2026-05-19T07:30:00+08:00"),
+        state_path=tmp_path / "state.json",
+        alerts_path=tmp_path / "alerts.ndjson",
+        timeline_store_path=tmp_path / "timeline.sqlite",
+        news_headlines=[
+            {"title": "Recovered Fed headline", "source": "Reuters", "published_at": "2026-05-19T07:10:00+08:00"}
+        ],
+    )
+
+    with sqlite3.connect(tmp_path / "timeline.sqlite") as connection:
+        run = connection.execute(
+            "SELECT run_type, data_mode FROM monitor_runs ORDER BY id DESC LIMIT 1"
+        ).fetchone()
+        market_rows = connection.execute("SELECT COUNT(*) FROM market_price_bars").fetchone()[0]
+        related_rows = connection.execute("SELECT COUNT(*) FROM related_asset_bars").fetchone()[0]
+        news_rows = connection.execute("SELECT COUNT(*) FROM news_items").fetchone()[0]
+        calendar_rows = connection.execute("SELECT COUNT(*) FROM calendar_events").fetchone()[0]
+        evidence_rows = connection.execute("SELECT COUNT(*) FROM evidence_packets").fetchone()[0]
+
+    assert run == ("recovery", "backfilled")
+    assert market_rows > 0
+    assert related_rows > 0
+    assert news_rows > 0
+    assert calendar_rows > 0
+    assert evidence_rows > 0
 
 
 def test_rejected_llm_driver_is_stored_in_analysis_results(tmp_path) -> None:
@@ -184,3 +316,43 @@ def test_rejected_llm_driver_is_stored_in_analysis_results(tmp_path) -> None:
         ).fetchone()
 
     assert row == ("fed_rates", "Fed/rates evidence is missing or stale.")
+
+
+def test_live_mode_without_csv_fails_gracefully_and_persists_provider_health(tmp_path) -> None:
+    related_path = tmp_path / "related_assets.json"
+    related_path.write_text(json.dumps({"dxy_percent": 0.0, "us10y_bps": 0.0, "us2y_bps": 0.0}), encoding="utf-8")
+    year_dir = tmp_path / "calendar" / "2026"
+    year_dir.mkdir(parents=True)
+    (year_dir / "2026_calendar.json").write_text("[]", encoding="utf-8")
+    cfg = MarketAgentConfig(
+        repo_root=tmp_path,
+        price_data_path=tmp_path / "missing_prices.csv",
+        calendar_dir=tmp_path / "calendar",
+        related_assets_path=related_path,
+        rss_feeds=[],
+        timeline_store_path=tmp_path / "timeline.sqlite",
+    )
+
+    outcome = run_monitored_live_once(
+        config=cfg,
+        anchor_time=datetime.fromisoformat("2026-05-19T07:15:00+08:00"),
+        state_path=tmp_path / "state.json",
+        alerts_path=tmp_path / "alerts.ndjson",
+        timeline_store_path=tmp_path / "timeline.sqlite",
+    )
+
+    with sqlite3.connect(tmp_path / "timeline.sqlite") as connection:
+        row = connection.execute(
+            """
+            SELECT payload_json
+            FROM provider_health
+            WHERE provider_key = 'xauusd'
+            ORDER BY id DESC LIMIT 1
+            """
+        ).fetchone()
+
+    payload = json.loads(row[0])
+
+    assert outcome["analysis"]["main_driver"] == "unknown"
+    assert payload["is_available"] is False
+    assert payload["data_mode"] == "unavailable"
