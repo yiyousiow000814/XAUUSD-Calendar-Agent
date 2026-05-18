@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from dataclasses import asdict
+
 from .detectors import detect_market_trigger
 from .evidence import build_evidence_gate_result
-from .models import AnalysisResult, ScenarioFixture
+from .models import AnalysisResult, MarketState, ScenarioFixture
 from .validator import validate_llm_output
 
 
@@ -105,8 +107,12 @@ def _timeline(fixture: ScenarioFixture) -> list[dict[str, str]]:
     return entries
 
 
-def build_llm_evidence_packet(fixture: ScenarioFixture) -> dict[str, object]:
+def build_llm_evidence_packet(
+    fixture: ScenarioFixture,
+    previous_state: MarketState | dict[str, object] | None = None,
+) -> dict[str, object]:
     evidence = build_evidence_gate_result(fixture)
+    normalized_previous_state = asdict(previous_state) if isinstance(previous_state, MarketState) else previous_state
     return {
         "as_of_myt": fixture.as_of_myt,
         "market_move": {
@@ -121,6 +127,7 @@ def build_llm_evidence_packet(fixture: ScenarioFixture) -> dict[str, object]:
         "cross_asset_confirmation": evidence.cross_asset_confirmation,
         "evidence_status": evidence.evidence_status,
         "timeline": _timeline(fixture),
+        "previous_state": normalized_previous_state,
         "prompt": (
             "Given this evidence packet, use only allowed_candidate_drivers. "
             "If evidence is insufficient, return unknown. Output strict JSON only."
@@ -233,12 +240,13 @@ def build_rule_based_analysis(fixture: ScenarioFixture) -> AnalysisResult:
 def analyze_fixture_with_optional_llm(
     fixture: ScenarioFixture,
     llm_client=None,
+    previous_state: MarketState | dict[str, object] | None = None,
 ) -> AnalysisResult:
     fallback = build_rule_based_analysis(fixture)
     if llm_client is None:
         return fallback
     evidence = build_evidence_gate_result(fixture)
-    evidence_packet = build_llm_evidence_packet(fixture)
+    evidence_packet = build_llm_evidence_packet(fixture, previous_state=previous_state)
 
     def _call_llm(*, repair: bool) -> object:
         try:

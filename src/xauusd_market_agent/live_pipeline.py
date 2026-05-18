@@ -142,10 +142,15 @@ def run_live_once(
     anchor_time: datetime | None = None,
     news_headlines: list[dict[str, Any]] | None = None,
     llm_client=None,
+    previous_state=None,
 ) -> tuple[ScenarioFixture, Any]:
     anchor = anchor_time or datetime.now().astimezone()
     fixture = build_live_fixture(config, anchor_time=anchor, news_headlines=news_headlines)
-    result = analyze_fixture_with_optional_llm(fixture, llm_client=llm_client or LocalLLMClient())
+    result = analyze_fixture_with_optional_llm(
+        fixture,
+        llm_client=llm_client or LocalLLMClient(),
+        previous_state=previous_state,
+    )
     return fixture, result
 
 
@@ -158,10 +163,15 @@ def run_monitored_live_once(
     news_headlines: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     anchor = anchor_time or datetime.now().astimezone()
-    fixture, analysis = run_live_once(config, anchor_time=anchor, news_headlines=news_headlines)
     state_store = JsonStateStore(state_path or config.state_store_path)
     sink = FileNotificationSink(alerts_path or config.alerts_output_path)
     previous_state = state_store.load()
+    fixture, analysis = run_live_once(
+        config,
+        anchor_time=anchor,
+        news_headlines=news_headlines,
+        previous_state=previous_state,
+    )
     decision = decide_notification(
         previous_state=previous_state,
         analysis_result=analysis,
