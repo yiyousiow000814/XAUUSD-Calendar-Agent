@@ -1,3 +1,4 @@
+import sqlite3
 from datetime import datetime
 from pathlib import Path
 
@@ -141,11 +142,22 @@ def test_missing_csv_but_yahoo_fixture_exists_uses_proxy_without_crash(tmp_path)
         "2026-05-19T07:00:00+08:00",
         "2026-05-19T07:30:00+08:00",
     )
+    with sqlite3.connect(tmp_path / "timeline.sqlite") as connection:
+        market_row = connection.execute(
+            """
+            SELECT source_type, data_mode
+            FROM market_price_bars
+            WHERE symbol = 'GC=F'
+            ORDER BY data_timestamp DESC, id DESC
+            LIMIT 1
+            """
+        ).fetchone()
 
     assert outcome["evidence_packet"]["provider_health"]["xauusd"]["source_type"] == "futures_proxy"
     assert outcome["evidence_packet"]["provider_health"]["xauusd"]["data_mode"] == "proxy"
     assert outcome["evidence_packet"]["market_move"]["symbol"] == "GC=F"
     assert outcome["evidence_packet"]["market_move"]["source_type"] == "futures_proxy"
+    assert market_row == ("futures_proxy", "proxy")
     assert replay["price_series"][-1]["source_type"] == "futures_proxy"
     assert replay["price_series"][-1]["data_mode"] == "proxy"
 
