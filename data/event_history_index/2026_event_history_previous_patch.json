@@ -1,5 +1,5 @@
 {
-  "generated_at": "17-05-2026 15:51",
+  "generated_at": "19-05-2026 16:37",
   "patches": [
     {
       "patch": "previous_missing_filled",
@@ -72,6 +72,102 @@
       "previous_raw": "",
       "prior_actual": "0.00",
       "previous_effective": "0.00"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::Initial Jobless Claims::none",
+      "cur": "USD",
+      "event": "Initial Jobless Claims",
+      "period": "",
+      "date": "2026-05-28",
+      "time": "20:30",
+      "previous_raw": "",
+      "prior_actual": "211K",
+      "previous_effective": "211K"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::Jobless Claims 4-Week Avg.::none",
+      "cur": "USD",
+      "event": "Jobless Claims 4-Week Avg.",
+      "period": "",
+      "date": "2026-05-28",
+      "time": "20:30",
+      "previous_raw": "",
+      "prior_actual": "203.75K",
+      "previous_effective": "203.75K"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::Natural Gas Storage::none",
+      "cur": "USD",
+      "event": "Natural Gas Storage",
+      "period": "",
+      "date": "2026-05-28",
+      "time": "22:30",
+      "previous_raw": "",
+      "prior_actual": "85B",
+      "previous_effective": "85B"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::Continuing Jobless Claims::none",
+      "cur": "USD",
+      "event": "Continuing Jobless Claims",
+      "period": "",
+      "date": "2026-05-28",
+      "time": "20:30",
+      "previous_raw": "",
+      "prior_actual": "1,782K",
+      "previous_effective": "1,782K"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::4-Week Bill Auction::none",
+      "cur": "USD",
+      "event": "4-Week Bill Auction",
+      "period": "",
+      "date": "2026-05-28",
+      "time": "23:30",
+      "previous_raw": "",
+      "prior_actual": "3.605%",
+      "previous_effective": "3.605%"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::8-Week Bill Auction::none",
+      "cur": "USD",
+      "event": "8-Week Bill Auction",
+      "period": "",
+      "date": "2026-05-28",
+      "time": "23:30",
+      "previous_raw": "",
+      "prior_actual": "3.610%",
+      "previous_effective": "3.610%"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "TRY::Gross FX Reserves::none",
+      "cur": "TRY",
+      "event": "Gross FX Reserves",
+      "period": "",
+      "date": "2026-05-28",
+      "time": "19:30",
+      "previous_raw": "",
+      "prior_actual": "60.56B",
+      "previous_effective": "60.56B"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::Atlanta Fed GDPNow::none",
+      "cur": "USD",
+      "event": "Atlanta Fed GDPNow  (Q2)",
+      "period": "q2",
+      "date": "2026-05-28",
+      "time": "23:30",
+      "previous_raw": "",
+      "prior_actual": "4.0%",
+      "previous_effective": "4.0%"
     }
   ]
 }
