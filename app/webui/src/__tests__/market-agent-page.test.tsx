@@ -317,7 +317,9 @@ describe("MarketAgentPage", () => {
 
     fireEvent.click(screen.getByRole("navigation", { name: /Market Agent sections/i }).querySelectorAll("button")[5]);
     expect(screen.getByRole("heading", { name: /^Data Sources$/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/Access Token/i)).toBeInTheDocument();
+    expect(screen.getByText(/Market Agent setup is incomplete\./i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Price Source/i })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.queryByLabelText(/Access Token/i)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Replay \/ Timeline/i }));
     expect(screen.getByText(/Open full replay/i)).toBeInTheDocument();
@@ -396,12 +398,50 @@ describe("MarketAgentPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Configure Data Sources/i }));
     expect(screen.getByRole("heading", { name: /^Data Sources$/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Test Connection/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /Telegram Reporting/i })).toBeInTheDocument();
-    expect(screen.getByText(/Disabled unless configured/i)).toBeInTheDocument();
+    expect(screen.getByText(/Market Agent setup is incomplete\./i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Price source/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Related assets/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/News/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Calendar/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Telegram/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Monitor loop/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Choose price source/i })).toBeInTheDocument();
+    expect(screen.getByText(/cTrader gives true spot XAUUSD/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/Access Token/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Refresh Token/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Config path:/i)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /cTrader.*Open API tokens/i }));
+    expect(screen.getByRole("heading", { name: /Set up cTrader Open API/i })).toBeInTheDocument();
+    expect(screen.getByText(/We never ask for or store your cTrader password/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Access Token/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/Refresh Token/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/Advanced settings/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/Bridge Python/i)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByText(/Advanced settings/i));
+    expect(screen.getByLabelText(/Refresh Token/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Bridge Python/i)).toBeInTheDocument();
+    expect(screen.getByText(/Config path:/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Telegram.*meaningful alerts/i }));
+    expect(screen.getByRole("heading", { name: /Configure Telegram alerts/i })).toBeInTheDocument();
+    expect(screen.getByText(/Telegram sends only meaningful alerts/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Bot token/i)).toHaveAttribute("placeholder", "12********90");
     expect(screen.getByLabelText(/Chat ID/i)).toHaveValue("123456789");
     expect(screen.getByRole("button", { name: /Send Test Message/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Monitoring.*Windows/i }));
+    expect(screen.getByRole("heading", { name: /Start monitoring/i })).toBeInTheDocument();
+    expect(screen.getByText(/Monitoring is not running\. Start the loop to receive live alerts\./i)).toBeInTheDocument();
+    expect(screen.getByText(/Backfill & Recover runs one monitor pass/i)).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /Run Monitor Once/i }).length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: /Start Monitor Loop/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Stop Monitor Loop/i })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /Backfill & Recover/i }).length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole("button", { name: /cTrader.*Open API tokens/i }));
+    expect(screen.getByRole("heading", { name: /Set up cTrader Open API/i })).toBeInTheDocument();
 
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: /Refresh Token/i }));

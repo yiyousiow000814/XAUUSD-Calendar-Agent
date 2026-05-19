@@ -2515,6 +2515,72 @@ const main = async () => {
       await page.locator("[data-qa='qa:card:next-events']").first().waitFor({ state: "visible", timeout: 4000 });
     });
 
+    await runCheck(theme.key, "Market Agent setup checklist badges stay inside cards", async () => {
+      await page.locator("[data-qa='qa:action:view-market-agent']").first().click();
+      await page.locator("[data-qa='qa:page:market-agent']").first().waitFor({ state: "visible", timeout: 4000 });
+      await page.getByRole("button", { name: "Data Sources", exact: true }).click();
+      await page.locator("[data-qa='qa:market-agent:provider-config']").first().waitFor({ state: "visible", timeout: 4000 });
+
+      const failures = await page.evaluate(() => {
+        const cards = Array.from(document.querySelectorAll(".market-agent-setup-checklist > div"));
+        return cards.flatMap((card, index) => {
+          if (!(card instanceof HTMLElement)) return [`Checklist card ${index + 1} is not an HTMLElement`];
+          const cardRect = card.getBoundingClientRect();
+          const children = Array.from(card.children).filter((child) => child instanceof HTMLElement);
+          const label = children[0];
+          const badge = card.querySelector(".market-agent-status-badge");
+          const messages = [];
+          for (const [name, child] of [
+            ["label", label],
+            ["badge", badge]
+          ]) {
+            if (!(child instanceof HTMLElement)) {
+              messages.push(`Checklist card ${index + 1} missing ${name}`);
+              continue;
+            }
+            const rect = child.getBoundingClientRect();
+            const outside =
+              rect.left < cardRect.left - 1 ||
+              rect.right > cardRect.right + 1 ||
+              rect.top < cardRect.top - 1 ||
+              rect.bottom > cardRect.bottom + 1;
+            if (outside) {
+              messages.push(
+                `Checklist card ${index + 1} ${name} clips outside card: card=${JSON.stringify({
+                  left: cardRect.left,
+                  right: cardRect.right,
+                  top: cardRect.top,
+                  bottom: cardRect.bottom
+                })}, child=${JSON.stringify({
+                  left: rect.left,
+                  right: rect.right,
+                  top: rect.top,
+                  bottom: rect.bottom
+                })}`
+              );
+            }
+          }
+          if (label instanceof HTMLElement && badge instanceof HTMLElement) {
+            const labelRect = label.getBoundingClientRect();
+            const badgeRect = badge.getBoundingClientRect();
+            const overlap =
+              Math.max(labelRect.left, badgeRect.left) < Math.min(labelRect.right, badgeRect.right) - 1 &&
+              Math.max(labelRect.top, badgeRect.top) < Math.min(labelRect.bottom, badgeRect.bottom) - 1;
+            if (overlap) {
+              messages.push(`Checklist card ${index + 1} label overlaps status badge`);
+            }
+          }
+          return messages;
+        });
+      });
+
+      if (failures.length) {
+        throw new Error(failures.join("; "));
+      }
+      await page.locator("[data-qa='qa:action:view-calendar']").first().click();
+      await page.locator("[data-qa='qa:card:next-events']").first().waitFor({ state: "visible", timeout: 4000 });
+    });
+
     phase = `theme:${theme.key}:checks`;
     await runCheck(theme.key, "Activity pill label not truncated at idle", async () => {
       if (activityIdleReady) return;

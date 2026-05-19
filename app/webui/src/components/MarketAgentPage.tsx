@@ -489,6 +489,10 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
           onRefreshToken={props.onRefreshCTraderToken}
           onSaveTelegram={props.onSaveTelegramConfig}
           onTestTelegram={props.onTestTelegramMessage}
+          monitorStatus={props.monitorStatus}
+          onRunMonitorOnce={props.onRunMonitorOnce}
+          onStartMonitorLoop={props.onStartMonitorLoop}
+          onStopMonitorLoop={props.onStopMonitorLoop}
         />
       );
     }
