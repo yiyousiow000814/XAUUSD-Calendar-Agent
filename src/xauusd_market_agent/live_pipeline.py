@@ -6,6 +6,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from .backfill import BackfillManager
 from .config import MarketAgentConfig
 from .driver_attention import DriverAttentionManager
 from .evidence import build_evidence_gate_result
@@ -13,23 +14,49 @@ from .llm_client import LocalLLMClient
 from .models import CrossAssetSnapshot, Headline, MarketMove, ProviderHealth, ScenarioFixture
 from .notification_policy import decide_notification
 from .notifier import FileNotificationSink, TelegramNotificationSink
-from .provider_health import build_fixture_provider_health, build_provider_health, health_to_dict
 from .pipeline import analyze_fixture_with_optional_llm
-from .providers.calendar_events import load_calendar_events_in_window
-from .providers.market_prices import load_recent_market_snapshot
-from .providers.news_events import filter_news_in_window, load_rss_headlines
-from .providers.related_assets import (
-    load_related_assets_snapshot,
-    load_related_assets_timeseries_snapshot,
-)
+from .provider_health import health_to_dict
+from .providers.provider_router import ProviderRouter
 from .state_store import JsonStateStore
 from .timeline_store import TimelineStore
 
 
-def _unavailable_market_fixture(anchor_time: datetime) -> ScenarioFixture:
+def _parse_ts(raw: str) -> datetime:
+    return datetime.fromisoformat(raw)
+
+
+def _headline_time(raw: str) -> str:
+    return _parse_ts(raw).astimezone().strftime("%d-%m-%Y %H:%M")
+
+
+def _headline_from_news(row: dict[str, Any]) -> Headline:
+    tags = tuple(row.get("categories", [])) + tuple(row.get("matched_keywords", []))
+    return Headline(
+        timestamp_myt=_headline_time(row["published_at"]),
+        source=str(row["source"]),
+        title=str(row["title"]),
+        relevance_reason=str(row.get("relevance_reason", "")),
+        impact_direction_on_gold=str(row.get("impact_direction_on_gold", "unknown")),
+        tags=tuple(dict.fromkeys(tags)),
+    )
+
+
+def _headline_from_calendar(row: dict[str, Any]) -> Headline:
+    tags = ("calendar", str(row.get("impact", "")).lower())
+    return Headline(
+        timestamp_myt=_headline_time(row["scheduled_at"]),
+        source=str(row["source"]),
+        title=str(row["title"]),
+        relevance_reason=str(row.get("relevance_reason", "")),
+        impact_direction_on_gold=str(row.get("impact_direction_on_gold", "unknown")),
+        tags=tuple(dict.fromkeys(tags)),
+    )
+
+
+def _empty_fixture(anchor_time: datetime) -> ScenarioFixture:
     return ScenarioFixture(
         scenario_id="live_market_unavailable",
-        as_of_myt=anchor_time.strftime("%d-%m-%Y %H:%M"),
+        as_of_myt=anchor_time.astimezone().strftime("%d-%m-%Y %H:%M"),
         market=MarketMove(
             symbol="XAUUSD",
             from_price=0.0,
@@ -56,281 +83,138 @@ def _unavailable_market_fixture(anchor_time: datetime) -> ScenarioFixture:
     )
 
 
-def _load_related_assets(
-    path: Path | None,
-    assets_dir: Path | None,
-    anchor_time: datetime,
-    window_minutes: int,
-) -> tuple[dict[str, float], dict[str, ProviderHealth], list[dict[str, Any]]]:
-    snapshot = (
-        load_related_assets_timeseries_snapshot(assets_dir, anchor_time, window_minutes)
-        if assets_dir is not None and assets_dir.exists()
-        else load_related_assets_snapshot(path)
-    )
-    values = {
-        "dxy_percent": snapshot.dxy_percent,
-        "us10y_bps": snapshot.us10y_bps,
-        "us2y_bps": snapshot.us2y_bps,
-        "wti_percent": snapshot.wti_percent,
-        "brent_percent": snapshot.brent_percent,
-        "vix_percent": snapshot.vix_percent,
-        "spx_percent": snapshot.spx_percent,
-        "nasdaq_percent": snapshot.nasdaq_percent,
-    }
-    source_type = "local_csv_fallback" if assets_dir is not None and assets_dir.exists() else "json_cache"
-    provider_health = {
-        "dxy": build_provider_health(
-            source="DXY",
-            source_type=source_type,
-            data_mode="live_seen" if (assets_dir is not None and assets_dir.exists()) or (path is not None and path.exists()) else "unavailable",
-            is_available=((assets_dir is not None and assets_dir.exists()) or (path is not None and path.exists())),
-            current_value=snapshot.dxy_percent,
-            change_value=snapshot.dxy_percent,
-            change_unit="percent",
-        ),
-        "us10y": build_provider_health(
-            source="US10Y",
-            source_type=source_type,
-            data_mode="live_seen" if ((assets_dir is not None and assets_dir.exists()) or (path is not None and path.exists())) else "unavailable",
-            is_available=((assets_dir is not None and assets_dir.exists()) or (path is not None and path.exists())),
-            current_value=snapshot.us10y_bps,
-            change_value=snapshot.us10y_bps,
-            change_unit="bps",
-        ),
-        "us2y": build_provider_health(
-            source="US2Y",
-            source_type=source_type,
-            data_mode="live_seen" if ((assets_dir is not None and assets_dir.exists()) or (path is not None and path.exists())) else "unavailable",
-            is_available=((assets_dir is not None and assets_dir.exists()) or (path is not None and path.exists())),
-            current_value=snapshot.us2y_bps,
-            change_value=snapshot.us2y_bps,
-            change_unit="bps",
-        ),
-        "wti": build_provider_health(
-            source="WTI",
-            source_type=source_type,
-            data_mode="live_seen" if ((assets_dir is not None and assets_dir.exists()) or (path is not None and path.exists())) else "unavailable",
-            is_available=((assets_dir is not None and assets_dir.exists()) or (path is not None and path.exists())),
-            current_value=snapshot.wti_percent,
-            change_value=snapshot.wti_percent,
-            change_unit="percent",
-        ),
-        "brent": build_provider_health(
-            source="Brent",
-            source_type=source_type,
-            data_mode="live_seen" if ((assets_dir is not None and assets_dir.exists()) or (path is not None and path.exists())) else "unavailable",
-            is_available=((assets_dir is not None and assets_dir.exists()) or (path is not None and path.exists())),
-            current_value=snapshot.brent_percent,
-            change_value=snapshot.brent_percent,
-            change_unit="percent",
-        ),
-        "vix": build_provider_health(
-            source="VIX",
-            source_type=source_type,
-            data_mode="live_seen" if ((assets_dir is not None and assets_dir.exists()) or (path is not None and path.exists())) else "unavailable",
-            is_available=((assets_dir is not None and assets_dir.exists()) or (path is not None and path.exists())),
-            current_value=snapshot.vix_percent,
-            change_value=snapshot.vix_percent,
-            change_unit="percent",
-        ),
-        "spx": build_provider_health(
-            source="SPX",
-            source_type=source_type,
-            data_mode="live_seen" if ((assets_dir is not None and assets_dir.exists()) or (path is not None and path.exists())) else "unavailable",
-            is_available=((assets_dir is not None and assets_dir.exists()) or (path is not None and path.exists())),
-            current_value=snapshot.spx_percent,
-            change_value=snapshot.spx_percent,
-            change_unit="percent",
-        ),
-        "nasdaq": build_provider_health(
-            source="Nasdaq",
-            source_type=source_type,
-            data_mode="live_seen" if ((assets_dir is not None and assets_dir.exists()) or (path is not None and path.exists())) else "unavailable",
-            is_available=((assets_dir is not None and assets_dir.exists()) or (path is not None and path.exists())),
-            current_value=snapshot.nasdaq_percent,
-            change_value=snapshot.nasdaq_percent,
-            change_unit="percent",
-        ),
-    }
-    related_rows = [
-        {
-            "symbol": symbol.upper(),
-            "data_timestamp": anchor_time.isoformat(),
-            "change_value": value.change_value or 0.0,
-            "change_unit": value.change_unit,
-            "data_mode": value.data_mode,
-            "source_type": value.source_type,
-        }
-        for symbol, value in provider_health.items()
-    ]
-    return values, provider_health, related_rows
+def _cross_asset_from_rows(related_rows: list[dict[str, Any]]) -> CrossAssetSnapshot:
+    latest: dict[str, dict[str, Any]] = {}
+    for row in sorted(related_rows, key=lambda item: item["data_timestamp"]):
+        latest[str(row["symbol"]).lower()] = row
 
+    def value(symbol: str) -> float:
+        row = latest.get(symbol, {})
+        return float(
+            row.get("change_15m")
+            or row.get("change_value")
+            or 0.0
+        )
 
-def _merge_cross_asset(base: CrossAssetSnapshot, overrides: dict[str, float]) -> CrossAssetSnapshot:
     return CrossAssetSnapshot(
-        dxy_percent=overrides.get("dxy_percent", base.dxy_percent),
-        us10y_bps=overrides.get("us10y_bps", base.us10y_bps),
-        us2y_bps=overrides.get("us2y_bps", base.us2y_bps),
-        wti_percent=overrides.get("wti_percent", base.wti_percent),
-        brent_percent=overrides.get("brent_percent", base.brent_percent),
-        vix_percent=overrides.get("vix_percent", base.vix_percent),
-        spx_percent=overrides.get("spx_percent", base.spx_percent),
-        nasdaq_percent=overrides.get("nasdaq_percent", base.nasdaq_percent),
+        dxy_percent=value("dxy"),
+        us10y_bps=value("us10y"),
+        us2y_bps=value("us2y"),
+        wti_percent=value("wti"),
+        brent_percent=value("brent"),
+        vix_percent=value("vix"),
+        spx_percent=value("spx"),
+        nasdaq_percent=value("nasdaq"),
     )
 
 
-def _load_market_context(
-    config: MarketAgentConfig,
+def _market_move_from_rows(anchor_time: datetime, rows: list[dict[str, Any]]) -> MarketMove:
+    if not rows:
+        return _empty_fixture(anchor_time).market
+    ordered = sorted(rows, key=lambda item: item["data_timestamp"])
+    first = ordered[0]
+    last = ordered[-1]
+    from_price = float(first.get("open_price") or first["close_price"])
+    to_price = float(last["close_price"])
+    move_percent = 0.0 if from_price == 0 else ((to_price - from_price) / from_price) * 100.0
+    return MarketMove(
+        symbol=str(last.get("symbol", "XAUUSD")),
+        from_price=from_price,
+        to_price=to_price,
+        move_percent=move_percent,
+        move_percent_15m=move_percent,
+        move_percent_1h=move_percent,
+        window_minutes=max(15, len(ordered) * 5),
+        breaks=(),
+    )
+
+
+def _build_fixture_from_context(
+    *,
     anchor_time: datetime,
-) -> tuple[ScenarioFixture, ProviderHealth, list[dict[str, Any]]]:
-    try:
-        fixture = load_recent_market_snapshot(config.price_data_path, anchor_time)
-        price_bar = {
-            "symbol": fixture.market.symbol,
-            "data_timestamp": anchor_time.isoformat(),
-            "open_price": fixture.market.from_price,
-            "high_price": fixture.market.to_price,
-            "low_price": fixture.market.to_price,
-            "close_price": fixture.market.to_price,
-            "move_percent": fixture.market.move_percent,
-            "data_mode": "live_seen",
-            "source_type": "local_csv_fallback",
-        }
-        health = build_provider_health(
-            source="XAUUSD",
-            source_type="local_csv_fallback",
-            data_mode="live_seen",
-            is_available=True,
-            current_value=fixture.market.to_price,
-            previous_value=fixture.market.from_price,
-            change_value=fixture.market.move_percent,
-            change_unit="percent",
-            data_timestamp=anchor_time.isoformat(),
-        )
-        return fixture, health, [price_bar]
-    except Exception as exc:
-        fixture = _unavailable_market_fixture(anchor_time)
-        health = build_provider_health(
-            source="XAUUSD",
-            source_type="provider_interface",
-            data_mode="unavailable",
-            is_available=False,
-            error=str(exc),
-            stale_reason="No live provider configured and CSV fallback unavailable.",
-            data_timestamp=anchor_time.isoformat(),
-        )
-        return fixture, health, []
-
-
-def _headlines_to_rows(
-    items: tuple[Headline, ...],
-    *,
-    first_seen_at: str,
-    data_mode: str,
-) -> list[dict[str, Any]]:
-    return [
-        {
-            "published_at": f"{item.timestamp_myt}:00+08:00".replace(" ", "T"),
-            "first_seen_at": first_seen_at,
-            "backfilled_at": first_seen_at if data_mode == "backfilled" else None,
-            "is_backfilled": data_mode == "backfilled",
-            "source": item.source,
-            "title": item.title,
-            "link": "",
-            "relevance_reason": item.relevance_reason,
-            "impact_direction_on_gold": item.impact_direction_on_gold,
-            "data_mode": data_mode,
-        }
-        for item in items
-    ]
-
-
-def _calendar_to_rows(
-    items: tuple[Headline, ...],
-    *,
-    data_mode: str,
-) -> list[dict[str, Any]]:
-    return [
-        {
-            "scheduled_at": f"{item.timestamp_myt}:00+08:00".replace(" ", "T"),
-            "source": item.source,
-            "title": item.title,
-            "relevance_reason": item.relevance_reason,
-            "impact_direction_on_gold": item.impact_direction_on_gold,
-            "data_mode": data_mode,
-        }
-        for item in items
-    ]
+    market_price_bars: list[dict[str, Any]],
+    related_asset_bars: list[dict[str, Any]],
+    news_rows: list[dict[str, Any]],
+    calendar_rows: list[dict[str, Any]],
+    scenario_id: str,
+) -> ScenarioFixture:
+    market = _market_move_from_rows(anchor_time, market_price_bars)
+    return ScenarioFixture(
+        scenario_id=scenario_id,
+        as_of_myt=anchor_time.astimezone().strftime("%d-%m-%Y %H:%M"),
+        market=market,
+        cross_asset=_cross_asset_from_rows(related_asset_bars),
+        calendar_events=tuple(_headline_from_calendar(item) for item in calendar_rows),
+        news=tuple(_headline_from_news(item) for item in news_rows),
+        expected_llm_claim=None,
+    )
 
 
 def _build_runtime_context(
     config: MarketAgentConfig,
     anchor_time: datetime,
-    news_headlines: list[dict[str, Any]] | None = None,
     *,
-    data_mode: str = "live_seen",
+    provider_router: ProviderRouter | None = None,
+    news_headlines: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    base_fixture, xau_health, market_rows = _load_market_context(config, anchor_time)
-    related_assets, related_health, related_rows = _load_related_assets(
-        config.related_assets_path,
-        config.related_assets_dir,
-        anchor_time,
-        config.move_window_minutes,
-    )
-    calendar_events = load_calendar_events_in_window(
-        calendar_dir=config.calendar_dir,
+    router = provider_router or ProviderRouter.from_config(config)
+    market_rows, market_health = router.fetch_market_context(anchor_time)
+    related_rows, related_health = router.fetch_related_assets_context(anchor_time)
+    news_rows, news_health = router.fetch_news_context(anchor_time)
+    calendar_rows, calendar_health = router.fetch_calendar_context(anchor_time)
+    if news_headlines:
+        injected = []
+        for item in news_headlines:
+            published_at = str(item.get("published_at", anchor_time.isoformat()))
+            injected.append(
+                {
+                    "published_at": published_at,
+                    "first_seen_at": anchor_time.isoformat(),
+                    "backfilled_at": None,
+                    "is_backfilled": False,
+                    "source": str(item.get("source", "Injected")),
+                    "title": str(item.get("title", "")),
+                    "link": str(item.get("link", "")),
+                    "relevance_reason": str(item.get("relevance_reason", "Injected headline.")),
+                    "impact_direction_on_gold": str(item.get("impact_direction_on_gold", "unknown")),
+                    "data_mode": "live_seen",
+                    "score": float(item.get("score", 0.6)),
+                    "matched_keywords": item.get("matched_keywords", []),
+                    "categories": item.get("categories", ["injected"]),
+                }
+            )
+        news_rows.extend(injected)
+        news_rows.sort(key=lambda item: item["published_at"])
+        if injected:
+            news_health = ProviderHealth(
+                **{
+                    **asdict(news_health),
+                    "data_mode": news_health.data_mode if news_health.is_available else "live_seen",
+                    "is_available": True,
+                    "current_value": float(len(news_rows)),
+                    "data_timestamp": news_rows[-1]["published_at"],
+                }
+            )
+    fixture = _build_fixture_from_context(
         anchor_time=anchor_time,
-        lookback_minutes=config.calendar_lookback_minutes,
-        forward_minutes=config.post_move_news_minutes,
-    )
-    raw_headlines = news_headlines if news_headlines is not None else load_rss_headlines(config.rss_feeds)
-    news = filter_news_in_window(
-        headlines=raw_headlines,
-        move_start=anchor_time,
-        move_end=anchor_time,
-        lookback_minutes=config.news_lookback_minutes,
-        forward_minutes=config.post_move_news_minutes,
-    )
-    fixture = ScenarioFixture(
+        market_price_bars=market_rows,
+        related_asset_bars=related_rows,
+        news_rows=news_rows,
+        calendar_rows=calendar_rows,
         scenario_id="live_once",
-        as_of_myt=anchor_time.strftime("%d-%m-%Y %H:%M"),
-        market=base_fixture.market,
-        cross_asset=_merge_cross_asset(base_fixture.cross_asset, related_assets),
-        calendar_events=tuple(calendar_events),
-        news=tuple(news),
-        expected_llm_claim=None,
     )
-    provider_health = {
-        "xauusd": xau_health,
-        **related_health,
-        "news": build_provider_health(
-            source="News",
-            source_type="rss_provider_interface" if config.rss_feeds else "provider_interface",
-            data_mode=data_mode if news else "unavailable",
-            is_available=bool(news),
-            current_value=float(len(news)),
-            data_timestamp=anchor_time.isoformat(),
-        ),
-        "calendar": build_provider_health(
-            source="Economic Calendar",
-            source_type="calendar_provider_interface",
-            data_mode=data_mode if calendar_events else "unavailable",
-            is_available=bool(calendar_events),
-            current_value=float(len(calendar_events)),
-            data_timestamp=anchor_time.isoformat(),
-        ),
-    }
     return {
         "fixture": fixture,
-        "provider_health": provider_health,
-        "market_price_bars": [
-            {**row, "data_mode": data_mode} for row in market_rows
-        ],
-        "related_asset_bars": [
-            {**row, "data_mode": data_mode} for row in related_rows
-        ],
-        "news_rows": _headlines_to_rows(tuple(news), first_seen_at=anchor_time.isoformat(), data_mode=data_mode),
-        "calendar_rows": _calendar_to_rows(tuple(calendar_events), data_mode=data_mode),
+        "provider_health": {
+            "xauusd": market_health,
+            **related_health,
+            "news": news_health,
+            "calendar": calendar_health,
+        },
+        "market_price_bars": market_rows,
+        "related_asset_bars": related_rows,
+        "news_rows": news_rows,
+        "calendar_rows": calendar_rows,
     }
 
 
@@ -339,44 +223,73 @@ def _run_recovery_backfill(
     *,
     previous_run_at: str,
     anchor_time: datetime,
+    provider_router: ProviderRouter | None = None,
     news_headlines: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    context = _build_runtime_context(
-        config,
+    router = provider_router or ProviderRouter.from_config(config)
+    recovery = BackfillManager(router).recover_gap(datetime.fromisoformat(previous_run_at), anchor_time)
+    if news_headlines:
+        for item in news_headlines:
+            recovery.news_rows.append(
+                {
+                    "published_at": str(item.get("published_at", anchor_time.isoformat())),
+                    "first_seen_at": anchor_time.isoformat(),
+                    "backfilled_at": anchor_time.isoformat(),
+                    "is_backfilled": True,
+                    "source": str(item.get("source", "Injected")),
+                    "title": str(item.get("title", "")),
+                    "link": str(item.get("link", "")),
+                    "relevance_reason": str(item.get("relevance_reason", "Injected recovery headline.")),
+                    "impact_direction_on_gold": str(item.get("impact_direction_on_gold", "unknown")),
+                    "data_mode": "backfilled",
+                    "score": float(item.get("score", 0.6)),
+                    "matched_keywords": item.get("matched_keywords", []),
+                    "categories": item.get("categories", ["injected"]),
+                }
+            )
+        recovery.news_rows.sort(key=lambda item: item["published_at"])
+    fixture = _build_fixture_from_context(
         anchor_time=anchor_time,
-        news_headlines=news_headlines,
-        data_mode="backfilled",
+        market_price_bars=recovery.market_price_bars,
+        related_asset_bars=recovery.related_asset_bars,
+        news_rows=recovery.news_rows,
+        calendar_rows=recovery.calendar_rows,
+        scenario_id="recovery",
     )
-    context["recovery_summary"] = (
-        f"Recovered market context from {previous_run_at} to {anchor_time.isoformat()} using current provider interfaces."
-    )
-    return context
+    return {
+        "fixture": fixture,
+        "provider_health": recovery.provider_health,
+        "market_price_bars": recovery.market_price_bars,
+        "related_asset_bars": recovery.related_asset_bars,
+        "news_rows": recovery.news_rows,
+        "calendar_rows": recovery.calendar_rows,
+        "recovery_summary": recovery.recovery_summary,
+        "recovery_timeline_events": recovery.recovery_timeline_events,
+    }
 
 
 def build_live_fixture(
     config: MarketAgentConfig,
     anchor_time: datetime,
     news_headlines: list[dict[str, Any]] | None = None,
+    provider_router: ProviderRouter | None = None,
 ) -> ScenarioFixture:
-    return _build_runtime_context(config, anchor_time=anchor_time, news_headlines=news_headlines)["fixture"]
+    return _build_runtime_context(
+        config,
+        anchor_time=anchor_time,
+        provider_router=provider_router,
+        news_headlines=news_headlines,
+    )["fixture"]
 
 
-def build_live_evidence_packet(
-    config: MarketAgentConfig,
-    anchor_time: datetime,
-    news_headlines: list[dict[str, Any]] | None = None,
-    previous_state=None,
-    data_mode: str = "live_seen",
+def _build_packet(
+    fixture: ScenarioFixture,
+    *,
+    provider_health: dict[str, ProviderHealth],
+    attention_snapshot: Any,
+    previous_state: Any,
+    data_mode: str,
 ) -> dict[str, Any]:
-    context = _build_runtime_context(config, anchor_time=anchor_time, news_headlines=news_headlines, data_mode=data_mode)
-    fixture = context["fixture"]
-    provider_health = context["provider_health"]
-    attention_snapshot = DriverAttentionManager().evaluate(
-        fixture=fixture,
-        provider_health=provider_health,
-        evidence_status=build_evidence_gate_result(fixture, provider_health=provider_health).evidence_status,
-        data_mode=data_mode,
-    )
     evidence = build_evidence_gate_result(
         fixture,
         provider_health=provider_health,
@@ -398,19 +311,11 @@ def build_live_evidence_packet(
         "driver_attention_summary": attention_snapshot.driver_attention_summary,
         "previous_state": asdict(previous_state) if previous_state is not None and hasattr(previous_state, "__dataclass_fields__") else previous_state,
         "calendar_events": [
-            {
-                "timestamp_myt": item.timestamp_myt,
-                "title": item.title,
-                "source": item.source,
-            }
+            {"timestamp_myt": item.timestamp_myt, "title": item.title, "source": item.source}
             for item in fixture.calendar_events
         ],
         "news": [
-            {
-                "timestamp_myt": item.timestamp_myt,
-                "title": item.title,
-                "source": item.source,
-            }
+            {"timestamp_myt": item.timestamp_myt, "title": item.title, "source": item.source}
             for item in fixture.news
         ],
         "allowed_candidate_drivers": evidence.allowed_candidate_drivers,
@@ -420,6 +325,38 @@ def build_live_evidence_packet(
     }
 
 
+def build_live_evidence_packet(
+    config: MarketAgentConfig,
+    anchor_time: datetime,
+    news_headlines: list[dict[str, Any]] | None = None,
+    previous_state=None,
+    data_mode: str = "live_seen",
+    provider_router: ProviderRouter | None = None,
+) -> dict[str, Any]:
+    context = _build_runtime_context(
+        config,
+        anchor_time=anchor_time,
+        provider_router=provider_router,
+        news_headlines=news_headlines,
+    )
+    fixture = context["fixture"]
+    provider_health = context["provider_health"]
+    evidence = build_evidence_gate_result(fixture, provider_health=provider_health)
+    attention_snapshot = DriverAttentionManager().evaluate(
+        fixture=fixture,
+        provider_health=provider_health,
+        evidence_status=evidence.evidence_status,
+        data_mode=data_mode,
+    )
+    return _build_packet(
+        fixture,
+        provider_health=provider_health,
+        attention_snapshot=attention_snapshot,
+        previous_state=previous_state,
+        data_mode=data_mode,
+    )
+
+
 def run_live_once(
     config: MarketAgentConfig,
     anchor_time: datetime | None = None,
@@ -427,15 +364,22 @@ def run_live_once(
     llm_client=None,
     previous_state=None,
     data_mode: str = "live_seen",
+    provider_router: ProviderRouter | None = None,
 ) -> tuple[ScenarioFixture, Any]:
     anchor = anchor_time or datetime.now().astimezone()
-    context = _build_runtime_context(config, anchor_time=anchor, news_headlines=news_headlines, data_mode=data_mode)
+    context = _build_runtime_context(
+        config,
+        anchor_time=anchor,
+        provider_router=provider_router,
+        news_headlines=news_headlines,
+    )
     fixture = context["fixture"]
     provider_health = context["provider_health"]
+    evidence = build_evidence_gate_result(fixture, provider_health=provider_health)
     attention_snapshot = DriverAttentionManager().evaluate(
         fixture=fixture,
         provider_health=provider_health,
-        evidence_status=build_evidence_gate_result(fixture, provider_health=provider_health).evidence_status,
+        evidence_status=evidence.evidence_status,
         data_mode=data_mode,
     )
     result = analyze_fixture_with_optional_llm(
@@ -472,6 +416,7 @@ def run_monitored_live_once(
     news_headlines: list[dict[str, Any]] | None = None,
     timeline_store_path: Path | None = None,
     llm_client=None,
+    provider_router: ProviderRouter | None = None,
 ) -> dict[str, Any]:
     anchor = anchor_time or datetime.now().astimezone()
     state_store = JsonStateStore(state_path or config.state_store_path)
@@ -491,17 +436,24 @@ def run_monitored_live_once(
             config,
             previous_run_at=last_successful_run_at or anchor.isoformat(),
             anchor_time=anchor,
+            provider_router=provider_router,
             news_headlines=news_headlines,
         )
         if backfill_required
-        else _build_runtime_context(config, anchor_time=anchor, news_headlines=news_headlines, data_mode=data_mode)
+        else _build_runtime_context(
+            config,
+            anchor_time=anchor,
+            provider_router=provider_router,
+            news_headlines=news_headlines,
+        )
     )
     fixture = runtime_context["fixture"]
     provider_health = runtime_context["provider_health"]
+    evidence = build_evidence_gate_result(fixture, provider_health=provider_health)
     attention_snapshot = DriverAttentionManager().evaluate(
         fixture=fixture,
         provider_health=provider_health,
-        evidence_status=build_evidence_gate_result(fixture, provider_health=provider_health).evidence_status,
+        evidence_status=evidence.evidence_status,
         previous_states=previous_attention_states,
         data_mode=data_mode,
     )
@@ -541,58 +493,13 @@ def run_monitored_live_once(
                 timeout_seconds=config.telegram_timeout_seconds,
             ).emit({"message": message})
     state_store.save(decision.next_state)
-    packet = {
-        "as_of_myt": fixture.as_of_myt,
-        "data_mode": data_mode,
-        "market_move": {
-            "symbol": fixture.market.symbol,
-            "from_price": fixture.market.from_price,
-            "to_price": fixture.market.to_price,
-            "move_percent": fixture.market.move_percent,
-            "window_minutes": fixture.market.window_minutes,
-        },
-        "provider_health": health_to_dict(provider_health),
-        "active_driver_states": attention_snapshot.active_driver_states,
-        "dormant_driver_states": attention_snapshot.dormant_driver_states,
-        "driver_attention_summary": attention_snapshot.driver_attention_summary,
-        "previous_state": asdict(previous_state),
-        "calendar_events": [
-            {
-                "timestamp_myt": item.timestamp_myt,
-                "title": item.title,
-                "source": item.source,
-            }
-            for item in fixture.calendar_events
-        ],
-        "news": [
-            {
-                "timestamp_myt": item.timestamp_myt,
-                "title": item.title,
-                "source": item.source,
-            }
-            for item in fixture.news
-        ],
-        "allowed_candidate_drivers": build_evidence_gate_result(
-            fixture,
-            provider_health=provider_health,
-            attention_snapshot=attention_snapshot,
-        ).allowed_candidate_drivers,
-        "blocked_drivers": build_evidence_gate_result(
-            fixture,
-            provider_health=provider_health,
-            attention_snapshot=attention_snapshot,
-        ).blocked_drivers,
-        "cross_asset_confirmation": build_evidence_gate_result(
-            fixture,
-            provider_health=provider_health,
-            attention_snapshot=attention_snapshot,
-        ).cross_asset_confirmation,
-        "evidence_status": build_evidence_gate_result(
-            fixture,
-            provider_health=provider_health,
-            attention_snapshot=attention_snapshot,
-        ).evidence_status,
-    }
+    packet = _build_packet(
+        fixture,
+        provider_health=provider_health,
+        attention_snapshot=attention_snapshot,
+        previous_state=previous_state,
+        data_mode=data_mode,
+    )
     monitor_run_id = timeline_store.record_monitor_run(
         run_started_at=anchor.isoformat(),
         run_type=run_type,
@@ -607,7 +514,10 @@ def run_monitored_live_once(
     timeline_store.record_related_asset_bars(monitor_run_id, runtime_context["related_asset_bars"])
     timeline_store.record_news_items(monitor_run_id, runtime_context["news_rows"])
     timeline_store.record_calendar_events(monitor_run_id, runtime_context["calendar_rows"])
-    timeline_store.record_driver_attention_states(monitor_run_id, {key: asdict(value) for key, value in attention_snapshot.states.items()})
+    timeline_store.record_driver_attention_states(
+        monitor_run_id,
+        {key: asdict(value) for key, value in attention_snapshot.states.items()},
+    )
     timeline_store.record_evidence_packet(monitor_run_id, packet)
     timeline_store.record_analysis_result(
         monitor_run_id,
@@ -615,21 +525,27 @@ def run_monitored_live_once(
         rejected_driver=getattr(analysis, "rejected_driver", None),
         rejection_reason=getattr(analysis, "rejection_reason", None),
     )
-    timeline_store.record_alert(monitor_run_id, {
-        "should_notify": decision.should_notify,
-        "notification_level": decision.notification_level,
-        "reason": decision.reason,
-    })
-    timeline_store.record_state_transition(monitor_run_id, {
-        "is_new_state": decision.is_new_state,
-        "is_continuation": decision.is_continuation,
-        "previous_state_invalidated": decision.previous_state_invalidated,
-        "state_change_reason": decision.state_change_reason,
-        "confidence_changed": decision.confidence_changed,
-        "confidence_delta": decision.confidence_delta,
-        "invalidation_triggered_by": decision.invalidation_triggered_by,
-        "next_state": asdict(decision.next_state),
-    })
+    timeline_store.record_alert(
+        monitor_run_id,
+        {
+            "should_notify": decision.should_notify,
+            "notification_level": decision.notification_level,
+            "reason": decision.reason,
+        },
+    )
+    timeline_store.record_state_transition(
+        monitor_run_id,
+        {
+            "is_new_state": decision.is_new_state,
+            "is_continuation": decision.is_continuation,
+            "previous_state_invalidated": decision.previous_state_invalidated,
+            "state_change_reason": decision.state_change_reason,
+            "confidence_changed": decision.confidence_changed,
+            "confidence_delta": decision.confidence_delta,
+            "invalidation_triggered_by": decision.invalidation_triggered_by,
+            "next_state": asdict(decision.next_state),
+        },
+    )
     timeline_store.record_timeline_event(
         monitor_run_id,
         event_time=anchor.isoformat(),
@@ -642,6 +558,14 @@ def run_monitored_live_once(
         },
     )
     if backfill_required:
+        for item in runtime_context.get("recovery_timeline_events", []):
+            timeline_store.record_timeline_event(
+                monitor_run_id,
+                event_time=item["event_time"],
+                event_type=item["event_type"],
+                label=item["label"],
+                payload=item["payload"],
+            )
         timeline_store.record_timeline_event(
             monitor_run_id,
             event_time=anchor.isoformat(),
@@ -683,6 +607,7 @@ def run_monitor_loop(
     alerts_path: Path | None = None,
     cooldown_minutes: int | None = None,
     timeline_store_path: Path | None = None,
+    provider_router: ProviderRouter | None = None,
 ) -> list[dict[str, Any]]:
     outcomes: list[dict[str, Any]] = []
     iteration = 0
@@ -700,6 +625,7 @@ def run_monitor_loop(
                 alerts_path=alerts_path,
                 cooldown_minutes=cooldown_minutes,
                 timeline_store_path=timeline_store_path,
+                provider_router=provider_router,
             )
         )
         iteration += 1

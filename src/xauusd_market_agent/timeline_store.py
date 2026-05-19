@@ -51,9 +51,14 @@ class TimelineStore:
                     high_price REAL,
                     low_price REAL,
                     close_price REAL NOT NULL,
+                    bid_price REAL,
+                    ask_price REAL,
                     move_percent REAL,
-                    data_mode TEXT NOT NULL,
+                    source TEXT,
                     source_type TEXT NOT NULL,
+                    data_mode TEXT NOT NULL,
+                    is_stale INTEGER NOT NULL DEFAULT 0,
+                    stale_reason TEXT NOT NULL DEFAULT '',
                     payload_json TEXT NOT NULL,
                     FOREIGN KEY(monitor_run_id) REFERENCES monitor_runs(id)
                 );
@@ -62,10 +67,17 @@ class TimelineStore:
                     monitor_run_id INTEGER NOT NULL,
                     symbol TEXT NOT NULL,
                     data_timestamp TEXT NOT NULL,
-                    change_value REAL NOT NULL,
+                    value REAL,
+                    change_15m REAL,
+                    change_30m REAL,
+                    change_60m REAL,
+                    change_value REAL,
                     change_unit TEXT NOT NULL,
-                    data_mode TEXT NOT NULL,
+                    source TEXT,
                     source_type TEXT NOT NULL,
+                    data_mode TEXT NOT NULL,
+                    is_stale INTEGER NOT NULL DEFAULT 0,
+                    stale_reason TEXT NOT NULL DEFAULT '',
                     payload_json TEXT NOT NULL,
                     FOREIGN KEY(monitor_run_id) REFERENCES monitor_runs(id)
                 );
@@ -154,8 +166,22 @@ class TimelineStore:
                     payload_json TEXT NOT NULL,
                     FOREIGN KEY(monitor_run_id) REFERENCES monitor_runs(id)
                 );
+                CREATE INDEX IF NOT EXISTS idx_monitor_runs_started_at ON monitor_runs(run_started_at);
+                CREATE INDEX IF NOT EXISTS idx_market_price_symbol_time ON market_price_bars(symbol, data_timestamp);
+                CREATE INDEX IF NOT EXISTS idx_market_price_run ON market_price_bars(monitor_run_id);
+                CREATE INDEX IF NOT EXISTS idx_related_asset_symbol_time ON related_asset_bars(symbol, data_timestamp);
+                CREATE INDEX IF NOT EXISTS idx_related_asset_run ON related_asset_bars(monitor_run_id);
+                CREATE INDEX IF NOT EXISTS idx_news_published_at ON news_items(published_at);
+                CREATE INDEX IF NOT EXISTS idx_news_run ON news_items(monitor_run_id);
+                CREATE INDEX IF NOT EXISTS idx_calendar_scheduled_at ON calendar_events(scheduled_at);
+                CREATE INDEX IF NOT EXISTS idx_calendar_run ON calendar_events(monitor_run_id);
+                CREATE INDEX IF NOT EXISTS idx_driver_attention_run ON driver_attention_states(monitor_run_id);
+                CREATE INDEX IF NOT EXISTS idx_timeline_event_time ON timeline_events(event_time);
                 """
             )
+
+    def _rows_to_payloads(self, rows: list[sqlite3.Row]) -> list[dict[str, Any]]:
+        return [json.loads(str(row["payload_json"])) for row in rows]
 
     def get_last_successful_run_at(self) -> str | None:
         with self._connect() as connection:
@@ -239,6 +265,8 @@ class TimelineStore:
             return int(cursor.lastrowid)
 
     def record_provider_health(self, monitor_run_id: int, provider_health: dict[str, Any]) -> None:
+        if not provider_health:
+            return
         with self._connect() as connection:
             connection.executemany(
                 "INSERT INTO provider_health (monitor_run_id, provider_key, payload_json) VALUES (?, ?, ?)",
@@ -257,8 +285,9 @@ class TimelineStore:
                 """
                 INSERT INTO market_price_bars (
                     monitor_run_id, symbol, data_timestamp, open_price, high_price,
-                    low_price, close_price, move_percent, data_mode, source_type, payload_json
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    low_price, close_price, bid_price, ask_price, move_percent, source,
+                    source_type, data_mode, is_stale, stale_reason, payload_json
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 [
                     (
@@ -269,9 +298,14 @@ class TimelineStore:
                         bar.get("high_price"),
                         bar.get("low_price"),
                         bar["close_price"],
+                        bar.get("bid_price"),
+                        bar.get("ask_price"),
                         bar.get("move_percent"),
-                        bar["data_mode"],
+                        bar.get("source"),
                         bar["source_type"],
+                        bar["data_mode"],
+                        int(bool(bar.get("is_stale", False))),
+                        bar.get("stale_reason", ""),
                         json.dumps(bar, ensure_ascii=False),
                     )
                     for bar in bars
@@ -286,18 +320,27 @@ class TimelineStore:
             connection.executemany(
                 """
                 INSERT INTO related_asset_bars (
-                    monitor_run_id, symbol, data_timestamp, change_value, change_unit, data_mode, source_type, payload_json
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    monitor_run_id, symbol, data_timestamp, value, change_15m, change_30m,
+                    change_60m, change_value, change_unit, source, source_type, data_mode,
+                    is_stale, stale_reason, payload_json
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 [
                     (
                         monitor_run_id,
                         bar["symbol"],
                         bar["data_timestamp"],
-                        bar["change_value"],
+                        bar.get("value"),
+                        bar.get("change_15m"),
+                        bar.get("change_30m"),
+                        bar.get("change_60m"),
+                        bar.get("change_value"),
                         bar["change_unit"],
-                        bar["data_mode"],
+                        bar.get("source"),
                         bar["source_type"],
+                        bar["data_mode"],
+                        int(bool(bar.get("is_stale", False))),
+                        bar.get("stale_reason", ""),
                         json.dumps(bar, ensure_ascii=False),
                     )
                     for bar in bars
@@ -322,7 +365,7 @@ class TimelineStore:
                         item["published_at"],
                         item["first_seen_at"],
                         item.get("backfilled_at"),
-                        int(item["is_backfilled"]),
+                        int(bool(item["is_backfilled"])),
                         item["source"],
                         item["title"],
                         item.get("link"),
@@ -364,6 +407,8 @@ class TimelineStore:
             connection.commit()
 
     def record_driver_attention_states(self, monitor_run_id: int, states: dict[str, Any]) -> None:
+        if not states:
+            return
         with self._connect() as connection:
             connection.executemany(
                 """
@@ -486,3 +531,134 @@ class TimelineStore:
             }
             for row in rows
         ]
+
+    def get_price_series(self, symbol: str, start: str, end: str) -> list[dict[str, Any]]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT payload_json
+                FROM market_price_bars
+                WHERE symbol = ? AND data_timestamp >= ? AND data_timestamp <= ?
+                ORDER BY data_timestamp, id
+                """,
+                (symbol, start, end),
+            ).fetchall()
+        return self._rows_to_payloads(rows)
+
+    def get_related_asset_series(self, symbol: str, start: str, end: str) -> list[dict[str, Any]]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT payload_json
+                FROM related_asset_bars
+                WHERE symbol = ? AND data_timestamp >= ? AND data_timestamp <= ?
+                ORDER BY data_timestamp, id
+                """,
+                (symbol, start, end),
+            ).fetchall()
+        return self._rows_to_payloads(rows)
+
+    def get_news_items(self, start: str, end: str, include_filtered: bool = True) -> list[dict[str, Any]]:
+        del include_filtered
+        with self._connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT payload_json
+                FROM news_items
+                WHERE published_at >= ? AND published_at <= ?
+                ORDER BY published_at, id
+                """,
+                (start, end),
+            ).fetchall()
+        return self._rows_to_payloads(rows)
+
+    def get_calendar_events(self, start: str, end: str) -> list[dict[str, Any]]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT payload_json
+                FROM calendar_events
+                WHERE scheduled_at >= ? AND scheduled_at <= ?
+                ORDER BY scheduled_at, id
+                """,
+                (start, end),
+            ).fetchall()
+        return self._rows_to_payloads(rows)
+
+    def get_driver_attention_timeline(self, start: str, end: str) -> list[dict[str, Any]]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT driver_attention_states.payload_json
+                FROM driver_attention_states
+                INNER JOIN monitor_runs ON monitor_runs.id = driver_attention_states.monitor_run_id
+                WHERE monitor_runs.run_started_at >= ? AND monitor_runs.run_started_at <= ?
+                ORDER BY monitor_runs.run_started_at, driver_attention_states.id
+                """,
+                (start, end),
+            ).fetchall()
+        return self._rows_to_payloads(rows)
+
+    def get_evidence_for_run(self, monitor_run_id: int) -> dict[str, Any] | None:
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT payload_json FROM evidence_packets WHERE monitor_run_id = ? ORDER BY id DESC LIMIT 1",
+                (monitor_run_id,),
+            ).fetchone()
+        return None if row is None else json.loads(str(row["payload_json"]))
+
+    def get_suppressed_alerts(self, start: str, end: str) -> list[dict[str, Any]]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT alerts.payload_json
+                FROM alerts
+                INNER JOIN monitor_runs ON monitor_runs.id = alerts.monitor_run_id
+                WHERE monitor_runs.run_started_at >= ? AND monitor_runs.run_started_at <= ?
+                  AND alerts.should_notify = 0
+                ORDER BY monitor_runs.run_started_at, alerts.id
+                """,
+                (start, end),
+            ).fetchall()
+        return self._rows_to_payloads(rows)
+
+    def get_state_transitions(self, start: str, end: str) -> list[dict[str, Any]]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT state_transitions.payload_json
+                FROM state_transitions
+                INNER JOIN monitor_runs ON monitor_runs.id = state_transitions.monitor_run_id
+                WHERE monitor_runs.run_started_at >= ? AND monitor_runs.run_started_at <= ?
+                ORDER BY monitor_runs.run_started_at, state_transitions.id
+                """,
+                (start, end),
+            ).fetchall()
+        return self._rows_to_payloads(rows)
+
+    def get_market_replay(self, start: str, end: str) -> dict[str, Any]:
+        with self._connect() as connection:
+            xau_rows = connection.execute(
+                """
+                SELECT payload_json
+                FROM market_price_bars
+                WHERE data_timestamp >= ? AND data_timestamp <= ?
+                ORDER BY data_timestamp, id
+                """,
+                (start, end),
+            ).fetchall()
+        related_symbols = ("dxy", "us10y", "us2y", "wti", "brent", "vix", "spx", "nasdaq")
+        related = {
+            symbol: self.get_related_asset_series(symbol, start, end)
+            for symbol in related_symbols
+        }
+        return {
+            "price_series": self._rows_to_payloads(xau_rows),
+            "related_assets": related,
+            "news_items": self.get_news_items(start, end),
+            "calendar_events": self.get_calendar_events(start, end),
+            "driver_attention_timeline": self.get_driver_attention_timeline(start, end),
+            "timeline_events": self.get_timeline(start, end),
+            "state_transitions": self.get_state_transitions(start, end),
+            "suppressed_alerts": self.get_suppressed_alerts(start, end),
+        }

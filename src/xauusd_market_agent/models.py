@@ -118,6 +118,7 @@ class ProviderHealth:
     stale_reason: str = ""
     error: str = ""
     raw_source_id: str = ""
+    latency_ms: float | None = None
     current_value: float | None = None
     previous_value: float | None = None
     change_value: float | None = None

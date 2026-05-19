@@ -16,6 +16,7 @@ from .live_pipeline import (
 from .providers.related_assets import refresh_related_assets_cache
 from .pipeline import build_rule_based_analysis
 from .reporter import render_text_report
+from .timeline_store import TimelineStore
 
 
 def run_dry_scenario(scenario_id: str):
@@ -29,6 +30,9 @@ def main() -> None:
     parser.add_argument("--live-once", action="store_true", help="Run one live analysis pass using local data providers.")
     parser.add_argument("--monitor-once", action="store_true", help="Run one live analysis pass with persisted state and local alert output.")
     parser.add_argument("--monitor-loop", action="store_true", help="Run repeated monitored live passes in a local loop.")
+    parser.add_argument("--timeline", action="store_true", help="Query persisted timeline events.")
+    parser.add_argument("--replay", action="store_true", help="Query replay data from the timeline store.")
+    parser.add_argument("--export-timeline", action="store_true", help="Export persisted replay data.")
     parser.add_argument("--scenario", default="yield_pressure_confirmed", help="Fixture scenario id.")
     parser.add_argument("--format", choices=("text", "json"), default="text", help="Output format.")
     parser.add_argument("--list-scenarios", action="store_true", help="List built-in dry-run scenarios.")
@@ -37,6 +41,8 @@ def main() -> None:
     parser.add_argument("--anchor-time", help="Optional anchor time in ISO 8601 format for live mode.")
     parser.add_argument("--interval-seconds", type=int, default=60, help="Loop interval for monitor-loop mode.")
     parser.add_argument("--max-iterations", type=int, help="Optional loop cap for monitor-loop mode.")
+    parser.add_argument("--start", help="Start timestamp in ISO 8601 format.")
+    parser.add_argument("--end", help="End timestamp in ISO 8601 format.")
     args = parser.parse_args()
 
     if args.list_scenarios:
@@ -53,6 +59,17 @@ def main() -> None:
             parser.error("Set MARKET_AGENT_RELATED_ASSETS_SOURCES_PATH and MARKET_AGENT_RELATED_ASSETS_DIR first.")
         refreshed = refresh_related_assets_cache(cfg.related_assets_sources_path, cfg.related_assets_dir)
         print(json.dumps({"refreshed": refreshed}, ensure_ascii=False, indent=2))
+        return
+    if args.timeline or args.replay or args.export_timeline:
+        if not args.start or not args.end:
+            parser.error("Pass --start and --end for timeline or replay queries.")
+        cfg = MarketAgentConfig()
+        store = TimelineStore(cfg.timeline_store_path)
+        if args.timeline:
+            payload = store.get_timeline(args.start, args.end)
+        else:
+            payload = store.get_market_replay(args.start, args.end)
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
         return
     if args.live_once:
         cfg = MarketAgentConfig()

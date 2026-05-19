@@ -70,6 +70,17 @@ class MarketAgentConfig:
     related_assets_sources_path: Path | None = field(
         default_factory=lambda: _env_json_path("MARKET_AGENT_RELATED_ASSETS_SOURCES_PATH")
     )
+    yahoo_enabled: bool = os.getenv("MARKET_AGENT_YAHOO_ENABLED", "false").lower() == "true"
+    yahoo_fixture_dir: Path | None = field(
+        default_factory=lambda: _env_json_path("MARKET_AGENT_YAHOO_FIXTURE_DIR")
+    )
+    ctrader_saved_snapshot_path: Path | None = field(
+        default_factory=lambda: _env_json_path("MARKET_AGENT_CTRADER_SAVED_SNAPSHOT_PATH")
+    )
+    forex_factory_fixture_path: Path | None = field(
+        default_factory=lambda: _env_json_path("MARKET_AGENT_FOREX_FACTORY_FIXTURE_PATH")
+    )
+    csv_fallback_enabled: bool = os.getenv("MARKET_AGENT_CSV_FALLBACK_ENABLED", "true").lower() == "true"
     rss_feeds: list[str] = field(default_factory=lambda: _env_list("NEWS_RSS_FEEDS"))
     news_lookback_minutes: int = int(os.getenv("MARKET_AGENT_NEWS_LOOKBACK_MINUTES", "30"))
     post_move_news_minutes: int = int(os.getenv("MARKET_AGENT_POST_MOVE_NEWS_MINUTES", "120"))

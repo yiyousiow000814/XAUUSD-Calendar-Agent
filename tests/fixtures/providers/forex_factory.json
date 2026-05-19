@@ -1,0 +1,19 @@
+[
+  {
+    "Date": "2026-05-19",
+    "Time": "07:00",
+    "Currency": "USD",
+    "Event": "CPI m/m",
+    "Imp.": "High",
+    "Actual": "0.4%",
+    "Forecast": "0.3%",
+    "Previous": "0.2%"
+  },
+  {
+    "Date": "2026-05-19",
+    "Time": "Tentative",
+    "Currency": "USD",
+    "Event": "Treasury Remarks",
+    "Imp.": "Medium"
+  }
+]

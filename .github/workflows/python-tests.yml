@@ -43,4 +43,11 @@ jobs:
             tests/test_driver_attention.py `
             tests/test_provider_health.py `
             tests/test_timeline_store.py `
+            tests/test_yahoo_chart_provider.py `
+            tests/test_rss_provider.py `
+            tests/test_forex_factory_provider.py `
+            tests/test_ctrader_provider.py `
+            tests/test_provider_router.py `
+            tests/test_backfill.py `
+            tests/test_replay_queries.py `
             -v
