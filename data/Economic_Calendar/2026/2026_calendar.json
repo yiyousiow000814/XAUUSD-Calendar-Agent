@@ -98122,24 +98122,13 @@
     {
         "Date":"2026-05-19",
         "Day":"Tuesday",
-        "Time":"01:00",
-        "Cur.":"MWK",
-        "Imp.":"Low",
-        "Event":"CPI (YoY)  (Apr)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"23.8%"
-    },
-    {
-        "Date":"2026-05-19",
-        "Day":"Tuesday",
         "Time":"04:00",
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"Overall Net Capital Flow  (Mar)",
-        "Actual":"",
+        "Actual":"150.70B",
         "Forecast":null,
-        "Previous":"184.50B"
+        "Previous":"182.70B"
     },
     {
         "Date":"2026-05-19",
@@ -98148,9 +98137,9 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"TIC Net Long-Term Transactions including Swaps  (Mar)",
-        "Actual":"",
+        "Actual":"81.30B",
         "Forecast":"82.40B",
-        "Previous":"58.60B"
+        "Previous":"57.00B"
     },
     {
         "Date":"2026-05-19",
@@ -98159,9 +98148,9 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"US Foreign Buying, T-bonds  (Mar)",
-        "Actual":"",
+        "Actual":"13.50B",
         "Forecast":null,
-        "Previous":"2.00B"
+        "Previous":"2.60B"
     },
     {
         "Date":"2026-05-19",
@@ -98170,9 +98159,9 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"TIC Net Long-Term Transactions  (Mar)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"58.6B"
+        "Actual":"81.3B",
+        "Forecast":"87.2B",
+        "Previous":"57.0B"
     },
     {
         "Date":"2026-05-19",
@@ -98181,7 +98170,7 @@
         "Cur.":"NZD",
         "Imp.":"Low",
         "Event":"Electronic Card Retail Sales (YoY)  (Apr)",
-        "Actual":"",
+        "Actual":"2.0%",
         "Forecast":null,
         "Previous":"2.7%"
     },
@@ -98192,7 +98181,7 @@
         "Cur.":"NZD",
         "Imp.":"Low",
         "Event":"PPI Output (QoQ)  (Q1)",
-        "Actual":"",
+        "Actual":"0.8%",
         "Forecast":"0.5%",
         "Previous":"0.1%"
     },
@@ -98203,7 +98192,7 @@
         "Cur.":"NZD",
         "Imp.":"Medium",
         "Event":"Electronic Card Retail Sales (MoM)  (Apr)",
-        "Actual":"",
+        "Actual":"-1.3%",
         "Forecast":null,
         "Previous":"0.7%"
     },
@@ -98214,7 +98203,7 @@
         "Cur.":"NZD",
         "Imp.":"Medium",
         "Event":"PPI Input (QoQ)  (Q1)",
-        "Actual":"",
+        "Actual":"1.4%",
         "Forecast":"0.8%",
         "Previous":"-0.5%"
     },
@@ -98225,9 +98214,9 @@
         "Cur.":"JPY",
         "Imp.":"High",
         "Event":"GDP (QoQ)  (Q1)",
-        "Actual":"",
+        "Actual":"0.5%",
         "Forecast":"0.4%",
-        "Previous":"0.3%"
+        "Previous":"0.2%"
     },
     {
         "Date":"2026-05-19",
@@ -98236,9 +98225,9 @@
         "Cur.":"JPY",
         "Imp.":"Low",
         "Event":"GDP Capital Expenditure (QoQ)  (Q1)",
-        "Actual":"",
+        "Actual":"0.3%",
         "Forecast":"0.2%",
-        "Previous":"1.3%"
+        "Previous":"1.4%"
     },
     {
         "Date":"2026-05-19",
@@ -98247,7 +98236,7 @@
         "Cur.":"JPY",
         "Imp.":"Low",
         "Event":"GDP External Demand (QoQ)  (Q1)",
-        "Actual":"",
+        "Actual":"0.3%",
         "Forecast":"0.2%",
         "Previous":"0.0%"
     },
@@ -98258,9 +98247,9 @@
         "Cur.":"JPY",
         "Imp.":"Low",
         "Event":"GDP Private Consumption (QoQ)  (Q1)",
-        "Actual":"",
+        "Actual":"0.3%",
         "Forecast":"0.2%",
-        "Previous":"0.3%"
+        "Previous":"0.0%"
     },
     {
         "Date":"2026-05-19",
@@ -98269,9 +98258,9 @@
         "Cur.":"JPY",
         "Imp.":"Medium",
         "Event":"GDP (YoY)  (Q1)",
-        "Actual":"",
+        "Actual":"2.1%",
         "Forecast":"1.7%",
-        "Previous":"1.3%"
+        "Previous":"0.8%"
     },
     {
         "Date":"2026-05-19",
@@ -98280,7 +98269,7 @@
         "Cur.":"JPY",
         "Imp.":"Medium",
         "Event":"GDP Price Index (YoY)  (Q1)",
-        "Actual":"",
+        "Actual":"3.4%",
         "Forecast":"3.1%",
         "Previous":"3.4%"
     },
@@ -98291,7 +98280,7 @@
         "Cur.":"AUD",
         "Imp.":"Low",
         "Event":"Westpac Consumer Sentiment  (May)",
-        "Actual":"",
+        "Actual":"3.5%",
         "Forecast":null,
         "Previous":"-12.5%"
     },
@@ -98313,7 +98302,7 @@
         "Cur.":"MYR",
         "Imp.":"Low",
         "Event":"CPI (MoM)  (Apr)",
-        "Actual":"",
+        "Actual":"0.40%",
         "Forecast":null,
         "Previous":"0.30%"
     },
@@ -98324,20 +98313,9 @@
         "Cur.":"MYR",
         "Imp.":"Medium",
         "Event":"CPI (YoY)  (Apr)",
-        "Actual":"",
+        "Actual":"1.9%",
         "Forecast":"1.9%",
         "Previous":"1.7%"
-    },
-    {
-        "Date":"2026-05-19",
-        "Day":"Tuesday",
-        "Time":"12:30",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"Dutch Trade Balance  (Mar)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"9.90B"
     },
     {
         "Date":"2026-05-19",
@@ -98346,7 +98324,7 @@
         "Cur.":"JPY",
         "Imp.":"Low",
         "Event":"Capacity Utilization (MoM)  (Mar)",
-        "Actual":"",
+        "Actual":"-1.2%",
         "Forecast":null,
         "Previous":"-0.1%"
     },
@@ -98357,9 +98335,9 @@
         "Cur.":"JPY",
         "Imp.":"Low",
         "Event":"Tertiary Industry Activity Index  (Mar)",
-        "Actual":"",
-        "Forecast":"-0.30",
-        "Previous":"-0.70"
+        "Actual":"16.50",
+        "Forecast":"-0.40",
+        "Previous":"-1.10"
     },
     {
         "Date":"2026-05-19",
@@ -98368,7 +98346,7 @@
         "Cur.":"JPY",
         "Imp.":"Medium",
         "Event":"Industrial Production (MoM)  (Mar)",
-        "Actual":"",
+        "Actual":"-0.4%",
         "Forecast":"-0.5%",
         "Previous":"-2.0%"
     },
@@ -98379,7 +98357,7 @@
         "Cur.":"GBP",
         "Imp.":"Low",
         "Event":"Average Earnings ex Bonus  (Mar)",
-        "Actual":"",
+        "Actual":"3.4%",
         "Forecast":"3.4%",
         "Previous":"3.6%"
     },
@@ -98390,9 +98368,9 @@
         "Cur.":"GBP",
         "Imp.":"Medium",
         "Event":"Average Earnings Index +Bonus  (Mar)",
-        "Actual":"",
+        "Actual":"4.1%",
         "Forecast":"3.8%",
-        "Previous":"3.8%"
+        "Previous":"3.9%"
     },
     {
         "Date":"2026-05-19",
@@ -98401,9 +98379,9 @@
         "Cur.":"GBP",
         "Imp.":"Medium",
         "Event":"Claimant Count Change  (Apr)",
-        "Actual":"",
-        "Forecast":"25.9K",
-        "Previous":"26.8K"
+        "Actual":"26.5K",
+        "Forecast":"23.1K",
+        "Previous":"4.9K"
     },
     {
         "Date":"2026-05-19",
@@ -98412,7 +98390,7 @@
         "Cur.":"GBP",
         "Imp.":"Medium",
         "Event":"Employment Change 3M\/3M (MoM)  (Mar)",
-        "Actual":"",
+        "Actual":"148K",
         "Forecast":"107K",
         "Previous":"25K"
     },
@@ -98423,7 +98401,7 @@
         "Cur.":"GBP",
         "Imp.":"Medium",
         "Event":"Unemployment Rate  (Mar)",
-        "Actual":"",
+        "Actual":"5.0%",
         "Forecast":"4.9%",
         "Previous":"4.9%"
     },
@@ -98434,7 +98412,7 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Spanish Trade Balance  (Mar)",
-        "Actual":"",
+        "Actual":"-4.40B",
         "Forecast":null,
         "Previous":"-3.30B"
     },
@@ -98456,9 +98434,9 @@
         "Cur.":"GBP",
         "Imp.":"Medium",
         "Event":"Labour Productivity  (Q4)",
-        "Actual":"",
+        "Actual":"-0.5%",
         "Forecast":null,
-        "Previous":"1.1%"
+        "Previous":"-0.5%"
     },
     {
         "Date":"2026-05-19",
@@ -98467,7 +98445,7 @@
         "Cur.":"HKD",
         "Imp.":"Low",
         "Event":"Unemployment Rate  (Apr)",
-        "Actual":"",
+        "Actual":"3.7%",
         "Forecast":null,
         "Previous":"3.7%"
     },
@@ -98478,31 +98456,20 @@
         "Cur.":"EUR",
         "Imp.":"Medium",
         "Event":"Trade Balance  (Mar)",
-        "Actual":"",
-        "Forecast":"6.5B",
-        "Previous":"11.5B"
+        "Actual":"7.8B",
+        "Forecast":"5.4B",
+        "Previous":"11.1B"
     },
     {
         "Date":"2026-05-19",
         "Day":"Tuesday",
-        "Time":"17:30",
+        "Time":"17:50",
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"German 5-Year Bobl Auction",
-        "Actual":"",
+        "Actual":"2.850%",
         "Forecast":null,
         "Previous":"2.740%"
-    },
-    {
-        "Date":"2026-05-19",
-        "Day":"Tuesday",
-        "Time":"19:00",
-        "Cur.":"CNY",
-        "Imp.":"Low",
-        "Event":"FDI  (Apr)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"-7.30%"
     },
     {
         "Date":"2026-05-19",
@@ -98519,10 +98486,21 @@
         "Date":"2026-05-19",
         "Day":"Tuesday",
         "Time":"20:00",
+        "Cur.":"NZD",
+        "Imp.":"Low",
+        "Event":"GlobalDairyTrade Price Index",
+        "Actual":"0.6%",
+        "Forecast":null,
+        "Previous":"1.5%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"20:00",
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"Milk Auctions",
-        "Actual":"",
+        "Actual":"4,198.0",
         "Forecast":null,
         "Previous":"4,127.0"
     },
@@ -98555,7 +98533,7 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"ADP Employment Change Weekly",
-        "Actual":"",
+        "Actual":"42.25K",
         "Forecast":null,
         "Previous":"33.00K"
     },
@@ -98566,7 +98544,7 @@
         "Cur.":"CAD",
         "Imp.":"Low",
         "Event":"CPI (YoY)  (Apr)",
-        "Actual":"",
+        "Actual":"2.8%",
         "Forecast":"3.1%",
         "Previous":"2.4%"
     },
@@ -98577,7 +98555,7 @@
         "Cur.":"CAD",
         "Imp.":"Low",
         "Event":"Common CPI (YoY)  (Apr)",
-        "Actual":"",
+        "Actual":"2.5%",
         "Forecast":"2.6%",
         "Previous":"2.6%"
     },
@@ -98588,8 +98566,8 @@
         "Cur.":"CAD",
         "Imp.":"Low",
         "Event":"Median CPI (YoY)  (Apr)",
-        "Actual":"",
-        "Forecast":"2.2%",
+        "Actual":"2.1%",
+        "Forecast":"2.3%",
         "Previous":"2.3%"
     },
     {
@@ -98599,7 +98577,7 @@
         "Cur.":"CAD",
         "Imp.":"Low",
         "Event":"Trimmed CPI (YoY)  (Apr)",
-        "Actual":"",
+        "Actual":"2.0%",
         "Forecast":"2.2%",
         "Previous":"2.2%"
     },
@@ -98610,9 +98588,9 @@
         "Cur.":"CAD",
         "Imp.":"Medium",
         "Event":"Building Permits (MoM)  (Mar)",
-        "Actual":"",
+        "Actual":"10.3%",
         "Forecast":"2.1%",
-        "Previous":"-8.4%"
+        "Previous":"-7.8%"
     },
     {
         "Date":"2026-05-19",
@@ -98621,8 +98599,8 @@
         "Cur.":"CAD",
         "Imp.":"Medium",
         "Event":"CPI (MoM)  (Apr)",
-        "Actual":"",
-        "Forecast":"0.6%",
+        "Actual":"0.4%",
+        "Forecast":"0.7%",
         "Previous":"0.9%"
     },
     {
@@ -98632,7 +98610,7 @@
         "Cur.":"CAD",
         "Imp.":"Medium",
         "Event":"Core CPI (MoM)  (Apr)",
-        "Actual":"",
+        "Actual":"0.2%",
         "Forecast":null,
         "Previous":"0.2%"
     },
@@ -98643,7 +98621,7 @@
         "Cur.":"CAD",
         "Imp.":"Medium",
         "Event":"Core CPI (YoY)  (Apr)",
-        "Actual":"",
+        "Actual":"2.1%",
         "Forecast":null,
         "Previous":"2.5%"
     },
@@ -98654,7 +98632,7 @@
         "Cur.":"CAD",
         "Imp.":"Medium",
         "Event":"New Housing Price Index (MoM)  (Apr)",
-        "Actual":"",
+        "Actual":"-0.4%",
         "Forecast":"0.0%",
         "Previous":"-0.2%"
     },
@@ -98665,7 +98643,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"Redbook (YoY)",
-        "Actual":"",
+        "Actual":"8.1%",
         "Forecast":null,
         "Previous":"9.6%"
     },
@@ -98676,9 +98654,9 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"Pending Home Sales Index  (Apr)",
-        "Actual":"",
+        "Actual":"74.8",
         "Forecast":null,
-        "Previous":"73.7"
+        "Previous":"73.8"
     },
     {
         "Date":"2026-05-19",
@@ -98687,9 +98665,9 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"Pending Home Sales (MoM)  (Apr)",
-        "Actual":"",
-        "Forecast":"1.2%",
-        "Previous":"1.5%"
+        "Actual":"1.4%",
+        "Forecast":"1.0%",
+        "Previous":"1.7%"
     },
     {
         "Date":"2026-05-19",
@@ -98698,7 +98676,7 @@
         "Cur.":"COP",
         "Imp.":"Low",
         "Event":"Imports (YoY)  (Mar)",
-        "Actual":"",
+        "Actual":"11.10%",
         "Forecast":null,
         "Previous":"7.80%"
     },
@@ -98709,20 +98687,20 @@
         "Cur.":"COP",
         "Imp.":"Low",
         "Event":"Trade Balance (USD)  (Mar)",
-        "Actual":"",
+        "Actual":"-0.527B",
         "Forecast":null,
-        "Previous":"-1.235B"
+        "Previous":"-1.230B"
     },
     {
-        "Date":"2026-05-19",
-        "Day":"Tuesday",
-        "Time":"23:00",
-        "Cur.":"NZD",
+        "Date":"2026-05-20",
+        "Day":"Wednesday",
+        "Time":"03:00",
+        "Cur.":"EUR",
         "Imp.":"Low",
-        "Event":"GlobalDairyTrade Price Index",
+        "Event":"Slovak Unemployment Rate  (Apr)",
         "Actual":"",
         "Forecast":null,
-        "Previous":"1.5%"
+        "Previous":"5.2%"
     },
     {
         "Date":"2026-05-20",
@@ -98732,7 +98710,7 @@
         "Imp.":"Medium",
         "Event":"API Weekly Crude Oil Stock",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"-3.400M",
         "Previous":"-2.188M"
     },
     {
@@ -98787,7 +98765,7 @@
         "Imp.":"Low",
         "Event":"Exports (YoY)  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"9.5%",
         "Previous":"8.3%"
     },
     {
@@ -98798,7 +98776,7 @@
         "Imp.":"Low",
         "Event":"Imports (YoY)  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"3.0%",
         "Previous":"10.4%"
     },
     {
@@ -98809,8 +98787,30 @@
         "Imp.":"Low",
         "Event":"Trade Balance  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"16.60B",
         "Previous":"24.60B"
+    },
+    {
+        "Date":"2026-05-20",
+        "Day":"Wednesday",
+        "Time":"12:30",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Dutch CPI (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.70%"
+    },
+    {
+        "Date":"2026-05-20",
+        "Day":"Wednesday",
+        "Time":"12:30",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Dutch CPI (YoY)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.7%"
     },
     {
         "Date":"2026-05-20",
@@ -98875,7 +98875,7 @@
         "Imp.":"Medium",
         "Event":"German PPI (MoM)  (Apr)",
         "Actual":"",
-        "Forecast":"2.1%",
+        "Forecast":"2.0%",
         "Previous":"2.5%"
     },
     {
@@ -98985,7 +98985,7 @@
         "Imp.":"Low",
         "Event":"PPI Output (MoM)  (Apr)",
         "Actual":"",
-        "Forecast":"0.9%",
+        "Forecast":"1.0%",
         "Previous":"0.9%"
     },
     {
@@ -99007,7 +99007,7 @@
         "Imp.":"Low",
         "Event":"RPI (MoM)  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"1.5%",
         "Previous":"0.8%"
     },
     {
@@ -99018,7 +99018,7 @@
         "Imp.":"Low",
         "Event":"RPI (YoY)  (Apr)",
         "Actual":"",
-        "Forecast":"3.7%",
+        "Forecast":"3.6%",
         "Previous":"4.1%"
     },
     {
@@ -99029,7 +99029,7 @@
         "Imp.":"Medium",
         "Event":"CPI (MoM)  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"0.9%",
         "Previous":"0.7%"
     },
     {
@@ -99062,7 +99062,7 @@
         "Imp.":"Low",
         "Event":"PPI (MoM)  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"0.9%",
         "Previous":"1.5%"
     },
     {
@@ -99107,7 +99107,7 @@
         "Event":"Austrian HICP (MoM)  (Apr)",
         "Actual":"",
         "Forecast":"0.4%",
-        "Previous":"0.4%"
+        "Previous":"1.1%"
     },
     {
         "Date":"2026-05-20",
@@ -99118,7 +99118,7 @@
         "Event":"Austrian HICP (YoY)  (Apr)",
         "Actual":"",
         "Forecast":"3.3%",
-        "Previous":"3.3%"
+        "Previous":"3.2%"
     },
     {
         "Date":"2026-05-20",
@@ -99172,7 +99172,7 @@
         "Imp.":"Low",
         "Event":"Deposit Facility Rate  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"4.00%",
         "Previous":"3.75%"
     },
     {
@@ -99183,7 +99183,7 @@
         "Imp.":"Low",
         "Event":"Lending Facility Rate  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"5.75%",
         "Previous":"5.50%"
     },
     {
@@ -99205,7 +99205,7 @@
         "Imp.":"Medium",
         "Event":"Interest Rate Decision",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"5.00%",
         "Previous":"4.75%"
     },
     {
@@ -99238,7 +99238,7 @@
         "Imp.":"Low",
         "Event":"CPI (YoY)  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"3.9%",
         "Previous":"3.1%"
     },
     {
@@ -99293,7 +99293,7 @@
         "Imp.":"Low",
         "Event":"House Price Index (YoY)",
         "Actual":"",
-        "Forecast":"0.8%",
+        "Forecast":"-0.1%",
         "Previous":"1.2%"
     },
     {
@@ -99316,7 +99316,7 @@
         "Event":"CPI (YoY)  (Apr)",
         "Actual":"",
         "Forecast":"3.0%",
-        "Previous":"3.0%"
+        "Previous":"2.6%"
     },
     {
         "Date":"2026-05-20",
@@ -99371,7 +99371,7 @@
         "Event":"Core CPI (MoM)  (Apr)",
         "Actual":"",
         "Forecast":"0.9%",
-        "Previous":"0.9%"
+        "Previous":"0.8%"
     },
     {
         "Date":"2026-05-20",
@@ -99415,7 +99415,7 @@
         "Event":"Core CPI (YoY)  (Apr)",
         "Actual":"",
         "Forecast":"2.2%",
-        "Previous":"2.2%"
+        "Previous":"2.3%"
     },
     {
         "Date":"2026-05-20",
@@ -99453,24 +99453,13 @@
     {
         "Date":"2026-05-20",
         "Day":"Wednesday",
-        "Time":"18:30",
-        "Cur.":"MUR",
-        "Imp.":"Low",
-        "Event":"Interest Rate Decision  (Q2)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"4.50%"
-    },
-    {
-        "Date":"2026-05-20",
-        "Day":"Wednesday",
         "Time":"19:00",
-        "Cur.":"GHS",
+        "Cur.":"CNY",
         "Imp.":"Low",
-        "Event":"Prime Interest Rate (MoM)  (May)",
+        "Event":"FDI  (Apr)",
         "Actual":"",
         "Forecast":null,
-        "Previous":"14.00%"
+        "Previous":"-7.30%"
     },
     {
         "Date":"2026-05-20",
@@ -99559,6 +99548,61 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"12.0%"
+    },
+    {
+        "Date":"2026-05-20",
+        "Day":"Wednesday",
+        "Time":"19:30",
+        "Cur.":"MUR",
+        "Imp.":"Low",
+        "Event":"Interest Rate Decision  (Q2)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"4.50%"
+    },
+    {
+        "Date":"2026-05-20",
+        "Day":"Wednesday",
+        "Time":"21:00",
+        "Cur.":"NGN",
+        "Imp.":"Low",
+        "Event":"Interest Rate Decision",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"26.50%"
+    },
+    {
+        "Date":"2026-05-20",
+        "Day":"Wednesday",
+        "Time":"21:15",
+        "Cur.":"GBP",
+        "Imp.":"Low",
+        "Event":"BoE MPC Member Dhingra Speaks",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-20",
+        "Day":"Wednesday",
+        "Time":"21:15",
+        "Cur.":"GBP",
+        "Imp.":"Medium",
+        "Event":"BoE Gov Bailey Speaks",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-20",
+        "Day":"Wednesday",
+        "Time":"21:15",
+        "Cur.":"GBP",
+        "Imp.":"Medium",
+        "Event":"BoE MPC Member Mann Speaks",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
     },
     {
         "Date":"2026-05-20",
@@ -99695,13 +99739,13 @@
     {
         "Date":"2026-05-20",
         "Day":"Wednesday",
-        "Time":"23:00",
-        "Cur.":"NGN",
+        "Time":"23:30",
+        "Cur.":"GHS",
         "Imp.":"Low",
-        "Event":"Interest Rate Decision",
+        "Event":"Prime Interest Rate (MoM)  (May)",
         "Actual":"",
         "Forecast":null,
-        "Previous":"26.50%"
+        "Previous":"14.00%"
     },
     {
         "Date":"2026-05-21",
@@ -99750,6 +99794,17 @@
     {
         "Date":"2026-05-21",
         "Day":"Thursday",
+        "Time":"01:00",
+        "Cur.":"MWK",
+        "Imp.":"Low",
+        "Event":"CPI (YoY)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"23.8%"
+    },
+    {
+        "Date":"2026-05-21",
+        "Day":"Thursday",
         "Time":"01:30",
         "Cur.":"BRL",
         "Imp.":"Low",
@@ -99777,7 +99832,7 @@
         "Imp.":"Low",
         "Event":"Trade Balance  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"1,760M",
         "Previous":"2,523M"
     },
     {
@@ -99832,7 +99887,7 @@
         "Imp.":"Low",
         "Event":"Trade Balance (MoM)  (Apr)",
         "Actual":"",
-        "Forecast":"842M",
+        "Forecast":"980M",
         "Previous":"698M"
     },
     {
@@ -99887,7 +99942,7 @@
         "Imp.":"Low",
         "Event":"Core Machinery Orders (MoM)  (Mar)",
         "Actual":"",
-        "Forecast":"-8.7%",
+        "Forecast":"-8.1%",
         "Previous":"13.6%"
     },
     {
@@ -101711,7 +101766,7 @@
         "Time":"22:30",
         "Cur.":"CAD",
         "Imp.":"Low",
-        "Event":"BoC Senior Loan Officer Survey",
+        "Event":"BoC Senior Loan Officer Survey  (Q1)",
         "Actual":"",
         "Forecast":null,
         "Previous":"2.8"
@@ -102325,6 +102380,39 @@
         "Date":"2026-05-25",
         "Day":"Monday",
         "Time":"21:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"French 12-Month BTF Auction",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.642%"
+    },
+    {
+        "Date":"2026-05-25",
+        "Day":"Monday",
+        "Time":"21:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"French 3-Month BTF Auction",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.250%"
+    },
+    {
+        "Date":"2026-05-25",
+        "Day":"Monday",
+        "Time":"21:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"French 6-Month BTF Auction",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.412%"
+    },
+    {
+        "Date":"2026-05-25",
+        "Day":"Monday",
+        "Time":"21:00",
         "Cur.":"ILS",
         "Imp.":"Low",
         "Event":"Interest Rate Decision  (May)",
@@ -102742,6 +102830,28 @@
     {
         "Date":"2026-05-26",
         "Day":"Tuesday",
+        "Time":"23:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"3-Month Bill Auction",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3.600%"
+    },
+    {
+        "Date":"2026-05-26",
+        "Day":"Tuesday",
+        "Time":"23:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"6-Month Bill Auction",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3.615%"
+    },
+    {
+        "Date":"2026-05-26",
+        "Day":"Tuesday",
         "Time":"",
         "Cur.":"",
         "Imp.":"Holiday",
@@ -102943,6 +103053,17 @@
         "Time":"All Day",
         "Cur.":"",
         "Imp.":"Holiday",
+        "Event":"Tunisia - Eid al-Adha",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-27",
+        "Day":"Wednesday",
+        "Time":"All Day",
+        "Cur.":"",
+        "Imp.":"Holiday",
         "Event":"T\u00fcrkiye - Eid al-Adha",
         "Actual":"",
         "Forecast":null,
@@ -102975,11 +103096,88 @@
         "Day":"Wednesday",
         "Time":"09:30",
         "Cur.":"AUD",
+        "Imp.":"Low",
+        "Event":"CPI Index Number",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"101.70"
+    },
+    {
+        "Date":"2026-05-27",
+        "Day":"Wednesday",
+        "Time":"09:30",
+        "Cur.":"AUD",
+        "Imp.":"Low",
+        "Event":"Monthly CPI Indicator (YoY)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"4.60%"
+    },
+    {
+        "Date":"2026-05-27",
+        "Day":"Wednesday",
+        "Time":"09:30",
+        "Cur.":"AUD",
+        "Imp.":"Low",
+        "Event":"Trimmed Mean CPI (YoY)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3.5%"
+    },
+    {
+        "Date":"2026-05-27",
+        "Day":"Wednesday",
+        "Time":"09:30",
+        "Cur.":"AUD",
+        "Imp.":"Low",
+        "Event":"Weighted mean CPI (QoQ)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.8%"
+    },
+    {
+        "Date":"2026-05-27",
+        "Day":"Wednesday",
+        "Time":"09:30",
+        "Cur.":"AUD",
+        "Imp.":"Low",
+        "Event":"Weighted mean CPI (YoY)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3.5%"
+    },
+    {
+        "Date":"2026-05-27",
+        "Day":"Wednesday",
+        "Time":"09:30",
+        "Cur.":"AUD",
+        "Imp.":"Medium",
+        "Event":"CPI (YoY)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"4.1%"
+    },
+    {
+        "Date":"2026-05-27",
+        "Day":"Wednesday",
+        "Time":"09:30",
+        "Cur.":"AUD",
         "Imp.":"Medium",
         "Event":"Construction Work Done (QoQ)  (Q1)",
         "Actual":"",
         "Forecast":null,
         "Previous":"-0.1%"
+    },
+    {
+        "Date":"2026-05-27",
+        "Day":"Wednesday",
+        "Time":"09:30",
+        "Cur.":"AUD",
+        "Imp.":"Medium",
+        "Event":"Trimmed Mean CPI (QoQ)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.8%"
     },
     {
         "Date":"2026-05-27",
@@ -103365,5 +103563,1171 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"-9.9"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"All Day",
+        "Cur.":"",
+        "Imp.":"Holiday",
+        "Event":"Bahrain - Eid al-Adha",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"All Day",
+        "Cur.":"",
+        "Imp.":"Holiday",
+        "Event":"Egypt - Eid al-Adha",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"All Day",
+        "Cur.":"",
+        "Imp.":"Holiday",
+        "Event":"India - Bakri Id",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"All Day",
+        "Cur.":"",
+        "Imp.":"Holiday",
+        "Event":"Indonesia - Id-Ul-Alha",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"All Day",
+        "Cur.":"",
+        "Imp.":"Holiday",
+        "Event":"Jordan - Eid al-Adha",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"All Day",
+        "Cur.":"",
+        "Imp.":"Holiday",
+        "Event":"Kuwait - Eid al-Adha",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"All Day",
+        "Cur.":"",
+        "Imp.":"Holiday",
+        "Event":"Lebanon - Eid al-Adha",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"All Day",
+        "Cur.":"",
+        "Imp.":"Holiday",
+        "Event":"Morocco - Eid al-Adha",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"All Day",
+        "Cur.":"",
+        "Imp.":"Holiday",
+        "Event":"Nigeria - Id el Kabir",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"All Day",
+        "Cur.":"",
+        "Imp.":"Holiday",
+        "Event":"Oman - Eid al-Adha",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"All Day",
+        "Cur.":"",
+        "Imp.":"Holiday",
+        "Event":"Pakistan - Eid al-Adha",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"All Day",
+        "Cur.":"",
+        "Imp.":"Holiday",
+        "Event":"Qatar - Eid al-Adha",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"All Day",
+        "Cur.":"",
+        "Imp.":"Holiday",
+        "Event":"Saudi Arabia - Eid al-Adha",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"All Day",
+        "Cur.":"",
+        "Imp.":"Holiday",
+        "Event":"Sri Lanka - Id-Ul-Alha",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"All Day",
+        "Cur.":"",
+        "Imp.":"Holiday",
+        "Event":"Tunisia - Eid al-Adha",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"All Day",
+        "Cur.":"",
+        "Imp.":"Holiday",
+        "Event":"T\u00fcrkiye - Eid al-Adha",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"All Day",
+        "Cur.":"",
+        "Imp.":"Holiday",
+        "Event":"United Arab Emirates - Eid al-Adha",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"00:00",
+        "Cur.":"RUB",
+        "Imp.":"Low",
+        "Event":"Industrial Production (YoY)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.3%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"09:00",
+        "Cur.":"KRW",
+        "Imp.":"Low",
+        "Event":"Interest Rate Decision  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.50%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"09:00",
+        "Cur.":"NZD",
+        "Imp.":"Low",
+        "Event":"ANZ Business Confidence  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-10.6"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"09:00",
+        "Cur.":"NZD",
+        "Imp.":"Low",
+        "Event":"NBNZ Own Activity  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"19.6%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"09:30",
+        "Cur.":"AUD",
+        "Imp.":"Low",
+        "Event":"Building Capital Expenditure (MoM)  (Q1)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.3%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"09:30",
+        "Cur.":"AUD",
+        "Imp.":"Low",
+        "Event":"Plant\/Machinery Capital Expenditure (QoQ)  (Q1)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-1.7%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"09:30",
+        "Cur.":"AUD",
+        "Imp.":"Medium",
+        "Event":"Private New Capital Expenditure (QoQ)  (Q1)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.4%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"10:00",
+        "Cur.":"NZD",
+        "Imp.":"Low",
+        "Event":"Budget Balance  (Jan)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-14.800B"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"10:00",
+        "Cur.":"NZD",
+        "Imp.":"Low",
+        "Event":"Economic Forecast  (Jan)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-16.930B"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"10:00",
+        "Cur.":"NZD",
+        "Imp.":"Low",
+        "Event":"Net Debt Forecast  (Jan)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"43.30%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"12:30",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Dutch Business Confidence  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-0.7"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"14:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Lithuania Industrial Production (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.80%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"14:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Lithuania Industrial Production (YoY)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"4.80%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"14:00",
+        "Cur.":"NOK",
+        "Imp.":"Low",
+        "Event":"GDP (QoQ)  (Q1)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-0.3%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"14:00",
+        "Cur.":"NOK",
+        "Imp.":"Low",
+        "Event":"GDP Mainland (QoQ)  (Q1)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.4%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"14:00",
+        "Cur.":"SEK",
+        "Imp.":"Low",
+        "Event":"Trade Balance  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"9.30B"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"14:30",
+        "Cur.":"HUF",
+        "Imp.":"Low",
+        "Event":"Quarterly Unemployment Rate  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"4.7%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"14:45",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"French PPI (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.0%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"14:45",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"PPI (YoY)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.20%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"15:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Spanish Retail Sales (YoY)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"4.1%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"15:00",
+        "Cur.":"SEK",
+        "Imp.":"Low",
+        "Event":"Consumer Confidence  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"91.5"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"15:00",
+        "Cur.":"SEK",
+        "Imp.":"Low",
+        "Event":"Manufacturing Confidence  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"100.0"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"16:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Italian Business Confidence  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"87.9"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"16:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Italian Consumer Confidence  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"90.8"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"16:00",
+        "Cur.":"ZMK",
+        "Imp.":"Low",
+        "Event":"CPI (MoM)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.7%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"16:00",
+        "Cur.":"ZMK",
+        "Imp.":"Low",
+        "Event":"CPI (YoY)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"6.8%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"16:30",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Portuguese Business Confidence  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.6"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"16:30",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Portuguese Consumer Confidence  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-23.90"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"16:30",
+        "Cur.":"HKD",
+        "Imp.":"Low",
+        "Event":"Exports (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"35.8%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"16:30",
+        "Cur.":"HKD",
+        "Imp.":"Low",
+        "Event":"Imports (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"41.2%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"17:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Business Climate  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-0.28"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"17:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Business and Consumer Survey  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"93.0"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"17:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Consumer Confidence  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-20.6"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"17:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Consumer Inflation Expectation  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"49.1"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"17:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Industrial Sentiment  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-7.7"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"17:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Italian Trade Balance Non-EU  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"5.64B"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"17:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Selling Price Expectations  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"31.1"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"17:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Services Sentiment  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.9"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"17:00",
+        "Cur.":"ISK",
+        "Imp.":"Low",
+        "Event":"CPI (MoM)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.8%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"17:00",
+        "Cur.":"ISK",
+        "Imp.":"Low",
+        "Event":"CPI (YoY)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"5.2%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"17:30",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Belgium CPI (MoM)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"1.47%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"17:30",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Belgium CPI (YoY)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"4.01%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"17:30",
+        "Cur.":"ZAR",
+        "Imp.":"Low",
+        "Event":"PPI (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"1.1%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"17:30",
+        "Cur.":"ZAR",
+        "Imp.":"Low",
+        "Event":"PPI (YoY)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.3%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"18:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Italian PPI (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"4.4%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"18:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Italian PPI (YoY)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"4.2%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"18:00",
+        "Cur.":"ILS",
+        "Imp.":"Low",
+        "Event":"Industrial Output (MoM)  (Mar)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"5.8%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"18:30",
+        "Cur.":"INR",
+        "Imp.":"Low",
+        "Event":"Cumulative Industrial Production  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"4.10%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"18:30",
+        "Cur.":"INR",
+        "Imp.":"Low",
+        "Event":"Industrial Production (YoY)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"4.1%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"18:30",
+        "Cur.":"INR",
+        "Imp.":"Low",
+        "Event":"Manufacturing Output (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"4.3%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"19:00",
+        "Cur.":"BRL",
+        "Imp.":"Low",
+        "Event":"IGP-M Inflation Index (MoM)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.73%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"19:30",
+        "Cur.":"BRL",
+        "Imp.":"Low",
+        "Event":"Bank lending (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.9%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"19:30",
+        "Cur.":"TRY",
+        "Imp.":"Low",
+        "Event":"Gross FX Reserves",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:00",
+        "Cur.":"BRL",
+        "Imp.":"Low",
+        "Event":"Brazilian PPI (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.37%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:00",
+        "Cur.":"BRL",
+        "Imp.":"Medium",
+        "Event":"Unemployment Rate  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"6.1%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:00",
+        "Cur.":"MXN",
+        "Imp.":"Low",
+        "Event":"Unemployment Rate  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.80%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:00",
+        "Cur.":"MXN",
+        "Imp.":"Low",
+        "Event":"Unemployment Rate n.s.a.  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.40%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:30",
+        "Cur.":"CAD",
+        "Imp.":"Low",
+        "Event":"Average Weekly Earnings (YoY)  (Mar)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3.36%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:30",
+        "Cur.":"CAD",
+        "Imp.":"Medium",
+        "Event":"Current Account  (Q1)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-0.7B"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:30",
+        "Cur.":"USD",
+        "Imp.":"High",
+        "Event":"Core PCE Price Index (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.3%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:30",
+        "Cur.":"USD",
+        "Imp.":"High",
+        "Event":"Core PCE Price Index (YoY)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3.2%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:30",
+        "Cur.":"USD",
+        "Imp.":"High",
+        "Event":"Durable Goods Orders (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.8%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:30",
+        "Cur.":"USD",
+        "Imp.":"High",
+        "Event":"GDP (QoQ)  (Q1)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.0%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:30",
+        "Cur.":"USD",
+        "Imp.":"High",
+        "Event":"Initial Jobless Claims",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"Corporate Profits (QoQ)  (Q1)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"4.7%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"Durables Excluding Defense (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-0.3%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"GDP Sales  (Q1)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"1.6%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"Goods Orders Non Defense Ex Air (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3.4%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"Jobless Claims 4-Week Avg.",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"PCE Prices  (Q1)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"4.5%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"Personal Income (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.6%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"Real Consumer Spending  (Q1)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"1.6%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"Real Personal Consumption (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.2%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:30",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"Continuing Jobless Claims",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:30",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"Core Durable Goods Orders (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.9%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:30",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"Core PCE Prices  (Q1)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"4.30%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:30",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"GDP Price Index (QoQ)  (Q1)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3.6%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:30",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"PCE Price index (YoY)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3.5%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:30",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"PCE price index (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.7%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"20:30",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"Personal Spending (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.9%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"21:00",
+        "Cur.":"ZAR",
+        "Imp.":"Low",
+        "Event":"Prime Rate  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"10.25%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"21:00",
+        "Cur.":"ZAR",
+        "Imp.":"Medium",
+        "Event":"Interest Rate Decision  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"6.75%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"22:00",
+        "Cur.":"USD",
+        "Imp.":"High",
+        "Event":"New Home Sales  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"682K"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"22:00",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"Dallas Fed PCE  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.90%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"22:00",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"New Home Sales (MoM)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"7.4%"
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"22:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"Natural Gas Storage",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"23:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"4-Week Bill Auction",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"23:30",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"8-Week Bill Auction",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-05-28",
+        "Day":"Thursday",
+        "Time":"23:30",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"Atlanta Fed GDPNow  (Q2)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
     }
 ]
