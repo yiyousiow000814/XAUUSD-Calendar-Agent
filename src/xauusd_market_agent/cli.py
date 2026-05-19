@@ -30,6 +30,7 @@ def main() -> None:
     parser.add_argument("--live-once", action="store_true", help="Run one live analysis pass using local data providers.")
     parser.add_argument("--monitor-once", action="store_true", help="Run one live analysis pass with persisted state and local alert output.")
     parser.add_argument("--monitor-loop", action="store_true", help="Run repeated monitored live passes in a local loop.")
+    parser.add_argument("--backfill-recovery", action="store_true", help="Run one monitored pass and recover missed data when an offline gap is detected.")
     parser.add_argument("--timeline", action="store_true", help="Query persisted timeline events.")
     parser.add_argument("--replay", action="store_true", help="Query replay data from the timeline store.")
     parser.add_argument("--export-timeline", action="store_true", help="Export persisted replay data.")
@@ -96,6 +97,12 @@ def main() -> None:
         outcome = run_monitored_live_once(cfg, anchor_time=anchor)
         print(json.dumps(outcome, ensure_ascii=False, indent=2))
         return
+    if args.backfill_recovery:
+        cfg = MarketAgentConfig()
+        anchor = datetime.fromisoformat(args.anchor_time) if args.anchor_time else None
+        outcome = run_monitored_live_once(cfg, anchor_time=anchor)
+        print(json.dumps({"recovery": outcome}, ensure_ascii=False, indent=2))
+        return
     if args.monitor_loop:
         cfg = MarketAgentConfig()
         outcomes = run_monitor_loop(
@@ -107,7 +114,7 @@ def main() -> None:
         print(json.dumps(outcomes, ensure_ascii=False, indent=2))
         return
     if not args.dry_run:
-        parser.error("Pass --dry-run, --live-once, --monitor-once, or --monitor-loop.")
+        parser.error("Pass --dry-run, --live-once, --monitor-once, --monitor-loop, or --backfill-recovery.")
 
     fixture = load_builtin_fixture(args.scenario)
     result = build_rule_based_analysis(fixture)

@@ -66,6 +66,10 @@ fn telegram_config_path_for_root(root: &Path) -> PathBuf {
     root.join("market-agent-telegram.json")
 }
 
+fn llm_config_path_for_root(root: &Path) -> PathBuf {
+    root.join("market-agent-llm.json")
+}
+
 fn read_json_object(path: &Path) -> serde_json::Map<String, Value> {
     fs::read_to_string(path)
         .ok()
@@ -362,6 +366,239 @@ fn save_telegram_config_for_root(root: &Path, payload: &Value) -> Result<Value, 
     let merged = merged_telegram_config_for_root(root, Some(payload));
     write_json_atomic(&telegram_config_path_for_root(root), &merged)?;
     Ok(masked_telegram_config_for_root(root))
+}
+
+fn merged_llm_config_for_root(root: &Path, override_payload: Option<&Value>) -> Value {
+    let config_path = llm_config_path_for_root(root);
+    let config_payload = read_json_object(&config_path);
+    let input = override_payload
+        .and_then(|payload| payload.get("llm"))
+        .or(override_payload)
+        .and_then(Value::as_object)
+        .cloned()
+        .unwrap_or_default();
+    let get_str = |key: &str, fallback: &str| -> String {
+        input
+            .get(key)
+            .and_then(Value::as_str)
+            .or_else(|| config_payload.get(key).and_then(Value::as_str))
+            .unwrap_or(fallback)
+            .trim()
+            .to_string()
+    };
+    let get_bool = |key: &str, fallback: bool| -> bool {
+        input
+            .get(key)
+            .and_then(Value::as_bool)
+            .or_else(|| config_payload.get(key).and_then(Value::as_bool))
+            .unwrap_or(fallback)
+    };
+    let get_i64 = |key: &str, fallback: i64| -> i64 {
+        input
+            .get(key)
+            .and_then(Value::as_i64)
+            .or_else(|| config_payload.get(key).and_then(Value::as_i64))
+            .unwrap_or(fallback)
+    };
+    let get_f64 = |key: &str, fallback: f64| -> f64 {
+        input
+            .get(key)
+            .and_then(Value::as_f64)
+            .or_else(|| config_payload.get(key).and_then(Value::as_f64))
+            .unwrap_or(fallback)
+    };
+    json!({
+        "enabled": get_bool("enabled", false),
+        "provider": get_str("provider", "ollama"),
+        "endpoint": get_str("endpoint", "http://localhost:11434"),
+        "model": get_str("model", "qwen3:4b"),
+        "temperature": get_f64("temperature", 0.1),
+        "timeoutSeconds": get_i64("timeoutSeconds", 20),
+        "keepAlive": get_str("keepAlive", "0"),
+        "maxContext": get_i64("maxContext", 8192),
+        "configPath": config_path.display().to_string(),
+        "lastStatus": get_str("lastStatus", "disabled"),
+        "lastError": get_str("lastError", ""),
+    })
+}
+
+fn masked_llm_config_for_root(root: &Path) -> Value {
+    let merged = merged_llm_config_for_root(root, None);
+    json!({
+        "ok": true,
+        "available": true,
+        "llm": {
+            "enabled": merged.get("enabled").and_then(Value::as_bool).unwrap_or(false),
+            "provider": merged.get("provider").and_then(Value::as_str).unwrap_or("ollama"),
+            "endpoint": merged.get("endpoint").and_then(Value::as_str).unwrap_or("http://localhost:11434"),
+            "model": merged.get("model").and_then(Value::as_str).unwrap_or("qwen3:4b"),
+            "temperature": merged.get("temperature").and_then(Value::as_f64).unwrap_or(0.1),
+            "timeoutSeconds": merged.get("timeoutSeconds").and_then(Value::as_i64).unwrap_or(20),
+            "keepAlive": merged.get("keepAlive").and_then(Value::as_str).unwrap_or("0"),
+            "maxContext": merged.get("maxContext").and_then(Value::as_i64).unwrap_or(8192),
+            "configPath": merged.get("configPath").and_then(Value::as_str).unwrap_or(""),
+            "lastStatus": merged.get("lastStatus").and_then(Value::as_str).unwrap_or("disabled"),
+            "lastError": merged.get("lastError").and_then(Value::as_str).unwrap_or(""),
+        }
+    })
+}
+
+fn save_llm_config_for_root(root: &Path, payload: &Value) -> Result<Value, String> {
+    let merged = merged_llm_config_for_root(root, Some(payload));
+    write_json_atomic(&llm_config_path_for_root(root), &merged)?;
+    Ok(masked_llm_config_for_root(root))
+}
+
+fn llm_env_for_root(root: &Path) -> HashMap<String, String> {
+    let merged = merged_llm_config_for_root(root, None);
+    let mut env = HashMap::new();
+    env.insert(
+        "LOCAL_LLM_ENABLED".to_string(),
+        if merged
+            .get("enabled")
+            .and_then(Value::as_bool)
+            .unwrap_or(false)
+        {
+            "true".to_string()
+        } else {
+            "false".to_string()
+        },
+    );
+    env.insert(
+        "LOCAL_LLM_PROVIDER".to_string(),
+        merged
+            .get("provider")
+            .and_then(Value::as_str)
+            .unwrap_or("ollama")
+            .to_string(),
+    );
+    env.insert(
+        "LOCAL_LLM_ENDPOINT".to_string(),
+        merged
+            .get("endpoint")
+            .and_then(Value::as_str)
+            .unwrap_or("http://localhost:11434")
+            .to_string(),
+    );
+    env.insert(
+        "LOCAL_LLM_MODEL".to_string(),
+        merged
+            .get("model")
+            .and_then(Value::as_str)
+            .unwrap_or("qwen3:4b")
+            .to_string(),
+    );
+    env.insert(
+        "LOCAL_LLM_TEMPERATURE".to_string(),
+        merged
+            .get("temperature")
+            .and_then(Value::as_f64)
+            .unwrap_or(0.1)
+            .to_string(),
+    );
+    env.insert(
+        "LOCAL_LLM_TIMEOUT_SECONDS".to_string(),
+        merged
+            .get("timeoutSeconds")
+            .and_then(Value::as_i64)
+            .unwrap_or(20)
+            .to_string(),
+    );
+    env.insert(
+        "LOCAL_LLM_KEEP_ALIVE".to_string(),
+        merged
+            .get("keepAlive")
+            .and_then(Value::as_str)
+            .unwrap_or("0")
+            .to_string(),
+    );
+    env.insert(
+        "LOCAL_LLM_MAX_CONTEXT".to_string(),
+        merged
+            .get("maxContext")
+            .and_then(Value::as_i64)
+            .unwrap_or(8192)
+            .to_string(),
+    );
+    env
+}
+
+fn test_llm_for_root(root: &Path, payload: &Value, mode: &str) -> Value {
+    let merged = merged_llm_config_for_root(root, Some(payload));
+    let workdir = repo_root_from_manifest()
+        .or_else(|| std::env::current_dir().ok())
+        .unwrap_or_else(|| root.to_path_buf());
+    let mut child = match Command::new("python")
+        .args(["-m", "src.xauusd_market_agent.llm_bridge", mode])
+        .current_dir(workdir)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+    {
+        Ok(child) => child,
+        Err(err) => {
+            return json!({
+                "ok": false,
+                "status": "unavailable",
+                "error": format!("Unable to start LLM bridge: {err}"),
+                "llm": masked_llm_config_for_root(root).get("llm").cloned().unwrap_or(Value::Null),
+            })
+        }
+    };
+    if let Some(stdin) = child.stdin.as_mut() {
+        let _ = stdin.write_all(merged.to_string().as_bytes());
+    }
+    let parsed = match child.wait_with_output() {
+        Ok(output) => {
+            let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+            let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+            if !output.status.success() {
+                json!({
+                    "ok": false,
+                    "status": "unavailable",
+                    "error": if stderr.is_empty() { stdout } else { stderr },
+                })
+            } else {
+                serde_json::from_str::<Value>(&stdout).unwrap_or_else(|err| {
+                    json!({
+                        "ok": false,
+                        "status": "invalid_json",
+                        "error": format!("Unable to parse LLM bridge JSON: {err}"),
+                    })
+                })
+            }
+        }
+        Err(err) => json!({
+            "ok": false,
+            "status": "unavailable",
+            "error": format!("Unable to wait for LLM bridge: {err}"),
+        }),
+    };
+    let status = parsed.get("status").and_then(Value::as_str).unwrap_or(
+        if parsed.get("ok").and_then(Value::as_bool).unwrap_or(false) {
+            "available"
+        } else {
+            "unavailable"
+        },
+    );
+    let mut updated = merged.clone();
+    updated["lastStatus"] = Value::String(status.to_string());
+    updated["lastError"] = Value::String(
+        parsed
+            .get("error")
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .to_string(),
+    );
+    let _ = write_json_atomic(&llm_config_path_for_root(root), &updated);
+    json!({
+        "ok": parsed.get("ok").and_then(Value::as_bool).unwrap_or(false),
+        "status": status,
+        "message": parsed.get("message").and_then(Value::as_str).unwrap_or("LLM test completed."),
+        "error": parsed.get("error").and_then(Value::as_str).unwrap_or(""),
+        "llm": masked_llm_config_for_root(root).get("llm").cloned().unwrap_or(Value::Null),
+    })
 }
 
 fn telegram_env_for_root(root: &Path) -> HashMap<String, String> {
@@ -693,6 +930,9 @@ fn monitor_command_base(root: &Path) -> Command {
     for (key, value) in telegram_env_for_root(root) {
         command.env(key, value);
     }
+    for (key, value) in llm_env_for_root(root) {
+        command.env(key, value);
+    }
     command
 }
 
@@ -854,6 +1094,71 @@ fn run_monitor_once_for_root(root: &Path) -> Value {
             "nextRunAt": null,
             "lastError": err.to_string(),
             "message": "Unable to start monitor run.",
+        }),
+    };
+    let _ = write_monitor_status_for_root(root, &status);
+    status
+}
+
+fn run_backfill_recovery_for_root(root: &Path, spawn_process: bool) -> Value {
+    if !spawn_process {
+        let now = now_epoch_seconds();
+        let status = json!({
+            "ok": true,
+            "available": true,
+            "running": false,
+            "phase": "recovery_completed",
+            "pid": null,
+            "lastRunAt": now,
+            "lastRecoveryAt": now,
+            "nextRunAt": null,
+            "lastError": "",
+            "message": "Backfill recovery completed.",
+        });
+        let _ = write_monitor_status_for_root(root, &status);
+        return status;
+    }
+    let mut command = monitor_command_base(root);
+    command.args(["-m", "src.xauusd_market_agent.cli", "--backfill-recovery"]);
+    hide_child_window(&mut command);
+    let output = command.output();
+    let now = now_epoch_seconds();
+    let status = match output {
+        Ok(output) if output.status.success() => json!({
+            "ok": true,
+            "available": true,
+            "running": false,
+            "phase": "recovery_completed",
+            "pid": null,
+            "lastRunAt": now,
+            "lastRecoveryAt": now,
+            "nextRunAt": null,
+            "lastError": "",
+            "message": "Backfill recovery completed.",
+        }),
+        Ok(output) => json!({
+            "ok": false,
+            "available": true,
+            "running": false,
+            "phase": "recovery_failed",
+            "pid": null,
+            "lastRunAt": now,
+            "lastRecoveryAt": now,
+            "nextRunAt": null,
+            "lastError": String::from_utf8_lossy(&output.stderr).trim().to_string(),
+            "message": "Backfill recovery failed.",
+        }),
+        Err(err) => json!({
+            "ok": false,
+            "available": true,
+            "running": false,
+            "phase": "recovery_failed",
+            "pid": null,
+            "lastRunAt": now,
+            "lastRecoveryAt": now,
+            "nextRunAt": null,
+            "lastError": err.to_string(),
+            "message": "Unable to start backfill recovery.",
         }),
     };
     let _ = write_monitor_status_for_root(root, &status);
@@ -1602,6 +1907,11 @@ pub fn get_market_agent_telegram_config(_payload: Value) -> Value {
 }
 
 #[tauri::command]
+pub fn get_market_agent_llm_config(_payload: Value) -> Value {
+    masked_llm_config_for_root(&config::appdata_dir())
+}
+
+#[tauri::command]
 pub fn save_market_agent_telegram_config(payload: Value) -> Value {
     match save_telegram_config_for_root(&config::appdata_dir(), &payload) {
         Ok(value) => value,
@@ -1614,8 +1924,30 @@ pub fn save_market_agent_telegram_config(payload: Value) -> Value {
 }
 
 #[tauri::command]
+pub fn save_market_agent_llm_config(payload: Value) -> Value {
+    match save_llm_config_for_root(&config::appdata_dir(), &payload) {
+        Ok(value) => value,
+        Err(err) => json!({
+            "ok": false,
+            "available": false,
+            "message": err,
+        }),
+    }
+}
+
+#[tauri::command]
 pub fn test_market_agent_telegram(payload: Value) -> Value {
     test_telegram_for_root(&config::appdata_dir(), &payload)
+}
+
+#[tauri::command]
+pub fn test_market_agent_llm_connection(payload: Value) -> Value {
+    test_llm_for_root(&config::appdata_dir(), &payload, "connection")
+}
+
+#[tauri::command]
+pub fn test_market_agent_llm_json_response(payload: Value) -> Value {
+    test_llm_for_root(&config::appdata_dir(), &payload, "json")
 }
 
 #[tauri::command]
@@ -1658,6 +1990,11 @@ pub fn get_market_agent_monitor_status(_payload: Value) -> Value {
 #[tauri::command]
 pub fn run_market_agent_monitor_once(_payload: Value) -> Value {
     run_monitor_once_for_root(&config::appdata_dir())
+}
+
+#[tauri::command]
+pub fn run_market_agent_backfill_recovery(_payload: Value) -> Value {
+    run_backfill_recovery_for_root(&config::appdata_dir(), true)
 }
 
 #[tauri::command]
@@ -1756,11 +2093,13 @@ pub(crate) fn read_market_agent_replay(root: &Path, start: &str, end: &str) -> V
 mod tests {
     use super::{
         clear_ctrader_provider_config, ctrader_config_path_for_root,
-        ctrader_token_store_path_for_root, masked_ctrader_provider_config,
+        ctrader_token_store_path_for_root, llm_config_path_for_root, llm_env_for_root,
+        masked_ctrader_provider_config, masked_llm_config_for_root,
         masked_telegram_config_for_root, monitor_status_path_for_root, read_market_agent_replay,
-        read_market_agent_snapshot, read_monitor_status_for_root, save_ctrader_provider_config,
-        save_telegram_config_for_root, start_monitor_loop_for_root, stop_monitor_loop_for_root,
-        telegram_env_for_root, test_telegram_for_root, timeline_path_for_root,
+        read_market_agent_snapshot, read_monitor_status_for_root, run_backfill_recovery_for_root,
+        save_ctrader_provider_config, save_llm_config_for_root, save_telegram_config_for_root,
+        start_monitor_loop_for_root, stop_monitor_loop_for_root, telegram_env_for_root,
+        test_telegram_for_root, timeline_path_for_root,
     };
     use rusqlite::{params, Connection};
     use serde_json::{json, Value};
@@ -2411,6 +2750,45 @@ mod tests {
     }
 
     #[test]
+    fn saves_and_reads_llm_config_for_monitor_env() {
+        let dir = unique_temp_dir("llm-config");
+        let payload = json!({
+            "llm": {
+                "enabled": true,
+                "provider": "ollama",
+                "endpoint": "http://localhost:11434",
+                "model": "qwen3:4b",
+                "temperature": 0.1,
+                "timeoutSeconds": 20,
+                "keepAlive": "0",
+                "maxContext": 8192
+            }
+        });
+
+        let saved = save_llm_config_for_root(&dir, &payload).expect("save llm config");
+        let read_back = masked_llm_config_for_root(&dir);
+        let env = llm_env_for_root(&dir);
+
+        assert_eq!(saved.get("ok").and_then(Value::as_bool), Some(true));
+        assert!(llm_config_path_for_root(&dir).exists());
+        assert_eq!(
+            read_back
+                .get("llm")
+                .and_then(|value| value.get("model"))
+                .and_then(Value::as_str),
+            Some("qwen3:4b")
+        );
+        assert_eq!(
+            env.get("LOCAL_LLM_ENABLED").map(String::as_str),
+            Some("true")
+        );
+        assert_eq!(
+            env.get("LOCAL_LLM_MODEL").map(String::as_str),
+            Some("qwen3:4b")
+        );
+    }
+
+    #[test]
     fn telegram_test_without_token_returns_safe_failure() {
         let dir = unique_temp_dir("telegram-test-missing");
 
@@ -2472,5 +2850,20 @@ mod tests {
             stopped.get("phase").and_then(Value::as_str),
             Some("stopped")
         );
+    }
+
+    #[test]
+    fn backfill_recovery_records_recovery_status() {
+        let dir = unique_temp_dir("monitor-recovery");
+
+        let status = run_backfill_recovery_for_root(&dir, false);
+        let saved = read_monitor_status_for_root(&dir);
+
+        assert_eq!(status.get("ok").and_then(Value::as_bool), Some(true));
+        assert_eq!(
+            saved.get("phase").and_then(Value::as_str),
+            Some("recovery_completed")
+        );
+        assert!(saved.get("lastRecoveryAt").is_some());
     }
 }

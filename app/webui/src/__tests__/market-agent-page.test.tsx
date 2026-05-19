@@ -9,6 +9,8 @@ import type {
   MarketAgentProviderHealthResponse,
   MarketAgentReplayResponse,
   MarketAgentSnapshotResponse,
+  MarketAgentLLMConfigResponse,
+  MarketAgentLLMActionResponse,
   MarketAgentTelegramConfigResponse
 } from "../types";
 
@@ -122,6 +124,24 @@ const telegramConfig: MarketAgentTelegramConfigResponse = {
   }
 };
 
+const llmConfig: MarketAgentLLMConfigResponse = {
+  ok: true,
+  available: true,
+  llm: {
+    enabled: false,
+    provider: "ollama",
+    endpoint: "http://localhost:11434",
+    model: "qwen3:4b",
+    temperature: 0.1,
+    timeoutSeconds: 20,
+    keepAlive: "0",
+    maxContext: 8192,
+    configPath: "user-data/market-agent-llm.json",
+    lastStatus: "disabled",
+    lastError: ""
+  }
+};
+
 const driverAttention: MarketAgentDriverAttentionResponse = {
   ok: true,
   available: true,
@@ -230,6 +250,7 @@ describe("MarketAgentPage", () => {
         snapshot={snapshot}
         providerConfig={providerConfig}
         telegramConfig={telegramConfig}
+        llmConfig={llmConfig}
         providerHealth={providerHealth}
         driverAttention={driverAttention}
         replay={replay}
@@ -252,7 +273,11 @@ describe("MarketAgentPage", () => {
         onRefreshCTraderToken={async () => ({ ok: true })}
         onSaveTelegramConfig={async () => telegramConfig}
         onTestTelegramMessage={async () => ({ ok: true, status: "sent", message: "Telegram test message sent." })}
+        onSaveLLMConfig={async () => llmConfig}
+        onTestLLMConnection={async () => ({ ok: true, status: "available", message: "Ollama is available." })}
+        onTestLLMJsonResponse={async () => ({ ok: true, status: "available", message: "Model returned valid JSON." })}
         onRunMonitorOnce={async () => monitorStatus}
+        onRunBackfillRecovery={async () => ({ ...monitorStatus, phase: "recovery_completed", message: "Backfill recovery completed." })}
         onStartMonitorLoop={async () => ({ ...monitorStatus, running: true, phase: "running" })}
         onStopMonitorLoop={async () => monitorStatus}
       />
@@ -287,6 +312,7 @@ describe("MarketAgentPage", () => {
         snapshot={snapshot}
         providerConfig={providerConfig}
         telegramConfig={telegramConfig}
+        llmConfig={llmConfig}
         providerHealth={providerHealth}
         driverAttention={driverAttention}
         replay={replay}
@@ -309,7 +335,11 @@ describe("MarketAgentPage", () => {
         onRefreshCTraderToken={async () => ({ ok: true })}
         onSaveTelegramConfig={async () => telegramConfig}
         onTestTelegramMessage={async () => ({ ok: true, status: "sent", message: "Telegram test message sent." })}
+        onSaveLLMConfig={async () => llmConfig}
+        onTestLLMConnection={async () => ({ ok: true, status: "available", message: "Ollama is available." })}
+        onTestLLMJsonResponse={async () => ({ ok: true, status: "available", message: "Model returned valid JSON." })}
         onRunMonitorOnce={async () => monitorStatus}
+        onRunBackfillRecovery={async () => ({ ...monitorStatus, phase: "recovery_completed", message: "Backfill recovery completed." })}
         onStartMonitorLoop={async () => ({ ...monitorStatus, running: true, phase: "running" })}
         onStopMonitorLoop={async () => monitorStatus}
       />
@@ -339,6 +369,7 @@ describe("MarketAgentPage", () => {
         snapshot={snapshot}
         providerConfig={providerConfig}
         telegramConfig={telegramConfig}
+        llmConfig={llmConfig}
         providerHealth={providerHealth}
         driverAttention={driverAttention}
         replay={replay}
@@ -361,7 +392,11 @@ describe("MarketAgentPage", () => {
         onRefreshCTraderToken={refreshToken}
         onSaveTelegramConfig={async () => telegramConfig}
         onTestTelegramMessage={async () => ({ ok: true, status: "sent", message: "Telegram test message sent." })}
+        onSaveLLMConfig={async () => llmConfig}
+        onTestLLMConnection={async () => ({ ok: true, status: "available", message: "Ollama is available." })}
+        onTestLLMJsonResponse={async () => ({ ok: true, status: "available", message: "Model returned valid JSON." })}
         onRunMonitorOnce={async () => monitorStatus}
+        onRunBackfillRecovery={async () => ({ ...monitorStatus, phase: "recovery_completed", message: "Backfill recovery completed." })}
         onStartMonitorLoop={async () => ({ ...monitorStatus, running: true, phase: "running" })}
         onStopMonitorLoop={async () => monitorStatus}
       />
@@ -404,6 +439,7 @@ describe("MarketAgentPage", () => {
     expect(screen.getAllByText(/News/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Calendar/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Telegram/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/LLM/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/Monitor loop/i)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Choose price source/i })).toBeInTheDocument();
     expect(screen.getByText(/cTrader gives true spot XAUUSD/i)).toBeInTheDocument();
@@ -431,10 +467,21 @@ describe("MarketAgentPage", () => {
     expect(screen.getByLabelText(/Chat ID/i)).toHaveValue("123456789");
     expect(screen.getByRole("button", { name: /Send Test Message/i })).toBeInTheDocument();
 
+    fireEvent.click(screen.getByRole("button", { name: /LLM.*Ollama/i }));
+    expect(screen.getByRole("heading", { name: /Configure local LLM/i })).toBeInTheDocument();
+    expect(screen.getByText(/LLM is optional/i)).toBeInTheDocument();
+    expect(screen.getByText(/Evidence gate and validator remain final guards/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Enable local LLM/i)).not.toBeChecked();
+    expect(screen.getByLabelText(/Endpoint/i)).toHaveValue("http://localhost:11434");
+    expect(screen.getByLabelText(/Model/i)).toHaveValue("qwen3:4b");
+    expect(screen.getByRole("button", { name: /Test Ollama Connection/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Test Model JSON Response/i })).toBeInTheDocument();
+
     fireEvent.click(screen.getByRole("button", { name: /Monitoring.*Windows/i }));
     expect(screen.getByRole("heading", { name: /Start monitoring/i })).toBeInTheDocument();
     expect(screen.getByText(/Monitoring is not running\. Start the loop to receive live alerts\./i)).toBeInTheDocument();
-    expect(screen.getByText(/Backfill & Recover runs one monitor pass/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Backfill & Recover runs one monitor pass/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/Backfill & Recover runs the recovery command/i)).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: /Run Monitor Once/i }).length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: /Start Monitor Loop/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Stop Monitor Loop/i })).toBeInTheDocument();
@@ -464,6 +511,7 @@ describe("MarketAgentPage", () => {
         }}
         providerConfig={providerConfig}
         telegramConfig={telegramConfig}
+        llmConfig={llmConfig}
         providerHealth={localCsvProviderHealth}
         driverAttention={{ ok: true, available: true, states: [] }}
         replay={replay}
@@ -486,7 +534,11 @@ describe("MarketAgentPage", () => {
         onRefreshCTraderToken={async () => ({ ok: true })}
         onSaveTelegramConfig={async () => telegramConfig}
         onTestTelegramMessage={async () => ({ ok: true, status: "sent", message: "Telegram test message sent." })}
+        onSaveLLMConfig={async () => llmConfig}
+        onTestLLMConnection={async () => ({ ok: true, status: "available", message: "Ollama is available." })}
+        onTestLLMJsonResponse={async () => ({ ok: true, status: "available", message: "Model returned valid JSON." })}
         onRunMonitorOnce={async () => monitorStatus}
+        onRunBackfillRecovery={async () => ({ ...monitorStatus, phase: "recovery_completed", message: "Backfill recovery completed." })}
         onStartMonitorLoop={async () => ({ ...monitorStatus, running: true, phase: "running" })}
         onStopMonitorLoop={async () => monitorStatus}
       />
@@ -504,6 +556,7 @@ describe("MarketAgentPage", () => {
         snapshot={{ ok: true, available: false, message: "SQLite missing.", state: null, alerts: [] }}
         providerConfig={{ ok: true, available: false, message: "Provider config unavailable.", ctrader: null }}
         telegramConfig={{ ok: true, available: false, message: "Telegram config unavailable.", telegram: null }}
+        llmConfig={{ ok: true, available: false, message: "LLM config unavailable.", llm: null }}
         providerHealth={{ ok: true, available: false, message: "Provider health unavailable.", items: [] }}
         driverAttention={{ ok: true, available: false, message: "Driver attention unavailable.", states: [] }}
         replay={{
@@ -541,7 +594,11 @@ describe("MarketAgentPage", () => {
         onRefreshCTraderToken={async () => ({ ok: true })}
         onSaveTelegramConfig={async () => telegramConfig}
         onTestTelegramMessage={async () => ({ ok: false, status: "failed", error: "telegram unavailable" })}
+        onSaveLLMConfig={async () => llmConfig}
+        onTestLLMConnection={async () => ({ ok: false, status: "unavailable", error: "ollama unavailable" })}
+        onTestLLMJsonResponse={async () => ({ ok: false, status: "invalid_json", error: "invalid json" })}
         onRunMonitorOnce={async () => monitorStatus}
+        onRunBackfillRecovery={async () => ({ ...monitorStatus, phase: "recovery_failed", lastError: "recovery unavailable" })}
         onStartMonitorLoop={async () => ({ ...monitorStatus, running: true, phase: "running" })}
         onStopMonitorLoop={async () => monitorStatus}
       />

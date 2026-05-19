@@ -4,6 +4,9 @@ import type {
   MarketAgentProviderActionResponse,
   MarketAgentProviderConfigInput,
   MarketAgentProviderConfigResponse,
+  MarketAgentLLMActionResponse,
+  MarketAgentLLMConfigInput,
+  MarketAgentLLMConfigResponse,
   MarketAgentMonitorStatusResponse,
   MarketAgentTelegramActionResponse,
   MarketAgentTelegramConfigInput,
@@ -15,6 +18,7 @@ import "./MarketAgentProviderConfig.css";
 type MarketAgentProviderConfigProps = {
   data: MarketAgentProviderConfigResponse | null;
   telegramData: MarketAgentTelegramConfigResponse | null;
+  llmData: MarketAgentLLMConfigResponse | null;
   onSave: (ctrader: MarketAgentProviderConfigInput) => void;
   onClear: () => void;
   onTestConnection: (ctrader: MarketAgentProviderConfigInput) => Promise<MarketAgentProviderActionResponse>;
@@ -23,13 +27,17 @@ type MarketAgentProviderConfigProps = {
   onRefreshToken: (ctrader: MarketAgentProviderConfigInput) => Promise<MarketAgentProviderActionResponse>;
   onSaveTelegram: (telegram: MarketAgentTelegramConfigInput) => Promise<MarketAgentTelegramConfigResponse>;
   onTestTelegram: (telegram: MarketAgentTelegramConfigInput) => Promise<MarketAgentTelegramActionResponse>;
+  onSaveLLM: (llm: MarketAgentLLMConfigInput) => Promise<MarketAgentLLMConfigResponse>;
+  onTestLLMConnection: (llm: MarketAgentLLMConfigInput) => Promise<MarketAgentLLMActionResponse>;
+  onTestLLMJsonResponse: (llm: MarketAgentLLMConfigInput) => Promise<MarketAgentLLMActionResponse>;
   monitorStatus: MarketAgentMonitorStatusResponse | null;
   onRunMonitorOnce: () => Promise<MarketAgentMonitorStatusResponse>;
+  onRunBackfillRecovery: () => Promise<MarketAgentMonitorStatusResponse>;
   onStartMonitorLoop: () => Promise<MarketAgentMonitorStatusResponse>;
   onStopMonitorLoop: () => Promise<MarketAgentMonitorStatusResponse>;
 };
 
-type SetupStep = "price" | "ctrader" | "fallbacks" | "news" | "telegram" | "monitoring";
+type SetupStep = "price" | "ctrader" | "fallbacks" | "news" | "llm" | "telegram" | "monitoring";
 
 const emptyForm: MarketAgentProviderConfigInput = {
   enabled: false,
@@ -58,9 +66,21 @@ const emptyTelegramForm: MarketAgentTelegramConfigInput = {
   levels: ["level_2", "level_3"]
 };
 
+const emptyLLMForm: MarketAgentLLMConfigInput = {
+  enabled: false,
+  provider: "ollama",
+  endpoint: "http://localhost:11434",
+  model: "qwen3:4b",
+  temperature: 0.1,
+  timeoutSeconds: 20,
+  keepAlive: "0",
+  maxContext: 8192
+};
+
 export function MarketAgentProviderConfig({
   data,
   telegramData,
+  llmData,
   onSave,
   onClear,
   onTestConnection,
@@ -69,15 +89,21 @@ export function MarketAgentProviderConfig({
   onRefreshToken,
   onSaveTelegram,
   onTestTelegram,
+  onSaveLLM,
+  onTestLLMConnection,
+  onTestLLMJsonResponse,
   monitorStatus,
   onRunMonitorOnce,
+  onRunBackfillRecovery,
   onStartMonitorLoop,
   onStopMonitorLoop
 }: MarketAgentProviderConfigProps) {
   const [form, setForm] = useState<MarketAgentProviderConfigInput>(emptyForm);
   const [telegramForm, setTelegramForm] = useState<MarketAgentTelegramConfigInput>(emptyTelegramForm);
+  const [llmForm, setLLMForm] = useState<MarketAgentLLMConfigInput>(emptyLLMForm);
   const [actionResult, setActionResult] = useState<MarketAgentProviderActionResponse | null>(null);
   const [telegramResult, setTelegramResult] = useState<MarketAgentTelegramActionResponse | null>(null);
+  const [llmResult, setLLMResult] = useState<MarketAgentLLMActionResponse | null>(null);
   const [actionLabel, setActionLabel] = useState("");
   const [activeStep, setActiveStep] = useState<SetupStep>("price");
   const [advancedOpen, setAdvancedOpen] = useState(false);
@@ -114,6 +140,21 @@ export function MarketAgentProviderConfig({
     }));
   }, [telegramData]);
 
+  useEffect(() => {
+    const llm = llmData?.llm;
+    if (!llm) return;
+    setLLMForm({
+      enabled: llm.enabled,
+      provider: llm.provider || "ollama",
+      endpoint: llm.endpoint || "http://localhost:11434",
+      model: llm.model || "qwen3:4b",
+      temperature: typeof llm.temperature === "number" ? llm.temperature : 0.1,
+      timeoutSeconds: llm.timeoutSeconds || 20,
+      keepAlive: llm.keepAlive || "0",
+      maxContext: llm.maxContext || 8192
+    });
+  }, [llmData]);
+
   const statusTone = useMemo(() => {
     if (!data?.available) return "bad";
     if (data.ctrader?.enabled) return "good";
@@ -121,7 +162,7 @@ export function MarketAgentProviderConfig({
   }, [data]);
 
   const setupComplete = Boolean(
-    data?.ctrader?.enabled || telegramData?.telegram?.enabled || monitorStatus?.running
+    data?.ctrader?.enabled || telegramData?.telegram?.enabled || llmData?.llm?.enabled || monitorStatus?.running
   );
 
   const checklist = [
@@ -139,6 +180,11 @@ export function MarketAgentProviderConfig({
       tone: telegramData?.telegram?.enabled ? "good" : "warn"
     },
     {
+      label: "LLM",
+      value: llmData?.llm?.enabled ? llmData.llm.lastStatus || "Enabled" : "Disabled",
+      tone: llmData?.llm?.enabled ? (llmData.llm.lastError ? "bad" : "good") : "neutral"
+    },
+    {
       label: "Monitor loop",
       value: monitorStatus?.running ? "Running" : "Stopped",
       tone: monitorStatus?.running ? "good" : "warn"
@@ -150,6 +196,7 @@ export function MarketAgentProviderConfig({
     { id: "ctrader", label: "cTrader", summary: "Add Open API tokens and test spot." },
     { id: "fallbacks", label: "Fallbacks", summary: "Keep proxy and related assets honest." },
     { id: "news", label: "News & Calendar", summary: "Connect headlines and event windows." },
+    { id: "llm", label: "LLM", summary: "Optional Ollama analysis after evidence." },
     { id: "telegram", label: "Telegram", summary: "Send only meaningful alerts." },
     { id: "monitoring", label: "Monitoring", summary: "Run, loop, and recover on Windows." }
   ];
@@ -175,6 +222,11 @@ export function MarketAgentProviderConfig({
   const runTelegramAction = async () => {
     const result = await onTestTelegram(telegramForm);
     setTelegramResult(result);
+  };
+
+  const runLLMAction = async (action: (llm: MarketAgentLLMConfigInput) => Promise<MarketAgentLLMActionResponse>) => {
+    const result = await action(llmForm);
+    setLLMResult(result);
   };
 
   const renderCTraderResult = () => (
@@ -474,13 +526,138 @@ export function MarketAgentProviderConfig({
               <strong>RSS News</strong>
               <p>Connect RSS feeds for Fed, macro, geopolitical, and XAUUSD-relevant headlines.</p>
               <MarketAgentStatusBadge label="Configure feeds" tone="warn" />
+              <code>NEWS_RSS_FEEDS</code>
             </article>
             <article>
               <strong>ForexFactory Calendar</strong>
               <p>Use economic event windows to separate scheduled catalysts from unsupported narratives.</p>
               <MarketAgentStatusBadge label="Calendar windows" tone="neutral" />
+              <code>MARKET_AGENT_FOREX_FACTORY_SOURCE_URL</code>
             </article>
           </div>
+        </div>
+      );
+    }
+
+    if (activeStep === "llm") {
+      return (
+        <div className="market-agent-setup-panel">
+          <h3>Configure local LLM</h3>
+          <p>
+            LLM is optional. The rule-based evidence gate works when LLM is disabled, and LLM runs only after
+            meaningful triggers or explicit analysis requests.
+          </p>
+          <p className="market-agent-security-note">
+            Evidence gate and validator remain final guards. LLM is not the source of truth; invalid JSON, blocked
+            driver claims, and timeouts fall back to the rule-based report.
+          </p>
+          {!llmData?.available ? (
+            <div className="market-agent-empty-state">{llmData?.message || "LLM configuration is unavailable."}</div>
+          ) : (
+            <>
+              <div className="market-agent-provider-config-statuses">
+                <MarketAgentStatusBadge
+                  label={llmData.llm?.enabled ? llmData.llm.lastStatus || "Enabled" : "Disabled"}
+                  tone={llmData.llm?.lastError ? "bad" : llmData.llm?.enabled ? "good" : "neutral"}
+                />
+                <MarketAgentStatusBadge label={llmData.llm?.provider || "Ollama"} tone="neutral" />
+              </div>
+              <div className="market-agent-provider-config-grid llm">
+                <label className="market-agent-toggle">
+                  <input
+                    type="checkbox"
+                    checked={llmForm.enabled}
+                    onChange={(event) => setLLMForm((current) => ({ ...current, enabled: event.target.checked }))}
+                  />
+                  <span>Enable local LLM</span>
+                </label>
+                <label>
+                  <span>Provider</span>
+                  <select
+                    value={llmForm.provider}
+                    onChange={(event) => setLLMForm((current) => ({ ...current, provider: event.target.value }))}
+                  >
+                    <option value="ollama">Ollama</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Endpoint</span>
+                  <input
+                    value={llmForm.endpoint}
+                    onChange={(event) => setLLMForm((current) => ({ ...current, endpoint: event.target.value }))}
+                  />
+                </label>
+                <label>
+                  <span>Model</span>
+                  <input
+                    value={llmForm.model}
+                    onChange={(event) => setLLMForm((current) => ({ ...current, model: event.target.value }))}
+                  />
+                </label>
+                <label>
+                  <span>Temperature</span>
+                  <input
+                    value={llmForm.temperature}
+                    onChange={(event) =>
+                      setLLMForm((current) => ({ ...current, temperature: Number(event.target.value) || 0.1 }))
+                    }
+                  />
+                </label>
+                <label>
+                  <span>Timeout seconds</span>
+                  <input
+                    value={llmForm.timeoutSeconds}
+                    onChange={(event) =>
+                      setLLMForm((current) => ({ ...current, timeoutSeconds: Number(event.target.value) || 20 }))
+                    }
+                  />
+                </label>
+                <label>
+                  <span>Keep alive</span>
+                  <input
+                    value={llmForm.keepAlive}
+                    onChange={(event) => setLLMForm((current) => ({ ...current, keepAlive: event.target.value }))}
+                  />
+                </label>
+                <label>
+                  <span>Max context</span>
+                  <input
+                    value={llmForm.maxContext}
+                    onChange={(event) =>
+                      setLLMForm((current) => ({ ...current, maxContext: Number(event.target.value) || 8192 }))
+                    }
+                  />
+                </label>
+              </div>
+              <div className="market-agent-provider-config-actions">
+                <button type="button" className="btn ghost btn-compact" onClick={() => void onSaveLLM(llmForm)}>
+                  Save LLM
+                </button>
+                <button type="button" className="btn ghost btn-compact" onClick={() => void runLLMAction(onTestLLMConnection)}>
+                  Test Ollama Connection
+                </button>
+                <button type="button" className="btn ghost btn-compact" onClick={() => void runLLMAction(onTestLLMJsonResponse)}>
+                  Test Model JSON Response
+                </button>
+              </div>
+              <div className="market-agent-provider-config-meta">
+                <span>Config path: {llmData.llm?.configPath || "--"}</span>
+                <span>Last status: {llmData.llm?.lastStatus || "Disabled"}</span>
+                <span>Last error: {llmData.llm?.lastError || "None"}</span>
+              </div>
+              {llmResult ? (
+                <div className="market-agent-provider-config-result">
+                  <div className="market-agent-provider-config-result-head">
+                    <strong>LLM Test</strong>
+                    <MarketAgentStatusBadge label={llmResult.status || (llmResult.ok ? "available" : "failed")} />
+                  </div>
+                  <div className="market-agent-provider-config-result-body">
+                    <span>{llmResult.message || llmResult.error || "Completed."}</span>
+                  </div>
+                </div>
+              ) : null}
+            </>
+          )}
         </div>
       );
     }
@@ -607,7 +784,7 @@ export function MarketAgentProviderConfig({
           <p className="market-agent-warning-line">Configure a price source before live monitoring.</p>
         ) : null}
         <p className="market-agent-monitor-note">
-          Backfill & Recover runs one monitor pass and reconstructs missed data when the monitor detects an offline gap.
+          Backfill & Recover runs the recovery command, reconstructs missed data, and records the recovery status.
         </p>
         <div className="market-agent-monitor-control-grid guided">
           <span>Status</span>
@@ -631,7 +808,7 @@ export function MarketAgentProviderConfig({
           <button type="button" className="btn ghost btn-compact" onClick={() => void onStopMonitorLoop()}>
             Stop Monitor Loop
           </button>
-          <button type="button" className="btn ghost btn-compact" onClick={() => void onRunMonitorOnce()}>
+          <button type="button" className="btn ghost btn-compact" onClick={() => void onRunBackfillRecovery()}>
             Backfill & Recover
           </button>
         </div>

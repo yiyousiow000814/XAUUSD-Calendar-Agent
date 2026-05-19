@@ -9,8 +9,8 @@ Normal priority:
 1. cTrader Open API spot provider for true XAUUSD price, when configured
 2. cTrader M1 trendbars for recovery and backfill, when configured
 3. Yahoo chart provider for proxy data
-3. optional fallback providers
-4. local CSV fallback only when explicitly enabled
+4. optional fallback providers
+5. local CSV fallback only when explicitly enabled
 
 If no provider is available, the system must not crash. It should surface provider health as unavailable.
 
@@ -119,6 +119,41 @@ Calendar data may come from:
 
 If no calendar source is configured, provider health should show unavailable rather than silently pretending the feed is empty.
 
+## Local LLM
+
+The local LLM path is optional and disabled by default.
+
+Default setup:
+
+- provider: Ollama
+- endpoint: `http://localhost:11434`
+- model: `qwen3:4b`
+- temperature: `0.1`
+- timeout: `20` seconds
+- keep alive: `0`
+- max context: `8192`
+
+The LLM is not a provider of market truth. It only receives the evidence packet after a meaningful trigger, driver-state change, high-impact event, recovery summary, or explicit user analysis action.
+
+The prompt includes:
+
+- market move
+- provider health
+- active and dormant driver states
+- driver attention summary
+- allowed candidate drivers
+- blocked drivers
+- cross-asset confirmation
+- evidence status
+- timeline
+- previous state
+
+Invalid JSON, unavailable Ollama, timeout, or a blocked-driver claim must fall back to rule-based output. The validator remains the final guard.
+
+The desktop app stores local LLM settings under user-data:
+
+- `market-agent-llm.json`
+
 ## Environment variables
 
 ```powershell
@@ -143,6 +178,19 @@ $env:MARKET_AGENT_TIMELINE_STORE_PATH = "user-data/market_agent_timeline.sqlite"
 $env:MARKET_AGENT_STATE_STORE_PATH = "user-data/market_agent_state.json"
 $env:MARKET_AGENT_ALERTS_OUTPUT_PATH = "user-data/market_agent_alerts.ndjson"
 $env:MARKET_AGENT_CTRADER_SAVED_SNAPSHOT_PATH = "user-data/ctrader-last-quote.json"
+$env:LOCAL_LLM_ENABLED = "false"
+$env:LOCAL_LLM_PROVIDER = "ollama"
+$env:LOCAL_LLM_ENDPOINT = "http://localhost:11434"
+$env:LOCAL_LLM_MODEL = "qwen3:4b"
+$env:LOCAL_LLM_TEMPERATURE = "0.1"
+$env:LOCAL_LLM_TIMEOUT_SECONDS = "20"
+$env:LOCAL_LLM_KEEP_ALIVE = "0"
+$env:LOCAL_LLM_MAX_CONTEXT = "8192"
+$env:MARKET_AGENT_TELEGRAM_ENABLED = "false"
+$env:MARKET_AGENT_TELEGRAM_BOT_TOKEN = ""
+$env:MARKET_AGENT_TELEGRAM_CHAT_ID = ""
+$env:MARKET_AGENT_TELEGRAM_TIMEOUT_SECONDS = "10"
+$env:MARKET_AGENT_TELEGRAM_LEVELS = "level_2,level_3"
 ```
 
 ## Windows monitor commands
@@ -157,6 +205,12 @@ Run the monitoring loop:
 
 ```powershell
 python -m src.xauusd_market_agent.cli --monitor-loop --interval-seconds 60
+```
+
+Run backfill and recovery:
+
+```powershell
+python -m src.xauusd_market_agent.cli --backfill-recovery
 ```
 
 Run a cTrader-backed pass with Yahoo fallback still enabled:

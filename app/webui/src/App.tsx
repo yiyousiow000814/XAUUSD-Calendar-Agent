@@ -24,6 +24,9 @@ import "./App.css";
 import type {
   MarketAgentDriverAttentionResponse,
   MarketAgentEvidenceForRunResponse,
+  MarketAgentLLMActionResponse,
+  MarketAgentLLMConfigInput,
+  MarketAgentLLMConfigResponse,
   MarketAgentMonitorStatusResponse,
   MarketAgentProviderActionResponse,
   MarketAgentProviderConfigInput,
@@ -301,6 +304,7 @@ export default function App() {
   const [marketAgentProviderHealth, setMarketAgentProviderHealth] = useState<MarketAgentProviderHealthResponse | null>(null);
   const [marketAgentProviderConfig, setMarketAgentProviderConfig] = useState<MarketAgentProviderConfigResponse | null>(null);
   const [marketAgentTelegramConfig, setMarketAgentTelegramConfig] = useState<MarketAgentTelegramConfigResponse | null>(null);
+  const [marketAgentLLMConfig, setMarketAgentLLMConfig] = useState<MarketAgentLLMConfigResponse | null>(null);
   const [marketAgentDriverAttention, setMarketAgentDriverAttention] = useState<MarketAgentDriverAttentionResponse | null>(null);
   const [marketAgentEvidence, setMarketAgentEvidence] = useState<MarketAgentEvidenceForRunResponse | null>(null);
   const [marketAgentMonitorStatus, setMarketAgentMonitorStatus] = useState<MarketAgentMonitorStatusResponse | null>(null);
@@ -507,6 +511,26 @@ export default function App() {
     }
   }, [withTimeout]);
 
+  const refreshMarketAgentLLMConfig = useCallback(async () => {
+    try {
+      const next = await withTimeout(
+        backend.getMarketAgentLLMConfig(),
+        8000,
+        "backend.getMarketAgentLLMConfig()"
+      );
+      setMarketAgentLLMConfig(next);
+      return next;
+    } catch {
+      setMarketAgentLLMConfig({
+        ok: false,
+        available: false,
+        message: "Unable to load LLM configuration.",
+        llm: null
+      });
+      return null;
+    }
+  }, [withTimeout]);
+
   const refreshMarketAgentDriverAttention = useCallback(async () => {
     try {
       const next = await withTimeout(
@@ -581,13 +605,14 @@ export default function App() {
 
   const refreshMarketAgentWorkspace = useCallback(
     async (start: string, end: string) => {
-      const [snapshotResult, providerResult, driverResult, replayResult, providerConfigResult, telegramConfigResult] = await Promise.all([
+      const [snapshotResult, providerResult, driverResult, replayResult, providerConfigResult, telegramConfigResult, llmConfigResult] = await Promise.all([
         refreshMarketAgentSnapshot(),
         refreshMarketAgentProviderHealth(),
         refreshMarketAgentDriverAttention(),
         refreshMarketAgentReplay(start, end),
         refreshMarketAgentProviderConfig(),
         refreshMarketAgentTelegramConfig(),
+        refreshMarketAgentLLMConfig(),
         refreshMarketAgentMonitorStatus()
       ]);
       const preferredRunId =
@@ -602,7 +627,7 @@ export default function App() {
         setMarketAgentEvidence(null);
         setMarketAgentSelectedRunId(null);
       }
-      return { snapshotResult, providerResult, driverResult, replayResult, providerConfigResult, telegramConfigResult };
+      return { snapshotResult, providerResult, driverResult, replayResult, providerConfigResult, telegramConfigResult, llmConfigResult };
     },
     [
       refreshMarketAgentDriverAttention,
@@ -611,6 +636,7 @@ export default function App() {
       refreshMarketAgentProviderConfig,
       refreshMarketAgentProviderHealth,
       refreshMarketAgentReplay,
+      refreshMarketAgentLLMConfig,
       refreshMarketAgentTelegramConfig,
       refreshMarketAgentSnapshot
     ]
@@ -641,6 +667,39 @@ export default function App() {
       return next;
     },
     [withTimeout]
+  );
+
+  const saveMarketAgentLLMConfig = useCallback(
+    async (llm: MarketAgentLLMConfigInput) => {
+      const next = await withTimeout(
+        backend.saveMarketAgentLLMConfig(llm),
+        10000,
+        "backend.saveMarketAgentLLMConfig()"
+      );
+      setMarketAgentLLMConfig(next);
+      return next;
+    },
+    [withTimeout]
+  );
+
+  const runMarketAgentLLMAction = useCallback(
+    async (
+      action: (llm: MarketAgentLLMConfigInput) => Promise<MarketAgentLLMActionResponse>,
+      llm: MarketAgentLLMConfigInput
+    ) => {
+      const result = await withTimeout(action(llm), 12000, "market-agent-llm-action");
+      if (result.llm) {
+        setMarketAgentLLMConfig({
+          ok: true,
+          available: true,
+          llm: result.llm
+        });
+      } else {
+        await refreshMarketAgentLLMConfig();
+      }
+      return result;
+    },
+    [refreshMarketAgentLLMConfig, withTimeout]
   );
 
   const runMarketAgentTelegramAction = useCallback(
@@ -3758,6 +3817,7 @@ export default function App() {
             snapshot={marketAgentSnapshot}
             providerConfig={marketAgentProviderConfig}
             telegramConfig={marketAgentTelegramConfig}
+            llmConfig={marketAgentLLMConfig}
             providerHealth={marketAgentProviderHealth}
             driverAttention={marketAgentDriverAttention}
             replay={marketAgentReplay}
@@ -3795,7 +3855,15 @@ export default function App() {
             onTestTelegramMessage={(telegram) =>
               runMarketAgentTelegramAction(backend.testMarketAgentTelegram, telegram)
             }
+            onSaveLLMConfig={(llm) => saveMarketAgentLLMConfig(llm)}
+            onTestLLMConnection={(llm) =>
+              runMarketAgentLLMAction(backend.testMarketAgentLLMConnection, llm)
+            }
+            onTestLLMJsonResponse={(llm) =>
+              runMarketAgentLLMAction(backend.testMarketAgentLLMJsonResponse, llm)
+            }
             onRunMonitorOnce={() => runMarketAgentMonitorAction(backend.runMarketAgentMonitorOnce)}
+            onRunBackfillRecovery={() => runMarketAgentMonitorAction(backend.runMarketAgentBackfillRecovery)}
             onStartMonitorLoop={() => runMarketAgentMonitorAction(() => backend.startMarketAgentMonitorLoop(60))}
             onStopMonitorLoop={() => runMarketAgentMonitorAction(backend.stopMarketAgentMonitorLoop)}
           />

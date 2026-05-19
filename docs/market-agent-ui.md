@@ -19,7 +19,7 @@ This view is not a trading-entry panel. It does not provide prediction, TP, or S
 1. Launch the desktop app.
 2. Use the top app bar button `Market Agent`.
 3. The Activity drawer card remains a compact preview only. Use `Open Market Agent` there to jump into the full page.
-4. Use `Data Sources` on the Market Agent page to configure cTrader and test provider health.
+4. Use `Data Sources` on the Market Agent page to follow the guided setup for price, cTrader, fallbacks, news/calendar, LLM, Telegram, and monitoring.
 
 ## What the page shows
 
@@ -83,7 +83,17 @@ Honest current status:
 
 ### Data Sources
 
-The `Data Sources` panel lets you:
+The `Data Sources` panel is a guided setup flow. It shows a real setup checklist for:
+
+- price source
+- related assets
+- news
+- calendar
+- local LLM
+- Telegram
+- monitor loop
+
+The cTrader step lets you:
 
 - save cTrader config into user-data
 - test cTrader connection
@@ -93,6 +103,30 @@ The `Data Sources` panel lets you:
 - clear the saved config
 
 Saved values remain masked in the UI. The frontend must not display raw secrets after persistence.
+
+The LLM step lets you configure local Ollama analysis:
+
+- enable local LLM
+- provider: `ollama`
+- endpoint
+- model
+- temperature
+- timeout seconds
+- keep alive
+- max context
+- test connection
+- test strict JSON response
+
+LLM is optional. The rule-based evidence gate works when LLM is disabled. LLM is called only after meaningful triggers, recovery summaries, or explicit analysis requests. It is not the source of truth; invalid JSON and blocked-driver claims fall back to guarded rule-based output.
+
+The Monitoring step exposes:
+
+- Run Monitor Once
+- Start Monitor Loop
+- Stop Monitor Loop
+- Backfill & Recover
+
+`Backfill & Recover` calls the explicit recovery command. It detects missed periods through monitor state, reconstructs missed data when possible, and records recovery status in user-data.
 
 ### Market Replay
 
@@ -151,6 +185,11 @@ The provider configuration panel reads and writes:
 
 under the app user-data directory.
 
+LLM and Telegram configuration are stored under the app user-data directory:
+
+- `market-agent-llm.json`
+- `market-agent-telegram.json`
+
 ## Related CLI commands
 
 Run once:
@@ -163,6 +202,25 @@ Run continuously:
 
 ```powershell
 python -m src.xauusd_market_agent.cli --monitor-loop --interval-seconds 60
+```
+
+Run backfill and recovery:
+
+```powershell
+python -m src.xauusd_market_agent.cli --backfill-recovery
+```
+
+Typical local LLM setup:
+
+```powershell
+$env:LOCAL_LLM_ENABLED = "true"
+$env:LOCAL_LLM_PROVIDER = "ollama"
+$env:LOCAL_LLM_ENDPOINT = "http://localhost:11434"
+$env:LOCAL_LLM_MODEL = "qwen3:4b"
+$env:LOCAL_LLM_TEMPERATURE = "0.1"
+$env:LOCAL_LLM_TIMEOUT_SECONDS = "20"
+$env:LOCAL_LLM_KEEP_ALIVE = "0"
+$env:LOCAL_LLM_MAX_CONTEXT = "8192"
 ```
 
 Typical cTrader setup before running:

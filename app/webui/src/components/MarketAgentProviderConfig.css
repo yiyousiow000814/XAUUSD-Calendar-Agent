@@ -263,6 +263,22 @@
   grid-template-columns: minmax(210px, 1.1fr) minmax(210px, 1.2fr) minmax(180px, 1fr) minmax(140px, 0.7fr);
 }
 
+.market-agent-provider-config-grid.llm {
+  grid-template-columns: minmax(190px, 1fr) repeat(3, minmax(160px, 1fr));
+}
+
+.market-agent-source-options code {
+  display: inline-flex;
+  max-width: 100%;
+  margin-top: 10px;
+  padding: 5px 7px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary, #9aa4b2);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
 .market-agent-provider-config-grid input::placeholder {
   color: var(--text-muted, #748094);
 }

@@ -422,6 +422,46 @@ export type MarketAgentTelegramActionResponse = {
   telegram?: MarketAgentTelegramConfig | null;
 };
 
+export type MarketAgentLLMConfig = {
+  enabled: boolean;
+  provider: string;
+  endpoint: string;
+  model: string;
+  temperature: number;
+  timeoutSeconds: number;
+  keepAlive: string;
+  maxContext: number;
+  configPath: string;
+  lastStatus?: string;
+  lastError?: string;
+};
+
+export type MarketAgentLLMConfigResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  llm?: MarketAgentLLMConfig | null;
+};
+
+export type MarketAgentLLMConfigInput = {
+  enabled: boolean;
+  provider: string;
+  endpoint: string;
+  model: string;
+  temperature: number;
+  timeoutSeconds: number;
+  keepAlive: string;
+  maxContext: number;
+};
+
+export type MarketAgentLLMActionResponse = {
+  ok: boolean;
+  status?: string;
+  message?: string;
+  error?: string;
+  llm?: MarketAgentLLMConfig | null;
+};
+
 export type MarketAgentDriverAttentionResponse = {
   ok: boolean;
   available: boolean;
@@ -490,6 +530,7 @@ export type MarketAgentMonitorStatusResponse = {
   intervalSeconds?: number;
   lastRunAt?: number | string | null;
   nextRunAt?: number | string | null;
+  lastRecoveryAt?: number | string | null;
   lastError?: string;
   message?: string;
 };

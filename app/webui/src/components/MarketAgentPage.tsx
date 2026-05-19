@@ -9,6 +9,9 @@ import type {
   MarketAgentProviderConfigResponse,
   MarketAgentProviderHealthEntry,
   MarketAgentProviderHealthResponse,
+  MarketAgentLLMActionResponse,
+  MarketAgentLLMConfigInput,
+  MarketAgentLLMConfigResponse,
   MarketAgentReplayPayload,
   MarketAgentReplayResponse,
   MarketAgentSnapshotResponse,
@@ -49,6 +52,7 @@ type MarketAgentPageProps = {
   snapshot: MarketAgentSnapshotResponse | null;
   providerConfig: MarketAgentProviderConfigResponse | null;
   telegramConfig: MarketAgentTelegramConfigResponse | null;
+  llmConfig: MarketAgentLLMConfigResponse | null;
   providerHealth: MarketAgentProviderHealthResponse | null;
   driverAttention: MarketAgentDriverAttentionResponse | null;
   replay: MarketAgentReplayResponse | null;
@@ -71,7 +75,11 @@ type MarketAgentPageProps = {
   onRefreshCTraderToken: (ctrader: MarketAgentProviderConfigInput) => Promise<MarketAgentProviderActionResponse>;
   onSaveTelegramConfig: (telegram: MarketAgentTelegramConfigInput) => Promise<MarketAgentTelegramConfigResponse>;
   onTestTelegramMessage: (telegram: MarketAgentTelegramConfigInput) => Promise<MarketAgentTelegramActionResponse>;
+  onSaveLLMConfig: (llm: MarketAgentLLMConfigInput) => Promise<MarketAgentLLMConfigResponse>;
+  onTestLLMConnection: (llm: MarketAgentLLMConfigInput) => Promise<MarketAgentLLMActionResponse>;
+  onTestLLMJsonResponse: (llm: MarketAgentLLMConfigInput) => Promise<MarketAgentLLMActionResponse>;
   onRunMonitorOnce: () => Promise<MarketAgentMonitorStatusResponse>;
+  onRunBackfillRecovery: () => Promise<MarketAgentMonitorStatusResponse>;
   onStartMonitorLoop: () => Promise<MarketAgentMonitorStatusResponse>;
   onStopMonitorLoop: () => Promise<MarketAgentMonitorStatusResponse>;
 };
@@ -481,6 +489,7 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
         <MarketAgentProviderConfig
           data={props.providerConfig}
           telegramData={props.telegramConfig}
+          llmData={props.llmConfig}
           onSave={props.onSaveProviderConfig}
           onClear={props.onClearProviderConfig}
           onTestConnection={props.onTestCTraderConnection}
@@ -489,8 +498,12 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
           onRefreshToken={props.onRefreshCTraderToken}
           onSaveTelegram={props.onSaveTelegramConfig}
           onTestTelegram={props.onTestTelegramMessage}
+          onSaveLLM={props.onSaveLLMConfig}
+          onTestLLMConnection={props.onTestLLMConnection}
+          onTestLLMJsonResponse={props.onTestLLMJsonResponse}
           monitorStatus={props.monitorStatus}
           onRunMonitorOnce={props.onRunMonitorOnce}
+          onRunBackfillRecovery={props.onRunBackfillRecovery}
           onStartMonitorLoop={props.onStartMonitorLoop}
           onStopMonitorLoop={props.onStopMonitorLoop}
         />
@@ -604,7 +617,7 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
         <div className="market-agent-quick-actions">
           <strong>Quick Actions</strong>
           <button type="button" onClick={() => void props.onRunMonitorOnce()}>Run Monitor Once</button>
-          <button type="button" onClick={() => setSection("replay")}>Backfill & Recover</button>
+          <button type="button" onClick={() => void props.onRunBackfillRecovery()}>Backfill & Recover</button>
           <button type="button" onClick={() => setSection("sources")}>Configure Data Sources</button>
         </div>
       </aside>

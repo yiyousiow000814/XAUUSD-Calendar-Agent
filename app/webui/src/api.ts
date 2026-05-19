@@ -4,6 +4,9 @@ import type {
   EventImpactResponse,
   MarketAgentDriverAttentionResponse,
   MarketAgentEvidenceForRunResponse,
+  MarketAgentLLMActionResponse,
+  MarketAgentLLMConfigInput,
+  MarketAgentLLMConfigResponse,
   MarketAgentMonitorStatusResponse,
   MarketAgentProviderActionResponse,
   MarketAgentProviderConfigInput,
@@ -54,9 +57,14 @@ type BackendApi = {
   get_market_agent_suppressed_alerts?: (payload: { start: string; end: string }) => ApiResult<MarketAgentSuppressedAlertsResponse>;
   get_market_agent_monitor_status?: (_payload: Record<string, never>) => ApiResult<MarketAgentMonitorStatusResponse>;
   run_market_agent_monitor_once?: (_payload: Record<string, never>) => ApiResult<MarketAgentMonitorStatusResponse>;
+  run_market_agent_backfill_recovery?: (_payload: Record<string, never>) => ApiResult<MarketAgentMonitorStatusResponse>;
   start_market_agent_monitor_loop?: (payload: { intervalSeconds: number }) => ApiResult<MarketAgentMonitorStatusResponse>;
   stop_market_agent_monitor_loop?: (_payload: Record<string, never>) => ApiResult<MarketAgentMonitorStatusResponse>;
   save_market_agent_provider_config?: (payload: { ctrader: MarketAgentProviderConfigInput }) => ApiResult<MarketAgentProviderConfigResponse>;
+  get_market_agent_llm_config?: (_payload: Record<string, never>) => ApiResult<MarketAgentLLMConfigResponse>;
+  save_market_agent_llm_config?: (payload: { llm: MarketAgentLLMConfigInput }) => ApiResult<MarketAgentLLMConfigResponse>;
+  test_market_agent_llm_connection?: (payload: { llm: MarketAgentLLMConfigInput }) => ApiResult<MarketAgentLLMActionResponse>;
+  test_market_agent_llm_json_response?: (payload: { llm: MarketAgentLLMConfigInput }) => ApiResult<MarketAgentLLMActionResponse>;
   get_market_agent_telegram_config?: (_payload: Record<string, never>) => ApiResult<MarketAgentTelegramConfigResponse>;
   save_market_agent_telegram_config?: (payload: { telegram: MarketAgentTelegramConfigInput }) => ApiResult<MarketAgentTelegramConfigResponse>;
   test_market_agent_telegram?: (payload: { telegram: MarketAgentTelegramConfigInput }) => ApiResult<MarketAgentTelegramActionResponse>;
@@ -700,6 +708,34 @@ const buildMockMarketAgentTelegramAction = (
   ...overrides
 });
 
+const buildMockMarketAgentLLMConfig = (): MarketAgentLLMConfigResponse => ({
+  ok: true,
+  available: true,
+  llm: {
+    enabled: false,
+    provider: "ollama",
+    endpoint: "http://localhost:11434",
+    model: "qwen3:4b",
+    temperature: 0.1,
+    timeoutSeconds: 20,
+    keepAlive: "0",
+    maxContext: 8192,
+    configPath: "user-data/market-agent-llm.json",
+    lastStatus: "disabled",
+    lastError: ""
+  }
+});
+
+const buildMockMarketAgentLLMAction = (
+  overrides: Partial<MarketAgentLLMActionResponse> = {}
+): MarketAgentLLMActionResponse => ({
+  ok: true,
+  status: "available",
+  message: "Ollama is available and returned valid JSON.",
+  llm: buildMockMarketAgentLLMConfig().llm ?? null,
+  ...overrides
+});
+
 const buildMockMarketAgentDriverAttention = (): MarketAgentDriverAttentionResponse => ({
   ok: true,
   available: true,
@@ -1286,6 +1322,19 @@ export const backend = {
     }
     return api.get_market_agent_telegram_config({});
   },
+  getMarketAgentLLMConfig: async (): ApiResult<MarketAgentLLMConfigResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockMarketAgentLLMConfig());
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "get_market_agent_llm_config")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentLLMConfig());
+    }
+    return api.get_market_agent_llm_config({});
+  },
   getMarketAgentDriverAttention: async (): ApiResult<MarketAgentDriverAttentionResponse> => {
     if (isUiCheckRuntime()) {
       return Promise.resolve(buildMockMarketAgentDriverAttention());
@@ -1372,6 +1421,28 @@ export const backend = {
     }
     return api.run_market_agent_monitor_once({});
   },
+  runMarketAgentBackfillRecovery: async (): ApiResult<MarketAgentMonitorStatusResponse> => {
+    if (isUiCheckRuntime()) {
+      mockMarketAgentMonitorStatus = {
+        ...mockMarketAgentMonitorStatus,
+        ok: true,
+        running: false,
+        phase: "recovery_completed",
+        lastRunAt: Date.now(),
+        lastRecoveryAt: Date.now(),
+        message: "Backfill recovery completed."
+      } as MarketAgentMonitorStatusResponse;
+      return Promise.resolve(mockMarketAgentMonitorStatus);
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "run_market_agent_backfill_recovery")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(mockMarketAgentMonitorStatus);
+    }
+    return api.run_market_agent_backfill_recovery({});
+  },
   startMarketAgentMonitorLoop: async (intervalSeconds = 60): ApiResult<MarketAgentMonitorStatusResponse> => {
     if (isUiCheckRuntime()) {
       mockMarketAgentMonitorStatus = {
@@ -1430,6 +1501,45 @@ export const backend = {
       return Promise.resolve(buildMockMarketAgentProviderConfig());
     }
     return api.save_market_agent_provider_config({ ctrader });
+  },
+  saveMarketAgentLLMConfig: async (llm: MarketAgentLLMConfigInput): ApiResult<MarketAgentLLMConfigResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockMarketAgentLLMConfig());
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "save_market_agent_llm_config")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentLLMConfig());
+    }
+    return api.save_market_agent_llm_config({ llm });
+  },
+  testMarketAgentLLMConnection: async (llm: MarketAgentLLMConfigInput): ApiResult<MarketAgentLLMActionResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockMarketAgentLLMAction({ message: "Ollama is available." }));
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "test_market_agent_llm_connection")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentLLMAction({ message: "Ollama is available." }));
+    }
+    return api.test_market_agent_llm_connection({ llm });
+  },
+  testMarketAgentLLMJsonResponse: async (llm: MarketAgentLLMConfigInput): ApiResult<MarketAgentLLMActionResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockMarketAgentLLMAction({ message: "Model returned valid JSON." }));
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "test_market_agent_llm_json_response")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentLLMAction({ message: "Model returned valid JSON." }));
+    }
+    return api.test_market_agent_llm_json_response({ llm });
   },
   saveMarketAgentTelegramConfig: async (telegram: MarketAgentTelegramConfigInput): ApiResult<MarketAgentTelegramConfigResponse> => {
     if (isUiCheckRuntime()) {
