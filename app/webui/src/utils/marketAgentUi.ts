@@ -193,9 +193,9 @@ export const providerGuidance = (item: MarketAgentProviderHealthEntry | undefine
   if (item.is_stale || dataMode === "stale") {
     return item.stale_reason || "The latest value is stale and cannot confirm a fresh move.";
   }
-  if (sourceType === "futures_proxy") return "Yahoo GC=F is a futures proxy, not true spot XAUUSD.";
+  if (sourceType === "futures_proxy") return "Using Yahoo GC=F futures proxy, not true spot XAUUSD.";
   if (sourceType === "local_csv_fallback" || dataMode === "local_csv_fallback" || source.includes("csv")) {
-    return "This is not ideal for live monitoring. Configure cTrader or Yahoo provider.";
+    return "Using local CSV fallback. Configure cTrader or Yahoo provider for live monitoring.";
   }
   if (sourceType === "spot") return "True spot quote source for XAUUSD when cTrader is configured and fresh.";
   return "Fresh enough for monitoring, but evidence gates still decide whether it confirms a driver.";

@@ -2477,11 +2477,16 @@ const main = async () => {
         if (!(root instanceof HTMLElement)) return false;
         const text = root.innerText || root.textContent || "";
         return (
-          text.includes("Current Situation") &&
-          text.includes("Active Attention") &&
-          text.includes("Data Quality") &&
-          text.includes("Recent Timeline") &&
-          text.includes("Data Sources")
+          text.includes("Live Situation") &&
+          text.includes("XAUUSD Price") &&
+          text.includes("Market State") &&
+          text.includes("Latest Move") &&
+          text.includes("Evidence Status") &&
+          text.includes("Next Update") &&
+          text.includes("Driver Attention Summary") &&
+          text.includes("Market Replay Today") &&
+          text.includes("Latest Evidence") &&
+          text.includes("Provider Health")
         );
       }, { timeout: 4000 });
       artifacts.push({
@@ -2490,6 +2495,7 @@ const main = async () => {
         state: "open",
         path: await captureState(page, "market-agent", theme.key, "open")
       });
+      await page.getByRole("button", { name: "Data Sources", exact: true }).click();
       const providerConfig = page.locator("[data-qa='qa:market-agent:provider-config']").first();
       if (!(await providerConfig.count())) {
         throw new Error("Market Agent provider config panel not found");

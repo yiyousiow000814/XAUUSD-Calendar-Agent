@@ -24,12 +24,16 @@ import "./App.css";
 import type {
   MarketAgentDriverAttentionResponse,
   MarketAgentEvidenceForRunResponse,
+  MarketAgentMonitorStatusResponse,
   MarketAgentProviderActionResponse,
   MarketAgentProviderConfigInput,
   MarketAgentProviderConfigResponse,
   MarketAgentProviderHealthResponse,
   MarketAgentReplayResponse,
-  MarketAgentSnapshotResponse
+  MarketAgentSnapshotResponse,
+  MarketAgentTelegramActionResponse,
+  MarketAgentTelegramConfigInput,
+  MarketAgentTelegramConfigResponse
 } from "./types";
 
 const defaultCurrencyOptions = Array.from(CURRENCY_OPTIONS);
@@ -296,8 +300,10 @@ export default function App() {
   const [marketAgentReplay, setMarketAgentReplay] = useState<MarketAgentReplayResponse | null>(null);
   const [marketAgentProviderHealth, setMarketAgentProviderHealth] = useState<MarketAgentProviderHealthResponse | null>(null);
   const [marketAgentProviderConfig, setMarketAgentProviderConfig] = useState<MarketAgentProviderConfigResponse | null>(null);
+  const [marketAgentTelegramConfig, setMarketAgentTelegramConfig] = useState<MarketAgentTelegramConfigResponse | null>(null);
   const [marketAgentDriverAttention, setMarketAgentDriverAttention] = useState<MarketAgentDriverAttentionResponse | null>(null);
   const [marketAgentEvidence, setMarketAgentEvidence] = useState<MarketAgentEvidenceForRunResponse | null>(null);
+  const [marketAgentMonitorStatus, setMarketAgentMonitorStatus] = useState<MarketAgentMonitorStatusResponse | null>(null);
   const [marketAgentSelectedRunId, setMarketAgentSelectedRunId] = useState<number | null>(null);
   const [marketAgentRangePreset, setMarketAgentRangePreset] = useState<MarketAgentRangePreset>("4h");
   const initialMarketAgentRange = useMemo(() => buildRangeWindow("4h"), []);
@@ -481,6 +487,26 @@ export default function App() {
     }
   }, [withTimeout]);
 
+  const refreshMarketAgentTelegramConfig = useCallback(async () => {
+    try {
+      const next = await withTimeout(
+        backend.getMarketAgentTelegramConfig(),
+        8000,
+        "backend.getMarketAgentTelegramConfig()"
+      );
+      setMarketAgentTelegramConfig(next);
+      return next;
+    } catch {
+      setMarketAgentTelegramConfig({
+        ok: false,
+        available: false,
+        message: "Unable to load Telegram configuration.",
+        telegram: null
+      });
+      return null;
+    }
+  }, [withTimeout]);
+
   const refreshMarketAgentDriverAttention = useCallback(async () => {
     try {
       const next = await withTimeout(
@@ -498,6 +524,29 @@ export default function App() {
         states: []
       });
       return null;
+    }
+  }, [withTimeout]);
+
+  const refreshMarketAgentMonitorStatus = useCallback(async () => {
+    try {
+      const next = await withTimeout(
+        backend.getMarketAgentMonitorStatus(),
+        8000,
+        "backend.getMarketAgentMonitorStatus()"
+      );
+      setMarketAgentMonitorStatus(next);
+      return next;
+    } catch {
+      const fallback = {
+        ok: false,
+        available: false,
+        running: false,
+        phase: "error",
+        message: "Unable to load monitor status.",
+        lastError: "Desktop backend unavailable."
+      };
+      setMarketAgentMonitorStatus(fallback);
+      return fallback;
     }
   }, [withTimeout]);
 
@@ -532,12 +581,14 @@ export default function App() {
 
   const refreshMarketAgentWorkspace = useCallback(
     async (start: string, end: string) => {
-      const [snapshotResult, providerResult, driverResult, replayResult, providerConfigResult] = await Promise.all([
+      const [snapshotResult, providerResult, driverResult, replayResult, providerConfigResult, telegramConfigResult] = await Promise.all([
         refreshMarketAgentSnapshot(),
         refreshMarketAgentProviderHealth(),
         refreshMarketAgentDriverAttention(),
         refreshMarketAgentReplay(start, end),
-        refreshMarketAgentProviderConfig()
+        refreshMarketAgentProviderConfig(),
+        refreshMarketAgentTelegramConfig(),
+        refreshMarketAgentMonitorStatus()
       ]);
       const preferredRunId =
         replayResult?.replay.timeline_events[0]?.monitor_run_id ??
@@ -551,14 +602,16 @@ export default function App() {
         setMarketAgentEvidence(null);
         setMarketAgentSelectedRunId(null);
       }
-      return { snapshotResult, providerResult, driverResult, replayResult, providerConfigResult };
+      return { snapshotResult, providerResult, driverResult, replayResult, providerConfigResult, telegramConfigResult };
     },
     [
       refreshMarketAgentDriverAttention,
       refreshMarketAgentEvidence,
+      refreshMarketAgentMonitorStatus,
       refreshMarketAgentProviderConfig,
       refreshMarketAgentProviderHealth,
       refreshMarketAgentReplay,
+      refreshMarketAgentTelegramConfig,
       refreshMarketAgentSnapshot
     ]
   );
@@ -577,6 +630,39 @@ export default function App() {
     [refreshMarketAgentProviderHealth, withTimeout]
   );
 
+  const saveMarketAgentTelegramConfig = useCallback(
+    async (telegram: MarketAgentTelegramConfigInput) => {
+      const next = await withTimeout(
+        backend.saveMarketAgentTelegramConfig(telegram),
+        10000,
+        "backend.saveMarketAgentTelegramConfig()"
+      );
+      setMarketAgentTelegramConfig(next);
+      return next;
+    },
+    [withTimeout]
+  );
+
+  const runMarketAgentTelegramAction = useCallback(
+    async (
+      action: (telegram: MarketAgentTelegramConfigInput) => Promise<MarketAgentTelegramActionResponse>,
+      telegram: MarketAgentTelegramConfigInput
+    ) => {
+      const result = await withTimeout(action(telegram), 12000, "market-agent-telegram-action");
+      if (result.telegram) {
+        setMarketAgentTelegramConfig({
+          ok: true,
+          available: true,
+          telegram: result.telegram
+        });
+      } else {
+        await refreshMarketAgentTelegramConfig();
+      }
+      return result;
+    },
+    [refreshMarketAgentTelegramConfig, withTimeout]
+  );
+
   const runMarketAgentProviderAction = useCallback(
     async (
       action: (ctrader: MarketAgentProviderConfigInput) => Promise<MarketAgentProviderActionResponse>,
@@ -587,6 +673,29 @@ export default function App() {
       return result;
     },
     [refreshMarketAgentProviderHealth, withTimeout]
+  );
+
+  const runMarketAgentMonitorAction = useCallback(
+    async (action: () => Promise<MarketAgentMonitorStatusResponse>) => {
+      const result = await withTimeout(action(), 15000, "market-agent-monitor-action");
+      setMarketAgentMonitorStatus(result);
+      await Promise.all([
+        refreshMarketAgentSnapshot(),
+        refreshMarketAgentProviderHealth(),
+        refreshMarketAgentDriverAttention(),
+        refreshMarketAgentReplay(marketAgentRangeStart, marketAgentRangeEnd)
+      ]);
+      return result;
+    },
+    [
+      marketAgentRangeEnd,
+      marketAgentRangeStart,
+      refreshMarketAgentDriverAttention,
+      refreshMarketAgentProviderHealth,
+      refreshMarketAgentReplay,
+      refreshMarketAgentSnapshot,
+      withTimeout
+    ]
   );
 
   const refresh = async (): Promise<Snapshot | null> => {
@@ -3648,10 +3757,12 @@ export default function App() {
           <MarketAgentPage
             snapshot={marketAgentSnapshot}
             providerConfig={marketAgentProviderConfig}
+            telegramConfig={marketAgentTelegramConfig}
             providerHealth={marketAgentProviderHealth}
             driverAttention={marketAgentDriverAttention}
             replay={marketAgentReplay}
             selectedEvidence={marketAgentEvidence}
+            monitorStatus={marketAgentMonitorStatus}
             selectedMonitorRunId={marketAgentSelectedRunId}
             rangePreset={marketAgentRangePreset}
             rangeStartInput={marketAgentRangeStartInput}
@@ -3680,6 +3791,13 @@ export default function App() {
                 return result;
               })
             }
+            onSaveTelegramConfig={(telegram) => saveMarketAgentTelegramConfig(telegram)}
+            onTestTelegramMessage={(telegram) =>
+              runMarketAgentTelegramAction(backend.testMarketAgentTelegram, telegram)
+            }
+            onRunMonitorOnce={() => runMarketAgentMonitorAction(backend.runMarketAgentMonitorOnce)}
+            onStartMonitorLoop={() => runMarketAgentMonitorAction(() => backend.startMarketAgentMonitorLoop(60))}
+            onStopMonitorLoop={() => runMarketAgentMonitorAction(backend.stopMarketAgentMonitorLoop)}
           />
         ) : (
           <div

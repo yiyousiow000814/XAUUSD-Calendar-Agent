@@ -1,10 +1,12 @@
 use crate::config;
 use rusqlite::{params, Connection, OptionalExtension};
 use serde_json::{json, Value};
+use std::collections::HashMap;
 use std::fs;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 type LatestMonitorRun = (i64, String, String);
 type LatestPayloadRows = (Option<i64>, Option<String>, Vec<Value>);
@@ -48,12 +50,20 @@ fn timeline_path_for_root(root: &Path) -> PathBuf {
     root.join("market_agent_timeline.sqlite")
 }
 
+fn monitor_status_path_for_root(root: &Path) -> PathBuf {
+    root.join("market_agent_monitor_status.json")
+}
+
 fn ctrader_config_path_for_root(root: &Path) -> PathBuf {
     root.join("ctrader-openapi.json")
 }
 
 fn ctrader_token_store_path_for_root(root: &Path) -> PathBuf {
     root.join("ctrader-token.json")
+}
+
+fn telegram_config_path_for_root(root: &Path) -> PathBuf {
+    root.join("market-agent-telegram.json")
 }
 
 fn read_json_object(path: &Path) -> serde_json::Map<String, Value> {
@@ -254,6 +264,254 @@ fn save_ctrader_provider_config(root: &Path, payload: &Value) -> Result<Value, S
     Ok(masked_ctrader_provider_config(root))
 }
 
+fn array_or_csv(value: Option<&Value>, fallback: &[&str]) -> Vec<String> {
+    if let Some(Value::Array(items)) = value {
+        let parsed: Vec<String> = items
+            .iter()
+            .filter_map(Value::as_str)
+            .map(str::trim)
+            .filter(|item| !item.is_empty())
+            .map(str::to_string)
+            .collect();
+        if !parsed.is_empty() {
+            return parsed;
+        }
+    }
+    if let Some(raw) = value.and_then(Value::as_str) {
+        let parsed: Vec<String> = raw
+            .split(',')
+            .map(str::trim)
+            .filter(|item| !item.is_empty())
+            .map(str::to_string)
+            .collect();
+        if !parsed.is_empty() {
+            return parsed;
+        }
+    }
+    fallback.iter().map(|item| item.to_string()).collect()
+}
+
+fn merged_telegram_config_for_root(root: &Path, override_payload: Option<&Value>) -> Value {
+    let config_path = telegram_config_path_for_root(root);
+    let config_payload = read_json_object(&config_path);
+    let input = override_payload
+        .and_then(|payload| payload.get("telegram"))
+        .or(override_payload)
+        .and_then(Value::as_object)
+        .cloned()
+        .unwrap_or_default();
+    let get_str = |key: &str| -> String {
+        input
+            .get(key)
+            .and_then(Value::as_str)
+            .or_else(|| config_payload.get(key).and_then(Value::as_str))
+            .unwrap_or("")
+            .trim()
+            .to_string()
+    };
+    let get_bool = |key: &str, fallback: bool| -> bool {
+        input
+            .get(key)
+            .and_then(Value::as_bool)
+            .or_else(|| config_payload.get(key).and_then(Value::as_bool))
+            .unwrap_or(fallback)
+    };
+    let get_i64 = |key: &str, fallback: i64| -> i64 {
+        input
+            .get(key)
+            .and_then(Value::as_i64)
+            .or_else(|| config_payload.get(key).and_then(Value::as_i64))
+            .unwrap_or(fallback)
+    };
+    let levels = array_or_csv(
+        input.get("levels").or_else(|| config_payload.get("levels")),
+        &["level_2", "level_3"],
+    );
+    json!({
+        "enabled": get_bool("enabled", false),
+        "botToken": get_str("botToken"),
+        "chatId": get_str("chatId"),
+        "timeoutSeconds": get_i64("timeoutSeconds", 10),
+        "levels": levels,
+        "configPath": config_path.display().to_string(),
+        "lastSendStatus": get_str("lastSendStatus"),
+        "lastError": get_str("lastError"),
+    })
+}
+
+fn masked_telegram_config_for_root(root: &Path) -> Value {
+    let merged = merged_telegram_config_for_root(root, None);
+    json!({
+        "ok": true,
+        "available": true,
+        "telegram": {
+            "enabled": merged.get("enabled").and_then(Value::as_bool).unwrap_or(false),
+            "botTokenMasked": mask_secret(merged.get("botToken").and_then(Value::as_str).unwrap_or("")),
+            "hasBotToken": !merged.get("botToken").and_then(Value::as_str).unwrap_or("").trim().is_empty(),
+            "chatId": merged.get("chatId").and_then(Value::as_str).unwrap_or(""),
+            "timeoutSeconds": merged.get("timeoutSeconds").and_then(Value::as_i64).unwrap_or(10),
+            "levels": merged.get("levels").cloned().unwrap_or_else(|| json!(["level_2", "level_3"])),
+            "configPath": merged.get("configPath").and_then(Value::as_str).unwrap_or(""),
+            "lastSendStatus": merged.get("lastSendStatus").and_then(Value::as_str).unwrap_or("not tested"),
+            "lastError": merged.get("lastError").and_then(Value::as_str).unwrap_or(""),
+        }
+    })
+}
+
+fn save_telegram_config_for_root(root: &Path, payload: &Value) -> Result<Value, String> {
+    let merged = merged_telegram_config_for_root(root, Some(payload));
+    write_json_atomic(&telegram_config_path_for_root(root), &merged)?;
+    Ok(masked_telegram_config_for_root(root))
+}
+
+fn telegram_env_for_root(root: &Path) -> HashMap<String, String> {
+    let merged = merged_telegram_config_for_root(root, None);
+    let mut env = HashMap::new();
+    env.insert(
+        "MARKET_AGENT_TELEGRAM_ENABLED".to_string(),
+        if merged
+            .get("enabled")
+            .and_then(Value::as_bool)
+            .unwrap_or(false)
+        {
+            "true".to_string()
+        } else {
+            "false".to_string()
+        },
+    );
+    env.insert(
+        "MARKET_AGENT_TELEGRAM_BOT_TOKEN".to_string(),
+        merged
+            .get("botToken")
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .to_string(),
+    );
+    env.insert(
+        "MARKET_AGENT_TELEGRAM_CHAT_ID".to_string(),
+        merged
+            .get("chatId")
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .to_string(),
+    );
+    env.insert(
+        "MARKET_AGENT_TELEGRAM_TIMEOUT_SECONDS".to_string(),
+        merged
+            .get("timeoutSeconds")
+            .and_then(Value::as_i64)
+            .unwrap_or(10)
+            .to_string(),
+    );
+    let levels = merged
+        .get("levels")
+        .and_then(Value::as_array)
+        .map(|items| {
+            items
+                .iter()
+                .filter_map(Value::as_str)
+                .collect::<Vec<_>>()
+                .join(",")
+        })
+        .unwrap_or_else(|| "level_2,level_3".to_string());
+    env.insert("MARKET_AGENT_TELEGRAM_LEVELS".to_string(), levels);
+    env
+}
+
+fn test_telegram_for_root(root: &Path, payload: &Value) -> Value {
+    let merged = merged_telegram_config_for_root(root, Some(payload));
+    let bot_token = merged
+        .get("botToken")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let chat_id = merged
+        .get("chatId")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    if bot_token.is_empty() || chat_id.is_empty() {
+        return json!({
+            "ok": false,
+            "status": "failed",
+            "error": "Telegram bot token and chat ID are required.",
+            "telegram": masked_telegram_config_for_root(root).get("telegram").cloned().unwrap_or(Value::Null),
+        });
+    }
+    let workdir = repo_root_from_manifest()
+        .or_else(|| std::env::current_dir().ok())
+        .unwrap_or_else(|| root.to_path_buf());
+    let mut child = match Command::new("python")
+        .args(["-m", "src.xauusd_market_agent.telegram_bridge"])
+        .current_dir(workdir)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+    {
+        Ok(child) => child,
+        Err(err) => {
+            return json!({
+                "ok": false,
+                "status": "failed",
+                "error": format!("Unable to start Telegram bridge: {err}"),
+                "telegram": masked_telegram_config_for_root(root).get("telegram").cloned().unwrap_or(Value::Null),
+            })
+        }
+    };
+    if let Some(stdin) = child.stdin.as_mut() {
+        let _ = stdin.write_all(merged.to_string().as_bytes());
+    }
+    let parsed = match child.wait_with_output() {
+        Ok(output) => {
+            let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+            let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+            if !output.status.success() {
+                json!({
+                    "ok": false,
+                    "status": "failed",
+                    "error": if stderr.is_empty() { stdout } else { stderr },
+                })
+            } else {
+                serde_json::from_str::<Value>(&stdout).unwrap_or_else(|err| {
+                    json!({
+                        "ok": false,
+                        "status": "failed",
+                        "error": format!("Unable to parse Telegram bridge JSON: {err}"),
+                    })
+                })
+            }
+        }
+        Err(err) => json!({
+            "ok": false,
+            "status": "failed",
+            "error": format!("Unable to wait for Telegram bridge: {err}"),
+        }),
+    };
+    let status = if parsed.get("ok").and_then(Value::as_bool).unwrap_or(false) {
+        "sent"
+    } else {
+        "failed"
+    };
+    let mut updated = merged.clone();
+    updated["lastSendStatus"] = Value::String(status.to_string());
+    updated["lastError"] = Value::String(
+        parsed
+            .get("error")
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .to_string(),
+    );
+    let _ = write_json_atomic(&telegram_config_path_for_root(root), &updated);
+    json!({
+        "ok": status == "sent",
+        "status": status,
+        "message": parsed.get("message").and_then(Value::as_str).unwrap_or("Telegram test completed."),
+        "error": parsed.get("error").and_then(Value::as_str).unwrap_or(""),
+        "telegram": masked_telegram_config_for_root(root).get("telegram").cloned().unwrap_or(Value::Null),
+    })
+}
+
 fn clear_ctrader_provider_config(root: &Path) -> Result<Value, String> {
     let config_path = ctrader_config_path_for_root(root);
     let token_store_path = read_json_object(&config_path)
@@ -384,6 +642,222 @@ fn run_ctrader_bridge(root: &Path, command: &str, payload: &Value) -> Value {
             "error": format!("Unable to wait for cTrader bridge: {err}"),
         }),
     }
+}
+
+fn now_epoch_seconds() -> i64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|value| value.as_secs() as i64)
+        .unwrap_or(0)
+}
+
+fn read_monitor_status_for_root(root: &Path) -> Value {
+    read_json_file(&monitor_status_path_for_root(root)).unwrap_or_else(|| {
+        json!({
+            "ok": true,
+            "available": true,
+            "running": false,
+            "phase": "stopped",
+            "pid": null,
+            "lastRunAt": null,
+            "nextRunAt": null,
+            "lastError": "",
+            "message": "Monitor loop is stopped.",
+        })
+    })
+}
+
+fn write_monitor_status_for_root(root: &Path, status: &Value) -> Result<(), String> {
+    write_json_atomic(&monitor_status_path_for_root(root), status)
+}
+
+fn repo_root_for_monitor(root: &Path) -> PathBuf {
+    repo_root_from_manifest()
+        .or_else(|| std::env::current_dir().ok())
+        .unwrap_or_else(|| root.to_path_buf())
+}
+
+fn monitor_command_base(root: &Path) -> Command {
+    let mut command = Command::new("python");
+    command
+        .current_dir(repo_root_for_monitor(root))
+        .env("MARKET_AGENT_STATE_STORE_PATH", state_path_for_root(root))
+        .env(
+            "MARKET_AGENT_ALERTS_OUTPUT_PATH",
+            alerts_path_for_root(root),
+        )
+        .env(
+            "MARKET_AGENT_TIMELINE_STORE_PATH",
+            timeline_path_for_root(root),
+        );
+    for (key, value) in telegram_env_for_root(root) {
+        command.env(key, value);
+    }
+    command
+}
+
+#[cfg(target_os = "windows")]
+fn hide_child_window(command: &mut Command) {
+    use std::os::windows::process::CommandExt;
+    command.creation_flags(0x08000000);
+}
+
+#[cfg(not(target_os = "windows"))]
+fn hide_child_window(_command: &mut Command) {}
+
+fn start_monitor_loop_for_root(root: &Path, interval_seconds: i64, spawn_process: bool) -> Value {
+    let current = read_monitor_status_for_root(root);
+    if current
+        .get("running")
+        .and_then(Value::as_bool)
+        .unwrap_or(false)
+    {
+        return json!({
+            "ok": true,
+            "available": true,
+            "running": true,
+            "phase": "running",
+            "pid": current.get("pid").cloned().unwrap_or(Value::Null),
+            "message": "Monitor loop is already running.",
+            "lastRunAt": current.get("lastRunAt").cloned().unwrap_or(Value::Null),
+            "nextRunAt": current.get("nextRunAt").cloned().unwrap_or(Value::Null),
+            "lastError": current.get("lastError").and_then(Value::as_str).unwrap_or(""),
+        });
+    }
+    let pid = if spawn_process {
+        let mut command = monitor_command_base(root);
+        command.args([
+            "-m",
+            "src.xauusd_market_agent.cli",
+            "--monitor-loop",
+            "--interval-seconds",
+            &interval_seconds.to_string(),
+        ]);
+        command
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null());
+        hide_child_window(&mut command);
+        match command.spawn() {
+            Ok(child) => child.id() as i64,
+            Err(err) => {
+                let status = json!({
+                    "ok": false,
+                    "available": true,
+                    "running": false,
+                    "phase": "error",
+                    "pid": null,
+                    "lastRunAt": null,
+                    "nextRunAt": null,
+                    "lastError": format!("Unable to start monitor loop: {err}"),
+                    "message": "Unable to start monitor loop.",
+                });
+                let _ = write_monitor_status_for_root(root, &status);
+                return status;
+            }
+        }
+    } else {
+        0
+    };
+    let now = now_epoch_seconds();
+    let status = json!({
+        "ok": true,
+        "available": true,
+        "running": true,
+        "phase": "running",
+        "pid": pid,
+        "intervalSeconds": interval_seconds,
+        "lastRunAt": null,
+        "nextRunAt": now + interval_seconds,
+        "lastError": "",
+        "message": "Monitor loop is running.",
+    });
+    let _ = write_monitor_status_for_root(root, &status);
+    status
+}
+
+fn stop_monitor_loop_for_root(root: &Path, kill_process: bool) -> Value {
+    let current = read_monitor_status_for_root(root);
+    let pid = current.get("pid").and_then(Value::as_i64).unwrap_or(0);
+    let mut last_error = String::new();
+    if kill_process && pid > 0 {
+        let result = if cfg!(target_os = "windows") {
+            Command::new("taskkill")
+                .args(["/PID", &pid.to_string(), "/T", "/F"])
+                .stdout(Stdio::null())
+                .stderr(Stdio::piped())
+                .output()
+        } else {
+            Command::new("kill")
+                .args(["-TERM", &pid.to_string()])
+                .stdout(Stdio::null())
+                .stderr(Stdio::piped())
+                .output()
+        };
+        if let Ok(output) = result {
+            if !output.status.success() {
+                last_error = String::from_utf8_lossy(&output.stderr).trim().to_string();
+            }
+        }
+    }
+    let status = json!({
+        "ok": last_error.is_empty(),
+        "available": true,
+        "running": false,
+        "phase": if last_error.is_empty() { "stopped" } else { "error" },
+        "pid": null,
+        "lastRunAt": current.get("lastRunAt").cloned().unwrap_or(Value::Null),
+        "nextRunAt": null,
+        "lastError": last_error,
+        "message": if last_error.is_empty() { "Monitor loop is stopped." } else { "Unable to stop monitor loop cleanly." },
+    });
+    let _ = write_monitor_status_for_root(root, &status);
+    status
+}
+
+fn run_monitor_once_for_root(root: &Path) -> Value {
+    let mut command = monitor_command_base(root);
+    command.args(["-m", "src.xauusd_market_agent.cli", "--monitor-once"]);
+    hide_child_window(&mut command);
+    let output = command.output();
+    let now = now_epoch_seconds();
+    let status = match output {
+        Ok(output) if output.status.success() => json!({
+            "ok": true,
+            "available": true,
+            "running": false,
+            "phase": "stopped",
+            "pid": null,
+            "lastRunAt": now,
+            "nextRunAt": null,
+            "lastError": "",
+            "message": "Monitor run completed.",
+        }),
+        Ok(output) => json!({
+            "ok": false,
+            "available": true,
+            "running": false,
+            "phase": "error",
+            "pid": null,
+            "lastRunAt": now,
+            "nextRunAt": null,
+            "lastError": String::from_utf8_lossy(&output.stderr).trim().to_string(),
+            "message": "Monitor run failed.",
+        }),
+        Err(err) => json!({
+            "ok": false,
+            "available": true,
+            "running": false,
+            "phase": "error",
+            "pid": null,
+            "lastRunAt": now,
+            "nextRunAt": null,
+            "lastError": err.to_string(),
+            "message": "Unable to start monitor run.",
+        }),
+    };
+    let _ = write_monitor_status_for_root(root, &status);
+    status
 }
 
 fn resolve_market_agent_root() -> Option<PathBuf> {
@@ -1123,6 +1597,28 @@ pub fn save_market_agent_provider_config(payload: Value) -> Value {
 }
 
 #[tauri::command]
+pub fn get_market_agent_telegram_config(_payload: Value) -> Value {
+    masked_telegram_config_for_root(&config::appdata_dir())
+}
+
+#[tauri::command]
+pub fn save_market_agent_telegram_config(payload: Value) -> Value {
+    match save_telegram_config_for_root(&config::appdata_dir(), &payload) {
+        Ok(value) => value,
+        Err(err) => json!({
+            "ok": false,
+            "available": false,
+            "message": err,
+        }),
+    }
+}
+
+#[tauri::command]
+pub fn test_market_agent_telegram(payload: Value) -> Value {
+    test_telegram_for_root(&config::appdata_dir(), &payload)
+}
+
+#[tauri::command]
 pub fn clear_ctrader_config(_payload: Value) -> Value {
     match clear_ctrader_provider_config(&config::appdata_dir()) {
         Ok(value) => value,
@@ -1152,6 +1648,31 @@ pub fn get_ctrader_quote_test(payload: Value) -> Value {
 #[tauri::command]
 pub fn refresh_ctrader_token(payload: Value) -> Value {
     run_ctrader_bridge(&config::appdata_dir(), "refresh-token", &payload)
+}
+
+#[tauri::command]
+pub fn get_market_agent_monitor_status(_payload: Value) -> Value {
+    read_monitor_status_for_root(&config::appdata_dir())
+}
+
+#[tauri::command]
+pub fn run_market_agent_monitor_once(_payload: Value) -> Value {
+    run_monitor_once_for_root(&config::appdata_dir())
+}
+
+#[tauri::command]
+pub fn start_market_agent_monitor_loop(payload: Value) -> Value {
+    let interval_seconds = payload
+        .get("intervalSeconds")
+        .and_then(Value::as_i64)
+        .unwrap_or(60)
+        .max(10);
+    start_monitor_loop_for_root(&config::appdata_dir(), interval_seconds, true)
+}
+
+#[tauri::command]
+pub fn stop_market_agent_monitor_loop(_payload: Value) -> Value {
+    stop_monitor_loop_for_root(&config::appdata_dir(), true)
 }
 
 pub(crate) fn read_market_agent_replay(root: &Path, start: &str, end: &str) -> Value {
@@ -1236,8 +1757,10 @@ mod tests {
     use super::{
         clear_ctrader_provider_config, ctrader_config_path_for_root,
         ctrader_token_store_path_for_root, masked_ctrader_provider_config,
-        read_market_agent_replay, read_market_agent_snapshot, save_ctrader_provider_config,
-        timeline_path_for_root,
+        masked_telegram_config_for_root, monitor_status_path_for_root, read_market_agent_replay,
+        read_market_agent_snapshot, read_monitor_status_for_root, save_ctrader_provider_config,
+        save_telegram_config_for_root, start_monitor_loop_for_root, stop_monitor_loop_for_root,
+        telegram_env_for_root, test_telegram_for_root, timeline_path_for_root,
     };
     use rusqlite::{params, Connection};
     use serde_json::{json, Value};
@@ -1817,5 +2340,137 @@ mod tests {
         );
         assert!(!masked.to_string().contains("new-access-token"));
         assert!(!masked.to_string().contains("new-refresh-token"));
+    }
+
+    #[test]
+    fn saves_and_reads_masked_telegram_config() {
+        let dir = unique_temp_dir("telegram-config");
+        let payload = json!({
+            "telegram": {
+                "enabled": true,
+                "botToken": "1234567890:secret-token",
+                "chatId": "987654321",
+                "timeoutSeconds": 12,
+                "levels": ["level_2", "level_3"]
+            }
+        });
+
+        let saved = save_telegram_config_for_root(&dir, &payload).expect("save telegram config");
+        let read_back = masked_telegram_config_for_root(&dir);
+
+        assert_eq!(saved.get("ok").and_then(Value::as_bool), Some(true));
+        assert_eq!(
+            read_back
+                .get("telegram")
+                .and_then(|value| value.get("enabled"))
+                .and_then(Value::as_bool),
+            Some(true)
+        );
+        assert_eq!(
+            read_back
+                .get("telegram")
+                .and_then(|value| value.get("botTokenMasked"))
+                .and_then(Value::as_str),
+            Some("12*******************en")
+        );
+        assert!(!read_back.to_string().contains("secret-token"));
+    }
+
+    #[test]
+    fn telegram_env_for_monitor_uses_saved_config_without_exposing_passwords() {
+        let dir = unique_temp_dir("telegram-env");
+        save_telegram_config_for_root(
+            &dir,
+            &json!({
+                "telegram": {
+                    "enabled": true,
+                    "botToken": "token",
+                    "chatId": "chat",
+                    "timeoutSeconds": 9,
+                    "levels": ["level_3"]
+                }
+            }),
+        )
+        .expect("save telegram");
+
+        let env = telegram_env_for_root(&dir);
+
+        assert_eq!(
+            env.get("MARKET_AGENT_TELEGRAM_ENABLED").map(String::as_str),
+            Some("true")
+        );
+        assert_eq!(
+            env.get("MARKET_AGENT_TELEGRAM_BOT_TOKEN")
+                .map(String::as_str),
+            Some("token")
+        );
+        assert_eq!(
+            env.get("MARKET_AGENT_TELEGRAM_LEVELS").map(String::as_str),
+            Some("level_3")
+        );
+    }
+
+    #[test]
+    fn telegram_test_without_token_returns_safe_failure() {
+        let dir = unique_temp_dir("telegram-test-missing");
+
+        let response = test_telegram_for_root(
+            &dir,
+            &json!({
+                "telegram": {
+                    "enabled": true,
+                    "botToken": "",
+                    "chatId": "",
+                    "timeoutSeconds": 10,
+                    "levels": ["level_2"]
+                }
+            }),
+        );
+
+        assert_eq!(response.get("ok").and_then(Value::as_bool), Some(false));
+        assert_eq!(
+            response.get("status").and_then(Value::as_str),
+            Some("failed")
+        );
+    }
+
+    #[test]
+    fn monitor_status_defaults_to_stopped() {
+        let dir = unique_temp_dir("monitor-status");
+
+        let status = read_monitor_status_for_root(&dir);
+
+        assert_eq!(status.get("ok").and_then(Value::as_bool), Some(true));
+        assert_eq!(status.get("running").and_then(Value::as_bool), Some(false));
+        assert_eq!(status.get("phase").and_then(Value::as_str), Some("stopped"));
+    }
+
+    #[test]
+    fn monitor_loop_start_records_status_and_prevents_duplicate() {
+        let dir = unique_temp_dir("monitor-start");
+
+        let first = start_monitor_loop_for_root(&dir, 60, false);
+        let second = start_monitor_loop_for_root(&dir, 60, false);
+
+        assert_eq!(first.get("running").and_then(Value::as_bool), Some(true));
+        assert_eq!(
+            second.get("message").and_then(Value::as_str),
+            Some("Monitor loop is already running.")
+        );
+        assert!(monitor_status_path_for_root(&dir).exists());
+    }
+
+    #[test]
+    fn monitor_loop_stop_records_stopped_status() {
+        let dir = unique_temp_dir("monitor-stop");
+        let _ = start_monitor_loop_for_root(&dir, 60, false);
+
+        let stopped = stop_monitor_loop_for_root(&dir, false);
+
+        assert_eq!(stopped.get("running").and_then(Value::as_bool), Some(false));
+        assert_eq!(
+            stopped.get("phase").and_then(Value::as_str),
+            Some("stopped")
+        );
     }
 }

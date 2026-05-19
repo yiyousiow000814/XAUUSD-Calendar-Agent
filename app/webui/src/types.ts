@@ -387,6 +387,41 @@ export type MarketAgentProviderActionResponse = {
   tokenStorePath?: string;
 };
 
+export type MarketAgentTelegramConfig = {
+  enabled: boolean;
+  botTokenMasked: string;
+  hasBotToken: boolean;
+  chatId: string;
+  timeoutSeconds: number;
+  levels: string[];
+  configPath: string;
+  lastSendStatus?: string;
+  lastError?: string;
+};
+
+export type MarketAgentTelegramConfigResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  telegram?: MarketAgentTelegramConfig | null;
+};
+
+export type MarketAgentTelegramConfigInput = {
+  enabled: boolean;
+  botToken: string;
+  chatId: string;
+  timeoutSeconds: number;
+  levels: string[];
+};
+
+export type MarketAgentTelegramActionResponse = {
+  ok: boolean;
+  status?: string;
+  message?: string;
+  error?: string;
+  telegram?: MarketAgentTelegramConfig | null;
+};
+
 export type MarketAgentDriverAttentionResponse = {
   ok: boolean;
   available: boolean;
@@ -444,6 +479,19 @@ export type MarketAgentSuppressedAlertsResponse = {
   start?: string;
   end?: string;
   items: MarketAgentAlertTimelineItem[];
+};
+
+export type MarketAgentMonitorStatusResponse = {
+  ok: boolean;
+  available: boolean;
+  running: boolean;
+  phase: string;
+  pid?: number | null;
+  intervalSeconds?: number;
+  lastRunAt?: number | string | null;
+  nextRunAt?: number | string | null;
+  lastError?: string;
+  message?: string;
 };
 
 export type Snapshot = {

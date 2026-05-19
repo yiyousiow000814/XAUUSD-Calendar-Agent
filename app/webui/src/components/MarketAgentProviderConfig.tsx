@@ -3,19 +3,25 @@ import { useEffect, useMemo, useState } from "react";
 import type {
   MarketAgentProviderActionResponse,
   MarketAgentProviderConfigInput,
-  MarketAgentProviderConfigResponse
+  MarketAgentProviderConfigResponse,
+  MarketAgentTelegramActionResponse,
+  MarketAgentTelegramConfigInput,
+  MarketAgentTelegramConfigResponse
 } from "../types";
 import { MarketAgentStatusBadge } from "./MarketAgentStatusBadge";
 import "./MarketAgentProviderConfig.css";
 
 type MarketAgentProviderConfigProps = {
   data: MarketAgentProviderConfigResponse | null;
+  telegramData: MarketAgentTelegramConfigResponse | null;
   onSave: (ctrader: MarketAgentProviderConfigInput) => void;
   onClear: () => void;
   onTestConnection: (ctrader: MarketAgentProviderConfigInput) => Promise<MarketAgentProviderActionResponse>;
   onResolveSymbol: (ctrader: MarketAgentProviderConfigInput) => Promise<MarketAgentProviderActionResponse>;
   onQuoteTest: (ctrader: MarketAgentProviderConfigInput) => Promise<MarketAgentProviderActionResponse>;
   onRefreshToken: (ctrader: MarketAgentProviderConfigInput) => Promise<MarketAgentProviderActionResponse>;
+  onSaveTelegram: (telegram: MarketAgentTelegramConfigInput) => Promise<MarketAgentTelegramConfigResponse>;
+  onTestTelegram: (telegram: MarketAgentTelegramConfigInput) => Promise<MarketAgentTelegramActionResponse>;
 };
 
 const emptyForm: MarketAgentProviderConfigInput = {
@@ -37,17 +43,30 @@ const emptyForm: MarketAgentProviderConfigInput = {
   bridgePythonExecutable: "python"
 };
 
+const emptyTelegramForm: MarketAgentTelegramConfigInput = {
+  enabled: false,
+  botToken: "",
+  chatId: "",
+  timeoutSeconds: 10,
+  levels: ["level_2", "level_3"]
+};
+
 export function MarketAgentProviderConfig({
   data,
+  telegramData,
   onSave,
   onClear,
   onTestConnection,
   onResolveSymbol,
   onQuoteTest,
-  onRefreshToken
+  onRefreshToken,
+  onSaveTelegram,
+  onTestTelegram
 }: MarketAgentProviderConfigProps) {
   const [form, setForm] = useState<MarketAgentProviderConfigInput>(emptyForm);
+  const [telegramForm, setTelegramForm] = useState<MarketAgentTelegramConfigInput>(emptyTelegramForm);
   const [actionResult, setActionResult] = useState<MarketAgentProviderActionResponse | null>(null);
+  const [telegramResult, setTelegramResult] = useState<MarketAgentTelegramActionResponse | null>(null);
   const [actionLabel, setActionLabel] = useState("");
 
   useEffect(() => {
@@ -70,6 +89,18 @@ export function MarketAgentProviderConfig({
     }));
   }, [data]);
 
+  useEffect(() => {
+    const telegram = telegramData?.telegram;
+    if (!telegram) return;
+    setTelegramForm((current) => ({
+      ...current,
+      enabled: telegram.enabled,
+      chatId: telegram.chatId || "",
+      timeoutSeconds: telegram.timeoutSeconds || 10,
+      levels: telegram.levels?.length ? telegram.levels : ["level_2", "level_3"]
+    }));
+  }, [telegramData]);
+
   const statusTone = useMemo(() => {
     if (!data?.available) return "bad";
     if (data.ctrader?.enabled) return "good";
@@ -83,6 +114,20 @@ export function MarketAgentProviderConfig({
     setActionLabel(label);
     const result = await action(form);
     setActionResult(result);
+  };
+
+  const toggleTelegramLevel = (level: string, checked: boolean) => {
+    setTelegramForm((current) => ({
+      ...current,
+      levels: checked
+        ? Array.from(new Set([...current.levels, level]))
+        : current.levels.filter((item) => item !== level)
+    }));
+  };
+
+  const runTelegramAction = async () => {
+    const result = await onTestTelegram(telegramForm);
+    setTelegramResult(result);
   };
 
   return (
@@ -105,6 +150,10 @@ export function MarketAgentProviderConfig({
         <div className="market-agent-empty-state">{data?.message || "Provider configuration is unavailable."}</div>
       ) : (
         <>
+          <div className="market-agent-provider-config-section-heading">
+            <h3>cTrader Spot Source</h3>
+            <span>Use Open API tokens only. cTrader account passwords are never requested or stored.</span>
+          </div>
           <div className="market-agent-provider-config-grid">
             <label>
               <span>Environment</span>
@@ -287,6 +336,118 @@ export function MarketAgentProviderConfig({
               </div>
             </div>
           ) : null}
+
+          <div className="market-agent-provider-config-section-heading">
+            <h3>Telegram Reporting</h3>
+            <span>Disabled unless configured. Sends only policy-approved market situation alerts.</span>
+          </div>
+
+          {!telegramData?.available ? (
+            <div className="market-agent-empty-state">
+              {telegramData?.message || "Telegram configuration is unavailable."}
+            </div>
+          ) : (
+            <>
+              <div className="market-agent-provider-config-statuses">
+                <MarketAgentStatusBadge
+                  label={telegramData.telegram?.enabled ? "Telegram enabled" : "Telegram disabled"}
+                  tone={telegramData.telegram?.enabled ? "good" : "warn"}
+                />
+                <MarketAgentStatusBadge
+                  label={telegramData.telegram?.lastSendStatus || "Not tested"}
+                  tone={telegramData.telegram?.lastError ? "bad" : "neutral"}
+                />
+              </div>
+              <div className="market-agent-provider-config-grid telegram">
+                <label className="market-agent-toggle">
+                  <input
+                    type="checkbox"
+                    checked={telegramForm.enabled}
+                    onChange={(event) =>
+                      setTelegramForm((current) => ({ ...current, enabled: event.target.checked }))
+                    }
+                  />
+                  <span>Enable Telegram alerts</span>
+                </label>
+                <label>
+                  <span>Bot token</span>
+                  <input
+                    type="password"
+                    value={telegramForm.botToken}
+                    onChange={(event) =>
+                      setTelegramForm((current) => ({ ...current, botToken: event.target.value }))
+                    }
+                    placeholder={telegramData.telegram?.botTokenMasked || ""}
+                  />
+                </label>
+                <label>
+                  <span>Chat ID</span>
+                  <input
+                    value={telegramForm.chatId}
+                    onChange={(event) =>
+                      setTelegramForm((current) => ({ ...current, chatId: event.target.value }))
+                    }
+                  />
+                </label>
+                <label>
+                  <span>Timeout seconds</span>
+                  <input
+                    value={telegramForm.timeoutSeconds}
+                    onChange={(event) =>
+                      setTelegramForm((current) => ({
+                        ...current,
+                        timeoutSeconds: Number(event.target.value) || 10
+                      }))
+                    }
+                  />
+                </label>
+              </div>
+              <div className="market-agent-provider-config-toggles">
+                {["level_2", "level_3"].map((level) => (
+                  <label className="market-agent-toggle" key={level}>
+                    <input
+                      type="checkbox"
+                      checked={telegramForm.levels.includes(level)}
+                      onChange={(event) => toggleTelegramLevel(level, event.target.checked)}
+                    />
+                    <span>{level === "level_3" ? "Level 3 breaking driver" : "Level 2 situation change"}</span>
+                  </label>
+                ))}
+              </div>
+              <div className="market-agent-provider-config-actions">
+                <button
+                  type="button"
+                  className="btn ghost btn-compact"
+                  onClick={() => void onSaveTelegram(telegramForm)}
+                >
+                  Save Telegram
+                </button>
+                <button
+                  type="button"
+                  className="btn ghost btn-compact"
+                  onClick={() => void runTelegramAction()}
+                >
+                  Send Test Message
+                </button>
+              </div>
+              <div className="market-agent-provider-config-meta">
+                <span>Config path: {telegramData.telegram?.configPath || "--"}</span>
+                <span>Last send: {telegramData.telegram?.lastSendStatus || "Not tested"}</span>
+                <span>Last error: {telegramData.telegram?.lastError || "None"}</span>
+              </div>
+              {telegramResult ? (
+                <div className="market-agent-provider-config-result">
+                  <div className="market-agent-provider-config-result-head">
+                    <strong>Telegram Test</strong>
+                    <MarketAgentStatusBadge label={telegramResult.ok ? "sent" : "failed"} />
+                  </div>
+                  <div className="market-agent-provider-config-result-body">
+                    <span>{telegramResult.message || telegramResult.error || "Completed."}</span>
+                  </div>
+                </div>
+              ) : null}
+            </>
+          )}
         </>
       )}
     </section>

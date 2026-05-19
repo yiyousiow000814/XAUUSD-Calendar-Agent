@@ -4,10 +4,29 @@
   flex-wrap: wrap;
 }
 
+.market-agent-provider-config-section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.market-agent-provider-config-section-heading h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.market-agent-provider-config-section-heading span {
+  color: var(--text-dim, #9aa4b2);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 .market-agent-provider-config-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px 12px;
+  gap: 12px;
 }
 
 .market-agent-provider-config-grid label {
@@ -15,12 +34,28 @@
   flex-direction: column;
   gap: 6px;
   font-size: 12px;
-  color: var(--text-secondary, #9aa4b2);
+  color: var(--text-dim, #9aa4b2);
 }
 
 .market-agent-provider-config-grid input,
 .market-agent-provider-config-grid select {
   width: 100%;
+  min-height: 40px;
+  border-radius: 10px;
+  border: 1px solid rgba(134, 148, 168, 0.22);
+  background: rgba(7, 11, 18, 0.72);
+  color: var(--text);
+  padding: 0 12px;
+  font: inherit;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.market-agent-provider-config-grid.telegram {
+  grid-template-columns: minmax(210px, 1.1fr) minmax(210px, 1.2fr) minmax(180px, 1fr) minmax(140px, 0.7fr);
+}
+
+.market-agent-provider-config-grid input::placeholder {
+  color: var(--text-muted, #748094);
 }
 
 .market-agent-provider-config-toggles {
@@ -31,14 +66,32 @@
 
 .market-agent-toggle {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(134, 148, 168, 0.16);
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--text);
+  line-height: 1.35;
+}
+
+.market-agent-toggle input {
+  margin-top: 2px;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
 }
 
 .market-agent-provider-config-actions {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.market-agent-provider-config-actions .btn {
+  min-height: 36px;
 }
 
 .market-agent-provider-config-meta {
@@ -57,6 +110,24 @@
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.02);
+}
+
+[data-theme="light"] .market-agent-provider-config-grid input,
+[data-theme="light"] .market-agent-provider-config-grid select {
+  border-color: rgba(35, 43, 55, 0.16);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--text);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="light"] .market-agent-toggle {
+  border-color: rgba(35, 43, 55, 0.12);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+[data-theme="light"] .market-agent-provider-config-result {
+  border-color: rgba(35, 43, 55, 0.12);
+  background: rgba(255, 255, 255, 0.64);
 }
 
 .market-agent-provider-config-result-head {

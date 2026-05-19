@@ -453,6 +453,7 @@ def run_monitored_live_once(
     timeline_store_path: Path | None = None,
     llm_client=None,
     provider_router: ProviderRouter | None = None,
+    telegram_sink=None,
 ) -> dict[str, Any]:
     anchor = anchor_time or datetime.now().astimezone()
     state_store = JsonStateStore(state_path or config.state_store_path)
@@ -510,27 +511,56 @@ def run_monitored_live_once(
         now_iso=anchor.isoformat(),
         cooldown_minutes=cooldown_minutes or config.notification_cooldown_minutes,
     )
+    telegram_result = {
+        "sent": False,
+        "status": "disabled",
+        "error": "",
+        "notification_level": decision.notification_level,
+    }
     if decision.should_notify:
         message = analysis.user_message
-        sink.emit(
-            {
-                "time": anchor.isoformat(),
-                "notification_level": decision.notification_level,
-                "message": message,
-                "main_driver": analysis.main_driver,
-                "bias": analysis.bias,
-                "state_change_reason": decision.state_change_reason,
-                "confidence_delta": decision.confidence_delta,
-                "previous_state_invalidated": decision.previous_state_invalidated,
-                "invalidation_triggered_by": decision.invalidation_triggered_by,
-            }
-        )
+        alert_payload = {
+            "time": anchor.isoformat(),
+            "notification_level": decision.notification_level,
+            "message": message,
+            "main_driver": analysis.main_driver,
+            "bias": analysis.bias,
+            "state_change_reason": decision.state_change_reason,
+            "confidence_delta": decision.confidence_delta,
+            "previous_state_invalidated": decision.previous_state_invalidated,
+            "invalidation_triggered_by": decision.invalidation_triggered_by,
+        }
+        sink.emit(alert_payload)
         if config.telegram_enabled:
-            TelegramNotificationSink(
+            telegram = telegram_sink or TelegramNotificationSink(
                 bot_token=config.telegram_bot_token,
                 chat_id=config.telegram_chat_id,
                 timeout_seconds=config.telegram_timeout_seconds,
-            ).emit({"message": message})
+                enabled_levels=set(config.telegram_levels),
+            )
+            telegram_payload = {
+                **alert_payload,
+                "selected_market_provider": runtime_context.get("selected_market_provider", "unavailable"),
+                "data_mode": data_mode,
+            }
+            if hasattr(telegram, "send"):
+                telegram_result = telegram.send(telegram_payload)
+            else:
+                try:
+                    sent = telegram.emit(telegram_payload)
+                    telegram_result = {
+                        "sent": bool(sent),
+                        "status": "sent" if sent else "failed",
+                        "error": "",
+                        "notification_level": decision.notification_level,
+                    }
+                except Exception as exc:
+                    telegram_result = {
+                        "sent": False,
+                        "status": "failed",
+                        "error": str(exc),
+                        "notification_level": decision.notification_level,
+                    }
     state_store.save(decision.next_state)
     packet = _build_packet(
         fixture,
@@ -573,6 +603,7 @@ def run_monitored_live_once(
             "should_notify": decision.should_notify,
             "notification_level": decision.notification_level,
             "reason": decision.reason,
+            "telegram": telegram_result,
         },
     )
     timeline_store.record_state_transition(
@@ -626,6 +657,7 @@ def run_monitored_live_once(
             "should_notify": decision.should_notify,
             "notification_level": decision.notification_level,
             "reason": decision.reason,
+            "telegram": telegram_result,
         },
         "state_transition": {
             "is_new_state": decision.is_new_state,

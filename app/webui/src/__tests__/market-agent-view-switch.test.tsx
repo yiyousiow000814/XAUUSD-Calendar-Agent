@@ -148,6 +148,21 @@ vi.mock("../api", () => ({
     getMarketAgentTimeline: vi.fn().mockResolvedValue({ ok: true, available: true, items: [] }),
     getMarketAgentStateTransitions: vi.fn().mockResolvedValue({ ok: true, available: true, items: [] }),
     getMarketAgentSuppressedAlerts: vi.fn().mockResolvedValue({ ok: true, available: true, items: [] }),
+    getMarketAgentMonitorStatus: vi.fn().mockResolvedValue({
+      ok: true,
+      available: true,
+      running: false,
+      phase: "stopped",
+      pid: null,
+      intervalSeconds: 60,
+      lastRunAt: null,
+      nextRunAt: null,
+      lastError: "",
+      message: "Monitor loop is stopped."
+    }),
+    runMarketAgentMonitorOnce: vi.fn().mockResolvedValue({ ok: true, available: true, running: false, phase: "stopped" }),
+    startMarketAgentMonitorLoop: vi.fn().mockResolvedValue({ ok: true, available: true, running: true, phase: "running" }),
+    stopMarketAgentMonitorLoop: vi.fn().mockResolvedValue({ ok: true, available: true, running: false, phase: "stopped" }),
     saveMarketAgentProviderConfig: vi.fn().mockResolvedValue({ ok: true, available: true, ctrader: null }),
     testCTraderConnection: vi.fn().mockResolvedValue({ ok: true }),
     resolveCTraderSymbol: vi.fn().mockResolvedValue({ ok: true }),
@@ -217,11 +232,16 @@ describe("Market Agent view switch", () => {
     fireEvent.click(screen.getByRole("button", { name: /Market Agent/i }));
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "Current Situation" })).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: "Data Sources" })).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: "Active Attention" })).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: "Data Quality" })).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: "Recent Timeline" })).toBeInTheDocument();
+      expect(screen.getByRole("navigation", { name: /Market Agent sections/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Live Situation/i })).toHaveAttribute("aria-pressed", "true");
+      expect(screen.getByRole("heading", { name: "XAUUSD Price" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Market State" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Driver Attention Summary" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Market Replay Today" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Provider Health" })).toBeInTheDocument();
     });
+
+    fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
+    expect(screen.getByRole("heading", { name: "Data Sources" })).toBeInTheDocument();
   });
 });

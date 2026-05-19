@@ -25,6 +25,13 @@ def _env_list(name: str) -> list[str]:
     return [item.strip() for item in raw.split(",") if item.strip()]
 
 
+def _env_bool(name: str) -> bool | None:
+    raw = os.getenv(name, "").strip().lower()
+    if not raw:
+        return None
+    return raw == "true"
+
+
 def _env_json_path(name: str) -> Path | None:
     raw = os.getenv(name, "").strip()
     if not raw:
@@ -40,6 +47,51 @@ def _read_json(path: Path | None) -> dict[str, object]:
     except (OSError, json.JSONDecodeError):
         return {}
     return payload if isinstance(payload, dict) else {}
+
+
+def _telegram_config_payload() -> dict[str, object]:
+    return _read_json(
+        _env_json_path("MARKET_AGENT_TELEGRAM_CONFIG_PATH")
+        or (REPO_ROOT / "user-data" / "market-agent-telegram.json")
+    )
+
+
+def _telegram_enabled_default() -> bool:
+    env_value = _env_bool("MARKET_AGENT_TELEGRAM_ENABLED")
+    if env_value is not None:
+        return env_value
+    return _json_bool(_telegram_config_payload(), "enabled", fallback=False)
+
+
+def _telegram_str_default(env_name: str, key: str) -> str:
+    return os.getenv(env_name, "").strip() or _json_str(_telegram_config_payload(), key)
+
+
+def _telegram_int_default(env_name: str, key: str, fallback: int) -> int:
+    raw = os.getenv(env_name, "").strip()
+    if raw:
+        try:
+            return int(raw)
+        except ValueError:
+            return fallback
+    return _json_int(_telegram_config_payload(), key, fallback=fallback) or fallback
+
+
+def _telegram_levels_default() -> list[str]:
+    raw = os.getenv("MARKET_AGENT_TELEGRAM_LEVELS", "").strip()
+    if raw.lower() == "all":
+        return ["level_1", "level_2", "level_3"]
+    if raw:
+        return _env_list("MARKET_AGENT_TELEGRAM_LEVELS")
+    payload = _telegram_config_payload()
+    levels = payload.get("levels")
+    if isinstance(levels, list):
+        parsed = [str(item).strip() for item in levels if str(item).strip()]
+        if parsed:
+            return parsed
+    if isinstance(levels, str) and levels.strip():
+        return [item.strip() for item in levels.split(",") if item.strip()]
+    return ["level_2", "level_3"]
 
 
 def _json_bool(payload: dict[str, object], *keys: str, fallback: bool = False) -> bool:
@@ -308,9 +360,20 @@ class MarketAgentConfig:
     notification_cooldown_minutes: int = int(
         os.getenv("MARKET_AGENT_NOTIFICATION_COOLDOWN_MINUTES", "30")
     )
-    telegram_enabled: bool = os.getenv("MARKET_AGENT_TELEGRAM_ENABLED", "false").lower() == "true"
-    telegram_bot_token: str = os.getenv("MARKET_AGENT_TELEGRAM_BOT_TOKEN", "")
-    telegram_chat_id: str = os.getenv("MARKET_AGENT_TELEGRAM_CHAT_ID", "")
-    telegram_timeout_seconds: int = int(
-        os.getenv("MARKET_AGENT_TELEGRAM_TIMEOUT_SECONDS", "10")
+    telegram_enabled: bool = field(default_factory=_telegram_enabled_default)
+    telegram_bot_token: str = field(
+        default_factory=lambda: _telegram_str_default(
+            "MARKET_AGENT_TELEGRAM_BOT_TOKEN", "botToken"
+        )
     )
+    telegram_chat_id: str = field(
+        default_factory=lambda: _telegram_str_default(
+            "MARKET_AGENT_TELEGRAM_CHAT_ID", "chatId"
+        )
+    )
+    telegram_timeout_seconds: int = field(
+        default_factory=lambda: _telegram_int_default(
+            "MARKET_AGENT_TELEGRAM_TIMEOUT_SECONDS", "timeoutSeconds", 10
+        )
+    )
+    telegram_levels: list[str] = field(default_factory=_telegram_levels_default)

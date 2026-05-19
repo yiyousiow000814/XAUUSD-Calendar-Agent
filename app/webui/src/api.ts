@@ -4,6 +4,7 @@ import type {
   EventImpactResponse,
   MarketAgentDriverAttentionResponse,
   MarketAgentEvidenceForRunResponse,
+  MarketAgentMonitorStatusResponse,
   MarketAgentProviderActionResponse,
   MarketAgentProviderConfigInput,
   MarketAgentProviderConfigResponse,
@@ -12,6 +13,9 @@ import type {
   MarketAgentSnapshotResponse,
   MarketAgentStateTransitionsResponse,
   MarketAgentSuppressedAlertsResponse,
+  MarketAgentTelegramActionResponse,
+  MarketAgentTelegramConfigInput,
+  MarketAgentTelegramConfigResponse,
   MarketAgentTimelineResponse,
   PredictReleaseModelResponse,
   Settings,
@@ -48,7 +52,14 @@ type BackendApi = {
   get_market_agent_evidence_for_run?: (payload: { monitorRunId: number }) => ApiResult<MarketAgentEvidenceForRunResponse>;
   get_market_agent_state_transitions?: (payload: { start: string; end: string }) => ApiResult<MarketAgentStateTransitionsResponse>;
   get_market_agent_suppressed_alerts?: (payload: { start: string; end: string }) => ApiResult<MarketAgentSuppressedAlertsResponse>;
+  get_market_agent_monitor_status?: (_payload: Record<string, never>) => ApiResult<MarketAgentMonitorStatusResponse>;
+  run_market_agent_monitor_once?: (_payload: Record<string, never>) => ApiResult<MarketAgentMonitorStatusResponse>;
+  start_market_agent_monitor_loop?: (payload: { intervalSeconds: number }) => ApiResult<MarketAgentMonitorStatusResponse>;
+  stop_market_agent_monitor_loop?: (_payload: Record<string, never>) => ApiResult<MarketAgentMonitorStatusResponse>;
   save_market_agent_provider_config?: (payload: { ctrader: MarketAgentProviderConfigInput }) => ApiResult<MarketAgentProviderConfigResponse>;
+  get_market_agent_telegram_config?: (_payload: Record<string, never>) => ApiResult<MarketAgentTelegramConfigResponse>;
+  save_market_agent_telegram_config?: (payload: { telegram: MarketAgentTelegramConfigInput }) => ApiResult<MarketAgentTelegramConfigResponse>;
+  test_market_agent_telegram?: (payload: { telegram: MarketAgentTelegramConfigInput }) => ApiResult<MarketAgentTelegramActionResponse>;
   test_ctrader_connection?: (payload: { ctrader: MarketAgentProviderConfigInput }) => ApiResult<MarketAgentProviderActionResponse>;
   resolve_ctrader_symbol?: (payload: { ctrader: MarketAgentProviderConfigInput }) => ApiResult<MarketAgentProviderActionResponse>;
   get_ctrader_quote_test?: (payload: { ctrader: MarketAgentProviderConfigInput }) => ApiResult<MarketAgentProviderActionResponse>;
@@ -663,6 +674,32 @@ const buildMockMarketAgentProviderAction = (
   ...overrides
 });
 
+const buildMockMarketAgentTelegramConfig = (): MarketAgentTelegramConfigResponse => ({
+  ok: true,
+  available: true,
+  telegram: {
+    enabled: false,
+    botTokenMasked: "12********90",
+    hasBotToken: true,
+    chatId: "123456789",
+    timeoutSeconds: 10,
+    levels: ["level_2", "level_3"],
+    configPath: "user-data/market-agent-telegram.json",
+    lastSendStatus: "not tested",
+    lastError: ""
+  }
+});
+
+const buildMockMarketAgentTelegramAction = (
+  overrides: Partial<MarketAgentTelegramActionResponse> = {}
+): MarketAgentTelegramActionResponse => ({
+  ok: true,
+  status: "sent",
+  message: "Telegram test message sent.",
+  telegram: buildMockMarketAgentTelegramConfig().telegram ?? null,
+  ...overrides
+});
+
 const buildMockMarketAgentDriverAttention = (): MarketAgentDriverAttentionResponse => ({
   ok: true,
   available: true,
@@ -793,6 +830,19 @@ const buildMockMarketAgentSuppressedAlerts = (): MarketAgentSuppressedAlertsResp
   end: "2026-05-19T08:30:00+08:00",
   items: buildMockMarketAgentReplay().replay.suppressed_alerts
 });
+
+let mockMarketAgentMonitorStatus: MarketAgentMonitorStatusResponse = {
+  ok: true,
+  available: true,
+  running: false,
+  phase: "stopped",
+  pid: null,
+  intervalSeconds: 60,
+  lastRunAt: null,
+  nextRunAt: null,
+  lastError: "",
+  message: "Monitor loop is stopped."
+};
 
 const withApi = async () => desktopApiRef();
 
@@ -1223,6 +1273,19 @@ export const backend = {
     }
     return api.get_market_agent_provider_config({});
   },
+  getMarketAgentTelegramConfig: async (): ApiResult<MarketAgentTelegramConfigResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockMarketAgentTelegramConfig());
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "get_market_agent_telegram_config")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentTelegramConfig());
+    }
+    return api.get_market_agent_telegram_config({});
+  },
   getMarketAgentDriverAttention: async (): ApiResult<MarketAgentDriverAttentionResponse> => {
     if (isUiCheckRuntime()) {
       return Promise.resolve(buildMockMarketAgentDriverAttention());
@@ -1275,6 +1338,86 @@ export const backend = {
     }
     return api.get_market_agent_suppressed_alerts({ start, end });
   },
+  getMarketAgentMonitorStatus: async (): ApiResult<MarketAgentMonitorStatusResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(mockMarketAgentMonitorStatus);
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "get_market_agent_monitor_status")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(mockMarketAgentMonitorStatus);
+    }
+    return api.get_market_agent_monitor_status({});
+  },
+  runMarketAgentMonitorOnce: async (): ApiResult<MarketAgentMonitorStatusResponse> => {
+    if (isUiCheckRuntime()) {
+      mockMarketAgentMonitorStatus = {
+        ...mockMarketAgentMonitorStatus,
+        ok: true,
+        running: false,
+        phase: "stopped",
+        lastRunAt: Date.now(),
+        message: "Monitor run completed."
+      };
+      return Promise.resolve(mockMarketAgentMonitorStatus);
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "run_market_agent_monitor_once")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(mockMarketAgentMonitorStatus);
+    }
+    return api.run_market_agent_monitor_once({});
+  },
+  startMarketAgentMonitorLoop: async (intervalSeconds = 60): ApiResult<MarketAgentMonitorStatusResponse> => {
+    if (isUiCheckRuntime()) {
+      mockMarketAgentMonitorStatus = {
+        ...mockMarketAgentMonitorStatus,
+        ok: true,
+        running: true,
+        phase: "running",
+        pid: 4242,
+        intervalSeconds,
+        nextRunAt: Date.now() + intervalSeconds * 1000,
+        lastError: "",
+        message: "Monitor loop is running."
+      };
+      return Promise.resolve(mockMarketAgentMonitorStatus);
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "start_market_agent_monitor_loop")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(mockMarketAgentMonitorStatus);
+    }
+    return api.start_market_agent_monitor_loop({ intervalSeconds });
+  },
+  stopMarketAgentMonitorLoop: async (): ApiResult<MarketAgentMonitorStatusResponse> => {
+    if (isUiCheckRuntime()) {
+      mockMarketAgentMonitorStatus = {
+        ...mockMarketAgentMonitorStatus,
+        ok: true,
+        running: false,
+        phase: "stopped",
+        pid: null,
+        nextRunAt: null,
+        message: "Monitor loop is stopped."
+      };
+      return Promise.resolve(mockMarketAgentMonitorStatus);
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "stop_market_agent_monitor_loop")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(mockMarketAgentMonitorStatus);
+    }
+    return api.stop_market_agent_monitor_loop({});
+  },
   saveMarketAgentProviderConfig: async (ctrader: MarketAgentProviderConfigInput): ApiResult<MarketAgentProviderConfigResponse> => {
     if (isUiCheckRuntime()) {
       return Promise.resolve(buildMockMarketAgentProviderConfig());
@@ -1287,6 +1430,32 @@ export const backend = {
       return Promise.resolve(buildMockMarketAgentProviderConfig());
     }
     return api.save_market_agent_provider_config({ ctrader });
+  },
+  saveMarketAgentTelegramConfig: async (telegram: MarketAgentTelegramConfigInput): ApiResult<MarketAgentTelegramConfigResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockMarketAgentTelegramConfig());
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "save_market_agent_telegram_config")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentTelegramConfig());
+    }
+    return api.save_market_agent_telegram_config({ telegram });
+  },
+  testMarketAgentTelegram: async (telegram: MarketAgentTelegramConfigInput): ApiResult<MarketAgentTelegramActionResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockMarketAgentTelegramAction());
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "test_market_agent_telegram")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentTelegramAction());
+    }
+    return api.test_market_agent_telegram({ telegram });
   },
   testCTraderConnection: async (ctrader: MarketAgentProviderConfigInput): ApiResult<MarketAgentProviderActionResponse> => {
     if (isUiCheckRuntime()) {

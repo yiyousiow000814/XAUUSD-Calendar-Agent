@@ -8,7 +8,8 @@ import type {
   MarketAgentProviderConfigResponse,
   MarketAgentProviderHealthResponse,
   MarketAgentReplayResponse,
-  MarketAgentSnapshotResponse
+  MarketAgentSnapshotResponse,
+  MarketAgentTelegramConfigResponse
 } from "../types";
 
 const snapshot: MarketAgentSnapshotResponse = {
@@ -105,6 +106,22 @@ const providerConfig: MarketAgentProviderConfigResponse = {
   }
 };
 
+const telegramConfig: MarketAgentTelegramConfigResponse = {
+  ok: true,
+  available: true,
+  telegram: {
+    enabled: false,
+    botTokenMasked: "12********90",
+    hasBotToken: true,
+    chatId: "123456789",
+    timeoutSeconds: 10,
+    levels: ["level_2", "level_3"],
+    configPath: "user-data/market-agent-telegram.json",
+    lastSendStatus: "not tested",
+    lastError: ""
+  }
+};
+
 const driverAttention: MarketAgentDriverAttentionResponse = {
   ok: true,
   available: true,
@@ -193,7 +210,124 @@ const evidence: MarketAgentEvidenceForRunResponse = {
   }
 };
 
+const monitorStatus = {
+  ok: true,
+  available: true,
+  running: false,
+  phase: "stopped",
+  pid: null,
+  intervalSeconds: 60,
+  lastRunAt: null,
+  nextRunAt: null,
+  lastError: "",
+  message: "Monitor loop is stopped."
+};
+
 describe("MarketAgentPage", () => {
+  it("renders a one-screen cockpit dashboard by default", () => {
+    render(
+      <MarketAgentPage
+        snapshot={snapshot}
+        providerConfig={providerConfig}
+        telegramConfig={telegramConfig}
+        providerHealth={providerHealth}
+        driverAttention={driverAttention}
+        replay={replay}
+        selectedEvidence={evidence}
+        monitorStatus={monitorStatus}
+        selectedMonitorRunId={23}
+        rangePreset="4h"
+        rangeStartInput="2026-05-19T04:00"
+        rangeEndInput="2026-05-19T08:30"
+        onPresetChange={() => {}}
+        onRangeStartChange={() => {}}
+        onRangeEndChange={() => {}}
+        onApplyRange={() => {}}
+        onSelectRun={() => {}}
+        onSaveProviderConfig={() => {}}
+        onClearProviderConfig={() => {}}
+        onTestCTraderConnection={async () => ({ ok: true })}
+        onResolveCTraderSymbol={async () => ({ ok: true })}
+        onGetCTraderQuoteTest={async () => ({ ok: true })}
+        onRefreshCTraderToken={async () => ({ ok: true })}
+        onSaveTelegramConfig={async () => telegramConfig}
+        onTestTelegramMessage={async () => ({ ok: true, status: "sent", message: "Telegram test message sent." })}
+        onRunMonitorOnce={async () => monitorStatus}
+        onStartMonitorLoop={async () => ({ ...monitorStatus, running: true, phase: "running" })}
+        onStopMonitorLoop={async () => monitorStatus}
+      />
+    );
+
+    expect(screen.getByRole("navigation", { name: /Market Agent sections/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Live Situation/i })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("heading", { name: /XAUUSD Price/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Market State/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Latest Move/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Evidence Status/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Next Update/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Driver Attention Summary/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Market Replay Today/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Latest Evidence/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Provider Health/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Open Full Timeline/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /View Evidence/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Configure Data Sources/i })).toBeInTheDocument();
+
+    expect(screen.queryByRole("heading", { name: /^Data Sources$/i })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Access Token/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Raw details/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Price series/i)).not.toBeInTheDocument();
+    expect(screen.queryByText("futures_proxy")).not.toBeInTheDocument();
+    expect(screen.queryByText("core_structural")).not.toBeInTheDocument();
+  });
+
+  it("switches cockpit sections from the left navigation", () => {
+    render(
+      <MarketAgentPage
+        snapshot={snapshot}
+        providerConfig={providerConfig}
+        telegramConfig={telegramConfig}
+        providerHealth={providerHealth}
+        driverAttention={driverAttention}
+        replay={replay}
+        selectedEvidence={evidence}
+        monitorStatus={monitorStatus}
+        selectedMonitorRunId={23}
+        rangePreset="4h"
+        rangeStartInput="2026-05-19T04:00"
+        rangeEndInput="2026-05-19T08:30"
+        onPresetChange={() => {}}
+        onRangeStartChange={() => {}}
+        onRangeEndChange={() => {}}
+        onApplyRange={() => {}}
+        onSelectRun={() => {}}
+        onSaveProviderConfig={() => {}}
+        onClearProviderConfig={() => {}}
+        onTestCTraderConnection={async () => ({ ok: true })}
+        onResolveCTraderSymbol={async () => ({ ok: true })}
+        onGetCTraderQuoteTest={async () => ({ ok: true })}
+        onRefreshCTraderToken={async () => ({ ok: true })}
+        onSaveTelegramConfig={async () => telegramConfig}
+        onTestTelegramMessage={async () => ({ ok: true, status: "sent", message: "Telegram test message sent." })}
+        onRunMonitorOnce={async () => monitorStatus}
+        onStartMonitorLoop={async () => ({ ...monitorStatus, running: true, phase: "running" })}
+        onStopMonitorLoop={async () => monitorStatus}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("navigation", { name: /Market Agent sections/i }).querySelectorAll("button")[5]);
+    expect(screen.getByRole("heading", { name: /^Data Sources$/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/Access Token/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Replay \/ Timeline/i }));
+    expect(screen.getByText(/Open full replay/i)).toBeInTheDocument();
+    expect(screen.getByText(/Price series/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /^Evidence$/i }));
+    expect(screen.getByRole("heading", { name: /Evidence Panel/i })).toBeInTheDocument();
+    expect(screen.getByText(/Raw details/i)).toBeInTheDocument();
+  });
+
   it("renders a user-facing market agent page without primary raw enum labels", async () => {
     const selected: number[] = [];
     const refreshToken = vi.fn().mockResolvedValue({ ok: true, message: "cTrader access token refreshed and saved." });
@@ -202,10 +336,12 @@ describe("MarketAgentPage", () => {
       <MarketAgentPage
         snapshot={snapshot}
         providerConfig={providerConfig}
+        telegramConfig={telegramConfig}
         providerHealth={providerHealth}
         driverAttention={driverAttention}
         replay={replay}
         selectedEvidence={evidence}
+        monitorStatus={monitorStatus}
         selectedMonitorRunId={23}
         rangePreset="4h"
         rangeStartInput="2026-05-19T04:00"
@@ -221,6 +357,11 @@ describe("MarketAgentPage", () => {
         onResolveCTraderSymbol={async () => ({ ok: true })}
         onGetCTraderQuoteTest={async () => ({ ok: true })}
         onRefreshCTraderToken={refreshToken}
+        onSaveTelegramConfig={async () => telegramConfig}
+        onTestTelegramMessage={async () => ({ ok: true, status: "sent", message: "Telegram test message sent." })}
+        onRunMonitorOnce={async () => monitorStatus}
+        onStartMonitorLoop={async () => ({ ...monitorStatus, running: true, phase: "running" })}
+        onStopMonitorLoop={async () => monitorStatus}
       />
     );
 
@@ -234,26 +375,33 @@ describe("MarketAgentPage", () => {
     expect(screen.queryByText("futures_proxy")).not.toBeInTheDocument();
     expect(screen.queryByText("core_structural")).not.toBeInTheDocument();
     expect(screen.queryByText("main_driver usd -> yields")).not.toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /Data Sources/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Test Connection/i })).toBeInTheDocument();
-    expect(screen.getByText(/Using Yahoo GC=F futures proxy, not true spot XAUUSD\./i)).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /Active Drivers/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /Watching \/ Emerging/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /Background \/ Dormant/i })).toBeInTheDocument();
+    expect(screen.getAllByText(/Using Yahoo GC=F futures proxy, not true spot XAUUSD\./i).length).toBeGreaterThan(0);
     expect(screen.getByRole("heading", { name: /XAUUSD Price/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /US2Y/i })).toBeInTheDocument();
+    expect(screen.getAllByText(/US2Y/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/No reliable free US2Y source is configured\./i)).toBeInTheDocument();
-    expect(screen.getByText(/Open full replay/i)).toBeInTheDocument();
+    expect(screen.getByText(/Open Full Timeline/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Fed headline/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Fed speaker/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Suppressed duplicate/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Raw details/i)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getAllByRole("button", { name: /Yields pressure/i })[0]);
+    expect(selected).toEqual([23]);
+
+    fireEvent.click(screen.getByRole("button", { name: /^Evidence$/i }));
     expect(screen.getAllByText(/Allowed drivers/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Fed \/ rates/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/No direct headline/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/Raw details/i)).toBeInTheDocument();
 
-    fireEvent.click(screen.getAllByRole("button", { name: /Yields pressure/i })[0]);
-    expect(selected).toEqual([23]);
+    fireEvent.click(screen.getByRole("button", { name: /Configure Data Sources/i }));
+    expect(screen.getByRole("heading", { name: /^Data Sources$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Test Connection/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Telegram Reporting/i })).toBeInTheDocument();
+    expect(screen.getByText(/Disabled unless configured/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Bot token/i)).toHaveAttribute("placeholder", "12********90");
+    expect(screen.getByLabelText(/Chat ID/i)).toHaveValue("123456789");
+    expect(screen.getByRole("button", { name: /Send Test Message/i })).toBeInTheDocument();
 
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: /Refresh Token/i }));
@@ -275,10 +423,12 @@ describe("MarketAgentPage", () => {
           }
         }}
         providerConfig={providerConfig}
+        telegramConfig={telegramConfig}
         providerHealth={localCsvProviderHealth}
         driverAttention={{ ok: true, available: true, states: [] }}
         replay={replay}
         selectedEvidence={{ ok: true, available: false, message: "No run selected.", payload: {} }}
+        monitorStatus={monitorStatus}
         selectedMonitorRunId={null}
         rangePreset="1h"
         rangeStartInput=""
@@ -294,11 +444,16 @@ describe("MarketAgentPage", () => {
         onResolveCTraderSymbol={async () => ({ ok: true })}
         onGetCTraderQuoteTest={async () => ({ ok: true })}
         onRefreshCTraderToken={async () => ({ ok: true })}
+        onSaveTelegramConfig={async () => telegramConfig}
+        onTestTelegramMessage={async () => ({ ok: true, status: "sent", message: "Telegram test message sent." })}
+        onRunMonitorOnce={async () => monitorStatus}
+        onStartMonitorLoop={async () => ({ ...monitorStatus, running: true, phase: "running" })}
+        onStopMonitorLoop={async () => monitorStatus}
       />
     );
 
     expect(screen.getByText(/No meaningful XAUUSD move detected/i)).toBeInTheDocument();
-    expect(screen.getByText(/Using local CSV fallback\. Configure cTrader or Yahoo provider for live monitoring\./i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Using local CSV fallback\. Configure cTrader or Yahoo provider for live monitoring\./i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Local CSV fallback/i).length).toBeGreaterThan(0);
     expect(screen.queryByText("LOCAL_CSV_FALLBACK")).not.toBeInTheDocument();
   });
@@ -308,6 +463,7 @@ describe("MarketAgentPage", () => {
       <MarketAgentPage
         snapshot={{ ok: true, available: false, message: "SQLite missing.", state: null, alerts: [] }}
         providerConfig={{ ok: true, available: false, message: "Provider config unavailable.", ctrader: null }}
+        telegramConfig={{ ok: true, available: false, message: "Telegram config unavailable.", telegram: null }}
         providerHealth={{ ok: true, available: false, message: "Provider health unavailable.", items: [] }}
         driverAttention={{ ok: true, available: false, message: "Driver attention unavailable.", states: [] }}
         replay={{
@@ -327,6 +483,7 @@ describe("MarketAgentPage", () => {
           }
         }}
         selectedEvidence={{ ok: true, available: false, message: "Evidence unavailable.", payload: {} }}
+        monitorStatus={monitorStatus}
         selectedMonitorRunId={null}
         rangePreset="4h"
         rangeStartInput=""
@@ -342,13 +499,22 @@ describe("MarketAgentPage", () => {
         onResolveCTraderSymbol={async () => ({ ok: true })}
         onGetCTraderQuoteTest={async () => ({ ok: true })}
         onRefreshCTraderToken={async () => ({ ok: true })}
+        onSaveTelegramConfig={async () => telegramConfig}
+        onTestTelegramMessage={async () => ({ ok: false, status: "failed", error: "telegram unavailable" })}
+        onRunMonitorOnce={async () => monitorStatus}
+        onStartMonitorLoop={async () => ({ ...monitorStatus, running: true, phase: "running" })}
+        onStopMonitorLoop={async () => monitorStatus}
       />
     );
 
     expect(screen.getByText(/SQLite missing\./i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
     expect(screen.getByText(/Provider config unavailable\./i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /^Provider Health$/i }));
     expect(screen.getByText(/Provider health unavailable\./i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Replay \/ Timeline/i }));
     expect(screen.getByText(/Replay unavailable\./i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /^Evidence$/i }));
     expect(screen.getByText(/Evidence unavailable\./i)).toBeInTheDocument();
   });
 });
