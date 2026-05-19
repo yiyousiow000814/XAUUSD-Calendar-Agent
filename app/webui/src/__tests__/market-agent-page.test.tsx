@@ -293,7 +293,7 @@ describe("MarketAgentPage", () => {
     expect(screen.getByRole("heading", { name: /Driver Attention Summary/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Market Replay Today/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Latest Evidence/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /Provider Health/i })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /^Provider Health$/i }).length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: /Open Full Timeline/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /View Evidence/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Configure Data Sources/i })).toBeInTheDocument();
@@ -304,6 +304,7 @@ describe("MarketAgentPage", () => {
     expect(screen.queryByText(/Price series/i)).not.toBeInTheDocument();
     expect(screen.queryByText("futures_proxy")).not.toBeInTheDocument();
     expect(screen.queryByText("core_structural")).not.toBeInTheDocument();
+    expect(screen.queryByText(/No reliable free US2Y source is configured\./i)).not.toBeInTheDocument();
   });
 
   it("switches cockpit sections from the left navigation", () => {
@@ -414,8 +415,6 @@ describe("MarketAgentPage", () => {
     expect(screen.queryByText("main_driver usd -> yields")).not.toBeInTheDocument();
     expect(screen.getAllByText(/Using Yahoo GC=F futures proxy, not true spot XAUUSD\./i).length).toBeGreaterThan(0);
     expect(screen.getByRole("heading", { name: /XAUUSD Price/i })).toBeInTheDocument();
-    expect(screen.getAllByText(/US2Y/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/No reliable free US2Y source is configured\./i)).toBeInTheDocument();
     expect(screen.getByText(/Open Full Timeline/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Fed headline/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Fed speaker/i).length).toBeGreaterThan(0);

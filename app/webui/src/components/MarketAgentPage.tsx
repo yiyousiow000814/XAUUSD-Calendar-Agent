@@ -113,16 +113,6 @@ const sectionGroups: Array<{
   }
 ];
 
-const providerStrip = [
-  { title: "cTrader", keys: ["ctrader", "ctrader_openapi"], fallback: "Configure Open API tokens for spot." },
-  { title: "Yahoo GC=F", keys: ["xauusd", "gc=f", "yahoo", "yahoo_finance"], fallback: "Fallback futures proxy." },
-  { title: "DXY", keys: ["dxy", "dx-y.nyb"], fallback: "Needed for USD confirmation." },
-  { title: "US10Y", keys: ["us10y", "^tnx"], fallback: "Needed for yield confirmation." },
-  { title: "US2Y", keys: ["us2y"], fallback: "No reliable free source configured." },
-  { title: "RSS News", keys: ["rss", "news", "google_news"], fallback: "Configure feeds for news evidence." },
-  { title: "ForexFactory", keys: ["calendar", "forexfactory", "forex_factory"], fallback: "Configure calendar source." }
-];
-
 const formatValue = (value: unknown, fallback = "--") =>
   typeof value === "string" && value.trim()
     ? humanizeMarketAgentValue(value, fallback)
@@ -412,32 +402,6 @@ function MarketAgentDashboard({
         </section>
       </div>
 
-      <section className="market-agent-provider-strip" aria-label="Provider Health">
-        <div className="market-agent-provider-strip-head">
-          <h3>Provider Health</h3>
-          <button type="button" className="btn ghost btn-compact" onClick={() => onNavigate("providers")}>
-            View all
-          </button>
-        </div>
-        <div className="market-agent-provider-strip-grid">
-          {providerStrip.map((provider) => {
-            const item = findProviderHealth(providerHealth?.items, provider.keys);
-            return (
-              <article key={provider.title} className="market-agent-provider-strip-card">
-                <div>
-                  <strong>{provider.title}</strong>
-                  <MarketAgentStatusBadge label={statusForProvider(item)} />
-                </div>
-                <span>{item?.source || provider.fallback}</span>
-                <small>
-                  {formatShortTime(item?.data_timestamp)} ·{" "}
-                  {provider.title === "US2Y" ? providerGuidance(item) : item?.error || item?.stale_reason || providerGuidance(item)}
-                </small>
-              </article>
-            );
-          })}
-        </div>
-      </section>
     </section>
   );
 }
