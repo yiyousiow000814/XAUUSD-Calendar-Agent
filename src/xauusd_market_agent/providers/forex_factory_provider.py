@@ -26,16 +26,19 @@ class ForexFactoryProvider:
         self.fixture_path = Path(fixture_path) if fixture_path is not None else None
         self.source_url = source_url
 
-    def _load_payload(self) -> list[dict[str, Any]]:
+    def _load_payload(self) -> tuple[list[dict[str, Any]], str]:
         if self.fixture_path is not None and self.fixture_path.exists():
-            return json.loads(self.fixture_path.read_text(encoding="utf-8"))
+            return json.loads(self.fixture_path.read_text(encoding="utf-8")), ""
         if self.source_url:
-            with urlopen(self.source_url, timeout=15) as response:
-                return json.loads(response.read().decode("utf-8", errors="replace"))
-        return []
+            try:
+                with urlopen(self.source_url, timeout=15) as response:
+                    return json.loads(response.read().decode("utf-8", errors="replace")), ""
+            except Exception as exc:
+                return [], f"ForexFactory source fetch failed: {exc}"
+        return [], "No ForexFactory fixture path or source URL configured."
 
     def _filter_window(self, start: datetime, end: datetime, *, data_mode: str) -> tuple[list[dict[str, Any]], ProviderHealth]:
-        payload = self._load_payload()
+        payload, unavailable_reason = self._load_payload()
         rows: list[dict[str, Any]] = []
         for item in payload:
             event_dt = _parse_calendar_time(str(item.get("Date", "")), str(item.get("Time", "")))
@@ -65,6 +68,8 @@ class ForexFactoryProvider:
             data_mode=data_mode if rows else "unavailable",
             is_available=bool(rows),
             is_stale=False,
+            stale_reason="" if rows else unavailable_reason,
+            error="" if rows else unavailable_reason,
             current_value=float(len(rows)),
         )
         return rows, health

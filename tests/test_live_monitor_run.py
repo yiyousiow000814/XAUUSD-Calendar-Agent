@@ -28,6 +28,7 @@ def test_run_monitored_live_once_writes_state_and_optional_alert(tmp_path) -> No
         calendar_dir=tmp_path / "calendar",
         related_assets_path=related_path,
         rss_feeds=[],
+        yahoo_enabled=False,
     )
 
     outcome = run_monitored_live_once(

@@ -18,7 +18,6 @@ from .yahoo_chart import YahooChartProvider
 _RELATED_SYMBOLS = {
     "dxy": "DX-Y.NYB",
     "us10y": "^TNX",
-    "us2y": "^TNX",
     "wti": "CL=F",
     "brent": "BZ=F",
     "vix": "^VIX",
@@ -74,8 +73,11 @@ class ProviderRouter:
             market_provider=None,
             related_assets_provider=None,
             news_provider=RSSNewsProvider(config.rss_feeds) if config.rss_feeds else None,
-            calendar_provider=ForexFactoryProvider(fixture_path=config.forex_factory_fixture_path)
-            if config.forex_factory_fixture_path is not None
+            calendar_provider=ForexFactoryProvider(
+                fixture_path=config.forex_factory_fixture_path,
+                source_url=config.forex_factory_source_url or None,
+            )
+            if config.forex_factory_fixture_path is not None or config.forex_factory_source_url
             else None,
             csv_price_path=config.price_data_path,
             csv_related_assets_path=config.related_assets_path,
@@ -135,6 +137,15 @@ class ProviderRouter:
                 series, health = yahoo.fetch_related_asset(symbol, anchor_time)
                 health_map[key] = health
                 rows.extend(self._normalize_related_rows(key, series, health))
+            health_map["us2y"] = build_provider_health(
+                source="US2Y",
+                source_type="provider_interface",
+                data_mode="unavailable",
+                is_available=False,
+                stale_reason="No reliable free US2Y Yahoo proxy is configured.",
+                data_timestamp=anchor_time.isoformat(),
+                raw_source_id="unavailable",
+            )
             if health_map:
                 return rows, health_map
         if self.csv_fallback_enabled and self.csv_related_assets_path is not None:
@@ -212,6 +223,15 @@ class ProviderRouter:
                 series, health = yahoo.backfill(symbol, start, end)
                 health_map[key] = health
                 rows.extend(self._normalize_related_rows(key, series, health, data_mode_override="backfilled"))
+            health_map["us2y"] = build_provider_health(
+                source="US2Y",
+                source_type="provider_interface",
+                data_mode="unavailable",
+                is_available=False,
+                stale_reason="No reliable free US2Y Yahoo proxy is configured.",
+                data_timestamp=end.isoformat(),
+                raw_source_id="unavailable",
+            )
             return rows, health_map
         if self.csv_fallback_enabled and self.csv_related_assets_path is not None:
             return self._load_related_assets_csv_fallback(end, data_mode="backfilled")

@@ -53,7 +53,7 @@ def _read_feed(feed_url: str) -> str | None:
         return None
 
 
-def _score_item(source: str, title: str, has_timestamp: bool) -> tuple[float, list[str]]:
+def _score_item(source: str, title: str, has_timestamp: bool) -> tuple[float, float, list[str], bool, str]:
     lowered_source = source.lower()
     lowered_title = title.lower()
     matched = [word for word in _EVENT_KEYWORDS if word in lowered_title]
@@ -62,7 +62,16 @@ def _score_item(source: str, title: str, has_timestamp: bool) -> tuple[float, li
     low_signal_penalty = 0.2 if any(word in lowered_title for word in _LOW_SIGNAL_KEYWORDS) else 0.0
     timestamp_penalty = 0.15 if not has_timestamp else 0.0
     score = max(0.0, min(1.0, source_score + keyword_bonus - low_signal_penalty - timestamp_penalty))
-    return score, matched
+    included = score >= 0.55 and has_timestamp and low_signal_penalty == 0.0
+    if not has_timestamp:
+        filter_reason = "missing_timestamp"
+    elif low_signal_penalty > 0.0:
+        filter_reason = "low_signal_opinion_or_forecast"
+    elif score < 0.55:
+        filter_reason = "score_below_threshold"
+    else:
+        filter_reason = ""
+    return score, source_score, matched, included, filter_reason
 
 
 class RSSNewsProvider:
@@ -89,7 +98,11 @@ class RSSNewsProvider:
                 if key in dedupe:
                     continue
                 dedupe.add(key)
-                score, matched_keywords = _score_item(channel_title, title, published is not None)
+                score, source_quality_score, matched_keywords, included, filter_reason = _score_item(
+                    channel_title,
+                    title,
+                    published is not None,
+                )
                 items.append(
                     {
                         "published_at": (published or seen_at).isoformat(),
@@ -102,9 +115,12 @@ class RSSNewsProvider:
                         "relevance_reason": "Matched configured RSS provider and news relevance scoring.",
                         "impact_direction_on_gold": "unknown",
                         "data_mode": data_mode,
+                        "included": included,
+                        "filter_reason": filter_reason,
+                        "source_quality_score": source_quality_score,
                         "score": score,
                         "matched_keywords": matched_keywords,
-                        "categories": ["rss"],
+                        "categories": ["rss"] + ([] if included else ["filtered"]),
                     }
                 )
         items.sort(key=lambda item: item["published_at"])

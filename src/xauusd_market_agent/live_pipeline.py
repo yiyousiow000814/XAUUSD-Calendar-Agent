@@ -31,6 +31,8 @@ def _headline_time(raw: str) -> str:
 
 def _headline_from_news(row: dict[str, Any]) -> Headline:
     tags = tuple(row.get("categories", [])) + tuple(row.get("matched_keywords", []))
+    if not row.get("included", True):
+        tags = tags + ("filtered", str(row.get("filter_reason", "")))
     return Headline(
         timestamp_myt=_headline_time(row["published_at"]),
         source=str(row["source"]),
@@ -139,13 +141,14 @@ def _build_fixture_from_context(
     scenario_id: str,
 ) -> ScenarioFixture:
     market = _market_move_from_rows(anchor_time, market_price_bars)
+    included_news_rows = [item for item in news_rows if item.get("included", True)]
     return ScenarioFixture(
         scenario_id=scenario_id,
         as_of_myt=anchor_time.astimezone().strftime("%d-%m-%Y %H:%M"),
         market=market,
         cross_asset=_cross_asset_from_rows(related_asset_bars),
         calendar_events=tuple(_headline_from_calendar(item) for item in calendar_rows),
-        news=tuple(_headline_from_news(item) for item in news_rows),
+        news=tuple(_headline_from_news(item) for item in included_news_rows),
         expected_llm_claim=None,
     )
 
@@ -178,6 +181,9 @@ def _build_runtime_context(
                     "relevance_reason": str(item.get("relevance_reason", "Injected headline.")),
                     "impact_direction_on_gold": str(item.get("impact_direction_on_gold", "unknown")),
                     "data_mode": "live_seen",
+                    "included": bool(item.get("included", True)),
+                    "filter_reason": str(item.get("filter_reason", "")),
+                    "source_quality_score": float(item.get("source_quality_score", item.get("score", 0.6))),
                     "score": float(item.get("score", 0.6)),
                     "matched_keywords": item.get("matched_keywords", []),
                     "categories": item.get("categories", ["injected"]),
@@ -242,6 +248,9 @@ def _run_recovery_backfill(
                     "relevance_reason": str(item.get("relevance_reason", "Injected recovery headline.")),
                     "impact_direction_on_gold": str(item.get("impact_direction_on_gold", "unknown")),
                     "data_mode": "backfilled",
+                    "included": bool(item.get("included", True)),
+                    "filter_reason": str(item.get("filter_reason", "")),
+                    "source_quality_score": float(item.get("source_quality_score", item.get("score", 0.6))),
                     "score": float(item.get("score", 0.6)),
                     "matched_keywords": item.get("matched_keywords", []),
                     "categories": item.get("categories", ["injected"]),
@@ -304,6 +313,8 @@ def _build_packet(
             "to_price": fixture.market.to_price,
             "move_percent": fixture.market.move_percent,
             "window_minutes": fixture.market.window_minutes,
+            "source_type": provider_health["xauusd"].source_type if "xauusd" in provider_health else "",
+            "provider_data_mode": provider_health["xauusd"].data_mode if "xauusd" in provider_health else "",
         },
         "provider_health": health_to_dict(provider_health),
         "active_driver_states": attention_snapshot.active_driver_states,
@@ -323,6 +334,16 @@ def _build_packet(
         "cross_asset_confirmation": evidence.cross_asset_confirmation,
         "evidence_status": evidence.evidence_status,
     }
+
+
+def _resolve_runtime_data_mode(
+    *,
+    backfill_required: bool,
+    provider_health: dict[str, ProviderHealth],
+) -> str:
+    if backfill_required:
+        return "backfilled"
+    return provider_health.get("xauusd", ProviderHealth("", "", "", "", "unavailable", False, False)).data_mode or "unavailable"
 
 
 def build_live_evidence_packet(
@@ -346,14 +367,14 @@ def build_live_evidence_packet(
         fixture=fixture,
         provider_health=provider_health,
         evidence_status=evidence.evidence_status,
-        data_mode=data_mode,
+        data_mode=provider_health["xauusd"].data_mode if "xauusd" in provider_health else data_mode,
     )
     return _build_packet(
         fixture,
         provider_health=provider_health,
         attention_snapshot=attention_snapshot,
         previous_state=previous_state,
-        data_mode=data_mode,
+        data_mode=provider_health["xauusd"].data_mode if "xauusd" in provider_health else data_mode,
     )
 
 
@@ -380,7 +401,7 @@ def run_live_once(
         fixture=fixture,
         provider_health=provider_health,
         evidence_status=evidence.evidence_status,
-        data_mode=data_mode,
+        data_mode=provider_health["xauusd"].data_mode if "xauusd" in provider_health else data_mode,
     )
     result = analyze_fixture_with_optional_llm(
         fixture,
@@ -388,7 +409,7 @@ def run_live_once(
         previous_state=previous_state,
         provider_health=provider_health,
         attention_snapshot=attention_snapshot,
-        data_mode=data_mode,
+        data_mode=provider_health["xauusd"].data_mode if "xauusd" in provider_health else data_mode,
     )
     return fixture, result
 
@@ -430,7 +451,6 @@ def run_monitored_live_once(
         anchor=anchor,
         gap_minutes=config.backfill_gap_minutes,
     )
-    data_mode = "backfilled" if backfill_required else "live_seen"
     runtime_context = (
         _run_recovery_backfill(
             config,
@@ -449,6 +469,10 @@ def run_monitored_live_once(
     )
     fixture = runtime_context["fixture"]
     provider_health = runtime_context["provider_health"]
+    data_mode = _resolve_runtime_data_mode(
+        backfill_required=backfill_required,
+        provider_health=provider_health,
+    )
     evidence = build_evidence_gate_result(fixture, provider_health=provider_health)
     attention_snapshot = DriverAttentionManager().evaluate(
         fixture=fixture,

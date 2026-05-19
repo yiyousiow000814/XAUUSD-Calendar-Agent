@@ -17,6 +17,12 @@ Replace CSV-centric runtime assumptions with provider-driven live collection, ba
 - Normal runtime uses provider router.
 - If no provider is configured or available, store unavailable provider health and continue gracefully.
 - `live_seen`, `backfilled`, `proxy`, `stale`, and `unavailable` must stay explicit through persistence and replay.
+- Provider priority is explicit:
+  1. cTrader spot, only when a real live implementation exists and is enabled
+  2. Yahoo `GC=F` futures proxy
+  3. local CSV fallback only when `MARKET_AGENT_CSV_FALLBACK_ENABLED=true`
+  4. unavailable provider health when all sources fail
+- `US2Y` must never silently reuse `^TNX`. If no reliable free 2Y source is configured, persist it as unavailable.
 
 ## Provider Model
 - `MarketDataProvider`: latest bars + backfill bars
@@ -25,6 +31,22 @@ Replace CSV-centric runtime assumptions with provider-driven live collection, ba
 - `CalendarProvider`: window events + backfill events
 
 All providers return normalized rows plus `ProviderHealth`.
+
+## Env Examples
+```powershell
+$env:MARKET_AGENT_YAHOO_ENABLED = "true"
+$env:MARKET_AGENT_YAHOO_FIXTURE_DIR = "tests/fixtures/providers"
+$env:MARKET_AGENT_CSV_FALLBACK_ENABLED = "false"
+$env:MARKET_AGENT_FOREX_FACTORY_FIXTURE_PATH = "tests/fixtures/providers/forex_factory.json"
+$env:MARKET_AGENT_FOREX_FACTORY_SOURCE_URL = ""
+$env:MARKET_AGENT_CTRADER_SAVED_SNAPSHOT_PATH = "user-data/ctrader_snapshot.json"
+```
+
+## RSS Audit Rules
+- Store included and filtered RSS items together.
+- Each item carries `included`, `filter_reason`, `source_quality_score`, `matched_keywords`, `categories`, and `score`.
+- Filtered or low-signal items remain queryable in replay, but they must not become direct driver evidence.
+- TODO for later phase: persist first-class filtered news counters and driver-specific news inclusion decisions.
 
 ## Recovery Model
 - Detect gap from `last_successful_run_at`

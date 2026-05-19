@@ -36,3 +36,17 @@ def test_ctrader_saved_snapshot_fallback_works(tmp_path) -> None:
     assert rows[0]["is_stale"] is True
     assert health.is_available is True
     assert health.data_mode == "stale"
+
+
+def test_ctrader_with_credentials_is_explicitly_disabled_not_implemented(monkeypatch) -> None:
+    monkeypatch.setenv("CTRADER_CLIENT_ID", "id")
+    monkeypatch.setenv("CTRADER_CLIENT_SECRET", "secret")
+    monkeypatch.setenv("CTRADER_ACCESS_TOKEN", "token")
+    monkeypatch.setenv("CTRADER_ACCOUNT_ID", "acct")
+
+    provider = CTraderProvider()
+    rows, health = provider.fetch_latest(datetime.fromisoformat("2026-05-19T07:15:00+08:00"))
+
+    assert rows == []
+    assert health.is_available is False
+    assert "disabled in this build" in health.error

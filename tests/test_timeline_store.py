@@ -31,6 +31,7 @@ def test_every_monitor_run_persists_even_when_alert_is_suppressed(tmp_path) -> N
         related_assets_path=related_path,
         rss_feeds=[],
         timeline_store_path=tmp_path / "timeline.sqlite",
+        yahoo_enabled=False,
     )
 
     first = run_monitored_live_once(
@@ -87,6 +88,7 @@ def test_driver_attention_persists_across_monitor_runs(tmp_path) -> None:
         related_assets_path=related_path,
         rss_feeds=[],
         timeline_store_path=tmp_path / "timeline.sqlite",
+        yahoo_enabled=False,
     )
 
     run_monitored_live_once(
@@ -197,6 +199,7 @@ def test_recovery_run_persists_price_news_calendar_and_evidence(tmp_path) -> Non
         rss_feeds=[],
         timeline_store_path=tmp_path / "timeline.sqlite",
         backfill_gap_minutes=30,
+        yahoo_enabled=False,
     )
 
     store = TimelineStore(tmp_path / "timeline.sqlite")
@@ -299,6 +302,7 @@ def test_rejected_llm_driver_is_stored_in_analysis_results(tmp_path) -> None:
         related_assets_path=related_path,
         rss_feeds=[],
         timeline_store_path=tmp_path / "timeline.sqlite",
+        yahoo_enabled=False,
     )
 
     run_monitored_live_once(
@@ -331,6 +335,7 @@ def test_live_mode_without_csv_fails_gracefully_and_persists_provider_health(tmp
         related_assets_path=related_path,
         rss_feeds=[],
         timeline_store_path=tmp_path / "timeline.sqlite",
+        yahoo_enabled=False,
     )
 
     outcome = run_monitored_live_once(

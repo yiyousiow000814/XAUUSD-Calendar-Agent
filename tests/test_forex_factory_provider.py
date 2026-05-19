@@ -14,3 +14,13 @@ def test_forex_factory_provider_parses_fixture_window() -> None:
     assert rows[0]["title"] == "CPI m/m"
     assert rows[0]["impact"] == "High"
     assert health.is_available is True
+
+
+def test_forex_factory_provider_without_source_is_unavailable() -> None:
+    provider = ForexFactoryProvider()
+
+    rows, health = provider.fetch_window(datetime.fromisoformat("2026-05-19T07:15:00+08:00"))
+
+    assert rows == []
+    assert health.is_available is False
+    assert health.data_mode == "unavailable"

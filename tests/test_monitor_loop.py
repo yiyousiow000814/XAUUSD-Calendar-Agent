@@ -28,6 +28,7 @@ def test_run_monitor_loop_executes_multiple_iterations_without_crashing(tmp_path
         calendar_dir=tmp_path / "calendar",
         related_assets_path=related_path,
         rss_feeds=[],
+        yahoo_enabled=False,
     )
 
     outcomes = run_monitor_loop(

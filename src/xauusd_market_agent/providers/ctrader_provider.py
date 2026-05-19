@@ -36,7 +36,9 @@ class CTraderProvider:
 
     def fetch_latest(self, anchor_time) -> tuple[list[dict[str, object]], ProviderHealth]:
         if self.is_configured():
-            return [], self._unavailable_health("cTrader live fetching is not implemented in this skeleton yet.")
+            return [], self._unavailable_health(
+                "cTrader credentials detected, but live quote fetching is disabled in this build. Yahoo GC=F proxy remains the default provider."
+            )
         if self.saved_snapshot_path is not None and self.saved_snapshot_path.exists():
             payload = json.loads(self.saved_snapshot_path.read_text(encoding="utf-8"))
             row = {
@@ -70,4 +72,6 @@ class CTraderProvider:
         return [], self._unavailable_health("cTrader credentials are missing.")
 
     def backfill(self, start, end) -> tuple[list[dict[str, object]], ProviderHealth]:
-        return [], self._unavailable_health("cTrader historical backfill is not implemented in this skeleton yet.")
+        return [], self._unavailable_health(
+            "cTrader historical backfill is disabled in this build. Yahoo GC=F proxy remains the default provider."
+        )

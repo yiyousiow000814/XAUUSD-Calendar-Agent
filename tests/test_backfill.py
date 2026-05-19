@@ -37,15 +37,28 @@ class StubProvider:
                 "is_stale": False,
                 "stale_reason": "",
             },
+            {
+                "symbol": "XAUUSD",
+                "data_timestamp": "2026-05-19T06:30:00+08:00",
+                "open_price": 4479.0,
+                "high_price": 4495.0,
+                "low_price": 4476.0,
+                "close_price": 4490.0,
+                "source": "stub",
+                "source_type": "futures_proxy",
+                "data_mode": "backfilled",
+                "is_stale": False,
+                "stale_reason": "",
+            },
         ], __import__("src.xauusd_market_agent.provider_health", fromlist=["build_provider_health"]).build_provider_health(
             source="XAUUSD",
             source_type="futures_proxy",
             data_mode="backfilled",
-            current_value=4479.0,
+            current_value=4490.0,
             previous_value=4500.0,
-            change_value=-0.46,
+            change_value=-0.22,
             change_unit="percent",
-            data_timestamp="2026-05-19T06:15:00+08:00",
+            data_timestamp="2026-05-19T06:30:00+08:00",
         )
 
 
@@ -125,10 +138,18 @@ def test_backfill_manager_calls_providers_and_recovery_is_storable(tmp_path) -> 
 
     replay = store.get_market_replay("2026-05-19T06:00:00+08:00", "2026-05-19T06:30:00+08:00")
 
-    assert context.market_price_bars
+    assert len(context.market_price_bars) == 3
     assert context.related_asset_bars
     assert context.news_rows
     assert context.calendar_rows
+    assert len(context.recovery_timeline_events) == 2
+    assert "Recovered 3 XAUUSD bars" in context.recovery_summary
+    assert "1 news items" in context.recovery_summary
+    assert "1 calendar events" in context.recovery_summary
+    assert context.news_rows[0]["first_seen_at"] == "2026-05-19T06:30:00+08:00"
+    assert context.news_rows[0]["backfilled_at"] == "2026-05-19T06:30:00+08:00"
+    assert context.news_rows[0]["data_mode"] == "backfilled"
     assert replay["price_series"]
     assert replay["news_items"]
     assert replay["calendar_events"]
+    assert replay["timeline_events"][0]["payload"]["data_mode"] == "backfilled"

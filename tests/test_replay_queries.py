@@ -27,7 +27,7 @@ def test_replay_queries_return_combined_timeline(tmp_path) -> None:
     store.record_news_items(
         run_id,
         [
-            {"published_at": "2026-05-19T07:10:00+08:00", "first_seen_at": "2026-05-19T07:15:00+08:00", "backfilled_at": None, "is_backfilled": False, "source": "Reuters", "title": "Fed headline", "link": "", "relevance_reason": "relevant", "impact_direction_on_gold": "bearish", "data_mode": "live_seen"},
+            {"published_at": "2026-05-19T07:10:00+08:00", "first_seen_at": "2026-05-19T07:15:00+08:00", "backfilled_at": None, "is_backfilled": False, "source": "Reuters", "title": "Fed headline", "link": "", "relevance_reason": "relevant", "impact_direction_on_gold": "bearish", "data_mode": "live_seen", "included": True, "filter_reason": "", "source_quality_score": 0.92, "matched_keywords": ["fed"], "categories": ["rss"]},
         ],
     )
     store.record_calendar_events(
@@ -37,6 +37,36 @@ def test_replay_queries_return_combined_timeline(tmp_path) -> None:
         ],
     )
     store.record_alert(run_id, {"should_notify": False, "notification_level": "none", "reason": "cooldown"})
+    store.record_driver_attention_states(
+        run_id,
+        {
+            "yields": {
+                "driver_id": "yields",
+                "label": "US Yields",
+                "category": "macro",
+                "current_state": "active",
+                "priority": "core_structural",
+                "relevance_score": 0.95,
+                "activation_reason": "Fresh yield move confirms the XAUUSD move.",
+                "deactivation_reason": "",
+                "first_activated_at": "2026-05-19T07:15:00+08:00",
+                "last_confirmed_at": "2026-05-19T07:15:00+08:00",
+                "last_evidence_at": "2026-05-19T07:15:00+08:00",
+                "decay_deadline": "2026-05-19T08:45:00+08:00",
+                "linked_assets": ["us10y", "us2y"],
+                "required_evidence_gates": ["us10y", "us2y"],
+                "optional_evidence_gates": [],
+                "current_evidence_summary": "US10Y confirms.",
+                "current_counter_evidence": "",
+                "confidence": "high",
+                "source_count": 1,
+                "related_news_count": 0,
+                "related_calendar_events": 0,
+                "notes": "",
+                "data_mode": "live_seen",
+            }
+        },
+    )
     store.record_timeline_event(
         run_id,
         event_time="2026-05-19T07:15:00+08:00",
@@ -50,5 +80,10 @@ def test_replay_queries_return_combined_timeline(tmp_path) -> None:
     assert store.get_price_series("XAUUSD", "2026-05-19T07:00:00+08:00", "2026-05-19T07:20:00+08:00")
     assert store.get_related_asset_series("dxy", "2026-05-19T07:00:00+08:00", "2026-05-19T07:20:00+08:00")
     assert store.get_news_items("2026-05-19T07:00:00+08:00", "2026-05-19T07:20:00+08:00")
+    assert replay["price_series"]
+    assert replay["related_assets"]["dxy"]
+    assert replay["news_items"]
+    assert replay["calendar_events"]
+    assert replay["driver_attention_timeline"]
     assert replay["timeline_events"]
     assert replay["suppressed_alerts"]

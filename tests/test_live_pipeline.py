@@ -30,6 +30,7 @@ def test_build_live_evidence_packet_uses_provider_outputs(tmp_path) -> None:
         price_data_path=price_path,
         calendar_dir=tmp_path / "calendar",
         rss_feeds=[],
+        yahoo_enabled=False,
     )
     packet = build_live_evidence_packet(
         config=cfg,

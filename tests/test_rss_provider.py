@@ -16,6 +16,9 @@ def test_rss_provider_dedupes_and_marks_backfilled_fields() -> None:
     assert len(rows) == 2
     assert all(item["is_backfilled"] for item in rows)
     assert rows[0]["backfilled_at"] is not None
+    assert "included" in rows[0]
+    assert "filter_reason" in rows[0]
+    assert "source_quality_score" in rows[0]
     assert health.is_available is True
 
 
@@ -27,3 +30,6 @@ def test_rss_provider_missing_timestamp_gets_lower_score() -> None:
 
     scored = {item["title"]: item["score"] for item in rows}
     assert scored["Opinion: Gold forecast into CPI week"] < scored["Fed headline lifts yields and pressures gold"]
+    opinion_row = next(item for item in rows if item["title"] == "Opinion: Gold forecast into CPI week")
+    assert opinion_row["included"] is False
+    assert opinion_row["filter_reason"] in {"missing_timestamp", "low_signal_opinion_or_forecast", "score_below_threshold"}
