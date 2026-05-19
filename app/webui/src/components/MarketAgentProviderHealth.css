@@ -1,6 +1,40 @@
+.market-agent-provider-health-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.market-agent-provider-summary-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.market-agent-provider-summary-strip article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(134, 148, 168, 0.14);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.market-agent-provider-summary-strip span {
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.market-agent-provider-summary-strip strong {
+  font-size: 24px;
+  line-height: 1;
+}
+
 .market-agent-provider-card-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -10,9 +44,9 @@
   gap: 9px;
   min-width: 0;
   padding: 13px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.035);
+  border-radius: 12px;
+  border: 1px solid rgba(134, 148, 168, 0.14);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .market-agent-provider-card-head {
@@ -27,10 +61,20 @@
   font-size: 14px;
 }
 
-.market-agent-provider-source {
+.market-agent-provider-card-head > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.market-agent-provider-card-head > div > span {
   color: var(--text);
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 650;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .market-agent-provider-card p {
@@ -55,8 +99,21 @@
   line-height: 1.4;
 }
 
-@media (max-width: 760px) {
+[data-theme="light"] .market-agent-provider-summary-strip article,
+[data-theme="light"] .market-agent-provider-card {
+  border-color: rgba(35, 43, 55, 0.12);
+  background: rgba(255, 255, 255, 0.66);
+}
+
+@media (max-width: 1100px) {
   .market-agent-provider-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .market-agent-provider-card-grid,
+  .market-agent-provider-summary-strip {
     grid-template-columns: 1fr;
   }
 }

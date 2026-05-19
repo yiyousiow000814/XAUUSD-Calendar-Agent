@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import type {
   MarketAgentProviderActionResponse,
@@ -107,6 +107,7 @@ export function MarketAgentProviderConfig({
   const [actionLabel, setActionLabel] = useState("");
   const [activeStep, setActiveStep] = useState<SetupStep>("price");
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const surfaceRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const ctrader = data?.ctrader;
@@ -171,17 +172,17 @@ export function MarketAgentProviderConfig({
       value: data?.ctrader?.enabled ? "cTrader spot" : "Not configured",
       tone: data?.ctrader?.enabled ? "good" : "warn"
     },
-    { label: "Related assets", value: "Available through providers", tone: "neutral" },
-    { label: "News", value: "Configure RSS feeds", tone: "warn" },
-    { label: "Calendar", value: "ForexFactory fallback", tone: "neutral" },
+    { label: "Market context", value: "Automatic", tone: "neutral" },
+    { label: "News", value: "Automatic", tone: "neutral" },
+    { label: "Calendar", value: "Automatic", tone: "neutral" },
     {
       label: "Telegram",
       value: telegramData?.telegram?.enabled ? "Enabled" : "Disabled",
       tone: telegramData?.telegram?.enabled ? "good" : "warn"
     },
     {
-      label: "LLM",
-      value: llmData?.llm?.enabled ? llmData.llm.lastStatus || "Enabled" : "Disabled",
+      label: "Analysis",
+      value: llmData?.llm?.enabled ? llmData.llm.lastStatus || "Enabled" : "Rule-based",
       tone: llmData?.llm?.enabled ? (llmData.llm.lastError ? "bad" : "good") : "neutral"
     },
     {
@@ -191,14 +192,14 @@ export function MarketAgentProviderConfig({
     }
   ] as const;
 
-  const steps: Array<{ id: SetupStep; label: string; summary: string }> = [
-    { id: "price", label: "Price Source", summary: "Pick spot, proxy, or debug import." },
-    { id: "ctrader", label: "cTrader", summary: "Add Open API tokens and test spot." },
-    { id: "fallbacks", label: "Fallbacks", summary: "Keep proxy and related assets honest." },
-    { id: "news", label: "News & Calendar", summary: "Connect headlines and event windows." },
-    { id: "llm", label: "LLM", summary: "Optional Ollama analysis after evidence." },
-    { id: "telegram", label: "Telegram", summary: "Send only meaningful alerts." },
-    { id: "monitoring", label: "Monitoring", summary: "Run, loop, and recover on Windows." }
+  const steps: Array<{ id: SetupStep; label: string }> = [
+    { id: "price", label: "Price" },
+    { id: "ctrader", label: "cTrader" },
+    { id: "fallbacks", label: "Market data" },
+    { id: "news", label: "News" },
+    { id: "llm", label: "Analysis" },
+    { id: "telegram", label: "Alerts" },
+    { id: "monitoring", label: "Monitoring" }
   ];
 
   const runAction = async (
@@ -229,74 +230,69 @@ export function MarketAgentProviderConfig({
     setLLMResult(result);
   };
 
-  const renderCTraderResult = () => (
-    <div className="market-agent-provider-config-result" data-qa="qa:market-agent:provider-config-result">
+  const selectStep = (step: SetupStep) => {
+    setActiveStep(step);
+    const scrollTarget = surfaceRef.current;
+    if (!scrollTarget) return;
+    if (typeof scrollTarget.scrollTo === "function") {
+      scrollTarget.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    scrollTarget.scrollTop = 0;
+  };
+
+  const renderCTraderResult = () => {
+    if (!actionResult) return null;
+    return (
+      <div className="market-agent-provider-config-result" data-qa="qa:market-agent:provider-config-result">
       <div className="market-agent-provider-config-result-head">
         <strong>{actionLabel || "Test result"}</strong>
-        <MarketAgentStatusBadge label={actionResult?.ok ? "success" : actionResult ? "failed" : "pending"} />
+        <MarketAgentStatusBadge label={actionResult.ok ? "success" : "failed"} />
       </div>
       <div className="market-agent-provider-config-result-body">
-        {actionResult ? (
-          <>
-            <span>{actionResult.message || actionResult.error || "Completed."}</span>
-            {actionResult.symbol ? (
-              <span>
-                Symbol: {String(actionResult.symbol.symbolName ?? "unknown")} / ID{" "}
-                {String(actionResult.symbol.symbolId ?? "--")}
-              </span>
-            ) : null}
-            {actionResult.quote ? (
-              <span>
-                Quote: {String(actionResult.quote.symbol ?? "XAUUSD")} {String(actionResult.quote.mid ?? "--")} (
-                {String(actionResult.quote.source_type ?? "spot")})
-              </span>
-            ) : null}
-          </>
-        ) : (
-          <>
-            <span>Run a test to verify app auth, account auth, symbol resolution, quote receipt, and snapshot save.</span>
-            <ul>
-              <li>App auth: pending</li>
-              <li>Account auth: pending</li>
-              <li>Symbol resolved: pending</li>
-              <li>Latest quote received: pending</li>
-              <li>Snapshot saved: pending</li>
-              <li>Provider selected: pending</li>
-            </ul>
-          </>
-        )}
+        <span>{actionResult.message || actionResult.error || "Completed."}</span>
+        {actionResult.symbol ? (
+          <span>
+            Symbol: {String(actionResult.symbol.symbolName ?? "unknown")} / ID{" "}
+            {String(actionResult.symbol.symbolId ?? "--")}
+          </span>
+        ) : null}
+        {actionResult.quote ? (
+          <span>
+            Quote: {String(actionResult.quote.symbol ?? "XAUUSD")} {String(actionResult.quote.mid ?? "--")} (
+            {String(actionResult.quote.source_type ?? "spot")})
+          </span>
+        ) : null}
       </div>
     </div>
-  );
+    );
+  };
 
   const renderStep = () => {
     if (activeStep === "price") {
       return (
         <div className="market-agent-setup-panel">
-          <h3>Choose price source</h3>
-          <p>
-            Start with the XAUUSD price feed. The evidence gate can only evaluate market moves when price data is
-            available and fresh.
-          </p>
+          <h3>Price source</h3>
+          <p>Use cTrader for live XAUUSD. Backup price data is automatic when cTrader is unavailable.</p>
           <div className="market-agent-source-options">
             <article className="recommended">
-              <span>Recommended</span>
-              <strong>cTrader Spot</strong>
-              <p>cTrader gives true spot XAUUSD when Open API tokens and account access are configured.</p>
-              <button type="button" className="btn ghost btn-compact" onClick={() => setActiveStep("ctrader")}>
-                Set up cTrader
+              <span>Primary</span>
+              <strong>cTrader</strong>
+              <p>Live XAUUSD price and missed-history recovery.</p>
+              <button type="button" className="btn ghost btn-compact" onClick={() => selectStep("ctrader")}>
+                Connect cTrader
               </button>
             </article>
             <article>
-              <span>Fallback</span>
-              <strong>Yahoo GC=F</strong>
-              <p>Yahoo GC=F is useful when cTrader is unavailable, but it is a futures proxy, not true spot XAUUSD.</p>
+              <span>Automatic</span>
+              <strong>XAUUSD backup price</strong>
+              <p>Only used when cTrader is not connected or stale.</p>
               <MarketAgentStatusBadge label="Futures proxy" tone="warn" />
             </article>
             <article>
-              <span>Debug / import only</span>
+              <span>Support only</span>
               <strong>Local CSV</strong>
-              <p>Local CSV is not ideal for live monitoring. Use it for fixture imports and debugging only.</p>
+              <p>Fixture import and debugging only.</p>
             </article>
           </div>
         </div>
@@ -305,34 +301,19 @@ export function MarketAgentProviderConfig({
 
     if (activeStep === "ctrader") {
       return (
-        <div className="market-agent-setup-panel">
-          <h3>Set up cTrader Open API</h3>
+        <div className="market-agent-setup-panel market-agent-ctrader-panel">
+          <h3>Connect cTrader</h3>
+          <p>Paste Open API details. Market Agent uses them for live XAUUSD and missed-history recovery.</p>
           <p className="market-agent-security-note">
-            We never ask for or store your cTrader password. Use cTrader Open API tokens only.
+            No cTrader password is needed. Use Open API tokens only.
           </p>
-          <div className="market-agent-provider-config-grid primary">
-            <label>
-              <span>Environment</span>
-              <select
-                value={form.environment}
-                onChange={(event) => setForm((current) => ({ ...current, environment: event.target.value }))}
-              >
-                <option value="demo">demo</option>
-                <option value="live">live</option>
-              </select>
-            </label>
-            <label>
-              <span>Symbol</span>
-              <input
-                value={form.symbol}
-                onChange={(event) => setForm((current) => ({ ...current, symbol: event.target.value }))}
-              />
-            </label>
+          <div className="market-agent-provider-config-grid primary market-agent-ctrader-primary-grid">
             <label>
               <span>Account ID</span>
               <input
                 value={form.accountId}
                 onChange={(event) => setForm((current) => ({ ...current, accountId: event.target.value }))}
+                placeholder="cTrader Open API account ID"
               />
             </label>
             <label>
@@ -369,8 +350,23 @@ export function MarketAgentProviderConfig({
                 checked={form.enabled}
                 onChange={(event) => setForm((current) => ({ ...current, enabled: event.target.checked }))}
               />
-              <span>Enable cTrader spot as preferred XAUUSD source</span>
+              <span>Use cTrader for XAUUSD data</span>
             </label>
+          </div>
+          <div className="market-agent-provider-config-actions primary">
+            <button
+              type="button"
+              className="btn primary btn-compact"
+              onClick={() => {
+                onSave(form);
+                void runAction("Connection check", onTestConnection);
+              }}
+            >
+              Save & test
+            </button>
+            <button type="button" className="btn ghost btn-compact" onClick={onClear}>
+              Clear
+            </button>
           </div>
           <details
             className="market-agent-advanced-settings"
@@ -382,11 +378,31 @@ export function MarketAgentProviderConfig({
                 setAdvancedOpen((current) => !current);
               }}
             >
-              Advanced settings
+              Broker-specific options
             </summary>
             {advancedOpen ? (
               <>
+                <p className="market-agent-support-note">
+                  Leave these unchanged unless your broker uses a custom XAUUSD symbol or support asks for a quote test.
+                </p>
                 <div className="market-agent-provider-config-grid">
+                  <label>
+                    <span>Trading environment</span>
+                    <select
+                      value={form.environment}
+                      onChange={(event) => setForm((current) => ({ ...current, environment: event.target.value }))}
+                    >
+                      <option value="demo">demo</option>
+                      <option value="live">live</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Symbol name</span>
+                    <input
+                      value={form.symbol}
+                      onChange={(event) => setForm((current) => ({ ...current, symbol: event.target.value }))}
+                    />
+                  </label>
                   <label>
                     <span>Refresh Token</span>
                     <input
@@ -462,26 +478,19 @@ export function MarketAgentProviderConfig({
               </>
             ) : null}
           </details>
-          <div className="market-agent-provider-config-actions">
-            <button type="button" className="btn ghost btn-compact" onClick={() => void runAction("Test Connection", onTestConnection)}>
-              Test Connection
-            </button>
-            <button type="button" className="btn ghost btn-compact" onClick={() => void runAction("Resolve Symbol", onResolveSymbol)}>
-              Resolve Symbol
-            </button>
-            <button type="button" className="btn ghost btn-compact" onClick={() => void runAction("Start Live Quote Test", onQuoteTest)}>
-              Start Live Quote Test
-            </button>
-            <button type="button" className="btn ghost btn-compact" onClick={() => void runAction("Refresh Token", onRefreshToken)}>
-              Refresh Token
-            </button>
-            <button type="button" className="btn ghost btn-compact" onClick={() => onSave(form)}>
-              Save Config
-            </button>
-            <button type="button" className="btn ghost btn-compact" onClick={onClear}>
-              Clear Config
-            </button>
-          </div>
+          {advancedOpen ? (
+            <div className="market-agent-provider-config-actions compact">
+              <button type="button" className="btn ghost btn-compact" onClick={() => void runAction("Resolve Symbol", onResolveSymbol)}>
+                Check broker symbol
+              </button>
+              <button type="button" className="btn ghost btn-compact" onClick={() => void runAction("Live quote test", onQuoteTest)}>
+                Run quote test
+              </button>
+              <button type="button" className="btn ghost btn-compact" onClick={() => void runAction("Refresh Token", onRefreshToken)}>
+                Refresh token
+              </button>
+            </div>
+          ) : null}
           {renderCTraderResult()}
         </div>
       );
@@ -490,22 +499,23 @@ export function MarketAgentProviderConfig({
     if (activeStep === "fallbacks") {
       return (
         <div className="market-agent-setup-panel">
-          <h3>Configure fallback sources</h3>
-          <p>
-            Fallbacks keep the agent useful when cTrader is unavailable or stale. They never change the source labels:
-            GC=F remains a futures proxy.
-          </p>
-          <div className="market-agent-source-options compact">
-            {["Yahoo GC=F", "DXY", "US10Y", "US2Y", "Oil", "VIX / Equities"].map((name) => (
+          <h3>Market data</h3>
+          <p>These are automatic. You do not need to configure them.</p>
+          <div className="market-agent-source-options compact market-agent-managed-sources">
+            {["XAUUSD backup price", "DXY", "US10Y", "US2Y", "Oil", "VIX / Equities"].map((name) => (
               <article key={name}>
                 <strong>{name}</strong>
                 <p>
                   {name === "US2Y"
-                    ? "US2Y is unavailable unless a reliable source is configured."
-                    : name === "Yahoo GC=F"
-                      ? "Fallback futures proxy for XAUUSD price, not true spot."
-                      : "Used as confirmation evidence when fresh and available."}
+                    ? "Used when a reliable source is available."
+                    : name === "XAUUSD backup price"
+                      ? "Only used if cTrader is unavailable."
+                      : "Used as market context when fresh."}
                 </p>
+                <MarketAgentStatusBadge
+                  label={name === "XAUUSD backup price" ? "Backup proxy" : name === "US2Y" ? "When available" : "Automatic"}
+                  tone={name === "XAUUSD backup price" ? "warn" : "neutral"}
+                />
               </article>
             ))}
           </div>
@@ -516,23 +526,23 @@ export function MarketAgentProviderConfig({
     if (activeStep === "news") {
       return (
         <div className="market-agent-setup-panel">
-          <h3>Configure news and calendar</h3>
-          <p>
-            News and calendar data explain moves only when timestamps, relevance, and cross-asset confirmation pass the
-            evidence gate. Delayed or noisy headlines stay low confidence.
-          </p>
-          <div className="market-agent-source-options">
+          <h3>News</h3>
+          <p>Headlines and calendar events are collected automatically.</p>
+          <div className="market-agent-source-options market-agent-managed-sources">
             <article>
-              <strong>RSS News</strong>
-              <p>Connect RSS feeds for Fed, macro, geopolitical, and XAUUSD-relevant headlines.</p>
-              <MarketAgentStatusBadge label="Configure feeds" tone="warn" />
-              <code>NEWS_RSS_FEEDS</code>
+              <strong>Headlines</strong>
+              <p>Used only when timing and market confirmation support the explanation.</p>
+              <MarketAgentStatusBadge label="Automatic" tone="neutral" />
             </article>
             <article>
-              <strong>ForexFactory Calendar</strong>
-              <p>Use economic event windows to separate scheduled catalysts from unsupported narratives.</p>
-              <MarketAgentStatusBadge label="Calendar windows" tone="neutral" />
-              <code>MARKET_AGENT_FOREX_FACTORY_SOURCE_URL</code>
+              <strong>Calendar</strong>
+              <p>Scheduled catalysts are matched against XAUUSD moves.</p>
+              <MarketAgentStatusBadge label="Automatic" tone="neutral" />
+            </article>
+            <article>
+              <strong>Evidence</strong>
+              <p>Accepted sources appear in the Evidence view.</p>
+              <MarketAgentStatusBadge label="Auditable" tone="info" />
             </article>
           </div>
         </div>
@@ -542,113 +552,75 @@ export function MarketAgentProviderConfig({
     if (activeStep === "llm") {
       return (
         <div className="market-agent-setup-panel">
-          <h3>Configure local LLM</h3>
-          <p>
-            LLM is optional. The rule-based evidence gate works when LLM is disabled, and LLM runs only after
-            meaningful triggers or explicit analysis requests.
-          </p>
-          <p className="market-agent-security-note">
-            Evidence gate and validator remain final guards. LLM is not the source of truth; invalid JSON, blocked
-            driver claims, and timeouts fall back to the rule-based report.
-          </p>
+          <h3>Analysis</h3>
+          <p>Optional local model. Evidence checks still decide what is allowed.</p>
           {!llmData?.available ? (
             <div className="market-agent-empty-state">{llmData?.message || "LLM configuration is unavailable."}</div>
           ) : (
             <>
-              <div className="market-agent-provider-config-statuses">
-                <MarketAgentStatusBadge
-                  label={llmData.llm?.enabled ? llmData.llm.lastStatus || "Enabled" : "Disabled"}
-                  tone={llmData.llm?.lastError ? "bad" : llmData.llm?.enabled ? "good" : "neutral"}
+              <label className="market-agent-toggle market-agent-full-toggle">
+                <input
+                  type="checkbox"
+                  checked={llmForm.enabled}
+                  onChange={(event) => setLLMForm((current) => ({ ...current, enabled: event.target.checked }))}
                 />
-                <MarketAgentStatusBadge label={llmData.llm?.provider || "Ollama"} tone="neutral" />
-              </div>
-              <div className="market-agent-provider-config-grid llm">
-                <label className="market-agent-toggle">
-                  <input
-                    type="checkbox"
-                    checked={llmForm.enabled}
-                    onChange={(event) => setLLMForm((current) => ({ ...current, enabled: event.target.checked }))}
-                  />
-                  <span>Enable local LLM</span>
-                </label>
-                <label>
-                  <span>Provider</span>
-                  <select
-                    value={llmForm.provider}
-                    onChange={(event) => setLLMForm((current) => ({ ...current, provider: event.target.value }))}
-                  >
-                    <option value="ollama">Ollama</option>
-                  </select>
-                </label>
-                <label>
-                  <span>Endpoint</span>
-                  <input
-                    value={llmForm.endpoint}
-                    onChange={(event) => setLLMForm((current) => ({ ...current, endpoint: event.target.value }))}
-                  />
-                </label>
-                <label>
+                <span>Use local model for explanations</span>
+              </label>
+              <div className="market-agent-readable-card-grid">
+                <article>
+                  <span>Status</span>
+                  <strong>{llmForm.enabled ? llmData.llm?.lastStatus || "Enabled" : "Rule-based"}</strong>
+                  <p>{llmForm.enabled ? "Uses Ollama after meaningful triggers." : "No local model calls."}</p>
+                </article>
+                <article>
                   <span>Model</span>
-                  <input
-                    value={llmForm.model}
-                    onChange={(event) => setLLMForm((current) => ({ ...current, model: event.target.value }))}
-                  />
-                </label>
-                <label>
-                  <span>Temperature</span>
-                  <input
-                    value={llmForm.temperature}
-                    onChange={(event) =>
-                      setLLMForm((current) => ({ ...current, temperature: Number(event.target.value) || 0.1 }))
-                    }
-                  />
-                </label>
-                <label>
-                  <span>Timeout seconds</span>
-                  <input
-                    value={llmForm.timeoutSeconds}
-                    onChange={(event) =>
-                      setLLMForm((current) => ({ ...current, timeoutSeconds: Number(event.target.value) || 20 }))
-                    }
-                  />
-                </label>
-                <label>
-                  <span>Keep alive</span>
-                  <input
-                    value={llmForm.keepAlive}
-                    onChange={(event) => setLLMForm((current) => ({ ...current, keepAlive: event.target.value }))}
-                  />
-                </label>
-                <label>
-                  <span>Max context</span>
-                  <input
-                    value={llmForm.maxContext}
-                    onChange={(event) =>
-                      setLLMForm((current) => ({ ...current, maxContext: Number(event.target.value) || 8192 }))
-                    }
-                  />
-                </label>
+                  <strong>{llmData.llm?.model || "qwen3:4b"}</strong>
+                  <p>Local only. Not a source of truth.</p>
+                </article>
               </div>
-              <div className="market-agent-provider-config-actions">
-                <button type="button" className="btn ghost btn-compact" onClick={() => void onSaveLLM(llmForm)}>
-                  Save LLM
+              <div className="market-agent-provider-config-actions primary">
+                <button type="button" className="btn primary btn-compact" onClick={() => void onSaveLLM(llmForm)}>
+                  Save analysis setting
                 </button>
                 <button type="button" className="btn ghost btn-compact" onClick={() => void runLLMAction(onTestLLMConnection)}>
-                  Test Ollama Connection
+                  Test model
                 </button>
                 <button type="button" className="btn ghost btn-compact" onClick={() => void runLLMAction(onTestLLMJsonResponse)}>
-                  Test Model JSON Response
+                  Test JSON
                 </button>
               </div>
-              <div className="market-agent-provider-config-meta">
-                <span>Config path: {llmData.llm?.configPath || "--"}</span>
-                <span>Last status: {llmData.llm?.lastStatus || "Disabled"}</span>
-                <span>Last error: {llmData.llm?.lastError || "None"}</span>
-              </div>
+              <details className="market-agent-advanced-settings">
+                <summary>Model settings</summary>
+                <div className="market-agent-provider-config-grid llm">
+                  <label>
+                    <span>Provider</span>
+                    <select
+                      value={llmForm.provider}
+                      onChange={(event) => setLLMForm((current) => ({ ...current, provider: event.target.value }))}
+                    >
+                      <option value="ollama">Ollama</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Endpoint</span>
+                    <input
+                      value={llmForm.endpoint}
+                      onChange={(event) => setLLMForm((current) => ({ ...current, endpoint: event.target.value }))}
+                    />
+                  </label>
+                  <label>
+                    <span>Model</span>
+                    <input
+                      value={llmForm.model}
+                      onChange={(event) => setLLMForm((current) => ({ ...current, model: event.target.value }))}
+                    />
+                  </label>
+                </div>
+              </details>
               {llmResult ? (
                 <div className="market-agent-provider-config-result">
                   <div className="market-agent-provider-config-result-head">
-                    <strong>LLM Test</strong>
+                    <strong>Model check</strong>
                     <MarketAgentStatusBadge label={llmResult.status || (llmResult.ok ? "available" : "failed")} />
                   </div>
                   <div className="market-agent-provider-config-result-body">
@@ -664,12 +636,9 @@ export function MarketAgentProviderConfig({
 
     if (activeStep === "telegram") {
       return (
-        <div className="market-agent-setup-panel">
-          <h3>Configure Telegram alerts</h3>
-          <p>
-            Telegram sends only meaningful alerts: Level 2 situation changes, Level 3 breaking drivers, large
-            unconfirmed moves, and useful recovery summaries. No meaningful change is suppressed.
-          </p>
+        <div className="market-agent-setup-panel market-agent-telegram-panel">
+          <h3>Alerts</h3>
+          <p>Telegram is optional. It only sends meaningful changes.</p>
           {!telegramData?.available ? (
             <div className="market-agent-empty-state">
               {telegramData?.message || "Telegram configuration is unavailable."}
@@ -686,17 +655,19 @@ export function MarketAgentProviderConfig({
                   tone={telegramData.telegram?.lastError ? "bad" : "neutral"}
                 />
               </div>
+              <div className="market-agent-readable-card-grid telegram-intro">
+                <article>
+                  <span>Current state</span>
+                  <strong>{telegramData.telegram?.enabled ? "Alerts enabled" : "Alerts off"}</strong>
+                  <p>Repeated states are suppressed.</p>
+                </article>
+                <article>
+                  <span>Sends when</span>
+                  <strong>Situation changes</strong>
+                  <p>Driver changes, invalidation, large unexplained moves, recovery.</p>
+                </article>
+              </div>
               <div className="market-agent-provider-config-grid telegram">
-                <label className="market-agent-toggle">
-                  <input
-                    type="checkbox"
-                    checked={telegramForm.enabled}
-                    onChange={(event) =>
-                      setTelegramForm((current) => ({ ...current, enabled: event.target.checked }))
-                    }
-                  />
-                  <span>Enable Telegram alerts</span>
-                </label>
                 <label>
                   <span>Bot token</span>
                   <input
@@ -717,19 +688,17 @@ export function MarketAgentProviderConfig({
                     }
                   />
                 </label>
-                <label>
-                  <span>Timeout seconds</span>
-                  <input
-                    value={telegramForm.timeoutSeconds}
-                    onChange={(event) =>
-                      setTelegramForm((current) => ({
-                        ...current,
-                        timeoutSeconds: Number(event.target.value) || 10
-                      }))
-                    }
-                  />
-                </label>
               </div>
+              <label className="market-agent-toggle market-agent-full-toggle">
+                <input
+                  type="checkbox"
+                  checked={telegramForm.enabled}
+                  onChange={(event) =>
+                    setTelegramForm((current) => ({ ...current, enabled: event.target.checked }))
+                  }
+                />
+                <span>Enable Telegram alerts</span>
+              </label>
               <div className="market-agent-provider-config-toggles">
                 {["level_2", "level_3"].map((level) => (
                   <label className="market-agent-toggle" key={level}>
@@ -738,23 +707,23 @@ export function MarketAgentProviderConfig({
                       checked={telegramForm.levels.includes(level)}
                       onChange={(event) => toggleTelegramLevel(level, event.target.checked)}
                     />
-                    <span>{level === "level_3" ? "Level 3 breaking driver" : "Level 2 situation change"}</span>
+                    <span>{level === "level_3" ? "Breaking driver alerts" : "Situation change alerts"}</span>
                   </label>
                 ))}
               </div>
               <div className="market-agent-provider-config-actions">
                 <button type="button" className="btn ghost btn-compact" onClick={() => void onSaveTelegram(telegramForm)}>
-                  Save Telegram
+                  Save Telegram alerts
                 </button>
                 <button type="button" className="btn ghost btn-compact" onClick={() => void runTelegramAction()}>
                   Send Test Message
                 </button>
               </div>
-              <div className="market-agent-provider-config-meta">
-                <span>Config path: {telegramData.telegram?.configPath || "--"}</span>
-                <span>Last send: {telegramData.telegram?.lastSendStatus || "Not tested"}</span>
-                <span>Last error: {telegramData.telegram?.lastError || "None"}</span>
-              </div>
+              {telegramData.telegram?.lastError ? (
+                <div className="market-agent-readable-status-line">
+                  <span>Last error: {telegramData.telegram.lastError}</span>
+                </div>
+              ) : null}
               {telegramResult ? (
                 <div className="market-agent-provider-config-result">
                   <div className="market-agent-provider-config-result-head">
@@ -774,69 +743,66 @@ export function MarketAgentProviderConfig({
 
     return (
       <div className="market-agent-setup-panel">
-        <h3>Start monitoring</h3>
-        <p>
-          {monitorStatus?.running
-            ? "Monitoring is running. The app will continue checking for meaningful market changes."
-            : "Monitoring is not running. Start the loop to receive live alerts."}
+          <h3>Start monitoring</h3>
+          <p>
+            {monitorStatus?.running
+              ? "Monitoring is running."
+              : "Monitoring is stopped."}
         </p>
         {!data?.ctrader?.enabled ? (
           <p className="market-agent-warning-line">Configure a price source before live monitoring.</p>
         ) : null}
         <p className="market-agent-monitor-note">
-          Backfill & Recover runs the recovery command, reconstructs missed data, and records the recovery status.
+          Recovery fills missed data after the app was closed.
         </p>
-        <div className="market-agent-monitor-control-grid guided">
-          <span>Status</span>
-          <strong>{monitorStatus?.running ? "Running" : "Stopped"}</strong>
-          <span>Last run</span>
-          <strong>{String(monitorStatus?.lastRunAt ?? "--")}</strong>
-          <span>Next run</span>
-          <strong>{String(monitorStatus?.nextRunAt ?? "--")}</strong>
-          <span>Last error</span>
-          <strong>{monitorStatus?.lastError || "None"}</strong>
-          <span>Last Telegram send</span>
-          <strong>{telegramData?.telegram?.lastSendStatus || "Not tested"}</strong>
+        <div className="market-agent-readable-card-grid monitoring">
+          <article>
+            <span>Status</span>
+            <strong>{monitorStatus?.running ? "Running" : "Stopped"}</strong>
+            <p>{monitorStatus?.running ? "Watching XAUUSD." : "Live alerts are paused."}</p>
+          </article>
+          <article>
+            <span>Last check</span>
+            <strong>{String(monitorStatus?.lastRunAt ?? "Not run yet")}</strong>
+            <p>{monitorStatus?.lastError ? `Last error: ${monitorStatus.lastError}` : "No recent monitor error."}</p>
+          </article>
+          <article>
+            <span>Telegram</span>
+            <strong>{telegramData?.telegram?.lastSendStatus || "Not tested"}</strong>
+            <p>Uses alert policy and cooldown.</p>
+          </article>
         </div>
         <div className="market-agent-provider-config-actions">
           <button type="button" className="btn ghost btn-compact" onClick={() => void onRunMonitorOnce()}>
-            Run Monitor Once
+            Check Now
           </button>
           <button type="button" className="btn ghost btn-compact" onClick={() => void onStartMonitorLoop()}>
-            Start Monitor Loop
+            Start Monitoring
           </button>
           <button type="button" className="btn ghost btn-compact" onClick={() => void onStopMonitorLoop()}>
-            Stop Monitor Loop
+            Stop Monitoring
           </button>
           <button type="button" className="btn ghost btn-compact" onClick={() => void onRunBackfillRecovery()}>
-            Backfill & Recover
+            Recover Missed Data
           </button>
         </div>
-        <details className="market-agent-advanced-settings">
-          <summary>Technical details</summary>
-          <div className="market-agent-provider-config-meta">
-            <span>PID: {String(monitorStatus?.pid ?? "--")}</span>
-            <span>Interval: {String(monitorStatus?.intervalSeconds ?? 60)} sec</span>
-            <span>Last provider health: see Provider Health section</span>
-          </div>
-        </details>
       </div>
     );
   };
 
   return (
-    <section className="market-agent-surface" data-qa="qa:market-agent:provider-config">
+    <section className="market-agent-surface" data-qa="qa:market-agent:provider-config" ref={surfaceRef}>
       <div className="market-agent-surface-header">
         <div>
           <h2>Data Sources</h2>
-          <span className="hint">Configure cTrader spot, inspect fallback paths, and test the active provider chain</span>
+          <span className="hint">Connect cTrader and start monitoring</span>
         </div>
         <div className="market-agent-provider-config-statuses">
           <MarketAgentStatusBadge
-            label={data?.ctrader?.enabled ? "cTrader enabled" : "cTrader disabled"}
+            label={data?.ctrader?.enabled ? "cTrader connected" : "cTrader not connected"}
             tone={statusTone}
           />
-          <MarketAgentStatusBadge label="Yahoo proxy fallback" tone="warn" />
+          <MarketAgentStatusBadge label="Backup price ready" tone="warn" />
         </div>
       </div>
 
@@ -847,10 +813,7 @@ export function MarketAgentProviderConfig({
           <section className="market-agent-setup-status-card">
             <div>
               <h3>{setupComplete ? "Market Agent setup is ready." : "Market Agent setup is incomplete."}</h3>
-              <p>
-                Follow the steps below to connect price, fallback, news, Telegram, and monitoring without touching
-                backend internals.
-              </p>
+              <p>Connect cTrader for live XAUUSD. Everything else runs automatically.</p>
             </div>
             <div className="market-agent-setup-checklist">
               {checklist.map((item) => (
@@ -863,17 +826,15 @@ export function MarketAgentProviderConfig({
           </section>
           <div className="market-agent-setup-body">
             <nav className="market-agent-setup-stepper" aria-label="Data source setup steps">
-              {steps.map((step, index) => (
+              {steps.map((step) => (
                 <button
                   type="button"
                   key={step.id}
                   aria-pressed={activeStep === step.id}
                   className={activeStep === step.id ? "active" : ""}
-                  onClick={() => setActiveStep(step.id)}
+                  onClick={() => selectStep(step.id)}
                 >
-                  <span>{index + 1}</span>
                   <strong>{step.label}</strong>
-                  <small>{step.summary}</small>
                 </button>
               ))}
             </nav>

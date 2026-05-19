@@ -85,8 +85,11 @@ const DriverGroup = ({
 }) => (
   <div className="market-agent-driver-group">
     <div className="market-agent-driver-group-head">
-      <h3>{title}</h3>
-      <span>{description}</span>
+      <div>
+        <h3>{title}</h3>
+        <span>{description}</span>
+      </div>
+      <MarketAgentStatusBadge label={`${states.length} drivers`} tone="info" />
     </div>
     {states.length ? (
       <div className="market-agent-driver-card-grid">

@@ -1,27 +1,39 @@
 .market-agent-driver-groups {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
 .market-agent-driver-group {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding: 13px;
+  border-radius: 14px;
+  border: 1px solid rgba(134, 148, 168, 0.14);
+  background: rgba(255, 255, 255, 0.024);
 }
 
 .market-agent-driver-group-head {
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+.market-agent-driver-group-head > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .market-agent-driver-group-head h3,
 .market-agent-driver-card h3 {
   margin: 0;
   font-size: 14px;
+  line-height: 1.2;
 }
 
 .market-agent-driver-group-head span,
@@ -36,7 +48,7 @@
 .market-agent-driver-card-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 9px;
 }
 
 .market-agent-driver-card {
@@ -44,10 +56,10 @@
   flex-direction: column;
   gap: 10px;
   min-width: 0;
-  padding: 13px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.035);
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(134, 148, 168, 0.14);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .market-agent-driver-card-head {
@@ -67,7 +79,7 @@
 .market-agent-driver-card p {
   margin: 0;
   color: var(--text);
-  font-size: 13px;
+  font-size: 12.5px;
   line-height: 1.45;
 }
 
@@ -75,11 +87,14 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px 12px;
+  padding-top: 2px;
 }
 
 .market-agent-driver-details summary {
   cursor: pointer;
   color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .market-agent-driver-details dl {
@@ -102,6 +117,12 @@
   margin: 2px 0 0;
   color: var(--text);
   word-break: break-word;
+}
+
+[data-theme="light"] .market-agent-driver-group,
+[data-theme="light"] .market-agent-driver-card {
+  border-color: rgba(35, 43, 55, 0.12);
+  background: rgba(255, 255, 255, 0.62);
 }
 
 @media (max-width: 760px) {

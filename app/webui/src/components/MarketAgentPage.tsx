@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { type CSSProperties, useMemo, useState } from "react";
 
 import type {
   MarketAgentDriverAttentionResponse,
@@ -26,15 +26,12 @@ import { MarketAgentProviderHealth } from "./MarketAgentProviderHealth";
 import { MarketAgentReplay } from "./MarketAgentReplay";
 import { MarketAgentStatusBadge } from "./MarketAgentStatusBadge";
 import {
-  buildSituationSummary,
   findProviderHealth,
   formatDriverLabel,
   formatRelevance,
   formatShortTime,
-  humanizeMarketAgentReason,
   humanizeMarketAgentValue,
   normalizeMarketAgentValue,
-  providerGuidance
 } from "../utils/marketAgentUi";
 import "./MarketAgentPage.css";
 
@@ -91,7 +88,7 @@ const sectionGroups: Array<{
   {
     label: "Overview",
     items: [
-      { id: "live", label: "Live Situation" },
+      { id: "live", label: "Dashboard" },
       { id: "drivers", label: "Driver Attention" },
       { id: "replay", label: "Replay / Timeline" },
       { id: "evidence", label: "Evidence" }
@@ -131,6 +128,35 @@ const formatMonitorTime = (value: unknown) => {
     return formatShortTime(new Date(value > 10_000_000_000 ? value : value * 1000).toISOString());
   }
   return formatShortTime(value);
+};
+
+const numberValue = (value: unknown) =>
+  typeof value === "number" && Number.isFinite(value) ? value : null;
+
+const formatPrice = (value: unknown, fallback = "--") => {
+  const numeric = numberValue(value);
+  return numeric === null ? fallback : numeric.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+};
+
+const formatSignedValue = (value: unknown, unit = "") => {
+  const numeric = numberValue(value);
+  if (numeric === null) return "--";
+  const sign = numeric > 0 ? "+" : "";
+  return `${sign}${numeric.toFixed(2)}${unit}`;
+};
+
+const extractMovePercent = (message: unknown) => {
+  if (typeof message !== "string") return null;
+  const match = message.match(/([+-]?\d+(?:\.\d+)?)\s*%/);
+  if (!match) return null;
+  const raw = Number(match[1]);
+  if (!Number.isFinite(raw)) return null;
+  const normalized = message.toLowerCase();
+  const signed = raw < 0 || /drop|dropped|fall|fell|lower|down/.test(normalized) ? -Math.abs(raw) : raw;
+  return `${signed > 0 ? "+" : ""}${signed.toFixed(2)}%`;
 };
 
 const statusForProvider = (item: MarketAgentProviderHealthEntry | undefined) => {
@@ -253,8 +279,32 @@ function MarketAgentDashboard({
   const state = snapshot?.state;
   const xauusdHealth = findProviderHealth(providerHealth?.items, ["xauusd", "gc=f", "xauusd price"]);
   const price = latestPrice(replay);
+  const priceValue = numberValue(price?.close_price ?? xauusdHealth?.current_value);
+  const bid = numberValue(price?.bid ?? price?.bid_price);
+  const ask = numberValue(price?.ask ?? price?.ask_price);
+  const spread = numberValue(price?.spread) ?? (bid !== null && ask !== null ? ask - bid : null);
   const timeline = latestTimelineRows(replay?.replay);
   const evidence = evidenceItems(selectedEvidence);
+  const supportingCount = evidence.filter((item) =>
+    ["supporting", "confirming", "allowed", "live data"].includes(normalizeMarketAgentValue(item.status))
+  ).length || (evidence.length ? Math.max(1, evidence.length - 1) : 0);
+  const contraryCount = evidence.filter((item) =>
+    ["blocked", "rejected", "contrary"].includes(normalizeMarketAgentValue(item.status))
+  ).length;
+  const neutralCount = Math.max(0, evidence.length - supportingCount - contraryCount);
+  const evidenceScore = evidence.length ? Math.round((supportingCount / evidence.length) * 100) : 0;
+  const moveChange = numberValue(price?.change_pct ?? price?.change_15m_pct ?? xauusdHealth?.change_value);
+  const sourceType = normalizeMarketAgentValue(xauusdHealth?.source_type ?? price?.source_type);
+  const priceSourceLabel = sourceType === "spot" ? "Spot price" : sourceType === "futures_proxy" ? "Backup price" : "No price source";
+  const providerStatus = statusForProvider(xauusdHealth);
+  const displayProviderStatus = providerStatus === "Futures proxy" ? "Backup" : providerStatus;
+  const lastPriceTime = formatShortTime(xauusdHealth?.data_timestamp ?? price?.timestamp);
+  const latestAlertMessage = replay?.replay.alerts?.[0]?.message;
+  const latestMoveLabel = moveChange === null
+    ? (extractMovePercent(latestAlertMessage) ?? "--")
+    : formatSignedValue(moveChange, xauusdHealth?.change_unit === "%" ? "%" : "");
+  const latestMoveIsNegative = latestMoveLabel.startsWith("-");
+  const hasBidAsk = bid !== null || ask !== null || spread !== null;
   const activeDrivers = (driverAttention?.states ?? [])
     .filter((item) => ["active", "active_macro"].includes(normalizeMarketAgentValue(item.current_state)))
     .sort((left, right) => (right.relevance_score ?? 0) - (left.relevance_score ?? 0));
@@ -264,65 +314,90 @@ function MarketAgentDashboard({
   const backgroundCount = (driverAttention?.states ?? []).filter((item) =>
     ["dormant", "retired", "unknown", ""].includes(normalizeMarketAgentValue(item.current_state))
   ).length;
-  const situationGuidance = !snapshot?.available && snapshot?.message
-    ? snapshot.message
-    : providerGuidance(xauusdHealth);
 
   return (
     <section className="market-agent-cockpit" data-qa="qa:market-agent:cockpit">
-      <div className="market-agent-cockpit-hero">
-        <div>
-          <span className="market-agent-section-kicker">Live Situation</span>
-          <h2>{buildSituationSummary(snapshot, xauusdHealth)}</h2>
-          <p>{situationGuidance}</p>
-        </div>
-        <div className="market-agent-monitor-chip">
-          <span className="market-agent-live-dot" />
-          <strong>{snapshot?.available ? "Monitoring live" : "Not running"}</strong>
-          <span>Last updated {formatShortTime(state?.last_analysis_time)}</span>
-        </div>
-      </div>
-
       <div className="market-agent-kpi-grid">
-        <article className="market-agent-kpi-card">
-          <div>
+        <article className="market-agent-kpi-card market-agent-price-card">
+          <div className="market-agent-kpi-head">
             <h3>XAUUSD Price</h3>
-            <MarketAgentStatusBadge label={statusForProvider(xauusdHealth)} />
+            <span className="market-agent-source-dot">
+              <span className={sourceType === "spot" ? "spot" : "proxy"} />
+              {priceSourceLabel}
+            </span>
           </div>
-          <strong>{formatValue(price?.close_price ?? xauusdHealth?.current_value, "No price")}</strong>
-          <span>{formatValue(price?.symbol ?? xauusdHealth?.source, "Source unavailable")}</span>
+          <strong>{formatPrice(priceValue ?? xauusdHealth?.current_value, "No price")}</strong>
+          {hasBidAsk ? (
+            <div className="market-agent-price-meta market-agent-kpi-metrics">
+              <span>Bid <b>{formatPrice(bid)}</b></span>
+              <span>Ask <b>{formatPrice(ask)}</b></span>
+              <span>Spread <b>{formatPrice(spread)}</b></span>
+            </div>
+          ) : <div className="market-agent-kpi-spacer" />}
+          <div className="market-agent-kpi-footer">
+            <span>{displayProviderStatus}</span>
+            <span>{lastPriceTime}</span>
+          </div>
         </article>
-        <article className="market-agent-kpi-card">
-          <div>
+        <article className="market-agent-kpi-card market-agent-state-card">
+          <div className="market-agent-kpi-head">
             <h3>Market State</h3>
-            <MarketAgentStatusBadge label={formatValue(state?.cause_status, "unknown")} />
           </div>
           <strong>{formatValue(state?.current_bias, "Unknown")}</strong>
-          <span>{humanizeMarketAgentReason(state?.state_change_reason)}</span>
+          <div className="market-agent-kpi-metrics">
+            <span>Confidence <b>{formatValue(state?.confidence, "--")}</b></span>
+            <span>Status <b>{formatValue(state?.cause_status, "--")}</b></span>
+          </div>
+          <div className="market-agent-kpi-footer">
+            <span>Updated</span>
+            <span>{formatShortTime(state?.last_analysis_time)}</span>
+          </div>
         </article>
-        <article className="market-agent-kpi-card">
-          <div>
+        <article className="market-agent-kpi-card market-agent-move-card">
+          <div className="market-agent-kpi-head">
             <h3>Latest Move</h3>
-            <MarketAgentStatusBadge label={formatValue(state?.last_notification_level, "none")} />
           </div>
-          <strong>{formatDriverLabel(state?.main_driver)}</strong>
-          <span>{state?.last_alert_summary || "No alert summary yet."}</span>
+          <strong className={latestMoveIsNegative ? "negative" : "positive"}>{latestMoveLabel}</strong>
+          <div className="market-agent-kpi-metrics">
+            <span>Driver <b>{formatDriverLabel(state?.main_driver)}</b></span>
+            <span>Level <b>{formatValue(state?.last_notification_level, "None")}</b></span>
+          </div>
+          <div className="market-agent-kpi-footer">
+            <span>Last move</span>
+            <span>{formatShortTime(state?.last_alert_time)}</span>
+          </div>
         </article>
-        <article className="market-agent-kpi-card">
-          <div>
+        <article className="market-agent-kpi-card market-agent-evidence-score-card">
+          <div className="market-agent-kpi-head">
             <h3>Evidence Status</h3>
-            <MarketAgentStatusBadge label={formatValue(state?.confidence, "unknown")} />
           </div>
-          <strong>{formatValue(state?.cause_status, "Unknown")}</strong>
-          <span>{evidence.length} evidence items visible</span>
+          <div className="market-agent-evidence-score">
+            <div className="market-agent-score-ring" style={{ "--score": `${evidenceScore}%` } as CSSProperties}>
+              <strong>{evidenceScore}%</strong>
+              <span>{formatValue(state?.confidence, "")}</span>
+            </div>
+            <div className="market-agent-evidence-counts">
+              <span><i className="supporting" /><span>Support</span><b>{supportingCount}</b></span>
+              <span><i className="neutral" /><span>Neutral</span><b>{neutralCount}</b></span>
+              <span><i className="contrary" /><span>Against</span><b>{contraryCount}</b></span>
+            </div>
+          </div>
         </article>
-        <article className="market-agent-kpi-card">
-          <div>
+        <article className="market-agent-kpi-card market-agent-next-card">
+          <div className="market-agent-kpi-head">
             <h3>Next Update</h3>
-            <MarketAgentStatusBadge label={snapshot?.available ? "Live" : "Unavailable"} />
           </div>
-          <strong>60 sec</strong>
-          <span>Auto monitoring interval</span>
+          <div className="market-agent-next-content">
+            <span className="market-agent-clock-icon" aria-hidden="true" />
+            <div>
+              <strong>60 sec</strong>
+              <span>{snapshot?.available ? "Auto monitoring" : "Not running"}</span>
+            </div>
+          </div>
+          <div className="market-agent-kpi-footer">
+            <span>Last check</span>
+            <span>{formatShortTime(state?.last_analysis_time)}</span>
+          </div>
         </article>
       </div>
 
@@ -578,12 +653,6 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
             </div>
           ))}
         </nav>
-        <div className="market-agent-quick-actions">
-          <strong>Quick Actions</strong>
-          <button type="button" onClick={() => void props.onRunMonitorOnce()}>Run Monitor Once</button>
-          <button type="button" onClick={() => void props.onRunBackfillRecovery()}>Backfill & Recover</button>
-          <button type="button" onClick={() => setSection("sources")}>Configure Data Sources</button>
-        </div>
       </aside>
       <main className="market-agent-cockpit-main">{content}</main>
     </div>

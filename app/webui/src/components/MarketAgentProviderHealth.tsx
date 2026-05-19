@@ -47,6 +47,16 @@ const statusForItem = (item: ReturnType<typeof findProviderHealth>) => {
 };
 
 export function MarketAgentProviderHealth({ data }: MarketAgentProviderHealthProps) {
+  const items = data?.items ?? [];
+  const liveCount = items.filter((item) => item.is_available && !item.is_stale && normalizeMarketAgentValue(item.source_type) === "spot").length;
+  const proxyCount = items.filter(
+    (item) =>
+      item.is_available &&
+      !item.is_stale &&
+      (normalizeMarketAgentValue(item.source_type) === "futures_proxy" || normalizeMarketAgentValue(item.data_mode) === "proxy")
+  ).length;
+  const issueCount = items.filter((item) => !item.is_available || item.is_stale || normalizeMarketAgentValue(item.data_mode) === "unavailable").length;
+
   return (
     <section className="market-agent-surface" data-qa="qa:market-agent:provider-health">
       <div className="market-agent-surface-header">
@@ -58,27 +68,43 @@ export function MarketAgentProviderHealth({ data }: MarketAgentProviderHealthPro
       {!data?.available ? (
         <div className="market-agent-empty-state">{data?.message || "Provider health is unavailable."}</div>
       ) : (
-        <div className="market-agent-provider-card-grid">
-          {providerCards.map((card) => {
-            const item = findProviderHealth(data.items, card.keys);
-            return (
-              <article className="market-agent-provider-card" key={card.title}>
-                <div className="market-agent-provider-card-head">
-                  <h3>{card.title}</h3>
-                  <MarketAgentStatusBadge label={statusForItem(item)} />
-                </div>
-                <div className="market-agent-provider-source">
-                  {item ? formatValue(item.source, card.title) : "Not configured"}
-                </div>
-                <p>{providerGuidance(item)}</p>
-                <div className="market-agent-provider-meta">
-                  <span>Last data: {formatShortTime(item?.data_timestamp)}</span>
-                  <span>Fetched: {formatShortTime(item?.fetched_at)}</span>
-                </div>
-                <div className="market-agent-provider-action">{card.action}</div>
-              </article>
-            );
-          })}
+        <div className="market-agent-provider-health-layout">
+          <div className="market-agent-provider-summary-strip">
+            <article>
+              <span>Live spot</span>
+              <strong>{liveCount}</strong>
+            </article>
+            <article>
+              <span>Proxy sources</span>
+              <strong>{proxyCount}</strong>
+            </article>
+            <article>
+              <span>Needs attention</span>
+              <strong>{issueCount}</strong>
+            </article>
+          </div>
+          <div className="market-agent-provider-card-grid">
+            {providerCards.map((card) => {
+              const item = findProviderHealth(data.items, card.keys);
+              return (
+                <article className="market-agent-provider-card" key={card.title}>
+                  <div className="market-agent-provider-card-head">
+                    <div>
+                      <h3>{card.title}</h3>
+                      <span>{item ? formatValue(item.source, card.title) : "Not configured"}</span>
+                    </div>
+                    <MarketAgentStatusBadge label={statusForItem(item)} />
+                  </div>
+                  <p>{providerGuidance(item)}</p>
+                  <div className="market-agent-provider-meta">
+                    <span>Last data: {formatShortTime(item?.data_timestamp)}</span>
+                    <span>Fetched: {formatShortTime(item?.fetched_at)}</span>
+                  </div>
+                  <div className="market-agent-provider-action">{card.action}</div>
+                </article>
+              );
+            })}
+          </div>
         </div>
       )}
     </section>

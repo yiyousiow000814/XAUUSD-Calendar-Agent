@@ -2477,7 +2477,7 @@ const main = async () => {
         if (!(root instanceof HTMLElement)) return false;
         const text = root.innerText || root.textContent || "";
         return (
-          text.includes("Live Situation") &&
+          text.includes("Dashboard") &&
           text.includes("XAUUSD Price") &&
           text.includes("Market State") &&
           text.includes("Latest Move") &&

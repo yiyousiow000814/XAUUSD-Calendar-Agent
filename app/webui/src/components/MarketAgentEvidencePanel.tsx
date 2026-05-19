@@ -59,6 +59,9 @@ export function MarketAgentEvidencePanel({ data }: MarketAgentEvidencePanelProps
   const evidenceStatus = ((evidencePacket?.evidence_status as Record<string, unknown> | null | undefined) ?? null);
   const crossAssetConfirmation = ((evidencePacket?.cross_asset_confirmation as Record<string, unknown> | null | undefined) ?? null);
   const embeddedProviderHealth = ((evidencePacket?.provider_health as Record<string, unknown> | null | undefined) ?? null);
+  const blockedCount = blockedDrivers ? Object.keys(blockedDrivers).length : 0;
+  const statusCount = evidenceStatus ? Object.keys(evidenceStatus).length : 0;
+  const providerIssueCount = providerHealth.filter((item) => !item.is_available || item.is_stale || item.error).length;
 
   return (
     <section className="market-agent-surface" data-qa="qa:market-agent:evidence-panel">
@@ -72,7 +75,30 @@ export function MarketAgentEvidencePanel({ data }: MarketAgentEvidencePanelProps
       {!data?.available ? (
         <div className="market-agent-empty-state">{data?.message || "Evidence payload is unavailable."}</div>
       ) : (
-        <div className="market-agent-evidence-grid">
+        <div className="market-agent-evidence-layout">
+          <div className="market-agent-evidence-summary">
+            <article>
+              <span>Allowed drivers</span>
+              <strong>{allowedDrivers.length}</strong>
+              <p>{allowedDrivers.length ? "Drivers that passed evidence gates." : "No driver passed this run."}</p>
+            </article>
+            <article>
+              <span>Blocked drivers</span>
+              <strong>{blockedCount}</strong>
+              <p>{blockedCount ? "Rejected by freshness, source, or validation checks." : "No blocked driver recorded."}</p>
+            </article>
+            <article>
+              <span>Evidence checks</span>
+              <strong>{statusCount}</strong>
+              <p>{statusCount ? "Cross-asset and news checks are available below." : "No evidence status stored."}</p>
+            </article>
+            <article>
+              <span>Provider issues</span>
+              <strong>{providerIssueCount}</strong>
+              <p>{providerIssueCount ? "Some sources were stale or unavailable at run time." : "No provider issue recorded."}</p>
+            </article>
+          </div>
+          <div className="market-agent-evidence-grid">
           <div className="market-agent-evidence-section">
             <h3>Evidence packet</h3>
             {renderValueList("Allowed drivers", allowedDrivers, "No allowed drivers passed this run.")}
@@ -129,6 +155,7 @@ export function MarketAgentEvidencePanel({ data }: MarketAgentEvidencePanelProps
             <summary>Raw details</summary>
             <pre>{JSON.stringify(payload, null, 2)}</pre>
           </details>
+          </div>
         </div>
       )}
     </section>

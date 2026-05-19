@@ -1,8 +1,8 @@
 .appbar {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.4fr) minmax(0, 1fr);
+  grid-template-columns: minmax(220px, 0.78fr) max-content minmax(420px, 1.22fr);
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   padding: 10px 16px;
   --appbar-control-height: 40px;
   --appbar-radius: 16px;
@@ -70,9 +70,10 @@
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  gap: 10px;
-  justify-content: center;
-  padding-left: 14px;
+  gap: 8px;
+  justify-content: flex-start;
+  padding-left: 0;
+  min-width: 0;
 }
 
 .appbar-btn-group {
@@ -90,7 +91,7 @@
 .appbar-btn-group .btn {
   border-radius: 11px;
   min-height: var(--appbar-control-height);
-  padding: 9px 14px;
+  padding: 9px 13px;
   font-size: 13px;
   font-weight: 650;
   letter-spacing: 0.01em;
@@ -187,7 +188,7 @@
 }
 
 .appbar-pill {
-  max-width: 260px;
+  max-width: 360px;
 }
 
 .appbar-meta {
@@ -209,7 +210,7 @@
   background:
     linear-gradient(180deg, var(--appbar-meta-bg-0), var(--appbar-meta-bg-1));
   box-shadow: inset 0 0 0 1px var(--appbar-meta-shadow);
-  min-width: 280px;
+  min-width: 292px;
   min-height: var(--appbar-control-height);
   align-items: center;
 }

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+﻿import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("../api", () => ({
@@ -233,7 +233,7 @@ describe("Market Agent view switch", () => {
 
     await waitFor(() => {
       expect(screen.getByRole("navigation", { name: /Market Agent sections/i })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: /Live Situation/i })).toHaveAttribute("aria-pressed", "true");
+      expect(screen.getByRole("button", { name: /Dashboard/i })).toHaveAttribute("aria-pressed", "true");
       expect(screen.getByRole("heading", { name: "XAUUSD Price" })).toBeInTheDocument();
       expect(screen.getByRole("heading", { name: "Market State" })).toBeInTheDocument();
       expect(screen.getByRole("heading", { name: "Driver Attention Summary" })).toBeInTheDocument();

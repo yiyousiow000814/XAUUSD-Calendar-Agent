@@ -284,7 +284,7 @@ describe("MarketAgentPage", () => {
     );
 
     expect(screen.getByRole("navigation", { name: /Market Agent sections/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Live Situation/i })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: /Dashboard/i })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("heading", { name: /XAUUSD Price/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Market State/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Latest Move/i })).toBeInTheDocument();
@@ -296,7 +296,9 @@ describe("MarketAgentPage", () => {
     expect(screen.getAllByRole("button", { name: /^Provider Health$/i }).length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: /Open Full Timeline/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /View Evidence/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Configure Data Sources/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Data Sources$/i })).toBeInTheDocument();
+    expect(screen.queryByText(/Quick Actions/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Configure Data Sources/i })).not.toBeInTheDocument();
 
     expect(screen.queryByRole("heading", { name: /^Data Sources$/i })).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Access Token/i)).not.toBeInTheDocument();
@@ -349,7 +351,7 @@ describe("MarketAgentPage", () => {
     fireEvent.click(screen.getByRole("navigation", { name: /Market Agent sections/i }).querySelectorAll("button")[5]);
     expect(screen.getByRole("heading", { name: /^Data Sources$/i })).toBeInTheDocument();
     expect(screen.getByText(/Market Agent setup is incomplete\./i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Price Source/i })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: /^Price$/i })).toHaveAttribute("aria-pressed", "true");
     expect(screen.queryByLabelText(/Access Token/i)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Replay \/ Timeline/i }));
@@ -403,18 +405,19 @@ describe("MarketAgentPage", () => {
       />
     );
 
-    expect(screen.getByText(/Gold is currently under yield\/USD pressure\./i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Main driver changed from DXY \/ USD to US yields\./i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Gold is currently under yield\/USD pressure\./i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Main driver changed from DXY \/ USD to US yields\./i)).not.toBeInTheDocument();
     expect(screen.getByText(/Bearish gold/i)).toBeInTheDocument();
     expect(screen.getAllByText(/US yields/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/Oil \/ inflation/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Futures proxy/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Not available/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Backup/i).length).toBeGreaterThan(0);
     expect(screen.queryByText("futures_proxy")).not.toBeInTheDocument();
     expect(screen.queryByText("core_structural")).not.toBeInTheDocument();
     expect(screen.queryByText("main_driver usd -> yields")).not.toBeInTheDocument();
-    expect(screen.getAllByText(/Using Yahoo GC=F futures proxy, not true spot XAUUSD\./i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Using Yahoo GC=F futures proxy, not true spot XAUUSD\./i)).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /XAUUSD Price/i })).toBeInTheDocument();
+    expect(screen.getByText(/Backup price/i)).toBeInTheDocument();
+    expect(screen.getByText(/80%/i)).toBeInTheDocument();
     expect(screen.getByText(/Open Full Timeline/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Fed headline/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Fed speaker/i).length).toBeGreaterThan(0);
@@ -430,64 +433,62 @@ describe("MarketAgentPage", () => {
     expect(screen.getAllByText(/No direct headline/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/Raw details/i)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /Configure Data Sources/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
     expect(screen.getByRole("heading", { name: /^Data Sources$/i })).toBeInTheDocument();
     expect(screen.getByText(/Market Agent setup is incomplete\./i)).toBeInTheDocument();
     expect(screen.getAllByText(/Price source/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Related assets/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Market context/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/News/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Calendar/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Telegram/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/LLM/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Analysis/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/Monitor loop/i)).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /Choose price source/i })).toBeInTheDocument();
-    expect(screen.getByText(/cTrader gives true spot XAUUSD/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Price source/i })).toBeInTheDocument();
+    expect(screen.getByText(/Live XAUUSD price and missed-history recovery/i)).toBeInTheDocument();
     expect(screen.queryByLabelText(/Access Token/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Refresh Token/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Config path:/i)).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /cTrader.*Open API tokens/i }));
-    expect(screen.getByRole("heading", { name: /Set up cTrader Open API/i })).toBeInTheDocument();
-    expect(screen.getByText(/We never ask for or store your cTrader password/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("navigation", { name: /Data source setup steps/i }).querySelectorAll("button")[1]);
+    expect(screen.getByRole("heading", { name: /Connect cTrader/i })).toBeInTheDocument();
+    expect(screen.getByText(/No cTrader password is needed/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Access Token/i)).toBeInTheDocument();
     expect(screen.queryByLabelText(/Refresh Token/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/Advanced settings/i)).toBeInTheDocument();
+    expect(screen.getByText(/Broker-specific options/i)).toBeInTheDocument();
     expect(screen.queryByLabelText(/Bridge Python/i)).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByText(/Advanced settings/i));
+    fireEvent.click(screen.getByText(/Broker-specific options/i));
     expect(screen.getByLabelText(/Refresh Token/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Bridge Python/i)).toBeInTheDocument();
     expect(screen.getByText(/Config path:/i)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /Telegram.*meaningful alerts/i }));
-    expect(screen.getByRole("heading", { name: /Configure Telegram alerts/i })).toBeInTheDocument();
-    expect(screen.getByText(/Telegram sends only meaningful alerts/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("navigation", { name: /Data source setup steps/i }).querySelectorAll("button")[5]);
+    expect(screen.getByRole("heading", { name: /Alerts/i })).toBeInTheDocument();
+    expect(screen.getByText(/Telegram is optional/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Bot token/i)).toHaveAttribute("placeholder", "12********90");
     expect(screen.getByLabelText(/Chat ID/i)).toHaveValue("123456789");
     expect(screen.getByRole("button", { name: /Send Test Message/i })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /LLM.*Ollama/i }));
-    expect(screen.getByRole("heading", { name: /Configure local LLM/i })).toBeInTheDocument();
-    expect(screen.getByText(/LLM is optional/i)).toBeInTheDocument();
-    expect(screen.getByText(/Evidence gate and validator remain final guards/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Enable local LLM/i)).not.toBeChecked();
-    expect(screen.getByLabelText(/Endpoint/i)).toHaveValue("http://localhost:11434");
-    expect(screen.getByLabelText(/Model/i)).toHaveValue("qwen3:4b");
-    expect(screen.getByRole("button", { name: /Test Ollama Connection/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Test Model JSON Response/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("navigation", { name: /Data source setup steps/i }).querySelectorAll("button")[4]);
+    expect(screen.getByRole("heading", { name: /Analysis/i })).toBeInTheDocument();
+    expect(screen.getByText(/Optional local model/i)).toBeInTheDocument();
+    expect(screen.getByText(/Rule-based/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Endpoint/i)).not.toBeVisible();
+    expect(screen.getByRole("button", { name: /Test model/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Test JSON/i })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /Monitoring.*Windows/i }));
+    fireEvent.click(screen.getByRole("navigation", { name: /Data source setup steps/i }).querySelectorAll("button")[6]);
     expect(screen.getByRole("heading", { name: /Start monitoring/i })).toBeInTheDocument();
-    expect(screen.getByText(/Monitoring is not running\. Start the loop to receive live alerts\./i)).toBeInTheDocument();
+    expect(screen.getByText(/Monitoring is stopped\./i)).toBeInTheDocument();
     expect(screen.queryByText(/Backfill & Recover runs one monitor pass/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/Backfill & Recover runs the recovery command/i)).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: /Run Monitor Once/i }).length).toBeGreaterThan(0);
-    expect(screen.getByRole("button", { name: /Start Monitor Loop/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Stop Monitor Loop/i })).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: /Backfill & Recover/i }).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Recovery fills missed data/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Check Now/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Start Monitoring/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Stop Monitoring/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Recover Missed Data/i })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /cTrader.*Open API tokens/i }));
-    expect(screen.getByRole("heading", { name: /Set up cTrader Open API/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("navigation", { name: /Data source setup steps/i }).querySelectorAll("button")[1]);
+    expect(screen.getByRole("heading", { name: /Connect cTrader/i })).toBeInTheDocument();
 
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: /Refresh Token/i }));
@@ -543,8 +544,9 @@ describe("MarketAgentPage", () => {
       />
     );
 
-    expect(screen.getByText(/No meaningful XAUUSD move detected/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Using local CSV fallback\. Configure cTrader or Yahoo provider for live monitoring\./i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/No meaningful XAUUSD move detected/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Using local CSV fallback\. Configure cTrader or Yahoo provider for live monitoring\./i)).not.toBeInTheDocument();
+    expect(screen.getByText(/No meaningful change/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Local CSV fallback/i).length).toBeGreaterThan(0);
     expect(screen.queryByText("LOCAL_CSV_FALLBACK")).not.toBeInTheDocument();
   });
@@ -603,7 +605,8 @@ describe("MarketAgentPage", () => {
       />
     );
 
-    expect(screen.getByText(/SQLite missing\./i)).toBeInTheDocument();
+    expect(screen.getAllByText(/No price/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/No replay events in this window\./i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
     expect(screen.getByText(/Provider config unavailable\./i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /^Provider Health$/i }));

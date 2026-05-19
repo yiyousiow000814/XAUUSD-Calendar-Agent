@@ -1,17 +1,32 @@
 .market-agent-replay-controls {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, max-content) minmax(180px, 1fr) minmax(180px, 1fr) max-content;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
 }
 
 .market-agent-replay-controls input {
+  width: 100%;
   min-height: 32px;
   border-radius: 10px;
   border: 1px solid var(--panel-border);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.035);
   color: var(--text);
   padding: 0 10px;
+  font: inherit;
+  font-size: 12px;
+}
+
+.market-agent-replay-controls .btn.primary {
+  border-color: rgba(255, 183, 73, 0.45);
+  background: rgba(255, 183, 73, 0.16);
+  color: #ffcf85;
+  box-shadow: inset 0 0 0 1px rgba(255, 183, 73, 0.08);
+}
+
+[data-theme="light"] .market-agent-replay-controls .btn.primary {
+  background: rgba(210, 142, 51, 0.18);
+  color: rgba(78, 45, 8, 0.96);
 }
 
 .market-agent-recent-timeline {
@@ -26,9 +41,9 @@
   align-items: center;
   gap: 10px;
   width: 100%;
-  padding: 11px 12px;
-  border-radius: 13px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(134, 148, 168, 0.14);
   background: rgba(255, 255, 255, 0.03);
   color: var(--text);
   text-align: left;
@@ -73,7 +88,11 @@
   width: fit-content;
   cursor: pointer;
   color: var(--text);
-  font-size: 13px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(134, 148, 168, 0.14);
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -109,8 +128,8 @@
   flex-direction: column;
   gap: 6px;
   padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 11px;
+  border: 1px solid rgba(134, 148, 168, 0.14);
   background: rgba(255, 255, 255, 0.03);
   color: var(--text);
   text-align: left;
@@ -140,7 +159,24 @@
   font-size: 12px;
 }
 
+[data-theme="light"] .market-agent-replay-controls input,
+[data-theme="light"] .market-agent-timeline-row,
+[data-theme="light"] .market-agent-full-replay summary,
+[data-theme="light"] .market-agent-list-item {
+  border-color: rgba(35, 43, 55, 0.12);
+  background: rgba(255, 255, 255, 0.66);
+}
+
 @media (max-width: 980px) {
+  .market-agent-replay-controls {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .market-agent-replay-controls input,
+  .market-agent-replay-controls button:last-child {
+    grid-column: 1 / -1;
+  }
+
   .market-agent-replay-grid {
     grid-template-columns: 1fr;
   }
