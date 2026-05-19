@@ -12,7 +12,6 @@ import { Footer } from "./components/Footer";
 import { HistoryPanel } from "./components/HistoryPanel";
 import { InitOverlay } from "./components/InitOverlay";
 import { MarketAgentPage } from "./components/MarketAgentPage";
-import { MarketAgentPanel } from "./components/MarketAgentPanel";
 import { NextEvents } from "./components/NextEvents";
 import { SettingsModal } from "./components/SettingsModal";
 import { TemporaryPathWarningModal, type TemporaryPathWarningMode } from "./components/TemporaryPathWarningModal";
@@ -4226,7 +4225,6 @@ export default function App() {
               </button>
             }
           />
-          <MarketAgentPanel data={marketAgentSnapshot} onOpenMarketAgent={openMarketAgentView} />
           {temporaryPathDisplayActive ? (
             <div className="temporary-path-progress" data-qa="qa:temporary-path:progress">
               <div className="temporary-path-progress-header">
