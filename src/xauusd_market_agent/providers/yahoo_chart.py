@@ -28,15 +28,23 @@ def _parse_dt(raw: str) -> datetime:
     return datetime.fromisoformat(raw.replace("Z", "+00:00"))
 
 
-def _to_iso(dt: datetime) -> str:
-    return dt.astimezone().isoformat()
+def _to_iso(dt: datetime, target_tz: timezone | None) -> str:
+    if target_tz is None:
+        return dt.astimezone(timezone.utc).isoformat()
+    return dt.astimezone(target_tz).isoformat()
 
 
 def _load_fixture_payload(fixture_path: Path) -> dict[str, Any]:
     return json.loads(fixture_path.read_text(encoding="utf-8"))
 
 
-def _extract_chart_rows(payload: dict[str, Any], symbol: str, source: str) -> list[MarketBar]:
+def _extract_chart_rows(
+    payload: dict[str, Any],
+    symbol: str,
+    source: str,
+    *,
+    target_tz: timezone | None,
+) -> list[MarketBar]:
     chart = payload["chart"]["result"][0]
     timestamps = chart.get("timestamp", [])
     quote = chart["indicators"]["quote"][0]
@@ -48,10 +56,10 @@ def _extract_chart_rows(payload: dict[str, Any], symbol: str, source: str) -> li
     for idx, ts in enumerate(timestamps):
         if idx >= len(closes) or closes[idx] is None:
             continue
-        timestamp = datetime.fromtimestamp(int(ts), tz=timezone.utc).astimezone()
+        timestamp = datetime.fromtimestamp(int(ts), tz=timezone.utc)
         rows.append(
             MarketBar(
-                timestamp=_to_iso(timestamp),
+                timestamp=_to_iso(timestamp, target_tz),
                 symbol=symbol,
                 open=float(opens[idx] if idx < len(opens) and opens[idx] is not None else closes[idx]),
                 high=float(highs[idx] if idx < len(highs) and highs[idx] is not None else closes[idx]),
@@ -154,7 +162,8 @@ class YahooChartProvider:
                 stale_reason="Yahoo chart payload unavailable.",
                 error="Yahoo chart payload unavailable.",
             )
-        rows = _extract_chart_rows(payload, symbol, "Yahoo Finance")
+        target_tz = end.tzinfo if isinstance(end.tzinfo, timezone) or end.tzinfo is not None else timezone.utc
+        rows = _extract_chart_rows(payload, symbol, "Yahoo Finance", target_tz=target_tz)
         if not rows:
             return [], ProviderHealth(
                 source=symbol,

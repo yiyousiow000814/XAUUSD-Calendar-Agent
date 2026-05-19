@@ -18,6 +18,7 @@ def test_yahoo_chart_provider_parses_fixture_and_computes_changes() -> None:
 
     assert len(rows) == 5
     assert rows[-1]["source_type"] == "futures_proxy"
+    assert rows[-1]["timestamp"] == "2026-05-19T07:20:00+08:00"
     assert rows[-1]["change_15m"] > 0
     assert rows[-1]["change_30m"] > 0
     assert rows[-1]["change_60m"] > 0
