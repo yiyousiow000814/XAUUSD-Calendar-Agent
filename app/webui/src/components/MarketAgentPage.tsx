@@ -148,6 +148,29 @@ const formatSignedValue = (value: unknown, unit = "") => {
   return `${sign}${numeric.toFixed(2)}${unit}`;
 };
 
+const formatMarketStateLabel = (value: unknown) => {
+  const normalized = normalizeMarketAgentValue(value);
+  if (normalized.includes("bearish")) return "Bearish";
+  if (normalized.includes("bullish")) return "Bullish";
+  if (normalized === "neutral") return "Neutral";
+  if (normalized === "unknown" || !normalized) return "Unknown";
+  return formatValue(value, "Unknown");
+};
+
+const marketStateTone = (value: unknown) => {
+  const normalized = normalizeMarketAgentValue(value);
+  if (normalized.includes("bearish")) return "negative";
+  if (normalized.includes("bullish")) return "positive";
+  return "neutral";
+};
+
+const marketStateArrow = (value: unknown) => {
+  const tone = marketStateTone(value);
+  if (tone === "positive") return "↗";
+  if (tone === "negative") return "↘";
+  return "→";
+};
+
 const extractMovePercent = (message: unknown) => {
   if (typeof message !== "string") return null;
   const match = message.match(/([+-]?\d+(?:\.\d+)?)\s*%/);
@@ -157,6 +180,31 @@ const extractMovePercent = (message: unknown) => {
   const normalized = message.toLowerCase();
   const signed = raw < 0 || /drop|dropped|fall|fell|lower|down/.test(normalized) ? -Math.abs(raw) : raw;
   return `${signed > 0 ? "+" : ""}${signed.toFixed(2)}%`;
+};
+
+const formatMoveType = (changeLabel: string, message: unknown) => {
+  const text = typeof message === "string" ? message.toLowerCase() : "";
+  if (changeLabel === "--") return { label: "No move", tone: "neutral", arrow: "→" };
+  if (changeLabel.startsWith("-")) {
+    if (/reversal|retracement|pullback/.test(text)) return { label: "Retracement", tone: "negative", arrow: "↘" };
+    return { label: "Drop", tone: "negative", arrow: "↓" };
+  }
+  if (/rebound|bounce|recovered|recovery/.test(text)) return { label: "Rebound", tone: "positive", arrow: "↑" };
+  if (/spike|surge/.test(text)) return { label: "Spike", tone: "positive", arrow: "↑" };
+  return { label: "Breakout", tone: "positive", arrow: "↑" };
+};
+
+const formatMoveDuration = (price: Record<string, unknown> | undefined, fallback = "15m") => {
+  const raw =
+    numberValue(price?.duration_seconds) ??
+    numberValue(price?.move_duration_seconds) ??
+    numberValue(price?.window_seconds);
+  if (raw === null) return fallback;
+  const seconds = Math.max(0, Math.round(raw));
+  const minutes = Math.floor(seconds / 60);
+  const remaining = seconds % 60;
+  if (minutes <= 0) return `${remaining}s`;
+  return `${minutes}m ${remaining.toString().padStart(2, "0")}s`;
 };
 
 const statusForProvider = (item: MarketAgentProviderHealthEntry | undefined) => {
@@ -304,6 +352,9 @@ function MarketAgentDashboard({
     ? (extractMovePercent(latestAlertMessage) ?? "--")
     : formatSignedValue(moveChange, xauusdHealth?.change_unit === "%" ? "%" : "");
   const latestMoveIsNegative = latestMoveLabel.startsWith("-");
+  const latestMoveSizeTone = latestMoveLabel === "--" ? "neutral" : latestMoveIsNegative ? "negative" : "positive";
+  const latestMove = formatMoveType(latestMoveLabel, latestAlertMessage);
+  const marketTone = marketStateTone(state?.current_bias);
   const hasBidAsk = bid !== null || ask !== null || spread !== null;
   const activeDrivers = (driverAttention?.states ?? [])
     .filter((item) => ["active", "active_macro"].includes(normalizeMarketAgentValue(item.current_state)))
@@ -343,28 +394,29 @@ function MarketAgentDashboard({
           <div className="market-agent-kpi-head">
             <h3>Market State</h3>
           </div>
-          <strong>{formatValue(state?.current_bias, "Unknown")}</strong>
-          <div className="market-agent-kpi-metrics">
-            <span>Confidence <b>{formatValue(state?.confidence, "--")}</b></span>
-            <span>Status <b>{formatValue(state?.cause_status, "--")}</b></span>
-          </div>
-          <div className="market-agent-kpi-footer">
-            <span>Updated</span>
-            <span>{formatShortTime(state?.last_analysis_time)}</span>
+          <strong className={`market-agent-state-value ${marketTone}`}>
+            {formatMarketStateLabel(state?.current_bias)}
+            <span>{marketStateArrow(state?.current_bias)}</span>
+          </strong>
+          <div className="market-agent-state-details">
+            <span>Since {formatShortTime(state?.last_analysis_time)}</span>
+            <span>Confidence: <b>{formatValue(state?.confidence, "--")}</b></span>
           </div>
         </article>
         <article className="market-agent-kpi-card market-agent-move-card">
           <div className="market-agent-kpi-head">
             <h3>Latest Move</h3>
           </div>
-          <strong className={latestMoveIsNegative ? "negative" : "positive"}>{latestMoveLabel}</strong>
-          <div className="market-agent-kpi-metrics">
-            <span>Driver <b>{formatDriverLabel(state?.main_driver)}</b></span>
-            <span>Level <b>{formatValue(state?.last_notification_level, "None")}</b></span>
-          </div>
-          <div className="market-agent-kpi-footer">
-            <span>Last move</span>
-            <span>{formatShortTime(state?.last_alert_time)}</span>
+          <strong className={`market-agent-move-type ${latestMove.tone}`}>
+            {latestMove.label}
+            <span>{latestMove.arrow}</span>
+          </strong>
+          <div className="market-agent-move-details">
+            <span>Detected: <b>{formatShortTime(state?.last_alert_time)}</b></span>
+            <span>
+              Move Size: <b className={latestMoveSizeTone}>{latestMoveLabel}</b>
+            </span>
+            <span>Duration: <b>{formatMoveDuration(price)}</b></span>
           </div>
         </article>
         <article className="market-agent-kpi-card market-agent-evidence-score-card">
@@ -374,13 +426,17 @@ function MarketAgentDashboard({
           <div className="market-agent-evidence-score">
             <div className="market-agent-score-ring" style={{ "--score": `${evidenceScore}%` } as CSSProperties}>
               <strong>{evidenceScore}%</strong>
-              <span>{formatValue(state?.confidence, "")}</span>
+              <span>score</span>
             </div>
             <div className="market-agent-evidence-counts">
               <span><i className="supporting" /><span>Support</span><b>{supportingCount}</b></span>
               <span><i className="neutral" /><span>Neutral</span><b>{neutralCount}</b></span>
               <span><i className="contrary" /><span>Against</span><b>{contraryCount}</b></span>
             </div>
+          </div>
+          <div className="market-agent-evidence-quality">
+            <span>Quality:</span>
+            <b>{formatValue(state?.confidence, "--")}</b>
           </div>
         </article>
         <article className="market-agent-kpi-card market-agent-next-card">

@@ -407,7 +407,9 @@ describe("MarketAgentPage", () => {
 
     expect(screen.queryByText(/Gold is currently under yield\/USD pressure\./i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Main driver changed from DXY \/ USD to US yields\./i)).not.toBeInTheDocument();
-    expect(screen.getByText(/Bearish gold/i)).toBeInTheDocument();
+    expect(screen.getByText(/Bearish/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Drop/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Move Size:/i)).toBeInTheDocument();
     expect(screen.getAllByText(/US yields/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/Oil \/ inflation/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Backup/i).length).toBeGreaterThan(0);
@@ -546,7 +548,7 @@ describe("MarketAgentPage", () => {
 
     expect(screen.queryByText(/No meaningful XAUUSD move detected/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Using local CSV fallback\. Configure cTrader or Yahoo provider for live monitoring\./i)).not.toBeInTheDocument();
-    expect(screen.getByText(/No meaningful change/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Neutral/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Local CSV fallback/i).length).toBeGreaterThan(0);
     expect(screen.queryByText("LOCAL_CSV_FALLBACK")).not.toBeInTheDocument();
   });

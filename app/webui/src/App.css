@@ -13,6 +13,14 @@
   gap: 14px;
 }
 
+.app.app-market-agent {
+  background: linear-gradient(180deg, #0c1119 0%, #070b11 100%);
+}
+
+[data-theme="light"] .app.app-market-agent {
+  background: linear-gradient(180deg, #f8fafc 0%, #eef3f8 100%);
+}
+
 .main {
   flex: 1;
   min-height: 0;
@@ -23,6 +31,13 @@
 .main-market-agent {
   margin-bottom: 74px;
   padding-bottom: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(14, 20, 29, 0.94), rgba(8, 12, 18, 0.98));
+}
+
+[data-theme="light"] .main-market-agent {
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.97), rgba(239, 244, 249, 0.99));
 }
 
 .split-view {

@@ -3785,7 +3785,7 @@ export default function App() {
 
 
   return (
-    <div className="app" data-qa="qa:app-shell">
+    <div className={`app${mainView === "market-agent" ? " app-market-agent" : ""}`} data-qa="qa:app-shell">
       {showInitOverlay ? (
         <InitOverlay state={initState} error={initError} onRetry={handleInitRetry} />
       ) : null}
