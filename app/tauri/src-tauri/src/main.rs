@@ -104,7 +104,14 @@ fn main() {
             commands::analysis::get_event_impact_usd,
             commands::analysis::get_predict_release_model_usd,
             commands::analysis::get_event_deep_analysis_usd,
-            commands::market_agent::get_market_agent_snapshot
+            commands::market_agent::get_market_agent_snapshot,
+            commands::market_agent::get_market_agent_replay,
+            commands::market_agent::get_market_agent_timeline,
+            commands::market_agent::get_market_agent_provider_health,
+            commands::market_agent::get_market_agent_driver_attention,
+            commands::market_agent::get_market_agent_evidence_for_run,
+            commands::market_agent::get_market_agent_state_transitions,
+            commands::market_agent::get_market_agent_suppressed_alerts
         ])
         .setup(|app| {
             let _ = config::maybe_seed_data_from_install();

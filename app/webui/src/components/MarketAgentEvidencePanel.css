@@ -1,0 +1,44 @@
+.market-agent-evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.market-agent-evidence-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.market-agent-evidence-section h3 {
+  margin: 0;
+  font-size: 13px;
+}
+
+.market-agent-evidence-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.market-agent-evidence-value {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.market-agent-evidence-value pre {
+  margin: 0;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  overflow: auto;
+  font-size: 11px;
+}
+
+@media (max-width: 900px) {
+  .market-agent-evidence-grid {
+    grid-template-columns: 1fr;
+  }
+}

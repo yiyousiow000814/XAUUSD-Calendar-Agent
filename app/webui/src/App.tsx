@@ -11,6 +11,7 @@ import { EventHistoryModal } from "./components/EventHistoryModal";
 import { Footer } from "./components/Footer";
 import { HistoryPanel } from "./components/HistoryPanel";
 import { InitOverlay } from "./components/InitOverlay";
+import { MarketAgentPage } from "./components/MarketAgentPage";
 import { MarketAgentPanel } from "./components/MarketAgentPanel";
 import { NextEvents } from "./components/NextEvents";
 import { SettingsModal } from "./components/SettingsModal";
@@ -20,7 +21,13 @@ import { CURRENCY_OPTIONS } from "./constants/currencyOptions";
 import { formatLocalDateTime } from "./utils/calendarTime";
 import { impactTone, levelTone } from "./utils/ui";
 import "./App.css";
-import type { MarketAgentSnapshotResponse } from "./types";
+import type {
+  MarketAgentDriverAttentionResponse,
+  MarketAgentEvidenceForRunResponse,
+  MarketAgentProviderHealthResponse,
+  MarketAgentReplayResponse,
+  MarketAgentSnapshotResponse
+} from "./types";
 
 const defaultCurrencyOptions = Array.from(CURRENCY_OPTIONS);
 const impactOptions = ["Low", "Medium", "High"];
@@ -69,6 +76,52 @@ const emptySettings: Settings = {
   temporaryPath: "",
   repoPath: "",
   logPath: ""
+};
+
+type MainView = "calendar" | "market-agent";
+type MarketAgentRangePreset = "1h" | "4h" | "today" | "custom";
+
+const pad2 = (value: number) => String(value).padStart(2, "0");
+
+const toDateTimeLocalValue = (iso: string) => {
+  if (!iso) return "";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}T${pad2(
+    date.getHours()
+  )}:${pad2(date.getMinutes())}`;
+};
+
+const toOffsetIso = (localDateTime: string) => {
+  if (!localDateTime) return "";
+  const date = new Date(localDateTime);
+  if (Number.isNaN(date.getTime())) return "";
+  const offsetMinutes = -date.getTimezoneOffset();
+  const sign = offsetMinutes >= 0 ? "+" : "-";
+  const absoluteMinutes = Math.abs(offsetMinutes);
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}T${pad2(
+    date.getHours()
+  )}:${pad2(date.getMinutes())}:${pad2(date.getSeconds())}${sign}${pad2(
+    Math.floor(absoluteMinutes / 60)
+  )}:${pad2(absoluteMinutes % 60)}`;
+};
+
+const buildRangeWindow = (preset: Exclude<MarketAgentRangePreset, "custom">) => {
+  const end = new Date();
+  const start = new Date(end);
+  if (preset === "1h") {
+    start.setHours(end.getHours() - 1);
+  } else if (preset === "4h") {
+    start.setHours(end.getHours() - 4);
+  } else {
+    start.setHours(0, 0, 0, 0);
+  }
+  return {
+    startIso: toOffsetIso(toDateTimeLocalValue(start.toISOString())),
+    endIso: toOffsetIso(toDateTimeLocalValue(end.toISOString())),
+    startInput: toDateTimeLocalValue(start.toISOString()),
+    endInput: toDateTimeLocalValue(end.toISOString())
+  };
 };
 
 type TemporaryPathWarningContext = {
@@ -236,6 +289,18 @@ export default function App() {
   const activityLabelMeasureRef = useRef<HTMLSpanElement | null>(null);
   const [activityLabelWidth, setActivityLabelWidth] = useState<number>(92);
   const [marketAgentSnapshot, setMarketAgentSnapshot] = useState<MarketAgentSnapshotResponse | null>(null);
+  const [mainView, setMainView] = useState<MainView>("calendar");
+  const [marketAgentReplay, setMarketAgentReplay] = useState<MarketAgentReplayResponse | null>(null);
+  const [marketAgentProviderHealth, setMarketAgentProviderHealth] = useState<MarketAgentProviderHealthResponse | null>(null);
+  const [marketAgentDriverAttention, setMarketAgentDriverAttention] = useState<MarketAgentDriverAttentionResponse | null>(null);
+  const [marketAgentEvidence, setMarketAgentEvidence] = useState<MarketAgentEvidenceForRunResponse | null>(null);
+  const [marketAgentSelectedRunId, setMarketAgentSelectedRunId] = useState<number | null>(null);
+  const [marketAgentRangePreset, setMarketAgentRangePreset] = useState<MarketAgentRangePreset>("4h");
+  const initialMarketAgentRange = useMemo(() => buildRangeWindow("4h"), []);
+  const [marketAgentRangeStart, setMarketAgentRangeStart] = useState<string>(initialMarketAgentRange.startIso);
+  const [marketAgentRangeEnd, setMarketAgentRangeEnd] = useState<string>(initialMarketAgentRange.endIso);
+  const [marketAgentRangeStartInput, setMarketAgentRangeStartInput] = useState<string>(initialMarketAgentRange.startInput);
+  const [marketAgentRangeEndInput, setMarketAgentRangeEndInput] = useState<string>(initialMarketAgentRange.endInput);
   const activityLabelWidthRef = useRef(92);
   const activityLabelIdleRafRef = useRef<number | null>(null);
   const activityOpenIntentRef = useRef(false);
@@ -338,6 +403,139 @@ export default function App() {
       return null;
     }
   }, [withTimeout]);
+
+  const refreshMarketAgentReplay = useCallback(
+    async (start: string, end: string) => {
+      try {
+        const next = await withTimeout(
+          backend.getMarketAgentReplay(start, end),
+          10000,
+          "backend.getMarketAgentReplay()"
+        );
+        setMarketAgentReplay(next);
+        return next;
+      } catch {
+        setMarketAgentReplay({
+          ok: false,
+          available: false,
+          message: "Unable to load market replay.",
+          replay: {
+            price_series: [],
+            related_assets: {},
+            news_items: [],
+            calendar_events: [],
+            driver_attention_timeline: [],
+            timeline_events: [],
+            state_transitions: [],
+            alerts: [],
+            suppressed_alerts: []
+          }
+        });
+        return null;
+      }
+    },
+    [withTimeout]
+  );
+
+  const refreshMarketAgentProviderHealth = useCallback(async () => {
+    try {
+      const next = await withTimeout(
+        backend.getMarketAgentProviderHealth(),
+        8000,
+        "backend.getMarketAgentProviderHealth()"
+      );
+      setMarketAgentProviderHealth(next);
+      return next;
+    } catch {
+      setMarketAgentProviderHealth({
+        ok: false,
+        available: false,
+        message: "Unable to load provider health.",
+        items: []
+      });
+      return null;
+    }
+  }, [withTimeout]);
+
+  const refreshMarketAgentDriverAttention = useCallback(async () => {
+    try {
+      const next = await withTimeout(
+        backend.getMarketAgentDriverAttention(),
+        8000,
+        "backend.getMarketAgentDriverAttention()"
+      );
+      setMarketAgentDriverAttention(next);
+      return next;
+    } catch {
+      setMarketAgentDriverAttention({
+        ok: false,
+        available: false,
+        message: "Unable to load driver attention.",
+        states: []
+      });
+      return null;
+    }
+  }, [withTimeout]);
+
+  const refreshMarketAgentEvidence = useCallback(
+    async (monitorRunId: number | null) => {
+      if (!monitorRunId) {
+        setMarketAgentEvidence(null);
+        return null;
+      }
+      try {
+        const next = await withTimeout(
+          backend.getMarketAgentEvidenceForRun(monitorRunId),
+          8000,
+          "backend.getMarketAgentEvidenceForRun()"
+        );
+        setMarketAgentEvidence(next);
+        setMarketAgentSelectedRunId(monitorRunId);
+        return next;
+      } catch {
+        setMarketAgentEvidence({
+          ok: false,
+          available: false,
+          message: "Unable to load evidence for selected run.",
+          monitor_run_id: monitorRunId,
+          payload: {}
+        });
+        return null;
+      }
+    },
+    [withTimeout]
+  );
+
+  const refreshMarketAgentWorkspace = useCallback(
+    async (start: string, end: string) => {
+      const [snapshotResult, providerResult, driverResult, replayResult] = await Promise.all([
+        refreshMarketAgentSnapshot(),
+        refreshMarketAgentProviderHealth(),
+        refreshMarketAgentDriverAttention(),
+        refreshMarketAgentReplay(start, end)
+      ]);
+      const preferredRunId =
+        replayResult?.replay.timeline_events[0]?.monitor_run_id ??
+        replayResult?.replay.alerts[0]?.monitor_run_id ??
+        driverResult?.monitor_run_id ??
+        providerResult?.monitor_run_id ??
+        null;
+      if (preferredRunId) {
+        await refreshMarketAgentEvidence(preferredRunId);
+      } else {
+        setMarketAgentEvidence(null);
+        setMarketAgentSelectedRunId(null);
+      }
+      return { snapshotResult, providerResult, driverResult, replayResult };
+    },
+    [
+      refreshMarketAgentDriverAttention,
+      refreshMarketAgentEvidence,
+      refreshMarketAgentProviderHealth,
+      refreshMarketAgentReplay,
+      refreshMarketAgentSnapshot
+    ]
+  );
 
   const refresh = async (): Promise<Snapshot | null> => {
     if (refreshInFlightRef.current) {
@@ -3319,6 +3517,39 @@ export default function App() {
     }, 400);
   }, []);
 
+  const openMarketAgentView = useCallback(() => {
+    setMainView("market-agent");
+    void refreshMarketAgentWorkspace(marketAgentRangeStart, marketAgentRangeEnd);
+  }, [marketAgentRangeEnd, marketAgentRangeStart, refreshMarketAgentWorkspace]);
+
+  const openCalendarView = useCallback(() => {
+    setMainView("calendar");
+  }, []);
+
+  const handleMarketAgentPresetChange = useCallback(
+    (preset: string) => {
+      const typedPreset = preset as Exclude<MarketAgentRangePreset, "custom">;
+      const next = buildRangeWindow(typedPreset);
+      setMarketAgentRangePreset(typedPreset);
+      setMarketAgentRangeStart(next.startIso);
+      setMarketAgentRangeEnd(next.endIso);
+      setMarketAgentRangeStartInput(next.startInput);
+      setMarketAgentRangeEndInput(next.endInput);
+      void refreshMarketAgentWorkspace(next.startIso, next.endIso);
+    },
+    [refreshMarketAgentWorkspace]
+  );
+
+  const handleMarketAgentApplyRange = useCallback(() => {
+    const startIso = toOffsetIso(marketAgentRangeStartInput);
+    const endIso = toOffsetIso(marketAgentRangeEndInput);
+    if (!startIso || !endIso) return;
+    setMarketAgentRangePreset("custom");
+    setMarketAgentRangeStart(startIso);
+    setMarketAgentRangeEnd(endIso);
+    void refreshMarketAgentWorkspace(startIso, endIso);
+  }, [marketAgentRangeEndInput, marketAgentRangeStartInput, refreshMarketAgentWorkspace]);
+
   const historySelectionLabel = historySelection
     ? `${historySelection.cur || "--"} ${historySelection.event}`.trim()
     : "";
@@ -3327,6 +3558,11 @@ export default function App() {
     if (!activityOpen) return;
     void refreshMarketAgentSnapshot();
   }, [activityOpen, refreshMarketAgentSnapshot]);
+
+  useEffect(() => {
+    if (mainView !== "market-agent") return;
+    void refreshMarketAgentWorkspace(marketAgentRangeStart, marketAgentRangeEnd);
+  }, [mainView, marketAgentRangeEnd, marketAgentRangeStart, refreshMarketAgentWorkspace]);
 
 
   return (
@@ -3345,71 +3581,95 @@ export default function App() {
         syncState={syncState}
         resolvedTheme={resolvedTheme}
         themeMode={themeMode}
+        activeView={mainView}
         onPull={handlePull}
         onSync={handleSync}
         onOpenSettings={openSettings}
         onToggleTheme={toggleTheme}
         onOpenPaths={openPathsInSettings}
+        onOpenCalendar={openCalendarView}
+        onOpenMarketAgent={openMarketAgentView}
       />
 
       <main className="main">
-        <div
-          className="split-view"
-          ref={splitRef}
-          style={{
-            gridTemplateColumns: `minmax(0, ${splitRatio.toFixed(
-              4
-            )}fr) ${splitGutterPx}px minmax(0, ${(1 - splitRatio).toFixed(4)}fr)`
-          }}
-        >
-          <div className="split-pane">
-            <NextEvents
-              events={snapshot.events}
-              loading={snapshot.calendarStatus === "loading"}
-              downloading={snapshot.calendarStatus === "downloading"}
-              currency={currency}
-              currencyOptions={currencyOptions}
-              onCurrencyChange={handleCurrency}
-              impactTone={impactTone}
-              impactFilter={impactFilter}
-              onImpactFilterChange={setImpactFilter}
-              onOpenHistory={(item) =>
-                openEventHistory({
-                  event: item.event,
-                  cur: item.cur,
-                  dtUtc: item.dtUtc,
-                  impact: item.impact,
-                  actual: item.actual,
-                  forecast: item.forecast,
-                  previous: item.previous
-                })
-              }
-            />
+        {mainView === "market-agent" ? (
+          <MarketAgentPage
+            snapshot={marketAgentSnapshot}
+            providerHealth={marketAgentProviderHealth}
+            driverAttention={marketAgentDriverAttention}
+            replay={marketAgentReplay}
+            selectedEvidence={marketAgentEvidence}
+            selectedMonitorRunId={marketAgentSelectedRunId}
+            rangePreset={marketAgentRangePreset}
+            rangeStartInput={marketAgentRangeStartInput}
+            rangeEndInput={marketAgentRangeEndInput}
+            onPresetChange={handleMarketAgentPresetChange}
+            onRangeStartChange={setMarketAgentRangeStartInput}
+            onRangeEndChange={setMarketAgentRangeEndInput}
+            onApplyRange={handleMarketAgentApplyRange}
+            onSelectRun={(monitorRunId) => {
+              void refreshMarketAgentEvidence(monitorRunId);
+            }}
+          />
+        ) : (
+          <div
+            className="split-view"
+            ref={splitRef}
+            style={{
+              gridTemplateColumns: `minmax(0, ${splitRatio.toFixed(
+                4
+              )}fr) ${splitGutterPx}px minmax(0, ${(1 - splitRatio).toFixed(4)}fr)`
+            }}
+          >
+            <div className="split-pane">
+              <NextEvents
+                events={snapshot.events}
+                loading={snapshot.calendarStatus === "loading"}
+                downloading={snapshot.calendarStatus === "downloading"}
+                currency={currency}
+                currencyOptions={currencyOptions}
+                onCurrencyChange={handleCurrency}
+                impactTone={impactTone}
+                impactFilter={impactFilter}
+                onImpactFilterChange={setImpactFilter}
+                onOpenHistory={(item) =>
+                  openEventHistory({
+                    event: item.event,
+                    cur: item.cur,
+                    dtUtc: item.dtUtc,
+                    impact: item.impact,
+                    actual: item.actual,
+                    forecast: item.forecast,
+                    previous: item.previous
+                  })
+                }
+              />
+            </div>
+            <div className="split-divider" onMouseDown={startSplitDrag} data-qa="qa:split:divider" />
+            <div className="split-pane">
+            <HistoryPanel
+                events={snapshot.pastEvents}
+                loading={snapshot.calendarStatus === "loading"}
+                downloading={snapshot.calendarStatus === "downloading"}
+                calendarTimezoneMode={settings.calendarTimezoneMode}
+                calendarUtcOffsetMinutes={settings.calendarUtcOffsetMinutes}
+                impactTone={impactTone}
+                impactFilter={impactFilter}
+                onOpenHistory={(item) =>
+                  openEventHistory({
+                    event: item.event,
+                    cur: item.cur,
+                    dtUtc: item.dtUtc,
+                    impact: item.impact,
+                    actual: item.actual,
+                    forecast: item.forecast,
+                    previous: item.previous
+                  })
+                }
+              />
+            </div>
           </div>
-          <div className="split-divider" onMouseDown={startSplitDrag} data-qa="qa:split:divider" />
-          <div className="split-pane">
-          <HistoryPanel
-              events={snapshot.pastEvents}
-              loading={snapshot.calendarStatus === "loading"}
-              downloading={snapshot.calendarStatus === "downloading"}
-              calendarTimezoneMode={settings.calendarTimezoneMode}
-              calendarUtcOffsetMinutes={settings.calendarUtcOffsetMinutes}
-              impactTone={impactTone}
-              impactFilter={impactFilter}
-              onOpenHistory={(item) =>
-                openEventHistory({
-                  event: item.event,
-                  cur: item.cur,
-                  dtUtc: item.dtUtc,
-                  impact: item.impact,
-                  actual: item.actual,
-                  forecast: item.forecast,
-                  previous: item.previous
-                })
-              }
-            />
-          </div>
-        </div>
+        )}
       </main>
 
       <div className="footer-row">
@@ -3710,7 +3970,7 @@ export default function App() {
               </button>
             }
           />
-          <MarketAgentPanel data={marketAgentSnapshot} />
+          <MarketAgentPanel data={marketAgentSnapshot} onOpenMarketAgent={openMarketAgentView} />
           {temporaryPathDisplayActive ? (
             <div className="temporary-path-progress" data-qa="qa:temporary-path:progress">
               <div className="temporary-path-progress-header">

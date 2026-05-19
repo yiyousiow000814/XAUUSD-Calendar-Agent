@@ -2,7 +2,14 @@ import type {
   EventDeepAnalysisResponse,
   EventHistoryResponse,
   EventImpactResponse,
+  MarketAgentDriverAttentionResponse,
+  MarketAgentEvidenceForRunResponse,
+  MarketAgentProviderHealthResponse,
+  MarketAgentReplayResponse,
   MarketAgentSnapshotResponse,
+  MarketAgentStateTransitionsResponse,
+  MarketAgentSuppressedAlertsResponse,
+  MarketAgentTimelineResponse,
   PredictReleaseModelResponse,
   Settings,
   Snapshot
@@ -30,6 +37,13 @@ type BackendApi = {
   get_event_deep_analysis_usd?: (payload: { eventId: string; anchorDtUtc?: string }) => ApiResult<EventDeepAnalysisResponse>;
   get_predict_release_model_usd?: () => ApiResult<PredictReleaseModelResponse>;
   get_market_agent_snapshot?: (payload: { limit?: number }) => ApiResult<MarketAgentSnapshotResponse>;
+  get_market_agent_replay?: (payload: { start: string; end: string }) => ApiResult<MarketAgentReplayResponse>;
+  get_market_agent_timeline?: (payload: { start: string; end: string }) => ApiResult<MarketAgentTimelineResponse>;
+  get_market_agent_provider_health?: (_payload: Record<string, never>) => ApiResult<MarketAgentProviderHealthResponse>;
+  get_market_agent_driver_attention?: (_payload: Record<string, never>) => ApiResult<MarketAgentDriverAttentionResponse>;
+  get_market_agent_evidence_for_run?: (payload: { monitorRunId: number }) => ApiResult<MarketAgentEvidenceForRunResponse>;
+  get_market_agent_state_transitions?: (payload: { start: string; end: string }) => ApiResult<MarketAgentStateTransitionsResponse>;
+  get_market_agent_suppressed_alerts?: (payload: { start: string; end: string }) => ApiResult<MarketAgentSuppressedAlertsResponse>;
   get_settings: () => ApiResult<Settings>; 
   save_settings: (payload: Settings) => ApiResult<{ ok: boolean }>; 
   frontend_boot_complete?: () => ApiResult<{ ok: boolean }>; 
@@ -410,6 +424,8 @@ const buildMockMarketAgentSnapshot = (): MarketAgentSnapshotResponse => ({
   available: true,
   state_path: "user-data/market_agent_state.json",
   alerts_path: "user-data/market_agent_alerts.ndjson",
+  timeline_store_path: "user-data/market_agent_timeline.sqlite",
+  timeline_available: true,
   state: {
     current_bias: "bearish_gold",
     main_driver: "yields",
@@ -442,6 +458,296 @@ const buildMockMarketAgentSnapshot = (): MarketAgentSnapshotResponse => ({
       bias: "unknown"
     }
   ]
+});
+
+const buildMockMarketAgentReplay = (): MarketAgentReplayResponse => ({
+  ok: true,
+  available: true,
+  timeline_store_path: "user-data/market_agent_timeline.sqlite",
+  start: "2026-05-19T04:00:00+08:00",
+  end: "2026-05-19T08:30:00+08:00",
+  replay: {
+    price_series: [
+      {
+        symbol: "GC=F",
+        data_timestamp: "2026-05-19T07:30:00+08:00",
+        close_price: 4521.4,
+        source: "Yahoo Finance",
+        source_type: "futures_proxy",
+        data_mode: "proxy",
+        is_stale: false
+      },
+      {
+        symbol: "GC=F",
+        data_timestamp: "2026-05-19T08:00:00+08:00",
+        close_price: 4504.8,
+        source: "Yahoo Finance",
+        source_type: "futures_proxy",
+        data_mode: "proxy",
+        is_stale: false
+      }
+    ],
+    related_assets: {
+      dxy: [{ symbol: "dxy", data_timestamp: "2026-05-19T08:00:00+08:00", change_15m: 0.22, source_type: "proxy", data_mode: "live_seen" }],
+      us10y: [{ symbol: "us10y", data_timestamp: "2026-05-19T08:00:00+08:00", change_15m: 5.1, source_type: "proxy", data_mode: "live_seen" }],
+      us2y: [],
+      wti: [{ symbol: "wti", data_timestamp: "2026-05-19T08:00:00+08:00", change_15m: 1.7, source_type: "proxy", data_mode: "live_seen" }],
+      brent: [],
+      vix: [{ symbol: "vix", data_timestamp: "2026-05-19T08:00:00+08:00", change_15m: 2.4, source_type: "proxy", data_mode: "live_seen" }],
+      spx: [{ symbol: "spx", data_timestamp: "2026-05-19T08:00:00+08:00", change_15m: -0.6, source_type: "proxy", data_mode: "live_seen" }],
+      nasdaq: [{ symbol: "nasdaq", data_timestamp: "2026-05-19T08:00:00+08:00", change_15m: -0.8, source_type: "proxy", data_mode: "live_seen" }]
+    },
+    news_items: [
+      {
+        title: "Fed headline pressures yields",
+        source: "Reuters",
+        published_at: "2026-05-19T07:52:00+08:00",
+        included: true,
+        data_mode: "backfilled"
+      }
+    ],
+    calendar_events: [
+      {
+        title: "Fed speaker",
+        scheduled_at: "2026-05-19T08:15:00+08:00",
+        source: "ForexFactory",
+        data_mode: "live_seen"
+      }
+    ],
+    driver_attention_timeline: [
+      {
+        monitor_run_id: 22,
+        driver_id: "yields",
+        current_state: "active",
+        priority: "core_structural",
+        relevance_score: 0.91,
+        confidence: "medium_high",
+        data_mode: "backfilled"
+      },
+      {
+        monitor_run_id: 22,
+        driver_id: "oil_inflation",
+        current_state: "cooling",
+        priority: "conditional_macro",
+        relevance_score: 0.42,
+        confidence: "medium",
+        data_mode: "live_seen"
+      }
+    ],
+    timeline_events: [
+      {
+        monitor_run_id: 22,
+        event_time: "2026-05-19T07:55:00+08:00",
+        event_type: "recovery_summary",
+        label: "Recovered selloff",
+        payload: { data_mode: "backfilled", cause_status: "likely" }
+      },
+      {
+        monitor_run_id: 23,
+        event_time: "2026-05-19T08:05:00+08:00",
+        event_type: "market_alert",
+        label: "Yields pressure",
+        payload: { data_mode: "proxy", cause_status: "confirmed" }
+      }
+    ],
+    state_transitions: [
+      {
+        monitor_run_id: 23,
+        run_started_at: "2026-05-19T08:05:00+08:00",
+        state_change_reason: "main_driver usd -> yields",
+        previous_state_invalidated: false
+      }
+    ],
+    alerts: [
+      {
+        monitor_run_id: 23,
+        run_started_at: "2026-05-19T08:05:00+08:00",
+        should_notify: true,
+        notification_level: "level_3",
+        message: "XAUUSD dropped 0.48%. Active driver: yields/USD."
+      }
+    ],
+    suppressed_alerts: [
+      {
+        monitor_run_id: 24,
+        run_started_at: "2026-05-19T08:20:00+08:00",
+        should_notify: false,
+        notification_level: "level_1",
+        message: "Suppressed duplicate continuation."
+      }
+    ]
+  }
+});
+
+const buildMockMarketAgentProviderHealth = (): MarketAgentProviderHealthResponse => ({
+  ok: true,
+  available: true,
+  timeline_store_path: "user-data/market_agent_timeline.sqlite",
+  monitor_run_id: 23,
+  run_started_at: "2026-05-19T08:05:00+08:00",
+  items: [
+    {
+      provider_key: "xauusd",
+      source: "Yahoo Finance",
+      source_type: "futures_proxy",
+      data_mode: "proxy",
+      is_available: true,
+      is_stale: false,
+      data_timestamp: "2026-05-19T08:00:00+08:00",
+      fetched_at: "2026-05-19T08:05:02+08:00"
+    },
+    {
+      provider_key: "us2y",
+      source: "US2Y",
+      source_type: "unavailable",
+      data_mode: "unavailable",
+      is_available: false,
+      is_stale: false,
+      stale_reason: "No reliable free 2Y source configured.",
+      error: "Provider unavailable."
+    },
+    {
+      provider_key: "calendar",
+      source: "ForexFactory",
+      source_type: "calendar",
+      data_mode: "live_seen",
+      is_available: true,
+      is_stale: false,
+      data_timestamp: "2026-05-19T08:15:00+08:00",
+      fetched_at: "2026-05-19T08:05:01+08:00"
+    }
+  ]
+});
+
+const buildMockMarketAgentDriverAttention = (): MarketAgentDriverAttentionResponse => ({
+  ok: true,
+  available: true,
+  timeline_store_path: "user-data/market_agent_timeline.sqlite",
+  monitor_run_id: 23,
+  run_started_at: "2026-05-19T08:05:00+08:00",
+  states: [
+    {
+      driver_id: "yields",
+      label: "US Yields",
+      category: "macro",
+      current_state: "active",
+      priority: "core_structural",
+      relevance_score: 0.91,
+      confidence: "medium_high",
+      activation_reason: "US10Y fresh and confirming.",
+      deactivation_reason: "",
+      last_confirmed_at: "2026-05-19T08:05:00+08:00",
+      decay_deadline: "2026-05-19T10:05:00+08:00",
+      data_mode: "backfilled"
+    },
+    {
+      driver_id: "oil_inflation",
+      label: "Oil / Inflation",
+      category: "macro",
+      current_state: "dormant",
+      priority: "conditional_macro",
+      relevance_score: 0.16,
+      confidence: "low",
+      activation_reason: "",
+      deactivation_reason: "Oil stayed background only.",
+      last_confirmed_at: "",
+      decay_deadline: "",
+      data_mode: "live_seen"
+    },
+    {
+      driver_id: "geopolitics",
+      label: "Geopolitics",
+      category: "event",
+      current_state: "watching",
+      priority: "temporary_event",
+      relevance_score: 0.31,
+      confidence: "low",
+      activation_reason: "Headline detected, waiting for market confirmation.",
+      deactivation_reason: "",
+      last_confirmed_at: "",
+      decay_deadline: "2026-05-19T09:05:00+08:00",
+      data_mode: "live_seen"
+    }
+  ]
+});
+
+const buildMockMarketAgentTimeline = (): MarketAgentTimelineResponse => ({
+  ok: true,
+  available: true,
+  timeline_store_path: "user-data/market_agent_timeline.sqlite",
+  start: "2026-05-19T04:00:00+08:00",
+  end: "2026-05-19T08:30:00+08:00",
+  items: buildMockMarketAgentReplay().replay.timeline_events
+});
+
+const buildMockMarketAgentEvidenceForRun = (monitorRunId: number): MarketAgentEvidenceForRunResponse => ({
+  ok: true,
+  available: true,
+  timeline_store_path: "user-data/market_agent_timeline.sqlite",
+  monitor_run_id: monitorRunId,
+  payload: {
+    monitor_run: {
+      monitor_run_id: monitorRunId,
+      run_started_at: "2026-05-19T08:05:00+08:00",
+      run_type: "recovery",
+      data_mode: "backfilled",
+      backfill_required: true
+    },
+    evidence_packet: {
+      allowed_candidate_drivers: ["yields", "usd"],
+      blocked_drivers: {
+        fed_rates: "No direct Fed headline in monitored window.",
+        geopolitics: "No timestamped headline with confirmation."
+      },
+      evidence_status: {
+        dxy: "confirming",
+        us10y: "confirming",
+        us2y: "unavailable",
+        oil: "neutral",
+        news: "backfilled_news_found"
+      },
+      cross_asset_confirmation: {
+        dxy: "confirming",
+        us10y: "confirming",
+        oil: "background_only",
+        vix_equities: "neutral"
+      },
+      provider_health: {
+        xauusd: { source_type: "futures_proxy", data_mode: "proxy" }
+      },
+      active_driver_states: [{ driver_id: "yields", current_state: "active" }],
+      dormant_driver_states: [{ driver_id: "oil_inflation", current_state: "dormant" }]
+    },
+    analysis_result: {
+      main_driver: "yields",
+      cause_status: "likely",
+      confidence: "medium_high",
+      rejected_driver: "fed_rates",
+      rejection_reason: "blocked driver"
+    },
+    provider_health: buildMockMarketAgentProviderHealth().items,
+    driver_attention_states: buildMockMarketAgentDriverAttention().states,
+    alerts: buildMockMarketAgentReplay().replay.alerts,
+    state_transition: buildMockMarketAgentReplay().replay.state_transitions[0]
+  }
+});
+
+const buildMockMarketAgentStateTransitions = (): MarketAgentStateTransitionsResponse => ({
+  ok: true,
+  available: true,
+  timeline_store_path: "user-data/market_agent_timeline.sqlite",
+  start: "2026-05-19T04:00:00+08:00",
+  end: "2026-05-19T08:30:00+08:00",
+  items: buildMockMarketAgentReplay().replay.state_transitions
+});
+
+const buildMockMarketAgentSuppressedAlerts = (): MarketAgentSuppressedAlertsResponse => ({
+  ok: true,
+  available: true,
+  timeline_store_path: "user-data/market_agent_timeline.sqlite",
+  start: "2026-05-19T04:00:00+08:00",
+  end: "2026-05-19T08:30:00+08:00",
+  items: buildMockMarketAgentReplay().replay.suppressed_alerts
 });
 
 const withApi = async () => desktopApiRef();
@@ -820,6 +1126,97 @@ export const backend = {
       return Promise.resolve(buildMockMarketAgentSnapshot());
     }
     return api.get_market_agent_snapshot({ limit });
+  },
+  getMarketAgentReplay: async (start: string, end: string): ApiResult<MarketAgentReplayResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockMarketAgentReplay());
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "get_market_agent_replay")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentReplay());
+    }
+    return api.get_market_agent_replay({ start, end });
+  },
+  getMarketAgentTimeline: async (start: string, end: string): ApiResult<MarketAgentTimelineResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockMarketAgentTimeline());
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "get_market_agent_timeline")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentTimeline());
+    }
+    return api.get_market_agent_timeline({ start, end });
+  },
+  getMarketAgentProviderHealth: async (): ApiResult<MarketAgentProviderHealthResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockMarketAgentProviderHealth());
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "get_market_agent_provider_health")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentProviderHealth());
+    }
+    return api.get_market_agent_provider_health({});
+  },
+  getMarketAgentDriverAttention: async (): ApiResult<MarketAgentDriverAttentionResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockMarketAgentDriverAttention());
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "get_market_agent_driver_attention")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentDriverAttention());
+    }
+    return api.get_market_agent_driver_attention({});
+  },
+  getMarketAgentEvidenceForRun: async (monitorRunId: number): ApiResult<MarketAgentEvidenceForRunResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockMarketAgentEvidenceForRun(monitorRunId));
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "get_market_agent_evidence_for_run")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentEvidenceForRun(monitorRunId));
+    }
+    return api.get_market_agent_evidence_for_run({ monitorRunId });
+  },
+  getMarketAgentStateTransitions: async (start: string, end: string): ApiResult<MarketAgentStateTransitionsResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockMarketAgentStateTransitions());
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "get_market_agent_state_transitions")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentStateTransitions());
+    }
+    return api.get_market_agent_state_transitions({ start, end });
+  },
+  getMarketAgentSuppressedAlerts: async (start: string, end: string): ApiResult<MarketAgentSuppressedAlertsResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockMarketAgentSuppressedAlerts());
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "get_market_agent_suppressed_alerts")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentSuppressedAlerts());
+    }
+    return api.get_market_agent_suppressed_alerts({ start, end });
   },
   getUpdateState: async () => { 
     const api = await withApi(); 

@@ -3,20 +3,31 @@ import "./MarketAgentPanel.css";
 
 type MarketAgentPanelProps = {
   data: MarketAgentSnapshotResponse | null;
+  onOpenMarketAgent?: () => void;
 };
 
 const formatValue = (value: string | null | undefined, fallback = "--") =>
   value && String(value).trim() ? value : fallback;
 
-export function MarketAgentPanel({ data }: MarketAgentPanelProps) {
+export function MarketAgentPanel({ data, onOpenMarketAgent }: MarketAgentPanelProps) {
   if (!data?.available) {
     return (
       <section className="market-agent-card" data-qa="qa:card:market-agent">
         <div className="market-agent-header">
           <div>
             <h2>Market Situation Agent</h2>
-            <span className="hint">State and recent alerts</span>
+            <span className="hint">Preview from state and recent alerts</span>
           </div>
+          {onOpenMarketAgent ? (
+            <button
+              type="button"
+              className="btn ghost btn-compact market-agent-open-btn"
+              onClick={onOpenMarketAgent}
+              data-qa="qa:action:open-market-agent-preview"
+            >
+              Open Market Agent
+            </button>
+          ) : null}
         </div>
         <div className="market-agent-empty">
           {data?.message || "Market agent artifacts are not available yet."}
@@ -33,8 +44,18 @@ export function MarketAgentPanel({ data }: MarketAgentPanelProps) {
       <div className="market-agent-header">
         <div>
           <h2>Market Situation Agent</h2>
-          <span className="hint">State and recent alerts</span>
+          <span className="hint">Preview from state and recent alerts</span>
         </div>
+        {onOpenMarketAgent ? (
+          <button
+            type="button"
+            className="btn ghost btn-compact market-agent-open-btn"
+            onClick={onOpenMarketAgent}
+            data-qa="qa:action:open-market-agent-preview"
+          >
+            Open Market Agent
+          </button>
+        ) : null}
       </div>
 
       <div className="market-agent-grid">

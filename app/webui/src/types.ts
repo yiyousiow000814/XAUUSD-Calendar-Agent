@@ -224,8 +224,166 @@ export type MarketAgentSnapshotResponse = {
   message?: string;
   state_path?: string;
   alerts_path?: string;
+  timeline_store_path?: string;
+  timeline_available?: boolean;
   state: MarketAgentState | null;
   alerts: MarketAgentAlert[];
+};
+
+export type MarketAgentProviderHealthEntry = {
+  provider_key?: string;
+  source: string;
+  source_type: string;
+  fetched_at?: string;
+  data_timestamp?: string;
+  data_mode: string;
+  is_available: boolean;
+  is_stale: boolean;
+  stale_reason?: string;
+  error?: string;
+  raw_source_id?: string;
+  latency_ms?: number | null;
+  current_value?: number | null;
+  previous_value?: number | null;
+  change_value?: number | null;
+  change_unit?: string;
+  monitor_run_id?: number;
+  run_started_at?: string;
+};
+
+export type MarketAgentDriverAttentionState = {
+  driver_id: string;
+  label?: string;
+  category?: string;
+  current_state: string;
+  priority: string;
+  relevance_score?: number;
+  activation_reason?: string;
+  deactivation_reason?: string;
+  first_activated_at?: string;
+  last_confirmed_at?: string;
+  last_evidence_at?: string;
+  decay_deadline?: string;
+  current_evidence_summary?: string;
+  current_counter_evidence?: string;
+  confidence: string;
+  source_count?: number;
+  related_news_count?: number;
+  related_calendar_events?: number;
+  notes?: string;
+  data_mode: string;
+  monitor_run_id?: number;
+  run_started_at?: string;
+};
+
+export type MarketAgentTimelineEvent = {
+  monitor_run_id: number;
+  event_time: string;
+  event_type: string;
+  label: string;
+  payload: Record<string, unknown>;
+};
+
+export type MarketAgentStateTransition = Record<string, unknown> & {
+  monitor_run_id?: number;
+  run_started_at?: string;
+};
+
+export type MarketAgentAlertTimelineItem = Record<string, unknown> & {
+  monitor_run_id?: number;
+  run_started_at?: string;
+  should_notify?: boolean;
+};
+
+export type MarketAgentReplayPayload = {
+  price_series: Record<string, unknown>[];
+  related_assets: Record<string, Record<string, unknown>[]>;
+  news_items: Record<string, unknown>[];
+  calendar_events: Record<string, unknown>[];
+  driver_attention_timeline: Record<string, unknown>[];
+  timeline_events: MarketAgentTimelineEvent[];
+  state_transitions: MarketAgentStateTransition[];
+  alerts: MarketAgentAlertTimelineItem[];
+  suppressed_alerts: MarketAgentAlertTimelineItem[];
+};
+
+export type MarketAgentReplayResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  timeline_store_path?: string;
+  start?: string;
+  end?: string;
+  replay: MarketAgentReplayPayload;
+};
+
+export type MarketAgentProviderHealthResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  timeline_store_path?: string;
+  monitor_run_id?: number | null;
+  run_started_at?: string | null;
+  items: MarketAgentProviderHealthEntry[];
+};
+
+export type MarketAgentDriverAttentionResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  timeline_store_path?: string;
+  monitor_run_id?: number | null;
+  run_started_at?: string | null;
+  states: MarketAgentDriverAttentionState[];
+};
+
+export type MarketAgentTimelineResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  timeline_store_path?: string;
+  start?: string;
+  end?: string;
+  items: MarketAgentTimelineEvent[];
+};
+
+export type MarketAgentEvidenceForRunPayload = {
+  monitor_run?: Record<string, unknown> | null;
+  evidence_packet?: Record<string, unknown> | null;
+  analysis_result?: Record<string, unknown> | null;
+  provider_health?: Record<string, unknown>[];
+  driver_attention_states?: Record<string, unknown>[];
+  alerts?: Record<string, unknown>[];
+  state_transition?: Record<string, unknown> | null;
+};
+
+export type MarketAgentEvidenceForRunResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  timeline_store_path?: string;
+  monitor_run_id?: number;
+  payload: MarketAgentEvidenceForRunPayload;
+};
+
+export type MarketAgentStateTransitionsResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  timeline_store_path?: string;
+  start?: string;
+  end?: string;
+  items: MarketAgentStateTransition[];
+};
+
+export type MarketAgentSuppressedAlertsResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  timeline_store_path?: string;
+  start?: string;
+  end?: string;
+  items: MarketAgentAlertTimelineItem[];
 };
 
 export type Snapshot = {

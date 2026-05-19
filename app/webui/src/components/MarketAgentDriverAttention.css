@@ -1,0 +1,41 @@
+.market-agent-table-wrap {
+  overflow: auto;
+}
+
+.market-agent-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.market-agent-table th,
+.market-agent-table td {
+  padding: 10px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+  vertical-align: top;
+}
+
+.market-agent-table th {
+  color: var(--text-dim);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  position: sticky;
+  top: 0;
+  background: rgba(10, 13, 18, 0.95);
+}
+
+.market-agent-primary-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.market-agent-primary-cell span {
+  color: var(--text-dim);
+}
+
+[data-theme="light"] .market-agent-table th {
+  background: rgba(249, 250, 252, 0.96);
+}

@@ -1,0 +1,101 @@
+.market-agent-surface {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--panel-border);
+  background:
+    linear-gradient(180deg, rgba(15, 20, 28, 0.92), rgba(11, 14, 20, 0.82));
+  box-shadow: inset 0 0 0 1px var(--panel-inner);
+}
+
+.market-agent-surface-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.market-agent-surface-header h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.market-agent-overview-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.market-agent-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.market-agent-overview-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.market-agent-overview-label {
+  color: var(--text-dim);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.market-agent-overview-story {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 12px;
+}
+
+.market-agent-overview-story-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.market-agent-overview-story-block p,
+.market-agent-overview-meta,
+.market-agent-empty-state {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.market-agent-overview-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  color: var(--text-dim);
+}
+
+[data-theme="light"] .market-agent-surface {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 249, 252, 0.98));
+}
+
+@media (max-width: 1120px) {
+  .market-agent-overview-grid,
+  .market-agent-overview-story {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .market-agent-overview-grid,
+  .market-agent-overview-story {
+    grid-template-columns: 1fr;
+  }
+}

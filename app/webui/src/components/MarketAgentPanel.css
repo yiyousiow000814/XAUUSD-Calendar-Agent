@@ -17,6 +17,18 @@
   line-height: 1.3;
 }
 
+.market-agent-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.market-agent-open-btn {
+  flex: 0 0 auto;
+}
+
 .market-agent-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

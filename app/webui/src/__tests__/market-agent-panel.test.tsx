@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { MarketAgentPanel } from "../components/MarketAgentPanel";
@@ -42,5 +42,15 @@ describe("MarketAgentPanel", () => {
     expect(screen.getByText(/bearish_gold/i)).toBeInTheDocument();
     expect(screen.getAllByText(/yields/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Gold remains under pressure\./i).length).toBe(2);
+  });
+
+  it("shows a preview CTA and forwards the open action", () => {
+    const calls: string[] = [];
+
+    render(<MarketAgentPanel data={snapshot} onOpenMarketAgent={() => calls.push("open")} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Open Market Agent/i }));
+
+    expect(calls).toEqual(["open"]);
   });
 });
