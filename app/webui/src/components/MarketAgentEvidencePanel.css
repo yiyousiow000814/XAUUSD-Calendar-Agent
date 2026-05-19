@@ -9,6 +9,10 @@
   flex-direction: column;
   gap: 10px;
   min-width: 0;
+  padding: 13px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .market-agent-evidence-section h3 {
@@ -26,9 +30,22 @@
 .market-agent-evidence-value {
   font-size: 12px;
   line-height: 1.5;
+  word-break: break-word;
 }
 
-.market-agent-evidence-value pre {
+.market-agent-evidence-raw {
+  grid-column: 1 / -1;
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.market-agent-evidence-raw summary {
+  cursor: pointer;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.market-agent-evidence-raw pre {
   margin: 0;
   padding: 10px;
   border-radius: 10px;

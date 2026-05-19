@@ -1,4 +1,10 @@
 import type { MarketAgentSnapshotResponse } from "../types";
+import {
+  formatDriverLabel,
+  formatShortTime,
+  humanizeMarketAgentReason,
+  humanizeMarketAgentValue
+} from "../utils/marketAgentUi";
 import "./MarketAgentPanel.css";
 
 type MarketAgentPanelProps = {
@@ -7,7 +13,7 @@ type MarketAgentPanelProps = {
 };
 
 const formatValue = (value: string | null | undefined, fallback = "--") =>
-  value && String(value).trim() ? value : fallback;
+  value && String(value).trim() ? humanizeMarketAgentValue(value, fallback) : fallback;
 
 export function MarketAgentPanel({ data, onOpenMarketAgent }: MarketAgentPanelProps) {
   if (!data?.available) {
@@ -65,7 +71,7 @@ export function MarketAgentPanel({ data, onOpenMarketAgent }: MarketAgentPanelPr
         </div>
         <div className="market-agent-stat">
           <span className="market-agent-label">Main driver</span>
-          <span className="market-agent-value">{formatValue(state?.main_driver)}</span>
+          <span className="market-agent-value">{formatDriverLabel(state?.main_driver)}</span>
         </div>
         <div className="market-agent-stat">
           <span className="market-agent-label">Cause status</span>
@@ -83,12 +89,12 @@ export function MarketAgentPanel({ data, onOpenMarketAgent }: MarketAgentPanelPr
           {formatValue(state?.last_alert_summary, "No alert summary yet.")}
         </div>
         <div className="market-agent-meta">
-          <span>Last analysis: {formatValue(state?.last_analysis_time)}</span>
+          <span>Last analysis: {formatShortTime(state?.last_analysis_time)}</span>
           <span>Last level: {formatValue(state?.last_notification_level, "none")}</span>
         </div>
         <div className="market-agent-reason">
           <span className="market-agent-label">State change</span>
-          <span>{formatValue(state?.state_change_reason, "No state change reason recorded.")}</span>
+          <span>{humanizeMarketAgentReason(state?.state_change_reason)}</span>
         </div>
       </div>
 
@@ -105,7 +111,7 @@ export function MarketAgentPanel({ data, onOpenMarketAgent }: MarketAgentPanelPr
               >
                 <div className="market-agent-alert-head">
                   <span className="market-agent-pill">{formatValue(alert.notification_level)}</span>
-                  <span className="mono market-agent-time">{formatValue(alert.time)}</span>
+                  <span className="mono market-agent-time">{formatShortTime(alert.time)}</span>
                 </div>
                 <div className="market-agent-alert-message">{formatValue(alert.message)}</div>
               </div>

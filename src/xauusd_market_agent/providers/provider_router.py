@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from ..config import MarketAgentConfig
+from ..config import CTraderOpenApiConfig, MarketAgentConfig
 from ..models import ProviderHealth
 from ..provider_health import build_provider_health
 from .base import CalendarProvider, MarketDataProvider, NewsProvider, RelatedAssetsProvider
@@ -52,6 +52,7 @@ class ProviderRouter:
         yahoo_enabled: bool = True,
         csv_fallback_enabled: bool = True,
         ctrader_saved_snapshot_path: Path | None = None,
+        ctrader_provider: CTraderProvider | None = None,
     ) -> None:
         self.market_provider = market_provider
         self.related_assets_provider = related_assets_provider
@@ -66,6 +67,22 @@ class ProviderRouter:
         self.yahoo_enabled = yahoo_enabled
         self.csv_fallback_enabled = csv_fallback_enabled
         self.ctrader_saved_snapshot_path = ctrader_saved_snapshot_path
+        if ctrader_provider is None:
+            default_root = (
+                Path(ctrader_saved_snapshot_path).resolve().parent.parent
+                if ctrader_saved_snapshot_path is not None
+                else Path.cwd()
+            )
+            ctrader_provider = CTraderProvider(
+                openapi_config=CTraderOpenApiConfig.default(default_root),
+                saved_snapshot_path=ctrader_saved_snapshot_path,
+            )
+        self.ctrader_provider = ctrader_provider
+        self.last_market_provider_meta: dict[str, Any] = {
+            "selected_market_provider": "unavailable",
+            "provider_chain_status": [],
+            "fallback_reason": "",
+        }
 
     @classmethod
     def from_config(cls, config: MarketAgentConfig) -> "ProviderRouter":
@@ -88,6 +105,7 @@ class ProviderRouter:
             yahoo_enabled=config.yahoo_enabled,
             csv_fallback_enabled=config.csv_fallback_enabled,
             ctrader_saved_snapshot_path=config.ctrader_saved_snapshot_path,
+            ctrader_provider=CTraderProvider.from_market_agent_config(config),
         )
 
     def _yahoo(self) -> YahooChartProvider:
@@ -95,8 +113,7 @@ class ProviderRouter:
 
     def _market_chain(self) -> list[Any]:
         chain: list[Any] = []
-        ctrader = CTraderProvider(saved_snapshot_path=self.ctrader_saved_snapshot_path)
-        chain.append(ctrader)
+        chain.append(self.ctrader_provider)
         if self.yahoo_enabled:
             chain.append(self._yahoo())
         if self.csv_fallback_enabled and self.csv_price_path is not None:
@@ -106,15 +123,42 @@ class ProviderRouter:
     def fetch_market_context(self, anchor_time: datetime) -> tuple[list[dict[str, Any]], ProviderHealth]:
         if self.market_provider is not None:
             return self.market_provider.fetch_latest(anchor_time)
+        chain_status: list[dict[str, Any]] = []
         for candidate in self._market_chain():
             if isinstance(candidate, Path):
-                return self._load_market_csv_fallback(candidate, anchor_time, data_mode="live_seen")
-            if isinstance(candidate, CTraderProvider):
+                rows, health = self._load_market_csv_fallback(candidate, anchor_time, data_mode="live_seen")
+                chain_status.append(self._build_chain_entry("csv_fallback", health))
+                self.last_market_provider_meta = {
+                    "selected_market_provider": "csv_fallback",
+                    "provider_chain_status": chain_status,
+                    "fallback_reason": "",
+                }
+                return rows, health
+            if candidate is self.ctrader_provider:
                 rows, health = candidate.fetch_latest(anchor_time)
+                chain_status.append(self._build_chain_entry("ctrader_spot", health))
+                if health.is_available and not health.is_stale and health.data_mode == "live_seen":
+                    self.last_market_provider_meta = {
+                        "selected_market_provider": "ctrader_spot",
+                        "provider_chain_status": chain_status,
+                        "fallback_reason": "",
+                    }
+                    return self._normalize_market_rows(rows), health
             else:
                 rows, health = candidate.fetch_market_price(anchor_time)
-            if health.is_available or health.data_mode in {"proxy", "stale"}:
+                chain_status.append(self._build_chain_entry("yahoo_gc_f_proxy", health))
+            if candidate is not self.ctrader_provider and (health.is_available or health.data_mode in {"proxy", "stale"}):
+                self.last_market_provider_meta = {
+                    "selected_market_provider": "yahoo_gc_f_proxy",
+                    "provider_chain_status": chain_status,
+                    "fallback_reason": self._fallback_reason(chain_status),
+                }
                 return self._normalize_market_rows(rows), health
+        self.last_market_provider_meta = {
+            "selected_market_provider": "unavailable",
+            "provider_chain_status": chain_status,
+            "fallback_reason": self._fallback_reason(chain_status),
+        }
         return [], build_provider_health(
             source="XAUUSD",
             source_type="provider_interface",
@@ -192,15 +236,41 @@ class ProviderRouter:
     def backfill_market_context(self, start: datetime, end: datetime) -> tuple[list[dict[str, Any]], ProviderHealth]:
         if self.market_provider is not None:
             return self.market_provider.backfill(start, end)
+        chain_status: list[dict[str, Any]] = []
         for candidate in self._market_chain():
             if isinstance(candidate, Path):
-                return self._load_market_csv_fallback(candidate, end, data_mode="backfilled")
-            if isinstance(candidate, CTraderProvider):
+                rows, health = self._load_market_csv_fallback(candidate, end, data_mode="backfilled")
+                self.last_market_provider_meta = {
+                    "selected_market_provider": "csv_fallback",
+                    "provider_chain_status": chain_status + [self._build_chain_entry("csv_fallback", health)],
+                    "fallback_reason": "",
+                }
+                return rows, health
+            if candidate is self.ctrader_provider:
                 rows, health = candidate.backfill(start, end)
+                chain_status.append(self._build_chain_entry("ctrader_spot", health))
+                if health.is_available and rows:
+                    self.last_market_provider_meta = {
+                        "selected_market_provider": "ctrader_spot",
+                        "provider_chain_status": chain_status,
+                        "fallback_reason": "",
+                    }
+                    return self._normalize_market_rows(rows, data_mode_override="backfilled"), health
             else:
                 rows, health = candidate.backfill("GC=F", start, end)
-            if health.is_available or health.data_mode in {"proxy", "stale"}:
+                chain_status.append(self._build_chain_entry("yahoo_gc_f_proxy", health))
+            if candidate is not self.ctrader_provider and (health.is_available or health.data_mode in {"proxy", "stale"}):
+                self.last_market_provider_meta = {
+                    "selected_market_provider": "yahoo_gc_f_proxy",
+                    "provider_chain_status": chain_status,
+                    "fallback_reason": self._fallback_reason(chain_status),
+                }
                 return self._normalize_market_rows(rows, data_mode_override="backfilled"), health
+        self.last_market_provider_meta = {
+            "selected_market_provider": "unavailable",
+            "provider_chain_status": chain_status,
+            "fallback_reason": self._fallback_reason(chain_status),
+        }
         return [], build_provider_health(
             source="XAUUSD",
             source_type="provider_interface",
@@ -209,6 +279,31 @@ class ProviderRouter:
             stale_reason="No market backfill provider configured.",
             data_timestamp=end.isoformat(),
         )
+
+    def _build_chain_entry(self, provider: str, health: ProviderHealth) -> dict[str, Any]:
+        return {
+            "provider": provider,
+            "source": health.source,
+            "source_type": health.source_type,
+            "data_mode": health.data_mode,
+            "is_available": health.is_available,
+            "is_stale": health.is_stale,
+            "error": health.error,
+            "stale_reason": health.stale_reason,
+            "data_timestamp": health.data_timestamp,
+        }
+
+    def _fallback_reason(self, chain_status: list[dict[str, Any]]) -> str:
+        failures = [
+            item
+            for item in chain_status
+            if item["provider"] == "ctrader_spot"
+            and (not item["is_available"] or item["is_stale"] or item["data_mode"] == "unavailable")
+        ]
+        if not failures:
+            return ""
+        latest = failures[-1]
+        return latest["error"] or latest["stale_reason"] or "cTrader spot unavailable."
 
     def backfill_related_assets(
         self, start: datetime, end: datetime

@@ -39,8 +39,8 @@ describe("MarketAgentPanel", () => {
     render(<MarketAgentPanel data={snapshot} />);
 
     expect(screen.getByText(/Market Situation Agent/i)).toBeInTheDocument();
-    expect(screen.getByText(/bearish_gold/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/yields/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Bearish gold/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/US yields/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Gold remains under pressure\./i).length).toBe(2);
   });
 

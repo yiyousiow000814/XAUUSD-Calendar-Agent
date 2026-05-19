@@ -1,10 +1,11 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
 import { MarketAgentPage } from "../components/MarketAgentPage";
 import type {
   MarketAgentDriverAttentionResponse,
   MarketAgentEvidenceForRunResponse,
+  MarketAgentProviderConfigResponse,
   MarketAgentProviderHealthResponse,
   MarketAgentReplayResponse,
   MarketAgentSnapshotResponse
@@ -58,6 +59,50 @@ const providerHealth: MarketAgentProviderHealthResponse = {
       stale_reason: "No reliable free 2Y source configured."
     }
   ]
+};
+
+const localCsvProviderHealth: MarketAgentProviderHealthResponse = {
+  ok: true,
+  available: true,
+  monitor_run_id: 24,
+  items: [
+    {
+      provider_key: "xauusd",
+      source: "Local CSV",
+      source_type: "LOCAL_CSV_FALLBACK",
+      data_mode: "LOCAL_CSV_FALLBACK",
+      is_available: true,
+      is_stale: false,
+      data_timestamp: "2026-05-19T08:00:00+08:00",
+      fetched_at: "2026-05-19T08:05:00+08:00"
+    }
+  ]
+};
+
+const providerConfig: MarketAgentProviderConfigResponse = {
+  ok: true,
+  available: true,
+  ctrader: {
+    enabled: false,
+    environment: "demo",
+    symbol: "XAUUSD",
+    symbolId: null,
+    accountId: "",
+    clientIdMasked: "cl******id",
+    clientSecretMasked: "cl********et",
+    accessTokenMasked: "",
+    refreshTokenMasked: "",
+    hasAccessToken: false,
+    hasRefreshToken: false,
+    appRedirectUri: "",
+    tokenStorePath: "user-data/ctrader-token.json",
+    snapshotPath: "user-data/ctrader-last-quote.json",
+    quoteTimeoutSeconds: 8,
+    quoteStaleAfterSeconds: 15,
+    allowSavedSnapshotFallback: true,
+    bridgePythonExecutable: "python",
+    configPath: "user-data/ctrader-openapi.json"
+  }
 };
 
 const driverAttention: MarketAgentDriverAttentionResponse = {
@@ -149,12 +194,14 @@ const evidence: MarketAgentEvidenceForRunResponse = {
 };
 
 describe("MarketAgentPage", () => {
-  it("renders overview, driver attention, provider health, replay, and evidence sections", () => {
+  it("renders a user-facing market agent page without primary raw enum labels", async () => {
     const selected: number[] = [];
+    const refreshToken = vi.fn().mockResolvedValue({ ok: true, message: "cTrader access token refreshed and saved." });
 
     render(
       <MarketAgentPage
         snapshot={snapshot}
+        providerConfig={providerConfig}
         providerHealth={providerHealth}
         driverAttention={driverAttention}
         replay={replay}
@@ -168,30 +215,99 @@ describe("MarketAgentPage", () => {
         onRangeEndChange={() => {}}
         onApplyRange={() => {}}
         onSelectRun={(id) => selected.push(id)}
+        onSaveProviderConfig={() => {}}
+        onClearProviderConfig={() => {}}
+        onTestCTraderConnection={async () => ({ ok: true })}
+        onResolveCTraderSymbol={async () => ({ ok: true })}
+        onGetCTraderQuoteTest={async () => ({ ok: true })}
+        onRefreshCTraderToken={refreshToken}
       />
     );
 
-    expect(screen.getByText(/bearish_gold/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/yields/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/oil_inflation/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/futures_proxy/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/unavailable/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/Price series/i)).toBeInTheDocument();
-    expect(screen.getByText(/Fed headline/i)).toBeInTheDocument();
-    expect(screen.getByText(/Fed speaker/i)).toBeInTheDocument();
-    expect(screen.getByText(/Suppressed duplicate/i)).toBeInTheDocument();
-    expect(screen.getByText(/allowed_candidate_drivers/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/fed_rates/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/No direct headline/i)).toBeInTheDocument();
+    expect(screen.getByText(/Gold is currently under yield\/USD pressure\./i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Main driver changed from DXY \/ USD to US yields\./i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Bearish gold/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/US yields/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Oil \/ inflation/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Futures proxy/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Not available/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText("futures_proxy")).not.toBeInTheDocument();
+    expect(screen.queryByText("core_structural")).not.toBeInTheDocument();
+    expect(screen.queryByText("main_driver usd -> yields")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Data Sources/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Test Connection/i })).toBeInTheDocument();
+    expect(screen.getByText(/Using Yahoo GC=F futures proxy, not true spot XAUUSD\./i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Active Drivers/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Watching \/ Emerging/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Background \/ Dormant/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /XAUUSD Price/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /US2Y/i })).toBeInTheDocument();
+    expect(screen.getByText(/No reliable free US2Y source is configured\./i)).toBeInTheDocument();
+    expect(screen.getByText(/Open full replay/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Fed headline/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Fed speaker/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Suppressed duplicate/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Allowed drivers/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Fed \/ rates/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/No direct headline/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Raw details/i)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /Yields pressure/i }));
+    fireEvent.click(screen.getAllByRole("button", { name: /Yields pressure/i })[0]);
     expect(selected).toEqual([23]);
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /Refresh Token/i }));
+    });
+    expect(refreshToken).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows a readable local CSV fallback warning", () => {
+    render(
+      <MarketAgentPage
+        snapshot={{
+          ...snapshot,
+          state: {
+            ...snapshot.state!,
+            current_bias: "neutral",
+            main_driver: "unknown",
+            cause_status: "NO_MEANINGFUL_CHANGE",
+            confidence: "low"
+          }
+        }}
+        providerConfig={providerConfig}
+        providerHealth={localCsvProviderHealth}
+        driverAttention={{ ok: true, available: true, states: [] }}
+        replay={replay}
+        selectedEvidence={{ ok: true, available: false, message: "No run selected.", payload: {} }}
+        selectedMonitorRunId={null}
+        rangePreset="1h"
+        rangeStartInput=""
+        rangeEndInput=""
+        onPresetChange={() => {}}
+        onRangeStartChange={() => {}}
+        onRangeEndChange={() => {}}
+        onApplyRange={() => {}}
+        onSelectRun={() => {}}
+        onSaveProviderConfig={() => {}}
+        onClearProviderConfig={() => {}}
+        onTestCTraderConnection={async () => ({ ok: true })}
+        onResolveCTraderSymbol={async () => ({ ok: true })}
+        onGetCTraderQuoteTest={async () => ({ ok: true })}
+        onRefreshCTraderToken={async () => ({ ok: true })}
+      />
+    );
+
+    expect(screen.getByText(/No meaningful XAUUSD move detected/i)).toBeInTheDocument();
+    expect(screen.getByText(/Using local CSV fallback\. Configure cTrader or Yahoo provider for live monitoring\./i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Local CSV fallback/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText("LOCAL_CSV_FALLBACK")).not.toBeInTheDocument();
   });
 
   it("shows useful empty states when sqlite-backed data is unavailable", () => {
     render(
       <MarketAgentPage
         snapshot={{ ok: true, available: false, message: "SQLite missing.", state: null, alerts: [] }}
+        providerConfig={{ ok: true, available: false, message: "Provider config unavailable.", ctrader: null }}
         providerHealth={{ ok: true, available: false, message: "Provider health unavailable.", items: [] }}
         driverAttention={{ ok: true, available: false, message: "Driver attention unavailable.", states: [] }}
         replay={{
@@ -220,10 +336,17 @@ describe("MarketAgentPage", () => {
         onRangeEndChange={() => {}}
         onApplyRange={() => {}}
         onSelectRun={() => {}}
+        onSaveProviderConfig={() => {}}
+        onClearProviderConfig={() => {}}
+        onTestCTraderConnection={async () => ({ ok: true })}
+        onResolveCTraderSymbol={async () => ({ ok: true })}
+        onGetCTraderQuoteTest={async () => ({ ok: true })}
+        onRefreshCTraderToken={async () => ({ ok: true })}
       />
     );
 
     expect(screen.getByText(/SQLite missing\./i)).toBeInTheDocument();
+    expect(screen.getByText(/Provider config unavailable\./i)).toBeInTheDocument();
     expect(screen.getByText(/Provider health unavailable\./i)).toBeInTheDocument();
     expect(screen.getByText(/Replay unavailable\./i)).toBeInTheDocument();
     expect(screen.getByText(/Evidence unavailable\./i)).toBeInTheDocument();

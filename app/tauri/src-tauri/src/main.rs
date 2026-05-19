@@ -108,10 +108,17 @@ fn main() {
             commands::market_agent::get_market_agent_replay,
             commands::market_agent::get_market_agent_timeline,
             commands::market_agent::get_market_agent_provider_health,
+            commands::market_agent::get_market_agent_provider_config,
             commands::market_agent::get_market_agent_driver_attention,
             commands::market_agent::get_market_agent_evidence_for_run,
             commands::market_agent::get_market_agent_state_transitions,
-            commands::market_agent::get_market_agent_suppressed_alerts
+            commands::market_agent::get_market_agent_suppressed_alerts,
+            commands::market_agent::save_market_agent_provider_config,
+            commands::market_agent::test_ctrader_connection,
+            commands::market_agent::resolve_ctrader_symbol,
+            commands::market_agent::get_ctrader_quote_test,
+            commands::market_agent::refresh_ctrader_token,
+            commands::market_agent::clear_ctrader_config
         ])
         .setup(|app| {
             let _ = config::maybe_seed_data_from_install();

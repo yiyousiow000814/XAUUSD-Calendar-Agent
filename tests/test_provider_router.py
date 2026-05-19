@@ -4,6 +4,7 @@ from pathlib import Path
 
 from src.xauusd_market_agent.config import MarketAgentConfig
 from src.xauusd_market_agent.live_pipeline import build_live_evidence_packet, run_monitored_live_once
+from src.xauusd_market_agent.providers.ctrader_provider import CTraderProvider
 from src.xauusd_market_agent.providers.provider_router import ProviderRouter
 from src.xauusd_market_agent.timeline_store import TimelineStore
 
@@ -235,6 +236,157 @@ def test_ctrader_disabled_build_falls_through_to_yahoo_proxy(monkeypatch, tmp_pa
     assert rows
     assert health.source_type == "futures_proxy"
     assert health.data_mode == "proxy"
+
+
+class StubCTraderProvider:
+    def __init__(self, *, rows, health, backfill_rows=None, backfill_health=None):
+        self.rows = rows
+        self.health = health
+        self.backfill_rows = backfill_rows if backfill_rows is not None else rows
+        self.backfill_health = backfill_health if backfill_health is not None else health
+
+    def fetch_latest(self, anchor_time):
+        return self.rows, self.health
+
+    def backfill(self, start, end):
+        return self.backfill_rows, self.backfill_health
+
+
+def test_fresh_ctrader_spot_wins_over_yahoo_proxy(tmp_path) -> None:
+    fixture_dir = Path(__file__).parent / "fixtures" / "providers"
+    health_builder = __import__("src.xauusd_market_agent.provider_health", fromlist=["build_provider_health"]).build_provider_health
+    ctrader = StubCTraderProvider(
+        rows=[
+            {
+                "symbol": "XAUUSD",
+                "data_timestamp": "2026-05-19T07:20:00+08:00",
+                "open": 4500.0,
+                "high": 4503.0,
+                "low": 4498.0,
+                "close": 4501.0,
+                "bid": 4500.9,
+                "ask": 4501.1,
+                "source": "cTrader OpenAPI",
+                "source_type": "spot",
+                "data_mode": "live_seen",
+                "is_stale": False,
+                "stale_reason": "",
+            }
+        ],
+        health=health_builder(
+            source="cTrader",
+            source_type="spot",
+            data_mode="live_seen",
+            is_available=True,
+            is_stale=False,
+            current_value=4501.0,
+            data_timestamp="2026-05-19T07:20:00+08:00",
+        ),
+    )
+    router = ProviderRouter(
+        yahoo_enabled=True,
+        yahoo_fixture_dir=fixture_dir,
+        csv_fallback_enabled=False,
+        ctrader_provider=ctrader,
+    )
+
+    rows, health = router.fetch_market_context(datetime.fromisoformat("2026-05-19T07:20:00+08:00"))
+
+    assert rows[-1]["source_type"] == "spot"
+    assert health.source_type == "spot"
+    assert router.last_market_provider_meta["selected_market_provider"] == "ctrader_spot"
+    assert router.last_market_provider_meta["provider_chain_status"][0]["provider"] == "ctrader_spot"
+
+
+def test_stale_ctrader_falls_through_to_yahoo_proxy_with_chain_status(tmp_path) -> None:
+    fixture_dir = Path(__file__).parent / "fixtures" / "providers"
+    health_builder = __import__("src.xauusd_market_agent.provider_health", fromlist=["build_provider_health"]).build_provider_health
+    ctrader = StubCTraderProvider(
+        rows=[
+            {
+                "symbol": "XAUUSD",
+                "data_timestamp": "2026-05-19T07:00:00+08:00",
+                "open": 4500.0,
+                "high": 4501.0,
+                "low": 4499.0,
+                "close": 4500.5,
+                "source": "cTrader saved snapshot",
+                "source_type": "spot_snapshot",
+                "data_mode": "stale",
+                "is_stale": True,
+                "stale_reason": "Snapshot stale.",
+            }
+        ],
+        health=health_builder(
+            source="cTrader",
+            source_type="spot_snapshot",
+            data_mode="stale",
+            is_available=True,
+            is_stale=True,
+            stale_reason="Snapshot stale.",
+            current_value=4500.5,
+            data_timestamp="2026-05-19T07:00:00+08:00",
+        ),
+    )
+    router = ProviderRouter(
+        yahoo_enabled=True,
+        yahoo_fixture_dir=fixture_dir,
+        csv_fallback_enabled=False,
+        ctrader_provider=ctrader,
+    )
+
+    rows, health = router.fetch_market_context(datetime.fromisoformat("2026-05-19T07:20:00+08:00"))
+
+    assert rows
+    assert health.source_type == "futures_proxy"
+    assert router.last_market_provider_meta["selected_market_provider"] == "yahoo_gc_f_proxy"
+    assert router.last_market_provider_meta["fallback_reason"]
+    assert router.last_market_provider_meta["provider_chain_status"][0]["provider"] == "ctrader_spot"
+    assert router.last_market_provider_meta["provider_chain_status"][0]["data_mode"] == "stale"
+
+
+def test_provider_chain_status_persists_into_evidence_packet(tmp_path) -> None:
+    fixture_dir = Path(__file__).parent / "fixtures" / "providers"
+    health_builder = __import__("src.xauusd_market_agent.provider_health", fromlist=["build_provider_health"]).build_provider_health
+    ctrader = StubCTraderProvider(
+        rows=[],
+        health=health_builder(
+            source="cTrader",
+            source_type="spot",
+            data_mode="unavailable",
+            is_available=False,
+            is_stale=False,
+            error="auth_failed",
+            stale_reason="auth_failed",
+            data_timestamp="2026-05-19T07:20:00+08:00",
+        ),
+    )
+    cfg = MarketAgentConfig(
+        repo_root=tmp_path,
+        price_data_path=tmp_path / "missing.csv",
+        calendar_dir=tmp_path / "calendar",
+        timeline_store_path=tmp_path / "timeline.sqlite",
+        yahoo_enabled=True,
+        yahoo_fixture_dir=fixture_dir,
+        csv_fallback_enabled=False,
+    )
+    router = ProviderRouter(
+        yahoo_enabled=True,
+        yahoo_fixture_dir=fixture_dir,
+        csv_fallback_enabled=False,
+        ctrader_provider=ctrader,
+    )
+
+    packet = build_live_evidence_packet(
+        cfg,
+        anchor_time=datetime.fromisoformat("2026-05-19T07:20:00+08:00"),
+        provider_router=router,
+    )
+
+    assert packet["selected_market_provider"] == "yahoo_gc_f_proxy"
+    assert packet["provider_chain_status"][0]["provider"] == "ctrader_spot"
+    assert packet["provider_chain_status"][0]["error"] == "auth_failed"
+    assert packet["fallback_reason"]
 
 
 def test_filtered_low_signal_headline_does_not_become_confirmed_cause(tmp_path) -> None:

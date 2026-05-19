@@ -327,6 +327,66 @@ export type MarketAgentProviderHealthResponse = {
   items: MarketAgentProviderHealthEntry[];
 };
 
+export type MarketAgentProviderConfig = {
+  enabled: boolean;
+  environment: string;
+  symbol: string;
+  symbolId?: number | null;
+  accountId: string;
+  clientIdMasked: string;
+  clientSecretMasked: string;
+  accessTokenMasked: string;
+  refreshTokenMasked: string;
+  hasAccessToken: boolean;
+  hasRefreshToken: boolean;
+  appRedirectUri?: string;
+  tokenStorePath: string;
+  snapshotPath: string;
+  quoteTimeoutSeconds: number;
+  quoteStaleAfterSeconds: number;
+  allowSavedSnapshotFallback: boolean;
+  bridgePythonExecutable: string;
+  configPath: string;
+};
+
+export type MarketAgentProviderConfigResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  ctrader?: MarketAgentProviderConfig | null;
+};
+
+export type MarketAgentProviderConfigInput = {
+  enabled: boolean;
+  environment: string;
+  clientId: string;
+  clientSecret: string;
+  accessToken: string;
+  refreshToken: string;
+  accountId: string;
+  symbol: string;
+  symbolId?: number | null;
+  appRedirectUri?: string;
+  tokenStorePath?: string;
+  snapshotPath?: string;
+  quoteTimeoutSeconds: number;
+  quoteStaleAfterSeconds: number;
+  allowSavedSnapshotFallback: boolean;
+  bridgePythonExecutable?: string;
+};
+
+export type MarketAgentProviderActionResponse = {
+  ok: boolean;
+  message?: string;
+  error?: string;
+  provider_health?: Record<string, unknown> | null;
+  quote?: Record<string, unknown> | null;
+  symbol?: Record<string, unknown> | null;
+  account?: Record<string, unknown> | null;
+  ctrader?: MarketAgentProviderConfig | null;
+  tokenStorePath?: string;
+};
+
 export type MarketAgentDriverAttentionResponse = {
   ok: boolean;
   available: boolean;

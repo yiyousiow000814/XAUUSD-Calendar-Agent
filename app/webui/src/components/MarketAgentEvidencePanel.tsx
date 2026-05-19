@@ -1,5 +1,9 @@
 import type { MarketAgentEvidenceForRunResponse } from "../types";
 import { MarketAgentStatusBadge } from "./MarketAgentStatusBadge";
+import {
+  formatDriverLabel,
+  humanizeMarketAgentValue
+} from "../utils/marketAgentUi";
 import "./MarketAgentEvidencePanel.css";
 
 type MarketAgentEvidencePanelProps = {
@@ -7,9 +11,9 @@ type MarketAgentEvidencePanelProps = {
 };
 
 const formatValue = (value: unknown, fallback = "--") => {
-  if (typeof value === "string" && value.trim()) return value;
+  if (typeof value === "string" && value.trim()) return humanizeMarketAgentValue(value, fallback);
   if (typeof value === "number") return String(value);
-  if (typeof value === "boolean") return value ? "true" : "false";
+  if (typeof value === "boolean") return value ? "Yes" : "No";
   return fallback;
 };
 
@@ -19,7 +23,7 @@ const renderScalarMap = (value: Record<string, unknown> | null | undefined, empt
   }
   return Object.entries(value).map(([key, item]) => (
     <div key={key} className="market-agent-evidence-row">
-      <span className="market-agent-overview-label">{key}</span>
+      <span className="market-agent-overview-label">{formatDriverLabel(key, humanizeMarketAgentValue(key))}</span>
       <div className="market-agent-evidence-value">{formatValue(item)}</div>
     </div>
   ));
@@ -27,12 +31,12 @@ const renderScalarMap = (value: Record<string, unknown> | null | undefined, empt
 
 const renderValueList = (label: string, values: unknown[] | null | undefined, emptyLabel: string) => (
   <div className="market-agent-evidence-row">
-    <span className="market-agent-overview-label">{label}</span>
+    <span className="market-agent-overview-label">{humanizeMarketAgentValue(label)}</span>
     <div className="market-agent-evidence-value">
       {values && values.length > 0 ? (
         <div className="market-agent-overview-badges">
           {values.map((value, index) => (
-            <MarketAgentStatusBadge key={`${label}-${index}`} label={formatValue(value)} tone="info" />
+            <MarketAgentStatusBadge key={`${label}-${index}`} label={formatDriverLabel(value)} tone="info" />
           ))}
         </div>
       ) : (
@@ -71,7 +75,7 @@ export function MarketAgentEvidencePanel({ data }: MarketAgentEvidencePanelProps
         <div className="market-agent-evidence-grid">
           <div className="market-agent-evidence-section">
             <h3>Evidence packet</h3>
-            {renderValueList("allowed_candidate_drivers", allowedDrivers, "No allowed drivers passed this run.")}
+            {renderValueList("Allowed drivers", allowedDrivers, "No allowed drivers passed this run.")}
             {renderScalarMap(blockedDrivers, "No blocked drivers recorded.")}
             {renderScalarMap(evidenceStatus, "No evidence status recorded.")}
             {renderScalarMap(crossAssetConfirmation, "No cross-asset confirmation recorded.")}
@@ -108,7 +112,7 @@ export function MarketAgentEvidencePanel({ data }: MarketAgentEvidencePanelProps
             ) : (
               driverStates.map((item, index) => (
                 <div key={`driver-state-${index}`} className="market-agent-evidence-row">
-                  <span className="market-agent-overview-label">{formatValue(item.driver_id, `driver ${index + 1}`)}</span>
+                  <span className="market-agent-overview-label">{formatDriverLabel(item.driver_id ?? `driver ${index + 1}`)}</span>
                   <div className="market-agent-evidence-value">
                     <div>{formatValue(item.activation_reason, formatValue(item.deactivation_reason, "No state-change note"))}</div>
                     <div className="market-agent-overview-badges">
@@ -121,6 +125,10 @@ export function MarketAgentEvidencePanel({ data }: MarketAgentEvidencePanelProps
               ))
             )}
           </div>
+          <details className="market-agent-evidence-raw">
+            <summary>Raw details</summary>
+            <pre>{JSON.stringify(payload, null, 2)}</pre>
+          </details>
         </div>
       )}
     </section>

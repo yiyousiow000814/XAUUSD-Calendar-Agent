@@ -24,6 +24,9 @@ import "./App.css";
 import type {
   MarketAgentDriverAttentionResponse,
   MarketAgentEvidenceForRunResponse,
+  MarketAgentProviderActionResponse,
+  MarketAgentProviderConfigInput,
+  MarketAgentProviderConfigResponse,
   MarketAgentProviderHealthResponse,
   MarketAgentReplayResponse,
   MarketAgentSnapshotResponse
@@ -292,6 +295,7 @@ export default function App() {
   const [mainView, setMainView] = useState<MainView>("calendar");
   const [marketAgentReplay, setMarketAgentReplay] = useState<MarketAgentReplayResponse | null>(null);
   const [marketAgentProviderHealth, setMarketAgentProviderHealth] = useState<MarketAgentProviderHealthResponse | null>(null);
+  const [marketAgentProviderConfig, setMarketAgentProviderConfig] = useState<MarketAgentProviderConfigResponse | null>(null);
   const [marketAgentDriverAttention, setMarketAgentDriverAttention] = useState<MarketAgentDriverAttentionResponse | null>(null);
   const [marketAgentEvidence, setMarketAgentEvidence] = useState<MarketAgentEvidenceForRunResponse | null>(null);
   const [marketAgentSelectedRunId, setMarketAgentSelectedRunId] = useState<number | null>(null);
@@ -457,6 +461,26 @@ export default function App() {
     }
   }, [withTimeout]);
 
+  const refreshMarketAgentProviderConfig = useCallback(async () => {
+    try {
+      const next = await withTimeout(
+        backend.getMarketAgentProviderConfig(),
+        8000,
+        "backend.getMarketAgentProviderConfig()"
+      );
+      setMarketAgentProviderConfig(next);
+      return next;
+    } catch {
+      setMarketAgentProviderConfig({
+        ok: false,
+        available: false,
+        message: "Unable to load provider configuration.",
+        ctrader: null
+      });
+      return null;
+    }
+  }, [withTimeout]);
+
   const refreshMarketAgentDriverAttention = useCallback(async () => {
     try {
       const next = await withTimeout(
@@ -508,11 +532,12 @@ export default function App() {
 
   const refreshMarketAgentWorkspace = useCallback(
     async (start: string, end: string) => {
-      const [snapshotResult, providerResult, driverResult, replayResult] = await Promise.all([
+      const [snapshotResult, providerResult, driverResult, replayResult, providerConfigResult] = await Promise.all([
         refreshMarketAgentSnapshot(),
         refreshMarketAgentProviderHealth(),
         refreshMarketAgentDriverAttention(),
-        refreshMarketAgentReplay(start, end)
+        refreshMarketAgentReplay(start, end),
+        refreshMarketAgentProviderConfig()
       ]);
       const preferredRunId =
         replayResult?.replay.timeline_events[0]?.monitor_run_id ??
@@ -526,15 +551,42 @@ export default function App() {
         setMarketAgentEvidence(null);
         setMarketAgentSelectedRunId(null);
       }
-      return { snapshotResult, providerResult, driverResult, replayResult };
+      return { snapshotResult, providerResult, driverResult, replayResult, providerConfigResult };
     },
     [
       refreshMarketAgentDriverAttention,
       refreshMarketAgentEvidence,
+      refreshMarketAgentProviderConfig,
       refreshMarketAgentProviderHealth,
       refreshMarketAgentReplay,
       refreshMarketAgentSnapshot
     ]
+  );
+
+  const saveMarketAgentProviderConfig = useCallback(
+    async (ctrader: MarketAgentProviderConfigInput) => {
+      const next = await withTimeout(
+        backend.saveMarketAgentProviderConfig(ctrader),
+        10000,
+        "backend.saveMarketAgentProviderConfig()"
+      );
+      setMarketAgentProviderConfig(next);
+      await refreshMarketAgentProviderHealth();
+      return next;
+    },
+    [refreshMarketAgentProviderHealth, withTimeout]
+  );
+
+  const runMarketAgentProviderAction = useCallback(
+    async (
+      action: (ctrader: MarketAgentProviderConfigInput) => Promise<MarketAgentProviderActionResponse>,
+      ctrader: MarketAgentProviderConfigInput
+    ) => {
+      const result = await withTimeout(action(ctrader), 12000, "market-agent-provider-action");
+      await refreshMarketAgentProviderHealth();
+      return result;
+    },
+    [refreshMarketAgentProviderHealth, withTimeout]
   );
 
   const refresh = async (): Promise<Snapshot | null> => {
@@ -3591,10 +3643,11 @@ export default function App() {
         onOpenMarketAgent={openMarketAgentView}
       />
 
-      <main className="main">
+      <main className={`main${mainView === "market-agent" ? " main-market-agent" : ""}`}>
         {mainView === "market-agent" ? (
           <MarketAgentPage
             snapshot={marketAgentSnapshot}
+            providerConfig={marketAgentProviderConfig}
             providerHealth={marketAgentProviderHealth}
             driverAttention={marketAgentDriverAttention}
             replay={marketAgentReplay}
@@ -3610,6 +3663,23 @@ export default function App() {
             onSelectRun={(monitorRunId) => {
               void refreshMarketAgentEvidence(monitorRunId);
             }}
+            onSaveProviderConfig={(ctrader) => void saveMarketAgentProviderConfig(ctrader)}
+            onClearProviderConfig={() => void backend.clearCTraderConfig().then(setMarketAgentProviderConfig)}
+            onTestCTraderConnection={(ctrader) =>
+              runMarketAgentProviderAction(backend.testCTraderConnection, ctrader)
+            }
+            onResolveCTraderSymbol={(ctrader) =>
+              runMarketAgentProviderAction(backend.resolveCTraderSymbol, ctrader)
+            }
+            onGetCTraderQuoteTest={(ctrader) =>
+              runMarketAgentProviderAction(backend.getCTraderQuoteTest, ctrader)
+            }
+            onRefreshCTraderToken={(ctrader) =>
+              runMarketAgentProviderAction(backend.refreshCTraderToken, ctrader).then(async (result) => {
+                await refreshMarketAgentProviderConfig();
+                return result;
+              })
+            }
           />
         ) : (
           <div

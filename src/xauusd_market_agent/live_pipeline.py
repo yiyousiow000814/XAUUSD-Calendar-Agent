@@ -217,6 +217,9 @@ def _build_runtime_context(
             "news": news_health,
             "calendar": calendar_health,
         },
+        "selected_market_provider": router.last_market_provider_meta.get("selected_market_provider", "unavailable"),
+        "provider_chain_status": router.last_market_provider_meta.get("provider_chain_status", []),
+        "fallback_reason": router.last_market_provider_meta.get("fallback_reason", ""),
         "market_price_bars": market_rows,
         "related_asset_bars": related_rows,
         "news_rows": news_rows,
@@ -268,6 +271,9 @@ def _run_recovery_backfill(
     return {
         "fixture": fixture,
         "provider_health": recovery.provider_health,
+        "selected_market_provider": router.last_market_provider_meta.get("selected_market_provider", "unavailable"),
+        "provider_chain_status": router.last_market_provider_meta.get("provider_chain_status", []),
+        "fallback_reason": router.last_market_provider_meta.get("fallback_reason", ""),
         "market_price_bars": recovery.market_price_bars,
         "related_asset_bars": recovery.related_asset_bars,
         "news_rows": recovery.news_rows,
@@ -298,6 +304,9 @@ def _build_packet(
     attention_snapshot: Any,
     previous_state: Any,
     data_mode: str,
+    selected_market_provider: str = "unavailable",
+    provider_chain_status: list[dict[str, Any]] | None = None,
+    fallback_reason: str = "",
 ) -> dict[str, Any]:
     evidence = build_evidence_gate_result(
         fixture,
@@ -317,6 +326,9 @@ def _build_packet(
             "provider_data_mode": provider_health["xauusd"].data_mode if "xauusd" in provider_health else "",
         },
         "provider_health": health_to_dict(provider_health),
+        "selected_market_provider": selected_market_provider,
+        "provider_chain_status": provider_chain_status or [],
+        "fallback_reason": fallback_reason,
         "active_driver_states": attention_snapshot.active_driver_states,
         "dormant_driver_states": attention_snapshot.dormant_driver_states,
         "driver_attention_summary": attention_snapshot.driver_attention_summary,
@@ -375,6 +387,9 @@ def build_live_evidence_packet(
         attention_snapshot=attention_snapshot,
         previous_state=previous_state,
         data_mode=provider_health["xauusd"].data_mode if "xauusd" in provider_health else data_mode,
+        selected_market_provider=context.get("selected_market_provider", "unavailable"),
+        provider_chain_status=context.get("provider_chain_status", []),
+        fallback_reason=context.get("fallback_reason", ""),
     )
 
 
@@ -523,6 +538,9 @@ def run_monitored_live_once(
         attention_snapshot=attention_snapshot,
         previous_state=previous_state,
         data_mode=data_mode,
+        selected_market_provider=runtime_context.get("selected_market_provider", "unavailable"),
+        provider_chain_status=runtime_context.get("provider_chain_status", []),
+        fallback_reason=runtime_context.get("fallback_reason", ""),
     )
     monitor_run_id = timeline_store.record_monitor_run(
         run_started_at=anchor.isoformat(),

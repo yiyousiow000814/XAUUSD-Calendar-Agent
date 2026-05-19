@@ -1,4 +1,5 @@
 import "./MarketAgentStatusBadge.css";
+import { badgeToneForValue, humanizeMarketAgentValue } from "../utils/marketAgentUi";
 
 type MarketAgentStatusBadgeProps = {
   label: string;
@@ -8,11 +9,7 @@ type MarketAgentStatusBadgeProps = {
 
 const normalizeTone = (label: string, tone?: MarketAgentStatusBadgeProps["tone"]) => {
   if (tone) return tone;
-  const normalized = label.trim().toLowerCase();
-  if (["live", "confirmed", "active", "available"].includes(normalized)) return "good";
-  if (["backfilled", "proxy", "watching", "emerging", "possible", "likely", "cooling", "suppressed"].includes(normalized)) return "warn";
-  if (["stale", "unavailable", "retired", "unknown", "unconfirmed", "blocked", "disabled"].includes(normalized)) return "bad";
-  return "neutral";
+  return badgeToneForValue(label);
 };
 
 export function MarketAgentStatusBadge({
@@ -23,8 +20,9 @@ export function MarketAgentStatusBadge({
   return (
     <span
       className={`market-agent-status-badge tone-${normalizeTone(label, tone)} ${className}`.trim()}
+      title={label}
     >
-      {label}
+      {humanizeMarketAgentValue(label)}
     </span>
   );
 }

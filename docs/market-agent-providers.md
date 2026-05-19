@@ -6,8 +6,9 @@ Market Agent is designed around provider interfaces. Manual local CSV files are 
 
 Normal priority:
 
-1. cTrader spot provider, only when a real implementation and credentials are available
-2. Yahoo chart provider for proxy data
+1. cTrader Open API spot provider for true XAUUSD price, when configured
+2. cTrader M1 trendbars for recovery and backfill, when configured
+3. Yahoo chart provider for proxy data
 3. optional fallback providers
 4. local CSV fallback only when explicitly enabled
 
@@ -17,13 +18,60 @@ If no provider is available, the system must not crash. It should surface provid
 
 ### XAUUSD
 
-- cTrader live quote fetching is currently disabled unless implemented explicitly in code.
-- Yahoo `GC=F` is the current proxy path.
+- cTrader is now the preferred provider path when `clientId`, `clientSecret`, `accessToken`, and `accountId` are configured.
+- cTrader uses Open API client credentials plus account token auth. It does not use a password.
+- The provider writes quote snapshots under user-data and can reuse them only as an explicit stale fallback.
+- If cTrader spot or cTrader historical trendbars fail, ProviderRouter falls back to Yahoo `GC=F`.
+- Yahoo `GC=F` remains the proxy path when cTrader is unavailable.
 - When Yahoo is used, the system must label it as:
   - `source_type=futures_proxy`
   - `data_mode=proxy`
 
 Do not treat `GC=F` as true XAUUSD spot.
+
+### cTrader auth and storage
+
+Supported config fields:
+
+- `CTRADER_CLIENT_ID`
+- `CTRADER_CLIENT_SECRET`
+- `CTRADER_ACCESS_TOKEN`
+- `CTRADER_REFRESH_TOKEN`
+- `CTRADER_ACCOUNT_ID`
+- `CTRADER_ENVIRONMENT=demo|live`
+- `CTRADER_SYMBOL`
+- `CTRADER_APP_REDIRECT_URI`
+- `CTRADER_CONFIG_PATH`
+- `CTRADER_TOKEN_STORE_PATH`
+- `CTRADER_SNAPSHOT_PATH`
+
+The app stores cTrader config under user-data:
+
+- `ctrader-openapi.json`
+- `ctrader-token.json`
+- `ctrader-last-quote.json`
+
+Important rules:
+
+- do not store or request a cTrader password
+- do not commit tokens or client secrets
+- UI responses must show masked values only
+- if access token auth fails and a refresh token exists, the bridge attempts token refresh
+- the desktop `Refresh Token` action updates the user-data token store and only returns masked config back to UI
+- if refresh fails, provider health must show the auth failure honestly
+
+### cTrader bridge model
+
+The desktop and Python provider use a short-lived bridge process:
+
+1. application auth
+2. account list lookup by access token
+3. account auth
+4. symbol resolution
+5. quote subscribe or trendbar request
+6. JSON response back to the caller
+
+This keeps the monitor loop synchronous while still using the official cTrader Open API SDK.
 
 ### Related assets
 
@@ -74,6 +122,18 @@ If no calendar source is configured, provider health should show unavailable rat
 ## Environment variables
 
 ```powershell
+$env:CTRADER_CLIENT_ID = ""
+$env:CTRADER_CLIENT_SECRET = ""
+$env:CTRADER_ACCESS_TOKEN = ""
+$env:CTRADER_REFRESH_TOKEN = ""
+$env:CTRADER_ACCOUNT_ID = ""
+$env:CTRADER_ENVIRONMENT = "demo"
+$env:CTRADER_SYMBOL = "XAUUSD"
+$env:CTRADER_APP_REDIRECT_URI = "http://localhost"
+$env:CTRADER_CONFIG_PATH = "user-data/ctrader-openapi.json"
+$env:CTRADER_TOKEN_STORE_PATH = "user-data/ctrader-token.json"
+$env:CTRADER_SNAPSHOT_PATH = "user-data/ctrader-last-quote.json"
+$env:CTRADER_BRIDGE_PYTHON = "python"
 $env:MARKET_AGENT_YAHOO_ENABLED = "true"
 $env:MARKET_AGENT_YAHOO_FIXTURE_DIR = "tests/fixtures/providers"
 $env:MARKET_AGENT_CSV_FALLBACK_ENABLED = "false"
@@ -82,7 +142,7 @@ $env:NEWS_RSS_FEEDS = "https://www.federalreserve.gov/feeds/press_all.xml,https:
 $env:MARKET_AGENT_TIMELINE_STORE_PATH = "user-data/market_agent_timeline.sqlite"
 $env:MARKET_AGENT_STATE_STORE_PATH = "user-data/market_agent_state.json"
 $env:MARKET_AGENT_ALERTS_OUTPUT_PATH = "user-data/market_agent_alerts.ndjson"
-$env:MARKET_AGENT_CTRADER_SAVED_SNAPSHOT_PATH = "user-data/ctrader_snapshot.json"
+$env:MARKET_AGENT_CTRADER_SAVED_SNAPSHOT_PATH = "user-data/ctrader-last-quote.json"
 ```
 
 ## Windows monitor commands
@@ -97,6 +157,19 @@ Run the monitoring loop:
 
 ```powershell
 python -m src.xauusd_market_agent.cli --monitor-loop --interval-seconds 60
+```
+
+Run a cTrader-backed pass with Yahoo fallback still enabled:
+
+```powershell
+$env:CTRADER_CLIENT_ID = "your-client-id"
+$env:CTRADER_CLIENT_SECRET = "your-client-secret"
+$env:CTRADER_ACCESS_TOKEN = "your-access-token"
+$env:CTRADER_REFRESH_TOKEN = "your-refresh-token"
+$env:CTRADER_ACCOUNT_ID = "123456"
+$env:CTRADER_ENVIRONMENT = "demo"
+$env:CTRADER_SYMBOL = "XAUUSD"
+python -m src.xauusd_market_agent.cli --monitor-once
 ```
 
 Replay a stored window:

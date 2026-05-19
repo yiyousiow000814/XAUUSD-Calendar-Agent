@@ -4,6 +4,13 @@
   gap: 14px;
   width: 100%;
   min-height: 0;
+  padding-right: 4px;
+  padding-bottom: 88px;
+  overflow-x: hidden;
+}
+
+.market-agent-page .market-agent-surface {
+  scroll-margin-top: 104px;
 }
 
 .market-agent-page-grid {

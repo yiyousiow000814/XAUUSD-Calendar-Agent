@@ -43,3 +43,27 @@
   background: rgba(18, 20, 26, 0.05);
   border-color: rgba(18, 20, 26, 0.1);
 }
+
+[data-theme="light"] .market-agent-status-badge.tone-good {
+  color: #116a3a;
+  background: rgba(216, 247, 229, 0.9);
+  border-color: rgba(48, 153, 91, 0.28);
+}
+
+[data-theme="light"] .market-agent-status-badge.tone-warn {
+  color: #8a5609;
+  background: rgba(255, 243, 216, 0.92);
+  border-color: rgba(194, 132, 24, 0.3);
+}
+
+[data-theme="light"] .market-agent-status-badge.tone-bad {
+  color: #9b2424;
+  background: rgba(255, 232, 232, 0.94);
+  border-color: rgba(197, 67, 67, 0.28);
+}
+
+[data-theme="light"] .market-agent-status-badge.tone-info {
+  color: #155684;
+  background: rgba(230, 244, 255, 0.95);
+  border-color: rgba(41, 111, 173, 0.3);
+}

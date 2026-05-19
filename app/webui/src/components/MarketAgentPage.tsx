@@ -1,10 +1,14 @@
 import type {
   MarketAgentDriverAttentionResponse,
   MarketAgentEvidenceForRunResponse,
+  MarketAgentProviderActionResponse,
+  MarketAgentProviderConfigInput,
+  MarketAgentProviderConfigResponse,
   MarketAgentProviderHealthResponse,
   MarketAgentReplayResponse,
   MarketAgentSnapshotResponse
 } from "../types";
+import { MarketAgentProviderConfig } from "./MarketAgentProviderConfig";
 import { MarketAgentDriverAttention } from "./MarketAgentDriverAttention";
 import { MarketAgentEvidencePanel } from "./MarketAgentEvidencePanel";
 import { MarketAgentOverview } from "./MarketAgentOverview";
@@ -14,6 +18,7 @@ import "./MarketAgentPage.css";
 
 type MarketAgentPageProps = {
   snapshot: MarketAgentSnapshotResponse | null;
+  providerConfig: MarketAgentProviderConfigResponse | null;
   providerHealth: MarketAgentProviderHealthResponse | null;
   driverAttention: MarketAgentDriverAttentionResponse | null;
   replay: MarketAgentReplayResponse | null;
@@ -27,6 +32,12 @@ type MarketAgentPageProps = {
   onRangeEndChange: (value: string) => void;
   onApplyRange: () => void;
   onSelectRun: (monitorRunId: number) => void;
+  onSaveProviderConfig: (ctrader: MarketAgentProviderConfigInput) => void;
+  onClearProviderConfig: () => void;
+  onTestCTraderConnection: (ctrader: MarketAgentProviderConfigInput) => Promise<MarketAgentProviderActionResponse>;
+  onResolveCTraderSymbol: (ctrader: MarketAgentProviderConfigInput) => Promise<MarketAgentProviderActionResponse>;
+  onGetCTraderQuoteTest: (ctrader: MarketAgentProviderConfigInput) => Promise<MarketAgentProviderActionResponse>;
+  onRefreshCTraderToken: (ctrader: MarketAgentProviderConfigInput) => Promise<MarketAgentProviderActionResponse>;
 };
 
 export function MarketAgentPage(props: MarketAgentPageProps) {
@@ -54,6 +65,16 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
       />
 
       <MarketAgentEvidencePanel data={props.selectedEvidence} />
+
+      <MarketAgentProviderConfig
+        data={props.providerConfig}
+        onSave={props.onSaveProviderConfig}
+        onClear={props.onClearProviderConfig}
+        onTestConnection={props.onTestCTraderConnection}
+        onResolveSymbol={props.onResolveCTraderSymbol}
+        onQuoteTest={props.onGetCTraderQuoteTest}
+        onRefreshToken={props.onRefreshCTraderToken}
+      />
     </div>
   );
 }

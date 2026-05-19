@@ -19,6 +19,7 @@ This view is not a trading-entry panel. It does not provide prediction, TP, or S
 1. Launch the desktop app.
 2. Use the top app bar button `Market Agent`.
 3. The Activity drawer card remains a compact preview only. Use `Open Market Agent` there to jump into the full page.
+4. Use `Data Sources` on the Market Agent page to configure cTrader and test provider health.
 
 ## What the page shows
 
@@ -73,10 +74,25 @@ The Provider Health table shows:
 
 Honest current status:
 
-- cTrader live quote fetching is currently disabled unless explicitly implemented later.
+- cTrader is the preferred true XAUUSD spot path when configured.
+- cTrader uses client id, client secret, access token, refresh token, account id, and environment. It does not use a password.
 - Yahoo `GC=F` is shown as `futures_proxy`.
+- cTrader snapshot fallback is labeled stale when it is used.
 - US2Y may remain unavailable if no reliable source is configured.
 - CSV is fallback and debug only, not the intended normal path.
+
+### Data Sources
+
+The `Data Sources` panel lets you:
+
+- save cTrader config into user-data
+- test cTrader connection
+- resolve the active XAUUSD symbol
+- request a live quote test
+- refresh the stored cTrader access token when a refresh token is available
+- clear the saved config
+
+Saved values remain masked in the UI. The frontend must not display raw secrets after persistence.
 
 ### Market Replay
 
@@ -96,6 +112,12 @@ The Market Replay area supports:
 - recovery and backfilled markers
 
 Clicking a timeline item, alert, or suppressed alert loads the evidence panel for that run.
+
+Replay keeps the source label honest:
+
+- cTrader rows remain `spot`
+- Yahoo rows remain `futures_proxy`
+- recovery rows remain `backfilled`
 
 ### Evidence Panel
 
@@ -121,6 +143,14 @@ The full Market Agent page reads from:
 
 If SQLite is missing or incomplete, the UI shows an empty-state message instead of crashing.
 
+The provider configuration panel reads and writes:
+
+- `ctrader-openapi.json`
+- `ctrader-token.json`
+- `ctrader-last-quote.json`
+
+under the app user-data directory.
+
 ## Related CLI commands
 
 Run once:
@@ -133,6 +163,18 @@ Run continuously:
 
 ```powershell
 python -m src.xauusd_market_agent.cli --monitor-loop --interval-seconds 60
+```
+
+Typical cTrader setup before running:
+
+```powershell
+$env:CTRADER_CLIENT_ID = "your-client-id"
+$env:CTRADER_CLIENT_SECRET = "your-client-secret"
+$env:CTRADER_ACCESS_TOKEN = "your-access-token"
+$env:CTRADER_REFRESH_TOKEN = "your-refresh-token"
+$env:CTRADER_ACCOUNT_ID = "123456"
+$env:CTRADER_ENVIRONMENT = "demo"
+$env:CTRADER_SYMBOL = "XAUUSD"
 ```
 
 Replay a time range:

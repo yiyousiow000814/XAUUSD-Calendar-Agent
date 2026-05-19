@@ -4,6 +4,9 @@ import type {
   EventImpactResponse,
   MarketAgentDriverAttentionResponse,
   MarketAgentEvidenceForRunResponse,
+  MarketAgentProviderActionResponse,
+  MarketAgentProviderConfigInput,
+  MarketAgentProviderConfigResponse,
   MarketAgentProviderHealthResponse,
   MarketAgentReplayResponse,
   MarketAgentSnapshotResponse,
@@ -40,10 +43,17 @@ type BackendApi = {
   get_market_agent_replay?: (payload: { start: string; end: string }) => ApiResult<MarketAgentReplayResponse>;
   get_market_agent_timeline?: (payload: { start: string; end: string }) => ApiResult<MarketAgentTimelineResponse>;
   get_market_agent_provider_health?: (_payload: Record<string, never>) => ApiResult<MarketAgentProviderHealthResponse>;
+  get_market_agent_provider_config?: (_payload: Record<string, never>) => ApiResult<MarketAgentProviderConfigResponse>;
   get_market_agent_driver_attention?: (_payload: Record<string, never>) => ApiResult<MarketAgentDriverAttentionResponse>;
   get_market_agent_evidence_for_run?: (payload: { monitorRunId: number }) => ApiResult<MarketAgentEvidenceForRunResponse>;
   get_market_agent_state_transitions?: (payload: { start: string; end: string }) => ApiResult<MarketAgentStateTransitionsResponse>;
   get_market_agent_suppressed_alerts?: (payload: { start: string; end: string }) => ApiResult<MarketAgentSuppressedAlertsResponse>;
+  save_market_agent_provider_config?: (payload: { ctrader: MarketAgentProviderConfigInput }) => ApiResult<MarketAgentProviderConfigResponse>;
+  test_ctrader_connection?: (payload: { ctrader: MarketAgentProviderConfigInput }) => ApiResult<MarketAgentProviderActionResponse>;
+  resolve_ctrader_symbol?: (payload: { ctrader: MarketAgentProviderConfigInput }) => ApiResult<MarketAgentProviderActionResponse>;
+  get_ctrader_quote_test?: (payload: { ctrader: MarketAgentProviderConfigInput }) => ApiResult<MarketAgentProviderActionResponse>;
+  refresh_ctrader_token?: (payload: { ctrader: MarketAgentProviderConfigInput }) => ApiResult<MarketAgentProviderActionResponse>;
+  clear_ctrader_config?: (_payload: Record<string, never>) => ApiResult<MarketAgentProviderConfigResponse>;
   get_settings: () => ApiResult<Settings>; 
   save_settings: (payload: Settings) => ApiResult<{ ok: boolean }>; 
   frontend_boot_complete?: () => ApiResult<{ ok: boolean }>; 
@@ -619,6 +629,40 @@ const buildMockMarketAgentProviderHealth = (): MarketAgentProviderHealthResponse
   ]
 });
 
+const buildMockMarketAgentProviderConfig = (): MarketAgentProviderConfigResponse => ({
+  ok: true,
+  available: true,
+  ctrader: {
+    enabled: false,
+    environment: "demo",
+    symbol: "XAUUSD",
+    symbolId: null,
+    accountId: "",
+    clientIdMasked: "",
+    clientSecretMasked: "",
+    accessTokenMasked: "",
+    refreshTokenMasked: "",
+    hasAccessToken: false,
+    hasRefreshToken: false,
+    appRedirectUri: "",
+    tokenStorePath: "user-data/ctrader-token.json",
+    snapshotPath: "user-data/ctrader-last-quote.json",
+    quoteTimeoutSeconds: 8,
+    quoteStaleAfterSeconds: 15,
+    allowSavedSnapshotFallback: true,
+    bridgePythonExecutable: "python",
+    configPath: "user-data/ctrader-openapi.json"
+  }
+});
+
+const buildMockMarketAgentProviderAction = (
+  overrides: Partial<MarketAgentProviderActionResponse> = {}
+): MarketAgentProviderActionResponse => ({
+  ok: true,
+  message: "Mocked cTrader action completed.",
+  ...overrides
+});
+
 const buildMockMarketAgentDriverAttention = (): MarketAgentDriverAttentionResponse => ({
   ok: true,
   available: true,
@@ -1166,6 +1210,19 @@ export const backend = {
     }
     return api.get_market_agent_provider_health({});
   },
+  getMarketAgentProviderConfig: async (): ApiResult<MarketAgentProviderConfigResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockMarketAgentProviderConfig());
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "get_market_agent_provider_config")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentProviderConfig());
+    }
+    return api.get_market_agent_provider_config({});
+  },
   getMarketAgentDriverAttention: async (): ApiResult<MarketAgentDriverAttentionResponse> => {
     if (isUiCheckRuntime()) {
       return Promise.resolve(buildMockMarketAgentDriverAttention());
@@ -1217,6 +1274,119 @@ export const backend = {
       return Promise.resolve(buildMockMarketAgentSuppressedAlerts());
     }
     return api.get_market_agent_suppressed_alerts({ start, end });
+  },
+  saveMarketAgentProviderConfig: async (ctrader: MarketAgentProviderConfigInput): ApiResult<MarketAgentProviderConfigResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockMarketAgentProviderConfig());
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "save_market_agent_provider_config")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentProviderConfig());
+    }
+    return api.save_market_agent_provider_config({ ctrader });
+  },
+  testCTraderConnection: async (ctrader: MarketAgentProviderConfigInput): ApiResult<MarketAgentProviderActionResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(
+        buildMockMarketAgentProviderAction({
+          account: { ctidTraderAccountId: 123456, isLive: false },
+          symbol: { symbolId: 777, symbolName: "XAUUSD", digits: 2, pipPosition: 1 }
+        })
+      );
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "test_ctrader_connection")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentProviderAction());
+    }
+    return api.test_ctrader_connection({ ctrader });
+  },
+  resolveCTraderSymbol: async (ctrader: MarketAgentProviderConfigInput): ApiResult<MarketAgentProviderActionResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(
+        buildMockMarketAgentProviderAction({
+          symbol: { symbolId: 777, symbolName: "XAUUSD", digits: 2, pipPosition: 1 }
+        })
+      );
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "resolve_ctrader_symbol")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentProviderAction());
+    }
+    return api.resolve_ctrader_symbol({ ctrader });
+  },
+  getCTraderQuoteTest: async (ctrader: MarketAgentProviderConfigInput): ApiResult<MarketAgentProviderActionResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(
+        buildMockMarketAgentProviderAction({
+          quote: {
+            symbol: "XAUUSD",
+            symbol_id: 777,
+            bid: 4512.34,
+            ask: 4512.72,
+            mid: 4512.53,
+            timestamp: "2026-05-19T10:15:23+08:00",
+            source: "cTrader OpenAPI",
+            source_type: "spot",
+            environment: "demo"
+          },
+          provider_health: {
+            source: "cTrader",
+            source_type: "spot",
+            data_mode: "live_seen",
+            is_available: true,
+            is_stale: false
+          }
+        })
+      );
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "get_ctrader_quote_test")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentProviderAction());
+    }
+    return api.get_ctrader_quote_test({ ctrader });
+  },
+  refreshCTraderToken: async (ctrader: MarketAgentProviderConfigInput): ApiResult<MarketAgentProviderActionResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(
+        buildMockMarketAgentProviderAction({
+          message: "cTrader access token refreshed and saved.",
+          ctrader: buildMockMarketAgentProviderConfig().ctrader ?? null
+        })
+      );
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "refresh_ctrader_token")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentProviderAction());
+    }
+    return api.refresh_ctrader_token({ ctrader });
+  },
+  clearCTraderConfig: async (): ApiResult<MarketAgentProviderConfigResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockMarketAgentProviderConfig());
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "clear_ctrader_config")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentProviderConfig());
+    }
+    return api.clear_ctrader_config({});
   },
   getUpdateState: async () => { 
     const api = await withApi(); 

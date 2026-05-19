@@ -101,6 +101,31 @@ vi.mock("../api", () => ({
         }
       ]
     }),
+    getMarketAgentProviderConfig: vi.fn().mockResolvedValue({
+      ok: true,
+      available: true,
+      ctrader: {
+        enabled: false,
+        environment: "demo",
+        symbol: "XAUUSD",
+        symbolId: null,
+        accountId: "",
+        clientIdMasked: "",
+        clientSecretMasked: "",
+        accessTokenMasked: "",
+        refreshTokenMasked: "",
+        hasAccessToken: false,
+        hasRefreshToken: false,
+        appRedirectUri: "",
+        tokenStorePath: "user-data/ctrader-token.json",
+        snapshotPath: "user-data/ctrader-last-quote.json",
+        quoteTimeoutSeconds: 8,
+        quoteStaleAfterSeconds: 15,
+        allowSavedSnapshotFallback: true,
+        bridgePythonExecutable: "python",
+        configPath: "user-data/ctrader-openapi.json"
+      }
+    }),
     getMarketAgentDriverAttention: vi.fn().mockResolvedValue({
       ok: true,
       available: true,
@@ -123,6 +148,12 @@ vi.mock("../api", () => ({
     getMarketAgentTimeline: vi.fn().mockResolvedValue({ ok: true, available: true, items: [] }),
     getMarketAgentStateTransitions: vi.fn().mockResolvedValue({ ok: true, available: true, items: [] }),
     getMarketAgentSuppressedAlerts: vi.fn().mockResolvedValue({ ok: true, available: true, items: [] }),
+    saveMarketAgentProviderConfig: vi.fn().mockResolvedValue({ ok: true, available: true, ctrader: null }),
+    testCTraderConnection: vi.fn().mockResolvedValue({ ok: true }),
+    resolveCTraderSymbol: vi.fn().mockResolvedValue({ ok: true }),
+    getCTraderQuoteTest: vi.fn().mockResolvedValue({ ok: true }),
+    refreshCTraderToken: vi.fn().mockResolvedValue({ ok: true, message: "cTrader access token refreshed and saved." }),
+    clearCTraderConfig: vi.fn().mockResolvedValue({ ok: true, available: true, ctrader: null }),
     setCurrency: vi.fn().mockResolvedValue({ ok: true }),
     frontendBootComplete: vi.fn().mockResolvedValue({ ok: true }),
     setUiState: vi.fn().mockResolvedValue({ ok: true }),
@@ -186,10 +217,11 @@ describe("Market Agent view switch", () => {
     fireEvent.click(screen.getByRole("button", { name: /Market Agent/i }));
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "Live Situation" })).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: "Driver Attention" })).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: "Provider Health" })).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: "Market Replay" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Current Situation" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Data Sources" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Active Attention" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Data Quality" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Recent Timeline" })).toBeInTheDocument();
     });
   });
 });

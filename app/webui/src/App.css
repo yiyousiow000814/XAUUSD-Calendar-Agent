@@ -20,6 +20,11 @@
   padding-bottom: 48px;
 }
 
+.main-market-agent {
+  margin-bottom: 74px;
+  padding-bottom: 0;
+}
+
 .split-view {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 30px minmax(0, 1fr);
@@ -571,4 +576,3 @@ html[data-theme="light"] .activity-hover-row.tone-error .activity-hover-level {
   stroke: rgba(30, 75, 143, 0.95);
   filter: drop-shadow(0 0 6px rgba(30, 75, 143, 0.22));
 }
-

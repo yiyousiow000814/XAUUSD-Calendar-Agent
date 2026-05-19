@@ -2,7 +2,9 @@ use crate::config;
 use rusqlite::{params, Connection, OptionalExtension};
 use serde_json::{json, Value};
 use std::fs;
+use std::io::Write;
 use std::path::{Path, PathBuf};
+use std::process::{Command, Stdio};
 
 type LatestMonitorRun = (i64, String, String);
 type LatestPayloadRows = (Option<i64>, Option<String>, Vec<Value>);
@@ -44,6 +46,344 @@ fn alerts_path_for_root(root: &Path) -> PathBuf {
 
 fn timeline_path_for_root(root: &Path) -> PathBuf {
     root.join("market_agent_timeline.sqlite")
+}
+
+fn ctrader_config_path_for_root(root: &Path) -> PathBuf {
+    root.join("ctrader-openapi.json")
+}
+
+fn ctrader_token_store_path_for_root(root: &Path) -> PathBuf {
+    root.join("ctrader-token.json")
+}
+
+fn read_json_object(path: &Path) -> serde_json::Map<String, Value> {
+    fs::read_to_string(path)
+        .ok()
+        .and_then(|text| serde_json::from_str::<Value>(&text).ok())
+        .and_then(|value| value.as_object().cloned())
+        .unwrap_or_default()
+}
+
+fn write_json_atomic(path: &Path, value: &Value) -> Result<(), String> {
+    if let Some(parent) = path.parent() {
+        fs::create_dir_all(parent).map_err(|err| err.to_string())?;
+    }
+    let temp = path.with_extension(format!("tmp-{}", std::process::id()));
+    let payload = serde_json::to_string_pretty(value).map_err(|err| err.to_string())?;
+    fs::write(&temp, payload).map_err(|err| err.to_string())?;
+    fs::rename(&temp, path).map_err(|err| err.to_string())?;
+    Ok(())
+}
+
+fn mask_secret(value: &str) -> String {
+    let trimmed = value.trim();
+    if trimmed.is_empty() {
+        return String::new();
+    }
+    if trimmed.len() <= 4 {
+        return "*".repeat(trimmed.len());
+    }
+    format!(
+        "{}{}{}",
+        &trimmed[..2],
+        "*".repeat(std::cmp::max(4, trimmed.len().saturating_sub(4))),
+        &trimmed[trimmed.len() - 2..]
+    )
+}
+
+fn merged_ctrader_provider_config(root: &Path, override_payload: Option<&Value>) -> Value {
+    let config_path = ctrader_config_path_for_root(root);
+    let config_payload = read_json_object(&config_path);
+    let token_store_path = override_payload
+        .and_then(|payload| payload.get("tokenStorePath"))
+        .and_then(Value::as_str)
+        .map(PathBuf::from)
+        .unwrap_or_else(|| {
+            config_payload
+                .get("tokenStorePath")
+                .and_then(Value::as_str)
+                .map(PathBuf::from)
+                .unwrap_or_else(|| ctrader_token_store_path_for_root(root))
+        });
+    let token_payload = read_json_object(&token_store_path);
+    let input = override_payload
+        .and_then(|payload| payload.get("ctrader"))
+        .or(override_payload)
+        .and_then(Value::as_object)
+        .cloned()
+        .unwrap_or_default();
+    let get_str = |key: &str| -> String {
+        input
+            .get(key)
+            .and_then(Value::as_str)
+            .or_else(|| config_payload.get(key).and_then(Value::as_str))
+            .or_else(|| token_payload.get(key).and_then(Value::as_str))
+            .unwrap_or("")
+            .trim()
+            .to_string()
+    };
+    let get_bool = |key: &str, fallback: bool| -> bool {
+        input
+            .get(key)
+            .and_then(Value::as_bool)
+            .or_else(|| config_payload.get(key).and_then(Value::as_bool))
+            .unwrap_or(fallback)
+    };
+    let get_i64 = |key: &str| -> Option<i64> {
+        input
+            .get(key)
+            .and_then(Value::as_i64)
+            .or_else(|| config_payload.get(key).and_then(Value::as_i64))
+    };
+    let environment = {
+        let env = get_str("environment");
+        if env.eq_ignore_ascii_case("live") {
+            "live".to_string()
+        } else {
+            "demo".to_string()
+        }
+    };
+    let symbol = {
+        let value = get_str("symbol");
+        if value.is_empty() {
+            "XAUUSD".to_string()
+        } else {
+            value
+        }
+    };
+    let snapshot_path = input
+        .get("snapshotPath")
+        .and_then(Value::as_str)
+        .or_else(|| config_payload.get("snapshotPath").and_then(Value::as_str))
+        .map(String::from)
+        .unwrap_or_else(|| root.join("ctrader-last-quote.json").display().to_string());
+    let bridge_python = {
+        let value = get_str("bridgePythonExecutable");
+        if value.is_empty() {
+            "python".to_string()
+        } else {
+            value
+        }
+    };
+    json!({
+        "enabled": get_bool("enabled", false),
+        "clientId": get_str("clientId"),
+        "clientSecret": get_str("clientSecret"),
+        "accessToken": get_str("accessToken"),
+        "refreshToken": get_str("refreshToken"),
+        "accountId": get_str("accountId"),
+        "environment": environment,
+        "symbol": symbol,
+        "symbolId": get_i64("symbolId"),
+        "appRedirectUri": get_str("appRedirectUri"),
+        "tokenStorePath": token_store_path.display().to_string(),
+        "snapshotPath": snapshot_path,
+        "quoteTimeoutSeconds": get_i64("quoteTimeoutSeconds").unwrap_or(8),
+        "quoteStaleAfterSeconds": get_i64("quoteStaleAfterSeconds").unwrap_or(15),
+        "allowSavedSnapshotFallback": get_bool("allowSavedSnapshotFallback", true),
+        "bridgePythonExecutable": bridge_python,
+        "configPath": config_path.display().to_string(),
+    })
+}
+
+fn masked_ctrader_provider_config(root: &Path) -> Value {
+    let merged = merged_ctrader_provider_config(root, None);
+    json!({
+        "ok": true,
+        "available": true,
+        "ctrader": {
+            "enabled": merged.get("enabled").and_then(Value::as_bool).unwrap_or(false),
+            "environment": merged.get("environment").and_then(Value::as_str).unwrap_or("demo"),
+            "symbol": merged.get("symbol").and_then(Value::as_str).unwrap_or("XAUUSD"),
+            "symbolId": merged.get("symbolId").cloned().unwrap_or(Value::Null),
+            "accountId": merged.get("accountId").and_then(Value::as_str).unwrap_or(""),
+            "clientIdMasked": mask_secret(merged.get("clientId").and_then(Value::as_str).unwrap_or("")),
+            "clientSecretMasked": mask_secret(merged.get("clientSecret").and_then(Value::as_str).unwrap_or("")),
+            "accessTokenMasked": mask_secret(merged.get("accessToken").and_then(Value::as_str).unwrap_or("")),
+            "refreshTokenMasked": mask_secret(merged.get("refreshToken").and_then(Value::as_str).unwrap_or("")),
+            "hasAccessToken": !merged.get("accessToken").and_then(Value::as_str).unwrap_or("").trim().is_empty(),
+            "hasRefreshToken": !merged.get("refreshToken").and_then(Value::as_str).unwrap_or("").trim().is_empty(),
+            "appRedirectUri": merged.get("appRedirectUri").and_then(Value::as_str).unwrap_or(""),
+            "tokenStorePath": merged.get("tokenStorePath").and_then(Value::as_str).unwrap_or(""),
+            "snapshotPath": merged.get("snapshotPath").and_then(Value::as_str).unwrap_or(""),
+            "quoteTimeoutSeconds": merged.get("quoteTimeoutSeconds").and_then(Value::as_i64).unwrap_or(8),
+            "quoteStaleAfterSeconds": merged.get("quoteStaleAfterSeconds").and_then(Value::as_i64).unwrap_or(15),
+            "allowSavedSnapshotFallback": merged.get("allowSavedSnapshotFallback").and_then(Value::as_bool).unwrap_or(true),
+            "bridgePythonExecutable": merged.get("bridgePythonExecutable").and_then(Value::as_str).unwrap_or("python"),
+            "configPath": merged.get("configPath").and_then(Value::as_str).unwrap_or(""),
+        }
+    })
+}
+
+fn save_ctrader_provider_config(root: &Path, payload: &Value) -> Result<Value, String> {
+    let merged = merged_ctrader_provider_config(root, Some(payload));
+    let config_path = ctrader_config_path_for_root(root);
+    let token_store_path = PathBuf::from(
+        merged
+            .get("tokenStorePath")
+            .and_then(Value::as_str)
+            .map(str::to_string)
+            .unwrap_or_else(|| {
+                ctrader_token_store_path_for_root(root)
+                    .display()
+                    .to_string()
+            }),
+    );
+    let config_payload = json!({
+        "enabled": merged.get("enabled").and_then(Value::as_bool).unwrap_or(false),
+        "clientId": merged.get("clientId").and_then(Value::as_str).unwrap_or(""),
+        "accountId": merged.get("accountId").and_then(Value::as_str).unwrap_or(""),
+        "environment": merged.get("environment").and_then(Value::as_str).unwrap_or("demo"),
+        "symbol": merged.get("symbol").and_then(Value::as_str).unwrap_or("XAUUSD"),
+        "symbolId": merged.get("symbolId").cloned().unwrap_or(Value::Null),
+        "appRedirectUri": merged.get("appRedirectUri").and_then(Value::as_str).unwrap_or(""),
+        "tokenStorePath": token_store_path.display().to_string(),
+        "snapshotPath": merged.get("snapshotPath").and_then(Value::as_str).unwrap_or(""),
+        "quoteTimeoutSeconds": merged.get("quoteTimeoutSeconds").and_then(Value::as_i64).unwrap_or(8),
+        "quoteStaleAfterSeconds": merged.get("quoteStaleAfterSeconds").and_then(Value::as_i64).unwrap_or(15),
+        "allowSavedSnapshotFallback": merged.get("allowSavedSnapshotFallback").and_then(Value::as_bool).unwrap_or(true),
+        "bridgePythonExecutable": merged.get("bridgePythonExecutable").and_then(Value::as_str).unwrap_or("python"),
+    });
+    let token_payload = json!({
+        "clientSecret": merged.get("clientSecret").and_then(Value::as_str).unwrap_or(""),
+        "accessToken": merged.get("accessToken").and_then(Value::as_str).unwrap_or(""),
+        "refreshToken": merged.get("refreshToken").and_then(Value::as_str).unwrap_or(""),
+    });
+    write_json_atomic(&config_path, &config_payload)?;
+    write_json_atomic(&token_store_path, &token_payload)?;
+    Ok(masked_ctrader_provider_config(root))
+}
+
+fn clear_ctrader_provider_config(root: &Path) -> Result<Value, String> {
+    let config_path = ctrader_config_path_for_root(root);
+    let token_store_path = read_json_object(&config_path)
+        .get("tokenStorePath")
+        .and_then(Value::as_str)
+        .map(PathBuf::from)
+        .unwrap_or_else(|| ctrader_token_store_path_for_root(root));
+    let _ = fs::remove_file(config_path);
+    let _ = fs::remove_file(token_store_path);
+    Ok(masked_ctrader_provider_config(root))
+}
+
+fn write_refreshed_ctrader_tokens(root: &Path, bridge_response: &Value) -> Result<Value, String> {
+    let token_store_path = merged_ctrader_provider_config(root, None)
+        .get("tokenStorePath")
+        .and_then(Value::as_str)
+        .map(PathBuf::from)
+        .unwrap_or_else(|| ctrader_token_store_path_for_root(root));
+    let access_token = bridge_response
+        .get("accessToken")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim()
+        .to_string();
+    if access_token.is_empty() {
+        return Err(
+            "cTrader refresh-token response did not include a new access token.".to_string(),
+        );
+    }
+    let refresh_token = bridge_response
+        .get("refreshToken")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim()
+        .to_string();
+    let existing = read_json_object(&token_store_path);
+    let payload = json!({
+        "clientSecret": existing.get("clientSecret").and_then(Value::as_str).unwrap_or(""),
+        "accessToken": access_token,
+        "refreshToken": if refresh_token.is_empty() {
+            existing.get("refreshToken").and_then(Value::as_str).unwrap_or("")
+        } else {
+            refresh_token.as_str()
+        },
+    });
+    write_json_atomic(&token_store_path, &payload)?;
+    Ok(token_store_path.display().to_string().into())
+}
+
+fn run_ctrader_bridge(root: &Path, command: &str, payload: &Value) -> Value {
+    let merged = merged_ctrader_provider_config(root, Some(payload));
+    let python = merged
+        .get("bridgePythonExecutable")
+        .and_then(Value::as_str)
+        .filter(|value| !value.trim().is_empty())
+        .unwrap_or("python");
+    let workdir = repo_root_from_manifest()
+        .or_else(|| std::env::current_dir().ok())
+        .unwrap_or_else(|| root.to_path_buf());
+    let mut child = match Command::new(python)
+        .args([
+            "-m",
+            "src.xauusd_market_agent.providers.ctrader_bridge",
+            command,
+        ])
+        .current_dir(workdir)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+    {
+        Ok(child) => child,
+        Err(err) => {
+            return json!({
+                "ok": false,
+                "error": format!("Unable to start cTrader bridge: {err}"),
+            })
+        }
+    };
+    if let Some(stdin) = child.stdin.as_mut() {
+        let _ = stdin.write_all(merged.to_string().as_bytes());
+    }
+    match child.wait_with_output() {
+        Ok(output) => {
+            let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+            let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+            if !output.status.success() {
+                return json!({
+                    "ok": false,
+                    "error": if stderr.is_empty() { stdout } else { stderr },
+                });
+            }
+            let parsed = serde_json::from_str::<Value>(&stdout).unwrap_or_else(|err| {
+                json!({
+                    "ok": false,
+                    "error": format!("Unable to parse cTrader bridge JSON: {err}"),
+                    "raw": stdout,
+                })
+            });
+            if command == "refresh-token"
+                && parsed.get("ok").and_then(Value::as_bool).unwrap_or(false)
+            {
+                match write_refreshed_ctrader_tokens(root, &parsed) {
+                    Ok(token_store_path) => {
+                        return json!({
+                            "ok": true,
+                            "message": "cTrader access token refreshed and saved.",
+                            "tokenStorePath": token_store_path,
+                            "provider_health": parsed.get("provider_health").cloned().unwrap_or(Value::Null),
+                            "ctrader": masked_ctrader_provider_config(root)
+                                .get("ctrader")
+                                .cloned()
+                                .unwrap_or(Value::Null),
+                        });
+                    }
+                    Err(err) => {
+                        return json!({
+                            "ok": false,
+                            "error": err,
+                        });
+                    }
+                }
+            }
+            parsed
+        }
+        Err(err) => json!({
+            "ok": false,
+            "error": format!("Unable to wait for cTrader bridge: {err}"),
+        }),
+    }
 }
 
 fn resolve_market_agent_root() -> Option<PathBuf> {
@@ -765,6 +1105,55 @@ pub fn get_market_agent_replay(payload: Value) -> Value {
     read_market_agent_replay(&root, start, end)
 }
 
+#[tauri::command]
+pub fn get_market_agent_provider_config(_payload: Value) -> Value {
+    masked_ctrader_provider_config(&config::appdata_dir())
+}
+
+#[tauri::command]
+pub fn save_market_agent_provider_config(payload: Value) -> Value {
+    match save_ctrader_provider_config(&config::appdata_dir(), &payload) {
+        Ok(value) => value,
+        Err(err) => json!({
+            "ok": false,
+            "available": false,
+            "message": err,
+        }),
+    }
+}
+
+#[tauri::command]
+pub fn clear_ctrader_config(_payload: Value) -> Value {
+    match clear_ctrader_provider_config(&config::appdata_dir()) {
+        Ok(value) => value,
+        Err(err) => json!({
+            "ok": false,
+            "available": false,
+            "message": err,
+        }),
+    }
+}
+
+#[tauri::command]
+pub fn test_ctrader_connection(payload: Value) -> Value {
+    run_ctrader_bridge(&config::appdata_dir(), "test-connection", &payload)
+}
+
+#[tauri::command]
+pub fn resolve_ctrader_symbol(payload: Value) -> Value {
+    run_ctrader_bridge(&config::appdata_dir(), "resolve-symbol", &payload)
+}
+
+#[tauri::command]
+pub fn get_ctrader_quote_test(payload: Value) -> Value {
+    run_ctrader_bridge(&config::appdata_dir(), "quote", &payload)
+}
+
+#[tauri::command]
+pub fn refresh_ctrader_token(payload: Value) -> Value {
+    run_ctrader_bridge(&config::appdata_dir(), "refresh-token", &payload)
+}
+
 pub(crate) fn read_market_agent_replay(root: &Path, start: &str, end: &str) -> Value {
     let timeline_path = timeline_path_for_root(root);
     let connection = match open_timeline_db(root) {
@@ -844,7 +1233,12 @@ pub(crate) fn read_market_agent_replay(root: &Path, start: &str, end: &str) -> V
 
 #[cfg(test)]
 mod tests {
-    use super::{read_market_agent_replay, read_market_agent_snapshot, timeline_path_for_root};
+    use super::{
+        clear_ctrader_provider_config, ctrader_config_path_for_root,
+        ctrader_token_store_path_for_root, masked_ctrader_provider_config,
+        read_market_agent_replay, read_market_agent_snapshot, save_ctrader_provider_config,
+        timeline_path_for_root,
+    };
     use rusqlite::{params, Connection};
     use serde_json::{json, Value};
     use std::fs;
@@ -1290,5 +1684,138 @@ mod tests {
                 .map(Vec::len),
             Some(1)
         );
+    }
+
+    #[test]
+    fn saves_and_reads_masked_ctrader_provider_config() {
+        let dir = unique_temp_dir("ctrader-config");
+        let payload = json!({
+            "ctrader": {
+                "enabled": true,
+                "environment": "demo",
+                "clientId": "client-id",
+                "clientSecret": "client-secret",
+                "accessToken": "access-token",
+                "refreshToken": "refresh-token",
+                "accountId": "123456",
+                "symbol": "XAUUSD",
+                "symbolId": 777,
+                "snapshotPath": dir.join("ctrader-last-quote.json").display().to_string(),
+                "tokenStorePath": dir.join("ctrader-token.json").display().to_string(),
+                "quoteTimeoutSeconds": 9,
+                "quoteStaleAfterSeconds": 15,
+                "allowSavedSnapshotFallback": true,
+                "bridgePythonExecutable": "python"
+            }
+        });
+
+        let saved = save_ctrader_provider_config(&dir, &payload).expect("save config");
+        let read_back = masked_ctrader_provider_config(&dir);
+
+        assert_eq!(saved.get("ok").and_then(Value::as_bool), Some(true));
+        assert_eq!(
+            read_back
+                .get("ctrader")
+                .and_then(|value| value.get("enabled"))
+                .and_then(Value::as_bool),
+            Some(true)
+        );
+        assert_ne!(
+            read_back
+                .get("ctrader")
+                .and_then(|value| value.get("clientSecretMasked"))
+                .and_then(Value::as_str),
+            Some("client-secret")
+        );
+        assert!(ctrader_config_path_for_root(&dir).exists());
+        assert!(ctrader_token_store_path_for_root(&dir).exists());
+    }
+
+    #[test]
+    fn clears_ctrader_provider_config_without_panicking() {
+        let dir = unique_temp_dir("ctrader-clear");
+        fs::write(
+            ctrader_config_path_for_root(&dir),
+            json!({"enabled": true}).to_string(),
+        )
+        .expect("write config");
+        fs::write(
+            ctrader_token_store_path_for_root(&dir),
+            json!({"accessToken": "secret"}).to_string(),
+        )
+        .expect("write token store");
+
+        let response = clear_ctrader_provider_config(&dir).expect("clear config");
+
+        assert_eq!(response.get("ok").and_then(Value::as_bool), Some(true));
+        assert!(!ctrader_config_path_for_root(&dir).exists());
+        assert!(!ctrader_token_store_path_for_root(&dir).exists());
+    }
+
+    #[test]
+    fn refreshed_ctrader_tokens_are_saved_without_returning_raw_secret_values() {
+        let dir = unique_temp_dir("ctrader-refresh");
+        save_ctrader_provider_config(
+            &dir,
+            &json!({
+                "ctrader": {
+                    "enabled": true,
+                    "environment": "demo",
+                    "clientId": "client-id",
+                    "clientSecret": "client-secret",
+                    "accessToken": "old-access-token",
+                    "refreshToken": "old-refresh-token",
+                    "accountId": "123456",
+                    "symbol": "XAUUSD",
+                    "tokenStorePath": dir.join("ctrader-token.json").display().to_string(),
+                    "snapshotPath": dir.join("ctrader-last-quote.json").display().to_string(),
+                }
+            }),
+        )
+        .expect("seed config");
+
+        let response = json!({
+            "ok": true,
+            "accessToken": "new-access-token",
+            "refreshToken": "new-refresh-token",
+            "provider_health": {
+                "source": "cTrader",
+                "source_type": "spot",
+                "data_mode": "live_seen",
+                "is_available": true,
+                "is_stale": false,
+            }
+        });
+        let token_store_path =
+            super::write_refreshed_ctrader_tokens(&dir, &response).expect("write refreshed tokens");
+        let stored: Value = serde_json::from_str(
+            &fs::read_to_string(ctrader_token_store_path_for_root(&dir)).expect("read token store"),
+        )
+        .expect("parse token store");
+
+        assert_eq!(
+            token_store_path.as_str(),
+            Some(
+                dir.join("ctrader-token.json")
+                    .display()
+                    .to_string()
+                    .as_str()
+            )
+        );
+        assert_eq!(
+            stored.get("accessToken").and_then(Value::as_str),
+            Some("new-access-token")
+        );
+        assert_eq!(
+            stored.get("refreshToken").and_then(Value::as_str),
+            Some("new-refresh-token")
+        );
+        let masked = masked_ctrader_provider_config(&dir);
+        assert!(
+            masked.to_string().contains("accessTokenMasked"),
+            "masked payload should expose masked token fields"
+        );
+        assert!(!masked.to_string().contains("new-access-token"));
+        assert!(!masked.to_string().contains("new-refresh-token"));
     }
 }

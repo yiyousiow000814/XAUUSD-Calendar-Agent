@@ -1,3 +1,62 @@
-.market-agent-provider-health-note {
+.market-agent-provider-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.market-agent-provider-card {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+  padding: 13px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.market-agent-provider-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.market-agent-provider-card h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.market-agent-provider-source {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.market-agent-provider-card p {
+  margin: 0;
   color: var(--text-dim);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.market-agent-provider-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.market-agent-provider-action {
+  margin-top: auto;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+@media (max-width: 760px) {
+  .market-agent-provider-card-grid {
+    grid-template-columns: 1fr;
+  }
 }
