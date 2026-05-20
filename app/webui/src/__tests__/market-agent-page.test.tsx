@@ -298,8 +298,8 @@ describe("MarketAgentPage", () => {
     expect(screen.getByRole("heading", { name: /Market Replay \(Today\)/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Latest Evidence/i })).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: /^Provider Health$/i }).length).toBeGreaterThan(0);
-    expect(screen.getByRole("button", { name: /Open Full Timeline/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^View All$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /View Full Timeline/i })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /^View All$/i }).length).toBeGreaterThanOrEqual(2);
     expect(screen.getAllByText(/BREAKOUT/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/NEWS/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/REVERSAL/i).length).toBeGreaterThan(0);
@@ -430,7 +430,7 @@ describe("MarketAgentPage", () => {
     expect(screen.getByRole("heading", { name: /XAUUSD Price/i })).toBeInTheDocument();
     expect(screen.getByText(/Backup price/i)).toBeInTheDocument();
     expect(screen.getAllByText(/80%/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/Open Full Timeline/i)).toBeInTheDocument();
+    expect(screen.getByText(/View Full Timeline/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Fed headline/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/US session opens/i).length).toBeGreaterThan(0);
     expect(screen.queryByText(/Raw details/i)).not.toBeInTheDocument();

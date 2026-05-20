@@ -613,8 +613,22 @@
 }
 
 .market-agent-panel-link-footer {
-  align-self: flex-start;
+  align-self: stretch;
   margin-top: auto;
+  min-height: 42px;
+  justify-content: center;
+  border-top: 1px solid rgba(148, 163, 184, 0.14);
+  color: #60a5fa;
+  font-size: 12px;
+  font-weight: 720;
+}
+
+.market-agent-panel-link-footer span {
+  display: inline-flex;
+  align-items: center;
+  font-size: 14px;
+  line-height: 1;
+  transform: translateY(-0.5px);
 }
 
 .market-agent-range-tabs {

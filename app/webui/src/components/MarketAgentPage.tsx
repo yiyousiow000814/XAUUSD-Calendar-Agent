@@ -584,7 +584,7 @@ function MarketAgentDashboard({
           <div className="market-agent-panel-title-row">
             <h3>Driver Attention <span>(Current)</span></h3>
             <button type="button" className="market-agent-panel-link" onClick={() => onNavigate("drivers")}>
-              View all drivers <span aria-hidden="true">-&gt;</span>
+              View All
             </button>
           </div>
           <div className="market-agent-attention-table" role="table" aria-label="Driver Attention Current">
@@ -662,7 +662,7 @@ function MarketAgentDashboard({
             {timeline.length === 0 ? <div className="market-agent-empty-state">No replay events in this window.</div> : null}
           </div>
           <button type="button" className="market-agent-panel-link market-agent-panel-link-footer" onClick={() => onNavigate("replay")}>
-            Open Full Timeline <span aria-hidden="true">-&gt;</span>
+            View Full Timeline <span aria-hidden="true">→</span>
           </button>
         </section>
 
@@ -670,7 +670,7 @@ function MarketAgentDashboard({
           <div className="market-agent-panel-title-row">
             <h3>Latest Evidence <span>({evidenceRunTime})</span></h3>
             <button type="button" className="market-agent-panel-link" onClick={() => onNavigate("evidence")}>
-              View All <span aria-hidden="true">-&gt;</span>
+              View All
             </button>
           </div>
           <div className="market-agent-evidence-tabs" aria-label="Evidence filters">
