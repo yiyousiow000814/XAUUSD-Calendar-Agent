@@ -2491,6 +2491,32 @@ const main = async () => {
           text.includes("Provider Health")
         );
       }, { timeout: 4000 });
+      const layoutProblems = await page.evaluate(() => {
+        const problems = [];
+        const bodyOverflowY = document.body.scrollHeight - window.innerHeight;
+        const bodyOverflowX = document.body.scrollWidth - window.innerWidth;
+        if (bodyOverflowY > 2) problems.push(`body vertical overflow ${bodyOverflowY}px`);
+        if (bodyOverflowX > 2) problems.push(`body horizontal overflow ${bodyOverflowX}px`);
+        const main = document.querySelector(".main-market-agent");
+        const footer = document.querySelector(".footer-row");
+        if (main instanceof HTMLElement && footer instanceof HTMLElement) {
+          const mainRect = main.getBoundingClientRect();
+          const footerRect = footer.getBoundingClientRect();
+          if (mainRect.bottom > footerRect.top - 6) {
+            problems.push(`Market Agent bottom overlaps footer by ${Math.round(mainRect.bottom - footerRect.top + 6)}px`);
+          }
+        }
+        const symbols = Array.from(document.querySelectorAll(".market-agent-timeline-node"))
+          .slice(0, 5)
+          .map((node) => (node.textContent || "").trim());
+        if (symbols.some((symbol) => /^[A-Z]$/.test(symbol))) {
+          problems.push(`timeline nodes still use letter markers: ${symbols.join(",")}`);
+        }
+        return problems;
+      });
+      if (layoutProblems.length) {
+        throw new Error(layoutProblems.join("; "));
+      }
       artifacts.push({
         scenario: "market-agent",
         theme: theme.key,

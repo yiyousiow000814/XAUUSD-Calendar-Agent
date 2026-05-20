@@ -250,16 +250,16 @@ type TimelineRow = {
 };
 
 const timelineKindMeta: Record<TimelineKind, { tag: string; icon: string; tone: string; title: string }> = {
-  breakout: { tag: "BREAKOUT", icon: "B", tone: "red", title: "Breakout" },
-  news: { tag: "NEWS", icon: "N", tone: "blue", title: "News" },
-  reversal: { tag: "REVERSAL", icon: "R", tone: "purple", title: "Reversal" },
-  range: { tag: "RANGE", icon: "G", tone: "green", title: "Range" },
-  session: { tag: "SESSION", icon: "S", tone: "amber", title: "Session" },
-  recovery: { tag: "RECOVERY", icon: "R", tone: "green", title: "Recovery" },
-  suppressed: { tag: "SUPPRESSED", icon: "S", tone: "muted", title: "Suppressed" },
-  alert: { tag: "ALERT", icon: "A", tone: "red", title: "Alert" },
-  calendar: { tag: "CALENDAR", icon: "C", tone: "amber", title: "Calendar" },
-  evidence: { tag: "EVIDENCE", icon: "E", tone: "blue", title: "Evidence" }
+  breakout: { tag: "BREAKOUT", icon: "↯", tone: "red", title: "Breakout" },
+  news: { tag: "NEWS", icon: "✦", tone: "blue", title: "News" },
+  reversal: { tag: "REVERSAL", icon: "↺", tone: "purple", title: "Reversal" },
+  range: { tag: "RANGE", icon: "◇", tone: "green", title: "Range" },
+  session: { tag: "SESSION", icon: "◷", tone: "amber", title: "Session" },
+  recovery: { tag: "RECOVERY", icon: "⟳", tone: "green", title: "Recovery" },
+  suppressed: { tag: "SUPPRESSED", icon: "×", tone: "muted", title: "Suppressed" },
+  alert: { tag: "ALERT", icon: "!", tone: "red", title: "Alert" },
+  calendar: { tag: "CALENDAR", icon: "◷", tone: "amber", title: "Calendar" },
+  evidence: { tag: "EVIDENCE", icon: "◆", tone: "blue", title: "Evidence" }
 };
 
 const inferTimelineKind = (item: TimelineRow): TimelineKind => {
