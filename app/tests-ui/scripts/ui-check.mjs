@@ -2493,6 +2493,22 @@ const main = async () => {
       }, { timeout: 4000 });
       const layoutProblems = await page.evaluate(() => {
         const problems = [];
+        const root = document.querySelector("[data-qa='qa:page:market-agent']");
+        const text = root instanceof HTMLElement ? root.innerText || root.textContent || "" : "";
+        const staleDashboardLabels = [
+          "Live Situation",
+          "CURRENT THESIS",
+          "bearish_gold",
+          "level_3",
+          "CONFIGURE CTRADER SPOT",
+          "CTRADER DISABLED",
+          "YAHOO PROXY FALLBACK"
+        ];
+        for (const label of staleDashboardLabels) {
+          if (text.includes(label)) {
+            problems.push(`stale Market Agent dashboard label still visible: ${label}`);
+          }
+        }
         const bodyOverflowY = document.body.scrollHeight - window.innerHeight;
         const bodyOverflowX = document.body.scrollWidth - window.innerWidth;
         if (bodyOverflowY > 2) problems.push(`body vertical overflow ${bodyOverflowY}px`);
@@ -2527,6 +2543,22 @@ const main = async () => {
       const providerConfig = page.locator("[data-qa='qa:market-agent:provider-config']").first();
       if (!(await providerConfig.count())) {
         throw new Error("Market Agent provider config panel not found");
+      }
+      const staleProviderLabels = await providerConfig.evaluate((root) => {
+        const text = root instanceof HTMLElement ? root.innerText || root.textContent || "" : "";
+        return [
+          "Environment",
+          "Symbol ID override",
+          "Bridge Python",
+          "Redirect URI",
+          "Token store path",
+          "Snapshot path",
+          "NEWS_RSS_FEEDS",
+          "MARKET_AGENT_FOREX_FACTORY_SOURCE_URL"
+        ].filter((label) => text.includes(label));
+      });
+      if (staleProviderLabels.length) {
+        throw new Error(`stale provider configuration labels still visible: ${staleProviderLabels.join(", ")}`);
       }
       await providerConfig.scrollIntoViewIfNeeded();
       await page.evaluate(() => window.scrollBy(0, -96));
