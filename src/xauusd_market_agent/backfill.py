@@ -70,6 +70,15 @@ def _price_segments(market_price_bars: list[dict[str, Any]]) -> list[dict[str, A
     return enriched
 
 
+def _segment_semantic_type(segment: dict[str, Any]) -> str:
+    move = abs(float(segment.get("move_percent", 0.0)))
+    if move >= 0.35:
+        return "breakout"
+    if move <= 0.12:
+        return "range"
+    return "recovery"
+
+
 class BackfillManager:
     def __init__(self, provider_router: ProviderRouter) -> None:
         self.provider_router = provider_router
@@ -95,6 +104,10 @@ class BackfillManager:
                 "label": "reconstructed_move",
                 "payload": {
                     "data_mode": "backfilled",
+                    "semantic_type": _segment_semantic_type(segment),
+                    "impact_percent": segment["move_percent"],
+                    "direction": "up" if segment["move_percent"] > 0 else "down" if segment["move_percent"] < 0 else "flat",
+                    "duration_minutes": 0,
                     "segment": segment,
                 },
             }
@@ -106,7 +119,13 @@ class BackfillManager:
                     "event_time": end.isoformat(),
                     "event_type": "recovery_analysis",
                     "label": "backfill",
-                    "payload": {"data_mode": "backfilled", "segment_count": 0},
+                    "payload": {
+                        "data_mode": "backfilled",
+                        "semantic_type": "range",
+                        "impact_percent": 0.0,
+                        "direction": "flat",
+                        "segment_count": 0,
+                    },
                 }
             )
         return BackfillContext(

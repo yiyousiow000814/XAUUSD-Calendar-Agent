@@ -2483,8 +2483,10 @@ const main = async () => {
           text.includes("Latest Move") &&
           text.includes("Evidence Status") &&
           text.includes("Next Update") &&
-          text.includes("Driver Attention Summary") &&
-          text.includes("Market Replay Today") &&
+          text.includes("Driver Attention") &&
+          text.includes("(Current)") &&
+          text.includes("Market Replay") &&
+          text.includes("(Today)") &&
           text.includes("Latest Evidence") &&
           text.includes("Provider Health")
         );

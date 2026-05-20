@@ -9,6 +9,7 @@ from typing import Any
 from .backfill import BackfillManager
 from .config import MarketAgentConfig
 from .driver_attention import DriverAttentionManager
+from .detectors import detect_market_trigger
 from .evidence import build_evidence_gate_result
 from .llm_client import LocalLLMClient
 from .models import CrossAssetSnapshot, Headline, MarketMove, ProviderHealth, ScenarioFixture
@@ -358,6 +359,47 @@ def _resolve_runtime_data_mode(
     return provider_health.get("xauusd", ProviderHealth("", "", "", "", "unavailable", False, False)).data_mode or "unavailable"
 
 
+def _semantic_market_event_payload(
+    fixture: ScenarioFixture,
+    analysis: Any,
+    decision: Any,
+    *,
+    run_type: str,
+    data_mode: str,
+) -> dict[str, Any]:
+    trigger = detect_market_trigger(fixture)
+    move = float(fixture.market.move_percent_15m or fixture.market.move_percent or 0.0)
+    cause_status = str(getattr(analysis, "cause_status", "") or "").lower()
+    main_driver = str(getattr(analysis, "main_driver", "") or "unknown")
+    has_news = bool(fixture.news)
+    has_calendar = bool(fixture.calendar_events)
+    if bool(getattr(decision, "previous_state_invalidated", False)):
+        semantic_type = "reversal"
+    elif "session_break" in trigger.trigger_types:
+        semantic_type = "session"
+    elif has_news and cause_status not in {"no_meaningful_change", "unconfirmed"}:
+        semantic_type = "news"
+    elif abs(move) >= 0.35:
+        semantic_type = "breakout"
+    elif abs(move) < 0.18 and not trigger.triggered:
+        semantic_type = "range"
+    else:
+        semantic_type = "analysis"
+    return {
+        "semantic_type": semantic_type,
+        "impact_percent": move,
+        "direction": "up" if move > 0 else "down" if move < 0 else "flat",
+        "duration_minutes": fixture.market.window_minutes,
+        "trigger_types": trigger.trigger_types,
+        "main_driver": main_driver,
+        "driver_label": main_driver,
+        "has_news": has_news,
+        "has_calendar": has_calendar,
+        "run_type": run_type,
+        "data_mode": data_mode,
+    }
+
+
 def build_live_evidence_packet(
     config: MarketAgentConfig,
     anchor_time: datetime,
@@ -625,8 +667,13 @@ def run_monitored_live_once(
         event_type="analysis",
         label=analysis.main_driver,
         payload={
-            "run_type": run_type,
-            "data_mode": data_mode,
+            **_semantic_market_event_payload(
+                fixture,
+                analysis,
+                decision,
+                run_type=run_type,
+                data_mode=data_mode,
+            ),
             "analysis": analysis.to_dict(),
         },
     )

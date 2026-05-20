@@ -197,13 +197,17 @@ const replay: MarketAgentReplayResponse = {
       spx: [],
       nasdaq: []
     },
-    news_items: [{ title: "Fed headline", published_at: "2026-05-19T07:55:00+08:00", source: "Reuters", data_mode: "backfilled" }],
-    calendar_events: [{ title: "Fed speaker", scheduled_at: "2026-05-19T08:15:00+08:00", source: "ForexFactory", data_mode: "live_seen" }],
+    news_items: [{ title: "Fed headline", published_at: "2026-05-19T08:03:00+08:00", source: "Reuters", data_mode: "backfilled", semantic_type: "news", impact_percent: -0.21 }],
+    calendar_events: [{ title: "US session opens", scheduled_at: "2026-05-19T08:15:00+08:00", source: "ForexFactory", data_mode: "live_seen", semantic_type: "session", impact_percent: -0.08 }],
     driver_attention_timeline: [],
-    timeline_events: [{ monitor_run_id: 23, event_time: "2026-05-19T08:05:00+08:00", event_type: "market_alert", label: "Yields pressure", payload: {} }],
+    timeline_events: [
+      { monitor_run_id: 23, event_time: "2026-05-19T08:05:00+08:00", event_type: "market_alert", label: "Yields pressure", payload: { semantic_type: "breakout", impact_percent: -0.48, main_driver: "yields" } },
+      { monitor_run_id: 22, event_time: "2026-05-19T07:58:00+08:00", event_type: "analysis", label: "Reversal attempt rejected", payload: { semantic_type: "reversal", impact_percent: 0.24, main_driver: "technical_liquidation" } },
+      { monitor_run_id: 21, event_time: "2026-05-19T07:56:00+08:00", event_type: "analysis", label: "Range held near session low", payload: { semantic_type: "range", impact_percent: 0.05, main_driver: "unknown" } }
+    ],
     state_transitions: [{ monitor_run_id: 23, run_started_at: "2026-05-19T08:05:00+08:00", state_change_reason: "main_driver usd -> yields" }],
-    alerts: [{ monitor_run_id: 23, run_started_at: "2026-05-19T08:05:00+08:00", should_notify: true, notification_level: "level_3", message: "XAUUSD dropped 0.48%" }],
-    suppressed_alerts: [{ monitor_run_id: 24, run_started_at: "2026-05-19T08:20:00+08:00", should_notify: false, notification_level: "level_1", message: "Suppressed duplicate" }]
+    alerts: [{ monitor_run_id: 23, run_started_at: "2026-05-19T08:05:00+08:00", should_notify: true, notification_level: "level_3", message: "XAUUSD dropped 0.48%", semantic_type: "breakout", impact_percent: -0.48 }],
+    suppressed_alerts: [{ monitor_run_id: 24, run_started_at: "2026-05-19T07:20:00+08:00", should_notify: false, notification_level: "level_1", message: "Suppressed duplicate" }]
   }
 };
 
@@ -290,12 +294,18 @@ describe("MarketAgentPage", () => {
     expect(screen.getByRole("heading", { name: /Latest Move/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Evidence Status/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Next Update/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /Driver Attention Summary/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /Market Replay Today/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Driver Attention \(Current\)/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Market Replay \(Today\)/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Latest Evidence/i })).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: /^Provider Health$/i }).length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: /Open Full Timeline/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /View Evidence/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^View All$/i })).toBeInTheDocument();
+    expect(screen.getAllByText(/BREAKOUT/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/NEWS/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/REVERSAL/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/RANGE/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/SESSION/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Impact:/i).length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: /^Data Sources$/i })).toBeInTheDocument();
     expect(screen.queryByText(/Quick Actions/i)).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Configure Data Sources/i })).not.toBeInTheDocument();
@@ -419,11 +429,10 @@ describe("MarketAgentPage", () => {
     expect(screen.queryByText(/Using Yahoo GC=F futures proxy, not true spot XAUUSD\./i)).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /XAUUSD Price/i })).toBeInTheDocument();
     expect(screen.getByText(/Backup price/i)).toBeInTheDocument();
-    expect(screen.getByText(/80%/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/80%/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/Open Full Timeline/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Fed headline/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Fed speaker/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Suppressed duplicate/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/US session opens/i).length).toBeGreaterThan(0);
     expect(screen.queryByText(/Raw details/i)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getAllByRole("button", { name: /Yields pressure/i })[0]);

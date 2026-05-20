@@ -530,17 +530,21 @@ const buildMockMarketAgentReplay = (): MarketAgentReplayResponse => ({
       {
         title: "Fed headline pressures yields",
         source: "Reuters",
-        published_at: "2026-05-19T07:52:00+08:00",
+        published_at: "2026-05-19T08:03:00+08:00",
         included: true,
-        data_mode: "backfilled"
+        data_mode: "backfilled",
+        semantic_type: "news",
+        impact_percent: -0.21
       }
     ],
     calendar_events: [
       {
-        title: "Fed speaker",
-        scheduled_at: "2026-05-19T08:15:00+08:00",
+        title: "US session opens",
+        scheduled_at: "2026-05-19T08:14:00+08:00",
         source: "ForexFactory",
-        data_mode: "live_seen"
+        data_mode: "live_seen",
+        semantic_type: "session",
+        impact_percent: -0.08
       }
     ],
     driver_attention_timeline: [
@@ -565,18 +569,32 @@ const buildMockMarketAgentReplay = (): MarketAgentReplayResponse => ({
     ],
     timeline_events: [
       {
+        monitor_run_id: 21,
+        event_time: "2026-05-19T07:56:00+08:00",
+        event_type: "analysis",
+        label: "Range held near session low",
+        payload: { semantic_type: "range", impact_percent: 0.05, direction: "flat", main_driver: "unknown", data_mode: "live_seen" }
+      },
+      {
+        monitor_run_id: 21,
+        event_time: "2026-05-19T07:58:00+08:00",
+        event_type: "analysis",
+        label: "Reversal attempt rejected",
+        payload: { semantic_type: "reversal", impact_percent: 0.24, direction: "up", main_driver: "technical_liquidation", data_mode: "live_seen" }
+      },
+      {
         monitor_run_id: 22,
         event_time: "2026-05-19T07:55:00+08:00",
         event_type: "recovery_summary",
         label: "Recovered selloff",
-        payload: { data_mode: "backfilled", cause_status: "likely" }
+        payload: { semantic_type: "breakout", impact_percent: -0.68, direction: "down", data_mode: "backfilled", cause_status: "likely", main_driver: "yields" }
       },
       {
         monitor_run_id: 23,
         event_time: "2026-05-19T08:05:00+08:00",
         event_type: "market_alert",
         label: "Yields pressure",
-        payload: { data_mode: "proxy", cause_status: "confirmed" }
+        payload: { semantic_type: "breakout", impact_percent: -0.48, direction: "down", data_mode: "proxy", cause_status: "confirmed", main_driver: "yields" }
       }
     ],
     state_transitions: [
@@ -593,16 +611,20 @@ const buildMockMarketAgentReplay = (): MarketAgentReplayResponse => ({
         run_started_at: "2026-05-19T08:05:00+08:00",
         should_notify: true,
         notification_level: "level_3",
-        message: "XAUUSD dropped 0.48%. Active driver: yields/USD."
+        message: "XAUUSD dropped 0.48%. Active driver: yields/USD.",
+        semantic_type: "breakout",
+        impact_percent: -0.48
       }
     ],
     suppressed_alerts: [
       {
         monitor_run_id: 24,
-        run_started_at: "2026-05-19T08:20:00+08:00",
+        run_started_at: "2026-05-19T07:20:00+08:00",
         should_notify: false,
         notification_level: "level_1",
-        message: "Suppressed duplicate continuation."
+        message: "Suppressed duplicate continuation.",
+        semantic_type: "range",
+        impact_percent: 0.04
       }
     ]
   }
@@ -780,6 +802,48 @@ const buildMockMarketAgentDriverAttention = (): MarketAgentDriverAttentionRespon
       relevance_score: 0.31,
       confidence: "low",
       activation_reason: "Headline detected, waiting for market confirmation.",
+      deactivation_reason: "",
+      last_confirmed_at: "",
+      decay_deadline: "2026-05-19T09:05:00+08:00",
+      data_mode: "live_seen"
+    },
+    {
+      driver_id: "usd",
+      label: "DXY / USD",
+      category: "macro",
+      current_state: "active",
+      priority: "core_structural",
+      relevance_score: 0.86,
+      confidence: "medium_high",
+      activation_reason: "DXY confirms pressure.",
+      deactivation_reason: "",
+      last_confirmed_at: "2026-05-19T08:05:00+08:00",
+      decay_deadline: "2026-05-19T10:05:00+08:00",
+      data_mode: "live_seen"
+    },
+    {
+      driver_id: "us2y",
+      label: "US2Y",
+      category: "macro",
+      current_state: "dormant",
+      priority: "core_structural",
+      relevance_score: 0.08,
+      confidence: "low",
+      activation_reason: "",
+      deactivation_reason: "No reliable source configured.",
+      last_confirmed_at: "",
+      decay_deadline: "",
+      data_mode: "unavailable"
+    },
+    {
+      driver_id: "vix_equities",
+      label: "VIX / Equities",
+      category: "risk",
+      current_state: "watching",
+      priority: "conditional_macro",
+      relevance_score: 0.28,
+      confidence: "low",
+      activation_reason: "Risk tone is monitored, not yet causal.",
       deactivation_reason: "",
       last_confirmed_at: "",
       decay_deadline: "2026-05-19T09:05:00+08:00",

@@ -236,8 +236,8 @@ describe("Market Agent view switch", () => {
       expect(screen.getByRole("button", { name: /Dashboard/i })).toHaveAttribute("aria-pressed", "true");
       expect(screen.getByRole("heading", { name: "XAUUSD Price" })).toBeInTheDocument();
       expect(screen.getByRole("heading", { name: "Market State" })).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: "Driver Attention Summary" })).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: "Market Replay Today" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Driver Attention (Current)" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Market Replay (Today)" })).toBeInTheDocument();
       expect(screen.queryByRole("heading", { name: "Provider Health" })).not.toBeInTheDocument();
     });
 

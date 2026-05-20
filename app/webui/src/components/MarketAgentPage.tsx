@@ -207,6 +207,96 @@ const formatMoveDuration = (price: Record<string, unknown> | undefined, fallback
   return `${minutes}m ${remaining.toString().padStart(2, "0")}s`;
 };
 
+const formatEvidenceStrength = (value: unknown) => {
+  const normalized = normalizeMarketAgentValue(value);
+  if (normalized === "high" || normalized === "medium_high") return "Strong";
+  if (normalized === "medium" || normalized === "balanced") return "Mixed";
+  if (normalized === "low" || normalized === "weak") return "Weak";
+  if (normalized === "none" || normalized === "unknown" || !normalized) return "Quiet";
+  return formatValue(value, "Quiet");
+};
+
+const formatScore = (value: unknown) => {
+  const numeric = numberValue(value);
+  if (numeric === null) return "--";
+  return String(Math.round(numeric > 1 ? numeric : numeric * 100));
+};
+
+const formatDriverImpact = (driver: MarketAgentDriverAttentionResponse["states"][number]) => {
+  const score = numberValue(driver.relevance_score);
+  if (score === null) return "--";
+  const signed = score >= 0.5 ? score : -score;
+  return `${signed >= 0 ? "+" : "-"}${Math.abs(signed * 100).toFixed(2)}%`;
+};
+
+const attentionLabel = (driver: MarketAgentDriverAttentionResponse["states"][number]) => {
+  const score = numberValue(driver.relevance_score) ?? 0;
+  if (score >= 0.75) return "High";
+  if (score >= 0.4) return "Medium";
+  return "Low";
+};
+
+type TimelineKind = "breakout" | "news" | "reversal" | "range" | "session" | "recovery" | "suppressed" | "alert" | "calendar" | "evidence";
+
+type TimelineRow = {
+  key: string;
+  time: string;
+  title: string;
+  meta: string;
+  status: unknown;
+  monitorRunId?: number;
+  payload?: Record<string, unknown>;
+  source: "event" | "news" | "calendar" | "alert" | "suppressed";
+};
+
+const timelineKindMeta: Record<TimelineKind, { tag: string; icon: string; tone: string; title: string }> = {
+  breakout: { tag: "BREAKOUT", icon: "B", tone: "red", title: "Breakout" },
+  news: { tag: "NEWS", icon: "N", tone: "blue", title: "News" },
+  reversal: { tag: "REVERSAL", icon: "R", tone: "purple", title: "Reversal" },
+  range: { tag: "RANGE", icon: "G", tone: "green", title: "Range" },
+  session: { tag: "SESSION", icon: "S", tone: "amber", title: "Session" },
+  recovery: { tag: "RECOVERY", icon: "R", tone: "green", title: "Recovery" },
+  suppressed: { tag: "SUPPRESSED", icon: "S", tone: "muted", title: "Suppressed" },
+  alert: { tag: "ALERT", icon: "A", tone: "red", title: "Alert" },
+  calendar: { tag: "CALENDAR", icon: "C", tone: "amber", title: "Calendar" },
+  evidence: { tag: "EVIDENCE", icon: "E", tone: "blue", title: "Evidence" }
+};
+
+const inferTimelineKind = (item: TimelineRow): TimelineKind => {
+  const payloadKind = normalizeMarketAgentValue(item.payload?.semantic_type);
+  if (payloadKind in timelineKindMeta) return payloadKind as TimelineKind;
+  const status = normalizeMarketAgentValue(item.status);
+  const title = normalizeMarketAgentValue(item.title);
+  if (item.source === "news" || title.includes("headline")) return "news";
+  if (item.source === "calendar") return "calendar";
+  if (item.source === "suppressed" || status.includes("suppressed")) return "suppressed";
+  if (status.includes("recovery") || status.includes("backfilled")) return "recovery";
+  if (title.includes("rebound") || title.includes("reverse") || title.includes("invalidated")) return "reversal";
+  if (title.includes("session")) return "session";
+  if (title.includes("range") || title.includes("quiet")) return "range";
+  if (status.includes("level") || item.source === "alert") return "alert";
+  if (title.includes("breakout") || title.includes("selloff") || title.includes("pressure") || title.includes("drop")) return "breakout";
+  return "evidence";
+};
+
+const formatTimelineImpact = (item: TimelineRow) => {
+  const payloadImpact = numberValue(item.payload?.impact_percent);
+  const segment = item.payload?.segment as Record<string, unknown> | undefined;
+  const segmentImpact = numberValue(segment?.move_percent);
+  const impact = payloadImpact ?? segmentImpact;
+  if (impact === null) return "Impact: watching";
+  return `Impact: ${formatSignedValue(impact, "%")}`;
+};
+
+const compactTimelineTitle = (item: TimelineRow) => {
+  const impact = numberValue(item.payload?.impact_percent);
+  if (impact !== null && item.source === "alert") {
+    const action = impact < 0 ? "XAUUSD drop" : impact > 0 ? "XAUUSD spike" : "XAUUSD flat";
+    return `${action} ${formatSignedValue(impact, "%")}`;
+  }
+  return item.title;
+};
+
 const statusForProvider = (item: MarketAgentProviderHealthEntry | undefined) => {
   if (!item) return "Disabled";
   const sourceType = normalizeMarketAgentValue(item.source_type);
@@ -225,8 +315,9 @@ const latestPrice = (replay: MarketAgentReplayResponse | null) => {
   return rows[rows.length - 1] as Record<string, unknown> | undefined;
 };
 
-const latestTimelineRows = (payload: MarketAgentReplayPayload | undefined) => {
+const latestTimelineRows = (payload: MarketAgentReplayPayload | undefined): TimelineRow[] => {
   if (!payload) return [];
+  const eventRunIds = new Set(payload.timeline_events.map((item) => item.monitor_run_id).filter(Boolean));
   return [
     ...payload.timeline_events.map((item) => ({
       key: `event-${item.monitor_run_id}-${item.event_time}`,
@@ -234,7 +325,9 @@ const latestTimelineRows = (payload: MarketAgentReplayPayload | undefined) => {
       title: item.label,
       meta: formatDriverLabel(item.payload?.main_driver ?? "unknown"),
       status: item.event_type,
-      monitorRunId: item.monitor_run_id
+      monitorRunId: item.monitor_run_id,
+      payload: item.payload,
+      source: "event" as const
     })),
     ...payload.news_items.map((item, index) => ({
       key: `news-${index}-${String(item.published_at ?? item.title ?? "")}`,
@@ -242,7 +335,9 @@ const latestTimelineRows = (payload: MarketAgentReplayPayload | undefined) => {
       title: String(item.title ?? "News item"),
       meta: String(item.source ?? "News"),
       status: item.data_mode ?? "possible",
-      monitorRunId: undefined
+      monitorRunId: undefined,
+      payload: item,
+      source: "news" as const
     })),
     ...payload.calendar_events.map((item, index) => ({
       key: `calendar-${index}-${String(item.scheduled_at ?? item.title ?? "")}`,
@@ -250,23 +345,31 @@ const latestTimelineRows = (payload: MarketAgentReplayPayload | undefined) => {
       title: String(item.title ?? "Calendar event"),
       meta: String(item.source ?? "Calendar"),
       status: item.data_mode ?? "possible",
-      monitorRunId: undefined
+      monitorRunId: undefined,
+      payload: item,
+      source: "calendar" as const
     })),
-    ...payload.alerts.map((item, index) => ({
-      key: `alert-${index}-${item.monitor_run_id ?? index}`,
-      time: String(item.run_started_at ?? ""),
-      title: String(item.message ?? "Alert"),
-      meta: formatDriverLabel(item.main_driver ?? "unknown"),
-      status: item.notification_level ?? "alert",
-      monitorRunId: item.monitor_run_id
-    })),
+    ...payload.alerts
+      .filter((item) => !item.monitor_run_id || !eventRunIds.has(item.monitor_run_id))
+      .map((item, index) => ({
+        key: `alert-${index}-${item.monitor_run_id ?? index}`,
+        time: String(item.run_started_at ?? ""),
+        title: String(item.message ?? "Alert"),
+        meta: formatDriverLabel(item.main_driver ?? "unknown"),
+        status: item.notification_level ?? "alert",
+        monitorRunId: item.monitor_run_id,
+        payload: item,
+        source: "alert" as const
+      })),
     ...payload.suppressed_alerts.map((item, index) => ({
       key: `suppressed-${index}-${item.monitor_run_id ?? index}`,
       time: String(item.run_started_at ?? ""),
       title: String(item.message ?? "Suppressed alert"),
       meta: "No state change",
       status: "suppressed",
-      monitorRunId: item.monitor_run_id
+      monitorRunId: item.monitor_run_id,
+      payload: item,
+      source: "suppressed" as const
     }))
   ]
     .filter((item) => item.time || item.title)
@@ -284,27 +387,41 @@ const evidenceItems = (selectedEvidence: MarketAgentEvidenceForRunResponse | nul
     ...allowed.map((driver) => ({
       title: formatDriverLabel(driver),
       status: "Supporting",
-      detail: "Allowed by evidence gate"
+      detail: "Confirmed enough to explain the move",
+      kind: normalizeMarketAgentValue(driver).includes("yield") ? "yield" : normalizeMarketAgentValue(driver).includes("usd") ? "usd" : "driver"
     })),
     ...Object.entries(evidenceStatus).map(([key, value]) => ({
       title: formatDriverLabel(key),
       status: value,
-      detail: "Evidence status"
+      detail: formatValue(value, "Evidence status"),
+      kind: normalizeMarketAgentValue(key).includes("news") ? "news" : normalizeMarketAgentValue(key).includes("us") ? "yield" : "technical"
     })),
     ...Object.entries(blocked).map(([key, value]) => ({
       title: formatDriverLabel(key),
       status: "Blocked",
-      detail: String(value)
+      detail: String(value),
+      kind: "blocked"
     }))
   ];
   if (analysis?.rejected_driver) {
     rows.push({
       title: formatDriverLabel(analysis.rejected_driver),
       status: "Rejected",
-      detail: String(analysis.rejection_reason ?? "Rejected by validator")
+      detail: String(analysis.rejection_reason ?? "Rejected by validator"),
+      kind: "blocked"
     });
   }
   return rows.slice(0, 5);
+};
+
+const evidenceKindMeta = (kind: string) => {
+  const normalized = normalizeMarketAgentValue(kind);
+  if (normalized.includes("news")) return { icon: "N", tone: "blue", label: "News" };
+  if (normalized.includes("yield")) return { icon: "Y", tone: "amber", label: "Yield" };
+  if (normalized.includes("usd")) return { icon: "$", tone: "green", label: "USD" };
+  if (normalized.includes("blocked")) return { icon: "X", tone: "red", label: "Blocked" };
+  if (normalized.includes("technical")) return { icon: "T", tone: "purple", label: "Technical" };
+  return { icon: "D", tone: "blue", label: "Driver" };
 };
 
 function MarketAgentDashboard({
@@ -348,6 +465,7 @@ function MarketAgentDashboard({
   const displayProviderStatus = providerStatus === "Futures proxy" ? "Backup" : providerStatus;
   const lastPriceTime = formatShortTime(xauusdHealth?.data_timestamp ?? price?.timestamp);
   const latestAlertMessage = replay?.replay.alerts?.[0]?.message;
+  const evidenceRunTime = formatShortTime(selectedEvidence?.payload?.monitor_run?.run_started_at);
   const latestMoveLabel = moveChange === null
     ? (extractMovePercent(latestAlertMessage) ?? "--")
     : formatSignedValue(moveChange, xauusdHealth?.change_unit === "%" ? "%" : "");
@@ -362,6 +480,10 @@ function MarketAgentDashboard({
   const watchingDrivers = (driverAttention?.states ?? [])
     .filter((item) => ["watching", "emerging", "cooling"].includes(normalizeMarketAgentValue(item.current_state)))
     .sort((left, right) => (right.relevance_score ?? 0) - (left.relevance_score ?? 0));
+  const backgroundDrivers = (driverAttention?.states ?? [])
+    .filter((item) => ["dormant", "retired", "unknown", ""].includes(normalizeMarketAgentValue(item.current_state)))
+    .sort((left, right) => (right.relevance_score ?? 0) - (left.relevance_score ?? 0));
+  const visibleDrivers = [...activeDrivers, ...watchingDrivers, ...backgroundDrivers].slice(0, 7);
   const backgroundCount = (driverAttention?.states ?? []).filter((item) =>
     ["dormant", "retired", "unknown", ""].includes(normalizeMarketAgentValue(item.current_state))
   ).length;
@@ -426,12 +548,12 @@ function MarketAgentDashboard({
           <div className="market-agent-evidence-score">
             <div className="market-agent-score-ring" style={{ "--score": `${evidenceScore}%` } as CSSProperties}>
               <strong>{evidenceScore}%</strong>
-              <span>score</span>
+              <span>{formatEvidenceStrength(state?.confidence)}</span>
             </div>
             <div className="market-agent-evidence-counts">
-              <span><i className="supporting" /><span>Support</span><b>{supportingCount}</b></span>
+              <span><i className="supporting" /><span>Supporting</span><b>{supportingCount}</b></span>
               <span><i className="neutral" /><span>Neutral</span><b>{neutralCount}</b></span>
-              <span><i className="contrary" /><span>Against</span><b>{contraryCount}</b></span>
+              <span><i className="contrary" /><span>Contrary</span><b>{contraryCount}</b></span>
             </div>
           </div>
           <div className="market-agent-evidence-quality">
@@ -460,75 +582,125 @@ function MarketAgentDashboard({
       <div className="market-agent-cockpit-panels">
         <section className="market-agent-cockpit-panel">
           <div className="market-agent-panel-title-row">
-            <h3>Driver Attention Summary</h3>
-            <button type="button" className="btn ghost btn-compact" onClick={() => onNavigate("drivers")}>
-              View all drivers
+            <h3>Driver Attention <span>(Current)</span></h3>
+            <button type="button" className="market-agent-panel-link" onClick={() => onNavigate("drivers")}>
+              View all drivers <span aria-hidden="true">-&gt;</span>
             </button>
           </div>
-          <div className="market-agent-attention-mini-list">
-            {[...activeDrivers, ...watchingDrivers].slice(0, 7).map((driver) => (
-              <div className="market-agent-attention-mini-row" key={driver.driver_id}>
-                <div>
-                  <strong>{driver.label || formatDriverLabel(driver.driver_id)}</strong>
-                  <span>
-                    {formatValue(driver.current_state, "unknown")} · {formatRelevance(driver.relevance_score)} ·{" "}
-                    {driver.activation_reason || driver.deactivation_reason || "Observed as background only."}
-                  </span>
-                </div>
+          <div className="market-agent-attention-table" role="table" aria-label="Driver Attention Current">
+            <div className="market-agent-attention-table-head" role="row">
+              <span>Driver</span>
+              <span>State</span>
+              <span>Impact</span>
+              <span>Attention</span>
+              <span>Score</span>
+            </div>
+            {visibleDrivers.map((driver) => (
+              <div className="market-agent-attention-table-row" role="row" key={driver.driver_id}>
+                <strong>{driver.label || formatDriverLabel(driver.driver_id)}</strong>
+                <span className={`market-agent-driver-state state-${normalizeMarketAgentValue(driver.current_state)}`}>
+                  {formatValue(driver.current_state, "Unknown")}
+                </span>
+                <span className={formatDriverImpact(driver).startsWith("-") ? "negative" : "positive"}>
+                  {formatDriverImpact(driver)}
+                </span>
+                <MarketAgentStatusBadge label={attentionLabel(driver)} />
+                <span>{formatScore(driver.relevance_score)}</span>
               </div>
             ))}
-            {activeDrivers.length + watchingDrivers.length === 0 ? (
+            {visibleDrivers.length === 0 ? (
               <div className="market-agent-empty-state">No active or watching drivers.</div>
             ) : null}
           </div>
-          <div className="market-agent-attention-counts">
-            <span>{activeDrivers.length} active</span>
-            <span>{watchingDrivers.length} watching</span>
-            <span>{backgroundCount} background</span>
+          <div className="market-agent-attention-footer">
+            <div>
+              <span>Attention Score:</span>
+              <b>{formatScore(activeDrivers[0]?.relevance_score ?? watchingDrivers[0]?.relevance_score)} / 100</b>
+            </div>
+            <div className="market-agent-attention-meter" aria-hidden="true">
+              <span style={{ width: `${Math.max(0, Math.min(100, Number(formatScore(activeDrivers[0]?.relevance_score ?? watchingDrivers[0]?.relevance_score)) || 0))}%` }} />
+            </div>
+            <div className="market-agent-attention-legend">
+              <span><i className="active" />Active</span>
+              <span><i className="watching" />Watching</span>
+              <span><i className="dormant" />Background {backgroundCount}</span>
+            </div>
           </div>
         </section>
 
         <section className="market-agent-cockpit-panel">
           <div className="market-agent-panel-title-row">
-            <h3>Market Replay Today</h3>
-            <button type="button" className="btn ghost btn-compact" onClick={() => onNavigate("replay")}>
-              Open Full Timeline
-            </button>
+            <h3>Market Replay <span>(Today)</span></h3>
+            <div className="market-agent-range-tabs" aria-label="Replay range">
+              <span>1H</span>
+              <span>4H</span>
+              <span className="active">1D</span>
+            </div>
           </div>
-          <div className="market-agent-timeline-mini-list">
-            {timeline.map((item) => (
-              <button
-                type="button"
-                key={item.key}
-                className="market-agent-timeline-mini-row"
-                onClick={() => item.monitorRunId && onSelectRun(item.monitorRunId)}
-              >
-                <span>{formatShortTime(item.time)}</span>
-                <strong>{item.title}</strong>
-                <em>{item.meta}</em>
-                <MarketAgentStatusBadge label={formatValue(item.status, "event")} />
-              </button>
-            ))}
+          <div className="market-agent-timeline-track">
+            {timeline.map((item) => {
+              const kind = inferTimelineKind(item);
+              const meta = timelineKindMeta[kind];
+              return (
+                <button
+                  type="button"
+                  key={item.key}
+                  className={`market-agent-timeline-track-row kind-${meta.tone}`}
+                  onClick={() => item.monitorRunId && onSelectRun(item.monitorRunId)}
+                >
+                  <time>{formatShortTime(item.time)}</time>
+                  <span className="market-agent-timeline-node">{meta.icon}</span>
+                  <div>
+                    <span className={`market-agent-event-tag tone-${meta.tone}`}>{meta.tag}</span>
+                    <strong>{compactTimelineTitle(item)}</strong>
+                    <span>{item.meta}</span>
+                    <small>{formatTimelineImpact(item)}</small>
+                  </div>
+                </button>
+              );
+            })}
             {timeline.length === 0 ? <div className="market-agent-empty-state">No replay events in this window.</div> : null}
           </div>
+          <button type="button" className="market-agent-panel-link market-agent-panel-link-footer" onClick={() => onNavigate("replay")}>
+            Open Full Timeline <span aria-hidden="true">-&gt;</span>
+          </button>
         </section>
 
         <section className="market-agent-cockpit-panel">
           <div className="market-agent-panel-title-row">
-            <h3>Latest Evidence</h3>
-            <button type="button" className="btn ghost btn-compact" onClick={() => onNavigate("evidence")}>
-              View Evidence
+            <h3>Latest Evidence <span>({evidenceRunTime})</span></h3>
+            <button type="button" className="market-agent-panel-link" onClick={() => onNavigate("evidence")}>
+              View All <span aria-hidden="true">-&gt;</span>
             </button>
           </div>
-          <div className="market-agent-evidence-mini-list">
-            {evidence.map((item, index) => (
-              <div className="market-agent-evidence-mini-row" key={`${item.title}-${index}`}>
-                <strong>{item.title}</strong>
-                <span>{item.detail}</span>
-                <MarketAgentStatusBadge label={formatValue(item.status, "unknown")} />
-              </div>
-            ))}
+          <div className="market-agent-evidence-tabs" aria-label="Evidence filters">
+            <span className="active">All</span>
+            <span>News</span>
+            <span>Calendar</span>
+            <span>Technical</span>
+            <span>Drivers</span>
+          </div>
+          <div className="market-agent-evidence-feed">
+            {evidence.map((item, index) => {
+              const meta = evidenceKindMeta(item.kind);
+              return (
+                <div className={`market-agent-evidence-feed-row tone-${meta.tone}`} key={`${item.title}-${index}`}>
+                  <span className="market-agent-evidence-icon">{meta.icon}</span>
+                  <div>
+                    <span className="market-agent-evidence-type">{meta.label}</span>
+                    <strong>{item.title}</strong>
+                    <span>{item.detail}</span>
+                  </div>
+                  <time>{evidenceRunTime}</time>
+                  <MarketAgentStatusBadge label={formatValue(item.status, "unknown")} />
+                </div>
+              );
+            })}
             {evidence.length === 0 ? <div className="market-agent-empty-state">No evidence packet selected.</div> : null}
+          </div>
+          <div className="market-agent-evidence-footer">
+            <span><i /> Evidence Quality: <b>{formatEvidenceStrength(state?.confidence)} ({evidenceScore}%)</b></span>
+            <span>{supportingCount} Supporting, {neutralCount} Neutral, {contraryCount} Contrary</span>
           </div>
         </section>
       </div>
