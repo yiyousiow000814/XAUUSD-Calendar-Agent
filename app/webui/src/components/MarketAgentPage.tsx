@@ -276,21 +276,11 @@ function MarketAgentCountdownDigit({
   return (
     <span
       className={`market-agent-countdown-digit${activeRoll ? ` is-changing roll-${activeRoll.direction}` : ""}`}
+      data-old={activeRoll?.previous}
+      data-new={activeRoll?.digit}
       aria-hidden="true"
     >
-      {activeRoll ? (
-        <>
-          <span className="market-agent-countdown-digit-current">{digit}</span>
-          <span className="market-agent-countdown-digit-old" key={`old-${activeRoll.previous}-${activeRoll.digit}`}>
-            {activeRoll.previous}
-          </span>
-          <span className="market-agent-countdown-digit-new" key={`new-${activeRoll.digit}-${activeRoll.previous}`}>
-            {activeRoll.digit}
-          </span>
-        </>
-      ) : (
-        <span className="market-agent-countdown-digit-current">{digit}</span>
-      )}
+      <span className="market-agent-countdown-digit-current">{digit}</span>
     </span>
   );
 }

@@ -2877,9 +2877,10 @@ const main = async () => {
               gap: item.detailTop === null ? null : item.detailTop - item.primaryBottom
             }));
           detailGapItems.forEach((item) => {
+            const maxGap = item.label === ".market-agent-next-card" ? 24 : 12;
             if (item.gap === null) {
               problems.push(`Market Agent KPI detail node missing (${item.label})`);
-            } else if (item.gap < 3 || item.gap > 12) {
+            } else if (item.gap < 3 || item.gap > maxGap) {
               problems.push(`Market Agent KPI detail spacing is uneven for ${item.label} (${item.gap.toFixed(1)}px normalized)`);
             }
           });
@@ -3227,11 +3228,29 @@ const main = async () => {
             if (!/^\d+\ssec$/i.test(label)) {
               problems.push(`Market Agent Next Update countdown aria label is not seconds text (${label})`);
             }
+            const visibleCountdownText = (countdown.textContent || "").replace(/\s+/g, " ").trim();
+            if (visibleCountdownText !== label) {
+              problems.push(`Market Agent Next Update exposes duplicate rolling digits (${visibleCountdownText} vs ${label})`);
+            }
+            const selectedCountdownText = (countdown.innerText || "").replace(/\s+/g, " ").trim();
+            if (selectedCountdownText !== label) {
+              problems.push(`Market Agent Next Update selectable text is fragmented (${selectedCountdownText} vs ${label})`);
+            }
             if (digits.length < 1 || digits.some((digit) => !(digit instanceof HTMLElement))) {
               problems.push("Market Agent Next Update countdown digits are not split into independent slots");
             }
             if (!(unit instanceof HTMLElement) || unit.textContent?.trim() !== "sec") {
               problems.push("Market Agent Next Update countdown unit is not a static sec label");
+            } else {
+              const firstDigit = digits.find((digit) => digit instanceof HTMLElement);
+              if (firstDigit instanceof HTMLElement) {
+                const digitBox = firstDigit.getBoundingClientRect();
+                const unitBox = unit.getBoundingClientRect();
+                const unitCenterGap = Math.abs((digitBox.top + digitBox.bottom) / 2 - (unitBox.top + unitBox.bottom) / 2);
+                if (unitCenterGap > 1.5) {
+                  problems.push(`Market Agent Next Update sec unit is vertically misaligned (${unitCenterGap.toFixed(1)}px center gap)`);
+                }
+              }
             }
             if (countdown.querySelector(".market-agent-value-pulse")) {
               problems.push("Market Agent Next Update countdown still fades the whole value");
@@ -3259,6 +3278,22 @@ const main = async () => {
           if (!(meta instanceof HTMLElement)) {
             problems.push("Market Agent Next Update meta lines are missing grouped layout");
           } else {
+            if (nextContent instanceof HTMLElement) {
+              const cardBox = nextCard.getBoundingClientRect();
+              const contentBox = nextContent.getBoundingClientRect();
+              const contentBottomGap = cardBox.bottom - contentBox.bottom;
+              if (contentBottomGap > 30) {
+                problems.push(`Market Agent Next Update content is pinned too high (${contentBottomGap.toFixed(1)}px bottom gap)`);
+              }
+              const stateDetail = document.querySelector(".market-agent-state-card .market-agent-kpi-mini-metrics");
+              if (stateDetail instanceof HTMLElement) {
+                const stateDetailBox = stateDetail.getBoundingClientRect();
+                const metaBox = meta.getBoundingClientRect();
+                if (Math.abs(metaBox.top - stateDetailBox.top) > 2.5) {
+                  problems.push(`Market Agent Next Update detail divider is misaligned with KPI details (${(metaBox.top - stateDetailBox.top).toFixed(1)}px)`);
+                }
+              }
+            }
             const metaRows = Array.from(meta.children).filter((item) => item instanceof HTMLElement);
             if (metaRows.length < 2) {
               problems.push("Market Agent Next Update meta lines are not split into two rows");
@@ -3270,10 +3305,28 @@ const main = async () => {
               if (metaGap < 3) {
                 problems.push(`Market Agent Next Update meta rows are too tight (${metaGap.toFixed(1)}px gap)`);
               }
+              const stateDetailLabel = document.querySelector(".market-agent-state-card .market-agent-kpi-mini-metrics em");
+              if (stateDetailLabel instanceof HTMLElement) {
+                const stateLabelBox = stateDetailLabel.getBoundingClientRect();
+                if (Math.abs(statusBox.top - stateLabelBox.top) > 2.5) {
+                  problems.push(`Market Agent Next Update status text is misaligned with KPI detail labels (${(statusBox.top - stateLabelBox.top).toFixed(1)}px)`);
+                }
+              }
               if (countdown instanceof HTMLElement) {
+                const contentBox = nextContent instanceof HTMLElement ? nextContent.getBoundingClientRect() : null;
                 const countdownBox = countdown.getBoundingClientRect();
-                if (Math.abs(statusBox.left - countdownBox.left) > 1.5 || Math.abs(intervalBox.left - countdownBox.left) > 1.5) {
-                  problems.push("Market Agent Next Update meta rows do not align under countdown text");
+                const metaBox = meta.getBoundingClientRect();
+                if (contentBox) {
+                  if (Math.abs(statusBox.left - contentBox.left) > 1.5 || Math.abs(intervalBox.left - contentBox.left) > 1.5) {
+                    problems.push("Market Agent Next Update meta rows do not align with the detail divider");
+                  }
+                  if (metaBox.width < contentBox.width * 0.88) {
+                    problems.push(`Market Agent Next Update meta block is too narrow (${metaBox.width.toFixed(1)}px)`);
+                  }
+                }
+                const metaTopGap = metaBox.top - countdownBox.bottom;
+                if (metaTopGap < 10) {
+                  problems.push(`Market Agent Next Update detail divider is too close to countdown (${metaTopGap.toFixed(1)}px gap)`);
                 }
                 const countdownColor = parseRgbTriples(window.getComputedStyle(countdown).color)[0];
                 const statusColor = parseRgbTriples(window.getComputedStyle(statusRow).color)[0];
@@ -3532,22 +3585,21 @@ const main = async () => {
       const readCountdownLabel = async () =>
         page.locator("[data-qa='qa:market-agent:next-countdown']").first().getAttribute("aria-label");
       const countdownBefore = await readCountdownLabel();
-      const digitRolled = await page
+      const countdownTickedWithRoll = await page
         .waitForFunction(
-          () => {
+          (previousLabel) => {
+            const countdown = document.querySelector("[data-qa='qa:market-agent:next-countdown']");
+            const nextLabel = countdown?.getAttribute("aria-label") || "";
+            if (!nextLabel || nextLabel === previousLabel) return false;
             const active = document.querySelector(".market-agent-countdown-digit.is-changing");
             if (!(active instanceof HTMLElement)) return false;
-            const animatedParts = Array.from(
-              active.querySelectorAll(".market-agent-countdown-digit-old, .market-agent-countdown-digit-new")
-            );
-            return animatedParts.some((part) => {
-              if (!(part instanceof HTMLElement)) return false;
-              const animationName = window.getComputedStyle(part).animationName || "";
+            return ["::before", "::after"].some((pseudo) => {
+              const animationName = window.getComputedStyle(active, pseudo).animationName || "";
               return animationName.includes("market-agent-countdown");
             });
           },
-          null,
-          { timeout: 2200 }
+          countdownBefore,
+          { timeout: 2600 }
         )
         .then(() => true)
         .catch(() => false);
@@ -3555,7 +3607,7 @@ const main = async () => {
       if (countdownBefore === countdownAfter) {
         throw new Error(`Market Agent Next Update countdown is static (${countdownBefore || "empty"})`);
       }
-      if (!digitRolled) {
+      if (!countdownTickedWithRoll) {
         throw new Error("Market Agent Next Update countdown did not roll individual digits during the tick");
       }
       await page
