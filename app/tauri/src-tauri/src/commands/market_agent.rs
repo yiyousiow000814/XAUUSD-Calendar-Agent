@@ -1670,6 +1670,28 @@ fn build_unavailable_payload(message: &str, root: Option<&Path>) -> Value {
     payload
 }
 
+fn empty_market_agent_replay_payload() -> Value {
+    json!({
+        "price_series": [],
+        "related_assets": {},
+        "news_items": [],
+        "calendar_events": [],
+        "driver_attention_timeline": [],
+        "timeline_events": [],
+        "state_transitions": [],
+        "alerts": [],
+        "suppressed_alerts": [],
+    })
+}
+
+fn build_unavailable_replay_payload(message: &str, root: Option<&Path>) -> Value {
+    let mut payload = build_unavailable_payload(message, root);
+    if let Some(object) = payload.as_object_mut() {
+        object.insert("replay".to_string(), empty_market_agent_replay_payload());
+    }
+    payload
+}
+
 pub(crate) fn read_market_agent_snapshot(root: &Path, limit: usize) -> Value {
     let state_path = state_path_for_root(root);
     let alerts_path = alerts_path_for_root(root);
@@ -2016,7 +2038,7 @@ pub(crate) fn read_market_agent_replay(root: &Path, start: &str, end: &str) -> V
     let timeline_path = timeline_path_for_root(root);
     let connection = match open_timeline_db(root) {
         Ok(connection) => connection,
-        Err(message) => return build_unavailable_payload(&message, Some(root)),
+        Err(message) => return build_unavailable_replay_payload(&message, Some(root)),
     };
 
     let price_series = match read_range_payloads(
@@ -2028,7 +2050,7 @@ pub(crate) fn read_market_agent_replay(root: &Path, start: &str, end: &str) -> V
     ) {
         Ok(rows) => rows,
         Err(err) => {
-            return build_unavailable_payload(
+            return build_unavailable_replay_payload(
                 &format!("Unable to read market replay price series: {err}"),
                 Some(root),
             )
@@ -2037,7 +2059,7 @@ pub(crate) fn read_market_agent_replay(root: &Path, start: &str, end: &str) -> V
     let related_assets = match read_related_assets_map(&connection, start, end) {
         Ok(rows) => rows,
         Err(err) => {
-            return build_unavailable_payload(
+            return build_unavailable_replay_payload(
                 &format!("Unable to read related asset replay series: {err}"),
                 Some(root),
             )
@@ -2512,6 +2534,22 @@ mod tests {
         assert_eq!(
             payload.get("available").and_then(Value::as_bool),
             Some(false)
+        );
+        assert_eq!(
+            payload
+                .get("replay")
+                .and_then(|replay| replay.get("price_series"))
+                .and_then(Value::as_array)
+                .map(Vec::len),
+            Some(0)
+        );
+        assert_eq!(
+            payload
+                .get("replay")
+                .and_then(|replay| replay.get("related_assets"))
+                .and_then(Value::as_object)
+                .map(|items| items.len()),
+            Some(0)
         );
     }
 

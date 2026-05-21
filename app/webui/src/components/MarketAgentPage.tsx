@@ -33,6 +33,7 @@ import {
   humanizeMarketAgentValue,
   normalizeMarketAgentValue,
 } from "../utils/marketAgentUi";
+import { normalizeMarketAgentReplayPayload } from "../utils/marketAgentReplay";
 import "./MarketAgentPage.css";
 
 type MarketAgentSection =
@@ -479,6 +480,14 @@ const formatEvidenceStrength = (value: unknown) => {
   return formatValue(value, "Quiet");
 };
 
+const formatEvidenceScoreStrength = (score: number, total: number, contrary: number) => {
+  if (total <= 0) return "Quiet";
+  if (score >= 75) return "Strong";
+  if (score >= 40) return "Mixed";
+  if (contrary > 0 && score === 0) return "Contrary";
+  return "Weak";
+};
+
 const formatDataFreshness = (value: unknown, nowMs: number) => {
   const timestamp = parseTimestampMs(value);
   if (timestamp === null) return "";
@@ -666,12 +675,12 @@ const statusForProvider = (item: MarketAgentProviderHealthEntry | undefined) => 
 };
 
 const latestPrice = (replay: MarketAgentReplayResponse | null) => {
-  const rows = replay?.replay.price_series ?? [];
+  const rows = normalizeMarketAgentReplayPayload(replay?.replay).price_series;
   return rows[rows.length - 1] as Record<string, unknown> | undefined;
 };
 
 const previousPrice = (replay: MarketAgentReplayResponse | null) => {
-  const rows = replay?.replay.price_series ?? [];
+  const rows = normalizeMarketAgentReplayPayload(replay?.replay).price_series;
   return rows.length > 1 ? rows[rows.length - 2] as Record<string, unknown> : undefined;
 };
 
@@ -688,8 +697,7 @@ const alertNoticeId = (kind: "sent" | "suppressed", item: Record<string, unknown
   ].join("::");
 
 const alertNoticeIds = (replay: MarketAgentReplayResponse | null) => {
-  const payload = replay?.replay;
-  if (!payload) return [];
+  const payload = normalizeMarketAgentReplayPayload(replay?.replay);
   return [
     ...payload.alerts.map((item, index) => alertNoticeId("sent", item, index)),
     ...payload.suppressed_alerts.map((item, index) => alertNoticeId("suppressed", item, index))
@@ -879,7 +887,7 @@ const evidenceItems = (
 ): DashboardEvidenceRow[] => {
   const packet = selectedEvidence?.payload?.evidence_packet as Record<string, unknown> | undefined;
   const analysis = selectedEvidence?.payload?.analysis_result as Record<string, unknown> | undefined;
-  const payload = replay?.replay;
+  const payload = normalizeMarketAgentReplayPayload(replay?.replay);
   const runTime = String(selectedEvidence?.payload?.monitor_run?.run_started_at ?? "");
   const rows: DashboardEvidenceRow[] = [];
   const news = payload?.news_items.find((item) => item.title || item.summary || item.description);
@@ -1046,9 +1054,6 @@ function MarketAgentDashboard({
   const price = latestPrice(replay);
   const priorPrice = previousPrice(replay);
   const priceValue = numberValue(price?.close_price ?? xauusdHealth?.current_value);
-  const bid = numberValue(price?.bid ?? price?.bid_price);
-  const ask = numberValue(price?.ask ?? price?.ask_price);
-  const spread = numberValue(price?.spread) ?? (bid !== null && ask !== null ? ask - bid : null);
   const previousPriceValue = numberValue(priorPrice?.close_price ?? xauusdHealth?.previous_value);
   const priceChangeValue = numberValue(price?.change_value ?? price?.change ?? price?.change_15m);
   const computedPriceChange = priceChangeValue ?? (
@@ -1070,7 +1075,11 @@ function MarketAgentDashboard({
   ).length;
   const neutralCount = Math.max(0, evidence.length - supportingCount - contraryCount);
   const evidenceScore = evidence.length ? Math.round((supportingCount / evidence.length) * 100) : 0;
-  const evidenceScoreOffset = SCORE_RING_CIRCUMFERENCE * (1 - Math.max(0, Math.min(100, evidenceScore)) / 100);
+  const clampedEvidenceScore = Math.max(0, Math.min(100, evidenceScore));
+  const evidenceScoreLabel = formatEvidenceScoreStrength(clampedEvidenceScore, evidence.length, contraryCount);
+  const isEvidenceScoreEmpty = clampedEvidenceScore <= 0;
+  const isEvidenceScoreFull = clampedEvidenceScore >= 100;
+  const evidenceScoreDashOffset = SCORE_RING_CIRCUMFERENCE * (1 - clampedEvidenceScore / 100);
   const moveChange = numberValue(price?.change_pct ?? price?.change_15m_pct ?? xauusdHealth?.change_value);
   const sourceType = normalizeMarketAgentValue(xauusdHealth?.source_type ?? price?.source_type);
   const priceSourceLabel = sourceType === "spot" ? "cTrader (Spot)" : sourceType === "futures_proxy" ? "Backup price" : "No price source";
@@ -1124,11 +1133,6 @@ function MarketAgentDashboard({
                 {computedPriceChange === null ? "--" : `${formatSignedPriceChange(computedPriceChange)} (${formatPercentChange(priceChangePercent)})`}
               </MarketAgentValuePulse>
             </span>
-          </div>
-          <div className="market-agent-price-meta">
-            <span><em>Bid</em><b><MarketAgentValuePulse value={bid}>{formatPrice(bid)}</MarketAgentValuePulse></b></span>
-            <span><em>Ask</em><b><MarketAgentValuePulse value={ask}>{formatPrice(ask)}</MarketAgentValuePulse></b></span>
-            <span><em>Spread</em><b><MarketAgentValuePulse value={spread}>{formatPrice(spread)}</MarketAgentValuePulse></b></span>
           </div>
           <div className="market-agent-price-data">
             <em>Data:</em>
@@ -1200,29 +1204,26 @@ function MarketAgentDashboard({
           </div>
           <div className="market-agent-evidence-score">
             <div
-              className="market-agent-score-ring market-agent-score-ring-animated"
-              key={`score-${evidenceScore}-${marketStrength}`}
-              style={{ "--score": `${evidenceScore}%` } as CSSProperties}
+              className="market-agent-score-ring"
+              data-score-target={String(clampedEvidenceScore)}
             >
               <svg className="market-agent-score-svg" viewBox="0 0 80 80" aria-hidden="true">
                 <circle className="market-agent-score-track" cx="40" cy="40" r={SCORE_RING_RADIUS} />
                 <circle
-                  className="market-agent-score-progress"
+                  className={`market-agent-score-progress${isEvidenceScoreEmpty ? " is-empty" : ""}${isEvidenceScoreFull ? " is-full" : ""}`}
                   cx="40"
                   cy="40"
                   r={SCORE_RING_RADIUS}
-                  strokeDasharray={SCORE_RING_CIRCUMFERENCE}
-                  strokeDashoffset={evidenceScoreOffset}
+                  strokeDasharray={isEvidenceScoreFull ? undefined : SCORE_RING_CIRCUMFERENCE}
+                  strokeDashoffset={isEvidenceScoreFull ? undefined : evidenceScoreDashOffset}
                 />
               </svg>
               <div className="market-agent-score-content">
                 <strong className="market-agent-score-value">
-                  <MarketAgentValuePulse value={evidenceScore} className="market-agent-score-number">
-                    {evidenceScore}
-                  </MarketAgentValuePulse>
+                  <span className="market-agent-score-number">{evidenceScore}</span>
                   <span className="market-agent-score-suffix">%</span>
                 </strong>
-                <span className="market-agent-score-strength">{formatEvidenceStrength(state?.confidence)}</span>
+                <span className="market-agent-score-strength">{evidenceScoreLabel}</span>
               </div>
             </div>
             <div className="market-agent-evidence-counts">
@@ -1405,7 +1406,7 @@ function MarketAgentDashboard({
             {evidence.length === 0 ? <div className="market-agent-empty-state">No evidence in this category.</div> : null}
           </div>
           <div className="market-agent-evidence-footer">
-            <span><i /> Evidence Quality: <b>{formatEvidenceStrength(state?.confidence)} ({evidenceScore}%)</b></span>
+            <span><i /> Evidence Quality: <b>{evidenceScoreLabel} ({evidenceScore}%)</b></span>
             <span>{supportingCount} Supporting, {neutralCount} Neutral, {contraryCount} Contrary</span>
           </div>
         </section>
@@ -1417,7 +1418,12 @@ function MarketAgentDashboard({
 
 export function MarketAgentPage(props: MarketAgentPageProps) {
   const [section, setSection] = useState<MarketAgentSection>("live");
-  const currentAlertNoticeIds = useMemo(() => alertNoticeIds(props.replay), [props.replay]);
+  const replayPayload = useMemo(() => normalizeMarketAgentReplayPayload(props.replay?.replay), [props.replay]);
+  const normalizedReplay = useMemo<MarketAgentReplayResponse | null>(() => {
+    if (!props.replay) return null;
+    return { ...props.replay, replay: replayPayload };
+  }, [props.replay, replayPayload]);
+  const currentAlertNoticeIds = useMemo(() => alertNoticeIds(normalizedReplay), [normalizedReplay]);
   const currentAlertNoticeKey = currentAlertNoticeIds.join("\n");
   const [seenAlertIds, setSeenAlertIds] = useState<string[]>(() => readSeenAlertIds());
   const seenAlertIdSet = useMemo(() => new Set(seenAlertIds), [seenAlertIds]);
@@ -1447,7 +1453,7 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
           snapshot={props.snapshot}
           providerHealth={props.providerHealth}
           driverAttention={props.driverAttention}
-          replay={props.replay}
+          replay={normalizedReplay}
           selectedEvidence={props.selectedEvidence}
           monitorStatus={props.monitorStatus}
           onSelectRun={props.onSelectRun}
@@ -1461,7 +1467,7 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
     if (section === "replay") {
       return (
         <MarketAgentReplay
-          replay={props.replay}
+          replay={normalizedReplay}
           selectedEvidence={props.selectedEvidence}
           selectedMonitorRunId={props.selectedMonitorRunId}
           rangePreset={props.rangePreset}
@@ -1507,8 +1513,8 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
       );
     }
     if (section === "alerts") {
-      const sentAlerts = props.replay?.replay.alerts ?? [];
-      const suppressedAlerts = props.replay?.replay.suppressed_alerts ?? [];
+      const sentAlerts = replayPayload.alerts;
+      const suppressedAlerts = replayPayload.suppressed_alerts;
       const alertRows = [
         ...sentAlerts.map((alert, index) => ({
           key: `alert-${index}`,
@@ -1627,7 +1633,7 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
         </div>
       </section>
     );
-  }, [props, section]);
+  }, [normalizedReplay, props, replayPayload, section]);
 
   const alertNoticeCount = currentAlertNoticeIds.filter((id) => !seenAlertIdSet.has(id)).length;
 

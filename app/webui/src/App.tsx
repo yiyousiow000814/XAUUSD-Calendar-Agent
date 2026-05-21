@@ -19,6 +19,7 @@ import { TemporaryPathWarningModal, type TemporaryPathWarningMode } from "./comp
 import { ToastStack } from "./components/ToastStack";
 import { CURRENCY_OPTIONS } from "./constants/currencyOptions";
 import { formatLocalDateTime } from "./utils/calendarTime";
+import { normalizeMarketAgentReplayPayload } from "./utils/marketAgentReplay";
 import { impactTone, levelTone } from "./utils/ui";
 import "./App.css";
 import type {
@@ -476,8 +477,9 @@ export default function App() {
           10000,
           "backend.getMarketAgentReplay()"
         );
-        setMarketAgentReplay(next);
-        return next;
+        const normalizedNext = { ...next, replay: normalizeMarketAgentReplayPayload(next.replay) };
+        setMarketAgentReplay(normalizedNext);
+        return normalizedNext;
       } catch {
         setMarketAgentReplay({
           ok: false,

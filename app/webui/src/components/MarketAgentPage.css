@@ -24,12 +24,6 @@
   box-sizing: border-box;
 }
 
-@property --score {
-  syntax: "<percentage>";
-  inherits: false;
-  initial-value: 0%;
-}
-
 @keyframes market-agent-value-pulse {
   0% {
     opacity: 0.52;
@@ -53,21 +47,6 @@
   100% {
     opacity: 1;
     background-color: transparent;
-  }
-}
-
-@keyframes market-agent-score-fill {
-  0% {
-    --score: 0%;
-    opacity: 0.72;
-  }
-
-  70% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 1;
   }
 }
 
@@ -461,7 +440,8 @@
   gap: 12px;
   min-width: 0;
   min-height: 40px;
-  margin-bottom: 8px;
+  margin-top: 8px;
+  margin-bottom: 0;
 }
 
 .market-agent-price-value-row > strong {
@@ -525,7 +505,6 @@
   background: #f0a83a;
 }
 
-.market-agent-price-meta,
 .market-agent-kpi-pair,
 .market-agent-kpi-metrics {
   display: flex;
@@ -536,20 +515,6 @@
   line-height: 1.4;
 }
 
-.market-agent-price-meta {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 0;
-}
-
-.market-agent-price-meta span {
-  display: grid;
-  min-width: 0;
-  gap: 3px;
-}
-
-.market-agent-price-meta em,
 .market-agent-price-data em {
   color: var(--text-dim);
   font-style: normal;
@@ -557,7 +522,6 @@
   line-height: 1;
 }
 
-.market-agent-price-meta b,
 .market-agent-kpi-pair b,
 .market-agent-kpi-metrics b {
   color: var(--text);
@@ -606,7 +570,7 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  margin-top: 12px;
+  margin-top: auto;
   padding-top: 0;
   color: var(--text-dim);
   font-size: 11px;
@@ -787,7 +751,6 @@
 }
 
 .market-agent-score-ring {
-  --score: 0%;
   position: relative;
   display: grid;
   place-items: center;
@@ -800,10 +763,6 @@
     inset 0 0 0 1px rgba(255, 255, 255, 0.05),
     0 12px 24px rgba(0, 0, 0, 0.14);
   font-variant-numeric: tabular-nums;
-}
-
-.market-agent-score-ring-animated {
-  animation: market-agent-score-fill 420ms ease-out both;
 }
 
 .market-agent-score-svg {
@@ -830,7 +789,14 @@
   stroke: #17b66a;
   stroke-width: 8;
   stroke-linecap: round;
-  transition: stroke-dashoffset 420ms ease, stroke 220ms ease;
+}
+
+.market-agent-score-progress.is-empty {
+  opacity: 0;
+}
+
+.market-agent-score-progress.is-full {
+  stroke-linecap: butt;
 }
 
 .market-agent-score-content {
@@ -2478,7 +2444,6 @@
     font-size: 11px;
   }
 
-  .market-agent-price-meta,
   .market-agent-price-data {
     font-size: 10px;
   }
@@ -2701,10 +2666,6 @@
     font-size: 10px;
   }
 
-  .app.app-market-agent .market-agent-price-meta {
-    gap: 5px 10px;
-  }
-
   .app.app-market-agent .market-agent-kpi-detail-stack {
     gap: 8px;
   }
@@ -2863,11 +2824,6 @@
   font-size: 12px;
 }
 
-.app.app-market-agent .market-agent-price-meta {
-  gap: 8px 16px;
-}
-
-.app.app-market-agent .market-agent-price-meta,
 .app.app-market-agent .market-agent-price-data {
   font-size: 11px;
 }

@@ -346,6 +346,48 @@ const monitorStatus = {
   message: "Monitor loop is stopped."
 };
 
+const marketAgentPageElement = (overrides: Partial<Parameters<typeof MarketAgentPage>[0]> = {}) => (
+  <MarketAgentPage
+      snapshot={snapshot}
+      providerConfig={providerConfig}
+      telegramConfig={telegramConfig}
+      llmConfig={llmConfig}
+      providerHealth={providerHealth}
+      driverAttention={driverAttention}
+      replay={replay}
+      selectedEvidence={evidence}
+      monitorStatus={monitorStatus}
+      selectedMonitorRunId={23}
+      rangePreset="4h"
+      rangeStartInput="2026-05-19T04:00"
+      rangeEndInput="2026-05-19T08:30"
+      onPresetChange={() => {}}
+      onRangeStartChange={() => {}}
+      onRangeEndChange={() => {}}
+      onApplyRange={() => {}}
+      onSelectRun={() => {}}
+      onSaveProviderConfig={() => {}}
+      onClearProviderConfig={() => {}}
+      onTestCTraderConnection={async () => ({ ok: true })}
+      onResolveCTraderSymbol={async () => ({ ok: true })}
+      onGetCTraderQuoteTest={async () => ({ ok: true })}
+      onRefreshCTraderToken={async () => ({ ok: true })}
+      onSaveTelegramConfig={async () => telegramConfig}
+      onTestTelegramMessage={async () => ({ ok: true, status: "sent", message: "Telegram test message sent." })}
+      onSaveLLMConfig={async () => llmConfig}
+      onTestLLMConnection={async () => ({ ok: true, status: "available", message: "Ollama is available." })}
+      onTestLLMJsonResponse={async () => ({ ok: true, status: "available", message: "Model returned valid JSON." })}
+      onRunMonitorOnce={async () => monitorStatus}
+      onRunBackfillRecovery={async () => ({ ...monitorStatus, phase: "recovery_completed", message: "Backfill recovery completed." })}
+      onStartMonitorLoop={async () => ({ ...monitorStatus, running: true, phase: "running" })}
+      onStopMonitorLoop={async () => monitorStatus}
+      {...overrides}
+    />
+);
+
+const renderMarketAgentPage = (overrides: Partial<Parameters<typeof MarketAgentPage>[0]> = {}) =>
+  render(marketAgentPageElement(overrides));
+
 describe("MarketAgentPage", () => {
   beforeEach(() => {
     window.localStorage.clear();
@@ -413,9 +455,9 @@ describe("MarketAgentPage", () => {
     const detected = latestMoveCard?.querySelector("[data-kpi-detail='move-detected']");
     expect(detected?.textContent).toMatch(/^\d{2}:\d{2}$/);
     expect(detected?.textContent).not.toMatch(/\d{2}[-/]\d{2}|\d{4}/);
-    expect(screen.getByText("Bid")).toBeInTheDocument();
-    expect(screen.getByText("Ask")).toBeInTheDocument();
-    expect(screen.getByText("Spread")).toBeInTheDocument();
+    expect(screen.queryByText("Bid")).not.toBeInTheDocument();
+    expect(screen.queryByText("Ask")).not.toBeInTheDocument();
+    expect(screen.queryByText("Spread")).not.toBeInTheDocument();
     expect(screen.getByText("Data:")).toBeInTheDocument();
     expect(screen.getByText("Strength")).toBeInTheDocument();
     expect(screen.getByLabelText(/^60 sec$/i)).toBeInTheDocument();
@@ -429,7 +471,8 @@ describe("MarketAgentPage", () => {
     expect(nextCountdown?.querySelector(".market-agent-countdown-unit")?.textContent).toBe("sec");
     expect(nextCountdown?.querySelector(".market-agent-value-pulse")).not.toBeInTheDocument();
     expect(container.querySelectorAll(".market-agent-value-pulse").length).toBeGreaterThanOrEqual(8);
-    expect(container.querySelector(".market-agent-score-ring.market-agent-score-ring-animated")).toBeInTheDocument();
+    expect(container.querySelector(".market-agent-score-ring")).toBeInTheDocument();
+    expect(container.querySelector(".market-agent-score-ring.market-agent-score-ring-animated")).not.toBeInTheDocument();
     expect(container.querySelector(".market-agent-score-ring svg.market-agent-score-svg")).toBeInTheDocument();
     expect(container.querySelector(".market-agent-score-progress")).toBeInTheDocument();
     expect(container.querySelector(".market-agent-clock-icon.market-agent-clock-icon-animated")).toBeInTheDocument();
@@ -463,6 +506,140 @@ describe("MarketAgentPage", () => {
     expect(screen.queryByText("futures_proxy")).not.toBeInTheDocument();
     expect(screen.queryByText("core_structural")).not.toBeInTheDocument();
     expect(screen.queryByText(/No reliable free US2Y source is configured\./i)).not.toBeInTheDocument();
+  });
+
+  it("labels empty evidence support as contrary instead of market confidence", () => {
+    const zeroSupportEvidence: MarketAgentEvidenceForRunResponse = {
+      ...evidence,
+      payload: {
+        ...evidence.payload,
+        evidence_packet: {
+          ...evidence.payload.evidence_packet,
+          evidence_status: { dxy: "neutral", us10y: "neutral", us2y: "unavailable" }
+        },
+        analysis_result: {
+          ...evidence.payload.analysis_result,
+          cause_status: "contrary"
+        }
+      }
+    };
+    const zeroSupportReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        news_items: replay.replay.news_items.map((item) => ({ ...item, data_mode: "neutral" })),
+        calendar_events: replay.replay.calendar_events.map((item) => ({ ...item, data_mode: "neutral" }))
+      }
+    };
+    const { container } = renderMarketAgentPage({
+      replay: zeroSupportReplay,
+      selectedEvidence: zeroSupportEvidence
+    });
+
+    const scoreRing = container.querySelector(".market-agent-score-ring");
+    expect(within(scoreRing as HTMLElement).getByText("0")).toBeInTheDocument();
+    expect(within(scoreRing as HTMLElement).queryByText("Strong")).not.toBeInTheDocument();
+    expect(within(scoreRing as HTMLElement).getByText("Contrary")).toBeInTheDocument();
+    expect(container.querySelector(".market-agent-score-progress.is-empty")).toBeInTheDocument();
+    expect(screen.getByText(/Evidence Quality:/i).textContent).toContain("Contrary (0%)");
+  });
+
+  it("uses a full ring state when every evidence item supports the move", () => {
+    const fullSupportEvidence: MarketAgentEvidenceForRunResponse = {
+      ...evidence,
+      payload: {
+        ...evidence.payload,
+        evidence_packet: {
+          ...evidence.payload.evidence_packet,
+          evidence_status: { dxy: "confirming", us10y: "confirming" }
+        },
+        analysis_result: {
+          ...evidence.payload.analysis_result,
+          cause_status: "supporting"
+        }
+      }
+    };
+    const { container } = renderMarketAgentPage({ selectedEvidence: fullSupportEvidence });
+
+    const scoreRing = container.querySelector(".market-agent-score-ring");
+    const progress = container.querySelector(".market-agent-score-progress");
+    expect(within(scoreRing as HTMLElement).getByText("100")).toBeInTheDocument();
+    expect(within(scoreRing as HTMLElement).getByText("Strong")).toBeInTheDocument();
+    expect(progress).toHaveClass("is-full");
+    expect(progress).not.toHaveAttribute("stroke-dashoffset");
+    expect(progress).not.toHaveAttribute("stroke-dasharray");
+  });
+
+  it("draws partial evidence score arcs against the real circle circumference", () => {
+    const { container } = renderMarketAgentPage();
+
+    const scoreRing = container.querySelector(".market-agent-score-ring");
+    const progress = container.querySelector(".market-agent-score-progress");
+    const circumference = 2 * Math.PI * 34;
+    expect(scoreRing).toHaveAttribute("data-score-target", "80");
+    expect(Number(progress?.getAttribute("stroke-dasharray"))).toBeCloseTo(circumference, 6);
+    expect(Number(progress?.getAttribute("stroke-dashoffset"))).toBeCloseTo(circumference * 0.2, 6);
+    expect(progress).not.toHaveAttribute("pathLength");
+  });
+
+  it("renders the evidence score ring and percent as static values", () => {
+    const zeroSupportEvidence: MarketAgentEvidenceForRunResponse = {
+      ...evidence,
+      payload: {
+        ...evidence.payload,
+        evidence_packet: {
+          ...evidence.payload.evidence_packet,
+          evidence_status: { dxy: "neutral", us10y: "neutral", us2y: "unavailable" }
+        },
+        analysis_result: {
+          ...evidence.payload.analysis_result,
+          cause_status: "contrary"
+        }
+      }
+    };
+    const zeroSupportReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        news_items: replay.replay.news_items.map((item) => ({ ...item, data_mode: "neutral" })),
+        calendar_events: replay.replay.calendar_events.map((item) => ({ ...item, data_mode: "neutral" }))
+      }
+    };
+    const fullSupportEvidence: MarketAgentEvidenceForRunResponse = {
+      ...evidence,
+      payload: {
+        ...evidence.payload,
+        evidence_packet: {
+          ...evidence.payload.evidence_packet,
+          evidence_status: { dxy: "confirming", us10y: "confirming" }
+        },
+        analysis_result: {
+          ...evidence.payload.analysis_result,
+          cause_status: "supporting"
+        }
+      }
+    };
+
+    const { container, rerender } = renderMarketAgentPage({
+      replay: zeroSupportReplay,
+      selectedEvidence: zeroSupportEvidence
+    });
+
+    const initialRing = container.querySelector(".market-agent-score-ring");
+    expect(initialRing).toHaveAttribute("data-score-target", "0");
+    expect(initialRing).not.toHaveClass("market-agent-score-ring-animated");
+    expect(initialRing?.querySelector(".market-agent-score-number")).not.toHaveClass("market-agent-score-number-rolling");
+    expect(initialRing?.querySelector(".market-agent-score-digit")).not.toBeInTheDocument();
+    expect(initialRing?.querySelector(".market-agent-score-suffix")).toHaveTextContent("%");
+
+    rerender(marketAgentPageElement({ selectedEvidence: fullSupportEvidence }));
+
+    const updatedRing = container.querySelector(".market-agent-score-ring");
+    expect(updatedRing).toBe(initialRing);
+    expect(updatedRing).toHaveAttribute("data-score-target", "100");
+    expect(updatedRing?.querySelector(".market-agent-score-number")).toHaveTextContent("100");
+    expect(updatedRing?.querySelector(".market-agent-score-number")).not.toHaveClass("is-changing", "roll-up", "roll-down");
+    expect(updatedRing?.querySelector(".market-agent-score-progress")).not.toHaveAttribute("style");
   });
 
   it("shows latest move duration from the detected alert time", () => {
@@ -513,6 +690,46 @@ describe("MarketAgentPage", () => {
       unmount?.();
       vi.useRealTimers();
     }
+  });
+
+  it("keeps Market Agent usable when replay payloads are missing price series fields", () => {
+    const replayWithoutPriceSeries = {
+      ok: true,
+      available: true,
+      replay: {
+        related_assets: {},
+        news_items: [],
+        calendar_events: [],
+        driver_attention_timeline: [],
+        timeline_events: [],
+        state_transitions: [],
+        alerts: [],
+        suppressed_alerts: []
+      }
+    } as unknown as MarketAgentReplayResponse;
+
+    renderMarketAgentPage({ replay: replayWithoutPriceSeries });
+
+    expect(screen.getByRole("heading", { name: /XAUUSD \(Spot\)/i })).toBeInTheDocument();
+    expect(screen.getByText(/No price/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Replay \/ Timeline/i }));
+    fireEvent.click(screen.getByText(/Open full replay/i));
+    expect(screen.getByText(/Price series/i)).toBeInTheDocument();
+    expect(screen.getByText(/0 rows/i)).toBeInTheDocument();
+  });
+
+  it("shows a replay unavailable state when the backend omits replay payload", () => {
+    const replayWithoutPayload = {
+      ok: true,
+      available: false,
+      message: "Unable to read market replay price series: no such table"
+    } as unknown as MarketAgentReplayResponse;
+
+    renderMarketAgentPage({ replay: replayWithoutPayload });
+
+    expect(screen.getByRole("heading", { name: /XAUUSD \(Spot\)/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Replay \/ Timeline/i }));
+    expect(screen.getByText(/Unable to read market replay price series/i)).toBeInTheDocument();
   });
 
   it("keeps next update countdown within the monitoring interval", () => {

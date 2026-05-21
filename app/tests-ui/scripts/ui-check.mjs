@@ -2838,7 +2838,7 @@ const main = async () => {
             };
           };
           const items = [
-            read(".market-agent-price-card", ".market-agent-price-value-row", ".market-agent-price-meta"),
+            read(".market-agent-price-card", ".market-agent-price-value-row", ".market-agent-price-data"),
             read(".market-agent-state-card", ".market-agent-state-value", ".market-agent-state-details"),
             read(".market-agent-move-card", ".market-agent-move-type", ".market-agent-move-details"),
             read(".market-agent-evidence-score-card", ".market-agent-evidence-score", ".market-agent-evidence-quality"),
@@ -2857,11 +2857,15 @@ const main = async () => {
           if ([priceTop, stateTop, moveTop, evidenceTop, nextTop].some((value) => typeof value !== "number")) {
             problems.push("Market Agent KPI primary geometry could not be measured");
           } else {
-            const narrativeTopSpread = Math.max(priceTop, stateTop, moveTop) - Math.min(priceTop, stateTop, moveTop);
-            const evidenceOffset = evidenceTop - priceTop;
-            const nextOffset = nextTop - priceTop;
+            const narrativeTopSpread = Math.abs(stateTop - moveTop);
+            const priceOffset = priceTop - stateTop;
+            const evidenceOffset = evidenceTop - stateTop;
+            const nextOffset = nextTop - stateTop;
             if (narrativeTopSpread > 4) {
-              problems.push(`Market Agent price/state/move primary values do not share a clean top line (${narrativeTopSpread.toFixed(1)}px spread)`);
+              problems.push(`Market Agent state/move primary values do not share a clean top line (${narrativeTopSpread.toFixed(1)}px spread)`);
+            }
+            if (priceOffset < 4 || priceOffset > 12) {
+              problems.push(`Market Agent price value is not gently centered in its simplified card (${priceOffset.toFixed(1)}px offset)`);
             }
             if (evidenceOffset < -8 || evidenceOffset > 6) {
               problems.push(`Market Agent Evidence Status ring sits outside the shared KPI content band (${evidenceOffset.toFixed(1)}px offset)`);
@@ -3094,10 +3098,16 @@ const main = async () => {
             problems.push(`stale Market Agent dashboard label still visible: ${label}`);
           }
         }
-        const requiredKpiLabels = ["Bid", "Ask", "Spread", "Data:", "Strength", "Every 60 seconds"];
+        const requiredKpiLabels = ["Data:", "Strength", "Every 60 seconds"];
         requiredKpiLabels.forEach((label) => {
           if (!text.includes(label)) {
             problems.push(`Market Agent KPI label missing: ${label}`);
+          }
+        });
+        const priceCardText = document.querySelector(".market-agent-price-card")?.textContent || "";
+        ["Bid", "Ask", "Spread"].forEach((label) => {
+          if (priceCardText.includes(label)) {
+            problems.push(`Market Agent price card still shows low-value quote label: ${label}`);
           }
         });
         const marketStateCard = document.querySelector(".market-agent-state-card");
@@ -3354,7 +3364,6 @@ const main = async () => {
         }
         const animatedSelectors = [
           [".market-agent-price-card .market-agent-value-pulse", "price value"],
-          [".market-agent-score-ring-animated", "evidence score ring"],
           [".market-agent-attention-table-row.market-agent-animated-row", "driver rows"],
           [".market-agent-timeline-track-row.market-agent-animated-row", "timeline rows"],
           [".market-agent-evidence-feed-row.market-agent-animated-row", "evidence rows"],
@@ -3409,10 +3418,68 @@ const main = async () => {
             const numberText = (scoreNumber.textContent || "").trim();
             const suffixText = (scoreSuffix.textContent || "").trim();
             if (!/^\d+$/.test(numberText) || suffixText !== "%") {
-              problems.push(`Market Agent Evidence Status score should animate only digits (${numberText}${suffixText})`);
+              problems.push(`Market Agent Evidence Status score should render as static number plus percent (${numberText}${suffixText})`);
             }
-            if (!scoreNumber.classList.contains("market-agent-value-pulse") || scoreSuffix.classList.contains("market-agent-value-pulse")) {
-              problems.push("Market Agent Evidence Status percent suffix is included in value animation");
+            const progress = scoreRing.querySelector(".market-agent-score-progress");
+            if (
+              scoreRing.classList.contains("market-agent-score-ring-animated") ||
+              scoreNumber.classList.contains("market-agent-value-pulse") ||
+              scoreNumber.classList.contains("market-agent-score-number-rolling") ||
+              scoreSuffix.classList.contains("market-agent-value-pulse") ||
+              scoreNumber.querySelector(".market-agent-score-digit")
+            ) {
+              problems.push("Market Agent Evidence Status score/ring should be static, not animated");
+            }
+            const ringMotion = [
+              window.getComputedStyle(scoreRing),
+              progress instanceof SVGElement ? window.getComputedStyle(progress) : null,
+              window.getComputedStyle(scoreNumber),
+              window.getComputedStyle(scoreSuffix)
+            ].some((style) =>
+              style &&
+              (
+                (style.animationName && style.animationName !== "none" && style.animationDuration !== "0s") ||
+                (style.transitionDuration || "").split(",").some((duration) => Number.parseFloat(duration) > 0)
+              )
+            );
+            if (ringMotion) {
+              problems.push("Market Agent Evidence Status score/ring still has CSS animation or transition");
+            }
+            const numericScore = Number.parseInt(numberText, 10);
+            const strengthText = (scoreRing.querySelector(".market-agent-score-strength")?.textContent || "").trim();
+            if (Number.isFinite(numericScore) && progress instanceof SVGElement) {
+              const circleLength = typeof progress.getTotalLength === "function" ? progress.getTotalLength() : 0;
+              if (numericScore === 0) {
+                if (strengthText === "Strong") {
+                  problems.push("Market Agent Evidence Status shows Strong for a 0% evidence score");
+                }
+                if (!progress.classList.contains("is-empty")) {
+                  problems.push("Market Agent Evidence Status 0% ring still exposes a progress stroke");
+                }
+              } else if (progress.classList.contains("is-empty")) {
+                problems.push(`Market Agent Evidence Status marks a non-zero score as empty (${numericScore}%)`);
+              }
+              if (numericScore === 100) {
+                if (!progress.classList.contains("is-full")) {
+                  problems.push("Market Agent Evidence Status 100% ring is not using the full-ring state");
+                }
+                if (progress.hasAttribute("stroke-dasharray") || progress.hasAttribute("stroke-dashoffset")) {
+                  problems.push("Market Agent Evidence Status 100% ring still uses dash attributes that can leave a seam");
+                }
+              } else if (progress.classList.contains("is-full")) {
+                problems.push(`Market Agent Evidence Status marks a partial score as full (${numericScore}%)`);
+              }
+              if (numericScore > 0 && numericScore < 100) {
+                const dashArray = Number.parseFloat(progress.getAttribute("stroke-dasharray") || "");
+                const dashOffset = Number.parseFloat(progress.getAttribute("stroke-dashoffset") || "");
+                const expectedOffset = circleLength * (1 - numericScore / 100);
+                if (!Number.isFinite(dashArray) || Math.abs(dashArray - circleLength) > 1) {
+                  problems.push(`Market Agent Evidence Status partial ring does not use real circumference dash (${dashArray} vs ${circleLength.toFixed(1)})`);
+                }
+                if (!Number.isFinite(dashOffset) || Math.abs(dashOffset - expectedOffset) > 1) {
+                  problems.push(`Market Agent Evidence Status partial ring offset does not match score ${numericScore}% (${dashOffset} vs ${expectedOffset.toFixed(1)})`);
+                }
+              }
             }
             const numberColor = parseRgbTriples(window.getComputedStyle(scoreNumber).color)[0];
             if (numberColor) {

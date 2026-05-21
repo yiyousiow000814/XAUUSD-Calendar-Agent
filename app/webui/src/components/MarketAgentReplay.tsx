@@ -6,6 +6,7 @@ import {
   humanizeMarketAgentReason,
   humanizeMarketAgentValue
 } from "../utils/marketAgentUi";
+import { normalizeMarketAgentReplayPayload } from "../utils/marketAgentReplay";
 import "./MarketAgentReplay.css";
 
 type MarketAgentReplayProps = {
@@ -112,7 +113,7 @@ export function MarketAgentReplay({
   onApplyRange,
   onSelectRun
 }: MarketAgentReplayProps) {
-  const payload = replay?.replay;
+  const payload = normalizeMarketAgentReplayPayload(replay?.replay);
 
   return (
     <section className="market-agent-surface" data-qa="qa:market-agent:replay">
@@ -152,7 +153,7 @@ export function MarketAgentReplay({
         </button>
       </div>
 
-      {!replay?.available || !payload ? (
+      {!replay?.available ? (
         <div className="market-agent-empty-state">{replay?.message || "Replay data is unavailable."}</div>
       ) : (
         <>
