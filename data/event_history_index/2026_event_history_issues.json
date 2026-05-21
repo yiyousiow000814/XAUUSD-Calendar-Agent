@@ -1,5 +1,5 @@
 {
-  "generated_at": "19-05-2026 16:37",
+  "generated_at": "21-05-2026 16:29",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -542,8 +542,8 @@
       "date": "2026-05-28",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "211K",
-      "previous_effective": "211K"
+      "prior_actual": "209K",
+      "previous_effective": "209K"
     },
     {
       "issue": "previous_missing_filled",
@@ -554,8 +554,8 @@
       "date": "2026-05-28",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "203.75K",
-      "previous_effective": "203.75K"
+      "prior_actual": "202.50K",
+      "previous_effective": "202.50K"
     },
     {
       "issue": "previous_missing_filled",
@@ -566,8 +566,8 @@
       "date": "2026-05-28",
       "time": "22:30",
       "previous_raw": "",
-      "prior_actual": "85B",
-      "previous_effective": "85B"
+      "prior_actual": "101B",
+      "previous_effective": "101B"
     },
     {
       "issue": "previous_missing_filled",
@@ -590,8 +590,8 @@
       "date": "2026-05-28",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "3.605%",
-      "previous_effective": "3.605%"
+      "prior_actual": "3.610%",
+      "previous_effective": "3.610%"
     },
     {
       "issue": "previous_missing_filled",
@@ -602,8 +602,8 @@
       "date": "2026-05-28",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "3.610%",
-      "previous_effective": "3.610%"
+      "prior_actual": "3.600%",
+      "previous_effective": "3.600%"
     },
     {
       "issue": "previous_missing_filled",
@@ -626,8 +626,68 @@
       "date": "2026-05-28",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "4.0%",
-      "previous_effective": "4.0%"
+      "prior_actual": "4.3%",
+      "previous_effective": "4.3%"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "CAD::Retail Sales::m/m",
+      "cur": "CAD",
+      "event": "Retail Sales (MoM)  (Apr)",
+      "period": "apr",
+      "date": "2026-05-22",
+      "time": "20:30",
+      "previous_raw": "",
+      "prior_actual": "0.6%",
+      "previous_effective": "0.6%"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "USD::U.S. Baker Hughes Oil Rig Count::none",
+      "cur": "USD",
+      "event": "U.S. Baker Hughes Oil Rig Count",
+      "period": "",
+      "date": "2026-05-30",
+      "time": "01:00",
+      "previous_raw": "",
+      "prior_actual": "415",
+      "previous_effective": "415"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "INR::FX Reserves, USD::none",
+      "cur": "INR",
+      "event": "FX Reserves, USD",
+      "period": "",
+      "date": "2026-05-29",
+      "time": "19:30",
+      "previous_raw": "",
+      "prior_actual": "696.99B",
+      "previous_effective": "696.99B"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "USD::U.S. Baker Hughes Total Rig Count::none",
+      "cur": "USD",
+      "event": "U.S. Baker Hughes Total Rig Count",
+      "period": "",
+      "date": "2026-05-30",
+      "time": "01:00",
+      "previous_raw": "",
+      "prior_actual": "551",
+      "previous_effective": "551"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "USD::Atlanta Fed GDPNow::none",
+      "cur": "USD",
+      "event": "Atlanta Fed GDPNow  (Q2)",
+      "period": "q2",
+      "date": "2026-06-01",
+      "time": "23:30",
+      "previous_raw": "",
+      "prior_actual": "4.3%",
+      "previous_effective": "4.3%"
     }
   ]
 }
