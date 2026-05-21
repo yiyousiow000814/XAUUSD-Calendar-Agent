@@ -9067,117 +9067,113 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-21,Thursday,All Day,,Holiday,Montenegro - Independence Day,,,
 2026-05-21,Thursday,00:00,RUB,Low,PPI (MoM)  (Apr),6.1%,,2.0%
 2026-05-21,Thursday,00:00,RUB,Low,PPI (YoY)  (Apr),5.5%,,-1.8%
-2026-05-21,Thursday,01:30,BRL,Low,Foreign Exchange Flows,,,-1.438B
+2026-05-21,Thursday,01:00,USD,Medium,20-Year Bond Auction,5.122%,,4.883%
+2026-05-21,Thursday,01:30,BRL,Low,Foreign Exchange Flows,3.026B,,-1.438B
 2026-05-21,Thursday,02:00,USD,High,FOMC Meeting Minutes,,,
-2026-05-21,Thursday,03:00,ARS,Low,Trade Balance  (Apr),,"1,760M","2,523M"
-2026-05-21,Thursday,05:00,KRW,Low,PPI (MoM)  (Apr),,,1.6%
-2026-05-21,Thursday,05:00,KRW,Low,PPI (YoY)  (Apr),,,4.1%
-2026-05-21,Thursday,06:45,NZD,Low,Exports  (Apr),,,7.94B
-2026-05-21,Thursday,06:45,NZD,Low,Imports  (Apr),,,7.25B
-2026-05-21,Thursday,06:45,NZD,Low,Trade Balance (MoM)  (Apr),,980M,698M
-2026-05-21,Thursday,06:45,NZD,Low,Trade Balance (YoY)  (Apr),,,"-3,190M"
-2026-05-21,Thursday,07:00,AUD,Low,S&P Global Manufacturing & Services PMI  (May),,,50.40
-2026-05-21,Thursday,07:00,AUD,Low,S&P Global Manufacturing PMI  (May),,,51.3
-2026-05-21,Thursday,07:00,AUD,Low,S&P Global Services PMI  (May),,,50.7
-2026-05-21,Thursday,07:50,JPY,Low,Core Machinery Orders (MoM)  (Mar),,-7.7%,13.6%
-2026-05-21,Thursday,07:50,JPY,Low,Core Machinery Orders (YoY)  (Mar),,4.5%,24.7%
-2026-05-21,Thursday,07:50,JPY,Low,Foreign Bonds Buying,,,"1,640.7B"
-2026-05-21,Thursday,07:50,JPY,Low,Foreign Investments in Japanese Stocks,,,"1,437.5B"
-2026-05-21,Thursday,07:50,JPY,Low,Imports (YoY)  (Apr),,8.3%,10.9%
-2026-05-21,Thursday,07:50,JPY,Medium,Adjusted Trade Balance,,-0.23T,0.09T
-2026-05-21,Thursday,07:50,JPY,Medium,Exports (YoY)  (Apr),,9.3%,11.5%
-2026-05-21,Thursday,07:50,JPY,Medium,Trade Balance  (Apr),,-29.7B,643.0B
-2026-05-21,Thursday,08:30,JPY,Low,Manufacturing & Services PMI  (May),,,52.20
-2026-05-21,Thursday,08:30,JPY,Low,S&P Global Manufacturing PMI  (May),,54.5,55.1
-2026-05-21,Thursday,08:30,JPY,Medium,S&P Global Services PMI  (May),,,51.0
-2026-05-21,Thursday,09:00,AUD,Low,MI Inflation Expectations  (May),,,5.9%
-2026-05-21,Thursday,09:30,AUD,Low,Participation Rate  (Apr),,66.8%,66.8%
-2026-05-21,Thursday,09:30,AUD,Low,Reserve Assets Total  (Apr),,,"115,963.0B"
-2026-05-21,Thursday,09:30,AUD,Medium,Employment Change  (Apr),,16.7K,17.9K
-2026-05-21,Thursday,09:30,AUD,Medium,Full Employment Change  (Apr),,,52.5K
-2026-05-21,Thursday,09:30,AUD,Medium,Unemployment Rate  (Apr),,4.3%,4.3%
-2026-05-21,Thursday,10:00,AUD,Low,MI Leading Index (MoM)  (Apr),,,-0.1%
-2026-05-21,Thursday,11:00,NZD,Low,Credit Card Spending (YoY)  (Apr),,,2.1%
-2026-05-21,Thursday,12:30,EUR,Low,Dutch Consumer Confidence  (May),,,-44.0
-2026-05-21,Thursday,12:30,EUR,Low,Dutch Unemployment Rate  (Apr),,,4.0%
-2026-05-21,Thursday,13:00,INR,Low,HSBC India Manufacturing PMI  (May),,,54.7
-2026-05-21,Thursday,13:00,INR,Low,HSBC India Services PMI  (May),,,58.8
-2026-05-21,Thursday,13:00,INR,Low,HSBC Manufacturing & Services PMI  (May),,,58.20
-2026-05-21,Thursday,14:00,DKK,Low,Consumer Confidence  (May),,,-18.6
-2026-05-21,Thursday,14:00,SEK,Low,Unemployment Rate  (Apr),,,9.7%
-2026-05-21,Thursday,14:30,CHF,Low,Industrial Production (YoY)  (Q1),,0.50%,-0.70%
-2026-05-21,Thursday,15:00,CHF,Low,M3 Money Supply  (Apr),,,"1,221,317.0B"
-2026-05-21,Thursday,15:00,SEK,Low,Capacity Utilization (QoQ)  (Q1),,,-0.6%
-2026-05-21,Thursday,15:15,EUR,Low,HCOB France Composite PMI  (May),,47.7,47.6
-2026-05-21,Thursday,15:15,EUR,Medium,HCOB France Manufacturing PMI  (May),,52.1,52.8
-2026-05-21,Thursday,15:15,EUR,Medium,HCOB France Services PMI  (May),,46.6,46.5
-2026-05-21,Thursday,15:30,EUR,Low,HCOB Germany Composite PMI  (May),,48.4,48.4
-2026-05-21,Thursday,15:30,EUR,Medium,HCOB Germany Manufacturing PMI  (May),,51.0,51.4
-2026-05-21,Thursday,15:30,EUR,Medium,HCOB Germany Services PMI  (May),,47.1,46.9
-2026-05-21,Thursday,15:30,PLN,Low,Corp. Sector Wages (YoY)  (Apr),,6.0%,6.6%
-2026-05-21,Thursday,15:30,PLN,Low,Employment Growth (YoY)  (Apr),,-0.9%,-0.9%
-2026-05-21,Thursday,15:30,PLN,Low,Industrial Output (YoY)  (Apr),,4.2%,9.4%
-2026-05-21,Thursday,15:30,PLN,Low,PPI (YoY)  (Apr),,-0.1%,-0.8%
-2026-05-21,Thursday,16:00,EUR,Low,Current Account  (Mar),,26.3B,24.9B
-2026-05-21,Thursday,16:00,EUR,Low,Current Account n.s.a.  (Mar),,,21.1B
-2026-05-21,Thursday,16:00,EUR,Medium,HCOB Eurozone Composite PMI  (May),,48.8,48.8
-2026-05-21,Thursday,16:00,EUR,Medium,HCOB Eurozone Manufacturing PMI  (May),,51.7,52.2
-2026-05-21,Thursday,16:00,EUR,Medium,HCOB Eurozone Services PMI  (May),,47.8,47.6
-2026-05-21,Thursday,16:00,TWD,Low,GDP (YoY)  (Q1),,13.69%,12.65%
-2026-05-21,Thursday,16:30,GBP,Medium,S&P Global Composite PMI  (May),,51.6,52.6
-2026-05-21,Thursday,16:30,GBP,Medium,S&P Global Manufacturing PMI  (May),,52.9,53.7
-2026-05-21,Thursday,16:30,GBP,Medium,S&P Global Services PMI  (May),,51.7,52.7
-2026-05-21,Thursday,16:30,HKD,Low,CPI (MoM)  (Apr),,,0.00%
-2026-05-21,Thursday,16:30,HKD,Low,CPI (YoY)  (Apr),,,1.70%
-2026-05-21,Thursday,16:40,EUR,Low,Spanish 7-Year Obligacion Auction,,,3.107%
-2026-05-21,Thursday,17:00,EUR,Low,Construction Output (MoM)  (Mar),,,-0.19%
-2026-05-21,Thursday,17:00,EUR,Low,Labor Cost Index (YoY)  (Q1),,,3.30%
+2026-05-21,Thursday,03:00,ARS,Low,Trade Balance  (Apr),"2,711M","1,760M","2,581M"
+2026-05-21,Thursday,05:00,KRW,Low,PPI (MoM)  (Apr),2.5%,,1.7%
+2026-05-21,Thursday,05:00,KRW,Low,PPI (YoY)  (Apr),6.9%,,4.1%
+2026-05-21,Thursday,06:45,NZD,Low,Exports  (Apr),8.62B,,7.66B
+2026-05-21,Thursday,06:45,NZD,Low,Imports  (Apr),6.70B,,7.23B
+2026-05-21,Thursday,06:45,NZD,Low,Trade Balance (MoM)  (Apr),"1,920M",980M,430M
+2026-05-21,Thursday,06:45,NZD,Low,Trade Balance (YoY)  (Apr),"-2,760M",,"-3,490M"
+2026-05-21,Thursday,07:00,AUD,Low,S&P Global Manufacturing & Services PMI  (May),47.80,,50.40
+2026-05-21,Thursday,07:00,AUD,Low,S&P Global Manufacturing PMI  (May),50.2,,51.3
+2026-05-21,Thursday,07:00,AUD,Low,S&P Global Services PMI  (May),47.7,,50.7
+2026-05-21,Thursday,07:50,JPY,Low,Core Machinery Orders (MoM)  (Mar),-9.4%,-7.7%,13.6%
+2026-05-21,Thursday,07:50,JPY,Low,Core Machinery Orders (YoY)  (Mar),5.9%,4.5%,24.7%
+2026-05-21,Thursday,07:50,JPY,Low,Foreign Bonds Buying,758.7B,,"1,644.3B"
+2026-05-21,Thursday,07:50,JPY,Low,Foreign Investments in Japanese Stocks,949.6B,,"1,393.5B"
+2026-05-21,Thursday,07:50,JPY,Low,Imports (YoY)  (Apr),9.7%,8.3%,10.9%
+2026-05-21,Thursday,07:50,JPY,Medium,Adjusted Trade Balance,0.24T,-0.23T,0.09T
+2026-05-21,Thursday,07:50,JPY,Medium,Exports (YoY)  (Apr),14.8%,9.3%,11.5%
+2026-05-21,Thursday,07:50,JPY,Medium,Trade Balance  (Apr),301.9B,-29.7B,643.0B
+2026-05-21,Thursday,08:30,JPY,Low,Manufacturing & Services PMI  (May),51.10,,52.20
+2026-05-21,Thursday,08:30,JPY,Low,S&P Global Manufacturing PMI  (May),54.5,54.5,55.1
+2026-05-21,Thursday,08:30,JPY,Medium,S&P Global Services PMI  (May),50.0,,51.0
+2026-05-21,Thursday,09:00,AUD,Low,MI Inflation Expectations  (May),5.6%,,5.9%
+2026-05-21,Thursday,09:30,AUD,Low,Participation Rate  (Apr),66.7%,66.8%,66.8%
+2026-05-21,Thursday,09:30,AUD,Low,Reserve Assets Total  (Apr),115.6B,,116.0B
+2026-05-21,Thursday,09:30,AUD,Medium,Employment Change  (Apr),-18.6K,16.7K,23.3K
+2026-05-21,Thursday,09:30,AUD,Medium,Full Employment Change  (Apr),-10.7K,,63.4K
+2026-05-21,Thursday,09:30,AUD,Medium,Unemployment Rate  (Apr),4.5%,4.3%,4.3%
+2026-05-21,Thursday,11:00,NZD,Low,Credit Card Spending (YoY)  (Apr),2.9%,,2.1%
+2026-05-21,Thursday,12:30,EUR,Low,Dutch Consumer Confidence  (May),-46.0,,-44.0
+2026-05-21,Thursday,12:30,EUR,Low,Dutch Unemployment Rate  (Apr),3.9%,,4.0%
+2026-05-21,Thursday,13:00,INR,Low,HSBC India Manufacturing PMI  (May),54.3,,54.7
+2026-05-21,Thursday,13:00,INR,Low,HSBC India Services PMI  (May),58.9,,58.8
+2026-05-21,Thursday,13:00,INR,Low,HSBC Manufacturing & Services PMI  (May),58.10,,58.20
+2026-05-21,Thursday,14:00,DKK,Low,Consumer Confidence  (May),-19.8,,-18.6
+2026-05-21,Thursday,14:00,SEK,Low,Unemployment Rate  (Apr),8.7%,,9.7%
+2026-05-21,Thursday,14:30,CHF,Low,Industrial Production (YoY)  (Q1),-7.10%,0.50%,-0.40%
+2026-05-21,Thursday,15:00,CHF,Low,M3 Money Supply  (Apr),"1,228.5B",,"1,223.2B"
+2026-05-21,Thursday,15:00,EUR,Low,Slovak Current Account  (Mar),-166.0M,,-246.0M
+2026-05-21,Thursday,15:15,EUR,Low,HCOB France Composite PMI  (May),43.5,47.7,47.6
+2026-05-21,Thursday,15:15,EUR,Medium,HCOB France Manufacturing PMI  (May),48.9,52.1,52.8
+2026-05-21,Thursday,15:15,EUR,Medium,HCOB France Services PMI  (May),42.9,46.6,46.5
+2026-05-21,Thursday,15:30,EUR,Low,HCOB Germany Composite PMI  (May),48.6,48.4,48.4
+2026-05-21,Thursday,15:30,EUR,Medium,HCOB Germany Manufacturing PMI  (May),49.9,51.0,51.4
+2026-05-21,Thursday,15:30,EUR,Medium,HCOB Germany Services PMI  (May),47.8,47.1,46.9
+2026-05-21,Thursday,15:30,PLN,Low,Corp. Sector Wages (YoY)  (Apr),5.4%,6.0%,6.6%
+2026-05-21,Thursday,15:30,PLN,Low,Employment Growth (YoY)  (Apr),-0.9%,-0.9%,-0.9%
+2026-05-21,Thursday,15:30,PLN,Low,Industrial Output (YoY)  (Apr),3.1%,4.2%,7.5%
+2026-05-21,Thursday,15:30,PLN,Low,PPI (YoY)  (Apr),1.9%,-0.1%,1.2%
+2026-05-21,Thursday,16:00,EUR,Low,Current Account  (Mar),14.9B,26.3B,25.6B
+2026-05-21,Thursday,16:00,EUR,Low,Current Account n.s.a.  (Mar),24.1B,,21.1B
+2026-05-21,Thursday,16:00,EUR,Medium,HCOB Eurozone Composite PMI  (May),47.5,48.8,48.8
+2026-05-21,Thursday,16:00,EUR,Medium,HCOB Eurozone Manufacturing PMI  (May),51.4,51.7,52.2
+2026-05-21,Thursday,16:00,EUR,Medium,HCOB Eurozone Services PMI  (May),46.4,47.8,47.6
+2026-05-21,Thursday,16:30,GBP,Medium,S&P Global Composite PMI  (May),48.5,51.6,52.6
+2026-05-21,Thursday,16:30,GBP,Medium,S&P Global Manufacturing PMI  (May),53.7,52.9,53.7
+2026-05-21,Thursday,16:30,GBP,Medium,S&P Global Services PMI  (May),47.9,51.7,52.7
+2026-05-21,Thursday,16:30,HKD,Low,CPI (MoM)  (Apr),-0.10%,,0.00%
+2026-05-21,Thursday,16:30,HKD,Low,CPI (YoY)  (Apr),1.70%,,1.70%
+2026-05-21,Thursday,17:00,EUR,Low,Construction Output (MoM)  (Mar),0.78%,,-0.77%
+2026-05-21,Thursday,17:00,EUR,Low,Labor Cost Index (YoY)  (Q1),3.30%,,3.30%
+2026-05-21,Thursday,17:00,EUR,Low,Spanish 7-Year Obligacion Auction,3.164%,,3.107%
 2026-05-21,Thursday,17:00,EUR,Medium,EU Economic Forecasts,,,
-2026-05-21,Thursday,17:00,RWF,Low,Repo Rate,,,7.25%
+2026-05-21,Thursday,17:00,GBP,Low,10-Year Treasury Gilt Auction,5.030%,,4.911%
+2026-05-21,Thursday,17:00,RWF,Low,Repo Rate,8.25%,,7.25%
 2026-05-21,Thursday,18:00,EUR,Low,German Buba Monthly Report,,,
-2026-05-21,Thursday,18:00,EUR,Low,Portuguese Current Account  (Mar),,,-0.271B
-2026-05-21,Thursday,18:00,EUR,Low,Slovak Current Account  (Mar),,,-398.0M
-2026-05-21,Thursday,18:00,GBP,Low,CBI Industrial Trends Orders  (May),,-40,-38
-2026-05-21,Thursday,18:00,GHS,Low,PPI (YoY)  (Apr),,,1.50%
-2026-05-21,Thursday,19:00,CNY,Low,FDI  (Apr),,,-7.30%
-2026-05-21,Thursday,19:30,TRY,Low,Gross FX Reserves,,,60.56B
-2026-05-21,Thursday,19:30,TRY,Low,Net FX Reserves,,,55.02%
+2026-05-21,Thursday,18:00,EUR,Low,Portuguese Current Account  (Mar),-0.616B,,-0.710B
+2026-05-21,Thursday,18:00,GBP,Low,CBI Industrial Trends Orders  (May),-41,-40,-38
+2026-05-21,Thursday,19:30,TRY,Low,Net FX Reserves,52.12%,,55.02%
 2026-05-21,Thursday,20:00,BRL,Low,BCB National Monetary Council Meeting,,,
-2026-05-21,Thursday,20:00,MXN,Low,Retail Sales (MoM)  (Mar),,0.5%,-0.9%
-2026-05-21,Thursday,20:00,MXN,Low,Retail Sales (YoY)  (Mar),,3.1%,3.1%
-2026-05-21,Thursday,20:30,USD,High,Initial Jobless Claims,,210K,211K
-2026-05-21,Thursday,20:30,USD,High,Philadelphia Fed Manufacturing Index  (May),,17.6,26.7
-2026-05-21,Thursday,20:30,USD,Low,Building Permits (MoM)  (Apr),,,-11.4%
-2026-05-21,Thursday,20:30,USD,Low,Jobless Claims 4-Week Avg.,,,203.75K
-2026-05-21,Thursday,20:30,USD,Low,Philly Fed Business Conditions  (May),,,40.8
-2026-05-21,Thursday,20:30,USD,Low,Philly Fed CAPEX Index  (May),,,35.20
-2026-05-21,Thursday,20:30,USD,Low,Philly Fed New Orders  (May),,,33.0
-2026-05-21,Thursday,20:30,USD,Low,Philly Fed Prices Paid  (May),,,59.30
-2026-05-21,Thursday,20:30,USD,Medium,Building Permits  (Apr),,1.380M,1.363M
-2026-05-21,Thursday,20:30,USD,Medium,Continuing Jobless Claims,,"1,790K","1,782K"
-2026-05-21,Thursday,20:30,USD,Medium,Housing Starts  (Apr),,1.420M,1.502M
-2026-05-21,Thursday,20:30,USD,Medium,Housing Starts (MoM)  (Apr),,,10.8%
-2026-05-21,Thursday,20:30,USD,Medium,Philly Fed Employment  (May),,,-5.1
-2026-05-21,Thursday,21:00,RUB,Low,Central Bank reserves (USD),,,771.0B
-2026-05-21,Thursday,21:45,USD,High,S&P Global Manufacturing PMI  (May),,53.8,54.5
-2026-05-21,Thursday,21:45,USD,High,S&P Global Services PMI  (May),,51.1,51.0
-2026-05-21,Thursday,21:45,USD,Medium,S&P Global Composite PMI  (May),,,51.7
-2026-05-21,Thursday,22:00,EUR,Low,Consumer Confidence  (May),,-21.0,-20.6
-2026-05-21,Thursday,22:00,USD,Medium,Atlanta Fed GDPNow  (Q2),,4.0%,4.0%
-2026-05-21,Thursday,22:30,USD,Low,Natural Gas Storage,,96B,85B
+2026-05-21,Thursday,20:00,MXN,Low,Retail Sales (MoM)  (Mar),0.1%,0.5%,-0.9%
+2026-05-21,Thursday,20:00,MXN,Low,Retail Sales (YoY)  (Mar),2.9%,3.1%,3.1%
+2026-05-21,Thursday,20:30,USD,High,Initial Jobless Claims,209K,210K,212K
+2026-05-21,Thursday,20:30,USD,High,Philadelphia Fed Manufacturing Index  (May),-0.4,17.6,26.7
+2026-05-21,Thursday,20:30,USD,Low,Building Permits (MoM)  (Apr),5.8%,,-11.5%
+2026-05-21,Thursday,20:30,USD,Low,Jobless Claims 4-Week Avg.,202.50K,,204.00K
+2026-05-21,Thursday,20:30,USD,Low,Philly Fed Business Conditions  (May),53.2,,40.8
+2026-05-21,Thursday,20:30,USD,Low,Philly Fed CAPEX Index  (May),30.90,,35.20
+2026-05-21,Thursday,20:30,USD,Low,Philly Fed New Orders  (May),-1.7,,33.0
+2026-05-21,Thursday,20:30,USD,Low,Philly Fed Prices Paid  (May),47.90,,59.30
+2026-05-21,Thursday,20:30,USD,Medium,Building Permits  (Apr),1.442M,1.380M,1.363M
+2026-05-21,Thursday,20:30,USD,Medium,Continuing Jobless Claims,"1,782K","1,790K","1,776K"
+2026-05-21,Thursday,20:30,USD,Medium,Housing Starts  (Apr),1.465M,1.420M,1.507M
+2026-05-21,Thursday,20:30,USD,Medium,Housing Starts (MoM)  (Apr),-2.8%,,12.0%
+2026-05-21,Thursday,20:30,USD,Medium,Philly Fed Employment  (May),-2.8,,-5.1
+2026-05-21,Thursday,21:00,RUB,Low,Central Bank reserves (USD),768.9B,,771.0B
+2026-05-21,Thursday,21:45,USD,High,S&P Global Manufacturing PMI  (May),55.3,53.8,54.5
+2026-05-21,Thursday,21:45,USD,High,S&P Global Services PMI  (May),50.9,51.1,51.0
+2026-05-21,Thursday,21:45,USD,Medium,S&P Global Composite PMI  (May),51.7,,51.7
+2026-05-21,Thursday,22:00,EUR,Low,Consumer Confidence  (May),-19.0,-21.0,-20.6
+2026-05-21,Thursday,22:00,USD,Medium,Atlanta Fed GDPNow  (Q2),4.3%,4.0%,4.0%
+2026-05-21,Thursday,22:30,USD,Low,Natural Gas Storage,101B,96B,85B
 2026-05-21,Thursday,23:00,GBP,Medium,BoE Gov Bailey Speaks,,,
 2026-05-21,Thursday,23:00,MXN,Medium,Monetary Policy Meeting Minutes,,,
-2026-05-21,Thursday,23:00,USD,Low,KC Fed Composite Index  (May),,,10
-2026-05-21,Thursday,23:00,USD,Low,KC Fed Manufacturing Index  (May),,,10
+2026-05-21,Thursday,23:00,USD,Low,KC Fed Composite Index  (May),8,,10
+2026-05-21,Thursday,23:00,USD,Low,KC Fed Manufacturing Index  (May),9,,10
 2026-05-21,Thursday,23:30,EUR,Medium,ECB's Elderson Speaks,,,
-2026-05-21,Thursday,23:30,USD,Low,4-Week Bill Auction,,,3.605%
-2026-05-21,Thursday,23:30,USD,Low,8-Week Bill Auction,,,3.610%
+2026-05-21,Thursday,23:30,USD,Low,4-Week Bill Auction,3.610%,,3.605%
+2026-05-21,Thursday,23:30,USD,Low,8-Week Bill Auction,3.600%,,3.610%
 2026-05-22,Friday,All Day,,Holiday,Bermuda - National Day,,,
 2026-05-22,Friday,All Day,,Holiday,Israel - Shavuot,,,
 2026-05-22,Friday,All Day,,Holiday,Montenegro - Independence Day,,,
 2026-05-22,Friday,00:20,USD,Low,FOMC Member Barkin Speaks,,,
-2026-05-22,Friday,01:00,EGP,Low,Interest Rate Decision,,,19.00%
-2026-05-22,Friday,01:00,EGP,Low,Overnight Lending Rate,,,20.00%
+2026-05-22,Friday,01:00,EGP,Low,Interest Rate Decision,19.00%,19.00%,19.00%
+2026-05-22,Friday,01:00,EGP,Low,Overnight Lending Rate,20.00%,,20.00%
 2026-05-22,Friday,01:00,USD,Medium,10-Year TIPS Auction,,,1.896%
 2026-05-22,Friday,03:00,ARS,Low,Economic Activity (YoY)  (Mar),,-2.1%,-2.1%
 2026-05-22,Friday,04:30,USD,Low,Reserve Balances with Federal Reserve Banks,,,3.117T
@@ -9197,15 +9193,16 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-22,Friday,11:00,IDR,Low,Current Account % of GDP  (Q1),,,-0.70%
 2026-05-22,Friday,11:00,IDR,Low,M2 Money Supply (YoY)  (Apr),,,9.70%
 2026-05-22,Friday,14:00,DKK,Low,Retail Sales (YoY)  (Apr),,,7.1%
-2026-05-22,Friday,14:00,EUR,High,German GDP (QoQ)  (Q1),,0.3%,0.3%
-2026-05-22,Friday,14:00,EUR,Medium,German GDP (YoY)  (Q1),,0.3%,0.3%
-2026-05-22,Friday,14:00,EUR,Medium,GfK German Consumer Climate  (Jun),,-33.8,-33.3
+2026-05-22,Friday,14:00,EUR,High,German GDP (QoQ)  (Q1),,0.3%,0.2%
+2026-05-22,Friday,14:00,EUR,Medium,German GDP (YoY)  (Q1),,0.3%,0.4%
+2026-05-22,Friday,14:00,EUR,Medium,GfK German Consumer Climate  (Jun),,-33.7,-33.3
+2026-05-22,Friday,14:00,GBP,Low,Public Sector Net Borrowing  (Apr),,20.70B,12.60B
 2026-05-22,Friday,14:00,GBP,Low,Public Sector Net Cash Requirement  (Apr),,,28.519B
-2026-05-22,Friday,14:00,GBP,Medium,Core Retail Sales (MoM)  (Apr),,,0.2%
-2026-05-22,Friday,14:00,GBP,Medium,Core Retail Sales (YoY)  (Apr),,,1.7%
+2026-05-22,Friday,14:00,GBP,Medium,Core Retail Sales (MoM)  (Apr),,-0.3%,0.2%
+2026-05-22,Friday,14:00,GBP,Medium,Core Retail Sales (YoY)  (Apr),,1.5%,1.7%
 2026-05-22,Friday,14:00,GBP,Medium,Retail Sales (MoM)  (Apr),,-0.6%,0.7%
-2026-05-22,Friday,14:00,GBP,Medium,Retail Sales (YoY)  (Apr),,,1.7%
-2026-05-22,Friday,14:45,EUR,Low,French Business Survey  (May),,,100
+2026-05-22,Friday,14:00,GBP,Medium,Retail Sales (YoY)  (Apr),,1.3%,1.7%
+2026-05-22,Friday,14:45,EUR,Low,French Business Survey  (May),,100,100
 2026-05-22,Friday,15:00,MYR,Low,FX Reserves USD,,,129.7B
 2026-05-22,Friday,15:00,TRY,Low,Capacity Utilization  (May),,,73.8%
 2026-05-22,Friday,15:00,TRY,Low,Exports  (Apr),,25.40B,21.90B
@@ -9215,9 +9212,9 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-22,Friday,15:30,THB,Low,Foreign Reserves (USD),,,290.2B
 2026-05-22,Friday,15:30,TRY,Medium,CBRT Financial Stability Report,,,
 2026-05-22,Friday,16:00,EUR,Low,Greek Current Account (YoY)  (Mar),,,-1.286B
-2026-05-22,Friday,16:00,EUR,Medium,German Business Expectations  (May),,,83.3
-2026-05-22,Friday,16:00,EUR,Medium,German Current Assessment  (May),,,85.4
-2026-05-22,Friday,16:00,EUR,Medium,German Ifo Business Climate Index  (May),,84.0,84.4
+2026-05-22,Friday,16:00,EUR,Medium,German Business Expectations  (May),,83.5,83.3
+2026-05-22,Friday,16:00,EUR,Medium,German Current Assessment  (May),,85.1,85.4
+2026-05-22,Friday,16:00,EUR,Medium,German Ifo Business Climate Index  (May),,84.2,84.4
 2026-05-22,Friday,16:00,TRY,Low,Foreign Arrivals (YoY)  (Apr),,,5.00%
 2026-05-22,Friday,16:00,TWD,Low,Unemployment Rate  (Apr),,,3.35%
 2026-05-22,Friday,16:20,TWD,Low,M2 Money Supply  (Apr),,,5.79%
@@ -9225,31 +9222,35 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-22,Friday,16:30,EUR,Medium,ECB President Lagarde Speaks,,,
 2026-05-22,Friday,18:00,EUR,Low,ECOFIN Meetings,,,
 2026-05-22,Friday,18:00,EUR,Medium,Eurogroup Meetings,,,
+2026-05-22,Friday,19:00,CNY,Low,FDI  (Apr),,,-7.30%
 2026-05-22,Friday,19:30,INR,Low,Bank Loan Growth,,,16.0%
 2026-05-22,Friday,19:30,INR,Low,Deposit Growth,,,12.3%
 2026-05-22,Friday,19:30,INR,Low,"FX Reserves, USD",,,696.99B
-2026-05-22,Friday,20:00,MXN,Low,1st Half-Month CPI  (May),,,0.11%
-2026-05-22,Friday,20:00,MXN,Low,1st Half-Month Core CPI  (May),,,0.18%
-2026-05-22,Friday,20:00,MXN,Low,Economic Activity (MoM)  (Mar),,,0.10%
-2026-05-22,Friday,20:00,MXN,Low,Economic Activity (YoY)  (Mar),,,-0.30%
-2026-05-22,Friday,20:00,MXN,Medium,GDP (QoQ)  (Q1),,-0.8%,-0.8%
-2026-05-22,Friday,20:00,MXN,Medium,GDP (YoY)  (Q1),,0.1%,0.1%
-2026-05-22,Friday,20:30,CAD,Low,IPPI (MoM)  (Apr),,1.0%,2.4%
+2026-05-22,Friday,19:30,TRY,Low,Gross FX Reserves,,,60.56B
+2026-05-22,Friday,19:30,TRY,Low,Net FX Reserves,,,55.02%
+2026-05-22,Friday,20:00,MXN,Low,1st Half-Month CPI  (May),,-0.15%,0.11%
+2026-05-22,Friday,20:00,MXN,Low,1st Half-Month Core CPI  (May),,0.17%,0.18%
+2026-05-22,Friday,20:00,MXN,Low,Economic Activity (MoM)  (Mar),,0.00%,0.10%
+2026-05-22,Friday,20:00,MXN,Low,Economic Activity (YoY)  (Mar),,0.50%,-0.30%
+2026-05-22,Friday,20:00,MXN,Medium,GDP (QoQ)  (Q1),,-0.8%,0.9%
+2026-05-22,Friday,20:00,MXN,Medium,GDP (YoY)  (Q1),,0.1%,1.8%
+2026-05-22,Friday,20:30,CAD,Low,IPPI (MoM)  (Apr),,1.2%,2.4%
 2026-05-22,Friday,20:30,CAD,Low,IPPI (YoY)  (Apr),,,7.8%
 2026-05-22,Friday,20:30,CAD,Low,RMPI (YoY)  (Apr),,,23.6%
 2026-05-22,Friday,20:30,CAD,Medium,Core Retail Sales (MoM)  (Mar),,0.9%,0.5%
-2026-05-22,Friday,20:30,CAD,Medium,RMPI (MoM)  (Apr),,2.8%,12.0%
+2026-05-22,Friday,20:30,CAD,Medium,RMPI (MoM)  (Apr),,2.7%,12.0%
+2026-05-22,Friday,20:30,CAD,Medium,Retail Sales (MoM)  (Apr),,,
 2026-05-22,Friday,20:30,CAD,Medium,Retail Sales (MoM)  (Mar),,0.6%,0.7%
 2026-05-22,Friday,20:45,EUR,Low,Greek Credit Expansion (YoY)  (Mar),,,4.9%
-2026-05-22,Friday,21:00,EUR,Low,Belgium NBB Business Climate  (May),,-14.5,-14.2
+2026-05-22,Friday,21:00,EUR,Low,Belgium NBB Business Climate  (May),,-13.5,-14.2
 2026-05-22,Friday,21:30,INR,Low,M3 Money Supply,,,12.0%
 2026-05-22,Friday,22:00,USD,Low,Michigan Current Conditions  (May),,47.8,47.8
 2026-05-22,Friday,22:00,USD,Medium,Fed Waller Speaks,,,
-2026-05-22,Friday,22:00,USD,Medium,Michigan 1-Year Inflation Expectations  (May),,4.5%,4.5%
+2026-05-22,Friday,22:00,USD,Medium,Michigan 1-Year Inflation Expectations  (May),,4.5%,4.7%
 2026-05-22,Friday,22:00,USD,Medium,Michigan 5-Year Inflation Expectations  (May),,3.4%,3.4%
-2026-05-22,Friday,22:00,USD,Medium,Michigan Consumer Expectations  (May),,48.5,48.5
-2026-05-22,Friday,22:00,USD,Medium,Michigan Consumer Sentiment  (May),,48.2,48.2
-2026-05-22,Friday,22:00,USD,Medium,US Leading Index (MoM)  (Apr),,,-0.6%
+2026-05-22,Friday,22:00,USD,Medium,Michigan Consumer Expectations  (May),,48.5,48.1
+2026-05-22,Friday,22:00,USD,Medium,Michigan Consumer Sentiment  (May),,48.2,49.8
+2026-05-22,Friday,22:00,USD,Medium,US Leading Index (MoM)  (Apr),,-0.1%,-0.6%
 2026-05-22,Friday,22:30,CAD,Low,BoC Senior Loan Officer Survey  (Q1),,,2.8
 2026-05-23,Saturday,01:00,USD,Medium,U.S. Baker Hughes Oil Rig Count,,,415
 2026-05-23,Saturday,01:00,USD,Medium,U.S. Baker Hughes Total Rig Count,,,551
@@ -9291,6 +9292,9 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-25,Monday,All Day,,Holiday,United States - Memorial Day,,,
 2026-05-25,Monday,All Day,,Holiday,Zimbabwe - Africa Day,,,
 2026-05-25,Monday,08:00,SGD,Low,GDP (YoY)  (Q1),,,4.6%
+2026-05-25,Monday,11:30,THB,Low,Custom-Based Export Data  (Apr),,,18.70%
+2026-05-25,Monday,11:30,THB,Low,Custom-Based Import Data  (Apr),,,35.70%
+2026-05-25,Monday,11:30,THB,Low,Custom-Based Trade Data (USD)  (Apr),,,-3.340B
 2026-05-25,Monday,13:00,EUR,Low,Finnish Export Price Index (YoY)  (Apr),,,2.9%
 2026-05-25,Monday,13:00,EUR,Low,Finnish Import Price Index (YoY)  (Apr),,,3.0%
 2026-05-25,Monday,13:00,EUR,Low,Finnish PPI (YoY)  (Apr),,,2.6%
@@ -9301,7 +9305,10 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-25,Monday,15:30,PLN,Low,Retail Sales (YoY)  (Apr),,,9.8%
 2026-05-25,Monday,18:00,EUR,Low,Latvian PPI (MoM)  (Apr),,,-1.2%
 2026-05-25,Monday,18:00,EUR,Low,Latvian PPI (YoY)  (Apr),,,0.8%
+2026-05-25,Monday,19:00,BRL,Low,FGV Consumer confidence  (May),,,89.1
 2026-05-25,Monday,19:25,BRL,Low,BCB Focus Market Readout,,,
+2026-05-25,Monday,19:30,BRL,Low,Current Account (USD)  (Apr),,,-6.04B
+2026-05-25,Monday,19:30,BRL,Low,Foreign direct investment (USD)  (Apr),,,6.04B
 2026-05-25,Monday,20:00,MXN,Low,Trade Balance  (Apr),,,5.932B
 2026-05-25,Monday,20:00,MXN,Low,Trade Balance (USD)  (Apr),,,2.499B
 2026-05-25,Monday,20:00,PLN,Low,M3 Money Supply (YoY)  (Apr),,,11.5%
@@ -9318,6 +9325,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-26,Tuesday,All Day,,Holiday,Kuwait - Day of Arafat,,,
 2026-05-26,Tuesday,All Day,,Holiday,Morocco - Eid al-Adha,,,
 2026-05-26,Tuesday,All Day,,Holiday,Oman - Eid al-Adha,,,
+2026-05-26,Tuesday,All Day,,Holiday,Pakistan - Eid al-Adha,,,
 2026-05-26,Tuesday,All Day,,Holiday,Palestinian Territory - Eid al-Adha,,,
 2026-05-26,Tuesday,All Day,,Holiday,Qatar - Eid al-Adha,,,
 2026-05-26,Tuesday,All Day,,Holiday,Saudi Arabia - Eid al-Adha,,,
@@ -9345,8 +9353,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-26,Tuesday,16:00,TWD,Low,Industrial Production (YoY)  (Apr),,,28.68%
 2026-05-26,Tuesday,18:00,GBP,Low,CBI Distributive Trades Survey  (May),,,-68
 2026-05-26,Tuesday,19:00,BRL,Low,FGV Consumer confidence  (May),,,89.1
-2026-05-26,Tuesday,19:30,BRL,Low,Current Account (USD)  (Apr),,,-6.04B
-2026-05-26,Tuesday,19:30,BRL,Low,Foreign direct investment (USD)  (Apr),,,6.04B
 2026-05-26,Tuesday,20:00,HUF,Low,Interest Rate Decision  (May),,,6.25%
 2026-05-26,Tuesday,20:30,CAD,Low,Manufacturing Sales (MoM)  (Apr),,,3.0%
 2026-05-26,Tuesday,20:30,USD,Low,Chicago Fed National Activity  (Apr),,,-0.20
@@ -9385,16 +9391,18 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-27,Wednesday,01:00,USD,Medium,2-Year Note Auction,,,3.812%
 2026-05-27,Wednesday,07:30,PEN,Low,Current Account % of GDP  (Q1),,,5.40%
 2026-05-27,Wednesday,09:00,AUD,Low,MI Leading Index (MoM)  (Apr),,,-0.1%
-2026-05-27,Wednesday,09:30,AUD,Low,CPI Index Number,,,101.70
-2026-05-27,Wednesday,09:30,AUD,Low,Monthly CPI Indicator (YoY),,,4.60%
-2026-05-27,Wednesday,09:30,AUD,Low,Trimmed Mean CPI (YoY),,,3.5%
-2026-05-27,Wednesday,09:30,AUD,Low,Weighted mean CPI (QoQ),,,0.8%
-2026-05-27,Wednesday,09:30,AUD,Low,Weighted mean CPI (YoY),,,3.5%
-2026-05-27,Wednesday,09:30,AUD,Medium,CPI (YoY),,,4.1%
+2026-05-27,Wednesday,09:30,AUD,Low,CPI Index Number  (Q2),,,101.70
+2026-05-27,Wednesday,09:30,AUD,Low,Monthly CPI Indicator (YoY)  (Apr),,,4.60%
+2026-05-27,Wednesday,09:30,AUD,Low,Trimmed Mean CPI (YoY)  (Q2),,,3.5%
+2026-05-27,Wednesday,09:30,AUD,Low,Weighted mean CPI (QoQ)  (Q2),,,0.8%
+2026-05-27,Wednesday,09:30,AUD,Low,Weighted mean CPI (YoY)  (Q2),,,3.5%
+2026-05-27,Wednesday,09:30,AUD,Medium,CPI (YoY)  (Q2),,,4.1%
 2026-05-27,Wednesday,09:30,AUD,Medium,Construction Work Done (QoQ)  (Q1),,,-0.1%
-2026-05-27,Wednesday,09:30,AUD,Medium,Trimmed Mean CPI (QoQ),,,0.8%
+2026-05-27,Wednesday,09:30,AUD,Medium,Trimmed Mean CPI (QoQ)  (Q2),,,0.8%
 2026-05-27,Wednesday,09:30,CNY,Low,Chinese Industrial profit YTD  (Apr),,,15.5%
 2026-05-27,Wednesday,10:00,NZD,High,RBNZ Interest Rate Decision,,,2.25%
+2026-05-27,Wednesday,10:00,NZD,Medium,RBNZ Monetary Policy Statement,,,
+2026-05-27,Wednesday,10:00,NZD,Medium,RBNZ Rate Statement,,,
 2026-05-27,Wednesday,11:00,NZD,Medium,RBNZ Press Conference,,,
 2026-05-27,Wednesday,12:00,CZK,Low,Car Registration (MoM)  (Apr),,,28.60%
 2026-05-27,Wednesday,12:00,CZK,Low,Car Registration (YoY)  (Apr),,,6.00%
@@ -9421,6 +9429,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-27,Wednesday,16:00,CHF,Low,ZEW Expectations  (May),,,-30.3
 2026-05-27,Wednesday,16:00,EUR,Low,Italian Industrial Sales (MoM)  (Mar),,,0.60%
 2026-05-27,Wednesday,16:00,EUR,Low,Italian Industrial Sales (YoY)  (Mar),,,0.50%
+2026-05-27,Wednesday,16:00,EUR,Medium,ECB Financial Stability Review,,,
 2026-05-27,Wednesday,17:00,EUR,Low,Bank Austria Manufacturing PMI  (May),,,51.2
 2026-05-27,Wednesday,17:10,EUR,Low,Italian 6-Month BOT Auction,,,2.161%
 2026-05-27,Wednesday,18:00,EUR,Medium,France Jobseekers Total  (Apr),,,"3,109.1K"
@@ -9458,8 +9467,12 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-28,Thursday,All Day,,Holiday,Türkiye - Eid al-Adha,,,
 2026-05-28,Thursday,All Day,,Holiday,United Arab Emirates - Eid al-Adha,,,
 2026-05-28,Thursday,00:00,RUB,Low,Industrial Production (YoY)  (Apr),,,2.3%
+2026-05-28,Thursday,01:00,EUR,High,ECB Press Conference,,,
 2026-05-28,Thursday,01:00,USD,Medium,5-Year Note Auction,,,3.955%
 2026-05-28,Thursday,04:30,USD,Medium,API Weekly Crude Oil Stock,,,-9.100M
+2026-05-28,Thursday,07:50,JPY,Low,Foreign Bonds Buying,,,758.7B
+2026-05-28,Thursday,07:50,JPY,Low,Foreign Investments in Japanese Stocks,,,949.6B
+2026-05-28,Thursday,09:00,KRW,Low,Bank of Korea Monetary Policy Board’s Policy Setting Meeting Dates,,,
 2026-05-28,Thursday,09:00,KRW,Low,Interest Rate Decision  (May),,,2.50%
 2026-05-28,Thursday,09:00,NZD,Low,ANZ Business Confidence  (May),,,-10.6
 2026-05-28,Thursday,09:00,NZD,Low,NBNZ Own Activity  (May),,,19.6%
@@ -9469,11 +9482,10 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-28,Thursday,10:00,NZD,Low,Budget Balance  (Jan),,,-14.800B
 2026-05-28,Thursday,10:00,NZD,Low,Economic Forecast  (Jan),,,-16.930B
 2026-05-28,Thursday,10:00,NZD,Low,Net Debt Forecast  (Jan),,,43.30%
-2026-05-28,Thursday,12:30,EUR,Low,Dutch Business Confidence  (May),,,-0.7
+2026-05-28,Thursday,12:00,THB,Low,Industrial Production (YoY)  (Apr),,,0.75%
 2026-05-28,Thursday,13:00,EUR,Low,Estonian Retail Sales (MoM)  (Apr),,,14.50%
 2026-05-28,Thursday,13:00,EUR,Low,Estonian Retail Sales (YoY)  (Apr),,,6.90%
 2026-05-28,Thursday,13:00,JPY,Low,Construction Orders (YoY)  (Apr),,,-14.4%
-2026-05-28,Thursday,13:00,JPY,Low,Housing Starts (YoY)  (Apr),,,-29.3%
 2026-05-28,Thursday,14:00,EUR,Low,Lithuania Industrial Production (MoM)  (Apr),,,2.80%
 2026-05-28,Thursday,14:00,EUR,Low,Lithuania Industrial Production (YoY)  (Apr),,,4.80%
 2026-05-28,Thursday,14:00,EUR,Low,Lithuania Retail Sales (MoM)  (Apr),,,17.8%
@@ -9500,7 +9512,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-28,Thursday,16:30,HKD,Low,Trade Balance  (Apr),,,-89.1B
 2026-05-28,Thursday,17:00,EUR,Low,Business Climate  (May),,,-0.28
 2026-05-28,Thursday,17:00,EUR,Low,Business and Consumer Survey  (May),,,93.0
-2026-05-28,Thursday,17:00,EUR,Low,Consumer Confidence  (May),,,-20.6
+2026-05-28,Thursday,17:00,EUR,Low,Consumer Confidence  (May),,,-19.0
 2026-05-28,Thursday,17:00,EUR,Low,Consumer Inflation Expectation  (May),,,49.1
 2026-05-28,Thursday,17:00,EUR,Low,Industrial Sentiment  (May),,,-7.7
 2026-05-28,Thursday,17:00,EUR,Low,Italian Trade Balance Non-EU  (Apr),,,5.64B
@@ -9509,7 +9521,9 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-28,Thursday,17:00,ISK,Low,CPI (MoM)  (May),,,0.8%
 2026-05-28,Thursday,17:00,ISK,Low,CPI (YoY)  (May),,,5.2%
 2026-05-28,Thursday,17:30,EUR,Low,Belgium CPI (MoM)  (May),,,1.47%
-2026-05-28,Thursday,17:30,EUR,Low,Belgium CPI (YoY)  (May),,,4.01%
+2026-05-28,Thursday,17:30,EUR,Low,Belgium CPI (YoY)  (May),,,4.07%
+2026-05-28,Thursday,17:30,EUR,Low,Italian 5-Year BTP Auction,,,3.32%
+2026-05-28,Thursday,17:30,EUR,Medium,Italian 10-Year BTP Auction,,,4.09%
 2026-05-28,Thursday,17:30,ZAR,Low,PPI (MoM)  (Apr),,,1.1%
 2026-05-28,Thursday,17:30,ZAR,Low,PPI (YoY)  (Apr),,,2.3%
 2026-05-28,Thursday,18:00,EUR,Low,Irish Retail Sales (MoM)  (Apr),,,0.2%
@@ -9521,11 +9535,10 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-28,Thursday,18:30,INR,Low,Cumulative Industrial Production  (Apr),,,4.10%
 2026-05-28,Thursday,18:30,INR,Low,Industrial Production (YoY)  (Apr),,,4.1%
 2026-05-28,Thursday,18:30,INR,Low,Manufacturing Output (MoM)  (Apr),,,4.3%
-2026-05-28,Thursday,19:00,BRL,Low,IGP-M Inflation Index (MoM)  (May),,,2.73%
 2026-05-28,Thursday,19:30,BRL,Low,Bank lending (MoM)  (Apr),,,0.9%
+2026-05-28,Thursday,19:30,EUR,Medium,ECB Publishes Account of Monetary Policy Meeting,,,
 2026-05-28,Thursday,19:30,TRY,Low,Gross FX Reserves,,,
 2026-05-28,Thursday,20:00,BRL,Low,Brazilian PPI (MoM)  (Apr),,,2.37%
-2026-05-28,Thursday,20:00,BRL,Medium,Unemployment Rate  (Apr),,,6.1%
 2026-05-28,Thursday,20:00,MXN,Low,Unemployment Rate  (Apr),,,2.80%
 2026-05-28,Thursday,20:00,MXN,Low,Unemployment Rate n.s.a.  (Apr),,,2.40%
 2026-05-28,Thursday,20:10,USD,Low,Building Permits (MoM)  (Apr),,,-11.4%
@@ -9535,21 +9548,21 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-28,Thursday,20:30,USD,High,Core PCE Price Index (MoM)  (Apr),,,0.3%
 2026-05-28,Thursday,20:30,USD,High,Core PCE Price Index (YoY)  (Apr),,,3.2%
 2026-05-28,Thursday,20:30,USD,High,Durable Goods Orders (MoM)  (Apr),,,0.8%
-2026-05-28,Thursday,20:30,USD,High,GDP (QoQ)  (Q1),,,2.0%
+2026-05-28,Thursday,20:30,USD,High,GDP (QoQ)  (Q1),,2.0%,2.0%
 2026-05-28,Thursday,20:30,USD,High,Initial Jobless Claims,,,
-2026-05-28,Thursday,20:30,USD,Low,Corporate Profits (QoQ)  (Q1),,,4.7%
+2026-05-28,Thursday,20:30,USD,Low,Corporate Profits (QoQ)  (Q1),,5.7%,4.7%
 2026-05-28,Thursday,20:30,USD,Low,Durables Excluding Defense (MoM)  (Apr),,,-0.3%
-2026-05-28,Thursday,20:30,USD,Low,GDP Sales  (Q1),,,1.6%
+2026-05-28,Thursday,20:30,USD,Low,GDP Sales  (Q1),,1.6%,0.3%
 2026-05-28,Thursday,20:30,USD,Low,Goods Orders Non Defense Ex Air (MoM)  (Apr),,,3.4%
 2026-05-28,Thursday,20:30,USD,Low,Jobless Claims 4-Week Avg.,,,
-2026-05-28,Thursday,20:30,USD,Low,PCE Prices  (Q1),,,4.5%
+2026-05-28,Thursday,20:30,USD,Low,PCE Prices  (Q1),,4.5%,2.9%
 2026-05-28,Thursday,20:30,USD,Low,Personal Income (MoM)  (Apr),,,0.6%
-2026-05-28,Thursday,20:30,USD,Low,Real Consumer Spending  (Q1),,,1.6%
+2026-05-28,Thursday,20:30,USD,Low,Real Consumer Spending  (Q1),,1.6%,1.9%
 2026-05-28,Thursday,20:30,USD,Low,Real Personal Consumption (MoM)  (Apr),,,0.2%
 2026-05-28,Thursday,20:30,USD,Medium,Continuing Jobless Claims,,,
 2026-05-28,Thursday,20:30,USD,Medium,Core Durable Goods Orders (MoM)  (Apr),,,0.9%
-2026-05-28,Thursday,20:30,USD,Medium,Core PCE Prices  (Q1),,,4.30%
-2026-05-28,Thursday,20:30,USD,Medium,GDP Price Index (QoQ)  (Q1),,,3.6%
+2026-05-28,Thursday,20:30,USD,Medium,Core PCE Prices  (Q1),,4.30%,4.30%
+2026-05-28,Thursday,20:30,USD,Medium,GDP Price Index (QoQ)  (Q1),,3.6%,3.7%
 2026-05-28,Thursday,20:30,USD,Medium,PCE Price index (YoY)  (Apr),,,3.5%
 2026-05-28,Thursday,20:30,USD,Medium,PCE price index (MoM)  (Apr),,,0.7%
 2026-05-28,Thursday,20:30,USD,Medium,Personal Spending (MoM)  (Apr),,,0.9%
@@ -9563,3 +9576,261 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-28,Thursday,23:30,USD,Low,4-Week Bill Auction,,,
 2026-05-28,Thursday,23:30,USD,Low,8-Week Bill Auction,,,
 2026-05-28,Thursday,23:30,USD,Medium,Atlanta Fed GDPNow  (Q2),,,
+2026-05-29,Friday,All Day,,Holiday,Bahrain - Eid al-Adha,,,
+2026-05-29,Friday,All Day,,Holiday,Egypt - Eid al-Adha,,,
+2026-05-29,Friday,All Day,,Holiday,Jordan - Eid al-Adha,,,
+2026-05-29,Friday,All Day,,Holiday,Kuwait - Eid al-Adha,,,
+2026-05-29,Friday,All Day,,Holiday,Morocco - Eid al-Adha,,,
+2026-05-29,Friday,All Day,,Holiday,Qatar - Eid al-Adha,,,
+2026-05-29,Friday,All Day,,Holiday,Saudi Arabia - Eid al-Adha,,,
+2026-05-29,Friday,All Day,,Holiday,Türkiye - Eid al-Adha,,,
+2026-05-29,Friday,All Day,,Holiday,United Arab Emirates - Eid al-Adha,,,
+2026-05-29,Friday,01:00,USD,Medium,7-Year Note Auction,,,4.175%
+2026-05-29,Friday,07:00,KRW,Low,Industrial Production (MoM)  (Apr),,,0.3%
+2026-05-29,Friday,07:00,KRW,Low,Industrial Production (YoY)  (Apr),,,3.6%
+2026-05-29,Friday,07:00,KRW,Low,Retail Sales (MoM)  (Apr),,,1.8%
+2026-05-29,Friday,07:00,KRW,Low,Service Sector Output (MoM)  (Apr),,,1.4%
+2026-05-29,Friday,07:30,JPY,Low,CPI Tokyo Ex Food & Energy (YoY)  (May),,,0.9%
+2026-05-29,Friday,07:30,JPY,Low,CPI Tokyo Ex Food and Energy (MoM)  (May),,,0.2%
+2026-05-29,Friday,07:30,JPY,Low,Jobs/applications ratio  (Apr),,,1.18
+2026-05-29,Friday,07:30,JPY,Low,Tokyo CPI (YoY)  (May),,,1.5%
+2026-05-29,Friday,07:30,JPY,Low,Unemployment Rate  (Apr),,,2.7%
+2026-05-29,Friday,07:30,JPY,Medium,Tokyo Core CPI (YoY)  (May),,,1.5%
+2026-05-29,Friday,07:50,JPY,Low,Industrial Production forecast 1m ahead (MoM)  (May),,,2.1%
+2026-05-29,Friday,07:50,JPY,Low,Industrial Production forecast 2m ahead (MoM)  (Jun),,,2.2%
+2026-05-29,Friday,07:50,JPY,Low,Large Scale Retail Sales YoY (YoY)  (Apr),,,2.0%
+2026-05-29,Friday,07:50,JPY,Medium,Industrial Production (MoM)  (Apr),,,-0.4%
+2026-05-29,Friday,09:00,PHP,Low,Exports (YoY)  (Apr),,,20.4%
+2026-05-29,Friday,09:00,PHP,Low,Imports (YoY)  (Apr),,,12.3%
+2026-05-29,Friday,09:00,PHP,Low,Philippines PPI (YoY)  (Apr),,,2.5%
+2026-05-29,Friday,09:00,PHP,Low,Trade Balance  (Apr),,,"-4,512.0M"
+2026-05-29,Friday,09:30,AUD,Low,Housing Credit  (Apr),,,0.6%
+2026-05-29,Friday,09:30,AUD,Low,Private Sector Credit (MoM)  (Apr),,,0.7%
+2026-05-29,Friday,10:00,SGD,Low,Bank Lending  (Apr),,,902.3B
+2026-05-29,Friday,11:00,NZD,Low,M3 Money Supply  (Apr),,,455.6B
+2026-05-29,Friday,11:35,JPY,Low,2-Year JGB Auction,,,1.407%
+2026-05-29,Friday,12:00,THB,Low,Industrial Production (YoY)  (Apr),,,0.75%
+2026-05-29,Friday,12:30,EUR,Low,Dutch Business Confidence  (May),,,-0.7
+2026-05-29,Friday,13:00,EUR,Low,Estonian GDP (YoY)  (Q1),,,0.7%
+2026-05-29,Friday,13:00,EUR,Low,Finnish GDP (QoQ)  (Q1),,0.9%,0.4%
+2026-05-29,Friday,13:00,EUR,Low,Finnish GDP (YoY)  (Q1),,,0.1%
+2026-05-29,Friday,13:00,JPY,Low,Household Confidence  (May),,,32.2
+2026-05-29,Friday,13:00,JPY,Low,Housing Starts (YoY)  (Apr),,,-29.3%
+2026-05-29,Friday,14:00,DKK,Low,Unemployment Rate  (Apr),,,2.7%
+2026-05-29,Friday,14:00,EUR,Low,German Import Price Index (MoM)  (Apr),,,3.6%
+2026-05-29,Friday,14:00,EUR,Low,German Import Price Index (YoY)  (Apr),,,2.3%
+2026-05-29,Friday,14:00,EUR,Low,M3 Money Supply  (Apr),,,30.7B
+2026-05-29,Friday,14:00,GBP,Medium,Nationwide HPI (MoM)  (May),,,0.4%
+2026-05-29,Friday,14:00,GBP,Medium,Nationwide HPI (YoY)  (May),,,3.0%
+2026-05-29,Friday,14:00,NOK,Low,Core Retail Sales (MoM)  (Apr),,,-0.1%
+2026-05-29,Friday,14:00,NOK,Low,Unemployment Rate n.s.a.  (May),,,2.10%
+2026-05-29,Friday,14:00,SEK,Low,Household Lending Growth (YoY)  (Apr),,,3.1%
+2026-05-29,Friday,14:00,SEK,Low,M3 Money Supply  (Apr),,,"5,076,053.0B"
+2026-05-29,Friday,14:00,SEK,Low,Retail Sales (MoM)  (Apr),,,3.1%
+2026-05-29,Friday,14:00,SEK,Low,Retail Sales (YoY)  (Apr),,,6.2%
+2026-05-29,Friday,14:00,SEK,Medium,GDP (QoQ)  (Q1),,-0.2%,0.5%
+2026-05-29,Friday,14:00,SEK,Medium,GDP (YoY)  (Q1),,1.6%,2.1%
+2026-05-29,Friday,14:00,ZAR,Low,M3 Money Supply (YoY)  (Apr),,,8.96%
+2026-05-29,Friday,14:00,ZAR,Low,Private Sector Credit  (Apr),,,8.50%
+2026-05-29,Friday,14:30,HUF,Low,PPI (YoY)  (Apr),,,1.2%
+2026-05-29,Friday,14:30,HUF,Low,Trade Balance (EUR) (MoM)  (Apr),,,924.0M
+2026-05-29,Friday,14:45,EUR,Low,French CPI (YoY)  (May),,,2.2%
+2026-05-29,Friday,14:45,EUR,Low,French HICP (YoY)  (May),,,2.5%
+2026-05-29,Friday,14:45,EUR,Low,French Non-Farm Payrolls (QoQ)  (Q1),,-0.1%,-0.1%
+2026-05-29,Friday,14:45,EUR,Medium,French CPI (MoM)  (May),,,1.0%
+2026-05-29,Friday,14:45,EUR,Medium,French Consumer Spending (MoM)  (Apr),,,0.7%
+2026-05-29,Friday,14:45,EUR,Medium,French GDP (QoQ)  (Q1),,0.0%,0.0%
+2026-05-29,Friday,14:45,EUR,Medium,French GDP (YoY)  (Q1),,1.1%,1.1%
+2026-05-29,Friday,14:45,EUR,Medium,French HICP (MoM)  (May),,,1.2%
+2026-05-29,Friday,15:00,CHF,Low,Official Reserves Assets  (Apr),,,856.0B
+2026-05-29,Friday,15:00,CHF,Medium,KOF Leading Indicators  (May),,,97.9
+2026-05-29,Friday,15:00,CZK,Low,GDP (QoQ)  (Q1),,0.2%,0.7%
+2026-05-29,Friday,15:00,CZK,Low,GDP (YoY)  (Q1),,2.1%,2.7%
+2026-05-29,Friday,15:00,EUR,Low,Austrian PPI (MoM)  (Apr),,,1.4%
+2026-05-29,Friday,15:00,EUR,Low,Austrian PPI (YoY)  (Apr),,,0.0%
+2026-05-29,Friday,15:00,EUR,Low,Core CPI (YoY)  (May),,,2.8%
+2026-05-29,Friday,15:00,EUR,Low,Spanish CPI (MoM)  (May),,,0.4%
+2026-05-29,Friday,15:00,EUR,Low,Spanish HICP (MoM)  (May),,,0.7%
+2026-05-29,Friday,15:00,EUR,Medium,Spanish CPI (YoY)  (May),,,3.2%
+2026-05-29,Friday,15:00,EUR,Medium,Spanish HICP (YoY)  (May),,,3.5%
+2026-05-29,Friday,15:00,MYR,Low,Money Supply (YoY)  (Apr),,,5.5%
+2026-05-29,Friday,15:00,THB,Low,Current account  (Apr),,,0.600B
+2026-05-29,Friday,15:00,THB,Low,Exports (YoY)  (Apr),,,19.30%
+2026-05-29,Friday,15:00,THB,Low,Imports (YoY)  (Apr),,,37.20%
+2026-05-29,Friday,15:00,THB,Low,Private Consumption (MoM)  (Apr),,,-0.8%
+2026-05-29,Friday,15:00,THB,Low,Private Investment (MoM)  (Apr),,,-3.5%
+2026-05-29,Friday,15:00,THB,Low,Trade account  (Apr),,,-0.10B
+2026-05-29,Friday,15:30,PLN,Low,CPI (MoM)  (May),,,0.6%
+2026-05-29,Friday,15:30,PLN,Low,CPI (YoY)  (May),,,3.2%
+2026-05-29,Friday,15:55,EUR,Low,German Unemployment  (May),,,3.006M
+2026-05-29,Friday,15:55,EUR,Low,German Unemployment n.s.a.  (May),,,3.008M
+2026-05-29,Friday,15:55,EUR,Medium,German Unemployment Change  (May),,,20K
+2026-05-29,Friday,15:55,EUR,Medium,German Unemployment Rate  (May),,,6.4%
+2026-05-29,Friday,16:00,CZK,Low,M3 Money Supply  (Apr),,,5.2%
+2026-05-29,Friday,16:00,EUR,Low,Baden Wuerttemberg CPI (MoM)  (May),,,0.6%
+2026-05-29,Friday,16:00,EUR,Low,Baden Wuerttemberg CPI (YoY)  (May),,,2.6%
+2026-05-29,Friday,16:00,EUR,Low,Bavaria CPI (MoM)  (May),,,0.5%
+2026-05-29,Friday,16:00,EUR,Low,Bavaria CPI (YoY)  (May),,,2.9%
+2026-05-29,Friday,16:00,EUR,Low,Brandenburg CPI (MoM)  (May),,,0.6%
+2026-05-29,Friday,16:00,EUR,Low,Brandenburg CPI (YoY)  (May),,,2.9%
+2026-05-29,Friday,16:00,EUR,Low,Hesse CPI (MoM)  (May),,,0.4%
+2026-05-29,Friday,16:00,EUR,Low,Hesse CPI (YoY),,,2.8%
+2026-05-29,Friday,16:00,EUR,Low,Italian Monthly Unemployment Rate  (Apr),,,5.2%
+2026-05-29,Friday,16:00,EUR,Low,Loans to Non Financial Corporations  (Apr),,,3.2%
+2026-05-29,Friday,16:00,EUR,Low,M3 Money Supply (YoY)  (Apr),,,3.2%
+2026-05-29,Friday,16:00,EUR,Low,North Rhine Westphalia CPI (MoM)  (May),,,0.4%
+2026-05-29,Friday,16:00,EUR,Low,North Rhine Westphalia CPI (YoY)  (May),,,2.7%
+2026-05-29,Friday,16:00,EUR,Low,Private Sector Loans (YoY)  (Apr),,,3.0%
+2026-05-29,Friday,16:00,EUR,Low,Saxony CPI (MoM)  (May),,,0.6%
+2026-05-29,Friday,16:00,EUR,Low,Saxony CPI (YoY)  (May),,,2.9%
+2026-05-29,Friday,16:00,EUR,Low,Spanish Current account  (Mar),,,4.04B
+2026-05-29,Friday,16:00,KES,Low,CPI (YoY)  (May),,,5.60%
+2026-05-29,Friday,16:00,NOK,Low,Central Bank Currency Purchase  (Jun),,,-100.0M
+2026-05-29,Friday,16:00,TWD,Low,GDP (YoY)  (Q1),,13.69%,12.65%
+2026-05-29,Friday,16:20,GBP,Medium,BoE Gov Bailey Speaks,,,
+2026-05-29,Friday,16:30,HKD,Low,M3 Money Supply  (Apr),,,1.2%
+2026-05-29,Friday,16:30,UGX,Low,CPI (YoY)  (May),,,3.0%
+2026-05-29,Friday,17:00,EUR,Low,Belgian GDP (QoQ)  (Q1),,0.2%,0.2%
+2026-05-29,Friday,17:00,EUR,Low,Greek PPI (YoY)  (Apr),,,8.3%
+2026-05-29,Friday,17:00,EUR,Low,Greek Retail Sales (YoY)  (Mar),,,4.6%
+2026-05-29,Friday,17:00,EUR,Low,Greek Unemployment Rate  (Apr),,,9.0%
+2026-05-29,Friday,17:00,EUR,Low,Italian CPI (MoM)  (May),,,1.1%
+2026-05-29,Friday,17:00,EUR,Low,Italian CPI (YoY)  (May),,,2.7%
+2026-05-29,Friday,17:00,EUR,Low,Italian HICP (MoM)  (May),,,1.6%
+2026-05-29,Friday,17:00,EUR,Low,Italian HICP (YoY)  (May),,,2.8%
+2026-05-29,Friday,17:00,ISK,Low,GDP (QoQ)  (Q1),,,-0.8%
+2026-05-29,Friday,17:00,ISK,Low,GDP (YoY)  (Q1),,,-0.6%
+2026-05-29,Friday,18:00,EUR,Low,Irish HICP (MoM)  (May),,,0.5%
+2026-05-29,Friday,18:00,EUR,Low,Irish HICP (YoY)  (May),,,3.6%
+2026-05-29,Friday,18:00,EUR,Low,Italian GDP (QoQ)  (Q1),,,0.2%
+2026-05-29,Friday,18:00,EUR,Low,Italian GDP (YoY)  (Q1),,,0.7%
+2026-05-29,Friday,18:00,EUR,Low,Latvian GDP (YoY)  (Q1),,,2.9%
+2026-05-29,Friday,18:00,EUR,Low,Latvian Retail Sales (MoM)  (Apr),,,-0.10%
+2026-05-29,Friday,18:00,EUR,Low,Latvian Retail Sales (YoY)  (Apr),,,3.90%
+2026-05-29,Friday,18:00,EUR,Low,Portuguese CPI (MoM)  (May),,,1.3%
+2026-05-29,Friday,18:00,EUR,Low,Portuguese CPI (YoY)  (May),,,3.3%
+2026-05-29,Friday,18:00,EUR,Low,Portuguese GDP (QoQ)  (Q1),,,0.0%
+2026-05-29,Friday,18:00,EUR,Low,Portuguese GDP (YoY)  (Q1),,,2.3%
+2026-05-29,Friday,18:00,INR,Low,Federal Fiscal Deficit  (Mar),,,"12,526.49B"
+2026-05-29,Friday,19:00,BRL,Low,IGP-M Inflation Index (MoM)  (May),,,2.73%
+2026-05-29,Friday,19:00,BRL,Medium,GDP (QoQ)  (Q1),,,0.1%
+2026-05-29,Friday,19:00,BRL,Medium,GDP (YoY)  (Q1),,,1.8%
+2026-05-29,Friday,19:30,BRL,Low,Budget Balance  (Apr),,,-199.539B
+2026-05-29,Friday,19:30,BRL,Low,Budget Surplus  (Apr),,,-80.676B
+2026-05-29,Friday,19:30,BRL,Low,Net Debt-to-GDP ratio  (Apr),,,66.8%
+2026-05-29,Friday,19:30,BRL,Medium,Gross Debt-to-GDP ratio (MoM)  (Apr),,,80.1%
+2026-05-29,Friday,19:30,INR,Low,"FX Reserves, USD",,,
+2026-05-29,Friday,19:30,INR,Low,RBI Monetary and Credit Information Review,,,
+2026-05-29,Friday,20:00,BRL,Medium,Unemployment Rate  (Apr),,,6.1%
+2026-05-29,Friday,20:00,EUR,High,German CPI (MoM)  (May),,,0.6%
+2026-05-29,Friday,20:00,EUR,Low,German HICP (MoM)  (May),,,0.5%
+2026-05-29,Friday,20:00,EUR,Low,German HICP (YoY)  (May),,,2.9%
+2026-05-29,Friday,20:00,EUR,Medium,German CPI (YoY)  (May),,,2.9%
+2026-05-29,Friday,20:00,ZAR,Low,Budget Balance (MoM)  (Apr),,,-45.61B
+2026-05-29,Friday,20:00,ZAR,Low,Trade Balance  (Apr),,,31.87B
+2026-05-29,Friday,20:30,CAD,Low,GDP Implicit Price (QoQ)  (Q1),,,0.70%
+2026-05-29,Friday,20:30,CAD,Medium,GDP (MoM)  (Mar),,,0.2%
+2026-05-29,Friday,20:30,CAD,Medium,GDP (QoQ)  (Q1),,,-0.2%
+2026-05-29,Friday,20:30,CAD,Medium,GDP (YoY)  (Q1),,,0.72%
+2026-05-29,Friday,20:30,CAD,Medium,GDP Annualized (QoQ)  (Q1),,,-0.6%
+2026-05-29,Friday,20:30,USD,Low,Wholesale Inventories (MoM)  (Apr),,,1.3%
+2026-05-29,Friday,20:30,USD,Medium,Goods Trade Balance  (Apr),,,-87.45B
+2026-05-29,Friday,20:30,USD,Medium,Retail Inventories Ex Auto  (Apr),,,0.4%
+2026-05-29,Friday,21:00,CLP,Low,Chilean Manufacturing Production (YoY)  (Apr),,,-4.5%
+2026-05-29,Friday,21:00,CLP,Low,Copper Production (YoY)  (Apr),,,-9.0%
+2026-05-29,Friday,21:00,CLP,Low,Retail Sales (YoY)  (Apr),,,4.6%
+2026-05-29,Friday,21:00,CLP,Low,Unemployment Rate  (Apr),,,8.9%
+2026-05-29,Friday,21:00,NGN,Low,Foreign Reserves (USD)  (May),,,48.37B
+2026-05-29,Friday,21:45,USD,High,Chicago PMI  (May),,,49.2
+2026-05-29,Friday,22:00,SAR,Low,M3 Money Supply (YoY)  (Apr),,,8.20%
+2026-05-29,Friday,22:00,SAR,Low,Private Sector Loans (YoY)  (Apr),,,7.40%
+2026-05-29,Friday,23:00,CAD,Low,Budget Balance  (Mar),,,5.66B
+2026-05-29,Friday,23:00,CAD,Low,Budget Balance (YoY)  (Mar),,,-25.55B
+2026-05-29,Friday,23:00,COP,Low,Unemployment Rate  (Apr),,,8.8%
+2026-05-29,Friday,23:00,COP,Low,Urban Unemployment Rate  (Apr),,,9.4%
+2026-05-30,Saturday,All Day,,Holiday,Egypt - Eid al-Adha,,,
+2026-05-30,Saturday,All Day,,Holiday,Türkiye - Eid al-Adha,,,
+2026-05-30,Saturday,00:00,UAH,Low,Current Account (USD)  (Apr),,,-9.500B
+2026-05-30,Saturday,01:00,USD,Medium,U.S. Baker Hughes Oil Rig Count,,,
+2026-05-30,Saturday,01:00,USD,Medium,U.S. Baker Hughes Total Rig Count,,,
+2026-05-30,Saturday,01:30,BRL,Low,CAGED Net Payroll Jobs  (Apr),,,228.21K
+2026-05-30,Saturday,03:00,MXN,Low,Fiscal Balance  (Apr),,,-110.10B
+2026-05-30,Saturday,06:45,NZD,Low,Building Consents (MoM)  (Apr),,,-1.3%
+2026-05-30,Saturday,07:50,JPY,Low,Large Retailers' Sales (MoM)  (Apr),,,1.3%
+2026-05-30,Saturday,07:50,JPY,Low,Retail Sales (YoY)  (Apr),,,1.7%
+2026-05-31,Sunday,09:30,CNY,High,Manufacturing PMI  (May),,,50.3
+2026-05-31,Sunday,09:30,CNY,Medium,Chinese Composite PMI  (May),,,50.1
+2026-05-31,Sunday,09:30,CNY,Medium,Non-Manufacturing PMI  (May),,,49.4
+2026-06-01,Monday,All Day,,Holiday,Cyprus - Pentecost,,,
+2026-06-01,Monday,All Day,,Holiday,Greece - Whit Monday,,,
+2026-06-01,Monday,All Day,,Holiday,Indonesia - Pancasila Day,,,
+2026-06-01,Monday,All Day,,Holiday,Kenya - Madaraka Day,,,
+2026-06-01,Monday,All Day,,Holiday,Malaysia - Harvest Festival,,,
+2026-06-01,Monday,All Day,,Holiday,Malaysia - Yang Dipertuan Agong's Birthday,,,
+2026-06-01,Monday,All Day,,Holiday,New Zealand - The King's Birthday,,,
+2026-06-01,Monday,All Day,,Holiday,Romania - National Sovereignty and Children's Day,,,
+2026-06-01,Monday,All Day,,Holiday,Romania - Pentecost,,,
+2026-06-01,Monday,All Day,,Holiday,Thailand - Vesak Day,,,
+2026-06-01,Monday,07:00,AUD,Low,S&P Global Manufacturing PMI  (May),,50.2,51.3
+2026-06-01,Monday,07:50,JPY,Medium,Capital Spending (YoY)  (Q1),,,6.5%
+2026-06-01,Monday,08:00,KRW,Low,Exports (YoY)  (Apr),,48.0%,49.2%
+2026-06-01,Monday,08:00,KRW,Low,Exports (YoY)  (May),,,48.0%
+2026-06-01,Monday,08:00,KRW,Low,Imports (YoY)  (Apr),,16.7%,16.7%
+2026-06-01,Monday,08:00,KRW,Low,Imports (YoY)  (May),,,16.7%
+2026-06-01,Monday,08:00,KRW,Low,Trade Balance  (Apr),,23.77B,26.24B
+2026-06-01,Monday,08:00,KRW,Low,Trade Balance  (May),,,23.76B
+2026-06-01,Monday,08:30,JPY,Low,S&P Global Manufacturing PMI  (May),,,54.5
+2026-06-01,Monday,08:30,KRW,Low,S&P Global South Korea Manufacturing PMI  (May),,,53.6
+2026-06-01,Monday,08:30,PHP,Low,S&P Global Manufacturing PMI  (May),,,48.3
+2026-06-01,Monday,08:30,TWD,Low,S&P Global Manufacturing PMI  (May),,,55.30
+2026-06-01,Monday,08:30,VND,Low,S&P Global Manufacturing PMI  (May),,,50.5
+2026-06-01,Monday,09:45,CNY,Medium,RatingDog Manufacturing PMI (MoM)  (May),,,52.2
+2026-06-01,Monday,12:00,IDR,Low,Core Inflation (YoY)  (May),,,2.44%
+2026-06-01,Monday,12:00,IDR,Low,Export Growth (YoY)  (Apr),,,-3.10%
+2026-06-01,Monday,12:00,IDR,Low,Import Growth (YoY)  (Apr),,,1.51%
+2026-06-01,Monday,12:00,IDR,Low,Inflation (MoM)  (May),,,0.13%
+2026-06-01,Monday,12:00,IDR,Low,Inflation (YoY)  (May),,,2.42%
+2026-06-01,Monday,12:00,IDR,Low,Trade Balance  (Apr),,,3.32B
+2026-06-01,Monday,13:00,INR,Low,HSBC India Manufacturing PMI  (May),,,54.3
+2026-06-01,Monday,14:00,DKK,Low,M3 Money Supply  (Apr),,,"2,049,785.9B"
+2026-06-01,Monday,14:00,EUR,Low,German Retail Sales (YoY)  (Apr),,,-2.0%
+2026-06-01,Monday,14:00,EUR,Medium,German Retail Sales (MoM)  (Apr),,,-2.0%
+2026-06-01,Monday,14:00,RUB,Low,S&P Global Manufacturing PMI  (May),,,48.1
+2026-06-01,Monday,14:30,CHF,Low,Retail Sales (YoY)  (Apr),,,0.5%
+2026-06-01,Monday,14:30,SEK,Low,Manufacturing PMI  (May),,,57.2
+2026-06-01,Monday,15:00,HUF,Low,Manufacturing PMI  (May),,,50.5
+2026-06-01,Monday,15:00,PLN,Low,S&P Global Manufacturing PMI  (May),,,48.80
+2026-06-01,Monday,15:00,TRY,Low,Istanbul Chamber of Industry Manufacturing PMI  (May),,,45.70
+2026-06-01,Monday,15:00,TRY,Medium,GDP (YoY)  (Q1),,,3.4%
+2026-06-01,Monday,15:15,EUR,Medium,HCOB Spain Manufacturing PMI  (May),,,51.7
+2026-06-01,Monday,15:30,CHF,Medium,procure.ch Manufacturing PMI  (May),,,54.5
+2026-06-01,Monday,15:30,CZK,Low,S&P Global Czech Republic Manufacturing PMI  (May),,,52.9
+2026-06-01,Monday,15:30,PLN,Medium,GDP (QoQ)  (Q2),,,0.5%
+2026-06-01,Monday,15:30,PLN,Medium,GDP (YoY)  (Q2),,,3.4%
+2026-06-01,Monday,15:45,EUR,Medium,HCOB Italy Manufacturing PMI  (May),,,52.1
+2026-06-01,Monday,15:50,EUR,Medium,HCOB France Manufacturing PMI  (May),,,48.9
+2026-06-01,Monday,15:55,EUR,Medium,HCOB Germany Manufacturing PMI  (May),,,49.9
+2026-06-01,Monday,16:00,CHF,Medium,GDP (QoQ)  (Q1),,,0.1%
+2026-06-01,Monday,16:00,CHF,Medium,GDP (YoY)  (Q1),,,0.7%
+2026-06-01,Monday,16:00,EUR,Low,Austrian Unemployment Change  (May),,,320.3K
+2026-06-01,Monday,16:00,EUR,Low,Austrian Unemployment Rate  (May),,,7.5%
+2026-06-01,Monday,16:00,EUR,Low,M3 Money Supply  (Apr),,,"17,446.5B"
+2026-06-01,Monday,16:00,EUR,Medium,HCOB Eurozone Manufacturing PMI  (May),,,51.4
+2026-06-01,Monday,16:00,TRY,Low,Exports  (May),,,25.40B
+2026-06-01,Monday,16:30,GBP,Medium,S&P Global Manufacturing PMI  (May),,,53.7
+2026-06-01,Monday,17:00,EUR,Medium,Unemployment Rate  (Apr),,,6.2%
+2026-06-01,Monday,18:00,RSD,Low,GDP (YoY)  (Q1),,,2.20%
+2026-06-01,Monday,19:00,EUR,Low,Car Registration (MoM)  (May),,,-18.00%
+2026-06-01,Monday,19:00,EUR,Low,Car Registration (YoY)  (May),,,8.40%
+2026-06-01,Monday,20:00,CZK,Low,Budget Balance  (May),,,-106.100B
+2026-06-01,Monday,20:30,CLP,Low,Economic Activity (YoY)  (Apr),,,-0.1%
+2026-06-01,Monday,21:00,BRL,Low,S&P Global Manufacturing PMI  (May),,,52.6
+2026-06-01,Monday,21:30,CAD,Low,S&P Global Manufacturing PMI  (May),,,53.3
+2026-06-01,Monday,21:45,USD,High,S&P Global Manufacturing PMI  (May),,,55.3
+2026-06-01,Monday,22:00,USD,High,ISM Manufacturing PMI  (May),,,52.7
+2026-06-01,Monday,22:00,USD,High,ISM Manufacturing Prices  (May),,,84.6
+2026-06-01,Monday,22:00,USD,Low,ISM Manufacturing New Orders Index  (May),,,54.1
+2026-06-01,Monday,22:00,USD,Medium,Construction Spending (MoM)  (Apr),,,0.6%
+2026-06-01,Monday,22:00,USD,Medium,ISM Manufacturing Employment  (May),,,46.4
+2026-06-01,Monday,23:00,MXN,Low,S&P Global Manufacturing PMI  (May),,,47.70
+2026-06-01,Monday,23:30,USD,Medium,Atlanta Fed GDPNow  (Q2),,,
