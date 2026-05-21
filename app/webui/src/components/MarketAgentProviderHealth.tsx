@@ -21,7 +21,7 @@ const formatValue = (value: unknown, fallback = "--") =>
       : fallback;
 
 const providerCards = [
-  { title: "XAUUSD Price", keys: ["xauusd", "gc=f", "xauusd price"], action: "Configure cTrader for true spot or Yahoo for proxy." },
+  { title: "XAUUSD (Spot)", keys: ["xauusd", "gc=f", "xauusd price"], action: "Configure cTrader for true spot or Yahoo for proxy." },
   { title: "DXY", keys: ["dxy", "dx-y.nyb"], action: "Needed for USD pressure confirmation." },
   { title: "US10Y", keys: ["us10y", "^tnx"], action: "Needed for yield pressure confirmation." },
   { title: "US2Y", keys: ["us2y"], action: "No reliable free source configured unless provider is added." },

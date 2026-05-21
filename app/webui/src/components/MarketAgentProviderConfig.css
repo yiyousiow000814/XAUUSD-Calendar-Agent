@@ -19,7 +19,7 @@
 
 .market-agent-setup-status-card {
   display: grid;
-  grid-template-columns: minmax(220px, 0.55fr) minmax(0, 1.45fr);
+  grid-template-columns: minmax(230px, 0.48fr) minmax(0, 1.52fr);
   gap: 12px;
   padding: 10px 12px;
   border-radius: 12px;
@@ -44,8 +44,8 @@
 
 .market-agent-setup-checklist {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 7px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
   align-content: start;
 }
 
@@ -54,9 +54,9 @@
   grid-template-columns: 1fr;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 6px;
   min-width: 0;
-  min-height: 42px;
+  min-height: 54px;
   padding: 6px 8px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.04);
@@ -67,13 +67,14 @@
   font-size: 11px;
   color: var(--text-secondary, #9aa4b2);
   line-height: 1.2;
+  white-space: nowrap;
 }
 
 .market-agent-setup-checklist .market-agent-status-badge {
   width: fit-content;
-  max-width: min(100%, 178px);
+  max-width: 100%;
   min-height: 24px;
-  padding: 3px 9px 4px;
+  padding: 3px 8px 4px;
   justify-self: start;
   white-space: nowrap;
   line-height: 1.15;
@@ -96,8 +97,10 @@
 }
 
 .market-agent-setup-stepper button {
-  display: flex;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
   align-items: center;
+  gap: 8px;
   width: 100%;
   text-align: left;
   min-height: 34px;
@@ -114,10 +117,34 @@
   background: rgba(255, 183, 73, 0.12);
 }
 
+.market-agent-step-index {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 183, 73, 0.2);
+  background: rgba(255, 183, 73, 0.08);
+  color: #ffbd56;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.market-agent-setup-stepper button.active .market-agent-step-index {
+  border-color: transparent;
+  background: #ffbd56;
+  color: #19140d;
+}
+
 .market-agent-setup-stepper strong {
+  min-width: 0;
+  overflow: hidden;
   font-size: 13.5px;
   font-weight: 650;
   line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .market-agent-setup-panel {
@@ -625,6 +652,17 @@
 [data-theme="light"] .market-agent-setup-stepper button.active {
   border-color: rgba(209, 128, 20, 0.46);
   background: rgba(255, 183, 73, 0.22);
+}
+
+[data-theme="light"] .market-agent-step-index {
+  color: #9a5b09;
+  border-color: rgba(209, 128, 20, 0.24);
+  background: rgba(255, 246, 226, 0.95);
+}
+
+[data-theme="light"] .market-agent-setup-stepper button.active .market-agent-step-index {
+  background: #f2aa3d;
+  color: #20160a;
 }
 
 @media (max-width: 1100px) {

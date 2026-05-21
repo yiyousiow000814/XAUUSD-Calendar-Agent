@@ -1,5 +1,5 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MarketAgentPage } from "../components/MarketAgentPage";
 import type {
@@ -149,9 +149,11 @@ const driverAttention: MarketAgentDriverAttentionResponse = {
   states: [
     {
       driver_id: "yields",
+      label: "US10Y (Yield)",
       current_state: "active",
       priority: "core_structural",
-      relevance_score: 0.91,
+      relevance_score: 0.85,
+      impact_percent: -0.12,
       confidence: "medium_high",
       activation_reason: "US10Y fresh and confirming.",
       deactivation_reason: "",
@@ -160,13 +162,99 @@ const driverAttention: MarketAgentDriverAttentionResponse = {
       data_mode: "backfilled"
     },
     {
-      driver_id: "oil_inflation",
-      current_state: "cooling",
-      priority: "conditional_macro",
-      relevance_score: 0.42,
+      driver_id: "usd",
+      label: "DXY (USD Index)",
+      current_state: "active",
+      priority: "core_structural",
+      relevance_score: 0.92,
+      impact_percent: -0.65,
+      confidence: "high",
+      activation_reason: "DXY confirms pressure.",
+      deactivation_reason: "",
+      last_confirmed_at: "2026-05-19T08:05:00+08:00",
+      decay_deadline: "2026-05-19T10:05:00+08:00",
+      data_mode: "live_seen"
+    },
+    {
+      driver_id: "us2y",
+      label: "US2Y (Yield)",
+      current_state: "watching",
+      priority: "core_structural",
+      relevance_score: 0.62,
+      impact_percent: -0.08,
       confidence: "medium",
-      activation_reason: "",
+      activation_reason: "Front-end yield is monitored for confirmation.",
+      deactivation_reason: "",
+      last_confirmed_at: "",
+      decay_deadline: "2026-05-19T09:05:00+08:00",
+      data_mode: "backfilled"
+    },
+    {
+      driver_id: "oil_inflation",
+      label: "WTI Oil",
+      current_state: "watching",
+      priority: "conditional_macro",
+      relevance_score: 0.58,
+      impact_percent: 0.45,
+      confidence: "medium",
+      activation_reason: "Oil is moving, but the inflation channel is incomplete.",
       deactivation_reason: "Oil stayed background only.",
+      last_confirmed_at: "",
+      decay_deadline: "",
+      data_mode: "live_seen"
+    },
+    {
+      driver_id: "geopolitics",
+      label: "Geopolitics / News",
+      current_state: "watching",
+      priority: "temporary_event",
+      relevance_score: 0.5,
+      impact_percent: null,
+      confidence: "medium",
+      activation_reason: "Headline detected, waiting for market confirmation.",
+      deactivation_reason: "",
+      last_confirmed_at: "",
+      decay_deadline: "2026-05-19T09:05:00+08:00",
+      data_mode: "live_seen"
+    },
+    {
+      driver_id: "unknown",
+      label: "Unknown Drivers",
+      current_state: "emerging",
+      priority: "background_noise",
+      relevance_score: 0.45,
+      impact_percent: null,
+      confidence: "low",
+      activation_reason: "XAUUSD moved before a confirmed macro driver appeared.",
+      deactivation_reason: "",
+      last_confirmed_at: "",
+      decay_deadline: "2026-05-19T08:35:00+08:00",
+      data_mode: "live_seen"
+    },
+    {
+      driver_id: "vix_equities",
+      label: "VIX (Volatility)",
+      current_state: "dormant",
+      priority: "conditional_macro",
+      relevance_score: 0.28,
+      impact_percent: -2.15,
+      confidence: "low",
+      activation_reason: "",
+      deactivation_reason: "Risk tone is monitored, not yet causal.",
+      last_confirmed_at: "",
+      decay_deadline: "",
+      data_mode: "live_seen"
+    },
+    {
+      driver_id: "risk_sentiment",
+      label: "S&P 500",
+      current_state: "dormant",
+      priority: "conditional_macro",
+      relevance_score: 0.25,
+      impact_percent: 0.28,
+      confidence: "low",
+      activation_reason: "",
+      deactivation_reason: "Equity risk tone has not confirmed the move.",
       last_confirmed_at: "",
       decay_deadline: "",
       data_mode: "live_seen"
@@ -181,8 +269,19 @@ const replay: MarketAgentReplayResponse = {
     price_series: [
       {
         symbol: "GC=F",
+        data_timestamp: "2026-05-19T07:45:00+08:00",
+        close_price: 4520.2,
+        bid_price: 4519.92,
+        ask_price: 4520.48,
+        source_type: "futures_proxy",
+        data_mode: "proxy"
+      },
+      {
+        symbol: "GC=F",
         data_timestamp: "2026-05-19T08:00:00+08:00",
         close_price: 4504.8,
+        bid_price: 4504.52,
+        ask_price: 4505.08,
         source_type: "futures_proxy",
         data_mode: "proxy"
       }
@@ -248,7 +347,230 @@ const monitorStatus = {
 };
 
 describe("MarketAgentPage", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
   it("renders a one-screen cockpit dashboard by default", () => {
+    const { container } = render(
+      <MarketAgentPage
+        snapshot={snapshot}
+        providerConfig={providerConfig}
+        telegramConfig={telegramConfig}
+        llmConfig={llmConfig}
+        providerHealth={providerHealth}
+        driverAttention={driverAttention}
+        replay={replay}
+        selectedEvidence={evidence}
+        monitorStatus={monitorStatus}
+        selectedMonitorRunId={23}
+        rangePreset="4h"
+        rangeStartInput="2026-05-19T04:00"
+        rangeEndInput="2026-05-19T08:30"
+        onPresetChange={() => {}}
+        onRangeStartChange={() => {}}
+        onRangeEndChange={() => {}}
+        onApplyRange={() => {}}
+        onSelectRun={() => {}}
+        onSaveProviderConfig={() => {}}
+        onClearProviderConfig={() => {}}
+        onTestCTraderConnection={async () => ({ ok: true })}
+        onResolveCTraderSymbol={async () => ({ ok: true })}
+        onGetCTraderQuoteTest={async () => ({ ok: true })}
+        onRefreshCTraderToken={async () => ({ ok: true })}
+        onSaveTelegramConfig={async () => telegramConfig}
+        onTestTelegramMessage={async () => ({ ok: true, status: "sent", message: "Telegram test message sent." })}
+        onSaveLLMConfig={async () => llmConfig}
+        onTestLLMConnection={async () => ({ ok: true, status: "available", message: "Ollama is available." })}
+        onTestLLMJsonResponse={async () => ({ ok: true, status: "available", message: "Model returned valid JSON." })}
+        onRunMonitorOnce={async () => monitorStatus}
+        onRunBackfillRecovery={async () => ({ ...monitorStatus, phase: "recovery_completed", message: "Backfill recovery completed." })}
+        onStartMonitorLoop={async () => ({ ...monitorStatus, running: true, phase: "running" })}
+        onStopMonitorLoop={async () => monitorStatus}
+      />
+    );
+
+    const marketAgentNav = screen.getByRole("navigation", { name: /Market Agent sections/i });
+    expect(marketAgentNav).toBeInTheDocument();
+    const navIconNames = Array.from(marketAgentNav.querySelectorAll("svg")).map((icon) => icon.getAttribute("data-nav-icon"));
+    expect(navIconNames).toEqual(["dashboard", "drivers", "replay", "evidence", "providers", "sources", "alerts", "settings"]);
+    expect(new Set(navIconNames).size).toBe(navIconNames.length);
+    const settingsIcon = marketAgentNav.querySelector("[data-market-agent-section='logs'] svg");
+    expect(settingsIcon?.getAttribute("data-nav-icon")).toBe("settings");
+    expect(settingsIcon?.innerHTML).not.toContain("M12 3.8v2.1");
+    expect(screen.getByRole("button", { name: /Dashboard/i })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("heading", { name: /XAUUSD \(Spot\)/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Market State/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Latest Move/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Evidence Status/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Next Update/i })).toBeInTheDocument();
+    const marketStateCard = screen.getByRole("heading", { name: /Market State/i }).closest("article");
+    expect(within(marketStateCard as HTMLElement).getByText(/TRENDING DOWN/i)).toBeInTheDocument();
+    expect(within(marketStateCard as HTMLElement).queryByText(/^Bearish$/i)).not.toBeInTheDocument();
+    const stateSince = marketStateCard?.querySelector("[data-kpi-detail='state-since']");
+    expect(stateSince?.textContent).toMatch(/^\d{2}-\d{2} \d{2}:\d{2}$/);
+    const latestMoveCard = screen.getByRole("heading", { name: /Latest Move/i }).closest("article");
+    const detected = latestMoveCard?.querySelector("[data-kpi-detail='move-detected']");
+    expect(detected?.textContent).toMatch(/^\d{2}:\d{2}$/);
+    expect(detected?.textContent).not.toMatch(/\d{2}[-/]\d{2}|\d{4}/);
+    expect(screen.getByText("Bid")).toBeInTheDocument();
+    expect(screen.getByText("Ask")).toBeInTheDocument();
+    expect(screen.getByText("Spread")).toBeInTheDocument();
+    expect(screen.getByText("Data:")).toBeInTheDocument();
+    expect(screen.getByText("Strength")).toBeInTheDocument();
+    expect(screen.getByLabelText(/^60 sec$/i)).toBeInTheDocument();
+    expect(screen.getByText(/Every 60 seconds/i)).toBeInTheDocument();
+    expect(screen.queryByText(/\b1m\b/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Every 1 min/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Last check/i)).not.toBeInTheDocument();
+    const nextCountdown = container.querySelector("[data-qa='qa:market-agent:next-countdown']");
+    expect(nextCountdown).toHaveAttribute("aria-label", "60 sec");
+    expect(nextCountdown?.querySelectorAll(".market-agent-countdown-digit")).toHaveLength(2);
+    expect(nextCountdown?.querySelector(".market-agent-countdown-unit")?.textContent).toBe("sec");
+    expect(nextCountdown?.querySelector(".market-agent-value-pulse")).not.toBeInTheDocument();
+    expect(container.querySelectorAll(".market-agent-value-pulse").length).toBeGreaterThanOrEqual(8);
+    expect(container.querySelector(".market-agent-score-ring.market-agent-score-ring-animated")).toBeInTheDocument();
+    expect(container.querySelector(".market-agent-score-ring svg.market-agent-score-svg")).toBeInTheDocument();
+    expect(container.querySelector(".market-agent-score-progress")).toBeInTheDocument();
+    expect(container.querySelector(".market-agent-clock-icon.market-agent-clock-icon-animated")).toBeInTheDocument();
+    expect(container.querySelectorAll(".market-agent-animated-row").length).toBeGreaterThanOrEqual(6);
+    expect(screen.getByRole("heading", { name: /Driver Attention \(Current\)/i })).toBeInTheDocument();
+    const driverPanel = screen.getByRole("heading", { name: /Driver Attention \(Current\)/i }).closest("section");
+    expect(driverPanel?.querySelectorAll(".market-agent-attention-table-row")).toHaveLength(8);
+    expect(driverPanel?.querySelector(".market-agent-attention-footer")).not.toBeInTheDocument();
+    expect(within(driverPanel as HTMLElement).getAllByText("ACTIVE")).toHaveLength(2);
+    expect(within(driverPanel as HTMLElement).getByText("-0.65%")).toBeInTheDocument();
+    expect(within(driverPanel as HTMLElement).queryByText("+92.00%")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Market Replay \(Today\)/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Latest Evidence/i })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /^Provider Health$/i }).length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: /View Full Timeline/i })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /^View All$/i }).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText(/BREAKOUT/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/NEWS/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/REVERSAL/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/RANGE/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/SESSION/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Impact:/i).length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: /^Data Sources$/i })).toBeInTheDocument();
+    expect(screen.queryByText(/Quick Actions/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Configure Data Sources/i })).not.toBeInTheDocument();
+
+    expect(screen.queryByRole("heading", { name: /^Data Sources$/i })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Access Token/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Raw details/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Price series/i)).not.toBeInTheDocument();
+    expect(screen.queryByText("futures_proxy")).not.toBeInTheDocument();
+    expect(screen.queryByText("core_structural")).not.toBeInTheDocument();
+    expect(screen.queryByText(/No reliable free US2Y source is configured\./i)).not.toBeInTheDocument();
+  });
+
+  it("shows latest move duration from the detected alert time", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-05-19T00:45:23Z"));
+    let unmount: (() => void) | undefined;
+
+    try {
+      ({ unmount } = render(
+        <MarketAgentPage
+          snapshot={snapshot}
+          providerConfig={providerConfig}
+          telegramConfig={telegramConfig}
+          llmConfig={llmConfig}
+          providerHealth={providerHealth}
+          driverAttention={driverAttention}
+          replay={replay}
+          selectedEvidence={evidence}
+          monitorStatus={monitorStatus}
+          selectedMonitorRunId={23}
+          rangePreset="4h"
+          rangeStartInput="2026-05-19T04:00"
+          rangeEndInput="2026-05-19T08:30"
+          onPresetChange={() => {}}
+          onRangeStartChange={() => {}}
+          onRangeEndChange={() => {}}
+          onApplyRange={() => {}}
+          onSelectRun={() => {}}
+          onRefresh={async () => {}}
+          onSaveProviderConfig={async () => providerConfig}
+          onTestProviderConnection={async () => providerAction}
+          onResolveProviderSymbol={async () => providerAction}
+          onGetProviderQuote={async () => providerAction}
+          onRefreshProviderToken={async () => providerAction}
+          onSaveTelegramConfig={async () => telegramConfig}
+          onTestTelegram={async () => telegramAction}
+          onSaveLLMConfig={async () => llmConfig}
+          onTestLLM={async () => llmAction}
+          onStartMonitorLoop={async () => monitorStatus}
+          onStopMonitorLoop={async () => monitorStatus}
+        />
+      ));
+
+      const latestMoveCard = screen.getByRole("heading", { name: /Latest Move/i }).closest("article");
+      const duration = latestMoveCard?.querySelector("[data-kpi-detail='move-duration']");
+      expect(duration?.textContent).toBe("45m 23s");
+    } finally {
+      unmount?.();
+      vi.useRealTimers();
+    }
+  });
+
+  it("keeps next update countdown within the monitoring interval", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-05-19T00:40:00Z"));
+    let unmount: (() => void) | undefined;
+
+    try {
+      ({ unmount } = render(
+        <MarketAgentPage
+          snapshot={snapshot}
+          providerConfig={providerConfig}
+          telegramConfig={telegramConfig}
+          llmConfig={llmConfig}
+          providerHealth={providerHealth}
+          driverAttention={driverAttention}
+          replay={replay}
+          selectedEvidence={evidence}
+          monitorStatus={{
+            ...monitorStatus,
+            running: true,
+            phase: "running",
+            intervalSeconds: 60,
+            nextRunAt: "2026-05-19T02:28:29Z"
+          }}
+          selectedMonitorRunId={23}
+          rangePreset="4h"
+          rangeStartInput="2026-05-19T04:00"
+          rangeEndInput="2026-05-19T08:30"
+          onPresetChange={() => {}}
+          onRangeStartChange={() => {}}
+          onRangeEndChange={() => {}}
+          onApplyRange={() => {}}
+          onSelectRun={() => {}}
+          onRefresh={async () => {}}
+          onSaveProviderConfig={async () => providerConfig}
+          onTestProviderConnection={async () => providerAction}
+          onResolveProviderSymbol={async () => providerAction}
+          onGetProviderQuote={async () => providerAction}
+          onRefreshProviderToken={async () => providerAction}
+          onSaveTelegramConfig={async () => telegramConfig}
+          onTestTelegram={async () => telegramAction}
+          onSaveLLMConfig={async () => llmConfig}
+          onTestLLM={async () => llmAction}
+          onStartMonitorLoop={async () => monitorStatus}
+          onStopMonitorLoop={async () => monitorStatus}
+        />
+      ));
+
+      expect(screen.getByLabelText(/^29 sec$/i)).toBeInTheDocument();
+      expect(screen.queryByText(/6509 sec/i)).not.toBeInTheDocument();
+    } finally {
+      unmount?.();
+      vi.useRealTimers();
+    }
+  });
+
+  it("uses interactive dashboard filters and user-facing evidence labels", () => {
     render(
       <MarketAgentPage
         snapshot={snapshot}
@@ -287,40 +609,31 @@ describe("MarketAgentPage", () => {
       />
     );
 
-    expect(screen.getByRole("navigation", { name: /Market Agent sections/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Dashboard/i })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByRole("heading", { name: /XAUUSD Price/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /Market State/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /Latest Move/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /Evidence Status/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /Next Update/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /Driver Attention \(Current\)/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /Market Replay \(Today\)/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /Latest Evidence/i })).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: /^Provider Health$/i }).length).toBeGreaterThan(0);
-    expect(screen.getByRole("button", { name: /View Full Timeline/i })).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: /^View All$/i }).length).toBeGreaterThanOrEqual(2);
-    expect(screen.getAllByText(/BREAKOUT/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/NEWS/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/REVERSAL/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/RANGE/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/SESSION/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Impact:/i).length).toBeGreaterThan(0);
-    expect(screen.getByRole("button", { name: /^Data Sources$/i })).toBeInTheDocument();
-    expect(screen.queryByText(/Quick Actions/i)).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /Configure Data Sources/i })).not.toBeInTheDocument();
+    const replayRange = screen.getByRole("group", { name: /Replay range/i });
+    const oneHour = within(replayRange).getByRole("button", { name: "1H" });
+    const oneDay = within(replayRange).getByRole("button", { name: "1D" });
+    expect(oneDay).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(oneHour);
+    expect(oneHour).toHaveAttribute("aria-pressed", "true");
+    expect(oneDay).toHaveAttribute("aria-pressed", "false");
 
-    expect(screen.queryByRole("heading", { name: /^Data Sources$/i })).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(/Access Token/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Raw details/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Price series/i)).not.toBeInTheDocument();
-    expect(screen.queryByText("futures_proxy")).not.toBeInTheDocument();
-    expect(screen.queryByText("core_structural")).not.toBeInTheDocument();
-    expect(screen.queryByText(/No reliable free US2Y source is configured\./i)).not.toBeInTheDocument();
+    const evidenceTabs = screen.getByRole("tablist", { name: /Evidence filters/i });
+    const allTab = within(evidenceTabs).getByRole("tab", { name: "All" });
+    const newsTab = within(evidenceTabs).getByRole("tab", { name: "News" });
+    expect(allTab).toHaveAttribute("aria-selected", "true");
+    expect(screen.queryByText(/^Confirming$/i)).not.toBeInTheDocument();
+    expect(screen.getAllByText(/^Supporting$/i).length).toBeGreaterThan(0);
+    fireEvent.click(newsTab);
+    expect(newsTab).toHaveAttribute("aria-selected", "true");
+    expect(allTab).toHaveAttribute("aria-selected", "false");
+    const latestEvidencePanel = screen.getByRole("heading", { name: /Latest Evidence/i }).closest("section");
+    expect(latestEvidencePanel).not.toBeNull();
+    expect(within(latestEvidencePanel as HTMLElement).getByText(/Fed headline/i)).toBeInTheDocument();
+    expect(within(latestEvidencePanel as HTMLElement).queryByText(/^DXY \/ USD$/i)).not.toBeInTheDocument();
   });
 
-  it("switches cockpit sections from the left navigation", () => {
-    render(
+  it("switches cockpit sections from the left navigation", async () => {
+    const { container } = render(
       <MarketAgentPage
         snapshot={snapshot}
         providerConfig={providerConfig}
@@ -362,7 +675,22 @@ describe("MarketAgentPage", () => {
     expect(screen.getByRole("heading", { name: /^Data Sources$/i })).toBeInTheDocument();
     expect(screen.getByText(/Market Agent setup is incomplete\./i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Price$/i })).toHaveAttribute("aria-pressed", "true");
+    const stepper = screen.getByRole("navigation", { name: /Data source setup steps/i });
+    expect(Array.from(stepper.querySelectorAll(".market-agent-step-index")).slice(0, 4).map((item) => item.textContent)).toEqual([
+      "1",
+      "2",
+      "3",
+      "4"
+    ]);
     expect(screen.queryByLabelText(/Access Token/i)).not.toBeInTheDocument();
+
+    const alertsButton = screen.getByRole("navigation", { name: /Market Agent sections/i }).querySelector("[data-market-agent-section='alerts']")!;
+    expect(alertsButton.querySelector(".market-agent-nav-badge")).toHaveTextContent("2");
+    fireEvent.click(alertsButton);
+    expect(screen.getByRole("heading", { name: /^Alerts$/i })).toBeInTheDocument();
+    expect(container.querySelectorAll(".market-agent-alert-card").length).toBeGreaterThan(0);
+    expect(container.querySelector(".market-agent-alerts-list .market-agent-evidence-mini-row")).not.toBeInTheDocument();
+    await waitFor(() => expect(alertsButton.querySelector(".market-agent-nav-badge")).not.toBeInTheDocument());
 
     fireEvent.click(screen.getByRole("button", { name: /Replay \/ Timeline/i }));
     expect(screen.getByText(/Open full replay/i)).toBeInTheDocument();
@@ -417,17 +745,18 @@ describe("MarketAgentPage", () => {
 
     expect(screen.queryByText(/Gold is currently under yield\/USD pressure\./i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Main driver changed from DXY \/ USD to US yields\./i)).not.toBeInTheDocument();
-    expect(screen.getByText(/Bearish/i)).toBeInTheDocument();
+    expect(screen.getByText(/TRENDING DOWN/i)).toBeInTheDocument();
+    expect(screen.queryByText(/^Bearish$/i)).not.toBeInTheDocument();
     expect(screen.getAllByText(/Drop/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/Move Size:/i)).toBeInTheDocument();
+    expect(screen.getByText("Move Size")).toBeInTheDocument();
     expect(screen.getAllByText(/US yields/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/Oil \/ inflation/i)).toBeInTheDocument();
+    expect(screen.getByText(/WTI Oil/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Backup/i).length).toBeGreaterThan(0);
     expect(screen.queryByText("futures_proxy")).not.toBeInTheDocument();
     expect(screen.queryByText("core_structural")).not.toBeInTheDocument();
     expect(screen.queryByText("main_driver usd -> yields")).not.toBeInTheDocument();
     expect(screen.queryByText(/Using Yahoo GC=F futures proxy, not true spot XAUUSD\./i)).not.toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /XAUUSD Price/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /XAUUSD \(Spot\)/i })).toBeInTheDocument();
     expect(screen.getByText(/Backup price/i)).toBeInTheDocument();
     expect(screen.getAllByText(/80%/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/View Full Timeline/i)).toBeInTheDocument();

@@ -1,25 +1,53 @@
 .app {
   --app-pad: 24px;
+  --app-design-width: 1600px;
+  --app-design-height: 900px;
   padding: 24px 24px 10px;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  min-height: 100%;
-  height: 100%;
+  width: var(--app-design-width);
+  height: var(--app-design-height);
+  min-height: var(--app-design-height);
+  position: fixed;
+  left: var(--app-fit-layout-x, 0);
+  top: var(--app-fit-layout-y, 0);
+  transform: none;
+  transform-origin: top left;
+  zoom: var(--app-fit-scale, 1);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 10% 10%, var(--bg-spot-a), transparent 40%),
+    radial-gradient(circle at 90% 0%, var(--bg-spot-b), transparent 38%),
+    linear-gradient(180deg, var(--bg-sweep-0) 0%, var(--bg-sweep-1) 60%, var(--bg-sweep-2) 100%);
+  background-color: var(--bg);
+  box-shadow: 0 0 0 200vmax var(--bg);
 }
 
 #root .app {
   padding: 24px 24px 10px;
   gap: 14px;
+  width: var(--app-design-width);
+  height: var(--app-design-height);
+  min-height: var(--app-design-height);
 }
 
 .app.app-market-agent {
-  background: linear-gradient(180deg, #0c1119 0%, #070b11 100%);
+  --app-pad: 24px;
   gap: 14px;
 }
 
-[data-theme="light"] .app.app-market-agent {
-  background: linear-gradient(180deg, #f8fafc 0%, #eef3f8 100%);
+#root .app.app-market-agent {
+  padding: 24px 24px 10px;
+  gap: 14px;
+}
+
+@supports not (zoom: 1) {
+  .app {
+    left: var(--app-fit-x, 0);
+    top: var(--app-fit-y, 0);
+    transform: scale(var(--app-fit-scale, 1));
+  }
 }
 
 .main {
@@ -36,15 +64,28 @@
   padding-bottom: 0;
   border-radius: 18px;
   overflow: hidden;
-  background: linear-gradient(180deg, rgba(14, 20, 29, 0.94), rgba(8, 12, 18, 0.98));
+  background: transparent;
 }
 
 .app.app-market-agent .main {
   padding-bottom: 0;
 }
 
-[data-theme="light"] .main-market-agent {
-  background: linear-gradient(180deg, rgba(248, 250, 252, 0.97), rgba(239, 244, 249, 0.99));
+@media (max-width: 1100px) and (min-width: 761px) {
+  .app.app-market-agent {
+    --app-pad: 24px;
+    gap: 14px;
+    padding: 24px 24px 10px;
+  }
+
+  #root .app.app-market-agent {
+    padding: 24px 24px 10px;
+    gap: 14px;
+  }
+
+  .app.app-market-agent .main-market-agent {
+    margin-bottom: 54px;
+  }
 }
 
 .split-view {
@@ -185,6 +226,13 @@
     justify-self: end;
     margin-bottom: 2px;
   }
+
+.app.app-market-agent .footer-row {
+  position: absolute;
+  left: var(--app-pad);
+  right: var(--app-pad);
+  bottom: 10px;
+}
 
 .activity-fab {
   border-radius: 999px;
@@ -444,7 +492,7 @@ html[data-theme="light"] .activity-hover-row.tone-error .activity-hover-level {
 }
 
 
-@media (max-width: 1100px) {
+@media (max-width: 760px) {
   .split-view {
     display: flex;
     flex-direction: column;

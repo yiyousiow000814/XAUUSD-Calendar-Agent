@@ -258,6 +258,7 @@ export type MarketAgentDriverAttentionState = {
   current_state: string;
   priority: string;
   relevance_score?: number;
+  impact_percent?: number | null;
   activation_reason?: string;
   deactivation_reason?: string;
   first_activated_at?: string;

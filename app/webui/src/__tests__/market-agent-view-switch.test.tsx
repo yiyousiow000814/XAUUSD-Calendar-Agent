@@ -234,7 +234,7 @@ describe("Market Agent view switch", () => {
     await waitFor(() => {
       expect(screen.getByRole("navigation", { name: /Market Agent sections/i })).toBeInTheDocument();
       expect(screen.getByRole("button", { name: /Dashboard/i })).toHaveAttribute("aria-pressed", "true");
-      expect(screen.getByRole("heading", { name: "XAUUSD Price" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "XAUUSD (Spot)" })).toBeInTheDocument();
       expect(screen.getByRole("heading", { name: "Market State" })).toBeInTheDocument();
       expect(screen.getByRole("heading", { name: "Driver Attention (Current)" })).toBeInTheDocument();
       expect(screen.getByRole("heading", { name: "Market Replay (Today)" })).toBeInTheDocument();
@@ -243,7 +243,7 @@ describe("Market Agent view switch", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /^Provider Health$/i }));
     expect(screen.getByRole("heading", { name: "Data Quality" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "XAUUSD Price" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "XAUUSD (Spot)" })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
     expect(screen.getByRole("heading", { name: "Data Sources" })).toBeInTheDocument();

@@ -436,7 +436,7 @@
   transform: scale(1);
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 760px) {
   .appbar {
     grid-template-columns: 1fr;
     align-items: stretch;
@@ -450,5 +450,24 @@
   .appbar-meta {
     justify-content: flex-start;
     flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 760px) {
+  .app .appbar {
+    grid-template-columns: minmax(220px, 1fr) max-content;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    --appbar-control-height: 36px;
+  }
+
+  .app .appbar-actions {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+  }
+
+  .app .appbar-meta {
+    display: none;
   }
 }

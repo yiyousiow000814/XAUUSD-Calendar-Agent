@@ -99,12 +99,8 @@ export const formatShortTime = (value: unknown, fallback = "--") => {
   if (typeof value !== "string" || !value.trim()) return fallback;
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return value;
-  return parsed.toLocaleString([], {
-    day: "2-digit",
-    month: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit"
-  });
+  const pad = (part: number) => String(part).padStart(2, "0");
+  return `${pad(parsed.getDate())}-${pad(parsed.getMonth() + 1)} ${pad(parsed.getHours())}:${pad(parsed.getMinutes())}`;
 };
 
 export const formatRelevance = (score: unknown) => {

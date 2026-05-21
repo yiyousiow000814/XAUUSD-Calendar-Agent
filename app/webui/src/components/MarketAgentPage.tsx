@@ -1,4 +1,4 @@
-import { type CSSProperties, useMemo, useState } from "react";
+import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
 import type {
   MarketAgentDriverAttentionResponse,
@@ -81,34 +81,137 @@ type MarketAgentPageProps = {
   onStopMonitorLoop: () => Promise<MarketAgentMonitorStatusResponse>;
 };
 
+type MarketAgentNavIconName =
+  | "dashboard"
+  | "drivers"
+  | "replay"
+  | "evidence"
+  | "providers"
+  | "sources"
+  | "alerts"
+  | "settings";
+
 const sectionGroups: Array<{
   label: string;
-  items: Array<{ id: MarketAgentSection; label: string }>;
+  items: Array<{ id: MarketAgentSection; label: string; icon: MarketAgentNavIconName }>;
 }> = [
   {
     label: "Overview",
     items: [
-      { id: "live", label: "Dashboard" },
-      { id: "drivers", label: "Driver Attention" },
-      { id: "replay", label: "Replay / Timeline" },
-      { id: "evidence", label: "Evidence" }
+      { id: "live", label: "Dashboard", icon: "dashboard" },
+      { id: "drivers", label: "Driver Attention", icon: "drivers" },
+      { id: "replay", label: "Replay / Timeline", icon: "replay" },
+      { id: "evidence", label: "Evidence", icon: "evidence" }
     ]
   },
   {
     label: "Data & Health",
     items: [
-      { id: "providers", label: "Provider Health" },
-      { id: "sources", label: "Data Sources" }
+      { id: "providers", label: "Provider Health", icon: "providers" },
+      { id: "sources", label: "Data Sources", icon: "sources" }
     ]
   },
   {
     label: "System",
     items: [
-      { id: "alerts", label: "Alerts" },
-      { id: "logs", label: "Logs / Settings" }
+      { id: "alerts", label: "Alerts", icon: "alerts" },
+      { id: "logs", label: "Settings", icon: "settings" }
     ]
   }
 ];
+
+function MarketAgentNavIcon({ name }: { name: MarketAgentNavIconName }) {
+  const common = {
+    width: 15,
+    height: 15,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.9,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    "data-nav-icon": name,
+    "aria-hidden": true
+  };
+
+  if (name === "dashboard") {
+    return (
+      <svg {...common}>
+        <path d="M4.2 10.9 12 4.4l7.8 6.5" />
+        <path d="M6.5 10.6v8.2h11v-8.2" />
+        <path d="M10 18.8v-5h4v5" />
+      </svg>
+    );
+  }
+  if (name === "drivers") {
+    return (
+      <svg {...common}>
+        <path d="M4.8 15.7a7.2 7.2 0 0 1 14.4 0" />
+        <path d="M12 15.4 16.4 9" />
+        <path d="M8.2 18h7.6" />
+        <circle cx="12" cy="15.4" r="1.2" />
+      </svg>
+    );
+  }
+  if (name === "replay") {
+    return (
+      <svg {...common}>
+        <path d="M5.2 6.2h13.6" />
+        <path d="M5.2 12h9.2" />
+        <path d="M5.2 17.8h13.6" />
+        <circle cx="7.4" cy="6.2" r="1.5" />
+        <circle cx="14.4" cy="12" r="1.5" />
+        <circle cx="10.4" cy="17.8" r="1.5" />
+      </svg>
+    );
+  }
+  if (name === "evidence") {
+    return (
+      <svg {...common}>
+        <path d="M8.2 5.2h7.6l2.2 2.4v11.2H6.8V6.6a1.4 1.4 0 0 1 1.4-1.4Z" />
+        <path d="M15.6 5.4v2.4h2.2" />
+        <path d="m9.7 13.1 1.7 1.8 3.5-4" />
+        <path d="M9.8 8.8h3.1" />
+      </svg>
+    );
+  }
+  if (name === "providers") {
+    return (
+      <svg {...common}>
+        <rect x="5.2" y="4.7" width="13.6" height="5.2" rx="1.5" />
+        <rect x="5.2" y="14.1" width="13.6" height="5.2" rx="1.5" />
+        <path d="M8.2 7.3h.1" />
+        <path d="M8.2 16.7h.1" />
+        <path d="M11 7.3h4.8" />
+        <path d="M11 16.7h4.8" />
+        <path d="M12 9.9v4.2" />
+      </svg>
+    );
+  }
+  if (name === "sources") {
+    return (
+      <svg {...common}>
+        <ellipse cx="12" cy="5.8" rx="6.8" ry="2.7" />
+        <path d="M5.2 5.8v6.2c0 1.5 3 2.7 6.8 2.7s6.8-1.2 6.8-2.7V5.8" />
+        <path d="M5.2 12v4.2c0 1.5 3 2.7 6.8 2.7s6.8-1.2 6.8-2.7V12" />
+      </svg>
+    );
+  }
+  if (name === "alerts") {
+    return (
+      <svg {...common}>
+        <path d="M18 9.8a6 6 0 0 0-12 0c0 5-2 5.7-2 5.7h16s-2-.7-2-5.7" />
+        <path d="M9.7 18.3a2.5 2.5 0 0 0 4.6 0" />
+      </svg>
+    );
+  }
+  return (
+    <svg {...common}>
+      <path d="M12.2 3.2h-.4a1.6 1.6 0 0 0-1.6 1.6v.3a1.5 1.5 0 0 1-.8 1.3l-.4.2a1.5 1.5 0 0 1-1.5 0l-.3-.2a1.6 1.6 0 0 0-2.2.6l-.2.4a1.6 1.6 0 0 0 .6 2.2l.3.2a1.5 1.5 0 0 1 .8 1.3v.6a1.5 1.5 0 0 1-.8 1.3l-.3.2a1.6 1.6 0 0 0-.6 2.2l.2.4a1.6 1.6 0 0 0 2.2.6l.3-.2a1.5 1.5 0 0 1 1.5 0l.4.2a1.5 1.5 0 0 1 .8 1.3v.3a1.6 1.6 0 0 0 1.6 1.6h.4a1.6 1.6 0 0 0 1.6-1.6v-.3a1.5 1.5 0 0 1 .8-1.3l.4-.2a1.5 1.5 0 0 1 1.5 0l.3.2a1.6 1.6 0 0 0 2.2-.6l.2-.4a1.6 1.6 0 0 0-.6-2.2l-.3-.2a1.5 1.5 0 0 1-.8-1.3v-.6a1.5 1.5 0 0 1 .8-1.3l.3-.2a1.6 1.6 0 0 0 .6-2.2l-.2-.4a1.6 1.6 0 0 0-2.2-.6l-.3.2a1.5 1.5 0 0 1-1.5 0l-.4-.2a1.5 1.5 0 0 1-.8-1.3v-.3a1.6 1.6 0 0 0-1.6-1.6Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
 
 const formatValue = (value: unknown, fallback = "--") =>
   typeof value === "string" && value.trim()
@@ -123,11 +226,148 @@ const formatValue = (value: unknown, fallback = "--") =>
           : "No"
         : fallback;
 
-const formatMonitorTime = (value: unknown) => {
+function MarketAgentValuePulse({
+  value,
+  children,
+  className = ""
+}: {
+  value: unknown;
+  children: ReactNode;
+  className?: string;
+}) {
+  const valueKey = typeof value === "object" ? JSON.stringify(value ?? "") : String(value ?? "");
+  return (
+    <span key={valueKey} className={`market-agent-value-pulse ${className}`.trim()}>
+      {children}
+    </span>
+  );
+}
+
+function MarketAgentCountdownDigit({
+  digit,
+  direction
+}: {
+  digit: string;
+  direction: "down" | "up" | "none";
+}) {
+  const previousRef = useRef(digit);
+  const [roll, setRoll] = useState<{
+    previous: string;
+    digit: string;
+    direction: "down" | "up" | "none";
+  } | null>(null);
+
+  useEffect(() => {
+    const previous = previousRef.current;
+    if (previous === digit) {
+      setRoll(null);
+      return undefined;
+    }
+    previousRef.current = digit;
+    setRoll({ previous, digit, direction });
+    const timeout = window.setTimeout(() => {
+      setRoll((current) => (current?.digit === digit ? null : current));
+    }, 220);
+    return () => window.clearTimeout(timeout);
+  }, [digit, direction]);
+
+  const activeRoll = roll?.digit === digit ? roll : null;
+
+  return (
+    <span
+      className={`market-agent-countdown-digit${activeRoll ? ` is-changing roll-${activeRoll.direction}` : ""}`}
+      aria-hidden="true"
+    >
+      {activeRoll ? (
+        <>
+          <span className="market-agent-countdown-digit-current">{digit}</span>
+          <span className="market-agent-countdown-digit-old" key={`old-${activeRoll.previous}-${activeRoll.digit}`}>
+            {activeRoll.previous}
+          </span>
+          <span className="market-agent-countdown-digit-new" key={`new-${activeRoll.digit}-${activeRoll.previous}`}>
+            {activeRoll.digit}
+          </span>
+        </>
+      ) : (
+        <span className="market-agent-countdown-digit-current">{digit}</span>
+      )}
+    </span>
+  );
+}
+
+function MarketAgentRollingCountdown({ seconds }: { seconds: number }) {
+  const previousSecondsRef = useRef(seconds);
+  const previousSeconds = previousSecondsRef.current;
+  const direction = seconds < previousSeconds ? "down" : seconds > previousSeconds ? "up" : "none";
+  const digits = String(seconds).split("");
+
+  useEffect(() => {
+    previousSecondsRef.current = seconds;
+  }, [seconds]);
+
+  return (
+    <span
+      className="market-agent-countdown"
+      data-qa="qa:market-agent:next-countdown"
+      aria-label={formatCountdownSeconds(seconds)}
+    >
+      <span className="market-agent-countdown-number" aria-hidden="true">
+        {digits.map((digit, index) => {
+          const place = digits.length - index - 1;
+          return <MarketAgentCountdownDigit key={`place-${place}`} digit={digit} direction={direction} />;
+        })}
+      </span>{" "}
+      <span className="market-agent-countdown-unit" aria-hidden="true">sec</span>
+    </span>
+  );
+}
+
+const parseTimestampMs = (value: unknown) => {
   if (typeof value === "number" && Number.isFinite(value)) {
-    return formatShortTime(new Date(value > 10_000_000_000 ? value : value * 1000).toISOString());
+    return value > 10_000_000_000 ? value : value * 1000;
   }
+  if (typeof value !== "string" || !value.trim()) return null;
+  const parsed = new Date(value).getTime();
+  return Number.isNaN(parsed) ? null : parsed;
+};
+
+const padDatePart = (value: number) => String(value).padStart(2, "0");
+
+const formatClockTime = (value: unknown, fallback = "--") => {
+  const parsed = parseTimestampMs(value);
+  if (parsed === null) return fallback;
+  const date = new Date(parsed);
+  return `${padDatePart(date.getHours())}:${padDatePart(date.getMinutes())}`;
+};
+
+const formatStateSinceTime = (value: unknown, fallback = "--") => {
+  const parsed = parseTimestampMs(value);
+  if (parsed === null) return fallback;
+  const date = new Date(parsed);
+  return `${padDatePart(date.getDate())}-${padDatePart(date.getMonth() + 1)}-${date.getFullYear()} ${formatClockTime(value, fallback)}`;
+};
+
+const formatStateSinceCompactTime = (value: unknown, fallback = "--") => {
+  const parsed = parseTimestampMs(value);
+  if (parsed === null) return fallback;
+  const date = new Date(parsed);
+  return `${padDatePart(date.getDate())}-${padDatePart(date.getMonth() + 1)} ${formatClockTime(value, fallback)}`;
+};
+
+const formatMonitorTime = (value: unknown) => {
+  const parsed = parseTimestampMs(value);
+  if (parsed !== null) return formatShortTime(new Date(parsed).toISOString());
   return formatShortTime(value);
+};
+
+const formatReplayTime = (value: unknown, fallback = "--") => {
+  if (typeof value !== "string" || !value.trim()) return fallback;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return parsed.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
 };
 
 const numberValue = (value: unknown) =>
@@ -148,13 +388,30 @@ const formatSignedValue = (value: unknown, unit = "") => {
   return `${sign}${numeric.toFixed(2)}${unit}`;
 };
 
+const formatSignedPriceChange = (value: unknown) => {
+  const numeric = numberValue(value);
+  if (numeric === null) return "--";
+  const sign = numeric > 0 ? "+" : "";
+  return `${sign}${numeric.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })}`;
+};
+
+const formatPercentChange = (value: unknown) => {
+  const numeric = numberValue(value);
+  if (numeric === null) return "--";
+  const sign = numeric > 0 ? "+" : "";
+  return `${sign}${numeric.toFixed(2)}%`;
+};
+
 const formatMarketStateLabel = (value: unknown) => {
   const normalized = normalizeMarketAgentValue(value);
-  if (normalized.includes("bearish")) return "Bearish";
-  if (normalized.includes("bullish")) return "Bullish";
-  if (normalized === "neutral") return "Neutral";
-  if (normalized === "unknown" || !normalized) return "Unknown";
-  return formatValue(value, "Unknown");
+  if (normalized.includes("bearish")) return "TRENDING DOWN";
+  if (normalized.includes("bullish")) return "TRENDING UP";
+  if (normalized === "neutral" || normalized.includes("range")) return "RANGEBOUND";
+  if (normalized === "unknown" || !normalized) return "UNKNOWN";
+  return formatValue(value, "UNKNOWN").toUpperCase();
 };
 
 const marketStateTone = (value: unknown) => {
@@ -194,17 +451,33 @@ const formatMoveType = (changeLabel: string, message: unknown) => {
   return { label: "Breakout", tone: "positive", arrow: "↑" };
 };
 
-const formatMoveDuration = (price: Record<string, unknown> | undefined, fallback = "15m") => {
+const formatDurationSeconds = (value: number | null, fallback = "--") => {
+  if (value === null) return fallback;
+  const seconds = Math.max(0, Math.round(value));
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remaining = seconds % 60;
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  if (minutes > 0) return `${minutes}m ${remaining.toString().padStart(2, "0")}s`;
+  return `${remaining}s`;
+};
+
+const formatMoveDuration = (
+  price: Record<string, unknown> | undefined,
+  detectedAt: unknown,
+  nowMs: number,
+  fallback = "--"
+) => {
   const raw =
     numberValue(price?.duration_seconds) ??
     numberValue(price?.move_duration_seconds) ??
     numberValue(price?.window_seconds);
-  if (raw === null) return fallback;
-  const seconds = Math.max(0, Math.round(raw));
-  const minutes = Math.floor(seconds / 60);
-  const remaining = seconds % 60;
-  if (minutes <= 0) return `${remaining}s`;
-  return `${minutes}m ${remaining.toString().padStart(2, "0")}s`;
+  if (raw !== null) return formatDurationSeconds(raw, fallback);
+  const detectedMs = parseTimestampMs(detectedAt);
+  if (detectedMs === null) return fallback;
+  return formatDurationSeconds((nowMs - detectedMs) / 1000, fallback);
 };
 
 const formatEvidenceStrength = (value: unknown) => {
@@ -216,6 +489,51 @@ const formatEvidenceStrength = (value: unknown) => {
   return formatValue(value, "Quiet");
 };
 
+const formatDataFreshness = (value: unknown, nowMs: number) => {
+  const timestamp = parseTimestampMs(value);
+  if (timestamp === null) return "";
+  const seconds = Math.max(0, Math.round((nowMs - timestamp) / 1000));
+  if (seconds < 60) return `${seconds}s ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+};
+
+const formatDataModeLabel = (sourceType: string, providerStatus: string) => {
+  if (sourceType === "spot") return "Live";
+  if (sourceType === "futures_proxy") return "Proxy";
+  if (sourceType === "local_csv_fallback") return "Local CSV fallback";
+  if (providerStatus === "Stale data") return "Stale";
+  if (providerStatus === "Unavailable") return "Unavailable";
+  return providerStatus;
+};
+
+const formatCountdownSeconds = (seconds: number) =>
+  `${seconds} sec`;
+
+const nextRunCountdown = (
+  monitorStatus: MarketAgentMonitorStatusResponse | null,
+  nowMs: number,
+  fallbackBaseMs: number
+) => {
+  const intervalSeconds = Math.max(1, Math.round(numberValue(monitorStatus?.intervalSeconds) ?? 60));
+  const nextRunMs = parseTimestampMs(monitorStatus?.nextRunAt);
+  if (nextRunMs !== null) {
+    let seconds = Math.ceil((nextRunMs - nowMs) / 1000);
+    while (seconds <= 0) seconds += intervalSeconds;
+    if (seconds > intervalSeconds) {
+      seconds = ((seconds - 1) % intervalSeconds) + 1;
+    }
+    return { seconds, intervalSeconds };
+  }
+  const elapsed = Math.max(0, Math.floor((nowMs - fallbackBaseMs) / 1000));
+  const remainder = elapsed % intervalSeconds;
+  return { seconds: remainder === 0 ? intervalSeconds : intervalSeconds - remainder, intervalSeconds };
+};
+
 const formatScore = (value: unknown) => {
   const numeric = numberValue(value);
   if (numeric === null) return "--";
@@ -223,10 +541,26 @@ const formatScore = (value: unknown) => {
 };
 
 const formatDriverImpact = (driver: MarketAgentDriverAttentionResponse["states"][number]) => {
-  const score = numberValue(driver.relevance_score);
-  if (score === null) return "--";
-  const signed = score >= 0.5 ? score : -score;
-  return `${signed >= 0 ? "+" : "-"}${Math.abs(signed * 100).toFixed(2)}%`;
+  const record = driver as MarketAgentDriverAttentionResponse["states"][number] & Record<string, unknown>;
+  const impact = numberValue(
+    record.impact_percent ??
+    record.latest_impact_percent ??
+    record.move_percent ??
+    record.impact
+  );
+  return impact === null ? "--" : formatSignedValue(impact, "%");
+};
+
+const driverImpactTone = (driver: MarketAgentDriverAttentionResponse["states"][number]) => {
+  const record = driver as MarketAgentDriverAttentionResponse["states"][number] & Record<string, unknown>;
+  const impact = numberValue(
+    record.impact_percent ??
+    record.latest_impact_percent ??
+    record.move_percent ??
+    record.impact
+  );
+  if (impact === null || impact === 0) return "neutral";
+  return impact < 0 ? "negative" : "positive";
 };
 
 const attentionLabel = (driver: MarketAgentDriverAttentionResponse["states"][number]) => {
@@ -235,6 +569,9 @@ const attentionLabel = (driver: MarketAgentDriverAttentionResponse["states"][num
   if (score >= 0.4) return "Medium";
   return "Low";
 };
+
+const formatDriverStateLabel = (value: unknown) =>
+  formatValue(value, "Unknown").toUpperCase();
 
 type TimelineKind = "breakout" | "news" | "reversal" | "range" | "session" | "recovery" | "suppressed" | "alert" | "calendar" | "evidence";
 
@@ -248,6 +585,34 @@ type TimelineRow = {
   payload?: Record<string, unknown>;
   source: "event" | "news" | "calendar" | "alert" | "suppressed";
 };
+
+type ReplayRange = "1h" | "4h" | "1d";
+
+type EvidenceFilter = "all" | "news" | "calendar" | "technical" | "drivers";
+
+type DashboardEvidenceRow = {
+  key: string;
+  title: string;
+  detail: string;
+  status: string;
+  kind: string;
+  filter: EvidenceFilter;
+  time: string;
+};
+
+const replayRangeOptions: Array<{ value: ReplayRange; label: string; hours: number }> = [
+  { value: "1h", label: "1H", hours: 1 },
+  { value: "4h", label: "4H", hours: 4 },
+  { value: "1d", label: "1D", hours: 24 }
+];
+
+const evidenceFilterOptions: Array<{ value: EvidenceFilter; label: string }> = [
+  { value: "all", label: "All" },
+  { value: "news", label: "News" },
+  { value: "calendar", label: "Calendar" },
+  { value: "technical", label: "Technical" },
+  { value: "drivers", label: "Drivers" }
+];
 
 const timelineKindMeta: Record<TimelineKind, { tag: string; icon: string; tone: string; title: string }> = {
   breakout: { tag: "BREAKOUT", icon: "↯", tone: "red", title: "Breakout" },
@@ -315,6 +680,53 @@ const latestPrice = (replay: MarketAgentReplayResponse | null) => {
   return rows[rows.length - 1] as Record<string, unknown> | undefined;
 };
 
+const previousPrice = (replay: MarketAgentReplayResponse | null) => {
+  const rows = replay?.replay.price_series ?? [];
+  return rows.length > 1 ? rows[rows.length - 2] as Record<string, unknown> : undefined;
+};
+
+const ALERT_NOTICE_STORAGE_KEY = "xauusd:market-agent:seen-alert-ids";
+
+const alertNoticeId = (kind: "sent" | "suppressed", item: Record<string, unknown>, index: number) =>
+  [
+    kind,
+    String(item.monitor_run_id ?? ""),
+    String(item.run_started_at ?? ""),
+    String(item.message ?? ""),
+    String(item.notification_level ?? ""),
+    String(index)
+  ].join("::");
+
+const alertNoticeIds = (replay: MarketAgentReplayResponse | null) => {
+  const payload = replay?.replay;
+  if (!payload) return [];
+  return [
+    ...payload.alerts.map((item, index) => alertNoticeId("sent", item, index)),
+    ...payload.suppressed_alerts.map((item, index) => alertNoticeId("suppressed", item, index))
+  ];
+};
+
+const readSeenAlertIds = () => {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(ALERT_NOTICE_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string") : [];
+  } catch {
+    return [];
+  }
+};
+
+const writeSeenAlertIds = (ids: string[]) => {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(ALERT_NOTICE_STORAGE_KEY, JSON.stringify(ids.slice(-250)));
+  } catch {
+    // Ignore storage failures; notification badges still work for the current render.
+  }
+};
+
 const latestTimelineRows = (payload: MarketAgentReplayPayload | undefined): TimelineRow[] => {
   if (!payload) return [];
   const eventRunIds = new Set(payload.timeline_events.map((item) => item.monitor_run_id).filter(Boolean));
@@ -377,52 +789,240 @@ const latestTimelineRows = (payload: MarketAgentReplayPayload | undefined): Time
     .slice(0, 6);
 };
 
-const evidenceItems = (selectedEvidence: MarketAgentEvidenceForRunResponse | null) => {
+const filterTimelineByReplayRange = (rows: TimelineRow[], range: ReplayRange) => {
+  const rangeMeta = replayRangeOptions.find((item) => item.value === range) ?? replayRangeOptions[2];
+  if (rangeMeta.value === "1d") return rows;
+  const parsedTimes = rows
+    .map((item) => new Date(item.time).getTime())
+    .filter((value) => Number.isFinite(value));
+  if (!parsedTimes.length) return rows;
+  const latest = Math.max(...parsedTimes);
+  const cutoff = latest - rangeMeta.hours * 60 * 60 * 1000;
+  return rows.filter((item) => {
+    const parsed = new Date(item.time).getTime();
+    return !Number.isFinite(parsed) || parsed >= cutoff;
+  });
+};
+
+const evidenceStatusLabel = (value: unknown, fallback = "Supporting") => {
+  const normalized = normalizeMarketAgentValue(value);
+  if (!normalized) return fallback;
+  if (normalized.includes("unavailable") || normalized.includes("missing") || normalized.includes("no_data")) {
+    return "Not Available";
+  }
+  if (normalized.includes("blocked") || normalized.includes("rejected") || normalized.includes("contrary")) {
+    return "Blocked";
+  }
+  if (normalized.includes("neutral") || normalized.includes("background") || normalized.includes("not_confirming") || normalized.includes("unconfirmed")) {
+    return "Neutral";
+  }
+  return "Supporting";
+};
+
+const evidenceStatusTone = (status: string): "neutral" | "good" | "warn" | "bad" | "info" => {
+  const normalized = normalizeMarketAgentValue(status);
+  if (normalized === "supporting") return "good";
+  if (normalized === "neutral") return "warn";
+  if (normalized.includes("available")) return "neutral";
+  if (normalized === "blocked") return "bad";
+  return "info";
+};
+
+const userFacingEvidenceDetail = (value: unknown, fallback: string) =>
+  String(value || fallback)
+    .replace(/\bconfirming\b/gi, "supporting the move")
+    .replace(/\bconfirmed\b/gi, "supported");
+
+const evidenceStatusValue = (packet: Record<string, unknown> | undefined, key: string) => {
+  const evidenceStatus = (packet?.evidence_status as Record<string, unknown> | undefined) ?? {};
+  const crossAsset = (packet?.cross_asset_confirmation as Record<string, unknown> | undefined) ?? {};
+  return evidenceStatus[key] ?? crossAsset[key];
+};
+
+const latestRelatedAsset = (payload: MarketAgentReplayPayload | undefined, key: string) => {
+  const rows = payload?.related_assets?.[key];
+  if (!Array.isArray(rows) || rows.length === 0) return undefined;
+  return [...rows].sort((left, right) =>
+    String(right.data_timestamp ?? right.timestamp ?? "").localeCompare(String(left.data_timestamp ?? left.timestamp ?? ""))
+  )[0];
+};
+
+const driverStateDetail = (
+  driverAttention: MarketAgentDriverAttentionResponse | null,
+  driverIds: string[],
+  fallback: string
+) => {
+  const ids = new Set(driverIds.map(normalizeMarketAgentValue));
+  const state = driverAttention?.states.find((item) => ids.has(normalizeMarketAgentValue(item.driver_id)));
+  return userFacingEvidenceDetail(
+    state?.current_evidence_summary ||
+      state?.activation_reason ||
+      state?.deactivation_reason ||
+      fallback,
+    fallback
+  );
+};
+
+const relatedAssetDetail = (label: string, asset: Record<string, unknown> | undefined, fallback: string, unit = "") => {
+  const change = numberValue(asset?.change_15m ?? asset?.change ?? asset?.move);
+  if (change === null) return fallback;
+  return `${label} moved ${formatSignedValue(change, unit)} in the latest window.`;
+};
+
+const latestTechnicalEvent = (payload: MarketAgentReplayPayload | undefined) =>
+  [...(payload?.timeline_events ?? [])]
+    .filter((item) => {
+      const type = normalizeMarketAgentValue(item.payload?.semantic_type ?? item.event_type);
+      return ["breakout", "reversal", "range"].includes(type);
+    })
+    .sort((left, right) => String(right.event_time).localeCompare(String(left.event_time)))
+    .sort((left, right) => {
+      const leftType = normalizeMarketAgentValue(left.payload?.semantic_type ?? left.event_type);
+      const rightType = normalizeMarketAgentValue(right.payload?.semantic_type ?? right.event_type);
+      return Number(rightType === "breakout") - Number(leftType === "breakout");
+    })[0];
+
+const evidenceItems = (
+  selectedEvidence: MarketAgentEvidenceForRunResponse | null,
+  replay: MarketAgentReplayResponse | null,
+  driverAttention: MarketAgentDriverAttentionResponse | null
+): DashboardEvidenceRow[] => {
   const packet = selectedEvidence?.payload?.evidence_packet as Record<string, unknown> | undefined;
   const analysis = selectedEvidence?.payload?.analysis_result as Record<string, unknown> | undefined;
-  const evidenceStatus = (packet?.evidence_status as Record<string, unknown> | undefined) ?? {};
-  const allowed = Array.isArray(packet?.allowed_candidate_drivers) ? packet.allowed_candidate_drivers : [];
-  const blocked = (packet?.blocked_drivers as Record<string, unknown> | undefined) ?? {};
-  const rows = [
-    ...allowed.map((driver) => ({
-      title: formatDriverLabel(driver),
-      status: "Supporting",
-      detail: "Confirmed enough to explain the move",
-      kind: normalizeMarketAgentValue(driver).includes("yield") ? "yield" : normalizeMarketAgentValue(driver).includes("usd") ? "usd" : "driver"
-    })),
-    ...Object.entries(evidenceStatus).map(([key, value]) => ({
-      title: formatDriverLabel(key),
-      status: value,
-      detail: formatValue(value, "Evidence status"),
-      kind: normalizeMarketAgentValue(key).includes("news") ? "news" : normalizeMarketAgentValue(key).includes("us") ? "yield" : "technical"
-    })),
-    ...Object.entries(blocked).map(([key, value]) => ({
-      title: formatDriverLabel(key),
-      status: "Blocked",
-      detail: String(value),
-      kind: "blocked"
-    }))
-  ];
-  if (analysis?.rejected_driver) {
+  const payload = replay?.replay;
+  const runTime = String(selectedEvidence?.payload?.monitor_run?.run_started_at ?? "");
+  const rows: DashboardEvidenceRow[] = [];
+  const news = payload?.news_items.find((item) => item.title || item.summary || item.description);
+  if (news) {
     rows.push({
-      title: formatDriverLabel(analysis.rejected_driver),
-      status: "Rejected",
-      detail: String(analysis.rejection_reason ?? "Rejected by validator"),
-      kind: "blocked"
+      key: `news-${String(news.published_at ?? news.title ?? "latest")}`,
+      title: String(news.summary_title ?? "High Impact News"),
+      detail: String(news.summary ?? news.description ?? news.title ?? news.source ?? "News item"),
+      status: evidenceStatusLabel(news.included ?? news.data_mode ?? evidenceStatusValue(packet, "news")),
+      kind: "news",
+      filter: "news",
+      time: String(news.published_at ?? news.first_seen_at ?? runTime)
     });
   }
+
+  const dxyAsset = latestRelatedAsset(payload, "dxy");
+  const dxyStatus = evidenceStatusLabel(evidenceStatusValue(packet, "dxy"));
+  if (dxyAsset || evidenceStatusValue(packet, "dxy")) {
+    rows.push({
+      key: "driver-dxy",
+      title: "DXY / USD",
+      detail: driverStateDetail(
+        driverAttention,
+        ["usd", "dxy"],
+        relatedAssetDetail("DXY", dxyAsset, "USD pressure is part of the evidence packet.")
+      ),
+      status: dxyStatus,
+      kind: "usd",
+      filter: "drivers",
+      time: String(dxyAsset?.data_timestamp ?? dxyAsset?.timestamp ?? runTime)
+    });
+  }
+
+  const us10yAsset = latestRelatedAsset(payload, "us10y");
+  if (us10yAsset || evidenceStatusValue(packet, "us10y")) {
+    rows.push({
+      key: "driver-us10y",
+      title: "US10Y Yield Move",
+      detail: driverStateDetail(
+        driverAttention,
+        ["yields", "us10y", "real_yields"],
+        relatedAssetDetail("US10Y", us10yAsset, "US yield confirmation is part of the evidence packet.", "bp")
+      ),
+      status: evidenceStatusLabel(evidenceStatusValue(packet, "us10y")),
+      kind: "yield",
+      filter: "drivers",
+      time: String(us10yAsset?.data_timestamp ?? us10yAsset?.timestamp ?? runTime)
+    });
+  }
+
+  const technical = latestTechnicalEvent(payload);
+  if (technical) {
+    const kind = inferTimelineKind({
+      key: `technical-${technical.monitor_run_id}`,
+      time: technical.event_time,
+      title: technical.label,
+      meta: "",
+      status: technical.event_type,
+      payload: technical.payload,
+      source: "event"
+    });
+    const meta = timelineKindMeta[kind];
+    rows.push({
+      key: `technical-${technical.monitor_run_id}-${technical.event_time}`,
+      title: `Technical ${meta.title}`,
+      detail: technical.label,
+      status: evidenceStatusLabel(technical.payload?.cause_status ?? analysis?.cause_status ?? "supporting"),
+      kind: "technical",
+      filter: "technical",
+      time: technical.event_time
+    });
+  }
+
+  const us2yAsset = latestRelatedAsset(payload, "us2y");
+  if (us2yAsset || evidenceStatusValue(packet, "us2y")) {
+    rows.push({
+      key: "driver-us2y",
+      title: "US2Y",
+      detail: us2yAsset ? relatedAssetDetail("US2Y", us2yAsset, "US2Y source is present.", "bp") : "No available US2Y source for this run.",
+      status: evidenceStatusLabel(evidenceStatusValue(packet, "us2y"), "Not Available"),
+      kind: "yield",
+      filter: "drivers",
+      time: String(us2yAsset?.data_timestamp ?? us2yAsset?.timestamp ?? runTime)
+    });
+  }
+
+  const oilAsset = latestRelatedAsset(payload, "wti") ?? latestRelatedAsset(payload, "brent");
+  if (rows.length < 5 && (oilAsset || evidenceStatusValue(packet, "oil"))) {
+    rows.push({
+      key: "driver-oil",
+      title: "Oil Price Move",
+      detail: driverStateDetail(
+        driverAttention,
+        ["oil_inflation", "oil"],
+        relatedAssetDetail("Oil", oilAsset, "Oil is background evidence only.", "%")
+      ),
+      status: evidenceStatusLabel(evidenceStatusValue(packet, "oil"), "Neutral"),
+      kind: "oil",
+      filter: "drivers",
+      time: String(oilAsset?.data_timestamp ?? oilAsset?.timestamp ?? runTime)
+    });
+  }
+
+  const calendar = payload?.calendar_events.find((item) => item.title || item.summary);
+  if (rows.length < 5 && calendar) {
+    rows.push({
+      key: `calendar-${String(calendar.scheduled_at ?? calendar.title ?? "latest")}`,
+      title: "Calendar Context",
+      detail: String(calendar.summary ?? calendar.title ?? "Calendar event"),
+      status: evidenceStatusLabel(calendar.data_mode ?? "neutral", "Neutral"),
+      kind: "calendar",
+      filter: "calendar",
+      time: String(calendar.scheduled_at ?? runTime)
+    });
+  }
+
   return rows.slice(0, 5);
 };
 
 const evidenceKindMeta = (kind: string) => {
   const normalized = normalizeMarketAgentValue(kind);
   if (normalized.includes("news")) return { icon: "N", tone: "blue", label: "News" };
+  if (normalized.includes("calendar")) return { icon: "C", tone: "amber", label: "Calendar" };
   if (normalized.includes("yield")) return { icon: "Y", tone: "amber", label: "Yield" };
   if (normalized.includes("usd")) return { icon: "$", tone: "green", label: "USD" };
+  if (normalized.includes("oil")) return { icon: "O", tone: "amber", label: "Oil" };
   if (normalized.includes("blocked")) return { icon: "X", tone: "red", label: "Blocked" };
   if (normalized.includes("technical")) return { icon: "T", tone: "purple", label: "Technical" };
   return { icon: "D", tone: "blue", label: "Driver" };
 };
+
+const SCORE_RING_RADIUS = 34;
+const SCORE_RING_CIRCUMFERENCE = 2 * Math.PI * SCORE_RING_RADIUS;
 
 function MarketAgentDashboard({
   snapshot,
@@ -430,6 +1030,7 @@ function MarketAgentDashboard({
   driverAttention,
   replay,
   selectedEvidence,
+  monitorStatus,
   onSelectRun,
   onNavigate
 }: {
@@ -438,34 +1039,56 @@ function MarketAgentDashboard({
   driverAttention: MarketAgentDriverAttentionResponse | null;
   replay: MarketAgentReplayResponse | null;
   selectedEvidence: MarketAgentEvidenceForRunResponse | null;
+  monitorStatus: MarketAgentMonitorStatusResponse | null;
   onSelectRun: (monitorRunId: number) => void;
   onNavigate: (section: MarketAgentSection) => void;
 }) {
+  const [replayRange, setReplayRange] = useState<ReplayRange>("1d");
+  const [evidenceFilter, setEvidenceFilter] = useState<EvidenceFilter>("all");
+  const [nowMs, setNowMs] = useState(() => Date.now());
+  const [countdownBaseMs] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = window.setInterval(() => setNowMs(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
   const state = snapshot?.state;
   const xauusdHealth = findProviderHealth(providerHealth?.items, ["xauusd", "gc=f", "xauusd price"]);
   const price = latestPrice(replay);
+  const priorPrice = previousPrice(replay);
   const priceValue = numberValue(price?.close_price ?? xauusdHealth?.current_value);
   const bid = numberValue(price?.bid ?? price?.bid_price);
   const ask = numberValue(price?.ask ?? price?.ask_price);
   const spread = numberValue(price?.spread) ?? (bid !== null && ask !== null ? ask - bid : null);
-  const timeline = latestTimelineRows(replay?.replay);
-  const evidence = evidenceItems(selectedEvidence);
+  const previousPriceValue = numberValue(priorPrice?.close_price ?? xauusdHealth?.previous_value);
+  const priceChangeValue = numberValue(price?.change_value ?? price?.change ?? price?.change_15m);
+  const computedPriceChange = priceChangeValue ?? (
+    priceValue !== null && previousPriceValue !== null ? priceValue - previousPriceValue : null
+  );
+  const priceChangePercent =
+    numberValue(price?.change_pct ?? price?.change_15m_pct ?? price?.move_percent) ??
+    (priceValue !== null && previousPriceValue !== null && previousPriceValue !== 0
+      ? ((priceValue - previousPriceValue) / previousPriceValue) * 100
+      : null);
+  const timeline = filterTimelineByReplayRange(latestTimelineRows(replay?.replay), replayRange);
+  const allEvidence = evidenceItems(selectedEvidence, replay, driverAttention);
+  const evidence = evidenceFilter === "all" ? allEvidence : allEvidence.filter((item) => item.filter === evidenceFilter);
   const supportingCount = evidence.filter((item) =>
-    ["supporting", "confirming", "allowed", "live data"].includes(normalizeMarketAgentValue(item.status))
-  ).length || (evidence.length ? Math.max(1, evidence.length - 1) : 0);
+    normalizeMarketAgentValue(item.status) === "supporting"
+  ).length;
   const contraryCount = evidence.filter((item) =>
     ["blocked", "rejected", "contrary"].includes(normalizeMarketAgentValue(item.status))
   ).length;
   const neutralCount = Math.max(0, evidence.length - supportingCount - contraryCount);
   const evidenceScore = evidence.length ? Math.round((supportingCount / evidence.length) * 100) : 0;
+  const evidenceScoreOffset = SCORE_RING_CIRCUMFERENCE * (1 - Math.max(0, Math.min(100, evidenceScore)) / 100);
   const moveChange = numberValue(price?.change_pct ?? price?.change_15m_pct ?? xauusdHealth?.change_value);
   const sourceType = normalizeMarketAgentValue(xauusdHealth?.source_type ?? price?.source_type);
-  const priceSourceLabel = sourceType === "spot" ? "Spot price" : sourceType === "futures_proxy" ? "Backup price" : "No price source";
+  const priceSourceLabel = sourceType === "spot" ? "cTrader (Spot)" : sourceType === "futures_proxy" ? "Backup price" : "No price source";
   const providerStatus = statusForProvider(xauusdHealth);
-  const displayProviderStatus = providerStatus === "Futures proxy" ? "Backup" : providerStatus;
-  const lastPriceTime = formatShortTime(xauusdHealth?.data_timestamp ?? price?.timestamp);
+  const displayProviderStatus = formatDataModeLabel(sourceType, providerStatus);
+  const dataFreshness = formatDataFreshness(xauusdHealth?.data_timestamp ?? price?.data_timestamp ?? price?.timestamp, nowMs);
   const latestAlertMessage = replay?.replay.alerts?.[0]?.message;
-  const evidenceRunTime = formatShortTime(selectedEvidence?.payload?.monitor_run?.run_started_at);
+  const evidenceRunTime = formatReplayTime(selectedEvidence?.payload?.monitor_run?.run_started_at);
   const latestMoveLabel = moveChange === null
     ? (extractMovePercent(latestAlertMessage) ?? "--")
     : formatSignedValue(moveChange, xauusdHealth?.change_unit === "%" ? "%" : "");
@@ -473,7 +1096,11 @@ function MarketAgentDashboard({
   const latestMoveSizeTone = latestMoveLabel === "--" ? "neutral" : latestMoveIsNegative ? "negative" : "positive";
   const latestMove = formatMoveType(latestMoveLabel, latestAlertMessage);
   const marketTone = marketStateTone(state?.current_bias);
-  const hasBidAsk = bid !== null || ask !== null || spread !== null;
+  const priceChangeTone = computedPriceChange === null ? "neutral" : computedPriceChange < 0 ? "negative" : "positive";
+  const marketStrength = formatEvidenceStrength(state?.confidence);
+  const stateSinceCompact = formatStateSinceCompactTime(state?.last_analysis_time);
+  const stateSinceFull = formatStateSinceTime(state?.last_analysis_time);
+  const nextUpdate = nextRunCountdown(monitorStatus, nowMs, countdownBaseMs);
   const activeDrivers = (driverAttention?.states ?? [])
     .filter((item) => ["active", "active_macro"].includes(normalizeMarketAgentValue(item.current_state)))
     .sort((left, right) => (right.relevance_score ?? 0) - (left.relevance_score ?? 0));
@@ -483,33 +1110,44 @@ function MarketAgentDashboard({
   const backgroundDrivers = (driverAttention?.states ?? [])
     .filter((item) => ["dormant", "retired", "unknown", ""].includes(normalizeMarketAgentValue(item.current_state)))
     .sort((left, right) => (right.relevance_score ?? 0) - (left.relevance_score ?? 0));
-  const visibleDrivers = [...activeDrivers, ...watchingDrivers, ...backgroundDrivers].slice(0, 7);
-  const backgroundCount = (driverAttention?.states ?? []).filter((item) =>
-    ["dormant", "retired", "unknown", ""].includes(normalizeMarketAgentValue(item.current_state))
-  ).length;
+  const visibleDrivers = [...activeDrivers, ...watchingDrivers, ...backgroundDrivers].slice(0, 8);
 
   return (
     <section className="market-agent-cockpit" data-qa="qa:market-agent:cockpit">
       <div className="market-agent-kpi-grid">
         <article className="market-agent-kpi-card market-agent-price-card">
           <div className="market-agent-kpi-head">
-            <h3>XAUUSD Price</h3>
+            <h3>XAUUSD (Spot)</h3>
             <span className="market-agent-source-dot">
               <span className={sourceType === "spot" ? "spot" : "proxy"} />
               {priceSourceLabel}
             </span>
           </div>
-          <strong>{formatPrice(priceValue ?? xauusdHealth?.current_value, "No price")}</strong>
-          {hasBidAsk ? (
-            <div className="market-agent-price-meta market-agent-kpi-metrics">
-              <span>Bid <b>{formatPrice(bid)}</b></span>
-              <span>Ask <b>{formatPrice(ask)}</b></span>
-              <span>Spread <b>{formatPrice(spread)}</b></span>
-            </div>
-          ) : <div className="market-agent-kpi-spacer" />}
-          <div className="market-agent-kpi-footer">
-            <span>{displayProviderStatus}</span>
-            <span>{lastPriceTime}</span>
+          <div className="market-agent-price-value-row">
+            <strong>
+              <MarketAgentValuePulse value={priceValue ?? xauusdHealth?.current_value}>
+                {formatPrice(priceValue ?? xauusdHealth?.current_value, "No price")}
+              </MarketAgentValuePulse>
+            </strong>
+            <span className={`market-agent-price-change ${priceChangeTone}`}>
+              <MarketAgentValuePulse value={`${computedPriceChange ?? "--"}-${priceChangePercent ?? "--"}`}>
+                {computedPriceChange === null ? "--" : `${formatSignedPriceChange(computedPriceChange)} (${formatPercentChange(priceChangePercent)})`}
+              </MarketAgentValuePulse>
+            </span>
+          </div>
+          <div className="market-agent-price-meta">
+            <span><em>Bid</em><b><MarketAgentValuePulse value={bid}>{formatPrice(bid)}</MarketAgentValuePulse></b></span>
+            <span><em>Ask</em><b><MarketAgentValuePulse value={ask}>{formatPrice(ask)}</MarketAgentValuePulse></b></span>
+            <span><em>Spread</em><b><MarketAgentValuePulse value={spread}>{formatPrice(spread)}</MarketAgentValuePulse></b></span>
+          </div>
+          <div className="market-agent-price-data">
+            <em>Data:</em>
+            <b><MarketAgentValuePulse value={displayProviderStatus}>{displayProviderStatus}</MarketAgentValuePulse></b>
+            {dataFreshness ? (
+              <span>
+                (<MarketAgentValuePulse value={dataFreshness}>{dataFreshness}</MarketAgentValuePulse>)
+              </span>
+            ) : null}
           </div>
         </article>
         <article className="market-agent-kpi-card market-agent-state-card">
@@ -517,12 +1155,26 @@ function MarketAgentDashboard({
             <h3>Market State</h3>
           </div>
           <strong className={`market-agent-state-value ${marketTone}`}>
-            {formatMarketStateLabel(state?.current_bias)}
+            <MarketAgentValuePulse value={state?.current_bias}>
+              {formatMarketStateLabel(state?.current_bias)}
+            </MarketAgentValuePulse>
             <span>{marketStateArrow(state?.current_bias)}</span>
           </strong>
-          <div className="market-agent-state-details">
-            <span>Since {formatShortTime(state?.last_analysis_time)}</span>
-            <span>Confidence: <b>{formatValue(state?.confidence, "--")}</b></span>
+          <div className="market-agent-state-details market-agent-kpi-detail-stack">
+            <span className="market-agent-kpi-subline">
+              <span>Since</span>
+              <b data-kpi-detail="state-since" title={stateSinceFull}>{stateSinceCompact}</b>
+            </span>
+            <div className="market-agent-kpi-mini-metrics" aria-label="Market state detail metrics">
+              <span>
+                <em>Strength</em>
+                <b data-kpi-detail="state-strength"><MarketAgentValuePulse value={marketStrength}>{marketStrength}</MarketAgentValuePulse></b>
+              </span>
+              <span>
+                <em>Confidence</em>
+                <b data-kpi-detail="state-confidence"><MarketAgentValuePulse value={state?.confidence}>{formatValue(state?.confidence, "--")}</MarketAgentValuePulse></b>
+              </span>
+            </div>
           </div>
         </article>
         <article className="market-agent-kpi-card market-agent-move-card">
@@ -530,15 +1182,26 @@ function MarketAgentDashboard({
             <h3>Latest Move</h3>
           </div>
           <strong className={`market-agent-move-type ${latestMove.tone}`}>
-            {latestMove.label}
+            <MarketAgentValuePulse value={latestMove.label}>
+              {latestMove.label}
+            </MarketAgentValuePulse>
             <span>{latestMove.arrow}</span>
           </strong>
-          <div className="market-agent-move-details">
-            <span>Detected: <b>{formatShortTime(state?.last_alert_time)}</b></span>
-            <span>
-              Move Size: <b className={latestMoveSizeTone}>{latestMoveLabel}</b>
+          <div className="market-agent-move-details market-agent-kpi-detail-stack">
+            <span className="market-agent-kpi-subline">
+              <span>Detected</span>
+              <b data-kpi-detail="move-detected">{formatClockTime(state?.last_alert_time)}</b>
             </span>
-            <span>Duration: <b>{formatMoveDuration(price)}</b></span>
+            <div className="market-agent-kpi-mini-metrics" aria-label="Latest move detail metrics">
+              <span>
+                <em>Move Size</em>
+                <b className={latestMoveSizeTone} data-kpi-detail="move-size"><MarketAgentValuePulse value={latestMoveLabel}>{latestMoveLabel}</MarketAgentValuePulse></b>
+              </span>
+              <span>
+                <em>Duration</em>
+                <b data-kpi-detail="move-duration">{formatMoveDuration(price, state?.last_alert_time, nowMs)}</b>
+              </span>
+            </div>
           </div>
         </article>
         <article className="market-agent-kpi-card market-agent-evidence-score-card">
@@ -546,14 +1209,36 @@ function MarketAgentDashboard({
             <h3>Evidence Status</h3>
           </div>
           <div className="market-agent-evidence-score">
-            <div className="market-agent-score-ring" style={{ "--score": `${evidenceScore}%` } as CSSProperties}>
-              <strong>{evidenceScore}%</strong>
-              <span>{formatEvidenceStrength(state?.confidence)}</span>
+            <div
+              className="market-agent-score-ring market-agent-score-ring-animated"
+              key={`score-${evidenceScore}-${marketStrength}`}
+              style={{ "--score": `${evidenceScore}%` } as CSSProperties}
+            >
+              <svg className="market-agent-score-svg" viewBox="0 0 80 80" aria-hidden="true">
+                <circle className="market-agent-score-track" cx="40" cy="40" r={SCORE_RING_RADIUS} />
+                <circle
+                  className="market-agent-score-progress"
+                  cx="40"
+                  cy="40"
+                  r={SCORE_RING_RADIUS}
+                  strokeDasharray={SCORE_RING_CIRCUMFERENCE}
+                  strokeDashoffset={evidenceScoreOffset}
+                />
+              </svg>
+              <div className="market-agent-score-content">
+                <strong className="market-agent-score-value">
+                  <MarketAgentValuePulse value={evidenceScore} className="market-agent-score-number">
+                    {evidenceScore}
+                  </MarketAgentValuePulse>
+                  <span className="market-agent-score-suffix">%</span>
+                </strong>
+                <span className="market-agent-score-strength">{formatEvidenceStrength(state?.confidence)}</span>
+              </div>
             </div>
             <div className="market-agent-evidence-counts">
-              <span><i className="supporting" /><span>Supporting</span><b>{supportingCount}</b></span>
-              <span><i className="neutral" /><span>Neutral</span><b>{neutralCount}</b></span>
-              <span><i className="contrary" /><span>Contrary</span><b>{contraryCount}</b></span>
+              <span><i className="supporting" /><span>Supporting</span><b><MarketAgentValuePulse value={supportingCount}>{supportingCount}</MarketAgentValuePulse></b></span>
+              <span><i className="neutral" /><span>Neutral</span><b><MarketAgentValuePulse value={neutralCount}>{neutralCount}</MarketAgentValuePulse></b></span>
+              <span><i className="contrary" /><span>Contrary</span><b><MarketAgentValuePulse value={contraryCount}>{contraryCount}</MarketAgentValuePulse></b></span>
             </div>
           </div>
           <div className="market-agent-evidence-quality">
@@ -566,15 +1251,14 @@ function MarketAgentDashboard({
             <h3>Next Update</h3>
           </div>
           <div className="market-agent-next-content">
-            <span className="market-agent-clock-icon" aria-hidden="true" />
-            <div>
-              <strong>60 sec</strong>
-              <span>{snapshot?.available ? "Auto monitoring" : "Not running"}</span>
+            <div className="market-agent-next-main">
+              <span className="market-agent-clock-icon market-agent-clock-icon-animated" aria-hidden="true" />
+              <strong><MarketAgentRollingCountdown seconds={nextUpdate.seconds} /></strong>
             </div>
-          </div>
-          <div className="market-agent-kpi-footer">
-            <span>Last check</span>
-            <span>{formatShortTime(state?.last_analysis_time)}</span>
+            <div className="market-agent-next-meta">
+              <span>{snapshot?.available ? "Auto monitoring" : "Not running"}</span>
+              <small>Every {nextUpdate.intervalSeconds} seconds</small>
+            </div>
           </div>
         </article>
       </div>
@@ -595,66 +1279,82 @@ function MarketAgentDashboard({
               <span>Attention</span>
               <span>Score</span>
             </div>
-            {visibleDrivers.map((driver) => (
-              <div className="market-agent-attention-table-row" role="row" key={driver.driver_id}>
-                <strong>{driver.label || formatDriverLabel(driver.driver_id)}</strong>
-                <span className={`market-agent-driver-state state-${normalizeMarketAgentValue(driver.current_state)}`}>
-                  {formatValue(driver.current_state, "Unknown")}
-                </span>
-                <span className={formatDriverImpact(driver).startsWith("-") ? "negative" : "positive"}>
-                  {formatDriverImpact(driver)}
-                </span>
-                <MarketAgentStatusBadge label={attentionLabel(driver)} />
-                <span>{formatScore(driver.relevance_score)}</span>
-              </div>
-            ))}
+            {visibleDrivers.map((driver, index) => {
+              const attention = attentionLabel(driver);
+              const impact = formatDriverImpact(driver);
+              return (
+                <div
+                  className="market-agent-attention-table-row market-agent-animated-row"
+                  role="row"
+                  key={driver.driver_id}
+                  style={{ "--ma-row-index": index } as CSSProperties}
+                >
+                  <strong>{driver.label || formatDriverLabel(driver.driver_id)}</strong>
+                  <span className={`market-agent-driver-state state-${normalizeMarketAgentValue(driver.current_state)}`}>
+                    {formatDriverStateLabel(driver.current_state)}
+                  </span>
+                  <span
+                    className={driverImpactTone(driver)}
+                    data-market-agent-attention-cell="impact"
+                  >
+                    {impact}
+                  </span>
+                  <span
+                    className={`market-agent-attention-text attention-${normalizeMarketAgentValue(attention)}`}
+                    title={attention}
+                  >
+                    {attention}
+                  </span>
+                  <span data-market-agent-attention-cell="score">{formatScore(driver.relevance_score)}</span>
+                </div>
+              );
+            })}
             {visibleDrivers.length === 0 ? (
               <div className="market-agent-empty-state">No active or watching drivers.</div>
             ) : null}
           </div>
-          <div className="market-agent-attention-footer">
-            <div>
-              <span>Attention Score:</span>
-              <b>{formatScore(activeDrivers[0]?.relevance_score ?? watchingDrivers[0]?.relevance_score)} / 100</b>
-            </div>
-            <div className="market-agent-attention-meter" aria-hidden="true">
-              <span style={{ width: `${Math.max(0, Math.min(100, Number(formatScore(activeDrivers[0]?.relevance_score ?? watchingDrivers[0]?.relevance_score)) || 0))}%` }} />
-            </div>
-            <div className="market-agent-attention-legend">
-              <span><i className="active" />Active</span>
-              <span><i className="watching" />Watching</span>
-              <span><i className="dormant" />Background {backgroundCount}</span>
-            </div>
-          </div>
         </section>
 
-        <section className="market-agent-cockpit-panel">
+        <section className="market-agent-cockpit-panel market-agent-replay-panel">
           <div className="market-agent-panel-title-row">
             <h3>Market Replay <span>(Today)</span></h3>
-            <div className="market-agent-range-tabs" aria-label="Replay range">
-              <span>1H</span>
-              <span>4H</span>
-              <span className="active">1D</span>
+            <div className="market-agent-range-tabs" role="group" aria-label="Replay range">
+              {replayRangeOptions.map((item) => (
+                <button
+                  type="button"
+                  key={item.value}
+                  className={replayRange === item.value ? "active" : ""}
+                  aria-pressed={replayRange === item.value}
+                  onClick={() => setReplayRange(item.value)}
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
           </div>
           <div className="market-agent-timeline-track">
-            {timeline.map((item) => {
+            {timeline.map((item, index) => {
               const kind = inferTimelineKind(item);
               const meta = timelineKindMeta[kind];
               return (
                 <button
                   type="button"
                   key={item.key}
-                  className={`market-agent-timeline-track-row kind-${meta.tone}`}
+                  className={`market-agent-timeline-track-row market-agent-animated-row kind-${meta.tone}`}
+                  style={{ "--ma-row-index": index } as CSSProperties}
                   onClick={() => item.monitorRunId && onSelectRun(item.monitorRunId)}
                 >
-                  <time>{formatShortTime(item.time)}</time>
+                  <time>{formatReplayTime(item.time)}</time>
                   <span className="market-agent-timeline-node">{meta.icon}</span>
-                  <div>
-                    <span className={`market-agent-event-tag tone-${meta.tone}`}>{meta.tag}</span>
-                    <strong>{compactTimelineTitle(item)}</strong>
-                    <span>{item.meta}</span>
-                    <small>{formatTimelineImpact(item)}</small>
+                  <div className="market-agent-timeline-body">
+                    <div className="market-agent-timeline-title-row">
+                      <strong>{compactTimelineTitle(item)}</strong>
+                      <span className={`market-agent-event-tag tone-${meta.tone}`}>{meta.tag}</span>
+                    </div>
+                    <div className="market-agent-timeline-meta-row">
+                      <span>{item.meta}</span>
+                      <small>{formatTimelineImpact(item)}</small>
+                    </div>
                   </div>
                 </button>
               );
@@ -666,37 +1366,53 @@ function MarketAgentDashboard({
           </button>
         </section>
 
-        <section className="market-agent-cockpit-panel">
+        <section className="market-agent-cockpit-panel market-agent-evidence-panel">
           <div className="market-agent-panel-title-row">
             <h3>Latest Evidence <span>({evidenceRunTime})</span></h3>
             <button type="button" className="market-agent-panel-link" onClick={() => onNavigate("evidence")}>
               View All
             </button>
           </div>
-          <div className="market-agent-evidence-tabs" aria-label="Evidence filters">
-            <span className="active">All</span>
-            <span>News</span>
-            <span>Calendar</span>
-            <span>Technical</span>
-            <span>Drivers</span>
+          <div className="market-agent-evidence-tabs" role="tablist" aria-label="Evidence filters">
+            {evidenceFilterOptions.map((item) => (
+              <button
+                type="button"
+                role="tab"
+                key={item.value}
+                className={evidenceFilter === item.value ? "active" : ""}
+                aria-selected={evidenceFilter === item.value}
+                onClick={() => setEvidenceFilter(item.value)}
+              >
+                {item.label}
+              </button>
+            ))}
           </div>
           <div className="market-agent-evidence-feed">
             {evidence.map((item, index) => {
               const meta = evidenceKindMeta(item.kind);
               return (
-                <div className={`market-agent-evidence-feed-row tone-${meta.tone}`} key={`${item.title}-${index}`}>
+                <div
+                  className={`market-agent-evidence-feed-row market-agent-animated-row tone-${meta.tone}`}
+                  key={`${item.title}-${index}`}
+                  style={{ "--ma-row-index": index } as CSSProperties}
+                >
                   <span className="market-agent-evidence-icon">{meta.icon}</span>
                   <div>
                     <span className="market-agent-evidence-type">{meta.label}</span>
                     <strong>{item.title}</strong>
                     <span>{item.detail}</span>
                   </div>
-                  <time>{evidenceRunTime}</time>
-                  <MarketAgentStatusBadge label={formatValue(item.status, "unknown")} />
+                  <time>{formatReplayTime(item.time, evidenceRunTime)}</time>
+                  <span
+                    className={`market-agent-evidence-status-text tone-${evidenceStatusTone(item.status)}`}
+                    title={item.status}
+                  >
+                    {humanizeMarketAgentValue(item.status)}
+                  </span>
                 </div>
               );
             })}
-            {evidence.length === 0 ? <div className="market-agent-empty-state">No evidence packet selected.</div> : null}
+            {evidence.length === 0 ? <div className="market-agent-empty-state">No evidence in this category.</div> : null}
           </div>
           <div className="market-agent-evidence-footer">
             <span><i /> Evidence Quality: <b>{formatEvidenceStrength(state?.confidence)} ({evidenceScore}%)</b></span>
@@ -711,6 +1427,29 @@ function MarketAgentDashboard({
 
 export function MarketAgentPage(props: MarketAgentPageProps) {
   const [section, setSection] = useState<MarketAgentSection>("live");
+  const currentAlertNoticeIds = useMemo(() => alertNoticeIds(props.replay), [props.replay]);
+  const currentAlertNoticeKey = currentAlertNoticeIds.join("\n");
+  const [seenAlertIds, setSeenAlertIds] = useState<string[]>(() => readSeenAlertIds());
+  const seenAlertIdSet = useMemo(() => new Set(seenAlertIds), [seenAlertIds]);
+
+  useEffect(() => {
+    if (section !== "alerts" || currentAlertNoticeIds.length === 0) return;
+    setSeenAlertIds((previous) => {
+      const merged = new Set(previous);
+      let changed = false;
+      currentAlertNoticeIds.forEach((id) => {
+        if (!merged.has(id)) {
+          merged.add(id);
+          changed = true;
+        }
+      });
+      if (!changed) return previous;
+      const next = Array.from(merged).slice(-250);
+      writeSeenAlertIds(next);
+      return next;
+    });
+  }, [currentAlertNoticeIds, currentAlertNoticeKey, section]);
+
   const content = useMemo(() => {
     if (section === "live") {
       return (
@@ -720,6 +1459,7 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
           driverAttention={props.driverAttention}
           replay={props.replay}
           selectedEvidence={props.selectedEvidence}
+          monitorStatus={props.monitorStatus}
           onSelectRun={props.onSelectRun}
           onNavigate={setSection}
         />
@@ -777,6 +1517,30 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
       );
     }
     if (section === "alerts") {
+      const sentAlerts = props.replay?.replay.alerts ?? [];
+      const suppressedAlerts = props.replay?.replay.suppressed_alerts ?? [];
+      const alertRows = [
+        ...sentAlerts.map((alert, index) => ({
+          key: `alert-${index}`,
+          kind: "sent" as const,
+          index: index + 1,
+          title: formatValue(alert.message, "Alert"),
+          detail: `Driver: ${formatValue(alert.main_driver, "Unknown")}`,
+          time: String(alert.run_started_at ?? ""),
+          badge: formatValue(alert.notification_level, "Alert"),
+          tone: "bad" as const
+        })),
+        ...suppressedAlerts.map((alert, index) => ({
+          key: `suppressed-${index}`,
+          kind: "suppressed" as const,
+          index: sentAlerts.length + index + 1,
+          title: formatValue(alert.message, "Suppressed alert"),
+          detail: "Duplicate continuation held back",
+          time: String(alert.run_started_at ?? ""),
+          badge: "Suppressed",
+          tone: "warn" as const
+        }))
+      ];
       return (
         <section className="market-agent-surface">
           <div className="market-agent-surface-header">
@@ -785,22 +1549,41 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
               <span className="hint">Recent sent and suppressed market-agent alerts</span>
             </div>
           </div>
-          <div className="market-agent-alerts-list">
-            {(props.replay?.replay.alerts ?? []).map((alert, index) => (
-              <div key={`alert-${index}`} className="market-agent-evidence-mini-row">
-                <strong>{formatValue(alert.message, "Alert")}</strong>
-                <span>{formatShortTime(alert.run_started_at)}</span>
-                <MarketAgentStatusBadge label={formatValue(alert.notification_level, "alert")} />
-              </div>
-            ))}
-            {(props.replay?.replay.suppressed_alerts ?? []).map((alert, index) => (
-              <div key={`suppressed-${index}`} className="market-agent-evidence-mini-row">
-                <strong>{formatValue(alert.message, "Suppressed alert")}</strong>
-                <span>{formatShortTime(alert.run_started_at)}</span>
-                <MarketAgentStatusBadge label="Suppressed" />
-              </div>
-            ))}
+          <div className="market-agent-alerts-summary" aria-label="Alert counts">
+            <article>
+              <span>Sent</span>
+              <strong>{sentAlerts.length}</strong>
+            </article>
+            <article>
+              <span>Suppressed</span>
+              <strong>{suppressedAlerts.length}</strong>
+            </article>
+            <article>
+              <span>Total</span>
+              <strong>{alertRows.length}</strong>
+            </article>
           </div>
+          {alertRows.length ? (
+            <div className="market-agent-alerts-list" data-qa="qa:market-agent:alerts-list">
+              {alertRows.map((alert) => (
+                <article className={`market-agent-alert-card ${alert.kind}`} data-alert-kind={alert.kind} key={alert.key}>
+                  <span className="market-agent-alert-index">{alert.index}</span>
+                  <div className="market-agent-alert-main">
+                    <div className="market-agent-alert-title-row">
+                      <strong>{alert.title}</strong>
+                      <MarketAgentStatusBadge label={alert.badge} tone={alert.tone} />
+                    </div>
+                    <span>{alert.detail}</span>
+                  </div>
+                  <time className="market-agent-alert-time" dateTime={alert.time}>
+                    {formatShortTime(alert.time)}
+                  </time>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="market-agent-empty-state">No alerts in this replay window.</div>
+          )}
         </section>
       );
     }
@@ -856,28 +1639,34 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
     );
   }, [props, section]);
 
+  const alertNoticeCount = currentAlertNoticeIds.filter((id) => !seenAlertIdSet.has(id)).length;
+
   return (
     <div className="market-agent-page market-agent-cockpit-shell" data-qa="qa:page:market-agent">
       <aside className="market-agent-side-nav">
-        <div className="market-agent-side-brand">
-          <span>ALPHA</span>
-          <strong>Market Agent</strong>
-        </div>
         <nav aria-label="Market Agent sections">
           {sectionGroups.map((group) => (
             <div className="market-agent-side-group" key={group.label}>
               <span>{group.label}</span>
-              {group.items.map((item) => (
-                <button
-                  type="button"
-                  key={item.id}
-                  aria-pressed={section === item.id}
-                  className={section === item.id ? "active" : ""}
-                  onClick={() => setSection(item.id)}
-                >
-                  {item.label}
-                </button>
-              ))}
+              {group.items.map((item) => {
+                const badgeCount = item.id === "alerts" ? alertNoticeCount : 0;
+                const displayLabel = item.id === "replay" ? "Replay" : item.label;
+                return (
+                  <button
+                    type="button"
+                    key={item.id}
+                    aria-label={badgeCount ? `${item.label}, ${badgeCount} notifications` : item.label}
+                    aria-pressed={section === item.id}
+                    className={section === item.id ? "active" : ""}
+                    data-market-agent-section={item.id}
+                    onClick={() => setSection(item.id)}
+                  >
+                    <MarketAgentNavIcon name={item.icon} />
+                    <span className="market-agent-nav-label">{displayLabel}</span>
+                    {badgeCount > 0 ? <span className="market-agent-nav-badge" key={badgeCount}>{badgeCount}</span> : null}
+                  </button>
+                );
+              })}
             </div>
           ))}
         </nav>

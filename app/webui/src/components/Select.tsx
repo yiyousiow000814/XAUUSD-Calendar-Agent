@@ -123,13 +123,24 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
       if (!rootRef.current) return;
       const trigger = triggerRef.current ?? rootRef.current;
       const rect = trigger.getBoundingClientRect();
-      const menuOffset = 6;
+      const appShell = rootRef.current.closest<HTMLElement>("[data-qa='qa:app-shell']");
+      const appStyle = appShell ? window.getComputedStyle(appShell) : null;
+      let appScale = Number.parseFloat(appStyle?.zoom || "1");
+      if ((!Number.isFinite(appScale) || appScale <= 0) && appStyle?.transform) {
+        const match = appStyle.transform.match(/^matrix\(([^,]+)/);
+        appScale = match ? Number.parseFloat(match[1]) : 1;
+      }
+      if (!Number.isFinite(appScale) || appScale <= 0) {
+        appScale = 1;
+      }
+      const toDesignPx = (value: number) => value / appScale;
+      const menuOffset = 6 * appScale;
       const bottomLimit = window.innerHeight - 16;
       const top = rect.bottom + menuOffset;
       const footer = document.querySelector(".footer");
       const footerTop = footer ? footer.getBoundingClientRect().top - 8 : bottomLimit;
       const spaceBelow = Math.max(0, Math.min(bottomLimit, footerTop) - top);
-      let maxHeight = Math.min(320, Math.max(0, spaceBelow));
+      let maxHeight = Math.min(320, Math.max(0, toDesignPx(spaceBelow)));
 
       // If the dropdown would scroll, make the menu height show a consistent "half item"
       // at the bottom. This creates a strong scroll affordance without a blur overlay.
@@ -137,7 +148,7 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
 
       // Keep the select width stable based on the longest option label, so switching to a
       // shorter label doesn't make other options wrap (e.g. "Minimize to tray").
-      let width = rect.width;
+      let width = toDesignPx(rect.width);
       if (scroller && options.length > 0) {
         const sampleItem = scroller.querySelector<HTMLElement>(".select-item");
         if (sampleItem) {
@@ -171,7 +182,7 @@ export function Select({ value, options, onChange, qa }: SelectProps) {
       }
 
       // Clamp to viewport so we don't create horizontal overflow in narrow windows.
-      const viewportCap = Math.max(0, window.innerWidth - rect.left - 16);
+      const viewportCap = toDesignPx(Math.max(0, window.innerWidth - rect.left - 16));
       if (viewportCap > 0) {
         width = Math.min(width, viewportCap);
       }

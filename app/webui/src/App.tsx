@@ -1,5 +1,6 @@
 ﻿import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { useCallback, useLayoutEffect } from "react";
+import type { CSSProperties } from "react";
 import { backend, isWebview, tauriListen } from "./api";
 import type { EventHistoryResponse, FilterOption, Settings, Snapshot, ToastType } from "./types";
 import { ActivityDrawer } from "./components/ActivityDrawer";
@@ -44,6 +45,55 @@ const impactFilterStorageKey = "xauusd:nextEvents:impactFilter";
 const UI_STATE_HEARTBEAT_MS = 30000;
 const UI_STATE_INPUT_THROTTLE_MS = 1000;
 const UI_STATE_SEND_THROTTLE_MS = 2000;
+const APP_SHELL_DESIGN_WIDTH = 1600;
+const APP_SHELL_DESIGN_HEIGHT = 900;
+
+type AppViewportFit = {
+  scale: number;
+  width: number;
+  height: number;
+  designHeight: number;
+  offsetX: number;
+  offsetY: number;
+};
+
+const getAppViewportFit = (): AppViewportFit => {
+  if (typeof window === "undefined") {
+    return {
+      scale: 1,
+      width: APP_SHELL_DESIGN_WIDTH,
+      height: APP_SHELL_DESIGN_HEIGHT,
+      designHeight: APP_SHELL_DESIGN_HEIGHT,
+      offsetX: 0,
+      offsetY: 0
+    };
+  }
+
+  const viewportWidth = Math.max(1, window.innerWidth || APP_SHELL_DESIGN_WIDTH);
+  const viewportHeight = Math.max(1, window.innerHeight || APP_SHELL_DESIGN_HEIGHT);
+  const scale = Number(
+    Math.min(
+      viewportWidth / APP_SHELL_DESIGN_WIDTH,
+      viewportHeight / APP_SHELL_DESIGN_HEIGHT
+    ).toFixed(4)
+  );
+  const designHeight = Math.max(APP_SHELL_DESIGN_HEIGHT, viewportHeight / scale);
+  const width = APP_SHELL_DESIGN_WIDTH * scale;
+  const height = designHeight * scale;
+  const snap = (value: number) => {
+    const ratio = window.devicePixelRatio || 1;
+    return Math.round(value * ratio) / ratio;
+  };
+
+  return {
+    scale,
+    width,
+    height,
+    designHeight,
+    offsetX: snap((viewportWidth - width) / 2),
+    offsetY: 0
+  };
+};
 
 const normalizeCurrencyOptions = (_options: string[]) => {
   // Design decision: keep a stable, curated currency list so the UI remains
@@ -299,6 +349,7 @@ export default function App() {
   const [activityLabelWidth, setActivityLabelWidth] = useState<number>(92);
   const [marketAgentSnapshot, setMarketAgentSnapshot] = useState<MarketAgentSnapshotResponse | null>(null);
   const [mainView, setMainView] = useState<MainView>("calendar");
+  const [appViewportFit, setAppViewportFit] = useState<AppViewportFit>(() => getAppViewportFit());
   const [marketAgentReplay, setMarketAgentReplay] = useState<MarketAgentReplayResponse | null>(null);
   const [marketAgentProviderHealth, setMarketAgentProviderHealth] = useState<MarketAgentProviderHealthResponse | null>(null);
   const [marketAgentProviderConfig, setMarketAgentProviderConfig] = useState<MarketAgentProviderConfigResponse | null>(null);
@@ -3769,6 +3820,49 @@ export default function App() {
     void refreshMarketAgentWorkspace(startIso, endIso);
   }, [marketAgentRangeEndInput, marketAgentRangeStartInput, refreshMarketAgentWorkspace]);
 
+  useLayoutEffect(() => {
+    const updateViewportFit = () => {
+      const next = getAppViewportFit();
+      setAppViewportFit((current) => {
+        const unchanged =
+          Math.abs(current.scale - next.scale) < 0.0001 &&
+          Math.abs(current.width - next.width) < 0.25 &&
+          Math.abs(current.height - next.height) < 0.25 &&
+          Math.abs(current.designHeight - next.designHeight) < 0.25 &&
+          Math.abs(current.offsetX - next.offsetX) < 0.25 &&
+          Math.abs(current.offsetY - next.offsetY) < 0.25;
+        return unchanged ? current : next;
+      });
+    };
+
+    updateViewportFit();
+    window.addEventListener("resize", updateViewportFit);
+    window.visualViewport?.addEventListener("resize", updateViewportFit);
+    return () => {
+      window.removeEventListener("resize", updateViewportFit);
+      window.visualViewport?.removeEventListener("resize", updateViewportFit);
+    };
+  }, []);
+
+  const appViewportStyle = useMemo(
+    () =>
+      ({
+        "--app-fit-scale": appViewportFit.scale.toString(),
+        "--app-design-height": `${appViewportFit.designHeight}px`,
+        "--app-fit-x": `${appViewportFit.offsetX}px`,
+        "--app-fit-y": `${appViewportFit.offsetY}px`,
+        "--app-fit-layout-x": `${
+          appViewportFit.scale > 0 ? appViewportFit.offsetX / appViewportFit.scale : 0
+        }px`,
+        "--app-fit-layout-y": `${
+          appViewportFit.scale > 0 ? appViewportFit.offsetY / appViewportFit.scale : 0
+        }px`,
+        "--app-fit-width": `${appViewportFit.width}px`,
+        "--app-fit-height": `${appViewportFit.height}px`
+      }) as CSSProperties,
+    [appViewportFit]
+  );
+
   const historySelectionLabel = historySelection
     ? `${historySelection.cur || "--"} ${historySelection.event}`.trim()
     : "";
@@ -3783,9 +3877,12 @@ export default function App() {
     void refreshMarketAgentWorkspace(marketAgentRangeStart, marketAgentRangeEnd);
   }, [mainView, marketAgentRangeEnd, marketAgentRangeStart, refreshMarketAgentWorkspace]);
 
-
   return (
-    <div className={`app${mainView === "market-agent" ? " app-market-agent" : ""}`} data-qa="qa:app-shell">
+    <div
+      className={`app${mainView === "market-agent" ? " app-market-agent" : ""}`}
+      data-qa="qa:app-shell"
+      style={appViewportStyle}
+    >
       {showInitOverlay ? (
         <InitOverlay state={initState} error={initError} onRetry={handleInitRetry} />
       ) : null}

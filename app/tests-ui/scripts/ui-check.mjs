@@ -2464,6 +2464,134 @@ const main = async () => {
       path: await captureState(page, "startup", theme.key, "ready")
     });
 
+    await runCheck(theme.key, "Calendar and Market Agent share app shell scale", async () => {
+      const readFit = async (label) =>
+        page.evaluate((currentLabel) => {
+          const app = document.querySelector("[data-qa='qa:app-shell']");
+          const appbar = document.querySelector("[data-qa='qa:appbar']");
+          const main = document.querySelector(".main");
+          if (!(app instanceof HTMLElement) || !(appbar instanceof HTMLElement) || !(main instanceof HTMLElement)) {
+            return { label: currentLabel, error: "app shell, appbar, or main region missing" };
+          }
+          const appStyle = window.getComputedStyle(app);
+          const normalizeCss = (value) => String(value || "").replace(/\s+/g, " ").trim();
+          const box = app.getBoundingClientRect();
+          const appbarBox = appbar.getBoundingClientRect();
+          const mainBox = main.getBoundingClientRect();
+          const scale = Number.parseFloat(appStyle.zoom || "1");
+          const expectedScale = Number(Math.min(window.innerWidth / 1600, window.innerHeight / 900).toFixed(4));
+          const expectedWidth = 1600 * expectedScale;
+          return {
+            label: currentLabel,
+            scale,
+            expectedScale,
+            transform: appStyle.transform || "none",
+            x: box.x,
+            y: box.y,
+            width: box.width,
+            height: box.height,
+            expectedWidth,
+            appbarHeight: appbarBox.height,
+            normalizedAppbarHeight: appbarBox.height / (Number.isFinite(scale) && scale > 0 ? scale : 1),
+            mainTop: mainBox.top,
+            mainBottom: mainBox.bottom,
+            viewportWidth: window.innerWidth,
+            viewportHeight: window.innerHeight,
+            appBackgroundImage: normalizeCss(appStyle.backgroundImage),
+            appBackgroundColor: normalizeCss(appStyle.backgroundColor),
+            appBoxShadow: normalizeCss(appStyle.boxShadow),
+            mainBackgroundImage: normalizeCss(window.getComputedStyle(main).backgroundImage),
+            mainBackgroundColor: normalizeCss(window.getComputedStyle(main).backgroundColor),
+            bodyOverflowX: document.body.scrollWidth - window.innerWidth,
+            bodyOverflowY: document.body.scrollHeight - window.innerHeight
+          };
+        }, label);
+
+      const assertFit = (fit) => {
+        if (fit.error) throw new Error(`${fit.label}: ${fit.error}`);
+        const problems = [];
+        if (fit.transform !== "none" && fit.transform !== "matrix(1, 0, 0, 1, 0, 0)") {
+          problems.push(`${fit.label} shell uses transform scaling instead of crisp zoom (${fit.transform})`);
+        }
+        if (!Number.isFinite(fit.scale) || Math.abs(fit.scale - fit.expectedScale) > 0.015) {
+          problems.push(`${fit.label} shell zoom=${fit.scale}, expected=${fit.expectedScale}`);
+        }
+        if (Math.abs(fit.width - fit.expectedWidth) > 2 || Math.abs(fit.height - fit.viewportHeight) > 2) {
+          problems.push(
+            `${fit.label} shell does not fill viewport with fixed design width (${fit.width.toFixed(1)}x${fit.height.toFixed(1)})`
+          );
+        }
+        const centeredX = Math.abs(fit.x - (fit.viewportWidth - fit.expectedWidth) / 2);
+        if (centeredX > 2 || Math.abs(fit.y) > 2) {
+          problems.push(`${fit.label} shell is not centered/top-aligned (${fit.x.toFixed(1)}, ${fit.y.toFixed(1)})`);
+        }
+        if (fit.bodyOverflowX > 2 || fit.bodyOverflowY > 2) {
+          problems.push(`${fit.label} body overflow (${fit.bodyOverflowX}px x ${fit.bodyOverflowY}px)`);
+        }
+        if (fit.mainBottom > fit.viewportHeight + 1 || fit.mainTop < -1) {
+          problems.push(`${fit.label} main region escapes viewport (${fit.mainTop.toFixed(1)}..${fit.mainBottom.toFixed(1)})`);
+        }
+        if (problems.length) throw new Error(problems.join("; "));
+      };
+
+      const assertBackgroundMatch = (label, calendarFit, marketFit) => {
+        const fields = [
+          ["appBackgroundImage", "app background image"],
+          ["appBackgroundColor", "app background color"],
+          ["appBoxShadow", "app outer fill"],
+          ["mainBackgroundImage", "main background image"],
+          ["mainBackgroundColor", "main background color"]
+        ];
+        const problems = fields
+          .filter(([field]) => calendarFit[field] !== marketFit[field])
+          .map(
+            ([field, name]) =>
+              `${label} ${name} differs between Calendar and Market Agent (${calendarFit[field]} vs ${marketFit[field]})`
+          );
+        if (problems.length) throw new Error(problems.join("; "));
+      };
+
+      const checkPair = async (label) => {
+        await page.locator("[data-qa='qa:action:view-calendar']").first().click();
+        await page.locator(".split-view").first().waitFor({ state: "visible", timeout: 4000 });
+        await page.waitForTimeout(100);
+        const calendarFit = await readFit(`${label} Calendar`);
+        assertFit(calendarFit);
+        artifacts.push({
+          scenario: "app-shell-scale-calendar",
+          theme: theme.key,
+          state: label,
+          path: await captureState(page, "app-shell-scale-calendar", theme.key, label)
+        });
+        await page.locator("[data-qa='qa:action:view-market-agent']").first().click();
+        await page.locator("[data-qa='qa:page:market-agent']").first().waitFor({ state: "visible", timeout: 4000 });
+        await page.waitForTimeout(100);
+        const marketFit = await readFit(`${label} Market Agent`);
+        assertFit(marketFit);
+        artifacts.push({
+          scenario: "app-shell-scale-market-agent",
+          theme: theme.key,
+          state: label,
+          path: await captureState(page, "app-shell-scale-market-agent", theme.key, label)
+        });
+        const appbarJump = Math.abs(calendarFit.normalizedAppbarHeight - marketFit.normalizedAppbarHeight);
+        if (appbarJump > 1.5) {
+          throw new Error(
+            `${label} appbar density jumps between Calendar and Market Agent (${calendarFit.normalizedAppbarHeight.toFixed(1)}px vs ${marketFit.normalizedAppbarHeight.toFixed(1)}px normalized)`
+          );
+        }
+        assertBackgroundMatch(label, calendarFit, marketFit);
+      };
+
+      const originalViewport = page.viewportSize() || { width: 1280, height: 720 };
+      await checkPair("default");
+      await page.setViewportSize({ width: 1024, height: 720 });
+      await page.waitForTimeout(150);
+      await checkPair("1024x720");
+      await page.setViewportSize(originalViewport);
+      await page.waitForTimeout(150);
+    });
+
     await runCheck(theme.key, "Market Agent page opens from app bar", async () => {
       const marketAgentButton = page.locator("[data-qa='qa:action:view-market-agent']").first();
       if (!(await marketAgentButton.count())) {
@@ -2478,7 +2606,7 @@ const main = async () => {
         const text = root.innerText || root.textContent || "";
         return (
           text.includes("Dashboard") &&
-          text.includes("XAUUSD Price") &&
+          text.includes("XAUUSD (Spot)") &&
           text.includes("Market State") &&
           text.includes("Latest Move") &&
           text.includes("Evidence Status") &&
@@ -2495,6 +2623,460 @@ const main = async () => {
         const problems = [];
         const root = document.querySelector("[data-qa='qa:page:market-agent']");
         const text = root instanceof HTMLElement ? root.innerText || root.textContent || "" : "";
+        const parseRgbTriples = (value) =>
+          Array.from(String(value || "").matchAll(/rgba?\(([^)]+)\)/g))
+            .map((match) =>
+              match[1]
+                .split(",")
+                .slice(0, 3)
+                .map((part) => Number.parseFloat(part.trim()))
+            )
+            .filter((parts) => parts.length === 3 && parts.every((part) => Number.isFinite(part)));
+        const relativeLuminance = ([r, g, b]) => {
+          const [rs, gs, bs] = [r, g, b].map((value) => {
+            const channel = value / 255;
+            return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+          });
+          return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+        };
+        const contrastRatio = (fg, bg) => {
+          const fgLum = relativeLuminance(fg);
+          const bgLum = relativeLuminance(bg);
+          const bright = Math.max(fgLum, bgLum);
+          const dark = Math.min(fgLum, bgLum);
+          return (bright + 0.05) / (dark + 0.05);
+        };
+        const rect = (selector) => {
+          const node = document.querySelector(selector);
+          if (!(node instanceof HTMLElement)) return null;
+          const box = node.getBoundingClientRect();
+          return {
+            x: box.x,
+            y: box.y,
+            width: box.width,
+            height: box.height,
+            right: box.right,
+            bottom: box.bottom
+          };
+        };
+        const checkKpiBreathingRoom = () => {
+          const app = document.querySelector(".app.app-market-agent");
+          const appStyle = app instanceof HTMLElement ? window.getComputedStyle(app) : null;
+          const appTransform = appStyle?.transform || "none";
+          const viewportScale = Number.parseFloat(appStyle?.zoom || "1");
+          const expectedScale = Math.min(window.innerWidth / 1600, window.innerHeight / 900);
+          if (appTransform !== "none" && appTransform !== "matrix(1, 0, 0, 1, 0, 0)") {
+            problems.push(`Market Agent app shell uses transform scaling instead of crisp zoom (${appTransform})`);
+          }
+          if (!Number.isFinite(viewportScale) || Math.abs(viewportScale - expectedScale) > 0.015) {
+            problems.push(
+              `Market Agent app shell does not use fixed-width viewport zoom (zoom=${appStyle?.zoom}, expected=${expectedScale.toFixed(3)})`
+            );
+          }
+          if (app instanceof HTMLElement) {
+            const appBox = app.getBoundingClientRect();
+            if (Math.abs(appBox.width - 1600 * expectedScale) > 2 || Math.abs(appBox.height - window.innerHeight) > 2) {
+              problems.push(`Market Agent app shell does not fill viewport height with fixed-width scaling (${appBox.width.toFixed(1)}x${appBox.height.toFixed(1)})`);
+            }
+          }
+          const sidebar = rect(".market-agent-side-nav");
+          const cockpit = rect(".market-agent-cockpit");
+          const grid = rect(".market-agent-kpi-grid");
+          if (!sidebar || !cockpit || !grid) {
+            problems.push("Market Agent KPI layout regions missing");
+            return;
+          }
+          if (sidebar.width > 190) {
+            problems.push(`Market Agent sidebar still consumes too much width (${sidebar.width.toFixed(1)}px)`);
+          }
+          if (Number.isFinite(viewportScale) && sidebar.width / viewportScale < 170) {
+            problems.push(`Market Agent sidebar collapsed instead of scaling proportionally (${sidebar.width.toFixed(1)}px at ${viewportScale.toFixed(3)}x)`);
+          }
+          if (grid.right > cockpit.right + 1 || grid.width > cockpit.width + 1) {
+            problems.push(`Market Agent KPI grid escapes cockpit (${grid.width.toFixed(1)}px in ${cockpit.width.toFixed(1)}px)`);
+          }
+          const cards = Array.from(document.querySelectorAll(".market-agent-kpi-card"));
+          const widths = cards.map((card) => (card instanceof HTMLElement ? card.getBoundingClientRect().width : 0));
+          const normalizedWidths = widths.map((width) => width / (Number.isFinite(viewportScale) && viewportScale > 0 ? viewportScale : 1));
+          const [price, state, move, evidence, next] = normalizedWidths;
+          if (price < 305 || evidence < 245 || next < 215 || Math.min(state, move) < 215) {
+            problems.push(`Market Agent KPI cards remain cramped after scale normalization (${normalizedWidths.map((width) => width.toFixed(1)).join(", ")}px)`);
+          }
+          cards.forEach((card, index) => {
+            if (!(card instanceof HTMLElement)) return;
+            if (card.scrollWidth > card.clientWidth + 1 || card.scrollHeight > card.clientHeight + 1) {
+              problems.push(`Market Agent KPI card ${index + 1} content overflows`);
+            }
+          });
+        };
+        const checkTimelineRows = () => {
+          const rows = Array.from(document.querySelectorAll(".market-agent-timeline-track-row")).slice(0, 5);
+          rows.forEach((row, index) => {
+            const time = row.querySelector("time");
+            const node = row.querySelector(".market-agent-timeline-node");
+            const body = row.querySelector(".market-agent-timeline-body");
+            const titleRow = row.querySelector(".market-agent-timeline-title-row");
+            const tag = row.querySelector(".market-agent-event-tag");
+            const metaRow = row.querySelector(".market-agent-timeline-meta-row");
+            if (
+              !(row instanceof HTMLElement) ||
+              !(time instanceof HTMLElement) ||
+              !(node instanceof HTMLElement) ||
+              !(body instanceof HTMLElement) ||
+              !(titleRow instanceof HTMLElement) ||
+              !(metaRow instanceof HTMLElement)
+            ) {
+              problems.push(`Market Agent timeline row ${index + 1} missing structured layout nodes`);
+              return;
+            }
+            const rowBox = row.getBoundingClientRect();
+            const timeBox = time.getBoundingClientRect();
+            const nodeBox = node.getBoundingClientRect();
+            const bodyBox = body.getBoundingClientRect();
+            const titleRowBox = titleRow.getBoundingClientRect();
+            const metaRowBox = metaRow.getBoundingClientRect();
+            if (timeBox.right > nodeBox.left - 4) {
+              problems.push(`Market Agent timeline row ${index + 1} time overlaps node`);
+            }
+            if (nodeBox.right > bodyBox.left - 4) {
+              problems.push(`Market Agent timeline row ${index + 1} node overlaps content`);
+            }
+            if (titleRowBox.right > rowBox.right + 1 || metaRowBox.right > rowBox.right + 1) {
+              problems.push(`Market Agent timeline row ${index + 1} content escapes row`);
+            }
+            if (tag instanceof HTMLElement) {
+              const title = titleRow.querySelector("strong");
+              const tagBox = tag.getBoundingClientRect();
+              if (tagBox.right > rowBox.right + 1) {
+                problems.push(`Market Agent timeline row ${index + 1} event tag escapes row`);
+              }
+              if (title instanceof HTMLElement) {
+                const titleBox = title.getBoundingClientRect();
+                const verticalOverlap = titleBox.top < tagBox.bottom && titleBox.bottom > tagBox.top;
+                if (verticalOverlap && titleBox.right > tagBox.left - 3) {
+                  problems.push(`Market Agent timeline row ${index + 1} title overlaps event tag`);
+                }
+              }
+            }
+          });
+        };
+        const checkEvidenceStatusRhythm = () => {
+          const score = document.querySelector(".market-agent-evidence-score");
+          const ring = score?.querySelector(".market-agent-score-ring");
+          const counts = score?.querySelector(".market-agent-evidence-counts");
+          if (!(score instanceof HTMLElement) || !(ring instanceof HTMLElement) || !(counts instanceof HTMLElement)) {
+            problems.push("Market Agent Evidence Status layout nodes missing");
+            return;
+          }
+          const ringBox = ring.getBoundingClientRect();
+          const countsBox = counts.getBoundingClientRect();
+          const app = document.querySelector("[data-qa='qa:app-shell']");
+          const scale =
+            app instanceof HTMLElement
+              ? Number.parseFloat(window.getComputedStyle(app).zoom || "1")
+              : 1;
+          const normalize = (value) => value / (Number.isFinite(scale) && scale > 0 ? scale : 1);
+          const normalizedRingWidth = normalize(ringBox.width);
+          const normalizedRingGap = normalize(countsBox.left - ringBox.right);
+          if (normalizedRingWidth < 84) {
+            problems.push(`Market Agent Evidence Status ring too small (${normalizedRingWidth.toFixed(1)}px normalized)`);
+          }
+          if (normalizedRingGap < 18) {
+            problems.push(`Market Agent Evidence Status ring/counts gap too tight (${normalizedRingGap.toFixed(1)}px normalized)`);
+          }
+          const rows = Array.from(counts.querySelectorAll(":scope > span"));
+          if (rows.length < 3) {
+            problems.push("Market Agent Evidence Status count rows missing");
+          }
+          const valueBoxes = [];
+          rows.forEach((row, index) => {
+            const label = row.querySelector(":scope > span");
+            const value = row.querySelector(":scope > b");
+            if (!(label instanceof HTMLElement) || !(value instanceof HTMLElement)) return;
+            const labelBox = label.getBoundingClientRect();
+            const valueBox = value.getBoundingClientRect();
+            valueBoxes.push(valueBox);
+            const labelValueGap = normalize(valueBox.left - labelBox.right);
+            if (labelValueGap > 24) {
+              problems.push(`Market Agent Evidence Status count ${index + 1} number too far from label (${labelValueGap.toFixed(1)}px normalized)`);
+            }
+            const valueStyle = window.getComputedStyle(value);
+            if (!valueStyle.fontVariantNumeric.includes("tabular-nums")) {
+              problems.push(`Market Agent Evidence Status count ${index + 1} does not use tabular numbers`);
+            }
+          });
+          if (valueBoxes.length >= 3) {
+            const rightEdges = valueBoxes.map((box) => normalize(box.right));
+            const rightSpread = Math.max(...rightEdges) - Math.min(...rightEdges);
+            if (rightSpread > 1.5) {
+              problems.push(`Market Agent Evidence Status count numbers are not vertically aligned (${rightSpread.toFixed(1)}px spread)`);
+            }
+          }
+        };
+        const checkKpiCardInternalRhythm = () => {
+          const app = document.querySelector("[data-qa='qa:app-shell']");
+          const scale =
+            app instanceof HTMLElement
+              ? Number.parseFloat(window.getComputedStyle(app).zoom || "1")
+              : 1;
+          const normalize = (value) => value / (Number.isFinite(scale) && scale > 0 ? scale : 1);
+          const read = (cardSelector, primarySelector, detailSelector) => {
+            const card = document.querySelector(cardSelector);
+            const primary = card?.querySelector(primarySelector);
+            const detail = detailSelector ? card?.querySelector(detailSelector) : null;
+            if (!(card instanceof HTMLElement) || !(primary instanceof HTMLElement)) {
+              return { cardSelector, error: "missing card or primary node" };
+            }
+            const primaryBox = primary.getBoundingClientRect();
+            const detailBox = detail instanceof HTMLElement ? detail.getBoundingClientRect() : null;
+            return {
+              cardSelector,
+              primaryTop: normalize(primaryBox.top),
+              primaryBottom: normalize(primaryBox.bottom),
+              detailTop: detailBox ? normalize(detailBox.top) : null,
+              detailHeight: detailBox ? normalize(detailBox.height) : null
+            };
+          };
+          const items = [
+            read(".market-agent-price-card", ".market-agent-price-value-row", ".market-agent-price-meta"),
+            read(".market-agent-state-card", ".market-agent-state-value", ".market-agent-state-details"),
+            read(".market-agent-move-card", ".market-agent-move-type", ".market-agent-move-details"),
+            read(".market-agent-evidence-score-card", ".market-agent-evidence-score", ".market-agent-evidence-quality"),
+            read(".market-agent-next-card", ".market-agent-next-main", ".market-agent-next-meta")
+          ];
+          const missing = items.filter((item) => item.error).map((item) => item.cardSelector);
+          if (missing.length) {
+            problems.push(`Market Agent KPI rhythm nodes missing (${missing.join(", ")})`);
+            return;
+          }
+          const priceTop = items.find((item) => item.cardSelector === ".market-agent-price-card")?.primaryTop;
+          const stateTop = items.find((item) => item.cardSelector === ".market-agent-state-card")?.primaryTop;
+          const moveTop = items.find((item) => item.cardSelector === ".market-agent-move-card")?.primaryTop;
+          const evidenceTop = items.find((item) => item.cardSelector === ".market-agent-evidence-score-card")?.primaryTop;
+          const nextTop = items.find((item) => item.cardSelector === ".market-agent-next-card")?.primaryTop;
+          if ([priceTop, stateTop, moveTop, evidenceTop, nextTop].some((value) => typeof value !== "number")) {
+            problems.push("Market Agent KPI primary geometry could not be measured");
+          } else {
+            const narrativeTopSpread = Math.max(priceTop, stateTop, moveTop) - Math.min(priceTop, stateTop, moveTop);
+            const evidenceOffset = evidenceTop - priceTop;
+            const nextOffset = nextTop - priceTop;
+            if (narrativeTopSpread > 4) {
+              problems.push(`Market Agent price/state/move primary values do not share a clean top line (${narrativeTopSpread.toFixed(1)}px spread)`);
+            }
+            if (evidenceOffset < -8 || evidenceOffset > 6) {
+              problems.push(`Market Agent Evidence Status ring sits outside the shared KPI content band (${evidenceOffset.toFixed(1)}px offset)`);
+            }
+            if (nextOffset < 0 || nextOffset > 8) {
+              problems.push(`Market Agent Next Update primary value is outside the shared KPI content band (${nextOffset.toFixed(1)}px offset)`);
+            }
+          }
+          const detailGapItems = items
+            .filter((item) => [".market-agent-state-card", ".market-agent-move-card", ".market-agent-next-card"].includes(item.cardSelector))
+            .map((item) => ({
+              label: item.cardSelector,
+              gap: item.detailTop === null ? null : item.detailTop - item.primaryBottom
+            }));
+          detailGapItems.forEach((item) => {
+            if (item.gap === null) {
+              problems.push(`Market Agent KPI detail node missing (${item.label})`);
+            } else if (item.gap < 3 || item.gap > 12) {
+              problems.push(`Market Agent KPI detail spacing is uneven for ${item.label} (${item.gap.toFixed(1)}px normalized)`);
+            }
+          });
+          const stateDetailHeight = items.find((item) => item.cardSelector === ".market-agent-state-card")?.detailHeight;
+          if (typeof stateDetailHeight === "number" && (stateDetailHeight < 48 || stateDetailHeight > 68)) {
+            problems.push(`Market Agent State details have uneven rhythm (${stateDetailHeight.toFixed(1)}px normalized)`);
+          }
+          const checkDetailStack = (selector, label) => {
+            const stack = document.querySelector(selector);
+            if (!(stack instanceof HTMLElement)) {
+              problems.push(`Market Agent ${label} detail stack missing`);
+              return;
+            }
+            if (stack.querySelector(".market-agent-kpi-detail-label")) {
+              problems.push(`Market Agent ${label} still uses the cramped label/value grid`);
+              return;
+            }
+            const subline = stack.querySelector(":scope > .market-agent-kpi-subline");
+            const metrics = stack.querySelector(":scope > .market-agent-kpi-mini-metrics");
+            if (!(subline instanceof HTMLElement) || !(metrics instanceof HTMLElement)) {
+              problems.push(`Market Agent ${label} detail stack should have a subline and metric blocks`);
+              return;
+            }
+            const sublineBox = subline.getBoundingClientRect();
+            const metricsBox = metrics.getBoundingClientRect();
+            if (sublineBox.height > 18) {
+              problems.push(`Market Agent ${label} subline wraps or becomes too tall (${normalize(sublineBox.height).toFixed(1)}px normalized)`);
+            }
+            const stackGap = normalize(metricsBox.top - sublineBox.bottom);
+            if (stackGap < 7 || stackGap > 17) {
+              problems.push(`Market Agent ${label} subline/metrics gap feels uneven (${stackGap.toFixed(1)}px normalized)`);
+            }
+            const metricItems = Array.from(metrics.querySelectorAll(":scope > span"));
+            if (metricItems.length !== 2) {
+              problems.push(`Market Agent ${label} should use 2 balanced metric blocks, found ${metricItems.length}`);
+              return;
+            }
+            const itemBoxes = metricItems.map((node) => node.getBoundingClientRect());
+            const topSpread = normalize(Math.max(...itemBoxes.map((box) => box.top)) - Math.min(...itemBoxes.map((box) => box.top)));
+            const widthSpread = normalize(Math.max(...itemBoxes.map((box) => box.width)) - Math.min(...itemBoxes.map((box) => box.width)));
+            if (topSpread > 1.5 || widthSpread > 3) {
+              problems.push(`Market Agent ${label} metric blocks are not balanced (${topSpread.toFixed(1)}px top, ${widthSpread.toFixed(1)}px width spread)`);
+            }
+            metricItems.forEach((item, index) => {
+              const metricLabel = item.querySelector(":scope > em");
+              const value = item.querySelector(":scope > b");
+              if (!(metricLabel instanceof HTMLElement) || !(value instanceof HTMLElement)) {
+                problems.push(`Market Agent ${label} metric ${index + 1} missing label/value`);
+                return;
+              }
+              if (metricLabel.scrollWidth > metricLabel.clientWidth + 1 || value.scrollWidth > value.clientWidth + 1) {
+                problems.push(`Market Agent ${label} metric ${index + 1} clips text`);
+              }
+              const valueStyle = window.getComputedStyle(value);
+              if (!valueStyle.fontVariantNumeric.includes("tabular-nums")) {
+                problems.push(`Market Agent ${label} metric ${index + 1} does not use tabular numbers`);
+              }
+              const metricLabelColor = parseRgbTriples(window.getComputedStyle(metricLabel).color)[0];
+              const valueColor = parseRgbTriples(valueStyle.color)[0];
+              const hasSemanticTone = value.classList.contains("negative") || value.classList.contains("positive");
+              if (metricLabelColor && valueColor && !hasSemanticTone) {
+                const metricLabelLum = relativeLuminance(metricLabelColor);
+                const valueLum = relativeLuminance(valueColor);
+                const luminanceDelta = Math.abs(valueLum - metricLabelLum);
+                const theme = document.documentElement.dataset.theme;
+                const valueIsProminent = theme === "light"
+                  ? valueLum < metricLabelLum - 0.035
+                  : valueLum > metricLabelLum + 0.035;
+                if (luminanceDelta < 0.035 || !valueIsProminent) {
+                  problems.push(`Market Agent ${label} metric ${index + 1} label/value color hierarchy is too flat`);
+                }
+              }
+            });
+          };
+          checkDetailStack(".market-agent-state-details", "Market State");
+          checkDetailStack(".market-agent-move-details", "Latest Move");
+        };
+        const checkCockpitFooterAlignment = () => {
+          if (document.querySelector(".market-agent-attention-footer")) {
+            problems.push("Driver Attention still renders the old bottom meter footer");
+          }
+          const footerNodes = [
+            ["Market Replay", document.querySelector(".market-agent-replay-panel .market-agent-panel-link-footer")],
+            ["Latest Evidence", document.querySelector(".market-agent-evidence-footer")]
+          ];
+          const missingFooters = footerNodes
+            .filter(([, node]) => !(node instanceof HTMLElement))
+            .map(([label]) => label);
+          if (missingFooters.length) {
+            problems.push(`Market Agent cockpit footers missing (${missingFooters.join(", ")})`);
+            return;
+          }
+          const footerBoxes = footerNodes.map(([label, node]) => {
+            const box = node.getBoundingClientRect();
+            return { label, top: box.top, bottom: box.bottom, height: box.height };
+          });
+          const topSpread = Math.max(...footerBoxes.map((box) => box.top)) - Math.min(...footerBoxes.map((box) => box.top));
+          const heightSpread = Math.max(...footerBoxes.map((box) => box.height)) - Math.min(...footerBoxes.map((box) => box.height));
+          const bottomSpread = Math.max(...footerBoxes.map((box) => box.bottom)) - Math.min(...footerBoxes.map((box) => box.bottom));
+          if (topSpread > 2) {
+            problems.push(`Market Agent cockpit footer top edges are misaligned (${topSpread.toFixed(1)}px spread)`);
+          }
+          if (heightSpread > 2) {
+            problems.push(`Market Agent cockpit footer heights differ (${heightSpread.toFixed(1)}px spread)`);
+          }
+          if (bottomSpread > 2) {
+            problems.push(`Market Agent cockpit footer bottom edges are misaligned (${bottomSpread.toFixed(1)}px spread)`);
+          }
+        };
+        const checkDriverTableNumericRhythm = () => {
+          const app = document.querySelector("[data-qa='qa:app-shell']");
+          const scale =
+            app instanceof HTMLElement
+              ? Number.parseFloat(window.getComputedStyle(app).zoom || "1")
+              : 1;
+          const normalize = (value) => value / (Number.isFinite(scale) && scale > 0 ? scale : 1);
+          const rows = Array.from(document.querySelectorAll(".market-agent-attention-table-row")).slice(0, 8);
+          if (rows.length < 3) {
+            problems.push(`Driver Attention table has too few rows for rhythm check (${rows.length})`);
+            return;
+          }
+          if (rows.length < 7) {
+            problems.push(`Driver Attention list is still too sparse for the reference rhythm (${rows.length} rows)`);
+          }
+          rows.forEach((row, index) => {
+            if (!(row instanceof HTMLElement)) return;
+            const rowHeight = normalize(row.getBoundingClientRect().height);
+            if (rowHeight < 46) {
+              problems.push(`Driver Attention row ${index + 1} is too compressed (${rowHeight.toFixed(1)}px normalized)`);
+            }
+            const state = row.querySelector(".market-agent-driver-state");
+            if (state instanceof HTMLElement) {
+              const stateText = (state.textContent || "").trim();
+              if (stateText && stateText !== stateText.toUpperCase()) {
+                problems.push(`Driver Attention state row ${index + 1} is not uppercase (${stateText})`);
+              }
+              const stateStyle = window.getComputedStyle(state);
+              if (stateStyle.justifySelf !== "center" || stateStyle.textAlign !== "center") {
+                problems.push(`Driver Attention state row ${index + 1} is not centered`);
+              }
+              const stateWidth = normalize(state.getBoundingClientRect().width);
+              if (stateWidth < 56) {
+                problems.push(`Driver Attention state row ${index + 1} has an unstable column footprint (${stateWidth.toFixed(1)}px normalized)`);
+              }
+            }
+            const attention = row.querySelector(".market-agent-attention-text");
+            if (attention instanceof HTMLElement) {
+              const attentionStyle = window.getComputedStyle(attention);
+              if (attentionStyle.justifySelf !== "center" || attentionStyle.textAlign !== "center") {
+                problems.push(`Driver Attention attention row ${index + 1} is not centered`);
+              }
+              const attentionWidth = normalize(attention.getBoundingClientRect().width);
+              if (attentionWidth < 44) {
+                problems.push(`Driver Attention attention row ${index + 1} has an unstable column footprint (${attentionWidth.toFixed(1)}px normalized)`);
+              }
+            }
+          });
+          const collectCell = (row, selector, label, index) => {
+            const cell = row.querySelector(selector);
+            if (!(cell instanceof HTMLElement)) {
+              problems.push(`Driver Attention row ${index + 1} missing ${label} cell`);
+              return null;
+            }
+            return cell;
+          };
+          const inspectNumericCells = (selector, label, alignment) => {
+            const boxes = [];
+            rows.forEach((row, index) => {
+              const cell = collectCell(row, selector, label, index);
+              if (!cell) return;
+              const style = window.getComputedStyle(cell);
+              const box = cell.getBoundingClientRect();
+              boxes.push(box);
+              const normalizedWidth = normalize(box.width);
+              if (label === "impact" && normalizedWidth < 40) {
+                problems.push(`Driver Attention impact row ${index + 1} has an unstable column footprint (${normalizedWidth.toFixed(1)}px normalized)`);
+              }
+              if (style.textAlign !== alignment) {
+                problems.push(`Driver Attention ${label} row ${index + 1} is not ${alignment}-aligned`);
+              }
+              if (!style.fontVariantNumeric.includes("tabular-nums")) {
+                problems.push(`Driver Attention ${label} row ${index + 1} does not use tabular numbers`);
+              }
+            });
+            if (boxes.length >= 3) {
+              const anchors = alignment === "center"
+                ? boxes.map((box) => box.left + box.width / 2)
+                : boxes.map((box) => box.right);
+              const spread = Math.max(...anchors) - Math.min(...anchors);
+              if (spread > 1.5) {
+                problems.push(`Driver Attention ${label} values are not vertically aligned (${spread.toFixed(1)}px spread)`);
+              }
+            }
+          };
+          inspectNumericCells("[data-market-agent-attention-cell='impact']", "impact", "center");
+          inspectNumericCells("[data-market-agent-attention-cell='score']", "score", "right");
+        };
         const staleDashboardLabels = [
           "Live Situation",
           "CURRENT THESIS",
@@ -2502,13 +3084,427 @@ const main = async () => {
           "level_3",
           "CONFIGURE CTRADER SPOT",
           "CTRADER DISABLED",
-          "YAHOO PROXY FALLBACK"
+          "YAHOO PROXY FALLBACK",
+          "Last check",
+          "Every 1 min"
         ];
         for (const label of staleDashboardLabels) {
           if (text.includes(label)) {
             problems.push(`stale Market Agent dashboard label still visible: ${label}`);
           }
         }
+        const requiredKpiLabels = ["Bid", "Ask", "Spread", "Data:", "Strength", "Every 60 seconds"];
+        requiredKpiLabels.forEach((label) => {
+          if (!text.includes(label)) {
+            problems.push(`Market Agent KPI label missing: ${label}`);
+          }
+        });
+        const marketStateCard = document.querySelector(".market-agent-state-card");
+        const marketStateValue = marketStateCard?.querySelector(".market-agent-state-value");
+        const marketStateSince = marketStateCard?.querySelector("[data-kpi-detail='state-since']");
+        if (!(marketStateCard instanceof HTMLElement) || !(marketStateValue instanceof HTMLElement) || !(marketStateSince instanceof HTMLElement)) {
+          problems.push("Market Agent Market State card is missing value or since row");
+        } else {
+          const stateLabel = (marketStateValue.textContent || "").trim();
+          const sinceLabel = (marketStateSince.textContent || "").trim();
+          if (!/^(TRENDING UP|TRENDING DOWN|RANGEBOUND|UNKNOWN)\s*[↗↘→]?$/.test(stateLabel)) {
+            problems.push(`Market Agent Market State label is not uppercase trend language (${stateLabel})`);
+          }
+          if (/\b(Bearish|Bullish)\b/.test(stateLabel)) {
+            problems.push(`Market Agent Market State still uses bearish/bullish wording (${stateLabel})`);
+          }
+          if (!/^\d{2}-\d{2} \d{2}:\d{2}$/.test(sinceLabel)) {
+            problems.push(`Market Agent Market State since row is not compact date/time (${sinceLabel})`);
+          }
+          const valueBox = marketStateValue.getBoundingClientRect();
+          const sinceBox = marketStateSince.getBoundingClientRect();
+          if (valueBox.height > 34) {
+            problems.push(`Market Agent Market State label wraps or feels oversized (${valueBox.height.toFixed(1)}px tall)`);
+          }
+          const gap = sinceBox.top - valueBox.bottom;
+          if (gap < 2 || gap > 14) {
+            problems.push(`Market Agent Market State since row is not visually tied to trend label (${gap.toFixed(1)}px gap)`);
+          }
+        }
+        const latestMoveCard = document.querySelector(".market-agent-move-card");
+        const latestMoveDetected = latestMoveCard?.querySelector("[data-kpi-detail='move-detected']");
+        const latestMoveDuration = latestMoveCard?.querySelector("[data-kpi-detail='move-duration']");
+        if (!(latestMoveCard instanceof HTMLElement) || !(latestMoveDetected instanceof HTMLElement)) {
+          problems.push("Market Agent Latest Move detected row missing");
+        } else {
+          const detectedLabel = (latestMoveDetected.textContent || "").trim();
+          if (!/^\d{2}:\d{2}$/.test(detectedLabel)) {
+            problems.push(`Market Agent Latest Move detected row should show only time (${detectedLabel})`);
+          }
+          if (/\d{2}[-/]\d{2}|\d{4}/.test(detectedLabel)) {
+            problems.push(`Market Agent Latest Move detected row still includes a date (${detectedLabel})`);
+          }
+          const durationLabel = (latestMoveDuration?.textContent || "").trim();
+          if (!/^\d+(?:d \d+h|h \d+m|m \d{2}s|s)$/.test(durationLabel)) {
+            problems.push(`Market Agent Latest Move duration is not elapsed-time based (${durationLabel})`);
+          }
+        }
+        if (document.documentElement.dataset.theme === "light") {
+          const sideNav = document.querySelector(".market-agent-side-nav");
+          if (sideNav instanceof HTMLElement) {
+            const style = window.getComputedStyle(sideNav);
+            const colors = parseRgbTriples(`${style.backgroundImage} ${style.backgroundColor}`);
+            const brightestStop = colors.length ? Math.max(...colors.map(relativeLuminance)) : 0;
+            if (brightestStop < 0.72) {
+              problems.push(`light Market Agent sidebar remains dark (brightest luminance ${brightestStop.toFixed(2)})`);
+            }
+          } else {
+            problems.push("Market Agent sidebar missing");
+          }
+        }
+        if (text.includes("ALPHA")) {
+          problems.push("Market Agent sidebar still shows redundant ALPHA label");
+        }
+        const navButtons = Array.from(document.querySelectorAll(".market-agent-side-group button"));
+        if (navButtons.some((button) => !button.querySelector("svg"))) {
+          problems.push("Market Agent sidebar has navigation items without icons");
+        }
+        const iconSignatures = navButtons.map((button) => button.querySelector("svg")?.innerHTML?.replace(/\s+/g, " ").trim() || "");
+        if (new Set(iconSignatures).size !== iconSignatures.length) {
+          problems.push("Market Agent sidebar has visually duplicated icon SVGs");
+        }
+        const dashboardIcon = document.querySelector("[data-market-agent-section='live'] svg[data-nav-icon='dashboard']");
+        if (!(dashboardIcon instanceof SVGElement)) {
+          problems.push("Market Agent Dashboard nav item is missing a home icon");
+        } else {
+          const rectCount = dashboardIcon.querySelectorAll("rect").length;
+          const pathData = Array.from(dashboardIcon.querySelectorAll("path"))
+            .map((path) => path.getAttribute("d") || "")
+            .join(" ");
+          if (rectCount >= 4) {
+            problems.push("Market Agent Dashboard nav icon still uses the old grid glyph");
+          }
+          if (!pathData.includes("12 4.4") || !pathData.includes("v8.2")) {
+            problems.push("Market Agent Dashboard nav icon does not use the requested house outline");
+          }
+        }
+        const settingsIcon = document.querySelector("[data-market-agent-section='logs'] svg[data-nav-icon='settings']");
+        if (!(settingsIcon instanceof SVGElement)) {
+          problems.push("Market Agent Settings nav item is missing a settings gear icon");
+        } else if ((settingsIcon.innerHTML || "").includes("M12 3.8v2.1")) {
+          problems.push("Market Agent Settings nav icon still uses the old sun glyph");
+        }
+        const alertsButton = document.querySelector("[data-market-agent-section='alerts']");
+        const alertsBadge = alertsButton?.querySelector(".market-agent-nav-badge");
+        if (!(alertsBadge instanceof HTMLElement) || !/^[1-9]\d*$/.test((alertsBadge.textContent || "").trim())) {
+          problems.push("Market Agent Alerts nav item is missing notification count badge");
+        }
+        const nextCard = document.querySelector(".market-agent-next-card");
+        if (nextCard instanceof HTMLElement) {
+          const nextText = nextCard.innerText || nextCard.textContent || "";
+          if (!/\b\d+\ssec\b/i.test(nextText)) {
+            problems.push(`Market Agent Next Update countdown is not displayed in seconds (${nextText.trim()})`);
+          }
+          if (/\b\d+\s*m\b/i.test(nextText) || /Every\s+\d+\s*min/i.test(nextText)) {
+            problems.push(`Market Agent Next Update still uses minute shorthand (${nextText.trim()})`);
+          }
+          if (!nextText.includes("Every 60 seconds")) {
+            problems.push(`Market Agent Next Update interval label is not Every 60 seconds (${nextText.trim()})`);
+          }
+          const countdown = nextCard.querySelector("[data-qa='qa:market-agent:next-countdown']");
+          const clock = nextCard.querySelector(".market-agent-clock-icon");
+          const meta = nextCard.querySelector(".market-agent-next-meta");
+          const nextContent = nextCard.querySelector(".market-agent-next-content");
+          if (nextContent instanceof HTMLElement) {
+            const contentStyle = window.getComputedStyle(nextContent);
+            if (contentStyle.justifyItems === "center" || contentStyle.textAlign === "center") {
+              problems.push("Market Agent Next Update still uses the awkward centered block layout");
+            }
+          } else {
+            problems.push("Market Agent Next Update content wrapper missing");
+          }
+          if (!(countdown instanceof HTMLElement)) {
+            problems.push("Market Agent Next Update countdown is missing the rolling digit structure");
+          } else {
+            const digits = Array.from(countdown.querySelectorAll(".market-agent-countdown-digit"));
+            const unit = countdown.querySelector(".market-agent-countdown-unit");
+            const label = countdown.getAttribute("aria-label") || "";
+            if (!/^\d+\ssec$/i.test(label)) {
+              problems.push(`Market Agent Next Update countdown aria label is not seconds text (${label})`);
+            }
+            if (digits.length < 1 || digits.some((digit) => !(digit instanceof HTMLElement))) {
+              problems.push("Market Agent Next Update countdown digits are not split into independent slots");
+            }
+            if (!(unit instanceof HTMLElement) || unit.textContent?.trim() !== "sec") {
+              problems.push("Market Agent Next Update countdown unit is not a static sec label");
+            }
+            if (countdown.querySelector(".market-agent-value-pulse")) {
+              problems.push("Market Agent Next Update countdown still fades the whole value");
+            }
+            const countdownStyle = window.getComputedStyle(countdown);
+            const countdownFont = Number.parseFloat(countdownStyle.fontSize || "0");
+            if (countdownFont < 22) {
+              problems.push(`Market Agent Next Update countdown is not prominent enough (${countdownFont.toFixed(1)}px)`);
+            }
+            if (clock instanceof HTMLElement) {
+              const clockBox = clock.getBoundingClientRect();
+              const countdownBox = countdown.getBoundingClientRect();
+              const iconToCountdownGap = countdownBox.left - clockBox.right;
+              const iconCountdownCenterGap = Math.abs((clockBox.top + clockBox.bottom) / 2 - (countdownBox.top + countdownBox.bottom) / 2);
+              if (iconToCountdownGap < 8 || iconToCountdownGap > 18) {
+                problems.push(`Market Agent Next Update clock is not tucked beside countdown (${iconToCountdownGap.toFixed(1)}px gap)`);
+              }
+              if (iconCountdownCenterGap > 3) {
+                problems.push(`Market Agent Next Update clock is not aligned with countdown row (${iconCountdownCenterGap.toFixed(1)}px center gap)`);
+              }
+            } else {
+              problems.push("Market Agent Next Update clock icon missing");
+            }
+          }
+          if (!(meta instanceof HTMLElement)) {
+            problems.push("Market Agent Next Update meta lines are missing grouped layout");
+          } else {
+            const metaRows = Array.from(meta.children).filter((item) => item instanceof HTMLElement);
+            if (metaRows.length < 2) {
+              problems.push("Market Agent Next Update meta lines are not split into two rows");
+            } else {
+              const [statusRow, intervalRow] = metaRows;
+              const statusBox = statusRow.getBoundingClientRect();
+              const intervalBox = intervalRow.getBoundingClientRect();
+              const metaGap = intervalBox.top - statusBox.bottom;
+              if (metaGap < 3) {
+                problems.push(`Market Agent Next Update meta rows are too tight (${metaGap.toFixed(1)}px gap)`);
+              }
+              if (countdown instanceof HTMLElement) {
+                const countdownBox = countdown.getBoundingClientRect();
+                if (Math.abs(statusBox.left - countdownBox.left) > 1.5 || Math.abs(intervalBox.left - countdownBox.left) > 1.5) {
+                  problems.push("Market Agent Next Update meta rows do not align under countdown text");
+                }
+                const countdownColor = parseRgbTriples(window.getComputedStyle(countdown).color)[0];
+                const statusColor = parseRgbTriples(window.getComputedStyle(statusRow).color)[0];
+                const intervalColor = parseRgbTriples(window.getComputedStyle(intervalRow).color)[0];
+                const theme = document.documentElement.dataset.theme;
+                const isMetaMuted = (metaColor) => {
+                  if (!countdownColor || !metaColor) return true;
+                  const countdownLum = relativeLuminance(countdownColor);
+                  const metaLum = relativeLuminance(metaColor);
+                  return theme === "light"
+                    ? metaLum > countdownLum + 0.08
+                    : metaLum < countdownLum - 0.08;
+                };
+                if (!isMetaMuted(statusColor)) {
+                  problems.push("Market Agent Next Update status text is not visually lighter/muted than countdown");
+                }
+                if (!isMetaMuted(intervalColor)) {
+                  problems.push("Market Agent Next Update interval text is not visually lighter/muted than countdown");
+                }
+              }
+            }
+          }
+        } else {
+          problems.push("Market Agent Next Update card missing");
+        }
+        const animatedSelectors = [
+          [".market-agent-price-card .market-agent-value-pulse", "price value"],
+          [".market-agent-score-ring-animated", "evidence score ring"],
+          [".market-agent-attention-table-row.market-agent-animated-row", "driver rows"],
+          [".market-agent-timeline-track-row.market-agent-animated-row", "timeline rows"],
+          [".market-agent-evidence-feed-row.market-agent-animated-row", "evidence rows"],
+          [".market-agent-nav-badge", "alerts badge"]
+        ];
+        animatedSelectors.forEach(([selector, label]) => {
+          const node = document.querySelector(selector);
+          if (!(node instanceof HTMLElement)) {
+            problems.push(`Market Agent animated element missing: ${label}`);
+            return;
+          }
+          const style = window.getComputedStyle(node);
+          const afterStyle = selector.includes("clock-icon")
+            ? window.getComputedStyle(node, "::after")
+            : null;
+          const hasAnimation =
+            (style.animationName && style.animationName !== "none" && style.animationDuration !== "0s") ||
+            (afterStyle && afterStyle.animationName && afterStyle.animationName !== "none" && afterStyle.animationDuration !== "0s");
+          const hasTransition = (style.transitionDuration || "")
+            .split(",")
+            .some((duration) => Number.parseFloat(duration) > 0);
+          if (!hasAnimation && !hasTransition) {
+            problems.push(`Market Agent animated element has no motion style: ${label}`);
+          }
+        });
+        const valuePulse = document.querySelector(".market-agent-value-pulse");
+        if (valuePulse instanceof HTMLElement) {
+          const valuePulseAnimations = valuePulse.getAnimations({ subtree: false });
+          const hasTransformKeyframe = valuePulseAnimations.some((animation) => {
+            const effect = animation.effect;
+            if (!(effect instanceof KeyframeEffect)) return false;
+            return effect.getKeyframes().some((frame) => "transform" in frame && frame.transform && frame.transform !== "none");
+          });
+          if (hasTransformKeyframe || window.getComputedStyle(valuePulse).willChange.includes("transform")) {
+            problems.push("Market Agent value animation still transforms text and can blur fonts");
+          }
+        }
+        const scoreRing = document.querySelector(".market-agent-score-ring");
+        if (scoreRing instanceof HTMLElement) {
+          const ringStyle = window.getComputedStyle(scoreRing);
+          if (!scoreRing.querySelector("svg.market-agent-score-svg .market-agent-score-progress")) {
+            problems.push("Market Agent Evidence Status ring is not rendered with SVG stroke");
+          }
+          if ((ringStyle.backgroundImage || "").includes("conic-gradient")) {
+            problems.push("Market Agent Evidence Status ring still uses aliased conic-gradient");
+          }
+          const scoreNumber = scoreRing.querySelector(".market-agent-score-number");
+          const scoreSuffix = scoreRing.querySelector(".market-agent-score-suffix");
+          if (!(scoreNumber instanceof HTMLElement) || !(scoreSuffix instanceof HTMLElement)) {
+            problems.push("Market Agent Evidence Status score number/suffix are not split");
+          } else {
+            const numberText = (scoreNumber.textContent || "").trim();
+            const suffixText = (scoreSuffix.textContent || "").trim();
+            if (!/^\d+$/.test(numberText) || suffixText !== "%") {
+              problems.push(`Market Agent Evidence Status score should animate only digits (${numberText}${suffixText})`);
+            }
+            if (!scoreNumber.classList.contains("market-agent-value-pulse") || scoreSuffix.classList.contains("market-agent-value-pulse")) {
+              problems.push("Market Agent Evidence Status percent suffix is included in value animation");
+            }
+            const numberColor = parseRgbTriples(window.getComputedStyle(scoreNumber).color)[0];
+            if (numberColor) {
+              const luminance = relativeLuminance(numberColor);
+              const theme = document.documentElement.dataset.theme;
+              if (theme === "light" && luminance > 0.35) {
+                problems.push(`Market Agent Evidence Status number is not dark in light mode (${luminance.toFixed(2)})`);
+              }
+              if (theme !== "light" && luminance < 0.65) {
+                problems.push(`Market Agent Evidence Status number is not light in dark mode (${luminance.toFixed(2)})`);
+              }
+            }
+          }
+        }
+        const evidenceFeed = document.querySelector(".market-agent-evidence-feed");
+        if (evidenceFeed instanceof HTMLElement) {
+          const feedStyle = window.getComputedStyle(evidenceFeed);
+          const scrollbarGutter = evidenceFeed.offsetWidth - evidenceFeed.clientWidth;
+          if (feedStyle.overflowY !== "hidden" || feedStyle.scrollbarWidth !== "none" || scrollbarGutter > 1) {
+            problems.push(`Latest Evidence feed can show a scrollbar (overflowY=${feedStyle.overflowY}, scrollbarWidth=${feedStyle.scrollbarWidth}, gutter=${scrollbarGutter})`);
+          }
+          if (evidenceFeed.querySelector(".market-agent-status-badge")) {
+            problems.push("Latest Evidence statuses still use tag badges");
+          }
+          const statusTexts = Array.from(evidenceFeed.querySelectorAll(".market-agent-evidence-status-text"));
+          if (statusTexts.length === 0) {
+            problems.push("Latest Evidence statuses are missing colored text labels");
+          }
+          statusTexts.forEach((status, index) => {
+            if (!(status instanceof HTMLElement)) return;
+            const style = window.getComputedStyle(status);
+            const background = style.backgroundColor.replace(/\s+/g, "");
+            if (style.borderStyle !== "none" || Number.parseFloat(style.borderWidth || "0") > 0) {
+              problems.push(`Latest Evidence status ${index + 1} still has a tag border`);
+            }
+            if (background !== "rgba(0,0,0,0)" && background !== "transparent") {
+              problems.push(`Latest Evidence status ${index + 1} still has a tag background (${style.backgroundColor})`);
+            }
+          });
+        }
+        const isTransparentPaint = (value) => {
+          const normalized = String(value || "").replace(/\s+/g, "").toLowerCase();
+          return normalized === "transparent" || normalized === "rgba(0,0,0,0)";
+        };
+        const assertAttentionColor = (name, color) => {
+          const [r, g, b] = color || [];
+          if (!Number.isFinite(r) || !Number.isFinite(g) || !Number.isFinite(b)) {
+            problems.push(`Driver Attention ${name} color could not be measured`);
+            return;
+          }
+          if (name === "High" && !(r > 180 && g < 130 && b < 130)) {
+            problems.push(`Driver Attention High is not red (${r}, ${g}, ${b})`);
+          }
+          if (name === "Medium" && !(r > 150 && g > 90 && g < 210 && b < 110)) {
+            problems.push(`Driver Attention Medium is not yellow (${r}, ${g}, ${b})`);
+          }
+          if (name === "Low" && !(g > 110 && r < 80 && b < 140)) {
+            problems.push(`Driver Attention Low is not green (${r}, ${g}, ${b})`);
+          }
+        };
+        const attentionLabels = Array.from(document.querySelectorAll(".market-agent-attention-text"));
+        if (attentionLabels.length === 0) {
+          problems.push("Driver Attention labels are still missing text-style markers");
+        }
+        if (document.querySelector(".market-agent-attention-badge.market-agent-status-badge")) {
+          problems.push("Driver Attention labels still use boxed status badges");
+        }
+        const attentionHost = root instanceof HTMLElement ? root : document.body;
+        const attentionProbe = document.createElement("div");
+        attentionProbe.style.cssText = "position:absolute;left:-9999px;top:-9999px;display:flex;gap:8px;";
+        const attentionExpectations = [
+          ["High", "attention-high", false],
+          ["Medium", "attention-medium", true],
+          ["Low", "attention-low", true]
+        ];
+        for (const [label, className] of attentionExpectations) {
+          const item = document.createElement("span");
+          item.className = `market-agent-attention-text ${className}`;
+          item.textContent = label;
+          attentionProbe.appendChild(item);
+        }
+        attentionHost.appendChild(attentionProbe);
+        Array.from(attentionProbe.children).forEach((item, index) => {
+          if (!(item instanceof HTMLElement)) return;
+          const [label, _className, shouldBePlain] = attentionExpectations[index];
+          const style = window.getComputedStyle(item);
+          assertAttentionColor(label, parseRgbTriples(style.color)[0]);
+          if (shouldBePlain) {
+            const hasBorder = style.borderStyle !== "none" && Number.parseFloat(style.borderWidth || "0") > 0;
+            if (hasBorder) {
+              problems.push(`Driver Attention ${label} still has a tag border`);
+            }
+            if (!isTransparentPaint(style.backgroundColor)) {
+              problems.push(`Driver Attention ${label} still has a tag background (${style.backgroundColor})`);
+            }
+          }
+        });
+        attentionProbe.remove();
+        const replayRangeButtons = Array.from(document.querySelectorAll(".market-agent-range-tabs button"));
+        if (replayRangeButtons.length !== 3 || replayRangeButtons.some((button) => !(button instanceof HTMLButtonElement))) {
+          problems.push("Market Agent replay range tabs are not clickable buttons");
+        } else {
+          const activeRangeButton = replayRangeButtons.find((button) => button instanceof HTMLElement && button.classList.contains("active"));
+          if (activeRangeButton instanceof HTMLElement) {
+            const activeStyle = window.getComputedStyle(activeRangeButton);
+            const fg = parseRgbTriples(activeStyle.color)[0];
+            const bg = parseRgbTriples(activeStyle.backgroundColor)[0];
+            if (fg && bg) {
+              const ratio = contrastRatio(fg, bg);
+              if (ratio < 4.5) {
+                problems.push(`Market Agent replay active range tab contrast too low (${ratio.toFixed(2)})`);
+              }
+            } else {
+              problems.push("Market Agent replay active range tab colors could not be measured");
+            }
+          } else {
+            problems.push("Market Agent replay active range tab missing");
+          }
+        }
+        const evidenceTabButtons = Array.from(document.querySelectorAll(".market-agent-evidence-tabs button[role='tab']"));
+        if (evidenceTabButtons.length !== 5 || evidenceTabButtons.some((button) => !(button instanceof HTMLButtonElement))) {
+          problems.push("Market Agent evidence filters are not clickable tabs");
+        } else {
+          const tabWidths = evidenceTabButtons.map((button) => button.getBoundingClientRect().width);
+          const widthSpread = Math.max(...tabWidths) - Math.min(...tabWidths);
+          if (widthSpread > 1) {
+            problems.push(`Market Agent evidence filter tabs are not equal width (${tabWidths.map((width) => width.toFixed(1)).join(", ")}px)`);
+          }
+        }
+        const latestEvidence = Array.from(document.querySelectorAll(".market-agent-cockpit-panel"))
+          .find((panel) => panel.textContent?.includes("Latest Evidence"));
+        if (latestEvidence instanceof HTMLElement) {
+          const evidenceText = latestEvidence.innerText || latestEvidence.textContent || "";
+          if (/\bConfirming\b/.test(evidenceText)) {
+            problems.push("Latest Evidence still exposes raw Confirming status");
+          }
+        } else {
+          problems.push("Latest Evidence panel missing");
+        }
+        checkTimelineRows();
+        checkEvidenceStatusRhythm();
+        checkKpiCardInternalRhythm();
+        checkCockpitFooterAlignment();
+        checkDriverTableNumericRhythm();
+        checkKpiBreathingRoom();
         const bodyOverflowY = document.body.scrollHeight - window.innerHeight;
         const bodyOverflowX = document.body.scrollWidth - window.innerWidth;
         if (bodyOverflowY > 2) problems.push(`body vertical overflow ${bodyOverflowY}px`);
@@ -2533,12 +3529,296 @@ const main = async () => {
       if (layoutProblems.length) {
         throw new Error(layoutProblems.join("; "));
       }
+      const readCountdownLabel = async () =>
+        page.locator("[data-qa='qa:market-agent:next-countdown']").first().getAttribute("aria-label");
+      const countdownBefore = await readCountdownLabel();
+      const digitRolled = await page
+        .waitForFunction(
+          () => {
+            const active = document.querySelector(".market-agent-countdown-digit.is-changing");
+            if (!(active instanceof HTMLElement)) return false;
+            const animatedParts = Array.from(
+              active.querySelectorAll(".market-agent-countdown-digit-old, .market-agent-countdown-digit-new")
+            );
+            return animatedParts.some((part) => {
+              if (!(part instanceof HTMLElement)) return false;
+              const animationName = window.getComputedStyle(part).animationName || "";
+              return animationName.includes("market-agent-countdown");
+            });
+          },
+          null,
+          { timeout: 2200 }
+        )
+        .then(() => true)
+        .catch(() => false);
+      const countdownAfter = await readCountdownLabel();
+      if (countdownBefore === countdownAfter) {
+        throw new Error(`Market Agent Next Update countdown is static (${countdownBefore || "empty"})`);
+      }
+      if (!digitRolled) {
+        throw new Error("Market Agent Next Update countdown did not roll individual digits during the tick");
+      }
+      await page
+        .waitForFunction(() => !document.querySelector(".market-agent-countdown-digit.is-changing"), null, { timeout: 600 })
+        .catch(() => null);
       artifacts.push({
         scenario: "market-agent",
         theme: theme.key,
         state: "open",
         path: await captureState(page, "market-agent", theme.key, "open")
       });
+      const originalViewport = page.viewportSize() || { width: 1280, height: 720 };
+      await page.setViewportSize({ width: 1024, height: 720 });
+      await page.waitForTimeout(250);
+      const scaledLayoutProblems = await page.evaluate(() => {
+        const problems = [];
+        const checkTimelineRows = () => {
+          const rows = Array.from(document.querySelectorAll(".market-agent-timeline-track-row")).slice(0, 5);
+          rows.forEach((row, index) => {
+            const time = row.querySelector("time");
+            const node = row.querySelector(".market-agent-timeline-node");
+            const body = row.querySelector(".market-agent-timeline-body");
+            const tag = row.querySelector(".market-agent-event-tag");
+            if (
+              !(row instanceof HTMLElement) ||
+              !(time instanceof HTMLElement) ||
+              !(node instanceof HTMLElement) ||
+              !(body instanceof HTMLElement)
+            ) {
+              problems.push(`scaled Market Agent timeline row ${index + 1} missing layout nodes`);
+              return;
+            }
+            const rowBox = row.getBoundingClientRect();
+            const timeBox = time.getBoundingClientRect();
+            const nodeBox = node.getBoundingClientRect();
+            const bodyBox = body.getBoundingClientRect();
+            if (timeBox.right > nodeBox.left - 3) {
+              problems.push(`scaled Market Agent timeline row ${index + 1} time overlaps node`);
+            }
+            if (nodeBox.right > bodyBox.left - 3) {
+              problems.push(`scaled Market Agent timeline row ${index + 1} node overlaps content`);
+            }
+            if (bodyBox.right > rowBox.right + 1) {
+              problems.push(`scaled Market Agent timeline row ${index + 1} content escapes row`);
+            }
+            if (tag instanceof HTMLElement && tag.getBoundingClientRect().right > rowBox.right + 1) {
+              problems.push(`scaled Market Agent timeline row ${index + 1} tag escapes row`);
+            }
+          });
+        };
+        const rect = (selector) => {
+          const node = document.querySelector(selector);
+          if (!(node instanceof HTMLElement)) return null;
+          const box = node.getBoundingClientRect();
+          return {
+            x: box.x,
+            y: box.y,
+            width: box.width,
+            height: box.height,
+            right: box.right,
+            bottom: box.bottom
+          };
+        };
+        const app = document.querySelector(".app.app-market-agent");
+        const style = app instanceof HTMLElement ? window.getComputedStyle(app) : null;
+        const appTransform = style?.transform || "none";
+        const viewportScale = Number.parseFloat(style?.zoom || "1");
+        const expectedScale = Math.min(window.innerWidth / 1600, window.innerHeight / 900);
+        if (appTransform !== "none" && appTransform !== "matrix(1, 0, 0, 1, 0, 0)") {
+          problems.push(`Market Agent scaled layout uses transform instead of crisp zoom (${appTransform})`);
+        }
+        if (!Number.isFinite(viewportScale) || Math.abs(viewportScale - expectedScale) > 0.015) {
+          problems.push(
+            `Market Agent scaled layout does not use fixed-width zoom (zoom=${style?.zoom}, expected=${expectedScale.toFixed(3)})`
+          );
+        }
+        checkTimelineRows();
+        const bodyOverflowY = document.body.scrollHeight - window.innerHeight;
+        const bodyOverflowX = document.body.scrollWidth - window.innerWidth;
+        if (bodyOverflowY > 2) problems.push(`scaled body vertical overflow ${bodyOverflowY}px`);
+        if (bodyOverflowX > 2) problems.push(`scaled body horizontal overflow ${bodyOverflowX}px`);
+        const appbar = rect(".appbar");
+        if (!appbar || appbar.height > 90) {
+          problems.push(`Market Agent app bar wrapped while scaled (height=${appbar?.height.toFixed(1) ?? "missing"}px)`);
+        }
+        const root = rect("[data-qa='qa:page:market-agent']");
+        const main = rect(".main-market-agent");
+        const sidebar = rect(".market-agent-side-nav");
+        const cockpit = rect(".market-agent-cockpit");
+        const kpiGrid = rect(".market-agent-kpi-grid");
+        const panels = rect(".market-agent-cockpit-panels");
+        const footer = rect(".footer-row");
+        if (!root || !main || !sidebar || !cockpit || !kpiGrid || !panels || !footer) {
+          problems.push("scaled Market Agent core regions missing");
+          return problems;
+        }
+        const expectedWidth = 1600 * expectedScale;
+        if (Math.abs(root.width / expectedScale - 1552) > 8) {
+          problems.push(`scaled Market Agent root is not using the fixed design width (${(root.width / expectedScale).toFixed(1)}px)`);
+        }
+        if (app instanceof HTMLElement) {
+          const appBox = app.getBoundingClientRect();
+          if (Math.abs(appBox.width - expectedWidth) > 2 || Math.abs(appBox.height - window.innerHeight) > 2) {
+            problems.push(`scaled Market Agent app shell does not fill viewport height (${appBox.width.toFixed(1)}x${appBox.height.toFixed(1)})`);
+          }
+          const topGap = Math.abs(appBox.y);
+          const centeredX = Math.abs(appBox.x - (window.innerWidth - expectedWidth) / 2);
+          if (centeredX > 2 || topGap > 2) {
+            problems.push(`scaled Market Agent app shell is not horizontally centered and top-aligned (${appBox.x.toFixed(1)}, ${appBox.y.toFixed(1)})`);
+          }
+        }
+        if (root.x < -1 || root.right > window.innerWidth + 2) {
+          problems.push(`scaled Market Agent root escapes viewport (${root.x.toFixed(1)}..${root.right.toFixed(1)})`);
+        }
+        const normalizedSidebarWidth = sidebar.width / (Number.isFinite(viewportScale) && viewportScale > 0 ? viewportScale : 1);
+        if (normalizedSidebarWidth < 170 || normalizedSidebarWidth > 196) {
+          problems.push(`scaled Market Agent sidebar is not proportional (${normalizedSidebarWidth.toFixed(1)}px normalized)`);
+        }
+        if (kpiGrid.right > cockpit.right + 1 || kpiGrid.width > cockpit.width + 1) {
+          problems.push(`scaled Market Agent KPI grid escapes cockpit (${kpiGrid.width.toFixed(1)}px in ${cockpit.width.toFixed(1)}px)`);
+        }
+        if (panels.right > cockpit.right + 1 || panels.width > cockpit.width + 1) {
+          problems.push(`scaled Market Agent panels escape cockpit (${panels.width.toFixed(1)}px in ${cockpit.width.toFixed(1)}px)`);
+        }
+        const kpiWidths = Array.from(document.querySelectorAll(".market-agent-kpi-card")).map((card) =>
+          card instanceof HTMLElement ? card.getBoundingClientRect().width : 0
+        );
+        const normalizedKpiWidths = kpiWidths.map((width) => width / (Number.isFinite(viewportScale) && viewportScale > 0 ? viewportScale : 1));
+        const [price, state, move, evidence, next] = normalizedKpiWidths;
+        if (price < 305 || evidence < 245 || next < 215 || Math.min(state, move) < 215) {
+          problems.push(`scaled Market Agent KPI cards are not preserving design width (${normalizedKpiWidths.map((width) => width.toFixed(1)).join(", ")}px)`);
+        }
+        const normalizedPanelHeight = panels.height / (Number.isFinite(viewportScale) && viewportScale > 0 ? viewportScale : 1);
+        if (normalizedPanelHeight < 500) {
+          problems.push(`scaled Market Agent panels collapsed after normalization (height=${normalizedPanelHeight.toFixed(1)}px)`);
+        }
+        if (panels.bottom > main.bottom + 2) {
+          problems.push(`scaled Market Agent panels overflow main by ${(panels.bottom - main.bottom).toFixed(1)}px`);
+        }
+        if (main.bottom > footer.y - 6) {
+          problems.push(`scaled Market Agent main overlaps footer by ${(main.bottom - footer.y + 6).toFixed(1)}px`);
+        }
+        return problems;
+      });
+      if (scaledLayoutProblems.length) {
+        throw new Error(scaledLayoutProblems.join("; "));
+      }
+      artifacts.push({
+        scenario: "market-agent-scaled",
+        theme: theme.key,
+        state: "1024x720",
+        path: await captureState(page, "market-agent-scaled", theme.key, "1024x720")
+      });
+      await page.setViewportSize({ width: 1280, height: 1180 });
+      await page.waitForTimeout(250);
+      const tallLayoutProblems = await page.evaluate(() => {
+        const problems = [];
+        const track = document.querySelector(".market-agent-replay-panel .market-agent-timeline-track");
+        const rows = Array.from(document.querySelectorAll(".market-agent-replay-panel .market-agent-timeline-track-row"));
+        const footer = document.querySelector(".market-agent-replay-panel .market-agent-panel-link-footer");
+        if (!(track instanceof HTMLElement) || rows.length === 0) {
+          problems.push("tall Market Agent replay track missing");
+          return problems;
+        }
+        const trackBox = track.getBoundingClientRect();
+        const lastRow = rows[rows.length - 1];
+        if (lastRow instanceof HTMLElement) {
+          const lastBox = lastRow.getBoundingClientRect();
+          const trailingSpace = trackBox.bottom - lastBox.bottom;
+          if (trailingSpace < 120) {
+            problems.push(`tall Market Agent replay rail does not extend toward footer (${trailingSpace.toFixed(1)}px)`);
+          }
+        }
+        if (footer instanceof HTMLElement) {
+          const footerGap = footer.getBoundingClientRect().top - trackBox.bottom;
+          if (footerGap > 18) {
+            problems.push(`tall Market Agent replay track stops too far above footer (${footerGap.toFixed(1)}px)`);
+          }
+        } else {
+          problems.push("tall Market Agent replay footer missing");
+        }
+        const timeLabels = rows.map((row) => row.querySelector("time")?.textContent?.trim() || "");
+        const labelsWithDates = timeLabels.filter((label) => /\d{1,2}[/-]\d{1,2}|,/.test(label));
+        if (labelsWithDates.length) {
+          problems.push(`Market Replay still shows date in row time labels (${labelsWithDates.join(", ")})`);
+        }
+        const firstBody = track.querySelector(".market-agent-timeline-body");
+        if (firstBody instanceof HTMLElement && firstBody.getBoundingClientRect().width < 150) {
+          problems.push(`tall Market Agent replay content column too narrow (${firstBody.getBoundingClientRect().width.toFixed(1)}px)`);
+        }
+        const score = document.querySelector(".market-agent-evidence-score");
+        const ring = score?.querySelector(".market-agent-score-ring");
+        const counts = score?.querySelector(".market-agent-evidence-counts");
+        if (ring instanceof HTMLElement && counts instanceof HTMLElement) {
+          const app = document.querySelector("[data-qa='qa:app-shell']");
+          const scale =
+            app instanceof HTMLElement
+              ? Number.parseFloat(window.getComputedStyle(app).zoom || "1")
+              : 1;
+          const normalize = (value) => value / (Number.isFinite(scale) && scale > 0 ? scale : 1);
+          const gap = normalize(counts.getBoundingClientRect().left - ring.getBoundingClientRect().right);
+          const ringWidth = normalize(ring.getBoundingClientRect().width);
+          if (ringWidth < 84) {
+            problems.push(`tall Market Agent Evidence Status ring too small (${ringWidth.toFixed(1)}px normalized)`);
+          }
+          if (gap < 18) {
+            problems.push(`tall Market Agent Evidence Status gap too tight (${gap.toFixed(1)}px normalized)`);
+          }
+        }
+        const latestEvidence = Array.from(document.querySelectorAll(".market-agent-cockpit-panel"))
+          .find((panel) => panel.textContent?.includes("Latest Evidence"));
+        const evidenceFooter = latestEvidence?.querySelector(".market-agent-evidence-footer");
+        if (latestEvidence instanceof HTMLElement && evidenceFooter instanceof HTMLElement) {
+          const panelBottomGap = latestEvidence.getBoundingClientRect().bottom - evidenceFooter.getBoundingClientRect().bottom;
+          if (panelBottomGap > 34) {
+            problems.push(`Latest Evidence footer is not bottom-aligned (${panelBottomGap.toFixed(1)}px gap)`);
+          }
+        } else {
+          problems.push("Latest Evidence footer missing in tall layout");
+        }
+        const footerNodes = [
+          ["Market Replay", footer],
+          ["Latest Evidence", evidenceFooter]
+        ];
+        if (document.querySelector(".market-agent-attention-footer")) {
+          problems.push("Driver Attention still renders the old bottom meter footer in tall layout");
+        }
+        const missingFooters = footerNodes
+          .filter(([, node]) => !(node instanceof HTMLElement))
+          .map(([label]) => label);
+        if (missingFooters.length) {
+          problems.push(`Market Agent cockpit footers missing (${missingFooters.join(", ")})`);
+        } else {
+          const footerBoxes = footerNodes.map(([label, node]) => {
+            const box = node.getBoundingClientRect();
+            return { label, top: box.top, bottom: box.bottom, height: box.height };
+          });
+          const topSpread = Math.max(...footerBoxes.map((box) => box.top)) - Math.min(...footerBoxes.map((box) => box.top));
+          const heightSpread = Math.max(...footerBoxes.map((box) => box.height)) - Math.min(...footerBoxes.map((box) => box.height));
+          const bottomSpread = Math.max(...footerBoxes.map((box) => box.bottom)) - Math.min(...footerBoxes.map((box) => box.bottom));
+          if (topSpread > 2) {
+            problems.push(`Market Agent cockpit footer top edges are misaligned (${topSpread.toFixed(1)}px spread)`);
+          }
+          if (heightSpread > 2) {
+            problems.push(`Market Agent cockpit footer heights differ (${heightSpread.toFixed(1)}px spread)`);
+          }
+          if (bottomSpread > 2) {
+            problems.push(`Market Agent cockpit footer bottom edges are misaligned (${bottomSpread.toFixed(1)}px spread)`);
+          }
+        }
+        return problems;
+      });
+      if (tallLayoutProblems.length) {
+        throw new Error(tallLayoutProblems.join("; "));
+      }
+      artifacts.push({
+        scenario: "market-agent-tall",
+        theme: theme.key,
+        state: "1280x1180",
+        path: await captureState(page, "market-agent-tall", theme.key, "1280x1180")
+      });
+      await page.setViewportSize(originalViewport);
+      await page.waitForTimeout(150);
       await page.getByRole("button", { name: "Data Sources", exact: true }).click();
       const providerConfig = page.locator("[data-qa='qa:market-agent:provider-config']").first();
       if (!(await providerConfig.count())) {
@@ -2560,6 +3840,36 @@ const main = async () => {
       if (staleProviderLabels.length) {
         throw new Error(`stale provider configuration labels still visible: ${staleProviderLabels.join(", ")}`);
       }
+      const providerConfigProblems = await providerConfig.evaluate((root) => {
+        const problems = [];
+        const stepper = root.querySelector(".market-agent-setup-stepper");
+        const buttons = Array.from(stepper?.querySelectorAll("button") ?? []);
+        const indices = buttons.map((button) => button.querySelector(".market-agent-step-index")?.textContent?.trim() || "");
+        if (indices.slice(0, 4).join(",") !== "1,2,3,4") {
+          problems.push(`Data Sources setup step numbers missing or out of order (${indices.join(",") || "none"})`);
+        }
+        if (buttons.some((button) => !button.querySelector(".market-agent-step-index"))) {
+          problems.push("Data Sources setup stepper has buttons without number badges");
+        }
+        const checklistCards = Array.from(root.querySelectorAll(".market-agent-setup-checklist > div"));
+        if (checklistCards.length !== 7) {
+          problems.push(`Data Sources setup checklist should show 7 status cards (${checklistCards.length})`);
+        } else {
+          const cardBoxes = checklistCards.map((card) => card.getBoundingClientRect());
+          const topSpread = Math.max(...cardBoxes.map((box) => box.top)) - Math.min(...cardBoxes.map((box) => box.top));
+          const widthSpread = Math.max(...cardBoxes.map((box) => box.width)) - Math.min(...cardBoxes.map((box) => box.width));
+          if (topSpread > 1.5) {
+            problems.push(`Data Sources setup checklist wraps instead of staying on one desktop row (${topSpread.toFixed(1)}px top spread)`);
+          }
+          if (widthSpread > 1.5) {
+            problems.push(`Data Sources setup checklist cards are not equal width (${widthSpread.toFixed(1)}px spread)`);
+          }
+        }
+        return problems;
+      });
+      if (providerConfigProblems.length) {
+        throw new Error(providerConfigProblems.join("; "));
+      }
       await providerConfig.scrollIntoViewIfNeeded();
       await page.evaluate(() => window.scrollBy(0, -96));
       await page.waitForTimeout(100);
@@ -2570,6 +3880,65 @@ const main = async () => {
         path: await captureState(page, "market-agent-provider-config", theme.key, "visible", {
           element: providerConfig
         })
+      });
+      await page.locator("[data-market-agent-section='alerts']").first().click();
+      await page.locator("[data-qa='qa:market-agent:alerts-list']").first().waitFor({ state: "visible", timeout: 4000 });
+      await page.waitForFunction(
+        () => !document.querySelector("[data-market-agent-section='alerts'] .market-agent-nav-badge"),
+        null,
+        { timeout: 2000 }
+      );
+      const alertsLayoutProblems = await page.evaluate(() => {
+        const problems = [];
+        const list = document.querySelector("[data-qa='qa:market-agent:alerts-list']");
+        if (!(list instanceof HTMLElement)) {
+          problems.push("Market Agent Alerts list missing");
+          return problems;
+        }
+        const cards = Array.from(list.querySelectorAll(".market-agent-alert-card"));
+        if (cards.length < 2) {
+          problems.push(`Market Agent Alerts page is too sparse (${cards.length} cards)`);
+        }
+        if (list.querySelector(".market-agent-evidence-mini-row")) {
+          problems.push("Market Agent Alerts page still uses the dense evidence mini-row layout");
+        }
+        cards.forEach((card, index) => {
+          if (!(card instanceof HTMLElement)) return;
+          const number = card.querySelector(".market-agent-alert-index");
+          const title = card.querySelector(".market-agent-alert-title-row strong");
+          const badge = card.querySelector(".market-agent-status-badge");
+          const time = card.querySelector(".market-agent-alert-time");
+          if (!(number instanceof HTMLElement) || !/^\d+$/.test((number.textContent || "").trim())) {
+            problems.push(`Market Agent alert row ${index + 1} missing number marker`);
+          }
+          if (!(title instanceof HTMLElement) || !(badge instanceof HTMLElement) || !(time instanceof HTMLElement)) {
+            problems.push(`Market Agent alert row ${index + 1} missing title, badge, or time`);
+            return;
+          }
+          const timeText = (time.textContent || "").trim();
+          if (!/^\d{2}-\d{2}\s+\d{2}:\d{2}$/.test(timeText)) {
+            problems.push(`Market Agent alert row ${index + 1} time is not day-month order (${timeText})`);
+          }
+          const titleBox = title.getBoundingClientRect();
+          const badgeBox = badge.getBoundingClientRect();
+          const timeBox = time.getBoundingClientRect();
+          if (titleBox.right > badgeBox.left - 4 && titleBox.top < badgeBox.bottom && titleBox.bottom > badgeBox.top) {
+            problems.push(`Market Agent alert row ${index + 1} title overlaps badge`);
+          }
+          if (badgeBox.right > timeBox.left - 6 && badgeBox.top < timeBox.bottom && badgeBox.bottom > timeBox.top) {
+            problems.push(`Market Agent alert row ${index + 1} badge overlaps time`);
+          }
+        });
+        return problems;
+      });
+      if (alertsLayoutProblems.length) {
+        throw new Error(alertsLayoutProblems.join("; "));
+      }
+      artifacts.push({
+        scenario: "market-agent-alerts",
+        theme: theme.key,
+        state: "open",
+        path: await captureState(page, "market-agent-alerts", theme.key, "open")
       });
       await page.locator("[data-qa='qa:action:view-calendar']").first().click();
       await page.locator("[data-qa='qa:card:next-events']").first().waitFor({ state: "visible", timeout: 4000 });
@@ -2748,17 +4117,22 @@ const main = async () => {
         await page.setViewportSize(size);
         await page.waitForTimeout(80);
         const { ok, reason } = await page.evaluate(() => {
+          const app = document.querySelector("[data-qa='qa:app-shell']");
           const footerEl = document.querySelector(".footer-row");
-          if (!(footerEl instanceof HTMLElement)) return { ok: false, reason: "footer missing" };
+          if (!(app instanceof HTMLElement) || !(footerEl instanceof HTMLElement)) {
+            return { ok: false, reason: "app shell or footer missing" };
+          }
+          const scale = Number.parseFloat(window.getComputedStyle(app).zoom || "1");
           const rect = footerEl.getBoundingClientRect();
           const viewportH = window.innerHeight;
-          // CSS anchors footer to bottom: 10px; allow < 1px tolerance for rounding/compositing.
+          // CSS anchors footer to bottom: 10 design px inside the zoomed app shell.
           const bottomOffset = viewportH - (rect.top + rect.height);
-          const delta = Math.abs(bottomOffset - 10);
+          const normalizedOffset = bottomOffset / (Number.isFinite(scale) && scale > 0 ? scale : 1);
+          const delta = Math.abs(normalizedOffset - 10);
           if (delta > 0.9) {
             return {
               ok: false,
-              reason: `footer bottom offset drifted (offset=${bottomOffset.toFixed(2)}px, delta=${delta.toFixed(2)}px)`
+              reason: `footer bottom offset drifted (offset=${bottomOffset.toFixed(2)}px, normalized=${normalizedOffset.toFixed(2)}px, delta=${delta.toFixed(2)}px)`
             };
           }
           return { ok: true, reason: "" };
@@ -4737,13 +6111,16 @@ const main = async () => {
     await smallInitOverlay.waitFor({ state: "detached", timeout: 10000 });
     await smallPage.waitForTimeout(300);
     await setTheme(smallPage, theme.mode, theme.scheme);
+    // Small-context screenshots are visual fixtures; wait out any active root
+    // view-transition pseudo layers so light/dark captures show the settled UI.
+    await smallPage.waitForTimeout(1150);
     const smallSettingsTrigger = smallPage
       .locator("[data-qa*='qa:modal-trigger:settings']")
       .first();
     await smallSettingsTrigger.click();
     const smallSettingsModal = smallPage.locator("[data-qa*='qa:modal:settings']").first();
     await smallSettingsModal.waitFor({ state: "visible", timeout: 4000 });
-    await smallPage.waitForTimeout(160);
+    await smallPage.waitForTimeout(1250);
     artifacts.push({
       scenario: "settings",
       theme: theme.key,

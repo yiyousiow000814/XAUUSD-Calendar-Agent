@@ -826,14 +826,16 @@ export function MarketAgentProviderConfig({
           </section>
           <div className="market-agent-setup-body">
             <nav className="market-agent-setup-stepper" aria-label="Data source setup steps">
-              {steps.map((step) => (
+              {steps.map((step, index) => (
                 <button
                   type="button"
                   key={step.id}
+                  aria-label={step.label}
                   aria-pressed={activeStep === step.id}
                   className={activeStep === step.id ? "active" : ""}
                   onClick={() => selectStep(step.id)}
                 >
+                  <span className="market-agent-step-index" aria-hidden="true">{index + 1}</span>
                   <strong>{step.label}</strong>
                 </button>
               ))}
