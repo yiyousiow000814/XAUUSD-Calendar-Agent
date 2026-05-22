@@ -51,6 +51,13 @@ type MarketAgentProviderConfigProps = {
 type SetupStep = "ctrader" | "llm" | "telegram" | "monitoring";
 type LocalAIMode = "auto" | "balanced" | "lightweight" | "off";
 
+const formatLocalModelName = (model?: string | null) => {
+  if (!model) return "";
+  const match = model.match(/^(qwen\d+(?:\.\d+)?):(.+)$/i);
+  if (!match) return model;
+  return `${match[1].replace(/^qwen/i, "Qwen")} ${match[2].toUpperCase()}`;
+};
+
 const emptyForm: MarketAgentProviderConfigInput = {
   enabled: false,
   environment: "demo",
@@ -185,51 +192,6 @@ export function MarketAgentProviderConfig({
     if (data.ctrader?.enabled) return "good";
     return "warn";
   }, [data]);
-
-  const setupComplete = Boolean(
-    data?.ctrader?.enabled || telegramData?.telegram?.enabled || llmData?.llm?.enabled || monitorStatus?.running
-  );
-
-  const nextSetupStep = (() => {
-    if (!data?.ctrader?.enabled) {
-      return {
-        label: "cTrader connection needed",
-        description: "Add the cTrader login used for live XAUUSD. Market context, calendar checks, and missing history run in the background.",
-        action: "Open cTrader setup",
-        step: "ctrader" as SetupStep
-      };
-    }
-    if (localSetup?.status === "model_missing") {
-      return {
-        label: "Local AI model missing",
-        description: "Rule-based evidence is already active. Download the recommended local model only if you want AI explanations.",
-        action: "Enable Local AI",
-        step: "llm" as SetupStep
-      };
-    }
-    if (!telegramData?.telegram?.enabled) {
-      return {
-        label: "Telegram is optional",
-        description: "Monitoring can run without Telegram. Enable it only if you want alerts sent out of the app.",
-        action: "Enable Telegram",
-        step: "telegram" as SetupStep
-      };
-    }
-    if (!monitorStatus?.running) {
-      return {
-        label: "Ready to monitor",
-        description: "Live price, market context, and evidence checks are ready. Start the loop when you want continuous monitoring.",
-        action: "Start Monitoring",
-        step: "monitoring" as SetupStep
-      };
-    }
-    return {
-      label: "Monitoring is running",
-      description: "The agent is watching live XAUUSD and related evidence. You can adjust alerts or Local AI any time.",
-      action: "View Monitoring",
-      step: "monitoring" as SetupStep
-    };
-  })();
 
   const setupActions: Array<{ id: SetupStep; label: string; detail: string; status: string }> = [
     {
@@ -438,6 +400,7 @@ export function MarketAgentProviderConfig({
       const ollama = localSetup?.ollama;
       const pullProgress = localAiPullProgress;
       const selectedModel = selectedLocalAIModel();
+      const selectedModelLabel = formatLocalModelName(selectedModel);
       const isDownloadingModel = Boolean(pullProgress && !pullProgress.done && !pullProgress.error);
       const selectedModelInstalled = isLocalModelInstalled(selectedModel);
       const isModelReady = localSetup?.status === "model_ready" || selectedModelInstalled;
@@ -453,20 +416,20 @@ export function MarketAgentProviderConfig({
         {
           mode: "auto",
           label: "Auto",
-          detail: `Recommended for this machine: ${recommended?.name || "qwen3.5:4b"}.`,
+          detail: `Recommended for this machine: ${formatLocalModelName(recommended?.name || "qwen3.5:4b")}.`,
           badge: recommended?.diskLabel || "Recommended",
           model: recommended?.name || "qwen3.5:4b"
         },
         {
           mode: "balanced",
-          label: "Balanced",
+          label: "Qwen3.5 4B",
           detail: "Best choice for most desktops. Uses the larger local model for fast JSON.",
           badge: "~2.9 GB",
           model: "qwen3.5:4b"
         },
         {
           mode: "lightweight",
-          label: "Lightweight",
+          label: "Qwen3.5 0.8B",
           detail: "Smaller download for laptops or CPU-only machines.",
           badge: "~650 MB",
           model: "qwen3.5:0.8b"
@@ -507,7 +470,7 @@ export function MarketAgentProviderConfig({
                   <div className="market-agent-ai-summary-row">
                     <div>
                       <span>Selected model</span>
-                      <strong>{localAIMode === "off" ? "Rule-based only" : selectedModel}</strong>
+                      <strong>{localAIMode === "off" ? "Rule-based only" : selectedModelLabel}</strong>
                       <p>{localAIMode === "auto" ? recommended?.reason || selectedOption.detail : selectedOption.detail}</p>
                     </div>
                     <div className="market-agent-ai-summary-action">
@@ -525,7 +488,7 @@ export function MarketAgentProviderConfig({
                           onClick={() => void installSelectedModel()}
                         >
                           {isDownloadingModel
-                            ? `Downloading ${pullProgress?.model || selectedModel}`
+                            ? `Downloading ${formatLocalModelName(pullProgress?.model || selectedModel)}`
                             : localAIMode === "auto"
                               ? "Download recommended"
                               : "Download model"}
@@ -604,7 +567,7 @@ export function MarketAgentProviderConfig({
                     ? `Installed locally: ${installedLocalAIModels.map((option) => option.label).join(", ")}.`
                     : localAIMode === "off"
                       ? "Local AI is disabled. The rule-based engine still runs."
-                      : "No qwen3.5 model is installed locally yet."}
+                      : "No Qwen3.5 model is installed locally yet."}
                 </p>
               </div>
               {llmResult || localAIResult ? (
@@ -814,18 +777,6 @@ export function MarketAgentProviderConfig({
         <div className="market-agent-empty-state">{data?.message || "Provider configuration is unavailable."}</div>
       ) : (
         <div className="market-agent-setup-flow">
-          <section className="market-agent-setup-status-card">
-            <div>
-              <span className="market-agent-setup-status-eyebrow">{setupComplete ? "Setup status" : "Next step"}</span>
-              <h3>{nextSetupStep.label}</h3>
-              <p>{nextSetupStep.description}</p>
-            </div>
-            <div className="market-agent-setup-status-actions">
-              <button type="button" className="btn primary btn-compact" onClick={() => selectStep(nextSetupStep.step)}>
-                {nextSetupStep.action}
-              </button>
-            </div>
-          </section>
           <div className="market-agent-setup-body">
             <nav className="market-agent-setup-tabs" aria-label="Data source setup actions">
               {setupActions.map((step) => (

@@ -236,8 +236,10 @@ describe("Market Agent view switch", () => {
     });
 
     fireEvent.click(screen.getByRole("button", { name: /^Provider Health$/i }));
-    expect(screen.getByRole("heading", { name: "Data Quality" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "XAUUSD (Spot)" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Provider Health" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "cTrader" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Market context" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "DXY" })).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
     expect(screen.getByRole("heading", { name: "Data Sources" })).toBeInTheDocument();

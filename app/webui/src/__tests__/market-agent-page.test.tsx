@@ -945,7 +945,7 @@ describe("MarketAgentPage", () => {
 
     fireEvent.click(screen.getByRole("navigation", { name: /Market Agent sections/i }).querySelectorAll("button")[5]);
     expect(screen.getByRole("heading", { name: /^Data Sources$/i })).toBeInTheDocument();
-    expect(screen.getByText(/Add the cTrader login used for live XAUUSD/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Add the cTrader login used for live XAUUSD/i)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^cTrader$/i })).toHaveAttribute("aria-pressed", "true");
     const actions = screen.getByRole("navigation", { name: /Data source setup actions/i });
     expect(within(actions).getByRole("button", { name: /^cTrader$/i })).toBeInTheDocument();
@@ -979,10 +979,9 @@ describe("MarketAgentPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
 
-    const setupCard = screen.getByText(/Add the cTrader login used for live XAUUSD/i).closest("section") as HTMLElement;
-    expect(within(setupCard).getByText(/^Next step$/i)).toBeInTheDocument();
-    expect(within(setupCard).getByRole("heading", { name: /^cTrader connection needed$/i })).toBeInTheDocument();
-    expect(within(setupCard).getByRole("button", { name: /^Open cTrader setup$/i })).toBeInTheDocument();
+    expect(screen.queryByText(/^Next step$/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /^cTrader connection needed$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^Open cTrader setup$/i })).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /^cTrader$/i }));
     expect(screen.getByRole("heading", { name: /^Connect cTrader$/i })).toBeInTheDocument();
@@ -1019,8 +1018,8 @@ describe("MarketAgentPage", () => {
     expect(screen.getByRole("heading", { name: /^Auto Local AI$/i })).toBeInTheDocument();
     expect(screen.getByText(/Rule-based active/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Auto$/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^Balanced$/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^Lightweight$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Qwen3\.5 4B$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Qwen3\.5 0\.8B$/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Rule-based only$/i })).toBeInTheDocument();
     expect(screen.getAllByText(/~2\.9 GB/i).length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: /Download recommended/i })).toBeInTheDocument();
@@ -1074,7 +1073,7 @@ describe("MarketAgentPage", () => {
     expect(screen.getAllByText(/Downloading model/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/1450000000 \/ 2900000000 bytes/i)).toBeInTheDocument();
     expect(screen.getByText(/50\.0%/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Downloading qwen3\.5:4b/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Downloading Qwen3\.5 4B/i })).toBeDisabled();
     expect(screen.getByRole("button", { name: /Cancel download/i })).toBeInTheDocument();
   });
 
@@ -1258,7 +1257,7 @@ describe("MarketAgentPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
     expect(screen.getByRole("heading", { name: /^Data Sources$/i })).toBeInTheDocument();
-    expect(screen.getByText(/Add the cTrader login used for live XAUUSD/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Add the cTrader login used for live XAUUSD/i)).not.toBeInTheDocument();
     const dataSourceActions = screen.getByRole("navigation", { name: /Data source setup actions/i });
     expect(within(dataSourceActions).getByRole("button", { name: /^cTrader$/i })).toBeInTheDocument();
     expect(within(dataSourceActions).getByRole("button", { name: /^Local AI$/i })).toBeInTheDocument();
@@ -1306,8 +1305,8 @@ describe("MarketAgentPage", () => {
     expect(screen.getByText(/Optional local model/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Rule-based/i).length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: /^Auto$/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^Balanced$/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^Lightweight$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Qwen3\.5 4B$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Qwen3\.5 0\.8B$/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Rule-based only$/i })).toBeInTheDocument();
     expect(screen.queryByLabelText(/Endpoint/i)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Download recommended/i })).toBeInTheDocument();

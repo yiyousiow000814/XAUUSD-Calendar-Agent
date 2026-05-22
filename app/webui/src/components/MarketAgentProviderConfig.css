@@ -17,63 +17,17 @@
   min-height: 0;
 }
 
-.market-agent-setup-status-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 16px;
-  padding: 16px 18px;
-  border-radius: 8px;
-  border: 1px solid rgba(134, 148, 168, 0.16);
-  background: rgba(255, 255, 255, 0.025);
-}
-
-.market-agent-setup-status-card h3,
 .market-agent-setup-panel h3 {
   margin: 0;
   font-size: 15px;
   line-height: 1.2;
 }
 
-.market-agent-setup-status-card p,
 .market-agent-setup-panel p {
   margin: 5px 0 0;
   color: var(--text-secondary, #9aa4b2);
   line-height: 1.32;
   font-size: 13px;
-}
-
-.market-agent-setup-status-eyebrow {
-  display: block;
-  margin-bottom: 8px;
-  color: #ffbd56;
-  font-size: 10.5px;
-  font-weight: 750;
-  letter-spacing: 0.08em;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.market-agent-setup-status-card h3 {
-  font-size: 18px;
-}
-
-.market-agent-setup-status-card p {
-  max-width: 720px;
-  font-size: 14px;
-  line-height: 1.42;
-}
-
-.market-agent-setup-status-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-.market-agent-setup-status-actions .btn {
-  min-width: 160px;
-  min-height: 40px;
-  border-radius: 10px;
 }
 
 .market-agent-setup-body {
@@ -1435,11 +1389,6 @@
   font-size: 13px;
 }
 
-[data-theme="light"] .market-agent-setup-status-card {
-  border-color: rgba(35, 43, 55, 0.12);
-  background: rgba(255, 255, 255, 0.58);
-}
-
 [data-theme="light"] .market-agent-setup-panel,
 [data-theme="light"] .market-agent-setup-tabs button,
 [data-theme="light"] .market-agent-advanced-settings,
@@ -1550,7 +1499,6 @@
 }
 
 @media (max-width: 1100px) {
-  .market-agent-setup-status-card,
   .market-agent-setup-body {
     grid-template-columns: 1fr;
   }

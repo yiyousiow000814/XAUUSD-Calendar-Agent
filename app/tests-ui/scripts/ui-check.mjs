@@ -3984,21 +3984,8 @@ const main = async () => {
           problems.push(`Data Sources setup should expose 4 user actions, found ${buttons.length}`);
         }
         const statusCard = root.querySelector(".market-agent-setup-status-card");
-        const statusAction = statusCard?.querySelector(".market-agent-setup-status-actions .btn");
-        const statusText = statusCard instanceof HTMLElement ? statusCard.innerText || statusCard.textContent || "" : "";
-        if (!statusCard) {
-          problems.push("Data Sources setup status banner is missing");
-        } else {
-          const box = statusCard.getBoundingClientRect();
-          if (box.height > 140) {
-            problems.push(`Data Sources setup status banner is too tall (${box.height.toFixed(1)}px)`);
-          }
-          if (!/Next step|Setup status/i.test(statusText)) {
-            problems.push("Data Sources setup status banner does not expose a simple status label");
-          }
-          if (!statusAction) {
-            problems.push("Data Sources setup status banner is missing its primary action");
-          }
+        if (statusCard) {
+          problems.push("Data Sources setup still shows the removed setup status banner");
         }
         return problems;
       });
@@ -4073,7 +4060,7 @@ const main = async () => {
       const localAIProblems = await providerConfig.evaluate((root) => {
         const text = root instanceof HTMLElement ? root.innerText || root.textContent || "" : "";
         const problems = [];
-        for (const label of ["Auto", "Balanced", "Lightweight", "Rule-based only"]) {
+        for (const label of ["Auto", "Qwen3.5 4B", "Qwen3.5 0.8B", "Rule-based only"]) {
           if (!text.includes(label)) {
             problems.push(`Auto Local AI is missing ${label}`);
           }
