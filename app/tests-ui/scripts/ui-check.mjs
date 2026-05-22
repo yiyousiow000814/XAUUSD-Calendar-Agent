@@ -3970,6 +3970,59 @@ const main = async () => {
         state: "open",
         path: await captureState(page, "market-agent-driver-focus", theme.key, "open")
       });
+      await page.getByRole("button", { name: "Evidence", exact: true }).click();
+      await page.locator("[data-qa='qa:market-agent:evidence-panel']").first().waitFor({ state: "visible", timeout: 4000 });
+      const evidenceChainProblems = await page.evaluate(() => {
+        const problems = [];
+        const root = document.querySelector("[data-qa='qa:market-agent:evidence-panel']");
+        if (!(root instanceof HTMLElement)) {
+          problems.push("Evidence panel missing");
+          return problems;
+        }
+        const chain = root.querySelector(".market-agent-evidence-chain");
+        const decision = root.querySelector(".market-agent-evidence-chain-step.decision");
+        const arrows = root.querySelectorAll(".market-agent-evidence-chain-arrow");
+        const branches = root.querySelector(".market-agent-evidence-branches");
+        if (!(chain instanceof HTMLElement) || !(decision instanceof HTMLElement) || arrows.length < 2 || !(branches instanceof HTMLElement)) {
+          problems.push("Evidence panel should show a relationship chain with decision and caveat branches");
+        }
+        if (root.querySelector(".market-agent-evidence-explain-grid") || root.querySelector(".market-agent-evidence-card")) {
+          problems.push("Evidence panel still uses competing summary cards");
+        }
+        const requiredLabels = [
+          [".market-agent-evidence-chain-step.support .market-agent-evidence-step-label", "Support"],
+          [".market-agent-evidence-chain-step.decision .market-agent-evidence-step-label", "Accepted Driver"],
+          [".market-agent-evidence-chain-step.outcome .market-agent-evidence-step-label", "Run Decision"],
+          [".market-agent-evidence-branch.rejected > span", "Rejected"],
+          [".market-agent-evidence-branch.quality > span", "Data Quality"]
+        ];
+        for (const [selector, label] of requiredLabels) {
+          const node = root.querySelector(selector);
+          const text = node instanceof HTMLElement ? (node.textContent || "").trim() : "";
+          if (text !== label) {
+            problems.push(`Evidence relationship chain missing ${label}`);
+          }
+        }
+        const decisionBox = decision instanceof HTMLElement ? decision.getBoundingClientRect() : null;
+        const chainBox = chain instanceof HTMLElement ? chain.getBoundingClientRect() : null;
+        if (decisionBox && chainBox && window.innerWidth >= 980) {
+          const chainCenter = chainBox.left + chainBox.width / 2;
+          const decisionCenter = decisionBox.left + decisionBox.width / 2;
+          if (Math.abs(chainCenter - decisionCenter) > chainBox.width * 0.14) {
+            problems.push("Evidence accepted-driver node is not visually centered in the relationship chain");
+          }
+        }
+        return problems;
+      });
+      if (evidenceChainProblems.length) {
+        throw new Error(evidenceChainProblems.join("; "));
+      }
+      artifacts.push({
+        scenario: "market-agent-evidence-chain",
+        theme: theme.key,
+        state: "open",
+        path: await captureState(page, "market-agent-evidence-chain", theme.key, "open")
+      });
       await page.getByRole("button", { name: "Data Sources", exact: true }).click();
       const providerConfig = page.locator("[data-qa='qa:market-agent:provider-config']").first();
       if (!(await providerConfig.count())) {

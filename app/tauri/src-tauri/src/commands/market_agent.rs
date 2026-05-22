@@ -94,14 +94,17 @@ fn mask_secret(value: &str) -> String {
     if trimmed.is_empty() {
         return String::new();
     }
-    if trimmed.len() <= 4 {
-        return "*".repeat(trimmed.len());
+    let chars: Vec<char> = trimmed.chars().collect();
+    if chars.len() <= 4 {
+        return "*".repeat(chars.len());
     }
+    let prefix: String = chars.iter().take(2).collect();
+    let suffix: String = chars.iter().skip(chars.len().saturating_sub(2)).collect();
     format!(
         "{}{}{}",
-        &trimmed[..2],
-        "*".repeat(std::cmp::max(4, trimmed.len().saturating_sub(4))),
-        &trimmed[trimmed.len() - 2..]
+        prefix,
+        "*".repeat(std::cmp::max(4, chars.len().saturating_sub(4))),
+        suffix
     )
 }
 
@@ -121,6 +124,21 @@ fn merged_ctrader_provider_config(root: &Path, override_payload: Option<&Value>)
             .or_else(|| config_payload.get(key).and_then(Value::as_str))
             .unwrap_or("")
             .trim()
+            .to_string()
+    };
+    let get_secret_str = |key: &str| -> String {
+        input
+            .get(key)
+            .and_then(Value::as_str)
+            .map(str::trim)
+            .filter(|value| !value.is_empty())
+            .or_else(|| {
+                config_payload
+                    .get(key)
+                    .and_then(Value::as_str)
+                    .map(str::trim)
+            })
+            .unwrap_or("")
             .to_string()
     };
     let get_bool = |key: &str, fallback: bool| -> bool {
@@ -169,8 +187,8 @@ fn merged_ctrader_provider_config(root: &Path, override_payload: Option<&Value>)
     json!({
         "enabled": get_bool("enabled", false),
         "accountId": get_str("accountId"),
-        "ctid": get_str("ctid"),
-        "password": get_str("password"),
+        "ctid": get_secret_str("ctid"),
+        "password": get_secret_str("password"),
         "environment": environment,
         "symbol": symbol,
         "symbolId": get_i64("symbolId"),
@@ -272,6 +290,21 @@ fn merged_telegram_config_for_root(root: &Path, override_payload: Option<&Value>
             .trim()
             .to_string()
     };
+    let get_secret_str = |key: &str| -> String {
+        input
+            .get(key)
+            .and_then(Value::as_str)
+            .map(str::trim)
+            .filter(|value| !value.is_empty())
+            .or_else(|| {
+                config_payload
+                    .get(key)
+                    .and_then(Value::as_str)
+                    .map(str::trim)
+            })
+            .unwrap_or("")
+            .to_string()
+    };
     let get_bool = |key: &str, fallback: bool| -> bool {
         input
             .get(key)
@@ -292,7 +325,7 @@ fn merged_telegram_config_for_root(root: &Path, override_payload: Option<&Value>
     );
     json!({
         "enabled": get_bool("enabled", false),
-        "botToken": get_str("botToken"),
+        "botToken": get_secret_str("botToken"),
         "chatId": get_str("chatId"),
         "timeoutSeconds": get_i64("timeoutSeconds", 10),
         "levels": levels,
@@ -2823,12 +2856,13 @@ mod tests {
     use super::{
         apply_llm_fallback_policy_for_result, clear_ctrader_provider_config,
         ctrader_config_path_for_root, ctrader_env_for_root, llm_config_path_for_root,
-        llm_env_for_root, masked_ctrader_provider_config, masked_llm_config_for_root,
+        llm_env_for_root, mask_secret, masked_ctrader_provider_config, masked_llm_config_for_root,
         masked_telegram_config_for_root, monitor_status_path_for_root,
-        normalize_pull_progress_line, read_market_agent_replay, read_market_agent_snapshot,
-        read_monitor_status_for_root, recommend_local_model_from_profile,
-        run_backfill_recovery_for_root, save_ctrader_provider_config, save_llm_config_for_root,
-        save_telegram_config_for_root, start_monitor_loop_for_root, stop_monitor_loop_for_root,
+        normalize_pull_progress_line, read_json_object, read_market_agent_replay,
+        read_market_agent_snapshot, read_monitor_status_for_root,
+        recommend_local_model_from_profile, run_backfill_recovery_for_root,
+        save_ctrader_provider_config, save_llm_config_for_root, save_telegram_config_for_root,
+        start_monitor_loop_for_root, stop_monitor_loop_for_root, telegram_config_path_for_root,
         telegram_env_for_root, test_telegram_for_root, timeline_path_for_root,
     };
     use rusqlite::{params, Connection};
@@ -3338,6 +3372,62 @@ mod tests {
     }
 
     #[test]
+    fn masks_non_ascii_secrets_without_byte_boundary_panic() {
+        let masked = mask_secret("密碼🔐abc");
+
+        assert_ne!(masked, "密碼🔐abc");
+        assert!(!masked.contains("密碼🔐abc"));
+        assert!(masked.starts_with("密碼"));
+        assert!(masked.ends_with("bc"));
+    }
+
+    #[test]
+    fn saves_ctrader_config_without_clearing_existing_empty_secrets() {
+        let dir = unique_temp_dir("ctrader-secret-merge");
+        save_ctrader_provider_config(
+            &dir,
+            &json!({
+                "ctrader": {
+                    "enabled": true,
+                    "environment": "demo",
+                    "accountId": "123456",
+                    "ctid": "trader@example.com",
+                    "password": "super-secret-password",
+                    "symbol": "XAUUSD",
+                    "snapshotPath": dir.join("ctrader-last-quote.json").display().to_string(),
+                }
+            }),
+        )
+        .expect("seed config");
+
+        save_ctrader_provider_config(
+            &dir,
+            &json!({
+                "ctrader": {
+                    "enabled": false,
+                    "accountId": "654321",
+                    "ctid": "",
+                    "password": "   "
+                }
+            }),
+        )
+        .expect("save config with empty secrets");
+
+        let raw = read_json_object(&ctrader_config_path_for_root(&dir));
+
+        assert_eq!(raw.get("enabled").and_then(Value::as_bool), Some(false));
+        assert_eq!(raw.get("accountId").and_then(Value::as_str), Some("654321"));
+        assert_eq!(
+            raw.get("ctid").and_then(Value::as_str),
+            Some("trader@example.com")
+        );
+        assert_eq!(
+            raw.get("password").and_then(Value::as_str),
+            Some("super-secret-password")
+        );
+    }
+
+    #[test]
     fn clears_ctrader_provider_config_without_panicking() {
         let dir = unique_temp_dir("ctrader-clear");
         fs::write(
@@ -3419,6 +3509,48 @@ mod tests {
             Some("12*******************en")
         );
         assert!(!read_back.to_string().contains("secret-token"));
+    }
+
+    #[test]
+    fn saves_telegram_config_without_clearing_existing_empty_token() {
+        let dir = unique_temp_dir("telegram-secret-merge");
+        save_telegram_config_for_root(
+            &dir,
+            &json!({
+                "telegram": {
+                    "enabled": true,
+                    "botToken": "1234567890:secret-token",
+                    "chatId": "987654321",
+                    "timeoutSeconds": 12,
+                    "levels": ["level_2", "level_3"]
+                }
+            }),
+        )
+        .expect("seed telegram config");
+
+        save_telegram_config_for_root(
+            &dir,
+            &json!({
+                "telegram": {
+                    "enabled": false,
+                    "botToken": " ",
+                    "chatId": "123",
+                    "timeoutSeconds": 8,
+                    "levels": ["level_3"]
+                }
+            }),
+        )
+        .expect("save telegram config with empty token");
+
+        let raw = read_json_object(&telegram_config_path_for_root(&dir));
+
+        assert_eq!(raw.get("enabled").and_then(Value::as_bool), Some(false));
+        assert_eq!(
+            raw.get("botToken").and_then(Value::as_str),
+            Some("1234567890:secret-token")
+        );
+        assert_eq!(raw.get("chatId").and_then(Value::as_str), Some("123"));
+        assert_eq!(raw.get("timeoutSeconds").and_then(Value::as_i64), Some(8));
     }
 
     #[test]

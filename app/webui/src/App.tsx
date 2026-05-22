@@ -826,18 +826,31 @@ export default function App() {
     async (action: () => Promise<MarketAgentMonitorStatusResponse>) => {
       const result = await withTimeout(action(), 15000, "market-agent-monitor-action");
       setMarketAgentMonitorStatus(result);
-      await Promise.all([
+      const [, providerResult, driverResult, replayResult] = await Promise.all([
         refreshMarketAgentSnapshot(),
         refreshMarketAgentProviderHealth(),
         refreshMarketAgentDriverAttention(),
         refreshMarketAgentReplay(marketAgentRangeStart, marketAgentRangeEnd)
       ]);
+      const preferredRunId =
+        replayResult?.replay.timeline_events[0]?.monitor_run_id ??
+        replayResult?.replay.alerts[0]?.monitor_run_id ??
+        driverResult?.monitor_run_id ??
+        providerResult?.monitor_run_id ??
+        null;
+      if (preferredRunId) {
+        await refreshMarketAgentEvidence(preferredRunId);
+      } else {
+        setMarketAgentEvidence(null);
+        setMarketAgentSelectedRunId(null);
+      }
       return result;
     },
     [
       marketAgentRangeEnd,
       marketAgentRangeStart,
       refreshMarketAgentDriverAttention,
+      refreshMarketAgentEvidence,
       refreshMarketAgentProviderHealth,
       refreshMarketAgentReplay,
       refreshMarketAgentSnapshot,

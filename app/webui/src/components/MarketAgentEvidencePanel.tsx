@@ -72,18 +72,18 @@ const renderBadgeList = (label: string, values: unknown[] | null | undefined, em
   </div>
 );
 
-const renderCompactRows = (items: EvidenceEntry[], emptyLabel: string, limit?: number) => {
+const renderInlineEvidence = (items: EvidenceEntry[], emptyLabel: string, limit?: number) => {
   const visible = typeof limit === "number" ? items.slice(0, limit) : items;
   if (visible.length === 0) {
-    return <div className="market-agent-empty-state">{emptyLabel}</div>;
+    return <span className="market-agent-evidence-muted">{emptyLabel}</span>;
   }
   return (
-    <div className="market-agent-evidence-compact-list">
+    <div className="market-agent-evidence-inline-list">
       {visible.map(([key, value]) => (
-        <div className="market-agent-evidence-compact-row" key={key}>
+        <span className="market-agent-evidence-inline-item" key={key}>
           <span>{formatDriverLabel(key, humanizeMarketAgentValue(key))}</span>
           <strong>{formatCompactValue(value)}</strong>
-        </div>
+        </span>
       ))}
     </div>
   );
@@ -120,6 +120,13 @@ export function MarketAgentEvidencePanel({ data }: MarketAgentEvidencePanelProps
       String(value ?? "").toLowerCase().includes("confirm")
     )
   );
+  const caveatCount = blockedEntries.length + providerIssues.length;
+  const activeDriverLabels = activeDriverStates.slice(0, 6).map((item, index) => ({
+    key: `${formatValue(item.driver_id, "driver")}-${index}`,
+    label: formatDriverLabel(item.driver_id ?? `driver ${index + 1}`),
+    state: formatValue(item.current_state, "unknown"),
+    tone: statusTone(item.current_state)
+  }));
 
   return (
     <section className="market-agent-surface market-agent-evidence-panel" data-qa="qa:market-agent:evidence-panel">
@@ -134,92 +141,76 @@ export function MarketAgentEvidencePanel({ data }: MarketAgentEvidencePanelProps
         <div className="market-agent-empty-state">{data?.message || "Evidence payload is unavailable."}</div>
       ) : (
         <div className="market-agent-evidence-layout">
-          <section className="market-agent-evidence-hero" aria-label="Evidence decision">
-            <div className="market-agent-evidence-decision">
-              <span>Accepted driver</span>
+          <section className="market-agent-evidence-chain" aria-label="Evidence relationship chain">
+            <div className="market-agent-evidence-chain-step support">
+              <span className="market-agent-evidence-step-label">Support</span>
+              <strong>{supportingEvidence.length ? `${supportingEvidence.length} confirming checks` : "No confirming checks"}</strong>
+              {renderInlineEvidence(supportingEvidence, "No confirming cross-asset evidence recorded.", 3)}
+              <div className="market-agent-evidence-allowed-row">
+                <span>Allowed drivers</span>
+                {renderBadgeList("Allowed drivers", allowedDrivers, "None")}
+              </div>
+            </div>
+
+            <div className="market-agent-evidence-chain-arrow" aria-hidden="true" />
+
+            <div className="market-agent-evidence-chain-step decision">
+              <span className="market-agent-evidence-step-label">Accepted Driver</span>
               <strong>{mainDriver}</strong>
-              <p>
-                {supportingEvidence.length
-                  ? `${supportingEvidence.length} confirming evidence checks support this run.`
-                  : "No confirming evidence check was stored for this run."}
-              </p>
               <div className="market-agent-evidence-badge-list">
                 <MarketAgentStatusBadge label={causeStatus} tone={statusTone(causeStatus)} />
                 <MarketAgentStatusBadge label={confidence} tone="info" />
               </div>
             </div>
-            <div className="market-agent-evidence-rejection">
-              <span>Rejected explanation</span>
-              <strong>{rejectedDriver}</strong>
-              <p>{rejectionReason}</p>
-              <div className="market-agent-evidence-badge-list">
-                <MarketAgentStatusBadge label={`${blockedEntries.length} blocked`} tone={blockedEntries.length ? "bad" : "good"} />
-                <MarketAgentStatusBadge label={`${providerIssues.length} provider issue${providerIssues.length === 1 ? "" : "s"}`} tone={providerIssues.length ? "warn" : "good"} />
-              </div>
+
+            <div className="market-agent-evidence-chain-arrow" aria-hidden="true" />
+
+            <div className="market-agent-evidence-chain-step outcome">
+              <span className="market-agent-evidence-step-label">Run Decision</span>
+              <strong>Use {mainDriver}</strong>
+              <p>
+                {caveatCount
+                  ? `${caveatCount} caveat${caveatCount === 1 ? "" : "s"} checked before accepting this explanation.`
+                  : "No blocking caveats recorded."}
+              </p>
             </div>
           </section>
 
-          <section className="market-agent-evidence-explain-grid" aria-label="Evidence summary">
-            <article className="market-agent-evidence-card">
-              <div className="market-agent-evidence-card-title">
-                <span>Allowed drivers</span>
-                <strong>{allowedDrivers.length}</strong>
-              </div>
-              {renderBadgeList("Allowed drivers", allowedDrivers, "No allowed drivers passed this run.")}
-              {renderCompactRows(supportingEvidence, "No confirming cross-asset evidence recorded.", 4)}
-            </article>
-
-            <article className="market-agent-evidence-card">
-              <div className="market-agent-evidence-card-title">
-                <span>Blocked candidates</span>
-                <strong>{blockedEntries.length}</strong>
-              </div>
-              {renderCompactRows(blockedEntries, "No blocked driver recorded.", 3)}
-            </article>
-
-            <article className="market-agent-evidence-card">
-              <div className="market-agent-evidence-card-title">
-                <span>Data quality</span>
-                <strong>{providerIssues.length ? `${providerIssues.length} issue${providerIssues.length === 1 ? "" : "s"}` : "OK"}</strong>
-              </div>
+          <section className="market-agent-evidence-branches" aria-label="Evidence caveats">
+            <div className="market-agent-evidence-branch rejected">
+              <span>Rejected</span>
+              <strong>{rejectedDriver}</strong>
+              <p>{rejectionReason}</p>
+              {renderInlineEvidence(blockedEntries, "No blocked driver recorded.", 3)}
+            </div>
+            <div className="market-agent-evidence-branch quality">
+              <span>Data Quality</span>
+              <strong>{providerIssues.length ? `${providerIssues.length} issue${providerIssues.length === 1 ? "" : "s"}` : "OK"}</strong>
               {providerHealth.length ? (
-                <div className="market-agent-evidence-provider-strip">
+                <div className="market-agent-evidence-provider-pills">
                   {providerHealth.slice(0, 4).map((item, index) => (
-                    <div key={`${formatValue(item.provider_key, "provider")}-${index}`}>
-                      <span>{formatValue(item.provider_key, `Provider ${index + 1}`)}</span>
-                      <MarketAgentStatusBadge
-                        label={formatValue(item.is_available ? item.data_mode || "available" : "unavailable")}
-                        tone={isUnavailableProvider(item) ? "bad" : statusTone(item.data_mode)}
-                      />
-                    </div>
+                    <MarketAgentStatusBadge
+                      key={`${formatValue(item.provider_key, "provider")}-${index}`}
+                      label={`${formatValue(item.provider_key, `Provider ${index + 1}`)}: ${formatValue(item.is_available ? item.data_mode || "available" : "unavailable")}`}
+                      tone={isUnavailableProvider(item) ? "bad" : statusTone(item.data_mode)}
+                    />
                   ))}
                 </div>
               ) : (
-                <div className="market-agent-empty-state">No provider-health rows stored for this run.</div>
+                <span className="market-agent-evidence-muted">No provider-health rows stored for this run.</span>
               )}
-            </article>
+            </div>
           </section>
 
-          <section className="market-agent-evidence-context" aria-label="Driver context">
-            <div className="market-agent-evidence-context-copy">
-              <span>Current driver context</span>
-              <strong>{activeDriverStates.length ? `${activeDriverStates.length} drivers still relevant` : "No active driver context"}</strong>
-              <p>Only current active, watching, or emerging drivers are shown here so the page stays focused on the current explanation.</p>
-            </div>
-            <div className="market-agent-evidence-driver-strip">
-              {activeDriverStates.length ? (
-                activeDriverStates.slice(0, 5).map((item, index) => (
-                  <article key={`${formatValue(item.driver_id, "driver")}-${index}`}>
-                    <span>{formatDriverLabel(item.driver_id ?? `driver ${index + 1}`)}</span>
-                    <strong>{formatValue(item.activation_reason, formatValue(item.deactivation_reason, "No state-change note"))}</strong>
-                    <div className="market-agent-evidence-badge-list">
-                      <MarketAgentStatusBadge label={formatValue(item.current_state, "unknown")} tone={statusTone(item.current_state)} />
-                      <MarketAgentStatusBadge label={formatValue(item.confidence, "unknown")} tone="info" />
-                    </div>
-                  </article>
+          <section className="market-agent-evidence-context-line" aria-label="Driver context">
+            <span>Still relevant</span>
+            <div>
+              {activeDriverLabels.length ? (
+                activeDriverLabels.map((item) => (
+                  <MarketAgentStatusBadge key={item.key} label={`${item.label}: ${item.state}`} tone={item.tone} />
                 ))
               ) : (
-                <div className="market-agent-empty-state">No active driver-attention snapshot stored for this run.</div>
+                <span className="market-agent-evidence-muted">No active driver context stored for this run.</span>
               )}
             </div>
           </section>
