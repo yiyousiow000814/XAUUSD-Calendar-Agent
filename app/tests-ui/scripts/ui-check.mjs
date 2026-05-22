@@ -678,13 +678,67 @@ const computeActivityMorphClip = async (page) => {
   const viewport = page.viewportSize();
   if (!viewport) return null;
   const pad = 24;
+  const drawerBottom = 12;
   const drawerWidth = Math.min(420, Math.round(viewport.width * 0.92));
   const drawerHeight = Math.min(Math.round(viewport.height * 0.64), 520);
   const x = Math.max(0, viewport.width - pad - drawerWidth - 16);
-  const y = Math.max(0, viewport.height - pad - drawerHeight - 24);
+  const y = Math.max(0, viewport.height - drawerBottom - drawerHeight - 24);
   const width = Math.max(1, viewport.width - x);
   const height = Math.max(1, viewport.height - y);
   return { x, y, width, height };
+};
+
+const assertActivityDrawerAnchorsToPill = async (page) => {
+  const geometry = await page.evaluate(() => {
+    const rect = (selector) => {
+      const el = document.querySelector(selector);
+      if (!el) return null;
+      const box = el.getBoundingClientRect();
+      return {
+        top: box.top,
+        right: box.right,
+        bottom: box.bottom,
+        left: box.left,
+        width: box.width,
+        height: box.height
+      };
+    };
+    const z = (selector) => {
+      const el = document.querySelector(selector);
+      if (!el) return null;
+      const value = window.getComputedStyle(el).zIndex;
+      const parsed = Number.parseInt(value, 10);
+      return Number.isFinite(parsed) ? parsed : null;
+    };
+    return {
+      drawer: rect("[data-qa='qa:drawer:activity']"),
+      fab: rect("[data-qa='qa:action:activity-fab']"),
+      footer: rect(".footer-row"),
+      backdropZ: z("[data-qa='qa:drawer:activity-backdrop']"),
+      footerZ: z(".footer-row")
+    };
+  });
+
+  if (!geometry.drawer || !geometry.fab) {
+    throw new Error(`Missing activity drawer geometry: ${JSON.stringify(geometry)}`);
+  }
+  const bottomDelta = Math.abs(geometry.drawer.bottom - geometry.fab.bottom);
+  const rightDelta = Math.abs(geometry.drawer.right - geometry.fab.right);
+  if (bottomDelta > 3 || rightDelta > 3) {
+    throw new Error(
+      `Activity drawer not anchored to pill (bottom=${bottomDelta.toFixed(1)} right=${rightDelta.toFixed(1)})`
+    );
+  }
+  if (
+    geometry.footer &&
+    typeof geometry.backdropZ === "number" &&
+    typeof geometry.footerZ === "number" &&
+    geometry.backdropZ <= geometry.footerZ
+  ) {
+    throw new Error(
+      `Activity backdrop should sit above footer (backdropZ=${geometry.backdropZ}, footerZ=${geometry.footerZ})`
+    );
+  }
 };
 
 const assertCenteredInViewport = async (page, selector, label, tolerancePx = 22) => {
@@ -7143,6 +7197,9 @@ const main = async () => {
     }
     const activityDrawer = page.locator("[data-qa='qa:drawer:activity']").first();
     if (await activityDrawer.count()) {
+      await runCheck(theme.key, "Activity drawer anchors to pill", async () => {
+        await assertActivityDrawerAnchorsToPill(page);
+      });
       await runCheck(theme.key, "Activity drawer does not animate only first log on open", async () => {
         const newCount = await page.locator(".log-new").count();
         if (newCount) {
