@@ -46,8 +46,7 @@ type MarketAgentSection =
   | "evidence"
   | "providers"
   | "sources"
-  | "alerts"
-  | "logs";
+  | "alerts";
 
 type MarketAgentPageProps = {
   snapshot: MarketAgentSnapshotResponse | null;
@@ -126,8 +125,7 @@ const sectionGroups: Array<{
   {
     label: "System",
     items: [
-      { id: "alerts", label: "Alerts", icon: "alerts" },
-      { id: "logs", label: "Settings", icon: "settings" }
+      { id: "alerts", label: "Alerts", icon: "alerts" }
     ]
   }
 ];
@@ -354,12 +352,6 @@ const formatStateSinceCompactTime = (value: unknown, fallback = "--") => {
   if (parsed === null) return fallback;
   const date = new Date(parsed);
   return `${padDatePart(date.getDate())}-${padDatePart(date.getMonth() + 1)} ${formatClockTime(value, fallback)}`;
-};
-
-const formatMonitorTime = (value: unknown) => {
-  const parsed = parseTimestampMs(value);
-  if (parsed !== null) return formatShortTime(new Date(parsed).toISOString());
-  return formatShortTime(value);
 };
 
 const formatReplayTime = (value: unknown, fallback = "--") => {
@@ -1542,67 +1534,59 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
     if (section === "alerts") {
       const sentAlerts = replayPayload.alerts;
       const suppressedAlerts = replayPayload.suppressed_alerts;
-      const alertRows = [
-        ...sentAlerts.map((alert, index) => ({
+      const sentRows = sentAlerts.map((alert, index) => ({
           key: `alert-${index}`,
           kind: "sent" as const,
           index: index + 1,
           title: formatValue(alert.message, "Alert"),
-          detail: `Driver: ${formatValue(alert.main_driver, "Unknown")}`,
+          detail: `Driver ${formatValue(alert.main_driver, "Unknown")}`,
           time: String(alert.run_started_at ?? ""),
-          badge: formatValue(alert.notification_level, "Alert"),
+          badge: "Sent",
           tone: "bad" as const
-        })),
-        ...suppressedAlerts.map((alert, index) => ({
+        }));
+      const suppressedRows = suppressedAlerts.map((alert, index) => ({
           key: `suppressed-${index}`,
           kind: "suppressed" as const,
           index: sentAlerts.length + index + 1,
           title: formatValue(alert.message, "Suppressed alert"),
-          detail: "Duplicate continuation held back",
+          detail: "Duplicate continuation",
           time: String(alert.run_started_at ?? ""),
-          badge: "Suppressed",
+          badge: "Hidden",
           tone: "warn" as const
-        }))
-      ];
+        }));
+      const alertRows = [...sentRows, ...suppressedRows];
+      const sentLabel = `${sentAlerts.length} sent`;
+      const hiddenLabel = `${suppressedAlerts.length} hidden duplicate${suppressedAlerts.length === 1 ? "" : "s"}`;
+      const renderAlertCard = (alert: (typeof alertRows)[number]) => (
+        <article className={`market-agent-alert-card ${alert.kind}`} data-alert-kind={alert.kind} key={alert.key}>
+          <span className="market-agent-alert-index">{alert.kind === "sent" ? "Sent" : "Hidden"}</span>
+          <div className="market-agent-alert-main">
+            <div className="market-agent-alert-title-row">
+              <strong>{alert.title}</strong>
+              <MarketAgentStatusBadge label={alert.badge} tone={alert.tone} />
+            </div>
+            <span>{alert.detail}</span>
+          </div>
+          <time className="market-agent-alert-time" dateTime={alert.time}>
+            {formatShortTime(alert.time)}
+          </time>
+        </article>
+      );
       return (
-        <section className="market-agent-surface">
+        <section className="market-agent-surface market-agent-alerts-surface">
           <div className="market-agent-surface-header">
             <div>
               <h2>Alerts</h2>
-              <span className="hint">Recent sent and suppressed market-agent alerts</span>
+              <span className="hint">Only sent alerts need attention</span>
             </div>
           </div>
-          <div className="market-agent-alerts-summary" aria-label="Alert counts">
-            <article>
-              <span>Sent</span>
-              <strong>{sentAlerts.length}</strong>
-            </article>
-            <article>
-              <span>Suppressed</span>
-              <strong>{suppressedAlerts.length}</strong>
-            </article>
-            <article>
-              <span>Total</span>
-              <strong>{alertRows.length}</strong>
-            </article>
+          <div className="market-agent-alerts-summary-line" aria-label="Alert summary">
+            <strong>{sentLabel}</strong>
+            <span>/ {hiddenLabel}</span>
           </div>
           {alertRows.length ? (
             <div className="market-agent-alerts-list" data-qa="qa:market-agent:alerts-list">
-              {alertRows.map((alert) => (
-                <article className={`market-agent-alert-card ${alert.kind}`} data-alert-kind={alert.kind} key={alert.key}>
-                  <span className="market-agent-alert-index">{alert.index}</span>
-                  <div className="market-agent-alert-main">
-                    <div className="market-agent-alert-title-row">
-                      <strong>{alert.title}</strong>
-                      <MarketAgentStatusBadge label={alert.badge} tone={alert.tone} />
-                    </div>
-                    <span>{alert.detail}</span>
-                  </div>
-                  <time className="market-agent-alert-time" dateTime={alert.time}>
-                    {formatShortTime(alert.time)}
-                  </time>
-                </article>
-              ))}
+              {alertRows.map(renderAlertCard)}
             </div>
           ) : (
             <div className="market-agent-empty-state">No alerts in this replay window.</div>
@@ -1610,56 +1594,7 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
         </section>
       );
     }
-    return (
-      <section className="market-agent-surface">
-        <div className="market-agent-surface-header">
-          <div>
-            <h2>Logs / Settings</h2>
-            <span className="hint">Control the Windows-friendly monitor loop and inspect last process status.</span>
-          </div>
-        </div>
-        <div className="market-agent-monitor-control">
-          <article>
-            <div>
-              <h3>Monitor Process</h3>
-              <MarketAgentStatusBadge label={props.monitorStatus?.running ? "Running" : formatValue(props.monitorStatus?.phase, "Stopped")} />
-            </div>
-            <p>{props.monitorStatus?.message || "Monitor loop is stopped."}</p>
-            <div className="market-agent-monitor-control-grid">
-              <span>PID</span>
-              <strong>{formatValue(props.monitorStatus?.pid, "--")}</strong>
-              <span>Last run</span>
-              <strong>{formatMonitorTime(props.monitorStatus?.lastRunAt)}</strong>
-              <span>Next run</span>
-              <strong>{formatMonitorTime(props.monitorStatus?.nextRunAt)}</strong>
-              <span>Last error</span>
-              <strong>{props.monitorStatus?.lastError || "None"}</strong>
-            </div>
-            <div className="market-agent-monitor-actions">
-              <button type="button" className="btn ghost btn-compact" onClick={() => void props.onRunMonitorOnce()}>
-                Run once
-              </button>
-              <button type="button" className="btn ghost btn-compact" onClick={() => void props.onStartMonitorLoop()}>
-                Start monitor loop
-              </button>
-              <button type="button" className="btn ghost btn-compact" onClick={() => void props.onStopMonitorLoop()}>
-                Stop monitor loop
-              </button>
-            </div>
-          </article>
-          <article>
-            <div>
-              <h3>Telegram Reporting</h3>
-              <MarketAgentStatusBadge label="Optional" />
-            </div>
-            <p>
-              Telegram is disabled unless configured by environment or saved settings. Failed sends are recorded with
-              alert history and do not stop monitoring.
-            </p>
-          </article>
-        </div>
-      </section>
-    );
+    return null;
   }, [normalizedReplay, props, replayPayload, section]);
 
   const alertNoticeCount = currentAlertNoticeIds.filter((id) => !seenAlertIdSet.has(id)).length;

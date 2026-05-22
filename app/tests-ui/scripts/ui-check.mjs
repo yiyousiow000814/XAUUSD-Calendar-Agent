@@ -3194,11 +3194,9 @@ const main = async () => {
             problems.push("Market Agent Dashboard nav icon does not use the requested house outline");
           }
         }
-        const settingsIcon = document.querySelector("[data-market-agent-section='logs'] svg[data-nav-icon='settings']");
-        if (!(settingsIcon instanceof SVGElement)) {
-          problems.push("Market Agent Settings nav item is missing a settings gear icon");
-        } else if ((settingsIcon.innerHTML || "").includes("M12 3.8v2.1")) {
-          problems.push("Market Agent Settings nav icon still uses the old sun glyph");
+        const oldControlItem = document.querySelector("[data-market-agent-section='logs']");
+        if (oldControlItem) {
+          problems.push("Market Agent Control/Settings nav item should not be a standalone page");
         }
         const alertsButton = document.querySelector("[data-market-agent-section='alerts']");
         const alertsBadge = alertsButton?.querySelector(".market-agent-nav-badge");
@@ -4180,14 +4178,17 @@ const main = async () => {
         if (list.querySelector(".market-agent-evidence-mini-row")) {
           problems.push("Market Agent Alerts page still uses the dense evidence mini-row layout");
         }
+        if (list.querySelector(".market-agent-alert-lane")) {
+          problems.push("Market Agent Alerts page should use one simple list, not split lanes");
+        }
         cards.forEach((card, index) => {
           if (!(card instanceof HTMLElement)) return;
-          const number = card.querySelector(".market-agent-alert-index");
+          const marker = card.querySelector(".market-agent-alert-index");
           const title = card.querySelector(".market-agent-alert-title-row strong");
           const badge = card.querySelector(".market-agent-status-badge");
           const time = card.querySelector(".market-agent-alert-time");
-          if (!(number instanceof HTMLElement) || !/^\d+$/.test((number.textContent || "").trim())) {
-            problems.push(`Market Agent alert row ${index + 1} missing number marker`);
+          if (!(marker instanceof HTMLElement) || !/^(Sent|Hidden)$/i.test((marker.textContent || "").trim())) {
+            problems.push(`Market Agent alert row ${index + 1} missing simple status marker`);
           }
           if (!(title instanceof HTMLElement) || !(badge instanceof HTMLElement) || !(time instanceof HTMLElement)) {
             problems.push(`Market Agent alert row ${index + 1} missing title, badge, or time`);

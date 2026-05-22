@@ -483,11 +483,9 @@ describe("MarketAgentPage", () => {
     const marketAgentNav = screen.getByRole("navigation", { name: /Market Agent sections/i });
     expect(marketAgentNav).toBeInTheDocument();
     const navIconNames = Array.from(marketAgentNav.querySelectorAll("svg")).map((icon) => icon.getAttribute("data-nav-icon"));
-    expect(navIconNames).toEqual(["dashboard", "drivers", "replay", "evidence", "providers", "sources", "alerts", "settings"]);
+    expect(navIconNames).toEqual(["dashboard", "drivers", "replay", "evidence", "providers", "sources", "alerts"]);
     expect(new Set(navIconNames).size).toBe(navIconNames.length);
-    const settingsIcon = marketAgentNav.querySelector("[data-market-agent-section='logs'] svg");
-    expect(settingsIcon?.getAttribute("data-nav-icon")).toBe("settings");
-    expect(settingsIcon?.innerHTML).not.toContain("M12 3.8v2.1");
+    expect(screen.queryByRole("button", { name: /^Control$/i })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Dashboard/i })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("heading", { name: /XAUUSD \(Spot\)/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Market State/i })).toBeInTheDocument();
@@ -962,6 +960,10 @@ describe("MarketAgentPage", () => {
     expect(alertsButton.querySelector(".market-agent-nav-badge")).toHaveTextContent("2");
     fireEvent.click(alertsButton);
     expect(screen.getByRole("heading", { name: /^Alerts$/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/Alert summary/i)).toBeInTheDocument();
+    expect(screen.getByText(/1 sent/i)).toBeInTheDocument();
+    expect(screen.getByText(/1 hidden duplicate/i)).toBeInTheDocument();
+    expect(container.querySelector(".market-agent-alert-lane")).not.toBeInTheDocument();
     expect(container.querySelectorAll(".market-agent-alert-card").length).toBeGreaterThan(0);
     expect(container.querySelector(".market-agent-alerts-list .market-agent-evidence-mini-row")).not.toBeInTheDocument();
     await waitFor(() => expect(alertsButton.querySelector(".market-agent-nav-badge")).not.toBeInTheDocument());
@@ -988,6 +990,9 @@ describe("MarketAgentPage", () => {
     expect(screen.getByText(/Accepted driver/i)).toBeInTheDocument();
     expect(screen.queryByText(/Raw details/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Audit details/i)).not.toBeInTheDocument();
+
+    expect(screen.queryByRole("heading", { name: /System Control/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /Logs \/ Settings/i })).not.toBeInTheDocument();
   });
 
   it("defaults Data Sources to Connect cTrader and Auto Local AI instead of raw setup forms", () => {
