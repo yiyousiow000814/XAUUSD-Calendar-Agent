@@ -1,5 +1,5 @@
 ﻿import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../api", () => ({
   backend: {
@@ -154,6 +154,13 @@ vi.mock("../api", () => ({
       lastError: "",
       message: "Monitor loop is stopped."
     }),
+    detectMarketAgentLocalAI: vi.fn().mockResolvedValue({
+      ok: true,
+      available: true,
+      status: "model_missing",
+      message: "Recommended model is missing.",
+      ruleBasedActive: true
+    }),
     runMarketAgentMonitorOnce: vi.fn().mockResolvedValue({ ok: true, available: true, running: false, phase: "stopped" }),
     startMarketAgentMonitorLoop: vi.fn().mockResolvedValue({ ok: true, available: true, running: true, phase: "running" }),
     stopMarketAgentMonitorLoop: vi.fn().mockResolvedValue({ ok: true, available: true, running: false, phase: "stopped" }),
@@ -213,9 +220,14 @@ vi.mock("../api", () => ({
   isWebview: () => true
 }));
 
+import { backend } from "../api";
 import App from "../App";
 
 describe("Market Agent view switch", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("opens the first-class Market Agent page from the top-level app entry", async () => {
     render(<App />);
 
@@ -243,5 +255,25 @@ describe("Market Agent view switch", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
     expect(screen.getByRole("heading", { name: "Data Sources" })).toBeInTheDocument();
+  });
+
+  it("does not double-load heavy Market Agent backend data on entry", async () => {
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Market Agent/i })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Market Agent/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("navigation", { name: /Market Agent sections/i })).toBeInTheDocument();
+    });
+
+    expect(backend.getMarketAgentSnapshot).toHaveBeenCalledTimes(1);
+    expect(backend.getMarketAgentReplay).toHaveBeenCalledTimes(1);
+    expect(backend.getMarketAgentDriverAttention).toHaveBeenCalledTimes(1);
+    expect(backend.getMarketAgentProviderHealth).toHaveBeenCalledTimes(1);
+    expect(backend.detectMarketAgentLocalAI).not.toHaveBeenCalled();
   });
 });

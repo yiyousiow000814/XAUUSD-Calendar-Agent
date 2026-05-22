@@ -689,8 +689,7 @@ export default function App() {
         replayResult,
         providerConfigResult,
         telegramConfigResult,
-        llmConfigResult,
-        localAIResult
+        llmConfigResult
       ] = await Promise.all([
         refreshMarketAgentSnapshot(),
         refreshMarketAgentProviderHealth(),
@@ -699,7 +698,6 @@ export default function App() {
         refreshMarketAgentProviderConfig(),
         refreshMarketAgentTelegramConfig(),
         refreshMarketAgentLLMConfig(),
-        refreshMarketAgentLocalAISetup(),
         refreshMarketAgentMonitorStatus()
       ]);
       const preferredRunId =
@@ -714,7 +712,7 @@ export default function App() {
         setMarketAgentEvidence(null);
         setMarketAgentSelectedRunId(null);
       }
-      return { snapshotResult, providerResult, driverResult, replayResult, providerConfigResult, telegramConfigResult, llmConfigResult, localAIResult };
+      return { snapshotResult, providerResult, driverResult, replayResult, providerConfigResult, telegramConfigResult, llmConfigResult };
     },
     [
       refreshMarketAgentDriverAttention,
@@ -724,7 +722,6 @@ export default function App() {
       refreshMarketAgentProviderHealth,
       refreshMarketAgentReplay,
       refreshMarketAgentLLMConfig,
-      refreshMarketAgentLocalAISetup,
       refreshMarketAgentTelegramConfig,
       refreshMarketAgentSnapshot
     ]
@@ -3864,8 +3861,7 @@ export default function App() {
 
   const openMarketAgentView = useCallback(() => {
     setMainView("market-agent");
-    void refreshMarketAgentWorkspace(marketAgentRangeStart, marketAgentRangeEnd);
-  }, [marketAgentRangeEnd, marketAgentRangeStart, refreshMarketAgentWorkspace]);
+  }, []);
 
   const openCalendarView = useCallback(() => {
     setMainView("calendar");
