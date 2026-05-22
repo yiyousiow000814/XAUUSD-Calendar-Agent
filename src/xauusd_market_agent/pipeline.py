@@ -156,6 +156,11 @@ def build_llm_evidence_packet(
         provider_health=provider_health,
         attention_snapshot=attention_snapshot,
     )
+    dynamic_themes = [
+        asdict(state)
+        for state in attention_snapshot.states.values()
+        if str(state.driver_id).startswith("theme:")
+    ]
     normalized_previous_state = asdict(previous_state) if isinstance(previous_state, MarketState) else previous_state
     return {
         "as_of_myt": fixture.as_of_myt,
@@ -171,6 +176,7 @@ def build_llm_evidence_packet(
         "active_driver_states": attention_snapshot.active_driver_states,
         "dormant_driver_states": attention_snapshot.dormant_driver_states,
         "driver_attention_summary": attention_snapshot.driver_attention_summary,
+        "dynamic_themes": dynamic_themes,
         "allowed_candidate_drivers": evidence.allowed_candidate_drivers,
         "blocked_drivers": evidence.blocked_drivers,
         "cross_asset_confirmation": evidence.cross_asset_confirmation,

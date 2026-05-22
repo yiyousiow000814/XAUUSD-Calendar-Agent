@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import asdict
 from datetime import datetime, timedelta
+import re
 from typing import Any
 
 from .models import (
@@ -48,6 +49,78 @@ _DECAY_MINUTES = {
     "background_noise": 30,
 }
 
+_THEME_STOPWORDS = {
+    "about",
+    "after",
+    "amid",
+    "and",
+    "are",
+    "as",
+    "before",
+    "but",
+    "for",
+    "from",
+    "gold",
+    "higher",
+    "into",
+    "lower",
+    "market",
+    "markets",
+    "may",
+    "move",
+    "new",
+    "news",
+    "over",
+    "price",
+    "prices",
+    "says",
+    "the",
+    "to",
+    "us",
+    "with",
+    "xauusd",
+}
+
+_KNOWN_DRIVER_TERMS = {
+    "brent",
+    "cpi",
+    "dollar",
+    "dxy",
+    "fed",
+    "fomc",
+    "gold",
+    "inflation",
+    "nasdaq",
+    "nfp",
+    "oil",
+    "pce",
+    "powell",
+    "ppi",
+    "rates",
+    "spx",
+    "treasury",
+    "us10y",
+    "us2y",
+    "vix",
+    "war",
+    "wti",
+    "yield",
+    "yields",
+}
+
+_THEME_SENSOR_HINTS = {
+    "bank": ("vix", "spx", "nasdaq"),
+    "banking": ("vix", "spx", "nasdaq"),
+    "credit": ("vix", "spx", "nasdaq"),
+    "debt": ("us10y", "us2y", "dxy"),
+    "fiscal": ("us10y", "us2y", "dxy"),
+    "liquidity": ("vix", "spx", "nasdaq"),
+    "shipping": ("wti", "brent", "vix"),
+    "stress": ("vix", "spx", "nasdaq"),
+    "supply": ("us10y", "us2y", "dxy"),
+    "tariff": ("dxy", "us10y", "spx", "nasdaq"),
+}
+
 
 def _parse_iso(raw: str, default: datetime) -> datetime:
     if not raw:
@@ -60,6 +133,80 @@ def _parse_iso(raw: str, default: datetime) -> datetime:
 
 def _iso(dt: datetime | None) -> str:
     return dt.isoformat() if dt else ""
+
+
+def _theme_slug(value: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "_", value.lower()).strip("_")
+    return slug[:48] or "unclassified"
+
+
+def _headline_tokens(title: str) -> list[str]:
+    tokens = re.findall(r"[a-z][a-z0-9-]{2,}", title.lower())
+    return [item for item in tokens if item not in _THEME_STOPWORDS]
+
+
+def _candidate_theme_terms(title: str, tags: tuple[str, ...]) -> list[str]:
+    tag_terms = [
+        item.replace("_", " ").replace("-", " ").strip().lower()
+        for item in tags
+        if item and item.lower() not in {"rss", "injected", "calendar", "filtered"}
+    ]
+    tokens = _headline_tokens(title)
+    phrases: list[str] = []
+    for size in (2, 3):
+        for idx in range(0, max(0, len(tokens) - size + 1)):
+            phrase_tokens = tokens[idx : idx + size]
+            if all(token in _KNOWN_DRIVER_TERMS for token in phrase_tokens):
+                continue
+            if any(token not in _KNOWN_DRIVER_TERMS for token in phrase_tokens):
+                phrases.append(" ".join(phrase_tokens))
+    single_terms = [token for token in tokens if token not in _KNOWN_DRIVER_TERMS]
+    return list(dict.fromkeys([*tag_terms, *phrases, *single_terms]))
+
+
+def _requested_sensors_for_terms(terms: list[str], provider_health: dict[str, ProviderHealth]) -> tuple[str, ...]:
+    requested: list[str] = []
+    for term in terms:
+        for token, sensors in _THEME_SENSOR_HINTS.items():
+            if token in term:
+                requested.extend(sensors)
+    if not requested:
+        requested.extend(["news", "xauusd"])
+    available_order = ["news", "xauusd", "dxy", "us10y", "us2y", "wti", "brent", "vix", "spx", "nasdaq"]
+    deduped = [item for item in available_order if item in set(requested)]
+    for item in requested:
+        if item not in deduped:
+            deduped.append(item)
+    return tuple(item for item in deduped if item in provider_health or item in {"news", "xauusd"})
+
+
+def _theme_cross_asset_confirmation(
+    *,
+    requested_sensor_ids: tuple[str, ...],
+    evidence_status: dict[str, str],
+    provider_health: dict[str, ProviderHealth],
+) -> tuple[bool, str]:
+    status_by_sensor = {
+        "dxy": evidence_status.get("dxy"),
+        "us10y": evidence_status.get("us10y"),
+        "us2y": evidence_status.get("us2y"),
+        "wti": evidence_status.get("oil"),
+        "brent": evidence_status.get("oil"),
+        "vix": evidence_status.get("vix_equities"),
+        "spx": evidence_status.get("vix_equities"),
+        "nasdaq": evidence_status.get("vix_equities"),
+    }
+    unavailable = [
+        item
+        for item in requested_sensor_ids
+        if item in provider_health and not provider_health[item].is_available
+    ]
+    confirming = [item for item in requested_sensor_ids if status_by_sensor.get(item) == "confirming"]
+    if confirming:
+        return True, f"Confirmed by {', '.join(confirming)}."
+    if unavailable:
+        return False, f"Requested sensor unavailable: {', '.join(unavailable)}."
+    return False, "No cross-asset confirmation yet."
 
 
 class DriverAttentionManager:
@@ -98,6 +245,13 @@ class DriverAttentionManager:
             related_calendar_events=0,
             notes="",
             data_mode=data_mode,
+            theme_id="",
+            lifecycle="",
+            source_terms=(),
+            related_sensor_ids=(),
+            requested_sensor_ids=(),
+            promotion_reason="",
+            rejection_reason="",
         )
 
     def _transition_with_decay(
@@ -171,6 +325,144 @@ class DriverAttentionManager:
         }
         self.micro_themes[theme_id] = payload
         return payload
+
+    def _discover_dynamic_theme_states(
+        self,
+        *,
+        fixture: ScenarioFixture,
+        provider_health: dict[str, ProviderHealth],
+        evidence_status: dict[str, str],
+        previous_states: dict[str, DriverAttentionState],
+        as_of: datetime,
+        data_mode: str,
+    ) -> dict[str, DriverAttentionState]:
+        buckets: dict[str, dict[str, Any]] = {}
+        news_ids = {id(item) for item in fixture.news}
+        for headline in (*fixture.news, *fixture.calendar_events):
+            terms = _candidate_theme_terms(headline.title, headline.tags)
+            if not terms:
+                continue
+            primary_term = terms[0]
+            theme_id = f"theme:{_theme_slug(primary_term)}"
+            bucket = buckets.setdefault(
+                theme_id,
+                {
+                    "theme_id": theme_id,
+                    "label": primary_term.title(),
+                    "source_terms": set(),
+                    "sources": set(),
+                    "headlines": [],
+                    "calendar_events": [],
+                },
+            )
+            bucket["source_terms"].update(terms[:5])
+            bucket["sources"].add(headline.source)
+            if id(headline) in news_ids:
+                bucket["headlines"].append(headline)
+            else:
+                bucket["calendar_events"].append(headline)
+
+        states: dict[str, DriverAttentionState] = {}
+        for theme_id, bucket in buckets.items():
+            previous = previous_states.get(theme_id)
+            previous_headlines = previous.related_news_count if previous else 0
+            previous_sources = previous.source_count if previous else 0
+            current_headline_count = len(bucket["headlines"]) + len(bucket["calendar_events"])
+            headline_count = max(current_headline_count, previous_headlines)
+            source_count = max(len(bucket["sources"]), previous_sources)
+            terms = sorted(bucket["source_terms"])
+            requested_sensors = _requested_sensors_for_terms(terms, provider_health)
+            confirmed, confirmation_reason = _theme_cross_asset_confirmation(
+                requested_sensor_ids=requested_sensors,
+                evidence_status=evidence_status,
+                provider_health=provider_health,
+            )
+            meaningful_move = abs(fixture.market.move_percent) >= 0.25
+            repeated = headline_count >= 2
+            multi_source = source_count >= 2
+            current_state = "observed"
+            relevance_score = 0.18
+            confidence = "low"
+            promotion_reason = ""
+            rejection_reason = "Single-source or one-off headline; not enough evidence."
+            evidence_summary = f"{headline_count} headline(s) from {source_count} source(s)."
+            counter_evidence = confirmation_reason if not confirmed else ""
+            if repeated and multi_source and confirmed and meaningful_move:
+                current_state = "active"
+                relevance_score = 0.76
+                confidence = "medium"
+                promotion_reason = (
+                    "Repeated headlines, multiple sources, cross-asset confirmation, and an XAUUSD reaction."
+                )
+                rejection_reason = ""
+                evidence_summary = f"{evidence_summary} {confirmation_reason}"
+            elif repeated and multi_source:
+                current_state = "emerging"
+                relevance_score = 0.52
+                confidence = "low"
+                promotion_reason = "Repeated headlines across multiple sources."
+                rejection_reason = "Waiting for market confirmation before treating it as a driver."
+            elif repeated or multi_source:
+                current_state = "watching"
+                relevance_score = 0.34
+                rejection_reason = "Theme is visible but lacks either repetition, source breadth, or market confirmation."
+
+            driver = DriverDefinition(
+                driver_id=theme_id,
+                label=str(bucket["label"]),
+                category="theme",
+                priority="micro_theme",
+                linked_assets=requested_sensors,
+                required_evidence_gates=("news",),
+                optional_evidence_gates=requested_sensors,
+            )
+            base = self._empty_state(driver, as_of=as_of, data_mode=data_mode)
+            next_state = DriverAttentionState(
+                **{
+                    **asdict(base),
+                    "current_state": current_state,
+                    "relevance_score": relevance_score,
+                    "activation_reason": promotion_reason,
+                    "deactivation_reason": "" if current_state in {"active", "emerging", "watching"} else rejection_reason,
+                    "first_activated_at": previous.first_activated_at if previous and previous.first_activated_at else fixture.as_of_myt,
+                    "last_confirmed_at": fixture.as_of_myt if current_state == "active" else (previous.last_confirmed_at if previous else ""),
+                    "last_evidence_at": fixture.as_of_myt,
+                    "confidence": confidence,
+                    "source_count": source_count,
+                    "related_news_count": max(len(bucket["headlines"]), previous.related_news_count if previous else 0),
+                    "related_calendar_events": len(bucket["calendar_events"]),
+                    "current_evidence_summary": evidence_summary,
+                    "current_counter_evidence": counter_evidence,
+                    "notes": "Dynamic theme discovered from current headlines. It does not become a cause unless evidence gates support it.",
+                    "theme_id": theme_id,
+                    "lifecycle": current_state,
+                    "source_terms": tuple(terms[:8]),
+                    "related_sensor_ids": tuple(item for item in requested_sensors if item in provider_health),
+                    "requested_sensor_ids": requested_sensors,
+                    "promotion_reason": promotion_reason,
+                    "rejection_reason": rejection_reason,
+                }
+            )
+            states[theme_id] = self._transition_with_decay(previous, next_state, as_of=as_of)
+
+        for theme_id, previous in previous_states.items():
+            if not theme_id.startswith("theme:") or theme_id in states:
+                continue
+            deadline = _parse_iso(previous.decay_deadline, as_of)
+            retired = as_of >= deadline or previous.current_state in {"cooling", "retired"}
+            states[theme_id] = DriverAttentionState(
+                **{
+                    **asdict(previous),
+                    "current_state": "retired" if retired else "cooling",
+                    "deactivation_reason": "No fresh headlines or market follow-through for this dynamic theme.",
+                    "current_counter_evidence": "Theme has no fresh supporting evidence in the current run.",
+                    "relevance_score": 0.0 if retired else min(previous.relevance_score, 0.25),
+                    "confidence": "low",
+                    "lifecycle": "retired" if retired else "cooling",
+                    "data_mode": data_mode,
+                }
+            )
+        return states
 
     def evaluate(
         self,
@@ -371,6 +663,17 @@ class DriverAttentionManager:
                     }
                 )
             states[driver_id] = self._transition_with_decay(previous, current, as_of=as_of)
+
+        states.update(
+            self._discover_dynamic_theme_states(
+                fixture=fixture,
+                provider_health=provider_health,
+                evidence_status=evidence_status,
+                previous_states=previous_states,
+                as_of=as_of,
+                data_mode=data_mode,
+            )
+        )
 
         active = [
             {

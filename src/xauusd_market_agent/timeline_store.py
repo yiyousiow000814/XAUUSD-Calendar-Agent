@@ -228,6 +228,13 @@ class TimelineStore:
                 related_calendar_events=int(payload["related_calendar_events"]),
                 notes=payload["notes"],
                 data_mode=payload["data_mode"],
+                theme_id=payload.get("theme_id", ""),
+                lifecycle=payload.get("lifecycle", ""),
+                source_terms=tuple(payload.get("source_terms", [])),
+                related_sensor_ids=tuple(payload.get("related_sensor_ids", [])),
+                requested_sensor_ids=tuple(payload.get("requested_sensor_ids", [])),
+                promotion_reason=payload.get("promotion_reason", ""),
+                rejection_reason=payload.get("rejection_reason", ""),
             )
         return states
 

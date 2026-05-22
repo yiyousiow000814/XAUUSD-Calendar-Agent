@@ -314,6 +314,18 @@ def _build_packet(
         provider_health=provider_health,
         attention_snapshot=attention_snapshot,
     )
+    dynamic_themes = [
+        asdict(state)
+        for state in attention_snapshot.states.values()
+        if str(state.driver_id).startswith("theme:")
+    ]
+    requested_sensors = sorted(
+        {
+            sensor_id
+            for theme in dynamic_themes
+            for sensor_id in theme.get("requested_sensor_ids", [])
+        }
+    )
     return {
         "as_of_myt": fixture.as_of_myt,
         "data_mode": data_mode,
@@ -333,6 +345,8 @@ def _build_packet(
         "active_driver_states": attention_snapshot.active_driver_states,
         "dormant_driver_states": attention_snapshot.dormant_driver_states,
         "driver_attention_summary": attention_snapshot.driver_attention_summary,
+        "dynamic_themes": dynamic_themes,
+        "requested_sensors": requested_sensors,
         "previous_state": asdict(previous_state) if previous_state is not None and hasattr(previous_state, "__dataclass_fields__") else previous_state,
         "calendar_events": [
             {"timestamp_myt": item.timestamp_myt, "title": item.title, "source": item.source}

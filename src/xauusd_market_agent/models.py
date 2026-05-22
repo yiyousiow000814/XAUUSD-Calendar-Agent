@@ -161,6 +161,13 @@ class DriverAttentionState:
     related_calendar_events: int
     notes: str
     data_mode: str
+    theme_id: str = ""
+    lifecycle: str = ""
+    source_terms: tuple[str, ...] = ()
+    related_sensor_ids: tuple[str, ...] = ()
+    requested_sensor_ids: tuple[str, ...] = ()
+    promotion_reason: str = ""
+    rejection_reason: str = ""
 
 
 @dataclass(frozen=True)
