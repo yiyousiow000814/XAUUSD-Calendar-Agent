@@ -28,7 +28,9 @@ import type {
   MarketAgentLLMActionResponse,
   MarketAgentLLMConfigInput,
   MarketAgentLLMConfigResponse,
+  MarketAgentLLMSetupResponse,
   MarketAgentMonitorStatusResponse,
+  MarketAgentOllamaPullProgress,
   MarketAgentProviderActionResponse,
   MarketAgentProviderConfigInput,
   MarketAgentProviderConfigResponse,
@@ -356,6 +358,8 @@ export default function App() {
   const [marketAgentProviderConfig, setMarketAgentProviderConfig] = useState<MarketAgentProviderConfigResponse | null>(null);
   const [marketAgentTelegramConfig, setMarketAgentTelegramConfig] = useState<MarketAgentTelegramConfigResponse | null>(null);
   const [marketAgentLLMConfig, setMarketAgentLLMConfig] = useState<MarketAgentLLMConfigResponse | null>(null);
+  const [marketAgentLocalAISetup, setMarketAgentLocalAISetup] = useState<MarketAgentLLMSetupResponse | null>(null);
+  const [marketAgentOllamaPullProgress, setMarketAgentOllamaPullProgress] = useState<MarketAgentOllamaPullProgress | null>(null);
   const [marketAgentDriverAttention, setMarketAgentDriverAttention] = useState<MarketAgentDriverAttentionResponse | null>(null);
   const [marketAgentEvidence, setMarketAgentEvidence] = useState<MarketAgentEvidenceForRunResponse | null>(null);
   const [marketAgentMonitorStatus, setMarketAgentMonitorStatus] = useState<MarketAgentMonitorStatusResponse | null>(null);
@@ -427,7 +431,7 @@ export default function App() {
   const historyRequestRef = useRef(0);
   const hasManualCurrencyRef = useRef(false);
   const refreshInFlightRef = useRef(false);
-  const refreshTokenRef = useRef(0);
+  const refreshCycleRef = useRef(0);
   const refreshPendingRef = useRef(false);
   const refreshWaitersRef = useRef<Array<(snapshot: Snapshot | null) => void>>([]);
   const hasReachedReadyRef = useRef(false);
@@ -583,6 +587,28 @@ export default function App() {
     }
   }, [withTimeout]);
 
+  const refreshMarketAgentLocalAISetup = useCallback(async () => {
+    try {
+      const next = await withTimeout(
+        backend.detectMarketAgentLocalAI(),
+        10000,
+        "backend.detectMarketAgentLocalAI()"
+      );
+      setMarketAgentLocalAISetup(next);
+      return next;
+    } catch {
+      const fallback: MarketAgentLLMSetupResponse = {
+        ok: false,
+        available: true,
+        status: "llm_disabled",
+        message: "Local AI setup is unavailable. Rule-based analysis remains active.",
+        ruleBasedActive: true
+      };
+      setMarketAgentLocalAISetup(fallback);
+      return fallback;
+    }
+  }, [withTimeout]);
+
   const refreshMarketAgentDriverAttention = useCallback(async () => {
     try {
       const next = await withTimeout(
@@ -657,7 +683,16 @@ export default function App() {
 
   const refreshMarketAgentWorkspace = useCallback(
     async (start: string, end: string) => {
-      const [snapshotResult, providerResult, driverResult, replayResult, providerConfigResult, telegramConfigResult, llmConfigResult] = await Promise.all([
+      const [
+        snapshotResult,
+        providerResult,
+        driverResult,
+        replayResult,
+        providerConfigResult,
+        telegramConfigResult,
+        llmConfigResult,
+        localAIResult
+      ] = await Promise.all([
         refreshMarketAgentSnapshot(),
         refreshMarketAgentProviderHealth(),
         refreshMarketAgentDriverAttention(),
@@ -665,6 +700,7 @@ export default function App() {
         refreshMarketAgentProviderConfig(),
         refreshMarketAgentTelegramConfig(),
         refreshMarketAgentLLMConfig(),
+        refreshMarketAgentLocalAISetup(),
         refreshMarketAgentMonitorStatus()
       ]);
       const preferredRunId =
@@ -679,7 +715,7 @@ export default function App() {
         setMarketAgentEvidence(null);
         setMarketAgentSelectedRunId(null);
       }
-      return { snapshotResult, providerResult, driverResult, replayResult, providerConfigResult, telegramConfigResult, llmConfigResult };
+      return { snapshotResult, providerResult, driverResult, replayResult, providerConfigResult, telegramConfigResult, llmConfigResult, localAIResult };
     },
     [
       refreshMarketAgentDriverAttention,
@@ -689,6 +725,7 @@ export default function App() {
       refreshMarketAgentProviderHealth,
       refreshMarketAgentReplay,
       refreshMarketAgentLLMConfig,
+      refreshMarketAgentLocalAISetup,
       refreshMarketAgentTelegramConfig,
       refreshMarketAgentSnapshot
     ]
@@ -825,7 +862,7 @@ export default function App() {
       // a stable snapshot (especially in ui-check where we patch the backend snapshot).
       while (true) {
         refreshPendingRef.current = false;
-        refreshTokenRef.current += 1;
+        refreshCycleRef.current += 1;
 
         let resolvedSnapshot: Snapshot | null = null;
         try {
@@ -1005,7 +1042,7 @@ export default function App() {
   };
 
   const handleInitRetry = useCallback(() => {
-    refreshTokenRef.current += 1;
+    refreshCycleRef.current += 1;
     refreshInFlightRef.current = false;
     refreshPendingRef.current = false;
     hasReachedReadyRef.current = false;
@@ -1402,6 +1439,30 @@ export default function App() {
       if (unlisten) unlisten();
     };
   }, [isUiCheckRuntime, openAlertModal]);
+
+  useEffect(() => {
+    if (isUiCheckRuntime) return;
+    if (!isWebview()) return;
+    let unlisten: null | (() => void) = null;
+    let cancelled = false;
+
+    const start = async () => {
+      const un = await tauriListen<MarketAgentOllamaPullProgress>(
+        "market-agent:ollama-pull-progress",
+        (payload) => setMarketAgentOllamaPullProgress(payload)
+      );
+      if (cancelled && un) {
+        un();
+        return;
+      }
+      unlisten = un;
+    };
+    void start();
+    return () => {
+      cancelled = true;
+      if (unlisten) unlisten();
+    };
+  }, [isUiCheckRuntime]);
 
   useEffect(() => {
     if (initState !== "ready" || isUiCheckRuntime) return;
@@ -3916,6 +3977,8 @@ export default function App() {
             providerConfig={marketAgentProviderConfig}
             telegramConfig={marketAgentTelegramConfig}
             llmConfig={marketAgentLLMConfig}
+            localAiSetup={marketAgentLocalAISetup}
+            localAiPullProgress={marketAgentOllamaPullProgress}
             providerHealth={marketAgentProviderHealth}
             driverAttention={marketAgentDriverAttention}
             replay={marketAgentReplay}
@@ -3943,11 +4006,14 @@ export default function App() {
             onGetCTraderQuoteTest={(ctrader) =>
               runMarketAgentProviderAction(backend.getCTraderQuoteTest, ctrader)
             }
-            onRefreshCTraderToken={(ctrader) =>
-              runMarketAgentProviderAction(backend.refreshCTraderToken, ctrader).then(async (result) => {
+            onStartCTraderConnect={(ctrader) =>
+              backend.startCTraderConnect(ctrader).then(async (result) => {
                 await refreshMarketAgentProviderConfig();
                 return result;
               })
+            }
+            onTestCTraderBackfill={(ctrader) =>
+              runMarketAgentProviderAction(backend.testCTraderBackfill, ctrader)
             }
             onSaveTelegramConfig={(telegram) => saveMarketAgentTelegramConfig(telegram)}
             onTestTelegramMessage={(telegram) =>
@@ -3960,6 +4026,16 @@ export default function App() {
             onTestLLMJsonResponse={(llm) =>
               runMarketAgentLLMAction(backend.testMarketAgentLLMJsonResponse, llm)
             }
+            onDetectLocalAI={() => refreshMarketAgentLocalAISetup()}
+            onInstallRecommendedModel={(model) =>
+              backend.pullOllamaModel(model, marketAgentLLMConfig?.llm?.endpoint).then(async (result) => {
+                await Promise.all([refreshMarketAgentLocalAISetup(), refreshMarketAgentLLMConfig()]);
+                return result;
+              })
+            }
+            onCancelModelDownload={() => backend.cancelModelDownload()}
+            onBenchmarkLLM={(llm) => backend.benchmarkMarketAgentLLM(llm)}
+            onApplyLLMFallbackPolicy={(payload) => backend.applyLLMFallbackPolicy(payload)}
             onRunMonitorOnce={() => runMarketAgentMonitorAction(backend.runMarketAgentMonitorOnce)}
             onRunBackfillRecovery={() => runMarketAgentMonitorAction(backend.runMarketAgentBackfillRecovery)}
             onStartMonitorLoop={() => runMarketAgentMonitorAction(() => backend.startMarketAgentMonitorLoop(60))}

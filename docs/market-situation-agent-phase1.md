@@ -102,11 +102,11 @@ Supported environment variables:
 LOCAL_LLM_ENABLED=true
 LOCAL_LLM_PROVIDER=ollama
 LOCAL_LLM_ENDPOINT=http://localhost:11434
-LOCAL_LLM_MODEL=qwen3:4b
+LOCAL_LLM_MODEL=qwen3.5:4b
 LOCAL_LLM_TEMPERATURE=0.1
 LOCAL_LLM_TIMEOUT_SECONDS=20
 LOCAL_LLM_KEEP_ALIVE=0
 LOCAL_LLM_MAX_CONTEXT=8192
 ```
 
-The LLM is not the source of truth. Phase 1 keeps the final guard in `validator.py`, which rejects blocked driver claims and falls back to conservative output.
+The LLM is not the source of truth. Phase 1 keeps the final guard in `validator.py`, which rejects blocked driver claims and falls back to conservative output. The desktop setup can recommend and pull `qwen3.5` profiles after user approval when Ollama is already installed; Ollama installation itself remains a guided manual step.

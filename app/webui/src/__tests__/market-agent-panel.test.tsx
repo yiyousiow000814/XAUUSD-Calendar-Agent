@@ -127,7 +127,7 @@ vi.mock("../api", () => ({
     testCTraderConnection: vi.fn().mockResolvedValue({ ok: true }),
     resolveCTraderSymbol: vi.fn().mockResolvedValue({ ok: true }),
     getCTraderQuoteTest: vi.fn().mockResolvedValue({ ok: true }),
-    refreshCTraderToken: vi.fn().mockResolvedValue({ ok: true }),
+    startCTraderConnect: vi.fn().mockResolvedValue({ ok: true, status: "connected" }),
     clearCTraderConfig: vi.fn().mockResolvedValue({ ok: true, available: true, ctrader: null })
   },
   tauriListen: vi.fn().mockResolvedValue(null),

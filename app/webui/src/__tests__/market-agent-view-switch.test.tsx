@@ -110,20 +110,14 @@ vi.mock("../api", () => ({
         symbol: "XAUUSD",
         symbolId: null,
         accountId: "",
-        clientIdMasked: "",
-        clientSecretMasked: "",
-        accessTokenMasked: "",
-        refreshTokenMasked: "",
-        hasAccessToken: false,
-        hasRefreshToken: false,
-        appRedirectUri: "",
-        tokenStorePath: "user-data/ctrader-token.json",
+        ctidMasked: "",
+        passwordMasked: "",
+        hasPassword: false,
         snapshotPath: "user-data/ctrader-last-quote.json",
         quoteTimeoutSeconds: 8,
         quoteStaleAfterSeconds: 15,
         allowSavedSnapshotFallback: true,
-        bridgePythonExecutable: "python",
-        configPath: "user-data/ctrader-openapi.json"
+        configPath: "user-data/ctrader-cli.json"
       }
     }),
     getMarketAgentDriverAttention: vi.fn().mockResolvedValue({
@@ -167,7 +161,7 @@ vi.mock("../api", () => ({
     testCTraderConnection: vi.fn().mockResolvedValue({ ok: true }),
     resolveCTraderSymbol: vi.fn().mockResolvedValue({ ok: true }),
     getCTraderQuoteTest: vi.fn().mockResolvedValue({ ok: true }),
-    refreshCTraderToken: vi.fn().mockResolvedValue({ ok: true, message: "cTrader access token refreshed and saved." }),
+    startCTraderConnect: vi.fn().mockResolvedValue({ ok: true, status: "connected", message: "cTrader CLI credentials saved and checked." }),
     clearCTraderConfig: vi.fn().mockResolvedValue({ ok: true, available: true, ctrader: null }),
     setCurrency: vi.fn().mockResolvedValue({ ok: true }),
     frontendBootComplete: vi.fn().mockResolvedValue({ ok: true }),

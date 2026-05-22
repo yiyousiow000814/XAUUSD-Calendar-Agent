@@ -4,7 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from src.xauusd_market_agent.config import CTraderOpenApiConfig, MarketAgentConfig
+from src.xauusd_market_agent.config import CTraderCliConfig, MarketAgentConfig
+from src.xauusd_market_agent.providers.ctrader_bridge import BridgeError, BridgeRequest, CTraderCliBridge
 from src.xauusd_market_agent.providers.ctrader_provider import CTraderProvider
 
 
@@ -23,114 +24,117 @@ class FakeBridgeRunner:
         return response
 
 
-def _full_config(tmp_path: Path) -> CTraderOpenApiConfig:
-    return CTraderOpenApiConfig(
+def _full_config(tmp_path: Path) -> CTraderCliConfig:
+    return CTraderCliConfig(
         enabled=True,
-        client_id="client-id",
-        client_secret="client-secret",
-        access_token="access-token",
-        refresh_token="refresh-token",
         account_id="123456",
+        ctid="trader@example.com",
+        password="super-secret-password",
         environment="demo",
         symbol="XAUUSD",
         symbol_id=None,
-        app_redirect_uri="http://localhost/callback",
-        config_path=tmp_path / "ctrader-openapi.json",
-        token_store_path=tmp_path / "ctrader-token.json",
+        config_path=tmp_path / "ctrader-cli.json",
         snapshot_path=tmp_path / "ctrader-last-quote.json",
         allow_saved_snapshot_fallback=True,
         quote_timeout_seconds=8,
         quote_stale_after_seconds=15,
-        bridge_python_executable="python",
+        cli_executable="ctrader-cli",
     )
 
 
-def test_ctrader_openapi_config_loads_from_env(tmp_path, monkeypatch) -> None:
-    monkeypatch.setenv("CTRADER_CLIENT_ID", "client-id")
-    monkeypatch.setenv("CTRADER_CLIENT_SECRET", "client-secret")
-    monkeypatch.setenv("CTRADER_ACCESS_TOKEN", "access-token")
-    monkeypatch.setenv("CTRADER_REFRESH_TOKEN", "refresh-token")
+def test_ctrader_cli_config_loads_from_env(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CTRADER_ACCOUNT_ID", "123456")
+    monkeypatch.setenv("CTRADER_CTID", "trader@example.com")
+    monkeypatch.setenv("CTRADER_PASSWORD", "super-secret-password")
     monkeypatch.setenv("CTRADER_ENVIRONMENT", "live")
     monkeypatch.setenv("CTRADER_SYMBOL", "XAUUSD")
-    monkeypatch.setenv("CTRADER_APP_REDIRECT_URI", "http://localhost/callback")
-    monkeypatch.setenv("CTRADER_TOKEN_STORE_PATH", str(tmp_path / "tokens.json"))
     monkeypatch.setenv("CTRADER_SNAPSHOT_PATH", str(tmp_path / "snapshot.json"))
-    monkeypatch.setenv("CTRADER_CONFIG_PATH", str(tmp_path / "ctrader-openapi.json"))
-    monkeypatch.setenv("CTRADER_BRIDGE_PYTHON", "python")
+    monkeypatch.setenv("CTRADER_CONFIG_PATH", str(tmp_path / "ctrader-cli.json"))
+    monkeypatch.setenv("CTRADER_CLI_EXECUTABLE", "ctrader-cli-test")
 
-    cfg = CTraderOpenApiConfig.from_sources(MarketAgentConfig(repo_root=tmp_path))
+    cfg = CTraderCliConfig.from_sources(MarketAgentConfig(repo_root=tmp_path))
 
     assert cfg.enabled is True
-    assert cfg.client_id == "client-id"
-    assert cfg.client_secret == "client-secret"
-    assert cfg.access_token == "access-token"
-    assert cfg.refresh_token == "refresh-token"
+    assert cfg.account_id == "123456"
+    assert cfg.ctid == "trader@example.com"
+    assert cfg.password == "super-secret-password"
     assert cfg.environment == "live"
     assert cfg.symbol == "XAUUSD"
+    assert cfg.cli_executable == "ctrader-cli-test"
 
 
-def test_ctrader_openapi_config_loads_from_json_files(tmp_path) -> None:
-    config_path = tmp_path / "ctrader-openapi.json"
-    token_store_path = tmp_path / "ctrader-token.json"
+def test_ctrader_cli_config_loads_from_json_file(tmp_path) -> None:
+    config_path = tmp_path / "ctrader-cli.json"
     config_path.write_text(
         json.dumps(
             {
                 "enabled": True,
-                "clientId": "client-id",
                 "accountId": "123456",
+                "ctid": "trader@example.com",
+                "password": "super-secret-password",
                 "environment": "demo",
                 "symbol": "XAU/USD",
-                "tokenStorePath": str(token_store_path),
                 "snapshotPath": str(tmp_path / "snapshot.json"),
             }
         ),
         encoding="utf-8",
     )
-    token_store_path.write_text(
-        json.dumps(
-            {
-                "clientSecret": "client-secret",
-                "accessToken": "access-token",
-                "refreshToken": "refresh-token",
-            }
-        ),
-        encoding="utf-8",
-    )
 
-    cfg = CTraderOpenApiConfig.from_sources(
+    cfg = CTraderCliConfig.from_sources(
         MarketAgentConfig(
             repo_root=tmp_path,
             ctrader_config_path=config_path,
-            ctrader_token_store_path=token_store_path,
         )
     )
 
     assert cfg.enabled is True
-    assert cfg.client_id == "client-id"
-    assert cfg.client_secret == "client-secret"
-    assert cfg.access_token == "access-token"
-    assert cfg.refresh_token == "refresh-token"
+    assert cfg.account_id == "123456"
+    assert cfg.ctid == "trader@example.com"
+    assert cfg.password == "super-secret-password"
     assert cfg.symbol == "XAU/USD"
 
 
 def test_ctrader_masked_config_hides_secrets(tmp_path) -> None:
-    provider = CTraderProvider(openapi_config=_full_config(tmp_path), bridge_runner=FakeBridgeRunner({}))
+    provider = CTraderProvider(cli_config=_full_config(tmp_path), bridge_runner=FakeBridgeRunner({}))
 
     payload = provider.masked_config_payload()
 
     assert payload["enabled"] is True
-    assert payload["clientIdMasked"].startswith("cl")
-    assert payload["clientSecretMasked"] != "client-secret"
-    assert payload["accessTokenMasked"] != "access-token"
-    assert payload["refreshTokenMasked"] != "refresh-token"
-    assert payload["hasAccessToken"] is True
-    assert payload["hasRefreshToken"] is True
+    assert payload["ctidMasked"].startswith("tr")
+    assert payload["passwordMasked"] != "super-secret-password"
+    assert payload["hasPassword"] is True
+
+
+def test_ctrader_cli_adapter_redacts_password_from_cli_errors(tmp_path, monkeypatch) -> None:
+    class FailedProcess:
+        returncode = 1
+        stdout = "login failed for super-secret-password"
+        stderr = "bad password super-secret-password"
+
+    def fake_run(*args, **kwargs):
+        return FailedProcess()
+
+    monkeypatch.setattr("src.xauusd_market_agent.providers.ctrader_bridge.subprocess.run", fake_run)
+    request = BridgeRequest.from_payload(
+        {
+            "accountId": "123456",
+            "ctid": "trader@example.com",
+            "password": "super-secret-password",
+            "symbol": "XAUUSD",
+            "snapshotPath": str(tmp_path / "snapshot.json"),
+        }
+    )
+
+    with pytest.raises(BridgeError) as exc_info:
+        CTraderCliBridge(request).quote()
+
+    assert "super-secret-password" not in str(exc_info.value)
+    assert "***" in str(exc_info.value)
 
 
 def test_ctrader_missing_config_reports_disabled_without_crash(tmp_path) -> None:
     provider = CTraderProvider(
-        openapi_config=CTraderOpenApiConfig.default(tmp_path),
+        cli_config=CTraderCliConfig.default(tmp_path),
         bridge_runner=FakeBridgeRunner({}),
     )
 
@@ -139,13 +143,13 @@ def test_ctrader_missing_config_reports_disabled_without_crash(tmp_path) -> None
     assert rows == []
     assert health.is_available is False
     assert health.data_mode == "unavailable"
-    assert "not configured" in health.error.lower()
+    assert "cli credentials" in health.error.lower()
 
 
 def test_ctrader_live_quote_uses_bridge_result_and_writes_snapshot(tmp_path) -> None:
     snapshot_path = tmp_path / "ctrader-last-quote.json"
     provider = CTraderProvider(
-        openapi_config=_full_config(tmp_path),
+        cli_config=_full_config(tmp_path),
         bridge_runner=FakeBridgeRunner(
             {
                 "quote": {
@@ -157,7 +161,7 @@ def test_ctrader_live_quote_uses_bridge_result_and_writes_snapshot(tmp_path) -> 
                         "ask": 4512.72,
                         "mid": 4512.53,
                         "timestamp": "2026-05-19T10:15:23+08:00",
-                        "source": "cTrader OpenAPI",
+                        "source": "cTrader CLI",
                         "source_type": "spot",
                         "environment": "demo",
                         "account_id": "123456",
@@ -207,7 +211,7 @@ def test_ctrader_saved_snapshot_fallback_is_stale_and_not_fresh(tmp_path) -> Non
                 "bid": 4502.3,
                 "ask": 4502.7,
                 "mid": 4502.5,
-                "source": "cTrader OpenAPI",
+                "source": "cTrader CLI",
                 "source_type": "spot",
                 "environment": "demo",
                 "account_id": "123456",
@@ -216,7 +220,7 @@ def test_ctrader_saved_snapshot_fallback_is_stale_and_not_fresh(tmp_path) -> Non
         encoding="utf-8",
     )
     provider = CTraderProvider(
-        openapi_config=_full_config(tmp_path),
+        cli_config=_full_config(tmp_path),
         bridge_runner=FakeBridgeRunner({"quote": RuntimeError("auth failed")}),
         saved_snapshot_path=snapshot_path,
     )
@@ -240,7 +244,7 @@ def test_ctrader_symbol_resolution_exact_normalized_and_override(tmp_path) -> No
             }
         }
     )
-    provider = CTraderProvider(openapi_config=_full_config(tmp_path), bridge_runner=bridge)
+    provider = CTraderProvider(cli_config=_full_config(tmp_path), bridge_runner=bridge)
 
     symbol = provider.resolve_symbol()
 
@@ -249,7 +253,7 @@ def test_ctrader_symbol_resolution_exact_normalized_and_override(tmp_path) -> No
     assert bridge.calls[0][1]["symbol"] == "XAUUSD"
 
     override_provider = CTraderProvider(
-        openapi_config=CTraderOpenApiConfig(**{**_full_config(tmp_path).__dict__, "symbol_id": 999}),
+        cli_config=CTraderCliConfig(**{**_full_config(tmp_path).__dict__, "symbol_id": 999}),
         bridge_runner=bridge,
     )
     override_symbol = override_provider.resolve_symbol()
@@ -258,7 +262,7 @@ def test_ctrader_symbol_resolution_exact_normalized_and_override(tmp_path) -> No
 
 def test_ctrader_backfill_returns_spot_rows(tmp_path) -> None:
     provider = CTraderProvider(
-        openapi_config=_full_config(tmp_path),
+        cli_config=_full_config(tmp_path),
         bridge_runner=FakeBridgeRunner(
             {
                 "backfill": {
@@ -273,7 +277,7 @@ def test_ctrader_backfill_returns_spot_rows(tmp_path) -> None:
                             "close": 4501.0,
                             "bid": None,
                             "ask": None,
-                            "source": "cTrader OpenAPI",
+                            "source": "cTrader CLI",
                             "source_type": "spot",
                             "data_mode": "backfilled",
                             "is_stale": False,
@@ -288,7 +292,7 @@ def test_ctrader_backfill_returns_spot_rows(tmp_path) -> None:
                             "close": 4503.0,
                             "bid": None,
                             "ask": None,
-                            "source": "cTrader OpenAPI",
+                            "source": "cTrader CLI",
                             "source_type": "spot",
                             "data_mode": "backfilled",
                             "is_stale": False,

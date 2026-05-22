@@ -129,7 +129,7 @@ def test_local_llm_prompt_contains_compact_evidence_packet(monkeypatch) -> None:
         LocalLLMConfig(
             enabled=True,
             endpoint="http://localhost:11434",
-            model="qwen3:4b",
+            model="qwen3.5:4b",
             timeout_seconds=20,
         )
     )

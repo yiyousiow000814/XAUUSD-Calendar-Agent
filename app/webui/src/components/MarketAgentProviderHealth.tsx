@@ -29,7 +29,7 @@ const providerCards = [
   { title: "VIX / Equities", keys: ["vix", "spx", "nasdaq", "^vix", "^gspc", "^ixic"], action: "Used for risk sentiment confirmation." },
   { title: "RSS News", keys: ["rss", "news", "google_news"], action: "News can be delayed or noisy; evidence gates still apply." },
   { title: "Calendar", keys: ["calendar", "forexfactory", "forex_factory"], action: "Configure ForexFactory source for event windows." },
-  { title: "cTrader", keys: ["ctrader", "ctrader_openapi"], action: "Configure Open API tokens for true spot XAUUSD." },
+  { title: "cTrader", keys: ["ctrader", "ctrader_cli"], action: "Connect cTrader CLI for true spot XAUUSD." },
   { title: "Yahoo GC=F", keys: ["yahoo", "yahoo_finance", "gc=f"], action: "Fallback futures proxy, not true spot XAUUSD." }
 ];
 

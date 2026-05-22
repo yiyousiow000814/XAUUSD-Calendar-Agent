@@ -12,6 +12,9 @@ import type {
   MarketAgentLLMActionResponse,
   MarketAgentLLMConfigInput,
   MarketAgentLLMConfigResponse,
+  MarketAgentLLMSetupResponse,
+  MarketAgentOllamaPullProgress,
+  MarketAgentCTraderAuthResponse,
   MarketAgentReplayPayload,
   MarketAgentReplayResponse,
   MarketAgentSnapshotResponse,
@@ -51,6 +54,8 @@ type MarketAgentPageProps = {
   providerConfig: MarketAgentProviderConfigResponse | null;
   telegramConfig: MarketAgentTelegramConfigResponse | null;
   llmConfig: MarketAgentLLMConfigResponse | null;
+  localAiSetup?: MarketAgentLLMSetupResponse | null;
+  localAiPullProgress?: MarketAgentOllamaPullProgress | null;
   providerHealth: MarketAgentProviderHealthResponse | null;
   driverAttention: MarketAgentDriverAttentionResponse | null;
   replay: MarketAgentReplayResponse | null;
@@ -70,12 +75,18 @@ type MarketAgentPageProps = {
   onTestCTraderConnection: (ctrader: MarketAgentProviderConfigInput) => Promise<MarketAgentProviderActionResponse>;
   onResolveCTraderSymbol: (ctrader: MarketAgentProviderConfigInput) => Promise<MarketAgentProviderActionResponse>;
   onGetCTraderQuoteTest: (ctrader: MarketAgentProviderConfigInput) => Promise<MarketAgentProviderActionResponse>;
-  onRefreshCTraderToken: (ctrader: MarketAgentProviderConfigInput) => Promise<MarketAgentProviderActionResponse>;
+  onStartCTraderConnect?: (ctrader: MarketAgentProviderConfigInput) => Promise<MarketAgentCTraderAuthResponse>;
+  onTestCTraderBackfill?: (ctrader: MarketAgentProviderConfigInput) => Promise<MarketAgentProviderActionResponse>;
   onSaveTelegramConfig: (telegram: MarketAgentTelegramConfigInput) => Promise<MarketAgentTelegramConfigResponse>;
   onTestTelegramMessage: (telegram: MarketAgentTelegramConfigInput) => Promise<MarketAgentTelegramActionResponse>;
   onSaveLLMConfig: (llm: MarketAgentLLMConfigInput) => Promise<MarketAgentLLMConfigResponse>;
   onTestLLMConnection: (llm: MarketAgentLLMConfigInput) => Promise<MarketAgentLLMActionResponse>;
   onTestLLMJsonResponse: (llm: MarketAgentLLMConfigInput) => Promise<MarketAgentLLMActionResponse>;
+  onDetectLocalAI?: () => Promise<MarketAgentLLMSetupResponse>;
+  onInstallRecommendedModel?: (model: string) => Promise<MarketAgentLLMActionResponse>;
+  onCancelModelDownload?: () => Promise<MarketAgentLLMActionResponse>;
+  onBenchmarkLLM?: (llm: MarketAgentLLMConfigInput) => Promise<MarketAgentLLMActionResponse>;
+  onApplyLLMFallbackPolicy?: (payload: Record<string, unknown>) => Promise<MarketAgentLLMActionResponse>;
   onRunMonitorOnce: () => Promise<MarketAgentMonitorStatusResponse>;
   onRunBackfillRecovery: () => Promise<MarketAgentMonitorStatusResponse>;
   onStartMonitorLoop: () => Promise<MarketAgentMonitorStatusResponse>;
@@ -1493,17 +1504,25 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
           data={props.providerConfig}
           telegramData={props.telegramConfig}
           llmData={props.llmConfig}
+          localAiSetup={props.localAiSetup ?? null}
+          localAiPullProgress={props.localAiPullProgress ?? null}
           onSave={props.onSaveProviderConfig}
           onClear={props.onClearProviderConfig}
           onTestConnection={props.onTestCTraderConnection}
           onResolveSymbol={props.onResolveCTraderSymbol}
           onQuoteTest={props.onGetCTraderQuoteTest}
-          onRefreshToken={props.onRefreshCTraderToken}
+          onStartCTraderConnect={props.onStartCTraderConnect}
+          onTestCTraderBackfill={props.onTestCTraderBackfill}
           onSaveTelegram={props.onSaveTelegramConfig}
           onTestTelegram={props.onTestTelegramMessage}
           onSaveLLM={props.onSaveLLMConfig}
           onTestLLMConnection={props.onTestLLMConnection}
           onTestLLMJsonResponse={props.onTestLLMJsonResponse}
+          onDetectLocalAI={props.onDetectLocalAI}
+          onInstallRecommendedModel={props.onInstallRecommendedModel}
+          onCancelModelDownload={props.onCancelModelDownload}
+          onBenchmarkLLM={props.onBenchmarkLLM}
+          onApplyLLMFallbackPolicy={props.onApplyLLMFallbackPolicy}
           monitorStatus={props.monitorStatus}
           onRunMonitorOnce={props.onRunMonitorOnce}
           onRunBackfillRecovery={props.onRunBackfillRecovery}

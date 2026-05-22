@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from ..config import CTraderOpenApiConfig, MarketAgentConfig
+from ..config import CTraderCliConfig, MarketAgentConfig
 from ..models import ProviderHealth
 from ..provider_health import build_provider_health
 from .base import CalendarProvider, MarketDataProvider, NewsProvider, RelatedAssetsProvider
@@ -74,7 +74,7 @@ class ProviderRouter:
                 else Path.cwd()
             )
             ctrader_provider = CTraderProvider(
-                openapi_config=CTraderOpenApiConfig.default(default_root),
+                cli_config=CTraderCliConfig.default(default_root),
                 saved_snapshot_path=ctrader_saved_snapshot_path,
             )
         self.ctrader_provider = ctrader_provider

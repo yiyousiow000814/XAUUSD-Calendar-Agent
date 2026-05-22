@@ -7,7 +7,10 @@ import type {
   MarketAgentLLMActionResponse,
   MarketAgentLLMConfigInput,
   MarketAgentLLMConfigResponse,
+  MarketAgentLLMSetupResponse,
   MarketAgentMonitorStatusResponse,
+  MarketAgentOllamaPullProgress,
+  MarketAgentCTraderAuthResponse,
   MarketAgentProviderActionResponse,
   MarketAgentProviderConfigInput,
   MarketAgentProviderConfigResponse,
@@ -65,13 +68,19 @@ type BackendApi = {
   save_market_agent_llm_config?: (payload: { llm: MarketAgentLLMConfigInput }) => ApiResult<MarketAgentLLMConfigResponse>;
   test_market_agent_llm_connection?: (payload: { llm: MarketAgentLLMConfigInput }) => ApiResult<MarketAgentLLMActionResponse>;
   test_market_agent_llm_json_response?: (payload: { llm: MarketAgentLLMConfigInput }) => ApiResult<MarketAgentLLMActionResponse>;
+  detect_local_ai_setup?: (payload: Record<string, unknown>) => ApiResult<MarketAgentLLMSetupResponse>;
+  pull_ollama_model?: (payload: { model: string; endpoint?: string }) => ApiResult<MarketAgentLLMActionResponse>;
+  cancel_model_download?: (_payload: Record<string, never>) => ApiResult<MarketAgentLLMActionResponse>;
+  benchmark_llm?: (payload: { llm: MarketAgentLLMConfigInput }) => ApiResult<MarketAgentLLMActionResponse>;
+  apply_llm_fallback_policy?: (payload: Record<string, unknown>) => ApiResult<MarketAgentLLMActionResponse>;
   get_market_agent_telegram_config?: (_payload: Record<string, never>) => ApiResult<MarketAgentTelegramConfigResponse>;
   save_market_agent_telegram_config?: (payload: { telegram: MarketAgentTelegramConfigInput }) => ApiResult<MarketAgentTelegramConfigResponse>;
   test_market_agent_telegram?: (payload: { telegram: MarketAgentTelegramConfigInput }) => ApiResult<MarketAgentTelegramActionResponse>;
   test_ctrader_connection?: (payload: { ctrader: MarketAgentProviderConfigInput }) => ApiResult<MarketAgentProviderActionResponse>;
   resolve_ctrader_symbol?: (payload: { ctrader: MarketAgentProviderConfigInput }) => ApiResult<MarketAgentProviderActionResponse>;
   get_ctrader_quote_test?: (payload: { ctrader: MarketAgentProviderConfigInput }) => ApiResult<MarketAgentProviderActionResponse>;
-  refresh_ctrader_token?: (payload: { ctrader: MarketAgentProviderConfigInput }) => ApiResult<MarketAgentProviderActionResponse>;
+  start_ctrader_connect?: (payload: { ctrader: MarketAgentProviderConfigInput }) => ApiResult<MarketAgentCTraderAuthResponse>;
+  test_ctrader_backfill?: (payload: { ctrader: MarketAgentProviderConfigInput }) => ApiResult<MarketAgentProviderActionResponse>;
   clear_ctrader_config?: (_payload: Record<string, never>) => ApiResult<MarketAgentProviderConfigResponse>;
   get_settings: () => ApiResult<Settings>; 
   save_settings: (payload: Settings) => ApiResult<{ ok: boolean }>; 
@@ -683,20 +692,14 @@ const buildMockMarketAgentProviderConfig = (): MarketAgentProviderConfigResponse
     symbol: "XAUUSD",
     symbolId: null,
     accountId: "",
-    clientIdMasked: "",
-    clientSecretMasked: "",
-    accessTokenMasked: "",
-    refreshTokenMasked: "",
-    hasAccessToken: false,
-    hasRefreshToken: false,
-    appRedirectUri: "",
-    tokenStorePath: "user-data/ctrader-token.json",
+    ctidMasked: "",
+    passwordMasked: "",
+    hasPassword: false,
     snapshotPath: "user-data/ctrader-last-quote.json",
     quoteTimeoutSeconds: 8,
     quoteStaleAfterSeconds: 15,
     allowSavedSnapshotFallback: true,
-    bridgePythonExecutable: "python",
-    configPath: "user-data/ctrader-openapi.json"
+    configPath: "user-data/ctrader-cli.json"
   }
 });
 
@@ -741,7 +744,7 @@ const buildMockMarketAgentLLMConfig = (): MarketAgentLLMConfigResponse => ({
     enabled: false,
     provider: "ollama",
     endpoint: "http://localhost:11434",
-    model: "qwen3:4b",
+    model: "qwen3.5:4b",
     temperature: 0.1,
     timeoutSeconds: 20,
     keepAlive: "0",
@@ -750,6 +753,47 @@ const buildMockMarketAgentLLMConfig = (): MarketAgentLLMConfigResponse => ({
     lastStatus: "disabled",
     lastError: ""
   }
+});
+
+const buildMockMarketAgentLLMSetup = (
+  overrides: Partial<MarketAgentLLMSetupResponse> = {}
+): MarketAgentLLMSetupResponse => ({
+  ok: true,
+  available: true,
+  status: "model_missing",
+  message: "Recommended model is missing.",
+  system: {
+    os: "windows",
+    arch: "x86_64",
+    cpu: "AMD Ryzen 7",
+    logicalCpuCount: 16,
+    ramBytes: 34_359_738_368,
+    gpuVendor: "NVIDIA",
+    gpuName: "NVIDIA GeForce RTX 3060 Ti",
+    vramBytes: 8_589_934_592,
+    nvidiaAvailable: true
+  },
+  ollama: {
+    installed: true,
+    running: true,
+    endpointReachable: true,
+    endpoint: "http://localhost:11434",
+    version: "0.9.0"
+  },
+  installedModels: [],
+  recommendedModel: {
+    name: "qwen3.5:4b",
+    tier: "balanced",
+    label: "Balanced",
+    approximateSizeBytes: 2_900_000_000,
+    diskLabel: "~2.9 GB",
+    reason: "NVIDIA GPU with 8GB VRAM or better can use the balanced model for fast JSON."
+  },
+  profiles: [],
+  fallbackChain: ["qwen3.5:4b", "qwen3.5:2b", "qwen3.5:0.8b", "rule-based-only"],
+  ruleBasedActive: true,
+  llm: buildMockMarketAgentLLMConfig().llm ?? null,
+  ...overrides
 });
 
 const buildMockMarketAgentLLMAction = (
@@ -1645,6 +1689,59 @@ export const backend = {
     }
     return api.test_market_agent_llm_json_response({ llm });
   },
+  detectMarketAgentLocalAI: async (): ApiResult<MarketAgentLLMSetupResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockMarketAgentLLMSetup());
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "detect_local_ai_setup")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentLLMSetup());
+    }
+    return api.detect_local_ai_setup({});
+  },
+  pullOllamaModel: async (model: string, endpoint?: string): ApiResult<MarketAgentLLMActionResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockMarketAgentLLMAction({ status: "model_ready", model, message: "Model ready." }));
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "pull_ollama_model")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentLLMAction({ status: "model_ready", model, message: "Model ready." }));
+    }
+    return api.pull_ollama_model({ model, endpoint });
+  },
+  cancelModelDownload: async (): ApiResult<MarketAgentLLMActionResponse> => {
+    const api = await withApi();
+    if (!api || !hasMethod(api, "cancel_model_download")) {
+      return Promise.resolve({ ok: true, status: "cancelled", message: "Model download cancelled." });
+    }
+    return api.cancel_model_download({});
+  },
+  benchmarkMarketAgentLLM: async (llm: MarketAgentLLMConfigInput): ApiResult<MarketAgentLLMActionResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve({ ok: true, status: "model_ready", model: llm.model, elapsedMs: 900, message: "Benchmark passed." });
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "benchmark_llm")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve({ ok: true, status: "model_ready", model: llm.model, elapsedMs: 900, message: "Benchmark passed." });
+    }
+    return api.benchmark_llm({ llm });
+  },
+  applyLLMFallbackPolicy: async (payload: Record<string, unknown>): ApiResult<MarketAgentLLMActionResponse> => {
+    const api = await withApi();
+    if (!api || !hasMethod(api, "apply_llm_fallback_policy")) {
+      return Promise.resolve({ ok: true, status: "fallback_active", ...(payload as Record<string, unknown>) } as MarketAgentLLMActionResponse);
+    }
+    return api.apply_llm_fallback_policy(payload);
+  },
   saveMarketAgentTelegramConfig: async (telegram: MarketAgentTelegramConfigInput): ApiResult<MarketAgentTelegramConfigResponse> => {
     if (isUiCheckRuntime()) {
       return Promise.resolve(buildMockMarketAgentTelegramConfig());
@@ -1717,7 +1814,7 @@ export const backend = {
             ask: 4512.72,
             mid: 4512.53,
             timestamp: "2026-05-19T10:15:23+08:00",
-            source: "cTrader OpenAPI",
+            source: "cTrader CLI",
             source_type: "spot",
             environment: "demo"
           },
@@ -1740,23 +1837,36 @@ export const backend = {
     }
     return api.get_ctrader_quote_test({ ctrader });
   },
-  refreshCTraderToken: async (ctrader: MarketAgentProviderConfigInput): ApiResult<MarketAgentProviderActionResponse> => {
+  startCTraderConnect: async (ctrader: MarketAgentProviderConfigInput): ApiResult<MarketAgentCTraderAuthResponse> => {
     if (isUiCheckRuntime()) {
-      return Promise.resolve(
-        buildMockMarketAgentProviderAction({
-          message: "cTrader access token refreshed and saved.",
-          ctrader: buildMockMarketAgentProviderConfig().ctrader ?? null
-        })
-      );
+      return Promise.resolve({
+        ok: true,
+        status: "connected",
+        message: "cTrader CLI credentials saved and checked.",
+        ctrader: buildMockMarketAgentProviderConfig().ctrader ?? null
+      });
     }
     const api = await withApi();
-    if (!api || !hasMethod(api, "refresh_ctrader_token")) {
+    if (!api || !hasMethod(api, "start_ctrader_connect")) {
       if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
-      return Promise.resolve(buildMockMarketAgentProviderAction());
+      return Promise.resolve({ ok: false, status: "credentials_required", message: "Desktop backend unavailable." });
     }
-    return api.refresh_ctrader_token({ ctrader });
+    return api.start_ctrader_connect({ ctrader });
+  },
+  testCTraderBackfill: async (ctrader: MarketAgentProviderConfigInput): ApiResult<MarketAgentProviderActionResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve(buildMockMarketAgentProviderAction({ message: "M1 trendbar backfill is available." }));
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "test_ctrader_backfill")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve(buildMockMarketAgentProviderAction({ message: "M1 trendbar backfill is available." }));
+    }
+    return api.test_ctrader_backfill({ ctrader });
   },
   clearCTraderConfig: async (): ApiResult<MarketAgentProviderConfigResponse> => {
     if (isUiCheckRuntime()) {

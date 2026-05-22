@@ -26,7 +26,7 @@ def test_llm_bridge_connection_reports_model_missing(monkeypatch) -> None:
 
     monkeypatch.setitem(__import__("sys").modules, "requests", FakeRequests)
 
-    config = llm_bridge._config_from_payload({"model": "qwen3:4b"})
+    config = llm_bridge._config_from_payload({"model": "qwen3.5:4b"})
     result = llm_bridge.test_connection(config)
 
     assert result["ok"] is False
@@ -45,7 +45,7 @@ def test_llm_bridge_json_response_reports_invalid_json(monkeypatch) -> None:
 
     monkeypatch.setattr(llm_bridge, "LocalLLMClient", FakeClient)
 
-    config = llm_bridge._config_from_payload({"model": "qwen3:4b"})
+    config = llm_bridge._config_from_payload({"model": "qwen3.5:4b"})
     result = llm_bridge.test_json_response(config)
 
     assert result["ok"] is False

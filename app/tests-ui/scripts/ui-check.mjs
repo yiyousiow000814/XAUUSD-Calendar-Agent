@@ -3946,12 +3946,18 @@ const main = async () => {
       const staleProviderLabels = await providerConfig.evaluate((root) => {
         const text = root instanceof HTMLElement ? root.innerText || root.textContent || "" : "";
         return [
-          "Environment",
-          "Symbol ID override",
-          "Bridge Python",
+          "Client ID",
+          "Client Secret",
+          "Access Token",
+          "Refresh Token",
+          "Authorization code",
           "Redirect URI",
           "Token store path",
+          "CLI executable",
+          "Symbol",
+          "Symbol ID",
           "Snapshot path",
+          "Quote timeout",
           "NEWS_RSS_FEEDS",
           "MARKET_AGENT_FOREX_FACTORY_SOURCE_URL"
         ].filter((label) => text.includes(label));
@@ -3961,27 +3967,37 @@ const main = async () => {
       }
       const providerConfigProblems = await providerConfig.evaluate((root) => {
         const problems = [];
-        const stepper = root.querySelector(".market-agent-setup-stepper");
-        const buttons = Array.from(stepper?.querySelectorAll("button") ?? []);
-        const indices = buttons.map((button) => button.querySelector(".market-agent-step-index")?.textContent?.trim() || "");
-        if (indices.slice(0, 4).join(",") !== "1,2,3,4") {
-          problems.push(`Data Sources setup step numbers missing or out of order (${indices.join(",") || "none"})`);
-        }
-        if (buttons.some((button) => !button.querySelector(".market-agent-step-index"))) {
-          problems.push("Data Sources setup stepper has buttons without number badges");
-        }
-        const checklistCards = Array.from(root.querySelectorAll(".market-agent-setup-checklist > div"));
-        if (checklistCards.length !== 7) {
-          problems.push(`Data Sources setup checklist should show 7 status cards (${checklistCards.length})`);
-        } else {
-          const cardBoxes = checklistCards.map((card) => card.getBoundingClientRect());
-          const topSpread = Math.max(...cardBoxes.map((box) => box.top)) - Math.min(...cardBoxes.map((box) => box.top));
-          const widthSpread = Math.max(...cardBoxes.map((box) => box.width)) - Math.min(...cardBoxes.map((box) => box.width));
-          if (topSpread > 1.5) {
-            problems.push(`Data Sources setup checklist wraps instead of staying on one desktop row (${topSpread.toFixed(1)}px top spread)`);
+        const actionNav = root.querySelector(".market-agent-setup-tabs");
+        const buttons = Array.from(actionNav?.querySelectorAll("button") ?? []);
+        const labels = buttons.map((button) => button.getAttribute("aria-label") || (button.textContent || "").trim());
+        for (const label of ["cTrader", "Local AI", "Telegram", "Monitoring"]) {
+          if (!labels.includes(label)) {
+            problems.push(`Data Sources setup actions missing ${label}`);
           }
-          if (widthSpread > 1.5) {
-            problems.push(`Data Sources setup checklist cards are not equal width (${widthSpread.toFixed(1)}px spread)`);
+        }
+        for (const label of ["Price", "Market data", "News"]) {
+          if (labels.includes(label)) {
+            problems.push(`Data Sources setup still exposes automatic backend work as a user action: ${label}`);
+          }
+        }
+        if (buttons.length !== 4) {
+          problems.push(`Data Sources setup should expose 4 user actions, found ${buttons.length}`);
+        }
+        const statusCard = root.querySelector(".market-agent-setup-status-card");
+        const statusAction = statusCard?.querySelector(".market-agent-setup-status-actions .btn");
+        const statusText = statusCard instanceof HTMLElement ? statusCard.innerText || statusCard.textContent || "" : "";
+        if (!statusCard) {
+          problems.push("Data Sources setup status banner is missing");
+        } else {
+          const box = statusCard.getBoundingClientRect();
+          if (box.height > 140) {
+            problems.push(`Data Sources setup status banner is too tall (${box.height.toFixed(1)}px)`);
+          }
+          if (!/Next step|Setup status/i.test(statusText)) {
+            problems.push("Data Sources setup status banner does not expose a simple status label");
+          }
+          if (!statusAction) {
+            problems.push("Data Sources setup status banner is missing its primary action");
           }
         }
         return problems;
@@ -3997,6 +4013,128 @@ const main = async () => {
         theme: theme.key,
         state: "visible",
         path: await captureState(page, "market-agent-provider-config", theme.key, "visible", {
+          element: providerConfig
+        })
+      });
+      await providerConfig.locator(".market-agent-setup-tabs button").filter({ hasText: "cTrader" }).first().click();
+      await providerConfig.getByRole("heading", { name: "Connect cTrader", exact: true }).waitFor({
+        state: "visible",
+        timeout: 2000
+      });
+      const ctraderConnectProblems = await providerConfig.evaluate((root) => {
+        const text = root instanceof HTMLElement ? root.innerText || root.textContent || "" : "";
+        const problems = [];
+        for (const label of ["Account ID", "cTID / email", "Password"]) {
+          if (!text.includes(label)) {
+            problems.push(`Connect cTrader is missing ${label}`);
+          }
+        }
+        for (const label of [
+          "Client ID",
+          "Client Secret",
+          "Access Token",
+          "Refresh Token",
+          "Authorization code",
+          "Redirect URI",
+          "Token store path",
+          "CLI executable",
+          "Symbol",
+          "Symbol ID",
+          "Snapshot path",
+          "Trading environment",
+          "Config path:"
+        ]) {
+          if (text.includes(label)) {
+            problems.push(`Connect cTrader shows hidden or removed field ${label}`);
+          }
+        }
+        const passwordInput = root.querySelector("#ctrader-password");
+        if (!(passwordInput instanceof HTMLInputElement) || passwordInput.type !== "password") {
+          problems.push("Connect cTrader password input is not masked");
+        }
+        return problems;
+      });
+      if (ctraderConnectProblems.length) {
+        throw new Error(ctraderConnectProblems.join("; "));
+      }
+      artifacts.push({
+        scenario: "market-agent-ctrader-connect",
+        theme: theme.key,
+        state: "visible",
+        path: await captureState(page, "market-agent-ctrader-connect", theme.key, "visible", {
+          element: providerConfig
+        })
+      });
+      await providerConfig.locator(".market-agent-setup-tabs button").filter({ hasText: "Local AI" }).first().click();
+      await providerConfig.getByRole("heading", { name: "Auto Local AI", exact: true }).waitFor({
+        state: "visible",
+        timeout: 2000
+      });
+      const localAIProblems = await providerConfig.evaluate((root) => {
+        const text = root instanceof HTMLElement ? root.innerText || root.textContent || "" : "";
+        const problems = [];
+        for (const label of ["Auto", "Balanced", "Lightweight", "Rule-based only"]) {
+          if (!text.includes(label)) {
+            problems.push(`Auto Local AI is missing ${label}`);
+          }
+        }
+        for (const label of ["Advanced model settings"]) {
+          if (text.includes(label)) {
+            problems.push(`Auto Local AI shows hidden advanced control ${label}`);
+          }
+        }
+        const fieldLabels = Array.from(root.querySelectorAll("label"))
+          .map((label) => (label.textContent || "").trim())
+          .filter(Boolean);
+        for (const label of ["Endpoint", "Model"]) {
+          if (fieldLabels.some((fieldLabel) => fieldLabel === label)) {
+            problems.push(`Auto Local AI shows hidden advanced field ${label}`);
+          }
+        }
+        const buttonLabels = Array.from(root.querySelectorAll("button"))
+          .map((button) => (button.textContent || "").replace(/\s+/g, " ").trim())
+          .filter(Boolean);
+        for (const label of ["Test JSON", "Run benchmark"]) {
+          if (buttonLabels.some((buttonLabel) => buttonLabel === label)) {
+            problems.push(`Auto Local AI shows hidden advanced button ${label}`);
+          }
+        }
+        return problems;
+      });
+      if (localAIProblems.length) {
+        throw new Error(localAIProblems.join("; "));
+      }
+      artifacts.push({
+        scenario: "market-agent-local-ai",
+        theme: theme.key,
+        state: "visible",
+        path: await captureState(page, "market-agent-local-ai", theme.key, "visible", {
+          element: providerConfig
+        })
+      });
+      await providerConfig.locator(".market-agent-setup-tabs button").filter({ hasText: "Telegram" }).first().click();
+      await providerConfig.getByRole("heading", { name: "Telegram alerts", exact: true }).waitFor({
+        state: "visible",
+        timeout: 2000
+      });
+      artifacts.push({
+        scenario: "market-agent-data-sources-alerts",
+        theme: theme.key,
+        state: "visible",
+        path: await captureState(page, "market-agent-data-sources-alerts", theme.key, "visible", {
+          element: providerConfig
+        })
+      });
+      await providerConfig.locator(".market-agent-setup-tabs button").filter({ hasText: "Monitoring" }).first().click();
+      await providerConfig.getByRole("heading", { name: "Start monitoring", exact: true }).waitFor({
+        state: "visible",
+        timeout: 2000
+      });
+      artifacts.push({
+        scenario: "market-agent-data-sources-monitoring",
+        theme: theme.key,
+        state: "visible",
+        path: await captureState(page, "market-agent-data-sources-monitoring", theme.key, "visible", {
           element: providerConfig
         })
       });

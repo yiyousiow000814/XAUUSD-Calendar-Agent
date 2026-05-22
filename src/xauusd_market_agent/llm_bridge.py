@@ -24,7 +24,7 @@ def _config_from_payload(payload: dict[str, Any]) -> LocalLLMConfig:
         enabled=True,
         provider=str(payload.get("provider") or "ollama"),
         endpoint=str(payload.get("endpoint") or "http://localhost:11434"),
-        model=str(payload.get("model") or "qwen3:4b"),
+        model=str(payload.get("model") or "qwen3.5:4b"),
         temperature=float(payload.get("temperature") or 0.1),
         timeout_seconds=int(payload.get("timeoutSeconds") or payload.get("timeout_seconds") or 20),
         keep_alive=str(payload.get("keepAlive") or payload.get("keep_alive") or "0"),
@@ -93,7 +93,8 @@ def test_json_response(config: LocalLLMConfig) -> dict[str, Any]:
         "previous_state": {},
         "prompt": (
             "Return strict JSON with keys main_driver, cause_status, confidence, and thesis. "
-            "Use unknown when evidence is insufficient."
+            "Use only the supplied evidence. Do not invent drivers or causes. "
+            "Use unknown when evidence is insufficient. Return JSON only."
         ),
     }
     result = LocalLLMClient(config).analyze(packet)

@@ -334,19 +334,13 @@ export type MarketAgentProviderConfig = {
   symbol: string;
   symbolId?: number | null;
   accountId: string;
-  clientIdMasked: string;
-  clientSecretMasked: string;
-  accessTokenMasked: string;
-  refreshTokenMasked: string;
-  hasAccessToken: boolean;
-  hasRefreshToken: boolean;
-  appRedirectUri?: string;
-  tokenStorePath: string;
+  ctidMasked: string;
+  passwordMasked: string;
+  hasPassword: boolean;
   snapshotPath: string;
   quoteTimeoutSeconds: number;
   quoteStaleAfterSeconds: number;
   allowSavedSnapshotFallback: boolean;
-  bridgePythonExecutable: string;
   configPath: string;
 };
 
@@ -360,20 +354,15 @@ export type MarketAgentProviderConfigResponse = {
 export type MarketAgentProviderConfigInput = {
   enabled: boolean;
   environment: string;
-  clientId: string;
-  clientSecret: string;
-  accessToken: string;
-  refreshToken: string;
   accountId: string;
+  ctid: string;
+  password: string;
   symbol: string;
   symbolId?: number | null;
-  appRedirectUri?: string;
-  tokenStorePath?: string;
   snapshotPath?: string;
   quoteTimeoutSeconds: number;
   quoteStaleAfterSeconds: number;
   allowSavedSnapshotFallback: boolean;
-  bridgePythonExecutable?: string;
 };
 
 export type MarketAgentProviderActionResponse = {
@@ -385,7 +374,6 @@ export type MarketAgentProviderActionResponse = {
   symbol?: Record<string, unknown> | null;
   account?: Record<string, unknown> | null;
   ctrader?: MarketAgentProviderConfig | null;
-  tokenStorePath?: string;
 };
 
 export type MarketAgentTelegramConfig = {
@@ -461,6 +449,75 @@ export type MarketAgentLLMActionResponse = {
   message?: string;
   error?: string;
   llm?: MarketAgentLLMConfig | null;
+  model?: string;
+  elapsedMs?: number;
+  policy?: Record<string, unknown>;
+};
+
+export type MarketAgentSystemProfile = {
+  os: string;
+  arch?: string;
+  cpu?: string;
+  logicalCpuCount?: number;
+  ramBytes?: number;
+  gpuVendor?: string;
+  gpuName?: string;
+  vramBytes?: number;
+  nvidiaAvailable?: boolean;
+};
+
+export type MarketAgentLocalModelProfile = {
+  name: string;
+  tier: string;
+  label: string;
+  approximateSizeBytes: number;
+  diskLabel: string;
+  reason: string;
+};
+
+export type MarketAgentOllamaStatus = {
+  installed: boolean;
+  running: boolean;
+  endpointReachable: boolean;
+  endpoint: string;
+  version?: string;
+  installerUrl?: string;
+};
+
+export type MarketAgentLLMSetupResponse = {
+  ok: boolean;
+  available: boolean;
+  status: string;
+  message?: string;
+  system?: MarketAgentSystemProfile;
+  ollama?: MarketAgentOllamaStatus;
+  installedModels?: Record<string, unknown>[];
+  recommendedModel?: MarketAgentLocalModelProfile | null;
+  profiles?: MarketAgentLocalModelProfile[];
+  fallbackChain?: string[];
+  ruleBasedActive?: boolean;
+  llm?: MarketAgentLLMConfig | null;
+};
+
+export type MarketAgentOllamaPullProgress = {
+  ok?: boolean;
+  model: string;
+  status: string;
+  digest?: string;
+  completedBytes?: number | null;
+  totalBytes?: number | null;
+  percent?: number | null;
+  done?: boolean;
+  message?: string;
+  error?: string;
+};
+
+export type MarketAgentCTraderAuthResponse = {
+  ok: boolean;
+  status: string;
+  message?: string;
+  error?: string;
+  ctrader?: MarketAgentProviderConfig | null;
 };
 
 export type MarketAgentDriverAttentionResponse = {

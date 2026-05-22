@@ -11,6 +11,8 @@ import type {
   MarketAgentSnapshotResponse,
   MarketAgentLLMConfigResponse,
   MarketAgentLLMActionResponse,
+  MarketAgentLLMSetupResponse,
+  MarketAgentOllamaPullProgress,
   MarketAgentTelegramConfigResponse
 } from "../types";
 
@@ -91,20 +93,14 @@ const providerConfig: MarketAgentProviderConfigResponse = {
     symbol: "XAUUSD",
     symbolId: null,
     accountId: "",
-    clientIdMasked: "cl******id",
-    clientSecretMasked: "cl********et",
-    accessTokenMasked: "",
-    refreshTokenMasked: "",
-    hasAccessToken: false,
-    hasRefreshToken: false,
-    appRedirectUri: "",
-    tokenStorePath: "user-data/ctrader-token.json",
+    ctidMasked: "tr******er",
+    passwordMasked: "************",
+    hasPassword: true,
     snapshotPath: "user-data/ctrader-last-quote.json",
     quoteTimeoutSeconds: 8,
     quoteStaleAfterSeconds: 15,
     allowSavedSnapshotFallback: true,
-    bridgePythonExecutable: "python",
-    configPath: "user-data/ctrader-openapi.json"
+    configPath: "user-data/ctrader-cli.json"
   }
 };
 
@@ -131,7 +127,7 @@ const llmConfig: MarketAgentLLMConfigResponse = {
     enabled: false,
     provider: "ollama",
     endpoint: "http://localhost:11434",
-    model: "qwen3:4b",
+    model: "qwen3.5:4b",
     temperature: 0.1,
     timeoutSeconds: 20,
     keepAlive: "0",
@@ -140,6 +136,42 @@ const llmConfig: MarketAgentLLMConfigResponse = {
     lastStatus: "disabled",
     lastError: ""
   }
+};
+
+const localAiSetup: MarketAgentLLMSetupResponse = {
+  ok: true,
+  available: true,
+  status: "model_missing",
+  message: "Recommended model is missing.",
+  system: {
+    os: "windows",
+    arch: "x86_64",
+    cpu: "AMD Ryzen 7",
+    logicalCpuCount: 16,
+    ramBytes: 34359738368,
+    gpuVendor: "NVIDIA",
+    gpuName: "NVIDIA GeForce RTX 3060 Ti",
+    vramBytes: 8589934592,
+    nvidiaAvailable: true
+  },
+  ollama: {
+    installed: true,
+    running: true,
+    endpointReachable: true,
+    endpoint: "http://localhost:11434",
+    version: "0.9.0"
+  },
+  installedModels: [],
+  recommendedModel: {
+    name: "qwen3.5:4b",
+    tier: "balanced",
+    label: "Balanced",
+    approximateSizeBytes: 2900000000,
+    diskLabel: "~2.9 GB",
+    reason: "RTX 3060 Ti with 8GB VRAM can use the balanced model for fast JSON."
+  },
+  fallbackChain: ["qwen3.5:4b", "qwen3.5:2b", "qwen3.5:0.8b", "rule-based-only"],
+  ruleBasedActive: true
 };
 
 const driverAttention: MarketAgentDriverAttentionResponse = {
@@ -371,12 +403,20 @@ const marketAgentPageElement = (overrides: Partial<Parameters<typeof MarketAgent
       onTestCTraderConnection={async () => ({ ok: true })}
       onResolveCTraderSymbol={async () => ({ ok: true })}
       onGetCTraderQuoteTest={async () => ({ ok: true })}
-      onRefreshCTraderToken={async () => ({ ok: true })}
       onSaveTelegramConfig={async () => telegramConfig}
       onTestTelegramMessage={async () => ({ ok: true, status: "sent", message: "Telegram test message sent." })}
       onSaveLLMConfig={async () => llmConfig}
       onTestLLMConnection={async () => ({ ok: true, status: "available", message: "Ollama is available." })}
       onTestLLMJsonResponse={async () => ({ ok: true, status: "available", message: "Model returned valid JSON." })}
+      localAiSetup={localAiSetup}
+      localAiPullProgress={null}
+      onDetectLocalAI={async () => localAiSetup}
+      onInstallRecommendedModel={async () => ({ ok: true, status: "model_ready", message: "Model ready." })}
+      onCancelModelDownload={async () => ({ ok: true, status: "cancelled" })}
+      onBenchmarkLLM={async () => ({ ok: true, status: "model_ready", elapsedMs: 900, message: "Benchmark passed." })}
+      onApplyLLMFallbackPolicy={async () => ({ ok: true, status: "model_ready", model: "qwen3.5:4b" })}
+      onStartCTraderConnect={async () => ({ ok: true, status: "connected", message: "cTrader CLI credentials saved and checked.", ctrader: providerConfig.ctrader })}
+      onTestCTraderBackfill={async () => ({ ok: true, message: "M1 backfill is available." })}
       onRunMonitorOnce={async () => monitorStatus}
       onRunBackfillRecovery={async () => ({ ...monitorStatus, phase: "recovery_completed", message: "Backfill recovery completed." })}
       onStartMonitorLoop={async () => ({ ...monitorStatus, running: true, phase: "running" })}
@@ -419,12 +459,20 @@ describe("MarketAgentPage", () => {
         onTestCTraderConnection={async () => ({ ok: true })}
         onResolveCTraderSymbol={async () => ({ ok: true })}
         onGetCTraderQuoteTest={async () => ({ ok: true })}
-        onRefreshCTraderToken={async () => ({ ok: true })}
         onSaveTelegramConfig={async () => telegramConfig}
         onTestTelegramMessage={async () => ({ ok: true, status: "sent", message: "Telegram test message sent." })}
         onSaveLLMConfig={async () => llmConfig}
         onTestLLMConnection={async () => ({ ok: true, status: "available", message: "Ollama is available." })}
         onTestLLMJsonResponse={async () => ({ ok: true, status: "available", message: "Model returned valid JSON." })}
+        localAiSetup={localAiSetup}
+        localAiPullProgress={null}
+        onDetectLocalAI={async () => localAiSetup}
+        onInstallRecommendedModel={async () => ({ ok: true, status: "model_ready", message: "Model ready." })}
+        onCancelModelDownload={async () => ({ ok: true, status: "cancelled" })}
+        onBenchmarkLLM={async () => ({ ok: true, status: "model_ready", elapsedMs: 900, message: "Benchmark passed." })}
+        onApplyLLMFallbackPolicy={async () => ({ ok: true, status: "model_ready", model: "qwen3.5:4b" })}
+        onStartCTraderConnect={async () => ({ ok: true, status: "connected", message: "cTrader CLI credentials saved and checked.", ctrader: providerConfig.ctrader })}
+        onTestCTraderBackfill={async () => ({ ok: true, message: "M1 backfill is available." })}
         onRunMonitorOnce={async () => monitorStatus}
         onRunBackfillRecovery={async () => ({ ...monitorStatus, phase: "recovery_completed", message: "Backfill recovery completed." })}
         onStartMonitorLoop={async () => ({ ...monitorStatus, running: true, phase: "running" })}
@@ -813,12 +861,20 @@ describe("MarketAgentPage", () => {
         onTestCTraderConnection={async () => ({ ok: true })}
         onResolveCTraderSymbol={async () => ({ ok: true })}
         onGetCTraderQuoteTest={async () => ({ ok: true })}
-        onRefreshCTraderToken={async () => ({ ok: true })}
         onSaveTelegramConfig={async () => telegramConfig}
         onTestTelegramMessage={async () => ({ ok: true, status: "sent", message: "Telegram test message sent." })}
         onSaveLLMConfig={async () => llmConfig}
         onTestLLMConnection={async () => ({ ok: true, status: "available", message: "Ollama is available." })}
         onTestLLMJsonResponse={async () => ({ ok: true, status: "available", message: "Model returned valid JSON." })}
+        localAiSetup={localAiSetup}
+        localAiPullProgress={null}
+        onDetectLocalAI={async () => localAiSetup}
+        onInstallRecommendedModel={async () => ({ ok: true, status: "model_ready", message: "Model ready." })}
+        onCancelModelDownload={async () => ({ ok: true, status: "cancelled" })}
+        onBenchmarkLLM={async () => ({ ok: true, status: "model_ready", elapsedMs: 900, message: "Benchmark passed." })}
+        onApplyLLMFallbackPolicy={async () => ({ ok: true, status: "model_ready", model: "qwen3.5:4b" })}
+        onStartCTraderConnect={async () => ({ ok: true, status: "connected", message: "cTrader CLI credentials saved and checked.", ctrader: providerConfig.ctrader })}
+        onTestCTraderBackfill={async () => ({ ok: true, message: "M1 backfill is available." })}
         onRunMonitorOnce={async () => monitorStatus}
         onRunBackfillRecovery={async () => ({ ...monitorStatus, phase: "recovery_completed", message: "Backfill recovery completed." })}
         onStartMonitorLoop={async () => ({ ...monitorStatus, running: true, phase: "running" })}
@@ -875,7 +931,6 @@ describe("MarketAgentPage", () => {
         onTestCTraderConnection={async () => ({ ok: true })}
         onResolveCTraderSymbol={async () => ({ ok: true })}
         onGetCTraderQuoteTest={async () => ({ ok: true })}
-        onRefreshCTraderToken={async () => ({ ok: true })}
         onSaveTelegramConfig={async () => telegramConfig}
         onTestTelegramMessage={async () => ({ ok: true, status: "sent", message: "Telegram test message sent." })}
         onSaveLLMConfig={async () => llmConfig}
@@ -890,15 +945,16 @@ describe("MarketAgentPage", () => {
 
     fireEvent.click(screen.getByRole("navigation", { name: /Market Agent sections/i }).querySelectorAll("button")[5]);
     expect(screen.getByRole("heading", { name: /^Data Sources$/i })).toBeInTheDocument();
-    expect(screen.getByText(/Market Agent setup is incomplete\./i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^Price$/i })).toHaveAttribute("aria-pressed", "true");
-    const stepper = screen.getByRole("navigation", { name: /Data source setup steps/i });
-    expect(Array.from(stepper.querySelectorAll(".market-agent-step-index")).slice(0, 4).map((item) => item.textContent)).toEqual([
-      "1",
-      "2",
-      "3",
-      "4"
-    ]);
+    expect(screen.getByText(/Add the cTrader login used for live XAUUSD/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^cTrader$/i })).toHaveAttribute("aria-pressed", "true");
+    const actions = screen.getByRole("navigation", { name: /Data source setup actions/i });
+    expect(within(actions).getByRole("button", { name: /^cTrader$/i })).toBeInTheDocument();
+    expect(within(actions).getByRole("button", { name: /^Local AI$/i })).toBeInTheDocument();
+    expect(within(actions).getByRole("button", { name: /^Telegram$/i })).toBeInTheDocument();
+    expect(within(actions).getByRole("button", { name: /^Monitoring$/i })).toBeInTheDocument();
+    expect(within(actions).queryByRole("button", { name: /^Price$/i })).not.toBeInTheDocument();
+    expect(within(actions).queryByRole("button", { name: /^Market data$/i })).not.toBeInTheDocument();
+    expect(within(actions).queryByRole("button", { name: /^News$/i })).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Access Token/i)).not.toBeInTheDocument();
 
     const alertsButton = screen.getByRole("navigation", { name: /Market Agent sections/i }).querySelector("[data-market-agent-section='alerts']")!;
@@ -918,9 +974,220 @@ describe("MarketAgentPage", () => {
     expect(screen.getByText(/Raw details/i)).toBeInTheDocument();
   });
 
+  it("defaults Data Sources to Connect cTrader and Auto Local AI instead of raw setup forms", () => {
+    renderMarketAgentPage();
+
+    fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
+
+    const setupCard = screen.getByText(/Add the cTrader login used for live XAUUSD/i).closest("section") as HTMLElement;
+    expect(within(setupCard).getByText(/^Next step$/i)).toBeInTheDocument();
+    expect(within(setupCard).getByRole("heading", { name: /^cTrader connection needed$/i })).toBeInTheDocument();
+    expect(within(setupCard).getByRole("button", { name: /^Open cTrader setup$/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /^cTrader$/i }));
+    expect(screen.getByRole("heading", { name: /^Connect cTrader$/i })).toBeInTheDocument();
+    expect(screen.getByText(/Market symbols are handled automatically/i)).toBeInTheDocument();
+    expect(screen.getByText(/Password is stored locally and masked after save/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Connect cTrader$/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/Account ID/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/cTID \/ email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Password/i)).toHaveAttribute("type", "password");
+    expect(screen.queryByLabelText(/Trading environment/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Symbol$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Advanced cTrader CLI setup/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Client ID/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Client Secret/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Access Token/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Refresh Token/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Authorization code/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/CLI executable/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Symbol ID/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Snapshot path/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Quote timeout/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Token store path/i)).not.toBeInTheDocument();
+    const tooltipExpectations = [
+      /Trading account/i,
+      /cTrader ID/i,
+      /local CLI login/i
+    ] as const;
+    tooltipExpectations.forEach((title) => {
+      expect(screen.getByTitle(title)).toHaveAttribute("aria-label", "Field help");
+    });
+    expect(screen.queryByText(/Where do I find these/i)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
+    expect(screen.getByRole("heading", { name: /^Auto Local AI$/i })).toBeInTheDocument();
+    expect(screen.getByText(/Rule-based active/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Auto$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Balanced$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Lightweight$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Rule-based only$/i })).toBeInTheDocument();
+    expect(screen.getAllByText(/~2\.9 GB/i).length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: /Download recommended/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Cancel download/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Advanced model settings/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Model$/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Endpoint$/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Test JSON/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Run benchmark/i })).not.toBeInTheDocument();
+  });
+
+  it("shows guided Local AI status and model pull progress", () => {
+    const noOllamaSetup: MarketAgentLLMSetupResponse = {
+      ...localAiSetup,
+      ok: false,
+      available: true,
+      status: "ollama_not_installed",
+      message: "Ollama is not installed.",
+      ollama: {
+        installed: false,
+        running: false,
+        endpointReachable: false,
+        endpoint: "http://localhost:11434",
+        installerUrl: "https://ollama.com/download"
+      }
+    };
+
+    renderMarketAgentPage({ localAiSetup: noOllamaSetup });
+    fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
+
+    expect(screen.getByText(/Ollama not installed/i)).toBeInTheDocument();
+    expect(screen.getByText(/https:\/\/ollama\.com\/download/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Download recommended/i })).toBeDisabled();
+  });
+
+  it("renders Ollama pull progress bytes and percent while downloading", () => {
+    const progress: MarketAgentOllamaPullProgress = {
+      model: "qwen3.5:4b",
+      status: "downloading model",
+      completedBytes: 1450000000,
+      totalBytes: 2900000000,
+      percent: 50,
+      done: false
+    };
+
+    renderMarketAgentPage({ localAiPullProgress: progress });
+    fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
+
+    expect(screen.getAllByText(/Downloading model/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/1450000000 \/ 2900000000 bytes/i)).toBeInTheDocument();
+    expect(screen.getByText(/50\.0%/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Downloading qwen3\.5:4b/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Cancel download/i })).toBeInTheDocument();
+  });
+
+  it("applies Local AI fallback policy returned after model installation", async () => {
+    const installModel = vi.fn().mockResolvedValue({
+      ok: false,
+      status: "invalid_json",
+      model: "qwen3.5:4b",
+      message: "Model download completed, but JSON or benchmark validation failed.",
+      policy: {
+        ok: true,
+        status: "fallback_active",
+        model: "qwen3.5:2b",
+        message: "Downgrade to qwen3.5:2b."
+      }
+    });
+
+    renderMarketAgentPage({ onInstallRecommendedModel: installModel });
+    fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /Download recommended/i }));
+    });
+
+    expect(installModel).toHaveBeenCalledWith("qwen3.5:4b");
+    expect(screen.queryByText(/Advanced model settings/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Model$/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/JSON or benchmark validation failed/i)).toBeInTheDocument();
+  });
+
+  it("supports the guided setup path from cTrader CLI credentials through Local AI model install", async () => {
+    const startCTraderConnect = vi.fn().mockResolvedValue({
+      ok: true,
+      status: "connected",
+      message: "cTrader CLI credentials saved and checked.",
+      ctrader: providerConfig.ctrader
+    });
+    const quoteTest = vi.fn().mockResolvedValue({
+      ok: true,
+      message: "Live quote received.",
+      quote: { symbol: "XAUUSD", mid: 4512.53, source_type: "spot" }
+    });
+    const backfillTest = vi.fn().mockResolvedValue({ ok: true, message: "M1 trendbar backfill is available." });
+    const installModel = vi.fn().mockResolvedValue({ ok: true, status: "model_ready", message: "Model ready." });
+    const jsonTest = vi.fn().mockResolvedValue({ ok: true, status: "model_ready", message: "Model returned valid JSON." });
+    const benchmark = vi.fn().mockResolvedValue({ ok: true, status: "model_ready", elapsedMs: 900, message: "Benchmark passed." });
+    const saveTelegram = vi.fn().mockResolvedValue({ ...telegramConfig, telegram: { ...telegramConfig.telegram!, enabled: true } });
+    const startMonitor = vi.fn().mockResolvedValue({ ...monitorStatus, running: true, phase: "running" });
+
+    renderMarketAgentPage({
+      onStartCTraderConnect: startCTraderConnect,
+      onGetCTraderQuoteTest: quoteTest,
+      onTestCTraderBackfill: backfillTest,
+      onInstallRecommendedModel: installModel,
+      onTestLLMJsonResponse: jsonTest,
+      onBenchmarkLLM: benchmark,
+      onSaveTelegramConfig: saveTelegram,
+      onStartMonitorLoop: startMonitor
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^cTrader$/i }));
+    fireEvent.change(screen.getByLabelText(/Account ID/i), { target: { value: "123456" } });
+    fireEvent.change(screen.getByLabelText(/cTID \/ email/i), { target: { value: "trader@example.com" } });
+    fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: "very-secret-password" } });
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /^Connect cTrader$/i }));
+    });
+    expect(startCTraderConnect).toHaveBeenCalledWith(
+      expect.objectContaining({
+        accountId: "123456",
+        ctid: "trader@example.com",
+        password: "very-secret-password",
+        symbol: "XAUUSD",
+        enabled: true
+      })
+    );
+
+    await act(async () => {
+    });
+    expect(screen.queryByRole("button", { name: /Test Quote/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Test M1 Backfill/i })).not.toBeInTheDocument();
+    expect(quoteTest).not.toHaveBeenCalled();
+    expect(backfillTest).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /Download recommended/i }));
+    });
+    expect(installModel).toHaveBeenCalledWith("qwen3.5:4b");
+    expect(screen.queryByRole("button", { name: /Test JSON/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Run benchmark/i })).not.toBeInTheDocument();
+    expect(jsonTest).not.toHaveBeenCalled();
+    expect(benchmark).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: /^Telegram$/i }));
+    fireEvent.click(screen.getByLabelText(/Enable Telegram alerts/i));
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /Save Telegram alerts/i }));
+    });
+    expect(saveTelegram).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole("button", { name: /^Monitoring$/i }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /^Start Monitoring$/i }));
+    });
+    expect(startMonitor).toHaveBeenCalledTimes(1);
+  });
+
   it("renders a user-facing market agent page without primary raw enum labels", async () => {
     const selected: number[] = [];
-    const refreshToken = vi.fn().mockResolvedValue({ ok: true, message: "cTrader access token refreshed and saved." });
 
     render(
       <MarketAgentPage
@@ -947,7 +1214,6 @@ describe("MarketAgentPage", () => {
         onTestCTraderConnection={async () => ({ ok: true })}
         onResolveCTraderSymbol={async () => ({ ok: true })}
         onGetCTraderQuoteTest={async () => ({ ok: true })}
-        onRefreshCTraderToken={refreshToken}
         onSaveTelegramConfig={async () => telegramConfig}
         onTestTelegramMessage={async () => ({ ok: true, status: "sent", message: "Telegram test message sent." })}
         onSaveLLMConfig={async () => llmConfig}
@@ -992,65 +1258,76 @@ describe("MarketAgentPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
     expect(screen.getByRole("heading", { name: /^Data Sources$/i })).toBeInTheDocument();
-    expect(screen.getByText(/Market Agent setup is incomplete\./i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Price source/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Market context/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/News/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Calendar/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Telegram/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Analysis/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/Monitor loop/i)).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /Price source/i })).toBeInTheDocument();
-    expect(screen.getByText(/Live XAUUSD price and missed-history recovery/i)).toBeInTheDocument();
+    expect(screen.getByText(/Add the cTrader login used for live XAUUSD/i)).toBeInTheDocument();
+    const dataSourceActions = screen.getByRole("navigation", { name: /Data source setup actions/i });
+    expect(within(dataSourceActions).getByRole("button", { name: /^cTrader$/i })).toBeInTheDocument();
+    expect(within(dataSourceActions).getByRole("button", { name: /^Local AI$/i })).toBeInTheDocument();
+    expect(within(dataSourceActions).getByRole("button", { name: /^Telegram$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Monitoring$/i })).toBeInTheDocument();
+    expect(within(dataSourceActions).queryByRole("button", { name: /^Price$/i })).not.toBeInTheDocument();
+    expect(within(dataSourceActions).queryByRole("button", { name: /^Market data$/i })).not.toBeInTheDocument();
+    expect(within(dataSourceActions).queryByRole("button", { name: /^News$/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Connect cTrader/i })).toBeInTheDocument();
+    expect(screen.getByText(/Market symbols are handled automatically/i)).toBeInTheDocument();
+    expect(screen.queryByText(/^Backup price$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Local CSV$/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Access Token/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Refresh Token/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Config path:/i)).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("navigation", { name: /Data source setup steps/i }).querySelectorAll("button")[1]);
+    fireEvent.click(within(dataSourceActions).getByRole("button", { name: /^cTrader$/i }));
     expect(screen.getByRole("heading", { name: /Connect cTrader/i })).toBeInTheDocument();
-    expect(screen.getByText(/No cTrader password is needed/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Access Token/i)).toBeInTheDocument();
+    expect(screen.getByText(/Password is stored locally and masked after save/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Account ID/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/cTID \/ email/i)).toHaveAttribute("placeholder", providerConfig.ctrader?.ctidMasked);
+    expect(screen.getByLabelText(/Password/i)).toHaveAttribute("placeholder", providerConfig.ctrader?.passwordMasked);
+    expect(screen.queryByLabelText(/Trading environment/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Symbol$/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Access Token/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Refresh Token/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/Broker-specific options/i)).toBeInTheDocument();
-    expect(screen.queryByLabelText(/Bridge Python/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Advanced cTrader CLI setup/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/CLI executable/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Symbol ID/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Snapshot path/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Access Token/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Refresh Token/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/CLI executable/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Config path:/i)).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByText(/Broker-specific options/i));
-    expect(screen.getByLabelText(/Refresh Token/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Bridge Python/i)).toBeInTheDocument();
-    expect(screen.getByText(/Config path:/i)).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("navigation", { name: /Data source setup steps/i }).querySelectorAll("button")[5]);
+    fireEvent.click(within(dataSourceActions).getByRole("button", { name: /^Telegram$/i }));
     expect(screen.getByRole("heading", { name: /Alerts/i })).toBeInTheDocument();
     expect(screen.getByText(/Telegram is optional/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Bot token/i)).toHaveAttribute("placeholder", "12********90");
     expect(screen.getByLabelText(/Chat ID/i)).toHaveValue("123456789");
     expect(screen.getByRole("button", { name: /Send Test Message/i })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("navigation", { name: /Data source setup steps/i }).querySelectorAll("button")[4]);
-    expect(screen.getByRole("heading", { name: /Analysis/i })).toBeInTheDocument();
+    fireEvent.click(within(dataSourceActions).getByRole("button", { name: /^Local AI$/i }));
+    expect(screen.getByRole("heading", { name: /Auto Local AI/i })).toBeInTheDocument();
     expect(screen.getByText(/Optional local model/i)).toBeInTheDocument();
-    expect(screen.getByText(/Rule-based/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Endpoint/i)).not.toBeVisible();
-    expect(screen.getByRole("button", { name: /Test model/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Test JSON/i })).toBeInTheDocument();
+    expect(screen.getAllByText(/Rule-based/i).length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: /^Auto$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Balanced$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Lightweight$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Rule-based only$/i })).toBeInTheDocument();
+    expect(screen.queryByLabelText(/Endpoint/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Download recommended/i })).toBeInTheDocument();
+    expect(screen.queryByText(/Advanced model settings/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Test JSON/i })).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("navigation", { name: /Data source setup steps/i }).querySelectorAll("button")[6]);
+    fireEvent.click(within(dataSourceActions).getByRole("button", { name: /^Monitoring$/i }));
     expect(screen.getByRole("heading", { name: /Start monitoring/i })).toBeInTheDocument();
     expect(screen.getByText(/Monitoring is stopped\./i)).toBeInTheDocument();
     expect(screen.queryByText(/Backfill & Recover runs one monitor pass/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/Recovery fills missed data/i)).toBeInTheDocument();
+    expect(screen.getByText(/automatically backfills missing cTrader history/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Check Now/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Start Monitoring/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Stop Monitoring/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Recover Missed Data/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Stop Monitoring/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Recover Missed Data/i })).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("navigation", { name: /Data source setup steps/i }).querySelectorAll("button")[1]);
+    fireEvent.click(within(dataSourceActions).getByRole("button", { name: /^cTrader$/i }));
     expect(screen.getByRole("heading", { name: /Connect cTrader/i })).toBeInTheDocument();
 
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: /Refresh Token/i }));
-    });
-    expect(refreshToken).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("button", { name: /^Refresh token$/i })).not.toBeInTheDocument();
   });
 
   it("shows a readable local CSV fallback warning", () => {
@@ -1088,7 +1365,6 @@ describe("MarketAgentPage", () => {
         onTestCTraderConnection={async () => ({ ok: true })}
         onResolveCTraderSymbol={async () => ({ ok: true })}
         onGetCTraderQuoteTest={async () => ({ ok: true })}
-        onRefreshCTraderToken={async () => ({ ok: true })}
         onSaveTelegramConfig={async () => telegramConfig}
         onTestTelegramMessage={async () => ({ ok: true, status: "sent", message: "Telegram test message sent." })}
         onSaveLLMConfig={async () => llmConfig}
@@ -1149,7 +1425,6 @@ describe("MarketAgentPage", () => {
         onTestCTraderConnection={async () => ({ ok: true })}
         onResolveCTraderSymbol={async () => ({ ok: true })}
         onGetCTraderQuoteTest={async () => ({ ok: true })}
-        onRefreshCTraderToken={async () => ({ ok: true })}
         onSaveTelegramConfig={async () => telegramConfig}
         onTestTelegramMessage={async () => ({ ok: false, status: "failed", error: "telegram unavailable" })}
         onSaveLLMConfig={async () => llmConfig}

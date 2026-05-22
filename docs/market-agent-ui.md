@@ -75,7 +75,7 @@ The Provider Health table shows:
 Honest current status:
 
 - cTrader is the preferred true XAUUSD spot path when configured.
-- cTrader uses client id, client secret, access token, refresh token, account id, and environment. It does not use a password.
+- cTrader uses the local CLI credential set: trading account, cTID or email, and password.
 - Yahoo `GC=F` is shown as `futures_proxy`.
 - cTrader snapshot fallback is labeled stale when it is used.
 - US2Y may remain unavailable if no reliable source is configured.
@@ -95,27 +95,19 @@ The `Data Sources` panel is a guided setup flow. It shows a real setup checklist
 
 The cTrader step lets you:
 
-- save cTrader config into user-data
-- test cTrader connection
-- resolve the active XAUUSD symbol
-- request a live quote test
-- refresh the stored cTrader access token when a refresh token is available
+- save the cTrader CLI credential set into user-data
+- run the backend cTrader CLI connection check
+- let backend provider policy resolve XAUUSD and context markets automatically
 - clear the saved config
 
-Saved values remain masked in the UI. The frontend must not display raw secrets after persistence.
+Saved cTID and password values remain masked in the UI. The frontend must not display raw secrets after persistence, and symbols are not user-facing setup fields.
 
-The LLM step lets you configure local Ollama analysis:
+The LLM step lets you choose the local analysis mode:
 
-- enable local LLM
-- provider: `ollama`
-- endpoint
-- model
-- temperature
-- timeout seconds
-- keep alive
-- max context
-- test connection
-- test strict JSON response
+- Auto
+- `qwen3.5:4b`
+- `qwen3.5:0.8b`
+- Rule-based only
 
 LLM is optional. The rule-based evidence gate works when LLM is disabled. LLM is called only after meaningful triggers, recovery summaries, or explicit analysis requests. It is not the source of truth; invalid JSON and blocked-driver claims fall back to guarded rule-based output.
 
@@ -179,8 +171,7 @@ If SQLite is missing or incomplete, the UI shows an empty-state message instead 
 
 The provider configuration panel reads and writes:
 
-- `ctrader-openapi.json`
-- `ctrader-token.json`
+- `ctrader-cli.json`
 - `ctrader-last-quote.json`
 
 under the app user-data directory.
@@ -216,24 +207,26 @@ Typical local LLM setup:
 $env:LOCAL_LLM_ENABLED = "true"
 $env:LOCAL_LLM_PROVIDER = "ollama"
 $env:LOCAL_LLM_ENDPOINT = "http://localhost:11434"
-$env:LOCAL_LLM_MODEL = "qwen3:4b"
+$env:LOCAL_LLM_MODEL = "qwen3.5:4b"
 $env:LOCAL_LLM_TEMPERATURE = "0.1"
 $env:LOCAL_LLM_TIMEOUT_SECONDS = "20"
 $env:LOCAL_LLM_KEEP_ALIVE = "0"
 $env:LOCAL_LLM_MAX_CONTEXT = "8192"
 ```
 
-Typical cTrader setup before running:
+The desktop UI defaults to Auto Local AI. It detects Ollama and the local machine profile, recommends `qwen3.5:4b`, `qwen3.5:2b`, `qwen3.5:0.8b`, or rule-based only, and asks before pulling multi-GB models. Ollama installation is still a guided manual step.
+
+Typical cTrader setup before running the CLI directly:
 
 ```powershell
-$env:CTRADER_CLIENT_ID = "your-client-id"
-$env:CTRADER_CLIENT_SECRET = "your-client-secret"
-$env:CTRADER_ACCESS_TOKEN = "your-access-token"
-$env:CTRADER_REFRESH_TOKEN = "your-refresh-token"
 $env:CTRADER_ACCOUNT_ID = "123456"
+$env:CTRADER_CTID = "name@example.com"
+$env:CTRADER_PASSWORD = "your-password"
 $env:CTRADER_ENVIRONMENT = "demo"
-$env:CTRADER_SYMBOL = "XAUUSD"
+$env:CTRADER_CONFIG_PATH = "user-data/ctrader-cli.json"
 ```
+
+The desktop UI defaults to Connect cTrader for the local cTrader CLI path. Users enter trading account, cTID or email, and password; the app saves the credentials under user-data and masks them after save. Backend provider policy handles XAUUSD, related cTrader markets, and fallback sources such as DXY, yields, oil, VIX, SPX, and Nasdaq without asking the user to configure symbols.
 
 Replay a time range:
 

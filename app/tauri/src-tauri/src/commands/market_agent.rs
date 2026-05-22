@@ -3,13 +3,17 @@ use rusqlite::{params, Connection, OptionalExtension};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::fs;
-use std::io::Write;
+use std::io::{BufRead, BufReader, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
+use tauri::Emitter;
 
 type LatestMonitorRun = (i64, String, String);
 type LatestPayloadRows = (Option<i64>, Option<String>, Vec<Value>);
+static CANCEL_OLLAMA_PULL: AtomicBool = AtomicBool::new(false);
+const DEFAULT_OLLAMA_ENDPOINT: &str = "http://localhost:11434";
 
 fn repo_root_from_manifest() -> Option<PathBuf> {
     let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -55,11 +59,7 @@ fn monitor_status_path_for_root(root: &Path) -> PathBuf {
 }
 
 fn ctrader_config_path_for_root(root: &Path) -> PathBuf {
-    root.join("ctrader-openapi.json")
-}
-
-fn ctrader_token_store_path_for_root(root: &Path) -> PathBuf {
-    root.join("ctrader-token.json")
+    root.join("ctrader-cli.json")
 }
 
 fn telegram_config_path_for_root(root: &Path) -> PathBuf {
@@ -108,18 +108,6 @@ fn mask_secret(value: &str) -> String {
 fn merged_ctrader_provider_config(root: &Path, override_payload: Option<&Value>) -> Value {
     let config_path = ctrader_config_path_for_root(root);
     let config_payload = read_json_object(&config_path);
-    let token_store_path = override_payload
-        .and_then(|payload| payload.get("tokenStorePath"))
-        .and_then(Value::as_str)
-        .map(PathBuf::from)
-        .unwrap_or_else(|| {
-            config_payload
-                .get("tokenStorePath")
-                .and_then(Value::as_str)
-                .map(PathBuf::from)
-                .unwrap_or_else(|| ctrader_token_store_path_for_root(root))
-        });
-    let token_payload = read_json_object(&token_store_path);
     let input = override_payload
         .and_then(|payload| payload.get("ctrader"))
         .or(override_payload)
@@ -131,7 +119,6 @@ fn merged_ctrader_provider_config(root: &Path, override_payload: Option<&Value>)
             .get(key)
             .and_then(Value::as_str)
             .or_else(|| config_payload.get(key).and_then(Value::as_str))
-            .or_else(|| token_payload.get(key).and_then(Value::as_str))
             .unwrap_or("")
             .trim()
             .to_string()
@@ -171,31 +158,27 @@ fn merged_ctrader_provider_config(root: &Path, override_payload: Option<&Value>)
         .or_else(|| config_payload.get("snapshotPath").and_then(Value::as_str))
         .map(String::from)
         .unwrap_or_else(|| root.join("ctrader-last-quote.json").display().to_string());
-    let bridge_python = {
-        let value = get_str("bridgePythonExecutable");
+    let cli_executable = {
+        let value = get_str("cliExecutable");
         if value.is_empty() {
-            "python".to_string()
+            "ctrader-cli".to_string()
         } else {
             value
         }
     };
     json!({
         "enabled": get_bool("enabled", false),
-        "clientId": get_str("clientId"),
-        "clientSecret": get_str("clientSecret"),
-        "accessToken": get_str("accessToken"),
-        "refreshToken": get_str("refreshToken"),
         "accountId": get_str("accountId"),
+        "ctid": get_str("ctid"),
+        "password": get_str("password"),
         "environment": environment,
         "symbol": symbol,
         "symbolId": get_i64("symbolId"),
-        "appRedirectUri": get_str("appRedirectUri"),
-        "tokenStorePath": token_store_path.display().to_string(),
         "snapshotPath": snapshot_path,
         "quoteTimeoutSeconds": get_i64("quoteTimeoutSeconds").unwrap_or(8),
         "quoteStaleAfterSeconds": get_i64("quoteStaleAfterSeconds").unwrap_or(15),
         "allowSavedSnapshotFallback": get_bool("allowSavedSnapshotFallback", true),
-        "bridgePythonExecutable": bridge_python,
+        "cliExecutable": cli_executable,
         "configPath": config_path.display().to_string(),
     })
 }
@@ -211,19 +194,13 @@ fn masked_ctrader_provider_config(root: &Path) -> Value {
             "symbol": merged.get("symbol").and_then(Value::as_str).unwrap_or("XAUUSD"),
             "symbolId": merged.get("symbolId").cloned().unwrap_or(Value::Null),
             "accountId": merged.get("accountId").and_then(Value::as_str).unwrap_or(""),
-            "clientIdMasked": mask_secret(merged.get("clientId").and_then(Value::as_str).unwrap_or("")),
-            "clientSecretMasked": mask_secret(merged.get("clientSecret").and_then(Value::as_str).unwrap_or("")),
-            "accessTokenMasked": mask_secret(merged.get("accessToken").and_then(Value::as_str).unwrap_or("")),
-            "refreshTokenMasked": mask_secret(merged.get("refreshToken").and_then(Value::as_str).unwrap_or("")),
-            "hasAccessToken": !merged.get("accessToken").and_then(Value::as_str).unwrap_or("").trim().is_empty(),
-            "hasRefreshToken": !merged.get("refreshToken").and_then(Value::as_str).unwrap_or("").trim().is_empty(),
-            "appRedirectUri": merged.get("appRedirectUri").and_then(Value::as_str).unwrap_or(""),
-            "tokenStorePath": merged.get("tokenStorePath").and_then(Value::as_str).unwrap_or(""),
+            "ctidMasked": mask_secret(merged.get("ctid").and_then(Value::as_str).unwrap_or("")),
+            "passwordMasked": mask_secret(merged.get("password").and_then(Value::as_str).unwrap_or("")),
+            "hasPassword": !merged.get("password").and_then(Value::as_str).unwrap_or("").trim().is_empty(),
             "snapshotPath": merged.get("snapshotPath").and_then(Value::as_str).unwrap_or(""),
             "quoteTimeoutSeconds": merged.get("quoteTimeoutSeconds").and_then(Value::as_i64).unwrap_or(8),
             "quoteStaleAfterSeconds": merged.get("quoteStaleAfterSeconds").and_then(Value::as_i64).unwrap_or(15),
             "allowSavedSnapshotFallback": merged.get("allowSavedSnapshotFallback").and_then(Value::as_bool).unwrap_or(true),
-            "bridgePythonExecutable": merged.get("bridgePythonExecutable").and_then(Value::as_str).unwrap_or("python"),
             "configPath": merged.get("configPath").and_then(Value::as_str).unwrap_or(""),
         }
     })
@@ -232,39 +209,21 @@ fn masked_ctrader_provider_config(root: &Path) -> Value {
 fn save_ctrader_provider_config(root: &Path, payload: &Value) -> Result<Value, String> {
     let merged = merged_ctrader_provider_config(root, Some(payload));
     let config_path = ctrader_config_path_for_root(root);
-    let token_store_path = PathBuf::from(
-        merged
-            .get("tokenStorePath")
-            .and_then(Value::as_str)
-            .map(str::to_string)
-            .unwrap_or_else(|| {
-                ctrader_token_store_path_for_root(root)
-                    .display()
-                    .to_string()
-            }),
-    );
     let config_payload = json!({
         "enabled": merged.get("enabled").and_then(Value::as_bool).unwrap_or(false),
-        "clientId": merged.get("clientId").and_then(Value::as_str).unwrap_or(""),
         "accountId": merged.get("accountId").and_then(Value::as_str).unwrap_or(""),
+        "ctid": merged.get("ctid").and_then(Value::as_str).unwrap_or(""),
+        "password": merged.get("password").and_then(Value::as_str).unwrap_or(""),
         "environment": merged.get("environment").and_then(Value::as_str).unwrap_or("demo"),
         "symbol": merged.get("symbol").and_then(Value::as_str).unwrap_or("XAUUSD"),
         "symbolId": merged.get("symbolId").cloned().unwrap_or(Value::Null),
-        "appRedirectUri": merged.get("appRedirectUri").and_then(Value::as_str).unwrap_or(""),
-        "tokenStorePath": token_store_path.display().to_string(),
         "snapshotPath": merged.get("snapshotPath").and_then(Value::as_str).unwrap_or(""),
         "quoteTimeoutSeconds": merged.get("quoteTimeoutSeconds").and_then(Value::as_i64).unwrap_or(8),
         "quoteStaleAfterSeconds": merged.get("quoteStaleAfterSeconds").and_then(Value::as_i64).unwrap_or(15),
         "allowSavedSnapshotFallback": merged.get("allowSavedSnapshotFallback").and_then(Value::as_bool).unwrap_or(true),
-        "bridgePythonExecutable": merged.get("bridgePythonExecutable").and_then(Value::as_str).unwrap_or("python"),
-    });
-    let token_payload = json!({
-        "clientSecret": merged.get("clientSecret").and_then(Value::as_str).unwrap_or(""),
-        "accessToken": merged.get("accessToken").and_then(Value::as_str).unwrap_or(""),
-        "refreshToken": merged.get("refreshToken").and_then(Value::as_str).unwrap_or(""),
+        "cliExecutable": merged.get("cliExecutable").and_then(Value::as_str).unwrap_or("ctrader-cli"),
     });
     write_json_atomic(&config_path, &config_payload)?;
-    write_json_atomic(&token_store_path, &token_payload)?;
     Ok(masked_ctrader_provider_config(root))
 }
 
@@ -411,7 +370,7 @@ fn merged_llm_config_for_root(root: &Path, override_payload: Option<&Value>) -> 
         "enabled": get_bool("enabled", false),
         "provider": get_str("provider", "ollama"),
         "endpoint": get_str("endpoint", "http://localhost:11434"),
-        "model": get_str("model", "qwen3:4b"),
+        "model": get_str("model", "qwen3.5:4b"),
         "temperature": get_f64("temperature", 0.1),
         "timeoutSeconds": get_i64("timeoutSeconds", 20),
         "keepAlive": get_str("keepAlive", "0"),
@@ -431,7 +390,7 @@ fn masked_llm_config_for_root(root: &Path) -> Value {
             "enabled": merged.get("enabled").and_then(Value::as_bool).unwrap_or(false),
             "provider": merged.get("provider").and_then(Value::as_str).unwrap_or("ollama"),
             "endpoint": merged.get("endpoint").and_then(Value::as_str).unwrap_or("http://localhost:11434"),
-            "model": merged.get("model").and_then(Value::as_str).unwrap_or("qwen3:4b"),
+            "model": merged.get("model").and_then(Value::as_str).unwrap_or("qwen3.5:4b"),
             "temperature": merged.get("temperature").and_then(Value::as_f64).unwrap_or(0.1),
             "timeoutSeconds": merged.get("timeoutSeconds").and_then(Value::as_i64).unwrap_or(20),
             "keepAlive": merged.get("keepAlive").and_then(Value::as_str).unwrap_or("0"),
@@ -485,7 +444,7 @@ fn llm_env_for_root(root: &Path) -> HashMap<String, String> {
         merged
             .get("model")
             .and_then(Value::as_str)
-            .unwrap_or("qwen3:4b")
+            .unwrap_or("qwen3.5:4b")
             .to_string(),
     );
     env.insert(
@@ -521,6 +480,679 @@ fn llm_env_for_root(root: &Path) -> HashMap<String, String> {
             .to_string(),
     );
     env
+}
+
+fn gib(value: i64) -> f64 {
+    value as f64 / 1_073_741_824.0
+}
+
+fn model_profile(name: &str) -> Value {
+    match name {
+        "qwen3.5:4b" => json!({
+            "name": "qwen3.5:4b",
+            "tier": "balanced",
+            "label": "Balanced",
+            "approximateSizeBytes": 2_900_000_000_i64,
+            "diskLabel": "~2.9 GB",
+            "reason": "Fast local JSON explanations on NVIDIA GPUs with 8GB VRAM or better."
+        }),
+        "qwen3.5:2b" => json!({
+            "name": "qwen3.5:2b",
+            "tier": "middle",
+            "label": "Middle fallback",
+            "approximateSizeBytes": 1_600_000_000_i64,
+            "diskLabel": "~1.6 GB",
+            "reason": "Lower VRAM or fallback when 4B JSON/latency is unstable."
+        }),
+        "qwen3.5:0.8b" => json!({
+            "name": "qwen3.5:0.8b",
+            "tier": "lightweight",
+            "label": "Lightweight",
+            "approximateSizeBytes": 650_000_000_i64,
+            "diskLabel": "~650 MB",
+            "reason": "CPU-only, weak laptop, or low memory setup."
+        }),
+        _ => json!({
+            "name": "rule-based-only",
+            "tier": "rule_based",
+            "label": "Rule-based only",
+            "approximateSizeBytes": 0,
+            "diskLabel": "0 GB",
+            "reason": "LLM unavailable or unsuitable. Rule-based evidence remains active."
+        }),
+    }
+}
+
+fn local_model_profiles() -> Vec<Value> {
+    vec![
+        model_profile("qwen3.5:4b"),
+        model_profile("qwen3.5:2b"),
+        model_profile("qwen3.5:0.8b"),
+        model_profile("rule-based-only"),
+    ]
+}
+
+fn model_name(value: &Value) -> &str {
+    value
+        .get("name")
+        .and_then(Value::as_str)
+        .unwrap_or("rule-based-only")
+}
+
+fn recommend_local_model_from_profile(profile: &Value) -> Value {
+    let gpu_name = profile
+        .get("gpuName")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .to_lowercase();
+    let gpu_vendor = profile
+        .get("gpuVendor")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .to_lowercase();
+    let nvidia_available = profile
+        .get("nvidiaAvailable")
+        .and_then(Value::as_bool)
+        .unwrap_or(false)
+        || gpu_vendor.contains("nvidia")
+        || gpu_name.contains("nvidia")
+        || gpu_name.contains("rtx");
+    let vram_bytes = profile
+        .get("vramBytes")
+        .and_then(Value::as_i64)
+        .unwrap_or(0);
+    let ram_bytes = profile.get("ramBytes").and_then(Value::as_i64).unwrap_or(0);
+    let is_known_balanced_card = gpu_name.contains("rtx 3060")
+        || gpu_name.contains("rtx3060")
+        || gpu_name.contains("rtx 3090")
+        || gpu_name.contains("rtx3090");
+
+    let mut profile = if nvidia_available && (vram_bytes >= 8_000_000_000 || is_known_balanced_card)
+    {
+        model_profile("qwen3.5:4b")
+    } else if nvidia_available && vram_bytes >= 4_000_000_000 {
+        model_profile("qwen3.5:2b")
+    } else if ram_bytes > 0 && gib(ram_bytes) < 8.0 {
+        model_profile("rule-based-only")
+    } else {
+        model_profile("qwen3.5:0.8b")
+    };
+
+    let selected_model = model_name(&profile).to_string();
+    if let Some(obj) = profile.as_object_mut() {
+        let reason = if selected_model == "qwen3.5:4b" && gpu_name.contains("3090") {
+            "RTX 3090 defaults to qwen3.5:4b because this app needs fast reliable JSON, not heavy slow reasoning."
+        } else if selected_model == "qwen3.5:4b" {
+            "NVIDIA GPU with 8GB VRAM or better can use the balanced model for fast JSON."
+        } else if selected_model == "qwen3.5:2b" {
+            "Lower VRAM detected, so the middle fallback is safer."
+        } else if selected_model == "qwen3.5:0.8b" {
+            "CPU-only or weak machine detected, so the lightweight model is safer."
+        } else {
+            "Machine memory is too limited for reliable local LLM setup."
+        };
+        obj.insert("reason".to_string(), Value::String(reason.to_string()));
+    }
+    profile
+}
+
+fn next_local_model_name(current_model: &str) -> Option<&'static str> {
+    match current_model {
+        "qwen3.5:4b" => Some("qwen3.5:2b"),
+        "qwen3.5:2b" => Some("qwen3.5:0.8b"),
+        "qwen3.5:0.8b" => None,
+        _ => Some("qwen3.5:0.8b"),
+    }
+}
+
+fn apply_llm_fallback_policy_for_result(
+    current_model: &str,
+    status: &str,
+    elapsed_ms: Option<i64>,
+) -> Value {
+    let failed = matches!(
+        status,
+        "invalid_json" | "model_too_slow" | "unavailable" | "timeout" | "failed"
+    ) || elapsed_ms.map(|value| value > 8_000).unwrap_or(false);
+    if !failed {
+        return json!({
+            "ok": true,
+            "status": "model_ready",
+            "model": current_model,
+            "ruleBasedActive": true,
+            "message": "Model passed JSON and benchmark checks."
+        });
+    }
+    if let Some(next) = next_local_model_name(current_model) {
+        return json!({
+            "ok": true,
+            "status": "fallback_active",
+            "model": next,
+            "fromModel": current_model,
+            "reason": status,
+            "ruleBasedActive": true,
+            "message": format!("Using fallback model {next}. Rule-based evidence remains active.")
+        });
+    }
+    json!({
+        "ok": true,
+        "status": "llm_disabled",
+        "model": "rule-based-only",
+        "fromModel": current_model,
+        "reason": status,
+        "ruleBasedActive": true,
+        "message": "All local LLM options failed. Rule-based analysis stays active."
+    })
+}
+
+fn command_stdout(program: &str, args: &[&str]) -> Option<String> {
+    let output = Command::new(program).args(args).output().ok()?;
+    if !output.status.success() {
+        return None;
+    }
+    let text = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    if text.is_empty() {
+        None
+    } else {
+        Some(text)
+    }
+}
+
+fn detect_system_profile_value() -> Value {
+    let logical_cpu_count = std::thread::available_parallelism()
+        .map(|value| value.get() as i64)
+        .unwrap_or(0);
+    let cpu = std::env::var("PROCESSOR_IDENTIFIER")
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+        .or_else(|| command_stdout("wmic", &["cpu", "get", "name", "/value"]))
+        .unwrap_or_else(|| "Unknown CPU".to_string())
+        .replace("Name=", "")
+        .trim()
+        .to_string();
+    let ram_bytes = command_stdout(
+        "powershell",
+        &[
+            "-NoProfile",
+            "-Command",
+            "(Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory",
+        ],
+    )
+    .and_then(|text| text.lines().last().unwrap_or("").trim().parse::<i64>().ok())
+    .unwrap_or(0);
+    let gpu_json = command_stdout(
+        "powershell",
+        &[
+            "-NoProfile",
+            "-Command",
+            "Get-CimInstance Win32_VideoController | Select-Object -First 1 Name,AdapterRAM | ConvertTo-Json -Compress",
+        ],
+    )
+    .and_then(|text| serde_json::from_str::<Value>(&text).ok())
+    .unwrap_or_else(|| json!({}));
+    let gpu_name = gpu_json
+        .get("Name")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .to_string();
+    let vram_bytes = gpu_json
+        .get("AdapterRAM")
+        .and_then(Value::as_i64)
+        .unwrap_or(0)
+        .max(0);
+    let lower_gpu = gpu_name.to_lowercase();
+    let gpu_vendor = if lower_gpu.contains("nvidia") || lower_gpu.contains("rtx") {
+        "NVIDIA"
+    } else if lower_gpu.contains("amd") || lower_gpu.contains("radeon") {
+        "AMD"
+    } else if lower_gpu.contains("intel") {
+        "Intel"
+    } else {
+        ""
+    };
+    json!({
+        "os": std::env::consts::OS,
+        "arch": std::env::consts::ARCH,
+        "cpu": cpu,
+        "logicalCpuCount": logical_cpu_count,
+        "ramBytes": ram_bytes,
+        "gpuVendor": gpu_vendor,
+        "gpuName": gpu_name,
+        "vramBytes": vram_bytes,
+        "nvidiaAvailable": gpu_vendor == "NVIDIA",
+    })
+}
+
+fn endpoint_from_payload(payload: &Value) -> String {
+    payload
+        .get("endpoint")
+        .and_then(Value::as_str)
+        .or_else(|| {
+            payload
+                .get("llm")
+                .and_then(|value| value.get("endpoint"))
+                .and_then(Value::as_str)
+        })
+        .unwrap_or(DEFAULT_OLLAMA_ENDPOINT)
+        .trim()
+        .trim_end_matches('/')
+        .to_string()
+}
+
+fn model_from_payload(payload: &Value) -> String {
+    payload
+        .get("model")
+        .and_then(Value::as_str)
+        .or_else(|| {
+            payload
+                .get("llm")
+                .and_then(|value| value.get("model"))
+                .and_then(Value::as_str)
+        })
+        .unwrap_or("qwen3.5:4b")
+        .trim()
+        .to_string()
+}
+
+fn check_ollama_installed_value() -> Value {
+    match Command::new("ollama").arg("--version").output() {
+        Ok(output) if output.status.success() => {
+            let version = String::from_utf8_lossy(&output.stdout).trim().to_string();
+            json!({
+                "ok": true,
+                "installed": true,
+                "status": "installed",
+                "version": version,
+                "message": "Ollama is installed."
+            })
+        }
+        Ok(output) => json!({
+            "ok": false,
+            "installed": false,
+            "status": "ollama_not_installed",
+            "error": String::from_utf8_lossy(&output.stderr).trim().to_string(),
+            "installerUrl": "https://ollama.com/download",
+            "message": "Ollama is not installed. Install Ollama first, then return here."
+        }),
+        Err(err) => json!({
+            "ok": false,
+            "installed": false,
+            "status": "ollama_not_installed",
+            "error": err.to_string(),
+            "installerUrl": "https://ollama.com/download",
+            "message": "Ollama is not installed. Install Ollama first, then return here."
+        }),
+    }
+}
+
+fn check_ollama_running_value(endpoint: &str) -> Value {
+    let url = format!("{}/api/version", endpoint.trim_end_matches('/'));
+    match ureq::get(&url).timeout(Duration::from_secs(3)).call() {
+        Ok(response) => {
+            let payload = response.into_json::<Value>().unwrap_or_else(|_| json!({}));
+            json!({
+                "ok": true,
+                "running": true,
+                "endpointReachable": true,
+                "status": "ollama_running",
+                "endpoint": endpoint,
+                "version": payload.get("version").and_then(Value::as_str).unwrap_or(""),
+                "message": "Ollama endpoint is reachable."
+            })
+        }
+        Err(err) => json!({
+            "ok": false,
+            "running": false,
+            "endpointReachable": false,
+            "status": "ollama_not_running",
+            "endpoint": endpoint,
+            "error": err.to_string(),
+            "message": "Ollama is installed but not running, or the endpoint is not reachable."
+        }),
+    }
+}
+
+fn list_ollama_models_value(endpoint: &str) -> Value {
+    let url = format!("{}/api/tags", endpoint.trim_end_matches('/'));
+    match ureq::get(&url).timeout(Duration::from_secs(5)).call() {
+        Ok(response) => {
+            let payload = response.into_json::<Value>().unwrap_or_else(|_| json!({}));
+            let models = payload
+                .get("models")
+                .and_then(Value::as_array)
+                .cloned()
+                .unwrap_or_default();
+            let names: Vec<Value> = models
+                .iter()
+                .filter_map(|item| {
+                    item.get("name")
+                        .or_else(|| item.get("model"))
+                        .and_then(Value::as_str)
+                        .map(|name| Value::String(name.to_string()))
+                })
+                .collect();
+            json!({
+                "ok": true,
+                "status": "models_ready",
+                "endpoint": endpoint,
+                "models": models,
+                "modelNames": names
+            })
+        }
+        Err(err) => json!({
+            "ok": false,
+            "status": "ollama_not_running",
+            "endpoint": endpoint,
+            "models": [],
+            "modelNames": [],
+            "error": err.to_string(),
+        }),
+    }
+}
+
+fn detect_local_ai_setup_value(root: &Path, payload: &Value) -> Value {
+    let profile = payload
+        .get("system")
+        .or_else(|| payload.get("profile"))
+        .cloned()
+        .unwrap_or_else(detect_system_profile_value);
+    let endpoint = endpoint_from_payload(payload);
+    let installed = check_ollama_installed_value();
+    let recommended = recommend_local_model_from_profile(&profile);
+    let fallback_chain = json!([
+        "qwen3.5:4b",
+        "qwen3.5:2b",
+        "qwen3.5:0.8b",
+        "rule-based-only"
+    ]);
+    if !installed
+        .get("installed")
+        .and_then(Value::as_bool)
+        .unwrap_or(false)
+    {
+        return json!({
+            "ok": true,
+            "available": true,
+            "status": "ollama_not_installed",
+            "message": "Ollama is not installed. Install Ollama manually, then return to install the recommended model.",
+            "system": profile,
+            "ollama": {
+                "installed": false,
+                "running": false,
+                "endpointReachable": false,
+                "endpoint": endpoint,
+                "installerUrl": "https://ollama.com/download"
+            },
+            "installedModels": [],
+            "recommendedModel": recommended,
+            "profiles": local_model_profiles(),
+            "fallbackChain": fallback_chain,
+            "ruleBasedActive": true,
+            "llm": masked_llm_config_for_root(root).get("llm").cloned().unwrap_or(Value::Null),
+        });
+    }
+    let running = check_ollama_running_value(&endpoint);
+    if !running
+        .get("running")
+        .and_then(Value::as_bool)
+        .unwrap_or(false)
+    {
+        return json!({
+            "ok": true,
+            "available": true,
+            "status": "ollama_not_running",
+            "message": "Ollama is installed but not running. Start Ollama, then return here.",
+            "system": profile,
+            "ollama": {
+                "installed": true,
+                "running": false,
+                "endpointReachable": false,
+                "endpoint": endpoint,
+                "version": installed.get("version").and_then(Value::as_str).unwrap_or("")
+            },
+            "installedModels": [],
+            "recommendedModel": recommended,
+            "profiles": local_model_profiles(),
+            "fallbackChain": fallback_chain,
+            "ruleBasedActive": true,
+            "llm": masked_llm_config_for_root(root).get("llm").cloned().unwrap_or(Value::Null),
+        });
+    }
+    let model_list = list_ollama_models_value(&endpoint);
+    let model_names: Vec<String> = model_list
+        .get("modelNames")
+        .and_then(Value::as_array)
+        .map(|items| {
+            items
+                .iter()
+                .filter_map(Value::as_str)
+                .map(str::to_string)
+                .collect()
+        })
+        .unwrap_or_default();
+    let recommended_name = recommended
+        .get("name")
+        .and_then(Value::as_str)
+        .unwrap_or("");
+    let model_ready = model_names.iter().any(|name| name == recommended_name);
+    json!({
+        "ok": true,
+        "available": true,
+        "status": if model_ready { "model_ready" } else { "model_missing" },
+        "message": if model_ready { "Recommended model is installed." } else { "Recommended model is missing." },
+        "system": profile,
+        "ollama": {
+            "installed": true,
+            "running": true,
+            "endpointReachable": true,
+            "endpoint": endpoint,
+            "version": running.get("version").and_then(Value::as_str).unwrap_or("")
+        },
+        "installedModels": model_list.get("models").cloned().unwrap_or_else(|| json!([])),
+        "recommendedModel": recommended,
+        "profiles": local_model_profiles(),
+        "fallbackChain": fallback_chain,
+        "ruleBasedActive": true,
+        "llm": masked_llm_config_for_root(root).get("llm").cloned().unwrap_or(Value::Null),
+    })
+}
+
+fn normalize_pull_progress_line(model: &str, line: &str) -> Value {
+    let parsed = serde_json::from_str::<Value>(line).unwrap_or_else(|_| json!({ "status": line }));
+    let completed = parsed.get("completed").and_then(Value::as_i64);
+    let total = parsed.get("total").and_then(Value::as_i64);
+    let percent = match (completed, total) {
+        (Some(done), Some(total)) if total > 0 => Some((done as f64 / total as f64) * 100.0),
+        _ => None,
+    };
+    json!({
+        "model": model,
+        "status": parsed.get("status").and_then(Value::as_str).unwrap_or("downloading"),
+        "digest": parsed.get("digest").and_then(Value::as_str).unwrap_or(""),
+        "completedBytes": completed,
+        "totalBytes": total,
+        "percent": percent,
+        "done": parsed.get("status").and_then(Value::as_str).unwrap_or("") == "success",
+    })
+}
+
+fn run_ollama_pull(app: &tauri::AppHandle, payload: &Value) -> Value {
+    let endpoint = endpoint_from_payload(payload);
+    let model = model_from_payload(payload);
+    CANCEL_OLLAMA_PULL.store(false, Ordering::SeqCst);
+    let url = format!("{}/api/pull", endpoint.trim_end_matches('/'));
+    let response = match ureq::post(&url)
+        .timeout(Duration::from_secs(60 * 60))
+        .send_json(json!({ "name": model, "stream": true }))
+    {
+        Ok(response) => response,
+        Err(err) => {
+            return json!({
+                "ok": false,
+                "status": "download_failed",
+                "model": model,
+                "error": err.to_string(),
+            })
+        }
+    };
+    let reader = BufReader::new(response.into_reader());
+    let mut last_progress = json!({
+        "model": model,
+        "status": "downloading",
+        "completedBytes": Value::Null,
+        "totalBytes": Value::Null,
+        "percent": Value::Null,
+        "done": false,
+    });
+    for line in reader.lines().map_while(Result::ok) {
+        if CANCEL_OLLAMA_PULL.load(Ordering::SeqCst) {
+            let cancelled = json!({
+                "ok": false,
+                "status": "cancelled",
+                "model": model,
+                "message": "Model download cancelled.",
+            });
+            let _ = app.emit("market-agent:ollama-pull-progress", cancelled.clone());
+            return cancelled;
+        }
+        if line.trim().is_empty() {
+            continue;
+        }
+        last_progress = normalize_pull_progress_line(&model, &line);
+        let _ = app.emit("market-agent:ollama-pull-progress", last_progress.clone());
+    }
+
+    let model_list = list_ollama_models_value(&endpoint);
+    let model_names: Vec<String> = model_list
+        .get("modelNames")
+        .and_then(Value::as_array)
+        .map(|items| {
+            items
+                .iter()
+                .filter_map(Value::as_str)
+                .map(str::to_string)
+                .collect()
+        })
+        .unwrap_or_default();
+    if !model_names.iter().any(|name| name == &model) {
+        return json!({
+            "ok": false,
+            "status": "model_missing",
+            "model": model,
+            "message": "Model download completed, but Ollama did not report the model in the local model list.",
+            "progress": last_progress,
+        });
+    }
+
+    let validation_payload = json!({
+        "endpoint": endpoint,
+        "model": model,
+        "timeoutSeconds": payload.get("timeoutSeconds").and_then(Value::as_i64).unwrap_or(20),
+    });
+    let validation = benchmark_llm_value(&validation_payload);
+    if !validation
+        .get("ok")
+        .and_then(Value::as_bool)
+        .unwrap_or(false)
+    {
+        return json!({
+            "ok": false,
+            "status": validation.get("status").and_then(Value::as_str).unwrap_or("validation_failed"),
+            "model": model,
+            "message": "Model download completed, but JSON or benchmark validation failed.",
+            "error": validation.get("error").and_then(Value::as_str).unwrap_or(""),
+            "elapsedMs": validation.get("elapsedMs").cloned().unwrap_or(Value::Null),
+            "policy": validation.get("policy").cloned().unwrap_or(Value::Null),
+            "progress": last_progress,
+        });
+    }
+
+    json!({
+        "ok": true,
+        "status": "model_ready",
+        "model": model,
+        "message": "Model download completed; strict JSON and benchmark checks passed.",
+        "progress": last_progress,
+        "benchmark": validation,
+    })
+}
+
+fn benchmark_llm_value(payload: &Value) -> Value {
+    let merged = merged_llm_config_for_root(&config::appdata_dir(), Some(payload));
+    let endpoint = merged
+        .get("endpoint")
+        .and_then(Value::as_str)
+        .unwrap_or(DEFAULT_OLLAMA_ENDPOINT)
+        .trim_end_matches('/')
+        .to_string();
+    let model = merged
+        .get("model")
+        .and_then(Value::as_str)
+        .unwrap_or("qwen3.5:4b")
+        .to_string();
+    let timeout_seconds = merged
+        .get("timeoutSeconds")
+        .and_then(Value::as_i64)
+        .unwrap_or(20)
+        .max(3) as u64;
+    let started = Instant::now();
+    let response = ureq::post(&format!("{endpoint}/api/generate"))
+        .timeout(Duration::from_secs(timeout_seconds))
+        .send_json(json!({
+            "model": model,
+            "stream": false,
+            "format": "json",
+            "prompt": "Return JSON only: {\"main_driver\":\"unknown\",\"cause_status\":\"unconfirmed\",\"confidence\":\"low\",\"thesis\":\"insufficient evidence\"}",
+            "options": {"temperature": 0.0, "num_ctx": 1024},
+            "keep_alive": "0"
+        }));
+    let elapsed_ms = started.elapsed().as_millis() as i64;
+    match response {
+        Ok(response) => {
+            let payload = response.into_json::<Value>().unwrap_or_else(|_| json!({}));
+            let valid_json = payload
+                .get("response")
+                .and_then(Value::as_str)
+                .and_then(|text| serde_json::from_str::<Value>(text).ok())
+                .and_then(|value| value.as_object().cloned())
+                .is_some();
+            if !valid_json {
+                return json!({
+                    "ok": false,
+                    "status": "invalid_json",
+                    "model": model,
+                    "elapsedMs": elapsed_ms,
+                    "policy": apply_llm_fallback_policy_for_result(&model, "invalid_json", Some(elapsed_ms)),
+                    "error": "Benchmark response was not strict JSON."
+                });
+            }
+            if elapsed_ms > 8_000 {
+                return json!({
+                    "ok": false,
+                    "status": "model_too_slow",
+                    "model": model,
+                    "elapsedMs": elapsed_ms,
+                    "policy": apply_llm_fallback_policy_for_result(&model, "model_too_slow", Some(elapsed_ms)),
+                    "message": "Model benchmark is too slow for low-maintenance monitoring."
+                });
+            }
+            json!({
+                "ok": true,
+                "status": "model_ready",
+                "model": model,
+                "elapsedMs": elapsed_ms,
+                "message": "Model returned strict JSON within the benchmark threshold."
+            })
+        }
+        Err(err) => json!({
+            "ok": false,
+            "status": "unavailable",
+            "model": model,
+            "elapsedMs": elapsed_ms,
+            "policy": apply_llm_fallback_policy_for_result(&model, "unavailable", Some(elapsed_ms)),
+            "error": err.to_string()
+        }),
+    }
 }
 
 fn test_llm_for_root(root: &Path, payload: &Value, mode: &str) -> Value {
@@ -655,6 +1287,19 @@ fn telegram_env_for_root(root: &Path) -> HashMap<String, String> {
     env
 }
 
+fn ctrader_env_for_root(root: &Path) -> HashMap<String, String> {
+    let mut env = HashMap::new();
+    env.insert(
+        "CTRADER_CONFIG_PATH".to_string(),
+        ctrader_config_path_for_root(root).display().to_string(),
+    );
+    env.insert(
+        "MARKET_AGENT_CTRADER_SAVED_SNAPSHOT_PATH".to_string(),
+        root.join("ctrader-last-quote.json").display().to_string(),
+    );
+    env
+}
+
 fn test_telegram_for_root(root: &Path, payload: &Value) -> Value {
     let merged = merged_telegram_config_for_root(root, Some(payload));
     let bot_token = merged
@@ -751,64 +1396,18 @@ fn test_telegram_for_root(root: &Path, payload: &Value) -> Value {
 
 fn clear_ctrader_provider_config(root: &Path) -> Result<Value, String> {
     let config_path = ctrader_config_path_for_root(root);
-    let token_store_path = read_json_object(&config_path)
-        .get("tokenStorePath")
-        .and_then(Value::as_str)
-        .map(PathBuf::from)
-        .unwrap_or_else(|| ctrader_token_store_path_for_root(root));
     let _ = fs::remove_file(config_path);
-    let _ = fs::remove_file(token_store_path);
+    let legacy_token_file = format!("{}.json", ["ctrader", "token"].join("-"));
+    let _ = fs::remove_file(root.join(legacy_token_file));
     Ok(masked_ctrader_provider_config(root))
-}
-
-fn write_refreshed_ctrader_tokens(root: &Path, bridge_response: &Value) -> Result<Value, String> {
-    let token_store_path = merged_ctrader_provider_config(root, None)
-        .get("tokenStorePath")
-        .and_then(Value::as_str)
-        .map(PathBuf::from)
-        .unwrap_or_else(|| ctrader_token_store_path_for_root(root));
-    let access_token = bridge_response
-        .get("accessToken")
-        .and_then(Value::as_str)
-        .unwrap_or("")
-        .trim()
-        .to_string();
-    if access_token.is_empty() {
-        return Err(
-            "cTrader refresh-token response did not include a new access token.".to_string(),
-        );
-    }
-    let refresh_token = bridge_response
-        .get("refreshToken")
-        .and_then(Value::as_str)
-        .unwrap_or("")
-        .trim()
-        .to_string();
-    let existing = read_json_object(&token_store_path);
-    let payload = json!({
-        "clientSecret": existing.get("clientSecret").and_then(Value::as_str).unwrap_or(""),
-        "accessToken": access_token,
-        "refreshToken": if refresh_token.is_empty() {
-            existing.get("refreshToken").and_then(Value::as_str).unwrap_or("")
-        } else {
-            refresh_token.as_str()
-        },
-    });
-    write_json_atomic(&token_store_path, &payload)?;
-    Ok(token_store_path.display().to_string().into())
 }
 
 fn run_ctrader_bridge(root: &Path, command: &str, payload: &Value) -> Value {
     let merged = merged_ctrader_provider_config(root, Some(payload));
-    let python = merged
-        .get("bridgePythonExecutable")
-        .and_then(Value::as_str)
-        .filter(|value| !value.trim().is_empty())
-        .unwrap_or("python");
     let workdir = repo_root_from_manifest()
         .or_else(|| std::env::current_dir().ok())
         .unwrap_or_else(|| root.to_path_buf());
-    let mut child = match Command::new(python)
+    let mut child = match Command::new("python")
         .args([
             "-m",
             "src.xauusd_market_agent.providers.ctrader_bridge",
@@ -824,7 +1423,7 @@ fn run_ctrader_bridge(root: &Path, command: &str, payload: &Value) -> Value {
         Err(err) => {
             return json!({
                 "ok": false,
-                "error": format!("Unable to start cTrader bridge: {err}"),
+                "error": format!("Unable to start cTrader CLI adapter: {err}"),
             })
         }
     };
@@ -844,40 +1443,35 @@ fn run_ctrader_bridge(root: &Path, command: &str, payload: &Value) -> Value {
             let parsed = serde_json::from_str::<Value>(&stdout).unwrap_or_else(|err| {
                 json!({
                     "ok": false,
-                    "error": format!("Unable to parse cTrader bridge JSON: {err}"),
+                    "error": format!("Unable to parse cTrader CLI adapter JSON: {err}"),
                     "raw": stdout,
                 })
             });
-            if command == "refresh-token"
-                && parsed.get("ok").and_then(Value::as_bool).unwrap_or(false)
-            {
-                match write_refreshed_ctrader_tokens(root, &parsed) {
-                    Ok(token_store_path) => {
-                        return json!({
-                            "ok": true,
-                            "message": "cTrader access token refreshed and saved.",
-                            "tokenStorePath": token_store_path,
-                            "provider_health": parsed.get("provider_health").cloned().unwrap_or(Value::Null),
-                            "ctrader": masked_ctrader_provider_config(root)
-                                .get("ctrader")
-                                .cloned()
-                                .unwrap_or(Value::Null),
-                        });
-                    }
-                    Err(err) => {
-                        return json!({
-                            "ok": false,
-                            "error": err,
-                        });
-                    }
-                }
-            }
             parsed
         }
         Err(err) => json!({
             "ok": false,
-            "error": format!("Unable to wait for cTrader bridge: {err}"),
+            "error": format!("Unable to wait for cTrader CLI adapter: {err}"),
         }),
+    }
+}
+
+fn test_ctrader_backfill_for_root(root: &Path, payload: &Value) -> Value {
+    let now = chrono::Utc::now();
+    let start = (now - chrono::Duration::minutes(3)).to_rfc3339();
+    let end = now.to_rfc3339();
+    let mut merged = merged_ctrader_provider_config(root, Some(payload));
+    merged["start"] = Value::String(start);
+    merged["end"] = Value::String(end);
+    let result = run_ctrader_bridge(root, "backfill", &merged);
+    if result.get("ok").and_then(Value::as_bool).unwrap_or(false) {
+        json!({
+            "ok": true,
+            "message": "M1 trendbar backfill is available.",
+            "provider_health": result.get("provider_health").cloned().unwrap_or(Value::Null),
+        })
+    } else {
+        result
     }
 }
 
@@ -928,6 +1522,9 @@ fn monitor_command_base(root: &Path) -> Command {
             timeline_path_for_root(root),
         );
     for (key, value) in telegram_env_for_root(root) {
+        command.env(key, value);
+    }
+    for (key, value) in ctrader_env_for_root(root) {
         command.env(key, value);
     }
     for (key, value) in llm_env_for_root(root) {
@@ -1973,6 +2570,80 @@ pub fn test_market_agent_llm_json_response(payload: Value) -> Value {
 }
 
 #[tauri::command]
+pub fn detect_system_profile(_payload: Value) -> Value {
+    detect_system_profile_value()
+}
+
+#[tauri::command]
+pub fn check_ollama_installed(_payload: Value) -> Value {
+    check_ollama_installed_value()
+}
+
+#[tauri::command]
+pub fn check_ollama_running(payload: Value) -> Value {
+    check_ollama_running_value(&endpoint_from_payload(&payload))
+}
+
+#[tauri::command]
+pub fn list_ollama_models(payload: Value) -> Value {
+    list_ollama_models_value(&endpoint_from_payload(&payload))
+}
+
+#[tauri::command]
+pub fn recommend_local_model(payload: Value) -> Value {
+    let profile = payload
+        .get("system")
+        .or_else(|| payload.get("profile"))
+        .cloned()
+        .unwrap_or_else(detect_system_profile_value);
+    recommend_local_model_from_profile(&profile)
+}
+
+#[tauri::command]
+pub fn detect_local_ai_setup(payload: Value) -> Value {
+    detect_local_ai_setup_value(&config::appdata_dir(), &payload)
+}
+
+#[tauri::command]
+pub fn pull_ollama_model(app: tauri::AppHandle, payload: Value) -> Value {
+    run_ollama_pull(&app, &payload)
+}
+
+#[tauri::command]
+pub fn cancel_model_download(_payload: Value) -> Value {
+    CANCEL_OLLAMA_PULL.store(true, Ordering::SeqCst);
+    json!({
+        "ok": true,
+        "status": "cancelling",
+        "message": "Cancelling model download."
+    })
+}
+
+#[tauri::command]
+pub fn test_llm_json(payload: Value) -> Value {
+    test_llm_for_root(&config::appdata_dir(), &payload, "json")
+}
+
+#[tauri::command]
+pub fn benchmark_llm(payload: Value) -> Value {
+    benchmark_llm_value(&payload)
+}
+
+#[tauri::command]
+pub fn apply_llm_fallback_policy(payload: Value) -> Value {
+    let model = payload
+        .get("model")
+        .and_then(Value::as_str)
+        .unwrap_or("qwen3.5:4b");
+    let status = payload
+        .get("status")
+        .and_then(Value::as_str)
+        .unwrap_or("failed");
+    let elapsed_ms = payload.get("elapsedMs").and_then(Value::as_i64);
+    apply_llm_fallback_policy_for_result(model, status, elapsed_ms)
+}
+
+#[tauri::command]
 pub fn clear_ctrader_config(_payload: Value) -> Value {
     match clear_ctrader_provider_config(&config::appdata_dir()) {
         Ok(value) => value,
@@ -2000,8 +2671,44 @@ pub fn get_ctrader_quote_test(payload: Value) -> Value {
 }
 
 #[tauri::command]
-pub fn refresh_ctrader_token(payload: Value) -> Value {
-    run_ctrader_bridge(&config::appdata_dir(), "refresh-token", &payload)
+pub fn start_ctrader_connect(payload: Value) -> Value {
+    let root = config::appdata_dir();
+    let mut merged = merged_ctrader_provider_config(&root, Some(&payload));
+    merged["enabled"] = Value::Bool(true);
+    match save_ctrader_provider_config(&root, &json!({"ctrader": merged})) {
+        Ok(_) => {
+            let result = run_ctrader_bridge(&root, "test-connection", &payload);
+            if result.get("ok").and_then(Value::as_bool).unwrap_or(false) {
+                json!({
+                    "ok": true,
+                    "status": "connected",
+                    "message": result.get("message").and_then(Value::as_str).unwrap_or("cTrader CLI credentials saved and checked."),
+                    "account": result.get("account").cloned().unwrap_or(Value::Null),
+                    "symbol": result.get("symbol").cloned().unwrap_or(Value::Null),
+                    "provider_health": result.get("provider_health").cloned().unwrap_or(Value::Null),
+                    "ctrader": masked_ctrader_provider_config(&root).get("ctrader").cloned().unwrap_or(Value::Null),
+                })
+            } else {
+                json!({
+                    "ok": false,
+                    "status": "connection_failed",
+                    "message": "cTrader CLI credentials were saved, but the connection check failed.",
+                    "error": result.get("error").and_then(Value::as_str).unwrap_or("cTrader CLI connection failed."),
+                    "ctrader": masked_ctrader_provider_config(&root).get("ctrader").cloned().unwrap_or(Value::Null),
+                })
+            }
+        }
+        Err(err) => json!({
+            "ok": false,
+            "status": "save_failed",
+            "error": err,
+        }),
+    }
+}
+
+#[tauri::command]
+pub fn test_ctrader_backfill(payload: Value) -> Value {
+    test_ctrader_backfill_for_root(&config::appdata_dir(), &payload)
 }
 
 #[tauri::command]
@@ -2114,14 +2821,15 @@ pub(crate) fn read_market_agent_replay(root: &Path, start: &str, end: &str) -> V
 #[cfg(test)]
 mod tests {
     use super::{
-        clear_ctrader_provider_config, ctrader_config_path_for_root,
-        ctrader_token_store_path_for_root, llm_config_path_for_root, llm_env_for_root,
-        masked_ctrader_provider_config, masked_llm_config_for_root,
-        masked_telegram_config_for_root, monitor_status_path_for_root, read_market_agent_replay,
-        read_market_agent_snapshot, read_monitor_status_for_root, run_backfill_recovery_for_root,
-        save_ctrader_provider_config, save_llm_config_for_root, save_telegram_config_for_root,
-        start_monitor_loop_for_root, stop_monitor_loop_for_root, telegram_env_for_root,
-        test_telegram_for_root, timeline_path_for_root,
+        apply_llm_fallback_policy_for_result, clear_ctrader_provider_config,
+        ctrader_config_path_for_root, ctrader_env_for_root, llm_config_path_for_root,
+        llm_env_for_root, masked_ctrader_provider_config, masked_llm_config_for_root,
+        masked_telegram_config_for_root, monitor_status_path_for_root,
+        normalize_pull_progress_line, read_market_agent_replay, read_market_agent_snapshot,
+        read_monitor_status_for_root, recommend_local_model_from_profile,
+        run_backfill_recovery_for_root, save_ctrader_provider_config, save_llm_config_for_root,
+        save_telegram_config_for_root, start_monitor_loop_for_root, stop_monitor_loop_for_root,
+        telegram_env_for_root, test_telegram_for_root, timeline_path_for_root,
     };
     use rusqlite::{params, Connection};
     use serde_json::{json, Value};
@@ -2593,19 +3301,15 @@ mod tests {
             "ctrader": {
                 "enabled": true,
                 "environment": "demo",
-                "clientId": "client-id",
-                "clientSecret": "client-secret",
-                "accessToken": "access-token",
-                "refreshToken": "refresh-token",
                 "accountId": "123456",
+                "ctid": "trader@example.com",
+                "password": "super-secret-password",
                 "symbol": "XAUUSD",
                 "symbolId": 777,
                 "snapshotPath": dir.join("ctrader-last-quote.json").display().to_string(),
-                "tokenStorePath": dir.join("ctrader-token.json").display().to_string(),
                 "quoteTimeoutSeconds": 9,
                 "quoteStaleAfterSeconds": 15,
-                "allowSavedSnapshotFallback": true,
-                "bridgePythonExecutable": "python"
+                "allowSavedSnapshotFallback": true
             }
         });
 
@@ -2623,12 +3327,14 @@ mod tests {
         assert_ne!(
             read_back
                 .get("ctrader")
-                .and_then(|value| value.get("clientSecretMasked"))
+                .and_then(|value| value.get("passwordMasked"))
                 .and_then(Value::as_str),
-            Some("client-secret")
+            Some("super-secret-password")
         );
+        assert!(!read_back.to_string().contains("super-secret-password"));
+        assert!(read_back.to_string().contains("ctidMasked"));
+        assert!(read_back.to_string().contains("hasPassword"));
         assert!(ctrader_config_path_for_root(&dir).exists());
-        assert!(ctrader_token_store_path_for_root(&dir).exists());
     }
 
     #[test]
@@ -2640,83 +3346,45 @@ mod tests {
         )
         .expect("write config");
         fs::write(
-            ctrader_token_store_path_for_root(&dir),
-            json!({"accessToken": "secret"}).to_string(),
+            dir.join(format!("{}.json", ["ctrader", "token"].join("-"))),
+            json!({"legacySecret": "secret"}).to_string(),
         )
-        .expect("write token store");
+        .expect("write legacy store");
 
         let response = clear_ctrader_provider_config(&dir).expect("clear config");
 
         assert_eq!(response.get("ok").and_then(Value::as_bool), Some(true));
         assert!(!ctrader_config_path_for_root(&dir).exists());
-        assert!(!ctrader_token_store_path_for_root(&dir).exists());
+        assert!(!dir
+            .join(format!("{}.json", ["ctrader", "token"].join("-")))
+            .exists());
     }
 
     #[test]
-    fn refreshed_ctrader_tokens_are_saved_without_returning_raw_secret_values() {
-        let dir = unique_temp_dir("ctrader-refresh");
+    fn ctrader_env_for_monitor_points_to_cli_config_without_secrets() {
+        let dir = unique_temp_dir("ctrader-env");
         save_ctrader_provider_config(
             &dir,
             &json!({
                 "ctrader": {
                     "enabled": true,
                     "environment": "demo",
-                    "clientId": "client-id",
-                    "clientSecret": "client-secret",
-                    "accessToken": "old-access-token",
-                    "refreshToken": "old-refresh-token",
                     "accountId": "123456",
+                    "ctid": "trader@example.com",
+                    "password": "super-secret-password",
                     "symbol": "XAUUSD",
-                    "tokenStorePath": dir.join("ctrader-token.json").display().to_string(),
                     "snapshotPath": dir.join("ctrader-last-quote.json").display().to_string(),
                 }
             }),
         )
         .expect("seed config");
 
-        let response = json!({
-            "ok": true,
-            "accessToken": "new-access-token",
-            "refreshToken": "new-refresh-token",
-            "provider_health": {
-                "source": "cTrader",
-                "source_type": "spot",
-                "data_mode": "live_seen",
-                "is_available": true,
-                "is_stale": false,
-            }
-        });
-        let token_store_path =
-            super::write_refreshed_ctrader_tokens(&dir, &response).expect("write refreshed tokens");
-        let stored: Value = serde_json::from_str(
-            &fs::read_to_string(ctrader_token_store_path_for_root(&dir)).expect("read token store"),
-        )
-        .expect("parse token store");
-
+        let env = ctrader_env_for_root(&dir);
         assert_eq!(
-            token_store_path.as_str(),
-            Some(
-                dir.join("ctrader-token.json")
-                    .display()
-                    .to_string()
-                    .as_str()
-            )
+            env.get("CTRADER_CONFIG_PATH").map(String::as_str),
+            Some(dir.join("ctrader-cli.json").display().to_string().as_str())
         );
-        assert_eq!(
-            stored.get("accessToken").and_then(Value::as_str),
-            Some("new-access-token")
-        );
-        assert_eq!(
-            stored.get("refreshToken").and_then(Value::as_str),
-            Some("new-refresh-token")
-        );
-        let masked = masked_ctrader_provider_config(&dir);
-        assert!(
-            masked.to_string().contains("accessTokenMasked"),
-            "masked payload should expose masked token fields"
-        );
-        assert!(!masked.to_string().contains("new-access-token"));
-        assert!(!masked.to_string().contains("new-refresh-token"));
+        assert!(!format!("{env:?}").contains("super-secret-password"));
     }
 
     #[test]
@@ -2795,7 +3463,7 @@ mod tests {
                 "enabled": true,
                 "provider": "ollama",
                 "endpoint": "http://localhost:11434",
-                "model": "qwen3:4b",
+                "model": "qwen3.5:4b",
                 "temperature": 0.1,
                 "timeoutSeconds": 20,
                 "keepAlive": "0",
@@ -2814,7 +3482,7 @@ mod tests {
                 .get("llm")
                 .and_then(|value| value.get("model"))
                 .and_then(Value::as_str),
-            Some("qwen3:4b")
+            Some("qwen3.5:4b")
         );
         assert_eq!(
             env.get("LOCAL_LLM_ENABLED").map(String::as_str),
@@ -2822,8 +3490,138 @@ mod tests {
         );
         assert_eq!(
             env.get("LOCAL_LLM_MODEL").map(String::as_str),
-            Some("qwen3:4b")
+            Some("qwen3.5:4b")
         );
+    }
+
+    #[test]
+    fn recommends_local_model_from_gpu_and_memory_profile() {
+        let rtx3060ti = json!({
+            "os": "windows",
+            "cpu": "AMD Ryzen",
+            "ramBytes": 34_359_738_368_i64,
+            "gpuVendor": "NVIDIA",
+            "gpuName": "NVIDIA GeForce RTX 3060 Ti",
+            "vramBytes": 8_589_934_592_i64,
+            "nvidiaAvailable": true
+        });
+        let rtx3090 = json!({
+            "os": "windows",
+            "cpu": "AMD Ryzen",
+            "ramBytes": 68_719_476_736_i64,
+            "gpuVendor": "NVIDIA",
+            "gpuName": "NVIDIA GeForce RTX 3090",
+            "vramBytes": 25_769_803_776_i64,
+            "nvidiaAvailable": true
+        });
+        let cpu_only = json!({
+            "os": "windows",
+            "cpu": "Laptop CPU",
+            "ramBytes": 8_589_934_592_i64,
+            "gpuVendor": "",
+            "gpuName": "",
+            "vramBytes": 0,
+            "nvidiaAvailable": false
+        });
+
+        assert_eq!(
+            recommend_local_model_from_profile(&rtx3060ti)
+                .get("name")
+                .and_then(Value::as_str),
+            Some("qwen3.5:4b")
+        );
+        assert_eq!(
+            recommend_local_model_from_profile(&rtx3090)
+                .get("name")
+                .and_then(Value::as_str),
+            Some("qwen3.5:4b")
+        );
+        assert_eq!(
+            recommend_local_model_from_profile(&cpu_only)
+                .get("name")
+                .and_then(Value::as_str),
+            Some("qwen3.5:0.8b")
+        );
+    }
+
+    #[test]
+    fn llm_fallback_policy_downgrades_before_rule_based_only() {
+        let invalid_4b =
+            apply_llm_fallback_policy_for_result("qwen3.5:4b", "invalid_json", Some(900));
+        let slow_2b =
+            apply_llm_fallback_policy_for_result("qwen3.5:2b", "model_too_slow", Some(12_500));
+        let failed_light =
+            apply_llm_fallback_policy_for_result("qwen3.5:0.8b", "invalid_json", Some(1500));
+
+        assert_eq!(
+            invalid_4b.get("model").and_then(Value::as_str),
+            Some("qwen3.5:2b")
+        );
+        assert_eq!(
+            slow_2b.get("model").and_then(Value::as_str),
+            Some("qwen3.5:0.8b")
+        );
+        assert_eq!(
+            failed_light.get("status").and_then(Value::as_str),
+            Some("llm_disabled")
+        );
+        assert_eq!(
+            failed_light.get("ruleBasedActive").and_then(Value::as_bool),
+            Some(true)
+        );
+    }
+
+    #[test]
+    fn ollama_pull_progress_reports_bytes_and_percent() {
+        let progress = normalize_pull_progress_line(
+            "qwen3.5:4b",
+            r#"{"status":"pulling manifest","digest":"sha256:abc","completed":1450000000,"total":2900000000}"#,
+        );
+
+        assert_eq!(
+            progress.get("model").and_then(Value::as_str),
+            Some("qwen3.5:4b")
+        );
+        assert_eq!(
+            progress.get("completedBytes").and_then(Value::as_i64),
+            Some(1_450_000_000)
+        );
+        assert_eq!(
+            progress.get("totalBytes").and_then(Value::as_i64),
+            Some(2_900_000_000)
+        );
+        assert_eq!(progress.get("percent").and_then(Value::as_f64), Some(50.0));
+    }
+
+    #[test]
+    fn ctrader_cli_config_is_saved_with_masked_response_only() {
+        let dir = unique_temp_dir("ctrader-cli-save");
+        let response = save_ctrader_provider_config(
+            &dir,
+            &json!({
+                "ctrader": {
+                    "enabled": true,
+                    "accountId": "123456",
+                    "ctid": "trader@example.com",
+                    "password": "super-secret-password",
+                    "environment": "demo",
+                    "symbol": "XAUUSD"
+                }
+            }),
+        )
+        .expect("save cli config");
+
+        let stored: Value = serde_json::from_str(
+            &fs::read_to_string(ctrader_config_path_for_root(&dir)).expect("read config"),
+        )
+        .expect("parse config");
+
+        assert_eq!(
+            stored.get("password").and_then(Value::as_str),
+            Some("super-secret-password")
+        );
+        assert!(response.to_string().contains("passwordMasked"));
+        assert!(!response.to_string().contains("super-secret-password"));
     }
 
     #[test]

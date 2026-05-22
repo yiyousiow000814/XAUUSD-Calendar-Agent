@@ -11,7 +11,7 @@ class LocalLLMConfig:
     enabled: bool = os.getenv("LOCAL_LLM_ENABLED", "false").lower() == "true"
     provider: str = os.getenv("LOCAL_LLM_PROVIDER", "ollama")
     endpoint: str = os.getenv("LOCAL_LLM_ENDPOINT", "http://localhost:11434")
-    model: str = os.getenv("LOCAL_LLM_MODEL", "qwen3:4b")
+    model: str = os.getenv("LOCAL_LLM_MODEL", "qwen3.5:4b")
     temperature: float = float(os.getenv("LOCAL_LLM_TEMPERATURE", "0.1"))
     timeout_seconds: int = int(os.getenv("LOCAL_LLM_TIMEOUT_SECONDS", "20"))
     keep_alive: str = os.getenv("LOCAL_LLM_KEEP_ALIVE", "0")
@@ -41,7 +41,10 @@ class LocalLLMClient:
         instructions = evidence_packet.get(
             "prompt",
             "Given this evidence packet, use only allowed_candidate_drivers. "
-            "If evidence is insufficient, return unknown. Output strict JSON only.",
+            "The rule-based evidence gate is the source of truth. "
+            "Do not add drivers, headlines, or causes that are not already in the packet. "
+            "If evidence is insufficient, return unknown / insufficient evidence. "
+            "Output strict JSON only.",
         )
         return (
             f"{instructions}\n\n"

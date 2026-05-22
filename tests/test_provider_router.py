@@ -215,10 +215,9 @@ def test_proxy_label_persists_into_evidence_packet(tmp_path) -> None:
 
 
 def test_ctrader_disabled_build_falls_through_to_yahoo_proxy(monkeypatch, tmp_path) -> None:
-    monkeypatch.setenv("CTRADER_CLIENT_ID", "id")
-    monkeypatch.setenv("CTRADER_CLIENT_SECRET", "secret")
-    monkeypatch.setenv("CTRADER_ACCESS_TOKEN", "token")
     monkeypatch.setenv("CTRADER_ACCOUNT_ID", "acct")
+    monkeypatch.setenv("CTRADER_CTID", "trader@example.com")
+    monkeypatch.setenv("CTRADER_PASSWORD", "secret")
     fixture_dir = Path(__file__).parent / "fixtures" / "providers"
     cfg = MarketAgentConfig(
         repo_root=tmp_path,
@@ -266,7 +265,7 @@ def test_fresh_ctrader_spot_wins_over_yahoo_proxy(tmp_path) -> None:
                 "close": 4501.0,
                 "bid": 4500.9,
                 "ask": 4501.1,
-                "source": "cTrader OpenAPI",
+                "source": "cTrader CLI",
                 "source_type": "spot",
                 "data_mode": "live_seen",
                 "is_stale": False,

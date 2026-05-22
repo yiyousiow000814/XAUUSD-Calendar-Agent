@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import json
-import subprocess
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable
 
-from ..config import CTraderOpenApiConfig
+from ..config import CTraderCliConfig
 from ..models import ProviderHealth
+from .ctrader_bridge import handle as run_ctrader_cli_command
 
 BridgeRunner = Callable[[str, dict[str, object]], dict[str, object]]
 
@@ -44,29 +44,9 @@ def _provider_health_from_payload(payload: dict[str, Any], fallback_symbol: str)
     )
 
 
-def _default_bridge_runner(config: CTraderOpenApiConfig) -> BridgeRunner:
+def _default_bridge_runner(config: CTraderCliConfig) -> BridgeRunner:
     def run(command: str, payload: dict[str, object]) -> dict[str, object]:
-        process = subprocess.run(
-            [
-                config.bridge_python_executable,
-                "-m",
-                "src.xauusd_market_agent.providers.ctrader_bridge",
-                command,
-            ],
-            input=json.dumps(payload),
-            text=True,
-            capture_output=True,
-            check=False,
-            timeout=max(5, config.quote_timeout_seconds + 2),
-        )
-        if process.returncode != 0:
-            stderr = process.stderr.strip()
-            stdout = process.stdout.strip()
-            raise RuntimeError(stderr or stdout or f"cTrader bridge failed with exit code {process.returncode}")
-        stdout = process.stdout.strip()
-        if not stdout:
-            raise RuntimeError("cTrader bridge returned no JSON payload.")
-        return json.loads(stdout)
+        return run_ctrader_cli_command(command, payload)
 
     return run
 
@@ -75,67 +55,59 @@ class CTraderProvider:
     def __init__(
         self,
         *,
-        openapi_config: CTraderOpenApiConfig,
+        cli_config: CTraderCliConfig,
         bridge_runner: BridgeRunner | None = None,
         saved_snapshot_path: Path | None = None,
     ) -> None:
-        self.openapi_config = openapi_config
+        self.cli_config = cli_config
         self.saved_snapshot_path = (
             Path(saved_snapshot_path)
             if saved_snapshot_path is not None
-            else Path(openapi_config.snapshot_path)
+            else Path(cli_config.snapshot_path)
         )
-        self.bridge_runner = bridge_runner or _default_bridge_runner(openapi_config)
+        self.bridge_runner = bridge_runner or _default_bridge_runner(cli_config)
 
     @classmethod
     def from_market_agent_config(cls, market_config) -> "CTraderProvider":
         return cls(
-            openapi_config=CTraderOpenApiConfig.from_sources(market_config),
+            cli_config=CTraderCliConfig.from_sources(market_config),
             saved_snapshot_path=market_config.ctrader_saved_snapshot_path,
         )
 
     def is_configured(self) -> bool:
-        return self.openapi_config.is_ready()
+        return self.cli_config.is_ready()
 
     def masked_config_payload(self) -> dict[str, object]:
-        cfg = self.openapi_config
+        cfg = self.cli_config
         return {
             "enabled": cfg.enabled,
             "environment": cfg.environment,
             "symbol": cfg.symbol,
             "symbolId": cfg.symbol_id,
             "accountId": cfg.account_id,
-            "clientIdMasked": _mask_secret(cfg.client_id),
-            "clientSecretMasked": _mask_secret(cfg.client_secret),
-            "accessTokenMasked": _mask_secret(cfg.access_token),
-            "refreshTokenMasked": _mask_secret(cfg.refresh_token),
-            "hasAccessToken": bool(cfg.access_token),
-            "hasRefreshToken": bool(cfg.refresh_token),
+            "ctidMasked": _mask_secret(cfg.ctid),
+            "passwordMasked": _mask_secret(cfg.password),
+            "hasPassword": bool(cfg.password),
             "configPath": str(cfg.config_path),
-            "tokenStorePath": str(cfg.token_store_path),
             "snapshotPath": str(self.saved_snapshot_path),
             "quoteTimeoutSeconds": cfg.quote_timeout_seconds,
             "quoteStaleAfterSeconds": cfg.quote_stale_after_seconds,
             "allowSavedSnapshotFallback": cfg.allow_saved_snapshot_fallback,
-            "bridgePythonExecutable": cfg.bridge_python_executable,
         }
 
     def _bridge_payload(self) -> dict[str, object]:
-        cfg = self.openapi_config
+        cfg = self.cli_config
         return {
-            "clientId": cfg.client_id,
-            "clientSecret": cfg.client_secret,
-            "accessToken": cfg.access_token,
-            "refreshToken": cfg.refresh_token,
             "accountId": cfg.account_id,
+            "ctid": cfg.ctid,
+            "password": cfg.password,
             "environment": cfg.environment,
             "symbol": cfg.symbol,
             "symbolId": cfg.symbol_id,
-            "appRedirectUri": cfg.app_redirect_uri,
             "snapshotPath": str(self.saved_snapshot_path),
-            "tokenStorePath": str(cfg.token_store_path),
             "quoteTimeoutSeconds": cfg.quote_timeout_seconds,
             "quoteStaleAfterSeconds": cfg.quote_stale_after_seconds,
+            "cliExecutable": cfg.cli_executable,
         }
 
     def _unavailable_health(self, reason: str) -> ProviderHealth:
@@ -149,7 +121,7 @@ class CTraderProvider:
             is_stale=False,
             stale_reason=reason,
             error=reason,
-            raw_source_id=self.openapi_config.symbol,
+            raw_source_id=self.cli_config.symbol,
         )
 
     def _write_snapshot(self, payload: dict[str, Any]) -> None:
@@ -164,7 +136,7 @@ class CTraderProvider:
         row = {
             "timestamp": timestamp,
             "data_timestamp": timestamp,
-            "symbol": payload.get("symbol", self.openapi_config.symbol),
+            "symbol": payload.get("symbol", self.cli_config.symbol),
             "open": float(payload.get("mid", payload.get("bid", 0.0))),
             "high": float(payload.get("mid", payload.get("ask", 0.0))),
             "low": float(payload.get("mid", payload.get("bid", 0.0))),
@@ -187,16 +159,16 @@ class CTraderProvider:
             is_stale=True,
             stale_reason=fallback_error or "Loaded saved cTrader quote snapshot fallback.",
             error=fallback_error,
-            raw_source_id=str(payload.get("symbol_id", self.openapi_config.symbol)),
+            raw_source_id=str(payload.get("symbol_id", self.cli_config.symbol)),
             current_value=float(payload.get("mid", payload.get("bid", 0.0))),
         )
         return [row], health
 
     def resolve_symbol(self) -> dict[str, Any]:
-        if self.openapi_config.symbol_id is not None:
+        if self.cli_config.symbol_id is not None:
             return {
-                "symbolId": self.openapi_config.symbol_id,
-                "symbolName": self.openapi_config.symbol,
+                "symbolId": self.cli_config.symbol_id,
+                "symbolName": self.cli_config.symbol,
             }
         response = self.bridge_runner("resolve-symbol", self._bridge_payload())
         symbol = response.get("symbol")
@@ -206,7 +178,7 @@ class CTraderProvider:
 
     def fetch_latest(self, anchor_time: datetime) -> tuple[list[dict[str, object]], ProviderHealth]:
         if not self.is_configured():
-            return [], self._unavailable_health("cTrader Open API is not configured.")
+            return [], self._unavailable_health("cTrader CLI credentials are not configured.")
         try:
             response = self.bridge_runner("quote", self._bridge_payload())
             quote = response.get("quote")
@@ -217,22 +189,22 @@ class CTraderProvider:
             row = {
                 "timestamp": str(quote["timestamp"]),
                 "data_timestamp": str(quote["timestamp"]),
-                "symbol": str(quote.get("symbol", self.openapi_config.symbol)),
+                "symbol": str(quote.get("symbol", self.cli_config.symbol)),
                 "open": float(quote.get("mid", quote.get("bid", 0.0))),
                 "high": float(quote.get("ask", quote.get("mid", 0.0))),
                 "low": float(quote.get("bid", quote.get("mid", 0.0))),
                 "close": float(quote.get("mid", quote.get("bid", 0.0))),
                 "bid": float(quote.get("bid", quote.get("mid", 0.0))),
                 "ask": float(quote.get("ask", quote.get("mid", 0.0))),
-                "source": str(quote.get("source", "cTrader OpenAPI")),
+                "source": str(quote.get("source", "cTrader CLI")),
                 "source_type": str(quote.get("source_type", "spot")),
                 "data_mode": str(health_payload.get("data_mode", "live_seen")),
                 "is_stale": bool(health_payload.get("is_stale", False)),
                 "stale_reason": str(health_payload.get("stale_reason", "")),
             }
-            return [row], _provider_health_from_payload(health_payload, str(quote.get("symbol_id", self.openapi_config.symbol)))
+            return [row], _provider_health_from_payload(health_payload, str(quote.get("symbol_id", self.cli_config.symbol)))
         except Exception as exc:
-            if self.openapi_config.allow_saved_snapshot_fallback:
+            if self.cli_config.allow_saved_snapshot_fallback:
                 rows, health = self._load_saved_snapshot(anchor_time, fallback_error=str(exc))
                 if rows:
                     return rows, health
@@ -240,7 +212,7 @@ class CTraderProvider:
 
     def backfill(self, start: datetime, end: datetime) -> tuple[list[dict[str, object]], ProviderHealth]:
         if not self.is_configured():
-            return [], self._unavailable_health("cTrader Open API is not configured.")
+            return [], self._unavailable_health("cTrader CLI credentials are not configured.")
         response = self.bridge_runner(
             "backfill",
             {
@@ -257,14 +229,14 @@ class CTraderProvider:
             {
                 "timestamp": str(bar["data_timestamp"]),
                 "data_timestamp": str(bar["data_timestamp"]),
-                "symbol": str(bar.get("symbol", self.openapi_config.symbol)),
+                "symbol": str(bar.get("symbol", self.cli_config.symbol)),
                 "open": float(bar["open"]),
                 "high": float(bar["high"]),
                 "low": float(bar["low"]),
                 "close": float(bar["close"]),
                 "bid": bar.get("bid"),
                 "ask": bar.get("ask"),
-                "source": str(bar.get("source", "cTrader OpenAPI")),
+                "source": str(bar.get("source", "cTrader CLI")),
                 "source_type": str(bar.get("source_type", "spot")),
                 "data_mode": str(bar.get("data_mode", "backfilled")),
                 "is_stale": bool(bar.get("is_stale", False)),
@@ -272,4 +244,4 @@ class CTraderProvider:
             }
             for bar in bars
         ]
-        return rows, _provider_health_from_payload(health_payload, self.openapi_config.symbol)
+        return rows, _provider_health_from_payload(health_payload, self.cli_config.symbol)

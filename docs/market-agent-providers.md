@@ -6,7 +6,7 @@ Market Agent is designed around provider interfaces. Manual local CSV files are 
 
 Normal priority:
 
-1. cTrader Open API spot provider for true XAUUSD price, when configured
+1. cTrader CLI spot provider for true XAUUSD price, when configured
 2. cTrader M1 trendbars for recovery and backfill, when configured
 3. Yahoo chart provider for proxy data
 4. optional fallback providers
@@ -18,8 +18,9 @@ If no provider is available, the system must not crash. It should surface provid
 
 ### XAUUSD
 
-- cTrader is now the preferred provider path when `clientId`, `clientSecret`, `accessToken`, and `accountId` are configured.
-- cTrader uses Open API client credentials plus account token auth. It does not use a password.
+- cTrader is the preferred provider path after Connect cTrader saves local CLI credentials and the connection test passes.
+- cTrader uses the local CLI credential set: trading account, cTID or email, and password.
+- Password values are stored only in the local user-data config, masked in UI responses, and not written to logs or process environment variables.
 - The provider writes quote snapshots under user-data and can reuse them only as an explicit stale fallback.
 - If cTrader spot or cTrader historical trendbars fail, ProviderRouter falls back to Yahoo `GC=F`.
 - Yahoo `GC=F` remains the proxy path when cTrader is unavailable.
@@ -29,49 +30,50 @@ If no provider is available, the system must not crash. It should surface provid
 
 Do not treat `GC=F` as true XAUUSD spot.
 
-### cTrader auth and storage
+### cTrader CLI auth and storage
+
+The default desktop flow is:
+
+1. click Connect cTrader
+2. enter the trading account, cTID or email, and password expected by the local cTrader CLI
+3. save the credential set under user-data
+4. run the cTrader CLI connection test through the backend bridge
+5. let backend provider policy resolve XAUUSD and any available cTrader context markets
+6. use Yahoo or other backend fallback providers for markets that are not available through cTrader
 
 Supported config fields:
 
-- `CTRADER_CLIENT_ID`
-- `CTRADER_CLIENT_SECRET`
-- `CTRADER_ACCESS_TOKEN`
-- `CTRADER_REFRESH_TOKEN`
 - `CTRADER_ACCOUNT_ID`
+- `CTRADER_CTID`
+- `CTRADER_PASSWORD`
 - `CTRADER_ENVIRONMENT=demo|live`
-- `CTRADER_SYMBOL`
-- `CTRADER_APP_REDIRECT_URI`
 - `CTRADER_CONFIG_PATH`
-- `CTRADER_TOKEN_STORE_PATH`
-- `CTRADER_SNAPSHOT_PATH`
 
 The app stores cTrader config under user-data:
 
-- `ctrader-openapi.json`
-- `ctrader-token.json`
+- `ctrader-cli.json`
 - `ctrader-last-quote.json`
 
 Important rules:
 
-- do not store or request a cTrader password
-- do not commit tokens or client secrets
-- UI responses must show masked values only
-- if access token auth fails and a refresh token exists, the bridge attempts token refresh
-- the desktop `Refresh Token` action updates the user-data token store and only returns masked config back to UI
-- if refresh fails, provider health must show the auth failure honestly
+- do not commit cTrader credentials
+- UI responses must show cTID and password as masked values only
+- process logs and UI snapshots must not include the raw password
+- the monitor loop receives `CTRADER_CONFIG_PATH` and reads the saved config through backend code; it does not receive the password as an environment variable
+- if the CLI login or refresh handled by the CLI fails, provider health must show the auth failure honestly
+- symbols are backend policy, not user setup
 
 ### cTrader bridge model
 
 The desktop and Python provider use a short-lived bridge process:
 
-1. application auth
-2. account list lookup by access token
-3. account auth
-4. symbol resolution
-5. quote subscribe or trendbar request
-6. JSON response back to the caller
+1. load the saved cTrader CLI config
+2. execute the configured cTrader CLI command
+3. pass account ID, cTID, password, backend environment, and backend-selected market request through stdin JSON
+4. run `test-connection`, `resolve-symbol`, `quote`, or `backfill`
+5. parse JSON response back to the caller
 
-This keeps the monitor loop synchronous while still using the official cTrader Open API SDK.
+This keeps the monitor loop synchronous while avoiding token forms in the desktop UI. The bridge must redact the password from errors and never echo stdin payloads to logs.
 
 ### Related assets
 
@@ -123,15 +125,19 @@ If no calendar source is configured, provider health should show unavailable rat
 
 The local LLM path is optional and disabled by default.
 
-Default setup:
+Auto Local AI setup:
 
 - provider: Ollama
 - endpoint: `http://localhost:11434`
-- model: `qwen3:4b`
+- default model profile: `qwen3.5:4b`
+- fallback profile: `qwen3.5:2b`
+- lightweight profile: `qwen3.5:0.8b`
 - temperature: `0.1`
 - timeout: `20` seconds
 - keep alive: `0`
 - max context: `8192`
+
+The desktop app detects OS, CPU, RAM, GPU, VRAM, Ollama install/running state, and installed local models. It recommends a model from the local profile policy. Ollama installation itself is guided by a download link. When Ollama is already installed, the app can pull the recommended model through the Ollama API after user approval and show pull progress.
 
 The LLM is not a provider of market truth. It only receives the evidence packet after a meaningful trigger, driver-state change, high-impact event, recovery summary, or explicit user analysis action.
 
@@ -148,7 +154,7 @@ The prompt includes:
 - timeline
 - previous state
 
-Invalid JSON, unavailable Ollama, timeout, or a blocked-driver claim must fall back to rule-based output. The validator remains the final guard.
+Invalid JSON, unavailable Ollama, timeout, slow benchmark, failed model pull, or a blocked-driver claim must fall back to a smaller model or rule-based output. The validator remains the final guard.
 
 The desktop app stores local LLM settings under user-data:
 
@@ -157,18 +163,11 @@ The desktop app stores local LLM settings under user-data:
 ## Environment variables
 
 ```powershell
-$env:CTRADER_CLIENT_ID = ""
-$env:CTRADER_CLIENT_SECRET = ""
-$env:CTRADER_ACCESS_TOKEN = ""
-$env:CTRADER_REFRESH_TOKEN = ""
 $env:CTRADER_ACCOUNT_ID = ""
+$env:CTRADER_CTID = ""
+$env:CTRADER_PASSWORD = ""
 $env:CTRADER_ENVIRONMENT = "demo"
-$env:CTRADER_SYMBOL = "XAUUSD"
-$env:CTRADER_APP_REDIRECT_URI = "http://localhost"
-$env:CTRADER_CONFIG_PATH = "user-data/ctrader-openapi.json"
-$env:CTRADER_TOKEN_STORE_PATH = "user-data/ctrader-token.json"
-$env:CTRADER_SNAPSHOT_PATH = "user-data/ctrader-last-quote.json"
-$env:CTRADER_BRIDGE_PYTHON = "python"
+$env:CTRADER_CONFIG_PATH = "user-data/ctrader-cli.json"
 $env:MARKET_AGENT_YAHOO_ENABLED = "true"
 $env:MARKET_AGENT_YAHOO_FIXTURE_DIR = "tests/fixtures/providers"
 $env:MARKET_AGENT_CSV_FALLBACK_ENABLED = "false"
@@ -181,7 +180,7 @@ $env:MARKET_AGENT_CTRADER_SAVED_SNAPSHOT_PATH = "user-data/ctrader-last-quote.js
 $env:LOCAL_LLM_ENABLED = "false"
 $env:LOCAL_LLM_PROVIDER = "ollama"
 $env:LOCAL_LLM_ENDPOINT = "http://localhost:11434"
-$env:LOCAL_LLM_MODEL = "qwen3:4b"
+$env:LOCAL_LLM_MODEL = "qwen3.5:4b"
 $env:LOCAL_LLM_TEMPERATURE = "0.1"
 $env:LOCAL_LLM_TIMEOUT_SECONDS = "20"
 $env:LOCAL_LLM_KEEP_ALIVE = "0"
@@ -216,13 +215,10 @@ python -m src.xauusd_market_agent.cli --backfill-recovery
 Run a cTrader-backed pass with Yahoo fallback still enabled:
 
 ```powershell
-$env:CTRADER_CLIENT_ID = "your-client-id"
-$env:CTRADER_CLIENT_SECRET = "your-client-secret"
-$env:CTRADER_ACCESS_TOKEN = "your-access-token"
-$env:CTRADER_REFRESH_TOKEN = "your-refresh-token"
 $env:CTRADER_ACCOUNT_ID = "123456"
+$env:CTRADER_CTID = "name@example.com"
+$env:CTRADER_PASSWORD = "your-password"
 $env:CTRADER_ENVIRONMENT = "demo"
-$env:CTRADER_SYMBOL = "XAUUSD"
 python -m src.xauusd_market_agent.cli --monitor-once
 ```
 
