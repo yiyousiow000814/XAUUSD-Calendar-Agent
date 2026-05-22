@@ -971,7 +971,9 @@ describe("MarketAgentPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /^Evidence$/i }));
     expect(screen.getByRole("heading", { name: /Evidence Panel/i })).toBeInTheDocument();
-    expect(screen.getByText(/Raw details/i)).toBeInTheDocument();
+    expect(screen.getByText(/Accepted driver/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Raw details/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Audit details/i)).not.toBeInTheDocument();
   });
 
   it("defaults Data Sources to Connect cTrader and Auto Local AI instead of raw setup forms", () => {
@@ -1253,7 +1255,8 @@ describe("MarketAgentPage", () => {
     expect(screen.getAllByText(/Allowed drivers/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Fed \/ rates/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/No direct headline/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/Raw details/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Raw details/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Audit details/i)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
     expect(screen.getByRole("heading", { name: /^Data Sources$/i })).toBeInTheDocument();
