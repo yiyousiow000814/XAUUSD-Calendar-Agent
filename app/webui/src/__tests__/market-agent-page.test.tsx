@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+﻿import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MarketAgentPage } from "../components/MarketAgentPage";
@@ -390,7 +390,7 @@ const marketAgentPageElement = (overrides: Partial<Parameters<typeof MarketAgent
       selectedEvidence={evidence}
       monitorStatus={monitorStatus}
       selectedMonitorRunId={23}
-      rangePreset="4h"
+      rangePreset="day"
       rangeStartInput="2026-05-19T04:00"
       rangeEndInput="2026-05-19T08:30"
       onPresetChange={() => {}}
@@ -446,7 +446,7 @@ describe("MarketAgentPage", () => {
         selectedEvidence={evidence}
         monitorStatus={monitorStatus}
         selectedMonitorRunId={23}
-        rangePreset="4h"
+        rangePreset="day"
         rangeStartInput="2026-05-19T04:00"
         rangeEndInput="2026-05-19T08:30"
         onPresetChange={() => {}}
@@ -532,7 +532,8 @@ describe("MarketAgentPage", () => {
     expect(within(driverPanel as HTMLElement).getAllByText("ACTIVE")).toHaveLength(2);
     expect(within(driverPanel as HTMLElement).getByText("-0.65%")).toBeInTheDocument();
     expect(within(driverPanel as HTMLElement).queryByText("+92.00%")).not.toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /Market Replay \(Today\)/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Market Replay \(Day\)/i })).toBeInTheDocument();
+    expect(Array.from(container.querySelectorAll(".market-agent-timeline-node")).every((node) => node.textContent === "")).toBe(true);
     expect(screen.getByRole("heading", { name: /Latest Evidence/i })).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: /^Provider Health$/i }).length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: /View Full Timeline/i })).toBeInTheDocument();
@@ -708,7 +709,7 @@ describe("MarketAgentPage", () => {
           selectedEvidence={evidence}
           monitorStatus={monitorStatus}
           selectedMonitorRunId={23}
-          rangePreset="4h"
+          rangePreset="day"
           rangeStartInput="2026-05-19T04:00"
           rangeEndInput="2026-05-19T08:30"
           onPresetChange={() => {}}
@@ -761,9 +762,9 @@ describe("MarketAgentPage", () => {
     expect(screen.getByRole("heading", { name: /XAUUSD \(Spot\)/i })).toBeInTheDocument();
     expect(screen.getByText(/No price/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /Replay \/ Timeline/i }));
-    fireEvent.click(screen.getByText(/Open full replay/i));
-    expect(screen.getByText(/Price series/i)).toBeInTheDocument();
-    expect(screen.getByText(/0 rows/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^Market Replay$/i })).toBeInTheDocument();
+    expect(screen.queryByText(/Open full replay/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Price series/i)).not.toBeInTheDocument();
   });
 
   it("shows a replay unavailable state when the backend omits replay payload", () => {
@@ -804,7 +805,7 @@ describe("MarketAgentPage", () => {
             nextRunAt: "2026-05-19T02:28:29Z"
           }}
           selectedMonitorRunId={23}
-          rangePreset="4h"
+          rangePreset="day"
           rangeStartInput="2026-05-19T04:00"
           rangeEndInput="2026-05-19T08:30"
           onPresetChange={() => {}}
@@ -848,7 +849,7 @@ describe("MarketAgentPage", () => {
         selectedEvidence={evidence}
         monitorStatus={monitorStatus}
         selectedMonitorRunId={23}
-        rangePreset="4h"
+        rangePreset="day"
         rangeStartInput="2026-05-19T04:00"
         rangeEndInput="2026-05-19T08:30"
         onPresetChange={() => {}}
@@ -883,12 +884,12 @@ describe("MarketAgentPage", () => {
     );
 
     const replayRange = screen.getByRole("group", { name: /Replay range/i });
-    const oneHour = within(replayRange).getByRole("button", { name: "1H" });
-    const oneDay = within(replayRange).getByRole("button", { name: "1D" });
-    expect(oneDay).toHaveAttribute("aria-pressed", "true");
-    fireEvent.click(oneHour);
-    expect(oneHour).toHaveAttribute("aria-pressed", "true");
-    expect(oneDay).toHaveAttribute("aria-pressed", "false");
+    const day = within(replayRange).getByRole("button", { name: "Day" });
+    const month = within(replayRange).getByRole("button", { name: "Month" });
+    expect(day).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(month);
+    expect(month).toHaveAttribute("aria-pressed", "true");
+    expect(day).toHaveAttribute("aria-pressed", "false");
 
     const evidenceTabs = screen.getByRole("tablist", { name: /Evidence filters/i });
     const allTab = within(evidenceTabs).getByRole("tab", { name: "All" });
@@ -918,7 +919,7 @@ describe("MarketAgentPage", () => {
         selectedEvidence={evidence}
         monitorStatus={monitorStatus}
         selectedMonitorRunId={23}
-        rangePreset="4h"
+        rangePreset="day"
         rangeStartInput="2026-05-19T04:00"
         rangeEndInput="2026-05-19T08:30"
         onPresetChange={() => {}}
@@ -966,8 +967,21 @@ describe("MarketAgentPage", () => {
     await waitFor(() => expect(alertsButton.querySelector(".market-agent-nav-badge")).not.toBeInTheDocument());
 
     fireEvent.click(screen.getByRole("button", { name: /Replay \/ Timeline/i }));
-    expect(screen.getByText(/Open full replay/i)).toBeInTheDocument();
-    expect(screen.getByText(/Price series/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^Market Replay$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Day$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Month$/i })).toBeInTheDocument();
+    expect(screen.queryByText(/Last 1h/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Last 4h/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Open full replay/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Price series/i)).not.toBeInTheDocument();
+    expect(container.querySelector(".market-agent-replay-track-row.selected")).not.toBeInTheDocument();
+    expect(Array.from(container.querySelectorAll(".market-agent-replay-node")).every((node) => node.textContent === "")).toBe(true);
+
+    fireEvent.click(screen.getByRole("button", { name: /^Driver Attention$/i }));
+    expect(screen.getByRole("heading", { name: /^Driver Focus$/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^Driving Now$/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^Watch Next$/i })).toBeInTheDocument();
+    expect(screen.queryByText(/Technical details/i)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /^Evidence$/i }));
     expect(screen.getByRole("heading", { name: /Evidence Panel/i })).toBeInTheDocument();
@@ -1202,7 +1216,7 @@ describe("MarketAgentPage", () => {
         selectedEvidence={evidence}
         monitorStatus={monitorStatus}
         selectedMonitorRunId={23}
-        rangePreset="4h"
+        rangePreset="day"
         rangeStartInput="2026-05-19T04:00"
         rangeEndInput="2026-05-19T08:30"
         onPresetChange={() => {}}
@@ -1354,7 +1368,7 @@ describe("MarketAgentPage", () => {
         selectedEvidence={{ ok: true, available: false, message: "No run selected.", payload: {} }}
         monitorStatus={monitorStatus}
         selectedMonitorRunId={null}
-        rangePreset="1h"
+        rangePreset="day"
         rangeStartInput=""
         rangeEndInput=""
         onPresetChange={() => {}}
@@ -1414,7 +1428,7 @@ describe("MarketAgentPage", () => {
         selectedEvidence={{ ok: true, available: false, message: "Evidence unavailable.", payload: {} }}
         monitorStatus={monitorStatus}
         selectedMonitorRunId={null}
-        rangePreset="4h"
+        rangePreset="day"
         rangeStartInput=""
         rangeEndInput=""
         onPresetChange={() => {}}
@@ -1451,3 +1465,4 @@ describe("MarketAgentPage", () => {
     expect(screen.getByText(/Evidence unavailable\./i)).toBeInTheDocument();
   });
 });
+

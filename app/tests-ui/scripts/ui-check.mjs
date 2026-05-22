@@ -2614,7 +2614,7 @@ const main = async () => {
           text.includes("Driver Attention") &&
           text.includes("(Current)") &&
           text.includes("Market Replay") &&
-          text.includes("(Today)") &&
+          text.includes("(Day)") &&
           text.includes("Latest Evidence") &&
           text.includes("Provider Health")
         );
@@ -3579,7 +3579,7 @@ const main = async () => {
         });
         attentionProbe.remove();
         const replayRangeButtons = Array.from(document.querySelectorAll(".market-agent-range-tabs button"));
-        if (replayRangeButtons.length !== 3 || replayRangeButtons.some((button) => !(button instanceof HTMLButtonElement))) {
+        if (replayRangeButtons.length !== 2 || replayRangeButtons.some((button) => !(button instanceof HTMLButtonElement))) {
           problems.push("Market Agent replay range tabs are not clickable buttons");
         } else {
           const activeRangeButton = replayRangeButtons.find((button) => button instanceof HTMLElement && button.classList.contains("active"));
@@ -3641,8 +3641,8 @@ const main = async () => {
         const symbols = Array.from(document.querySelectorAll(".market-agent-timeline-node"))
           .slice(0, 5)
           .map((node) => (node.textContent || "").trim());
-        if (symbols.some((symbol) => /^[A-Z]$/.test(symbol))) {
-          problems.push(`timeline nodes still use letter markers: ${symbols.join(",")}`);
+        if (symbols.some((symbol) => symbol.length > 0)) {
+          problems.push(`timeline nodes still use text markers: ${symbols.join(",")}`);
         }
         return problems;
       });
@@ -3938,6 +3938,40 @@ const main = async () => {
       });
       await page.setViewportSize(originalViewport);
       await page.waitForTimeout(150);
+      await page.getByRole("button", { name: "Driver Attention", exact: true }).click();
+      const driverFocus = page.locator("[data-qa='qa:market-agent:driver-attention']").first();
+      await driverFocus.waitFor({ state: "visible", timeout: 4000 });
+      const driverFocusProblems = await driverFocus.evaluate((root) => {
+        const problems = [];
+        const text = root instanceof HTMLElement ? root.innerText || root.textContent || "" : "";
+        if (!text.includes("Driver Focus")) {
+          problems.push("Driver Attention page does not present the current focus heading");
+        }
+        if (text.includes("Technical details")) {
+          problems.push("Driver Attention still exposes Technical details");
+        }
+        if (root.querySelectorAll(".market-agent-driver-card, .market-agent-driver-details").length) {
+          problems.push("Driver Attention still renders the old card/details structure");
+        }
+        if (root.querySelectorAll(".market-agent-driver-row").length < 4) {
+          problems.push("Driver Attention signal rows are missing");
+        }
+        for (const heading of ["Driving Now", "Watch Next", "Background"]) {
+          if (!text.includes(heading)) {
+            problems.push(`Driver Attention missing ${heading}`);
+          }
+        }
+        return problems;
+      });
+      if (driverFocusProblems.length) {
+        throw new Error(driverFocusProblems.join("; "));
+      }
+      artifacts.push({
+        scenario: "market-agent-driver-focus",
+        theme: theme.key,
+        state: "open",
+        path: await captureState(page, "market-agent-driver-focus", theme.key, "open")
+      });
       await page.getByRole("button", { name: "Data Sources", exact: true }).click();
       const providerConfig = page.locator("[data-qa='qa:market-agent:provider-config']").first();
       if (!(await providerConfig.count())) {

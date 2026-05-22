@@ -141,7 +141,7 @@ const emptySettings: Settings = {
 };
 
 type MainView = "calendar" | "market-agent";
-type MarketAgentRangePreset = "1h" | "4h" | "today" | "custom";
+type MarketAgentRangePreset = "day" | "month";
 
 const pad2 = (value: number) => String(value).padStart(2, "0");
 
@@ -168,13 +168,12 @@ const toOffsetIso = (localDateTime: string) => {
   )}:${pad2(absoluteMinutes % 60)}`;
 };
 
-const buildRangeWindow = (preset: Exclude<MarketAgentRangePreset, "custom">) => {
+const buildRangeWindow = (preset: MarketAgentRangePreset) => {
   const end = new Date();
   const start = new Date(end);
-  if (preset === "1h") {
-    start.setHours(end.getHours() - 1);
-  } else if (preset === "4h") {
-    start.setHours(end.getHours() - 4);
+  if (preset === "month") {
+    start.setDate(1);
+    start.setHours(0, 0, 0, 0);
   } else {
     start.setHours(0, 0, 0, 0);
   }
@@ -364,8 +363,8 @@ export default function App() {
   const [marketAgentEvidence, setMarketAgentEvidence] = useState<MarketAgentEvidenceForRunResponse | null>(null);
   const [marketAgentMonitorStatus, setMarketAgentMonitorStatus] = useState<MarketAgentMonitorStatusResponse | null>(null);
   const [marketAgentSelectedRunId, setMarketAgentSelectedRunId] = useState<number | null>(null);
-  const [marketAgentRangePreset, setMarketAgentRangePreset] = useState<MarketAgentRangePreset>("4h");
-  const initialMarketAgentRange = useMemo(() => buildRangeWindow("4h"), []);
+  const [marketAgentRangePreset, setMarketAgentRangePreset] = useState<MarketAgentRangePreset>("day");
+  const initialMarketAgentRange = useMemo(() => buildRangeWindow("day"), []);
   const [marketAgentRangeStart, setMarketAgentRangeStart] = useState<string>(initialMarketAgentRange.startIso);
   const [marketAgentRangeEnd, setMarketAgentRangeEnd] = useState<string>(initialMarketAgentRange.endIso);
   const [marketAgentRangeStartInput, setMarketAgentRangeStartInput] = useState<string>(initialMarketAgentRange.startInput);
@@ -3861,7 +3860,7 @@ export default function App() {
 
   const handleMarketAgentPresetChange = useCallback(
     (preset: string) => {
-      const typedPreset = preset as Exclude<MarketAgentRangePreset, "custom">;
+      const typedPreset: MarketAgentRangePreset = preset === "month" ? "month" : "day";
       const next = buildRangeWindow(typedPreset);
       setMarketAgentRangePreset(typedPreset);
       setMarketAgentRangeStart(next.startIso);
@@ -3877,7 +3876,6 @@ export default function App() {
     const startIso = toOffsetIso(marketAgentRangeStartInput);
     const endIso = toOffsetIso(marketAgentRangeEndInput);
     if (!startIso || !endIso) return;
-    setMarketAgentRangePreset("custom");
     setMarketAgentRangeStart(startIso);
     setMarketAgentRangeEnd(endIso);
     void refreshMarketAgentWorkspace(startIso, endIso);

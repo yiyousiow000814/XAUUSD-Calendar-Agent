@@ -1,10 +1,9 @@
 import type { MarketAgentEvidenceForRunResponse, MarketAgentReplayResponse } from "../types";
+import type { CSSProperties } from "react";
 import { MarketAgentStatusBadge } from "./MarketAgentStatusBadge";
 import {
   formatDriverLabel,
-  formatShortTime,
-  humanizeMarketAgentReason,
-  humanizeMarketAgentValue
+  formatShortTime
 } from "../utils/marketAgentUi";
 import { normalizeMarketAgentReplayPayload } from "../utils/marketAgentReplay";
 import "./MarketAgentReplay.css";
@@ -23,28 +22,103 @@ type MarketAgentReplayProps = {
   onSelectRun: (monitorRunId: number) => void;
 };
 
-const formatValue = (value: unknown, fallback = "--") =>
-  typeof value === "string" && value.trim()
-    ? humanizeMarketAgentValue(value, fallback)
-    : typeof value === "number"
-      ? String(value)
-      : fallback;
-
-const renderBadge = (label: unknown, tone: "default" | "info" | "warn" | "good" | "danger" = "default") => (
-  <MarketAgentStatusBadge
-    label={formatValue(label, "unknown")}
-    tone={tone === "default" ? undefined : tone === "danger" ? "bad" : tone}
-  />
-);
-
 type TimelineRow = {
   key: string;
   time: string;
   type: string;
   title: string;
-  driver: string;
+  meta: string;
   status: string;
+  source: "event" | "news" | "calendar" | "alert" | "suppressed";
+  payload?: Record<string, unknown>;
   monitorRunId?: number;
+};
+
+type TimelineKind = "breakout" | "news" | "reversal" | "range" | "session" | "recovery" | "suppressed" | "alert" | "calendar" | "evidence";
+
+const timelineKindMeta: Record<TimelineKind, { tag: string; tone: string }> = {
+  breakout: { tag: "BREAKOUT", tone: "red" },
+  news: { tag: "NEWS", tone: "blue" },
+  reversal: { tag: "REVERSAL", tone: "purple" },
+  range: { tag: "RANGE", tone: "green" },
+  session: { tag: "SESSION", tone: "amber" },
+  recovery: { tag: "RECOVERY", tone: "green" },
+  suppressed: { tag: "SUPPRESSED", tone: "muted" },
+  alert: { tag: "ALERT", tone: "red" },
+  calendar: { tag: "CALENDAR", tone: "amber" },
+  evidence: { tag: "EVIDENCE", tone: "blue" }
+};
+
+const normalizeValue = (value: unknown) =>
+  String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+
+const numberValue = (value: unknown) => {
+  const parsed = typeof value === "number" ? value : Number.parseFloat(String(value ?? ""));
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const formatSignedValue = (value: number, suffix = "") => `${value > 0 ? "+" : ""}${value.toFixed(2)}${suffix}`;
+
+const inferTimelineKind = (row: TimelineRow): TimelineKind => {
+  const semanticType = normalizeValue(row.payload?.semantic_type);
+  if (semanticType in timelineKindMeta) return semanticType as TimelineKind;
+  const status = normalizeValue(row.status);
+  const title = normalizeValue(row.title);
+  if (row.source === "news" || title.includes("headline")) return "news";
+  if (row.source === "calendar") return "calendar";
+  if (row.source === "suppressed" || status.includes("suppressed")) return "suppressed";
+  if (status.includes("recovery") || status.includes("backfilled")) return "recovery";
+  if (title.includes("rebound") || title.includes("reverse") || title.includes("invalidated")) return "reversal";
+  if (title.includes("session")) return "session";
+  if (title.includes("range") || title.includes("quiet")) return "range";
+  if (status.includes("level") || row.source === "alert") return "alert";
+  if (title.includes("breakout") || title.includes("selloff") || title.includes("pressure") || title.includes("drop")) return "breakout";
+  return "evidence";
+};
+
+const compactTimelineTitle = (row: TimelineRow) => {
+  const impact = numberValue(row.payload?.impact_percent);
+  if (impact !== null && row.source === "alert") {
+    const action = impact < 0 ? "XAUUSD drop" : impact > 0 ? "XAUUSD spike" : "XAUUSD flat";
+    return `${action} ${formatSignedValue(impact, "%")}`;
+  }
+  return row.title;
+};
+
+const formatTimelineImpact = (row: TimelineRow) => {
+  const payloadImpact = numberValue(row.payload?.impact_percent);
+  const segment = row.payload?.segment as Record<string, unknown> | undefined;
+  const segmentImpact = numberValue(segment?.move_percent);
+  const impact = payloadImpact ?? segmentImpact;
+  if (impact === null) return "Impact: watching";
+  return `Impact: ${formatSignedValue(impact, "%")}`;
+};
+
+const timelineImpactValue = (row: TimelineRow) => {
+  const payloadImpact = numberValue(row.payload?.impact_percent);
+  const segment = row.payload?.segment as Record<string, unknown> | undefined;
+  const segmentImpact = numberValue(segment?.move_percent);
+  return payloadImpact ?? segmentImpact;
+};
+
+const replayMode = (rangePreset: string): "day" | "month" => (rangePreset === "month" ? "month" : "day");
+
+const replayModeLabel = (rangePreset: string) => (replayMode(rangePreset) === "month" ? "Month: major turns" : "Day: detailed flow");
+
+const isMajorTimelineRow = (row: TimelineRow) => {
+  const kind = inferTimelineKind(row);
+  const impact = timelineImpactValue(row);
+  const status = normalizeValue(row.status);
+  const title = normalizeValue(row.title);
+  if (row.source === "alert") return true;
+  if (["breakout", "reversal", "recovery"].includes(kind)) return true;
+  if (typeof impact === "number" && Math.abs(impact) >= 0.2) return true;
+  if (status.includes("level_2") || status.includes("level_3") || status.includes("confirmed")) return true;
+  return ["pressure", "breakout", "selloff", "drop", "spike", "reversal", "driver"].some((word) => title.includes(word));
 };
 
 const buildTimelineRows = (payload: MarketAgentReplayResponse["replay"]): TimelineRow[] => {
@@ -54,8 +128,10 @@ const buildTimelineRows = (payload: MarketAgentReplayResponse["replay"]): Timeli
       time: item.event_time,
       type: item.event_type,
       title: item.label,
-      driver: formatDriverLabel((item.payload?.main_driver as string | undefined) ?? "unknown"),
+      meta: formatDriverLabel((item.payload?.main_driver as string | undefined) ?? "unknown"),
       status: (item.payload?.cause_status as string | undefined) ?? item.event_type,
+      source: "event" as const,
+      payload: item.payload,
       monitorRunId: item.monitor_run_id
     })),
     ...payload.news_items.map((item, index) => ({
@@ -63,24 +139,30 @@ const buildTimelineRows = (payload: MarketAgentReplayResponse["replay"]): Timeli
       time: String(item.published_at ?? item.first_seen_at ?? ""),
       type: "News",
       title: String(item.title ?? "News item"),
-      driver: formatDriverLabel(item.driver ?? item.category ?? "unknown"),
-      status: String(item.data_mode ?? "possible")
+      meta: String(item.source ?? formatDriverLabel(item.driver ?? item.category ?? "news")),
+      status: String(item.data_mode ?? "possible"),
+      source: "news" as const,
+      payload: item
     })),
     ...payload.calendar_events.map((item, index) => ({
       key: `calendar-${index}-${String(item.scheduled_at ?? item.title ?? "")}`,
       time: String(item.scheduled_at ?? ""),
       type: "Calendar",
       title: String(item.title ?? "Calendar event"),
-      driver: formatDriverLabel(item.driver ?? item.currency ?? "calendar"),
-      status: String(item.data_mode ?? "possible")
+      meta: formatDriverLabel(item.driver ?? item.currency ?? "calendar"),
+      status: String(item.data_mode ?? "possible"),
+      source: "calendar" as const,
+      payload: item
     })),
     ...payload.alerts.map((item, index) => ({
       key: `alert-${index}-${item.monitor_run_id ?? index}`,
       time: String(item.run_started_at ?? ""),
       type: "Alert",
       title: String(item.message ?? "Alert"),
-      driver: formatDriverLabel(item.main_driver ?? "unknown"),
+      meta: formatDriverLabel(item.main_driver ?? "unknown"),
       status: String(item.notification_level ?? "confirmed"),
+      source: "alert" as const,
+      payload: item,
       monitorRunId: item.monitor_run_id
     })),
     ...payload.suppressed_alerts.map((item, index) => ({
@@ -88,22 +170,23 @@ const buildTimelineRows = (payload: MarketAgentReplayResponse["replay"]): Timeli
       time: String(item.run_started_at ?? ""),
       type: "Suppressed",
       title: String(item.message ?? "Suppressed alert"),
-      driver: "No state change",
+      meta: "No state change",
       status: "suppressed",
+      source: "suppressed" as const,
+      payload: item,
       monitorRunId: item.monitor_run_id
     }))
   ];
 
   return rows
     .filter((row) => row.time || row.title)
-    .sort((left, right) => String(right.time).localeCompare(String(left.time)))
-    .slice(0, 12);
+    .sort((left, right) => String(right.time).localeCompare(String(left.time)));
 };
 
 export function MarketAgentReplay({
   replay,
-  selectedEvidence,
-  selectedMonitorRunId,
+  selectedEvidence: _selectedEvidence,
+  selectedMonitorRunId: _selectedMonitorRunId,
   rangePreset,
   rangeStartInput,
   rangeEndInput,
@@ -111,29 +194,35 @@ export function MarketAgentReplay({
   onRangeStartChange,
   onRangeEndChange,
   onApplyRange,
-  onSelectRun
+  onSelectRun: _onSelectRun
 }: MarketAgentReplayProps) {
   const payload = normalizeMarketAgentReplayPayload(replay?.replay);
+  const allRows = buildTimelineRows(payload);
+  const rows = replayMode(rangePreset) === "month" ? allRows.filter(isMajorTimelineRow) : allRows;
+  const modeLabel = replayModeLabel(rangePreset);
 
   return (
-    <section className="market-agent-surface" data-qa="qa:market-agent:replay">
+    <section className="market-agent-surface market-agent-replay-surface" data-qa="qa:market-agent:replay">
       <div className="market-agent-surface-header">
         <div>
-          <h2>Recent Timeline</h2>
-          <span className="hint">Recent price, news, calendar, alert, suppressed, and recovery markers</span>
+          <h2>Market Replay</h2>
+          <span className="hint">Price action, drivers, and confirmation sequence</span>
         </div>
       </div>
 
       <div className="market-agent-replay-controls">
-        {["1h", "4h", "today"].map((preset) => (
+        {[
+          { value: "day", label: "Day" },
+          { value: "month", label: "Month" }
+        ].map((preset) => (
           <button
-            key={preset}
+            key={preset.value}
             type="button"
-            className={`btn ghost btn-compact${rangePreset === preset ? " primary" : ""}`}
-            onClick={() => onPresetChange(preset)}
-            data-qa={`qa:market-agent:range:${preset}`}
+            className={`btn ghost btn-compact${replayMode(rangePreset) === preset.value ? " primary" : ""}`}
+            onClick={() => onPresetChange(preset.value)}
+            data-qa={`qa:market-agent:range:${preset.value}`}
           >
-            {preset === "1h" ? "Last 1h" : preset === "4h" ? "Last 4h" : "Today"}
+            {preset.label}
           </button>
         ))}
         <input
@@ -156,305 +245,45 @@ export function MarketAgentReplay({
       {!replay?.available ? (
         <div className="market-agent-empty-state">{replay?.message || "Replay data is unavailable."}</div>
       ) : (
-        <>
-        <div className="market-agent-recent-timeline" data-qa="qa:market-agent:timeline-list">
-          {buildTimelineRows(payload).map((row) => (
-            <button
-              key={row.key}
-              type="button"
-              className={`market-agent-timeline-row${selectedMonitorRunId === row.monitorRunId ? " selected" : ""}`}
-              onClick={() => row.monitorRunId && onSelectRun(row.monitorRunId)}
-            >
-              <span className="market-agent-timeline-time">{formatShortTime(row.time)}</span>
-              <span className="market-agent-timeline-main">
-                <strong>{row.title}</strong>
-                <span>{row.driver}</span>
-              </span>
-              <MarketAgentStatusBadge label={row.type} tone="info" />
-              <MarketAgentStatusBadge label={row.status} />
-            </button>
-          ))}
-          {buildTimelineRows(payload).length === 0 ? (
-            <div className="market-agent-empty-state">No timeline items in this window.</div>
-          ) : null}
+        <div className="market-agent-replay-story" data-qa="qa:market-agent:timeline-list">
+          <div className="market-agent-replay-story-head">
+            <div>
+              <span>Market Replay</span>
+              <strong>{rows.length ? `${rows.length} market markers` : "No replay markers"}</strong>
+            </div>
+            <MarketAgentStatusBadge label={modeLabel} tone="info" />
+          </div>
+          <div className="market-agent-replay-track">
+            {rows.map((row, index) => {
+              const kind = inferTimelineKind(row);
+              const meta = timelineKindMeta[kind];
+              return (
+                <div
+                  key={row.key}
+                  className={`market-agent-replay-track-row kind-${meta.tone}`}
+                  style={{ "--ma-replay-row-index": index } as CSSProperties}
+                >
+                  <time>{formatShortTime(row.time)}</time>
+                  <span className="market-agent-replay-node" aria-hidden="true" />
+                  <div className="market-agent-replay-row-body">
+                    <div className="market-agent-replay-title-row">
+                      <strong>{compactTimelineTitle(row)}</strong>
+                      <span className={`market-agent-event-tag tone-${meta.tone}`}>{meta.tag}</span>
+                    </div>
+                    <div className="market-agent-replay-meta-row">
+                      <span>{row.meta}</span>
+                      <small>{formatTimelineImpact(row)}</small>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            {rows.length === 0 ? (
+              <div className="market-agent-empty-state">No replay events in this window.</div>
+            ) : null}
+          </div>
         </div>
-
-        <details className="market-agent-full-replay" data-qa="qa:market-agent:full-replay">
-          <summary>Open full replay</summary>
-          <div className="market-agent-replay-grid">
-          <div className="market-agent-replay-column">
-            <div className="market-agent-replay-block" data-qa="qa:market-agent:price-series">
-              <div className="market-agent-replay-block-head">
-                <h3>Price series</h3>
-                <span>{payload.price_series.length} rows</span>
-              </div>
-              <div className="market-agent-list">
-                {payload.price_series.map((row, index) => (
-                  <div key={`price-${index}`} className="market-agent-list-item">
-                    <div className="market-agent-list-title">
-                      <strong>{formatValue(row.symbol)}</strong>
-                      <MarketAgentStatusBadge label={formatValue(row.source_type, "unknown")} tone="info" />
-                    </div>
-                    <div className="market-agent-list-meta">
-                      <span>{formatValue(row.data_timestamp)}</span>
-                      <span>Close {formatValue(row.close_price)}</span>
-                      <span>{formatValue(row.data_mode)}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="market-agent-replay-block" data-qa="qa:market-agent:related-assets">
-              <div className="market-agent-replay-block-head">
-                <h3>Related assets</h3>
-                <span>Observed, not always active</span>
-              </div>
-              <div className="market-agent-list">
-                {Object.entries(payload.related_assets).map(([symbol, rows]) => {
-                  const latest = rows[rows.length - 1] as Record<string, unknown> | undefined;
-                  return (
-                    <div key={symbol} className="market-agent-list-item">
-                      <div className="market-agent-list-title">
-                        <strong>{symbol}</strong>
-                        <MarketAgentStatusBadge label={formatValue(latest?.data_mode, rows.length ? "live" : "unavailable")} />
-                      </div>
-                      <div className="market-agent-list-meta">
-                        <span>{formatValue(latest?.data_timestamp)}</span>
-                        <span>15m {formatValue(latest?.change_15m)}</span>
-                        <span>{rows.length ? formatValue(latest?.source_type) : "unavailable"}</span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          <div className="market-agent-replay-column">
-            <div className="market-agent-replay-block" data-qa="qa:market-agent:timeline-list">
-              <div className="market-agent-replay-block-head">
-                <h3>Timeline events</h3>
-                <span>{payload.timeline_events.length} items</span>
-              </div>
-              <div className="market-agent-list">
-                {payload.timeline_events.map((item) => (
-                  <button
-                    key={`${item.monitor_run_id}-${item.event_time}-${item.label}`}
-                    type="button"
-                    className={`market-agent-list-item action${selectedMonitorRunId === item.monitor_run_id ? " selected" : ""}`}
-                    onClick={() => onSelectRun(item.monitor_run_id)}
-                  >
-                    <div className="market-agent-list-title">
-                      <strong>{item.label}</strong>
-                      <MarketAgentStatusBadge label={item.event_type} tone="info" />
-                    </div>
-                    <div className="market-agent-list-meta">
-                      <span>{item.event_time}</span>
-                      <span>run {item.monitor_run_id}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="market-agent-replay-block" data-qa="qa:market-agent:news-items">
-              <div className="market-agent-replay-block-head">
-                <h3>News items</h3>
-                <span>{payload.news_items.length} items</span>
-              </div>
-              <div className="market-agent-list">
-                {payload.news_items.map((item, index) => (
-                  <div key={`news-${index}`} className="market-agent-list-item">
-                    <div className="market-agent-list-title">
-                      <strong>{formatValue(item.title)}</strong>
-                      {renderBadge(item.data_mode)}
-                    </div>
-                    <div className="market-agent-list-meta">
-                      <span>{formatValue(item.published_at)}</span>
-                      <span>{formatValue(item.source)}</span>
-                    </div>
-                  </div>
-                ))}
-                {payload.news_items.length === 0 ? <div className="market-agent-empty-state">No news items in this window.</div> : null}
-              </div>
-            </div>
-
-            <div className="market-agent-replay-block" data-qa="qa:market-agent:calendar-events">
-              <div className="market-agent-replay-block-head">
-                <h3>Calendar events</h3>
-                <span>{payload.calendar_events.length} items</span>
-              </div>
-              <div className="market-agent-list">
-                {payload.calendar_events.map((item, index) => (
-                  <div key={`calendar-${index}`} className="market-agent-list-item">
-                    <div className="market-agent-list-title">
-                      <strong>{formatValue(item.title)}</strong>
-                      {renderBadge(item.data_mode)}
-                    </div>
-                    <div className="market-agent-list-meta">
-                      <span>{formatValue(item.scheduled_at)}</span>
-                      <span>{formatValue(item.source)}</span>
-                    </div>
-                  </div>
-                ))}
-                {payload.calendar_events.length === 0 ? <div className="market-agent-empty-state">No calendar events in this window.</div> : null}
-              </div>
-            </div>
-
-            <div className="market-agent-replay-block" data-qa="qa:market-agent:driver-attention-timeline">
-              <div className="market-agent-replay-block-head">
-                <h3>Driver attention changes</h3>
-                <span>{payload.driver_attention_timeline.length} items</span>
-              </div>
-              <div className="market-agent-list">
-                {payload.driver_attention_timeline.map((item, index) => (
-                  <div key={`driver-timeline-${index}`} className="market-agent-list-item">
-                    <div className="market-agent-list-title">
-                      <strong>{formatValue(item.driver_id, `driver ${index + 1}`)}</strong>
-                      {renderBadge(item.current_state)}
-                    </div>
-                    <div className="market-agent-list-meta">
-                      <span>{formatValue(item.last_confirmed_at, formatValue(item.run_started_at))}</span>
-                      <span>{formatValue(item.data_mode)}</span>
-                    </div>
-                  </div>
-                ))}
-                {payload.driver_attention_timeline.length === 0 ? (
-                  <div className="market-agent-empty-state">No driver-attention changes in this window.</div>
-                ) : null}
-              </div>
-            </div>
-
-            <div className="market-agent-replay-block" data-qa="qa:market-agent:state-transitions">
-              <div className="market-agent-replay-block-head">
-                <h3>State transitions</h3>
-                <span>{payload.state_transitions.length} items</span>
-              </div>
-              <div className="market-agent-list">
-                {payload.state_transitions.map((item, index) => (
-                  <div key={`state-transition-${index}`} className="market-agent-list-item">
-                    <div className="market-agent-list-title">
-                      <strong>{humanizeMarketAgentReason(item.state_change_reason, "State transition")}</strong>
-                      {renderBadge(item.main_driver ?? "state")}
-                    </div>
-                    <div className="market-agent-list-meta">
-                      <span>{formatValue(item.run_started_at)}</span>
-                      <span>run {formatValue(item.monitor_run_id)}</span>
-                    </div>
-                  </div>
-                ))}
-                {payload.state_transitions.length === 0 ? (
-                  <div className="market-agent-empty-state">No state transitions in this window.</div>
-                ) : null}
-              </div>
-            </div>
-
-            <div className="market-agent-replay-block" data-qa="qa:market-agent:alerts">
-              <div className="market-agent-replay-block-head">
-                <h3>Alerts</h3>
-                <span>Click an alert for evidence</span>
-              </div>
-              <div className="market-agent-list">
-                {payload.alerts.map((item, index) => (
-                  <button
-                    key={`alert-${index}-${item.monitor_run_id ?? index}`}
-                    type="button"
-                    className={`market-agent-list-item action${selectedMonitorRunId === item.monitor_run_id ? " selected" : ""}`}
-                    onClick={() => item.monitor_run_id && onSelectRun(item.monitor_run_id)}
-                  >
-                    <div className="market-agent-list-title">
-                      <strong>{formatValue(item.message)}</strong>
-                      {renderBadge(item.notification_level ?? "confirmed")}
-                    </div>
-                    <div className="market-agent-list-meta">
-                      <span>{formatValue(item.run_started_at)}</span>
-                      <span>run {formatValue(item.monitor_run_id)}</span>
-                    </div>
-                  </button>
-                ))}
-                {payload.alerts.length === 0 ? <div className="market-agent-empty-state">No alerts in this window.</div> : null}
-              </div>
-            </div>
-
-            <div className="market-agent-replay-block" data-qa="qa:market-agent:suppressed-alerts">
-              <div className="market-agent-replay-block-head">
-                <h3>Suppressed alerts</h3>
-                <span>Still persisted for replay and audit</span>
-              </div>
-              <div className="market-agent-list">
-                {payload.suppressed_alerts.map((item, index) => (
-                  <button
-                    key={`suppressed-${index}-${item.monitor_run_id ?? index}`}
-                    type="button"
-                    className={`market-agent-list-item action${selectedMonitorRunId === item.monitor_run_id ? " selected" : ""}`}
-                    onClick={() => item.monitor_run_id && onSelectRun(item.monitor_run_id)}
-                  >
-                    <div className="market-agent-list-title">
-                      <strong>{formatValue(item.message)}</strong>
-                      {renderBadge("suppressed", "warn")}
-                    </div>
-                    <div className="market-agent-list-meta">
-                      <span>{formatValue(item.run_started_at)}</span>
-                      <span>{formatValue(item.notification_level)}</span>
-                    </div>
-                  </button>
-                ))}
-                {payload.suppressed_alerts.length === 0 ? (
-                  <div className="market-agent-empty-state">No suppressed alerts in this window.</div>
-                ) : null}
-              </div>
-            </div>
-
-            <div className="market-agent-replay-block" data-qa="qa:market-agent:recovery-markers">
-              <div className="market-agent-replay-block-head">
-                <h3>Recovery / backfilled markers</h3>
-                <span>Backfilled and recovery events stay visible</span>
-              </div>
-              <div className="market-agent-list">
-                {payload.timeline_events
-                  .filter((item) => {
-                    const dataMode = typeof item.payload?.data_mode === "string" ? item.payload.data_mode : "";
-                    return item.event_type.includes("recovery") || dataMode === "backfilled";
-                  })
-                  .map((item) => (
-                    <button
-                      key={`recovery-${item.monitor_run_id}-${item.event_time}-${item.label}`}
-                      type="button"
-                      className={`market-agent-list-item action${selectedMonitorRunId === item.monitor_run_id ? " selected" : ""}`}
-                      onClick={() => onSelectRun(item.monitor_run_id)}
-                    >
-                      <div className="market-agent-list-title">
-                        <strong>{item.label}</strong>
-                        {renderBadge(
-                          typeof item.payload?.data_mode === "string" ? item.payload.data_mode : item.event_type
-                        )}
-                      </div>
-                      <div className="market-agent-list-meta">
-                        <span>{item.event_time}</span>
-                        <span>run {item.monitor_run_id}</span>
-                      </div>
-                    </button>
-                  ))}
-                {!payload.timeline_events.some((item) => {
-                  const dataMode = typeof item.payload?.data_mode === "string" ? item.payload.data_mode : "";
-                  return item.event_type.includes("recovery") || dataMode === "backfilled";
-                }) ? (
-                  <div className="market-agent-empty-state">No recovery markers in this window.</div>
-                ) : null}
-              </div>
-            </div>
-          </div>
-          </div>
-        </details>
-        </>
       )}
-
-      {selectedEvidence?.available && selectedEvidence.payload?.monitor_run ? (
-        <div className="market-agent-replay-selection-note">
-          Selected run: {formatValue((selectedEvidence.payload.monitor_run as Record<string, unknown>).run_started_at)}
-        </div>
-      ) : null}
     </section>
   );
 }

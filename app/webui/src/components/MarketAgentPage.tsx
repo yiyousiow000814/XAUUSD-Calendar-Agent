@@ -596,7 +596,7 @@ type TimelineRow = {
   source: "event" | "news" | "calendar" | "alert" | "suppressed";
 };
 
-type ReplayRange = "1h" | "4h" | "1d";
+type ReplayRange = "day" | "month";
 
 type EvidenceFilter = "all" | "news" | "calendar" | "technical" | "drivers";
 
@@ -610,10 +610,9 @@ type DashboardEvidenceRow = {
   time: string;
 };
 
-const replayRangeOptions: Array<{ value: ReplayRange; label: string; hours: number }> = [
-  { value: "1h", label: "1H", hours: 1 },
-  { value: "4h", label: "4H", hours: 4 },
-  { value: "1d", label: "1D", hours: 24 }
+const replayRangeOptions: Array<{ value: ReplayRange; label: string; hint: string }> = [
+  { value: "day", label: "Day", hint: "Detailed event flow" },
+  { value: "month", label: "Month", hint: "Major XAUUSD turns" }
 ];
 
 const evidenceFilterOptions: Array<{ value: EvidenceFilter; label: string }> = [
@@ -625,16 +624,16 @@ const evidenceFilterOptions: Array<{ value: EvidenceFilter; label: string }> = [
 ];
 
 const timelineKindMeta: Record<TimelineKind, { tag: string; icon: string; tone: string; title: string }> = {
-  breakout: { tag: "BREAKOUT", icon: "↯", tone: "red", title: "Breakout" },
-  news: { tag: "NEWS", icon: "✦", tone: "blue", title: "News" },
-  reversal: { tag: "REVERSAL", icon: "↺", tone: "purple", title: "Reversal" },
-  range: { tag: "RANGE", icon: "◇", tone: "green", title: "Range" },
-  session: { tag: "SESSION", icon: "◷", tone: "amber", title: "Session" },
-  recovery: { tag: "RECOVERY", icon: "⟳", tone: "green", title: "Recovery" },
-  suppressed: { tag: "SUPPRESSED", icon: "×", tone: "muted", title: "Suppressed" },
-  alert: { tag: "ALERT", icon: "!", tone: "red", title: "Alert" },
-  calendar: { tag: "CALENDAR", icon: "◷", tone: "amber", title: "Calendar" },
-  evidence: { tag: "EVIDENCE", icon: "◆", tone: "blue", title: "Evidence" }
+  breakout: { tag: "BREAKOUT", icon: "B", tone: "red", title: "Breakout" },
+  news: { tag: "NEWS", icon: "N", tone: "blue", title: "News" },
+  reversal: { tag: "REVERSAL", icon: "R", tone: "purple", title: "Reversal" },
+  range: { tag: "RANGE", icon: "R", tone: "green", title: "Range" },
+  session: { tag: "SESSION", icon: "S", tone: "amber", title: "Session" },
+  recovery: { tag: "RECOVERY", icon: "R", tone: "green", title: "Recovery" },
+  suppressed: { tag: "SUPPRESSED", icon: "S", tone: "muted", title: "Suppressed" },
+  alert: { tag: "ALERT", icon: "A", tone: "red", title: "Alert" },
+  calendar: { tag: "CALENDAR", icon: "C", tone: "amber", title: "Calendar" },
+  evidence: { tag: "EVIDENCE", icon: "E", tone: "blue", title: "Evidence" }
 };
 
 const inferTimelineKind = (item: TimelineRow): TimelineKind => {
@@ -661,6 +660,25 @@ const formatTimelineImpact = (item: TimelineRow) => {
   const impact = payloadImpact ?? segmentImpact;
   if (impact === null) return "Impact: watching";
   return `Impact: ${formatSignedValue(impact, "%")}`;
+};
+
+const timelineImpactValue = (item: TimelineRow) => {
+  const payloadImpact = numberValue(item.payload?.impact_percent);
+  const segment = item.payload?.segment as Record<string, unknown> | undefined;
+  const segmentImpact = numberValue(segment?.move_percent);
+  return payloadImpact ?? segmentImpact;
+};
+
+const isMajorTimelineEvent = (item: TimelineRow) => {
+  const kind = inferTimelineKind(item);
+  const impact = timelineImpactValue(item);
+  const status = normalizeMarketAgentValue(item.status);
+  const title = normalizeMarketAgentValue(item.title);
+  if (item.source === "alert") return true;
+  if (["breakout", "reversal", "recovery"].includes(kind)) return true;
+  if (typeof impact === "number" && Math.abs(impact) >= 0.2) return true;
+  if (status.includes("level_2") || status.includes("level_3") || status.includes("confirmed")) return true;
+  return ["pressure", "breakout", "selloff", "drop", "spike", "reversal", "driver"].some((word) => title.includes(word));
 };
 
 const compactTimelineTitle = (item: TimelineRow) => {
@@ -794,23 +812,12 @@ const latestTimelineRows = (payload: MarketAgentReplayPayload | undefined): Time
     }))
   ]
     .filter((item) => item.time || item.title)
-    .sort((left, right) => String(right.time).localeCompare(String(left.time)))
-    .slice(0, 6);
+    .sort((left, right) => String(right.time).localeCompare(String(left.time)));
 };
 
 const filterTimelineByReplayRange = (rows: TimelineRow[], range: ReplayRange) => {
-  const rangeMeta = replayRangeOptions.find((item) => item.value === range) ?? replayRangeOptions[2];
-  if (rangeMeta.value === "1d") return rows;
-  const parsedTimes = rows
-    .map((item) => new Date(item.time).getTime())
-    .filter((value) => Number.isFinite(value));
-  if (!parsedTimes.length) return rows;
-  const latest = Math.max(...parsedTimes);
-  const cutoff = latest - rangeMeta.hours * 60 * 60 * 1000;
-  return rows.filter((item) => {
-    const parsed = new Date(item.time).getTime();
-    return !Number.isFinite(parsed) || parsed >= cutoff;
-  });
+  if (range === "month") return rows.filter(isMajorTimelineEvent);
+  return rows;
 };
 
 const evidenceStatusLabel = (value: unknown, fallback = "Supporting") => {
@@ -1052,7 +1059,7 @@ function MarketAgentDashboard({
   onSelectRun: (monitorRunId: number) => void;
   onNavigate: (section: MarketAgentSection) => void;
 }) {
-  const [replayRange, setReplayRange] = useState<ReplayRange>("1d");
+  const [replayRange, setReplayRange] = useState<ReplayRange>("day");
   const [evidenceFilter, setEvidenceFilter] = useState<EvidenceFilter>("all");
   const [nowMs, setNowMs] = useState(() => Date.now());
   const [countdownBaseMs] = useState(() => Date.now());
@@ -1319,7 +1326,7 @@ function MarketAgentDashboard({
 
         <section className="market-agent-cockpit-panel market-agent-replay-panel">
           <div className="market-agent-panel-title-row">
-            <h3>Market Replay <span>(Today)</span></h3>
+            <h3>Market Replay <span>({replayRange === "month" ? "Month" : "Day"})</span></h3>
             <div className="market-agent-range-tabs" role="group" aria-label="Replay range">
               {replayRangeOptions.map((item) => (
                 <button
@@ -1327,6 +1334,7 @@ function MarketAgentDashboard({
                   key={item.value}
                   className={replayRange === item.value ? "active" : ""}
                   aria-pressed={replayRange === item.value}
+                  title={item.hint}
                   onClick={() => setReplayRange(item.value)}
                 >
                   {item.label}
@@ -1347,7 +1355,7 @@ function MarketAgentDashboard({
                   onClick={() => item.monitorRunId && onSelectRun(item.monitorRunId)}
                 >
                   <time>{formatReplayTime(item.time)}</time>
-                  <span className="market-agent-timeline-node">{meta.icon}</span>
+                  <span className="market-agent-timeline-node" aria-hidden="true" />
                   <div className="market-agent-timeline-body">
                     <div className="market-agent-timeline-title-row">
                       <strong>{compactTimelineTitle(item)}</strong>
