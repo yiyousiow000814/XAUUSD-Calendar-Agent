@@ -195,6 +195,66 @@
   font-size: 12px;
 }
 
+.market-agent-live-feed-progress {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 12px;
+  width: min(620px, 100%);
+  padding: 10px 12px;
+  border: 1px solid rgba(245, 177, 66, 0.26);
+  border-radius: 12px;
+  background: rgba(245, 177, 66, 0.06);
+}
+
+.market-agent-live-feed-progress.ready {
+  border-color: rgba(37, 210, 142, 0.28);
+  background: rgba(37, 210, 142, 0.06);
+}
+
+.market-agent-live-feed-progress div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.market-agent-live-feed-progress div span {
+  display: block;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  border-radius: 0;
+}
+
+.market-agent-live-feed-progress b {
+  color: var(--text-primary, #f8fafc);
+  font-size: 13px;
+}
+
+.market-agent-live-feed-progress i {
+  grid-column: 1 / -1;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(134, 148, 168, 0.16);
+}
+
+.market-agent-live-feed-progress i span {
+  display: block;
+  height: 100%;
+  border: 0;
+  padding: 0;
+  background: linear-gradient(90deg, #f5b142, #25d28e);
+}
+
+.market-agent-live-feed-progress small {
+  grid-column: 1 / -1;
+  color: var(--text-secondary, #9aa4b2);
+  font-size: 11px;
+}
+
 .market-agent-ctrader-primary-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }

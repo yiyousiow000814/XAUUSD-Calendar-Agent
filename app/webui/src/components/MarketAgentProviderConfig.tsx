@@ -54,6 +54,19 @@ type MarketAgentProviderConfigProps = {
 type SetupStep = "ctrader" | "llm" | "telegram" | "monitoring";
 type LocalAIMode = "auto" | "balanced" | "lightweight" | "off";
 
+const formatReadableValue = (value: unknown, fallback: string) =>
+  typeof value === "string" && value.trim() ? value : fallback;
+
+const formatCTraderStatusMessage = (value: unknown, fallback: string) => {
+  const text = typeof value === "string" ? value.trim() : "";
+  const normalized = text.toLowerCase();
+  if (!text) return fallback;
+  if (normalized.includes("does not expose live quotes") || normalized.includes("account and symbol checks")) {
+    return fallback;
+  }
+  return text;
+};
+
 const formatLocalModelName = (model?: string | null) => {
   if (!model) return "";
   const match = model.match(/^(qwen\d+(?:\.\d+)?):(.+)$/i);
@@ -244,13 +257,17 @@ export function MarketAgentProviderConfig({
     cTraderHealth?.is_available && !cTraderHealth.is_stale && cTraderHealth.data_mode === "live_seen"
   );
   const cTraderConfigured = Boolean(data?.ctrader?.enabled);
-  const cTraderStatusLabel = cTraderLive ? "Live" : cTraderConfigured ? "Preparing live feed" : "Connect";
+  const cTraderConnecting = ctraderAuthResult?.status === "connecting";
+  const cTraderStatusLabel = cTraderLive ? "Live" : cTraderConnecting ? "Connecting" : cTraderConfigured ? "Live pending" : "Connect";
+  const cTraderProgress = cTraderLive ? 100 : cTraderConnecting ? 35 : cTraderConfigured ? 65 : 0;
   const cTraderHealthMessage =
     cTraderLive
       ? "Live XAUUSD feed is active."
+      : cTraderConnecting
+        ? "Checking account access and requesting the first live quote."
       : cTraderConfigured
-        ? "Preparing the live XAUUSD feed. History sync continues in the background."
-        : "Connect cTrader to let the app prepare live monitoring.";
+        ? formatCTraderStatusMessage(cTraderHealth?.stale_reason || cTraderHealth?.error, "Account saved. Waiting for the first fresh XAUUSD quote.")
+        : "Connect cTrader to start live monitoring.";
 
   const statusTone = useMemo(() => {
     if (!data?.available) return "bad";
@@ -348,6 +365,11 @@ export function MarketAgentProviderConfig({
     if (!onStartCTraderConnect) return;
     const payload = { ...form, enabled: true };
     setForm(payload);
+    setCTraderAuthResult({
+      ok: false,
+      status: "connecting",
+      message: "Checking cTrader account and requesting a live XAUUSD quote..."
+    });
     onSave(payload);
     const result = await onStartCTraderConnect(payload);
     setCTraderAuthResult(result);
@@ -455,7 +477,7 @@ export function MarketAgentProviderConfig({
           <div className="market-agent-step-copy">
             <span>Connect cTrader</span>
             <h3>Connect cTrader</h3>
-            <p>Enter the cTrader CLI account this app can use. Market symbols are handled automatically.</p>
+            <p>Connect once. The app will fetch live XAUUSD first, then fill history in the background.</p>
           </div>
           <p className="market-agent-security-note">
             Password is stored locally and masked after save. It is not shown in logs or UI snapshots.
@@ -502,8 +524,8 @@ export function MarketAgentProviderConfig({
             </div>
           </div>
           <div className="market-agent-provider-config-actions market-agent-action-bar market-agent-action-bar-float">
-            <button type="button" className="btn primary btn-compact" onClick={() => void runCTraderConnect()}>
-              Connect cTrader
+            <button type="button" className="btn primary btn-compact" onClick={() => void runCTraderConnect()} disabled={cTraderConnecting}>
+              {cTraderConnecting ? "Connecting..." : cTraderLive ? "Reconnect cTrader" : "Connect cTrader"}
             </button>
             <button type="button" className="btn ghost btn-compact" onClick={onClear}>
               Clear
@@ -521,8 +543,29 @@ export function MarketAgentProviderConfig({
             </div>
           ) : null}
           {cTraderConfigured && !cTraderLive ? (
-            <div className="market-agent-readable-status-line">
-              <span>{cTraderHealthMessage}</span>
+            <div className="market-agent-readable-status-line market-agent-live-feed-progress">
+              <div>
+                <strong>Live feed setup</strong>
+                <span>{cTraderHealthMessage}</span>
+              </div>
+              <b>{cTraderProgress}%</b>
+              <i aria-hidden="true"><span style={{ width: `${cTraderProgress}%` }} /></i>
+              <small>
+                {cTraderConnecting
+                  ? "Step 2 of 4: checking account"
+                  : "Step 3 of 4: waiting for first live quote"}
+              </small>
+            </div>
+          ) : null}
+          {cTraderLive ? (
+            <div className="market-agent-readable-status-line market-agent-live-feed-progress ready">
+              <div>
+                <strong>Live feed active</strong>
+                <span>Current XAUUSD quotes are available. History sync can continue without blocking the live view.</span>
+              </div>
+              <b>100%</b>
+              <i aria-hidden="true"><span style={{ width: "100%" }} /></i>
+              <small>Step 4 of 4: live monitoring ready</small>
             </div>
           ) : null}
         </div>

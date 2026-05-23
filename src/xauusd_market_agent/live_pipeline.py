@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from datetime import datetime
 import time
 from pathlib import Path
@@ -12,7 +12,7 @@ from .driver_attention import DriverAttentionManager
 from .detectors import detect_market_trigger
 from .evidence import build_evidence_gate_result
 from .llm_client import LocalLLMClient
-from .models import CrossAssetSnapshot, Headline, MarketMove, ProviderHealth, ScenarioFixture
+from .models import CrossAssetSnapshot, EvidenceChainStatus, Headline, MarketMove, ProviderHealth, ScenarioFixture
 from .notification_policy import decide_notification
 from .notifier import FileNotificationSink, TelegramNotificationSink
 from .pipeline import analyze_fixture_with_optional_llm
@@ -298,6 +298,141 @@ def build_live_fixture(
     )["fixture"]
 
 
+def _is_live_xauusd_health(health: ProviderHealth | None) -> bool:
+    if health is None:
+        return False
+    return (
+        health.is_available
+        and not health.is_stale
+        and health.data_mode == "live_seen"
+        and (health.current_value is None or float(health.current_value) > 0)
+    )
+
+
+def _build_evidence_chain_status(
+    *,
+    fixture: ScenarioFixture,
+    provider_health: dict[str, ProviderHealth],
+    evidence_status: dict[str, str],
+    data_mode: str,
+    analysis: Any | None = None,
+    market_price_bar_count: int | None = None,
+    related_asset_bar_count: int | None = None,
+    news_row_count: int | None = None,
+    calendar_row_count: int | None = None,
+) -> EvidenceChainStatus:
+    missing_required: list[str] = []
+    usable_inputs: list[str] = []
+    context_only_inputs: list[str] = []
+
+    xauusd = provider_health.get("xauusd")
+    if _is_live_xauusd_health(xauusd) and fixture.market.to_price > 0:
+        usable_inputs.append("live_xauusd_spot")
+    elif xauusd and xauusd.is_available and xauusd.is_stale and xauusd.current_value:
+        context_only_inputs.append("market_closed_last_xauusd_spot")
+        missing_required.append("live_xauusd_spot")
+    else:
+        missing_required.append("live_xauusd_spot")
+
+    if market_price_bar_count is None:
+        has_history = fixture.market.from_price > 0 and fixture.market.to_price > 0 and fixture.market.window_minutes >= 15
+    else:
+        has_history = market_price_bar_count >= 2
+    if has_history:
+        usable_inputs.append("xauusd_recent_history")
+    else:
+        missing_required.append("xauusd_recent_history")
+
+    confirming_related = [
+        key
+        for key in ("dxy", "us10y", "us2y", "oil", "vix_equities")
+        if evidence_status.get(key) == "confirming"
+    ]
+    unavailable_related = [
+        key
+        for key in ("dxy", "us10y", "us2y", "oil", "vix_equities")
+        if evidence_status.get(key) in {"unavailable", "stale"}
+    ]
+    if confirming_related:
+        usable_inputs.extend(f"confirming_{key}" for key in confirming_related)
+    elif related_asset_bar_count:
+        context_only_inputs.append("cross_market_sensors")
+    else:
+        context_only_inputs.append("cross_market_sensors_unavailable")
+
+    if news_row_count:
+        usable_inputs.append("news_context")
+    else:
+        context_only_inputs.append("news_waiting")
+    if calendar_row_count:
+        usable_inputs.append("calendar_context")
+    else:
+        context_only_inputs.append("calendar_waiting")
+
+    llm_status = str(getattr(analysis, "llm_status", "") or "not_used")
+    if analysis is not None:
+        if str(getattr(analysis, "analysis_engine", "")) == "llm_validated":
+            usable_inputs.append("llm_validated")
+        else:
+            context_only_inputs.append(f"llm_{llm_status}")
+
+    if missing_required:
+        return EvidenceChainStatus(
+            status="context_only",
+            can_show_current_conclusion=False,
+            reason="Current conclusion is paused until live XAUUSD price and recent price history are available.",
+            missing_required=missing_required,
+            usable_inputs=usable_inputs,
+            context_only_inputs=context_only_inputs,
+            llm_status=llm_status,
+        )
+
+    if unavailable_related and not confirming_related:
+        return EvidenceChainStatus(
+            status="partial",
+            can_show_current_conclusion=True,
+            reason="Price evidence is available, but cross-market confirmation is incomplete; only unknown or unconfirmed conclusions can pass.",
+            missing_required=[],
+            usable_inputs=usable_inputs,
+            context_only_inputs=[*context_only_inputs, *[f"{key}_unavailable" for key in unavailable_related]],
+            llm_status=llm_status,
+        )
+
+    return EvidenceChainStatus(
+        status="ready",
+        can_show_current_conclusion=True,
+        reason="Live price, recent history, provider health, evidence gate, and validation are available for this run.",
+        missing_required=[],
+        usable_inputs=usable_inputs,
+        context_only_inputs=context_only_inputs,
+        llm_status=llm_status,
+    )
+
+
+def _downgrade_analysis_for_incomplete_chain(analysis: Any, chain_status: EvidenceChainStatus) -> Any:
+    if chain_status.can_show_current_conclusion:
+        return analysis
+    if not hasattr(analysis, "__dataclass_fields__"):
+        return analysis
+    return replace(
+        analysis,
+        bias="neutral",
+        main_driver="unknown",
+        secondary_driver=None,
+        cause_status="unconfirmed",
+        confidence="low",
+        is_new_state=False,
+        is_continuation=False,
+        previous_state_invalidated=False,
+        should_notify=False,
+        notification_level="none",
+        allowed_candidate_drivers_used=["unknown"],
+        causal_chain=chain_status.reason,
+        user_message="Current market context is still being collected. No confirmed driver is available yet.",
+        summary=chain_status.reason,
+    )
+
+
 def _build_packet(
     fixture: ScenarioFixture,
     *,
@@ -305,6 +440,11 @@ def _build_packet(
     attention_snapshot: Any,
     previous_state: Any,
     data_mode: str,
+    analysis: Any | None = None,
+    market_price_bar_count: int | None = None,
+    related_asset_bar_count: int | None = None,
+    news_row_count: int | None = None,
+    calendar_row_count: int | None = None,
     selected_market_provider: str = "unavailable",
     provider_chain_status: list[dict[str, Any]] | None = None,
     fallback_reason: str = "",
@@ -325,6 +465,17 @@ def _build_packet(
             for theme in dynamic_themes
             for sensor_id in theme.get("requested_sensor_ids", [])
         }
+    )
+    chain_status = _build_evidence_chain_status(
+        fixture=fixture,
+        provider_health=provider_health,
+        evidence_status=evidence.evidence_status,
+        data_mode=data_mode,
+        analysis=analysis,
+        market_price_bar_count=market_price_bar_count,
+        related_asset_bar_count=related_asset_bar_count,
+        news_row_count=news_row_count,
+        calendar_row_count=calendar_row_count,
     )
     return {
         "as_of_myt": fixture.as_of_myt,
@@ -347,6 +498,7 @@ def _build_packet(
         "driver_attention_summary": attention_snapshot.driver_attention_summary,
         "dynamic_themes": dynamic_themes,
         "requested_sensors": requested_sensors,
+        "evidence_chain_status": asdict(chain_status),
         "previous_state": asdict(previous_state) if previous_state is not None and hasattr(previous_state, "__dataclass_fields__") else previous_state,
         "calendar_events": [
             {"timestamp_myt": item.timestamp_myt, "title": item.title, "source": item.source}
@@ -443,6 +595,10 @@ def build_live_evidence_packet(
         attention_snapshot=attention_snapshot,
         previous_state=previous_state,
         data_mode=provider_health["xauusd"].data_mode if "xauusd" in provider_health else data_mode,
+        market_price_bar_count=len(context.get("market_price_bars", [])),
+        related_asset_bar_count=len(context.get("related_asset_bars", [])),
+        news_row_count=len(context.get("news_rows", [])),
+        calendar_row_count=len(context.get("calendar_rows", [])),
         selected_market_provider=context.get("selected_market_provider", "unavailable"),
         provider_chain_status=context.get("provider_chain_status", []),
         fallback_reason=context.get("fallback_reason", ""),
@@ -561,6 +717,18 @@ def run_monitored_live_once(
         attention_snapshot=attention_snapshot,
         data_mode=data_mode,
     )
+    pre_decision_chain_status = _build_evidence_chain_status(
+        fixture=fixture,
+        provider_health=provider_health,
+        evidence_status=evidence.evidence_status,
+        data_mode=data_mode,
+        analysis=analysis,
+        market_price_bar_count=len(runtime_context.get("market_price_bars", [])),
+        related_asset_bar_count=len(runtime_context.get("related_asset_bars", [])),
+        news_row_count=len(runtime_context.get("news_rows", [])),
+        calendar_row_count=len(runtime_context.get("calendar_rows", [])),
+    )
+    analysis = _downgrade_analysis_for_incomplete_chain(analysis, pre_decision_chain_status)
     decision = decide_notification(
         previous_state=previous_state,
         analysis_result=analysis,
@@ -624,6 +792,11 @@ def run_monitored_live_once(
         attention_snapshot=attention_snapshot,
         previous_state=previous_state,
         data_mode=data_mode,
+        analysis=analysis,
+        market_price_bar_count=len(runtime_context.get("market_price_bars", [])),
+        related_asset_bar_count=len(runtime_context.get("related_asset_bars", [])),
+        news_row_count=len(runtime_context.get("news_rows", [])),
+        calendar_row_count=len(runtime_context.get("calendar_rows", [])),
         selected_market_provider=runtime_context.get("selected_market_provider", "unavailable"),
         provider_chain_status=runtime_context.get("provider_chain_status", []),
         fallback_reason=runtime_context.get("fallback_reason", ""),

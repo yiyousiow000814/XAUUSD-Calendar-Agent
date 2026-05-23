@@ -144,7 +144,11 @@ def test_missing_csv_but_yahoo_fixture_exists_does_not_use_proxy_as_live(tmp_pat
 
     assert outcome["evidence_packet"]["provider_health"]["xauusd"]["is_available"] is False
     assert outcome["evidence_packet"]["provider_health"]["xauusd"]["data_mode"] == "unavailable"
+    assert outcome["evidence_packet"]["evidence_chain_status"]["status"] == "context_only"
+    assert outcome["evidence_packet"]["evidence_chain_status"]["can_show_current_conclusion"] is False
+    assert "live_xauusd_spot" in outcome["evidence_packet"]["evidence_chain_status"]["missing_required"]
     assert outcome["analysis"]["main_driver"] == "unknown"
+    assert outcome["analysis"]["cause_status"] == "unconfirmed"
     assert market_count == 0
 
 
@@ -172,6 +176,7 @@ def test_missing_csv_and_yahoo_disabled_returns_unavailable_provider_health(tmp_
     )
 
     assert outcome["evidence_packet"]["provider_health"]["xauusd"]["is_available"] is False
+    assert outcome["evidence_packet"]["evidence_chain_status"]["can_show_current_conclusion"] is False
     assert outcome["analysis"]["main_driver"] == "unknown"
 
 
@@ -196,6 +201,8 @@ def test_proxy_source_is_recorded_as_chain_status_not_live_evidence(tmp_path) ->
 
     assert packet["provider_health"]["xauusd"]["is_available"] is False
     assert packet["provider_health"]["xauusd"]["data_mode"] == "unavailable"
+    assert packet["evidence_chain_status"]["status"] == "context_only"
+    assert packet["evidence_chain_status"]["can_show_current_conclusion"] is False
     assert packet["selected_market_provider"] == "unavailable"
     assert any(item["provider"] == "yahoo_gc_f_proxy" for item in packet["provider_chain_status"])
 

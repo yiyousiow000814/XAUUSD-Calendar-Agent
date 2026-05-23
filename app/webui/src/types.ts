@@ -517,6 +517,10 @@ export type MarketAgentCTraderAuthResponse = {
   status: string;
   message?: string;
   error?: string;
+  provider_health?: Record<string, unknown> | null;
+  quote?: Record<string, unknown> | null;
+  symbol?: Record<string, unknown> | null;
+  account?: Record<string, unknown> | null;
   ctrader?: MarketAgentProviderConfig | null;
 };
 

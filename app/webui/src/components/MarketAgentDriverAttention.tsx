@@ -10,6 +10,7 @@ import "./MarketAgentDriverAttention.css";
 
 type MarketAgentDriverAttentionProps = {
   data: MarketAgentDriverAttentionResponse | null;
+  evidenceChainStatus?: Record<string, unknown> | null;
 };
 
 const formatValue = (value: unknown, fallback = "--") =>
@@ -113,9 +114,17 @@ const DriverGroup = ({
   </section>
 );
 
-export function MarketAgentDriverAttention({ data }: MarketAgentDriverAttentionProps) {
+const listValue = (payload: Record<string, unknown> | null | undefined, key: string) =>
+  (Array.isArray(payload?.[key]) ? payload?.[key] : []) as unknown[];
+
+export function MarketAgentDriverAttention({ data, evidenceChainStatus }: MarketAgentDriverAttentionProps) {
+  const canShowConclusion = evidenceChainStatus?.can_show_current_conclusion !== false;
   const groups = groupStates(data?.states ?? []);
-  const primary = [...groups.active].sort((left, right) => (right.relevance_score ?? 0) - (left.relevance_score ?? 0))[0];
+  const primary = canShowConclusion
+    ? [...groups.active].sort((left, right) => (right.relevance_score ?? 0) - (left.relevance_score ?? 0))[0]
+    : undefined;
+  const missingInputs = listValue(evidenceChainStatus, "missing_required");
+  const usableInputs = listValue(evidenceChainStatus, "usable_inputs");
 
   return (
     <section className="market-agent-surface" data-qa="qa:market-agent:driver-attention">
@@ -127,6 +136,43 @@ export function MarketAgentDriverAttention({ data }: MarketAgentDriverAttentionP
       </div>
       {!data?.available ? (
         <div className="market-agent-empty-state">{data?.message || "Driver attention is unavailable."}</div>
+      ) : !canShowConclusion ? (
+        <div className="market-agent-driver-layout market-agent-driver-layout-paused">
+          <div className="market-agent-driver-summary">
+            <div>
+              <span>Waiting for evidence chain</span>
+              <strong>No driver confirmed yet</strong>
+              <p>{formatValue(evidenceChainStatus?.reason, "Live price and recent history are required before the agent scores drivers.")}</p>
+            </div>
+            <div className="market-agent-driver-summary-metrics">
+              <span><em>Confirmed</em><b>0</b></span>
+              <span><em>Missing</em><b>{missingInputs.length}</b></span>
+              <span><em>Collected</em><b>{usableInputs.length}</b></span>
+            </div>
+          </div>
+          <section className="market-agent-driver-group">
+            <div className="market-agent-driver-group-head">
+              <div>
+                <h3>What is missing</h3>
+                <span>The agent keeps collecting context, but it will not rank drivers until these inputs are ready.</span>
+              </div>
+              <b>{missingInputs.length}</b>
+            </div>
+            <div className="market-agent-driver-list">
+              {(missingInputs.length ? missingInputs : ["live_xauusd_spot", "xauusd_recent_history"]).map((item) => (
+                <article className="market-agent-driver-row tone-background" key={String(item)}>
+                  <div className="market-agent-driver-main">
+                    <div>
+                      <strong>{formatValue(item)}</strong>
+                      <span>Required before current driver scores are shown.</span>
+                    </div>
+                    <b>Waiting</b>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        </div>
       ) : (
         <div className="market-agent-driver-layout">
           <div className="market-agent-driver-summary">

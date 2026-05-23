@@ -107,6 +107,17 @@ class EvidenceGateResult:
 
 
 @dataclass(frozen=True)
+class EvidenceChainStatus:
+    status: str
+    can_show_current_conclusion: bool
+    reason: str
+    missing_required: list[str]
+    usable_inputs: list[str]
+    context_only_inputs: list[str]
+    llm_status: str = "not_used"
+
+
+@dataclass(frozen=True)
 class ProviderHealth:
     source: str
     source_type: str
@@ -200,6 +211,8 @@ class AnalysisResult:
     invalidation_conditions: list[str]
     user_message: str
     summary: str = ""
+    analysis_engine: str = "rule_based"
+    llm_status: str = "not_used"
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

@@ -19,7 +19,7 @@ const formatValue = (value: unknown, fallback = "--") =>
       : fallback;
 
 const statusForItem = (item: MarketAgentProviderHealthEntry | undefined) => {
-  if (!item) return "Disabled";
+  if (!item) return "Waiting";
   if (!item.is_available || normalizeMarketAgentValue(item.data_mode) === "unavailable") return "Unavailable";
   if (item.is_stale || normalizeMarketAgentValue(item.data_mode) === "stale") return "Stale data";
   if (normalizeMarketAgentValue(item.source_type) === "futures_proxy" || normalizeMarketAgentValue(item.data_mode) === "proxy") {
@@ -33,9 +33,9 @@ const statusForItem = (item: MarketAgentProviderHealthEntry | undefined) => {
 
 const toneForStatus = (status: string): "neutral" | "good" | "warn" | "bad" | "info" => {
   const normalized = normalizeMarketAgentValue(status);
-  if (["connected", "available", "live data", "ready"].includes(normalized)) return "good";
-  if (["proxy", "proxy only", "partial", "not connected"].includes(normalized)) return "warn";
-  if (["disabled", "unavailable", "stale data", "missing"].includes(normalized)) return "bad";
+  if (["connected", "available", "live data", "ready", "built in", "built-in"].includes(normalized)) return "good";
+  if (["proxy", "proxy only", "backup only", "partial", "not connected", "waiting", "collecting"].includes(normalized)) return "warn";
+  if (["unavailable", "stale data", "missing"].includes(normalized)) return "bad";
   return "neutral";
 };
 
@@ -97,7 +97,7 @@ export function MarketAgentProviderHealth({ data }: MarketAgentProviderHealthPro
   ]);
   const ctraderReady = ctraderItems.some((item) => item.is_available && !item.is_stale);
   const proxyReady = yahooItems.some((item) => item.is_available && !item.is_stale);
-  const issueCount = items.filter((item) => !item.is_available || item.is_stale || normalizeMarketAgentValue(item.data_mode) === "unavailable").length;
+  const blockingIssueCount = ctraderReady ? 0 : 1;
   const usableCount = countUsable(items);
   const providerRows = [
     {
@@ -110,7 +110,7 @@ export function MarketAgentProviderHealth({ data }: MarketAgentProviderHealthPro
       items: ctraderItems
     },
     {
-      title: "Market context",
+      title: "Cross-market sensors",
       subtitle: marketContextItems.length ? `${countUsable(marketContextItems)} of ${marketContextItems.length} feeds usable` : "Automatic feeds",
       status:
         marketContextItems.length === 0
@@ -128,28 +128,28 @@ export function MarketAgentProviderHealth({ data }: MarketAgentProviderHealthPro
     {
       title: "Calendar",
       subtitle: calendarItems.length ? providerSubtitle(calendarItems) : "Economic calendar",
-      status: countUsable(calendarItems) > 0 ? "Available" : "Disabled",
-      description: "Event windows used for catalyst timing.",
+      status: countUsable(calendarItems) > 0 ? "Available" : "Built-in",
+      description: "Built into the app. Calendar events become evidence only when timing and market reaction agree.",
       updatedAt: newestTime(calendarItems),
-      action: "Evidence gates still decide whether a calendar event matters.",
+      action: "Waiting for a relevant event window.",
       items: calendarItems
     },
     {
-      title: "News",
-      subtitle: newsItems.length ? providerSubtitle(newsItems) : "Headline feeds",
-      status: countUsable(newsItems) > 0 ? "Available" : "Disabled",
-      description: "Headlines are treated as supporting context, not truth.",
+      title: "News collector",
+      subtitle: newsItems.length ? providerSubtitle(newsItems) : "Automatic headlines",
+      status: countUsable(newsItems) > 0 ? "Available" : "Collecting",
+      description: "Built into the app. Headlines stay as context until repeated, fresh, and market-confirmed.",
       updatedAt: newestTime(newsItems),
-      action: "Delayed or noisy news cannot pass without evidence.",
+      action: "No market-confirmed headline in the latest snapshot.",
       items: newsItems
     },
     {
       title: "Yahoo proxy",
       subtitle: yahooItems.length ? providerSubtitle(yahooItems) : "Backup price provider",
-      status: proxyReady ? "Proxy only" : "Disabled",
+      status: proxyReady ? "Proxy only" : "Backup only",
       description: "Backup futures proxy when true spot is unavailable.",
       updatedAt: newestTime(yahooItems),
-      action: "Useful as backup, but cTrader remains the live price source.",
+      action: "Not used for current conclusions while cTrader is required.",
       items: yahooItems
     }
   ];
@@ -179,14 +179,14 @@ export function MarketAgentProviderHealth({ data }: MarketAgentProviderHealthPro
               </p>
             </article>
             <article>
-              <span>Usable providers</span>
+              <span>Context feeds</span>
               <strong>{usableCount}</strong>
-              <p>Fresh sources that can enter the evidence gate.</p>
+              <p>Fresh inputs collected for evidence checks.</p>
             </article>
-            <article className={issueCount > 0 ? "attention" : "ready"}>
-              <span>Needs attention</span>
-              <strong>{issueCount}</strong>
-              <p>Missing or stale raw feeds are ignored by the evidence gate.</p>
+            <article className={blockingIssueCount > 0 ? "attention" : "ready"}>
+              <span>Blocking setup</span>
+              <strong>{blockingIssueCount}</strong>
+              <p>{ctraderReady ? "Nothing is blocking live monitoring." : "Connect cTrader before current conclusions are shown."}</p>
             </article>
           </div>
           <div className="market-agent-provider-list">

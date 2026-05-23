@@ -4016,6 +4016,15 @@ export default function App() {
             onStartCTraderConnect={(ctrader) =>
               backend.startCTraderConnect(ctrader).then(async (result) => {
                 await refreshMarketAgentProviderConfig();
+                const refreshedHealth = await refreshMarketAgentProviderHealth();
+                if (result.provider_health) {
+                  const otherItems = (refreshedHealth?.items ?? []).filter((item) => item.provider_key !== "xauusd");
+                  setMarketAgentProviderHealth({
+                    ok: true,
+                    available: true,
+                    items: [{ provider_key: "xauusd", ...result.provider_health }, ...otherItems]
+                  });
+                }
                 return result;
               })
             }

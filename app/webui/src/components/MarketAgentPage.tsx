@@ -710,7 +710,7 @@ const compactTimelineTitle = (item: TimelineRow) => {
 };
 
 const statusForProvider = (item: MarketAgentProviderHealthEntry | undefined) => {
-  if (!item) return "Disabled";
+  if (!item) return "Waiting";
   const sourceType = normalizeMarketAgentValue(item.source_type);
   const dataMode = normalizeMarketAgentValue(item.data_mode);
   if (!item.is_available || dataMode === "unavailable") return "Unavailable";
@@ -860,6 +860,7 @@ const filterTimelineByReplayRange = (rows: TimelineRow[], range: ReplayRange) =>
 const evidenceStatusLabel = (value: unknown, fallback = "Supporting") => {
   const normalized = normalizeMarketAgentValue(value);
   if (!normalized) return fallback;
+  if (normalized.includes("context")) return "Context Only";
   if (normalized.includes("unavailable") || normalized.includes("missing") || normalized.includes("no_data")) {
     return "Not Available";
   }
@@ -872,10 +873,16 @@ const evidenceStatusLabel = (value: unknown, fallback = "Supporting") => {
   return "Supporting";
 };
 
+const dashboardDriverStateLabel = (state: unknown, currentConclusionReady: boolean) => {
+  const normalized = normalizeMarketAgentValue(state);
+  if (!currentConclusionReady && ["active", "active_macro"].includes(normalized)) return "WATCHING";
+  return formatDriverStateLabel(state);
+};
+
 const evidenceStatusTone = (status: string): "neutral" | "good" | "warn" | "bad" | "info" => {
   const normalized = normalizeMarketAgentValue(status);
   if (normalized === "supporting") return "good";
-  if (normalized === "neutral") return "warn";
+  if (normalized === "neutral" || normalized === "context only") return "warn";
   if (normalized.includes("available")) return "neutral";
   if (normalized === "blocked") return "bad";
   return "info";
@@ -891,6 +898,53 @@ const evidenceStatusValue = (packet: Record<string, unknown> | undefined, key: s
   const crossAsset = (packet?.cross_asset_confirmation as Record<string, unknown> | undefined) ?? {};
   return evidenceStatus[key] ?? crossAsset[key];
 };
+
+const evidenceChainStatus = (selectedEvidence: MarketAgentEvidenceForRunResponse | null) => {
+  const packet = selectedEvidence?.payload?.evidence_packet as Record<string, unknown> | undefined;
+  return (packet?.evidence_chain_status as Record<string, unknown> | undefined) ?? null;
+};
+
+const fallbackEvidenceChainStatus = (
+  selectedEvidence: MarketAgentEvidenceForRunResponse | null,
+  xauusdStatus: ReturnType<typeof liveXauusdStatus>
+) => {
+  if (xauusdStatus.valueMode !== "live") {
+    return {
+      status: "context_only",
+      can_show_current_conclusion: false,
+      reason:
+        xauusdStatus.valueMode === "closed"
+          ? "Market is closed. The last spot price can be shown, but current driver conclusions are paused."
+          : "Connect cTrader and collect live XAUUSD history before driver conclusions can be shown.",
+      missing_required: ["live_xauusd_spot", "xauusd_recent_history"],
+      usable_inputs: [],
+      context_only_inputs: []
+    };
+  }
+  const chain = evidenceChainStatus(selectedEvidence);
+  if (chain) return chain;
+  return {
+    status: "context_only",
+    can_show_current_conclusion: false,
+    reason: "Live price is available. Waiting for an evidence packet with recent history before driver conclusions can be shown.",
+    missing_required: ["evidence_packet", "xauusd_recent_history"],
+    usable_inputs: ["live_xauusd_spot"],
+    context_only_inputs: []
+  };
+};
+
+const canShowCurrentConclusion = (
+  selectedEvidence: MarketAgentEvidenceForRunResponse | null,
+  fallbackLiveReady: boolean,
+  fallbackChain?: Record<string, unknown> | null
+) => {
+  const chain = fallbackChain ?? evidenceChainStatus(selectedEvidence);
+  if (!chain || typeof chain.can_show_current_conclusion !== "boolean") return fallbackLiveReady;
+  return chain.can_show_current_conclusion;
+};
+
+const evidenceChainList = (chain: Record<string, unknown> | null, key: string) =>
+  (Array.isArray(chain?.[key]) ? chain?.[key] : []) as unknown[];
 
 const latestRelatedAsset = (payload: MarketAgentReplayPayload | undefined, key: string) => {
   const rows = payload?.related_assets?.[key];
@@ -938,7 +992,8 @@ const latestTechnicalEvent = (payload: MarketAgentReplayPayload | undefined) =>
 const evidenceItems = (
   selectedEvidence: MarketAgentEvidenceForRunResponse | null,
   replay: MarketAgentReplayResponse | null,
-  driverAttention: MarketAgentDriverAttentionResponse | null
+  driverAttention: MarketAgentDriverAttentionResponse | null,
+  currentConclusionReady = true
 ): DashboardEvidenceRow[] => {
   const packet = selectedEvidence?.payload?.evidence_packet as Record<string, unknown> | undefined;
   const analysis = selectedEvidence?.payload?.analysis_result as Record<string, unknown> | undefined;
@@ -951,7 +1006,7 @@ const evidenceItems = (
       key: `news-${String(news.published_at ?? news.title ?? "latest")}`,
       title: String(news.summary_title ?? "High Impact News"),
       detail: String(news.summary ?? news.description ?? news.title ?? news.source ?? "News item"),
-      status: evidenceStatusLabel(news.included ?? news.data_mode ?? evidenceStatusValue(packet, "news")),
+      status: currentConclusionReady ? evidenceStatusLabel(news.included ?? news.data_mode ?? evidenceStatusValue(packet, "news")) : "Context Only",
       kind: "news",
       filter: "news",
       time: String(news.published_at ?? news.first_seen_at ?? runTime)
@@ -959,7 +1014,7 @@ const evidenceItems = (
   }
 
   const dxyAsset = latestRelatedAsset(payload, "dxy");
-  const dxyStatus = evidenceStatusLabel(evidenceStatusValue(packet, "dxy"));
+  const dxyStatus = currentConclusionReady ? evidenceStatusLabel(evidenceStatusValue(packet, "dxy")) : "Context Only";
   if (dxyAsset || evidenceStatusValue(packet, "dxy")) {
     rows.push({
       key: "driver-dxy",
@@ -986,7 +1041,7 @@ const evidenceItems = (
         ["yields", "us10y", "real_yields"],
         relatedAssetDetail("US10Y", us10yAsset, "US yield confirmation is part of the evidence packet.", "bp")
       ),
-      status: evidenceStatusLabel(evidenceStatusValue(packet, "us10y")),
+      status: currentConclusionReady ? evidenceStatusLabel(evidenceStatusValue(packet, "us10y")) : "Context Only",
       kind: "yield",
       filter: "drivers",
       time: String(us10yAsset?.data_timestamp ?? us10yAsset?.timestamp ?? runTime)
@@ -1009,7 +1064,7 @@ const evidenceItems = (
       key: `technical-${technical.monitor_run_id}-${technical.event_time}`,
       title: `Technical ${meta.title}`,
       detail: technical.label,
-      status: evidenceStatusLabel(technical.payload?.cause_status ?? analysis?.cause_status ?? "supporting"),
+      status: currentConclusionReady ? evidenceStatusLabel(technical.payload?.cause_status ?? analysis?.cause_status ?? "supporting") : "Context Only",
       kind: "technical",
       filter: "technical",
       time: technical.event_time
@@ -1018,11 +1073,14 @@ const evidenceItems = (
 
   const us2yAsset = latestRelatedAsset(payload, "us2y");
   if (us2yAsset || evidenceStatusValue(packet, "us2y")) {
+    const us2yStatus = us2yAsset
+      ? currentConclusionReady ? evidenceStatusLabel(evidenceStatusValue(packet, "us2y"), "Neutral") : "Context Only"
+      : "Not Available";
     rows.push({
       key: "driver-us2y",
       title: "US2Y",
       detail: us2yAsset ? relatedAssetDetail("US2Y", us2yAsset, "US2Y source is present.", "bp") : "No available US2Y source for this run.",
-      status: evidenceStatusLabel(evidenceStatusValue(packet, "us2y"), "Not Available"),
+      status: us2yStatus,
       kind: "yield",
       filter: "drivers",
       time: String(us2yAsset?.data_timestamp ?? us2yAsset?.timestamp ?? runTime)
@@ -1039,7 +1097,7 @@ const evidenceItems = (
         ["oil_inflation", "oil"],
         relatedAssetDetail("Oil", oilAsset, "Oil is background evidence only.", "%")
       ),
-      status: evidenceStatusLabel(evidenceStatusValue(packet, "oil"), "Neutral"),
+      status: currentConclusionReady ? evidenceStatusLabel(evidenceStatusValue(packet, "oil"), "Neutral") : "Context Only",
       kind: "oil",
       filter: "drivers",
       time: String(oilAsset?.data_timestamp ?? oilAsset?.timestamp ?? runTime)
@@ -1052,7 +1110,7 @@ const evidenceItems = (
       key: `calendar-${String(calendar.scheduled_at ?? calendar.title ?? "latest")}`,
       title: "Calendar Context",
       detail: String(calendar.summary ?? calendar.title ?? "Calendar event"),
-      status: evidenceStatusLabel(calendar.data_mode ?? "neutral", "Neutral"),
+      status: currentConclusionReady ? evidenceStatusLabel(calendar.data_mode ?? "neutral", "Neutral") : "Context Only",
       kind: "calendar",
       filter: "calendar",
       time: String(calendar.scheduled_at ?? runTime)
@@ -1108,8 +1166,9 @@ function MarketAgentDashboard({
   const xauusdHealth = findProviderHealth(providerHealth?.items, ["xauusd", "gc=f", "xauusd price"]);
   const xauusdStatus = liveXauusdStatus(xauusdHealth);
   const hasTrustedSpotPrice = xauusdStatus.valueMode === "live" || xauusdStatus.valueMode === "closed";
-  const currentConclusionReady = xauusdStatus.valueMode === "live";
-  const price = currentConclusionReady ? latestPrice(replay) : null;
+  const chainStatus = fallbackEvidenceChainStatus(selectedEvidence, xauusdStatus);
+  const currentConclusionReady = canShowCurrentConclusion(selectedEvidence, xauusdStatus.valueMode === "live", chainStatus);
+  const price = hasTrustedSpotPrice ? latestPrice(replay) : null;
   const priorPrice = currentConclusionReady ? previousPrice(replay) : null;
   const priceValue = numberValue(price?.close_price ?? xauusdHealth?.current_value);
   const previousPriceValue = numberValue(priorPrice?.close_price ?? xauusdHealth?.previous_value);
@@ -1123,7 +1182,7 @@ function MarketAgentDashboard({
       ? ((priceValue - previousPriceValue) / previousPriceValue) * 100
       : null);
   const timeline = filterTimelineByReplayRange(latestTimelineRows(replay?.replay), replayRange);
-  const allEvidence = evidenceItems(selectedEvidence, replay, driverAttention);
+  const allEvidence = currentConclusionReady ? evidenceItems(selectedEvidence, replay, driverAttention, true) : [];
   const evidence = evidenceFilter === "all" ? allEvidence : allEvidence.filter((item) => item.filter === evidenceFilter);
   const supportingCount = evidence.filter((item) =>
     normalizeMarketAgentValue(item.status) === "supporting"
@@ -1162,17 +1221,17 @@ function MarketAgentDashboard({
   const activeDrivers = (currentConclusionReady ? allDriverStates : [])
     .filter((item) => ["active", "active_macro"].includes(normalizeMarketAgentValue(item.current_state)))
     .sort((left, right) => (right.relevance_score ?? 0) - (left.relevance_score ?? 0));
-  const watchingDrivers = allDriverStates
+  const watchingDrivers = (currentConclusionReady ? allDriverStates : [])
     .filter((item) =>
-      currentConclusionReady
-        ? ["watching", "emerging", "cooling"].includes(normalizeMarketAgentValue(item.current_state))
-        : ["active", "active_macro", "watching", "emerging", "cooling"].includes(normalizeMarketAgentValue(item.current_state))
+      ["watching", "emerging", "cooling"].includes(normalizeMarketAgentValue(item.current_state))
     )
     .sort((left, right) => (right.relevance_score ?? 0) - (left.relevance_score ?? 0));
   const backgroundDrivers = allDriverStates
     .filter((item) => ["dormant", "retired", "unknown", ""].includes(normalizeMarketAgentValue(item.current_state)))
     .sort((left, right) => (right.relevance_score ?? 0) - (left.relevance_score ?? 0));
-  const visibleDrivers = [...activeDrivers, ...watchingDrivers, ...backgroundDrivers].slice(0, 8);
+  const visibleDrivers = currentConclusionReady ? [...activeDrivers, ...watchingDrivers, ...backgroundDrivers].slice(0, 8) : [];
+  const missingInputs = evidenceChainList(chainStatus, "missing_required");
+  const usableInputs = evidenceChainList(chainStatus, "usable_inputs");
 
   return (
     <section className="market-agent-cockpit" data-qa="qa:market-agent:cockpit">
@@ -1225,7 +1284,7 @@ function MarketAgentDashboard({
             <div className="market-agent-kpi-mini-metrics" aria-label="Market state detail metrics">
               <span>
                 <em>Strength</em>
-                <b data-kpi-detail="state-strength"><MarketAgentValuePulse value={marketStrength}>{currentConclusionReady ? marketStrength : "Paused"}</MarketAgentValuePulse></b>
+                <b data-kpi-detail="state-strength"><MarketAgentValuePulse value={marketStrength}>{currentConclusionReady ? marketStrength : String(chainStatus?.status ?? "Paused")}</MarketAgentValuePulse></b>
               </span>
               <span>
                 <em>Confidence</em>
@@ -1290,9 +1349,19 @@ function MarketAgentDashboard({
               </div>
             </div>
             <div className="market-agent-evidence-counts">
-              <span><i className="supporting" /><span>Supporting</span><b><MarketAgentValuePulse value={supportingCount}>{supportingCount}</MarketAgentValuePulse></b></span>
-              <span><i className="neutral" /><span>Neutral</span><b><MarketAgentValuePulse value={neutralCount}>{neutralCount}</MarketAgentValuePulse></b></span>
-              <span><i className="contrary" /><span>Contrary</span><b><MarketAgentValuePulse value={contraryCount}>{contraryCount}</MarketAgentValuePulse></b></span>
+              {currentConclusionReady ? (
+                <>
+                  <span><i className="supporting" /><span>Supporting</span><b><MarketAgentValuePulse value={supportingCount}>{supportingCount}</MarketAgentValuePulse></b></span>
+                  <span><i className="neutral" /><span>Neutral</span><b><MarketAgentValuePulse value={neutralCount}>{neutralCount}</MarketAgentValuePulse></b></span>
+                  <span><i className="contrary" /><span>Contrary</span><b><MarketAgentValuePulse value={contraryCount}>{contraryCount}</MarketAgentValuePulse></b></span>
+                </>
+              ) : (
+                <>
+                  <span><i className="neutral" /><span>Missing</span><b>{missingInputs.length}</b></span>
+                  <span><i className="supporting" /><span>Collected</span><b>{usableInputs.length}</b></span>
+                  <span><i className="contrary" /><span>Accepted</span><b>0</b></span>
+                </>
+              )}
             </div>
           </div>
           <div className="market-agent-evidence-quality">
@@ -1326,16 +1395,19 @@ function MarketAgentDashboard({
             </button>
           </div>
           <div className="market-agent-attention-table" role="table" aria-label="Driver Attention Current">
-            <div className="market-agent-attention-table-head" role="row">
-              <span>Driver</span>
-              <span>State</span>
-              <span>Impact</span>
-              <span>Attention</span>
-              <span>Score</span>
-            </div>
+            {currentConclusionReady ? (
+              <div className="market-agent-attention-table-head" role="row">
+                <span>Driver</span>
+                <span>State</span>
+                <span>Impact</span>
+                <span>Attention</span>
+                <span>Score</span>
+              </div>
+            ) : null}
             {visibleDrivers.map((driver, index) => {
               const attention = attentionLabel(driver);
               const impact = formatDriverImpact(driver);
+              const displayState = dashboardDriverStateLabel(driver.current_state, currentConclusionReady);
               return (
                 <div
                   className="market-agent-attention-table-row market-agent-animated-row"
@@ -1345,7 +1417,7 @@ function MarketAgentDashboard({
                 >
                   <strong>{driver.label || formatDriverLabel(driver.driver_id)}</strong>
                   <span className={`market-agent-driver-state state-${normalizeMarketAgentValue(driver.current_state)}`}>
-                    {formatDriverStateLabel(driver.current_state)}
+                    {displayState}
                   </span>
                   <span
                     className={driverImpactTone(driver)}
@@ -1364,8 +1436,13 @@ function MarketAgentDashboard({
               );
             })}
             {visibleDrivers.length === 0 ? (
-              <div className="market-agent-empty-state">
-                {currentConclusionReady ? "No active or watching drivers." : "No confirmed current driver."}
+              <div className="market-agent-empty-state market-agent-chain-empty">
+                <strong>{currentConclusionReady ? "No active or watching drivers." : "No driver confirmed yet."}</strong>
+                <span>
+                  {currentConclusionReady
+                    ? "The agent is watching current data but no driver is active."
+                    : String(chainStatus?.reason ?? "Waiting for live price and recent history before scoring drivers.")}
+                </span>
               </div>
             ) : null}
           </div>
@@ -1449,7 +1526,12 @@ function MarketAgentDashboard({
             ))}
           </div>
           <div className="market-agent-evidence-feed">
-            {evidence.map((item, index) => {
+            {!currentConclusionReady ? (
+              <div className="market-agent-empty-state market-agent-chain-empty">
+                <strong>No accepted evidence yet.</strong>
+                <span>{String(chainStatus?.reason ?? "The agent is collecting market context before accepting evidence.")}</span>
+              </div>
+            ) : evidence.map((item, index) => {
               const meta = evidenceKindMeta(item.kind);
               return (
                 <div
@@ -1473,15 +1555,15 @@ function MarketAgentDashboard({
                 </div>
               );
             })}
-            {evidence.length === 0 ? (
+            {currentConclusionReady && evidence.length === 0 ? (
               <div className="market-agent-empty-state">
                 No evidence in this category.
               </div>
             ) : null}
           </div>
           <div className="market-agent-evidence-footer">
-            <span><i /> Evidence Quality: <b>{currentConclusionReady ? `${evidenceScoreLabel} (${evidenceScore}%)` : "Current conclusion paused"}</b></span>
-            <span>{supportingCount} Supporting, {neutralCount} Neutral, {contraryCount} Contrary</span>
+            <span><i /> Evidence Quality: <b>{currentConclusionReady ? `${evidenceScoreLabel} (${evidenceScore}%)` : String(chainStatus?.reason ?? "Current conclusion paused")}</b></span>
+            <span>{currentConclusionReady ? `${supportingCount} Supporting, ${neutralCount} Neutral, ${contraryCount} Contrary` : "0 Supporting, 0 Neutral, 0 Contrary"}</span>
           </div>
         </section>
       </div>
@@ -1536,7 +1618,13 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
       );
     }
     if (section === "drivers") {
-      return <MarketAgentDriverAttention data={props.driverAttention} />;
+      const xauusdHealth = findProviderHealth(props.providerHealth?.items, ["xauusd", "gc=f", "xauusd price"]);
+      return (
+        <MarketAgentDriverAttention
+          data={props.driverAttention}
+          evidenceChainStatus={fallbackEvidenceChainStatus(props.selectedEvidence, liveXauusdStatus(xauusdHealth))}
+        />
+      );
     }
     if (section === "replay") {
       return (
@@ -1556,7 +1644,13 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
       );
     }
     if (section === "evidence") {
-      return <MarketAgentEvidencePanel data={props.selectedEvidence} />;
+      const xauusdHealth = findProviderHealth(props.providerHealth?.items, ["xauusd", "gc=f", "xauusd price"]);
+      return (
+        <MarketAgentEvidencePanel
+          data={props.selectedEvidence}
+          evidenceChainStatus={fallbackEvidenceChainStatus(props.selectedEvidence, liveXauusdStatus(xauusdHealth))}
+        />
+      );
     }
     if (section === "providers") {
       return <MarketAgentProviderHealth data={props.providerHealth} />;

@@ -4,7 +4,61 @@ import sqlite3
 
 from src.xauusd_market_agent.config import MarketAgentConfig
 from src.xauusd_market_agent.live_pipeline import run_monitored_live_once
+from src.xauusd_market_agent.provider_health import build_provider_health
+from src.xauusd_market_agent.providers.provider_router import ProviderRouter
 from src.xauusd_market_agent.timeline_store import TimelineStore
+
+
+class StubLiveMarketProvider:
+    def __init__(self, rows):
+        self.rows = rows
+
+    def fetch_latest(self, anchor_time):
+        return self.rows, build_provider_health(
+            source="cTrader",
+            source_type="spot",
+            data_mode="live_seen",
+            is_available=True,
+            data_timestamp=anchor_time.isoformat(),
+            current_value=float(self.rows[-1]["close_price"]),
+            previous_value=float(self.rows[0]["close_price"]),
+            change_value=float(self.rows[-1]["close_price"]) - float(self.rows[0]["close_price"]),
+        )
+
+    def backfill(self, start, end):
+        return self.fetch_latest(end)
+
+
+def _live_price_rows() -> list[dict[str, object]]:
+    return [
+        {
+            "symbol": "XAUUSD",
+            "data_timestamp": "2026-05-19T07:00:00+08:00",
+            "open_price": 4500.0,
+            "close_price": 4501.0,
+            "source": "cTrader",
+            "source_type": "spot",
+            "data_mode": "live_seen",
+        },
+        {
+            "symbol": "XAUUSD",
+            "data_timestamp": "2026-05-19T07:15:00+08:00",
+            "open_price": 4501.0,
+            "close_price": 4479.0,
+            "source": "cTrader",
+            "source_type": "spot",
+            "data_mode": "live_seen",
+        },
+    ]
+
+
+def _live_router(related_path=None, calendar_dir=None) -> ProviderRouter:
+    return ProviderRouter(
+        market_provider=StubLiveMarketProvider(_live_price_rows()),
+        csv_related_assets_path=related_path,
+        csv_calendar_dir=calendar_dir,
+        yahoo_enabled=False,
+    )
 
 
 def test_every_monitor_run_persists_even_when_alert_is_suppressed(tmp_path) -> None:
@@ -40,6 +94,7 @@ def test_every_monitor_run_persists_even_when_alert_is_suppressed(tmp_path) -> N
         state_path=tmp_path / "state.json",
         alerts_path=tmp_path / "alerts.ndjson",
         timeline_store_path=tmp_path / "timeline.sqlite",
+        provider_router=_live_router(related_path),
     )
     second = run_monitored_live_once(
         config=cfg,
@@ -47,6 +102,7 @@ def test_every_monitor_run_persists_even_when_alert_is_suppressed(tmp_path) -> N
         state_path=tmp_path / "state.json",
         alerts_path=tmp_path / "alerts.ndjson",
         timeline_store_path=tmp_path / "timeline.sqlite",
+        provider_router=_live_router(related_path),
     )
 
     with sqlite3.connect(tmp_path / "timeline.sqlite") as connection:
@@ -222,6 +278,7 @@ def test_recovery_run_persists_price_news_calendar_and_evidence(tmp_path) -> Non
         news_headlines=[
             {"title": "Recovered Fed headline", "source": "Reuters", "published_at": "2026-05-19T07:10:00+08:00"}
         ],
+        provider_router=_live_router(related_path, tmp_path / "calendar"),
     )
 
     with sqlite3.connect(tmp_path / "timeline.sqlite") as connection:

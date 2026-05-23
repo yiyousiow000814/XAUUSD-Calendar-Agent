@@ -3,6 +3,42 @@ import json
 
 from src.xauusd_market_agent.config import MarketAgentConfig
 from src.xauusd_market_agent.live_pipeline import run_monitor_loop
+from src.xauusd_market_agent.provider_health import build_provider_health
+from src.xauusd_market_agent.providers.provider_router import ProviderRouter
+
+
+class StubLiveMarketProvider:
+    def fetch_latest(self, anchor_time):
+        rows = [
+            {
+                "symbol": "XAUUSD",
+                "data_timestamp": "2026-05-19T07:00:00+08:00",
+                "open_price": 4500.0,
+                "close_price": 4501.0,
+                "source": "cTrader",
+                "source_type": "spot",
+                "data_mode": "live_seen",
+            },
+            {
+                "symbol": "XAUUSD",
+                "data_timestamp": "2026-05-19T07:15:00+08:00",
+                "open_price": 4501.0,
+                "close_price": 4479.0,
+                "source": "cTrader",
+                "source_type": "spot",
+                "data_mode": "live_seen",
+            },
+        ]
+        return rows, build_provider_health(
+            source="cTrader",
+            source_type="spot",
+            data_mode="live_seen",
+            is_available=True,
+            data_timestamp=anchor_time.isoformat(),
+            current_value=4479.0,
+            previous_value=4501.0,
+            change_value=-22.0,
+        )
 
 
 def test_run_monitor_loop_executes_multiple_iterations_without_crashing(tmp_path) -> None:
@@ -41,6 +77,11 @@ def test_run_monitor_loop_executes_multiple_iterations_without_crashing(tmp_path
         ],
         state_path=tmp_path / "state.json",
         alerts_path=tmp_path / "alerts.ndjson",
+        provider_router=ProviderRouter(
+            market_provider=StubLiveMarketProvider(),
+            csv_related_assets_path=related_path,
+            yahoo_enabled=False,
+        ),
     )
 
     assert len(outcomes) == 2

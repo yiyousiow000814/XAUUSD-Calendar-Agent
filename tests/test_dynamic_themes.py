@@ -6,8 +6,43 @@ from src.xauusd_market_agent.evidence import build_evidence_gate_result
 from src.xauusd_market_agent.live_pipeline import run_monitored_live_once
 from src.xauusd_market_agent.models import CrossAssetSnapshot, Headline, MarketMove, ScenarioFixture
 from src.xauusd_market_agent.config import MarketAgentConfig
-from src.xauusd_market_agent.provider_health import build_fixture_provider_health
+from src.xauusd_market_agent.provider_health import build_fixture_provider_health, build_provider_health
+from src.xauusd_market_agent.providers.provider_router import ProviderRouter
 from src.xauusd_market_agent.timeline_store import TimelineStore
+
+
+class StubLiveMarketProvider:
+    def fetch_latest(self, anchor_time):
+        rows = [
+            {
+                "symbol": "XAUUSD",
+                "data_timestamp": "2026-05-19T07:00:00+08:00",
+                "open_price": 4500.0,
+                "close_price": 4501.0,
+                "source": "cTrader",
+                "source_type": "spot",
+                "data_mode": "live_seen",
+            },
+            {
+                "symbol": "XAUUSD",
+                "data_timestamp": "2026-05-19T07:15:00+08:00",
+                "open_price": 4501.0,
+                "close_price": 4479.0,
+                "source": "cTrader",
+                "source_type": "spot",
+                "data_mode": "live_seen",
+            },
+        ]
+        return rows, build_provider_health(
+            source="cTrader",
+            source_type="spot",
+            data_mode="live_seen",
+            is_available=True,
+            data_timestamp=anchor_time.isoformat(),
+            current_value=4479.0,
+            previous_value=4501.0,
+            change_value=-22.0,
+        )
 
 
 def _fixture(*, news: tuple[Headline, ...], cross: CrossAssetSnapshot | None = None) -> ScenarioFixture:
@@ -240,9 +275,15 @@ def test_dynamic_theme_persists_into_evidence_packet_and_replay(tmp_path) -> Non
                 "source": "Bloomberg",
                 "published_at": "2026-05-19T07:12:00+08:00",
                 "categories": ["tariff_risk"],
-            },
-        ],
-    )
+                },
+            ],
+            provider_router=ProviderRouter(
+                market_provider=StubLiveMarketProvider(),
+                csv_related_assets_path=related_path,
+                csv_calendar_dir=tmp_path / "calendar",
+                yahoo_enabled=False,
+            ),
+        )
     replay = TimelineStore(tmp_path / "timeline.sqlite").get_market_replay(
         "2026-05-19T07:00:00+08:00",
         "2026-05-19T07:30:00+08:00",

@@ -250,7 +250,7 @@ describe("Market Agent view switch", () => {
     fireEvent.click(screen.getByRole("button", { name: /^Provider Health$/i }));
     expect(screen.getByRole("heading", { name: "Provider Health" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "cTrader" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Market context" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Cross-market sensors" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "DXY" })).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));

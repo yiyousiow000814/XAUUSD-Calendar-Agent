@@ -350,7 +350,15 @@ const evidence: MarketAgentEvidenceForRunResponse = {
     evidence_packet: {
       allowed_candidate_drivers: ["yields", "usd"],
       blocked_drivers: { fed_rates: "No direct headline" },
-      evidence_status: { dxy: "confirming", us10y: "confirming", us2y: "unavailable" }
+      evidence_status: { dxy: "confirming", us10y: "confirming", us2y: "unavailable" },
+      evidence_chain_status: {
+        status: "ready",
+        can_show_current_conclusion: true,
+        reason: "Live XAUUSD price and recent history are available.",
+        missing_required: [],
+        usable_inputs: ["live_xauusd_spot", "xauusd_recent_history", "news_context"],
+        context_only_inputs: ["llm_unavailable"]
+      }
     },
     analysis_result: {
       main_driver: "yields",
@@ -1010,9 +1018,9 @@ describe("MarketAgentPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /^cTrader$/i }));
     expect(screen.getByRole("heading", { name: /^Connect cTrader$/i })).toBeInTheDocument();
-    expect(screen.getByText(/Market symbols are handled automatically/i)).toBeInTheDocument();
+    expect(screen.getByText(/fetch live XAUUSD first/i)).toBeInTheDocument();
     expect(screen.getByText(/Password is stored locally and masked after save/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^Connect cTrader$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^(Connect|Reconnect) cTrader$/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/Account ID/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/cTID \/ email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Password/i)).toHaveAttribute("type", "password");
@@ -1122,15 +1130,13 @@ describe("MarketAgentPage", () => {
             is_available: false,
             is_stale: false,
             error: "The installed cTrader CLI supports account and symbol checks, but does not expose live quotes."
-          },
-          ...providerHealth.items
+          }
         ]
       }
     });
     fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
 
-    expect(screen.getAllByText(/Preparing live feed/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText(/Preparing the live XAUUSD feed/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Live pending/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByText(/cTrader live/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/does not expose live quotes/i)).not.toBeInTheDocument();
   });
@@ -1359,7 +1365,7 @@ describe("MarketAgentPage", () => {
     fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: "very-secret-password" } });
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: /^Connect cTrader$/i }));
+      fireEvent.click(screen.getByRole("button", { name: /^(Connect|Reconnect) cTrader$/i }));
     });
     expect(startCTraderConnect).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -1485,7 +1491,7 @@ describe("MarketAgentPage", () => {
     expect(within(dataSourceActions).queryByRole("button", { name: /^Market data$/i })).not.toBeInTheDocument();
     expect(within(dataSourceActions).queryByRole("button", { name: /^News$/i })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Connect cTrader/i })).toBeInTheDocument();
-    expect(screen.getByText(/Market symbols are handled automatically/i)).toBeInTheDocument();
+    expect(screen.getByText(/fetch live XAUUSD first/i)).toBeInTheDocument();
     expect(screen.queryByText(/^Backup price$/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/^Local CSV$/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Access Token/i)).not.toBeInTheDocument();
@@ -1615,10 +1621,44 @@ describe("MarketAgentPage", () => {
     expect(screen.queryByText(/US10Y fresh and confirming/i)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /^Driver Attention$/i }));
-    expect(screen.getByText(/US10Y fresh and confirming/i)).toBeInTheDocument();
+    expect(screen.getByText(/No driver confirmed yet/i)).toBeInTheDocument();
+    expect(screen.queryByText(/US10Y fresh and confirming/i)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /^Evidence$/i }));
-    expect(screen.getByText(/Accepted Driver/i)).toBeInTheDocument();
+    expect(screen.getByText(/No current conclusion/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Accepted Driver/i)).not.toBeInTheDocument();
+  });
+
+  it("uses backend evidence chain readiness instead of live price alone", () => {
+    const incompleteEvidence: MarketAgentEvidenceForRunResponse = {
+      ...evidence,
+      payload: {
+        ...evidence.payload,
+        evidence_packet: {
+          ...evidence.payload.evidence_packet,
+          evidence_chain_status: {
+            status: "context_only",
+            can_show_current_conclusion: false,
+            reason: "Current conclusion is paused until live XAUUSD price and recent price history are available.",
+            missing_required: ["xauusd_recent_history"],
+            usable_inputs: ["live_xauusd_spot", "news_context"],
+            context_only_inputs: ["llm_unavailable"],
+            llm_status: "unavailable"
+          }
+        }
+      }
+    };
+
+    renderMarketAgentPage({
+      providerHealth,
+      driverAttention,
+      selectedEvidence: incompleteEvidence
+    });
+
+    expect(screen.getByText(/CURRENT PAUSED/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Current conclusion is paused until live XAUUSD price and recent price history are available/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Current Paused/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/US10Y fresh and confirming/i)).not.toBeInTheDocument();
   });
 
   it("shows useful empty states when sqlite-backed data is unavailable", () => {

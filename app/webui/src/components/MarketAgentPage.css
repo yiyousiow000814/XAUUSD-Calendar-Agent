@@ -1250,6 +1250,25 @@
   padding-right: 0;
 }
 
+.market-agent-chain-empty {
+  align-items: flex-start;
+  justify-content: center;
+  gap: 6px;
+  min-height: 132px;
+  text-align: left;
+}
+
+.market-agent-chain-empty strong {
+  color: var(--text-primary, #f8fafc);
+  font-size: 14px;
+}
+
+.market-agent-chain-empty span {
+  max-width: 48ch;
+  color: var(--text-secondary, #9aa4b2);
+  line-height: 1.5;
+}
+
 .market-agent-alerts-surface {
   gap: 12px;
 }

@@ -88,6 +88,8 @@ def test_analyze_fixture_with_optional_llm_accepts_allowed_driver() -> None:
 
     assert result.main_driver == "yields"
     assert result.secondary_driver == "usd"
+    assert result.analysis_engine == "llm_validated"
+    assert result.llm_status == "validated"
 
 
 def test_analyze_fixture_with_optional_llm_rejects_blocked_driver() -> None:
@@ -97,6 +99,8 @@ def test_analyze_fixture_with_optional_llm_rejects_blocked_driver() -> None:
 
     assert result.main_driver == "unknown"
     assert result.rejected_driver == "fed_rates"
+    assert result.analysis_engine == "llm_validated"
+    assert result.llm_status == "validated"
 
 
 def test_local_llm_prompt_contains_compact_evidence_packet(monkeypatch) -> None:

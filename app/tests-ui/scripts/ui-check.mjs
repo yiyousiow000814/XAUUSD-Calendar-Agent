@@ -2677,6 +2677,10 @@ const main = async () => {
         const problems = [];
         const root = document.querySelector("[data-qa='qa:page:market-agent']");
         const text = root instanceof HTMLElement ? root.innerText || root.textContent || "" : "";
+        const isCurrentPaused =
+          text.includes("CURRENT PAUSED") ||
+          text.includes("No driver confirmed yet") ||
+          text.includes("No accepted evidence yet");
         const parseRgbTriples = (value) =>
           Array.from(String(value || "").matchAll(/rgba?\(([^)]+)\)/g))
             .map((match) =>
@@ -3049,6 +3053,7 @@ const main = async () => {
           }
         };
         const checkDriverTableNumericRhythm = () => {
+          if (isCurrentPaused) return;
           const app = document.querySelector("[data-qa='qa:app-shell']");
           const scale =
             app instanceof HTMLElement
@@ -3172,14 +3177,20 @@ const main = async () => {
         } else {
           const stateLabel = (marketStateValue.textContent || "").trim();
           const sinceLabel = (marketStateSince.textContent || "").trim();
-          if (!/^(TRENDING UP|TRENDING DOWN|RANGEBOUND|UNKNOWN)\s*[↗↘→]?$/.test(stateLabel)) {
+          if (!isCurrentPaused && !/^(TRENDING UP|TRENDING DOWN|RANGEBOUND|UNKNOWN)\s*[↗↘→]?$/.test(stateLabel)) {
             problems.push(`Market Agent Market State label is not uppercase trend language (${stateLabel})`);
+          }
+          if (isCurrentPaused && !/^CURRENT PAUSED\s*[•]?$/.test(stateLabel)) {
+            problems.push(`Market Agent paused state label is not clear (${stateLabel})`);
           }
           if (/\b(Bearish|Bullish)\b/.test(stateLabel)) {
             problems.push(`Market Agent Market State still uses bearish/bullish wording (${stateLabel})`);
           }
-          if (!/^\d{2}-\d{2} \d{2}:\d{2}$/.test(sinceLabel)) {
+          if (!isCurrentPaused && !/^\d{2}-\d{2} \d{2}:\d{2}$/.test(sinceLabel)) {
             problems.push(`Market Agent Market State since row is not compact date/time (${sinceLabel})`);
+          }
+          if (isCurrentPaused && sinceLabel !== "--") {
+            problems.push(`Market Agent paused state since row should stay empty (${sinceLabel})`);
           }
           const valueBox = marketStateValue.getBoundingClientRect();
           const sinceBox = marketStateSince.getBoundingClientRect();
@@ -3198,15 +3209,18 @@ const main = async () => {
           problems.push("Market Agent Latest Move detected row missing");
         } else {
           const detectedLabel = (latestMoveDetected.textContent || "").trim();
-          if (!/^\d{2}:\d{2}$/.test(detectedLabel)) {
+          if (!isCurrentPaused && !/^\d{2}:\d{2}$/.test(detectedLabel)) {
             problems.push(`Market Agent Latest Move detected row should show only time (${detectedLabel})`);
           }
-          if (/\d{2}[-/]\d{2}|\d{4}/.test(detectedLabel)) {
+          if (!isCurrentPaused && /\d{2}[-/]\d{2}|\d{4}/.test(detectedLabel)) {
             problems.push(`Market Agent Latest Move detected row still includes a date (${detectedLabel})`);
           }
           const durationLabel = (latestMoveDuration?.textContent || "").trim();
-          if (!/^\d+(?:d \d+h|h \d+m|m \d{2}s|s)$/.test(durationLabel)) {
+          if (!isCurrentPaused && !/^\d+(?:d \d+h|h \d+m|m \d{2}s|s)$/.test(durationLabel)) {
             problems.push(`Market Agent Latest Move duration is not elapsed-time based (${durationLabel})`);
+          }
+          if (isCurrentPaused && durationLabel !== "--") {
+            problems.push(`Market Agent paused latest move duration should stay empty (${durationLabel})`);
           }
         }
         if (document.documentElement.dataset.theme === "light") {
@@ -3416,9 +3430,9 @@ const main = async () => {
         }
         const animatedSelectors = [
           [".market-agent-price-card .market-agent-value-pulse", "price value"],
-          [".market-agent-attention-table-row.market-agent-animated-row", "driver rows"],
+          ...(isCurrentPaused ? [] : [[".market-agent-attention-table-row.market-agent-animated-row", "driver rows"]]),
           [".market-agent-timeline-track-row.market-agent-animated-row", "timeline rows"],
-          [".market-agent-evidence-feed-row.market-agent-animated-row", "evidence rows"],
+          ...(isCurrentPaused ? [] : [[".market-agent-evidence-feed-row.market-agent-animated-row", "evidence rows"]]),
           [".market-agent-nav-badge", "alerts badge"]
         ];
         animatedSelectors.forEach(([selector, label]) => {
@@ -3557,7 +3571,7 @@ const main = async () => {
             problems.push("Latest Evidence statuses still use tag badges");
           }
           const statusTexts = Array.from(evidenceFeed.querySelectorAll(".market-agent-evidence-status-text"));
-          if (statusTexts.length === 0) {
+          if (!isCurrentPaused && statusTexts.length === 0) {
             problems.push("Latest Evidence statuses are missing colored text labels");
           }
           statusTexts.forEach((status, index) => {
@@ -3593,7 +3607,7 @@ const main = async () => {
           }
         };
         const attentionLabels = Array.from(document.querySelectorAll(".market-agent-attention-text"));
-        if (attentionLabels.length === 0) {
+        if (!isCurrentPaused && attentionLabels.length === 0) {
           problems.push("Driver Attention labels are still missing text-style markers");
         }
         if (document.querySelector(".market-agent-attention-badge.market-agent-status-badge")) {
@@ -3996,6 +4010,9 @@ const main = async () => {
       const driverFocusProblems = await driverFocus.evaluate((root) => {
         const problems = [];
         const text = root instanceof HTMLElement ? root.innerText || root.textContent || "" : "";
+        const isCurrentPaused =
+          text.includes("No driver confirmed yet") ||
+          text.includes("Waiting for evidence chain");
         if (!text.includes("Driver Focus")) {
           problems.push("Driver Attention page does not present the current focus heading");
         }
@@ -4005,13 +4022,16 @@ const main = async () => {
         if (root.querySelectorAll(".market-agent-driver-card, .market-agent-driver-details").length) {
           problems.push("Driver Attention still renders the old card/details structure");
         }
-        if (root.querySelectorAll(".market-agent-driver-row").length < 4) {
+        if (!isCurrentPaused && root.querySelectorAll(".market-agent-driver-row").length < 4) {
           problems.push("Driver Attention signal rows are missing");
         }
         for (const heading of ["Driving Now", "Watch Next", "Background"]) {
-          if (!text.includes(heading)) {
+          if (!isCurrentPaused && !text.includes(heading)) {
             problems.push(`Driver Attention missing ${heading}`);
           }
+        }
+        if (isCurrentPaused && !text.includes("What is missing")) {
+          problems.push("Driver Attention paused state should explain what is missing");
         }
         return problems;
       });
@@ -4033,6 +4053,10 @@ const main = async () => {
           problems.push("Evidence panel missing");
           return problems;
         }
+        const rootText = root.innerText || root.textContent || "";
+        const isCurrentPaused =
+          rootText.includes("No current conclusion") ||
+          rootText.includes("Wait for required inputs");
         const chain = root.querySelector(".market-agent-evidence-chain");
         const decision = root.querySelector(".market-agent-evidence-chain-step.decision");
         const arrows = root.querySelectorAll(".market-agent-evidence-chain-arrow");
@@ -4044,10 +4068,10 @@ const main = async () => {
           problems.push("Evidence panel still uses competing summary cards");
         }
         const requiredLabels = [
-          [".market-agent-evidence-chain-step.support .market-agent-evidence-step-label", "Support"],
-          [".market-agent-evidence-chain-step.decision .market-agent-evidence-step-label", "Accepted Driver"],
-          [".market-agent-evidence-chain-step.outcome .market-agent-evidence-step-label", "Run Decision"],
-          [".market-agent-evidence-branch.rejected > span", "Rejected"],
+          [".market-agent-evidence-chain-step.support .market-agent-evidence-step-label", isCurrentPaused ? "Collected Context" : "Support"],
+          [".market-agent-evidence-chain-step.decision .market-agent-evidence-step-label", isCurrentPaused ? "Current Conclusion" : "Accepted Driver"],
+          [".market-agent-evidence-chain-step.outcome .market-agent-evidence-step-label", isCurrentPaused ? "Next Step" : "Run Decision"],
+          [".market-agent-evidence-branch.rejected > span", isCurrentPaused ? "Blocked" : "Rejected"],
           [".market-agent-evidence-branch.quality > span", "Data Quality"]
         ];
         for (const [selector, label] of requiredLabels) {

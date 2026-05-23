@@ -3,7 +3,57 @@ import json
 
 from src.xauusd_market_agent.config import MarketAgentConfig
 from src.xauusd_market_agent.live_pipeline import run_monitored_live_once
+from src.xauusd_market_agent.provider_health import build_provider_health
+from src.xauusd_market_agent.providers.provider_router import ProviderRouter
 from src.xauusd_market_agent.timeline_store import TimelineStore
+
+
+class StubLiveMarketProvider:
+    def __init__(self, rows):
+        self.rows = rows
+
+    def fetch_latest(self, anchor_time):
+        return self.rows, build_provider_health(
+            source="cTrader",
+            source_type="spot",
+            data_mode="live_seen",
+            is_available=True,
+            data_timestamp=anchor_time.isoformat(),
+            current_value=float(self.rows[-1]["close_price"]),
+            previous_value=float(self.rows[0]["close_price"]),
+            change_value=float(self.rows[-1]["close_price"]) - float(self.rows[0]["close_price"]),
+        )
+
+
+def _live_price_rows() -> list[dict[str, object]]:
+    return [
+        {
+            "symbol": "XAUUSD",
+            "data_timestamp": "2026-05-19T07:00:00+08:00",
+            "open_price": 4500.0,
+            "close_price": 4501.0,
+            "source": "cTrader",
+            "source_type": "spot",
+            "data_mode": "live_seen",
+        },
+        {
+            "symbol": "XAUUSD",
+            "data_timestamp": "2026-05-19T07:15:00+08:00",
+            "open_price": 4501.0,
+            "close_price": 4479.0,
+            "source": "cTrader",
+            "source_type": "spot",
+            "data_mode": "live_seen",
+        },
+    ]
+
+
+def _live_router(related_path=None) -> ProviderRouter:
+    return ProviderRouter(
+        market_provider=StubLiveMarketProvider(_live_price_rows()),
+        csv_related_assets_path=related_path,
+        yahoo_enabled=False,
+    )
 
 
 def test_run_monitored_live_once_writes_state_and_optional_alert(tmp_path) -> None:
@@ -38,6 +88,7 @@ def test_run_monitored_live_once_writes_state_and_optional_alert(tmp_path) -> No
         state_path=tmp_path / "state.json",
         alerts_path=tmp_path / "alerts.ndjson",
         cooldown_minutes=30,
+        provider_router=_live_router(related_path),
     )
 
     assert outcome["analysis"]["main_driver"] == "yields"
@@ -94,6 +145,7 @@ def test_run_monitored_live_once_records_telegram_failure_without_crashing(tmp_p
         timeline_store_path=tmp_path / "timeline.sqlite",
         cooldown_minutes=30,
         telegram_sink=FailingTelegramSink(),
+        provider_router=_live_router(related_path),
     )
 
     assert outcome["notification"]["telegram"]["status"] == "failed"
@@ -134,6 +186,7 @@ def test_run_monitored_live_once_records_semantic_timeline_event(tmp_path) -> No
         alerts_path=tmp_path / "alerts.ndjson",
         timeline_store_path=timeline_path,
         cooldown_minutes=30,
+        provider_router=_live_router(related_path),
     )
 
     timeline = TimelineStore(timeline_path).get_timeline(

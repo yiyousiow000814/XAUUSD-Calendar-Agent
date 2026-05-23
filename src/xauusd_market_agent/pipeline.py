@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import asdict
+from dataclasses import asdict, replace
 
 from .detectors import detect_market_trigger
 from .driver_attention import DriverAttentionManager
@@ -356,17 +356,18 @@ def analyze_fixture_with_optional_llm(
             if attempt == 0:
                 llm_payload = _call_llm(repair=True)
                 continue
-            return fallback
+            return replace(fallback, llm_status="unavailable")
         try:
-            return validate_llm_output(
+            validated = validate_llm_output(
                 llm_payload=llm_payload,
                 allowed_candidate_drivers=evidence.allowed_candidate_drivers,
                 blocked_drivers=evidence.blocked_drivers,
                 fallback_result=fallback,
             )
+            return replace(validated, analysis_engine="llm_validated", llm_status="validated")
         except Exception:
             if attempt == 0:
                 llm_payload = _call_llm(repair=True)
                 continue
-            return fallback
-    return fallback
+            return replace(fallback, llm_status="invalid_or_unavailable")
+    return replace(fallback, llm_status="invalid_or_unavailable")

@@ -3092,13 +3092,30 @@ pub fn start_ctrader_connect(payload: Value) -> Value {
         Ok(_) => {
             let result = run_ctrader_bridge(&root, "test-connection", &payload);
             if result.get("ok").and_then(Value::as_bool).unwrap_or(false) {
+                let quote_result = run_ctrader_bridge(&root, "quote", &merged);
+                if quote_result
+                    .get("ok")
+                    .and_then(Value::as_bool)
+                    .unwrap_or(false)
+                {
+                    return json!({
+                        "ok": true,
+                        "status": "live_feed_ready",
+                        "message": "cTrader is connected and live XAUUSD quotes are active. History sync can continue in the background.",
+                        "account": result.get("account").cloned().unwrap_or(Value::Null),
+                        "symbol": result.get("symbol").cloned().unwrap_or(Value::Null),
+                        "quote": quote_result.get("quote").cloned().unwrap_or(Value::Null),
+                        "provider_health": quote_result.get("provider_health").cloned().unwrap_or(Value::Null),
+                        "ctrader": masked_ctrader_provider_config(&root).get("ctrader").cloned().unwrap_or(Value::Null),
+                    });
+                }
                 json!({
                     "ok": true,
-                    "status": "preparing_live_feed",
-                    "message": "cTrader is connected. Preparing live XAUUSD and syncing history in the background.",
+                    "status": "live_quote_pending",
+                    "message": "cTrader account is connected. Waiting for the first fresh XAUUSD quote before showing live conclusions.",
                     "account": result.get("account").cloned().unwrap_or(Value::Null),
                     "symbol": result.get("symbol").cloned().unwrap_or(Value::Null),
-                    "provider_health": result.get("provider_health").cloned().unwrap_or(Value::Null),
+                    "provider_health": quote_result.get("provider_health").cloned().unwrap_or_else(|| result.get("provider_health").cloned().unwrap_or(Value::Null)),
                     "ctrader": masked_ctrader_provider_config(&root).get("ctrader").cloned().unwrap_or(Value::Null),
                 })
             } else {
