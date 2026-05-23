@@ -71,6 +71,47 @@ def _live_router(related_path=None, calendar_dir=None) -> ProviderRouter:
     )
 
 
+def test_timeline_store_reports_storage_summary(tmp_path) -> None:
+    store = TimelineStore(tmp_path / "timeline.sqlite")
+    run_id = store.record_monitor_run(
+        run_started_at="2026-05-19T07:15:00+08:00",
+        run_type="live",
+        data_mode="live_seen",
+        backfill_required=False,
+        last_successful_run_at=None,
+        no_news_found=False,
+        alert_suppressed_reason="",
+    )
+    store.record_market_price_bars(run_id, _live_price_rows())
+    store.record_news_items(
+        run_id,
+        [
+            {
+                "published_at": "2026-05-19T07:05:00+08:00",
+                "first_seen_at": "2026-05-19T07:05:05+08:00",
+                "backfilled_at": None,
+                "is_backfilled": False,
+                "source": "Reuters",
+                "title": "Fed speakers keep Treasury yields in focus",
+                "link": "https://example.com/fed-yields",
+                "relevance_reason": "Fresh macro headline.",
+                "impact_direction_on_gold": "bearish_gold",
+                "data_mode": "live_seen",
+            }
+        ],
+    )
+
+    summary = store.get_storage_summary()
+
+    assert summary["databaseBytes"] > 0
+    assert summary["counts"]["monitorRuns"] == 1
+    assert summary["counts"]["marketPriceBars"] == 2
+    assert summary["counts"]["newsItems"] == 1
+    assert summary["ranges"]["marketPriceBars"]["start"] == "2026-05-19T07:00:00+08:00"
+    assert summary["ranges"]["newsItems"]["end"] == "2026-05-19T07:05:00+08:00"
+    assert summary["compaction"]["mode"] == "indexed_range_reads"
+
+
 def test_every_monitor_run_persists_even_when_alert_is_suppressed(tmp_path) -> None:
     price_path = tmp_path / "prices.csv"
     price_path.write_text(

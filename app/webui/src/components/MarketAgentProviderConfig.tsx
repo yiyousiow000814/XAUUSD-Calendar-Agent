@@ -16,7 +16,7 @@ import type {
   MarketAgentTelegramConfigInput,
   MarketAgentTelegramConfigResponse
 } from "../types";
-import { formatShortTime, humanizeMarketAgentValue, normalizeMarketAgentValue } from "../utils/marketAgentUi";
+import { formatShortTime, normalizeMarketAgentValue } from "../utils/marketAgentUi";
 import { MarketAgentStatusBadge } from "./MarketAgentStatusBadge";
 import "./MarketAgentProviderConfig.css";
 
@@ -286,27 +286,6 @@ export function MarketAgentProviderConfig({
     return "bad";
   }, [data, cTraderClosed, cTraderConfigured, cTraderLive]);
 
-  const newsHealth = useMemo(
-    () =>
-      providerHealth?.items?.find((item) => {
-        const key = String(item.provider_key || "").toLowerCase();
-        const source = String(item.source || "").toLowerCase();
-        const type = String(item.source_type || "").toLowerCase();
-        return key.includes("news") || source.includes("news") || type.includes("news");
-      }) || null,
-    [providerHealth]
-  );
-  const calendarHealth = useMemo(
-    () =>
-      providerHealth?.items?.find((item) => {
-        const key = String(item.provider_key || "").toLowerCase();
-        const source = String(item.source || "").toLowerCase();
-        const type = String(item.source_type || "").toLowerCase();
-        return key.includes("calendar") || source.includes("calendar") || type.includes("calendar");
-      }) || null,
-    [providerHealth]
-  );
-
   const setupActions: Array<{ id: SetupStep; label: string; detail: string; status: string }> = [
     {
       id: "ctrader",
@@ -488,121 +467,6 @@ export function MarketAgentProviderConfig({
     const result = await onCancelModelDownload(cancelledProgress.model);
     setLocalAIResult(result);
     setPendingPullProgress({ ...cancelledProgress, message: result.message || cancelledProgress.message });
-  };
-
-  const renderAgentActivity = () => {
-    const selectedModel = selectedLocalAIModel();
-    const selectedModelReady = Boolean(selectedModel && isLocalModelInstalled(selectedModel));
-    const localAiActive = localAIMode !== "off" && (Boolean(llmData?.llm?.enabled) || selectedModelReady);
-    const contextHealthReady = Boolean(
-      (newsHealth?.is_available && !newsHealth.is_stale) ||
-      (calendarHealth?.is_available && !calendarHealth.is_stale)
-    );
-    const fallbackHistoryStatus = monitorStatus?.running
-      ? "syncing"
-      : monitorStatus?.lastRecoveryAt
-        ? "synced"
-        : cTraderConfigured
-          ? "idle"
-          : "waiting";
-    const fallbackHistoryDetail = monitorStatus?.lastRecoveryAt
-      ? `Last recovery ${formatShortTime(monitorStatus.lastRecoveryAt)}`
-      : monitorStatus?.running
-        ? "Backfill runs after live checks; current quotes stay first."
-        : "Starts when monitoring runs.";
-    const localAiStatus = localAIMode === "off"
-      ? "Rule-based"
-      : selectedModelReady
-        ? "Ready"
-        : pendingPullProgress || localAiPullProgress
-          ? "Preparing"
-          : localAiActive
-            ? "On"
-            : "Optional";
-    const quoteStatus = cTraderLive ? "Live quotes" : cTraderClosed ? "Market closed" : cTraderConfigured ? "Getting quote" : "Not connected";
-    const activity = monitorStatus?.activity ?? {};
-    const rows = [
-      {
-        key: "ctrader",
-        title: "cTrader",
-        fallbackStatus: cTraderLive ? "live" : cTraderClosed ? "market_closed" : cTraderConfigured ? "checking" : "waiting",
-        fallbackLabel: quoteStatus,
-        fallbackDetail: cTraderLive ? `Last quote ${formatShortTime(cTraderHealth?.data_timestamp)}` : cTraderHealthMessage
-      },
-      {
-        key: "history",
-        title: "History",
-        fallbackStatus: fallbackHistoryStatus,
-        fallbackLabel: fallbackHistoryStatus === "synced" ? "History synced" : fallbackHistoryStatus === "syncing" ? "History sync" : "History waiting",
-        fallbackDetail: fallbackHistoryDetail
-      },
-      {
-        key: "context",
-        title: "Market context",
-        fallbackStatus: contextHealthReady ? "active" : "collecting",
-        fallbackLabel: contextHealthReady ? "News and calendar" : "Collecting context",
-        fallbackDetail: "News and calendar continue when the XAUUSD market is closed."
-      },
-      {
-        key: "llm",
-        title: "Local AI",
-        fallbackStatus: localAiStatus === "Ready" || localAiStatus === "On" ? "ready" : localAiStatus === "Preparing" ? "preparing" : "skipped",
-        fallbackLabel: localAiStatus,
-        fallbackDetail: localAIMode === "off" ? "Rules and evidence gate still run." : "Batch review runs after evidence gate."
-      },
-      {
-        key: "alerts",
-        title: "Alerts",
-        fallbackStatus: (localTelegramEnabled ?? telegramData?.telegram?.enabled) ? "ready" : "idle",
-        fallbackLabel: (localTelegramEnabled ?? telegramData?.telegram?.enabled) ? "Telegram on" : "Dashboard only",
-        fallbackDetail: "Only current live runs can notify."
-      }
-    ];
-    const toneForActivity = (status: unknown) => {
-      const normalized = normalizeMarketAgentValue(status);
-      if (["live", "active", "ready", "validated", "synced"].includes(normalized)) return "good";
-      if (["checking", "collecting", "syncing", "preparing", "queued", "market_closed"].includes(normalized)) return "working";
-      if (["unavailable", "failed", "error"].includes(normalized)) return "bad";
-      return "muted";
-    };
-    const phaseLabel = humanizeMarketAgentValue(monitorStatus?.phase || (monitorStatus?.running ? "running" : "stopped"));
-    const phaseMessage = monitorStatus?.message || (monitorStatus?.running ? "Agent is checking the market." : "Agent is idle.");
-
-    return (
-      <div className="market-agent-activity-strip" aria-label="Agent activity">
-        <div className="market-agent-activity-heading">
-          <div>
-            <strong>Agent activity</strong>
-            <span>{phaseMessage}</span>
-          </div>
-          <em>{phaseLabel}</em>
-        </div>
-        <ol className="market-agent-activity-list">
-          {rows.map((row) => {
-            const item = activity[row.key] ?? {};
-            const status = item.status || row.fallbackStatus;
-            const progress = typeof item.progress === "number" && Number.isFinite(item.progress)
-              ? Math.max(0, Math.min(100, Math.round(item.progress)))
-              : null;
-            const updatedAt = item.updatedAt || item.dataTimestamp || item.fetchedAt;
-            return (
-              <li className={`market-agent-activity-row tone-${toneForActivity(status)}`} key={row.key}>
-                <span className="market-agent-activity-dot" aria-hidden="true" />
-                <div>
-                  <span>{row.title}</span>
-                  <strong>{item.label || row.fallbackLabel}</strong>
-                  <small>{item.detail || row.fallbackDetail}</small>
-                </div>
-                <b>
-                  {progress !== null ? `${progress}%` : humanizeMarketAgentValue(status)}
-                  {updatedAt ? <small>{formatShortTime(updatedAt)}</small> : null}
-                </b>
-              </li>
-            );
-          })}
-        </ol>
-      </div>
-    );
   };
 
   const selectStep = (step: SetupStep) => {
@@ -1169,7 +1033,6 @@ export function MarketAgentProviderConfig({
         <div className="market-agent-empty-state">{data?.message || "Provider configuration is unavailable."}</div>
       ) : (
         <div className="market-agent-setup-flow">
-          {renderAgentActivity()}
           <div className="market-agent-setup-body">
             <nav className="market-agent-setup-tabs" aria-label="Data source setup actions">
               {setupActions.map((step) => (

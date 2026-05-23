@@ -512,6 +512,20 @@ export type MarketAgentOllamaPullProgress = {
   error?: string;
 };
 
+export type MarketAgentActivityStatus = {
+  status?: string;
+  label?: string;
+  detail?: string;
+  progress?: number;
+  newsCount?: number;
+  calendarCount?: number;
+  dataTimestamp?: number | string | null;
+  fetchedAt?: number | string | null;
+  updatedAt?: number | string | null;
+  providerHealth?: Record<string, unknown>;
+  [key: string]: unknown;
+};
+
 export type MarketAgentCTraderAuthResponse = {
   ok: boolean;
   status: string;
@@ -598,21 +612,7 @@ export type MarketAgentMonitorStatusResponse = {
   message?: string;
   updatedAt?: number | string | null;
   latestMonitorRunId?: number | null;
-  activity?: Record<
-    string,
-    {
-      status?: string;
-      label?: string;
-      detail?: string;
-      progress?: number;
-      newsCount?: number;
-      calendarCount?: number;
-      dataTimestamp?: number | string | null;
-      fetchedAt?: number | string | null;
-      updatedAt?: number | string | null;
-      providerHealth?: Record<string, unknown>;
-    }
-  >;
+  activity?: Record<string, MarketAgentActivityStatus>;
 };
 
 export type Snapshot = {

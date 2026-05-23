@@ -190,6 +190,85 @@ class TimelineStore:
             ).fetchone()
         return None if row is None else str(row["run_started_at"])
 
+    def get_storage_summary(self) -> dict[str, Any]:
+        tables = (
+            "monitor_runs",
+            "provider_health",
+            "market_price_bars",
+            "related_asset_bars",
+            "news_items",
+            "calendar_events",
+            "driver_attention_states",
+            "evidence_packets",
+            "analysis_results",
+            "alerts",
+            "state_transitions",
+            "timeline_events",
+        )
+        with self._connect() as connection:
+            counts = {
+                table: int(connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])
+                for table in tables
+            }
+            ranges = {
+                "monitorRuns": connection.execute(
+                    "SELECT MIN(run_started_at), MAX(run_started_at) FROM monitor_runs"
+                ).fetchone(),
+                "marketPriceBars": connection.execute(
+                    "SELECT MIN(data_timestamp), MAX(data_timestamp) FROM market_price_bars"
+                ).fetchone(),
+                "relatedAssetBars": connection.execute(
+                    "SELECT MIN(data_timestamp), MAX(data_timestamp) FROM related_asset_bars"
+                ).fetchone(),
+                "newsItems": connection.execute(
+                    "SELECT MIN(published_at), MAX(published_at) FROM news_items"
+                ).fetchone(),
+                "calendarEvents": connection.execute(
+                    "SELECT MIN(scheduled_at), MAX(scheduled_at) FROM calendar_events"
+                ).fetchone(),
+            }
+            page_size = int(connection.execute("PRAGMA page_size").fetchone()[0])
+            page_count = int(connection.execute("PRAGMA page_count").fetchone()[0])
+            freelist_count = int(connection.execute("PRAGMA freelist_count").fetchone()[0])
+        file_bytes = self.path.stat().st_size if self.path.exists() else 0
+        free_bytes = freelist_count * page_size
+        compaction_status = "available" if free_bytes > 1024 * 1024 else "not_needed"
+        return {
+            "path": str(self.path),
+            "databaseBytes": file_bytes,
+            "allocatedBytes": page_count * page_size,
+            "freeBytes": free_bytes,
+            "counts": {
+                "monitorRuns": counts["monitor_runs"],
+                "providerHealth": counts["provider_health"],
+                "marketPriceBars": counts["market_price_bars"],
+                "relatedAssetBars": counts["related_asset_bars"],
+                "newsItems": counts["news_items"],
+                "calendarEvents": counts["calendar_events"],
+                "driverAttentionStates": counts["driver_attention_states"],
+                "evidencePackets": counts["evidence_packets"],
+                "analysisResults": counts["analysis_results"],
+                "alerts": counts["alerts"],
+                "stateTransitions": counts["state_transitions"],
+                "timelineEvents": counts["timeline_events"],
+            },
+            "ranges": {
+                key: {
+                    "start": None if row is None else row[0],
+                    "end": None if row is None else row[1],
+                }
+                for key, row in ranges.items()
+            },
+            "compaction": {
+                "status": compaction_status,
+                "mode": "indexed_range_reads",
+                "detail": (
+                    "SQLite keeps raw evidence per monitor run. Replay loads only the selected range; "
+                    "VACUUM is only useful when free space grows."
+                ),
+            },
+        }
+
     def load_latest_driver_attention_states(self) -> dict[str, DriverAttentionState]:
         with self._connect() as connection:
             run_row = connection.execute(

@@ -66,6 +66,39 @@ def _provider_health_payload(health: ProviderHealth | None) -> dict[str, Any]:
     return asdict(health) if health is not None else {}
 
 
+def _unique_strings(values: list[object]) -> list[str]:
+    seen: dict[str, None] = {}
+    for value in values:
+        text = str(value or "").strip()
+        if text:
+            seen.setdefault(text, None)
+    return list(seen.keys())
+
+
+def _latest_value(rows: list[dict[str, Any]], key: str) -> str | None:
+    values = [str(row.get(key, "")).strip() for row in rows if str(row.get(key, "")).strip()]
+    return max(values) if values else None
+
+
+def _compact_sources(rows: list[dict[str, Any]], limit: int = 4) -> list[str]:
+    return _unique_strings([row.get("source", "") for row in rows])[:limit]
+
+
+def _symbols_from_rows(*row_groups: list[dict[str, Any]] | None) -> list[str]:
+    symbols: list[object] = []
+    for rows in row_groups:
+        for row in rows or []:
+            symbols.append(str(row.get("symbol", "")).upper())
+    return _unique_strings(symbols) or ["XAUUSD"]
+
+
+def _time_bounds(rows: list[dict[str, Any]], key: str) -> tuple[str | None, str | None]:
+    values = sorted(str(row.get(key, "")).strip() for row in rows if str(row.get(key, "")).strip())
+    if not values:
+        return None, None
+    return values[0], values[-1]
+
+
 def _format_price(value: object) -> str:
     try:
         number = float(value)  # type: ignore[arg-type]
@@ -80,19 +113,28 @@ def _ctrader_activity(health: ProviderHealth | None) -> dict[str, Any]:
             "status": "waiting",
             "label": "Waiting for XAUUSD",
             "detail": "cTrader has not returned a price snapshot yet.",
+            "symbols": ["XAUUSD"],
         }
     price = _format_price(health.current_value)
+    base = {
+        "symbols": ["XAUUSD"],
+        "source": health.source,
+        "sourceType": health.source_type,
+        "dataMode": health.data_mode,
+        "dataTimestamp": health.data_timestamp,
+        "fetchedAt": health.fetched_at,
+        "providerHealth": _provider_health_payload(health),
+    }
     if health.is_available and not health.is_stale and health.data_mode == "live_seen":
         return {
+            **base,
             "status": "live",
             "label": "XAUUSD live",
             "detail": f"Last price {price} from cTrader." if price else "Live XAUUSD quote is active.",
-            "dataTimestamp": health.data_timestamp,
-            "fetchedAt": health.fetched_at,
-            "providerHealth": _provider_health_payload(health),
         }
     if health.is_available and health.current_value is not None:
         return {
+            **base,
             "status": "market_closed",
             "label": "Market closed",
             "detail": (
@@ -101,21 +143,24 @@ def _ctrader_activity(health: ProviderHealth | None) -> dict[str, Any]:
             )
             if price
             else "Last XAUUSD price is fixed until the market reopens; news and calendar still update.",
-            "dataTimestamp": health.data_timestamp,
-            "fetchedAt": health.fetched_at,
-            "providerHealth": _provider_health_payload(health),
         }
     return {
+        **base,
         "status": "unavailable",
         "label": "No XAUUSD price",
         "detail": health.error or health.stale_reason or "cTrader has not returned a usable XAUUSD price.",
-        "dataTimestamp": health.data_timestamp,
-        "fetchedAt": health.fetched_at,
-        "providerHealth": _provider_health_payload(health),
     }
 
 
-def _context_activity(news_count: int, calendar_count: int) -> dict[str, Any]:
+def _context_activity(
+    news_count: int,
+    calendar_count: int,
+    *,
+    news_rows: list[dict[str, Any]] | None = None,
+    calendar_rows: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    news_rows = news_rows or []
+    calendar_rows = calendar_rows or []
     detail = f"{news_count} headlines and {calendar_count} calendar events collected."
     return {
         "status": "active" if news_count or calendar_count else "collecting",
@@ -123,12 +168,31 @@ def _context_activity(news_count: int, calendar_count: int) -> dict[str, Any]:
         "detail": detail,
         "newsCount": news_count,
         "calendarCount": calendar_count,
+        "sources": _unique_strings([*_compact_sources(news_rows), *_compact_sources(calendar_rows)]),
+        "latestNewsAt": _latest_value(news_rows, "published_at"),
+        "latestCalendarAt": _latest_value(calendar_rows, "scheduled_at"),
     }
 
 
-def _history_activity(backfill_required: bool, *, completed: bool = False) -> dict[str, Any]:
+def _history_activity(
+    backfill_required: bool,
+    *,
+    completed: bool = False,
+    window_start: str | None = None,
+    window_end: str | None = None,
+    stored_rows: int | None = None,
+    symbols: list[str] | None = None,
+) -> dict[str, Any]:
+    base: dict[str, Any] = {
+        "symbols": symbols or ["XAUUSD"],
+        "windowStart": window_start,
+        "windowEnd": window_end,
+    }
+    if stored_rows is not None:
+        base["storedRows"] = stored_rows
     if backfill_required and completed:
         return {
+            **base,
             "status": "synced",
             "label": "History synced",
             "detail": "Missing cTrader history was stored for replay and evidence.",
@@ -136,46 +200,77 @@ def _history_activity(backfill_required: bool, *, completed: bool = False) -> di
         }
     if backfill_required:
         return {
+            **base,
             "status": "syncing",
             "label": "History sync",
             "detail": "Backfill runs in the background after the current live check.",
         }
     return {
+        **base,
         "status": "idle",
         "label": "History current",
         "detail": "No backfill gap detected for this run.",
     }
 
 
-def _llm_activity(llm_enabled: bool, llm_status: str | None = None) -> dict[str, Any]:
+def _llm_activity(
+    llm_enabled: bool,
+    llm_status: str | None = None,
+    *,
+    model: str | None = None,
+    analysis: Any | None = None,
+) -> dict[str, Any]:
+    base: dict[str, Any] = {}
+    if model:
+        base["model"] = model
+    if analysis is not None:
+        base["result"] = str(getattr(analysis, "main_driver", "unknown") or "unknown")
+        base["causeStatus"] = str(getattr(analysis, "cause_status", "") or "")
+        base["analysisEngine"] = str(getattr(analysis, "analysis_engine", "") or "")
     if not llm_enabled:
         return {
+            **base,
             "status": "skipped",
             "label": "Rule-based",
             "detail": "Evidence gate and deterministic rules ran without Local AI.",
         }
     if llm_status == "validated":
         return {
+            **base,
             "status": "validated",
             "label": "Local AI reviewed",
             "detail": "LLM output passed validation after the evidence gate.",
         }
     if llm_status:
         return {
+            **base,
             "status": "unavailable",
             "label": "Local AI unavailable",
             "detail": "Rules were used because Local AI did not return a valid review.",
         }
     return {
+        **base,
         "status": "queued",
         "label": "Local AI queued",
         "detail": "Batch review runs after evidence gate.",
     }
 
 
-def _alert_activity(decision: Any | None = None, telegram_result: dict[str, Any] | None = None) -> dict[str, Any]:
+def _alert_activity(
+    decision: Any | None = None,
+    telegram_result: dict[str, Any] | None = None,
+    *,
+    alert_preflight: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    base = {
+        "preflightStatus": (alert_preflight or {}).get("status"),
+        "preflightReason": (alert_preflight or {}).get("reason"),
+        "telegramStatus": (telegram_result or {}).get("status"),
+        "notificationLevel": getattr(decision, "notification_level", None) if decision is not None else None,
+    }
     if decision is None:
         return {
+            **base,
             "status": "pending",
             "label": "Alert gate",
             "detail": "Waiting for evidence and notification policy.",
@@ -183,14 +278,67 @@ def _alert_activity(decision: Any | None = None, telegram_result: dict[str, Any]
     if getattr(decision, "should_notify", False):
         sent = bool((telegram_result or {}).get("sent"))
         return {
+            **base,
             "status": "sent" if sent else "ready",
             "label": "Alert sent" if sent else "Alert ready",
             "detail": "A current live alert passed the gate.",
         }
     return {
+        **base,
         "status": "suppressed" if getattr(decision, "reason", "") else "idle",
         "label": "No alert",
         "detail": getattr(decision, "reason", "") or "No current live alert passed the gate.",
+    }
+
+
+def _evidence_activity(chain_status: EvidenceChainStatus | None = None) -> dict[str, Any]:
+    if chain_status is None:
+        return {
+            "status": "pending",
+            "label": "Evidence gate",
+            "detail": "Waiting for provider health and market context.",
+        }
+    label = {
+        "ready": "Evidence gate ready",
+        "partial": "Evidence partial",
+        "context_only": "Context only",
+    }.get(chain_status.status, "Evidence gate")
+    return {
+        "status": chain_status.status,
+        "label": label,
+        "detail": chain_status.reason,
+        "chainStatus": chain_status.status,
+        "usableInputs": chain_status.usable_inputs,
+        "missingRequired": chain_status.missing_required,
+        "contextOnlyInputs": chain_status.context_only_inputs,
+        "llmStatus": chain_status.llm_status,
+    }
+
+
+def _replay_activity(
+    *,
+    monitor_run_id: int | None = None,
+    timeline_store_path: Path | None = None,
+    storage_counts: dict[str, int] | None = None,
+    storage_summary: dict[str, Any] | None = None,
+    symbols: list[str] | None = None,
+) -> dict[str, Any]:
+    if monitor_run_id is None:
+        return {
+            "status": "pending",
+            "label": "Replay store",
+            "detail": "Waiting for this run to be persisted.",
+            "symbols": symbols or [],
+        }
+    return {
+        "status": "stored",
+        "label": "Replay stored",
+        "detail": f"Run {monitor_run_id} persisted to TimelineStore.",
+        "monitorRunId": monitor_run_id,
+        "timelineStorePath": str(timeline_store_path) if timeline_store_path is not None else "",
+        "stored": storage_counts or {},
+        "storageSummary": storage_summary or {},
+        "symbols": symbols or [],
     }
 
 
@@ -205,13 +353,62 @@ def _activity_snapshot(
     decision: Any | None = None,
     telegram_result: dict[str, Any] | None = None,
     history_completed: bool = False,
+    news_rows: list[dict[str, Any]] | None = None,
+    calendar_rows: list[dict[str, Any]] | None = None,
+    market_price_bar_count: int | None = None,
+    related_asset_bar_count: int | None = None,
+    market_price_bars: list[dict[str, Any]] | None = None,
+    related_asset_bars: list[dict[str, Any]] | None = None,
+    chain_status: EvidenceChainStatus | None = None,
+    analysis: Any | None = None,
+    llm_model: str | None = None,
+    alert_preflight: dict[str, Any] | None = None,
+    monitor_run_id: int | None = None,
+    timeline_store_path: Path | None = None,
+    storage_counts: dict[str, int] | None = None,
+    storage_summary: dict[str, Any] | None = None,
+    history_window_start: str | None = None,
+    history_window_end: str | None = None,
 ) -> dict[str, Any]:
+    market_price_bars = market_price_bars or []
+    related_asset_bars = related_asset_bars or []
+    symbols = _symbols_from_rows(market_price_bars, related_asset_bars)
+    market_start, market_end = _time_bounds([*market_price_bars, *related_asset_bars], "data_timestamp")
+    history_window_start = market_start or history_window_start
+    history_window_end = market_end or history_window_end
+    if market_price_bar_count is None:
+        market_price_bar_count = len(market_price_bars)
+    if related_asset_bar_count is None:
+        related_asset_bar_count = len(related_asset_bars)
+    history_stored_rows = None
+    if market_price_bar_count is not None or related_asset_bar_count is not None:
+        history_stored_rows = int(market_price_bar_count or 0) + int(related_asset_bar_count or 0)
     return {
         "ctrader": _ctrader_activity(provider_health.get("xauusd")),
-        "history": _history_activity(backfill_required, completed=history_completed),
-        "context": _context_activity(news_count, calendar_count),
-        "llm": _llm_activity(llm_enabled, llm_status),
-        "alerts": _alert_activity(decision, telegram_result),
+        "history": _history_activity(
+            backfill_required,
+            completed=history_completed,
+            window_start=history_window_start,
+            window_end=history_window_end,
+            stored_rows=history_stored_rows,
+            symbols=symbols,
+        ),
+        "context": _context_activity(
+            news_count,
+            calendar_count,
+            news_rows=news_rows,
+            calendar_rows=calendar_rows,
+        ),
+        "evidence": _evidence_activity(chain_status),
+        "llm": _llm_activity(llm_enabled, llm_status, model=llm_model, analysis=analysis),
+        "replay": _replay_activity(
+            monitor_run_id=monitor_run_id,
+            timeline_store_path=timeline_store_path,
+            storage_counts=storage_counts,
+            storage_summary=storage_summary,
+            symbols=symbols,
+        ),
+        "alerts": _alert_activity(decision, telegram_result, alert_preflight=alert_preflight),
     }
 
 
@@ -1105,7 +1302,9 @@ def run_monitored_live_once(
                 "label": "News and calendar",
                 "detail": "Collecting market context in the background.",
             },
+            "evidence": _evidence_activity(),
             "llm": _llm_activity(llm_enabled),
+            "replay": _replay_activity(),
             "alerts": _alert_activity(),
         },
     )
@@ -1129,6 +1328,15 @@ def run_monitored_live_once(
             calendar_count=len(runtime_context.get("calendar_rows", [])),
             backfill_required=backfill_required,
             llm_enabled=llm_enabled,
+            news_rows=runtime_context.get("news_rows", []),
+            calendar_rows=runtime_context.get("calendar_rows", []),
+            market_price_bar_count=len(runtime_context.get("market_price_bars", [])),
+            related_asset_bar_count=len(runtime_context.get("related_asset_bars", [])),
+            market_price_bars=runtime_context.get("market_price_bars", []),
+            related_asset_bars=runtime_context.get("related_asset_bars", []),
+            llm_model=str(getattr(getattr(active_llm_client, "config", None), "model", "") or ""),
+            history_window_start=last_successful_run_at,
+            history_window_end=anchor.isoformat(),
         ),
     )
     data_mode = _resolve_runtime_data_mode(
@@ -1157,6 +1365,15 @@ def run_monitored_live_once(
             calendar_count=len(runtime_context.get("calendar_rows", [])),
             backfill_required=backfill_required,
             llm_enabled=llm_enabled,
+            news_rows=runtime_context.get("news_rows", []),
+            calendar_rows=runtime_context.get("calendar_rows", []),
+            market_price_bar_count=len(runtime_context.get("market_price_bars", [])),
+            related_asset_bar_count=len(runtime_context.get("related_asset_bars", [])),
+            market_price_bars=runtime_context.get("market_price_bars", []),
+            related_asset_bars=runtime_context.get("related_asset_bars", []),
+            llm_model=str(getattr(getattr(active_llm_client, "config", None), "model", "") or ""),
+            history_window_start=last_successful_run_at,
+            history_window_end=anchor.isoformat(),
         ),
     )
     analysis = analyze_fixture_with_optional_llm(
@@ -1264,6 +1481,18 @@ def run_monitored_live_once(
             llm_enabled=llm_enabled,
             llm_status=getattr(analysis, "llm_status", None),
             decision=decision,
+            news_rows=runtime_context.get("news_rows", []),
+            calendar_rows=runtime_context.get("calendar_rows", []),
+            market_price_bar_count=len(runtime_context.get("market_price_bars", [])),
+            related_asset_bar_count=len(runtime_context.get("related_asset_bars", [])),
+            market_price_bars=runtime_context.get("market_price_bars", []),
+            related_asset_bars=runtime_context.get("related_asset_bars", []),
+            chain_status=pre_decision_chain_status,
+            analysis=analysis,
+            llm_model=str(getattr(getattr(active_llm_client, "config", None), "model", "") or ""),
+            alert_preflight=alert_preflight,
+            history_window_start=last_successful_run_at,
+            history_window_end=anchor.isoformat(),
         ),
     )
     telegram_result = {
@@ -1381,6 +1610,17 @@ def run_monitored_live_once(
             "analysis": analysis.to_dict(),
         },
     )
+    storage_counts = {
+        "marketPriceBars": len(runtime_context.get("market_price_bars", [])),
+        "relatedAssetBars": len(runtime_context.get("related_asset_bars", [])),
+        "newsItems": len(runtime_context.get("news_rows", [])),
+        "calendarEvents": len(runtime_context.get("calendar_rows", [])),
+        "driverAttentionStates": len(attention_snapshot.states),
+        "timelineEvents": 1,
+        "alerts": 1,
+    }
+    stored_market_price_bars = list(runtime_context.get("market_price_bars", []))
+    stored_related_asset_bars = list(runtime_context.get("related_asset_bars", []))
     if backfill_required:
         _write_monitor_status(
             resolved_status_path,
@@ -1397,6 +1637,18 @@ def run_monitored_live_once(
                 llm_status=getattr(analysis, "llm_status", None),
                 decision=decision,
                 telegram_result=telegram_result,
+                news_rows=runtime_context.get("news_rows", []),
+                calendar_rows=runtime_context.get("calendar_rows", []),
+                market_price_bar_count=len(runtime_context.get("market_price_bars", [])),
+                related_asset_bar_count=len(runtime_context.get("related_asset_bars", [])),
+                market_price_bars=runtime_context.get("market_price_bars", []),
+                related_asset_bars=runtime_context.get("related_asset_bars", []),
+                chain_status=pre_decision_chain_status,
+                analysis=analysis,
+                llm_model=str(getattr(getattr(active_llm_client, "config", None), "model", "") or ""),
+                alert_preflight=alert_preflight,
+                history_window_start=last_successful_run_at,
+                history_window_end=anchor.isoformat(),
             ),
         )
         recovery_context = _run_recovery_backfill(
@@ -1410,6 +1662,12 @@ def run_monitored_live_once(
         timeline_store.record_related_asset_bars(monitor_run_id, recovery_context["related_asset_bars"])
         timeline_store.record_news_items(monitor_run_id, recovery_context["news_rows"])
         timeline_store.record_calendar_events(monitor_run_id, recovery_context["calendar_rows"])
+        storage_counts["marketPriceBars"] += len(recovery_context.get("market_price_bars", []))
+        storage_counts["relatedAssetBars"] += len(recovery_context.get("related_asset_bars", []))
+        storage_counts["newsItems"] += len(recovery_context.get("news_rows", []))
+        storage_counts["calendarEvents"] += len(recovery_context.get("calendar_rows", []))
+        stored_market_price_bars.extend(recovery_context.get("market_price_bars", []))
+        stored_related_asset_bars.extend(recovery_context.get("related_asset_bars", []))
         for item in recovery_context.get("recovery_timeline_events", []):
             timeline_store.record_timeline_event(
                 monitor_run_id,
@@ -1418,6 +1676,7 @@ def run_monitored_live_once(
                 label=item["label"],
                 payload=item["payload"],
             )
+            storage_counts["timelineEvents"] += 1
         timeline_store.record_timeline_event(
             monitor_run_id,
             event_time=anchor.isoformat(),
@@ -1430,6 +1689,7 @@ def run_monitored_live_once(
                 "detected_gap_type": detected_run_type,
             },
         )
+        storage_counts["timelineEvents"] += 1
     final_activity = _activity_snapshot(
         provider_health=provider_health,
         news_count=len(runtime_context.get("news_rows", [])),
@@ -1440,6 +1700,22 @@ def run_monitored_live_once(
         decision=decision,
         telegram_result=telegram_result,
         history_completed=backfill_required,
+        news_rows=runtime_context.get("news_rows", []),
+        calendar_rows=runtime_context.get("calendar_rows", []),
+        market_price_bar_count=storage_counts["marketPriceBars"],
+        related_asset_bar_count=storage_counts["relatedAssetBars"],
+        market_price_bars=stored_market_price_bars,
+        related_asset_bars=stored_related_asset_bars,
+        chain_status=pre_decision_chain_status,
+        analysis=analysis,
+        llm_model=str(getattr(getattr(active_llm_client, "config", None), "model", "") or ""),
+        alert_preflight=alert_preflight,
+        monitor_run_id=monitor_run_id,
+        timeline_store_path=timeline_store.path,
+        storage_counts=storage_counts,
+        storage_summary=timeline_store.get_storage_summary(),
+        history_window_start=last_successful_run_at,
+        history_window_end=anchor.isoformat(),
     )
     final_status_updates = {
         "ok": True,

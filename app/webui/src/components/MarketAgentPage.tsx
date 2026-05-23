@@ -23,6 +23,7 @@ import type {
   MarketAgentTelegramConfigResponse
 } from "../types";
 import { MarketAgentProviderConfig } from "./MarketAgentProviderConfig";
+import { MarketAgentActivity } from "./MarketAgentActivity";
 import { MarketAgentDriverAttention } from "./MarketAgentDriverAttention";
 import { MarketAgentEvidencePanel } from "./MarketAgentEvidencePanel";
 import { MarketAgentProviderHealth } from "./MarketAgentProviderHealth";
@@ -45,6 +46,7 @@ type MarketAgentSection =
   | "replay"
   | "evidence"
   | "providers"
+  | "activity"
   | "sources"
   | "alerts";
 
@@ -98,6 +100,7 @@ type MarketAgentNavIconName =
   | "replay"
   | "evidence"
   | "providers"
+  | "activity"
   | "sources"
   | "alerts"
   | "settings";
@@ -119,6 +122,7 @@ const sectionGroups: Array<{
     label: "Data & Health",
     items: [
       { id: "providers", label: "Provider Health", icon: "providers" },
+      { id: "activity", label: "Activity", icon: "activity" },
       { id: "sources", label: "Data Sources", icon: "sources" }
     ]
   },
@@ -195,6 +199,19 @@ function MarketAgentNavIcon({ name }: { name: MarketAgentNavIconName }) {
         <path d="M11 7.3h4.8" />
         <path d="M11 16.7h4.8" />
         <path d="M12 9.9v4.2" />
+      </svg>
+    );
+  }
+  if (name === "activity") {
+    return (
+      <svg {...common}>
+        <path d="M4.4 12h3.4" />
+        <path d="M16.2 12h3.4" />
+        <path d="M10.2 6.2h3.6" />
+        <path d="M10.2 17.8h3.6" />
+        <circle cx="12" cy="12" r="2.7" />
+        <circle cx="6.2" cy="12" r="1.6" />
+        <circle cx="17.8" cy="12" r="1.6" />
       </svg>
     );
   }
@@ -1757,6 +1774,19 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
     }
     if (section === "providers") {
       return <MarketAgentProviderHealth data={props.providerHealth} />;
+    }
+    if (section === "activity") {
+      return (
+        <MarketAgentActivity
+          monitorStatus={props.monitorStatus}
+          providerHealth={props.providerHealth}
+          replay={normalizedReplay}
+          selectedEvidence={props.selectedEvidence}
+          providerConfig={props.providerConfig}
+          telegramConfig={props.telegramConfig}
+          llmConfig={props.llmConfig}
+        />
+      );
     }
     if (section === "sources") {
       return (

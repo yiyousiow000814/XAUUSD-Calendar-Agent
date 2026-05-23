@@ -184,7 +184,17 @@ def test_run_monitor_loop_writes_backend_activity_status(tmp_path) -> None:
     assert status["activity"]["context"]["status"] == "active"
     assert status["activity"]["context"]["newsCount"] == 1
     assert status["activity"]["context"]["calendarCount"] == 1
+    assert status["activity"]["evidence"]["status"] in {"ready", "partial", "context_only"}
+    assert "usableInputs" in status["activity"]["evidence"]
     assert status["activity"]["llm"]["status"] in {"skipped", "validated", "unavailable"}
+    assert status["activity"]["replay"]["status"] == "stored"
+    assert status["activity"]["replay"]["monitorRunId"] == outcomes[0]["monitor_run_id"]
+    assert status["activity"]["replay"]["stored"]["newsItems"] == 1
+    assert status["activity"]["replay"]["stored"]["calendarEvents"] == 1
+    assert status["activity"]["replay"]["symbols"] == ["XAUUSD"]
+    assert status["activity"]["replay"]["storageSummary"]["counts"]["monitorRuns"] == 1
+    assert status["activity"]["replay"]["storageSummary"]["databaseBytes"] > 0
+    assert status["activity"]["replay"]["storageSummary"]["compaction"]["mode"] == "indexed_range_reads"
     assert status["activity"]["alerts"]["status"] in {"sent", "suppressed", "idle"}
 
 

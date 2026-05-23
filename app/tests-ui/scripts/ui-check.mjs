@@ -4543,21 +4543,21 @@ const main = async () => {
       await page.getByRole("button", { name: "Data Sources", exact: true }).click();
       await page.locator("[data-qa='qa:market-agent:provider-config']").first().waitFor({ state: "visible", timeout: 4000 });
 
-      const failures = await page.evaluate(() => {
+      const failures = await page.evaluate((themeKey) => {
         const cards = Array.from(document.querySelectorAll(".market-agent-setup-checklist > div"));
-        return cards.flatMap((card, index) => {
+        const messages = cards.flatMap((card, index) => {
           if (!(card instanceof HTMLElement)) return [`Checklist card ${index + 1} is not an HTMLElement`];
           const cardRect = card.getBoundingClientRect();
           const children = Array.from(card.children).filter((child) => child instanceof HTMLElement);
           const label = children[0];
           const badge = card.querySelector(".market-agent-status-badge");
-          const messages = [];
+          const cardMessages = [];
           for (const [name, child] of [
             ["label", label],
             ["badge", badge]
           ]) {
             if (!(child instanceof HTMLElement)) {
-              messages.push(`Checklist card ${index + 1} missing ${name}`);
+              cardMessages.push(`Checklist card ${index + 1} missing ${name}`);
               continue;
             }
             const rect = child.getBoundingClientRect();
@@ -4567,7 +4567,7 @@ const main = async () => {
               rect.top < cardRect.top - 1 ||
               rect.bottom > cardRect.bottom + 1;
             if (outside) {
-              messages.push(
+              cardMessages.push(
                 `Checklist card ${index + 1} ${name} clips outside card: card=${JSON.stringify({
                   left: cardRect.left,
                   right: cardRect.right,
@@ -4589,16 +4589,127 @@ const main = async () => {
               Math.max(labelRect.left, badgeRect.left) < Math.min(labelRect.right, badgeRect.right) - 1 &&
               Math.max(labelRect.top, badgeRect.top) < Math.min(labelRect.bottom, badgeRect.bottom) - 1;
             if (overlap) {
-              messages.push(`Checklist card ${index + 1} label overlaps status badge`);
+              cardMessages.push(`Checklist card ${index + 1} label overlaps status badge`);
             }
           }
-          return messages;
+          return cardMessages;
         });
+        const parseRgb = (value) => {
+          const match = String(value || "").match(/rgba?\(([^)]+)\)/);
+          if (!match) return null;
+          const parts = match[1]
+            .split(",")
+            .slice(0, 3)
+            .map((part) => Number.parseFloat(part.trim()));
+          return parts.length === 3 && parts.every((part) => Number.isFinite(part)) ? parts : null;
+        };
+        const relativeLuminance = (rgb) => {
+          const [rs, gs, bs] = rgb.map((value) => {
+            const channel = value / 255;
+            return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+          });
+          return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+        };
+        const progressText = document.querySelector(".market-agent-live-feed-progress b");
+        if (progressText instanceof HTMLElement) {
+          const rgb = parseRgb(window.getComputedStyle(progressText).color);
+          const luminance = rgb ? relativeLuminance(rgb) : null;
+          if (luminance !== null && themeKey.includes("light") && luminance > 0.35) {
+            messages.push(`Live feed progress percent is too light in light mode (${luminance.toFixed(2)})`);
+          }
+          if (luminance !== null && themeKey.includes("dark") && luminance < 0.5) {
+            messages.push(`Live feed progress percent is too dark in dark mode (${luminance.toFixed(2)})`);
+          }
+        }
+        return messages;
+      }, theme.key);
+
+      if (failures.length) {
+        throw new Error(failures.join("; "));
+      }
+      await page.locator("[data-qa='qa:action:view-calendar']").first().click();
+      await page.locator("[data-qa='qa:card:next-events']").first().waitFor({ state: "visible", timeout: 4000 });
+    });
+
+    await runCheck(theme.key, "Market Agent activity pipeline stays readable", async () => {
+      await page.locator("[data-qa='qa:action:view-market-agent']").first().click();
+      await page.locator("[data-qa='qa:page:market-agent']").first().waitFor({ state: "visible", timeout: 4000 });
+      await page.locator("[data-market-agent-section='activity']").first().click();
+      await page.locator("[aria-label='Agent activity pipeline']").first().waitFor({ state: "visible", timeout: 4000 });
+
+      const failures = await page.evaluate(() => {
+        const problems = [];
+        const surface = document.querySelector("[aria-label='Agent activity pipeline']");
+        if (!(surface instanceof HTMLElement)) return ["Agent activity surface missing"];
+        const pipeline = surface.querySelector(".market-agent-activity-pipeline");
+        const stages = Array.from(surface.querySelectorAll(".market-agent-activity-stage"));
+        const requiredText = [
+          "cTrader live",
+          "History",
+          "Market context",
+          "Evidence gate",
+          "Local AI",
+          "Replay store",
+          "Alert queue",
+          "TimelineStore",
+          "Database size",
+          "Compaction"
+        ];
+        const text = surface.textContent || "";
+        requiredText.forEach((label) => {
+          if (!text.includes(label)) problems.push(`Activity pipeline missing ${label}`);
+        });
+        if (stages.length < 7) problems.push(`Activity pipeline should show 7 stages, found ${stages.length}`);
+        if (pipeline instanceof HTMLElement && pipeline.scrollWidth > pipeline.clientWidth + 4) {
+          problems.push(
+            `Activity pipeline overflows horizontally (${pipeline.scrollWidth}px > ${pipeline.clientWidth}px)`
+          );
+        }
+        stages.forEach((stage, index) => {
+          if (!(stage instanceof HTMLElement)) return;
+          const rect = stage.getBoundingClientRect();
+          if (rect.width < 120) problems.push(`Activity stage ${index + 1} is too narrow (${rect.width.toFixed(1)}px)`);
+          const title = stage.querySelector("strong");
+          const detail = stage.querySelector("p");
+          if (!(title instanceof HTMLElement) || !(detail instanceof HTMLElement)) {
+            problems.push(`Activity stage ${index + 1} missing title or detail`);
+            return;
+          }
+          if (title.getBoundingClientRect().bottom > detail.getBoundingClientRect().top + 1) {
+            problems.push(`Activity stage ${index + 1} title overlaps detail`);
+          }
+        });
+        const store = surface.querySelector(".market-agent-activity-store dl");
+        if (!(store instanceof HTMLElement)) {
+          problems.push("Activity storage grid missing");
+        } else {
+          Array.from(store.querySelectorAll("div")).forEach((item, index) => {
+            if (!(item instanceof HTMLElement)) return;
+            const label = item.querySelector("dt");
+            const value = item.querySelector("dd");
+            if (!(label instanceof HTMLElement) || !(value instanceof HTMLElement)) {
+              problems.push(`Activity storage metric ${index + 1} missing label or value`);
+              return;
+            }
+            const labelRect = label.getBoundingClientRect();
+            const valueRect = value.getBoundingClientRect();
+            if (labelRect.bottom > valueRect.top + 1) {
+              problems.push(`Activity storage metric ${index + 1} label overlaps value`);
+            }
+          });
+        }
+        return problems;
       });
 
       if (failures.length) {
         throw new Error(failures.join("; "));
       }
+      artifacts.push({
+        scenario: "market-agent-activity",
+        theme: theme.key,
+        state: "pipeline",
+        path: await captureState(page, "market-agent-activity", theme.key, "pipeline")
+      });
       await page.locator("[data-qa='qa:action:view-calendar']").first().click();
       await page.locator("[data-qa='qa:card:next-events']").first().waitFor({ state: "visible", timeout: 4000 });
     });

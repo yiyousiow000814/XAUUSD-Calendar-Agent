@@ -1042,12 +1042,50 @@ let mockMarketAgentMonitorStatus: MarketAgentMonitorStatusResponse = {
       label: "News and calendar",
       detail: "Mock headlines and calendar events are available.",
       newsCount: 2,
-      calendarCount: 1
+      calendarCount: 1,
+      sources: ["Reuters", "ForexFactory"],
+      latestNewsAt: "2026-05-19T08:03:00+08:00"
+    },
+    evidence: {
+      status: "ready",
+      label: "Evidence gate ready",
+      detail: "Live price, recent history, provider health, evidence gate, and validation are available.",
+      chainStatus: "ready",
+      usableInputs: ["live_xauusd_spot", "xauusd_recent_history", "news_context"],
+      missingRequired: []
     },
     llm: {
       status: "skipped",
       label: "Rule-based",
       detail: "Evidence gate and deterministic rules are running."
+    },
+    replay: {
+      status: "stored",
+      label: "Replay stored",
+      detail: "Mock run persisted to TimelineStore.",
+      monitorRunId: 23,
+      timelineStorePath: "user-data/market_agent_timeline.sqlite",
+      stored: {
+        marketPriceBars: 4,
+        relatedAssetBars: 8,
+        newsItems: 2,
+        calendarEvents: 1
+      },
+      storageSummary: {
+        path: "user-data/market_agent_timeline.sqlite",
+        databaseBytes: 131072,
+        counts: {
+          monitorRuns: 23,
+          marketPriceBars: 96,
+          relatedAssetBars: 180,
+          newsItems: 42,
+          calendarEvents: 11
+        },
+        compaction: {
+          status: "not_needed",
+          mode: "indexed_range_reads"
+        }
+      }
     },
     alerts: {
       status: "idle",
