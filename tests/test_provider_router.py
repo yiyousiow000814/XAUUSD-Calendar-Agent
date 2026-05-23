@@ -48,6 +48,7 @@ class StubMarketProvider:
             change_value=-0.466,
             change_unit="percent",
             data_timestamp="2026-05-19T07:15:00+08:00",
+            fetched_at=anchor_time.isoformat(),
         )
 
     def backfill(self, start, end):
@@ -374,6 +375,54 @@ def test_stale_ctrader_keeps_last_spot_price_without_promoting_proxy(tmp_path) -
     assert router.last_market_provider_meta["provider_chain_status"][0]["provider"] == "ctrader_spot"
     assert router.last_market_provider_meta["provider_chain_status"][0]["data_mode"] == "stale"
     assert any(item["provider"] == "yahoo_gc_f_proxy" for item in router.last_market_provider_meta["provider_chain_status"])
+
+
+def test_old_ctrader_live_seen_quote_is_treated_as_market_closed_context(tmp_path) -> None:
+    fixture_dir = Path(__file__).parent / "fixtures" / "providers"
+    health_builder = __import__("src.xauusd_market_agent.provider_health", fromlist=["build_provider_health"]).build_provider_health
+    ctrader = StubCTraderProvider(
+        rows=[
+            {
+                "symbol": "XAUUSD",
+                "data_timestamp": "2026-05-15T07:15:00+08:00",
+                "open": 4500.0,
+                "high": 4501.0,
+                "low": 4478.0,
+                "close": 4479.0,
+                "source": "cTrader CLI",
+                "source_type": "spot",
+                "data_mode": "live_seen",
+                "is_stale": False,
+                "stale_reason": "",
+            }
+        ],
+        health=health_builder(
+            source="cTrader",
+            source_type="spot",
+            data_mode="live_seen",
+            is_available=True,
+            is_stale=False,
+            current_value=4479.0,
+            data_timestamp="2026-05-15T07:15:00+08:00",
+            fetched_at="2026-05-23T17:20:47+08:00",
+        ),
+    )
+    router = ProviderRouter(
+        yahoo_enabled=True,
+        yahoo_fixture_dir=fixture_dir,
+        csv_fallback_enabled=False,
+        ctrader_provider=ctrader,
+    )
+
+    rows, health = router.fetch_market_context(datetime.fromisoformat("2026-05-23T17:20:47+08:00"))
+
+    assert rows[-1]["data_mode"] == "stale"
+    assert rows[-1]["is_stale"] is True
+    assert health.data_mode == "stale"
+    assert health.is_stale is True
+    assert health.current_value == 4479.0
+    assert "market may be closed" in health.stale_reason
+    assert router.last_market_provider_meta["selected_market_provider"] == "ctrader_spot_stale"
 
 
 def test_provider_chain_status_persists_into_evidence_packet(tmp_path) -> None:

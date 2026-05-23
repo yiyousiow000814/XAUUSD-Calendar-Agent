@@ -22,6 +22,7 @@ class StubLiveMarketProvider:
             current_value=float(self.rows[-1]["close_price"]),
             previous_value=float(self.rows[0]["close_price"]),
             change_value=float(self.rows[-1]["close_price"]) - float(self.rows[0]["close_price"]),
+            fetched_at=anchor_time.isoformat(),
         )
 
 

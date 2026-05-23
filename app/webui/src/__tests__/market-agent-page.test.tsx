@@ -795,11 +795,10 @@ describe("MarketAgentPage", () => {
 
     renderMarketAgentPage({ providerHealth: staleSpotHealth });
 
-    expect(screen.getByText(/Waiting for cTrader/i)).toBeInTheDocument();
-    expect(screen.getByText(/^Stale$/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Market closed/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/No driver confirmed yet/i)).toBeInTheDocument();
     expect(screen.queryByText(/cTrader \(Spot\)/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/4479\.00/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/4,479\.00/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /^Evidence$/i }));
     expect(screen.getByText(/Required inputs are missing/i)).toBeInTheDocument();
     expect(screen.queryByText(/Xauusd: Live Data/i)).not.toBeInTheDocument();

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -24,6 +24,58 @@ _RELATED_SYMBOLS = {
     "spx": "^GSPC",
     "nasdaq": "^IXIC",
 }
+
+_SPOT_LIVE_MAX_AGE_SECONDS = 300
+
+
+def _parse_provider_timestamp(raw: str) -> datetime | None:
+    try:
+        return datetime.fromisoformat(raw)
+    except (TypeError, ValueError):
+        return None
+
+
+def _spot_quote_age_seconds(health: ProviderHealth, anchor_time: datetime) -> float | None:
+    timestamp = _parse_provider_timestamp(health.data_timestamp)
+    if timestamp is None:
+        return None
+    return (anchor_time - timestamp).total_seconds()
+
+
+def _normalize_spot_freshness(
+    rows: list[dict[str, Any]],
+    health: ProviderHealth,
+    anchor_time: datetime,
+) -> tuple[list[dict[str, Any]], ProviderHealth]:
+    if health.source_type not in {"spot", "spot_snapshot"} or not health.is_available:
+        return rows, health
+    age_seconds = _spot_quote_age_seconds(health, anchor_time)
+    if age_seconds is not None and age_seconds <= _SPOT_LIVE_MAX_AGE_SECONDS:
+        return rows, health
+
+    stale_reason = health.stale_reason
+    if not stale_reason:
+        if age_seconds is None:
+            stale_reason = "cTrader quote timestamp is invalid; treating the last quote as market-closed context."
+        else:
+            stale_reason = (
+                f"cTrader quote is {int(age_seconds)}s old; market may be closed or feed is paused."
+            )
+    stale_rows = [
+        {
+            **row,
+            "data_mode": "stale",
+            "is_stale": True,
+            "stale_reason": stale_reason,
+        }
+        for row in rows
+    ]
+    return stale_rows, replace(
+        health,
+        data_mode="stale",
+        is_stale=True,
+        stale_reason=stale_reason,
+    )
 
 
 @dataclass(frozen=True)
@@ -145,6 +197,7 @@ class ProviderRouter:
                 )
             if candidate is self.ctrader_provider:
                 rows, health = candidate.fetch_latest(anchor_time)
+                rows, health = _normalize_spot_freshness(rows, health, anchor_time)
                 chain_status.append(self._build_chain_entry("ctrader_spot", health))
                 if health.is_available and not health.is_stale and health.data_mode == "live_seen":
                     self.last_market_provider_meta = {

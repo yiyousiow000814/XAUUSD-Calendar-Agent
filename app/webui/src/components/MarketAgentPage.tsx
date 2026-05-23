@@ -558,6 +558,9 @@ const hasExpiredLiveXauusdSpot = (item: MarketAgentProviderHealthEntry | null | 
 const liveXauusdStatus = (item: MarketAgentProviderHealthEntry | null | undefined, nowMs: number = Date.now()) => {
   if (isLiveXauusdSpot(item, nowMs)) return { label: "cTrader (Spot)", data: "Live", valueMode: "live" as const };
   if (isMarketClosedSpot(item)) return { label: "Market closed", data: "Market closed", valueMode: "closed" as const };
+  if (hasExpiredLiveXauusdSpot(item, nowMs) && numberValue(item?.current_value) !== null) {
+    return { label: "Market closed", data: "Market closed", valueMode: "closed" as const };
+  }
   if (hasExpiredLiveXauusdSpot(item, nowMs)) return { label: "Waiting for cTrader", data: "Stale", valueMode: "waiting" as const };
   return { label: "Waiting for cTrader", data: "Waiting", valueMode: "waiting" as const };
 };

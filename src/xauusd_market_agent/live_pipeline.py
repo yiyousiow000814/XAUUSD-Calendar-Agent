@@ -301,11 +301,18 @@ def build_live_fixture(
 def _is_live_xauusd_health(health: ProviderHealth | None) -> bool:
     if health is None:
         return False
+    try:
+        age_seconds = (
+            datetime.fromisoformat(health.fetched_at) - datetime.fromisoformat(health.data_timestamp)
+        ).total_seconds()
+    except (TypeError, ValueError):
+        return False
     return (
         health.is_available
         and not health.is_stale
         and health.data_mode == "live_seen"
         and (health.current_value is None or float(health.current_value) > 0)
+        and 0 <= age_seconds <= 300
     )
 
 
