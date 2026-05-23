@@ -114,7 +114,7 @@ def test_every_monitor_run_persists_even_when_alert_is_suppressed(tmp_path) -> N
             "SELECT COUNT(*) FROM driver_attention_states"
         ).fetchone()[0]
 
-    assert first["notification"]["should_notify"] is True
+    assert first["notification"]["should_notify"] is False
     assert second["notification"]["should_notify"] is False
     assert run_count == 2
     assert no_news_found == 1

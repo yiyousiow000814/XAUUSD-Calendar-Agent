@@ -433,6 +433,51 @@ def _downgrade_analysis_for_incomplete_chain(analysis: Any, chain_status: Eviden
     )
 
 
+def _suppress_unhelpful_alert(
+    analysis: Any,
+    *,
+    chain_status: EvidenceChainStatus,
+    provider_health: dict[str, ProviderHealth],
+) -> Any:
+    if not getattr(analysis, "should_notify", False) or not hasattr(analysis, "__dataclass_fields__"):
+        return analysis
+
+    xauusd = provider_health.get("xauusd")
+    market_closed_context = bool(
+        xauusd
+        and xauusd.is_available
+        and xauusd.is_stale
+        and xauusd.current_value is not None
+    )
+    no_news_low_signal = bool(getattr(analysis, "no_news_found", False)) and str(
+        getattr(analysis, "cause_status", "")
+    ) in {"likely", "unconfirmed"}
+    weak_unconfirmed = str(getattr(analysis, "cause_status", "")) == "unconfirmed" and str(
+        getattr(analysis, "notification_level", "")
+    ) in {"level_1", "level_2"}
+
+    if chain_status.can_show_current_conclusion and not market_closed_context and not no_news_low_signal and not weak_unconfirmed:
+        return analysis
+
+    if market_closed_context:
+        reason = "Market is closed; last price is context only and Telegram alert is suppressed."
+    elif no_news_low_signal:
+        reason = "No fresh news/calendar evidence confirmed the move; Telegram alert is suppressed."
+    elif weak_unconfirmed:
+        reason = "Move is still unconfirmed; Telegram alert is suppressed."
+    else:
+        reason = chain_status.reason
+
+    return replace(
+        analysis,
+        should_notify=False,
+        notification_level="none",
+        causal_chain=reason,
+        user_message=reason,
+        summary=reason,
+    )
+
+
 def _build_packet(
     fixture: ScenarioFixture,
     *,
@@ -729,6 +774,11 @@ def run_monitored_live_once(
         calendar_row_count=len(runtime_context.get("calendar_rows", [])),
     )
     analysis = _downgrade_analysis_for_incomplete_chain(analysis, pre_decision_chain_status)
+    analysis = _suppress_unhelpful_alert(
+        analysis,
+        chain_status=pre_decision_chain_status,
+        provider_health=provider_health,
+    )
     decision = decide_notification(
         previous_state=previous_state,
         analysis_result=analysis,

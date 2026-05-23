@@ -25,6 +25,44 @@ class StubLiveMarketProvider:
         )
 
 
+class StubClosedMarketProvider:
+    def fetch_latest(self, anchor_time):
+        rows = [
+            {
+                "symbol": "XAUUSD",
+                "data_timestamp": "2026-05-19T07:00:00+08:00",
+                "open_price": 4500.0,
+                "close_price": 4501.0,
+                "source": "cTrader",
+                "source_type": "spot",
+                "data_mode": "stale",
+                "is_stale": True,
+            },
+            {
+                "symbol": "XAUUSD",
+                "data_timestamp": "2026-05-19T07:15:00+08:00",
+                "open_price": 4501.0,
+                "close_price": 4479.0,
+                "source": "cTrader",
+                "source_type": "spot",
+                "data_mode": "stale",
+                "is_stale": True,
+            },
+        ]
+        return rows, build_provider_health(
+            source="cTrader",
+            source_type="spot",
+            data_mode="stale",
+            is_available=True,
+            is_stale=True,
+            stale_reason="market may be closed",
+            data_timestamp="2026-05-19T07:15:00+08:00",
+            current_value=4479.0,
+            previous_value=4501.0,
+            change_value=-22.0,
+        )
+
+
 class StubLiveRelatedAssetsProvider:
     def fetch_latest(self, anchor_time):
         rows = [
@@ -131,6 +169,29 @@ def _live_router(related_path=None) -> ProviderRouter:
     )
 
 
+def _fresh_news(anchor_time: str = "2026-05-19T07:14:00+08:00") -> list[dict[str, object]]:
+    return [
+        {
+            "published_at": anchor_time,
+            "source": "Reuters",
+            "title": "Treasury yields rise as dollar firms before Fed speakers",
+            "impact_direction_on_gold": "bearish_gold",
+            "matched_keywords": ["yields", "dollar", "fed"],
+            "categories": ["macro"],
+            "score": 0.8,
+        }
+    ]
+
+
+def _closed_router(related_path=None) -> ProviderRouter:
+    return ProviderRouter(
+        market_provider=StubClosedMarketProvider(),
+        related_assets_provider=StubLiveRelatedAssetsProvider(),
+        csv_related_assets_path=related_path,
+        yahoo_enabled=False,
+    )
+
+
 def test_run_monitored_live_once_writes_state_and_optional_alert(tmp_path) -> None:
     price_path = tmp_path / "prices.csv"
     price_path.write_text(
@@ -171,6 +232,43 @@ def test_run_monitored_live_once_writes_state_and_optional_alert(tmp_path) -> No
     assert outcome["state_transition"]["state_change_reason"]
     assert outcome["state_transition"]["next_state"]["cause_status"] == "likely"
     assert (tmp_path / "state.json").exists()
+
+
+def test_run_monitored_live_once_suppresses_market_closed_alert(tmp_path) -> None:
+    related_path = tmp_path / "related_assets.json"
+    related_path.write_text(
+        json.dumps({"dxy_percent": 0.22, "us10y_bps": 5.1, "us2y_bps": 4.4}),
+        encoding="utf-8",
+    )
+    year_dir = tmp_path / "calendar" / "2026"
+    year_dir.mkdir(parents=True)
+    (year_dir / "2026_calendar.json").write_text("[]", encoding="utf-8")
+
+    cfg = MarketAgentConfig(
+        repo_root=tmp_path,
+        calendar_dir=tmp_path / "calendar",
+        related_assets_path=related_path,
+        rss_feeds=[],
+        yahoo_enabled=False,
+        telegram_enabled=True,
+        telegram_bot_token="token",
+        telegram_chat_id="chat",
+    )
+
+    outcome = run_monitored_live_once(
+        config=cfg,
+        anchor_time=datetime.fromisoformat("2026-05-19T07:20:00+08:00"),
+        state_path=tmp_path / "state.json",
+        alerts_path=tmp_path / "alerts.ndjson",
+        timeline_store_path=tmp_path / "timeline.sqlite",
+        cooldown_minutes=30,
+        telegram_sink=FailingTelegramSink(),
+        provider_router=_closed_router(related_path),
+    )
+
+    assert outcome["notification"]["should_notify"] is False
+    assert outcome["notification"]["telegram"]["status"] == "disabled"
+    assert not (tmp_path / "alerts.ndjson").exists()
 
 
 class FailingTelegramSink:
@@ -221,6 +319,7 @@ def test_run_monitored_live_once_records_telegram_failure_without_crashing(tmp_p
         cooldown_minutes=30,
         telegram_sink=FailingTelegramSink(),
         provider_router=_live_router(related_path),
+        news_headlines=_fresh_news(),
     )
 
     assert outcome["notification"]["telegram"]["status"] == "failed"

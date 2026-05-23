@@ -85,5 +85,5 @@ def test_run_monitor_loop_executes_multiple_iterations_without_crashing(tmp_path
     )
 
     assert len(outcomes) == 2
-    assert outcomes[0]["notification"]["should_notify"] is True
+    assert outcomes[0]["notification"]["should_notify"] is False
     assert outcomes[1]["notification"]["should_notify"] is False

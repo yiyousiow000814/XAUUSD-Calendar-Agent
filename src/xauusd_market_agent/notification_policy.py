@@ -37,6 +37,38 @@ def decide_notification(
         )
 
     within_cooldown = _minutes_since(previous_state.last_alert_time, now_iso) < cooldown_minutes
+    if within_cooldown and previous_state.last_alert_summary == analysis_result.user_message:
+        return NotificationDecision(
+            should_notify=False,
+            notification_level="none",
+            reason="Same alert message remains inside notification cooldown.",
+            next_state=transition.next_state,
+            is_new_state=transition.is_new_state,
+            is_continuation=transition.is_continuation,
+            previous_state_invalidated=transition.previous_state_invalidated,
+            state_change_reason=transition.state_change_reason,
+            confidence_changed=transition.confidence_changed,
+            confidence_delta=transition.confidence_delta,
+            invalidation_triggered_by=transition.invalidation_triggered_by,
+        )
+    if (
+        within_cooldown
+        and analysis_result.cause_status == "unconfirmed"
+        and analysis_result.notification_level in {"level_1", "level_2"}
+    ):
+        return NotificationDecision(
+            should_notify=False,
+            notification_level="none",
+            reason="Unconfirmed alert remains inside notification cooldown.",
+            next_state=transition.next_state,
+            is_new_state=transition.is_new_state,
+            is_continuation=transition.is_continuation,
+            previous_state_invalidated=transition.previous_state_invalidated,
+            state_change_reason=transition.state_change_reason,
+            confidence_changed=transition.confidence_changed,
+            confidence_delta=transition.confidence_delta,
+            invalidation_triggered_by=transition.invalidation_triggered_by,
+        )
     if within_cooldown and not transition.is_new_state:
         return NotificationDecision(
             should_notify=False,
