@@ -219,6 +219,7 @@ class CTraderCliBridge:
         }
         health = response.get("provider_health") if isinstance(response.get("provider_health"), dict) else {}
         provider_health = {
+            **health,
             "source": "cTrader",
             "source_type": "spot",
             "data_mode": "stale" if is_stale else "live_seen",
@@ -230,7 +231,6 @@ class CTraderCliBridge:
             "data_timestamp": timestamp,
             "fetched_at": _now_iso(),
             "raw_source_id": str(normalized_quote.get("symbol_id") or self.request.symbol),
-            **health,
         }
         return {"ok": True, "quote": normalized_quote, "provider_health": provider_health}
 
@@ -243,6 +243,7 @@ class CTraderCliBridge:
             raise BridgeError("cTrader CLI backfill did not return bars.")
         health = response.get("provider_health") if isinstance(response.get("provider_health"), dict) else {}
         provider_health = {
+            **health,
             "source": "cTrader",
             "source_type": "spot",
             "data_mode": "backfilled",
@@ -253,7 +254,6 @@ class CTraderCliBridge:
             "data_timestamp": str(bars[-1].get("data_timestamp", end)) if bars else end,
             "fetched_at": _now_iso(),
             "raw_source_id": str(self.request.symbol_id or self.request.symbol),
-            **health,
         }
         return {"ok": True, "bars": bars, "provider_health": provider_health}
 

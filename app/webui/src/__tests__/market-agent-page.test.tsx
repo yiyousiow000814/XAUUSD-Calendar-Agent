@@ -16,6 +16,8 @@ import type {
   MarketAgentTelegramConfigResponse
 } from "../types";
 
+const freshProviderTimestamp = () => new Date(Date.now() - 30_000).toISOString();
+
 const snapshot: MarketAgentSnapshotResponse = {
   ok: true,
   available: true,
@@ -51,8 +53,8 @@ const providerHealth: MarketAgentProviderHealthResponse = {
       data_mode: "live_seen",
       is_available: true,
       is_stale: false,
-      data_timestamp: "2026-05-19T08:00:00+08:00",
-      fetched_at: "2026-05-19T08:05:00+08:00"
+      data_timestamp: freshProviderTimestamp(),
+      fetched_at: freshProviderTimestamp()
     },
     {
       provider_key: "us2y",
@@ -630,10 +632,9 @@ describe("MarketAgentPage", () => {
 
     const scoreRing = container.querySelector(".market-agent-score-ring");
     const progress = container.querySelector(".market-agent-score-progress");
-    const circumference = 2 * Math.PI * 34;
-    expect(scoreRing).toHaveAttribute("data-score-target", "80");
-    expect(Number(progress?.getAttribute("stroke-dasharray"))).toBeCloseTo(circumference, 6);
-    expect(Number(progress?.getAttribute("stroke-dashoffset"))).toBeCloseTo(circumference * 0.2, 6);
+    expect(scoreRing).toHaveAttribute("data-score-target", "100");
+    expect(progress).not.toHaveAttribute("stroke-dashoffset");
+    expect(progress).not.toHaveAttribute("stroke-dasharray");
     expect(progress).not.toHaveAttribute("pathLength");
   });
 
@@ -771,6 +772,145 @@ describe("MarketAgentPage", () => {
     expect(screen.getByRole("heading", { name: /^Market Replay$/i })).toBeInTheDocument();
     expect(screen.queryByText(/Open full replay/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Price series/i)).not.toBeInTheDocument();
+  });
+
+  it("does not treat an expired cTrader spot payload as live current evidence", () => {
+    const staleSpotHealth: MarketAgentProviderHealthResponse = {
+      ...providerHealth,
+      items: providerHealth.items.map((item) =>
+        item.provider_key === "xauusd"
+          ? {
+              ...item,
+              source_type: "spot",
+              data_mode: "live_seen",
+              is_available: true,
+              is_stale: false,
+              current_value: 4479,
+              data_timestamp: "2026-05-19T07:15:00+08:00",
+              fetched_at: "2026-05-23T17:20:47+08:00"
+            }
+          : item
+      )
+    };
+
+    renderMarketAgentPage({ providerHealth: staleSpotHealth });
+
+    expect(screen.getByText(/Waiting for cTrader/i)).toBeInTheDocument();
+    expect(screen.getByText(/^Stale$/i)).toBeInTheDocument();
+    expect(screen.getByText(/No driver confirmed yet/i)).toBeInTheDocument();
+    expect(screen.queryByText(/cTrader \(Spot\)/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/4479\.00/i)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /^Evidence$/i }));
+    expect(screen.getByText(/Required inputs are missing/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Xauusd: Live Data/i)).not.toBeInTheDocument();
+  });
+
+  it("hides fixed zero-score dormant drivers from the current driver table", () => {
+    const dormantOnlyAttention: MarketAgentDriverAttentionResponse = {
+      ...driverAttention,
+      states: [
+        {
+          driver_id: "oil_inflation",
+          label: "Oil / inflation",
+          current_state: "dormant",
+          priority: "conditional_macro",
+          relevance_score: 0,
+          impact_percent: null,
+          confidence: "low",
+          activation_reason: "",
+          deactivation_reason: "Oil stayed background only.",
+          current_evidence_summary: "Oil is not confirming this move.",
+          last_confirmed_at: "",
+          decay_deadline: "",
+          data_mode: "live_seen"
+        },
+        {
+          driver_id: "geopolitics",
+          label: "Geopolitics",
+          current_state: "dormant",
+          priority: "temporary_event",
+          relevance_score: 0,
+          impact_percent: null,
+          confidence: "low",
+          activation_reason: "",
+          deactivation_reason: "No current headline confirmation.",
+          current_evidence_summary: "",
+          last_confirmed_at: "",
+          decay_deadline: "",
+          data_mode: "live_seen"
+        }
+      ]
+    };
+
+    renderMarketAgentPage({ driverAttention: dormantOnlyAttention });
+
+    const driverPanel = screen.getByRole("heading", { name: /Driver Attention \(Current\)/i }).closest("section");
+    expect(driverPanel?.querySelectorAll(".market-agent-attention-table-row")).toHaveLength(0);
+    expect(within(driverPanel as HTMLElement).getByText(/No active or watching drivers/i)).toBeInTheDocument();
+    expect(within(driverPanel as HTMLElement).queryByText(/Oil \/ inflation/i)).not.toBeInTheDocument();
+    expect(within(driverPanel as HTMLElement).queryByText(/Geopolitics/i)).not.toBeInTheDocument();
+  });
+
+  it("does not show local CSV related assets as latest supporting evidence", () => {
+    const localCsvReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        related_assets: {
+          ...replay.replay.related_assets,
+          dxy: [
+            {
+              symbol: "dxy",
+              data_timestamp: "2026-05-19T08:00:00+08:00",
+              change_15m: 0.31,
+              source_type: "local_csv_fallback",
+              data_mode: "stale",
+              is_stale: true
+            }
+          ],
+          us10y: [
+            {
+              symbol: "us10y",
+              data_timestamp: "2026-05-19T08:00:00+08:00",
+              change_15m: 5.2,
+              source_type: "local_csv_fallback",
+              data_mode: "stale",
+              is_stale: true
+            }
+          ],
+          wti: [
+            {
+              symbol: "wti",
+              data_timestamp: "2026-05-19T08:00:00+08:00",
+              change_15m: 1.8,
+              source_type: "local_csv_fallback",
+              data_mode: "stale",
+              is_stale: true
+            }
+          ]
+        }
+      }
+    };
+    const staleEvidence: MarketAgentEvidenceForRunResponse = {
+      ...evidence,
+      payload: {
+        ...evidence.payload,
+        evidence_packet: {
+          ...evidence.payload.evidence_packet,
+          evidence_status: { dxy: "stale", us10y: "stale", oil: "stale", us2y: "unavailable" }
+        }
+      }
+    };
+
+    renderMarketAgentPage({ replay: localCsvReplay, selectedEvidence: staleEvidence });
+
+    const latestEvidencePanel = screen.getByRole("heading", { name: /Latest Evidence/i }).closest("section");
+    expect(within(latestEvidencePanel as HTMLElement).queryByText(/^DXY \/ USD$/i)).not.toBeInTheDocument();
+    expect(within(latestEvidencePanel as HTMLElement).queryByText(/^US10Y Yield Move$/i)).not.toBeInTheDocument();
+    expect(within(latestEvidencePanel as HTMLElement).queryByText(/^Oil Price Move$/i)).not.toBeInTheDocument();
+    expect(within(latestEvidencePanel as HTMLElement).queryByText(/Local CSV fallback/i)).not.toBeInTheDocument();
+    fireEvent.click(within(latestEvidencePanel as HTMLElement).getByRole("tab", { name: "Drivers" }));
+    expect(within(latestEvidencePanel as HTMLElement).getByText(/No evidence in this category/i)).toBeInTheDocument();
   });
 
   it("shows a replay unavailable state when the backend omits replay payload", () => {
@@ -1463,7 +1603,7 @@ describe("MarketAgentPage", () => {
     expect(screen.queryByText(/Using Yahoo GC=F futures proxy, not true spot XAUUSD\./i)).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /XAUUSD \(Spot\)/i })).toBeInTheDocument();
     expect(screen.getByText(/cTrader \(Spot\)/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/80%/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/100%/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/View Full Timeline/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Fed headline/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/US session opens/i).length).toBeGreaterThan(0);

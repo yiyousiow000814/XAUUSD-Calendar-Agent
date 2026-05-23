@@ -513,12 +513,21 @@ const formatDataModeLabel = (sourceType: string, providerStatus: string) => {
   return providerStatus;
 };
 
-const isLiveXauusdSpot = (item: MarketAgentProviderHealthEntry | null | undefined) =>
+const isFreshTimestamp = (value: unknown, nowMs: number, maxAgeSeconds: number, referenceValue?: unknown) => {
+  const timestamp = parseTimestampMs(value);
+  if (timestamp === null) return false;
+  const reference = parseTimestampMs(referenceValue) ?? nowMs;
+  return reference - timestamp <= maxAgeSeconds * 1000;
+};
+
+const isLiveXauusdSpot = (item: MarketAgentProviderHealthEntry | null | undefined, nowMs: number) =>
   Boolean(
     item?.is_available &&
     !item.is_stale &&
     normalizeMarketAgentValue(item.source_type) === "spot" &&
-    normalizeMarketAgentValue(item.data_mode) === "live_seen"
+    normalizeMarketAgentValue(item.data_mode) === "live_seen" &&
+    isFreshTimestamp(item.fetched_at, nowMs, 300) &&
+    isFreshTimestamp(item.data_timestamp ?? item.fetched_at, nowMs, 3600, item.fetched_at)
   );
 
 const isCTraderSpotSource = (item: MarketAgentProviderHealthEntry | null | undefined) => {
@@ -534,9 +543,22 @@ const isMarketClosedSpot = (item: MarketAgentProviderHealthEntry | null | undefi
     numberValue(item.current_value) !== null
   );
 
-const liveXauusdStatus = (item: MarketAgentProviderHealthEntry | null | undefined) => {
-  if (isLiveXauusdSpot(item)) return { label: "cTrader (Spot)", data: "Live", valueMode: "live" as const };
+const hasExpiredLiveXauusdSpot = (item: MarketAgentProviderHealthEntry | null | undefined, nowMs: number) =>
+  Boolean(
+    item?.is_available &&
+    !item.is_stale &&
+    normalizeMarketAgentValue(item.source_type) === "spot" &&
+    normalizeMarketAgentValue(item.data_mode) === "live_seen" &&
+    (
+      !isFreshTimestamp(item.fetched_at, nowMs, 300) ||
+      !isFreshTimestamp(item.data_timestamp ?? item.fetched_at, nowMs, 3600, item.fetched_at)
+    )
+  );
+
+const liveXauusdStatus = (item: MarketAgentProviderHealthEntry | null | undefined, nowMs: number = Date.now()) => {
+  if (isLiveXauusdSpot(item, nowMs)) return { label: "cTrader (Spot)", data: "Live", valueMode: "live" as const };
   if (isMarketClosedSpot(item)) return { label: "Market closed", data: "Market closed", valueMode: "closed" as const };
+  if (hasExpiredLiveXauusdSpot(item, nowMs)) return { label: "Waiting for cTrader", data: "Stale", valueMode: "waiting" as const };
   return { label: "Waiting for cTrader", data: "Waiting", valueMode: "waiting" as const };
 };
 
@@ -954,6 +976,27 @@ const latestRelatedAsset = (payload: MarketAgentReplayPayload | undefined, key: 
   )[0];
 };
 
+const isUsableRelatedAsset = (asset: Record<string, unknown> | undefined) => {
+  if (!asset) return false;
+  const sourceType = normalizeMarketAgentValue(asset.source_type);
+  const dataMode = normalizeMarketAgentValue(asset.data_mode);
+  return (
+    sourceType !== "local_csv_fallback" &&
+    dataMode !== "local_csv_fallback" &&
+    dataMode !== "stale" &&
+    dataMode !== "unavailable" &&
+    asset.is_stale !== true
+  );
+};
+
+const isCurrentEvidenceSignal = (status: unknown) => {
+  const normalized = normalizeMarketAgentValue(status);
+  return ["confirming", "confirms", "supporting", "contradicting", "contradicts", "contrary", "blocked", "rejected"].includes(normalized);
+};
+
+const shouldShowRelatedEvidence = (asset: Record<string, unknown> | undefined, status: unknown) =>
+  isCurrentEvidenceSignal(status) && (!asset || isUsableRelatedAsset(asset));
+
 const driverStateDetail = (
   driverAttention: MarketAgentDriverAttentionResponse | null,
   driverIds: string[],
@@ -973,7 +1016,14 @@ const driverStateDetail = (
 const relatedAssetDetail = (label: string, asset: Record<string, unknown> | undefined, fallback: string, unit = "") => {
   const change = numberValue(asset?.change_15m ?? asset?.change ?? asset?.move);
   if (change === null) return fallback;
-  return `${label} moved ${formatSignedValue(change, unit)} in the latest window.`;
+  if (!isUsableRelatedAsset(asset)) {
+    return `${label} was collected, but the source is stale or imported, so it is not used as current evidence.`;
+  }
+  const sourceType = formatDataModeLabel(
+    normalizeMarketAgentValue(asset?.source_type),
+    formatValue(asset?.data_mode, "Collected")
+  );
+  return `${label} moved ${formatSignedValue(change, unit)} in the latest window. Source: ${sourceType}.`;
 };
 
 const latestTechnicalEvent = (payload: MarketAgentReplayPayload | undefined) =>
@@ -1014,8 +1064,9 @@ const evidenceItems = (
   }
 
   const dxyAsset = latestRelatedAsset(payload, "dxy");
-  const dxyStatus = currentConclusionReady ? evidenceStatusLabel(evidenceStatusValue(packet, "dxy")) : "Context Only";
-  if (dxyAsset || evidenceStatusValue(packet, "dxy")) {
+  const dxyEvidenceStatus = evidenceStatusValue(packet, "dxy");
+  const dxyStatus = currentConclusionReady ? evidenceStatusLabel(dxyEvidenceStatus) : "Context Only";
+  if (shouldShowRelatedEvidence(dxyAsset, dxyEvidenceStatus)) {
     rows.push({
       key: "driver-dxy",
       title: "DXY / USD",
@@ -1032,7 +1083,8 @@ const evidenceItems = (
   }
 
   const us10yAsset = latestRelatedAsset(payload, "us10y");
-  if (us10yAsset || evidenceStatusValue(packet, "us10y")) {
+  const us10yEvidenceStatus = evidenceStatusValue(packet, "us10y");
+  if (shouldShowRelatedEvidence(us10yAsset, us10yEvidenceStatus)) {
     rows.push({
       key: "driver-us10y",
       title: "US10Y Yield Move",
@@ -1041,7 +1093,7 @@ const evidenceItems = (
         ["yields", "us10y", "real_yields"],
         relatedAssetDetail("US10Y", us10yAsset, "US yield confirmation is part of the evidence packet.", "bp")
       ),
-      status: currentConclusionReady ? evidenceStatusLabel(evidenceStatusValue(packet, "us10y")) : "Context Only",
+      status: currentConclusionReady ? evidenceStatusLabel(us10yEvidenceStatus) : "Context Only",
       kind: "yield",
       filter: "drivers",
       time: String(us10yAsset?.data_timestamp ?? us10yAsset?.timestamp ?? runTime)
@@ -1072,7 +1124,8 @@ const evidenceItems = (
   }
 
   const us2yAsset = latestRelatedAsset(payload, "us2y");
-  if (us2yAsset || evidenceStatusValue(packet, "us2y")) {
+  const us2yEvidenceStatus = evidenceStatusValue(packet, "us2y");
+  if (shouldShowRelatedEvidence(us2yAsset, us2yEvidenceStatus)) {
     const us2yStatus = us2yAsset
       ? currentConclusionReady ? evidenceStatusLabel(evidenceStatusValue(packet, "us2y"), "Neutral") : "Context Only"
       : "Not Available";
@@ -1088,16 +1141,17 @@ const evidenceItems = (
   }
 
   const oilAsset = latestRelatedAsset(payload, "wti") ?? latestRelatedAsset(payload, "brent");
-  if (rows.length < 5 && (oilAsset || evidenceStatusValue(packet, "oil"))) {
+  const oilEvidenceStatus = evidenceStatusValue(packet, "oil");
+  if (rows.length < 5 && shouldShowRelatedEvidence(oilAsset, oilEvidenceStatus)) {
     rows.push({
       key: "driver-oil",
       title: "Oil Price Move",
       detail: driverStateDetail(
         driverAttention,
         ["oil_inflation", "oil"],
-        relatedAssetDetail("Oil", oilAsset, "Oil is background evidence only.", "%")
+        relatedAssetDetail("Oil", oilAsset, "Oil did not confirm this XAUUSD move.", "%")
       ),
-      status: currentConclusionReady ? evidenceStatusLabel(evidenceStatusValue(packet, "oil"), "Neutral") : "Context Only",
+      status: currentConclusionReady ? evidenceStatusLabel(oilEvidenceStatus, "Neutral") : "Context Only",
       kind: "oil",
       filter: "drivers",
       time: String(oilAsset?.data_timestamp ?? oilAsset?.timestamp ?? runTime)
@@ -1164,15 +1218,15 @@ function MarketAgentDashboard({
   }, []);
   const state = snapshot?.state;
   const xauusdHealth = findProviderHealth(providerHealth?.items, ["xauusd", "gc=f", "xauusd price"]);
-  const xauusdStatus = liveXauusdStatus(xauusdHealth);
+  const xauusdStatus = liveXauusdStatus(xauusdHealth, nowMs);
   const hasTrustedSpotPrice = xauusdStatus.valueMode === "live" || xauusdStatus.valueMode === "closed";
   const chainStatus = fallbackEvidenceChainStatus(selectedEvidence, xauusdStatus);
   const currentConclusionReady = canShowCurrentConclusion(selectedEvidence, xauusdStatus.valueMode === "live", chainStatus);
   const price = hasTrustedSpotPrice ? latestPrice(replay) : null;
   const priorPrice = currentConclusionReady ? previousPrice(replay) : null;
-  const priceValue = numberValue(price?.close_price ?? xauusdHealth?.current_value);
-  const previousPriceValue = numberValue(priorPrice?.close_price ?? xauusdHealth?.previous_value);
-  const priceChangeValue = numberValue(price?.change_value ?? price?.change ?? price?.change_15m);
+  const priceValue = numberValue(xauusdHealth?.current_value ?? price?.close_price);
+  const previousPriceValue = numberValue(xauusdHealth?.previous_value ?? priorPrice?.close_price);
+  const priceChangeValue = numberValue(xauusdHealth?.change_value ?? price?.change_value ?? price?.change ?? price?.change_15m);
   const computedPriceChange = priceChangeValue ?? (
     priceValue !== null && previousPriceValue !== null ? priceValue - previousPriceValue : null
   );
@@ -1227,7 +1281,10 @@ function MarketAgentDashboard({
     )
     .sort((left, right) => (right.relevance_score ?? 0) - (left.relevance_score ?? 0));
   const backgroundDrivers = allDriverStates
-    .filter((item) => ["dormant", "retired", "unknown", ""].includes(normalizeMarketAgentValue(item.current_state)))
+    .filter((item) =>
+      ["dormant", "retired", "unknown", ""].includes(normalizeMarketAgentValue(item.current_state)) &&
+      (item.relevance_score ?? 0) > 0
+    )
     .sort((left, right) => (right.relevance_score ?? 0) - (left.relevance_score ?? 0));
   const visibleDrivers = currentConclusionReady ? [...activeDrivers, ...watchingDrivers, ...backgroundDrivers].slice(0, 8) : [];
   const missingInputs = evidenceChainList(chainStatus, "missing_required");

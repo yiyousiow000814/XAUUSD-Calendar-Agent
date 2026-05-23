@@ -25,6 +25,80 @@ class StubLiveMarketProvider:
         )
 
 
+class StubLiveRelatedAssetsProvider:
+    def fetch_latest(self, anchor_time):
+        rows = [
+            {
+                "symbol": "dxy",
+                "data_timestamp": anchor_time.isoformat(),
+                "change_15m": 0.22,
+                "change_value": 0.22,
+                "change_unit": "percent",
+                "source": "stub",
+                "source_type": "proxy",
+                "data_mode": "live_seen",
+                "is_stale": False,
+            },
+            {
+                "symbol": "us10y",
+                "data_timestamp": anchor_time.isoformat(),
+                "change_15m": 5.1,
+                "change_value": 5.1,
+                "change_unit": "bps",
+                "source": "stub",
+                "source_type": "proxy",
+                "data_mode": "live_seen",
+                "is_stale": False,
+            },
+            {
+                "symbol": "us2y",
+                "data_timestamp": anchor_time.isoformat(),
+                "change_15m": 4.4,
+                "change_value": 4.4,
+                "change_unit": "bps",
+                "source": "stub",
+                "source_type": "proxy",
+                "data_mode": "live_seen",
+                "is_stale": False,
+            },
+        ]
+        return rows, {
+            "dxy": build_provider_health(
+                source="DXY",
+                source_type="proxy",
+                data_mode="live_seen",
+                is_available=True,
+                current_value=0.22,
+                change_value=0.22,
+                change_unit="percent",
+                data_timestamp=anchor_time.isoformat(),
+            ),
+            "us10y": build_provider_health(
+                source="US10Y",
+                source_type="proxy",
+                data_mode="live_seen",
+                is_available=True,
+                current_value=5.1,
+                change_value=5.1,
+                change_unit="bps",
+                data_timestamp=anchor_time.isoformat(),
+            ),
+            "us2y": build_provider_health(
+                source="US2Y",
+                source_type="proxy",
+                data_mode="live_seen",
+                is_available=True,
+                current_value=4.4,
+                change_value=4.4,
+                change_unit="bps",
+                data_timestamp=anchor_time.isoformat(),
+            ),
+        }
+
+    def backfill(self, start, end):
+        return self.fetch_latest(end)
+
+
 def _live_price_rows() -> list[dict[str, object]]:
     return [
         {
@@ -51,6 +125,7 @@ def _live_price_rows() -> list[dict[str, object]]:
 def _live_router(related_path=None) -> ProviderRouter:
     return ProviderRouter(
         market_provider=StubLiveMarketProvider(_live_price_rows()),
+        related_assets_provider=StubLiveRelatedAssetsProvider(),
         csv_related_assets_path=related_path,
         yahoo_enabled=False,
     )

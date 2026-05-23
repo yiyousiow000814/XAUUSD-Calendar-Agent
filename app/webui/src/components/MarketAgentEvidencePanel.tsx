@@ -104,6 +104,7 @@ export function MarketAgentEvidencePanel({ data, evidenceChainStatus }: MarketAg
   const crossAssetConfirmation = ((evidencePacket?.cross_asset_confirmation as Record<string, unknown> | null | undefined) ?? null);
   const chainStatus = evidenceChainStatus ?? ((evidencePacket?.evidence_chain_status as Record<string, unknown> | null | undefined) ?? null);
   const canShowConclusion = chainStatus?.can_show_current_conclusion !== false;
+  const missingInputs = (Array.isArray(chainStatus?.missing_required) ? chainStatus?.missing_required : []) as unknown[];
 
   const blockedEntries = entriesOf(blockedDrivers);
   const evidenceEntries = entriesOf(evidenceStatus);
@@ -154,7 +155,7 @@ export function MarketAgentEvidencePanel({ data, evidenceChainStatus }: MarketAg
               <strong>{canShowConclusion && supportingEvidence.length ? `${supportingEvidence.length} confirming checks` : "No accepted evidence yet"}</strong>
               {canShowConclusion
                 ? renderInlineEvidence(supportingEvidence, "No confirming cross-asset evidence recorded.", 3)
-                : renderInlineEvidence(evidenceEntries, "The run has not accepted evidence for a current conclusion.", 3)}
+                : <span className="market-agent-evidence-muted">Required inputs are missing, so stored cross-market checks are not accepted as current evidence.</span>}
               <div className="market-agent-evidence-allowed-row">
                 <span>{canShowConclusion ? "Allowed drivers" : "Candidate drivers"}</span>
                 {canShowConclusion
@@ -199,8 +200,22 @@ export function MarketAgentEvidencePanel({ data, evidenceChainStatus }: MarketAg
             </div>
             <div className="market-agent-evidence-branch quality">
               <span>Data Quality</span>
-              <strong>{providerIssues.length ? `${providerIssues.length} issue${providerIssues.length === 1 ? "" : "s"}` : "OK"}</strong>
-              {providerHealth.length ? (
+              <strong>
+                {canShowConclusion
+                  ? providerIssues.length ? `${providerIssues.length} issue${providerIssues.length === 1 ? "" : "s"}` : "OK"
+                  : `${missingInputs.length || 1} missing`}
+              </strong>
+              {!canShowConclusion ? (
+                <div className="market-agent-evidence-provider-pills">
+                  {(missingInputs.length ? missingInputs : ["live_xauusd_spot"]).slice(0, 4).map((item, index) => (
+                    <MarketAgentStatusBadge
+                      key={`${formatValue(item, "missing")}-${index}`}
+                      label={`${formatDriverLabel(item, `Input ${index + 1}`)}: Waiting`}
+                      tone="bad"
+                    />
+                  ))}
+                </div>
+              ) : providerHealth.length ? (
                 <div className="market-agent-evidence-provider-pills">
                   {providerHealth.slice(0, 4).map((item, index) => (
                     <MarketAgentStatusBadge

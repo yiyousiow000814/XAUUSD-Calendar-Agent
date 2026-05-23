@@ -1253,19 +1253,23 @@
 .market-agent-chain-empty {
   align-items: flex-start;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   min-height: 132px;
   text-align: left;
 }
 
 .market-agent-chain-empty strong {
-  color: var(--text-primary, #f8fafc);
-  font-size: 14px;
+  display: block;
+  color: var(--text, #1d1f24);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0;
 }
 
 .market-agent-chain-empty span {
   max-width: 48ch;
-  color: var(--text-secondary, #9aa4b2);
+  display: block;
+  color: var(--text-dim, #5f6b7a);
   line-height: 1.5;
 }
 

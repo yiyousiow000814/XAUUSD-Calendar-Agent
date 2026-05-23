@@ -207,7 +207,7 @@ class ProviderRouter:
             if health_map:
                 return rows, health_map
         if self.csv_fallback_enabled and self.csv_related_assets_path is not None:
-            return self._load_related_assets_csv_fallback(anchor_time)
+            return self._load_related_assets_csv_fallback(anchor_time, data_mode="stale")
         return [], {
             "related": build_provider_health(
                 source="RelatedAssets",

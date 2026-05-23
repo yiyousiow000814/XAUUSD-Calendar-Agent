@@ -114,6 +114,40 @@ def test_us2y_is_not_silently_mapped_to_us10y_when_using_yahoo_fixture(tmp_path)
     assert health_map["us2y"].data_mode == "unavailable"
 
 
+def test_related_asset_csv_fallback_is_context_only_not_live_evidence(tmp_path) -> None:
+    related_path = tmp_path / "related.json"
+    related_path.write_text(
+        """
+        {
+          "dxy_percent": 0.31,
+          "us10y_bps": 5.2,
+          "us2y_bps": 0.0,
+          "wti_percent": 1.8,
+          "brent_percent": 1.6,
+          "vix_percent": 0.2,
+          "spx_percent": -0.1,
+          "nasdaq_percent": -0.2
+        }
+        """,
+        encoding="utf-8",
+    )
+    router = ProviderRouter(
+        yahoo_enabled=False,
+        csv_fallback_enabled=True,
+        csv_related_assets_path=related_path,
+    )
+
+    rows, health_map = router.fetch_related_assets_context(datetime.fromisoformat("2026-05-19T07:20:00+08:00"))
+
+    assert rows
+    assert rows[0]["data_mode"] == "stale"
+    assert rows[0]["is_stale"] is True
+    assert health_map["dxy"].data_mode == "stale"
+    assert health_map["dxy"].is_stale is True
+    assert health_map["us10y"].data_mode == "stale"
+    assert health_map["us10y"].is_stale is True
+
+
 def test_missing_csv_but_yahoo_fixture_exists_does_not_use_proxy_as_live(tmp_path) -> None:
     fixture_dir = Path(__file__).parent / "fixtures" / "providers"
     router = ProviderRouter(

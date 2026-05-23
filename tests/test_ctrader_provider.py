@@ -143,7 +143,13 @@ def test_ctrader_cli_adapter_marks_old_quote_stale(tmp_path, monkeypatch) -> Non
                     "bid": 4512.3,
                     "ask": 4512.7,
                     "timestamp": "2026-05-19T10:15:23+08:00",
-                }
+                },
+                "provider_health": {
+                    "data_mode": "live_seen",
+                    "is_available": True,
+                    "is_stale": False,
+                    "stale_reason": "",
+                },
             }
         )
         stderr = ""

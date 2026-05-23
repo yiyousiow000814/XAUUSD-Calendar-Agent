@@ -45,6 +45,70 @@ class StubLiveMarketProvider:
         )
 
 
+class StubLiveRelatedAssetsProvider:
+    def fetch_latest(self, anchor_time):
+        rows = [
+            {
+                "symbol": "dxy",
+                "data_timestamp": anchor_time.isoformat(),
+                "change_15m": 0.25,
+                "change_value": 0.25,
+                "change_unit": "percent",
+                "source": "stub",
+                "source_type": "proxy",
+                "data_mode": "live_seen",
+                "is_stale": False,
+            },
+            {
+                "symbol": "us10y",
+                "data_timestamp": anchor_time.isoformat(),
+                "change_15m": 5.0,
+                "change_value": 5.0,
+                "change_unit": "bps",
+                "source": "stub",
+                "source_type": "proxy",
+                "data_mode": "live_seen",
+                "is_stale": False,
+            },
+        ]
+        health = {
+            "dxy": build_provider_health(
+                source="DXY",
+                source_type="proxy",
+                data_mode="live_seen",
+                is_available=True,
+                is_stale=False,
+                current_value=0.25,
+                change_value=0.25,
+                change_unit="percent",
+                data_timestamp=anchor_time.isoformat(),
+            ),
+            "us10y": build_provider_health(
+                source="US10Y",
+                source_type="proxy",
+                data_mode="live_seen",
+                is_available=True,
+                is_stale=False,
+                current_value=5.0,
+                change_value=5.0,
+                change_unit="bps",
+                data_timestamp=anchor_time.isoformat(),
+            ),
+            "us2y": build_provider_health(
+                source="US2Y",
+                source_type="provider_interface",
+                data_mode="unavailable",
+                is_available=False,
+                stale_reason="No reliable free US2Y source configured.",
+                data_timestamp=anchor_time.isoformat(),
+            ),
+        }
+        return rows, health
+
+    def backfill(self, start, end):
+        return self.fetch_latest(end)
+
+
 def _fixture(*, news: tuple[Headline, ...], cross: CrossAssetSnapshot | None = None) -> ScenarioFixture:
     return ScenarioFixture(
         scenario_id="dynamic_theme_test",
@@ -279,6 +343,7 @@ def test_dynamic_theme_persists_into_evidence_packet_and_replay(tmp_path) -> Non
             ],
             provider_router=ProviderRouter(
                 market_provider=StubLiveMarketProvider(),
+                related_assets_provider=StubLiveRelatedAssetsProvider(),
                 csv_related_assets_path=related_path,
                 csv_calendar_dir=tmp_path / "calendar",
                 yahoo_enabled=False,

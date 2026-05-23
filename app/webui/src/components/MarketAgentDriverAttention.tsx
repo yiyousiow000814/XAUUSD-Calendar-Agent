@@ -21,10 +21,15 @@ const formatValue = (value: unknown, fallback = "--") =>
       : fallback;
 
 const groupStates = (states: MarketAgentDriverAttentionResponse["states"]) => {
+  const meaningful = states.filter((state) => {
+    const normalized = normalizeMarketAgentValue(state.current_state);
+    if (["active", "active_macro", "watching", "emerging", "cooling", "faded"].includes(normalized)) return true;
+    return (state.relevance_score ?? 0) > 0;
+  });
   const groups = {
-    active: states.filter((state) => ["active", "active_macro"].includes(normalizeMarketAgentValue(state.current_state))),
-    watching: states.filter((state) => ["watching", "emerging", "cooling", "faded"].includes(normalizeMarketAgentValue(state.current_state))),
-    background: states.filter((state) => !["active", "active_macro", "watching", "emerging", "cooling", "faded"].includes(normalizeMarketAgentValue(state.current_state)))
+    active: meaningful.filter((state) => ["active", "active_macro"].includes(normalizeMarketAgentValue(state.current_state))),
+    watching: meaningful.filter((state) => ["watching", "emerging", "cooling", "faded"].includes(normalizeMarketAgentValue(state.current_state))),
+    background: meaningful.filter((state) => !["active", "active_macro", "watching", "emerging", "cooling", "faded"].includes(normalizeMarketAgentValue(state.current_state)))
   };
   return groups;
 };
