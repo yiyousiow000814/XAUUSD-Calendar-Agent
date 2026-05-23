@@ -9247,29 +9247,29 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-22,Friday,22:00,USD,Medium,Michigan Consumer Sentiment  (May),44.8,48.2,48.2
 2026-05-22,Friday,22:00,USD,Medium,US Leading Index (MoM)  (Apr),0.1%,-0.1%,-0.6%
 2026-05-22,Friday,22:30,CAD,Low,BoC Senior Loan Officer Survey  (Q1),1.0,,2.8
-2026-05-23,Saturday,01:00,USD,Medium,U.S. Baker Hughes Oil Rig Count,,416,415
-2026-05-23,Saturday,01:00,USD,Medium,U.S. Baker Hughes Total Rig Count,,,551
-2026-05-23,Saturday,03:00,ARS,Low,Retail Sales (YoY)  (Mar),,,23.5%
-2026-05-23,Saturday,03:30,AUD,Medium,CFTC AUD speculative net positions,,,85.0K
-2026-05-23,Saturday,03:30,BRL,Medium,CFTC BRL speculative net positions,,,68.6K
-2026-05-23,Saturday,03:30,CAD,Low,CFTC CAD speculative net positions,,,-16.2K
-2026-05-23,Saturday,03:30,CHF,Low,CFTC CHF speculative net positions,,,-36.2K
-2026-05-23,Saturday,03:30,EUR,Medium,CFTC EUR speculative net positions,,,40.2K
-2026-05-23,Saturday,03:30,GBP,Medium,CFTC GBP speculative net positions,,,-43.1K
-2026-05-23,Saturday,03:30,JPY,Medium,CFTC JPY speculative net positions,,,-75.1K
-2026-05-23,Saturday,03:30,MXN,Low,CFTC MXN speculative net positions,,,64.1K
-2026-05-23,Saturday,03:30,NZD,Low,CFTC NZD speculative net positions,,,-39.1K
-2026-05-23,Saturday,03:30,USD,Low,CFTC Aluminium speculative net positions,,,0.3K
-2026-05-23,Saturday,03:30,USD,Low,CFTC Copper speculative net positions,,,76.3K
-2026-05-23,Saturday,03:30,USD,Low,CFTC Corn speculative net positions,,,383.5K
-2026-05-23,Saturday,03:30,USD,Low,CFTC Natural Gas speculative net positions,,,-176.3K
-2026-05-23,Saturday,03:30,USD,Low,CFTC Silver speculative net positions,,,26.1K
-2026-05-23,Saturday,03:30,USD,Low,CFTC Soybeans speculative net positions,,,224.0K
-2026-05-23,Saturday,03:30,USD,Low,CFTC Wheat speculative net positions,,,-14.4K
-2026-05-23,Saturday,03:30,USD,Medium,CFTC Crude Oil speculative net positions,,,169.9K
-2026-05-23,Saturday,03:30,USD,Medium,CFTC Gold speculative net positions,,,171.6K
-2026-05-23,Saturday,03:30,USD,Medium,CFTC Nasdaq 100 speculative net positions,,,-16.0K
-2026-05-23,Saturday,03:30,USD,Medium,CFTC S&P 500 speculative net positions,,,-143.8K
+2026-05-23,Saturday,01:00,USD,Medium,U.S. Baker Hughes Oil Rig Count,425,416,415
+2026-05-23,Saturday,01:00,USD,Medium,U.S. Baker Hughes Total Rig Count,558,,551
+2026-05-23,Saturday,03:00,ARS,Low,Retail Sales (YoY)  (Mar),20.5%,,17.9%
+2026-05-23,Saturday,03:30,AUD,Medium,CFTC AUD speculative net positions,85.6K,,85.0K
+2026-05-23,Saturday,03:30,BRL,Medium,CFTC BRL speculative net positions,71.0K,,68.6K
+2026-05-23,Saturday,03:30,CAD,Low,CFTC CAD speculative net positions,-31.2K,,-16.2K
+2026-05-23,Saturday,03:30,CHF,Low,CFTC CHF speculative net positions,-36.9K,,-36.2K
+2026-05-23,Saturday,03:30,EUR,Medium,CFTC EUR speculative net positions,33.5K,,40.2K
+2026-05-23,Saturday,03:30,GBP,Medium,CFTC GBP speculative net positions,-64.3K,,-43.1K
+2026-05-23,Saturday,03:30,JPY,Medium,CFTC JPY speculative net positions,-93.9K,,-75.1K
+2026-05-23,Saturday,03:30,MXN,Low,CFTC MXN speculative net positions,62.2K,,64.1K
+2026-05-23,Saturday,03:30,NZD,Low,CFTC NZD speculative net positions,-40.6K,,-39.1K
+2026-05-23,Saturday,03:30,USD,Low,CFTC Aluminium speculative net positions,0.5K,,0.3K
+2026-05-23,Saturday,03:30,USD,Low,CFTC Copper speculative net positions,75.9K,,76.3K
+2026-05-23,Saturday,03:30,USD,Low,CFTC Corn speculative net positions,358.1K,,383.5K
+2026-05-23,Saturday,03:30,USD,Low,CFTC Natural Gas speculative net positions,-192.2K,,-176.3K
+2026-05-23,Saturday,03:30,USD,Low,CFTC Silver speculative net positions,24.7K,,26.1K
+2026-05-23,Saturday,03:30,USD,Low,CFTC Soybeans speculative net positions,212.2K,,224.0K
+2026-05-23,Saturday,03:30,USD,Low,CFTC Wheat speculative net positions,0.3K,,-14.4K
+2026-05-23,Saturday,03:30,USD,Medium,CFTC Crude Oil speculative net positions,172.6K,,169.9K
+2026-05-23,Saturday,03:30,USD,Medium,CFTC Gold speculative net positions,159.8K,,171.6K
+2026-05-23,Saturday,03:30,USD,Medium,CFTC Nasdaq 100 speculative net positions,-1.4K,,-16.0K
+2026-05-23,Saturday,03:30,USD,Medium,CFTC S&P 500 speculative net positions,-140.6K,,-143.8K
 2026-05-23,Saturday,18:00,EUR,Low,ECOFIN Meetings,,,
 2026-05-24,Sunday,All Day,,Holiday,Saudi Arabia - Eid al-Adha,,,
 2026-05-25,Monday,All Day,,Holiday,Denmark - Pentecost,,,
@@ -9303,8 +9303,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-25,Monday,19:00,BRL,Low,FGV Consumer confidence  (May),,,89.1
 2026-05-25,Monday,19:00,CNY,Low,FDI  (Apr),,,-7.30%
 2026-05-25,Monday,19:25,BRL,Low,BCB Focus Market Readout,,,
-2026-05-25,Monday,19:30,BRL,Low,Current Account (USD)  (Apr),,,-6.04B
-2026-05-25,Monday,19:30,BRL,Low,Foreign direct investment (USD)  (Apr),,,6.04B
 2026-05-25,Monday,20:00,MXN,Low,Trade Balance  (Apr),,,5.932B
 2026-05-25,Monday,20:00,MXN,Low,Trade Balance (USD)  (Apr),,,2.499B
 2026-05-25,Monday,20:00,PLN,Low,M3 Money Supply (YoY)  (Apr),,11.2%,11.5%
@@ -9353,6 +9351,8 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-26,Tuesday,16:00,TWD,Low,Industrial Production (YoY)  (Apr),,,28.68%
 2026-05-26,Tuesday,18:00,GBP,Low,CBI Distributive Trades Survey  (May),,-60,-68
 2026-05-26,Tuesday,19:00,BRL,Low,FGV Consumer confidence  (May),,,89.1
+2026-05-26,Tuesday,19:30,BRL,Low,Current Account (USD)  (Apr),,,-6.04B
+2026-05-26,Tuesday,19:30,BRL,Low,Foreign direct investment (USD)  (Apr),,,6.04B
 2026-05-26,Tuesday,20:00,HUF,Low,Interest Rate Decision  (May),,6.25%,6.25%
 2026-05-26,Tuesday,20:30,CAD,Low,Manufacturing Sales (MoM)  (Apr),,,3.0%
 2026-05-26,Tuesday,20:30,USD,Low,Chicago Fed National Activity  (Apr),,,-0.20
@@ -9495,7 +9495,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-28,Thursday,12:30,EUR,Low,Dutch Business Confidence  (May),,,-0.7
 2026-05-28,Thursday,13:00,EUR,Low,Estonian Retail Sales (MoM)  (Apr),,,14.50%
 2026-05-28,Thursday,13:00,EUR,Low,Estonian Retail Sales (YoY)  (Apr),,,6.90%
-2026-05-28,Thursday,13:00,JPY,Low,Construction Orders (YoY)  (Apr),,,-14.4%
 2026-05-28,Thursday,13:00,JPY,Low,Housing Starts (YoY),,15.5%,-29.3%
 2026-05-28,Thursday,14:00,EUR,Low,Lithuania Industrial Production (MoM)  (Apr),,,2.80%
 2026-05-28,Thursday,14:00,EUR,Low,Lithuania Industrial Production (YoY)  (Apr),,,4.80%
@@ -9533,7 +9532,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-28,Thursday,17:00,ISK,Low,CPI (MoM)  (May),,,0.8%
 2026-05-28,Thursday,17:00,ISK,Low,CPI (YoY)  (May),,,5.2%
 2026-05-28,Thursday,17:30,EUR,Low,Belgium CPI (MoM)  (May),,,1.47%
-2026-05-28,Thursday,17:30,EUR,Low,Belgium CPI (YoY)  (May),,,4.07%
+2026-05-28,Thursday,17:30,EUR,Low,Belgium CPI (YoY)  (May),,,4.01%
 2026-05-28,Thursday,17:30,EUR,Low,Italian 5-Year BTP Auction,,,3.32%
 2026-05-28,Thursday,17:30,EUR,Medium,Italian 10-Year BTP Auction,,,4.09%
 2026-05-28,Thursday,17:30,ZAR,Low,PPI (MoM)  (Apr),,,1.1%
@@ -9547,12 +9546,14 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-28,Thursday,18:30,INR,Low,Cumulative Industrial Production  (Apr),,,4.10%
 2026-05-28,Thursday,18:30,INR,Low,Industrial Production (YoY)  (Apr),,,4.1%
 2026-05-28,Thursday,18:30,INR,Low,Manufacturing Output (MoM)  (Apr),,,4.3%
+2026-05-28,Thursday,19:00,BRL,Low,IGP-M Inflation Index (MoM)  (May),,,2.73%
 2026-05-28,Thursday,19:00,CHF,Low,SNB Chairman Schlegel Speaks,,,
 2026-05-28,Thursday,19:30,BRL,Low,Bank lending (MoM)  (Apr),,,0.9%
 2026-05-28,Thursday,19:30,EUR,Medium,ECB Publishes Account of Monetary Policy Meeting,,,
-2026-05-28,Thursday,19:30,TRY,Low,Gross FX Reserves,,,
+2026-05-28,Thursday,19:30,TRY,Low,Gross FX Reserves,,,61.23B
 2026-05-28,Thursday,19:30,TRY,Low,Net FX Reserves,,,52.12%
 2026-05-28,Thursday,20:00,BRL,Low,Brazilian PPI (MoM)  (Apr),,,2.37%
+2026-05-28,Thursday,20:00,BRL,Medium,Unemployment Rate  (Apr),,,6.1%
 2026-05-28,Thursday,20:00,MXN,Low,Unemployment Rate  (Apr),,,2.80%
 2026-05-28,Thursday,20:00,MXN,Low,Unemployment Rate n.s.a.  (Apr),,,2.40%
 2026-05-28,Thursday,20:10,USD,Low,Building Permits (MoM)  (Apr),,,-11.4%
@@ -9566,12 +9567,12 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-28,Thursday,20:30,USD,High,Initial Jobless Claims,,,209K
 2026-05-28,Thursday,20:30,USD,Low,Corporate Profits (QoQ)  (Q1),,5.7%,4.7%
 2026-05-28,Thursday,20:30,USD,Low,Durables Excluding Defense (MoM)  (Apr),,,-0.3%
-2026-05-28,Thursday,20:30,USD,Low,GDP Sales  (Q1),,1.6%,0.3%
+2026-05-28,Thursday,20:30,USD,Low,GDP Sales  (Q1),,1.6%,1.6%
 2026-05-28,Thursday,20:30,USD,Low,Goods Orders Non Defense Ex Air (MoM)  (Apr),,,3.4%
 2026-05-28,Thursday,20:30,USD,Low,Jobless Claims 4-Week Avg.,,,202.50K
-2026-05-28,Thursday,20:30,USD,Low,PCE Prices  (Q1),,4.5%,2.9%
+2026-05-28,Thursday,20:30,USD,Low,PCE Prices  (Q1),,4.5%,4.5%
 2026-05-28,Thursday,20:30,USD,Low,Personal Income (MoM)  (Apr),,,0.6%
-2026-05-28,Thursday,20:30,USD,Low,Real Consumer Spending  (Q1),,1.6%,1.9%
+2026-05-28,Thursday,20:30,USD,Low,Real Consumer Spending  (Q1),,1.6%,1.6%
 2026-05-28,Thursday,20:30,USD,Low,Real Personal Consumption (MoM)  (Apr),,,0.2%
 2026-05-28,Thursday,20:30,USD,Medium,Continuing Jobless Claims,,,"1,782K"
 2026-05-28,Thursday,20:30,USD,Medium,Core Durable Goods Orders (MoM)  (Apr),,,0.9%
@@ -9628,7 +9629,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-29,Friday,07:50,JPY,Low,Industrial Production forecast 1m ahead (MoM)  (May),,,2.1%
 2026-05-29,Friday,07:50,JPY,Low,Industrial Production forecast 2m ahead (MoM)  (Jun),,,2.2%
 2026-05-29,Friday,07:50,JPY,Low,Large Scale Retail Sales YoY (YoY)  (Apr),,,2.0%
-2026-05-29,Friday,07:50,JPY,Low,Retail Sales (YoY)  (Apr),,1.3%,1.7%
+2026-05-29,Friday,07:50,JPY,Low,Retail Sales (YoY)  (Apr),,1.3%,1.4%
 2026-05-29,Friday,07:50,JPY,Medium,Industrial Production (MoM)  (Apr),,,-0.4%
 2026-05-29,Friday,09:00,PHP,Low,Exports (YoY)  (Apr),,,20.4%
 2026-05-29,Friday,09:00,PHP,Low,Imports (YoY)  (Apr),,,12.3%
@@ -9637,13 +9638,14 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-29,Friday,09:30,AUD,Low,Housing Credit  (Apr),,,0.6%
 2026-05-29,Friday,09:30,AUD,Low,Private Sector Credit (MoM)  (Apr),,,0.7%
 2026-05-29,Friday,10:00,SGD,Low,Bank Lending  (Apr),,,902.3B
-2026-05-29,Friday,11:00,NZD,Low,M3 Money Supply  (Apr),,,455.6B
+2026-05-29,Friday,11:00,NZD,Low,M3 Money Supply  (Apr),,,"455,643.0B"
 2026-05-29,Friday,11:35,JPY,Low,2-Year JGB Auction,,,1.407%
 2026-05-29,Friday,12:00,THB,Low,Industrial Production (YoY)  (Apr),,-0.20%,0.75%
 2026-05-29,Friday,12:30,EUR,Low,Dutch Business Confidence  (May),,,-0.7
 2026-05-29,Friday,13:00,EUR,Low,Estonian GDP (YoY)  (Q1),,,0.7%
 2026-05-29,Friday,13:00,EUR,Low,Finnish GDP (QoQ)  (Q1),,0.9%,0.4%
-2026-05-29,Friday,13:00,EUR,Low,Finnish GDP (YoY)  (Apr),,,1.3%
+2026-05-29,Friday,13:00,EUR,Low,Finnish GDP (YoY)  (Q1),,,0.1%
+2026-05-29,Friday,13:00,JPY,Low,Construction Orders (YoY)  (Apr),,,-14.4%
 2026-05-29,Friday,13:00,JPY,Low,Household Confidence  (May),,,32.2
 2026-05-29,Friday,13:00,JPY,Low,Housing Starts (YoY)  (Apr),,,-29.3%
 2026-05-29,Friday,14:00,DKK,Low,Unemployment Rate  (Apr),,,2.7%
@@ -9657,7 +9659,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-29,Friday,14:00,SEK,Low,Retail Sales (MoM)  (Apr),,,3.1%
 2026-05-29,Friday,14:00,SEK,Low,Retail Sales (YoY)  (Apr),,,6.2%
 2026-05-29,Friday,14:00,SEK,Medium,GDP (QoQ)  (Q1),,-0.2%,-0.2%
-2026-05-29,Friday,14:00,SEK,Medium,GDP (YoY)  (Q1),,1.6%,2.1%
+2026-05-29,Friday,14:00,SEK,Medium,GDP (YoY)  (Q1),,1.6%,1.6%
 2026-05-29,Friday,14:00,ZAR,Low,M3 Money Supply (YoY)  (Apr),,,8.96%
 2026-05-29,Friday,14:00,ZAR,Low,Private Sector Credit  (Apr),,,8.50%
 2026-05-29,Friday,14:30,HUF,Low,PPI (YoY)  (Apr),,,1.2%
@@ -9704,7 +9706,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-29,Friday,16:00,EUR,Low,Hesse CPI (MoM)  (May),,,0.4%
 2026-05-29,Friday,16:00,EUR,Low,Hesse CPI (YoY),,,2.8%
 2026-05-29,Friday,16:00,EUR,Low,Italian Monthly Unemployment Rate  (Apr),,,5.2%
-2026-05-29,Friday,16:00,EUR,Low,Loans to Non Financial Corporations  (Apr),,,3.2%
 2026-05-29,Friday,16:00,EUR,Low,North Rhine Westphalia CPI (MoM)  (May),,,0.4%
 2026-05-29,Friday,16:00,EUR,Low,North Rhine Westphalia CPI (YoY)  (May),,,2.7%
 2026-05-29,Friday,16:00,EUR,Low,Private Sector Loans (YoY)  (Apr),,,3.0%
@@ -9713,11 +9714,11 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-29,Friday,16:00,EUR,Low,Spanish Current account  (Mar),,,4.04B
 2026-05-29,Friday,16:00,KES,Low,CPI (YoY)  (May),,,5.60%
 2026-05-29,Friday,16:00,NOK,Low,Central Bank Currency Purchase  (Jun),,,-100.0M
-2026-05-29,Friday,16:00,TWD,Low,GDP (YoY)  (Q1),,13.69%,12.65%
+2026-05-29,Friday,16:00,TWD,Low,GDP (YoY)  (Q1),,13.69%,13.69%
 2026-05-29,Friday,16:20,GBP,Medium,BoE Gov Bailey Speaks,,,
 2026-05-29,Friday,16:30,HKD,Low,M3 Money Supply  (Apr),,,1.2%
 2026-05-29,Friday,16:30,UGX,Low,CPI (YoY)  (May),,,3.0%
-2026-05-29,Friday,17:00,EUR,Low,Belgian GDP (QoQ)  (Q1),,0.2%,0.1%
+2026-05-29,Friday,17:00,EUR,Low,Belgian GDP (QoQ)  (Q1),,0.2%,0.2%
 2026-05-29,Friday,17:00,EUR,Low,Greek PPI (YoY)  (Apr),,,8.3%
 2026-05-29,Friday,17:00,EUR,Low,Greek Retail Sales (YoY)  (Mar),,,4.6%
 2026-05-29,Friday,17:00,EUR,Low,Greek Unemployment Rate  (Apr),,,9.0%
@@ -9736,8 +9737,8 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-29,Friday,18:00,EUR,Low,Latvian Retail Sales (YoY)  (Apr),,,3.90%
 2026-05-29,Friday,18:00,EUR,Low,Portuguese CPI (MoM)  (May),,,1.3%
 2026-05-29,Friday,18:00,EUR,Low,Portuguese CPI (YoY)  (May),,,3.3%
-2026-05-29,Friday,18:00,EUR,Low,Portuguese GDP (QoQ)  (Q1),,0.0%,0.9%
-2026-05-29,Friday,18:00,EUR,Low,Portuguese GDP (YoY)  (Q1),,2.3%,1.9%
+2026-05-29,Friday,18:00,EUR,Low,Portuguese GDP (QoQ)  (Q1),,0.0%,0.0%
+2026-05-29,Friday,18:00,EUR,Low,Portuguese GDP (YoY)  (Q1),,2.3%,2.3%
 2026-05-29,Friday,18:00,INR,Low,Federal Fiscal Deficit  (Mar),,,"12,526.49B"
 2026-05-29,Friday,19:00,BRL,Low,IGP-M Inflation Index (MoM)  (May),,,2.73%
 2026-05-29,Friday,19:00,BRL,Medium,GDP (QoQ)  (Q1),,,0.1%
@@ -9785,7 +9786,26 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-30,Saturday,01:00,USD,Medium,U.S. Baker Hughes Total Rig Count,,,
 2026-05-30,Saturday,01:30,BRL,Low,CAGED Net Payroll Jobs  (Apr),,,228.21K
 2026-05-30,Saturday,03:00,MXN,Low,Fiscal Balance  (Apr),,,-110.10B
-2026-05-30,Saturday,06:45,NZD,Low,Building Consents (MoM)  (Apr),,,-1.3%
+2026-05-30,Saturday,03:30,AUD,Medium,CFTC AUD speculative net positions,,,85.6K
+2026-05-30,Saturday,03:30,BRL,Medium,CFTC BRL speculative net positions,,,71.0K
+2026-05-30,Saturday,03:30,CAD,Low,CFTC CAD speculative net positions,,,-31.2K
+2026-05-30,Saturday,03:30,CHF,Low,CFTC CHF speculative net positions,,,-36.9K
+2026-05-30,Saturday,03:30,EUR,Medium,CFTC EUR speculative net positions,,,33.5K
+2026-05-30,Saturday,03:30,GBP,Medium,CFTC GBP speculative net positions,,,-64.3K
+2026-05-30,Saturday,03:30,JPY,Medium,CFTC JPY speculative net positions,,,-93.9K
+2026-05-30,Saturday,03:30,MXN,Low,CFTC MXN speculative net positions,,,62.2K
+2026-05-30,Saturday,03:30,NZD,Low,CFTC NZD speculative net positions,,,-40.6K
+2026-05-30,Saturday,03:30,USD,Low,CFTC Aluminium speculative net positions,,,0.5K
+2026-05-30,Saturday,03:30,USD,Low,CFTC Copper speculative net positions,,,75.9K
+2026-05-30,Saturday,03:30,USD,Low,CFTC Corn speculative net positions,,,358.1K
+2026-05-30,Saturday,03:30,USD,Low,CFTC Natural Gas speculative net positions,,,-192.2K
+2026-05-30,Saturday,03:30,USD,Low,CFTC Silver speculative net positions,,,24.7K
+2026-05-30,Saturday,03:30,USD,Low,CFTC Soybeans speculative net positions,,,212.2K
+2026-05-30,Saturday,03:30,USD,Low,CFTC Wheat speculative net positions,,,0.3K
+2026-05-30,Saturday,03:30,USD,Medium,CFTC Crude Oil speculative net positions,,,172.6K
+2026-05-30,Saturday,03:30,USD,Medium,CFTC Gold speculative net positions,,,159.8K
+2026-05-30,Saturday,03:30,USD,Medium,CFTC Nasdaq 100 speculative net positions,,,-1.4K
+2026-05-30,Saturday,03:30,USD,Medium,CFTC S&P 500 speculative net positions,,,-140.6K
 2026-05-30,Saturday,07:50,JPY,Low,Large Retailers' Sales (MoM)  (Apr),,,1.3%
 2026-05-30,Saturday,07:50,JPY,Low,Retail Sales (YoY)  (Apr),,,1.7%
 2026-05-30,Saturday,17:40,GBP,Medium,BoE MPC Member Mann Speaks,,,
