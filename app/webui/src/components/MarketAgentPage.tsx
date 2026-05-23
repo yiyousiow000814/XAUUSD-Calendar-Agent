@@ -907,7 +907,7 @@ const dashboardDriverStateLabel = (state: unknown, currentConclusionReady: boole
 const evidenceStatusTone = (status: string): "neutral" | "good" | "warn" | "bad" | "info" => {
   const normalized = normalizeMarketAgentValue(status);
   if (normalized === "supporting") return "good";
-  if (normalized === "neutral" || normalized === "context only") return "warn";
+  if (normalized === "neutral" || normalized === "context" || normalized === "context_only") return "warn";
   if (normalized.includes("available")) return "neutral";
   if (normalized === "blocked") return "bad";
   return "info";
@@ -958,6 +958,9 @@ const fallbackEvidenceChainStatus = (
   };
 };
 
+const isMarketClosedStatus = (xauusdStatus: ReturnType<typeof liveXauusdStatus>) =>
+  xauusdStatus.valueMode === "closed";
+
 const canShowCurrentConclusion = (
   selectedEvidence: MarketAgentEvidenceForRunResponse | null,
   fallbackLiveReady: boolean,
@@ -997,8 +1000,15 @@ const isCurrentEvidenceSignal = (status: unknown) => {
   return ["confirming", "confirms", "supporting", "contradicting", "contradicts", "contrary", "blocked", "rejected"].includes(normalized);
 };
 
-const shouldShowRelatedEvidence = (asset: Record<string, unknown> | undefined, status: unknown) =>
-  isCurrentEvidenceSignal(status) && (!asset || isUsableRelatedAsset(asset));
+const shouldShowRelatedEvidence = (
+  asset: Record<string, unknown> | undefined,
+  status: unknown,
+  currentConclusionReady: boolean
+) => {
+  if (!asset || !isUsableRelatedAsset(asset)) return false;
+  if (!currentConclusionReady) return true;
+  return isCurrentEvidenceSignal(status);
+};
 
 const driverStateDetail = (
   driverAttention: MarketAgentDriverAttentionResponse | null,
@@ -1059,7 +1069,7 @@ const evidenceItems = (
       key: `news-${String(news.published_at ?? news.title ?? "latest")}`,
       title: String(news.summary_title ?? "High Impact News"),
       detail: String(news.summary ?? news.description ?? news.title ?? news.source ?? "News item"),
-      status: currentConclusionReady ? evidenceStatusLabel(news.included ?? news.data_mode ?? evidenceStatusValue(packet, "news")) : "Context Only",
+      status: currentConclusionReady ? evidenceStatusLabel(news.included ?? news.data_mode ?? evidenceStatusValue(packet, "news")) : "Context",
       kind: "news",
       filter: "news",
       time: String(news.published_at ?? news.first_seen_at ?? runTime)
@@ -1068,8 +1078,8 @@ const evidenceItems = (
 
   const dxyAsset = latestRelatedAsset(payload, "dxy");
   const dxyEvidenceStatus = evidenceStatusValue(packet, "dxy");
-  const dxyStatus = currentConclusionReady ? evidenceStatusLabel(dxyEvidenceStatus) : "Context Only";
-  if (shouldShowRelatedEvidence(dxyAsset, dxyEvidenceStatus)) {
+  const dxyStatus = currentConclusionReady ? evidenceStatusLabel(dxyEvidenceStatus) : "Context";
+  if (shouldShowRelatedEvidence(dxyAsset, dxyEvidenceStatus, currentConclusionReady)) {
     rows.push({
       key: "driver-dxy",
       title: "DXY / USD",
@@ -1087,7 +1097,7 @@ const evidenceItems = (
 
   const us10yAsset = latestRelatedAsset(payload, "us10y");
   const us10yEvidenceStatus = evidenceStatusValue(packet, "us10y");
-  if (shouldShowRelatedEvidence(us10yAsset, us10yEvidenceStatus)) {
+  if (shouldShowRelatedEvidence(us10yAsset, us10yEvidenceStatus, currentConclusionReady)) {
     rows.push({
       key: "driver-us10y",
       title: "US10Y Yield Move",
@@ -1096,7 +1106,7 @@ const evidenceItems = (
         ["yields", "us10y", "real_yields"],
         relatedAssetDetail("US10Y", us10yAsset, "US yield confirmation is part of the evidence packet.", "bp")
       ),
-      status: currentConclusionReady ? evidenceStatusLabel(us10yEvidenceStatus) : "Context Only",
+      status: currentConclusionReady ? evidenceStatusLabel(us10yEvidenceStatus) : "Context",
       kind: "yield",
       filter: "drivers",
       time: String(us10yAsset?.data_timestamp ?? us10yAsset?.timestamp ?? runTime)
@@ -1119,7 +1129,7 @@ const evidenceItems = (
       key: `technical-${technical.monitor_run_id}-${technical.event_time}`,
       title: `Technical ${meta.title}`,
       detail: technical.label,
-      status: currentConclusionReady ? evidenceStatusLabel(technical.payload?.cause_status ?? analysis?.cause_status ?? "supporting") : "Context Only",
+      status: currentConclusionReady ? evidenceStatusLabel(technical.payload?.cause_status ?? analysis?.cause_status ?? "supporting") : "Context",
       kind: "technical",
       filter: "technical",
       time: technical.event_time
@@ -1128,9 +1138,9 @@ const evidenceItems = (
 
   const us2yAsset = latestRelatedAsset(payload, "us2y");
   const us2yEvidenceStatus = evidenceStatusValue(packet, "us2y");
-  if (shouldShowRelatedEvidence(us2yAsset, us2yEvidenceStatus)) {
+  if (shouldShowRelatedEvidence(us2yAsset, us2yEvidenceStatus, currentConclusionReady)) {
     const us2yStatus = us2yAsset
-      ? currentConclusionReady ? evidenceStatusLabel(evidenceStatusValue(packet, "us2y"), "Neutral") : "Context Only"
+        ? currentConclusionReady ? evidenceStatusLabel(evidenceStatusValue(packet, "us2y"), "Neutral") : "Context"
       : "Not Available";
     rows.push({
       key: "driver-us2y",
@@ -1145,7 +1155,7 @@ const evidenceItems = (
 
   const oilAsset = latestRelatedAsset(payload, "wti") ?? latestRelatedAsset(payload, "brent");
   const oilEvidenceStatus = evidenceStatusValue(packet, "oil");
-  if (rows.length < 5 && shouldShowRelatedEvidence(oilAsset, oilEvidenceStatus)) {
+  if (rows.length < 5 && shouldShowRelatedEvidence(oilAsset, oilEvidenceStatus, currentConclusionReady)) {
     rows.push({
       key: "driver-oil",
       title: "Oil Price Move",
@@ -1154,7 +1164,7 @@ const evidenceItems = (
         ["oil_inflation", "oil"],
         relatedAssetDetail("Oil", oilAsset, "Oil did not confirm this XAUUSD move.", "%")
       ),
-      status: currentConclusionReady ? evidenceStatusLabel(oilEvidenceStatus, "Neutral") : "Context Only",
+      status: currentConclusionReady ? evidenceStatusLabel(oilEvidenceStatus, "Neutral") : "Context",
       kind: "oil",
       filter: "drivers",
       time: String(oilAsset?.data_timestamp ?? oilAsset?.timestamp ?? runTime)
@@ -1167,7 +1177,7 @@ const evidenceItems = (
       key: `calendar-${String(calendar.scheduled_at ?? calendar.title ?? "latest")}`,
       title: "Calendar Context",
       detail: String(calendar.summary ?? calendar.title ?? "Calendar event"),
-      status: currentConclusionReady ? evidenceStatusLabel(calendar.data_mode ?? "neutral", "Neutral") : "Context Only",
+      status: currentConclusionReady ? evidenceStatusLabel(calendar.data_mode ?? "neutral", "Neutral") : "Context",
       kind: "calendar",
       filter: "calendar",
       time: String(calendar.scheduled_at ?? runTime)
@@ -1239,8 +1249,9 @@ function MarketAgentDashboard({
       ? ((priceValue - previousPriceValue) / previousPriceValue) * 100
       : null);
   const timeline = filterTimelineByReplayRange(latestTimelineRows(replay?.replay), replayRange);
-  const allEvidence = currentConclusionReady ? evidenceItems(selectedEvidence, replay, driverAttention, true) : [];
+  const allEvidence = evidenceItems(selectedEvidence, replay, driverAttention, currentConclusionReady);
   const evidence = evidenceFilter === "all" ? allEvidence : allEvidence.filter((item) => item.filter === evidenceFilter);
+  const contextEvidence = allEvidence.filter((item) => normalizeMarketAgentValue(item.status) === "context");
   const supportingCount = evidence.filter((item) =>
     normalizeMarketAgentValue(item.status) === "supporting"
   ).length;
@@ -1290,8 +1301,19 @@ function MarketAgentDashboard({
     )
     .sort((left, right) => (right.relevance_score ?? 0) - (left.relevance_score ?? 0));
   const visibleDrivers = currentConclusionReady ? [...activeDrivers, ...watchingDrivers, ...backgroundDrivers].slice(0, 8) : [];
+  const contextDrivers = allDriverStates
+    .filter((item) =>
+      ["watching", "emerging", "cooling", "dormant", "active", "active_macro"].includes(normalizeMarketAgentValue(item.current_state))
+    )
+    .sort((left, right) => (right.relevance_score ?? 0) - (left.relevance_score ?? 0))
+    .slice(0, 4);
   const missingInputs = evidenceChainList(chainStatus, "missing_required");
   const usableInputs = evidenceChainList(chainStatus, "usable_inputs");
+  const marketClosed = isMarketClosedStatus(xauusdStatus);
+  const pausedReason = marketClosed
+    ? "Market closed. Last XAUUSD spot is shown; news and calendar context continue."
+    : String(chainStatus?.reason ?? "Waiting for live XAUUSD price and recent history before scoring drivers.");
+  const collectedContextCount = allEvidence.length + contextDrivers.length;
 
   return (
     <section className="market-agent-cockpit" data-qa="qa:market-agent:cockpit">
@@ -1386,8 +1408,9 @@ function MarketAgentDashboard({
           </div>
           <div className="market-agent-evidence-score">
             <div
-              className="market-agent-score-ring"
+              className={`market-agent-score-ring${currentConclusionReady ? "" : " is-context"}`}
               data-score-target={String(clampedEvidenceScore)}
+              data-score-state={currentConclusionReady ? "ready" : "context"}
             >
               <svg className="market-agent-score-svg" viewBox="0 0 80 80" aria-hidden="true">
                 <circle className="market-agent-score-track" cx="40" cy="40" r={SCORE_RING_RADIUS} />
@@ -1402,10 +1425,10 @@ function MarketAgentDashboard({
               </svg>
               <div className="market-agent-score-content">
                 <strong className="market-agent-score-value">
-                  <span className="market-agent-score-number">{currentConclusionReady ? evidenceScore : 0}</span>
-                  <span className="market-agent-score-suffix">%</span>
+                  <span className="market-agent-score-number">{currentConclusionReady ? evidenceScore : "--"}</span>
+                  <span className="market-agent-score-suffix">{currentConclusionReady ? "%" : ""}</span>
                 </strong>
-                <span className="market-agent-score-strength">{currentConclusionReady ? evidenceScoreLabel : "Paused"}</span>
+                <span className="market-agent-score-strength">{currentConclusionReady ? evidenceScoreLabel : "Context"}</span>
               </div>
             </div>
             <div className="market-agent-evidence-counts">
@@ -1418,15 +1441,15 @@ function MarketAgentDashboard({
               ) : (
                 <>
                   <span><i className="neutral" /><span>Missing</span><b>{missingInputs.length}</b></span>
-                  <span><i className="supporting" /><span>Collected</span><b>{usableInputs.length}</b></span>
-                  <span><i className="contrary" /><span>Accepted</span><b>0</b></span>
+                  <span><i className="supporting" /><span>Context</span><b>{collectedContextCount}</b></span>
+                  <span><i className="contrary" /><span>Current</span><b>--</b></span>
                 </>
               )}
             </div>
           </div>
           <div className="market-agent-evidence-quality">
-            <span>Quality:</span>
-            <b>{currentConclusionReady ? formatValue(state?.confidence, "--") : "Paused"}</b>
+            <span>{currentConclusionReady ? "Quality:" : "Mode:"}</span>
+            <b>{currentConclusionReady ? formatValue(state?.confidence, "--") : "Context only"}</b>
           </div>
         </article>
         <article className="market-agent-kpi-card market-agent-next-card">
@@ -1496,14 +1519,34 @@ function MarketAgentDashboard({
               );
             })}
             {visibleDrivers.length === 0 ? (
-              <div className="market-agent-empty-state market-agent-chain-empty">
-                <strong>{currentConclusionReady ? "No active or watching drivers." : "No driver confirmed yet."}</strong>
-                <span>
-                  {currentConclusionReady
-                    ? "The agent is watching current data but no driver is active."
-                    : String(chainStatus?.reason ?? "Waiting for live price and recent history before scoring drivers.")}
-                </span>
-              </div>
+              currentConclusionReady ? (
+                <div className="market-agent-empty-state market-agent-chain-empty">
+                  <strong>No active or watching drivers.</strong>
+                  <span>The agent is watching current data but no driver is active.</span>
+                </div>
+              ) : (
+                <div className="market-agent-paused-panel">
+                  <div>
+                    <strong>Current driver ranking paused</strong>
+                    <span>{pausedReason}</span>
+                  </div>
+                  <div className="market-agent-paused-metrics" aria-label="Collected context">
+                    <span><b>{allEvidence.length}</b><small>context items</small></span>
+                    <span><b>{usableInputs.length}</b><small>usable inputs</small></span>
+                    <span><b>{missingInputs.length}</b><small>waiting</small></span>
+                  </div>
+                  {contextDrivers.length ? (
+                    <div className="market-agent-context-driver-list" aria-label="Watched context drivers">
+                      {contextDrivers.map((driver) => (
+                        <span key={driver.driver_id}>
+                          <b>{driver.label || formatDriverLabel(driver.driver_id)}</b>
+                          <small>{formatDriverStateLabel(driver.current_state)}</small>
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              )
             ) : null}
           </div>
         </section>
@@ -1586,12 +1629,7 @@ function MarketAgentDashboard({
             ))}
           </div>
           <div className="market-agent-evidence-feed">
-            {!currentConclusionReady ? (
-              <div className="market-agent-empty-state market-agent-chain-empty">
-                <strong>No accepted evidence yet.</strong>
-                <span>{String(chainStatus?.reason ?? "The agent is collecting market context before accepting evidence.")}</span>
-              </div>
-            ) : evidence.map((item, index) => {
+            {evidence.map((item, index) => {
               const meta = evidenceKindMeta(item.kind);
               return (
                 <div
@@ -1615,15 +1653,20 @@ function MarketAgentDashboard({
                 </div>
               );
             })}
-            {currentConclusionReady && evidence.length === 0 ? (
-              <div className="market-agent-empty-state">
-                No evidence in this category.
+            {evidence.length === 0 ? (
+              <div className="market-agent-empty-state market-agent-chain-empty">
+                <strong>{currentConclusionReady ? "No evidence in this category." : "No context in this category yet."}</strong>
+                <span>{currentConclusionReady ? "The latest run did not store evidence for this filter." : pausedReason}</span>
               </div>
             ) : null}
           </div>
           <div className="market-agent-evidence-footer">
-            <span><i /> Evidence Quality: <b>{currentConclusionReady ? `${evidenceScoreLabel} (${evidenceScore}%)` : String(chainStatus?.reason ?? "Current conclusion paused")}</b></span>
-            <span>{currentConclusionReady ? `${supportingCount} Supporting, ${neutralCount} Neutral, ${contraryCount} Contrary` : "0 Supporting, 0 Neutral, 0 Contrary"}</span>
+            <span><i /> Evidence Status: <b>{currentConclusionReady ? `${evidenceScoreLabel} (${evidenceScore}%)` : "Context only"}</b></span>
+            <span>
+              {currentConclusionReady
+                ? `${supportingCount} Supporting, ${neutralCount} Neutral, ${contraryCount} Contrary`
+                : `${contextEvidence.length} Context, driver ranking paused`}
+            </span>
           </div>
         </section>
       </div>

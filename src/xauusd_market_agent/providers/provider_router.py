@@ -282,7 +282,7 @@ class ProviderRouter:
             source_type="provider_interface",
             data_mode="unavailable",
             is_available=False,
-            stale_reason="No news provider configured.",
+            stale_reason="App-managed news collector did not return headlines in this run.",
             data_timestamp=anchor_time.isoformat(),
         )
 
@@ -296,7 +296,7 @@ class ProviderRouter:
             source_type="provider_interface",
             data_mode="unavailable",
             is_available=False,
-            stale_reason="No calendar provider configured.",
+            stale_reason="App-managed calendar did not return events in this window.",
             data_timestamp=anchor_time.isoformat(),
         )
 
@@ -418,7 +418,7 @@ class ProviderRouter:
             source_type="provider_interface",
             data_mode="unavailable",
             is_available=False,
-            stale_reason="No news backfill provider configured.",
+            stale_reason="App-managed news collector has no backfill data for this window.",
             data_timestamp=end.isoformat(),
         )
 
@@ -432,7 +432,7 @@ class ProviderRouter:
             source_type="provider_interface",
             data_mode="unavailable",
             is_available=False,
-            stale_reason="No calendar backfill provider configured.",
+            stale_reason="App-managed calendar has no backfill data for this window.",
             data_timestamp=end.isoformat(),
         )
 

@@ -6,11 +6,11 @@ Market Agent is designed around provider interfaces. Manual local CSV files are 
 
 Normal priority:
 
-1. cTrader CLI spot provider for true XAUUSD price, when configured
-2. cTrader M1 trendbars for recovery and backfill, when configured
-3. Yahoo chart provider for proxy data
-4. optional fallback providers
-5. local CSV fallback only when explicitly enabled
+1. cTrader CLI spot provider for true XAUUSD price
+2. cTrader M1 trendbars for recovery and backfill
+3. App-managed news and calendar context
+4. Yahoo chart provider for related-market sensors and explicit proxy context
+5. local CSV fallback only when explicitly enabled for debug/import
 
 If no provider is available, the system must not crash. It should surface provider health as unavailable.
 
@@ -22,8 +22,8 @@ If no provider is available, the system must not crash. It should surface provid
 - cTrader uses the local CLI credential set: trading account, cTID or email, and password.
 - Password values are stored only in the local user-data config, masked in UI responses, and not written to logs or process environment variables.
 - The provider writes quote snapshots under user-data and can reuse them only as an explicit stale fallback.
-- If cTrader spot or cTrader historical trendbars fail, ProviderRouter falls back to Yahoo `GC=F`.
-- Yahoo `GC=F` remains the proxy path when cTrader is unavailable.
+- If cTrader spot is stale during market close, the last cTrader price can be shown as context while current driver conclusions wait for a fresh spot quote.
+- Yahoo `GC=F` is recorded as proxy context only and must not become true XAUUSD evidence.
 - When Yahoo is used, the system must label it as:
   - `source_type=futures_proxy`
   - `data_mode=proxy`
@@ -97,6 +97,8 @@ Important caveat:
 
 News is driven by RSS and feed queries. News can be delayed or noisy.
 
+The desktop app ships with app-managed default feeds. Users do not need to configure news feeds for normal operation.
+
 Store both:
 
 - included items
@@ -116,10 +118,10 @@ Backfilled news must not be presented as live-seen.
 Calendar data may come from:
 
 - ForexFactory source URL
-- optional local calendar source
+- app-managed local calendar data
 - official references
 
-If no calendar source is configured, provider health should show unavailable rather than silently pretending the feed is empty.
+If no calendar data is available for a window, provider health should show the app-managed calendar as unavailable for that window rather than silently pretending the feed is empty.
 
 ## Local LLM
 

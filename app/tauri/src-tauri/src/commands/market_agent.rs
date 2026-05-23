@@ -1890,6 +1890,20 @@ fn write_monitor_status_for_root(root: &Path, status: &Value) -> Result<(), Stri
     write_json_atomic(&monitor_status_path_for_root(root), status)
 }
 
+fn merge_monitor_status_for_root(root: &Path, updates: Value) -> Value {
+    let mut current = read_monitor_status_for_root(root);
+    if let (Some(current_object), Some(update_object)) =
+        (current.as_object_mut(), updates.as_object())
+    {
+        for (key, value) in update_object {
+            current_object.insert(key.clone(), value.clone());
+        }
+        current
+    } else {
+        updates
+    }
+}
+
 fn repo_root_for_monitor(root: &Path) -> PathBuf {
     repo_root_from_manifest()
         .or_else(|| std::env::current_dir().ok())
@@ -1912,6 +1926,10 @@ fn monitor_command_base(root: &Path) -> Command {
         .env(
             "MARKET_AGENT_MONITOR_LOCK_PATH",
             root.join("market_agent_monitor.lock"),
+        )
+        .env(
+            "MARKET_AGENT_MONITOR_STATUS_PATH",
+            monitor_status_path_for_root(root),
         );
     for (key, value) in telegram_env_for_root(root) {
         command.env(key, value);
@@ -2050,18 +2068,28 @@ fn run_monitor_once_for_root(root: &Path) -> Value {
     hide_child_window(&mut command);
     let output = command.output();
     let now = now_epoch_seconds();
+    let current = read_monitor_status_for_root(root);
+    let current_last_run = current.get("lastRunAt").cloned().unwrap_or(json!(now));
+    let current_last_success = current
+        .get("lastSuccessAt")
+        .cloned()
+        .unwrap_or_else(|| current_last_run.clone());
     let status = match output {
-        Ok(output) if output.status.success() => json!({
-            "ok": true,
-            "available": true,
-            "running": false,
-            "phase": "stopped",
-            "pid": null,
-            "lastRunAt": now,
-            "nextRunAt": null,
-            "lastError": "",
-            "message": "Monitor run completed.",
-        }),
+        Ok(output) if output.status.success() => merge_monitor_status_for_root(
+            root,
+            json!({
+                "ok": true,
+                "available": true,
+                "running": false,
+                "phase": "stopped",
+                "pid": null,
+                "lastRunAt": current_last_run,
+                "lastSuccessAt": current_last_success,
+                "nextRunAt": null,
+                "lastError": "",
+                "message": current.get("message").and_then(Value::as_str).unwrap_or("Monitor run completed."),
+            }),
+        ),
         Ok(output) => json!({
             "ok": false,
             "available": true,
@@ -3258,7 +3286,7 @@ mod tests {
         apply_llm_fallback_policy_for_result, clear_ctrader_provider_config,
         ctrader_config_path_for_root, ctrader_env_for_root, llm_config_path_for_root,
         llm_env_for_root, mask_secret, masked_ctrader_provider_config, masked_llm_config_for_root,
-        masked_telegram_config_for_root, monitor_status_path_for_root,
+        masked_telegram_config_for_root, monitor_command_base, monitor_status_path_for_root,
         normalize_pull_progress_line, read_json_object, read_market_agent_replay,
         read_market_agent_snapshot, read_monitor_status_for_root,
         recommend_local_model_from_profile, run_backfill_recovery_for_root,
@@ -4217,6 +4245,26 @@ mod tests {
             Some("Monitor loop is already running.")
         );
         assert!(monitor_status_path_for_root(&dir).exists());
+    }
+
+    #[test]
+    fn monitor_command_passes_status_path_to_python() {
+        let dir = unique_temp_dir("monitor-command-status-env");
+
+        let command = monitor_command_base(&dir);
+        let status_env = command
+            .get_envs()
+            .find(|(key, _)| key.to_string_lossy() == "MARKET_AGENT_MONITOR_STATUS_PATH")
+            .and_then(|(_, value)| value.map(|item| item.to_string_lossy().to_string()));
+
+        assert_eq!(
+            status_env,
+            Some(
+                monitor_status_path_for_root(&dir)
+                    .to_string_lossy()
+                    .to_string()
+            )
+        );
     }
 
     #[test]

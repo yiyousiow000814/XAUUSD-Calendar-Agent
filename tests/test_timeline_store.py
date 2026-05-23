@@ -26,7 +26,17 @@ class StubLiveMarketProvider:
         )
 
     def backfill(self, start, end):
-        return self.fetch_latest(end)
+        rows = [{**row, "data_mode": "backfilled"} for row in self.rows]
+        return rows, build_provider_health(
+            source="cTrader",
+            source_type="spot",
+            data_mode="backfilled",
+            is_available=True,
+            data_timestamp=end.isoformat(),
+            current_value=float(rows[-1]["close_price"]),
+            previous_value=float(rows[0]["close_price"]),
+            change_value=float(rows[-1]["close_price"]) - float(rows[0]["close_price"]),
+        )
 
 
 def _live_price_rows() -> list[dict[str, object]]:
@@ -283,20 +293,28 @@ def test_recovery_run_persists_price_news_calendar_and_evidence(tmp_path) -> Non
 
     with sqlite3.connect(tmp_path / "timeline.sqlite") as connection:
         run = connection.execute(
-            "SELECT run_type, data_mode FROM monitor_runs ORDER BY id DESC LIMIT 1"
+            "SELECT run_type, data_mode, backfill_required FROM monitor_runs ORDER BY id DESC LIMIT 1"
         ).fetchone()
         market_rows = connection.execute("SELECT COUNT(*) FROM market_price_bars").fetchone()[0]
+        backfilled_market_rows = connection.execute(
+            "SELECT COUNT(*) FROM market_price_bars WHERE data_mode = 'backfilled'"
+        ).fetchone()[0]
         related_rows = connection.execute("SELECT COUNT(*) FROM related_asset_bars").fetchone()[0]
         news_rows = connection.execute("SELECT COUNT(*) FROM news_items").fetchone()[0]
         calendar_rows = connection.execute("SELECT COUNT(*) FROM calendar_events").fetchone()[0]
         evidence_rows = connection.execute("SELECT COUNT(*) FROM evidence_packets").fetchone()[0]
+        recovery_rows = connection.execute(
+            "SELECT COUNT(*) FROM timeline_events WHERE event_type = 'recovery_summary'"
+        ).fetchone()[0]
 
-    assert run == ("recovery", "backfilled")
+    assert run == ("live", "live_seen", 1)
     assert market_rows > 0
+    assert backfilled_market_rows > 0
     assert related_rows > 0
     assert news_rows > 0
     assert calendar_rows > 0
     assert evidence_rows > 0
+    assert recovery_rows > 0
 
 
 def test_rejected_llm_driver_is_stored_in_analysis_results(tmp_path) -> None:

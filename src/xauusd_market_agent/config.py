@@ -25,6 +25,17 @@ def _env_list(name: str) -> list[str]:
     return [item.strip() for item in raw.split(",") if item.strip()]
 
 
+DEFAULT_NEWS_RSS_FEEDS = [
+    "https://www.federalreserve.gov/feeds/press_all.xml",
+    "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+    "https://www.marketwatch.com/rss/topstories",
+]
+
+
+def _default_news_rss_feeds() -> list[str]:
+    return _env_list("NEWS_RSS_FEEDS") or list(DEFAULT_NEWS_RSS_FEEDS)
+
+
 def _env_bool(name: str) -> bool | None:
     raw = os.getenv(name, "").strip().lower()
     if not raw:
@@ -293,7 +304,7 @@ class MarketAgentConfig:
     )
     forex_factory_source_url: str = os.getenv("MARKET_AGENT_FOREX_FACTORY_SOURCE_URL", "").strip()
     csv_fallback_enabled: bool = os.getenv("MARKET_AGENT_CSV_FALLBACK_ENABLED", "true").lower() == "true"
-    rss_feeds: list[str] = field(default_factory=lambda: _env_list("NEWS_RSS_FEEDS"))
+    rss_feeds: list[str] = field(default_factory=_default_news_rss_feeds)
     news_lookback_minutes: int = int(os.getenv("MARKET_AGENT_NEWS_LOOKBACK_MINUTES", "30"))
     post_move_news_minutes: int = int(os.getenv("MARKET_AGENT_POST_MOVE_NEWS_MINUTES", "120"))
     calendar_lookback_minutes: int = int(os.getenv("MARKET_AGENT_CALENDAR_LOOKBACK_MINUTES", "60"))

@@ -6,5 +6,6 @@ def test_market_agent_config_uses_windows_friendly_defaults() -> None:
 
     assert "data" in str(cfg.price_data_path)
     assert cfg.yahoo_enabled is True
+    assert cfg.rss_feeds
     assert cfg.news_lookback_minutes == 30
     assert cfg.post_move_news_minutes == 120

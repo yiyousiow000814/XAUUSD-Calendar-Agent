@@ -19,7 +19,7 @@ This view is not a trading-entry panel. It does not provide prediction, TP, or S
 1. Launch the desktop app.
 2. Use the top app bar button `Market Agent`.
 3. The Activity drawer card remains a compact preview only. Use `Open Market Agent` there to jump into the full page.
-4. Use `Data Sources` on the Market Agent page to follow the guided setup for price, cTrader, fallbacks, news/calendar, LLM, Telegram, and monitoring.
+4. Use `Data Sources` on the Market Agent page to follow cTrader, Local AI, Telegram, monitoring, and backend activity.
 
 ## What the page shows
 
@@ -74,16 +74,16 @@ The Provider Health table shows:
 
 Honest current status:
 
-- cTrader is the preferred true XAUUSD spot path when configured.
+- cTrader is the preferred true XAUUSD spot path.
 - cTrader uses the local CLI credential set: trading account, cTID or email, and password.
 - Yahoo `GC=F` is shown as `futures_proxy`.
 - cTrader snapshot fallback is labeled stale when it is used.
-- US2Y may remain unavailable if no reliable source is configured.
+- US2Y may remain unavailable if no reliable source exists.
 - CSV is fallback and debug only, not the intended normal path.
 
 ### Data Sources
 
-The `Data Sources` panel is a guided setup flow. It shows a real setup checklist for:
+The `Data Sources` panel is a guided setup flow. It shows setup actions plus one backend activity strip for:
 
 - price source
 - related assets

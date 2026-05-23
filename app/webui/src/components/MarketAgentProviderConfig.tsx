@@ -16,7 +16,7 @@ import type {
   MarketAgentTelegramConfigInput,
   MarketAgentTelegramConfigResponse
 } from "../types";
-import { formatShortTime } from "../utils/marketAgentUi";
+import { formatShortTime, humanizeMarketAgentValue, normalizeMarketAgentValue } from "../utils/marketAgentUi";
 import { MarketAgentStatusBadge } from "./MarketAgentStatusBadge";
 import "./MarketAgentProviderConfig.css";
 
@@ -254,27 +254,58 @@ export function MarketAgentProviderConfig({
     [providerHealth]
   );
   const cTraderLive = Boolean(
-    cTraderHealth?.is_available && !cTraderHealth.is_stale && cTraderHealth.data_mode === "live_seen"
+    cTraderHealth?.is_available &&
+    !cTraderHealth.is_stale &&
+    normalizeMarketAgentValue(cTraderHealth.data_mode) === "live_seen"
+  );
+  const cTraderClosed = Boolean(
+    cTraderHealth?.is_available &&
+    cTraderHealth.is_stale &&
+    typeof cTraderHealth.current_value === "number" &&
+    Number.isFinite(cTraderHealth.current_value)
   );
   const cTraderConfigured = Boolean(data?.ctrader?.enabled);
   const cTraderConnecting = ctraderAuthResult?.status === "connecting";
-  const cTraderStatusLabel = cTraderLive ? "Live" : cTraderConnecting ? "Connecting" : cTraderConfigured ? "Live pending" : "Connect";
-  const cTraderProgress = cTraderLive ? 100 : cTraderConnecting ? 35 : cTraderConfigured ? 65 : 0;
+  const cTraderStatusLabel = cTraderLive ? "Live" : cTraderClosed ? "Market closed" : cTraderConnecting ? "Connecting" : cTraderConfigured ? "Getting quote" : "Connect";
+  const cTraderProgress = cTraderLive || cTraderClosed ? 100 : cTraderConnecting ? 35 : cTraderConfigured ? 65 : 0;
   const cTraderHealthMessage =
     cTraderLive
       ? "Live XAUUSD feed is active."
+      : cTraderClosed
+        ? "Market is closed. Last XAUUSD price is loaded from cTrader history; context collection continues."
       : cTraderConnecting
         ? "Checking account access and requesting the first live quote."
       : cTraderConfigured
-        ? formatCTraderStatusMessage(cTraderHealth?.stale_reason || cTraderHealth?.error, "Account saved. Waiting for the first fresh XAUUSD quote.")
+        ? formatCTraderStatusMessage(cTraderHealth?.stale_reason || cTraderHealth?.error, "Requesting the first fresh XAUUSD quote.")
         : "Connect cTrader to start live monitoring.";
 
   const statusTone = useMemo(() => {
     if (!data?.available) return "bad";
-    if (cTraderLive) return "good";
+    if (cTraderLive || cTraderClosed) return "good";
     if (cTraderConfigured) return "warn";
     return "bad";
-  }, [data, cTraderConfigured, cTraderLive]);
+  }, [data, cTraderClosed, cTraderConfigured, cTraderLive]);
+
+  const newsHealth = useMemo(
+    () =>
+      providerHealth?.items?.find((item) => {
+        const key = String(item.provider_key || "").toLowerCase();
+        const source = String(item.source || "").toLowerCase();
+        const type = String(item.source_type || "").toLowerCase();
+        return key.includes("news") || source.includes("news") || type.includes("news");
+      }) || null,
+    [providerHealth]
+  );
+  const calendarHealth = useMemo(
+    () =>
+      providerHealth?.items?.find((item) => {
+        const key = String(item.provider_key || "").toLowerCase();
+        const source = String(item.source || "").toLowerCase();
+        const type = String(item.source_type || "").toLowerCase();
+        return key.includes("calendar") || source.includes("calendar") || type.includes("calendar");
+      }) || null,
+    [providerHealth]
+  );
 
   const setupActions: Array<{ id: SetupStep; label: string; detail: string; status: string }> = [
     {
@@ -459,6 +490,121 @@ export function MarketAgentProviderConfig({
     setPendingPullProgress({ ...cancelledProgress, message: result.message || cancelledProgress.message });
   };
 
+  const renderAgentActivity = () => {
+    const selectedModel = selectedLocalAIModel();
+    const selectedModelReady = Boolean(selectedModel && isLocalModelInstalled(selectedModel));
+    const localAiActive = localAIMode !== "off" && (Boolean(llmData?.llm?.enabled) || selectedModelReady);
+    const contextHealthReady = Boolean(
+      (newsHealth?.is_available && !newsHealth.is_stale) ||
+      (calendarHealth?.is_available && !calendarHealth.is_stale)
+    );
+    const fallbackHistoryStatus = monitorStatus?.running
+      ? "syncing"
+      : monitorStatus?.lastRecoveryAt
+        ? "synced"
+        : cTraderConfigured
+          ? "idle"
+          : "waiting";
+    const fallbackHistoryDetail = monitorStatus?.lastRecoveryAt
+      ? `Last recovery ${formatShortTime(monitorStatus.lastRecoveryAt)}`
+      : monitorStatus?.running
+        ? "Backfill runs after live checks; current quotes stay first."
+        : "Starts when monitoring runs.";
+    const localAiStatus = localAIMode === "off"
+      ? "Rule-based"
+      : selectedModelReady
+        ? "Ready"
+        : pendingPullProgress || localAiPullProgress
+          ? "Preparing"
+          : localAiActive
+            ? "On"
+            : "Optional";
+    const quoteStatus = cTraderLive ? "Live quotes" : cTraderClosed ? "Market closed" : cTraderConfigured ? "Getting quote" : "Not connected";
+    const activity = monitorStatus?.activity ?? {};
+    const rows = [
+      {
+        key: "ctrader",
+        title: "cTrader",
+        fallbackStatus: cTraderLive ? "live" : cTraderClosed ? "market_closed" : cTraderConfigured ? "checking" : "waiting",
+        fallbackLabel: quoteStatus,
+        fallbackDetail: cTraderLive ? `Last quote ${formatShortTime(cTraderHealth?.data_timestamp)}` : cTraderHealthMessage
+      },
+      {
+        key: "history",
+        title: "History",
+        fallbackStatus: fallbackHistoryStatus,
+        fallbackLabel: fallbackHistoryStatus === "synced" ? "History synced" : fallbackHistoryStatus === "syncing" ? "History sync" : "History waiting",
+        fallbackDetail: fallbackHistoryDetail
+      },
+      {
+        key: "context",
+        title: "Market context",
+        fallbackStatus: contextHealthReady ? "active" : "collecting",
+        fallbackLabel: contextHealthReady ? "News and calendar" : "Collecting context",
+        fallbackDetail: "News and calendar continue when the XAUUSD market is closed."
+      },
+      {
+        key: "llm",
+        title: "Local AI",
+        fallbackStatus: localAiStatus === "Ready" || localAiStatus === "On" ? "ready" : localAiStatus === "Preparing" ? "preparing" : "skipped",
+        fallbackLabel: localAiStatus,
+        fallbackDetail: localAIMode === "off" ? "Rules and evidence gate still run." : "Batch review runs after evidence gate."
+      },
+      {
+        key: "alerts",
+        title: "Alerts",
+        fallbackStatus: (localTelegramEnabled ?? telegramData?.telegram?.enabled) ? "ready" : "idle",
+        fallbackLabel: (localTelegramEnabled ?? telegramData?.telegram?.enabled) ? "Telegram on" : "Dashboard only",
+        fallbackDetail: "Only current live runs can notify."
+      }
+    ];
+    const toneForActivity = (status: unknown) => {
+      const normalized = normalizeMarketAgentValue(status);
+      if (["live", "active", "ready", "validated", "synced"].includes(normalized)) return "good";
+      if (["checking", "collecting", "syncing", "preparing", "queued", "market_closed"].includes(normalized)) return "working";
+      if (["unavailable", "failed", "error"].includes(normalized)) return "bad";
+      return "muted";
+    };
+    const phaseLabel = humanizeMarketAgentValue(monitorStatus?.phase || (monitorStatus?.running ? "running" : "stopped"));
+    const phaseMessage = monitorStatus?.message || (monitorStatus?.running ? "Agent is checking the market." : "Agent is idle.");
+
+    return (
+      <div className="market-agent-activity-strip" aria-label="Agent activity">
+        <div className="market-agent-activity-heading">
+          <div>
+            <strong>Agent activity</strong>
+            <span>{phaseMessage}</span>
+          </div>
+          <em>{phaseLabel}</em>
+        </div>
+        <ol className="market-agent-activity-list">
+          {rows.map((row) => {
+            const item = activity[row.key] ?? {};
+            const status = item.status || row.fallbackStatus;
+            const progress = typeof item.progress === "number" && Number.isFinite(item.progress)
+              ? Math.max(0, Math.min(100, Math.round(item.progress)))
+              : null;
+            const updatedAt = item.updatedAt || item.dataTimestamp || item.fetchedAt;
+            return (
+              <li className={`market-agent-activity-row tone-${toneForActivity(status)}`} key={row.key}>
+                <span className="market-agent-activity-dot" aria-hidden="true" />
+                <div>
+                  <span>{row.title}</span>
+                  <strong>{item.label || row.fallbackLabel}</strong>
+                  <small>{item.detail || row.fallbackDetail}</small>
+                </div>
+                <b>
+                  {progress !== null ? `${progress}%` : humanizeMarketAgentValue(status)}
+                  {updatedAt ? <small>{formatShortTime(updatedAt)}</small> : null}
+                </b>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+    );
+  };
+
   const selectStep = (step: SetupStep) => {
     setActiveStep(step);
     const scrollTarget = surfaceRef.current;
@@ -542,7 +688,7 @@ export function MarketAgentProviderConfig({
               </div>
             </div>
           ) : null}
-          {cTraderConfigured && !cTraderLive ? (
+          {cTraderConfigured && !cTraderLive && !cTraderClosed ? (
             <div className="market-agent-readable-status-line market-agent-live-feed-progress">
               <div>
                 <strong>Live feed setup</strong>
@@ -557,15 +703,19 @@ export function MarketAgentProviderConfig({
               </small>
             </div>
           ) : null}
-          {cTraderLive ? (
+          {cTraderLive || cTraderClosed ? (
             <div className="market-agent-readable-status-line market-agent-live-feed-progress ready">
               <div>
-                <strong>Live feed active</strong>
-                <span>Current XAUUSD quotes are available. History sync can continue without blocking the live view.</span>
+                <strong>{cTraderLive ? "Live feed active" : "Last price ready"}</strong>
+                <span>
+                  {cTraderLive
+                    ? "Current XAUUSD quotes are available. History sync can continue without blocking the live view."
+                    : "Market is closed. The last XAUUSD price is shown while news and calendar context continue."}
+                </span>
               </div>
               <b>100%</b>
               <i aria-hidden="true"><span style={{ width: "100%" }} /></i>
-              <small>Step 4 of 4: live monitoring ready</small>
+              <small>{cTraderLive ? "Step 4 of 4: live monitoring ready" : "Price fixed until the market reopens"}</small>
             </div>
           ) : null}
         </div>
@@ -1003,10 +1153,12 @@ export function MarketAgentProviderConfig({
           <MarketAgentStatusBadge
             label={
               cTraderLive
-                ? "cTrader live"
-                : cTraderConfigured
-                  ? "Preparing live feed"
-                  : "cTrader not connected"
+                ? "cTrader Live"
+                : cTraderClosed
+                  ? "Market closed"
+                  : cTraderConfigured
+                    ? "Getting quote"
+                    : "cTrader not connected"
             }
             tone={statusTone}
           />
@@ -1017,6 +1169,7 @@ export function MarketAgentProviderConfig({
         <div className="market-agent-empty-state">{data?.message || "Provider configuration is unavailable."}</div>
       ) : (
         <div className="market-agent-setup-flow">
+          {renderAgentActivity()}
           <div className="market-agent-setup-body">
             <nav className="market-agent-setup-tabs" aria-label="Data source setup actions">
               {setupActions.map((step) => (

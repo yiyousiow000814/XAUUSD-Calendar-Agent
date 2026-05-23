@@ -3483,8 +3483,14 @@ const main = async () => {
           } else {
             const numberText = (scoreNumber.textContent || "").trim();
             const suffixText = (scoreSuffix.textContent || "").trim();
-            if (!/^\d+$/.test(numberText) || suffixText !== "%") {
+            const isContextScore =
+              scoreRing.classList.contains("is-context") ||
+              scoreRing.getAttribute("data-score-state") === "context";
+            if (!isContextScore && (!/^\d+$/.test(numberText) || suffixText !== "%")) {
               problems.push(`Market Agent Evidence Status score should render as static number plus percent (${numberText}${suffixText})`);
+            }
+            if (isContextScore && (numberText !== "--" || suffixText !== "")) {
+              problems.push(`Market Agent Evidence Status context score should not look like a fake percentage (${numberText}${suffixText})`);
             }
             const progress = scoreRing.querySelector(".market-agent-score-progress");
             if (
@@ -3513,6 +3519,14 @@ const main = async () => {
             }
             const numericScore = Number.parseInt(numberText, 10);
             const strengthText = (scoreRing.querySelector(".market-agent-score-strength")?.textContent || "").trim();
+            if (isContextScore) {
+              if (strengthText !== "Context") {
+                problems.push("Market Agent Evidence Status context score should be labeled Context");
+              }
+              if (progress instanceof SVGElement && !progress.classList.contains("is-empty")) {
+                problems.push("Market Agent Evidence Status context score should not expose a progress stroke");
+              }
+            }
             if (Number.isFinite(numericScore) && progress instanceof SVGElement) {
               const circleLength = typeof progress.getTotalLength === "function" ? progress.getTotalLength() : 0;
               if (numericScore === 0) {
@@ -4012,7 +4026,9 @@ const main = async () => {
         const text = root instanceof HTMLElement ? root.innerText || root.textContent || "" : "";
         const isCurrentPaused =
           text.includes("No driver confirmed yet") ||
-          text.includes("Waiting for evidence chain");
+          text.includes("Waiting for evidence chain") ||
+          text.includes("Driver scores hidden") ||
+          text.includes("Current ranking paused");
         if (!text.includes("Driver Focus")) {
           problems.push("Driver Attention page does not present the current focus heading");
         }
@@ -4030,8 +4046,11 @@ const main = async () => {
             problems.push(`Driver Attention missing ${heading}`);
           }
         }
-        if (isCurrentPaused && !text.includes("What is missing")) {
-          problems.push("Driver Attention paused state should explain what is missing");
+        if (isCurrentPaused && !text.includes("Required price inputs")) {
+          problems.push("Driver Attention paused state should explain the required price inputs");
+        }
+        if (isCurrentPaused && !text.includes("Context still watched")) {
+          problems.push("Driver Attention paused state should keep watched context visible");
         }
         return problems;
       });

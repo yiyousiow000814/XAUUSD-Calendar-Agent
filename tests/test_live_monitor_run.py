@@ -288,7 +288,7 @@ def test_run_monitored_live_once_suppresses_market_closed_alert(tmp_path) -> Non
     assert not (tmp_path / "alerts.ndjson").exists()
 
 
-def test_run_monitored_live_once_suppresses_backfilled_recovery_alert(tmp_path) -> None:
+def test_run_monitored_live_once_keeps_live_decision_while_backfilling_history(tmp_path) -> None:
     related_path = tmp_path / "related_assets.json"
     related_path.write_text(
         json.dumps({"dxy_percent": 0.22, "us10y_bps": 5.1, "us2y_bps": 4.4}),
@@ -333,15 +333,23 @@ def test_run_monitored_live_once_suppresses_backfilled_recovery_alert(tmp_path) 
         news_headlines=_fresh_news(),
     )
 
-    assert outcome["run_type"] == "recovery"
+    assert outcome["run_type"] == "live"
     assert outcome["backfill_required"] is True
-    assert outcome["notification"]["should_notify"] is False
-    assert outcome["analysis"]["summary"] == (
+    assert outcome["evidence_packet"]["data_mode"] == "live_seen"
+    assert outcome["analysis"]["summary"] != (
         "Historical recovery data was stored for replay and evidence only; "
         "it is not a current alert."
     )
-    assert telegram.payloads == []
-    assert not (tmp_path / "alerts.ndjson").exists()
+
+    timeline_rows = TimelineStore(timeline_path).get_timeline(
+        "2026-05-19T04:00:00+08:00",
+        "2026-05-19T07:30:00+08:00",
+    )
+    recovery_rows = [row for row in timeline_rows if row["event_type"] == "recovery_summary"]
+    assert recovery_rows
+    assert recovery_rows[0]["payload"]["data_mode"] == "backfilled"
+    if telegram.payloads:
+        assert telegram.payloads[0]["data_mode"] == "live_seen"
 
 
 class FailingTelegramSink:

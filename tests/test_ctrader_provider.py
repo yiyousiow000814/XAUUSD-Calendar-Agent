@@ -279,6 +279,87 @@ def test_ctrader_saved_snapshot_fallback_is_stale_and_not_fresh(tmp_path) -> Non
     assert health.data_mode == "stale"
 
 
+def test_ctrader_stale_quote_uses_latest_history_close(tmp_path) -> None:
+    bridge = FakeBridgeRunner(
+        {
+            "quote": {
+                "ok": True,
+                "quote": {
+                    "symbol": "XAUUSD",
+                    "symbol_id": 777,
+                    "bid": 4488.0,
+                    "ask": 4488.4,
+                    "mid": 4488.2,
+                    "timestamp": "2026-05-16T04:55:00+08:00",
+                    "source": "cTrader CLI",
+                    "source_type": "spot",
+                    "environment": "demo",
+                    "account_id": "123456",
+                },
+                "provider_health": {
+                    "source": "cTrader",
+                    "source_type": "spot",
+                    "data_mode": "stale",
+                    "is_available": True,
+                    "is_stale": True,
+                    "stale_reason": "cTrader quote is old; market may be closed.",
+                    "error": "",
+                    "current_value": 4488.2,
+                    "data_timestamp": "2026-05-16T04:55:00+08:00",
+                    "fetched_at": "2026-05-17T08:00:00+08:00",
+                    "raw_source_id": "777",
+                },
+            },
+            "backfill": {
+                "ok": True,
+                "bars": [
+                    {
+                        "symbol": "XAUUSD",
+                        "data_timestamp": "2026-05-16T04:55:00+08:00",
+                        "open": 4490.0,
+                        "high": 4491.0,
+                        "low": 4487.0,
+                        "close": 4488.0,
+                    },
+                    {
+                        "symbol": "XAUUSD",
+                        "data_timestamp": "2026-05-16T04:59:00+08:00",
+                        "open": 4488.0,
+                        "high": 4492.0,
+                        "low": 4487.5,
+                        "close": 4491.4,
+                    },
+                ],
+                "provider_health": {
+                    "source": "cTrader",
+                    "source_type": "spot",
+                    "data_mode": "backfilled",
+                    "is_available": True,
+                    "is_stale": False,
+                    "data_timestamp": "2026-05-16T04:59:00+08:00",
+                    "fetched_at": "2026-05-17T08:00:00+08:00",
+                },
+            },
+        }
+    )
+    provider = CTraderProvider(
+        cli_config=_full_config(tmp_path),
+        bridge_runner=bridge,
+        saved_snapshot_path=tmp_path / "snapshot.json",
+    )
+
+    rows, health = provider.fetch_latest(datetime.fromisoformat("2026-05-17T08:00:00+08:00"))
+
+    assert [call[0] for call in bridge.calls] == ["quote", "backfill"]
+    assert rows[-1]["source"] == "cTrader history"
+    assert rows[-1]["data_mode"] == "stale"
+    assert rows[-1]["close"] == pytest.approx(4491.4)
+    assert health.current_value == pytest.approx(4491.4)
+    assert health.previous_value == pytest.approx(4488.0)
+    assert health.is_stale is True
+    assert health.data_mode == "stale"
+
+
 def test_ctrader_symbol_resolution_exact_normalized_and_override(tmp_path) -> None:
     bridge = FakeBridgeRunner(
         {

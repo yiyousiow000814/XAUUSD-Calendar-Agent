@@ -130,6 +130,9 @@ export function MarketAgentDriverAttention({ data, evidenceChainStatus }: Market
     : undefined;
   const missingInputs = listValue(evidenceChainStatus, "missing_required");
   const usableInputs = listValue(evidenceChainStatus, "usable_inputs");
+  const contextStates = [...groups.active, ...groups.watching, ...groups.background]
+    .sort((left, right) => (right.relevance_score ?? 0) - (left.relevance_score ?? 0))
+    .slice(0, 6);
 
   return (
     <section className="market-agent-surface" data-qa="qa:market-agent:driver-attention">
@@ -145,21 +148,21 @@ export function MarketAgentDriverAttention({ data, evidenceChainStatus }: Market
         <div className="market-agent-driver-layout market-agent-driver-layout-paused">
           <div className="market-agent-driver-summary">
             <div>
-              <span>Waiting for evidence chain</span>
-              <strong>No driver confirmed yet</strong>
-              <p>{formatValue(evidenceChainStatus?.reason, "Live price and recent history are required before the agent scores drivers.")}</p>
+              <span>Current ranking paused</span>
+              <strong>Driver scores hidden</strong>
+              <p>{formatValue(evidenceChainStatus?.reason, "Live XAUUSD price and recent history are required before current driver scores are shown.")}</p>
             </div>
             <div className="market-agent-driver-summary-metrics">
               <span><em>Confirmed</em><b>0</b></span>
               <span><em>Missing</em><b>{missingInputs.length}</b></span>
-              <span><em>Collected</em><b>{usableInputs.length}</b></span>
+              <span><em>Context</em><b>{usableInputs.length + contextStates.length}</b></span>
             </div>
           </div>
           <section className="market-agent-driver-group">
             <div className="market-agent-driver-group-head">
               <div>
-                <h3>What is missing</h3>
-                <span>The agent keeps collecting context, but it will not rank drivers until these inputs are ready.</span>
+                <h3>Required price inputs</h3>
+                <span>These resume current driver scoring. News and calendar context still collects.</span>
               </div>
               <b>{missingInputs.length}</b>
             </div>
@@ -169,12 +172,30 @@ export function MarketAgentDriverAttention({ data, evidenceChainStatus }: Market
                   <div className="market-agent-driver-main">
                     <div>
                       <strong>{formatValue(item)}</strong>
-                      <span>Required before current driver scores are shown.</span>
+                      <span>Waiting before current driver scores are shown.</span>
                     </div>
                     <b>Waiting</b>
                   </div>
                 </article>
               ))}
+            </div>
+          </section>
+          <section className="market-agent-driver-group">
+            <div className="market-agent-driver-group-head">
+              <div>
+                <h3>Context still watched</h3>
+                <span>These are stored as context until price evidence can confirm a current driver.</span>
+              </div>
+              <b>{contextStates.length}</b>
+            </div>
+            <div className="market-agent-driver-list">
+              {contextStates.length ? (
+                contextStates.map((state) => (
+                  <DriverRow key={`${state.driver_id}-${state.monitor_run_id ?? "paused"}`} state={state} />
+                ))
+              ) : (
+                <div className="market-agent-empty-state">No context drivers recorded yet.</div>
+              )}
             </div>
           </section>
         </div>

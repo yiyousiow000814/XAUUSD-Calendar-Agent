@@ -598,7 +598,7 @@ describe("MarketAgentPage", () => {
     expect(within(scoreRing as HTMLElement).queryByText("Strong")).not.toBeInTheDocument();
     expect(within(scoreRing as HTMLElement).getByText("Contrary")).toBeInTheDocument();
     expect(container.querySelector(".market-agent-score-progress.is-empty")).toBeInTheDocument();
-    expect(screen.getByText(/Evidence Quality:/i).textContent).toContain("Contrary (0%)");
+    expect(container.querySelector(".market-agent-evidence-footer")?.textContent).toContain("Contrary (0%)");
   });
 
   it("uses a full ring state when every evidence item supports the move", () => {
@@ -796,11 +796,11 @@ describe("MarketAgentPage", () => {
     renderMarketAgentPage({ providerHealth: staleSpotHealth });
 
     expect(screen.getAllByText(/Market closed/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/No driver confirmed yet/i)).toBeInTheDocument();
+    expect(screen.getByText(/Current driver ranking paused/i)).toBeInTheDocument();
     expect(screen.queryByText(/cTrader \(Spot\)/i)).not.toBeInTheDocument();
     expect(screen.getByText(/4,479\.00/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /^Evidence$/i }));
-    expect(screen.getByText(/Required inputs are missing/i)).toBeInTheDocument();
+    expect(screen.getByText(/Collected Context/i)).toBeInTheDocument();
     expect(screen.queryByText(/Xauusd: Live Data/i)).not.toBeInTheDocument();
   });
 
@@ -1275,7 +1275,7 @@ describe("MarketAgentPage", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
 
-    expect(screen.getAllByText(/Live pending/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Getting quote/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByText(/cTrader live/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/does not expose live quotes/i)).not.toBeInTheDocument();
   });
@@ -1630,6 +1630,13 @@ describe("MarketAgentPage", () => {
     expect(within(dataSourceActions).queryByRole("button", { name: /^Market data$/i })).not.toBeInTheDocument();
     expect(within(dataSourceActions).queryByRole("button", { name: /^News$/i })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Connect cTrader/i })).toBeInTheDocument();
+    const agentActivity = screen.getByLabelText(/Agent activity/i);
+    expect(within(agentActivity).getByText(/^cTrader$/i)).toBeInTheDocument();
+    expect(within(agentActivity).getByText(/^History$/i)).toBeInTheDocument();
+    expect(within(agentActivity).getAllByText(/News and calendar|Market context/i).length).toBeGreaterThan(0);
+    expect(within(agentActivity).getByText(/Local AI/i)).toBeInTheDocument();
+    expect(within(agentActivity).getByText(/XAUUSD market is closed/i)).toBeInTheDocument();
+    expect(within(agentActivity).getByText(/Batch review runs after evidence gate|Rules and evidence gate still run/i)).toBeInTheDocument();
     expect(screen.getByText(/fetch live XAUUSD first/i)).toBeInTheDocument();
     expect(screen.queryByText(/^Backup price$/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/^Local CSV$/i)).not.toBeInTheDocument();
@@ -1692,6 +1699,62 @@ describe("MarketAgentPage", () => {
     expect(screen.queryByRole("button", { name: /^Refresh token$/i })).not.toBeInTheDocument();
   });
 
+  it("shows backend agent activity instead of inferred source setup states", () => {
+    renderMarketAgentPage({
+      monitorStatus: {
+        ...monitorStatus,
+        running: true,
+        phase: "collecting_context",
+        message: "Collecting market context.",
+        updatedAt: "2026-05-19T07:15:10+08:00",
+        activity: {
+          ctrader: {
+            status: "market_closed",
+            label: "Market closed",
+            detail: "Last XAUUSD price is fixed until the market reopens.",
+            updatedAt: "2026-05-19T07:15:00+08:00"
+          },
+          history: {
+            status: "syncing",
+            label: "History sync",
+            detail: "Backfill running in the background.",
+            progress: 42
+          },
+          context: {
+            status: "active",
+            label: "News and calendar",
+            detail: "3 headlines and 2 calendar events collected.",
+            newsCount: 3,
+            calendarCount: 2
+          },
+          llm: {
+            status: "queued",
+            label: "Local AI queued",
+            detail: "Batch review runs after evidence gate."
+          },
+          alerts: {
+            status: "suppressed",
+            label: "No alert",
+            detail: "No current live alert passed the gate."
+          }
+        }
+      } as Parameters<typeof MarketAgentPage>[0]["monitorStatus"]
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
+    const agentActivity = screen.getByLabelText(/Agent activity/i);
+
+    expect(within(agentActivity).getByText(/collecting market context/i)).toBeInTheDocument();
+    expect(within(agentActivity).getAllByText(/Market closed/i).length).toBeGreaterThan(0);
+    expect(within(agentActivity).getByText(/Last XAUUSD price is fixed/i)).toBeInTheDocument();
+    expect(within(agentActivity).getByText(/42%/i)).toBeInTheDocument();
+    expect(within(agentActivity).getByText(/3 headlines and 2 calendar events/i)).toBeInTheDocument();
+    expect(within(agentActivity).getByText(/Batch review runs after evidence gate/i)).toBeInTheDocument();
+    expect(within(agentActivity).getByText(/No current live alert passed the gate/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Background activity/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/News feeds not configured|No news provider configured|disabled/i)).not.toBeInTheDocument();
+  });
+
   it("shows a readable local CSV fallback warning", () => {
     render(
       <MarketAgentPage
@@ -1741,7 +1804,7 @@ describe("MarketAgentPage", () => {
 
     expect(screen.queryByText(/No meaningful XAUUSD move detected/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Using local CSV fallback\. Configure cTrader or Yahoo provider for live monitoring\./i)).not.toBeInTheDocument();
-    expect(screen.getAllByText(/Neutral/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/CURRENT PAUSED/i)).toBeInTheDocument();
     expect(screen.getAllByText(/No live price/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Waiting/i).length).toBeGreaterThan(0);
     expect(screen.queryByText("LOCAL_CSV_FALLBACK")).not.toBeInTheDocument();
@@ -1757,15 +1820,91 @@ describe("MarketAgentPage", () => {
     expect(screen.getAllByText(/No live price/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/CURRENT PAUSED/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Fed headline/i).length).toBeGreaterThan(0);
-    expect(screen.queryByText(/US10Y fresh and confirming/i)).not.toBeInTheDocument();
+    expect(screen.getAllByText(/Context/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/US10Y fresh and supporting the move/i)).toBeInTheDocument();
+    expect(screen.queryByText(/No accepted evidence yet/i)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /^Driver Attention$/i }));
-    expect(screen.getByText(/No driver confirmed yet/i)).toBeInTheDocument();
-    expect(screen.queryByText(/US10Y fresh and confirming/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/Driver scores hidden/i)).toBeInTheDocument();
+    expect(screen.getByText(/Required price inputs/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Live XAUUSD Spot/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Context still watched/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/US10Y fresh and confirming/i).length).toBeGreaterThan(0);
 
     fireEvent.click(screen.getByRole("button", { name: /^Evidence$/i }));
     expect(screen.getByText(/No current conclusion/i)).toBeInTheDocument();
     expect(screen.queryByText(/Accepted Driver/i)).not.toBeInTheDocument();
+  });
+
+  it("keeps news and calendar visible when XAUUSD spot is market closed", () => {
+    const closedProviderHealth: MarketAgentProviderHealthResponse = {
+      ok: true,
+      available: true,
+      monitor_run_id: 25,
+      items: [
+        {
+          provider_key: "xauusd",
+          source: "cTrader",
+          source_type: "spot",
+          data_mode: "stale",
+          is_available: true,
+          is_stale: true,
+          stale_reason: "Market is closed.",
+          current_value: 4504.8,
+          data_timestamp: "2026-05-19T07:15:00+08:00",
+          fetched_at: "2026-05-19T07:16:00+08:00"
+        },
+        {
+          provider_key: "news",
+          source: "News",
+          source_type: "news",
+          data_mode: "live_seen",
+          is_available: true,
+          is_stale: false,
+          data_timestamp: freshProviderTimestamp(),
+          fetched_at: freshProviderTimestamp()
+        },
+        {
+          provider_key: "calendar",
+          source: "Calendar",
+          source_type: "calendar",
+          data_mode: "live_seen",
+          is_available: true,
+          is_stale: false,
+          data_timestamp: freshProviderTimestamp(),
+          fetched_at: freshProviderTimestamp()
+        }
+      ]
+    };
+
+    renderMarketAgentPage({
+      providerHealth: closedProviderHealth,
+      selectedEvidence: {
+        ...evidence,
+        payload: {
+          ...evidence.payload,
+          evidence_packet: {
+            ...evidence.payload.evidence_packet,
+            evidence_chain_status: {
+              status: "context_only",
+              can_show_current_conclusion: false,
+              reason: "Market is closed. The last spot price can be shown, but current driver conclusions are paused.",
+              missing_required: ["live_xauusd_spot", "xauusd_recent_history"],
+              usable_inputs: ["news_context", "calendar_context"],
+              context_only_inputs: ["market_closed_last_xauusd_spot"]
+            }
+          }
+        }
+      }
+    });
+
+    expect(screen.getAllByText(/Market closed/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Current driver ranking paused/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Fed headline/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/US session opens/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Evidence Status:/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Context only/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/No accepted evidence yet/i)).not.toBeInTheDocument();
   });
 
   it("uses backend evidence chain readiness instead of live price alone", () => {
@@ -1797,7 +1936,7 @@ describe("MarketAgentPage", () => {
     expect(screen.getByText(/CURRENT PAUSED/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Current conclusion is paused until live XAUUSD price and recent price history are available/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Current Paused/i).length).toBeGreaterThan(0);
-    expect(screen.queryByText(/US10Y fresh and confirming/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/US10Y fresh and supporting the move/i)).toBeInTheDocument();
   });
 
   it("shows useful empty states when sqlite-backed data is unavailable", () => {

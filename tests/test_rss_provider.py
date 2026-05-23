@@ -33,3 +33,15 @@ def test_rss_provider_missing_timestamp_gets_lower_score() -> None:
     opinion_row = next(item for item in rows if item["title"] == "Opinion: Gold forecast into CPI week")
     assert opinion_row["included"] is False
     assert opinion_row["filter_reason"] in {"missing_timestamp", "low_signal_opinion_or_forecast", "score_below_threshold"}
+
+
+def test_rss_provider_skips_malformed_feed_without_blocking_other_feeds(tmp_path) -> None:
+    bad_feed = tmp_path / "bad.xml"
+    bad_feed.write_text("<html>not rss", encoding="utf-8")
+    good_feed = Path(__file__).parent / "fixtures" / "providers" / "news_feed.xml"
+    provider = RSSNewsProvider([str(bad_feed), str(good_feed)])
+
+    rows, health = provider.fetch_latest(datetime.fromisoformat("2026-05-19T08:00:00+08:00"))
+
+    assert rows
+    assert health.is_available is True

@@ -85,7 +85,10 @@ class RSSNewsProvider:
             xml_text = _read_feed(feed_url)
             if not xml_text:
                 continue
-            root = ET.fromstring(xml_text)
+            try:
+                root = ET.fromstring(xml_text)
+            except ET.ParseError:
+                continue
             channel_title = root.findtext("./channel/title", default=feed_url)
             for item in root.findall("./channel/item"):
                 title = html.unescape(item.findtext("title", default="").strip())

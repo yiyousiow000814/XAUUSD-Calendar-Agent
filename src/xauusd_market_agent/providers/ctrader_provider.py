@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Callable
 
@@ -164,6 +164,81 @@ class CTraderProvider:
         )
         return [row], health
 
+    def _latest_history_snapshot(
+        self,
+        anchor_time: datetime,
+        *,
+        fallback_error: str = "",
+    ) -> tuple[list[dict[str, Any]], ProviderHealth | None]:
+        try:
+            response = self.bridge_runner(
+                "backfill",
+                {
+                    **self._bridge_payload(),
+                    "start": (anchor_time - timedelta(days=7)).isoformat(),
+                    "end": anchor_time.isoformat(),
+                },
+            )
+            bars = response.get("bars")
+            if not isinstance(bars, list) or not bars:
+                return [], None
+            ordered = sorted(bars, key=lambda item: str(item.get("data_timestamp", item.get("timestamp", ""))))
+            last = ordered[-1]
+            previous = ordered[-2] if len(ordered) > 1 else None
+            close = float(last.get("close", last.get("close_price", last.get("mid", 0.0))))
+            previous_close = (
+                float(previous.get("close", previous.get("close_price", previous.get("mid", close))))
+                if isinstance(previous, dict)
+                else close
+            )
+            timestamp = str(last.get("data_timestamp", last.get("timestamp", anchor_time.isoformat())))
+            reason = fallback_error or "Market may be closed or live quotes are paused; showing last cTrader history price."
+            snapshot = {
+                "timestamp": timestamp,
+                "symbol": str(last.get("symbol", self.cli_config.symbol)),
+                "symbol_id": self.cli_config.symbol_id,
+                "mid": close,
+                "source": "cTrader history",
+                "source_type": "spot",
+                "environment": self.cli_config.environment,
+                "account_id": self.cli_config.account_id,
+            }
+            self._write_snapshot(snapshot)
+            row = {
+                "timestamp": timestamp,
+                "data_timestamp": timestamp,
+                "symbol": str(last.get("symbol", self.cli_config.symbol)),
+                "open": float(last.get("open", last.get("open_price", close))),
+                "high": float(last.get("high", last.get("high_price", close))),
+                "low": float(last.get("low", last.get("low_price", close))),
+                "close": close,
+                "bid": last.get("bid"),
+                "ask": last.get("ask"),
+                "source": "cTrader history",
+                "source_type": "spot",
+                "data_mode": "stale",
+                "is_stale": True,
+                "stale_reason": reason,
+            }
+            return [row], ProviderHealth(
+                source="cTrader",
+                source_type="spot",
+                fetched_at=anchor_time.isoformat(),
+                data_timestamp=timestamp,
+                data_mode="stale",
+                is_available=True,
+                is_stale=True,
+                stale_reason=reason,
+                error="",
+                raw_source_id=str(last.get("symbol_id", self.cli_config.symbol_id or self.cli_config.symbol)),
+                current_value=close,
+                previous_value=previous_close,
+                change_value=close - previous_close,
+                change_unit="price",
+            )
+        except Exception:
+            return [], None
+
     def resolve_symbol(self) -> dict[str, Any]:
         if self.cli_config.symbol_id is not None:
             return {
@@ -202,8 +277,19 @@ class CTraderProvider:
                 "is_stale": bool(health_payload.get("is_stale", False)),
                 "stale_reason": str(health_payload.get("stale_reason", "")),
             }
-            return [row], _provider_health_from_payload(health_payload, str(quote.get("symbol_id", self.cli_config.symbol)))
+            health = _provider_health_from_payload(health_payload, str(quote.get("symbol_id", self.cli_config.symbol)))
+            if health.is_stale:
+                history_rows, history_health = self._latest_history_snapshot(
+                    anchor_time,
+                    fallback_error=health.stale_reason,
+                )
+                if history_rows and history_health is not None:
+                    return history_rows, history_health
+            return [row], health
         except Exception as exc:
+            history_rows, history_health = self._latest_history_snapshot(anchor_time, fallback_error=str(exc))
+            if history_rows and history_health is not None:
+                return history_rows, history_health
             if self.cli_config.allow_saved_snapshot_fallback:
                 rows, health = self._load_saved_snapshot(anchor_time, fallback_error=str(exc))
                 if rows:

@@ -24,8 +24,10 @@ const LABELS: Record<string, string> = {
   level_3: "Level 3",
   live: "Live",
   live_seen: "Live data",
+  live_xauusd_spot: "Live XAUUSD spot",
   local_csv_fallback: "Local CSV fallback",
   low: "Low",
+  market_closed_last_xauusd_spot: "Market closed XAUUSD spot",
   medium: "Medium",
   medium_high: "Medium high",
   micro_theme: "Micro theme",
@@ -43,7 +45,9 @@ const LABELS: Record<string, string> = {
   unavailable: "Not available",
   unconfirmed: "Unconfirmed",
   unknown: "Unknown",
-  watching: "Watching"
+  watching: "Watching",
+  xauusd: "XAUUSD",
+  xauusd_recent_history: "XAUUSD recent history"
 };
 
 const DRIVER_LABELS: Record<string, string> = {
@@ -167,6 +171,16 @@ export const buildSituationSummary = (
   const causeStatus = normalizeMarketAgentValue(state.cause_status);
   const sourceType = normalizeMarketAgentValue(xauusdHealth?.source_type);
   const dataMode = normalizeMarketAgentValue(xauusdHealth?.data_mode);
+  const priceIsMarketClosed = Boolean(
+    xauusdHealth?.is_available &&
+    (xauusdHealth.is_stale || dataMode === "stale") &&
+    typeof xauusdHealth.current_value === "number" &&
+    Number.isFinite(xauusdHealth.current_value)
+  );
+
+  if (priceIsMarketClosed) {
+    return "XAUUSD market is closed. The last cTrader price is fixed while news and calendar context keep updating.";
+  }
 
   if (causeStatus === "no_meaningful_change" || (bias === "neutral" && mainDriver === "unknown")) {
     return "No meaningful XAUUSD move detected. Market Agent is watching for fresh driver changes.";
@@ -195,11 +209,14 @@ export const providerGuidance = (item: MarketAgentProviderHealthEntry | undefine
 
   if (!item.is_available || sourceType === "unavailable" || dataMode === "unavailable") {
     if (normalizeMarketAgentValue(item.provider_key) === "us2y") {
-      return "No reliable free US2Y source is configured.";
+      return "US2Y is unavailable, so it is not treated as neutral or confirming evidence.";
     }
-    return item.error || item.stale_reason || "This source is not available. Configure a provider before using it as evidence.";
+    return item.error || item.stale_reason || "This source is not available for evidence in the latest run.";
   }
   if (item.is_stale || dataMode === "stale") {
+    if (typeof item.current_value === "number" && Number.isFinite(item.current_value)) {
+      return "Market is closed or the feed is paused. The last XAUUSD price can be shown, but current driver scoring waits for a fresh quote.";
+    }
     return item.stale_reason || "The latest value is stale and cannot confirm a fresh move.";
   }
   if (sourceType === "futures_proxy") return "Using Yahoo GC=F futures proxy, not true spot XAUUSD.";

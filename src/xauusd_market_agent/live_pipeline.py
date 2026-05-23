@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import asdict, replace
-from datetime import datetime
+from datetime import datetime, timedelta
+import json
 import os
 import time
 from pathlib import Path
@@ -21,6 +22,197 @@ from .provider_health import health_to_dict
 from .providers.provider_router import ProviderRouter
 from .state_store import JsonStateStore
 from .timeline_store import TimelineStore
+
+
+def _status_path_from_env(status_path: Path | None = None) -> Path | None:
+    if status_path is not None:
+        return Path(status_path)
+    raw = os.getenv("MARKET_AGENT_MONITOR_STATUS_PATH", "").strip()
+    return Path(raw) if raw else None
+
+
+def _read_monitor_status(path: Path) -> dict[str, Any]:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        return payload if isinstance(payload, dict) else {}
+    except Exception:
+        return {}
+
+
+def _write_monitor_status(status_path: Path | None, **updates: Any) -> None:
+    path = _status_path_from_env(status_path)
+    if path is None:
+        return
+    current = _read_monitor_status(path) if path.exists() else {}
+    payload = {
+        "ok": True,
+        "available": True,
+        "running": False,
+        "phase": "stopped",
+        "pid": os.getpid(),
+        "lastError": "",
+        "message": "Monitor loop is stopped.",
+        **current,
+        **updates,
+        "updatedAt": datetime.now().astimezone().isoformat(),
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temp_path = path.with_suffix(path.suffix + ".tmp")
+    temp_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
+    temp_path.replace(path)
+
+
+def _provider_health_payload(health: ProviderHealth | None) -> dict[str, Any]:
+    return asdict(health) if health is not None else {}
+
+
+def _format_price(value: object) -> str:
+    try:
+        number = float(value)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return ""
+    return f"{number:,.2f}"
+
+
+def _ctrader_activity(health: ProviderHealth | None) -> dict[str, Any]:
+    if health is None:
+        return {
+            "status": "waiting",
+            "label": "Waiting for XAUUSD",
+            "detail": "cTrader has not returned a price snapshot yet.",
+        }
+    price = _format_price(health.current_value)
+    if health.is_available and not health.is_stale and health.data_mode == "live_seen":
+        return {
+            "status": "live",
+            "label": "XAUUSD live",
+            "detail": f"Last price {price} from cTrader." if price else "Live XAUUSD quote is active.",
+            "dataTimestamp": health.data_timestamp,
+            "fetchedAt": health.fetched_at,
+            "providerHealth": _provider_health_payload(health),
+        }
+    if health.is_available and health.current_value is not None:
+        return {
+            "status": "market_closed",
+            "label": "Market closed",
+            "detail": (
+                f"Last XAUUSD price {price} is fixed until the market reopens; "
+                "news and calendar still update."
+            )
+            if price
+            else "Last XAUUSD price is fixed until the market reopens; news and calendar still update.",
+            "dataTimestamp": health.data_timestamp,
+            "fetchedAt": health.fetched_at,
+            "providerHealth": _provider_health_payload(health),
+        }
+    return {
+        "status": "unavailable",
+        "label": "No XAUUSD price",
+        "detail": health.error or health.stale_reason or "cTrader has not returned a usable XAUUSD price.",
+        "dataTimestamp": health.data_timestamp,
+        "fetchedAt": health.fetched_at,
+        "providerHealth": _provider_health_payload(health),
+    }
+
+
+def _context_activity(news_count: int, calendar_count: int) -> dict[str, Any]:
+    detail = f"{news_count} headlines and {calendar_count} calendar events collected."
+    return {
+        "status": "active" if news_count or calendar_count else "collecting",
+        "label": "News and calendar",
+        "detail": detail,
+        "newsCount": news_count,
+        "calendarCount": calendar_count,
+    }
+
+
+def _history_activity(backfill_required: bool, *, completed: bool = False) -> dict[str, Any]:
+    if backfill_required and completed:
+        return {
+            "status": "synced",
+            "label": "History synced",
+            "detail": "Missing cTrader history was stored for replay and evidence.",
+            "progress": 100,
+        }
+    if backfill_required:
+        return {
+            "status": "syncing",
+            "label": "History sync",
+            "detail": "Backfill runs in the background after the current live check.",
+        }
+    return {
+        "status": "idle",
+        "label": "History current",
+        "detail": "No backfill gap detected for this run.",
+    }
+
+
+def _llm_activity(llm_enabled: bool, llm_status: str | None = None) -> dict[str, Any]:
+    if not llm_enabled:
+        return {
+            "status": "skipped",
+            "label": "Rule-based",
+            "detail": "Evidence gate and deterministic rules ran without Local AI.",
+        }
+    if llm_status == "validated":
+        return {
+            "status": "validated",
+            "label": "Local AI reviewed",
+            "detail": "LLM output passed validation after the evidence gate.",
+        }
+    if llm_status:
+        return {
+            "status": "unavailable",
+            "label": "Local AI unavailable",
+            "detail": "Rules were used because Local AI did not return a valid review.",
+        }
+    return {
+        "status": "queued",
+        "label": "Local AI queued",
+        "detail": "Batch review runs after evidence gate.",
+    }
+
+
+def _alert_activity(decision: Any | None = None, telegram_result: dict[str, Any] | None = None) -> dict[str, Any]:
+    if decision is None:
+        return {
+            "status": "pending",
+            "label": "Alert gate",
+            "detail": "Waiting for evidence and notification policy.",
+        }
+    if getattr(decision, "should_notify", False):
+        sent = bool((telegram_result or {}).get("sent"))
+        return {
+            "status": "sent" if sent else "ready",
+            "label": "Alert sent" if sent else "Alert ready",
+            "detail": "A current live alert passed the gate.",
+        }
+    return {
+        "status": "suppressed" if getattr(decision, "reason", "") else "idle",
+        "label": "No alert",
+        "detail": getattr(decision, "reason", "") or "No current live alert passed the gate.",
+    }
+
+
+def _activity_snapshot(
+    *,
+    provider_health: dict[str, ProviderHealth],
+    news_count: int,
+    calendar_count: int,
+    backfill_required: bool,
+    llm_enabled: bool,
+    llm_status: str | None = None,
+    decision: Any | None = None,
+    telegram_result: dict[str, Any] | None = None,
+    history_completed: bool = False,
+) -> dict[str, Any]:
+    return {
+        "ctrader": _ctrader_activity(provider_health.get("xauusd")),
+        "history": _history_activity(backfill_required, completed=history_completed),
+        "context": _context_activity(news_count, calendar_count),
+        "llm": _llm_activity(llm_enabled, llm_status),
+        "alerts": _alert_activity(decision, telegram_result),
+    }
 
 
 class MonitorLock:
@@ -729,8 +921,6 @@ def _resolve_runtime_data_mode(
     backfill_required: bool,
     provider_health: dict[str, ProviderHealth],
 ) -> str:
-    if backfill_required:
-        return "backfilled"
     return provider_health.get("xauusd", ProviderHealth("", "", "", "", "unavailable", False, False)).data_mode or "unavailable"
 
 
@@ -875,37 +1065,72 @@ def run_monitored_live_once(
     llm_client=None,
     provider_router: ProviderRouter | None = None,
     telegram_sink=None,
+    status_path: Path | None = None,
 ) -> dict[str, Any]:
     anchor = anchor_time or datetime.now().astimezone()
+    resolved_status_path = _status_path_from_env(status_path)
     state_store = JsonStateStore(state_path or config.state_store_path)
     timeline_store = TimelineStore(timeline_store_path or config.timeline_store_path)
     sink = FileNotificationSink(alerts_path or config.alerts_output_path)
     previous_state = state_store.load()
     last_successful_run_at = timeline_store.get_last_successful_run_at()
     previous_attention_states = timeline_store.load_latest_driver_attention_states()
-    backfill_required, run_type = _detect_gap(
+    backfill_required, detected_run_type = _detect_gap(
         previous_run_at=last_successful_run_at,
         anchor=anchor,
         gap_minutes=config.backfill_gap_minutes,
     )
-    runtime_context = (
-        _run_recovery_backfill(
-            config,
-            previous_run_at=last_successful_run_at or anchor.isoformat(),
-            anchor_time=anchor,
-            provider_router=provider_router,
-            news_headlines=news_headlines,
-        )
-        if backfill_required
-        else _build_runtime_context(
-            config,
-            anchor_time=anchor,
-            provider_router=provider_router,
-            news_headlines=news_headlines,
-        )
+    run_type = "live"
+    active_llm_client = llm_client or LocalLLMClient()
+    llm_enabled = bool(getattr(getattr(active_llm_client, "config", None), "enabled", False))
+    _write_monitor_status(
+        resolved_status_path,
+        ok=True,
+        available=True,
+        running=True,
+        phase="collecting_inputs",
+        pid=os.getpid(),
+        lastRunAt=anchor.isoformat(),
+        lastError="",
+        message="Getting XAUUSD price, related sensors, news, and calendar.",
+        activity={
+            "ctrader": {
+                "status": "checking",
+                "label": "Getting XAUUSD",
+                "detail": "Requesting the latest cTrader price snapshot.",
+            },
+            "history": _history_activity(backfill_required),
+            "context": {
+                "status": "collecting",
+                "label": "News and calendar",
+                "detail": "Collecting market context in the background.",
+            },
+            "llm": _llm_activity(llm_enabled),
+            "alerts": _alert_activity(),
+        },
+    )
+    runtime_context = _build_runtime_context(
+        config,
+        anchor_time=anchor,
+        provider_router=provider_router,
+        news_headlines=news_headlines,
     )
     fixture = runtime_context["fixture"]
     provider_health = runtime_context["provider_health"]
+    _write_monitor_status(
+        resolved_status_path,
+        running=True,
+        phase="running_evidence_gate",
+        lastRunAt=anchor.isoformat(),
+        message="Checking whether collected inputs form a usable evidence chain.",
+        activity=_activity_snapshot(
+            provider_health=provider_health,
+            news_count=len(runtime_context.get("news_rows", [])),
+            calendar_count=len(runtime_context.get("calendar_rows", [])),
+            backfill_required=backfill_required,
+            llm_enabled=llm_enabled,
+        ),
+    )
     data_mode = _resolve_runtime_data_mode(
         backfill_required=backfill_required,
         provider_health=provider_health,
@@ -918,9 +1143,25 @@ def run_monitored_live_once(
         previous_states=previous_attention_states,
         data_mode=data_mode,
     )
+    _write_monitor_status(
+        resolved_status_path,
+        running=True,
+        phase="llm_review" if llm_enabled else "rule_based_review",
+        lastRunAt=anchor.isoformat(),
+        message="Local AI batch review is running after the evidence gate."
+        if llm_enabled
+        else "Rule-based analysis is running after the evidence gate.",
+        activity=_activity_snapshot(
+            provider_health=provider_health,
+            news_count=len(runtime_context.get("news_rows", [])),
+            calendar_count=len(runtime_context.get("calendar_rows", [])),
+            backfill_required=backfill_required,
+            llm_enabled=llm_enabled,
+        ),
+    )
     analysis = analyze_fixture_with_optional_llm(
         fixture,
-        llm_client=llm_client or LocalLLMClient(),
+        llm_client=active_llm_client,
         previous_state=previous_state,
         provider_health=provider_health,
         attention_snapshot=attention_snapshot,
@@ -980,7 +1221,7 @@ def run_monitored_live_once(
             analysis=analysis,
             chain_status=pre_decision_chain_status,
             provider_health=provider_health,
-            llm_client=llm_client or LocalLLMClient(),
+            llm_client=active_llm_client,
             packet=packet,
         )
         alert_preflight = {
@@ -1008,6 +1249,22 @@ def run_monitored_live_once(
         analysis_result=analysis,
         now_iso=anchor.isoformat(),
         cooldown_minutes=cooldown_minutes or config.notification_cooldown_minutes,
+    )
+    _write_monitor_status(
+        resolved_status_path,
+        running=True,
+        phase="alert_gate",
+        lastRunAt=anchor.isoformat(),
+        message="Checking whether this run should notify.",
+        activity=_activity_snapshot(
+            provider_health=provider_health,
+            news_count=len(runtime_context.get("news_rows", [])),
+            calendar_count=len(runtime_context.get("calendar_rows", [])),
+            backfill_required=backfill_required,
+            llm_enabled=llm_enabled,
+            llm_status=getattr(analysis, "llm_status", None),
+            decision=decision,
+        ),
     )
     telegram_result = {
         "sent": False,
@@ -1125,7 +1382,35 @@ def run_monitored_live_once(
         },
     )
     if backfill_required:
-        for item in runtime_context.get("recovery_timeline_events", []):
+        _write_monitor_status(
+            resolved_status_path,
+            running=True,
+            phase="syncing_history",
+            lastRunAt=anchor.isoformat(),
+            message="Current live check is stored. Backfilling missed cTrader history for replay.",
+            activity=_activity_snapshot(
+                provider_health=provider_health,
+                news_count=len(runtime_context.get("news_rows", [])),
+                calendar_count=len(runtime_context.get("calendar_rows", [])),
+                backfill_required=backfill_required,
+                llm_enabled=llm_enabled,
+                llm_status=getattr(analysis, "llm_status", None),
+                decision=decision,
+                telegram_result=telegram_result,
+            ),
+        )
+        recovery_context = _run_recovery_backfill(
+            config,
+            previous_run_at=last_successful_run_at or anchor.isoformat(),
+            anchor_time=anchor,
+            provider_router=provider_router,
+            news_headlines=news_headlines,
+        )
+        timeline_store.record_market_price_bars(monitor_run_id, recovery_context["market_price_bars"])
+        timeline_store.record_related_asset_bars(monitor_run_id, recovery_context["related_asset_bars"])
+        timeline_store.record_news_items(monitor_run_id, recovery_context["news_rows"])
+        timeline_store.record_calendar_events(monitor_run_id, recovery_context["calendar_rows"])
+        for item in recovery_context.get("recovery_timeline_events", []):
             timeline_store.record_timeline_event(
                 monitor_run_id,
                 event_time=item["event_time"],
@@ -1138,8 +1423,41 @@ def run_monitored_live_once(
             event_time=anchor.isoformat(),
             event_type="recovery_summary",
             label="backfill",
-            payload={"summary": runtime_context["recovery_summary"], "data_mode": data_mode},
+            payload={
+                "summary": recovery_context["recovery_summary"],
+                "data_mode": "backfilled",
+                "current_run_type": run_type,
+                "detected_gap_type": detected_run_type,
+            },
         )
+    final_activity = _activity_snapshot(
+        provider_health=provider_health,
+        news_count=len(runtime_context.get("news_rows", [])),
+        calendar_count=len(runtime_context.get("calendar_rows", [])),
+        backfill_required=backfill_required,
+        llm_enabled=llm_enabled,
+        llm_status=getattr(analysis, "llm_status", None),
+        decision=decision,
+        telegram_result=telegram_result,
+        history_completed=backfill_required,
+    )
+    final_status_updates = {
+        "ok": True,
+        "available": True,
+        "running": False,
+        "phase": "stopped",
+        "pid": os.getpid(),
+        "lastRunAt": anchor.isoformat(),
+        "lastSuccessAt": anchor.isoformat(),
+        "nextRunAt": None,
+        "lastError": "",
+        "message": "Monitor run completed.",
+        "activity": final_activity,
+        "latestMonitorRunId": monitor_run_id,
+    }
+    if backfill_required:
+        final_status_updates["lastRecoveryAt"] = anchor.isoformat()
+    _write_monitor_status(resolved_status_path, **final_status_updates)
     return {
         "monitor_run_id": monitor_run_id,
         "run_type": run_type,
@@ -1177,10 +1495,21 @@ def run_monitor_loop(
     cooldown_minutes: int | None = None,
     timeline_store_path: Path | None = None,
     provider_router: ProviderRouter | None = None,
+    status_path: Path | None = None,
 ) -> list[dict[str, Any]]:
     outcomes: list[dict[str, Any]] = []
+    resolved_status_path = _status_path_from_env(status_path)
     with MonitorLock(config.monitor_lock_path) as lock:
         if lock is None:
+            _write_monitor_status(
+                resolved_status_path,
+                ok=False,
+                available=True,
+                running=True,
+                phase="already_running",
+                message="Monitor loop is already running.",
+                lastError="",
+            )
             return [
                 {
                     "ok": False,
@@ -1188,6 +1517,17 @@ def run_monitor_loop(
                     "message": "Monitor loop is already running.",
                 }
             ]
+        _write_monitor_status(
+            resolved_status_path,
+            ok=True,
+            available=True,
+            running=True,
+            phase="starting",
+            pid=os.getpid(),
+            intervalSeconds=interval_seconds,
+            lastError="",
+            message="Monitor loop is starting.",
+        )
         iteration = 0
         while max_iterations is None or iteration < max_iterations:
             anchor = None
@@ -1204,11 +1544,36 @@ def run_monitor_loop(
                     cooldown_minutes=cooldown_minutes,
                     timeline_store_path=timeline_store_path,
                     provider_router=provider_router,
+                    status_path=resolved_status_path,
                 )
             )
             iteration += 1
             if max_iterations is not None and iteration >= max_iterations:
                 break
             if interval_seconds > 0:
+                next_run = datetime.now().astimezone() + timedelta(seconds=interval_seconds)
+                _write_monitor_status(
+                    resolved_status_path,
+                    running=True,
+                    phase="idle_between_runs",
+                    nextRunAt=next_run.isoformat(),
+                    message="Waiting for the next monitor pass.",
+                )
                 time.sleep(interval_seconds)
+    last_outcome = outcomes[-1] if outcomes else {}
+    last_run_at = last_outcome.get("evidence_packet", {}).get("as_of") or last_outcome.get("last_successful_run_at")
+    final_updates = {
+        "ok": True,
+        "available": True,
+        "running": False,
+        "phase": "stopped",
+        "pid": None,
+        "nextRunAt": None,
+        "lastError": "",
+        "message": "Monitor loop is stopped.",
+    }
+    if last_run_at:
+        final_updates["lastRunAt"] = last_run_at
+        final_updates["lastSuccessAt"] = last_run_at
+    _write_monitor_status(resolved_status_path, **final_updates)
     return outcomes

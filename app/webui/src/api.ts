@@ -1025,7 +1025,36 @@ let mockMarketAgentMonitorStatus: MarketAgentMonitorStatusResponse = {
   lastRunAt: null,
   nextRunAt: null,
   lastError: "",
-  message: "Monitor loop is stopped."
+  message: "Monitor loop is stopped.",
+  activity: {
+    ctrader: {
+      status: "live",
+      label: "XAUUSD live",
+      detail: "Mock cTrader price feed is active."
+    },
+    history: {
+      status: "idle",
+      label: "History current",
+      detail: "No backfill gap detected."
+    },
+    context: {
+      status: "active",
+      label: "News and calendar",
+      detail: "Mock headlines and calendar events are available.",
+      newsCount: 2,
+      calendarCount: 1
+    },
+    llm: {
+      status: "skipped",
+      label: "Rule-based",
+      detail: "Evidence gate and deterministic rules are running."
+    },
+    alerts: {
+      status: "idle",
+      label: "No alert",
+      detail: "No current live alert passed the gate."
+    }
+  }
 };
 
 const withApi = async () => desktopApiRef();

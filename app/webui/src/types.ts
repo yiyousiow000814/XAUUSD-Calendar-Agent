@@ -591,10 +591,28 @@ export type MarketAgentMonitorStatusResponse = {
   pid?: number | null;
   intervalSeconds?: number;
   lastRunAt?: number | string | null;
+  lastSuccessAt?: number | string | null;
   nextRunAt?: number | string | null;
   lastRecoveryAt?: number | string | null;
   lastError?: string;
   message?: string;
+  updatedAt?: number | string | null;
+  latestMonitorRunId?: number | null;
+  activity?: Record<
+    string,
+    {
+      status?: string;
+      label?: string;
+      detail?: string;
+      progress?: number;
+      newsCount?: number;
+      calendarCount?: number;
+      dataTimestamp?: number | string | null;
+      fetchedAt?: number | string | null;
+      updatedAt?: number | string | null;
+      providerHealth?: Record<string, unknown>;
+    }
+  >;
 };
 
 export type Snapshot = {

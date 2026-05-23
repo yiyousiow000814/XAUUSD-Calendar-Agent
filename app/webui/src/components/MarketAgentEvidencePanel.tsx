@@ -128,6 +128,14 @@ export function MarketAgentEvidencePanel({ data, evidenceChainStatus }: MarketAg
         )
       : []
   );
+  const contextEvidence = uniqueEntries(
+    canShowConclusion
+      ? []
+      : [...evidenceEntries, ...confirmationEntries].filter(([, value]) => {
+          const normalized = String(value ?? "").toLowerCase();
+          return normalized && !["unavailable", "stale", "blocked", "rejected"].some((token) => normalized.includes(token));
+        })
+  );
   const caveatCount = blockedEntries.length + providerIssues.length;
   const activeDriverLabels = activeDriverStates.slice(0, 6).map((item, index) => ({
     key: `${formatValue(item.driver_id, "driver")}-${index}`,
@@ -152,10 +160,18 @@ export function MarketAgentEvidencePanel({ data, evidenceChainStatus }: MarketAg
           <section className="market-agent-evidence-chain" aria-label="Evidence relationship chain">
             <div className="market-agent-evidence-chain-step support">
               <span className="market-agent-evidence-step-label">{canShowConclusion ? "Support" : "Collected Context"}</span>
-              <strong>{canShowConclusion && supportingEvidence.length ? `${supportingEvidence.length} confirming checks` : "No accepted evidence yet"}</strong>
+              <strong>
+                {canShowConclusion
+                  ? supportingEvidence.length ? `${supportingEvidence.length} confirming checks` : "No confirming checks"
+                  : contextEvidence.length ? `${contextEvidence.length} context checks` : "Context waiting"}
+              </strong>
               {canShowConclusion
                 ? renderInlineEvidence(supportingEvidence, "No confirming cross-asset evidence recorded.", 3)
-                : <span className="market-agent-evidence-muted">Required inputs are missing, so stored cross-market checks are not accepted as current evidence.</span>}
+                : renderInlineEvidence(
+                    contextEvidence,
+                    "Required inputs are missing, so stored checks are kept as context.",
+                    3
+                  )}
               <div className="market-agent-evidence-allowed-row">
                 <span>{canShowConclusion ? "Allowed drivers" : "Candidate drivers"}</span>
                 {canShowConclusion
