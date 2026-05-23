@@ -507,25 +507,25 @@ const buildMockMarketAgentReplay = (): MarketAgentReplayResponse => ({
   replay: {
     price_series: [
       {
-        symbol: "GC=F",
+        symbol: "XAUUSD",
         data_timestamp: "2026-05-19T07:30:00+08:00",
         close_price: 4521.4,
         bid_price: 4521.15,
         ask_price: 4521.65,
-        source: "Yahoo Finance",
-        source_type: "futures_proxy",
-        data_mode: "proxy",
+        source: "cTrader",
+        source_type: "spot",
+        data_mode: "live_seen",
         is_stale: false
       },
       {
-        symbol: "GC=F",
+        symbol: "XAUUSD",
         data_timestamp: "2026-05-19T08:00:00+08:00",
         close_price: 4504.8,
         bid_price: 4504.52,
         ask_price: 4505.08,
-        source: "Yahoo Finance",
-        source_type: "futures_proxy",
-        data_mode: "proxy",
+        source: "cTrader",
+        source_type: "spot",
+        data_mode: "live_seen",
         is_stale: false
       }
     ],
@@ -652,9 +652,9 @@ const buildMockMarketAgentProviderHealth = (): MarketAgentProviderHealthResponse
   items: [
     {
       provider_key: "xauusd",
-      source: "Yahoo Finance",
-      source_type: "futures_proxy",
-      data_mode: "proxy",
+      source: "cTrader",
+      source_type: "spot",
+      data_mode: "live_seen",
       is_available: true,
       is_stale: false,
       data_timestamp: "2026-05-19T08:00:00+08:00",
@@ -978,7 +978,7 @@ const buildMockMarketAgentEvidenceForRun = (monitorRunId: number): MarketAgentEv
         vix_equities: "neutral"
       },
       provider_health: {
-        xauusd: { source_type: "futures_proxy", data_mode: "proxy" }
+        xauusd: { source_type: "spot", data_mode: "live_seen" }
       },
       active_driver_states: [{ driver_id: "yields", current_state: "active" }],
       dormant_driver_states: [{ driver_id: "oil_inflation", current_state: "dormant" }]

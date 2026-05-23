@@ -157,6 +157,9 @@ export function MarketAgentProviderConfig({
   const [llmForm, setLLMForm] = useState<MarketAgentLLMConfigInput>(emptyLLMForm);
   const [ctraderAuthResult, setCTraderAuthResult] = useState<MarketAgentCTraderAuthResponse | null>(null);
   const [telegramResult, setTelegramResult] = useState<MarketAgentTelegramActionResponse | null>(null);
+  const [telegramSaveState, setTelegramSaveState] = useState<"idle" | "saving" | "saved" | "failed">("idle");
+  const [telegramTestState, setTelegramTestState] = useState<"idle" | "sending" | "sent" | "failed">("idle");
+  const [localTelegramEnabled, setLocalTelegramEnabled] = useState<boolean | null>(null);
   const [llmResult, setLLMResult] = useState<MarketAgentLLMActionResponse | null>(null);
   const [localAIResult, setLocalAIResult] = useState<MarketAgentLLMActionResponse | null>(null);
   const [pendingPullProgress, setPendingPullProgress] = useState<MarketAgentOllamaPullProgress | null>(null);
@@ -194,6 +197,7 @@ export function MarketAgentProviderConfig({
       timeoutSeconds: telegram.timeoutSeconds || 10,
       levels: telegram.levels?.length ? telegram.levels : ["level_2", "level_3"]
     }));
+    setLocalTelegramEnabled(telegram.enabled);
   }, [telegramData]);
 
   useEffect(() => {
@@ -272,7 +276,7 @@ export function MarketAgentProviderConfig({
       id: "telegram",
       label: "Telegram",
       detail: "Optional alerts",
-      status: telegramData?.telegram?.enabled ? "On" : "Off"
+      status: (localTelegramEnabled ?? telegramData?.telegram?.enabled) ? "On" : "Off"
     },
     {
       id: "monitoring",
@@ -283,6 +287,7 @@ export function MarketAgentProviderConfig({
   ];
 
   const toggleTelegramLevel = (level: string, checked: boolean) => {
+    setTelegramSaveState("idle");
     setTelegramForm((current) => ({
       ...current,
       levels: checked
@@ -292,8 +297,39 @@ export function MarketAgentProviderConfig({
   };
 
   const runTelegramAction = async () => {
-    const result = await onTestTelegram(telegramForm);
-    setTelegramResult(result);
+    setTelegramTestState("sending");
+    setTelegramResult(null);
+    try {
+      const result = await onTestTelegram(telegramForm);
+      setTelegramResult(result);
+      setTelegramTestState(result.ok ? "sent" : "failed");
+      window.setTimeout(() => setTelegramTestState((current) => (current === "sent" ? "idle" : current)), 6000);
+    } catch (error) {
+      setTelegramResult({
+        ok: false,
+        status: "failed",
+        error: error instanceof Error ? error.message : "Telegram test failed."
+      });
+      setTelegramTestState("failed");
+    }
+  };
+
+  const saveTelegram = async () => {
+    setTelegramSaveState("saving");
+    setTelegramResult(null);
+    try {
+      const result = await onSaveTelegram(telegramForm);
+      setLocalTelegramEnabled(Boolean(result.telegram?.enabled ?? telegramForm.enabled));
+      setTelegramSaveState("saved");
+      window.setTimeout(() => setTelegramSaveState((current) => (current === "saved" ? "idle" : current)), 4000);
+    } catch (error) {
+      setTelegramSaveState("failed");
+      setTelegramResult({
+        ok: false,
+        status: "failed",
+        error: error instanceof Error ? error.message : "Telegram settings could not be saved."
+      });
+    }
   };
 
   const technicalHelp: Record<string, string> = {
@@ -723,7 +759,10 @@ export function MarketAgentProviderConfig({
                     aria-label="Enable Telegram alerts"
                     checked={telegramForm.enabled}
                     onChange={(event) =>
-                      setTelegramForm((current) => ({ ...current, enabled: event.target.checked }))
+                      setTelegramForm((current) => {
+                        setTelegramSaveState("idle");
+                        return { ...current, enabled: event.target.checked };
+                      })
                     }
                   />
                   <span className="market-agent-switch-track" aria-hidden="true">
@@ -750,7 +789,10 @@ export function MarketAgentProviderConfig({
                         type="password"
                         value={telegramForm.botToken}
                         onChange={(event) =>
-                          setTelegramForm((current) => ({ ...current, botToken: event.target.value }))
+                          setTelegramForm((current) => {
+                            setTelegramSaveState("idle");
+                            return { ...current, botToken: event.target.value };
+                          })
                         }
                         placeholder={telegramData.telegram?.botTokenMasked || ""}
                       />
@@ -760,7 +802,10 @@ export function MarketAgentProviderConfig({
                       <input
                         value={telegramForm.chatId}
                         onChange={(event) =>
-                          setTelegramForm((current) => ({ ...current, chatId: event.target.value }))
+                          setTelegramForm((current) => {
+                            setTelegramSaveState("idle");
+                            return { ...current, chatId: event.target.value };
+                          })
                         }
                       />
                     </label>
@@ -792,12 +837,45 @@ export function MarketAgentProviderConfig({
                 </div>
               </div>
               <div className="market-agent-provider-config-actions market-agent-action-bar market-agent-action-bar-float">
-                <button type="button" className="btn primary btn-compact" onClick={() => void onSaveTelegram(telegramForm)}>
-                  Save Telegram alerts
+                <button
+                  type="button"
+                  className="btn primary btn-compact"
+                  onClick={() => void saveTelegram()}
+                  disabled={telegramSaveState === "saving"}
+                >
+                  {telegramSaveState === "saving"
+                    ? "Saving..."
+                    : telegramSaveState === "saved"
+                      ? "Saved"
+                      : "Save changes"}
                 </button>
-                <button type="button" className="btn ghost btn-compact" onClick={() => void runTelegramAction()}>
-                  Send Test Message
+                <button
+                  type="button"
+                  className="btn ghost btn-compact"
+                  onClick={() => void runTelegramAction()}
+                  disabled={telegramTestState === "sending"}
+                >
+                  {telegramTestState === "sending" ? "Sending..." : "Send test"}
                 </button>
+              </div>
+              <div className="market-agent-telegram-inline-status" aria-live="polite">
+                <span className={`dot ${telegramForm.enabled ? "on" : "off"}`} />
+                <strong>{telegramForm.enabled ? "Alerts on" : "Alerts off"}</strong>
+                <span>
+                  {telegramSaveState === "saved"
+                    ? "Settings saved locally."
+                    : telegramSaveState === "saving"
+                      ? "Saving settings..."
+                      : telegramSaveState === "failed"
+                        ? "Save failed. Check token and chat ID."
+                        : telegramTestState === "sending"
+                          ? "Sending test message..."
+                          : telegramTestState === "sent"
+                            ? "Test message sent."
+                            : telegramTestState === "failed"
+                              ? "Test message failed."
+                              : "Changes apply after saving."}
+                </span>
               </div>
               {telegramData.telegram?.lastError ? (
                 <div className="market-agent-readable-status-line">
@@ -807,7 +885,7 @@ export function MarketAgentProviderConfig({
               {telegramResult ? (
                 <div className="market-agent-provider-config-result">
                   <div className="market-agent-provider-config-result-head">
-                    <strong>Telegram Test</strong>
+                    <strong>Telegram status</strong>
                     <MarketAgentStatusBadge label={telegramResult.ok ? "sent" : "failed"} />
                   </div>
                   <div className="market-agent-provider-config-result-body">

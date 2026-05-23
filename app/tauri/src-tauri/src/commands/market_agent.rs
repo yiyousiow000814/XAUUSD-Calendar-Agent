@@ -3,7 +3,7 @@ use rusqlite::{params, Connection, OptionalExtension};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::fs;
-use std::io::{BufRead, BufReader, Write};
+use std::io::{BufRead, BufReader, Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -1644,6 +1644,41 @@ fn ctrader_env_for_root(root: &Path) -> HashMap<String, String> {
     env
 }
 
+fn wait_for_child_output_with_timeout(
+    mut child: std::process::Child,
+    timeout: Duration,
+) -> Result<(bool, String, String), String> {
+    let deadline = Instant::now() + timeout;
+    loop {
+        match child.try_wait() {
+            Ok(Some(status)) => {
+                let mut stdout = String::new();
+                let mut stderr = String::new();
+                if let Some(mut stream) = child.stdout.take() {
+                    let _ = stream.read_to_string(&mut stdout);
+                }
+                if let Some(mut stream) = child.stderr.take() {
+                    let _ = stream.read_to_string(&mut stderr);
+                }
+                return Ok((
+                    status.success(),
+                    stdout.trim().to_string(),
+                    stderr.trim().to_string(),
+                ));
+            }
+            Ok(None) => {
+                if Instant::now() >= deadline {
+                    let _ = child.kill();
+                    let _ = child.wait();
+                    return Err("Timed out waiting for Telegram test response.".to_string());
+                }
+                std::thread::sleep(Duration::from_millis(120));
+            }
+            Err(err) => return Err(format!("Unable to wait for Telegram bridge: {err}")),
+        }
+    }
+}
+
 fn test_telegram_for_root(root: &Path, payload: &Value) -> Value {
     let merged = merged_telegram_config_for_root(root, Some(payload));
     let bot_token = merged
@@ -1688,32 +1723,37 @@ fn test_telegram_for_root(root: &Path, payload: &Value) -> Value {
     if let Some(stdin) = child.stdin.as_mut() {
         let _ = stdin.write_all(merged.to_string().as_bytes());
     }
-    let parsed = match child.wait_with_output() {
-        Ok(output) => {
-            let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
-            let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
-            if !output.status.success() {
-                json!({
-                    "ok": false,
-                    "status": "failed",
-                    "error": if stderr.is_empty() { stdout } else { stderr },
-                })
-            } else {
-                serde_json::from_str::<Value>(&stdout).unwrap_or_else(|err| {
+    let timeout_seconds = merged
+        .get("timeoutSeconds")
+        .and_then(Value::as_u64)
+        .unwrap_or(10)
+        .clamp(5, 30)
+        + 3;
+    let parsed =
+        match wait_for_child_output_with_timeout(child, Duration::from_secs(timeout_seconds)) {
+            Ok((success, stdout, stderr)) => {
+                if !success {
                     json!({
                         "ok": false,
                         "status": "failed",
-                        "error": format!("Unable to parse Telegram bridge JSON: {err}"),
+                        "error": if stderr.is_empty() { stdout } else { stderr },
                     })
-                })
+                } else {
+                    serde_json::from_str::<Value>(&stdout).unwrap_or_else(|err| {
+                        json!({
+                            "ok": false,
+                            "status": "failed",
+                            "error": format!("Unable to parse Telegram bridge JSON: {err}"),
+                        })
+                    })
+                }
             }
-        }
-        Err(err) => json!({
-            "ok": false,
-            "status": "failed",
-            "error": format!("Unable to wait for Telegram bridge: {err}"),
-        }),
-    };
+            Err(err) => json!({
+                "ok": false,
+                "status": "failed",
+                "error": err,
+            }),
+        };
     let status = if parsed.get("ok").and_then(Value::as_bool).unwrap_or(false) {
         "sent"
     } else {
@@ -1732,7 +1772,11 @@ fn test_telegram_for_root(root: &Path, payload: &Value) -> Value {
     json!({
         "ok": status == "sent",
         "status": status,
-        "message": parsed.get("message").and_then(Value::as_str).unwrap_or("Telegram test completed."),
+        "message": parsed.get("message").and_then(Value::as_str).unwrap_or(if status == "sent" {
+            "Test message sent."
+        } else {
+            "Test message could not be confirmed."
+        }),
         "error": parsed.get("error").and_then(Value::as_str).unwrap_or(""),
         "telegram": masked_telegram_config_for_root(root).get("telegram").cloned().unwrap_or(Value::Null),
     })

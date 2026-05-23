@@ -569,13 +569,13 @@
 .market-agent-price-data {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 5px;
   margin-top: auto;
   padding-top: 0;
   color: var(--text-dim);
   font-size: 11px;
   line-height: 1.3;
-  white-space: nowrap;
 }
 
 .market-agent-price-data b {
@@ -1626,6 +1626,10 @@
   width: 2px;
   transform: translateX(-1px);
   background: rgba(148, 163, 184, 0.34);
+}
+
+.market-agent-timeline-track.is-empty::before {
+  display: none;
 }
 
 .market-agent-timeline-track-row {

@@ -46,9 +46,9 @@ const providerHealth: MarketAgentProviderHealthResponse = {
   items: [
     {
       provider_key: "xauusd",
-      source: "Yahoo Finance",
-      source_type: "futures_proxy",
-      data_mode: "proxy",
+      source: "cTrader",
+      source_type: "spot",
+      data_mode: "live_seen",
       is_available: true,
       is_stale: false,
       data_timestamp: "2026-05-19T08:00:00+08:00",
@@ -300,22 +300,22 @@ const replay: MarketAgentReplayResponse = {
   replay: {
     price_series: [
       {
-        symbol: "GC=F",
+        symbol: "XAUUSD",
         data_timestamp: "2026-05-19T07:45:00+08:00",
         close_price: 4520.2,
         bid_price: 4519.92,
         ask_price: 4520.48,
-        source_type: "futures_proxy",
-        data_mode: "proxy"
+        source_type: "spot",
+        data_mode: "live_seen"
       },
       {
-        symbol: "GC=F",
+        symbol: "XAUUSD",
         data_timestamp: "2026-05-19T08:00:00+08:00",
         close_price: 4504.8,
         bid_price: 4504.52,
         ask_price: 4505.08,
-        source_type: "futures_proxy",
-        data_mode: "proxy"
+        source_type: "spot",
+        data_mode: "live_seen"
       }
     ],
     related_assets: {
@@ -1391,7 +1391,7 @@ describe("MarketAgentPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /^Telegram$/i }));
     fireEvent.click(screen.getByLabelText(/Enable Telegram alerts/i));
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: /Save Telegram alerts/i }));
+      fireEvent.click(screen.getByRole("button", { name: /Save changes/i }));
     });
     expect(saveTelegram).toHaveBeenCalledTimes(1);
 
@@ -1450,13 +1450,13 @@ describe("MarketAgentPage", () => {
     expect(screen.getByText("Move Size")).toBeInTheDocument();
     expect(screen.getAllByText(/US yields/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/WTI Oil/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Backup/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/cTrader \(Spot\)/i).length).toBeGreaterThan(0);
     expect(screen.queryByText("futures_proxy")).not.toBeInTheDocument();
     expect(screen.queryByText("core_structural")).not.toBeInTheDocument();
     expect(screen.queryByText("main_driver usd -> yields")).not.toBeInTheDocument();
     expect(screen.queryByText(/Using Yahoo GC=F futures proxy, not true spot XAUUSD\./i)).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /XAUUSD \(Spot\)/i })).toBeInTheDocument();
-    expect(screen.getByText(/Backup price/i)).toBeInTheDocument();
+    expect(screen.getByText(/cTrader \(Spot\)/i)).toBeInTheDocument();
     expect(screen.getAllByText(/80%/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/View Full Timeline/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Fed headline/i).length).toBeGreaterThan(0);
@@ -1516,7 +1516,7 @@ describe("MarketAgentPage", () => {
     expect(screen.getByText(/Telegram is optional/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Bot token/i)).toHaveAttribute("placeholder", "12********90");
     expect(screen.getByLabelText(/Chat ID/i)).toHaveValue("123456789");
-    expect(screen.getByRole("button", { name: /Send Test Message/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Send test/i })).toBeInTheDocument();
 
     fireEvent.click(within(dataSourceActions).getByRole("button", { name: /^Local AI$/i }));
     expect(screen.getByRole("heading", { name: /Auto Local AI/i })).toBeInTheDocument();
@@ -1597,8 +1597,28 @@ describe("MarketAgentPage", () => {
     expect(screen.queryByText(/No meaningful XAUUSD move detected/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Using local CSV fallback\. Configure cTrader or Yahoo provider for live monitoring\./i)).not.toBeInTheDocument();
     expect(screen.getAllByText(/Neutral/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Local CSV fallback/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/No live price/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Waiting/i).length).toBeGreaterThan(0);
     expect(screen.queryByText("LOCAL_CSV_FALLBACK")).not.toBeInTheDocument();
+  });
+
+  it("pauses only current conclusions when XAUUSD is not live cTrader spot", () => {
+    renderMarketAgentPage({
+      providerHealth: localCsvProviderHealth,
+      driverAttention,
+      selectedEvidence: evidence
+    });
+
+    expect(screen.getAllByText(/No live price/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/CURRENT PAUSED/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Fed headline/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/US10Y fresh and confirming/i)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /^Driver Attention$/i }));
+    expect(screen.getByText(/US10Y fresh and confirming/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /^Evidence$/i }));
+    expect(screen.getByText(/Accepted Driver/i)).toBeInTheDocument();
   });
 
   it("shows useful empty states when sqlite-backed data is unavailable", () => {
@@ -1654,8 +1674,8 @@ describe("MarketAgentPage", () => {
       />
     );
 
-    expect(screen.getAllByText(/No price/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/No replay events in this window\./i)).toBeInTheDocument();
+    expect(screen.getAllByText(/No live price/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Waiting/i).length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
     expect(screen.getByText(/Provider config unavailable\./i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /^Provider Health$/i }));

@@ -114,7 +114,7 @@ def test_us2y_is_not_silently_mapped_to_us10y_when_using_yahoo_fixture(tmp_path)
     assert health_map["us2y"].data_mode == "unavailable"
 
 
-def test_missing_csv_but_yahoo_fixture_exists_uses_proxy_without_crash(tmp_path) -> None:
+def test_missing_csv_but_yahoo_fixture_exists_does_not_use_proxy_as_live(tmp_path) -> None:
     fixture_dir = Path(__file__).parent / "fixtures" / "providers"
     router = ProviderRouter(
         yahoo_enabled=True,
@@ -139,28 +139,13 @@ def test_missing_csv_but_yahoo_fixture_exists_uses_proxy_without_crash(tmp_path)
         timeline_store_path=tmp_path / "timeline.sqlite",
         provider_router=router,
     )
-    replay = TimelineStore(tmp_path / "timeline.sqlite").get_market_replay(
-        "2026-05-19T07:00:00+08:00",
-        "2026-05-19T07:30:00+08:00",
-    )
     with sqlite3.connect(tmp_path / "timeline.sqlite") as connection:
-        market_row = connection.execute(
-            """
-            SELECT source_type, data_mode
-            FROM market_price_bars
-            WHERE symbol = 'GC=F'
-            ORDER BY data_timestamp DESC, id DESC
-            LIMIT 1
-            """
-        ).fetchone()
+        market_count = connection.execute("SELECT COUNT(*) FROM market_price_bars").fetchone()[0]
 
-    assert outcome["evidence_packet"]["provider_health"]["xauusd"]["source_type"] == "futures_proxy"
-    assert outcome["evidence_packet"]["provider_health"]["xauusd"]["data_mode"] == "proxy"
-    assert outcome["evidence_packet"]["market_move"]["symbol"] == "GC=F"
-    assert outcome["evidence_packet"]["market_move"]["source_type"] == "futures_proxy"
-    assert market_row == ("futures_proxy", "proxy")
-    assert replay["price_series"][-1]["source_type"] == "futures_proxy"
-    assert replay["price_series"][-1]["data_mode"] == "proxy"
+    assert outcome["evidence_packet"]["provider_health"]["xauusd"]["is_available"] is False
+    assert outcome["evidence_packet"]["provider_health"]["xauusd"]["data_mode"] == "unavailable"
+    assert outcome["analysis"]["main_driver"] == "unknown"
+    assert market_count == 0
 
 
 def test_missing_csv_and_yahoo_disabled_returns_unavailable_provider_health(tmp_path) -> None:
@@ -190,7 +175,7 @@ def test_missing_csv_and_yahoo_disabled_returns_unavailable_provider_health(tmp_
     assert outcome["analysis"]["main_driver"] == "unknown"
 
 
-def test_proxy_label_persists_into_evidence_packet(tmp_path) -> None:
+def test_proxy_source_is_recorded_as_chain_status_not_live_evidence(tmp_path) -> None:
     fixture_dir = Path(__file__).parent / "fixtures" / "providers"
     cfg = MarketAgentConfig(
         repo_root=tmp_path,
@@ -209,12 +194,13 @@ def test_proxy_label_persists_into_evidence_packet(tmp_path) -> None:
         provider_router=router,
     )
 
-    assert packet["provider_health"]["xauusd"]["source_type"] == "futures_proxy"
-    assert packet["provider_health"]["xauusd"]["data_mode"] == "proxy"
-    assert packet["market_move"]["source_type"] == "futures_proxy"
+    assert packet["provider_health"]["xauusd"]["is_available"] is False
+    assert packet["provider_health"]["xauusd"]["data_mode"] == "unavailable"
+    assert packet["selected_market_provider"] == "unavailable"
+    assert any(item["provider"] == "yahoo_gc_f_proxy" for item in packet["provider_chain_status"])
 
 
-def test_ctrader_disabled_build_falls_through_to_yahoo_proxy(monkeypatch, tmp_path) -> None:
+def test_ctrader_disabled_build_does_not_promote_yahoo_proxy_to_live(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("CTRADER_ACCOUNT_ID", "acct")
     monkeypatch.setenv("CTRADER_CTID", "trader@example.com")
     monkeypatch.setenv("CTRADER_PASSWORD", "secret")
@@ -232,9 +218,11 @@ def test_ctrader_disabled_build_falls_through_to_yahoo_proxy(monkeypatch, tmp_pa
 
     rows, health = router.fetch_market_context(datetime.fromisoformat("2026-05-19T07:20:00+08:00"))
 
-    assert rows
-    assert health.source_type == "futures_proxy"
-    assert health.data_mode == "proxy"
+    assert rows == []
+    assert health.is_available is False
+    assert health.data_mode == "unavailable"
+    assert router.last_market_provider_meta["selected_market_provider"] == "unavailable"
+    assert any(item["provider"] == "yahoo_gc_f_proxy" for item in router.last_market_provider_meta["provider_chain_status"])
 
 
 class StubCTraderProvider:
@@ -297,7 +285,7 @@ def test_fresh_ctrader_spot_wins_over_yahoo_proxy(tmp_path) -> None:
     assert router.last_market_provider_meta["provider_chain_status"][0]["provider"] == "ctrader_spot"
 
 
-def test_stale_ctrader_falls_through_to_yahoo_proxy_with_chain_status(tmp_path) -> None:
+def test_stale_ctrader_keeps_last_spot_price_without_promoting_proxy(tmp_path) -> None:
     fixture_dir = Path(__file__).parent / "fixtures" / "providers"
     health_builder = __import__("src.xauusd_market_agent.provider_health", fromlist=["build_provider_health"]).build_provider_health
     ctrader = StubCTraderProvider(
@@ -337,11 +325,14 @@ def test_stale_ctrader_falls_through_to_yahoo_proxy_with_chain_status(tmp_path) 
     rows, health = router.fetch_market_context(datetime.fromisoformat("2026-05-19T07:20:00+08:00"))
 
     assert rows
-    assert health.source_type == "futures_proxy"
-    assert router.last_market_provider_meta["selected_market_provider"] == "yahoo_gc_f_proxy"
+    assert health.source_type == "spot_snapshot"
+    assert health.data_mode == "stale"
+    assert health.is_stale is True
+    assert router.last_market_provider_meta["selected_market_provider"] == "ctrader_spot_stale"
     assert router.last_market_provider_meta["fallback_reason"]
     assert router.last_market_provider_meta["provider_chain_status"][0]["provider"] == "ctrader_spot"
     assert router.last_market_provider_meta["provider_chain_status"][0]["data_mode"] == "stale"
+    assert any(item["provider"] == "yahoo_gc_f_proxy" for item in router.last_market_provider_meta["provider_chain_status"])
 
 
 def test_provider_chain_status_persists_into_evidence_packet(tmp_path) -> None:
@@ -382,9 +373,10 @@ def test_provider_chain_status_persists_into_evidence_packet(tmp_path) -> None:
         provider_router=router,
     )
 
-    assert packet["selected_market_provider"] == "yahoo_gc_f_proxy"
+    assert packet["selected_market_provider"] == "unavailable"
     assert packet["provider_chain_status"][0]["provider"] == "ctrader_spot"
     assert packet["provider_chain_status"][0]["error"] == "auth_failed"
+    assert any(item["provider"] == "yahoo_gc_f_proxy" for item in packet["provider_chain_status"])
     assert packet["fallback_reason"]
 
 

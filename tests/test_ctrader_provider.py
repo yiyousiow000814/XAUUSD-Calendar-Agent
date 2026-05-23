@@ -132,6 +132,44 @@ def test_ctrader_cli_adapter_redacts_password_from_cli_errors(tmp_path, monkeypa
     assert "***" in str(exc_info.value)
 
 
+def test_ctrader_cli_adapter_marks_old_quote_stale(tmp_path, monkeypatch) -> None:
+    class QuoteProcess:
+        returncode = 0
+        stdout = json.dumps(
+            {
+                "quote": {
+                    "symbol": "XAUUSD",
+                    "symbol_id": 777,
+                    "bid": 4512.3,
+                    "ask": 4512.7,
+                    "timestamp": "2026-05-19T10:15:23+08:00",
+                }
+            }
+        )
+        stderr = ""
+
+    def fake_run(*args, **kwargs):
+        return QuoteProcess()
+
+    monkeypatch.setattr("src.xauusd_market_agent.providers.ctrader_bridge.subprocess.run", fake_run)
+    request = BridgeRequest.from_payload(
+        {
+            "accountId": "123456",
+            "ctid": "trader@example.com",
+            "password": "super-secret-password",
+            "symbol": "XAUUSD",
+            "snapshotPath": str(tmp_path / "snapshot.json"),
+            "quoteStaleAfterSeconds": 15,
+        }
+    )
+
+    result = CTraderCliBridge(request).quote()
+
+    assert result["provider_health"]["data_mode"] == "stale"
+    assert result["provider_health"]["is_stale"] is True
+    assert "market may be closed" in result["provider_health"]["stale_reason"]
+
+
 def test_ctrader_missing_config_reports_disabled_without_crash(tmp_path) -> None:
     provider = CTraderProvider(
         cli_config=CTraderCliConfig.default(tmp_path),

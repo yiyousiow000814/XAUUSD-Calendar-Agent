@@ -124,16 +124,25 @@ class ProviderRouter:
         if self.market_provider is not None:
             return self.market_provider.fetch_latest(anchor_time)
         chain_status: list[dict[str, Any]] = []
+        stale_ctrader_rows: list[dict[str, Any]] = []
+        stale_ctrader_health: ProviderHealth | None = None
         for candidate in self._market_chain():
             if isinstance(candidate, Path):
-                rows, health = self._load_market_csv_fallback(candidate, anchor_time, data_mode="live_seen")
+                rows, health = self._load_market_csv_fallback(candidate, anchor_time, data_mode="stale")
                 chain_status.append(self._build_chain_entry("csv_fallback", health))
                 self.last_market_provider_meta = {
-                    "selected_market_provider": "csv_fallback",
+                    "selected_market_provider": "unavailable",
                     "provider_chain_status": chain_status,
-                    "fallback_reason": "",
+                    "fallback_reason": "CSV fallback is debug/import only and is not used for live market conclusions.",
                 }
-                return rows, health
+                return [], build_provider_health(
+                    source="XAUUSD",
+                    source_type="provider_interface",
+                    data_mode="unavailable",
+                    is_available=False,
+                    stale_reason="Live cTrader spot is unavailable. CSV fallback is debug/import only.",
+                    data_timestamp=anchor_time.isoformat(),
+                )
             if candidate is self.ctrader_provider:
                 rows, health = candidate.fetch_latest(anchor_time)
                 chain_status.append(self._build_chain_entry("ctrader_spot", health))
@@ -144,16 +153,21 @@ class ProviderRouter:
                         "fallback_reason": "",
                     }
                     return self._normalize_market_rows(rows), health
+                if health.is_available and health.is_stale and health.source_type in {"spot", "spot_snapshot"}:
+                    stale_ctrader_rows = rows
+                    stale_ctrader_health = health
             else:
                 rows, health = candidate.fetch_market_price(anchor_time)
                 chain_status.append(self._build_chain_entry("yahoo_gc_f_proxy", health))
-            if candidate is not self.ctrader_provider and (health.is_available or health.data_mode in {"proxy", "stale"}):
-                self.last_market_provider_meta = {
-                    "selected_market_provider": "yahoo_gc_f_proxy",
-                    "provider_chain_status": chain_status,
-                    "fallback_reason": self._fallback_reason(chain_status),
-                }
-                return self._normalize_market_rows(rows), health
+            if candidate is not self.ctrader_provider and health.is_available:
+                continue
+        if stale_ctrader_health is not None:
+            self.last_market_provider_meta = {
+                "selected_market_provider": "ctrader_spot_stale",
+                "provider_chain_status": chain_status,
+                "fallback_reason": "Last cTrader spot quote is stale; current driver conclusions require a fresh quote.",
+            }
+            return self._normalize_market_rows(stale_ctrader_rows), stale_ctrader_health
         self.last_market_provider_meta = {
             "selected_market_provider": "unavailable",
             "provider_chain_status": chain_status,

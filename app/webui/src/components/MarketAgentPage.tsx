@@ -513,6 +513,33 @@ const formatDataModeLabel = (sourceType: string, providerStatus: string) => {
   return providerStatus;
 };
 
+const isLiveXauusdSpot = (item: MarketAgentProviderHealthEntry | null | undefined) =>
+  Boolean(
+    item?.is_available &&
+    !item.is_stale &&
+    normalizeMarketAgentValue(item.source_type) === "spot" &&
+    normalizeMarketAgentValue(item.data_mode) === "live_seen"
+  );
+
+const isCTraderSpotSource = (item: MarketAgentProviderHealthEntry | null | undefined) => {
+  const sourceType = normalizeMarketAgentValue(item?.source_type);
+  return sourceType === "spot" || sourceType === "spot_snapshot";
+};
+
+const isMarketClosedSpot = (item: MarketAgentProviderHealthEntry | null | undefined) =>
+  Boolean(
+    item?.is_available &&
+    item.is_stale &&
+    isCTraderSpotSource(item) &&
+    numberValue(item.current_value) !== null
+  );
+
+const liveXauusdStatus = (item: MarketAgentProviderHealthEntry | null | undefined) => {
+  if (isLiveXauusdSpot(item)) return { label: "cTrader (Spot)", data: "Live", valueMode: "live" as const };
+  if (isMarketClosedSpot(item)) return { label: "Market closed", data: "Market closed", valueMode: "closed" as const };
+  return { label: "Waiting for cTrader", data: "Waiting", valueMode: "waiting" as const };
+};
+
 const formatCountdownSeconds = (seconds: number) =>
   `${seconds} sec`;
 
@@ -1079,8 +1106,11 @@ function MarketAgentDashboard({
   }, []);
   const state = snapshot?.state;
   const xauusdHealth = findProviderHealth(providerHealth?.items, ["xauusd", "gc=f", "xauusd price"]);
-  const price = latestPrice(replay);
-  const priorPrice = previousPrice(replay);
+  const xauusdStatus = liveXauusdStatus(xauusdHealth);
+  const hasTrustedSpotPrice = xauusdStatus.valueMode === "live" || xauusdStatus.valueMode === "closed";
+  const currentConclusionReady = xauusdStatus.valueMode === "live";
+  const price = currentConclusionReady ? latestPrice(replay) : null;
+  const priorPrice = currentConclusionReady ? previousPrice(replay) : null;
   const priceValue = numberValue(price?.close_price ?? xauusdHealth?.current_value);
   const previousPriceValue = numberValue(priorPrice?.close_price ?? xauusdHealth?.previous_value);
   const priceChangeValue = numberValue(price?.change_value ?? price?.change ?? price?.change_15m);
@@ -1103,16 +1133,16 @@ function MarketAgentDashboard({
   ).length;
   const neutralCount = Math.max(0, evidence.length - supportingCount - contraryCount);
   const evidenceScore = evidence.length ? Math.round((supportingCount / evidence.length) * 100) : 0;
-  const clampedEvidenceScore = Math.max(0, Math.min(100, evidenceScore));
+  const clampedEvidenceScore = currentConclusionReady ? Math.max(0, Math.min(100, evidenceScore)) : 0;
   const evidenceScoreLabel = formatEvidenceScoreStrength(clampedEvidenceScore, evidence.length, contraryCount);
   const isEvidenceScoreEmpty = clampedEvidenceScore <= 0;
   const isEvidenceScoreFull = clampedEvidenceScore >= 100;
   const evidenceScoreDashOffset = SCORE_RING_CIRCUMFERENCE * (1 - clampedEvidenceScore / 100);
-  const moveChange = numberValue(price?.change_pct ?? price?.change_15m_pct ?? xauusdHealth?.change_value);
+  const moveChange = currentConclusionReady ? numberValue(price?.change_pct ?? price?.change_15m_pct ?? xauusdHealth?.change_value) : null;
   const sourceType = normalizeMarketAgentValue(xauusdHealth?.source_type ?? price?.source_type);
-  const priceSourceLabel = sourceType === "spot" ? "cTrader (Spot)" : sourceType === "futures_proxy" ? "Backup price" : "No price source";
+  const priceSourceLabel = xauusdStatus.label;
   const providerStatus = statusForProvider(xauusdHealth);
-  const displayProviderStatus = formatDataModeLabel(sourceType, providerStatus);
+  const displayProviderStatus = xauusdStatus.data || formatDataModeLabel(sourceType, providerStatus);
   const dataFreshness = formatDataFreshness(xauusdHealth?.data_timestamp ?? price?.data_timestamp ?? price?.timestamp, nowMs);
   const latestAlertMessage = replay?.replay.alerts?.[0]?.message;
   const evidenceRunTime = formatReplayTime(selectedEvidence?.payload?.monitor_run?.run_started_at);
@@ -1122,19 +1152,24 @@ function MarketAgentDashboard({
   const latestMoveIsNegative = latestMoveLabel.startsWith("-");
   const latestMoveSizeTone = latestMoveLabel === "--" ? "neutral" : latestMoveIsNegative ? "negative" : "positive";
   const latestMove = formatMoveType(latestMoveLabel, latestAlertMessage);
-  const marketTone = marketStateTone(state?.current_bias);
+  const marketTone = currentConclusionReady ? marketStateTone(state?.current_bias) : "neutral";
   const priceChangeTone = computedPriceChange === null ? "neutral" : computedPriceChange < 0 ? "negative" : "positive";
   const marketStrength = formatEvidenceStrength(state?.confidence);
   const stateSinceCompact = formatStateSinceCompactTime(state?.last_analysis_time);
   const stateSinceFull = formatStateSinceTime(state?.last_analysis_time);
   const nextUpdate = nextRunCountdown(monitorStatus, nowMs, countdownBaseMs);
-  const activeDrivers = (driverAttention?.states ?? [])
+  const allDriverStates = driverAttention?.states ?? [];
+  const activeDrivers = (currentConclusionReady ? allDriverStates : [])
     .filter((item) => ["active", "active_macro"].includes(normalizeMarketAgentValue(item.current_state)))
     .sort((left, right) => (right.relevance_score ?? 0) - (left.relevance_score ?? 0));
-  const watchingDrivers = (driverAttention?.states ?? [])
-    .filter((item) => ["watching", "emerging", "cooling"].includes(normalizeMarketAgentValue(item.current_state)))
+  const watchingDrivers = allDriverStates
+    .filter((item) =>
+      currentConclusionReady
+        ? ["watching", "emerging", "cooling"].includes(normalizeMarketAgentValue(item.current_state))
+        : ["active", "active_macro", "watching", "emerging", "cooling"].includes(normalizeMarketAgentValue(item.current_state))
+    )
     .sort((left, right) => (right.relevance_score ?? 0) - (left.relevance_score ?? 0));
-  const backgroundDrivers = (driverAttention?.states ?? [])
+  const backgroundDrivers = allDriverStates
     .filter((item) => ["dormant", "retired", "unknown", ""].includes(normalizeMarketAgentValue(item.current_state)))
     .sort((left, right) => (right.relevance_score ?? 0) - (left.relevance_score ?? 0));
   const visibleDrivers = [...activeDrivers, ...watchingDrivers, ...backgroundDrivers].slice(0, 8);
@@ -1146,19 +1181,19 @@ function MarketAgentDashboard({
           <div className="market-agent-kpi-head">
             <h3>XAUUSD (Spot)</h3>
             <span className="market-agent-source-dot">
-              <span className={sourceType === "spot" ? "spot" : "proxy"} />
+              <span className={hasTrustedSpotPrice ? "spot" : "proxy"} />
               {priceSourceLabel}
             </span>
           </div>
           <div className="market-agent-price-value-row">
             <strong>
               <MarketAgentValuePulse value={priceValue ?? xauusdHealth?.current_value}>
-                {formatPrice(priceValue ?? xauusdHealth?.current_value, "No price")}
+                {hasTrustedSpotPrice ? formatPrice(priceValue ?? xauusdHealth?.current_value, "No price") : "No live price"}
               </MarketAgentValuePulse>
             </strong>
             <span className={`market-agent-price-change ${priceChangeTone}`}>
               <MarketAgentValuePulse value={`${computedPriceChange ?? "--"}-${priceChangePercent ?? "--"}`}>
-                {computedPriceChange === null ? "--" : `${formatSignedPriceChange(computedPriceChange)} (${formatPercentChange(priceChangePercent)})`}
+                {!currentConclusionReady || computedPriceChange === null ? "--" : `${formatSignedPriceChange(computedPriceChange)} (${formatPercentChange(priceChangePercent)})`}
               </MarketAgentValuePulse>
             </span>
           </div>
@@ -1178,23 +1213,23 @@ function MarketAgentDashboard({
           </div>
           <strong className={`market-agent-state-value ${marketTone}`}>
             <MarketAgentValuePulse value={state?.current_bias}>
-              {formatMarketStateLabel(state?.current_bias)}
+              {currentConclusionReady ? formatMarketStateLabel(state?.current_bias) : "CURRENT PAUSED"}
             </MarketAgentValuePulse>
-            <span>{marketStateArrow(state?.current_bias)}</span>
+            <span>{currentConclusionReady ? marketStateArrow(state?.current_bias) : "•"}</span>
           </strong>
           <div className="market-agent-state-details market-agent-kpi-detail-stack">
             <span className="market-agent-kpi-subline">
               <span>Since</span>
-              <b data-kpi-detail="state-since" title={stateSinceFull}>{stateSinceCompact}</b>
+              <b data-kpi-detail="state-since" title={currentConclusionReady ? stateSinceFull : ""}>{currentConclusionReady ? stateSinceCompact : "--"}</b>
             </span>
             <div className="market-agent-kpi-mini-metrics" aria-label="Market state detail metrics">
               <span>
                 <em>Strength</em>
-                <b data-kpi-detail="state-strength"><MarketAgentValuePulse value={marketStrength}>{marketStrength}</MarketAgentValuePulse></b>
+                <b data-kpi-detail="state-strength"><MarketAgentValuePulse value={marketStrength}>{currentConclusionReady ? marketStrength : "Paused"}</MarketAgentValuePulse></b>
               </span>
               <span>
                 <em>Confidence</em>
-                <b data-kpi-detail="state-confidence"><MarketAgentValuePulse value={state?.confidence}>{formatValue(state?.confidence, "--")}</MarketAgentValuePulse></b>
+                <b data-kpi-detail="state-confidence"><MarketAgentValuePulse value={state?.confidence}>{currentConclusionReady ? formatValue(state?.confidence, "--") : "--"}</MarketAgentValuePulse></b>
               </span>
             </div>
           </div>
@@ -1205,23 +1240,23 @@ function MarketAgentDashboard({
           </div>
           <strong className={`market-agent-move-type ${latestMove.tone}`}>
             <MarketAgentValuePulse value={latestMove.label}>
-              {latestMove.label}
+              {currentConclusionReady ? latestMove.label : "No live move"}
             </MarketAgentValuePulse>
-            <span>{latestMove.arrow}</span>
+            <span>{currentConclusionReady ? latestMove.arrow : "•"}</span>
           </strong>
           <div className="market-agent-move-details market-agent-kpi-detail-stack">
             <span className="market-agent-kpi-subline">
               <span>Detected</span>
-              <b data-kpi-detail="move-detected">{formatClockTime(state?.last_alert_time)}</b>
+              <b data-kpi-detail="move-detected">{currentConclusionReady ? formatClockTime(state?.last_alert_time) : "--"}</b>
             </span>
             <div className="market-agent-kpi-mini-metrics" aria-label="Latest move detail metrics">
               <span>
                 <em>Move Size</em>
-                <b className={latestMoveSizeTone} data-kpi-detail="move-size"><MarketAgentValuePulse value={latestMoveLabel}>{latestMoveLabel}</MarketAgentValuePulse></b>
+                <b className={latestMoveSizeTone} data-kpi-detail="move-size"><MarketAgentValuePulse value={latestMoveLabel}>{currentConclusionReady ? latestMoveLabel : "--"}</MarketAgentValuePulse></b>
               </span>
               <span>
                 <em>Duration</em>
-                <b data-kpi-detail="move-duration">{formatMoveDuration(price, state?.last_alert_time, nowMs)}</b>
+                <b data-kpi-detail="move-duration">{currentConclusionReady ? formatMoveDuration(price, state?.last_alert_time, nowMs) : "--"}</b>
               </span>
             </div>
           </div>
@@ -1248,10 +1283,10 @@ function MarketAgentDashboard({
               </svg>
               <div className="market-agent-score-content">
                 <strong className="market-agent-score-value">
-                  <span className="market-agent-score-number">{evidenceScore}</span>
+                  <span className="market-agent-score-number">{currentConclusionReady ? evidenceScore : 0}</span>
                   <span className="market-agent-score-suffix">%</span>
                 </strong>
-                <span className="market-agent-score-strength">{evidenceScoreLabel}</span>
+                <span className="market-agent-score-strength">{currentConclusionReady ? evidenceScoreLabel : "Paused"}</span>
               </div>
             </div>
             <div className="market-agent-evidence-counts">
@@ -1262,7 +1297,7 @@ function MarketAgentDashboard({
           </div>
           <div className="market-agent-evidence-quality">
             <span>Quality:</span>
-            <b>{formatValue(state?.confidence, "--")}</b>
+            <b>{currentConclusionReady ? formatValue(state?.confidence, "--") : "Paused"}</b>
           </div>
         </article>
         <article className="market-agent-kpi-card market-agent-next-card">
@@ -1329,7 +1364,9 @@ function MarketAgentDashboard({
               );
             })}
             {visibleDrivers.length === 0 ? (
-              <div className="market-agent-empty-state">No active or watching drivers.</div>
+              <div className="market-agent-empty-state">
+                {currentConclusionReady ? "No active or watching drivers." : "No confirmed current driver."}
+              </div>
             ) : null}
           </div>
         </section>
@@ -1352,7 +1389,7 @@ function MarketAgentDashboard({
               ))}
             </div>
           </div>
-          <div className="market-agent-timeline-track">
+          <div className={`market-agent-timeline-track${timeline.length === 0 ? " is-empty" : ""}`}>
             {timeline.map((item, index) => {
               const kind = inferTimelineKind(item);
               const meta = timelineKindMeta[kind];
@@ -1379,7 +1416,11 @@ function MarketAgentDashboard({
                 </button>
               );
             })}
-            {timeline.length === 0 ? <div className="market-agent-empty-state">No replay events in this window.</div> : null}
+            {timeline.length === 0 ? (
+              <div className="market-agent-empty-state">
+                No replay events in this window.
+              </div>
+            ) : null}
           </div>
           <button type="button" className="market-agent-panel-link market-agent-panel-link-footer" onClick={() => onNavigate("replay")}>
             View Full Timeline <span aria-hidden="true">→</span>
@@ -1432,10 +1473,14 @@ function MarketAgentDashboard({
                 </div>
               );
             })}
-            {evidence.length === 0 ? <div className="market-agent-empty-state">No evidence in this category.</div> : null}
+            {evidence.length === 0 ? (
+              <div className="market-agent-empty-state">
+                No evidence in this category.
+              </div>
+            ) : null}
           </div>
           <div className="market-agent-evidence-footer">
-            <span><i /> Evidence Quality: <b>{evidenceScoreLabel} ({evidenceScore}%)</b></span>
+            <span><i /> Evidence Quality: <b>{currentConclusionReady ? `${evidenceScoreLabel} (${evidenceScore}%)` : "Current conclusion paused"}</b></span>
             <span>{supportingCount} Supporting, {neutralCount} Neutral, {contraryCount} Contrary</span>
           </div>
         </section>

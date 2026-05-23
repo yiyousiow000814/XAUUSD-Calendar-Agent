@@ -17,6 +17,14 @@ def _now_iso() -> str:
     return datetime.now().astimezone().isoformat()
 
 
+def _parse_timestamp(value: str) -> datetime | None:
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return parsed.astimezone() if parsed.tzinfo else parsed.replace(tzinfo=datetime.now().astimezone().tzinfo)
+
+
 def _as_int(value: Any) -> int | None:
     if value is None or value == "":
         return None
@@ -187,6 +195,16 @@ class CTraderCliBridge:
             mid = (float(bid) + float(ask)) / 2
         if mid is None:
             mid = quote.get("close") or quote.get("price")
+        quote_time = _parse_timestamp(timestamp)
+        now = datetime.now().astimezone()
+        age_seconds = (now - quote_time).total_seconds() if quote_time is not None else None
+        stale_after = max(1, self.request.quote_stale_after_seconds)
+        is_stale = age_seconds is None or age_seconds > stale_after
+        stale_reason = (
+            "cTrader quote timestamp could not be parsed."
+            if age_seconds is None
+            else f"cTrader quote is {int(age_seconds)}s old; market may be closed or feed is paused."
+        ) if is_stale else ""
         normalized_quote = {
             "symbol": str(quote.get("symbol", self.request.symbol)),
             "symbol_id": quote.get("symbol_id", quote.get("symbolId", self.request.symbol_id)),
@@ -203,10 +221,10 @@ class CTraderCliBridge:
         provider_health = {
             "source": "cTrader",
             "source_type": "spot",
-            "data_mode": "live_seen",
+            "data_mode": "stale" if is_stale else "live_seen",
             "is_available": True,
-            "is_stale": False,
-            "stale_reason": "",
+            "is_stale": is_stale,
+            "stale_reason": stale_reason,
             "error": "",
             "current_value": mid,
             "data_timestamp": timestamp,
