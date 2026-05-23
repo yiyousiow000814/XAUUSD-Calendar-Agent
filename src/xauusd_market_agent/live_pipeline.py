@@ -99,6 +99,88 @@ def _time_bounds(rows: list[dict[str, Any]], key: str) -> tuple[str | None, str 
     return values[0], values[-1]
 
 
+def _activity_job(
+    title: str,
+    status: str,
+    detail: str,
+    *,
+    input: str = "",
+    output: str = "",
+    timestamp: str | None = None,
+    meta: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "title": title,
+        "status": status,
+        "detail": detail,
+    }
+    if input:
+        payload["input"] = input
+    if output:
+        payload["output"] = output
+    if timestamp:
+        payload["timestamp"] = timestamp
+    if meta:
+        payload["meta"] = meta
+    return payload
+
+
+def _display_range(start: str | None, end: str | None) -> str:
+    if start and end:
+        return f"{start} -> {end}"
+    if start:
+        return f"from {start}"
+    if end:
+        return f"to {end}"
+    return ""
+
+
+def _sample_titles(rows: list[dict[str, Any]], time_key: str, limit: int = 3) -> list[str]:
+    ordered = sorted(rows, key=lambda row: str(row.get(time_key, "")), reverse=True)
+    return [str(row.get("title", "")).strip() for row in ordered[:limit] if str(row.get("title", "")).strip()]
+
+
+def _count_by_symbol(rows: list[dict[str, Any]]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for row in rows:
+        symbol = str(row.get("symbol", "") or "").upper()
+        if not symbol:
+            continue
+        counts[symbol] = counts.get(symbol, 0) + 1
+    return counts
+
+
+def _health_job_status(health: ProviderHealth | None) -> str:
+    if health is None:
+        return "waiting"
+    if not health.is_available:
+        return "unavailable"
+    if health.is_stale:
+        return "stale"
+    return "ready"
+
+
+def _provider_chain_jobs(chain_status: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
+    jobs: list[dict[str, Any]] = []
+    for item in chain_status or []:
+        provider = str(item.get("provider", "provider"))
+        source = str(item.get("source", "") or provider)
+        data_mode = str(item.get("data_mode", "") or "")
+        status = "ready" if item.get("is_available") and not item.get("is_stale") else "stale" if item.get("is_stale") else "unavailable"
+        reason = str(item.get("error", "") or item.get("stale_reason", "") or data_mode or "checked")
+        jobs.append(
+            _activity_job(
+                f"{provider.replace('_', ' ').title()} check",
+                status,
+                reason,
+                input="XAUUSD market provider chain",
+                output=f"{source} / {data_mode}".strip(" /"),
+                timestamp=str(item.get("data_timestamp", "") or "") or None,
+            )
+        )
+    return jobs
+
+
 def _format_price(value: object) -> str:
     try:
         number = float(value)  # type: ignore[arg-type]
@@ -107,13 +189,34 @@ def _format_price(value: object) -> str:
     return f"{number:,.2f}"
 
 
-def _ctrader_activity(health: ProviderHealth | None) -> dict[str, Any]:
+def _ctrader_activity(
+    health: ProviderHealth | None,
+    *,
+    selected_market_provider: str = "",
+    provider_chain_status: list[dict[str, Any]] | None = None,
+    fallback_reason: str = "",
+) -> dict[str, Any]:
+    provider_jobs = _provider_chain_jobs(provider_chain_status)
     if health is None:
         return {
             "status": "waiting",
             "label": "Waiting for XAUUSD",
             "detail": "cTrader has not returned a price snapshot yet.",
             "symbols": ["XAUUSD"],
+            "selectedProvider": selected_market_provider,
+            "providerChain": provider_chain_status or [],
+            "fallbackReason": fallback_reason,
+            "jobs": [
+                _activity_job(
+                    "Live quote request",
+                    "waiting",
+                    "Waiting for the cTrader adapter to return the latest XAUUSD quote.",
+                    input="cTrader credentials + XAUUSD symbol",
+                    output="No quote snapshot yet",
+                ),
+                *provider_jobs,
+            ],
+            "handoff": "Fresh live XAUUSD price and short history feed the evidence gate.",
         }
     price = _format_price(health.current_value)
     base = {
@@ -124,6 +227,9 @@ def _ctrader_activity(health: ProviderHealth | None) -> dict[str, Any]:
         "dataTimestamp": health.data_timestamp,
         "fetchedAt": health.fetched_at,
         "providerHealth": _provider_health_payload(health),
+        "selectedProvider": selected_market_provider,
+        "providerChain": provider_chain_status or [],
+        "fallbackReason": fallback_reason,
     }
     if health.is_available and not health.is_stale and health.data_mode == "live_seen":
         return {
@@ -131,6 +237,18 @@ def _ctrader_activity(health: ProviderHealth | None) -> dict[str, Any]:
             "status": "live",
             "label": "XAUUSD live",
             "detail": f"Last price {price} from cTrader." if price else "Live XAUUSD quote is active.",
+            "jobs": [
+                _activity_job(
+                    "Live quote request",
+                    "ready",
+                    f"cTrader returned a fresh XAUUSD spot quote{f' at {price}' if price else ''}.",
+                    input="cTrader spot feed",
+                    output="Fresh XAUUSD snapshot for evidence",
+                    timestamp=health.data_timestamp,
+                ),
+                *provider_jobs,
+            ],
+            "handoff": "Live XAUUSD quote is usable by price trigger, evidence gate, replay, and alert preflight.",
         }
     if health.is_available and health.current_value is not None:
         return {
@@ -143,12 +261,36 @@ def _ctrader_activity(health: ProviderHealth | None) -> dict[str, Any]:
             )
             if price
             else "Last XAUUSD price is fixed until the market reopens; news and calendar still update.",
+            "jobs": [
+                _activity_job(
+                    "Last quote snapshot",
+                    "stale",
+                    health.stale_reason or "The latest cTrader quote is treated as market-closed context.",
+                    input="Last cTrader XAUUSD quote",
+                    output="Context-only XAUUSD price; no live alert",
+                    timestamp=health.data_timestamp,
+                ),
+                *provider_jobs,
+            ],
+            "handoff": "Market context can still update, but current driver conclusions and Telegram alerts require fresh live XAUUSD.",
         }
     return {
         **base,
         "status": "unavailable",
         "label": "No XAUUSD price",
         "detail": health.error or health.stale_reason or "cTrader has not returned a usable XAUUSD price.",
+        "jobs": [
+            _activity_job(
+                "Live quote request",
+                "unavailable",
+                health.error or health.stale_reason or "No usable XAUUSD quote was returned.",
+                input="cTrader spot feed",
+                output="Price input missing",
+                timestamp=health.data_timestamp,
+            ),
+            *provider_jobs,
+        ],
+        "handoff": "Evidence gate remains blocked until a usable XAUUSD price/history pair exists.",
     }
 
 
@@ -158,9 +300,15 @@ def _context_activity(
     *,
     news_rows: list[dict[str, Any]] | None = None,
     calendar_rows: list[dict[str, Any]] | None = None,
+    provider_health: dict[str, ProviderHealth] | None = None,
 ) -> dict[str, Any]:
     news_rows = news_rows or []
     calendar_rows = calendar_rows or []
+    provider_health = provider_health or {}
+    news_health = provider_health.get("news")
+    calendar_health = provider_health.get("calendar")
+    latest_news_at = _latest_value(news_rows, "published_at")
+    latest_calendar_at = _latest_value(calendar_rows, "scheduled_at")
     detail = f"{news_count} headlines and {calendar_count} calendar events collected."
     return {
         "status": "active" if news_count or calendar_count else "collecting",
@@ -169,8 +317,46 @@ def _context_activity(
         "newsCount": news_count,
         "calendarCount": calendar_count,
         "sources": _unique_strings([*_compact_sources(news_rows), *_compact_sources(calendar_rows)]),
-        "latestNewsAt": _latest_value(news_rows, "published_at"),
-        "latestCalendarAt": _latest_value(calendar_rows, "scheduled_at"),
+        "latestNewsAt": latest_news_at,
+        "latestCalendarAt": latest_calendar_at,
+        "newsSamples": _sample_titles(news_rows, "published_at"),
+        "calendarSamples": _sample_titles(calendar_rows, "scheduled_at"),
+        "jobs": [
+            _activity_job(
+                "News collector",
+                _health_job_status(news_health) if news_rows else "collecting",
+                f"{news_count} relevant headline(s) loaded for the current market window.",
+                input="App-managed RSS/news context",
+                output=f"{news_count} headline(s), {len(_compact_sources(news_rows))} source(s)",
+                timestamp=latest_news_at,
+                meta={
+                    "sources": _compact_sources(news_rows),
+                    "samples": _sample_titles(news_rows, "published_at"),
+                    "health": _provider_health_payload(news_health),
+                },
+            ),
+            _activity_job(
+                "Calendar collector",
+                _health_job_status(calendar_health) if calendar_rows else "collecting",
+                f"{calendar_count} calendar event(s) loaded around the analysis window.",
+                input="App-managed economic calendar",
+                output=f"{calendar_count} calendar event(s)",
+                timestamp=latest_calendar_at,
+                meta={
+                    "sources": _compact_sources(calendar_rows),
+                    "samples": _sample_titles(calendar_rows, "scheduled_at"),
+                    "health": _provider_health_payload(calendar_health),
+                },
+            ),
+            _activity_job(
+                "Context fixture",
+                "ready" if news_rows or calendar_rows else "waiting",
+                "News and calendar rows are normalized into the scenario fixture before evidence and AI review.",
+                input="News rows + calendar rows",
+                output="ScenarioFixture.news and ScenarioFixture.calendar_events",
+            ),
+        ],
+        "handoff": "Market context feeds DriverAttention, the evidence packet, Local AI prompt, replay, and alert formatting.",
     }
 
 
@@ -190,6 +376,28 @@ def _history_activity(
     }
     if stored_rows is not None:
         base["storedRows"] = stored_rows
+    window = _display_range(window_start, window_end) or "current monitor window"
+    detector_job = _activity_job(
+        "Gap detector",
+        "syncing" if backfill_required and not completed else "ready",
+        "Checks the last successful monitor run and decides whether recovery backfill is needed.",
+        input="last_successful_run_at + current run time",
+        output="Backfill required" if backfill_required else "No backfill gap",
+    )
+    fetch_job = _activity_job(
+        "History fetch",
+        "synced" if completed else "syncing" if backfill_required else "idle",
+        "Fetches missing cTrader history for replay and evidence without blocking the live quote.",
+        input=window,
+        output=f"{stored_rows or 0} stored row(s) across {', '.join(symbols or ['XAUUSD'])}",
+    )
+    persist_job = _activity_job(
+        "History persistence",
+        "stored" if completed or stored_rows else "waiting",
+        "Writes market and related-asset bars to TimelineStore for day/month replay.",
+        input="Normalized price bars",
+        output="market_price_bars + related_asset_bars",
+    )
     if backfill_required and completed:
         return {
             **base,
@@ -197,6 +405,8 @@ def _history_activity(
             "label": "History synced",
             "detail": "Missing cTrader history was stored for replay and evidence.",
             "progress": 100,
+            "jobs": [detector_job, fetch_job, persist_job],
+            "handoff": "Backfilled rows are replay/evidence context only; they are not current Telegram alerts.",
         }
     if backfill_required:
         return {
@@ -204,12 +414,16 @@ def _history_activity(
             "status": "syncing",
             "label": "History sync",
             "detail": "Backfill runs in the background after the current live check.",
+            "jobs": [detector_job, fetch_job, persist_job],
+            "handoff": "Live quote stays first; recovery rows are stored after the current run is safe.",
         }
     return {
         **base,
         "status": "idle",
         "label": "History current",
         "detail": "No backfill gap detected for this run.",
+        "jobs": [detector_job, fetch_job, persist_job],
+        "handoff": "Recent XAUUSD history feeds move detection and evidence gate readiness.",
     }
 
 
@@ -219,6 +433,7 @@ def _llm_activity(
     *,
     model: str | None = None,
     analysis: Any | None = None,
+    alert_preflight: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     base: dict[str, Any] = {}
     if model:
@@ -227,6 +442,47 @@ def _llm_activity(
         base["result"] = str(getattr(analysis, "main_driver", "unknown") or "unknown")
         base["causeStatus"] = str(getattr(analysis, "cause_status", "") or "")
         base["analysisEngine"] = str(getattr(analysis, "analysis_engine", "") or "")
+    main_driver = str(getattr(analysis, "main_driver", "unknown") or "unknown") if analysis is not None else "pending"
+    cause_status = str(getattr(analysis, "cause_status", "") or "") if analysis is not None else ""
+    alert_review_status = str((alert_preflight or {}).get("status") or "pending")
+    jobs = [
+        _activity_job(
+            "Rule baseline",
+            "ready" if analysis is not None else "queued",
+            "Deterministic analysis runs first and remains the fallback if Local AI is off or invalid.",
+            input="ScenarioFixture + evidence gate + DriverAttention",
+            output=f"{main_driver}{f' / {cause_status}' if cause_status else ''}",
+        ),
+        _activity_job(
+            "Cause review",
+            "validated" if llm_status == "validated" else "skipped" if not llm_enabled else "unavailable" if llm_status else "queued",
+            "Local AI reviews the compact evidence packet only after allowed/blocked drivers are known.",
+            input="Evidence packet JSON",
+            output="Validated AnalysisResult" if llm_status == "validated" else "Rule fallback remains source of truth",
+        ),
+        _activity_job(
+            "Validator and repair",
+            "ready" if llm_status == "validated" else "skipped" if not llm_enabled else "unavailable" if llm_status else "queued",
+            "LLM output must pass deterministic validation; invalid output is repaired once or rejected.",
+            input="LLM JSON + allowed_candidate_drivers + blocked_drivers",
+            output=str(llm_status or ("not_used" if not llm_enabled else "pending")),
+        ),
+        _activity_job(
+            "Alert review hook",
+            alert_review_status if alert_review_status != "not_applicable" else "skipped",
+            "If an alert is candidate-worthy, Local AI can approve, rewrite, or block the final message without adding facts.",
+            input="Formatted alert + evidence packet",
+            output=str((alert_preflight or {}).get("reason") or alert_review_status),
+        ),
+    ]
+    base["jobs"] = jobs
+    base["touchpoints"] = [
+        "Rule baseline",
+        "Optional Local AI cause review",
+        "Deterministic validator / repair",
+        "Optional Local AI alert review",
+    ]
+    base["handoff"] = "AI never bypasses the evidence gate; validated output feeds Dashboard, Evidence, Replay, and alert preflight."
     if not llm_enabled:
         return {
             **base,
@@ -261,12 +517,48 @@ def _alert_activity(
     telegram_result: dict[str, Any] | None = None,
     *,
     alert_preflight: dict[str, Any] | None = None,
+    analysis: Any | None = None,
 ) -> dict[str, Any]:
+    should_notify = bool(getattr(decision, "should_notify", False)) if decision is not None else False
+    preflight_status = str((alert_preflight or {}).get("status") or "pending")
+    preflight_reason = str((alert_preflight or {}).get("reason") or "")
+    telegram_status = str((telegram_result or {}).get("status") or "not_tested")
     base = {
-        "preflightStatus": (alert_preflight or {}).get("status"),
-        "preflightReason": (alert_preflight or {}).get("reason"),
-        "telegramStatus": (telegram_result or {}).get("status"),
+        "preflightStatus": preflight_status,
+        "preflightReason": preflight_reason,
+        "telegramStatus": telegram_status,
         "notificationLevel": getattr(decision, "notification_level", None) if decision is not None else None,
+        "jobs": [
+            _activity_job(
+                "Format alert message",
+                "ready" if getattr(analysis, "should_notify", False) else "skipped",
+                "Builds the final XAUUSD alert format with status, move, driver, evidence, summary, and data mode.",
+                input="AnalysisResult + evidence chain",
+                output="Formatted candidate message" if getattr(analysis, "should_notify", False) else "No candidate alert",
+            ),
+            _activity_job(
+                "Preflight evidence check",
+                preflight_status if preflight_status != "not_applicable" else "skipped",
+                preflight_reason or "Checks freshness, market-closed state, message format, and supporting evidence.",
+                input="Formatted message + provider health",
+                output=preflight_status,
+            ),
+            _activity_job(
+                "Notification policy",
+                "ready" if should_notify else "suppressed" if decision is not None and getattr(decision, "reason", "") else "idle",
+                getattr(decision, "reason", "") if decision is not None else "Waiting for analysis result.",
+                input="Previous state + current analysis + cooldown policy",
+                output="Send alert" if should_notify else "Dashboard/replay only",
+            ),
+            _activity_job(
+                "Telegram delivery",
+                "sent" if bool((telegram_result or {}).get("sent")) else telegram_status,
+                str((telegram_result or {}).get("error") or "Telegram is used only after all gates pass."),
+                input="Approved alert payload",
+                output=telegram_status,
+            ),
+        ],
+        "handoff": "Alerts are persisted for replay whether sent or suppressed; Telegram receives only approved current-live messages.",
     }
     if decision is None:
         return {
@@ -291,18 +583,41 @@ def _alert_activity(
     }
 
 
-def _evidence_activity(chain_status: EvidenceChainStatus | None = None) -> dict[str, Any]:
+def _evidence_activity(
+    chain_status: EvidenceChainStatus | None = None,
+    *,
+    evidence_status: dict[str, str] | None = None,
+    allowed_candidate_drivers: list[str] | None = None,
+    blocked_drivers: dict[str, str] | None = None,
+    attention_snapshot: Any | None = None,
+) -> dict[str, Any]:
     if chain_status is None:
         return {
             "status": "pending",
             "label": "Evidence gate",
             "detail": "Waiting for provider health and market context.",
+            "jobs": [
+                _activity_job(
+                    "Input readiness",
+                    "pending",
+                    "Waiting for live XAUUSD, recent history, related sensors, news, and calendar.",
+                    input="Provider health + context rows",
+                    output="EvidenceChainStatus",
+                )
+            ],
+            "handoff": "Only usable evidence can become a current conclusion.",
         }
     label = {
         "ready": "Evidence gate ready",
         "partial": "Evidence partial",
         "context_only": "Context only",
     }.get(chain_status.status, "Evidence gate")
+    evidence_status = evidence_status or {}
+    allowed_candidate_drivers = allowed_candidate_drivers or []
+    blocked_drivers = blocked_drivers or {}
+    summary = getattr(attention_snapshot, "driver_attention_summary", {}) or {}
+    active_count = int(summary.get("active_driver_count", 0) or 0)
+    emerging_count = int(summary.get("emerging_driver_count", 0) or 0)
     return {
         "status": chain_status.status,
         "label": label,
@@ -312,6 +627,49 @@ def _evidence_activity(chain_status: EvidenceChainStatus | None = None) -> dict[
         "missingRequired": chain_status.missing_required,
         "contextOnlyInputs": chain_status.context_only_inputs,
         "llmStatus": chain_status.llm_status,
+        "evidenceStatus": evidence_status,
+        "allowedCandidateDrivers": allowed_candidate_drivers,
+        "blockedDrivers": blocked_drivers,
+        "jobs": [
+            _activity_job(
+                "Input readiness",
+                chain_status.status,
+                chain_status.reason,
+                input="Provider health + price history + market context",
+                output=f"{len(chain_status.usable_inputs)} usable / {len(chain_status.missing_required)} missing",
+                meta={
+                    "usable": chain_status.usable_inputs,
+                    "missing": chain_status.missing_required,
+                    "context_only": chain_status.context_only_inputs,
+                },
+            ),
+            _activity_job(
+                "Cross-market sensors",
+                "ready" if evidence_status else "waiting",
+                "Classifies DXY, yields, oil, and risk sensors as confirming, contradicting, stale, unavailable, or background.",
+                input="Related asset rows + provider health",
+                output=", ".join(f"{key}: {value}" for key, value in sorted(evidence_status.items())) or "No sensor status yet",
+            ),
+            _activity_job(
+                "Driver attention",
+                "ready" if attention_snapshot is not None else "waiting",
+                "Known drivers and dynamic themes move between watching, emerging, active, cooling, and retired.",
+                input="Evidence status + previous driver states + current headlines",
+                output=f"{active_count} active / {emerging_count} emerging",
+            ),
+            _activity_job(
+                "Candidate driver gate",
+                "ready",
+                "Only allowed candidate drivers can be used by rule or LLM analysis; blocked drivers remain visible as rejected evidence.",
+                input="Driver attention states + evidence gates",
+                output=f"{len(allowed_candidate_drivers)} allowed / {len(blocked_drivers)} blocked",
+                meta={
+                    "allowed": allowed_candidate_drivers,
+                    "blocked": blocked_drivers,
+                },
+            ),
+        ],
+        "handoff": "The evidence packet is the source of truth for rule analysis, Local AI, Dashboard, Replay, and alert preflight.",
     }
 
 
@@ -323,12 +681,39 @@ def _replay_activity(
     storage_summary: dict[str, Any] | None = None,
     symbols: list[str] | None = None,
 ) -> dict[str, Any]:
+    storage_counts = storage_counts or {}
+    storage_summary = storage_summary or {}
+    jobs = [
+        _activity_job(
+            "Monitor run row",
+            "stored" if monitor_run_id is not None else "pending",
+            "Creates the monitor_runs record that connects every persisted artifact.",
+            input="run_started_at + data_mode + backfill flags",
+            output=f"monitor_run_id {monitor_run_id}" if monitor_run_id is not None else "Waiting for run id",
+        ),
+        _activity_job(
+            "Raw evidence rows",
+            "stored" if storage_counts else "pending",
+            "Stores price bars, related sensors, news, calendar, provider health, evidence packet, analysis, alert, and state transition.",
+            input="Runtime context + analysis result",
+            output=", ".join(f"{key}: {value}" for key, value in storage_counts.items()) or "No rows persisted yet",
+        ),
+        _activity_job(
+            "Replay query model",
+            "ready" if monitor_run_id is not None else "waiting",
+            "Day replay reads detailed rows; Month replay filters stored timeline events down to major XAUUSD turns.",
+            input="TimelineStore indexed range reads",
+            output="Dashboard replay, Evidence detail, Alerts history",
+        ),
+    ]
     if monitor_run_id is None:
         return {
             "status": "pending",
             "label": "Replay store",
             "detail": "Waiting for this run to be persisted.",
             "symbols": symbols or [],
+            "jobs": jobs,
+            "handoff": "Replay appears after TimelineStore has a monitor_run_id and indexed range data.",
         }
     return {
         "status": "stored",
@@ -336,9 +721,11 @@ def _replay_activity(
         "detail": f"Run {monitor_run_id} persisted to TimelineStore.",
         "monitorRunId": monitor_run_id,
         "timelineStorePath": str(timeline_store_path) if timeline_store_path is not None else "",
-        "stored": storage_counts or {},
-        "storageSummary": storage_summary or {},
+        "stored": storage_counts,
+        "storageSummary": storage_summary,
         "symbols": symbols or [],
+        "jobs": jobs,
+        "handoff": "Stored artifacts feed Dashboard, Evidence, Replay day/month views, and alert history without re-running analysis.",
     }
 
 
@@ -369,6 +756,13 @@ def _activity_snapshot(
     storage_summary: dict[str, Any] | None = None,
     history_window_start: str | None = None,
     history_window_end: str | None = None,
+    selected_market_provider: str = "",
+    provider_chain_status: list[dict[str, Any]] | None = None,
+    fallback_reason: str = "",
+    evidence_status: dict[str, str] | None = None,
+    allowed_candidate_drivers: list[str] | None = None,
+    blocked_drivers: dict[str, str] | None = None,
+    attention_snapshot: Any | None = None,
 ) -> dict[str, Any]:
     market_price_bars = market_price_bars or []
     related_asset_bars = related_asset_bars or []
@@ -383,8 +777,13 @@ def _activity_snapshot(
     history_stored_rows = None
     if market_price_bar_count is not None or related_asset_bar_count is not None:
         history_stored_rows = int(market_price_bar_count or 0) + int(related_asset_bar_count or 0)
-    return {
-        "ctrader": _ctrader_activity(provider_health.get("xauusd")),
+    snapshot = {
+        "ctrader": _ctrader_activity(
+            provider_health.get("xauusd"),
+            selected_market_provider=selected_market_provider,
+            provider_chain_status=provider_chain_status,
+            fallback_reason=fallback_reason,
+        ),
         "history": _history_activity(
             backfill_required,
             completed=history_completed,
@@ -398,9 +797,22 @@ def _activity_snapshot(
             calendar_count,
             news_rows=news_rows,
             calendar_rows=calendar_rows,
+            provider_health=provider_health,
         ),
-        "evidence": _evidence_activity(chain_status),
-        "llm": _llm_activity(llm_enabled, llm_status, model=llm_model, analysis=analysis),
+        "evidence": _evidence_activity(
+            chain_status,
+            evidence_status=evidence_status,
+            allowed_candidate_drivers=allowed_candidate_drivers,
+            blocked_drivers=blocked_drivers,
+            attention_snapshot=attention_snapshot,
+        ),
+        "llm": _llm_activity(
+            llm_enabled,
+            llm_status,
+            model=llm_model,
+            analysis=analysis,
+            alert_preflight=alert_preflight,
+        ),
         "replay": _replay_activity(
             monitor_run_id=monitor_run_id,
             timeline_store_path=timeline_store_path,
@@ -408,8 +820,30 @@ def _activity_snapshot(
             storage_summary=storage_summary,
             symbols=symbols,
         ),
-        "alerts": _alert_activity(decision, telegram_result, alert_preflight=alert_preflight),
+        "alerts": _alert_activity(decision, telegram_result, alert_preflight=alert_preflight, analysis=analysis),
     }
+    snapshot["summary"] = {
+        "symbols": symbols,
+        "symbolRows": _count_by_symbol([*market_price_bars, *related_asset_bars]),
+        "windowStart": history_window_start,
+        "windowEnd": history_window_end,
+        "selectedMarketProvider": selected_market_provider,
+        "dataStores": [
+            "monitor_runs",
+            "provider_health",
+            "market_price_bars",
+            "related_asset_bars",
+            "news_items",
+            "calendar_events",
+            "driver_attention_states",
+            "evidence_packets",
+            "analysis_results",
+            "alerts",
+            "state_transitions",
+            "timeline_events",
+        ],
+    }
+    return snapshot
 
 
 class MonitorLock:
@@ -1291,17 +1725,9 @@ def run_monitored_live_once(
         lastError="",
         message="Getting XAUUSD price, related sensors, news, and calendar.",
         activity={
-            "ctrader": {
-                "status": "checking",
-                "label": "Getting XAUUSD",
-                "detail": "Requesting the latest cTrader price snapshot.",
-            },
+            "ctrader": _ctrader_activity(None),
             "history": _history_activity(backfill_required),
-            "context": {
-                "status": "collecting",
-                "label": "News and calendar",
-                "detail": "Collecting market context in the background.",
-            },
+            "context": _context_activity(0, 0),
             "evidence": _evidence_activity(),
             "llm": _llm_activity(llm_enabled),
             "replay": _replay_activity(),
@@ -1337,6 +1763,9 @@ def run_monitored_live_once(
             llm_model=str(getattr(getattr(active_llm_client, "config", None), "model", "") or ""),
             history_window_start=last_successful_run_at,
             history_window_end=anchor.isoformat(),
+            selected_market_provider=runtime_context.get("selected_market_provider", "unavailable"),
+            provider_chain_status=runtime_context.get("provider_chain_status", []),
+            fallback_reason=runtime_context.get("fallback_reason", ""),
         ),
     )
     data_mode = _resolve_runtime_data_mode(
@@ -1374,6 +1803,13 @@ def run_monitored_live_once(
             llm_model=str(getattr(getattr(active_llm_client, "config", None), "model", "") or ""),
             history_window_start=last_successful_run_at,
             history_window_end=anchor.isoformat(),
+            selected_market_provider=runtime_context.get("selected_market_provider", "unavailable"),
+            provider_chain_status=runtime_context.get("provider_chain_status", []),
+            fallback_reason=runtime_context.get("fallback_reason", ""),
+            evidence_status=evidence.evidence_status,
+            allowed_candidate_drivers=evidence.allowed_candidate_drivers,
+            blocked_drivers=evidence.blocked_drivers,
+            attention_snapshot=attention_snapshot,
         ),
     )
     analysis = analyze_fixture_with_optional_llm(
@@ -1493,6 +1929,13 @@ def run_monitored_live_once(
             alert_preflight=alert_preflight,
             history_window_start=last_successful_run_at,
             history_window_end=anchor.isoformat(),
+            selected_market_provider=runtime_context.get("selected_market_provider", "unavailable"),
+            provider_chain_status=runtime_context.get("provider_chain_status", []),
+            fallback_reason=runtime_context.get("fallback_reason", ""),
+            evidence_status=evidence.evidence_status,
+            allowed_candidate_drivers=evidence.allowed_candidate_drivers,
+            blocked_drivers=evidence.blocked_drivers,
+            attention_snapshot=attention_snapshot,
         ),
     )
     telegram_result = {
@@ -1649,6 +2092,13 @@ def run_monitored_live_once(
                 alert_preflight=alert_preflight,
                 history_window_start=last_successful_run_at,
                 history_window_end=anchor.isoformat(),
+                selected_market_provider=runtime_context.get("selected_market_provider", "unavailable"),
+                provider_chain_status=runtime_context.get("provider_chain_status", []),
+                fallback_reason=runtime_context.get("fallback_reason", ""),
+                evidence_status=evidence.evidence_status,
+                allowed_candidate_drivers=evidence.allowed_candidate_drivers,
+                blocked_drivers=evidence.blocked_drivers,
+                attention_snapshot=attention_snapshot,
             ),
         )
         recovery_context = _run_recovery_backfill(
@@ -1716,6 +2166,13 @@ def run_monitored_live_once(
         storage_summary=timeline_store.get_storage_summary(),
         history_window_start=last_successful_run_at,
         history_window_end=anchor.isoformat(),
+        selected_market_provider=runtime_context.get("selected_market_provider", "unavailable"),
+        provider_chain_status=runtime_context.get("provider_chain_status", []),
+        fallback_reason=runtime_context.get("fallback_reason", ""),
+        evidence_status=evidence.evidence_status,
+        allowed_candidate_drivers=evidence.allowed_candidate_drivers,
+        blocked_drivers=evidence.blocked_drivers,
+        attention_snapshot=attention_snapshot,
     )
     final_status_updates = {
         "ok": True,

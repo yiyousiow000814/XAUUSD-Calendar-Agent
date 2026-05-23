@@ -1,4 +1,6 @@
+﻿import type { ReactNode } from "react";
 import type {
+  MarketAgentActivityJob,
   MarketAgentActivityStatus,
   MarketAgentEvidenceForRunResponse,
   MarketAgentLLMConfigResponse,
@@ -17,16 +19,26 @@ import {
 } from "../utils/marketAgentUi";
 import "./MarketAgentActivity.css";
 
-type ActivityKey = "ctrader" | "history" | "context" | "evidence" | "llm" | "replay" | "alerts";
-
-type ActivityStage = {
-  key: ActivityKey;
-  eyebrow: string;
+type ActivityNode = {
+  id: string;
+  owner: string;
   title: string;
-  fallbackLabel: string;
-  fallbackDetail: string;
-  fallbackStatus: string;
-  chips: string[];
+  status: string;
+  detail: string;
+  input: string;
+  output: string;
+  target: string;
+  timestamp?: string;
+};
+
+type ActivitySection = {
+  id: string;
+  step: string;
+  title: string;
+  detail: string;
+  status: string;
+  nodes: ActivityNode[];
+  wide?: ReactNode;
 };
 
 type MarketAgentActivityProps = {
@@ -60,6 +72,9 @@ const recordValue = (entry: MarketAgentActivityStatus | undefined, key: string) 
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
 };
 
+const jobsValue = (entry: MarketAgentActivityStatus | undefined): MarketAgentActivityJob[] =>
+  Array.isArray(entry?.jobs) ? entry.jobs : [];
+
 const unique = (items: string[]) => Array.from(new Set(items.filter(Boolean)));
 
 const formatBytes = (bytes: number) => {
@@ -74,11 +89,15 @@ const recordNumberValue = (entry: Record<string, unknown>, key: string) => {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 };
 
-const toneForStatus = (status: string) => {
+const storedCount = (stored: Record<string, unknown>, key: string, fallback: number) => {
+  const value = stored[key];
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+};
+
+const statusTone = (status: string) => {
   const normalized = normalizeMarketAgentValue(status);
-  if (["live", "active", "ready", "validated", "synced", "stored", "sent"].includes(normalized)) return "good";
-  if (["checking", "collecting", "syncing", "preparing", "queued", "market_closed", "partial"].includes(normalized)) return "working";
-  if (["context_only", "suppressed", "idle", "skipped", "pending"].includes(normalized)) return "muted";
+  if (["live", "active", "ready", "validated", "synced", "stored", "sent", "approved", "rewritten"].includes(normalized)) return "good";
+  if (["checking", "collecting", "syncing", "preparing", "queued", "market_closed", "partial", "stale"].includes(normalized)) return "working";
   if (["unavailable", "failed", "error", "blocked"].includes(normalized)) return "bad";
   return "muted";
 };
@@ -88,11 +107,11 @@ const compactChip = (label: string, value: unknown) => {
   return text ? `${label}: ${text}` : "";
 };
 
-const userFacingStatus = (value: string) => {
+const normalizeStatusLabel = (value: string) => {
   const normalized = normalizeMarketAgentValue(value);
   if (normalized === "disabled") return "Dashboard only";
   if (normalized === "not_applicable") return "Not needed";
-  return value;
+  return humanizeMarketAgentValue(value);
 };
 
 const replayStats = (payload: MarketAgentReplayPayload | undefined) => {
@@ -122,10 +141,114 @@ const replayStats = (payload: MarketAgentReplayPayload | undefined) => {
   };
 };
 
-const storedCount = (stored: Record<string, unknown>, key: string, fallback: number) => {
-  const value = stored[key];
-  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+const jobField = (job: MarketAgentActivityJob, key: keyof MarketAgentActivityJob) => {
+  const value = job[key];
+  return typeof value === "string" && value.trim() ? value.trim() : "";
 };
+
+const jobMetaList = (job: MarketAgentActivityJob | undefined, key: string) => {
+  const value = job?.meta?.[key];
+  if (!Array.isArray(value)) return [];
+  return value.map((item) => String(item || "").trim()).filter(Boolean);
+};
+
+const entryStatus = (entry: MarketAgentActivityStatus | undefined, fallback: string) => textValue(entry, "status") || fallback;
+
+const firstJob = (entry: MarketAgentActivityStatus | undefined, title: string) =>
+  jobsValue(entry).find((job) => normalizeMarketAgentValue(job.title || "") === normalizeMarketAgentValue(title));
+
+const nodeFromJob = ({
+  id,
+  owner,
+  entry,
+  jobTitle,
+  fallbackTitle,
+  fallbackStatus,
+  fallbackDetail,
+  fallbackInput,
+  fallbackOutput,
+  target,
+  includeEntryDetail
+}: {
+  id: string;
+  owner: string;
+  entry: MarketAgentActivityStatus | undefined;
+  jobTitle: string;
+  fallbackTitle?: string;
+  fallbackStatus: string;
+  fallbackDetail: string;
+  fallbackInput: string;
+  fallbackOutput: string;
+  target: string;
+  includeEntryDetail?: boolean;
+}): ActivityNode => {
+  const job = firstJob(entry, jobTitle);
+  const entryDetail = includeEntryDetail ? textValue(entry, "detail") : "";
+  const detail = [entryDetail, job?.detail || fallbackDetail].filter(Boolean);
+  return {
+    id,
+    owner,
+    title: job?.title || fallbackTitle || jobTitle,
+    status: job?.status || entryStatus(entry, fallbackStatus),
+    detail: unique(detail).join(" "),
+    input: jobField(job || {}, "input") || fallbackInput,
+    output: jobField(job || {}, "output") || fallbackOutput,
+    target,
+    timestamp: job?.timestamp
+  };
+};
+
+function ActivityNodeCard({ node, index }: { node: ActivityNode; index: number }) {
+  return (
+    <article className={`market-agent-activity-node tone-${statusTone(node.status)}`}>
+      <header>
+        <span>{String(index + 1).padStart(2, "0")}</span>
+        <div>
+          <small>{node.owner}</small>
+          <strong>{node.title}</strong>
+        </div>
+        <em>{normalizeStatusLabel(node.status)}</em>
+      </header>
+      <p>{node.detail}</p>
+      <div className="market-agent-activity-node-io">
+        <span>
+          <b>Receives</b>
+          {node.input || "--"}
+        </span>
+        <span>
+          <b>Produces</b>
+          {node.output || "--"}
+        </span>
+        <span>
+          <b>Sends to</b>
+          {node.target || "--"}
+        </span>
+      </div>
+      {node.timestamp ? <time>{formatShortTime(node.timestamp)}</time> : null}
+    </article>
+  );
+}
+
+function ActivitySectionBlock({ section }: { section: ActivitySection }) {
+  return (
+    <section className={`market-agent-activity-section section-${section.id}`}>
+      <header className="market-agent-activity-section-head">
+        <span>{section.step}</span>
+        <div>
+          <h3>{section.title}</h3>
+          <p>{section.detail}</p>
+        </div>
+        <em>{normalizeStatusLabel(section.status)}</em>
+      </header>
+      {section.wide}
+      <div className="market-agent-activity-node-list">
+        {section.nodes.map((node, index) => (
+          <ActivityNodeCard node={node} index={index} key={node.id} />
+        ))}
+      </div>
+    </section>
+  );
+}
 
 export function MarketAgentActivity({
   monitorStatus,
@@ -139,17 +262,20 @@ export function MarketAgentActivity({
   const activity = monitorStatus?.activity ?? {};
   const xauusdHealth = findProviderHealth(providerHealth?.items, ["xauusd", "gc=f", "xauusd price"]);
   const stats = replayStats(replay?.replay);
-  const replayEntry = activity.replay;
-  const stored = recordValue(replayEntry, "stored");
-  const storageSummary = recordValue(replayEntry, "storageSummary");
-  const storageCounts = recordValue(storageSummary, "counts");
-  const storageCompaction = recordValue(storageSummary, "compaction");
   const cTraderEntry = activity.ctrader;
   const historyEntry = activity.history;
   const contextEntry = activity.context;
   const evidenceEntry = activity.evidence;
   const llmEntry = activity.llm;
+  const replayEntry = activity.replay;
   const alertEntry = activity.alerts;
+  const summaryEntry = activity.summary;
+  const stored = recordValue(replayEntry, "stored");
+  const storageSummary = recordValue(replayEntry, "storageSummary");
+  const storageCounts = recordValue(storageSummary, "counts");
+  const storageRanges = recordValue(storageSummary, "ranges");
+  const storageCompaction = recordValue(storageSummary, "compaction");
+  const providerChain = Array.isArray(cTraderEntry?.providerChain) ? cTraderEntry.providerChain : [];
   const phaseLabel = humanizeMarketAgentValue(monitorStatus?.phase || (monitorStatus?.running ? "running" : "stopped"));
   const phaseMessage = monitorStatus?.message || (monitorStatus?.running ? "Agent is checking the market." : "Agent is idle.");
   const cTraderLive = Boolean(xauusdHealth?.is_available && !xauusdHealth.is_stale);
@@ -158,113 +284,7 @@ export function MarketAgentActivity({
   const contextCalendarCount = numberValue(contextEntry, "calendarCount") ?? stats.calendarRows;
   const selectedEvidencePacket = selectedEvidence?.payload?.evidence_packet as Record<string, unknown> | undefined;
   const evidenceChain = selectedEvidencePacket?.evidence_chain_status as Record<string, unknown> | undefined;
-
-  const stages: ActivityStage[] = [
-    {
-      key: "ctrader",
-      eyebrow: "1 · LIVE",
-      title: "cTrader live",
-      fallbackStatus: cTraderLive ? "live" : cTraderClosed ? "market_closed" : providerConfig?.ctrader?.enabled ? "checking" : "waiting",
-      fallbackLabel: cTraderLive ? "XAUUSD live" : cTraderClosed ? "Market closed" : "Waiting for XAUUSD",
-      fallbackDetail: cTraderLive
-        ? "Latest XAUUSD quote is available."
-        : cTraderClosed
-          ? "Last XAUUSD price is fixed; news and calendar continue."
-          : "Connect cTrader to start the live XAUUSD feed.",
-      chips: unique([
-        ...listValue(cTraderEntry, "symbols"),
-        compactChip("Source", textValue(cTraderEntry, "source") || "cTrader"),
-        compactChip("Mode", textValue(cTraderEntry, "dataMode") || xauusdHealth?.data_mode || ""),
-        compactChip("Time", formatShortTime(textValue(cTraderEntry, "dataTimestamp") || xauusdHealth?.data_timestamp || ""))
-      ])
-    },
-    {
-      key: "history",
-      eyebrow: "2 · HISTORY",
-      title: "History sync",
-      fallbackStatus: monitorStatus?.running ? "syncing" : "idle",
-      fallbackLabel: "History current",
-      fallbackDetail: "Backfill runs after the current live check and stores replay data.",
-      chips: unique([
-        ...listValue(historyEntry, "symbols").slice(0, 4),
-        compactChip("Rows", numberValue(historyEntry, "storedRows") ?? stats.priceRows + stats.relatedRows),
-        compactChip("From", formatShortTime(textValue(historyEntry, "windowStart"))),
-        compactChip("To", formatShortTime(textValue(historyEntry, "windowEnd")))
-      ])
-    },
-    {
-      key: "context",
-      eyebrow: "3 · CONTEXT",
-      title: "Market context",
-      fallbackStatus: contextNewsCount || contextCalendarCount ? "active" : "collecting",
-      fallbackLabel: "News and calendar",
-      fallbackDetail: `${contextNewsCount} headlines and ${contextCalendarCount} calendar events loaded for this range.`,
-      chips: unique([
-        compactChip("News", contextNewsCount),
-        compactChip("Calendar", contextCalendarCount),
-        ...listValue(contextEntry, "sources").slice(0, 3),
-        compactChip("Latest", formatShortTime(textValue(contextEntry, "latestNewsAt") || textValue(contextEntry, "latestCalendarAt")))
-      ])
-    },
-    {
-      key: "evidence",
-      eyebrow: "4 · GATE",
-      title: "Evidence gate",
-      fallbackStatus: String(evidenceChain?.status || "pending"),
-      fallbackLabel: "Evidence gate",
-      fallbackDetail: String(evidenceChain?.reason || "Provider health, price history, drivers, and context are validated before conclusions."),
-      chips: unique([
-        compactChip("Status", textValue(evidenceEntry, "chainStatus") || String(evidenceChain?.status || "")),
-        compactChip("Usable", listValue(evidenceEntry, "usableInputs").length || (Array.isArray(evidenceChain?.usable_inputs) ? evidenceChain.usable_inputs.length : "")),
-        compactChip("Missing", listValue(evidenceEntry, "missingRequired").length || (Array.isArray(evidenceChain?.missing_required) ? evidenceChain.missing_required.length : "")),
-        compactChip("Blocked", listValue(evidenceEntry, "blockedDrivers").length)
-      ])
-    },
-    {
-      key: "llm",
-      eyebrow: "5 · AI",
-      title: "Local AI review",
-      fallbackStatus: llmConfig?.llm?.enabled ? "queued" : "skipped",
-      fallbackLabel: llmConfig?.llm?.enabled ? "Local AI queued" : "Rule-based",
-      fallbackDetail: llmConfig?.llm?.enabled
-        ? "Local AI can summarize only after deterministic evidence gates."
-        : "Rule-based evidence remains active when Local AI is off.",
-      chips: unique([
-        compactChip("Model", textValue(llmEntry, "model") || llmConfig?.llm?.model || ""),
-        compactChip("Engine", textValue(llmEntry, "analysisEngine")),
-        compactChip("Result", textValue(llmEntry, "result")),
-        compactChip("Cause", textValue(llmEntry, "causeStatus"))
-      ])
-    },
-    {
-      key: "replay",
-      eyebrow: "6 · STORE",
-      title: "Replay store",
-      fallbackStatus: stats.priceRows || stats.newsRows || stats.calendarRows ? "stored" : "pending",
-      fallbackLabel: "TimelineStore",
-      fallbackDetail: replayEntry?.detail || "SQLite stores the run, evidence packet, replay rows, state transition, and alert decision.",
-      chips: unique([
-        compactChip("Run", textValue(replayEntry, "monitorRunId") || monitorStatus?.latestMonitorRunId || ""),
-        compactChip("Price", storedCount(stored, "marketPriceBars", stats.priceRows)),
-        compactChip("News", storedCount(stored, "newsItems", stats.newsRows)),
-        compactChip("Events", storedCount(stored, "calendarEvents", stats.calendarRows))
-      ])
-    },
-    {
-      key: "alerts",
-      eyebrow: "7 · ALERT",
-      title: "Alert queue",
-      fallbackStatus: telegramConfig?.telegram?.enabled ? "ready" : "idle",
-      fallbackLabel: telegramConfig?.telegram?.enabled ? "Telegram ready" : "Dashboard only",
-      fallbackDetail: "Only current live runs that pass preflight and notification policy can send Telegram.",
-      chips: unique([
-        compactChip("Preflight", textValue(alertEntry, "preflightStatus")),
-        compactChip("Telegram", userFacingStatus(textValue(alertEntry, "telegramStatus") || telegramConfig?.telegram?.lastSendStatus || "")),
-        compactChip("Level", textValue(alertEntry, "notificationLevel"))
-      ])
-    }
-  ];
-
+  const databaseBytes = recordNumberValue(storageSummary, "databaseBytes");
   const loadedRange = replay?.start && replay?.end
     ? `${formatShortTime(replay.start)} -> ${formatShortTime(replay.end)}`
     : stats.start && stats.end
@@ -276,121 +296,462 @@ export function MarketAgentActivity({
     replay?.timeline_store_path ||
     selectedEvidence?.timeline_store_path ||
     "TimelineStore not loaded";
-  const databaseBytes = recordNumberValue(storageSummary, "databaseBytes");
-  const storageMode = humanizeMarketAgentValue(String(storageCompaction.mode || "indexed_range_reads"));
-  const compactionStatus = humanizeMarketAgentValue(String(storageCompaction.status || "not_needed"));
+  const symbols = unique([
+    ...listValue(cTraderEntry, "symbols"),
+    ...listValue(historyEntry, "symbols"),
+    ...listValue(replayEntry, "symbols"),
+    ...stats.symbols
+  ]);
+  const cTraderStatus = entryStatus(cTraderEntry, cTraderLive ? "live" : cTraderClosed ? "market_closed" : providerConfig?.ctrader?.enabled ? "checking" : "waiting");
+  const historyStatus = entryStatus(historyEntry, monitorStatus?.running ? "syncing" : "idle");
+  const historyProgress = numberValue(historyEntry, "progress");
+  const historyProgressLabel = historyProgress === null ? "" : `${Math.round(historyProgress)}%`;
+  const contextStatus = entryStatus(contextEntry, contextNewsCount || contextCalendarCount ? "active" : "collecting");
+  const evidenceStatus = entryStatus(evidenceEntry, String(evidenceChain?.status || "pending"));
+  const llmStatus = entryStatus(llmEntry, llmConfig?.llm?.enabled ? "queued" : "skipped");
+  const replayStatus = entryStatus(replayEntry, stats.priceRows || stats.newsRows || stats.calendarRows ? "stored" : "pending");
+  const alertStatus = entryStatus(alertEntry, telegramConfig?.telegram?.enabled ? "ready" : "idle");
+  const newsJob = firstJob(contextEntry, "News collector");
+  const calendarJob = firstJob(contextEntry, "Calendar collector");
+  const alertReviewJob = firstJob(llmEntry, "Alert review hook");
+  const newsSources = unique([
+    ...listValue(contextEntry, "sources"),
+    ...jobMetaList(newsJob, "sources"),
+    ...jobMetaList(calendarJob, "sources")
+  ]);
+  const newsSamples = unique([...listValue(contextEntry, "newsSamples"), ...jobMetaList(newsJob, "samples")]).slice(0, 6);
+  const calendarSamples = unique([...listValue(contextEntry, "calendarSamples"), ...jobMetaList(calendarJob, "samples")]).slice(0, 4);
+  const inputNodes: ActivityNode[] = [
+    {
+      id: "ctrader-live",
+      owner: "cTrader",
+      title: "XAUUSD live feed",
+      status: cTraderStatus,
+      detail: textValue(cTraderEntry, "detail") || "Waiting for the latest XAUUSD spot quote.",
+      input: compactChip("Provider", textValue(cTraderEntry, "selectedProvider") || textValue(cTraderEntry, "source") || "cTrader"),
+      output: textValue(cTraderEntry, "handoff") || "Live price feeds move detection, evidence, replay, and alert preflight.",
+      target: "Move detector + Evidence gate",
+      timestamp: textValue(cTraderEntry, "dataTimestamp") || String(xauusdHealth?.data_timestamp || "")
+    },
+    nodeFromJob({
+      id: "history-fetch",
+      owner: "cTrader",
+      entry: historyEntry,
+      jobTitle: "History fetch",
+      fallbackTitle: "History backfill",
+      fallbackStatus: historyStatus,
+      fallbackDetail: textValue(historyEntry, "detail") || "History fills replay and evidence gaps without blocking the live quote.",
+      fallbackInput: loadedRange,
+      fallbackOutput: `${historyProgressLabel ? `${historyProgressLabel} / ` : ""}${numberValue(historyEntry, "storedRows") ?? stats.priceRows + stats.relatedRows} stored row(s)`,
+      target: "TimelineStore + move detector"
+    }),
+    nodeFromJob({
+      id: "calendar-collector",
+      owner: "Context",
+      entry: contextEntry,
+      jobTitle: "Calendar collector",
+      fallbackStatus: contextStatus,
+      fallbackDetail: `${contextCalendarCount} calendar event(s) loaded around the analysis window.`,
+      fallbackInput: "App-managed economic calendar",
+      fallbackOutput: `${contextCalendarCount} calendar event(s)`,
+      target: "Context fixture + Evidence packet"
+    }),
+    {
+      id: "provider-chain",
+      owner: "Sensors",
+      title: "Provider chain",
+      status: cTraderStatus,
+      detail: providerChain.length ? `${providerChain.length} provider check(s) reported for the XAUUSD source path.` : "Provider checks have not reported yet.",
+      input: "cTrader spot, market proxies, provider health",
+      output: providerChain.length
+        ? providerChain
+            .slice(0, 3)
+            .map((item) => {
+              const row = item && typeof item === "object" ? (item as Record<string, unknown>) : {};
+              const status = row.is_available && !row.is_stale ? "ready" : row.is_stale ? "stale" : "unavailable";
+              return `${humanizeMarketAgentValue(String(row.provider || "provider"))}: ${normalizeStatusLabel(status)}`;
+            })
+            .join(" / ")
+        : "Waiting for provider health",
+      target: "Evidence readiness"
+    }
+  ];
+
+  const processingNodes: ActivityNode[] = [
+    nodeFromJob({
+      id: "context-fixture",
+      owner: "Normalize",
+      entry: contextEntry,
+      jobTitle: "Context fixture",
+      fallbackStatus: contextStatus,
+      fallbackDetail: `${contextNewsCount} headlines and ${contextCalendarCount} calendar events are normalized into the scenario fixture before evidence and AI review.`,
+      fallbackInput: "News rows + calendar rows",
+      fallbackOutput: "ScenarioFixture.news and ScenarioFixture.calendar_events",
+      target: "Evidence packet"
+    }),
+    nodeFromJob({
+      id: "input-readiness",
+      owner: "Gate",
+      entry: evidenceEntry,
+      jobTitle: "Input readiness",
+      fallbackStatus: evidenceStatus,
+      fallbackDetail: textValue(evidenceEntry, "detail") || "Checks whether live price, recent history, related sensors, news, and calendar are usable.",
+      fallbackInput: "Provider health + price history + market context",
+      fallbackOutput: `${listValue(evidenceEntry, "usableInputs").length} usable / ${listValue(evidenceEntry, "missingRequired").length} missing`,
+      target: "Evidence gate"
+    }),
+    nodeFromJob({
+      id: "cross-market-sensors",
+      owner: "Sensors",
+      entry: evidenceEntry,
+      jobTitle: "Cross-market sensors",
+      fallbackStatus: evidenceStatus,
+      fallbackDetail: "Classifies related sensors as confirming, contradicting, stale, unavailable, or background.",
+      fallbackInput: "Related asset rows + provider health",
+      fallbackOutput: "Sensor status map",
+      target: "DriverAttention"
+    }),
+    nodeFromJob({
+      id: "driver-attention",
+      owner: "Attention",
+      entry: evidenceEntry,
+      jobTitle: "Driver attention",
+      fallbackStatus: evidenceStatus,
+      fallbackDetail: "Known drivers and dynamic themes move between watching, emerging, active, cooling, and retired.",
+      fallbackInput: "Evidence status + previous driver states + headlines",
+      fallbackOutput: `${listValue(evidenceEntry, "allowedCandidateDrivers").length} allowed candidate(s)`,
+      target: "Candidate driver gate"
+    }),
+    nodeFromJob({
+      id: "candidate-gate",
+      owner: "Gate",
+      entry: evidenceEntry,
+      jobTitle: "Candidate driver gate",
+      fallbackStatus: evidenceStatus,
+      fallbackDetail: "Only allowed candidate drivers can be used by rule or LLM analysis.",
+      fallbackInput: "Driver attention states + evidence gates",
+      fallbackOutput: `${listValue(evidenceEntry, "allowedCandidateDrivers").length} allowed / ${Object.keys(recordValue(evidenceEntry, "blockedDrivers")).length} blocked`,
+      target: "Rule baseline + Local AI"
+    }),
+  ];
+
+  const aiNodes: ActivityNode[] = [
+    {
+      id: "headline-grouping",
+      owner: "AI / Rules",
+      title: "Headline grouping",
+      status: contextStatus,
+      detail: "Groups repeated headlines into possible themes before anything is allowed to become a market driver.",
+      input: `${contextNewsCount} headline(s) from ${newsSources.length || "app-managed"} source(s)`,
+      output: "Theme candidates for DriverAttention",
+      target: "Evidence summary + Candidate driver gate",
+      timestamp: textValue(contextEntry, "latestNewsAt")
+    },
+    {
+      id: "evidence-summary",
+      owner: "AI / Rules",
+      title: "Evidence packet summary",
+      status: evidenceStatus,
+      detail: "Compresses price, history, related sensors, news, calendar, provider health, allowed drivers, and blocked drivers into a bounded review packet.",
+      input: "ScenarioFixture + EvidenceChainStatus",
+      output: "Compact evidence packet",
+      target: "Rule baseline + Cause review"
+    },
+    nodeFromJob({
+      id: "rule-baseline",
+      owner: "Analysis",
+      entry: llmEntry,
+      jobTitle: "Rule baseline",
+      fallbackStatus: llmStatus === "skipped" ? "ready" : llmStatus,
+      fallbackDetail: "Deterministic analysis runs first and remains the fallback if Local AI is off or invalid.",
+      fallbackInput: "ScenarioFixture + evidence gate + DriverAttention",
+      fallbackOutput: textValue(llmEntry, "result") || "Pending analysis result",
+      target: "Dashboard + AI review"
+    }),
+    nodeFromJob({
+      id: "cause-review",
+      owner: "Local AI",
+      entry: llmEntry,
+      jobTitle: "Cause review",
+      fallbackStatus: llmStatus,
+      fallbackDetail: "Local AI reviews only the compact evidence packet after allowed/blocked drivers are known.",
+      fallbackInput: "Evidence packet JSON",
+      fallbackOutput: textValue(llmEntry, "analysisEngine") || "Rule fallback remains source of truth",
+      target: "Validator and repair",
+      includeEntryDetail: true
+    }),
+    nodeFromJob({
+      id: "validator",
+      owner: "Validator",
+      entry: llmEntry,
+      jobTitle: "Validator and repair",
+      fallbackStatus: llmStatus,
+      fallbackDetail: "LLM output must pass deterministic validation; invalid output is repaired once or rejected.",
+      fallbackInput: "LLM JSON + allowed_candidate_drivers + blocked_drivers",
+      fallbackOutput: llmStatus,
+      target: "Dashboard / Evidence / Replay"
+    }),
+    {
+      id: "replay-narrative",
+      owner: "AI / Replay",
+      title: "Replay narrative",
+      status: replayStatus,
+      detail: "Day replay keeps detailed events; Month replay keeps only important XAUUSD turns and the evidence that explains them.",
+      input: "TimelineStore rows + validated analysis",
+      output: "Replay day/month event summaries",
+      target: "Replay tab + Evidence detail"
+    },
+    {
+      id: "alert-review",
+      owner: "Local AI",
+      title: "Alert message review",
+      status: alertReviewJob?.status || textValue(alertEntry, "preflightStatus") || alertStatus,
+      detail:
+        alertReviewJob?.detail ||
+        "Before Telegram delivery, candidate-worthy messages can be approved, rewritten, or blocked without adding unsupported facts.",
+      input: alertReviewJob?.input || "Formatted alert + evidence packet",
+      output: alertReviewJob?.output || textValue(alertEntry, "preflightReason") || "Waiting for candidate alert",
+      target: "Preflight evidence check"
+    },
+    nodeFromJob({
+      id: "alert-preflight",
+      owner: "Alert gate",
+      entry: alertEntry,
+      jobTitle: "Preflight evidence check",
+      fallbackStatus: textValue(alertEntry, "preflightStatus") || alertStatus,
+      fallbackDetail: textValue(alertEntry, "preflightReason") || "Checks freshness, market-closed state, message format, and supporting evidence.",
+      fallbackInput: "Formatted message + provider health",
+      fallbackOutput: textValue(alertEntry, "preflightStatus") || "pending",
+      target: "Alert queue"
+    })
+  ];
+
+  const outputNodes: ActivityNode[] = [
+    {
+      id: "dashboard-output",
+      owner: "Dashboard",
+      title: "Current situation",
+      status: textValue(llmEntry, "result") ? "ready" : evidenceStatus,
+      detail: "Shows the final validated situation summary only from evidence-gated analysis.",
+      input: "Validated AnalysisResult + evidence chain",
+      output: textValue(llmEntry, "result") || "No confirmed driver yet",
+      target: "Dashboard top summary"
+    },
+    {
+      id: "driver-output",
+      owner: "Driver Attention",
+      title: "Drivers and themes",
+      status: evidenceStatus,
+      detail: "Shows active, watching, cooling, retired, and blocked drivers/themes without making sensor collection look like causation.",
+      input: "DriverAttention snapshot + candidate gate",
+      output: `${listValue(evidenceEntry, "allowedCandidateDrivers").length} allowed / ${Object.keys(recordValue(evidenceEntry, "blockedDrivers")).length} blocked`,
+      target: "Driver Attention tab"
+    },
+    {
+      id: "evidence-output",
+      owner: "Evidence",
+      title: textValue(evidenceEntry, "label") || "Evidence packet",
+      status: evidenceStatus,
+      detail: textValue(evidenceEntry, "handoff") || "Evidence packet is the source of truth for rule analysis, Local AI, Dashboard, Replay, and alert preflight.",
+      input: "Usable inputs + missing inputs + blocked drivers",
+      output: normalizeStatusLabel(evidenceStatus),
+      target: "Evidence detail"
+    },
+    nodeFromJob({
+      id: "replay-output",
+      owner: "Replay",
+      entry: replayEntry,
+      jobTitle: "Replay query model",
+      fallbackTitle: "Day / Month replay",
+      fallbackStatus: replayStatus,
+      fallbackDetail: "Day replay reads detailed rows; Month replay filters stored timeline events down to major XAUUSD turns.",
+      fallbackInput: "TimelineStore indexed range reads",
+      fallbackOutput: "Dashboard replay, Evidence detail, Alerts history",
+      target: "Replay tab",
+      includeEntryDetail: true
+    }),
+    nodeFromJob({
+      id: "timeline-output",
+      owner: "Store",
+      entry: replayEntry,
+      jobTitle: "Raw evidence rows",
+      fallbackTitle: "TimelineStore writer",
+      fallbackStatus: replayStatus,
+      fallbackDetail: "Stores price bars, related sensors, news, calendar, provider health, evidence packet, analysis, alert, and transitions.",
+      fallbackInput: "Runtime context + analysis result",
+      fallbackOutput: "SQLite replay/debug rows",
+      target: "SQLite replay/debug storage"
+    }),
+    nodeFromJob({
+      id: "telegram-output",
+      owner: "Alert",
+      entry: alertEntry,
+      jobTitle: "Telegram delivery",
+      fallbackTitle: "Telegram delivery",
+      fallbackStatus: textValue(alertEntry, "telegramStatus") || alertStatus,
+      fallbackDetail: "Telegram is used only after all gates pass.",
+      fallbackInput: "Approved alert payload",
+      fallbackOutput: textValue(alertEntry, "telegramStatus") || "Dashboard only",
+      target: "Telegram chat",
+      includeEntryDetail: true
+    })
+  ];
+
+  const newsFanIn = (
+    <section className="market-agent-activity-fanin" aria-label="News fan-in">
+      <div className="market-agent-activity-fanin-main">
+        <span>News fan-in</span>
+        <strong>
+          {contextNewsCount} headline{contextNewsCount === 1 ? "" : "s"} from {newsSources.length || "app-managed"} source{newsSources.length === 1 ? "" : "s"}
+        </strong>
+        <p>
+          News is collected from app-managed feeds, normalized with calendar context, then used for theme discovery,
+          evidence packets, replay, and alert formatting. A single headline stays background until the evidence gate confirms it.
+        </p>
+      </div>
+      <div className="market-agent-activity-fanin-side">
+        <div className="market-agent-activity-chip-row">
+          {(newsSources.length ? newsSources : ["App-managed feeds"]).slice(0, 8).map((source) => (
+            <span key={source}>{source}</span>
+          ))}
+        </div>
+        <ul>
+          {(newsSamples.length ? newsSamples : ["Waiting for fresh market headlines."]).map((sample) => (
+            <li key={sample}>{sample}</li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+
+  const calendarStrip = calendarSamples.length ? (
+    <div className="market-agent-activity-calendar-strip">
+      <strong>Calendar context</strong>
+      <span>{calendarSamples.join(" · ")}</span>
+    </div>
+  ) : null;
+
+  const sections: ActivitySection[] = [
+    {
+      id: "inputs",
+      step: "01",
+      title: "Data intake",
+      detail: "cTrader live/history, multi-source news, calendar, and provider health enter the agent here.",
+      status: contextStatus,
+      nodes: inputNodes,
+      wide: (
+        <>
+          {newsFanIn}
+          {calendarStrip}
+        </>
+      )
+    },
+    {
+      id: "processing",
+      step: "02",
+      title: "Normalize and gate evidence",
+      detail: "Rows become a scenario fixture, then the evidence gate decides what is usable, blocked, stale, or only background.",
+      status: evidenceStatus,
+      nodes: processingNodes
+    },
+    {
+      id: "ai",
+      step: "03",
+      title: "AI checkpoints",
+      detail: "AI participates at several bounded checkpoints, but deterministic gates keep it from inventing causes or bypassing evidence.",
+      status: llmStatus,
+      nodes: aiNodes
+    },
+    {
+      id: "outputs",
+      step: "04",
+      title: "Outputs and delivery",
+      detail: "Only gated results appear on Dashboard, Driver Attention, Evidence, Replay, storage, alerts, and Telegram.",
+      status: replayStatus,
+      nodes: outputNodes
+    }
+  ];
+
+  const storageMetrics = [
+    ["Loaded range", loadedRange],
+    ["Symbols", symbols.length ? symbols.slice(0, 10).join(", ") : "Waiting"],
+    ["Price bars", String(storedCount(stored, "marketPriceBars", stats.priceRows))],
+    ["Related bars", String(storedCount(stored, "relatedAssetBars", stats.relatedRows))],
+    ["News rows", String(storedCount(stored, "newsItems", stats.newsRows))],
+    ["Calendar rows", String(storedCount(stored, "calendarEvents", stats.calendarRows))],
+    ["Timeline events", String(storedCount(stored, "timelineEvents", stats.timelineEvents))],
+    ["Alert records", String(storedCount(stored, "alerts", stats.alerts))],
+    ["Stored runs", String(storedCount(storageCounts, "monitorRuns", 0))],
+    ["Total news", String(storedCount(storageCounts, "newsItems", storedCount(stored, "newsItems", stats.newsRows)))],
+    ["Replay payload", formatBytes(stats.payloadBytes)],
+    ["Database size", databaseBytes === null ? "--" : formatBytes(databaseBytes)],
+    ["Storage mode", humanizeMarketAgentValue(String(storageCompaction.mode || "indexed_range_reads"))],
+    ["Compaction", humanizeMarketAgentValue(String(storageCompaction.status || "not_needed"))]
+  ];
+
+  const tableCounts = Object.entries(storageCounts)
+    .filter(([, value]) => typeof value === "number")
+    .slice(0, 12);
+  const rangeRows = Object.entries(storageRanges)
+    .map(([key, value]) => {
+      const range = value && typeof value === "object" ? (value as Record<string, unknown>) : {};
+      return [humanizeMarketAgentValue(key), `${formatShortTime(String(range.start || "")) || "--"} -> ${formatShortTime(String(range.end || "")) || "--"}`];
+    })
+    .slice(0, 5);
+  const dataStores = Array.isArray(summaryEntry?.dataStores) ? summaryEntry.dataStores.map((item) => String(item)) : [];
 
   return (
-    <section className="market-agent-activity-surface" aria-label="Agent activity pipeline">
+    <section className="market-agent-activity-surface" aria-label="Agent activity board">
       <div className="market-agent-activity-hero">
         <div>
-          <h2>Agent Activity</h2>
-          <p>{phaseMessage}</p>
+          <span>Transparent chain</span>
+          <h2>Market Agent circuit</h2>
+          <p>
+            {phaseMessage} Every node shows what it receives, what it is doing, what it outputs, and where that output
+            goes next.
+          </p>
         </div>
-        <span>{phaseLabel}</span>
+        <em>{phaseLabel}</em>
       </div>
 
-      <div className="market-agent-activity-pipeline">
-        {stages.map((stage) => {
-          const entry = activity[stage.key];
-          const status = textValue(entry, "status") || stage.fallbackStatus;
-          const label = textValue(entry, "label") || stage.fallbackLabel;
-          const detail = textValue(entry, "detail") || stage.fallbackDetail;
-          const progress = numberValue(entry, "progress");
-          return (
-            <article className={`market-agent-activity-stage tone-${toneForStatus(status)}`} key={stage.key}>
-              <div className="market-agent-activity-stage-top">
-                <span>{stage.eyebrow}</span>
-                <em>{humanizeMarketAgentValue(status)}</em>
-              </div>
-              <strong>{stage.title}</strong>
-              <span className="market-agent-activity-stage-label">{label}</span>
-              <p>{detail}</p>
-              {progress !== null ? (
-                <div className="market-agent-activity-stage-progress" aria-label={`${stage.title} progress ${progress}%`}>
-                  <span style={{ width: `${Math.max(0, Math.min(100, progress))}%` }} />
-                  <b>{Math.round(progress)}%</b>
-                </div>
-              ) : null}
-              <div className="market-agent-activity-chip-row">
-                {stage.chips.filter(Boolean).slice(0, 5).map((chip) => (
-                  <small key={chip}>{chip}</small>
-                ))}
-              </div>
-            </article>
-          );
-        })}
-      </div>
+      <section className="market-agent-activity-flow" aria-label="Market Agent logic chain">
+        {sections.map((pipelineSection) => (
+          <ActivitySectionBlock section={pipelineSection} key={pipelineSection.id} />
+        ))}
+      </section>
 
-      <div className="market-agent-activity-bottom">
-        <section className="market-agent-activity-store">
+      <section className="market-agent-activity-storage">
+        <div className="market-agent-activity-storage-head">
           <div>
             <span>Data persisted</span>
             <h3>TimelineStore</h3>
             <p>{timelineStorePath}</p>
           </div>
-          <dl>
-            <div>
-              <dt>Loaded range</dt>
-              <dd>{loadedRange}</dd>
+          <em>{dataStores.length ? `${dataStores.length} tables` : "SQLite"}</em>
+        </div>
+        <dl className="market-agent-activity-storage-grid">
+          {storageMetrics.map(([label, value]) => (
+            <div key={label}>
+              <dt>{label}</dt>
+              <dd>{value}</dd>
             </div>
-            <div>
-              <dt>Symbols</dt>
-              <dd>{stats.symbols.length ? stats.symbols.slice(0, 8).join(", ") : "Waiting"}</dd>
-            </div>
-            <div>
-              <dt>Price bars</dt>
-              <dd>{storedCount(stored, "marketPriceBars", stats.priceRows)}</dd>
-            </div>
-            <div>
-              <dt>Related bars</dt>
-              <dd>{storedCount(stored, "relatedAssetBars", stats.relatedRows)}</dd>
-            </div>
-            <div>
-              <dt>News</dt>
-              <dd>{storedCount(stored, "newsItems", stats.newsRows)}</dd>
-            </div>
-            <div>
-              <dt>Calendar</dt>
-              <dd>{storedCount(stored, "calendarEvents", stats.calendarRows)}</dd>
-            </div>
-            <div>
-              <dt>Stored runs</dt>
-              <dd>{storedCount(storageCounts, "monitorRuns", 0)}</dd>
-            </div>
-            <div>
-              <dt>Total news</dt>
-              <dd>{storedCount(storageCounts, "newsItems", storedCount(stored, "newsItems", stats.newsRows))}</dd>
-            </div>
-            <div>
-              <dt>Replay payload</dt>
-              <dd>{formatBytes(stats.payloadBytes)}</dd>
-            </div>
-            <div>
-              <dt>Database size</dt>
-              <dd>{databaseBytes === null ? "--" : formatBytes(databaseBytes)}</dd>
-            </div>
-            <div>
-              <dt>Storage mode</dt>
-              <dd>{storageMode}</dd>
-            </div>
-            <div>
-              <dt>Compaction</dt>
-              <dd>{compactionStatus}</dd>
-            </div>
-          </dl>
-        </section>
-
-        <section className="market-agent-activity-loop">
-          <span>Where it appears</span>
-          <ol>
-            <li><strong>Dashboard</strong><small>current result after the evidence gate</small></li>
-            <li><strong>Evidence</strong><small>packet, provider health, blocked drivers, and validation result</small></li>
-            <li><strong>Replay</strong><small>price, related assets, news, calendar, state transitions, and alerts</small></li>
-            <li><strong>Telegram</strong><small>alerts only after preflight and notification policy pass</small></li>
-          </ol>
-        </section>
-      </div>
+          ))}
+        </dl>
+        <div className="market-agent-activity-storage-detail">
+          <section>
+            <strong>TimelineStore tables</strong>
+            <p>{dataStores.length ? dataStores.join(", ") : tableCounts.map(([key]) => humanizeMarketAgentValue(key)).join(", ") || "Waiting for persisted tables."}</p>
+          </section>
+          <section>
+            <strong>Stored row counts</strong>
+            <p>{tableCounts.length ? tableCounts.map(([key, value]) => `${humanizeMarketAgentValue(key)} ${value}`).join(" · ") : "No stored row counts yet."}</p>
+          </section>
+          <section>
+            <strong>Stored time ranges</strong>
+            <p>{rangeRows.length ? rangeRows.map(([key, value]) => `${key}: ${value}`).join(" · ") : "No indexed ranges loaded yet."}</p>
+          </section>
+        </div>
+      </section>
     </section>
   );
 }

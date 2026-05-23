@@ -1455,7 +1455,7 @@
 
 .market-agent-alert-title-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 8px;
   min-width: 0;
@@ -1470,6 +1470,10 @@
   line-height: 1.25;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.market-agent-alert-title-row .market-agent-status-badge {
+  align-self: center;
 }
 
 .market-agent-alert-main > span {

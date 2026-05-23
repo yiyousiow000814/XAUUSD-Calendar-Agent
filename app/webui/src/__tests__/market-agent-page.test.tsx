@@ -1710,7 +1710,28 @@ describe("MarketAgentPage", () => {
             source: "cTrader",
             dataMode: "live_seen",
             symbols: ["XAUUSD"],
-            dataTimestamp: "2026-05-19T07:15:00+08:00"
+            dataTimestamp: "2026-05-19T07:15:00+08:00",
+            selectedProvider: "ctrader_spot",
+            providerChain: [
+              {
+                provider: "ctrader_spot",
+                source: "cTrader",
+                data_mode: "live_seen",
+                is_available: true,
+                is_stale: false
+              }
+            ],
+            jobs: [
+              {
+                title: "Live quote request",
+                status: "ready",
+                detail: "cTrader returned a fresh XAUUSD spot quote.",
+                input: "cTrader spot feed",
+                output: "Fresh XAUUSD snapshot for evidence",
+                timestamp: "2026-05-19T07:15:00+08:00"
+              }
+            ],
+            handoff: "Live XAUUSD quote is usable by price trigger, evidence gate, replay, and alert preflight."
           },
           history: {
             status: "syncing",
@@ -1720,7 +1741,16 @@ describe("MarketAgentPage", () => {
             symbols: ["XAUUSD", "DXY", "US10Y"],
             windowStart: "2026-05-19T04:15:00+08:00",
             windowEnd: "2026-05-19T07:15:00+08:00",
-            storedRows: 18
+            storedRows: 18,
+            jobs: [
+              {
+                title: "Gap detector",
+                status: "syncing",
+                detail: "Recovery backfill is running after the live check.",
+                input: "last_successful_run_at + current run time",
+                output: "Backfill required"
+              }
+            ]
           },
           context: {
             status: "active",
@@ -1729,7 +1759,23 @@ describe("MarketAgentPage", () => {
             newsCount: 3,
             calendarCount: 2,
             sources: ["Reuters", "ForexFactory"],
-            latestNewsAt: "2026-05-19T07:05:00+08:00"
+            latestNewsAt: "2026-05-19T07:05:00+08:00",
+            jobs: [
+              {
+                title: "News collector",
+                status: "ready",
+                detail: "3 relevant headlines loaded for the current market window.",
+                input: "App-managed RSS/news context",
+                output: "3 headlines, 1 source"
+              },
+              {
+                title: "Calendar collector",
+                status: "ready",
+                detail: "2 calendar events loaded around the analysis window.",
+                input: "App-managed economic calendar",
+                output: "2 calendar events"
+              }
+            ]
           },
           evidence: {
             status: "ready",
@@ -1737,14 +1783,55 @@ describe("MarketAgentPage", () => {
             detail: "Live price, recent history, and provider health are usable.",
             chainStatus: "ready",
             usableInputs: ["live_xauusd_spot", "xauusd_recent_history", "news_context"],
-            blockedDrivers: ["oil"]
+            allowedCandidateDrivers: ["yields", "usd"],
+            blockedDrivers: { oil_inflation: "Oil is background only." },
+            jobs: [
+              {
+                title: "Cross-market sensors",
+                status: "ready",
+                detail: "DXY and US10Y are confirming; oil is background.",
+                input: "Related asset rows + provider health",
+                output: "dxy: confirming, us10y: confirming, oil: not_confirming"
+              },
+              {
+                title: "Candidate driver gate",
+                status: "ready",
+                detail: "Only allowed drivers can be used by rule or LLM analysis.",
+                input: "Driver attention states + evidence gates",
+                output: "2 allowed / 1 blocked"
+              }
+            ]
           },
           llm: {
             status: "validated",
             label: "Local AI reviewed",
             detail: "LLM output passed validation after the evidence gate.",
             model: "qwen3.5:4b",
-            result: "yields likely"
+            result: "yields likely",
+            analysisEngine: "llm_validated",
+            jobs: [
+              {
+                title: "Rule baseline",
+                status: "ready",
+                detail: "Deterministic analysis runs first and remains the fallback if Local AI is invalid.",
+                input: "ScenarioFixture + evidence gate + DriverAttention",
+                output: "yields / likely"
+              },
+              {
+                title: "Cause review",
+                status: "validated",
+                detail: "Local AI reviewed the compact evidence packet.",
+                input: "Evidence packet JSON",
+                output: "Validated AnalysisResult"
+              },
+              {
+                title: "Validator and repair",
+                status: "ready",
+                detail: "LLM output passed deterministic validation.",
+                input: "LLM JSON + allowed_candidate_drivers + blocked_drivers",
+                output: "validated"
+              }
+            ]
           },
           replay: {
             status: "stored",
@@ -1756,8 +1843,19 @@ describe("MarketAgentPage", () => {
               marketPriceBars: 6,
               relatedAssetBars: 12,
               newsItems: 3,
-              calendarEvents: 2
+              calendarEvents: 2,
+              timelineEvents: 4,
+              alerts: 1
             },
+            jobs: [
+              {
+                title: "Replay query model",
+                status: "ready",
+                detail: "Day replay reads detailed rows; Month replay filters stored timeline events down to major XAUUSD turns.",
+                input: "TimelineStore indexed range reads",
+                output: "Dashboard replay, Evidence detail, Alerts history"
+              }
+            ],
             storageSummary: {
               path: "user-data/market_agent_timeline.sqlite",
               databaseBytes: 98304,
@@ -1779,28 +1877,66 @@ describe("MarketAgentPage", () => {
             label: "No alert",
             detail: "No current live alert passed the gate.",
             preflightStatus: "approved",
-            telegramStatus: "disabled"
+            telegramStatus: "disabled",
+            jobs: [
+              {
+                title: "Format alert message",
+                status: "skipped",
+                detail: "No candidate alert was produced.",
+                input: "AnalysisResult + evidence chain",
+                output: "No candidate alert"
+              },
+              {
+                title: "Preflight evidence check",
+                status: "approved",
+                detail: "Freshness, market-closed state, format, and evidence were checked.",
+                input: "Formatted message + provider health",
+                output: "approved"
+              },
+              {
+                title: "Telegram delivery",
+                status: "disabled",
+                detail: "Telegram is used only after all gates pass.",
+                input: "Approved alert payload",
+                output: "Dashboard only"
+              }
+            ]
+          },
+          summary: {
+            dataStores: ["monitor_runs", "provider_health", "market_price_bars", "related_asset_bars", "news_items", "calendar_events", "evidence_packets", "analysis_results", "alerts", "timeline_events"]
           }
         }
       } as Parameters<typeof MarketAgentPage>[0]["monitorStatus"]
     });
 
     fireEvent.click(screen.getByRole("button", { name: /^Activity$/i }));
-    const agentActivity = screen.getByLabelText(/Agent activity pipeline/i);
+    const agentActivity = screen.getByLabelText(/Agent activity board/i);
 
     expect(within(agentActivity).getByText(/collecting market context/i)).toBeInTheDocument();
-    expect(within(agentActivity).getByText(/Last price 3,233\.15 from cTrader/i)).toBeInTheDocument();
+    expect(within(agentActivity).getAllByText(/Last price 3,233\.15 from cTrader/i).length).toBeGreaterThan(0);
     expect(within(agentActivity).getAllByText(/XAUUSD/i).length).toBeGreaterThan(0);
     expect(within(agentActivity).getByText(/42%/i)).toBeInTheDocument();
     expect(within(agentActivity).getByText(/3 headlines and 2 calendar events/i)).toBeInTheDocument();
+    expect(within(agentActivity).getByText(/Data intake/i)).toBeInTheDocument();
+    expect(within(agentActivity).getByText(/News fan-in/i)).toBeInTheDocument();
+    expect(within(agentActivity).getByText(/3 headlines.*2 sources/i)).toBeInTheDocument();
     expect(within(agentActivity).getByText(/Evidence gate ready/i)).toBeInTheDocument();
     expect(within(agentActivity).getByText(/LLM output passed validation/i)).toBeInTheDocument();
     expect(within(agentActivity).getByText(/Run 55 persisted to TimelineStore/i)).toBeInTheDocument();
-    expect(within(agentActivity).getByText(/No current live alert passed the gate/i)).toBeInTheDocument();
+    expect(within(agentActivity).getAllByText(/No current live alert passed the gate/i).length).toBeGreaterThan(0);
+    expect(within(agentActivity).getAllByText(/AI checkpoints/i).length).toBeGreaterThan(0);
+    expect(within(agentActivity).getByText(/Headline grouping/i)).toBeInTheDocument();
+    expect(within(agentActivity).getByText(/Evidence packet summary/i)).toBeInTheDocument();
+    expect(within(agentActivity).getAllByText(/Rule baseline/i).length).toBeGreaterThan(0);
+    expect(within(agentActivity).getAllByText(/Validator and repair/i).length).toBeGreaterThan(0);
+    expect(within(agentActivity).getByText(/Provider chain/i)).toBeInTheDocument();
+    expect(within(agentActivity).getAllByText(/Preflight evidence check/i).length).toBeGreaterThan(0);
+    expect(within(agentActivity).getByText(/Day replay reads detailed rows; Month replay filters/i)).toBeInTheDocument();
+    expect(within(agentActivity).getByText(/TimelineStore tables/i)).toBeInTheDocument();
     expect(within(agentActivity).getByText(/market_agent_timeline\.sqlite/i)).toBeInTheDocument();
     expect(within(agentActivity).getByText(/Loaded range/i)).toBeInTheDocument();
     expect(within(agentActivity).getByText(/Database size/i)).toBeInTheDocument();
-    expect(within(agentActivity).getByText(/Indexed range reads/i)).toBeInTheDocument();
+    expect(within(agentActivity).getAllByText(/Indexed range reads/i).length).toBeGreaterThan(0);
     expect(within(agentActivity).getByText(/Not needed/i)).toBeInTheDocument();
     expect(screen.queryByText(/Background activity/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/News feeds not configured|No news provider configured|disabled/i)).not.toBeInTheDocument();

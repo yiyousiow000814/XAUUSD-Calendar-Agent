@@ -1030,12 +1030,52 @@ let mockMarketAgentMonitorStatus: MarketAgentMonitorStatusResponse = {
     ctrader: {
       status: "live",
       label: "XAUUSD live",
-      detail: "Mock cTrader price feed is active."
+      detail: "Mock cTrader price feed is active.",
+      selectedProvider: "ctrader_spot",
+      providerChain: [
+        {
+          provider: "ctrader_spot",
+          source: "cTrader",
+          source_type: "spot",
+          data_mode: "live_seen",
+          is_available: true,
+          is_stale: false,
+          data_timestamp: "2026-05-19T08:00:00+08:00"
+        }
+      ],
+      jobs: [
+        {
+          title: "Live quote request",
+          status: "ready",
+          detail: "cTrader returned a fresh XAUUSD spot quote at 2386.20.",
+          input: "cTrader spot feed",
+          output: "Fresh XAUUSD snapshot for evidence",
+          timestamp: "2026-05-19T08:00:00+08:00"
+        }
+      ],
+      handoff: "Live XAUUSD quote is usable by price trigger, evidence gate, replay, and alert preflight."
     },
     history: {
       status: "idle",
       label: "History current",
-      detail: "No backfill gap detected."
+      detail: "No backfill gap detected.",
+      jobs: [
+        {
+          title: "Gap detector",
+          status: "ready",
+          detail: "Checked last successful monitor run against this run time.",
+          input: "last_successful_run_at + current run time",
+          output: "No backfill gap"
+        },
+        {
+          title: "History persistence",
+          status: "stored",
+          detail: "Recent bars are available for replay and evidence.",
+          input: "Normalized price bars",
+          output: "market_price_bars + related_asset_bars"
+        }
+      ],
+      handoff: "Recent XAUUSD history feeds move detection and evidence gate readiness."
     },
     context: {
       status: "active",
@@ -1044,7 +1084,25 @@ let mockMarketAgentMonitorStatus: MarketAgentMonitorStatusResponse = {
       newsCount: 2,
       calendarCount: 1,
       sources: ["Reuters", "ForexFactory"],
-      latestNewsAt: "2026-05-19T08:03:00+08:00"
+      latestNewsAt: "2026-05-19T08:03:00+08:00",
+      jobs: [
+        {
+          title: "News collector",
+          status: "ready",
+          detail: "2 relevant headlines loaded for the current market window.",
+          input: "App-managed RSS/news context",
+          output: "2 headlines, 1 source",
+          timestamp: "2026-05-19T08:03:00+08:00"
+        },
+        {
+          title: "Calendar collector",
+          status: "ready",
+          detail: "1 calendar event loaded around the analysis window.",
+          input: "App-managed economic calendar",
+          output: "1 calendar event"
+        }
+      ],
+      handoff: "Market context feeds DriverAttention, the evidence packet, Local AI prompt, replay, and alert formatting."
     },
     evidence: {
       status: "ready",
@@ -1052,12 +1110,67 @@ let mockMarketAgentMonitorStatus: MarketAgentMonitorStatusResponse = {
       detail: "Live price, recent history, provider health, evidence gate, and validation are available.",
       chainStatus: "ready",
       usableInputs: ["live_xauusd_spot", "xauusd_recent_history", "news_context"],
-      missingRequired: []
+      missingRequired: [],
+      evidenceStatus: { dxy: "confirming", us10y: "confirming", us2y: "unavailable", oil: "not_confirming" },
+      allowedCandidateDrivers: ["yields", "usd"],
+      blockedDrivers: { oil_inflation: "Oil is background only." },
+      jobs: [
+        {
+          title: "Input readiness",
+          status: "ready",
+          detail: "Live price, recent history, and news context are usable.",
+          input: "Provider health + price history + market context",
+          output: "3 usable / 0 missing"
+        },
+        {
+          title: "Candidate driver gate",
+          status: "ready",
+          detail: "Only allowed drivers can be used by rule or LLM analysis.",
+          input: "Driver attention states + evidence gates",
+          output: "2 allowed / 1 blocked"
+        }
+      ],
+      handoff: "The evidence packet is the source of truth for rule analysis, Local AI, Dashboard, Replay, and alert preflight."
     },
     llm: {
       status: "skipped",
       label: "Rule-based",
-      detail: "Evidence gate and deterministic rules are running."
+      detail: "Evidence gate and deterministic rules are running.",
+      model: "qwen3.5:4b",
+      result: "yields",
+      causeStatus: "likely",
+      analysisEngine: "rule_based",
+      jobs: [
+        {
+          title: "Rule baseline",
+          status: "ready",
+          detail: "Deterministic analysis runs first and remains the fallback if Local AI is off or invalid.",
+          input: "ScenarioFixture + evidence gate + DriverAttention",
+          output: "yields / likely"
+        },
+        {
+          title: "Cause review",
+          status: "skipped",
+          detail: "Local AI is off for this mock run.",
+          input: "Evidence packet JSON",
+          output: "Rule fallback remains source of truth"
+        },
+        {
+          title: "Validator and repair",
+          status: "skipped",
+          detail: "No LLM output needed validation.",
+          input: "LLM JSON + allowed_candidate_drivers + blocked_drivers",
+          output: "not_used"
+        },
+        {
+          title: "Alert review hook",
+          status: "skipped",
+          detail: "No alert candidate was sent to AI review.",
+          input: "Formatted alert + evidence packet",
+          output: "not_applicable"
+        }
+      ],
+      handoff: "AI never bypasses the evidence gate; validated output feeds Dashboard, Evidence, Replay, and alert preflight."
     },
     replay: {
       status: "stored",
@@ -1071,6 +1184,23 @@ let mockMarketAgentMonitorStatus: MarketAgentMonitorStatusResponse = {
         newsItems: 2,
         calendarEvents: 1
       },
+      jobs: [
+        {
+          title: "Monitor run row",
+          status: "stored",
+          detail: "Creates the monitor_runs record that connects every persisted artifact.",
+          input: "run_started_at + data_mode + backfill flags",
+          output: "monitor_run_id 23"
+        },
+        {
+          title: "Replay query model",
+          status: "ready",
+          detail: "Day replay reads detailed rows; Month replay filters stored timeline events down to major XAUUSD turns.",
+          input: "TimelineStore indexed range reads",
+          output: "Dashboard replay, Evidence detail, Alerts history"
+        }
+      ],
+      handoff: "Stored artifacts feed Dashboard, Evidence, Replay day/month views, and alert history without re-running analysis.",
       storageSummary: {
         path: "user-data/market_agent_timeline.sqlite",
         databaseBytes: 131072,
@@ -1090,7 +1220,54 @@ let mockMarketAgentMonitorStatus: MarketAgentMonitorStatusResponse = {
     alerts: {
       status: "idle",
       label: "No alert",
-      detail: "No current live alert passed the gate."
+      detail: "No current live alert passed the gate.",
+      preflightStatus: "not_applicable",
+      telegramStatus: "not_tested",
+      jobs: [
+        {
+          title: "Format alert message",
+          status: "skipped",
+          detail: "No candidate alert was produced.",
+          input: "AnalysisResult + evidence chain",
+          output: "No candidate alert"
+        },
+        {
+          title: "Preflight evidence check",
+          status: "skipped",
+          detail: "Alert preflight waits for a candidate message.",
+          input: "Formatted message + provider health",
+          output: "not_applicable"
+        },
+        {
+          title: "Telegram delivery",
+          status: "not_tested",
+          detail: "Telegram is used only after all gates pass.",
+          input: "Approved alert payload",
+          output: "not_tested"
+        }
+      ],
+      handoff: "Alerts are persisted for replay whether sent or suppressed; Telegram receives only approved current-live messages."
+    },
+    summary: {
+      symbols: ["XAUUSD", "DXY", "US10Y", "WTI"],
+      symbolRows: { XAUUSD: 4, DXY: 2, US10Y: 2, WTI: 2 },
+      windowStart: "2026-05-19T04:00:00+08:00",
+      windowEnd: "2026-05-19T08:30:00+08:00",
+      selectedMarketProvider: "ctrader_spot",
+      dataStores: [
+        "monitor_runs",
+        "provider_health",
+        "market_price_bars",
+        "related_asset_bars",
+        "news_items",
+        "calendar_events",
+        "driver_attention_states",
+        "evidence_packets",
+        "analysis_results",
+        "alerts",
+        "state_transitions",
+        "timeline_events"
+      ]
     }
   }
 };

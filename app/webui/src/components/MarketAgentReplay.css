@@ -166,10 +166,17 @@
 .market-agent-replay-title-row,
 .market-agent-replay-meta-row {
   display: flex;
-  align-items: baseline;
   justify-content: space-between;
   gap: 12px;
   min-width: 0;
+}
+
+.market-agent-replay-title-row {
+  align-items: center;
+}
+
+.market-agent-replay-meta-row {
+  align-items: baseline;
 }
 
 .market-agent-replay-title-row strong {
@@ -180,6 +187,10 @@
   line-height: 1.25;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.market-agent-replay-title-row .market-agent-event-tag {
+  align-self: center;
 }
 
 .market-agent-replay-meta-row {

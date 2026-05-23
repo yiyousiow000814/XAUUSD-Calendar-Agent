@@ -512,6 +512,16 @@ export type MarketAgentOllamaPullProgress = {
   error?: string;
 };
 
+export type MarketAgentActivityJob = {
+  title?: string;
+  status?: string;
+  detail?: string;
+  input?: string;
+  output?: string;
+  timestamp?: number | string | null;
+  meta?: Record<string, unknown>;
+};
+
 export type MarketAgentActivityStatus = {
   status?: string;
   label?: string;
@@ -523,6 +533,7 @@ export type MarketAgentActivityStatus = {
   fetchedAt?: number | string | null;
   updatedAt?: number | string | null;
   providerHealth?: Record<string, unknown>;
+  jobs?: MarketAgentActivityJob[];
   [key: string]: unknown;
 };
 
