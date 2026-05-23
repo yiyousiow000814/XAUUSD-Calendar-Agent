@@ -80,3 +80,48 @@ class LocalLLMClient:
             return None
         except Exception:
             return None
+
+    def review_alert(self, alert_packet: dict[str, Any]) -> dict[str, Any] | None:
+        if not self.config.enabled:
+            return None
+        compact_packet = {
+            "message": alert_packet.get("message"),
+            "analysis": alert_packet.get("analysis"),
+            "evidence_packet": alert_packet.get("evidence_packet"),
+            "rules": alert_packet.get("rules"),
+        }
+        prompt = (
+            "Review this XAUUSD alert before sending. "
+            "The deterministic evidence gate is the source of truth. "
+            "Return strict JSON with decision approve, rewrite, or block. "
+            "Rewrite only for clarity without adding facts. "
+            "Block stale, market-closed, unformatted, unsupported, noisy, or trading-advice alerts.\n\n"
+            f"{json.dumps(compact_packet, ensure_ascii=True, indent=2, sort_keys=True)}"
+        )
+        try:
+            import requests
+
+            response = requests.post(
+                f"{self.config.endpoint.rstrip('/')}/api/generate",
+                json={
+                    "model": self.config.model,
+                    "prompt": prompt,
+                    "stream": False,
+                    "format": "json",
+                    "options": {
+                        "temperature": 0,
+                        "num_ctx": self.config.max_context,
+                    },
+                    "keep_alive": self.config.keep_alive,
+                },
+                timeout=self.config.timeout_seconds,
+            )
+            response.raise_for_status()
+            payload = response.json()
+            if isinstance(payload.get("response"), str):
+                review = json.loads(payload["response"])
+                if isinstance(review, dict):
+                    return review
+            return None
+        except Exception:
+            return None

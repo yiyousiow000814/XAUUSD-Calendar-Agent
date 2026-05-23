@@ -1908,6 +1908,10 @@ fn monitor_command_base(root: &Path) -> Command {
         .env(
             "MARKET_AGENT_TIMELINE_STORE_PATH",
             timeline_path_for_root(root),
+        )
+        .env(
+            "MARKET_AGENT_MONITOR_LOCK_PATH",
+            root.join("market_agent_monitor.lock"),
         );
     for (key, value) in telegram_env_for_root(root) {
         command.env(key, value);

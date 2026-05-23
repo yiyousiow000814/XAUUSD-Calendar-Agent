@@ -316,6 +316,12 @@ class MarketAgentConfig:
             REPO_ROOT / "user-data" / "market_agent_alerts.ndjson",
         )
     )
+    monitor_lock_path: Path = field(
+        default_factory=lambda: _env_path(
+            "MARKET_AGENT_MONITOR_LOCK_PATH",
+            REPO_ROOT / "user-data" / "market_agent_monitor.lock",
+        )
+    )
     backfill_gap_minutes: int = int(os.getenv("MARKET_AGENT_BACKFILL_GAP_MINUTES", "120"))
     notification_cooldown_minutes: int = int(
         os.getenv("MARKET_AGENT_NOTIFICATION_COOLDOWN_MINUTES", "30")

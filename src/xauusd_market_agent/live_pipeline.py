@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, replace
 from datetime import datetime
+import os
 import time
 from pathlib import Path
 from typing import Any
@@ -20,6 +21,36 @@ from .provider_health import health_to_dict
 from .providers.provider_router import ProviderRouter
 from .state_store import JsonStateStore
 from .timeline_store import TimelineStore
+
+
+class MonitorLock:
+    def __init__(self, path: Path, *, stale_after_seconds: int = 900) -> None:
+        self.path = Path(path)
+        self.stale_after_seconds = stale_after_seconds
+        self._fd: int | None = None
+
+    def __enter__(self) -> "MonitorLock | None":
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        now = time.time()
+        try:
+            stat = self.path.stat()
+            if now - stat.st_mtime > self.stale_after_seconds:
+                self.path.unlink(missing_ok=True)
+        except FileNotFoundError:
+            pass
+        flags = os.O_CREAT | os.O_EXCL | os.O_WRONLY
+        try:
+            self._fd = os.open(self.path, flags)
+        except FileExistsError:
+            return None
+        os.write(self._fd, f"{os.getpid()}\n{datetime.now().astimezone().isoformat()}\n".encode("utf-8"))
+        return self
+
+    def __exit__(self, exc_type: object, exc: object, tb: object) -> None:
+        if self._fd is not None:
+            os.close(self._fd)
+            self._fd = None
+            self.path.unlink(missing_ok=True)
 
 
 def _parse_ts(raw: str) -> datetime:
@@ -485,6 +516,132 @@ def _suppress_unhelpful_alert(
     )
 
 
+def _suppress_non_live_alert(
+    analysis: Any,
+    *,
+    run_type: str,
+    data_mode: str,
+) -> Any:
+    if not hasattr(analysis, "__dataclass_fields__"):
+        return analysis
+    if run_type == "live" and data_mode == "live_seen":
+        return analysis
+    reason = (
+        "Historical recovery data was stored for replay and evidence only; "
+        "it is not a current alert."
+    )
+    return replace(
+        analysis,
+        should_notify=False,
+        notification_level="none",
+        causal_chain=reason,
+        user_message=reason,
+        summary=reason,
+    )
+
+
+def _format_alert_message(
+    *,
+    analysis: Any,
+    fixture: ScenarioFixture,
+    chain_status: EvidenceChainStatus,
+    data_mode: str,
+) -> str:
+    move = fixture.market.move_percent_15m or fixture.market.move_percent
+    direction = "down" if move < 0 else "up" if move > 0 else "flat"
+    evidence_bits = []
+    for key, label in (("dxy", "DXY"), ("us10y", "US10Y"), ("us2y", "US2Y"), ("oil", "Oil")):
+        status = str(getattr(analysis, "evidence_status", {}).get(key, "") or "")
+        if status in {"confirming", "contradicting", "unavailable", "stale"}:
+            evidence_bits.append(f"{label}: {status}")
+    evidence_line = "; ".join(evidence_bits[:4]) if evidence_bits else "No accepted cross-market confirmation."
+    if not chain_status.can_show_current_conclusion:
+        evidence_line = chain_status.reason
+    return "\n".join(
+        [
+            "XAUUSD Market Agent",
+            f"Status: {str(getattr(analysis, 'cause_status', 'unconfirmed')).replace('_', ' ').title()}",
+            f"Move: {direction} {move:+.2f}% over {fixture.market.window_minutes}m",
+            f"Driver: {str(getattr(analysis, 'main_driver', 'unknown')).replace('_', ' ').title()}",
+            f"Evidence: {evidence_line}",
+            f"Summary: {str(getattr(analysis, 'user_message', '')).strip()}",
+            f"Data: {data_mode}",
+        ]
+    )
+
+
+def _llm_review_alert(
+    *,
+    llm_client: Any,
+    message: str,
+    analysis: Any,
+    packet: dict[str, Any],
+) -> tuple[bool, str, str]:
+    if llm_client is None or not hasattr(llm_client, "review_alert"):
+        return True, message, "not_used"
+    try:
+        review = llm_client.review_alert(
+            {
+                "message": message,
+                "analysis": analysis.to_dict() if hasattr(analysis, "to_dict") else {},
+                "evidence_packet": packet,
+                "rules": [
+                    "Approve only if the message is formatted with status, move, driver, evidence, summary, and data.",
+                    "Block if market is closed/stale/context-only.",
+                    "Block if no accepted evidence supports the stated driver.",
+                    "Do not invent drivers, prices, news, or trading advice.",
+                    "Rewrite only to make the message clearer without adding facts.",
+                ],
+            }
+        )
+    except Exception:
+        return True, message, "unavailable"
+    if not isinstance(review, dict):
+        return True, message, "unavailable"
+    decision = str(review.get("decision", "approve")).lower()
+    if decision == "block":
+        return False, message, str(review.get("reason", "LLM alert review blocked the message."))
+    if decision == "rewrite":
+        rewritten = str(review.get("message", "")).strip()
+        if rewritten and "XAUUSD" in rewritten and "Evidence:" in rewritten:
+            return True, rewritten, "rewritten"
+    return True, message, "approved"
+
+
+def _preflight_alert(
+    *,
+    message: str,
+    analysis: Any,
+    chain_status: EvidenceChainStatus,
+    provider_health: dict[str, ProviderHealth],
+    llm_client: Any,
+    packet: dict[str, Any],
+) -> tuple[bool, str, str]:
+    if not chain_status.can_show_current_conclusion:
+        return False, message, chain_status.reason
+    xauusd = provider_health.get("xauusd")
+    if xauusd and (xauusd.is_stale or xauusd.data_mode != "live_seen"):
+        return False, message, "XAUUSD spot is not fresh live data."
+    if "Evidence:" not in message or "Summary:" not in message or "Driver:" not in message:
+        return False, message, "Alert message is not formatted."
+    return _llm_review_alert(
+        llm_client=llm_client,
+        message=message,
+        analysis=analysis,
+        packet=packet,
+    )
+
+
+def _alert_preflight_status(allowed: bool, detail: str) -> str:
+    if not allowed:
+        return "blocked"
+    if detail == "rewritten":
+        return "rewritten"
+    if detail in {"approved", "not_used", "unavailable"}:
+        return detail
+    return "approved"
+
+
 def _build_packet(
     fixture: ScenarioFixture,
     *,
@@ -786,6 +943,66 @@ def run_monitored_live_once(
         chain_status=pre_decision_chain_status,
         provider_health=provider_health,
     )
+    analysis = _suppress_non_live_alert(
+        analysis,
+        run_type=run_type,
+        data_mode=data_mode,
+    )
+    packet = _build_packet(
+        fixture,
+        provider_health=provider_health,
+        attention_snapshot=attention_snapshot,
+        previous_state=previous_state,
+        data_mode=data_mode,
+        analysis=analysis,
+        market_price_bar_count=len(runtime_context.get("market_price_bars", [])),
+        related_asset_bar_count=len(runtime_context.get("related_asset_bars", [])),
+        news_row_count=len(runtime_context.get("news_rows", [])),
+        calendar_row_count=len(runtime_context.get("calendar_rows", [])),
+        selected_market_provider=runtime_context.get("selected_market_provider", "unavailable"),
+        provider_chain_status=runtime_context.get("provider_chain_status", []),
+        fallback_reason=runtime_context.get("fallback_reason", ""),
+    )
+    alert_message = ""
+    alert_preflight = {
+        "status": "not_applicable",
+        "reason": "Analysis result does not require notification.",
+    }
+    if getattr(analysis, "should_notify", False):
+        formatted_message = _format_alert_message(
+            analysis=analysis,
+            fixture=fixture,
+            chain_status=pre_decision_chain_status,
+            data_mode=data_mode,
+        )
+        allowed_to_send, reviewed_message, preflight_reason = _preflight_alert(
+            message=formatted_message,
+            analysis=analysis,
+            chain_status=pre_decision_chain_status,
+            provider_health=provider_health,
+            llm_client=llm_client or LocalLLMClient(),
+            packet=packet,
+        )
+        alert_preflight = {
+            "status": _alert_preflight_status(allowed_to_send, preflight_reason),
+            "reason": preflight_reason,
+        }
+        if allowed_to_send:
+            alert_message = reviewed_message
+        elif hasattr(analysis, "__dataclass_fields__"):
+            analysis = replace(
+                analysis,
+                should_notify=False,
+                notification_level="none",
+                causal_chain=preflight_reason,
+                summary=preflight_reason,
+            )
+            packet = {
+                **packet,
+                "alert_preflight": alert_preflight,
+                "analysis": analysis.to_dict() if hasattr(analysis, "to_dict") else {},
+            }
+    packet = {**packet, "alert_preflight": alert_preflight}
     decision = decide_notification(
         previous_state=previous_state,
         analysis_result=analysis,
@@ -799,17 +1016,17 @@ def run_monitored_live_once(
         "notification_level": decision.notification_level,
     }
     if decision.should_notify:
-        message = analysis.user_message
         alert_payload = {
             "time": anchor.isoformat(),
             "notification_level": decision.notification_level,
-            "message": message,
+            "message": alert_message or analysis.user_message,
             "main_driver": analysis.main_driver,
             "bias": analysis.bias,
             "state_change_reason": decision.state_change_reason,
             "confidence_delta": decision.confidence_delta,
             "previous_state_invalidated": decision.previous_state_invalidated,
             "invalidation_triggered_by": decision.invalidation_triggered_by,
+            "alert_preflight": alert_preflight,
         }
         sink.emit(alert_payload)
         if config.telegram_enabled:
@@ -843,21 +1060,6 @@ def run_monitored_live_once(
                         "notification_level": decision.notification_level,
                     }
     state_store.save(decision.next_state)
-    packet = _build_packet(
-        fixture,
-        provider_health=provider_health,
-        attention_snapshot=attention_snapshot,
-        previous_state=previous_state,
-        data_mode=data_mode,
-        analysis=analysis,
-        market_price_bar_count=len(runtime_context.get("market_price_bars", [])),
-        related_asset_bar_count=len(runtime_context.get("related_asset_bars", [])),
-        news_row_count=len(runtime_context.get("news_rows", [])),
-        calendar_row_count=len(runtime_context.get("calendar_rows", [])),
-        selected_market_provider=runtime_context.get("selected_market_provider", "unavailable"),
-        provider_chain_status=runtime_context.get("provider_chain_status", []),
-        fallback_reason=runtime_context.get("fallback_reason", ""),
-    )
     monitor_run_id = timeline_store.record_monitor_run(
         run_started_at=anchor.isoformat(),
         run_type=run_type,
@@ -890,6 +1092,7 @@ def run_monitored_live_once(
             "notification_level": decision.notification_level,
             "reason": decision.reason,
             "telegram": telegram_result,
+            "alert_preflight": alert_preflight,
         },
     )
     timeline_store.record_state_transition(
@@ -949,6 +1152,7 @@ def run_monitored_live_once(
             "notification_level": decision.notification_level,
             "reason": decision.reason,
             "telegram": telegram_result,
+            "alert_preflight": alert_preflight,
         },
         "state_transition": {
             "is_new_state": decision.is_new_state,
@@ -975,27 +1179,36 @@ def run_monitor_loop(
     provider_router: ProviderRouter | None = None,
 ) -> list[dict[str, Any]]:
     outcomes: list[dict[str, Any]] = []
-    iteration = 0
-    while max_iterations is None or iteration < max_iterations:
-        anchor = None
-        if anchor_times is not None:
-            if iteration >= len(anchor_times):
-                break
-            anchor = anchor_times[iteration]
-        outcomes.append(
-            run_monitored_live_once(
-                config=config,
-                anchor_time=anchor,
-                state_path=state_path,
-                alerts_path=alerts_path,
-                cooldown_minutes=cooldown_minutes,
-                timeline_store_path=timeline_store_path,
-                provider_router=provider_router,
+    with MonitorLock(config.monitor_lock_path) as lock:
+        if lock is None:
+            return [
+                {
+                    "ok": False,
+                    "phase": "already_running",
+                    "message": "Monitor loop is already running.",
+                }
+            ]
+        iteration = 0
+        while max_iterations is None or iteration < max_iterations:
+            anchor = None
+            if anchor_times is not None:
+                if iteration >= len(anchor_times):
+                    break
+                anchor = anchor_times[iteration]
+            outcomes.append(
+                run_monitored_live_once(
+                    config=config,
+                    anchor_time=anchor,
+                    state_path=state_path,
+                    alerts_path=alerts_path,
+                    cooldown_minutes=cooldown_minutes,
+                    timeline_store_path=timeline_store_path,
+                    provider_router=provider_router,
+                )
             )
-        )
-        iteration += 1
-        if max_iterations is not None and iteration >= max_iterations:
-            break
-        if interval_seconds > 0:
-            time.sleep(interval_seconds)
+            iteration += 1
+            if max_iterations is not None and iteration >= max_iterations:
+                break
+            if interval_seconds > 0:
+                time.sleep(interval_seconds)
     return outcomes

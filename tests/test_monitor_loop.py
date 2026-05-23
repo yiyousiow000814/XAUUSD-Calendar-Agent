@@ -2,7 +2,7 @@ from datetime import datetime
 import json
 
 from src.xauusd_market_agent.config import MarketAgentConfig
-from src.xauusd_market_agent.live_pipeline import run_monitor_loop
+from src.xauusd_market_agent.live_pipeline import MonitorLock, run_monitor_loop
 from src.xauusd_market_agent.provider_health import build_provider_health
 from src.xauusd_market_agent.providers.provider_router import ProviderRouter
 
@@ -87,3 +87,47 @@ def test_run_monitor_loop_executes_multiple_iterations_without_crashing(tmp_path
     assert len(outcomes) == 2
     assert outcomes[0]["notification"]["should_notify"] is False
     assert outcomes[1]["notification"]["should_notify"] is False
+
+
+def test_run_monitor_loop_does_not_start_when_lock_is_held(tmp_path) -> None:
+    related_path = tmp_path / "related_assets.json"
+    related_path.write_text(
+        json.dumps({"dxy_percent": 0.22, "us10y_bps": 5.1, "us2y_bps": 4.4}),
+        encoding="utf-8",
+    )
+    year_dir = tmp_path / "calendar" / "2026"
+    year_dir.mkdir(parents=True)
+    (year_dir / "2026_calendar.json").write_text("[]", encoding="utf-8")
+    cfg = MarketAgentConfig(
+        repo_root=tmp_path,
+        price_data_path=tmp_path / "prices.csv",
+        calendar_dir=tmp_path / "calendar",
+        related_assets_path=related_path,
+        yahoo_enabled=False,
+        monitor_lock_path=tmp_path / "market_agent_monitor.lock",
+    )
+
+    with MonitorLock(cfg.monitor_lock_path) as lock:
+        assert lock is not None
+        outcomes = run_monitor_loop(
+            config=cfg,
+            interval_seconds=0,
+            max_iterations=1,
+            anchor_times=[datetime.fromisoformat("2026-05-19T07:15:00+08:00")],
+            state_path=tmp_path / "state.json",
+            alerts_path=tmp_path / "alerts.ndjson",
+            provider_router=ProviderRouter(
+                market_provider=StubLiveMarketProvider(),
+                csv_related_assets_path=related_path,
+                yahoo_enabled=False,
+            ),
+        )
+
+    assert outcomes == [
+        {
+            "ok": False,
+            "phase": "already_running",
+            "message": "Monitor loop is already running.",
+        }
+    ]
+    assert not (tmp_path / "alerts.ndjson").exists()

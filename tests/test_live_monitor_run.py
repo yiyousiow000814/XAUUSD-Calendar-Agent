@@ -25,6 +25,22 @@ class StubLiveMarketProvider:
             fetched_at=anchor_time.isoformat(),
         )
 
+    def backfill(self, start, end):
+        rows = []
+        for row in self.rows:
+            rows.append({**row, "data_mode": "backfilled"})
+        return rows, build_provider_health(
+            source="cTrader",
+            source_type="spot",
+            data_mode="backfilled",
+            is_available=True,
+            data_timestamp=end.isoformat(),
+            current_value=float(rows[-1]["close_price"]),
+            previous_value=float(rows[0]["close_price"]),
+            change_value=float(rows[-1]["close_price"]) - float(rows[0]["close_price"]),
+            fetched_at=end.isoformat(),
+        )
+
 
 class StubClosedMarketProvider:
     def fetch_latest(self, anchor_time):
@@ -272,6 +288,62 @@ def test_run_monitored_live_once_suppresses_market_closed_alert(tmp_path) -> Non
     assert not (tmp_path / "alerts.ndjson").exists()
 
 
+def test_run_monitored_live_once_suppresses_backfilled_recovery_alert(tmp_path) -> None:
+    related_path = tmp_path / "related_assets.json"
+    related_path.write_text(
+        json.dumps({"dxy_percent": 0.22, "us10y_bps": 5.1, "us2y_bps": 4.4}),
+        encoding="utf-8",
+    )
+    year_dir = tmp_path / "calendar" / "2026"
+    year_dir.mkdir(parents=True)
+    (year_dir / "2026_calendar.json").write_text("[]", encoding="utf-8")
+    timeline_path = tmp_path / "timeline.sqlite"
+    timeline = TimelineStore(timeline_path)
+    timeline.record_monitor_run(
+        run_started_at="2026-05-19T04:00:00+08:00",
+        run_type="live",
+        data_mode="live_seen",
+        backfill_required=False,
+        last_successful_run_at=None,
+        no_news_found=False,
+        alert_suppressed_reason="",
+    )
+    telegram = CapturingTelegramSink()
+    cfg = MarketAgentConfig(
+        repo_root=tmp_path,
+        calendar_dir=tmp_path / "calendar",
+        related_assets_path=related_path,
+        rss_feeds=[],
+        yahoo_enabled=False,
+        telegram_enabled=True,
+        telegram_bot_token="token",
+        telegram_chat_id="chat",
+        backfill_gap_minutes=30,
+    )
+
+    outcome = run_monitored_live_once(
+        config=cfg,
+        anchor_time=datetime.fromisoformat("2026-05-19T07:15:00+08:00"),
+        state_path=tmp_path / "state.json",
+        alerts_path=tmp_path / "alerts.ndjson",
+        timeline_store_path=timeline_path,
+        cooldown_minutes=30,
+        telegram_sink=telegram,
+        provider_router=_live_router(related_path),
+        news_headlines=_fresh_news(),
+    )
+
+    assert outcome["run_type"] == "recovery"
+    assert outcome["backfill_required"] is True
+    assert outcome["notification"]["should_notify"] is False
+    assert outcome["analysis"]["summary"] == (
+        "Historical recovery data was stored for replay and evidence only; "
+        "it is not a current alert."
+    )
+    assert telegram.payloads == []
+    assert not (tmp_path / "alerts.ndjson").exists()
+
+
 class FailingTelegramSink:
     def send(self, payload):
         return {
@@ -279,6 +351,43 @@ class FailingTelegramSink:
             "status": "failed",
             "error": "telegram unavailable",
             "notification_level": payload.get("notification_level", ""),
+        }
+
+
+class CapturingTelegramSink:
+    def __init__(self) -> None:
+        self.payloads = []
+
+    def send(self, payload):
+        self.payloads.append(payload)
+        return {
+            "sent": True,
+            "status": "sent",
+            "error": "",
+            "notification_level": payload.get("notification_level", ""),
+        }
+
+
+class BlockingReviewClient:
+    def analyze(self, evidence_packet):
+        return None
+
+    def review_alert(self, payload):
+        return {
+            "decision": "block",
+            "reason": "Alert claims a driver without enough accepted evidence.",
+        }
+
+
+class RewritingReviewClient:
+    def analyze(self, evidence_packet):
+        return None
+
+    def review_alert(self, payload):
+        return {
+            "decision": "rewrite",
+            "message": str(payload["message"]).replace("Summary:", "Summary: Reviewed."),
+            "reason": "clearer",
         }
 
 
@@ -325,6 +434,130 @@ def test_run_monitored_live_once_records_telegram_failure_without_crashing(tmp_p
 
     assert outcome["notification"]["telegram"]["status"] == "failed"
     assert outcome["notification"]["telegram"]["error"] == "telegram unavailable"
+
+
+def test_run_monitored_live_once_formats_telegram_alert(tmp_path) -> None:
+    related_path = tmp_path / "related_assets.json"
+    related_path.write_text(
+        json.dumps({"dxy_percent": 0.22, "us10y_bps": 5.1, "us2y_bps": 4.4}),
+        encoding="utf-8",
+    )
+    year_dir = tmp_path / "calendar" / "2026"
+    year_dir.mkdir(parents=True)
+    (year_dir / "2026_calendar.json").write_text("[]", encoding="utf-8")
+    telegram = CapturingTelegramSink()
+    cfg = MarketAgentConfig(
+        repo_root=tmp_path,
+        calendar_dir=tmp_path / "calendar",
+        related_assets_path=related_path,
+        rss_feeds=[],
+        yahoo_enabled=False,
+        telegram_enabled=True,
+        telegram_bot_token="token",
+        telegram_chat_id="chat",
+    )
+
+    outcome = run_monitored_live_once(
+        config=cfg,
+        anchor_time=datetime.fromisoformat("2026-05-19T07:15:00+08:00"),
+        state_path=tmp_path / "state.json",
+        alerts_path=tmp_path / "alerts.ndjson",
+        timeline_store_path=tmp_path / "timeline.sqlite",
+        cooldown_minutes=30,
+        telegram_sink=telegram,
+        provider_router=_live_router(related_path),
+        news_headlines=_fresh_news(),
+    )
+
+    assert outcome["notification"]["should_notify"] is True
+    message = telegram.payloads[0]["message"]
+    assert message.startswith("XAUUSD Market Agent")
+    assert "\nStatus: " in message
+    assert "\nMove: " in message
+    assert "\nDriver: " in message
+    assert "\nEvidence: " in message
+    assert "\nSummary: " in message
+    assert "\nData: " in message
+
+
+def test_run_monitored_live_once_llm_review_can_block_alert(tmp_path) -> None:
+    related_path = tmp_path / "related_assets.json"
+    related_path.write_text(
+        json.dumps({"dxy_percent": 0.22, "us10y_bps": 5.1, "us2y_bps": 4.4}),
+        encoding="utf-8",
+    )
+    year_dir = tmp_path / "calendar" / "2026"
+    year_dir.mkdir(parents=True)
+    (year_dir / "2026_calendar.json").write_text("[]", encoding="utf-8")
+    telegram = CapturingTelegramSink()
+    cfg = MarketAgentConfig(
+        repo_root=tmp_path,
+        calendar_dir=tmp_path / "calendar",
+        related_assets_path=related_path,
+        rss_feeds=[],
+        yahoo_enabled=False,
+        telegram_enabled=True,
+        telegram_bot_token="token",
+        telegram_chat_id="chat",
+    )
+
+    outcome = run_monitored_live_once(
+        config=cfg,
+        anchor_time=datetime.fromisoformat("2026-05-19T07:15:00+08:00"),
+        state_path=tmp_path / "state.json",
+        alerts_path=tmp_path / "alerts.ndjson",
+        timeline_store_path=tmp_path / "timeline.sqlite",
+        cooldown_minutes=30,
+        telegram_sink=telegram,
+        provider_router=_live_router(related_path),
+        news_headlines=_fresh_news(),
+        llm_client=BlockingReviewClient(),
+    )
+
+    assert outcome["notification"]["should_notify"] is False
+    assert outcome["notification"]["reason"] == "Analysis result does not require notification."
+    assert outcome["notification"]["alert_preflight"]["status"] == "blocked"
+    assert telegram.payloads == []
+    assert not (tmp_path / "alerts.ndjson").exists()
+
+
+def test_run_monitored_live_once_llm_review_can_rewrite_alert(tmp_path) -> None:
+    related_path = tmp_path / "related_assets.json"
+    related_path.write_text(
+        json.dumps({"dxy_percent": 0.22, "us10y_bps": 5.1, "us2y_bps": 4.4}),
+        encoding="utf-8",
+    )
+    year_dir = tmp_path / "calendar" / "2026"
+    year_dir.mkdir(parents=True)
+    (year_dir / "2026_calendar.json").write_text("[]", encoding="utf-8")
+    telegram = CapturingTelegramSink()
+    cfg = MarketAgentConfig(
+        repo_root=tmp_path,
+        calendar_dir=tmp_path / "calendar",
+        related_assets_path=related_path,
+        rss_feeds=[],
+        yahoo_enabled=False,
+        telegram_enabled=True,
+        telegram_bot_token="token",
+        telegram_chat_id="chat",
+    )
+
+    outcome = run_monitored_live_once(
+        config=cfg,
+        anchor_time=datetime.fromisoformat("2026-05-19T07:15:00+08:00"),
+        state_path=tmp_path / "state.json",
+        alerts_path=tmp_path / "alerts.ndjson",
+        timeline_store_path=tmp_path / "timeline.sqlite",
+        cooldown_minutes=30,
+        telegram_sink=telegram,
+        provider_router=_live_router(related_path),
+        news_headlines=_fresh_news(),
+        llm_client=RewritingReviewClient(),
+    )
+
+    assert outcome["notification"]["should_notify"] is True
+    assert outcome["notification"]["alert_preflight"]["status"] == "rewritten"
+    assert "Summary: Reviewed." in telegram.payloads[0]["message"]
 
 
 def test_run_monitored_live_once_records_semantic_timeline_event(tmp_path) -> None:
