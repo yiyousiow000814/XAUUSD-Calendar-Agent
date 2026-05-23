@@ -63,6 +63,8 @@ const numberValue = (value: unknown) => {
 
 const formatSignedValue = (value: number, suffix = "") => `${value > 0 ? "+" : ""}${value.toFixed(2)}${suffix}`;
 
+const driverValue = (row: TimelineRow) => normalizeValue(row.payload?.main_driver ?? row.payload?.driver ?? row.meta);
+
 const inferTimelineKind = (row: TimelineRow): TimelineKind => {
   const semanticType = normalizeValue(row.payload?.semantic_type);
   if (semanticType in timelineKindMeta) return semanticType as TimelineKind;
@@ -82,7 +84,10 @@ const inferTimelineKind = (row: TimelineRow): TimelineKind => {
 
 const compactTimelineTitle = (row: TimelineRow) => {
   const impact = numberValue(row.payload?.impact_percent);
-  if (impact !== null && row.source === "alert") {
+  const title = normalizeValue(row.title);
+  const driver = driverValue(row);
+  const titleIsRawDriver = Boolean(driver && title && (title === driver || driver.endsWith(`_${title}`)));
+  if (impact !== null && (row.source === "alert" || titleIsRawDriver)) {
     const action = impact < 0 ? "XAUUSD drop" : impact > 0 ? "XAUUSD spike" : "XAUUSD flat";
     return `${action} ${formatSignedValue(impact, "%")}`;
   }
@@ -109,19 +114,76 @@ const replayMode = (rangePreset: string): "day" | "month" => (rangePreset === "m
 
 const replayModeLabel = (rangePreset: string) => (replayMode(rangePreset) === "month" ? "Month: major turns" : "Day: detailed flow");
 
+const hasConfirmedDriver = (row: TimelineRow) => {
+  const driver = driverValue(row);
+  return Boolean(driver && !["unknown", "no_state_change"].includes(driver));
+};
+
+const isMaintenanceRow = (row: TimelineRow) => {
+  const kind = inferTimelineKind(row);
+  const status = normalizeValue(row.status);
+  const title = normalizeValue(row.title);
+  return (
+    kind === "recovery" ||
+    row.source === "suppressed" ||
+    title.includes("backfill") ||
+    status.includes("recovery")
+  );
+};
+
 const isMajorTimelineRow = (row: TimelineRow) => {
   const kind = inferTimelineKind(row);
   const impact = timelineImpactValue(row);
   const status = normalizeValue(row.status);
   const title = normalizeValue(row.title);
-  if (row.source === "alert") return true;
-  if (["breakout", "reversal", "recovery"].includes(kind)) return true;
-  if (typeof impact === "number" && Math.abs(impact) >= 0.2) return true;
+  if (isMaintenanceRow(row) || !hasConfirmedDriver(row)) return false;
+  if (row.source === "alert") return typeof impact === "number" ? Math.abs(impact) >= 0.2 : true;
+  if (["breakout", "reversal"].includes(kind)) return true;
+  if (typeof impact === "number" && Math.abs(impact) >= 0.35) return true;
   if (status.includes("level_2") || status.includes("level_3") || status.includes("confirmed")) return true;
   return ["pressure", "breakout", "selloff", "drop", "spike", "reversal", "driver"].some((word) => title.includes(word));
 };
 
+const sourceLabel = (row: TimelineRow) => {
+  if (row.source === "event") return "Monitor timeline";
+  if (row.source === "news") return "News feed";
+  if (row.source === "calendar") return "Calendar";
+  if (row.source === "alert") return "Alert decision";
+  return "Replay";
+};
+
+const replayMetaText = (row: TimelineRow) => {
+  const meta = row.meta && row.meta !== "Unknown driver" ? row.meta : "Driver not confirmed";
+  return `${meta} · ${sourceLabel(row)}`;
+};
+
+const majorRowKey = (row: TimelineRow) => {
+  const impact = timelineImpactValue(row);
+  const parsedTime = new Date(row.time);
+  const timeKey = Number.isNaN(parsedTime.getTime())
+    ? String(row.time)
+    : parsedTime.toISOString().slice(0, 16);
+  return [
+    timeKey,
+    inferTimelineKind(row),
+    driverValue(row),
+    impact === null ? "watching" : impact.toFixed(2),
+    compactTimelineTitle(row).toLowerCase()
+  ].join("|");
+};
+
+const dedupeMajorRows = (rows: TimelineRow[]) => {
+  const seen = new Set<string>();
+  return rows.filter((row) => {
+    const key = majorRowKey(row);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+};
+
 const buildTimelineRows = (payload: MarketAgentReplayResponse["replay"]): TimelineRow[] => {
+  const eventRunIds = new Set(payload.timeline_events.map((item) => item.monitor_run_id).filter(Boolean));
   const rows: TimelineRow[] = [
     ...payload.timeline_events.map((item) => ({
       key: `timeline-${item.monitor_run_id}-${item.event_time}-${item.label}`,
@@ -154,28 +216,19 @@ const buildTimelineRows = (payload: MarketAgentReplayResponse["replay"]): Timeli
       source: "calendar" as const,
       payload: item
     })),
-    ...payload.alerts.map((item, index) => ({
-      key: `alert-${index}-${item.monitor_run_id ?? index}`,
-      time: String(item.run_started_at ?? ""),
-      type: "Alert",
-      title: String(item.message ?? "Alert"),
-      meta: formatDriverLabel(item.main_driver ?? "unknown"),
-      status: String(item.notification_level ?? "confirmed"),
-      source: "alert" as const,
-      payload: item,
-      monitorRunId: item.monitor_run_id
-    })),
-    ...payload.suppressed_alerts.map((item, index) => ({
-      key: `suppressed-${index}-${item.monitor_run_id ?? index}`,
-      time: String(item.run_started_at ?? ""),
-      type: "Suppressed",
-      title: String(item.message ?? "Suppressed alert"),
-      meta: "No state change",
-      status: "suppressed",
-      source: "suppressed" as const,
-      payload: item,
-      monitorRunId: item.monitor_run_id
-    }))
+    ...payload.alerts
+      .filter((item) => !item.monitor_run_id || !eventRunIds.has(item.monitor_run_id))
+      .map((item, index) => ({
+        key: `alert-${index}-${item.monitor_run_id ?? index}`,
+        time: String(item.run_started_at ?? ""),
+        type: "Alert",
+        title: String(item.message ?? "Alert"),
+        meta: formatDriverLabel(item.main_driver ?? "unknown"),
+        status: String(item.notification_level ?? "confirmed"),
+        source: "alert" as const,
+        payload: item,
+        monitorRunId: item.monitor_run_id
+      }))
   ];
 
   return rows
@@ -198,8 +251,10 @@ export function MarketAgentReplay({
 }: MarketAgentReplayProps) {
   const payload = normalizeMarketAgentReplayPayload(replay?.replay);
   const allRows = buildTimelineRows(payload);
-  const rows = replayMode(rangePreset) === "month" ? allRows.filter(isMajorTimelineRow) : allRows;
+  const mode = replayMode(rangePreset);
+  const rows = mode === "month" ? dedupeMajorRows(allRows.filter(isMajorTimelineRow)) : allRows;
   const modeLabel = replayModeLabel(rangePreset);
+  const markerLabel = mode === "month" ? "major turns" : "market markers";
 
   return (
     <section className="market-agent-surface market-agent-replay-surface" data-qa="qa:market-agent:replay">
@@ -249,7 +304,7 @@ export function MarketAgentReplay({
           <div className="market-agent-replay-story-head">
             <div>
               <span>Market Replay</span>
-              <strong>{rows.length ? `${rows.length} market markers` : "No replay markers"}</strong>
+              <strong>{rows.length ? `${rows.length} ${markerLabel}` : "No replay markers"}</strong>
             </div>
             <MarketAgentStatusBadge label={modeLabel} tone="info" />
           </div>
@@ -271,7 +326,7 @@ export function MarketAgentReplay({
                       <span className={`market-agent-event-tag tone-${meta.tone}`}>{meta.tag}</span>
                     </div>
                     <div className="market-agent-replay-meta-row">
-                      <span>{row.meta}</span>
+                      <span>{replayMetaText(row)}</span>
                       <small>{formatTimelineImpact(row)}</small>
                     </div>
                   </div>
@@ -279,7 +334,9 @@ export function MarketAgentReplay({
               );
             })}
             {rows.length === 0 ? (
-              <div className="market-agent-empty-state">No replay events in this window.</div>
+              <div className="market-agent-empty-state">
+                {mode === "month" ? "No major turns in this window." : "No replay events in this window."}
+              </div>
             ) : null}
           </div>
         </div>

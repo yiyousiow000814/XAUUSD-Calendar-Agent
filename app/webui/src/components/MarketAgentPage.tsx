@@ -83,7 +83,7 @@ type MarketAgentPageProps = {
   onTestLLMJsonResponse: (llm: MarketAgentLLMConfigInput) => Promise<MarketAgentLLMActionResponse>;
   onDetectLocalAI?: () => Promise<MarketAgentLLMSetupResponse>;
   onInstallRecommendedModel?: (model: string) => Promise<MarketAgentLLMActionResponse>;
-  onCancelModelDownload?: () => Promise<MarketAgentLLMActionResponse>;
+  onCancelModelDownload?: (model?: string) => Promise<MarketAgentLLMActionResponse>;
   onBenchmarkLLM?: (llm: MarketAgentLLMConfigInput) => Promise<MarketAgentLLMActionResponse>;
   onApplyLLMFallbackPolicy?: (payload: Record<string, unknown>) => Promise<MarketAgentLLMActionResponse>;
   onRunMonitorOnce: () => Promise<MarketAgentMonitorStatusResponse>;
@@ -719,10 +719,28 @@ const alertNoticeId = (kind: "sent" | "suppressed", item: Record<string, unknown
 
 const alertNoticeIds = (replay: MarketAgentReplayResponse | null) => {
   const payload = normalizeMarketAgentReplayPayload(replay?.replay);
-  return [
-    ...payload.alerts.map((item, index) => alertNoticeId("sent", item, index)),
-    ...payload.suppressed_alerts.map((item, index) => alertNoticeId("suppressed", item, index))
-  ];
+  return payload.alerts.map((item, index) => alertNoticeId("sent", item, index));
+};
+
+const alertDriverFromMessage = (message: unknown) => {
+  if (typeof message !== "string") return "";
+  const match = message.match(/active\s+driver\s*:\s*([^.\n]+)/i);
+  return match?.[1]?.trim() || "";
+};
+
+const alertTitle = (message: unknown) => {
+  if (typeof message !== "string") return "Market alert";
+  const stripped = message.replace(/\s*active\s+driver\s*:\s*[^.\n]+\.?/i, "").trim();
+  return formatValue(stripped || message, "Market alert");
+};
+
+const alertDriverDetail = (driver: unknown, message?: unknown) => {
+  const normalized = normalizeMarketAgentValue(driver);
+  if (!normalized || normalized === "unknown") {
+    const messageDriver = alertDriverFromMessage(message);
+    return messageDriver ? `Active driver ${humanizeMarketAgentValue(messageDriver, messageDriver)}` : "Review market move";
+  }
+  return `Driver ${formatDriverLabel(driver)}`;
 };
 
 const readSeenAlertIds = () => {
@@ -1504,6 +1522,7 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
           data={props.providerConfig}
           telegramData={props.telegramConfig}
           llmData={props.llmConfig}
+          providerHealth={props.providerHealth}
           localAiSetup={props.localAiSetup ?? null}
           localAiPullProgress={props.localAiPullProgress ?? null}
           onSave={props.onSaveProviderConfig}
@@ -1532,34 +1551,24 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
       );
     }
     if (section === "alerts") {
-      const sentAlerts = replayPayload.alerts;
+      const attentionAlerts = replayPayload.alerts;
       const suppressedAlerts = replayPayload.suppressed_alerts;
-      const sentRows = sentAlerts.map((alert, index) => ({
+      const alertRows = attentionAlerts.map((alert, index) => ({
           key: `alert-${index}`,
-          kind: "sent" as const,
+          kind: "attention" as const,
           index: index + 1,
-          title: formatValue(alert.message, "Alert"),
-          detail: `Driver ${formatValue(alert.main_driver, "Unknown")}`,
+          title: alertTitle(alert.message),
+          detail: alertDriverDetail(alert.main_driver, alert.message),
           time: String(alert.run_started_at ?? ""),
-          badge: "Sent",
-          tone: "bad" as const
-        }));
-      const suppressedRows = suppressedAlerts.map((alert, index) => ({
-          key: `suppressed-${index}`,
-          kind: "suppressed" as const,
-          index: sentAlerts.length + index + 1,
-          title: formatValue(alert.message, "Suppressed alert"),
-          detail: "Duplicate continuation",
-          time: String(alert.run_started_at ?? ""),
-          badge: "Hidden",
+          badge: "Needs attention",
           tone: "warn" as const
         }));
-      const alertRows = [...sentRows, ...suppressedRows];
-      const sentLabel = `${sentAlerts.length} sent`;
-      const hiddenLabel = `${suppressedAlerts.length} hidden duplicate${suppressedAlerts.length === 1 ? "" : "s"}`;
+      const attentionLabel = `${attentionAlerts.length} attention item${attentionAlerts.length === 1 ? "" : "s"}`;
+      const hiddenLabel = `${suppressedAlerts.length} quiet repeat${suppressedAlerts.length === 1 ? "" : "s"} hidden`;
+      const telegramEnabled = Boolean(props.telegramConfig?.telegram?.enabled);
       const renderAlertCard = (alert: (typeof alertRows)[number]) => (
         <article className={`market-agent-alert-card ${alert.kind}`} data-alert-kind={alert.kind} key={alert.key}>
-          <span className="market-agent-alert-index">{alert.kind === "sent" ? "Sent" : "Hidden"}</span>
+          <span className="market-agent-alert-index">Attention</span>
           <div className="market-agent-alert-main">
             <div className="market-agent-alert-title-row">
               <strong>{alert.title}</strong>
@@ -1577,11 +1586,15 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
           <div className="market-agent-surface-header">
             <div>
               <h2>Alerts</h2>
-              <span className="hint">Only sent alerts need attention</span>
+              <span className="hint">
+                {telegramEnabled
+                  ? "Important market alerts delivered by your alert settings"
+                  : "Important market alerts. Telegram is off, so nothing is sent there."}
+              </span>
             </div>
           </div>
           <div className="market-agent-alerts-summary-line" aria-label="Alert summary">
-            <strong>{sentLabel}</strong>
+            <strong>{attentionLabel}</strong>
             <span>/ {hiddenLabel}</span>
           </div>
           {alertRows.length ? (

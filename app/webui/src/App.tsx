@@ -4040,7 +4040,7 @@ export default function App() {
                 return result;
               })
             }
-            onCancelModelDownload={() => backend.cancelModelDownload()}
+            onCancelModelDownload={(model) => backend.cancelModelDownload(model)}
             onBenchmarkLLM={(llm) => backend.benchmarkMarketAgentLLM(llm)}
             onApplyLLMFallbackPolicy={(payload) => backend.applyLLMFallbackPolicy(payload)}
             onRunMonitorOnce={() => runMarketAgentMonitorAction(backend.runMarketAgentMonitorOnce)}

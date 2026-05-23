@@ -10,11 +10,13 @@ import type {
   MarketAgentLLMSetupResponse,
   MarketAgentMonitorStatusResponse,
   MarketAgentOllamaPullProgress,
+  MarketAgentProviderHealthResponse,
   MarketAgentCTraderAuthResponse,
   MarketAgentTelegramActionResponse,
   MarketAgentTelegramConfigInput,
   MarketAgentTelegramConfigResponse
 } from "../types";
+import { formatShortTime } from "../utils/marketAgentUi";
 import { MarketAgentStatusBadge } from "./MarketAgentStatusBadge";
 import "./MarketAgentProviderConfig.css";
 
@@ -22,6 +24,7 @@ type MarketAgentProviderConfigProps = {
   data: MarketAgentProviderConfigResponse | null;
   telegramData: MarketAgentTelegramConfigResponse | null;
   llmData: MarketAgentLLMConfigResponse | null;
+  providerHealth?: MarketAgentProviderHealthResponse | null;
   localAiSetup?: MarketAgentLLMSetupResponse | null;
   localAiPullProgress?: MarketAgentOllamaPullProgress | null;
   onSave: (ctrader: MarketAgentProviderConfigInput) => void;
@@ -38,7 +41,7 @@ type MarketAgentProviderConfigProps = {
   onTestLLMJsonResponse: (llm: MarketAgentLLMConfigInput) => Promise<MarketAgentLLMActionResponse>;
   onDetectLocalAI?: () => Promise<MarketAgentLLMSetupResponse>;
   onInstallRecommendedModel?: (model: string) => Promise<MarketAgentLLMActionResponse>;
-  onCancelModelDownload?: () => Promise<MarketAgentLLMActionResponse>;
+  onCancelModelDownload?: (model?: string) => Promise<MarketAgentLLMActionResponse>;
   onBenchmarkLLM?: (llm: MarketAgentLLMConfigInput) => Promise<MarketAgentLLMActionResponse>;
   onApplyLLMFallbackPolicy?: (payload: Record<string, unknown>) => Promise<MarketAgentLLMActionResponse>;
   monitorStatus: MarketAgentMonitorStatusResponse | null;
@@ -56,6 +59,34 @@ const formatLocalModelName = (model?: string | null) => {
   const match = model.match(/^(qwen\d+(?:\.\d+)?):(.+)$/i);
   if (!match) return model;
   return `${match[1].replace(/^qwen/i, "Qwen")} ${match[2].toUpperCase()}`;
+};
+
+const localAIProgressPercent = (progress: MarketAgentOllamaPullProgress | null) => {
+  if (!progress) return 0;
+  if (progress.status === "cancelled") return 0;
+  if (progress.done) return progress.ok === false ? 100 : 100;
+  if (typeof progress.percent === "number") return Math.max(0, Math.min(100, progress.percent));
+  const status = progress.status.toLowerCase();
+  if (status.includes("request")) return 25;
+  if (status.includes("start")) return 15;
+  if (status.includes("prepar")) return 5;
+  return 8;
+};
+
+const localAIProgressStage = (progress: MarketAgentOllamaPullProgress | null) => {
+  if (!progress) return "";
+  if (progress.status === "cancelled") return "Cancelled";
+  if (progress.done) return progress.ok === false ? "Stopped" : "Ready";
+  const status = progress.status.toLowerCase();
+  if (
+    (progress.completedBytes != null || progress.totalBytes != null || status.includes("download") || status.includes("pull")) &&
+    typeof progress.percent === "number"
+  ) {
+    return `Downloading · ${localAIProgressPercent(progress).toFixed(0)}%`;
+  }
+  if (status.includes("request")) return "Requesting model · 25%";
+  if (status.includes("start")) return "Starting runtime · 15%";
+  return "Preparing runtime · 5%";
 };
 
 const emptyForm: MarketAgentProviderConfigInput = {
@@ -83,7 +114,7 @@ const emptyTelegramForm: MarketAgentTelegramConfigInput = {
 const emptyLLMForm: MarketAgentLLMConfigInput = {
   enabled: false,
   provider: "ollama",
-  endpoint: "http://localhost:11434",
+  endpoint: "http://127.0.0.1:21434",
   model: "qwen3.5:4b",
   temperature: 0.1,
   timeoutSeconds: 20,
@@ -95,6 +126,7 @@ export function MarketAgentProviderConfig({
   data,
   telegramData,
   llmData,
+  providerHealth,
   localAiSetup,
   localAiPullProgress,
   onSave,
@@ -127,6 +159,7 @@ export function MarketAgentProviderConfig({
   const [telegramResult, setTelegramResult] = useState<MarketAgentTelegramActionResponse | null>(null);
   const [llmResult, setLLMResult] = useState<MarketAgentLLMActionResponse | null>(null);
   const [localAIResult, setLocalAIResult] = useState<MarketAgentLLMActionResponse | null>(null);
+  const [pendingPullProgress, setPendingPullProgress] = useState<MarketAgentOllamaPullProgress | null>(null);
   const [localSetup, setLocalSetup] = useState<MarketAgentLLMSetupResponse | null>(localAiSetup ?? null);
   const [activeStep, setActiveStep] = useState<SetupStep>("ctrader");
   const [localAIMode, setLocalAIMode] = useState<LocalAIMode>("auto");
@@ -169,7 +202,7 @@ export function MarketAgentProviderConfig({
     setLLMForm({
       enabled: llm.enabled,
       provider: llm.provider || "ollama",
-      endpoint: llm.endpoint || "http://localhost:11434",
+      endpoint: llm.endpoint || "http://127.0.0.1:21434",
       model: llm.model || "qwen3.5:4b",
       temperature: typeof llm.temperature === "number" ? llm.temperature : 0.1,
       timeoutSeconds: llm.timeoutSeconds || 20,
@@ -187,18 +220,47 @@ export function MarketAgentProviderConfig({
     }
   }, [localAiSetup]);
 
+  useEffect(() => {
+    if (localAiPullProgress) {
+      setPendingPullProgress((current) => (current?.status === "cancelled" ? current : null));
+    }
+  }, [localAiPullProgress]);
+
+  const cTraderHealth = useMemo(
+    () =>
+      providerHealth?.items?.find((item) => {
+        const key = String(item.provider_key || "").toLowerCase();
+        const source = String(item.source || "").toLowerCase();
+        const type = String(item.source_type || "").toLowerCase();
+        return key.includes("ctrader") || source.includes("ctrader") || type === "spot";
+      }) || null,
+    [providerHealth]
+  );
+  const cTraderLive = Boolean(
+    cTraderHealth?.is_available && !cTraderHealth.is_stale && cTraderHealth.data_mode === "live_seen"
+  );
+  const cTraderConfigured = Boolean(data?.ctrader?.enabled);
+  const cTraderStatusLabel = cTraderLive ? "Live" : cTraderConfigured ? "Preparing live feed" : "Connect";
+  const cTraderHealthMessage =
+    cTraderLive
+      ? "Live XAUUSD feed is active."
+      : cTraderConfigured
+        ? "Preparing the live XAUUSD feed. History sync continues in the background."
+        : "Connect cTrader to let the app prepare live monitoring.";
+
   const statusTone = useMemo(() => {
     if (!data?.available) return "bad";
-    if (data.ctrader?.enabled) return "good";
-    return "warn";
-  }, [data]);
+    if (cTraderLive) return "good";
+    if (cTraderConfigured) return "warn";
+    return "bad";
+  }, [data, cTraderConfigured, cTraderLive]);
 
   const setupActions: Array<{ id: SetupStep; label: string; detail: string; status: string }> = [
     {
       id: "ctrader",
       label: "cTrader",
       detail: "Live XAUUSD",
-      status: data?.ctrader?.enabled ? "Connected" : "Needed"
+      status: cTraderStatusLabel
     },
     {
       id: "llm",
@@ -297,8 +359,19 @@ export function MarketAgentProviderConfig({
   const installSelectedModel = async () => {
     const model = selectedLocalAIModel();
     if (!model || !onInstallRecommendedModel) return;
+    setLocalAIResult(null);
+    setPendingPullProgress({
+      model,
+      status: "preparing runtime",
+      message: "Preparing Local AI runtime...",
+      percent: 5,
+      done: false
+    });
     const result = await onInstallRecommendedModel(model);
     setLocalAIResult(result);
+    if (result.done || result.status !== "download_started") {
+      setPendingPullProgress(null);
+    }
     const fallbackModel =
       result.policy && typeof result.policy.model === "string" ? result.policy.model : undefined;
     const fallbackStatus =
@@ -306,6 +379,26 @@ export function MarketAgentProviderConfig({
     if (fallbackModel) {
       setLLMForm((current) => ({ ...current, model: fallbackModel, enabled: fallbackStatus !== "llm_disabled" }));
     }
+  };
+
+  const cancelSelectedModelDownload = async () => {
+    const model = selectedLocalAIModel();
+    const cancelledProgress: MarketAgentOllamaPullProgress = {
+      ok: false,
+      model: model || pendingPullProgress?.model || localAiPullProgress?.model || llmForm.model,
+      status: "cancelled",
+      message: "Model download cancelled.",
+      percent: 0,
+      done: true
+    };
+    setPendingPullProgress(cancelledProgress);
+    if (!onCancelModelDownload) {
+      setLocalAIResult({ ok: true, status: "cancelled", model: cancelledProgress.model, message: "Model download cancelled.", done: true });
+      return;
+    }
+    const result = await onCancelModelDownload(cancelledProgress.model);
+    setLocalAIResult(result);
+    setPendingPullProgress({ ...cancelledProgress, message: result.message || cancelledProgress.message });
   };
 
   const selectStep = (step: SetupStep) => {
@@ -391,6 +484,11 @@ export function MarketAgentProviderConfig({
               </div>
             </div>
           ) : null}
+          {cTraderConfigured && !cTraderLive ? (
+            <div className="market-agent-readable-status-line">
+              <span>{cTraderHealthMessage}</span>
+            </div>
+          ) : null}
         </div>
       );
     }
@@ -398,13 +496,21 @@ export function MarketAgentProviderConfig({
     if (activeStep === "llm") {
       const recommended = localSetup?.recommendedModel;
       const ollama = localSetup?.ollama;
-      const pullProgress = localAiPullProgress;
+      const pullProgress = pendingPullProgress || localAiPullProgress;
       const selectedModel = selectedLocalAIModel();
       const selectedModelLabel = formatLocalModelName(selectedModel);
       const isDownloadingModel = Boolean(pullProgress && !pullProgress.done && !pullProgress.error);
+      const progressPercent = localAIProgressPercent(pullProgress);
+      const progressStage = localAIProgressStage(pullProgress);
+      const pullStatus = String(pullProgress?.status || "").toLowerCase();
+      const isPullingModel =
+        pullProgress?.completedBytes != null ||
+        pullProgress?.totalBytes != null ||
+        pullStatus.includes("download") ||
+        pullStatus.includes("pull");
       const selectedModelInstalled = isLocalModelInstalled(selectedModel);
       const isModelReady = localSetup?.status === "model_ready" || selectedModelInstalled;
-      const installDisabled = localAIMode === "off" || ollama?.installed === false || ollama?.running === false || isDownloadingModel;
+      const installDisabled = localAIMode === "off" || isDownloadingModel;
       const localAIOptions: Array<{
         mode: LocalAIMode;
         label: string;
@@ -444,14 +550,14 @@ export function MarketAgentProviderConfig({
       ];
       const localAIRuntimeLabel =
         ollama?.installed === false
-          ? "Ollama not installed"
+          ? "Runtime will be prepared"
           : ollama?.running === false
-            ? "Ollama stopped"
+            ? "Runtime preparing"
             : localAIMode === "off"
               ? "LLM disabled"
               : isModelReady
                 ? "Model ready"
-                : "Model missing";
+                : "Ready to download";
       const selectedOption = localAIOptions.find((option) => option.mode === localAIMode) || localAIOptions[0];
       const installedLocalAIModels = localAIOptions.filter((option) => option.model && isLocalModelInstalled(option.model));
       return (
@@ -478,20 +584,20 @@ export function MarketAgentProviderConfig({
                       {localAIMode !== "off" && !isModelReady ? (
                         <button
                           type="button"
-                          className="btn primary btn-compact"
+                          className="btn primary btn-compact market-agent-model-download-button"
                           disabled={installDisabled}
-                          title={
-                            installDisabled && !isDownloadingModel
-                              ? "Install and start Ollama before pulling a local model."
-                              : undefined
-                          }
                           onClick={() => void installSelectedModel()}
                         >
-                          {isDownloadingModel
-                            ? `Downloading ${formatLocalModelName(pullProgress?.model || selectedModel)}`
-                            : localAIMode === "auto"
-                              ? "Download recommended"
-                              : "Download model"}
+                          {isDownloadingModel ? <span className="market-agent-inline-spinner" aria-hidden="true" /> : null}
+                          <span className="market-agent-model-download-label">
+                            {isDownloadingModel
+                              ? isPullingModel
+                                ? "Downloading"
+                                : "Preparing"
+                              : localAIMode === "auto"
+                                ? "Download recommended"
+                                : "Download model"}
+                          </span>
                         </button>
                       ) : null}
                       {localAIMode !== "off" && isModelReady ? (
@@ -513,7 +619,7 @@ export function MarketAgentProviderConfig({
                         </button>
                       ) : null}
                       {isDownloadingModel ? (
-                        <button type="button" className="btn ghost btn-compact" onClick={() => void (onCancelModelDownload ? onCancelModelDownload().then(setLocalAIResult) : Promise.resolve())}>
+                        <button type="button" className="btn ghost btn-compact" onClick={() => void cancelSelectedModelDownload()}>
                           Cancel download
                         </button>
                       ) : null}
@@ -521,22 +627,29 @@ export function MarketAgentProviderConfig({
                   </div>
                   {ollama?.installed === false ? (
                     <div className="market-agent-readable-status-line">
-                      <span>Install Ollama manually from {ollama.installerUrl || "https://ollama.com/download"} and return here.</span>
+                      <span>Local AI runtime will be prepared automatically when you download a model.</span>
                     </div>
                   ) : null}
                   {pullProgress ? (
-                    <div className="market-agent-provider-config-result">
+                    <div className="market-agent-provider-config-result market-agent-model-download-card">
                       <div className="market-agent-provider-config-result-head">
-                        <strong>Downloading model</strong>
+                        <strong>{pullProgress.done ? "Model ready" : isPullingModel ? "Downloading model" : "Preparing Local AI"}</strong>
                         <MarketAgentStatusBadge label={pullProgress.status || "downloading model"} />
                       </div>
                       <div className="market-agent-provider-config-result-body">
+                        {progressStage ? <strong className="market-agent-download-stage">{progressStage}</strong> : null}
                         <span>
                           {pullProgress.completedBytes != null && pullProgress.totalBytes != null
                             ? `${pullProgress.completedBytes} / ${pullProgress.totalBytes} bytes`
-                            : pullProgress.message || "Waiting for Ollama progress..."}
+                            : pullProgress.message || "Waiting for Local AI progress..."}
                         </span>
-                        {typeof pullProgress.percent === "number" ? <span>{pullProgress.percent.toFixed(1)}%</span> : null}
+                        {typeof pullProgress.percent === "number" && isPullingModel ? <span>{progressPercent.toFixed(1)}%</span> : null}
+                        <div
+                          className={`market-agent-download-progress${pullProgress.done || pullProgress.status === "cancelled" ? " settled" : ""}`}
+                          aria-hidden="true"
+                        >
+                          <span style={{ width: `${Math.max(0, Math.min(100, progressPercent))}%` }} />
+                        </div>
                       </div>
                     </div>
                   ) : null}
@@ -567,7 +680,7 @@ export function MarketAgentProviderConfig({
                     ? `Installed locally: ${installedLocalAIModels.map((option) => option.label).join(", ")}.`
                     : localAIMode === "off"
                       ? "Local AI is disabled. The rule-based engine still runs."
-                      : "No Qwen3.5 model is installed locally yet."}
+                      : "The app can prepare the local model automatically when needed."}
                 </p>
               </div>
               {llmResult || localAIResult ? (
@@ -732,7 +845,7 @@ export function MarketAgentProviderConfig({
           <div className="market-agent-run-metrics">
             <div>
               <span>Last check</span>
-              <strong>{String(monitorStatus?.lastRunAt ?? "Not run yet")}</strong>
+              <strong>{monitorStatus?.lastRunAt ? formatShortTime(monitorStatus.lastRunAt) : "Not run yet"}</strong>
             </div>
             <div>
               <span>Telegram</span>
@@ -767,7 +880,13 @@ export function MarketAgentProviderConfig({
         </div>
         <div className="market-agent-provider-config-statuses">
           <MarketAgentStatusBadge
-            label={data?.ctrader?.enabled ? "cTrader connected" : "cTrader not connected"}
+            label={
+              cTraderLive
+                ? "cTrader live"
+                : cTraderConfigured
+                  ? "Preparing live feed"
+                  : "cTrader not connected"
+            }
             tone={statusTone}
           />
         </div>

@@ -95,10 +95,23 @@ export const formatDriverLabel = (driverId: unknown, fallback = "Unknown driver"
   return DRIVER_LABELS[normalized] ?? humanizeMarketAgentValue(driverId, fallback);
 };
 
+const parseMarketAgentTime = (value: unknown) => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return new Date(value < 1_000_000_000_000 ? value * 1000 : value);
+  }
+  if (typeof value !== "string" || !value.trim()) return null;
+  const trimmed = value.trim();
+  if (/^\d{10,13}$/.test(trimmed)) {
+    const numeric = Number.parseInt(trimmed, 10);
+    return new Date(trimmed.length <= 10 ? numeric * 1000 : numeric);
+  }
+  return new Date(trimmed);
+};
+
 export const formatShortTime = (value: unknown, fallback = "--") => {
-  if (typeof value !== "string" || !value.trim()) return fallback;
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return value;
+  const parsed = parseMarketAgentTime(value);
+  if (!parsed) return fallback;
+  if (Number.isNaN(parsed.getTime())) return String(value);
   const pad = (part: number) => String(part).padStart(2, "0");
   return `${pad(parsed.getDate())}-${pad(parsed.getMonth() + 1)} ${pad(parsed.getHours())}:${pad(parsed.getMinutes())}`;
 };

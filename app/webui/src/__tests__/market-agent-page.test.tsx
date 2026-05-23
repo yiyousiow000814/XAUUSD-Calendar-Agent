@@ -126,7 +126,7 @@ const llmConfig: MarketAgentLLMConfigResponse = {
   llm: {
     enabled: false,
     provider: "ollama",
-    endpoint: "http://localhost:11434",
+    endpoint: "http://127.0.0.1:21434",
     model: "qwen3.5:4b",
     temperature: 0.1,
     timeoutSeconds: 20,
@@ -158,7 +158,7 @@ const localAiSetup: MarketAgentLLMSetupResponse = {
     installed: true,
     running: true,
     endpointReachable: true,
-    endpoint: "http://localhost:11434",
+    endpoint: "http://127.0.0.1:21434",
     version: "0.9.0"
   },
   installedModels: [],
@@ -337,7 +337,7 @@ const replay: MarketAgentReplayResponse = {
       { monitor_run_id: 21, event_time: "2026-05-19T07:56:00+08:00", event_type: "analysis", label: "Range held near session low", payload: { semantic_type: "range", impact_percent: 0.05, main_driver: "unknown" } }
     ],
     state_transitions: [{ monitor_run_id: 23, run_started_at: "2026-05-19T08:05:00+08:00", state_change_reason: "main_driver usd -> yields" }],
-    alerts: [{ monitor_run_id: 23, run_started_at: "2026-05-19T08:05:00+08:00", should_notify: true, notification_level: "level_3", message: "XAUUSD dropped 0.48%", semantic_type: "breakout", impact_percent: -0.48 }],
+    alerts: [{ monitor_run_id: 23, run_started_at: "2026-05-19T08:05:00+08:00", should_notify: true, notification_level: "level_3", message: "XAUUSD dropped 0.48%", main_driver: "yields", semantic_type: "breakout", impact_percent: -0.48 }],
     suppressed_alerts: [{ monitor_run_id: 24, run_started_at: "2026-05-19T07:20:00+08:00", should_notify: false, notification_level: "level_1", message: "Suppressed duplicate" }]
   }
 };
@@ -406,7 +406,7 @@ const marketAgentPageElement = (overrides: Partial<Parameters<typeof MarketAgent
       onSaveTelegramConfig={async () => telegramConfig}
       onTestTelegramMessage={async () => ({ ok: true, status: "sent", message: "Telegram test message sent." })}
       onSaveLLMConfig={async () => llmConfig}
-      onTestLLMConnection={async () => ({ ok: true, status: "available", message: "Ollama is available." })}
+      onTestLLMConnection={async () => ({ ok: true, status: "available", message: "Local AI is available." })}
       onTestLLMJsonResponse={async () => ({ ok: true, status: "available", message: "Model returned valid JSON." })}
       localAiSetup={localAiSetup}
       localAiPullProgress={null}
@@ -415,7 +415,7 @@ const marketAgentPageElement = (overrides: Partial<Parameters<typeof MarketAgent
       onCancelModelDownload={async () => ({ ok: true, status: "cancelled" })}
       onBenchmarkLLM={async () => ({ ok: true, status: "model_ready", elapsedMs: 900, message: "Benchmark passed." })}
       onApplyLLMFallbackPolicy={async () => ({ ok: true, status: "model_ready", model: "qwen3.5:4b" })}
-      onStartCTraderConnect={async () => ({ ok: true, status: "connected", message: "cTrader CLI credentials saved and checked.", ctrader: providerConfig.ctrader })}
+      onStartCTraderConnect={async () => ({ ok: true, status: "preparing_live_feed", message: "cTrader is connected. Preparing live XAUUSD and syncing history in the background.", ctrader: providerConfig.ctrader })}
       onTestCTraderBackfill={async () => ({ ok: true, message: "M1 backfill is available." })}
       onRunMonitorOnce={async () => monitorStatus}
       onRunBackfillRecovery={async () => ({ ...monitorStatus, phase: "recovery_completed", message: "Backfill recovery completed." })}
@@ -462,7 +462,7 @@ describe("MarketAgentPage", () => {
         onSaveTelegramConfig={async () => telegramConfig}
         onTestTelegramMessage={async () => ({ ok: true, status: "sent", message: "Telegram test message sent." })}
         onSaveLLMConfig={async () => llmConfig}
-        onTestLLMConnection={async () => ({ ok: true, status: "available", message: "Ollama is available." })}
+        onTestLLMConnection={async () => ({ ok: true, status: "available", message: "Local AI is available." })}
         onTestLLMJsonResponse={async () => ({ ok: true, status: "available", message: "Model returned valid JSON." })}
         localAiSetup={localAiSetup}
         localAiPullProgress={null}
@@ -471,7 +471,7 @@ describe("MarketAgentPage", () => {
         onCancelModelDownload={async () => ({ ok: true, status: "cancelled" })}
         onBenchmarkLLM={async () => ({ ok: true, status: "model_ready", elapsedMs: 900, message: "Benchmark passed." })}
         onApplyLLMFallbackPolicy={async () => ({ ok: true, status: "model_ready", model: "qwen3.5:4b" })}
-        onStartCTraderConnect={async () => ({ ok: true, status: "connected", message: "cTrader CLI credentials saved and checked.", ctrader: providerConfig.ctrader })}
+        onStartCTraderConnect={async () => ({ ok: true, status: "preparing_live_feed", message: "cTrader is connected. Preparing live XAUUSD and syncing history in the background.", ctrader: providerConfig.ctrader })}
         onTestCTraderBackfill={async () => ({ ok: true, message: "M1 backfill is available." })}
         onRunMonitorOnce={async () => monitorStatus}
         onRunBackfillRecovery={async () => ({ ...monitorStatus, phase: "recovery_completed", message: "Backfill recovery completed." })}
@@ -863,7 +863,7 @@ describe("MarketAgentPage", () => {
         onSaveTelegramConfig={async () => telegramConfig}
         onTestTelegramMessage={async () => ({ ok: true, status: "sent", message: "Telegram test message sent." })}
         onSaveLLMConfig={async () => llmConfig}
-        onTestLLMConnection={async () => ({ ok: true, status: "available", message: "Ollama is available." })}
+        onTestLLMConnection={async () => ({ ok: true, status: "available", message: "Local AI is available." })}
         onTestLLMJsonResponse={async () => ({ ok: true, status: "available", message: "Model returned valid JSON." })}
         localAiSetup={localAiSetup}
         localAiPullProgress={null}
@@ -872,7 +872,7 @@ describe("MarketAgentPage", () => {
         onCancelModelDownload={async () => ({ ok: true, status: "cancelled" })}
         onBenchmarkLLM={async () => ({ ok: true, status: "model_ready", elapsedMs: 900, message: "Benchmark passed." })}
         onApplyLLMFallbackPolicy={async () => ({ ok: true, status: "model_ready", model: "qwen3.5:4b" })}
-        onStartCTraderConnect={async () => ({ ok: true, status: "connected", message: "cTrader CLI credentials saved and checked.", ctrader: providerConfig.ctrader })}
+        onStartCTraderConnect={async () => ({ ok: true, status: "preparing_live_feed", message: "cTrader is connected. Preparing live XAUUSD and syncing history in the background.", ctrader: providerConfig.ctrader })}
         onTestCTraderBackfill={async () => ({ ok: true, message: "M1 backfill is available." })}
         onRunMonitorOnce={async () => monitorStatus}
         onRunBackfillRecovery={async () => ({ ...monitorStatus, phase: "recovery_completed", message: "Backfill recovery completed." })}
@@ -933,7 +933,7 @@ describe("MarketAgentPage", () => {
         onSaveTelegramConfig={async () => telegramConfig}
         onTestTelegramMessage={async () => ({ ok: true, status: "sent", message: "Telegram test message sent." })}
         onSaveLLMConfig={async () => llmConfig}
-        onTestLLMConnection={async () => ({ ok: true, status: "available", message: "Ollama is available." })}
+        onTestLLMConnection={async () => ({ ok: true, status: "available", message: "Local AI is available." })}
         onTestLLMJsonResponse={async () => ({ ok: true, status: "available", message: "Model returned valid JSON." })}
         onRunMonitorOnce={async () => monitorStatus}
         onRunBackfillRecovery={async () => ({ ...monitorStatus, phase: "recovery_completed", message: "Backfill recovery completed." })}
@@ -957,14 +957,18 @@ describe("MarketAgentPage", () => {
     expect(screen.queryByLabelText(/Access Token/i)).not.toBeInTheDocument();
 
     const alertsButton = screen.getByRole("navigation", { name: /Market Agent sections/i }).querySelector("[data-market-agent-section='alerts']")!;
-    expect(alertsButton.querySelector(".market-agent-nav-badge")).toHaveTextContent("2");
+    expect(alertsButton.querySelector(".market-agent-nav-badge")).toHaveTextContent("1");
     fireEvent.click(alertsButton);
     expect(screen.getByRole("heading", { name: /^Alerts$/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/Alert summary/i)).toBeInTheDocument();
-    expect(screen.getByText(/1 sent/i)).toBeInTheDocument();
-    expect(screen.getByText(/1 hidden duplicate/i)).toBeInTheDocument();
+    expect(screen.getByText(/1 attention item/i)).toBeInTheDocument();
+    expect(screen.getByText(/1 quiet repeat hidden/i)).toBeInTheDocument();
+    expect(screen.getByText(/Telegram is off, so nothing is sent there/i)).toBeInTheDocument();
+    expect(screen.getByText(/Driver US yields/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Driver not confirmed/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Sent$/i)).not.toBeInTheDocument();
     expect(container.querySelector(".market-agent-alert-lane")).not.toBeInTheDocument();
-    expect(container.querySelectorAll(".market-agent-alert-card").length).toBeGreaterThan(0);
+    expect(container.querySelectorAll(".market-agent-alert-card")).toHaveLength(1);
     expect(container.querySelector(".market-agent-alerts-list .market-agent-evidence-mini-row")).not.toBeInTheDocument();
     await waitFor(() => expect(alertsButton.querySelector(".market-agent-nav-badge")).not.toBeInTheDocument());
 
@@ -1053,31 +1057,30 @@ describe("MarketAgentPage", () => {
   });
 
   it("shows guided Local AI status and model pull progress", () => {
-    const noOllamaSetup: MarketAgentLLMSetupResponse = {
+    const noRuntimeSetup: MarketAgentLLMSetupResponse = {
       ...localAiSetup,
       ok: false,
       available: true,
-      status: "ollama_not_installed",
-      message: "Ollama is not installed.",
+      status: "runtime_installing",
+      message: "Local AI runtime will be prepared automatically when needed.",
       ollama: {
         installed: false,
         running: false,
         endpointReachable: false,
-        endpoint: "http://localhost:11434",
-        installerUrl: "https://ollama.com/download"
+        endpoint: "http://127.0.0.1:21434"
       }
     };
 
-    renderMarketAgentPage({ localAiSetup: noOllamaSetup });
+    renderMarketAgentPage({ localAiSetup: noRuntimeSetup });
     fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
     fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
 
-    expect(screen.getByText(/Ollama not installed/i)).toBeInTheDocument();
-    expect(screen.getByText(/https:\/\/ollama\.com\/download/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Download recommended/i })).toBeDisabled();
+    expect(screen.getAllByText(/Runtime will be prepared/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/prepared automatically/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Download recommended/i })).toBeEnabled();
   });
 
-  it("renders Ollama pull progress bytes and percent while downloading", () => {
+  it("renders Local AI pull progress bytes and percent while downloading", () => {
     const progress: MarketAgentOllamaPullProgress = {
       model: "qwen3.5:4b",
       status: "downloading model",
@@ -1094,8 +1097,201 @@ describe("MarketAgentPage", () => {
     expect(screen.getAllByText(/Downloading model/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/1450000000 \/ 2900000000 bytes/i)).toBeInTheDocument();
     expect(screen.getByText(/50\.0%/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Downloading Qwen3\.5 4B/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /^Downloading$/i })).toBeDisabled();
     expect(screen.getByRole("button", { name: /Cancel download/i })).toBeInTheDocument();
+  });
+
+  it("does not label cTrader as live when only login is saved", () => {
+    renderMarketAgentPage({
+      providerConfig: {
+        ...providerConfig,
+        ctrader: {
+          ...providerConfig.ctrader!,
+          enabled: true,
+          accountId: "8941207"
+        }
+      },
+      providerHealth: {
+        ...providerHealth,
+        items: [
+          {
+            provider_key: "ctrader_spot",
+            source: "cTrader",
+            source_type: "spot",
+            data_mode: "unavailable",
+            is_available: false,
+            is_stale: false,
+            error: "The installed cTrader CLI supports account and symbol checks, but does not expose live quotes."
+          },
+          ...providerHealth.items
+        ]
+      }
+    });
+    fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
+
+    expect(screen.getAllByText(/Preparing live feed/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/Preparing the live XAUUSD feed/i)).toBeInTheDocument();
+    expect(screen.queryByText(/cTrader live/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/does not expose live quotes/i)).not.toBeInTheDocument();
+  });
+
+  it("shows immediate Local AI download status before backend progress arrives", async () => {
+    let resolveInstall: (value: MarketAgentLLMActionResponse) => void = () => {};
+    const installModel = vi.fn(
+      () =>
+        new Promise<MarketAgentLLMActionResponse>((resolve) => {
+          resolveInstall = resolve;
+        })
+    );
+
+    renderMarketAgentPage({ onInstallRecommendedModel: installModel });
+    fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /Download recommended/i }));
+    });
+
+    expect(screen.getByText(/Preparing Local AI runtime/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Preparing$/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Cancel download/i })).toBeInTheDocument();
+
+    await act(async () => {
+      resolveInstall({
+        ok: true,
+        status: "download_started",
+        model: "qwen3.5:4b",
+        message: "Local AI model download is running in the background.",
+        done: false
+      });
+    });
+
+    expect(screen.getByRole("button", { name: /^Preparing$/i })).toBeDisabled();
+    expect(screen.getByText(/Local AI model download is running in the background/i)).toBeInTheDocument();
+  });
+
+  it("shows cancelled Local AI progress immediately after cancel", async () => {
+    const installModel = vi.fn(
+      () =>
+        Promise.resolve({
+          ok: true,
+          status: "download_started",
+          model: "qwen3.5:4b",
+          message: "Local AI model download is running in the background.",
+          done: false
+        })
+    );
+    const cancelModel = vi.fn(() =>
+      Promise.resolve({
+        ok: true,
+        status: "cancelled",
+        model: "qwen3.5:4b",
+        message: "Model download cancelled.",
+        done: true
+      })
+    );
+
+    renderMarketAgentPage({ onInstallRecommendedModel: installModel, onCancelModelDownload: cancelModel });
+    fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /Download recommended/i }));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /Cancel download/i }));
+    });
+
+    expect(cancelModel).toHaveBeenCalledWith("qwen3.5:4b");
+    expect(screen.getAllByText(/^Cancelled$/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Model download cancelled/i).length).toBeGreaterThan(0);
+    expect(screen.queryByRole("button", { name: /Cancel download/i })).not.toBeInTheDocument();
+  });
+
+  it("formats monitor timestamps and does not expose raw epoch values", () => {
+    renderMarketAgentPage({ monitorStatus: { ...monitorStatus, lastRunAt: 1779306621 } });
+    fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Monitoring$/i }));
+
+    const lastCheck = screen.getByText(/^Last check$/i).closest("div");
+    expect(lastCheck).toHaveTextContent(/\d{2}-\d{2} \d{2}:\d{2}/);
+    expect(lastCheck).not.toHaveTextContent("1779306621");
+  });
+
+  it("keeps month replay focused on meaningful market turns", () => {
+    const noisyReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        timeline_events: [
+          ...replay.replay.timeline_events,
+          {
+            monitor_run_id: 88,
+            event_time: "2026-05-21T03:50:00+08:00",
+            event_type: "analysis",
+            label: "unknown",
+            payload: { semantic_type: "evidence", impact_percent: 0.32, main_driver: "unknown" }
+          },
+          {
+            monitor_run_id: 89,
+            event_time: "2026-05-21T03:50:00+08:00",
+            event_type: "recovery",
+            label: "backfill",
+            payload: { semantic_type: "recovery", data_mode: "backfilled", main_driver: "unknown" }
+          },
+          {
+            monitor_run_id: 92,
+            event_time: "2026-05-19T07:15:00+08:00",
+            event_type: "market_alert",
+            label: "yields",
+            payload: { semantic_type: "breakout", impact_percent: -0.49, main_driver: "yields" }
+          },
+          {
+            monitor_run_id: 93,
+            event_time: "2026-05-19T07:15:00+08:00",
+            event_type: "market_alert",
+            label: "yields",
+            payload: { semantic_type: "breakout", impact_percent: -0.49, main_driver: "yields" }
+          }
+        ],
+        alerts: [
+          ...replay.replay.alerts,
+          {
+            monitor_run_id: 90,
+            run_started_at: "2026-05-21T03:50:00+08:00",
+            should_notify: true,
+            notification_level: "level_2",
+            message: "Alert",
+            main_driver: "unknown",
+            semantic_type: "evidence",
+            impact_percent: 0.32
+          }
+        ],
+        suppressed_alerts: [
+          ...replay.replay.suppressed_alerts,
+          {
+            monitor_run_id: 91,
+            run_started_at: "2026-05-21T03:50:00+08:00",
+            should_notify: false,
+            notification_level: "level_1",
+            message: "Suppressed duplicate"
+          }
+        ]
+      }
+    };
+
+    renderMarketAgentPage({ replay: noisyReplay, rangePreset: "month" });
+    fireEvent.click(screen.getByRole("button", { name: /Replay \/ Timeline/i }));
+
+    expect(screen.getByText(/Month: Major Turns/i)).toBeInTheDocument();
+    expect(screen.queryByText(/^backfill$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^unknown$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Alert$/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/Yields pressure/i)).toBeInTheDocument();
+    expect(screen.getByText(/3 major turns/i)).toBeInTheDocument();
+    expect(screen.getByText(/XAUUSD drop -0\.49%/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/US yields · Monitor timeline/i)).toHaveLength(2);
+    expect(screen.queryAllByText(/^yields$/i)).toHaveLength(0);
   });
 
   it("applies Local AI fallback policy returned after model installation", async () => {
@@ -1129,8 +1325,8 @@ describe("MarketAgentPage", () => {
   it("supports the guided setup path from cTrader CLI credentials through Local AI model install", async () => {
     const startCTraderConnect = vi.fn().mockResolvedValue({
       ok: true,
-      status: "connected",
-      message: "cTrader CLI credentials saved and checked.",
+      status: "preparing_live_feed",
+      message: "cTrader is connected. Preparing live XAUUSD and syncing history in the background.",
       ctrader: providerConfig.ctrader
     });
     const quoteTest = vi.fn().mockResolvedValue({
@@ -1237,7 +1433,7 @@ describe("MarketAgentPage", () => {
         onSaveTelegramConfig={async () => telegramConfig}
         onTestTelegramMessage={async () => ({ ok: true, status: "sent", message: "Telegram test message sent." })}
         onSaveLLMConfig={async () => llmConfig}
-        onTestLLMConnection={async () => ({ ok: true, status: "available", message: "Ollama is available." })}
+        onTestLLMConnection={async () => ({ ok: true, status: "available", message: "Local AI is available." })}
         onTestLLMJsonResponse={async () => ({ ok: true, status: "available", message: "Model returned valid JSON." })}
         onRunMonitorOnce={async () => monitorStatus}
         onRunBackfillRecovery={async () => ({ ...monitorStatus, phase: "recovery_completed", message: "Backfill recovery completed." })}
@@ -1389,7 +1585,7 @@ describe("MarketAgentPage", () => {
         onSaveTelegramConfig={async () => telegramConfig}
         onTestTelegramMessage={async () => ({ ok: true, status: "sent", message: "Telegram test message sent." })}
         onSaveLLMConfig={async () => llmConfig}
-        onTestLLMConnection={async () => ({ ok: true, status: "available", message: "Ollama is available." })}
+        onTestLLMConnection={async () => ({ ok: true, status: "available", message: "Local AI is available." })}
         onTestLLMJsonResponse={async () => ({ ok: true, status: "available", message: "Model returned valid JSON." })}
         onRunMonitorOnce={async () => monitorStatus}
         onRunBackfillRecovery={async () => ({ ...monitorStatus, phase: "recovery_completed", message: "Backfill recovery completed." })}
@@ -1449,7 +1645,7 @@ describe("MarketAgentPage", () => {
         onSaveTelegramConfig={async () => telegramConfig}
         onTestTelegramMessage={async () => ({ ok: false, status: "failed", error: "telegram unavailable" })}
         onSaveLLMConfig={async () => llmConfig}
-        onTestLLMConnection={async () => ({ ok: false, status: "unavailable", error: "ollama unavailable" })}
+        onTestLLMConnection={async () => ({ ok: false, status: "unavailable", error: "Local AI unavailable" })}
         onTestLLMJsonResponse={async () => ({ ok: false, status: "invalid_json", error: "invalid json" })}
         onRunMonitorOnce={async () => monitorStatus}
         onRunBackfillRecovery={async () => ({ ...monitorStatus, phase: "recovery_failed", lastError: "recovery unavailable" })}

@@ -704,8 +704,8 @@
   min-width: 0;
 }
 
-.market-agent-ai-summary-row span,
-.market-agent-ai-summary-action span {
+.market-agent-ai-summary-row > div:first-child > span,
+.market-agent-ai-summary-action > span {
   display: block;
   color: #f6b450;
   font-size: 10px;
@@ -734,16 +734,17 @@
 }
 
 .market-agent-ai-summary-action {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  display: grid;
+  grid-template-columns: minmax(190px, max-content) max-content;
+  justify-content: end;
   align-items: center;
   gap: 8px;
-  max-width: 360px;
+  min-width: 340px;
+  max-width: 380px;
 }
 
-.market-agent-ai-summary-action span {
-  flex: 1 0 100%;
+.market-agent-ai-summary-action > span {
+  grid-column: 1 / -1;
   color: var(--text-secondary, #9aa4b2);
   letter-spacing: 0;
   text-align: right;
@@ -1342,6 +1343,101 @@
   font-size: 13px;
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.market-agent-inline-spinner {
+  display: inline-block;
+  flex: 0 0 auto;
+  align-self: center;
+  width: 13px;
+  height: 13px;
+  margin-right: 7px;
+  border-radius: 999px;
+  border: 2px solid rgba(20, 20, 20, 0.22);
+  border-top-color: rgba(20, 20, 20, 0.74);
+  animation: market-agent-spin 760ms linear infinite;
+  vertical-align: -2px;
+}
+
+.market-agent-model-download-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  flex: 0 0 auto;
+  width: 190px;
+  min-width: 190px;
+  max-width: 190px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.market-agent-model-download-button .market-agent-inline-spinner {
+  margin-right: 0;
+}
+
+.market-agent-model-download-label {
+  display: inline-flex;
+  min-width: 0;
+  overflow: hidden;
+  color: inherit;
+  font: inherit;
+  letter-spacing: 0;
+  line-height: inherit;
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.market-agent-model-download-card {
+  border-color: rgba(41, 214, 139, 0.18);
+  background: rgba(41, 214, 139, 0.045);
+}
+
+.market-agent-download-progress {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 5px;
+  margin-top: 5px;
+  border-radius: 999px;
+  background: rgba(134, 148, 168, 0.16);
+}
+
+.market-agent-download-progress span {
+  display: block;
+  height: 100%;
+  min-width: 18px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #29d68b, #f6b450);
+  transition: width 180ms ease;
+}
+
+.market-agent-download-progress.settled span {
+  transition: none;
+}
+
+.market-agent-download-stage {
+  display: block;
+  color: var(--text, #f5f7fb);
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+@keyframes market-agent-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes market-agent-download-sweep {
+  0% {
+    transform: translateX(-110%);
+  }
+
+  100% {
+    transform: translateX(270%);
+  }
 }
 
 .market-agent-provider-config-result-body ul {

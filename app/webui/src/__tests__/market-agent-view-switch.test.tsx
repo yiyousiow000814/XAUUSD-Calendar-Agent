@@ -168,7 +168,7 @@ vi.mock("../api", () => ({
     testCTraderConnection: vi.fn().mockResolvedValue({ ok: true }),
     resolveCTraderSymbol: vi.fn().mockResolvedValue({ ok: true }),
     getCTraderQuoteTest: vi.fn().mockResolvedValue({ ok: true }),
-    startCTraderConnect: vi.fn().mockResolvedValue({ ok: true, status: "connected", message: "cTrader CLI credentials saved and checked." }),
+    startCTraderConnect: vi.fn().mockResolvedValue({ ok: true, status: "preparing_live_feed", message: "cTrader is connected. Preparing live XAUUSD and syncing history in the background." }),
     clearCTraderConfig: vi.fn().mockResolvedValue({ ok: true, available: true, ctrader: null }),
     setCurrency: vi.fn().mockResolvedValue({ ok: true }),
     frontendBootComplete: vi.fn().mockResolvedValue({ ok: true }),

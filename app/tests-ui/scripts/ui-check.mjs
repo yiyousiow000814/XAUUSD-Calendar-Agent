@@ -4225,6 +4225,37 @@ const main = async () => {
             problems.push(`Auto Local AI shows hidden advanced button ${label}`);
           }
         }
+        const downloadButton = Array.from(root.querySelectorAll("button")).find((button) =>
+          /Download recommended|Download model|Preparing|Downloading/i.test(button.textContent || "")
+        );
+        if (downloadButton instanceof HTMLElement) {
+          const spinnerProbe = document.createElement("span");
+          spinnerProbe.className = "market-agent-inline-spinner";
+          spinnerProbe.setAttribute("aria-hidden", "true");
+          downloadButton.insertBefore(spinnerProbe, downloadButton.firstChild);
+          const buttonBox = downloadButton.getBoundingClientRect();
+          const spinnerBox = spinnerProbe.getBoundingClientRect();
+          const centerDelta = Math.abs((spinnerBox.top + spinnerBox.height / 2) - (buttonBox.top + buttonBox.height / 2));
+          spinnerProbe.remove();
+          if (centerDelta > 3) {
+            problems.push(`Local AI loading spinner is not vertically centered (${centerDelta.toFixed(1)}px)`);
+          }
+        }
+        const downloadRect = downloadButton instanceof HTMLElement ? downloadButton.getBoundingClientRect() : null;
+        const cancelButton = Array.from(root.querySelectorAll("button")).find((button) =>
+          /Cancel download/i.test(button.textContent || "")
+        );
+        if (downloadRect && cancelButton instanceof HTMLElement) {
+          const cancelRect = cancelButton.getBoundingClientRect();
+          const overlapX = Math.max(0, Math.min(downloadRect.right, cancelRect.right) - Math.max(downloadRect.left, cancelRect.left));
+          const overlapY = Math.max(0, Math.min(downloadRect.bottom, cancelRect.bottom) - Math.max(downloadRect.top, cancelRect.top));
+          if (overlapX > 0 && overlapY > 0) {
+            problems.push("Local AI download and cancel buttons overlap");
+          }
+          if (downloadButton.scrollWidth > downloadButton.clientWidth + 2) {
+            problems.push("Local AI download button text overflows");
+          }
+        }
         return problems;
       });
       if (localAIProblems.length) {
@@ -4235,6 +4266,91 @@ const main = async () => {
         theme: theme.key,
         state: "visible",
         path: await captureState(page, "market-agent-local-ai", theme.key, "visible", {
+          element: providerConfig
+        })
+      });
+      await providerConfig.getByRole("button", { name: /Download recommended|Download model/i }).first().click();
+      await providerConfig.getByRole("button", { name: /^Preparing$/i }).waitFor({ state: "visible", timeout: 2000 });
+      const localAILoadingProblems = await providerConfig.evaluate((root) => {
+        const problems = [];
+        const toRgb = (value) => {
+          const match = String(value || "").match(/rgba?\(([^)]+)\)/);
+          if (!match) return null;
+          const parts = match[1]
+            .split(",")
+            .slice(0, 3)
+            .map((part) => Number.parseFloat(part.trim()));
+          return parts.length === 3 && parts.every((part) => Number.isFinite(part)) ? parts : null;
+        };
+        const relativeLuminance = (rgb) => {
+          const [rs, gs, bs] = rgb.map((value) => {
+            const channel = value / 255;
+            return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+          });
+          return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+        };
+        const downloadButton = Array.from(root.querySelectorAll("button")).find((button) =>
+          /^Preparing$|^Downloading$/i.test((button.textContent || "").replace(/\s+/g, " ").trim())
+        );
+        const cancelButton = Array.from(root.querySelectorAll("button")).find((button) =>
+          /Cancel download/i.test(button.textContent || "")
+        );
+        if (!(downloadButton instanceof HTMLElement)) {
+          problems.push("Local AI loading button is missing");
+        }
+        if (!(cancelButton instanceof HTMLElement)) {
+          problems.push("Local AI cancel button is missing while download is active");
+        }
+        if (downloadButton instanceof HTMLElement && cancelButton instanceof HTMLElement) {
+          const downloadRect = downloadButton.getBoundingClientRect();
+          const cancelRect = cancelButton.getBoundingClientRect();
+          const overlapX = Math.max(0, Math.min(downloadRect.right, cancelRect.right) - Math.max(downloadRect.left, cancelRect.left));
+          const overlapY = Math.max(0, Math.min(downloadRect.bottom, cancelRect.bottom) - Math.max(downloadRect.top, cancelRect.top));
+          if (overlapX > 0 && overlapY > 0) {
+            problems.push("Local AI loading controls overlap");
+          }
+          if (downloadButton.scrollWidth > downloadButton.clientWidth + 2) {
+            problems.push("Local AI loading button text overflows");
+          }
+          const spinner = downloadButton.querySelector(".market-agent-inline-spinner");
+          if (!(spinner instanceof HTMLElement)) {
+            problems.push("Local AI loading spinner is missing");
+          } else {
+            const spinnerRect = spinner.getBoundingClientRect();
+            const centerDelta = Math.abs((spinnerRect.top + spinnerRect.height / 2) - (downloadRect.top + downloadRect.height / 2));
+            if (centerDelta > 3) {
+              problems.push(`Local AI loading spinner is not vertically centered (${centerDelta.toFixed(1)}px)`);
+            }
+          }
+        }
+        const stage = root.querySelector(".market-agent-download-stage");
+        if (!(stage instanceof HTMLElement)) {
+          problems.push("Local AI loading stage text is missing");
+        } else {
+          const rgb = toRgb(window.getComputedStyle(stage).color);
+          if (!rgb) {
+            problems.push("Local AI loading stage text color is not readable");
+          } else {
+            const luminance = relativeLuminance(rgb);
+            const theme = document.documentElement.getAttribute("data-theme") || "";
+            if (theme === "light" && luminance > 0.42) {
+              problems.push(`Local AI loading stage text is too light in light mode (${luminance.toFixed(2)})`);
+            }
+            if (theme !== "light" && luminance < 0.5) {
+              problems.push(`Local AI loading stage text is too dark in dark mode (${luminance.toFixed(2)})`);
+            }
+          }
+        }
+        return problems;
+      });
+      if (localAILoadingProblems.length) {
+        throw new Error(localAILoadingProblems.join("; "));
+      }
+      artifacts.push({
+        scenario: "market-agent-local-ai",
+        theme: theme.key,
+        state: "loading",
+        path: await captureState(page, "market-agent-local-ai", theme.key, "loading", {
           element: providerConfig
         })
       });
@@ -4279,8 +4395,11 @@ const main = async () => {
           return problems;
         }
         const cards = Array.from(list.querySelectorAll(".market-agent-alert-card"));
-        if (cards.length < 2) {
-          problems.push(`Market Agent Alerts page is too sparse (${cards.length} cards)`);
+        if (cards.length < 1) {
+          problems.push(`Market Agent Alerts page has no attention cards`);
+        }
+        if (/(\bSent\b|sent alerts)/i.test(list.textContent || "")) {
+          problems.push("Market Agent Alerts page should not describe internal attention records as sent");
         }
         if (list.querySelector(".market-agent-evidence-mini-row")) {
           problems.push("Market Agent Alerts page still uses the dense evidence mini-row layout");
@@ -4294,7 +4413,7 @@ const main = async () => {
           const title = card.querySelector(".market-agent-alert-title-row strong");
           const badge = card.querySelector(".market-agent-status-badge");
           const time = card.querySelector(".market-agent-alert-time");
-          if (!(marker instanceof HTMLElement) || !/^(Sent|Hidden)$/i.test((marker.textContent || "").trim())) {
+          if (!(marker instanceof HTMLElement) || !/^Attention$/i.test((marker.textContent || "").trim())) {
             problems.push(`Market Agent alert row ${index + 1} missing simple status marker`);
           }
           if (!(title instanceof HTMLElement) || !(badge instanceof HTMLElement) || !(time instanceof HTMLElement)) {
@@ -4328,6 +4447,51 @@ const main = async () => {
       });
       await page.locator("[data-qa='qa:action:view-calendar']").first().click();
       await page.locator("[data-qa='qa:card:next-events']").first().waitFor({ state: "visible", timeout: 4000 });
+    });
+
+    await runCheck(theme.key, "Market Agent month replay stays deduped and sourced", async () => {
+      await page.locator("[data-qa='qa:action:view-market-agent']").first().click();
+      await page.locator("[data-qa='qa:page:market-agent']").first().waitFor({ state: "visible", timeout: 4000 });
+      await page.locator("[data-market-agent-section='replay']").first().click();
+      await page.locator("[data-qa='qa:market-agent:range:month']").first().click();
+      await page.locator("[data-qa='qa:market-agent:timeline-list']").first().waitFor({ state: "visible", timeout: 4000 });
+      const replayProblems = await page.evaluate(() => {
+        const problems = [];
+        const rows = Array.from(document.querySelectorAll(".market-agent-replay-track-row"));
+        if (!rows.length) {
+          problems.push("Month replay has no visible rows to inspect");
+          return problems;
+        }
+        const seen = new Set();
+        rows.forEach((row, index) => {
+          if (!(row instanceof HTMLElement)) return;
+          const time = (row.querySelector("time")?.textContent || "").trim();
+          const title = (row.querySelector(".market-agent-replay-title-row strong")?.textContent || "").trim();
+          const meta = (row.querySelector(".market-agent-replay-meta-row span")?.textContent || "").trim();
+          const impact = (row.querySelector(".market-agent-replay-meta-row small")?.textContent || "").trim();
+          const key = [time, title, meta, impact].join("|").toLowerCase();
+          if (seen.has(key)) {
+            problems.push(`Month replay repeats the same marker: ${title || "empty"} at ${time || "empty time"}`);
+          }
+          seen.add(key);
+          if (/^(yields|usd|dxy|oil|geopolitics)$/i.test(title)) {
+            problems.push(`Month replay row ${index + 1} uses raw driver as title (${title})`);
+          }
+          if (!meta.includes("·")) {
+            problems.push(`Month replay row ${index + 1} does not show where the data came from (${meta})`);
+          }
+        });
+        return problems;
+      });
+      if (replayProblems.length) {
+        throw new Error(replayProblems.join("; "));
+      }
+      artifacts.push({
+        scenario: "market-agent-replay-month",
+        theme: theme.key,
+        state: "deduped",
+        path: await captureState(page, "market-agent-replay-month", theme.key, "deduped")
+      });
     });
 
     await runCheck(theme.key, "Market Agent setup checklist badges stay inside cards", async () => {

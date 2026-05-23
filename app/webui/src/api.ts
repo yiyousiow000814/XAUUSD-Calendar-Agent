@@ -70,7 +70,7 @@ type BackendApi = {
   test_market_agent_llm_json_response?: (payload: { llm: MarketAgentLLMConfigInput }) => ApiResult<MarketAgentLLMActionResponse>;
   detect_local_ai_setup?: (payload: Record<string, unknown>) => ApiResult<MarketAgentLLMSetupResponse>;
   pull_ollama_model?: (payload: { model: string; endpoint?: string }) => ApiResult<MarketAgentLLMActionResponse>;
-  cancel_model_download?: (_payload: Record<string, never>) => ApiResult<MarketAgentLLMActionResponse>;
+  cancel_model_download?: (payload: { model?: string }) => ApiResult<MarketAgentLLMActionResponse>;
   benchmark_llm?: (payload: { llm: MarketAgentLLMConfigInput }) => ApiResult<MarketAgentLLMActionResponse>;
   apply_llm_fallback_policy?: (payload: Record<string, unknown>) => ApiResult<MarketAgentLLMActionResponse>;
   get_market_agent_telegram_config?: (_payload: Record<string, never>) => ApiResult<MarketAgentTelegramConfigResponse>;
@@ -743,7 +743,7 @@ const buildMockMarketAgentLLMConfig = (): MarketAgentLLMConfigResponse => ({
   llm: {
     enabled: false,
     provider: "ollama",
-    endpoint: "http://localhost:11434",
+    endpoint: "http://127.0.0.1:21434",
     model: "qwen3.5:4b",
     temperature: 0.1,
     timeoutSeconds: 20,
@@ -777,7 +777,7 @@ const buildMockMarketAgentLLMSetup = (
     installed: true,
     running: true,
     endpointReachable: true,
-    endpoint: "http://localhost:11434",
+    endpoint: "http://127.0.0.1:21434",
     version: "0.9.0"
   },
   installedModels: [],
@@ -801,7 +801,7 @@ const buildMockMarketAgentLLMAction = (
 ): MarketAgentLLMActionResponse => ({
   ok: true,
   status: "available",
-  message: "Ollama is available and returned valid JSON.",
+  message: "Local AI is available and returned valid JSON.",
   llm: buildMockMarketAgentLLMConfig().llm ?? null,
   ...overrides
 });
@@ -1665,14 +1665,14 @@ export const backend = {
   },
   testMarketAgentLLMConnection: async (llm: MarketAgentLLMConfigInput): ApiResult<MarketAgentLLMActionResponse> => {
     if (isUiCheckRuntime()) {
-      return Promise.resolve(buildMockMarketAgentLLMAction({ message: "Ollama is available." }));
+      return Promise.resolve(buildMockMarketAgentLLMAction({ message: "Local AI is available." }));
     }
     const api = await withApi();
     if (!api || !hasMethod(api, "test_market_agent_llm_connection")) {
       if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
-      return Promise.resolve(buildMockMarketAgentLLMAction({ message: "Ollama is available." }));
+      return Promise.resolve(buildMockMarketAgentLLMAction({ message: "Local AI is available." }));
     }
     return api.test_market_agent_llm_connection({ llm });
   },
@@ -1704,23 +1704,37 @@ export const backend = {
   },
   pullOllamaModel: async (model: string, endpoint?: string): ApiResult<MarketAgentLLMActionResponse> => {
     if (isUiCheckRuntime()) {
-      return Promise.resolve(buildMockMarketAgentLLMAction({ status: "model_ready", model, message: "Model ready." }));
+      return Promise.resolve(
+        buildMockMarketAgentLLMAction({
+          status: "download_started",
+          model,
+          message: "Local AI model download is running in the background.",
+          done: false
+        })
+      );
     }
     const api = await withApi();
     if (!api || !hasMethod(api, "pull_ollama_model")) {
       if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
-      return Promise.resolve(buildMockMarketAgentLLMAction({ status: "model_ready", model, message: "Model ready." }));
+      return Promise.resolve(
+        buildMockMarketAgentLLMAction({
+          status: "download_started",
+          model,
+          message: "Local AI model download is running in the background.",
+          done: false
+        })
+      );
     }
     return api.pull_ollama_model({ model, endpoint });
   },
-  cancelModelDownload: async (): ApiResult<MarketAgentLLMActionResponse> => {
+  cancelModelDownload: async (model?: string): ApiResult<MarketAgentLLMActionResponse> => {
     const api = await withApi();
     if (!api || !hasMethod(api, "cancel_model_download")) {
-      return Promise.resolve({ ok: true, status: "cancelled", message: "Model download cancelled." });
+      return Promise.resolve({ ok: true, status: "cancelled", model, message: "Model download cancelled.", done: true });
     }
-    return api.cancel_model_download({});
+    return api.cancel_model_download({ model });
   },
   benchmarkMarketAgentLLM: async (llm: MarketAgentLLMConfigInput): ApiResult<MarketAgentLLMActionResponse> => {
     if (isUiCheckRuntime()) {
@@ -1841,8 +1855,8 @@ export const backend = {
     if (isUiCheckRuntime()) {
       return Promise.resolve({
         ok: true,
-        status: "connected",
-        message: "cTrader CLI credentials saved and checked.",
+        status: "preparing_live_feed",
+        message: "cTrader is connected. Preparing live XAUUSD and syncing history in the background.",
         ctrader: buildMockMarketAgentProviderConfig().ctrader ?? null
       });
     }

@@ -10,10 +10,16 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use tauri::Emitter;
 
+#[cfg(target_os = "windows")]
+use std::os::windows::process::CommandExt;
+
 type LatestMonitorRun = (i64, String, String);
 type LatestPayloadRows = (Option<i64>, Option<String>, Vec<Value>);
 static CANCEL_OLLAMA_PULL: AtomicBool = AtomicBool::new(false);
-const DEFAULT_OLLAMA_ENDPOINT: &str = "http://localhost:11434";
+const DEFAULT_OLLAMA_ENDPOINT: &str = "http://127.0.0.1:21434";
+const LEGACY_OLLAMA_ENDPOINT: &str = "http://localhost:11434";
+#[cfg(target_os = "windows")]
+const CREATE_NO_WINDOW: u32 = 0x08000000;
 
 fn repo_root_from_manifest() -> Option<PathBuf> {
     let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -68,6 +74,10 @@ fn telegram_config_path_for_root(root: &Path) -> PathBuf {
 
 fn llm_config_path_for_root(root: &Path) -> PathBuf {
     root.join("market-agent-llm.json")
+}
+
+fn local_ai_models_dir() -> PathBuf {
+    config::appdata_dir().join("local-ai").join("models")
 }
 
 fn read_json_object(path: &Path) -> serde_json::Map<String, Value> {
@@ -402,7 +412,7 @@ fn merged_llm_config_for_root(root: &Path, override_payload: Option<&Value>) -> 
     json!({
         "enabled": get_bool("enabled", false),
         "provider": get_str("provider", "ollama"),
-        "endpoint": get_str("endpoint", "http://localhost:11434"),
+        "endpoint": normalize_local_ai_endpoint(&get_str("endpoint", DEFAULT_OLLAMA_ENDPOINT)),
         "model": get_str("model", "qwen3.5:4b"),
         "temperature": get_f64("temperature", 0.1),
         "timeoutSeconds": get_i64("timeoutSeconds", 20),
@@ -422,7 +432,12 @@ fn masked_llm_config_for_root(root: &Path) -> Value {
         "llm": {
             "enabled": merged.get("enabled").and_then(Value::as_bool).unwrap_or(false),
             "provider": merged.get("provider").and_then(Value::as_str).unwrap_or("ollama"),
-            "endpoint": merged.get("endpoint").and_then(Value::as_str).unwrap_or("http://localhost:11434"),
+            "endpoint": normalize_local_ai_endpoint(
+                merged
+                    .get("endpoint")
+                    .and_then(Value::as_str)
+                    .unwrap_or(DEFAULT_OLLAMA_ENDPOINT),
+            ),
             "model": merged.get("model").and_then(Value::as_str).unwrap_or("qwen3.5:4b"),
             "temperature": merged.get("temperature").and_then(Value::as_f64).unwrap_or(0.1),
             "timeoutSeconds": merged.get("timeoutSeconds").and_then(Value::as_i64).unwrap_or(20),
@@ -466,11 +481,12 @@ fn llm_env_for_root(root: &Path) -> HashMap<String, String> {
     );
     env.insert(
         "LOCAL_LLM_ENDPOINT".to_string(),
-        merged
-            .get("endpoint")
-            .and_then(Value::as_str)
-            .unwrap_or("http://localhost:11434")
-            .to_string(),
+        normalize_local_ai_endpoint(
+            merged
+                .get("endpoint")
+                .and_then(Value::as_str)
+                .unwrap_or(DEFAULT_OLLAMA_ENDPOINT),
+        ),
     );
     env.insert(
         "LOCAL_LLM_MODEL".to_string(),
@@ -757,7 +773,7 @@ fn detect_system_profile_value() -> Value {
 }
 
 fn endpoint_from_payload(payload: &Value) -> String {
-    payload
+    let endpoint = payload
         .get("endpoint")
         .and_then(Value::as_str)
         .or_else(|| {
@@ -768,6 +784,26 @@ fn endpoint_from_payload(payload: &Value) -> String {
         })
         .unwrap_or(DEFAULT_OLLAMA_ENDPOINT)
         .trim()
+        .trim_end_matches('/')
+        .to_string();
+    normalize_local_ai_endpoint(&endpoint)
+}
+
+fn normalize_local_ai_endpoint(endpoint: &str) -> String {
+    let trimmed = endpoint.trim().trim_end_matches('/');
+    if trimmed.is_empty()
+        || trimmed.eq_ignore_ascii_case(LEGACY_OLLAMA_ENDPOINT)
+        || trimmed.eq_ignore_ascii_case("http://127.0.0.1:11434")
+    {
+        return DEFAULT_OLLAMA_ENDPOINT.to_string();
+    }
+    trimmed.to_string()
+}
+
+fn ollama_host_from_endpoint(endpoint: &str) -> String {
+    normalize_local_ai_endpoint(endpoint)
+        .trim_start_matches("http://")
+        .trim_start_matches("https://")
         .trim_end_matches('/')
         .to_string()
 }
@@ -796,24 +832,22 @@ fn check_ollama_installed_value() -> Value {
                 "installed": true,
                 "status": "installed",
                 "version": version,
-                "message": "Ollama is installed."
+                "message": "Local AI runtime is installed."
             })
         }
         Ok(output) => json!({
             "ok": false,
             "installed": false,
-            "status": "ollama_not_installed",
+            "status": "runtime_installing",
             "error": String::from_utf8_lossy(&output.stderr).trim().to_string(),
-            "installerUrl": "https://ollama.com/download",
-            "message": "Ollama is not installed. Install Ollama first, then return here."
+            "message": "Local AI runtime will be prepared automatically when needed."
         }),
         Err(err) => json!({
             "ok": false,
             "installed": false,
-            "status": "ollama_not_installed",
+            "status": "runtime_installing",
             "error": err.to_string(),
-            "installerUrl": "https://ollama.com/download",
-            "message": "Ollama is not installed. Install Ollama first, then return here."
+            "message": "Local AI runtime will be prepared automatically when needed."
         }),
     }
 }
@@ -827,22 +861,220 @@ fn check_ollama_running_value(endpoint: &str) -> Value {
                 "ok": true,
                 "running": true,
                 "endpointReachable": true,
-                "status": "ollama_running",
+                "status": "runtime_ready",
                 "endpoint": endpoint,
                 "version": payload.get("version").and_then(Value::as_str).unwrap_or(""),
-                "message": "Ollama endpoint is reachable."
+                "message": "Local AI runtime is reachable."
             })
         }
         Err(err) => json!({
             "ok": false,
             "running": false,
             "endpointReachable": false,
-            "status": "ollama_not_running",
+            "status": "runtime_starting",
             "endpoint": endpoint,
             "error": err.to_string(),
-            "message": "Ollama is installed but not running, or the endpoint is not reachable."
+            "message": "Local AI runtime is preparing."
         }),
     }
+}
+
+fn background_command(program: &str) -> Command {
+    let mut command = Command::new(program);
+    #[cfg(target_os = "windows")]
+    {
+        command.creation_flags(CREATE_NO_WINDOW);
+    }
+    command
+}
+
+fn spawn_ollama_serve(endpoint: &str) -> Result<(), String> {
+    let models_dir = local_ai_models_dir();
+    let _ = fs::create_dir_all(&models_dir);
+    background_command("ollama")
+        .arg("serve")
+        .env("OLLAMA_HOST", ollama_host_from_endpoint(endpoint))
+        .env("OLLAMA_MODELS", models_dir)
+        .stdin(Stdio::null())
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn()
+        .map(|_| ())
+        .map_err(|err| err.to_string())
+}
+
+#[cfg(target_os = "windows")]
+fn suppress_ollama_desktop_windows() {
+    let script = r#"
+for ($i = 0; $i -lt 45; $i++) {
+  Get-Process Ollama -ErrorAction SilentlyContinue |
+    Where-Object { $_.MainWindowHandle -ne 0 } |
+    ForEach-Object { $_.CloseMainWindow() | Out-Null }
+  Start-Sleep -Milliseconds 700
+}
+"#;
+    let _ = background_command("powershell")
+        .args([
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-WindowStyle",
+            "Hidden",
+            "-Command",
+            script,
+        ])
+        .stdin(Stdio::null())
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn();
+}
+
+#[cfg(target_os = "windows")]
+fn spawn_ollama_installer() -> Result<(), String> {
+    suppress_ollama_desktop_windows();
+    let result = background_command("winget")
+        .args([
+            "install",
+            "--id",
+            "Ollama.Ollama",
+            "-e",
+            "--silent",
+            "--accept-package-agreements",
+            "--accept-source-agreements",
+        ])
+        .stdin(Stdio::null())
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn()
+        .map(|_| ())
+        .map_err(|err| err.to_string());
+    suppress_ollama_desktop_windows();
+    result
+}
+
+#[cfg(not(target_os = "windows"))]
+fn spawn_ollama_installer() -> Result<(), String> {
+    Err("Automatic runtime installation is not available on this platform.".to_string())
+}
+
+fn wait_for_ollama_runtime(endpoint: &str, timeout: Duration) -> Value {
+    let deadline = Instant::now() + timeout;
+    loop {
+        if is_ollama_pull_cancelled() {
+            return json!({
+                "ok": false,
+                "running": false,
+                "endpointReachable": false,
+                "status": "cancelled",
+                "endpoint": endpoint,
+                "message": "Model download cancelled."
+            });
+        }
+        let running = check_ollama_running_value(endpoint);
+        if running
+            .get("running")
+            .and_then(Value::as_bool)
+            .unwrap_or(false)
+        {
+            return running;
+        }
+        if Instant::now() >= deadline {
+            return running;
+        }
+        std::thread::sleep(Duration::from_millis(700));
+    }
+}
+
+fn prepare_ollama_runtime(endpoint: &str) -> Value {
+    if is_ollama_pull_cancelled() {
+        return json!({
+            "ok": false,
+            "running": false,
+            "endpointReachable": false,
+            "status": "cancelled",
+            "endpoint": endpoint,
+            "message": "Model download cancelled."
+        });
+    }
+    let running = check_ollama_running_value(endpoint);
+    if running
+        .get("running")
+        .and_then(Value::as_bool)
+        .unwrap_or(false)
+    {
+        return running;
+    }
+
+    let installed = check_ollama_installed_value();
+    if installed
+        .get("installed")
+        .and_then(Value::as_bool)
+        .unwrap_or(false)
+    {
+        if is_ollama_pull_cancelled() {
+            return json!({
+                "ok": false,
+                "running": false,
+                "endpointReachable": false,
+                "status": "cancelled",
+                "endpoint": endpoint,
+                "message": "Model download cancelled."
+            });
+        }
+        match spawn_ollama_serve(endpoint) {
+            Ok(()) => {
+                let after_start = wait_for_ollama_runtime(endpoint, Duration::from_secs(18));
+                if after_start
+                    .get("running")
+                    .and_then(Value::as_bool)
+                    .unwrap_or(false)
+                {
+                    return after_start;
+                }
+                return json!({
+                    "ok": false,
+                    "running": false,
+                    "endpointReachable": false,
+                    "status": "runtime_starting",
+                    "endpoint": endpoint,
+                    "message": "Local AI runtime is still preparing in the background.",
+                    "error": after_start.get("error").and_then(Value::as_str).unwrap_or("")
+                });
+            }
+            Err(err) => {
+                return json!({
+                    "ok": false,
+                    "running": false,
+                    "endpointReachable": false,
+                    "status": "runtime_starting",
+                    "endpoint": endpoint,
+                    "message": "Local AI runtime is still preparing in the background.",
+                    "error": err
+                });
+            }
+        }
+    }
+
+    if is_ollama_pull_cancelled() {
+        return json!({
+            "ok": false,
+            "running": false,
+            "endpointReachable": false,
+            "status": "cancelled",
+            "endpoint": endpoint,
+            "message": "Model download cancelled."
+        });
+    }
+    let installer_result = spawn_ollama_installer();
+    json!({
+        "ok": false,
+        "running": false,
+        "endpointReachable": false,
+        "status": "runtime_installing",
+        "endpoint": endpoint,
+        "message": "Local AI runtime is being prepared in the background. Rule-based analysis remains active.",
+        "error": installer_result.err().unwrap_or_default()
+    })
 }
 
 fn list_ollama_models_value(endpoint: &str) -> Value {
@@ -874,7 +1106,7 @@ fn list_ollama_models_value(endpoint: &str) -> Value {
         }
         Err(err) => json!({
             "ok": false,
-            "status": "ollama_not_running",
+            "status": "runtime_starting",
             "endpoint": endpoint,
             "models": [],
             "modelNames": [],
@@ -906,15 +1138,14 @@ fn detect_local_ai_setup_value(root: &Path, payload: &Value) -> Value {
         return json!({
             "ok": true,
             "available": true,
-            "status": "ollama_not_installed",
-            "message": "Ollama is not installed. Install Ollama manually, then return to install the recommended model.",
+            "status": "runtime_installing",
+            "message": "Local AI runtime will be prepared automatically when needed.",
             "system": profile,
             "ollama": {
                 "installed": false,
                 "running": false,
                 "endpointReachable": false,
-                "endpoint": endpoint,
-                "installerUrl": "https://ollama.com/download"
+                "endpoint": endpoint
             },
             "installedModels": [],
             "recommendedModel": recommended,
@@ -933,8 +1164,8 @@ fn detect_local_ai_setup_value(root: &Path, payload: &Value) -> Value {
         return json!({
             "ok": true,
             "available": true,
-            "status": "ollama_not_running",
-            "message": "Ollama is installed but not running. Start Ollama, then return here.",
+            "status": "runtime_starting",
+            "message": "Local AI runtime will start automatically when needed.",
             "system": profile,
             "ollama": {
                 "installed": true,
@@ -1009,23 +1240,108 @@ fn normalize_pull_progress_line(model: &str, line: &str) -> Value {
     })
 }
 
+fn ollama_pull_cancelled_value(model: &str) -> Value {
+    json!({
+        "ok": false,
+        "status": "cancelled",
+        "model": model,
+        "message": "Model download cancelled.",
+        "percent": 0,
+        "done": true,
+    })
+}
+
+fn is_ollama_pull_cancelled() -> bool {
+    CANCEL_OLLAMA_PULL.load(Ordering::SeqCst)
+}
+
 fn run_ollama_pull(app: &tauri::AppHandle, payload: &Value) -> Value {
     let endpoint = endpoint_from_payload(payload);
     let model = model_from_payload(payload);
     CANCEL_OLLAMA_PULL.store(false, Ordering::SeqCst);
+    let starting = json!({
+        "model": model,
+        "status": "preparing runtime",
+        "message": "Preparing Local AI runtime...",
+        "completedBytes": Value::Null,
+        "totalBytes": Value::Null,
+        "percent": 5,
+        "done": false,
+    });
+    let _ = app.emit("market-agent:ollama-pull-progress", starting);
+    if is_ollama_pull_cancelled() {
+        let cancelled = ollama_pull_cancelled_value(&model);
+        let _ = app.emit("market-agent:ollama-pull-progress", cancelled.clone());
+        return cancelled;
+    }
+    let runtime_preparing = json!({
+        "model": model,
+        "status": "starting runtime",
+        "message": "Starting Local AI runtime...",
+        "completedBytes": Value::Null,
+        "totalBytes": Value::Null,
+        "percent": 15,
+        "done": false,
+    });
+    let _ = app.emit("market-agent:ollama-pull-progress", runtime_preparing);
+    if is_ollama_pull_cancelled() {
+        let cancelled = ollama_pull_cancelled_value(&model);
+        let _ = app.emit("market-agent:ollama-pull-progress", cancelled.clone());
+        return cancelled;
+    }
+    let running = prepare_ollama_runtime(&endpoint);
+    if is_ollama_pull_cancelled() {
+        let cancelled = ollama_pull_cancelled_value(&model);
+        let _ = app.emit("market-agent:ollama-pull-progress", cancelled.clone());
+        return cancelled;
+    }
+    if !running
+        .get("running")
+        .and_then(Value::as_bool)
+        .unwrap_or(false)
+    {
+        let message = running
+            .get("message")
+            .and_then(Value::as_str)
+            .unwrap_or("Local AI runtime is still preparing in the background.");
+        let failed = json!({
+            "ok": false,
+            "status": running.get("status").and_then(Value::as_str).unwrap_or("runtime_preparing"),
+            "model": model,
+            "message": message,
+            "error": running.get("error").and_then(Value::as_str).unwrap_or(""),
+            "done": true,
+        });
+        let _ = app.emit("market-agent:ollama-pull-progress", failed.clone());
+        return failed;
+    }
     let url = format!("{}/api/pull", endpoint.trim_end_matches('/'));
+    let requesting = json!({
+        "model": model,
+        "status": "requesting model",
+        "message": "Requesting Local AI model files...",
+        "completedBytes": Value::Null,
+        "totalBytes": Value::Null,
+        "percent": 25,
+        "done": false,
+    });
+    let _ = app.emit("market-agent:ollama-pull-progress", requesting);
     let response = match ureq::post(&url)
         .timeout(Duration::from_secs(60 * 60))
         .send_json(json!({ "name": model, "stream": true }))
     {
         Ok(response) => response,
         Err(err) => {
-            return json!({
+            let failed = json!({
                 "ok": false,
                 "status": "download_failed",
                 "model": model,
+                "message": "Local AI model could not finish downloading. Rule-based analysis remains active.",
                 "error": err.to_string(),
-            })
+                "done": true,
+            });
+            let _ = app.emit("market-agent:ollama-pull-progress", failed.clone());
+            return failed;
         }
     };
     let reader = BufReader::new(response.into_reader());
@@ -1038,13 +1354,8 @@ fn run_ollama_pull(app: &tauri::AppHandle, payload: &Value) -> Value {
         "done": false,
     });
     for line in reader.lines().map_while(Result::ok) {
-        if CANCEL_OLLAMA_PULL.load(Ordering::SeqCst) {
-            let cancelled = json!({
-                "ok": false,
-                "status": "cancelled",
-                "model": model,
-                "message": "Model download cancelled.",
-            });
+        if is_ollama_pull_cancelled() {
+            let cancelled = ollama_pull_cancelled_value(&model);
             let _ = app.emit("market-agent:ollama-pull-progress", cancelled.clone());
             return cancelled;
         }
@@ -1072,7 +1383,7 @@ fn run_ollama_pull(app: &tauri::AppHandle, payload: &Value) -> Value {
             "ok": false,
             "status": "model_missing",
             "model": model,
-            "message": "Model download completed, but Ollama did not report the model in the local model list.",
+            "message": "Model download completed, but Local AI did not report the model in the app model list.",
             "progress": last_progress,
         });
     }
@@ -2639,16 +2950,41 @@ pub fn detect_local_ai_setup(payload: Value) -> Value {
 
 #[tauri::command]
 pub fn pull_ollama_model(app: tauri::AppHandle, payload: Value) -> Value {
-    run_ollama_pull(&app, &payload)
+    let model = model_from_payload(&payload);
+    let starting = json!({
+        "model": model,
+        "status": "preparing runtime",
+        "message": "Preparing Local AI runtime...",
+        "completedBytes": Value::Null,
+        "totalBytes": Value::Null,
+        "percent": Value::Null,
+        "done": false,
+    });
+    let _ = app.emit("market-agent:ollama-pull-progress", starting);
+    std::thread::spawn(move || {
+        let _ = run_ollama_pull(&app, &payload);
+    });
+    json!({
+        "ok": true,
+        "status": "download_started",
+        "model": model,
+        "message": "Local AI model download is running in the background.",
+        "done": false
+    })
 }
 
 #[tauri::command]
-pub fn cancel_model_download(_payload: Value) -> Value {
+pub fn cancel_model_download(app: tauri::AppHandle, payload: Value) -> Value {
     CANCEL_OLLAMA_PULL.store(true, Ordering::SeqCst);
+    let model = model_from_payload(&payload);
+    let cancelled = ollama_pull_cancelled_value(&model);
+    let _ = app.emit("market-agent:ollama-pull-progress", cancelled.clone());
     json!({
         "ok": true,
-        "status": "cancelling",
-        "message": "Cancelling model download."
+        "status": "cancelled",
+        "model": model,
+        "message": "Model download cancelled.",
+        "done": true
     })
 }
 
@@ -2714,8 +3050,8 @@ pub fn start_ctrader_connect(payload: Value) -> Value {
             if result.get("ok").and_then(Value::as_bool).unwrap_or(false) {
                 json!({
                     "ok": true,
-                    "status": "connected",
-                    "message": result.get("message").and_then(Value::as_str).unwrap_or("cTrader CLI credentials saved and checked."),
+                    "status": "preparing_live_feed",
+                    "message": "cTrader is connected. Preparing live XAUUSD and syncing history in the background.",
                     "account": result.get("account").cloned().unwrap_or(Value::Null),
                     "symbol": result.get("symbol").cloned().unwrap_or(Value::Null),
                     "provider_health": result.get("provider_health").cloned().unwrap_or(Value::Null),
@@ -2725,7 +3061,7 @@ pub fn start_ctrader_connect(payload: Value) -> Value {
                 json!({
                     "ok": false,
                     "status": "connection_failed",
-                    "message": "cTrader CLI credentials were saved, but the connection check failed.",
+                    "message": "cTrader details were saved. The app will keep preparing the live feed in the background.",
                     "error": result.get("error").and_then(Value::as_str).unwrap_or("cTrader CLI connection failed."),
                     "ctrader": masked_ctrader_provider_config(&root).get("ctrader").cloned().unwrap_or(Value::Null),
                 })
@@ -2864,6 +3200,7 @@ mod tests {
         save_ctrader_provider_config, save_llm_config_for_root, save_telegram_config_for_root,
         start_monitor_loop_for_root, stop_monitor_loop_for_root, telegram_config_path_for_root,
         telegram_env_for_root, test_telegram_for_root, timeline_path_for_root,
+        DEFAULT_OLLAMA_ENDPOINT,
     };
     use rusqlite::{params, Connection};
     use serde_json::{json, Value};
@@ -3617,8 +3954,19 @@ mod tests {
             Some("qwen3.5:4b")
         );
         assert_eq!(
+            read_back
+                .get("llm")
+                .and_then(|value| value.get("endpoint"))
+                .and_then(Value::as_str),
+            Some(DEFAULT_OLLAMA_ENDPOINT)
+        );
+        assert_eq!(
             env.get("LOCAL_LLM_ENABLED").map(String::as_str),
             Some("true")
+        );
+        assert_eq!(
+            env.get("LOCAL_LLM_ENDPOINT").map(String::as_str),
+            Some(DEFAULT_OLLAMA_ENDPOINT)
         );
         assert_eq!(
             env.get("LOCAL_LLM_MODEL").map(String::as_str),
