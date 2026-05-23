@@ -5,9 +5,8 @@ previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q
 previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2026-03-05,03:00,,0.00,0.00
 previous_missing_filled,JPY::BoJ Monthly Report::none,JPY,BoJ Monthly Report,,2026-03-23,19:00,,0.00,0.00
 previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2026-04-16,02:00,,0.00,0.00
-previous_missing_filled,TRY::Gross FX Reserves::none,TRY,Gross FX Reserves,,2026-05-28,19:30,,61.23B,61.23B
-previous_missing_filled,USD::U.S. Baker Hughes Oil Rig Count::none,USD,U.S. Baker Hughes Oil Rig Count,,2026-05-30,01:00,,415,415
+previous_missing_filled,USD::U.S. Baker Hughes Oil Rig Count::none,USD,U.S. Baker Hughes Oil Rig Count,,2026-05-30,01:00,,425,425
 previous_missing_filled,"INR::FX Reserves, USD::none",INR,"FX Reserves, USD",,2026-05-29,19:30,,688.89B,688.89B
-previous_missing_filled,USD::U.S. Baker Hughes Total Rig Count::none,USD,U.S. Baker Hughes Total Rig Count,,2026-05-30,01:00,,551,551
+previous_missing_filled,USD::U.S. Baker Hughes Total Rig Count::none,USD,U.S. Baker Hughes Total Rig Count,,2026-05-30,01:00,,558,558
 previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q2),q2,2026-06-01,23:30,,4.3%,4.3%
 previous_missing_filled,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2026-05-28,09:30,,0.00,0.00

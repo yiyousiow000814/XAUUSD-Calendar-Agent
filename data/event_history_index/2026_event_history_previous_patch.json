@@ -1,5 +1,5 @@
 {
-  "generated_at": "22-05-2026 16:21",
+  "generated_at": "23-05-2026 15:53",
   "patches": [
     {
       "patch": "previous_missing_filled",
@@ -75,18 +75,6 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "TRY::Gross FX Reserves::none",
-      "cur": "TRY",
-      "event": "Gross FX Reserves",
-      "period": "",
-      "date": "2026-05-28",
-      "time": "19:30",
-      "previous_raw": "",
-      "prior_actual": "61.23B",
-      "previous_effective": "61.23B"
-    },
-    {
-      "patch": "previous_missing_filled",
       "event_id": "USD::U.S. Baker Hughes Oil Rig Count::none",
       "cur": "USD",
       "event": "U.S. Baker Hughes Oil Rig Count",
@@ -94,8 +82,8 @@
       "date": "2026-05-30",
       "time": "01:00",
       "previous_raw": "",
-      "prior_actual": "415",
-      "previous_effective": "415"
+      "prior_actual": "425",
+      "previous_effective": "425"
     },
     {
       "patch": "previous_missing_filled",
@@ -118,8 +106,8 @@
       "date": "2026-05-30",
       "time": "01:00",
       "previous_raw": "",
-      "prior_actual": "551",
-      "previous_effective": "551"
+      "prior_actual": "558",
+      "previous_effective": "558"
     },
     {
       "patch": "previous_missing_filled",
