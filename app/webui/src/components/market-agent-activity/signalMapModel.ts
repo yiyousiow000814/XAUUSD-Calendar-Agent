@@ -13,7 +13,8 @@ import {
   findProviderHealth,
   formatShortTime,
   humanizeMarketAgentValue,
-  normalizeMarketAgentValue
+  normalizeMarketAgentValue,
+  providerGuidance
 } from "../../utils/marketAgentUi";
 
 export type SignalTone = "good" | "working" | "bad" | "muted" | "ai" | "store";
@@ -33,6 +34,35 @@ export type SignalNode = {
   trace: string[];
   detail: string;
   tone: SignalTone;
+  badges?: SignalBadge[];
+  drilldown?: SignalDrilldownSection[];
+  requests?: SignalDataRequest[];
+};
+
+export type SignalBadge = {
+  label: string;
+  tone: SignalTone;
+};
+
+export type SignalDrilldownRow = {
+  label: string;
+  status: string;
+  detail: string;
+  meta: string[];
+};
+
+export type SignalDrilldownSection = {
+  title: string;
+  detail: string;
+  rows: SignalDrilldownRow[];
+};
+
+export type SignalDataRequest = {
+  target: string;
+  status: string;
+  requestedBy: string;
+  reason: string;
+  mode: string;
 };
 
 export type SignalLane = {
@@ -133,6 +163,7 @@ const providerLabel = (health: MarketAgentProviderHealthEntry | undefined, fallb
 const normalizeStorageLabel = (value: string) => value.replace(/_/g, " ");
 
 const sensorDefinitions = [
+  { id: "xauusd", label: "XAUUSD", group: "Primary price", source: "cTrader spot / GC=F fallback", storage: "market_price_bars" },
   { id: "dxy", label: "DXY", group: "USD pressure", source: "DX-Y.NYB / CSV fallback", storage: "related_asset_bars" },
   { id: "us10y", label: "US10Y", group: "Rates / yields", source: "^TNX / CSV fallback", storage: "related_asset_bars" },
   { id: "us2y", label: "US2Y", group: "Rates / yields", source: "Yield proxy / CSV fallback", storage: "related_asset_bars" },
@@ -147,6 +178,51 @@ const node = (input: Omit<SignalNode, "tone"> & { tone?: SignalTone }): SignalNo
   tone: input.tone ?? statusTone(input.status),
   ...input
 });
+
+const asRecordList = (value: unknown) => (Array.isArray(value) ? value.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object" && !Array.isArray(item)) : []);
+
+const shortDate = (value: unknown) => {
+  if (typeof value !== "string" || !value.trim()) return "not recorded";
+  return formatShortTime(value) || value;
+};
+
+const healthFreshness = (health: MarketAgentProviderHealthEntry | undefined) => {
+  if (!health) return "not recorded";
+  if (!health.is_available || normalizeMarketAgentValue(health.source_type) === "unavailable") return "unavailable";
+  if (health.is_stale) return "stale";
+  return "fresh";
+};
+
+const requestFromHealth = (sensorLabel: string, health: MarketAgentProviderHealthEntry | undefined): SignalDataRequest | null => {
+  if (!health) {
+    return {
+      target: sensorLabel,
+      status: "watching",
+      requestedBy: "Provider health",
+      reason: "No provider status has been recorded for this sensor in the current payload.",
+      mode: "provider mapping"
+    };
+  }
+  if (!health.is_available || normalizeMarketAgentValue(health.source_type) === "unavailable") {
+    return {
+      target: sensorLabel,
+      status: "unavailable",
+      requestedBy: "Evidence gate",
+      reason: providerGuidance(health),
+      mode: health.data_mode || "unavailable"
+    };
+  }
+  if (health.is_stale) {
+    return {
+      target: sensorLabel,
+      status: "stale",
+      requestedBy: "Freshness check",
+      reason: health.stale_reason || "The latest value is stale and cannot confirm a fresh move.",
+      mode: health.data_mode || "refresh"
+    };
+  }
+  return null;
+};
 
 export const buildSignalMapModel = ({
   monitorStatus,
@@ -170,9 +246,13 @@ export const buildSignalMapModel = ({
   const stats = replayStats(payload);
   const selectedEvidencePacket = selectedEvidence?.payload?.evidence_packet as Record<string, unknown> | undefined;
   const evidenceChain = selectedEvidencePacket?.evidence_chain_status as Record<string, unknown> | undefined;
+  const selectedProviderHealth = asRecordList(selectedEvidence?.payload?.provider_health) as MarketAgentProviderHealthEntry[];
+  const healthItems = providerHealth?.items?.length ? providerHealth.items : selectedProviderHealth;
+  const driverStates = asRecordList(selectedEvidence?.payload?.driver_attention_states);
+  const analysisResult = (selectedEvidence?.payload?.analysis_result ?? {}) as Record<string, unknown>;
   const storageSummary = recordValue(replayEntry, "storageSummary");
   const storageCounts = recordValue(storageSummary, "counts");
-  const xauusdHealth = findProviderHealth(providerHealth?.items, ["xauusd", "gc=f", "xauusd price"]);
+  const xauusdHealth = findProviderHealth(healthItems, ["xauusd", "gc=f", "xauusd price"]);
   const cTraderLive = Boolean(xauusdHealth?.is_available && !xauusdHealth.is_stale);
   const cTraderStatus = textValue(cTraderEntry, "status") || (cTraderLive ? "live" : providerConfig?.ctrader?.enabled ? "checking" : "waiting");
   const historyStatus = textValue(historyEntry, "status") || (monitorStatus?.running ? "syncing" : "idle");
@@ -186,6 +266,29 @@ export const buildSignalMapModel = ({
   const historyProgress = numberValue(historyEntry, "progress");
   const allowedDrivers = listValue(evidenceEntry, "allowedCandidateDrivers");
   const blockedDrivers = recordValue(evidenceEntry, "blockedDrivers");
+  const jobRows = (entry: Record<string, unknown> | undefined, fallbackTitle: string): SignalDrilldownRow[] => {
+    const jobs = asRecordList(entry?.jobs);
+    if (!jobs.length) {
+      return [
+        {
+          label: fallbackTitle,
+          status: textValue(entry, "status") || "not recorded",
+          detail: textValue(entry, "detail") || "No detailed activity jobs were recorded for this step.",
+          meta: [`input: ${textValue(entry, "input") || "not recorded"}`, `output: ${textValue(entry, "output") || "not recorded"}`]
+        }
+      ];
+    }
+    return jobs.map((job) => ({
+      label: textValue(job, "title") || fallbackTitle,
+      status: textValue(job, "status") || "recorded",
+      detail: textValue(job, "detail") || "Step was recorded in the monitor activity snapshot.",
+      meta: [
+        `input: ${textValue(job, "input") || "not recorded"}`,
+        `output: ${textValue(job, "output") || "not recorded"}`,
+        `time: ${shortDate(job.timestamp)}`
+      ]
+    }));
+  };
   const storagePath =
     textValue(replayEntry, "timelineStorePath") ||
     String(storageSummary.path || "") ||
@@ -193,10 +296,18 @@ export const buildSignalMapModel = ({
     selectedEvidence?.timeline_store_path ||
     "TimelineStore not loaded";
 
+  const evidenceStatusMap = recordValue(selectedEvidencePacket, "evidence_status");
+  const crossAssetConfirmation = recordValue(selectedEvidencePacket, "cross_asset_confirmation");
+  const sensorRequests: SignalDataRequest[] = [];
   const coreSensors = sensorDefinitions.map((sensor) => {
-    const row = latestRelatedAsset(payload, sensor.id);
-    const health = findProviderHealth(providerHealth?.items, [sensor.id, sensor.label]);
-    const status = row ? String(row.data_mode || "live") : health?.is_stale ? "stale" : health?.is_available ? "ready" : "waiting";
+    const row = sensor.id === "xauusd" ? payload?.price_series?.[payload.price_series.length - 1] : latestRelatedAsset(payload, sensor.id);
+    const health = findProviderHealth(healthItems, [sensor.id, sensor.label]);
+    const healthRequest = requestFromHealth(sensor.label, health);
+    if (healthRequest) sensorRequests.push(healthRequest);
+    const evidenceState = String(evidenceStatusMap[sensor.id] || crossAssetConfirmation[sensor.id] || "");
+    const status = evidenceState || (row ? String(row.data_mode || "live") : health?.is_stale ? "stale" : health?.is_available ? "ready" : health ? "unavailable" : "waiting");
+    const requestedBy = sensor.id === "xauusd" ? "Move detection" : sensor.group.includes("Rates") ? "Yields driver / evidence gate" : sensor.group.includes("Oil") ? "Theme discovery / inflation channel" : "Driver attention";
+    const usedBy = sensor.id === "xauusd" ? "Move detection, evidence gate, replay, alerts" : "Driver attention, evidence gate, Latest Evidence";
     return node({
       id: `sensor-${sensor.id}`,
       label: sensor.label,
@@ -210,7 +321,36 @@ export const buildSignalMapModel = ({
       storage: [sensor.storage],
       ai: "Display summarizer can compress this row for Latest Evidence; cause review consumes the bounded evidence packet.",
       trace: [`sensor-${sensor.id}`, "sensor-confirmation", "evidence-gate", "driver-attention", "evidence-packet", "latest-evidence", "replay-output", "storage-raw"],
-      detail: `${sensor.label} is a ${sensor.group} sensor. It is not a cause by itself; it confirms or challenges an XAUUSD explanation.`
+      detail: `${sensor.label} is a ${sensor.group} sensor. It is not a cause by itself; it confirms or challenges an XAUUSD explanation.`,
+      badges: [
+        { label: healthFreshness(health), tone: statusTone(healthFreshness(health)) },
+        { label: String(health?.data_mode || row?.data_mode || "mode unknown"), tone: statusTone(String(health?.data_mode || row?.data_mode || "")) },
+        { label: row ? "stored" : "not stored in range", tone: row ? "store" : "muted" }
+      ],
+      drilldown: [
+        {
+          title: "Sensor trace",
+          detail: "Asset sensors stay inside the Assets source group. They are collected, checked for freshness, stored, then used only if evidence gates allow it.",
+          rows: [
+            {
+              label: sensor.label,
+              status,
+              detail: providerGuidance(health),
+              meta: [
+                `provider: ${providerLabel(health, sensor.source)}`,
+                `source_type: ${health?.source_type || "unknown"}`,
+                `mode: ${health?.data_mode || String(row?.data_mode || "not recorded")}`,
+                `data_timestamp: ${shortDate(health?.data_timestamp || row?.timestamp || row?.time)}`,
+                `fetched_at: ${shortDate(health?.fetched_at)}`,
+                `storage: ${row ? sensor.storage : "not stored in selected range"}`,
+                `requested_by: ${requestedBy}`,
+                `used_by: ${usedBy}`
+              ]
+            }
+          ]
+        }
+      ],
+      requests: healthRequest ? [healthRequest] : []
     });
   });
 
@@ -228,7 +368,44 @@ export const buildSignalMapModel = ({
       storage: ["driver_attention_states", "evidence_packets"],
       ai: "AI can flag unsupported plausible drivers, but blocked drivers cannot become causes.",
       trace: [`candidate-${normalizeMarketAgentValue(name)}`, "driver-attention", "candidate-gate", "evidence-packet"],
-      detail: blockedDrivers[name] ? String(blockedDrivers[name]) : "Candidate sensor is watched because current context may require confirmation."
+      detail: blockedDrivers[name] ? String(blockedDrivers[name]) : "Candidate sensor is watched because current context may require confirmation.",
+      badges: [
+        { label: blockedDrivers[name] ? "blocked" : "watching", tone: blockedDrivers[name] ? "bad" : "working" },
+        { label: "not active by default", tone: "muted" }
+      ],
+      drilldown: [
+        {
+          title: "Theme lifecycle",
+          detail: "A candidate or emerging theme can request data, but it needs repeated evidence, fresh timestamps, source diversity, and market reaction before activation.",
+          rows: [
+            {
+              label: humanizeMarketAgentValue(name),
+              status: blockedDrivers[name] ? "blocked" : "watching",
+              detail: blockedDrivers[name] ? String(blockedDrivers[name]) : "Watching for repeated evidence and cross-asset confirmation.",
+              meta: ["state: observed/watching/emerging before active", "storage: driver_attention_states", "guard: evidence gate"]
+            }
+          ]
+        }
+      ],
+      requests: blockedDrivers[name]
+        ? [
+            {
+              target: humanizeMarketAgentValue(name),
+              status: "blocked",
+              requestedBy: "Driver attention",
+              reason: String(blockedDrivers[name]),
+              mode: "theme confirmation"
+            }
+          ]
+        : [
+            {
+              target: humanizeMarketAgentValue(name),
+              status: "watching",
+              requestedBy: "Theme discovery",
+              reason: "Watch this theme without promoting it to active until evidence persists.",
+              mode: "priority watch"
+            }
+          ]
     })
   );
 
@@ -245,7 +422,34 @@ export const buildSignalMapModel = ({
       storage: ["evidence_packets"],
       ai: "AI may identify the gap, but the UI marks it as unmapped until a provider exists.",
       trace: [`discovered-${normalizeMarketAgentValue(label)}`, "candidate-gate"],
-      detail: "Discovered sensors represent unknown or newly relevant drivers that need provider coverage."
+      detail: "Discovered sensors represent unknown or newly relevant drivers that need provider coverage.",
+      badges: [
+        { label: "unmapped", tone: "bad" },
+        { label: "request only", tone: "working" }
+      ],
+      drilldown: [
+        {
+          title: "Discovered sensor request",
+          detail: "Unknown themes stay visible as gaps. They do not become evidence until a reliable provider exists.",
+          rows: [
+            {
+              label,
+              status: "unmapped",
+              detail: "Needs provider mapping, freshness policy, and evidence rules before it can influence conclusions.",
+              meta: ["requested_by: theme discovery", "used_by: none yet", "storage: evidence_packets"]
+            }
+          ]
+        }
+      ],
+      requests: [
+        {
+          target: label,
+          status: "unmapped",
+          requestedBy: "Theme discovery",
+          reason: "Repeated evidence may require a new sensor, but the provider is not configured.",
+          mode: "provider mapping"
+        }
+      ]
     })
   );
 
@@ -266,7 +470,14 @@ export const buildSignalMapModel = ({
         storage: ["market_price_bars"],
         ai: "No AI at collection.",
         trace: ["price-source", "move-detection", "evidence-gate", "storage-raw"],
-        detail: "Primary XAUUSD price signal from cTrader."
+        detail: "Primary XAUUSD price signal from cTrader.",
+        drilldown: [
+          {
+            title: "Live asset ingest",
+            detail: "Primary price is collected first because every explanation starts with a meaningful XAUUSD move.",
+            rows: jobRows(cTraderEntry, "Live quote request")
+          }
+        ]
       }),
       node({
         id: "history-source",
@@ -280,7 +491,14 @@ export const buildSignalMapModel = ({
         storage: ["market_price_bars", "related_asset_bars"],
         ai: "No AI at history fetch.",
         trace: ["history-source", "history-replay", "storage-raw", "replay-output"],
-        detail: textValue(historyEntry, "detail") || "Historical rows support replay and gap recovery."
+        detail: textValue(historyEntry, "detail") || "Historical rows support replay and gap recovery.",
+        drilldown: [
+          {
+            title: "History/backfill ingest",
+            detail: "Backfill is persisted for replay and evidence windows, but recovered historical moves do not become live Telegram alerts.",
+            rows: jobRows(historyEntry, "History/backfill request")
+          }
+        ]
       }),
       node({
         id: "news-source",
@@ -294,7 +512,39 @@ export const buildSignalMapModel = ({
         storage: ["news_items"],
         ai: "Display summarizer can shorten selected news rows.",
         trace: ["news-source", "news-grouping", "evidence-gate", "display-summarizer", "latest-evidence", "storage-raw"],
-        detail: textValue(contextEntry, "detail") || "News rows provide event context and possible driver themes."
+        detail: textValue(contextEntry, "detail") || "News rows provide event context and possible driver themes.",
+        drilldown: [
+          {
+            title: "News processing path",
+            detail: "News starts raw, then becomes deduped, filtered/included, summarized, and finally an evidence candidate only when timestamps and relevance pass.",
+            rows: [
+              {
+                label: "Raw capture",
+                status: contextStatus,
+                detail: `${stats.newsRows} raw headline row(s) are available in the selected replay payload.`,
+                meta: [`sources: ${listValue(contextEntry, "sources").join(", ") || "app-managed feeds"}`, "storage: news_items"]
+              },
+              {
+                label: "Dedupe / source scoring",
+                status: "checking",
+                detail: "Repeated headlines and weak sources are handled before they can crowd Latest Evidence.",
+                meta: ["state: filtered or included per row", "storage: news_items"]
+              },
+              {
+                label: "Theme extraction",
+                status: allowedDrivers.length || Object.keys(blockedDrivers).length ? "watching" : "waiting",
+                detail: "Headlines can suggest themes, but a theme does not become active from one headline.",
+                meta: [`allowed: ${allowedDrivers.join(", ") || "none"}`, `blocked: ${Object.keys(blockedDrivers).join(", ") || "none"}`]
+              },
+              {
+                label: "Evidence candidate",
+                status: evidenceStatus,
+                detail: "Only relevant, timestamped, non-contradicted rows enter the evidence packet.",
+                meta: ["handoff: evidence_packets", "display: Latest Evidence short summary"]
+              }
+            ]
+          }
+        ]
       }),
       node({
         id: "calendar-source",
@@ -308,7 +558,33 @@ export const buildSignalMapModel = ({
         storage: ["calendar_events"],
         ai: "Display summarizer can shorten selected calendar rows.",
         trace: ["calendar-source", "calendar-context", "evidence-gate", "display-summarizer", "latest-evidence", "storage-raw"],
-        detail: "Calendar rows explain scheduled macro risk near the move."
+        detail: "Calendar rows explain scheduled macro risk near the move.",
+        drilldown: [
+          {
+            title: "Calendar event windows",
+            detail: "Calendar data is already structured, so the key work is timing: pre-risk, first reaction, and confirmation windows.",
+            rows: [
+              {
+                label: "Structured events",
+                status: contextStatus,
+                detail: `${stats.calendarRows} calendar event row(s) are available in the selected replay payload.`,
+                meta: ["provider: ForexFactory / official schedules / local backfill", "storage: calendar_events"]
+              },
+              {
+                label: "Window alignment",
+                status: "checking",
+                detail: "Events are aligned to XAUUSD movement windows before they can explain a move.",
+                meta: ["windows: pre-risk / first reaction / confirmation", "handoff: context gate"]
+              },
+              {
+                label: "Evidence alignment",
+                status: evidenceStatus,
+                detail: "Actual/forecast/previous values support context when available; distant events stay background.",
+                meta: ["storage: evidence_packets", "display: Latest Evidence"]
+              }
+            ]
+          }
+        ]
       })
     ]
   };
@@ -358,7 +634,27 @@ export const buildSignalMapModel = ({
         storage: ["evidence_packets"],
         ai: "AI cannot bypass this gate.",
         trace: ["evidence-gate", "driver-attention", "evidence-packet", "storage-derived"],
-        detail: textValue(evidenceEntry, "label") || "Evidence readiness and blocking state."
+        detail: textValue(evidenceEntry, "label") || "Evidence readiness and blocking state.",
+        drilldown: [
+          {
+            title: "Evidence gate decisions",
+            detail: "This is the deterministic guard before AI. Unavailable is different from neutral, and blocked drivers cannot become causes.",
+            rows: [
+              ...Object.entries(evidenceStatusMap).map(([label, status]) => ({
+                label: humanizeMarketAgentValue(label),
+                status: String(status),
+                detail: String(status) === "unavailable" ? `${humanizeMarketAgentValue(label)} is unavailable, so it is not neutral evidence.` : "Evidence status recorded for this run.",
+                meta: ["source: evidence packet", "storage: evidence_packets"]
+              })),
+              ...Object.entries(blockedDrivers).map(([label, reason]) => ({
+                label: humanizeMarketAgentValue(label),
+                status: "blocked",
+                detail: String(reason),
+                meta: ["guard: blocked driver", "AI cannot override"]
+              }))
+            ]
+          }
+        ]
       }),
       node({
         id: "driver-attention",
@@ -372,7 +668,33 @@ export const buildSignalMapModel = ({
         storage: ["driver_attention_states"],
         ai: "AI sees only allowed/blocked driver context.",
         trace: ["driver-attention", "candidate-gate", "evidence-packet", "storage-derived"],
-        detail: "Driver Attention prevents a raw sensor from being treated as causation too early."
+        detail: "Driver Attention prevents a raw sensor from being treated as causation too early.",
+        drilldown: [
+          {
+            title: "Driver lifecycle",
+            detail: "Themes move through observed, watching, emerging, active, cooling, retired, or rejected states across monitor runs.",
+            rows: driverStates.length
+              ? driverStates.map((state) => ({
+                  label: textValue(state, "label") || humanizeMarketAgentValue(textValue(state, "driver_id") || "driver"),
+                  status: textValue(state, "current_state") || "watching",
+                  detail: textValue(state, "current_evidence_summary") || textValue(state, "activation_reason") || "Driver state is stored for this run.",
+                  meta: [
+                    `priority: ${textValue(state, "priority") || "unknown"}`,
+                    `confidence: ${textValue(state, "confidence") || "unknown"}`,
+                    `last_evidence_at: ${shortDate(state.last_evidence_at)}`,
+                    `storage: driver_attention_states`
+                  ]
+                }))
+              : [
+                  {
+                    label: "Driver attention",
+                    status: "waiting",
+                    detail: "No driver attention state rows were returned for the selected run.",
+                    meta: ["storage: driver_attention_states"]
+                  }
+                ]
+          }
+        ]
       }),
       node({
         id: "evidence-packet",
@@ -386,7 +708,33 @@ export const buildSignalMapModel = ({
         storage: ["evidence_packets"],
         ai: "Cause review and display summaries consume this bounded packet.",
         trace: ["evidence-packet", "display-summarizer", "cause-review", "latest-evidence", "storage-derived"],
-        detail: "The evidence packet is the source of truth for downstream explanation."
+        detail: "The evidence packet is the source of truth for downstream explanation.",
+        drilldown: [
+          {
+            title: "Packet contents",
+            detail: "The AI sees bounded facts from this packet, not the full raw universe.",
+            rows: [
+              {
+                label: "Allowed drivers",
+                status: allowedDrivers.length ? "ready" : "none",
+                detail: allowedDrivers.join(", ") || "No candidate driver passed the gate.",
+                meta: ["source: evidence gate", "storage: evidence_packets"]
+              },
+              {
+                label: "Blocked drivers",
+                status: Object.keys(blockedDrivers).length ? "blocked" : "none",
+                detail: Object.entries(blockedDrivers).map(([label, reason]) => `${humanizeMarketAgentValue(label)}: ${reason}`).join(" | ") || "No blocked drivers recorded.",
+                meta: ["AI cannot promote blocked drivers"]
+              },
+              {
+                label: "Analysis result",
+                status: String(analysisResult.cause_status || "pending"),
+                detail: `main_driver: ${String(analysisResult.main_driver || "unknown")}`,
+                meta: [`confidence: ${String(analysisResult.confidence || "unknown")}`, "storage: analysis_results"]
+              }
+            ]
+          }
+        ]
       })
     ]
   };
@@ -405,7 +753,14 @@ export const buildSignalMapModel = ({
       ai: "Local AI when enabled; rule fallback keeps raw text usable.",
       trace: ["evidence-packet", "display-summarizer", "latest-evidence"],
       detail: "This checkpoint prevents long raw evidence from crowding the dashboard.",
-      tone: "ai"
+      tone: "ai",
+      drilldown: [
+        {
+          title: "LLM display role",
+          detail: "The display summarizer shortens rows for UI readability while raw text remains in storage.",
+          rows: jobRows(summaryEntry, "Display evidence summary")
+        }
+      ]
     }),
     node({
       id: "cause-review",
@@ -420,7 +775,27 @@ export const buildSignalMapModel = ({
       ai: llmConfig?.llm?.enabled ? "Local AI enabled" : "Rule fallback active",
       trace: ["evidence-packet", "cause-review", "validator-repair", "dashboard-output", "storage-derived"],
       detail: textValue(llmEntry, "result") || "Cause review waits for a bounded evidence packet.",
-      tone: "ai"
+      tone: "ai",
+      drilldown: [
+        {
+          title: "LLM analysis",
+          detail: "LLM groups evidence into human-readable explanations, but only from the bounded evidence packet.",
+          rows: [
+            {
+              label: "Prompt input",
+              status: llmStatus,
+              detail: "Evidence packet JSON, allowed drivers, blocked drivers, provider health, and previous state.",
+              meta: ["guard: no outside news", "storage: evidence_packets"]
+            },
+            {
+              label: "LLM output",
+              status: textValue(llmEntry, "result") ? "returned" : llmStatus,
+              detail: textValue(llmEntry, "result") || "No LLM result text recorded in activity snapshot.",
+              meta: ["handoff: validator", "storage: analysis_results"]
+            }
+          ]
+        }
+      ]
     }),
     node({
       id: "validator-repair",
@@ -435,7 +810,27 @@ export const buildSignalMapModel = ({
       ai: "Deterministic validation controls AI output.",
       trace: ["cause-review", "validator-repair", "dashboard-output", "storage-derived"],
       detail: "AI output cannot reach the dashboard until it passes validation.",
-      tone: "ai"
+      tone: "ai",
+      drilldown: [
+        {
+          title: "Validator guard",
+          detail: "Deterministic validation keeps the LLM from inventing drivers or bypassing unavailable evidence.",
+          rows: [
+            {
+              label: "Schema validation",
+              status: llmStatus,
+              detail: "Invalid JSON is repaired once or rejected.",
+              meta: ["guard: JSON contract", "storage: analysis_results"]
+            },
+            {
+              label: "Evidence validation",
+              status: evidenceStatus,
+              detail: "The main driver must be supported by allowed evidence; unknown remains unknown when evidence is insufficient.",
+              meta: [`main_driver: ${String(analysisResult.main_driver || "unknown")}`, `cause_status: ${String(analysisResult.cause_status || "unknown")}`]
+            }
+          ]
+        }
+      ]
     }),
     node({
       id: "replay-condenser",
@@ -450,7 +845,27 @@ export const buildSignalMapModel = ({
       ai: "Local AI summaries can be used; rule fallback filters important events.",
       trace: ["storage-derived", "replay-condenser", "replay-output"],
       detail: "This is why month replay should not expand every day marker.",
-      tone: "ai"
+      tone: "ai",
+      drilldown: [
+        {
+          title: "Replay condensation",
+          detail: "Day replay keeps detailed rows; month replay keeps important turns and summaries.",
+          rows: [
+            {
+              label: "Day trace",
+              status: stats.timelineEvents ? "stored" : "waiting",
+              detail: `${stats.timelineEvents} detailed timeline event(s) available.`,
+              meta: ["storage: timeline_events"]
+            },
+            {
+              label: "Month summary",
+              status: stats.monthSummaryEvents ? "summarized" : "waiting",
+              detail: `${stats.monthSummaryEvents} month summary event(s) available.`,
+              meta: ["storage: month_summary_events", "AI/rule: important turns only"]
+            }
+          ]
+        }
+      ]
     }),
     node({
       id: "alert-review",
@@ -465,7 +880,14 @@ export const buildSignalMapModel = ({
       ai: "Optional Local AI review before Telegram.",
       trace: ["evidence-packet", "alert-review", "telegram-output", "storage-derived"],
       detail: textValue(alertEntry, "detail") || "Alert review is only used when an alert candidate exists.",
-      tone: "ai"
+      tone: "ai",
+      drilldown: [
+        {
+          title: "Notification policy",
+          detail: "Alerts are only sent when usefulness and evidence gates pass; otherwise the dashboard updates without paging the user.",
+          rows: jobRows(alertEntry, "Alert preflight")
+        }
+      ]
     })
   ];
 
@@ -483,7 +905,21 @@ export const buildSignalMapModel = ({
       ai: "Uses AI summary/review only after validation.",
       trace: ["validator-repair", "dashboard-output"],
       detail: "Dashboard is an output surface, not a source of truth.",
-      tone: "good"
+      tone: "good",
+      drilldown: [
+        {
+          title: "Dashboard output",
+          detail: "Dashboard shows the latest validated state and evidence-limited explanation.",
+          rows: [
+            {
+              label: "Current situation",
+              status: String(analysisResult.cause_status || "pending"),
+              detail: `main_driver: ${String(analysisResult.main_driver || "unknown")}`,
+              meta: [`confidence: ${String(analysisResult.confidence || "unknown")}`, "source: validated AnalysisResult"]
+            }
+          ]
+        }
+      ]
     }),
     node({
       id: "latest-evidence",
@@ -498,7 +934,27 @@ export const buildSignalMapModel = ({
       ai: "Display summarizer participates here.",
       trace: ["display-summarizer", "latest-evidence"],
       detail: "Latest Evidence is where long rows become readable.",
-      tone: "good"
+      tone: "good",
+      drilldown: [
+        {
+          title: "Evidence panel output",
+          detail: "Short display summaries are shown here while raw rows remain auditable in storage.",
+          rows: [
+            {
+              label: "News evidence",
+              status: stats.newsRows ? "available" : "waiting",
+              detail: `${stats.newsRows} news row(s) available for replay/evidence.`,
+              meta: ["display: short summary", "storage: news_items"]
+            },
+            {
+              label: "Calendar evidence",
+              status: stats.calendarRows ? "available" : "waiting",
+              detail: `${stats.calendarRows} calendar row(s) available for replay/evidence.`,
+              meta: ["display: short summary", "storage: calendar_events"]
+            }
+          ]
+        }
+      ]
     }),
     node({
       id: "replay-output",
@@ -513,7 +969,27 @@ export const buildSignalMapModel = ({
       ai: "Replay condenser can summarize important month turns.",
       trace: ["replay-condenser", "replay-output", "storage-derived"],
       detail: textValue(replayEntry, "detail") || "Replay reconstructs what happened from persisted rows.",
-      tone: "store"
+      tone: "store",
+      drilldown: [
+        {
+          title: "Per-run trace",
+          detail: "Replay follows the persisted path from raw source rows through processing, storage, evidence, and output.",
+          rows: [
+            {
+              label: "Source rows",
+              status: "stored",
+              detail: `${stats.priceRows} price, ${stats.relatedRows} related asset, ${stats.newsRows} news, ${stats.calendarRows} calendar row(s).`,
+              meta: ["storage: market_price_bars / related_asset_bars / news_items / calendar_events"]
+            },
+            {
+              label: "Timeline rows",
+              status: stats.timelineEvents ? "stored" : "waiting",
+              detail: `${stats.timelineEvents} timeline event(s), ${stats.monthSummaryEvents} month summary event(s).`,
+              meta: ["storage: timeline_events / month_summary_events"]
+            }
+          ]
+        }
+      ]
     }),
     node({
       id: "telegram-output",
@@ -528,7 +1004,27 @@ export const buildSignalMapModel = ({
       ai: "Alert review can rewrite/block before delivery.",
       trace: ["alert-review", "telegram-output"],
       detail: textValue(alertEntry, "detail") || "Telegram is optional and gated.",
-      tone: statusTone(alertStatus)
+      tone: statusTone(alertStatus),
+      drilldown: [
+        {
+          title: "Telegram delivery",
+          detail: "Telegram may be sent or suppressed. Suppression is an output state, not a missing output.",
+          rows: [
+            {
+              label: "Sent alerts",
+              status: payload?.alerts?.length ? "sent" : "none",
+              detail: `${payload?.alerts?.length ?? 0} sent alert(s) in the selected replay range.`,
+              meta: ["storage: alerts"]
+            },
+            {
+              label: "Suppressed alerts",
+              status: payload?.suppressed_alerts?.length ? "suppressed" : alertStatus,
+              detail: textValue(alertEntry, "detail") || `${payload?.suppressed_alerts?.length ?? 0} suppressed alert(s) in the selected replay range.`,
+              meta: ["reason: evidence/noise/cooldown policy", "storage: alerts"]
+            }
+          ]
+        }
+      ]
     })
   ];
 

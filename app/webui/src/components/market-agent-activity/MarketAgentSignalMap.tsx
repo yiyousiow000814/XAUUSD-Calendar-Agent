@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { CausalMesh } from "./CausalMesh";
-import type { SignalMapModel, SignalNode } from "./signalMapModel";
+import type { SignalDataRequest, SignalDrilldownSection, SignalMapModel, SignalNode } from "./signalMapModel";
 
 type MarketAgentSignalMapProps = {
   model: SignalMapModel;
@@ -67,12 +67,16 @@ const firstNode = (nodes: SignalNode[], ids: string[]) => nodes.find((node) => i
 
 const countRowsLabel = (count: number, noun: string) => `${count} ${noun}${count === 1 ? "" : "s"}`;
 
+const mergeSections = (sections: Array<SignalDrilldownSection[] | undefined>) => sections.flatMap((section) => section ?? []);
+const mergeRequests = (requests: Array<SignalDataRequest[] | undefined>) => requests.flatMap((request) => request ?? []);
+
 const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
   const price = firstNode(allNodes, ["price-source"]);
   const history = firstNode(allNodes, ["history-source"]);
   const news = firstNode(allNodes, ["news-source"]);
   const calendar = firstNode(allNodes, ["calendar-source"]);
   const evidence = firstNode(allNodes, ["evidence-packet", "evidence-gate"]);
+  const driverAttention = firstNode(allNodes, ["driver-attention"]);
   const display = firstNode(model.aiNodes, ["display-summarizer"]);
   const cause = firstNode(model.aiNodes, ["cause-review"]);
   const validator = firstNode(model.aiNodes, ["validator-repair"]);
@@ -106,7 +110,31 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       ai: "AI may request more lookback or a new sensor candidate, but provider mapping and allowlists decide what can be added.",
       trace: ["assets-source", "asset-ingest", "storage-bus", "evidence-packet", "ai-analysis", "dashboard-output", "replay-output"],
       detail: `Assets is the source group, not one symbol. It contains ${countRowsLabel(model.coreSensors.length, "core watch item")}, ${countRowsLabel(liveAssets, "currently usable item")}, live XAUUSD, related assets, and history backfill records.`,
-      tone: price?.tone || "working"
+      tone: price?.tone || "working",
+      badges: [
+        { label: "source group", tone: "good" },
+        { label: "live/history/backfill", tone: "working" },
+        { label: "not individual nodes", tone: "muted" }
+      ],
+      drilldown: [
+        {
+          title: "Assets source group",
+          detail: "Clicking Assets reveals the tracked sensors without making each one a top-level circuit node.",
+          rows: model.coreSensors.map((sensor) => ({
+            label: sensor.label,
+            status: sensor.status,
+            detail: sensor.detail,
+            meta: [
+              `provider: ${sensor.source}`,
+              `storage: ${sensor.storage.join(", ")}`,
+              `used_by: ${sensor.output}`,
+              `why: ${sensor.processing}`
+            ]
+          }))
+        },
+        ...mergeSections([price?.drilldown, history?.drilldown, ...model.coreSensors.map((sensor) => sensor.drilldown)])
+      ],
+      requests: mergeRequests(model.coreSensors.map((sensor) => sensor.requests))
     }),
     boardNode({
       id: "news-source",
@@ -122,7 +150,13 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       ai: "AI can summarize display text and help judge relevance after the evidence gate.",
       trace: ["news-source", "news-processing", "storage-bus", "evidence-packet", "ai-analysis", "latest-evidence"],
       detail: news?.detail || "News provides raw, timestamped context that may or may not explain the move.",
-      tone: news?.tone || "working"
+      tone: news?.tone || "working",
+      badges: [
+        { label: "raw -> filtered", tone: "working" },
+        { label: "theme discovery", tone: "ai" },
+        { label: "stored", tone: "store" }
+      ],
+      drilldown: mergeSections([news?.drilldown])
     }),
     boardNode({
       id: "calendar-source",
@@ -138,7 +172,13 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       ai: "AI can summarize visible calendar rows, but does not invent unscheduled events.",
       trace: ["calendar-source", "context-gate", "storage-bus", "evidence-packet", "ai-analysis", "latest-evidence"],
       detail: calendar?.detail || "Calendar records scheduled macro context around the XAUUSD move.",
-      tone: calendar?.tone || "working"
+      tone: calendar?.tone || "working",
+      badges: [
+        { label: "structured", tone: "good" },
+        { label: "window aligned", tone: "working" },
+        { label: "stored", tone: "store" }
+      ],
+      drilldown: mergeSections([calendar?.drilldown])
     }),
     boardNode({
       id: "asset-ingest",
@@ -154,7 +194,9 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       ai: "No AI for raw ingest. AI can request data, not bypass provider checks.",
       trace: ["assets-source", "asset-ingest", "storage-bus", "evidence-packet"],
       detail: `${price?.detail || "Live XAUUSD is collected."} ${history?.detail || "History backfill supports replay and analysis windows."}`,
-      tone: price?.tone || "working"
+      tone: price?.tone || "working",
+      drilldown: mergeSections([price?.drilldown, history?.drilldown, ...model.coreSensors.map((sensor) => sensor.drilldown)]),
+      requests: mergeRequests(model.coreSensors.map((sensor) => sensor.requests))
     }),
     boardNode({
       id: "news-processing",
@@ -170,7 +212,8 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       ai: "Display summarizer participates here; raw news remains persisted.",
       trace: ["news-source", "news-processing", "storage-bus", "evidence-packet", "ai-analysis", "latest-evidence"],
       detail: "Clicking through should let you inspect raw headline, source, publish time, summary, pass/drop reason, and next handoff.",
-      tone: display?.tone || "ai"
+      tone: display?.tone || "ai",
+      drilldown: mergeSections([news?.drilldown, display?.drilldown])
     }),
     boardNode({
       id: "context-gate",
@@ -186,7 +229,8 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       ai: "AI may summarize but cannot turn distant calendar rows into causes.",
       trace: ["calendar-source", "context-gate", "storage-bus", "evidence-packet", "ai-analysis", "replay-output"],
       detail: "Calendar usually needs less processing than news because it arrives structured.",
-      tone: calendar?.tone || "working"
+      tone: calendar?.tone || "working",
+      drilldown: mergeSections([calendar?.drilldown])
     }),
     boardNode({
       id: "storage-bus",
@@ -202,7 +246,19 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       ai: "AI reads bounded stored context; storage keeps audit records so one-month-old runs remain inspectable.",
       trace: ["assets-source", "news-source", "calendar-source", "storage-bus", "evidence-packet", "ai-analysis", "replay-output"],
       detail: model.storageGroups.map((group) => `${group.title}: ${group.tables.join(", ")}`).join(" | "),
-      tone: "store"
+      tone: "store",
+      drilldown: [
+        {
+          title: "Persisted audit stores",
+          detail: "Storage keeps raw and derived data so a previous run can be reconstructed later.",
+          rows: model.storageGroups.map((group) => ({
+            label: group.title,
+            status: "stored",
+            detail: group.detail,
+            meta: group.tables.map((table) => `table: ${table}`)
+          }))
+        }
+      ]
     }),
     boardNode({
       id: "evidence-packet",
@@ -218,7 +274,8 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       ai: "AI can only review what the packet allows.",
       trace: ["assets-source", "news-processing", "context-gate", "storage-bus", "evidence-packet", "ai-analysis", "latest-evidence"],
       detail: evidence?.detail || "Evidence packet is the handoff from collected records to analysis.",
-      tone: evidence?.tone || "working"
+      tone: evidence?.tone || "working",
+      drilldown: mergeSections([evidence?.drilldown])
     }),
     boardNode({
       id: "ai-analysis",
@@ -234,7 +291,34 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       ai: `${display?.label || "Display summarizer"} / ${cause?.label || "Cause review"} / ${validator?.label || "Validator"} / ${replay?.label || "Replay condenser"}`,
       trace: ["evidence-packet", "ai-analysis", "latest-evidence", "dashboard-output", "alert-router", "storage-bus"],
       detail: "This is the closed loop: AI may need more assets/news/calendar context, but requests go back through sources and storage instead of inventing facts.",
-      tone: "ai"
+      tone: "ai",
+      badges: [
+        { label: "evidence gate", tone: "working" },
+        { label: "theme discovery", tone: "ai" },
+        { label: "validator guarded", tone: "good" }
+      ],
+      drilldown: [
+        ...mergeSections([evidence?.drilldown, driverAttention?.drilldown, display?.drilldown, cause?.drilldown, validator?.drilldown, replay?.drilldown, alert?.drilldown]),
+        {
+          title: "Feedback / data requests",
+          detail: "Requests loop back to sources and sensors. They are visible limitations or priorities, not invented evidence.",
+          rows: mergeRequests([
+            ...model.coreSensors.map((sensor) => sensor.requests),
+            ...model.candidateSensors.map((sensor) => sensor.requests),
+            ...model.discoveredSensors.map((sensor) => sensor.requests)
+          ]).map((request) => ({
+            label: request.target,
+            status: request.status,
+            detail: request.reason,
+            meta: [`requested_by: ${request.requestedBy}`, `mode: ${request.mode}`]
+          }))
+        }
+      ],
+      requests: mergeRequests([
+        ...model.coreSensors.map((sensor) => sensor.requests),
+        ...model.candidateSensors.map((sensor) => sensor.requests),
+        ...model.discoveredSensors.map((sensor) => sensor.requests)
+      ])
     }),
     boardNode({
       id: "alert-router",
@@ -250,7 +334,8 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       ai: alert?.ai || "Optional alert review can rewrite or block delivery.",
       trace: ["ai-analysis", "alert-router", "telegram-output", "dashboard-output", "storage-bus"],
       detail: alert?.detail || "Alert routing answers: what happened, when, what evidence exists, what is missing, and what is the best unsupported explanation.",
-      tone: alert?.tone || "working"
+      tone: alert?.tone || "working",
+      drilldown: mergeSections([alert?.drilldown, telegram?.drilldown])
     }),
     ...(latest ? [{ ...latest, trace: ["ai-analysis", "latest-evidence", "storage-bus"] }] : []),
     ...(dashboard ? [{ ...dashboard, trace: ["ai-analysis", "dashboard-output", "storage-bus"] }] : []),
