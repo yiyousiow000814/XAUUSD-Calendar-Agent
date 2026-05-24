@@ -6,63 +6,6 @@ type MarketAgentSignalMapProps = {
   model: SignalMapModel;
 };
 
-const boardPositions: Record<string, { x: number; y: number }> = {
-  "assets-source": { x: 10, y: 24 },
-  "news-source": { x: 10, y: 48 },
-  "calendar-source": { x: 10, y: 72 },
-  "asset-ingest": { x: 31, y: 24 },
-  "news-processing": { x: 31, y: 48 },
-  "context-gate": { x: 31, y: 72 },
-  "storage-bus": { x: 52, y: 80 },
-  "evidence-packet": { x: 52, y: 43 },
-  "ai-analysis": { x: 70, y: 43 },
-  "alert-router": { x: 70, y: 72 },
-  "latest-evidence": { x: 88, y: 24 },
-  "dashboard-output": { x: 88, y: 43 },
-  "replay-output": { x: 88, y: 62 },
-  "telegram-output": { x: 88, y: 80 }
-};
-
-const fallbackPosition = (index: number) => ({
-  x: 18 + (index % 5) * 12,
-  y: 91
-});
-
-const circuitPath = (from: { x: number; y: number }, to: { x: number; y: number }) => {
-  const x1 = from.x + 5;
-  const y1 = from.y + 3;
-  const x2 = to.x;
-  const y2 = to.y + 3;
-  const mid = (x1 + x2) / 2;
-  return `M ${x1} ${y1} H ${mid} V ${y2} H ${x2}`;
-};
-
-const boardPathPairs = [
-  ["assets-source", "asset-ingest"],
-  ["news-source", "news-processing"],
-  ["calendar-source", "context-gate"],
-  ["asset-ingest", "storage-bus"],
-  ["news-processing", "storage-bus"],
-  ["context-gate", "storage-bus"],
-  ["asset-ingest", "evidence-packet"],
-  ["news-processing", "evidence-packet"],
-  ["context-gate", "evidence-packet"],
-  ["storage-bus", "evidence-packet"],
-  ["evidence-packet", "ai-analysis"],
-  ["ai-analysis", "latest-evidence"],
-  ["ai-analysis", "dashboard-output"],
-  ["ai-analysis", "alert-router"],
-  ["storage-bus", "replay-output"],
-  ["alert-router", "telegram-output"],
-  ["alert-router", "dashboard-output"]
-];
-
-const requestPathPairs = [
-  ["ai-analysis", "assets-source"],
-  ["ai-analysis", "news-source"],
-  ["ai-analysis", "calendar-source"]
-];
-
 const firstNode = (nodes: SignalNode[], ids: string[]) => nodes.find((node) => ids.includes(node.id));
 
 const countRowsLabel = (count: number, noun: string) => `${count} ${noun}${count === 1 ? "" : "s"}`;
@@ -87,8 +30,12 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
   const replayOutput = firstNode(model.outputs, ["replay-output"]);
   const telegram = firstNode(model.outputs, ["telegram-output"]);
   const liveAssets = model.coreSensors.filter((node) => ["ready", "live", "live_seen", "backfilled"].some((status) => node.status.toLowerCase().includes(status))).length;
-  const candidateCount = model.candidateSensors.length + model.discoveredSensors.length;
   const storageTables = model.storageGroups.flatMap((group) => group.tables);
+  const dataRequests = mergeRequests([
+    ...model.coreSensors.map((sensor) => sensor.requests),
+    ...model.candidateSensors.map((sensor) => sensor.requests),
+    ...model.discoveredSensors.map((sensor) => sensor.requests)
+  ]);
 
   const boardNode = (input: Omit<SignalNode, "tone"> & { tone?: SignalNode["tone"] }): SignalNode => ({
     tone: input.tone ?? "muted",
@@ -181,56 +128,48 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       drilldown: mergeSections([calendar?.drilldown])
     }),
     boardNode({
-      id: "asset-ingest",
-      label: "Asset ingest",
+      id: "ingest-hub",
+      label: "Ingest",
       lane: "Processing",
-      group: "Live + history",
-      status: price?.status || "checking",
-      action: `Live / history / anomalies`,
-      source: "Assets source group",
-      processing: "Live asset rows are usually stored directly; history fills gaps; anomaly detection marks unusual moves for evidence.",
+      group: "Live + raw capture",
+      status: price?.status || news?.status || calendar?.status || "checking",
+      action: "Live, history, raw capture",
+      source: "Assets + News + Calendar",
+      processing: "Ingest records what arrived, what was stale or unavailable, what was backfilled, and what failed before processing begins.",
+      output: "Process + Storage",
+      storage: ["market_price_bars", "related_asset_bars", "news_items", "calendar_events", "provider_health"],
+      ai: "AI can request more data, but ingest only records provider-backed rows.",
+      trace: ["assets-source", "news-source", "calendar-source", "ingest-hub", "process-hub", "storage-bus"],
+      detail: "Ingest is the intake dock: asset live/history/backfill, raw news capture, and structured calendar rows stay separated but share one auditable handoff.",
+      tone: "working",
+      badges: [
+        { label: "live", tone: "good" },
+        { label: "history/backfill", tone: "working" },
+        { label: "raw captured", tone: "store" }
+      ],
+      drilldown: mergeSections([price?.drilldown, history?.drilldown, news?.drilldown, calendar?.drilldown])
+    }),
+    boardNode({
+      id: "process-hub",
+      label: "Process",
+      lane: "Processing",
+      group: "Normalize + filter",
+      status: evidence?.status || "checking",
+      action: "Normalize, filter, detect",
+      source: "Ingested rows",
+      processing: "Assets are normalized and checked for freshness/anomalies; news is deduped, scored, filtered, and summarized; calendar is aligned to event windows.",
       output: "Storage + Evidence packet",
-      storage: ["market_price_bars", "related_asset_bars"],
-      ai: "No AI for raw ingest. AI can request data, not bypass provider checks.",
-      trace: ["assets-source", "asset-ingest", "storage-bus", "evidence-packet"],
-      detail: `${price?.detail || "Live XAUUSD is collected."} ${history?.detail || "History backfill supports replay and analysis windows."}`,
-      tone: price?.tone || "working",
-      drilldown: mergeSections([price?.drilldown, history?.drilldown, ...model.coreSensors.map((sensor) => sensor.drilldown)]),
-      requests: mergeRequests(model.coreSensors.map((sensor) => sensor.requests))
-    }),
-    boardNode({
-      id: "news-processing",
-      label: "News processing",
-      lane: "Processing",
-      group: "Filter + summarize",
-      status: news?.status || "checking",
-      action: "Group, filter, shorten",
-      source: "News raw rows",
-      processing: "Raw news is grouped, deduped, checked for relevance, then shortened for Latest Evidence.",
-      output: "Evidence packet + Latest Evidence",
-      storage: ["news_items", "evidence_packets"],
-      ai: "Display summarizer participates here; raw news remains persisted.",
-      trace: ["news-source", "news-processing", "storage-bus", "evidence-packet", "ai-analysis", "latest-evidence"],
-      detail: "Clicking through should let you inspect raw headline, source, publish time, summary, pass/drop reason, and next handoff.",
-      tone: display?.tone || "ai",
-      drilldown: mergeSections([news?.drilldown, display?.drilldown])
-    }),
-    boardNode({
-      id: "context-gate",
-      label: "Context gate",
-      lane: "Processing",
-      group: "Calendar + timing",
-      status: calendar?.status || "checking",
-      action: "Align timing",
-      source: "Calendar rows + market time",
-      processing: "Keeps scheduled context separate from causal evidence unless it is close enough and relevant.",
-      output: "Evidence packet + Replay",
-      storage: ["calendar_events", "evidence_packets"],
-      ai: "AI may summarize but cannot turn distant calendar rows into causes.",
-      trace: ["calendar-source", "context-gate", "storage-bus", "evidence-packet", "ai-analysis", "replay-output"],
-      detail: "Calendar usually needs less processing than news because it arrives structured.",
-      tone: calendar?.tone || "working",
-      drilldown: mergeSections([calendar?.drilldown])
+      storage: ["related_asset_bars", "news_items", "calendar_events", "evidence_packets"],
+      ai: "AI helps summarize and discover themes after deterministic gates, not during raw capture.",
+      trace: ["ingest-hub", "process-hub", "storage-bus", "evidence-packet", "ai-analysis"],
+      detail: "Process keeps each source type honest: assets mostly store and detect moves, news does the heavy filtering, calendar mostly aligns timing windows.",
+      tone: "working",
+      badges: [
+        { label: "assets: normalize + anomaly", tone: "working" },
+        { label: "news: dedupe + themes", tone: "ai" },
+        { label: "calendar: windows", tone: "good" }
+      ],
+      drilldown: mergeSections([news?.drilldown, calendar?.drilldown, display?.drilldown, evidence?.drilldown])
     }),
     boardNode({
       id: "storage-bus",
@@ -244,7 +183,7 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       output: "Replay + Evidence detail + AI read context",
       storage: storageTables,
       ai: "AI reads bounded stored context; storage keeps audit records so one-month-old runs remain inspectable.",
-      trace: ["assets-source", "news-source", "calendar-source", "storage-bus", "evidence-packet", "ai-analysis", "replay-output"],
+      trace: ["ingest-hub", "process-hub", "storage-bus", "evidence-packet", "ai-analysis", "output-hub"],
       detail: model.storageGroups.map((group) => `${group.title}: ${group.tables.join(", ")}`).join(" | "),
       tone: "store",
       drilldown: [
@@ -272,7 +211,7 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       output: "AI analysis + Latest Evidence",
       storage: ["evidence_packets"],
       ai: "AI can only review what the packet allows.",
-      trace: ["assets-source", "news-processing", "context-gate", "storage-bus", "evidence-packet", "ai-analysis", "latest-evidence"],
+      trace: ["process-hub", "storage-bus", "evidence-packet", "ai-analysis", "output-hub"],
       detail: evidence?.detail || "Evidence packet is the handoff from collected records to analysis.",
       tone: evidence?.tone || "working",
       drilldown: mergeSections([evidence?.drilldown])
@@ -289,7 +228,7 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       output: "Dashboard + Latest Evidence + Alert router",
       storage: ["analysis_results"],
       ai: `${display?.label || "Display summarizer"} / ${cause?.label || "Cause review"} / ${validator?.label || "Validator"} / ${replay?.label || "Replay condenser"}`,
-      trace: ["evidence-packet", "ai-analysis", "latest-evidence", "dashboard-output", "alert-router", "storage-bus"],
+      trace: ["evidence-packet", "ai-analysis", "output-hub", "feedback-hub", "storage-bus"],
       detail: "This is the closed loop: AI may need more assets/news/calendar context, but requests go back through sources and storage instead of inventing facts.",
       tone: "ai",
       badges: [
@@ -314,33 +253,67 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
           }))
         }
       ],
-      requests: mergeRequests([
-        ...model.coreSensors.map((sensor) => sensor.requests),
-        ...model.candidateSensors.map((sensor) => sensor.requests),
-        ...model.discoveredSensors.map((sensor) => sensor.requests)
-      ])
+      requests: dataRequests
     }),
     boardNode({
-      id: "alert-router",
-      label: "Alert router",
-      lane: "AI",
-      group: "Preflight",
+      id: "output-hub",
+      label: "Outputs",
+      lane: "Outputs",
+      group: "User surfaces",
       status: alert?.status || "idle",
-      action: alert?.action || "Check delivery",
+      action: "Dashboard, replay, evidence, Telegram",
       source: "Analysis result + evidence packet",
-      processing: "Formats alert, checks freshness and evidence, then sends Telegram only if all gates pass.",
-      output: "Telegram or dashboard only",
-      storage: ["alerts"],
-      ai: alert?.ai || "Optional alert review can rewrite or block delivery.",
-      trace: ["ai-analysis", "alert-router", "telegram-output", "dashboard-output", "storage-bus"],
-      detail: alert?.detail || "Alert routing answers: what happened, when, what evidence exists, what is missing, and what is the best unsupported explanation.",
+      processing: "Validated results update dashboard, replay, latest evidence, and Telegram only when notification policy allows it.",
+      output: "Dashboard + Replay + Evidence + Telegram",
+      storage: ["analysis_results", "timeline_events", "month_summary_events", "alerts"],
+      ai: alert?.ai || "Output text may be summarized or reviewed, but validated facts remain bounded by evidence.",
+      trace: ["ai-analysis", "output-hub", "storage-bus"],
+      detail: "Outputs answer what happened, when it happened, what evidence exists, what is missing, and why Telegram was sent or suppressed.",
       tone: alert?.tone || "working",
-      drilldown: mergeSections([alert?.drilldown, telegram?.drilldown])
+      drilldown: mergeSections([latest?.drilldown, dashboard?.drilldown, replayOutput?.drilldown, alert?.drilldown, telegram?.drilldown])
     }),
-    ...(latest ? [{ ...latest, trace: ["ai-analysis", "latest-evidence", "storage-bus"] }] : []),
-    ...(dashboard ? [{ ...dashboard, trace: ["ai-analysis", "dashboard-output", "storage-bus"] }] : []),
-    ...(replayOutput ? [{ ...replayOutput, trace: ["storage-bus", "replay-output", "ai-analysis"] }] : []),
-    ...(telegram ? [{ ...telegram, trace: ["alert-router", "telegram-output", "storage-bus"] }] : [])
+    boardNode({
+      id: "feedback-hub",
+      label: "Feedback",
+      lane: "Feedback",
+      group: "Data requests",
+      status: dataRequests.length ? "watching" : "idle",
+      action: dataRequests.length ? `${dataRequests.length} request(s)` : "No request",
+      source: "AI loop + evidence limitations",
+      processing: "Missing, stale, unavailable, or theme-specific needs become source requests instead of invented evidence.",
+      output: "Source priority changes",
+      storage: ["provider_health", "driver_attention_states", "evidence_packets"],
+      ai: "AI can propose what is needed; provider mapping, allowlists, freshness, and validator keep it grounded.",
+      trace: ["ai-analysis", "feedback-hub", "assets-source", "news-source", "calendar-source", "ingest-hub"],
+      detail: "Feedback closes the loop: the system can ask for more lookback, higher-priority sensors, or a provider mapping while showing limitations honestly.",
+      tone: dataRequests.length ? "working" : "muted",
+      badges: [
+        { label: "closed loop", tone: "working" },
+        { label: "no hallucinated sensor", tone: "good" }
+      ],
+      drilldown: [
+        {
+          title: "Feedback / data requests",
+          detail: "Requests return to source groups. They are visible limitations or priorities, not proof of a driver.",
+          rows: dataRequests.length
+            ? dataRequests.map((request) => ({
+                label: request.target,
+                status: request.status,
+                detail: request.reason,
+                meta: [`requested_by: ${request.requestedBy}`, `mode: ${request.mode}`]
+              }))
+            : [
+                {
+                  label: "No current request",
+                  status: "idle",
+                  detail: "The selected run did not require more source data.",
+                  meta: ["feedback loop ready"]
+                }
+              ]
+        }
+      ],
+      requests: dataRequests
+    })
   ];
 };
 
@@ -364,10 +337,8 @@ function SignalNodeButton({
       aria-label={`${node.label}: ${node.action}`}
     >
       <span className="market-agent-signal-dot" aria-hidden="true" />
-      <span className="market-agent-signal-node-kicker">{node.group || node.lane}</span>
       <strong>{node.label}</strong>
       <small>{node.action}</small>
-      <em>{node.output}</em>
     </button>
   );
 }
@@ -390,92 +361,51 @@ export function MarketAgentSignalMap({ model }: MarketAgentSignalMapProps) {
   const activeTrace = useMemo(() => new Set(selectedNode?.trace ?? []), [selectedNode]);
   const selectNode = (node: SignalNode) => setSelectedId(node.id);
   const visibleNodes = useMemo(() => {
-    const ids = new Set(Object.keys(boardPositions));
+    const ids = new Set(["assets-source", "news-source", "calendar-source", "ingest-hub", "process-hub", "storage-bus", "evidence-packet", "ai-analysis", "output-hub", "feedback-hub"]);
     return boardNodes.filter((node) => ids.has(node.id));
   }, [boardNodes]);
-  const nodePositions = useMemo(() => {
-    const dynamicNodes = visibleNodes.filter((node) => !boardPositions[node.id]);
-    const dynamicPositions = new Map(dynamicNodes.map((node, index) => [node.id, fallbackPosition(index)]));
-    return new Map(visibleNodes.map((node) => [node.id, boardPositions[node.id] ?? dynamicPositions.get(node.id) ?? fallbackPosition(0)]));
-  }, [visibleNodes]);
 
   return (
     <section className="market-agent-activity-surface market-agent-signal-map" aria-label="Agent activity board">
       <div className="market-agent-signal-hero">
         <div>
           <span>Signal Map</span>
-          <h2>Market Agent circuit board</h2>
-          <p>{model.phaseMessage} Follow any signal from source, through processing and AI, into storage and outputs.</p>
+          <h2>What the agent is doing now</h2>
+          <p>{model.phaseMessage} Start with the loop, then click one source or step to follow the exact records behind it.</p>
         </div>
         <em>{model.phaseLabel}</em>
       </div>
 
-      <div className="market-agent-signal-board" data-selected-trace={selectedNode?.id || ""}>
-        <svg className="market-agent-circuit-wires" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-          {boardPathPairs.map(([fromId, toId]) => {
-            const from = nodePositions.get(fromId);
-            const to = nodePositions.get(toId);
-            if (!from || !to) return null;
-            const active = selectedNode ? activeTrace.has(fromId) || activeTrace.has(toId) || selectedNode.id === fromId || selectedNode.id === toId : false;
-            return <path key={`${fromId}-${toId}`} className={active ? "wire active" : "wire"} d={circuitPath(from, to)} />;
-          })}
-          {requestPathPairs.map(([fromId, toId]) => {
-            const from = nodePositions.get(fromId);
-            const to = nodePositions.get(toId);
-            if (!from || !to) return null;
-            const active = selectedNode ? selectedNode.id === fromId || selectedNode.id === toId || activeTrace.has(fromId) || activeTrace.has(toId) : false;
-            return <path key={`${fromId}-${toId}-request`} className={active ? "wire wire-request active" : "wire wire-request"} d={circuitPath(from, to)} />;
-          })}
-        </svg>
+      {selectedNode ? (
+        <CausalMesh node={selectedNode} allNodes={allNodes} onClose={() => setSelectedId("")} />
+      ) : (
+        <div className="market-agent-signal-board" data-selected-trace={selectedNode?.id || ""}>
+          <section className="market-agent-board-zone source-zone" aria-label="Source groups">
+            <span>Sources</span>
+            {visibleNodes.filter((node) => ["assets-source", "news-source", "calendar-source"].includes(node.id)).map((node) => (
+              <SignalNodeButton key={node.id} node={node} selected={selectedId === node.id} faded={false} onSelect={selectNode} />
+            ))}
+          </section>
 
-        <div className="market-agent-board-column-label label-sources">Sources</div>
-        <div className="market-agent-board-column-label label-processing">Processing</div>
-        <div className="market-agent-board-column-label label-storage">Storage</div>
-        <div className="market-agent-board-column-label label-ai">AI Loop</div>
-        <div className="market-agent-board-column-label label-outputs">Outputs</div>
+          <section className="market-agent-board-zone trace-zone" aria-label="Run trace">
+            <span>Run trace</span>
+            {visibleNodes.filter((node) => ["ingest-hub", "process-hub", "storage-bus", "evidence-packet", "ai-analysis", "output-hub"].includes(node.id)).map((node, index) => (
+              <div className="market-agent-trace-step" key={node.id}>
+                <b>{String(index + 1).padStart(2, "0")}</b>
+                <SignalNodeButton node={node} selected={selectedId === node.id} faded={Boolean(selectedId) && !activeTrace.has(node.id)} onSelect={selectNode} />
+              </div>
+            ))}
+          </section>
 
-        {visibleNodes.map((node) => {
-          const position = nodePositions.get(node.id) ?? fallbackPosition(0);
-          return (
-            <div className="market-agent-circuit-node-wrap" style={{ left: `${position.x}%`, top: `${position.y}%` }} key={node.id}>
-              <SignalNodeButton
-                node={node}
-                selected={selectedId === node.id}
-                faded={Boolean(selectedId) && !activeTrace.has(node.id)}
-                onSelect={selectNode}
-              />
-            </div>
-          );
-        })}
-      </div>
-
-      <section className="market-agent-board-legend" aria-label="Activity system summary">
-        <div className="market-agent-board-legend-title">
-          <span>Assets</span>
-          <h3>Grouped watchlist</h3>
+          <section className="market-agent-board-zone feedback-zone" aria-label="Feedback queue">
+            <span>Feedback</span>
+            {visibleNodes.filter((node) => node.id === "feedback-hub").map((node) => (
+              <SignalNodeButton key={node.id} node={node} selected={selectedId === node.id} faded={false} onSelect={selectNode} />
+            ))}
+            <p>Requests go back to source groups only when provider mapping, freshness, and evidence gates allow it.</p>
+          </section>
         </div>
-        <div>
-          <span>Configured Assets</span>
-          <h3>Core + candidate</h3>
-          <strong>{model.coreSensors.length} core / {model.candidateSensors.length} candidate / {model.discoveredSensors.length} unmapped</strong>
-        </div>
-        <div>
-          <span>AI Requests</span>
-          <h3>Controlled feedback</h3>
-          <strong>Requests need provider mapping and evidence gates</strong>
-        </div>
-        <div>
-          <span>Storage</span>
-          <h3>Raw + derived</h3>
-          <strong>{model.storageGroups.map((group) => group.title).join(" / ")}</strong>
-        </div>
-        <div>
-          <span>TimelineStore</span>
-          <strong>{model.storagePath}</strong>
-        </div>
-      </section>
-
-      {selectedNode ? <CausalMesh node={selectedNode} allNodes={allNodes} onClose={() => setSelectedId("")} onSelect={selectNode} /> : null}
+      )}
     </section>
   );
 }

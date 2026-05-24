@@ -4654,53 +4654,33 @@ const main = async () => {
       await page.locator("[aria-label='Agent activity board']").first().waitFor({ state: "visible", timeout: 4000 });
 
       const detailBeforeClick = await page.locator(".market-agent-causal-mesh").count();
-      await page.locator(".market-agent-signal-node", { hasText: "Assets" }).first().click();
-      await page.locator(".market-agent-causal-mesh").first().waitFor({ state: "visible", timeout: 4000 });
-
-      const failures = await page.evaluate(() => {
+      const boardFailures = await page.evaluate(() => {
         const problems = [];
         const surface = document.querySelector("[aria-label='Agent activity board']");
         if (!(surface instanceof HTMLElement)) return ["Agent activity surface missing"];
         const board = surface.querySelector(".market-agent-signal-board");
         const nodes = Array.from(surface.querySelectorAll(".market-agent-signal-node"));
-        const wires = Array.from(surface.querySelectorAll(".market-agent-circuit-wires .wire"));
-        const summary = surface.querySelector("[aria-label='Activity system summary']");
-        const detail = surface.querySelector(".market-agent-causal-mesh");
         const requiredText = [
           "Signal Map",
-          "Market Agent circuit board",
           "Sources",
-          "Processing",
+          "Run trace",
+          "Feedback",
+          "Ingest",
+          "Process",
           "Storage",
-          "AI Loop",
-          "Outputs",
-          "Assets",
-          "Raw collected",
-          "Processed / derived",
-          "Grouped watchlist",
-          "AI Requests",
-          "Controlled feedback",
-          "TimelineStore",
-          "News",
-          "Calendar",
-          "Asset ingest",
-          "News processing",
-          "Context gate",
           "Evidence packet",
           "AI Analysis",
-          "Alert router",
-          "Dashboard",
-          "Latest Evidence",
-          "Replay",
-          "Telegram"
+          "Outputs",
+          "Assets",
+          "News",
+          "Calendar"
         ];
         const text = surface.textContent || "";
         requiredText.forEach((label) => {
           if (!text.includes(label)) problems.push(`Activity board missing ${label}`);
         });
         if (!(board instanceof HTMLElement)) problems.push("Activity signal board missing");
-        if (wires.length < 18) problems.push(`Activity circuit board should draw many wires, found ${wires.length}`);
-        if (nodes.length < 13) problems.push(`Activity circuit board should show system nodes, found ${nodes.length}`);
+        if (nodes.length < 9) problems.push(`Activity board should show grouped system nodes, found ${nodes.length}`);
         const boardText = board instanceof HTMLElement ? board.textContent || "" : "";
         ["DXY", "US2Y", "WTI", "Brent", "VIX", "S&P 500", "Nasdaq"].forEach((label) => {
           if (boardText.includes(label)) problems.push(`Activity board should keep ${label} inside Assets detail, not on the main board`);
@@ -4717,44 +4697,46 @@ const main = async () => {
             problems.push(`Activity surface content exceeds viewport but overflow-y is ${overflowY}`);
           }
         }
-        if (!(summary instanceof HTMLElement)) {
-          problems.push("Activity system summary missing");
-        } else if (summary.querySelectorAll("h3").length < 3) {
-          problems.push("Activity system summary should show grouped assets, AI requests, and storage headings");
-        } else if (summary.scrollWidth > summary.clientWidth + 4) {
-          problems.push(`Activity system summary overflows horizontally (${summary.scrollWidth}px > ${summary.clientWidth}px)`);
-        }
-        if (!(detail instanceof HTMLElement)) {
-          problems.push("Activity causal mesh missing after selecting Assets");
-        } else {
-          ["Where it comes from", "What is happening now", "AI involvement", "Storage", "Trace", "provider mapping and allowlists"].forEach((label) => {
-            if (!detail.textContent?.includes(label)) problems.push(`Activity causal mesh missing ${label}`);
-          });
-        }
         nodes.slice(0, 18).forEach((node, index) => {
           if (!(node instanceof HTMLElement)) return;
           const rect = node.getBoundingClientRect();
           if (rect.width < 112) problems.push(`Activity node ${index + 1} is too narrow (${rect.width.toFixed(1)}px)`);
           const title = node.querySelector("strong");
           const action = node.querySelector("small");
-          const output = node.querySelector("em");
           if (
             !(title instanceof HTMLElement) ||
-            !(action instanceof HTMLElement) ||
-            !(output instanceof HTMLElement)
+            !(action instanceof HTMLElement)
           ) {
-            problems.push(`Activity node ${index + 1} missing title, action, or output`);
+            problems.push(`Activity node ${index + 1} missing title or action`);
             return;
           }
           if (title.getBoundingClientRect().bottom > action.getBoundingClientRect().top + 1) {
             problems.push(`Activity node ${index + 1} title overlaps action`);
           }
-          if (output.scrollWidth > output.clientWidth + 4 && rect.width > 180) {
-            problems.push(`Activity node ${index + 1} output overflows horizontally`);
-          }
         });
         return problems;
       });
+      await page.locator(".market-agent-signal-node", { hasText: "Assets" }).first().click();
+      await page.locator(".market-agent-causal-mesh").first().waitFor({ state: "visible", timeout: 4000 });
+
+      const focusFailures = await page.evaluate(() => {
+        const problems = [];
+        const surface = document.querySelector("[aria-label='Agent activity board']");
+        if (!(surface instanceof HTMLElement)) return ["Agent activity surface missing"];
+        const detail = surface.querySelector(".market-agent-causal-mesh");
+        if (!(detail instanceof HTMLElement)) {
+          problems.push("Activity focus view missing after selecting Assets");
+        } else {
+          ["Focus view", "What this step is doing", "Why users should care", "Trace", "View records"].forEach((label) => {
+            if (!detail.textContent?.includes(label)) problems.push(`Activity focus view missing ${label}`);
+          });
+          ["Where it comes from", "What is happening now", "AI involvement"].forEach((label) => {
+            if (detail.textContent?.includes(label)) problems.push(`Activity focus view should not expose old audit field ${label}`);
+          });
+        }
+        return problems;
+      });
+      const failures = [...boardFailures, ...focusFailures];
 
       if (detailBeforeClick !== 0) {
         failures.push(`Activity detail drawer should be hidden before click, found ${detailBeforeClick}`);

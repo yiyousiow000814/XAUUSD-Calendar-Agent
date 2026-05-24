@@ -1,38 +1,28 @@
 ﻿.market-agent-signal-board {
-  position: relative;
-  min-height: 600px;
+  display: grid;
+  grid-template-columns: minmax(150px, 0.72fr) minmax(260px, 1.28fr) minmax(150px, 0.72fr);
+  align-items: stretch;
+  gap: 12px;
+  min-height: 0;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
+  padding: 14px;
   border: 1px solid rgba(134, 148, 168, 0.14);
   border-radius: 8px;
-  background:
-    linear-gradient(rgba(134, 148, 168, 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(134, 148, 168, 0.055) 1px, transparent 1px),
-    radial-gradient(circle at 74% 18%, rgba(90, 167, 255, 0.12), transparent 24%),
-    radial-gradient(circle at 18% 34%, rgba(41, 214, 139, 0.1), transparent 22%),
-    rgba(7, 12, 20, 0.52);
-  background-size:
-    80px 80px,
-    80px 80px,
-    auto,
-    auto,
-    auto;
+  background: rgba(7, 12, 20, 0.52);
 }
 
 .market-agent-signal-node {
   position: relative;
   display: grid;
   min-width: 0;
-  gap: 4px;
-  width: 156px;
+  gap: 5px;
+  width: 100%;
   min-height: 58px;
-  padding: 9px 9px 9px 25px;
+  padding: 11px 12px 11px 28px;
   border: 1px solid rgba(134, 148, 168, 0.14);
   border-radius: 7px;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.048), rgba(255, 255, 255, 0.015)),
-    rgba(13, 23, 36, 0.92);
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
+  background: rgba(13, 23, 36, 0.9);
   color: inherit;
   font: inherit;
   text-align: left;
@@ -47,11 +37,84 @@
 .market-agent-signal-node.selected {
   border-color: rgba(255, 189, 86, 0.48);
   background: rgba(255, 189, 86, 0.08);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 .market-agent-signal-node.faded {
-  opacity: 0.46;
+  opacity: 0.72;
+}
+
+.market-agent-board-zone {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid rgba(134, 148, 168, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.market-agent-board-zone > span {
+  color: var(--text-muted, #748094);
+  font-size: 10px;
+  font-weight: 860;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.market-agent-board-zone > span::after {
+  display: block;
+  width: 78px;
+  height: 1px;
+  margin-top: 8px;
+  background: rgba(134, 148, 168, 0.18);
+  content: "";
+}
+
+.trace-zone {
+  position: relative;
+}
+
+.trace-zone::before {
+  position: absolute;
+  top: 62px;
+  bottom: 18px;
+  left: 23px;
+  width: 2px;
+  border-radius: 999px;
+  background: rgba(134, 148, 168, 0.26);
+  content: "";
+}
+
+.market-agent-trace-step {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.market-agent-trace-step b {
+  position: relative;
+  z-index: 2;
+  display: inline-grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border: 1px solid rgba(134, 148, 168, 0.24);
+  border-radius: 999px;
+  background: rgba(7, 12, 20, 0.94);
+  color: var(--text-secondary, #9aa4b2);
+  font-size: 10px;
+  font-weight: 860;
+}
+
+.feedback-zone p {
+  margin: 0;
+  color: var(--text-secondary, #9aa4b2);
+  font-size: 11.5px;
+  line-height: 1.42;
 }
 
 .market-agent-signal-dot {
@@ -66,8 +129,7 @@
 }
 
 .market-agent-signal-node strong,
-.market-agent-signal-node small,
-.market-agent-signal-node em {
+.market-agent-signal-node small {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -76,20 +138,15 @@
 
 .market-agent-signal-node strong {
   color: var(--text-primary, #f8fafc);
-  font-size: 12.5px;
+  font-size: 13px;
   line-height: 1.16;
 }
 
-.market-agent-signal-node small,
-.market-agent-signal-node em {
+.market-agent-signal-node small {
   color: var(--text-secondary, #9aa4b2);
   font-size: 11px;
   font-style: normal;
   line-height: 1.25;
-}
-
-.market-agent-signal-node em {
-  color: var(--text-muted, #748094);
 }
 
 .market-agent-circuit-node-wrap {
@@ -155,15 +212,15 @@
 }
 
 .label-processing {
-  left: 28%;
+  left: 25%;
 }
 
 .label-storage {
-  left: 48%;
+  left: 54%;
 }
 
 .label-ai {
-  left: 67%;
+  left: 72%;
 }
 
 .label-outputs {
@@ -252,6 +309,14 @@
   box-shadow: 0 0 0 4px rgba(217, 167, 255, 0.14);
 }
 
+.market-agent-intelligence-workbench {
+  display: grid;
+  grid-template-columns: minmax(620px, 1fr) minmax(330px, 0.42fr);
+  align-items: start;
+  gap: 12px;
+  min-width: 0;
+}
+
 .market-agent-board-legend {
   display: grid;
   grid-template-columns: 0.95fr 1.3fr 1fr 1fr 1.2fr;
@@ -284,12 +349,18 @@
   display: grid;
   gap: 12px;
   min-width: 0;
+  max-height: none;
   padding: 13px;
   border: 1px solid rgba(134, 148, 168, 0.14);
   border-radius: 8px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.028), rgba(255, 255, 255, 0.008)),
     rgba(7, 12, 20, 0.42);
+}
+
+.market-agent-inspector {
+  position: static;
+  overflow: visible;
 }
 
 .market-agent-causal-mesh header {
@@ -376,6 +447,207 @@
   background: rgba(255, 255, 255, 0.04);
   color: var(--text-secondary, #9aa4b2);
   font-size: 11px;
+  font-weight: 760;
+}
+
+.market-agent-inspector-path {
+  display: flex;
+  gap: 7px;
+  min-width: 0;
+  overflow-x: auto;
+  padding: 2px 0 8px;
+  scrollbar-width: thin;
+}
+
+.market-agent-inspector-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  min-width: 0;
+  padding: 4px;
+  border: 1px solid rgba(134, 148, 168, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.market-agent-inspector-tabs button {
+  min-width: 0;
+  min-height: 30px;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary, #9aa4b2);
+  font-size: 11px;
+  font-weight: 780;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.market-agent-inspector-tabs button.active {
+  border-color: rgba(255, 189, 86, 0.36);
+  background: rgba(255, 189, 86, 0.08);
+  color: var(--text-primary, #f8fafc);
+}
+
+.market-agent-inspector-path button {
+  display: grid;
+  flex: 0 0 116px;
+  min-width: 0;
+  gap: 4px;
+  padding: 8px 9px;
+  border: 1px solid rgba(134, 148, 168, 0.14);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.026);
+  text-align: left;
+}
+
+.market-agent-inspector-path button.active {
+  border-color: rgba(41, 214, 139, 0.44);
+  background: rgba(41, 214, 139, 0.08);
+}
+
+.market-agent-inspector-path span,
+.market-agent-inspector-relations > section > span {
+  color: var(--text-muted, #748094);
+  font-size: 10px;
+  font-weight: 820;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.market-agent-inspector-path strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-primary, #f8fafc);
+  font-size: 12px;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.market-agent-inspector-relations {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  gap: 8px;
+}
+
+.market-agent-inspector-relations > section {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  gap: 7px;
+}
+
+.market-agent-focus-overview {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.market-agent-focus-story {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  min-width: 0;
+  gap: 18px;
+  padding: 4px 2px 16px;
+  border-bottom: 1px solid rgba(134, 148, 168, 0.14);
+}
+
+.market-agent-focus-story > div {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  gap: 7px;
+}
+
+.market-agent-focus-story span,
+.market-agent-focus-path span {
+  color: var(--text-muted, #748094);
+  font-size: 10px;
+  font-weight: 820;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.market-agent-focus-story strong,
+.market-agent-focus-path strong {
+  color: var(--text-primary, #f8fafc);
+  font-size: 15px;
+  line-height: 1.22;
+}
+
+.market-agent-focus-story p,
+.market-agent-focus-path p {
+  max-width: 78ch;
+  color: var(--text-secondary, #9aa4b2);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.market-agent-focus-path {
+  display: grid;
+  grid-template-columns: minmax(230px, 0.62fr) minmax(0, 1.38fr);
+  align-items: start;
+  gap: 16px;
+  min-width: 0;
+}
+
+.market-agent-focus-path > div {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+}
+
+.market-agent-focus-path ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.market-agent-focus-path li {
+  position: relative;
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  max-width: 180px;
+  padding: 6px 10px;
+  border: 1px solid rgba(134, 148, 168, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.026);
+  color: var(--text-secondary, #9aa4b2);
+  font-size: 11.5px;
+  font-weight: 760;
+}
+
+.market-agent-focus-path li + li::before {
+  position: absolute;
+  left: -8px;
+  color: rgba(134, 148, 168, 0.56);
+  content: ">";
+}
+
+.market-agent-focus-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.market-agent-focus-actions button {
+  min-height: 34px;
+  padding: 7px 11px;
+  border: 1px solid rgba(255, 189, 86, 0.28);
+  border-radius: 7px;
+  background: rgba(255, 189, 86, 0.07);
+  color: var(--text-primary, #f8fafc);
+  font-size: 12px;
   font-weight: 760;
 }
 
@@ -527,7 +799,7 @@
 
 .market-agent-causal-detail {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
   gap: 8px;
 }
 
@@ -602,7 +874,7 @@
 .market-agent-trace-row-list,
 .market-agent-data-request-list {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
   gap: 8px;
 }
 
@@ -688,6 +960,31 @@
   background: rgba(255, 189, 86, 0.045);
 }
 
+.market-agent-run-rail {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 7px;
+  min-width: 0;
+}
+
+.market-agent-run-rail button {
+  min-width: 0;
+  min-height: 34px;
+  border: 1px solid rgba(134, 148, 168, 0.12);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.022);
+  color: var(--text-secondary, #9aa4b2);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 760;
+}
+
+.market-agent-run-rail button.active {
+  border-color: rgba(41, 214, 139, 0.38);
+  background: rgba(41, 214, 139, 0.08);
+  color: var(--text-primary, #f8fafc);
+}
+
 [data-theme="light"] .market-agent-signal-hero,
 [data-theme="light"] .market-agent-signal-lane,
 [data-theme="light"] .market-agent-sensors-board,
@@ -713,19 +1010,29 @@
   background: rgba(255, 255, 255, 0.62);
 }
 
+[data-theme="light"] .market-agent-inspector-path button,
+[data-theme="light"] .market-agent-inspector-tabs,
+[data-theme="light"] .market-agent-run-rail button {
+  background: rgba(255, 255, 255, 0.58);
+}
+
+[data-theme="light"] .market-agent-focus-actions button {
+  border-color: rgba(181, 116, 24, 0.42);
+  background: rgba(255, 247, 234, 0.94);
+  color: #172033;
+}
+
+[data-theme="light"] .market-agent-focus-actions button:hover {
+  border-color: rgba(181, 116, 24, 0.68);
+  background: #fff1d6;
+}
+
+[data-theme="light"] .market-agent-causal-mesh > header > button {
+  color: #4f5d73;
+}
+
 [data-theme="light"] .market-agent-signal-board {
-  background:
-    linear-gradient(rgba(103, 116, 137, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(103, 116, 137, 0.08) 1px, transparent 1px),
-    radial-gradient(circle at 74% 18%, rgba(90, 167, 255, 0.12), transparent 24%),
-    radial-gradient(circle at 18% 34%, rgba(41, 214, 139, 0.1), transparent 22%),
-    rgba(255, 255, 255, 0.7);
-  background-size:
-    80px 80px,
-    80px 80px,
-    auto,
-    auto,
-    auto;
+  background: rgba(255, 255, 255, 0.7);
 }
 
 [data-theme="light"] .market-agent-signal-hero h2,
@@ -741,6 +1048,8 @@
 [data-theme="light"] .market-agent-signal-detail-grid strong,
 [data-theme="light"] .market-agent-board-legend strong,
 [data-theme="light"] .market-agent-storage-chip strong,
+[data-theme="light"] .market-agent-focus-story strong,
+[data-theme="light"] .market-agent-focus-path strong,
 [data-theme="light"] .mesh-node strong,
 [data-theme="light"] .mesh-focus strong,
 [data-theme="light"] .mesh-storage strong,
@@ -749,7 +1058,8 @@
 [data-theme="light"] .market-agent-data-requests h4,
 [data-theme="light"] .market-agent-trace-section-head strong,
 [data-theme="light"] .market-agent-trace-row strong,
-[data-theme="light"] .market-agent-data-request strong {
+[data-theme="light"] .market-agent-data-request strong,
+[data-theme="light"] .market-agent-inspector-path strong {
   color: #172033;
 }
 
@@ -761,9 +1071,10 @@
 [data-theme="light"] .market-agent-signal-detail p,
 [data-theme="light"] .market-agent-causal-mesh p,
 [data-theme="light"] .market-agent-signal-node small,
-[data-theme="light"] .market-agent-signal-node em,
 [data-theme="light"] .market-agent-storage-bus-groups span,
 [data-theme="light"] .market-agent-storage-chip small,
+[data-theme="light"] .market-agent-focus-story p,
+[data-theme="light"] .market-agent-focus-path p,
 [data-theme="light"] .mesh-node small,
 [data-theme="light"] .mesh-focus small,
 [data-theme="light"] .mesh-storage small,
@@ -782,6 +1093,8 @@
 [data-theme="light"] .market-agent-board-column-label,
 [data-theme="light"] .market-agent-storage-chip span,
 [data-theme="light"] .market-agent-board-legend span,
+[data-theme="light"] .market-agent-focus-story span,
+[data-theme="light"] .market-agent-focus-path span,
 [data-theme="light"] .market-agent-causal-mesh header span,
 [data-theme="light"] .mesh-node span,
 [data-theme="light"] .mesh-focus span,
@@ -789,17 +1102,19 @@
 [data-theme="light"] .market-agent-trace-row span,
 [data-theme="light"] .market-agent-data-request span,
 [data-theme="light"] .market-agent-trace-row li,
-[data-theme="light"] .market-agent-data-request small {
+[data-theme="light"] .market-agent-data-request small,
+[data-theme="light"] .market-agent-inspector-path span,
+[data-theme="light"] .market-agent-inspector-relations > section > span {
   color: #65738a;
 }
 
 @media (max-width: 1280px) {
-  .market-agent-signal-board {
-    min-height: 620px;
+  .market-agent-intelligence-workbench {
+    grid-template-columns: minmax(560px, 1fr) minmax(310px, 0.5fr);
   }
 
-  .market-agent-signal-node {
-    width: 150px;
+  .market-agent-signal-board {
+    min-height: 0;
   }
 
   .market-agent-board-legend,
@@ -822,6 +1137,16 @@
 }
 
 @media (max-width: 760px) {
+  .market-agent-intelligence-workbench,
+  .market-agent-run-rail {
+    grid-template-columns: 1fr;
+  }
+
+  .market-agent-inspector {
+    position: static;
+    max-height: none;
+  }
+
   .market-agent-cockpit-main > .market-agent-activity-surface {
     padding-right: 8px;
   }
@@ -829,6 +1154,7 @@
   .market-agent-signal-hero,
   .market-agent-sensors-board,
   .market-agent-board-legend,
+  .market-agent-focus-overview,
   .market-agent-storage-bus header,
   .market-agent-signal-detail header,
   .market-agent-causal-mesh header,
@@ -846,7 +1172,8 @@
   }
 
   .market-agent-signal-board {
-    min-height: 1040px;
+    grid-template-columns: 1fr;
+    min-height: 0;
   }
 
   .market-agent-circuit-node-wrap {

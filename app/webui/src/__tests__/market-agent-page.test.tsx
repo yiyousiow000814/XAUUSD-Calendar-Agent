@@ -2026,28 +2026,37 @@ describe("MarketAgentPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /^Activity$/i }));
     const agentActivity = screen.getByLabelText(/Agent activity board/i);
+    const sourceGroups = within(agentActivity).getByLabelText(/Source groups/i);
+    const backToMap = () => fireEvent.click(within(agentActivity).getByRole("button", { name: /Back to signal map/i }));
 
     expect(within(agentActivity).getByText(/Signal Map/i)).toBeInTheDocument();
     expect(within(agentActivity).getByRole("button", { name: /Assets/i })).toBeInTheDocument();
     expect(within(agentActivity).getAllByRole("button", { name: /News/i }).length).toBeGreaterThan(0);
     expect(within(agentActivity).getByRole("button", { name: /Calendar/i })).toBeInTheDocument();
     expect(within(agentActivity).getByRole("button", { name: /AI Analysis/i })).toBeInTheDocument();
+    expect(within(agentActivity).getByRole("button", { name: /^Outputs:/i })).toBeInTheDocument();
+    expect(within(agentActivity).getByRole("button", { name: /^Feedback:/i })).toBeInTheDocument();
     expect(within(agentActivity).getAllByText(/Storage/i).length).toBeGreaterThan(0);
-    expect(within(agentActivity).getByText(/Raw collected/i)).toBeInTheDocument();
-    expect(within(agentActivity).getByText(/Processed \/ derived/i)).toBeInTheDocument();
     expect(within(agentActivity).getAllByText(/market_agent_timeline\.sqlite/i).length).toBeGreaterThan(0);
     expect(within(agentActivity).queryByRole("button", { name: /DXY|US2Y|WTI/i })).not.toBeInTheDocument();
 
-    fireEvent.click(within(agentActivity).getByRole("button", { name: /Assets/i }));
-    const assetsDetail = within(agentActivity).getByRole("dialog", { name: /Assets/i });
-    expect(within(assetsDetail).getByText(/Where it comes from/i)).toBeInTheDocument();
-    expect(within(assetsDetail).getByText(/What is happening now/i)).toBeInTheDocument();
-    expect(within(assetsDetail).getByText(/AI involvement/i)).toBeInTheDocument();
-    expect(within(assetsDetail).getAllByText(/^Storage$/i).length).toBeGreaterThan(0);
+    fireEvent.click(within(agentActivity).getByRole("button", { name: /^Storage:/i }));
+    const storageDetail = within(agentActivity).getByRole("complementary", { name: /Storage detail view/i });
+    fireEvent.click(within(storageDetail).getByRole("button", { name: /View records/i }));
+    expect(within(storageDetail).getByText(/Persisted audit stores/i)).toBeInTheDocument();
+    expect(within(storageDetail).getAllByText(/Raw collected/i).length).toBeGreaterThan(0);
+    expect(within(storageDetail).getAllByText(/Processed \/ derived/i).length).toBeGreaterThan(0);
+    backToMap();
+
+    fireEvent.click(within(within(agentActivity).getByLabelText(/Source groups/i)).getByRole("button", { name: /Assets/i }));
+    const assetsDetail = within(agentActivity).getByRole("complementary", { name: /Assets detail view/i });
+    expect(within(assetsDetail).getByText(/What this step is doing/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getByText(/Why users should care/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getByText(/provider mapping and allowlists/i)).toBeInTheDocument();
+    fireEvent.click(within(assetsDetail).getByRole("button", { name: /View records/i }));
+    expect(within(assetsDetail).getByText(/Operational trace/i)).toBeInTheDocument();
     expect(within(assetsDetail).getAllByText(/market_price_bars/i).length).toBeGreaterThan(0);
     expect(within(assetsDetail).getAllByText(/related_asset_bars/i).length).toBeGreaterThan(0);
-    expect(within(assetsDetail).getByText(/provider mapping and allowlists/i)).toBeInTheDocument();
-    expect(within(assetsDetail).getByText(/Operational trace/i)).toBeInTheDocument();
     expect(within(assetsDetail).getAllByText(/Assets source group/i).length).toBeGreaterThan(0);
     expect(within(assetsDetail).getAllByText(/^XAUUSD$/i).length).toBeGreaterThan(0);
     expect(within(assetsDetail).getAllByText(/^DXY$/i).length).toBeGreaterThan(0);
@@ -2056,48 +2065,52 @@ describe("MarketAgentPage", () => {
     expect(within(assetsDetail).getAllByText(/US2Y is unavailable, so it is not treated as neutral/i).length).toBeGreaterThan(0);
     expect(within(assetsDetail).getAllByText(/requested_by: Yields driver \/ evidence gate/i).length).toBeGreaterThan(0);
     expect(within(assetsDetail).getAllByText(/used_by: Driver attention, evidence gate, Latest Evidence/i).length).toBeGreaterThan(0);
+    fireEvent.click(within(assetsDetail).getByRole("button", { name: /^Overview$/i }));
+    fireEvent.click(within(assetsDetail).getByRole("button", { name: /View requests/i }));
     expect(within(assetsDetail).getByText(/Feedback loop/i)).toBeInTheDocument();
+    backToMap();
 
-    fireEvent.click(within(assetsDetail).getByRole("button", { name: /Close/i }));
-    fireEvent.click(within(agentActivity).getAllByRole("button", { name: /News/i })[0]);
-    const newsDetail = within(agentActivity).getByRole("dialog", { name: /News/i });
-    expect(within(newsDetail).getByText(/Raw capture/i)).toBeInTheDocument();
+    fireEvent.click(within(within(agentActivity).getByLabelText(/Source groups/i)).getByRole("button", { name: /^News:/i }));
+    const newsDetail = within(agentActivity).getByRole("complementary", { name: /News detail view/i });
+    fireEvent.click(within(newsDetail).getByRole("button", { name: /View records/i }));
+    expect(within(newsDetail).getAllByText(/Raw capture/i).length).toBeGreaterThan(0);
     expect(within(newsDetail).getByText(/Dedupe \/ source scoring/i)).toBeInTheDocument();
     expect(within(newsDetail).getByText(/Theme extraction/i)).toBeInTheDocument();
     expect(within(newsDetail).getAllByText(/Evidence candidate/i).length).toBeGreaterThan(0);
+    backToMap();
 
-    fireEvent.click(within(newsDetail).getByRole("button", { name: /Close/i }));
-    fireEvent.click(within(agentActivity).getByRole("button", { name: /Calendar/i }));
-    const calendarDetail = within(agentActivity).getByRole("dialog", { name: /Calendar/i });
+    fireEvent.click(within(within(agentActivity).getByLabelText(/Source groups/i)).getByRole("button", { name: /Calendar/i }));
+    const calendarDetail = within(agentActivity).getByRole("complementary", { name: /Calendar detail view/i });
+    fireEvent.click(within(calendarDetail).getByRole("button", { name: /View records/i }));
     expect(within(calendarDetail).getByText(/Calendar event windows/i)).toBeInTheDocument();
     expect(within(calendarDetail).getByText(/Window alignment/i)).toBeInTheDocument();
     expect(within(calendarDetail).getByText(/storage: calendar_events/i)).toBeInTheDocument();
+    backToMap();
 
-    fireEvent.click(within(calendarDetail).getByRole("button", { name: /Close/i }));
     fireEvent.click(within(agentActivity).getByRole("button", { name: /AI Analysis/i }));
-    const aiDetail = within(agentActivity).getByRole("dialog", { name: /AI Analysis/i });
+    const aiDetail = within(agentActivity).getByRole("complementary", { name: /AI Analysis detail view/i });
+    fireEvent.click(within(aiDetail).getByRole("button", { name: /View records/i }));
     expect(within(aiDetail).getByText(/Evidence gate decisions/i)).toBeInTheDocument();
     expect(within(aiDetail).getByText(/Driver lifecycle/i)).toBeInTheDocument();
     expect(within(aiDetail).getByText(/LLM analysis/i)).toBeInTheDocument();
     expect(within(aiDetail).getAllByText(/Validator guard/i).length).toBeGreaterThan(0);
     expect(within(aiDetail).getByText(/Notification policy/i)).toBeInTheDocument();
+    fireEvent.click(within(aiDetail).getByRole("button", { name: /^Overview$/i }));
+    fireEvent.click(within(aiDetail).getByRole("button", { name: /View requests/i }));
     expect(within(aiDetail).getByText(/Data requests and sensor priority/i)).toBeInTheDocument();
     expect(within(aiDetail).getAllByText(/without promoting it to active/i).length).toBeGreaterThan(0);
+    backToMap();
 
-    fireEvent.click(within(aiDetail).getByRole("button", { name: /Close/i }));
-    fireEvent.click(within(agentActivity).getByRole("button", { name: /Replay/i }));
-    const replayDetail = within(agentActivity).getByRole("dialog", { name: /Replay/i });
-    expect(within(replayDetail).getByText(/Per-run trace/i)).toBeInTheDocument();
-    expect(within(replayDetail).getAllByText(/Source rows/i).length).toBeGreaterThan(0);
-
-    fireEvent.click(within(replayDetail).getByRole("button", { name: /Close/i }));
-    fireEvent.click(within(agentActivity).getByRole("button", { name: /Telegram/i }));
-    const telegramDetail = within(agentActivity).getByRole("dialog", { name: /Telegram/i });
-    expect(within(telegramDetail).getByText(/Telegram delivery/i)).toBeInTheDocument();
-    expect(within(telegramDetail).getByText(/Suppressed alerts/i)).toBeInTheDocument();
-    expect(within(telegramDetail).getByText(/reason: evidence\/noise\/cooldown policy/i)).toBeInTheDocument();
+    fireEvent.click(within(agentActivity).getByRole("button", { name: /^Outputs:/i }));
+    const outputsDetail = within(agentActivity).getByRole("complementary", { name: /Outputs detail view/i });
+    fireEvent.click(within(outputsDetail).getByRole("button", { name: /View records/i }));
+    expect(within(outputsDetail).getByText(/Per-run trace/i)).toBeInTheDocument();
+    expect(within(outputsDetail).getAllByText(/Source rows/i).length).toBeGreaterThan(0);
+    expect(within(outputsDetail).getAllByText(/Telegram delivery/i).length).toBeGreaterThan(0);
+    expect(within(outputsDetail).getByText(/Suppressed alerts/i)).toBeInTheDocument();
+    expect(within(outputsDetail).getByText(/reason: evidence\/noise\/cooldown policy/i)).toBeInTheDocument();
     expect(screen.queryByText(/Background activity/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/News feeds not configured|No news provider configured|disabled/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/News feeds not configured|No news provider configured/i)).not.toBeInTheDocument();
   });
 
   it("shows a readable local CSV fallback warning", () => {
