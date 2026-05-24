@@ -26,6 +26,7 @@ export const normalizeMarketAgentReplayPayload = (
   calendar_events: arrayOrEmpty<Record<string, unknown>>(payload?.calendar_events),
   driver_attention_timeline: arrayOrEmpty<Record<string, unknown>>(payload?.driver_attention_timeline),
   timeline_events: arrayOrEmpty<MarketAgentTimelineEvent>(payload?.timeline_events),
+  month_summary_events: arrayOrEmpty<MarketAgentTimelineEvent>(payload?.month_summary_events),
   state_transitions: arrayOrEmpty<MarketAgentStateTransition>(payload?.state_transitions),
   alerts: arrayOrEmpty<MarketAgentAlertTimelineItem>(payload?.alerts),
   suppressed_alerts: arrayOrEmpty<MarketAgentAlertTimelineItem>(payload?.suppressed_alerts)

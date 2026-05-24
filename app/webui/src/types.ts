@@ -303,6 +303,7 @@ export type MarketAgentReplayPayload = {
   calendar_events: Record<string, unknown>[];
   driver_attention_timeline: Record<string, unknown>[];
   timeline_events: MarketAgentTimelineEvent[];
+  month_summary_events?: MarketAgentTimelineEvent[];
   state_transitions: MarketAgentStateTransition[];
   alerts: MarketAgentAlertTimelineItem[];
   suppressed_alerts: MarketAgentAlertTimelineItem[];

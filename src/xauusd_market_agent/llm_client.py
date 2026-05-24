@@ -81,6 +81,54 @@ class LocalLLMClient:
         except Exception:
             return None
 
+    def summarize_display(self, display_packet: dict[str, Any]) -> dict[str, Any] | None:
+        if not self.config.enabled:
+            return None
+        compact_packet = {
+            "evidence_packet": display_packet.get("evidence_packet"),
+            "analysis": display_packet.get("analysis"),
+            "news": display_packet.get("news", [])[:5],
+            "calendar": display_packet.get("calendar", [])[:5],
+            "related_assets": display_packet.get("related_assets", [])[:16],
+        }
+        prompt = (
+            "Create short UI summaries for the XAUUSD Market Agent dashboard. "
+            "Use only supplied facts. Do not invent drivers, prices, headlines, or causes. "
+            "Return strict JSON only. The JSON may contain news, calendar, and related_assets. "
+            "news and calendar must be arrays of objects with source_index, summary_title, and summary. "
+            "related_assets must be an object keyed by lower-case symbol; each value is an array of "
+            "objects with source_index and summary. Keep summary_title under 6 words and summary under 90 characters. "
+            "source_index must point to the supplied input row index.\n\n"
+            f"{json.dumps(compact_packet, ensure_ascii=True, indent=2, sort_keys=True)}"
+        )
+        try:
+            import requests
+
+            response = requests.post(
+                f"{self.config.endpoint.rstrip('/')}/api/generate",
+                json={
+                    "model": self.config.model,
+                    "prompt": prompt,
+                    "stream": False,
+                    "format": "json",
+                    "options": {
+                        "temperature": 0,
+                        "num_ctx": self.config.max_context,
+                    },
+                    "keep_alive": self.config.keep_alive,
+                },
+                timeout=self.config.timeout_seconds,
+            )
+            response.raise_for_status()
+            payload = response.json()
+            if isinstance(payload.get("response"), str):
+                result = json.loads(payload["response"])
+                if isinstance(result, dict):
+                    return result
+            return None
+        except Exception:
+            return None
+
     def review_alert(self, alert_packet: dict[str, Any]) -> dict[str, Any] | None:
         if not self.config.enabled:
             return None

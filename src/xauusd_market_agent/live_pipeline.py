@@ -1465,6 +1465,78 @@ def _alert_preflight_status(allowed: bool, detail: str) -> str:
     return "approved"
 
 
+def _safe_summary_text(value: Any, limit: int = 180) -> str:
+    text = " ".join(str(value or "").split())
+    return text[:limit].rstrip()
+
+
+def _apply_summary_items(rows: list[dict[str, Any]], summaries: Any) -> int:
+    if not isinstance(summaries, list):
+        return 0
+    applied = 0
+    for item in summaries:
+        if not isinstance(item, dict):
+            continue
+        try:
+            index = int(item.get("source_index", -1))
+        except (TypeError, ValueError):
+            continue
+        if index < 0 or index >= len(rows):
+            continue
+        summary = _safe_summary_text(item.get("summary"))
+        title = _safe_summary_text(item.get("summary_title"), limit=80)
+        if summary:
+            rows[index]["summary"] = summary
+            rows[index]["summary_source"] = "local_ai"
+        if title:
+            rows[index]["summary_title"] = title
+            rows[index]["summary_source"] = "local_ai"
+        if summary or title:
+            applied += 1
+    return applied
+
+
+def _apply_display_summaries(
+    llm_client: Any,
+    runtime_context: dict[str, Any],
+    evidence_packet: dict[str, Any],
+    analysis: Any,
+) -> None:
+    if llm_client is None or not hasattr(llm_client, "summarize_display"):
+        runtime_context["display_summary_status"] = "not_used"
+        return
+    payload = {
+        "evidence_packet": evidence_packet,
+        "analysis": analysis.to_dict() if hasattr(analysis, "to_dict") else analysis,
+        "news": runtime_context.get("news_rows", []),
+        "calendar": runtime_context.get("calendar_rows", []),
+        "related_assets": runtime_context.get("related_asset_bars", []),
+    }
+    try:
+        summaries = llm_client.summarize_display(payload)
+    except Exception:
+        runtime_context["display_summary_status"] = "unavailable"
+        return
+    if not isinstance(summaries, dict):
+        runtime_context["display_summary_status"] = "invalid"
+        return
+
+    applied = 0
+    applied += _apply_summary_items(runtime_context.get("news_rows", []), summaries.get("news"))
+    applied += _apply_summary_items(runtime_context.get("calendar_rows", []), summaries.get("calendar"))
+    related_by_symbol: dict[str, list[dict[str, Any]]] = {}
+    for row in runtime_context.get("related_asset_bars", []):
+        symbol = str(row.get("symbol", "")).lower()
+        if symbol:
+            related_by_symbol.setdefault(symbol, []).append(row)
+    related_summaries = summaries.get("related_assets")
+    if isinstance(related_summaries, dict):
+        for symbol, items in related_summaries.items():
+            applied += _apply_summary_items(related_by_symbol.get(str(symbol).lower(), []), items)
+
+    runtime_context["display_summary_status"] = "summarized" if applied else "empty"
+
+
 def _build_packet(
     fixture: ScenarioFixture,
     *,
@@ -1857,6 +1929,7 @@ def run_monitored_live_once(
         provider_chain_status=runtime_context.get("provider_chain_status", []),
         fallback_reason=runtime_context.get("fallback_reason", ""),
     )
+    _apply_display_summaries(active_llm_client, runtime_context, packet, analysis)
     alert_message = ""
     alert_preflight = {
         "status": "not_applicable",
@@ -2050,6 +2123,15 @@ def run_monitored_live_once(
                 run_type=run_type,
                 data_mode=data_mode,
             ),
+            "summary_title": str(getattr(analysis, "main_driver", "unknown")).replace("_", " ").title(),
+            "summary": _safe_summary_text(
+                getattr(analysis, "summary", None)
+                or getattr(analysis, "user_message", "")
+                or getattr(analysis, "causal_chain", "")
+            ),
+            "summary_source": "local_ai"
+            if str(getattr(analysis, "analysis_engine", "")) == "llm_validated"
+            else "rule_based",
             "analysis": analysis.to_dict(),
         },
     )

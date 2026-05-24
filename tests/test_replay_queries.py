@@ -74,6 +74,18 @@ def test_replay_queries_return_combined_timeline(tmp_path) -> None:
         label="yields",
         payload={"data_mode": "live_seen"},
     )
+    store.record_timeline_event(
+        run_id,
+        event_time="2026-05-19T07:16:00+08:00",
+        event_type="market_alert",
+        label="Yields pressure",
+        payload={
+            "semantic_type": "breakout",
+            "impact_percent": -0.48,
+            "main_driver": "yields",
+            "summary": "US yields confirmed the XAUUSD down move.",
+        },
+    )
 
     replay = store.get_market_replay("2026-05-19T07:00:00+08:00", "2026-05-19T07:20:00+08:00")
 
@@ -86,4 +98,6 @@ def test_replay_queries_return_combined_timeline(tmp_path) -> None:
     assert replay["calendar_events"]
     assert replay["driver_attention_timeline"]
     assert replay["timeline_events"]
+    assert len(replay["month_summary_events"]) == 1
+    assert replay["month_summary_events"][0]["label"] == "Yields pressure"
     assert replay["suppressed_alerts"]

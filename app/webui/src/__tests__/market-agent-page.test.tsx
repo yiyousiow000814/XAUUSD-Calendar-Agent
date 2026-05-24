@@ -1440,6 +1440,121 @@ describe("MarketAgentPage", () => {
     expect(screen.queryAllByText(/^yields$/i)).toHaveLength(0);
   });
 
+  it("prefers AI-compressed evidence summaries in the dashboard feed", () => {
+    const summarizedReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        news_items: [
+          {
+            ...replay.replay.news_items[0],
+            summary_title: "Fed Rates Signal",
+            summary: "Fed headline lifted yields; gold pressure stayed active.",
+            title: "Very long raw headline that should not be used when summary exists"
+          }
+        ],
+        related_assets: {
+          ...replay.replay.related_assets,
+          dxy: [
+            {
+              ...replay.replay.related_assets.dxy[0],
+              summary: "DXY strength confirmed USD pressure on gold."
+            }
+          ],
+          us10y: [
+            {
+              ...replay.replay.related_assets.us10y[0],
+              summary: "US10Y rise confirmed the yield-pressure leg."
+            }
+          ]
+        }
+      }
+    };
+
+    renderMarketAgentPage({ replay: summarizedReplay });
+
+    const latestEvidencePanel = screen.getByRole("heading", { name: /Latest Evidence/i }).closest("section");
+    expect(within(latestEvidencePanel as HTMLElement).getByText(/Fed Rates Signal/i)).toBeInTheDocument();
+    expect(within(latestEvidencePanel as HTMLElement).getByText(/Fed headline lifted yields/i)).toBeInTheDocument();
+    expect(within(latestEvidencePanel as HTMLElement).getByText(/DXY strength confirmed USD pressure/i)).toBeInTheDocument();
+    expect(within(latestEvidencePanel as HTMLElement).getByText(/US10Y rise confirmed the yield-pressure leg/i)).toBeInTheDocument();
+    expect(within(latestEvidencePanel as HTMLElement).queryByText(/Very long raw headline/i)).not.toBeInTheDocument();
+  });
+
+  it("uses month replay summary events instead of expanding every day marker", () => {
+    const monthlyReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        month_summary_events: [
+          {
+            monitor_run_id: 200,
+            event_time: "2026-05-01T09:00:00+08:00",
+            event_type: "month_summary",
+            label: "Week opened with yields pressuring gold",
+            payload: {
+              semantic_type: "breakout",
+              impact_percent: -0.62,
+              main_driver: "yields",
+              summary: "AI condensed 12 day markers into one yield-pressure turn.",
+              source_event_ids: [21, 22, 23]
+            }
+          }
+        ],
+        timeline_events: [
+          ...replay.replay.timeline_events,
+          {
+            monitor_run_id: 201,
+            event_time: "2026-05-02T09:00:00+08:00",
+            event_type: "market_alert",
+            label: "Daily marker that month view should hide",
+            payload: { semantic_type: "breakout", impact_percent: -0.51, main_driver: "yields" }
+          }
+        ]
+      }
+    } as MarketAgentReplayResponse;
+
+    renderMarketAgentPage({ replay: monthlyReplay, rangePreset: "month" });
+    fireEvent.click(screen.getByRole("button", { name: /Replay \/ Timeline/i }));
+
+    expect(screen.getByText(/1 major turns/i)).toBeInTheDocument();
+    expect(screen.getByText(/Week opened with yields pressuring gold/i)).toBeInTheDocument();
+    expect(screen.getByText(/AI condensed 12 day markers/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Daily marker that month view should hide/i)).not.toBeInTheDocument();
+  });
+
+  it("orders replay markers by event time from earliest to latest", () => {
+    const orderedReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        timeline_events: [
+          {
+            monitor_run_id: 301,
+            event_time: "2026-05-19T09:00:00+08:00",
+            event_type: "analysis",
+            label: "Later yield pressure",
+            payload: { semantic_type: "evidence", impact_percent: -0.31, main_driver: "yields" }
+          },
+          {
+            monitor_run_id: 300,
+            event_time: "2026-05-19T07:00:00+08:00",
+            event_type: "analysis",
+            label: "Earlier dollar pressure",
+            payload: { semantic_type: "evidence", impact_percent: -0.21, main_driver: "usd" }
+          }
+        ]
+      }
+    };
+
+    renderMarketAgentPage({ replay: orderedReplay, rangePreset: "day" });
+    fireEvent.click(screen.getByRole("button", { name: /Replay \/ Timeline/i }));
+
+    const earlier = screen.getByText(/Earlier dollar pressure/i);
+    const later = screen.getByText(/Later yield pressure/i);
+    expect(earlier.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it("applies Local AI fallback policy returned after model installation", async () => {
     const installModel = vi.fn().mockResolvedValue({
       ok: false,
@@ -1912,32 +2027,26 @@ describe("MarketAgentPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /^Activity$/i }));
     const agentActivity = screen.getByLabelText(/Agent activity board/i);
 
-    expect(within(agentActivity).getByText(/collecting market context/i)).toBeInTheDocument();
-    expect(within(agentActivity).getAllByText(/Last price 3,233\.15 from cTrader/i).length).toBeGreaterThan(0);
-    expect(within(agentActivity).getAllByText(/XAUUSD/i).length).toBeGreaterThan(0);
-    expect(within(agentActivity).getByText(/42%/i)).toBeInTheDocument();
-    expect(within(agentActivity).getByText(/3 headlines and 2 calendar events/i)).toBeInTheDocument();
-    expect(within(agentActivity).getByText(/Data intake/i)).toBeInTheDocument();
-    expect(within(agentActivity).getByText(/News fan-in/i)).toBeInTheDocument();
-    expect(within(agentActivity).getByText(/3 headlines.*2 sources/i)).toBeInTheDocument();
-    expect(within(agentActivity).getByText(/Evidence gate ready/i)).toBeInTheDocument();
-    expect(within(agentActivity).getByText(/LLM output passed validation/i)).toBeInTheDocument();
-    expect(within(agentActivity).getByText(/Run 55 persisted to TimelineStore/i)).toBeInTheDocument();
-    expect(within(agentActivity).getAllByText(/No current live alert passed the gate/i).length).toBeGreaterThan(0);
-    expect(within(agentActivity).getAllByText(/AI checkpoints/i).length).toBeGreaterThan(0);
-    expect(within(agentActivity).getByText(/Headline grouping/i)).toBeInTheDocument();
-    expect(within(agentActivity).getByText(/Evidence packet summary/i)).toBeInTheDocument();
-    expect(within(agentActivity).getAllByText(/Rule baseline/i).length).toBeGreaterThan(0);
-    expect(within(agentActivity).getAllByText(/Validator and repair/i).length).toBeGreaterThan(0);
-    expect(within(agentActivity).getByText(/Provider chain/i)).toBeInTheDocument();
-    expect(within(agentActivity).getAllByText(/Preflight evidence check/i).length).toBeGreaterThan(0);
-    expect(within(agentActivity).getByText(/Day replay reads detailed rows; Month replay filters/i)).toBeInTheDocument();
-    expect(within(agentActivity).getByText(/TimelineStore tables/i)).toBeInTheDocument();
-    expect(within(agentActivity).getByText(/market_agent_timeline\.sqlite/i)).toBeInTheDocument();
-    expect(within(agentActivity).getByText(/Loaded range/i)).toBeInTheDocument();
-    expect(within(agentActivity).getByText(/Database size/i)).toBeInTheDocument();
-    expect(within(agentActivity).getAllByText(/Indexed range reads/i).length).toBeGreaterThan(0);
-    expect(within(agentActivity).getByText(/Not needed/i)).toBeInTheDocument();
+    expect(within(agentActivity).getByText(/Signal Map/i)).toBeInTheDocument();
+    expect(within(agentActivity).getByRole("button", { name: /Assets/i })).toBeInTheDocument();
+    expect(within(agentActivity).getAllByRole("button", { name: /News/i }).length).toBeGreaterThan(0);
+    expect(within(agentActivity).getByRole("button", { name: /Calendar/i })).toBeInTheDocument();
+    expect(within(agentActivity).getByRole("button", { name: /AI Analysis/i })).toBeInTheDocument();
+    expect(within(agentActivity).getAllByText(/Storage/i).length).toBeGreaterThan(0);
+    expect(within(agentActivity).getByText(/Raw collected/i)).toBeInTheDocument();
+    expect(within(agentActivity).getByText(/Processed \/ derived/i)).toBeInTheDocument();
+    expect(within(agentActivity).getAllByText(/market_agent_timeline\.sqlite/i).length).toBeGreaterThan(0);
+    expect(within(agentActivity).queryByRole("button", { name: /DXY|US2Y|WTI/i })).not.toBeInTheDocument();
+
+    fireEvent.click(within(agentActivity).getByRole("button", { name: /Assets/i }));
+    const assetsDetail = within(agentActivity).getByRole("dialog", { name: /Assets/i });
+    expect(within(assetsDetail).getByText(/Where it comes from/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getByText(/What is happening now/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getByText(/AI involvement/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getAllByText(/^Storage$/i).length).toBeGreaterThan(0);
+    expect(within(assetsDetail).getByText(/market_price_bars/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getByText(/related_asset_bars/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getByText(/provider mapping and allowlists/i)).toBeInTheDocument();
     expect(screen.queryByText(/Background activity/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/News feeds not configured|No news provider configured|disabled/i)).not.toBeInTheDocument();
   });

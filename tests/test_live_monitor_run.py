@@ -2,7 +2,7 @@ from datetime import datetime
 import json
 
 from src.xauusd_market_agent.config import MarketAgentConfig
-from src.xauusd_market_agent.live_pipeline import run_monitored_live_once
+from src.xauusd_market_agent.live_pipeline import _apply_display_summaries, run_monitored_live_once
 from src.xauusd_market_agent.provider_health import build_provider_health
 from src.xauusd_market_agent.providers.provider_router import ProviderRouter
 from src.xauusd_market_agent.timeline_store import TimelineStore
@@ -207,6 +207,53 @@ def _closed_router(related_path=None) -> ProviderRouter:
         csv_related_assets_path=related_path,
         yahoo_enabled=False,
     )
+
+
+def test_apply_display_summaries_uses_llm_output_without_losing_raw_rows() -> None:
+    class SummaryClient:
+        def summarize_display(self, payload):
+            assert payload["evidence_packet"]["as_of_myt"]
+            return {
+                "news": [
+                    {
+                        "source_index": 0,
+                        "summary_title": "Fed Rates Signal",
+                        "summary": "Fed headline lifted yields; gold pressure stayed active.",
+                    }
+                ],
+                "calendar": [
+                    {
+                        "source_index": 0,
+                        "summary_title": "US Calendar Context",
+                        "summary": "US calendar risk stayed in the evidence packet.",
+                    }
+                ],
+                "related_assets": {
+                    "dxy": [
+                        {
+                            "source_index": 0,
+                            "summary": "DXY strength confirmed USD pressure on gold.",
+                        }
+                    ]
+                },
+            }
+
+    runtime_context = {
+        "news_rows": [{"title": "Long raw Fed headline", "source": "Reuters"}],
+        "calendar_rows": [{"title": "Long raw calendar event", "source": "ForexFactory"}],
+        "related_asset_bars": [{"symbol": "dxy", "change_15m": 0.22}],
+    }
+    packet = {"as_of_myt": "19-05-2026 08:05", "allowed_candidate_drivers": ["yields"]}
+    analysis = {"main_driver": "yields", "summary": "Yields pressure."}
+
+    _apply_display_summaries(SummaryClient(), runtime_context, packet, analysis)
+
+    assert runtime_context["news_rows"][0]["title"] == "Long raw Fed headline"
+    assert runtime_context["news_rows"][0]["summary_title"] == "Fed Rates Signal"
+    assert runtime_context["news_rows"][0]["summary"] == "Fed headline lifted yields; gold pressure stayed active."
+    assert runtime_context["calendar_rows"][0]["summary_title"] == "US Calendar Context"
+    assert runtime_context["related_asset_bars"][0]["summary"] == "DXY strength confirmed USD pressure on gold."
+    assert runtime_context["display_summary_status"] == "summarized"
 
 
 def test_run_monitored_live_once_writes_state_and_optional_alert(tmp_path) -> None:

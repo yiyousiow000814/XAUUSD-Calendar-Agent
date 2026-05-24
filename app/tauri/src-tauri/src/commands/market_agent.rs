@@ -2422,6 +2422,75 @@ fn read_timeline_items(
     Ok(items)
 }
 
+fn normalized_market_agent_value(value: Option<&Value>) -> String {
+    value
+        .and_then(Value::as_str)
+        .unwrap_or_default()
+        .trim()
+        .to_lowercase()
+        .replace(|c: char| !c.is_ascii_alphanumeric(), "_")
+        .trim_matches('_')
+        .to_string()
+}
+
+fn timeline_payload(row: &Value) -> Option<&Value> {
+    row.get("payload")
+}
+
+fn timeline_impact(row: &Value) -> Option<f64> {
+    let payload = timeline_payload(row)?;
+    payload
+        .get("impact_percent")
+        .and_then(Value::as_f64)
+        .or_else(|| {
+            payload
+                .get("segment")
+                .and_then(|segment| segment.get("move_percent"))
+                .and_then(Value::as_f64)
+        })
+}
+
+fn is_month_summary_event(row: &Value) -> bool {
+    let event_type = normalized_market_agent_value(row.get("event_type"));
+    let label = normalized_market_agent_value(row.get("label"));
+    let payload = match timeline_payload(row) {
+        Some(payload) => payload,
+        None => return false,
+    };
+    let semantic_type = normalized_market_agent_value(payload.get("semantic_type"));
+    let driver =
+        normalized_market_agent_value(payload.get("main_driver").or_else(|| payload.get("driver")));
+    if semantic_type.contains("recovery")
+        || event_type.contains("recovery")
+        || label.contains("backfill")
+    {
+        return false;
+    }
+    if driver.is_empty() || driver == "unknown" || driver == "no_state_change" {
+        return false;
+    }
+    if matches!(semantic_type.as_str(), "breakout" | "reversal") {
+        return true;
+    }
+    if event_type.contains("alert") {
+        return timeline_impact(row)
+            .map(|impact| impact.abs() >= 0.2)
+            .unwrap_or(true);
+    }
+    if let Some(impact) = timeline_impact(row) {
+        return impact.abs() >= 0.35;
+    }
+    false
+}
+
+fn build_month_summary_events(timeline_events: &[Value]) -> Vec<Value> {
+    timeline_events
+        .iter()
+        .filter(|row| is_month_summary_event(row))
+        .cloned()
+        .collect()
+}
+
 fn read_state_transitions(
     connection: &Connection,
     start: &str,
@@ -3256,6 +3325,7 @@ pub(crate) fn read_market_agent_replay(root: &Path, start: &str, end: &str) -> V
         vec![]
     };
     let timeline_events = read_timeline_items(&connection, start, end).unwrap_or_default();
+    let month_summary_events = build_month_summary_events(&timeline_events);
     let state_transitions = read_state_transitions(&connection, start, end).unwrap_or_default();
     let alerts = read_alerts(&connection, start, end, Some(true)).unwrap_or_default();
     let suppressed_alerts = read_alerts(&connection, start, end, Some(false)).unwrap_or_default();
@@ -3273,6 +3343,7 @@ pub(crate) fn read_market_agent_replay(root: &Path, start: &str, end: &str) -> V
             "calendar_events": calendar_events,
             "driver_attention_timeline": driver_attention_timeline,
             "timeline_events": timeline_events,
+            "month_summary_events": month_summary_events,
             "state_transitions": state_transitions,
             "alerts": alerts,
             "suppressed_alerts": suppressed_alerts,
@@ -3581,6 +3652,24 @@ mod tests {
                 ],
             )
             .expect("insert timeline row");
+        connection
+            .execute(
+                "INSERT INTO timeline_events (monitor_run_id, event_time, event_type, label, payload_json) VALUES (?1, ?2, ?3, ?4, ?5)",
+                params![
+                    1,
+                    "2026-05-19T08:05:00+08:00",
+                    "market_alert",
+                    "Yields pressure",
+                    json!({
+                        "semantic_type": "breakout",
+                        "impact_percent": -0.48,
+                        "main_driver": "yields",
+                        "summary_title": "Yields Pressure",
+                        "summary": "US yields confirmed the XAUUSD down move."
+                    }).to_string()
+                ],
+            )
+            .expect("insert market turn row");
     }
 
     #[test]
@@ -3687,6 +3776,13 @@ mod tests {
         assert_eq!(
             replay
                 .get("suppressed_alerts")
+                .and_then(Value::as_array)
+                .map(Vec::len),
+            Some(1)
+        );
+        assert_eq!(
+            replay
+                .get("month_summary_events")
                 .and_then(Value::as_array)
                 .map(Vec::len),
             Some(1)

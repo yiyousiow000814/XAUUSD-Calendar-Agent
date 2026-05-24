@@ -253,6 +253,31 @@ const formatValue = (value: unknown, fallback = "--") =>
           : "No"
         : fallback;
 
+const rawText = (value: unknown) => String(value ?? "").trim();
+
+const summaryText = (item: Record<string, unknown> | undefined, fallback = "") => {
+  for (const value of [
+    item?.summary,
+    item?.short_summary,
+    item?.ai_summary,
+    item?.display_summary,
+    item?.description,
+    fallback
+  ]) {
+    const text = rawText(value);
+    if (text) return text;
+  }
+  return fallback;
+};
+
+const summaryTitle = (item: Record<string, unknown> | undefined, fallback: string) => {
+  for (const value of [item?.summary_title, item?.short_title, item?.ai_title, item?.display_title, fallback]) {
+    const text = rawText(value);
+    if (text) return text;
+  }
+  return fallback;
+};
+
 function MarketAgentValuePulse({
   value,
   children,
@@ -840,7 +865,7 @@ const latestTimelineRows = (payload: MarketAgentReplayPayload | undefined): Time
     ...payload.timeline_events.map((item) => ({
       key: `event-${item.monitor_run_id}-${item.event_time}`,
       time: item.event_time,
-      title: item.label,
+      title: summaryTitle(item.payload, item.label),
       meta: formatDriverLabel(item.payload?.main_driver ?? "unknown"),
       status: item.event_type,
       monitorRunId: item.monitor_run_id,
@@ -850,7 +875,7 @@ const latestTimelineRows = (payload: MarketAgentReplayPayload | undefined): Time
     ...payload.news_items.map((item, index) => ({
       key: `news-${index}-${String(item.published_at ?? item.title ?? "")}`,
       time: String(item.published_at ?? item.first_seen_at ?? ""),
-      title: String(item.title ?? "News item"),
+      title: summaryTitle(item, String(item.title ?? "News item")),
       meta: String(item.source ?? "News"),
       status: item.data_mode ?? "possible",
       monitorRunId: undefined,
@@ -860,7 +885,7 @@ const latestTimelineRows = (payload: MarketAgentReplayPayload | undefined): Time
     ...payload.calendar_events.map((item, index) => ({
       key: `calendar-${index}-${String(item.scheduled_at ?? item.title ?? "")}`,
       time: String(item.scheduled_at ?? ""),
-      title: String(item.title ?? "Calendar event"),
+      title: summaryTitle(item, String(item.title ?? "Calendar event")),
       meta: String(item.source ?? "Calendar"),
       status: item.data_mode ?? "possible",
       monitorRunId: undefined,
@@ -872,7 +897,7 @@ const latestTimelineRows = (payload: MarketAgentReplayPayload | undefined): Time
       .map((item, index) => ({
         key: `alert-${index}-${item.monitor_run_id ?? index}`,
         time: String(item.run_started_at ?? ""),
-        title: String(item.message ?? "Alert"),
+        title: summaryTitle(item, String(item.message ?? "Alert")),
         meta: formatDriverLabel(item.main_driver ?? "unknown"),
         status: item.notification_level ?? "alert",
         monitorRunId: item.monitor_run_id,
@@ -891,12 +916,29 @@ const latestTimelineRows = (payload: MarketAgentReplayPayload | undefined): Time
     }))
   ]
     .filter((item) => item.time || item.title)
-    .sort((left, right) => String(right.time).localeCompare(String(left.time)));
+    .sort((left, right) => String(left.time).localeCompare(String(right.time)));
 };
 
 const filterTimelineByReplayRange = (rows: TimelineRow[], range: ReplayRange) => {
   if (range === "month") return rows.filter(isMajorTimelineEvent);
   return rows;
+};
+
+const monthSummaryTimelineRows = (payload: MarketAgentReplayPayload | undefined): TimelineRow[] => {
+  if (!payload?.month_summary_events?.length) return [];
+  return payload.month_summary_events
+    .map((item) => ({
+      key: `month-summary-${item.monitor_run_id}-${item.event_time}-${item.label}`,
+      time: item.event_time,
+      title: summaryTitle(item.payload, item.label),
+      meta: formatDriverLabel(item.payload?.main_driver ?? item.payload?.driver ?? "unknown"),
+      status: item.payload?.cause_status ?? item.event_type,
+      monitorRunId: item.monitor_run_id,
+      payload: item.payload,
+      source: "event" as const
+    }))
+    .filter((item) => item.time || item.title)
+    .sort((left, right) => String(left.time).localeCompare(String(right.time)));
 };
 
 const evidenceStatusLabel = (value: unknown, fallback = "Supporting") => {
@@ -1030,8 +1072,11 @@ const shouldShowRelatedEvidence = (
 const driverStateDetail = (
   driverAttention: MarketAgentDriverAttentionResponse | null,
   driverIds: string[],
+  relatedAsset: Record<string, unknown> | undefined,
   fallback: string
 ) => {
+  const directSummary = summaryText(relatedAsset);
+  if (directSummary) return directSummary;
   const ids = new Set(driverIds.map(normalizeMarketAgentValue));
   const state = driverAttention?.states.find((item) => ids.has(normalizeMarketAgentValue(item.driver_id)));
   return userFacingEvidenceDetail(
@@ -1084,8 +1129,8 @@ const evidenceItems = (
   if (news) {
     rows.push({
       key: `news-${String(news.published_at ?? news.title ?? "latest")}`,
-      title: String(news.summary_title ?? "High Impact News"),
-      detail: String(news.summary ?? news.description ?? news.title ?? news.source ?? "News item"),
+      title: summaryTitle(news, "High Impact News"),
+      detail: summaryText(news, String(news.title ?? news.source ?? "News item")),
       status: currentConclusionReady ? evidenceStatusLabel(news.included ?? news.data_mode ?? evidenceStatusValue(packet, "news")) : "Context",
       kind: "news",
       filter: "news",
@@ -1103,6 +1148,7 @@ const evidenceItems = (
       detail: driverStateDetail(
         driverAttention,
         ["usd", "dxy"],
+        dxyAsset,
         relatedAssetDetail("DXY", dxyAsset, "USD pressure is part of the evidence packet.")
       ),
       status: dxyStatus,
@@ -1121,6 +1167,7 @@ const evidenceItems = (
       detail: driverStateDetail(
         driverAttention,
         ["yields", "us10y", "real_yields"],
+        us10yAsset,
         relatedAssetDetail("US10Y", us10yAsset, "US yield confirmation is part of the evidence packet.", "bp")
       ),
       status: currentConclusionReady ? evidenceStatusLabel(us10yEvidenceStatus) : "Context",
@@ -1145,7 +1192,7 @@ const evidenceItems = (
     rows.push({
       key: `technical-${technical.monitor_run_id}-${technical.event_time}`,
       title: `Technical ${meta.title}`,
-      detail: technical.label,
+      detail: summaryText(technical.payload, technical.label),
       status: currentConclusionReady ? evidenceStatusLabel(technical.payload?.cause_status ?? analysis?.cause_status ?? "supporting") : "Context",
       kind: "technical",
       filter: "technical",
@@ -1179,6 +1226,7 @@ const evidenceItems = (
       detail: driverStateDetail(
         driverAttention,
         ["oil_inflation", "oil"],
+        oilAsset,
         relatedAssetDetail("Oil", oilAsset, "Oil did not confirm this XAUUSD move.", "%")
       ),
       status: currentConclusionReady ? evidenceStatusLabel(oilEvidenceStatus, "Neutral") : "Context",
@@ -1192,8 +1240,8 @@ const evidenceItems = (
   if (rows.length < 5 && calendar) {
     rows.push({
       key: `calendar-${String(calendar.scheduled_at ?? calendar.title ?? "latest")}`,
-      title: "Calendar Context",
-      detail: String(calendar.summary ?? calendar.title ?? "Calendar event"),
+      title: summaryTitle(calendar, "Calendar Context"),
+      detail: summaryText(calendar, String(calendar.title ?? "Calendar event")),
       status: currentConclusionReady ? evidenceStatusLabel(calendar.data_mode ?? "neutral", "Neutral") : "Context",
       kind: "calendar",
       filter: "calendar",
@@ -1265,7 +1313,10 @@ function MarketAgentDashboard({
     (priceValue !== null && previousPriceValue !== null && previousPriceValue !== 0
       ? ((priceValue - previousPriceValue) / previousPriceValue) * 100
       : null);
-  const timeline = filterTimelineByReplayRange(latestTimelineRows(replay?.replay), replayRange);
+  const replayPayload = replay?.replay;
+  const timeline = replayRange === "month" && monthSummaryTimelineRows(replayPayload).length
+    ? monthSummaryTimelineRows(replayPayload)
+    : filterTimelineByReplayRange(latestTimelineRows(replayPayload), replayRange);
   const allEvidence = evidenceItems(selectedEvidence, replay, driverAttention, currentConclusionReady);
   const evidence = evidenceFilter === "all" ? allEvidence : allEvidence.filter((item) => item.filter === evidenceFilter);
   const contextEvidence = allEvidence.filter((item) => normalizeMarketAgentValue(item.status) === "context");

@@ -155,6 +155,60 @@ def test_local_llm_prompt_contains_compact_evidence_packet(monkeypatch) -> None:
     assert "previous_state" in prompt
 
 
+def test_local_llm_summarize_display_returns_structured_short_rows(monkeypatch) -> None:
+    captured: dict[str, object] = {}
+
+    class FakeResponse:
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict[str, str]:
+            return {
+                "response": json.dumps(
+                    {
+                        "news": [
+                            {
+                                "source_index": 0,
+                                "summary_title": "Fed Rates Signal",
+                                "summary": "Fed headline lifted yields; gold pressure stayed active.",
+                            }
+                        ],
+                        "related_assets": {
+                            "dxy": [
+                                {
+                                    "source_index": 0,
+                                    "summary": "DXY strength confirmed USD pressure on gold.",
+                                }
+                            ]
+                        },
+                    }
+                )
+            }
+
+    def fake_post(url, json, timeout):  # type: ignore[no-redef]
+        captured["request_json"] = json
+        return FakeResponse()
+
+    monkeypatch.setattr("requests.post", fake_post)
+    client = LocalLLMClient(LocalLLMConfig(enabled=True, model="qwen3.5:4b"))
+
+    result = client.summarize_display(
+        {
+            "evidence_packet": {"allowed_candidate_drivers": ["yields"], "blocked_drivers": {}},
+            "analysis": {"main_driver": "yields"},
+            "news": [{"title": "Long Fed headline", "source": "Reuters"}],
+            "calendar": [],
+            "related_assets": [{"symbol": "dxy", "change_15m": 0.22}],
+        }
+    )
+
+    prompt = captured["request_json"]["prompt"]  # type: ignore[index]
+    assert "short UI summaries" in prompt
+    assert "source_index" in prompt
+    assert result["news"][0]["summary_title"] == "Fed Rates Signal"
+    assert result["related_assets"]["dxy"][0]["summary"].startswith("DXY strength")
+
+
 def test_enabled_local_llm_blocked_driver_claim_falls_back_to_unknown(monkeypatch) -> None:
     fixture = load_builtin_fixture("llm_hallucination_guard")
 

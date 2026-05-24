@@ -4653,59 +4653,61 @@ const main = async () => {
       await page.locator("[data-market-agent-section='activity']").first().click();
       await page.locator("[aria-label='Agent activity board']").first().waitFor({ state: "visible", timeout: 4000 });
 
+      const detailBeforeClick = await page.locator(".market-agent-causal-mesh").count();
+      await page.locator(".market-agent-signal-node", { hasText: "Assets" }).first().click();
+      await page.locator(".market-agent-causal-mesh").first().waitFor({ state: "visible", timeout: 4000 });
+
       const failures = await page.evaluate(() => {
         const problems = [];
         const surface = document.querySelector("[aria-label='Agent activity board']");
         if (!(surface instanceof HTMLElement)) return ["Agent activity surface missing"];
-        const flow = surface.querySelector(".market-agent-activity-flow");
-        const sections = Array.from(surface.querySelectorAll(".market-agent-activity-section"));
-        const nodes = Array.from(surface.querySelectorAll(".market-agent-activity-node"));
-        const fanIn = surface.querySelector(".market-agent-activity-fanin");
+        const board = surface.querySelector(".market-agent-signal-board");
+        const nodes = Array.from(surface.querySelectorAll(".market-agent-signal-node"));
+        const wires = Array.from(surface.querySelectorAll(".market-agent-circuit-wires .wire"));
+        const summary = surface.querySelector("[aria-label='Activity system summary']");
+        const detail = surface.querySelector(".market-agent-causal-mesh");
         const requiredText = [
-          "Data intake",
-          "Normalize and gate evidence",
-          "AI checkpoints",
-          "Outputs and delivery",
-          "News fan-in",
-          "XAUUSD live feed",
-          "History backfill",
-          "Calendar collector",
-          "Provider chain",
-          "Context fixture",
-          "Input readiness",
-          "Cross-market sensors",
-          "Driver attention",
-          "Candidate driver gate",
-          "Headline grouping",
-          "Evidence packet summary",
-          "Rule baseline",
-          "Cause review",
-          "Validator and repair",
-          "Replay narrative",
-          "Alert message review",
-          "Preflight evidence check",
-          "Current situation",
-          "Drivers and themes",
-          "Evidence gate",
-          "Replay query model",
-          "TimelineStore writer",
-          "Telegram delivery",
+          "Signal Map",
+          "Market Agent circuit board",
+          "Sources",
+          "Processing",
+          "Storage",
+          "AI Loop",
+          "Outputs",
+          "Assets",
+          "Raw collected",
+          "Processed / derived",
+          "Grouped watchlist",
+          "AI Requests",
+          "Controlled feedback",
           "TimelineStore",
-          "Day replay reads detailed rows",
-          "TimelineStore tables",
-          "Database size",
-          "Compaction"
+          "News",
+          "Calendar",
+          "Asset ingest",
+          "News processing",
+          "Context gate",
+          "Evidence packet",
+          "AI Analysis",
+          "Alert router",
+          "Dashboard",
+          "Latest Evidence",
+          "Replay",
+          "Telegram"
         ];
         const text = surface.textContent || "";
         requiredText.forEach((label) => {
           if (!text.includes(label)) problems.push(`Activity board missing ${label}`);
         });
-        if (!(flow instanceof HTMLElement)) problems.push("Activity flow missing");
-        if (sections.length !== 4) problems.push(`Activity flow should show 4 sections, found ${sections.length}`);
-        if (nodes.length < 20) problems.push(`Activity flow should show detailed chain nodes, found ${nodes.length}`);
-        if (flow instanceof HTMLElement && flow.scrollWidth > flow.clientWidth + 4) {
+        if (!(board instanceof HTMLElement)) problems.push("Activity signal board missing");
+        if (wires.length < 18) problems.push(`Activity circuit board should draw many wires, found ${wires.length}`);
+        if (nodes.length < 13) problems.push(`Activity circuit board should show system nodes, found ${nodes.length}`);
+        const boardText = board instanceof HTMLElement ? board.textContent || "" : "";
+        ["DXY", "US2Y", "WTI", "Brent", "VIX", "S&P 500", "Nasdaq"].forEach((label) => {
+          if (boardText.includes(label)) problems.push(`Activity board should keep ${label} inside Assets detail, not on the main board`);
+        });
+        if (board instanceof HTMLElement && board.scrollWidth > board.clientWidth + 4) {
           problems.push(
-            `Activity flow overflows horizontally (${flow.scrollWidth}px > ${flow.clientWidth}px)`
+            `Activity signal board overflows horizontally (${board.scrollWidth}px > ${board.clientWidth}px)`
           );
         }
         if (surface instanceof HTMLElement) {
@@ -4715,78 +4717,56 @@ const main = async () => {
             problems.push(`Activity surface content exceeds viewport but overflow-y is ${overflowY}`);
           }
         }
-        if (!(fanIn instanceof HTMLElement)) {
-          problems.push("Activity news fan-in missing");
-        } else {
-          const chips = fanIn.querySelectorAll(".market-agent-activity-chip-row span");
-          if (chips.length < 1) problems.push("Activity news fan-in should show at least one source chip");
-          if (fanIn.scrollWidth > fanIn.clientWidth + 4) {
-            problems.push(`Activity news fan-in overflows horizontally (${fanIn.scrollWidth}px > ${fanIn.clientWidth}px)`);
-          }
+        if (!(summary instanceof HTMLElement)) {
+          problems.push("Activity system summary missing");
+        } else if (summary.querySelectorAll("h3").length < 3) {
+          problems.push("Activity system summary should show grouped assets, AI requests, and storage headings");
+        } else if (summary.scrollWidth > summary.clientWidth + 4) {
+          problems.push(`Activity system summary overflows horizontally (${summary.scrollWidth}px > ${summary.clientWidth}px)`);
         }
-        const aiSection = surface.querySelector(".section-ai");
-        if (!(aiSection instanceof HTMLElement)) {
-          problems.push("Activity AI section missing");
-        } else if (aiSection.querySelectorAll(".market-agent-activity-node").length < 7) {
-          problems.push("Activity AI section should show multiple AI/rule checkpoints");
-        }
-        sections.forEach((section, index) => {
-          if (!(section instanceof HTMLElement)) return;
-          const sectionNodes = section.querySelectorAll(".market-agent-activity-node");
-          if (sectionNodes.length < 3) problems.push(`Activity section ${index + 1} has too few nodes (${sectionNodes.length})`);
-        });
-        nodes.slice(0, 24).forEach((node, index) => {
-          if (!(node instanceof HTMLElement)) return;
-          const rect = node.getBoundingClientRect();
-          if (rect.width < 220) problems.push(`Activity node ${index + 1} is too narrow (${rect.width.toFixed(1)}px)`);
-          const title = node.querySelector("header strong");
-          const detail = node.querySelector("p");
-          const io = node.querySelector(".market-agent-activity-node-io");
-          if (
-            !(title instanceof HTMLElement) ||
-            !(detail instanceof HTMLElement) ||
-            !(io instanceof HTMLElement)
-          ) {
-            problems.push(`Activity node ${index + 1} missing title, detail, or receive/produce/send fields`);
-            return;
-          }
-          if (title.getBoundingClientRect().bottom > detail.getBoundingClientRect().top + 1) {
-            problems.push(`Activity node ${index + 1} title overlaps detail`);
-          }
-          if (io.scrollWidth > io.clientWidth + 4) {
-            problems.push(`Activity node ${index + 1} input/output overflows horizontally`);
-          }
-        });
-        const store = surface.querySelector(".market-agent-activity-storage-grid");
-        if (!(store instanceof HTMLElement)) {
-          problems.push("Activity storage grid missing");
+        if (!(detail instanceof HTMLElement)) {
+          problems.push("Activity causal mesh missing after selecting Assets");
         } else {
-          Array.from(store.querySelectorAll("div")).forEach((item, index) => {
-            if (!(item instanceof HTMLElement)) return;
-            const label = item.querySelector("dt");
-            const value = item.querySelector("dd");
-            if (!(label instanceof HTMLElement) || !(value instanceof HTMLElement)) {
-              problems.push(`Activity storage metric ${index + 1} missing label or value`);
-              return;
-            }
-            const labelRect = label.getBoundingClientRect();
-            const valueRect = value.getBoundingClientRect();
-            if (labelRect.bottom > valueRect.top + 1) {
-              problems.push(`Activity storage metric ${index + 1} label overlaps value`);
-            }
+          ["Where it comes from", "What is happening now", "AI involvement", "Storage", "Trace", "provider mapping and allowlists"].forEach((label) => {
+            if (!detail.textContent?.includes(label)) problems.push(`Activity causal mesh missing ${label}`);
           });
         }
+        nodes.slice(0, 18).forEach((node, index) => {
+          if (!(node instanceof HTMLElement)) return;
+          const rect = node.getBoundingClientRect();
+          if (rect.width < 112) problems.push(`Activity node ${index + 1} is too narrow (${rect.width.toFixed(1)}px)`);
+          const title = node.querySelector("strong");
+          const action = node.querySelector("small");
+          const output = node.querySelector("em");
+          if (
+            !(title instanceof HTMLElement) ||
+            !(action instanceof HTMLElement) ||
+            !(output instanceof HTMLElement)
+          ) {
+            problems.push(`Activity node ${index + 1} missing title, action, or output`);
+            return;
+          }
+          if (title.getBoundingClientRect().bottom > action.getBoundingClientRect().top + 1) {
+            problems.push(`Activity node ${index + 1} title overlaps action`);
+          }
+          if (output.scrollWidth > output.clientWidth + 4 && rect.width > 180) {
+            problems.push(`Activity node ${index + 1} output overflows horizontally`);
+          }
+        });
         return problems;
       });
 
+      if (detailBeforeClick !== 0) {
+        failures.push(`Activity detail drawer should be hidden before click, found ${detailBeforeClick}`);
+      }
       if (failures.length) {
         throw new Error(failures.join("; "));
       }
       artifacts.push({
         scenario: "market-agent-activity",
         theme: theme.key,
-        state: "pipeline",
-        path: await captureState(page, "market-agent-activity", theme.key, "pipeline")
+        state: "signal-map",
+        path: await captureState(page, "market-agent-activity", theme.key, "signal-map")
       });
       await page.locator("[data-qa='qa:action:view-calendar']").first().click();
       await page.locator("[data-qa='qa:card:next-events']").first().waitFor({ state: "visible", timeout: 4000 });

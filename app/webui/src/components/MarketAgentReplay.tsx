@@ -63,6 +63,31 @@ const numberValue = (value: unknown) => {
 
 const formatSignedValue = (value: number, suffix = "") => `${value > 0 ? "+" : ""}${value.toFixed(2)}${suffix}`;
 
+const rawText = (value: unknown) => String(value ?? "").trim();
+
+const summaryText = (item: Record<string, unknown> | undefined, fallback = "") => {
+  for (const value of [
+    item?.summary,
+    item?.short_summary,
+    item?.ai_summary,
+    item?.display_summary,
+    item?.description,
+    fallback
+  ]) {
+    const text = rawText(value);
+    if (text) return text;
+  }
+  return fallback;
+};
+
+const summaryTitle = (item: Record<string, unknown> | undefined, fallback: string) => {
+  for (const value of [item?.summary_title, item?.short_title, item?.ai_title, item?.display_title, fallback]) {
+    const text = rawText(value);
+    if (text) return text;
+  }
+  return fallback;
+};
+
 const driverValue = (row: TimelineRow) => normalizeValue(row.payload?.main_driver ?? row.payload?.driver ?? row.meta);
 
 const inferTimelineKind = (row: TimelineRow): TimelineKind => {
@@ -93,6 +118,8 @@ const compactTimelineTitle = (row: TimelineRow) => {
   }
   return row.title;
 };
+
+const compactTimelineDetail = (row: TimelineRow) => summaryText(row.payload, replayMetaText(row));
 
 const formatTimelineImpact = (row: TimelineRow) => {
   const payloadImpact = numberValue(row.payload?.impact_percent);
@@ -189,7 +216,7 @@ const buildTimelineRows = (payload: MarketAgentReplayResponse["replay"]): Timeli
       key: `timeline-${item.monitor_run_id}-${item.event_time}-${item.label}`,
       time: item.event_time,
       type: item.event_type,
-      title: item.label,
+      title: summaryTitle(item.payload, item.label),
       meta: formatDriverLabel((item.payload?.main_driver as string | undefined) ?? "unknown"),
       status: (item.payload?.cause_status as string | undefined) ?? item.event_type,
       source: "event" as const,
@@ -200,7 +227,7 @@ const buildTimelineRows = (payload: MarketAgentReplayResponse["replay"]): Timeli
       key: `news-${index}-${String(item.published_at ?? item.title ?? "")}`,
       time: String(item.published_at ?? item.first_seen_at ?? ""),
       type: "News",
-      title: String(item.title ?? "News item"),
+      title: summaryTitle(item, String(item.title ?? "News item")),
       meta: String(item.source ?? formatDriverLabel(item.driver ?? item.category ?? "news")),
       status: String(item.data_mode ?? "possible"),
       source: "news" as const,
@@ -210,7 +237,7 @@ const buildTimelineRows = (payload: MarketAgentReplayResponse["replay"]): Timeli
       key: `calendar-${index}-${String(item.scheduled_at ?? item.title ?? "")}`,
       time: String(item.scheduled_at ?? ""),
       type: "Calendar",
-      title: String(item.title ?? "Calendar event"),
+      title: summaryTitle(item, String(item.title ?? "Calendar event")),
       meta: formatDriverLabel(item.driver ?? item.currency ?? "calendar"),
       status: String(item.data_mode ?? "possible"),
       source: "calendar" as const,
@@ -222,7 +249,7 @@ const buildTimelineRows = (payload: MarketAgentReplayResponse["replay"]): Timeli
         key: `alert-${index}-${item.monitor_run_id ?? index}`,
         time: String(item.run_started_at ?? ""),
         type: "Alert",
-        title: String(item.message ?? "Alert"),
+        title: summaryTitle(item, String(item.message ?? "Alert")),
         meta: formatDriverLabel(item.main_driver ?? "unknown"),
         status: String(item.notification_level ?? "confirmed"),
         source: "alert" as const,
@@ -233,7 +260,25 @@ const buildTimelineRows = (payload: MarketAgentReplayResponse["replay"]): Timeli
 
   return rows
     .filter((row) => row.time || row.title)
-    .sort((left, right) => String(right.time).localeCompare(String(left.time)));
+    .sort((left, right) => String(left.time).localeCompare(String(right.time)));
+};
+
+const buildMonthSummaryRows = (payload: MarketAgentReplayResponse["replay"]): TimelineRow[] => {
+  if (!payload.month_summary_events?.length) return [];
+  return payload.month_summary_events
+    .map((item) => ({
+      key: `month-summary-${item.monitor_run_id}-${item.event_time}-${item.label}`,
+      time: item.event_time,
+      type: item.event_type,
+      title: summaryTitle(item.payload, item.label),
+      meta: formatDriverLabel((item.payload?.main_driver as string | undefined) ?? "unknown"),
+      status: (item.payload?.cause_status as string | undefined) ?? item.event_type,
+      source: "event" as const,
+      payload: item.payload,
+      monitorRunId: item.monitor_run_id
+    }))
+    .filter((row) => row.time || row.title)
+    .sort((left, right) => String(left.time).localeCompare(String(right.time)));
 };
 
 export function MarketAgentReplay({
@@ -252,7 +297,8 @@ export function MarketAgentReplay({
   const payload = normalizeMarketAgentReplayPayload(replay?.replay);
   const allRows = buildTimelineRows(payload);
   const mode = replayMode(rangePreset);
-  const rows = mode === "month" ? dedupeMajorRows(allRows.filter(isMajorTimelineRow)) : allRows;
+  const monthSummaryRows = buildMonthSummaryRows(payload);
+  const rows = mode === "month" && monthSummaryRows.length ? monthSummaryRows : mode === "month" ? dedupeMajorRows(allRows.filter(isMajorTimelineRow)) : allRows;
   const modeLabel = replayModeLabel(rangePreset);
   const markerLabel = mode === "month" ? "major turns" : "market markers";
 
@@ -326,7 +372,7 @@ export function MarketAgentReplay({
                       <span className={`market-agent-event-tag tone-${meta.tone}`}>{meta.tag}</span>
                     </div>
                     <div className="market-agent-replay-meta-row">
-                      <span>{replayMetaText(row)}</span>
+                      <span>{compactTimelineDetail(row)}</span>
                       <small>{formatTimelineImpact(row)}</small>
                     </div>
                   </div>

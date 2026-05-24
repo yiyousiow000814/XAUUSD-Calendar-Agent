@@ -618,6 +618,50 @@ class TimelineStore:
             for row in rows
         ]
 
+    @staticmethod
+    def _normalized_replay_value(value: Any) -> str:
+        return "".join(char if char.isalnum() else "_" for char in str(value or "").strip().lower()).strip("_")
+
+    @classmethod
+    def _timeline_impact(cls, row: dict[str, Any]) -> float | None:
+        payload = row.get("payload")
+        if not isinstance(payload, dict):
+            return None
+        for value in (
+            payload.get("impact_percent"),
+            payload.get("segment", {}).get("move_percent") if isinstance(payload.get("segment"), dict) else None,
+        ):
+            try:
+                return float(value)
+            except (TypeError, ValueError):
+                continue
+        return None
+
+    @classmethod
+    def _is_month_summary_event(cls, row: dict[str, Any]) -> bool:
+        payload = row.get("payload")
+        if not isinstance(payload, dict):
+            return False
+        event_type = cls._normalized_replay_value(row.get("event_type"))
+        label = cls._normalized_replay_value(row.get("label"))
+        semantic_type = cls._normalized_replay_value(payload.get("semantic_type"))
+        driver = cls._normalized_replay_value(payload.get("main_driver") or payload.get("driver"))
+        if "recovery" in semantic_type or "recovery" in event_type or "backfill" in label:
+            return False
+        if not driver or driver in {"unknown", "no_state_change"}:
+            return False
+        if semantic_type in {"breakout", "reversal"}:
+            return True
+        if "alert" in event_type:
+            impact = cls._timeline_impact(row)
+            return True if impact is None else abs(impact) >= 0.2
+        impact = cls._timeline_impact(row)
+        return False if impact is None else abs(impact) >= 0.35
+
+    @classmethod
+    def _month_summary_events(cls, timeline_events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        return [row for row in timeline_events if cls._is_month_summary_event(row)]
+
     def get_price_series(self, symbol: str, start: str, end: str) -> list[dict[str, Any]]:
         with self._connect() as connection:
             rows = connection.execute(
@@ -738,13 +782,15 @@ class TimelineStore:
             symbol: self.get_related_asset_series(symbol, start, end)
             for symbol in related_symbols
         }
+        timeline_events = self.get_timeline(start, end)
         return {
             "price_series": self._rows_to_payloads(xau_rows),
             "related_assets": related,
             "news_items": self.get_news_items(start, end),
             "calendar_events": self.get_calendar_events(start, end),
             "driver_attention_timeline": self.get_driver_attention_timeline(start, end),
-            "timeline_events": self.get_timeline(start, end),
+            "timeline_events": timeline_events,
+            "month_summary_events": self._month_summary_events(timeline_events),
             "state_transitions": self.get_state_transitions(start, end),
             "suppressed_alerts": self.get_suppressed_alerts(start, end),
         }
