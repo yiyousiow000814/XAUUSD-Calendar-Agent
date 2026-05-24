@@ -2042,7 +2042,7 @@ describe("MarketAgentPage", () => {
 
     fireEvent.click(within(agentActivity).getByRole("button", { name: /^Storage:/i }));
     const storageDetail = within(agentActivity).getByRole("complementary", { name: /Storage detail view/i });
-    fireEvent.click(within(storageDetail).getByRole("button", { name: /View records/i }));
+    fireEvent.click(within(storageDetail).getByRole("button", { name: /^Records$/i }));
     expect(within(storageDetail).getByText(/Persisted audit stores/i)).toBeInTheDocument();
     expect(within(storageDetail).getAllByText(/Raw collected/i).length).toBeGreaterThan(0);
     expect(within(storageDetail).getAllByText(/Processed \/ derived/i).length).toBeGreaterThan(0);
@@ -2050,11 +2050,17 @@ describe("MarketAgentPage", () => {
 
     fireEvent.click(within(within(agentActivity).getByLabelText(/Source groups/i)).getByRole("button", { name: /Assets/i }));
     const assetsDetail = within(agentActivity).getByRole("complementary", { name: /Assets detail view/i });
-    expect(within(assetsDetail).getByText(/What this step is doing/i)).toBeInTheDocument();
-    expect(within(assetsDetail).getByText(/Why users should care/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getByText(/Step detail/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getByRole("button", { name: /^Summary$/i })).toBeInTheDocument();
+    expect(within(assetsDetail).getByRole("button", { name: /^Records$/i })).toBeInTheDocument();
+    expect(within(assetsDetail).getByRole("button", { name: /Needs/i })).toBeInTheDocument();
+    expect(within(assetsDetail).getByText(/Now/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getByText(/Next handoff/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getByText(/Stored as/i)).toBeInTheDocument();
     expect(within(assetsDetail).getByText(/provider mapping and allowlists/i)).toBeInTheDocument();
-    fireEvent.click(within(assetsDetail).getByRole("button", { name: /View records/i }));
-    expect(within(assetsDetail).getByText(/Operational trace/i)).toBeInTheDocument();
+    expect(within(assetsDetail).queryByText(/Why users should care/i)).not.toBeInTheDocument();
+    fireEvent.click(within(assetsDetail).getByRole("button", { name: /^Records$/i }));
+    expect(within(assetsDetail).getByText(/What happened in this step/i)).toBeInTheDocument();
     expect(within(assetsDetail).getAllByText(/market_price_bars/i).length).toBeGreaterThan(0);
     expect(within(assetsDetail).getAllByText(/related_asset_bars/i).length).toBeGreaterThan(0);
     expect(within(assetsDetail).getAllByText(/Assets source group/i).length).toBeGreaterThan(0);
@@ -2065,14 +2071,15 @@ describe("MarketAgentPage", () => {
     expect(within(assetsDetail).getAllByText(/US2Y is unavailable, so it is not treated as neutral/i).length).toBeGreaterThan(0);
     expect(within(assetsDetail).getAllByText(/requested_by: Yields driver \/ evidence gate/i).length).toBeGreaterThan(0);
     expect(within(assetsDetail).getAllByText(/used_by: Driver attention, evidence gate, Latest Evidence/i).length).toBeGreaterThan(0);
-    fireEvent.click(within(assetsDetail).getByRole("button", { name: /^Overview$/i }));
-    fireEvent.click(within(assetsDetail).getByRole("button", { name: /View requests/i }));
-    expect(within(assetsDetail).getByText(/Feedback loop/i)).toBeInTheDocument();
+    fireEvent.click(within(assetsDetail).getByRole("button", { name: /Needs/i }));
+    expect(within(assetsDetail).getByText(/Needs from sources/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getByText(/Missing, stale, or unavailable inputs/i)).toBeInTheDocument();
+    expect(within(assetsDetail).queryByText(/Feedback loop/i)).not.toBeInTheDocument();
     backToMap();
 
     fireEvent.click(within(within(agentActivity).getByLabelText(/Source groups/i)).getByRole("button", { name: /^News:/i }));
     const newsDetail = within(agentActivity).getByRole("complementary", { name: /News detail view/i });
-    fireEvent.click(within(newsDetail).getByRole("button", { name: /View records/i }));
+    fireEvent.click(within(newsDetail).getByRole("button", { name: /^Records$/i }));
     expect(within(newsDetail).getAllByText(/Raw capture/i).length).toBeGreaterThan(0);
     expect(within(newsDetail).getByText(/Dedupe \/ source scoring/i)).toBeInTheDocument();
     expect(within(newsDetail).getByText(/Theme extraction/i)).toBeInTheDocument();
@@ -2081,7 +2088,7 @@ describe("MarketAgentPage", () => {
 
     fireEvent.click(within(within(agentActivity).getByLabelText(/Source groups/i)).getByRole("button", { name: /Calendar/i }));
     const calendarDetail = within(agentActivity).getByRole("complementary", { name: /Calendar detail view/i });
-    fireEvent.click(within(calendarDetail).getByRole("button", { name: /View records/i }));
+    fireEvent.click(within(calendarDetail).getByRole("button", { name: /^Records$/i }));
     expect(within(calendarDetail).getByText(/Calendar event windows/i)).toBeInTheDocument();
     expect(within(calendarDetail).getAllByText(/existing Economic Calendar/i).length).toBeGreaterThan(0);
     expect(within(calendarDetail).getByText(/Window alignment/i)).toBeInTheDocument();
@@ -2090,21 +2097,20 @@ describe("MarketAgentPage", () => {
 
     fireEvent.click(within(agentActivity).getByRole("button", { name: /AI Analysis/i }));
     const aiDetail = within(agentActivity).getByRole("complementary", { name: /AI Analysis detail view/i });
-    fireEvent.click(within(aiDetail).getByRole("button", { name: /View records/i }));
+    fireEvent.click(within(aiDetail).getByRole("button", { name: /^Records$/i }));
     expect(within(aiDetail).getByText(/Evidence gate decisions/i)).toBeInTheDocument();
     expect(within(aiDetail).getByText(/Driver lifecycle/i)).toBeInTheDocument();
     expect(within(aiDetail).getByText(/LLM analysis/i)).toBeInTheDocument();
     expect(within(aiDetail).getAllByText(/Validator guard/i).length).toBeGreaterThan(0);
     expect(within(aiDetail).getByText(/Notification policy/i)).toBeInTheDocument();
-    fireEvent.click(within(aiDetail).getByRole("button", { name: /^Overview$/i }));
-    fireEvent.click(within(aiDetail).getByRole("button", { name: /View requests/i }));
-    expect(within(aiDetail).getByText(/Data requests and sensor priority/i)).toBeInTheDocument();
+    fireEvent.click(within(aiDetail).getByRole("button", { name: /Needs/i }));
+    expect(within(aiDetail).getByText(/Missing, stale, or unavailable inputs/i)).toBeInTheDocument();
     expect(within(aiDetail).getAllByText(/without promoting it to active/i).length).toBeGreaterThan(0);
     backToMap();
 
     fireEvent.click(within(agentActivity).getByRole("button", { name: /^Outputs:/i }));
     const outputsDetail = within(agentActivity).getByRole("complementary", { name: /Outputs detail view/i });
-    fireEvent.click(within(outputsDetail).getByRole("button", { name: /View records/i }));
+    fireEvent.click(within(outputsDetail).getByRole("button", { name: /^Records$/i }));
     expect(within(outputsDetail).getByText(/Per-run trace/i)).toBeInTheDocument();
     expect(within(outputsDetail).getAllByText(/Source rows/i).length).toBeGreaterThan(0);
     expect(within(outputsDetail).getAllByText(/Telegram delivery/i).length).toBeGreaterThan(0);

@@ -4733,10 +4733,10 @@ const main = async () => {
         if (!(detail instanceof HTMLElement)) {
           problems.push("Activity focus view missing after selecting Assets");
         } else {
-          ["Focus view", "What this step is doing", "Why users should care", "Trace", "View records"].forEach((label) => {
+          ["Step detail", "Summary", "Records", "Needs", "Now", "Next handoff", "Stored as", "Path"].forEach((label) => {
             if (!detail.textContent?.includes(label)) problems.push(`Activity focus view missing ${label}`);
           });
-          ["Where it comes from", "What is happening now", "AI involvement"].forEach((label) => {
+          ["Where it comes from", "What is happening now", "AI involvement", "Why users should care", "Feedback loop", "View records"].forEach((label) => {
             if (detail.textContent?.includes(label)) problems.push(`Activity focus view should not expose old audit field ${label}`);
           });
         }
