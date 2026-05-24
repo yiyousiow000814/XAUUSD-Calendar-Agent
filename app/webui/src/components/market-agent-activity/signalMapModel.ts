@@ -124,8 +124,8 @@ const listValue = (entry: Record<string, unknown> | undefined, key: string) => {
 
 const statusTone = (status: string): SignalTone => {
   const normalized = normalizeMarketAgentValue(status);
-  if (["live", "active", "ready", "validated", "synced", "stored", "sent", "approved", "summarized"].includes(normalized)) return "good";
-  if (["checking", "collecting", "syncing", "preparing", "queued", "market_closed", "partial", "stale", "waiting"].includes(normalized)) return "working";
+  if (["live", "active", "ready", "available", "validated", "synced", "stored", "sent", "approved", "summarized"].includes(normalized)) return "good";
+  if (["checking", "collecting", "syncing", "preparing", "queued", "market_closed", "partial", "stale", "snapshot", "waiting"].includes(normalized)) return "working";
   if (["unavailable", "failed", "error", "blocked"].includes(normalized)) return "bad";
   return "muted";
 };
@@ -186,9 +186,42 @@ const shortDate = (value: unknown) => {
   return formatShortTime(value) || value;
 };
 
+const timestampMs = (value: unknown) => {
+  if (typeof value === "number" && Number.isFinite(value)) return value < 1_000_000_000_000 ? value * 1000 : value;
+  if (typeof value !== "string" || !value.trim()) return null;
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? null : parsed;
+};
+
+const isExpiredLiveSpot = (health: MarketAgentProviderHealthEntry | undefined, nowMs = Date.now()) => {
+  if (
+    !health?.is_available ||
+    health.is_stale ||
+    normalizeMarketAgentValue(health.source_type) !== "spot" ||
+    normalizeMarketAgentValue(health.data_mode) !== "live_seen"
+  ) {
+    return false;
+  }
+  const fetchedAt = timestampMs(health.fetched_at);
+  const dataTimestamp = timestampMs(health.data_timestamp ?? health.fetched_at);
+  if (fetchedAt === null || dataTimestamp === null) return true;
+  return nowMs - fetchedAt > 300_000 || fetchedAt - dataTimestamp > 3_600_000;
+};
+
+const isMarketClosedSnapshot = (health: MarketAgentProviderHealthEntry | undefined) =>
+  Boolean(
+    health?.is_available &&
+      (health.is_stale || normalizeMarketAgentValue(health.data_mode) === "stale" || isExpiredLiveSpot(health)) &&
+      ["spot", "spot_snapshot"].includes(normalizeMarketAgentValue(health.source_type)) &&
+      typeof health.current_value === "number" &&
+      Number.isFinite(health.current_value)
+  );
+
 const healthFreshness = (health: MarketAgentProviderHealthEntry | undefined) => {
   if (!health) return "not recorded";
   if (!health.is_available || normalizeMarketAgentValue(health.source_type) === "unavailable") return "unavailable";
+  if (isMarketClosedSnapshot(health)) return "market closed";
+  if (isExpiredLiveSpot(health)) return "stale";
   if (health.is_stale) return "stale";
   return "fresh";
 };
@@ -219,6 +252,15 @@ const requestFromHealth = (sensorLabel: string, health: MarketAgentProviderHealt
       requestedBy: "Freshness check",
       reason: health.stale_reason || "The latest value is stale and cannot confirm a fresh move.",
       mode: health.data_mode || "refresh"
+    };
+  }
+  if (isExpiredLiveSpot(health)) {
+    return {
+      target: sensorLabel,
+      status: "stale",
+      requestedBy: "Freshness check",
+      reason: "The last cTrader quote snapshot is available, but it is not a fresh live quote.",
+      mode: "quote snapshot"
     };
   }
   return null;
@@ -253,8 +295,10 @@ export const buildSignalMapModel = ({
   const storageSummary = recordValue(replayEntry, "storageSummary");
   const storageCounts = recordValue(storageSummary, "counts");
   const xauusdHealth = findProviderHealth(healthItems, ["xauusd", "gc=f", "xauusd price"]);
-  const cTraderLive = Boolean(xauusdHealth?.is_available && !xauusdHealth.is_stale);
-  const cTraderStatus = textValue(cTraderEntry, "status") || (cTraderLive ? "live" : providerConfig?.ctrader?.enabled ? "checking" : "waiting");
+  const cTraderLive = Boolean(xauusdHealth?.is_available && !xauusdHealth.is_stale && !isExpiredLiveSpot(xauusdHealth));
+  const cTraderStatus =
+    textValue(cTraderEntry, "status") ||
+    (isMarketClosedSnapshot(xauusdHealth) ? "market closed" : cTraderLive ? "live" : providerConfig?.ctrader?.enabled ? "checking" : "waiting");
   const historyStatus = textValue(historyEntry, "status") || (monitorStatus?.running ? "syncing" : "idle");
   const contextStatus = textValue(contextEntry, "status") || (stats.newsRows || stats.calendarRows ? "active" : "collecting");
   const evidenceStatus = textValue(evidenceEntry, "status") || String(evidenceChain?.status || "pending");
@@ -289,6 +333,31 @@ export const buildSignalMapModel = ({
       ]
     }));
   };
+  const cTraderRows = (): SignalDrilldownRow[] => {
+    const rows = jobRows(cTraderEntry, "Live quote request");
+    const hasRecordedJobs = asRecordList(cTraderEntry?.jobs).length > 0;
+    if (hasRecordedJobs || !xauusdHealth?.is_available || typeof xauusdHealth.current_value !== "number") {
+      return rows;
+    }
+    const status = isMarketClosedSnapshot(xauusdHealth) ? "market closed" : cTraderLive ? "live" : "snapshot";
+    return [
+      {
+        label: isMarketClosedSnapshot(xauusdHealth) ? "Last quote snapshot" : "Latest quote snapshot",
+        status,
+        detail: isMarketClosedSnapshot(xauusdHealth)
+          ? `Last quote ${xauusdHealth.current_value}. cTrader returned a price snapshot while the market is closed. This is a display snapshot, not a fresh live tick.`
+          : `Latest quote ${xauusdHealth.current_value}. cTrader provider health has a quote snapshot, but the monitor activity job did not record a live ingest step.`,
+        meta: [
+          `price: ${xauusdHealth.current_value}`,
+          `source: ${providerLabel(xauusdHealth, "cTrader")}`,
+          `mode: ${xauusdHealth.data_mode || "not recorded"}`,
+          `data_timestamp: ${shortDate(xauusdHealth.data_timestamp)}`,
+          `fetched_at: ${shortDate(xauusdHealth.fetched_at)}`,
+          `storage: provider_health`
+        ]
+      }
+    ];
+  };
   const storagePath =
     textValue(replayEntry, "timelineStorePath") ||
     String(storageSummary.path || "") ||
@@ -305,7 +374,22 @@ export const buildSignalMapModel = ({
     const healthRequest = requestFromHealth(sensor.label, health);
     if (healthRequest) sensorRequests.push(healthRequest);
     const evidenceState = String(evidenceStatusMap[sensor.id] || crossAssetConfirmation[sensor.id] || "");
-    const status = evidenceState || (row ? String(row.data_mode || "live") : health?.is_stale ? "stale" : health?.is_available ? "ready" : health ? "unavailable" : "waiting");
+    const healthStatus = isMarketClosedSnapshot(health)
+      ? "market closed"
+      : health?.is_stale || isExpiredLiveSpot(health)
+        ? "stale"
+        : health?.is_available
+          ? "available"
+          : health
+            ? "unavailable"
+            : "waiting";
+    const status =
+      evidenceState ||
+      (sensor.id === "xauusd" && ["market closed", "stale"].includes(healthStatus)
+        ? healthStatus
+        : row
+          ? String(row.data_mode || "live")
+          : healthStatus);
     const requestedBy = sensor.id === "xauusd" ? "Move detection" : sensor.group.includes("Rates") ? "Yields driver / evidence gate" : sensor.group.includes("Oil") ? "Theme discovery / inflation channel" : "Driver attention";
     const usedBy = sensor.id === "xauusd" ? "Move detection, evidence gate, replay, alerts" : "Driver attention, evidence gate, Latest Evidence";
     return node({
@@ -475,7 +559,7 @@ export const buildSignalMapModel = ({
           {
             title: "Live asset ingest",
             detail: "Primary price is collected first because every explanation starts with a meaningful XAUUSD move.",
-            rows: jobRows(cTraderEntry, "Live quote request")
+            rows: cTraderRows()
           }
         ]
       }),

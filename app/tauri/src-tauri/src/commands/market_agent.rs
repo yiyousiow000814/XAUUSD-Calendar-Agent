@@ -1115,6 +1115,88 @@ fn list_ollama_models_value(endpoint: &str) -> Value {
     }
 }
 
+fn local_ai_model_name_from_manifest(path: &Path) -> Option<String> {
+    let tag = path.file_name()?.to_string_lossy();
+    let family = path.parent()?.file_name()?.to_string_lossy();
+    if family.is_empty() || tag.is_empty() {
+        return None;
+    }
+    Some(format!("{family}:{tag}"))
+}
+
+fn list_local_ai_model_files() -> Vec<Value> {
+    let manifests_root = local_ai_models_dir()
+        .join("manifests")
+        .join("registry.ollama.ai")
+        .join("library");
+    let mut pending = vec![manifests_root];
+    let mut models = vec![];
+    while let Some(dir) = pending.pop() {
+        let Ok(entries) = fs::read_dir(&dir) else {
+            continue;
+        };
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                pending.push(path);
+                continue;
+            }
+            let Some(name) = local_ai_model_name_from_manifest(&path) else {
+                continue;
+            };
+            let size = fs::read_to_string(&path)
+                .ok()
+                .and_then(|raw| serde_json::from_str::<Value>(&raw).ok())
+                .and_then(|payload| payload.get("layers").and_then(Value::as_array).cloned())
+                .map(|layers| {
+                    layers
+                        .iter()
+                        .filter_map(|layer| layer.get("size").and_then(Value::as_i64))
+                        .sum::<i64>()
+                })
+                .unwrap_or(0);
+            models.push(json!({
+                "name": name,
+                "model": name,
+                "size": size,
+                "source": "app_local_models",
+            }));
+        }
+    }
+    models.sort_by(|left, right| {
+        left.get("name")
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .cmp(right.get("name").and_then(Value::as_str).unwrap_or(""))
+    });
+    models
+}
+
+fn merge_local_ai_model_lists(
+    mut runtime_models: Vec<Value>,
+    local_models: Vec<Value>,
+) -> Vec<Value> {
+    for local_model in local_models {
+        let local_name = local_model
+            .get("name")
+            .or_else(|| local_model.get("model"))
+            .and_then(Value::as_str)
+            .unwrap_or("");
+        let exists = runtime_models.iter().any(|runtime_model| {
+            runtime_model
+                .get("name")
+                .or_else(|| runtime_model.get("model"))
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                == local_name
+        });
+        if !exists {
+            runtime_models.push(local_model);
+        }
+    }
+    runtime_models
+}
+
 fn detect_local_ai_setup_value(root: &Path, payload: &Value) -> Value {
     let profile = payload
         .get("system")
@@ -1183,6 +1265,13 @@ fn detect_local_ai_setup_value(root: &Path, payload: &Value) -> Value {
         });
     }
     let model_list = list_ollama_models_value(&endpoint);
+    let runtime_models = model_list
+        .get("models")
+        .and_then(Value::as_array)
+        .cloned()
+        .unwrap_or_default();
+    let local_models = list_local_ai_model_files();
+    let models = merge_local_ai_model_lists(runtime_models, local_models);
     let model_names: Vec<String> = model_list
         .get("modelNames")
         .and_then(Value::as_array)
@@ -1194,6 +1283,22 @@ fn detect_local_ai_setup_value(root: &Path, payload: &Value) -> Value {
                 .collect()
         })
         .unwrap_or_default();
+    let model_names: Vec<String> = merge_local_ai_model_lists(
+        model_names
+            .into_iter()
+            .map(|name| json!({ "name": name }))
+            .collect(),
+        models.clone(),
+    )
+    .iter()
+    .filter_map(|model| {
+        model
+            .get("name")
+            .or_else(|| model.get("model"))
+            .and_then(Value::as_str)
+            .map(str::to_string)
+    })
+    .collect();
     let recommended_name = recommended
         .get("name")
         .and_then(Value::as_str)
@@ -1212,7 +1317,7 @@ fn detect_local_ai_setup_value(root: &Path, payload: &Value) -> Value {
             "endpoint": endpoint,
             "version": running.get("version").and_then(Value::as_str).unwrap_or("")
         },
-        "installedModels": model_list.get("models").cloned().unwrap_or_else(|| json!([])),
+        "installedModels": models,
         "recommendedModel": recommended,
         "profiles": local_model_profiles(),
         "fallbackChain": fallback_chain,
@@ -1823,9 +1928,15 @@ fn run_ctrader_bridge(root: &Path, command: &str, payload: &Value) -> Value {
             let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
             let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
             if !output.status.success() {
+                let raw_error = if stderr.is_empty() { stdout } else { stderr };
+                if let Ok(parsed) = serde_json::from_str::<Value>(&raw_error) {
+                    if parsed.is_object() {
+                        return normalize_ctrader_bridge_error(parsed);
+                    }
+                }
                 return json!({
                     "ok": false,
-                    "error": if stderr.is_empty() { stdout } else { stderr },
+                    "error": raw_error,
                 });
             }
             let parsed = serde_json::from_str::<Value>(&stdout).unwrap_or_else(|err| {
@@ -1842,6 +1953,25 @@ fn run_ctrader_bridge(root: &Path, command: &str, payload: &Value) -> Value {
             "error": format!("Unable to wait for cTrader CLI adapter: {err}"),
         }),
     }
+}
+
+fn normalize_ctrader_bridge_error(parsed: Value) -> Value {
+    let nested = parsed
+        .get("error")
+        .and_then(Value::as_str)
+        .and_then(|raw| serde_json::from_str::<Value>(raw).ok());
+    let Some(mut nested) = nested else {
+        return parsed;
+    };
+    if !nested.is_object() {
+        return parsed;
+    }
+    if let Some(payload) = parsed.get("payload").cloned() {
+        if nested.get("payload").is_none() {
+            nested["payload"] = payload;
+        }
+    }
+    nested
 }
 
 fn test_ctrader_backfill_for_root(root: &Path, payload: &Value) -> Value {
@@ -2314,6 +2444,106 @@ fn read_provider_health_latest(
         }
     }
     Ok((Some(monitor_run_id), Some(run_started_at), payloads))
+}
+
+fn merge_xauusd_provider_health(mut items: Vec<Value>, mut xauusd_health: Value) -> Vec<Value> {
+    if let Some(object) = xauusd_health.as_object_mut() {
+        object.insert(
+            "provider_key".to_string(),
+            Value::String("xauusd".to_string()),
+        );
+        object.insert(
+            "runtime_source".to_string(),
+            Value::String("ctrader_quote".to_string()),
+        );
+    }
+    let mut replaced = false;
+    for item in items.iter_mut() {
+        let key = item
+            .get("provider_key")
+            .or_else(|| item.get("source"))
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .trim()
+            .to_ascii_lowercase();
+        if key == "xauusd" || key == "xauusd price" || key == "gc=f" {
+            *item = xauusd_health.clone();
+            replaced = true;
+            break;
+        }
+    }
+    if !replaced {
+        items.insert(0, xauusd_health);
+    }
+    items
+}
+
+fn read_saved_ctrader_xauusd_health(root: &Path) -> Option<Value> {
+    let config = merged_ctrader_provider_config(root, None);
+    if !config
+        .get("enabled")
+        .and_then(Value::as_bool)
+        .unwrap_or(false)
+    {
+        return None;
+    }
+
+    let now = chrono::Utc::now().to_rfc3339();
+    let snapshot_path = config
+        .get("snapshotPath")
+        .and_then(Value::as_str)
+        .map(PathBuf::from)
+        .unwrap_or_else(|| root.join("ctrader-last-quote.json"));
+    let Some(snapshot) = read_json_file(&snapshot_path) else {
+        return Some(json!({
+            "source": "cTrader",
+            "source_type": "spot",
+            "data_mode": "unavailable",
+            "is_available": false,
+            "is_stale": true,
+            "stale_reason": "No saved cTrader quote snapshot is available yet.",
+            "error": "No saved cTrader quote snapshot is available yet.",
+            "fetched_at": now,
+            "data_timestamp": now,
+        }));
+    };
+
+    let symbol = snapshot
+        .get("symbol")
+        .and_then(Value::as_str)
+        .or_else(|| config.get("symbol").and_then(Value::as_str))
+        .unwrap_or("XAUUSD");
+    let timestamp = snapshot
+        .get("timestamp")
+        .or_else(|| snapshot.get("data_timestamp"))
+        .and_then(Value::as_str)
+        .unwrap_or("");
+    let current_value = snapshot
+        .get("mid")
+        .or_else(|| snapshot.get("close"))
+        .or_else(|| snapshot.get("bid"))
+        .and_then(Value::as_f64);
+    Some(json!({
+        "source": "cTrader",
+        "source_type": snapshot.get("source_type").and_then(Value::as_str).unwrap_or("spot"),
+        "data_mode": "stale",
+        "is_available": current_value.is_some(),
+        "is_stale": true,
+        "stale_reason": "Loaded saved cTrader quote snapshot. Live refresh runs only during monitor/connect/test actions.",
+        "error": "",
+        "fetched_at": now,
+        "data_timestamp": if timestamp.is_empty() { now.clone() } else { timestamp.to_string() },
+        "current_value": current_value,
+        "raw_source_id": snapshot
+            .get("symbol_id")
+            .or_else(|| snapshot.get("symbolId"))
+            .cloned()
+            .unwrap_or_else(|| Value::String(symbol.to_string())),
+    }))
+}
+
+fn read_current_ctrader_xauusd_health() -> Option<Value> {
+    read_saved_ctrader_xauusd_health(&config::appdata_dir())
 }
 
 fn read_driver_attention_latest(
@@ -2827,14 +3057,19 @@ pub fn get_market_agent_provider_health(_payload: Value) -> Value {
         Err(message) => return build_unavailable_payload(&message, Some(&root)),
     };
     match read_provider_health_latest(&connection) {
-        Ok((monitor_run_id, run_started_at, items)) => json!({
-            "ok": true,
-            "available": timeline_path.exists(),
-            "timeline_store_path": timeline_path.display().to_string(),
-            "monitor_run_id": monitor_run_id,
-            "run_started_at": run_started_at,
-            "items": items,
-        }),
+        Ok((monitor_run_id, run_started_at, items)) => {
+            let items = read_current_ctrader_xauusd_health()
+                .map(|health| merge_xauusd_provider_health(items.clone(), health))
+                .unwrap_or(items);
+            json!({
+                "ok": true,
+                "available": timeline_path.exists(),
+                "timeline_store_path": timeline_path.display().to_string(),
+                "monitor_run_id": monitor_run_id,
+                "run_started_at": run_started_at,
+                "items": items,
+            })
+        }
         Err(err) => build_unavailable_payload(
             &format!("Unable to read provider health: {err}"),
             Some(&root),
@@ -3358,13 +3593,13 @@ mod tests {
         ctrader_config_path_for_root, ctrader_env_for_root, llm_config_path_for_root,
         llm_env_for_root, mask_secret, masked_ctrader_provider_config, masked_llm_config_for_root,
         masked_telegram_config_for_root, monitor_command_base, monitor_status_path_for_root,
-        normalize_pull_progress_line, read_json_object, read_market_agent_replay,
-        read_market_agent_snapshot, read_monitor_status_for_root,
-        recommend_local_model_from_profile, run_backfill_recovery_for_root,
-        save_ctrader_provider_config, save_llm_config_for_root, save_telegram_config_for_root,
-        start_monitor_loop_for_root, stop_monitor_loop_for_root, telegram_config_path_for_root,
-        telegram_env_for_root, test_telegram_for_root, timeline_path_for_root,
-        DEFAULT_OLLAMA_ENDPOINT,
+        normalize_ctrader_bridge_error, normalize_pull_progress_line, read_json_object,
+        read_market_agent_replay, read_market_agent_snapshot, read_monitor_status_for_root,
+        read_saved_ctrader_xauusd_health, recommend_local_model_from_profile,
+        run_backfill_recovery_for_root, save_ctrader_provider_config, save_llm_config_for_root,
+        save_telegram_config_for_root, start_monitor_loop_for_root, stop_monitor_loop_for_root,
+        telegram_config_path_for_root, telegram_env_for_root, test_telegram_for_root,
+        timeline_path_for_root, DEFAULT_OLLAMA_ENDPOINT,
     };
     use rusqlite::{params, Connection};
     use serde_json::{json, Value};
@@ -3381,6 +3616,24 @@ mod tests {
         let _ = fs::remove_dir_all(&path);
         fs::create_dir_all(&path).expect("create temp dir");
         path
+    }
+
+    #[test]
+    fn ctrader_bridge_error_unwraps_nested_adapter_json() {
+        let raw = json!({
+            "ok": false,
+            "error": "{\"error\":\"The installed cTrader CLI supports account and symbol checks, but does not expose live quotes through this adapter.\",\"ok\":false}",
+            "payload": {}
+        });
+
+        let normalized = normalize_ctrader_bridge_error(raw);
+
+        assert_eq!(normalized.get("ok").and_then(Value::as_bool), Some(false));
+        assert_eq!(
+            normalized.get("error").and_then(Value::as_str),
+            Some("The installed cTrader CLI supports account and symbol checks, but does not expose live quotes through this adapter.")
+        );
+        assert!(normalized.get("payload").is_some());
     }
 
     fn seed_timeline_db(path: &PathBuf) {
@@ -4001,6 +4254,65 @@ mod tests {
             Some(dir.join("ctrader-cli.json").display().to_string().as_str())
         );
         assert!(!format!("{env:?}").contains("super-secret-password"));
+    }
+
+    #[test]
+    fn reads_saved_ctrader_health_without_live_bridge_refresh() {
+        let dir = unique_temp_dir("ctrader-snapshot-health");
+        let snapshot_path = dir.join("ctrader-last-quote.json");
+        save_ctrader_provider_config(
+            &dir,
+            &json!({
+                "ctrader": {
+                    "enabled": true,
+                    "environment": "demo",
+                    "accountId": "123456",
+                    "ctid": "trader@example.com",
+                    "password": "super-secret-password",
+                    "symbol": "XAUUSD",
+                    "snapshotPath": snapshot_path.display().to_string(),
+                }
+            }),
+        )
+        .expect("seed config");
+        fs::write(
+            &snapshot_path,
+            json!({
+                "symbol": "XAUUSD",
+                "symbol_id": 777,
+                "bid": 4507.9,
+                "ask": 4508.3,
+                "mid": 4508.1,
+                "timestamp": "2026-05-22T20:56:59Z",
+                "source_type": "spot"
+            })
+            .to_string(),
+        )
+        .expect("write snapshot");
+
+        let health = read_saved_ctrader_xauusd_health(&dir).expect("health");
+
+        assert_eq!(
+            health.get("source").and_then(Value::as_str),
+            Some("cTrader")
+        );
+        assert_eq!(
+            health.get("current_value").and_then(Value::as_f64),
+            Some(4508.1)
+        );
+        assert_eq!(
+            health.get("data_mode").and_then(Value::as_str),
+            Some("stale")
+        );
+        assert_eq!(
+            health.get("is_available").and_then(Value::as_bool),
+            Some(true)
+        );
+        assert!(health
+            .get("stale_reason")
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .contains("saved cTrader quote snapshot"));
     }
 
     #[test]

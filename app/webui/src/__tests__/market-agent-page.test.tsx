@@ -805,6 +805,51 @@ describe("MarketAgentPage", () => {
     expect(screen.queryByText(/Xauusd: Live Data/i)).not.toBeInTheDocument();
   });
 
+  it("shows a cTrader market-closed snapshot in Activity instead of ready with no live job", () => {
+    const closedProviderHealth: MarketAgentProviderHealthResponse = {
+      ...providerHealth,
+      items: providerHealth.items.map((item) =>
+        item.provider_key === "xauusd"
+          ? {
+              ...item,
+              source: "cTrader",
+              source_type: "spot",
+              data_mode: "stale",
+              is_available: true,
+              is_stale: true,
+              stale_reason: "Market is closed.",
+              current_value: 4508.3,
+              data_timestamp: "2026-05-24T04:58:00+08:00",
+              fetched_at: "2026-05-24T05:01:00+08:00"
+            }
+          : item
+      )
+    };
+
+    renderMarketAgentPage({
+      providerHealth: closedProviderHealth,
+      monitorStatus: {
+        ...monitorStatus,
+        running: true,
+        phase: "running",
+        message: "Monitor loop is running.",
+        activity: {}
+      } as Parameters<typeof MarketAgentPage>[0]["monitorStatus"]
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /^Activity$/i }));
+    const agentActivity = screen.getByLabelText(/Agent activity board/i);
+    fireEvent.click(within(agentActivity).getByRole("button", { name: /^Assets/i }));
+    const assetsDetail = within(agentActivity).getByRole("complementary", { name: /Assets detail view/i });
+    fireEvent.click(within(assetsDetail).getByRole("button", { name: /^Records$/i }));
+
+    expect(within(assetsDetail).getAllByText(/Market closed/i).length).toBeGreaterThan(0);
+    expect(within(assetsDetail).getByText(/Last quote snapshot/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getByText(/Last quote 4508\.3/i)).toBeInTheDocument();
+    const liveIngestSection = within(assetsDetail).getByText(/Live asset ingest/i).closest("section") as HTMLElement;
+    expect(within(liveIngestSection).queryByText(/No detailed activity jobs were recorded for this step/i)).not.toBeInTheDocument();
+  });
+
   it("hides fixed zero-score dormant drivers from the current driver table", () => {
     const dormantOnlyAttention: MarketAgentDriverAttentionResponse = {
       ...driverAttention,
@@ -1189,13 +1234,14 @@ describe("MarketAgentPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
     expect(screen.getByRole("heading", { name: /^Auto Local AI$/i })).toBeInTheDocument();
-    expect(screen.getByText(/Rule-based active/i)).toBeInTheDocument();
+    expect(screen.getByText(/Local AI is not installed yet/i)).toBeInTheDocument();
+    expect(screen.getByText(/Download Qwen3\.5 4B once/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Auto$/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Qwen3\.5 4B$/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Qwen3\.5 0\.8B$/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Rule-based only$/i })).toBeInTheDocument();
     expect(screen.getAllByText(/~2\.9 GB/i).length).toBeGreaterThan(0);
-    expect(screen.getByRole("button", { name: /Download recommended/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Download Qwen3\.5 4B/i })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Cancel download/i })).not.toBeInTheDocument();
     expect(screen.queryByText(/Advanced model settings/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/^Model$/i)).not.toBeInTheDocument();
@@ -1225,7 +1271,26 @@ describe("MarketAgentPage", () => {
 
     expect(screen.getAllByText(/Runtime will be prepared/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/prepared automatically/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Download recommended/i })).toBeEnabled();
+    expect(screen.getByRole("button", { name: /Download Qwen3\.5 4B/i })).toBeEnabled();
+  });
+
+  it("shows already downloaded Local AI models instead of asking for another download", () => {
+    const installedSetup: MarketAgentLLMSetupResponse = {
+      ...localAiSetup,
+      status: "model_ready",
+      message: "Recommended model is installed.",
+      installedModels: [{ name: "qwen3.5:4b", model: "qwen3.5:4b", size: 3389971840, source: "app_local_models" }]
+    };
+
+    renderMarketAgentPage({ localAiSetup: installedSetup });
+    fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
+
+    expect(screen.getByText(/Local AI is ready/i)).toBeInTheDocument();
+    expect(screen.getByText(/No download is needed/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Qwen3\.5 4B/i).length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: /Use this model/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Download Qwen3\.5 4B/i })).not.toBeInTheDocument();
   });
 
   it("renders Local AI pull progress bytes and percent while downloading", () => {
@@ -1276,7 +1341,10 @@ describe("MarketAgentPage", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
 
-    expect(screen.getAllByText(/Getting quote/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Needs quote adapter/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/Live quote unavailable/i)).toBeInTheDocument();
+    expect(screen.getByText(/adapter cannot return live XAUUSD quotes/i)).toBeInTheDocument();
+    expect(screen.getByText(/Quote step blocked/i)).toBeInTheDocument();
     expect(screen.queryByText(/cTrader live/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/does not expose live quotes/i)).not.toBeInTheDocument();
   });
@@ -1295,7 +1363,7 @@ describe("MarketAgentPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: /Download recommended/i }));
+      fireEvent.click(screen.getByRole("button", { name: /Download Qwen3\.5 4B/i }));
     });
 
     expect(screen.getByText(/Preparing Local AI runtime/i)).toBeInTheDocument();
@@ -1342,7 +1410,7 @@ describe("MarketAgentPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: /Download recommended/i }));
+      fireEvent.click(screen.getByRole("button", { name: /Download Qwen3\.5 4B/i }));
     });
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: /Cancel download/i }));
@@ -1574,7 +1642,7 @@ describe("MarketAgentPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: /Download recommended/i }));
+      fireEvent.click(screen.getByRole("button", { name: /Download Qwen3\.5 4B/i }));
     });
 
     expect(installModel).toHaveBeenCalledWith("qwen3.5:4b");
@@ -1641,7 +1709,7 @@ describe("MarketAgentPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: /Download recommended/i }));
+      fireEvent.click(screen.getByRole("button", { name: /Download Qwen3\.5 4B/i }));
     });
     expect(installModel).toHaveBeenCalledWith("qwen3.5:4b");
     expect(screen.queryByRole("button", { name: /Test JSON/i })).not.toBeInTheDocument();
@@ -1789,7 +1857,7 @@ describe("MarketAgentPage", () => {
     expect(screen.getByRole("button", { name: /^Qwen3\.5 0\.8B$/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Rule-based only$/i })).toBeInTheDocument();
     expect(screen.queryByLabelText(/Endpoint/i)).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Download recommended/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Download Qwen3\.5 4B/i })).toBeInTheDocument();
     expect(screen.queryByText(/Advanced model settings/i)).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Test JSON/i })).not.toBeInTheDocument();
 
@@ -2054,26 +2122,35 @@ describe("MarketAgentPage", () => {
     expect(within(assetsDetail).getByRole("button", { name: /^Summary$/i })).toBeInTheDocument();
     expect(within(assetsDetail).getByRole("button", { name: /^Records$/i })).toBeInTheDocument();
     expect(within(assetsDetail).getByRole("button", { name: /Needs/i })).toBeInTheDocument();
-    expect(within(assetsDetail).getByText(/Now/i)).toBeInTheDocument();
-    expect(within(assetsDetail).getByText(/Next handoff/i)).toBeInTheDocument();
-    expect(within(assetsDetail).getByText(/Stored as/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getByText(/Received/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getByText(/Handling/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getAllByText(/Stored/i).length).toBeGreaterThan(0);
+    expect(within(assetsDetail).getByText(/Selected path/i)).toBeInTheDocument();
     expect(within(assetsDetail).getByText(/provider mapping and allowlists/i)).toBeInTheDocument();
     expect(within(assetsDetail).queryByText(/Why users should care/i)).not.toBeInTheDocument();
     fireEvent.click(within(assetsDetail).getByRole("button", { name: /^Records$/i }));
     expect(within(assetsDetail).getByText(/What happened in this step/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getAllByText(/Source/i).length).toBeGreaterThan(0);
+    expect(within(assetsDetail).getAllByText(/Used by/i).length).toBeGreaterThan(0);
     expect(within(assetsDetail).getAllByText(/market_price_bars/i).length).toBeGreaterThan(0);
     expect(within(assetsDetail).getAllByText(/related_asset_bars/i).length).toBeGreaterThan(0);
-    expect(within(assetsDetail).getAllByText(/Assets source group/i).length).toBeGreaterThan(0);
+    expect(within(assetsDetail).getAllByText(/Tracked assets/i).length).toBeGreaterThan(0);
     expect(within(assetsDetail).getAllByText(/^XAUUSD$/i).length).toBeGreaterThan(0);
     expect(within(assetsDetail).getAllByText(/^DXY$/i).length).toBeGreaterThan(0);
     expect(within(assetsDetail).getAllByText(/^US10Y$/i).length).toBeGreaterThan(0);
     expect(within(assetsDetail).getAllByText(/^US2Y$/i).length).toBeGreaterThan(0);
-    expect(within(assetsDetail).getAllByText(/US2Y is unavailable, so it is not treated as neutral/i).length).toBeGreaterThan(0);
-    expect(within(assetsDetail).getAllByText(/requested_by: Yields driver \/ evidence gate/i).length).toBeGreaterThan(0);
-    expect(within(assetsDetail).getAllByText(/used_by: Driver attention, evidence gate, Latest Evidence/i).length).toBeGreaterThan(0);
+    expect(within(assetsDetail).getAllByText(/unavailable/i).length).toBeGreaterThan(0);
+    expect(within(assetsDetail).getAllByText(/Evidence gate \+ Driver Attention \+ Latest Evidence \+ Replay/i).length).toBeGreaterThan(0);
     fireEvent.click(within(assetsDetail).getByRole("button", { name: /Needs/i }));
-    expect(within(assetsDetail).getByText(/Needs from sources/i)).toBeInTheDocument();
-    expect(within(assetsDetail).getByText(/Missing, stale, or unavailable inputs/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getByText(/Data needs/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getByText(/What is blocking or being watched/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getByText(/1 blocking/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getByText(/7 monitored/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getByText(/8 total/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getByText(/^Action needed$/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getByText(/Provider status not reported/i)).toBeInTheDocument();
+    expect(within(assetsDetail).getAllByText(/^US2Y$/i).length).toBeGreaterThan(0);
+    expect(within(assetsDetail).getAllByText(/Evidence gate/i).length).toBeGreaterThan(0);
     expect(within(assetsDetail).queryByText(/Feedback loop/i)).not.toBeInTheDocument();
     backToMap();
 
@@ -2092,7 +2169,7 @@ describe("MarketAgentPage", () => {
     expect(within(calendarDetail).getByText(/Calendar event windows/i)).toBeInTheDocument();
     expect(within(calendarDetail).getAllByText(/existing Economic Calendar/i).length).toBeGreaterThan(0);
     expect(within(calendarDetail).getByText(/Window alignment/i)).toBeInTheDocument();
-    expect(within(calendarDetail).getByText(/handoff: evidence_packets/i)).toBeInTheDocument();
+    expect(within(calendarDetail).getByText(/evidence_packets/i)).toBeInTheDocument();
     backToMap();
 
     fireEvent.click(within(agentActivity).getByRole("button", { name: /AI Analysis/i }));
@@ -2104,7 +2181,8 @@ describe("MarketAgentPage", () => {
     expect(within(aiDetail).getAllByText(/Validator guard/i).length).toBeGreaterThan(0);
     expect(within(aiDetail).getByText(/Notification policy/i)).toBeInTheDocument();
     fireEvent.click(within(aiDetail).getByRole("button", { name: /Needs/i }));
-    expect(within(aiDetail).getByText(/Missing, stale, or unavailable inputs/i)).toBeInTheDocument();
+    expect(within(aiDetail).getByText(/What is blocking or being watched/i)).toBeInTheDocument();
+    expect(within(aiDetail).getAllByText(/Limits confidence/i).length).toBeGreaterThan(0);
     expect(within(aiDetail).getAllByText(/without promoting it to active/i).length).toBeGreaterThan(0);
     backToMap();
 
@@ -2115,7 +2193,7 @@ describe("MarketAgentPage", () => {
     expect(within(outputsDetail).getAllByText(/Source rows/i).length).toBeGreaterThan(0);
     expect(within(outputsDetail).getAllByText(/Telegram delivery/i).length).toBeGreaterThan(0);
     expect(within(outputsDetail).getByText(/Suppressed alerts/i)).toBeInTheDocument();
-    expect(within(outputsDetail).getByText(/reason: evidence\/noise\/cooldown policy/i)).toBeInTheDocument();
+    expect(within(outputsDetail).getByText(/No current live alert passed the gate/i)).toBeInTheDocument();
     expect(screen.queryByText(/Background activity/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/News feeds not configured|No news provider configured/i)).not.toBeInTheDocument();
   });
@@ -2369,4 +2447,5 @@ describe("MarketAgentPage", () => {
     expect(screen.getByText(/Evidence unavailable\./i)).toBeInTheDocument();
   });
 });
+
 

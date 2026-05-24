@@ -62,9 +62,14 @@ const formatCTraderStatusMessage = (value: unknown, fallback: string) => {
   const normalized = text.toLowerCase();
   if (!text) return fallback;
   if (normalized.includes("does not expose live quotes") || normalized.includes("account and symbol checks")) {
-    return fallback;
+    return "Account login works, but this cTrader adapter cannot return live XAUUSD quotes.";
   }
   return text;
+};
+
+const isCTraderQuoteUnsupported = (value: unknown) => {
+  const text = typeof value === "string" ? value.toLowerCase() : "";
+  return text.includes("does not expose live quotes") || text.includes("account and symbol checks");
 };
 
 const formatLocalModelName = (model?: string | null) => {
@@ -100,6 +105,26 @@ const localAIProgressStage = (progress: MarketAgentOllamaPullProgress | null) =>
   if (status.includes("request")) return "Requesting model · 25%";
   if (status.includes("start")) return "Starting runtime · 15%";
   return "Preparing runtime · 5%";
+};
+
+const localAIModelNameFromEntry = (entry: Record<string, unknown>) => {
+  const name =
+    typeof entry.name === "string"
+      ? entry.name
+      : typeof entry.model === "string"
+        ? entry.model
+        : typeof entry.modelName === "string"
+          ? entry.modelName
+          : "";
+  return name.trim();
+};
+
+const localAIModelSizeLabel = (entry: Record<string, unknown>) => {
+  const size = typeof entry.size === "number" && Number.isFinite(entry.size) ? entry.size : null;
+  if (!size || size <= 0) return "";
+  if (size >= 1_000_000_000) return `${(size / 1_000_000_000).toFixed(1)} GB`;
+  if (size >= 1_000_000) return `${Math.round(size / 1_000_000)} MB`;
+  return `${size} B`;
 };
 
 const emptyForm: MarketAgentProviderConfigInput = {
@@ -231,9 +256,6 @@ export function MarketAgentProviderConfig({
   useEffect(() => {
     if (localAiSetup) {
       setLocalSetup(localAiSetup);
-      if (localAiSetup.recommendedModel?.name) {
-        setLLMForm((current) => ({ ...current, model: localAiSetup.recommendedModel?.name || current.model }));
-      }
     }
   }, [localAiSetup]);
 
@@ -266,25 +288,56 @@ export function MarketAgentProviderConfig({
   );
   const cTraderConfigured = Boolean(data?.ctrader?.enabled);
   const cTraderConnecting = ctraderAuthResult?.status === "connecting";
-  const cTraderStatusLabel = cTraderLive ? "Live" : cTraderClosed ? "Market closed" : cTraderConnecting ? "Connecting" : cTraderConfigured ? "Getting quote" : "Connect";
-  const cTraderProgress = cTraderLive || cTraderClosed ? 100 : cTraderConnecting ? 35 : cTraderConfigured ? 65 : 0;
+  const cTraderQuoteIssue = cTraderHealth?.error || cTraderHealth?.stale_reason || ctraderAuthResult?.error || ctraderAuthResult?.message;
+  const cTraderQuoteUnsupported = isCTraderQuoteUnsupported(cTraderQuoteIssue);
+  const cTraderStatusLabel = cTraderLive
+    ? "Live"
+    : cTraderClosed
+      ? "Market closed"
+      : cTraderQuoteUnsupported
+        ? "Needs quote adapter"
+        : cTraderConnecting
+          ? "Connecting"
+          : cTraderConfigured
+            ? "Getting quote"
+            : "Connect";
+  const cTraderProgress = cTraderLive || cTraderClosed ? 100 : cTraderQuoteUnsupported ? 50 : cTraderConnecting ? 35 : cTraderConfigured ? 65 : 0;
   const cTraderHealthMessage =
     cTraderLive
       ? "Live XAUUSD feed is active."
       : cTraderClosed
         ? "Market is closed. Last XAUUSD price is loaded from cTrader history; context collection continues."
-      : cTraderConnecting
-        ? "Checking account access and requesting the first live quote."
-      : cTraderConfigured
-        ? formatCTraderStatusMessage(cTraderHealth?.stale_reason || cTraderHealth?.error, "Requesting the first fresh XAUUSD quote.")
-        : "Connect cTrader to start live monitoring.";
+        : cTraderQuoteUnsupported
+          ? "Account login works, but this cTrader adapter cannot return live XAUUSD quotes."
+        : cTraderConnecting
+          ? "Checking account access and requesting the first live quote."
+        : cTraderConfigured
+          ? formatCTraderStatusMessage(cTraderHealth?.stale_reason || cTraderHealth?.error, "Requesting the first fresh XAUUSD quote.")
+          : "Connect cTrader to start live monitoring.";
+  const installedLocalAIModelEntries = useMemo(
+    () =>
+      (localSetup?.installedModels ?? [])
+        .map((entry) => ({
+          entry,
+          name: localAIModelNameFromEntry(entry),
+          sizeLabel: localAIModelSizeLabel(entry)
+        }))
+        .filter((item) => item.name),
+    [localSetup]
+  );
+  const installedLocalAIModelNames = useMemo(
+    () => installedLocalAIModelEntries.map((entry) => entry.name),
+    [installedLocalAIModelEntries]
+  );
+  const isLocalModelInstalledByName = (model: string) => Boolean(model && installedLocalAIModelNames.includes(model));
 
   const statusTone = useMemo(() => {
     if (!data?.available) return "bad";
     if (cTraderLive || cTraderClosed) return "good";
+    if (cTraderQuoteUnsupported) return "bad";
     if (cTraderConfigured) return "warn";
     return "bad";
-  }, [data, cTraderClosed, cTraderConfigured, cTraderLive]);
+  }, [data, cTraderClosed, cTraderConfigured, cTraderLive, cTraderQuoteUnsupported]);
 
   const setupActions: Array<{ id: SetupStep; label: string; detail: string; status: string }> = [
     {
@@ -297,7 +350,11 @@ export function MarketAgentProviderConfig({
       id: "llm",
       label: "Local AI",
       detail: "Optional explanation",
-      status: llmData?.llm?.enabled ? "On" : "Rule-based"
+      status: !llmData?.llm?.enabled
+        ? "Rule-based"
+        : installedLocalAIModelNames.length
+          ? "Model ready"
+          : "Needs model"
     },
     {
       id: "telegram",
@@ -389,24 +446,15 @@ export function MarketAgentProviderConfig({
     if (localAIMode === "off") return "";
     if (localAIMode === "balanced") return "qwen3.5:4b";
     if (localAIMode === "lightweight") return "qwen3.5:0.8b";
-    return localSetup?.recommendedModel?.name || llmForm.model || "qwen3.5:4b";
+    if (llmForm.model && isLocalModelInstalledByName(llmForm.model)) return llmForm.model;
+    if (localSetup?.recommendedModel?.name && isLocalModelInstalledByName(localSetup.recommendedModel.name)) {
+      return localSetup.recommendedModel.name;
+    }
+    return installedLocalAIModelNames[0] || localSetup?.recommendedModel?.name || llmForm.model || "qwen3.5:4b";
   };
 
   const isLocalModelInstalled = (model: string) => {
-    if (!model) return false;
-    return Boolean(
-      localSetup?.installedModels?.some((entry) => {
-        const name =
-          typeof entry.name === "string"
-            ? entry.name
-            : typeof entry.model === "string"
-              ? entry.model
-              : typeof entry.modelName === "string"
-                ? entry.modelName
-                : "";
-        return name === model;
-      })
-    );
+    return isLocalModelInstalledByName(model);
   };
 
   const selectLocalAIMode = (mode: LocalAIMode) => {
@@ -553,15 +601,17 @@ export function MarketAgentProviderConfig({
             </div>
           ) : null}
           {cTraderConfigured && !cTraderLive && !cTraderClosed ? (
-            <div className="market-agent-readable-status-line market-agent-live-feed-progress">
+            <div className={`market-agent-readable-status-line market-agent-live-feed-progress${cTraderQuoteUnsupported ? " blocked" : ""}`}>
               <div>
-                <strong>Live feed setup</strong>
+                <strong>{cTraderQuoteUnsupported ? "Live quote unavailable" : "Live feed setup"}</strong>
                 <span>{cTraderHealthMessage}</span>
               </div>
-              <b>{cTraderProgress}%</b>
+              <b>{cTraderQuoteUnsupported ? "Blocked" : `${cTraderProgress}%`}</b>
               <i aria-hidden="true"><span style={{ width: `${cTraderProgress}%` }} /></i>
               <small>
-                {cTraderConnecting
+                {cTraderQuoteUnsupported
+                  ? "Quote step blocked: install or configure an adapter that exposes live quotes."
+                  : cTraderConnecting
                   ? "Step 2 of 4: checking account"
                   : "Step 3 of 4: waiting for first live quote"}
               </small>
@@ -604,6 +654,7 @@ export function MarketAgentProviderConfig({
       const selectedModelInstalled = isLocalModelInstalled(selectedModel);
       const isModelReady = localSetup?.status === "model_ready" || selectedModelInstalled;
       const installDisabled = localAIMode === "off" || isDownloadingModel;
+      const selectedDownloadLabel = `Download ${selectedModelLabel || "model"}`;
       const localAIOptions: Array<{
         mode: LocalAIMode;
         label: string;
@@ -651,8 +702,19 @@ export function MarketAgentProviderConfig({
               : isModelReady
                 ? "Model ready"
                 : "Ready to download";
-      const selectedOption = localAIOptions.find((option) => option.mode === localAIMode) || localAIOptions[0];
-      const installedLocalAIModels = localAIOptions.filter((option) => option.model && isLocalModelInstalled(option.model));
+      const localAIState = localAIMode === "off" ? "off" : isModelReady ? "ready" : "needs-model";
+      const localAIHeadline =
+        localAIMode === "off"
+          ? "Local AI is off"
+          : isModelReady
+            ? "Local AI is ready"
+            : "Local AI is not installed yet";
+      const localAIStateCopy =
+        localAIMode === "off"
+          ? "Summaries will use the rule-based engine only."
+          : isModelReady
+            ? `${selectedModelLabel} is available locally. No download is needed.`
+            : `Download ${selectedModelLabel} once to enable shorter evidence summaries and replay text.`;
       return (
         <div className="market-agent-setup-panel">
           <div className="market-agent-step-copy">
@@ -666,14 +728,13 @@ export function MarketAgentProviderConfig({
             <>
               <div className="market-agent-ai-console">
                 <div className="market-agent-ai-console-main">
-                  <div className="market-agent-ai-summary-row">
-                    <div>
-                      <span>Selected model</span>
-                      <strong>{localAIMode === "off" ? "Rule-based only" : selectedModelLabel}</strong>
-                      <p>{localAIMode === "auto" ? recommended?.reason || selectedOption.detail : selectedOption.detail}</p>
+                  <div className={`market-agent-ai-decision ${localAIState}`}>
+                    <div className="market-agent-ai-decision-copy">
+                      <span>{localAIRuntimeLabel}</span>
+                      <strong>{localAIHeadline}</strong>
+                      <p>{localAIStateCopy}</p>
                     </div>
                     <div className="market-agent-ai-summary-action">
-                      <span>{localAIRuntimeLabel} · Rule-based active</span>
                       {localAIMode !== "off" && !isModelReady ? (
                         <button
                           type="button"
@@ -687,9 +748,7 @@ export function MarketAgentProviderConfig({
                               ? isPullingModel
                                 ? "Downloading"
                                 : "Preparing"
-                              : localAIMode === "auto"
-                                ? "Download recommended"
-                                : "Download model"}
+                              : selectedDownloadLabel}
                           </span>
                         </button>
                       ) : null}
@@ -769,8 +828,8 @@ export function MarketAgentProviderConfig({
                   ))}
                 </div>
                 <p className="market-agent-ai-footnote">
-                  {installedLocalAIModels.length > 0
-                    ? `Installed locally: ${installedLocalAIModels.map((option) => option.label).join(", ")}.`
+                  {installedLocalAIModelEntries.length > 0
+                    ? "Local AI can be used without downloading again. Rule-based evidence still validates every output."
                     : localAIMode === "off"
                       ? "Local AI is disabled. The rule-based engine still runs."
                       : "The app can prepare the local model automatically when needed."}

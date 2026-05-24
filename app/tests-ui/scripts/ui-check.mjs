@@ -4269,7 +4269,7 @@ const main = async () => {
           }
         }
         const downloadButton = Array.from(root.querySelectorAll("button")).find((button) =>
-          /Download recommended|Download model|Preparing|Downloading/i.test(button.textContent || "")
+          /Download\s+\S|Download model|Preparing|Downloading/i.test(button.textContent || "")
         );
         if (downloadButton instanceof HTMLElement) {
           const spinnerProbe = document.createElement("span");
@@ -4312,82 +4312,88 @@ const main = async () => {
           element: providerConfig
         })
       });
-      await providerConfig.getByRole("button", { name: /Download recommended|Download model/i }).first().click();
-      await providerConfig.getByRole("button", { name: /^Preparing$/i }).waitFor({ state: "visible", timeout: 2000 });
-      const localAILoadingProblems = await providerConfig.evaluate((root) => {
-        const problems = [];
-        const toRgb = (value) => {
-          const match = String(value || "").match(/rgba?\(([^)]+)\)/);
-          if (!match) return null;
-          const parts = match[1]
-            .split(",")
-            .slice(0, 3)
-            .map((part) => Number.parseFloat(part.trim()));
-          return parts.length === 3 && parts.every((part) => Number.isFinite(part)) ? parts : null;
-        };
-        const relativeLuminance = (rgb) => {
-          const [rs, gs, bs] = rgb.map((value) => {
-            const channel = value / 255;
-            return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
-          });
-          return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
-        };
-        const downloadButton = Array.from(root.querySelectorAll("button")).find((button) =>
-          /^Preparing$|^Downloading$/i.test((button.textContent || "").replace(/\s+/g, " ").trim())
-        );
-        const cancelButton = Array.from(root.querySelectorAll("button")).find((button) =>
-          /Cancel download/i.test(button.textContent || "")
-        );
-        if (!(downloadButton instanceof HTMLElement)) {
-          problems.push("Local AI loading button is missing");
-        }
-        if (!(cancelButton instanceof HTMLElement)) {
-          problems.push("Local AI cancel button is missing while download is active");
-        }
-        if (downloadButton instanceof HTMLElement && cancelButton instanceof HTMLElement) {
-          const downloadRect = downloadButton.getBoundingClientRect();
-          const cancelRect = cancelButton.getBoundingClientRect();
-          const overlapX = Math.max(0, Math.min(downloadRect.right, cancelRect.right) - Math.max(downloadRect.left, cancelRect.left));
-          const overlapY = Math.max(0, Math.min(downloadRect.bottom, cancelRect.bottom) - Math.max(downloadRect.top, cancelRect.top));
-          if (overlapX > 0 && overlapY > 0) {
-            problems.push("Local AI loading controls overlap");
+      const localAIDownloadButton = providerConfig.getByRole("button", { name: /Download\s+\S|Download model/i }).first();
+      const localAIUseButton = providerConfig.getByRole("button", { name: /Use this model/i }).first();
+      if (await localAIDownloadButton.isVisible().catch(() => false)) {
+        await localAIDownloadButton.click();
+        await providerConfig.getByRole("button", { name: /^Preparing$/i }).waitFor({ state: "visible", timeout: 2000 });
+        const localAILoadingProblems = await providerConfig.evaluate((root) => {
+          const problems = [];
+          const toRgb = (value) => {
+            const match = String(value || "").match(/rgba?\(([^)]+)\)/);
+            if (!match) return null;
+            const parts = match[1]
+              .split(",")
+              .slice(0, 3)
+              .map((part) => Number.parseFloat(part.trim()));
+            return parts.length === 3 && parts.every((part) => Number.isFinite(part)) ? parts : null;
+          };
+          const relativeLuminance = (rgb) => {
+            const [rs, gs, bs] = rgb.map((value) => {
+              const channel = value / 255;
+              return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+            });
+            return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+          };
+          const downloadButton = Array.from(root.querySelectorAll("button")).find((button) =>
+            /^Preparing$|^Downloading$/i.test((button.textContent || "").replace(/\s+/g, " ").trim())
+          );
+          const cancelButton = Array.from(root.querySelectorAll("button")).find((button) =>
+            /Cancel download/i.test(button.textContent || "")
+          );
+          if (!(downloadButton instanceof HTMLElement)) {
+            problems.push("Local AI loading button is missing");
           }
-          if (downloadButton.scrollWidth > downloadButton.clientWidth + 2) {
-            problems.push("Local AI loading button text overflows");
+          if (!(cancelButton instanceof HTMLElement)) {
+            problems.push("Local AI cancel button is missing while download is active");
           }
-          const spinner = downloadButton.querySelector(".market-agent-inline-spinner");
-          if (!(spinner instanceof HTMLElement)) {
-            problems.push("Local AI loading spinner is missing");
+          if (downloadButton instanceof HTMLElement && cancelButton instanceof HTMLElement) {
+            const downloadRect = downloadButton.getBoundingClientRect();
+            const cancelRect = cancelButton.getBoundingClientRect();
+            const overlapX = Math.max(0, Math.min(downloadRect.right, cancelRect.right) - Math.max(downloadRect.left, cancelRect.left));
+            const overlapY = Math.max(0, Math.min(downloadRect.bottom, cancelRect.bottom) - Math.max(downloadRect.top, cancelRect.top));
+            if (overlapX > 0 && overlapY > 0) {
+              problems.push("Local AI loading controls overlap");
+            }
+            if (downloadButton.scrollWidth > downloadButton.clientWidth + 2) {
+              problems.push("Local AI loading button text overflows");
+            }
+            const spinner = downloadButton.querySelector(".market-agent-inline-spinner");
+            if (!(spinner instanceof HTMLElement)) {
+              problems.push("Local AI loading spinner is missing");
+            } else {
+              const spinnerRect = spinner.getBoundingClientRect();
+              const centerDelta = Math.abs((spinnerRect.top + spinnerRect.height / 2) - (downloadRect.top + downloadRect.height / 2));
+              if (centerDelta > 3) {
+                problems.push(`Local AI loading spinner is not vertically centered (${centerDelta.toFixed(1)}px)`);
+              }
+            }
+          }
+          const stage = root.querySelector(".market-agent-download-stage");
+          if (!(stage instanceof HTMLElement)) {
+            problems.push("Local AI loading stage text is missing");
           } else {
-            const spinnerRect = spinner.getBoundingClientRect();
-            const centerDelta = Math.abs((spinnerRect.top + spinnerRect.height / 2) - (downloadRect.top + downloadRect.height / 2));
-            if (centerDelta > 3) {
-              problems.push(`Local AI loading spinner is not vertically centered (${centerDelta.toFixed(1)}px)`);
+            const rgb = toRgb(window.getComputedStyle(stage).color);
+            if (!rgb) {
+              problems.push("Local AI loading stage text color is not readable");
+            } else {
+              const luminance = relativeLuminance(rgb);
+              const theme = document.documentElement.getAttribute("data-theme") || "";
+              if (theme === "light" && luminance > 0.42) {
+                problems.push(`Local AI loading stage text is too light in light mode (${luminance.toFixed(2)})`);
+              }
+              if (theme !== "light" && luminance < 0.5) {
+                problems.push(`Local AI loading stage text is too dark in dark mode (${luminance.toFixed(2)})`);
+              }
             }
           }
+          return problems;
+        });
+        if (localAILoadingProblems.length) {
+          throw new Error(localAILoadingProblems.join("; "));
         }
-        const stage = root.querySelector(".market-agent-download-stage");
-        if (!(stage instanceof HTMLElement)) {
-          problems.push("Local AI loading stage text is missing");
-        } else {
-          const rgb = toRgb(window.getComputedStyle(stage).color);
-          if (!rgb) {
-            problems.push("Local AI loading stage text color is not readable");
-          } else {
-            const luminance = relativeLuminance(rgb);
-            const theme = document.documentElement.getAttribute("data-theme") || "";
-            if (theme === "light" && luminance > 0.42) {
-              problems.push(`Local AI loading stage text is too light in light mode (${luminance.toFixed(2)})`);
-            }
-            if (theme !== "light" && luminance < 0.5) {
-              problems.push(`Local AI loading stage text is too dark in dark mode (${luminance.toFixed(2)})`);
-            }
-          }
-        }
-        return problems;
-      });
-      if (localAILoadingProblems.length) {
-        throw new Error(localAILoadingProblems.join("; "));
+      } else {
+        await localAIUseButton.waitFor({ state: "visible", timeout: 2000 });
       }
       artifacts.push({
         scenario: "market-agent-local-ai",
@@ -4733,7 +4739,7 @@ const main = async () => {
         if (!(detail instanceof HTMLElement)) {
           problems.push("Activity focus view missing after selecting Assets");
         } else {
-          ["Step detail", "Summary", "Records", "Needs", "Now", "Next handoff", "Stored as", "Path"].forEach((label) => {
+          ["Step detail", "Summary", "Records", "Needs", "Received", "Handling", "Stored", "Selected path"].forEach((label) => {
             if (!detail.textContent?.includes(label)) problems.push(`Activity focus view missing ${label}`);
           });
           ["Where it comes from", "What is happening now", "AI involvement", "Why users should care", "Feedback loop", "View records"].forEach((label) => {

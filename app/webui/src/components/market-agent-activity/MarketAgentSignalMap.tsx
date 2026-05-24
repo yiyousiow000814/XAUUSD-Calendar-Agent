@@ -65,8 +65,8 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       ],
       drilldown: [
         {
-          title: "Assets source group",
-          detail: "Clicking Assets reveals the tracked sensors without making each one a top-level circuit node.",
+          title: "Tracked assets",
+          detail: "One row per watched market signal. Open Needs when a sensor is missing, stale, or unavailable.",
           rows: model.coreSensors.map((sensor) => ({
             label: sensor.label,
             status: sensor.status,
@@ -79,7 +79,7 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
             ]
           }))
         },
-        ...mergeSections([price?.drilldown, history?.drilldown, ...model.coreSensors.map((sensor) => sensor.drilldown)])
+        ...mergeSections([price?.drilldown, history?.drilldown])
       ],
       requests: mergeRequests(model.coreSensors.map((sensor) => sensor.requests))
     }),

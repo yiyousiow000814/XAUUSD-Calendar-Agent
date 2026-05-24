@@ -81,7 +81,7 @@ export function MarketAgentProviderHealth({ data }: MarketAgentProviderHealthPro
   const items = data?.items ?? [];
   const ctraderItems = findItems(items, ["ctrader", "ctrader_cli", "spot"]);
   const yahooItems = findItems(items, ["yahoo", "gc=f", "futures_proxy", "proxy"]);
-  const calendarItems = findItems(items, ["calendar", "forexfactory", "forex_factory"]);
+  const calendarItems = findItems(items, ["calendar", "economic_calendar"]);
   const newsItems = findItems(items, ["rss", "news", "google_news"]);
   const marketContextItems = findItems(items, [
     "dxy",
@@ -132,9 +132,9 @@ export function MarketAgentProviderHealth({ data }: MarketAgentProviderHealthPro
     },
     {
       title: "Calendar",
-      subtitle: calendarItems.length ? providerSubtitle(calendarItems) : "Economic calendar",
+      subtitle: "Existing Economic Calendar",
       status: countUsable(calendarItems) > 0 ? "Available" : "Built-in",
-      description: "Built into the app. Calendar events become evidence only when timing and market reaction agree.",
+      description: "Built into the app. Market Agent reads the existing calendar and only uses events as evidence when timing and market reaction agree.",
       updatedAt: newestTime(calendarItems),
       action: "Waiting for a relevant event window.",
       items: calendarItems
