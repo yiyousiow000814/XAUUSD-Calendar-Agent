@@ -111,19 +111,19 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       lane: "Sources",
       group: "Scheduled context",
       status: calendar?.status || "collecting",
-      action: calendar?.action || "Collecting events",
-      source: calendar?.source || "Economic calendar",
-      processing: "Calendar is already structured; it mainly needs timing alignment and storage.",
-      output: "Context gate + Storage + Evidence packet",
-      storage: ["calendar_events"],
+      action: calendar?.action || "Reading calendar context",
+      source: calendar?.source || "Existing Economic Calendar",
+      processing: "Market Agent reads the existing Economic Calendar and aligns scheduled events to the current XAUUSD move window.",
+      output: "Context window + Evidence packet",
+      storage: ["calendar context snapshot"],
       ai: "AI can summarize visible calendar rows, but does not invent unscheduled events.",
-      trace: ["calendar-source", "context-gate", "storage-bus", "evidence-packet", "ai-analysis", "latest-evidence"],
-      detail: calendar?.detail || "Calendar records scheduled macro context around the XAUUSD move.",
+      trace: ["calendar-source", "context-gate", "evidence-packet", "ai-analysis", "latest-evidence"],
+      detail: calendar?.detail || "Market Agent does not fetch a separate calendar feed here; it reads the app's existing Economic Calendar and aligns relevant events to the move.",
       tone: calendar?.tone || "working",
       badges: [
-        { label: "structured", tone: "good" },
+        { label: "existing calendar", tone: "good" },
         { label: "window aligned", tone: "working" },
-        { label: "stored", tone: "store" }
+        { label: "context snapshot", tone: "store" }
       ],
       drilldown: mergeSections([calendar?.drilldown])
     }),
@@ -137,7 +137,7 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       source: "Assets + News + Calendar",
       processing: "Ingest records what arrived, what was stale or unavailable, what was backfilled, and what failed before processing begins.",
       output: "Process + Storage",
-      storage: ["market_price_bars", "related_asset_bars", "news_items", "calendar_events", "provider_health"],
+      storage: ["market_price_bars", "related_asset_bars", "news_items", "provider_health"],
       ai: "AI can request more data, but ingest only records provider-backed rows.",
       trace: ["assets-source", "news-source", "calendar-source", "ingest-hub", "process-hub", "storage-bus"],
       detail: "Ingest is the intake dock: asset live/history/backfill, raw news capture, and structured calendar rows stay separated but share one auditable handoff.",
@@ -159,7 +159,7 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       source: "Ingested rows",
       processing: "Assets are normalized and checked for freshness/anomalies; news is deduped, scored, filtered, and summarized; calendar is aligned to event windows.",
       output: "Storage + Evidence packet",
-      storage: ["related_asset_bars", "news_items", "calendar_events", "evidence_packets"],
+      storage: ["related_asset_bars", "news_items", "evidence_packets"],
       ai: "AI helps summarize and discover themes after deterministic gates, not during raw capture.",
       trace: ["ingest-hub", "process-hub", "storage-bus", "evidence-packet", "ai-analysis"],
       detail: "Process keeps each source type honest: assets mostly store and detect moves, news does the heavy filtering, calendar mostly aligns timing windows.",
@@ -321,12 +321,14 @@ function SignalNodeButton({
   node,
   selected,
   faded,
-  onSelect
+  onSelect,
+  handoff
 }: {
   node: SignalNode;
   selected: boolean;
   faded: boolean;
   onSelect: (node: SignalNode) => void;
+  handoff?: string;
 }) {
   return (
     <button
@@ -339,6 +341,7 @@ function SignalNodeButton({
       <span className="market-agent-signal-dot" aria-hidden="true" />
       <strong>{node.label}</strong>
       <small>{node.action}</small>
+      {handoff ? <span className="market-agent-node-handoff">{handoff}</span> : null}
     </button>
   );
 }
@@ -383,7 +386,7 @@ export function MarketAgentSignalMap({ model }: MarketAgentSignalMapProps) {
           <section className="market-agent-board-zone source-zone" aria-label="Source groups">
             <span>Sources</span>
             {visibleNodes.filter((node) => ["assets-source", "news-source", "calendar-source"].includes(node.id)).map((node) => (
-              <SignalNodeButton key={node.id} node={node} selected={selectedId === node.id} faded={false} onSelect={selectNode} />
+              <SignalNodeButton key={node.id} node={node} selected={selectedId === node.id} faded={false} onSelect={selectNode} handoff="Next: Ingest" />
             ))}
           </section>
 
@@ -392,7 +395,13 @@ export function MarketAgentSignalMap({ model }: MarketAgentSignalMapProps) {
             {visibleNodes.filter((node) => ["ingest-hub", "process-hub", "storage-bus", "evidence-packet", "ai-analysis", "output-hub"].includes(node.id)).map((node, index) => (
               <div className="market-agent-trace-step" key={node.id}>
                 <b>{String(index + 1).padStart(2, "0")}</b>
-                <SignalNodeButton node={node} selected={selectedId === node.id} faded={Boolean(selectedId) && !activeTrace.has(node.id)} onSelect={selectNode} />
+                <SignalNodeButton
+                  node={node}
+                  selected={selectedId === node.id}
+                  faded={Boolean(selectedId) && !activeTrace.has(node.id)}
+                  onSelect={selectNode}
+                  handoff={index === 0 ? "From: Assets, News, Calendar" : index === 5 ? "To: user surfaces" : "Next step"}
+                />
               </div>
             ))}
           </section>
@@ -400,7 +409,7 @@ export function MarketAgentSignalMap({ model }: MarketAgentSignalMapProps) {
           <section className="market-agent-board-zone feedback-zone" aria-label="Feedback queue">
             <span>Feedback</span>
             {visibleNodes.filter((node) => node.id === "feedback-hub").map((node) => (
-              <SignalNodeButton key={node.id} node={node} selected={selectedId === node.id} faded={false} onSelect={selectNode} />
+              <SignalNodeButton key={node.id} node={node} selected={selectedId === node.id} faded={false} onSelect={selectNode} handoff="Only when more data is needed" />
             ))}
             <p>Requests go back to source groups only when provider mapping, freshness, and evidence gates allow it.</p>
           </section>

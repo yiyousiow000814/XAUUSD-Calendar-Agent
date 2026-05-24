@@ -4680,6 +4680,12 @@ const main = async () => {
           if (!text.includes(label)) problems.push(`Activity board missing ${label}`);
         });
         if (!(board instanceof HTMLElement)) problems.push("Activity signal board missing");
+        ["Next: Ingest", "From: Assets, News, Calendar", "Next step", "To: user surfaces", "Only when more data is needed"].forEach((label) => {
+          if (!text.includes(label)) problems.push(`Activity board missing real handoff label ${label}`);
+        });
+        ["market-agent-flow-pulse", "animateMotion"].forEach((label) => {
+          if (surface.innerHTML.includes(label)) problems.push(`Activity board should not include fake flow animation ${label}`);
+        });
         if (nodes.length < 9) problems.push(`Activity board should show grouped system nodes, found ${nodes.length}`);
         const boardText = board instanceof HTMLElement ? board.textContent || "" : "";
         ["DXY", "US2Y", "WTI", "Brent", "VIX", "S&P 500", "Nasdaq"].forEach((label) => {

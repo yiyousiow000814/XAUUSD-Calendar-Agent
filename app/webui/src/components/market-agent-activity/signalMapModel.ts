@@ -552,23 +552,23 @@ export const buildSignalMapModel = ({
         lane: "Signal Sources",
         status: contextStatus,
         action: `${numberValue(contextEntry, "calendarCount") ?? stats.calendarRows} event(s)`,
-        source: "App-managed economic calendar",
-        processing: "Calendar events become timed context for evidence and replay.",
+        source: "Existing Economic Calendar",
+        processing: "Market Agent reads the app's existing Economic Calendar and aligns scheduled events to the current XAUUSD move window.",
         output: "Calendar context + Evidence packet",
-        storage: ["calendar_events"],
+        storage: ["calendar context snapshot"],
         ai: "Display summarizer can shorten selected calendar rows.",
         trace: ["calendar-source", "calendar-context", "evidence-gate", "display-summarizer", "latest-evidence", "storage-raw"],
-        detail: "Calendar rows explain scheduled macro risk near the move.",
+        detail: "Calendar rows come from the app's existing Economic Calendar and explain scheduled macro risk near the move.",
         drilldown: [
           {
             title: "Calendar event windows",
-            detail: "Calendar data is already structured, so the key work is timing: pre-risk, first reaction, and confirmation windows.",
+            detail: "Calendar data already exists in the app, so Market Agent does not fetch it again. The key work is timing: pre-risk, first reaction, and confirmation windows.",
             rows: [
               {
-                label: "Structured events",
+                label: "Read existing calendar",
                 status: contextStatus,
-                detail: `${stats.calendarRows} calendar event row(s) are available in the selected replay payload.`,
-                meta: ["provider: ForexFactory / official schedules / local backfill", "storage: calendar_events"]
+                detail: `${stats.calendarRows} calendar event row(s) from the existing Economic Calendar are available in the selected replay payload.`,
+                meta: ["source: existing Economic Calendar", "mode: read existing calendar context"]
               },
               {
                 label: "Window alignment",
@@ -580,7 +580,7 @@ export const buildSignalMapModel = ({
                 label: "Evidence alignment",
                 status: evidenceStatus,
                 detail: "Actual/forecast/previous values support context when available; distant events stay background.",
-                meta: ["storage: evidence_packets", "display: Latest Evidence"]
+                meta: ["handoff: evidence_packets", "display: Latest Evidence"]
               }
             ]
           }
@@ -749,7 +749,7 @@ export const buildSignalMapModel = ({
       source: "News, calendar, related sensor rows",
       processing: "Generate short UI summaries without inventing facts.",
       output: "Latest Evidence",
-      storage: ["news_items", "calendar_events", "related_asset_bars"],
+      storage: ["news_items", "related_asset_bars", "evidence_packets"],
       ai: "Local AI when enabled; rule fallback keeps raw text usable.",
       trace: ["evidence-packet", "display-summarizer", "latest-evidence"],
       detail: "This checkpoint prevents long raw evidence from crowding the dashboard.",
@@ -928,9 +928,9 @@ export const buildSignalMapModel = ({
       status: evidenceStatus,
       action: "Showing short summaries",
       source: "Display summarizer + raw row fallback",
-      processing: "Prefer short summary fields while keeping raw rows stored.",
+      processing: "Prefer short summary fields while keeping source rows and calendar context auditable.",
       output: "Evidence panel",
-      storage: ["news_items", "calendar_events", "related_asset_bars"],
+      storage: ["news_items", "related_asset_bars", "evidence_packets"],
       ai: "Display summarizer participates here.",
       trace: ["display-summarizer", "latest-evidence"],
       detail: "Latest Evidence is where long rows become readable.",
@@ -949,8 +949,8 @@ export const buildSignalMapModel = ({
             {
               label: "Calendar evidence",
               status: stats.calendarRows ? "available" : "waiting",
-              detail: `${stats.calendarRows} calendar row(s) available for replay/evidence.`,
-              meta: ["display: short summary", "storage: calendar_events"]
+              detail: `${stats.calendarRows} existing Economic Calendar row(s) available for replay/evidence context.`,
+              meta: ["display: short summary", "source: existing Economic Calendar"]
             }
           ]
         }
@@ -978,8 +978,8 @@ export const buildSignalMapModel = ({
             {
               label: "Source rows",
               status: "stored",
-              detail: `${stats.priceRows} price, ${stats.relatedRows} related asset, ${stats.newsRows} news, ${stats.calendarRows} calendar row(s).`,
-              meta: ["storage: market_price_bars / related_asset_bars / news_items / calendar_events"]
+              detail: `${stats.priceRows} price, ${stats.relatedRows} related asset, ${stats.newsRows} news, ${stats.calendarRows} calendar context row(s).`,
+              meta: ["storage: market_price_bars / related_asset_bars / news_items", "calendar: existing Economic Calendar context"]
             },
             {
               label: "Timeline rows",
@@ -1039,8 +1039,8 @@ export const buildSignalMapModel = ({
     storageGroups: [
       {
         title: "Raw collected",
-        detail: `${stats.priceRows + stats.relatedRows + stats.newsRows + stats.calendarRows} row(s) in current replay payload`,
-        tables: ["market_price_bars", "related_asset_bars", "news_items", "calendar_events", "provider_health"]
+        detail: `${stats.priceRows + stats.relatedRows + stats.newsRows} stored market/news row(s), plus ${stats.calendarRows} existing calendar context row(s) in the current replay payload`,
+        tables: ["market_price_bars", "related_asset_bars", "news_items", "provider_health"]
       },
       {
         title: "Processed / derived",

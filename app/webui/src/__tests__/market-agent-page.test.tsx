@@ -2083,8 +2083,9 @@ describe("MarketAgentPage", () => {
     const calendarDetail = within(agentActivity).getByRole("complementary", { name: /Calendar detail view/i });
     fireEvent.click(within(calendarDetail).getByRole("button", { name: /View records/i }));
     expect(within(calendarDetail).getByText(/Calendar event windows/i)).toBeInTheDocument();
+    expect(within(calendarDetail).getAllByText(/existing Economic Calendar/i).length).toBeGreaterThan(0);
     expect(within(calendarDetail).getByText(/Window alignment/i)).toBeInTheDocument();
-    expect(within(calendarDetail).getByText(/storage: calendar_events/i)).toBeInTheDocument();
+    expect(within(calendarDetail).getByText(/handoff: evidence_packets/i)).toBeInTheDocument();
     backToMap();
 
     fireEvent.click(within(agentActivity).getByRole("button", { name: /AI Analysis/i }));
