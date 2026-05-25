@@ -102162,10 +102162,32 @@
         "Time":"08:00",
         "Cur.":"SGD",
         "Imp.":"Low",
+        "Event":"GDP (QoQ)  (Q1)",
+        "Actual":"1.0%",
+        "Forecast":"-1.3%",
+        "Previous":"1.3%"
+    },
+    {
+        "Date":"2026-05-25",
+        "Day":"Monday",
+        "Time":"08:00",
+        "Cur.":"SGD",
+        "Imp.":"Low",
         "Event":"GDP (YoY)  (Q1)",
-        "Actual":"",
+        "Actual":"6.0%",
+        "Forecast":"4.6%",
+        "Previous":"5.7%"
+    },
+    {
+        "Date":"2026-05-25",
+        "Day":"Monday",
+        "Time":"09:40",
+        "Cur.":"CNY",
+        "Imp.":"Low",
+        "Event":"FDI  (Apr)",
+        "Actual":"-10.30%",
         "Forecast":null,
-        "Previous":"4.6%"
+        "Previous":"-7.30%"
     },
     {
         "Date":"2026-05-25",
@@ -102174,7 +102196,7 @@
         "Cur.":"THB",
         "Imp.":"Low",
         "Event":"Custom-Based Export Data  (Apr)",
-        "Actual":"",
+        "Actual":"23.10%",
         "Forecast":"16.20%",
         "Previous":"18.70%"
     },
@@ -102185,7 +102207,7 @@
         "Cur.":"THB",
         "Imp.":"Low",
         "Event":"Custom-Based Import Data  (Apr)",
-        "Actual":"",
+        "Actual":"45.00%",
         "Forecast":"27.20%",
         "Previous":"35.70%"
     },
@@ -102196,7 +102218,7 @@
         "Cur.":"THB",
         "Imp.":"Low",
         "Event":"Custom-Based Trade Data (USD)  (Apr)",
-        "Actual":"",
+        "Actual":"-10.020B",
         "Forecast":"-5.100B",
         "Previous":"-3.340B"
     },
@@ -102207,7 +102229,7 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Finnish Export Price Index (YoY)  (Apr)",
-        "Actual":"",
+        "Actual":"3.7%",
         "Forecast":null,
         "Previous":"2.9%"
     },
@@ -102218,7 +102240,7 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Finnish Import Price Index (YoY)  (Apr)",
-        "Actual":"",
+        "Actual":"6.7%",
         "Forecast":null,
         "Previous":"3.0%"
     },
@@ -102229,7 +102251,7 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Finnish PPI (YoY)  (Apr)",
-        "Actual":"",
+        "Actual":"4.6%",
         "Forecast":null,
         "Previous":"2.6%"
     },
@@ -102240,7 +102262,7 @@
         "Cur.":"SGD",
         "Imp.":"Low",
         "Event":"CPI (MoM)  (Apr)",
-        "Actual":"",
+        "Actual":"-0.30%",
         "Forecast":null,
         "Previous":"0.50%"
     },
@@ -102251,7 +102273,7 @@
         "Cur.":"SGD",
         "Imp.":"Medium",
         "Event":"CPI (YoY)  (Apr)",
-        "Actual":"",
+        "Actual":"1.8%",
         "Forecast":"2.0%",
         "Previous":"1.8%"
     },
@@ -102262,7 +102284,7 @@
         "Cur.":"SGD",
         "Imp.":"Medium",
         "Event":"Core CPI (YoY)  (Apr)",
-        "Actual":"",
+        "Actual":"1.40%",
         "Forecast":"1.70%",
         "Previous":"1.70%"
     },
@@ -102273,9 +102295,31 @@
         "Cur.":"TRY",
         "Imp.":"Low",
         "Event":"Turkish Economic Confidence Index  (May)",
-        "Actual":"",
+        "Actual":"97.20",
         "Forecast":null,
         "Previous":"96.40"
+    },
+    {
+        "Date":"2026-05-25",
+        "Day":"Monday",
+        "Time":"15:20",
+        "Cur.":"BHD",
+        "Imp.":"Low",
+        "Event":"CPI (MoM)  (Apr)",
+        "Actual":"0.00%",
+        "Forecast":null,
+        "Previous":"0.40%"
+    },
+    {
+        "Date":"2026-05-25",
+        "Day":"Monday",
+        "Time":"15:20",
+        "Cur.":"BHD",
+        "Imp.":"Low",
+        "Event":"CPI (YoY)  (Apr)",
+        "Actual":"1.40%",
+        "Forecast":null,
+        "Previous":"1.10%"
     },
     {
         "Date":"2026-05-25",
@@ -102284,7 +102328,7 @@
         "Cur.":"PLN",
         "Imp.":"Low",
         "Event":"Retail Sales (YoY)  (Apr)",
-        "Actual":"",
+        "Actual":"2.8%",
         "Forecast":"3.0%",
         "Previous":"9.8%"
     },
@@ -102295,9 +102339,9 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Latvian PPI (MoM)  (Apr)",
-        "Actual":"",
+        "Actual":"0.6%",
         "Forecast":null,
-        "Previous":"-1.2%"
+        "Previous":"-2.0%"
     },
     {
         "Date":"2026-05-25",
@@ -102306,9 +102350,31 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Latvian PPI (YoY)  (Apr)",
-        "Actual":"",
+        "Actual":"0.9%",
         "Forecast":null,
-        "Previous":"0.8%"
+        "Previous":"-0.1%"
+    },
+    {
+        "Date":"2026-05-25",
+        "Day":"Monday",
+        "Time":"18:30",
+        "Cur.":"KWD",
+        "Imp.":"Low",
+        "Event":"Bank Lending (YoY)  (Apr)",
+        "Actual":"5.97%",
+        "Forecast":null,
+        "Previous":"7.29%"
+    },
+    {
+        "Date":"2026-05-25",
+        "Day":"Monday",
+        "Time":"18:30",
+        "Cur.":"KWD",
+        "Imp.":"Low",
+        "Event":"M2 Money Supply (YoY)  (Apr)",
+        "Actual":"2.21%",
+        "Forecast":null,
+        "Previous":"1.90%"
     },
     {
         "Date":"2026-05-25",
@@ -102317,20 +102383,9 @@
         "Cur.":"BRL",
         "Imp.":"Low",
         "Event":"FGV Consumer confidence  (May)",
-        "Actual":"",
+        "Actual":"88.8",
         "Forecast":null,
         "Previous":"89.1"
-    },
-    {
-        "Date":"2026-05-25",
-        "Day":"Monday",
-        "Time":"19:00",
-        "Cur.":"CNY",
-        "Imp.":"Low",
-        "Event":"FDI  (Apr)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"-7.30%"
     },
     {
         "Date":"2026-05-25",
@@ -102350,8 +102405,8 @@
         "Cur.":"MXN",
         "Imp.":"Low",
         "Event":"Trade Balance  (Apr)",
-        "Actual":"",
-        "Forecast":null,
+        "Actual":"4.520B",
+        "Forecast":"1.410B",
         "Previous":"5.932B"
     },
     {
@@ -102361,9 +102416,9 @@
         "Cur.":"MXN",
         "Imp.":"Low",
         "Event":"Trade Balance (USD)  (Apr)",
-        "Actual":"",
+        "Actual":"3.351B",
         "Forecast":null,
-        "Previous":"2.499B"
+        "Previous":"2.186B"
     },
     {
         "Date":"2026-05-25",
@@ -102372,7 +102427,7 @@
         "Cur.":"PLN",
         "Imp.":"Low",
         "Event":"M3 Money Supply (YoY)  (Apr)",
-        "Actual":"",
+        "Actual":"11.3%",
         "Forecast":"11.2%",
         "Previous":"11.5%"
     },
@@ -102383,42 +102438,20 @@
         "Cur.":"CAD",
         "Imp.":"Low",
         "Event":"Corporate Profits (QoQ)",
-        "Actual":"",
+        "Actual":"-2.0%",
         "Forecast":null,
         "Previous":"-1.6%"
     },
     {
         "Date":"2026-05-25",
         "Day":"Monday",
-        "Time":"21:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"French 12-Month BTF Auction",
-        "Actual":"",
+        "Time":"20:30",
+        "Cur.":"CAD",
+        "Imp.":"Medium",
+        "Event":"Wholesale Sales (MoM)  (Apr)",
+        "Actual":"0.1%",
         "Forecast":null,
-        "Previous":"2.642%"
-    },
-    {
-        "Date":"2026-05-25",
-        "Day":"Monday",
-        "Time":"21:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"French 3-Month BTF Auction",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"2.250%"
-    },
-    {
-        "Date":"2026-05-25",
-        "Day":"Monday",
-        "Time":"21:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"French 6-Month BTF Auction",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"2.412%"
+        "Previous":"1.9%"
     },
     {
         "Date":"2026-05-25",
@@ -102427,9 +102460,31 @@
         "Cur.":"ILS",
         "Imp.":"Low",
         "Event":"Interest Rate Decision  (May)",
-        "Actual":"",
+        "Actual":"3.75%",
         "Forecast":"3.75%",
         "Previous":"4.00%"
+    },
+    {
+        "Date":"2026-05-25",
+        "Day":"Monday",
+        "Time":"21:00",
+        "Cur.":"NGN",
+        "Imp.":"Low",
+        "Event":"GDP (YoY)  (Q1)",
+        "Actual":"3.89%",
+        "Forecast":null,
+        "Previous":"4.07%"
+    },
+    {
+        "Date":"2026-05-25",
+        "Day":"Monday",
+        "Time":"21:00",
+        "Cur.":"NGN",
+        "Imp.":"Low",
+        "Event":"Oil Production  (Q1)",
+        "Actual":"1.550M",
+        "Forecast":null,
+        "Previous":"1.580M"
     },
     {
         "Date":"2026-05-25",
@@ -102438,7 +102493,7 @@
         "Cur.":"MXN",
         "Imp.":"Low",
         "Event":"Current Account % of GDP  (Q1)",
-        "Actual":"",
+        "Actual":"-3.10%",
         "Forecast":null,
         "Previous":"1.60%"
     },
@@ -102449,9 +102504,9 @@
         "Cur.":"MXN",
         "Imp.":"Low",
         "Event":"Current Account (USD)  (Q1)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"7,702M"
+        "Actual":"-15,878M",
+        "Forecast":"-9,379M",
+        "Previous":"7,735M"
     },
     {
         "Date":"2026-05-26",
@@ -102621,61 +102676,6 @@
     {
         "Date":"2026-05-26",
         "Day":"Tuesday",
-        "Time":"08:00",
-        "Cur.":"SGD",
-        "Imp.":"Low",
-        "Event":"GDP (QoQ)  (Q1)",
-        "Actual":"",
-        "Forecast":"0.1%",
-        "Previous":"2.1%"
-    },
-    {
-        "Date":"2026-05-26",
-        "Day":"Tuesday",
-        "Time":"08:00",
-        "Cur.":"SGD",
-        "Imp.":"Low",
-        "Event":"GDP (YoY)  (Q1)",
-        "Actual":"",
-        "Forecast":"5.1%",
-        "Previous":"6.9%"
-    },
-    {
-        "Date":"2026-05-26",
-        "Day":"Tuesday",
-        "Time":"11:30",
-        "Cur.":"THB",
-        "Imp.":"Low",
-        "Event":"Custom-Based Export Data  (Apr)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"18.70%"
-    },
-    {
-        "Date":"2026-05-26",
-        "Day":"Tuesday",
-        "Time":"11:30",
-        "Cur.":"THB",
-        "Imp.":"Low",
-        "Event":"Custom-Based Import Data  (Apr)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"35.70%"
-    },
-    {
-        "Date":"2026-05-26",
-        "Day":"Tuesday",
-        "Time":"11:30",
-        "Cur.":"THB",
-        "Imp.":"Low",
-        "Event":"Custom-Based Trade Data (USD)  (Apr)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"-3.340B"
-    },
-    {
-        "Date":"2026-05-26",
-        "Day":"Tuesday",
         "Time":"13:00",
         "Cur.":"JPY",
         "Imp.":"Low",
@@ -102736,7 +102736,7 @@
         "Imp.":"Low",
         "Event":"Industrial Production (MoM)  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"1.5%",
         "Previous":"4.7%"
     },
     {
@@ -102863,6 +102863,17 @@
     {
         "Date":"2026-05-26",
         "Day":"Tuesday",
+        "Time":"17:30",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Italian 2-Year CTZ Auction",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.890%"
+    },
+    {
+        "Date":"2026-05-26",
+        "Day":"Tuesday",
         "Time":"18:00",
         "Cur.":"GBP",
         "Imp.":"Low",
@@ -102874,23 +102885,12 @@
     {
         "Date":"2026-05-26",
         "Day":"Tuesday",
-        "Time":"19:00",
-        "Cur.":"BRL",
-        "Imp.":"Low",
-        "Event":"FGV Consumer confidence  (May)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"89.1"
-    },
-    {
-        "Date":"2026-05-26",
-        "Day":"Tuesday",
         "Time":"19:30",
         "Cur.":"BRL",
         "Imp.":"Low",
         "Event":"Current Account (USD)  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"-0.20B",
         "Previous":"-6.04B"
     },
     {
@@ -102901,7 +102901,7 @@
         "Imp.":"Low",
         "Event":"Foreign direct investment (USD)  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"5.30B",
         "Previous":"6.04B"
     },
     {
@@ -102936,6 +102936,39 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"-0.20"
+    },
+    {
+        "Date":"2026-05-26",
+        "Day":"Tuesday",
+        "Time":"21:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"French 12-Month BTF Auction",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.642%"
+    },
+    {
+        "Date":"2026-05-26",
+        "Day":"Tuesday",
+        "Time":"21:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"French 3-Month BTF Auction",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.250%"
+    },
+    {
+        "Date":"2026-05-26",
+        "Day":"Tuesday",
+        "Time":"21:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"French 6-Month BTF Auction",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.412%"
     },
     {
         "Date":"2026-05-26",
@@ -106010,6 +106043,28 @@
         "Date":"2026-05-29",
         "Day":"Friday",
         "Time":"09:00",
+        "Cur.":"NZD",
+        "Imp.":"Low",
+        "Event":"ANZ Business Confidence  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-10.6"
+    },
+    {
+        "Date":"2026-05-29",
+        "Day":"Friday",
+        "Time":"09:00",
+        "Cur.":"NZD",
+        "Imp.":"Low",
+        "Event":"NBNZ Own Activity  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"19.6%"
+    },
+    {
+        "Date":"2026-05-29",
+        "Day":"Friday",
+        "Time":"09:00",
         "Cur.":"PHP",
         "Imp.":"Low",
         "Event":"Exports (YoY)  (Apr)",
@@ -106680,6 +106735,28 @@
     {
         "Date":"2026-05-29",
         "Day":"Friday",
+        "Time":"15:30",
+        "Cur.":"THB",
+        "Imp.":"Low",
+        "Event":"Currency Swaps (USD)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"22.1B"
+    },
+    {
+        "Date":"2026-05-29",
+        "Day":"Friday",
+        "Time":"15:30",
+        "Cur.":"THB",
+        "Imp.":"Low",
+        "Event":"Foreign Reserves (USD)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"285.4B"
+    },
+    {
+        "Date":"2026-05-29",
+        "Day":"Friday",
         "Time":"15:55",
         "Cur.":"EUR",
         "Imp.":"Low",
@@ -107291,7 +107368,7 @@
         "Event":"FX Reserves, USD",
         "Actual":"",
         "Forecast":null,
-        "Previous":""
+        "Previous":"688.89B"
     },
     {
         "Date":"2026-05-29",
@@ -108275,72 +108352,6 @@
     {
         "Date":"2026-06-01",
         "Day":"Monday",
-        "Time":"12:00",
-        "Cur.":"IDR",
-        "Imp.":"Low",
-        "Event":"Core Inflation (YoY)  (May)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"2.44%"
-    },
-    {
-        "Date":"2026-06-01",
-        "Day":"Monday",
-        "Time":"12:00",
-        "Cur.":"IDR",
-        "Imp.":"Low",
-        "Event":"Export Growth (YoY)  (Apr)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"-3.10%"
-    },
-    {
-        "Date":"2026-06-01",
-        "Day":"Monday",
-        "Time":"12:00",
-        "Cur.":"IDR",
-        "Imp.":"Low",
-        "Event":"Import Growth (YoY)  (Apr)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"1.51%"
-    },
-    {
-        "Date":"2026-06-01",
-        "Day":"Monday",
-        "Time":"12:00",
-        "Cur.":"IDR",
-        "Imp.":"Low",
-        "Event":"Inflation (MoM)  (May)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"0.13%"
-    },
-    {
-        "Date":"2026-06-01",
-        "Day":"Monday",
-        "Time":"12:00",
-        "Cur.":"IDR",
-        "Imp.":"Low",
-        "Event":"Inflation (YoY)  (May)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"2.42%"
-    },
-    {
-        "Date":"2026-06-01",
-        "Day":"Monday",
-        "Time":"12:00",
-        "Cur.":"IDR",
-        "Imp.":"Low",
-        "Event":"Trade Balance  (Apr)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"3.32B"
-    },
-    {
-        "Date":"2026-06-01",
-        "Day":"Monday",
         "Time":"13:00",
         "Cur.":"INR",
         "Imp.":"Low",
@@ -109030,6 +109041,72 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"-21.1B"
+    },
+    {
+        "Date":"2026-06-02",
+        "Day":"Tuesday",
+        "Time":"12:00",
+        "Cur.":"IDR",
+        "Imp.":"Low",
+        "Event":"Core Inflation (YoY)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.44%"
+    },
+    {
+        "Date":"2026-06-02",
+        "Day":"Tuesday",
+        "Time":"12:00",
+        "Cur.":"IDR",
+        "Imp.":"Low",
+        "Event":"Export Growth (YoY)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-3.10%"
+    },
+    {
+        "Date":"2026-06-02",
+        "Day":"Tuesday",
+        "Time":"12:00",
+        "Cur.":"IDR",
+        "Imp.":"Low",
+        "Event":"Import Growth (YoY)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"1.51%"
+    },
+    {
+        "Date":"2026-06-02",
+        "Day":"Tuesday",
+        "Time":"12:00",
+        "Cur.":"IDR",
+        "Imp.":"Low",
+        "Event":"Inflation (MoM)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.13%"
+    },
+    {
+        "Date":"2026-06-02",
+        "Day":"Tuesday",
+        "Time":"12:00",
+        "Cur.":"IDR",
+        "Imp.":"Low",
+        "Event":"Inflation (YoY)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.42%"
+    },
+    {
+        "Date":"2026-06-02",
+        "Day":"Tuesday",
+        "Time":"12:00",
+        "Cur.":"IDR",
+        "Imp.":"Low",
+        "Event":"Trade Balance  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3.32B"
     },
     {
         "Date":"2026-06-02",
