@@ -200,11 +200,13 @@ export function MarketAgentProviderConfig({
   const [localTelegramEnabled, setLocalTelegramEnabled] = useState<boolean | null>(null);
   const [llmResult, setLLMResult] = useState<MarketAgentLLMActionResponse | null>(null);
   const [localAIResult, setLocalAIResult] = useState<MarketAgentLLMActionResponse | null>(null);
+  const [localAIApplyState, setLocalAIApplyState] = useState<"idle" | "saving" | "saved" | "failed">("idle");
   const [pendingPullProgress, setPendingPullProgress] = useState<MarketAgentOllamaPullProgress | null>(null);
   const [localSetup, setLocalSetup] = useState<MarketAgentLLMSetupResponse | null>(localAiSetup ?? null);
   const [activeStep, setActiveStep] = useState<SetupStep>("ctrader");
   const [localAIMode, setLocalAIMode] = useState<LocalAIMode>("auto");
   const surfaceRef = useRef<HTMLElement | null>(null);
+  const localAIDetectTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     const ctrader = data?.ctrader;
@@ -258,6 +260,15 @@ export function MarketAgentProviderConfig({
       setLocalSetup(localAiSetup);
     }
   }, [localAiSetup]);
+
+  useEffect(
+    () => () => {
+      if (localAIDetectTimerRef.current !== null) {
+        window.clearTimeout(localAIDetectTimerRef.current);
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     if (localAiPullProgress) {
@@ -459,6 +470,7 @@ export function MarketAgentProviderConfig({
 
   const selectLocalAIMode = (mode: LocalAIMode) => {
     setLocalAIMode(mode);
+    setLocalAIApplyState("idle");
     const model =
       mode === "balanced"
         ? "qwen3.5:4b"
@@ -497,6 +509,57 @@ export function MarketAgentProviderConfig({
     }
   };
 
+  const applySelectedLocalAIModel = async (enabled: boolean) => {
+    const model = selectedLocalAIModel() || llmForm.model;
+    const payload = { ...llmForm, enabled, model };
+    setLLMForm(payload);
+    setLocalAIApplyState("saving");
+    setLocalAIResult({
+      ok: true,
+      status: "saving",
+      message: enabled ? `Saving ${formatLocalModelName(model)} as the Local AI model...` : "Disabling Local AI..."
+    });
+    try {
+      const result = await onSaveLLM(payload);
+      if (!result.ok) {
+        setLocalAIApplyState("failed");
+        setLocalAIResult({
+          ok: false,
+          status: "failed",
+          message: result.message || "Could not save Local AI model."
+        });
+        return;
+      }
+      if (result.llm) {
+        setLLMForm({
+          enabled: result.llm.enabled,
+          provider: result.llm.provider || payload.provider,
+          endpoint: result.llm.endpoint || payload.endpoint,
+          model: result.llm.model || payload.model,
+          temperature: typeof result.llm.temperature === "number" ? result.llm.temperature : payload.temperature,
+          timeoutSeconds: result.llm.timeoutSeconds || payload.timeoutSeconds,
+          keepAlive: result.llm.keepAlive || payload.keepAlive,
+          maxContext: result.llm.maxContext || payload.maxContext
+        });
+      }
+      setLocalAIApplyState("saved");
+      setLocalAIResult({
+        ok: true,
+        status: enabled ? "model selected" : "disabled",
+        message: enabled
+          ? `${formatLocalModelName(result.llm?.model || model)} is now the Local AI model.`
+          : "Local AI is disabled. Rule-based evidence still runs."
+      });
+    } catch (error) {
+      setLocalAIApplyState("failed");
+      setLocalAIResult({
+        ok: false,
+        status: "failed",
+        error: error instanceof Error ? error.message : "Could not save Local AI model."
+      });
+    }
+  };
+
   const cancelSelectedModelDownload = async () => {
     const model = selectedLocalAIModel();
     const cancelledProgress: MarketAgentOllamaPullProgress = {
@@ -519,6 +582,17 @@ export function MarketAgentProviderConfig({
 
   const selectStep = (step: SetupStep) => {
     setActiveStep(step);
+    if (step === "llm" && onDetectLocalAI && localSetup?.status !== "model_ready") {
+      if (localAIDetectTimerRef.current !== null) {
+        window.clearTimeout(localAIDetectTimerRef.current);
+      }
+      localAIDetectTimerRef.current = window.setTimeout(() => {
+        localAIDetectTimerRef.current = null;
+        void onDetectLocalAI().then((result) => {
+          setLocalSetup(result);
+        });
+      }, 80);
+    }
     const scrollTarget = surfaceRef.current;
     if (!scrollTarget) return;
     if (typeof scrollTarget.scrollTo === "function") {
@@ -653,8 +727,18 @@ export function MarketAgentProviderConfig({
         pullStatus.includes("pull");
       const selectedModelInstalled = isLocalModelInstalled(selectedModel);
       const isModelReady = localSetup?.status === "model_ready" || selectedModelInstalled;
+      const isSelectedModelApplied = Boolean(
+        localAIMode !== "off" &&
+        selectedModel &&
+        llmForm.enabled &&
+        llmForm.model === selectedModel
+      );
       const installDisabled = localAIMode === "off" || isDownloadingModel;
       const selectedDownloadLabel = `Download ${selectedModelLabel || "model"}`;
+      const selectedModelProfile = (localSetup?.profiles ?? []).find((profile) => profile.name === selectedModel);
+      const autoBadge = selectedModelInstalled
+        ? selectedModelLabel
+        : selectedModelProfile?.diskLabel || recommended?.diskLabel || "Recommended";
       const localAIOptions: Array<{
         mode: LocalAIMode;
         label: string;
@@ -666,9 +750,9 @@ export function MarketAgentProviderConfig({
         {
           mode: "auto",
           label: "Auto",
-          detail: `Recommended for this machine: ${formatLocalModelName(recommended?.name || "qwen3.5:4b")}.`,
-          badge: recommended?.diskLabel || "Recommended",
-          model: recommended?.name || "qwen3.5:4b"
+          detail: `Auto will use: ${selectedModelLabel || formatLocalModelName(recommended?.name || "qwen3.5:4b")}.`,
+          badge: autoBadge,
+          model: selectedModel || recommended?.name || "qwen3.5:4b"
         },
         {
           mode: "balanced",
@@ -756,18 +840,24 @@ export function MarketAgentProviderConfig({
                         <button
                           type="button"
                           className="btn primary btn-compact"
-                          onClick={() => void onSaveLLM({ ...llmForm, enabled: true, model: selectedModel || llmForm.model })}
+                          disabled={localAIApplyState === "saving" || isSelectedModelApplied}
+                          onClick={() => void applySelectedLocalAIModel(true)}
                         >
-                          Use this model
+                          {localAIApplyState === "saving"
+                            ? "Saving..."
+                            : isSelectedModelApplied
+                              ? "Using this model"
+                              : "Use this model"}
                         </button>
                       ) : null}
                       {localAIMode === "off" ? (
                         <button
                           type="button"
                           className="btn primary btn-compact"
-                          onClick={() => void onSaveLLM({ ...llmForm, enabled: false, model: selectedModel || llmForm.model })}
+                          disabled={localAIApplyState === "saving"}
+                          onClick={() => void applySelectedLocalAIModel(false)}
                         >
-                          Disable Local AI
+                          {localAIApplyState === "saving" ? "Saving..." : localAIApplyState === "saved" ? "Local AI disabled" : "Disable Local AI"}
                         </button>
                       ) : null}
                       {isDownloadingModel ? (
@@ -818,7 +908,9 @@ export function MarketAgentProviderConfig({
                     >
                       <strong>{option.label}</strong>
                       <span>
-                        {option.model && isLocalModelInstalled(option.model)
+                        {option.mode === "auto"
+                          ? option.badge
+                          : option.model && isLocalModelInstalled(option.model)
                           ? "Installed"
                           : option.mode === "off"
                             ? "LLM off"

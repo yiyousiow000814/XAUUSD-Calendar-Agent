@@ -190,6 +190,64 @@ def test_ctrader_missing_config_reports_disabled_without_crash(tmp_path) -> None
     assert "cli credentials" in health.error.lower()
 
 
+def test_ctrader_cli_adapter_preserves_m1_bar_payload(tmp_path, monkeypatch) -> None:
+    class QuoteProcess:
+        returncode = 0
+        stdout = json.dumps(
+            {
+                "quote": {
+                    "symbol": "XAUUSD",
+                    "symbol_id": 777,
+                    "bid": 4512.3,
+                    "ask": 4512.7,
+                    "timestamp": "2026-05-19T10:15:24+08:00",
+                },
+                "bars": [
+                    {
+                        "symbol": "XAUUSD",
+                        "data_timestamp": "2026-05-19T10:15:00+08:00",
+                        "open": 4510.0,
+                        "high": 4513.2,
+                        "low": 4509.5,
+                        "close": 4512.5,
+                        "bid": 4512.3,
+                        "ask": 4512.7,
+                        "source": "cTrader CLI cBot bridge",
+                        "source_type": "spot_m1",
+                        "data_mode": "live_seen",
+                    }
+                ],
+                "provider_health": {
+                    "data_mode": "live_seen",
+                    "is_available": True,
+                    "is_stale": False,
+                    "stale_reason": "",
+                },
+            }
+        )
+        stderr = ""
+
+    def fake_run(*args, **kwargs):
+        return QuoteProcess()
+
+    monkeypatch.setattr("src.xauusd_market_agent.providers.ctrader_bridge.subprocess.run", fake_run)
+    request = BridgeRequest.from_payload(
+        {
+            "accountId": "123456",
+            "ctid": "trader@example.com",
+            "password": "super-secret-password",
+            "symbol": "XAUUSD",
+            "snapshotPath": str(tmp_path / "snapshot.json"),
+        }
+    )
+
+    result = CTraderCliBridge(request).quote()
+
+    assert result["quote"]["timestamp"] == "2026-05-19T10:15:24+08:00"
+    assert result["bars"][0]["source_type"] == "spot_m1"
+    assert result["bars"][0]["data_timestamp"] == "2026-05-19T10:15:00+08:00"
+
+
 def test_ctrader_live_quote_uses_bridge_result_and_writes_snapshot(tmp_path) -> None:
     snapshot_path = tmp_path / "ctrader-last-quote.json"
     provider = CTraderProvider(
@@ -242,6 +300,72 @@ def test_ctrader_live_quote_uses_bridge_result_and_writes_snapshot(tmp_path) -> 
     snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
     assert snapshot["symbol_id"] == 777
     assert snapshot["mid"] == pytest.approx(4512.53)
+
+
+def test_ctrader_live_quote_prefers_m1_bar_rows_when_available(tmp_path) -> None:
+    snapshot_path = tmp_path / "ctrader-last-quote.json"
+    provider = CTraderProvider(
+        cli_config=_full_config(tmp_path),
+        bridge_runner=FakeBridgeRunner(
+            {
+                "quote": {
+                    "ok": True,
+                    "quote": {
+                        "symbol": "XAUUSD",
+                        "symbol_id": 777,
+                        "bid": 4512.34,
+                        "ask": 4512.72,
+                        "mid": 4512.53,
+                        "timestamp": "2026-05-19T10:15:24+08:00",
+                        "source": "cTrader CLI",
+                        "source_type": "spot",
+                        "environment": "demo",
+                        "account_id": "123456",
+                    },
+                    "bars": [
+                        {
+                            "symbol": "XAUUSD",
+                            "data_timestamp": "2026-05-19T10:15:00+08:00",
+                            "open": 4511.0,
+                            "high": 4513.2,
+                            "low": 4510.5,
+                            "close": 4512.6,
+                            "bid": 4512.34,
+                            "ask": 4512.72,
+                            "source": "cTrader CLI cBot bridge",
+                            "source_type": "spot_m1",
+                            "data_mode": "live_seen",
+                            "is_stale": False,
+                            "stale_reason": "",
+                        }
+                    ],
+                    "provider_health": {
+                        "source": "cTrader",
+                        "source_type": "spot",
+                        "data_mode": "live_seen",
+                        "is_available": True,
+                        "is_stale": False,
+                        "stale_reason": "",
+                        "error": "",
+                        "current_value": 4512.53,
+                        "data_timestamp": "2026-05-19T10:15:24+08:00",
+                        "fetched_at": "2026-05-19T10:15:24+08:00",
+                        "raw_source_id": "777",
+                    },
+                }
+            }
+        ),
+        saved_snapshot_path=snapshot_path,
+    )
+
+    rows, health = provider.fetch_latest(datetime.fromisoformat("2026-05-19T10:15:30+08:00"))
+
+    assert rows[-1]["source_type"] == "spot_m1"
+    assert rows[-1]["data_timestamp"] == "2026-05-19T10:15:00+08:00"
+    assert rows[-1]["close"] == pytest.approx(4512.6)
+    assert health.source_type == "spot"
+    assert health.data_mode == "live_seen"
+    assert snapshot_path.exists()
 
 
 def test_ctrader_saved_snapshot_fallback_is_stale_and_not_fresh(tmp_path) -> None:

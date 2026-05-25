@@ -77,6 +77,37 @@ const providerSubtitle = (items: MarketAgentProviderHealthEntry[]) => {
   return names.slice(0, 2).join(", ") || "Configured";
 };
 
+const defaultNewsFeeds = [
+  "Federal Reserve press feed",
+  "CNBC Top News RSS",
+  "MarketWatch Top Stories RSS"
+];
+
+const splitSourceList = (value: unknown) =>
+  String(value ?? "")
+    .split(/\r?\n|,/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+const newsFeedLabel = (feed: string) => {
+  const lowered = feed.toLowerCase();
+  if (lowered.includes("federalreserve.gov")) return "Federal Reserve press feed";
+  if (lowered.includes("cnbc.com")) return "CNBC Top News RSS";
+  if (lowered.includes("marketwatch.com")) return "MarketWatch Top Stories RSS";
+  if (feed.length > 80) return `${feed.slice(0, 77)}...`;
+  return feed;
+};
+
+const newsFeedCount = (items: MarketAgentProviderHealthEntry[]) => {
+  const feeds = Array.from(new Set(items.flatMap((item) => splitSourceList(item.raw_source_id)).map(newsFeedLabel)));
+  return feeds.length || defaultNewsFeeds.length;
+};
+
+const newsProviderSubtitle = (items: MarketAgentProviderHealthEntry[]) => {
+  const count = newsFeedCount(items);
+  return `RSS feeds / ${count} configured`;
+};
+
 export function MarketAgentProviderHealth({ data }: MarketAgentProviderHealthProps) {
   const items = data?.items ?? [];
   const ctraderItems = findItems(items, ["ctrader", "ctrader_cli", "spot"]);
@@ -141,11 +172,11 @@ export function MarketAgentProviderHealth({ data }: MarketAgentProviderHealthPro
     },
     {
       title: "News collector",
-      subtitle: newsItems.length ? providerSubtitle(newsItems) : "Automatic headlines",
+      subtitle: newsProviderSubtitle(newsItems),
       status: countUsable(newsItems) > 0 ? "Available" : "Collecting",
-      description: "Built into the app. Headlines stay as context until repeated, fresh, and market-confirmed.",
+      description: "RSS headlines from configured feeds. Headlines stay as context until repeated, fresh, and market-confirmed.",
       updatedAt: newestTime(newsItems),
-      action: "No market-confirmed headline in the latest snapshot.",
+      action: newsItems.length ? "No market-confirmed headline in the latest snapshot." : "Configured feeds are visible even when the latest run stored no headlines.",
       items: newsItems
     },
     {

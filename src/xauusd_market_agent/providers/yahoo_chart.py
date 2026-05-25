@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlencode
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 
 from ..models import ProviderHealth
 from .base import MarketBar, RelatedAssetBar
@@ -22,6 +22,7 @@ _SYMBOL_SOURCE_TYPE = {
     "^IXIC": "proxy",
     "NQ=F": "proxy",
 }
+_HTTP_USER_AGENT = "Mozilla/5.0 (compatible; XAUUSD-Calendar-Agent/1.0)"
 
 
 def _parse_dt(raw: str) -> datetime:
@@ -135,7 +136,8 @@ class YahooChartProvider:
                 response = self.session.get(url, timeout=15)
                 response.raise_for_status()
                 return response.json()
-            with urlopen(url, timeout=15) as response:
+            request = Request(url, headers={"User-Agent": _HTTP_USER_AGENT})
+            with urlopen(request, timeout=15) as response:
                 return json.loads(response.read().decode("utf-8", errors="replace"))
         except Exception:
             return None

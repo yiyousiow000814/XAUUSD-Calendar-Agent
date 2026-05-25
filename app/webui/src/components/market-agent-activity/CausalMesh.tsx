@@ -29,7 +29,7 @@ const statusKind = (status: string) => {
   if (normalized.includes("stale") || normalized.includes("waiting") || normalized.includes("syncing") || normalized.includes("checking") || normalized.includes("watching") || normalized.includes("emerging")) return "watch";
   if (normalized.includes("market closed") || normalized.includes("snapshot")) return "watch";
   if (normalized.includes("confirming") || normalized.includes("returned") || normalized.includes("filled")) return "confirming";
-  if (normalized.includes("live") || normalized.includes("ready") || normalized.includes("stored") || normalized.includes("available") || normalized.includes("approved") || normalized.includes("active") || normalized.includes("validated")) return "good";
+  if (normalized.includes("live") || normalized.includes("ready") || normalized.includes("stored") || normalized.includes("available") || normalized.includes("approved") || normalized.includes("active") || normalized.includes("validated") || normalized.includes("recorded")) return "good";
   if (normalized.includes("dormant") || normalized.includes("skipped") || normalized.includes("not recorded") || normalized.includes("neutral") || normalized.includes("none")) return "muted";
   return "neutral";
 };
@@ -214,6 +214,24 @@ export function CausalMesh({ node, allNodes, onClose }: CausalMeshProps) {
       <div className="market-agent-detail-viewport">
         {view === "overview" ? (
           <div className="market-agent-focus-overview">
+            {node.performance ? (
+              <section className={`market-agent-ai-performance status-${statusKind(node.performance.status)}`} aria-label={`${node.label} AI performance`}>
+                <div>
+                  <span>{node.performance.title}</span>
+                  <strong>{node.performance.status}</strong>
+                  <p>{node.performance.detail}</p>
+                </div>
+                <div className="market-agent-ai-performance-metrics">
+                  {node.performance.metrics.map((metric) => (
+                    <article key={`${metric.label}-${metric.status}`}>
+                      <span>{metric.label}</span>
+                      <strong>{metric.meta[0]?.replace("token/s:", "").replace("elapsed:", "").replace("input tokens:", "").trim() || metric.status}</strong>
+                      <p>{metric.detail}</p>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            ) : null}
             <section className="market-agent-signal-passport" aria-label={`${node.label} signal passport`}>
               <div>
                 <span>Status</span>

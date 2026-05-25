@@ -695,7 +695,7 @@ fn apply_llm_fallback_policy_for_result(
 }
 
 fn command_stdout(program: &str, args: &[&str]) -> Option<String> {
-    let output = Command::new(program).args(args).output().ok()?;
+    let output = background_command(program).args(args).output().ok()?;
     if !output.status.success() {
         return None;
     }
@@ -824,7 +824,7 @@ fn model_from_payload(payload: &Value) -> String {
 }
 
 fn check_ollama_installed_value() -> Value {
-    match Command::new("ollama").arg("--version").output() {
+    match background_command("ollama").arg("--version").output() {
         Ok(output) if output.status.success() => {
             let version = String::from_utf8_lossy(&output.stdout).trim().to_string();
             json!({
@@ -2000,8 +2000,37 @@ fn now_epoch_seconds() -> i64 {
         .unwrap_or(0)
 }
 
+fn is_process_running(pid: i64) -> bool {
+    if pid <= 0 {
+        return false;
+    }
+    let result = if cfg!(target_os = "windows") {
+        Command::new("tasklist")
+            .args(["/FI", &format!("PID eq {pid}"), "/NH"])
+            .stdout(Stdio::piped())
+            .stderr(Stdio::null())
+            .output()
+    } else {
+        Command::new("kill")
+            .args(["-0", &pid.to_string()])
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .output()
+    };
+    match result {
+        Ok(output) if output.status.success() => {
+            if cfg!(target_os = "windows") {
+                String::from_utf8_lossy(&output.stdout).contains(&pid.to_string())
+            } else {
+                true
+            }
+        }
+        _ => false,
+    }
+}
+
 fn read_monitor_status_for_root(root: &Path) -> Value {
-    read_json_file(&monitor_status_path_for_root(root)).unwrap_or_else(|| {
+    let mut status = read_json_file(&monitor_status_path_for_root(root)).unwrap_or_else(|| {
         json!({
             "ok": true,
             "available": true,
@@ -2013,7 +2042,34 @@ fn read_monitor_status_for_root(root: &Path) -> Value {
             "lastError": "",
             "message": "Monitor loop is stopped.",
         })
-    })
+    });
+    let running = status
+        .get("running")
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
+    let pid = status.get("pid").and_then(Value::as_i64).unwrap_or(0);
+    if running && pid > 0 && !is_process_running(pid) {
+        if let Some(object) = status.as_object_mut() {
+            object.insert("ok".to_string(), Value::Bool(false));
+            object.insert("running".to_string(), Value::Bool(false));
+            object.insert("phase".to_string(), Value::String("stopped".to_string()));
+            object.insert("pid".to_string(), Value::Null);
+            object.insert("nextRunAt".to_string(), Value::Null);
+            object.insert(
+                "lastError".to_string(),
+                Value::String(
+                    "Saved monitor status referenced a process that is no longer running."
+                        .to_string(),
+                ),
+            );
+            object.insert(
+                "message".to_string(),
+                Value::String("Monitor loop stopped unexpectedly.".to_string()),
+            );
+        }
+        let _ = write_monitor_status_for_root(root, &status);
+    }
+    status
 }
 
 fn write_monitor_status_for_root(root: &Path, status: &Value) -> Result<(), String> {
@@ -2525,8 +2581,8 @@ fn read_saved_ctrader_xauusd_health(root: &Path) -> Option<Value> {
         .and_then(Value::as_f64);
     Some(json!({
         "source": "cTrader",
-        "source_type": snapshot.get("source_type").and_then(Value::as_str).unwrap_or("spot"),
-        "data_mode": "stale",
+        "source_type": "spot_snapshot",
+        "data_mode": "snapshot",
         "is_available": current_value.is_some(),
         "is_stale": true,
         "stale_reason": "Loaded saved cTrader quote snapshot. Live refresh runs only during monitor/connect/test actions.",
@@ -2590,6 +2646,129 @@ fn read_range_payloads(
         "SELECT payload_json FROM {table} WHERE {time_column} >= ?1 AND {time_column} <= ?2 ORDER BY {time_column}, id"
     );
     query_payload_rows(connection, &sql, &[&start, &end])
+}
+
+fn calendar_dirs_for_root(root: &Path) -> Vec<PathBuf> {
+    let mut candidates = vec![
+        root.join("data").join("Economic_Calendar"),
+        root.parent()
+            .unwrap_or(root)
+            .join("data")
+            .join("Economic_Calendar"),
+        config::working_root_dir(&config::load_config())
+            .join("data")
+            .join("Economic_Calendar"),
+        config::install_dir().join("data").join("Economic_Calendar"),
+    ];
+    if let Some(repo_root) = repo_root_from_manifest() {
+        candidates.push(repo_root.join("data").join("Economic_Calendar"));
+        candidates.push(
+            repo_root
+                .join("user-data")
+                .join("data")
+                .join("Economic_Calendar"),
+        );
+    }
+    let mut unique = vec![];
+    for candidate in candidates {
+        if candidate.exists()
+            && !unique
+                .iter()
+                .any(|existing: &PathBuf| existing == &candidate)
+        {
+            unique.push(candidate);
+        }
+    }
+    unique
+}
+
+fn calendar_row_text(row: &Value, key: &str) -> String {
+    row.get(key)
+        .and_then(Value::as_str)
+        .unwrap_or_default()
+        .trim()
+        .to_string()
+}
+
+fn calendar_row_currency(row: &Value) -> String {
+    let cur = calendar_row_text(row, "Cur.");
+    if cur.is_empty() {
+        calendar_row_text(row, "Currency")
+    } else {
+        cur
+    }
+}
+
+fn read_calendar_context_from_files(root: &Path, start: &str, end: &str) -> Vec<Value> {
+    let start_year = start.get(0..4).and_then(|value| value.parse::<i32>().ok());
+    let end_year = end.get(0..4).and_then(|value| value.parse::<i32>().ok());
+    let Some(start_year) = start_year else {
+        return vec![];
+    };
+    let end_year = end_year.unwrap_or(start_year);
+    let mut rows = vec![];
+    for calendar_dir in calendar_dirs_for_root(root) {
+        for year in start_year..=end_year {
+            let path = calendar_dir
+                .join(year.to_string())
+                .join(format!("{year}_calendar.json"));
+            let Some(Value::Array(items)) = read_json_file(&path) else {
+                continue;
+            };
+            for item in items {
+                let date = calendar_row_text(&item, "Date");
+                let time = calendar_row_text(&item, "Time");
+                let title = calendar_row_text(&item, "Event");
+                if date.is_empty() || time.is_empty() || title.is_empty() {
+                    continue;
+                }
+                let scheduled_at = if time.eq_ignore_ascii_case("all day") {
+                    format!("{date}T00:00:00+08:00")
+                } else if time.len() == 5 {
+                    format!("{date}T{time}:00+08:00")
+                } else {
+                    continue;
+                };
+                if scheduled_at.as_str() < start || scheduled_at.as_str() > end {
+                    continue;
+                }
+                let currency = calendar_row_currency(&item);
+                let impact = calendar_row_text(&item, "Imp.");
+                let source_detail = calendar_dir.display().to_string();
+                rows.push(json!({
+                    "scheduled_at": scheduled_at,
+                    "source": "Economic Calendar",
+                    "source_type": "existing_calendar",
+                    "title": title,
+                    "currency": currency,
+                    "impact": impact,
+                    "context_type": if impact.eq_ignore_ascii_case("holiday") {
+                        "liquidity_context"
+                    } else {
+                        "calendar_context"
+                    },
+                    "actual": calendar_row_text(&item, "Actual"),
+                    "forecast": calendar_row_text(&item, "Forecast"),
+                    "previous": calendar_row_text(&item, "Previous"),
+                    "relevance_reason": "Existing Economic Calendar event. Relevance requires evidence or AI review.",
+                    "impact_direction_on_gold": "unknown",
+                    "data_mode": "calendar_context",
+                    "review_status": "unreviewed_context",
+                    "storage_status": "read_from_existing_calendar",
+                    "source_path": source_detail,
+                }));
+            }
+        }
+        if !rows.is_empty() {
+            break;
+        }
+    }
+    rows.sort_by(|a, b| {
+        let at = a.get("scheduled_at").and_then(Value::as_str).unwrap_or("");
+        let bt = b.get("scheduled_at").and_then(Value::as_str).unwrap_or("");
+        at.cmp(bt)
+    });
+    rows
 }
 
 fn read_related_assets_map(
@@ -3540,9 +3719,12 @@ pub(crate) fn read_market_agent_replay(root: &Path, start: &str, end: &str) -> V
     };
     let news_items = read_range_payloads(&connection, "news_items", "published_at", start, end)
         .unwrap_or_default();
-    let calendar_events =
-        read_range_payloads(&connection, "calendar_events", "scheduled_at", start, end)
-            .unwrap_or_default();
+    let mut calendar_events = read_calendar_context_from_files(root, start, end);
+    if calendar_events.is_empty() {
+        calendar_events =
+            read_range_payloads(&connection, "calendar_events", "scheduled_at", start, end)
+                .unwrap_or_default();
+    }
     let driver_attention_timeline = if table_exists(&connection, "driver_attention_states")
         && table_exists(&connection, "monitor_runs")
     {
@@ -3599,7 +3781,7 @@ mod tests {
         run_backfill_recovery_for_root, save_ctrader_provider_config, save_llm_config_for_root,
         save_telegram_config_for_root, start_monitor_loop_for_root, stop_monitor_loop_for_root,
         telegram_config_path_for_root, telegram_env_for_root, test_telegram_for_root,
-        timeline_path_for_root, DEFAULT_OLLAMA_ENDPOINT,
+        timeline_path_for_root, write_monitor_status_for_root, DEFAULT_OLLAMA_ENDPOINT,
     };
     use rusqlite::{params, Connection};
     use serde_json::{json, Value};
@@ -4043,6 +4225,123 @@ mod tests {
     }
 
     #[test]
+    fn market_replay_uses_existing_calendar_when_timeline_has_no_calendar_rows() {
+        let dir = unique_temp_dir("replay-calendar-fallback");
+        seed_timeline_db(&timeline_path_for_root(&dir));
+        let connection = Connection::open(timeline_path_for_root(&dir)).expect("open sqlite");
+        connection
+            .execute("DELETE FROM calendar_events", [])
+            .expect("clear calendar rows");
+        let year_dir = dir.join("data").join("Economic_Calendar").join("2026");
+        fs::create_dir_all(&year_dir).expect("create calendar dir");
+        fs::write(
+            year_dir.join("2026_calendar.json"),
+            json!([
+                {
+                    "Date": "2026-05-19",
+                    "Day": "Tuesday",
+                    "Time": "08:15",
+                    "Cur.": "USD",
+                    "Imp.": "High",
+                    "Event": "Core CPI (MoM)",
+                    "Actual": "",
+                    "Forecast": "0.3%",
+                    "Previous": "0.2%"
+                },
+                {
+                    "Date": "2026-05-19",
+                    "Day": "Tuesday",
+                    "Time": "08:20",
+                    "Cur.": "NZD",
+                    "Imp.": "Low",
+                    "Event": "Low noise event",
+                    "Actual": "",
+                    "Forecast": "",
+                    "Previous": ""
+                }
+            ])
+            .to_string(),
+        )
+        .expect("write calendar json");
+
+        let payload = read_market_agent_replay(
+            &dir,
+            "2026-05-19T07:00:00+08:00",
+            "2026-05-19T09:00:00+08:00",
+        );
+
+        let events = payload
+            .get("replay")
+            .and_then(|replay| replay.get("calendar_events"))
+            .and_then(Value::as_array)
+            .expect("calendar events");
+        assert_eq!(events.len(), 2);
+        assert_eq!(
+            events[0].get("title").and_then(Value::as_str),
+            Some("Core CPI (MoM)")
+        );
+        assert_eq!(
+            events[0].get("data_mode").and_then(Value::as_str),
+            Some("calendar_context")
+        );
+        assert_eq!(
+            events[0].get("review_status").and_then(Value::as_str),
+            Some("unreviewed_context")
+        );
+        assert_eq!(
+            events[0].get("storage_status").and_then(Value::as_str),
+            Some("read_from_existing_calendar")
+        );
+    }
+
+    #[test]
+    fn market_replay_prefers_existing_calendar_over_stored_calendar_trace() {
+        let dir = unique_temp_dir("replay-calendar-source-of-truth");
+        seed_timeline_db(&timeline_path_for_root(&dir));
+        let year_dir = dir.join("data").join("Economic_Calendar").join("2026");
+        fs::create_dir_all(&year_dir).expect("create calendar dir");
+        fs::write(
+            year_dir.join("2026_calendar.json"),
+            json!([
+                {
+                    "Date": "2026-05-19",
+                    "Day": "Tuesday",
+                    "Time": "08:15",
+                    "Cur.": "USD",
+                    "Imp.": "High",
+                    "Event": "Real Calendar CPI",
+                    "Actual": "",
+                    "Forecast": "0.3%",
+                    "Previous": "0.2%"
+                }
+            ])
+            .to_string(),
+        )
+        .expect("write calendar json");
+
+        let payload = read_market_agent_replay(
+            &dir,
+            "2026-05-19T07:00:00+08:00",
+            "2026-05-19T09:00:00+08:00",
+        );
+
+        let events = payload
+            .get("replay")
+            .and_then(|replay| replay.get("calendar_events"))
+            .and_then(Value::as_array)
+            .expect("calendar events");
+        assert_eq!(events.len(), 1);
+        assert_eq!(
+            events[0].get("title").and_then(Value::as_str),
+            Some("Real Calendar CPI")
+        );
+        assert_eq!(
+            events[0].get("source").and_then(Value::as_str),
+            Some("Economic Calendar")
+        );
+    }
+
+    #[test]
     fn missing_sqlite_returns_available_false_not_panic() {
         let dir = unique_temp_dir("missing");
         let payload = read_market_agent_replay(
@@ -4302,7 +4601,11 @@ mod tests {
         );
         assert_eq!(
             health.get("data_mode").and_then(Value::as_str),
-            Some("stale")
+            Some("snapshot")
+        );
+        assert_eq!(
+            health.get("source_type").and_then(Value::as_str),
+            Some("spot_snapshot")
         );
         assert_eq!(
             health.get("is_available").and_then(Value::as_bool),
@@ -4653,6 +4956,39 @@ mod tests {
             Some("Monitor loop is already running.")
         );
         assert!(monitor_status_path_for_root(&dir).exists());
+    }
+
+    #[test]
+    fn monitor_status_clears_dead_running_pid() {
+        let dir = unique_temp_dir("monitor-dead-pid");
+        write_monitor_status_for_root(
+            &dir,
+            &json!({
+                "ok": true,
+                "available": true,
+                "running": true,
+                "phase": "running",
+                "pid": 99999999,
+                "lastRunAt": null,
+                "nextRunAt": 1779530659,
+                "lastError": "",
+                "message": "Monitor loop is running."
+            }),
+        )
+        .expect("write status");
+
+        let status = read_monitor_status_for_root(&dir);
+
+        assert_eq!(status.get("running").and_then(Value::as_bool), Some(false));
+        assert_eq!(status.get("phase").and_then(Value::as_str), Some("stopped"));
+        assert_eq!(
+            status.get("message").and_then(Value::as_str),
+            Some("Monitor loop stopped unexpectedly.")
+        );
+        assert_eq!(
+            status.get("lastError").and_then(Value::as_str),
+            Some("Saved monitor status referenced a process that is no longer running.")
+        );
     }
 
     #[test]

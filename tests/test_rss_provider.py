@@ -20,6 +20,7 @@ def test_rss_provider_dedupes_and_marks_backfilled_fields() -> None:
     assert "filter_reason" in rows[0]
     assert "source_quality_score" in rows[0]
     assert health.is_available is True
+    assert str(feed_path) in health.raw_source_id
 
 
 def test_rss_provider_missing_timestamp_gets_lower_score() -> None:
@@ -45,3 +46,46 @@ def test_rss_provider_skips_malformed_feed_without_blocking_other_feeds(tmp_path
 
     assert rows
     assert health.is_available is True
+    assert str(good_feed) in health.raw_source_id
+    assert str(bad_feed) not in health.raw_source_id
+
+
+def test_rss_provider_reports_configured_feeds_when_empty(tmp_path) -> None:
+    empty_feed = tmp_path / "empty.xml"
+    empty_feed.write_text("<rss><channel><title>Empty Feed</title></channel></rss>", encoding="utf-8")
+    provider = RSSNewsProvider([str(empty_feed)])
+
+    rows, health = provider.fetch_latest(datetime.fromisoformat("2026-05-19T08:00:00+08:00"))
+
+    assert rows == []
+    assert health.is_available is False
+    assert health.data_mode == "unavailable"
+    assert str(empty_feed) in health.raw_source_id
+    assert "no usable headlines" in health.stale_reason.lower()
+
+
+def test_rss_provider_uses_browser_user_agent_for_remote_feeds(monkeypatch) -> None:
+    captured = {}
+
+    class FakeResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def read(self):
+            return b"<rss><channel><title>Remote Feed</title></channel></rss>"
+
+    def fake_urlopen(request, timeout):
+        captured["user_agent"] = request.headers.get("User-agent") or request.headers.get("User-Agent")
+        captured["timeout"] = timeout
+        return FakeResponse()
+
+    monkeypatch.setattr("src.xauusd_market_agent.providers.rss_provider.urlopen", fake_urlopen)
+    provider = RSSNewsProvider(["https://example.test/feed.xml"])
+
+    provider.fetch_latest(datetime.fromisoformat("2026-05-19T08:00:00+08:00"))
+
+    assert "Mozilla" in captured["user_agent"]
+    assert captured["timeout"] == 15

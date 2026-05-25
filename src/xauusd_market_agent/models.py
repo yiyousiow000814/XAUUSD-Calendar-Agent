@@ -134,6 +134,7 @@ class ProviderHealth:
     previous_value: float | None = None
     change_value: float | None = None
     change_unit: str = ""
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)

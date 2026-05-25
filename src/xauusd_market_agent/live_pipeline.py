@@ -434,10 +434,23 @@ def _llm_activity(
     model: str | None = None,
     analysis: Any | None = None,
     alert_preflight: dict[str, Any] | None = None,
+    telemetry: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     base: dict[str, Any] = {}
+    telemetry = telemetry or []
     if model:
         base["model"] = model
+    if telemetry:
+        base["telemetry"] = telemetry
+        total_elapsed = sum(float(item.get("elapsed_ms", 0) or 0) for item in telemetry)
+        output_tokens = sum(int(item.get("output_tokens", 0) or 0) for item in telemetry)
+        best_tps = max((float(item.get("tokens_per_second", 0) or 0) for item in telemetry), default=0.0)
+        base["performance"] = {
+            "calls": len(telemetry),
+            "elapsedMs": round(total_elapsed, 2),
+            "outputTokens": output_tokens,
+            "bestTokensPerSecond": round(best_tps, 2),
+        }
     if analysis is not None:
         base["result"] = str(getattr(analysis, "main_driver", "unknown") or "unknown")
         base["causeStatus"] = str(getattr(analysis, "cause_status", "") or "")
@@ -459,6 +472,7 @@ def _llm_activity(
             "Local AI reviews the compact evidence packet only after allowed/blocked drivers are known.",
             input="Evidence packet JSON",
             output="Validated AnalysisResult" if llm_status == "validated" else "Rule fallback remains source of truth",
+            meta={"telemetry": [item for item in telemetry if item.get("task") == "cause_review"]},
         ),
         _activity_job(
             "Validator and repair",
@@ -473,6 +487,15 @@ def _llm_activity(
             "If an alert is candidate-worthy, Local AI can approve, rewrite, or block the final message without adding facts.",
             input="Formatted alert + evidence packet",
             output=str((alert_preflight or {}).get("reason") or alert_review_status),
+            meta={"telemetry": [item for item in telemetry if item.get("task") == "alert_review"]},
+        ),
+        _activity_job(
+            "Display summary batch",
+            "ready" if any(item.get("task") == "display_summary" and item.get("status") == "ok" for item in telemetry) else "skipped" if not llm_enabled else "waiting",
+            "Local AI can summarize selected news, calendar, and asset rows for compact dashboard display.",
+            input="Bounded news/calendar/assets batch",
+            output="summary_title + summary fields",
+            meta={"telemetry": [item for item in telemetry if item.get("task") == "display_summary"]},
         ),
     ]
     base["jobs"] = jobs
@@ -749,6 +772,7 @@ def _activity_snapshot(
     chain_status: EvidenceChainStatus | None = None,
     analysis: Any | None = None,
     llm_model: str | None = None,
+    llm_telemetry: list[dict[str, Any]] | None = None,
     alert_preflight: dict[str, Any] | None = None,
     monitor_run_id: int | None = None,
     timeline_store_path: Path | None = None,
@@ -812,6 +836,7 @@ def _activity_snapshot(
             model=llm_model,
             analysis=analysis,
             alert_preflight=alert_preflight,
+            telemetry=llm_telemetry,
         ),
         "replay": _replay_activity(
             monitor_run_id=monitor_run_id,
@@ -1838,6 +1863,7 @@ def run_monitored_live_once(
             selected_market_provider=runtime_context.get("selected_market_provider", "unavailable"),
             provider_chain_status=runtime_context.get("provider_chain_status", []),
             fallback_reason=runtime_context.get("fallback_reason", ""),
+            llm_telemetry=getattr(active_llm_client, "get_telemetry", lambda: [])(),
         ),
     )
     data_mode = _resolve_runtime_data_mode(
@@ -1882,6 +1908,7 @@ def run_monitored_live_once(
             allowed_candidate_drivers=evidence.allowed_candidate_drivers,
             blocked_drivers=evidence.blocked_drivers,
             attention_snapshot=attention_snapshot,
+            llm_telemetry=getattr(active_llm_client, "get_telemetry", lambda: [])(),
         ),
     )
     analysis = analyze_fixture_with_optional_llm(
@@ -2009,6 +2036,7 @@ def run_monitored_live_once(
             allowed_candidate_drivers=evidence.allowed_candidate_drivers,
             blocked_drivers=evidence.blocked_drivers,
             attention_snapshot=attention_snapshot,
+            llm_telemetry=getattr(active_llm_client, "get_telemetry", lambda: [])(),
         ),
     )
     telegram_result = {
@@ -2181,6 +2209,7 @@ def run_monitored_live_once(
                 allowed_candidate_drivers=evidence.allowed_candidate_drivers,
                 blocked_drivers=evidence.blocked_drivers,
                 attention_snapshot=attention_snapshot,
+                llm_telemetry=getattr(active_llm_client, "get_telemetry", lambda: [])(),
             ),
         )
         recovery_context = _run_recovery_backfill(
@@ -2255,6 +2284,7 @@ def run_monitored_live_once(
         allowed_candidate_drivers=evidence.allowed_candidate_drivers,
         blocked_drivers=evidence.blocked_drivers,
         attention_snapshot=attention_snapshot,
+        llm_telemetry=getattr(active_llm_client, "get_telemetry", lambda: [])(),
     )
     final_status_updates = {
         "ok": True,

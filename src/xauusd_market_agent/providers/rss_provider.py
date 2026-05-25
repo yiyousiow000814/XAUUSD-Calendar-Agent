@@ -4,8 +4,10 @@ from datetime import datetime
 from email.utils import parsedate_to_datetime
 import html
 from pathlib import Path
+from time import perf_counter
 from typing import Any
-from urllib.request import urlopen
+from urllib.parse import urlparse
+from urllib.request import Request, urlopen
 from xml.etree import ElementTree as ET
 
 from ..models import ProviderHealth
@@ -26,6 +28,7 @@ _SOURCE_SCORES = {
 
 _EVENT_KEYWORDS = ("fed", "powell", "cpi", "ppi", "pce", "nfp", "yield", "dxy", "dollar", "gold", "xauusd", "opec", "oil", "war", "tariff")
 _LOW_SIGNAL_KEYWORDS = ("opinion", "forecast", "analysis", "explainer", "preview")
+_HTTP_USER_AGENT = "Mozilla/5.0 (compatible; XAUUSD-Calendar-Agent/1.0)"
 
 
 def _coerce_dt(raw: str) -> datetime | None:
@@ -45,9 +48,11 @@ def _coerce_dt(raw: str) -> datetime | None:
 
 def _read_feed(feed_url: str) -> str | None:
     try:
-        if Path(feed_url).exists():
+        parsed = urlparse(feed_url)
+        if parsed.scheme not in {"http", "https"} and Path(feed_url).exists():
             return Path(feed_url).read_text(encoding="utf-8")
-        with urlopen(feed_url, timeout=15) as response:
+        request = Request(feed_url, headers={"User-Agent": _HTTP_USER_AGENT})
+        with urlopen(request, timeout=15) as response:
             return response.read().decode("utf-8", errors="replace")
     except Exception:
         return None
@@ -81,15 +86,44 @@ class RSSNewsProvider:
     def _fetch(self, *, seen_at: datetime, data_mode: str) -> tuple[list[dict[str, Any]], ProviderHealth]:
         items: list[dict[str, Any]] = []
         dedupe: set[tuple[str, str]] = set()
+        attempted_feeds: list[str] = []
+        successful_feeds: list[str] = []
+        feed_statuses: list[dict[str, Any]] = []
+        started_at = perf_counter()
         for feed_url in self.feeds:
+            feed_started_at = perf_counter()
+            attempted_feeds.append(feed_url)
             xml_text = _read_feed(feed_url)
             if not xml_text:
+                feed_statuses.append(
+                    {
+                        "feed_url": feed_url,
+                        "status": "failed",
+                        "reason": "Feed could not be read.",
+                        "headline_count": 0,
+                        "included_count": 0,
+                        "latency_ms": round((perf_counter() - feed_started_at) * 1000, 2),
+                    }
+                )
                 continue
             try:
                 root = ET.fromstring(xml_text)
             except ET.ParseError:
+                feed_statuses.append(
+                    {
+                        "feed_url": feed_url,
+                        "status": "failed",
+                        "reason": "Feed XML could not be parsed.",
+                        "headline_count": 0,
+                        "included_count": 0,
+                        "latency_ms": round((perf_counter() - feed_started_at) * 1000, 2),
+                    }
+                )
                 continue
+            successful_feeds.append(feed_url)
             channel_title = root.findtext("./channel/title", default=feed_url)
+            feed_count = 0
+            included_count = 0
             for item in root.findall("./channel/item"):
                 title = html.unescape(item.findtext("title", default="").strip())
                 if not title:
@@ -106,6 +140,9 @@ class RSSNewsProvider:
                     title,
                     published is not None,
                 )
+                feed_count += 1
+                if included:
+                    included_count += 1
                 items.append(
                     {
                         "published_at": (published or seen_at).isoformat(),
@@ -126,6 +163,17 @@ class RSSNewsProvider:
                         "categories": ["rss"] + ([] if included else ["filtered"]),
                     }
                 )
+            feed_statuses.append(
+                {
+                    "feed_url": feed_url,
+                    "source": channel_title,
+                    "status": "available" if feed_count else "empty",
+                    "reason": "" if feed_count else "Feed returned no item headlines.",
+                    "headline_count": feed_count,
+                    "included_count": included_count,
+                    "latency_ms": round((perf_counter() - feed_started_at) * 1000, 2),
+                }
+            )
         items.sort(key=lambda item: item["published_at"])
         health = ProviderHealth(
             source="RSS",
@@ -135,7 +183,17 @@ class RSSNewsProvider:
             data_mode=data_mode if items else "unavailable",
             is_available=bool(items),
             is_stale=False,
+            stale_reason="" if items else "Configured RSS feeds returned no usable headlines in this run.",
+            raw_source_id="\n".join(successful_feeds or attempted_feeds),
+            latency_ms=round((perf_counter() - started_at) * 1000, 2),
             current_value=float(len(items)),
+            metadata={
+                "feeds": feed_statuses,
+                "attempted_feed_count": len(attempted_feeds),
+                "successful_feed_count": len(successful_feeds),
+                "headline_count": len(items),
+                "included_count": sum(1 for item in items if item.get("included")),
+            },
         )
         return items, health
 

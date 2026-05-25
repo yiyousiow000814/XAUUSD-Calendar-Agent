@@ -37,6 +37,7 @@ export type SignalNode = {
   badges?: SignalBadge[];
   drilldown?: SignalDrilldownSection[];
   requests?: SignalDataRequest[];
+  performance?: SignalPerformanceSummary;
 };
 
 export type SignalBadge = {
@@ -55,6 +56,13 @@ export type SignalDrilldownSection = {
   title: string;
   detail: string;
   rows: SignalDrilldownRow[];
+};
+
+export type SignalPerformanceSummary = {
+  title: string;
+  status: string;
+  detail: string;
+  metrics: SignalDrilldownRow[];
 };
 
 export type SignalDataRequest = {
@@ -116,6 +124,11 @@ const recordValue = (entry: Record<string, unknown> | undefined, key: string) =>
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
 };
 
+const recordListValue = (entry: Record<string, unknown> | undefined, key: string) => {
+  const value = entry?.[key];
+  return Array.isArray(value) ? value.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object" && !Array.isArray(item)) : [];
+};
+
 const listValue = (entry: Record<string, unknown> | undefined, key: string) => {
   const value = entry?.[key];
   if (!Array.isArray(value)) return [];
@@ -158,6 +171,186 @@ const assetValue = (row: Record<string, unknown> | undefined) => {
 const providerLabel = (health: MarketAgentProviderHealthEntry | undefined, fallback: string) => {
   const source = String(health?.source ?? health?.provider ?? fallback);
   return source || fallback;
+};
+
+const defaultNewsFeeds = [
+  "Federal Reserve press feed",
+  "CNBC Top News RSS",
+  "MarketWatch Top Stories RSS"
+];
+
+const defaultNewsFeedUrls = [
+  "https://www.federalreserve.gov/feeds/press_all.xml",
+  "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+  "https://www.marketwatch.com/rss/topstories"
+];
+
+const splitSourceList = (value: unknown) =>
+  String(value ?? "")
+    .split(/\r?\n|,/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+const newsFeedLabel = (feed: string) => {
+  const lowered = feed.toLowerCase();
+  if (lowered.includes("federalreserve.gov")) return "Federal Reserve press feed";
+  if (lowered.includes("cnbc.com")) return "CNBC Top News RSS";
+  if (lowered.includes("marketwatch.com")) return "MarketWatch Top Stories RSS";
+  if (feed.length > 80) return `${feed.slice(0, 77)}...`;
+  return feed;
+};
+
+const newsFeedSources = (contextEntry: Record<string, unknown> | undefined, newsHealth: MarketAgentProviderHealthEntry | undefined) => {
+  const configured = splitSourceList(newsHealth?.raw_source_id);
+  const normalized = Array.from(new Set(configured.map(newsFeedLabel).filter(Boolean)));
+  return normalized.length ? normalized : defaultNewsFeeds;
+};
+
+const newsFeedSourceSummary = (feeds: string[]) => `RSS feeds / ${feeds.length} configured`;
+
+const formatMs = (value: number | null) => (value === null ? "not recorded" : value >= 1000 ? `${(value / 1000).toFixed(2)}s` : `${Math.round(value)}ms`);
+
+const llmTelemetrySummary = (llmEntry: Record<string, unknown> | undefined): SignalPerformanceSummary => {
+  const telemetry = recordListValue(llmEntry, "telemetry");
+  const status = textValue(llmEntry, "status") || "waiting";
+  if (!telemetry.length) {
+    return {
+      title: "AI Performance",
+      status,
+      detail: "No Local AI call ran in this selected run, so token/s and processing speed do not exist for this run.",
+      metrics: [
+        {
+          label: "Local AI calls",
+          status,
+          detail: "0 calls recorded. This usually means Local AI was disabled, unavailable, skipped by policy, or the run ended before an LLM step was needed.",
+          meta: ["token/s: not available", "elapsed: not available", "source: LocalLLMClient telemetry"]
+        }
+      ]
+    };
+  }
+
+  const elapsedMs = telemetry.reduce((total, item) => total + (numberValue(item, "elapsed_ms") ?? 0), 0);
+  const modelMs = telemetry.reduce((total, item) => total + (numberValue(item, "total_duration_ms") ?? 0), 0);
+  const inputTokens = telemetry.reduce((total, item) => total + (numberValue(item, "input_tokens") ?? 0), 0);
+  const outputTokens = telemetry.reduce((total, item) => total + (numberValue(item, "output_tokens") ?? 0), 0);
+  const tokenRates = telemetry.map((item) => numberValue(item, "tokens_per_second")).filter((value): value is number => value !== null);
+  const bestTokenRate = tokenRates.length ? Math.max(...tokenRates) : null;
+  const avgTokenRate = tokenRates.length ? Math.round((tokenRates.reduce((total, value) => total + value, 0) / tokenRates.length) * 100) / 100 : null;
+  const model = textValue(telemetry[0], "model") || textValue(llmEntry, "model") || "unknown";
+
+  return {
+    title: "AI Performance",
+    status: "recorded",
+    detail: `${telemetry.length} Local AI call(s) recorded for ${model}. Average speed ${avgTokenRate === null ? "not recorded" : `${avgTokenRate} token/s`}.`,
+    metrics: [
+      {
+        label: "Speed",
+        status: bestTokenRate === null ? "not recorded" : "recorded",
+        detail: bestTokenRate === null ? "Ollama did not return token timing for this run." : `Best call reached ${bestTokenRate} token/s; average ${avgTokenRate} token/s.`,
+        meta: [`token/s: ${bestTokenRate === null ? "not recorded" : bestTokenRate}`, `average token/s: ${avgTokenRate === null ? "not recorded" : avgTokenRate}`, `model: ${model}`]
+      },
+      {
+        label: "Processing time",
+        status: "recorded",
+        detail: `Wall time ${formatMs(elapsedMs)}; model duration ${formatMs(modelMs)}.`,
+        meta: [`elapsed: ${formatMs(elapsedMs)}`, `model duration: ${formatMs(modelMs)}`, `calls: ${telemetry.length}`]
+      },
+      {
+        label: "Token usage",
+        status: "recorded",
+        detail: `${inputTokens} input token(s), ${outputTokens} output token(s).`,
+        meta: [`input tokens: ${inputTokens}`, `output tokens: ${outputTokens}`, `source: LocalLLMClient telemetry`]
+      }
+    ]
+  };
+};
+
+const llmTelemetryRows = (llmEntry: Record<string, unknown> | undefined): SignalDrilldownRow[] => {
+  const telemetry = recordListValue(llmEntry, "telemetry");
+  if (!telemetry.length) {
+    return [
+      {
+        label: "No telemetry recorded",
+        status: textValue(llmEntry, "status") || "waiting",
+        detail: "No Local AI call metrics were recorded for this selected run.",
+        meta: ["metrics: elapsed / tokens / token/s", "source: LocalLLMClient"]
+      }
+    ];
+  }
+  return telemetry.map((item) => {
+    const elapsed = numberValue(item, "elapsed_ms");
+    const total = numberValue(item, "total_duration_ms");
+    const inputTokens = numberValue(item, "input_tokens");
+    const outputTokens = numberValue(item, "output_tokens");
+    const tps = numberValue(item, "tokens_per_second");
+    return {
+      label: humanizeMarketAgentValue(textValue(item, "task") || "llm call"),
+      status: textValue(item, "status") || "recorded",
+      detail: textValue(item, "error") || `Model ${textValue(item, "model") || "unknown"} completed this AI step.`,
+      meta: [
+        elapsed === null ? "elapsed: not recorded" : `elapsed: ${elapsed}ms`,
+        total === null ? "model duration: not recorded" : `model duration: ${total}ms`,
+        inputTokens === null ? "input tokens: not recorded" : `input tokens: ${inputTokens}`,
+        outputTokens === null ? "output tokens: not recorded" : `output tokens: ${outputTokens}`,
+        tps === null ? "token/s: not recorded" : `token/s: ${tps}`
+      ]
+    };
+  });
+};
+
+const newsFeedRows = (
+  configuredFeeds: string[],
+  newsHealth: MarketAgentProviderHealthEntry | undefined,
+  stats: ReturnType<typeof replayStats>
+): SignalDrilldownRow[] => {
+  const feedDiagnostics = recordListValue(newsHealth?.metadata, "feeds");
+  if (feedDiagnostics.length) {
+    return feedDiagnostics.map((feed) => {
+      const label = newsFeedLabel(textValue(feed, "feed_url") || textValue(feed, "source") || "RSS feed");
+      const status = textValue(feed, "status") || "checked";
+      const headlineCount = numberValue(feed, "headline_count") ?? 0;
+      const includedCount = numberValue(feed, "included_count") ?? 0;
+      const latency = numberValue(feed, "latency_ms");
+      return {
+        label,
+        status,
+        detail: textValue(feed, "reason") || `${headlineCount} headline(s), ${includedCount} included after scoring.`,
+        meta: [
+          "provider: RSSNewsProvider",
+          `source: ${textValue(feed, "feed_url") || label}`,
+          `headlines: ${headlineCount}`,
+          `included: ${includedCount}`,
+          latency === null ? "latency: not recorded" : `latency: ${latency}ms`,
+          `stored: ${stats.newsRows} row(s) in selected replay payload`
+        ]
+      };
+    });
+  }
+  const rawSources = splitSourceList(newsHealth?.raw_source_id);
+  const rawLabels = new Set(rawSources.map(newsFeedLabel));
+  const feedLabels = Array.from(new Set(configuredFeeds.length ? configuredFeeds : defaultNewsFeeds));
+  return feedLabels.map((label) => {
+    const knownUrl = defaultNewsFeedUrls.find((url) => newsFeedLabel(url) === label);
+    const rawSource = rawSources.find((source) => newsFeedLabel(source) === label) || knownUrl || label;
+    const isReported = rawLabels.has(label);
+    const status = newsHealth?.is_available && isReported ? "available" : "configured";
+    const detail =
+      status === "available"
+        ? "This feed was reported by the RSS provider for the selected run."
+        : "Configured feed. The selected run did not report a usable headline from this individual feed.";
+    return {
+      label,
+      status,
+      detail,
+      meta: [
+        "provider: RSSNewsProvider",
+        `source: ${rawSource}`,
+        "storage: news_items",
+        `used_by: raw capture, dedupe, source scoring, theme extraction`,
+        `why: ${stats.newsRows ? `${stats.newsRows} headline row(s) in selected replay payload.` : "No raw headline rows in selected replay payload."}`
+      ]
+    };
+  });
 };
 
 const normalizeStorageLabel = (value: string) => value.replace(/_/g, " ");
@@ -213,9 +406,27 @@ const isMarketClosedSnapshot = (health: MarketAgentProviderHealthEntry | undefin
     health?.is_available &&
       (health.is_stale || normalizeMarketAgentValue(health.data_mode) === "stale" || isExpiredLiveSpot(health)) &&
       ["spot", "spot_snapshot"].includes(normalizeMarketAgentValue(health.source_type)) &&
+      !isSavedCTraderSnapshot(health) &&
+      hasMarketClosedReason(health) &&
       typeof health.current_value === "number" &&
       Number.isFinite(health.current_value)
   );
+
+const isSavedCTraderSnapshot = (health: MarketAgentProviderHealthEntry | undefined) =>
+  Boolean(
+    health?.is_available &&
+      ["spot", "spot_snapshot"].includes(normalizeMarketAgentValue(health.source_type)) &&
+      (
+        normalizeMarketAgentValue(health.data_mode) === "snapshot" ||
+        normalizeMarketAgentValue(health.source_type) === "spot_snapshot" ||
+        normalizeMarketAgentValue(health.stale_reason).includes("saved ctrader quote snapshot")
+      )
+  );
+
+const hasMarketClosedReason = (health: MarketAgentProviderHealthEntry | undefined) => {
+  const reason = String(health?.stale_reason || health?.error || "").toLowerCase();
+  return /market\s+(is\s+)?closed|market\s+reopens/.test(reason);
+};
 
 const healthFreshness = (health: MarketAgentProviderHealthEntry | undefined) => {
   if (!health) return "not recorded";
@@ -295,6 +506,9 @@ export const buildSignalMapModel = ({
   const storageSummary = recordValue(replayEntry, "storageSummary");
   const storageCounts = recordValue(storageSummary, "counts");
   const xauusdHealth = findProviderHealth(healthItems, ["xauusd", "gc=f", "xauusd price"]);
+  const newsHealth = findProviderHealth(healthItems, ["news", "rss", "rss_provider"]);
+  const configuredNewsFeeds = newsFeedSources(contextEntry, newsHealth);
+  const newsSourceLabel = newsFeedSourceSummary(configuredNewsFeeds);
   const cTraderLive = Boolean(xauusdHealth?.is_available && !xauusdHealth.is_stale && !isExpiredLiveSpot(xauusdHealth));
   const cTraderStatus =
     textValue(cTraderEntry, "status") ||
@@ -303,6 +517,7 @@ export const buildSignalMapModel = ({
   const contextStatus = textValue(contextEntry, "status") || (stats.newsRows || stats.calendarRows ? "active" : "collecting");
   const evidenceStatus = textValue(evidenceEntry, "status") || String(evidenceChain?.status || "pending");
   const llmStatus = textValue(llmEntry, "status") || (llmConfig?.llm?.enabled ? "queued" : "skipped");
+  const llmPerformance = llmTelemetrySummary(llmEntry);
   const replayStatus = textValue(replayEntry, "status") || (stats.timelineEvents ? "stored" : "pending");
   const alertStatus = textValue(alertEntry, "status") || (telegramConfig?.telegram?.enabled ? "ready" : "idle");
   const phaseLabel = humanizeMarketAgentValue(monitorStatus?.phase || (monitorStatus?.running ? "running" : "stopped"));
@@ -590,7 +805,7 @@ export const buildSignalMapModel = ({
         lane: "Signal Sources",
         status: contextStatus,
         action: `${numberValue(contextEntry, "newsCount") ?? stats.newsRows} headline(s)`,
-        source: listValue(contextEntry, "sources").join(", ") || "App-managed feeds",
+        source: newsSourceLabel,
         processing: "Relevance filtering and grouping before evidence can use a headline.",
         output: "News grouping + Evidence packet",
         storage: ["news_items"],
@@ -599,14 +814,21 @@ export const buildSignalMapModel = ({
         detail: textValue(contextEntry, "detail") || "News rows provide event context and possible driver themes.",
         drilldown: [
           {
+            title: "Configured news feeds",
+            detail: "News is collected from configured RSS feeds first. Headlines only become evidence after timestamp, dedupe, source scoring, relevance, and market-confirmation checks.",
+            rows: newsFeedRows(configuredNewsFeeds, newsHealth, stats)
+          },
+          {
             title: "News processing path",
             detail: "News starts raw, then becomes deduped, filtered/included, summarized, and finally an evidence candidate only when timestamps and relevance pass.",
             rows: [
               {
                 label: "Raw capture",
                 status: contextStatus,
-                detail: `${stats.newsRows} raw headline row(s) are available in the selected replay payload.`,
-                meta: [`sources: ${listValue(contextEntry, "sources").join(", ") || "app-managed feeds"}`, "storage: news_items"]
+                detail: stats.newsRows
+                  ? `${stats.newsRows} raw headline row(s) are available in the selected replay payload.`
+                  : "No raw headline rows are available in the selected replay payload.",
+                meta: [`source: ${newsSourceLabel}`, `provider: ${providerLabel(newsHealth, "RSSNewsProvider")}`, "storage: news_items"]
               },
               {
                 label: "Dedupe / source scoring",
@@ -860,6 +1082,7 @@ export const buildSignalMapModel = ({
       trace: ["evidence-packet", "cause-review", "validator-repair", "dashboard-output", "storage-derived"],
       detail: textValue(llmEntry, "result") || "Cause review waits for a bounded evidence packet.",
       tone: "ai",
+      performance: llmPerformance,
       drilldown: [
         {
           title: "LLM analysis",
@@ -876,7 +1099,8 @@ export const buildSignalMapModel = ({
               status: textValue(llmEntry, "result") ? "returned" : llmStatus,
               detail: textValue(llmEntry, "result") || "No LLM result text recorded in activity snapshot.",
               meta: ["handoff: validator", "storage: analysis_results"]
-            }
+            },
+            ...llmTelemetryRows(llmEntry)
           ]
         }
       ]

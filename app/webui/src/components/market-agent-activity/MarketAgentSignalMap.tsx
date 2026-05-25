@@ -36,6 +36,8 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
     ...model.candidateSensors.map((sensor) => sensor.requests),
     ...model.discoveredSensors.map((sensor) => sensor.requests)
   ]);
+  const aiTokenRate = cause?.performance?.metrics[0]?.meta.find((item) => item.startsWith("token/s:"))?.replace("token/s:", "").trim();
+  const aiAction = aiTokenRate && !["not available", "not recorded"].includes(aiTokenRate) ? `AI speed ${aiTokenRate} token/s` : cause?.action || "Review evidence";
 
   const boardNode = (input: Omit<SignalNode, "tone"> & { tone?: SignalNode["tone"] }): SignalNode => ({
     tone: input.tone ?? "muted",
@@ -222,7 +224,7 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       lane: "AI",
       group: "Review loop",
       status: cause?.status || "queued",
-      action: cause?.action || "Review evidence",
+      action: aiAction,
       source: "Evidence packet + stored context",
       processing: "Rule baseline runs first, LLM reviews bounded evidence, validator repairs or rejects invalid JSON, then output surfaces update.",
       output: "Dashboard + Latest Evidence + Alert router",
@@ -232,10 +234,12 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       detail: "This is the closed loop: AI may need more assets/news/calendar context, but requests go back through sources and storage instead of inventing facts.",
       tone: "ai",
       badges: [
+        { label: cause?.performance?.detail || "AI performance: not recorded", tone: cause?.performance?.status === "recorded" ? "good" : "muted" },
         { label: "evidence gate", tone: "working" },
         { label: "theme discovery", tone: "ai" },
         { label: "validator guarded", tone: "good" }
       ],
+      performance: cause?.performance,
       drilldown: [
         ...mergeSections([evidence?.drilldown, driverAttention?.drilldown, display?.drilldown, cause?.drilldown, validator?.drilldown, replay?.drilldown, alert?.drilldown]),
         {

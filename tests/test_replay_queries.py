@@ -1,4 +1,5 @@
 from src.xauusd_market_agent.timeline_store import TimelineStore
+import json
 
 
 def test_replay_queries_return_combined_timeline(tmp_path) -> None:
@@ -101,3 +102,98 @@ def test_replay_queries_return_combined_timeline(tmp_path) -> None:
     assert len(replay["month_summary_events"]) == 1
     assert replay["month_summary_events"][0]["label"] == "Yields pressure"
     assert replay["suppressed_alerts"]
+
+
+def test_replay_uses_existing_calendar_when_timeline_has_no_calendar_rows(tmp_path) -> None:
+    calendar_dir = tmp_path / "data" / "Economic_Calendar"
+    year_dir = calendar_dir / "2026"
+    year_dir.mkdir(parents=True)
+    (year_dir / "2026_calendar.json").write_text(
+        json.dumps(
+            [
+                {
+                    "Date": "2026-05-19",
+                    "Day": "Tuesday",
+                    "Time": "08:15",
+                    "Cur.": "USD",
+                    "Imp.": "High",
+                    "Event": "Core CPI (MoM)",
+                    "Actual": "",
+                    "Forecast": "0.3%",
+                    "Previous": "0.2%",
+                },
+                {
+                    "Date": "2026-05-19",
+                    "Day": "Tuesday",
+                    "Time": "08:20",
+                    "Cur.": "NZD",
+                    "Imp.": "Low",
+                    "Event": "Low noise event",
+                    "Actual": "",
+                    "Forecast": "",
+                    "Previous": "",
+                },
+            ]
+        ),
+        encoding="utf-8",
+    )
+    store = TimelineStore(tmp_path / "timeline.sqlite", calendar_dir=calendar_dir)
+
+    replay = store.get_market_replay("2026-05-19T07:00:00+08:00", "2026-05-19T09:00:00+08:00")
+
+    assert [item["title"] for item in replay["calendar_events"]] == ["Core CPI (MoM)", "Low noise event"]
+    assert replay["calendar_events"][0]["data_mode"] == "calendar_context"
+    assert replay["calendar_events"][0]["review_status"] == "unreviewed_context"
+    assert replay["calendar_events"][0]["storage_status"] == "read_from_existing_calendar"
+
+
+def test_replay_prefers_existing_calendar_over_stored_calendar_trace(tmp_path) -> None:
+    calendar_dir = tmp_path / "data" / "Economic_Calendar"
+    year_dir = calendar_dir / "2026"
+    year_dir.mkdir(parents=True)
+    (year_dir / "2026_calendar.json").write_text(
+        json.dumps(
+            [
+                {
+                    "Date": "2026-05-19",
+                    "Day": "Tuesday",
+                    "Time": "08:15",
+                    "Cur.": "USD",
+                    "Imp.": "High",
+                    "Event": "Real Calendar CPI",
+                    "Actual": "",
+                    "Forecast": "0.3%",
+                    "Previous": "0.2%",
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+    store = TimelineStore(tmp_path / "timeline.sqlite", calendar_dir=calendar_dir)
+    run_id = store.record_monitor_run(
+        run_started_at="2026-05-19T08:00:00+08:00",
+        run_type="live",
+        data_mode="live_seen",
+        backfill_required=False,
+        last_successful_run_at=None,
+        no_news_found=False,
+        alert_suppressed_reason=None,
+    )
+    store.record_calendar_events(
+        run_id,
+        [
+            {
+                "scheduled_at": "2026-05-19T08:15:00+08:00",
+                "source": "Stored trace",
+                "title": "Stored Calendar Trace",
+                "relevance_reason": "old trace",
+                "impact_direction_on_gold": "unknown",
+                "data_mode": "live_seen",
+            }
+        ],
+    )
+
+    replay = store.get_market_replay("2026-05-19T07:00:00+08:00", "2026-05-19T09:00:00+08:00")
+
+    assert [item["title"] for item in replay["calendar_events"]] == ["Real Calendar CPI"]
+    assert replay["calendar_events"][0]["source"] == "Economic Calendar"

@@ -187,6 +187,7 @@ class CTraderCliBridge:
         if response.get("ok") is False:
             return response
         quote = response.get("quote") if isinstance(response.get("quote"), dict) else response
+        raw_bars = response.get("bars") if isinstance(response.get("bars"), list) else []
         timestamp = str(quote.get("timestamp") or quote.get("data_timestamp") or _now_iso())
         bid = quote.get("bid")
         ask = quote.get("ask")
@@ -232,7 +233,28 @@ class CTraderCliBridge:
             "fetched_at": _now_iso(),
             "raw_source_id": str(normalized_quote.get("symbol_id") or self.request.symbol),
         }
-        return {"ok": True, "quote": normalized_quote, "provider_health": provider_health}
+        bars: list[dict[str, Any]] = []
+        for bar in raw_bars:
+            if not isinstance(bar, dict):
+                continue
+            bars.append(
+                {
+                    "symbol": str(bar.get("symbol", self.request.symbol)),
+                    "data_timestamp": str(bar.get("data_timestamp") or bar.get("timestamp") or timestamp),
+                    "open": bar.get("open"),
+                    "high": bar.get("high"),
+                    "low": bar.get("low"),
+                    "close": bar.get("close"),
+                    "bid": bar.get("bid", bid),
+                    "ask": bar.get("ask", ask),
+                    "source": str(bar.get("source", "cTrader CLI")),
+                    "source_type": str(bar.get("source_type", "spot_m1")),
+                    "data_mode": str(bar.get("data_mode", "live_seen")),
+                    "is_stale": bool(bar.get("is_stale", is_stale)),
+                    "stale_reason": str(bar.get("stale_reason", stale_reason if is_stale else "")),
+                }
+            )
+        return {"ok": True, "quote": normalized_quote, "bars": bars, "provider_health": provider_health}
 
     def backfill(self, start: str, end: str) -> dict[str, Any]:
         response = self._run_cli("backfill", {"start": start, "end": end})

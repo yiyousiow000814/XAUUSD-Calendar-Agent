@@ -58,6 +58,7 @@ const stateTone = (state: MarketAgentDriverAttentionResponse["states"][number]) 
 const DriverRow = ({ state }: { state: MarketAgentDriverAttentionResponse["states"][number] }) => {
   const tone = stateTone(state);
   const relevance = Math.max(0, Math.min(100, Math.round((state.relevance_score ?? 0) * 100)));
+  const confirmedAt = formatShortTime(state.last_confirmed_at, "Not yet");
   return (
     <article className={`market-agent-driver-row tone-${tone}`}>
       <div className="market-agent-driver-main">
@@ -80,7 +81,7 @@ const DriverRow = ({ state }: { state: MarketAgentDriverAttentionResponse["state
         </span>
         <span>
           <em>Confirmed</em>
-          <b>{formatShortTime(state.last_confirmed_at)}</b>
+          <b title={confirmedAt}>{confirmedAt}</b>
         </span>
       </div>
       <div className="market-agent-driver-score" aria-label={`Relevance ${formatScorePercent(state.relevance_score)}`}>

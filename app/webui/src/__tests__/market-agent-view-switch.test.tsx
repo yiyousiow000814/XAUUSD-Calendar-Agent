@@ -257,7 +257,7 @@ describe("Market Agent view switch", () => {
     expect(screen.getByRole("heading", { name: "Data Sources" })).toBeInTheDocument();
   });
 
-  it("does not double-load heavy Market Agent backend data on entry", async () => {
+  it("loads Market Agent workspace and refreshes Local AI setup once on entry", async () => {
     render(<App />);
 
     await waitFor(() => {
@@ -274,6 +274,6 @@ describe("Market Agent view switch", () => {
     expect(backend.getMarketAgentReplay).toHaveBeenCalledTimes(1);
     expect(backend.getMarketAgentDriverAttention).toHaveBeenCalledTimes(1);
     expect(backend.getMarketAgentProviderHealth).toHaveBeenCalledTimes(1);
-    expect(backend.detectMarketAgentLocalAI).not.toHaveBeenCalled();
+    expect(backend.detectMarketAgentLocalAI).toHaveBeenCalledTimes(1);
   });
 });

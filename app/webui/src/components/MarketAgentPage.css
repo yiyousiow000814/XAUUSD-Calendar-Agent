@@ -505,6 +505,16 @@
   background: #f0a83a;
 }
 
+.market-agent-source-dot span.waiting {
+  background: #f0a83a;
+  box-shadow: 0 0 0 4px rgba(240, 168, 58, 0.12);
+}
+
+.market-agent-source-dot span.closed {
+  background: #8e98a8;
+  box-shadow: 0 0 0 4px rgba(142, 152, 168, 0.12);
+}
+
 .market-agent-kpi-pair,
 .market-agent-kpi-metrics {
   display: flex;

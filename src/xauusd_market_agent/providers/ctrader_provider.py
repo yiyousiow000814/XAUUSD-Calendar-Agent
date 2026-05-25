@@ -257,26 +257,13 @@ class CTraderProvider:
         try:
             response = self.bridge_runner("quote", self._bridge_payload())
             quote = response.get("quote")
+            bars = response.get("bars")
             health_payload = response.get("provider_health")
             if not isinstance(quote, dict) or not isinstance(health_payload, dict):
                 raise RuntimeError(response.get("error") or "cTrader quote bridge returned an invalid payload.")
             self._write_snapshot(quote)
-            row = {
-                "timestamp": str(quote["timestamp"]),
-                "data_timestamp": str(quote["timestamp"]),
-                "symbol": str(quote.get("symbol", self.cli_config.symbol)),
-                "open": float(quote.get("mid", quote.get("bid", 0.0))),
-                "high": float(quote.get("ask", quote.get("mid", 0.0))),
-                "low": float(quote.get("bid", quote.get("mid", 0.0))),
-                "close": float(quote.get("mid", quote.get("bid", 0.0))),
-                "bid": float(quote.get("bid", quote.get("mid", 0.0))),
-                "ask": float(quote.get("ask", quote.get("mid", 0.0))),
-                "source": str(quote.get("source", "cTrader CLI")),
-                "source_type": str(quote.get("source_type", "spot")),
-                "data_mode": str(health_payload.get("data_mode", "live_seen")),
-                "is_stale": bool(health_payload.get("is_stale", False)),
-                "stale_reason": str(health_payload.get("stale_reason", "")),
-            }
+            row = self._quote_row(quote, health_payload)
+            live_rows = self._bar_rows(bars, fallback_quote=quote, health_payload=health_payload) or [row]
             health = _provider_health_from_payload(health_payload, str(quote.get("symbol_id", self.cli_config.symbol)))
             if health.is_stale:
                 history_rows, history_health = self._latest_history_snapshot(
@@ -285,7 +272,7 @@ class CTraderProvider:
                 )
                 if history_rows and history_health is not None:
                     return history_rows, history_health
-            return [row], health
+            return live_rows, health
         except Exception as exc:
             history_rows, history_health = self._latest_history_snapshot(anchor_time, fallback_error=str(exc))
             if history_rows and history_health is not None:
@@ -295,6 +282,61 @@ class CTraderProvider:
                 if rows:
                     return rows, health
             return [], self._unavailable_health(str(exc))
+
+    def _quote_row(self, quote: dict[str, Any], health_payload: dict[str, Any]) -> dict[str, object]:
+        mid = float(quote.get("mid", quote.get("bid", 0.0)))
+        bid = float(quote.get("bid", mid))
+        ask = float(quote.get("ask", mid))
+        return {
+            "timestamp": str(quote["timestamp"]),
+            "data_timestamp": str(quote["timestamp"]),
+            "symbol": str(quote.get("symbol", self.cli_config.symbol)),
+            "open": mid,
+            "high": ask,
+            "low": bid,
+            "close": mid,
+            "bid": bid,
+            "ask": ask,
+            "source": str(quote.get("source", "cTrader CLI")),
+            "source_type": str(quote.get("source_type", "spot")),
+            "data_mode": str(health_payload.get("data_mode", "live_seen")),
+            "is_stale": bool(health_payload.get("is_stale", False)),
+            "stale_reason": str(health_payload.get("stale_reason", "")),
+        }
+
+    def _bar_rows(
+        self,
+        bars: Any,
+        *,
+        fallback_quote: dict[str, Any],
+        health_payload: dict[str, Any],
+    ) -> list[dict[str, object]]:
+        if not isinstance(bars, list):
+            return []
+        rows: list[dict[str, object]] = []
+        for bar in bars:
+            if not isinstance(bar, dict):
+                continue
+            close = bar.get("close", fallback_quote.get("mid", fallback_quote.get("bid", 0.0)))
+            rows.append(
+                {
+                    "timestamp": str(bar.get("data_timestamp", bar.get("timestamp", fallback_quote["timestamp"]))),
+                    "data_timestamp": str(bar.get("data_timestamp", bar.get("timestamp", fallback_quote["timestamp"]))),
+                    "symbol": str(bar.get("symbol", fallback_quote.get("symbol", self.cli_config.symbol))),
+                    "open": float(bar.get("open", close)),
+                    "high": float(bar.get("high", close)),
+                    "low": float(bar.get("low", close)),
+                    "close": float(close),
+                    "bid": float(bar.get("bid", fallback_quote.get("bid", close))),
+                    "ask": float(bar.get("ask", fallback_quote.get("ask", close))),
+                    "source": str(bar.get("source", "cTrader CLI")),
+                    "source_type": str(bar.get("source_type", "spot_m1")),
+                    "data_mode": str(bar.get("data_mode", health_payload.get("data_mode", "live_seen"))),
+                    "is_stale": bool(bar.get("is_stale", health_payload.get("is_stale", False))),
+                    "stale_reason": str(bar.get("stale_reason", health_payload.get("stale_reason", ""))),
+                }
+            )
+        return rows
 
     def backfill(self, start: datetime, end: datetime) -> tuple[list[dict[str, object]], ProviderHealth]:
         if not self.is_configured():

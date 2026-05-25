@@ -689,7 +689,8 @@ export default function App() {
         replayResult,
         providerConfigResult,
         telegramConfigResult,
-        llmConfigResult
+        llmConfigResult,
+        localAISetupResult
       ] = await Promise.all([
         refreshMarketAgentSnapshot(),
         refreshMarketAgentProviderHealth(),
@@ -698,6 +699,7 @@ export default function App() {
         refreshMarketAgentProviderConfig(),
         refreshMarketAgentTelegramConfig(),
         refreshMarketAgentLLMConfig(),
+        refreshMarketAgentLocalAISetup(),
         refreshMarketAgentMonitorStatus()
       ]);
       const preferredRunId =
@@ -712,11 +714,21 @@ export default function App() {
         setMarketAgentEvidence(null);
         setMarketAgentSelectedRunId(null);
       }
-      return { snapshotResult, providerResult, driverResult, replayResult, providerConfigResult, telegramConfigResult, llmConfigResult };
+      return {
+        snapshotResult,
+        providerResult,
+        driverResult,
+        replayResult,
+        providerConfigResult,
+        telegramConfigResult,
+        llmConfigResult,
+        localAISetupResult
+      };
     },
     [
       refreshMarketAgentDriverAttention,
       refreshMarketAgentEvidence,
+      refreshMarketAgentLocalAISetup,
       refreshMarketAgentMonitorStatus,
       refreshMarketAgentProviderConfig,
       refreshMarketAgentProviderHealth,

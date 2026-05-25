@@ -10,8 +10,9 @@ from .models import DriverAttentionState
 
 
 class TimelineStore:
-    def __init__(self, path: Path) -> None:
+    def __init__(self, path: Path, calendar_dir: Path | None = None) -> None:
         self.path = Path(path)
+        self.calendar_dir = Path(calendar_dir) if calendar_dir is not None else None
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._init_schema()
 
@@ -715,6 +716,90 @@ class TimelineStore:
             ).fetchall()
         return self._rows_to_payloads(rows)
 
+    def _calendar_dirs(self) -> list[Path]:
+        candidates: list[Path] = []
+        if self.calendar_dir is not None:
+            candidates.append(self.calendar_dir)
+        candidates.extend(
+            [
+                self.path.parent / "data" / "Economic_Calendar",
+                self.path.parent.parent / "data" / "Economic_Calendar",
+            ]
+        )
+        unique: list[Path] = []
+        for candidate in candidates:
+            if candidate.exists() and candidate not in unique:
+                unique.append(candidate)
+        return unique
+
+    @staticmethod
+    def _calendar_text(row: dict[str, Any], key: str) -> str:
+        value = row.get(key)
+        return "" if value is None else str(value).strip()
+
+    @classmethod
+    def _calendar_currency(cls, row: dict[str, Any]) -> str:
+        return cls._calendar_text(row, "Cur.") or cls._calendar_text(row, "Currency")
+
+    def _get_existing_calendar_context(self, start: str, end: str) -> list[dict[str, Any]]:
+        try:
+            start_year = int(start[:4])
+            end_year = int(end[:4])
+        except ValueError:
+            return []
+        rows: list[dict[str, Any]] = []
+        for calendar_dir in self._calendar_dirs():
+            for year in range(start_year, end_year + 1):
+                path = calendar_dir / str(year) / f"{year}_calendar.json"
+                if not path.exists():
+                    continue
+                payload = json.loads(path.read_text(encoding="utf-8"))
+                if not isinstance(payload, list):
+                    continue
+                for item in payload:
+                    if not isinstance(item, dict):
+                        continue
+                    date = self._calendar_text(item, "Date")
+                    time = self._calendar_text(item, "Time")
+                    title = self._calendar_text(item, "Event")
+                    if not date or not time or not title:
+                        continue
+                    if time.lower() == "all day":
+                        scheduled_at = f"{date}T00:00:00+08:00"
+                    elif len(time) == 5:
+                        scheduled_at = f"{date}T{time}:00+08:00"
+                    else:
+                        continue
+                    if not (start <= scheduled_at <= end):
+                        continue
+                    rows.append(
+                        {
+                            "scheduled_at": scheduled_at,
+                            "source": "Economic Calendar",
+                            "source_type": "existing_calendar",
+                            "title": title,
+                            "currency": self._calendar_currency(item),
+                            "impact": self._calendar_text(item, "Imp."),
+                            "context_type": (
+                                "liquidity_context"
+                                if self._calendar_text(item, "Imp.").lower() == "holiday"
+                                else "calendar_context"
+                            ),
+                            "actual": self._calendar_text(item, "Actual"),
+                            "forecast": self._calendar_text(item, "Forecast"),
+                            "previous": self._calendar_text(item, "Previous"),
+                            "relevance_reason": "Existing Economic Calendar event. Relevance requires evidence or AI review.",
+                            "impact_direction_on_gold": "unknown",
+                            "data_mode": "calendar_context",
+                            "review_status": "unreviewed_context",
+                            "storage_status": "read_from_existing_calendar",
+                            "source_path": str(calendar_dir),
+                        }
+                    )
+            if rows:
+                break
+        return sorted(rows, key=lambda row: str(row.get("scheduled_at", "")))
+
     def get_driver_attention_timeline(self, start: str, end: str) -> list[dict[str, Any]]:
         with self._connect() as connection:
             rows = connection.execute(
@@ -783,11 +868,14 @@ class TimelineStore:
             for symbol in related_symbols
         }
         timeline_events = self.get_timeline(start, end)
+        calendar_events = self._get_existing_calendar_context(start, end)
+        if not calendar_events:
+            calendar_events = self.get_calendar_events(start, end)
         return {
             "price_series": self._rows_to_payloads(xau_rows),
             "related_assets": related,
             "news_items": self.get_news_items(start, end),
-            "calendar_events": self.get_calendar_events(start, end),
+            "calendar_events": calendar_events,
             "driver_attention_timeline": self.get_driver_attention_timeline(start, end),
             "timeline_events": timeline_events,
             "month_summary_events": self._month_summary_events(timeline_events),

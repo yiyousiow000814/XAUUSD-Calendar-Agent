@@ -26,6 +26,7 @@ def build_provider_health(
     previous_value: float | None = None,
     change_value: float | None = None,
     change_unit: str = "",
+    metadata: dict[str, Any] | None = None,
     fetched_at: str | None = None,
     data_timestamp: str | None = None,
 ) -> ProviderHealth:
@@ -46,6 +47,7 @@ def build_provider_health(
         previous_value=previous_value,
         change_value=change_value,
         change_unit=change_unit,
+        metadata=metadata or {},
     )
 
 

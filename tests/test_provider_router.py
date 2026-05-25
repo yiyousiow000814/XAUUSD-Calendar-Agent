@@ -1,5 +1,6 @@
 import sqlite3
 from datetime import datetime
+import json
 from pathlib import Path
 
 from src.xauusd_market_agent.config import MarketAgentConfig
@@ -7,6 +8,29 @@ from src.xauusd_market_agent.live_pipeline import build_live_evidence_packet, ru
 from src.xauusd_market_agent.providers.ctrader_provider import CTraderProvider
 from src.xauusd_market_agent.providers.provider_router import ProviderRouter
 from src.xauusd_market_agent.timeline_store import TimelineStore
+
+
+def test_calendar_provider_reports_dataset_gap_when_calendar_stops_before_anchor(tmp_path) -> None:
+    calendar_dir = tmp_path / "calendar"
+    year_dir = calendar_dir / "2026"
+    year_dir.mkdir(parents=True)
+    (year_dir / "2026_calendar.json").write_text(
+        json.dumps(
+            [
+                {"Date": "2026-04-30", "Time": "09:00", "Cur.": "USD", "Event": "GDP", "Imp.": "High"},
+            ]
+        ),
+        encoding="utf-8",
+    )
+    router = ProviderRouter(csv_calendar_dir=calendar_dir)
+
+    rows, health = router.fetch_calendar_context(datetime.fromisoformat("2026-05-25T11:30:00+08:00"))
+
+    assert rows == []
+    assert health.is_available is False
+    assert health.data_mode == "dataset_gap"
+    assert "30-04-2026" in health.stale_reason
+    assert health.metadata["dataset_end"] == "2026-04-30"
 
 
 class StubMarketProvider:
@@ -215,7 +239,8 @@ def test_missing_csv_and_yahoo_disabled_returns_unavailable_provider_health(tmp_
     assert outcome["analysis"]["main_driver"] == "unknown"
 
 
-def test_proxy_source_is_recorded_as_chain_status_not_live_evidence(tmp_path) -> None:
+def test_proxy_source_is_recorded_as_chain_status_not_live_evidence(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("CTRADER_ENABLED", "false")
     fixture_dir = Path(__file__).parent / "fixtures" / "providers"
     cfg = MarketAgentConfig(
         repo_root=tmp_path,
@@ -243,6 +268,7 @@ def test_proxy_source_is_recorded_as_chain_status_not_live_evidence(tmp_path) ->
 
 
 def test_ctrader_disabled_build_does_not_promote_yahoo_proxy_to_live(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("CTRADER_ENABLED", "false")
     monkeypatch.setenv("CTRADER_ACCOUNT_ID", "acct")
     monkeypatch.setenv("CTRADER_CTID", "trader@example.com")
     monkeypatch.setenv("CTRADER_PASSWORD", "secret")
@@ -268,16 +294,19 @@ def test_ctrader_disabled_build_does_not_promote_yahoo_proxy_to_live(monkeypatch
 
 
 class StubCTraderProvider:
-    def __init__(self, *, rows, health, backfill_rows=None, backfill_health=None):
+    def __init__(self, *, rows, health, backfill_rows=None, backfill_health=None, backfill_error=None):
         self.rows = rows
         self.health = health
         self.backfill_rows = backfill_rows if backfill_rows is not None else rows
         self.backfill_health = backfill_health if backfill_health is not None else health
+        self.backfill_error = backfill_error
 
     def fetch_latest(self, anchor_time):
         return self.rows, self.health
 
     def backfill(self, start, end):
+        if self.backfill_error:
+            raise self.backfill_error
         return self.backfill_rows, self.backfill_health
 
 
@@ -325,6 +354,45 @@ def test_fresh_ctrader_spot_wins_over_yahoo_proxy(tmp_path) -> None:
     assert health.source_type == "spot"
     assert router.last_market_provider_meta["selected_market_provider"] == "ctrader_spot"
     assert router.last_market_provider_meta["provider_chain_status"][0]["provider"] == "ctrader_spot"
+
+
+def test_ctrader_backfill_failure_falls_back_to_yahoo_proxy(tmp_path) -> None:
+    fixture_dir = Path(__file__).parent / "fixtures" / "providers"
+    health_builder = __import__("src.xauusd_market_agent.provider_health", fromlist=["build_provider_health"]).build_provider_health
+    ctrader = StubCTraderProvider(
+        rows=[],
+        health=health_builder(
+            source="cTrader",
+            source_type="spot",
+            data_mode="live_seen",
+            is_available=True,
+            is_stale=False,
+            current_value=4501.0,
+            data_timestamp="2026-05-19T07:20:00+08:00",
+        ),
+        backfill_error=RuntimeError("The installed cTrader CLI does not expose this command through the local adapter."),
+    )
+    router = ProviderRouter(
+        yahoo_enabled=True,
+        yahoo_fixture_dir=fixture_dir,
+        csv_fallback_enabled=False,
+        ctrader_provider=ctrader,
+    )
+
+    rows, health = router.backfill_market_context(
+        datetime.fromisoformat("2026-05-19T07:20:00+08:00"),
+        datetime.fromisoformat("2026-05-25T11:00:00+08:00"),
+    )
+
+    assert rows
+    assert health.source == "GC=F"
+    assert router.last_market_provider_meta["selected_market_provider"] == "yahoo_gc_f_proxy"
+    chain = router.last_market_provider_meta["provider_chain_status"]
+    assert chain[0]["provider"] == "ctrader_spot"
+    assert chain[0]["is_available"] is False
+    assert chain[0]["data_mode"] == "unavailable"
+    assert "does not expose this command" in chain[0]["stale_reason"]
+    assert any(item["provider"] == "yahoo_gc_f_proxy" for item in chain)
 
 
 def test_stale_ctrader_keeps_last_spot_price_without_promoting_proxy(tmp_path) -> None:

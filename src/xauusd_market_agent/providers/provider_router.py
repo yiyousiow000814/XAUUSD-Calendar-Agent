@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 from datetime import datetime
+import json
 from pathlib import Path
 from typing import Any
 
@@ -314,7 +315,20 @@ class ProviderRouter:
                 }
                 return rows, health
             if candidate is self.ctrader_provider:
-                rows, health = candidate.backfill(start, end)
+                try:
+                    rows, health = candidate.backfill(start, end)
+                except Exception as exc:
+                    health = build_provider_health(
+                        source="cTrader",
+                        source_type="spot",
+                        data_mode="unavailable",
+                        is_available=False,
+                        is_stale=True,
+                        stale_reason=str(exc),
+                        error=str(exc),
+                        data_timestamp=end.isoformat(),
+                    )
+                    rows = []
                 chain_status.append(self._build_chain_entry("ctrader_spot", health))
                 if health.is_available and rows:
                     self.last_market_provider_meta = {
@@ -589,6 +603,27 @@ class ProviderRouter:
             }
             for item in items
         ]
+        coverage = self._calendar_dataset_coverage(anchor_time.year)
+        if not rows and coverage and coverage["end"] < anchor_time.date().isoformat():
+            return rows, build_provider_health(
+                source="Calendar",
+                source_type="local_csv_fallback",
+                data_mode="dataset_gap",
+                is_available=False,
+                is_stale=True,
+                stale_reason=(
+                    f"Economic Calendar dataset ends at {datetime.fromisoformat(coverage['end']).strftime('%d-%m-%Y')}; "
+                    f"current run is {anchor_time.strftime('%d-%m-%Y')}."
+                ),
+                current_value=0.0,
+                data_timestamp=anchor_time.isoformat(),
+                metadata={
+                    "dataset_start": coverage["start"],
+                    "dataset_end": coverage["end"],
+                    "row_count": coverage["row_count"],
+                    "calendar_dir": str(self.csv_calendar_dir),
+                },
+            )
         return rows, build_provider_health(
             source="Calendar",
             source_type="local_csv_fallback",
@@ -598,7 +633,26 @@ class ProviderRouter:
             stale_reason="CSV fallback is debug/import only." if data_mode != "live_seen" and rows else "",
             current_value=float(len(rows)),
             data_timestamp=rows[-1]["scheduled_at"] if rows else anchor_time.isoformat(),
+            metadata={
+                **(coverage or {}),
+                "calendar_dir": str(self.csv_calendar_dir) if self.csv_calendar_dir else "",
+            },
         )
+
+    def _calendar_dataset_coverage(self, year: int) -> dict[str, Any] | None:
+        if self.csv_calendar_dir is None:
+            return None
+        year_path = self.csv_calendar_dir / str(year) / f"{year}_calendar.json"
+        if not year_path.exists():
+            return None
+        try:
+            payload = json.loads(year_path.read_text(encoding="utf-8"))
+        except Exception:
+            return None
+        dates = sorted({str(row.get("Date", "")).strip() for row in payload if str(row.get("Date", "")).strip()})
+        if not dates:
+            return {"start": "", "end": "", "row_count": 0}
+        return {"start": dates[0], "end": dates[-1], "row_count": len(payload)}
 
     def _normalize_related_rows(
         self,

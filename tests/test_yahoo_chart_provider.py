@@ -38,3 +38,36 @@ def test_yahoo_chart_provider_marks_stale_latest_point() -> None:
     assert rows[-1]["is_stale"] is True
     assert health.is_stale is True
     assert health.stale_reason
+
+
+def test_yahoo_chart_provider_uses_browser_user_agent_for_remote_fetch(monkeypatch) -> None:
+    captured = {}
+
+    class FakeResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def read(self):
+            return b'{"chart":{"result":[{"timestamp":[],"indicators":{"quote":[{"open":[],"high":[],"low":[],"close":[]}]}}]}}'
+
+    def fake_urlopen(request, timeout):
+        captured["url"] = request.full_url
+        captured["user_agent"] = request.headers.get("User-agent") or request.headers.get("User-Agent")
+        captured["timeout"] = timeout
+        return FakeResponse()
+
+    monkeypatch.setattr("src.xauusd_market_agent.providers.yahoo_chart.urlopen", fake_urlopen)
+    provider = YahooChartProvider()
+
+    provider.fetch_series(
+        "GC=F",
+        datetime.fromisoformat("2026-05-19T06:50:00+08:00"),
+        datetime.fromisoformat("2026-05-19T07:20:00+08:00"),
+    )
+
+    assert "GC=F" in captured["url"]
+    assert "Mozilla" in captured["user_agent"]
+    assert captured["timeout"] == 15

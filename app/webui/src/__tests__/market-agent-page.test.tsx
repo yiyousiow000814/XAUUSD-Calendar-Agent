@@ -775,7 +775,7 @@ describe("MarketAgentPage", () => {
     expect(screen.queryByText(/Price series/i)).not.toBeInTheDocument();
   });
 
-  it("does not treat an expired cTrader spot payload as live current evidence", () => {
+  it("does not treat an expired cTrader spot payload as live or market closed current evidence", () => {
     const staleSpotHealth: MarketAgentProviderHealthResponse = {
       ...providerHealth,
       items: providerHealth.items.map((item) =>
@@ -796,13 +796,44 @@ describe("MarketAgentPage", () => {
 
     renderMarketAgentPage({ providerHealth: staleSpotHealth });
 
-    expect(screen.getAllByText(/Market closed/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/cTrader not refreshing/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Last live quote/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Market closed/i)).not.toBeInTheDocument();
     expect(screen.getByText(/Current driver ranking paused/i)).toBeInTheDocument();
     expect(screen.queryByText(/cTrader \(Spot\)/i)).not.toBeInTheDocument();
     expect(screen.getByText(/4,479\.00/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /^Evidence$/i }));
     expect(screen.getByText(/Collected Context/i)).toBeInTheDocument();
     expect(screen.queryByText(/Xauusd: Live Data/i)).not.toBeInTheDocument();
+  });
+
+  it("labels a saved cTrader snapshot as waiting instead of market closed", () => {
+    const savedSnapshotHealth: MarketAgentProviderHealthResponse = {
+      ...providerHealth,
+      items: providerHealth.items.map((item) =>
+        item.provider_key === "xauusd"
+          ? {
+              ...item,
+              source: "cTrader",
+              source_type: "spot_snapshot",
+              data_mode: "snapshot",
+              is_available: true,
+              is_stale: true,
+              stale_reason: "Loaded saved cTrader quote snapshot. Live refresh runs only during monitor/connect/test actions.",
+              current_value: 4508.1,
+              data_timestamp: "2026-05-22T20:56:59Z",
+              fetched_at: freshProviderTimestamp()
+            }
+          : item
+      )
+    };
+
+    renderMarketAgentPage({ providerHealth: savedSnapshotHealth });
+
+    expect(screen.getAllByText(/cTrader paused/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Saved snapshot/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Market closed/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/4,508\.10/i)).toBeInTheDocument();
   });
 
   it("shows a cTrader market-closed snapshot in Activity instead of ready with no live job", () => {
@@ -1274,23 +1305,105 @@ describe("MarketAgentPage", () => {
     expect(screen.getByRole("button", { name: /Download Qwen3\.5 4B/i })).toBeEnabled();
   });
 
-  it("shows already downloaded Local AI models instead of asking for another download", () => {
+  it("shows already downloaded Local AI models instead of asking for another download", async () => {
     const installedSetup: MarketAgentLLMSetupResponse = {
       ...localAiSetup,
       status: "model_ready",
       message: "Recommended model is installed.",
       installedModels: [{ name: "qwen3.5:4b", model: "qwen3.5:4b", size: 3389971840, source: "app_local_models" }]
     };
+    const saveLLM = vi.fn(async (input) => ({
+      ...llmConfig,
+      llm: {
+        ...llmConfig.llm!,
+        ...input
+      }
+    }));
 
-    renderMarketAgentPage({ localAiSetup: installedSetup });
+    renderMarketAgentPage({
+      localAiSetup: installedSetup,
+      onDetectLocalAI: async () => installedSetup,
+      onSaveLLMConfig: saveLLM
+    });
     fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
     fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
 
     expect(screen.getByText(/Local AI is ready/i)).toBeInTheDocument();
     expect(screen.getByText(/No download is needed/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Qwen3\.5 4B/i).length).toBeGreaterThan(0);
-    expect(screen.getByRole("button", { name: /Use this model/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Use this model/i }));
+    await waitFor(() =>
+      expect(saveLLM).toHaveBeenCalledWith(
+        expect.objectContaining({
+          enabled: true,
+          model: "qwen3.5:4b"
+        })
+      )
+    );
+    expect(await screen.findByRole("button", { name: /Using this model/i })).toBeInTheDocument();
+    expect(screen.getByText(/Qwen3\.5 4B is now the Local AI model/i)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Download Qwen3\.5 4B/i })).not.toBeInTheDocument();
+  });
+
+  it("keeps the saved Local AI model selected after returning to the tab", () => {
+    const installedSetup: MarketAgentLLMSetupResponse = {
+      ...localAiSetup,
+      status: "model_ready",
+      message: "Recommended model is installed.",
+      installedModels: [{ name: "qwen3.5:4b", model: "qwen3.5:4b", size: 3389971840, source: "app_local_models" }]
+    };
+    const savedLLMConfig: MarketAgentLLMConfigResponse = {
+      ...llmConfig,
+      llm: {
+        ...llmConfig.llm!,
+        enabled: true,
+        model: "qwen3.5:4b",
+        lastStatus: "model_ready"
+      }
+    };
+
+    renderMarketAgentPage({
+      localAiSetup: installedSetup,
+      llmConfig: savedLLMConfig,
+      onDetectLocalAI: async () => installedSetup
+    });
+    fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
+
+    const appliedButton = screen.getByRole("button", { name: /Using this model/i });
+    expect(appliedButton).toBeDisabled();
+    expect(screen.queryByRole("button", { name: /^Use this model$/i })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /^cTrader$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
+
+    expect(screen.getByRole("button", { name: /Using this model/i })).toBeDisabled();
+  });
+
+  it("shows the actual Auto Local AI model when installed model differs from the recommendation", () => {
+    const installedSetup: MarketAgentLLMSetupResponse = {
+      ...localAiSetup,
+      status: "model_ready",
+      message: "A local model is installed.",
+      recommendedModel: {
+        name: "qwen3.5:0.8b",
+        tier: "lightweight",
+        label: "Lightweight",
+        approximateSizeBytes: 650_000_000,
+        diskLabel: "~650 MB",
+        reason: "CPU-only machines can use the lightweight model."
+      },
+      installedModels: [{ name: "qwen3.5:4b", model: "qwen3.5:4b", size: 3389971840, source: "app_local_models" }]
+    };
+
+    renderMarketAgentPage({ localAiSetup: installedSetup, onDetectLocalAI: async () => installedSetup });
+    fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
+
+    const autoOption = screen.getByRole("button", { name: /^Auto$/i });
+    expect(within(autoOption).getByText(/Qwen3\.5 4B/i)).toBeInTheDocument();
+    expect(within(autoOption).queryByText(/~650 MB/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/Qwen3\.5 4B is available locally/i)).toBeInTheDocument();
   });
 
   it("renders Local AI pull progress bytes and percent while downloading", () => {
@@ -2014,6 +2127,28 @@ describe("MarketAgentPage", () => {
                 input: "LLM JSON + allowed_candidate_drivers + blocked_drivers",
                 output: "validated"
               }
+            ],
+            telemetry: [
+              {
+                task: "cause_review",
+                status: "ok",
+                model: "qwen3.5:4b",
+                elapsed_ms: 1840,
+                total_duration_ms: 1630,
+                input_tokens: 740,
+                output_tokens: 92,
+                tokens_per_second: 56.44
+              },
+              {
+                task: "display_summary",
+                status: "ok",
+                model: "qwen3.5:4b",
+                elapsed_ms: 920,
+                total_duration_ms: 780,
+                input_tokens: 280,
+                output_tokens: 44,
+                tokens_per_second: 56.41
+              }
             ]
           },
           replay: {
@@ -2157,9 +2292,18 @@ describe("MarketAgentPage", () => {
     fireEvent.click(within(within(agentActivity).getByLabelText(/Source groups/i)).getByRole("button", { name: /^News:/i }));
     const newsDetail = within(agentActivity).getByRole("complementary", { name: /News detail view/i });
     fireEvent.click(within(newsDetail).getByRole("button", { name: /^Records$/i }));
+    expect(within(newsDetail).getByText(/Configured news feeds/i)).toBeInTheDocument();
+    expect(within(newsDetail).getByText(/Federal Reserve press feed/i)).toBeInTheDocument();
+    expect(within(newsDetail).getByText(/CNBC Top News RSS/i)).toBeInTheDocument();
+    expect(within(newsDetail).getByText(/MarketWatch Top Stories RSS/i)).toBeInTheDocument();
+    expect(within(newsDetail).queryByText(/ForexFactory/i)).not.toBeInTheDocument();
+    expect(within(newsDetail).queryByText(/Reuters/i)).not.toBeInTheDocument();
+    fireEvent.click(within(newsDetail).getByRole("button", { name: /^Summary$/i }));
+    expect(within(newsDetail).getByText(/News processing \+ Storage \+ Evidence packet/i)).toBeInTheDocument();
+    fireEvent.click(within(newsDetail).getByRole("button", { name: /^Records$/i }));
     expect(within(newsDetail).getAllByText(/Raw capture/i).length).toBeGreaterThan(0);
     expect(within(newsDetail).getByText(/Dedupe \/ source scoring/i)).toBeInTheDocument();
-    expect(within(newsDetail).getByText(/Theme extraction/i)).toBeInTheDocument();
+    expect(within(newsDetail).getAllByText(/Theme extraction/i).length).toBeGreaterThan(0);
     expect(within(newsDetail).getAllByText(/Evidence candidate/i).length).toBeGreaterThan(0);
     backToMap();
 
@@ -2174,6 +2318,9 @@ describe("MarketAgentPage", () => {
 
     fireEvent.click(within(agentActivity).getByRole("button", { name: /AI Analysis/i }));
     const aiDetail = within(agentActivity).getByRole("complementary", { name: /AI Analysis detail view/i });
+    expect(within(aiDetail).getByText(/AI Performance/i)).toBeInTheDocument();
+    expect(within(aiDetail).getAllByText(/56\.44 token\/s/i).length).toBeGreaterThan(0);
+    expect(within(aiDetail).getByText(/2 Local AI call/i)).toBeInTheDocument();
     fireEvent.click(within(aiDetail).getByRole("button", { name: /^Records$/i }));
     expect(within(aiDetail).getByText(/Evidence gate decisions/i)).toBeInTheDocument();
     expect(within(aiDetail).getByText(/Driver lifecycle/i)).toBeInTheDocument();
@@ -2196,6 +2343,19 @@ describe("MarketAgentPage", () => {
     expect(within(outputsDetail).getByText(/No current live alert passed the gate/i)).toBeInTheDocument();
     expect(screen.queryByText(/Background activity/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/News feeds not configured|No news provider configured/i)).not.toBeInTheDocument();
+  });
+
+  it("shows a clear AI performance empty state when Local AI did not run", () => {
+    renderMarketAgentPage();
+
+    fireEvent.click(screen.getByRole("button", { name: /^Activity$/i }));
+    const agentActivity = screen.getByLabelText(/Agent activity board/i);
+    fireEvent.click(within(agentActivity).getByRole("button", { name: /AI Analysis/i }));
+    const aiDetail = within(agentActivity).getByRole("complementary", { name: /AI Analysis detail view/i });
+
+    expect(within(aiDetail).getByText(/AI Performance/i)).toBeInTheDocument();
+    expect(within(aiDetail).getByText(/No Local AI call ran in this selected run/i)).toBeInTheDocument();
+    expect(within(aiDetail).getByText(/0 calls recorded/i)).toBeInTheDocument();
   });
 
   it("shows a readable local CSV fallback warning", () => {
@@ -2445,6 +2605,40 @@ describe("MarketAgentPage", () => {
     expect(screen.getByText(/Replay unavailable\./i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /^Evidence$/i }));
     expect(screen.getByText(/Evidence unavailable\./i)).toBeInTheDocument();
+  });
+
+  it("summarizes configured news feeds in Provider Health instead of listing every feed", () => {
+    renderMarketAgentPage({
+      providerHealth: {
+        ...providerHealth,
+        items: [
+          ...providerHealth.items,
+          {
+            provider_key: "news",
+            source: "News",
+            source_type: "news",
+            data_mode: "unavailable",
+            is_available: false,
+            is_stale: false,
+            raw_source_id: [
+              "https://www.federalreserve.gov/feeds/press_all.xml",
+              "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+              "https://www.marketwatch.com/rss/topstories"
+            ].join("\n")
+          }
+        ]
+      }
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /^Provider Health$/i }));
+    const providerHealthView = screen.getByRole("heading", { name: /^Provider Health$/i }).closest("section");
+    expect(providerHealthView).not.toBeNull();
+    const view = within(providerHealthView as HTMLElement);
+    expect(view.getByText(/News collector/i)).toBeInTheDocument();
+    expect(view.getByText(/RSS feeds \/ 3 configured/i)).toBeInTheDocument();
+    expect(view.queryByText(/Federal Reserve press feed/i)).not.toBeInTheDocument();
+    expect(view.queryByText(/CNBC Top News RSS/i)).not.toBeInTheDocument();
+    expect(view.queryByText(/MarketWatch Top Stories RSS/i)).not.toBeInTheDocument();
   });
 });
 

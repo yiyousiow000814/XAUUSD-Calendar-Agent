@@ -577,12 +577,30 @@ const isCTraderSpotSource = (item: MarketAgentProviderHealthEntry | null | undef
   return sourceType === "spot" || sourceType === "spot_snapshot";
 };
 
+const isSavedCTraderSnapshot = (item: MarketAgentProviderHealthEntry | null | undefined) =>
+  Boolean(
+    item?.is_available &&
+    isCTraderSpotSource(item) &&
+    (
+      normalizeMarketAgentValue(item.data_mode) === "snapshot" ||
+      normalizeMarketAgentValue(item.source_type) === "spot_snapshot" ||
+      normalizeMarketAgentValue(item.stale_reason).includes("saved ctrader quote snapshot")
+    )
+  );
+
+const hasMarketClosedReason = (item: MarketAgentProviderHealthEntry | null | undefined) => {
+  const reason = String(item?.stale_reason || item?.error || "").toLowerCase();
+  return /market\s+(is\s+)?closed|market\s+reopens/.test(reason);
+};
+
 const isMarketClosedSpot = (item: MarketAgentProviderHealthEntry | null | undefined) =>
   Boolean(
     item?.is_available &&
     item.is_stale &&
     isCTraderSpotSource(item) &&
-    numberValue(item.current_value) !== null
+    numberValue(item.current_value) !== null &&
+    !isSavedCTraderSnapshot(item) &&
+    hasMarketClosedReason(item)
   );
 
 const hasExpiredLiveXauusdSpot = (item: MarketAgentProviderHealthEntry | null | undefined, nowMs: number) =>
@@ -599,12 +617,13 @@ const hasExpiredLiveXauusdSpot = (item: MarketAgentProviderHealthEntry | null | 
 
 const liveXauusdStatus = (item: MarketAgentProviderHealthEntry | null | undefined, nowMs: number = Date.now()) => {
   if (isLiveXauusdSpot(item, nowMs)) return { label: "cTrader (Spot)", data: "Live", valueMode: "live" as const };
+  if (isSavedCTraderSnapshot(item)) return { label: "cTrader paused", data: "Saved snapshot", valueMode: "waiting" as const };
   if (isMarketClosedSpot(item)) return { label: "Market closed", data: "Market closed", valueMode: "closed" as const };
   if (hasExpiredLiveXauusdSpot(item, nowMs) && numberValue(item?.current_value) !== null) {
-    return { label: "Market closed", data: "Market closed", valueMode: "closed" as const };
+    return { label: "cTrader not refreshing", data: "Last live quote", valueMode: "waiting" as const };
   }
-  if (hasExpiredLiveXauusdSpot(item, nowMs)) return { label: "Waiting for cTrader", data: "Stale", valueMode: "waiting" as const };
-  return { label: "Waiting for cTrader", data: "Waiting", valueMode: "waiting" as const };
+  if (hasExpiredLiveXauusdSpot(item, nowMs)) return { label: "cTrader not refreshing", data: "Stale", valueMode: "waiting" as const };
+  return { label: "cTrader not connected", data: "No live quote", valueMode: "waiting" as const };
 };
 
 const formatCountdownSeconds = (seconds: number) =>
@@ -740,6 +759,12 @@ const inferTimelineKind = (item: TimelineRow): TimelineKind => {
 };
 
 const formatTimelineImpact = (item: TimelineRow) => {
+  if (item.source === "calendar") {
+    const impact = String(item.payload?.impact ?? "").toLowerCase();
+    const contextType = String(item.payload?.context_type ?? "");
+    if (impact === "holiday" || contextType === "liquidity_context") return "Liquidity context";
+    return "Calendar context";
+  }
   const payloadImpact = numberValue(item.payload?.impact_percent);
   const segment = item.payload?.segment as Record<string, unknown> | undefined;
   const segmentImpact = numberValue(segment?.move_percent);
@@ -861,6 +886,10 @@ const writeSeenAlertIds = (ids: string[]) => {
 const latestTimelineRows = (payload: MarketAgentReplayPayload | undefined): TimelineRow[] => {
   if (!payload) return [];
   const eventRunIds = new Set(payload.timeline_events.map((item) => item.monitor_run_id).filter(Boolean));
+  const reviewedCalendarEvents = payload.calendar_events.filter((item) => {
+    const reviewStatus = normalizeMarketAgentValue(item.review_status);
+    return reviewStatus && reviewStatus !== "unreviewed_context";
+  });
   return [
     ...payload.timeline_events.map((item) => ({
       key: `event-${item.monitor_run_id}-${item.event_time}`,
@@ -882,7 +911,7 @@ const latestTimelineRows = (payload: MarketAgentReplayPayload | undefined): Time
       payload: item,
       source: "news" as const
     })),
-    ...payload.calendar_events.map((item, index) => ({
+    ...reviewedCalendarEvents.map((item, index) => ({
       key: `calendar-${index}-${String(item.scheduled_at ?? item.title ?? "")}`,
       time: String(item.scheduled_at ?? ""),
       title: summaryTitle(item, String(item.title ?? "Calendar event")),
@@ -1298,6 +1327,7 @@ function MarketAgentDashboard({
   const xauusdHealth = findProviderHealth(providerHealth?.items, ["xauusd", "gc=f", "xauusd price"]);
   const xauusdStatus = liveXauusdStatus(xauusdHealth, nowMs);
   const hasTrustedSpotPrice = xauusdStatus.valueMode === "live" || xauusdStatus.valueMode === "closed";
+  const hasDisplaySpotPrice = hasTrustedSpotPrice || (xauusdStatus.valueMode === "waiting" && numberValue(xauusdHealth?.current_value) !== null);
   const chainStatus = fallbackEvidenceChainStatus(selectedEvidence, xauusdStatus);
   const currentConclusionReady = canShowCurrentConclusion(selectedEvidence, xauusdStatus.valueMode === "live", chainStatus);
   const price = hasTrustedSpotPrice ? latestPrice(replay) : null;
@@ -1336,6 +1366,7 @@ function MarketAgentDashboard({
   const moveChange = currentConclusionReady ? numberValue(price?.change_pct ?? price?.change_15m_pct ?? xauusdHealth?.change_value) : null;
   const sourceType = normalizeMarketAgentValue(xauusdHealth?.source_type ?? price?.source_type);
   const priceSourceLabel = xauusdStatus.label;
+  const priceSourceDotClass = xauusdStatus.valueMode === "live" ? "spot" : xauusdStatus.valueMode === "closed" ? "closed" : "waiting";
   const providerStatus = statusForProvider(xauusdHealth);
   const displayProviderStatus = xauusdStatus.data || formatDataModeLabel(sourceType, providerStatus);
   const dataFreshness = formatDataFreshness(xauusdHealth?.data_timestamp ?? price?.data_timestamp ?? price?.timestamp, nowMs);
@@ -1390,14 +1421,14 @@ function MarketAgentDashboard({
           <div className="market-agent-kpi-head">
             <h3>XAUUSD (Spot)</h3>
             <span className="market-agent-source-dot">
-              <span className={hasTrustedSpotPrice ? "spot" : "proxy"} />
+              <span className={priceSourceDotClass} />
               {priceSourceLabel}
             </span>
           </div>
           <div className="market-agent-price-value-row">
             <strong>
               <MarketAgentValuePulse value={priceValue ?? xauusdHealth?.current_value}>
-                {hasTrustedSpotPrice ? formatPrice(priceValue ?? xauusdHealth?.current_value, "No price") : "No live price"}
+                {hasDisplaySpotPrice ? formatPrice(priceValue ?? xauusdHealth?.current_value, "No price") : "No live price"}
               </MarketAgentValuePulse>
             </strong>
             <span className={`market-agent-price-change ${priceChangeTone}`}>
@@ -1666,7 +1697,10 @@ function MarketAgentDashboard({
             })}
             {timeline.length === 0 ? (
               <div className="market-agent-empty-state">
-                No replay events in this window.
+                <strong>No reviewed replay events in this window.</strong>
+                {replayPayload?.calendar_events.length ? (
+                  <span>{replayPayload.calendar_events.length} raw calendar context item(s) are available for evidence review.</span>
+                ) : null}
               </div>
             ) : null}
           </div>

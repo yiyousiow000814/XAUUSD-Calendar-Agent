@@ -122,6 +122,12 @@ const compactTimelineTitle = (row: TimelineRow) => {
 const compactTimelineDetail = (row: TimelineRow) => summaryText(row.payload, replayMetaText(row));
 
 const formatTimelineImpact = (row: TimelineRow) => {
+  if (row.source === "calendar") {
+    const impact = String(row.payload?.impact ?? "").toLowerCase();
+    const contextType = String(row.payload?.context_type ?? "");
+    if (impact === "holiday" || contextType === "liquidity_context") return "Liquidity context";
+    return "Calendar context";
+  }
   const payloadImpact = numberValue(row.payload?.impact_percent);
   const segment = row.payload?.segment as Record<string, unknown> | undefined;
   const segmentImpact = numberValue(segment?.move_percent);
@@ -211,6 +217,10 @@ const dedupeMajorRows = (rows: TimelineRow[]) => {
 
 const buildTimelineRows = (payload: MarketAgentReplayResponse["replay"]): TimelineRow[] => {
   const eventRunIds = new Set(payload.timeline_events.map((item) => item.monitor_run_id).filter(Boolean));
+  const reviewedCalendarEvents = payload.calendar_events.filter((item) => {
+    const reviewStatus = normalizeValue(item.review_status);
+    return reviewStatus && reviewStatus !== "unreviewed_context";
+  });
   const rows: TimelineRow[] = [
     ...payload.timeline_events.map((item) => ({
       key: `timeline-${item.monitor_run_id}-${item.event_time}-${item.label}`,
@@ -233,7 +243,7 @@ const buildTimelineRows = (payload: MarketAgentReplayResponse["replay"]): Timeli
       source: "news" as const,
       payload: item
     })),
-    ...payload.calendar_events.map((item, index) => ({
+    ...reviewedCalendarEvents.map((item, index) => ({
       key: `calendar-${index}-${String(item.scheduled_at ?? item.title ?? "")}`,
       time: String(item.scheduled_at ?? ""),
       type: "Calendar",
@@ -381,7 +391,16 @@ export function MarketAgentReplay({
             })}
             {rows.length === 0 ? (
               <div className="market-agent-empty-state">
-                {mode === "month" ? "No major turns in this window." : "No replay events in this window."}
+                {mode === "month" ? (
+                  "No major turns in this window."
+                ) : (
+                  <>
+                    <strong>No reviewed replay events in this window.</strong>
+                    {payload.calendar_events.length ? (
+                      <span>{payload.calendar_events.length} raw calendar context item(s) are available for evidence review.</span>
+                    ) : null}
+                  </>
+                )}
               </div>
             ) : null}
           </div>

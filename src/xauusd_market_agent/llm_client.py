@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass
+from time import perf_counter
 from typing import Any
 
 
@@ -21,6 +22,43 @@ class LocalLLMConfig:
 class LocalLLMClient:
     def __init__(self, config: LocalLLMConfig | None = None) -> None:
         self.config = config or LocalLLMConfig()
+        self.telemetry: list[dict[str, Any]] = []
+
+    def _record_telemetry(
+        self,
+        *,
+        task: str,
+        started_at: float,
+        payload: dict[str, Any] | None = None,
+        status: str = "ok",
+        error: str = "",
+    ) -> None:
+        payload = payload or {}
+        elapsed_ms = round((perf_counter() - started_at) * 1000, 2)
+        total_duration = payload.get("total_duration")
+        eval_duration = payload.get("eval_duration")
+        prompt_eval_count = payload.get("prompt_eval_count")
+        eval_count = payload.get("eval_count")
+        output_tokens = int(eval_count) if isinstance(eval_count, int) else None
+        input_tokens = int(prompt_eval_count) if isinstance(prompt_eval_count, int) else None
+        eval_seconds = float(eval_duration) / 1_000_000_000 if isinstance(eval_duration, int) and eval_duration > 0 else None
+        tokens_per_second = round(output_tokens / eval_seconds, 2) if output_tokens and eval_seconds else None
+        self.telemetry.append(
+            {
+                "task": task,
+                "status": status,
+                "model": self.config.model,
+                "elapsed_ms": elapsed_ms,
+                "total_duration_ms": round(float(total_duration) / 1_000_000, 2) if isinstance(total_duration, int) else elapsed_ms,
+                "input_tokens": input_tokens,
+                "output_tokens": output_tokens,
+                "tokens_per_second": tokens_per_second,
+                "error": error,
+            }
+        )
+
+    def get_telemetry(self) -> list[dict[str, Any]]:
+        return list(self.telemetry)
 
     def _build_prompt(self, evidence_packet: dict[str, Any]) -> str:
         compact_packet = {
@@ -55,6 +93,7 @@ class LocalLLMClient:
     def analyze(self, evidence_packet: dict[str, Any]) -> dict[str, Any] | None:
         if not self.config.enabled:
             return None
+        started_at = perf_counter()
         try:
             import requests
 
@@ -76,14 +115,19 @@ class LocalLLMClient:
             response.raise_for_status()
             payload = response.json()
             if isinstance(payload.get("response"), str):
-                return json.loads(payload["response"])
+                result = json.loads(payload["response"])
+                self._record_telemetry(task="cause_review", started_at=started_at, payload=payload)
+                return result
+            self._record_telemetry(task="cause_review", started_at=started_at, payload=payload, status="invalid")
             return None
-        except Exception:
+        except Exception as exc:
+            self._record_telemetry(task="cause_review", started_at=started_at, status="error", error=str(exc))
             return None
 
     def summarize_display(self, display_packet: dict[str, Any]) -> dict[str, Any] | None:
         if not self.config.enabled:
             return None
+        started_at = perf_counter()
         compact_packet = {
             "evidence_packet": display_packet.get("evidence_packet"),
             "analysis": display_packet.get("analysis"),
@@ -124,14 +168,18 @@ class LocalLLMClient:
             if isinstance(payload.get("response"), str):
                 result = json.loads(payload["response"])
                 if isinstance(result, dict):
+                    self._record_telemetry(task="display_summary", started_at=started_at, payload=payload)
                     return result
+            self._record_telemetry(task="display_summary", started_at=started_at, payload=payload, status="invalid")
             return None
-        except Exception:
+        except Exception as exc:
+            self._record_telemetry(task="display_summary", started_at=started_at, status="error", error=str(exc))
             return None
 
     def review_alert(self, alert_packet: dict[str, Any]) -> dict[str, Any] | None:
         if not self.config.enabled:
             return None
+        started_at = perf_counter()
         compact_packet = {
             "message": alert_packet.get("message"),
             "analysis": alert_packet.get("analysis"),
@@ -169,7 +217,10 @@ class LocalLLMClient:
             if isinstance(payload.get("response"), str):
                 review = json.loads(payload["response"])
                 if isinstance(review, dict):
+                    self._record_telemetry(task="alert_review", started_at=started_at, payload=payload)
                     return review
+            self._record_telemetry(task="alert_review", started_at=started_at, payload=payload, status="invalid")
             return None
-        except Exception:
+        except Exception as exc:
+            self._record_telemetry(task="alert_review", started_at=started_at, status="error", error=str(exc))
             return None

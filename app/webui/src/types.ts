@@ -247,6 +247,7 @@ export type MarketAgentProviderHealthEntry = {
   previous_value?: number | null;
   change_value?: number | null;
   change_unit?: string;
+  metadata?: Record<string, unknown>;
   monitor_run_id?: number;
   run_started_at?: string;
 };
