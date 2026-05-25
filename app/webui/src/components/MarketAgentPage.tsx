@@ -617,7 +617,7 @@ const hasExpiredLiveXauusdSpot = (item: MarketAgentProviderHealthEntry | null | 
 
 const liveXauusdStatus = (item: MarketAgentProviderHealthEntry | null | undefined, nowMs: number = Date.now()) => {
   if (isLiveXauusdSpot(item, nowMs)) return { label: "cTrader (Spot)", data: "Live", valueMode: "live" as const };
-  if (isSavedCTraderSnapshot(item)) return { label: "cTrader paused", data: "Saved snapshot", valueMode: "waiting" as const };
+  if (isSavedCTraderSnapshot(item)) return { label: "cTrader not refreshing", data: "Saved snapshot", valueMode: "waiting" as const };
   if (isMarketClosedSpot(item)) return { label: "Market closed", data: "Market closed", valueMode: "closed" as const };
   if (hasExpiredLiveXauusdSpot(item, nowMs) && numberValue(item?.current_value) !== null) {
     return { label: "cTrader not refreshing", data: "Last live quote", valueMode: "waiting" as const };
@@ -769,7 +769,7 @@ const formatTimelineImpact = (item: TimelineRow) => {
   const segment = item.payload?.segment as Record<string, unknown> | undefined;
   const segmentImpact = numberValue(segment?.move_percent);
   const impact = payloadImpact ?? segmentImpact;
-  if (impact === null) return "Impact: watching";
+  if (impact === null) return "Context only";
   return `Impact: ${formatSignedValue(impact, "%")}`;
 };
 
@@ -780,11 +780,43 @@ const timelineImpactValue = (item: TimelineRow) => {
   return payloadImpact ?? segmentImpact;
 };
 
+const timelineDriverValue = (item: TimelineRow) =>
+  normalizeMarketAgentValue(item.payload?.main_driver ?? item.payload?.driver ?? item.meta);
+
+const isContextOnlyAnalysisRow = (item: TimelineRow) => {
+  if (item.source !== "event") return false;
+  const driver = timelineDriverValue(item);
+  const impact = timelineImpactValue(item);
+  const causeStatus = normalizeMarketAgentValue(item.payload?.cause_status ?? item.status);
+  const summary = normalizeMarketAgentValue(item.payload?.summary ?? item.payload?.causal_chain);
+  return (
+    !driver ||
+    driver === "unknown" ||
+    causeStatus === "unconfirmed" ||
+    summary.includes("current_conclusion_is_paused") ||
+    impact === 0
+  );
+};
+
+const isAnalyzedNewsRow = (item: Record<string, unknown>) => {
+  const summarySource = normalizeMarketAgentValue(item.summary_source);
+  const reviewStatus = normalizeMarketAgentValue(item.review_status ?? item.evidence_status);
+  const driver = normalizeMarketAgentValue(item.main_driver ?? item.driver);
+  return Boolean(
+    summarySource === "local_ai" ||
+    reviewStatus.includes("accepted") ||
+    reviewStatus.includes("used") ||
+    (driver && driver !== "unknown") ||
+    numberValue(item.impact_percent) !== null
+  );
+};
+
 const isMajorTimelineEvent = (item: TimelineRow) => {
   const kind = inferTimelineKind(item);
   const impact = timelineImpactValue(item);
   const status = normalizeMarketAgentValue(item.status);
   const title = normalizeMarketAgentValue(item.title);
+  if (isContextOnlyAnalysisRow(item)) return false;
   if (item.source === "alert") return true;
   if (["breakout", "reversal", "recovery"].includes(kind)) return true;
   if (typeof impact === "number" && Math.abs(impact) >= 0.2) return true;
@@ -901,7 +933,7 @@ const latestTimelineRows = (payload: MarketAgentReplayPayload | undefined): Time
       payload: item.payload,
       source: "event" as const
     })),
-    ...payload.news_items.map((item, index) => ({
+    ...payload.news_items.filter(isAnalyzedNewsRow).map((item, index) => ({
       key: `news-${index}-${String(item.published_at ?? item.title ?? "")}`,
       time: String(item.published_at ?? item.first_seen_at ?? ""),
       title: summaryTitle(item, String(item.title ?? "News item")),
@@ -944,6 +976,7 @@ const latestTimelineRows = (payload: MarketAgentReplayPayload | undefined): Time
       source: "suppressed" as const
     }))
   ]
+    .filter((item) => !isContextOnlyAnalysisRow(item))
     .filter((item) => item.time || item.title)
     .sort((left, right) => String(left.time).localeCompare(String(right.time)));
 };
@@ -1283,14 +1316,14 @@ const evidenceItems = (
 
 const evidenceKindMeta = (kind: string) => {
   const normalized = normalizeMarketAgentValue(kind);
-  if (normalized.includes("news")) return { icon: "N", tone: "blue", label: "News" };
-  if (normalized.includes("calendar")) return { icon: "C", tone: "amber", label: "Calendar" };
-  if (normalized.includes("yield")) return { icon: "Y", tone: "amber", label: "Yield" };
-  if (normalized.includes("usd")) return { icon: "$", tone: "green", label: "USD" };
-  if (normalized.includes("oil")) return { icon: "O", tone: "amber", label: "Oil" };
-  if (normalized.includes("blocked")) return { icon: "X", tone: "red", label: "Blocked" };
-  if (normalized.includes("technical")) return { icon: "T", tone: "purple", label: "Technical" };
-  return { icon: "D", tone: "blue", label: "Driver" };
+  if (normalized.includes("news")) return { icon: "NEWS", tone: "blue", label: "News", className: "kind-news" };
+  if (normalized.includes("calendar")) return { icon: "EVENT", tone: "amber", label: "Calendar", className: "kind-calendar" };
+  if (normalized.includes("yield")) return { icon: "YIELD", tone: "amber", label: "Yield", className: "kind-driver" };
+  if (normalized.includes("usd")) return { icon: "USD", tone: "green", label: "USD", className: "kind-driver" };
+  if (normalized.includes("oil")) return { icon: "OIL", tone: "amber", label: "Oil", className: "kind-driver" };
+  if (normalized.includes("blocked")) return { icon: "BLOCK", tone: "red", label: "Blocked", className: "kind-driver" };
+  if (normalized.includes("technical")) return { icon: "TECH", tone: "purple", label: "Technical", className: "kind-technical" };
+  return { icon: "DRIVER", tone: "blue", label: "Driver", className: "kind-driver" };
 };
 
 const SCORE_RING_RADIUS = 34;
@@ -1735,13 +1768,12 @@ function MarketAgentDashboard({
               const meta = evidenceKindMeta(item.kind);
               return (
                 <div
-                  className={`market-agent-evidence-feed-row market-agent-animated-row tone-${meta.tone}`}
+                  className={`market-agent-evidence-feed-row market-agent-animated-row tone-${meta.tone} ${meta.className}`}
                   key={`${item.title}-${index}`}
                   style={{ "--ma-row-index": index } as CSSProperties}
                 >
                   <span className="market-agent-evidence-icon">{meta.icon}</span>
                   <div>
-                    <span className="market-agent-evidence-type">{meta.label}</span>
                     <strong>{item.title}</strong>
                     <span>{item.detail}</span>
                   </div>

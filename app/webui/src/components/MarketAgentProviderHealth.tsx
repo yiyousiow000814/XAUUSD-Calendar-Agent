@@ -34,7 +34,7 @@ const statusForItem = (item: MarketAgentProviderHealthEntry | undefined) => {
 const toneForStatus = (status: string): "neutral" | "good" | "warn" | "bad" | "info" => {
   const normalized = normalizeMarketAgentValue(status);
   if (["connected", "available", "live data", "ready", "built in", "built-in"].includes(normalized)) return "good";
-  if (["proxy", "proxy only", "backup only", "partial", "not connected", "waiting", "collecting", "market closed"].includes(normalized)) return "warn";
+  if (["proxy", "proxy only", "backup only", "partial", "not connected", "waiting", "collecting", "market closed", "paused"].includes(normalized)) return "warn";
   if (["unavailable", "stale data", "missing"].includes(normalized)) return "bad";
   return "neutral";
 };
@@ -61,6 +61,11 @@ const countUsable = (items: MarketAgentProviderHealthEntry[]) =>
 
 const hasCurrentValue = (item: MarketAgentProviderHealthEntry) =>
   typeof item.current_value === "number" && Number.isFinite(item.current_value);
+
+const hasMarketClosedReason = (item: MarketAgentProviderHealthEntry) => {
+  const reason = String(item.stale_reason || item.error || "").toLowerCase();
+  return /market\s+(is\s+)?closed|market\s+reopens/.test(reason);
+};
 
 const newestTime = (items: MarketAgentProviderHealthEntry[]) =>
   {
@@ -130,7 +135,8 @@ export function MarketAgentProviderHealth({ data }: MarketAgentProviderHealthPro
     "^ixic"
   ]);
   const ctraderLive = ctraderItems.some((item) => item.is_available && !item.is_stale);
-  const ctraderClosed = ctraderItems.some((item) => item.is_available && item.is_stale && hasCurrentValue(item));
+  const ctraderClosed = ctraderItems.some((item) => item.is_available && item.is_stale && hasCurrentValue(item) && hasMarketClosedReason(item));
+  const ctraderPaused = ctraderItems.some((item) => item.is_available && item.is_stale && hasCurrentValue(item) && !hasMarketClosedReason(item));
   const ctraderReady = ctraderLive || ctraderClosed;
   const proxyReady = yahooItems.some((item) => item.is_available && !item.is_stale);
   const blockingIssueCount = ctraderReady ? 0 : 1;
@@ -139,7 +145,7 @@ export function MarketAgentProviderHealth({ data }: MarketAgentProviderHealthPro
     {
       title: "cTrader",
       subtitle: ctraderItems.length ? providerSubtitle(ctraderItems) : "Primary price provider",
-      status: ctraderLive ? "Connected" : ctraderClosed ? "Market closed" : "Not connected",
+      status: ctraderLive ? "Connected" : ctraderClosed ? "Market closed" : ctraderPaused ? "Paused" : "Not connected",
       description: "Primary live XAUUSD price and broker history.",
       updatedAt: newestTime(ctraderItems),
       action: ctraderReady ? "Ready for live monitoring." : "Connect cTrader in Data Sources.",
@@ -205,12 +211,14 @@ export function MarketAgentProviderHealth({ data }: MarketAgentProviderHealthPro
           <div className="market-agent-provider-health-hero">
             <article className={ctraderReady ? "ready" : proxyReady ? "proxy" : "attention"}>
               <span>Price feed</span>
-              <strong>{ctraderLive ? "cTrader Live" : ctraderClosed ? "Market closed" : proxyReady ? "Proxy only" : "Connect cTrader"}</strong>
+              <strong>{ctraderLive ? "cTrader Live" : ctraderClosed ? "Market closed" : ctraderPaused ? "cTrader not refreshing" : proxyReady ? "Proxy only" : "Connect cTrader"}</strong>
               <p>
                 {ctraderLive
                   ? "Live XAUUSD is coming from the primary provider."
                   : ctraderClosed
                     ? "Last XAUUSD spot is stored. News and calendar context continue while current driver scoring waits."
+                  : ctraderPaused
+                    ? "Last cTrader value is stored, but the feed is not refreshing. Current conclusions stay paused."
                   : proxyReady
                     ? "The app can show a futures proxy, but live monitoring needs cTrader."
                     : "Live monitoring starts after cTrader is connected."}

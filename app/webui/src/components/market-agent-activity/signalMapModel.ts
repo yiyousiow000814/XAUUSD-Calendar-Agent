@@ -86,9 +86,27 @@ export type StorageGroup = {
   tables: string[];
 };
 
+export type SignalDecisionTraceItem = {
+  label: string;
+  status: string;
+  detail: string;
+  meta: string[];
+  tone: SignalTone;
+};
+
+export type SignalDecisionTrace = {
+  runLabel: string;
+  summary: string;
+  status: string;
+  items: SignalDecisionTraceItem[];
+  records: SignalDecisionTraceItem[];
+  performance?: SignalPerformanceSummary;
+};
+
 export type SignalMapModel = {
   phaseLabel: string;
   phaseMessage: string;
+  decisionTrace: SignalDecisionTrace;
   lanes: SignalLane[];
   coreSensors: SignalNode[];
   candidateSensors: SignalNode[];
@@ -296,6 +314,146 @@ const llmTelemetryRows = (llmEntry: Record<string, unknown> | undefined): Signal
       ]
     };
   });
+};
+
+const booleanText = (value: unknown) => (value === true ? "yes" : value === false ? "no" : "unknown");
+
+const firstText = (...values: unknown[]) => {
+  for (const value of values) {
+    const text = String(value ?? "").trim();
+    if (text) return text;
+  }
+  return "";
+};
+
+const shortHistoryText = (value: unknown, fallback = "not recorded") => {
+  const text = String(value ?? "").trim();
+  if (!text) return fallback;
+  return text.length > 150 ? `${text.slice(0, 147)}...` : text;
+};
+
+const sensorLabel = (value: string) => value.replace(/[^a-z0-9]/gi, "").toUpperCase();
+
+const buildDecisionTrace = ({
+  selectedEvidence,
+  replayPayload,
+  analysisResult,
+  evidencePacket,
+  llmPerformance
+}: {
+  selectedEvidence: MarketAgentEvidenceForRunResponse | null;
+  replayPayload: MarketAgentReplayPayload | undefined;
+  analysisResult: Record<string, unknown>;
+  evidencePacket: Record<string, unknown> | undefined;
+  llmPerformance: SignalPerformanceSummary;
+}): SignalDecisionTrace => {
+  const monitorRun = (selectedEvidence?.payload?.monitor_run ?? {}) as Record<string, unknown>;
+  const selectedAlerts = recordListValue(selectedEvidence?.payload, "alerts");
+  const replayAlerts = ((replayPayload?.alerts ?? []) as Record<string, unknown>[]).filter(Boolean);
+  const alerts = selectedAlerts.length ? selectedAlerts : replayAlerts;
+  const stateTransition = (selectedEvidence?.payload?.state_transition ?? {}) as Record<string, unknown>;
+  const hasStateTransition = Object.keys(stateTransition).length > 0;
+  const evidenceStatus = recordValue(evidencePacket, "evidence_status");
+  const blockedDrivers = recordValue(evidencePacket, "blocked_drivers");
+  const allowedDrivers = listValue(evidencePacket, "allowed_candidate_drivers");
+  const newsItems = ((replayPayload?.news_items ?? []) as Record<string, unknown>[]).filter(Boolean);
+  const calendarEvents = ((replayPayload?.calendar_events ?? []) as Record<string, unknown>[]).filter(Boolean);
+  const relatedAssets = replayPayload?.related_assets ?? {};
+  const relatedAssetCount = Object.values(relatedAssets).reduce((total, rows) => total + (Array.isArray(rows) ? rows.length : 0), 0);
+  const firstNews = newsItems.find((item) => firstText(item.summary, item.summary_title, item.short_title, item.ai_title, item.title)) ?? {};
+  const firstCalendar = calendarEvents.find((item) => firstText(item.summary, item.title)) ?? {};
+  const mainDriver = firstText(analysisResult.main_driver, "unknown");
+  const causeStatus = firstText(analysisResult.cause_status, "unknown");
+  const confidence = firstText(analysisResult.confidence, "unknown");
+  const bias = firstText(analysisResult.bias, "neutral");
+  const shouldNotify = alerts.some((alert) => alert.should_notify === true || alert.shouldNotify === true);
+  const alert = alerts[0] ?? {};
+  const alertReason = firstText(alert.reason, monitorRun.alert_suppressed_reason, analysisResult.notification_reason, "No alert decision recorded.");
+  const runStartedAt = firstText(monitorRun.run_started_at, selectedEvidence?.monitor_run_id ? `run #${selectedEvidence.monitor_run_id}` : "");
+  const runLabel = runStartedAt || "Selected run";
+  const finalSummary = firstText(analysisResult.summary, analysisResult.causal_chain, analysisResult.explanation);
+  const newsSummary = firstText(firstNews.summary, firstNews.summary_title, firstNews.short_title, firstNews.ai_title);
+  const newsRaw = firstText(firstNews.title, firstNews.description, firstNews.source);
+  const calendarSummary = firstText(firstCalendar.summary, firstCalendar.title);
+  const calendarRaw = firstText(firstCalendar.title, firstCalendar.event_name, firstCalendar.source);
+  const summary = finalSummary
+    ? `Final analysis: ${shortHistoryText(finalSummary)}`
+    : "This run has no recorded AI final-summary text yet. The page shows the available input and guard decisions instead.";
+
+  return {
+    runLabel,
+    summary,
+    status: causeStatus,
+    performance: llmPerformance,
+    items: [
+      {
+        label: "News summary",
+        status: newsSummary ? "AI summarized" : newsRaw ? "raw captured" : "no news",
+        detail: newsRaw
+          ? `Raw: ${shortHistoryText(newsRaw)} -> Summary: ${shortHistoryText(newsSummary, "no AI summary recorded for this item")}`
+          : "No news item was present in the selected run/replay payload.",
+        meta: [`source: ${firstText(firstNews.source, "not recorded")}`, `summary_source: ${firstText(firstNews.summary_source, "not recorded")}`, "history: news_items"],
+        tone: newsSummary ? "ai" : newsRaw ? "working" : "muted"
+      },
+      {
+        label: "Calendar review",
+        status: calendarRaw ? "context reviewed" : "no event",
+        detail: calendarRaw
+          ? `Calendar input: ${shortHistoryText(calendarRaw)} -> AI/evidence note: ${shortHistoryText(calendarSummary, "no separate AI summary recorded")}`
+          : "No calendar context was attached to this run.",
+        meta: [`source: ${firstText(firstCalendar.source, "existing Economic Calendar")}`, `scheduled: ${firstText(firstCalendar.scheduled_at, "not recorded")}`, "history: calendar context"],
+        tone: calendarRaw ? "working" : "muted"
+      },
+      {
+        label: "Asset context",
+        status: relatedAssetCount ? "sensor evidence" : "no sensor rows",
+        detail: relatedAssetCount
+          ? `${relatedAssetCount} related asset row(s) were available to support or reject the final cause. ${Object.entries(evidenceStatus).slice(0, 3).map(([key, value]) => `${sensorLabel(key)} ${String(value)}`).join(" / ") || "No per-sensor guard result was recorded."}`
+          : "No related asset rows were attached to this selected replay payload.",
+        meta: [`allowed: ${allowedDrivers.join(", ") || "none"}`, `blocked: ${Object.keys(blockedDrivers).join(", ") || "none"}`, "history: related_asset_bars + evidence_packet"],
+        tone: relatedAssetCount ? "good" : "muted"
+      },
+      {
+        label: "Final analysis",
+        status: causeStatus,
+        detail: finalSummary
+          ? shortHistoryText(finalSummary)
+          : `Decision recorded without a long summary: driver ${humanizeMarketAgentValue(mainDriver)}, bias ${humanizeMarketAgentValue(bias)}, confidence ${humanizeMarketAgentValue(confidence)}.`,
+        meta: ["history: analysis_results", `main_driver: ${mainDriver}`, `should_notify: ${booleanText(analysisResult.should_notify)}`],
+        tone: causeStatus === "unconfirmed" || mainDriver === "unknown" ? "working" : "ai"
+      },
+      {
+        label: "Output history",
+        status: shouldNotify ? "sent" : "suppressed",
+        detail: shouldNotify ? `Telegram/message output: ${shortHistoryText(firstText(alert.message, "Notification policy allowed an alert for this run."))}` : alertReason,
+        meta: ["history: alerts + timeline_events", "surfaces: Dashboard / Latest Evidence / Replay / Telegram", `alert_count: ${alerts.length}`],
+        tone: shouldNotify ? "good" : "working"
+      }
+    ],
+    records: [
+      {
+        label: "Input history",
+        status: newsItems.length || calendarEvents.length || relatedAssetCount ? "recorded" : "empty",
+        detail: `${newsItems.length} news item(s), ${calendarEvents.length} calendar event(s), ${relatedAssetCount} asset sensor row(s).`,
+        meta: ["news_items", "calendar context", "market_price_bars / related_asset_bars"],
+        tone: newsItems.length || calendarEvents.length || relatedAssetCount ? "store" : "muted"
+      },
+      {
+        label: "AI decisions",
+        status: evidencePacket || Object.keys(analysisResult).length ? "stored" : "missing",
+        detail: "Evidence gates and final analysis are stored so the AI/rule decision can be inspected later.",
+        meta: ["evidence_packets", "analysis_results", hasStateTransition ? "state transition recorded" : "state transition not recorded"],
+        tone: evidencePacket || Object.keys(analysisResult).length ? "store" : "bad"
+      },
+      {
+        label: "User-facing history",
+        status: alerts.length ? "recorded" : "not sent",
+        detail: "Replay rows, dashboard evidence, and Telegram decisions are built only after validation.",
+        meta: ["timeline_events", "month_summary_events", "alerts"],
+        tone: "store"
+      }
+    ]
+  };
 };
 
 const newsFeedRows = (
@@ -518,6 +676,13 @@ export const buildSignalMapModel = ({
   const evidenceStatus = textValue(evidenceEntry, "status") || String(evidenceChain?.status || "pending");
   const llmStatus = textValue(llmEntry, "status") || (llmConfig?.llm?.enabled ? "queued" : "skipped");
   const llmPerformance = llmTelemetrySummary(llmEntry);
+  const decisionTrace = buildDecisionTrace({
+    selectedEvidence,
+    replayPayload: payload,
+    analysisResult,
+    evidencePacket: selectedEvidencePacket,
+    llmPerformance
+  });
   const replayStatus = textValue(replayEntry, "status") || (stats.timelineEvents ? "stored" : "pending");
   const alertStatus = textValue(alertEntry, "status") || (telegramConfig?.telegram?.enabled ? "ready" : "idle");
   const phaseLabel = humanizeMarketAgentValue(monitorStatus?.phase || (monitorStatus?.running ? "running" : "stopped"));
@@ -1339,6 +1504,7 @@ export const buildSignalMapModel = ({
   return {
     phaseLabel,
     phaseMessage,
+    decisionTrace,
     lanes: [sourceLane, { id: "sensors", title: "Market Sensors", detail: "Core sensors are always visible; candidate and discovered sensors expose gaps.", nodes: coreSensors }, processingLane],
     coreSensors,
     candidateSensors,

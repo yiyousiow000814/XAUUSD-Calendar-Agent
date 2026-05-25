@@ -4739,7 +4739,7 @@ const main = async () => {
         if (!(detail instanceof HTMLElement)) {
           problems.push("Activity focus view missing after selecting Assets");
         } else {
-          ["Step detail", "Summary", "Records", "Needs", "Received", "Handling", "Stored", "Selected path"].forEach((label) => {
+          ["Step detail", "Summary", "Status", "Needs", "Received", "Handling", "Stored", "Selected path"].forEach((label) => {
             if (!detail.textContent?.includes(label)) problems.push(`Activity focus view missing ${label}`);
           });
           ["Where it comes from", "What is happening now", "AI involvement", "Why users should care", "Feedback loop", "View records"].forEach((label) => {

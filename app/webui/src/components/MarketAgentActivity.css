@@ -1,8 +1,26 @@
 ﻿.market-agent-cockpit-main > .market-agent-activity-surface {
   height: 100%;
   max-height: 100%;
-  overflow: hidden;
-  padding-right: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(134, 148, 168, 0.32) transparent;
+}
+
+.market-agent-cockpit-main > .market-agent-activity-surface::-webkit-scrollbar {
+  width: 8px;
+}
+
+.market-agent-cockpit-main > .market-agent-activity-surface::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.market-agent-cockpit-main > .market-agent-activity-surface::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgba(134, 148, 168, 0.34);
+  background-clip: padding-box;
 }
 
 .market-agent-signal-map {
@@ -12,7 +30,7 @@
   min-height: 0;
   flex-direction: column;
   gap: 12px;
-  overflow: hidden;
+  overflow: visible;
   color: var(--text-primary, #f8fafc);
 }
 

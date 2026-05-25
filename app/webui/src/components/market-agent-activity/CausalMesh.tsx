@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
-import type { SignalNode } from "./signalMapModel";
+import type { SignalDecisionTraceItem, SignalMapModel, SignalNode } from "./signalMapModel";
 
 type CausalMeshProps = {
   node: SignalNode;
   allNodes: SignalNode[];
+  model: SignalMapModel;
   onClose: () => void;
 };
 
@@ -118,6 +119,18 @@ const requestImpact = (status: string) => {
   return "Open request";
 };
 
+const decisionTone = (item: SignalDecisionTraceItem) => `tone-${item.tone}`;
+
+const statusNodesFor = (nodes: SignalNode[]) => {
+  const seen = new Set<string>();
+  return nodes.filter((node) => {
+    const isStatusNode = ["Sources", "Processing", "AI", "Outputs", "Feedback", "Audit"].includes(node.lane) || node.id.includes("source") || node.id.includes("hub");
+    if (!isStatusNode || seen.has(node.id)) return false;
+    seen.add(node.id);
+    return true;
+  });
+};
+
 const renderRecordRows = (sectionTitle: string, node: SignalNode, rows: NonNullable<SignalNode["drilldown"]>[number]["rows"]) => {
   if (rows.length) {
     const sortedRows = [...rows].sort((left, right) => statusRank(left.status) - statusRank(right.status) || rowRank(left.label) - rowRank(right.label) || left.label.localeCompare(right.label));
@@ -164,8 +177,196 @@ const renderRecordRows = (sectionTitle: string, node: SignalNode, rows: NonNulla
   );
 };
 
-export function CausalMesh({ node, allNodes, onClose }: CausalMeshProps) {
-  const [view, setView] = useState<"overview" | "records" | "requests">("overview");
+function AiHistoryPane({ model }: { model: SignalMapModel }) {
+  const trace = model.decisionTrace;
+  const [selectedItem, setSelectedItem] = useState<SignalDecisionTraceItem | null>(null);
+
+  return (
+    <section className="market-agent-history-ledger compact" aria-label="AI analysis history">
+      <header>
+        <div>
+          <span>AI History</span>
+          <h4>Completed analysis filings</h4>
+          <p>{trace.summary}</p>
+        </div>
+      </header>
+      <div className="market-agent-history-list" role="table" aria-label="Completed AI history filings">
+        <div className="market-agent-history-head" role="row">
+          <span>Time</span>
+          <span>Name</span>
+          <span>Type</span>
+          <span>Status</span>
+        </div>
+        {trace.items.map((item) => (
+          <button
+            type="button"
+            className={`market-agent-history-row ${decisionTone(item)}`}
+            key={`${item.label}-${item.status}`}
+            onClick={() => setSelectedItem(item)}
+            role="row"
+          >
+            <span role="cell">{trace.runLabel}</span>
+            <strong role="cell">{item.label}</strong>
+            <span role="cell">{item.meta[2]?.replace(/^history:\s*/i, "") || item.meta[0] || "analysis"}</span>
+            <em role="cell">{item.status}</em>
+          </button>
+        ))}
+      </div>
+      {selectedItem ? (
+        <div className="market-agent-history-modal-backdrop" role="presentation" onClick={() => setSelectedItem(null)}>
+          <article
+            className={`market-agent-history-modal ${decisionTone(selectedItem)}`}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${selectedItem.label} history detail`}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header>
+              <div>
+                <span>{selectedItem.label}</span>
+                <h4>{selectedItem.status}</h4>
+              </div>
+              <button type="button" onClick={() => setSelectedItem(null)} aria-label="Close history detail">
+                Close
+              </button>
+            </header>
+            <p>{selectedItem.detail}</p>
+            <dl>
+              {selectedItem.meta.map((meta) => {
+                const [label, ...rest] = meta.split(":");
+                return (
+                  <div key={meta}>
+                    <dt>{rest.length ? label : "record"}</dt>
+                    <dd>{rest.length ? rest.join(":").trim() : meta}</dd>
+                  </div>
+                );
+              })}
+            </dl>
+          </article>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function AiOngoingPane({ model, nodes }: { model: SignalMapModel; nodes: SignalNode[] }) {
+  const [selectedNode, setSelectedNode] = useState<SignalNode | null>(null);
+  const ongoingNodes = statusNodesFor(nodes).filter((node) => {
+    const status = node.status.toLowerCase();
+    return ["running", "checking", "collecting", "syncing", "queued", "waiting", "watching"].some((keyword) => status.includes(keyword));
+  });
+  const rows = ongoingNodes.length ? ongoingNodes : statusNodesFor(nodes).slice(0, 4);
+
+  return (
+    <section className="market-agent-ongoing-ledger compact" aria-label="AI ongoing work">
+      <header>
+        <div>
+          <span>Ongoing</span>
+          <h4>What AI is working on now</h4>
+          <p>{model.phaseMessage}</p>
+        </div>
+        <strong>{model.phaseLabel}</strong>
+      </header>
+      <div className="market-agent-history-list" role="table" aria-label="Current AI work filings">
+        <div className="market-agent-history-head" role="row">
+          <span>Time</span>
+          <span>Name</span>
+          <span>Area</span>
+          <span>Status</span>
+        </div>
+        {rows.map((node) => (
+          <button
+            type="button"
+            className={`market-agent-history-row tone-${node.tone}`}
+            key={node.id}
+            onClick={() => setSelectedNode(node)}
+            role="row"
+          >
+            <span role="cell">{model.decisionTrace.runLabel || "Now"}</span>
+            <strong role="cell">{node.label}</strong>
+            <span role="cell">{node.lane}</span>
+            <em role="cell">{node.status}</em>
+          </button>
+        ))}
+      </div>
+      {selectedNode ? (
+        <div className="market-agent-history-modal-backdrop" role="presentation" onClick={() => setSelectedNode(null)}>
+          <article
+            className={`market-agent-history-modal tone-${selectedNode.tone}`}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${selectedNode.label} ongoing detail`}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header>
+              <div>
+                <span>{selectedNode.lane}</span>
+                <h4>{selectedNode.label}</h4>
+              </div>
+              <button type="button" onClick={() => setSelectedNode(null)} aria-label="Close ongoing detail">
+                Close
+              </button>
+            </header>
+            <p>{selectedNode.action}</p>
+            <dl>
+              <div>
+                <dt>Status</dt>
+                <dd>{selectedNode.status}</dd>
+              </div>
+              <div>
+                <dt>Source</dt>
+                <dd>{selectedNode.source}</dd>
+              </div>
+              <div>
+                <dt>Handling</dt>
+                <dd>{selectedNode.processing}</dd>
+              </div>
+              <div>
+                <dt>Output</dt>
+                <dd>{selectedNode.output}</dd>
+              </div>
+            </dl>
+          </article>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function AiStatusPane({ model, nodes }: { model: SignalMapModel; nodes: SignalNode[] }) {
+  return (
+    <section className="market-agent-status-ledger compact" aria-label="AI status snapshot">
+      <header>
+        <div>
+          <span>Status</span>
+          <h4>Current source and pipeline status</h4>
+          <p>{model.phaseMessage} This is the current snapshot, not a completed filing.</p>
+        </div>
+        <strong>{model.phaseLabel}</strong>
+      </header>
+      <div className="market-agent-status-table" role="table" aria-label="Current source and pipeline status">
+        <div className="market-agent-status-head" role="row">
+          <span>Area</span>
+          <span>Status</span>
+          <span>Doing now</span>
+          <span>Needs</span>
+        </div>
+        {statusNodesFor(nodes).slice(0, 14).map((node) => (
+          <article className={`market-agent-status-row tone-${node.tone}`} key={node.id} role="row">
+            <strong role="cell">{node.label}</strong>
+            <span role="cell">{node.status}</span>
+            <p role="cell">{node.action}</p>
+            <em role="cell">{node.requests?.length ? `${node.requests.length} open` : "clear"}</em>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function CausalMesh({ node, allNodes, model, onClose }: CausalMeshProps) {
+  const isAiAnalysis = node.id === "ai-analysis";
+  const [view, setView] = useState<"map" | "overview" | "history" | "records" | "requests">(isAiAnalysis ? "map" : "overview");
   const upstream = uniqueById(allNodes.filter((candidate) => candidate.id !== node.id && node.trace.includes(candidate.id))).slice(0, 5);
   const downstream = uniqueById(allNodes.filter((candidate) => candidate.id !== node.id && candidate.trace.includes(node.id))).slice(0, 5);
   const traceNodes = useMemo(() => Array.from(new Set(node.trace)).map((id) => allNodes.find((candidate) => candidate.id === id)).filter((candidate): candidate is SignalNode => Boolean(candidate)), [allNodes, node.trace]);
@@ -196,26 +397,63 @@ export function CausalMesh({ node, allNodes, onClose }: CausalMeshProps) {
         </button>
       </header>
       <nav className="market-agent-focus-tabs" aria-label={`${node.label} detail sections`}>
-        <button type="button" className={tabClass("overview")} onClick={() => setView("overview")}>
-          Summary
-        </button>
-        {node.drilldown?.length ? (
-          <button type="button" className={tabClass("records")} onClick={() => setView("records")}>
-            Records
-          </button>
-        ) : null}
-        {node.requests?.length ? (
-          <button type="button" className={tabClass("requests")} onClick={() => setView("requests")}>
-            Needs ({requestCount})
-          </button>
-        ) : null}
+        {isAiAnalysis ? (
+          <>
+            <button type="button" className={tabClass("map")} onClick={() => setView("map")}>Map</button>
+            <button type="button" className={tabClass("overview")} onClick={() => setView("overview")}>Ongoing</button>
+            <button type="button" className={tabClass("history")} onClick={() => setView("history")}>History</button>
+            <button type="button" className={tabClass("records")} onClick={() => setView("records")}>Status</button>
+            {node.requests?.length ? (
+              <button type="button" className={tabClass("requests")} onClick={() => setView("requests")}>Needs</button>
+            ) : null}
+          </>
+        ) : (
+          <>
+            <button type="button" className={tabClass("overview")} onClick={() => setView("overview")}>
+              Summary
+            </button>
+            {node.drilldown?.length || node.requests?.length ? (
+              <button type="button" className={tabClass("records")} onClick={() => setView("records")}>
+                Status
+              </button>
+            ) : null}
+            {node.requests?.length ? (
+              <button type="button" className={tabClass("requests")} onClick={() => setView("requests")}>
+                Needs
+              </button>
+            ) : null}
+          </>
+        )}
       </nav>
 
       <div className="market-agent-detail-viewport">
-        {view === "overview" ? (
+        {isAiAnalysis && view === "map" ? (
           <div className="market-agent-focus-overview">
+            <section className="market-agent-route-map" aria-label={`${node.label} AI map`}>
+              {routeStages.map((stage, index) => (
+                <article key={stage.label}>
+                  <b>{String(index + 1).padStart(2, "0")}</b>
+                  <div>
+                    <span>{stage.label}</span>
+                    <strong>{stage.value}</strong>
+                    <p>{stage.detail}</p>
+                  </div>
+                </article>
+              ))}
+            </section>
+            <section className="market-agent-route-footer" aria-label={`${node.label} selected path`}>
+              <div>
+                <span>Selected path</span>
+                <ol>
+                  {(traceNodes.length ? traceNodes : [node]).slice(0, 6).map((traceNode, index) => (
+                    <li key={`${traceNode.id}-${index}`}>{traceNode.label}</li>
+                  ))}
+                </ol>
+              </div>
+              <p>{node.ai}</p>
+            </section>
             {node.performance ? (
-              <section className={`market-agent-ai-performance status-${statusKind(node.performance.status)}`} aria-label={`${node.label} AI performance`}>
+              <section className={`market-agent-ai-performance market-agent-ai-performance-compact status-${statusKind(node.performance.status)}`} aria-label={`${node.label} AI performance`}>
                 <div>
                   <span>{node.performance.title}</span>
                   <strong>{node.performance.status}</strong>
@@ -232,6 +470,14 @@ export function CausalMesh({ node, allNodes, onClose }: CausalMeshProps) {
                 </div>
               </section>
             ) : null}
+          </div>
+        ) : null}
+
+        {isAiAnalysis && view === "overview" ? <AiOngoingPane model={model} nodes={allNodes} /> : null}
+        {isAiAnalysis && view === "history" ? <AiHistoryPane model={model} /> : null}
+
+        {view === "overview" && !isAiAnalysis ? (
+          <div className="market-agent-focus-overview">
             <section className="market-agent-signal-passport" aria-label={`${node.label} signal passport`}>
               <div>
                 <span>Status</span>
@@ -273,6 +519,24 @@ export function CausalMesh({ node, allNodes, onClose }: CausalMeshProps) {
               </div>
               <p>{node.ai}</p>
             </section>
+            {node.performance ? (
+              <section className={`market-agent-ai-performance market-agent-ai-performance-compact status-${statusKind(node.performance.status)}`} aria-label={`${node.label} AI performance`}>
+                <div>
+                  <span>{node.performance.title}</span>
+                  <strong>{node.performance.status}</strong>
+                  <p>{node.performance.detail}</p>
+                </div>
+                <div className="market-agent-ai-performance-metrics">
+                  {node.performance.metrics.map((metric) => (
+                    <article key={`${metric.label}-${metric.status}`}>
+                      <span>{metric.label}</span>
+                      <strong>{metric.meta[0]?.replace("token/s:", "").replace("elapsed:", "").replace("input tokens:", "").trim() || metric.status}</strong>
+                      <p>{metric.detail}</p>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            ) : null}
           </div>
         ) : null}
 
@@ -280,11 +544,11 @@ export function CausalMesh({ node, allNodes, onClose }: CausalMeshProps) {
           <div className="market-agent-operational-trace" aria-label={`${node.label} operational trace`}>
             <header>
               <div>
-                <span>Records</span>
-                <h4>What happened in this step</h4>
+                <span>Status</span>
+                <h4>Current records and status</h4>
               </div>
             </header>
-            {node.drilldown.map((section, sectionIndex) => (
+            {(node.drilldown ?? []).map((section, sectionIndex) => (
               <section key={`${section.title}-${sectionIndex}`} className="market-agent-trace-section">
                 <div className="market-agent-trace-section-head">
                   <strong>{section.title}</strong>
@@ -297,10 +561,10 @@ export function CausalMesh({ node, allNodes, onClose }: CausalMeshProps) {
         ) : null}
 
         {view === "requests" && node.requests?.length ? (
-          <div className="market-agent-data-requests" aria-label={`${node.label} data requests`}>
+          <section className="market-agent-data-requests" aria-label={`${node.label} needs`}>
             <header>
               <div>
-                <span>Data needs</span>
+                <span>Needs</span>
                 <h4>What is blocking or being watched</h4>
               </div>
             </header>
@@ -336,7 +600,7 @@ export function CausalMesh({ node, allNodes, onClose }: CausalMeshProps) {
                 </section>
               ))}
             </div>
-          </div>
+          </section>
         ) : null}
       </div>
     </aside>

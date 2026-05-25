@@ -68,7 +68,7 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       drilldown: [
         {
           title: "Tracked assets",
-          detail: "One row per watched market signal. Open Needs when a sensor is missing, stale, or unavailable.",
+          detail: "One row per watched market signal. Status shows when a sensor is missing, stale, or unavailable.",
           rows: model.coreSensors.map((sensor) => ({
             label: sensor.label,
             status: sensor.status,
@@ -350,6 +350,53 @@ function SignalNodeButton({
   );
 }
 
+function MapBoard({
+  visibleNodes,
+  selectedId,
+  activeTrace,
+  selectNode
+}: {
+  visibleNodes: SignalNode[];
+  selectedId: string;
+  activeTrace: Set<string>;
+  selectNode: (node: SignalNode) => void;
+}) {
+  return (
+    <div className="market-agent-signal-board" data-selected-trace={selectedId}>
+      <section className="market-agent-board-zone source-zone" aria-label="Source groups">
+        <span>Sources</span>
+        {visibleNodes.filter((node) => ["assets-source", "news-source", "calendar-source"].includes(node.id)).map((node) => (
+          <SignalNodeButton key={node.id} node={node} selected={selectedId === node.id} faded={false} onSelect={selectNode} handoff="Next: Ingest" />
+        ))}
+      </section>
+
+      <section className="market-agent-board-zone trace-zone" aria-label="Run trace">
+        <span>Run trace</span>
+        {visibleNodes.filter((node) => ["ingest-hub", "process-hub", "storage-bus", "evidence-packet", "ai-analysis", "output-hub"].includes(node.id)).map((node, index) => (
+          <div className="market-agent-trace-step" key={node.id}>
+            <b>{String(index + 1).padStart(2, "0")}</b>
+            <SignalNodeButton
+              node={node}
+              selected={selectedId === node.id}
+              faded={Boolean(selectedId) && !activeTrace.has(node.id)}
+              onSelect={selectNode}
+              handoff={index === 0 ? "From: Assets, News, Calendar" : index === 5 ? "To: user surfaces" : "Next step"}
+            />
+          </div>
+        ))}
+      </section>
+
+      <section className="market-agent-board-zone feedback-zone" aria-label="Feedback queue">
+        <span>Feedback</span>
+        {visibleNodes.filter((node) => node.id === "feedback-hub").map((node) => (
+          <SignalNodeButton key={node.id} node={node} selected={selectedId === node.id} faded={false} onSelect={selectNode} handoff="Only when more data is needed" />
+        ))}
+        <p>Requests go back to source groups only when provider mapping, freshness, and evidence gates allow it.</p>
+      </section>
+    </div>
+  );
+}
+
 export function MarketAgentSignalMap({ model }: MarketAgentSignalMapProps) {
   const detailNodes = useMemo(
     () => [
@@ -366,7 +413,9 @@ export function MarketAgentSignalMap({ model }: MarketAgentSignalMapProps) {
   const [selectedId, setSelectedId] = useState("");
   const selectedNode = selectedId ? allNodes.find((node) => node.id === selectedId) : undefined;
   const activeTrace = useMemo(() => new Set(selectedNode?.trace ?? []), [selectedNode]);
-  const selectNode = (node: SignalNode) => setSelectedId(node.id);
+  const selectNode = (node: SignalNode) => {
+    setSelectedId(node.id);
+  };
   const visibleNodes = useMemo(() => {
     const ids = new Set(["assets-source", "news-source", "calendar-source", "ingest-hub", "process-hub", "storage-bus", "evidence-packet", "ai-analysis", "output-hub", "feedback-hub"]);
     return boardNodes.filter((node) => ids.has(node.id));
@@ -383,42 +432,8 @@ export function MarketAgentSignalMap({ model }: MarketAgentSignalMapProps) {
         <em>{model.phaseLabel}</em>
       </div>
 
-      {selectedNode ? (
-        <CausalMesh node={selectedNode} allNodes={allNodes} onClose={() => setSelectedId("")} />
-      ) : (
-        <div className="market-agent-signal-board" data-selected-trace={selectedNode?.id || ""}>
-          <section className="market-agent-board-zone source-zone" aria-label="Source groups">
-            <span>Sources</span>
-            {visibleNodes.filter((node) => ["assets-source", "news-source", "calendar-source"].includes(node.id)).map((node) => (
-              <SignalNodeButton key={node.id} node={node} selected={selectedId === node.id} faded={false} onSelect={selectNode} handoff="Next: Ingest" />
-            ))}
-          </section>
-
-          <section className="market-agent-board-zone trace-zone" aria-label="Run trace">
-            <span>Run trace</span>
-            {visibleNodes.filter((node) => ["ingest-hub", "process-hub", "storage-bus", "evidence-packet", "ai-analysis", "output-hub"].includes(node.id)).map((node, index) => (
-              <div className="market-agent-trace-step" key={node.id}>
-                <b>{String(index + 1).padStart(2, "0")}</b>
-                <SignalNodeButton
-                  node={node}
-                  selected={selectedId === node.id}
-                  faded={Boolean(selectedId) && !activeTrace.has(node.id)}
-                  onSelect={selectNode}
-                  handoff={index === 0 ? "From: Assets, News, Calendar" : index === 5 ? "To: user surfaces" : "Next step"}
-                />
-              </div>
-            ))}
-          </section>
-
-          <section className="market-agent-board-zone feedback-zone" aria-label="Feedback queue">
-            <span>Feedback</span>
-            {visibleNodes.filter((node) => node.id === "feedback-hub").map((node) => (
-              <SignalNodeButton key={node.id} node={node} selected={selectedId === node.id} faded={false} onSelect={selectNode} handoff="Only when more data is needed" />
-            ))}
-            <p>Requests go back to source groups only when provider mapping, freshness, and evidence gates allow it.</p>
-          </section>
-        </div>
-      )}
+      {selectedNode ? <CausalMesh node={selectedNode} allNodes={allNodes} model={model} onClose={() => setSelectedId("")} /> : null}
+      {!selectedNode ? <MapBoard visibleNodes={visibleNodes} selectedId={selectedId} activeTrace={activeTrace} selectNode={selectNode} /> : null}
     </section>
   );
 }

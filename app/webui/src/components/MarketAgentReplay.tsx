@@ -132,7 +132,7 @@ const formatTimelineImpact = (row: TimelineRow) => {
   const segment = row.payload?.segment as Record<string, unknown> | undefined;
   const segmentImpact = numberValue(segment?.move_percent);
   const impact = payloadImpact ?? segmentImpact;
-  if (impact === null) return "Impact: watching";
+  if (impact === null) return "Context only";
   return `Impact: ${formatSignedValue(impact, "%")}`;
 };
 
@@ -152,6 +152,34 @@ const hasConfirmedDriver = (row: TimelineRow) => {
   return Boolean(driver && !["unknown", "no_state_change"].includes(driver));
 };
 
+const isContextOnlyAnalysisRow = (row: TimelineRow) => {
+  if (row.source !== "event") return false;
+  const driver = driverValue(row);
+  const impact = timelineImpactValue(row);
+  const causeStatus = normalizeValue(row.payload?.cause_status ?? row.status);
+  const summary = normalizeValue(row.payload?.summary ?? row.payload?.causal_chain);
+  return (
+    !driver ||
+    driver === "unknown" ||
+    causeStatus === "unconfirmed" ||
+    summary.includes("current_conclusion_is_paused") ||
+    impact === 0
+  );
+};
+
+const isAnalyzedNewsRow = (item: Record<string, unknown>) => {
+  const summarySource = normalizeValue(item.summary_source);
+  const reviewStatus = normalizeValue(item.review_status ?? item.evidence_status);
+  const driver = normalizeValue(item.main_driver ?? item.driver);
+  return Boolean(
+    summarySource === "local_ai" ||
+    reviewStatus.includes("accepted") ||
+    reviewStatus.includes("used") ||
+    (driver && driver !== "unknown") ||
+    numberValue(item.impact_percent) !== null
+  );
+};
+
 const isMaintenanceRow = (row: TimelineRow) => {
   const kind = inferTimelineKind(row);
   const status = normalizeValue(row.status);
@@ -169,7 +197,7 @@ const isMajorTimelineRow = (row: TimelineRow) => {
   const impact = timelineImpactValue(row);
   const status = normalizeValue(row.status);
   const title = normalizeValue(row.title);
-  if (isMaintenanceRow(row) || !hasConfirmedDriver(row)) return false;
+  if (isMaintenanceRow(row) || isContextOnlyAnalysisRow(row) || !hasConfirmedDriver(row)) return false;
   if (row.source === "alert") return typeof impact === "number" ? Math.abs(impact) >= 0.2 : true;
   if (["breakout", "reversal"].includes(kind)) return true;
   if (typeof impact === "number" && Math.abs(impact) >= 0.35) return true;
@@ -233,7 +261,7 @@ const buildTimelineRows = (payload: MarketAgentReplayResponse["replay"]): Timeli
       payload: item.payload,
       monitorRunId: item.monitor_run_id
     })),
-    ...payload.news_items.map((item, index) => ({
+    ...payload.news_items.filter(isAnalyzedNewsRow).map((item, index) => ({
       key: `news-${index}-${String(item.published_at ?? item.title ?? "")}`,
       time: String(item.published_at ?? item.first_seen_at ?? ""),
       type: "News",
@@ -269,6 +297,7 @@ const buildTimelineRows = (payload: MarketAgentReplayResponse["replay"]): Timeli
   ];
 
   return rows
+    .filter((row) => !isContextOnlyAnalysisRow(row))
     .filter((row) => row.time || row.title)
     .sort((left, right) => String(left.time).localeCompare(String(right.time)));
 };

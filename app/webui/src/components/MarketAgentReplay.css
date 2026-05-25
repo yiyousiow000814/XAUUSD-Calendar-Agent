@@ -271,7 +271,7 @@
 }
 
 [data-theme="light"] .market-agent-replay-track::before {
-  background: linear-gradient(180deg, rgba(58, 117, 187, 0.2), rgba(58, 117, 187, 0.48), rgba(58, 117, 187, 0.18));
+  background: linear-gradient(180deg, rgba(148, 163, 184, 0.08), rgba(100, 116, 139, 0.32), rgba(148, 163, 184, 0.08));
 }
 
 [data-theme="light"] .market-agent-replay-track-row time,
@@ -281,9 +281,61 @@
 }
 
 [data-theme="light"] .market-agent-replay-node {
+  justify-self: center;
+  width: 9px;
+  height: 9px;
+  margin-top: 5px;
+  border-width: 1px;
+  border-radius: 999px;
+  background: #64748b;
   box-shadow:
-    0 0 0 3px rgba(250, 252, 255, 0.98),
-    0 0 0 4px rgba(58, 117, 187, 0.14);
+    0 0 0 3px rgba(255, 255, 255, 0.96),
+    0 0 0 4px rgba(100, 116, 139, 0.1);
+}
+
+[data-theme="light"] .market-agent-replay-track-row.kind-red .market-agent-replay-node {
+  background: #b91c1c;
+  border-color: rgba(185, 28, 28, 0.34);
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.96),
+    0 0 0 4px rgba(185, 28, 28, 0.1);
+}
+
+[data-theme="light"] .market-agent-replay-track-row.kind-blue .market-agent-replay-node {
+  background: #2563eb;
+  border-color: rgba(37, 99, 235, 0.34);
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.96),
+    0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+[data-theme="light"] .market-agent-replay-track-row.kind-purple .market-agent-replay-node {
+  background: #6d28d9;
+  border-color: rgba(109, 40, 217, 0.32);
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.96),
+    0 0 0 4px rgba(109, 40, 217, 0.1);
+}
+
+[data-theme="light"] .market-agent-replay-track-row.kind-green .market-agent-replay-node {
+  background: #047857;
+  border-color: rgba(4, 120, 87, 0.32);
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.96),
+    0 0 0 4px rgba(4, 120, 87, 0.1);
+}
+
+[data-theme="light"] .market-agent-replay-track-row.kind-amber .market-agent-replay-node {
+  background: #b45309;
+  border-color: rgba(180, 83, 9, 0.32);
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.96),
+    0 0 0 4px rgba(180, 83, 9, 0.1);
+}
+
+[data-theme="light"] .market-agent-replay-track-row.kind-muted .market-agent-replay-node {
+  background: #64748b;
+  border-color: rgba(100, 116, 139, 0.32);
 }
 
 @media (max-width: 980px) {
