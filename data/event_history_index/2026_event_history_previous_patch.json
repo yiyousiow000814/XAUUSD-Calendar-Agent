@@ -1,5 +1,5 @@
 {
-  "generated_at": "27-05-2026 16:46",
+  "generated_at": "28-05-2026 16:51",
   "patches": [
     {
       "patch": "previous_missing_filled",
@@ -75,18 +75,6 @@
     },
     {
       "patch": "previous_missing_filled",
-      "event_id": "USD::Atlanta Fed GDPNow::none",
-      "cur": "USD",
-      "event": "Atlanta Fed GDPNow  (Q2)",
-      "period": "q2",
-      "date": "2026-06-01",
-      "time": "23:30",
-      "previous_raw": "",
-      "prior_actual": "4.3%",
-      "previous_effective": "4.3%"
-    },
-    {
-      "patch": "previous_missing_filled",
       "event_id": "AUD::RBA Bulletin::none",
       "cur": "AUD",
       "event": "RBA Bulletin",
@@ -106,8 +94,8 @@
       "date": "2026-06-04",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "209K",
-      "previous_effective": "209K"
+      "prior_actual": "215K",
+      "previous_effective": "215K"
     },
     {
       "patch": "previous_missing_filled",
@@ -118,8 +106,8 @@
       "date": "2026-06-04",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "202.50K",
-      "previous_effective": "202.50K"
+      "prior_actual": "209.00K",
+      "previous_effective": "209.00K"
     },
     {
       "patch": "previous_missing_filled",
@@ -130,8 +118,8 @@
       "date": "2026-06-04",
       "time": "22:30",
       "previous_raw": "",
-      "prior_actual": "101B",
-      "previous_effective": "101B"
+      "prior_actual": "92B",
+      "previous_effective": "92B"
     },
     {
       "patch": "previous_missing_filled",
@@ -142,8 +130,8 @@
       "date": "2026-06-04",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "1,782K",
-      "previous_effective": "1,782K"
+      "prior_actual": "1,786K",
+      "previous_effective": "1,786K"
     },
     {
       "patch": "previous_missing_filled",
@@ -190,8 +178,8 @@
       "date": "2026-06-04",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "3.610%",
-      "previous_effective": "3.610%"
+      "prior_actual": "3.630%",
+      "previous_effective": "3.630%"
     },
     {
       "patch": "previous_missing_filled",
@@ -214,8 +202,20 @@
       "date": "2026-06-04",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "3.600%",
-      "previous_effective": "3.600%"
+      "prior_actual": "3.615%",
+      "previous_effective": "3.615%"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "CAD::GDP::m/m",
+      "cur": "CAD",
+      "event": "GDP (MoM)  (Apr)",
+      "period": "apr",
+      "date": "2026-05-29",
+      "time": "20:30",
+      "previous_raw": "",
+      "prior_actual": "0.4%",
+      "previous_effective": "0.4%"
     }
   ]
 }
