@@ -293,7 +293,12 @@ class TimelineStore:
     def get_last_successful_run_at(self) -> str | None:
         with self._connect() as connection:
             row = connection.execute(
-                "SELECT run_started_at FROM monitor_runs ORDER BY id DESC LIMIT 1"
+                """
+                SELECT run_started_at
+                FROM monitor_runs
+                ORDER BY julianday(run_started_at) DESC, run_started_at DESC, id DESC
+                LIMIT 1
+                """
             ).fetchone()
         return None if row is None else str(row["run_started_at"])
 
@@ -379,7 +384,12 @@ class TimelineStore:
     def load_latest_driver_attention_states(self) -> dict[str, DriverAttentionState]:
         with self._connect() as connection:
             run_row = connection.execute(
-                "SELECT id FROM monitor_runs ORDER BY id DESC LIMIT 1"
+                """
+                SELECT id
+                FROM monitor_runs
+                ORDER BY julianday(run_started_at) DESC, run_started_at DESC, id DESC
+                LIMIT 1
+                """
             ).fetchone()
             if run_row is None:
                 return {}

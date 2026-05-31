@@ -32,9 +32,24 @@ def _read_stdin() -> dict[str, Any]:
 
 def _write_json_atomic(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    temp_path = path.with_suffix(f"{path.suffix}.tmp-{os.getpid()}")
+    temp_path = path.with_suffix(f"{path.suffix}.tmp-{os.getpid()}-{time.monotonic_ns()}")
     temp_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    temp_path.replace(path)
+    last_error: OSError | None = None
+    for attempt in range(3):
+        try:
+            temp_path.replace(path)
+            return
+        except OSError as exc:
+            last_error = exc
+            if attempt < 2:
+                time.sleep(0.05)
+    try:
+        temp_path.unlink(missing_ok=True)
+    except TypeError:
+        if temp_path.exists():
+            temp_path.unlink()
+    if last_error:
+        raise last_error
 
 
 def _mirror_snapshot_atomic(source_path: Path, destination_path: Path) -> bool:
@@ -43,10 +58,25 @@ def _mirror_snapshot_atomic(source_path: Path, destination_path: Path) -> bool:
     except OSError:
         return False
     destination_path.parent.mkdir(parents=True, exist_ok=True)
-    temp_path = destination_path.with_suffix(f"{destination_path.suffix}.tmp-{os.getpid()}")
-    temp_path.write_text(payload, encoding="utf-8")
-    temp_path.replace(destination_path)
-    return True
+    temp_path = destination_path.with_suffix(f"{destination_path.suffix}.tmp-{os.getpid()}-{time.monotonic_ns()}")
+    try:
+        temp_path.write_text(payload, encoding="utf-8")
+        for attempt in range(3):
+            try:
+                temp_path.replace(destination_path)
+                return True
+            except OSError:
+                if attempt < 2:
+                    time.sleep(0.05)
+        return False
+    except OSError:
+        return False
+    finally:
+        try:
+            temp_path.unlink(missing_ok=True)
+        except TypeError:
+            if temp_path.exists():
+                temp_path.unlink()
 
 
 def _append_spawn_debug(status_path: Path, payload: dict[str, Any]) -> None:

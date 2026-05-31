@@ -72,6 +72,34 @@ def _live_router(related_path=None, calendar_dir=None) -> ProviderRouter:
     )
 
 
+def _driver_state_payload(label: str, confirmed_at: str) -> dict[str, object]:
+    return {
+        "driver_id": "yields",
+        "label": label,
+        "category": "macro",
+        "current_state": "active",
+        "priority": "core_structural",
+        "relevance_score": 0.95,
+        "activation_reason": "Fresh yield move confirms the XAUUSD move.",
+        "deactivation_reason": "",
+        "first_activated_at": confirmed_at,
+        "last_confirmed_at": confirmed_at,
+        "last_evidence_at": confirmed_at,
+        "decay_deadline": "2026-05-31T19:57:17+08:00",
+        "linked_assets": ["us10y", "us2y"],
+        "required_evidence_gates": ["us10y", "us2y"],
+        "optional_evidence_gates": [],
+        "current_evidence_summary": "US yields confirm.",
+        "current_counter_evidence": "",
+        "confidence": "high",
+        "source_count": 1,
+        "related_news_count": 0,
+        "related_calendar_events": 0,
+        "notes": "",
+        "data_mode": "live_seen",
+    }
+
+
 def test_timeline_store_reports_storage_summary(tmp_path) -> None:
     store = TimelineStore(tmp_path / "timeline.sqlite")
     run_id = store.record_monitor_run(
@@ -111,6 +139,75 @@ def test_timeline_store_reports_storage_summary(tmp_path) -> None:
     assert summary["ranges"]["marketPriceBars"]["start"] == "2026-05-19T07:00:00+08:00"
     assert summary["ranges"]["newsItems"]["end"] == "2026-05-19T07:05:00+08:00"
     assert summary["compaction"]["mode"] == "indexed_range_reads"
+
+
+def test_last_successful_run_uses_run_started_at_not_insert_order(tmp_path) -> None:
+    store = TimelineStore(tmp_path / "timeline.sqlite")
+    store.record_monitor_run(
+        run_started_at="2026-05-31T18:27:17+08:00",
+        run_type="live",
+        data_mode="stale",
+        backfill_required=False,
+        last_successful_run_at=None,
+        no_news_found=True,
+        alert_suppressed_reason="Market closed.",
+    )
+    store.record_monitor_run(
+        run_started_at="2026-05-19T07:15:00+08:00",
+        run_type="live",
+        data_mode="live_seen",
+        backfill_required=False,
+        last_successful_run_at=None,
+        no_news_found=False,
+        alert_suppressed_reason="Inserted later by a fixture or replay.",
+    )
+
+    assert store.get_last_successful_run_at() == "2026-05-31T18:27:17+08:00"
+
+
+def test_latest_driver_attention_uses_run_started_at_not_insert_order(tmp_path) -> None:
+    store = TimelineStore(tmp_path / "timeline.sqlite")
+    latest_run_id = store.record_monitor_run(
+        run_started_at="2026-05-31T18:27:17+08:00",
+        run_type="live",
+        data_mode="stale",
+        backfill_required=False,
+        last_successful_run_at=None,
+        no_news_found=True,
+        alert_suppressed_reason="Market closed.",
+    )
+    older_run_id = store.record_monitor_run(
+        run_started_at="2026-05-19T07:15:00+08:00",
+        run_type="live",
+        data_mode="live_seen",
+        backfill_required=False,
+        last_successful_run_at=None,
+        no_news_found=False,
+        alert_suppressed_reason="Inserted later by a fixture or replay.",
+    )
+    store.record_driver_attention_states(
+        latest_run_id,
+        {
+            "yields": _driver_state_payload(
+                "Latest Yields",
+                "2026-05-31T18:27:17+08:00",
+            )
+        },
+    )
+    store.record_driver_attention_states(
+        older_run_id,
+        {
+            "yields": _driver_state_payload(
+                "Old Fixture Yields",
+                "2026-05-19T07:15:00+08:00",
+            )
+        },
+    )
+
+    states = store.load_latest_driver_attention_states()
+
+    assert states["yields"].label == "Latest Yields"
+    assert states["yields"].last_confirmed_at == "2026-05-31T18:27:17+08:00"
 
 
 def test_every_monitor_run_persists_even_when_alert_is_suppressed(tmp_path) -> None:

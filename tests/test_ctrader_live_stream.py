@@ -138,3 +138,19 @@ def test_ctrader_live_stream_classifies_weekend_stale_snapshot_as_market_closed(
     assert status["fresh"] is False
     assert status["classification"] == "market_closed"
     assert "closed" in status["message"].lower()
+
+
+def test_mirror_snapshot_returns_false_when_destination_replace_is_locked(tmp_path, monkeypatch) -> None:
+    source_path = tmp_path / "bridge-snapshot.json"
+    destination_path = tmp_path / "ctrader-live-quote.json"
+    source_path.write_text('{"ok": true, "mid": 4541.33}', encoding="utf-8")
+
+    def locked_replace(self, target):
+        if Path(target) == destination_path:
+            raise PermissionError("destination is locked")
+        return original_replace(self, target)
+
+    original_replace = Path.replace
+    monkeypatch.setattr(Path, "replace", locked_replace)
+
+    assert ctrader_live_stream._mirror_snapshot_atomic(source_path, destination_path) is False

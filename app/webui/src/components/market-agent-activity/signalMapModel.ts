@@ -871,7 +871,8 @@ export const buildSignalMapModel = ({
   telegramConfig,
   llmConfig
 }: BuildSignalMapArgs): SignalMapModel => {
-  const activity = monitorStatus?.activity ?? {};
+  const activityIsStale = monitorStatus?.activityStale === true;
+  const activity = activityIsStale ? {} : (monitorStatus?.activity ?? {});
   const cTraderEntry = activity.ctrader;
   const historyEntry = activity.history;
   const contextEntry = activity.context;
@@ -928,8 +929,8 @@ export const buildSignalMapModel = ({
   const replayStatus = textValue(replayEntry, "status") || (stats.timelineEvents ? "stored" : "pending");
   const alertStatus = textValue(alertEntry, "status") || (telegramConfig?.telegram?.enabled ? "ready" : "idle");
   const phaseLabel = humanizeMarketAgentValue(monitorStatus?.phase || (monitorStatus?.running ? "running" : "stopped"));
-  const phaseMessage = monitorStatus?.activityStale
-    ? `${monitorStatus?.message || "Monitor loop is stopped."} Latest stored run is ${String(monitorStatus.latestStoredRunAt || monitorStatus.latestMonitorRunId || "available")}; the trace rows are stale until the next app-managed monitor update.`
+  const phaseMessage = activityIsStale
+    ? `${monitorStatus?.message || "Monitor loop is stopped."} Latest stored run is ${String(monitorStatus.latestStoredRunAt || monitorStatus.latestMonitorRunId || "available")}; current signal rows use latest provider health, replay, and evidence instead of the stale activity snapshot.`
     : monitorStatus?.message || (monitorStatus?.running ? "Agent is checking the market." : "Agent is idle.");
   const historyProgress = numberValue(historyEntry, "progress");
   const allowedDrivers = listValue(evidenceEntry, "allowedCandidateDrivers");

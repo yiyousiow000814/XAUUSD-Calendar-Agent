@@ -3287,16 +3287,17 @@ fn build_live_quote_response_at(root: &Path, now_utc: chrono::DateTime<chrono::U
     });
     let (stale_phase, stale_message, stale_metadata) =
         stale_live_quote_context(snapshot.as_ref(), now_utc);
+    let quote_available = quote.is_some();
     let phase = if running {
         status.get("phase").cloned().unwrap_or(json!("running"))
-    } else if quote.is_some() {
+    } else if quote_available {
         json!(stale_phase)
     } else if status_running {
         status.get("phase").cloned().unwrap_or(json!("starting"))
     } else {
         status.get("phase").cloned().unwrap_or(json!("stopped"))
     };
-    let message = if !running && quote.is_some() {
+    let message = if !running && quote_available {
         json!(stale_message.clone())
     } else if status_running {
         status
@@ -3309,8 +3310,13 @@ fn build_live_quote_response_at(root: &Path, now_utc: chrono::DateTime<chrono::U
             .cloned()
             .unwrap_or(json!("Live quote stream is stopped."))
     };
+    let market_closed_context = !running && quote_available && stale_phase == "market_closed";
     let mut response_status = status.clone();
     if let Some(object) = response_status.as_object_mut() {
+        if running || market_closed_context {
+            object.insert("ok".to_string(), Value::Bool(true));
+            object.insert("lastError".to_string(), Value::String(String::new()));
+        }
         object.insert("running".to_string(), Value::Bool(running));
         object.insert("phase".to_string(), phase.clone());
         object.insert("message".to_string(), message.clone());
@@ -3346,11 +3352,11 @@ fn build_live_quote_response_at(root: &Path, now_utc: chrono::DateTime<chrono::U
         })
     });
     json!({
-        "ok": status.get("ok").and_then(Value::as_bool).unwrap_or(true),
+        "ok": response_status.get("ok").and_then(Value::as_bool).unwrap_or(true),
         "running": running,
         "phase": phase,
         "message": message,
-        "lastError": status.get("lastError").cloned().unwrap_or(Value::Null),
+        "lastError": response_status.get("lastError").cloned().unwrap_or(Value::Null),
         "snapshotPath": snapshot_path.display().to_string(),
         "status": response_status,
         "quote": quote.unwrap_or(Value::Null),
@@ -3440,7 +3446,10 @@ fn query_latest_monitor_run(
     }
     connection
         .query_row(
-            "SELECT id, run_started_at, data_mode FROM monitor_runs ORDER BY id DESC LIMIT 1",
+            "SELECT id, run_started_at, data_mode
+             FROM monitor_runs
+             ORDER BY julianday(run_started_at) DESC, run_started_at DESC, id DESC
+             LIMIT 1",
             [],
             |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
         )
@@ -3799,6 +3808,235 @@ fn read_range_payloads(
         "SELECT payload_json FROM {table} WHERE {time_column} >= ?1 AND {time_column} <= ?2 ORDER BY {time_column}, id"
     );
     query_payload_rows(connection, &sql, &[&start, &end])
+}
+
+fn news_value_text(item: &Value, key: &str) -> String {
+    item.get(key)
+        .and_then(Value::as_str)
+        .unwrap_or_default()
+        .trim()
+        .to_string()
+}
+
+fn normalize_news_key_part(value: &str) -> String {
+    value
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
+        .to_lowercase()
+}
+
+fn news_dedupe_key(item: &Value, fallback_index: usize) -> String {
+    let title = normalize_news_key_part(
+        &news_value_text(item, "title").if_empty_then(|| news_value_text(item, "summary_title")),
+    );
+    let link = normalize_news_key_part(&news_value_text(item, "link"));
+    if title.is_empty() && link.is_empty() {
+        return format!("row:{fallback_index}");
+    }
+    [
+        title,
+        normalize_news_key_part(&news_value_text(item, "source")),
+        news_value_text(item, "published_at"),
+        link,
+    ]
+    .join("|")
+}
+
+fn news_parse_timestamp_ms(value: &str) -> Option<i64> {
+    let text = value.trim();
+    if text.is_empty() {
+        return None;
+    }
+    chrono::DateTime::parse_from_rfc3339(text)
+        .map(|parsed| parsed.timestamp_millis())
+        .ok()
+}
+
+fn news_timestamp_score(value: &str) -> (i32, i64, String) {
+    if let Some(timestamp) = news_parse_timestamp_ms(value) {
+        return (1, timestamp, value.to_string());
+    }
+    (0, 0, value.to_string())
+}
+
+fn news_seen_at(item: &Value) -> String {
+    for key in [
+        "fetched_at",
+        "first_seen_at",
+        "backfilled_at",
+        "published_at",
+    ] {
+        let value = news_value_text(item, key);
+        if !value.is_empty() {
+            return value;
+        }
+    }
+    String::new()
+}
+
+fn news_seen_count(item: &Value) -> i64 {
+    if let Some(count) = item.get("seen_count").and_then(Value::as_i64) {
+        return count.max(1);
+    }
+    if let Some(count) = item.get("duplicate_count").and_then(Value::as_i64) {
+        return (count + 1).max(1);
+    }
+    1
+}
+
+fn news_item_preference(item: &Value) -> (i32, i32, i32, i64, String) {
+    let has_summary = [
+        "summary",
+        "short_summary",
+        "summary_source",
+        "ai_summary_source",
+    ]
+    .iter()
+    .any(|key| !news_value_text(item, key).is_empty());
+    let review_status = news_value_text(item, "review_status").to_lowercase();
+    let included = item.get("included").and_then(Value::as_bool) == Some(true)
+        || review_status.contains("included");
+    let seen_score = news_timestamp_score(&news_seen_at(item));
+    (
+        i32::from(has_summary),
+        i32::from(included),
+        seen_score.0,
+        seen_score.1,
+        seen_score.2,
+    )
+}
+
+trait EmptyStringExt {
+    fn if_empty_then<F: FnOnce() -> String>(self, fallback: F) -> String;
+}
+
+impl EmptyStringExt for String {
+    fn if_empty_then<F: FnOnce() -> String>(self, fallback: F) -> String {
+        if self.is_empty() {
+            fallback()
+        } else {
+            self
+        }
+    }
+}
+
+fn dedupe_news_items(items: Vec<Value>) -> Vec<Value> {
+    let mut groups: HashMap<String, Vec<Value>> = HashMap::new();
+    let mut order = vec![];
+    for (index, item) in items.into_iter().enumerate() {
+        let key = news_dedupe_key(&item, index);
+        if !groups.contains_key(&key) {
+            order.push(key.clone());
+        }
+        groups.entry(key).or_default().push(item);
+    }
+
+    let mut merged = vec![];
+    for key in order {
+        let Some(group) = groups.remove(&key) else {
+            continue;
+        };
+        let mut best = group
+            .iter()
+            .max_by_key(|item| news_item_preference(item))
+            .cloned()
+            .unwrap_or(Value::Null);
+        let seen_values: Vec<String> = group
+            .iter()
+            .map(news_seen_at)
+            .filter(|value| !value.is_empty())
+            .collect();
+        if let Some(first_seen_at) = seen_values
+            .iter()
+            .min_by_key(|value| news_timestamp_score(value))
+            .cloned()
+        {
+            if let Some(object) = best.as_object_mut() {
+                object.insert("first_seen_at".to_string(), Value::String(first_seen_at));
+            }
+        }
+        if let Some(last_seen_at) = seen_values
+            .iter()
+            .max_by_key(|value| news_timestamp_score(value))
+            .cloned()
+        {
+            if let Some(object) = best.as_object_mut() {
+                object.insert(
+                    "last_seen_at".to_string(),
+                    Value::String(last_seen_at.clone()),
+                );
+                object.insert("fetched_at".to_string(), Value::String(last_seen_at));
+            }
+        }
+        let seen_count: i64 = group.iter().map(news_seen_count).sum::<i64>().max(1);
+        if let Some(object) = best.as_object_mut() {
+            object.insert("seen_count".to_string(), Value::from(seen_count));
+            object.insert(
+                "duplicate_count".to_string(),
+                Value::from((seen_count - 1).max(0)),
+            );
+            let mut monitor_run_ids: Vec<i64> = group
+                .iter()
+                .filter_map(|item| item.get("monitor_run_id").and_then(Value::as_i64))
+                .collect();
+            monitor_run_ids.sort_unstable();
+            monitor_run_ids.dedup();
+            if !monitor_run_ids.is_empty() {
+                object.insert("monitor_run_ids".to_string(), json!(monitor_run_ids));
+            }
+            let mut storage_row_ids: Vec<i64> = group
+                .iter()
+                .filter_map(|item| item.get("storage_row_id").and_then(Value::as_i64))
+                .collect();
+            storage_row_ids.sort_unstable();
+            storage_row_ids.dedup();
+            if !storage_row_ids.is_empty() {
+                object.insert("storage_row_ids".to_string(), json!(storage_row_ids));
+            }
+        }
+        merged.push(best);
+    }
+    merged
+}
+
+fn read_news_items(
+    connection: &Connection,
+    start: &str,
+    end: &str,
+) -> Result<Vec<Value>, rusqlite::Error> {
+    if !table_exists(connection, "news_items") {
+        return Ok(vec![]);
+    }
+    let mut statement = connection.prepare(
+        "SELECT id, monitor_run_id, payload_json
+         FROM news_items
+         WHERE published_at >= ?1 AND published_at <= ?2
+         ORDER BY published_at, id",
+    )?;
+    let rows = statement.query_map([start, end], |row| {
+        Ok((
+            row.get::<_, i64>(0)?,
+            row.get::<_, i64>(1)?,
+            row.get::<_, String>(2)?,
+        ))
+    })?;
+    let mut items = vec![];
+    for row in rows.flatten() {
+        let (storage_row_id, monitor_run_id, payload_raw) = row;
+        if let Some(mut payload) = parse_json_value(payload_raw) {
+            if let Some(object) = payload.as_object_mut() {
+                object
+                    .entry("monitor_run_id")
+                    .or_insert_with(|| Value::from(monitor_run_id));
+                object
+                    .entry("storage_row_id")
+                    .or_insert_with(|| Value::from(storage_row_id));
+            }
+            items.push(payload);
+        }
+    }
+    Ok(dedupe_news_items(items))
 }
 
 fn calendar_dirs_for_root(root: &Path) -> Vec<PathBuf> {
@@ -4947,8 +5185,7 @@ pub(crate) fn read_market_agent_replay(root: &Path, start: &str, end: &str) -> V
             )
         }
     };
-    let news_items = read_range_payloads(&connection, "news_items", "published_at", start, end)
-        .unwrap_or_default();
+    let news_items = read_news_items(&connection, start, end).unwrap_or_default();
     let mut calendar_events = read_calendar_context_from_files(root, start, end);
     if calendar_events.is_empty() {
         calendar_events =
@@ -5462,6 +5699,82 @@ mod tests {
                 .and_then(Value::as_array)
                 .map(Vec::len),
             Some(1)
+        );
+    }
+
+    #[test]
+    fn market_replay_dedupes_repeated_news_fetches() {
+        let dir = unique_temp_dir("replay-news-dedupe");
+        let timeline_path = timeline_path_for_root(&dir);
+        seed_timeline_db(&timeline_path);
+        let connection = Connection::open(&timeline_path).expect("open sqlite");
+        connection
+            .execute("DELETE FROM news_items", [])
+            .expect("clear seeded news rows");
+        connection
+            .execute(
+                "INSERT INTO news_items (monitor_run_id, published_at, payload_json) VALUES (?1, ?2, ?3)",
+                params![
+                    1,
+                    "2026-05-19T07:55:00+08:00",
+                    json!({
+                        "title": "Fed headline",
+                        "source": "Reuters",
+                        "published_at": "2026-05-19T07:55:00+08:00",
+                        "first_seen_at": "2026-05-19T08:05:00+08:00",
+                        "included": false,
+                        "review_status": "filtered"
+                    }).to_string()
+                ],
+            )
+            .expect("insert repeated news row");
+        connection
+            .execute(
+                "INSERT INTO news_items (monitor_run_id, published_at, payload_json) VALUES (?1, ?2, ?3)",
+                params![
+                    1,
+                    "2026-05-19T07:55:00+08:00",
+                    json!({
+                        "title": "Fed headline",
+                        "source": "Reuters",
+                        "published_at": "2026-05-19T07:55:00+08:00",
+                        "first_seen_at": "2026-05-19T08:19:00+08:00",
+                        "included": false,
+                        "review_status": "filtered",
+                        "summary_source": "Local AI",
+                        "summary": "Repeated headline should render once in replay."
+                    }).to_string()
+                ],
+            )
+            .expect("insert preferred repeated news row");
+
+        let payload = read_market_agent_replay(
+            &dir,
+            "2026-05-19T07:00:00+08:00",
+            "2026-05-19T09:00:00+08:00",
+        );
+        let news_items = payload
+            .get("replay")
+            .and_then(|replay| replay.get("news_items"))
+            .and_then(Value::as_array)
+            .expect("news items");
+
+        assert_eq!(news_items.len(), 1);
+        assert_eq!(
+            news_items[0].get("summary_source").and_then(Value::as_str),
+            Some("Local AI")
+        );
+        assert_eq!(
+            news_items[0].get("seen_count").and_then(Value::as_i64),
+            Some(2)
+        );
+        assert_eq!(
+            news_items[0].get("duplicate_count").and_then(Value::as_i64),
+            Some(1)
+        );
+        assert_eq!(
+            news_items[0].get("last_seen_at").and_then(Value::as_str),
+            Some("2026-05-19T08:19:00+08:00")
         );
     }
 
@@ -6132,6 +6445,50 @@ mod tests {
     }
 
     #[test]
+    fn provider_health_latest_uses_run_started_at_not_insert_order() {
+        let dir = unique_temp_dir("provider-health-latest-run-time");
+        let timeline_path = timeline_path_for_root(&dir);
+        seed_timeline_db(&timeline_path);
+        let connection = Connection::open(&timeline_path).expect("open sqlite");
+        connection
+            .execute(
+                "INSERT INTO monitor_runs (run_started_at, run_type, data_mode, backfill_required, no_news_found, alert_suppressed_reason, created_at)
+                 VALUES ('2026-05-19T07:15:00+08:00', 'live', 'live_seen', 0, 0, 'inserted later by replay', '2026-05-19T07:15:00+08:00')",
+                [],
+            )
+            .expect("insert older run");
+        let older_run_id = connection.last_insert_rowid();
+        connection
+            .execute(
+                "INSERT INTO provider_health (monitor_run_id, provider_key, payload_json) VALUES (?1, ?2, ?3)",
+                params![
+                    older_run_id,
+                    "xauusd",
+                    json!({
+                        "source": "cTrader",
+                        "source_type": "spot",
+                        "data_mode": "live_seen",
+                        "is_available": true,
+                        "is_stale": false,
+                        "data_timestamp": "2026-05-19T07:15:00+08:00",
+                    })
+                    .to_string()
+                ],
+            )
+            .expect("insert older health");
+
+        let (monitor_run_id, run_started_at, items) =
+            read_provider_health_latest(&connection).expect("read provider health");
+
+        assert_eq!(monitor_run_id, Some(1));
+        assert_eq!(run_started_at.as_deref(), Some("2026-05-19T08:00:00+08:00"));
+        assert_eq!(
+            items[0].get("source").and_then(Value::as_str),
+            Some("Yahoo Finance")
+        );
+    }
+
+    #[test]
     fn live_quote_response_marks_dead_stale_stream_as_not_running() {
         let dir = unique_temp_dir("live-quote-dead-stale-response");
         let status_path = live_quote_stream_status_path_for_root(&dir);
@@ -6239,6 +6596,62 @@ mod tests {
                 .and_then(Value::as_str),
             Some("stale")
         );
+        assert_eq!(
+            response
+                .get("provider_health")
+                .and_then(|health| health.get("metadata"))
+                .and_then(|metadata| metadata.get("stale_classification"))
+                .and_then(Value::as_str),
+            Some("market_closed")
+        );
+    }
+
+    #[test]
+    fn live_quote_response_ignores_stale_status_error_when_market_closed_snapshot_exists() {
+        let dir = unique_temp_dir("live-quote-market-closed-status-error");
+        let status_path = live_quote_stream_status_path_for_root(&dir);
+        let snapshot_path = live_quote_snapshot_path_for_root(&dir);
+        write_json_atomic(
+            &status_path,
+            &json!({
+                "ok": false,
+                "running": false,
+                "phase": "error",
+                "pid": null,
+                "message": "Unable to update cTrader live quote stream status.",
+                "lastError": "[WinError 5] Access is denied while replacing ctrader-live-quote.json",
+                "snapshotPath": snapshot_path.display().to_string(),
+            }),
+        )
+        .expect("write status");
+        write_json_atomic(
+            &snapshot_path,
+            &json!({
+                "ok": true,
+                "symbol": "XAUUSD",
+                "bid": 4541.13,
+                "ask": 4541.53,
+                "mid": 4541.33,
+                "timestamp": "2026-05-29T20:56:59.947000+00:00",
+            }),
+        )
+        .expect("write live snapshot");
+        let stale_time = FileTime::from_system_time(SystemTime::now() - Duration::from_secs(120));
+        set_file_mtime(&snapshot_path, stale_time).expect("age snapshot");
+
+        let response = build_live_quote_response_at(
+            &dir,
+            chrono::DateTime::parse_from_rfc3339("2026-05-31T16:28:00+08:00")
+                .expect("parse now")
+                .with_timezone(&chrono::Utc),
+        );
+
+        assert_eq!(response.get("ok").and_then(Value::as_bool), Some(true));
+        assert_eq!(
+            response.get("phase").and_then(Value::as_str),
+            Some("market_closed")
+        );
+        assert_eq!(response.get("lastError").and_then(Value::as_str), Some(""));
         assert_eq!(
             response
                 .get("provider_health")
