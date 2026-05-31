@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import type { SignalDecisionTraceItem, SignalMapModel, SignalNode } from "./signalMapModel";
+import { formatLocalDateTime } from "../../utils/calendarTime";
 
 type CausalMeshProps = {
   node: SignalNode;
@@ -20,6 +21,27 @@ const uniqueById = (nodes: SignalNode[]) => Array.from(new Map(nodes.map((node) 
 const metaAfter = (items: string[], prefix: string) => {
   const match = items.find((item) => item.toLowerCase().startsWith(prefix.toLowerCase()));
   return match ? match.slice(prefix.length).trim() : "--";
+};
+
+const formatHistoryTime = (value: string) => {
+  if (!value || value === "--" || value.toLowerCase() === "not recorded") return value || "--";
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return formatLocalDateTime(parsed);
+};
+
+const displayMetaValue = (label: string, value: string) => {
+  if (/_at$/i.test(label.trim())) return formatHistoryTime(value);
+  return value;
+};
+
+const splitMeta = (meta: string) => {
+  const [label, ...rest] = meta.split(":");
+  const value = rest.join(":").trim();
+  return {
+    label: rest.length ? label : "record",
+    value: rest.length ? displayMetaValue(label, value) : meta
+  };
 };
 
 const compactStatus = (status: string) => status.replace(/_/g, " ");
@@ -177,41 +199,102 @@ const renderRecordRows = (sectionTitle: string, node: SignalNode, rows: NonNulla
   );
 };
 
+const renderHistoryRows = (sectionTitle: string, node: SignalNode, rows: NonNullable<SignalNode["history"]>[number]["rows"], onSelect: (row: NonNullable<SignalNode["history"]>[number]["rows"][number]) => void) => {
+  if (!rows.length) {
+    return (
+      <article className="market-agent-trace-row">
+        <div>
+          <span>empty</span>
+          <strong>No history rows</strong>
+          <p>No captured rows exist for this run/range.</p>
+        </div>
+      </article>
+    );
+  }
+
+  return (
+    <div className="market-agent-history-record-list" role="list" aria-label={`${sectionTitle} rows`}>
+      <div className="market-agent-history-record-head" aria-hidden="true">
+        <span>Status</span>
+        <span>Headline</span>
+        <span>Source</span>
+        <span>Published</span>
+        <span>Fetched</span>
+        <span>AI</span>
+      </div>
+      {rows.map((row, rowIndex) => {
+        const source = metaAfter(row.meta, "source:");
+        const publishedAtRaw = metaAfter(row.meta, "published_at:");
+        const fetchedAtRaw = metaAfter(row.meta, "fetched_at:");
+        const publishedAt = formatHistoryTime(publishedAtRaw);
+        const fetchedAt = formatHistoryTime(fetchedAtRaw);
+        const summarySource = metaAfter(row.meta, "summary_source:");
+        const aiState = summarySource === "--" || summarySource === "not recorded" ? "not processed" : summarySource;
+        return (
+          <button
+            type="button"
+            key={`${sectionTitle}-${row.label}-${row.status}-${rowIndex}`}
+            className={`market-agent-history-record status-${statusKind(row.status)} tone-${strengthFor({ ...node, tone: node.tone, status: row.status })}`}
+            aria-label={`${row.label} history record`}
+            onClick={() => onSelect(row)}
+          >
+            <span>{compactStatus(row.status)}</span>
+            <strong>{row.label}</strong>
+            <em>{source}</em>
+            <time dateTime={publishedAtRaw === "--" ? undefined : publishedAtRaw} title={publishedAtRaw === publishedAt ? undefined : publishedAtRaw}>{publishedAt}</time>
+            <time dateTime={fetchedAtRaw === "--" ? undefined : fetchedAtRaw} title={fetchedAtRaw === fetchedAt ? undefined : fetchedAtRaw}>{fetchedAt}</time>
+            <small>{aiState}</small>
+          </button>
+        );
+      })}
+    </div>
+  );
+};
+
 function AiHistoryPane({ model }: { model: SignalMapModel }) {
   const trace = model.decisionTrace;
   const [selectedItem, setSelectedItem] = useState<SignalDecisionTraceItem | null>(null);
+  const hasItems = trace.items.length > 0;
 
   return (
     <section className="market-agent-history-ledger compact" aria-label="AI analysis history">
       <header>
         <div>
           <span>AI History</span>
-          <h4>Completed analysis filings</h4>
+          <h4>Completed Local AI calls</h4>
           <p>{trace.summary}</p>
         </div>
       </header>
-      <div className="market-agent-history-list" role="table" aria-label="Completed AI history filings">
-        <div className="market-agent-history-head" role="row">
-          <span>Time</span>
-          <span>Name</span>
-          <span>Type</span>
-          <span>Status</span>
+      {hasItems ? (
+        <div className="market-agent-history-list" role="table" aria-label="Completed AI history filings">
+          <div className="market-agent-history-head" role="row">
+            <span>Time</span>
+            <span>Name</span>
+            <span>Type</span>
+            <span>Status</span>
+          </div>
+          {trace.items.map((item) => (
+            <button
+              type="button"
+              className={`market-agent-history-row ${decisionTone(item)}`}
+              key={`${item.label}-${item.status}`}
+              onClick={() => setSelectedItem(item)}
+              role="row"
+            >
+              <span role="cell">{trace.runLabel}</span>
+              <strong role="cell">{item.label}</strong>
+              <span role="cell">{item.meta[2]?.replace(/^history:\s*/i, "") || item.meta[0] || "analysis"}</span>
+              <em role="cell">{item.status}</em>
+            </button>
+          ))}
         </div>
-        {trace.items.map((item) => (
-          <button
-            type="button"
-            className={`market-agent-history-row ${decisionTone(item)}`}
-            key={`${item.label}-${item.status}`}
-            onClick={() => setSelectedItem(item)}
-            role="row"
-          >
-            <span role="cell">{trace.runLabel}</span>
-            <strong role="cell">{item.label}</strong>
-            <span role="cell">{item.meta[2]?.replace(/^history:\s*/i, "") || item.meta[0] || "analysis"}</span>
-            <em role="cell">{item.status}</em>
-          </button>
-        ))}
-      </div>
+      ) : (
+        <section className="market-agent-quiet-state" aria-label="No AI history recorded">
+          <span>Idle</span>
+          <strong>No Local AI call recorded for this run</strong>
+          <p>Analysis results, source rows, and notification decisions are still available under Status or Outputs audit.</p>
+        </section>
+      )}
       {selectedItem ? (
         <div className="market-agent-history-modal-backdrop" role="presentation" onClick={() => setSelectedItem(null)}>
           <article
@@ -233,11 +316,11 @@ function AiHistoryPane({ model }: { model: SignalMapModel }) {
             <p>{selectedItem.detail}</p>
             <dl>
               {selectedItem.meta.map((meta) => {
-                const [label, ...rest] = meta.split(":");
+                const { label, value } = splitMeta(meta);
                 return (
                   <div key={meta}>
-                    <dt>{rest.length ? label : "record"}</dt>
-                    <dd>{rest.length ? rest.join(":").trim() : meta}</dd>
+                    <dt>{label}</dt>
+                    <dd>{value}</dd>
                   </div>
                 );
               })}
@@ -253,9 +336,9 @@ function AiOngoingPane({ model, nodes }: { model: SignalMapModel; nodes: SignalN
   const [selectedNode, setSelectedNode] = useState<SignalNode | null>(null);
   const ongoingNodes = statusNodesFor(nodes).filter((node) => {
     const status = node.status.toLowerCase();
-    return ["running", "checking", "collecting", "syncing", "queued", "waiting", "watching"].some((keyword) => status.includes(keyword));
+    return ["running", "checking", "collecting", "syncing", "queued"].some((keyword) => status.includes(keyword));
   });
-  const rows = ongoingNodes.length ? ongoingNodes : statusNodesFor(nodes).slice(0, 4);
+  const rows = ongoingNodes;
 
   return (
     <section className="market-agent-ongoing-ledger compact" aria-label="AI ongoing work">
@@ -267,28 +350,36 @@ function AiOngoingPane({ model, nodes }: { model: SignalMapModel; nodes: SignalN
         </div>
         <strong>{model.phaseLabel}</strong>
       </header>
-      <div className="market-agent-history-list" role="table" aria-label="Current AI work filings">
-        <div className="market-agent-history-head" role="row">
-          <span>Time</span>
-          <span>Name</span>
-          <span>Area</span>
-          <span>Status</span>
+      {rows.length ? (
+        <div className="market-agent-history-list" role="table" aria-label="Current AI work filings">
+          <div className="market-agent-history-head" role="row">
+            <span>Time</span>
+            <span>Name</span>
+            <span>Area</span>
+            <span>Status</span>
+          </div>
+          {rows.map((node) => (
+            <button
+              type="button"
+              className={`market-agent-history-row tone-${node.tone}`}
+              key={node.id}
+              onClick={() => setSelectedNode(node)}
+              role="row"
+            >
+              <span role="cell">{model.decisionTrace.runLabel || "Now"}</span>
+              <strong role="cell">{node.label}</strong>
+              <span role="cell">{node.lane}</span>
+              <em role="cell">{node.status}</em>
+            </button>
+          ))}
         </div>
-        {rows.map((node) => (
-          <button
-            type="button"
-            className={`market-agent-history-row tone-${node.tone}`}
-            key={node.id}
-            onClick={() => setSelectedNode(node)}
-            role="row"
-          >
-            <span role="cell">{model.decisionTrace.runLabel || "Now"}</span>
-            <strong role="cell">{node.label}</strong>
-            <span role="cell">{node.lane}</span>
-            <em role="cell">{node.status}</em>
-          </button>
-        ))}
-      </div>
+      ) : (
+        <section className="market-agent-quiet-state" aria-label="No active AI work">
+          <span>Idle</span>
+          <strong>No active AI or data request</strong>
+          <p>Completed records are available in History, Status, and Outputs audit.</p>
+        </section>
+      )}
       {selectedNode ? (
         <div className="market-agent-history-modal-backdrop" role="presentation" onClick={() => setSelectedNode(null)}>
           <article
@@ -333,6 +424,51 @@ function AiOngoingPane({ model, nodes }: { model: SignalMapModel; nodes: SignalN
   );
 }
 
+function NodeHistoryPane({ node }: { node: SignalNode }) {
+  const [selectedRow, setSelectedRow] = useState<NonNullable<SignalNode["history"]>[number]["rows"][number] | null>(null);
+  const historyRows = (node.history ?? []).flatMap((section) => section.rows);
+  const historyTitle = node.label === "News" ? "News history" : `${node.label} history`;
+
+  return (
+    <div className="market-agent-operational-trace" aria-label={`${node.label} history trace`}>
+      {renderHistoryRows(historyTitle, node, historyRows, setSelectedRow)}
+      {selectedRow ? (
+        <div className="market-agent-history-modal-backdrop" role="presentation" onClick={() => setSelectedRow(null)}>
+          <article
+            className={`market-agent-history-modal tone-${node.tone}`}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${selectedRow.label} history detail`}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header>
+              <div>
+                <span>{selectedRow.status}</span>
+                <h4>{selectedRow.label}</h4>
+              </div>
+              <button type="button" onClick={() => setSelectedRow(null)} aria-label="Close history detail">
+                Close
+              </button>
+            </header>
+            {selectedRow.detail ? <p>{selectedRow.detail}</p> : null}
+            <dl>
+              {selectedRow.meta.map((meta) => {
+                const { label, value } = splitMeta(meta);
+                return (
+                  <div key={meta}>
+                    <dt>{label}</dt>
+                    <dd>{value}</dd>
+                  </div>
+                );
+              })}
+            </dl>
+          </article>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function AiStatusPane({ model, nodes }: { model: SignalMapModel; nodes: SignalNode[] }) {
   return (
     <section className="market-agent-status-ledger compact" aria-label="AI status snapshot">
@@ -366,6 +502,7 @@ function AiStatusPane({ model, nodes }: { model: SignalMapModel; nodes: SignalNo
 
 export function CausalMesh({ node, allNodes, model, onClose }: CausalMeshProps) {
   const isAiAnalysis = node.id === "ai-analysis";
+  const hasNodeHistory = Boolean(node.history?.length);
   const [view, setView] = useState<"map" | "overview" | "history" | "records" | "requests">(isAiAnalysis ? "map" : "overview");
   const upstream = uniqueById(allNodes.filter((candidate) => candidate.id !== node.id && node.trace.includes(candidate.id))).slice(0, 5);
   const downstream = uniqueById(allNodes.filter((candidate) => candidate.id !== node.id && candidate.trace.includes(node.id))).slice(0, 5);
@@ -412,6 +549,11 @@ export function CausalMesh({ node, allNodes, model, onClose }: CausalMeshProps) 
             <button type="button" className={tabClass("overview")} onClick={() => setView("overview")}>
               Summary
             </button>
+            {hasNodeHistory ? (
+              <button type="button" className={tabClass("history")} onClick={() => setView("history")}>
+                History
+              </button>
+            ) : null}
             {node.drilldown?.length || node.requests?.length ? (
               <button type="button" className={tabClass("records")} onClick={() => setView("records")}>
                 Status
@@ -475,6 +617,7 @@ export function CausalMesh({ node, allNodes, model, onClose }: CausalMeshProps) 
 
         {isAiAnalysis && view === "overview" ? <AiOngoingPane model={model} nodes={allNodes} /> : null}
         {isAiAnalysis && view === "history" ? <AiHistoryPane model={model} /> : null}
+        {!isAiAnalysis && view === "history" && hasNodeHistory ? <NodeHistoryPane node={node} /> : null}
 
         {view === "overview" && !isAiAnalysis ? (
           <div className="market-agent-focus-overview">

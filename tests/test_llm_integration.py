@@ -81,6 +81,45 @@ class FakeBlockedLLM:
         }
 
 
+class FakeTypeLooseLLM:
+    def analyze(self, evidence_packet):
+        return {
+            "bias": "neutral",
+            "main_driver": "unknown",
+            "secondary_driver": "",
+            "cause_status": "unconfirmed",
+            "confidence": "low",
+            "is_new_state": False,
+            "is_continuation": True,
+            "previous_state_invalidated": False,
+            "should_notify": False,
+            "notification_level": "none",
+            "no_news_found": False,
+            "allowed_candidate_drivers_used": "unknown",
+            "rejected_or_blocked_drivers_acknowledged": ["fed_rates", "yields"],
+            "timeline": None,
+            "cross_asset_confirmation": {
+                "dxy": "stale",
+                "us10y": "stale",
+                "us2y": "unavailable",
+                "oil": "stale",
+                "vix_equities": "stale",
+            },
+            "evidence_status": {
+                "dxy": "stale",
+                "us10y": "stale",
+                "us2y": "unavailable",
+                "oil": "stale",
+                "vix_equities": "stale",
+                "news": "relevant_news_found",
+            },
+            "causal_chain": [],
+            "invalidation_conditions": None,
+            "user_message": "",
+            "summary": "Current conclusion is paused until live XAUUSD resumes.",
+        }
+
+
 def test_analyze_fixture_with_optional_llm_accepts_allowed_driver() -> None:
     fixture = load_builtin_fixture("yield_pressure_confirmed")
 
@@ -99,6 +138,19 @@ def test_analyze_fixture_with_optional_llm_rejects_blocked_driver() -> None:
 
     assert result.main_driver == "unknown"
     assert result.rejected_driver == "fed_rates"
+    assert result.analysis_engine == "llm_validated"
+    assert result.llm_status == "validated"
+
+
+def test_analyze_fixture_with_optional_llm_accepts_type_loose_unknown_payload() -> None:
+    fixture = load_builtin_fixture("llm_hallucination_guard")
+
+    result = analyze_fixture_with_optional_llm(fixture, llm_client=FakeTypeLooseLLM())
+
+    assert result.main_driver == "unknown"
+    assert result.secondary_driver is None
+    assert result.timeline == []
+    assert result.user_message == "Current conclusion is paused until live XAUUSD resumes."
     assert result.analysis_engine == "llm_validated"
     assert result.llm_status == "validated"
 
@@ -153,6 +205,63 @@ def test_local_llm_prompt_contains_compact_evidence_packet(monkeypatch) -> None:
     assert "driver_attention_summary" in prompt
     assert "data_mode" in prompt
     assert "previous_state" in prompt
+    assert "Required JSON object keys" in prompt
+
+
+def test_local_llm_parses_qwen_thinking_json_when_response_is_empty(monkeypatch) -> None:
+    class FakeResponse:
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict[str, str]:
+            return {
+                "response": "",
+                "thinking": json.dumps(
+                    {
+                        "bias": "neutral",
+                        "main_driver": "unknown",
+                        "secondary_driver": None,
+                        "cause_status": "unconfirmed",
+                        "confidence": "low",
+                        "is_new_state": False,
+                        "is_continuation": False,
+                        "previous_state_invalidated": False,
+                        "should_notify": False,
+                        "notification_level": "none",
+                        "no_news_found": False,
+                        "allowed_candidate_drivers_used": ["unknown"],
+                        "rejected_or_blocked_drivers_acknowledged": True,
+                        "timeline": [],
+                        "cross_asset_confirmation": {
+                            "dxy": "stale",
+                            "us10y": "stale",
+                            "us2y": "unavailable",
+                            "oil": "stale",
+                            "vix_equities": "stale",
+                        },
+                        "evidence_status": {
+                            "dxy": "stale",
+                            "us10y": "stale",
+                            "us2y": "unavailable",
+                            "oil": "stale",
+                            "vix_equities": "stale",
+                            "news": "relevant_news_found",
+                        },
+                        "causal_chain": "Current conclusion is paused until live XAUUSD resumes.",
+                        "invalidation_conditions": [],
+                        "user_message": "Current conclusion is paused until live XAUUSD resumes.",
+                    }
+                ),
+            }
+
+    monkeypatch.setattr("requests.post", lambda *args, **kwargs: FakeResponse())
+    client = LocalLLMClient(LocalLLMConfig(enabled=True))
+
+    result = client.analyze({"allowed_candidate_drivers": ["unknown"]})
+
+    assert result is not None
+    assert result["main_driver"] == "unknown"
+    assert client.get_telemetry()[0]["status"] == "ok"
 
 
 def test_local_llm_summarize_display_returns_structured_short_rows(monkeypatch) -> None:

@@ -5,6 +5,7 @@ import { MarketAgentPage } from "../components/MarketAgentPage";
 import type {
   MarketAgentDriverAttentionResponse,
   MarketAgentEvidenceForRunResponse,
+  MarketAgentLiveQuoteResponse,
   MarketAgentProviderConfigResponse,
   MarketAgentProviderHealthResponse,
   MarketAgentReplayResponse,
@@ -98,7 +99,7 @@ const providerConfig: MarketAgentProviderConfigResponse = {
     ctidMasked: "tr******er",
     passwordMasked: "************",
     hasPassword: true,
-    snapshotPath: "user-data/ctrader-last-quote.json",
+    snapshotPath: "user-data/ctrader-live-quote.json",
     quoteTimeoutSeconds: 8,
     quoteStaleAfterSeconds: 15,
     allowSavedSnapshotFallback: true,
@@ -130,8 +131,8 @@ const llmConfig: MarketAgentLLMConfigResponse = {
     provider: "ollama",
     endpoint: "http://127.0.0.1:21434",
     model: "qwen3.5:4b",
-    temperature: 0.1,
-    timeoutSeconds: 20,
+    temperature: 0,
+    timeoutSeconds: 30,
     keepAlive: "0",
     maxContext: 8192,
     configPath: "user-data/market-agent-llm.json",
@@ -331,7 +332,7 @@ const replay: MarketAgentReplayResponse = {
       nasdaq: []
     },
     news_items: [{ title: "Fed headline", published_at: "2026-05-19T08:03:00+08:00", source: "Reuters", data_mode: "backfilled", semantic_type: "news", impact_percent: -0.21 }],
-    calendar_events: [{ title: "US session opens", scheduled_at: "2026-05-19T08:15:00+08:00", source: "ForexFactory", data_mode: "live_seen", semantic_type: "session", impact_percent: -0.08 }],
+    calendar_events: [{ title: "US session opens", scheduled_at: "2026-05-19T08:15:00+08:00", source: "Economic Calendar", data_mode: "live_seen", semantic_type: "session", impact_percent: -0.08 }],
     driver_attention_timeline: [],
     timeline_events: [
       { monitor_run_id: 23, event_time: "2026-05-19T08:05:00+08:00", event_type: "market_alert", label: "Yields pressure", payload: { semantic_type: "breakout", impact_percent: -0.48, main_driver: "yields" } },
@@ -425,7 +426,7 @@ const marketAgentPageElement = (overrides: Partial<Parameters<typeof MarketAgent
       onCancelModelDownload={async () => ({ ok: true, status: "cancelled" })}
       onBenchmarkLLM={async () => ({ ok: true, status: "model_ready", elapsedMs: 900, message: "Benchmark passed." })}
       onApplyLLMFallbackPolicy={async () => ({ ok: true, status: "model_ready", model: "qwen3.5:4b" })}
-      onStartCTraderConnect={async () => ({ ok: true, status: "preparing_live_feed", message: "cTrader is connected. Preparing live XAUUSD and syncing history in the background.", ctrader: providerConfig.ctrader })}
+      onStartCTraderConnect={async () => ({ ok: true, status: "waiting_for_live_connector", message: "cTrader account is connected. Live streaming is waiting for the long-running connector snapshot; cTrader CLI cBot streaming is disabled to avoid external algo host windows.", ctrader: providerConfig.ctrader })}
       onTestCTraderBackfill={async () => ({ ok: true, message: "M1 backfill is available." })}
       onRunMonitorOnce={async () => monitorStatus}
       onRunBackfillRecovery={async () => ({ ...monitorStatus, phase: "recovery_completed", message: "Backfill recovery completed." })}
@@ -481,7 +482,7 @@ describe("MarketAgentPage", () => {
         onCancelModelDownload={async () => ({ ok: true, status: "cancelled" })}
         onBenchmarkLLM={async () => ({ ok: true, status: "model_ready", elapsedMs: 900, message: "Benchmark passed." })}
         onApplyLLMFallbackPolicy={async () => ({ ok: true, status: "model_ready", model: "qwen3.5:4b" })}
-        onStartCTraderConnect={async () => ({ ok: true, status: "preparing_live_feed", message: "cTrader is connected. Preparing live XAUUSD and syncing history in the background.", ctrader: providerConfig.ctrader })}
+        onStartCTraderConnect={async () => ({ ok: true, status: "waiting_for_live_connector", message: "cTrader account is connected. Live streaming is waiting for the long-running connector snapshot; cTrader CLI cBot streaming is disabled to avoid external algo host windows.", ctrader: providerConfig.ctrader })}
         onTestCTraderBackfill={async () => ({ ok: true, message: "M1 backfill is available." })}
         onRunMonitorOnce={async () => monitorStatus}
         onRunBackfillRecovery={async () => ({ ...monitorStatus, phase: "recovery_completed", message: "Backfill recovery completed." })}
@@ -564,6 +565,109 @@ describe("MarketAgentPage", () => {
     expect(screen.queryByText("futures_proxy")).not.toBeInTheDocument();
     expect(screen.queryByText("core_structural")).not.toBeInTheDocument();
     expect(screen.queryByText(/No reliable free US2Y source is configured\./i)).not.toBeInTheDocument();
+  });
+
+  it("does not bounce back to Dashboard when a controlled section changes", async () => {
+    const onSectionChange = vi.fn();
+    renderMarketAgentPage({
+      activeSection: "live",
+      onSectionChange
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /^Evidence$/i }));
+
+    await waitFor(() => {
+      expect(onSectionChange).toHaveBeenCalledWith("evidence");
+    });
+    expect(onSectionChange).not.toHaveBeenCalledWith("live");
+  });
+
+  it("shows the current XAUUSD price from provider health instead of stale replay price", () => {
+    const liveProviderHealth: MarketAgentProviderHealthResponse = {
+      ...providerHealth,
+      items: providerHealth.items.map((item) =>
+        item.provider_key === "xauusd"
+          ? {
+              ...item,
+              current_value: 4568.9,
+              previous_value: 4567.4,
+              change_value: 1.5,
+              change_unit: "price",
+              data_timestamp: freshProviderTimestamp(),
+              fetched_at: freshProviderTimestamp()
+            }
+          : item
+      )
+    };
+    const staleReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        price_series: [
+          {
+            timestamp: "2026-05-19T08:00:00+08:00",
+            close_price: 4479,
+            change_value: 0,
+            change_pct: 0
+          } as unknown as MarketAgentReplayResponse["replay"]["price_series"][number]
+        ]
+      }
+    };
+
+    renderMarketAgentPage({ providerHealth: liveProviderHealth, replay: staleReplay });
+
+    const priceCard = screen.getByRole("heading", { name: /XAUUSD \(Spot\)/i }).closest("article") as HTMLElement;
+    expect(within(priceCard).getByText("4,568.90")).toBeInTheDocument();
+    expect(within(priceCard).queryByText("4,479.00")).not.toBeInTheDocument();
+  });
+
+  it("prefers the dedicated live quote stream over stale provider health on the XAUUSD spot card", () => {
+    const liveQuote: MarketAgentLiveQuoteResponse = {
+      ok: true,
+      running: true,
+      phase: "running",
+      message: "Live quote stream is running.",
+      quote: {
+        symbol: "XAUUSD",
+        bid: 4508.8,
+        ask: 4509.2,
+        mid: 4509,
+        timestamp: freshProviderTimestamp(),
+        source: "cTrader",
+        source_type: "spot"
+      },
+      provider_health: {
+        provider_key: "xauusd",
+        source: "cTrader",
+        source_type: "spot",
+        data_mode: "live_seen",
+        is_available: true,
+        is_stale: false,
+        current_value: 4509,
+        data_timestamp: freshProviderTimestamp(),
+        fetched_at: freshProviderTimestamp()
+      }
+    };
+    const staleProviderHealth: MarketAgentProviderHealthResponse = {
+      ...providerHealth,
+      items: providerHealth.items.map((item) =>
+        item.provider_key === "xauusd"
+          ? {
+              ...item,
+              current_value: 4479,
+              data_timestamp: "2026-05-19T08:00:00+08:00",
+              fetched_at: "2026-05-19T08:00:00+08:00"
+            }
+          : item
+      )
+    };
+
+    renderMarketAgentPage({ providerHealth: staleProviderHealth, liveQuote });
+
+    const priceCard = screen.getByRole("heading", { name: /XAUUSD \(Spot\)/i }).closest("article") as HTMLElement;
+    expect(within(priceCard).getByText("4,509.00")).toBeInTheDocument();
+    expect(within(priceCard).queryByText("4,479.00")).not.toBeInTheDocument();
+    expect(within(priceCard).getByText(/^Live$/i)).toBeInTheDocument();
   });
 
   it("labels empty evidence support as contrary instead of market confidence", () => {
@@ -775,6 +879,29 @@ describe("MarketAgentPage", () => {
     expect(screen.queryByText(/Price series/i)).not.toBeInTheDocument();
   });
 
+  it("keeps the dashboard replay preview bounded when stored replay is large", () => {
+    const heavyReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        timeline_events: Array.from({ length: 80 }, (_, index) => ({
+          monitor_run_id: 1000 + index,
+          event_time: `2026-05-19T${String(6 + Math.floor(index / 10)).padStart(2, "0")}:${String(index % 10).padStart(2, "0")}:00+08:00`,
+          event_type: "analysis",
+          label: `Large replay marker ${index + 1}`,
+          payload: {
+            semantic_type: index % 2 === 0 ? "breakout" : "reversal",
+            impact_percent: index % 2 === 0 ? -0.35 : 0.28,
+            main_driver: "yields"
+          }
+        }))
+      }
+    };
+    const { container } = renderMarketAgentPage({ replay: heavyReplay });
+
+    expect(container.querySelectorAll(".market-agent-timeline-track-row").length).toBeLessThanOrEqual(12);
+  });
+
   it("keeps raw unanalysed news and paused analysis rows out of replay", () => {
     renderMarketAgentPage({
       replay: {
@@ -819,10 +946,13 @@ describe("MarketAgentPage", () => {
       }
     });
 
-    const replayPanel = screen.getByRole("heading", { name: /Market Replay \(Day\)/i }).closest("section") as HTMLElement;
+    fireEvent.click(screen.getByRole("button", { name: /Replay \/ Timeline/i }));
+    const replayPanel = document.querySelector(".market-agent-replay-story") as HTMLElement;
+    expect(replayPanel).toBeTruthy();
 
     expect(within(replayPanel).queryByText(/Oil prices tumble/i)).not.toBeInTheDocument();
     expect(within(replayPanel).queryByText(/XAUUSD flat 0\.00%/i)).not.toBeInTheDocument();
+    expect(within(replayPanel).queryByText(/Suppressed duplicate/i)).not.toBeInTheDocument();
     expect(within(replayPanel).queryByText(/Impact: watching/i)).not.toBeInTheDocument();
     expect(within(replayPanel).getByText(/Fed Rates/i)).toBeInTheDocument();
   });
@@ -848,7 +978,7 @@ describe("MarketAgentPage", () => {
 
     renderMarketAgentPage({ providerHealth: staleSpotHealth });
 
-    expect(screen.getAllByText(/cTrader not refreshing/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/cTrader reconnecting/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Last live quote/i).length).toBeGreaterThan(0);
     expect(screen.queryByText(/Market closed/i)).not.toBeInTheDocument();
     expect(screen.getByText(/Current driver ranking paused/i)).toBeInTheDocument();
@@ -882,8 +1012,8 @@ describe("MarketAgentPage", () => {
 
     renderMarketAgentPage({ providerHealth: savedSnapshotHealth });
 
-    expect(screen.getAllByText(/cTrader not refreshing/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Saved snapshot/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/cTrader connecting/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Connecting to live/i).length).toBeGreaterThan(0);
     expect(screen.queryByText(/Market closed/i)).not.toBeInTheDocument();
     expect(screen.getByText(/4,508\.10/i)).toBeInTheDocument();
   });
@@ -929,8 +1059,178 @@ describe("MarketAgentPage", () => {
     expect(within(assetsDetail).getAllByText(/Market closed/i).length).toBeGreaterThan(0);
     expect(within(assetsDetail).getByText(/Last quote snapshot/i)).toBeInTheDocument();
     expect(within(assetsDetail).getByText(/Last quote 4508\.3/i)).toBeInTheDocument();
-    const liveIngestSection = within(assetsDetail).getByText(/Live asset ingest/i).closest("section") as HTMLElement;
+    const liveIngestSection = within(assetsDetail).getByText(/Live quote stream/i).closest("section") as HTMLElement;
     expect(within(liveIngestSection).queryByText(/No detailed activity jobs were recorded for this step/i)).not.toBeInTheDocument();
+  });
+
+  it("prefers fresh runtime XAUUSD health over stale legacy live ingest jobs in Activity", () => {
+    renderMarketAgentPage({
+      monitorStatus: {
+        ...monitorStatus,
+        running: true,
+        phase: "running",
+        message: "Monitor loop is running.",
+        activity: {
+          ctrader: {
+            status: "unavailable",
+            detail: "Live cTrader spot is unavailable.",
+            jobs: [
+              { title: "Live quote request", status: "unavailable", detail: "Price input missing" },
+              { title: "cTrader spot freshness", status: "stale", detail: "Waiting for fresh cTrader streaming quote snapshot" }
+            ]
+          }
+        }
+      } as Parameters<typeof MarketAgentPage>[0]["monitorStatus"]
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /^Activity$/i }));
+    const agentActivity = screen.getByLabelText(/Agent activity board/i);
+    fireEvent.click(within(agentActivity).getByRole("button", { name: /^Assets/i }));
+    const assetsDetail = within(agentActivity).getByRole("complementary", { name: /Assets detail view/i });
+    fireEvent.click(within(assetsDetail).getByRole("button", { name: /^Status$/i }));
+
+    const liveIngestSection = within(assetsDetail).getByText(/Live quote stream/i).closest("section") as HTMLElement;
+    expect(within(liveIngestSection).getByText(/Latest live quote/i)).toBeInTheDocument();
+    expect(within(liveIngestSection).getByText(/fresh live quote/i)).toBeInTheDocument();
+    expect(within(liveIngestSection).queryByText(/^Live quote request$/i)).not.toBeInTheDocument();
+    expect(within(liveIngestSection).queryByText(/^cTrader spot freshness$/i)).not.toBeInTheDocument();
+  });
+
+  it("shows reconnecting in Activity when the last live cTrader quote is stale", () => {
+    const reconnectingProviderHealth: MarketAgentProviderHealthResponse = {
+      ...providerHealth,
+      items: providerHealth.items.map((item) =>
+        item.provider_key === "xauusd"
+          ? {
+              ...item,
+              source: "cTrader",
+              source_type: "spot",
+              data_mode: "live_seen",
+              is_available: true,
+              is_stale: false,
+              current_value: 4479,
+              data_timestamp: "2026-05-19T07:15:00+08:00",
+              fetched_at: "2026-05-23T17:20:47+08:00"
+            }
+          : item
+      )
+    };
+
+    renderMarketAgentPage({
+      providerHealth: reconnectingProviderHealth,
+      monitorStatus: {
+        ...monitorStatus,
+        running: true,
+        phase: "running",
+        message: "Monitor loop is running.",
+        activity: {
+          ctrader: {
+            status: "unavailable",
+            detail: "Live cTrader spot is unavailable.",
+            jobs: [
+              { title: "GC=F proxy check", status: "unavailable", detail: "No chart rows." },
+              { title: "Live quote request", status: "unavailable", detail: "Price input missing" },
+              { title: "cTrader spot freshness", status: "stale", detail: "Waiting for fresh cTrader streaming quote snapshot" }
+            ]
+          }
+        }
+      } as Parameters<typeof MarketAgentPage>[0]["monitorStatus"]
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /^Activity$/i }));
+    const agentActivity = screen.getByLabelText(/Agent activity board/i);
+    fireEvent.click(within(agentActivity).getByRole("button", { name: /^Assets/i }));
+    const assetsDetail = within(agentActivity).getByRole("complementary", { name: /Assets detail view/i });
+    fireEvent.click(within(assetsDetail).getByRole("button", { name: /^Status$/i }));
+
+    const liveIngestSection = within(assetsDetail).getByText(/Live quote stream/i).closest("section") as HTMLElement;
+    expect(within(liveIngestSection).getByText(/Last live quote/i)).toBeInTheDocument();
+    expect(within(liveIngestSection).getByText(/stream is reconnecting/i)).toBeInTheDocument();
+    expect(within(liveIngestSection).queryByText(/^GC=F proxy check$/i)).not.toBeInTheDocument();
+    expect(within(liveIngestSection).queryByText(/^Live quote request$/i)).not.toBeInTheDocument();
+    expect(within(liveIngestSection).queryByText(/^cTrader spot freshness$/i)).not.toBeInTheDocument();
+  });
+
+  it("keeps Activity live quote status aligned with the top live quote card", () => {
+    const freshTimestamp = new Date().toISOString();
+    const staleProviderHealth: MarketAgentProviderHealthResponse = {
+      ...providerHealth,
+      items: providerHealth.items.map((item) =>
+        item.provider_key === "xauusd"
+          ? {
+              ...item,
+              source: "cTrader",
+              source_type: "spot",
+              data_mode: "unavailable",
+              is_available: false,
+              is_stale: false,
+              error: "Price input missing"
+            }
+          : item
+      )
+    };
+    const liveQuote: MarketAgentLiveQuoteResponse = {
+      ok: true,
+      running: true,
+      message: "Live quote stream is running.",
+      quote: {
+        bid: 4532.73,
+        ask: 4532.95,
+        mid: 4532.84,
+        spread: 0.22,
+        timestamp: freshTimestamp,
+        symbol: "XAUUSD"
+      },
+      provider_health: {
+        provider_key: "ctrader_spot",
+        source: "cTrader",
+        source_type: "spot",
+        data_mode: "live_seen",
+        is_available: true,
+        is_stale: false,
+        current_value: 4532.84,
+        data_timestamp: freshTimestamp,
+        fetched_at: freshTimestamp
+      }
+    };
+
+    renderMarketAgentPage({
+      providerHealth: staleProviderHealth,
+      liveQuote,
+      monitorStatus: {
+        ...monitorStatus,
+        running: true,
+        phase: "running",
+        message: "Monitor loop is running.",
+        activity: {
+          ctrader: {
+            status: "unavailable",
+            detail: "Live cTrader spot is unavailable.",
+            jobs: [
+              { title: "GC=F proxy check", status: "unavailable", detail: "No chart rows." },
+              { title: "Live quote request", status: "unavailable", detail: "Price input missing" },
+              { title: "cTrader spot freshness", status: "stale", detail: "Waiting for fresh cTrader streaming quote snapshot" }
+            ]
+          }
+        }
+      } as Parameters<typeof MarketAgentPage>[0]["monitorStatus"]
+    });
+
+    expect(screen.getByText(/4,532\.84/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/cTrader \(Spot\)/i).length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole("button", { name: /^Activity$/i }));
+    const agentActivity = screen.getByLabelText(/Agent activity board/i);
+    fireEvent.click(within(agentActivity).getByRole("button", { name: /^Assets/i }));
+    const assetsDetail = within(agentActivity).getByRole("complementary", { name: /Assets detail view/i });
+    fireEvent.click(within(assetsDetail).getByRole("button", { name: /^Status$/i }));
+
+    const liveIngestSection = within(assetsDetail).getByText(/Live quote stream/i).closest("section") as HTMLElement;
+    expect(within(liveIngestSection).getByText(/Latest live quote/i)).toBeInTheDocument();
+    expect(within(liveIngestSection).getByText(/fresh live quote/i)).toBeInTheDocument();
+    expect(within(liveIngestSection).queryByText(/^GC=F proxy check$/i)).not.toBeInTheDocument();
+    expect(within(liveIngestSection).queryByText(/^Live quote request$/i)).not.toBeInTheDocument();
+    expect(within(liveIngestSection).queryByText(/^cTrader spot freshness$/i)).not.toBeInTheDocument();
   });
 
   it("hides fixed zero-score dormant drivers from the current driver table", () => {
@@ -1148,7 +1448,7 @@ describe("MarketAgentPage", () => {
         onCancelModelDownload={async () => ({ ok: true, status: "cancelled" })}
         onBenchmarkLLM={async () => ({ ok: true, status: "model_ready", elapsedMs: 900, message: "Benchmark passed." })}
         onApplyLLMFallbackPolicy={async () => ({ ok: true, status: "model_ready", model: "qwen3.5:4b" })}
-        onStartCTraderConnect={async () => ({ ok: true, status: "preparing_live_feed", message: "cTrader is connected. Preparing live XAUUSD and syncing history in the background.", ctrader: providerConfig.ctrader })}
+        onStartCTraderConnect={async () => ({ ok: true, status: "waiting_for_live_connector", message: "cTrader account is connected. Live streaming is waiting for the long-running connector snapshot; cTrader CLI cBot streaming is disabled to avoid external algo host windows.", ctrader: providerConfig.ctrader })}
         onTestCTraderBackfill={async () => ({ ok: true, message: "M1 backfill is available." })}
         onRunMonitorOnce={async () => monitorStatus}
         onRunBackfillRecovery={async () => ({ ...monitorStatus, phase: "recovery_completed", message: "Backfill recovery completed." })}
@@ -1233,7 +1533,7 @@ describe("MarketAgentPage", () => {
     expect(screen.queryByLabelText(/Access Token/i)).not.toBeInTheDocument();
 
     const alertsButton = screen.getByRole("navigation", { name: /Market Agent sections/i }).querySelector("[data-market-agent-section='alerts']")!;
-    expect(alertsButton.querySelector(".market-agent-nav-badge")).toHaveTextContent("1");
+    expect(alertsButton.querySelector(".market-agent-nav-badge")).not.toBeInTheDocument();
     fireEvent.click(alertsButton);
     expect(screen.getByRole("heading", { name: /^Alerts$/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/Alert summary/i)).toBeInTheDocument();
@@ -1280,6 +1580,8 @@ describe("MarketAgentPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
 
+    expect(screen.getByText(/cTrader not connected/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Live feed active/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/^Next step$/i)).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /^cTrader connection needed$/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /^Open cTrader setup$/i })).not.toBeInTheDocument();
@@ -1317,7 +1619,7 @@ describe("MarketAgentPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
     expect(screen.getByRole("heading", { name: /^Auto Local AI$/i })).toBeInTheDocument();
-    expect(screen.getByText(/Local AI is not installed yet/i)).toBeInTheDocument();
+    expect(screen.getByText(/Local AI needs a model/i)).toBeInTheDocument();
     expect(screen.getByText(/Download Qwen3\.5 4B once/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Auto$/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Qwen3\.5 4B$/i })).toBeInTheDocument();
@@ -1338,8 +1640,8 @@ describe("MarketAgentPage", () => {
       ...localAiSetup,
       ok: false,
       available: true,
-      status: "runtime_installing",
-      message: "Local AI runtime will be prepared automatically when needed.",
+      status: "runtime_missing",
+      message: "Local AI runtime is not installed. Install Ollama manually, then return here.",
       ollama: {
         installed: false,
         running: false,
@@ -1352,8 +1654,10 @@ describe("MarketAgentPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
     fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
 
-    expect(screen.getAllByText(/Runtime will be prepared/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText(/prepared automatically/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Ollama is not installed/i).length).toBeGreaterThanOrEqual(1);
+    expect(
+      screen.getAllByText(/prepare Ollama in the background|prepare it automatically in the background/i).length
+    ).toBeGreaterThanOrEqual(1);
     expect(screen.getByRole("button", { name: /Download Qwen3\.5 4B/i })).toBeEnabled();
   });
 
@@ -1394,6 +1698,31 @@ describe("MarketAgentPage", () => {
     );
     expect(await screen.findByRole("button", { name: /Using this model/i })).toBeInTheDocument();
     expect(screen.getByText(/Qwen3\.5 4B is now the Local AI model/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Download Qwen3\.5 4B/i })).not.toBeInTheDocument();
+  });
+
+  it("shows runtime start when Ollama is stopped but the model is already installed", () => {
+    const installedRuntimeStoppedSetup: MarketAgentLLMSetupResponse = {
+      ...localAiSetup,
+      status: "runtime_not_running",
+      message: "Local AI runtime is installed but not running yet.",
+      ollama: {
+        installed: true,
+        running: false,
+        endpointReachable: false,
+        endpoint: "http://127.0.0.1:21434",
+        version: "0.12.6"
+      },
+      installedModels: [{ name: "qwen3.5:4b", model: "qwen3.5:4b", size: 3389971840, source: "app_local_models" }]
+    };
+
+    renderMarketAgentPage({ localAiSetup: installedRuntimeStoppedSetup });
+    fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
+
+    expect(screen.getAllByText(/Ollama is not running/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/no model download is needed/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Start Local AI/i })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Download Qwen3\.5 4B/i })).not.toBeInTheDocument();
   });
 
@@ -1456,6 +1785,44 @@ describe("MarketAgentPage", () => {
     expect(within(autoOption).getByText(/Qwen3\.5 4B/i)).toBeInTheDocument();
     expect(within(autoOption).queryByText(/~650 MB/i)).not.toBeInTheDocument();
     expect(screen.getByText(/Qwen3\.5 4B is available locally/i)).toBeInTheDocument();
+  });
+
+  it("treats an installed configured model as ready even when the recommendation differs", () => {
+    const installedSetup: MarketAgentLLMSetupResponse = {
+      ...localAiSetup,
+      status: "model_ready",
+      message: "Configured Local AI model is installed.",
+      recommendedModel: {
+        name: "qwen3.5:0.8b",
+        tier: "lightweight",
+        label: "Lightweight",
+        approximateSizeBytes: 650_000_000,
+        diskLabel: "~650 MB",
+        reason: "CPU-only machines can use the lightweight model."
+      },
+      installedModels: [{ name: "qwen3.5:4b", model: "qwen3.5:4b", size: 3389971840, source: "ollama_runtime" }]
+    };
+    const savedLLMConfig: MarketAgentLLMConfigResponse = {
+      ...llmConfig,
+      llm: {
+        ...llmConfig.llm!,
+        enabled: true,
+        model: "qwen3.5:4b",
+        lastStatus: "model_ready"
+      }
+    };
+
+    renderMarketAgentPage({
+      localAiSetup: installedSetup,
+      llmConfig: savedLLMConfig,
+      onDetectLocalAI: async () => installedSetup
+    });
+    fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
+
+    expect(screen.getByText(/Local AI is ready/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Download Qwen3\.5 4B/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Using this model/i })).toBeDisabled();
   });
 
   it("renders Local AI pull progress bytes and percent while downloading", () => {
@@ -1547,6 +1914,51 @@ describe("MarketAgentPage", () => {
 
     expect(screen.getByRole("button", { name: /^Preparing$/i })).toBeDisabled();
     expect(screen.getByText(/Local AI model download is running in the background/i)).toBeInTheDocument();
+  });
+
+  it("hides Local AI download progress once the model is ready", () => {
+    renderMarketAgentPage({
+      localAiSetup: {
+        ok: true,
+        available: true,
+        status: "model_ready",
+        message: "Configured Local AI model is installed.",
+        ollama: {
+          installed: true,
+          running: true,
+          endpointReachable: true,
+          endpoint: "http://127.0.0.1:11434",
+          version: "0.12.6"
+        },
+        installedModels: [{ name: "qwen3.5:4b", model: "qwen3.5:4b", size: 3389971840, source: "app_local_models" }],
+        recommendedModel: { name: "qwen3.5:4b", diskLabel: "~2.9 GB" },
+        profiles: [{ name: "qwen3.5:4b", diskLabel: "~2.9 GB" }],
+        llm: {
+          enabled: true,
+          provider: "ollama",
+          endpoint: "http://127.0.0.1:11434",
+          model: "qwen3.5:4b",
+          temperature: 0,
+          timeoutSeconds: 30,
+          keepAlive: "0",
+          maxContext: 8192
+        }
+      },
+      localAiPullProgress: {
+        ok: true,
+        model: "qwen3.5:4b",
+        status: "preparing runtime",
+        message: "Preparing Local AI runtime...",
+        percent: 5,
+        done: false
+      }
+    });
+    fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
+
+    expect(screen.getByText(/Local AI is ready/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Preparing Local AI runtime/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Cancel download/i })).not.toBeInTheDocument();
   });
 
   it("shows cancelled Local AI progress immediately after cancel", async () => {
@@ -1819,8 +2231,8 @@ describe("MarketAgentPage", () => {
   it("supports the guided setup path from cTrader CLI credentials through Local AI model install", async () => {
     const startCTraderConnect = vi.fn().mockResolvedValue({
       ok: true,
-      status: "preparing_live_feed",
-      message: "cTrader is connected. Preparing live XAUUSD and syncing history in the background.",
+      status: "waiting_for_live_connector",
+      message: "cTrader account is connected. Live streaming is waiting for the long-running connector snapshot; cTrader CLI cBot streaming is disabled to avoid external algo host windows.",
       ctrader: providerConfig.ctrader
     });
     const quoteTest = vi.fn().mockResolvedValue({
@@ -2043,7 +2455,40 @@ describe("MarketAgentPage", () => {
   });
 
   it("shows backend agent activity as a separate pipeline view", () => {
+    const repeatedNewsReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        news_items: [
+          {
+            title: "Fed headline",
+            published_at: "2026-05-19T12:03:00+08:00",
+            first_seen_at: "2026-05-19T12:05:00+08:00",
+            source: "Reuters",
+            data_mode: "backfilled",
+            semantic_type: "news",
+            impact_percent: -0.21,
+            included: false,
+            review_status: "filtered"
+          },
+          {
+            title: "Fed headline",
+            published_at: "2026-05-19T12:03:00+08:00",
+            first_seen_at: "2026-05-19T12:19:00+08:00",
+            source: "Reuters",
+            data_mode: "backfilled",
+            semantic_type: "news",
+            impact_percent: -0.21,
+            included: false,
+            review_status: "filtered",
+            summary_source: "Local AI",
+            summary: "Repeated headline should render once in History."
+          }
+        ]
+      }
+    };
     renderMarketAgentPage({
+      replay: repeatedNewsReplay,
       monitorStatus: {
         ...monitorStatus,
         running: true,
@@ -2343,13 +2788,30 @@ describe("MarketAgentPage", () => {
 
     fireEvent.click(within(within(agentActivity).getByLabelText(/Source groups/i)).getByRole("button", { name: /^News:/i }));
     const newsDetail = within(agentActivity).getByRole("complementary", { name: /News detail view/i });
+    expect(within(newsDetail).getByRole("button", { name: /^History$/i })).toBeInTheDocument();
+    fireEvent.click(within(newsDetail).getByRole("button", { name: /^History$/i }));
+    expect(within(newsDetail).getByRole("list", { name: /News history rows/i })).toBeInTheDocument();
+    expect(within(newsDetail).queryByText(/Captured records/i)).not.toBeInTheDocument();
+    expect(within(newsDetail).queryByText(/Captured headlines/i)).not.toBeInTheDocument();
+    expect(within(newsDetail).queryByText(/No body or summary was recorded/i)).not.toBeInTheDocument();
+    expect(within(newsDetail).queryByText(/^Used by$/i)).not.toBeInTheDocument();
+    expect(within(newsDetail).getByText(/^Fed headline$/i)).toBeInTheDocument();
+    expect(within(newsDetail).getAllByRole("button", { name: /Fed headline history record/i })).toHaveLength(1);
+    expect(within(newsDetail).getByText(/^Published$/i)).toBeInTheDocument();
+    expect(within(newsDetail).getAllByText(/\d{2}-\d{2}-2026 \d{2}:\d{2}/).length).toBeGreaterThan(0);
+    expect(within(newsDetail).queryByText("2026-05-19T12:03:00+08:00")).not.toBeInTheDocument();
+    fireEvent.click(within(newsDetail).getByRole("button", { name: /Fed headline history record/i }));
+    const newsHistoryDialog = within(newsDetail).getByRole("dialog", { name: /Fed headline history detail/i });
+    expect(within(newsHistoryDialog).getByText(/published_at/i)).toBeInTheDocument();
+    expect(within(newsHistoryDialog).getByText(/Captured 2 times/i)).toBeInTheDocument();
+    expect(within(newsHistoryDialog).getByText(/^2$/i)).toBeInTheDocument();
+    fireEvent.click(within(newsHistoryDialog).getByRole("button", { name: /Close history detail/i }));
     fireEvent.click(within(newsDetail).getByRole("button", { name: /^Status$/i }));
     expect(within(newsDetail).getByText(/Configured news feeds/i)).toBeInTheDocument();
     expect(within(newsDetail).getByText(/Federal Reserve press feed/i)).toBeInTheDocument();
     expect(within(newsDetail).getByText(/CNBC Top News RSS/i)).toBeInTheDocument();
     expect(within(newsDetail).getByText(/MarketWatch Top Stories RSS/i)).toBeInTheDocument();
     expect(within(newsDetail).queryByText(/ForexFactory/i)).not.toBeInTheDocument();
-    expect(within(newsDetail).queryByText(/Reuters/i)).not.toBeInTheDocument();
     fireEvent.click(within(newsDetail).getByRole("button", { name: /^Summary$/i }));
     expect(within(newsDetail).getByText(/News processing \+ Storage \+ Evidence packet/i)).toBeInTheDocument();
     fireEvent.click(within(newsDetail).getByRole("button", { name: /^Status$/i }));
@@ -2366,6 +2828,8 @@ describe("MarketAgentPage", () => {
     expect(within(calendarDetail).getAllByText(/existing Economic Calendar/i).length).toBeGreaterThan(0);
     expect(within(calendarDetail).getByText(/Window alignment/i)).toBeInTheDocument();
     expect(within(calendarDetail).getByText(/evidence_packets/i)).toBeInTheDocument();
+    expect(within(calendarDetail).getByText(/Calendar context rows/i)).toBeInTheDocument();
+    expect(within(calendarDetail).getByText(/US session opens/i)).toBeInTheDocument();
     backToMap();
 
     fireEvent.click(within(agentActivity).getByRole("button", { name: /AI Analysis/i }));
@@ -2381,29 +2845,18 @@ describe("MarketAgentPage", () => {
     fireEvent.click(within(aiDetail).getByRole("button", { name: /^Ongoing$/i }));
     expect(within(aiDetail).getByText(/What AI is working on now/i)).toBeInTheDocument();
     expect(within(aiDetail).getByRole("table", { name: /Current AI work filings/i })).toBeInTheDocument();
-    const feedbackOngoingRow = within(aiDetail).getAllByRole("row", { name: /Feedback/i })[0];
-    expect(feedbackOngoingRow).toBeInTheDocument();
-    fireEvent.click(feedbackOngoingRow);
-    const ongoingDialog = within(aiDetail).getByRole("dialog", { name: /Feedback ongoing detail/i });
-    expect(within(ongoingDialog).getByText(/14 request/i)).toBeInTheDocument();
-    fireEvent.click(within(ongoingDialog).getByRole("button", { name: /Close ongoing detail/i }));
+    expect(within(aiDetail).queryByRole("row", { name: /Feedback/i })).not.toBeInTheDocument();
+    expect(within(aiDetail).getByRole("row", { name: /History/i })).toBeInTheDocument();
     fireEvent.click(within(aiDetail).getByRole("button", { name: /^History$/i }));
-    expect(within(aiDetail).getByText(/AI History/i)).toBeInTheDocument();
-    expect(within(aiDetail).getAllByText(/News summary/i).length).toBeGreaterThan(0);
+    expect(within(aiDetail).getByRole("heading", { name: /Completed Local AI calls/i })).toBeInTheDocument();
+    expect(within(aiDetail).getByText(/Cause review/i)).toBeInTheDocument();
+    expect(within(aiDetail).getByText(/Display summary/i)).toBeInTheDocument();
     expect(within(aiDetail).queryByText(/Raw: Fed headline -> Summary: no AI summary recorded for this item/i)).not.toBeInTheDocument();
-    fireEvent.click(within(aiDetail).getByRole("row", { name: /News summary/i }));
-    const newsHistoryDialog = within(aiDetail).getByRole("dialog", { name: /News summary history detail/i });
-    expect(within(newsHistoryDialog).getByText(/Raw: Fed headline -> Summary: no AI summary recorded for this item/i)).toBeInTheDocument();
-    fireEvent.click(within(newsHistoryDialog).getByRole("button", { name: /Close history detail/i }));
-    expect(within(aiDetail).getByText(/Calendar review/i)).toBeInTheDocument();
-    expect(within(aiDetail).getByText(/Asset context/i)).toBeInTheDocument();
-    fireEvent.click(within(aiDetail).getByRole("row", { name: /Asset context/i }));
-    const assetHistoryDialog = within(aiDetail).getByRole("dialog", { name: /Asset context history detail/i });
-    expect(within(assetHistoryDialog).getByText(/DXY confirming \/ US10Y confirming \/ US2Y unavailable/i)).toBeInTheDocument();
-    fireEvent.click(within(assetHistoryDialog).getByRole("button", { name: /Close history detail/i }));
-    expect(within(aiDetail).queryByRole("dialog", { name: /Asset context history detail/i })).not.toBeInTheDocument();
-    expect(within(aiDetail).getByText(/Final analysis/i)).toBeInTheDocument();
-    expect(within(aiDetail).getByText(/Output history/i)).toBeInTheDocument();
+    expect(within(aiDetail).queryByText(/Calendar review/i)).not.toBeInTheDocument();
+    expect(within(aiDetail).queryByText(/Asset context/i)).not.toBeInTheDocument();
+    expect(within(aiDetail).queryByText(/Final analysis/i)).not.toBeInTheDocument();
+    expect(within(aiDetail).queryByText(/Notification sent/i)).not.toBeInTheDocument();
+    expect(within(aiDetail).queryByText(/Notification suppressed/i)).not.toBeInTheDocument();
     expect(within(aiDetail).queryByText(/Input history/i)).not.toBeInTheDocument();
     expect(within(aiDetail).queryByText(/AI decisions/i)).not.toBeInTheDocument();
     expect(within(aiDetail).queryByText(/User-facing history/i)).not.toBeInTheDocument();
@@ -2427,7 +2880,8 @@ describe("MarketAgentPage", () => {
     expect(within(outputsDetail).getByText(/Per-run trace/i)).toBeInTheDocument();
     expect(within(outputsDetail).getAllByText(/Source rows/i).length).toBeGreaterThan(0);
     expect(within(outputsDetail).getAllByText(/Telegram delivery/i).length).toBeGreaterThan(0);
-    expect(within(outputsDetail).getByText(/Suppressed alerts/i)).toBeInTheDocument();
+    expect(within(outputsDetail).getByText(/Notification suppressed/i)).toBeInTheDocument();
+    expect(within(outputsDetail).getByText(/Suppressed candidate: Suppressed duplicate/i)).toBeInTheDocument();
     expect(within(outputsDetail).getByText(/No current live alert passed the gate/i)).toBeInTheDocument();
     expect(screen.queryByText(/Background activity/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/News feeds not configured|No news provider configured/i)).not.toBeInTheDocument();

@@ -23,10 +23,10 @@ def _config_from_payload(payload: dict[str, Any]) -> LocalLLMConfig:
     return LocalLLMConfig(
         enabled=True,
         provider=str(payload.get("provider") or "ollama"),
-        endpoint=str(payload.get("endpoint") or "http://localhost:11434"),
+        endpoint=str(payload.get("endpoint") or "http://127.0.0.1:21434"),
         model=str(payload.get("model") or "qwen3.5:4b"),
-        temperature=float(payload.get("temperature") or 0.1),
-        timeout_seconds=int(payload.get("timeoutSeconds") or payload.get("timeout_seconds") or 20),
+        temperature=float(payload.get("temperature") if payload.get("temperature") is not None else 0),
+        timeout_seconds=int(payload.get("timeoutSeconds") or payload.get("timeout_seconds") or 30),
         keep_alive=str(payload.get("keepAlive") or payload.get("keep_alive") or "0"),
         max_context=int(payload.get("maxContext") or payload.get("max_context") or 8192),
     )
@@ -57,12 +57,17 @@ def test_connection(config: LocalLLMConfig) -> dict[str, Any]:
             for item in models
             if isinstance(item, dict)
         }
-        if model_names and config.model not in model_names:
+        if config.model and config.model not in model_names:
+            model_detail = (
+                f"Ollama did not list any installed models for {config.endpoint}; model {config.model} is missing."
+                if not model_names
+                else f"Ollama is reachable, but model {config.model} was not listed."
+            )
             return {
                 **_base_response(config),
                 "ok": False,
                 "status": "model_missing",
-                "error": f"Ollama is reachable, but model {config.model} was not listed.",
+                "error": model_detail,
             }
         return {
             **_base_response(config),

@@ -282,6 +282,7 @@ const buildTimelineRows = (payload: MarketAgentReplayResponse["replay"]): Timeli
       payload: item
     })),
     ...payload.alerts
+      .filter((item) => item.should_notify === true || item.shouldNotify === true)
       .filter((item) => !item.monitor_run_id || !eventRunIds.has(item.monitor_run_id))
       .map((item, index) => ({
         key: `alert-${index}-${item.monitor_run_id ?? index}`,
@@ -298,6 +299,7 @@ const buildTimelineRows = (payload: MarketAgentReplayResponse["replay"]): Timeli
 
   return rows
     .filter((row) => !isContextOnlyAnalysisRow(row))
+    .filter((row) => row.source !== "suppressed")
     .filter((row) => row.time || row.title)
     .sort((left, right) => String(left.time).localeCompare(String(right.time)));
 };

@@ -1,8 +1,9 @@
-import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type {
   MarketAgentDriverAttentionResponse,
   MarketAgentEvidenceForRunResponse,
+  MarketAgentLiveQuoteResponse,
   MarketAgentMonitorStatusResponse,
   MarketAgentProviderActionResponse,
   MarketAgentProviderConfigInput,
@@ -40,7 +41,7 @@ import {
 import { normalizeMarketAgentReplayPayload } from "../utils/marketAgentReplay";
 import "./MarketAgentPage.css";
 
-type MarketAgentSection =
+export type MarketAgentSection =
   | "live"
   | "drivers"
   | "replay"
@@ -51,12 +52,14 @@ type MarketAgentSection =
   | "alerts";
 
 type MarketAgentPageProps = {
+  activeSection?: MarketAgentSection;
   snapshot: MarketAgentSnapshotResponse | null;
   providerConfig: MarketAgentProviderConfigResponse | null;
   telegramConfig: MarketAgentTelegramConfigResponse | null;
   llmConfig: MarketAgentLLMConfigResponse | null;
   localAiSetup?: MarketAgentLLMSetupResponse | null;
   localAiPullProgress?: MarketAgentOllamaPullProgress | null;
+  liveQuote?: MarketAgentLiveQuoteResponse | null;
   providerHealth: MarketAgentProviderHealthResponse | null;
   driverAttention: MarketAgentDriverAttentionResponse | null;
   replay: MarketAgentReplayResponse | null;
@@ -70,6 +73,7 @@ type MarketAgentPageProps = {
   onRangeStartChange: (value: string) => void;
   onRangeEndChange: (value: string) => void;
   onApplyRange: () => void;
+  onSectionChange?: (section: MarketAgentSection) => void;
   onSelectRun: (monitorRunId: number) => void;
   onSaveProviderConfig: (ctrader: MarketAgentProviderConfigInput) => void;
   onClearProviderConfig: () => void;
@@ -569,7 +573,7 @@ const isLiveXauusdSpot = (item: MarketAgentProviderHealthEntry | null | undefine
     normalizeMarketAgentValue(item.source_type) === "spot" &&
     normalizeMarketAgentValue(item.data_mode) === "live_seen" &&
     isFreshTimestamp(item.fetched_at, nowMs, 300) &&
-    isFreshTimestamp(item.data_timestamp ?? item.fetched_at, nowMs, 3600, item.fetched_at)
+    isFreshTimestamp(item.data_timestamp ?? item.fetched_at, nowMs, 90, item.fetched_at)
   );
 
 const isCTraderSpotSource = (item: MarketAgentProviderHealthEntry | null | undefined) => {
@@ -603,26 +607,44 @@ const isMarketClosedSpot = (item: MarketAgentProviderHealthEntry | null | undefi
     hasMarketClosedReason(item)
   );
 
-const hasExpiredLiveXauusdSpot = (item: MarketAgentProviderHealthEntry | null | undefined, nowMs: number) =>
+const isStaleCTraderSpotSnapshot = (item: MarketAgentProviderHealthEntry | null | undefined, nowMs: number) =>
   Boolean(
+    item?.is_available &&
+    isCTraderSpotSource(item) &&
+    numberValue(item.current_value) !== null &&
+    !isSavedCTraderSnapshot(item) &&
+    !isMarketClosedSpot(item) &&
+    (
+      item.is_stale ||
+      normalizeMarketAgentValue(item.data_mode) === "stale" ||
+      hasExpiredLiveXauusdSpot(item, nowMs)
+    )
+  );
+
+function hasExpiredLiveXauusdSpot(
+  item: MarketAgentProviderHealthEntry | null | undefined,
+  nowMs: number
+) {
+  return Boolean(
     item?.is_available &&
     !item.is_stale &&
     normalizeMarketAgentValue(item.source_type) === "spot" &&
     normalizeMarketAgentValue(item.data_mode) === "live_seen" &&
     (
       !isFreshTimestamp(item.fetched_at, nowMs, 300) ||
-      !isFreshTimestamp(item.data_timestamp ?? item.fetched_at, nowMs, 3600, item.fetched_at)
+      !isFreshTimestamp(item.data_timestamp ?? item.fetched_at, nowMs, 90, item.fetched_at)
     )
   );
+}
 
 const liveXauusdStatus = (item: MarketAgentProviderHealthEntry | null | undefined, nowMs: number = Date.now()) => {
   if (isLiveXauusdSpot(item, nowMs)) return { label: "cTrader (Spot)", data: "Live", valueMode: "live" as const };
-  if (isSavedCTraderSnapshot(item)) return { label: "cTrader not refreshing", data: "Saved snapshot", valueMode: "waiting" as const };
+  if (isSavedCTraderSnapshot(item)) return { label: "cTrader connecting", data: "Connecting to live", valueMode: "waiting" as const };
   if (isMarketClosedSpot(item)) return { label: "Market closed", data: "Market closed", valueMode: "closed" as const };
-  if (hasExpiredLiveXauusdSpot(item, nowMs) && numberValue(item?.current_value) !== null) {
-    return { label: "cTrader not refreshing", data: "Last live quote", valueMode: "waiting" as const };
+  if (isStaleCTraderSpotSnapshot(item, nowMs)) {
+    return { label: "cTrader reconnecting", data: "Last live quote", valueMode: "waiting" as const };
   }
-  if (hasExpiredLiveXauusdSpot(item, nowMs)) return { label: "cTrader not refreshing", data: "Stale", valueMode: "waiting" as const };
+  if (hasExpiredLiveXauusdSpot(item, nowMs)) return { label: "cTrader reconnecting", data: "Stale", valueMode: "waiting" as const };
   return { label: "cTrader not connected", data: "No live quote", valueMode: "waiting" as const };
 };
 
@@ -954,6 +976,7 @@ const latestTimelineRows = (payload: MarketAgentReplayPayload | undefined): Time
       source: "calendar" as const
     })),
     ...payload.alerts
+      .filter((item) => item.should_notify === true || item.shouldNotify === true)
       .filter((item) => !item.monitor_run_id || !eventRunIds.has(item.monitor_run_id))
       .map((item, index) => ({
         key: `alert-${index}-${item.monitor_run_id ?? index}`,
@@ -964,17 +987,7 @@ const latestTimelineRows = (payload: MarketAgentReplayPayload | undefined): Time
         monitorRunId: item.monitor_run_id,
         payload: item,
         source: "alert" as const
-      })),
-    ...payload.suppressed_alerts.map((item, index) => ({
-      key: `suppressed-${index}-${item.monitor_run_id ?? index}`,
-      time: String(item.run_started_at ?? ""),
-      title: String(item.message ?? "Suppressed alert"),
-      meta: "No state change",
-      status: "suppressed",
-      monitorRunId: item.monitor_run_id,
-      payload: item,
-      source: "suppressed" as const
-    }))
+      }))
   ]
     .filter((item) => !isContextOnlyAnalysisRow(item))
     .filter((item) => item.time || item.title)
@@ -1328,9 +1341,41 @@ const evidenceKindMeta = (kind: string) => {
 
 const SCORE_RING_RADIUS = 34;
 const SCORE_RING_CIRCUMFERENCE = 2 * Math.PI * SCORE_RING_RADIUS;
+const DASHBOARD_REPLAY_PREVIEW_LIMIT = 12;
+const DASHBOARD_SOURCE_PREVIEW_LIMIT = 24;
+const DEFER_LIVE_DASHBOARD = import.meta.env.MODE !== "test";
+
+const compactReplayForDashboard = (
+  replay: MarketAgentReplayResponse | null
+): MarketAgentReplayResponse | null => {
+  if (!replay?.replay) return replay;
+  const payload = replay.replay;
+  const relatedAssets = Object.fromEntries(
+    Object.entries(payload.related_assets ?? {}).map(([symbol, rows]) => [
+      symbol,
+      Array.isArray(rows) ? rows.slice(-DASHBOARD_SOURCE_PREVIEW_LIMIT) : []
+    ])
+  );
+  return {
+    ...replay,
+    replay: {
+      price_series: (payload.price_series ?? []).slice(-2),
+      related_assets: relatedAssets,
+      news_items: (payload.news_items ?? []).slice(-DASHBOARD_SOURCE_PREVIEW_LIMIT),
+      calendar_events: (payload.calendar_events ?? []).slice(-DASHBOARD_SOURCE_PREVIEW_LIMIT),
+      driver_attention_timeline: [],
+      timeline_events: (payload.timeline_events ?? []).slice(-DASHBOARD_SOURCE_PREVIEW_LIMIT),
+      month_summary_events: (payload.month_summary_events ?? []).slice(-DASHBOARD_REPLAY_PREVIEW_LIMIT),
+      state_transitions: (payload.state_transitions ?? []).slice(-DASHBOARD_SOURCE_PREVIEW_LIMIT),
+      alerts: (payload.alerts ?? []).slice(-DASHBOARD_SOURCE_PREVIEW_LIMIT),
+      suppressed_alerts: []
+    }
+  };
+};
 
 function MarketAgentDashboard({
   snapshot,
+  liveQuote,
   providerHealth,
   driverAttention,
   replay,
@@ -1340,6 +1385,7 @@ function MarketAgentDashboard({
   onNavigate
 }: {
   snapshot: MarketAgentSnapshotResponse | null;
+  liveQuote?: MarketAgentLiveQuoteResponse | null;
   providerHealth: MarketAgentProviderHealthResponse | null;
   driverAttention: MarketAgentDriverAttentionResponse | null;
   replay: MarketAgentReplayResponse | null;
@@ -1357,15 +1403,22 @@ function MarketAgentDashboard({
     return () => window.clearInterval(timer);
   }, []);
   const state = snapshot?.state;
-  const xauusdHealth = findProviderHealth(providerHealth?.items, ["xauusd", "gc=f", "xauusd price"]);
-  const xauusdStatus = liveXauusdStatus(xauusdHealth, nowMs);
+  const dashboardReplay = useMemo(() => compactReplayForDashboard(replay), [replay]);
+  const fallbackXauusdHealth = findProviderHealth(providerHealth?.items, ["xauusd", "gc=f", "xauusd price"]);
+  const xauusdHealth = liveQuote?.provider_health
+    ? ({ ...fallbackXauusdHealth, ...liveQuote.provider_health } as MarketAgentProviderHealthEntry)
+    : fallbackXauusdHealth;
+  const hasFreshLiveQuote = Boolean(liveQuote?.running && liveQuote?.quote);
+  const xauusdStatus = hasFreshLiveQuote
+    ? { label: "cTrader (Spot)", data: "Live", valueMode: "live" as const }
+    : liveXauusdStatus(xauusdHealth, nowMs);
   const hasTrustedSpotPrice = xauusdStatus.valueMode === "live" || xauusdStatus.valueMode === "closed";
   const hasDisplaySpotPrice = hasTrustedSpotPrice || (xauusdStatus.valueMode === "waiting" && numberValue(xauusdHealth?.current_value) !== null);
   const chainStatus = fallbackEvidenceChainStatus(selectedEvidence, xauusdStatus);
   const currentConclusionReady = canShowCurrentConclusion(selectedEvidence, xauusdStatus.valueMode === "live", chainStatus);
-  const price = hasTrustedSpotPrice ? latestPrice(replay) : null;
-  const priorPrice = currentConclusionReady ? previousPrice(replay) : null;
-  const priceValue = numberValue(xauusdHealth?.current_value ?? price?.close_price);
+  const price = hasTrustedSpotPrice ? latestPrice(dashboardReplay) : null;
+  const priorPrice = currentConclusionReady ? previousPrice(dashboardReplay) : null;
+  const priceValue = numberValue((hasFreshLiveQuote ? liveQuote?.quote?.mid : null) ?? xauusdHealth?.current_value ?? price?.close_price);
   const previousPriceValue = numberValue(xauusdHealth?.previous_value ?? priorPrice?.close_price);
   const priceChangeValue = numberValue(xauusdHealth?.change_value ?? price?.change_value ?? price?.change ?? price?.change_15m);
   const computedPriceChange = priceChangeValue ?? (
@@ -1376,11 +1429,11 @@ function MarketAgentDashboard({
     (priceValue !== null && previousPriceValue !== null && previousPriceValue !== 0
       ? ((priceValue - previousPriceValue) / previousPriceValue) * 100
       : null);
-  const replayPayload = replay?.replay;
+  const replayPayload = dashboardReplay?.replay;
   const timeline = replayRange === "month" && monthSummaryTimelineRows(replayPayload).length
     ? monthSummaryTimelineRows(replayPayload)
-    : filterTimelineByReplayRange(latestTimelineRows(replayPayload), replayRange);
-  const allEvidence = evidenceItems(selectedEvidence, replay, driverAttention, currentConclusionReady);
+    : filterTimelineByReplayRange(latestTimelineRows(replayPayload), replayRange).slice(-DASHBOARD_REPLAY_PREVIEW_LIMIT);
+  const allEvidence = evidenceItems(selectedEvidence, dashboardReplay, driverAttention, currentConclusionReady);
   const evidence = evidenceFilter === "all" ? allEvidence : allEvidence.filter((item) => item.filter === evidenceFilter);
   const contextEvidence = allEvidence.filter((item) => normalizeMarketAgentValue(item.status) === "context");
   const supportingCount = evidence.filter((item) =>
@@ -1402,8 +1455,8 @@ function MarketAgentDashboard({
   const priceSourceDotClass = xauusdStatus.valueMode === "live" ? "spot" : xauusdStatus.valueMode === "closed" ? "closed" : "waiting";
   const providerStatus = statusForProvider(xauusdHealth);
   const displayProviderStatus = xauusdStatus.data || formatDataModeLabel(sourceType, providerStatus);
-  const dataFreshness = formatDataFreshness(xauusdHealth?.data_timestamp ?? price?.data_timestamp ?? price?.timestamp, nowMs);
-  const latestAlertMessage = replay?.replay.alerts?.[0]?.message;
+  const dataFreshness = formatDataFreshness((hasFreshLiveQuote ? liveQuote?.quote?.timestamp : null) ?? xauusdHealth?.data_timestamp ?? price?.data_timestamp ?? price?.timestamp, nowMs);
+  const latestAlertMessage = replay?.replay?.alerts?.[0]?.message;
   const evidenceRunTime = formatReplayTime(selectedEvidence?.payload?.monitor_run?.run_started_at);
   const latestMoveLabel = moveChange === null
     ? (extractMovePercent(latestAlertMessage) ?? "--")
@@ -1809,14 +1862,94 @@ function MarketAgentDashboard({
   );
 }
 
+function MarketAgentDashboardShell() {
+  return (
+    <section className="market-agent-cockpit market-agent-cockpit-loading" data-qa="qa:market-agent:cockpit-loading">
+      <div className="market-agent-kpi-grid" aria-hidden="true">
+        {["XAUUSD (Spot)", "Market State", "Latest Move", "Evidence Status", "Next Update"].map((label) => (
+          <article className="market-agent-kpi-card market-agent-skeleton-card" key={label}>
+            <div className="market-agent-kpi-head">
+              <h3>{label}</h3>
+            </div>
+            <span className="market-agent-skeleton-line wide" />
+            <span className="market-agent-skeleton-line" />
+          </article>
+        ))}
+      </div>
+      <div className="market-agent-cockpit-panels" aria-hidden="true">
+        {["Driver Attention", "Market Replay", "Latest Evidence"].map((label) => (
+          <section className="market-agent-cockpit-panel market-agent-skeleton-panel" key={label}>
+            <div className="market-agent-panel-title-row">
+              <h3>{label}</h3>
+            </div>
+            <span className="market-agent-skeleton-line wide" />
+            <span className="market-agent-skeleton-line wide" />
+            <span className="market-agent-skeleton-line" />
+          </section>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export function MarketAgentPage(props: MarketAgentPageProps) {
-  const [section, setSection] = useState<MarketAgentSection>("live");
-  const replayPayload = useMemo(() => normalizeMarketAgentReplayPayload(props.replay?.replay), [props.replay]);
+  const isControlledSection = props.activeSection !== undefined;
+  const [internalSection, setInternalSection] = useState<MarketAgentSection>(
+    props.activeSection ?? "live"
+  );
+  const section = isControlledSection ? (props.activeSection as MarketAgentSection) : internalSection;
+  const [liveDashboardReady, setLiveDashboardReady] = useState(!DEFER_LIVE_DASHBOARD);
+  const navigateSection = useCallback(
+    (nextSection: MarketAgentSection) => {
+      if (!isControlledSection) {
+        setInternalSection(nextSection);
+      }
+      props.onSectionChange?.(nextSection);
+    },
+    [isControlledSection, props.onSectionChange]
+  );
+
+  useEffect(() => {
+    if (!DEFER_LIVE_DASHBOARD) {
+      setLiveDashboardReady(true);
+      return undefined;
+    }
+    if (section !== "live") {
+      setLiveDashboardReady(false);
+      return undefined;
+    }
+    setLiveDashboardReady(false);
+    let raf1 = 0;
+    let raf2 = 0;
+    let cancelled = false;
+    raf1 = window.requestAnimationFrame(() => {
+      raf2 = window.requestAnimationFrame(() => {
+        if (!cancelled) {
+          setLiveDashboardReady(true);
+        }
+      });
+    });
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(raf1);
+      window.cancelAnimationFrame(raf2);
+    };
+  }, [section]);
+
+  const needsFullReplay =
+    section === "replay" || section === "activity" || section === "alerts";
+  const replayPayload = useMemo(
+    () => (needsFullReplay ? normalizeMarketAgentReplayPayload(props.replay?.replay) : null),
+    [needsFullReplay, props.replay]
+  );
   const normalizedReplay = useMemo<MarketAgentReplayResponse | null>(() => {
-    if (!props.replay) return null;
+    if (!props.replay || !replayPayload) return null;
     return { ...props.replay, replay: replayPayload };
   }, [props.replay, replayPayload]);
-  const currentAlertNoticeIds = useMemo(() => alertNoticeIds(normalizedReplay), [normalizedReplay]);
+  const currentAlertNoticeIds = useMemo(() => {
+    if (section !== "alerts") return [];
+    return alertNoticeIds(normalizedReplay);
+  }, [normalizedReplay, section]);
   const currentAlertNoticeKey = currentAlertNoticeIds.join("\n");
   const [seenAlertIds, setSeenAlertIds] = useState<string[]>(() => readSeenAlertIds());
   const seenAlertIdSet = useMemo(() => new Set(seenAlertIds), [seenAlertIds]);
@@ -1841,25 +1974,38 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
 
   const content = useMemo(() => {
     if (section === "live") {
+      if (!liveDashboardReady) {
+        return <MarketAgentDashboardShell />;
+      }
       return (
         <MarketAgentDashboard
           snapshot={props.snapshot}
+          liveQuote={props.liveQuote}
           providerHealth={props.providerHealth}
           driverAttention={props.driverAttention}
-          replay={normalizedReplay}
+          replay={props.replay}
           selectedEvidence={props.selectedEvidence}
           monitorStatus={props.monitorStatus}
           onSelectRun={props.onSelectRun}
-          onNavigate={setSection}
+          onNavigate={navigateSection}
         />
       );
     }
     if (section === "drivers") {
-      const xauusdHealth = findProviderHealth(props.providerHealth?.items, ["xauusd", "gc=f", "xauusd price"]);
+      const fallbackXauusdHealth = findProviderHealth(props.providerHealth?.items, ["xauusd", "gc=f", "xauusd price"]);
+      const xauusdHealth = props.liveQuote?.provider_health
+        ? ({ ...fallbackXauusdHealth, ...props.liveQuote.provider_health } as MarketAgentProviderHealthEntry)
+        : fallbackXauusdHealth;
+      const hasFreshLiveQuote = Boolean(props.liveQuote?.running && props.liveQuote?.quote);
       return (
         <MarketAgentDriverAttention
           data={props.driverAttention}
-          evidenceChainStatus={fallbackEvidenceChainStatus(props.selectedEvidence, liveXauusdStatus(xauusdHealth))}
+          evidenceChainStatus={fallbackEvidenceChainStatus(
+            props.selectedEvidence,
+            hasFreshLiveQuote
+              ? { label: "cTrader (Spot)", data: "Live", valueMode: "live" as const }
+              : liveXauusdStatus(xauusdHealth)
+          )}
         />
       );
     }
@@ -1881,11 +2027,20 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
       );
     }
     if (section === "evidence") {
-      const xauusdHealth = findProviderHealth(props.providerHealth?.items, ["xauusd", "gc=f", "xauusd price"]);
+      const fallbackXauusdHealth = findProviderHealth(props.providerHealth?.items, ["xauusd", "gc=f", "xauusd price"]);
+      const xauusdHealth = props.liveQuote?.provider_health
+        ? ({ ...fallbackXauusdHealth, ...props.liveQuote.provider_health } as MarketAgentProviderHealthEntry)
+        : fallbackXauusdHealth;
+      const hasFreshLiveQuote = Boolean(props.liveQuote?.running && props.liveQuote?.quote);
       return (
         <MarketAgentEvidencePanel
           data={props.selectedEvidence}
-          evidenceChainStatus={fallbackEvidenceChainStatus(props.selectedEvidence, liveXauusdStatus(xauusdHealth))}
+          evidenceChainStatus={fallbackEvidenceChainStatus(
+            props.selectedEvidence,
+            hasFreshLiveQuote
+              ? { label: "cTrader (Spot)", data: "Live", valueMode: "live" as const }
+              : liveXauusdStatus(xauusdHealth)
+          )}
         />
       );
     }
@@ -1896,6 +2051,7 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
       return (
         <MarketAgentActivity
           monitorStatus={props.monitorStatus}
+          liveQuote={props.liveQuote}
           providerHealth={props.providerHealth}
           replay={normalizedReplay}
           selectedEvidence={props.selectedEvidence}
@@ -1940,8 +2096,9 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
       );
     }
     if (section === "alerts") {
-      const attentionAlerts = replayPayload.alerts;
-      const suppressedAlerts = replayPayload.suppressed_alerts;
+      const activeReplayPayload = replayPayload ?? normalizeMarketAgentReplayPayload(null);
+      const attentionAlerts = activeReplayPayload.alerts;
+      const suppressedAlerts = activeReplayPayload.suppressed_alerts;
       const alertRows = attentionAlerts.map((alert, index) => ({
           key: `alert-${index}`,
           kind: "attention" as const,
@@ -1997,7 +2154,54 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
       );
     }
     return null;
-  }, [normalizedReplay, props, replayPayload, section]);
+  }, [
+    normalizedReplay,
+    props.driverAttention,
+    props.llmConfig,
+    props.liveQuote,
+    props.localAiPullProgress,
+    props.localAiSetup,
+    props.monitorStatus,
+    props.onApplyLLMFallbackPolicy,
+    props.onApplyRange,
+    props.onBenchmarkLLM,
+    props.onCancelModelDownload,
+    props.onClearProviderConfig,
+    props.onDetectLocalAI,
+    props.onGetCTraderQuoteTest,
+    props.onInstallRecommendedModel,
+    props.onPresetChange,
+    props.onRangeEndChange,
+    props.onRangeStartChange,
+    props.onResolveCTraderSymbol,
+    props.onRunBackfillRecovery,
+    props.onRunMonitorOnce,
+    props.onSaveLLMConfig,
+    props.onSaveProviderConfig,
+    props.onSaveTelegramConfig,
+    props.onSelectRun,
+    props.onStartCTraderConnect,
+    props.onStartMonitorLoop,
+    props.onStopMonitorLoop,
+    props.onTestCTraderBackfill,
+    props.onTestCTraderConnection,
+    props.onTestLLMConnection,
+    props.onTestLLMJsonResponse,
+    props.onTestTelegramMessage,
+    props.providerConfig,
+    props.providerHealth,
+    props.rangeEndInput,
+    props.rangePreset,
+    props.rangeStartInput,
+    props.replay,
+    props.selectedEvidence,
+    props.selectedMonitorRunId,
+    props.snapshot,
+    props.telegramConfig,
+    replayPayload,
+    liveDashboardReady,
+    section
+  ]);
 
   const alertNoticeCount = currentAlertNoticeIds.filter((id) => !seenAlertIdSet.has(id)).length;
 
@@ -2019,7 +2223,7 @@ export function MarketAgentPage(props: MarketAgentPageProps) {
                     aria-pressed={section === item.id}
                     className={section === item.id ? "active" : ""}
                     data-market-agent-section={item.id}
-                    onClick={() => setSection(item.id)}
+                    onClick={() => navigateSection(item.id)}
                   >
                     <MarketAgentNavIcon name={item.icon} />
                     <span className="market-agent-nav-label">{displayLabel}</span>

@@ -159,7 +159,7 @@ def build_llm_evidence_packet(
     dynamic_themes = [
         asdict(state)
         for state in attention_snapshot.states.values()
-        if str(state.driver_id).startswith("theme:")
+        if str(state.driver_id).startswith("theme:") and state.current_state != "retired"
     ]
     normalized_previous_state = asdict(previous_state) if isinstance(previous_state, MarketState) else previous_state
     return {
@@ -195,6 +195,18 @@ def build_rule_based_analysis(
     provider_health: dict[str, ProviderHealth] | None = None,
     attention_snapshot: DriverAttentionSnapshot | None = None,
 ) -> AnalysisResult:
+    provider_health = provider_health or build_fixture_provider_health(fixture)
+    initial_evidence = build_evidence_gate_result(fixture, provider_health=provider_health)
+    attention_snapshot = attention_snapshot or DriverAttentionManager().evaluate(
+        fixture=fixture,
+        provider_health=provider_health,
+        evidence_status=initial_evidence.evidence_status,
+    )
+    evidence = build_evidence_gate_result(
+        fixture,
+        provider_health=provider_health,
+        attention_snapshot=attention_snapshot,
+    )
     trigger = detect_market_trigger(fixture)
     if not trigger.triggered:
         return AnalysisResult(
@@ -212,39 +224,14 @@ def build_rule_based_analysis(
             allowed_candidate_drivers_used=["unknown"],
             rejected_or_blocked_drivers_acknowledged=True,
             timeline=[],
-            cross_asset_confirmation={
-                "dxy": "neutral",
-                "us10y": "neutral",
-                "us2y": "neutral",
-                "oil": "neutral",
-                "vix_equities": "neutral",
-            },
-            evidence_status={
-                "dxy": "not_confirming",
-                "us10y": "not_confirming",
-                "us2y": "not_confirming",
-                "oil": "not_confirming",
-                "vix_equities": "not_confirming",
-                "news": "no_relevant_news_found",
-            },
+            cross_asset_confirmation=evidence.cross_asset_confirmation,
+            evidence_status=evidence.evidence_status,
             causal_chain="No meaningful change was detected.",
             invalidation_conditions=[],
             user_message="No meaningful change in XAUUSD. Alert suppressed.",
             summary="No meaningful change.",
         )
 
-    provider_health = provider_health or build_fixture_provider_health(fixture)
-    initial_evidence = build_evidence_gate_result(fixture, provider_health=provider_health)
-    attention_snapshot = attention_snapshot or DriverAttentionManager().evaluate(
-        fixture=fixture,
-        provider_health=provider_health,
-        evidence_status=initial_evidence.evidence_status,
-    )
-    evidence = build_evidence_gate_result(
-        fixture,
-        provider_health=provider_health,
-        attention_snapshot=attention_snapshot,
-    )
     bias = _bias_for_move(fixture)
     main_driver, secondary_driver = _select_main_driver(evidence.allowed_candidate_drivers, bias, attention_snapshot)
     has_direct_news = bool(fixture.news or fixture.calendar_events)

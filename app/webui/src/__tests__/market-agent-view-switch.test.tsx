@@ -93,6 +93,16 @@ vi.mock("../api", () => ({
       items: [
         {
           provider_key: "xauusd",
+          source: "cTrader",
+          source_type: "spot_snapshot",
+          data_mode: "snapshot",
+          is_available: true,
+          is_stale: true,
+          current_value: 4479.12,
+          stale_reason: "Loaded saved cTrader quote snapshot."
+        },
+        {
+          provider_key: "gc=f",
           source: "Yahoo Finance",
           source_type: "futures_proxy",
           data_mode: "proxy",
@@ -113,11 +123,40 @@ vi.mock("../api", () => ({
         ctidMasked: "",
         passwordMasked: "",
         hasPassword: false,
-        snapshotPath: "user-data/ctrader-last-quote.json",
+        snapshotPath: "user-data/ctrader-live-quote.json",
         quoteTimeoutSeconds: 8,
         quoteStaleAfterSeconds: 15,
-        allowSavedSnapshotFallback: true,
+        allowSavedSnapshotFallback: false,
         configPath: "user-data/ctrader-cli.json"
+      }
+    }),
+    getMarketAgentTelegramConfig: vi.fn().mockResolvedValue({
+      ok: true,
+      available: true,
+      telegram: {
+        enabled: false,
+        botTokenMasked: "",
+        chatIdMasked: "",
+        hasBotToken: false,
+        hasChatId: false,
+        levels: ["level_3"],
+        minLevel: "level_3",
+        configPath: "user-data/market-agent-telegram.json"
+      }
+    }),
+    getMarketAgentLLMConfig: vi.fn().mockResolvedValue({
+      ok: true,
+      available: true,
+      llm: {
+        enabled: false,
+        provider: "ollama",
+        endpoint: "http://127.0.0.1:21434",
+        model: "qwen3.5:4b",
+        temperature: 0.2,
+        timeoutSeconds: 45,
+        keepAlive: "5m",
+        maxContext: 8192,
+        configPath: "user-data/market-agent-llm.json"
       }
     }),
     getMarketAgentDriverAttention: vi.fn().mockResolvedValue({
@@ -154,6 +193,27 @@ vi.mock("../api", () => ({
       lastError: "",
       message: "Monitor loop is stopped."
     }),
+    getMarketAgentLiveQuote: vi.fn().mockResolvedValue({
+      ok: true,
+      running: false,
+      phase: "stale",
+      message: "Live quote snapshot is stale; waiting for fresh cTrader stream.",
+      quote: null,
+      provider_health: null,
+      status: { running: false, phase: "stale" }
+    }),
+    ensureMarketAgentLiveQuoteStream: vi.fn().mockResolvedValue({
+      ok: true,
+      running: true,
+      phase: "running",
+      message: "Live quote stream is running."
+    }),
+    stopMarketAgentLiveQuoteStream: vi.fn().mockResolvedValue({
+      ok: true,
+      running: false,
+      phase: "stopped",
+      message: "Live quote stream is stopped."
+    }),
     detectMarketAgentLocalAI: vi.fn().mockResolvedValue({
       ok: true,
       available: true,
@@ -165,10 +225,24 @@ vi.mock("../api", () => ({
     startMarketAgentMonitorLoop: vi.fn().mockResolvedValue({ ok: true, available: true, running: true, phase: "running" }),
     stopMarketAgentMonitorLoop: vi.fn().mockResolvedValue({ ok: true, available: true, running: false, phase: "stopped" }),
     saveMarketAgentProviderConfig: vi.fn().mockResolvedValue({ ok: true, available: true, ctrader: null }),
+    saveMarketAgentTelegramConfig: vi.fn().mockResolvedValue({ ok: true, available: true, telegram: null }),
+    saveMarketAgentLLMConfig: vi.fn().mockResolvedValue({ ok: true, available: true, llm: null }),
+    testMarketAgentTelegram: vi.fn().mockResolvedValue({ ok: true, status: "sent" }),
+    testMarketAgentLLMConnection: vi.fn().mockResolvedValue({ ok: true, status: "model_ready" }),
+    testMarketAgentLLMJsonResponse: vi.fn().mockResolvedValue({ ok: true, status: "model_ready" }),
+    pullOllamaModel: vi.fn().mockResolvedValue({ ok: true, status: "download_started", done: false }),
+    cancelModelDownload: vi.fn().mockResolvedValue({ ok: true, status: "cancelled", done: true }),
+    benchmarkMarketAgentLLM: vi.fn().mockResolvedValue({ ok: true, status: "model_ready" }),
+    applyLLMFallbackPolicy: vi.fn().mockResolvedValue({ ok: true, status: "fallback_active" }),
     testCTraderConnection: vi.fn().mockResolvedValue({ ok: true }),
     resolveCTraderSymbol: vi.fn().mockResolvedValue({ ok: true }),
     getCTraderQuoteTest: vi.fn().mockResolvedValue({ ok: true }),
-    startCTraderConnect: vi.fn().mockResolvedValue({ ok: true, status: "preparing_live_feed", message: "cTrader is connected. Preparing live XAUUSD and syncing history in the background." }),
+    startCTraderConnect: vi.fn().mockResolvedValue({
+      ok: true,
+      status: "waiting_for_live_connector",
+      message:
+        "cTrader account is connected. Live streaming is waiting for the long-running connector snapshot; cTrader CLI cBot streaming is disabled to avoid external algo host windows."
+    }),
     clearCTraderConfig: vi.fn().mockResolvedValue({ ok: true, available: true, ctrader: null }),
     setCurrency: vi.fn().mockResolvedValue({ ok: true }),
     frontendBootComplete: vi.fn().mockResolvedValue({ ok: true }),
@@ -248,16 +322,19 @@ describe("Market Agent view switch", () => {
     });
 
     fireEvent.click(screen.getByRole("button", { name: /^Provider Health$/i }));
-    expect(screen.getByRole("heading", { name: "Provider Health" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "cTrader" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Cross-market sensors" })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(backend.getMarketAgentProviderHealth).toHaveBeenCalled();
+      expect(screen.getByRole("heading", { name: "Provider Health" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "cTrader" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Cross-market sensors" })).toBeInTheDocument();
+    }, { timeout: 2500 });
     expect(screen.queryByRole("heading", { name: "DXY" })).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
     expect(screen.getByRole("heading", { name: "Data Sources" })).toBeInTheDocument();
   });
 
-  it("loads Market Agent workspace and refreshes Local AI setup once on entry", async () => {
+  it("opens Market Agent with live stream startup and detects Local AI only when the Local AI setup step is opened", async () => {
     render(<App />);
 
     await waitFor(() => {
@@ -270,10 +347,147 @@ describe("Market Agent view switch", () => {
       expect(screen.getByRole("navigation", { name: /Market Agent sections/i })).toBeInTheDocument();
     });
 
-    expect(backend.getMarketAgentSnapshot).toHaveBeenCalledTimes(1);
-    expect(backend.getMarketAgentReplay).toHaveBeenCalledTimes(1);
-    expect(backend.getMarketAgentDriverAttention).toHaveBeenCalledTimes(1);
-    expect(backend.getMarketAgentProviderHealth).toHaveBeenCalledTimes(1);
-    expect(backend.detectMarketAgentLocalAI).toHaveBeenCalledTimes(1);
+    expect(backend.getMarketAgentReplay).not.toHaveBeenCalled();
+    expect(backend.getMarketAgentLiveQuote).not.toHaveBeenCalled();
+    expect(backend.ensureMarketAgentLiveQuoteStream).not.toHaveBeenCalled();
+    expect(backend.detectMarketAgentLocalAI).not.toHaveBeenCalled();
+    expect(backend.startMarketAgentMonitorLoop).not.toHaveBeenCalled();
+    expect(backend.runMarketAgentMonitorOnce).not.toHaveBeenCalled();
+    expect(backend.getCTraderQuoteTest).not.toHaveBeenCalled();
+    expect(backend.startCTraderConnect).not.toHaveBeenCalled();
+
+    await waitFor(() => {
+      expect(backend.getMarketAgentSnapshot).toHaveBeenCalledTimes(1);
+      expect(backend.getMarketAgentDriverAttention).toHaveBeenCalledTimes(1);
+      expect(backend.getMarketAgentProviderHealth).toHaveBeenCalledTimes(1);
+    }, { timeout: 3000 });
+    const providerHealthCallsAfterEntry = vi.mocked(backend.getMarketAgentProviderHealth).mock.calls.length;
+    const monitorStatusCallsAfterEntry = vi.mocked(backend.getMarketAgentMonitorStatus).mock.calls.length;
+    await new Promise((resolve) => window.setTimeout(resolve, 50));
+    expect(backend.getMarketAgentProviderHealth).toHaveBeenCalledTimes(providerHealthCallsAfterEntry);
+    expect(backend.getMarketAgentMonitorStatus).toHaveBeenCalledTimes(monitorStatusCallsAfterEntry);
+    expect(vi.mocked(backend.getMarketAgentMonitorStatus).mock.calls).not.toContainEqual([
+      { includeActivity: true }
+    ]);
+    expect(backend.getMarketAgentReplay).not.toHaveBeenCalled();
+    expect(vi.mocked(backend.getMarketAgentLiveQuote).mock.calls.length).toBeGreaterThanOrEqual(1);
+    expect(backend.ensureMarketAgentLiveQuoteStream).toHaveBeenCalledTimes(1);
+    expect(backend.detectMarketAgentLocalAI).not.toHaveBeenCalled();
+    expect(backend.startMarketAgentMonitorLoop).not.toHaveBeenCalled();
+    expect(backend.runMarketAgentMonitorOnce).not.toHaveBeenCalled();
+    expect(backend.getCTraderQuoteTest).not.toHaveBeenCalled();
+    expect(backend.startCTraderConnect).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: /Replay \/ Timeline/i }));
+
+    await waitFor(() => {
+      expect(backend.getMarketAgentReplay).toHaveBeenCalledTimes(1);
+    }, { timeout: 2500 });
+
+    expect(backend.detectMarketAgentLocalAI).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Data Sources" })).toBeInTheDocument();
+      expect(backend.getMarketAgentProviderConfig).toHaveBeenCalledTimes(1);
+      expect(backend.getMarketAgentTelegramConfig).toHaveBeenCalledTimes(1);
+      expect(backend.getMarketAgentLLMConfig).toHaveBeenCalledTimes(1);
+    }, { timeout: 2500 });
+    expect(backend.detectMarketAgentLocalAI).not.toHaveBeenCalled();
+    expect(vi.mocked(backend.getMarketAgentLiveQuote).mock.calls.length).toBeGreaterThanOrEqual(1);
+    expect(backend.ensureMarketAgentLiveQuoteStream).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(await screen.findByRole("button", { name: /^Local AI$/i }));
+
+    await waitFor(() => {
+      expect(backend.detectMarketAgentLocalAI).toHaveBeenCalledTimes(1);
+    }, { timeout: 2500 });
+
+    fireEvent.click(screen.getByRole("button", { name: /^Activity$/i }));
+
+    await waitFor(() => {
+      expect(backend.getMarketAgentMonitorStatus).toHaveBeenCalledWith({ includeActivity: true });
+    }, { timeout: 2500 });
+  });
+
+  it("loads Evidence without triggering replay workspace refresh", async () => {
+    vi.mocked(backend.getMarketAgentDriverAttention).mockResolvedValue({
+      ok: true,
+      available: true,
+      monitor_run_id: 321,
+      states: [
+        {
+          driver_id: "yields",
+          current_state: "active",
+          priority: "core_structural",
+          confidence: "high",
+          data_mode: "proxy"
+        }
+      ]
+    });
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Market Agent/i })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Market Agent/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("navigation", { name: /Market Agent sections/i })).toBeInTheDocument();
+    });
+
+    expect(backend.getMarketAgentReplay).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: /^Evidence$/i }));
+
+    await waitFor(() => {
+      expect(backend.getMarketAgentEvidenceForRun).toHaveBeenCalledWith(321);
+    });
+
+    expect(backend.getMarketAgentReplay).not.toHaveBeenCalled();
+  });
+
+  it("keeps Market Agent entry read-only when cTrader is enabled and monitoring is stopped", async () => {
+    vi.mocked(backend.getMarketAgentProviderConfig).mockResolvedValue({
+      ok: true,
+      available: true,
+      ctrader: {
+        enabled: true,
+        environment: "demo",
+        symbol: "XAUUSD",
+        symbolId: null,
+        accountId: "123",
+        ctidMasked: "ct****id",
+        passwordMasked: "********",
+        hasPassword: true,
+        snapshotPath: "user-data/ctrader-live-quote.json",
+        quoteTimeoutSeconds: 8,
+        quoteStaleAfterSeconds: 45,
+        allowSavedSnapshotFallback: false,
+        configPath: "user-data/ctrader-cli.json"
+      }
+    });
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Market Agent/i })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Market Agent/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("navigation", { name: /Market Agent sections/i })).toBeInTheDocument();
+    });
+
+    expect(backend.startMarketAgentMonitorLoop).not.toHaveBeenCalled();
+    expect(backend.ensureMarketAgentLiveQuoteStream).not.toHaveBeenCalled();
+    expect(backend.getCTraderQuoteTest).not.toHaveBeenCalled();
+    expect(backend.startCTraderConnect).not.toHaveBeenCalled();
+    expect(backend.runMarketAgentMonitorOnce).not.toHaveBeenCalled();
+    expect(backend.detectMarketAgentLocalAI).not.toHaveBeenCalled();
   });
 });

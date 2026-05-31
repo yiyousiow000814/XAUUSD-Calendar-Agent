@@ -3,6 +3,8 @@ import json
 
 from src.xauusd_market_agent.config import MarketAgentConfig
 from src.xauusd_market_agent.live_pipeline import build_live_evidence_packet
+from src.xauusd_market_agent.models import CrossAssetSnapshot, Headline, MarketMove, ScenarioFixture
+from src.xauusd_market_agent.pipeline import build_rule_based_analysis
 
 
 def test_build_live_evidence_packet_uses_provider_outputs(tmp_path) -> None:
@@ -43,3 +45,44 @@ def test_build_live_evidence_packet_uses_provider_outputs(tmp_path) -> None:
     assert packet["market_move"]["symbol"] == "XAUUSD"
     assert "allowed_candidate_drivers" in packet
     assert packet["calendar_events"][0]["title"] == "CPI"
+
+
+def test_rule_analysis_preserves_relevant_news_status_when_price_move_is_missing() -> None:
+    fixture = ScenarioFixture(
+        scenario_id="missing_price_with_news",
+        as_of_myt="31-05-2026 16:28",
+        market=MarketMove(
+            symbol="XAUUSD",
+            from_price=0.0,
+            to_price=0.0,
+            move_percent=0.0,
+            move_percent_15m=0.0,
+            move_percent_1h=0.0,
+            window_minutes=15,
+        ),
+        cross_asset=CrossAssetSnapshot(
+            dxy_percent=0.0,
+            us10y_bps=0.0,
+            us2y_bps=0.0,
+            wti_percent=0.0,
+            brent_percent=0.0,
+            vix_percent=0.0,
+            spx_percent=0.0,
+            nasdaq_percent=0.0,
+        ),
+        news=(
+            Headline(
+                timestamp_myt="31-05-2026 14:12",
+                source="Federal Reserve",
+                title="Fed governor discusses inflation risks",
+                relevance_reason="Fed headline is relevant to gold.",
+                impact_direction_on_gold="unknown",
+                tags=("fed",),
+            ),
+        ),
+    )
+
+    analysis = build_rule_based_analysis(fixture)
+
+    assert analysis.no_news_found is False
+    assert analysis.evidence_status["news"] == "relevant_news_found"

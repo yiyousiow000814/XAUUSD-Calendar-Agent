@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 import json
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -23,6 +24,8 @@ _SYMBOL_SOURCE_TYPE = {
     "NQ=F": "proxy",
 }
 _HTTP_USER_AGENT = "Mozilla/5.0 (compatible; XAUUSD-Calendar-Agent/1.0)"
+_DEFAULT_LOOKBACK = timedelta(hours=6)
+_RELATED_EMPTY_RETRY_LOOKBACK = timedelta(hours=96)
 
 
 def _parse_dt(raw: str) -> datetime:
@@ -216,10 +219,29 @@ class YahooChartProvider:
         return result_rows, health
 
     def fetch_market_price(self, anchor_time: datetime) -> tuple[list[dict[str, Any]], ProviderHealth]:
-        return self.fetch_series("GC=F", anchor_time - timedelta(hours=6), anchor_time, interval="5m")
+        return self.fetch_series("GC=F", anchor_time - _DEFAULT_LOOKBACK, anchor_time, interval="5m")
 
     def fetch_related_asset(self, symbol: str, anchor_time: datetime) -> tuple[list[dict[str, Any]], ProviderHealth]:
-        return self.fetch_series(symbol, anchor_time - timedelta(hours=6), anchor_time, interval="5m")
+        rows, health = self.fetch_series(symbol, anchor_time - _DEFAULT_LOOKBACK, anchor_time, interval="5m")
+        if rows or health.error != "No chart rows.":
+            return rows, health
+        retry_rows, retry_health = self.fetch_series(
+            symbol,
+            anchor_time - _RELATED_EMPTY_RETRY_LOOKBACK,
+            anchor_time,
+            interval="5m",
+        )
+        if not retry_rows:
+            return rows, health
+        return retry_rows, replace(
+            retry_health,
+            metadata={
+                **retry_health.metadata,
+                "empty_window_retry": True,
+                "initial_lookback_hours": int(_DEFAULT_LOOKBACK.total_seconds() // 3600),
+                "retry_lookback_hours": int(_RELATED_EMPTY_RETRY_LOOKBACK.total_seconds() // 3600),
+            },
+        )
 
     def backfill(self, symbol: str, start: datetime, end: datetime, interval: str = "5m") -> tuple[list[dict[str, Any]], ProviderHealth]:
         return self.fetch_series(symbol, start, end, interval=interval)

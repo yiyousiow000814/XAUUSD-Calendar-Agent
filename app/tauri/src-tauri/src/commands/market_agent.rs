@@ -1,4 +1,5 @@
 use crate::config;
+use chrono::{Datelike, Timelike};
 use rusqlite::{params, Connection, OptionalExtension};
 use serde_json::{json, Value};
 use std::collections::HashMap;
@@ -11,16 +12,23 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use tauri::Emitter;
 
 #[cfg(target_os = "windows")]
-use std::os::windows::process::CommandExt;
+use windows_sys::Win32::Foundation::{CloseHandle, STILL_ACTIVE};
+#[cfg(target_os = "windows")]
+use windows_sys::Win32::System::Threading::{
+    GetExitCodeProcess, OpenProcess, PROCESS_QUERY_LIMITED_INFORMATION,
+};
 
 type LatestMonitorRun = (i64, String, String);
 type LatestPayloadRows = (Option<i64>, Option<String>, Vec<Value>);
 static CANCEL_OLLAMA_PULL: AtomicBool = AtomicBool::new(false);
 const DEFAULT_OLLAMA_ENDPOINT: &str = "http://127.0.0.1:21434";
+const DEFAULT_LLM_TEMPERATURE: f64 = 0.0;
+const DEFAULT_LLM_TIMEOUT_SECONDS: i64 = 30;
 const LEGACY_OLLAMA_ENDPOINT: &str = "http://localhost:11434";
-#[cfg(target_os = "windows")]
-const CREATE_NO_WINDOW: u32 = 0x08000000;
-
+const LIVE_QUOTE_FRESH_AFTER_SECONDS: i64 = 20;
+const XAUUSD_WEEKEND_CLOSE_HOUR_UTC: u32 = 22;
+const XAUUSD_WEEKEND_REOPEN_HOUR_UTC: u32 = 22;
+const MAX_WEEKEND_CONTEXT_AGE_SECONDS: i64 = 96 * 60 * 60;
 fn repo_root_from_manifest() -> Option<PathBuf> {
     let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     manifest.parent()?.parent()?.parent().map(Path::to_path_buf)
@@ -28,17 +36,18 @@ fn repo_root_from_manifest() -> Option<PathBuf> {
 
 fn candidate_roots() -> Vec<PathBuf> {
     let cfg = config::load_config();
-    let mut roots = vec![config::appdata_dir(), config::working_root_dir(&cfg)];
+    let mut roots = vec![config::working_root_dir(&cfg)];
     if let Ok(cwd) = std::env::current_dir() {
         roots.push(cwd.clone());
         roots.push(cwd.join("user-data"));
     }
-    roots.push(config::install_dir());
-    roots.push(config::install_dir().join("user-data"));
     if let Some(repo_root) = repo_root_from_manifest() {
         roots.push(repo_root.clone());
         roots.push(repo_root.join("user-data"));
     }
+    roots.push(config::install_dir());
+    roots.push(config::install_dir().join("user-data"));
+    roots.push(config::appdata_dir());
     let mut unique = vec![];
     for root in roots {
         if !unique.iter().any(|existing: &PathBuf| existing == &root) {
@@ -64,6 +73,18 @@ fn monitor_status_path_for_root(root: &Path) -> PathBuf {
     root.join("market_agent_monitor_status.json")
 }
 
+fn monitor_lock_path_for_root(root: &Path) -> PathBuf {
+    root.join("market_agent_monitor.lock")
+}
+
+fn live_quote_snapshot_path_for_root(root: &Path) -> PathBuf {
+    root.join("ctrader-live-quote.json")
+}
+
+fn live_quote_stream_status_path_for_root(root: &Path) -> PathBuf {
+    root.join("ctrader_live_stream_status.json")
+}
+
 fn ctrader_config_path_for_root(root: &Path) -> PathBuf {
     root.join("ctrader-cli.json")
 }
@@ -86,6 +107,119 @@ fn read_json_object(path: &Path) -> serde_json::Map<String, Value> {
         .and_then(|text| serde_json::from_str::<Value>(&text).ok())
         .and_then(|value| value.as_object().cloned())
         .unwrap_or_default()
+}
+
+fn read_fallback_json_object(
+    primary_path: &Path,
+    candidate: impl Fn(&Path) -> PathBuf,
+) -> serde_json::Map<String, Value> {
+    let primary = read_json_object(primary_path);
+    if !primary.is_empty() {
+        return primary;
+    }
+    for root in candidate_roots() {
+        let path = candidate(&root);
+        if path == primary_path {
+            continue;
+        }
+        let fallback = read_json_object(&path);
+        if !fallback.is_empty() {
+            return fallback;
+        }
+    }
+    serde_json::Map::new()
+}
+
+fn spawn_debug_log_path(root: &Path) -> PathBuf {
+    root.join("market_agent_spawn_debug.ndjson")
+}
+
+fn append_spawn_debug(root: &Path, payload: Value) {
+    let path = spawn_debug_log_path(root);
+    if let Some(parent) = path.parent() {
+        let _ = fs::create_dir_all(parent);
+    }
+    let mut line = match serde_json::to_string(&payload) {
+        Ok(line) => line,
+        Err(_) => return,
+    };
+    line.push('\n');
+    let _ = fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(path)
+        .and_then(|mut file| file.write_all(line.as_bytes()));
+}
+
+fn market_agent_log_root() -> PathBuf {
+    resolve_market_agent_root().unwrap_or_else(config::appdata_dir)
+}
+
+fn market_agent_runtime_root() -> PathBuf {
+    resolve_market_agent_root().unwrap_or_else(config::appdata_dir)
+}
+
+fn market_agent_debug_payload(payload: &Value) -> Value {
+    match payload {
+        Value::Object(map) => {
+            let mut sanitized = serde_json::Map::new();
+            for key in [
+                "limit",
+                "start",
+                "end",
+                "monitorRunId",
+                "monitor_run_id",
+                "intervalSeconds",
+                "includeActivity",
+            ] {
+                if let Some(value) = map.get(key) {
+                    sanitized.insert(key.to_string(), value.clone());
+                }
+            }
+            Value::Object(sanitized)
+        }
+        _ => Value::Null,
+    }
+}
+
+fn run_logged_market_agent_command<F>(command: &str, payload: &Value, work: F) -> Value
+where
+    F: FnOnce() -> Value,
+{
+    let root = market_agent_log_root();
+    append_spawn_debug(
+        &root,
+        json!({
+            "ts": chrono::Utc::now().to_rfc3339(),
+            "event": "command_start",
+            "layer": "market_agent_command",
+            "command": command,
+            "payload": market_agent_debug_payload(payload),
+        }),
+    );
+    let started = Instant::now();
+    let result = work();
+    append_spawn_debug(
+        &root,
+        json!({
+            "ts": chrono::Utc::now().to_rfc3339(),
+            "event": "command_result",
+            "layer": "market_agent_command",
+            "command": command,
+            "elapsed_ms": started.elapsed().as_millis() as u64,
+            "ok": result.get("ok").and_then(Value::as_bool),
+            "available": result.get("available").and_then(Value::as_bool),
+            "message": result.get("message").and_then(Value::as_str),
+        }),
+    );
+    result
+}
+
+fn run_market_agent_command<F>(work: F) -> Value
+where
+    F: FnOnce() -> Value,
+{
+    work()
 }
 
 fn write_json_atomic(path: &Path, value: &Value) -> Result<(), String> {
@@ -120,7 +254,7 @@ fn mask_secret(value: &str) -> String {
 
 fn merged_ctrader_provider_config(root: &Path, override_payload: Option<&Value>) -> Value {
     let config_path = ctrader_config_path_for_root(root);
-    let config_payload = read_json_object(&config_path);
+    let config_payload = read_fallback_json_object(&config_path, ctrader_config_path_for_root);
     let input = override_payload
         .and_then(|payload| payload.get("ctrader"))
         .or(override_payload)
@@ -185,7 +319,7 @@ fn merged_ctrader_provider_config(root: &Path, override_payload: Option<&Value>)
         .and_then(Value::as_str)
         .or_else(|| config_payload.get("snapshotPath").and_then(Value::as_str))
         .map(String::from)
-        .unwrap_or_else(|| root.join("ctrader-last-quote.json").display().to_string());
+        .unwrap_or_else(|| root.join("ctrader-live-quote.json").display().to_string());
     let cli_executable = {
         let value = get_str("cliExecutable");
         if value.is_empty() {
@@ -205,7 +339,7 @@ fn merged_ctrader_provider_config(root: &Path, override_payload: Option<&Value>)
         "snapshotPath": snapshot_path,
         "quoteTimeoutSeconds": get_i64("quoteTimeoutSeconds").unwrap_or(8),
         "quoteStaleAfterSeconds": get_i64("quoteStaleAfterSeconds").unwrap_or(15),
-        "allowSavedSnapshotFallback": get_bool("allowSavedSnapshotFallback", true),
+        "allowSavedSnapshotFallback": get_bool("allowSavedSnapshotFallback", false),
         "cliExecutable": cli_executable,
         "configPath": config_path.display().to_string(),
     })
@@ -228,7 +362,7 @@ fn masked_ctrader_provider_config(root: &Path) -> Value {
             "snapshotPath": merged.get("snapshotPath").and_then(Value::as_str).unwrap_or(""),
             "quoteTimeoutSeconds": merged.get("quoteTimeoutSeconds").and_then(Value::as_i64).unwrap_or(8),
             "quoteStaleAfterSeconds": merged.get("quoteStaleAfterSeconds").and_then(Value::as_i64).unwrap_or(15),
-            "allowSavedSnapshotFallback": merged.get("allowSavedSnapshotFallback").and_then(Value::as_bool).unwrap_or(true),
+            "allowSavedSnapshotFallback": merged.get("allowSavedSnapshotFallback").and_then(Value::as_bool).unwrap_or(false),
             "configPath": merged.get("configPath").and_then(Value::as_str).unwrap_or(""),
         }
     })
@@ -248,7 +382,7 @@ fn save_ctrader_provider_config(root: &Path, payload: &Value) -> Result<Value, S
         "snapshotPath": merged.get("snapshotPath").and_then(Value::as_str).unwrap_or(""),
         "quoteTimeoutSeconds": merged.get("quoteTimeoutSeconds").and_then(Value::as_i64).unwrap_or(8),
         "quoteStaleAfterSeconds": merged.get("quoteStaleAfterSeconds").and_then(Value::as_i64).unwrap_or(15),
-        "allowSavedSnapshotFallback": merged.get("allowSavedSnapshotFallback").and_then(Value::as_bool).unwrap_or(true),
+        "allowSavedSnapshotFallback": merged.get("allowSavedSnapshotFallback").and_then(Value::as_bool).unwrap_or(false),
         "cliExecutable": merged.get("cliExecutable").and_then(Value::as_str).unwrap_or("ctrader-cli"),
     });
     write_json_atomic(&config_path, &config_payload)?;
@@ -414,8 +548,8 @@ fn merged_llm_config_for_root(root: &Path, override_payload: Option<&Value>) -> 
         "provider": get_str("provider", "ollama"),
         "endpoint": normalize_local_ai_endpoint(&get_str("endpoint", DEFAULT_OLLAMA_ENDPOINT)),
         "model": get_str("model", "qwen3.5:4b"),
-        "temperature": get_f64("temperature", 0.1),
-        "timeoutSeconds": get_i64("timeoutSeconds", 20),
+        "temperature": get_f64("temperature", DEFAULT_LLM_TEMPERATURE),
+        "timeoutSeconds": get_i64("timeoutSeconds", DEFAULT_LLM_TIMEOUT_SECONDS),
         "keepAlive": get_str("keepAlive", "0"),
         "maxContext": get_i64("maxContext", 8192),
         "configPath": config_path.display().to_string(),
@@ -439,8 +573,8 @@ fn masked_llm_config_for_root(root: &Path) -> Value {
                     .unwrap_or(DEFAULT_OLLAMA_ENDPOINT),
             ),
             "model": merged.get("model").and_then(Value::as_str).unwrap_or("qwen3.5:4b"),
-            "temperature": merged.get("temperature").and_then(Value::as_f64).unwrap_or(0.1),
-            "timeoutSeconds": merged.get("timeoutSeconds").and_then(Value::as_i64).unwrap_or(20),
+            "temperature": merged.get("temperature").and_then(Value::as_f64).unwrap_or(DEFAULT_LLM_TEMPERATURE),
+            "timeoutSeconds": merged.get("timeoutSeconds").and_then(Value::as_i64).unwrap_or(DEFAULT_LLM_TIMEOUT_SECONDS),
             "keepAlive": merged.get("keepAlive").and_then(Value::as_str).unwrap_or("0"),
             "maxContext": merged.get("maxContext").and_then(Value::as_i64).unwrap_or(8192),
             "configPath": merged.get("configPath").and_then(Value::as_str).unwrap_or(""),
@@ -501,7 +635,7 @@ fn llm_env_for_root(root: &Path) -> HashMap<String, String> {
         merged
             .get("temperature")
             .and_then(Value::as_f64)
-            .unwrap_or(0.1)
+            .unwrap_or(DEFAULT_LLM_TEMPERATURE)
             .to_string(),
     );
     env.insert(
@@ -509,7 +643,7 @@ fn llm_env_for_root(root: &Path) -> HashMap<String, String> {
         merged
             .get("timeoutSeconds")
             .and_then(Value::as_i64)
-            .unwrap_or(20)
+            .unwrap_or(DEFAULT_LLM_TIMEOUT_SECONDS)
             .to_string(),
     );
     env.insert(
@@ -694,19 +828,6 @@ fn apply_llm_fallback_policy_for_result(
     })
 }
 
-fn command_stdout(program: &str, args: &[&str]) -> Option<String> {
-    let output = background_command(program).args(args).output().ok()?;
-    if !output.status.success() {
-        return None;
-    }
-    let text = String::from_utf8_lossy(&output.stdout).trim().to_string();
-    if text.is_empty() {
-        None
-    } else {
-        Some(text)
-    }
-}
-
 fn detect_system_profile_value() -> Value {
     let logical_cpu_count = std::thread::available_parallelism()
         .map(|value| value.get() as i64)
@@ -714,41 +835,12 @@ fn detect_system_profile_value() -> Value {
     let cpu = std::env::var("PROCESSOR_IDENTIFIER")
         .ok()
         .filter(|value| !value.trim().is_empty())
-        .or_else(|| command_stdout("wmic", &["cpu", "get", "name", "/value"]))
         .unwrap_or_else(|| "Unknown CPU".to_string())
-        .replace("Name=", "")
         .trim()
         .to_string();
-    let ram_bytes = command_stdout(
-        "powershell",
-        &[
-            "-NoProfile",
-            "-Command",
-            "(Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory",
-        ],
-    )
-    .and_then(|text| text.lines().last().unwrap_or("").trim().parse::<i64>().ok())
-    .unwrap_or(0);
-    let gpu_json = command_stdout(
-        "powershell",
-        &[
-            "-NoProfile",
-            "-Command",
-            "Get-CimInstance Win32_VideoController | Select-Object -First 1 Name,AdapterRAM | ConvertTo-Json -Compress",
-        ],
-    )
-    .and_then(|text| serde_json::from_str::<Value>(&text).ok())
-    .unwrap_or_else(|| json!({}));
-    let gpu_name = gpu_json
-        .get("Name")
-        .and_then(Value::as_str)
-        .unwrap_or("")
-        .to_string();
-    let vram_bytes = gpu_json
-        .get("AdapterRAM")
-        .and_then(Value::as_i64)
-        .unwrap_or(0)
-        .max(0);
+    let ram_bytes = 0;
+    let gpu_name = String::new();
+    let vram_bytes = 0;
     let lower_gpu = gpu_name.to_lowercase();
     let gpu_vendor = if lower_gpu.contains("nvidia") || lower_gpu.contains("rtx") {
         "NVIDIA"
@@ -769,6 +861,7 @@ fn detect_system_profile_value() -> Value {
         "gpuName": gpu_name,
         "vramBytes": vram_bytes,
         "nvidiaAvailable": gpu_vendor == "NVIDIA",
+        "profileMode": "safe_no_shell",
     })
 }
 
@@ -800,14 +893,6 @@ fn normalize_local_ai_endpoint(endpoint: &str) -> String {
     trimmed.to_string()
 }
 
-fn ollama_host_from_endpoint(endpoint: &str) -> String {
-    normalize_local_ai_endpoint(endpoint)
-        .trim_start_matches("http://")
-        .trim_start_matches("https://")
-        .trim_end_matches('/')
-        .to_string()
-}
-
 fn model_from_payload(payload: &Value) -> String {
     payload
         .get("model")
@@ -823,31 +908,61 @@ fn model_from_payload(payload: &Value) -> String {
         .to_string()
 }
 
-fn check_ollama_installed_value() -> Value {
-    match background_command("ollama").arg("--version").output() {
-        Ok(output) if output.status.success() => {
-            let version = String::from_utf8_lossy(&output.stdout).trim().to_string();
-            json!({
-                "ok": true,
-                "installed": true,
-                "status": "installed",
-                "version": version,
-                "message": "Local AI runtime is installed."
-            })
+fn find_ollama_executable_path() -> Option<PathBuf> {
+    let mut candidates = Vec::new();
+    if let Ok(local_app_data) = std::env::var("LOCALAPPDATA") {
+        candidates.push(
+            PathBuf::from(local_app_data)
+                .join("Programs")
+                .join("Ollama")
+                .join(if cfg!(target_os = "windows") {
+                    "ollama.exe"
+                } else {
+                    "ollama"
+                }),
+        );
+    }
+    if let Ok(program_files) = std::env::var("ProgramFiles") {
+        candidates.push(PathBuf::from(program_files).join("Ollama").join(
+            if cfg!(target_os = "windows") {
+                "ollama.exe"
+            } else {
+                "ollama"
+            },
+        ));
+    }
+    if let Ok(path_var) = std::env::var("PATH") {
+        let executable = if cfg!(target_os = "windows") {
+            "ollama.exe"
+        } else {
+            "ollama"
+        };
+        for entry in std::env::split_paths(&path_var) {
+            candidates.push(entry.join(executable));
+            if cfg!(target_os = "windows") {
+                candidates.push(entry.join("ollama"));
+            }
         }
-        Ok(output) => json!({
-            "ok": false,
-            "installed": false,
-            "status": "runtime_installing",
-            "error": String::from_utf8_lossy(&output.stderr).trim().to_string(),
-            "message": "Local AI runtime will be prepared automatically when needed."
+    }
+    candidates.into_iter().find(|path| path.is_file())
+}
+
+fn check_ollama_installed_value() -> Value {
+    match find_ollama_executable_path() {
+        Some(path) => json!({
+            "ok": true,
+            "installed": true,
+            "status": "installed",
+            "version": "",
+            "path": path.display().to_string(),
+            "message": "Local AI runtime is installed."
         }),
-        Err(err) => json!({
+        None => json!({
             "ok": false,
             "installed": false,
-            "status": "runtime_installing",
-            "error": err.to_string(),
-            "message": "Local AI runtime will be prepared automatically when needed."
+            "status": "runtime_missing",
+            "version": "",
+            "message": "Local AI runtime is not installed yet. It will be prepared automatically when needed."
         }),
     }
 }
@@ -881,17 +996,24 @@ fn check_ollama_running_value(endpoint: &str) -> Value {
 
 fn background_command(program: &str) -> Command {
     let mut command = Command::new(program);
-    #[cfg(target_os = "windows")]
-    {
-        command.creation_flags(CREATE_NO_WINDOW);
-    }
+    hide_child_window(&mut command);
     command
+}
+
+fn ollama_host_from_endpoint(endpoint: &str) -> String {
+    normalize_local_ai_endpoint(endpoint)
+        .trim_start_matches("http://")
+        .trim_start_matches("https://")
+        .trim_end_matches('/')
+        .to_string()
 }
 
 fn spawn_ollama_serve(endpoint: &str) -> Result<(), String> {
     let models_dir = local_ai_models_dir();
     let _ = fs::create_dir_all(&models_dir);
-    background_command("ollama")
+    let executable = find_ollama_executable_path()
+        .ok_or_else(|| "Ollama executable was not found.".to_string())?;
+    background_command(&executable.display().to_string())
         .arg("serve")
         .env("OLLAMA_HOST", ollama_host_from_endpoint(endpoint))
         .env("OLLAMA_MODELS", models_dir)
@@ -904,35 +1026,8 @@ fn spawn_ollama_serve(endpoint: &str) -> Result<(), String> {
 }
 
 #[cfg(target_os = "windows")]
-fn suppress_ollama_desktop_windows() {
-    let script = r#"
-for ($i = 0; $i -lt 45; $i++) {
-  Get-Process Ollama -ErrorAction SilentlyContinue |
-    Where-Object { $_.MainWindowHandle -ne 0 } |
-    ForEach-Object { $_.CloseMainWindow() | Out-Null }
-  Start-Sleep -Milliseconds 700
-}
-"#;
-    let _ = background_command("powershell")
-        .args([
-            "-NoProfile",
-            "-ExecutionPolicy",
-            "Bypass",
-            "-WindowStyle",
-            "Hidden",
-            "-Command",
-            script,
-        ])
-        .stdin(Stdio::null())
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .spawn();
-}
-
-#[cfg(target_os = "windows")]
 fn spawn_ollama_installer() -> Result<(), String> {
-    suppress_ollama_desktop_windows();
-    let result = background_command("winget")
+    background_command("winget")
         .args([
             "install",
             "--id",
@@ -947,9 +1042,7 @@ fn spawn_ollama_installer() -> Result<(), String> {
         .stderr(Stdio::null())
         .spawn()
         .map(|_| ())
-        .map_err(|err| err.to_string());
-    suppress_ollama_desktop_windows();
-    result
+        .map_err(|err| err.to_string())
 }
 
 #[cfg(not(target_os = "windows"))]
@@ -1011,16 +1104,6 @@ fn prepare_ollama_runtime(endpoint: &str) -> Value {
         .and_then(Value::as_bool)
         .unwrap_or(false)
     {
-        if is_ollama_pull_cancelled() {
-            return json!({
-                "ok": false,
-                "running": false,
-                "endpointReachable": false,
-                "status": "cancelled",
-                "endpoint": endpoint,
-                "message": "Model download cancelled."
-            });
-        }
         match spawn_ollama_serve(endpoint) {
             Ok(()) => {
                 let after_start = wait_for_ollama_runtime(endpoint, Duration::from_secs(18));
@@ -1055,16 +1138,6 @@ fn prepare_ollama_runtime(endpoint: &str) -> Value {
         }
     }
 
-    if is_ollama_pull_cancelled() {
-        return json!({
-            "ok": false,
-            "running": false,
-            "endpointReachable": false,
-            "status": "cancelled",
-            "endpoint": endpoint,
-            "message": "Model download cancelled."
-        });
-    }
     let installer_result = spawn_ollama_installer();
     json!({
         "ok": false,
@@ -1220,8 +1293,8 @@ fn detect_local_ai_setup_value(root: &Path, payload: &Value) -> Value {
         return json!({
             "ok": true,
             "available": true,
-            "status": "runtime_installing",
-            "message": "Local AI runtime will be prepared automatically when needed.",
+            "status": "runtime_missing",
+            "message": "Local AI runtime is not installed yet. Downloading a model will prepare it automatically.",
             "system": profile,
             "ollama": {
                 "installed": false,
@@ -1243,11 +1316,12 @@ fn detect_local_ai_setup_value(root: &Path, payload: &Value) -> Value {
         .and_then(Value::as_bool)
         .unwrap_or(false)
     {
+        let local_models = list_local_ai_model_files();
         return json!({
             "ok": true,
             "available": true,
-            "status": "runtime_starting",
-            "message": "Local AI runtime will start automatically when needed.",
+            "status": "runtime_not_running",
+            "message": "Local AI runtime is installed but not running yet. Starting Local AI will use an installed model when one is present.",
             "system": profile,
             "ollama": {
                 "installed": true,
@@ -1256,7 +1330,7 @@ fn detect_local_ai_setup_value(root: &Path, payload: &Value) -> Value {
                 "endpoint": endpoint,
                 "version": installed.get("version").and_then(Value::as_str).unwrap_or("")
             },
-            "installedModels": [],
+            "installedModels": local_models,
             "recommendedModel": recommended,
             "profiles": local_model_profiles(),
             "fallbackChain": fallback_chain,
@@ -1303,12 +1377,33 @@ fn detect_local_ai_setup_value(root: &Path, payload: &Value) -> Value {
         .get("name")
         .and_then(Value::as_str)
         .unwrap_or("");
-    let model_ready = model_names.iter().any(|name| name == recommended_name);
+    let llm_config = masked_llm_config_for_root(root)
+        .get("llm")
+        .cloned()
+        .unwrap_or(Value::Null);
+    let configured_model = llm_config
+        .get("model")
+        .and_then(Value::as_str)
+        .unwrap_or("");
+    let recommended_installed = model_names.iter().any(|name| name == recommended_name);
+    let configured_installed =
+        !configured_model.is_empty() && model_names.iter().any(|name| name == configured_model);
+    let any_model_installed = !model_names.is_empty();
+    let model_ready = recommended_installed || configured_installed || any_model_installed;
+    let status_message = if recommended_installed {
+        "Recommended model is installed."
+    } else if configured_installed {
+        "Configured Local AI model is installed."
+    } else if any_model_installed {
+        "A local model is installed."
+    } else {
+        "Recommended model is missing."
+    };
     json!({
         "ok": true,
         "available": true,
         "status": if model_ready { "model_ready" } else { "model_missing" },
-        "message": if model_ready { "Recommended model is installed." } else { "Recommended model is missing." },
+        "message": status_message,
         "system": profile,
         "ollama": {
             "installed": true,
@@ -1322,7 +1417,7 @@ fn detect_local_ai_setup_value(root: &Path, payload: &Value) -> Value {
         "profiles": local_model_profiles(),
         "fallbackChain": fallback_chain,
         "ruleBasedActive": true,
-        "llm": masked_llm_config_for_root(root).get("llm").cloned().unwrap_or(Value::Null),
+        "llm": llm_config,
     })
 }
 
@@ -1496,7 +1591,7 @@ fn run_ollama_pull(app: &tauri::AppHandle, payload: &Value) -> Value {
     let validation_payload = json!({
         "endpoint": endpoint,
         "model": model,
-        "timeoutSeconds": payload.get("timeoutSeconds").and_then(Value::as_i64).unwrap_or(20),
+        "timeoutSeconds": payload.get("timeoutSeconds").and_then(Value::as_i64).unwrap_or(DEFAULT_LLM_TIMEOUT_SECONDS),
     });
     let validation = benchmark_llm_value(&validation_payload);
     if !validation
@@ -1542,7 +1637,7 @@ fn benchmark_llm_value(payload: &Value) -> Value {
     let timeout_seconds = merged
         .get("timeoutSeconds")
         .and_then(Value::as_i64)
-        .unwrap_or(20)
+        .unwrap_or(DEFAULT_LLM_TIMEOUT_SECONDS)
         .max(3) as u64;
     let started = Instant::now();
     let response = ureq::post(&format!("{endpoint}/api/generate"))
@@ -1609,22 +1704,45 @@ fn test_llm_for_root(root: &Path, payload: &Value, mode: &str) -> Value {
     let workdir = repo_root_from_manifest()
         .or_else(|| std::env::current_dir().ok())
         .unwrap_or_else(|| root.to_path_buf());
-    let mut child = match Command::new("python")
+    let mut command = Command::new("python");
+    command
         .args(["-m", "src.xauusd_market_agent.llm_bridge", mode])
-        .current_dir(workdir)
+        .current_dir(&workdir)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-    {
+        .stderr(Stdio::piped());
+    hide_child_window(&mut command);
+    append_spawn_debug(
+        root,
+        json!({
+            "ts": chrono::Utc::now().to_rfc3339(),
+            "event": "spawn_request",
+            "layer": "tauri_llm_bridge",
+            "program": "python",
+            "args": ["-m", "src.xauusd_market_agent.llm_bridge", mode],
+            "cwd": workdir.display().to_string(),
+        }),
+    );
+    let mut child = match command.spawn() {
         Ok(child) => child,
         Err(err) => {
+            append_spawn_debug(
+                root,
+                json!({
+                    "ts": chrono::Utc::now().to_rfc3339(),
+                    "event": "spawn_error",
+                    "layer": "tauri_llm_bridge",
+                    "program": "python",
+                    "args": ["-m", "src.xauusd_market_agent.llm_bridge", mode],
+                    "error": err.to_string(),
+                }),
+            );
             return json!({
                 "ok": false,
                 "status": "unavailable",
                 "error": format!("Unable to start LLM bridge: {err}"),
                 "llm": masked_llm_config_for_root(root).get("llm").cloned().unwrap_or(Value::Null),
-            })
+            });
         }
     };
     if let Some(stdin) = child.stdin.as_mut() {
@@ -1634,6 +1752,20 @@ fn test_llm_for_root(root: &Path, payload: &Value, mode: &str) -> Value {
         Ok(output) => {
             let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
             let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+            append_spawn_debug(
+                root,
+                json!({
+                    "ts": chrono::Utc::now().to_rfc3339(),
+                    "event": "spawn_result",
+                    "layer": "tauri_llm_bridge",
+                    "program": "python",
+                    "args": ["-m", "src.xauusd_market_agent.llm_bridge", mode],
+                    "success": output.status.success(),
+                    "code": output.status.code(),
+                    "stdout_preview": stdout.chars().take(240).collect::<String>(),
+                    "stderr_preview": stderr.chars().take(240).collect::<String>(),
+                }),
+            );
             if !output.status.success() {
                 json!({
                     "ok": false,
@@ -1738,13 +1870,21 @@ fn telegram_env_for_root(root: &Path) -> HashMap<String, String> {
 
 fn ctrader_env_for_root(root: &Path) -> HashMap<String, String> {
     let mut env = HashMap::new();
+    let live_quote_path = live_quote_snapshot_path_for_root(root)
+        .display()
+        .to_string();
     env.insert(
         "CTRADER_CONFIG_PATH".to_string(),
         ctrader_config_path_for_root(root).display().to_string(),
     );
+    env.insert("CTRADER_SNAPSHOT_PATH".to_string(), live_quote_path.clone());
     env.insert(
         "MARKET_AGENT_CTRADER_SAVED_SNAPSHOT_PATH".to_string(),
-        root.join("ctrader-last-quote.json").display().to_string(),
+        live_quote_path,
+    );
+    env.insert(
+        "CTRADER_QUOTE_BRIDGE_ENABLED".to_string(),
+        "false".to_string(),
     );
     env
 }
@@ -1807,22 +1947,45 @@ fn test_telegram_for_root(root: &Path, payload: &Value) -> Value {
     let workdir = repo_root_from_manifest()
         .or_else(|| std::env::current_dir().ok())
         .unwrap_or_else(|| root.to_path_buf());
-    let mut child = match Command::new("python")
+    let mut command = Command::new("python");
+    command
         .args(["-m", "src.xauusd_market_agent.telegram_bridge"])
-        .current_dir(workdir)
+        .current_dir(&workdir)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-    {
+        .stderr(Stdio::piped());
+    hide_child_window(&mut command);
+    append_spawn_debug(
+        root,
+        json!({
+            "ts": chrono::Utc::now().to_rfc3339(),
+            "event": "spawn_request",
+            "layer": "tauri_telegram_bridge",
+            "program": "python",
+            "args": ["-m", "src.xauusd_market_agent.telegram_bridge"],
+            "cwd": workdir.display().to_string(),
+        }),
+    );
+    let mut child = match command.spawn() {
         Ok(child) => child,
         Err(err) => {
+            append_spawn_debug(
+                root,
+                json!({
+                    "ts": chrono::Utc::now().to_rfc3339(),
+                    "event": "spawn_error",
+                    "layer": "tauri_telegram_bridge",
+                    "program": "python",
+                    "args": ["-m", "src.xauusd_market_agent.telegram_bridge"],
+                    "error": err.to_string(),
+                }),
+            );
             return json!({
                 "ok": false,
                 "status": "failed",
                 "error": format!("Unable to start Telegram bridge: {err}"),
                 "telegram": masked_telegram_config_for_root(root).get("telegram").cloned().unwrap_or(Value::Null),
-            })
+            });
         }
     };
     if let Some(stdin) = child.stdin.as_mut() {
@@ -1837,6 +2000,19 @@ fn test_telegram_for_root(root: &Path, payload: &Value) -> Value {
     let parsed =
         match wait_for_child_output_with_timeout(child, Duration::from_secs(timeout_seconds)) {
             Ok((success, stdout, stderr)) => {
+                append_spawn_debug(
+                    root,
+                    json!({
+                        "ts": chrono::Utc::now().to_rfc3339(),
+                        "event": "spawn_result",
+                        "layer": "tauri_telegram_bridge",
+                        "program": "python",
+                        "args": ["-m", "src.xauusd_market_agent.telegram_bridge"],
+                        "success": success,
+                        "stdout_preview": stdout.chars().take(240).collect::<String>(),
+                        "stderr_preview": stderr.chars().take(240).collect::<String>(),
+                    }),
+                );
                 if !success {
                     json!({
                         "ok": false,
@@ -1895,29 +2071,103 @@ fn clear_ctrader_provider_config(root: &Path) -> Result<Value, String> {
     Ok(masked_ctrader_provider_config(root))
 }
 
+fn is_ctrader_shell_adapter_executable(executable: &str) -> bool {
+    let trimmed = executable.trim();
+    if trimmed.is_empty() {
+        return false;
+    }
+    let path = Path::new(trimmed);
+    let suffix = path
+        .extension()
+        .and_then(|value| value.to_str())
+        .map(str::to_ascii_lowercase)
+        .unwrap_or_default();
+    let file_name = path
+        .file_name()
+        .and_then(|value| value.to_str())
+        .unwrap_or(trimmed)
+        .to_ascii_lowercase();
+    matches!(suffix.as_str(), "cmd" | "bat" | "ps1") || file_name.contains("ctrader-cli-adapter")
+}
+
+fn ctrader_cli_bridge_block_reason(merged: &Value, command: &str) -> Option<String> {
+    let executable = merged
+        .get("cliExecutable")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    if is_ctrader_shell_adapter_executable(executable) {
+        return Some(format!(
+            "cTrader CLI adapter shell is disabled for {command} because it starts cmd/powershell/dotnet processes. Use the long-running connector snapshot for live data."
+        ));
+    }
+    None
+}
+
 fn run_ctrader_bridge(root: &Path, command: &str, payload: &Value) -> Value {
     let merged = merged_ctrader_provider_config(root, Some(payload));
+    if let Some(error) = ctrader_cli_bridge_block_reason(&merged, command) {
+        append_spawn_debug(
+            root,
+            json!({
+                "ts": chrono::Utc::now().to_rfc3339(),
+                "event": "blocked",
+                "layer": "tauri_ctrader_bridge",
+                "command": command,
+                "reason": "shell_adapter_disabled",
+            }),
+        );
+        return json!({
+            "ok": false,
+            "status": "disabled",
+            "error": error,
+            "message": error,
+        });
+    }
     let workdir = repo_root_from_manifest()
         .or_else(|| std::env::current_dir().ok())
         .unwrap_or_else(|| root.to_path_buf());
-    let mut child = match Command::new("python")
+    let mut child_command = Command::new("python");
+    child_command
         .args([
             "-m",
             "src.xauusd_market_agent.providers.ctrader_bridge",
             command,
         ])
-        .current_dir(workdir)
+        .current_dir(&workdir)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-    {
+        .stderr(Stdio::piped());
+    hide_child_window(&mut child_command);
+    append_spawn_debug(
+        root,
+        json!({
+            "ts": chrono::Utc::now().to_rfc3339(),
+            "event": "spawn_request",
+            "layer": "tauri_ctrader_bridge",
+            "program": "python",
+            "args": ["-m", "src.xauusd_market_agent.providers.ctrader_bridge", command],
+            "cwd": workdir.display().to_string(),
+        }),
+    );
+    let mut child = match child_command.spawn() {
         Ok(child) => child,
         Err(err) => {
+            append_spawn_debug(
+                root,
+                json!({
+                    "ts": chrono::Utc::now().to_rfc3339(),
+                    "event": "spawn_error",
+                    "layer": "tauri_ctrader_bridge",
+                    "program": "python",
+                    "args": ["-m", "src.xauusd_market_agent.providers.ctrader_bridge", command],
+                    "error": err.to_string(),
+                }),
+            );
             return json!({
                 "ok": false,
                 "error": format!("Unable to start cTrader CLI adapter: {err}"),
-            })
+            });
         }
     };
     if let Some(stdin) = child.stdin.as_mut() {
@@ -1927,6 +2177,20 @@ fn run_ctrader_bridge(root: &Path, command: &str, payload: &Value) -> Value {
         Ok(output) => {
             let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
             let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+            append_spawn_debug(
+                root,
+                json!({
+                    "ts": chrono::Utc::now().to_rfc3339(),
+                    "event": "spawn_result",
+                    "layer": "tauri_ctrader_bridge",
+                    "program": "python",
+                    "args": ["-m", "src.xauusd_market_agent.providers.ctrader_bridge", command],
+                    "success": output.status.success(),
+                    "code": output.status.code(),
+                    "stdout_preview": stdout.chars().take(400).collect::<String>(),
+                    "stderr_preview": stderr.chars().take(400).collect::<String>(),
+                }),
+            );
             if !output.status.success() {
                 let raw_error = if stderr.is_empty() { stdout } else { stderr };
                 if let Ok(parsed) = serde_json::from_str::<Value>(&raw_error) {
@@ -2000,33 +2264,147 @@ fn now_epoch_seconds() -> i64 {
         .unwrap_or(0)
 }
 
+fn status_path_age_seconds(path: &Path) -> Option<i64> {
+    let modified = fs::metadata(path).ok()?.modified().ok()?;
+    let now = SystemTime::now();
+    let age = now.duration_since(modified).ok()?;
+    Some(age.as_secs() as i64)
+}
+
+fn live_quote_snapshot_has_price(snapshot: &Value) -> bool {
+    snapshot.get("mid").is_some() || snapshot.get("bid").is_some() || snapshot.get("ask").is_some()
+}
+
+fn quote_timestamp_utc(snapshot: &Value) -> Option<chrono::DateTime<chrono::Utc>> {
+    let raw = snapshot
+        .get("timestamp")
+        .or_else(|| snapshot.get("data_timestamp"))
+        .or_else(|| snapshot.get("server_time"))
+        .and_then(Value::as_str)?
+        .trim()
+        .to_string();
+    if raw.is_empty() {
+        return None;
+    }
+    chrono::DateTime::parse_from_rfc3339(&raw)
+        .ok()
+        .map(|value| value.with_timezone(&chrono::Utc))
+}
+
+fn xauusd_weekend_closed_at(now_utc: chrono::DateTime<chrono::Utc>) -> bool {
+    match now_utc.weekday() {
+        chrono::Weekday::Sat => true,
+        chrono::Weekday::Sun => now_utc.hour() < XAUUSD_WEEKEND_REOPEN_HOUR_UTC,
+        chrono::Weekday::Fri => now_utc.hour() >= XAUUSD_WEEKEND_CLOSE_HOUR_UTC,
+        _ => false,
+    }
+}
+
+fn live_quote_snapshot_is_fresh_at(root: &Path, now_utc: chrono::DateTime<chrono::Utc>) -> bool {
+    let snapshot_path = live_quote_snapshot_path_for_root(root);
+    let Some(snapshot) = read_json_file(&snapshot_path) else {
+        return false;
+    };
+    if snapshot.get("ok").and_then(Value::as_bool) == Some(false) {
+        return false;
+    }
+    if !live_quote_snapshot_has_price(&snapshot) {
+        return false;
+    }
+    let Some(timestamp) = quote_timestamp_utc(&snapshot) else {
+        return false;
+    };
+    let age_seconds = now_utc.signed_duration_since(timestamp).num_seconds();
+    (0..=LIVE_QUOTE_FRESH_AFTER_SECONDS).contains(&age_seconds)
+}
+
+fn live_quote_snapshot_is_fresh(root: &Path) -> bool {
+    live_quote_snapshot_is_fresh_at(root, chrono::Utc::now())
+}
+
+fn stale_live_quote_context(
+    snapshot: Option<&Value>,
+    now_utc: chrono::DateTime<chrono::Utc>,
+) -> (&'static str, String, Value) {
+    let timestamp = snapshot.and_then(quote_timestamp_utc);
+    let age_seconds = timestamp.map(|value| now_utc.signed_duration_since(value).num_seconds());
+    if xauusd_weekend_closed_at(now_utc)
+        && age_seconds
+            .map(|value| (0..=MAX_WEEKEND_CONTEXT_AGE_SECONDS).contains(&value))
+            .unwrap_or(false)
+    {
+        return (
+            "market_closed",
+            "XAUUSD is inside the weekend closed window; last cTrader quote is context only until the market reopens.".to_string(),
+            json!({
+                "stale_classification": "market_closed",
+                "quote_age_seconds": age_seconds,
+                "market_closed": true,
+            }),
+        );
+    }
+    (
+        "stale",
+        "Live quote snapshot is stale; waiting for fresh cTrader stream.".to_string(),
+        json!({
+            "stale_classification": if timestamp.is_some() { "feed_paused" } else { "invalid_timestamp" },
+            "quote_age_seconds": age_seconds,
+            "market_closed": false,
+        }),
+    )
+}
+
+fn should_probe_monitor_pid(root: &Path, status: &Value) -> bool {
+    let running = status
+        .get("running")
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
+    let pid = status.get("pid").and_then(Value::as_i64).unwrap_or(0);
+    if !running || pid <= 0 {
+        return false;
+    }
+    let interval_seconds = status
+        .get("intervalSeconds")
+        .and_then(Value::as_i64)
+        .unwrap_or(60)
+        .max(10);
+    let freshness_window = (interval_seconds * 2).max(30);
+    let status_age =
+        status_path_age_seconds(&monitor_status_path_for_root(root)).unwrap_or(i64::MAX);
+    status_age > freshness_window
+}
+
+#[cfg(target_os = "windows")]
 fn is_process_running(pid: i64) -> bool {
     if pid <= 0 {
         return false;
     }
-    let result = if cfg!(target_os = "windows") {
-        Command::new("tasklist")
-            .args(["/FI", &format!("PID eq {pid}"), "/NH"])
-            .stdout(Stdio::piped())
-            .stderr(Stdio::null())
-            .output()
-    } else {
-        Command::new("kill")
-            .args(["-0", &pid.to_string()])
-            .stdout(Stdio::null())
-            .stderr(Stdio::null())
-            .output()
-    };
-    match result {
-        Ok(output) if output.status.success() => {
-            if cfg!(target_os = "windows") {
-                String::from_utf8_lossy(&output.stdout).contains(&pid.to_string())
-            } else {
-                true
-            }
-        }
-        _ => false,
+    let handle = unsafe { OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, 0, pid as u32) };
+    if handle == 0 {
+        return false;
     }
+    let mut exit_code = 0u32;
+    let ok = unsafe {
+        GetExitCodeProcess(handle, &mut exit_code) != 0 && exit_code == STILL_ACTIVE as u32
+    };
+    unsafe {
+        CloseHandle(handle);
+    }
+    ok
+}
+
+#[cfg(not(target_os = "windows"))]
+fn is_process_running(pid: i64) -> bool {
+    if pid <= 0 {
+        return false;
+    }
+    Command::new("kill")
+        .args(["-0", &pid.to_string()])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .output()
+        .map(|output| output.status.success())
+        .unwrap_or(false)
 }
 
 fn read_monitor_status_for_root(root: &Path) -> Value {
@@ -2047,29 +2425,213 @@ fn read_monitor_status_for_root(root: &Path) -> Value {
         .get("running")
         .and_then(Value::as_bool)
         .unwrap_or(false);
-    let pid = status.get("pid").and_then(Value::as_i64).unwrap_or(0);
-    if running && pid > 0 && !is_process_running(pid) {
-        if let Some(object) = status.as_object_mut() {
-            object.insert("ok".to_string(), Value::Bool(false));
-            object.insert("running".to_string(), Value::Bool(false));
-            object.insert("phase".to_string(), Value::String("stopped".to_string()));
-            object.insert("pid".to_string(), Value::Null);
-            object.insert("nextRunAt".to_string(), Value::Null);
+    if !running {
+        let last_error = status
+            .get("lastError")
+            .and_then(Value::as_str)
+            .unwrap_or("");
+        let message = status.get("message").and_then(Value::as_str).unwrap_or("");
+        let combined = format!("{last_error}\n{message}").to_ascii_lowercase();
+        if combined.contains("process that is no longer running")
+            || combined.contains("monitor loop stopped unexpectedly")
+            || combined.contains("saved monitor status referenced")
+        {
+            normalize_stopped_monitor_status(&mut status);
+            let _ = write_monitor_status_for_root(root, &status);
+            return status;
+        }
+    }
+    if should_probe_monitor_pid(root, &status) {
+        let pid = status.get("pid").and_then(Value::as_i64).unwrap_or(0);
+        if !is_process_running(pid) {
+            normalize_stopped_monitor_status(&mut status);
+            let _ = write_monitor_status_for_root(root, &status);
+        }
+    }
+    normalize_legacy_market_agent_status(&mut status);
+    sync_monitor_status_with_latest_timeline_run(root, &mut status);
+    status
+}
+
+fn normalize_legacy_market_agent_status(status: &mut Value) {
+    normalize_legacy_ctrader_activity(status);
+}
+
+fn sync_monitor_status_with_latest_timeline_run(root: &Path, status: &mut Value) {
+    let Ok(connection) = open_timeline_db(root) else {
+        return;
+    };
+    let Ok(Some((monitor_run_id, run_started_at, data_mode))) =
+        query_latest_monitor_run(&connection)
+    else {
+        return;
+    };
+    let current_monitor_run_id = status.get("latestMonitorRunId").and_then(Value::as_i64);
+    let last_run_at = status.get("lastRunAt").and_then(Value::as_str);
+    let running = status
+        .get("running")
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
+    let activity_is_older = current_monitor_run_id != Some(monitor_run_id)
+        || last_run_at
+            .map(|value| value != run_started_at)
+            .unwrap_or(true);
+    let has_activity = status.get("activity").is_some();
+    if let Some(object) = status.as_object_mut() {
+        object.insert(
+            "latestMonitorRunId".to_string(),
+            Value::from(monitor_run_id),
+        );
+        object.insert(
+            "latestStoredRunAt".to_string(),
+            Value::String(run_started_at.clone()),
+        );
+        object.insert(
+            "latestStoredDataMode".to_string(),
+            Value::String(data_mode.clone()),
+        );
+        object.insert(
+            "activityStale".to_string(),
+            Value::Bool(activity_is_older && has_activity),
+        );
+        if !running && activity_is_older {
             object.insert(
-                "lastError".to_string(),
-                Value::String(
-                    "Saved monitor status referenced a process that is no longer running."
-                        .to_string(),
-                ),
+                "lastRunAt".to_string(),
+                Value::String(run_started_at.clone()),
             );
             object.insert(
                 "message".to_string(),
-                Value::String("Monitor loop stopped unexpectedly.".to_string()),
+                Value::String(format!(
+                    "Monitor loop is stopped. Latest stored run is {run_started_at}; activity trace is from an older status snapshot."
+                )),
             );
         }
-        let _ = write_monitor_status_for_root(root, &status);
+    }
+}
+
+fn normalize_legacy_ctrader_activity(status: &mut Value) {
+    let Some(activity) = status.get_mut("activity").and_then(Value::as_object_mut) else {
+        return;
+    };
+    let Some(ctrader) = activity.get_mut("ctrader").and_then(Value::as_object_mut) else {
+        return;
+    };
+
+    if let Some(provider_chain) = ctrader
+        .get_mut("providerChain")
+        .and_then(Value::as_array_mut)
+    {
+        provider_chain.retain(|item| {
+            item.get("provider")
+                .and_then(Value::as_str)
+                .map(|provider| provider != "csv_fallback")
+                .unwrap_or(true)
+        });
+    }
+
+    if let Some(jobs) = ctrader.get_mut("jobs").and_then(Value::as_array_mut) {
+        jobs.retain(|item| {
+            let title = item
+                .get("title")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .to_ascii_lowercase();
+            !title.contains("csv fallback")
+        });
+        for job in jobs.iter_mut() {
+            if let Some(title) = job.get_mut("title") {
+                if title.as_str() == Some("Ctrader Spot check") {
+                    *title = Value::String("cTrader spot freshness".to_string());
+                } else if title.as_str() == Some("Yahoo Gc F Proxy check") {
+                    *title = Value::String("GC=F proxy check".to_string());
+                } else if title.as_str() == Some("Csv Fallback check") {
+                    *title = Value::String("CSV import check".to_string());
+                }
+            }
+            if let Some(detail) = job.get_mut("detail") {
+                if detail
+                    .as_str()
+                    .map(|text| text.contains("CSV fallback is debug/import only"))
+                    .unwrap_or(false)
+                {
+                    *detail = Value::String("Live cTrader spot is unavailable.".to_string());
+                }
+            }
+        }
+    }
+
+    if ctrader
+        .get("detail")
+        .and_then(Value::as_str)
+        .map(|detail| detail.contains("CSV fallback is debug/import only."))
+        .unwrap_or(false)
+    {
+        ctrader.insert(
+            "detail".to_string(),
+            Value::String("Live cTrader spot is unavailable.".to_string()),
+        );
+    }
+
+    if ctrader
+        .get("fallbackReason")
+        .and_then(Value::as_str)
+        .map(|reason| reason.contains("CSV fallback is debug/import only"))
+        .unwrap_or(false)
+    {
+        ctrader.insert("fallbackReason".to_string(), Value::String(String::new()));
+    }
+
+    if let Some(provider_health) = ctrader
+        .get_mut("providerHealth")
+        .and_then(Value::as_object_mut)
+    {
+        for key in ["stale_reason", "error"] {
+            if provider_health
+                .get(key)
+                .and_then(Value::as_str)
+                .map(|text| text.contains("CSV fallback is debug/import only"))
+                .unwrap_or(false)
+            {
+                provider_health.insert(
+                    key.to_string(),
+                    Value::String("Live cTrader spot is unavailable.".to_string()),
+                );
+            }
+        }
+    }
+}
+
+fn normalize_stopped_monitor_status(status: &mut Value) {
+    if let Some(object) = status.as_object_mut() {
+        object.insert("ok".to_string(), Value::Bool(true));
+        object.insert("available".to_string(), Value::Bool(true));
+        object.insert("running".to_string(), Value::Bool(false));
+        object.insert("phase".to_string(), Value::String("stopped".to_string()));
+        object.insert("pid".to_string(), Value::Null);
+        object.insert("monitorOwnerPid".to_string(), Value::Null);
+        object.insert("nextRunAt".to_string(), Value::Null);
+        object.insert("lastError".to_string(), Value::String(String::new()));
+        object.insert(
+            "message".to_string(),
+            Value::String("Monitor loop is stopped.".to_string()),
+        );
+    }
+}
+
+fn strip_monitor_activity(mut status: Value) -> Value {
+    if let Some(object) = status.as_object_mut() {
+        object.remove("activity");
     }
     status
+}
+
+fn read_monitor_status_for_root_with_activity(root: &Path, include_activity: bool) -> Value {
+    let status = read_monitor_status_for_root(root);
+    if include_activity {
+        status
+    } else {
+        strip_monitor_activity(status)
+    }
 }
 
 fn write_monitor_status_for_root(root: &Path, status: &Value) -> Result<(), String> {
@@ -2096,8 +2658,18 @@ fn repo_root_for_monitor(root: &Path) -> PathBuf {
         .unwrap_or_else(|| root.to_path_buf())
 }
 
+#[cfg(target_os = "windows")]
+fn monitor_python_program() -> &'static str {
+    "pythonw"
+}
+
+#[cfg(not(target_os = "windows"))]
+fn monitor_python_program() -> &'static str {
+    "python"
+}
+
 fn monitor_command_base(root: &Path) -> Command {
-    let mut command = Command::new("python");
+    let mut command = Command::new(monitor_python_program());
     command
         .current_dir(repo_root_for_monitor(root))
         .env("MARKET_AGENT_STATE_STORE_PATH", state_path_for_root(root))
@@ -2111,11 +2683,15 @@ fn monitor_command_base(root: &Path) -> Command {
         )
         .env(
             "MARKET_AGENT_MONITOR_LOCK_PATH",
-            root.join("market_agent_monitor.lock"),
+            monitor_lock_path_for_root(root),
         )
         .env(
             "MARKET_AGENT_MONITOR_STATUS_PATH",
             monitor_status_path_for_root(root),
+        )
+        .env(
+            "MARKET_AGENT_MONITOR_OWNER_PID",
+            std::process::id().to_string(),
         );
     for (key, value) in telegram_env_for_root(root) {
         command.env(key, value);
@@ -2126,7 +2702,36 @@ fn monitor_command_base(root: &Path) -> Command {
     for (key, value) in llm_env_for_root(root) {
         command.env(key, value);
     }
+    hide_child_window(&mut command);
     command
+}
+
+fn live_quote_command_base(root: &Path) -> Command {
+    let mut command = Command::new(monitor_python_program());
+    command.current_dir(repo_root_for_monitor(root));
+    for (key, value) in ctrader_env_for_root(root) {
+        command.env(key, value);
+    }
+    hide_child_window(&mut command);
+    command
+}
+
+fn should_reuse_running_monitor(current: &Value, spawn_process: bool, app_pid: i64) -> bool {
+    let current_running = current
+        .get("running")
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
+    if !current_running {
+        return false;
+    }
+    if !spawn_process {
+        return true;
+    }
+    let current_owner_pid = current
+        .get("monitorOwnerPid")
+        .and_then(Value::as_i64)
+        .unwrap_or_default();
+    current_owner_pid == app_pid
 }
 
 #[cfg(target_os = "windows")]
@@ -2140,11 +2745,8 @@ fn hide_child_window(_command: &mut Command) {}
 
 fn start_monitor_loop_for_root(root: &Path, interval_seconds: i64, spawn_process: bool) -> Value {
     let current = read_monitor_status_for_root(root);
-    if current
-        .get("running")
-        .and_then(Value::as_bool)
-        .unwrap_or(false)
-    {
+    let app_pid = std::process::id() as i64;
+    if should_reuse_running_monitor(&current, spawn_process, app_pid) {
         return json!({
             "ok": true,
             "available": true,
@@ -2156,6 +2758,14 @@ fn start_monitor_loop_for_root(root: &Path, interval_seconds: i64, spawn_process
             "nextRunAt": current.get("nextRunAt").cloned().unwrap_or(Value::Null),
             "lastError": current.get("lastError").and_then(Value::as_str).unwrap_or(""),
         });
+    }
+    if current
+        .get("running")
+        .and_then(Value::as_bool)
+        .unwrap_or(false)
+        && spawn_process
+    {
+        let _ = stop_monitor_loop_for_root(root, true);
     }
     let pid = if spawn_process {
         let mut command = monitor_command_base(root);
@@ -2171,9 +2781,31 @@ fn start_monitor_loop_for_root(root: &Path, interval_seconds: i64, spawn_process
             .stdout(Stdio::null())
             .stderr(Stdio::null());
         hide_child_window(&mut command);
+        append_spawn_debug(
+            root,
+            json!({
+                "ts": chrono::Utc::now().to_rfc3339(),
+                "event": "spawn_request",
+                "layer": "tauri_monitor_loop",
+                "program": monitor_python_program(),
+                "args": ["-m", "src.xauusd_market_agent.cli", "--monitor-loop", "--interval-seconds", interval_seconds.to_string()],
+                "cwd": repo_root_for_monitor(root).display().to_string(),
+            }),
+        );
         match command.spawn() {
             Ok(child) => child.id() as i64,
             Err(err) => {
+                append_spawn_debug(
+                    root,
+                    json!({
+                        "ts": chrono::Utc::now().to_rfc3339(),
+                        "event": "spawn_error",
+                        "layer": "tauri_monitor_loop",
+                        "program": monitor_python_program(),
+                        "args": ["-m", "src.xauusd_market_agent.cli", "--monitor-loop", "--interval-seconds", interval_seconds.to_string()],
+                        "error": err.to_string(),
+                    }),
+                );
                 let status = json!({
                     "ok": false,
                     "available": true,
@@ -2199,6 +2831,7 @@ fn start_monitor_loop_for_root(root: &Path, interval_seconds: i64, spawn_process
         "running": true,
         "phase": "running",
         "pid": pid,
+        "monitorOwnerPid": app_pid,
         "intervalSeconds": interval_seconds,
         "lastRunAt": null,
         "nextRunAt": now + interval_seconds,
@@ -2215,11 +2848,13 @@ fn stop_monitor_loop_for_root(root: &Path, kill_process: bool) -> Value {
     let mut last_error = String::new();
     if kill_process && pid > 0 {
         let result = if cfg!(target_os = "windows") {
-            Command::new("taskkill")
+            let mut command = Command::new("taskkill");
+            command
                 .args(["/PID", &pid.to_string(), "/T", "/F"])
                 .stdout(Stdio::null())
-                .stderr(Stdio::piped())
-                .output()
+                .stderr(Stdio::piped());
+            hide_child_window(&mut command);
+            command.output()
         } else {
             Command::new("kill")
                 .args(["-TERM", &pid.to_string()])
@@ -2233,12 +2868,14 @@ fn stop_monitor_loop_for_root(root: &Path, kill_process: bool) -> Value {
             }
         }
     }
+    let _ = fs::remove_file(monitor_lock_path_for_root(root));
     let status = json!({
         "ok": last_error.is_empty(),
         "available": true,
         "running": false,
         "phase": if last_error.is_empty() { "stopped" } else { "error" },
         "pid": null,
+        "monitorOwnerPid": null,
         "lastRunAt": current.get("lastRunAt").cloned().unwrap_or(Value::Null),
         "nextRunAt": null,
         "lastError": last_error,
@@ -2379,6 +3016,350 @@ fn resolve_market_agent_root() -> Option<PathBuf> {
 fn read_json_file(path: &Path) -> Option<Value> {
     let text = fs::read_to_string(path).ok()?;
     serde_json::from_str::<Value>(&text).ok()
+}
+
+fn read_live_quote_stream_status_for_root(root: &Path, probe_process: bool) -> Value {
+    let status_path = live_quote_stream_status_path_for_root(root);
+    let snapshot_path = live_quote_snapshot_path_for_root(root);
+    let snapshot_fresh = live_quote_snapshot_is_fresh(root);
+    let mut status = read_json_file(&status_path).unwrap_or_else(|| {
+        json!({
+            "ok": true,
+            "running": snapshot_fresh,
+            "phase": if snapshot_fresh { "running" } else { "stopped" },
+            "pid": null,
+            "message": if snapshot_fresh { "cTrader live quote stream is producing fresh snapshots." } else { "Live quote stream is stopped." },
+            "snapshotPath": snapshot_path.display().to_string(),
+        })
+    });
+    if snapshot_fresh {
+        if let Some(object) = status.as_object_mut() {
+            object.insert("ok".to_string(), Value::Bool(true));
+            object.insert("running".to_string(), Value::Bool(true));
+            object.insert("phase".to_string(), Value::String("running".to_string()));
+            object.insert(
+                "message".to_string(),
+                Value::String(
+                    "cTrader live quote stream is producing fresh snapshots.".to_string(),
+                ),
+            );
+            object.insert(
+                "snapshotPath".to_string(),
+                Value::String(snapshot_path.display().to_string()),
+            );
+            object.insert("lastError".to_string(), Value::String(String::new()));
+        }
+        let _ = write_json_atomic(&status_path, &status);
+        return status;
+    }
+    if !status
+        .get("running")
+        .and_then(Value::as_bool)
+        .unwrap_or(false)
+    {
+        let last_error = status
+            .get("lastError")
+            .and_then(Value::as_str)
+            .unwrap_or("");
+        let message = status.get("message").and_then(Value::as_str).unwrap_or("");
+        let combined = format!("{last_error}\n{message}").to_ascii_lowercase();
+        if combined.contains("process that is no longer running")
+            || message.eq_ignore_ascii_case("Live quote stream stopped unexpectedly.")
+            || combined.contains("saved live stream launcher process ended")
+            || combined.contains("ctrader cli cbot streaming is disabled")
+            || combined.contains("external algo host processes")
+        {
+            normalize_waiting_live_quote_status(&mut status, &snapshot_path);
+            let _ = write_json_atomic(&status_path, &status);
+            return status;
+        }
+    }
+    let running = status
+        .get("running")
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
+    let pid = status.get("pid").and_then(Value::as_i64).unwrap_or(0);
+    if probe_process && running && pid > 0 && !is_process_running(pid) {
+        normalize_waiting_live_quote_status(&mut status, &snapshot_path);
+        let _ = write_json_atomic(&status_path, &status);
+    }
+    status
+}
+
+fn normalize_waiting_live_quote_status(status: &mut Value, snapshot_path: &Path) {
+    if let Some(object) = status.as_object_mut() {
+        object.insert("ok".to_string(), Value::Bool(true));
+        object.insert("running".to_string(), Value::Bool(false));
+        object.insert("phase".to_string(), Value::String("starting".to_string()));
+        object.insert("pid".to_string(), Value::Null);
+        object.insert("bridgePid".to_string(), Value::Null);
+        object.insert(
+            "message".to_string(),
+            Value::String("cTrader live stream is not running yet.".to_string()),
+        );
+        object.insert("lastError".to_string(), Value::String(String::new()));
+        object.insert(
+            "snapshotPath".to_string(),
+            Value::String(snapshot_path.display().to_string()),
+        );
+    }
+}
+
+fn stop_live_quote_stream_for_root(root: &Path, kill_process: bool) -> Value {
+    let current = read_live_quote_stream_status_for_root(root, true);
+    let pid = current.get("pid").and_then(Value::as_i64).unwrap_or(0);
+    let mut last_error = String::new();
+    if kill_process && pid > 0 {
+        let result = if cfg!(target_os = "windows") {
+            let mut command = Command::new("taskkill");
+            command
+                .args(["/PID", &pid.to_string(), "/T", "/F"])
+                .stdout(Stdio::null())
+                .stderr(Stdio::piped());
+            hide_child_window(&mut command);
+            command.output()
+        } else {
+            Command::new("kill")
+                .args(["-TERM", &pid.to_string()])
+                .stdout(Stdio::null())
+                .stderr(Stdio::piped())
+                .output()
+        };
+        if let Ok(output) = result {
+            if !output.status.success() {
+                last_error = String::from_utf8_lossy(&output.stderr).trim().to_string();
+            }
+        }
+    }
+    let status = json!({
+        "ok": last_error.is_empty(),
+        "running": false,
+        "phase": if last_error.is_empty() { "stopped" } else { "error" },
+        "pid": null,
+        "message": if last_error.is_empty() { "Live quote stream is stopped." } else { "Unable to stop live quote stream cleanly." },
+        "lastError": last_error,
+        "snapshotPath": live_quote_snapshot_path_for_root(root).display().to_string(),
+    });
+    let _ = write_json_atomic(&live_quote_stream_status_path_for_root(root), &status);
+    status
+}
+
+fn start_live_quote_stream_for_root(root: &Path) -> Value {
+    let current = read_live_quote_stream_status_for_root(root, false);
+    if current
+        .get("running")
+        .and_then(Value::as_bool)
+        .unwrap_or(false)
+    {
+        return json!({
+            "ok": true,
+            "running": true,
+            "phase": "running",
+            "pid": current.get("pid").cloned().unwrap_or(Value::Null),
+            "message": "Live quote stream is already running.",
+            "snapshotPath": live_quote_snapshot_path_for_root(root).display().to_string(),
+        });
+    }
+    let merged = merged_ctrader_provider_config(root, None);
+    let account_id = merged
+        .get("accountId")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let ctid = merged
+        .get("ctid")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let password = merged
+        .get("password")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    if account_id.is_empty() || ctid.is_empty() || password.is_empty() {
+        let status = json!({
+            "ok": false,
+            "running": false,
+            "phase": "credentials_required",
+            "pid": null,
+            "bridgePid": null,
+            "message": "cTrader live stream requires saved account credentials.",
+            "lastError": "cTrader live stream credentials are incomplete.",
+            "snapshotPath": live_quote_snapshot_path_for_root(root).display().to_string(),
+        });
+        let _ = write_json_atomic(&live_quote_stream_status_path_for_root(root), &status);
+        return status;
+    }
+    let snapshot_path = live_quote_snapshot_path_for_root(root);
+    let status_path = live_quote_stream_status_path_for_root(root);
+    let payload = json!({
+        "accountId": account_id,
+        "ctid": ctid,
+        "password": password,
+        "symbol": merged.get("symbol").and_then(Value::as_str).unwrap_or("XAUUSD"),
+        "symbolId": merged.get("symbolId").cloned().unwrap_or(Value::Null),
+        "snapshotPath": snapshot_path.display().to_string(),
+        "statusPath": status_path.display().to_string(),
+        "quoteStaleAfterSeconds": merged.get("quoteStaleAfterSeconds").and_then(Value::as_i64).unwrap_or(15),
+        "cliExecutable": merged.get("cliExecutable").and_then(Value::as_str).unwrap_or("ctrader-cli"),
+    });
+    let mut child_command = live_quote_command_base(root);
+    child_command
+        .args([
+            "-m",
+            "src.xauusd_market_agent.providers.ctrader_live_stream",
+            "start",
+        ])
+        .stdin(Stdio::piped())
+        .stdout(Stdio::null())
+        .stderr(Stdio::null());
+    match child_command.spawn() {
+        Ok(mut child) => {
+            let pid = child.id() as i64;
+            if let Some(mut stdin) = child.stdin.take() {
+                let _ = stdin.write_all(payload.to_string().as_bytes());
+            }
+            let status = json!({
+                "ok": true,
+                "running": true,
+                "phase": "starting",
+                "pid": pid,
+                "bridgePid": null,
+                "message": "Starting cTrader live stream bridge.",
+                "lastError": "",
+                "snapshotPath": snapshot_path.display().to_string(),
+            });
+            let _ = write_json_atomic(&status_path, &status);
+            status
+        }
+        Err(err) => {
+            let status = json!({
+                "ok": false,
+                "running": false,
+                "phase": "error",
+                "pid": null,
+                "bridgePid": null,
+                "message": "Unable to start cTrader live quote stream.",
+                "lastError": err.to_string(),
+                "snapshotPath": snapshot_path.display().to_string(),
+            });
+            let _ = write_json_atomic(&status_path, &status);
+            status
+        }
+    }
+}
+
+fn ensure_live_quote_stream_for_root(root: &Path) -> Value {
+    let current = read_live_quote_stream_status_for_root(root, true);
+    if current
+        .get("running")
+        .and_then(Value::as_bool)
+        .unwrap_or(false)
+    {
+        return current;
+    }
+    start_live_quote_stream_for_root(root)
+}
+
+fn build_live_quote_response_at(root: &Path, now_utc: chrono::DateTime<chrono::Utc>) -> Value {
+    let status = read_live_quote_stream_status_for_root(root, false);
+    let snapshot_path = live_quote_snapshot_path_for_root(root);
+    let snapshot = read_json_file(&snapshot_path);
+    let snapshot_fresh = live_quote_snapshot_is_fresh_at(root, now_utc);
+    let status_running = status
+        .get("running")
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
+    let running = status_running && snapshot_fresh;
+    let quote = snapshot.as_ref().and_then(|value| {
+        if value.get("ok").and_then(Value::as_bool) == Some(false) {
+            return None;
+        }
+        Some(json!({
+            "symbol": value.get("symbol").and_then(Value::as_str).unwrap_or("XAUUSD"),
+            "bid": value.get("bid").cloned().unwrap_or(Value::Null),
+            "ask": value.get("ask").cloned().unwrap_or(Value::Null),
+            "mid": value.get("mid").cloned().unwrap_or(Value::Null),
+            "timestamp": value.get("timestamp").cloned().unwrap_or(Value::Null),
+            "source": "cTrader",
+            "source_type": "spot",
+        }))
+    });
+    let (stale_phase, stale_message, stale_metadata) =
+        stale_live_quote_context(snapshot.as_ref(), now_utc);
+    let phase = if running {
+        status.get("phase").cloned().unwrap_or(json!("running"))
+    } else if quote.is_some() {
+        json!(stale_phase)
+    } else if status_running {
+        status.get("phase").cloned().unwrap_or(json!("starting"))
+    } else {
+        status.get("phase").cloned().unwrap_or(json!("stopped"))
+    };
+    let message = if !running && quote.is_some() {
+        json!(stale_message.clone())
+    } else if status_running {
+        status
+            .get("message")
+            .cloned()
+            .unwrap_or(json!("Starting cTrader live stream bridge."))
+    } else {
+        status
+            .get("message")
+            .cloned()
+            .unwrap_or(json!("Live quote stream is stopped."))
+    };
+    let mut response_status = status.clone();
+    if let Some(object) = response_status.as_object_mut() {
+        object.insert("running".to_string(), Value::Bool(running));
+        object.insert("phase".to_string(), phase.clone());
+        object.insert("message".to_string(), message.clone());
+        if !running {
+            object.insert("pid".to_string(), Value::Null);
+        }
+    }
+    if response_status != status {
+        let _ = write_json_atomic(
+            &live_quote_stream_status_path_for_root(root),
+            &response_status,
+        );
+    }
+    let provider_health = snapshot.as_ref().map(|value| {
+        let timestamp = value.get("timestamp").cloned().unwrap_or(Value::Null);
+        json!({
+            "provider_key": "xauusd",
+            "source": "cTrader",
+            "source_type": "spot",
+            "data_mode": if running { "live_seen" } else { "stale" },
+            "is_available": quote.is_some(),
+            "is_stale": !running,
+            "stale_reason": if running { "" } else { stale_message.as_str() },
+            "error": value.get("error").and_then(Value::as_str).unwrap_or(""),
+            "current_value": value.get("mid").cloned().unwrap_or(Value::Null),
+            "previous_value": Value::Null,
+            "change_value": Value::Null,
+            "change_unit": "price",
+            "data_timestamp": timestamp.clone(),
+            "fetched_at": timestamp,
+            "raw_source_id": value.get("symbol").cloned().unwrap_or(json!("XAUUSD")),
+            "metadata": if running { json!({ "stale_classification": "fresh", "market_closed": false }) } else { stale_metadata.clone() },
+        })
+    });
+    json!({
+        "ok": status.get("ok").and_then(Value::as_bool).unwrap_or(true),
+        "running": running,
+        "phase": phase,
+        "message": message,
+        "lastError": status.get("lastError").cloned().unwrap_or(Value::Null),
+        "snapshotPath": snapshot_path.display().to_string(),
+        "status": response_status,
+        "quote": quote.unwrap_or(Value::Null),
+        "provider_health": provider_health.unwrap_or(Value::Null),
+    })
+}
+
+fn build_live_quote_response(root: &Path) -> Value {
+    build_live_quote_response_at(root, chrono::Utc::now())
 }
 
 fn read_alert_rows(path: &Path, limit: usize) -> Vec<Value> {
@@ -2534,6 +3515,171 @@ fn merge_xauusd_provider_health(mut items: Vec<Value>, mut xauusd_health: Value)
     items
 }
 
+fn has_live_xauusd_provider_health(items: &[Value]) -> bool {
+    items.iter().any(|item| {
+        let key = item
+            .get("provider_key")
+            .or_else(|| item.get("source"))
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .trim()
+            .to_ascii_lowercase();
+        let source_type = item
+            .get("source_type")
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .trim()
+            .to_ascii_lowercase();
+        let data_mode = item
+            .get("data_mode")
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .trim()
+            .to_ascii_lowercase();
+        let is_available = item
+            .get("is_available")
+            .and_then(Value::as_bool)
+            .unwrap_or(false);
+        let is_stale = item
+            .get("is_stale")
+            .and_then(Value::as_bool)
+            .unwrap_or(true);
+        (key == "xauusd" || key == "xauusd price" || key == "gc=f")
+            && source_type == "spot"
+            && data_mode == "live_seen"
+            && is_available
+            && !is_stale
+    })
+}
+
+fn read_runtime_ctrader_xauusd_health(root: &Path) -> Option<Value> {
+    build_live_quote_response(root)
+        .get("provider_health")
+        .cloned()
+        .filter(|value| !value.is_null())
+}
+
+fn read_latest_provider_health_items_with_runtime_xauusd(root: &Path) -> Vec<Value> {
+    let connection = match open_timeline_db(root) {
+        Ok(connection) => connection,
+        Err(_) => return vec![],
+    };
+    let items = match read_provider_health_latest(&connection) {
+        Ok((_, _, items)) => items,
+        Err(_) => vec![],
+    };
+    if has_live_xauusd_provider_health(&items) {
+        items
+    } else {
+        read_runtime_ctrader_xauusd_health(root)
+            .or_else(|| read_saved_ctrader_xauusd_health(root))
+            .map(|health| merge_xauusd_provider_health(items.clone(), health))
+            .unwrap_or(items)
+    }
+}
+
+fn market_agent_runtime_inspect(root: &Path) -> Value {
+    let live_quote = build_live_quote_response(root);
+    let monitor_status = read_monitor_status_for_root_with_activity(root, true);
+    let provider_health_items = read_latest_provider_health_items_with_runtime_xauusd(root);
+    let xauusd_health = provider_health_items.iter().find(|item| {
+        item.get("provider_key")
+            .or_else(|| item.get("source"))
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .trim()
+            .eq_ignore_ascii_case("xauusd")
+    });
+    let ctrader_activity = monitor_status
+        .get("activity")
+        .and_then(|activity| activity.get("ctrader"))
+        .cloned()
+        .unwrap_or(Value::Null);
+    let activity_jobs = ctrader_activity
+        .get("jobs")
+        .and_then(Value::as_array)
+        .cloned()
+        .unwrap_or_default();
+    let live_running = live_quote
+        .get("running")
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
+    let live_mid = live_quote
+        .get("quote")
+        .and_then(|quote| quote.get("mid"))
+        .and_then(Value::as_f64);
+    let snapshot_timestamp = live_quote
+        .get("quote")
+        .and_then(|quote| quote.get("timestamp"))
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .to_string();
+    let activity_has_unavailable_live = activity_jobs.iter().any(|job| {
+        let title = job
+            .get("title")
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .to_ascii_lowercase();
+        let status = job
+            .get("status")
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .to_ascii_lowercase();
+        (title.contains("live quote request") || title.contains("spot freshness"))
+            && (status.contains("unavailable") || status.contains("stale"))
+    });
+    let mut mismatches = vec![];
+    if live_running && live_mid.is_some() && activity_has_unavailable_live {
+        mismatches.push(json!({
+            "code": "activity_still_marks_live_unavailable",
+            "severity": "bad",
+            "summary": "Runtime live quote is running, but Activity still shows the live ingest path as unavailable/stale.",
+            "detail": "The exe is receiving a fresh XAUUSD quote, but the current Activity jobs still say live quote request or spot freshness is unavailable/stale."
+        }));
+    }
+    if live_running
+        && xauusd_health
+            .and_then(|item| item.get("data_mode"))
+            .and_then(Value::as_str)
+            != Some("live_seen")
+    {
+        mismatches.push(json!({
+            "code": "provider_health_not_live_seen",
+            "severity": "bad",
+            "summary": "Runtime live quote is running, but provider health is not marked as live_seen.",
+            "detail": "The XAUUSD provider row should be spot/live_seen while the fresh cTrader stream is running."
+        }));
+    }
+    let runtime_verdict = if live_running && live_mid.is_some() {
+        "live_ok"
+    } else if live_mid.is_some() {
+        "snapshot_only"
+    } else {
+        "unavailable"
+    };
+    json!({
+        "ok": true,
+        "available": true,
+        "root": root.display().to_string(),
+        "runtime_verdict": runtime_verdict,
+        "summary": if runtime_verdict == "live_ok" {
+            "Runtime is receiving a fresh cTrader XAUUSD quote."
+        } else if runtime_verdict == "snapshot_only" {
+            "Runtime only has a saved XAUUSD snapshot right now."
+        } else {
+            "Runtime does not currently have a usable XAUUSD quote."
+        },
+        "live_quote": live_quote,
+        "monitor_status": monitor_status,
+        "ctrader_activity": ctrader_activity,
+        "provider_health_items": provider_health_items,
+        "xauusd_provider_health": xauusd_health.cloned().unwrap_or(Value::Null),
+        "snapshot_timestamp": snapshot_timestamp,
+        "live_mid": live_mid,
+        "mismatches": mismatches,
+    })
+}
+
 fn read_saved_ctrader_xauusd_health(root: &Path) -> Option<Value> {
     let config = merged_ctrader_provider_config(root, None);
     if !config
@@ -2545,12 +3691,23 @@ fn read_saved_ctrader_xauusd_health(root: &Path) -> Option<Value> {
     }
 
     let now = chrono::Utc::now().to_rfc3339();
-    let snapshot_path = config
+    let configured_snapshot_path = config
         .get("snapshotPath")
         .and_then(Value::as_str)
         .map(PathBuf::from)
-        .unwrap_or_else(|| root.join("ctrader-last-quote.json"));
-    let Some(snapshot) = read_json_file(&snapshot_path) else {
+        .unwrap_or_else(|| root.join("ctrader-live-quote.json"));
+    let live_snapshot_path = live_quote_snapshot_path_for_root(root);
+    let fallback_snapshot_path = if configured_snapshot_path == live_snapshot_path {
+        None
+    } else {
+        Some(configured_snapshot_path)
+    };
+    let snapshot = read_json_file(&live_snapshot_path).or_else(|| {
+        fallback_snapshot_path
+            .as_ref()
+            .and_then(|path| read_json_file(path))
+    });
+    let Some(snapshot) = snapshot else {
         return Some(json!({
             "source": "cTrader",
             "source_type": "spot",
@@ -2596,10 +3753,6 @@ fn read_saved_ctrader_xauusd_health(root: &Path) -> Option<Value> {
             .cloned()
             .unwrap_or_else(|| Value::String(symbol.to_string())),
     }))
-}
-
-fn read_current_ctrader_xauusd_health() -> Option<Value> {
-    read_saved_ctrader_xauusd_health(&config::appdata_dir())
 }
 
 fn read_driver_attention_latest(
@@ -3207,79 +4360,109 @@ pub(crate) fn read_market_agent_snapshot(root: &Path, limit: usize) -> Value {
 
 #[tauri::command]
 pub fn get_market_agent_snapshot(payload: Value) -> Value {
-    let limit = payload
-        .get("limit")
-        .and_then(|v| v.as_u64())
-        .map(|v| v as usize)
-        .unwrap_or(5)
-        .clamp(1, 50);
-    let Some(root) = resolve_market_agent_root() else {
-        return json!({
-            "ok": true,
-            "available": false,
-            "state": Value::Null,
-            "alerts": [],
-            "message": "Market agent artifacts are not available yet."
-        });
-    };
-    read_market_agent_snapshot(&root, limit)
+    run_logged_market_agent_command("get_market_agent_snapshot", &payload, || {
+        let limit = payload
+            .get("limit")
+            .and_then(|v| v.as_u64())
+            .map(|v| v as usize)
+            .unwrap_or(5)
+            .clamp(1, 50);
+        let Some(root) = resolve_market_agent_root() else {
+            return json!({
+                "ok": true,
+                "available": false,
+                "state": Value::Null,
+                "alerts": [],
+                "message": "Market agent artifacts are not available yet."
+            });
+        };
+        read_market_agent_snapshot(&root, limit)
+    })
 }
 
 #[tauri::command]
 pub fn get_market_agent_provider_health(_payload: Value) -> Value {
-    let Some(root) = resolve_market_agent_root() else {
-        return build_unavailable_payload("Market agent artifacts are not available yet.", None);
-    };
-    let timeline_path = timeline_path_for_root(&root);
-    let connection = match open_timeline_db(&root) {
-        Ok(connection) => connection,
-        Err(message) => return build_unavailable_payload(&message, Some(&root)),
-    };
-    match read_provider_health_latest(&connection) {
-        Ok((monitor_run_id, run_started_at, items)) => {
-            let items = read_current_ctrader_xauusd_health()
-                .map(|health| merge_xauusd_provider_health(items.clone(), health))
-                .unwrap_or(items);
-            json!({
+    run_logged_market_agent_command("get_market_agent_provider_health", &Value::Null, || {
+        let Some(root) = resolve_market_agent_root() else {
+            return build_unavailable_payload(
+                "Market agent artifacts are not available yet.",
+                None,
+            );
+        };
+        let timeline_path = timeline_path_for_root(&root);
+        let connection = match open_timeline_db(&root) {
+            Ok(connection) => connection,
+            Err(message) => return build_unavailable_payload(&message, Some(&root)),
+        };
+        match read_provider_health_latest(&connection) {
+            Ok((monitor_run_id, run_started_at, items)) => {
+                let items = if has_live_xauusd_provider_health(&items) {
+                    items
+                } else {
+                    read_runtime_ctrader_xauusd_health(&root)
+                        .or_else(|| read_saved_ctrader_xauusd_health(&root))
+                        .map(|health| merge_xauusd_provider_health(items.clone(), health))
+                        .unwrap_or(items)
+                };
+                json!({
+                    "ok": true,
+                    "available": timeline_path.exists(),
+                    "timeline_store_path": timeline_path.display().to_string(),
+                    "monitor_run_id": monitor_run_id,
+                    "run_started_at": run_started_at,
+                    "items": items,
+                })
+            }
+            Err(err) => build_unavailable_payload(
+                &format!("Unable to read provider health: {err}"),
+                Some(&root),
+            ),
+        }
+    })
+}
+
+#[tauri::command]
+pub fn inspect_market_agent_runtime(_payload: Value) -> Value {
+    run_logged_market_agent_command("inspect_market_agent_runtime", &Value::Null, || {
+        let Some(root) = resolve_market_agent_root() else {
+            return build_unavailable_payload(
+                "Market agent artifacts are not available yet.",
+                None,
+            );
+        };
+        market_agent_runtime_inspect(&root)
+    })
+}
+
+#[tauri::command]
+pub fn get_market_agent_driver_attention(_payload: Value) -> Value {
+    run_logged_market_agent_command("get_market_agent_driver_attention", &Value::Null, || {
+        let Some(root) = resolve_market_agent_root() else {
+            return build_unavailable_payload(
+                "Market agent artifacts are not available yet.",
+                None,
+            );
+        };
+        let timeline_path = timeline_path_for_root(&root);
+        let connection = match open_timeline_db(&root) {
+            Ok(connection) => connection,
+            Err(message) => return build_unavailable_payload(&message, Some(&root)),
+        };
+        match read_driver_attention_latest(&connection) {
+            Ok((monitor_run_id, run_started_at, states)) => json!({
                 "ok": true,
                 "available": timeline_path.exists(),
                 "timeline_store_path": timeline_path.display().to_string(),
                 "monitor_run_id": monitor_run_id,
                 "run_started_at": run_started_at,
-                "items": items,
-            })
+                "states": states,
+            }),
+            Err(err) => build_unavailable_payload(
+                &format!("Unable to read driver attention: {err}"),
+                Some(&root),
+            ),
         }
-        Err(err) => build_unavailable_payload(
-            &format!("Unable to read provider health: {err}"),
-            Some(&root),
-        ),
-    }
-}
-
-#[tauri::command]
-pub fn get_market_agent_driver_attention(_payload: Value) -> Value {
-    let Some(root) = resolve_market_agent_root() else {
-        return build_unavailable_payload("Market agent artifacts are not available yet.", None);
-    };
-    let timeline_path = timeline_path_for_root(&root);
-    let connection = match open_timeline_db(&root) {
-        Ok(connection) => connection,
-        Err(message) => return build_unavailable_payload(&message, Some(&root)),
-    };
-    match read_driver_attention_latest(&connection) {
-        Ok((monitor_run_id, run_started_at, states)) => json!({
-            "ok": true,
-            "available": timeline_path.exists(),
-            "timeline_store_path": timeline_path.display().to_string(),
-            "monitor_run_id": monitor_run_id,
-            "run_started_at": run_started_at,
-            "states": states,
-        }),
-        Err(err) => build_unavailable_payload(
-            &format!("Unable to read driver attention: {err}"),
-            Some(&root),
-        ),
-    }
+    })
 }
 
 #[tauri::command]
@@ -3368,52 +4551,62 @@ pub fn get_market_agent_suppressed_alerts(payload: Value) -> Value {
 
 #[tauri::command]
 pub fn get_market_agent_evidence_for_run(payload: Value) -> Value {
-    let monitor_run_id = payload
-        .get("monitorRunId")
-        .or_else(|| payload.get("monitor_run_id"))
-        .and_then(|v| v.as_i64())
-        .unwrap_or_default();
-    let Some(root) = resolve_market_agent_root() else {
-        return build_unavailable_payload("Market agent artifacts are not available yet.", None);
-    };
-    let timeline_path = timeline_path_for_root(&root);
-    let connection = match open_timeline_db(&root) {
-        Ok(connection) => connection,
-        Err(message) => return build_unavailable_payload(&message, Some(&root)),
-    };
-    match read_evidence_for_run(&connection, monitor_run_id) {
-        Ok(payload) => json!({
-            "ok": true,
-            "available": timeline_path.exists(),
-            "timeline_store_path": timeline_path.display().to_string(),
-            "monitor_run_id": monitor_run_id,
-            "payload": payload,
-        }),
-        Err(err) => build_unavailable_payload(
-            &format!("Unable to read evidence for run: {err}"),
-            Some(&root),
-        ),
-    }
+    run_logged_market_agent_command("get_market_agent_evidence_for_run", &payload, || {
+        let monitor_run_id = payload
+            .get("monitorRunId")
+            .or_else(|| payload.get("monitor_run_id"))
+            .and_then(|v| v.as_i64())
+            .unwrap_or_default();
+        let Some(root) = resolve_market_agent_root() else {
+            return build_unavailable_payload(
+                "Market agent artifacts are not available yet.",
+                None,
+            );
+        };
+        let timeline_path = timeline_path_for_root(&root);
+        let connection = match open_timeline_db(&root) {
+            Ok(connection) => connection,
+            Err(message) => return build_unavailable_payload(&message, Some(&root)),
+        };
+        match read_evidence_for_run(&connection, monitor_run_id) {
+            Ok(payload) => json!({
+                "ok": true,
+                "available": timeline_path.exists(),
+                "timeline_store_path": timeline_path.display().to_string(),
+                "monitor_run_id": monitor_run_id,
+                "payload": payload,
+            }),
+            Err(err) => build_unavailable_payload(
+                &format!("Unable to read evidence for run: {err}"),
+                Some(&root),
+            ),
+        }
+    })
 }
 
 #[tauri::command]
 pub fn get_market_agent_replay(payload: Value) -> Value {
-    let Some(root) = resolve_market_agent_root() else {
-        return build_unavailable_payload("Market agent artifacts are not available yet.", None);
-    };
-    let start = payload.get("start").and_then(|v| v.as_str()).unwrap_or("");
-    let end = payload.get("end").and_then(|v| v.as_str()).unwrap_or("");
-    read_market_agent_replay(&root, start, end)
+    run_logged_market_agent_command("get_market_agent_replay", &payload, || {
+        let Some(root) = resolve_market_agent_root() else {
+            return build_unavailable_payload(
+                "Market agent artifacts are not available yet.",
+                None,
+            );
+        };
+        let start = payload.get("start").and_then(|v| v.as_str()).unwrap_or("");
+        let end = payload.get("end").and_then(|v| v.as_str()).unwrap_or("");
+        read_market_agent_replay(&root, start, end)
+    })
 }
 
 #[tauri::command]
 pub fn get_market_agent_provider_config(_payload: Value) -> Value {
-    masked_ctrader_provider_config(&config::appdata_dir())
+    masked_ctrader_provider_config(&market_agent_runtime_root())
 }
 
 #[tauri::command]
 pub fn save_market_agent_provider_config(payload: Value) -> Value {
-    match save_ctrader_provider_config(&config::appdata_dir(), &payload) {
+    match save_ctrader_provider_config(&market_agent_runtime_root(), &payload) {
         Ok(value) => value,
         Err(err) => json!({
             "ok": false,
@@ -3425,17 +4618,17 @@ pub fn save_market_agent_provider_config(payload: Value) -> Value {
 
 #[tauri::command]
 pub fn get_market_agent_telegram_config(_payload: Value) -> Value {
-    masked_telegram_config_for_root(&config::appdata_dir())
+    masked_telegram_config_for_root(&market_agent_runtime_root())
 }
 
 #[tauri::command]
 pub fn get_market_agent_llm_config(_payload: Value) -> Value {
-    masked_llm_config_for_root(&config::appdata_dir())
+    masked_llm_config_for_root(&market_agent_runtime_root())
 }
 
 #[tauri::command]
 pub fn save_market_agent_telegram_config(payload: Value) -> Value {
-    match save_telegram_config_for_root(&config::appdata_dir(), &payload) {
+    match save_telegram_config_for_root(&market_agent_runtime_root(), &payload) {
         Ok(value) => value,
         Err(err) => json!({
             "ok": false,
@@ -3447,7 +4640,7 @@ pub fn save_market_agent_telegram_config(payload: Value) -> Value {
 
 #[tauri::command]
 pub fn save_market_agent_llm_config(payload: Value) -> Value {
-    match save_llm_config_for_root(&config::appdata_dir(), &payload) {
+    match save_llm_config_for_root(&market_agent_runtime_root(), &payload) {
         Ok(value) => value,
         Err(err) => json!({
             "ok": false,
@@ -3459,17 +4652,17 @@ pub fn save_market_agent_llm_config(payload: Value) -> Value {
 
 #[tauri::command]
 pub fn test_market_agent_telegram(payload: Value) -> Value {
-    test_telegram_for_root(&config::appdata_dir(), &payload)
+    test_telegram_for_root(&market_agent_runtime_root(), &payload)
 }
 
 #[tauri::command]
 pub fn test_market_agent_llm_connection(payload: Value) -> Value {
-    test_llm_for_root(&config::appdata_dir(), &payload, "connection")
+    test_llm_for_root(&market_agent_runtime_root(), &payload, "connection")
 }
 
 #[tauri::command]
 pub fn test_market_agent_llm_json_response(payload: Value) -> Value {
-    test_llm_for_root(&config::appdata_dir(), &payload, "json")
+    test_llm_for_root(&market_agent_runtime_root(), &payload, "json")
 }
 
 #[tauri::command]
@@ -3504,7 +4697,7 @@ pub fn recommend_local_model(payload: Value) -> Value {
 
 #[tauri::command]
 pub fn detect_local_ai_setup(payload: Value) -> Value {
-    detect_local_ai_setup_value(&config::appdata_dir(), &payload)
+    detect_local_ai_setup_value(&market_agent_runtime_root(), &payload)
 }
 
 #[tauri::command]
@@ -3549,7 +4742,7 @@ pub fn cancel_model_download(app: tauri::AppHandle, payload: Value) -> Value {
 
 #[tauri::command]
 pub fn test_llm_json(payload: Value) -> Value {
-    test_llm_for_root(&config::appdata_dir(), &payload, "json")
+    test_llm_for_root(&market_agent_runtime_root(), &payload, "json")
 }
 
 #[tauri::command]
@@ -3573,7 +4766,7 @@ pub fn apply_llm_fallback_policy(payload: Value) -> Value {
 
 #[tauri::command]
 pub fn clear_ctrader_config(_payload: Value) -> Value {
-    match clear_ctrader_provider_config(&config::appdata_dir()) {
+    match clear_ctrader_provider_config(&market_agent_runtime_root()) {
         Ok(value) => value,
         Err(err) => json!({
             "ok": false,
@@ -3585,63 +4778,81 @@ pub fn clear_ctrader_config(_payload: Value) -> Value {
 
 #[tauri::command]
 pub fn test_ctrader_connection(payload: Value) -> Value {
-    run_ctrader_bridge(&config::appdata_dir(), "test-connection", &payload)
+    run_ctrader_bridge(&market_agent_runtime_root(), "test-connection", &payload)
 }
 
 #[tauri::command]
 pub fn resolve_ctrader_symbol(payload: Value) -> Value {
-    run_ctrader_bridge(&config::appdata_dir(), "resolve-symbol", &payload)
+    run_ctrader_bridge(&market_agent_runtime_root(), "resolve-symbol", &payload)
 }
 
 #[tauri::command]
 pub fn get_ctrader_quote_test(payload: Value) -> Value {
-    run_ctrader_bridge(&config::appdata_dir(), "quote", &payload)
+    run_ctrader_bridge(&market_agent_runtime_root(), "quote", &payload)
 }
 
 #[tauri::command]
-pub fn start_ctrader_connect(payload: Value) -> Value {
-    let root = config::appdata_dir();
-    let mut merged = merged_ctrader_provider_config(&root, Some(&payload));
+pub fn ensure_market_agent_live_quote_stream(_payload: Value) -> Value {
+    run_logged_market_agent_command(
+        "ensure_market_agent_live_quote_stream",
+        &Value::Null,
+        || ensure_live_quote_stream_for_root(&market_agent_runtime_root()),
+    )
+}
+
+#[tauri::command]
+pub fn get_market_agent_live_quote(_payload: Value) -> Value {
+    run_market_agent_command(|| build_live_quote_response(&market_agent_runtime_root()))
+}
+
+#[tauri::command]
+pub fn stop_market_agent_live_quote_stream(_payload: Value) -> Value {
+    run_logged_market_agent_command("stop_market_agent_live_quote_stream", &Value::Null, || {
+        stop_live_quote_stream_for_root(&market_agent_runtime_root(), true)
+    })
+}
+
+fn start_ctrader_connect_for_root(root: &Path, payload: Value) -> Value {
+    let mut merged = merged_ctrader_provider_config(root, Some(&payload));
     merged["enabled"] = Value::Bool(true);
-    match save_ctrader_provider_config(&root, &json!({"ctrader": merged})) {
+    merged["snapshotPath"] = Value::String(
+        live_quote_snapshot_path_for_root(root)
+            .display()
+            .to_string(),
+    );
+    match save_ctrader_provider_config(root, &json!({"ctrader": merged})) {
         Ok(_) => {
-            let result = run_ctrader_bridge(&root, "test-connection", &payload);
-            if result.get("ok").and_then(Value::as_bool).unwrap_or(false) {
-                let quote_result = run_ctrader_bridge(&root, "quote", &merged);
-                if quote_result
-                    .get("ok")
-                    .and_then(Value::as_bool)
-                    .unwrap_or(false)
-                {
-                    return json!({
-                        "ok": true,
-                        "status": "live_feed_ready",
-                        "message": "cTrader is connected and live XAUUSD quotes are active. History sync can continue in the background.",
-                        "account": result.get("account").cloned().unwrap_or(Value::Null),
-                        "symbol": result.get("symbol").cloned().unwrap_or(Value::Null),
-                        "quote": quote_result.get("quote").cloned().unwrap_or(Value::Null),
-                        "provider_health": quote_result.get("provider_health").cloned().unwrap_or(Value::Null),
-                        "ctrader": masked_ctrader_provider_config(&root).get("ctrader").cloned().unwrap_or(Value::Null),
-                    });
-                }
-                json!({
+            let stream_result = start_live_quote_stream_for_root(root);
+            let live_quote = build_live_quote_response(root);
+            let quote = live_quote.get("quote").cloned().unwrap_or(Value::Null);
+            let provider_health = read_runtime_ctrader_xauusd_health(root)
+                .or_else(|| read_saved_ctrader_xauusd_health(root))
+                .unwrap_or(Value::Null);
+            let live_ready = live_quote
+                .get("running")
+                .and_then(Value::as_bool)
+                .unwrap_or(false)
+                && !quote.is_null();
+            if live_ready {
+                return json!({
                     "ok": true,
-                    "status": "live_quote_pending",
-                    "message": "cTrader account is connected. Waiting for the first fresh XAUUSD quote before showing live conclusions.",
-                    "account": result.get("account").cloned().unwrap_or(Value::Null),
-                    "symbol": result.get("symbol").cloned().unwrap_or(Value::Null),
-                    "provider_health": quote_result.get("provider_health").cloned().unwrap_or_else(|| result.get("provider_health").cloned().unwrap_or(Value::Null)),
-                    "ctrader": masked_ctrader_provider_config(&root).get("ctrader").cloned().unwrap_or(Value::Null),
-                })
-            } else {
-                json!({
-                    "ok": false,
-                    "status": "connection_failed",
-                    "message": "cTrader details were saved. The app will keep preparing the live feed in the background.",
-                    "error": result.get("error").and_then(Value::as_str).unwrap_or("cTrader CLI connection failed."),
-                    "ctrader": masked_ctrader_provider_config(&root).get("ctrader").cloned().unwrap_or(Value::Null),
-                })
+                    "status": "live_feed_ready",
+                    "message": "cTrader settings were saved and a fresh live XAUUSD snapshot is available.",
+                    "quote": quote,
+                    "provider_health": provider_health,
+                    "live_stream": stream_result,
+                    "ctrader": masked_ctrader_provider_config(root).get("ctrader").cloned().unwrap_or(Value::Null),
+                });
             }
+            json!({
+                "ok": true,
+                "status": "starting_live_stream",
+                "message": "cTrader settings were saved. The live stream is starting and waiting for the first fresh XAUUSD snapshot.",
+                "quote": quote,
+                "provider_health": provider_health,
+                "live_stream": stream_result,
+                "ctrader": masked_ctrader_provider_config(root).get("ctrader").cloned().unwrap_or(Value::Null),
+            })
         }
         Err(err) => json!({
             "ok": false,
@@ -3652,38 +4863,57 @@ pub fn start_ctrader_connect(payload: Value) -> Value {
 }
 
 #[tauri::command]
-pub fn test_ctrader_backfill(payload: Value) -> Value {
-    test_ctrader_backfill_for_root(&config::appdata_dir(), &payload)
+pub fn start_ctrader_connect(payload: Value) -> Value {
+    start_ctrader_connect_for_root(&market_agent_runtime_root(), payload)
 }
 
 #[tauri::command]
-pub fn get_market_agent_monitor_status(_payload: Value) -> Value {
-    read_monitor_status_for_root(&config::appdata_dir())
+pub fn test_ctrader_backfill(payload: Value) -> Value {
+    test_ctrader_backfill_for_root(&market_agent_runtime_root(), &payload)
+}
+
+#[tauri::command]
+pub fn get_market_agent_monitor_status(payload: Value) -> Value {
+    run_logged_market_agent_command("get_market_agent_monitor_status", &payload, || {
+        let include_activity = payload
+            .get("includeActivity")
+            .and_then(Value::as_bool)
+            .unwrap_or(false);
+        read_monitor_status_for_root_with_activity(&market_agent_runtime_root(), include_activity)
+    })
 }
 
 #[tauri::command]
 pub fn run_market_agent_monitor_once(_payload: Value) -> Value {
-    run_monitor_once_for_root(&config::appdata_dir())
+    run_logged_market_agent_command("run_market_agent_monitor_once", &Value::Null, || {
+        run_monitor_once_for_root(&market_agent_runtime_root())
+    })
 }
 
 #[tauri::command]
 pub fn run_market_agent_backfill_recovery(_payload: Value) -> Value {
-    run_backfill_recovery_for_root(&config::appdata_dir(), true)
+    run_logged_market_agent_command("run_market_agent_backfill_recovery", &Value::Null, || {
+        run_backfill_recovery_for_root(&market_agent_runtime_root(), true)
+    })
 }
 
 #[tauri::command]
 pub fn start_market_agent_monitor_loop(payload: Value) -> Value {
-    let interval_seconds = payload
-        .get("intervalSeconds")
-        .and_then(Value::as_i64)
-        .unwrap_or(60)
-        .max(10);
-    start_monitor_loop_for_root(&config::appdata_dir(), interval_seconds, true)
+    run_logged_market_agent_command("start_market_agent_monitor_loop", &payload, || {
+        let interval_seconds = payload
+            .get("intervalSeconds")
+            .and_then(Value::as_i64)
+            .unwrap_or(60)
+            .max(10);
+        start_monitor_loop_for_root(&market_agent_runtime_root(), interval_seconds, true)
+    })
 }
 
 #[tauri::command]
 pub fn stop_market_agent_monitor_loop(_payload: Value) -> Value {
-    stop_monitor_loop_for_root(&config::appdata_dir(), true)
+    run_logged_market_agent_command("stop_market_agent_monitor_loop", &Value::Null, || {
+        stop_monitor_loop_for_root(&market_agent_runtime_root(), true)
+    })
 }
 
 pub(crate) fn read_market_agent_replay(root: &Path, start: &str, end: &str) -> Value {
@@ -3771,22 +5001,33 @@ pub(crate) fn read_market_agent_replay(root: &Path, start: &str, end: &str) -> V
 #[cfg(test)]
 mod tests {
     use super::{
-        apply_llm_fallback_policy_for_result, clear_ctrader_provider_config,
-        ctrader_config_path_for_root, ctrader_env_for_root, llm_config_path_for_root,
-        llm_env_for_root, mask_secret, masked_ctrader_provider_config, masked_llm_config_for_root,
-        masked_telegram_config_for_root, monitor_command_base, monitor_status_path_for_root,
-        normalize_ctrader_bridge_error, normalize_pull_progress_line, read_json_object,
-        read_market_agent_replay, read_market_agent_snapshot, read_monitor_status_for_root,
-        read_saved_ctrader_xauusd_health, recommend_local_model_from_profile,
-        run_backfill_recovery_for_root, save_ctrader_provider_config, save_llm_config_for_root,
-        save_telegram_config_for_root, start_monitor_loop_for_root, stop_monitor_loop_for_root,
+        apply_llm_fallback_policy_for_result, build_live_quote_response,
+        build_live_quote_response_at, clear_ctrader_provider_config, ctrader_config_path_for_root,
+        ctrader_env_for_root, live_quote_snapshot_path_for_root,
+        live_quote_stream_status_path_for_root, llm_config_path_for_root, llm_env_for_root,
+        mask_secret, masked_ctrader_provider_config, masked_llm_config_for_root,
+        masked_telegram_config_for_root, merge_xauusd_provider_health, monitor_command_base,
+        monitor_python_program, monitor_status_path_for_root, normalize_ctrader_bridge_error,
+        normalize_pull_progress_line, read_json_file, read_json_object,
+        read_live_quote_stream_status_for_root, read_market_agent_replay,
+        read_market_agent_snapshot, read_monitor_status_for_root,
+        read_monitor_status_for_root_with_activity, read_provider_health_latest,
+        read_runtime_ctrader_xauusd_health, read_saved_ctrader_xauusd_health,
+        recommend_local_model_from_profile, run_backfill_recovery_for_root, run_ctrader_bridge,
+        save_ctrader_provider_config, save_llm_config_for_root, save_telegram_config_for_root,
+        should_reuse_running_monitor, start_ctrader_connect_for_root,
+        start_live_quote_stream_for_root, start_monitor_loop_for_root, stop_monitor_loop_for_root,
         telegram_config_path_for_root, telegram_env_for_root, test_telegram_for_root,
-        timeline_path_for_root, write_monitor_status_for_root, DEFAULT_OLLAMA_ENDPOINT,
+        timeline_path_for_root, write_json_atomic, write_monitor_status_for_root,
+        DEFAULT_LLM_TEMPERATURE, DEFAULT_LLM_TIMEOUT_SECONDS, DEFAULT_OLLAMA_ENDPOINT,
     };
+    use chrono::Utc;
+    use filetime::{set_file_mtime, FileTime};
     use rusqlite::{params, Connection};
     use serde_json::{json, Value};
     use std::fs;
     use std::path::PathBuf;
+    use std::time::{Duration, SystemTime};
 
     fn unique_temp_dir(name: &str) -> PathBuf {
         let mut path = std::env::temp_dir();
@@ -4556,6 +5797,30 @@ mod tests {
     }
 
     #[test]
+    fn ctrader_env_for_monitor_uses_live_snapshot_file() {
+        let dir = unique_temp_dir("ctrader-env-live-snapshot");
+
+        let env = ctrader_env_for_root(&dir);
+        let expected = live_quote_snapshot_path_for_root(&dir)
+            .to_string_lossy()
+            .to_string();
+
+        assert_eq!(
+            env.get("CTRADER_SNAPSHOT_PATH").map(String::as_str),
+            Some(expected.as_str())
+        );
+        assert_eq!(
+            env.get("MARKET_AGENT_CTRADER_SAVED_SNAPSHOT_PATH")
+                .map(String::as_str),
+            Some(expected.as_str())
+        );
+        assert_eq!(
+            env.get("CTRADER_QUOTE_BRIDGE_ENABLED").map(String::as_str),
+            Some("false")
+        );
+    }
+
+    #[test]
     fn reads_saved_ctrader_health_without_live_bridge_refresh() {
         let dir = unique_temp_dir("ctrader-snapshot-health");
         let snapshot_path = dir.join("ctrader-last-quote.json");
@@ -4616,6 +5881,499 @@ mod tests {
             .and_then(Value::as_str)
             .unwrap_or("")
             .contains("saved cTrader quote snapshot"));
+    }
+
+    #[test]
+    fn live_quote_response_reads_snapshot_without_process_probe() {
+        let dir = unique_temp_dir("live-quote-no-probe");
+        let status_path = live_quote_stream_status_path_for_root(&dir);
+        let snapshot_path = live_quote_snapshot_path_for_root(&dir);
+        write_json_atomic(
+            &status_path,
+            &json!({
+                "ok": true,
+                "running": true,
+                "phase": "running",
+                "pid": 99999999,
+                "message": "cTrader live quote stream is running.",
+                "snapshotPath": snapshot_path.display().to_string(),
+            }),
+        )
+        .expect("write live status");
+        write_json_atomic(
+            &snapshot_path,
+            &json!({
+                "ok": true,
+                "symbol": "XAUUSD",
+                "bid": 4569.3,
+                "ask": 4569.37,
+                "mid": 4569.335,
+                "timestamp": Utc::now().to_rfc3339(),
+            }),
+        )
+        .expect("write live snapshot");
+
+        let response = build_live_quote_response(&dir);
+        let saved_status = read_json_file(&status_path).expect("read saved status");
+
+        assert_eq!(response.get("running").and_then(Value::as_bool), Some(true));
+        assert_eq!(
+            response
+                .get("quote")
+                .and_then(|quote| quote.get("mid"))
+                .and_then(Value::as_f64),
+            Some(4569.335)
+        );
+        assert_eq!(
+            saved_status.get("pid").and_then(Value::as_i64),
+            Some(99999999)
+        );
+    }
+
+    #[test]
+    fn live_quote_status_probe_clears_dead_pid_only_when_requested() {
+        let dir = unique_temp_dir("live-quote-probe");
+        let status_path = live_quote_stream_status_path_for_root(&dir);
+        write_json_atomic(
+            &status_path,
+            &json!({
+                "ok": true,
+                "running": true,
+                "phase": "running",
+                "pid": 99999999,
+                "message": "cTrader live quote stream is running.",
+            }),
+        )
+        .expect("write live status");
+
+        let unchecked = read_live_quote_stream_status_for_root(&dir, false);
+        let checked = read_live_quote_stream_status_for_root(&dir, true);
+
+        assert_eq!(
+            unchecked.get("running").and_then(Value::as_bool),
+            Some(true)
+        );
+        assert_eq!(checked.get("running").and_then(Value::as_bool), Some(false));
+        assert_eq!(
+            checked.get("phase").and_then(Value::as_str),
+            Some("starting")
+        );
+        assert_eq!(checked.get("lastError").and_then(Value::as_str), Some(""));
+    }
+
+    #[test]
+    fn live_quote_status_normalizes_old_stopped_error() {
+        let dir = unique_temp_dir("live-quote-old-stopped");
+        let status_path = live_quote_stream_status_path_for_root(&dir);
+        let snapshot_path = live_quote_snapshot_path_for_root(&dir);
+        write_json_atomic(
+            &status_path,
+            &json!({
+                "ok": false,
+                "running": false,
+                "phase": "stopped",
+                "pid": null,
+                "message": "Live quote stream stopped unexpectedly.",
+                "lastError": "Saved live stream status referenced a process that is no longer running.",
+                "snapshotPath": snapshot_path.display().to_string(),
+            }),
+        )
+        .expect("write old live status");
+
+        let status = read_live_quote_stream_status_for_root(&dir, true);
+        let saved = read_json_file(&status_path).expect("saved status");
+
+        assert_eq!(status.get("ok").and_then(Value::as_bool), Some(true));
+        assert_eq!(status.get("running").and_then(Value::as_bool), Some(false));
+        assert_eq!(
+            status.get("phase").and_then(Value::as_str),
+            Some("starting")
+        );
+        assert_eq!(status.get("lastError").and_then(Value::as_str), Some(""));
+        assert_eq!(saved.get("phase").and_then(Value::as_str), Some("starting"));
+    }
+
+    #[test]
+    fn live_quote_status_normalizes_old_launcher_error() {
+        let dir = unique_temp_dir("live-quote-old-launcher");
+        let status_path = live_quote_stream_status_path_for_root(&dir);
+        write_json_atomic(
+            &status_path,
+            &json!({
+                "ok": false,
+                "running": false,
+                "phase": "stopped",
+                "pid": null,
+                "bridgePid": 23216,
+                "message": "Live quote stream stopped unexpectedly.",
+                "lastError": "Saved live stream launcher process ended and no fresh cTrader snapshot is available.",
+            }),
+        )
+        .expect("write old launcher status");
+
+        let status = read_live_quote_stream_status_for_root(&dir, true);
+
+        assert_eq!(status.get("ok").and_then(Value::as_bool), Some(true));
+        assert_eq!(status.get("running").and_then(Value::as_bool), Some(false));
+        assert_eq!(
+            status.get("phase").and_then(Value::as_str),
+            Some("starting")
+        );
+        assert_eq!(status.get("bridgePid"), Some(&Value::Null));
+        assert_eq!(status.get("lastError").and_then(Value::as_str), Some(""));
+    }
+
+    #[test]
+    fn live_quote_status_probe_keeps_dead_launcher_when_snapshot_is_fresh() {
+        let dir = unique_temp_dir("live-quote-fresh-snapshot");
+        let status_path = live_quote_stream_status_path_for_root(&dir);
+        let snapshot_path = live_quote_snapshot_path_for_root(&dir);
+        write_json_atomic(
+            &status_path,
+            &json!({
+                "ok": true,
+                "running": true,
+                "phase": "running",
+                "pid": 99999999,
+                "message": "cTrader live quote stream is running.",
+                "lastError": "old error",
+            }),
+        )
+        .expect("write live status");
+        write_json_atomic(
+            &snapshot_path,
+            &json!({
+                "ok": true,
+                "symbol": "XAUUSD",
+                "bid": 4570.74,
+                "ask": 4570.85,
+                "mid": 4570.795,
+                "timestamp": chrono::Utc::now().to_rfc3339(),
+            }),
+        )
+        .expect("write live snapshot");
+
+        let checked = read_live_quote_stream_status_for_root(&dir, true);
+
+        assert_eq!(checked.get("running").and_then(Value::as_bool), Some(true));
+        assert_eq!(
+            checked.get("phase").and_then(Value::as_str),
+            Some("running")
+        );
+        assert_eq!(
+            checked.get("message").and_then(Value::as_str),
+            Some("cTrader live quote stream is producing fresh snapshots.")
+        );
+        assert_eq!(checked.get("lastError").and_then(Value::as_str), Some(""));
+    }
+
+    #[test]
+    fn runtime_live_quote_overrides_stale_xauusd_provider_health() {
+        let dir = unique_temp_dir("provider-health-runtime-override");
+        let timeline_path = timeline_path_for_root(&dir);
+        seed_timeline_db(&timeline_path);
+        write_json_atomic(
+            &live_quote_stream_status_path_for_root(&dir),
+            &json!({
+                "ok": true,
+                "running": true,
+                "phase": "running",
+                "pid": 123456,
+                "message": "cTrader live quote stream is producing fresh snapshots.",
+                "snapshotPath": live_quote_snapshot_path_for_root(&dir).display().to_string(),
+            }),
+        )
+        .expect("write live status");
+        write_json_atomic(
+            &live_quote_snapshot_path_for_root(&dir),
+            &json!({
+                "ok": true,
+                "symbol": "XAUUSD",
+                "bid": 4538.08,
+                "ask": 4538.15,
+                "mid": 4538.115,
+                "timestamp": chrono::Utc::now().to_rfc3339(),
+            }),
+        )
+        .expect("write live snapshot");
+
+        let connection = Connection::open(&timeline_path).expect("open sqlite");
+        let (_, _, items) = read_provider_health_latest(&connection).expect("read provider health");
+        let merged = merge_xauusd_provider_health(
+            items,
+            read_runtime_ctrader_xauusd_health(&dir).expect("runtime health"),
+        );
+        let xauusd = merged
+            .iter()
+            .find(|item| item.get("provider_key").and_then(Value::as_str) == Some("xauusd"))
+            .expect("xauusd health");
+
+        assert_eq!(
+            xauusd.get("source").and_then(Value::as_str),
+            Some("cTrader")
+        );
+        assert_eq!(
+            xauusd.get("source_type").and_then(Value::as_str),
+            Some("spot")
+        );
+        assert_eq!(
+            xauusd.get("data_mode").and_then(Value::as_str),
+            Some("live_seen")
+        );
+        assert_eq!(
+            xauusd.get("is_available").and_then(Value::as_bool),
+            Some(true)
+        );
+        assert_eq!(xauusd.get("is_stale").and_then(Value::as_bool), Some(false));
+        assert_eq!(
+            xauusd.get("current_value").and_then(Value::as_f64),
+            Some(4538.115)
+        );
+    }
+
+    #[test]
+    fn live_quote_response_marks_dead_stale_stream_as_not_running() {
+        let dir = unique_temp_dir("live-quote-dead-stale-response");
+        let status_path = live_quote_stream_status_path_for_root(&dir);
+        let snapshot_path = live_quote_snapshot_path_for_root(&dir);
+        write_json_atomic(
+            &status_path,
+            &json!({
+                "ok": true,
+                "running": true,
+                "phase": "running",
+                "pid": 99999999,
+                "message": "cTrader live quote stream is running.",
+                "snapshotPath": snapshot_path.display().to_string(),
+            }),
+        )
+        .expect("write live status");
+        write_json_atomic(
+            &snapshot_path,
+            &json!({
+                "ok": true,
+                "symbol": "XAUUSD",
+                "bid": 4570.74,
+                "ask": 4570.85,
+                "mid": 4570.795,
+                "timestamp": "2026-05-25T16:43:12.3250000Z",
+            }),
+        )
+        .expect("write live snapshot");
+        let stale_time = FileTime::from_system_time(SystemTime::now() - Duration::from_secs(120));
+        set_file_mtime(&snapshot_path, stale_time).expect("age snapshot");
+
+        let response = build_live_quote_response(&dir);
+        let saved_status = read_json_file(&status_path).expect("read saved status");
+
+        assert_eq!(
+            response.get("running").and_then(Value::as_bool),
+            Some(false)
+        );
+        assert_eq!(response.get("phase").and_then(Value::as_str), Some("stale"));
+        assert_eq!(
+            response
+                .get("provider_health")
+                .and_then(|health| health.get("is_stale"))
+                .and_then(Value::as_bool),
+            Some(true)
+        );
+        assert_eq!(
+            saved_status.get("running").and_then(Value::as_bool),
+            Some(false)
+        );
+        assert_eq!(saved_status.get("pid"), Some(&Value::Null));
+    }
+
+    #[test]
+    fn live_quote_response_marks_weekend_stale_snapshot_as_market_closed() {
+        let dir = unique_temp_dir("live-quote-weekend-closed");
+        let status_path = live_quote_stream_status_path_for_root(&dir);
+        let snapshot_path = live_quote_snapshot_path_for_root(&dir);
+        write_json_atomic(
+            &status_path,
+            &json!({
+                "ok": true,
+                "running": true,
+                "phase": "running",
+                "pid": 99999999,
+                "message": "cTrader live quote stream is running.",
+                "snapshotPath": snapshot_path.display().to_string(),
+            }),
+        )
+        .expect("write live status");
+        write_json_atomic(
+            &snapshot_path,
+            &json!({
+                "ok": true,
+                "symbol": "XAUUSD",
+                "bid": 4541.13,
+                "ask": 4541.53,
+                "mid": 4541.33,
+                "timestamp": "2026-05-29T20:56:59.947000+00:00",
+            }),
+        )
+        .expect("write live snapshot");
+        let stale_time = FileTime::from_system_time(SystemTime::now() - Duration::from_secs(120));
+        set_file_mtime(&snapshot_path, stale_time).expect("age snapshot");
+
+        let response = build_live_quote_response_at(
+            &dir,
+            chrono::DateTime::parse_from_rfc3339("2026-05-31T16:28:00+08:00")
+                .expect("parse now")
+                .with_timezone(&chrono::Utc),
+        );
+
+        assert_eq!(
+            response.get("running").and_then(Value::as_bool),
+            Some(false)
+        );
+        assert_eq!(
+            response.get("phase").and_then(Value::as_str),
+            Some("market_closed")
+        );
+        assert_eq!(
+            response
+                .get("provider_health")
+                .and_then(|health| health.get("data_mode"))
+                .and_then(Value::as_str),
+            Some("stale")
+        );
+        assert_eq!(
+            response
+                .get("provider_health")
+                .and_then(|health| health.get("metadata"))
+                .and_then(|metadata| metadata.get("stale_classification"))
+                .and_then(Value::as_str),
+            Some("market_closed")
+        );
+    }
+
+    #[test]
+    fn live_quote_start_does_not_spawn_cli_cbot_stream() {
+        let dir = unique_temp_dir("live-quote-credentials-required");
+        write_json_atomic(
+            &ctrader_config_path_for_root(&dir),
+            &json!({
+                "enabled": true,
+                "accountId": "",
+                "ctid": "",
+                "password": "",
+                "symbol": "XAUUSD"
+            }),
+        )
+        .expect("seed empty ctrader config");
+
+        let response = start_live_quote_stream_for_root(&dir);
+        let saved =
+            read_json_file(&live_quote_stream_status_path_for_root(&dir)).expect("read status");
+
+        assert_eq!(response.get("ok").and_then(Value::as_bool), Some(false));
+        assert_eq!(
+            response.get("running").and_then(Value::as_bool),
+            Some(false)
+        );
+        assert_eq!(
+            response.get("phase").and_then(Value::as_str),
+            Some("credentials_required")
+        );
+        assert_eq!(
+            response.get("message").and_then(Value::as_str),
+            Some("cTrader live stream requires saved account credentials.")
+        );
+        assert_eq!(saved.get("pid"), Some(&Value::Null));
+    }
+
+    #[test]
+    fn start_ctrader_connect_saves_config_without_running_cli_bridge() {
+        let dir = unique_temp_dir("ctrader-connect-no-bridge");
+        let payload = json!({
+            "ctrader": {
+                "enabled": true,
+                "environment": "demo",
+                "accountId": "123456",
+                "ctid": "trader@example.com",
+                "password": "super-secret-password",
+                "symbol": "XAUUSD",
+                "symbolId": 777,
+                "snapshotPath": dir.join("old-quote.json").display().to_string(),
+                "quoteTimeoutSeconds": 9,
+                "quoteStaleAfterSeconds": 15,
+                "allowSavedSnapshotFallback": true
+            }
+        });
+
+        let response = start_ctrader_connect_for_root(&dir, payload);
+        let raw_config = read_json_object(&ctrader_config_path_for_root(&dir));
+        let stream_status =
+            read_json_file(&live_quote_stream_status_path_for_root(&dir)).expect("stream status");
+        let spawn_debug =
+            fs::read_to_string(dir.join("market_agent_spawn_debug.ndjson")).unwrap_or_default();
+
+        assert_eq!(response.get("ok").and_then(Value::as_bool), Some(true));
+        assert_eq!(
+            response.get("status").and_then(Value::as_str),
+            Some("starting_live_stream")
+        );
+        assert_eq!(
+            raw_config.get("snapshotPath").and_then(Value::as_str),
+            Some(
+                live_quote_snapshot_path_for_root(&dir)
+                    .display()
+                    .to_string()
+                    .as_str()
+            )
+        );
+        assert_eq!(
+            stream_status.get("phase").and_then(Value::as_str),
+            Some("starting")
+        );
+        assert!(!spawn_debug.contains("tauri_ctrader_bridge"));
+        assert!(!spawn_debug.contains("test-connection"));
+        assert!(!response.to_string().contains("super-secret-password"));
+    }
+
+    #[test]
+    fn run_ctrader_bridge_rejects_shell_adapter_without_spawning_python() {
+        let dir = unique_temp_dir("ctrader-bridge-shell-block");
+        let adapter_path = dir.join("ctrader-cli-adapter.cmd");
+        fs::write(&adapter_path, "@echo off\r\n").expect("write adapter");
+        save_ctrader_provider_config(
+            &dir,
+            &json!({
+                "ctrader": {
+                    "enabled": true,
+                    "environment": "demo",
+                    "accountId": "123456",
+                    "ctid": "trader@example.com",
+                    "password": "super-secret-password",
+                    "symbol": "XAUUSD",
+                    "snapshotPath": dir.join("ctrader-last-quote.json").display().to_string(),
+                    "cliExecutable": adapter_path.display().to_string(),
+                }
+            }),
+        )
+        .expect("seed config");
+
+        for command in ["test-connection", "quote", "backfill"] {
+            let response = run_ctrader_bridge(&dir, command, &json!({}));
+
+            assert_eq!(response.get("ok").and_then(Value::as_bool), Some(false));
+            assert_eq!(
+                response.get("status").and_then(Value::as_str),
+                Some("disabled")
+            );
+            assert!(response
+                .get("error")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .contains("disabled"));
+        }
+        let spawn_debug =
+            fs::read_to_string(dir.join("market_agent_spawn_debug.ndjson")).unwrap_or_default();
+        assert!(!spawn_debug.contains("\"event\":\"spawn_request\""));
+        assert!(!spawn_debug.contains("python"));
+        assert!(!spawn_debug.contains("super-secret-password"));
     }
 
     #[test]
@@ -4737,8 +6495,8 @@ mod tests {
                 "provider": "ollama",
                 "endpoint": "http://localhost:11434",
                 "model": "qwen3.5:4b",
-                "temperature": 0.1,
-                "timeoutSeconds": 20,
+                "temperature": DEFAULT_LLM_TEMPERATURE,
+                "timeoutSeconds": DEFAULT_LLM_TIMEOUT_SECONDS,
                 "keepAlive": "0",
                 "maxContext": 8192
             }
@@ -4944,6 +6702,143 @@ mod tests {
     }
 
     #[test]
+    fn monitor_status_strips_activity_unless_requested() {
+        let dir = unique_temp_dir("monitor-status-lightweight");
+        write_monitor_status_for_root(
+            &dir,
+            &json!({
+                "ok": true,
+                "available": true,
+                "running": false,
+                "phase": "stopped",
+                "pid": null,
+                "lastRunAt": "2026-05-26T05:00:00+08:00",
+                "nextRunAt": null,
+                "lastError": "",
+                "message": "Monitor loop is stopped.",
+                "activity": {
+                    "llm": {
+                        "status": "unavailable",
+                        "jobs": [
+                            {"title": "Cause review", "status": "unavailable"}
+                        ]
+                    }
+                }
+            }),
+        )
+        .expect("write status");
+
+        let lightweight = read_monitor_status_for_root_with_activity(&dir, false);
+        let full = read_monitor_status_for_root_with_activity(&dir, true);
+
+        assert!(lightweight.get("activity").is_none());
+        assert!(full.get("activity").is_some());
+    }
+
+    #[test]
+    fn monitor_status_normalizes_old_stopped_error() {
+        let dir = unique_temp_dir("monitor-old-stopped");
+        write_monitor_status_for_root(
+            &dir,
+            &json!({
+                "ok": false,
+                "available": true,
+                "running": false,
+                "phase": "stopped",
+                "pid": null,
+                "monitorOwnerPid": 56872,
+                "lastRunAt": "2026-05-26T04:59:26.482252+08:00",
+                "nextRunAt": null,
+                "lastError": "Saved monitor status referenced a process that is no longer running.",
+                "message": "Monitor loop stopped unexpectedly.",
+                "activity": {"llm": {"status": "unavailable"}}
+            }),
+        )
+        .expect("write old monitor status");
+
+        let status = read_monitor_status_for_root(&dir);
+        let lightweight = read_monitor_status_for_root_with_activity(&dir, false);
+
+        assert_eq!(status.get("ok").and_then(Value::as_bool), Some(true));
+        assert_eq!(status.get("running").and_then(Value::as_bool), Some(false));
+        assert_eq!(status.get("phase").and_then(Value::as_str), Some("stopped"));
+        assert_eq!(status.get("lastError").and_then(Value::as_str), Some(""));
+        assert_eq!(
+            status.get("message").and_then(Value::as_str),
+            Some("Monitor loop is stopped.")
+        );
+        assert!(status.get("activity").is_some());
+        assert!(lightweight.get("activity").is_none());
+    }
+
+    #[test]
+    fn monitor_status_strips_legacy_csv_fallback_activity() {
+        let dir = unique_temp_dir("monitor-legacy-csv-fallback");
+        write_monitor_status_for_root(
+            &dir,
+            &json!({
+                "ok": true,
+                "available": true,
+                "running": false,
+                "phase": "stopped",
+                "pid": null,
+                "lastRunAt": "2026-05-26T04:59:26.482252+08:00",
+                "nextRunAt": null,
+                "lastError": "",
+                "message": "Monitor loop is stopped.",
+                "activity": {
+                    "ctrader": {
+                        "detail": "Live cTrader spot is unavailable. CSV fallback is debug/import only.",
+                        "fallbackReason": "CSV fallback is debug/import only and is not used for live market conclusions.",
+                        "jobs": [
+                            {"title": "Live quote request", "status": "unavailable"},
+                            {"title": "Ctrader Spot check", "status": "stale"},
+                            {"title": "Yahoo Gc F Proxy check", "status": "unavailable"},
+                            {"title": "Csv Fallback check", "status": "stale"}
+                        ],
+                        "providerChain": [
+                            {"provider": "ctrader_spot", "source_type": "spot"},
+                            {"provider": "csv_fallback", "source_type": "local_csv_fallback"}
+                        ]
+                    }
+                }
+            }),
+        )
+        .expect("write status");
+
+        let status = read_monitor_status_for_root(&dir);
+        let ctrader = status
+            .get("activity")
+            .and_then(|value| value.get("ctrader"))
+            .expect("ctrader activity");
+        let jobs = ctrader.get("jobs").and_then(Value::as_array).expect("jobs");
+        let titles: Vec<&str> = jobs
+            .iter()
+            .filter_map(|item| item.get("title").and_then(Value::as_str))
+            .collect();
+        let providers: Vec<&str> = ctrader
+            .get("providerChain")
+            .and_then(Value::as_array)
+            .expect("provider chain")
+            .iter()
+            .filter_map(|item| item.get("provider").and_then(Value::as_str))
+            .collect();
+
+        assert_eq!(
+            ctrader.get("detail").and_then(Value::as_str),
+            Some("Live cTrader spot is unavailable.")
+        );
+        assert_eq!(
+            ctrader.get("fallbackReason").and_then(Value::as_str),
+            Some("")
+        );
+        assert!(!titles.iter().any(|title| title.contains("Csv Fallback")));
+        assert!(titles.contains(&"cTrader spot freshness"));
+        assert!(titles.contains(&"GC=F proxy check"));
+        assert!(!providers.contains(&"csv_fallback"));
+    }
+
+    #[test]
     fn monitor_loop_start_records_status_and_prevents_duplicate() {
         let dir = unique_temp_dir("monitor-start");
 
@@ -4976,6 +6871,8 @@ mod tests {
             }),
         )
         .expect("write status");
+        let stale_mtime = FileTime::from_system_time(SystemTime::now() - Duration::from_secs(180));
+        set_file_mtime(monitor_status_path_for_root(&dir), stale_mtime).expect("age status file");
 
         let status = read_monitor_status_for_root(&dir);
 
@@ -4983,12 +6880,144 @@ mod tests {
         assert_eq!(status.get("phase").and_then(Value::as_str), Some("stopped"));
         assert_eq!(
             status.get("message").and_then(Value::as_str),
-            Some("Monitor loop stopped unexpectedly.")
+            Some("Monitor loop is stopped.")
+        );
+        assert_eq!(status.get("lastError").and_then(Value::as_str), Some(""));
+    }
+
+    #[test]
+    fn monitor_status_normalizes_current_owner_dead_pid() {
+        let dir = unique_temp_dir("monitor-current-owner-dead-pid");
+        write_monitor_status_for_root(
+            &dir,
+            &json!({
+                "ok": true,
+                "available": true,
+                "running": true,
+                "phase": "running",
+                "pid": 99999999,
+                "monitorOwnerPid": std::process::id() as i64,
+                "lastRunAt": null,
+                "nextRunAt": 1779530659,
+                "lastError": "",
+                "message": "Monitor loop is running."
+            }),
+        )
+        .expect("write status");
+        let stale_mtime = FileTime::from_system_time(SystemTime::now() - Duration::from_secs(180));
+        set_file_mtime(monitor_status_path_for_root(&dir), stale_mtime).expect("age status file");
+
+        let status = read_monitor_status_for_root(&dir);
+
+        assert_eq!(status.get("ok").and_then(Value::as_bool), Some(true));
+        assert_eq!(status.get("running").and_then(Value::as_bool), Some(false));
+        assert_eq!(status.get("phase").and_then(Value::as_str), Some("stopped"));
+        assert_eq!(
+            status.get("message").and_then(Value::as_str),
+            Some("Monitor loop is stopped.")
+        );
+        assert_eq!(status.get("lastError").and_then(Value::as_str), Some(""));
+    }
+
+    #[test]
+    fn monitor_status_keeps_fresh_running_pid_without_probing() {
+        let dir = unique_temp_dir("monitor-fresh-pid");
+        write_monitor_status_for_root(
+            &dir,
+            &json!({
+                "ok": true,
+                "available": true,
+                "running": true,
+                "phase": "running",
+                "pid": 99999999,
+                "intervalSeconds": 60,
+                "lastRunAt": null,
+                "nextRunAt": 1,
+                "lastError": "",
+                "message": "Monitor loop is running."
+            }),
+        )
+        .expect("write status");
+
+        let status = read_monitor_status_for_root(&dir);
+
+        assert_eq!(status.get("running").and_then(Value::as_bool), Some(true));
+        assert_eq!(status.get("phase").and_then(Value::as_str), Some("running"));
+        assert_eq!(
+            status.get("message").and_then(Value::as_str),
+            Some("Monitor loop is running.")
+        );
+    }
+
+    #[test]
+    fn monitor_status_marks_activity_stale_when_timeline_has_newer_run() {
+        let dir = unique_temp_dir("monitor-status-timeline-sync");
+        seed_timeline_db(&timeline_path_for_root(&dir));
+        write_monitor_status_for_root(
+            &dir,
+            &json!({
+                "ok": true,
+                "available": true,
+                "running": false,
+                "phase": "stopped",
+                "pid": null,
+                "latestMonitorRunId": 0,
+                "lastRunAt": "2026-05-18T08:00:00+08:00",
+                "lastError": "",
+                "message": "Monitor loop is stopped.",
+                "activity": {
+                    "ctrader": {
+                        "status": "unavailable",
+                        "detail": "Old trace"
+                    }
+                }
+            }),
+        )
+        .expect("write stale status");
+
+        let status = read_monitor_status_for_root(&dir);
+
+        assert_eq!(
+            status.get("latestMonitorRunId").and_then(Value::as_i64),
+            Some(1)
         );
         assert_eq!(
-            status.get("lastError").and_then(Value::as_str),
-            Some("Saved monitor status referenced a process that is no longer running.")
+            status.get("latestStoredRunAt").and_then(Value::as_str),
+            Some("2026-05-19T08:00:00+08:00")
         );
+        assert_eq!(
+            status.get("activityStale").and_then(Value::as_bool),
+            Some(true)
+        );
+        assert_eq!(
+            status.get("lastRunAt").and_then(Value::as_str),
+            Some("2026-05-19T08:00:00+08:00")
+        );
+    }
+
+    #[test]
+    fn running_monitor_without_owner_pid_is_not_reused_when_spawning() {
+        let app_pid = std::process::id() as i64;
+        let current = json!({
+            "running": true,
+            "pid": 99999999,
+            "message": "Monitor loop is already running."
+        });
+
+        assert_eq!(should_reuse_running_monitor(&current, true, app_pid), false);
+    }
+
+    #[test]
+    fn running_monitor_with_matching_owner_pid_is_reused() {
+        let app_pid = std::process::id() as i64;
+        let current = json!({
+            "running": true,
+            "pid": 12345,
+            "monitorOwnerPid": app_pid,
+            "message": "Monitor loop is already running."
+        });
+
+        assert_eq!(should_reuse_running_monitor(&current, true, app_pid), true);
     }
 
     #[test]
@@ -5009,6 +7038,15 @@ mod tests {
                     .to_string()
             )
         );
+    }
+
+    #[test]
+    fn monitor_command_uses_windowless_python_on_windows() {
+        #[cfg(target_os = "windows")]
+        assert_eq!(monitor_python_program(), "pythonw");
+
+        #[cfg(not(target_os = "windows"))]
+        assert_eq!(monitor_python_program(), "python");
     }
 
     #[test]

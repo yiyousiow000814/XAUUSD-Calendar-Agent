@@ -12,6 +12,8 @@ def test_load_calendar_events_in_window_filters_by_anchor(tmp_path) -> None:
         json.dumps(
             [
                 {"Date": "2026-05-19", "Time": "07:00", "Currency": "USD", "Event": "CPI", "Imp.": "High"},
+                {"Date": "2026-05-19", "Time": "07:10", "Currency": "BHD", "Event": "Eid al-Adha", "Imp.": "Holiday"},
+                {"Date": "2026-05-19", "Time": "07:20", "Currency": "NZD", "Event": "Low noise event", "Imp.": "Low"},
                 {"Date": "2026-05-19", "Time": "12:00", "Currency": "USD", "Event": "Fed Speech", "Imp.": "High"},
             ]
         ),

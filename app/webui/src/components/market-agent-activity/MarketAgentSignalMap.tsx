@@ -105,6 +105,7 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
         { label: "theme discovery", tone: "ai" },
         { label: "stored", tone: "store" }
       ],
+      history: mergeSections([news?.history]),
       drilldown: mergeSections([news?.drilldown])
     }),
     boardNode({
@@ -274,7 +275,7 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       trace: ["ai-analysis", "output-hub", "storage-bus"],
       detail: "Outputs answer what happened, when it happened, what evidence exists, what is missing, and why Telegram was sent or suppressed.",
       tone: alert?.tone || "working",
-      drilldown: mergeSections([latest?.drilldown, dashboard?.drilldown, replayOutput?.drilldown, alert?.drilldown, telegram?.drilldown])
+      drilldown: mergeSections([latest?.drilldown, dashboard?.drilldown, replayOutput?.drilldown, telegram?.drilldown, alert?.drilldown])
     }),
     boardNode({
       id: "feedback-hub",

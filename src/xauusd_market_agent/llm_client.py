@@ -11,10 +11,10 @@ from typing import Any
 class LocalLLMConfig:
     enabled: bool = os.getenv("LOCAL_LLM_ENABLED", "false").lower() == "true"
     provider: str = os.getenv("LOCAL_LLM_PROVIDER", "ollama")
-    endpoint: str = os.getenv("LOCAL_LLM_ENDPOINT", "http://localhost:11434")
+    endpoint: str = os.getenv("LOCAL_LLM_ENDPOINT", "http://127.0.0.1:21434")
     model: str = os.getenv("LOCAL_LLM_MODEL", "qwen3.5:4b")
-    temperature: float = float(os.getenv("LOCAL_LLM_TEMPERATURE", "0.1"))
-    timeout_seconds: int = int(os.getenv("LOCAL_LLM_TIMEOUT_SECONDS", "20"))
+    temperature: float = float(os.getenv("LOCAL_LLM_TEMPERATURE", "0"))
+    timeout_seconds: int = int(os.getenv("LOCAL_LLM_TIMEOUT_SECONDS", "30"))
     keep_alive: str = os.getenv("LOCAL_LLM_KEEP_ALIVE", "0")
     max_context: int = int(os.getenv("LOCAL_LLM_MAX_CONTEXT", "8192"))
 
@@ -60,7 +60,19 @@ class LocalLLMClient:
     def get_telemetry(self) -> list[dict[str, Any]]:
         return list(self.telemetry)
 
-    def _build_prompt(self, evidence_packet: dict[str, Any]) -> str:
+    def _analysis_schema_prompt(self) -> str:
+        return (
+            "Required JSON object keys: bias, main_driver, secondary_driver, cause_status, confidence, "
+            "is_new_state, is_continuation, previous_state_invalidated, should_notify, notification_level, "
+            "no_news_found, allowed_candidate_drivers_used, rejected_or_blocked_drivers_acknowledged, timeline, "
+            "cross_asset_confirmation, evidence_status, causal_chain, invalidation_conditions, user_message, summary. "
+            "For insufficient or context-only evidence use bias=neutral, main_driver=unknown, secondary_driver=null, "
+            "cause_status=unconfirmed, confidence=low, should_notify=false, notification_level=none. "
+            "cross_asset_confirmation must contain dxy, us10y, us2y, oil, vix_equities. "
+            "evidence_status must contain dxy, us10y, us2y, oil, vix_equities, news."
+        )
+
+    def _build_prompt(self, evidence_packet: dict[str, Any], *, repair: bool = False) -> str:
         compact_packet = {
             "as_of_myt": evidence_packet.get("as_of_myt"),
             "data_mode": evidence_packet.get("data_mode"),
@@ -84,13 +96,39 @@ class LocalLLMClient:
             "If evidence is insufficient, return unknown / insufficient evidence. "
             "Output strict JSON only.",
         )
+        repair_instruction = (
+            "Your previous response was missing required keys or was not valid JSON. Return one complete JSON object only. "
+            if repair
+            else ""
+        )
         return (
-            f"{instructions}\n\n"
+            f"{instructions} {repair_instruction}\n"
+            f"{self._analysis_schema_prompt()}\n\n"
             "Evidence packet JSON:\n"
             f"{json.dumps(compact_packet, ensure_ascii=True, indent=2, sort_keys=True)}"
         )
 
-    def analyze(self, evidence_packet: dict[str, Any]) -> dict[str, Any] | None:
+    def _parse_model_json(self, payload: dict[str, Any]) -> dict[str, Any] | None:
+        candidates = [
+            payload.get("response"),
+            payload.get("thinking"),
+        ]
+        for candidate in candidates:
+            if not isinstance(candidate, str) or not candidate.strip():
+                continue
+            text = candidate.strip()
+            for raw in (text, text[text.find("{") : text.rfind("}") + 1] if "{" in text and "}" in text else ""):
+                if not raw:
+                    continue
+                try:
+                    result = json.loads(raw)
+                except json.JSONDecodeError:
+                    continue
+                if isinstance(result, dict):
+                    return result
+        return None
+
+    def analyze(self, evidence_packet: dict[str, Any], repair: bool = False) -> dict[str, Any] | None:
         if not self.config.enabled:
             return None
         started_at = perf_counter()
@@ -101,7 +139,7 @@ class LocalLLMClient:
                 f"{self.config.endpoint.rstrip('/')}/api/generate",
                 json={
                     "model": self.config.model,
-                    "prompt": self._build_prompt(evidence_packet),
+                    "prompt": self._build_prompt(evidence_packet, repair=repair),
                     "stream": False,
                     "format": "json",
                     "options": {
@@ -114,8 +152,8 @@ class LocalLLMClient:
             )
             response.raise_for_status()
             payload = response.json()
-            if isinstance(payload.get("response"), str):
-                result = json.loads(payload["response"])
+            result = self._parse_model_json(payload)
+            if result is not None:
                 self._record_telemetry(task="cause_review", started_at=started_at, payload=payload)
                 return result
             self._record_telemetry(task="cause_review", started_at=started_at, payload=payload, status="invalid")

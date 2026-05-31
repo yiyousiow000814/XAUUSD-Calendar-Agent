@@ -68,6 +68,7 @@ def _live_router(related_path=None, calendar_dir=None) -> ProviderRouter:
         csv_related_assets_path=related_path,
         csv_calendar_dir=calendar_dir,
         yahoo_enabled=False,
+        csv_fallback_enabled=related_path is not None,
     )
 
 

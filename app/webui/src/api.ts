@@ -7,6 +7,8 @@ import type {
   MarketAgentLLMActionResponse,
   MarketAgentLLMConfigInput,
   MarketAgentLLMConfigResponse,
+  MarketAgentRuntimeInspectResponse,
+  MarketAgentLiveQuoteResponse,
   MarketAgentLLMSetupResponse,
   MarketAgentMonitorStatusResponse,
   MarketAgentOllamaPullProgress,
@@ -53,12 +55,13 @@ type BackendApi = {
   get_market_agent_replay?: (payload: { start: string; end: string }) => ApiResult<MarketAgentReplayResponse>;
   get_market_agent_timeline?: (payload: { start: string; end: string }) => ApiResult<MarketAgentTimelineResponse>;
   get_market_agent_provider_health?: (_payload: Record<string, never>) => ApiResult<MarketAgentProviderHealthResponse>;
+  inspect_market_agent_runtime?: (_payload: Record<string, never>) => ApiResult<MarketAgentRuntimeInspectResponse>;
   get_market_agent_provider_config?: (_payload: Record<string, never>) => ApiResult<MarketAgentProviderConfigResponse>;
   get_market_agent_driver_attention?: (_payload: Record<string, never>) => ApiResult<MarketAgentDriverAttentionResponse>;
   get_market_agent_evidence_for_run?: (payload: { monitorRunId: number }) => ApiResult<MarketAgentEvidenceForRunResponse>;
   get_market_agent_state_transitions?: (payload: { start: string; end: string }) => ApiResult<MarketAgentStateTransitionsResponse>;
   get_market_agent_suppressed_alerts?: (payload: { start: string; end: string }) => ApiResult<MarketAgentSuppressedAlertsResponse>;
-  get_market_agent_monitor_status?: (_payload: Record<string, never>) => ApiResult<MarketAgentMonitorStatusResponse>;
+  get_market_agent_monitor_status?: (payload: { includeActivity?: boolean }) => ApiResult<MarketAgentMonitorStatusResponse>;
   run_market_agent_monitor_once?: (_payload: Record<string, never>) => ApiResult<MarketAgentMonitorStatusResponse>;
   run_market_agent_backfill_recovery?: (_payload: Record<string, never>) => ApiResult<MarketAgentMonitorStatusResponse>;
   start_market_agent_monitor_loop?: (payload: { intervalSeconds: number }) => ApiResult<MarketAgentMonitorStatusResponse>;
@@ -79,6 +82,9 @@ type BackendApi = {
   test_ctrader_connection?: (payload: { ctrader: MarketAgentProviderConfigInput }) => ApiResult<MarketAgentProviderActionResponse>;
   resolve_ctrader_symbol?: (payload: { ctrader: MarketAgentProviderConfigInput }) => ApiResult<MarketAgentProviderActionResponse>;
   get_ctrader_quote_test?: (payload: { ctrader: MarketAgentProviderConfigInput }) => ApiResult<MarketAgentProviderActionResponse>;
+  ensure_market_agent_live_quote_stream?: (_payload: Record<string, never>) => ApiResult<MarketAgentLiveQuoteResponse>;
+  get_market_agent_live_quote?: (_payload: Record<string, never>) => ApiResult<MarketAgentLiveQuoteResponse>;
+  stop_market_agent_live_quote_stream?: (_payload: Record<string, never>) => ApiResult<MarketAgentLiveQuoteResponse>;
   start_ctrader_connect?: (payload: { ctrader: MarketAgentProviderConfigInput }) => ApiResult<MarketAgentCTraderAuthResponse>;
   test_ctrader_backfill?: (payload: { ctrader: MarketAgentProviderConfigInput }) => ApiResult<MarketAgentProviderActionResponse>;
   clear_ctrader_config?: (_payload: Record<string, never>) => ApiResult<MarketAgentProviderConfigResponse>;
@@ -544,10 +550,23 @@ const buildMockMarketAgentReplay = (): MarketAgentReplayResponse => ({
         title: "Fed headline pressures yields",
         source: "Reuters",
         published_at: "2026-05-19T08:03:00+08:00",
+        first_seen_at: "2026-05-19T08:04:00+08:00",
         included: true,
         data_mode: "backfilled",
         semantic_type: "news",
         impact_percent: -0.21
+      },
+      {
+        title: "Fed headline pressures yields",
+        source: "Reuters",
+        published_at: "2026-05-19T08:03:00+08:00",
+        first_seen_at: "2026-05-19T08:18:00+08:00",
+        included: true,
+        data_mode: "backfilled",
+        semantic_type: "news",
+        impact_percent: -0.21,
+        summary: "Repeated mock headline should render once in Activity History.",
+        summary_source: "Local AI"
       }
     ],
     calendar_events: [
@@ -698,7 +717,7 @@ const buildMockMarketAgentProviderConfig = (): MarketAgentProviderConfigResponse
     snapshotPath: "user-data/ctrader-last-quote.json",
     quoteTimeoutSeconds: 8,
     quoteStaleAfterSeconds: 15,
-    allowSavedSnapshotFallback: true,
+    allowSavedSnapshotFallback: false,
     configPath: "user-data/ctrader-cli.json"
   }
 });
@@ -745,8 +764,8 @@ const buildMockMarketAgentLLMConfig = (): MarketAgentLLMConfigResponse => ({
     provider: "ollama",
     endpoint: "http://127.0.0.1:21434",
     model: "qwen3.5:4b",
-    temperature: 0.1,
-    timeoutSeconds: 20,
+    temperature: 0,
+    timeoutSeconds: 30,
     keepAlive: "0",
     maxContext: 8192,
     configPath: "user-data/market-agent-llm.json",
@@ -760,8 +779,8 @@ const buildMockMarketAgentLLMSetup = (
 ): MarketAgentLLMSetupResponse => ({
   ok: true,
   available: true,
-  status: "model_missing",
-  message: "Recommended model is missing.",
+  status: "model_ready",
+  message: "Recommended model is installed.",
   system: {
     os: "windows",
     arch: "x86_64",
@@ -780,7 +799,7 @@ const buildMockMarketAgentLLMSetup = (
     endpoint: "http://127.0.0.1:21434",
     version: "0.9.0"
   },
-  installedModels: [],
+  installedModels: [{ name: "qwen3.5:4b", model: "qwen3.5:4b", size: 3_389_971_840, source: "ollama_runtime" }],
   recommendedModel: {
     name: "qwen3.5:4b",
     tier: "balanced",
@@ -789,7 +808,7 @@ const buildMockMarketAgentLLMSetup = (
     diskLabel: "~2.9 GB",
     reason: "NVIDIA GPU with 8GB VRAM or better can use the balanced model for fast JSON."
   },
-  profiles: [],
+  profiles: [{ name: "qwen3.5:4b", diskLabel: "~2.9 GB" }],
   fallbackChain: ["qwen3.5:4b", "qwen3.5:2b", "qwen3.5:0.8b", "rule-based-only"],
   ruleBasedActive: true,
   llm: buildMockMarketAgentLLMConfig().llm ?? null,
@@ -1272,6 +1291,15 @@ let mockMarketAgentMonitorStatus: MarketAgentMonitorStatusResponse = {
   }
 };
 
+const monitorStatusForMode = (
+  status: MarketAgentMonitorStatusResponse,
+  includeActivity = false
+): MarketAgentMonitorStatusResponse => {
+  if (includeActivity) return status;
+  const { activity: _activity, ...lightweight } = status;
+  return lightweight;
+};
+
 const withApi = async () => desktopApiRef();
 
 const hasMethod = (api: BackendApi | null, key: keyof BackendApi) =>
@@ -1688,6 +1716,135 @@ export const backend = {
     }
     return api.get_market_agent_provider_health({});
   },
+  inspectMarketAgentRuntime: async (): ApiResult<MarketAgentRuntimeInspectResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve({
+        ok: true,
+        available: true,
+        runtime_verdict: "live_ok",
+        summary: "Runtime is receiving a fresh cTrader XAUUSD quote.",
+        live_quote: {
+          ok: true,
+          running: true,
+          phase: "running",
+          message: "Live quote stream is running.",
+          quote: {
+            symbol: "XAUUSD",
+            bid: 4512.34,
+            ask: 4512.72,
+            mid: 4512.53,
+            timestamp: "2026-05-19T10:15:23+08:00",
+            source: "cTrader",
+            source_type: "spot"
+          },
+          provider_health: {
+            provider_key: "xauusd",
+            source: "cTrader",
+            source_type: "spot",
+            data_mode: "live_seen",
+            is_available: true,
+            is_stale: false,
+            current_value: 4512.53,
+            data_timestamp: "2026-05-19T10:15:23+08:00",
+            fetched_at: "2026-05-19T10:15:23+08:00"
+          },
+          status: { running: true, phase: "running" }
+        },
+        mismatches: []
+      });
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "inspect_market_agent_runtime")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve({
+        ok: false,
+        available: false,
+        message: "Runtime inspect unavailable.",
+        mismatches: []
+      });
+    }
+    return api.inspect_market_agent_runtime({});
+  },
+  ensureMarketAgentLiveQuoteStream: async (): ApiResult<MarketAgentLiveQuoteResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve({
+        ok: true,
+        running: true,
+        phase: "running",
+        message: "Live quote stream is running.",
+        quote: {
+          symbol: "XAUUSD",
+          bid: 4512.34,
+          ask: 4512.72,
+          mid: 4512.53,
+          timestamp: "2026-05-19T10:15:23+08:00",
+          source: "cTrader",
+          source_type: "spot"
+        },
+        provider_health: {
+          provider_key: "xauusd",
+          source: "cTrader",
+          source_type: "spot",
+          data_mode: "live_seen",
+          is_available: true,
+          is_stale: false,
+          current_value: 4512.53,
+          data_timestamp: "2026-05-19T10:15:23+08:00",
+          fetched_at: "2026-05-19T10:15:23+08:00"
+        },
+        status: { running: true, phase: "running" }
+      });
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "ensure_market_agent_live_quote_stream")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve({ ok: false, running: false, phase: "stopped", message: "Live quote stream unavailable." });
+    }
+    return api.ensure_market_agent_live_quote_stream({});
+  },
+  getMarketAgentLiveQuote: async (): ApiResult<MarketAgentLiveQuoteResponse> => {
+    if (isUiCheckRuntime()) {
+      return Promise.resolve({
+        ok: true,
+        running: true,
+        phase: "running",
+        message: "Live quote stream is running.",
+        quote: {
+          symbol: "XAUUSD",
+          bid: 4512.34,
+          ask: 4512.72,
+          mid: 4512.53,
+          timestamp: "2026-05-19T10:15:23+08:00",
+          source: "cTrader",
+          source_type: "spot"
+        },
+        provider_health: {
+          provider_key: "xauusd",
+          source: "cTrader",
+          source_type: "spot",
+          data_mode: "live_seen",
+          is_available: true,
+          is_stale: false,
+          current_value: 4512.53,
+          data_timestamp: "2026-05-19T10:15:23+08:00",
+          fetched_at: "2026-05-19T10:15:23+08:00"
+        },
+        status: { running: true, phase: "running" }
+      });
+    }
+    const api = await withApi();
+    if (!api || !hasMethod(api, "get_market_agent_live_quote")) {
+      if (isWebview() && !isUiCheckRuntime()) {
+        throw new Error("Desktop backend unavailable");
+      }
+      return Promise.resolve({ ok: false, running: false, phase: "stopped", message: "Live quote stream unavailable." });
+    }
+    return api.get_market_agent_live_quote({});
+  },
   getMarketAgentProviderConfig: async (): ApiResult<MarketAgentProviderConfigResponse> => {
     if (isUiCheckRuntime()) {
       return Promise.resolve(buildMockMarketAgentProviderConfig());
@@ -1779,18 +1936,19 @@ export const backend = {
     }
     return api.get_market_agent_suppressed_alerts({ start, end });
   },
-  getMarketAgentMonitorStatus: async (): ApiResult<MarketAgentMonitorStatusResponse> => {
+  getMarketAgentMonitorStatus: async (options?: { includeActivity?: boolean }): ApiResult<MarketAgentMonitorStatusResponse> => {
+    const includeActivity = Boolean(options?.includeActivity);
     if (isUiCheckRuntime()) {
-      return Promise.resolve(mockMarketAgentMonitorStatus);
+      return Promise.resolve(monitorStatusForMode(mockMarketAgentMonitorStatus, includeActivity));
     }
     const api = await withApi();
     if (!api || !hasMethod(api, "get_market_agent_monitor_status")) {
       if (isWebview() && !isUiCheckRuntime()) {
         throw new Error("Desktop backend unavailable");
       }
-      return Promise.resolve(mockMarketAgentMonitorStatus);
+      return Promise.resolve(monitorStatusForMode(mockMarketAgentMonitorStatus, includeActivity));
     }
-    return api.get_market_agent_monitor_status({});
+    return api.get_market_agent_monitor_status({ includeActivity });
   },
   runMarketAgentMonitorOnce: async (): ApiResult<MarketAgentMonitorStatusResponse> => {
     if (isUiCheckRuntime()) {
@@ -2099,8 +2257,8 @@ export const backend = {
     if (isUiCheckRuntime()) {
       return Promise.resolve({
         ok: true,
-        status: "preparing_live_feed",
-        message: "cTrader is connected. Preparing live XAUUSD and syncing history in the background.",
+        status: "starting_live_stream",
+        message: "cTrader account is connected. The live stream is starting and waiting for the first fresh XAUUSD snapshot.",
         ctrader: buildMockMarketAgentProviderConfig().ctrader ?? null
       });
     }

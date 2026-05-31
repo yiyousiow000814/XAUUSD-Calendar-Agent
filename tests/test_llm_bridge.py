@@ -20,8 +20,8 @@ def test_llm_bridge_connection_reports_model_missing(monkeypatch) -> None:
     class FakeRequests:
         @staticmethod
         def get(url, timeout):
-            assert url == "http://localhost:11434/api/tags"
-            assert timeout == 20
+            assert url == "http://127.0.0.1:21434/api/tags"
+            assert timeout == 30
             return FakeResponse({"models": [{"name": "other:latest"}]})
 
     monkeypatch.setitem(__import__("sys").modules, "requests", FakeRequests)
@@ -31,6 +31,25 @@ def test_llm_bridge_connection_reports_model_missing(monkeypatch) -> None:
 
     assert result["ok"] is False
     assert result["status"] == "model_missing"
+
+
+def test_llm_bridge_empty_model_list_reports_model_missing(monkeypatch) -> None:
+    class FakeRequests:
+        @staticmethod
+        def get(url, timeout):
+            assert url == "http://127.0.0.1:21434/api/tags"
+            assert timeout == 30
+            return FakeResponse({"models": []})
+
+    monkeypatch.setitem(__import__("sys").modules, "requests", FakeRequests)
+
+    config = llm_bridge._config_from_payload({})
+    result = llm_bridge.test_connection(config)
+
+    assert config.endpoint == "http://127.0.0.1:21434"
+    assert result["ok"] is False
+    assert result["status"] == "model_missing"
+    assert "qwen3.5:4b" in result["error"]
 
 
 def test_llm_bridge_json_response_reports_invalid_json(monkeypatch) -> None:

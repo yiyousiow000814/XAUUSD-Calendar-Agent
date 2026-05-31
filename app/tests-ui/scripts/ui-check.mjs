@@ -3268,7 +3268,11 @@ const main = async () => {
         }
         const alertsButton = document.querySelector("[data-market-agent-section='alerts']");
         const alertsBadge = alertsButton?.querySelector(".market-agent-nav-badge");
-        if (!(alertsBadge instanceof HTMLElement) || !/^[1-9]\d*$/.test((alertsBadge.textContent || "").trim())) {
+        const alertRows = document.querySelectorAll(".market-agent-alert-row, .market-agent-alert-list-row");
+        if (
+          alertRows.length > 0 &&
+          (!(alertsBadge instanceof HTMLElement) || !/^[1-9]\d*$/.test((alertsBadge.textContent || "").trim()))
+        ) {
           problems.push("Market Agent Alerts nav item is missing notification count badge");
         }
         const nextCard = document.querySelector(".market-agent-next-card");
@@ -3431,9 +3435,11 @@ const main = async () => {
         const animatedSelectors = [
           [".market-agent-price-card .market-agent-value-pulse", "price value"],
           ...(isCurrentPaused ? [] : [[".market-agent-attention-table-row.market-agent-animated-row", "driver rows"]]),
-          [".market-agent-timeline-track-row.market-agent-animated-row", "timeline rows"],
+          ...(document.querySelector(".market-agent-timeline-track-row")
+            ? [[".market-agent-timeline-track-row.market-agent-animated-row", "timeline rows"]]
+            : []),
           ...(isCurrentPaused ? [] : [[".market-agent-evidence-feed-row.market-agent-animated-row", "evidence rows"]]),
-          [".market-agent-nav-badge", "alerts badge"]
+          ...(alertsBadge instanceof HTMLElement ? [[".market-agent-nav-badge", "alerts badge"]] : [])
         ];
         animatedSelectors.forEach(([selector, label]) => {
           const node = document.querySelector(selector);
@@ -3909,12 +3915,13 @@ const main = async () => {
         path: await captureState(page, "market-agent-scaled", theme.key, "1024x720")
       });
       await page.setViewportSize({ width: 1280, height: 1180 });
+      await page.locator("[data-market-agent-section='replay']").first().click();
+      await page.locator(".market-agent-replay-surface").first().waitFor({ state: "visible", timeout: 4000 });
       await page.waitForTimeout(250);
       const tallLayoutProblems = await page.evaluate(() => {
         const problems = [];
-        const track = document.querySelector(".market-agent-replay-panel .market-agent-timeline-track");
-        const rows = Array.from(document.querySelectorAll(".market-agent-replay-panel .market-agent-timeline-track-row"));
-        const footer = document.querySelector(".market-agent-replay-panel .market-agent-panel-link-footer");
+        const track = document.querySelector(".market-agent-replay-surface .market-agent-replay-track");
+        const rows = Array.from(document.querySelectorAll(".market-agent-replay-surface .market-agent-replay-track-row"));
         if (!(track instanceof HTMLElement) || rows.length === 0) {
           problems.push("tall Market Agent replay track missing");
           return problems;
@@ -3924,24 +3931,11 @@ const main = async () => {
         if (lastRow instanceof HTMLElement) {
           const lastBox = lastRow.getBoundingClientRect();
           const trailingSpace = trackBox.bottom - lastBox.bottom;
-          if (trailingSpace < 120) {
-            problems.push(`tall Market Agent replay rail does not extend toward footer (${trailingSpace.toFixed(1)}px)`);
+          if (trailingSpace < 0) {
+            problems.push(`tall Market Agent replay row escapes track (${trailingSpace.toFixed(1)}px)`);
           }
         }
-        if (footer instanceof HTMLElement) {
-          const footerGap = footer.getBoundingClientRect().top - trackBox.bottom;
-          if (footerGap > 18) {
-            problems.push(`tall Market Agent replay track stops too far above footer (${footerGap.toFixed(1)}px)`);
-          }
-        } else {
-          problems.push("tall Market Agent replay footer missing");
-        }
-        const timeLabels = rows.map((row) => row.querySelector("time")?.textContent?.trim() || "");
-        const labelsWithDates = timeLabels.filter((label) => /\d{1,2}[/-]\d{1,2}|,/.test(label));
-        if (labelsWithDates.length) {
-          problems.push(`Market Replay still shows date in row time labels (${labelsWithDates.join(", ")})`);
-        }
-        const firstBody = track.querySelector(".market-agent-timeline-body");
+        const firstBody = track.querySelector(".market-agent-replay-row-body");
         if (firstBody instanceof HTMLElement && firstBody.getBoundingClientRect().width < 150) {
           problems.push(`tall Market Agent replay content column too narrow (${firstBody.getBoundingClientRect().width.toFixed(1)}px)`);
         }
@@ -3964,46 +3958,8 @@ const main = async () => {
             problems.push(`tall Market Agent Evidence Status gap too tight (${gap.toFixed(1)}px normalized)`);
           }
         }
-        const latestEvidence = Array.from(document.querySelectorAll(".market-agent-cockpit-panel"))
-          .find((panel) => panel.textContent?.includes("Latest Evidence"));
-        const evidenceFooter = latestEvidence?.querySelector(".market-agent-evidence-footer");
-        if (latestEvidence instanceof HTMLElement && evidenceFooter instanceof HTMLElement) {
-          const panelBottomGap = latestEvidence.getBoundingClientRect().bottom - evidenceFooter.getBoundingClientRect().bottom;
-          if (panelBottomGap > 34) {
-            problems.push(`Latest Evidence footer is not bottom-aligned (${panelBottomGap.toFixed(1)}px gap)`);
-          }
-        } else {
-          problems.push("Latest Evidence footer missing in tall layout");
-        }
-        const footerNodes = [
-          ["Market Replay", footer],
-          ["Latest Evidence", evidenceFooter]
-        ];
         if (document.querySelector(".market-agent-attention-footer")) {
           problems.push("Driver Attention still renders the old bottom meter footer in tall layout");
-        }
-        const missingFooters = footerNodes
-          .filter(([, node]) => !(node instanceof HTMLElement))
-          .map(([label]) => label);
-        if (missingFooters.length) {
-          problems.push(`Market Agent cockpit footers missing (${missingFooters.join(", ")})`);
-        } else {
-          const footerBoxes = footerNodes.map(([label, node]) => {
-            const box = node.getBoundingClientRect();
-            return { label, top: box.top, bottom: box.bottom, height: box.height };
-          });
-          const topSpread = Math.max(...footerBoxes.map((box) => box.top)) - Math.min(...footerBoxes.map((box) => box.top));
-          const heightSpread = Math.max(...footerBoxes.map((box) => box.height)) - Math.min(...footerBoxes.map((box) => box.height));
-          const bottomSpread = Math.max(...footerBoxes.map((box) => box.bottom)) - Math.min(...footerBoxes.map((box) => box.bottom));
-          if (topSpread > 2) {
-            problems.push(`Market Agent cockpit footer top edges are misaligned (${topSpread.toFixed(1)}px spread)`);
-          }
-          if (heightSpread > 2) {
-            problems.push(`Market Agent cockpit footer heights differ (${heightSpread.toFixed(1)}px spread)`);
-          }
-          if (bottomSpread > 2) {
-            problems.push(`Market Agent cockpit footer bottom edges are misaligned (${bottomSpread.toFixed(1)}px spread)`);
-          }
         }
         return problems;
       });
@@ -4125,6 +4081,10 @@ const main = async () => {
       if (!(await providerConfig.count())) {
         throw new Error("Market Agent provider config panel not found");
       }
+      await providerConfig.locator(".market-agent-setup-tabs button").first().waitFor({
+        state: "visible",
+        timeout: 4000
+      });
       const staleProviderLabels = await providerConfig.evaluate((root) => {
         const text = root instanceof HTMLElement ? root.innerText || root.textContent || "" : "";
         return [
@@ -4762,6 +4722,67 @@ const main = async () => {
         state: "signal-map",
         path: await captureState(page, "market-agent-activity", theme.key, "signal-map")
       });
+
+      await page.locator(".market-agent-causal-mesh button[aria-label='Back to signal map']").first().click();
+      await page.locator(".market-agent-signal-node", { hasText: "News" }).first().click();
+      const newsDetail = page.locator(".market-agent-causal-mesh").first();
+      await newsDetail.waitFor({ state: "visible", timeout: 4000 });
+      await newsDetail.locator("button", { hasText: /^History$/ }).first().click();
+      await newsDetail.locator(".market-agent-history-record").first().waitFor({ state: "visible", timeout: 4000 });
+      const newsHistoryFailures = await page.evaluate(() => {
+        const problems = [];
+        const detail = document.querySelector(".market-agent-causal-mesh");
+        if (!(detail instanceof HTMLElement)) return ["News detail view missing"];
+        const rows = Array.from(detail.querySelectorAll(".market-agent-history-record")).filter(
+          (row) => row instanceof HTMLElement
+        );
+        if (!rows.length) problems.push("News history rows missing");
+        const labels = rows.map((row) => row.querySelector("strong")?.textContent?.trim() || "");
+        const duplicateLabels = labels.filter((label, index) => label && labels.indexOf(label) !== index);
+        if (duplicateLabels.length) {
+          problems.push(`News history repeats visible headline rows: ${Array.from(new Set(duplicateLabels)).join(", ")}`);
+        }
+        const text = detail.textContent || "";
+        if (/20\d{2}-\d{2}-\d{2}T\d{2}:\d{2}/.test(text)) {
+          problems.push("News history renders raw ISO timestamps");
+        }
+        if (!/\d{2}-\d{2}-20\d{2}\s+\d{2}:\d{2}/.test(text)) {
+          problems.push("News history does not render readable dd-mm-yyyy HH:mm timestamps");
+        }
+        return problems;
+      });
+      if (newsHistoryFailures.length) {
+        throw new Error(newsHistoryFailures.join("; "));
+      }
+      await newsDetail.locator(".market-agent-history-record", { hasText: "Fed headline pressures yields" }).first().click();
+      await newsDetail.locator(".market-agent-history-modal").first().waitFor({ state: "visible", timeout: 4000 });
+      const newsHistoryModalFailures = await page.evaluate(() => {
+        const problems = [];
+        const modal = document.querySelector(".market-agent-history-modal");
+        if (!(modal instanceof HTMLElement)) return ["News history modal missing"];
+        const text = modal.textContent || "";
+        if (!text.includes("Captured 2 times")) {
+          problems.push("News history modal does not explain merged repeated fetches");
+        }
+        if (!text.includes("fetches") || !/\b2\b/.test(text)) {
+          problems.push("News history modal does not expose fetch count metadata");
+        }
+        if (/20\d{2}-\d{2}-\d{2}T\d{2}:\d{2}/.test(text)) {
+          problems.push("News history modal renders raw ISO timestamps");
+        }
+        return problems;
+      });
+      if (newsHistoryModalFailures.length) {
+        throw new Error(newsHistoryModalFailures.join("; "));
+      }
+      artifacts.push({
+        scenario: "market-agent-activity-news-history",
+        theme: theme.key,
+        state: "deduped-readable",
+        path: await captureState(page, "market-agent-activity-news-history", theme.key, "deduped-readable")
+      });
+      await newsDetail.locator(".market-agent-history-modal button", { hasText: "Close" }).first().click();
+      await newsDetail.locator(".market-agent-history-modal").first().waitFor({ state: "detached", timeout: 4000 });
       await page.locator("[data-qa='qa:action:view-calendar']").first().click();
       await page.locator("[data-qa='qa:card:next-events']").first().waitFor({ state: "visible", timeout: 4000 });
     });

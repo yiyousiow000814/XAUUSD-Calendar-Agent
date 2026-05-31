@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import asdict
+from datetime import datetime, timezone
 import json
 import sqlite3
 from pathlib import Path
 from typing import Any
 
 from .models import DriverAttentionState
+from .providers.calendar_events import is_market_agent_calendar_row
 
 
 class TimelineStore:
@@ -183,6 +185,110 @@ class TimelineStore:
 
     def _rows_to_payloads(self, rows: list[sqlite3.Row]) -> list[dict[str, Any]]:
         return [json.loads(str(row["payload_json"])) for row in rows]
+
+    @staticmethod
+    def _normalize_news_key_part(value: Any) -> str:
+        return " ".join(str(value or "").strip().casefold().split())
+
+    @classmethod
+    def _news_dedupe_key(cls, item: dict[str, Any], fallback_index: int) -> tuple[str, str, str, str]:
+        title = cls._normalize_news_key_part(item.get("title") or item.get("summary_title"))
+        source = cls._normalize_news_key_part(item.get("source"))
+        published_at = str(item.get("published_at") or "").strip()
+        link = cls._normalize_news_key_part(item.get("link"))
+        if not title and not link:
+            return ("row", str(fallback_index), "", "")
+        return (title, source, published_at, link)
+
+    @staticmethod
+    def _parse_timestamp(value: Any) -> datetime | None:
+        if not isinstance(value, str) or not value.strip():
+            return None
+        text = value.strip()
+        if text.endswith("Z"):
+            text = f"{text[:-1]}+00:00"
+        try:
+            parsed = datetime.fromisoformat(text)
+        except ValueError:
+            return None
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        return parsed.astimezone(timezone.utc)
+
+    @classmethod
+    def _timestamp_score(cls, value: Any) -> tuple[int, float, str]:
+        parsed = cls._parse_timestamp(value)
+        if parsed is None:
+            return (0, 0.0, str(value or ""))
+        return (1, parsed.timestamp(), str(value or ""))
+
+    @classmethod
+    def _news_seen_at(cls, item: dict[str, Any]) -> str:
+        for key in ("fetched_at", "first_seen_at", "backfilled_at", "published_at"):
+            value = item.get(key)
+            if value is not None and str(value).strip():
+                return str(value).strip()
+        return ""
+
+    @classmethod
+    def _news_item_preference(cls, item: dict[str, Any]) -> tuple[int, int, int, float, str]:
+        has_summary = any(
+            str(item.get(key) or "").strip()
+            for key in ("summary", "short_summary", "summary_source", "ai_summary_source")
+        )
+        review_status = str(item.get("review_status") or "").casefold()
+        included = item.get("included") is True or "included" in review_status
+        seen_score = cls._timestamp_score(cls._news_seen_at(item))
+        return (1 if has_summary else 0, 1 if included else 0, seen_score[0], seen_score[1], seen_score[2])
+
+    @classmethod
+    def _dedupe_news_items(cls, items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        groups: dict[tuple[str, str, str, str], list[dict[str, Any]]] = {}
+        order: list[tuple[str, str, str, str]] = []
+        for index, item in enumerate(items):
+            key = cls._news_dedupe_key(item, index)
+            if key not in groups:
+                groups[key] = []
+                order.append(key)
+            groups[key].append(item)
+
+        merged_items: list[dict[str, Any]] = []
+        for key in order:
+            group = groups[key]
+            best = dict(max(group, key=cls._news_item_preference))
+            seen_pairs = [(cls._timestamp_score(cls._news_seen_at(item)), cls._news_seen_at(item)) for item in group]
+            valid_seen_pairs = [pair for pair in seen_pairs if pair[1]]
+            first_seen_at = min(valid_seen_pairs, key=lambda pair: pair[0])[1] if valid_seen_pairs else ""
+            last_seen_at = max(valid_seen_pairs, key=lambda pair: pair[0])[1] if valid_seen_pairs else ""
+            monitor_run_ids = sorted(
+                {
+                    int(run_id)
+                    for item in group
+                    for run_id in [item.get("monitor_run_id")]
+                    if isinstance(run_id, int)
+                }
+            )
+            storage_row_ids = sorted(
+                {
+                    int(row_id)
+                    for item in group
+                    for row_id in [item.get("storage_row_id")]
+                    if isinstance(row_id, int)
+                }
+            )
+            if first_seen_at:
+                best["first_seen_at"] = first_seen_at
+            if last_seen_at:
+                best["last_seen_at"] = last_seen_at
+                best["fetched_at"] = last_seen_at
+            best["seen_count"] = len(group)
+            best["duplicate_count"] = max(0, len(group) - 1)
+            if monitor_run_ids:
+                best["monitor_run_ids"] = monitor_run_ids
+            if storage_row_ids:
+                best["storage_row_ids"] = storage_row_ids
+            merged_items.append(best)
+        return merged_items
 
     def get_last_successful_run_at(self) -> str | None:
         with self._connect() as connection:
@@ -694,14 +800,20 @@ class TimelineStore:
         with self._connect() as connection:
             rows = connection.execute(
                 """
-                SELECT payload_json
+                SELECT id, monitor_run_id, payload_json
                 FROM news_items
                 WHERE published_at >= ? AND published_at <= ?
                 ORDER BY published_at, id
                 """,
                 (start, end),
             ).fetchall()
-        return self._rows_to_payloads(rows)
+        items: list[dict[str, Any]] = []
+        for row in rows:
+            payload = json.loads(str(row["payload_json"]))
+            payload.setdefault("monitor_run_id", int(row["monitor_run_id"]))
+            payload.setdefault("storage_row_id", int(row["id"]))
+            items.append(payload)
+        return self._dedupe_news_items(items)
 
     def get_calendar_events(self, start: str, end: str) -> list[dict[str, Any]]:
         with self._connect() as connection:
@@ -759,6 +871,8 @@ class TimelineStore:
                 for item in payload:
                     if not isinstance(item, dict):
                         continue
+                    if not is_market_agent_calendar_row(item):
+                        continue
                     date = self._calendar_text(item, "Date")
                     time = self._calendar_text(item, "Time")
                     title = self._calendar_text(item, "Event")
@@ -808,9 +922,25 @@ class TimelineStore:
                 FROM driver_attention_states
                 INNER JOIN monitor_runs ON monitor_runs.id = driver_attention_states.monitor_run_id
                 WHERE monitor_runs.run_started_at >= ? AND monitor_runs.run_started_at <= ?
+                  AND NOT (
+                    driver_attention_states.driver_id LIKE 'theme:%'
+                    AND COALESCE(
+                        (
+                            SELECT latest_states.current_state
+                            FROM driver_attention_states AS latest_states
+                            INNER JOIN monitor_runs AS latest_runs
+                                ON latest_runs.id = latest_states.monitor_run_id
+                            WHERE latest_states.driver_id = driver_attention_states.driver_id
+                              AND latest_runs.run_started_at <= ?
+                            ORDER BY latest_runs.run_started_at DESC, latest_states.id DESC
+                            LIMIT 1
+                        ),
+                        driver_attention_states.current_state
+                    ) = 'retired'
+                  )
                 ORDER BY monitor_runs.run_started_at, driver_attention_states.id
                 """,
-                (start, end),
+                (start, end, end),
             ).fetchall()
         return self._rows_to_payloads(rows)
 

@@ -31,6 +31,16 @@ def _status_path_from_env(status_path: Path | None = None) -> Path | None:
     return Path(raw) if raw else None
 
 
+def _monitor_owner_pid_from_env() -> int | None:
+    raw = os.getenv("MARKET_AGENT_MONITOR_OWNER_PID", "").strip()
+    if not raw:
+        return None
+    try:
+        return int(raw)
+    except ValueError:
+        return None
+
+
 def _read_monitor_status(path: Path) -> dict[str, Any]:
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
@@ -50,6 +60,7 @@ def _write_monitor_status(status_path: Path | None, **updates: Any) -> None:
         "running": False,
         "phase": "stopped",
         "pid": os.getpid(),
+        "monitorOwnerPid": _monitor_owner_pid_from_env(),
         "lastError": "",
         "message": "Monitor loop is stopped.",
         **current,
@@ -150,6 +161,14 @@ def _count_by_symbol(rows: list[dict[str, Any]]) -> dict[str, int]:
     return counts
 
 
+def _included_news_rows(rows: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
+    return [row for row in rows or [] if row.get("included", True)]
+
+
+def _included_news_count(rows: list[dict[str, Any]] | None) -> int:
+    return len(_included_news_rows(rows))
+
+
 def _health_job_status(health: ProviderHealth | None) -> str:
     if health is None:
         return "waiting"
@@ -162,6 +181,11 @@ def _health_job_status(health: ProviderHealth | None) -> str:
 
 def _provider_chain_jobs(chain_status: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
     jobs: list[dict[str, Any]] = []
+    provider_labels = {
+        "ctrader_spot": "cTrader spot freshness",
+        "yahoo_gc_f_proxy": "GC=F proxy check",
+        "csv_fallback": "CSV import check",
+    }
     for item in chain_status or []:
         provider = str(item.get("provider", "provider"))
         source = str(item.get("source", "") or provider)
@@ -170,7 +194,7 @@ def _provider_chain_jobs(chain_status: list[dict[str, Any]] | None) -> list[dict
         reason = str(item.get("error", "") or item.get("stale_reason", "") or data_mode or "checked")
         jobs.append(
             _activity_job(
-                f"{provider.replace('_', ' ').title()} check",
+                provider_labels.get(provider, f"{provider.replace('_', ' ').title()} check"),
                 status,
                 reason,
                 input="XAUUSD market provider chain",
@@ -304,10 +328,11 @@ def _context_activity(
 ) -> dict[str, Any]:
     news_rows = news_rows or []
     calendar_rows = calendar_rows or []
+    visible_news_rows = _included_news_rows(news_rows)
     provider_health = provider_health or {}
     news_health = provider_health.get("news")
     calendar_health = provider_health.get("calendar")
-    latest_news_at = _latest_value(news_rows, "published_at")
+    latest_news_at = _latest_value(visible_news_rows, "published_at")
     latest_calendar_at = _latest_value(calendar_rows, "scheduled_at")
     detail = f"{news_count} headlines and {calendar_count} calendar events collected."
     return {
@@ -316,10 +341,10 @@ def _context_activity(
         "detail": detail,
         "newsCount": news_count,
         "calendarCount": calendar_count,
-        "sources": _unique_strings([*_compact_sources(news_rows), *_compact_sources(calendar_rows)]),
+        "sources": _unique_strings([*_compact_sources(visible_news_rows), *_compact_sources(calendar_rows)]),
         "latestNewsAt": latest_news_at,
         "latestCalendarAt": latest_calendar_at,
-        "newsSamples": _sample_titles(news_rows, "published_at"),
+        "newsSamples": _sample_titles(visible_news_rows, "published_at"),
         "calendarSamples": _sample_titles(calendar_rows, "scheduled_at"),
         "jobs": [
             _activity_job(
@@ -327,11 +352,11 @@ def _context_activity(
                 _health_job_status(news_health) if news_rows else "collecting",
                 f"{news_count} relevant headline(s) loaded for the current market window.",
                 input="App-managed RSS/news context",
-                output=f"{news_count} headline(s), {len(_compact_sources(news_rows))} source(s)",
+                output=f"{news_count} headline(s), {len(_compact_sources(visible_news_rows))} source(s)",
                 timestamp=latest_news_at,
                 meta={
-                    "sources": _compact_sources(news_rows),
-                    "samples": _sample_titles(news_rows, "published_at"),
+                    "sources": _compact_sources(visible_news_rows),
+                    "samples": _sample_titles(visible_news_rows, "published_at"),
                     "health": _provider_health_payload(news_health),
                 },
             ),
@@ -350,7 +375,7 @@ def _context_activity(
             ),
             _activity_job(
                 "Context fixture",
-                "ready" if news_rows or calendar_rows else "waiting",
+                "ready" if visible_news_rows or calendar_rows else "waiting",
                 "News and calendar rows are normalized into the scenario fixture before evidence and AI review.",
                 input="News rows + calendar rows",
                 output="ScenarioFixture.news and ScenarioFixture.calendar_events",
@@ -1072,13 +1097,14 @@ def _build_runtime_context(
         news_rows.extend(injected)
         news_rows.sort(key=lambda item: item["published_at"])
         if injected:
+            included_rows = _included_news_rows(news_rows)
             news_health = ProviderHealth(
                 **{
                     **asdict(news_health),
-                    "data_mode": news_health.data_mode if news_health.is_available else "live_seen",
-                    "is_available": True,
-                    "current_value": float(len(news_rows)),
-                    "data_timestamp": news_rows[-1]["published_at"],
+                    "data_mode": news_health.data_mode if news_health.is_available else "live_seen" if included_rows else "unavailable",
+                    "is_available": bool(included_rows),
+                    "current_value": float(len(included_rows)),
+                    "data_timestamp": included_rows[-1]["published_at"] if included_rows else anchor_time.isoformat(),
                 }
             )
     fixture = _build_fixture_from_context(
@@ -1369,15 +1395,19 @@ def _suppress_non_live_alert(
     *,
     run_type: str,
     data_mode: str,
+    chain_status: EvidenceChainStatus,
 ) -> Any:
     if not hasattr(analysis, "__dataclass_fields__"):
         return analysis
     if run_type == "live" and data_mode == "live_seen":
         return analysis
-    reason = (
-        "Historical recovery data was stored for replay and evidence only; "
-        "it is not a current alert."
-    )
+    if run_type == "live":
+        reason = chain_status.reason
+    else:
+        reason = (
+            "Historical recovery data was stored for replay and evidence only; "
+            "it is not a current alert."
+        )
     return replace(
         analysis,
         should_notify=False,
@@ -1586,7 +1616,7 @@ def _build_packet(
     dynamic_themes = [
         asdict(state)
         for state in attention_snapshot.states.values()
-        if str(state.driver_id).startswith("theme:")
+        if str(state.driver_id).startswith("theme:") and state.current_state != "retired"
     ]
     requested_sensors = sorted(
         {
@@ -1724,7 +1754,7 @@ def build_live_evidence_packet(
         data_mode=provider_health["xauusd"].data_mode if "xauusd" in provider_health else data_mode,
         market_price_bar_count=len(context.get("market_price_bars", [])),
         related_asset_bar_count=len(context.get("related_asset_bars", [])),
-        news_row_count=len(context.get("news_rows", [])),
+        news_row_count=_included_news_count(context.get("news_rows", [])),
         calendar_row_count=len(context.get("calendar_rows", [])),
         selected_market_provider=context.get("selected_market_provider", "unavailable"),
         provider_chain_status=context.get("provider_chain_status", []),
@@ -1847,7 +1877,7 @@ def run_monitored_live_once(
         message="Checking whether collected inputs form a usable evidence chain.",
         activity=_activity_snapshot(
             provider_health=provider_health,
-            news_count=len(runtime_context.get("news_rows", [])),
+            news_count=_included_news_count(runtime_context.get("news_rows", [])),
             calendar_count=len(runtime_context.get("calendar_rows", [])),
             backfill_required=backfill_required,
             llm_enabled=llm_enabled,
@@ -1888,7 +1918,7 @@ def run_monitored_live_once(
         else "Rule-based analysis is running after the evidence gate.",
         activity=_activity_snapshot(
             provider_health=provider_health,
-            news_count=len(runtime_context.get("news_rows", [])),
+            news_count=_included_news_count(runtime_context.get("news_rows", [])),
             calendar_count=len(runtime_context.get("calendar_rows", [])),
             backfill_required=backfill_required,
             llm_enabled=llm_enabled,
@@ -1927,7 +1957,7 @@ def run_monitored_live_once(
         analysis=analysis,
         market_price_bar_count=len(runtime_context.get("market_price_bars", [])),
         related_asset_bar_count=len(runtime_context.get("related_asset_bars", [])),
-        news_row_count=len(runtime_context.get("news_rows", [])),
+        news_row_count=_included_news_count(runtime_context.get("news_rows", [])),
         calendar_row_count=len(runtime_context.get("calendar_rows", [])),
     )
     analysis = _downgrade_analysis_for_incomplete_chain(analysis, pre_decision_chain_status)
@@ -1940,6 +1970,7 @@ def run_monitored_live_once(
         analysis,
         run_type=run_type,
         data_mode=data_mode,
+        chain_status=pre_decision_chain_status,
     )
     packet = _build_packet(
         fixture,
@@ -1950,7 +1981,7 @@ def run_monitored_live_once(
         analysis=analysis,
         market_price_bar_count=len(runtime_context.get("market_price_bars", [])),
         related_asset_bar_count=len(runtime_context.get("related_asset_bars", [])),
-        news_row_count=len(runtime_context.get("news_rows", [])),
+        news_row_count=_included_news_count(runtime_context.get("news_rows", [])),
         calendar_row_count=len(runtime_context.get("calendar_rows", [])),
         selected_market_provider=runtime_context.get("selected_market_provider", "unavailable"),
         provider_chain_status=runtime_context.get("provider_chain_status", []),
@@ -2011,7 +2042,7 @@ def run_monitored_live_once(
         message="Checking whether this run should notify.",
         activity=_activity_snapshot(
             provider_health=provider_health,
-            news_count=len(runtime_context.get("news_rows", [])),
+            news_count=_included_news_count(runtime_context.get("news_rows", [])),
             calendar_count=len(runtime_context.get("calendar_rows", [])),
             backfill_required=backfill_required,
             llm_enabled=llm_enabled,
@@ -2166,7 +2197,7 @@ def run_monitored_live_once(
     storage_counts = {
         "marketPriceBars": len(runtime_context.get("market_price_bars", [])),
         "relatedAssetBars": len(runtime_context.get("related_asset_bars", [])),
-        "newsItems": len(runtime_context.get("news_rows", [])),
+        "newsItems": _included_news_count(runtime_context.get("news_rows", [])),
         "calendarEvents": len(runtime_context.get("calendar_rows", [])),
         "driverAttentionStates": len(attention_snapshot.states),
         "timelineEvents": 1,
@@ -2183,7 +2214,7 @@ def run_monitored_live_once(
             message="Current live check is stored. Backfilling missed cTrader history for replay.",
             activity=_activity_snapshot(
                 provider_health=provider_health,
-                news_count=len(runtime_context.get("news_rows", [])),
+                news_count=_included_news_count(runtime_context.get("news_rows", [])),
                 calendar_count=len(runtime_context.get("calendar_rows", [])),
                 backfill_required=backfill_required,
                 llm_enabled=llm_enabled,
@@ -2253,7 +2284,7 @@ def run_monitored_live_once(
         storage_counts["timelineEvents"] += 1
     final_activity = _activity_snapshot(
         provider_health=provider_health,
-        news_count=len(runtime_context.get("news_rows", [])),
+        news_count=_included_news_count(runtime_context.get("news_rows", [])),
         calendar_count=len(runtime_context.get("calendar_rows", [])),
         backfill_required=backfill_required,
         llm_enabled=llm_enabled,

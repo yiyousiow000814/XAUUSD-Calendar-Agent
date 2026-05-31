@@ -42,6 +42,12 @@ def _full_config(tmp_path: Path) -> CTraderCliConfig:
     )
 
 
+def _bridge_enabled_config(tmp_path: Path, **overrides: object) -> CTraderCliConfig:
+    return CTraderCliConfig(
+        **{**_full_config(tmp_path).__dict__, "quote_bridge_enabled": True, **overrides}
+    )
+
+
 def test_ctrader_cli_config_loads_from_env(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CTRADER_ACCOUNT_ID", "123456")
     monkeypatch.setenv("CTRADER_CTID", "trader@example.com")
@@ -94,6 +100,61 @@ def test_ctrader_cli_config_loads_from_json_file(tmp_path) -> None:
     assert cfg.symbol == "XAU/USD"
 
 
+def test_ctrader_cli_config_disables_shell_adapter_quote_bridge_by_default(tmp_path, monkeypatch) -> None:
+    config_path = tmp_path / "ctrader-cli.json"
+    adapter_path = tmp_path / "ctrader-cli-adapter.cmd"
+    adapter_path.write_text("@echo off\n", encoding="utf-8")
+    config_path.write_text(
+        json.dumps(
+            {
+                "enabled": True,
+                "accountId": "123456",
+                "ctid": "trader@example.com",
+                "password": "super-secret-password",
+                "symbol": "XAUUSD",
+                "cliExecutable": str(adapter_path),
+                "quoteBridgeEnabled": True,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    monkeypatch.delenv("CTRADER_ALLOW_CBOT_BRIDGE", raising=False)
+    cfg = CTraderCliConfig.from_sources(
+        MarketAgentConfig(repo_root=tmp_path, ctrader_config_path=config_path)
+    )
+
+    assert cfg.cli_executable == str(adapter_path)
+    assert cfg.quote_bridge_enabled is False
+
+
+def test_ctrader_cli_config_allows_shell_adapter_quote_bridge_with_explicit_opt_in(tmp_path, monkeypatch) -> None:
+    config_path = tmp_path / "ctrader-cli.json"
+    adapter_path = tmp_path / "ctrader-cli-adapter.cmd"
+    adapter_path.write_text("@echo off\n", encoding="utf-8")
+    config_path.write_text(
+        json.dumps(
+            {
+                "enabled": True,
+                "accountId": "123456",
+                "ctid": "trader@example.com",
+                "password": "super-secret-password",
+                "symbol": "XAUUSD",
+                "cliExecutable": str(adapter_path),
+                "quoteBridgeEnabled": True,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setenv("CTRADER_ALLOW_CBOT_BRIDGE", "true")
+    cfg = CTraderCliConfig.from_sources(
+        MarketAgentConfig(repo_root=tmp_path, ctrader_config_path=config_path)
+    )
+
+    assert cfg.quote_bridge_enabled is True
+
+
 def test_ctrader_masked_config_hides_secrets(tmp_path) -> None:
     provider = CTraderProvider(cli_config=_full_config(tmp_path), bridge_runner=FakeBridgeRunner({}))
 
@@ -130,6 +191,134 @@ def test_ctrader_cli_adapter_redacts_password_from_cli_errors(tmp_path, monkeypa
 
     assert "super-secret-password" not in str(exc_info.value)
     assert "***" in str(exc_info.value)
+
+
+def test_ctrader_cli_adapter_cmd_is_disabled_without_opt_in(tmp_path, monkeypatch) -> None:
+    cmd_path = tmp_path / "ctrader-cli-adapter.cmd"
+    ps1_path = tmp_path / "ctrader-cli-adapter.ps1"
+    cmd_path.write_text("@echo off\n", encoding="utf-8")
+    ps1_path.write_text("Write-Output '{}'\n", encoding="utf-8")
+    request = BridgeRequest.from_payload(
+        {
+            "accountId": "123456",
+            "ctid": "trader@example.com",
+            "password": "super-secret-password",
+            "symbol": "XAUUSD",
+            "snapshotPath": str(tmp_path / "snapshot.json"),
+            "cliExecutable": str(cmd_path),
+        }
+    )
+
+    monkeypatch.delenv("CTRADER_ALLOW_CLI_ADAPTER_SHELL", raising=False)
+    with pytest.raises(BridgeError) as exc_info:
+        CTraderCliBridge(request)._build_cli_command("quote")
+
+    assert "disabled" in str(exc_info.value).lower()
+
+
+def test_ctrader_cli_adapter_cmd_uses_hidden_powershell_script_with_opt_in(tmp_path, monkeypatch) -> None:
+    cmd_path = tmp_path / "ctrader-cli-adapter.cmd"
+    ps1_path = tmp_path / "ctrader-cli-adapter.ps1"
+    cmd_path.write_text("@echo off\n", encoding="utf-8")
+    ps1_path.write_text("Write-Output '{}'\n", encoding="utf-8")
+    request = BridgeRequest.from_payload(
+        {
+            "accountId": "123456",
+            "ctid": "trader@example.com",
+            "password": "super-secret-password",
+            "symbol": "XAUUSD",
+            "snapshotPath": str(tmp_path / "snapshot.json"),
+            "cliExecutable": str(cmd_path),
+        }
+    )
+
+    monkeypatch.setenv("CTRADER_ALLOW_CLI_ADAPTER_SHELL", "true")
+    command = CTraderCliBridge(request)._build_cli_command("quote")
+
+    assert command[:9] == [
+        "powershell.exe",
+        "-NoLogo",
+        "-NoProfile",
+        "-NonInteractive",
+        "-WindowStyle",
+        "Hidden",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+    ]
+    assert command[9] == str(ps1_path)
+    assert command[10] == "quote"
+
+
+def test_ctrader_quote_uses_direct_dotnet_bridge_when_local_adapter_exists(tmp_path) -> None:
+    adapter_dir = tmp_path
+    cmd_path = adapter_dir / "ctrader-cli-adapter.cmd"
+    ps1_path = adapter_dir / "ctrader-cli-adapter.ps1"
+    project_path = adapter_dir / "ctrader-quote-bridge" / "ctrader-quote-bridge.csproj"
+    bridge_dir = adapter_dir / "ctrader-quote-bridge" / "bin" / "Release" / "net6.0"
+    bridge_dir.mkdir(parents=True)
+    project_path.write_text("<Project />", encoding="utf-8")
+    algo_path = bridge_dir / "XauusdQuoteBridge.algo"
+    algo_path.write_text("algo", encoding="utf-8")
+    dll_path = adapter_dir / "ctrader-cli.dll"
+    dll_path.write_text("dll", encoding="utf-8")
+    cmd_path.write_text("@echo off\n", encoding="utf-8")
+    ps1_path.write_text(f'$dll = "{dll_path}"\n', encoding="utf-8")
+    request = BridgeRequest.from_payload(
+        {
+            "accountId": "123456",
+            "ctid": "trader@example.com",
+            "password": "super-secret-password",
+            "symbol": "XAUUSD",
+            "snapshotPath": str(tmp_path / "snapshot.json"),
+            "cliExecutable": str(cmd_path),
+        }
+    )
+
+    command = CTraderCliBridge(request)._local_quote_bridge_command()
+
+    assert command is not None
+    assert command[:3] == ["dotnet", str(dll_path), "run"]
+    assert Path(command[3]).name.lower() == algo_path.name.lower()
+
+
+def test_ctrader_quote_does_not_launch_cbot_bridge_without_opt_in(tmp_path, monkeypatch) -> None:
+    adapter_dir = tmp_path
+    cmd_path = adapter_dir / "ctrader-cli-adapter.cmd"
+    ps1_path = adapter_dir / "ctrader-cli-adapter.ps1"
+    project_path = adapter_dir / "ctrader-quote-bridge" / "ctrader-quote-bridge.csproj"
+    bridge_dir = adapter_dir / "ctrader-quote-bridge" / "bin" / "Release" / "net6.0"
+    bridge_dir.mkdir(parents=True)
+    project_path.write_text("<Project />", encoding="utf-8")
+    (bridge_dir / "XAUUSDQuoteBridge.algo").write_text("algo", encoding="utf-8")
+    dll_path = adapter_dir / "ctrader-cli.dll"
+    dll_path.write_text("dll", encoding="utf-8")
+    cmd_path.write_text("@echo off\n", encoding="utf-8")
+    ps1_path.write_text(f'$dll = "{dll_path}"\n', encoding="utf-8")
+    calls: list[object] = []
+
+    def fake_run(*args, **kwargs):
+        calls.append((args, kwargs))
+        raise AssertionError("cTrader cBot bridge should not be spawned by default")
+
+    monkeypatch.delenv("CTRADER_ALLOW_CBOT_BRIDGE", raising=False)
+    monkeypatch.setattr("src.xauusd_market_agent.providers.ctrader_bridge.subprocess.run", fake_run)
+    request = BridgeRequest.from_payload(
+        {
+            "accountId": "123456",
+            "ctid": "trader@example.com",
+            "password": "super-secret-password",
+            "symbol": "XAUUSD",
+            "snapshotPath": str(tmp_path / "snapshot.json"),
+            "cliExecutable": str(cmd_path),
+        }
+    )
+
+    with pytest.raises(BridgeError) as exc_info:
+        CTraderCliBridge(request).quote()
+
+    assert calls == []
+    assert "disabled" in str(exc_info.value).lower()
 
 
 def test_ctrader_cli_adapter_marks_old_quote_stale(tmp_path, monkeypatch) -> None:
@@ -188,6 +377,186 @@ def test_ctrader_missing_config_reports_disabled_without_crash(tmp_path) -> None
     assert health.is_available is False
     assert health.data_mode == "unavailable"
     assert "cli credentials" in health.error.lower()
+
+
+def test_ctrader_provider_prefers_fresh_saved_live_snapshot_without_bridge(tmp_path) -> None:
+    snapshot_path = tmp_path / "ctrader-live-quote.json"
+    snapshot_path.write_text(
+        json.dumps(
+            {
+                "symbol": "XAUUSD",
+                "symbol_id": 777,
+                "bid": 4508.0,
+                "ask": 4508.4,
+                "mid": 4508.2,
+                "timestamp": "2026-05-25T16:00:05+08:00",
+            }
+        ),
+        encoding="utf-8",
+    )
+    provider = CTraderProvider(
+        cli_config=CTraderCliConfig(
+            enabled=True,
+            account_id="123456",
+            ctid="trader@example.com",
+            password="super-secret-password",
+            environment="demo",
+            symbol="XAUUSD",
+            symbol_id=777,
+            config_path=tmp_path / "ctrader-cli.json",
+            snapshot_path=snapshot_path,
+            allow_saved_snapshot_fallback=True,
+            quote_timeout_seconds=8,
+            quote_stale_after_seconds=15,
+            cli_executable="ctrader-cli",
+        ),
+        bridge_runner=FakeBridgeRunner({}),
+        saved_snapshot_path=snapshot_path,
+    )
+
+    rows, health = provider.fetch_latest(datetime.fromisoformat("2026-05-25T16:00:10+08:00"))
+
+    assert len(rows) == 1
+    assert rows[0]["source"] == "cTrader live snapshot"
+    assert health.data_mode == "live_seen"
+    assert health.is_available is True
+    assert health.is_stale is False
+    assert health.current_value == pytest.approx(4508.2)
+
+
+def test_ctrader_provider_uses_m1_bar_from_fresh_live_snapshot(tmp_path) -> None:
+    snapshot_path = tmp_path / "ctrader-live-quote.json"
+    snapshot_path.write_text(
+        json.dumps(
+            {
+                "symbol": "XAUUSD",
+                "symbol_id": 777,
+                "bid": 4523.22,
+                "ask": 4523.27,
+                "mid": 4523.245,
+                "timestamp": "2026-05-26T09:12:07.2610000Z",
+                "m1_bar": {
+                    "symbol": "XAUUSD",
+                    "data_timestamp": "2026-05-26T09:12:00.0000000Z",
+                    "open": 4523.16,
+                    "high": 4523.26,
+                    "low": 4523.11,
+                    "close": 4523.22,
+                    "source": "cTrader CLI live stream",
+                    "source_type": "spot_m1",
+                    "data_mode": "live_seen",
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    provider = CTraderProvider(
+        cli_config=CTraderCliConfig(
+            enabled=True,
+            account_id="123456",
+            ctid="trader@example.com",
+            password="super-secret-password",
+            environment="demo",
+            symbol="XAUUSD",
+            symbol_id=777,
+            config_path=tmp_path / "ctrader-cli.json",
+            snapshot_path=snapshot_path,
+            allow_saved_snapshot_fallback=False,
+            quote_timeout_seconds=8,
+            quote_stale_after_seconds=45,
+            cli_executable="ctrader-cli",
+        ),
+        bridge_runner=FakeBridgeRunner({}),
+        saved_snapshot_path=snapshot_path,
+    )
+
+    rows, health = provider.fetch_latest(datetime.fromisoformat("2026-05-26T17:12:10+08:00"))
+
+    assert len(rows) == 1
+    assert rows[0]["source_type"] == "spot_m1"
+    assert rows[0]["data_timestamp"] == "2026-05-26T09:12:00.0000000Z"
+    assert rows[0]["close"] == pytest.approx(4523.22)
+    assert health.data_mode == "live_seen"
+
+
+def test_ctrader_provider_does_not_run_quote_bridge_when_disabled(tmp_path) -> None:
+    snapshot_path = tmp_path / "ctrader-live-quote.json"
+    snapshot_path.write_text(
+        json.dumps(
+            {
+                "symbol": "XAUUSD",
+                "symbol_id": 777,
+                "bid": 4508.0,
+                "ask": 4508.4,
+                "mid": 4508.2,
+                "timestamp": "2026-05-25T16:00:00+08:00",
+            }
+        ),
+        encoding="utf-8",
+    )
+    bridge = FakeBridgeRunner({"quote": {"ok": True}})
+    provider = CTraderProvider(
+        cli_config=CTraderCliConfig(
+            **{**_full_config(tmp_path).__dict__, "snapshot_path": snapshot_path, "quote_bridge_enabled": False}
+        ),
+        bridge_runner=bridge,
+        saved_snapshot_path=snapshot_path,
+    )
+
+    rows, health = provider.fetch_latest(datetime.fromisoformat("2026-05-25T16:01:00+08:00"))
+
+    assert bridge.calls == []
+    assert len(rows) == 1
+    assert rows[0]["source"] == "cTrader saved snapshot"
+    assert health.is_stale is True
+    assert (
+        health.error
+        == "Waiting for fresh cTrader live stream snapshot."
+    )
+
+
+def test_ctrader_provider_treats_weekend_stale_live_snapshot_as_market_closed_context(tmp_path) -> None:
+    snapshot_path = tmp_path / "ctrader-live-quote.json"
+    snapshot_path.write_text(
+        json.dumps(
+            {
+                "symbol": "XAUUSD",
+                "symbol_id": 777,
+                "bid": 4541.13,
+                "ask": 4541.53,
+                "mid": 4541.33,
+                "timestamp": "2026-05-29T20:56:59.947000+00:00",
+            }
+        ),
+        encoding="utf-8",
+    )
+    bridge = FakeBridgeRunner({"quote": {"ok": True}})
+    provider = CTraderProvider(
+        cli_config=CTraderCliConfig(
+            **{
+                **_full_config(tmp_path).__dict__,
+                "snapshot_path": snapshot_path,
+                "allow_saved_snapshot_fallback": False,
+                "quote_bridge_enabled": False,
+                "quote_stale_after_seconds": 45,
+            }
+        ),
+        bridge_runner=bridge,
+        saved_snapshot_path=snapshot_path,
+    )
+
+    rows, health = provider.fetch_latest(datetime.fromisoformat("2026-05-31T16:28:00+08:00"))
+
+    assert bridge.calls == []
+    assert rows
+    assert rows[-1]["data_mode"] == "stale"
+    assert rows[-1]["is_stale"] is True
+    assert health.is_available is True
+    assert health.is_stale is True
+    assert health.data_mode == "stale"
+    assert health.current_value == pytest.approx(4541.33)
+    assert health.metadata["stale_classification"] == "market_closed"
+    assert "closed" in health.stale_reason.lower()
 
 
 def test_ctrader_cli_adapter_preserves_m1_bar_payload(tmp_path, monkeypatch) -> None:
@@ -251,7 +620,7 @@ def test_ctrader_cli_adapter_preserves_m1_bar_payload(tmp_path, monkeypatch) -> 
 def test_ctrader_live_quote_uses_bridge_result_and_writes_snapshot(tmp_path) -> None:
     snapshot_path = tmp_path / "ctrader-last-quote.json"
     provider = CTraderProvider(
-        cli_config=_full_config(tmp_path),
+        cli_config=_bridge_enabled_config(tmp_path),
         bridge_runner=FakeBridgeRunner(
             {
                 "quote": {
@@ -305,7 +674,7 @@ def test_ctrader_live_quote_uses_bridge_result_and_writes_snapshot(tmp_path) -> 
 def test_ctrader_live_quote_prefers_m1_bar_rows_when_available(tmp_path) -> None:
     snapshot_path = tmp_path / "ctrader-last-quote.json"
     provider = CTraderProvider(
-        cli_config=_full_config(tmp_path),
+        cli_config=_bridge_enabled_config(tmp_path),
         bridge_runner=FakeBridgeRunner(
             {
                 "quote": {
@@ -388,7 +757,7 @@ def test_ctrader_saved_snapshot_fallback_is_stale_and_not_fresh(tmp_path) -> Non
         encoding="utf-8",
     )
     provider = CTraderProvider(
-        cli_config=_full_config(tmp_path),
+        cli_config=_bridge_enabled_config(tmp_path),
         bridge_runner=FakeBridgeRunner({"quote": RuntimeError("auth failed")}),
         saved_snapshot_path=snapshot_path,
     )
@@ -467,7 +836,7 @@ def test_ctrader_stale_quote_uses_latest_history_close(tmp_path) -> None:
         }
     )
     provider = CTraderProvider(
-        cli_config=_full_config(tmp_path),
+        cli_config=_bridge_enabled_config(tmp_path),
         bridge_runner=bridge,
         saved_snapshot_path=tmp_path / "snapshot.json",
     )
@@ -511,7 +880,7 @@ def test_ctrader_symbol_resolution_exact_normalized_and_override(tmp_path) -> No
 
 def test_ctrader_backfill_returns_spot_rows(tmp_path) -> None:
     provider = CTraderProvider(
-        cli_config=_full_config(tmp_path),
+        cli_config=_bridge_enabled_config(tmp_path),
         bridge_runner=FakeBridgeRunner(
             {
                 "backfill": {

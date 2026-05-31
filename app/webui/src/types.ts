@@ -378,6 +378,52 @@ export type MarketAgentProviderActionResponse = {
   ctrader?: MarketAgentProviderConfig | null;
 };
 
+export type MarketAgentLiveQuote = {
+  symbol: string;
+  bid?: number | null;
+  ask?: number | null;
+  mid?: number | null;
+  timestamp?: string | null;
+  source?: string;
+  source_type?: string;
+};
+
+export type MarketAgentLiveQuoteResponse = {
+  ok: boolean;
+  running: boolean;
+  phase?: string;
+  message?: string;
+  lastError?: string | null;
+  snapshotPath?: string;
+  quote?: MarketAgentLiveQuote | null;
+  provider_health?: Record<string, unknown> | null;
+  status?: Record<string, unknown> | null;
+};
+
+export type MarketAgentRuntimeInspectMismatch = {
+  code: string;
+  severity: string;
+  summary: string;
+  detail?: string;
+};
+
+export type MarketAgentRuntimeInspectResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  root?: string;
+  runtime_verdict?: string;
+  summary?: string;
+  live_quote?: MarketAgentLiveQuoteResponse | null;
+  monitor_status?: MarketAgentMonitorStatusResponse | null;
+  ctrader_activity?: Record<string, unknown> | null;
+  provider_health_items?: MarketAgentProviderHealthEntry[];
+  xauusd_provider_health?: Record<string, unknown> | null;
+  snapshot_timestamp?: string;
+  live_mid?: number | null;
+  mismatches?: MarketAgentRuntimeInspectMismatch[];
+};
+
 export type MarketAgentTelegramConfig = {
   enabled: boolean;
   botTokenMasked: string;
@@ -546,6 +592,7 @@ export type MarketAgentCTraderAuthResponse = {
   error?: string;
   provider_health?: Record<string, unknown> | null;
   quote?: Record<string, unknown> | null;
+  live_stream?: Record<string, unknown> | null;
   symbol?: Record<string, unknown> | null;
   account?: Record<string, unknown> | null;
   ctrader?: MarketAgentProviderConfig | null;
@@ -625,6 +672,9 @@ export type MarketAgentMonitorStatusResponse = {
   message?: string;
   updatedAt?: number | string | null;
   latestMonitorRunId?: number | null;
+  latestStoredRunAt?: number | string | null;
+  latestStoredDataMode?: string;
+  activityStale?: boolean;
   activity?: Record<string, MarketAgentActivityStatus>;
 };
 

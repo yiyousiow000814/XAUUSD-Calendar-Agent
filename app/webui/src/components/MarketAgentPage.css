@@ -180,6 +180,7 @@
   background-clip: padding-box;
 }
 
+
 .market-agent-cockpit-shell {
   display: grid;
   grid-template-columns: clamp(164px, 13.8vw, 184px) minmax(0, 1fr);
@@ -318,6 +319,53 @@
   gap: var(--ma-gap);
   height: 100%;
   min-height: 0;
+}
+
+.market-agent-cockpit-loading {
+  pointer-events: none;
+}
+
+.market-agent-skeleton-card,
+.market-agent-skeleton-panel {
+  overflow: hidden;
+}
+
+.market-agent-skeleton-line {
+  position: relative;
+  display: block;
+  width: 62%;
+  height: 10px;
+  margin-top: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.16);
+}
+
+.market-agent-skeleton-line.wide {
+  width: 86%;
+}
+
+.market-agent-skeleton-line::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  transform: translateX(-110%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+  animation: market-agent-skeleton-sweep 900ms ease-in-out infinite;
+}
+
+@keyframes market-agent-skeleton-sweep {
+  to {
+    transform: translateX(110%);
+  }
+}
+
+[data-theme="light"] .market-agent-skeleton-line {
+  background: rgba(100, 116, 139, 0.16);
+}
+
+[data-theme="light"] .market-agent-skeleton-line::after {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
 }
 
 .market-agent-cockpit-hero,

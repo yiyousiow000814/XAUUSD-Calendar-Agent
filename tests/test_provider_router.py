@@ -33,6 +33,32 @@ def test_calendar_provider_reports_dataset_gap_when_calendar_stops_before_anchor
     assert health.metadata["dataset_end"] == "2026-04-30"
 
 
+def test_calendar_provider_handles_empty_existing_calendar_without_crashing(tmp_path) -> None:
+    calendar_dir = tmp_path / "calendar"
+    year_dir = calendar_dir / "2026"
+    year_dir.mkdir(parents=True)
+    (year_dir / "2026_calendar.json").write_text("[]", encoding="utf-8")
+    router = ProviderRouter(csv_calendar_dir=calendar_dir)
+
+    rows, health = router.fetch_calendar_context(datetime.fromisoformat("2026-05-25T11:30:00+08:00"))
+
+    assert rows == []
+    assert health.is_available is False
+    assert health.data_mode == "unavailable"
+    assert health.metadata["row_count"] == 0
+
+
+def test_market_agent_config_disables_csv_fallback_by_default(tmp_path) -> None:
+    cfg = MarketAgentConfig(
+        repo_root=tmp_path,
+        price_data_path=tmp_path / "missing.csv",
+        calendar_dir=tmp_path / "calendar",
+        timeline_store_path=tmp_path / "timeline.sqlite",
+    )
+
+    assert cfg.csv_fallback_enabled is False
+
+
 class StubMarketProvider:
     def fetch_latest(self, anchor_time):
         return [

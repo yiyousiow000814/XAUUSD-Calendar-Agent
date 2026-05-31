@@ -81,6 +81,14 @@ _THEME_STOPWORDS = {
     "xauusd",
 }
 
+_THEME_FILTER_TAGS = {
+    "filtered",
+    "missing_timestamp",
+    "no_market_agent_keyword",
+    "score_below_threshold",
+    "low_signal_opinion_or_forecast",
+}
+
 _KNOWN_DRIVER_TERMS = {
     "brent",
     "cpi",
@@ -146,10 +154,13 @@ def _headline_tokens(title: str) -> list[str]:
 
 
 def _candidate_theme_terms(title: str, tags: tuple[str, ...]) -> list[str]:
+    normalized_tags = {item.strip().lower() for item in tags if item}
+    if normalized_tags & _THEME_FILTER_TAGS:
+        return []
     tag_terms = [
         item.replace("_", " ").replace("-", " ").strip().lower()
         for item in tags
-        if item and item.lower() not in {"rss", "injected", "calendar", "filtered"}
+        if item and item.lower() not in {"rss", "injected", "calendar"} and item.lower() not in _THEME_FILTER_TAGS
     ]
     tokens = _headline_tokens(title)
     phrases: list[str] = []
@@ -448,17 +459,15 @@ class DriverAttentionManager:
         for theme_id, previous in previous_states.items():
             if not theme_id.startswith("theme:") or theme_id in states:
                 continue
-            deadline = _parse_iso(previous.decay_deadline, as_of)
-            retired = as_of >= deadline or previous.current_state in {"cooling", "retired"}
             states[theme_id] = DriverAttentionState(
                 **{
                     **asdict(previous),
-                    "current_state": "retired" if retired else "cooling",
+                    "current_state": "retired",
                     "deactivation_reason": "No fresh headlines or market follow-through for this dynamic theme.",
                     "current_counter_evidence": "Theme has no fresh supporting evidence in the current run.",
-                    "relevance_score": 0.0 if retired else min(previous.relevance_score, 0.25),
+                    "relevance_score": 0.0,
                     "confidence": "low",
-                    "lifecycle": "retired" if retired else "cooling",
+                    "lifecycle": "retired",
                     "data_mode": data_mode,
                 }
             )
@@ -682,7 +691,7 @@ class DriverAttentionManager:
                 "activation_reason": item.activation_reason,
             }
             for item in states.values()
-            if item.current_state in {"active", "emerging", "cooling"}
+            if item.current_state in {"active", "emerging"}
         ]
         dormant = [
             {
@@ -691,7 +700,8 @@ class DriverAttentionManager:
                 "note": item.notes or item.current_counter_evidence,
             }
             for item in states.values()
-            if item.current_state in {"dormant", "watching", "retired", "unknown"}
+            if item.current_state in {"dormant", "watching", "unknown", "cooling"}
+            or (item.current_state == "retired" and not item.driver_id.startswith("theme:"))
         ]
         summary = {
             "active_driver_count": len([item for item in states.values() if item.current_state == "active"]),

@@ -6,6 +6,19 @@ from pathlib import Path
 
 from ..models import Headline
 
+_MARKET_AGENT_CALENDAR_IMPACTS = {"high", "medium"}
+
+
+def is_market_agent_calendar_row(row: dict[str, object]) -> bool:
+    impact = str(row.get("Imp.", row.get("Impact", ""))).strip().lower()
+    time_raw = str(row.get("Time", "")).strip().lower()
+    title = str(row.get("Event", "")).strip()
+    if not title:
+        return False
+    if impact == "holiday" or time_raw in {"all day", "tentative"}:
+        return False
+    return impact in _MARKET_AGENT_CALENDAR_IMPACTS
+
 
 def _parse_calendar_time(date_raw: str, time_raw: str) -> datetime | None:
     if not date_raw or not time_raw:
@@ -30,6 +43,8 @@ def load_calendar_events_in_window(
     window_end = anchor_time + timedelta(minutes=forward_minutes)
     items: list[Headline] = []
     for row in payload:
+        if not isinstance(row, dict) or not is_market_agent_calendar_row(row):
+            continue
         event_dt = _parse_calendar_time(str(row.get("Date", "")), str(row.get("Time", "")))
         if event_dt is None or not (window_start <= event_dt <= window_end):
             continue

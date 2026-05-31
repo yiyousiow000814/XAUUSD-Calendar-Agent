@@ -1,6 +1,7 @@
 import type {
   MarketAgentEvidenceForRunResponse,
   MarketAgentLLMConfigResponse,
+  MarketAgentLiveQuoteResponse,
   MarketAgentMonitorStatusResponse,
   MarketAgentProviderConfigResponse,
   MarketAgentProviderHealthResponse,
@@ -14,6 +15,7 @@ import "./market-agent-activity/CircuitBoard.css";
 
 type MarketAgentActivityProps = {
   monitorStatus: MarketAgentMonitorStatusResponse | null;
+  liveQuote?: MarketAgentLiveQuoteResponse | null;
   providerHealth: MarketAgentProviderHealthResponse | null;
   replay: MarketAgentReplayResponse | null;
   selectedEvidence: MarketAgentEvidenceForRunResponse | null;
@@ -24,6 +26,7 @@ type MarketAgentActivityProps = {
 
 export function MarketAgentActivity({
   monitorStatus,
+  liveQuote,
   providerHealth,
   replay,
   selectedEvidence,
@@ -33,6 +36,7 @@ export function MarketAgentActivity({
 }: MarketAgentActivityProps) {
   const model = buildSignalMapModel({
     monitorStatus,
+    liveQuote: liveQuote ?? null,
     providerHealth,
     replay,
     selectedEvidence,

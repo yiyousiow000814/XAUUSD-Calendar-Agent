@@ -333,6 +333,9 @@ def test_run_monitored_live_once_suppresses_market_closed_alert(tmp_path) -> Non
     assert outcome["notification"]["should_notify"] is False
     assert outcome["notification"]["telegram"]["status"] == "disabled"
     assert not (tmp_path / "alerts.ndjson").exists()
+    assert outcome["analysis"]["summary"] == (
+        "Current conclusion is paused until live XAUUSD price and recent price history are available."
+    )
 
 
 def test_run_monitored_live_once_keeps_live_decision_while_backfilling_history(tmp_path) -> None:

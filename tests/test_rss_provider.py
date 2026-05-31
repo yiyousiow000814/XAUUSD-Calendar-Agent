@@ -89,3 +89,99 @@ def test_rss_provider_uses_browser_user_agent_for_remote_feeds(monkeypatch) -> N
 
     assert "Mozilla" in captured["user_agent"]
     assert captured["timeout"] == 15
+
+
+def test_rss_provider_filters_marketwatch_personal_finance_noise(tmp_path) -> None:
+    feed = tmp_path / "marketwatch.xml"
+    feed.write_text(
+        """
+        <rss><channel>
+          <title>MarketWatch Top Stories</title>
+          <item>
+            <title>My husband took out a Parent PLUS loan without telling me</title>
+            <link>https://example.test/personal-finance</link>
+            <pubDate>Sun, 31 May 2026 06:12:28 GMT</pubDate>
+          </item>
+          <item>
+            <title>Gold rises as dollar slips before Fed inflation data</title>
+            <link>https://example.test/gold-dollar-fed</link>
+            <pubDate>Sun, 31 May 2026 06:13:28 GMT</pubDate>
+          </item>
+        </channel></rss>
+        """,
+        encoding="utf-8",
+    )
+    provider = RSSNewsProvider([str(feed)])
+
+    rows, health = provider.fetch_latest(datetime.fromisoformat("2026-05-31T16:28:00+08:00"))
+
+    personal = next(item for item in rows if item["title"].startswith("My husband"))
+    macro = next(item for item in rows if item["title"].startswith("Gold rises"))
+    assert personal["included"] is False
+    assert personal["filter_reason"] == "no_market_agent_keyword"
+    assert macro["included"] is True
+    assert health.metadata["included_count"] == 1
+
+
+def test_rss_provider_filters_stale_official_macro_releases(tmp_path) -> None:
+    feed = tmp_path / "fed.xml"
+    feed.write_text(
+        """
+        <rss><channel>
+          <title>FRB: Press Release - All Releases</title>
+          <item>
+            <title>Federal Reserve issues FOMC statement</title>
+            <link>https://example.test/old-fomc</link>
+            <pubDate>Wed, 29 Apr 2026 18:00:00 GMT</pubDate>
+          </item>
+          <item>
+            <title>Federal Reserve issues FOMC statement and holds rates steady</title>
+            <link>https://example.test/current-fomc</link>
+            <pubDate>Sat, 30 May 2026 18:00:00 GMT</pubDate>
+          </item>
+        </channel></rss>
+        """,
+        encoding="utf-8",
+    )
+    provider = RSSNewsProvider([str(feed)])
+
+    rows, health = provider.fetch_latest(datetime.fromisoformat("2026-05-31T16:28:00+08:00"))
+
+    old_release = next(item for item in rows if item["link"].endswith("old-fomc"))
+    current_release = next(item for item in rows if item["link"].endswith("current-fomc"))
+    assert old_release["included"] is False
+    assert old_release["filter_reason"] == "stale_news_item"
+    assert current_release["included"] is True
+    assert health.metadata["included_count"] == 1
+
+
+def test_rss_provider_does_not_treat_metaphorical_war_as_geopolitics(tmp_path) -> None:
+    feed = tmp_path / "marketwatch.xml"
+    feed.write_text(
+        """
+        <rss><channel>
+          <title>MarketWatch Top Stories</title>
+          <item>
+            <title>America is losing the AI productivity war to 3.5 million STEM graduates</title>
+            <link>https://example.test/ai-productivity-war</link>
+            <pubDate>Sat, 30 May 2026 18:36:00 GMT</pubDate>
+          </item>
+          <item>
+            <title>Oil exports through the Strait of Hormuz might not return after the Iran war</title>
+            <link>https://example.test/oil-iran-war</link>
+            <pubDate>Sat, 30 May 2026 18:37:00 GMT</pubDate>
+          </item>
+        </channel></rss>
+        """,
+        encoding="utf-8",
+    )
+    provider = RSSNewsProvider([str(feed)])
+
+    rows, health = provider.fetch_latest(datetime.fromisoformat("2026-05-31T16:28:00+08:00"))
+
+    metaphor = next(item for item in rows if item["link"].endswith("ai-productivity-war"))
+    oil_geo = next(item for item in rows if item["link"].endswith("oil-iran-war"))
+    assert metaphor["included"] is False
+    assert metaphor["filter_reason"] == "no_market_agent_keyword"
+    assert oil_geo["included"] is True
+    assert health.metadata["included_count"] == 1

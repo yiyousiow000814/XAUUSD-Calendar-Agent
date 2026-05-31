@@ -67,6 +67,61 @@ def _build_result(payload: dict[str, Any], rejected_driver: str | None = None, r
     )
 
 
+def _as_bool(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes"}
+    return bool(value)
+
+
+def _as_list(value: Any) -> list[Any]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    if isinstance(value, tuple):
+        return list(value)
+    return [value]
+
+
+def _as_text(value: Any) -> str:
+    if isinstance(value, str):
+        return value
+    if isinstance(value, list):
+        return " ".join(str(item) for item in value if str(item).strip())
+    if value is None:
+        return ""
+    return str(value)
+
+
+def _normalize_llm_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    normalized = dict(payload)
+    if normalized.get("secondary_driver") == "":
+        normalized["secondary_driver"] = None
+    for key in (
+        "is_new_state",
+        "is_continuation",
+        "previous_state_invalidated",
+        "should_notify",
+        "no_news_found",
+        "rejected_or_blocked_drivers_acknowledged",
+    ):
+        if key in normalized:
+            normalized[key] = _as_bool(normalized[key])
+    for key in ("timeline", "allowed_candidate_drivers_used", "invalidation_conditions"):
+        if key in normalized:
+            normalized[key] = _as_list(normalized[key])
+    for key in ("causal_chain", "user_message", "summary"):
+        if key in normalized:
+            normalized[key] = _as_text(normalized[key])
+    if not normalized.get("user_message") and normalized.get("summary"):
+        normalized["user_message"] = normalized["summary"]
+    if not normalized.get("causal_chain") and normalized.get("summary"):
+        normalized["causal_chain"] = normalized["summary"]
+    return normalized
+
+
 def _validate_schema(payload: dict[str, Any]) -> None:
     required = {
         "bias",
@@ -111,10 +166,10 @@ def validate_llm_output(
     blocked_drivers: dict[str, str],
     fallback_result: AnalysisResult | None = None,
 ) -> ValidationResult:
-    payload = dict(llm_payload)
+    payload = _normalize_llm_payload(llm_payload)
     _validate_schema(payload)
     driver = payload["main_driver"]
-    if driver not in allowed_candidate_drivers:
+    if driver != "unknown" and driver not in allowed_candidate_drivers:
         if fallback_result is not None:
             fallback_payload = fallback_result.to_dict()
             fallback_payload["main_driver"] = "unknown"

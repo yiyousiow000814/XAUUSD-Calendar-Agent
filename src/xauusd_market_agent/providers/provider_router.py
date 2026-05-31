@@ -103,7 +103,7 @@ class ProviderRouter:
         yahoo_fixture_dir: Path | None = None,
         rss_feeds: list[str] | None = None,
         yahoo_enabled: bool = True,
-        csv_fallback_enabled: bool = True,
+        csv_fallback_enabled: bool = False,
         ctrader_saved_snapshot_path: Path | None = None,
         ctrader_provider: CTraderProvider | None = None,
     ) -> None:
@@ -604,7 +604,13 @@ class ProviderRouter:
             for item in items
         ]
         coverage = self._calendar_dataset_coverage(anchor_time.year)
-        if not rows and coverage and coverage["end"] < anchor_time.date().isoformat():
+        if (
+            not rows
+            and coverage
+            and coverage.get("row_count", 0) > 0
+            and coverage.get("end")
+            and coverage["end"] < anchor_time.date().isoformat()
+        ):
             return rows, build_provider_health(
                 source="Calendar",
                 source_type="local_csv_fallback",

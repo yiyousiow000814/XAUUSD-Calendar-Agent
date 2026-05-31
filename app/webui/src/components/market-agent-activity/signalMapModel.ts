@@ -1,6 +1,7 @@
 import type {
   MarketAgentEvidenceForRunResponse,
   MarketAgentLLMConfigResponse,
+  MarketAgentLiveQuoteResponse,
   MarketAgentMonitorStatusResponse,
   MarketAgentProviderConfigResponse,
   MarketAgentProviderHealthEntry,
@@ -36,6 +37,7 @@ export type SignalNode = {
   tone: SignalTone;
   badges?: SignalBadge[];
   drilldown?: SignalDrilldownSection[];
+  history?: SignalDrilldownSection[];
   requests?: SignalDataRequest[];
   performance?: SignalPerformanceSummary;
 };
@@ -119,6 +121,7 @@ export type SignalMapModel = {
 
 export type BuildSignalMapArgs = {
   monitorStatus: MarketAgentMonitorStatusResponse | null;
+  liveQuote: MarketAgentLiveQuoteResponse | null;
   providerHealth: MarketAgentProviderHealthResponse | null;
   replay: MarketAgentReplayResponse | null;
   selectedEvidence: MarketAgentEvidenceForRunResponse | null;
@@ -332,19 +335,206 @@ const shortHistoryText = (value: unknown, fallback = "not recorded") => {
   return text.length > 150 ? `${text.slice(0, 147)}...` : text;
 };
 
+const normalizeNewsKeyPart = (value: unknown) =>
+  String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+
+const newsRowKey = (item: Record<string, unknown>, index: number) => {
+  const title = normalizeNewsKeyPart(item.title ?? item.summary_title);
+  const link = normalizeNewsKeyPart(item.link);
+  if (!title && !link) return `row:${index}`;
+  return [
+    title,
+    normalizeNewsKeyPart(item.source),
+    String(item.published_at ?? "").trim(),
+    link
+  ].join("|");
+};
+
+const newsSeenCount = (item: Record<string, unknown>) => {
+  const seenCount = numberValue(item, "seen_count");
+  if (seenCount !== null) return Math.max(1, Math.round(seenCount));
+  const duplicateCount = numberValue(item, "duplicate_count");
+  if (duplicateCount !== null) return Math.max(1, Math.round(duplicateCount) + 1);
+  return 1;
+};
+
+const parseNewsTime = (value: unknown) => {
+  const parsed = Date.parse(String(value ?? ""));
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const earlierNewsTime = (left: unknown, right: unknown) => {
+  const leftText = firstText(left);
+  const rightText = firstText(right);
+  if (!leftText) return rightText;
+  if (!rightText) return leftText;
+  const leftMs = parseNewsTime(leftText);
+  const rightMs = parseNewsTime(rightText);
+  if (leftMs === null) return rightText;
+  if (rightMs === null) return leftText;
+  return leftMs <= rightMs ? leftText : rightText;
+};
+
+const laterNewsTime = (left: unknown, right: unknown) => {
+  const leftText = firstText(left);
+  const rightText = firstText(right);
+  if (!leftText) return rightText;
+  if (!rightText) return leftText;
+  const leftMs = parseNewsTime(leftText);
+  const rightMs = parseNewsTime(rightText);
+  if (leftMs === null) return rightText;
+  if (rightMs === null) return leftText;
+  return leftMs >= rightMs ? leftText : rightText;
+};
+
+const newsPreferenceScore = (item: Record<string, unknown>) => {
+  const hasSummary = Boolean(firstText(item.summary, item.short_summary, item.summary_source, item.ai_summary_source));
+  const included = item.included === true || normalizeMarketAgentValue(item.review_status).includes("included");
+  const seenAt = firstText(item.fetched_at, item.last_seen_at, item.first_seen_at, item.published_at);
+  return (hasSummary ? 10_000_000_000_000 : 0) + (included ? 1_000_000_000_000 : 0) + (parseNewsTime(seenAt) ?? 0);
+};
+
+const compactNewsItems = (items: Record<string, unknown>[]) => {
+  const rows = new Map<string, Record<string, unknown>>();
+  items.forEach((item, index) => {
+    const key = newsRowKey(item, index);
+    const existing = rows.get(key);
+    if (!existing) {
+      rows.set(key, { ...item, seen_count: newsSeenCount(item), duplicate_count: Math.max(0, newsSeenCount(item) - 1) });
+      return;
+    }
+    const preferred = newsPreferenceScore(item) > newsPreferenceScore(existing) ? item : existing;
+    const firstSeenAt = earlierNewsTime(existing.first_seen_at ?? existing.fetched_at, item.first_seen_at ?? item.fetched_at);
+    const lastSeenAt = laterNewsTime(existing.last_seen_at ?? existing.fetched_at ?? existing.first_seen_at, item.last_seen_at ?? item.fetched_at ?? item.first_seen_at);
+    const seenCount = newsSeenCount(existing) + newsSeenCount(item);
+    rows.set(key, {
+      ...preferred,
+      first_seen_at: firstSeenAt || preferred.first_seen_at,
+      last_seen_at: lastSeenAt || preferred.last_seen_at,
+      fetched_at: lastSeenAt || preferred.fetched_at || preferred.first_seen_at,
+      seen_count: seenCount,
+      duplicate_count: Math.max(0, seenCount - 1)
+    });
+  });
+  return Array.from(rows.values());
+};
+
 const sensorLabel = (value: string) => value.replace(/[^a-z0-9]/gi, "").toUpperCase();
+
+const aiHistoryItems = (llmEntry: Record<string, unknown> | undefined): SignalDecisionTraceItem[] => {
+  const telemetry = recordListValue(llmEntry, "telemetry");
+  const rows = llmTelemetryRows(llmEntry);
+  if (!telemetry.length) return [];
+  return rows.map((row): SignalDecisionTraceItem => ({
+    label: row.label,
+    status: row.status,
+    detail: row.detail,
+    meta: [...row.meta, "history: LocalLLMClient telemetry"],
+    tone: row.status === "error" || row.status === "invalid" ? "bad" : "ai"
+  }));
+};
+
+const suppressionReason = (alert: Record<string, unknown>, monitorRun: Record<string, unknown>, analysisResult: Record<string, unknown>) =>
+  firstText(
+    alert.reason,
+    alert.suppression_reason,
+    alert.notification_reason,
+    monitorRun.alert_suppressed_reason,
+    monitorRun.detail,
+    analysisResult.notification_reason,
+    analysisResult.suppression_reason,
+    "No notification was sent because policy/evidence gates did not approve a user alert."
+  );
+
+const outputHistoryItems = (
+  alerts: Record<string, unknown>[],
+  monitorRun: Record<string, unknown>,
+  analysisResult: Record<string, unknown>,
+  replayPayload: MarketAgentReplayPayload | undefined
+): SignalDecisionTraceItem[] => {
+  const sentAlerts = alerts.filter((alert) => alert.should_notify === true || alert.shouldNotify === true);
+  const suppressedAlerts = ((replayPayload?.suppressed_alerts ?? []) as Record<string, unknown>[]).filter(Boolean);
+  const remainingAlerts = alerts.filter((alert) => alert.should_notify !== true && alert.shouldNotify !== true);
+  const auditAlerts = [...sentAlerts, ...remainingAlerts, ...suppressedAlerts].filter(
+    (alert, index, allAlerts) => {
+      const key = [
+        firstText(alert.monitor_run_id, "no-run"),
+        firstText(alert.run_started_at, "no-time"),
+        firstText(alert.message, alert.title, alert.summary, "no-message")
+      ].join("|");
+      return allAlerts.findIndex((candidate) => {
+        const candidateKey = [
+          firstText(candidate.monitor_run_id, "no-run"),
+          firstText(candidate.run_started_at, "no-time"),
+          firstText(candidate.message, candidate.title, candidate.summary, "no-message")
+        ].join("|");
+        return candidateKey === key;
+      }) === index;
+    }
+  );
+
+  if (!auditAlerts.length) {
+    return [
+      {
+        label: "Notification audit",
+        status: "no candidate",
+        detail: "No alert candidate was recorded for this selected run/range.",
+        meta: ["history: alerts", "surface: Activity audit only"],
+        tone: "muted"
+      }
+    ];
+  }
+
+  return auditAlerts.map((alert, index): SignalDecisionTraceItem => {
+    const sent = alert.should_notify === true || alert.shouldNotify === true;
+    const message = firstText(alert.message, alert.title, alert.summary, analysisResult.summary, "No alert message text recorded.");
+    return {
+      label: sent ? "Notification sent" : "Notification suppressed",
+      status: sent ? "sent" : "suppressed",
+      detail: sent
+        ? `Sent candidate: ${shortHistoryText(message)}`
+        : `Suppressed candidate: ${shortHistoryText(message)} Reason: ${shortHistoryText(suppressionReason(alert, monitorRun, analysisResult))}`,
+      meta: [
+        `run: ${firstText(alert.monitor_run_id, monitorRun.id, monitorRun.monitor_run_id, "not recorded")}`,
+        `level: ${firstText(alert.notification_level, alert.level, "not recorded")}`,
+        `created_at: ${firstText(alert.run_started_at, monitorRun.run_started_at, "not recorded")}`,
+        "history: alerts",
+        "surface: Activity audit only"
+      ],
+      tone: sent ? "good" : "working"
+    };
+  });
+};
+
+const suppressionAuditRows = (
+  alerts: Record<string, unknown>[],
+  monitorRun: Record<string, unknown>,
+  analysisResult: Record<string, unknown>,
+  replayPayload: MarketAgentReplayPayload | undefined
+): SignalDrilldownRow[] =>
+  outputHistoryItems(alerts, monitorRun, analysisResult, replayPayload).map((item) => ({
+    label: item.label,
+    status: item.status,
+    detail: item.detail,
+    meta: item.meta
+  }));
 
 const buildDecisionTrace = ({
   selectedEvidence,
   replayPayload,
   analysisResult,
   evidencePacket,
+  llmEntry,
   llmPerformance
 }: {
   selectedEvidence: MarketAgentEvidenceForRunResponse | null;
   replayPayload: MarketAgentReplayPayload | undefined;
   analysisResult: Record<string, unknown>;
   evidencePacket: Record<string, unknown> | undefined;
+  llmEntry: Record<string, unknown> | undefined;
   llmPerformance: SignalPerformanceSummary;
 }): SignalDecisionTrace => {
   const monitorRun = (selectedEvidence?.payload?.monitor_run ?? {}) as Record<string, unknown>;
@@ -353,83 +543,22 @@ const buildDecisionTrace = ({
   const alerts = selectedAlerts.length ? selectedAlerts : replayAlerts;
   const stateTransition = (selectedEvidence?.payload?.state_transition ?? {}) as Record<string, unknown>;
   const hasStateTransition = Object.keys(stateTransition).length > 0;
-  const evidenceStatus = recordValue(evidencePacket, "evidence_status");
-  const blockedDrivers = recordValue(evidencePacket, "blocked_drivers");
-  const allowedDrivers = listValue(evidencePacket, "allowed_candidate_drivers");
   const newsItems = ((replayPayload?.news_items ?? []) as Record<string, unknown>[]).filter(Boolean);
   const calendarEvents = ((replayPayload?.calendar_events ?? []) as Record<string, unknown>[]).filter(Boolean);
   const relatedAssets = replayPayload?.related_assets ?? {};
   const relatedAssetCount = Object.values(relatedAssets).reduce((total, rows) => total + (Array.isArray(rows) ? rows.length : 0), 0);
-  const firstNews = newsItems.find((item) => firstText(item.summary, item.summary_title, item.short_title, item.ai_title, item.title)) ?? {};
-  const firstCalendar = calendarEvents.find((item) => firstText(item.summary, item.title)) ?? {};
-  const mainDriver = firstText(analysisResult.main_driver, "unknown");
   const causeStatus = firstText(analysisResult.cause_status, "unknown");
-  const confidence = firstText(analysisResult.confidence, "unknown");
-  const bias = firstText(analysisResult.bias, "neutral");
-  const shouldNotify = alerts.some((alert) => alert.should_notify === true || alert.shouldNotify === true);
-  const alert = alerts[0] ?? {};
-  const alertReason = firstText(alert.reason, monitorRun.alert_suppressed_reason, analysisResult.notification_reason, "No alert decision recorded.");
   const runStartedAt = firstText(monitorRun.run_started_at, selectedEvidence?.monitor_run_id ? `run #${selectedEvidence.monitor_run_id}` : "");
   const runLabel = runStartedAt || "Selected run";
-  const finalSummary = firstText(analysisResult.summary, analysisResult.causal_chain, analysisResult.explanation);
-  const newsSummary = firstText(firstNews.summary, firstNews.summary_title, firstNews.short_title, firstNews.ai_title);
-  const newsRaw = firstText(firstNews.title, firstNews.description, firstNews.source);
-  const calendarSummary = firstText(firstCalendar.summary, firstCalendar.title);
-  const calendarRaw = firstText(firstCalendar.title, firstCalendar.event_name, firstCalendar.source);
-  const summary = finalSummary
-    ? `Final analysis: ${shortHistoryText(finalSummary)}`
-    : "This run has no recorded AI final-summary text yet. The page shows the available input and guard decisions instead.";
+  const summary = "AI History only shows real Local AI calls. Stored analysis results and notification decisions are shown in Status/Outputs audit.";
+  const aiItems = aiHistoryItems(llmEntry);
 
   return {
     runLabel,
     summary,
     status: causeStatus,
     performance: llmPerformance,
-    items: [
-      {
-        label: "News summary",
-        status: newsSummary ? "AI summarized" : newsRaw ? "raw captured" : "no news",
-        detail: newsRaw
-          ? `Raw: ${shortHistoryText(newsRaw)} -> Summary: ${shortHistoryText(newsSummary, "no AI summary recorded for this item")}`
-          : "No news item was present in the selected run/replay payload.",
-        meta: [`source: ${firstText(firstNews.source, "not recorded")}`, `summary_source: ${firstText(firstNews.summary_source, "not recorded")}`, "history: news_items"],
-        tone: newsSummary ? "ai" : newsRaw ? "working" : "muted"
-      },
-      {
-        label: "Calendar review",
-        status: calendarRaw ? "context reviewed" : "no event",
-        detail: calendarRaw
-          ? `Calendar input: ${shortHistoryText(calendarRaw)} -> AI/evidence note: ${shortHistoryText(calendarSummary, "no separate AI summary recorded")}`
-          : "No calendar context was attached to this run.",
-        meta: [`source: ${firstText(firstCalendar.source, "existing Economic Calendar")}`, `scheduled: ${firstText(firstCalendar.scheduled_at, "not recorded")}`, "history: calendar context"],
-        tone: calendarRaw ? "working" : "muted"
-      },
-      {
-        label: "Asset context",
-        status: relatedAssetCount ? "sensor evidence" : "no sensor rows",
-        detail: relatedAssetCount
-          ? `${relatedAssetCount} related asset row(s) were available to support or reject the final cause. ${Object.entries(evidenceStatus).slice(0, 3).map(([key, value]) => `${sensorLabel(key)} ${String(value)}`).join(" / ") || "No per-sensor guard result was recorded."}`
-          : "No related asset rows were attached to this selected replay payload.",
-        meta: [`allowed: ${allowedDrivers.join(", ") || "none"}`, `blocked: ${Object.keys(blockedDrivers).join(", ") || "none"}`, "history: related_asset_bars + evidence_packet"],
-        tone: relatedAssetCount ? "good" : "muted"
-      },
-      {
-        label: "Final analysis",
-        status: causeStatus,
-        detail: finalSummary
-          ? shortHistoryText(finalSummary)
-          : `Decision recorded without a long summary: driver ${humanizeMarketAgentValue(mainDriver)}, bias ${humanizeMarketAgentValue(bias)}, confidence ${humanizeMarketAgentValue(confidence)}.`,
-        meta: ["history: analysis_results", `main_driver: ${mainDriver}`, `should_notify: ${booleanText(analysisResult.should_notify)}`],
-        tone: causeStatus === "unconfirmed" || mainDriver === "unknown" ? "working" : "ai"
-      },
-      {
-        label: "Output history",
-        status: shouldNotify ? "sent" : "suppressed",
-        detail: shouldNotify ? `Telegram/message output: ${shortHistoryText(firstText(alert.message, "Notification policy allowed an alert for this run."))}` : alertReason,
-        meta: ["history: alerts + timeline_events", "surfaces: Dashboard / Latest Evidence / Replay / Telegram", `alert_count: ${alerts.length}`],
-        tone: shouldNotify ? "good" : "working"
-      }
-    ],
+    items: aiItems,
     records: [
       {
         label: "Input history",
@@ -511,18 +640,104 @@ const newsFeedRows = (
   });
 };
 
+const rawNewsRows = (items: Record<string, unknown>[]): SignalDrilldownRow[] => {
+  if (!items.length) {
+    return [
+      {
+        label: "No headlines captured",
+        status: "empty",
+        detail: "No raw news rows are available in the selected replay payload.",
+        meta: ["storage: news_items"]
+      }
+    ];
+  }
+  return compactNewsItems(items).slice(0, 20).map((item, index) => {
+    const title = firstText(item.title, item.summary_title, `Headline ${index + 1}`);
+    const summarySource = firstText(item.summary_source, item.ai_summary_source);
+    const included = item.included === true || normalizeMarketAgentValue(item.review_status).includes("included");
+    const filtered = item.included === false || normalizeMarketAgentValue(item.review_status).includes("filtered");
+    const seenCount = newsSeenCount(item);
+    const fetchedAt = firstText(item.fetched_at, item.last_seen_at, item.first_seen_at, "not recorded");
+    const status = summarySource
+      ? "summarized"
+      : included
+        ? "included"
+        : filtered
+          ? "filtered"
+          : "raw captured";
+    const detail = firstText(
+      item.summary,
+      item.short_summary,
+      item.description,
+      item.content,
+      item.raw_text,
+      item.reason,
+      item.filter_reason,
+      ""
+    );
+    return {
+      label: shortHistoryText(title, `Headline ${index + 1}`),
+      status,
+      detail: seenCount > 1
+        ? `${detail || "No body or summary was recorded for this item."} Captured ${seenCount} times; History shows one merged row using the latest fetch timestamp.`
+        : detail,
+      meta: [
+        `source: ${firstText(item.source, "not recorded")}`,
+        `published_at: ${firstText(item.published_at, "not recorded")}`,
+        `fetched_at: ${fetchedAt}`,
+        ...(seenCount > 1 ? [`fetches: ${seenCount}`] : []),
+        ...(seenCount > 1 ? [`first_seen_at: ${firstText(item.first_seen_at, "not recorded")}`] : []),
+        ...(seenCount > 1 ? [`last_seen_at: ${firstText(item.last_seen_at, fetchedAt, "not recorded")}`] : []),
+        `summary_source: ${summarySource || "not recorded"}`,
+        `evidence: ${firstText(item.evidence_status, item.review_status, item.data_mode, "not recorded")}`,
+        "storage: news_items"
+      ]
+    };
+  });
+};
+
+const calendarContextRows = (items: Record<string, unknown>[]): SignalDrilldownRow[] => {
+  if (!items.length) {
+    return [
+      {
+        label: "No calendar context",
+        status: "empty",
+        detail: "No existing Economic Calendar rows are available in the selected replay payload.",
+        meta: ["source: existing Economic Calendar"]
+      }
+    ];
+  }
+  return items.slice(0, 20).map((item, index) => {
+    const title = firstText(item.title, item.event_name, item.name, `Calendar event ${index + 1}`);
+    const reviewStatus = firstText(item.review_status, item.evidence_status, item.data_mode, "context");
+    return {
+      label: shortHistoryText(title, `Calendar event ${index + 1}`),
+      status: reviewStatus,
+      detail: firstText(item.summary, item.result, item.reason, item.description, "Calendar context row from the existing Economic Calendar."),
+      meta: [
+        `source: ${firstText(item.source, "existing Economic Calendar")}`,
+        `scheduled_at: ${firstText(item.scheduled_at, item.event_time, "not recorded")}`,
+        `country: ${firstText(item.country, "not recorded")}`,
+        `currency: ${firstText(item.currency, "not recorded")}`,
+        `impact: ${firstText(item.impact, "not recorded")}`,
+        `window: ${firstText(item.window, item.context_type, "not recorded")}`
+      ]
+    };
+  });
+};
+
 const normalizeStorageLabel = (value: string) => value.replace(/_/g, " ");
 
 const sensorDefinitions = [
-  { id: "xauusd", label: "XAUUSD", group: "Primary price", source: "cTrader spot / GC=F fallback", storage: "market_price_bars" },
-  { id: "dxy", label: "DXY", group: "USD pressure", source: "DX-Y.NYB / CSV fallback", storage: "related_asset_bars" },
-  { id: "us10y", label: "US10Y", group: "Rates / yields", source: "^TNX / CSV fallback", storage: "related_asset_bars" },
-  { id: "us2y", label: "US2Y", group: "Rates / yields", source: "Yield proxy / CSV fallback", storage: "related_asset_bars" },
-  { id: "wti", label: "WTI", group: "Oil / inflation", source: "CL=F / CSV fallback", storage: "related_asset_bars" },
-  { id: "brent", label: "Brent", group: "Oil / inflation", source: "BZ=F / CSV fallback", storage: "related_asset_bars" },
-  { id: "vix", label: "VIX", group: "Risk sentiment", source: "^VIX / CSV fallback", storage: "related_asset_bars" },
-  { id: "spx", label: "S&P 500", group: "Risk sentiment", source: "^GSPC / CSV fallback", storage: "related_asset_bars" },
-  { id: "nasdaq", label: "Nasdaq", group: "Risk sentiment", source: "^IXIC / CSV fallback", storage: "related_asset_bars" }
+  { id: "xauusd", label: "XAUUSD", group: "Primary price", source: "cTrader spot / GC=F proxy", storage: "market_price_bars" },
+  { id: "dxy", label: "DXY", group: "USD pressure", source: "DX-Y.NYB", storage: "related_asset_bars" },
+  { id: "us10y", label: "US10Y", group: "Rates / yields", source: "^TNX", storage: "related_asset_bars" },
+  { id: "us2y", label: "US2Y", group: "Rates / yields", source: "Dedicated yield source when available", storage: "related_asset_bars" },
+  { id: "wti", label: "WTI", group: "Oil / inflation", source: "CL=F", storage: "related_asset_bars" },
+  { id: "brent", label: "Brent", group: "Oil / inflation", source: "BZ=F", storage: "related_asset_bars" },
+  { id: "vix", label: "VIX", group: "Risk sentiment", source: "^VIX", storage: "related_asset_bars" },
+  { id: "spx", label: "S&P 500", group: "Risk sentiment", source: "^GSPC", storage: "related_asset_bars" },
+  { id: "nasdaq", label: "Nasdaq", group: "Risk sentiment", source: "^IXIC", storage: "related_asset_bars" }
 ];
 
 const node = (input: Omit<SignalNode, "tone"> & { tone?: SignalTone }): SignalNode => ({
@@ -570,6 +785,17 @@ const isMarketClosedSnapshot = (health: MarketAgentProviderHealthEntry | undefin
       Number.isFinite(health.current_value)
   );
 
+const isStaleLiveSpotSnapshot = (health: MarketAgentProviderHealthEntry | undefined, nowMs = Date.now()) =>
+  Boolean(
+    health?.is_available &&
+      (health.is_stale || normalizeMarketAgentValue(health.data_mode) === "stale" || isExpiredLiveSpot(health, nowMs)) &&
+      ["spot", "spot_snapshot"].includes(normalizeMarketAgentValue(health.source_type)) &&
+      !isMarketClosedSnapshot(health) &&
+      !isSavedCTraderSnapshot(health) &&
+      typeof health.current_value === "number" &&
+      Number.isFinite(health.current_value)
+  );
+
 const isSavedCTraderSnapshot = (health: MarketAgentProviderHealthEntry | undefined) =>
   Boolean(
     health?.is_available &&
@@ -590,7 +816,7 @@ const healthFreshness = (health: MarketAgentProviderHealthEntry | undefined) => 
   if (!health) return "not recorded";
   if (!health.is_available || normalizeMarketAgentValue(health.source_type) === "unavailable") return "unavailable";
   if (isMarketClosedSnapshot(health)) return "market closed";
-  if (isExpiredLiveSpot(health)) return "stale";
+  if (isStaleLiveSpotSnapshot(health) || isExpiredLiveSpot(health)) return "stale";
   if (health.is_stale) return "stale";
   return "fresh";
 };
@@ -637,6 +863,7 @@ const requestFromHealth = (sensorLabel: string, health: MarketAgentProviderHealt
 
 export const buildSignalMapModel = ({
   monitorStatus,
+  liveQuote,
   providerHealth,
   replay,
   selectedEvidence,
@@ -663,11 +890,25 @@ export const buildSignalMapModel = ({
   const analysisResult = (selectedEvidence?.payload?.analysis_result ?? {}) as Record<string, unknown>;
   const storageSummary = recordValue(replayEntry, "storageSummary");
   const storageCounts = recordValue(storageSummary, "counts");
-  const xauusdHealth = findProviderHealth(healthItems, ["xauusd", "gc=f", "xauusd price"]);
+  const fallbackXauusdHealth = findProviderHealth(healthItems, ["xauusd", "gc=f", "xauusd price"]);
+  const xauusdHealth = liveQuote?.provider_health
+    ? ({ ...fallbackXauusdHealth, ...liveQuote.provider_health } as MarketAgentProviderHealthEntry)
+    : fallbackXauusdHealth;
   const newsHealth = findProviderHealth(healthItems, ["news", "rss", "rss_provider"]);
   const configuredNewsFeeds = newsFeedSources(contextEntry, newsHealth);
   const newsSourceLabel = newsFeedSourceSummary(configuredNewsFeeds);
   const cTraderLive = Boolean(xauusdHealth?.is_available && !xauusdHealth.is_stale && !isExpiredLiveSpot(xauusdHealth));
+  const xauusdStatusSummary = isMarketClosedSnapshot(xauusdHealth)
+    ? { status: "market closed", action: "Market closed snapshot", detail: "Last market-closed cTrader spot snapshot is stored." }
+    : cTraderLive
+      ? { status: "live", action: "Fresh live quote", detail: "Fresh cTrader spot quote is flowing into Market Agent." }
+      : isSavedCTraderSnapshot(xauusdHealth)
+        ? { status: "connecting", action: "Connecting live quote", detail: "Saved cTrader snapshot is visible while the live stream reconnects." }
+        : isStaleLiveSpotSnapshot(xauusdHealth) || isExpiredLiveSpot(xauusdHealth, Date.now())
+          ? { status: "reconnecting", action: "Reconnecting live quote", detail: "Last live cTrader quote is stored while the stream reconnects." }
+          : providerConfig?.ctrader?.enabled
+            ? { status: "checking", action: "Checking live quote", detail: "Waiting for the first fresh cTrader spot quote." }
+            : { status: "waiting", action: "Connect cTrader", detail: "Live cTrader spot is not configured yet." };
   const cTraderStatus =
     textValue(cTraderEntry, "status") ||
     (isMarketClosedSnapshot(xauusdHealth) ? "market closed" : cTraderLive ? "live" : providerConfig?.ctrader?.enabled ? "checking" : "waiting");
@@ -681,15 +922,21 @@ export const buildSignalMapModel = ({
     replayPayload: payload,
     analysisResult,
     evidencePacket: selectedEvidencePacket,
+    llmEntry,
     llmPerformance
   });
   const replayStatus = textValue(replayEntry, "status") || (stats.timelineEvents ? "stored" : "pending");
   const alertStatus = textValue(alertEntry, "status") || (telegramConfig?.telegram?.enabled ? "ready" : "idle");
   const phaseLabel = humanizeMarketAgentValue(monitorStatus?.phase || (monitorStatus?.running ? "running" : "stopped"));
-  const phaseMessage = monitorStatus?.message || (monitorStatus?.running ? "Agent is checking the market." : "Agent is idle.");
+  const phaseMessage = monitorStatus?.activityStale
+    ? `${monitorStatus?.message || "Monitor loop is stopped."} Latest stored run is ${String(monitorStatus.latestStoredRunAt || monitorStatus.latestMonitorRunId || "available")}; the trace rows are stale until the next app-managed monitor update.`
+    : monitorStatus?.message || (monitorStatus?.running ? "Agent is checking the market." : "Agent is idle.");
   const historyProgress = numberValue(historyEntry, "progress");
   const allowedDrivers = listValue(evidenceEntry, "allowedCandidateDrivers");
   const blockedDrivers = recordValue(evidenceEntry, "blockedDrivers");
+  const selectedAlerts = recordListValue(selectedEvidence?.payload, "alerts");
+  const replayAlerts = ((payload?.alerts ?? []) as Record<string, unknown>[]).filter(Boolean);
+  const auditAlerts = selectedAlerts.length ? selectedAlerts : replayAlerts;
   const jobRows = (entry: Record<string, unknown> | undefined, fallbackTitle: string): SignalDrilldownRow[] => {
     const jobs = asRecordList(entry?.jobs);
     if (!jobs.length) {
@@ -716,19 +963,55 @@ export const buildSignalMapModel = ({
   const cTraderRows = (): SignalDrilldownRow[] => {
     const rows = jobRows(cTraderEntry, "Live quote request");
     const hasRecordedJobs = asRecordList(cTraderEntry?.jobs).length > 0;
-    if (hasRecordedJobs || !xauusdHealth?.is_available || typeof xauusdHealth.current_value !== "number") {
+    const latestReplayPriceRow = payload?.price_series?.[payload.price_series.length - 1] as Record<string, unknown> | undefined;
+    const livePriceValue =
+      typeof xauusdHealth?.current_value === "number" && Number.isFinite(xauusdHealth.current_value)
+        ? xauusdHealth.current_value
+        : numberValue(latestReplayPriceRow, "close_price") ?? numberValue(latestReplayPriceRow, "bid_price") ?? numberValue(latestReplayPriceRow, "ask_price");
+    const runtimeHealthWins =
+      Boolean(
+        xauusdHealth?.is_available &&
+        !xauusdHealth.is_stale &&
+        !isExpiredLiveSpot(xauusdHealth) &&
+        livePriceValue !== null
+      );
+    const runtimeReconnecting =
+      Boolean(
+        xauusdHealth?.is_available &&
+        (isStaleLiveSpotSnapshot(xauusdHealth) || isExpiredLiveSpot(xauusdHealth)) &&
+        livePriceValue !== null
+      );
+    if (!runtimeHealthWins && !runtimeReconnecting && (hasRecordedJobs || !xauusdHealth?.is_available || livePriceValue === null)) {
       return rows;
     }
-    const status = isMarketClosedSnapshot(xauusdHealth) ? "market closed" : cTraderLive ? "live" : "snapshot";
+    const status = isMarketClosedSnapshot(xauusdHealth)
+      ? "market closed"
+      : runtimeHealthWins
+        ? "live"
+        : runtimeReconnecting
+          ? "reconnecting"
+          : isSavedCTraderSnapshot(xauusdHealth)
+            ? "connecting"
+            : "snapshot";
     return [
       {
-        label: isMarketClosedSnapshot(xauusdHealth) ? "Last quote snapshot" : "Latest quote snapshot",
+        label: isMarketClosedSnapshot(xauusdHealth)
+          ? "Last quote snapshot"
+          : runtimeReconnecting
+            ? "Last live quote"
+            : "Latest live quote",
         status,
         detail: isMarketClosedSnapshot(xauusdHealth)
-          ? `Last quote ${xauusdHealth.current_value}. cTrader returned a price snapshot while the market is closed. This is a display snapshot, not a fresh live tick.`
-          : `Latest quote ${xauusdHealth.current_value}. cTrader provider health has a quote snapshot, but the monitor activity job did not record a live ingest step.`,
+          ? `Last quote ${livePriceValue}. cTrader returned a price snapshot while the market is closed. This is a display snapshot, not a fresh live tick.`
+          : runtimeHealthWins
+            ? `Latest quote ${livePriceValue}. cTrader provider health confirms a fresh live quote, so this step follows the current runtime status instead of an older monitor activity snapshot.`
+            : runtimeReconnecting
+              ? `Stored quote ${livePriceValue}. cTrader provider health shows the last quote is stale, so the stream is reconnecting while the previous live value stays visible.`
+              : isSavedCTraderSnapshot(xauusdHealth)
+                ? `Saved quote ${livePriceValue}. cTrader is connecting to the live stream and only a saved snapshot is available right now.`
+            : `Latest quote ${livePriceValue}. cTrader provider health has a quote snapshot, but the monitor activity job did not record a live ingest step.`,
         meta: [
-          `price: ${xauusdHealth.current_value}`,
+          `price: ${livePriceValue}`,
           `source: ${providerLabel(xauusdHealth, "cTrader")}`,
           `mode: ${xauusdHealth.data_mode || "not recorded"}`,
           `data_timestamp: ${shortDate(xauusdHealth.data_timestamp)}`,
@@ -926,8 +1209,8 @@ export const buildSignalMapModel = ({
         id: "price-source",
         label: "XAUUSD price",
         lane: "Signal Sources",
-        status: cTraderStatus,
-        action: textValue(cTraderEntry, "detail") || "Fetching live quote",
+        status: xauusdStatusSummary.status || cTraderStatus,
+        action: xauusdStatusSummary.detail,
         source: textValue(cTraderEntry, "source") || "cTrader",
         processing: "Live quote feeds move detection, evidence, replay, and alert preflight.",
         output: "Move detection + Evidence gate",
@@ -937,8 +1220,8 @@ export const buildSignalMapModel = ({
         detail: "Primary XAUUSD price signal from cTrader.",
         drilldown: [
           {
-            title: "Live asset ingest",
-            detail: "Primary price is collected first because every explanation starts with a meaningful XAUUSD move.",
+            title: "Live quote stream",
+            detail: "This is the live quote path. It shows the current XAUUSD quote feed, not stored M1 bars.",
             rows: cTraderRows()
           }
         ]
@@ -958,8 +1241,8 @@ export const buildSignalMapModel = ({
         detail: textValue(historyEntry, "detail") || "Historical rows support replay and gap recovery.",
         drilldown: [
           {
-            title: "History/backfill ingest",
-            detail: "Backfill is persisted for replay and evidence windows, but recovered historical moves do not become live Telegram alerts.",
+            title: "M1 history persistence",
+            detail: "This is the stored M1/bar path used for replay and evidence windows. Recovered history does not become a live Telegram alert.",
             rows: jobRows(historyEntry, "History/backfill request")
           }
         ]
@@ -977,6 +1260,13 @@ export const buildSignalMapModel = ({
         ai: "Display summarizer can shorten selected news rows.",
         trace: ["news-source", "news-grouping", "evidence-gate", "display-summarizer", "latest-evidence", "storage-raw"],
         detail: textValue(contextEntry, "detail") || "News rows provide event context and possible driver themes.",
+        history: [
+          {
+            title: "Captured headlines",
+            detail: "Headlines captured in this run/range. AI summaries appear only when a Local AI call actually processed the row.",
+            rows: rawNewsRows(((payload?.news_items ?? []) as Record<string, unknown>[]).filter(Boolean))
+          }
+        ],
         drilldown: [
           {
             title: "Configured news feeds",
@@ -1014,7 +1304,7 @@ export const buildSignalMapModel = ({
                 meta: ["handoff: evidence_packets", "display: Latest Evidence short summary"]
               }
             ]
-          }
+          },
         ]
       }),
       node({
@@ -1054,6 +1344,11 @@ export const buildSignalMapModel = ({
                 meta: ["handoff: evidence_packets", "display: Latest Evidence"]
               }
             ]
+          },
+          {
+            title: "Calendar context rows",
+            detail: "Existing Economic Calendar rows attached to this selected replay payload.",
+            rows: calendarContextRows(((payload?.calendar_events ?? []) as Record<string, unknown>[]).filter(Boolean))
           }
         ]
       })
@@ -1481,20 +1776,15 @@ export const buildSignalMapModel = ({
       drilldown: [
         {
           title: "Telegram delivery",
-          detail: "Telegram may be sent or suppressed. Suppression is an output state, not a missing output.",
+          detail: "Telegram shows sent alerts only. Suppressed candidates stay here as Activity audit records, not Replay events.",
           rows: [
             {
               label: "Sent alerts",
-              status: payload?.alerts?.length ? "sent" : "none",
-              detail: `${payload?.alerts?.length ?? 0} sent alert(s) in the selected replay range.`,
+              status: (payload?.alerts ?? []).some((alert) => alert.should_notify === true || alert.shouldNotify === true) ? "sent" : "none",
+              detail: `${(payload?.alerts ?? []).filter((alert) => alert.should_notify === true || alert.shouldNotify === true).length} sent alert(s) in the selected replay range.`,
               meta: ["storage: alerts"]
             },
-            {
-              label: "Suppressed alerts",
-              status: payload?.suppressed_alerts?.length ? "suppressed" : alertStatus,
-              detail: textValue(alertEntry, "detail") || `${payload?.suppressed_alerts?.length ?? 0} suppressed alert(s) in the selected replay range.`,
-              meta: ["reason: evidence/noise/cooldown policy", "storage: alerts"]
-            }
+            ...suppressionAuditRows(auditAlerts, alertEntry ?? {}, analysisResult, payload)
           ]
         }
       ]

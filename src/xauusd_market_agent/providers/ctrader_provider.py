@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from ..config import CTraderCliConfig
+from ..market_session import classify_xauusd_stale_quote
 from ..models import ProviderHealth
 from .ctrader_bridge import handle as run_ctrader_cli_command
 
@@ -22,6 +23,18 @@ def _mask_secret(value: str) -> str:
 
 def _now_iso() -> str:
     return datetime.now().astimezone().isoformat()
+
+
+def _parse_quote_timestamp(raw: str, anchor_time: datetime) -> datetime | None:
+    if not raw:
+        return None
+    try:
+        parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=anchor_time.tzinfo)
+    return parsed
 
 
 def _provider_health_from_payload(payload: dict[str, Any], fallback_symbol: str) -> ProviderHealth:
@@ -127,6 +140,169 @@ class CTraderProvider:
     def _write_snapshot(self, payload: dict[str, Any]) -> None:
         self.saved_snapshot_path.parent.mkdir(parents=True, exist_ok=True)
         self.saved_snapshot_path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+
+    def _load_fresh_snapshot(
+        self, anchor_time: datetime
+    ) -> tuple[list[dict[str, Any]], ProviderHealth] | None:
+        if not self.saved_snapshot_path.exists():
+            return None
+        try:
+            payload = json.loads(self.saved_snapshot_path.read_text(encoding="utf-8"))
+        except Exception:
+            return None
+        if not isinstance(payload, dict):
+            return None
+        timestamp = str(payload.get("timestamp", "")).strip()
+        if not timestamp:
+            return None
+        quote_time = _parse_quote_timestamp(timestamp, anchor_time)
+        if quote_time is None:
+            return None
+        classification = classify_xauusd_stale_quote(
+            quote_time=quote_time,
+            anchor_time=anchor_time,
+            stale_after_seconds=self.cli_config.quote_stale_after_seconds,
+        )
+        if classification.classification != "fresh":
+            return None
+        mid = payload.get("mid", payload.get("close", payload.get("bid")))
+        bid = payload.get("bid", mid)
+        ask = payload.get("ask", mid)
+        if mid is None or bid is None or ask is None:
+            return None
+        quote = {
+            "symbol": str(payload.get("symbol", self.cli_config.symbol)),
+            "bid": float(bid),
+            "ask": float(ask),
+            "mid": float(mid),
+            "timestamp": timestamp,
+            "source": "cTrader live snapshot",
+            "source_type": "spot",
+        }
+        health_payload = {
+            "data_mode": "live_seen",
+            "is_stale": False,
+            "stale_reason": "",
+        }
+        bars = [payload.get("m1_bar")] if isinstance(payload.get("m1_bar"), dict) else []
+        live_rows = self._bar_rows(bars, fallback_quote=quote, health_payload=health_payload)
+        row = {
+            "timestamp": timestamp,
+            "data_timestamp": timestamp,
+            "symbol": str(payload.get("symbol", self.cli_config.symbol)),
+            "open": float(mid),
+            "high": float(ask),
+            "low": float(bid),
+            "close": float(mid),
+            "bid": float(bid),
+            "ask": float(ask),
+            "source": "cTrader live snapshot",
+            "source_type": "spot",
+            "data_mode": "live_seen",
+            "is_stale": False,
+            "stale_reason": "",
+        }
+        health = ProviderHealth(
+            source="cTrader",
+            source_type="spot",
+            fetched_at=anchor_time.isoformat(),
+            data_timestamp=timestamp,
+            data_mode="live_seen",
+            is_available=True,
+            is_stale=False,
+            stale_reason="",
+            error="",
+            raw_source_id=str(payload.get("symbol_id", payload.get("symbolId", self.cli_config.symbol))),
+            current_value=float(mid),
+        )
+        return live_rows or [row], health
+
+    def _load_stale_live_snapshot_context(
+        self,
+        anchor_time: datetime,
+        *,
+        fallback_error: str = "",
+    ) -> tuple[list[dict[str, Any]], ProviderHealth] | None:
+        if not self.saved_snapshot_path.exists():
+            return None
+        try:
+            payload = json.loads(self.saved_snapshot_path.read_text(encoding="utf-8"))
+        except Exception:
+            return None
+        if not isinstance(payload, dict) or payload.get("ok") is False:
+            return None
+        timestamp = str(
+            payload.get("timestamp", "")
+            or payload.get("server_time", "")
+            or payload.get("data_timestamp", "")
+        ).strip()
+        quote_time = _parse_quote_timestamp(timestamp, anchor_time)
+        mid = payload.get("mid", payload.get("close", payload.get("bid")))
+        bid = payload.get("bid", mid)
+        ask = payload.get("ask", mid)
+        if quote_time is None or mid is None or bid is None or ask is None:
+            return None
+        classification = classify_xauusd_stale_quote(
+            quote_time=quote_time,
+            anchor_time=anchor_time,
+            stale_after_seconds=self.cli_config.quote_stale_after_seconds,
+        )
+        if classification.classification == "fresh":
+            return None
+        reason = classification.reason
+        if fallback_error and classification.classification != "market_closed":
+            reason = f"{reason} {fallback_error}".strip()
+        quote = {
+            "symbol": str(payload.get("symbol", self.cli_config.symbol)),
+            "bid": float(bid),
+            "ask": float(ask),
+            "mid": float(mid),
+            "timestamp": timestamp,
+            "source": "cTrader live snapshot",
+            "source_type": "spot",
+        }
+        health_payload = {
+            "data_mode": "stale",
+            "is_stale": True,
+            "stale_reason": reason,
+        }
+        bars = [payload.get("m1_bar")] if isinstance(payload.get("m1_bar"), dict) else []
+        live_rows = self._bar_rows(bars, fallback_quote=quote, health_payload=health_payload)
+        row = {
+            "timestamp": timestamp,
+            "data_timestamp": timestamp,
+            "symbol": str(payload.get("symbol", self.cli_config.symbol)),
+            "open": float(mid),
+            "high": float(ask),
+            "low": float(bid),
+            "close": float(mid),
+            "bid": float(bid),
+            "ask": float(ask),
+            "source": "cTrader live snapshot",
+            "source_type": "spot",
+            "data_mode": "stale",
+            "is_stale": True,
+            "stale_reason": reason,
+        }
+        health = ProviderHealth(
+            source="cTrader",
+            source_type="spot",
+            fetched_at=anchor_time.isoformat(),
+            data_timestamp=timestamp,
+            data_mode="stale",
+            is_available=True,
+            is_stale=True,
+            stale_reason=reason,
+            error="" if classification.classification == "market_closed" else fallback_error,
+            raw_source_id=str(payload.get("symbol_id", payload.get("symbolId", self.cli_config.symbol))),
+            current_value=float(mid),
+            metadata={
+                "stale_classification": classification.classification,
+                "quote_age_seconds": classification.age_seconds,
+                "market_closed": classification.market_closed,
+            },
+        )
+        return live_rows or [row], health
 
     def _load_saved_snapshot(self, anchor_time: datetime, *, fallback_error: str = "") -> tuple[list[dict[str, Any]], ProviderHealth]:
         if not self.saved_snapshot_path.exists():
@@ -254,6 +430,19 @@ class CTraderProvider:
     def fetch_latest(self, anchor_time: datetime) -> tuple[list[dict[str, object]], ProviderHealth]:
         if not self.is_configured():
             return [], self._unavailable_health("cTrader CLI credentials are not configured.")
+        fresh_snapshot = self._load_fresh_snapshot(anchor_time)
+        if fresh_snapshot is not None:
+            return fresh_snapshot
+        if not self.cli_config.quote_bridge_enabled:
+            reason = "Waiting for fresh cTrader live stream snapshot."
+            if self.cli_config.allow_saved_snapshot_fallback:
+                rows, health = self._load_saved_snapshot(anchor_time, fallback_error=reason)
+                if rows:
+                    return rows, health
+            stale_context = self._load_stale_live_snapshot_context(anchor_time, fallback_error=reason)
+            if stale_context is not None:
+                return stale_context
+            return [], self._unavailable_health(reason)
         try:
             response = self.bridge_runner("quote", self._bridge_payload())
             quote = response.get("quote")
@@ -281,6 +470,9 @@ class CTraderProvider:
                 rows, health = self._load_saved_snapshot(anchor_time, fallback_error=str(exc))
                 if rows:
                     return rows, health
+            stale_context = self._load_stale_live_snapshot_context(anchor_time, fallback_error=str(exc))
+            if stale_context is not None:
+                return stale_context
             return [], self._unavailable_health(str(exc))
 
     def _quote_row(self, quote: dict[str, Any], health_payload: dict[str, Any]) -> dict[str, object]:
@@ -341,6 +533,10 @@ class CTraderProvider:
     def backfill(self, start: datetime, end: datetime) -> tuple[list[dict[str, object]], ProviderHealth]:
         if not self.is_configured():
             return [], self._unavailable_health("cTrader CLI credentials are not configured.")
+        if not self.cli_config.quote_bridge_enabled:
+            return [], self._unavailable_health(
+                "Automatic cTrader CLI history bridge is disabled; use an explicit backfill/test action."
+            )
         response = self.bridge_runner(
             "backfill",
             {

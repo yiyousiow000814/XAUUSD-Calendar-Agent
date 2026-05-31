@@ -104,6 +104,76 @@ def test_replay_queries_return_combined_timeline(tmp_path) -> None:
     assert replay["suppressed_alerts"]
 
 
+def test_replay_dedupes_repeated_news_fetches_without_losing_audit_fields(tmp_path) -> None:
+    store = TimelineStore(tmp_path / "timeline.sqlite")
+    first_run_id = store.record_monitor_run(
+        run_started_at="2026-05-19T07:05:00+08:00",
+        run_type="live",
+        data_mode="live_seen",
+        backfill_required=False,
+        last_successful_run_at=None,
+        no_news_found=False,
+        alert_suppressed_reason="",
+    )
+    second_run_id = store.record_monitor_run(
+        run_started_at="2026-05-19T07:17:00+08:00",
+        run_type="live",
+        data_mode="live_seen",
+        backfill_required=False,
+        last_successful_run_at="2026-05-19T07:05:00+08:00",
+        no_news_found=False,
+        alert_suppressed_reason="",
+    )
+    base_item = {
+        "published_at": "2026-05-19T07:01:00+08:00",
+        "backfilled_at": None,
+        "is_backfilled": False,
+        "source": "Reuters",
+        "title": "Fed headline repeats across RSS polls",
+        "link": "https://example.com/fed-repeat",
+        "relevance_reason": "Fresh macro headline.",
+        "impact_direction_on_gold": "bearish_gold",
+        "data_mode": "live_seen",
+        "included": False,
+        "review_status": "filtered",
+    }
+    store.record_news_items(
+        first_run_id,
+        [
+            {
+                **base_item,
+                "first_seen_at": "2026-05-19T07:06:00+08:00",
+                "filter_reason": "Background until market confirmation.",
+            }
+        ],
+    )
+    store.record_news_items(
+        second_run_id,
+        [
+            {
+                **base_item,
+                "first_seen_at": "2026-05-19T07:18:00+08:00",
+                "summary": "Repeated Fed headline kept for replay once.",
+                "summary_source": "Local AI",
+            }
+        ],
+    )
+
+    replay = store.get_market_replay("2026-05-19T07:00:00+08:00", "2026-05-19T07:30:00+08:00")
+
+    assert len(replay["news_items"]) == 1
+    item = replay["news_items"][0]
+    assert item["title"] == "Fed headline repeats across RSS polls"
+    assert item["seen_count"] == 2
+    assert item["duplicate_count"] == 1
+    assert item["first_seen_at"] == "2026-05-19T07:06:00+08:00"
+    assert item["last_seen_at"] == "2026-05-19T07:18:00+08:00"
+    assert item["fetched_at"] == "2026-05-19T07:18:00+08:00"
+    assert item["summary_source"] == "Local AI"
+    assert item["monitor_run_ids"] == [first_run_id, second_run_id]
+    assert len(item["storage_row_ids"]) == 2
+
+
 def test_replay_uses_existing_calendar_when_timeline_has_no_calendar_rows(tmp_path) -> None:
     calendar_dir = tmp_path / "data" / "Economic_Calendar"
     year_dir = calendar_dir / "2026"
@@ -133,6 +203,17 @@ def test_replay_uses_existing_calendar_when_timeline_has_no_calendar_rows(tmp_pa
                     "Forecast": "",
                     "Previous": "",
                 },
+                {
+                    "Date": "2026-05-19",
+                    "Day": "Tuesday",
+                    "Time": "All Day",
+                    "Cur.": "BHD",
+                    "Imp.": "Holiday",
+                    "Event": "Eid al-Adha",
+                    "Actual": "",
+                    "Forecast": "",
+                    "Previous": "",
+                },
             ]
         ),
         encoding="utf-8",
@@ -141,7 +222,7 @@ def test_replay_uses_existing_calendar_when_timeline_has_no_calendar_rows(tmp_pa
 
     replay = store.get_market_replay("2026-05-19T07:00:00+08:00", "2026-05-19T09:00:00+08:00")
 
-    assert [item["title"] for item in replay["calendar_events"]] == ["Core CPI (MoM)", "Low noise event"]
+    assert [item["title"] for item in replay["calendar_events"]] == ["Core CPI (MoM)"]
     assert replay["calendar_events"][0]["data_mode"] == "calendar_context"
     assert replay["calendar_events"][0]["review_status"] == "unreviewed_context"
     assert replay["calendar_events"][0]["storage_status"] == "read_from_existing_calendar"

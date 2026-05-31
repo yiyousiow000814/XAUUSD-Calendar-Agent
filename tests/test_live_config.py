@@ -1,4 +1,4 @@
-from src.xauusd_market_agent.config import MarketAgentConfig
+from src.xauusd_market_agent.config import CTraderCliConfig, MarketAgentConfig
 
 
 def test_market_agent_config_uses_windows_friendly_defaults() -> None:
@@ -9,3 +9,26 @@ def test_market_agent_config_uses_windows_friendly_defaults() -> None:
     assert cfg.rss_feeds
     assert cfg.news_lookback_minutes == 30
     assert cfg.post_move_news_minutes == 120
+
+
+def test_ctrader_config_normalizes_legacy_last_quote_path(tmp_path) -> None:
+    config_path = tmp_path / "ctrader-cli.json"
+    config_path.write_text(
+        """
+        {
+          "enabled": true,
+          "accountId": "123456",
+          "ctid": "trader@example.com",
+          "password": "secret",
+          "symbol": "XAUUSD",
+          "snapshotPath": "user-data/ctrader-last-quote.json"
+        }
+        """,
+        encoding="utf-8",
+    )
+
+    cfg = CTraderCliConfig.from_sources(
+        MarketAgentConfig(repo_root=tmp_path, ctrader_config_path=config_path)
+    )
+
+    assert cfg.snapshot_path.name == "ctrader-live-quote.json"

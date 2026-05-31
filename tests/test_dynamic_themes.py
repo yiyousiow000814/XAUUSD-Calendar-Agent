@@ -1,10 +1,12 @@
+from dataclasses import asdict
 from datetime import datetime
 import json
 
 from src.xauusd_market_agent.driver_attention import DriverAttentionManager
 from src.xauusd_market_agent.evidence import build_evidence_gate_result
 from src.xauusd_market_agent.live_pipeline import run_monitored_live_once
-from src.xauusd_market_agent.models import CrossAssetSnapshot, Headline, MarketMove, ScenarioFixture
+from src.xauusd_market_agent.models import CrossAssetSnapshot, DriverAttentionState, Headline, MarketMove, ScenarioFixture
+from src.xauusd_market_agent.pipeline import build_llm_evidence_packet
 from src.xauusd_market_agent.config import MarketAgentConfig
 from src.xauusd_market_agent.provider_health import build_fixture_provider_health, build_provider_health
 from src.xauusd_market_agent.providers.provider_router import ProviderRouter
@@ -219,6 +221,288 @@ def test_repeated_new_theme_without_tags_groups_by_stable_phrase() -> None:
     assert theme.source_count == 2
     assert theme.related_news_count == 2
     assert "theme:tariff_risk" not in evidence.allowed_candidate_drivers
+
+
+def test_filtered_personal_finance_headlines_do_not_create_dynamic_themes() -> None:
+    fixture = _fixture(
+        news=(
+            _headline(
+                "My husband took out a Parent PLUS loan without telling me",
+                "MarketWatch",
+                "filtered",
+                "no_market_agent_keyword",
+            ),
+            _headline(
+                "My friend earns more than me but wants me to pay for vacation",
+                "MarketWatch",
+                "filtered",
+                "no_market_agent_keyword",
+            ),
+        )
+    )
+    health = build_fixture_provider_health(fixture)
+    evidence = build_evidence_gate_result(fixture, provider_health=health)
+    attention = DriverAttentionManager().evaluate(
+        fixture=fixture,
+        provider_health=health,
+        evidence_status=evidence.evidence_status,
+    )
+
+    theme_ids = [driver_id for driver_id in attention.states if driver_id.startswith("theme:")]
+
+    assert theme_ids == []
+
+
+def test_retired_dynamic_themes_do_not_enter_current_evidence_packet() -> None:
+    fixture = _fixture(news=())
+    health = build_fixture_provider_health(fixture)
+    previous_theme = DriverAttentionState(
+        driver_id="theme:husband_took",
+        label="Husband Took",
+        category="theme",
+        current_state="retired",
+        priority="micro_theme",
+        relevance_score=0.0,
+        activation_reason="",
+        deactivation_reason="No fresh headlines or market follow-through for this dynamic theme.",
+        first_activated_at="31-05-2026 16:28",
+        last_confirmed_at="",
+        last_evidence_at="31-05-2026 16:28",
+        decay_deadline="2026-05-31T17:13:00+08:00",
+        linked_assets=("news", "xauusd"),
+        required_evidence_gates=("news",),
+        optional_evidence_gates=("news", "xauusd"),
+        current_evidence_summary="1 headline(s) from 1 source(s).",
+        current_counter_evidence="Theme has no fresh supporting evidence in the current run.",
+        confidence="low",
+        source_count=1,
+        related_news_count=1,
+        related_calendar_events=0,
+        notes="Dynamic theme discovered from current headlines.",
+        data_mode="stale",
+        theme_id="theme:husband_took",
+        lifecycle="retired",
+        source_terms=("husband took", "parent plus"),
+        related_sensor_ids=("news", "xauusd"),
+        requested_sensor_ids=("news", "xauusd"),
+        rejection_reason="Single-source or one-off headline; not enough evidence.",
+    )
+    evidence = build_evidence_gate_result(fixture, provider_health=health)
+    attention = DriverAttentionManager().evaluate(
+        fixture=fixture,
+        provider_health=health,
+        evidence_status=evidence.evidence_status,
+        previous_states={"theme:husband_took": previous_theme},
+    )
+    packet = build_llm_evidence_packet(
+        fixture,
+        provider_health=health,
+        attention_snapshot=attention,
+    )
+
+    assert all(theme["theme_id"] != "theme:husband_took" for theme in packet["dynamic_themes"])
+    assert all(row["driver_id"] != "theme:husband_took" for row in packet["dormant_driver_states"])
+
+
+def test_dynamic_theme_without_current_evidence_does_not_stay_active_in_packet() -> None:
+    fixture = _fixture(news=())
+    health = build_fixture_provider_health(fixture)
+    previous_theme = DriverAttentionState(
+        driver_id="theme:fed",
+        label="Fed",
+        category="theme",
+        current_state="active",
+        priority="micro_theme",
+        relevance_score=0.76,
+        activation_reason="Repeated headlines across multiple sources.",
+        deactivation_reason="",
+        first_activated_at="19-05-2026 06:15",
+        last_confirmed_at="19-05-2026 06:30",
+        last_evidence_at="19-05-2026 06:30",
+        decay_deadline="2026-05-19T08:00:00+08:00",
+        linked_assets=("news", "xauusd"),
+        required_evidence_gates=("news",),
+        optional_evidence_gates=("news", "xauusd"),
+        current_evidence_summary="4 headline(s) from 3 source(s).",
+        current_counter_evidence="",
+        confidence="medium",
+        source_count=3,
+        related_news_count=4,
+        related_calendar_events=0,
+        notes="Dynamic theme discovered from current headlines.",
+        data_mode="live_seen",
+        theme_id="theme:fed",
+        lifecycle="active",
+        source_terms=("fed", "fomc"),
+        related_sensor_ids=("news", "xauusd"),
+        requested_sensor_ids=("news", "xauusd"),
+        promotion_reason="Repeated headlines across multiple sources.",
+        rejection_reason="",
+    )
+    evidence = build_evidence_gate_result(fixture, provider_health=health)
+    attention = DriverAttentionManager().evaluate(
+        fixture=fixture,
+        provider_health=health,
+        evidence_status=evidence.evidence_status,
+        previous_states={"theme:fed": previous_theme},
+    )
+    packet = build_llm_evidence_packet(
+        fixture,
+        provider_health=health,
+        attention_snapshot=attention,
+    )
+
+    assert all(row["driver_id"] != "theme:fed" for row in packet["active_driver_states"])
+    assert all(theme["theme_id"] != "theme:fed" for theme in packet["dynamic_themes"])
+
+
+def test_replay_filters_retired_dynamic_theme_noise(tmp_path) -> None:
+    store = TimelineStore(tmp_path / "timeline.sqlite")
+    run_id = store.record_monitor_run(
+        run_started_at="2026-05-19T07:15:00+08:00",
+        run_type="live",
+        data_mode="live_seen",
+        backfill_required=False,
+        last_successful_run_at=None,
+        no_news_found=False,
+        alert_suppressed_reason="",
+    )
+    active_theme = DriverAttentionState(
+        driver_id="theme:tariff_risk",
+        label="Tariff Risk",
+        category="theme",
+        current_state="active",
+        priority="micro_theme",
+        relevance_score=0.76,
+        activation_reason="Repeated headlines.",
+        deactivation_reason="",
+        first_activated_at="19-05-2026 07:10",
+        last_confirmed_at="19-05-2026 07:15",
+        last_evidence_at="19-05-2026 07:15",
+        decay_deadline="2026-05-19T08:00:00+08:00",
+        linked_assets=("news", "xauusd"),
+        required_evidence_gates=("news",),
+        optional_evidence_gates=("news", "xauusd"),
+        current_evidence_summary="2 headline(s).",
+        current_counter_evidence="",
+        confidence="medium",
+        source_count=2,
+        related_news_count=2,
+        related_calendar_events=0,
+        notes="Dynamic theme discovered from current headlines.",
+        data_mode="live_seen",
+        theme_id="theme:tariff_risk",
+        lifecycle="active",
+        source_terms=("tariff risk",),
+        related_sensor_ids=("news", "xauusd"),
+        requested_sensor_ids=("news", "xauusd"),
+        promotion_reason="Repeated headlines.",
+        rejection_reason="",
+    )
+    retired_theme = DriverAttentionState(
+        **{
+            **asdict(active_theme),
+            "driver_id": "theme:old_noise",
+            "theme_id": "theme:old_noise",
+            "label": "Old Noise",
+            "current_state": "retired",
+            "relevance_score": 0.0,
+            "lifecycle": "retired",
+        }
+    )
+    store.record_driver_attention_states(
+        run_id,
+        {
+            active_theme.driver_id: asdict(active_theme),
+            retired_theme.driver_id: asdict(retired_theme),
+        },
+    )
+
+    replay = store.get_market_replay(
+        "2026-05-19T07:00:00+08:00",
+        "2026-05-19T07:30:00+08:00",
+    )
+    driver_ids = [row["driver_id"] for row in replay["driver_attention_timeline"]]
+
+    assert "theme:tariff_risk" in driver_ids
+    assert "theme:old_noise" not in driver_ids
+
+
+def test_replay_filters_dynamic_theme_retired_later_in_window(tmp_path) -> None:
+    store = TimelineStore(tmp_path / "timeline.sqlite")
+    first_run_id = store.record_monitor_run(
+        run_started_at="2026-05-19T07:05:00+08:00",
+        run_type="live",
+        data_mode="live_seen",
+        backfill_required=False,
+        last_successful_run_at=None,
+        no_news_found=False,
+        alert_suppressed_reason="",
+    )
+    retired_run_id = store.record_monitor_run(
+        run_started_at="2026-05-19T07:20:00+08:00",
+        run_type="live",
+        data_mode="live_seen",
+        backfill_required=False,
+        last_successful_run_at=None,
+        no_news_found=False,
+        alert_suppressed_reason="",
+    )
+    observed_theme = DriverAttentionState(
+        driver_id="theme:old_noise",
+        label="Old Noise",
+        category="theme",
+        current_state="observed",
+        priority="micro_theme",
+        relevance_score=0.25,
+        activation_reason="Single weak headline.",
+        deactivation_reason="",
+        first_activated_at="19-05-2026 07:05",
+        last_confirmed_at="19-05-2026 07:05",
+        last_evidence_at="19-05-2026 07:05",
+        decay_deadline="2026-05-19T08:00:00+08:00",
+        linked_assets=("news",),
+        required_evidence_gates=("news",),
+        optional_evidence_gates=("news",),
+        current_evidence_summary="1 headline.",
+        current_counter_evidence="",
+        confidence="low",
+        source_count=1,
+        related_news_count=1,
+        related_calendar_events=0,
+        notes="Weak dynamic theme.",
+        data_mode="live_seen",
+        theme_id="theme:old_noise",
+        lifecycle="observed",
+        source_terms=("old noise",),
+        related_sensor_ids=("news",),
+        requested_sensor_ids=("news",),
+        promotion_reason="",
+        rejection_reason="",
+    )
+    retired_theme = DriverAttentionState(
+        **{
+            **asdict(observed_theme),
+            "current_state": "retired",
+            "relevance_score": 0.0,
+            "lifecycle": "retired",
+            "deactivation_reason": "No current evidence.",
+        }
+    )
+    store.record_driver_attention_states(first_run_id, {observed_theme.driver_id: asdict(observed_theme)})
+    store.record_driver_attention_states(retired_run_id, {retired_theme.driver_id: asdict(retired_theme)})
+
+    early_replay = store.get_market_replay(
+        "2026-05-19T07:00:00+08:00",
+        "2026-05-19T07:10:00+08:00",
+    )
+    full_replay = store.get_market_replay(
+        "2026-05-19T07:00:00+08:00",
+        "2026-05-19T07:30:00+08:00",
+    )
+
+    assert any(row["driver_id"] == "theme:old_noise" for row in early_replay["driver_attention_timeline"])
+    assert all(row["driver_id"] != "theme:old_noise" for row in full_replay["driver_attention_timeline"])
 
 
 def test_repeated_new_theme_with_cross_asset_confirmation_can_be_active() -> None:

@@ -43,6 +43,16 @@ def _env_bool(name: str) -> bool | None:
     return raw == "true"
 
 
+def _is_ctrader_shell_adapter(executable: str) -> bool:
+    raw = (executable or "").strip()
+    if not raw:
+        return False
+    path = Path(raw)
+    suffix = path.suffix.lower()
+    name = (path.name or raw).lower()
+    return suffix in {".cmd", ".bat", ".ps1"} or "ctrader-cli-adapter" in name
+
+
 def _env_json_path(name: str) -> Path | None:
     raw = os.getenv(name, "").strip()
     if not raw:
@@ -138,6 +148,13 @@ def _json_int(payload: dict[str, object], *keys: str, fallback: int | None = Non
     return fallback
 
 
+def _normalize_ctrader_snapshot_path(snapshot_path: Path) -> Path:
+    name = snapshot_path.name.lower()
+    if name == "ctrader-last-quote.json":
+        return snapshot_path.with_name("ctrader-live-quote.json")
+    return snapshot_path
+
+
 @dataclass(frozen=True)
 class CTraderCliConfig:
     enabled: bool
@@ -153,6 +170,7 @@ class CTraderCliConfig:
     quote_timeout_seconds: int
     quote_stale_after_seconds: int
     cli_executable: str
+    quote_bridge_enabled: bool = False
 
     @classmethod
     def default(cls, repo_root: Path) -> "CTraderCliConfig":
@@ -166,19 +184,29 @@ class CTraderCliConfig:
             symbol="XAUUSD",
             symbol_id=None,
             config_path=user_data_dir / "ctrader-cli.json",
-            snapshot_path=user_data_dir / "ctrader-last-quote.json",
-            allow_saved_snapshot_fallback=True,
+            snapshot_path=user_data_dir / "ctrader-live-quote.json",
+            allow_saved_snapshot_fallback=False,
             quote_timeout_seconds=8,
             quote_stale_after_seconds=15,
             cli_executable="ctrader-cli",
+            quote_bridge_enabled=False,
         )
 
     @classmethod
     def from_sources(cls, market_config: "MarketAgentConfig") -> "CTraderCliConfig":
         base = cls.default(market_config.repo_root)
+        global_default_config_path = REPO_ROOT / "user-data" / "ctrader-cli.json"
         config_path = market_config.ctrader_config_path or base.config_path
+        if (
+            not os.getenv("CTRADER_CONFIG_PATH", "").strip()
+            and market_config.repo_root.resolve() != REPO_ROOT.resolve()
+            and Path(config_path).resolve() == global_default_config_path.resolve()
+        ):
+            config_path = base.config_path
         config_payload = _read_json(config_path)
-        snapshot_path_raw = _json_str(config_payload, "snapshotPath", fallback="")
+        snapshot_path_raw = os.getenv("CTRADER_SNAPSHOT_PATH", "").strip() or _json_str(
+            config_payload, "snapshotPath", fallback=""
+        )
         snapshot_path = (
             Path(snapshot_path_raw).expanduser()
             if snapshot_path_raw
@@ -186,6 +214,7 @@ class CTraderCliConfig:
         )
         if not snapshot_path.is_absolute():
             snapshot_path = market_config.repo_root / snapshot_path
+        snapshot_path = _normalize_ctrader_snapshot_path(snapshot_path)
 
         enabled = os.getenv("CTRADER_ENABLED", "").strip().lower()
         env_enabled = enabled == "true" if enabled else None
@@ -227,6 +256,16 @@ class CTraderCliConfig:
             "allowSavedSnapshotFallback",
             fallback=base.allow_saved_snapshot_fallback,
         )
+        quote_bridge_enabled = _env_bool("CTRADER_QUOTE_BRIDGE_ENABLED")
+        configured_quote_bridge_enabled = (
+            quote_bridge_enabled
+            if quote_bridge_enabled is not None
+            else _json_bool(config_payload, "quoteBridgeEnabled", fallback=base.quote_bridge_enabled)
+        )
+        if _is_ctrader_shell_adapter(cli_executable) and os.getenv(
+            "CTRADER_ALLOW_CBOT_BRIDGE", ""
+        ).strip().lower() != "true":
+            configured_quote_bridge_enabled = False
         configured = all((account_id, ctid, password))
         return cls(
             enabled=env_enabled if env_enabled is not None else _json_bool(config_payload, "enabled", fallback=configured),
@@ -242,6 +281,7 @@ class CTraderCliConfig:
             quote_timeout_seconds=int(timeout_seconds or base.quote_timeout_seconds),
             quote_stale_after_seconds=int(stale_after_seconds or base.quote_stale_after_seconds),
             cli_executable=cli_executable or base.cli_executable,
+            quote_bridge_enabled=configured_quote_bridge_enabled,
         )
 
     def is_ready(self) -> bool:
@@ -303,7 +343,7 @@ class MarketAgentConfig:
         default_factory=lambda: _env_json_path("MARKET_AGENT_FOREX_FACTORY_FIXTURE_PATH")
     )
     forex_factory_source_url: str = os.getenv("MARKET_AGENT_FOREX_FACTORY_SOURCE_URL", "").strip()
-    csv_fallback_enabled: bool = os.getenv("MARKET_AGENT_CSV_FALLBACK_ENABLED", "true").lower() == "true"
+    csv_fallback_enabled: bool = os.getenv("MARKET_AGENT_CSV_FALLBACK_ENABLED", "false").lower() == "true"
     rss_feeds: list[str] = field(default_factory=_default_news_rss_feeds)
     news_lookback_minutes: int = int(os.getenv("MARKET_AGENT_NEWS_LOOKBACK_MINUTES", "30"))
     post_move_news_minutes: int = int(os.getenv("MARKET_AGENT_POST_MOVE_NEWS_MINUTES", "120"))
