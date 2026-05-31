@@ -1,5 +1,5 @@
 {
-  "generated_at": "30-05-2026 15:55",
+  "generated_at": "31-05-2026 15:57",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -547,18 +547,6 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::U.S. Baker Hughes Oil Rig Count::none",
-      "cur": "USD",
-      "event": "U.S. Baker Hughes Oil Rig Count",
-      "period": "",
-      "date": "2026-06-06",
-      "time": "01:00",
-      "previous_raw": "",
-      "prior_actual": "429",
-      "previous_effective": "429"
-    },
-    {
-      "issue": "previous_missing_filled",
       "event_id": "USD::Beige Book::none",
       "cur": "USD",
       "event": "Beige Book",
@@ -583,18 +571,6 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::U.S. Baker Hughes Total Rig Count::none",
-      "cur": "USD",
-      "event": "U.S. Baker Hughes Total Rig Count",
-      "period": "",
-      "date": "2026-06-06",
-      "time": "01:00",
-      "previous_raw": "",
-      "prior_actual": "562",
-      "previous_effective": "562"
-    },
-    {
-      "issue": "previous_missing_filled",
       "event_id": "USD::Atlanta Fed GDPNow::none",
       "cur": "USD",
       "event": "Atlanta Fed GDPNow  (Q2)",
@@ -613,7 +589,7 @@
       "period": "",
       "date": "2026-05-28",
       "time": "09:30",
-      "cutoff": "28-05-2026 15:54"
+      "cutoff": "29-05-2026 15:56"
     }
   ]
 }
