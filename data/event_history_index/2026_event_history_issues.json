@@ -1,5 +1,5 @@
 {
-  "generated_at": "02-06-2026 17:05",
+  "generated_at": "03-06-2026 17:14",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -672,8 +672,8 @@
       "date": "2026-06-11",
       "time": "19:30",
       "previous_raw": "",
-      "prior_actual": "61.23B",
-      "previous_effective": "61.23B"
+      "prior_actual": "54.22B",
+      "previous_effective": "54.22B"
     }
   ]
 }
