@@ -37,6 +37,12 @@ artifacts/
 
 # Local temporary scratch (do not commit)
 tmp/
+tmp_market_agent_*.json
+tmp_market_agent_*.ps1
+.codex_tmp/
+.codegraph/
+=
+, win*
 
 # Local Codex skill installs / experiments (do not commit)
 .codex/skills/codex-deepwiki/
