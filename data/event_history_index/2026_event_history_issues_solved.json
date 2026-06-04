@@ -1,5 +1,5 @@
 {
-  "generated_at": "03-06-2026 17:14",
+  "generated_at": "04-06-2026 16:34",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -558,18 +558,6 @@
       "previous_effective": "0.00"
     },
     {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::Atlanta Fed GDPNow::none",
-      "cur": "USD",
-      "event": "Atlanta Fed GDPNow  (Q2)",
-      "period": "q2",
-      "date": "2026-06-09",
-      "time": "23:30",
-      "previous_raw": "",
-      "prior_actual": "3.0%",
-      "previous_effective": "3.0%"
-    },
-    {
       "issue": "stale_missing_actual_dropped",
       "event_id": "AUD::RBA Bulletin::none",
       "cur": "AUD",
@@ -588,8 +576,8 @@
       "date": "2026-06-11",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "215K",
-      "previous_effective": "215K"
+      "prior_actual": "225K",
+      "previous_effective": "225K"
     },
     {
       "issue": "previous_missing_filled",
@@ -600,8 +588,8 @@
       "date": "2026-06-11",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "209.00K",
-      "previous_effective": "209.00K"
+      "prior_actual": "214.75K",
+      "previous_effective": "214.75K"
     },
     {
       "issue": "previous_missing_filled",
@@ -612,8 +600,8 @@
       "date": "2026-06-11",
       "time": "22:30",
       "previous_raw": "",
-      "prior_actual": "92B",
-      "previous_effective": "92B"
+      "prior_actual": "95B",
+      "previous_effective": "95B"
     },
     {
       "issue": "previous_missing_filled",
@@ -624,8 +612,8 @@
       "date": "2026-06-11",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "1,786K",
-      "previous_effective": "1,786K"
+      "prior_actual": "1,777K",
+      "previous_effective": "1,777K"
     },
     {
       "issue": "previous_missing_filled",
@@ -648,8 +636,8 @@
       "date": "2026-06-11",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "3.630%",
-      "previous_effective": "3.630%"
+      "prior_actual": "3.615%",
+      "previous_effective": "3.615%"
     },
     {
       "issue": "previous_missing_filled",
@@ -660,20 +648,32 @@
       "date": "2026-06-11",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "3.615%",
-      "previous_effective": "3.615%"
+      "prior_actual": "3.610%",
+      "previous_effective": "3.610%"
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "TRY::Gross FX Reserves::none",
-      "cur": "TRY",
-      "event": "Gross FX Reserves",
+      "event_id": "USD::U.S. Baker Hughes Oil Rig Count::none",
+      "cur": "USD",
+      "event": "U.S. Baker Hughes Oil Rig Count",
       "period": "",
-      "date": "2026-06-11",
-      "time": "19:30",
+      "date": "2026-06-13",
+      "time": "01:00",
       "previous_raw": "",
-      "prior_actual": "54.22B",
-      "previous_effective": "54.22B"
+      "prior_actual": "429",
+      "previous_effective": "429"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "USD::U.S. Baker Hughes Total Rig Count::none",
+      "cur": "USD",
+      "event": "U.S. Baker Hughes Total Rig Count",
+      "period": "",
+      "date": "2026-06-13",
+      "time": "01:00",
+      "previous_raw": "",
+      "prior_actual": "562",
+      "previous_effective": "562"
     }
   ]
 }
