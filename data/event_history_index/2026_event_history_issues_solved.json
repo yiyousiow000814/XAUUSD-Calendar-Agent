@@ -1,5 +1,5 @@
 {
-  "generated_at": "05-06-2026 16:23",
+  "generated_at": "06-06-2026 15:57",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -588,8 +588,8 @@
       "date": "2026-06-13",
       "time": "01:00",
       "previous_raw": "",
-      "prior_actual": "429",
-      "previous_effective": "429"
+      "prior_actual": "431",
+      "previous_effective": "431"
     },
     {
       "issue": "previous_missing_filled",
@@ -600,8 +600,18 @@
       "date": "2026-06-13",
       "time": "01:00",
       "previous_raw": "",
-      "prior_actual": "562",
-      "previous_effective": "562"
+      "prior_actual": "563",
+      "previous_effective": "563"
+    },
+    {
+      "issue": "stale_missing_actual_dropped",
+      "event_id": "USD::Beige Book::none",
+      "cur": "USD",
+      "event": "Beige Book",
+      "period": "",
+      "date": "2026-06-04",
+      "time": "02:00",
+      "cutoff": "04-06-2026 15:57"
     }
   ]
 }
