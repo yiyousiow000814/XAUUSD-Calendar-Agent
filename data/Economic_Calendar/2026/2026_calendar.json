@@ -65749,6 +65749,17 @@
     {
         "Date":"2026-04-02",
         "Day":"Thursday",
+        "Time":"15:00",
+        "Cur.":"TRY",
+        "Imp.":"Low",
+        "Event":"Trade Balance  (Mar)",
+        "Actual":"-11.30B",
+        "Forecast":null,
+        "Previous":"-9.00B"
+    },
+    {
+        "Date":"2026-04-02",
+        "Day":"Thursday",
         "Time":"16:00",
         "Cur.":"ARS",
         "Imp.":"Low",
@@ -65777,7 +65788,7 @@
         "Event":"Exports  (Mar)",
         "Actual":"21.90B",
         "Forecast":"21.10B",
-        "Previous":"20.30B"
+        "Previous":"30.10B"
     },
     {
         "Date":"2026-04-02",
@@ -66731,7 +66742,7 @@
         "Time":"All Day",
         "Cur.":"",
         "Imp.":"Holiday",
-        "Event":"Taiwan - Children's Day",
+        "Event":"Taiwan - National Sovereignty and Children's Day",
         "Actual":"",
         "Forecast":null,
         "Previous":""
@@ -66834,6 +66845,17 @@
         "Actual":"",
         "Forecast":null,
         "Previous":""
+    },
+    {
+        "Date":"2026-04-03",
+        "Day":"Friday",
+        "Time":"01:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Car Registration (YoY)  (Mar)",
+        "Actual":"8.80%",
+        "Forecast":null,
+        "Previous":"-7.70%"
     },
     {
         "Date":"2026-04-03",
@@ -67432,6 +67454,17 @@
     {
         "Date":"2026-04-04",
         "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"RUB",
+        "Imp.":"Medium",
+        "Event":"CFTC RUB speculative positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-35.2K"
+    },
+    {
+        "Date":"2026-04-04",
+        "Day":"Saturday",
         "Time":"13:30",
         "Cur.":"VND",
         "Imp.":"Low",
@@ -67502,9 +67535,9 @@
         "Cur.":"VND",
         "Imp.":"Low",
         "Event":"Vietnamese Foreign Direct Investment (USD)  (Mar)",
-        "Actual":"2.20B",
+        "Actual":"5.41B",
         "Forecast":null,
-        "Previous":"1.53B"
+        "Previous":"3.21B"
     },
     {
         "Date":"2026-04-04",
@@ -69863,6 +69896,17 @@
     {
         "Date":"2026-04-08",
         "Day":"Wednesday",
+        "Time":"16:00",
+        "Cur.":"TWD",
+        "Imp.":"Low",
+        "Event":"Wholesale Prices (MoM)  (Mar)",
+        "Actual":"2.53%",
+        "Forecast":null,
+        "Previous":"-1.07%"
+    },
+    {
+        "Date":"2026-04-08",
+        "Day":"Wednesday",
         "Time":"16:30",
         "Cur.":"GBP",
         "Imp.":"Medium",
@@ -70270,6 +70314,17 @@
     {
         "Date":"2026-04-09",
         "Day":"Thursday",
+        "Time":"All Day",
+        "Cur.":"",
+        "Imp.":"Holiday",
+        "Event":"Tunisia - Martyr's Day",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-04-09",
+        "Day":"Thursday",
         "Time":"01:00",
         "Cur.":"USD",
         "Imp.":"High",
@@ -70405,7 +70460,7 @@
         "Time":"12:30",
         "Cur.":"EUR",
         "Imp.":"Low",
-        "Event":"CPI (MoM)  (Mar)",
+        "Event":"Dutch CPI (MoM)  (Mar)",
         "Actual":"0.70%",
         "Forecast":null,
         "Previous":"1.00%"
@@ -70606,7 +70661,7 @@
         "Event":"GDP (YoY)  (Q4)",
         "Actual":"0.2%",
         "Forecast":"0.2%",
-        "Previous":"0.2%"
+        "Previous":"1.7%"
     },
     {
         "Date":"2026-04-09",
@@ -73038,6 +73093,17 @@
         "Actual":"-45.7K",
         "Forecast":null,
         "Previous":"-42.5K"
+    },
+    {
+        "Date":"2026-04-11",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"RUB",
+        "Imp.":"Medium",
+        "Event":"CFTC RUB speculative positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-34.5K"
     },
     {
         "Date":"2026-04-12",
@@ -77277,6 +77343,17 @@
     {
         "Date":"2026-04-18",
         "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"RUB",
+        "Imp.":"Medium",
+        "Event":"CFTC RUB speculative positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-36.2K"
+    },
+    {
+        "Date":"2026-04-18",
+        "Day":"Saturday",
         "Time":"18:00",
         "Cur.":"USD",
         "Imp.":"Low",
@@ -80621,6 +80698,17 @@
     {
         "Date":"2026-04-24",
         "Day":"Friday",
+        "Time":"17:30",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Italian 2-Year CTZ Auction",
+        "Actual":"2.800%",
+        "Forecast":null,
+        "Previous":"2.890%"
+    },
+    {
+        "Date":"2026-04-24",
+        "Day":"Friday",
         "Time":"18:30",
         "Cur.":"RUB",
         "Imp.":"Medium",
@@ -81156,6 +81244,17 @@
         "Actual":"-110.1K",
         "Forecast":null,
         "Previous":"-115.8K"
+    },
+    {
+        "Date":"2026-04-25",
+        "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"RUB",
+        "Imp.":"Medium",
+        "Event":"CFTC RUB speculative positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-36.9K"
     },
     {
         "Date":"2026-04-26",
@@ -85077,6 +85176,28 @@
         "Date":"2026-04-30",
         "Day":"Thursday",
         "Time":"17:30",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Belgium CPI (MoM)  (May)",
+        "Actual":"1.47%",
+        "Forecast":null,
+        "Previous":"0.12%"
+    },
+    {
+        "Date":"2026-04-30",
+        "Day":"Thursday",
+        "Time":"17:30",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Belgium CPI (YoY)  (May)",
+        "Actual":"4.07%",
+        "Forecast":null,
+        "Previous":"1.65%"
+    },
+    {
+        "Date":"2026-04-30",
+        "Day":"Thursday",
+        "Time":"17:30",
         "Cur.":"ZAR",
         "Imp.":"Low",
         "Event":"PPI (MoM)  (Mar)",
@@ -85699,28 +85820,6 @@
         "Actual":"",
         "Forecast":null,
         "Previous":""
-    },
-    {
-        "Date":"2026-04-30",
-        "Day":"Thursday",
-        "Time":"21:45",
-        "Cur.":"USD",
-        "Imp.":"High",
-        "Event":"Chicago PMI  (Apr)",
-        "Actual":"49.2",
-        "Forecast":"54.8",
-        "Previous":"52.8"
-    },
-    {
-        "Date":"2026-04-30",
-        "Day":"Thursday",
-        "Time":"21:55",
-        "Cur.":"UAH",
-        "Imp.":"Low",
-        "Event":"Current Account (USD)  (Mar)",
-        "Actual":"-9.500B",
-        "Forecast":null,
-        "Previous":"-5.482B"
     },
     {
         "Date":"2026-04-30",
