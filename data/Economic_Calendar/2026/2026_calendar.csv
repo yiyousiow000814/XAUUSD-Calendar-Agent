@@ -7938,6 +7938,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-02,Saturday,03:30,USD,Medium,CFTC Gold speculative net positions,159.6K,,164.0K
 2026-05-02,Saturday,03:30,USD,Medium,CFTC Nasdaq 100 speculative net positions,-2.3K,,9.4K
 2026-05-02,Saturday,03:30,USD,Medium,CFTC S&P 500 speculative net positions,-101.4K,,-110.1K
+2026-05-02,Saturday,04:30,RUB,Medium,CFTC RUB speculative positions,,,-35.1K
 2026-05-02,Saturday,21:00,SGD,Low,S&P Global Manufacturing PMI  (Apr),50.7,,50.5
 2026-05-03,Sunday,10:00,VND,Low,Trade Balance  (Apr),"-3,280M",,-670M
 2026-05-03,Sunday,10:00,VND,Low,Vietnamese CPI (MoM)  (Apr),0.84%,,1.23%
@@ -8417,6 +8418,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-09,Saturday,03:30,USD,Medium,CFTC Gold speculative net positions,163.3K,,159.6K
 2026-05-09,Saturday,03:30,USD,Medium,CFTC Nasdaq 100 speculative net positions,1.2K,,-2.3K
 2026-05-09,Saturday,03:30,USD,Medium,CFTC S&P 500 speculative net positions,-103.9K,,-101.4K
+2026-05-09,Saturday,04:30,RUB,Medium,CFTC RUB speculative positions,,,-32.9K
 2026-05-09,Saturday,07:00,COP,Low,CPI (MoM)  (Apr),0.78%,0.73%,0.78%
 2026-05-09,Saturday,07:00,COP,Low,CPI (YoY)  (Apr),5.68%,5.63%,5.56%
 2026-05-09,Saturday,07:30,USD,Low,Fed Goolsbee Speaks,,,
@@ -8790,6 +8792,9 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-15,Friday,07:00,USD,Medium,Fed Vice Chair for Supervision Barr Speaks,,,
 2026-05-15,Friday,07:50,JPY,Low,PPI (MoM)  (Apr),2.3%,0.7%,1.0%
 2026-05-15,Friday,07:50,JPY,Low,PPI (YoY)  (Apr),4.9%,3.0%,2.9%
+2026-05-15,Friday,08:00,KRW,Low,Exports (YoY)  (Apr),48.0%,48.0%,49.2%
+2026-05-15,Friday,08:00,KRW,Low,Imports (YoY)  (Apr),16.7%,16.7%,13.2%
+2026-05-15,Friday,08:00,KRW,Low,Trade Balance  (Apr),23.76B,23.77B,26.24B
 2026-05-15,Friday,10:00,AUD,Low,Thomson Reuters IPSOS PCSI  (May),48.35,,46.04
 2026-05-15,Friday,10:00,CNY,Low,China Thomson Reuters IPSOS PCSI  (May),76.34,,74.60
 2026-05-15,Friday,10:00,INR,Low,Thomson Reuters IPSOS PCSI  (May),66.57,,66.17
@@ -8932,6 +8937,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-05-19,Tuesday,07:50,JPY,Low,GDP External Demand (QoQ)  (Q1),0.3%,0.2%,0.0%
 2026-05-19,Tuesday,07:50,JPY,Low,GDP Private Consumption (QoQ)  (Q1),0.3%,0.2%,0.0%
 2026-05-19,Tuesday,07:50,JPY,Medium,GDP (YoY)  (Q1),2.1%,1.7%,0.8%
+2026-05-19,Tuesday,07:50,JPY,Medium,GDP Annualized (QoQ)  (Q1),2.1%,1.7%,1.3%
 2026-05-19,Tuesday,07:50,JPY,Medium,GDP Price Index (YoY)  (Q1),3.4%,3.1%,3.4%
 2026-05-19,Tuesday,08:30,AUD,Low,Westpac Consumer Sentiment  (May),3.5%,,-12.5%
 2026-05-19,Tuesday,09:30,AUD,Medium,RBA Meeting Minutes,,,
@@ -10281,7 +10287,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-06-06,Saturday,07:00,COP,Low,CPI (MoM)  (May),0.47%,0.51%,0.78%
 2026-06-06,Saturday,07:00,COP,Low,CPI (YoY)  (May),5.84%,5.91%,5.68%
 2026-06-07,Sunday,00:00,USD,Medium,Fed Vice Chair for Supervision Barr Speaks,,,
-2026-06-07,Sunday,10:30,TRY,Low,Treasury Cash Balance  (May),,,-251.242B
 2026-06-07,Sunday,16:00,CNY,Low,FX Reserves (USD)  (May),,,3.411T
 2026-06-08,Monday,All Day,,Holiday,Australia - King's Birthday,,,
 2026-06-08,Monday,All Day,,Holiday,Colombia - Corpus Christi Day,,,

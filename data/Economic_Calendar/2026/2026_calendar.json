@@ -87331,6 +87331,17 @@
     {
         "Date":"2026-05-02",
         "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"RUB",
+        "Imp.":"Medium",
+        "Event":"CFTC RUB speculative positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-35.1K"
+    },
+    {
+        "Date":"2026-05-02",
+        "Day":"Saturday",
         "Time":"21:00",
         "Cur.":"SGD",
         "Imp.":"Low",
@@ -92600,6 +92611,17 @@
     {
         "Date":"2026-05-09",
         "Day":"Saturday",
+        "Time":"04:30",
+        "Cur.":"RUB",
+        "Imp.":"Medium",
+        "Event":"CFTC RUB speculative positions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-32.9K"
+    },
+    {
+        "Date":"2026-05-09",
+        "Day":"Saturday",
         "Time":"07:00",
         "Cur.":"COP",
         "Imp.":"Low",
@@ -96703,6 +96725,39 @@
     {
         "Date":"2026-05-15",
         "Day":"Friday",
+        "Time":"08:00",
+        "Cur.":"KRW",
+        "Imp.":"Low",
+        "Event":"Exports (YoY)  (Apr)",
+        "Actual":"48.0%",
+        "Forecast":"48.0%",
+        "Previous":"49.2%"
+    },
+    {
+        "Date":"2026-05-15",
+        "Day":"Friday",
+        "Time":"08:00",
+        "Cur.":"KRW",
+        "Imp.":"Low",
+        "Event":"Imports (YoY)  (Apr)",
+        "Actual":"16.7%",
+        "Forecast":"16.7%",
+        "Previous":"13.2%"
+    },
+    {
+        "Date":"2026-05-15",
+        "Day":"Friday",
+        "Time":"08:00",
+        "Cur.":"KRW",
+        "Imp.":"Low",
+        "Event":"Trade Balance  (Apr)",
+        "Actual":"23.76B",
+        "Forecast":"23.77B",
+        "Previous":"26.24B"
+    },
+    {
+        "Date":"2026-05-15",
+        "Day":"Friday",
         "Time":"10:00",
         "Cur.":"AUD",
         "Imp.":"Low",
@@ -98261,6 +98316,17 @@
         "Actual":"2.1%",
         "Forecast":"1.7%",
         "Previous":"0.8%"
+    },
+    {
+        "Date":"2026-05-19",
+        "Day":"Tuesday",
+        "Time":"07:50",
+        "Cur.":"JPY",
+        "Imp.":"Medium",
+        "Event":"GDP Annualized (QoQ)  (Q1)",
+        "Actual":"2.1%",
+        "Forecast":"1.7%",
+        "Previous":"1.3%"
     },
     {
         "Date":"2026-05-19",
@@ -113100,17 +113166,6 @@
         "Actual":"",
         "Forecast":null,
         "Previous":""
-    },
-    {
-        "Date":"2026-06-07",
-        "Day":"Sunday",
-        "Time":"10:30",
-        "Cur.":"TRY",
-        "Imp.":"Low",
-        "Event":"Treasury Cash Balance  (May)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"-251.242B"
     },
     {
         "Date":"2026-06-07",
