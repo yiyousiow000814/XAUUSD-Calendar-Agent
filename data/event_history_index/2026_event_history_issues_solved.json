@@ -1,5 +1,5 @@
 {
-  "generated_at": "06-06-2026 15:57",
+  "generated_at": "07-06-2026 10:58",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -521,7 +521,7 @@
       "period": "may",
       "date": "2026-05-10",
       "time": "20:00",
-      "cutoff": "12-05-2026 16:17"
+      "cutoff": "05-06-2026 10:58"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -531,7 +531,7 @@
       "period": "may",
       "date": "2026-05-10",
       "time": "20:00",
-      "cutoff": "12-05-2026 16:17"
+      "cutoff": "05-06-2026 10:58"
     },
     {
       "issue": "previous_missing_filled",
@@ -565,7 +565,7 @@
       "period": "",
       "date": "2026-05-28",
       "time": "09:30",
-      "cutoff": "30-05-2026 17:22"
+      "cutoff": "05-06-2026 10:58"
     },
     {
       "issue": "previous_missing_filled",
@@ -612,6 +612,26 @@
       "date": "2026-06-04",
       "time": "02:00",
       "cutoff": "04-06-2026 15:57"
+    },
+    {
+      "issue": "stale_missing_actual_dropped",
+      "event_id": "RUB::CFTC RUB speculative positions::none",
+      "cur": "RUB",
+      "event": "CFTC RUB speculative positions",
+      "period": "",
+      "date": "2026-05-02",
+      "time": "04:30",
+      "cutoff": "05-06-2026 10:58"
+    },
+    {
+      "issue": "stale_missing_actual_dropped",
+      "event_id": "RUB::CFTC RUB speculative positions::none",
+      "cur": "RUB",
+      "event": "CFTC RUB speculative positions",
+      "period": "",
+      "date": "2026-05-09",
+      "time": "04:30",
+      "cutoff": "05-06-2026 10:58"
     }
   ]
 }
