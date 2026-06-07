@@ -1,5 +1,5 @@
 {
-  "generated_at": "07-06-2026 11:03",
+  "generated_at": "07-06-2026 15:58",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -580,30 +580,6 @@
       "previous_effective": "682.32B"
     },
     {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::U.S. Baker Hughes Oil Rig Count::none",
-      "cur": "USD",
-      "event": "U.S. Baker Hughes Oil Rig Count",
-      "period": "",
-      "date": "2026-06-13",
-      "time": "01:00",
-      "previous_raw": "",
-      "prior_actual": "431",
-      "previous_effective": "431"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::U.S. Baker Hughes Total Rig Count::none",
-      "cur": "USD",
-      "event": "U.S. Baker Hughes Total Rig Count",
-      "period": "",
-      "date": "2026-06-13",
-      "time": "01:00",
-      "previous_raw": "",
-      "prior_actual": "563",
-      "previous_effective": "563"
-    },
-    {
       "issue": "stale_missing_actual_dropped",
       "event_id": "USD::Beige Book::none",
       "cur": "USD",
@@ -611,7 +587,7 @@
       "period": "",
       "date": "2026-06-04",
       "time": "02:00",
-      "cutoff": "04-06-2026 15:57"
+      "cutoff": "05-06-2026 15:58"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -672,6 +648,30 @@
       "date": "2026-04-25",
       "time": "04:30",
       "cutoff": "05-06-2026 11:03"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "USD::Atlanta Fed GDPNow::none",
+      "cur": "USD",
+      "event": "Atlanta Fed GDPNow  (Q2)",
+      "period": "q2",
+      "date": "2026-06-16",
+      "time": "22:00",
+      "previous_raw": "",
+      "prior_actual": "3.0%",
+      "previous_effective": "3.0%"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "USD::Atlanta Fed GDPNow::none",
+      "cur": "USD",
+      "event": "Atlanta Fed GDPNow  (Q2)",
+      "period": "q2",
+      "date": "2026-06-17",
+      "time": "23:30",
+      "previous_raw": "",
+      "prior_actual": "3.0%",
+      "previous_effective": "3.0%"
     }
   ]
 }
