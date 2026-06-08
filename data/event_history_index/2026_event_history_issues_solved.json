@@ -1,5 +1,5 @@
 {
-  "generated_at": "07-06-2026 15:58",
+  "generated_at": "08-06-2026 16:49",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -568,18 +568,6 @@
       "cutoff": "05-06-2026 10:58"
     },
     {
-      "issue": "previous_missing_filled",
-      "event_id": "INR::FX Reserves, USD::none",
-      "cur": "INR",
-      "event": "FX Reserves, USD",
-      "period": "",
-      "date": "2026-06-12",
-      "time": "19:30",
-      "previous_raw": "",
-      "prior_actual": "682.32B",
-      "previous_effective": "682.32B"
-    },
-    {
       "issue": "stale_missing_actual_dropped",
       "event_id": "USD::Beige Book::none",
       "cur": "USD",
@@ -587,7 +575,7 @@
       "period": "",
       "date": "2026-06-04",
       "time": "02:00",
-      "cutoff": "05-06-2026 15:58"
+      "cutoff": "06-06-2026 16:49"
     },
     {
       "issue": "stale_missing_actual_dropped",

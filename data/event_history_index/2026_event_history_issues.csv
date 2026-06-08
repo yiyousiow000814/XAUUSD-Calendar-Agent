@@ -54,8 +54,7 @@ stale_missing_actual_dropped,EGP::CPI::y/y,EGP,CPI (YoY)  (May),may,2026-05-10,2
 previous_missing_filled,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2026-05-28,09:30,,0.00,0.00,
 previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2026-06-04,02:00,,0.00,0.00,
 stale_missing_actual_dropped,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2026-05-28,09:30,,,,"{""cutoff"": ""05-06-2026 10:58""}"
-previous_missing_filled,"INR::FX Reserves, USD::none",INR,"FX Reserves, USD",,2026-06-12,19:30,,682.32B,682.32B,
-stale_missing_actual_dropped,USD::Beige Book::none,USD,Beige Book,,2026-06-04,02:00,,,,"{""cutoff"": ""05-06-2026 15:58""}"
+stale_missing_actual_dropped,USD::Beige Book::none,USD,Beige Book,,2026-06-04,02:00,,,,"{""cutoff"": ""06-06-2026 16:49""}"
 stale_missing_actual_dropped,RUB::CFTC RUB speculative positions::none,RUB,CFTC RUB speculative positions,,2026-05-02,04:30,,,,"{""cutoff"": ""05-06-2026 10:58""}"
 stale_missing_actual_dropped,RUB::CFTC RUB speculative positions::none,RUB,CFTC RUB speculative positions,,2026-05-09,04:30,,,,"{""cutoff"": ""05-06-2026 10:58""}"
 stale_missing_actual_dropped,RUB::CFTC RUB speculative positions::none,RUB,CFTC RUB speculative positions,,2026-04-04,04:30,,,,"{""cutoff"": ""05-06-2026 11:03""}"
