@@ -1,5 +1,5 @@
 {
-  "generated_at": "09-06-2026 16:24",
+  "generated_at": "10-06-2026 16:45",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -756,6 +756,42 @@
       "previous_raw": "",
       "prior_actual": "3.610%",
       "previous_effective": "3.610%"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "CAD::Retail Sales::m/m",
+      "cur": "CAD",
+      "event": "Retail Sales (MoM)  (May)",
+      "period": "may",
+      "date": "2026-06-19",
+      "time": "20:30",
+      "previous_raw": "",
+      "prior_actual": "0.6%",
+      "previous_effective": "0.6%"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "INR::FX Reserves, USD::none",
+      "cur": "INR",
+      "event": "FX Reserves, USD",
+      "period": "",
+      "date": "2026-06-19",
+      "time": "19:30",
+      "previous_raw": "",
+      "prior_actual": "682.32B",
+      "previous_effective": "682.32B"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "TRY::Gross FX Reserves::none",
+      "cur": "TRY",
+      "event": "Gross FX Reserves",
+      "period": "",
+      "date": "2026-06-18",
+      "time": "19:30",
+      "previous_raw": "",
+      "prior_actual": "53.23B",
+      "previous_effective": "53.23B"
     }
   ]
 }

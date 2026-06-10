@@ -17,3 +17,6 @@ previous_missing_filled,USD::U.S. Baker Hughes Oil Rig Count::none,USD,U.S. Bake
 previous_missing_filled,USD::4-Week Bill Auction::none,USD,4-Week Bill Auction,,2026-06-18,23:30,,3.615%,3.615%
 previous_missing_filled,USD::U.S. Baker Hughes Total Rig Count::none,USD,U.S. Baker Hughes Total Rig Count,,2026-06-20,01:00,,563,563
 previous_missing_filled,USD::8-Week Bill Auction::none,USD,8-Week Bill Auction,,2026-06-18,23:30,,3.610%,3.610%
+previous_missing_filled,CAD::Retail Sales::m/m,CAD,Retail Sales (MoM)  (May),may,2026-06-19,20:30,,0.6%,0.6%
+previous_missing_filled,"INR::FX Reserves, USD::none",INR,"FX Reserves, USD",,2026-06-19,19:30,,682.32B,682.32B
+previous_missing_filled,TRY::Gross FX Reserves::none,TRY,Gross FX Reserves,,2026-06-18,19:30,,53.23B,53.23B
