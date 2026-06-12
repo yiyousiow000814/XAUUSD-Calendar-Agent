@@ -62,16 +62,9 @@ stale_missing_actual_dropped,RUB::CFTC RUB speculative positions::none,RUB,CFTC 
 stale_missing_actual_dropped,RUB::CFTC RUB speculative positions::none,RUB,CFTC RUB speculative positions,,2026-04-18,04:30,,,,"{""cutoff"": ""05-06-2026 11:03""}"
 stale_missing_actual_dropped,RUB::CFTC RUB speculative positions::none,RUB,CFTC RUB speculative positions,,2026-04-25,04:30,,,,"{""cutoff"": ""05-06-2026 11:03""}"
 previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q2),q2,2026-06-17,23:30,,3.3%,3.3%,
-previous_missing_filled,USD::Initial Jobless Claims::none,USD,Initial Jobless Claims,,2026-06-18,20:30,,229K,229K,
-previous_missing_filled,USD::Jobless Claims 4-Week Avg.::none,USD,Jobless Claims 4-Week Avg.,,2026-06-18,20:30,,219.00K,219.00K,
-previous_missing_filled,USD::Natural Gas Storage::none,USD,Natural Gas Storage,,2026-06-18,22:30,,108B,108B,
-previous_missing_filled,USD::Continuing Jobless Claims::none,USD,Continuing Jobless Claims,,2026-06-18,20:30,,"1,795K","1,795K",
 previous_missing_filled,USD::U.S. Baker Hughes Oil Rig Count::none,USD,U.S. Baker Hughes Oil Rig Count,,2026-06-20,01:00,,431,431,
-previous_missing_filled,USD::4-Week Bill Auction::none,USD,4-Week Bill Auction,,2026-06-18,23:30,,3.595%,3.595%,
 previous_missing_filled,USD::U.S. Baker Hughes Total Rig Count::none,USD,U.S. Baker Hughes Total Rig Count,,2026-06-20,01:00,,563,563,
-previous_missing_filled,USD::8-Week Bill Auction::none,USD,8-Week Bill Auction,,2026-06-18,23:30,,3.610%,3.610%,
 previous_missing_filled,CAD::Retail Sales::m/m,CAD,Retail Sales (MoM)  (May),may,2026-06-19,20:30,,0.6%,0.6%,
-previous_missing_filled,"INR::FX Reserves, USD::none",INR,"FX Reserves, USD",,2026-06-19,19:30,,682.32B,682.32B,
-previous_missing_filled,TRY::Gross FX Reserves::none,TRY,Gross FX Reserves,,2026-06-18,19:30,,54.25B,54.25B,
+previous_missing_filled,"INR::FX Reserves, USD::none",INR,"FX Reserves, USD",,2026-06-19,19:30,,681.61B,681.61B,
 previous_missing_filled,USD::U.S. Baker Hughes Oil Rig Count::none,USD,U.S. Baker Hughes Oil Rig Count,,2026-06-19,01:00,,431,431,
 previous_missing_filled,USD::U.S. Baker Hughes Total Rig Count::none,USD,U.S. Baker Hughes Total Rig Count,,2026-06-19,01:00,,563,563,

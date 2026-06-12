@@ -1,5 +1,5 @@
 {
-  "generated_at": "11-06-2026 16:51",
+  "generated_at": "12-06-2026 16:33",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -651,54 +651,6 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::Initial Jobless Claims::none",
-      "cur": "USD",
-      "event": "Initial Jobless Claims",
-      "period": "",
-      "date": "2026-06-18",
-      "time": "20:30",
-      "previous_raw": "",
-      "prior_actual": "229K",
-      "previous_effective": "229K"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::Jobless Claims 4-Week Avg.::none",
-      "cur": "USD",
-      "event": "Jobless Claims 4-Week Avg.",
-      "period": "",
-      "date": "2026-06-18",
-      "time": "20:30",
-      "previous_raw": "",
-      "prior_actual": "219.00K",
-      "previous_effective": "219.00K"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::Natural Gas Storage::none",
-      "cur": "USD",
-      "event": "Natural Gas Storage",
-      "period": "",
-      "date": "2026-06-18",
-      "time": "22:30",
-      "previous_raw": "",
-      "prior_actual": "108B",
-      "previous_effective": "108B"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::Continuing Jobless Claims::none",
-      "cur": "USD",
-      "event": "Continuing Jobless Claims",
-      "period": "",
-      "date": "2026-06-18",
-      "time": "20:30",
-      "previous_raw": "",
-      "prior_actual": "1,795K",
-      "previous_effective": "1,795K"
-    },
-    {
-      "issue": "previous_missing_filled",
       "event_id": "USD::U.S. Baker Hughes Oil Rig Count::none",
       "cur": "USD",
       "event": "U.S. Baker Hughes Oil Rig Count",
@@ -711,18 +663,6 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::4-Week Bill Auction::none",
-      "cur": "USD",
-      "event": "4-Week Bill Auction",
-      "period": "",
-      "date": "2026-06-18",
-      "time": "23:30",
-      "previous_raw": "",
-      "prior_actual": "3.595%",
-      "previous_effective": "3.595%"
-    },
-    {
-      "issue": "previous_missing_filled",
       "event_id": "USD::U.S. Baker Hughes Total Rig Count::none",
       "cur": "USD",
       "event": "U.S. Baker Hughes Total Rig Count",
@@ -732,18 +672,6 @@
       "previous_raw": "",
       "prior_actual": "563",
       "previous_effective": "563"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::8-Week Bill Auction::none",
-      "cur": "USD",
-      "event": "8-Week Bill Auction",
-      "period": "",
-      "date": "2026-06-18",
-      "time": "23:30",
-      "previous_raw": "",
-      "prior_actual": "3.610%",
-      "previous_effective": "3.610%"
     },
     {
       "issue": "previous_missing_filled",
@@ -766,20 +694,8 @@
       "date": "2026-06-19",
       "time": "19:30",
       "previous_raw": "",
-      "prior_actual": "682.32B",
-      "previous_effective": "682.32B"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "TRY::Gross FX Reserves::none",
-      "cur": "TRY",
-      "event": "Gross FX Reserves",
-      "period": "",
-      "date": "2026-06-18",
-      "time": "19:30",
-      "previous_raw": "",
-      "prior_actual": "54.25B",
-      "previous_effective": "54.25B"
+      "prior_actual": "681.61B",
+      "previous_effective": "681.61B"
     },
     {
       "issue": "previous_missing_filled",
