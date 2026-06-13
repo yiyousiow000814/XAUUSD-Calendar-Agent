@@ -1,5 +1,5 @@
 {
-  "generated_at": "12-06-2026 16:33",
+  "generated_at": "13-06-2026 16:02",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -651,42 +651,6 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::U.S. Baker Hughes Oil Rig Count::none",
-      "cur": "USD",
-      "event": "U.S. Baker Hughes Oil Rig Count",
-      "period": "",
-      "date": "2026-06-20",
-      "time": "01:00",
-      "previous_raw": "",
-      "prior_actual": "431",
-      "previous_effective": "431"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::U.S. Baker Hughes Total Rig Count::none",
-      "cur": "USD",
-      "event": "U.S. Baker Hughes Total Rig Count",
-      "period": "",
-      "date": "2026-06-20",
-      "time": "01:00",
-      "previous_raw": "",
-      "prior_actual": "563",
-      "previous_effective": "563"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "CAD::Retail Sales::m/m",
-      "cur": "CAD",
-      "event": "Retail Sales (MoM)  (May)",
-      "period": "may",
-      "date": "2026-06-19",
-      "time": "20:30",
-      "previous_raw": "",
-      "prior_actual": "0.6%",
-      "previous_effective": "0.6%"
-    },
-    {
-      "issue": "previous_missing_filled",
       "event_id": "INR::FX Reserves, USD::none",
       "cur": "INR",
       "event": "FX Reserves, USD",
@@ -706,8 +670,8 @@
       "date": "2026-06-19",
       "time": "01:00",
       "previous_raw": "",
-      "prior_actual": "431",
-      "previous_effective": "431"
+      "prior_actual": "433",
+      "previous_effective": "433"
     },
     {
       "issue": "previous_missing_filled",
@@ -718,8 +682,8 @@
       "date": "2026-06-19",
       "time": "01:00",
       "previous_raw": "",
-      "prior_actual": "563",
-      "previous_effective": "563"
+      "prior_actual": "562",
+      "previous_effective": "562"
     }
   ]
 }
