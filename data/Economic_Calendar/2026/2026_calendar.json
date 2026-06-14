@@ -117353,6 +117353,17 @@
         "Time":"17:00",
         "Cur.":"CNY",
         "Imp.":"Low",
+        "Event":"Chinese Total Social Financing  (May)",
+        "Actual":"2,030.0B",
+        "Forecast":"1,870.0B",
+        "Previous":"620.0B"
+    },
+    {
+        "Date":"2026-06-12",
+        "Day":"Friday",
+        "Time":"17:00",
+        "Cur.":"CNY",
+        "Imp.":"Low",
         "Event":"M2 Money Stock (YoY)  (May)",
         "Actual":"8.6%",
         "Forecast":"8.6%",
@@ -117645,17 +117656,6 @@
         "Previous":""
     },
     {
-        "Date":"2026-06-12",
-        "Day":"Friday",
-        "Time":"23:05",
-        "Cur.":"CNY",
-        "Imp.":"Low",
-        "Event":"Chinese Total Social Financing  (May)",
-        "Actual":"2,030.0B",
-        "Forecast":"1,870.0B",
-        "Previous":"620.0B"
-    },
-    {
         "Date":"2026-06-13",
         "Day":"Saturday",
         "Time":"01:00",
@@ -117904,9 +117904,9 @@
         "Cur.":"ILS",
         "Imp.":"Low",
         "Event":"Exports (USD)  (May)",
-        "Actual":"",
+        "Actual":"6,047.4M",
         "Forecast":null,
-        "Previous":"4,997.1M"
+        "Previous":"4,724.8M"
     },
     {
         "Date":"2026-06-14",
@@ -117915,9 +117915,9 @@
         "Cur.":"ILS",
         "Imp.":"Low",
         "Event":"Imports (USD)  (May)",
-        "Actual":"",
+        "Actual":"9,736.6M",
         "Forecast":null,
-        "Previous":"9,185.8M"
+        "Previous":"9,227.7M"
     },
     {
         "Date":"2026-06-14",
@@ -117926,9 +117926,9 @@
         "Cur.":"ILS",
         "Imp.":"Low",
         "Event":"Trade Balance  (May)",
-        "Actual":"",
+        "Actual":"-3,689.2M",
         "Forecast":null,
-        "Previous":"-4,188.7M"
+        "Previous":"-4,502.9M"
     },
     {
         "Date":"2026-06-14",
@@ -118010,12 +118010,23 @@
     {
         "Date":"2026-06-15",
         "Day":"Monday",
+        "Time":"07:00",
+        "Cur.":"GBP",
+        "Imp.":"Low",
+        "Event":"Rightmove House Price Index (MoM)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"1.2%"
+    },
+    {
+        "Date":"2026-06-15",
+        "Day":"Monday",
         "Time":"08:00",
         "Cur.":"KRW",
         "Imp.":"Low",
         "Event":"Exports (YoY)  (May)",
         "Actual":"",
-        "Forecast":"53.2%",
+        "Forecast":"48.0%",
         "Previous":"53.2%"
     },
     {
@@ -118046,7 +118057,7 @@
         "Time":"10:30",
         "Cur.":"SGD",
         "Imp.":"Low",
-        "Event":"Unemployment Rate  (Q1)",
+        "Event":"Unemployment Rate  (Q2)",
         "Actual":"",
         "Forecast":null,
         "Previous":"2.1%"
@@ -118103,7 +118114,7 @@
         "Imp.":"Low",
         "Event":"German WPI (MoM)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"0.8%",
         "Previous":"2.0%"
     },
     {
@@ -118158,7 +118169,7 @@
         "Imp.":"Low",
         "Event":"CPI (MoM)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"0.2%",
         "Previous":"0.2%"
     },
     {
@@ -118169,7 +118180,7 @@
         "Imp.":"Low",
         "Event":"CPI (YoY)  (May)",
         "Actual":"",
-        "Forecast":"1.9%",
+        "Forecast":"1.8%",
         "Previous":"1.7%"
     },
     {
@@ -118202,7 +118213,7 @@
         "Imp.":"Medium",
         "Event":"PPI (MoM)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"0.4%",
         "Previous":"0.8%"
     },
     {
@@ -118378,7 +118389,7 @@
         "Imp.":"Low",
         "Event":"Italian Trade Balance  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"5.190B",
         "Previous":"4.709B"
     },
     {
@@ -118422,7 +118433,7 @@
         "Imp.":"Medium",
         "Event":"Industrial Production (MoM)  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"0.2%",
         "Previous":"0.2%"
     },
     {
@@ -118433,7 +118444,7 @@
         "Imp.":"Medium",
         "Event":"Trade Balance  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"7.8B",
         "Previous":"7.8B"
     },
     {
@@ -118457,6 +118468,17 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"1,888.23B"
+    },
+    {
+        "Date":"2026-06-15",
+        "Day":"Monday",
+        "Time":"19:00",
+        "Cur.":"ILS",
+        "Imp.":"Low",
+        "Event":"M1 Money Supply (YoY)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.6%"
     },
     {
         "Date":"2026-06-15",
@@ -118499,7 +118521,7 @@
         "Imp.":"Medium",
         "Event":"Housing Starts  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"255.0K",
         "Previous":"279.3K"
     },
     {
@@ -118510,7 +118532,7 @@
         "Imp.":"Low",
         "Event":"Capacity Utilization Rate  (Q1)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"76.2%",
         "Previous":"78.5%"
     },
     {
@@ -118521,7 +118543,7 @@
         "Imp.":"Low",
         "Event":"Manufacturing Sales (MoM)  (Apr)",
         "Actual":"",
-        "Forecast":"4.6%",
+        "Forecast":"4.4%",
         "Previous":"3.0%"
     },
     {
@@ -118554,7 +118576,7 @@
         "Imp.":"Medium",
         "Event":"NY Empire State Manufacturing Index  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"13.20",
         "Previous":"19.60"
     },
     {
@@ -118653,7 +118675,7 @@
         "Imp.":"Medium",
         "Event":"Industrial Production (MoM)  (May)",
         "Actual":"",
-        "Forecast":"0.2%",
+        "Forecast":"0.3%",
         "Previous":"0.7%"
     },
     {
@@ -118675,7 +118697,7 @@
         "Imp.":"Low",
         "Event":"NAHB Housing Market Index  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"36",
         "Previous":"37"
     },
     {
@@ -118950,7 +118972,7 @@
         "Imp.":"Low",
         "Event":"Retail Sales (YoY)  (May)",
         "Actual":"",
-        "Forecast":"0.0%",
+        "Forecast":"-0.2%",
         "Previous":"0.2%"
     },
     {
@@ -118972,7 +118994,7 @@
         "Imp.":"Medium",
         "Event":"Chinese Unemployment Rate  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"5.2%",
         "Previous":"5.2%"
     },
     {
@@ -118983,7 +119005,7 @@
         "Imp.":"Medium",
         "Event":"Fixed Asset Investment (YoY)  (May)",
         "Actual":"",
-        "Forecast":"-2.0%",
+        "Forecast":"-2.3%",
         "Previous":"-1.6%"
     },
     {
@@ -118994,7 +119016,7 @@
         "Imp.":"Medium",
         "Event":"Industrial Production (YoY)  (May)",
         "Actual":"",
-        "Forecast":"4.2%",
+        "Forecast":"4.3%",
         "Previous":"4.1%"
     },
     {
@@ -119236,7 +119258,7 @@
         "Imp.":"Medium",
         "Event":"German ZEW Current Conditions  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"-77.0",
         "Previous":"-77.8"
     },
     {
@@ -119247,7 +119269,7 @@
         "Imp.":"Medium",
         "Event":"German ZEW Economic Sentiment  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"-5.5",
         "Previous":"-10.2"
     },
     {
@@ -119269,7 +119291,7 @@
         "Imp.":"Medium",
         "Event":"ZEW Economic Sentiment  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"-7.6",
         "Previous":"-9.1"
     },
     {
@@ -119423,7 +119445,7 @@
         "Imp.":"Medium",
         "Event":"Foreign Securities Purchases  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"11.28B",
         "Previous":"4.62B"
     },
     {
@@ -119467,7 +119489,7 @@
         "Imp.":"Medium",
         "Event":"Building Permits  (May)",
         "Actual":"",
-        "Forecast":"1.410M",
+        "Forecast":"1.420M",
         "Previous":"1.423M"
     },
     {
@@ -119489,7 +119511,7 @@
         "Imp.":"Medium",
         "Event":"Housing Starts  (May)",
         "Actual":"",
-        "Forecast":"1.440M",
+        "Forecast":"1.420M",
         "Previous":"1.465M"
     },
     {
@@ -119511,7 +119533,7 @@
         "Imp.":"Medium",
         "Event":"Import Price Index (MoM)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"0.9%",
         "Previous":"1.9%"
     },
     {
@@ -119524,6 +119546,17 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"9.1%"
+    },
+    {
+        "Date":"2026-06-16",
+        "Day":"Tuesday",
+        "Time":"21:10",
+        "Cur.":"EUR",
+        "Imp.":"Medium",
+        "Event":"ECB's Lane Speaks",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
     },
     {
         "Date":"2026-06-16",
@@ -119654,7 +119687,7 @@
         "Imp.":"Medium",
         "Event":"Current Account (QoQ)  (Q1)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"-1.19B",
         "Previous":"-5.98B"
     },
     {
@@ -119687,7 +119720,7 @@
         "Imp.":"Low",
         "Event":"Core Machinery Orders (MoM)  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"4.1%",
         "Previous":"-9.4%"
     },
     {
@@ -119698,7 +119731,7 @@
         "Imp.":"Low",
         "Event":"Core Machinery Orders (YoY)  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"9.3%",
         "Previous":"5.9%"
     },
     {
@@ -119709,7 +119742,7 @@
         "Imp.":"Low",
         "Event":"Imports (YoY)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"12.8%",
         "Previous":"9.8%"
     },
     {
@@ -119720,7 +119753,7 @@
         "Imp.":"Medium",
         "Event":"Adjusted Trade Balance",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"-0.21T",
         "Previous":"0.24T"
     },
     {
@@ -119731,7 +119764,7 @@
         "Imp.":"Medium",
         "Event":"Exports (YoY)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"16.2%",
         "Previous":"14.8%"
     },
     {
@@ -119742,7 +119775,7 @@
         "Imp.":"Medium",
         "Event":"Trade Balance  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"-564.6B",
         "Previous":"299.3B"
     },
     {
@@ -119819,7 +119852,7 @@
         "Imp.":"High",
         "Event":"CPI (YoY)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"3.0%",
         "Previous":"2.8%"
     },
     {
@@ -119852,7 +119885,7 @@
         "Imp.":"Low",
         "Event":"Core CPI (YoY)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"2.7%",
         "Previous":"2.5%"
     },
     {
@@ -119918,7 +119951,7 @@
         "Imp.":"Low",
         "Event":"PPI Output (MoM)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"0.5%",
         "Previous":"1.4%"
     },
     {
@@ -119951,7 +119984,7 @@
         "Imp.":"Low",
         "Event":"RPI (YoY)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"3.3%",
         "Previous":"3.0%"
     },
     {
@@ -119973,7 +120006,7 @@
         "Imp.":"Medium",
         "Event":"PPI Input (MoM)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"0.5%",
         "Previous":"2.4%"
     },
     {
@@ -120149,7 +120182,7 @@
         "Imp.":"Low",
         "Event":"House Price Index (YoY)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"2.8%",
         "Previous":"0.0%"
     },
     {
@@ -120309,6 +120342,17 @@
     {
         "Date":"2026-06-17",
         "Day":"Wednesday",
+        "Time":"18:50",
+        "Cur.":"EUR",
+        "Imp.":"Medium",
+        "Event":"ECB President Lagarde Speaks",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-06-17",
+        "Day":"Wednesday",
         "Time":"19:00",
         "Cur.":"USD",
         "Imp.":"Low",
@@ -120402,7 +120446,7 @@
         "Imp.":"Medium",
         "Event":"New Housing Price Index (MoM)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"-0.1%",
         "Previous":"-0.4%"
     },
     {
@@ -120479,7 +120523,7 @@
         "Imp.":"Medium",
         "Event":"Business Inventories (MoM)  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"0.5%",
         "Previous":"0.9%"
     },
     {
@@ -120490,7 +120534,7 @@
         "Imp.":"Medium",
         "Event":"Pending Home Sales (MoM)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"1.3%",
         "Previous":"1.4%"
     },
     {
@@ -120809,7 +120853,7 @@
         "Imp.":"Low",
         "Event":"GDP (YoY)  (Q1)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"1.1%",
         "Previous":"1.3%"
     },
     {
@@ -120820,7 +120864,7 @@
         "Imp.":"Low",
         "Event":"GDP Annual Average  (Q1)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"0.8%",
         "Previous":"0.2%"
     },
     {
@@ -120941,7 +120985,7 @@
         "Imp.":"Low",
         "Event":"Average Earnings ex Bonus  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"3.3%",
         "Previous":"3.4%"
     },
     {
@@ -120952,7 +120996,7 @@
         "Imp.":"Medium",
         "Event":"Average Earnings Index +Bonus  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"4.0%",
         "Previous":"4.1%"
     },
     {
@@ -120963,7 +121007,7 @@
         "Imp.":"Medium",
         "Event":"Claimant Count Change  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"25.8K",
         "Previous":"26.5K"
     },
     {
@@ -120985,7 +121029,7 @@
         "Imp.":"Medium",
         "Event":"Unemployment Rate  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"5.0%",
         "Previous":"5.0%"
     },
     {
@@ -121095,7 +121139,7 @@
         "Imp.":"Low",
         "Event":"Current Account  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"18.5B",
         "Previous":"14.9B"
     },
     {
@@ -121211,6 +121255,17 @@
     {
         "Date":"2026-06-18",
         "Day":"Thursday",
+        "Time":"18:10",
+        "Cur.":"EUR",
+        "Imp.":"Medium",
+        "Event":"ECB's Elderson Speaks",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-06-18",
+        "Day":"Thursday",
         "Time":"18:15",
         "Cur.":"BWP",
         "Imp.":"Low",
@@ -121227,7 +121282,7 @@
         "Imp.":"High",
         "Event":"BoE Interest Rate Decision  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"3.75%",
         "Previous":"3.75%"
     },
     {
@@ -121249,7 +121304,7 @@
         "Imp.":"Medium",
         "Event":"BoE MPC vote cut  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"0",
         "Previous":"0"
     },
     {
@@ -121260,7 +121315,7 @@
         "Imp.":"Medium",
         "Event":"BoE MPC vote hike  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"1",
         "Previous":"1"
     },
     {
@@ -121271,7 +121326,7 @@
         "Imp.":"Medium",
         "Event":"BoE MPC vote unchanged  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"8",
         "Previous":"8"
     },
     {
@@ -121354,12 +121409,23 @@
     {
         "Date":"2026-06-18",
         "Day":"Thursday",
+        "Time":"20:15",
+        "Cur.":"EUR",
+        "Imp.":"Medium",
+        "Event":"ECB's Lane Speaks",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-06-18",
+        "Day":"Thursday",
         "Time":"20:30",
         "Cur.":"CAD",
         "Imp.":"Low",
         "Event":"IPPI (MoM)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"1.4%",
         "Previous":"2.0%"
     },
     {
@@ -121392,7 +121458,7 @@
         "Imp.":"Medium",
         "Event":"RMPI (MoM)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"1.8%",
         "Previous":"2.6%"
     },
     {
@@ -121403,7 +121469,7 @@
         "Imp.":"Low",
         "Event":"Interest Rate Decision",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"3.75%",
         "Previous":"3.50%"
     },
     {
@@ -121414,7 +121480,7 @@
         "Imp.":"High",
         "Event":"Initial Jobless Claims",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"225K",
         "Previous":"229K"
     },
     {
@@ -121425,7 +121491,7 @@
         "Imp.":"High",
         "Event":"Philadelphia Fed Manufacturing Index  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"11.4",
         "Previous":"-0.4"
     },
     {
@@ -121513,7 +121579,7 @@
         "Imp.":"Medium",
         "Event":"US Leading Index (MoM)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"0.1%",
         "Previous":"0.1%"
     },
     {
@@ -121646,7 +121712,7 @@
         "Event":"U.S. Baker Hughes Oil Rig Count",
         "Actual":"",
         "Forecast":null,
-        "Previous":""
+        "Previous":"433"
     },
     {
         "Date":"2026-06-19",
@@ -121657,7 +121723,7 @@
         "Event":"U.S. Baker Hughes Total Rig Count",
         "Actual":"",
         "Forecast":null,
-        "Previous":""
+        "Previous":"562"
     },
     {
         "Date":"2026-06-19",
@@ -121711,7 +121777,7 @@
         "Imp.":"Medium",
         "Event":"TIC Net Long-Term Transactions  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"72.5B",
         "Previous":"81.3B"
     },
     {
@@ -121788,7 +121854,7 @@
         "Imp.":"Low",
         "Event":"Trade Balance (MoM)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"875M",
         "Previous":"1,920M"
     },
     {
@@ -121810,7 +121876,7 @@
         "Imp.":"Low",
         "Event":"GfK Consumer Confidence  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"-23",
         "Previous":"-23"
     },
     {
@@ -121843,7 +121909,7 @@
         "Imp.":"Medium",
         "Event":"National Core CPI (YoY)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"1.4%",
         "Previous":"1.4%"
     },
     {
@@ -121942,7 +122008,7 @@
         "Imp.":"Medium",
         "Event":"German PPI (MoM)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"0.8%",
         "Previous":"1.2%"
     },
     {
@@ -121953,7 +122019,7 @@
         "Imp.":"Low",
         "Event":"Public Sector Net Borrowing  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"18.90B",
         "Previous":"24.30B"
     },
     {
@@ -121997,7 +122063,7 @@
         "Imp.":"Medium",
         "Event":"Retail Sales (MoM)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"0.5%",
         "Previous":"-1.3%"
     },
     {
@@ -122043,6 +122109,17 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"103.3"
+    },
+    {
+        "Date":"2026-06-19",
+        "Day":"Friday",
+        "Time":"15:10",
+        "Cur.":"EUR",
+        "Imp.":"Medium",
+        "Event":"ECB's Lane Speaks",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
     },
     {
         "Date":"2026-06-19",
@@ -122125,6 +122202,17 @@
         "Date":"2026-06-19",
         "Day":"Friday",
         "Time":"18:30",
+        "Cur.":"EUR",
+        "Imp.":"Medium",
+        "Event":"ECB's Elderson Speaks",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-06-19",
+        "Day":"Friday",
+        "Time":"18:30",
         "Cur.":"RUB",
         "Imp.":"Medium",
         "Event":"Interest Rate Decision  (Jun)",
@@ -122173,7 +122261,7 @@
         "Imp.":"Medium",
         "Event":"Core Retail Sales (MoM)  (Apr)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"0.7%",
         "Previous":"1.4%"
     },
     {
@@ -122186,6 +122274,17 @@
         "Actual":"",
         "Forecast":"0.6%",
         "Previous":"0.9%"
+    },
+    {
+        "Date":"2026-06-19",
+        "Day":"Friday",
+        "Time":"22:30",
+        "Cur.":"EUR",
+        "Imp.":"Medium",
+        "Event":"ECB's Lane Speaks",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
     },
     {
         "Date":"2026-06-20",
