@@ -1,5 +1,5 @@
 {
-  "generated_at": "15-06-2026 17:20",
+  "generated_at": "16-06-2026 17:18",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -646,8 +646,8 @@
       "date": "2026-06-17",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "3.3%",
-      "previous_effective": "3.3%"
+      "prior_actual": "2.8%",
+      "previous_effective": "2.8%"
     },
     {
       "issue": "previous_missing_filled",

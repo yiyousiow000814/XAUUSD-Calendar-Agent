@@ -61,7 +61,7 @@ stale_missing_actual_dropped,RUB::CFTC RUB speculative positions::none,RUB,CFTC 
 stale_missing_actual_dropped,RUB::CFTC RUB speculative positions::none,RUB,CFTC RUB speculative positions,,2026-04-11,04:30,,,,"{""cutoff"": ""05-06-2026 11:03""}"
 stale_missing_actual_dropped,RUB::CFTC RUB speculative positions::none,RUB,CFTC RUB speculative positions,,2026-04-18,04:30,,,,"{""cutoff"": ""05-06-2026 11:03""}"
 stale_missing_actual_dropped,RUB::CFTC RUB speculative positions::none,RUB,CFTC RUB speculative positions,,2026-04-25,04:30,,,,"{""cutoff"": ""05-06-2026 11:03""}"
-previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q2),q2,2026-06-17,23:30,,3.3%,3.3%,
+previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q2),q2,2026-06-17,23:30,,2.8%,2.8%,
 previous_missing_filled,USD::Initial Jobless Claims::none,USD,Initial Jobless Claims,,2026-06-25,20:30,,229K,229K,
 previous_missing_filled,USD::Jobless Claims 4-Week Avg.::none,USD,Jobless Claims 4-Week Avg.,,2026-06-25,20:30,,219.00K,219.00K,
 previous_missing_filled,USD::Natural Gas Storage::none,USD,Natural Gas Storage,,2026-06-25,22:30,,108B,108B,
