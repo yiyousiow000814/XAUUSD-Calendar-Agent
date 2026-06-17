@@ -1,5 +1,5 @@
 {
-  "generated_at": "16-06-2026 17:18",
+  "generated_at": "17-06-2026 16:44",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -639,18 +639,6 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::Atlanta Fed GDPNow::none",
-      "cur": "USD",
-      "event": "Atlanta Fed GDPNow  (Q2)",
-      "period": "q2",
-      "date": "2026-06-17",
-      "time": "23:30",
-      "previous_raw": "",
-      "prior_actual": "2.8%",
-      "previous_effective": "2.8%"
-    },
-    {
-      "issue": "previous_missing_filled",
       "event_id": "USD::Initial Jobless Claims::none",
       "cur": "USD",
       "event": "Initial Jobless Claims",
@@ -723,18 +711,6 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::Retail Inventories Ex Auto::none",
-      "cur": "USD",
-      "event": "Retail Inventories Ex Auto  (May)",
-      "period": "may",
-      "date": "2026-06-26",
-      "time": "20:30",
-      "previous_raw": "",
-      "prior_actual": "0.6%",
-      "previous_effective": "0.6%"
-    },
-    {
-      "issue": "previous_missing_filled",
       "event_id": "TRY::Gross FX Reserves::none",
       "cur": "TRY",
       "event": "Gross FX Reserves",
@@ -754,8 +730,66 @@
       "date": "2026-06-25",
       "time": "22:00",
       "previous_raw": "",
-      "prior_actual": "3.3%",
-      "previous_effective": "3.3%"
+      "prior_actual": "3.0%",
+      "previous_effective": "3.0%"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "USD::U.S. Baker Hughes Oil Rig Count::none",
+      "cur": "USD",
+      "event": "U.S. Baker Hughes Oil Rig Count",
+      "period": "",
+      "date": "2026-06-27",
+      "time": "01:00",
+      "previous_raw": "",
+      "prior_actual": "433",
+      "previous_effective": "433"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "INR::FX Reserves, USD::none",
+      "cur": "INR",
+      "event": "FX Reserves, USD",
+      "period": "",
+      "date": "2026-06-26",
+      "time": "19:30",
+      "previous_raw": "",
+      "prior_actual": "681.61B",
+      "previous_effective": "681.61B"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "USD::U.S. Baker Hughes Total Rig Count::none",
+      "cur": "USD",
+      "event": "U.S. Baker Hughes Total Rig Count",
+      "period": "",
+      "date": "2026-06-27",
+      "time": "01:00",
+      "previous_raw": "",
+      "prior_actual": "562",
+      "previous_effective": "562"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "USD::Atlanta Fed GDPNow::none",
+      "cur": "USD",
+      "event": "Atlanta Fed GDPNow  (Q2)",
+      "period": "q2",
+      "date": "2026-06-17",
+      "time": "23:00",
+      "previous_raw": "",
+      "prior_actual": "2.8%",
+      "previous_effective": "2.8%"
+    },
+    {
+      "issue": "stale_missing_actual_dropped",
+      "event_id": "ILS::M1 Money Supply::y/y",
+      "cur": "ILS",
+      "event": "M1 Money Supply (YoY)  (May)",
+      "period": "may",
+      "date": "2026-06-14",
+      "time": "19:00",
+      "cutoff": "15-06-2026 16:44"
     }
   ]
 }
