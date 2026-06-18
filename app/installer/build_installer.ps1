@@ -86,14 +86,12 @@ Get-Process |
     } |
     Stop-Process -Force -ErrorAction SilentlyContinue
 
-# Best-effort: close worker processes left by older Market Agent builds.
-# Keep this narrowly scoped to this repo's Python entrypoints and cTrader bridge algos.
+# Best-effort: close worker processes that can hold external connector artifacts.
+# Keep the Market Agent monitor loop alive; it writes runtime data and does not lock build outputs.
 Get-CimInstance Win32_Process -ErrorAction SilentlyContinue |
     Where-Object {
-        ($_.Name -in @("python.exe", "pythonw.exe") -and (
-            $_.CommandLine -like "*src.xauusd_market_agent.cli*--monitor-loop*" -or
-            $_.CommandLine -like "*src.xauusd_market_agent.providers.ctrader_live_stream*"
-        )) -or
+        ($_.Name -in @("python.exe", "pythonw.exe") -and
+            $_.CommandLine -like "*src.xauusd_market_agent.providers.ctrader_live_stream*") -or
         ($_.Name -eq "dotnet.exe" -and (
             $_.CommandLine -like "*XAUUSDLiveStreamBridge.algo*" -or
             $_.CommandLine -like "*XAUUSDQuoteBridge.algo*"

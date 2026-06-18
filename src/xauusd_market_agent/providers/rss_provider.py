@@ -23,6 +23,8 @@ _SOURCE_SCORES = {
     "reuters": 0.92,
     "bloomberg": 0.9,
     "cnbc": 0.78,
+    "top news and analysis": 0.78,
+    "us top news and analysis": 0.78,
     "kitco": 0.72,
     "fxstreet": 0.7,
     "marketwatch": 0.66,
@@ -62,19 +64,103 @@ _EVENT_KEYWORDS = (
 _GEOPOLITICAL_KEYWORDS = (
     "conflict",
     "geopolitical",
+    "airspace",
+    "attack",
+    "attacks",
+    "ceasefire",
     "hormuz",
     "iran",
     "israel",
+    "lebanon",
+    "middle east",
+    "military",
     "missile",
+    "red sea",
     "russia",
     "sanction",
+    "strike",
+    "strikes",
     "strait of hormuz",
     "ukraine",
 )
 _OFFICIAL_MACRO_SOURCES = ("frb", "federal reserve", "bls", "bea", "eia")
 _LOW_SIGNAL_KEYWORDS = ("opinion", "forecast", "analysis", "explainer", "preview", "portfolio")
+_PERSONAL_FINANCE_KEYWORDS = (
+    "social security",
+    "cola",
+    "retirement",
+    "retiree",
+    "retirees",
+    "medicare",
+    "401(k)",
+    "parent plus",
+)
+_MARKET_CONFIRMATION_KEYWORDS = (
+    "gold",
+    "xauusd",
+    "dollar",
+    "dxy",
+    "fomc",
+    "federal reserve",
+    "fed chair",
+    "cpi",
+    "pce",
+    "ppi",
+    "payroll",
+    "nfp",
+    "jobs report",
+    "rate",
+    "rates",
+    "yield",
+    "yields",
+    "treasury",
+    "oil",
+    "crude",
+    "brent",
+    "wti",
+)
+_FED_RESERVE_CONTEXT_KEYWORDS = (
+    "federal reserve",
+    "fomc",
+    "powell",
+    "warsh",
+    "rate",
+    "rates",
+    "cut",
+    "cuts",
+    "hike",
+    "inflation",
+    "treasury",
+    "yield",
+    "yields",
+    "chair",
+    "chairman",
+    "governor",
+    "governors",
+    "minutes",
+    "policy",
+    "speaker",
+)
 _HTTP_USER_AGENT = "Mozilla/5.0 (compatible; XAUUSD-Calendar-Agent/1.0)"
 _MAX_NEWS_ITEM_AGE = timedelta(hours=72)
+_PREVIEW_MAX_CHARS = 500
+
+
+def _decode_feed_bytes(raw: bytes, declared_charset: str | None = None) -> str:
+    candidates = [declared_charset, "utf-8", "cp1252", "latin-1"]
+    seen: set[str] = set()
+    for candidate in candidates:
+        if not candidate:
+            continue
+        encoding = candidate.strip().lower()
+        if not encoding or encoding in seen:
+            continue
+        seen.add(encoding)
+        try:
+            return raw.decode(encoding, errors="strict")
+        except (LookupError, UnicodeDecodeError):
+            continue
+    return raw.decode("utf-8", errors="replace")
 
 
 def _coerce_dt(raw: str) -> datetime | None:
@@ -96,18 +182,49 @@ def _read_feed(feed_url: str) -> str | None:
     try:
         parsed = urlparse(feed_url)
         if parsed.scheme not in {"http", "https"} and Path(feed_url).exists():
-            return Path(feed_url).read_text(encoding="utf-8")
+            return _decode_feed_bytes(Path(feed_url).read_bytes())
         request = Request(feed_url, headers={"User-Agent": _HTTP_USER_AGENT})
         with urlopen(request, timeout=15) as response:
-            return response.read().decode("utf-8", errors="replace")
+            charset = response.headers.get_content_charset() if response.headers else None
+            return _decode_feed_bytes(response.read(), charset)
     except Exception:
         return None
+
+
+def _clean_preview(raw: str) -> str:
+    text = html.unescape(raw or "")
+    text = re.sub(r"(?is)<script\b.*?</script>", " ", text)
+    text = re.sub(r"(?is)<style\b.*?</style>", " ", text)
+    text = re.sub(r"(?s)<[^>]+>", " ", text)
+    text = " ".join(text.split())
+    if len(text) <= _PREVIEW_MAX_CHARS:
+        return text
+    return text[:_PREVIEW_MAX_CHARS].rsplit(" ", 1)[0].rstrip()
+
+
+def _item_preview(item: ET.Element) -> str:
+    candidates = [
+        item.findtext("description", default=""),
+        item.findtext("summary", default=""),
+    ]
+    for child in item:
+        local_name = child.tag.rsplit("}", 1)[-1].lower()
+        if local_name in {"encoded", "content"} and child.text:
+            candidates.append(child.text)
+    for candidate in candidates:
+        preview = _clean_preview(candidate or "")
+        if preview:
+            return preview
+    return ""
 
 
 def _keyword_matches(title: str) -> list[str]:
     lowered_title = title.lower()
     matched: list[str] = []
+    has_federal_reserve_context = any(word in lowered_title for word in _FED_RESERVE_CONTEXT_KEYWORDS)
     for word in _EVENT_KEYWORDS:
+        if word == "fed" and not has_federal_reserve_context:
+            continue
         if " " in word:
             if word in lowered_title:
                 matched.append(word)
@@ -147,6 +264,10 @@ def _score_item(
     source_score = max((score for key, score in _SOURCE_SCORES.items() if key in lowered_source), default=0.45)
     keyword_bonus = min(len(matched) * 0.05, 0.2)
     low_signal_penalty = 0.2 if any(word in lowered_title for word in _LOW_SIGNAL_KEYWORDS) else 0.0
+    personal_finance_noise = (
+        any(word in lowered_title for word in _PERSONAL_FINANCE_KEYWORDS)
+        and not any(word in lowered_title for word in _MARKET_CONFIRMATION_KEYWORDS)
+    )
     timestamp_penalty = 0.15 if not has_timestamp else 0.0
     score = max(0.0, min(1.0, source_score + keyword_bonus - low_signal_penalty - timestamp_penalty))
     has_market_agent_signal = bool(matched)
@@ -154,6 +275,7 @@ def _score_item(
         score >= 0.55
         and has_timestamp
         and low_signal_penalty == 0.0
+        and not personal_finance_noise
         and has_market_agent_signal
         and not stale_news_item
     )
@@ -163,6 +285,8 @@ def _score_item(
         filter_reason = "stale_news_item"
     elif low_signal_penalty > 0.0:
         filter_reason = "low_signal_opinion_or_forecast"
+    elif personal_finance_noise:
+        filter_reason = "personal_finance_noise"
     elif not has_market_agent_signal:
         filter_reason = "no_market_agent_keyword"
     elif score < 0.55:
@@ -228,6 +352,7 @@ class RSSNewsProvider:
                 if key in dedupe:
                     continue
                 dedupe.add(key)
+                preview = _item_preview(item)
                 score, source_quality_score, matched_keywords, included, filter_reason = _score_item(
                     channel_title,
                     title,
@@ -246,6 +371,8 @@ class RSSNewsProvider:
                         "source": channel_title,
                         "title": title,
                         "link": link,
+                        "preview": preview,
+                        "description": preview,
                         "relevance_reason": "Matched configured RSS provider and news relevance scoring.",
                         "impact_direction_on_gold": "unknown",
                         "data_mode": data_mode,

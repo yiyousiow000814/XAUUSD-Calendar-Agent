@@ -2,7 +2,8 @@ from datetime import datetime
 import json
 
 from src.xauusd_market_agent.config import MarketAgentConfig
-from src.xauusd_market_agent.live_pipeline import MonitorLock, run_monitor_loop
+import src.xauusd_market_agent.live_pipeline as live_pipeline
+from src.xauusd_market_agent.live_pipeline import MonitorLock, run_monitor_loop, run_monitored_live_once
 from src.xauusd_market_agent.provider_health import build_provider_health
 from src.xauusd_market_agent.providers.provider_router import ProviderRouter
 
@@ -123,6 +124,7 @@ def test_run_monitor_loop_executes_multiple_iterations_without_crashing(tmp_path
         related_assets_path=related_path,
         rss_feeds=[],
         yahoo_enabled=False,
+        monitor_lock_path=tmp_path / "market_agent_monitor.lock",
     )
 
     outcomes = run_monitor_loop(
@@ -145,6 +147,56 @@ def test_run_monitor_loop_executes_multiple_iterations_without_crashing(tmp_path
     assert len(outcomes) == 2
     assert outcomes[0]["notification"]["should_notify"] is False
     assert outcomes[1]["notification"]["should_notify"] is False
+
+
+def test_run_monitor_loop_keeps_running_after_one_iteration_failure(tmp_path, monkeypatch) -> None:
+    cfg = MarketAgentConfig(
+        repo_root=tmp_path,
+        calendar_dir=tmp_path / "calendar",
+        yahoo_enabled=False,
+        monitor_lock_path=tmp_path / "market_agent_monitor.lock",
+        monitor_status_path=tmp_path / "monitor_status.json",
+    )
+    calls = {"count": 0}
+
+    def flaky_run_once(**_kwargs):
+        calls["count"] += 1
+        if calls["count"] == 1:
+            raise RuntimeError("temporary provider failure")
+        return {
+            "ok": True,
+            "monitor_run_id": 42,
+            "evidence_packet": {"as_of": "2026-05-19T07:16:00+08:00"},
+        }
+
+    monkeypatch.setattr(live_pipeline, "run_monitored_live_once", flaky_run_once)
+
+    outcomes = run_monitor_loop(
+        config=cfg,
+        interval_seconds=0,
+        max_iterations=2,
+        anchor_times=[
+            datetime.fromisoformat("2026-05-19T07:15:00+08:00"),
+            datetime.fromisoformat("2026-05-19T07:16:00+08:00"),
+        ],
+        status_path=tmp_path / "monitor_status.json",
+    )
+
+    assert calls["count"] == 2
+    assert outcomes[0]["ok"] is False
+    assert outcomes[0]["phase"] == "iteration_failed"
+    assert "temporary provider failure" in outcomes[0]["message"]
+    assert outcomes[1]["monitor_run_id"] == 42
+
+
+def test_monitor_lock_clears_dead_pid_lock(tmp_path) -> None:
+    lock_path = tmp_path / "market_agent_monitor.lock"
+    lock_path.write_text("999999999\n2026-06-14T00:00:00+08:00\n", encoding="utf-8")
+
+    with MonitorLock(lock_path) as lock:
+        assert lock is not None
+
+    assert not lock_path.exists()
 
 
 def test_run_monitor_loop_writes_backend_activity_status(tmp_path) -> None:
@@ -176,6 +228,8 @@ def test_run_monitor_loop_writes_backend_activity_status(tmp_path) -> None:
     assert len(outcomes) == 1
     status = json.loads(status_path.read_text(encoding="utf-8"))
     assert status["phase"] == "stopped"
+    assert status["autoStart"] is True
+    assert status["pid"] is None
     assert status["lastRunAt"] == "2026-05-19T07:15:00+08:00"
     assert status["lastSuccessAt"] == "2026-05-19T07:15:00+08:00"
     assert status["activity"]["ctrader"]["status"] == "live"
@@ -196,6 +250,37 @@ def test_run_monitor_loop_writes_backend_activity_status(tmp_path) -> None:
     assert status["activity"]["replay"]["storageSummary"]["databaseBytes"] > 0
     assert status["activity"]["replay"]["storageSummary"]["compaction"]["mode"] == "indexed_range_reads"
     assert status["activity"]["alerts"]["status"] in {"sent", "suppressed", "idle"}
+
+
+def test_run_monitored_live_once_writes_configured_status_path(tmp_path) -> None:
+    status_path = tmp_path / "configured_status.json"
+    cfg = MarketAgentConfig(
+        repo_root=tmp_path,
+        calendar_dir=tmp_path / "calendar",
+        yahoo_enabled=False,
+        timeline_store_path=tmp_path / "timeline.sqlite",
+        monitor_status_path=status_path,
+    )
+
+    outcome = run_monitored_live_once(
+        config=cfg,
+        anchor_time=datetime.fromisoformat("2026-05-19T07:15:00+08:00"),
+        state_path=tmp_path / "state.json",
+        alerts_path=tmp_path / "alerts.ndjson",
+        timeline_store_path=tmp_path / "timeline.sqlite",
+        provider_router=ProviderRouter(
+            market_provider=StubLiveMarketProvider(),
+            news_provider=StubNewsProvider(),
+            calendar_provider=StubCalendarProvider(),
+            yahoo_enabled=False,
+        ),
+    )
+
+    status = json.loads(status_path.read_text(encoding="utf-8"))
+    assert status["phase"] == "stopped"
+    assert status["pid"] is None
+    assert status["latestMonitorRunId"] == outcome["monitor_run_id"]
+    assert status["activity"]["replay"]["monitorRunId"] == outcome["monitor_run_id"]
 
 
 def test_run_monitor_loop_does_not_start_when_lock_is_held(tmp_path) -> None:

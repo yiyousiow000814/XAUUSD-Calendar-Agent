@@ -9,6 +9,33 @@ from src.xauusd_market_agent.providers.provider_router import ProviderRouter
 from src.xauusd_market_agent.timeline_store import TimelineStore
 
 
+def test_timeline_store_configures_sqlite_for_concurrent_replay_reads(tmp_path) -> None:
+    store = TimelineStore(tmp_path / "timeline.sqlite")
+
+    with store._connect() as connection:
+        busy_timeout = int(connection.execute("PRAGMA busy_timeout").fetchone()[0])
+        journal_mode = str(connection.execute("PRAGMA journal_mode").fetchone()[0]).lower()
+
+    assert busy_timeout >= 30000
+    assert journal_mode == "wal"
+
+
+def test_timeline_store_migrates_existing_sqlite_to_wal_when_unlocked(tmp_path) -> None:
+    path = tmp_path / "timeline.sqlite"
+    with sqlite3.connect(path) as connection:
+        connection.execute("PRAGMA journal_mode = DELETE")
+        connection.execute("CREATE TABLE legacy_marker (id INTEGER PRIMARY KEY)")
+        connection.commit()
+        assert str(connection.execute("PRAGMA journal_mode").fetchone()[0]).lower() == "delete"
+
+    store = TimelineStore(path)
+
+    with store._connect() as connection:
+        journal_mode = str(connection.execute("PRAGMA journal_mode").fetchone()[0]).lower()
+
+    assert journal_mode == "wal"
+
+
 class StubLiveMarketProvider:
     def __init__(self, rows):
         self.rows = rows
@@ -59,6 +86,53 @@ def _live_price_rows() -> list[dict[str, object]]:
             "source_type": "spot",
             "data_mode": "live_seen",
         },
+    ]
+
+
+def test_recent_market_price_bars_parse_ctrader_seven_digit_utc_timestamp(tmp_path) -> None:
+    store = TimelineStore(tmp_path / "timeline.sqlite")
+    run_id = store.record_monitor_run(
+        run_started_at="2026-06-11T16:30:00+08:00",
+        run_type="live",
+        data_mode="live_seen",
+        backfill_required=False,
+        last_successful_run_at=None,
+        no_news_found=False,
+        alert_suppressed_reason="",
+    )
+    store.record_market_price_bars(
+        run_id,
+        [
+            {
+                "symbol": "XAUUSD",
+                "data_timestamp": "2026-06-11T08:28:00.0000000Z",
+                "open_price": 4100.0,
+                "close_price": 4101.0,
+                "source": "cTrader",
+                "source_type": "spot",
+                "data_mode": "live_seen",
+            },
+            {
+                "symbol": "XAUUSD",
+                "data_timestamp": "2026-06-11T08:30:00.0000000Z",
+                "open_price": 4101.0,
+                "close_price": 4098.0,
+                "source": "cTrader",
+                "source_type": "spot",
+                "data_mode": "live_seen",
+            },
+        ],
+    )
+
+    rows = store.get_recent_market_price_bars(
+        symbol="XAUUSD",
+        anchor_time=datetime.fromisoformat("2026-06-11T16:31:00+08:00"),
+        lookback_minutes=10,
+    )
+
+    assert [row["data_timestamp"] for row in rows] == [
+        "2026-06-11T08:28:00.0000000Z",
+        "2026-06-11T08:30:00.0000000Z",
     ]
 
 

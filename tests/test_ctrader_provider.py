@@ -479,7 +479,7 @@ def test_ctrader_provider_uses_m1_bar_from_fresh_live_snapshot(tmp_path) -> None
     assert health.data_mode == "live_seen"
 
 
-def test_ctrader_provider_does_not_run_quote_bridge_when_disabled(tmp_path) -> None:
+def test_ctrader_provider_does_not_return_stale_snapshot_as_current_when_stream_is_starting(tmp_path) -> None:
     snapshot_path = tmp_path / "ctrader-live-quote.json"
     snapshot_path.write_text(
         json.dumps(
@@ -497,22 +497,267 @@ def test_ctrader_provider_does_not_run_quote_bridge_when_disabled(tmp_path) -> N
     bridge = FakeBridgeRunner({"quote": {"ok": True}})
     provider = CTraderProvider(
         cli_config=CTraderCliConfig(
-            **{**_full_config(tmp_path).__dict__, "snapshot_path": snapshot_path, "quote_bridge_enabled": False}
+            **{
+                **_full_config(tmp_path).__dict__,
+                "snapshot_path": snapshot_path,
+                "quote_bridge_enabled": False,
+                "quote_timeout_seconds": 0,
+            }
         ),
         bridge_runner=bridge,
         saved_snapshot_path=snapshot_path,
+        live_stream_starter=lambda _payload: None,
     )
 
     rows, health = provider.fetch_latest(datetime.fromisoformat("2026-05-25T16:01:00+08:00"))
 
     assert bridge.calls == []
-    assert len(rows) == 1
-    assert rows[0]["source"] == "cTrader saved snapshot"
-    assert health.is_stale is True
-    assert (
-        health.error
-        == "Waiting for fresh cTrader live stream snapshot."
+    assert rows == []
+    assert health.data_mode == "unavailable"
+    assert health.is_available is False
+    assert "fresh cTrader live stream snapshot" in health.error
+
+
+def test_ctrader_provider_starts_live_stream_when_snapshot_missing_and_stream_dead(tmp_path) -> None:
+    started_payloads = []
+    status_path = tmp_path / "ctrader_live_stream_status.json"
+    status_path.write_text(json.dumps({"running": True, "pid": 999999}), encoding="utf-8")
+    snapshot_path = tmp_path / "ctrader-live-quote.json"
+    provider = CTraderProvider(
+        cli_config=CTraderCliConfig(
+            **{
+                **_full_config(tmp_path).__dict__,
+                "snapshot_path": snapshot_path,
+                "allow_saved_snapshot_fallback": False,
+                "quote_bridge_enabled": False,
+                "quote_timeout_seconds": 0,
+            }
+        ),
+        saved_snapshot_path=snapshot_path,
+        live_stream_status_path=status_path,
+        live_stream_starter=lambda payload: started_payloads.append(payload),
+        process_checker=lambda _pid: False,
     )
+
+    rows, health = provider.fetch_latest(datetime.fromisoformat("2026-06-17T13:00:00+08:00"))
+
+    assert rows == []
+    assert "supervisor process is not running" in health.error
+    assert len(started_payloads) == 1
+    assert started_payloads[0]["snapshotPath"] == str(snapshot_path)
+    assert started_payloads[0]["statusPath"] == str(status_path)
+    stopped_status = json.loads(status_path.read_text(encoding="utf-8"))
+    assert stopped_status["running"] is False
+    assert stopped_status["phase"] == "stopped"
+
+
+def test_ctrader_provider_does_not_restart_alive_live_stream(tmp_path) -> None:
+    started_payloads = []
+    status_path = tmp_path / "ctrader_live_stream_status.json"
+    status_path.write_text(json.dumps({"running": True, "pid": 1234}), encoding="utf-8")
+    snapshot_path = tmp_path / "ctrader-live-quote.json"
+    provider = CTraderProvider(
+        cli_config=CTraderCliConfig(
+            **{
+                **_full_config(tmp_path).__dict__,
+                "snapshot_path": snapshot_path,
+                "allow_saved_snapshot_fallback": False,
+                "quote_bridge_enabled": False,
+                "quote_timeout_seconds": 0,
+            }
+        ),
+        saved_snapshot_path=snapshot_path,
+        live_stream_status_path=status_path,
+        live_stream_starter=lambda payload: started_payloads.append(payload),
+        process_checker=lambda _pid: True,
+    )
+
+    provider.fetch_latest(datetime.fromisoformat("2026-06-17T13:00:00+08:00"))
+
+    assert started_payloads == []
+
+
+def test_ctrader_provider_restarts_live_stream_when_bridge_process_is_dead(tmp_path) -> None:
+    started_payloads = []
+    status_path = tmp_path / "ctrader_live_stream_status.json"
+    status_path.write_text(json.dumps({"running": True, "pid": 1234, "bridgePid": 9999}), encoding="utf-8")
+    snapshot_path = tmp_path / "ctrader-live-quote.json"
+    provider = CTraderProvider(
+        cli_config=CTraderCliConfig(
+            **{
+                **_full_config(tmp_path).__dict__,
+                "snapshot_path": snapshot_path,
+                "allow_saved_snapshot_fallback": False,
+                "quote_bridge_enabled": False,
+                "quote_timeout_seconds": 0,
+            }
+        ),
+        saved_snapshot_path=snapshot_path,
+        live_stream_status_path=status_path,
+        live_stream_starter=lambda payload: started_payloads.append(payload),
+        process_checker=lambda pid: pid == 1234,
+    )
+
+    rows, health = provider.fetch_latest(datetime.fromisoformat("2026-06-17T13:00:00+08:00"))
+
+    assert rows == []
+    assert "bridge process is not running" in health.error
+    assert len(started_payloads) == 1
+    stopped_status = json.loads(status_path.read_text(encoding="utf-8"))
+    assert stopped_status["running"] is False
+    assert stopped_status["phase"] == "stopped"
+    assert "bridge process" in stopped_status["lastError"]
+
+
+def test_ctrader_provider_keeps_alive_stream_with_stale_snapshot_as_context(tmp_path) -> None:
+    started_payloads = []
+    status_path = tmp_path / "ctrader_live_stream_status.json"
+    status_path.write_text(json.dumps({"running": True, "pid": 1234}), encoding="utf-8")
+    snapshot_path = tmp_path / "ctrader-live-quote.json"
+    snapshot_path.write_text(
+        json.dumps(
+            {
+                "symbol": "XAUUSD",
+                "bid": 4320.1,
+                "ask": 4320.2,
+                "mid": 4320.15,
+                "timestamp": "2026-06-17T01:00:00+00:00",
+            }
+        ),
+        encoding="utf-8",
+    )
+    provider = CTraderProvider(
+        cli_config=CTraderCliConfig(
+            **{
+                **_full_config(tmp_path).__dict__,
+                "snapshot_path": snapshot_path,
+                "allow_saved_snapshot_fallback": False,
+                "quote_bridge_enabled": False,
+                "quote_timeout_seconds": 0,
+                "quote_stale_after_seconds": 30,
+            }
+        ),
+        saved_snapshot_path=snapshot_path,
+        live_stream_status_path=status_path,
+        live_stream_starter=lambda payload: started_payloads.append(payload),
+        process_checker=lambda _pid: True,
+    )
+
+    rows, health = provider.fetch_latest(datetime.fromisoformat("2026-06-17T13:00:00+08:00"))
+
+    assert len(rows) == 1
+    assert rows[0]["data_mode"] == "stale"
+    assert rows[0]["close"] == pytest.approx(4320.15)
+    assert health.data_mode == "stale"
+    assert health.is_available is True
+    assert health.is_stale is True
+    assert "stale" in health.stale_reason.lower()
+    assert started_payloads == []
+    current_status = json.loads(status_path.read_text(encoding="utf-8"))
+    assert current_status["running"] is True
+
+
+def test_ctrader_provider_uses_fresh_snapshot_written_after_dead_stream_restart(tmp_path) -> None:
+    started_payloads = []
+    status_path = tmp_path / "ctrader_live_stream_status.json"
+    status_path.write_text(json.dumps({"running": True, "pid": 1234}), encoding="utf-8")
+    snapshot_path = tmp_path / "ctrader-live-quote.json"
+    snapshot_path.write_text(
+        json.dumps(
+            {
+                "symbol": "XAUUSD",
+                "bid": 4320.1,
+                "ask": 4320.2,
+                "mid": 4320.15,
+                "timestamp": "2026-06-17T01:00:00+00:00",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    def start_stream(payload: dict[str, object]) -> None:
+        started_payloads.append(payload)
+        snapshot_path.write_text(
+            json.dumps(
+                {
+                    "symbol": "XAUUSD",
+                    "bid": 4330.1,
+                    "ask": 4330.2,
+                    "mid": 4330.15,
+                    "timestamp": "2026-06-17T05:00:02+00:00",
+                }
+            ),
+            encoding="utf-8",
+        )
+
+    provider = CTraderProvider(
+        cli_config=CTraderCliConfig(
+            **{
+                **_full_config(tmp_path).__dict__,
+                "snapshot_path": snapshot_path,
+                "allow_saved_snapshot_fallback": False,
+                "quote_bridge_enabled": False,
+                "quote_timeout_seconds": 1,
+                "quote_stale_after_seconds": 30,
+            }
+        ),
+        saved_snapshot_path=snapshot_path,
+        live_stream_status_path=status_path,
+        live_stream_starter=start_stream,
+        process_checker=lambda _pid: False,
+    )
+
+    rows, health = provider.fetch_latest(datetime.fromisoformat("2026-06-17T13:00:05+08:00"))
+
+    assert len(started_payloads) == 1
+    assert rows
+    assert rows[0]["data_mode"] == "live_seen"
+    assert rows[0]["close"] == pytest.approx(4330.15)
+    assert health.data_mode == "live_seen"
+    assert health.is_stale is False
+
+
+def test_ctrader_provider_accepts_existing_fresh_snapshot_after_stream_restart(tmp_path) -> None:
+    started_payloads = []
+    status_path = tmp_path / "ctrader_live_stream_status.json"
+    status_path.write_text(json.dumps({"running": True, "pid": 1234}), encoding="utf-8")
+    snapshot_path = tmp_path / "ctrader-live-quote.json"
+    snapshot_path.write_text(
+        json.dumps(
+            {
+                "symbol": "XAUUSD",
+                "bid": 4330.1,
+                "ask": 4330.2,
+                "mid": 4330.15,
+                "timestamp": "2026-06-17T05:00:02+00:00",
+            }
+        ),
+        encoding="utf-8",
+    )
+    provider = CTraderProvider(
+        cli_config=CTraderCliConfig(
+            **{
+                **_full_config(tmp_path).__dict__,
+                "snapshot_path": snapshot_path,
+                "allow_saved_snapshot_fallback": False,
+                "quote_bridge_enabled": False,
+                "quote_timeout_seconds": 1,
+                "quote_stale_after_seconds": 30,
+            }
+        ),
+        saved_snapshot_path=snapshot_path,
+        live_stream_status_path=status_path,
+        live_stream_starter=lambda payload: started_payloads.append(payload),
+        process_checker=lambda _pid: False,
+    )
+
+    rows, health = provider.fetch_latest(datetime.fromisoformat("2026-06-17T13:00:05+08:00"))
+
+    assert len(started_payloads) == 0
+    assert rows
+    assert rows[0]["data_mode"] == "live_seen"
+    assert health.data_mode == "live_seen"
+    assert health.is_stale is False
 
 
 def test_ctrader_provider_treats_weekend_stale_live_snapshot_as_market_closed_context(tmp_path) -> None:
@@ -526,6 +771,17 @@ def test_ctrader_provider_treats_weekend_stale_live_snapshot_as_market_closed_co
                 "ask": 4541.53,
                 "mid": 4541.33,
                 "timestamp": "2026-05-29T20:56:59.947000+00:00",
+                "m1_bar": {
+                    "symbol": "XAUUSD",
+                    "data_timestamp": "2026-05-29T20:56:00+00:00",
+                    "open": 4541.0,
+                    "high": 4541.53,
+                    "low": 4540.9,
+                    "close": 4541.33,
+                    "source": "cTrader CLI live stream",
+                    "source_type": "spot_m1",
+                    "data_mode": "live_seen",
+                },
             }
         ),
         encoding="utf-8",
@@ -551,6 +807,7 @@ def test_ctrader_provider_treats_weekend_stale_live_snapshot_as_market_closed_co
     assert rows
     assert rows[-1]["data_mode"] == "stale"
     assert rows[-1]["is_stale"] is True
+    assert rows[-1]["stale_reason"]
     assert health.is_available is True
     assert health.is_stale is True
     assert health.data_mode == "stale"

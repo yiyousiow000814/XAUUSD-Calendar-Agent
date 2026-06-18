@@ -6,6 +6,11 @@
     "ui:update-baseline": "npm --prefix app/tests-ui run update-baseline",
     "ui:report": "npm --prefix app/tests-ui run report",
     "ui:check": "npm --prefix app/tests-ui run ui-check",
+    "ui:check:fast": "npm --prefix app/tests-ui run ui-check:fast",
+    "ui:check:fast:nobuild": "npm --prefix app/tests-ui run ui-check:fast:nobuild",
+    "ui:check:fast:dev": "npm --prefix app/tests-ui run ui-check:fast:dev",
+    "ui:check:market-agent": "npm --prefix app/tests-ui run ui-check:market-agent",
+    "ui:check:market-agent:dashboard": "npm --prefix app/tests-ui run ui-check:market-agent:dashboard",
     "ui:watch": "npm --prefix app/tests-ui run ui-watch"
   }
 }

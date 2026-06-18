@@ -8,6 +8,13 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
+def _default_calendar_dir() -> Path:
+    synced_calendar = REPO_ROOT / "user-data" / "data" / "Economic_Calendar"
+    if synced_calendar.exists():
+        return synced_calendar
+    return REPO_ROOT / "data" / "Economic_Calendar"
+
+
 def _env_path(name: str, default: Path) -> Path:
     raw = os.getenv(name, "").strip()
     if not raw:
@@ -300,7 +307,7 @@ class MarketAgentConfig:
     calendar_dir: Path = field(
         default_factory=lambda: _env_path(
             "MARKET_AGENT_CALENDAR_DIR",
-            REPO_ROOT / "data" / "Economic_Calendar",
+            _default_calendar_dir(),
         )
     )
     related_assets_path: Path | None = field(
@@ -327,6 +334,19 @@ class MarketAgentConfig:
         default_factory=lambda: _env_json_path("MARKET_AGENT_RELATED_ASSETS_SOURCES_PATH")
     )
     yahoo_enabled: bool = os.getenv("MARKET_AGENT_YAHOO_ENABLED", "true").lower() == "true"
+    trading_economics_us2y_enabled: bool = os.getenv("MARKET_AGENT_TRADING_ECONOMICS_US2Y_ENABLED", "true").lower() == "true"
+    trading_economics_us2y_cache_path: Path = field(
+        default_factory=lambda: _env_path(
+            "MARKET_AGENT_TRADING_ECONOMICS_US2Y_CACHE_PATH",
+            REPO_ROOT / "user-data" / "market_agent_us2y_cache.json",
+        )
+    )
+    trading_economics_quotes_cache_dir: Path = field(
+        default_factory=lambda: _env_path(
+            "MARKET_AGENT_TRADING_ECONOMICS_QUOTES_CACHE_DIR",
+            REPO_ROOT / "user-data" / "market_agent_trading_economics_quotes",
+        )
+    )
     yahoo_fixture_dir: Path | None = field(
         default_factory=lambda: _env_json_path("MARKET_AGENT_YAHOO_FIXTURE_DIR")
     )
@@ -348,6 +368,7 @@ class MarketAgentConfig:
     news_lookback_minutes: int = int(os.getenv("MARKET_AGENT_NEWS_LOOKBACK_MINUTES", "30"))
     post_move_news_minutes: int = int(os.getenv("MARKET_AGENT_POST_MOVE_NEWS_MINUTES", "120"))
     calendar_lookback_minutes: int = int(os.getenv("MARKET_AGENT_CALENDAR_LOOKBACK_MINUTES", "60"))
+    calendar_forward_minutes: int = int(os.getenv("MARKET_AGENT_CALENDAR_FORWARD_MINUTES", "4320"))
     move_window_minutes: int = int(os.getenv("MARKET_AGENT_MOVE_WINDOW_MINUTES", "15"))
     state_store_path: Path = field(
         default_factory=lambda: _env_path(
@@ -371,6 +392,12 @@ class MarketAgentConfig:
         default_factory=lambda: _env_path(
             "MARKET_AGENT_MONITOR_LOCK_PATH",
             REPO_ROOT / "user-data" / "market_agent_monitor.lock",
+        )
+    )
+    monitor_status_path: Path = field(
+        default_factory=lambda: _env_path(
+            "MARKET_AGENT_MONITOR_STATUS_PATH",
+            REPO_ROOT / "user-data" / "market_agent_monitor_status.json",
         )
     )
     backfill_gap_minutes: int = int(os.getenv("MARKET_AGENT_BACKFILL_GAP_MINUTES", "120"))

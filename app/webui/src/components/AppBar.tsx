@@ -21,6 +21,7 @@ type AppBarProps = {
   onOpenPaths: () => void;
   onOpenCalendar: () => void;
   onOpenMarketAgent: () => void;
+  onPreloadMarketAgent?: () => void;
 };
 
 export function AppBar({
@@ -41,7 +42,8 @@ export function AppBar({
   onToggleTheme,
   onOpenPaths,
   onOpenCalendar,
-  onOpenMarketAgent
+  onOpenMarketAgent,
+  onPreloadMarketAgent
 }: AppBarProps) {
   const hasTarget = outputDir.trim().length > 0;
   const shouldFlash = !hasTarget && syncTargetNudgeFlash;
@@ -74,6 +76,8 @@ export function AppBar({
             className={`btn${activeView === "market-agent" ? " primary" : ""}`}
             type="button"
             onClick={onOpenMarketAgent}
+            onFocus={onPreloadMarketAgent}
+            onPointerEnter={onPreloadMarketAgent}
             data-qa="qa:action:view-market-agent"
           >
             Market Agent

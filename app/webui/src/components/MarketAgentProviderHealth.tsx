@@ -18,10 +18,32 @@ const formatValue = (value: unknown, fallback = "--") =>
       ? String(value)
       : fallback;
 
+const hasMarketClosedReason = (item: MarketAgentProviderHealthEntry) => {
+  const reason = String(item.stale_reason || item.error || "").toLowerCase();
+  return /market\s+(is\s+)?closed|market\s+reopens/.test(reason);
+};
+
+const providerHasMarketClosedContext = (item: MarketAgentProviderHealthEntry) =>
+  normalizeMarketAgentValue(item.effective_status) === "market_closed_context" ||
+  hasMarketClosedReason(item) ||
+  item.metadata?.market_closed === true ||
+  normalizeMarketAgentValue(item.metadata?.stale_classification) === "market_closed";
+
+const isUsableContext = (item: MarketAgentProviderHealthEntry) =>
+  item.usable_as_context === true ||
+  ["market_closed_context", "relevant_news_found", "fresh", "live_seen", "available", "backfilled", "confirming", "confirmed", "neutral", "context", "calendar_context"].includes(
+    normalizeMarketAgentValue(item.effective_status || item.data_mode)
+  ) ||
+  (item.is_available && !item.is_stale && normalizeMarketAgentValue(item.data_mode) !== "unavailable");
+
 const statusForItem = (item: MarketAgentProviderHealthEntry | undefined) => {
   if (!item) return "Waiting";
-  if (!item.is_available || normalizeMarketAgentValue(item.data_mode) === "unavailable") return "Unavailable";
-  if (item.is_stale || normalizeMarketAgentValue(item.data_mode) === "stale") return "Stale data";
+  const effectiveStatus = normalizeMarketAgentValue(item.effective_status);
+  if (effectiveStatus === "market_closed_context") return "Market closed context";
+  if (effectiveStatus === "relevant_news_found") return "News context";
+  if (effectiveStatus === "fresh") return "Available";
+  if (!item.is_available || normalizeMarketAgentValue(item.data_mode) === "unavailable" || effectiveStatus === "unavailable") return "Unavailable";
+  if ((item.is_stale || normalizeMarketAgentValue(item.data_mode) === "stale") && !isUsableContext(item)) return "Stale data";
   if (normalizeMarketAgentValue(item.source_type) === "futures_proxy" || normalizeMarketAgentValue(item.data_mode) === "proxy") {
     return "Futures proxy";
   }
@@ -33,7 +55,7 @@ const statusForItem = (item: MarketAgentProviderHealthEntry | undefined) => {
 
 const toneForStatus = (status: string): "neutral" | "good" | "warn" | "bad" | "info" => {
   const normalized = normalizeMarketAgentValue(status);
-  if (["connected", "available", "live data", "ready", "built in", "built-in"].includes(normalized)) return "good";
+  if (["connected", "available", "live data", "ready", "built in", "built-in", "market closed context", "news context", "context"].includes(normalized)) return "good";
   if (["proxy", "proxy only", "backup only", "partial", "not connected", "waiting", "collecting", "market closed", "paused"].includes(normalized)) return "warn";
   if (["unavailable", "stale data", "missing"].includes(normalized)) return "bad";
   return "neutral";
@@ -57,15 +79,10 @@ const findItems = (items: MarketAgentProviderHealthEntry[], keys: string[]) =>
   items.filter((item) => itemMatches(item, keys));
 
 const countUsable = (items: MarketAgentProviderHealthEntry[]) =>
-  items.filter((item) => item.is_available && !item.is_stale && normalizeMarketAgentValue(item.data_mode) !== "unavailable").length;
+  items.filter(isUsableContext).length;
 
 const hasCurrentValue = (item: MarketAgentProviderHealthEntry) =>
   typeof item.current_value === "number" && Number.isFinite(item.current_value);
-
-const hasMarketClosedReason = (item: MarketAgentProviderHealthEntry) => {
-  const reason = String(item.stale_reason || item.error || "").toLowerCase();
-  return /market\s+(is\s+)?closed|market\s+reopens/.test(reason);
-};
 
 const newestTime = (items: MarketAgentProviderHealthEntry[]) =>
   {
@@ -135,8 +152,8 @@ export function MarketAgentProviderHealth({ data }: MarketAgentProviderHealthPro
     "^ixic"
   ]);
   const ctraderLive = ctraderItems.some((item) => item.is_available && !item.is_stale);
-  const ctraderClosed = ctraderItems.some((item) => item.is_available && item.is_stale && hasCurrentValue(item) && hasMarketClosedReason(item));
-  const ctraderPaused = ctraderItems.some((item) => item.is_available && item.is_stale && hasCurrentValue(item) && !hasMarketClosedReason(item));
+  const ctraderClosed = ctraderItems.some((item) => item.is_available && item.is_stale && hasCurrentValue(item) && providerHasMarketClosedContext(item));
+  const ctraderPaused = ctraderItems.some((item) => item.is_available && item.is_stale && hasCurrentValue(item) && !providerHasMarketClosedContext(item));
   const ctraderReady = ctraderLive || ctraderClosed;
   const proxyReady = yahooItems.some((item) => item.is_available && !item.is_stale);
   const blockingIssueCount = ctraderReady ? 0 : 1;
@@ -158,11 +175,13 @@ export function MarketAgentProviderHealth({ data }: MarketAgentProviderHealthPro
         marketContextItems.length === 0
           ? "Waiting"
           : countUsable(marketContextItems) === marketContextItems.length
-            ? "Available"
+            ? marketContextItems.every(providerHasMarketClosedContext)
+              ? "Context"
+              : "Available"
             : countUsable(marketContextItems) > 0
               ? "Partial"
               : "Unavailable",
-      description: "USD, yields, risk, oil, and related markets used only when fresh.",
+      description: "USD, yields, risk, oil, and related markets used when fresh; closed-market snapshots stay as context.",
       updatedAt: newestTime(marketContextItems),
       action: "Missing context is ignored instead of becoming evidence.",
       items: marketContextItems
@@ -227,7 +246,7 @@ export function MarketAgentProviderHealth({ data }: MarketAgentProviderHealthPro
             <article>
               <span>Context feeds</span>
               <strong>{usableCount}</strong>
-              <p>Fresh inputs collected for evidence checks.</p>
+              <p>Inputs available for evidence checks and market context.</p>
             </article>
             <article className={blockingIssueCount > 0 ? "attention" : "ready"}>
               <span>Blocking setup</span>

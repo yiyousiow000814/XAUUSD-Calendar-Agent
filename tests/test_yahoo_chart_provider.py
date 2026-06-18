@@ -41,6 +41,100 @@ def test_yahoo_chart_provider_marks_stale_latest_point() -> None:
     assert health.stale_reason
 
 
+def test_yahoo_chart_provider_allows_short_proxy_delay_for_dxy() -> None:
+    payload = {
+        "chart": {
+            "result": [
+                {
+                    "timestamp": [
+                        int(datetime.fromisoformat("2026-06-11T11:20:00+08:00").timestamp()),
+                        int(datetime.fromisoformat("2026-06-11T11:30:00+08:00").timestamp()),
+                    ],
+                    "indicators": {
+                        "quote": [
+                            {
+                                "open": [100.0, 100.1],
+                                "high": [100.2, 100.3],
+                                "low": [99.9, 100.0],
+                                "close": [100.0, 100.2],
+                            }
+                        ]
+                    },
+                }
+            ]
+        }
+    }
+
+    class FakeResponse:
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return payload
+
+    class FakeSession:
+        def get(self, url, timeout):
+            return FakeResponse()
+
+    provider = YahooChartProvider(session=FakeSession())
+
+    rows, health = provider.fetch_series(
+        "DX-Y.NYB",
+        datetime.fromisoformat("2026-06-11T11:00:00+08:00"),
+        datetime.fromisoformat("2026-06-11T11:45:00+08:00"),
+    )
+
+    assert rows[-1]["is_stale"] is False
+    assert health.is_stale is False
+
+
+def test_yahoo_chart_provider_allows_delayed_nasdaq_futures() -> None:
+    payload = {
+        "chart": {
+            "result": [
+                {
+                    "timestamp": [
+                        int(datetime.fromisoformat("2026-06-12T15:30:00+08:00").timestamp()),
+                        int(datetime.fromisoformat("2026-06-12T15:45:00+08:00").timestamp()),
+                    ],
+                    "indicators": {
+                        "quote": [
+                            {
+                                "open": [29300.0, 29320.0],
+                                "high": [29330.0, 29360.0],
+                                "low": [29290.0, 29310.0],
+                                "close": [29310.0, 29350.0],
+                            }
+                        ]
+                    },
+                }
+            ]
+        }
+    }
+
+    class FakeResponse:
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return payload
+
+    class FakeSession:
+        def get(self, url, timeout):
+            return FakeResponse()
+
+    provider = YahooChartProvider(session=FakeSession())
+
+    rows, health = provider.fetch_series(
+        "NQ=F",
+        datetime.fromisoformat("2026-06-12T15:00:00+08:00"),
+        datetime.fromisoformat("2026-06-12T16:10:00+08:00"),
+    )
+
+    assert rows[-1]["is_stale"] is False
+    assert health.is_stale is False
+
+
 def test_yahoo_related_asset_retries_with_wider_window_when_market_is_closed() -> None:
     calls = []
     empty_payload = {

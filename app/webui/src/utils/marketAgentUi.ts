@@ -82,6 +82,24 @@ export const normalizeMarketAgentValue = (value: unknown) =>
     .replace(/[\s-]+/g, "_")
     .toLowerCase();
 
+export const marketAgentText = (value: unknown) => String(value ?? "").trim();
+
+const MARKET_NEWS_TITLE_ACTIONS =
+  /\b(is|are|was|were|be|being|been|will|would|could|should|may|might|can|says|said|warns|warned|signals|signaled|announces|announced|expects|expected|hits|hit|jumps|jumped|falls|fell|drops|dropped|slips|slipped|rises|rose|surges|surged|eases|eased|extends|extended|keeps|kept|weighs|weighed|drives|drove|pressures|pressured|opens|opened|closes|closed|cuts|cut|raises|raised|denies|denied|confirms|confirmed|threatens|threatened|disrupts|disrupted|sanctions|sanctioned)\b/i;
+
+export const isReadableMarketNewsTitle = (value: unknown) => {
+  const title = marketAgentText(value);
+  const words = title.split(/\s+/).filter(Boolean);
+  if (words.length >= 7) return true;
+  if (words.length < 5) return false;
+  return MARKET_NEWS_TITLE_ACTIONS.test(title);
+};
+
+export const bestMarketNewsTitle = (values: unknown[], fallback = "") => {
+  const candidates = values.map(marketAgentText).filter(Boolean);
+  return candidates.find(isReadableMarketNewsTitle) || candidates[0] || fallback;
+};
+
 export const humanizeMarketAgentValue = (value: unknown, fallback = "--") => {
   if (value === null || value === undefined || value === "") return fallback;
   if (typeof value === "number") return Number.isFinite(value) ? String(value) : fallback;
@@ -99,17 +117,54 @@ export const formatDriverLabel = (driverId: unknown, fallback = "Unknown driver"
   return DRIVER_LABELS[normalized] ?? humanizeMarketAgentValue(driverId, fallback);
 };
 
-const parseMarketAgentTime = (value: unknown) => {
+export const parseMarketAgentTimestampMs = (value: unknown) => {
   if (typeof value === "number" && Number.isFinite(value)) {
-    return new Date(value < 1_000_000_000_000 ? value * 1000 : value);
+    return value < 1_000_000_000_000 ? value * 1000 : value;
   }
   if (typeof value !== "string" || !value.trim()) return null;
   const trimmed = value.trim();
   if (/^\d{10,13}$/.test(trimmed)) {
     const numeric = Number.parseInt(trimmed, 10);
-    return new Date(trimmed.length <= 10 ? numeric * 1000 : numeric);
+    return trimmed.length <= 10 ? numeric * 1000 : numeric;
   }
-  return new Date(trimmed);
+  const dayMonthYear = trimmed.match(
+    /^(\d{1,2})[-/](\d{1,2})[-/](\d{4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?(?:\s*(?:UTC|GMT)?([+-]\d{2}:?\d{2})?)?$/i
+  );
+  if (dayMonthYear) {
+    const [, dayRaw, monthRaw, yearRaw, hourRaw = "0", minuteRaw = "0", secondRaw = "0", offsetRaw = ""] = dayMonthYear;
+    const day = Number(dayRaw);
+    const month = Number(monthRaw);
+    const year = Number(yearRaw);
+    const hour = Number(hourRaw);
+    const minute = Number(minuteRaw);
+    const second = Number(secondRaw);
+    if (
+      [day, month, year, hour, minute, second].every(Number.isFinite) &&
+      month >= 1 && month <= 12 &&
+      day >= 1 && day <= 31 &&
+      hour >= 0 && hour <= 23 &&
+      minute >= 0 && minute <= 59 &&
+      second >= 0 && second <= 59
+    ) {
+      if (offsetRaw) {
+        const offset = offsetRaw.includes(":") ? offsetRaw : `${offsetRaw.slice(0, 3)}:${offsetRaw.slice(3)}`;
+        const parsed = new Date(`${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}T${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}:${String(second).padStart(2, "0")}${offset}`).getTime();
+        return Number.isNaN(parsed) ? null : parsed;
+      }
+      const parsed = new Date(year, month - 1, day, hour, minute, second, 0);
+      if (parsed.getFullYear() === year && parsed.getMonth() === month - 1 && parsed.getDate() === day) {
+        return parsed.getTime();
+      }
+    }
+    return null;
+  }
+  const parsed = new Date(trimmed).getTime();
+  return Number.isNaN(parsed) ? null : parsed;
+};
+
+const parseMarketAgentTime = (value: unknown) => {
+  const timestamp = parseMarketAgentTimestampMs(value);
+  return timestamp === null ? null : new Date(timestamp);
 };
 
 export const formatShortTime = (value: unknown, fallback = "--") => {

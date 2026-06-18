@@ -7,6 +7,11 @@
     "update-baseline": "node scripts/update-baseline.mjs",
     "report": "playwright show-report playwright-report",
     "ui-check": "node scripts/ui-check.mjs",
+    "ui-check:fast": "node scripts/ui-check.mjs --theme dark --filter \"Market Agent dashboard smoke\"",
+    "ui-check:fast:nobuild": "node scripts/ui-check.mjs --theme dark --filter \"Market Agent dashboard smoke\" --skip-build",
+    "ui-check:fast:dev": "node scripts/ui-check.mjs --theme dark --filter \"Market Agent dashboard smoke\" --base-url http://127.0.0.1:5173",
+    "ui-check:market-agent": "node scripts/ui-check.mjs --theme dark --filter \"Market Agent\"",
+    "ui-check:market-agent:dashboard": "node scripts/ui-check.mjs --theme dark --filter \"Market Agent dashboard smoke\"",
     "ui-watch": "node scripts/ui-watch.mjs"
   },
   "devDependencies": {

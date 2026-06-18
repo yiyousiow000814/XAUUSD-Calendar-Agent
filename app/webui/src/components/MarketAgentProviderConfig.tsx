@@ -155,10 +155,56 @@ const emptyLLMForm: MarketAgentLLMConfigInput = {
   endpoint: "http://127.0.0.1:21434",
   model: "qwen3.5:4b",
   temperature: 0,
-  timeoutSeconds: 30,
-  keepAlive: "0",
+  timeoutSeconds: 60,
+  keepAlive: "5m",
   maxContext: 8192
 };
+
+const deriveCTraderForm = (data: MarketAgentProviderConfigResponse | null): MarketAgentProviderConfigInput => {
+  const ctrader = data?.ctrader;
+  if (!ctrader) return emptyForm;
+  return {
+    ...emptyForm,
+    enabled: ctrader.enabled,
+    environment: ctrader.environment || "demo",
+    accountId: ctrader.accountId || "",
+    symbol: ctrader.symbol || "XAUUSD",
+    symbolId: ctrader.symbolId ?? null,
+    snapshotPath: ctrader.snapshotPath || "",
+    quoteTimeoutSeconds: ctrader.quoteTimeoutSeconds || 8,
+    quoteStaleAfterSeconds: ctrader.quoteStaleAfterSeconds || 15,
+    allowSavedSnapshotFallback: ctrader.allowSavedSnapshotFallback
+  };
+};
+
+const deriveTelegramForm = (telegramData: MarketAgentTelegramConfigResponse | null): MarketAgentTelegramConfigInput => {
+  const telegram = telegramData?.telegram;
+  if (!telegram) return emptyTelegramForm;
+  return {
+    ...emptyTelegramForm,
+    enabled: telegram.enabled,
+    chatId: telegram.chatId || "",
+    timeoutSeconds: telegram.timeoutSeconds || 10,
+    levels: telegram.levels?.length ? telegram.levels : ["level_2", "level_3"]
+  };
+};
+
+const deriveLLMForm = (llmData: MarketAgentLLMConfigResponse | null): MarketAgentLLMConfigInput => {
+  const llm = llmData?.llm;
+  if (!llm) return emptyLLMForm;
+  return {
+    enabled: llm.enabled,
+    provider: llm.provider || "ollama",
+    endpoint: llm.endpoint || "http://127.0.0.1:21434",
+    model: llm.model || "qwen3.5:4b",
+    temperature: typeof llm.temperature === "number" ? llm.temperature : 0,
+    timeoutSeconds: llm.timeoutSeconds || 30,
+    keepAlive: llm.keepAlive || "5m",
+    maxContext: llm.maxContext || 8192
+  };
+};
+
+const sameJson = (left: unknown, right: unknown) => JSON.stringify(left) === JSON.stringify(right);
 
 export function MarketAgentProviderConfig({
   data,
@@ -190,14 +236,16 @@ export function MarketAgentProviderConfig({
   onStartMonitorLoop,
   onStopMonitorLoop
 }: MarketAgentProviderConfigProps) {
-  const [form, setForm] = useState<MarketAgentProviderConfigInput>(emptyForm);
-  const [telegramForm, setTelegramForm] = useState<MarketAgentTelegramConfigInput>(emptyTelegramForm);
-  const [llmForm, setLLMForm] = useState<MarketAgentLLMConfigInput>(emptyLLMForm);
+  const [form, setForm] = useState<MarketAgentProviderConfigInput>(() => deriveCTraderForm(data));
+  const [telegramForm, setTelegramForm] = useState<MarketAgentTelegramConfigInput>(() => deriveTelegramForm(telegramData));
+  const [llmForm, setLLMForm] = useState<MarketAgentLLMConfigInput>(() => deriveLLMForm(llmData));
   const [ctraderAuthResult, setCTraderAuthResult] = useState<MarketAgentCTraderAuthResponse | null>(null);
   const [telegramResult, setTelegramResult] = useState<MarketAgentTelegramActionResponse | null>(null);
   const [telegramSaveState, setTelegramSaveState] = useState<"idle" | "saving" | "saved" | "failed">("idle");
   const [telegramTestState, setTelegramTestState] = useState<"idle" | "sending" | "sent" | "failed">("idle");
-  const [localTelegramEnabled, setLocalTelegramEnabled] = useState<boolean | null>(null);
+  const [localTelegramEnabled, setLocalTelegramEnabled] = useState<boolean | null>(
+    telegramData?.telegram?.enabled ?? null
+  );
   const [llmResult, setLLMResult] = useState<MarketAgentLLMActionResponse | null>(null);
   const [localAIResult, setLocalAIResult] = useState<MarketAgentLLMActionResponse | null>(null);
   const [localAIApplyState, setLocalAIApplyState] = useState<"idle" | "saving" | "saved" | "failed">("idle");
@@ -209,62 +257,38 @@ export function MarketAgentProviderConfig({
   const surfaceRef = useRef<HTMLElement | null>(null);
   const localAIDetectInFlightRef = useRef(false);
   const lastLocalAIDetectAtRef = useRef(0);
+  const autoAppliedLocalAIKeyRef = useRef("");
 
   useEffect(() => {
-    const ctrader = data?.ctrader;
-    if (!ctrader) return;
-    setForm((current) => ({
-      ...current,
-      enabled: ctrader.enabled,
-      environment: ctrader.environment || "demo",
-      accountId: ctrader.accountId || "",
-      ctid: "",
-      password: "",
-      symbol: ctrader.symbol || "XAUUSD",
-      symbolId: ctrader.symbolId ?? null,
-      snapshotPath: ctrader.snapshotPath || "",
-      quoteTimeoutSeconds: ctrader.quoteTimeoutSeconds || 8,
-      quoteStaleAfterSeconds: ctrader.quoteStaleAfterSeconds || 15,
-      allowSavedSnapshotFallback: ctrader.allowSavedSnapshotFallback
-    }));
+    const next = deriveCTraderForm(data);
+    setForm((current) => (sameJson(current, next) ? current : next));
   }, [data]);
 
   useEffect(() => {
-    const telegram = telegramData?.telegram;
-    if (!telegram) return;
-    setTelegramForm((current) => ({
-      ...current,
-      enabled: telegram.enabled,
-      chatId: telegram.chatId || "",
-      timeoutSeconds: telegram.timeoutSeconds || 10,
-      levels: telegram.levels?.length ? telegram.levels : ["level_2", "level_3"]
-    }));
-    setLocalTelegramEnabled(telegram.enabled);
+    const next = deriveTelegramForm(telegramData);
+    setTelegramForm((current) => (sameJson(current, next) ? current : next));
+    const nextEnabled = telegramData?.telegram?.enabled ?? null;
+    setLocalTelegramEnabled((current) => (current === nextEnabled ? current : nextEnabled));
   }, [telegramData]);
 
   useEffect(() => {
-    const llm = llmData?.llm;
-    if (!llm) return;
-    setLLMForm({
-      enabled: llm.enabled,
-      provider: llm.provider || "ollama",
-      endpoint: llm.endpoint || "http://127.0.0.1:21434",
-      model: llm.model || "qwen3.5:4b",
-      temperature: typeof llm.temperature === "number" ? llm.temperature : 0,
-      timeoutSeconds: llm.timeoutSeconds || 30,
-      keepAlive: llm.keepAlive || "0",
-      maxContext: llm.maxContext || 8192
-    });
+    const next = deriveLLMForm(llmData);
+    setLLMForm((current) => (sameJson(current, next) ? current : next));
   }, [llmData]);
 
   useEffect(() => {
-    if (localAiSetup) {
+    if (localAiSetup && !sameJson(localSetup, localAiSetup)) {
       setLocalSetup(localAiSetup);
     }
-  }, [localAiSetup]);
+  }, [localAiSetup, localSetup]);
 
   useEffect(() => {
-    if (activeStep !== "llm" || !onDetectLocalAI) return;
+    const configuredModel = llmData?.llm?.model || llmForm.model;
+    const shouldDetect =
+      activeStep === "llm" ||
+      Boolean(llmData?.llm?.enabled && configuredModel && !localSetup?.available);
+    if (!shouldDetect || !onDetectLocalAI) return;
+    if (localSetup?.available && localSetup.status) return;
     const now = Date.now();
     if (localAIDetectInFlightRef.current || now - lastLocalAIDetectAtRef.current < 15_000) return;
     let cancelled = false;
@@ -291,26 +315,26 @@ export function MarketAgentProviderConfig({
     return () => {
       cancelled = true;
     };
-  }, [activeStep, localAiSetup, onDetectLocalAI]);
+  }, [activeStep, llmData, llmForm.model, localAiSetup, localSetup, onDetectLocalAI]);
 
   useEffect(() => {
-    if (localAiPullProgress) {
-      setPendingPullProgress((current) => (current?.status === "cancelled" ? current : null));
+    if (localAiPullProgress && pendingPullProgress && pendingPullProgress.status !== "cancelled") {
+      setPendingPullProgress(null);
     }
-  }, [localAiPullProgress]);
+  }, [localAiPullProgress, pendingPullProgress]);
 
   useEffect(() => {
-    const installedModels = (localAiSetup?.installedModels ?? [])
+    const installedModels = (localSetup?.installedModels ?? [])
       .map((entry) => localAIModelNameFromEntry(entry))
       .filter((name): name is string => Boolean(name));
     const configuredModel = llmData?.llm?.model || llmForm.model;
     const configuredInstalled = Boolean(configuredModel && installedModels.includes(configuredModel));
     const anyInstalled = installedModels.length > 0;
-    const modelReady = localAiSetup?.status === "model_ready" || configuredInstalled || anyInstalled;
-    if (modelReady) {
-      setPendingPullProgress((current) => (current?.status === "cancelled" ? current : null));
+    const modelReady = localSetup?.status === "model_ready" || configuredInstalled || anyInstalled;
+    if (modelReady && pendingPullProgress && pendingPullProgress.status !== "cancelled") {
+      setPendingPullProgress(null);
     }
-  }, [localAiSetup, llmData, llmForm.model]);
+  }, [localSetup, llmData, llmForm.model, pendingPullProgress]);
 
   const cTraderHealth = useMemo(
     () =>
@@ -379,6 +403,8 @@ export function MarketAgentProviderConfig({
     [installedLocalAIModelEntries]
   );
   const isLocalModelInstalledByName = (model: string) => Boolean(model && installedLocalAIModelNames.includes(model));
+  const configuredLocalAIModel = llmData?.llm?.model || llmForm.model;
+  const hasConfiguredLocalAIModel = Boolean(llmData?.llm?.enabled && configuredLocalAIModel);
 
   const statusTone = useMemo(() => {
     if (!data?.available) return "bad";
@@ -401,11 +427,13 @@ export function MarketAgentProviderConfig({
       detail: "Optional explanation",
       status: localAISetupRefreshing
         ? "Checking"
-        : !llmData?.llm?.enabled
-        ? "Rule-based"
         : installedLocalAIModelNames.length
           ? "Model ready"
-          : "Needs model"
+          : hasConfiguredLocalAIModel
+            ? "Model ready"
+            : !llmData?.llm?.enabled
+              ? "Rule-based"
+              : "Needs model"
     },
     {
       id: "telegram",
@@ -600,6 +628,25 @@ export function MarketAgentProviderConfig({
     }
   };
 
+  const autoApplySelectedLocalAIModel = () => {
+    const model = selectedLocalAIModel() || llmForm.model;
+    const payload = { ...llmForm, enabled: true, model };
+    void onSaveLLM(payload);
+  };
+
+  useEffect(() => {
+    if (!llmData?.available || localAIMode === "off" || localAIApplyState === "saving") return;
+    if (localSetup?.ollama?.installed === false || localSetup?.ollama?.running === false) return;
+    const model = selectedLocalAIModel();
+    if (!model || !isLocalModelInstalled(model)) return;
+    if (llmForm.enabled && llmForm.model === model) return;
+
+    const key = `${model}:${llmForm.enabled ? "enabled" : "disabled"}:${llmForm.model}`;
+    if (autoAppliedLocalAIKeyRef.current === key) return;
+    autoAppliedLocalAIKeyRef.current = key;
+    autoApplySelectedLocalAIModel();
+  }, [llmData?.available, localAIMode, localAIApplyState, localSetup, llmForm.enabled, llmForm.model]);
+
   const cancelSelectedModelDownload = async () => {
     const model = selectedLocalAIModel();
     const cancelledProgress: MarketAgentOllamaPullProgress = {
@@ -766,6 +813,13 @@ export function MarketAgentProviderConfig({
         llmForm.enabled &&
         llmForm.model === selectedModel
       );
+      const autoWillUseSelectedModel = Boolean(
+        localAIMode === "auto" &&
+        selectedModel &&
+        selectedModelInstalled &&
+        isModelReady &&
+        !runtimeNotRunning
+      );
       const installDisabled = localAIMode === "off" || isDownloadingModel;
       const selectedDownloadLabel = needsRuntimeStart
         ? "Start Local AI"
@@ -884,18 +938,9 @@ export function MarketAgentProviderConfig({
                         </button>
                       ) : null}
                       {localAIMode !== "off" && isModelReady && !runtimeNotRunning ? (
-                        <button
-                          type="button"
-                          className="btn primary btn-compact"
-                          disabled={localAIApplyState === "saving" || isSelectedModelApplied}
-                          onClick={() => void applySelectedLocalAIModel(true)}
-                        >
-                          {localAIApplyState === "saving"
-                            ? "Saving..."
-                            : isSelectedModelApplied
-                              ? "Using this model"
-                              : "Use this model"}
-                        </button>
+                        <span className="market-agent-ai-active-model" aria-label={`Using ${selectedModelLabel}`}>
+                          Active: {selectedModelLabel}
+                        </span>
                       ) : null}
                       {localAIMode === "off" ? (
                         <button

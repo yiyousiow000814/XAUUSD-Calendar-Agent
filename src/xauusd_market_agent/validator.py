@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any
+import re
 
 from .models import AnalysisResult, ValidationResult
 
@@ -95,6 +96,43 @@ def _as_text(value: Any) -> str:
     return str(value)
 
 
+def _normalize_market_terms(value: str) -> str:
+    text = value
+    replacements = {
+        r"\bhormones\b": "Hormuz",
+        r"\bhormone\b": "Hormuz",
+        r"\bYields is\b": "Yields are",
+    }
+    for pattern, replacement in replacements.items():
+        text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
+    return text
+
+
+def _looks_like_prompt_leak(value: str) -> bool:
+    lowered = value.strip().lower()
+    if not lowered:
+        return False
+    prompt_fragments = (
+        "given this evidence packet",
+        "use only allowed_candidate_drivers",
+        "output strict json",
+        "return strict json",
+        "required json object keys",
+        "strict json only",
+    )
+    return any(fragment in lowered for fragment in prompt_fragments)
+
+
+def _fallback_user_message(normalized: dict[str, Any]) -> str:
+    summary = str(normalized.get("summary") or "").strip()
+    if summary and not _looks_like_prompt_leak(summary):
+        return summary
+    causal_chain = str(normalized.get("causal_chain") or "").strip()
+    if causal_chain and not _looks_like_prompt_leak(causal_chain):
+        return causal_chain
+    return "Evidence is not strong enough to confirm a current XAUUSD driver."
+
+
 def _normalize_llm_payload(payload: dict[str, Any]) -> dict[str, Any]:
     normalized = dict(payload)
     if normalized.get("secondary_driver") == "":
@@ -114,12 +152,28 @@ def _normalize_llm_payload(payload: dict[str, Any]) -> dict[str, Any]:
             normalized[key] = _as_list(normalized[key])
     for key in ("causal_chain", "user_message", "summary"):
         if key in normalized:
-            normalized[key] = _as_text(normalized[key])
+            normalized[key] = _normalize_market_terms(_as_text(normalized[key]))
     if not normalized.get("user_message") and normalized.get("summary"):
         normalized["user_message"] = normalized["summary"]
     if not normalized.get("causal_chain") and normalized.get("summary"):
         normalized["causal_chain"] = normalized["summary"]
+    if _looks_like_prompt_leak(str(normalized.get("user_message") or "")):
+        normalized["user_message"] = _fallback_user_message(normalized)
     return normalized
+
+
+def _canonical_invalidation_conditions(
+    payload: dict[str, Any],
+    blocked_drivers: dict[str, str],
+) -> list[str]:
+    if not blocked_drivers:
+        return list(payload.get("invalidation_conditions", []))
+    conditions: list[str] = []
+    for reason in blocked_drivers.values():
+        text = str(reason or "").strip()
+        if text and text not in conditions:
+            conditions.append(text)
+    return conditions
 
 
 def _validate_schema(payload: dict[str, Any]) -> None:
@@ -168,6 +222,10 @@ def validate_llm_output(
 ) -> ValidationResult:
     payload = _normalize_llm_payload(llm_payload)
     _validate_schema(payload)
+    payload["invalidation_conditions"] = [
+        _normalize_market_terms(condition)
+        for condition in _canonical_invalidation_conditions(payload, blocked_drivers)
+    ]
     driver = payload["main_driver"]
     if driver != "unknown" and driver not in allowed_candidate_drivers:
         if fallback_result is not None:
@@ -177,6 +235,7 @@ def validate_llm_output(
             fallback_payload["allowed_candidate_drivers_used"] = [
                 item for item in fallback_payload["allowed_candidate_drivers_used"] if item in allowed_candidate_drivers
             ]
+            fallback_payload["invalidation_conditions"] = _canonical_invalidation_conditions(fallback_payload, blocked_drivers)
             return _build_result(
                 fallback_payload,
                 rejected_driver=driver,

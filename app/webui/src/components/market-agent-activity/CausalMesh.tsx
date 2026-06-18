@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import type { SignalDecisionTraceItem, SignalMapModel, SignalNode } from "./signalMapModel";
-import { formatLocalDateTime } from "../../utils/calendarTime";
+import { formatUtcOffset, getSystemUtcOffsetMinutes } from "../../utils/calendarTime";
 
 type CausalMeshProps = {
   node: SignalNode;
@@ -23,11 +23,15 @@ const metaAfter = (items: string[], prefix: string) => {
   return match ? match.slice(prefix.length).trim() : "--";
 };
 
+const monthLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const pad2 = (value: number) => String(value).padStart(2, "0");
+
 const formatHistoryTime = (value: string) => {
   if (!value || value === "--" || value.toLowerCase() === "not recorded") return value || "--";
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return value;
-  return formatLocalDateTime(parsed);
+  const readable = `${pad2(parsed.getDate())} ${monthLabels[parsed.getMonth()]} ${parsed.getFullYear()} ${pad2(parsed.getHours())}:${pad2(parsed.getMinutes())}`;
+  return `${readable} ${formatUtcOffset(getSystemUtcOffsetMinutes(parsed.getTime()))}`;
 };
 
 const displayMetaValue = (label: string, value: string) => {
@@ -46,13 +50,37 @@ const splitMeta = (meta: string) => {
 
 const compactStatus = (status: string) => status.replace(/_/g, " ");
 
+const titleCaseStatus = (value: string) =>
+  compactStatus(value)
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => (part.toLowerCase() === "ai" ? "AI" : part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()))
+    .join(" ");
+
+const newsHistoryStatusLabel = (status: string, summarySource: string) => {
+  const normalizedStatus = status.toLowerCase().replace(/_/g, " ");
+  const normalizedSource = summarySource.toLowerCase();
+  if (normalizedSource.includes("local ai") || normalizedSource.includes("ai") || normalizedStatus.includes("summar")) {
+    return "AI summarized";
+  }
+  if (normalizedStatus.includes("filtered") || normalizedStatus.includes("excluded") || normalizedStatus.includes("rejected")) {
+    return "Filtered out";
+  }
+  if (normalizedStatus.includes("included") || normalizedStatus.includes("accepted") || normalizedStatus.includes("used")) {
+    return "Accepted input";
+  }
+  if (normalizedStatus.includes("unreviewed")) return "Raw context";
+  return "Rule kept";
+};
+
 const statusKind = (status: string) => {
   const normalized = status.toLowerCase().replace(/_/g, " ");
+  if (normalized.includes("guarded")) return "good";
   if (normalized.includes("unavailable") || normalized.includes("blocked") || normalized.includes("failed")) return "bad";
   if (normalized.includes("stale") || normalized.includes("waiting") || normalized.includes("syncing") || normalized.includes("checking") || normalized.includes("watching") || normalized.includes("emerging")) return "watch";
   if (normalized.includes("market closed") || normalized.includes("snapshot")) return "watch";
   if (normalized.includes("confirming") || normalized.includes("returned") || normalized.includes("filled")) return "confirming";
-  if (normalized.includes("live") || normalized.includes("ready") || normalized.includes("stored") || normalized.includes("available") || normalized.includes("approved") || normalized.includes("active") || normalized.includes("validated") || normalized.includes("recorded")) return "good";
+  if (normalized.includes("live") || normalized.includes("ready") || normalized.includes("stored") || normalized.includes("available") || normalized.includes("approved") || normalized.includes("active") || normalized.includes("validated") || normalized.includes("recorded") || normalized.includes("completed")) return "good";
   if (normalized.includes("dormant") || normalized.includes("skipped") || normalized.includes("not recorded") || normalized.includes("neutral") || normalized.includes("none")) return "muted";
   return "neutral";
 };
@@ -75,7 +103,8 @@ const rowRank = (label: string) => {
 const requestBucket = (status: string) => {
   const normalized = status.toLowerCase();
   if (normalized.includes("unavailable") || normalized.includes("unmapped") || normalized.includes("blocked")) return "Action needed";
-  if (normalized.includes("stale")) return "Refresh";
+  if (normalized.includes("stale")) return "Needs refresh";
+  if (normalized.includes("guarded")) return "Monitoring";
   if (normalized.includes("watch")) return "Monitoring";
   return "Open";
 };
@@ -83,6 +112,7 @@ const requestBucket = (status: string) => {
 const requestTone = (status: string) => {
   const normalized = status.toLowerCase();
   if (normalized.includes("unavailable") || normalized.includes("unmapped") || normalized.includes("blocked")) return "bad";
+  if (normalized.includes("guarded")) return "working";
   if (normalized.includes("watch")) return "working";
   if (normalized.includes("stale")) return "working";
   return "muted";
@@ -98,7 +128,7 @@ const summarizeRequests = (requests: NonNullable<SignalNode["requests"]>) =>
       return groups;
     }, new Map<string, NonNullable<SignalNode["requests"]>>())
   ).sort(([left], [right]) => {
-    const order = ["Action needed", "Refresh", "Monitoring", "Open"];
+    const order = ["Action needed", "Needs refresh", "Monitoring", "Open"];
     return order.indexOf(left) - order.indexOf(right);
   });
 
@@ -120,14 +150,17 @@ const compactRequestRows = (requests: NonNullable<SignalNode["requests"]>) =>
 const requestTitle = (request: NonNullable<SignalNode["requests"]>[number] & { targets: string[] }) => {
   if (request.targets.length > 1 && request.reason.toLowerCase().includes("no provider status")) return "Provider status not reported";
   if (request.targets.length > 1 && request.status.toLowerCase().includes("unmapped")) return "New sensor candidates";
+  if (request.targets.length > 1 && request.status.toLowerCase().includes("guarded")) return "Drivers held out by evidence gate";
   if (request.targets.length > 1 && request.status.toLowerCase().includes("watch")) return "Themes under watch";
   if (request.status.toLowerCase().includes("unavailable")) return `${request.target} unavailable`;
+  if (request.status.toLowerCase().includes("guarded")) return `${request.target} guarded`;
   return request.targets.length > 1 ? `${request.targets.length} sensors` : request.target;
 };
 
 const requestReason = (request: NonNullable<SignalNode["requests"]>[number] & { targets: string[] }) => {
   if (request.targets.length > 1 && request.reason.toLowerCase().includes("no provider status")) return "These sensors are watched, but the current payload did not include provider health for them.";
   if (request.status.toLowerCase().includes("unavailable")) return "This cannot be used as neutral or confirming evidence until a reliable source is available.";
+  if (request.status.toLowerCase().includes("guarded")) return "This is not a data failure. The evidence gate is keeping this driver out of the current market conclusion until fresh confirmation appears.";
   return request.reason;
 };
 
@@ -136,7 +169,8 @@ const requestTargets = (request: NonNullable<SignalNode["requests"]>[number] & {
 const requestImpact = (status: string) => {
   const bucket = requestBucket(status);
   if (bucket === "Action needed") return "Limits confidence";
-  if (bucket === "Refresh") return "Needs fresh data";
+  if (bucket === "Needs refresh") return "Needs fresh data";
+  if (status.toLowerCase().includes("guarded")) return "Guarded";
   if (bucket === "Monitoring") return "Watch only";
   return "Open request";
 };
@@ -175,7 +209,7 @@ const renderRecordRows = (sectionTitle: string, node: SignalNode, rows: NonNulla
           const usedBy = metaAfter(row.meta, "used_by:");
           const why = metaAfter(row.meta, "why:");
           return (
-            <article key={`${sectionTitle}-${row.label}-${row.status}-${rowIndex}`} className={`market-agent-record-matrix-row tone-${strengthFor({ ...node, tone: node.tone, status: row.status })} status-${statusKind(row.status)}`} role="row">
+            <article key={`${sectionTitle}-${row.label}-${row.status}-${rowIndex}`} className={`market-agent-record-matrix-row tone-${strengthFor({ ...node, tone: row.tone ?? node.tone, status: row.status })} status-${statusKind(row.status)}`} role="row">
               <div role="cell"><span>{compactStatus(row.status)}</span></div>
               <div role="cell"><strong>{row.label}</strong></div>
               <div role="cell">{provider !== "--" ? provider : source !== "--" ? source : input}</div>
@@ -230,6 +264,7 @@ const renderHistoryRows = (sectionTitle: string, node: SignalNode, rows: NonNull
         const fetchedAt = formatHistoryTime(fetchedAtRaw);
         const summarySource = metaAfter(row.meta, "summary_source:");
         const aiState = summarySource === "--" || summarySource === "not recorded" ? "not processed" : summarySource;
+        const statusLabel = newsHistoryStatusLabel(row.status, summarySource);
         return (
           <button
             type="button"
@@ -238,7 +273,7 @@ const renderHistoryRows = (sectionTitle: string, node: SignalNode, rows: NonNull
             aria-label={`${row.label} history record`}
             onClick={() => onSelect(row)}
           >
-            <span>{compactStatus(row.status)}</span>
+            <span>{statusLabel}</span>
             <strong>{row.label}</strong>
             <em>{source}</em>
             <time dateTime={publishedAtRaw === "--" ? undefined : publishedAtRaw} title={publishedAtRaw === publishedAt ? undefined : publishedAtRaw}>{publishedAt}</time>
@@ -255,38 +290,49 @@ function AiHistoryPane({ model }: { model: SignalMapModel }) {
   const trace = model.decisionTrace;
   const [selectedItem, setSelectedItem] = useState<SignalDecisionTraceItem | null>(null);
   const hasItems = trace.items.length > 0;
+  const runTimeLabel = formatHistoryTime(trace.runLabel);
 
   return (
     <section className="market-agent-history-ledger compact" aria-label="AI analysis history">
       <header>
         <div>
           <span>AI History</span>
-          <h4>Completed Local AI calls</h4>
+          <h4>Local AI call audit</h4>
           <p>{trace.summary}</p>
         </div>
       </header>
       {hasItems ? (
-        <div className="market-agent-history-list" role="table" aria-label="Completed AI history filings">
+        <div className="market-agent-history-list" role="table" aria-label="Local AI call audit rows">
           <div className="market-agent-history-head" role="row">
             <span>Time</span>
-            <span>Name</span>
-            <span>Type</span>
+            <span>AI step</span>
+            <span>Decision</span>
             <span>Status</span>
           </div>
-          {trace.items.map((item) => (
-            <button
-              type="button"
-              className={`market-agent-history-row ${decisionTone(item)}`}
-              key={`${item.label}-${item.status}`}
-              onClick={() => setSelectedItem(item)}
-              role="row"
-            >
-              <span role="cell">{trace.runLabel}</span>
-              <strong role="cell">{item.label}</strong>
-              <span role="cell">{item.meta[2]?.replace(/^history:\s*/i, "") || item.meta[0] || "analysis"}</span>
-              <em role="cell">{item.status}</em>
-            </button>
-          ))}
+          {trace.items.map((item) => {
+            const callType = metaAfter(item.meta, "type:");
+            const fallbackType = metaAfter(item.meta, "task:");
+            const result = metaAfter(item.meta, "result:");
+            const itemTimeRaw = metaAfter(item.meta, "run_started_at:");
+            const itemTimeLabel = itemTimeRaw !== "--" ? formatHistoryTime(itemTimeRaw) : runTimeLabel;
+            return (
+              <button
+                type="button"
+                className={`market-agent-history-row ${decisionTone(item)}`}
+                key={`${item.label}-${item.status}-${itemTimeRaw}`}
+                onClick={() => setSelectedItem(item)}
+                role="row"
+                title={item.detail}
+              >
+                <time role="cell" dateTime={itemTimeRaw !== "--" ? itemTimeRaw : trace.runLabel} title={itemTimeRaw !== "--" ? itemTimeRaw : trace.runLabel}>
+                  {itemTimeLabel}
+                </time>
+                <strong role="cell">{item.label}</strong>
+                <span role="cell">{result !== "--" ? result : callType !== "--" ? callType : fallbackType !== "--" ? fallbackType : "AI call"}</span>
+                <em role="cell">{titleCaseStatus(item.status)}</em>
+              </button>
+            );
+          })}
         </div>
       ) : (
         <section className="market-agent-quiet-state" aria-label="No AI history recorded">
@@ -307,7 +353,7 @@ function AiHistoryPane({ model }: { model: SignalMapModel }) {
             <header>
               <div>
                 <span>{selectedItem.label}</span>
-                <h4>{selectedItem.status}</h4>
+                <h4>{titleCaseStatus(selectedItem.status)}</h4>
               </div>
               <button type="button" onClick={() => setSelectedItem(null)} aria-label="Close history detail">
                 Close
@@ -339,6 +385,7 @@ function AiOngoingPane({ model, nodes }: { model: SignalMapModel; nodes: SignalN
     return ["running", "checking", "collecting", "syncing", "queued"].some((keyword) => status.includes(keyword));
   });
   const rows = ongoingNodes;
+  const runTimeLabel = formatHistoryTime(model.decisionTrace.runLabel);
 
   return (
     <section className="market-agent-ongoing-ledger compact" aria-label="AI ongoing work">
@@ -366,7 +413,7 @@ function AiOngoingPane({ model, nodes }: { model: SignalMapModel; nodes: SignalN
               onClick={() => setSelectedNode(node)}
               role="row"
             >
-              <span role="cell">{model.decisionTrace.runLabel || "Now"}</span>
+              <span role="cell" title={model.decisionTrace.runLabel || undefined}>{runTimeLabel || "Now"}</span>
               <strong role="cell">{node.label}</strong>
               <span role="cell">{node.lane}</span>
               <em role="cell">{node.status}</em>
@@ -428,6 +475,11 @@ function NodeHistoryPane({ node }: { node: SignalNode }) {
   const [selectedRow, setSelectedRow] = useState<NonNullable<SignalNode["history"]>[number]["rows"][number] | null>(null);
   const historyRows = (node.history ?? []).flatMap((section) => section.rows);
   const historyTitle = node.label === "News" ? "News history" : `${node.label} history`;
+  const selectedStatusLabel = selectedRow
+    ? node.label === "News"
+      ? newsHistoryStatusLabel(selectedRow.status, metaAfter(selectedRow.meta, "summary_source:"))
+      : titleCaseStatus(selectedRow.status)
+    : "";
 
   return (
     <div className="market-agent-operational-trace" aria-label={`${node.label} history trace`}>
@@ -443,7 +495,7 @@ function NodeHistoryPane({ node }: { node: SignalNode }) {
           >
             <header>
               <div>
-                <span>{selectedRow.status}</span>
+                <span>{selectedStatusLabel}</span>
                 <h4>{selectedRow.label}</h4>
               </div>
               <button type="button" onClick={() => setSelectedRow(null)} aria-label="Close history detail">
@@ -470,6 +522,7 @@ function NodeHistoryPane({ node }: { node: SignalNode }) {
 }
 
 function AiStatusPane({ model, nodes }: { model: SignalMapModel; nodes: SignalNode[] }) {
+  const statusNodes = statusNodesFor(nodes).slice(0, 14);
   return (
     <section className="market-agent-status-ledger compact" aria-label="AI status snapshot">
       <header>
@@ -487,7 +540,7 @@ function AiStatusPane({ model, nodes }: { model: SignalMapModel; nodes: SignalNo
           <span>Doing now</span>
           <span>Needs</span>
         </div>
-        {statusNodesFor(nodes).slice(0, 14).map((node) => (
+        {statusNodes.map((node) => (
           <article className={`market-agent-status-row tone-${node.tone}`} key={node.id} role="row">
             <strong role="cell">{node.label}</strong>
             <span role="cell">{node.status}</span>
@@ -495,6 +548,14 @@ function AiStatusPane({ model, nodes }: { model: SignalMapModel; nodes: SignalNo
             <em role="cell">{node.requests?.length ? `${node.requests.length} open` : "clear"}</em>
           </article>
         ))}
+        {!statusNodes.length ? (
+          <article className="market-agent-status-row tone-muted" role="row">
+            <strong role="cell">AI Analysis</strong>
+            <span role="cell">not recorded</span>
+            <p role="cell">No pipeline status rows were returned for this run.</p>
+            <em role="cell">clear</em>
+          </article>
+        ) : null}
       </div>
     </section>
   );
@@ -510,6 +571,7 @@ export function CausalMesh({ node, allNodes, model, onClose }: CausalMeshProps) 
   const requestCount = node.requests?.length ?? 0;
   const requestGroups = summarizeRequests(node.requests ?? []);
   const blockingRequests = (node.requests ?? []).filter((request) => ["unavailable", "unmapped", "blocked"].some((status) => request.status.toLowerCase().includes(status))).length;
+  const refreshRequests = (node.requests ?? []).filter((request) => request.status.toLowerCase().includes("stale")).length;
   const watchRequests = (node.requests ?? []).filter((request) => request.status.toLowerCase().includes("watch")).length;
   const nextLabel = downstream.length ? downstream.slice(0, 3).map((candidate) => candidate.label).join(", ") : "End of selected path";
   const storageLabel = node.storage.length ? node.storage.join(" / ") : "not stored";
@@ -540,9 +602,7 @@ export function CausalMesh({ node, allNodes, model, onClose }: CausalMeshProps) 
             <button type="button" className={tabClass("overview")} onClick={() => setView("overview")}>Ongoing</button>
             <button type="button" className={tabClass("history")} onClick={() => setView("history")}>History</button>
             <button type="button" className={tabClass("records")} onClick={() => setView("records")}>Status</button>
-            {node.requests?.length ? (
-              <button type="button" className={tabClass("requests")} onClick={() => setView("requests")}>Needs</button>
-            ) : null}
+            <button type="button" className={tabClass("requests")} onClick={() => setView("requests")}>Needs</button>
           </>
         ) : (
           <>
@@ -617,6 +677,7 @@ export function CausalMesh({ node, allNodes, model, onClose }: CausalMeshProps) 
 
         {isAiAnalysis && view === "overview" ? <AiOngoingPane model={model} nodes={allNodes} /> : null}
         {isAiAnalysis && view === "history" ? <AiHistoryPane model={model} /> : null}
+        {isAiAnalysis && view === "records" ? <AiStatusPane model={model} nodes={allNodes} /> : null}
         {!isAiAnalysis && view === "history" && hasNodeHistory ? <NodeHistoryPane node={node} /> : null}
 
         {view === "overview" && !isAiAnalysis ? (
@@ -703,7 +764,7 @@ export function CausalMesh({ node, allNodes, model, onClose }: CausalMeshProps) 
           </div>
         ) : null}
 
-        {view === "requests" && node.requests?.length ? (
+        {view === "requests" ? (
           <section className="market-agent-data-requests" aria-label={`${node.label} needs`}>
             <header>
               <div>
@@ -711,38 +772,44 @@ export function CausalMesh({ node, allNodes, model, onClose }: CausalMeshProps) 
                 <h4>What is blocking or being watched</h4>
               </div>
             </header>
-            <p className="market-agent-request-note">These are data limits, not market conclusions. Blocking items affect confidence; monitoring items stay visible without becoming a driver.</p>
-            <div className="market-agent-request-summary" aria-label={`${node.label} request summary`}>
-              <span>{blockingRequests} blocking</span>
-              <span>{watchRequests} monitored</span>
-              <span>{requestCount} total</span>
-            </div>
-            <div className="market-agent-request-groups">
-              {requestGroups.map(([group, requests]) => (
-                <section key={group} className="market-agent-request-group">
-                  <header>
-                    <strong>{group}</strong>
-                    <span>{requests.length}</span>
-                  </header>
-                  <div className="market-agent-data-request-list">
-                    {compactRequestRows(requests).map((request) => (
-                      <article key={`${request.targets.join("-")}-${request.status}-${request.mode}`} className={`market-agent-data-request tone-${requestTone(request.status)}`}>
-                        <div className="market-agent-request-main">
-                          <span>{requestImpact(request.status)}</span>
-                          <strong>{requestTitle(request)}</strong>
-                          <small>{request.requestedBy}</small>
-                        </div>
-                        <p>{requestReason(request)}</p>
-                        <span>{request.status}</span>
-                        <div className="market-agent-request-targets" aria-label={`${request.targets.length} affected sensors`}>
-                          <em>{requestTargets(request)}</em>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                </section>
-              ))}
-            </div>
+            {requestCount ? (
+              <>
+                <p className="market-agent-request-note">These are data limits, not market conclusions. Blocking items affect confidence; monitoring items stay visible without becoming a driver.</p>
+                <div className="market-agent-request-summary" aria-label={`${node.label} request summary`}>
+                  <span>{blockingRequests} blocking</span>
+                  <span>{refreshRequests} need refresh</span>
+                  <span>{watchRequests} watched</span>
+                </div>
+                <div className="market-agent-request-groups">
+                  {requestGroups.map(([group, requests]) => (
+                    <section key={group} className="market-agent-request-group">
+                      <header>
+                        <strong>{group}</strong>
+                        <span>{requests.length}</span>
+                      </header>
+                      <div className="market-agent-data-request-list">
+                        {compactRequestRows(requests).map((request) => (
+                          <article key={`${request.targets.join("-")}-${request.status}-${request.mode}`} className={`market-agent-data-request tone-${requestTone(request.status)}`}>
+                            <div className="market-agent-request-main">
+                              <span>{requestImpact(request.status)}</span>
+                              <strong>{requestTitle(request)}</strong>
+                              <small>{request.requestedBy}</small>
+                            </div>
+                            <p>{requestReason(request)}</p>
+                            <span>{request.status}</span>
+                            <div className="market-agent-request-targets" aria-label={`${request.targets.length} affected sensors`}>
+                              <em>{requestTargets(request)}</em>
+                            </div>
+                          </article>
+                        ))}
+                      </div>
+                    </section>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <p className="market-agent-request-note">No active data needs are open for this run. AI status and completed analysis records remain available under Status and History.</p>
+            )}
           </section>
         ) : null}
       </div>

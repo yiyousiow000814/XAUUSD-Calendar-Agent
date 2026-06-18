@@ -7,6 +7,7 @@ from datetime import datetime, time, timezone
 WEEKEND_CLOSE_UTC = time(22, 0)
 WEEKEND_REOPEN_UTC = time(22, 0)
 MAX_WEEKEND_CONTEXT_AGE_SECONDS = 96 * 60 * 60
+MAX_CLOCK_SKEW_SECONDS = 5
 
 
 @dataclass(frozen=True)
@@ -53,7 +54,7 @@ def classify_xauusd_stale_quote(
     anchor = _utc(anchor_time)
     quote = _utc(quote_time)
     age_seconds = (anchor - quote).total_seconds()
-    if 0 <= age_seconds <= max(1, stale_after_seconds):
+    if -MAX_CLOCK_SKEW_SECONDS <= age_seconds <= max(1, stale_after_seconds):
         return StaleQuoteClassification(
             classification="fresh",
             reason="cTrader quote is fresh.",

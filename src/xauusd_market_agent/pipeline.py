@@ -43,6 +43,14 @@ def _driver_summary(main_driver: str) -> tuple[str, list[str]]:
                 "US10Y rebounds more than 5 bps",
             ],
         ),
+        "geopolitics": (
+            "Geopolitical risk is the dominant market story for gold.",
+            [
+                "The geopolitical headline is denied, de-escalated, or fully priced",
+                "Oil and risk assets stop reacting to the headline",
+                "XAUUSD gives back the headline-driven move",
+            ],
+        ),
         "technical_liquidation": (
             "The move looks technical or liquidity-driven because macro and news confirmation is missing.",
             [
@@ -260,8 +268,10 @@ def build_rule_based_analysis(
 
     summary = causal_chain
     user_message = {
+        "usd": "A firmer dollar is pressuring gold.",
         "yields": "Gold remains under pressure from rising yields and a firmer dollar.",
         "oil_inflation": "Oil-led inflation pressure is lifting yields and weighing on gold.",
+        "geopolitics": "Geopolitical risk is driving the current gold read.",
         "risk_sentiment": "Risk-off flow and falling yields are supporting gold.",
         "technical_liquidation": "XAUUSD moved sharply, but the move still looks technical/unconfirmed.",
         "unknown": "No confirmed macro/news driver found. XAUUSD movement is currently unconfirmed.",
@@ -301,6 +311,7 @@ def analyze_fixture_with_optional_llm(
     provider_health: dict[str, ProviderHealth] | None = None,
     attention_snapshot: DriverAttentionSnapshot | None = None,
     data_mode: str = "live_seen",
+    allow_repair: bool = True,
 ) -> AnalysisResult:
     provider_health = provider_health or build_fixture_provider_health(fixture, data_mode=data_mode)
     attention_snapshot = attention_snapshot or DriverAttentionManager().evaluate(
@@ -340,7 +351,7 @@ def analyze_fixture_with_optional_llm(
     llm_payload = _call_llm(repair=False)
     for attempt in range(2):
         if not llm_payload:
-            if attempt == 0:
+            if attempt == 0 and allow_repair:
                 llm_payload = _call_llm(repair=True)
                 continue
             return replace(fallback, llm_status="unavailable")
@@ -353,7 +364,7 @@ def analyze_fixture_with_optional_llm(
             )
             return replace(validated, analysis_engine="llm_validated", llm_status="validated")
         except Exception:
-            if attempt == 0:
+            if attempt == 0 and allow_repair:
                 llm_payload = _call_llm(repair=True)
                 continue
             return replace(fallback, llm_status="invalid_or_unavailable")

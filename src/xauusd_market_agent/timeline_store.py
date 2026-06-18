@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import asdict
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import json
+import math
+import re
 import sqlite3
 from pathlib import Path
 from typing import Any
@@ -10,17 +12,41 @@ from typing import Any
 from .models import DriverAttentionState
 from .providers.calendar_events import is_market_agent_calendar_row
 
+DAY_REPLAY_TIMELINE_ROWS = 240
+DAY_REPLAY_RELATED_ROWS_PER_SYMBOL = 180
+DAY_REPLAY_DRIVER_ROWS = 120
+DAY_REPLAY_STATE_ROWS = 120
+DAY_REPLAY_ALERT_ROWS = 80
+MONTH_REPLAY_PRICE_ROWS = 5000
+MONTH_REPLAY_RELATED_ROWS_PER_SYMBOL = 180
+MONTH_REPLAY_NEWS_ROWS = 360
+MONTH_REPLAY_TIMELINE_ROWS = 600
+MONTH_REPLAY_DRIVER_ROWS = 600
+MONTH_REPLAY_STATE_ROWS = 240
+MONTH_REPLAY_ALERT_ROWS = 200
+
 
 class TimelineStore:
     def __init__(self, path: Path, calendar_dir: Path | None = None) -> None:
         self.path = Path(path)
         self.calendar_dir = Path(calendar_dir) if calendar_dir is not None else None
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        self._try_enable_wal()
         self._init_schema()
 
+    def _try_enable_wal(self) -> None:
+        try:
+            with sqlite3.connect(self.path, timeout=1.0) as connection:
+                connection.execute("PRAGMA busy_timeout = 1000")
+                connection.execute("PRAGMA journal_mode = WAL")
+                connection.execute("PRAGMA synchronous = NORMAL")
+        except sqlite3.OperationalError:
+            return
+
     def _connect(self) -> sqlite3.Connection:
-        connection = sqlite3.connect(self.path)
+        connection = sqlite3.connect(self.path, timeout=30.0)
         connection.row_factory = sqlite3.Row
+        connection.execute("PRAGMA busy_timeout = 30000")
         return connection
 
     def _init_schema(self) -> None:
@@ -187,6 +213,53 @@ class TimelineStore:
         return [json.loads(str(row["payload_json"])) for row in rows]
 
     @staticmethod
+    def _repair_display_text(value: Any) -> Any:
+        if not isinstance(value, str) or "\ufffd" not in value:
+            return value
+        text = re.sub(r"(?<=[A-Za-z])\ufffd(?=[A-Za-z])", "'", value)
+        text = re.sub(r"\s+\ufffd\s+", " - ", text)
+        text = text.replace("\ufffd", "'")
+        return " ".join(text.split())
+
+    @classmethod
+    def _repair_news_display_fields(cls, item: dict[str, Any]) -> dict[str, Any]:
+        repaired = dict(item)
+        for key in ("title", "summary_title", "summary", "short_summary", "preview", "description", "source"):
+            if key in repaired:
+                repaired[key] = cls._repair_display_text(repaired[key])
+        title = str(repaired.get("title") or "")
+        summary_title = str(repaired.get("summary_title") or "")
+        if summary_title and not cls._is_complete_market_news_title(summary_title) and cls._is_complete_market_news_title(title):
+            repaired.pop("summary_title", None)
+        return repaired
+
+    _MARKET_TITLE_VERBS = re.compile(
+        r"\b("
+        r"is|are|was|were|be|being|been|will|would|could|should|may|might|can|"
+        r"says|said|warns|warned|signals|signaled|announces|announced|expects|expected|"
+        r"hits|hit|jumps|jumped|falls|fell|drops|dropped|slips|slipped|rises|rose|"
+        r"surges|surged|eases|eased|extends|extended|keep|keeps|kept|weighs|weighed|"
+        r"drives|drove|pressure|pressures|pressured|opens|opened|closes|closed|cuts|cut|"
+        r"raises|raised|denies|denied|confirms|confirmed|threatens|threatened|"
+        r"disrupts|disrupted|sanctions|sanctioned|lifts|lifted|pushes|pushed|"
+        r"leaves|left|returns|returned"
+        r")\b",
+        re.IGNORECASE,
+    )
+
+    @classmethod
+    def _is_complete_market_news_title(cls, value: Any) -> bool:
+        text = str(value or "").strip()
+        if not text:
+            return False
+        words = re.findall(r"[A-Za-z0-9]+(?:'[A-Za-z0-9]+)?", text)
+        if len(words) >= 7:
+            return True
+        if len(words) < 5:
+            return False
+        return bool(cls._MARKET_TITLE_VERBS.search(text))
+
+    @staticmethod
     def _normalize_news_key_part(value: Any) -> str:
         return " ".join(str(value or "").strip().casefold().split())
 
@@ -198,6 +271,8 @@ class TimelineStore:
         link = cls._normalize_news_key_part(item.get("link"))
         if not title and not link:
             return ("row", str(fallback_index), "", "")
+        if title and (source or link):
+            return (title, source, link, "")
         return (title, source, published_at, link)
 
     @staticmethod
@@ -207,6 +282,19 @@ class TimelineStore:
         text = value.strip()
         if text.endswith("Z"):
             text = f"{text[:-1]}+00:00"
+        if "." in text:
+            head, tail = text.split(".", 1)
+            fraction = []
+            rest_start = 0
+            for index, char in enumerate(tail):
+                if not char.isdigit():
+                    rest_start = index
+                    break
+                fraction.append(char)
+            else:
+                rest_start = len(tail)
+            if len(fraction) > 6:
+                text = f"{head}.{''.join(fraction[:6])}{tail[rest_start:]}"
         try:
             parsed = datetime.fromisoformat(text)
         except ValueError:
@@ -214,6 +302,49 @@ class TimelineStore:
         if parsed.tzinfo is None:
             parsed = parsed.replace(tzinfo=timezone.utc)
         return parsed.astimezone(timezone.utc)
+
+    @classmethod
+    def _range_variants(cls, start: str, end: str) -> tuple[tuple[str, str], ...]:
+        variants: list[tuple[str, str]] = [(start, end)]
+        start_dt = cls._parse_timestamp(start)
+        end_dt = cls._parse_timestamp(end)
+        if start_dt is not None and end_dt is not None:
+            myt = timezone(timedelta(hours=8))
+            variants.extend(
+                [
+                    (start_dt.isoformat(timespec="seconds"), end_dt.isoformat(timespec="seconds")),
+                    (
+                        start_dt.astimezone(myt).isoformat(timespec="seconds"),
+                        end_dt.astimezone(myt).isoformat(timespec="seconds"),
+                    ),
+                ]
+            )
+        deduped: list[tuple[str, str]] = []
+        seen: set[tuple[str, str]] = set()
+        for item in variants:
+            if item in seen:
+                continue
+            seen.add(item)
+            deduped.append(item)
+        return tuple(deduped)
+
+    @classmethod
+    def _range_where(cls, column: str, start: str, end: str) -> tuple[str, tuple[str, ...]]:
+        return (
+            f"""(
+                (
+                    julianday({column}) IS NOT NULL
+                    AND julianday({column}) >= julianday(?)
+                    AND julianday({column}) <= julianday(?)
+                )
+                OR (
+                    julianday({column}) IS NULL
+                    AND {column} >= ?
+                    AND {column} <= ?
+                )
+            )""",
+            (start, end, start, end),
+        )
 
     @classmethod
     def _timestamp_score(cls, value: Any) -> tuple[int, float, str]:
@@ -380,6 +511,43 @@ class TimelineStore:
                 ),
             },
         }
+
+    def get_recent_market_price_bars(
+        self,
+        *,
+        symbol: str,
+        anchor_time: datetime,
+        lookback_minutes: int = 30,
+        limit: int = 120,
+    ) -> list[dict[str, Any]]:
+        anchor_utc = anchor_time if anchor_time.tzinfo is not None else anchor_time.replace(tzinfo=timezone.utc)
+        anchor_utc = anchor_utc.astimezone(timezone.utc)
+        start_utc = anchor_utc - timedelta(minutes=lookback_minutes)
+        normalized_symbol = str(symbol or "").upper()
+        with self._connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT payload_json
+                FROM market_price_bars
+                WHERE UPPER(symbol) = ?
+                ORDER BY id DESC
+                LIMIT ?
+                """,
+                (normalized_symbol, int(limit)),
+            ).fetchall()
+
+        by_timestamp: dict[str, dict[str, Any]] = {}
+        for row in rows:
+            payload = json.loads(str(row["payload_json"]))
+            timestamp = self._parse_timestamp(payload.get("data_timestamp"))
+            if timestamp is None or timestamp < start_utc or timestamp > anchor_utc:
+                continue
+            key = str(payload.get("data_timestamp") or timestamp.isoformat())
+            by_timestamp[key] = payload
+        return sorted(
+            by_timestamp.values(),
+            key=lambda item: self._parse_timestamp(item.get("data_timestamp")) or datetime.min.replace(tzinfo=timezone.utc),
+        )
 
     def load_latest_driver_attention_states(self) -> dict[str, DriverAttentionState]:
         with self._connect() as connection:
@@ -670,9 +838,9 @@ class TimelineStore:
             )
             connection.commit()
 
-    def record_alert(self, monitor_run_id: int, notification: dict[str, Any]) -> None:
+    def record_alert(self, monitor_run_id: int, notification: dict[str, Any]) -> int:
         with self._connect() as connection:
-            connection.execute(
+            cursor = connection.execute(
                 """
                 INSERT INTO alerts (monitor_run_id, should_notify, notification_level, reason, payload_json)
                 VALUES (?, ?, ?, ?, ?)
@@ -683,6 +851,25 @@ class TimelineStore:
                     notification["notification_level"],
                     notification["reason"],
                     json.dumps(notification, ensure_ascii=False),
+                ),
+            )
+            connection.commit()
+            return int(cursor.lastrowid)
+
+    def update_alert(self, alert_id: int, notification: dict[str, Any]) -> None:
+        with self._connect() as connection:
+            connection.execute(
+                """
+                UPDATE alerts
+                SET should_notify = ?, notification_level = ?, reason = ?, payload_json = ?
+                WHERE id = ?
+                """,
+                (
+                    int(notification["should_notify"]),
+                    notification["notification_level"],
+                    notification["reason"],
+                    json.dumps(notification, ensure_ascii=False),
+                    alert_id,
                 ),
             )
             connection.commit()
@@ -714,18 +901,98 @@ class TimelineStore:
             )
             connection.commit()
 
-    def get_timeline(self, start: str, end: str) -> list[dict[str, Any]]:
+    @staticmethod
+    def _context_review_replay_signature(payload: dict[str, Any]) -> str:
+        analysis = payload.get("analysis") if isinstance(payload.get("analysis"), dict) else {}
+        signature = {
+            "semantic_type": payload.get("semantic_type"),
+            "trade_conclusion": payload.get("trade_conclusion"),
+            "data_mode": payload.get("data_mode"),
+            "summary": payload.get("summary"),
+            "news_count": payload.get("news_count"),
+            "calendar_count": payload.get("calendar_count"),
+            "latest_news": payload.get("latest_news") or [],
+            "latest_calendar": payload.get("latest_calendar") or [],
+            "missing_required": payload.get("missing_required") or [],
+            "usable_inputs": payload.get("usable_inputs") or [],
+            "context_only_inputs": payload.get("context_only_inputs") or [],
+            "cause_status": analysis.get("cause_status"),
+            "main_driver": analysis.get("main_driver"),
+            "confidence": analysis.get("confidence"),
+            "analysis_engine": analysis.get("analysis_engine"),
+        }
+        return json.dumps(signature, ensure_ascii=False, sort_keys=True)
+
+    @classmethod
+    def _dedupe_timeline_events(cls, rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        deduped: list[dict[str, Any]] = []
+        seen_context_reviews: set[str] = set()
+        for row in rows:
+            payload = row.get("payload") if isinstance(row.get("payload"), dict) else {}
+            event_type = str(row.get("event_type") or "")
+            label = str(row.get("label") or "")
+            semantic_type = str(payload.get("semantic_type") or "") if isinstance(payload, dict) else ""
+            if event_type == "context_review" and label == "market_context" and semantic_type == "context_review":
+                signature = cls._context_review_replay_signature(payload)
+                if signature in seen_context_reviews:
+                    continue
+                seen_context_reviews.add(signature)
+            deduped.append(row)
+        return deduped
+
+    def get_latest_timeline_event(
+        self,
+        *,
+        event_type: str,
+        label: str,
+    ) -> dict[str, Any] | None:
         with self._connect() as connection:
-            rows = connection.execute(
+            row = connection.execute(
                 """
-                SELECT event_time, event_type, label, payload_json
+                SELECT monitor_run_id, event_time, event_type, label, payload_json
                 FROM timeline_events
-                WHERE event_time >= ? AND event_time <= ?
-                ORDER BY event_time, id
+                WHERE event_type = ? AND label = ?
+                ORDER BY julianday(event_time) DESC, event_time DESC, id DESC
+                LIMIT 1
                 """,
-                (start, end),
-            ).fetchall()
-        return [
+                (event_type, label),
+            ).fetchone()
+        if row is None:
+            return None
+        return {
+            "monitor_run_id": int(row["monitor_run_id"]),
+            "event_time": str(row["event_time"]),
+            "event_type": str(row["event_type"]),
+            "label": str(row["label"]),
+            "payload": json.loads(str(row["payload_json"])),
+        }
+
+    def get_timeline(self, start: str, end: str, max_points: int | None = None) -> list[dict[str, Any]]:
+        where_sql, where_params = self._range_where("event_time", start, end)
+        with self._connect() as connection:
+            if max_points is not None and max_points > 0:
+                rows = connection.execute(
+                    f"""
+                    SELECT event_time, event_type, label, payload_json
+                    FROM timeline_events
+                    WHERE {where_sql}
+                    ORDER BY event_time DESC, id DESC
+                    LIMIT ?
+                    """,
+                    (*where_params, max_points),
+                ).fetchall()
+                rows = list(reversed(rows))
+            else:
+                rows = connection.execute(
+                    f"""
+                    SELECT event_time, event_type, label, payload_json
+                    FROM timeline_events
+                    WHERE {where_sql}
+                    ORDER BY event_time, id
+                    """,
+                    where_params,
+                ).fetchall()
+        payloads = [
             {
                 "event_time": str(row["event_time"]),
                 "event_type": str(row["event_type"]),
@@ -734,6 +1001,7 @@ class TimelineStore:
             }
             for row in rows
         ]
+        return self._dedupe_timeline_events(payloads)
 
     @staticmethod
     def _normalized_replay_value(value: Any) -> str:
@@ -777,64 +1045,284 @@ class TimelineStore:
 
     @classmethod
     def _month_summary_events(cls, timeline_events: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        return [row for row in timeline_events if cls._is_month_summary_event(row)]
+        rows: list[dict[str, Any]] = []
+        seen: set[tuple[str, str, str, str, str]] = set()
+        for row in timeline_events:
+            if not cls._is_month_summary_event(row):
+                continue
+            payload = row.get("payload") if isinstance(row.get("payload"), dict) else {}
+            assert isinstance(payload, dict)
+            parsed_time = cls._parse_timestamp(row.get("event_time"))
+            time_key = parsed_time.isoformat(timespec="minutes") if parsed_time is not None else str(row.get("event_time", ""))
+            impact = cls._timeline_impact(row)
+            key = (
+                time_key,
+                cls._normalized_replay_value(row.get("label")),
+                cls._normalized_replay_value(payload.get("semantic_type")),
+                cls._normalized_replay_value(payload.get("main_driver") or payload.get("driver")),
+                "" if impact is None else f"{impact:.2f}",
+            )
+            if key in seen:
+                continue
+            seen.add(key)
+            rows.append(row)
+        return rows
 
-    def get_price_series(self, symbol: str, start: str, end: str) -> list[dict[str, Any]]:
+    def _sampled_payload_rows(
+        self,
+        *,
+        table: str,
+        where_sql: str,
+        params: tuple[Any, ...],
+        order_sql: str,
+        max_points: int | None,
+    ) -> list[sqlite3.Row]:
         with self._connect() as connection:
+            if max_points is not None and max_points > 0:
+                if max_points <= 2:
+                    first = connection.execute(
+                        f"""
+                        SELECT payload_json
+                        FROM {table}
+                        WHERE {where_sql}
+                        ORDER BY {order_sql}
+                        LIMIT 1
+                        """,
+                        params,
+                    ).fetchall()
+                    last = connection.execute(
+                        f"""
+                        SELECT payload_json
+                        FROM {table}
+                        WHERE {where_sql}
+                        ORDER BY {order_sql} DESC
+                        LIMIT 1
+                        """,
+                        params,
+                    ).fetchall()
+                    if first and last and first[0]["payload_json"] != last[0]["payload_json"]:
+                        return [first[0], last[0]]
+                    return first or last
+                count = connection.execute(
+                    f"SELECT COUNT(*) FROM {table} WHERE {where_sql}",
+                    params,
+                ).fetchone()[0]
+                if count > max_points:
+                    stride = max(1, math.ceil(count / max_points))
+                    return connection.execute(
+                        f"""
+                        WITH ordered AS (
+                            SELECT payload_json,
+                                   ROW_NUMBER() OVER (ORDER BY {order_sql}) AS rn,
+                                   COUNT(*) OVER () AS total
+                            FROM {table}
+                            WHERE {where_sql}
+                        )
+                        SELECT payload_json
+                        FROM ordered
+                        WHERE rn = 1 OR rn = total OR ((rn - 1) % ?) = 0
+                        ORDER BY rn
+                        """,
+                        (*params, stride),
+                    ).fetchall()
             rows = connection.execute(
-                """
+                f"""
                 SELECT payload_json
-                FROM market_price_bars
-                WHERE symbol = ? AND data_timestamp >= ? AND data_timestamp <= ?
-                ORDER BY data_timestamp, id
+                FROM {table}
+                WHERE {where_sql}
+                ORDER BY {order_sql}
                 """,
-                (symbol, start, end),
+                params,
             ).fetchall()
+        return rows
+
+    def _deduped_payload_rows(
+        self,
+        *,
+        table: str,
+        where_sql: str,
+        params: tuple[Any, ...],
+        group_fields: tuple[str, ...],
+        order_sql: str,
+        max_points: int | None,
+    ) -> list[sqlite3.Row]:
+        group_sql = ", ".join(group_fields)
+        with self._connect() as connection:
+            if max_points is not None and max_points > 0:
+                count = connection.execute(
+                    f"""
+                    WITH deduped AS (
+                        SELECT MAX(id) AS keep_id
+                        FROM {table}
+                        WHERE {where_sql}
+                        GROUP BY {group_sql}
+                    )
+                    SELECT COUNT(*)
+                    FROM deduped
+                    """,
+                    params,
+                ).fetchone()[0]
+                if count > max_points:
+                    return connection.execute(
+                        f"""
+                        WITH deduped AS (
+                            SELECT MAX(id) AS keep_id
+                            FROM {table}
+                            WHERE {where_sql}
+                            GROUP BY {group_sql}
+                        ),
+                        ordered AS (
+                            SELECT source.payload_json,
+                                   ROW_NUMBER() OVER (ORDER BY {order_sql}) AS rn,
+                                   COUNT(*) OVER () AS total
+                            FROM {table} AS source
+                            INNER JOIN deduped ON deduped.keep_id = source.id
+                        )
+                        SELECT payload_json
+                        FROM ordered
+                        WHERE rn > total - ?
+                        ORDER BY rn
+                        """,
+                        (*params, max_points),
+                    ).fetchall()
+            return connection.execute(
+                f"""
+                WITH deduped AS (
+                    SELECT MAX(id) AS keep_id
+                    FROM {table}
+                    WHERE {where_sql}
+                    GROUP BY {group_sql}
+                )
+                SELECT source.payload_json
+                FROM {table} AS source
+                INNER JOIN deduped ON deduped.keep_id = source.id
+                ORDER BY {order_sql}
+                """,
+                params,
+            ).fetchall()
+
+    def get_price_series(self, symbol: str, start: str, end: str, max_points: int | None = None) -> list[dict[str, Any]]:
+        range_sql, range_params = self._range_where("data_timestamp", start, end)
+        rows = self._deduped_payload_rows(
+            table="market_price_bars",
+            where_sql=f"symbol = ? AND {range_sql}",
+            params=(symbol, *range_params),
+            group_fields=("data_timestamp",),
+            order_sql="source.data_timestamp, source.id",
+            max_points=max_points,
+        )
         return self._rows_to_payloads(rows)
 
-    def get_related_asset_series(self, symbol: str, start: str, end: str) -> list[dict[str, Any]]:
+    def get_latest_price_anchor_before(self, symbol: str, start: str) -> dict[str, Any] | None:
+        start_dt = self._parse_timestamp(start)
         with self._connect() as connection:
-            rows = connection.execute(
-                """
-                SELECT payload_json
-                FROM related_asset_bars
-                WHERE symbol = ? AND data_timestamp >= ? AND data_timestamp <= ?
-                ORDER BY data_timestamp, id
-                """,
-                (symbol, start, end),
-            ).fetchall()
+            if start_dt is not None:
+                candidates = connection.execute(
+                    """
+                    SELECT data_timestamp, payload_json
+                    FROM market_price_bars
+                    WHERE symbol = ?
+                    ORDER BY data_timestamp DESC, id DESC
+                    LIMIT 500
+                    """,
+                    (symbol,),
+                ).fetchall()
+                row = next(
+                    (
+                        candidate
+                        for candidate in candidates
+                        if (self._parse_timestamp(str(candidate["data_timestamp"])) or datetime.max.replace(tzinfo=timezone.utc))
+                        < start_dt
+                    ),
+                    None,
+                )
+            else:
+                row = connection.execute(
+                    """
+                    SELECT payload_json
+                    FROM market_price_bars
+                    WHERE symbol = ? AND data_timestamp < ?
+                    ORDER BY data_timestamp DESC, id DESC
+                    LIMIT 1
+                    """,
+                    (symbol, start),
+                ).fetchone()
+        if row is None:
+            return None
+        payload = json.loads(str(row["payload_json"]))
+        payload["replay_context_anchor"] = True
+        payload["context_anchor_reason"] = "latest_price_before_replay_window"
+        return payload
+
+    def get_related_asset_series(
+        self,
+        symbol: str,
+        start: str,
+        end: str,
+        max_points: int | None = None,
+    ) -> list[dict[str, Any]]:
+        range_sql, range_params = self._range_where("data_timestamp", start, end)
+        rows = self._deduped_payload_rows(
+            table="related_asset_bars",
+            where_sql=f"symbol = ? AND {range_sql}",
+            params=(symbol, *range_params),
+            group_fields=("data_timestamp",),
+            order_sql="source.data_timestamp, source.id",
+            max_points=max_points,
+        )
         return self._rows_to_payloads(rows)
 
-    def get_news_items(self, start: str, end: str, include_filtered: bool = True) -> list[dict[str, Any]]:
-        del include_filtered
+    @classmethod
+    def _is_filtered_news_item(cls, item: dict[str, Any]) -> bool:
+        filter_reason = cls._normalize_news_key_part(item.get("filter_reason") or item.get("reason"))
+        review_status = cls._normalize_news_key_part(item.get("review_status") or item.get("evidence_status"))
+        return bool(
+            item.get("included") is False
+            or "no_market_agent_keyword" in filter_reason
+            or review_status in {"false", "filtered", "excluded", "rejected", "dropped", "unreviewed_context"}
+        )
+
+    def get_news_items(
+        self,
+        start: str,
+        end: str,
+        include_filtered: bool = True,
+        max_points: int | None = None,
+    ) -> list[dict[str, Any]]:
+        range_sql, range_params = self._range_where("published_at", start, end)
         with self._connect() as connection:
             rows = connection.execute(
-                """
+                f"""
                 SELECT id, monitor_run_id, payload_json
                 FROM news_items
-                WHERE published_at >= ? AND published_at <= ?
+                WHERE {range_sql}
                 ORDER BY published_at, id
                 """,
-                (start, end),
+                range_params,
             ).fetchall()
         items: list[dict[str, Any]] = []
         for row in rows:
             payload = json.loads(str(row["payload_json"]))
             payload.setdefault("monitor_run_id", int(row["monitor_run_id"]))
             payload.setdefault("storage_row_id", int(row["id"]))
-            items.append(payload)
-        return self._dedupe_news_items(items)
+            items.append(self._repair_news_display_fields(payload))
+        deduped = self._dedupe_news_items(items)
+        items = deduped if include_filtered else [item for item in deduped if not self._is_filtered_news_item(item)]
+        if max_points is not None and max_points > 0 and len(items) > max_points:
+            return items[-max_points:]
+        return items
 
     def get_calendar_events(self, start: str, end: str) -> list[dict[str, Any]]:
+        range_sql, range_params = self._range_where("scheduled_at", start, end)
         with self._connect() as connection:
             rows = connection.execute(
-                """
+                f"""
                 SELECT payload_json
                 FROM calendar_events
-                WHERE scheduled_at >= ? AND scheduled_at <= ?
+                WHERE {range_sql}
                 ORDER BY scheduled_at, id
                 """,
-                (start, end),
+                range_params,
             ).fetchall()
         return self._rows_to_payloads(rows)
 
@@ -864,6 +1352,8 @@ class TimelineStore:
         return cls._calendar_text(row, "Cur.") or cls._calendar_text(row, "Currency")
 
     def _get_existing_calendar_context(self, start: str, end: str) -> list[dict[str, Any]]:
+        start_dt = self._parse_timestamp(start)
+        end_dt = self._parse_timestamp(end)
         try:
             start_year = int(start[:4])
             end_year = int(end[:4])
@@ -894,7 +1384,11 @@ class TimelineStore:
                         scheduled_at = f"{date}T{time}:00+08:00"
                     else:
                         continue
-                    if not (start <= scheduled_at <= end):
+                    scheduled_dt = self._parse_timestamp(scheduled_at)
+                    if start_dt is not None and end_dt is not None and scheduled_dt is not None:
+                        if not (start_dt <= scheduled_dt <= end_dt):
+                            continue
+                    elif not (start <= scheduled_at <= end):
                         continue
                     rows.append(
                         {
@@ -924,35 +1418,112 @@ class TimelineStore:
                 break
         return sorted(rows, key=lambda row: str(row.get("scheduled_at", "")))
 
-    def get_driver_attention_timeline(self, start: str, end: str) -> list[dict[str, Any]]:
+    @staticmethod
+    def _driver_attention_replay_signature(payload: dict[str, Any]) -> str:
+        evidence_refs = payload.get("evidence_refs") if isinstance(payload.get("evidence_refs"), list) else []
+        compact_refs = [
+            {
+                "kind": item.get("kind"),
+                "title": item.get("title"),
+                "source": item.get("source"),
+                "timestamp_myt": item.get("timestamp_myt"),
+            }
+            for item in evidence_refs
+            if isinstance(item, dict)
+        ]
+        signature = {
+            "driver_id": payload.get("driver_id"),
+            "current_state": payload.get("current_state"),
+            "priority": payload.get("priority"),
+            "relevance_score": payload.get("relevance_score"),
+            "confidence": payload.get("confidence"),
+            "activation_reason": payload.get("activation_reason"),
+            "deactivation_reason": payload.get("deactivation_reason"),
+            "current_evidence_summary": payload.get("current_evidence_summary"),
+            "current_counter_evidence": payload.get("current_counter_evidence"),
+            "source_count": payload.get("source_count"),
+            "related_news_count": payload.get("related_news_count"),
+            "related_calendar_events": payload.get("related_calendar_events"),
+            "data_mode": payload.get("data_mode"),
+            "theme_id": payload.get("theme_id"),
+            "lifecycle": payload.get("lifecycle"),
+            "source_terms": payload.get("source_terms") or [],
+            "requested_sensor_ids": payload.get("requested_sensor_ids") or [],
+            "evidence_refs": compact_refs,
+        }
+        return json.dumps(signature, ensure_ascii=False, sort_keys=True)
+
+    @classmethod
+    def _dedupe_driver_attention_timeline(cls, payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        deduped: list[dict[str, Any]] = []
+        last_signature_by_driver: dict[str, str] = {}
+        for payload in payloads:
+            driver_id = str(payload.get("driver_id") or "")
+            if not driver_id:
+                deduped.append(payload)
+                continue
+            signature = cls._driver_attention_replay_signature(payload)
+            if last_signature_by_driver.get(driver_id) == signature:
+                continue
+            last_signature_by_driver[driver_id] = signature
+            deduped.append(payload)
+        return deduped
+
+    def get_driver_attention_timeline(
+        self, start: str, end: str, max_points: int | None = None
+    ) -> list[dict[str, Any]]:
+        run_where_sql, run_where_params = self._range_where("monitor_runs.run_started_at", start, end)
         with self._connect() as connection:
-            rows = connection.execute(
+            latest_theme_rows = connection.execute(
                 """
-                SELECT driver_attention_states.payload_json
+                SELECT driver_attention_states.driver_id, driver_attention_states.current_state
                 FROM driver_attention_states
                 INNER JOIN monitor_runs ON monitor_runs.id = driver_attention_states.monitor_run_id
-                WHERE monitor_runs.run_started_at >= ? AND monitor_runs.run_started_at <= ?
-                  AND NOT (
-                    driver_attention_states.driver_id LIKE 'theme:%'
-                    AND COALESCE(
-                        (
-                            SELECT latest_states.current_state
-                            FROM driver_attention_states AS latest_states
-                            INNER JOIN monitor_runs AS latest_runs
-                                ON latest_runs.id = latest_states.monitor_run_id
-                            WHERE latest_states.driver_id = driver_attention_states.driver_id
-                              AND latest_runs.run_started_at <= ?
-                            ORDER BY latest_runs.run_started_at DESC, latest_states.id DESC
-                            LIMIT 1
-                        ),
-                        driver_attention_states.current_state
-                    ) = 'retired'
-                  )
-                ORDER BY monitor_runs.run_started_at, driver_attention_states.id
+                WHERE monitor_runs.run_started_at <= ?
+                  AND driver_attention_states.driver_id LIKE 'theme:%'
+                ORDER BY driver_attention_states.driver_id, monitor_runs.run_started_at DESC, driver_attention_states.id DESC
                 """,
-                (start, end, end),
+                (end,),
             ).fetchall()
-        return self._rows_to_payloads(rows)
+            retired_theme_ids: set[str] = set()
+            seen_theme_ids: set[str] = set()
+            for row in latest_theme_rows:
+                driver_id = str(row["driver_id"])
+                if driver_id in seen_theme_ids:
+                    continue
+                seen_theme_ids.add(driver_id)
+                if str(row["current_state"]) == "retired":
+                    retired_theme_ids.add(driver_id)
+            if max_points is not None and max_points > 0:
+                rows = connection.execute(
+                    f"""
+                    SELECT driver_attention_states.payload_json
+                    FROM driver_attention_states
+                    INNER JOIN monitor_runs ON monitor_runs.id = driver_attention_states.monitor_run_id
+                    WHERE {run_where_sql}
+                    ORDER BY monitor_runs.run_started_at DESC, driver_attention_states.id DESC
+                    LIMIT ?
+                    """,
+                    (*run_where_params, max_points),
+                ).fetchall()
+                rows = list(reversed(rows))
+            else:
+                rows = connection.execute(
+                    f"""
+                    SELECT driver_attention_states.payload_json
+                    FROM driver_attention_states
+                    INNER JOIN monitor_runs ON monitor_runs.id = driver_attention_states.monitor_run_id
+                    WHERE {run_where_sql}
+                    ORDER BY monitor_runs.run_started_at, driver_attention_states.id
+                    """,
+                    run_where_params,
+                ).fetchall()
+        payloads = self._rows_to_payloads(rows)
+        return [
+            payload
+            for payload in self._dedupe_driver_attention_timeline(payloads)
+            if str(payload.get("driver_id", "")) not in retired_theme_ids
+        ]
 
     def get_evidence_for_run(self, monitor_run_id: int) -> dict[str, Any] | None:
         with self._connect() as connection:
@@ -962,63 +1533,187 @@ class TimelineStore:
             ).fetchone()
         return None if row is None else json.loads(str(row["payload_json"]))
 
-    def get_suppressed_alerts(self, start: str, end: str) -> list[dict[str, Any]]:
+    def get_suppressed_alerts(self, start: str, end: str, max_points: int | None = None) -> list[dict[str, Any]]:
+        run_where_sql, run_where_params = self._range_where("monitor_runs.run_started_at", start, end)
         with self._connect() as connection:
-            rows = connection.execute(
-                """
-                SELECT alerts.payload_json
-                FROM alerts
-                INNER JOIN monitor_runs ON monitor_runs.id = alerts.monitor_run_id
-                WHERE monitor_runs.run_started_at >= ? AND monitor_runs.run_started_at <= ?
-                  AND alerts.should_notify = 0
-                ORDER BY monitor_runs.run_started_at, alerts.id
-                """,
-                (start, end),
-            ).fetchall()
+            if max_points is not None and max_points > 0:
+                rows = connection.execute(
+                    f"""
+                    SELECT payload_json
+                    FROM (
+                        SELECT
+                            monitor_runs.run_started_at AS run_started_at,
+                            alerts.id AS row_id,
+                            alerts.payload_json AS payload_json
+                        FROM alerts
+                        INNER JOIN monitor_runs ON monitor_runs.id = alerts.monitor_run_id
+                        WHERE {run_where_sql}
+                          AND alerts.should_notify = 0
+                        UNION ALL
+                        SELECT
+                            monitor_runs.run_started_at AS run_started_at,
+                            0 AS row_id,
+                            json_object(
+                                'monitor_run_id', monitor_runs.id,
+                                'run_started_at', monitor_runs.run_started_at,
+                                'should_notify', json('false'),
+                                'notification_level', 'none',
+                                'reason', monitor_runs.alert_suppressed_reason,
+                                'legacy_source', 'monitor_runs.alert_suppressed_reason'
+                            ) AS payload_json
+                        FROM monitor_runs
+                        WHERE {run_where_sql}
+                          AND COALESCE(monitor_runs.alert_suppressed_reason, '') <> ''
+                          AND NOT EXISTS (
+                              SELECT 1
+                              FROM alerts
+                              WHERE alerts.monitor_run_id = monitor_runs.id
+                                AND alerts.should_notify = 0
+                          )
+                    )
+                    ORDER BY run_started_at DESC, row_id DESC
+                    LIMIT ?
+                    """,
+                    (*run_where_params, *run_where_params, max_points),
+                ).fetchall()
+                rows = list(reversed(rows))
+            else:
+                rows = connection.execute(
+                    f"""
+                    SELECT payload_json
+                    FROM (
+                        SELECT
+                            monitor_runs.run_started_at AS run_started_at,
+                            alerts.id AS row_id,
+                            alerts.payload_json AS payload_json
+                        FROM alerts
+                        INNER JOIN monitor_runs ON monitor_runs.id = alerts.monitor_run_id
+                        WHERE {run_where_sql}
+                          AND alerts.should_notify = 0
+                        UNION ALL
+                        SELECT
+                            monitor_runs.run_started_at AS run_started_at,
+                            0 AS row_id,
+                            json_object(
+                                'monitor_run_id', monitor_runs.id,
+                                'run_started_at', monitor_runs.run_started_at,
+                                'should_notify', json('false'),
+                                'notification_level', 'none',
+                                'reason', monitor_runs.alert_suppressed_reason,
+                                'legacy_source', 'monitor_runs.alert_suppressed_reason'
+                            ) AS payload_json
+                        FROM monitor_runs
+                        WHERE {run_where_sql}
+                          AND COALESCE(monitor_runs.alert_suppressed_reason, '') <> ''
+                          AND NOT EXISTS (
+                              SELECT 1
+                              FROM alerts
+                              WHERE alerts.monitor_run_id = monitor_runs.id
+                                AND alerts.should_notify = 0
+                          )
+                    )
+                    ORDER BY run_started_at, row_id
+                    """,
+                    (*run_where_params, *run_where_params),
+                ).fetchall()
         return self._rows_to_payloads(rows)
 
-    def get_state_transitions(self, start: str, end: str) -> list[dict[str, Any]]:
+    def get_alerts(self, start: str, end: str, max_points: int | None = None) -> list[dict[str, Any]]:
+        run_where_sql, run_where_params = self._range_where("monitor_runs.run_started_at", start, end)
         with self._connect() as connection:
-            rows = connection.execute(
-                """
-                SELECT state_transitions.payload_json
-                FROM state_transitions
-                INNER JOIN monitor_runs ON monitor_runs.id = state_transitions.monitor_run_id
-                WHERE monitor_runs.run_started_at >= ? AND monitor_runs.run_started_at <= ?
-                ORDER BY monitor_runs.run_started_at, state_transitions.id
-                """,
-                (start, end),
-            ).fetchall()
+            if max_points is not None and max_points > 0:
+                rows = connection.execute(
+                    f"""
+                    SELECT alerts.payload_json
+                    FROM alerts
+                    INNER JOIN monitor_runs ON monitor_runs.id = alerts.monitor_run_id
+                    WHERE {run_where_sql}
+                      AND alerts.should_notify = 1
+                    ORDER BY monitor_runs.run_started_at DESC, alerts.id DESC
+                    LIMIT ?
+                    """,
+                    (*run_where_params, max_points),
+                ).fetchall()
+                rows = list(reversed(rows))
+            else:
+                rows = connection.execute(
+                    f"""
+                    SELECT alerts.payload_json
+                    FROM alerts
+                    INNER JOIN monitor_runs ON monitor_runs.id = alerts.monitor_run_id
+                    WHERE {run_where_sql}
+                      AND alerts.should_notify = 1
+                    ORDER BY monitor_runs.run_started_at DESC, alerts.id DESC
+                    """,
+                    run_where_params,
+                ).fetchall()
+        return self._rows_to_payloads(rows)
+
+    def get_state_transitions(self, start: str, end: str, max_points: int | None = None) -> list[dict[str, Any]]:
+        run_where_sql, run_where_params = self._range_where("monitor_runs.run_started_at", start, end)
+        with self._connect() as connection:
+            if max_points is not None and max_points > 0:
+                rows = connection.execute(
+                    f"""
+                    SELECT state_transitions.payload_json
+                    FROM state_transitions
+                    INNER JOIN monitor_runs ON monitor_runs.id = state_transitions.monitor_run_id
+                    WHERE {run_where_sql}
+                    ORDER BY monitor_runs.run_started_at DESC, state_transitions.id DESC
+                    LIMIT ?
+                    """,
+                    (*run_where_params, max_points),
+                ).fetchall()
+                rows = list(reversed(rows))
+            else:
+                rows = connection.execute(
+                    f"""
+                    SELECT state_transitions.payload_json
+                    FROM state_transitions
+                    INNER JOIN monitor_runs ON monitor_runs.id = state_transitions.monitor_run_id
+                    WHERE {run_where_sql}
+                    ORDER BY monitor_runs.run_started_at, state_transitions.id
+                    """,
+                    run_where_params,
+                ).fetchall()
         return self._rows_to_payloads(rows)
 
     def get_market_replay(self, start: str, end: str) -> dict[str, Any]:
-        with self._connect() as connection:
-            xau_rows = connection.execute(
-                """
-                SELECT payload_json
-                FROM market_price_bars
-                WHERE data_timestamp >= ? AND data_timestamp <= ?
-                ORDER BY data_timestamp, id
-                """,
-                (start, end),
-            ).fetchall()
+        long_window = False
+        start_dt = self._parse_timestamp(start)
+        end_dt = self._parse_timestamp(end)
+        if start_dt is not None and end_dt is not None:
+            long_window = (end_dt - start_dt) > timedelta(hours=48)
+        price_max_points = MONTH_REPLAY_PRICE_ROWS if long_window else None
+        related_max_points = MONTH_REPLAY_RELATED_ROWS_PER_SYMBOL if long_window else DAY_REPLAY_RELATED_ROWS_PER_SYMBOL
+        news_max_points = MONTH_REPLAY_NEWS_ROWS if long_window else None
+        timeline_max_points = MONTH_REPLAY_TIMELINE_ROWS if long_window else DAY_REPLAY_TIMELINE_ROWS
+        driver_max_points = MONTH_REPLAY_DRIVER_ROWS if long_window else DAY_REPLAY_DRIVER_ROWS
+        state_max_points = MONTH_REPLAY_STATE_ROWS if long_window else DAY_REPLAY_STATE_ROWS
+        alert_max_points = MONTH_REPLAY_ALERT_ROWS if long_window else DAY_REPLAY_ALERT_ROWS
+        price_series = self.get_price_series("XAUUSD", start, end, max_points=price_max_points)
+        if not price_series:
+            price_anchor = self.get_latest_price_anchor_before("XAUUSD", start)
+            if price_anchor is not None:
+                price_series = [price_anchor]
         related_symbols = ("dxy", "us10y", "us2y", "wti", "brent", "vix", "spx", "nasdaq")
         related = {
-            symbol: self.get_related_asset_series(symbol, start, end)
+            symbol: self.get_related_asset_series(symbol, start, end, max_points=related_max_points)
             for symbol in related_symbols
         }
-        timeline_events = self.get_timeline(start, end)
+        timeline_events = self.get_timeline(start, end, max_points=timeline_max_points)
         calendar_events = self._get_existing_calendar_context(start, end)
         if not calendar_events:
             calendar_events = self.get_calendar_events(start, end)
         return {
-            "price_series": self._rows_to_payloads(xau_rows),
+            "price_series": price_series,
             "related_assets": related,
-            "news_items": self.get_news_items(start, end),
+            "news_items": self.get_news_items(start, end, include_filtered=False, max_points=news_max_points),
             "calendar_events": calendar_events,
-            "driver_attention_timeline": self.get_driver_attention_timeline(start, end),
+            "driver_attention_timeline": self.get_driver_attention_timeline(start, end, max_points=driver_max_points),
             "timeline_events": timeline_events,
             "month_summary_events": self._month_summary_events(timeline_events),
-            "state_transitions": self.get_state_transitions(start, end),
-            "suppressed_alerts": self.get_suppressed_alerts(start, end),
+            "state_transitions": self.get_state_transitions(start, end, max_points=state_max_points),
+            "alerts": self.get_alerts(start, end, max_points=alert_max_points),
+            "suppressed_alerts": self.get_suppressed_alerts(start, end, max_points=alert_max_points),
         }

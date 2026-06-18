@@ -363,11 +363,11 @@
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr);
   gap: 12px;
-  height: calc(100vh - 176px);
+  height: calc(100vh - 220px);
   min-width: 0;
-  max-height: calc(100vh - 176px);
+  max-height: calc(100vh - 220px);
   overflow: hidden;
-  padding: 13px;
+  padding: 13px 13px 22px;
   border: 1px solid rgba(134, 148, 168, 0.14);
   border-radius: 8px;
   background:
@@ -842,7 +842,19 @@
 
 .market-agent-detail-viewport {
   min-height: 0;
-  overflow: hidden;
+  overflow-y: auto;
+  padding-right: 3px;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+}
+
+.market-agent-detail-viewport::-webkit-scrollbar {
+  width: 8px;
+}
+
+.market-agent-detail-viewport::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(134, 148, 168, 0.34);
 }
 
 .market-agent-focus-actions {
@@ -1040,21 +1052,14 @@
   display: grid;
   align-content: start;
   gap: 12px;
-  height: 100%;
+  height: auto;
   min-width: 0;
-  max-height: 100%;
-  overflow-y: auto;
+  max-height: none;
+  overflow: visible;
   padding: 10px;
   border: 1px solid rgba(134, 148, 168, 0.12);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.018);
-  scrollbar-width: none;
-}
-
-.market-agent-operational-trace::-webkit-scrollbar,
-.market-agent-data-requests::-webkit-scrollbar {
-  width: 0;
-  height: 0;
 }
 
 .market-agent-operational-trace > header,
@@ -1249,7 +1254,7 @@
 .market-agent-history-record-head,
 .market-agent-history-record {
   display: grid;
-  grid-template-columns: minmax(76px, 0.48fr) minmax(180px, 1.45fr) minmax(96px, 0.58fr) minmax(132px, 0.92fr) minmax(132px, 0.92fr) minmax(94px, 0.62fr);
+  grid-template-columns: minmax(112px, 0.62fr) minmax(180px, 1.22fr) minmax(96px, 0.56fr) minmax(160px, 0.96fr) minmax(160px, 0.96fr) minmax(102px, 0.58fr);
   align-items: center;
   min-width: 0;
   gap: 10px;
@@ -1327,7 +1332,7 @@
 .market-agent-history-record em,
 .market-agent-history-record time,
 .market-agent-history-record small {
-  max-width: 180px;
+  max-width: 100%;
   min-width: 0;
   overflow: hidden;
   color: var(--text-secondary, #9aa4b2);
@@ -1651,6 +1656,13 @@
   background: rgba(7, 12, 20, 0.5);
 }
 
+.market-agent-history-ledger.compact,
+.market-agent-ongoing-ledger.compact,
+.market-agent-status-ledger.compact {
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
 .market-agent-history-ledger > header,
 .market-agent-ongoing-ledger > header,
 .market-agent-status-ledger > header,
@@ -1728,6 +1740,17 @@
   min-width: 0;
 }
 
+.market-agent-history-list {
+  box-sizing: border-box;
+  min-height: 0;
+  max-height: 100%;
+  overflow: auto;
+  padding-right: 3px;
+  padding-bottom: 18px;
+  scrollbar-gutter: stable;
+  scroll-padding-bottom: 18px;
+}
+
 .market-agent-quiet-state {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -1786,7 +1809,7 @@
 
 .market-agent-history-head,
 .market-agent-history-row {
-  grid-template-columns: minmax(74px, 0.5fr) minmax(120px, 1fr) minmax(96px, 0.7fr) minmax(92px, 0.6fr);
+  grid-template-columns: minmax(188px, 0.86fr) minmax(190px, 1.15fr) minmax(160px, 1fr) minmax(92px, 0.52fr);
 }
 
 .market-agent-status-head,
@@ -1797,6 +1820,15 @@
 .market-agent-history-head,
 .market-agent-status-head {
   padding: 0 10px 4px;
+}
+
+.market-agent-history-head {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  padding-top: 2px;
+  background: rgba(7, 12, 20, 0.95);
+  backdrop-filter: blur(8px);
 }
 
 .market-agent-history-row,
@@ -1825,6 +1857,7 @@
 
 .market-agent-history-row strong,
 .market-agent-history-row span,
+.market-agent-history-row time,
 .market-agent-history-row em,
 .market-agent-status-row strong,
 .market-agent-status-row span,
@@ -1849,6 +1882,12 @@
   color: var(--text-primary, #f8fafc);
   font-size: 12px;
   line-height: 1.2;
+}
+
+.market-agent-history-row time {
+  color: var(--text-secondary, #9aa4b2);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
 }
 
 .market-agent-history-row em,
@@ -2047,6 +2086,10 @@
 [data-theme="light"] .market-agent-status-row,
 [data-theme="light"] .market-agent-status-needs article {
   background: rgba(255, 255, 255, 0.62);
+}
+
+[data-theme="light"] .market-agent-history-head {
+  background: rgba(246, 249, 253, 0.96);
 }
 
 [data-theme="light"] .market-agent-inspector-path button,

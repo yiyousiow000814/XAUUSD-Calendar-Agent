@@ -9,7 +9,7 @@ from .llm_client import LocalLLMClient, LocalLLMConfig
 
 
 def _read_payload() -> dict[str, Any]:
-    raw = sys.stdin.read()
+    raw = sys.stdin.read().lstrip("\ufeff").lstrip("ï»¿")
     if not raw.strip():
         return {}
     try:
@@ -26,8 +26,8 @@ def _config_from_payload(payload: dict[str, Any]) -> LocalLLMConfig:
         endpoint=str(payload.get("endpoint") or "http://127.0.0.1:21434"),
         model=str(payload.get("model") or "qwen3.5:4b"),
         temperature=float(payload.get("temperature") if payload.get("temperature") is not None else 0),
-        timeout_seconds=int(payload.get("timeoutSeconds") or payload.get("timeout_seconds") or 30),
-        keep_alive=str(payload.get("keepAlive") or payload.get("keep_alive") or "0"),
+        timeout_seconds=int(payload.get("timeoutSeconds") or payload.get("timeout_seconds") or 60),
+        keep_alive=str(payload.get("keepAlive") or payload.get("keep_alive") or "5m"),
         max_context=int(payload.get("maxContext") or payload.get("max_context") or 8192),
     )
 

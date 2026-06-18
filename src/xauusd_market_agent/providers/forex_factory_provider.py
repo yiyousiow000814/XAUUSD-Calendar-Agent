@@ -22,9 +22,18 @@ def _parse_calendar_time(date_raw: str, time_raw: str) -> datetime | None:
 
 
 class ForexFactoryProvider:
-    def __init__(self, *, fixture_path: Path | None = None, source_url: str | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        fixture_path: Path | None = None,
+        source_url: str | None = None,
+        lookback_minutes: int = 60,
+        forward_minutes: int = 120,
+    ) -> None:
         self.fixture_path = Path(fixture_path) if fixture_path is not None else None
         self.source_url = source_url
+        self.lookback_minutes = int(lookback_minutes)
+        self.forward_minutes = int(forward_minutes)
 
     def _load_payload(self) -> tuple[list[dict[str, Any]], str]:
         if self.fixture_path is not None and self.fixture_path.exists():
@@ -74,10 +83,17 @@ class ForexFactoryProvider:
         )
         return rows, health
 
-    def fetch_window(self, anchor_time: datetime, lookback_minutes: int = 60, forward_minutes: int = 120) -> tuple[list[dict[str, Any]], ProviderHealth]:
+    def fetch_window(
+        self,
+        anchor_time: datetime,
+        lookback_minutes: int | None = None,
+        forward_minutes: int | None = None,
+    ) -> tuple[list[dict[str, Any]], ProviderHealth]:
+        lookback = self.lookback_minutes if lookback_minutes is None else int(lookback_minutes)
+        forward = self.forward_minutes if forward_minutes is None else int(forward_minutes)
         return self._filter_window(
-            anchor_time - timedelta(minutes=lookback_minutes),
-            anchor_time + timedelta(minutes=forward_minutes),
+            anchor_time - timedelta(minutes=lookback),
+            anchor_time + timedelta(minutes=forward),
             data_mode="live_seen",
         )
 

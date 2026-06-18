@@ -12,7 +12,10 @@ def test_load_calendar_events_in_window_filters_by_anchor(tmp_path) -> None:
         json.dumps(
             [
                 {"Date": "2026-05-19", "Time": "07:00", "Currency": "USD", "Event": "CPI", "Imp.": "High"},
+                {"Date": "2026-05-19", "Time": "07:05", "Cur.": "USD", "Event": "Retail Sales", "Imp.": "Medium"},
                 {"Date": "2026-05-19", "Time": "07:10", "Currency": "BHD", "Event": "Eid al-Adha", "Imp.": "Holiday"},
+                {"Date": "2026-05-19", "Time": "07:12", "Cur.": "CHF", "Event": "PPI", "Imp.": "Medium"},
+                {"Date": "2026-05-19", "Time": "07:15", "Cur.": "JPY", "Event": "BoJ Interest Rate Decision", "Imp.": "High"},
                 {"Date": "2026-05-19", "Time": "07:20", "Currency": "NZD", "Event": "Low noise event", "Imp.": "Low"},
                 {"Date": "2026-05-19", "Time": "12:00", "Currency": "USD", "Event": "Fed Speech", "Imp.": "High"},
             ]
@@ -27,5 +30,9 @@ def test_load_calendar_events_in_window_filters_by_anchor(tmp_path) -> None:
         forward_minutes=120,
     )
 
-    assert len(events) == 1
+    assert len(events) == 3
     assert events[0].title == "CPI"
+    assert events[1].title == "Retail Sales"
+    assert events[1].relevance_reason == "USD Medium importance event"
+    assert events[1].tags[0] == "USD"
+    assert events[2].title == "BoJ Interest Rate Decision"

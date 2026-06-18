@@ -1,3 +1,4 @@
+from src.xauusd_market_agent import config as market_config
 from src.xauusd_market_agent.config import CTraderCliConfig, MarketAgentConfig
 
 
@@ -9,6 +10,19 @@ def test_market_agent_config_uses_windows_friendly_defaults() -> None:
     assert cfg.rss_feeds
     assert cfg.news_lookback_minutes == 30
     assert cfg.post_move_news_minutes == 120
+
+
+def test_market_agent_config_prefers_synced_user_calendar(tmp_path, monkeypatch) -> None:
+    synced = tmp_path / "user-data" / "data" / "Economic_Calendar"
+    bundled = tmp_path / "data" / "Economic_Calendar"
+    synced.mkdir(parents=True)
+    bundled.mkdir(parents=True)
+    monkeypatch.setattr(market_config, "REPO_ROOT", tmp_path)
+    monkeypatch.delenv("MARKET_AGENT_CALENDAR_DIR", raising=False)
+
+    cfg = market_config.MarketAgentConfig()
+
+    assert cfg.calendar_dir == synced
 
 
 def test_ctrader_config_normalizes_legacy_last_quote_path(tmp_path) -> None:

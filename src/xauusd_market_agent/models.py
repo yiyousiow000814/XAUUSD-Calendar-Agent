@@ -180,6 +180,7 @@ class DriverAttentionState:
     requested_sensor_ids: tuple[str, ...] = ()
     promotion_reason: str = ""
     rejection_reason: str = ""
+    evidence_refs: tuple[dict[str, Any], ...] = ()
 
 
 @dataclass(frozen=True)

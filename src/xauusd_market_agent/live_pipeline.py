@@ -2,14 +2,18 @@ from __future__ import annotations
 
 from dataclasses import asdict, replace
 from datetime import datetime, timedelta
+import errno
+import hashlib
 import json
 import os
+import sys
+import re
 import time
 from pathlib import Path
 from typing import Any
 
 from .backfill import BackfillManager
-from .config import MarketAgentConfig
+from .config import MarketAgentConfig, REPO_ROOT
 from .driver_attention import DriverAttentionManager
 from .detectors import detect_market_trigger
 from .evidence import build_evidence_gate_result
@@ -41,6 +45,32 @@ def _monitor_owner_pid_from_env() -> int | None:
         return None
 
 
+_MONITOR_SIGNATURE_FILES = (
+    "src/xauusd_market_agent/cli.py",
+    "src/xauusd_market_agent/config.py",
+    "src/xauusd_market_agent/driver_attention.py",
+    "src/xauusd_market_agent/evidence.py",
+    "src/xauusd_market_agent/live_pipeline.py",
+    "src/xauusd_market_agent/llm_bridge.py",
+    "src/xauusd_market_agent/pipeline.py",
+    "src/xauusd_market_agent/validator.py",
+)
+
+
+def _monitor_code_signature() -> str:
+    digest = hashlib.sha1()
+    for relative_path in _MONITOR_SIGNATURE_FILES:
+        path = REPO_ROOT / relative_path
+        digest.update(relative_path.encode("utf-8"))
+        digest.update(b"\0")
+        try:
+            digest.update(path.read_bytes())
+        except OSError:
+            digest.update(b"missing")
+        digest.update(b"\0")
+    return digest.hexdigest()
+
+
 def _read_monitor_status(path: Path) -> dict[str, Any]:
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
@@ -54,6 +84,9 @@ def _write_monitor_status(status_path: Path | None, **updates: Any) -> None:
     if path is None:
         return
     current = _read_monitor_status(path) if path.exists() else {}
+    phase = str(updates.get("phase") or current.get("phase") or "").strip()
+    if updates.get("running") is True and phase not in {"idle_between_runs", "already_running"}:
+        updates.setdefault("nextRunAt", None)
     payload = {
         "ok": True,
         "available": True,
@@ -61,6 +94,7 @@ def _write_monitor_status(status_path: Path | None, **updates: Any) -> None:
         "phase": "stopped",
         "pid": os.getpid(),
         "monitorOwnerPid": _monitor_owner_pid_from_env(),
+        "agentCodeSignature": _monitor_code_signature(),
         "lastError": "",
         "message": "Monitor loop is stopped.",
         **current,
@@ -68,9 +102,61 @@ def _write_monitor_status(status_path: Path | None, **updates: Any) -> None:
         "updatedAt": datetime.now().astimezone().isoformat(),
     }
     path.parent.mkdir(parents=True, exist_ok=True)
-    temp_path = path.with_suffix(path.suffix + ".tmp")
+    temp_path = path.with_suffix(f"{path.suffix}.{os.getpid()}.{time.time_ns()}.tmp")
     temp_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
-    temp_path.replace(path)
+    for attempt in range(3):
+        try:
+            temp_path.replace(path)
+            return
+        except PermissionError:
+            if attempt == 2:
+                try:
+                    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
+                finally:
+                    try:
+                        temp_path.unlink(missing_ok=True)
+                    except OSError:
+                        pass
+                return
+            time.sleep(0.05 * (attempt + 1))
+
+
+def _should_store_alert_audit(analysis: Any, decision: Any) -> bool:
+    if bool(getattr(decision, "should_notify", False)):
+        return True
+    if bool(getattr(analysis, "should_notify", False)):
+        return True
+    reason = str(getattr(decision, "reason", "") or "").strip().casefold()
+    return bool(reason)
+
+
+def _should_store_analysis_timeline_event(
+    *,
+    chain_status: EvidenceChainStatus,
+    analysis: Any,
+    decision: Any,
+    backfill_required: bool,
+) -> bool:
+    if bool(chain_status.can_show_current_conclusion):
+        return True
+    if bool(backfill_required):
+        return True
+    if bool(getattr(decision, "should_notify", False)):
+        return True
+    if bool(getattr(analysis, "should_notify", False)):
+        return True
+    return False
+
+
+def _should_store_context_timeline_event(
+    *,
+    chain_status: EvidenceChainStatus,
+    news_row_count: int,
+    calendar_row_count: int,
+) -> bool:
+    if chain_status.can_show_current_conclusion:
+        return False
+    return news_row_count > 0 or calendar_row_count > 0
 
 
 def _provider_health_payload(health: ProviderHealth | None) -> dict[str, Any]:
@@ -275,21 +361,38 @@ def _ctrader_activity(
             "handoff": "Live XAUUSD quote is usable by price trigger, evidence gate, replay, and alert preflight.",
         }
     if health.is_available and health.current_value is not None:
-        return {
-            **base,
-            "status": "market_closed",
-            "label": "Market closed",
-            "detail": (
+        market_closed_context = _is_market_closed_xauusd_context(health)
+        status = "market_closed" if market_closed_context else "stale"
+        label = "Market closed" if market_closed_context else "cTrader not refreshing"
+        detail = (
+            (
                 f"Last XAUUSD price {price} is fixed until the market reopens; "
                 "news and calendar still update."
             )
             if price
-            else "Last XAUUSD price is fixed until the market reopens; news and calendar still update.",
+            else "Last XAUUSD price is fixed until the market reopens; news and calendar still update."
+        ) if market_closed_context else (
+            (
+                f"Last XAUUSD price {price} is stale; cTrader has not produced a fresh live snapshot."
+            )
+            if price
+            else "Last XAUUSD price is stale; cTrader has not produced a fresh live snapshot."
+        )
+        return {
+            **base,
+            "status": status,
+            "label": label,
+            "detail": detail,
             "jobs": [
                 _activity_job(
                     "Last quote snapshot",
                     "stale",
-                    health.stale_reason or "The latest cTrader quote is treated as market-closed context.",
+                    health.stale_reason
+                    or (
+                        "The latest cTrader quote is treated as market-closed context."
+                        if market_closed_context
+                        else "The latest cTrader quote is stale and cannot drive a current conclusion."
+                    ),
                     input="Last cTrader XAUUSD quote",
                     output="Context-only XAUUSD price; no live alert",
                     timestamp=health.data_timestamp,
@@ -393,11 +496,22 @@ def _history_activity(
     window_end: str | None = None,
     stored_rows: int | None = None,
     symbols: list[str] | None = None,
+    symbol_rows: dict[str, int] | None = None,
 ) -> dict[str, Any]:
+    symbol_rows = symbol_rows or {}
+    xauusd_rows = int(symbol_rows.get("XAUUSD", 0) or 0)
+    sensor_rows = max(0, int(stored_rows or 0) - xauusd_rows)
+    history_output = (
+        f"{xauusd_rows} XAUUSD row(s), {sensor_rows} sensor row(s)"
+        if stored_rows is not None
+        else "No stored rows yet"
+    )
     base: dict[str, Any] = {
         "symbols": symbols or ["XAUUSD"],
         "windowStart": window_start,
         "windowEnd": window_end,
+        "xauusdRows": xauusd_rows,
+        "sensorRows": sensor_rows,
     }
     if stored_rows is not None:
         base["storedRows"] = stored_rows
@@ -414,7 +528,7 @@ def _history_activity(
         "synced" if completed else "syncing" if backfill_required else "idle",
         "Fetches missing cTrader history for replay and evidence without blocking the live quote.",
         input=window,
-        output=f"{stored_rows or 0} stored row(s) across {', '.join(symbols or ['XAUUSD'])}",
+        output=history_output,
     )
     persist_job = _activity_job(
         "History persistence",
@@ -446,7 +560,11 @@ def _history_activity(
         **base,
         "status": "idle",
         "label": "History current",
-        "detail": "No backfill gap detected for this run.",
+        "detail": (
+            "No backfill gap detected, but current XAUUSD recent history still needs another fresh bar."
+            if xauusd_rows < 2
+            else "No backfill gap detected for this run."
+        ),
         "jobs": [detector_job, fetch_job, persist_job],
         "handoff": "Recent XAUUSD history feeds move detection and evidence gate readiness.",
     }
@@ -816,6 +934,7 @@ def _activity_snapshot(
     market_price_bars = market_price_bars or []
     related_asset_bars = related_asset_bars or []
     symbols = _symbols_from_rows(market_price_bars, related_asset_bars)
+    symbol_rows = _count_by_symbol([*market_price_bars, *related_asset_bars])
     market_start, market_end = _time_bounds([*market_price_bars, *related_asset_bars], "data_timestamp")
     history_window_start = market_start or history_window_start
     history_window_end = market_end or history_window_end
@@ -840,6 +959,7 @@ def _activity_snapshot(
             window_end=history_window_end,
             stored_rows=history_stored_rows,
             symbols=symbols,
+            symbol_rows=symbol_rows,
         ),
         "context": _context_activity(
             news_count,
@@ -874,7 +994,7 @@ def _activity_snapshot(
     }
     snapshot["summary"] = {
         "symbols": symbols,
-        "symbolRows": _count_by_symbol([*market_price_bars, *related_asset_bars]),
+        "symbolRows": symbol_rows,
         "windowStart": history_window_start,
         "windowEnd": history_window_end,
         "selectedMarketProvider": selected_market_provider,
@@ -902,12 +1022,50 @@ class MonitorLock:
         self.stale_after_seconds = stale_after_seconds
         self._fd: int | None = None
 
+    def _locked_pid_is_dead(self) -> bool:
+        try:
+            first_line = self.path.read_text(encoding="utf-8").splitlines()[0].strip()
+            pid = int(first_line)
+        except (OSError, IndexError, ValueError):
+            return False
+        if pid <= 0 or pid == os.getpid():
+            return False
+        if sys.platform == "win32":
+            try:
+                import ctypes
+                from ctypes import wintypes
+
+                process_query_limited_information = 0x1000
+                still_active = 259
+                kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+                handle = kernel32.OpenProcess(process_query_limited_information, False, pid)
+                if not handle:
+                    return True
+                try:
+                    exit_code = wintypes.DWORD()
+                    if not kernel32.GetExitCodeProcess(handle, ctypes.byref(exit_code)):
+                        return False
+                    return int(exit_code.value) != still_active
+                finally:
+                    kernel32.CloseHandle(handle)
+            except Exception:
+                return False
+        try:
+            os.kill(pid, 0)
+        except ProcessLookupError:
+            return True
+        except OSError as exc:
+            if exc.errno in {errno.ESRCH, errno.EINVAL}:
+                return True
+            return False
+        return False
+
     def __enter__(self) -> "MonitorLock | None":
         self.path.parent.mkdir(parents=True, exist_ok=True)
         now = time.time()
         try:
             stat = self.path.stat()
-            if now - stat.st_mtime > self.stale_after_seconds:
+            if now - stat.st_mtime > self.stale_after_seconds or self._locked_pid_is_dead():
                 self.path.unlink(missing_ok=True)
         except FileNotFoundError:
             pass
@@ -1133,6 +1291,104 @@ def _build_runtime_context(
     }
 
 
+def _dedupe_market_rows_by_timestamp(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    by_timestamp: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        timestamp = str(row.get("data_timestamp") or "")
+        if not timestamp:
+            continue
+        by_timestamp[timestamp] = row
+    return sorted(by_timestamp.values(), key=lambda item: str(item.get("data_timestamp") or ""))
+
+
+def _recent_price_context_health(row: dict[str, Any], anchor_time: datetime, reason: str) -> ProviderHealth:
+    close = float(row.get("close_price") or row.get("close") or 0.0)
+    return ProviderHealth(
+        source="cTrader",
+        source_type="spot_snapshot",
+        fetched_at=anchor_time.isoformat(),
+        data_timestamp=str(row.get("data_timestamp") or anchor_time.isoformat()),
+        data_mode="stale",
+        is_available=True,
+        is_stale=True,
+        stale_reason=reason,
+        error=reason,
+        raw_source_id=str(row.get("symbol", "XAUUSD")),
+        current_value=close,
+        metadata={
+            "stale_classification": "feed_gap_context",
+            "market_closed": False,
+        },
+    )
+
+
+def _recent_price_context_row(row: dict[str, Any], reason: str) -> dict[str, Any]:
+    close = float(row.get("close_price") or row.get("close") or 0.0)
+    return {
+        **row,
+        "symbol": str(row.get("symbol") or "XAUUSD"),
+        "data_timestamp": str(row.get("data_timestamp") or row.get("timestamp") or ""),
+        "open_price": float(row.get("open_price") or row.get("open") or close),
+        "high_price": float(row.get("high_price") or row.get("high") or close),
+        "low_price": float(row.get("low_price") or row.get("low") or close),
+        "close_price": close,
+        "source": str(row.get("source") or "cTrader recent context"),
+        "source_type": "spot_snapshot",
+        "data_mode": "stale",
+        "is_stale": True,
+        "stale_reason": reason,
+    }
+
+
+def _with_recent_market_history(
+    runtime_context: dict[str, Any],
+    *,
+    timeline_store: TimelineStore,
+    anchor_time: datetime,
+) -> dict[str, Any]:
+    current_rows = list(runtime_context.get("market_price_bars", []))
+    if not current_rows:
+        xauusd_health = runtime_context.get("provider_health", {}).get("xauusd")
+        if xauusd_health is None or bool(getattr(xauusd_health, "is_available", False)):
+            return runtime_context
+        recent_rows = timeline_store.get_recent_market_price_bars(
+            symbol="XAUUSD",
+            anchor_time=anchor_time,
+            lookback_minutes=10,
+            limit=5,
+        )
+        if not recent_rows:
+            return runtime_context
+        reason = str(getattr(xauusd_health, "stale_reason", "") or "Waiting for fresh cTrader live stream snapshot.")
+        context_row = _recent_price_context_row(recent_rows[-1], reason)
+        runtime_context["market_price_bars"] = [context_row]
+        runtime_context["evidence_market_price_bars"] = [context_row]
+        runtime_context["provider_health"] = {
+            **runtime_context.get("provider_health", {}),
+            "xauusd": _recent_price_context_health(context_row, anchor_time, reason),
+        }
+        runtime_context["fixture"] = _build_fixture_from_context(
+            anchor_time=anchor_time,
+            market_price_bars=[context_row],
+            related_asset_bars=runtime_context.get("related_asset_bars", []),
+            news_rows=runtime_context.get("news_rows", []),
+            calendar_rows=runtime_context.get("calendar_rows", []),
+            scenario_id="live_once",
+        )
+        return runtime_context
+    recent_rows = timeline_store.get_recent_market_price_bars(
+        symbol="XAUUSD",
+        anchor_time=anchor_time,
+        lookback_minutes=180,
+    )
+    evidence_rows = _dedupe_market_rows_by_timestamp([*recent_rows, *current_rows])
+    if len(evidence_rows) <= len(current_rows):
+        runtime_context["evidence_market_price_bars"] = current_rows
+        return runtime_context
+    runtime_context["evidence_market_price_bars"] = evidence_rows
+    return runtime_context
+
+
 def _run_recovery_backfill(
     config: MarketAgentConfig,
     *,
@@ -1217,8 +1473,53 @@ def _is_live_xauusd_health(health: ProviderHealth | None) -> bool:
         and not health.is_stale
         and health.data_mode == "live_seen"
         and (health.current_value is None or float(health.current_value) > 0)
-        and 0 <= age_seconds <= 300
+        and -5 <= age_seconds <= 300
     )
+
+
+def _is_market_closed_xauusd_context(health: ProviderHealth | None) -> bool:
+    if health is None:
+        return False
+    metadata = health.metadata or {}
+    stale_reason = str(health.stale_reason or "").lower()
+    return bool(
+        health.is_available
+        and health.is_stale
+        and health.current_value is not None
+        and (
+            metadata.get("market_closed") is True
+            or str(metadata.get("stale_classification", "")).lower() == "market_closed"
+            or (
+                health.data_mode in {"market_closed", "stale"}
+                and (
+                    "market closed" in stale_reason
+                    or "market may be closed" in stale_reason
+                    or "market reopens" in stale_reason
+                    or "weekend closed" in stale_reason
+                )
+            )
+        )
+    )
+
+
+def _is_feed_gap_xauusd_context(health: ProviderHealth | None) -> bool:
+    if health is None:
+        return False
+    metadata = health.metadata or {}
+    return bool(
+        health.is_available
+        and health.is_stale
+        and health.current_value is not None
+        and str(metadata.get("stale_classification", "")).lower() == "feed_gap_context"
+    )
+
+
+def _xauusd_context_input_label(health: ProviderHealth | None) -> str:
+    if _is_market_closed_xauusd_context(health):
+        return "market_closed_last_xauusd_spot"
+    if _is_feed_gap_xauusd_context(health):
+        return "feed_gap_last_xauusd_spot"
+    return "stale_xauusd_spot"
 
 
 def _build_evidence_chain_status(
@@ -1238,10 +1539,14 @@ def _build_evidence_chain_status(
     context_only_inputs: list[str] = []
 
     xauusd = provider_health.get("xauusd")
+    market_closed_xauusd_context = _is_market_closed_xauusd_context(xauusd)
+    feed_gap_xauusd_context = _is_feed_gap_xauusd_context(xauusd)
     if _is_live_xauusd_health(xauusd) and fixture.market.to_price > 0:
         usable_inputs.append("live_xauusd_spot")
-    elif xauusd and xauusd.is_available and xauusd.is_stale and xauusd.current_value:
-        context_only_inputs.append("market_closed_last_xauusd_spot")
+    elif market_closed_xauusd_context or feed_gap_xauusd_context or (
+        xauusd and xauusd.is_available and xauusd.is_stale and xauusd.current_value
+    ):
+        context_only_inputs.append(_xauusd_context_input_label(xauusd))
         missing_required.append("live_xauusd_spot")
     else:
         missing_required.append("live_xauusd_spot")
@@ -1289,10 +1594,22 @@ def _build_evidence_chain_status(
             context_only_inputs.append(f"llm_{llm_status}")
 
     if missing_required:
+        if market_closed_xauusd_context:
+            reason = (
+                "XAUUSD market is closed; news, calendar, and cross-market context keep updating, "
+                "and the next trade read resumes when fresh XAUUSD price action returns."
+            )
+        elif xauusd and xauusd.is_available and xauusd.is_stale:
+            reason = (
+                "XAUUSD live quote is stale; news, calendar, and cross-market context keep updating, "
+                "but a current trade read needs fresh spot and recent price history."
+            )
+        else:
+            reason = "A current XAUUSD trade read needs fresh live price and recent price history."
         return EvidenceChainStatus(
             status="context_only",
             can_show_current_conclusion=False,
-            reason="Current conclusion is paused until live XAUUSD price and recent price history are available.",
+            reason=reason,
             missing_required=missing_required,
             usable_inputs=usable_inputs,
             context_only_inputs=context_only_inputs,
@@ -1306,7 +1623,13 @@ def _build_evidence_chain_status(
             reason="Price evidence is available, but cross-market confirmation is incomplete; only unknown or unconfirmed conclusions can pass.",
             missing_required=[],
             usable_inputs=usable_inputs,
-            context_only_inputs=[*context_only_inputs, *[f"{key}_unavailable" for key in unavailable_related]],
+            context_only_inputs=[
+                *context_only_inputs,
+                *[
+                    f"{key}_{str(evidence_status.get(key) or 'unavailable').lower()}"
+                    for key in unavailable_related
+                ],
+            ],
             llm_status=llm_status,
         )
 
@@ -1340,7 +1663,7 @@ def _downgrade_analysis_for_incomplete_chain(analysis: Any, chain_status: Eviden
         notification_level="none",
         allowed_candidate_drivers_used=["unknown"],
         causal_chain=chain_status.reason,
-        user_message="Current market context is still being collected. No confirmed driver is available yet.",
+        user_message=chain_status.reason,
         summary=chain_status.reason,
     )
 
@@ -1355,12 +1678,7 @@ def _suppress_unhelpful_alert(
         return analysis
 
     xauusd = provider_health.get("xauusd")
-    market_closed_context = bool(
-        xauusd
-        and xauusd.is_available
-        and xauusd.is_stale
-        and xauusd.current_value is not None
-    )
+    market_closed_context = _is_market_closed_xauusd_context(xauusd)
     no_news_low_signal = bool(getattr(analysis, "no_news_found", False)) and str(
         getattr(analysis, "cause_status", "")
     ) in {"likely", "unconfirmed"}
@@ -1456,7 +1774,9 @@ def _llm_review_alert(
     packet: dict[str, Any],
 ) -> tuple[bool, str, str]:
     if llm_client is None or not hasattr(llm_client, "review_alert"):
-        return True, message, "not_used"
+        return False, message, "Local AI alert review is required before Telegram delivery."
+    if not bool(getattr(getattr(llm_client, "config", None), "enabled", False)):
+        return False, message, "Local AI alert review is disabled."
     try:
         review = llm_client.review_alert(
             {
@@ -1473,9 +1793,9 @@ def _llm_review_alert(
             }
         )
     except Exception:
-        return True, message, "unavailable"
+        return False, message, "Local AI alert review is unavailable."
     if not isinstance(review, dict):
-        return True, message, "unavailable"
+        return False, message, "Local AI alert review returned no decision."
     decision = str(review.get("decision", "approve")).lower()
     if decision == "block":
         return False, message, str(review.get("reason", "LLM alert review blocked the message."))
@@ -1520,12 +1840,610 @@ def _alert_preflight_status(allowed: bool, detail: str) -> str:
     return "approved"
 
 
+def _notification_ledger_path(alerts_path: Path) -> Path:
+    return Path(alerts_path).with_name("market_agent_notification_ledger.json")
+
+
+def _alert_fingerprint(message: str, analysis: Any, data_mode: str) -> str:
+    payload = {
+        "message": " ".join(str(message or "").split()),
+        "main_driver": str(getattr(analysis, "main_driver", "unknown") or "unknown"),
+        "bias": str(getattr(analysis, "bias", "unknown") or "unknown"),
+        "cause_status": str(getattr(analysis, "cause_status", "unknown") or "unknown"),
+        "data_mode": data_mode,
+    }
+    return hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()
+
+
+def _read_notification_ledger(path: Path) -> dict[str, Any]:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _write_notification_ledger(path: Path, payload: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    tmp.replace(path)
+
+
+def _reserve_notification_fingerprint(
+    *,
+    alerts_path: Path,
+    fingerprint: str,
+    now_iso: str,
+    cooldown_minutes: int,
+) -> tuple[bool, str]:
+    ledger_path = _notification_ledger_path(alerts_path)
+    ledger = _read_notification_ledger(ledger_path)
+    previous = ledger.get("last")
+    if isinstance(previous, dict) and previous.get("fingerprint") == fingerprint:
+        previous_time = str(previous.get("reserved_at") or "")
+        try:
+            elapsed = (datetime.fromisoformat(now_iso) - datetime.fromisoformat(previous_time)).total_seconds() / 60
+        except Exception:
+            elapsed = 1_000_000.0
+        if elapsed < cooldown_minutes:
+            return False, "Duplicate Telegram alert suppressed by notification ledger."
+    ledger["last"] = {
+        "fingerprint": fingerprint,
+        "reserved_at": now_iso,
+        "status": "reserved",
+    }
+    _write_notification_ledger(ledger_path, ledger)
+    return True, "reserved"
+
+
+def _complete_notification_fingerprint(
+    *,
+    alerts_path: Path,
+    fingerprint: str,
+    telegram_result: dict[str, Any],
+) -> None:
+    ledger_path = _notification_ledger_path(alerts_path)
+    ledger = _read_notification_ledger(ledger_path)
+    previous = ledger.get("last")
+    if not isinstance(previous, dict) or previous.get("fingerprint") != fingerprint:
+        return
+    previous["status"] = "sent" if telegram_result.get("sent") else str(telegram_result.get("status") or "failed")
+    previous["telegram"] = telegram_result
+    _write_notification_ledger(ledger_path, ledger)
+
+
 def _safe_summary_text(value: Any, limit: int = 180) -> str:
     text = " ".join(str(value or "").split())
-    return text[:limit].rstrip()
+    if len(text) <= limit:
+        return text.rstrip(" ,;:-")
+    clipped = text[:limit].rstrip()
+    if limit > 0 and not text[limit : limit + 1].isspace():
+        clipped = re.sub(r"\s+\S*$", "", clipped).rstrip()
+    clipped = (clipped or text[:limit].rstrip()).rstrip(" ,;:-")
+    clipped = re.sub(r"\s+(this|that|the|a|an|and|or|for|to|of|with|as|by)$", "", clipped, flags=re.IGNORECASE)
+    return clipped
 
 
-def _apply_summary_items(rows: list[dict[str, Any]], summaries: Any) -> int:
+_MARKET_TITLE_VERBS = re.compile(
+    r"\b("
+    r"is|are|was|were|be|being|been|will|would|could|should|may|might|can|"
+    r"says|said|warns|warned|signals|signaled|announces|announced|expects|expected|"
+    r"hits|hit|jumps|jumped|falls|fell|drops|dropped|slips|slipped|rises|rose|"
+    r"surges|surged|eases|eased|extends|extended|hold|holds|held|keep|keeps|kept|weighs|weighed|"
+    r"drives|drove|pressure|pressures|pressured|opens|opened|closes|closed|cuts|cut|"
+    r"raises|raised|denies|denied|confirms|confirmed|threatens|threatened|"
+    r"disrupts|disrupted|sanctions|sanctioned|lifts|lifted|pushes|pushed|"
+    r"leaves|left|returns|returned|lift"
+    r")\b",
+    re.IGNORECASE,
+)
+
+
+def _is_complete_market_news_title(value: Any) -> bool:
+    text = str(value or "").strip()
+    if not text:
+        return False
+    words = re.findall(r"[A-Za-z0-9]+(?:'[A-Za-z0-9]+)?", text)
+    if 3 <= len(words) < 5:
+        return bool(_MARKET_TITLE_VERBS.search(text))
+    if len(words) >= 7:
+        return True
+    if len(words) < 5:
+        return False
+    return bool(_MARKET_TITLE_VERBS.search(text))
+
+
+def _safe_market_read_title(value: Any, limit: int = 112) -> str:
+    text = _safe_summary_text(value, limit=180)
+    if not text:
+        return ""
+    for separator in (": ", " — ", " - "):
+        head, marker, _tail = text.partition(separator)
+        if marker and _is_complete_market_news_title(head):
+            text = head
+            break
+    return _safe_summary_text(text, limit=limit)
+
+
+_MARKET_READ_STRONG_TERMS = re.compile(
+    r"\b("
+    r"xauusd|gold|bullion|treasury|treasurys|yield|yields|dollar|dxy|fed|fomc|rates?|"
+    r"inflation|cpi|ppi|pce|jobs?|payrolls?|oil|crude|wti|brent|iran|israel|hormuz|"
+    r"geopolitical|war|strike|ceasefire|sanction|risk|stocks?|equities"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_MARKET_READ_WEAK_TERMS = re.compile(
+    r"\b("
+    r"credit cards?|mortgages?|car loans?|savings rates?|your finances?|portfolio stocks?|"
+    r"cramer|retirement|social security|fertility|smartphones?|used car|consumer loans?"
+    r")\b",
+    re.IGNORECASE,
+)
+
+
+def _market_read_title_quality(item: Any, title: str) -> int:
+    text = f"{title} {' '.join(getattr(item, 'tags', ())) } {getattr(item, 'relevance_reason', '')}".lower()
+    score = len(_MARKET_READ_STRONG_TERMS.findall(text))
+    score -= 3 * len(_MARKET_READ_WEAK_TERMS.findall(text))
+    if text.startswith(("i'm ", "i’m ")):
+        score -= 4
+    return score
+
+
+def _market_read_driver_label(driver: str) -> str:
+    return {
+        "usd": "USD",
+        "yields": "rates/yields",
+        "oil_inflation": "oil/inflation",
+        "risk_sentiment": "risk sentiment",
+        "geopolitics": "geopolitics",
+        "technical_liquidation": "technical flow",
+        "unknown": "unconfirmed",
+    }.get(str(driver or "unknown"), str(driver or "unknown").replace("_", " "))
+
+
+def _market_read_bias_label(bias: str) -> str:
+    return {
+        "bullish_gold": "bullish for gold",
+        "bearish_gold": "bearish for gold",
+        "neutral": "neutral",
+    }.get(str(bias or "neutral"), str(bias or "neutral").replace("_", " "))
+
+
+def _market_read_provider_ok(provider_health: dict[str, ProviderHealth], key: str) -> bool:
+    health = provider_health.get(key)
+    return bool(health and health.is_available and not health.is_stale and health.data_mode != "unavailable")
+
+
+def _market_read_evidence_status_for_sensor(evidence_status: dict[str, str], key: str) -> str:
+    direct = str(evidence_status.get(key, "") or "")
+    if direct:
+        return direct
+    if key in {"wti", "brent"}:
+        return str(evidence_status.get("oil", "") or "")
+    if key in {"vix", "spx", "nasdaq"}:
+        return str(evidence_status.get("vix_equities", "") or "")
+    return ""
+
+
+def _market_read_latest_titles(items: tuple[Any, ...], limit: int = 3) -> list[str]:
+    ranked: list[tuple[int, int, str]] = []
+    seen: set[str] = set()
+    for index, item in enumerate(items):
+        title = _safe_market_read_title(getattr(item, "title", ""))
+        if title and title not in seen:
+            seen.add(title)
+            ranked.append((_market_read_title_quality(item, title), -index, title))
+    ranked.sort(reverse=True)
+    positive = [item for item in ranked if item[0] >= 0]
+    selected = positive if positive else ranked
+    return [title for _score, _index, title in selected[:limit]]
+
+
+def _market_read_contains_keyword(text: str, keyword: str) -> bool:
+    normalized_text = re.sub(r"[^a-z0-9]+", " ", text.lower()).strip()
+    normalized_keyword = re.sub(r"[^a-z0-9]+", " ", keyword.lower()).strip()
+    if not normalized_text or not normalized_keyword:
+        return False
+    return re.search(rf"(?<![a-z0-9]){re.escape(normalized_keyword)}(?![a-z0-9])", normalized_text) is not None
+
+
+def _market_read_driver_keywords(driver: str) -> tuple[str, ...]:
+    normalized = str(driver or "").lower()
+    return {
+        "geopolitics": (
+            "iran",
+            "israel",
+            "hormuz",
+            "lebanon",
+            "middle east",
+            "red sea",
+            "military",
+            "missile",
+            "attack",
+            "strike",
+            "war",
+            "ceasefire",
+            "airspace",
+        ),
+        "fed_rates": ("fed", "fomc", "powell", "rate", "rates", "cpi", "ppi", "pce", "nfp", "payroll", "jobs"),
+        "yields": ("yield", "yields", "treasury", "us10y", "us2y", "rate", "rates"),
+        "usd": ("usd", "dollar", "dxy", "greenback"),
+        "oil_inflation": ("oil", "opec", "hormuz", "supply", "sanction", "inventory", "shipping", "wti", "brent", "crude"),
+        "risk_sentiment": ("vix", "risk", "equities", "stocks", "spx", "nasdaq"),
+    }.get(normalized, ())
+
+
+def _market_read_driver_matched_titles(
+    *,
+    items: tuple[Any, ...],
+    driver: str,
+    limit: int = 3,
+) -> list[str]:
+    keywords = _market_read_driver_keywords(driver)
+    if not keywords:
+        return []
+    matched: list[Any] = []
+    for item in items:
+        text = f"{getattr(item, 'title', '')} {' '.join(getattr(item, 'tags', ())) } {getattr(item, 'relevance_reason', '')}"
+        if any(_market_read_contains_keyword(text, keyword) for keyword in keywords):
+            matched.append(item)
+    return _market_read_latest_titles(tuple(matched), limit=limit)
+
+
+def _market_read_driver_evidence_titles(
+    *,
+    attention_snapshot: Any | None,
+    driver: str,
+    limit: int = 3,
+) -> list[str]:
+    states = getattr(attention_snapshot, "states", {}) or {}
+    summary = getattr(attention_snapshot, "driver_attention_summary", {}) or {}
+    top_driver = str(summary.get("top_driver") or "")
+    candidate_ids = [driver if driver and driver != "unknown" else top_driver, top_driver]
+    ranked: list[tuple[int, int, str]] = []
+    seen: set[str] = set()
+    ordinal = 0
+    for driver_id in dict.fromkeys(item for item in candidate_ids if item):
+        state = states.get(driver_id)
+        refs = getattr(state, "evidence_refs", ()) if state is not None else ()
+        for ref in refs:
+            title = _safe_market_read_title(ref.get("title") if isinstance(ref, dict) else "")
+            if title and title not in seen:
+                seen.add(title)
+                ranked.append((_market_read_title_quality(ref, title), -ordinal, title))
+                ordinal += 1
+    ranked.sort(reverse=True)
+    positive = [item for item in ranked if item[0] >= 0]
+    selected = positive if positive else ranked
+    return [title for _score, _index, title in selected[:limit]]
+
+
+def _dedupe_market_read_strings(items: list[str], *, limit: int) -> list[str]:
+    selected: list[str] = []
+    seen: set[str] = set()
+    for item in items:
+        text = _safe_summary_text(item, limit=150)
+        key = re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")
+        if not text or not key or key in seen:
+            continue
+        seen.add(key)
+        selected.append(text)
+        if len(selected) >= limit:
+            break
+    return selected
+
+
+def _market_read_timeline_points(analysis: Any | None, fixture: ScenarioFixture, *, limit: int = 4) -> list[str]:
+    points: list[str] = []
+    timeline = getattr(analysis, "timeline", None) if analysis is not None else None
+    if isinstance(timeline, list):
+        for item in timeline:
+            if not isinstance(item, dict):
+                continue
+            event = _safe_summary_text(item.get("event"), limit=130)
+            time_label = _safe_summary_text(item.get("time_myt"), limit=24)
+            if event:
+                points.append(f"{time_label} {event}".strip())
+    if not points:
+        for item in tuple(fixture.news)[:limit]:
+            title = _safe_market_read_title(getattr(item, "title", ""))
+            time_label = _safe_summary_text(getattr(item, "timestamp_myt", ""), limit=24)
+            if title:
+                points.append(f"{time_label} {title}".strip())
+    return _dedupe_market_read_strings(points, limit=limit)
+
+
+def _market_read_next_points(
+    *,
+    watchlist: list[str],
+    calendar_titles: list[str],
+    confirming: list[str],
+    chain_status: EvidenceChainStatus,
+    limit: int = 4,
+) -> list[str]:
+    points: list[str] = []
+    if calendar_titles:
+        points.extend([f"Calendar: {title}" for title in calendar_titles[:2]])
+    if watchlist:
+        points.extend([f"Confirm: {item}" for item in watchlist])
+    if not confirming and "cross_market_sensors" in chain_status.context_only_inputs:
+        points.append("Confirm: DXY, yields, oil, and risk sensors must agree with XAUUSD")
+    if not points:
+        points.append("Keep monitoring price, news, calendar, and sensor alignment")
+    return _dedupe_market_read_strings(points, limit=limit)
+
+
+def _market_read_risk_points(
+    *,
+    evidence_status: dict[str, str],
+    chain_status: EvidenceChainStatus,
+    limit: int = 4,
+) -> list[str]:
+    labels = {
+        "dxy": "DXY",
+        "us10y": "US10Y",
+        "us2y": "US2Y",
+        "oil": "Oil",
+        "vix_equities": "VIX/equities",
+        "news": "News",
+    }
+    points: list[str] = []
+    for key, label in labels.items():
+        status = str(evidence_status.get(key, "") or "").lower()
+        if status in {"stale", "unavailable"}:
+            points.append(f"{label} is {status}; confidence stays limited")
+        elif status == "not_confirming":
+            points.append(f"{label} is present but not confirming the gold move")
+    for missing in chain_status.missing_required:
+        points.append(f"Missing required input: {missing}")
+    if not points and chain_status.context_only_inputs:
+        points.append("Some inputs are context only, not confirmation")
+    return _dedupe_market_read_strings(points, limit=limit)
+
+
+def _build_analyst_read(
+    *,
+    fixture: ScenarioFixture,
+    analysis: Any | None,
+    stance: str,
+    headline: str,
+    thesis: str,
+    direction: str,
+    move: float,
+    watchlist: list[str],
+    news_titles: list[str],
+    calendar_titles: list[str],
+    confirming: list[str],
+    chain_status: EvidenceChainStatus,
+    evidence_status: dict[str, str],
+) -> dict[str, Any]:
+    trade_call_ready = stance == "current_read" and chain_status.can_show_current_conclusion
+    if trade_call_ready:
+        conclusion = "trade_call"
+    elif stance in {"market_observation", "no_conclusion"}:
+        conclusion = "market_observation"
+    else:
+        conclusion = "context_watch"
+    now = _safe_summary_text(
+        thesis
+        or headline
+        or f"XAUUSD is {direction} {move:+.2f}% while the agent waits for driver confirmation.",
+        limit=220,
+    )
+    if not now and news_titles:
+        now = news_titles[0]
+    return {
+        "schema": "market_read.v1",
+        "conclusion_type": conclusion,
+        "now": now,
+        "past": _market_read_timeline_points(analysis, fixture),
+        "next": _market_read_next_points(
+            watchlist=watchlist,
+            calendar_titles=calendar_titles,
+            confirming=confirming,
+            chain_status=chain_status,
+        ),
+        "risks": _market_read_risk_points(evidence_status=evidence_status, chain_status=chain_status),
+        "trade_call_ready": trade_call_ready,
+        "trade_call_blocker": "" if trade_call_ready else _safe_summary_text(chain_status.reason, limit=160),
+    }
+
+
+def _build_market_read(
+    *,
+    fixture: ScenarioFixture,
+    provider_health: dict[str, ProviderHealth],
+    attention_snapshot: Any | None,
+    analysis: Any | None,
+    chain_status: EvidenceChainStatus,
+    previous_state: Any,
+    evidence_status: dict[str, str],
+) -> dict[str, Any]:
+    driver = str(getattr(analysis, "main_driver", "unknown") or "unknown") if analysis is not None else "unknown"
+    cause_status = str(getattr(analysis, "cause_status", "unconfirmed") or "unconfirmed") if analysis is not None else "unconfirmed"
+    confidence = str(getattr(analysis, "confidence", "low") or "low") if analysis is not None else "low"
+    bias = str(getattr(analysis, "bias", "neutral") or "neutral") if analysis is not None else "neutral"
+    move = float(fixture.market.move_percent_15m or fixture.market.move_percent or 0.0)
+    direction = "up" if move > 0 else "down" if move < 0 else "flat"
+    live_price_ok = _market_read_provider_ok(provider_health, "xauusd")
+    sensor_keys = ("dxy", "us10y", "us2y", "wti", "brent", "vix", "spx", "nasdaq")
+    usable_sensors = [key for key in sensor_keys if _market_read_provider_ok(provider_health, key)]
+    context_sensors = [
+        key
+        for key in sensor_keys
+        if _market_read_evidence_status_for_sensor(evidence_status, key).lower() == "market_closed_context"
+    ]
+    confirming = [
+        key
+        for key, status in evidence_status.items()
+        if str(status).lower() in {"confirming", "supporting", "accepted"}
+    ]
+    summary = getattr(attention_snapshot, "driver_attention_summary", {}) or {}
+    top_driver = str(summary.get("top_driver") or "")
+    news_titles = _market_read_driver_evidence_titles(
+        attention_snapshot=attention_snapshot,
+        driver=driver,
+    ) or _market_read_driver_matched_titles(
+        items=fixture.news,
+        driver=driver if driver and driver != "unknown" else top_driver,
+    ) or _market_read_latest_titles(fixture.news)
+    calendar_titles = _market_read_latest_titles(fixture.calendar_events, limit=2)
+    previous_driver = str(getattr(previous_state, "main_driver", "") or "")
+    previous_bias = str(getattr(previous_state, "current_bias", "") or "")
+    analysis_engine = str(getattr(analysis, "analysis_engine", "rule_based") or "rule_based") if analysis is not None else "not_run"
+    llm_status = str(getattr(analysis, "llm_status", "not_used") or "not_used") if analysis is not None else "not_used"
+    market_closed_xauusd_context = _is_market_closed_xauusd_context(provider_health.get("xauusd"))
+    feed_gap_xauusd_context = _is_feed_gap_xauusd_context(provider_health.get("xauusd"))
+
+    if not chain_status.can_show_current_conclusion and market_closed_xauusd_context:
+        headline = "Market closed; news watch continues"
+        stance = "context_only"
+        thesis = (
+            "XAUUSD is closed, so the agent keeps the last spot price as context while it reviews "
+            "news, calendar events, and cross-market sensors for the next tradable read."
+        )
+    elif not chain_status.can_show_current_conclusion and (news_titles or calendar_titles):
+        headline = (news_titles or calendar_titles)[0]
+        stance = "market_observation"
+        if feed_gap_xauusd_context:
+            thesis = (
+                f"{headline}. Recent XAUUSD context and the market story are still being tracked, "
+                "but this is not a trade call until a fresh XAUUSD quote confirms the move."
+            )
+        elif live_price_ok:
+            thesis = (
+                f"{headline}. Live XAUUSD is available and the market story is being tracked, "
+                "but this is not a trade call until recent price history confirms the move."
+            )
+        else:
+            thesis = (
+                f"{headline}. XAUUSD live price or recent history is unavailable, so this is not a trade call; "
+                "the news/calendar story is being tracked for the next tradable read."
+            )
+    elif not chain_status.can_show_current_conclusion:
+        headline = "Fresh price confirmation needed"
+        stance = "context_only"
+        thesis = (
+            "News, calendar, and cross-market sensors are still reviewed, "
+            "but a current XAUUSD trade read needs fresh live price and recent price history."
+        )
+    elif driver == "unknown" or cause_status in {"unconfirmed", "no_meaningful_change"}:
+        if news_titles or calendar_titles:
+            headline = (news_titles or calendar_titles)[0]
+            stance = "market_observation"
+            thesis = (
+                f"{headline}. No trade call is published until XAUUSD price action and confirming "
+                "market sensors line up with the news/calendar context."
+            )
+        else:
+            headline = "No confirmed market driver yet"
+            stance = "no_conclusion"
+            thesis = (
+                f"XAUUSD is {direction} {move:+.2f}%, but price, news, calendar, and sensor evidence "
+                "do not agree enough to publish a directional market read."
+            )
+    else:
+        driver_label = _market_read_driver_label(driver)
+        headline = f"{driver_label.title()} leads the gold read"
+        stance = "current_read"
+        thesis = _safe_summary_text(
+            getattr(analysis, "user_message", "")
+            or getattr(analysis, "summary", "")
+            or getattr(analysis, "causal_chain", ""),
+            limit=220,
+        )
+        if not thesis:
+            thesis = f"{driver_label.title()} is the main driver; current stance is {_market_read_bias_label(bias)}."
+
+    if previous_driver and previous_driver not in {"unknown", driver}:
+        continuity = (
+            f"Previous stored read was {_market_read_driver_label(previous_driver)}"
+            f"{f' / {_market_read_bias_label(previous_bias)}' if previous_bias else ''}; this run checks whether the story has changed."
+        )
+    elif previous_driver == driver and driver != "unknown":
+        continuity = f"The {_market_read_driver_label(driver)} story is continuing from the previous stored read."
+    else:
+        continuity = "No prior confirmed read is being carried into this run."
+
+    watchlist: list[str] = []
+    if not live_price_ok:
+        watchlist.append("fresh XAUUSD spot")
+    if "news_context" not in chain_status.usable_inputs and not news_titles:
+        watchlist.append("fresh market-moving headline")
+    if "calendar_context" not in chain_status.usable_inputs and not calendar_titles:
+        watchlist.append("upcoming USD calendar event")
+    if not confirming:
+        watchlist.append("DXY/yields confirmation")
+
+    sensor_coverage = f"{len(usable_sensors)} of {len(sensor_keys)} usable"
+    if context_sensors:
+        sensor_coverage = f"{len(usable_sensors)} fresh / {len(context_sensors)} context"
+
+    analyst_read = _build_analyst_read(
+        fixture=fixture,
+        analysis=analysis,
+        stance=stance,
+        headline=headline,
+        thesis=thesis,
+        direction=direction,
+        move=move,
+        watchlist=watchlist,
+        news_titles=news_titles,
+        calendar_titles=calendar_titles,
+        confirming=confirming,
+        chain_status=chain_status,
+        evidence_status=evidence_status,
+    )
+
+    return {
+        "status": stance,
+        "headline": headline,
+        "thesis": thesis,
+        "bias": bias,
+        "driver": driver,
+        "driver_label": _market_read_driver_label(driver),
+        "secondary_driver": str(getattr(analysis, "secondary_driver", "") or "") if analysis is not None else "",
+        "cause_status": cause_status,
+        "confidence": confidence,
+        "move": {
+            "direction": direction,
+            "percent": round(move, 4),
+            "window_minutes": fixture.market.window_minutes,
+        },
+        "coverage": {
+            "live_price": "fresh" if live_price_ok else "market_closed_context" if market_closed_xauusd_context else "stale_or_missing",
+            "recent_history": "ready"
+            if "xauusd_recent_history" in chain_status.usable_inputs
+            else "market_closed_context"
+            if market_closed_xauusd_context
+            else "missing",
+            "sensors": sensor_coverage,
+            "news": f"{len(fixture.news)} reviewed",
+            "calendar": f"{len(fixture.calendar_events)} reviewed",
+            "ai": "validated" if analysis_engine == "llm_validated" else f"rules ({llm_status})",
+        },
+        "evidence": {
+            "confirming": confirming[:5],
+            "missing": chain_status.missing_required,
+            "context_only": chain_status.context_only_inputs[:6],
+            "latest_news": news_titles,
+            "calendar": calendar_titles,
+        },
+        "continuity": continuity,
+        "watch_next": watchlist[:4],
+        "analyst_read": analyst_read,
+    }
+
+
+def _apply_summary_items(
+    rows: list[dict[str, Any]],
+    summaries: Any,
+    *,
+    require_complete_title: bool = False,
+) -> int:
     if not isinstance(summaries, list):
         return 0
     applied = 0
@@ -1540,13 +2458,16 @@ def _apply_summary_items(rows: list[dict[str, Any]], summaries: Any) -> int:
             continue
         summary = _safe_summary_text(item.get("summary"))
         title = _safe_summary_text(item.get("summary_title"), limit=80)
+        row_applied = False
         if summary:
             rows[index]["summary"] = summary
             rows[index]["summary_source"] = "local_ai"
-        if title:
+            row_applied = True
+        if title and (not require_complete_title or _is_complete_market_news_title(title)):
             rows[index]["summary_title"] = title
             rows[index]["summary_source"] = "local_ai"
-        if summary or title:
+            row_applied = True
+        if row_applied:
             applied += 1
     return applied
 
@@ -1577,7 +2498,11 @@ def _apply_display_summaries(
         return
 
     applied = 0
-    applied += _apply_summary_items(runtime_context.get("news_rows", []), summaries.get("news"))
+    applied += _apply_summary_items(
+        runtime_context.get("news_rows", []),
+        summaries.get("news"),
+        require_complete_title=True,
+    )
     applied += _apply_summary_items(runtime_context.get("calendar_rows", []), summaries.get("calendar"))
     related_by_symbol: dict[str, list[dict[str, Any]]] = {}
     for row in runtime_context.get("related_asset_bars", []):
@@ -1636,6 +2561,15 @@ def _build_packet(
         news_row_count=news_row_count,
         calendar_row_count=calendar_row_count,
     )
+    market_read = _build_market_read(
+        fixture=fixture,
+        provider_health=provider_health,
+        attention_snapshot=attention_snapshot,
+        analysis=analysis,
+        chain_status=chain_status,
+        previous_state=previous_state,
+        evidence_status=evidence.evidence_status,
+    )
     return {
         "as_of_myt": fixture.as_of_myt,
         "data_mode": data_mode,
@@ -1658,6 +2592,7 @@ def _build_packet(
         "dynamic_themes": dynamic_themes,
         "requested_sensors": requested_sensors,
         "evidence_chain_status": asdict(chain_status),
+        "market_read": market_read,
         "previous_state": asdict(previous_state) if previous_state is not None and hasattr(previous_state, "__dataclass_fields__") else previous_state,
         "calendar_events": [
             {"timestamp_myt": item.timestamp_myt, "title": item.title, "source": item.source}
@@ -1721,6 +2656,60 @@ def _semantic_market_event_payload(
         "run_type": run_type,
         "data_mode": data_mode,
     }
+
+
+def _context_review_event_payload(
+    *,
+    fixture: ScenarioFixture,
+    analysis: Any,
+    chain_status: EvidenceChainStatus,
+    data_mode: str,
+) -> dict[str, Any]:
+    latest_news = _market_read_latest_titles(fixture.news, limit=5)
+    latest_calendar = _market_read_latest_titles(fixture.calendar_events, limit=3)
+    headline = str(getattr(analysis, "summary", "") or getattr(analysis, "user_message", "") or chain_status.reason)
+    return {
+        "semantic_type": "context_review",
+        "trade_conclusion": False,
+        "data_mode": data_mode,
+        "summary_title": "Market context reviewed",
+        "summary": _safe_summary_text(headline, limit=180),
+        "news_count": len(fixture.news),
+        "calendar_count": len(fixture.calendar_events),
+        "latest_news": latest_news,
+        "latest_calendar": latest_calendar,
+        "missing_required": chain_status.missing_required,
+        "usable_inputs": chain_status.usable_inputs,
+        "context_only_inputs": chain_status.context_only_inputs,
+        "analysis": analysis.to_dict() if hasattr(analysis, "to_dict") else {},
+    }
+
+
+def _context_review_signature(payload: dict[str, Any]) -> str:
+    analysis = payload.get("analysis") if isinstance(payload.get("analysis"), dict) else {}
+    signature = {
+        "data_mode": payload.get("data_mode"),
+        "summary": payload.get("summary"),
+        "news_count": payload.get("news_count"),
+        "calendar_count": payload.get("calendar_count"),
+        "latest_news": payload.get("latest_news") or [],
+        "latest_calendar": payload.get("latest_calendar") or [],
+        "missing_required": payload.get("missing_required") or [],
+        "usable_inputs": payload.get("usable_inputs") or [],
+        "context_only_inputs": payload.get("context_only_inputs") or [],
+        "cause_status": analysis.get("cause_status"),
+        "main_driver": analysis.get("main_driver"),
+        "analysis_engine": analysis.get("analysis_engine"),
+    }
+    return hashlib.sha256(json.dumps(signature, ensure_ascii=False, sort_keys=True).encode("utf-8")).hexdigest()
+
+
+def _is_duplicate_context_review(timeline_store: TimelineStore, payload: dict[str, Any]) -> bool:
+    latest = timeline_store.get_latest_timeline_event(event_type="context_review", label="market_context")
+    latest_payload = latest.get("payload") if latest else None
+    if not isinstance(latest_payload, dict):
+        return False
+    return _context_review_signature(latest_payload) == _context_review_signature(payload)
 
 
 def build_live_evidence_packet(
@@ -1826,10 +2815,11 @@ def run_monitored_live_once(
     status_path: Path | None = None,
 ) -> dict[str, Any]:
     anchor = anchor_time or datetime.now().astimezone()
-    resolved_status_path = _status_path_from_env(status_path)
+    resolved_status_path = _status_path_from_env(status_path or config.monitor_status_path)
     state_store = JsonStateStore(state_path or config.state_store_path)
     timeline_store = TimelineStore(timeline_store_path or config.timeline_store_path)
-    sink = FileNotificationSink(alerts_path or config.alerts_output_path)
+    resolved_alerts_path = alerts_path or config.alerts_output_path
+    sink = FileNotificationSink(resolved_alerts_path)
     previous_state = state_store.load()
     last_successful_run_at = timeline_store.get_last_successful_run_at()
     previous_attention_states = timeline_store.load_latest_driver_attention_states()
@@ -1867,8 +2857,14 @@ def run_monitored_live_once(
         provider_router=provider_router,
         news_headlines=news_headlines,
     )
+    runtime_context = _with_recent_market_history(
+        runtime_context,
+        timeline_store=timeline_store,
+        anchor_time=anchor,
+    )
     fixture = runtime_context["fixture"]
     provider_health = runtime_context["provider_health"]
+    evidence_market_price_bars = runtime_context.get("evidence_market_price_bars", runtime_context.get("market_price_bars", []))
     _write_monitor_status(
         resolved_status_path,
         running=True,
@@ -1883,9 +2879,9 @@ def run_monitored_live_once(
             llm_enabled=llm_enabled,
             news_rows=runtime_context.get("news_rows", []),
             calendar_rows=runtime_context.get("calendar_rows", []),
-            market_price_bar_count=len(runtime_context.get("market_price_bars", [])),
+            market_price_bar_count=len(evidence_market_price_bars),
             related_asset_bar_count=len(runtime_context.get("related_asset_bars", [])),
-            market_price_bars=runtime_context.get("market_price_bars", []),
+            market_price_bars=evidence_market_price_bars,
             related_asset_bars=runtime_context.get("related_asset_bars", []),
             llm_model=str(getattr(getattr(active_llm_client, "config", None), "model", "") or ""),
             history_window_start=last_successful_run_at,
@@ -1924,9 +2920,9 @@ def run_monitored_live_once(
             llm_enabled=llm_enabled,
             news_rows=runtime_context.get("news_rows", []),
             calendar_rows=runtime_context.get("calendar_rows", []),
-            market_price_bar_count=len(runtime_context.get("market_price_bars", [])),
+            market_price_bar_count=len(evidence_market_price_bars),
             related_asset_bar_count=len(runtime_context.get("related_asset_bars", [])),
-            market_price_bars=runtime_context.get("market_price_bars", []),
+            market_price_bars=evidence_market_price_bars,
             related_asset_bars=runtime_context.get("related_asset_bars", []),
             llm_model=str(getattr(getattr(active_llm_client, "config", None), "model", "") or ""),
             history_window_start=last_successful_run_at,
@@ -1955,7 +2951,7 @@ def run_monitored_live_once(
         evidence_status=evidence.evidence_status,
         data_mode=data_mode,
         analysis=analysis,
-        market_price_bar_count=len(runtime_context.get("market_price_bars", [])),
+        market_price_bar_count=len(evidence_market_price_bars),
         related_asset_bar_count=len(runtime_context.get("related_asset_bars", [])),
         news_row_count=_included_news_count(runtime_context.get("news_rows", [])),
         calendar_row_count=len(runtime_context.get("calendar_rows", [])),
@@ -1979,7 +2975,7 @@ def run_monitored_live_once(
         previous_state=previous_state,
         data_mode=data_mode,
         analysis=analysis,
-        market_price_bar_count=len(runtime_context.get("market_price_bars", [])),
+        market_price_bar_count=len(evidence_market_price_bars),
         related_asset_bar_count=len(runtime_context.get("related_asset_bars", [])),
         news_row_count=_included_news_count(runtime_context.get("news_rows", [])),
         calendar_row_count=len(runtime_context.get("calendar_rows", [])),
@@ -1987,7 +2983,13 @@ def run_monitored_live_once(
         provider_chain_status=runtime_context.get("provider_chain_status", []),
         fallback_reason=runtime_context.get("fallback_reason", ""),
     )
-    _apply_display_summaries(active_llm_client, runtime_context, packet, analysis)
+    if (
+        str(getattr(analysis, "analysis_engine", "")) == "llm_validated"
+        and bool(getattr(getattr(active_llm_client, "config", None), "display_summary_enabled", False))
+    ):
+        _apply_display_summaries(active_llm_client, runtime_context, packet, analysis)
+    else:
+        runtime_context["display_summary_status"] = "skipped_in_live_monitor"
     alert_message = ""
     alert_preflight = {
         "status": "not_applicable",
@@ -2050,9 +3052,9 @@ def run_monitored_live_once(
             decision=decision,
             news_rows=runtime_context.get("news_rows", []),
             calendar_rows=runtime_context.get("calendar_rows", []),
-            market_price_bar_count=len(runtime_context.get("market_price_bars", [])),
+            market_price_bar_count=len(evidence_market_price_bars),
             related_asset_bar_count=len(runtime_context.get("related_asset_bars", [])),
-            market_price_bars=runtime_context.get("market_price_bars", []),
+            market_price_bars=evidence_market_price_bars,
             related_asset_bars=runtime_context.get("related_asset_bars", []),
             chain_status=pre_decision_chain_status,
             analysis=analysis,
@@ -2070,13 +3072,29 @@ def run_monitored_live_once(
             llm_telemetry=getattr(active_llm_client, "get_telemetry", lambda: [])(),
         ),
     )
+    alert_payload: dict[str, Any] = {}
     telegram_result = {
         "sent": False,
         "status": "disabled",
         "error": "",
         "notification_level": decision.notification_level,
     }
+    notification_fingerprint = ""
     if decision.should_notify:
+        notification_fingerprint = _alert_fingerprint(alert_message, analysis, data_mode)
+        reserved, reserve_reason = _reserve_notification_fingerprint(
+            alerts_path=resolved_alerts_path,
+            fingerprint=notification_fingerprint,
+            now_iso=anchor.isoformat(),
+            cooldown_minutes=cooldown_minutes or config.notification_cooldown_minutes,
+        )
+        if not reserved:
+            decision = replace(
+                decision,
+                should_notify=False,
+                notification_level="none",
+                reason=reserve_reason,
+            )
         alert_payload = {
             "time": anchor.isoformat(),
             "notification_level": decision.notification_level,
@@ -2088,39 +3106,11 @@ def run_monitored_live_once(
             "previous_state_invalidated": decision.previous_state_invalidated,
             "invalidation_triggered_by": decision.invalidation_triggered_by,
             "alert_preflight": alert_preflight,
+            "fingerprint": notification_fingerprint,
         }
-        sink.emit(alert_payload)
-        if config.telegram_enabled:
-            telegram = telegram_sink or TelegramNotificationSink(
-                bot_token=config.telegram_bot_token,
-                chat_id=config.telegram_chat_id,
-                timeout_seconds=config.telegram_timeout_seconds,
-                enabled_levels=set(config.telegram_levels),
-            )
-            telegram_payload = {
-                **alert_payload,
-                "selected_market_provider": runtime_context.get("selected_market_provider", "unavailable"),
-                "data_mode": data_mode,
-            }
-            if hasattr(telegram, "send"):
-                telegram_result = telegram.send(telegram_payload)
-            else:
-                try:
-                    sent = telegram.emit(telegram_payload)
-                    telegram_result = {
-                        "sent": bool(sent),
-                        "status": "sent" if sent else "failed",
-                        "error": "",
-                        "notification_level": decision.notification_level,
-                    }
-                except Exception as exc:
-                    telegram_result = {
-                        "sent": False,
-                        "status": "failed",
-                        "error": str(exc),
-                        "notification_level": decision.notification_level,
-                    }
-    state_store.save(decision.next_state)
+    state_persisted = bool(pre_decision_chain_status.can_show_current_conclusion)
+    if state_persisted:
+        state_store.save(decision.next_state)
     monitor_run_id = timeline_store.record_monitor_run(
         run_started_at=anchor.isoformat(),
         run_type=run_type,
@@ -2140,22 +3130,59 @@ def run_monitored_live_once(
         {key: asdict(value) for key, value in attention_snapshot.states.items()},
     )
     timeline_store.record_evidence_packet(monitor_run_id, packet)
+    analysis_payload = analysis.to_dict()
+    analysis_payload["market_read"] = packet.get("market_read", {})
+    analysis_payload["llm_telemetry"] = getattr(active_llm_client, "get_telemetry", lambda: [])()
+    analysis_payload["display_summary_status"] = runtime_context.get("display_summary_status", "")
+    store_alert_audit = _should_store_alert_audit(analysis, decision)
+    store_analysis_timeline = _should_store_analysis_timeline_event(
+        chain_status=pre_decision_chain_status,
+        analysis=analysis,
+        decision=decision,
+        backfill_required=backfill_required,
+    )
+    store_context_timeline = _should_store_context_timeline_event(
+        chain_status=pre_decision_chain_status,
+        news_row_count=_included_news_count(runtime_context.get("news_rows", [])),
+        calendar_row_count=len(runtime_context.get("calendar_rows", [])),
+    )
+    context_timeline_payload: dict[str, Any] | None = None
+    if store_context_timeline:
+        context_timeline_payload = _context_review_event_payload(
+            fixture=fixture,
+            analysis=analysis,
+            chain_status=pre_decision_chain_status,
+            data_mode=data_mode,
+        )
+        if _is_duplicate_context_review(timeline_store, context_timeline_payload):
+            store_context_timeline = False
     timeline_store.record_analysis_result(
         monitor_run_id,
-        analysis.to_dict(),
+        analysis_payload,
         rejected_driver=getattr(analysis, "rejected_driver", None),
         rejection_reason=getattr(analysis, "rejection_reason", None),
     )
-    timeline_store.record_alert(
-        monitor_run_id,
-        {
-            "should_notify": decision.should_notify,
-            "notification_level": decision.notification_level,
-            "reason": decision.reason,
-            "telegram": telegram_result,
-            "alert_preflight": alert_preflight,
-        },
-    )
+    alert_record_id: int | None = None
+    if store_alert_audit:
+        stored_telegram_result = telegram_result
+        if decision.should_notify and config.telegram_enabled:
+            stored_telegram_result = {
+                "sent": False,
+                "status": "pending",
+                "error": "",
+                "notification_level": decision.notification_level,
+            }
+        alert_record_id = timeline_store.record_alert(
+            monitor_run_id,
+            {
+                **alert_payload,
+                "should_notify": decision.should_notify,
+                "notification_level": decision.notification_level,
+                "reason": decision.reason,
+                "telegram": stored_telegram_result,
+                "alert_preflight": alert_preflight,
+            },
+        )
     timeline_store.record_state_transition(
         monitor_run_id,
         {
@@ -2167,41 +3194,63 @@ def run_monitored_live_once(
             "confidence_delta": decision.confidence_delta,
             "invalidation_triggered_by": decision.invalidation_triggered_by,
             "next_state": asdict(decision.next_state),
+            "state_persisted": state_persisted,
         },
     )
-    timeline_store.record_timeline_event(
-        monitor_run_id,
-        event_time=anchor.isoformat(),
-        event_type="analysis",
-        label=analysis.main_driver,
-        payload={
-            **_semantic_market_event_payload(
-                fixture,
-                analysis,
-                decision,
-                run_type=run_type,
-                data_mode=data_mode,
-            ),
-            "summary_title": str(getattr(analysis, "main_driver", "unknown")).replace("_", " ").title(),
-            "summary": _safe_summary_text(
-                getattr(analysis, "summary", None)
-                or getattr(analysis, "user_message", "")
-                or getattr(analysis, "causal_chain", "")
-            ),
-            "summary_source": "local_ai"
-            if str(getattr(analysis, "analysis_engine", "")) == "llm_validated"
-            else "rule_based",
-            "analysis": analysis.to_dict(),
-        },
-    )
+    if store_analysis_timeline:
+        market_read = packet.get("market_read", {}) if isinstance(packet.get("market_read"), dict) else {}
+        market_read_headline = str(market_read.get("headline") or "").strip()
+        timeline_summary_title = (
+            market_read_headline
+            or _safe_summary_text(getattr(analysis, "summary", None) or getattr(analysis, "user_message", ""))
+            or str(getattr(analysis, "main_driver", "unknown")).replace("_", " ").title()
+        )
+        timeline_store.record_timeline_event(
+            monitor_run_id,
+            event_time=anchor.isoformat(),
+            event_type="analysis",
+            label=analysis.main_driver,
+            payload={
+                **_semantic_market_event_payload(
+                    fixture,
+                    analysis,
+                    decision,
+                    run_type=run_type,
+                    data_mode=data_mode,
+                ),
+                "summary_title": timeline_summary_title,
+                "summary": _safe_summary_text(
+                    getattr(analysis, "summary", None)
+                    or getattr(analysis, "user_message", "")
+                    or getattr(analysis, "causal_chain", "")
+                ),
+                "summary_source": "local_ai"
+                if str(getattr(analysis, "analysis_engine", "")) == "llm_validated"
+                else "rule_based",
+                "market_read": market_read,
+                "cause_status": str(getattr(analysis, "cause_status", "") or ""),
+                "confidence": str(getattr(analysis, "confidence", "") or ""),
+                "bias": str(getattr(analysis, "bias", "") or ""),
+                "analysis": analysis_payload,
+            },
+        )
+    if store_context_timeline:
+        assert context_timeline_payload is not None
+        timeline_store.record_timeline_event(
+            monitor_run_id,
+            event_time=anchor.isoformat(),
+            event_type="context_review",
+            label="market_context",
+            payload=context_timeline_payload,
+        )
     storage_counts = {
         "marketPriceBars": len(runtime_context.get("market_price_bars", [])),
         "relatedAssetBars": len(runtime_context.get("related_asset_bars", [])),
         "newsItems": _included_news_count(runtime_context.get("news_rows", [])),
         "calendarEvents": len(runtime_context.get("calendar_rows", [])),
         "driverAttentionStates": len(attention_snapshot.states),
-        "timelineEvents": 1,
-        "alerts": 1,
+        "timelineEvents": (1 if store_analysis_timeline else 0) + (1 if store_context_timeline else 0),
+        "alerts": 1 if store_alert_audit else 0,
     }
     stored_market_price_bars = list(runtime_context.get("market_price_bars", []))
     stored_related_asset_bars = list(runtime_context.get("related_asset_bars", []))
@@ -2223,9 +3272,9 @@ def run_monitored_live_once(
                 telegram_result=telegram_result,
                 news_rows=runtime_context.get("news_rows", []),
                 calendar_rows=runtime_context.get("calendar_rows", []),
-                market_price_bar_count=len(runtime_context.get("market_price_bars", [])),
+                market_price_bar_count=len(evidence_market_price_bars),
                 related_asset_bar_count=len(runtime_context.get("related_asset_bars", [])),
-                market_price_bars=runtime_context.get("market_price_bars", []),
+                market_price_bars=evidence_market_price_bars,
                 related_asset_bars=runtime_context.get("related_asset_bars", []),
                 chain_status=pre_decision_chain_status,
                 analysis=analysis,
@@ -2282,6 +3331,67 @@ def run_monitored_live_once(
             },
         )
         storage_counts["timelineEvents"] += 1
+    if decision.should_notify:
+        try:
+            sink.emit(alert_payload)
+        except Exception:
+            pass
+        if config.telegram_enabled:
+            telegram = telegram_sink or TelegramNotificationSink(
+                bot_token=config.telegram_bot_token,
+                chat_id=config.telegram_chat_id,
+                timeout_seconds=config.telegram_timeout_seconds,
+                enabled_levels=set(config.telegram_levels),
+            )
+            telegram_payload = {
+                **alert_payload,
+                "selected_market_provider": runtime_context.get("selected_market_provider", "unavailable"),
+                "data_mode": data_mode,
+            }
+            if hasattr(telegram, "send"):
+                try:
+                    telegram_result = telegram.send(telegram_payload)
+                except Exception as exc:
+                    telegram_result = {
+                        "sent": False,
+                        "status": "failed",
+                        "error": str(exc),
+                        "notification_level": decision.notification_level,
+                    }
+            else:
+                try:
+                    sent = telegram.emit(telegram_payload)
+                    telegram_result = {
+                        "sent": bool(sent),
+                        "status": "sent" if sent else "failed",
+                        "error": "",
+                        "notification_level": decision.notification_level,
+                    }
+                except Exception as exc:
+                    telegram_result = {
+                        "sent": False,
+                        "status": "failed",
+                        "error": str(exc),
+                        "notification_level": decision.notification_level,
+                    }
+            if notification_fingerprint:
+                _complete_notification_fingerprint(
+                    alerts_path=resolved_alerts_path,
+                    fingerprint=notification_fingerprint,
+                    telegram_result=telegram_result,
+                )
+        if alert_record_id is not None:
+            timeline_store.update_alert(
+                alert_record_id,
+                {
+                    **alert_payload,
+                    "should_notify": decision.should_notify,
+                    "notification_level": decision.notification_level,
+                    "reason": decision.reason,
+                    "telegram": telegram_result,
+                    "alert_preflight": alert_preflight,
+                },
+            )
     final_activity = _activity_snapshot(
         provider_health=provider_health,
         news_count=_included_news_count(runtime_context.get("news_rows", [])),
@@ -2317,20 +3427,37 @@ def run_monitored_live_once(
         attention_snapshot=attention_snapshot,
         llm_telemetry=getattr(active_llm_client, "get_telemetry", lambda: [])(),
     )
+    current_monitor_status = (
+        _read_monitor_status(resolved_status_path)
+        if resolved_status_path is not None and resolved_status_path.exists()
+        else {}
+    )
+    loop_is_active = (
+        current_monitor_status.get("running") is True
+        and current_monitor_status.get("autoStart") is True
+    )
     final_status_updates = {
         "ok": True,
         "available": True,
-        "running": False,
-        "phase": "stopped",
-        "pid": os.getpid(),
+        "running": loop_is_active,
+        "phase": "run_completed" if loop_is_active else "stopped",
+        "pid": current_monitor_status.get("pid") if loop_is_active else None,
+        "autoStart": current_monitor_status.get("autoStart") if loop_is_active else current_monitor_status.get("autoStart", False),
         "lastRunAt": anchor.isoformat(),
         "lastSuccessAt": anchor.isoformat(),
-        "nextRunAt": None,
+        "nextRunAt": current_monitor_status.get("nextRunAt") if loop_is_active else None,
         "lastError": "",
-        "message": "Monitor run completed.",
+        "message": (
+            "Monitor pass completed; the loop remains active."
+            if loop_is_active
+            else "Monitor run completed."
+        ),
         "activity": final_activity,
         "latestMonitorRunId": monitor_run_id,
     }
+    from .self_audit import audit_market_agent
+
+    final_status_updates["selfAudit"] = audit_market_agent(config, now=anchor)
     if backfill_required:
         final_status_updates["lastRecoveryAt"] = anchor.isoformat()
     _write_monitor_status(resolved_status_path, **final_status_updates)
@@ -2340,7 +3467,7 @@ def run_monitored_live_once(
         "backfill_required": backfill_required,
         "last_successful_run_at": last_successful_run_at,
         "evidence_packet": packet,
-        "analysis": analysis.to_dict(),
+        "analysis": analysis_payload,
         "notification": {
             "should_notify": decision.should_notify,
             "notification_level": decision.notification_level,
@@ -2374,7 +3501,7 @@ def run_monitor_loop(
     status_path: Path | None = None,
 ) -> list[dict[str, Any]]:
     outcomes: list[dict[str, Any]] = []
-    resolved_status_path = _status_path_from_env(status_path)
+    resolved_status_path = _status_path_from_env(status_path or config.monitor_status_path)
     with MonitorLock(config.monitor_lock_path) as lock:
         if lock is None:
             _write_monitor_status(
@@ -2398,6 +3525,7 @@ def run_monitor_loop(
             ok=True,
             available=True,
             running=True,
+            autoStart=True,
             phase="starting",
             pid=os.getpid(),
             intervalSeconds=interval_seconds,
@@ -2411,29 +3539,60 @@ def run_monitor_loop(
                 if iteration >= len(anchor_times):
                     break
                 anchor = anchor_times[iteration]
-            outcomes.append(
-                run_monitored_live_once(
-                    config=config,
-                    anchor_time=anchor,
-                    state_path=state_path,
-                    alerts_path=alerts_path,
-                    cooldown_minutes=cooldown_minutes,
-                    timeline_store_path=timeline_store_path,
-                    provider_router=provider_router,
-                    status_path=resolved_status_path,
+            try:
+                outcomes.append(
+                    run_monitored_live_once(
+                        config=config,
+                        anchor_time=anchor,
+                        state_path=state_path,
+                        alerts_path=alerts_path,
+                        cooldown_minutes=cooldown_minutes,
+                        timeline_store_path=timeline_store_path,
+                        provider_router=provider_router,
+                        status_path=resolved_status_path,
+                    )
                 )
-            )
+            except Exception as exc:
+                failed_at = datetime.now().astimezone()
+                failed_outcome = {
+                    "ok": False,
+                    "phase": "iteration_failed",
+                    "message": f"Monitor iteration failed: {exc}",
+                    "error": str(exc),
+                    "run_started_at": (anchor or failed_at).isoformat(),
+                }
+                outcomes.append(failed_outcome)
+                _write_monitor_status(
+                    resolved_status_path,
+                    ok=False,
+                    available=True,
+                    running=True,
+                    autoStart=True,
+                    phase="iteration_failed",
+                    pid=os.getpid(),
+                    lastError=str(exc),
+                    message="Monitor iteration failed; the loop will retry on the next pass.",
+                    lastRunAt=(anchor or failed_at).isoformat(),
+                )
             iteration += 1
             if max_iterations is not None and iteration >= max_iterations:
                 break
             if interval_seconds > 0:
                 next_run = datetime.now().astimezone() + timedelta(seconds=interval_seconds)
+                from .self_audit import audit_market_agent
+
                 _write_monitor_status(
                     resolved_status_path,
                     running=True,
+                    autoStart=True,
                     phase="idle_between_runs",
+                    pid=os.getpid(),
                     nextRunAt=next_run.isoformat(),
-                    message="Waiting for the next monitor pass.",
+                    message="Market watch is active; sources keep updating between analysis passes.",
+                )
+                _write_monitor_status(
+                    resolved_status_path,
+                    selfAudit=audit_market_agent(config),
                 )
                 time.sleep(interval_seconds)
     last_outcome = outcomes[-1] if outcomes else {}

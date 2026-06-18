@@ -1,7 +1,8 @@
 use crate::config;
-use chrono::{Datelike, Timelike};
-use rusqlite::{params, Connection, OptionalExtension};
+use chrono::{Datelike, FixedOffset, Timelike, Utc};
+use rusqlite::{Connection, OptionalExtension};
 use serde_json::{json, Value};
+use sha1::{Digest, Sha1};
 use std::collections::HashMap;
 use std::fs;
 use std::io::{BufRead, BufReader, Read, Write};
@@ -23,12 +24,73 @@ type LatestPayloadRows = (Option<i64>, Option<String>, Vec<Value>);
 static CANCEL_OLLAMA_PULL: AtomicBool = AtomicBool::new(false);
 const DEFAULT_OLLAMA_ENDPOINT: &str = "http://127.0.0.1:21434";
 const DEFAULT_LLM_TEMPERATURE: f64 = 0.0;
-const DEFAULT_LLM_TIMEOUT_SECONDS: i64 = 30;
+const DEFAULT_LLM_TIMEOUT_SECONDS: i64 = 60;
+const DEFAULT_LLM_KEEP_ALIVE: &str = "5m";
 const LEGACY_OLLAMA_ENDPOINT: &str = "http://localhost:11434";
 const LIVE_QUOTE_FRESH_AFTER_SECONDS: i64 = 20;
 const XAUUSD_WEEKEND_CLOSE_HOUR_UTC: u32 = 22;
 const XAUUSD_WEEKEND_REOPEN_HOUR_UTC: u32 = 22;
 const MAX_WEEKEND_CONTEXT_AGE_SECONDS: i64 = 96 * 60 * 60;
+const DAY_REPLAY_TIMELINE_ROWS: i64 = 240;
+const DAY_REPLAY_NEWS_ROWS: i64 = 360;
+const DAY_REPLAY_RELATED_ROWS_PER_SYMBOL: i64 = 180;
+const DAY_REPLAY_DRIVER_ROWS: i64 = 120;
+const DAY_REPLAY_STATE_ROWS: i64 = 120;
+const DAY_REPLAY_ALERT_ROWS: i64 = 80;
+const MONTH_REPLAY_RELATED_ROWS_PER_SYMBOL: i64 = 96;
+const MONTH_REPLAY_NEWS_ROWS: i64 = 120;
+const MONTH_REPLAY_PRICE_ROWS: i64 = 240;
+const MONTH_REPLAY_CALENDAR_ROWS: usize = 120;
+const MONTH_REPLAY_TIMELINE_ROWS: i64 = 120;
+const MONTH_REPLAY_DRIVER_ROWS: i64 = 160;
+const MONTH_REPLAY_STATE_ROWS: i64 = 80;
+const MONTH_REPLAY_ALERT_ROWS: i64 = 80;
+const DASHBOARD_REPLAY_PRICE_ROWS: i64 = 3;
+const DASHBOARD_REPLAY_RELATED_ROWS_PER_SYMBOL: i64 = 24;
+const DASHBOARD_REPLAY_NEWS_ROWS: i64 = 48;
+const DASHBOARD_REPLAY_CALENDAR_ROWS: usize = 48;
+const DASHBOARD_REPLAY_TIMELINE_ROWS: i64 = 16;
+const DASHBOARD_REPLAY_DRIVER_ROWS: i64 = 32;
+const DASHBOARD_REPLAY_STATE_ROWS: i64 = 16;
+const DASHBOARD_REPLAY_ALERT_ROWS: i64 = 16;
+const MONITOR_SIGNATURE_FILES: &[&str] = &[
+    "src/xauusd_market_agent/cli.py",
+    "src/xauusd_market_agent/config.py",
+    "src/xauusd_market_agent/driver_attention.py",
+    "src/xauusd_market_agent/evidence.py",
+    "src/xauusd_market_agent/live_pipeline.py",
+    "src/xauusd_market_agent/llm_bridge.py",
+    "src/xauusd_market_agent/pipeline.py",
+    "src/xauusd_market_agent/validator.py",
+];
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum ReplayReadMode {
+    Full,
+    Dashboard,
+}
+
+impl ReplayReadMode {
+    fn from_payload(payload: &Value) -> Self {
+        match payload
+            .get("mode")
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .to_ascii_lowercase()
+            .as_str()
+        {
+            "dashboard" | "compact" | "summary" => Self::Dashboard,
+            _ => Self::Full,
+        }
+    }
+
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::Full => "full",
+            Self::Dashboard => "dashboard",
+        }
+    }
+}
 fn repo_root_from_manifest() -> Option<PathBuf> {
     let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     manifest.parent()?.parent()?.parent().map(Path::to_path_buf)
@@ -550,7 +612,7 @@ fn merged_llm_config_for_root(root: &Path, override_payload: Option<&Value>) -> 
         "model": get_str("model", "qwen3.5:4b"),
         "temperature": get_f64("temperature", DEFAULT_LLM_TEMPERATURE),
         "timeoutSeconds": get_i64("timeoutSeconds", DEFAULT_LLM_TIMEOUT_SECONDS),
-        "keepAlive": get_str("keepAlive", "0"),
+        "keepAlive": get_str("keepAlive", DEFAULT_LLM_KEEP_ALIVE),
         "maxContext": get_i64("maxContext", 8192),
         "configPath": config_path.display().to_string(),
         "lastStatus": get_str("lastStatus", "disabled"),
@@ -575,7 +637,7 @@ fn masked_llm_config_for_root(root: &Path) -> Value {
             "model": merged.get("model").and_then(Value::as_str).unwrap_or("qwen3.5:4b"),
             "temperature": merged.get("temperature").and_then(Value::as_f64).unwrap_or(DEFAULT_LLM_TEMPERATURE),
             "timeoutSeconds": merged.get("timeoutSeconds").and_then(Value::as_i64).unwrap_or(DEFAULT_LLM_TIMEOUT_SECONDS),
-            "keepAlive": merged.get("keepAlive").and_then(Value::as_str).unwrap_or("0"),
+            "keepAlive": merged.get("keepAlive").and_then(Value::as_str).unwrap_or(DEFAULT_LLM_KEEP_ALIVE),
             "maxContext": merged.get("maxContext").and_then(Value::as_i64).unwrap_or(8192),
             "configPath": merged.get("configPath").and_then(Value::as_str).unwrap_or(""),
             "lastStatus": merged.get("lastStatus").and_then(Value::as_str).unwrap_or("disabled"),
@@ -651,7 +713,7 @@ fn llm_env_for_root(root: &Path) -> HashMap<String, String> {
         merged
             .get("keepAlive")
             .and_then(Value::as_str)
-            .unwrap_or("0")
+            .unwrap_or(DEFAULT_LLM_KEEP_ALIVE)
             .to_string(),
     );
     env.insert(
@@ -1648,7 +1710,7 @@ fn benchmark_llm_value(payload: &Value) -> Value {
             "format": "json",
             "prompt": "Return JSON only: {\"main_driver\":\"unknown\",\"cause_status\":\"unconfirmed\",\"confidence\":\"low\",\"thesis\":\"insufficient evidence\"}",
             "options": {"temperature": 0.0, "num_ctx": 1024},
-            "keep_alive": "0"
+            "keep_alive": DEFAULT_LLM_KEEP_ALIVE
         }));
     let elapsed_ms = started.elapsed().as_millis() as i64;
     match response {
@@ -2374,6 +2436,32 @@ fn should_probe_monitor_pid(root: &Path, status: &Value) -> bool {
     status_age > freshness_window
 }
 
+fn is_stale_foreign_monitor_status(root: &Path, status: &Value) -> bool {
+    let running = status
+        .get("running")
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
+    if !running {
+        return false;
+    }
+    let interval_seconds = status
+        .get("intervalSeconds")
+        .and_then(Value::as_i64)
+        .unwrap_or(60)
+        .max(10);
+    let freshness_window = (interval_seconds * 2).max(30);
+    let status_age =
+        status_path_age_seconds(&monitor_status_path_for_root(root)).unwrap_or(i64::MAX);
+    if status_age <= freshness_window {
+        return false;
+    }
+    let owner_pid = status
+        .get("monitorOwnerPid")
+        .and_then(Value::as_i64)
+        .unwrap_or(0);
+    owner_pid > 0 && owner_pid != std::process::id() as i64
+}
+
 #[cfg(target_os = "windows")]
 fn is_process_running(pid: i64) -> bool {
     if pid <= 0 {
@@ -2414,6 +2502,7 @@ fn read_monitor_status_for_root(root: &Path) -> Value {
             "available": true,
             "running": false,
             "phase": "stopped",
+            "autoStart": false,
             "pid": null,
             "lastRunAt": null,
             "nextRunAt": null,
@@ -2421,18 +2510,28 @@ fn read_monitor_status_for_root(root: &Path) -> Value {
             "message": "Monitor loop is stopped.",
         })
     });
+    normalize_monitor_auto_start_flag(&mut status);
     let running = status
         .get("running")
         .and_then(Value::as_bool)
         .unwrap_or(false);
     if !running {
+        let has_stopped_process_residue = status
+            .get("pid")
+            .map(|value| !value.is_null())
+            .unwrap_or(false)
+            || status
+                .get("monitorOwnerPid")
+                .map(|value| !value.is_null())
+                .unwrap_or(false);
         let last_error = status
             .get("lastError")
             .and_then(Value::as_str)
             .unwrap_or("");
         let message = status.get("message").and_then(Value::as_str).unwrap_or("");
         let combined = format!("{last_error}\n{message}").to_ascii_lowercase();
-        if combined.contains("process that is no longer running")
+        if has_stopped_process_residue
+            || combined.contains("process that is no longer running")
             || combined.contains("monitor loop stopped unexpectedly")
             || combined.contains("saved monitor status referenced")
         {
@@ -2441,7 +2540,10 @@ fn read_monitor_status_for_root(root: &Path) -> Value {
             return status;
         }
     }
-    if should_probe_monitor_pid(root, &status) {
+    if is_stale_foreign_monitor_status(root, &status) {
+        normalize_stopped_monitor_status(&mut status);
+        let _ = write_monitor_status_for_root(root, &status);
+    } else if should_probe_monitor_pid(root, &status) {
         let pid = status.get("pid").and_then(Value::as_i64).unwrap_or(0);
         if !is_process_running(pid) {
             normalize_stopped_monitor_status(&mut status);
@@ -2454,7 +2556,26 @@ fn read_monitor_status_for_root(root: &Path) -> Value {
 }
 
 fn normalize_legacy_market_agent_status(status: &mut Value) {
+    normalize_legacy_history_activity(status);
     normalize_legacy_ctrader_activity(status);
+}
+
+fn normalize_monitor_auto_start_flag(status: &mut Value) {
+    if status.get("autoStart").and_then(Value::as_bool).is_some() {
+        return;
+    }
+    let should_resume = status
+        .get("running")
+        .and_then(Value::as_bool)
+        .unwrap_or(false)
+        || status
+            .get("phase")
+            .and_then(Value::as_str)
+            .map(|phase| phase == "running")
+            .unwrap_or(false);
+    if let Some(object) = status.as_object_mut() {
+        object.insert("autoStart".to_string(), Value::Bool(should_resume));
+    }
 }
 
 fn sync_monitor_status_with_latest_timeline_run(root: &Path, status: &mut Value) {
@@ -2599,6 +2720,113 @@ fn normalize_legacy_ctrader_activity(status: &mut Value) {
             }
         }
     }
+
+    let feed_paused = ctrader
+        .get("providerHealth")
+        .and_then(Value::as_object)
+        .map(|provider_health| {
+            let metadata = provider_health.get("metadata").and_then(Value::as_object);
+            let classification = metadata
+                .and_then(|metadata| metadata.get("stale_classification"))
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .to_ascii_lowercase();
+            let explicitly_open = metadata
+                .and_then(|metadata| metadata.get("market_closed"))
+                .and_then(Value::as_bool)
+                == Some(false);
+            explicitly_open || classification == "feed_paused"
+        })
+        .unwrap_or(false);
+    if feed_paused {
+        if ctrader.get("status").and_then(Value::as_str) == Some("market_closed") {
+            ctrader.insert("status".to_string(), Value::String("stale".to_string()));
+        }
+        if ctrader.get("label").and_then(Value::as_str) == Some("Market closed") {
+            ctrader.insert(
+                "label".to_string(),
+                Value::String("cTrader not refreshing".to_string()),
+            );
+        }
+        let market_closed_detail = ctrader
+            .get("detail")
+            .and_then(Value::as_str)
+            .map(|detail| {
+                let lowered = detail.to_ascii_lowercase();
+                lowered.contains("market reopens") || lowered.contains("fixed until")
+            })
+            .unwrap_or(false);
+        if market_closed_detail {
+            let price = ctrader
+                .get("providerHealth")
+                .and_then(|provider_health| provider_health.get("current_value"))
+                .and_then(Value::as_f64)
+                .map(|price| format!("{price:.2}"))
+                .unwrap_or_default();
+            let detail = if price.is_empty() {
+                "Last XAUUSD price is stale; cTrader has not produced a fresh live snapshot."
+                    .to_string()
+            } else {
+                format!(
+                    "Last XAUUSD price {price} is stale; cTrader has not produced a fresh live snapshot."
+                )
+            };
+            ctrader.insert("detail".to_string(), Value::String(detail));
+        }
+    }
+}
+
+fn normalize_legacy_history_activity(status: &mut Value) {
+    let Some(activity) = status.get_mut("activity").and_then(Value::as_object_mut) else {
+        return;
+    };
+    let symbol_rows = activity
+        .get("summary")
+        .and_then(|summary| summary.get("symbolRows"))
+        .and_then(Value::as_object)
+        .cloned();
+    let Some(symbol_rows) = symbol_rows else {
+        return;
+    };
+    let Some(history) = activity.get_mut("history").and_then(Value::as_object_mut) else {
+        return;
+    };
+    let xauusd_rows = symbol_rows
+        .get("XAUUSD")
+        .and_then(Value::as_i64)
+        .unwrap_or(0)
+        .max(0);
+    let stored_rows = history
+        .get("storedRows")
+        .and_then(Value::as_i64)
+        .unwrap_or(0)
+        .max(0);
+    let sensor_rows = (stored_rows - xauusd_rows).max(0);
+    history.insert("xauusdRows".to_string(), Value::from(xauusd_rows));
+    history.insert("sensorRows".to_string(), Value::from(sensor_rows));
+    if let Some(jobs) = history.get_mut("jobs").and_then(Value::as_array_mut) {
+        for job in jobs {
+            if job.get("title").and_then(Value::as_str) == Some("History fetch") {
+                if let Some(job_object) = job.as_object_mut() {
+                    job_object.insert(
+                        "output".to_string(),
+                        Value::String(format!(
+                            "{xauusd_rows} XAUUSD row(s), {sensor_rows} sensor row(s)"
+                        )),
+                    );
+                }
+            }
+        }
+    }
+    if xauusd_rows < 2 && history.get("status").and_then(Value::as_str) == Some("idle") {
+        history.insert(
+            "detail".to_string(),
+            Value::String(
+                "No backfill gap detected, but current XAUUSD recent history still needs another fresh bar."
+                    .to_string(),
+            ),
+        );
+    }
 }
 
 fn normalize_stopped_monitor_status(status: &mut Value) {
@@ -2652,10 +2880,67 @@ fn merge_monitor_status_for_root(root: &Path, updates: Value) -> Value {
     }
 }
 
+fn completed_manual_monitor_status(current: &Value, now: i64) -> Value {
+    let was_running = current
+        .get("running")
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
+    let current_last_run = current.get("lastRunAt").cloned().unwrap_or(json!(now));
+    let current_last_success = current
+        .get("lastSuccessAt")
+        .cloned()
+        .unwrap_or_else(|| current_last_run.clone());
+    if was_running {
+        json!({
+            "ok": true,
+            "available": true,
+            "running": true,
+            "phase": current.get("phase").cloned().unwrap_or(json!("running")),
+            "autoStart": true,
+            "pid": current.get("pid").cloned().unwrap_or(Value::Null),
+            "monitorOwnerPid": current.get("monitorOwnerPid").cloned().unwrap_or(Value::Null),
+            "intervalSeconds": current.get("intervalSeconds").cloned().unwrap_or(json!(60)),
+            "lastRunAt": current_last_run,
+            "lastSuccessAt": current_last_success,
+            "nextRunAt": current.get("nextRunAt").cloned().unwrap_or(Value::Null),
+            "lastError": "",
+            "message": "Manual monitor check completed; monitor loop is still running.",
+        })
+    } else {
+        json!({
+            "ok": true,
+            "available": true,
+            "running": false,
+            "phase": "stopped",
+            "pid": null,
+            "lastRunAt": current_last_run,
+            "lastSuccessAt": current_last_success,
+            "nextRunAt": null,
+            "lastError": "",
+            "message": current.get("message").and_then(Value::as_str).unwrap_or("Monitor run completed."),
+        })
+    }
+}
+
 fn repo_root_for_monitor(root: &Path) -> PathBuf {
     repo_root_from_manifest()
         .or_else(|| std::env::current_dir().ok())
         .unwrap_or_else(|| root.to_path_buf())
+}
+
+fn monitor_code_signature(root: &Path) -> String {
+    let repo_root = repo_root_for_monitor(root);
+    let mut digest = Sha1::new();
+    for relative_path in MONITOR_SIGNATURE_FILES {
+        digest.update(relative_path.as_bytes());
+        digest.update([0]);
+        match fs::read(repo_root.join(relative_path)) {
+            Ok(bytes) => digest.update(bytes),
+            Err(_) => digest.update(b"missing"),
+        }
+        digest.update([0]);
+    }
+    format!("{:x}", digest.finalize())
 }
 
 #[cfg(target_os = "windows")]
@@ -2693,6 +2978,10 @@ fn monitor_command_base(root: &Path) -> Command {
             "MARKET_AGENT_MONITOR_OWNER_PID",
             std::process::id().to_string(),
         );
+    let synced_calendar_dir = root.join("data").join("Economic_Calendar");
+    if synced_calendar_dir.exists() {
+        command.env("MARKET_AGENT_CALENDAR_DIR", synced_calendar_dir);
+    }
     for (key, value) in telegram_env_for_root(root) {
         command.env(key, value);
     }
@@ -2716,7 +3005,12 @@ fn live_quote_command_base(root: &Path) -> Command {
     command
 }
 
-fn should_reuse_running_monitor(current: &Value, spawn_process: bool, app_pid: i64) -> bool {
+fn should_reuse_running_monitor(
+    root: &Path,
+    current: &Value,
+    spawn_process: bool,
+    app_pid: i64,
+) -> bool {
     let current_running = current
         .get("running")
         .and_then(Value::as_bool)
@@ -2726,6 +3020,13 @@ fn should_reuse_running_monitor(current: &Value, spawn_process: bool, app_pid: i
     }
     if !spawn_process {
         return true;
+    }
+    let current_signature = current
+        .get("agentCodeSignature")
+        .and_then(Value::as_str)
+        .unwrap_or("");
+    if current_signature != monitor_code_signature(root) {
+        return false;
     }
     let current_owner_pid = current
         .get("monitorOwnerPid")
@@ -2746,18 +3047,31 @@ fn hide_child_window(_command: &mut Command) {}
 fn start_monitor_loop_for_root(root: &Path, interval_seconds: i64, spawn_process: bool) -> Value {
     let current = read_monitor_status_for_root(root);
     let app_pid = std::process::id() as i64;
-    if should_reuse_running_monitor(&current, spawn_process, app_pid) {
-        return json!({
+    let live_quote_stream = if spawn_process {
+        Some(ensure_live_quote_stream_for_root(root))
+    } else {
+        None
+    };
+    if should_reuse_running_monitor(root, &current, spawn_process, app_pid) {
+        let mut status = json!({
             "ok": true,
             "available": true,
             "running": true,
             "phase": "running",
+            "autoStart": true,
             "pid": current.get("pid").cloned().unwrap_or(Value::Null),
+            "monitorOwnerPid": current.get("monitorOwnerPid").cloned().unwrap_or(Value::Null),
+            "intervalSeconds": current.get("intervalSeconds").cloned().unwrap_or(json!(interval_seconds)),
             "message": "Monitor loop is already running.",
             "lastRunAt": current.get("lastRunAt").cloned().unwrap_or(Value::Null),
             "nextRunAt": current.get("nextRunAt").cloned().unwrap_or(Value::Null),
             "lastError": current.get("lastError").and_then(Value::as_str).unwrap_or(""),
         });
+        if let Some(stream) = live_quote_stream {
+            status["liveQuoteStream"] = stream;
+        }
+        let _ = write_monitor_status_for_root(root, &status);
+        return status;
     }
     if current
         .get("running")
@@ -2811,6 +3125,7 @@ fn start_monitor_loop_for_root(root: &Path, interval_seconds: i64, spawn_process
                     "available": true,
                     "running": false,
                     "phase": "error",
+                    "autoStart": false,
                     "pid": null,
                     "lastRunAt": null,
                     "nextRunAt": null,
@@ -2825,19 +3140,24 @@ fn start_monitor_loop_for_root(root: &Path, interval_seconds: i64, spawn_process
         0
     };
     let now = now_epoch_seconds();
-    let status = json!({
+    let mut status = json!({
         "ok": true,
         "available": true,
         "running": true,
         "phase": "running",
+        "autoStart": true,
         "pid": pid,
         "monitorOwnerPid": app_pid,
+        "agentCodeSignature": monitor_code_signature(root),
         "intervalSeconds": interval_seconds,
         "lastRunAt": null,
         "nextRunAt": now + interval_seconds,
         "lastError": "",
         "message": "Monitor loop is running.",
     });
+    if let Some(stream) = live_quote_stream {
+        status["liveQuoteStream"] = stream;
+    }
     let _ = write_monitor_status_for_root(root, &status);
     status
 }
@@ -2874,6 +3194,7 @@ fn stop_monitor_loop_for_root(root: &Path, kill_process: bool) -> Value {
         "available": true,
         "running": false,
         "phase": if last_error.is_empty() { "stopped" } else { "error" },
+        "autoStart": false,
         "pid": null,
         "monitorOwnerPid": null,
         "lastRunAt": current.get("lastRunAt").cloned().unwrap_or(Value::Null),
@@ -2886,33 +3207,17 @@ fn stop_monitor_loop_for_root(root: &Path, kill_process: bool) -> Value {
 }
 
 fn run_monitor_once_for_root(root: &Path) -> Value {
+    let live_quote_stream = ensure_live_quote_stream_for_root(root);
     let mut command = monitor_command_base(root);
     command.args(["-m", "src.xauusd_market_agent.cli", "--monitor-once"]);
     hide_child_window(&mut command);
     let output = command.output();
     let now = now_epoch_seconds();
     let current = read_monitor_status_for_root(root);
-    let current_last_run = current.get("lastRunAt").cloned().unwrap_or(json!(now));
-    let current_last_success = current
-        .get("lastSuccessAt")
-        .cloned()
-        .unwrap_or_else(|| current_last_run.clone());
     let status = match output {
-        Ok(output) if output.status.success() => merge_monitor_status_for_root(
-            root,
-            json!({
-                "ok": true,
-                "available": true,
-                "running": false,
-                "phase": "stopped",
-                "pid": null,
-                "lastRunAt": current_last_run,
-                "lastSuccessAt": current_last_success,
-                "nextRunAt": null,
-                "lastError": "",
-                "message": current.get("message").and_then(Value::as_str).unwrap_or("Monitor run completed."),
-            }),
-        ),
+        Ok(output) if output.status.success() => {
+            merge_monitor_status_for_root(root, completed_manual_monitor_status(&current, now))
+        }
         Ok(output) => json!({
             "ok": false,
             "available": true,
@@ -2936,6 +3241,8 @@ fn run_monitor_once_for_root(root: &Path) -> Value {
             "message": "Unable to start monitor run.",
         }),
     };
+    let mut status = status;
+    status["liveQuoteStream"] = live_quote_stream;
     let _ = write_monitor_status_for_root(root, &status);
     status
 }
@@ -3005,17 +3312,51 @@ fn run_backfill_recovery_for_root(root: &Path, spawn_process: bool) -> Value {
     status
 }
 
+fn market_agent_root_freshness(root: &Path) -> Option<SystemTime> {
+    [
+        timeline_path_for_root(root),
+        monitor_status_path_for_root(root),
+        state_path_for_root(root),
+        alerts_path_for_root(root),
+    ]
+    .into_iter()
+    .filter_map(|path| fs::metadata(path).ok()?.modified().ok())
+    .max()
+}
+
+fn choose_market_agent_root(roots: Vec<PathBuf>) -> Option<PathBuf> {
+    roots
+        .into_iter()
+        .enumerate()
+        .filter_map(|(index, root)| {
+            market_agent_root_freshness(&root).map(|freshness| (index, root, freshness))
+        })
+        .max_by(
+            |(left_index, _, left_freshness), (right_index, _, right_freshness)| {
+                left_freshness
+                    .cmp(right_freshness)
+                    .then_with(|| right_index.cmp(left_index))
+            },
+        )
+        .map(|(_, root, _)| root)
+}
+
 fn resolve_market_agent_root() -> Option<PathBuf> {
-    candidate_roots().into_iter().find(|root| {
-        state_path_for_root(root).exists()
-            || alerts_path_for_root(root).exists()
-            || timeline_path_for_root(root).exists()
-    })
+    choose_market_agent_root(candidate_roots())
 }
 
 fn read_json_file(path: &Path) -> Option<Value> {
-    let text = fs::read_to_string(path).ok()?;
-    serde_json::from_str::<Value>(&text).ok()
+    for attempt in 0..3 {
+        if let Ok(text) = fs::read_to_string(path) {
+            if let Ok(value) = serde_json::from_str::<Value>(&text) {
+                return Some(value);
+            }
+        }
+        if attempt < 2 {
+            std::thread::sleep(Duration::from_millis(25));
+        }
+    }
+    None
 }
 
 fn read_live_quote_stream_status_for_root(root: &Path, probe_process: bool) -> Value {
@@ -3079,7 +3420,12 @@ fn read_live_quote_stream_status_for_root(root: &Path, probe_process: bool) -> V
         .and_then(Value::as_bool)
         .unwrap_or(false);
     let pid = status.get("pid").and_then(Value::as_i64).unwrap_or(0);
+    let bridge_pid = status.get("bridgePid").and_then(Value::as_i64).unwrap_or(0);
     if probe_process && running && pid > 0 && !is_process_running(pid) {
+        normalize_waiting_live_quote_status(&mut status, &snapshot_path);
+        let _ = write_json_atomic(&status_path, &status);
+    }
+    if probe_process && running && pid <= 0 && bridge_pid > 0 && !is_process_running(bridge_pid) {
         normalize_waiting_live_quote_status(&mut status, &snapshot_path);
         let _ = write_json_atomic(&status_path, &status);
     }
@@ -3262,7 +3608,7 @@ fn ensure_live_quote_stream_for_root(root: &Path) -> Value {
 }
 
 fn build_live_quote_response_at(root: &Path, now_utc: chrono::DateTime<chrono::Utc>) -> Value {
-    let status = read_live_quote_stream_status_for_root(root, false);
+    let status = read_live_quote_stream_status_for_root(root, true);
     let snapshot_path = live_quote_snapshot_path_for_root(root);
     let snapshot = read_json_file(&snapshot_path);
     let snapshot_fresh = live_quote_snapshot_is_fresh_at(root, now_utc);
@@ -3388,10 +3734,174 @@ fn read_alert_rows(path: &Path, limit: usize) -> Vec<Value> {
         let bv = b.get("time").and_then(|v| v.as_str()).unwrap_or("");
         bv.cmp(av)
     });
-    if rows.len() > limit {
-        rows.truncate(limit);
+    collapse_alert_repeats(rows, true, Some(limit))
+}
+
+fn read_recent_sent_alerts_from_timeline(root: &Path, limit: usize) -> Vec<Value> {
+    let timeline_path = timeline_path_for_root(root);
+    if limit == 0 || !timeline_path.exists() {
+        return vec![];
     }
-    rows
+    let Ok(connection) = Connection::open(&timeline_path) else {
+        return vec![];
+    };
+    if !table_exists(&connection, "alerts") || !table_exists(&connection, "monitor_runs") {
+        return vec![];
+    }
+    let Ok(mut statement) = connection.prepare(
+        "SELECT alerts.monitor_run_id, monitor_runs.run_started_at, alerts.should_notify, alerts.payload_json
+         FROM alerts
+         INNER JOIN monitor_runs ON monitor_runs.id = alerts.monitor_run_id
+         WHERE alerts.should_notify = 1
+         ORDER BY monitor_runs.run_started_at DESC, alerts.id DESC
+         LIMIT ?1",
+    ) else {
+        return vec![];
+    };
+    let query_limit = (limit as i64).saturating_mul(6).clamp(limit as i64, 600);
+    let Ok(rows) = statement.query_map([query_limit], |row| {
+        Ok((
+            row.get::<_, i64>(0)?,
+            row.get::<_, String>(1)?,
+            row.get::<_, i64>(2)?,
+            row.get::<_, String>(3)?,
+        ))
+    }) else {
+        return vec![];
+    };
+
+    let mut items = vec![];
+    for row in rows.flatten() {
+        let (monitor_run_id, run_started_at, should_notify_value, payload_raw) = row;
+        if let Some(mut payload) = parse_json_value(payload_raw) {
+            if enrich_alert_payload(&connection, monitor_run_id, &mut payload).is_err() {
+                continue;
+            }
+            if let Some(object) = payload.as_object_mut() {
+                object.insert("monitor_run_id".to_string(), Value::from(monitor_run_id));
+                object.insert(
+                    "run_started_at".to_string(),
+                    Value::String(run_started_at.clone()),
+                );
+                object.insert("time".to_string(), Value::String(run_started_at));
+                object.insert(
+                    "should_notify".to_string(),
+                    Value::Bool(should_notify_value != 0),
+                );
+            }
+            items.push(payload);
+        }
+    }
+    collapse_alert_repeats(items, true, Some(limit))
+}
+
+fn alert_repeat_key(item: &Value, fallback_index: usize) -> String {
+    let message = value_text(item.get("message")).unwrap_or_default();
+    let driver = value_text(item.get("main_driver")).unwrap_or_default();
+    let cause = value_text(item.get("cause_status")).unwrap_or_default();
+    let level = value_text(item.get("notification_level")).unwrap_or_default();
+    let normalized = format!(
+        "{}|{}|{}|{}",
+        message.trim().to_ascii_lowercase(),
+        driver.trim().to_ascii_lowercase(),
+        cause.trim().to_ascii_lowercase(),
+        level.trim().to_ascii_lowercase()
+    );
+    if normalized.replace('|', "").trim().is_empty() {
+        return format!(
+            "row|{}|{}",
+            fallback_index,
+            item.get("monitor_run_id")
+                .and_then(Value::as_i64)
+                .unwrap_or(0)
+        );
+    }
+    normalized
+}
+
+fn alert_time(item: &Value) -> String {
+    value_text(item.get("time"))
+        .or_else(|| value_text(item.get("run_started_at")))
+        .unwrap_or_default()
+}
+
+fn alert_repeat_count(item: &Value) -> i64 {
+    item.get("repeat_count")
+        .and_then(Value::as_i64)
+        .filter(|count| *count > 0)
+        .unwrap_or(1)
+}
+
+fn set_alert_repeat_metadata(
+    item: &mut Value,
+    repeat_count: i64,
+    first_seen_at: &str,
+    last_seen_at: &str,
+) {
+    if let Some(object) = item.as_object_mut() {
+        object.insert("repeat_count".to_string(), Value::from(repeat_count));
+        object.insert(
+            "quiet_repeat_count".to_string(),
+            Value::from((repeat_count - 1).max(0)),
+        );
+        if !first_seen_at.is_empty() {
+            object.insert(
+                "first_seen_at".to_string(),
+                Value::String(first_seen_at.to_string()),
+            );
+        }
+        if !last_seen_at.is_empty() {
+            object.insert(
+                "last_seen_at".to_string(),
+                Value::String(last_seen_at.to_string()),
+            );
+        }
+    }
+}
+
+fn collapse_alert_repeats(
+    mut rows: Vec<Value>,
+    newest_first: bool,
+    limit: Option<usize>,
+) -> Vec<Value> {
+    rows.sort_by_key(|row| std::cmp::Reverse(alert_time(row)));
+    let mut collapsed: HashMap<String, (Value, i64, String, String)> = HashMap::new();
+    let mut order = vec![];
+    for (index, row) in rows.into_iter().enumerate() {
+        let key = alert_repeat_key(&row, index);
+        let time = alert_time(&row);
+        let row_count = alert_repeat_count(&row);
+        let row_first_seen_at = value_text(row.get("first_seen_at"))
+            .filter(|value| !value.is_empty())
+            .unwrap_or_else(|| time.clone());
+        let row_last_seen_at = value_text(row.get("last_seen_at"))
+            .filter(|value| !value.is_empty())
+            .unwrap_or_else(|| time.clone());
+        if let Some((_, count, first_seen_at, _last_seen_at)) = collapsed.get_mut(&key) {
+            *count += row_count;
+            if !row_first_seen_at.is_empty() {
+                *first_seen_at = row_first_seen_at;
+            }
+            continue;
+        }
+        order.push(key.clone());
+        collapsed.insert(key, (row, row_count, row_first_seen_at, row_last_seen_at));
+    }
+    let mut items = order
+        .into_iter()
+        .filter_map(|key| collapsed.remove(&key))
+        .map(|(mut item, count, first_seen_at, last_seen_at)| {
+            set_alert_repeat_metadata(&mut item, count, &first_seen_at, &last_seen_at);
+            item
+        })
+        .collect::<Vec<_>>();
+    if let Some(limit) = limit {
+        items.truncate(limit);
+    }
+    if !newest_first {
+        items.sort_by_key(alert_time);
+    }
+    items
 }
 
 fn open_timeline_db(root: &Path) -> Result<Connection, String> {
@@ -3436,6 +3946,86 @@ fn query_payload_rows(
         }
     }
     Ok(payloads)
+}
+
+fn replay_range_is_month_sized(start: &str, end: &str) -> bool {
+    let Ok(start_dt) = chrono::DateTime::parse_from_rfc3339(start) else {
+        return false;
+    };
+    let Ok(end_dt) = chrono::DateTime::parse_from_rfc3339(end) else {
+        return false;
+    };
+    end_dt.signed_duration_since(start_dt).num_hours() > 48
+}
+
+fn replay_range_variants(start: &str, end: &str) -> Vec<(String, String)> {
+    let mut variants = vec![(start.to_string(), end.to_string())];
+    if let (Ok(start_dt), Ok(end_dt)) = (
+        chrono::DateTime::parse_from_rfc3339(start),
+        chrono::DateTime::parse_from_rfc3339(end),
+    ) {
+        variants.push((
+            start_dt
+                .with_timezone(&Utc)
+                .to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
+            end_dt
+                .with_timezone(&Utc)
+                .to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
+        ));
+        if let Some(myt) = FixedOffset::east_opt(8 * 60 * 60) {
+            variants.push((
+                start_dt
+                    .with_timezone(&myt)
+                    .to_rfc3339_opts(chrono::SecondsFormat::Secs, false),
+                end_dt
+                    .with_timezone(&myt)
+                    .to_rfc3339_opts(chrono::SecondsFormat::Secs, false),
+            ));
+        }
+    }
+    let mut deduped = vec![];
+    for variant in variants {
+        if !deduped.contains(&variant) {
+            deduped.push(variant);
+        }
+    }
+    deduped
+}
+
+fn replay_range_where(column: &str, start: &str, end: &str) -> (String, Vec<String>) {
+    let variants = replay_range_variants(start, end);
+    let where_sql = variants
+        .iter()
+        .map(|_| format!("({column} >= ? AND {column} <= ?)"))
+        .collect::<Vec<_>>()
+        .join(" OR ");
+    let mut values = vec![];
+    for (lower, upper) in variants {
+        values.push(lower);
+        values.push(upper);
+    }
+    (format!("({where_sql})"), values)
+}
+
+fn replay_timestamp_in_range(value: &str, start: &str, end: &str) -> bool {
+    let (Ok(value_dt), Ok(start_dt), Ok(end_dt)) = (
+        chrono::DateTime::parse_from_rfc3339(value),
+        chrono::DateTime::parse_from_rfc3339(start),
+        chrono::DateTime::parse_from_rfc3339(end),
+    ) else {
+        return value >= start && value <= end;
+    };
+    value_dt >= start_dt && value_dt <= end_dt
+}
+
+fn replay_timestamp_before(value: &str, start: &str) -> bool {
+    let (Ok(value_dt), Ok(start_dt)) = (
+        chrono::DateTime::parse_from_rfc3339(value),
+        chrono::DateTime::parse_from_rfc3339(start),
+    ) else {
+        return value < start;
+    };
+    value_dt < start_dt
 }
 
 fn query_latest_monitor_run(
@@ -3490,6 +4080,183 @@ fn read_provider_health_latest(
         }
     }
     Ok((Some(monitor_run_id), Some(run_started_at), payloads))
+}
+
+fn evidence_key_for_provider(
+    provider_key: &str,
+    source: &str,
+    source_type: &str,
+) -> Option<&'static str> {
+    let key = provider_key.trim().to_ascii_lowercase();
+    let source = source.trim().to_ascii_lowercase();
+    let source_type = source_type.trim().to_ascii_lowercase();
+    let haystack = format!("{key} {source} {source_type}");
+    if haystack.contains("news") || haystack.contains("rss") {
+        return Some("news");
+    }
+    if haystack.contains("calendar") {
+        return Some("calendar");
+    }
+    if haystack.contains("dxy") || haystack.contains("dx-y.nyb") {
+        return Some("dxy");
+    }
+    if haystack.contains("us10y") || haystack.contains("^tnx") {
+        return Some("us10y");
+    }
+    if haystack.contains("us2y") || haystack.contains("usgg2yr") {
+        return Some("us2y");
+    }
+    if haystack.contains("wti")
+        || haystack.contains("brent")
+        || haystack.contains("cl=f")
+        || haystack.contains("bz=f")
+        || haystack.contains("oil")
+    {
+        return Some("oil");
+    }
+    if haystack.contains("vix")
+        || haystack.contains("spx")
+        || haystack.contains("nasdaq")
+        || haystack.contains("^gspc")
+        || haystack.contains("^ixic")
+        || haystack.contains("nq=f")
+    {
+        return Some("vix_equities");
+    }
+    None
+}
+
+fn read_evidence_status_for_run(
+    connection: &Connection,
+    monitor_run_id: i64,
+) -> Result<HashMap<String, String>, rusqlite::Error> {
+    if !table_exists(connection, "evidence_packets") {
+        return Ok(HashMap::new());
+    }
+    let payload = connection
+        .query_row(
+            "SELECT payload_json FROM evidence_packets WHERE monitor_run_id = ?1 ORDER BY id DESC LIMIT 1",
+            [monitor_run_id],
+            |row| row.get::<_, String>(0),
+        )
+        .optional()?
+        .and_then(parse_json_value);
+    let mut statuses = HashMap::new();
+    let Some(payload) = payload else {
+        return Ok(statuses);
+    };
+    if let Some(object) = payload.get("evidence_status").and_then(Value::as_object) {
+        for (key, value) in object {
+            if let Some(status) = value.as_str() {
+                statuses.insert(key.to_ascii_lowercase(), status.to_string());
+            }
+        }
+    }
+    Ok(statuses)
+}
+
+fn provider_has_market_closed_context(item: &Value) -> bool {
+    let reason = item
+        .get("stale_reason")
+        .or_else(|| item.get("error"))
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .to_ascii_lowercase();
+    let metadata = item.get("metadata").and_then(Value::as_object);
+    let metadata_market_closed = metadata
+        .and_then(|meta| meta.get("market_closed"))
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
+    let stale_classification = metadata
+        .and_then(|meta| meta.get("stale_classification"))
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .to_ascii_lowercase();
+    metadata_market_closed
+        || stale_classification == "market_closed"
+        || reason.contains("market closed")
+        || reason.contains("market reopens")
+        || reason.contains("weekend closed")
+}
+
+fn provider_status_is_usable_context(status: &str) -> bool {
+    matches!(
+        status.trim().to_ascii_lowercase().as_str(),
+        "fresh"
+            | "live_seen"
+            | "available"
+            | "backfilled"
+            | "relevant_news_found"
+            | "market_closed_context"
+            | "confirming"
+            | "confirmed"
+            | "neutral"
+            | "context"
+            | "calendar_context"
+    )
+}
+
+fn enrich_provider_health_items(
+    connection: &Connection,
+    monitor_run_id: Option<i64>,
+    mut items: Vec<Value>,
+) -> Vec<Value> {
+    let evidence_status = monitor_run_id
+        .and_then(|run_id| read_evidence_status_for_run(connection, run_id).ok())
+        .unwrap_or_default();
+    for item in items.iter_mut() {
+        let provider_key = item
+            .get("provider_key")
+            .and_then(Value::as_str)
+            .unwrap_or("");
+        let source = item.get("source").and_then(Value::as_str).unwrap_or("");
+        let source_type = item
+            .get("source_type")
+            .and_then(Value::as_str)
+            .unwrap_or("");
+        let data_mode = item
+            .get("data_mode")
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .to_ascii_lowercase();
+        let is_available = item
+            .get("is_available")
+            .and_then(Value::as_bool)
+            .unwrap_or(false);
+        let is_stale = item
+            .get("is_stale")
+            .and_then(Value::as_bool)
+            .unwrap_or(true);
+        let effective_status = evidence_key_for_provider(provider_key, source, source_type)
+            .and_then(|key| evidence_status.get(key).cloned())
+            .filter(|status| !status.trim().is_empty())
+            .unwrap_or_else(|| {
+                if provider_has_market_closed_context(item) {
+                    "market_closed_context".to_string()
+                } else if !is_available || data_mode == "unavailable" {
+                    "unavailable".to_string()
+                } else if is_stale || data_mode == "stale" {
+                    "stale".to_string()
+                } else if data_mode.is_empty() {
+                    "available".to_string()
+                } else {
+                    data_mode.clone()
+                }
+            });
+        let usable_as_context = provider_status_is_usable_context(&effective_status)
+            || (is_available && !is_stale && data_mode != "unavailable");
+        if let Some(object) = item.as_object_mut() {
+            object.insert(
+                "effective_status".to_string(),
+                Value::String(effective_status),
+            );
+            object.insert(
+                "usable_as_context".to_string(),
+                Value::Bool(usable_as_context),
+            );
+        }
+    }
+    items
 }
 
 fn merge_xauusd_provider_health(mut items: Vec<Value>, mut xauusd_health: Value) -> Vec<Value> {
@@ -3573,18 +4340,19 @@ fn read_latest_provider_health_items_with_runtime_xauusd(root: &Path) -> Vec<Val
         Ok(connection) => connection,
         Err(_) => return vec![],
     };
-    let items = match read_provider_health_latest(&connection) {
-        Ok((_, _, items)) => items,
-        Err(_) => vec![],
+    let (monitor_run_id, items) = match read_provider_health_latest(&connection) {
+        Ok((monitor_run_id, _, items)) => (monitor_run_id, items),
+        Err(_) => (None, vec![]),
     };
-    if has_live_xauusd_provider_health(&items) {
+    let merged_items = if has_live_xauusd_provider_health(&items) {
         items
     } else {
         read_runtime_ctrader_xauusd_health(root)
             .or_else(|| read_saved_ctrader_xauusd_health(root))
             .map(|health| merge_xauusd_provider_health(items.clone(), health))
             .unwrap_or(items)
-    }
+    };
+    enrich_provider_health_items(&connection, monitor_run_id, merged_items)
 }
 
 fn market_agent_runtime_inspect(root: &Path) -> Value {
@@ -3800,14 +4568,117 @@ fn read_range_payloads(
     time_column: &str,
     start: &str,
     end: &str,
+    limit: Option<i64>,
 ) -> Result<Vec<Value>, rusqlite::Error> {
     if !table_exists(connection, table) {
         return Ok(vec![]);
     }
-    let sql = format!(
-        "SELECT payload_json FROM {table} WHERE {time_column} >= ?1 AND {time_column} <= ?2 ORDER BY {time_column}, id"
+    let (range_sql, range_values) = replay_range_where(time_column, start, end);
+    let sql = if limit.is_some() {
+        format!(
+            "SELECT payload_json FROM {table} WHERE {range_sql} ORDER BY {time_column} DESC, id DESC LIMIT ?"
+        )
+    } else {
+        format!("SELECT payload_json FROM {table} WHERE {range_sql} ORDER BY {time_column}, id")
+    };
+    let mut params: Vec<&dyn rusqlite::ToSql> = range_values
+        .iter()
+        .map(|value| value as &dyn rusqlite::ToSql)
+        .collect();
+    if let Some(limit) = &limit {
+        params.push(limit);
+    }
+    let mut rows = query_payload_rows(connection, &sql, &params)?;
+    if limit.is_some() {
+        rows.reverse();
+    }
+    Ok(rows)
+}
+
+fn read_market_price_payloads(
+    connection: &Connection,
+    start: &str,
+    end: &str,
+    limit: Option<i64>,
+) -> Result<Vec<Value>, rusqlite::Error> {
+    if !table_exists(connection, "market_price_bars") {
+        return Ok(vec![]);
+    }
+    let (range_sql, range_values) = replay_range_where("data_timestamp", start, end);
+    let sql = if limit.is_some() {
+        format!(
+            "SELECT payload_json
+             FROM market_price_bars
+             WHERE symbol IN (?1, ?2) AND {range_sql}
+             ORDER BY data_timestamp DESC, id DESC
+             LIMIT ?"
+        )
+    } else {
+        format!(
+            "SELECT payload_json
+             FROM market_price_bars
+             WHERE symbol IN (?1, ?2) AND {range_sql}
+             ORDER BY data_timestamp, id"
+        )
+    };
+    let xauusd_symbol = "XAUUSD".to_string();
+    let proxy_symbol = "GC=F".to_string();
+    let mut params: Vec<&dyn rusqlite::ToSql> = vec![&xauusd_symbol, &proxy_symbol];
+    params.extend(
+        range_values
+            .iter()
+            .map(|value| value as &dyn rusqlite::ToSql),
     );
-    query_payload_rows(connection, &sql, &[&start, &end])
+    if let Some(limit) = &limit {
+        params.push(limit);
+    }
+    let mut rows = query_payload_rows(connection, &sql, &params)?;
+    if limit.is_some() {
+        rows.reverse();
+    }
+    Ok(rows)
+}
+
+fn read_latest_market_price_anchor_before(
+    connection: &Connection,
+    symbol: &str,
+    start: &str,
+) -> Result<Option<Value>, rusqlite::Error> {
+    if !table_exists(connection, "market_price_bars") {
+        return Ok(None);
+    }
+    let mut statement = connection.prepare(
+        "SELECT data_timestamp, payload_json
+         FROM market_price_bars
+         WHERE symbol = ?1
+         ORDER BY data_timestamp DESC, id DESC
+         LIMIT 500",
+    )?;
+    let rows = statement.query_map([symbol], |row| {
+        Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
+    })?;
+    let mut raw = None;
+    for row in rows.flatten() {
+        let (data_timestamp, payload_raw) = row;
+        if replay_timestamp_before(&data_timestamp, start) {
+            raw = Some(payload_raw);
+            break;
+        }
+    }
+    let Some(raw) = raw else {
+        return Ok(None);
+    };
+    let Some(mut payload) = parse_json_value(raw) else {
+        return Ok(None);
+    };
+    if let Some(object) = payload.as_object_mut() {
+        object.insert("replay_context_anchor".to_string(), Value::Bool(true));
+        object.insert(
+            "context_anchor_reason".to_string(),
+            Value::String("latest_price_before_replay_window".to_string()),
+        );
+    }
+    Ok(Some(payload))
 }
 
 fn news_value_text(item: &Value, key: &str) -> String {
@@ -3816,6 +4687,163 @@ fn news_value_text(item: &Value, key: &str) -> String {
         .unwrap_or_default()
         .trim()
         .to_string()
+}
+
+fn repair_market_agent_display_text(raw: &str) -> String {
+    if !raw.contains('\u{fffd}') {
+        return raw.to_string();
+    }
+    let chars: Vec<char> = raw.chars().collect();
+    let mut repaired = String::new();
+    for (index, ch) in chars.iter().enumerate() {
+        if *ch != '\u{fffd}' {
+            repaired.push(*ch);
+            continue;
+        }
+        let previous = index.checked_sub(1).and_then(|idx| chars.get(idx)).copied();
+        let next = chars.get(index + 1).copied();
+        if previous.is_some_and(|value| value.is_ascii_alphabetic())
+            && next.is_some_and(|value| value.is_ascii_alphabetic())
+        {
+            repaired.push('\'');
+        } else if previous.is_some_and(char::is_whitespace) && next.is_some_and(char::is_whitespace)
+        {
+            repaired.push('-');
+        } else {
+            repaired.push('\'');
+        }
+    }
+    repaired.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+fn market_agent_title_has_action(raw: &str) -> bool {
+    let normalized = raw.to_ascii_lowercase();
+    [
+        " is ",
+        " are ",
+        " was ",
+        " were ",
+        " will ",
+        " would ",
+        " could ",
+        " should ",
+        " may ",
+        " might ",
+        " can ",
+        " says ",
+        " said ",
+        " warns ",
+        " warned ",
+        " signals ",
+        " signaled ",
+        " announces ",
+        " announced ",
+        " expects ",
+        " expected ",
+        " hits ",
+        " hit ",
+        " jumps ",
+        " jumped ",
+        " falls ",
+        " fell ",
+        " drops ",
+        " dropped ",
+        " slips ",
+        " slipped ",
+        " rises ",
+        " rose ",
+        " surges ",
+        " surged ",
+        " eases ",
+        " eased ",
+        " extends ",
+        " extended ",
+        " keep ",
+        " keeps ",
+        " kept ",
+        " weighs ",
+        " weighed ",
+        " drives ",
+        " drove ",
+        " pressure ",
+        " pressures ",
+        " pressured ",
+        " opens ",
+        " opened ",
+        " closes ",
+        " closed ",
+        " cuts ",
+        " cut ",
+        " raises ",
+        " raised ",
+        " denies ",
+        " denied ",
+        " confirms ",
+        " confirmed ",
+        " threatens ",
+        " threatened ",
+        " disrupts ",
+        " disrupted ",
+        " sanctions ",
+        " sanctioned ",
+        " lifts ",
+        " lifted ",
+        " pushes ",
+        " pushed ",
+        " leaves ",
+        " left ",
+        " returns ",
+        " returned ",
+    ]
+    .iter()
+    .any(|needle| normalized.contains(needle))
+}
+
+fn is_complete_market_news_title(raw: &str) -> bool {
+    let words = raw
+        .split(|ch: char| !ch.is_ascii_alphanumeric() && ch != '\'')
+        .filter(|word| !word.trim_matches('\'').is_empty())
+        .count();
+    words >= 7 || (words >= 5 && market_agent_title_has_action(&format!(" {raw} ")))
+}
+
+fn repair_news_display_fields(item: &mut Value) {
+    let Some(object) = item.as_object_mut() else {
+        return;
+    };
+    for key in [
+        "title",
+        "summary_title",
+        "summary",
+        "short_summary",
+        "preview",
+        "description",
+        "source",
+    ] {
+        let Some(value) = object.get(key).and_then(Value::as_str) else {
+            continue;
+        };
+        let repaired = repair_market_agent_display_text(value);
+        if repaired != value {
+            object.insert(key.to_string(), Value::String(repaired));
+        }
+    }
+    let title = object
+        .get("title")
+        .and_then(Value::as_str)
+        .unwrap_or_default()
+        .to_string();
+    let summary_title = object
+        .get("summary_title")
+        .and_then(Value::as_str)
+        .unwrap_or_default()
+        .to_string();
+    if !summary_title.is_empty()
+        && !is_complete_market_news_title(&summary_title)
+        && is_complete_market_news_title(&title)
+    {
+        object.remove("summary_title");
+    }
 }
 
 fn normalize_news_key_part(value: &str) -> String {
@@ -4004,27 +5032,49 @@ fn read_news_items(
     connection: &Connection,
     start: &str,
     end: &str,
+    limit: Option<i64>,
 ) -> Result<Vec<Value>, rusqlite::Error> {
     if !table_exists(connection, "news_items") {
         return Ok(vec![]);
     }
-    let mut statement = connection.prepare(
-        "SELECT id, monitor_run_id, payload_json
-         FROM news_items
-         WHERE published_at >= ?1 AND published_at <= ?2
-         ORDER BY published_at, id",
-    )?;
-    let rows = statement.query_map([start, end], |row| {
+    let (range_sql, range_values) = replay_range_where("published_at", start, end);
+    let sql = if limit.is_some() {
+        format!(
+            "SELECT id, monitor_run_id, payload_json
+             FROM news_items
+             WHERE {range_sql}
+             ORDER BY published_at DESC, id DESC
+             LIMIT ?"
+        )
+    } else {
+        format!(
+            "SELECT id, monitor_run_id, payload_json
+             FROM news_items
+             WHERE {range_sql}
+             ORDER BY published_at, id"
+        )
+    };
+    let mut statement = connection.prepare(&sql)?;
+    let mut items = vec![];
+    let mut params: Vec<&dyn rusqlite::ToSql> = range_values
+        .iter()
+        .map(|value| value as &dyn rusqlite::ToSql)
+        .collect();
+    let candidate_limit = limit.map(|value| (value.max(1) * 4).max(800));
+    if let Some(candidate_limit) = &candidate_limit {
+        params.push(candidate_limit);
+    }
+    let rows = statement.query_map(rusqlite::params_from_iter(params.iter()), |row| {
         Ok((
             row.get::<_, i64>(0)?,
             row.get::<_, i64>(1)?,
             row.get::<_, String>(2)?,
         ))
     })?;
-    let mut items = vec![];
     for row in rows.flatten() {
         let (storage_row_id, monitor_run_id, payload_raw) = row;
         if let Some(mut payload) = parse_json_value(payload_raw) {
+            repair_news_display_fields(&mut payload);
             if let Some(object) = payload.as_object_mut() {
                 object
                     .entry("monitor_run_id")
@@ -4036,7 +5086,17 @@ fn read_news_items(
             items.push(payload);
         }
     }
-    Ok(dedupe_news_items(items))
+    if limit.is_some() {
+        items.reverse();
+    }
+    let mut deduped = dedupe_news_items(items);
+    if let Some(limit) = limit {
+        let limit = limit.max(0) as usize;
+        if deduped.len() > limit {
+            deduped = deduped.split_off(deduped.len() - limit);
+        }
+    }
+    Ok(deduped)
 }
 
 fn calendar_dirs_for_root(root: &Path) -> Vec<PathBuf> {
@@ -4120,7 +5180,7 @@ fn read_calendar_context_from_files(root: &Path, start: &str, end: &str) -> Vec<
                 } else {
                     continue;
                 };
-                if scheduled_at.as_str() < start || scheduled_at.as_str() > end {
+                if !replay_timestamp_in_range(&scheduled_at, start, end) {
                     continue;
                 }
                 let currency = calendar_row_currency(&item);
@@ -4166,18 +5226,46 @@ fn read_related_assets_map(
     connection: &Connection,
     start: &str,
     end: &str,
+    limit_per_symbol: Option<i64>,
 ) -> Result<Value, rusqlite::Error> {
     let symbols = [
         "dxy", "us10y", "us2y", "wti", "brent", "vix", "spx", "nasdaq",
     ];
     let mut related = serde_json::Map::new();
+    let (range_sql, range_values) = replay_range_where("data_timestamp", start, end);
     for symbol in symbols {
         let rows = if table_exists(connection, "related_asset_bars") {
-            query_payload_rows(
-                connection,
-                "SELECT payload_json FROM related_asset_bars WHERE symbol = ?1 AND data_timestamp >= ?2 AND data_timestamp <= ?3 ORDER BY data_timestamp, id",
-                &[&symbol, &start, &end],
-            )?
+            if let Some(limit) = limit_per_symbol {
+                let sql = format!(
+                    "SELECT payload_json FROM related_asset_bars
+                     WHERE symbol = ? AND {range_sql}
+                     ORDER BY data_timestamp DESC, id DESC
+                     LIMIT ?"
+                );
+                let mut params: Vec<&dyn rusqlite::ToSql> = vec![&symbol];
+                params.extend(
+                    range_values
+                        .iter()
+                        .map(|value| value as &dyn rusqlite::ToSql),
+                );
+                params.push(&limit);
+                let mut rows = query_payload_rows(connection, &sql, &params)?;
+                rows.reverse();
+                rows
+            } else {
+                let sql = format!(
+                    "SELECT payload_json FROM related_asset_bars
+                     WHERE symbol = ? AND {range_sql}
+                     ORDER BY data_timestamp, id"
+                );
+                let mut params: Vec<&dyn rusqlite::ToSql> = vec![&symbol];
+                params.extend(
+                    range_values
+                        .iter()
+                        .map(|value| value as &dyn rusqlite::ToSql),
+                );
+                query_payload_rows(connection, &sql, &params)?
+            }
         } else {
             vec![]
         };
@@ -4190,36 +5278,140 @@ fn read_timeline_items(
     connection: &Connection,
     start: &str,
     end: &str,
+    limit: Option<i64>,
 ) -> Result<Vec<Value>, rusqlite::Error> {
     if !table_exists(connection, "timeline_events") {
         return Ok(vec![]);
     }
-    let mut statement = connection.prepare(
-        "SELECT monitor_run_id, event_time, event_type, label, payload_json FROM timeline_events WHERE event_time >= ?1 AND event_time <= ?2 ORDER BY event_time, id",
-    )?;
-    let rows = statement.query_map(params![start, end], |row| {
-        Ok((
-            row.get::<_, i64>(0)?,
-            row.get::<_, String>(1)?,
-            row.get::<_, String>(2)?,
-            row.get::<_, String>(3)?,
-            row.get::<_, String>(4)?,
-        ))
-    })?;
+    let (range_sql, range_values) = replay_range_where("event_time", start, end);
+    let sql = if limit.is_some() {
+        format!(
+            "SELECT monitor_run_id, event_time, event_type, label, payload_json
+         FROM timeline_events
+         WHERE {range_sql}
+         ORDER BY event_time DESC, id DESC
+         LIMIT ?"
+        )
+    } else {
+        format!(
+            "SELECT monitor_run_id, event_time, event_type, label, payload_json
+         FROM timeline_events
+         WHERE {range_sql}
+         ORDER BY event_time, id"
+        )
+    };
+    let mut statement = connection.prepare(&sql)?;
     let mut items = vec![];
-    for row in rows.flatten() {
-        let (monitor_run_id, event_time, event_type, label, payload_raw) = row;
-        if let Some(payload) = parse_json_value(payload_raw) {
-            items.push(json!({
-                "monitor_run_id": monitor_run_id,
-                "event_time": event_time,
-                "event_type": event_type,
-                "label": label,
-                "payload": payload,
-            }));
+    if let Some(limit) = limit {
+        let mut params: Vec<&dyn rusqlite::ToSql> = range_values
+            .iter()
+            .map(|value| value as &dyn rusqlite::ToSql)
+            .collect();
+        params.push(&limit);
+        let rows = statement.query_map(rusqlite::params_from_iter(params.iter()), |row| {
+            Ok((
+                row.get::<_, i64>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+                row.get::<_, String>(3)?,
+                row.get::<_, String>(4)?,
+            ))
+        })?;
+        for row in rows.flatten() {
+            let (monitor_run_id, event_time, event_type, label, payload_raw) = row;
+            if let Some(payload) = parse_json_value(payload_raw) {
+                if is_context_only_analysis_timeline_event(&event_type, &payload) {
+                    continue;
+                }
+                items.push(json!({
+                    "monitor_run_id": monitor_run_id,
+                    "event_time": event_time,
+                    "event_type": event_type,
+                    "label": label,
+                    "payload": payload,
+                }));
+            }
+        }
+        items.reverse();
+    } else {
+        let params: Vec<&dyn rusqlite::ToSql> = range_values
+            .iter()
+            .map(|value| value as &dyn rusqlite::ToSql)
+            .collect();
+        let rows = statement.query_map(rusqlite::params_from_iter(params.iter()), |row| {
+            Ok((
+                row.get::<_, i64>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+                row.get::<_, String>(3)?,
+                row.get::<_, String>(4)?,
+            ))
+        })?;
+        for row in rows.flatten() {
+            let (monitor_run_id, event_time, event_type, label, payload_raw) = row;
+            if let Some(payload) = parse_json_value(payload_raw) {
+                if is_context_only_analysis_timeline_event(&event_type, &payload) {
+                    continue;
+                }
+                items.push(json!({
+                    "monitor_run_id": monitor_run_id,
+                    "event_time": event_time,
+                    "event_type": event_type,
+                    "label": label,
+                    "payload": payload,
+                }));
+            }
         }
     }
     Ok(items)
+}
+
+fn value_text(value: Option<&Value>) -> Option<String> {
+    value
+        .and_then(Value::as_str)
+        .map(str::trim)
+        .filter(|text| !text.is_empty())
+        .map(str::to_string)
+}
+
+fn nested_value<'a>(value: &'a Value, keys: &[&str]) -> Option<&'a Value> {
+    let mut current = value;
+    for key in keys {
+        current = current.get(*key)?;
+    }
+    Some(current)
+}
+
+fn is_context_only_analysis_timeline_event(event_type: &str, payload: &Value) -> bool {
+    if normalized_market_agent_value(Some(&Value::String(event_type.to_string()))) != "analysis" {
+        return false;
+    }
+    let main_driver = normalized_market_agent_value(
+        payload
+            .get("main_driver")
+            .or_else(|| nested_value(payload, &["analysis", "main_driver"])),
+    );
+    if !matches!(main_driver.as_str(), "" | "unknown" | "no_state_change") {
+        return false;
+    }
+    let semantic_type = normalized_market_agent_value(payload.get("semantic_type"));
+    if matches!(semantic_type.as_str(), "" | "analysis" | "context_review") {
+        return true;
+    }
+    let market_read_status = normalized_market_agent_value(
+        nested_value(payload, &["analysis", "market_read", "status"])
+            .or_else(|| nested_value(payload, &["market_read", "status"])),
+    );
+    if matches!(
+        market_read_status.as_str(),
+        "context_only" | "no_conclusion"
+    ) {
+        return true;
+    }
+    let summary = normalized_market_agent_value(payload.get("summary"));
+    summary.contains("current_conclusion_is_paused")
+        || summary.contains("price_confirmation_missing")
+        || summary.contains("live_xauusd_price_and_recent_price_history")
 }
 
 fn normalized_market_agent_value(value: Option<&Value>) -> String {
@@ -4231,6 +5423,66 @@ fn normalized_market_agent_value(value: Option<&Value>) -> String {
         .replace(|c: char| !c.is_ascii_alphanumeric(), "_")
         .trim_matches('_')
         .to_string()
+}
+
+fn market_read_evidence_status_for_sensor(evidence_status: &Value, key: &str) -> String {
+    let direct = normalized_market_agent_value(evidence_status.get(key));
+    if !direct.is_empty() {
+        return direct;
+    }
+    if matches!(key, "wti" | "brent") {
+        return normalized_market_agent_value(evidence_status.get("oil"));
+    }
+    if matches!(key, "vix" | "spx" | "nasdaq") {
+        return normalized_market_agent_value(evidence_status.get("vix_equities"));
+    }
+    String::new()
+}
+
+fn normalize_market_read_coverage(analysis: &mut Value, evidence_packet: Option<&Value>) {
+    let Some(evidence_status) = evidence_packet.and_then(|packet| packet.get("evidence_status"))
+    else {
+        return;
+    };
+    let Some(coverage) = analysis
+        .get_mut("market_read")
+        .and_then(|market_read| market_read.get_mut("coverage"))
+        .and_then(Value::as_object_mut)
+    else {
+        return;
+    };
+    let sensors = coverage
+        .get("sensors")
+        .and_then(Value::as_str)
+        .unwrap_or_default();
+    if sensors.contains("context") {
+        return;
+    }
+    let sensor_keys = [
+        "dxy", "us10y", "us2y", "wti", "brent", "vix", "spx", "nasdaq",
+    ];
+    let context_count = sensor_keys
+        .iter()
+        .filter(|key| {
+            market_read_evidence_status_for_sensor(evidence_status, key) == "market_closed_context"
+        })
+        .count();
+    if context_count == 0 {
+        return;
+    }
+    let fresh_count = sensor_keys
+        .iter()
+        .filter(|key| {
+            matches!(
+                market_read_evidence_status_for_sensor(evidence_status, key).as_str(),
+                "confirming" | "supporting" | "accepted"
+            )
+        })
+        .count();
+    coverage.insert(
+        "sensors".to_string(),
+        Value::String(format!("{fresh_count} fresh / {context_count} context")),
+    );
 }
 
 fn timeline_payload(row: &Value) -> Option<&Value> {
@@ -4295,26 +5547,67 @@ fn read_state_transitions(
     connection: &Connection,
     start: &str,
     end: &str,
+    limit: Option<i64>,
 ) -> Result<Vec<Value>, rusqlite::Error> {
     if !table_exists(connection, "state_transitions") || !table_exists(connection, "monitor_runs") {
         return Ok(vec![]);
     }
-    let mut statement = connection.prepare(
-        "SELECT state_transitions.monitor_run_id, monitor_runs.run_started_at, state_transitions.payload_json
+    let (range_sql, range_values) = replay_range_where("monitor_runs.run_started_at", start, end);
+    let sql = if limit.is_some() {
+        format!(
+            "SELECT state_transitions.monitor_run_id, monitor_runs.run_started_at, state_transitions.payload_json
          FROM state_transitions
          INNER JOIN monitor_runs ON monitor_runs.id = state_transitions.monitor_run_id
-         WHERE monitor_runs.run_started_at >= ?1 AND monitor_runs.run_started_at <= ?2
-         ORDER BY monitor_runs.run_started_at, state_transitions.id",
-    )?;
-    let rows = statement.query_map(params![start, end], |row| {
-        Ok((
-            row.get::<_, i64>(0)?,
-            row.get::<_, String>(1)?,
-            row.get::<_, String>(2)?,
-        ))
-    })?;
+         WHERE {range_sql}
+         ORDER BY monitor_runs.run_started_at DESC, state_transitions.id DESC
+         LIMIT ?"
+        )
+    } else {
+        format!(
+            "SELECT state_transitions.monitor_run_id, monitor_runs.run_started_at, state_transitions.payload_json
+         FROM state_transitions
+         INNER JOIN monitor_runs ON monitor_runs.id = state_transitions.monitor_run_id
+         WHERE {range_sql}
+         ORDER BY monitor_runs.run_started_at, state_transitions.id"
+        )
+    };
+    let mut statement = connection.prepare(&sql)?;
+    let mut rows_payload = vec![];
+    if let Some(limit) = limit {
+        let mut params: Vec<&dyn rusqlite::ToSql> = range_values
+            .iter()
+            .map(|value| value as &dyn rusqlite::ToSql)
+            .collect();
+        params.push(&limit);
+        let rows = statement.query_map(rusqlite::params_from_iter(params.iter()), |row| {
+            Ok((
+                row.get::<_, i64>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+            ))
+        })?;
+        for row in rows.flatten() {
+            rows_payload.push(row);
+        }
+        rows_payload.reverse();
+    } else {
+        let params: Vec<&dyn rusqlite::ToSql> = range_values
+            .iter()
+            .map(|value| value as &dyn rusqlite::ToSql)
+            .collect();
+        let rows = statement.query_map(rusqlite::params_from_iter(params.iter()), |row| {
+            Ok((
+                row.get::<_, i64>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+            ))
+        })?;
+        for row in rows.flatten() {
+            rows_payload.push(row);
+        }
+    }
     let mut items = vec![];
-    for row in rows.flatten() {
+    for row in rows_payload {
         let (monitor_run_id, run_started_at, payload_raw) = row;
         if let Some(mut payload) = parse_json_value(payload_raw) {
             if let Some(object) = payload.as_object_mut() {
@@ -4332,31 +5625,78 @@ fn read_alerts(
     start: &str,
     end: &str,
     should_notify: Option<bool>,
+    limit: Option<i64>,
 ) -> Result<Vec<Value>, rusqlite::Error> {
     if !table_exists(connection, "alerts") || !table_exists(connection, "monitor_runs") {
         return Ok(vec![]);
     }
+    let (range_sql, range_values) = replay_range_where("monitor_runs.run_started_at", start, end);
     let mut items = vec![];
     if let Some(flag) = should_notify {
-        let mut statement = connection.prepare(
-            "SELECT alerts.monitor_run_id, monitor_runs.run_started_at, alerts.should_notify, alerts.payload_json
+        let sql = if limit.is_some() {
+            format!(
+                "SELECT alerts.monitor_run_id, monitor_runs.run_started_at, alerts.should_notify, alerts.payload_json
              FROM alerts
              INNER JOIN monitor_runs ON monitor_runs.id = alerts.monitor_run_id
-             WHERE monitor_runs.run_started_at >= ?1 AND monitor_runs.run_started_at <= ?2
-               AND alerts.should_notify = ?3
-             ORDER BY monitor_runs.run_started_at, alerts.id",
-        )?;
-        let rows = statement.query_map(params![start, end, flag], |row| {
-            Ok((
-                row.get::<_, i64>(0)?,
-                row.get::<_, String>(1)?,
-                row.get::<_, i64>(2)?,
-                row.get::<_, String>(3)?,
-            ))
-        })?;
-        for row in rows.flatten() {
+             WHERE {range_sql}
+               AND alerts.should_notify = ?
+             ORDER BY monitor_runs.run_started_at DESC, alerts.id DESC
+             LIMIT ?"
+            )
+        } else {
+            format!(
+                "SELECT alerts.monitor_run_id, monitor_runs.run_started_at, alerts.should_notify, alerts.payload_json
+             FROM alerts
+             INNER JOIN monitor_runs ON monitor_runs.id = alerts.monitor_run_id
+             WHERE {range_sql}
+               AND alerts.should_notify = ?
+             ORDER BY monitor_runs.run_started_at, alerts.id"
+            )
+        };
+        let mut statement = connection.prepare(&sql)?;
+        let mut rows_payload = vec![];
+        if let Some(limit) = limit {
+            let query_limit = limit.saturating_mul(6).clamp(limit, 1200);
+            let mut params: Vec<&dyn rusqlite::ToSql> = range_values
+                .iter()
+                .map(|value| value as &dyn rusqlite::ToSql)
+                .collect();
+            params.push(&flag);
+            params.push(&query_limit);
+            let rows = statement.query_map(rusqlite::params_from_iter(params.iter()), |row| {
+                Ok((
+                    row.get::<_, i64>(0)?,
+                    row.get::<_, String>(1)?,
+                    row.get::<_, i64>(2)?,
+                    row.get::<_, String>(3)?,
+                ))
+            })?;
+            for row in rows.flatten() {
+                rows_payload.push(row);
+            }
+            rows_payload.reverse();
+        } else {
+            let mut params: Vec<&dyn rusqlite::ToSql> = range_values
+                .iter()
+                .map(|value| value as &dyn rusqlite::ToSql)
+                .collect();
+            params.push(&flag);
+            let rows = statement.query_map(rusqlite::params_from_iter(params.iter()), |row| {
+                Ok((
+                    row.get::<_, i64>(0)?,
+                    row.get::<_, String>(1)?,
+                    row.get::<_, i64>(2)?,
+                    row.get::<_, String>(3)?,
+                ))
+            })?;
+            for row in rows.flatten() {
+                rows_payload.push(row);
+            }
+        }
+        for row in rows_payload {
             let (monitor_run_id, run_started_at, should_notify_value, payload_raw) = row;
             if let Some(mut payload) = parse_json_value(payload_raw) {
+                enrich_alert_payload(connection, monitor_run_id, &mut payload)?;
                 if let Some(object) = payload.as_object_mut() {
                     object.insert("monitor_run_id".to_string(), Value::from(monitor_run_id));
                     object.insert("run_started_at".to_string(), Value::String(run_started_at));
@@ -4369,24 +5709,66 @@ fn read_alerts(
             }
         }
     } else {
-        let mut statement = connection.prepare(
-            "SELECT alerts.monitor_run_id, monitor_runs.run_started_at, alerts.should_notify, alerts.payload_json
+        let sql = if limit.is_some() {
+            format!(
+                "SELECT alerts.monitor_run_id, monitor_runs.run_started_at, alerts.should_notify, alerts.payload_json
              FROM alerts
              INNER JOIN monitor_runs ON monitor_runs.id = alerts.monitor_run_id
-             WHERE monitor_runs.run_started_at >= ?1 AND monitor_runs.run_started_at <= ?2
-             ORDER BY monitor_runs.run_started_at, alerts.id",
-        )?;
-        let rows = statement.query_map(params![start, end], |row| {
-            Ok((
-                row.get::<_, i64>(0)?,
-                row.get::<_, String>(1)?,
-                row.get::<_, i64>(2)?,
-                row.get::<_, String>(3)?,
-            ))
-        })?;
-        for row in rows.flatten() {
+             WHERE {range_sql}
+             ORDER BY monitor_runs.run_started_at DESC, alerts.id DESC
+             LIMIT ?"
+            )
+        } else {
+            format!(
+                "SELECT alerts.monitor_run_id, monitor_runs.run_started_at, alerts.should_notify, alerts.payload_json
+             FROM alerts
+             INNER JOIN monitor_runs ON monitor_runs.id = alerts.monitor_run_id
+             WHERE {range_sql}
+             ORDER BY monitor_runs.run_started_at, alerts.id"
+            )
+        };
+        let mut statement = connection.prepare(&sql)?;
+        let mut rows_payload = vec![];
+        if let Some(limit) = limit {
+            let query_limit = limit.saturating_mul(6).clamp(limit, 1200);
+            let mut params: Vec<&dyn rusqlite::ToSql> = range_values
+                .iter()
+                .map(|value| value as &dyn rusqlite::ToSql)
+                .collect();
+            params.push(&query_limit);
+            let rows = statement.query_map(rusqlite::params_from_iter(params.iter()), |row| {
+                Ok((
+                    row.get::<_, i64>(0)?,
+                    row.get::<_, String>(1)?,
+                    row.get::<_, i64>(2)?,
+                    row.get::<_, String>(3)?,
+                ))
+            })?;
+            for row in rows.flatten() {
+                rows_payload.push(row);
+            }
+            rows_payload.reverse();
+        } else {
+            let params: Vec<&dyn rusqlite::ToSql> = range_values
+                .iter()
+                .map(|value| value as &dyn rusqlite::ToSql)
+                .collect();
+            let rows = statement.query_map(rusqlite::params_from_iter(params.iter()), |row| {
+                Ok((
+                    row.get::<_, i64>(0)?,
+                    row.get::<_, String>(1)?,
+                    row.get::<_, i64>(2)?,
+                    row.get::<_, String>(3)?,
+                ))
+            })?;
+            for row in rows.flatten() {
+                rows_payload.push(row);
+            }
+        }
+        for row in rows_payload {
             let (monitor_run_id, run_started_at, should_notify_value, payload_raw) = row;
             if let Some(mut payload) = parse_json_value(payload_raw) {
+                enrich_alert_payload(connection, monitor_run_id, &mut payload)?;
                 if let Some(object) = payload.as_object_mut() {
                     object.insert("monitor_run_id".to_string(), Value::from(monitor_run_id));
                     object.insert("run_started_at".to_string(), Value::String(run_started_at));
@@ -4399,7 +5781,165 @@ fn read_alerts(
             }
         }
     }
-    Ok(items)
+    Ok(collapse_alert_repeats(
+        items,
+        false,
+        limit.map(|value| value.max(0) as usize),
+    ))
+}
+
+fn object_has_text(object: &serde_json::Map<String, Value>, key: &str) -> bool {
+    object
+        .get(key)
+        .and_then(Value::as_str)
+        .map(str::trim)
+        .is_some_and(|text| !text.is_empty())
+}
+
+fn set_object_text_if_missing(
+    object: &mut serde_json::Map<String, Value>,
+    key: &str,
+    value: Option<String>,
+) {
+    if object_has_text(object, key) {
+        return;
+    }
+    if let Some(text) = value {
+        if !text.trim().is_empty() {
+            object.insert(key.to_string(), Value::String(text));
+        }
+    }
+}
+
+fn set_object_number_if_missing(
+    object: &mut serde_json::Map<String, Value>,
+    key: &str,
+    value: Option<f64>,
+) {
+    if object.get(key).and_then(Value::as_f64).is_some() {
+        return;
+    }
+    if let Some(number) = value.and_then(serde_json::Number::from_f64) {
+        object.insert(key.to_string(), Value::Number(number));
+    }
+}
+
+fn latest_json_for_run(
+    connection: &Connection,
+    table: &str,
+    monitor_run_id: i64,
+) -> Result<Option<Value>, rusqlite::Error> {
+    if !table_exists(connection, table) {
+        return Ok(None);
+    }
+    let sql = format!(
+        "SELECT payload_json FROM {table} WHERE monitor_run_id = ?1 ORDER BY id DESC LIMIT 1"
+    );
+    connection
+        .query_row(&sql, [monitor_run_id], |row| row.get::<_, String>(0))
+        .optional()
+        .map(|raw| raw.and_then(parse_json_value))
+}
+
+fn latest_meaningful_timeline_json_for_run(
+    connection: &Connection,
+    monitor_run_id: i64,
+) -> Result<Option<Value>, rusqlite::Error> {
+    if !table_exists(connection, "timeline_events") {
+        return Ok(None);
+    }
+    let mut statement = connection.prepare(
+        "SELECT event_type, payload_json FROM timeline_events
+         WHERE monitor_run_id = ?1
+         ORDER BY id DESC
+         LIMIT 8",
+    )?;
+    let rows = statement.query_map([monitor_run_id], |row| {
+        Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
+    })?;
+    for row in rows.flatten() {
+        let (event_type, payload_raw) = row;
+        if let Some(payload) = parse_json_value(payload_raw) {
+            if !is_context_only_analysis_timeline_event(&event_type, &payload) {
+                return Ok(Some(payload));
+            }
+        }
+    }
+    Ok(None)
+}
+
+fn enrich_alert_payload(
+    connection: &Connection,
+    monitor_run_id: i64,
+    payload: &mut Value,
+) -> Result<(), rusqlite::Error> {
+    let Some(object) = payload.as_object_mut() else {
+        return Ok(());
+    };
+    if object_has_text(object, "message") && object_has_text(object, "main_driver") {
+        return Ok(());
+    }
+    let analysis = latest_json_for_run(connection, "analysis_results", monitor_run_id)?;
+    let timeline = latest_meaningful_timeline_json_for_run(connection, monitor_run_id)?;
+    let analysis_ref = analysis.as_ref();
+    let timeline_ref = timeline.as_ref();
+
+    set_object_text_if_missing(
+        object,
+        "message",
+        analysis_ref
+            .and_then(|value| value_text(value.get("user_message")))
+            .or_else(|| analysis_ref.and_then(|value| value_text(value.get("summary"))))
+            .or_else(|| {
+                analysis_ref
+                    .and_then(|value| value_text(nested_value(value, &["market_read", "thesis"])))
+            })
+            .or_else(|| timeline_ref.and_then(|value| value_text(value.get("summary")))),
+    );
+    set_object_text_if_missing(
+        object,
+        "main_driver",
+        analysis_ref
+            .and_then(|value| value_text(value.get("main_driver")))
+            .or_else(|| timeline_ref.and_then(|value| value_text(value.get("main_driver")))),
+    );
+    set_object_text_if_missing(
+        object,
+        "secondary_driver",
+        analysis_ref.and_then(|value| value_text(value.get("secondary_driver"))),
+    );
+    set_object_text_if_missing(
+        object,
+        "cause_status",
+        analysis_ref.and_then(|value| value_text(value.get("cause_status"))),
+    );
+    set_object_text_if_missing(
+        object,
+        "confidence",
+        analysis_ref.and_then(|value| value_text(value.get("confidence"))),
+    );
+    set_object_text_if_missing(
+        object,
+        "bias",
+        analysis_ref.and_then(|value| value_text(value.get("bias"))),
+    );
+    set_object_text_if_missing(
+        object,
+        "semantic_type",
+        timeline_ref.and_then(|value| value_text(value.get("semantic_type"))),
+    );
+    set_object_number_if_missing(
+        object,
+        "impact_percent",
+        timeline_ref
+            .and_then(|value| value.get("impact_percent").and_then(Value::as_f64))
+            .or_else(|| {
+                analysis_ref.and_then(|value| {
+                    nested_value(value, &["market_read", "move", "percent"]).and_then(Value::as_f64)
+                })
+            }),
+    );
+    Ok(())
 }
 
 fn read_evidence_for_run(
@@ -4419,7 +5959,7 @@ fn read_evidence_for_run(
         None
     };
 
-    let analysis_result = if table_exists(connection, "analysis_results") {
+    let mut analysis_result = if table_exists(connection, "analysis_results") {
         connection
             .query_row(
                 "SELECT payload_json FROM analysis_results WHERE monitor_run_id = ?1 ORDER BY id DESC LIMIT 1",
@@ -4430,6 +5970,45 @@ fn read_evidence_for_run(
             .and_then(parse_json_value)
     } else {
         None
+    };
+    if let Some(analysis) = analysis_result.as_mut() {
+        normalize_market_read_coverage(analysis, evidence_packet.as_ref());
+    }
+
+    let analysis_history = if table_exists(connection, "analysis_results")
+        && table_exists(connection, "monitor_runs")
+    {
+        let mut statement = connection.prepare(
+            "SELECT analysis_results.monitor_run_id, monitor_runs.run_started_at, analysis_results.payload_json
+             FROM analysis_results
+             INNER JOIN monitor_runs ON monitor_runs.id = analysis_results.monitor_run_id
+             ORDER BY monitor_runs.run_started_at DESC, analysis_results.id DESC
+             LIMIT 100",
+        )?;
+        let rows = statement.query_map([], |row| {
+            Ok((
+                row.get::<_, i64>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+            ))
+        })?;
+        let mut items = vec![];
+        for row in rows.flatten() {
+            let (history_run_id, run_started_at, payload_raw) = row;
+            if let Some(mut payload) = parse_json_value(payload_raw) {
+                if let Some(object) = payload.as_object_mut() {
+                    object.insert(
+                        "monitor_run_id".to_string(),
+                        Value::Number(history_run_id.into()),
+                    );
+                    object.insert("run_started_at".to_string(), Value::String(run_started_at));
+                }
+                items.push(payload);
+            }
+        }
+        items
+    } else {
+        vec![]
     };
 
     let provider_health = if table_exists(connection, "provider_health") {
@@ -4509,6 +6088,7 @@ fn read_evidence_for_run(
         "monitor_run": monitor_run,
         "evidence_packet": evidence_packet,
         "analysis_result": analysis_result,
+        "analysis_history": analysis_history,
         "provider_health": provider_health,
         "driver_attention_states": driver_attention_states,
         "alerts": alerts,
@@ -4583,7 +6163,23 @@ pub(crate) fn read_market_agent_snapshot(root: &Path, limit: usize) -> Value {
     let alerts_path = alerts_path_for_root(root);
     let timeline_path = timeline_path_for_root(root);
     let state = read_json_file(&state_path);
-    let alerts = read_alert_rows(&alerts_path, limit);
+    let mut alerts = read_alert_rows(&alerts_path, limit);
+    let mut sqlite_alerts = read_recent_sent_alerts_from_timeline(root, limit);
+    alerts.append(&mut sqlite_alerts);
+    alerts.sort_by(|a, b| {
+        let av = a
+            .get("time")
+            .or_else(|| a.get("run_started_at"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+        let bv = b
+            .get("time")
+            .or_else(|| b.get("run_started_at"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+        bv.cmp(av)
+    });
+    alerts = collapse_alert_repeats(alerts, true, Some(limit));
     json!({
         "ok": true,
         "available": state.is_some() || !alerts.is_empty() || timeline_path.exists(),
@@ -4642,6 +6238,7 @@ pub fn get_market_agent_provider_health(_payload: Value) -> Value {
                         .map(|health| merge_xauusd_provider_health(items.clone(), health))
                         .unwrap_or(items)
                 };
+                let items = enrich_provider_health_items(&connection, monitor_run_id, items);
                 json!({
                     "ok": true,
                     "available": timeline_path.exists(),
@@ -4715,7 +6312,7 @@ pub fn get_market_agent_timeline(payload: Value) -> Value {
         Ok(connection) => connection,
         Err(message) => return build_unavailable_payload(&message, Some(&root)),
     };
-    match read_timeline_items(&connection, start, end) {
+    match read_timeline_items(&connection, start, end, None) {
         Ok(items) => json!({
             "ok": true,
             "available": timeline_path.exists(),
@@ -4743,7 +6340,7 @@ pub fn get_market_agent_state_transitions(payload: Value) -> Value {
         Ok(connection) => connection,
         Err(message) => return build_unavailable_payload(&message, Some(&root)),
     };
-    match read_state_transitions(&connection, start, end) {
+    match read_state_transitions(&connection, start, end, None) {
         Ok(items) => json!({
             "ok": true,
             "available": timeline_path.exists(),
@@ -4771,7 +6368,7 @@ pub fn get_market_agent_suppressed_alerts(payload: Value) -> Value {
         Ok(connection) => connection,
         Err(message) => return build_unavailable_payload(&message, Some(&root)),
     };
-    match read_alerts(&connection, start, end, Some(false)) {
+    match read_alerts(&connection, start, end, Some(false), None) {
         Ok(items) => json!({
             "ok": true,
             "available": timeline_path.exists(),
@@ -4833,7 +6430,12 @@ pub fn get_market_agent_replay(payload: Value) -> Value {
         };
         let start = payload.get("start").and_then(|v| v.as_str()).unwrap_or("");
         let end = payload.get("end").and_then(|v| v.as_str()).unwrap_or("");
-        read_market_agent_replay(&root, start, end)
+        match ReplayReadMode::from_payload(&payload) {
+            ReplayReadMode::Full => read_market_agent_replay(&root, start, end),
+            ReplayReadMode::Dashboard => {
+                read_market_agent_replay_with_mode(&root, start, end, ReplayReadMode::Dashboard)
+            }
+        }
     })
 }
 
@@ -5155,19 +6757,84 @@ pub fn stop_market_agent_monitor_loop(_payload: Value) -> Value {
 }
 
 pub(crate) fn read_market_agent_replay(root: &Path, start: &str, end: &str) -> Value {
+    read_market_agent_replay_with_mode(root, start, end, ReplayReadMode::Full)
+}
+
+fn read_market_agent_replay_with_mode(
+    root: &Path,
+    start: &str,
+    end: &str,
+    mode: ReplayReadMode,
+) -> Value {
     let timeline_path = timeline_path_for_root(root);
     let connection = match open_timeline_db(root) {
         Ok(connection) => connection,
         Err(message) => return build_unavailable_replay_payload(&message, Some(root)),
     };
+    let bounded_month = replay_range_is_month_sized(start, end);
+    let replay_timeline_limit = if bounded_month {
+        MONTH_REPLAY_TIMELINE_ROWS
+    } else {
+        DAY_REPLAY_TIMELINE_ROWS
+    };
+    let replay_driver_limit = if bounded_month {
+        MONTH_REPLAY_DRIVER_ROWS
+    } else {
+        DAY_REPLAY_DRIVER_ROWS
+    };
+    let replay_state_limit = if bounded_month {
+        MONTH_REPLAY_STATE_ROWS
+    } else {
+        DAY_REPLAY_STATE_ROWS
+    };
+    let replay_alert_limit = if bounded_month {
+        MONTH_REPLAY_ALERT_ROWS
+    } else {
+        DAY_REPLAY_ALERT_ROWS
+    };
+    let price_limit = if mode == ReplayReadMode::Dashboard {
+        Some(DASHBOARD_REPLAY_PRICE_ROWS)
+    } else if bounded_month {
+        Some(MONTH_REPLAY_PRICE_ROWS)
+    } else {
+        None
+    };
+    let related_limit = if mode == ReplayReadMode::Dashboard {
+        DASHBOARD_REPLAY_RELATED_ROWS_PER_SYMBOL
+    } else if bounded_month {
+        MONTH_REPLAY_RELATED_ROWS_PER_SYMBOL
+    } else {
+        DAY_REPLAY_RELATED_ROWS_PER_SYMBOL
+    };
+    let news_limit = if mode == ReplayReadMode::Dashboard {
+        DASHBOARD_REPLAY_NEWS_ROWS
+    } else if bounded_month {
+        MONTH_REPLAY_NEWS_ROWS
+    } else {
+        DAY_REPLAY_NEWS_ROWS
+    };
+    let timeline_limit = if mode == ReplayReadMode::Dashboard {
+        DASHBOARD_REPLAY_TIMELINE_ROWS
+    } else {
+        replay_timeline_limit
+    };
+    let driver_limit = if mode == ReplayReadMode::Dashboard {
+        DASHBOARD_REPLAY_DRIVER_ROWS
+    } else {
+        replay_driver_limit
+    };
+    let state_limit = if mode == ReplayReadMode::Dashboard {
+        DASHBOARD_REPLAY_STATE_ROWS
+    } else {
+        replay_state_limit
+    };
+    let alert_limit = if mode == ReplayReadMode::Dashboard {
+        DASHBOARD_REPLAY_ALERT_ROWS
+    } else {
+        replay_alert_limit
+    };
 
-    let price_series = match read_range_payloads(
-        &connection,
-        "market_price_bars",
-        "data_timestamp",
-        start,
-        end,
-    ) {
+    let mut price_series = match read_market_price_payloads(&connection, start, end, price_limit) {
         Ok(rows) => rows,
         Err(err) => {
             return build_unavailable_replay_payload(
@@ -5176,7 +6843,20 @@ pub(crate) fn read_market_agent_replay(root: &Path, start: &str, end: &str) -> V
             )
         }
     };
-    let related_assets = match read_related_assets_map(&connection, start, end) {
+    if price_series.is_empty() {
+        match read_latest_market_price_anchor_before(&connection, "XAUUSD", start) {
+            Ok(Some(anchor)) => price_series.push(anchor),
+            Ok(None) => {}
+            Err(err) => {
+                return build_unavailable_replay_payload(
+                    &format!("Unable to read market replay price anchor: {err}"),
+                    Some(root),
+                )
+            }
+        }
+    }
+    let related_assets = match read_related_assets_map(&connection, start, end, Some(related_limit))
+    {
         Ok(rows) => rows,
         Err(err) => {
             return build_unavailable_replay_payload(
@@ -5185,34 +6865,86 @@ pub(crate) fn read_market_agent_replay(root: &Path, start: &str, end: &str) -> V
             )
         }
     };
-    let news_items = read_news_items(&connection, start, end).unwrap_or_default();
+    let news_items = read_news_items(&connection, start, end, Some(news_limit)).unwrap_or_default();
     let mut calendar_events = read_calendar_context_from_files(root, start, end);
+    let calendar_limit = if mode == ReplayReadMode::Dashboard {
+        Some(DASHBOARD_REPLAY_CALENDAR_ROWS)
+    } else if bounded_month {
+        Some(MONTH_REPLAY_CALENDAR_ROWS)
+    } else {
+        None
+    };
+    if let Some(calendar_limit) = calendar_limit {
+        if calendar_events.len() > calendar_limit {
+            calendar_events = calendar_events
+                .into_iter()
+                .rev()
+                .take(calendar_limit)
+                .collect::<Vec<_>>();
+            calendar_events.reverse();
+        }
+    }
+    if mode == ReplayReadMode::Dashboard && calendar_events.len() > DASHBOARD_REPLAY_CALENDAR_ROWS {
+        calendar_events = calendar_events
+            .into_iter()
+            .rev()
+            .take(DASHBOARD_REPLAY_CALENDAR_ROWS)
+            .collect::<Vec<_>>();
+        calendar_events.reverse();
+    }
     if calendar_events.is_empty() {
-        calendar_events =
-            read_range_payloads(&connection, "calendar_events", "scheduled_at", start, end)
-                .unwrap_or_default();
+        calendar_events = read_range_payloads(
+            &connection,
+            "calendar_events",
+            "scheduled_at",
+            start,
+            end,
+            calendar_limit.map(|limit| limit as i64),
+        )
+        .unwrap_or_default();
     }
     let driver_attention_timeline = if table_exists(&connection, "driver_attention_states")
         && table_exists(&connection, "monitor_runs")
     {
-        query_payload_rows(
-            &connection,
+        let (range_sql, range_values) =
+            replay_range_where("monitor_runs.run_started_at", start, end);
+        let sql = format!(
             "SELECT driver_attention_states.payload_json
              FROM driver_attention_states
              INNER JOIN monitor_runs ON monitor_runs.id = driver_attention_states.monitor_run_id
-             WHERE monitor_runs.run_started_at >= ?1 AND monitor_runs.run_started_at <= ?2
-             ORDER BY monitor_runs.run_started_at, driver_attention_states.id",
-            &[&start, &end],
-        )
-        .unwrap_or_default()
+             WHERE {range_sql}
+             ORDER BY monitor_runs.run_started_at DESC, driver_attention_states.id DESC
+             LIMIT ?"
+        );
+        let mut params: Vec<&dyn rusqlite::ToSql> = range_values
+            .iter()
+            .map(|value| value as &dyn rusqlite::ToSql)
+            .collect();
+        params.push(&driver_limit);
+        if bounded_month {
+            query_payload_rows(&connection, &sql, &params)
+                .map(|mut rows| {
+                    rows.reverse();
+                    rows
+                })
+                .unwrap_or_default()
+        } else {
+            let mut rows = query_payload_rows(&connection, &sql, &params).unwrap_or_default();
+            rows.reverse();
+            rows
+        }
     } else {
         vec![]
     };
-    let timeline_events = read_timeline_items(&connection, start, end).unwrap_or_default();
+    let timeline_events =
+        read_timeline_items(&connection, start, end, Some(timeline_limit)).unwrap_or_default();
     let month_summary_events = build_month_summary_events(&timeline_events);
-    let state_transitions = read_state_transitions(&connection, start, end).unwrap_or_default();
-    let alerts = read_alerts(&connection, start, end, Some(true)).unwrap_or_default();
-    let suppressed_alerts = read_alerts(&connection, start, end, Some(false)).unwrap_or_default();
+    let state_transitions =
+        read_state_transitions(&connection, start, end, Some(state_limit)).unwrap_or_default();
+    let alerts =
+        read_alerts(&connection, start, end, Some(true), Some(alert_limit)).unwrap_or_default();
+    let suppressed_alerts =
+        read_alerts(&connection, start, end, Some(false), Some(alert_limit)).unwrap_or_default();
 
     json!({
         "ok": true,
@@ -5220,6 +6952,7 @@ pub(crate) fn read_market_agent_replay(root: &Path, start: &str, end: &str) -> V
         "timeline_store_path": timeline_path.display().to_string(),
         "start": start,
         "end": end,
+        "mode": mode.as_str(),
         "replay": {
             "price_series": price_series,
             "related_assets": related_assets,
@@ -5239,24 +6972,29 @@ pub(crate) fn read_market_agent_replay(root: &Path, start: &str, end: &str) -> V
 mod tests {
     use super::{
         apply_llm_fallback_policy_for_result, build_live_quote_response,
-        build_live_quote_response_at, clear_ctrader_provider_config, ctrader_config_path_for_root,
-        ctrader_env_for_root, live_quote_snapshot_path_for_root,
+        build_live_quote_response_at, choose_market_agent_root, clear_ctrader_provider_config,
+        completed_manual_monitor_status, ctrader_config_path_for_root, ctrader_env_for_root,
+        enrich_provider_health_items, live_quote_snapshot_path_for_root,
         live_quote_stream_status_path_for_root, llm_config_path_for_root, llm_env_for_root,
         mask_secret, masked_ctrader_provider_config, masked_llm_config_for_root,
-        masked_telegram_config_for_root, merge_xauusd_provider_health, monitor_command_base,
-        monitor_python_program, monitor_status_path_for_root, normalize_ctrader_bridge_error,
-        normalize_pull_progress_line, read_json_file, read_json_object,
-        read_live_quote_stream_status_for_root, read_market_agent_replay,
-        read_market_agent_snapshot, read_monitor_status_for_root,
-        read_monitor_status_for_root_with_activity, read_provider_health_latest,
-        read_runtime_ctrader_xauusd_health, read_saved_ctrader_xauusd_health,
-        recommend_local_model_from_profile, run_backfill_recovery_for_root, run_ctrader_bridge,
-        save_ctrader_provider_config, save_llm_config_for_root, save_telegram_config_for_root,
-        should_reuse_running_monitor, start_ctrader_connect_for_root,
-        start_live_quote_stream_for_root, start_monitor_loop_for_root, stop_monitor_loop_for_root,
-        telegram_config_path_for_root, telegram_env_for_root, test_telegram_for_root,
-        timeline_path_for_root, write_json_atomic, write_monitor_status_for_root,
+        masked_telegram_config_for_root, merge_xauusd_provider_health, monitor_code_signature,
+        monitor_command_base, monitor_python_program, monitor_status_path_for_root,
+        normalize_ctrader_bridge_error, normalize_pull_progress_line, read_json_file,
+        read_json_object, read_live_quote_stream_status_for_root, read_market_agent_replay,
+        read_market_agent_replay_with_mode, read_market_agent_snapshot,
+        read_monitor_status_for_root, read_monitor_status_for_root_with_activity,
+        read_provider_health_latest, read_runtime_ctrader_xauusd_health,
+        read_saved_ctrader_xauusd_health, recommend_local_model_from_profile,
+        run_backfill_recovery_for_root, run_ctrader_bridge, save_ctrader_provider_config,
+        save_llm_config_for_root, save_telegram_config_for_root, should_reuse_running_monitor,
+        start_ctrader_connect_for_root, start_live_quote_stream_for_root,
+        start_monitor_loop_for_root, stop_monitor_loop_for_root, telegram_config_path_for_root,
+        telegram_env_for_root, test_telegram_for_root, timeline_path_for_root, write_json_atomic,
+        write_monitor_status_for_root, ReplayReadMode, DEFAULT_LLM_KEEP_ALIVE,
         DEFAULT_LLM_TEMPERATURE, DEFAULT_LLM_TIMEOUT_SECONDS, DEFAULT_OLLAMA_ENDPOINT,
+        MONTH_REPLAY_ALERT_ROWS, MONTH_REPLAY_CALENDAR_ROWS, MONTH_REPLAY_DRIVER_ROWS,
+        MONTH_REPLAY_NEWS_ROWS, MONTH_REPLAY_PRICE_ROWS, MONTH_REPLAY_RELATED_ROWS_PER_SYMBOL,
+        MONTH_REPLAY_TIMELINE_ROWS,
     };
     use chrono::Utc;
     use filetime::{set_file_mtime, FileTime};
@@ -5659,9 +7397,333 @@ mod tests {
     }
 
     #[test]
+    fn market_agent_root_uses_latest_active_artifacts() {
+        let old_root = unique_temp_dir("root-old");
+        let fresh_root = unique_temp_dir("root-fresh");
+        fs::write(timeline_path_for_root(&old_root), b"old").expect("write old timeline");
+        std::thread::sleep(Duration::from_millis(1200));
+        fs::write(monitor_status_path_for_root(&fresh_root), b"fresh").expect("write fresh status");
+
+        let selected = choose_market_agent_root(vec![old_root.clone(), fresh_root.clone()])
+            .expect("selected root");
+
+        assert_eq!(selected, fresh_root);
+    }
+
+    #[test]
+    fn snapshot_enriches_legacy_sqlite_sent_alerts() {
+        let dir = unique_temp_dir("snapshot-legacy-alerts");
+        let timeline_path = timeline_path_for_root(&dir);
+        seed_timeline_db(&timeline_path);
+        let connection = Connection::open(&timeline_path).expect("open sqlite");
+        connection
+            .execute(
+                "INSERT INTO monitor_runs (id, run_started_at, run_type, data_mode, backfill_required, no_news_found, alert_suppressed_reason, created_at)
+                 VALUES (200, '2026-06-11T14:12:00+08:00', 'live', 'live_seen', 0, 0, NULL, '2026-06-11T14:12:00+08:00')",
+                [],
+            )
+            .expect("insert run");
+        connection
+            .execute(
+                "INSERT INTO analysis_results (monitor_run_id, payload_json) VALUES (?1, ?2)",
+                params![
+                    200,
+                    json!({
+                        "user_message": "Gold remains under pressure from rising yields and a firmer dollar.",
+                        "summary": "Yields and dollar pressure gold.",
+                        "main_driver": "yields",
+                        "cause_status": "confirmed",
+                        "confidence": "high",
+                        "bias": "bearish_gold"
+                    })
+                    .to_string()
+                ],
+            )
+            .expect("insert analysis");
+        connection
+            .execute(
+                "INSERT INTO alerts (monitor_run_id, should_notify, payload_json) VALUES (?1, ?2, ?3)",
+                params![
+                    200,
+                    1,
+                    json!({
+                        "should_notify": true,
+                        "notification_level": "level_2",
+                        "telegram": {"status": "sent", "sent": true}
+                    })
+                    .to_string()
+                ],
+            )
+            .expect("insert legacy alert");
+
+        let payload = read_market_agent_snapshot(&dir, 5);
+        let alerts = payload
+            .get("alerts")
+            .and_then(|value| value.as_array())
+            .expect("alerts array");
+
+        let alert = alerts
+            .iter()
+            .find(|item| item.get("monitor_run_id").and_then(|value| value.as_i64()) == Some(200))
+            .expect("legacy alert");
+        assert_eq!(
+            alert.get("message").and_then(|value| value.as_str()),
+            Some("Gold remains under pressure from rising yields and a firmer dollar.")
+        );
+        assert_eq!(
+            alert.get("main_driver").and_then(|value| value.as_str()),
+            Some("yields")
+        );
+        assert_eq!(
+            alert.get("time").and_then(|value| value.as_str()),
+            Some("2026-06-11T14:12:00+08:00")
+        );
+    }
+
+    #[test]
+    fn snapshot_normalizes_legacy_market_read_sensor_coverage() {
+        let dir = unique_temp_dir("snapshot-market-read-coverage");
+        seed_timeline_db(&timeline_path_for_root(&dir));
+        let connection = Connection::open(timeline_path_for_root(&dir)).expect("open sqlite");
+        connection
+            .execute(
+                "INSERT INTO monitor_runs (id, run_started_at, run_type, data_mode, backfill_required, no_news_found, alert_suppressed_reason, created_at)
+                 VALUES (2, '2026-06-14T19:50:00+08:00', 'live', 'stale', 0, 0, NULL, '2026-06-14T19:50:00+08:00')",
+                [],
+            )
+            .expect("insert run");
+        connection
+            .execute(
+                "INSERT INTO evidence_packets (monitor_run_id, payload_json) VALUES (?1, ?2)",
+                params![
+                    2,
+                    json!({
+                        "evidence_status": {
+                            "dxy": "market_closed_context",
+                            "us10y": "market_closed_context",
+                            "us2y": "market_closed_context",
+                            "oil": "market_closed_context",
+                            "vix_equities": "market_closed_context"
+                        }
+                    })
+                    .to_string()
+                ],
+            )
+            .expect("insert evidence");
+        connection
+            .execute(
+                "INSERT INTO analysis_results (monitor_run_id, payload_json) VALUES (?1, ?2)",
+                params![
+                    2,
+                    json!({
+                        "main_driver": "unknown",
+                        "cause_status": "unconfirmed",
+                        "market_read": {
+                            "status": "context_only",
+                            "coverage": {
+                                "sensors": "0 of 8 usable"
+                            }
+                        }
+                    })
+                    .to_string()
+                ],
+            )
+            .expect("insert analysis");
+
+        let payload = super::read_evidence_for_run(&connection, 2).expect("read evidence");
+        let sensors = payload
+            .get("analysis_result")
+            .and_then(|analysis| {
+                super::nested_value(analysis, &["market_read", "coverage", "sensors"])
+            })
+            .and_then(Value::as_str);
+
+        assert_eq!(sensors, Some("0 fresh / 8 context"));
+    }
+
+    #[test]
+    fn snapshot_reads_enriched_sent_alerts_from_timeline_store() {
+        let dir = unique_temp_dir("snapshot-sqlite-alerts");
+        let timeline_path = timeline_path_for_root(&dir);
+        let connection = Connection::open(&timeline_path).expect("open timeline");
+        connection
+            .execute_batch(
+                "
+                CREATE TABLE monitor_runs (id INTEGER PRIMARY KEY, run_started_at TEXT NOT NULL);
+                CREATE TABLE alerts (
+                    id INTEGER PRIMARY KEY,
+                    monitor_run_id INTEGER NOT NULL,
+                    should_notify INTEGER NOT NULL,
+                    payload_json TEXT NOT NULL
+                );
+                CREATE TABLE analysis_results (
+                    id INTEGER PRIMARY KEY,
+                    monitor_run_id INTEGER NOT NULL,
+                    payload_json TEXT NOT NULL
+                );
+                CREATE TABLE timeline_events (
+                    id INTEGER PRIMARY KEY,
+                    monitor_run_id INTEGER NOT NULL,
+                    event_time TEXT NOT NULL,
+                    event_type TEXT NOT NULL,
+                    label TEXT,
+                    payload_json TEXT NOT NULL
+                );
+                ",
+            )
+            .expect("create schema");
+        connection
+            .execute(
+                "INSERT INTO monitor_runs (id, run_started_at) VALUES (?1, ?2)",
+                params![11, "2026-05-19T08:00:00+08:00"],
+            )
+            .expect("insert run");
+        connection
+            .execute(
+                "INSERT INTO monitor_runs (id, run_started_at) VALUES (?1, ?2)",
+                params![12, "2026-05-19T08:05:00+08:00"],
+            )
+            .expect("insert repeated run");
+        connection
+            .execute(
+                "INSERT INTO alerts (monitor_run_id, should_notify, payload_json) VALUES (?1, ?2, ?3)",
+                params![
+                    11,
+                    1,
+                    json!({
+                        "notification_level": "level_2",
+                        "telegram": {"sent": true}
+                    })
+                    .to_string()
+                ],
+            )
+            .expect("insert alert");
+        connection
+            .execute(
+                "INSERT INTO alerts (monitor_run_id, should_notify, payload_json) VALUES (?1, ?2, ?3)",
+                params![
+                    12,
+                    1,
+                    json!({
+                        "notification_level": "level_2",
+                        "telegram": {"sent": true}
+                    })
+                    .to_string()
+                ],
+            )
+            .expect("insert repeated alert");
+        connection
+            .execute(
+                "INSERT INTO analysis_results (monitor_run_id, payload_json) VALUES (?1, ?2)",
+                params![
+                    11,
+                    json!({
+                        "user_message": "Gold remains under pressure from rising yields.",
+                        "main_driver": "yields",
+                        "cause_status": "confirmed",
+                        "confidence": "high"
+                    })
+                    .to_string()
+                ],
+            )
+            .expect("insert analysis");
+        connection
+            .execute(
+                "INSERT INTO analysis_results (monitor_run_id, payload_json) VALUES (?1, ?2)",
+                params![
+                    12,
+                    json!({
+                        "user_message": "Gold remains under pressure from rising yields.",
+                        "main_driver": "yields",
+                        "cause_status": "confirmed",
+                        "confidence": "high"
+                    })
+                    .to_string()
+                ],
+            )
+            .expect("insert repeated analysis");
+
+        let payload = read_market_agent_snapshot(&dir, 5);
+        let alerts = payload
+            .get("alerts")
+            .and_then(Value::as_array)
+            .expect("alerts array");
+
+        assert_eq!(alerts.len(), 1);
+        assert_eq!(
+            alerts[0].get("message").and_then(Value::as_str),
+            Some("Gold remains under pressure from rising yields.")
+        );
+        assert_eq!(
+            alerts[0].get("main_driver").and_then(Value::as_str),
+            Some("yields")
+        );
+        assert_eq!(
+            alerts[0].get("cause_status").and_then(Value::as_str),
+            Some("confirmed")
+        );
+        assert_eq!(
+            alerts[0].get("monitor_run_id").and_then(Value::as_i64),
+            Some(12)
+        );
+        assert_eq!(
+            alerts[0].get("repeat_count").and_then(Value::as_i64),
+            Some(2)
+        );
+        assert_eq!(
+            alerts[0].get("quiet_repeat_count").and_then(Value::as_i64),
+            Some(1)
+        );
+        assert_eq!(
+            alerts[0].get("first_seen_at").and_then(Value::as_str),
+            Some("2026-05-19T08:00:00+08:00")
+        );
+        assert_eq!(
+            alerts[0].get("last_seen_at").and_then(Value::as_str),
+            Some("2026-05-19T08:05:00+08:00")
+        );
+    }
+
+    #[test]
     fn get_market_agent_replay_returns_replay_structure() {
         let dir = unique_temp_dir("replay");
         seed_timeline_db(&timeline_path_for_root(&dir));
+        let connection = Connection::open(timeline_path_for_root(&dir)).expect("open sqlite");
+        connection
+            .execute(
+                "INSERT INTO monitor_runs (id, run_started_at, run_type, data_mode, backfill_required, no_news_found, alert_suppressed_reason, created_at)
+                 VALUES (2, '2026-05-19T08:10:00+08:00', 'live', 'fresh', 0, 0, NULL, '2026-05-19T08:10:00+08:00')",
+                [],
+            )
+            .expect("insert repeated run");
+        connection
+            .execute(
+                "INSERT INTO analysis_results (monitor_run_id, payload_json) VALUES (?1, ?2)",
+                params![
+                    2,
+                    json!({
+                        "main_driver": "yields",
+                        "cause_status": "likely",
+                        "confidence": "medium"
+                    })
+                    .to_string()
+                ],
+            )
+            .expect("insert repeated analysis");
+        connection
+            .execute(
+                "INSERT INTO alerts (monitor_run_id, should_notify, payload_json) VALUES (?1, ?2, ?3)",
+                params![
+                    2,
+                    1,
+                    json!({
+                        "time": "2026-05-19T08:10:00+08:00",
+                        "message": "Gold remains under yields pressure.",
+                        "notification_level": "level_3"
+                    }).to_string()
+                ],
+            )
+            .expect("insert repeated alert");
 
         let payload = read_market_agent_replay(
             &dir,
@@ -5686,6 +7748,18 @@ mod tests {
             replay.get("alerts").and_then(Value::as_array).map(Vec::len),
             Some(1)
         );
+        let alerts = replay
+            .get("alerts")
+            .and_then(Value::as_array)
+            .expect("alerts");
+        assert_eq!(
+            alerts[0].get("repeat_count").and_then(Value::as_i64),
+            Some(2)
+        );
+        assert_eq!(
+            alerts[0].get("quiet_repeat_count").and_then(Value::as_i64),
+            Some(1)
+        );
         assert_eq!(
             replay
                 .get("suppressed_alerts")
@@ -5699,6 +7773,825 @@ mod tests {
                 .and_then(Value::as_array)
                 .map(Vec::len),
             Some(1)
+        );
+    }
+
+    #[test]
+    fn market_replay_carries_forward_latest_xauusd_price_anchor() {
+        let dir = unique_temp_dir("replay-price-anchor");
+        seed_timeline_db(&timeline_path_for_root(&dir));
+        let connection = Connection::open(timeline_path_for_root(&dir)).expect("open sqlite");
+        connection
+            .execute(
+                "INSERT INTO monitor_runs (id, run_started_at, run_type, data_mode, backfill_required, no_news_found, alert_suppressed_reason, created_at)
+                 VALUES (2, '2026-06-14T00:00:00+08:00', 'live', 'fresh', 0, 0, NULL, '2026-06-14T00:00:00+08:00')",
+                [],
+            )
+            .expect("insert run");
+        connection
+            .execute(
+                "INSERT INTO market_price_bars (monitor_run_id, symbol, data_timestamp, payload_json) VALUES (?1, ?2, ?3, ?4)",
+                params![
+                    2,
+                    "XAUUSD",
+                    "2026-06-12T23:55:00+08:00",
+                    json!({
+                        "symbol": "XAUUSD",
+                        "data_timestamp": "2026-06-12T23:55:00+08:00",
+                        "close_price": 4310.5,
+                        "source_type": "ctrader",
+                        "data_mode": "market_closed"
+                    })
+                    .to_string()
+                ],
+            )
+            .expect("insert prior price row");
+        connection
+            .execute(
+                "INSERT INTO news_items (monitor_run_id, published_at, payload_json) VALUES (?1, ?2, ?3)",
+                params![
+                    2,
+                    "2026-06-14T08:42:22+00:00",
+                    json!({
+                        "published_at": "2026-06-14T08:42:22+00:00",
+                        "source": "CNBC",
+                        "title": "Gold isn�t closed � news context continues",
+                        "summary_title": "Gold weekend context",
+                        "preview": "Traders don�t stop watching macro � even on weekends.",
+                        "included": true,
+                        "data_mode": "live_seen"
+                    })
+                    .to_string()
+                ],
+            )
+            .expect("insert utc news row");
+
+        let payload = read_market_agent_replay(
+            &dir,
+            "2026-06-14T00:00:00+08:00",
+            "2026-06-14T23:59:59+08:00",
+        );
+
+        let price_series = payload
+            .get("replay")
+            .and_then(|replay| replay.get("price_series"))
+            .and_then(Value::as_array)
+            .expect("price series");
+        assert_eq!(price_series.len(), 1);
+        assert_eq!(
+            price_series[0].get("symbol").and_then(Value::as_str),
+            Some("XAUUSD")
+        );
+        assert_eq!(
+            price_series[0].get("close_price").and_then(Value::as_f64),
+            Some(4310.5)
+        );
+        assert_eq!(
+            price_series[0]
+                .get("replay_context_anchor")
+                .and_then(Value::as_bool),
+            Some(true)
+        );
+        assert_eq!(
+            price_series[0]
+                .get("context_anchor_reason")
+                .and_then(Value::as_str),
+            Some("latest_price_before_replay_window")
+        );
+        let news_items = payload
+            .get("replay")
+            .and_then(|replay| replay.get("news_items"))
+            .and_then(Value::as_array)
+            .expect("news items");
+        assert_eq!(news_items.len(), 1);
+        assert_eq!(
+            news_items[0].get("title").and_then(Value::as_str),
+            Some("Gold isn't closed - news context continues")
+        );
+        assert_eq!(
+            news_items[0].get("preview").and_then(Value::as_str),
+            Some("Traders don't stop watching macro - even on weekends.")
+        );
+        assert!(
+            news_items[0].get("summary_title").is_none(),
+            "keyword-pile Local AI summary titles should not override readable raw headlines"
+        );
+    }
+
+    #[test]
+    fn market_replay_price_series_ignores_untracked_market_symbols() {
+        let dir = unique_temp_dir("replay-price-symbol-filter");
+        seed_timeline_db(&timeline_path_for_root(&dir));
+        let connection = Connection::open(timeline_path_for_root(&dir)).expect("open sqlite");
+        connection
+            .execute(
+                "INSERT INTO monitor_runs (id, run_started_at, run_type, data_mode, backfill_required, no_news_found, alert_suppressed_reason, created_at)
+                 VALUES (2, '2026-06-17T09:00:00+08:00', 'live', 'fresh', 0, 0, NULL, '2026-06-17T09:00:00+08:00')",
+                [],
+            )
+            .expect("insert run");
+        for (symbol, price) in [("XAUUSD", 4105.2), ("EURUSD", 1.085), ("BTCUSD", 65000.0)] {
+            connection
+                .execute(
+                    "INSERT INTO market_price_bars (monitor_run_id, symbol, data_timestamp, payload_json) VALUES (?1, ?2, ?3, ?4)",
+                    params![
+                        2,
+                        symbol,
+                        "2026-06-17T09:05:00+08:00",
+                        json!({
+                            "symbol": symbol,
+                            "data_timestamp": "2026-06-17T09:05:00+08:00",
+                            "close_price": price,
+                            "source_type": "test"
+                        })
+                        .to_string()
+                    ],
+                )
+                .expect("insert price row");
+        }
+
+        let payload = read_market_agent_replay(
+            &dir,
+            "2026-06-17T09:00:00+08:00",
+            "2026-06-17T10:00:00+08:00",
+        );
+        let symbols: Vec<String> = payload
+            .get("replay")
+            .and_then(|replay| replay.get("price_series"))
+            .and_then(Value::as_array)
+            .expect("price series")
+            .iter()
+            .filter_map(|row| {
+                row.get("symbol")
+                    .and_then(Value::as_str)
+                    .map(str::to_string)
+            })
+            .collect();
+
+        assert_eq!(symbols, vec!["XAUUSD".to_string()]);
+    }
+
+    #[test]
+    fn day_market_replay_returns_bounded_status_payload() {
+        let dir = unique_temp_dir("replay-day-bounded");
+        let timeline_path = timeline_path_for_root(&dir);
+        seed_timeline_db(&timeline_path);
+        let connection = Connection::open(&timeline_path).expect("open sqlite");
+        let row_count = super::DAY_REPLAY_NEWS_ROWS
+            .max(super::DAY_REPLAY_RELATED_ROWS_PER_SYMBOL)
+            .max(super::DAY_REPLAY_TIMELINE_ROWS)
+            + 40;
+        for index in 0..row_count {
+            let minute = index % 60;
+            let hour = 7 + (index / 60);
+            let timestamp = format!("2026-05-20T{hour:02}:{minute:02}:00+08:00");
+            let run_id = (index + 2) as i64;
+            connection
+                .execute(
+                    "INSERT INTO monitor_runs (id, run_started_at, run_type, data_mode, backfill_required, no_news_found, alert_suppressed_reason, created_at)
+                     VALUES (?1, ?2, 'live', 'fresh', 0, 0, NULL, ?2)",
+                    params![run_id, timestamp],
+                )
+                .expect("insert run");
+            connection
+                .execute(
+                    "INSERT INTO driver_attention_states (monitor_run_id, payload_json) VALUES (?1, ?2)",
+                    params![
+                        run_id,
+                        json!({
+                            "driver_id": format!("driver-{index}"),
+                            "current_state": "active"
+                        })
+                        .to_string()
+                    ],
+                )
+                .expect("insert driver state");
+            connection
+                .execute(
+                    "INSERT INTO state_transitions (monitor_run_id, payload_json) VALUES (?1, ?2)",
+                    params![
+                        run_id,
+                        json!({"state_change_reason": format!("transition {index}")}).to_string()
+                    ],
+                )
+                .expect("insert state transition");
+            connection
+                .execute(
+                    "INSERT INTO alerts (monitor_run_id, should_notify, payload_json) VALUES (?1, ?2, ?3)",
+                    params![
+                        run_id,
+                        0,
+                        json!({"reason": format!("quiet {index}")}).to_string()
+                    ],
+                )
+                .expect("insert suppressed alert");
+            connection
+                .execute(
+                    "INSERT INTO timeline_events (monitor_run_id, event_time, event_type, label, payload_json) VALUES (?1, ?2, ?3, ?4, ?5)",
+                    params![
+                        run_id,
+                        timestamp,
+                        "market_alert",
+                        format!("Marker {index}"),
+                        json!({
+                            "semantic_type": "breakout",
+                            "impact_percent": -0.2,
+                            "main_driver": "yields",
+                            "summary": format!("Marker {index}")
+                        })
+                        .to_string()
+                    ],
+                )
+                .expect("insert timeline row");
+            connection
+                .execute(
+                    "INSERT INTO related_asset_bars (monitor_run_id, symbol, data_timestamp, payload_json) VALUES (?1, ?2, ?3, ?4)",
+                    params![
+                        run_id,
+                        "dxy",
+                        timestamp,
+                        json!({
+                            "symbol": "dxy",
+                            "data_timestamp": timestamp,
+                            "value": 100.0 + index as f64,
+                            "source": "test",
+                            "source_type": "proxy",
+                            "data_mode": "live_seen"
+                        })
+                        .to_string()
+                    ],
+                )
+                .expect("insert related asset row");
+            connection
+                .execute(
+                    "INSERT INTO news_items (monitor_run_id, published_at, payload_json) VALUES (?1, ?2, ?3)",
+                    params![
+                        run_id,
+                        timestamp,
+                        json!({
+                            "published_at": timestamp,
+                            "source": "Test News",
+                            "title": format!("Replay news {index}"),
+                            "preview": format!("Replay news preview {index}"),
+                            "included": true,
+                            "data_mode": "live_seen"
+                        })
+                        .to_string()
+                    ],
+                )
+                .expect("insert news row");
+        }
+
+        let payload = read_market_agent_replay(
+            &dir,
+            "2026-05-20T00:00:00+08:00",
+            "2026-05-20T23:59:59+08:00",
+        );
+        let replay = payload.get("replay").expect("replay");
+        let drivers = replay
+            .get("driver_attention_timeline")
+            .and_then(Value::as_array)
+            .expect("drivers");
+        let states = replay
+            .get("state_transitions")
+            .and_then(Value::as_array)
+            .expect("states");
+        let suppressed = replay
+            .get("suppressed_alerts")
+            .and_then(Value::as_array)
+            .expect("suppressed");
+        let timeline = replay
+            .get("timeline_events")
+            .and_then(Value::as_array)
+            .expect("timeline");
+        let news = replay
+            .get("news_items")
+            .and_then(Value::as_array)
+            .expect("news");
+
+        let expected_first_driver = format!("driver-{}", row_count - super::DAY_REPLAY_DRIVER_ROWS);
+        let expected_first_state =
+            format!("transition {}", row_count - super::DAY_REPLAY_STATE_ROWS);
+        let expected_first_suppressed =
+            format!("quiet {}", row_count - super::DAY_REPLAY_ALERT_ROWS);
+        let expected_first_news =
+            format!("Replay news {}", row_count - super::DAY_REPLAY_NEWS_ROWS);
+        let expected_first_timeline =
+            format!("Marker {}", row_count - super::DAY_REPLAY_TIMELINE_ROWS);
+        assert_eq!(drivers.len(), super::DAY_REPLAY_DRIVER_ROWS as usize);
+        assert_eq!(
+            drivers[0].get("driver_id").and_then(Value::as_str),
+            Some(expected_first_driver.as_str())
+        );
+        assert_eq!(states.len(), super::DAY_REPLAY_STATE_ROWS as usize);
+        assert_eq!(
+            states[0].get("state_change_reason").and_then(Value::as_str),
+            Some(expected_first_state.as_str())
+        );
+        assert_eq!(suppressed.len(), super::DAY_REPLAY_ALERT_ROWS as usize);
+        assert_eq!(
+            suppressed[0].get("reason").and_then(Value::as_str),
+            Some(expected_first_suppressed.as_str())
+        );
+        assert_eq!(news.len(), super::DAY_REPLAY_NEWS_ROWS as usize);
+        assert_eq!(
+            news[0].get("title").and_then(Value::as_str),
+            Some(expected_first_news.as_str())
+        );
+        assert_eq!(timeline.len(), super::DAY_REPLAY_TIMELINE_ROWS as usize);
+        assert_eq!(
+            timeline[0].get("label").and_then(Value::as_str),
+            Some(expected_first_timeline.as_str())
+        );
+        let related = replay
+            .get("related_assets")
+            .and_then(|value| value.get("dxy"))
+            .and_then(Value::as_array)
+            .expect("related dxy");
+        assert_eq!(
+            related.len(),
+            super::DAY_REPLAY_RELATED_ROWS_PER_SYMBOL as usize
+        );
+
+        let dashboard_payload = read_market_agent_replay_with_mode(
+            &dir,
+            "2026-05-20T00:00:00+08:00",
+            "2026-05-20T23:59:59+08:00",
+            ReplayReadMode::Dashboard,
+        );
+        assert_eq!(
+            dashboard_payload.get("mode").and_then(Value::as_str),
+            Some("dashboard")
+        );
+        let dashboard_replay = dashboard_payload.get("replay").expect("dashboard replay");
+        assert_eq!(
+            dashboard_replay
+                .get("driver_attention_timeline")
+                .and_then(Value::as_array)
+                .expect("dashboard drivers")
+                .len(),
+            super::DASHBOARD_REPLAY_DRIVER_ROWS as usize
+        );
+        assert_eq!(
+            dashboard_replay
+                .get("timeline_events")
+                .and_then(Value::as_array)
+                .expect("dashboard timeline")
+                .len(),
+            super::DASHBOARD_REPLAY_TIMELINE_ROWS as usize
+        );
+        assert_eq!(
+            dashboard_replay
+                .get("news_items")
+                .and_then(Value::as_array)
+                .expect("dashboard news")
+                .len(),
+            super::DASHBOARD_REPLAY_NEWS_ROWS as usize
+        );
+        assert_eq!(
+            dashboard_replay
+                .get("related_assets")
+                .and_then(|value| value.get("dxy"))
+                .and_then(Value::as_array)
+                .expect("dashboard related")
+                .len(),
+            super::DASHBOARD_REPLAY_RELATED_ROWS_PER_SYMBOL as usize
+        );
+    }
+
+    #[test]
+    fn market_replay_hides_legacy_context_only_analysis_events() {
+        let dir = unique_temp_dir("replay-context-only-filter");
+        let timeline_path = timeline_path_for_root(&dir);
+        seed_timeline_db(&timeline_path);
+        let connection = Connection::open(&timeline_path).expect("open sqlite");
+        connection
+            .execute(
+                "INSERT INTO monitor_runs (id, run_started_at, run_type, data_mode, backfill_required, no_news_found, alert_suppressed_reason, created_at)
+                 VALUES (2, '2026-05-19T08:20:00+08:00', 'live', 'stale', 0, 0, 'Analysis result does not require notification.', '2026-05-19T08:20:00+08:00')",
+                [],
+            )
+            .expect("insert stale run");
+        connection
+            .execute(
+                "INSERT INTO timeline_events (monitor_run_id, event_time, event_type, label, payload_json) VALUES (?1, ?2, ?3, ?4, ?5)",
+                params![
+                    2,
+                    "2026-05-19T08:20:00+08:00",
+                    "analysis",
+                    "unknown",
+                    json!({
+                        "semantic_type": "range",
+                        "main_driver": "unknown",
+                        "impact_percent": 0.03,
+                        "summary": "Current conclusion is paused until live XAUUSD price and recent price history are available.",
+                        "data_mode": "stale",
+                        "analysis": {
+                            "main_driver": "unknown",
+                            "market_read": {"status": "context_only"}
+                        }
+                    })
+                    .to_string()
+                ],
+            )
+            .expect("insert legacy context-only event");
+
+        let payload = read_market_agent_replay(
+            &dir,
+            "2026-05-19T07:00:00+08:00",
+            "2026-05-19T09:00:00+08:00",
+        );
+        let events = payload
+            .get("replay")
+            .and_then(|value| value.get("timeline_events"))
+            .and_then(Value::as_array)
+            .expect("timeline events");
+
+        assert!(events
+            .iter()
+            .all(|event| { event.get("monitor_run_id").and_then(Value::as_i64) != Some(2) }));
+    }
+
+    #[test]
+    fn market_replay_hides_unknown_no_conclusion_analysis_events() {
+        let dir = unique_temp_dir("replay-unknown-analysis-filter");
+        let timeline_path = timeline_path_for_root(&dir);
+        seed_timeline_db(&timeline_path);
+        let connection = Connection::open(&timeline_path).expect("open sqlite");
+        connection
+            .execute(
+                "INSERT INTO monitor_runs (id, run_started_at, run_type, data_mode, backfill_required, no_news_found, alert_suppressed_reason, created_at)
+                 VALUES (2, '2026-06-17T21:45:09+08:00', 'live', 'live_seen', 0, 0, 'Analysis result does not require notification.', '2026-06-17T21:45:09+08:00')",
+                [],
+            )
+            .expect("insert no-conclusion run");
+        connection
+            .execute(
+                "INSERT INTO timeline_events (monitor_run_id, event_time, event_type, label, payload_json) VALUES (?1, ?2, ?3, ?4, ?5)",
+                params![
+                    2,
+                    "2026-06-17T21:45:09+08:00",
+                    "analysis",
+                    "unknown",
+                    json!({
+                        "semantic_type": "analysis",
+                        "main_driver": "unknown",
+                        "summary": "Insufficient evidence to confirm a main driver.",
+                        "analysis": {
+                            "main_driver": "unknown",
+                            "cause_status": "unconfirmed",
+                            "llm_status": "validated"
+                        }
+                    })
+                    .to_string()
+                ],
+            )
+            .expect("insert unknown analysis event");
+        connection
+            .execute(
+                "INSERT INTO monitor_runs (id, run_started_at, run_type, data_mode, backfill_required, no_news_found, alert_suppressed_reason, created_at)
+                 VALUES (3, '2026-06-17T21:50:00+08:00', 'live', 'live_seen', 0, 0, '', '2026-06-17T21:50:00+08:00')",
+                [],
+            )
+            .expect("insert market run");
+        connection
+            .execute(
+                "INSERT INTO timeline_events (monitor_run_id, event_time, event_type, label, payload_json) VALUES (?1, ?2, ?3, ?4, ?5)",
+                params![
+                    3,
+                    "2026-06-17T21:50:00+08:00",
+                    "market_alert",
+                    "Yields pressure",
+                    json!({
+                        "semantic_type": "breakout",
+                        "main_driver": "yields",
+                        "summary": "Yields confirmed the XAUUSD move."
+                    })
+                    .to_string()
+                ],
+            )
+            .expect("insert market event");
+
+        let payload = read_market_agent_replay(
+            &dir,
+            "2026-06-17T21:00:00+08:00",
+            "2026-06-17T22:00:00+08:00",
+        );
+        let events = payload
+            .get("replay")
+            .and_then(|value| value.get("timeline_events"))
+            .and_then(Value::as_array)
+            .expect("timeline events");
+
+        assert!(events
+            .iter()
+            .all(|event| { event.get("monitor_run_id").and_then(Value::as_i64) != Some(2) }));
+        assert!(events
+            .iter()
+            .any(|event| { event.get("monitor_run_id").and_then(Value::as_i64) == Some(3) }));
+    }
+
+    #[test]
+    fn replay_enriches_legacy_alert_payload_from_analysis_and_timeline() {
+        let dir = unique_temp_dir("replay-alert-enrich");
+        let timeline_path = timeline_path_for_root(&dir);
+        seed_timeline_db(&timeline_path);
+        let connection = Connection::open(&timeline_path).expect("open sqlite");
+        connection
+            .execute(
+                "INSERT INTO monitor_runs (id, run_started_at, run_type, data_mode, backfill_required, no_news_found, alert_suppressed_reason, created_at)
+                 VALUES (2, '2026-05-19T08:30:00+08:00', 'live', 'live_seen', 0, 0, '', '2026-05-19T08:30:00+08:00')",
+                [],
+            )
+            .expect("insert alert run");
+        connection
+            .execute(
+                "INSERT INTO analysis_results (monitor_run_id, payload_json) VALUES (?1, ?2)",
+                params![
+                    2,
+                    json!({
+                        "main_driver": "yields",
+                        "summary": "Gold remains under pressure from rising yields.",
+                        "market_read": {
+                            "move": {"percent": -0.47}
+                        }
+                    })
+                    .to_string()
+                ],
+            )
+            .expect("insert analysis");
+        connection
+            .execute(
+                "INSERT INTO timeline_events (monitor_run_id, event_time, event_type, label, payload_json) VALUES (?1, ?2, ?3, ?4, ?5)",
+                params![
+                    2,
+                    "2026-05-19T08:30:00+08:00",
+                    "market_alert",
+                    "Yields pressure",
+                    json!({
+                        "semantic_type": "breakout",
+                        "main_driver": "yields",
+                        "impact_percent": -0.47,
+                        "summary": "Yields confirmed the XAUUSD down move."
+                    })
+                    .to_string()
+                ],
+            )
+            .expect("insert timeline");
+        connection
+            .execute(
+                "INSERT INTO alerts (monitor_run_id, should_notify, payload_json) VALUES (?1, ?2, ?3)",
+                params![
+                    2,
+                    1,
+                    json!({
+                        "telegram": {"sent": true, "status": "sent"},
+                        "notification_level": "level_2"
+                    })
+                    .to_string()
+                ],
+            )
+            .expect("insert legacy alert");
+
+        let payload = read_market_agent_replay(
+            &dir,
+            "2026-05-19T07:00:00+08:00",
+            "2026-05-19T09:00:00+08:00",
+        );
+        let alerts = payload
+            .get("replay")
+            .and_then(|value| value.get("alerts"))
+            .and_then(Value::as_array)
+            .expect("alerts");
+        let enriched = alerts
+            .iter()
+            .find(|alert| alert.get("monitor_run_id").and_then(Value::as_i64) == Some(2))
+            .expect("enriched alert");
+
+        assert_eq!(
+            enriched.get("message").and_then(Value::as_str),
+            Some("Gold remains under pressure from rising yields.")
+        );
+        assert_eq!(
+            enriched.get("main_driver").and_then(Value::as_str),
+            Some("yields")
+        );
+        assert_eq!(
+            enriched.get("semantic_type").and_then(Value::as_str),
+            Some("breakout")
+        );
+        assert_eq!(
+            enriched.get("impact_percent").and_then(Value::as_f64),
+            Some(-0.47)
+        );
+    }
+
+    #[test]
+    fn month_market_replay_returns_bounded_payload() {
+        let dir = unique_temp_dir("replay-month-bounded");
+        let timeline_path = timeline_path_for_root(&dir);
+        seed_timeline_db(&timeline_path);
+        let connection = Connection::open(&timeline_path).expect("open sqlite");
+        for index in 0..900 {
+            let minute = index % 60;
+            let hour = 8 + (index / 60);
+            let timestamp = format!("2026-05-19T{hour:02}:{minute:02}:00+08:00");
+            connection
+                .execute(
+                    "INSERT INTO market_price_bars (monitor_run_id, symbol, data_timestamp, payload_json) VALUES (?1, ?2, ?3, ?4)",
+                    params![
+                        1,
+                        "XAUUSD",
+                        timestamp,
+                        json!({
+                            "symbol": "XAUUSD",
+                            "data_timestamp": timestamp,
+                            "close_price": 4500.0 + index as f64,
+                            "source_type": "spot",
+                            "data_mode": "live_seen"
+                        }).to_string()
+                    ],
+                )
+                .expect("insert price row");
+        }
+        for index in 0..240 {
+            let minute = index % 60;
+            let hour = 8 + (index / 60);
+            let timestamp = format!("2026-05-20T{hour:02}:{minute:02}:00+08:00");
+            connection
+                .execute(
+                    "INSERT INTO related_asset_bars (monitor_run_id, symbol, data_timestamp, payload_json) VALUES (?1, ?2, ?3, ?4)",
+                    params![
+                        1,
+                        "dxy",
+                        timestamp,
+                        json!({
+                            "symbol": "dxy",
+                            "data_timestamp": timestamp,
+                            "change_15m": index as f64 / 100.0,
+                            "source_type": "proxy",
+                            "data_mode": "live_seen"
+                        }).to_string()
+                    ],
+                )
+                .expect("insert related row");
+        }
+        for index in 0..500 {
+            let minute = index % 60;
+            let hour = 8 + (index / 60);
+            let timestamp = format!("2026-05-21T{hour:02}:{minute:02}:00+08:00");
+            connection
+                .execute(
+                    "INSERT INTO news_items (monitor_run_id, published_at, payload_json) VALUES (?1, ?2, ?3)",
+                    params![
+                        1,
+                        timestamp,
+                        json!({
+                            "title": format!("News item {index}"),
+                            "published_at": timestamp,
+                            "included": true,
+                            "summary_source": "Local AI"
+                        }).to_string()
+                    ],
+                )
+                .expect("insert news row");
+        }
+        for index in 0..240 {
+            let minute = index % 60;
+            let hour = 8 + (index / 60);
+            let timestamp = format!("2026-05-21T{hour:02}:{minute:02}:00+08:00");
+            connection
+                .execute(
+                    "INSERT INTO calendar_events (monitor_run_id, scheduled_at, payload_json) VALUES (?1, ?2, ?3)",
+                    params![
+                        1,
+                        timestamp,
+                        json!({
+                            "title": format!("Calendar event {index}"),
+                            "scheduled_at": timestamp,
+                            "source": "Economic Calendar",
+                            "currency": "USD",
+                            "impact": "Medium"
+                        }).to_string()
+                    ],
+                )
+                .expect("insert calendar row");
+        }
+        for index in 0..700 {
+            connection
+                .execute(
+                    "INSERT INTO driver_attention_states (monitor_run_id, payload_json) VALUES (?1, ?2)",
+                    params![
+                        1,
+                        json!({
+                            "driver_id": format!("driver_{index}"),
+                            "current_state": "active"
+                        }).to_string()
+                    ],
+                )
+                .expect("insert driver state");
+            let minute = index % 60;
+            let hour = 8 + (index / 60);
+            let timestamp = format!("2026-05-22T{hour:02}:{minute:02}:00+08:00");
+            connection
+                .execute(
+                    "INSERT INTO timeline_events (monitor_run_id, event_time, event_type, label, payload_json) VALUES (?1, ?2, ?3, ?4, ?5)",
+                    params![
+                        1,
+                        timestamp,
+                        "market_alert",
+                        format!("Turn {index}"),
+                        json!({
+                            "semantic_type": "breakout",
+                            "impact_percent": -0.4,
+                            "main_driver": "yields",
+                            "summary_title": format!("Turn {index}")
+                        }).to_string()
+                    ],
+                )
+                .expect("insert timeline row");
+        }
+        for index in 0..250 {
+            connection
+                .execute(
+                    "INSERT INTO alerts (monitor_run_id, should_notify, payload_json) VALUES (?1, ?2, ?3)",
+                    params![
+                        1,
+                        1,
+                        json!({"message": format!("Sent {index}")}).to_string()
+                    ],
+                )
+                .expect("insert sent alert");
+            connection
+                .execute(
+                    "INSERT INTO alerts (monitor_run_id, should_notify, payload_json) VALUES (?1, ?2, ?3)",
+                    params![
+                        1,
+                        0,
+                        json!({"message": format!("Suppressed {index}")}).to_string()
+                    ],
+                )
+                .expect("insert suppressed alert");
+        }
+
+        let payload = read_market_agent_replay(
+            &dir,
+            "2026-05-01T00:00:00+08:00",
+            "2026-05-31T23:59:00+08:00",
+        );
+        let replay = payload.get("replay").expect("replay");
+        assert_eq!(
+            replay
+                .get("price_series")
+                .and_then(Value::as_array)
+                .map(Vec::len),
+            Some(MONTH_REPLAY_PRICE_ROWS as usize)
+        );
+        assert_eq!(
+            replay
+                .get("calendar_events")
+                .and_then(Value::as_array)
+                .map(Vec::len),
+            Some(MONTH_REPLAY_CALENDAR_ROWS)
+        );
+        let related = replay
+            .get("related_assets")
+            .and_then(|value| value.get("dxy"))
+            .and_then(Value::as_array)
+            .expect("dxy related rows");
+
+        assert_eq!(related.len(), MONTH_REPLAY_RELATED_ROWS_PER_SYMBOL as usize);
+        assert_eq!(
+            replay
+                .get("news_items")
+                .and_then(Value::as_array)
+                .map(Vec::len),
+            Some(MONTH_REPLAY_NEWS_ROWS as usize)
+        );
+        assert_eq!(
+            replay
+                .get("driver_attention_timeline")
+                .and_then(Value::as_array)
+                .map(Vec::len),
+            Some(MONTH_REPLAY_DRIVER_ROWS as usize)
+        );
+        assert_eq!(
+            replay
+                .get("timeline_events")
+                .and_then(Value::as_array)
+                .map(Vec::len),
+            Some(MONTH_REPLAY_TIMELINE_ROWS as usize)
+        );
+        assert_eq!(
+            replay.get("alerts").and_then(Value::as_array).map(Vec::len),
+            Some(MONTH_REPLAY_ALERT_ROWS as usize)
+        );
+        assert_eq!(
+            replay
+                .get("suppressed_alerts")
+                .and_then(Value::as_array)
+                .map(Vec::len),
+            Some(MONTH_REPLAY_ALERT_ROWS as usize)
         );
     }
 
@@ -6275,6 +9168,36 @@ mod tests {
     }
 
     #[test]
+    fn live_quote_status_probe_clears_dead_bridge_pid_when_launcher_pid_missing() {
+        let dir = unique_temp_dir("live-quote-dead-bridge-probe");
+        let status_path = live_quote_stream_status_path_for_root(&dir);
+        write_json_atomic(
+            &status_path,
+            &json!({
+                "ok": true,
+                "running": true,
+                "phase": "waiting_for_first_snapshot",
+                "pid": null,
+                "bridgePid": 99999999,
+                "message": "cTrader live stream bridge is running. Waiting for the first fresh XAUUSD snapshot.",
+                "lastError": "",
+            }),
+        )
+        .expect("write live status");
+
+        let status = read_live_quote_stream_status_for_root(&dir, true);
+        let saved = read_json_file(&status_path).expect("read saved status");
+
+        assert_eq!(status.get("running").and_then(Value::as_bool), Some(false));
+        assert_eq!(
+            status.get("phase").and_then(Value::as_str),
+            Some("starting")
+        );
+        assert_eq!(status.get("bridgePid"), Some(&Value::Null));
+        assert_eq!(saved.get("bridgePid"), Some(&Value::Null));
+    }
+
+    #[test]
     fn live_quote_status_normalizes_old_stopped_error() {
         let dir = unique_temp_dir("live-quote-old-stopped");
         let status_path = live_quote_stream_status_path_for_root(&dir);
@@ -6485,6 +9408,62 @@ mod tests {
         assert_eq!(
             items[0].get("source").and_then(Value::as_str),
             Some("Yahoo Finance")
+        );
+    }
+
+    #[test]
+    fn provider_health_enrichment_marks_market_closed_context_usable() {
+        let dir = unique_temp_dir("provider-health-market-closed-context");
+        let timeline_path = timeline_path_for_root(&dir);
+        seed_timeline_db(&timeline_path);
+        let connection = Connection::open(&timeline_path).expect("open sqlite");
+        connection
+            .execute(
+                "INSERT INTO provider_health (monitor_run_id, provider_key, payload_json) VALUES (?1, ?2, ?3)",
+                params![
+                    1,
+                    "us2y",
+                    json!({
+                        "source": "Trading Economics US2Y",
+                        "source_type": "yield_quote",
+                        "data_mode": "live_seen",
+                        "is_available": true,
+                        "is_stale": true,
+                        "stale_reason": "Trading Economics US2Y quote is older than freshness threshold.",
+                        "data_timestamp": "2026-06-13T05:20:00+08:00",
+                    })
+                    .to_string()
+                ],
+            )
+            .expect("insert us2y health");
+        connection
+            .execute(
+                "INSERT INTO evidence_packets (monitor_run_id, payload_json) VALUES (?1, ?2)",
+                params![
+                    1,
+                    json!({
+                        "evidence_status": {
+                            "us2y": "market_closed_context"
+                        }
+                    })
+                    .to_string()
+                ],
+            )
+            .expect("insert latest evidence status");
+        let (_, _, items) = read_provider_health_latest(&connection).expect("read provider health");
+        let enriched = enrich_provider_health_items(&connection, Some(1), items);
+        let us2y = enriched
+            .iter()
+            .find(|item| item.get("provider_key").and_then(Value::as_str) == Some("us2y"))
+            .expect("us2y provider health");
+
+        assert_eq!(
+            us2y.get("effective_status").and_then(Value::as_str),
+            Some("market_closed_context")
+        );
+        assert_eq!(
+            us2y.get("usable_as_context").and_then(Value::as_bool),
+            Some(true)
         );
     }
 
@@ -6737,9 +9716,12 @@ mod tests {
                     .as_str()
             )
         );
-        assert_eq!(
-            stream_status.get("phase").and_then(Value::as_str),
-            Some("starting")
+        assert!(
+            matches!(
+                stream_status.get("phase").and_then(Value::as_str),
+                Some("starting" | "waiting_for_first_snapshot")
+            ),
+            "unexpected stream phase: {stream_status}"
         );
         assert!(!spawn_debug.contains("tauri_ctrader_bridge"));
         assert!(!spawn_debug.contains("test-connection"));
@@ -6910,7 +9892,7 @@ mod tests {
                 "model": "qwen3.5:4b",
                 "temperature": DEFAULT_LLM_TEMPERATURE,
                 "timeoutSeconds": DEFAULT_LLM_TIMEOUT_SECONDS,
-                "keepAlive": "0",
+                "keepAlive": DEFAULT_LLM_KEEP_ALIVE,
                 "maxContext": 8192
             }
         });
@@ -7185,6 +10167,37 @@ mod tests {
     }
 
     #[test]
+    fn monitor_status_clears_stopped_pid_residue() {
+        let dir = unique_temp_dir("monitor-stopped-pid-residue");
+        write_monitor_status_for_root(
+            &dir,
+            &json!({
+                "ok": true,
+                "available": true,
+                "running": false,
+                "phase": "stopped",
+                "pid": 74488,
+                "monitorOwnerPid": 74480,
+                "lastRunAt": "2026-06-13T21:06:31.837110+08:00",
+                "nextRunAt": null,
+                "lastError": "",
+                "message": "Monitor run completed."
+            }),
+        )
+        .expect("write stopped status with pid residue");
+
+        let status = read_monitor_status_for_root(&dir);
+
+        assert_eq!(status.get("running").and_then(Value::as_bool), Some(false));
+        assert!(status.get("pid").is_some_and(Value::is_null));
+        assert!(status.get("monitorOwnerPid").is_some_and(Value::is_null));
+        assert_eq!(
+            status.get("message").and_then(Value::as_str),
+            Some("Monitor loop is stopped.")
+        );
+    }
+
+    #[test]
     fn monitor_status_strips_legacy_csv_fallback_activity() {
         let dir = unique_temp_dir("monitor-legacy-csv-fallback");
         write_monitor_status_for_root(
@@ -7259,10 +10272,12 @@ mod tests {
         let second = start_monitor_loop_for_root(&dir, 60, false);
 
         assert_eq!(first.get("running").and_then(Value::as_bool), Some(true));
+        assert_eq!(first.get("autoStart").and_then(Value::as_bool), Some(true));
         assert_eq!(
             second.get("message").and_then(Value::as_str),
             Some("Monitor loop is already running.")
         );
+        assert_eq!(second.get("autoStart").and_then(Value::as_bool), Some(true));
         assert!(monitor_status_path_for_root(&dir).exists());
     }
 
@@ -7290,6 +10305,7 @@ mod tests {
         let status = read_monitor_status_for_root(&dir);
 
         assert_eq!(status.get("running").and_then(Value::as_bool), Some(false));
+        assert_eq!(status.get("autoStart").and_then(Value::as_bool), Some(true));
         assert_eq!(status.get("phase").and_then(Value::as_str), Some("stopped"));
         assert_eq!(
             status.get("message").and_then(Value::as_str),
@@ -7363,6 +10379,40 @@ mod tests {
     }
 
     #[test]
+    fn monitor_status_stops_stale_status_from_previous_app_owner() {
+        let dir = unique_temp_dir("monitor-stale-foreign-owner");
+        let current_pid = std::process::id() as i64;
+        write_monitor_status_for_root(
+            &dir,
+            &json!({
+                "ok": true,
+                "available": true,
+                "running": true,
+                "phase": "llm_review",
+                "pid": 99999999,
+                "monitorOwnerPid": current_pid + 100000,
+                "intervalSeconds": 60,
+                "lastRunAt": "2026-06-11T12:21:57+08:00",
+                "nextRunAt": "2026-06-11T12:22:57+08:00",
+                "lastError": "",
+                "message": "Local AI batch review is running after the evidence gate."
+            }),
+        )
+        .expect("write status");
+        let stale_mtime = FileTime::from_system_time(SystemTime::now() - Duration::from_secs(180));
+        set_file_mtime(monitor_status_path_for_root(&dir), stale_mtime).expect("age status file");
+
+        let status = read_monitor_status_for_root(&dir);
+
+        assert_eq!(status.get("running").and_then(Value::as_bool), Some(false));
+        assert_eq!(status.get("phase").and_then(Value::as_str), Some("stopped"));
+        assert_eq!(
+            status.get("message").and_then(Value::as_str),
+            Some("Monitor loop is stopped.")
+        );
+    }
+
+    #[test]
     fn monitor_status_marks_activity_stale_when_timeline_has_newer_run() {
         let dir = unique_temp_dir("monitor-status-timeline-sync");
         seed_timeline_db(&timeline_path_for_root(&dir));
@@ -7410,27 +10460,91 @@ mod tests {
 
     #[test]
     fn running_monitor_without_owner_pid_is_not_reused_when_spawning() {
+        let dir = unique_temp_dir("monitor-no-owner-signature");
         let app_pid = std::process::id() as i64;
         let current = json!({
             "running": true,
             "pid": 99999999,
+            "agentCodeSignature": monitor_code_signature(&dir),
             "message": "Monitor loop is already running."
         });
 
-        assert_eq!(should_reuse_running_monitor(&current, true, app_pid), false);
+        assert_eq!(
+            should_reuse_running_monitor(&dir, &current, true, app_pid),
+            false
+        );
     }
 
     #[test]
     fn running_monitor_with_matching_owner_pid_is_reused() {
+        let dir = unique_temp_dir("monitor-matching-signature");
         let app_pid = std::process::id() as i64;
         let current = json!({
             "running": true,
             "pid": 12345,
             "monitorOwnerPid": app_pid,
+            "agentCodeSignature": monitor_code_signature(&dir),
             "message": "Monitor loop is already running."
         });
 
-        assert_eq!(should_reuse_running_monitor(&current, true, app_pid), true);
+        assert_eq!(
+            should_reuse_running_monitor(&dir, &current, true, app_pid),
+            true
+        );
+    }
+
+    #[test]
+    fn running_monitor_with_stale_code_signature_is_not_reused() {
+        let dir = unique_temp_dir("monitor-stale-signature");
+        let app_pid = std::process::id() as i64;
+        let current = json!({
+            "running": true,
+            "pid": 12345,
+            "monitorOwnerPid": app_pid,
+            "agentCodeSignature": "old-signature",
+            "message": "Monitor loop is already running."
+        });
+
+        assert_eq!(
+            should_reuse_running_monitor(&dir, &current, true, app_pid),
+            false
+        );
+    }
+
+    #[test]
+    fn manual_monitor_check_keeps_running_loop_status() {
+        let app_pid = std::process::id() as i64;
+        let current = json!({
+            "ok": true,
+            "available": true,
+            "running": true,
+            "phase": "running",
+            "autoStart": true,
+            "pid": 12345,
+            "monitorOwnerPid": app_pid,
+            "intervalSeconds": 60,
+            "lastRunAt": "2026-06-13T09:00:00+08:00",
+            "lastSuccessAt": "2026-06-13T09:00:00+08:00",
+            "nextRunAt": 1_781_320_060,
+            "lastError": "",
+            "message": "Monitor loop is running."
+        });
+
+        let completed = completed_manual_monitor_status(&current, 1_781_320_000);
+
+        assert_eq!(
+            completed.get("running").and_then(Value::as_bool),
+            Some(true)
+        );
+        assert_eq!(
+            completed.get("autoStart").and_then(Value::as_bool),
+            Some(true)
+        );
+        assert_eq!(completed.get("pid").and_then(Value::as_i64), Some(12345));
+        assert_eq!(
+            completed.get("message").and_then(Value::as_str),
+            Some("Manual monitor check completed; monitor loop is still running.")
+        );
     }
 
     #[test]
@@ -7470,6 +10584,10 @@ mod tests {
         let stopped = stop_monitor_loop_for_root(&dir, false);
 
         assert_eq!(stopped.get("running").and_then(Value::as_bool), Some(false));
+        assert_eq!(
+            stopped.get("autoStart").and_then(Value::as_bool),
+            Some(false)
+        );
         assert_eq!(
             stopped.get("phase").and_then(Value::as_str),
             Some("stopped")

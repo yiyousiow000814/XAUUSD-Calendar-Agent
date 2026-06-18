@@ -12,11 +12,11 @@ import type {
 } from "../../types";
 import {
   findProviderHealth,
-  formatShortTime,
   humanizeMarketAgentValue,
   normalizeMarketAgentValue,
   providerGuidance
 } from "../../utils/marketAgentUi";
+import { formatUtcOffset, getSystemUtcOffsetMinutes } from "../../utils/calendarTime";
 
 export type SignalTone = "good" | "working" | "bad" | "muted" | "ai" | "store";
 
@@ -52,6 +52,7 @@ export type SignalDrilldownRow = {
   status: string;
   detail: string;
   meta: string[];
+  tone?: SignalTone;
 };
 
 export type SignalDrilldownSection = {
@@ -133,6 +134,21 @@ export type BuildSignalMapArgs = {
 const textValue = (entry: Record<string, unknown> | undefined, key: string) => {
   const value = entry?.[key];
   return typeof value === "string" && value.trim() ? value.trim() : "";
+};
+
+const userFacingActivityText = (value: string, fallback: string) => {
+  const text = value.trim() || fallback;
+  const normalized = normalizeMarketAgentValue(text);
+  if (
+    normalized.includes("current_conclusion_is_paused") ||
+    normalized.includes("current conclusion is paused") ||
+    normalized.includes("current_driver_conclusions_are_paused")
+  ) {
+    return "News and calendar context is stored and filtered; the current XAUUSD market conclusion waits for live price history.";
+  }
+  return text
+    .replace(/\bEvidence packet JSON\b/g, "Evidence review packet")
+    .replace(/\bEvidence packet\b/g, "Evidence review");
 };
 
 const numberValue = (entry: Record<string, unknown> | undefined, key: string) => {
@@ -299,16 +315,57 @@ const llmTelemetryRows = (llmEntry: Record<string, unknown> | undefined): Signal
     ];
   }
   return telemetry.map((item) => {
+    const rawTask = textValue(item, "task") || "llm_call";
+    const task = normalizeMarketAgentValue(rawTask);
+    const rawStatus = normalizeMarketAgentValue(textValue(item, "status") || "recorded");
+    const status = ["ok", "success", "completed", "validated"].includes(rawStatus)
+      ? "completed"
+      : ["error", "failed", "invalid", "invalid_or_unavailable"].includes(rawStatus)
+        ? "failed"
+        : rawStatus.replace(/_/g, " ");
     const elapsed = numberValue(item, "elapsed_ms");
     const total = numberValue(item, "total_duration_ms");
     const inputTokens = numberValue(item, "input_tokens");
     const outputTokens = numberValue(item, "output_tokens");
     const tps = numberValue(item, "tokens_per_second");
+    const model = textValue(item, "model") || "unknown";
+    const error = textValue(item, "error");
+    const taskInfo = (() => {
+      if (task === "cause_review") {
+        return {
+          label: "Cause review",
+          type: "Cause analysis",
+          result: status === "failed" ? "cause analysis failed" : "cause analysis completed",
+          success: `Model ${model} reviewed the bounded evidence packet and returned a valid cause analysis. This completed the AI cause-review step, not the whole Market Agent run.`,
+          failure: `Model ${model} failed while reviewing the bounded evidence packet, so Market Agent must keep rule-based cause analysis or the last valid stored result.`
+        };
+      }
+      if (task === "display_summary") {
+        return {
+          label: "Display summary",
+          type: "Display text",
+          result: status === "failed" ? "display summary failed" : "display summary completed",
+          success: `Model ${model} created shorter user-facing summary text for dashboard rows. This completed the display-summary step only.`,
+          failure: `Model ${model} failed while creating user-facing summary text. Dashboard rows should fall back to stored source text, and this does not invalidate a separate cause review.`
+        };
+      }
+      return {
+        label: humanizeMarketAgentValue(rawTask),
+        type: "AI call",
+        result: status === "failed" ? "AI call failed" : "AI call completed",
+        success: `Model ${model} completed this Local AI task.`,
+        failure: `Model ${model} failed during this Local AI task.`
+      };
+    })();
     return {
-      label: humanizeMarketAgentValue(textValue(item, "task") || "llm call"),
-      status: textValue(item, "status") || "recorded",
-      detail: textValue(item, "error") || `Model ${textValue(item, "model") || "unknown"} completed this AI step.`,
+      label: taskInfo.label,
+      status,
+      detail: error ? `${taskInfo.failure} Error: ${error}.` : status === "failed" ? taskInfo.failure : taskInfo.success,
       meta: [
+        `task: ${rawTask}`,
+        `type: ${taskInfo.type}`,
+        `result: ${taskInfo.result}`,
+        `model: ${model}`,
         elapsed === null ? "elapsed: not recorded" : `elapsed: ${elapsed}ms`,
         total === null ? "model duration: not recorded" : `model duration: ${total}ms`,
         inputTokens === null ? "input tokens: not recorded" : `input tokens: ${inputTokens}`,
@@ -333,6 +390,86 @@ const shortHistoryText = (value: unknown, fallback = "not recorded") => {
   const text = String(value ?? "").trim();
   if (!text) return fallback;
   return text.length > 150 ? `${text.slice(0, 147)}...` : text;
+};
+
+const historyDisplayText = (value: unknown, fallback = "not recorded") => {
+  const text = firstText(value);
+  return text ? humanizeMarketAgentValue(text) : fallback;
+};
+
+const isUnknownDriver = (value: unknown) => {
+  const normalized = normalizeMarketAgentValue(value);
+  return !normalized || normalized === "unknown" || normalized === "none" || normalized === "not_recorded";
+};
+
+const isUnconfirmedCause = (value: unknown) => {
+  const normalized = normalizeMarketAgentValue(value);
+  return !normalized || normalized === "unconfirmed" || normalized === "unknown" || normalized === "not_confirmed";
+};
+
+const noTradeCallReason = (row: Record<string, unknown>, summary: string) => {
+  const text = normalizeMarketAgentValue(`${summary} ${row.rejection_reason ?? ""} ${row.evidence_status ?? ""}`);
+  if (text.includes("market_closed") || text.includes("market_is_closed") || text.includes("market_reopens")) {
+    return "Market closed, evidence kept";
+  }
+  if (text.includes("live_xauusd") || text.includes("price_history") || text.includes("recent_price_history") || text.includes("current_conclusion_is_paused")) {
+    return "Waiting for live price history";
+  }
+  if (text.includes("no_news")) return "No market news driver found";
+  return "Evidence not enough";
+};
+
+const compactListText = (values: string[], fallback = "not recorded") => values.length ? values.join(" | ") : fallback;
+
+const readableCoverageCount = (value: unknown, noun: string) => {
+  const text = firstText(value);
+  if (!text) return "";
+  const count = text.match(/\d+(?:\s+of\s+\d+)?/i)?.[0] ?? text;
+  return `${count} ${noun}`;
+};
+
+const marketReadSignature = (row: Record<string, unknown>) => {
+  const marketRead = recordValue(row, "market_read");
+  const evidence = recordValue(marketRead, "evidence");
+  return JSON.stringify({
+    engine: firstText(row.analysis_engine),
+    status: firstText(row.llm_status),
+    driver: firstText(row.main_driver),
+    cause: firstText(row.cause_status),
+    confidence: firstText(row.confidence),
+    summary: firstText(row.summary, row.causal_chain),
+    readStatus: firstText(marketRead.status),
+    headline: firstText(marketRead.headline),
+    thesis: firstText(marketRead.thesis),
+    missing: listValue(evidence, "missing"),
+    latestNews: listValue(evidence, "latest_news"),
+    calendar: listValue(evidence, "calendar"),
+    watchNext: listValue(marketRead, "watch_next")
+  });
+};
+
+const compactStoredAiHistoryRows = (rows: Record<string, unknown>[]) => {
+  const groups: Record<string, unknown>[] = [];
+  for (const row of rows) {
+    const signature = marketReadSignature(row);
+    const previous = groups[groups.length - 1];
+    if (previous && previous.__signature === signature) {
+      previous.__repeatCount = Number(previous.__repeatCount ?? 1) + 1;
+      previous.__oldestRunStartedAt = firstText(row.run_started_at, row.created_at, previous.__oldestRunStartedAt);
+      previous.__oldestMonitorRunId = firstText(row.monitor_run_id, previous.__oldestMonitorRunId);
+      continue;
+    }
+    groups.push({
+      ...row,
+      __signature: signature,
+      __repeatCount: 1,
+      __latestRunStartedAt: firstText(row.run_started_at, row.created_at, ""),
+      __oldestRunStartedAt: firstText(row.run_started_at, row.created_at, ""),
+      __latestMonitorRunId: firstText(row.monitor_run_id, ""),
+      __oldestMonitorRunId: firstText(row.monitor_run_id, "")
+    });
+  }
+  return groups;
 };
 
 const normalizeNewsKeyPart = (value: unknown) =>
@@ -397,6 +534,40 @@ const newsPreferenceScore = (item: Record<string, unknown>) => {
   return (hasSummary ? 10_000_000_000_000 : 0) + (included ? 1_000_000_000_000 : 0) + (parseNewsTime(seenAt) ?? 0);
 };
 
+const newsFilterExplanation = (value: unknown) => {
+  switch (normalizeMarketAgentValue(value)) {
+    case "no_market_agent_keyword":
+      return "No Market Agent keyword matched, so this stayed out of evidence.";
+    case "missing_timestamp":
+      return "No reliable published time was available, so this stayed out of evidence.";
+    case "stale_news_item":
+      return "The headline is outside the fresh news window, so this stayed out of evidence.";
+    case "low_signal_opinion_or_forecast":
+      return "This looks like low-signal opinion or forecast content, so this stayed out of evidence.";
+    case "score_below_threshold":
+      return "The relevance score was below the Market Agent threshold.";
+    default:
+      return firstText(value);
+  }
+};
+
+const newsFilterSummaryLabel = (value: unknown) => {
+  switch (normalizeMarketAgentValue(value)) {
+    case "no_market_agent_keyword":
+      return "No Market Agent keyword matched";
+    case "missing_timestamp":
+      return "Missing timestamp";
+    case "stale_news_item":
+      return "Outside fresh news window";
+    case "low_signal_opinion_or_forecast":
+      return "Low-signal opinion or forecast";
+    case "score_below_threshold":
+      return "Relevance score below threshold";
+    default:
+      return humanizeMarketAgentValue(value, "Not recorded");
+  }
+};
+
 const compactNewsItems = (items: Record<string, unknown>[]) => {
   const rows = new Map<string, Record<string, unknown>>();
   items.forEach((item, index) => {
@@ -422,6 +593,159 @@ const compactNewsItems = (items: Record<string, unknown>[]) => {
   return Array.from(rows.values());
 };
 
+const formatNewsCoverageDay = (date: Date) => {
+  const pad = (part: number) => String(part).padStart(2, "0");
+  return `${pad(date.getDate())}-${pad(date.getMonth() + 1)}-${date.getFullYear()}`;
+};
+
+const startOfLocalDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+const parseCoverageDate = (value: unknown) => {
+  const text = firstText(value);
+  if (!text) return null;
+  const parsed = new Date(text);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
+const adjustedCoverageEnd = (start: Date, end: Date) => {
+  const adjusted = new Date(end);
+  if (
+    adjusted.getTime() > start.getTime() &&
+    adjusted.getHours() === 0 &&
+    adjusted.getMinutes() === 0 &&
+    adjusted.getSeconds() === 0 &&
+    adjusted.getMilliseconds() === 0
+  ) {
+    adjusted.setMilliseconds(adjusted.getMilliseconds() - 1);
+  }
+  return adjusted;
+};
+
+const newsCoverageTimestamp = (item: Record<string, unknown>) =>
+  parseCoverageDate(firstText(item.published_at, item.fetched_at, item.first_seen_at, item.last_seen_at));
+
+const isIncludedNewsItem = (item: Record<string, unknown>) =>
+  item.included === true || normalizeMarketAgentValue(item.review_status).includes("included");
+
+const isFilteredNewsItem = (item: Record<string, unknown>) =>
+  item.included === false || normalizeMarketAgentValue(item.review_status).includes("filtered");
+
+const newsSummarySource = (item: Record<string, unknown>) => firstText(item.summary_source, item.ai_summary_source);
+
+const hasNewsAiSummary = (item: Record<string, unknown>) => Boolean(newsSummarySource(item));
+
+const summarizeNewsFilters = (items: Record<string, unknown>[]) => {
+  const counts = new Map<string, number>();
+  items.filter(isFilteredNewsItem).forEach((item) => {
+    const label = newsFilterSummaryLabel(item.filter_reason || item.reason || "Not recorded");
+    counts.set(label, (counts.get(label) ?? 0) + 1);
+  });
+  return Array.from(counts.entries())
+    .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+    .map(([label, count]) => `${label}: ${count}`)
+    .join("; ");
+};
+
+const summarizeNewsSummarySources = (items: Record<string, unknown>[]) => {
+  const counts = new Map<string, number>();
+  items.map(newsSummarySource).filter(Boolean).forEach((source) => {
+    counts.set(source, (counts.get(source) ?? 0) + 1);
+  });
+  return Array.from(counts.entries())
+    .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+    .map(([source, count]) => `${source}: ${count}`)
+    .join("; ");
+};
+
+const minDate = (dates: Date[]) =>
+  dates.reduce<Date | null>((earliest, date) => (!earliest || date.getTime() < earliest.getTime() ? date : earliest), null);
+
+const maxDate = (dates: Date[]) =>
+  dates.reduce<Date | null>((latest, date) => (!latest || date.getTime() > latest.getTime() ? date : latest), null);
+
+const newsCoverageRows = (items: Record<string, unknown>[], replay: MarketAgentReplayResponse | null): SignalDrilldownRow[] => {
+  const compacted = compactNewsItems(items);
+  const datedItems = compacted
+    .map((item) => ({ item, date: newsCoverageTimestamp(item) }))
+    .filter((entry): entry is { item: Record<string, unknown>; date: Date } => entry.date !== null);
+  const itemDates = datedItems.map((entry) => entry.date);
+  const replayStart = parseCoverageDate(replay?.start);
+  const replayEnd = parseCoverageDate(replay?.end);
+  const start = replayStart ?? minDate(itemDates);
+  const end = replayEnd && start ? adjustedCoverageEnd(start, replayEnd) : maxDate(itemDates);
+
+  if (!start || !end || start.getTime() > end.getTime()) {
+    return [
+      {
+        label: "Selected window",
+        status: "empty",
+        detail: "No replay range or stored news timestamp is available, so day-level coverage cannot be shown yet.",
+        meta: [
+          `selected_window: ${firstText(replay?.start, "not recorded")} -> ${firstText(replay?.end, "not recorded")}`,
+          "storage: news_items"
+        ]
+      }
+    ];
+  }
+
+  const byDay = new Map<string, Record<string, unknown>[]>();
+  datedItems.forEach(({ item, date }) => {
+    const key = formatNewsCoverageDay(date);
+    const rows = byDay.get(key) ?? [];
+    rows.push(item);
+    byDay.set(key, rows);
+  });
+
+  const rows: SignalDrilldownRow[] = [];
+  const maxDays = 45;
+  const cursor = startOfLocalDay(start);
+  const endDay = startOfLocalDay(end);
+  while (cursor.getTime() <= endDay.getTime() && rows.length < maxDays) {
+    const label = formatNewsCoverageDay(cursor);
+    const dayItems = byDay.get(label) ?? [];
+    const included = dayItems.filter(isIncludedNewsItem).length;
+    const filtered = dayItems.filter(isFilteredNewsItem).length;
+    const filterReasons = summarizeNewsFilters(dayItems);
+    const aiSummaries = dayItems.filter(hasNewsAiSummary).length;
+    const summarySources = summarizeNewsSummarySources(dayItems);
+    const publishedDates = dayItems.map((item) => parseCoverageDate(item.published_at)).filter((date): date is Date => date !== null);
+    const firstPublished = minDate(publishedDates);
+    const lastPublished = maxDate(publishedDates);
+
+    rows.push({
+      label,
+      status: dayItems.length ? "available" : "missing",
+      detail: dayItems.length
+        ? `${dayItems.length} headline row(s), ${included} included, ${filtered} filtered. Filter reasons: ${filterReasons || "none"}. AI summaries: ${aiSummaries}. Published ${readableDateTime(firstPublished?.toISOString())} -> ${readableDateTime(lastPublished?.toISOString())}.`
+        : "No stored news rows in the selected replay window for this day.",
+      meta: [
+        `selected_window: ${firstText(replay?.start, "not recorded")} -> ${firstText(replay?.end, "not recorded")}`,
+        `included: ${included}`,
+        `filtered: ${filtered}`,
+        `filter_reasons: ${filterReasons || "none"}`,
+        `ai_summaries: ${aiSummaries}`,
+        `summary_sources: ${summarySources || "none"}`,
+        "storage: news_items"
+      ]
+    });
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  if (cursor.getTime() <= endDay.getTime()) {
+    rows.push({
+      label: "Range truncated",
+      status: "partial",
+      detail: `Showing the first ${maxDays} day(s). Narrow the replay range to inspect the rest of the news coverage.`,
+      meta: [
+        `selected_window: ${firstText(replay?.start, "not recorded")} -> ${firstText(replay?.end, "not recorded")}`,
+        "storage: news_items"
+      ]
+    });
+  }
+
+  return rows;
+};
+
 const sensorLabel = (value: string) => value.replace(/[^a-z0-9]/gi, "").toUpperCase();
 
 const aiHistoryItems = (llmEntry: Record<string, unknown> | undefined): SignalDecisionTraceItem[] => {
@@ -435,6 +759,76 @@ const aiHistoryItems = (llmEntry: Record<string, unknown> | undefined): SignalDe
     meta: [...row.meta, "history: LocalLLMClient telemetry"],
     tone: row.status === "error" || row.status === "invalid" ? "bad" : "ai"
   }));
+};
+
+const storedAiHistoryItems = (selectedEvidence: MarketAgentEvidenceForRunResponse | null): SignalDecisionTraceItem[] => {
+  const rows = recordListValue(selectedEvidence?.payload, "analysis_history");
+  return compactStoredAiHistoryRows(rows
+    .filter((row) => firstText(row.analysis_engine) === "llm_validated" || firstText(row.llm_status) === "validated")
+    .slice(0, 100))
+    .map((row): SignalDecisionTraceItem => {
+      const runStartedAt = firstText(row.run_started_at, row.created_at, "");
+      const engine = firstText(row.analysis_engine, "analysis");
+      const llmStatus = firstText(row.llm_status, "stored");
+      const causeStatus = firstText(row.cause_status, "unknown");
+      const mainDriver = firstText(row.main_driver, "unknown");
+      const confidence = firstText(row.confidence, "not recorded");
+      const marketRead = recordValue(row, "market_read");
+      const marketReadCoverage = recordValue(marketRead, "coverage");
+      const marketReadEvidence = recordValue(marketRead, "evidence");
+      const marketReadHeadline = firstText(marketRead?.headline, "");
+      const marketReadThesis = firstText(marketRead?.thesis, "");
+      const marketReadStatus = firstText(marketRead?.status, "");
+      const latestNews = listValue(marketReadEvidence, "latest_news");
+      const missingInputs = listValue(marketReadEvidence, "missing");
+      const watchNext = listValue(marketRead, "watch_next");
+      const coverageLabel = [
+        readableCoverageCount(marketReadCoverage.news, "news"),
+        readableCoverageCount(marketReadCoverage.calendar, "calendar"),
+        readableCoverageCount(marketReadCoverage.sensors, "sensors")
+      ].filter(Boolean).join(", ");
+      const summary = firstText(row.summary, row.causal_chain, "Stored AI analysis result.");
+      const driverLabel = historyDisplayText(mainDriver, "Driver unknown");
+      const causeLabel = historyDisplayText(causeStatus, "Cause unknown");
+      const confidenceLabel = historyDisplayText(confidence, "Confidence not recorded");
+      const noTradeCall = isUnknownDriver(mainDriver) && isUnconfirmedCause(causeStatus);
+      const marketObservation = normalizeMarketAgentValue(marketReadStatus) === "market_observation";
+      const resultLabel = noTradeCall ? noTradeCallReason(row, summary) : `${driverLabel} / ${causeLabel}`;
+      const displayResult = marketObservation ? marketReadHeadline || resultLabel : noTradeCall ? resultLabel : marketReadHeadline || resultLabel;
+      const aiStepLabel = marketObservation ? "Market observation" : noTradeCall ? "Trade-call review" : "Driver cause review";
+      const statusLabel = llmStatus === "validated" ? "ai_validated" : llmStatus;
+      const repeatCount = Number(row.__repeatCount ?? 1);
+      const oldestRunStartedAt = firstText(row.__oldestRunStartedAt, runStartedAt);
+      const repeatedLabel = repeatCount > 1 ? ` This same read repeated ${repeatCount} times from ${oldestRunStartedAt} to ${runStartedAt}.` : "";
+      const reviewScope = coverageLabel ? ` Reviewed ${coverageLabel}.` : "";
+      const missingLabel = missingInputs.length ? ` Missing: ${missingInputs.join(", ")}.` : "";
+      const watchLabel = watchNext.length ? ` Watch next: ${watchNext.join("; ")}.` : "";
+      return {
+        label: aiStepLabel,
+        status: statusLabel,
+        detail: marketObservation
+          ? `${marketReadThesis || summary} This is market context, not a directional trade call yet.${reviewScope}${missingLabel}${watchLabel}${repeatedLabel}`
+          : noTradeCall
+          ? `${marketReadThesis || summary} The review covered price, news, calendar, sensors, and history, but did not publish a current market conclusion. Confidence: ${confidenceLabel}.${reviewScope}${missingLabel}${watchLabel}${repeatedLabel}`
+          : `${marketReadThesis || summary} Main driver: ${driverLabel}. Cause status: ${causeLabel}. Confidence: ${confidenceLabel}.${reviewScope}${watchLabel}${repeatedLabel}`,
+        meta: [
+          `run_started_at: ${runStartedAt}`,
+          `type: ${engine}`,
+          `status: ${llmStatus}`,
+          `result: ${displayResult}`,
+          `market_read_status: ${marketReadStatus || "not recorded"}`,
+          `confidence: ${confidence}`,
+          `repeat_count: ${repeatCount}`,
+          `oldest_run_started_at: ${oldestRunStartedAt}`,
+          `latest_news: ${compactListText(latestNews)}`,
+          `missing: ${compactListText(missingInputs)}`,
+          `watch_next: ${compactListText(watchNext)}`,
+          `monitor_run_id: ${firstText(row.monitor_run_id, "not recorded")}`,
+          "history: analysis_results"
+        ],
+        tone: llmStatus === "validated" ? "ai" : "muted"
+      };
+    });
 };
 
 const suppressionReason = (alert: Record<string, unknown>, monitorRun: Record<string, unknown>, analysisResult: Record<string, unknown>) =>
@@ -550,8 +944,12 @@ const buildDecisionTrace = ({
   const causeStatus = firstText(analysisResult.cause_status, "unknown");
   const runStartedAt = firstText(monitorRun.run_started_at, selectedEvidence?.monitor_run_id ? `run #${selectedEvidence.monitor_run_id}` : "");
   const runLabel = runStartedAt || "Selected run";
-  const summary = "AI History only shows real Local AI calls. Stored analysis results and notification decisions are shown in Status/Outputs audit.";
-  const aiItems = aiHistoryItems(llmEntry);
+  const storedAiItems = storedAiHistoryItems(selectedEvidence);
+  const telemetryAiItems = aiHistoryItems(llmEntry);
+  const summary = storedAiItems.length
+    ? `Showing ${storedAiItems.length} stored Local AI validated analysis result(s) from analysis_results. Current-run telemetry is shown only when stored history is unavailable.`
+    : "This is a Local AI call audit for the selected run. Cause review, display summary, alert review, and other AI tasks can complete or fail independently.";
+  const aiItems = storedAiItems.length ? storedAiItems : telemetryAiItems;
 
   return {
     runLabel,
@@ -665,16 +1063,17 @@ const rawNewsRows = (items: Record<string, unknown>[]): SignalDrilldownRow[] => 
         : filtered
           ? "filtered"
           : "raw captured";
-    const detail = firstText(
+    const preview = firstText(
       item.summary,
       item.short_summary,
+      item.preview,
       item.description,
       item.content,
       item.raw_text,
-      item.reason,
-      item.filter_reason,
       ""
     );
+    const filterExplanation = filtered ? newsFilterExplanation(item.filter_reason || item.reason) : "";
+    const detail = [preview, filterExplanation].filter(Boolean).join(" ");
     return {
       label: shortHistoryText(title, `Headline ${index + 1}`),
       status,
@@ -688,6 +1087,8 @@ const rawNewsRows = (items: Record<string, unknown>[]): SignalDrilldownRow[] => 
         ...(seenCount > 1 ? [`fetches: ${seenCount}`] : []),
         ...(seenCount > 1 ? [`first_seen_at: ${firstText(item.first_seen_at, "not recorded")}`] : []),
         ...(seenCount > 1 ? [`last_seen_at: ${firstText(item.last_seen_at, fetchedAt, "not recorded")}`] : []),
+        ...(firstText(item.link) ? [`link: ${firstText(item.link)}`] : []),
+        ...(filterExplanation ? [`filter: ${filterExplanation}`] : []),
         `summary_source: ${summarySource || "not recorded"}`,
         `evidence: ${firstText(item.evidence_status, item.review_status, item.data_mode, "not recorded")}`,
         "storage: news_items"
@@ -747,9 +1148,14 @@ const node = (input: Omit<SignalNode, "tone"> & { tone?: SignalTone }): SignalNo
 
 const asRecordList = (value: unknown) => (Array.isArray(value) ? value.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object" && !Array.isArray(item)) : []);
 
-const shortDate = (value: unknown) => {
+const monthLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const pad2 = (value: number) => String(value).padStart(2, "0");
+
+const readableDateTime = (value: unknown) => {
   if (typeof value !== "string" || !value.trim()) return "not recorded";
-  return formatShortTime(value) || value;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return `${pad2(parsed.getDate())} ${monthLabels[parsed.getMonth()]} ${parsed.getFullYear()} ${pad2(parsed.getHours())}:${pad2(parsed.getMinutes())} ${formatUtcOffset(getSystemUtcOffsetMinutes(parsed.getTime()))}`;
 };
 
 const timestampMs = (value: unknown) => {
@@ -881,6 +1287,10 @@ export const buildSignalMapModel = ({
   const replayEntry = activity.replay;
   const alertEntry = activity.alerts;
   const summaryEntry = activity.summary;
+  const selfAudit = monitorStatus?.selfAudit ?? null;
+  const selfAuditChecks = asRecordList(selfAudit?.checks);
+  const selfAuditStatus = String(selfAudit?.status || "").trim();
+  const selfAuditSummary = String(selfAudit?.summary || "").trim();
   const payload = replay?.replay;
   const stats = replayStats(payload);
   const selectedEvidencePacket = selectedEvidence?.payload?.evidence_packet as Record<string, unknown> | undefined;
@@ -929,12 +1339,21 @@ export const buildSignalMapModel = ({
   const replayStatus = textValue(replayEntry, "status") || (stats.timelineEvents ? "stored" : "pending");
   const alertStatus = textValue(alertEntry, "status") || (telegramConfig?.telegram?.enabled ? "ready" : "idle");
   const phaseLabel = humanizeMarketAgentValue(monitorStatus?.phase || (monitorStatus?.running ? "running" : "stopped"));
+  const latestStoredRunLabel = monitorStatus?.latestStoredRunAt
+    ? readableDateTime(monitorStatus.latestStoredRunAt)
+    : monitorStatus?.latestMonitorRunId
+      ? `run #${monitorStatus.latestMonitorRunId}`
+      : "available";
   const phaseMessage = activityIsStale
-    ? `${monitorStatus?.message || "Monitor loop is stopped."} Latest stored run is ${String(monitorStatus.latestStoredRunAt || monitorStatus.latestMonitorRunId || "available")}; current signal rows use latest provider health, replay, and evidence instead of the stale activity snapshot.`
-    : monitorStatus?.message || (monitorStatus?.running ? "Agent is checking the market." : "Agent is idle.");
+    ? `${monitorStatus?.message || "Monitor loop is stopped."} Latest stored run is ${latestStoredRunLabel}; current signal rows use latest provider health, replay, and evidence instead of the stale activity snapshot.`
+    : selfAuditSummary || monitorStatus?.message || (monitorStatus?.running ? "Market radar is active between analysis passes." : "Agent is idle.");
   const historyProgress = numberValue(historyEntry, "progress");
-  const allowedDrivers = listValue(evidenceEntry, "allowedCandidateDrivers");
-  const blockedDrivers = recordValue(evidenceEntry, "blockedDrivers");
+  const packetAllowedDrivers = listValue(selectedEvidencePacket, "allowed_candidate_drivers");
+  const activityAllowedDrivers = listValue(evidenceEntry, "allowedCandidateDrivers");
+  const allowedDrivers = packetAllowedDrivers.length ? packetAllowedDrivers : activityAllowedDrivers;
+  const packetBlockedDrivers = recordValue(selectedEvidencePacket, "blocked_drivers");
+  const activityBlockedDrivers = recordValue(evidenceEntry, "blockedDrivers");
+  const blockedDrivers = Object.keys(packetBlockedDrivers).length ? packetBlockedDrivers : activityBlockedDrivers;
   const selectedAlerts = recordListValue(selectedEvidence?.payload, "alerts");
   const replayAlerts = ((payload?.alerts ?? []) as Record<string, unknown>[]).filter(Boolean);
   const auditAlerts = selectedAlerts.length ? selectedAlerts : replayAlerts;
@@ -945,19 +1364,22 @@ export const buildSignalMapModel = ({
         {
           label: fallbackTitle,
           status: textValue(entry, "status") || "not recorded",
-          detail: textValue(entry, "detail") || "No detailed activity jobs were recorded for this step.",
-          meta: [`input: ${textValue(entry, "input") || "not recorded"}`, `output: ${textValue(entry, "output") || "not recorded"}`]
+          detail: userFacingActivityText(textValue(entry, "detail"), "No detailed activity jobs were recorded for this step."),
+          meta: [
+            `input: ${userFacingActivityText(textValue(entry, "input"), "not recorded")}`,
+            `output: ${userFacingActivityText(textValue(entry, "output"), "not recorded")}`
+          ]
         }
       ];
     }
     return jobs.map((job) => ({
       label: textValue(job, "title") || fallbackTitle,
       status: textValue(job, "status") || "recorded",
-      detail: textValue(job, "detail") || "Step was recorded in the monitor activity snapshot.",
+      detail: userFacingActivityText(textValue(job, "detail"), "Step was recorded in the monitor activity snapshot."),
       meta: [
-        `input: ${textValue(job, "input") || "not recorded"}`,
-        `output: ${textValue(job, "output") || "not recorded"}`,
-        `time: ${shortDate(job.timestamp)}`
+        `input: ${userFacingActivityText(textValue(job, "input"), "not recorded")}`,
+        `output: ${userFacingActivityText(textValue(job, "output"), "not recorded")}`,
+        `time: ${readableDateTime(job.timestamp)}`
       ]
     }));
   };
@@ -1015,8 +1437,8 @@ export const buildSignalMapModel = ({
           `price: ${livePriceValue}`,
           `source: ${providerLabel(xauusdHealth, "cTrader")}`,
           `mode: ${xauusdHealth.data_mode || "not recorded"}`,
-          `data_timestamp: ${shortDate(xauusdHealth.data_timestamp)}`,
-          `fetched_at: ${shortDate(xauusdHealth.fetched_at)}`,
+          `data_timestamp: ${readableDateTime(xauusdHealth.data_timestamp)}`,
+          `fetched_at: ${readableDateTime(xauusdHealth.fetched_at)}`,
           `storage: provider_health`
         ]
       }
@@ -1088,8 +1510,8 @@ export const buildSignalMapModel = ({
                 `provider: ${providerLabel(health, sensor.source)}`,
                 `source_type: ${health?.source_type || "unknown"}`,
                 `mode: ${health?.data_mode || String(row?.data_mode || "not recorded")}`,
-                `data_timestamp: ${shortDate(health?.data_timestamp || row?.timestamp || row?.time)}`,
-                `fetched_at: ${shortDate(health?.fetched_at)}`,
+                `data_timestamp: ${readableDateTime(health?.data_timestamp || row?.timestamp || row?.time)}`,
+                `fetched_at: ${readableDateTime(health?.fetched_at)}`,
                 `storage: ${row ? sensor.storage : "not stored in selected range"}`,
                 `requested_by: ${requestedBy}`,
                 `used_by: ${usedBy}`
@@ -1102,23 +1524,24 @@ export const buildSignalMapModel = ({
     });
   });
 
-  const candidateNames = Array.from(new Set([...allowedDrivers, ...Object.keys(blockedDrivers)])).filter(Boolean);
+  const candidateNames = Array.from(new Set([...allowedDrivers, ...Object.keys(blockedDrivers)]))
+    .filter((name) => !isUnknownDriver(name));
   const candidateSensors = (candidateNames.length ? candidateNames : ["geopolitics", "liquidity"]).slice(0, 6).map((name) =>
     node({
       id: `candidate-${normalizeMarketAgentValue(name)}`,
       label: humanizeMarketAgentValue(name),
       lane: "Candidate Sensors",
-      status: blockedDrivers[name] ? "blocked" : "watching",
-      action: blockedDrivers[name] ? "Needs confirmation" : "Watching evidence",
+      status: blockedDrivers[name] ? "guarded" : "watching",
+      action: blockedDrivers[name] ? "Guarded by evidence gate" : "Watching evidence",
       source: "Driver Attention, news grouping, evidence gate, or AI review",
       processing: "Track whether a possible driver has enough observed evidence or needs a provider mapping.",
       output: "Candidate driver gate",
       storage: ["driver_attention_states", "evidence_packets"],
-      ai: "AI can flag unsupported plausible drivers, but blocked drivers cannot become causes.",
+      ai: "AI can flag unsupported plausible drivers, but guarded drivers cannot become causes.",
       trace: [`candidate-${normalizeMarketAgentValue(name)}`, "driver-attention", "candidate-gate", "evidence-packet"],
       detail: blockedDrivers[name] ? String(blockedDrivers[name]) : "Candidate sensor is watched because current context may require confirmation.",
       badges: [
-        { label: blockedDrivers[name] ? "blocked" : "watching", tone: blockedDrivers[name] ? "bad" : "working" },
+        { label: blockedDrivers[name] ? "guarded" : "watching", tone: "working" },
         { label: "not active by default", tone: "muted" }
       ],
       drilldown: [
@@ -1128,7 +1551,7 @@ export const buildSignalMapModel = ({
           rows: [
             {
               label: humanizeMarketAgentValue(name),
-              status: blockedDrivers[name] ? "blocked" : "watching",
+              status: blockedDrivers[name] ? "guarded" : "watching",
               detail: blockedDrivers[name] ? String(blockedDrivers[name]) : "Watching for repeated evidence and cross-asset confirmation.",
               meta: ["state: observed/watching/emerging before active", "storage: driver_attention_states", "guard: evidence gate"]
             }
@@ -1139,7 +1562,7 @@ export const buildSignalMapModel = ({
         ? [
             {
               target: humanizeMarketAgentValue(name),
-              status: "blocked",
+              status: "guarded",
               requestedBy: "Driver attention",
               reason: String(blockedDrivers[name]),
               mode: "theme confirmation"
@@ -1256,7 +1679,7 @@ export const buildSignalMapModel = ({
         action: `${numberValue(contextEntry, "newsCount") ?? stats.newsRows} headline(s)`,
         source: newsSourceLabel,
         processing: "Relevance filtering and grouping before evidence can use a headline.",
-        output: "News grouping + Evidence packet",
+        output: "News grouping + Evidence review",
         storage: ["news_items"],
         ai: "Display summarizer can shorten selected news rows.",
         trace: ["news-source", "news-grouping", "evidence-gate", "display-summarizer", "latest-evidence", "storage-raw"],
@@ -1273,6 +1696,11 @@ export const buildSignalMapModel = ({
             title: "Configured news feeds",
             detail: "News is collected from configured RSS feeds first. Headlines only become evidence after timestamp, dedupe, source scoring, relevance, and market-confirmation checks.",
             rows: newsFeedRows(configuredNewsFeeds, newsHealth, stats)
+          },
+          {
+            title: "News coverage by day",
+            detail: "Shows which days in the selected replay window have stored news rows and which days have no captured news.",
+            rows: newsCoverageRows(((payload?.news_items ?? []) as Record<string, unknown>[]).filter(Boolean), replay)
           },
           {
             title: "News processing path",
@@ -1316,7 +1744,7 @@ export const buildSignalMapModel = ({
         action: `${numberValue(contextEntry, "calendarCount") ?? stats.calendarRows} event(s)`,
         source: "Existing Economic Calendar",
         processing: "Market Agent reads the app's existing Economic Calendar and aligns scheduled events to the current XAUUSD move window.",
-        output: "Calendar context + Evidence packet",
+        output: "Calendar context + Evidence review",
         storage: ["calendar context snapshot"],
         ai: "Display summarizer can shorten selected calendar rows.",
         trace: ["calendar-source", "calendar-context", "evidence-gate", "display-summarizer", "latest-evidence", "storage-raw"],
@@ -1394,32 +1822,79 @@ export const buildSignalMapModel = ({
         label: "Evidence gate",
         lane: "Processing Fabric",
         status: evidenceStatus,
-        action: textValue(evidenceEntry, "detail") || "Checking usable inputs",
+        action: userFacingActivityText(textValue(evidenceEntry, "detail"), "Checking usable inputs"),
         source: "Price, history, news, calendar, sensors",
         processing: "Decides what is usable, stale, blocked, or background.",
-        output: "Driver Attention + Evidence packet",
+        output: "Driver Attention + Evidence review",
         storage: ["evidence_packets"],
         ai: "AI cannot bypass this gate.",
         trace: ["evidence-gate", "driver-attention", "evidence-packet", "storage-derived"],
-        detail: textValue(evidenceEntry, "label") || "Evidence readiness and blocking state.",
+        detail: userFacingActivityText(textValue(evidenceEntry, "label"), "Evidence readiness and blocking state."),
         drilldown: [
           {
-            title: "Evidence gate decisions",
-            detail: "This is the deterministic guard before AI. Unavailable is different from neutral, and blocked drivers cannot become causes.",
+            title: "Driver gate",
+            detail: "Drivers listed here show what can be used now and what is blocked until its required evidence is fresh and confirming.",
             rows: [
-              ...Object.entries(evidenceStatusMap).map(([label, status]) => ({
-                label: humanizeMarketAgentValue(label),
-                status: String(status),
-                detail: String(status) === "unavailable" ? `${humanizeMarketAgentValue(label)} is unavailable, so it is not neutral evidence.` : "Evidence status recorded for this run.",
-                meta: ["source: evidence packet", "storage: evidence_packets"]
-              })),
+              ...(
+                allowedDrivers.length
+                  ? allowedDrivers.map((label) => ({
+                      label: humanizeMarketAgentValue(label),
+                      status: "usable",
+                      detail: "This driver passed the evidence gate for the current run.",
+                      meta: [
+                        "source: evidence gate",
+                        "storage: evidence_packets",
+                        "why: Required evidence is usable for this run.",
+                        "used_by: Driver Attention + AI input guard"
+                      ],
+                      tone: "good"
+                    }))
+                  : [{
+                      label: "Usable drivers",
+                      status: "none",
+                      detail: "No driver passed the evidence gate for this run.",
+                      meta: [
+                        "source: evidence gate",
+                        "storage: evidence_packets",
+                        "why: No allowed_candidate_drivers were recorded."
+                      ],
+                      tone: "working"
+                    }]
+              ),
               ...Object.entries(blockedDrivers).map(([label, reason]) => ({
                 label: humanizeMarketAgentValue(label),
-                status: "blocked",
-                detail: String(reason),
-                meta: ["guard: blocked driver", "AI cannot override"]
+                status: "guarded",
+                detail: `Held out by the evidence gate: ${String(reason)}`,
+                meta: [
+                  "source: evidence gate",
+                  "storage: evidence_packets",
+                  `why: ${String(reason)}`,
+                  "used_by: Driver Attention + AI input guard"
+                ],
+                tone: "good"
               }))
             ]
+          },
+          {
+            title: "Input evidence status",
+            detail: "These are the latest inputs recorded in the evidence packet. Not confirming means present but not usable as confirmation.",
+            rows: Object.entries(evidenceStatusMap).map(([label, status]) => {
+              const statusText = String(status);
+              return {
+                label: humanizeMarketAgentValue(label),
+                status: statusText,
+                detail: statusText === "unavailable"
+                  ? `${humanizeMarketAgentValue(label)} is unavailable, so it is not neutral evidence.`
+                  : "Input status recorded for this run.",
+                meta: [
+                  "source: evidence packet",
+                  "storage: evidence_packets",
+                  `why: ${statusText === "unavailable" ? "Input is unavailable for this run." : "Input is present but has not confirmed the current read."}`,
+                  "used_by: Evidence review + Latest Evidence"
+                ],
+                tone: statusText === "unavailable" ? "bad" : statusText === "supporting" || statusText === "confirming" ? "good" : "working"
+              };
+            })
           }
         ]
       }),
@@ -1431,7 +1906,7 @@ export const buildSignalMapModel = ({
         action: `${allowedDrivers.length} allowed driver(s)`,
         source: "Evidence gate + previous driver states",
         processing: "Move drivers between watching, emerging, active, cooling, retired, and blocked.",
-        output: "Candidate gate + Evidence packet",
+        output: "Candidate gate + Evidence review",
         storage: ["driver_attention_states"],
         ai: "AI sees only allowed/blocked driver context.",
         trace: ["driver-attention", "candidate-gate", "evidence-packet", "storage-derived"],
@@ -1448,7 +1923,7 @@ export const buildSignalMapModel = ({
                   meta: [
                     `priority: ${textValue(state, "priority") || "unknown"}`,
                     `confidence: ${textValue(state, "confidence") || "unknown"}`,
-                    `last_evidence_at: ${shortDate(state.last_evidence_at)}`,
+                    `last_evidence_at: ${readableDateTime(state.last_evidence_at)}`,
                     `storage: driver_attention_states`
                   ]
                 }))
@@ -1465,17 +1940,17 @@ export const buildSignalMapModel = ({
       }),
       node({
         id: "evidence-packet",
-        label: "Evidence packet",
+        label: "Evidence review",
         lane: "Processing Fabric",
         status: evidenceStatus,
         action: "Building bounded packet",
         source: "ScenarioFixture + EvidenceChainStatus",
-        processing: "Compress raw rows and gate state into the packet reviewed by rules and AI.",
+        processing: "Compress raw rows and gate state into the packet checked by rules and eligible Local AI calls.",
         output: "AI checkpoints + Evidence UI",
         storage: ["evidence_packets"],
         ai: "Cause review and display summaries consume this bounded packet.",
         trace: ["evidence-packet", "display-summarizer", "cause-review", "latest-evidence", "storage-derived"],
-        detail: "The evidence packet is the source of truth for downstream explanation.",
+        detail: "The evidence review is the bounded handoff from collected records to explanation.",
         drilldown: [
           {
             title: "Packet contents",
@@ -1508,6 +1983,46 @@ export const buildSignalMapModel = ({
 
   const aiNodes = [
     node({
+      id: "agent-self-audit",
+      label: "Agent health",
+      lane: "AI Checkpoints",
+      status: selfAuditStatus || (monitorStatus?.running ? "running" : "not recorded"),
+      action: selfAuditStatus === "healthy" ? "All required paths healthy" : selfAuditStatus === "action_required" ? "Needs attention" : "Monitoring partial inputs",
+      source: "TimelineStore + provider health + latest evidence packet",
+      processing: "Checks whether price, news, calendar, analysis, replay, and storage are present enough for the current market read.",
+      output: "Activity health summary",
+      storage: ["monitor_runs", "evidence_packets", "analysis_results", "timeline_events"],
+      ai: "Shows whether Local AI or rule fallback produced the latest stored analysis.",
+      trace: ["monitor-run", "agent-self-audit", "activity-output"],
+      detail: selfAuditSummary || "Self-audit is recorded after each monitor pass when the desktop monitor provides a status file.",
+      tone: statusTone(selfAuditStatus || "checking"),
+      drilldown: [
+        {
+          title: "Runtime self-check",
+          detail: selfAuditSummary || "Self-check explains what the agent has, what is partial, and what blocks a current market conclusion.",
+          rows: selfAuditChecks.length
+            ? selfAuditChecks.map((check) => ({
+                label: humanizeMarketAgentValue(String(check.name || "check")),
+                status: String(check.status || "not recorded"),
+                detail: userFacingActivityText(String(check.detail || ""), "No detail recorded for this check."),
+                meta: [
+                  `checked_at: ${readableDateTime(selfAudit?.checked_at)}`,
+                  `latest_evidence_run: ${String(selfAudit?.latest_evidence_run_id ?? "not recorded")}`,
+                  `latest_timeline_event: ${readableDateTime(selfAudit?.latest_timeline_event_at)}`
+                ]
+              }))
+            : [
+                {
+                  label: "Self-check",
+                  status: "not recorded",
+                  detail: "Run the monitor from the desktop app so status can include runtime self-audit.",
+                  meta: ["storage: monitor status file"]
+                }
+              ]
+        }
+      ]
+    }),
+    node({
       id: "display-summarizer",
       label: "Display summarizer",
       lane: "AI Checkpoints",
@@ -1535,8 +2050,8 @@ export const buildSignalMapModel = ({
       lane: "AI Checkpoints",
       status: llmStatus,
       action: textValue(llmEntry, "detail") || "Reviewing cause packet",
-      source: "Evidence packet JSON",
-      processing: "Review the likely driver using only allowed evidence.",
+              source: "Evidence review packet",
+              processing: "Review the likely driver using only allowed evidence.",
       output: "AnalysisResult",
       storage: ["analysis_results"],
       ai: llmConfig?.llm?.enabled ? "Local AI enabled" : "Rule fallback active",
@@ -1552,7 +2067,7 @@ export const buildSignalMapModel = ({
             {
               label: "Prompt input",
               status: llmStatus,
-              detail: "Evidence packet JSON, allowed drivers, blocked drivers, provider health, and previous state.",
+              detail: "Checked source bundle, accepted drivers, unused drivers, provider health, and previous state.",
               meta: ["guard: no outside news", "storage: evidence_packets"]
             },
             {

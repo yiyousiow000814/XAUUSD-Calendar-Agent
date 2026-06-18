@@ -1,11 +1,14 @@
 import type { MarketAgentEvidenceForRunResponse, MarketAgentReplayResponse } from "../types";
-import type { CSSProperties } from "react";
+import { type CSSProperties, useDeferredValue, useEffect, useMemo, useState } from "react";
 import { MarketAgentStatusBadge } from "./MarketAgentStatusBadge";
 import {
+  bestMarketNewsTitle,
   formatDriverLabel,
+  parseMarketAgentTimestampMs,
   formatShortTime
 } from "../utils/marketAgentUi";
 import { normalizeMarketAgentReplayPayload } from "../utils/marketAgentReplay";
+import { backend } from "../api";
 import "./MarketAgentReplay.css";
 
 type MarketAgentReplayProps = {
@@ -34,7 +37,21 @@ type TimelineRow = {
   monitorRunId?: number;
 };
 
+type ReplayDetailItem = {
+  title: string;
+  detail: string;
+  source: string;
+  time: string;
+  tag: string;
+  url?: string;
+  monitorRunId?: number;
+};
+
 type TimelineKind = "breakout" | "news" | "reversal" | "range" | "session" | "recovery" | "suppressed" | "alert" | "calendar" | "evidence";
+
+const REPLAY_NEWS_MARKER_LIMIT = 14;
+const REPLAY_CALENDAR_MARKER_LIMIT = 12;
+const DEFER_REPLAY_ROWS = import.meta.env.MODE !== "test";
 
 const timelineKindMeta: Record<TimelineKind, { tag: string; tone: string }> = {
   breakout: { tag: "BREAKOUT", tone: "red" },
@@ -65,6 +82,53 @@ const formatSignedValue = (value: number, suffix = "") => `${value > 0 ? "+" : "
 
 const rawText = (value: unknown) => String(value ?? "").trim();
 
+const firstUrlValue = (item: Record<string, unknown> | undefined) => {
+  for (const value of [item?.url, item?.link, item?.source_url, item?.article_url, item?.canonical_url]) {
+    const text = rawText(value);
+    if (/^https?:\/\//i.test(text)) return text;
+  }
+  return undefined;
+};
+
+const openOriginalUrl = async (url: string) => {
+  try {
+    const result = await backend.openUrl(url);
+    if (result?.ok) return;
+  } catch {
+    // Fall through to browser fallback.
+  }
+  window.open(url, "_blank", "noreferrer");
+};
+
+const itemSourceLabel = (item: Record<string, unknown> | undefined, fallback: string) =>
+  rawText(item?.source ?? item?.provider ?? item?.feed_name ?? item?.calendar ?? item?.currency) || fallback;
+
+const timestampValue = (item: Record<string, unknown>) =>
+  item.published_at ??
+  item.first_seen_at ??
+  item.last_seen_at ??
+  item.scheduled_at ??
+  item.timestamp_myt ??
+  item.event_time ??
+  item.timestamp ??
+  "";
+
+const timestampMs = (value: unknown) => {
+  return parseMarketAgentTimestampMs(value) ?? 0;
+};
+
+const compareTimelineTimeAsc = (left: unknown, right: unknown) => {
+  const leftMs = parseMarketAgentTimestampMs(left);
+  const rightMs = parseMarketAgentTimestampMs(right);
+  if (leftMs !== null && rightMs !== null) return leftMs - rightMs;
+  if (leftMs !== null) return -1;
+  if (rightMs !== null) return 1;
+  return String(left ?? "").localeCompare(String(right ?? ""));
+};
+
+const compareTimelineTimeDesc = (left: unknown, right: unknown) =>
+  compareTimelineTimeAsc(right, left);
+
 const summaryText = (item: Record<string, unknown> | undefined, fallback = "") => {
   for (const value of [
     item?.summary,
@@ -81,11 +145,19 @@ const summaryText = (item: Record<string, unknown> | undefined, fallback = "") =
 };
 
 const summaryTitle = (item: Record<string, unknown> | undefined, fallback: string) => {
-  for (const value of [item?.summary_title, item?.short_title, item?.ai_title, item?.display_title, fallback]) {
-    const text = rawText(value);
-    if (text) return text;
-  }
-  return fallback;
+  return bestMarketNewsTitle(
+    [
+      item?.display_title,
+      item?.ai_title,
+      item?.short_title,
+      item?.summary_title,
+      item?.title,
+      fallback,
+      item?.summary,
+      item?.description
+    ],
+    fallback
+  );
 };
 
 const driverValue = (row: TimelineRow) => normalizeValue(row.payload?.main_driver ?? row.payload?.driver ?? row.meta);
@@ -121,6 +193,19 @@ const compactTimelineTitle = (row: TimelineRow) => {
 
 const compactTimelineDetail = (row: TimelineRow) => summaryText(row.payload, replayMetaText(row));
 
+const replayRowDetail = (row: TimelineRow): ReplayDetailItem => {
+  const kind = inferTimelineKind(row);
+  return {
+    title: compactTimelineTitle(row),
+    detail: compactTimelineDetail(row),
+    source: itemSourceLabel(row.payload, row.meta || sourceLabel(row)),
+    time: row.time,
+    tag: timelineKindMeta[kind].tag,
+    url: firstUrlValue(row.payload),
+    monitorRunId: row.monitorRunId
+  };
+};
+
 const formatTimelineImpact = (row: TimelineRow) => {
   if (row.source === "calendar") {
     const impact = String(row.payload?.impact ?? "").toLowerCase();
@@ -143,22 +228,90 @@ const timelineImpactValue = (row: TimelineRow) => {
   return payloadImpact ?? segmentImpact;
 };
 
-const replayMode = (rangePreset: string): "day" | "month" => (rangePreset === "month" ? "month" : "day");
+const observedPriceMoveRow = (payload: MarketAgentReplayResponse["replay"]): TimelineRow | null => {
+  const rows = payload.price_series ?? [];
+  if (rows.length < 2) return null;
+  const sorted = [...rows].sort((left, right) =>
+    compareTimelineTimeAsc(left.data_timestamp ?? left.timestamp ?? "", right.data_timestamp ?? right.timestamp ?? "")
+  );
+  const latest = sorted[sorted.length - 1];
+  const previous = sorted[sorted.length - 2];
+  const latestPrice = numberValue(latest.close_price ?? latest.close ?? latest.mid);
+  const previousPrice = numberValue(previous.close_price ?? previous.close ?? previous.mid);
+  if (latestPrice === null || previousPrice === null || previousPrice === 0) return null;
+  const movePercent =
+    numberValue(latest.move_percent ?? latest.change_pct ?? latest.change_15m_pct) ??
+    ((latestPrice - previousPrice) / previousPrice) * 100;
+  if (!Number.isFinite(movePercent) || Math.abs(movePercent) < 0.01) return null;
+  const direction = movePercent < 0 ? "down" : "up";
+  return {
+    key: `price-${String(latest.data_timestamp ?? latest.timestamp ?? "")}`,
+    time: String(latest.data_timestamp ?? latest.timestamp ?? ""),
+    type: "Price",
+    title: `Observed XAUUSD ${direction === "down" ? "drop" : "rise"} ${formatSignedValue(movePercent, "%")}`,
+    meta: "Price action",
+    status: "observed",
+    source: "event",
+    payload: {
+      semantic_type: Math.abs(movePercent) >= 0.18 ? "breakout" : "range",
+      impact_percent: movePercent,
+      direction,
+      main_driver: "price_action",
+      summary: `XAUUSD moved ${formatSignedValue(movePercent, "%")} between the latest stored price bars.`
+    }
+  };
+};
 
-const replayModeLabel = (rangePreset: string) => (replayMode(rangePreset) === "month" ? "Month: major turns" : "Day: detailed flow");
+const replayMode = (rangePreset: string): "day" | "month" =>
+  rangePreset === "month" ? "month" : "day";
+
+const replayModeLabel = (rangePreset: string) => {
+  const mode = replayMode(rangePreset);
+  if (mode === "month") return "Month: latest first";
+  return "Day: latest first";
+};
 
 const hasConfirmedDriver = (row: TimelineRow) => {
   const driver = driverValue(row);
   return Boolean(driver && !["unknown", "no_state_change"].includes(driver));
 };
 
+const hasMarketReadObservation = (row: TimelineRow) => {
+  const marketRead =
+    (row.payload?.market_read && typeof row.payload.market_read === "object" ? row.payload.market_read as Record<string, unknown> : null) ??
+    (row.payload?.analysis && typeof row.payload.analysis === "object"
+      ? (row.payload.analysis as Record<string, unknown>).market_read as Record<string, unknown> | undefined
+      : null);
+  if (!marketRead) return false;
+  const headline = rawText(marketRead.headline ?? marketRead.summary_title);
+  const status = normalizeValue(marketRead?.status ?? row.payload?.cause_status ?? row.status);
+  return Boolean(headline && normalizeValue(headline) !== "unknown" && status !== "context_only");
+};
+
+const isInternalReviewStatusRow = (row: TimelineRow) => {
+  const semanticType = normalizeValue(row.payload?.semantic_type ?? row.type);
+  const eventType = normalizeValue(row.type);
+  const summary = normalizeValue(row.payload?.summary ?? row.payload?.causal_chain ?? row.title);
+  const tradeConclusion = row.payload?.trade_conclusion;
+  return Boolean(
+    semanticType === "context_review" ||
+      eventType === "context_review" ||
+      tradeConclusion === false ||
+      summary.includes("needs_fresh_live_price") ||
+      summary.includes("needs fresh live price") ||
+      summary.includes("recent price history")
+  );
+};
+
 const isContextOnlyAnalysisRow = (row: TimelineRow) => {
   if (row.source !== "event") return false;
+  if (hasMarketReadObservation(row)) return false;
   const driver = driverValue(row);
   const impact = timelineImpactValue(row);
   const causeStatus = normalizeValue(row.payload?.cause_status ?? row.status);
   const summary = normalizeValue(row.payload?.summary ?? row.payload?.causal_chain);
   return (
+    isInternalReviewStatusRow(row) ||
     !driver ||
     driver === "unknown" ||
     causeStatus === "unconfirmed" ||
@@ -178,6 +331,81 @@ const isAnalyzedNewsRow = (item: Record<string, unknown>) => {
     (driver && driver !== "unknown") ||
     numberValue(item.impact_percent) !== null
   );
+};
+
+const isReplayNewsRow = (item: Record<string, unknown>) => {
+  if (!rawText(item.title ?? item.summary_title)) return false;
+  const filterReason = normalizeValue(item.filter_reason ?? item.reason);
+  const reviewStatus = normalizeValue(item.review_status ?? item.evidence_status ?? item.included);
+  if (filterReason.includes("no_market_agent_keyword")) return false;
+  if (item.included === false || ["false", "filtered", "excluded", "rejected", "dropped", "unreviewed_context"].includes(reviewStatus)) {
+    return false;
+  }
+  return item.included === true || isAnalyzedNewsRow(item);
+};
+
+const isReplayCalendarRow = (item: Record<string, unknown>) => {
+  const text = normalizeValue(`${item.title ?? ""} ${item.summary ?? ""} ${item.description ?? ""}`);
+  if (!text) return false;
+  const reviewStatus = normalizeValue(item.review_status ?? item.evidence_status ?? item.included);
+  if (item.included === false || ["false", "filtered", "excluded", "rejected", "dropped"].includes(reviewStatus)) return false;
+  const impact = normalizeValue(item.impact ?? item.importance ?? item.context_type ?? item.relevance_reason);
+  const currency = normalizeValue(item.currency ?? item.country ?? item.region);
+  if (text.includes("session_open") || text.includes("session_opens") || text.includes("market_session")) return false;
+  if (impact.includes("holiday") || text.includes("holiday") || text.includes("birthday") || text.includes("bank_holiday")) return false;
+  if (["accepted", "used", "included", "supporting", "confirming", "true"].includes(reviewStatus)) return true;
+  if (currency && currency !== "usd" && !text.includes("fed") && !text.includes("fomc")) return false;
+  if (
+    !currency &&
+    ["german", "french", "spanish", "italian", "eurozone", "ecb", "buba", "boe", "boj", "rba", "boc"].some((needle) =>
+      text.includes(needle)
+    )
+  ) {
+    return false;
+  }
+  return [
+    "fed",
+    "fomc",
+    "powell",
+    "us_",
+    "u_s",
+    "michigan",
+    "rate",
+    "treasury",
+    "yield",
+    "cpi",
+    "ppi",
+    "pce",
+    "inflation",
+    "nfp",
+    "payroll",
+    "jobless",
+    "unemployment",
+    "retail_sales",
+    "ism",
+    "pmi",
+    "gdp",
+    "auction",
+    "consumer_confidence",
+    "sentiment"
+  ].some((needle) => text.includes(needle));
+};
+
+const uniqueMarketContextRows = (rows: Record<string, unknown>[], limit: number) => {
+  const seen = new Set<string>();
+  return [...rows]
+    .sort((left, right) => timestampMs(timestampValue(right)) - timestampMs(timestampValue(left)))
+    .filter((row) => {
+      const title = rawText(row.title ?? row.summary_title ?? row.display_title ?? row.ai_title ?? row.short_title);
+      const link = rawText(row.link ?? row.url ?? row.guid);
+      const source = rawText(row.source);
+      const scheduled = rawText(row.scheduled_at);
+      const key = normalizeValue(`${title}|${link || source}|${scheduled && !link ? scheduled : ""}`);
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, limit);
 };
 
 const isMaintenanceRow = (row: TimelineRow) => {
@@ -245,10 +473,9 @@ const dedupeMajorRows = (rows: TimelineRow[]) => {
 
 const buildTimelineRows = (payload: MarketAgentReplayResponse["replay"]): TimelineRow[] => {
   const eventRunIds = new Set(payload.timeline_events.map((item) => item.monitor_run_id).filter(Boolean));
-  const reviewedCalendarEvents = payload.calendar_events.filter((item) => {
-    const reviewStatus = normalizeValue(item.review_status);
-    return reviewStatus && reviewStatus !== "unreviewed_context";
-  });
+  const replayNewsItems = uniqueMarketContextRows(payload.news_items.filter(isReplayNewsRow), REPLAY_NEWS_MARKER_LIMIT);
+  const replayCalendarEvents = uniqueMarketContextRows(payload.calendar_events.filter(isReplayCalendarRow), REPLAY_CALENDAR_MARKER_LIMIT);
+  const observedMove = observedPriceMoveRow(payload);
   const rows: TimelineRow[] = [
     ...payload.timeline_events.map((item) => ({
       key: `timeline-${item.monitor_run_id}-${item.event_time}-${item.label}`,
@@ -261,9 +488,9 @@ const buildTimelineRows = (payload: MarketAgentReplayResponse["replay"]): Timeli
       payload: item.payload,
       monitorRunId: item.monitor_run_id
     })),
-    ...payload.news_items.filter(isAnalyzedNewsRow).map((item, index) => ({
+    ...replayNewsItems.map((item, index) => ({
       key: `news-${index}-${String(item.published_at ?? item.title ?? "")}`,
-      time: String(item.published_at ?? item.first_seen_at ?? ""),
+      time: String(timestampValue(item)),
       type: "News",
       title: summaryTitle(item, String(item.title ?? "News item")),
       meta: String(item.source ?? formatDriverLabel(item.driver ?? item.category ?? "news")),
@@ -271,7 +498,7 @@ const buildTimelineRows = (payload: MarketAgentReplayResponse["replay"]): Timeli
       source: "news" as const,
       payload: item
     })),
-    ...reviewedCalendarEvents.map((item, index) => ({
+    ...replayCalendarEvents.map((item, index) => ({
       key: `calendar-${index}-${String(item.scheduled_at ?? item.title ?? "")}`,
       time: String(item.scheduled_at ?? ""),
       type: "Calendar",
@@ -297,11 +524,12 @@ const buildTimelineRows = (payload: MarketAgentReplayResponse["replay"]): Timeli
       }))
   ];
 
-  return rows
+  const visibleRows = rows
     .filter((row) => !isContextOnlyAnalysisRow(row))
     .filter((row) => row.source !== "suppressed")
     .filter((row) => row.time || row.title)
-    .sort((left, right) => String(left.time).localeCompare(String(right.time)));
+    .sort((left, right) => compareTimelineTimeDesc(left.time, right.time));
+  return visibleRows.length ? visibleRows : observedMove ? [observedMove] : [];
 };
 
 const buildMonthSummaryRows = (payload: MarketAgentReplayResponse["replay"]): TimelineRow[] => {
@@ -319,12 +547,83 @@ const buildMonthSummaryRows = (payload: MarketAgentReplayResponse["replay"]): Ti
       monitorRunId: item.monitor_run_id
     }))
     .filter((row) => row.time || row.title)
-    .sort((left, right) => String(left.time).localeCompare(String(right.time)));
+    .sort((left, right) => compareTimelineTimeDesc(left.time, right.time));
+};
+
+const objectValue = (value: unknown): Record<string, unknown> | null =>
+  value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
+
+const textListValue = (value: unknown): string[] =>
+  Array.isArray(value) ? value.map((item) => rawText(item)).filter(Boolean) : [];
+
+const selectedEvidenceFallbackRows = (
+  selectedEvidence: MarketAgentEvidenceForRunResponse | null | undefined
+): TimelineRow[] => {
+  const packet = objectValue(selectedEvidence?.payload?.evidence_packet);
+  const analysis = objectValue(selectedEvidence?.payload?.analysis_result);
+  const marketRead = objectValue(packet?.market_read) ?? objectValue(analysis?.market_read);
+  if (!marketRead) return [];
+  const runTime = rawText(selectedEvidence?.payload?.monitor_run?.run_started_at);
+  const evidence = objectValue(marketRead.evidence);
+  const rows: TimelineRow[] = [];
+  const headline = rawText(marketRead.headline);
+  if (headline && normalizeValue(headline) !== "unknown") {
+    rows.push({
+      key: `selected-market-read-${runTime || headline}`,
+      time: runTime,
+      type: "Market read",
+      title: headline,
+      meta: formatDriverLabel(marketRead.driver ?? analysis?.main_driver ?? "market_read"),
+      status: rawText(marketRead.status) || rawText(analysis?.cause_status) || "reviewed",
+      source: "event",
+      payload: {
+        ...marketRead,
+        main_driver: marketRead.driver ?? analysis?.main_driver ?? "market_read",
+        semantic_type: "evidence",
+        summary: rawText(marketRead.thesis) || "Stored market read · Evidence packet"
+      }
+    });
+  }
+  textListValue(evidence?.latest_news).slice(0, 3).forEach((title, index) => {
+    rows.push({
+      key: `selected-news-${index}-${title}`,
+      time: runTime,
+      type: "News",
+      title,
+      meta: "News",
+      status: "reviewed",
+      source: "news",
+      payload: {
+        title,
+        summary: "Reviewed news · Evidence packet",
+        included: true,
+        summary_source: "local_ai"
+      }
+    });
+  });
+  textListValue(evidence?.calendar).slice(0, 2).forEach((title, index) => {
+    rows.push({
+      key: `selected-calendar-${index}-${title}`,
+      time: runTime,
+      type: "Calendar",
+      title,
+      meta: "Calendar",
+      status: "reviewed",
+      source: "calendar",
+      payload: {
+        title,
+        summary: "Reviewed calendar · Evidence packet",
+        included: true,
+        impact: "medium"
+      }
+    });
+  });
+  return rows.filter((row) => row.time || row.title);
 };
 
 export function MarketAgentReplay({
   replay,
-  selectedEvidence: _selectedEvidence,
+  selectedEvidence,
   selectedMonitorRunId: _selectedMonitorRunId,
   rangePreset,
   rangeStartInput,
@@ -335,11 +634,43 @@ export function MarketAgentReplay({
   onApplyRange,
   onSelectRun: _onSelectRun
 }: MarketAgentReplayProps) {
-  const payload = normalizeMarketAgentReplayPayload(replay?.replay);
-  const allRows = buildTimelineRows(payload);
+  const [selectedDetail, setSelectedDetail] = useState<ReplayDetailItem | null>(null);
   const mode = replayMode(rangePreset);
-  const monthSummaryRows = buildMonthSummaryRows(payload);
-  const rows = mode === "month" && monthSummaryRows.length ? monthSummaryRows : mode === "month" ? dedupeMajorRows(allRows.filter(isMajorTimelineRow)) : allRows;
+  const [rowsReady, setRowsReady] = useState(!DEFER_REPLAY_ROWS);
+  const deferredReplay = useDeferredValue(replay);
+  useEffect(() => {
+    if (!DEFER_REPLAY_ROWS) {
+      setRowsReady(true);
+      return undefined;
+    }
+    setRowsReady(false);
+    let raf1 = 0;
+    let raf2 = 0;
+    let cancelled = false;
+    raf1 = window.requestAnimationFrame(() => {
+      raf2 = window.requestAnimationFrame(() => {
+        if (!cancelled) setRowsReady(true);
+      });
+    });
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(raf1);
+      window.cancelAnimationFrame(raf2);
+    };
+  }, [deferredReplay, mode]);
+  const rows = useMemo(() => {
+    if (!rowsReady) return [];
+    const payload = normalizeMarketAgentReplayPayload(deferredReplay?.replay);
+    const allRows = buildTimelineRows(payload);
+    const monthSummaryRows = buildMonthSummaryRows(payload);
+    if (mode === "month" && monthSummaryRows.length) return monthSummaryRows;
+    if (mode === "month") {
+      const majorRows = dedupeMajorRows(allRows.filter(isMajorTimelineRow));
+      const fallbackRows = selectedEvidenceFallbackRows(selectedEvidence);
+      return majorRows.length ? majorRows : dedupeMajorRows(allRows).length ? dedupeMajorRows(allRows) : fallbackRows;
+    }
+    return allRows.length ? allRows : selectedEvidenceFallbackRows(selectedEvidence);
+  }, [deferredReplay, mode, rowsReady, selectedEvidence]);
   const modeLabel = replayModeLabel(rangePreset);
   const markerLabel = mode === "month" ? "major turns" : "market markers";
 
@@ -384,59 +715,140 @@ export function MarketAgentReplay({
         </button>
       </div>
 
-      {!replay?.available ? (
-        <div className="market-agent-empty-state">{replay?.message || "Replay data is unavailable."}</div>
+      {!deferredReplay?.available ? (
+        <div className="market-agent-empty-state">{deferredReplay?.message || "Replay data is unavailable."}</div>
       ) : (
         <div className="market-agent-replay-story" data-qa="qa:market-agent:timeline-list">
           <div className="market-agent-replay-story-head">
             <div>
               <span>Market Replay</span>
-              <strong>{rows.length ? `${rows.length} ${markerLabel}` : "No replay markers"}</strong>
+              <strong>{rowsReady ? rows.length ? `${rows.length} ${markerLabel}` : "No replay markers" : "Loading replay"}</strong>
             </div>
             <MarketAgentStatusBadge label={modeLabel} tone="info" />
           </div>
           <div className="market-agent-replay-track">
-            {rows.map((row, index) => {
-              const kind = inferTimelineKind(row);
-              const meta = timelineKindMeta[kind];
-              return (
-                <div
-                  key={row.key}
-                  className={`market-agent-replay-track-row kind-${meta.tone}`}
-                  style={{ "--ma-replay-row-index": index } as CSSProperties}
-                >
-                  <time>{formatShortTime(row.time)}</time>
-                  <span className="market-agent-replay-node" aria-hidden="true" />
-                  <div className="market-agent-replay-row-body">
-                    <div className="market-agent-replay-title-row">
-                      <strong>{compactTimelineTitle(row)}</strong>
-                      <span className={`market-agent-event-tag tone-${meta.tone}`}>{meta.tag}</span>
-                    </div>
-                    <div className="market-agent-replay-meta-row">
-                      <span>{compactTimelineDetail(row)}</span>
-                      <small>{formatTimelineImpact(row)}</small>
-                    </div>
-                  </div>
+            <div className={`market-agent-replay-track-inner${rows.length === 0 ? " is-empty" : ""}`}>
+              {!rowsReady ? (
+                <div className="market-agent-replay-loading" data-qa="qa:market-agent:replay-loading">
+                  <span />
+                  <strong>Preparing timeline</strong>
                 </div>
-              );
-            })}
-            {rows.length === 0 ? (
-              <div className="market-agent-empty-state">
-                {mode === "month" ? (
-                  "No major turns in this window."
-                ) : (
-                  <>
-                    <strong>No reviewed replay events in this window.</strong>
-                    {payload.calendar_events.length ? (
-                      <span>{payload.calendar_events.length} raw calendar context item(s) are available for evidence review.</span>
-                    ) : null}
-                  </>
-                )}
-              </div>
-            ) : null}
+              ) : null}
+              {rows.map((row, index) => {
+                const kind = inferTimelineKind(row);
+                const meta = timelineKindMeta[kind];
+                return (
+                  <button
+                    type="button"
+                    key={row.key}
+                    className={`market-agent-replay-track-row kind-${meta.tone}`}
+                    style={{ "--ma-replay-row-index": index } as CSSProperties}
+                    onClick={() => setSelectedDetail(replayRowDetail(row))}
+                  >
+                    <time>{formatShortTime(row.time)}</time>
+                    <span className="market-agent-replay-node" aria-hidden="true" />
+                    <div className="market-agent-replay-row-body">
+                      <div className="market-agent-replay-title-row">
+                        <strong>{compactTimelineTitle(row)}</strong>
+                        <span className={`market-agent-event-tag tone-${meta.tone}`}>{meta.tag}</span>
+                      </div>
+                      <div className="market-agent-replay-meta-row">
+                        <span>{compactTimelineDetail(row)}</span>
+                        <small>{formatTimelineImpact(row)}</small>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+              {rowsReady && rows.length === 0 ? (
+                <div className="market-agent-empty-state market-agent-replay-empty">
+                  {mode === "month" ? (
+                    "No major turns in this window."
+                  ) : (
+                    <>
+                      <strong>No accepted market events in this window.</strong>
+                      {" "}
+                      <span>No confirmed market-moving news, calendar event, or price move for this period.</span>
+                    </>
+                  )}
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
       )}
+      <ReplayItemDetailModal
+        item={selectedDetail}
+        onClose={() => setSelectedDetail(null)}
+        onOpenRun={(monitorRunId) => {
+          setSelectedDetail(null);
+          _onSelectRun(monitorRunId);
+        }}
+      />
     </section>
+  );
+}
+
+function ReplayItemDetailModal({
+  item,
+  onClose,
+  onOpenRun
+}: {
+  item: ReplayDetailItem | null;
+  onClose: () => void;
+  onOpenRun: (monitorRunId: number) => void;
+}) {
+  useEffect(() => {
+    if (!item) return undefined;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [item, onClose]);
+
+  if (!item) return null;
+
+  return (
+    <div className="market-agent-replay-detail-backdrop" role="presentation" onClick={onClose}>
+      <section
+        className="market-agent-replay-detail"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Replay item detail"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <header>
+          <div>
+            <span>{item.tag}</span>
+            <h3>{item.title}</h3>
+          </div>
+          <button type="button" className="btn ghost btn-compact" onClick={onClose}>Close</button>
+        </header>
+        <dl>
+          <div>
+            <dt>Source</dt>
+            <dd>{item.source || "--"}</dd>
+          </div>
+          <div>
+            <dt>Time</dt>
+            <dd>{formatShortTime(item.time)}</dd>
+          </div>
+        </dl>
+        <p>{item.detail || "No detail recorded for this item."}</p>
+        <footer>
+          {item.monitorRunId ? (
+            <button type="button" className="btn ghost btn-compact" onClick={() => onOpenRun(item.monitorRunId as number)}>
+              Open evidence run
+            </button>
+          ) : null}
+          {item.url ? (
+            <button type="button" className="btn ghost btn-compact" onClick={() => void openOriginalUrl(item.url as string)}>
+              Open original
+            </button>
+          ) : null}
+        </footer>
+      </section>
+    </div>
   );
 }

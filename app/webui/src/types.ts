@@ -248,6 +248,8 @@ export type MarketAgentProviderHealthEntry = {
   change_value?: number | null;
   change_unit?: string;
   metadata?: Record<string, unknown>;
+  effective_status?: string;
+  usable_as_context?: boolean;
   monitor_run_id?: number;
   run_started_at?: string;
 };
@@ -272,6 +274,7 @@ export type MarketAgentDriverAttentionState = {
   source_count?: number;
   related_news_count?: number;
   related_calendar_events?: number;
+  evidence_refs?: Record<string, unknown>[];
   notes?: string;
   data_mode: string;
   monitor_run_id?: number;
@@ -317,6 +320,7 @@ export type MarketAgentReplayResponse = {
   timeline_store_path?: string;
   start?: string;
   end?: string;
+  mode?: "dashboard" | "full" | string;
   replay: MarketAgentReplayPayload;
 };
 
@@ -622,6 +626,7 @@ export type MarketAgentEvidenceForRunPayload = {
   monitor_run?: Record<string, unknown> | null;
   evidence_packet?: Record<string, unknown> | null;
   analysis_result?: Record<string, unknown> | null;
+  analysis_history?: Record<string, unknown>[];
   provider_health?: Record<string, unknown>[];
   driver_attention_states?: Record<string, unknown>[];
   alerts?: Record<string, unknown>[];
@@ -662,6 +667,7 @@ export type MarketAgentMonitorStatusResponse = {
   available: boolean;
   running: boolean;
   phase: string;
+  autoStart?: boolean;
   pid?: number | null;
   intervalSeconds?: number;
   lastRunAt?: number | string | null;
@@ -676,6 +682,18 @@ export type MarketAgentMonitorStatusResponse = {
   latestStoredDataMode?: string;
   activityStale?: boolean;
   activity?: Record<string, MarketAgentActivityStatus>;
+  selfAudit?: {
+    status?: string;
+    checked_at?: string;
+    summary?: string;
+    latest_evidence_run_id?: number | null;
+    latest_timeline_event_at?: string | null;
+    checks?: Array<{
+      name?: string;
+      status?: string;
+      detail?: string;
+    }>;
+  } | null;
 };
 
 export type Snapshot = {

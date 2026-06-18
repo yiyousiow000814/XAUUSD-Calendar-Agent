@@ -997,6 +997,24 @@
   text-transform: none;
 }
 
+.market-agent-ai-summary-action > .market-agent-ai-active-model {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid rgba(41, 214, 139, 0.28);
+  border-radius: 999px;
+  background: rgba(41, 214, 139, 0.12);
+  color: #7df0bd;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.15;
+  text-align: center;
+  text-transform: none;
+}
+
 .market-agent-ai-mode-panel {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

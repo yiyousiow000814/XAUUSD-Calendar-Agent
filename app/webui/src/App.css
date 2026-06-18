@@ -71,6 +71,19 @@
   padding-bottom: 0;
 }
 
+.market-agent-route-loading {
+  width: 100%;
+  min-height: 100%;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(11, 19, 31, 0.86), rgba(7, 12, 20, 0.92));
+  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.14);
+}
+
+[data-theme="light"] .market-agent-route-loading {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.96));
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.12);
+}
+
 @media (max-width: 1100px) and (min-width: 761px) {
   .app.app-market-agent {
     --app-pad: 24px;

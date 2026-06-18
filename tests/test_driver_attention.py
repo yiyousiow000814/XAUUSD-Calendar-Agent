@@ -1,7 +1,7 @@
 from src.xauusd_market_agent.driver_attention import DriverAttentionManager
 from src.xauusd_market_agent.evidence import build_evidence_gate_result
 from src.xauusd_market_agent.fixtures import load_builtin_fixture
-from src.xauusd_market_agent.models import CrossAssetSnapshot, MarketMove, ScenarioFixture
+from src.xauusd_market_agent.models import CrossAssetSnapshot, Headline, MarketMove, ScenarioFixture
 from src.xauusd_market_agent.provider_health import build_fixture_provider_health
 
 
@@ -31,6 +31,210 @@ def test_oil_becomes_active_only_with_fresh_channel_confirmation() -> None:
     )
 
     assert snapshot.states["oil_inflation"].current_state == "active"
+    assert snapshot.states["oil_inflation"].evidence_refs
+    assert any(
+        token in snapshot.states["oil_inflation"].evidence_refs[0]["title"].lower()
+        for token in ("oil", "crude", "brent", "wti")
+    )
+
+
+def test_active_geopolitics_keeps_representative_headline_refs() -> None:
+    fixture = ScenarioFixture(
+        scenario_id="geopolitics_with_headline",
+        as_of_myt="13-06-2026 21:57",
+        market=MarketMove(
+            symbol="XAUUSD",
+            from_price=4100.0,
+            to_price=4122.5,
+            move_percent=0.55,
+            move_percent_15m=0.55,
+            move_percent_1h=0.55,
+            window_minutes=15,
+            breaks=(),
+        ),
+        cross_asset=CrossAssetSnapshot(
+            dxy_percent=0.0,
+            us10y_bps=0.0,
+            us2y_bps=0.0,
+            wti_percent=0.0,
+            brent_percent=0.0,
+            vix_percent=0.0,
+            spx_percent=0.0,
+            nasdaq_percent=0.0,
+        ),
+        news=(
+            Headline(
+                timestamp_myt="13-06-2026 21:57",
+                source="US Top News and Analysis",
+                title="Iran escalation keeps Hormuz risk in focus",
+                relevance_reason="Geopolitical shock headline.",
+                impact_direction_on_gold="bullish",
+                tags=("iran", "hormuz", "geopolitics"),
+            ),
+        ),
+    )
+    health = build_fixture_provider_health(fixture)
+    evidence = build_evidence_gate_result(fixture, provider_health=health)
+
+    snapshot = DriverAttentionManager().evaluate(
+        fixture=fixture,
+        provider_health=health,
+        evidence_status=evidence.evidence_status,
+    )
+
+    state = snapshot.states["geopolitics"]
+    assert state.current_state == "active"
+    assert state.evidence_refs
+    assert state.evidence_refs[0]["kind"] == "news"
+    assert state.evidence_refs[0]["title"] in {item.title for item in fixture.news}
+
+
+def test_geopolitics_headline_without_market_confirmation_stays_watching() -> None:
+    fixture = ScenarioFixture(
+        scenario_id="geopolitics_headline_context_only",
+        as_of_myt="13-06-2026 21:57",
+        market=MarketMove(
+            symbol="XAUUSD",
+            from_price=4100.0,
+            to_price=4104.0,
+            move_percent=0.10,
+            move_percent_15m=0.10,
+            move_percent_1h=0.10,
+            window_minutes=15,
+            breaks=(),
+        ),
+        cross_asset=CrossAssetSnapshot(
+            dxy_percent=0.0,
+            us10y_bps=0.0,
+            us2y_bps=0.0,
+            wti_percent=0.0,
+            brent_percent=0.0,
+            vix_percent=0.0,
+            spx_percent=0.0,
+            nasdaq_percent=0.0,
+        ),
+        news=(
+            Headline(
+                timestamp_myt="13-06-2026 21:57",
+                source="US Top News and Analysis",
+                title="Iran escalation keeps Hormuz risk in focus",
+                relevance_reason="Geopolitical shock headline.",
+                impact_direction_on_gold="bullish",
+                tags=("iran", "hormuz", "geopolitics"),
+            ),
+        ),
+    )
+    health = build_fixture_provider_health(fixture)
+    evidence = build_evidence_gate_result(fixture, provider_health=health)
+
+    snapshot = DriverAttentionManager().evaluate(
+        fixture=fixture,
+        provider_health=health,
+        evidence_status=evidence.evidence_status,
+    )
+
+    state = snapshot.states["geopolitics"]
+    assert state.current_state == "watching"
+    assert state.activation_reason == "Geopolitical headline exists, but cross-market confirmation is incomplete."
+    assert state.evidence_refs
+
+
+def test_geopolitics_headline_with_minor_price_move_stays_watching() -> None:
+    fixture = ScenarioFixture(
+        scenario_id="geopolitics_headline_minor_price_move",
+        as_of_myt="13-06-2026 21:57",
+        market=MarketMove(
+            symbol="XAUUSD",
+            from_price=4100.0,
+            to_price=4113.12,
+            move_percent=0.32,
+            move_percent_15m=0.32,
+            move_percent_1h=0.32,
+            window_minutes=80,
+            breaks=(),
+        ),
+        cross_asset=CrossAssetSnapshot(
+            dxy_percent=0.0,
+            us10y_bps=0.0,
+            us2y_bps=0.0,
+            wti_percent=0.0,
+            brent_percent=0.0,
+            vix_percent=0.0,
+            spx_percent=0.0,
+            nasdaq_percent=0.0,
+        ),
+        news=(
+            Headline(
+                timestamp_myt="13-06-2026 21:57",
+                source="US Top News and Analysis",
+                title="Iran escalation keeps Hormuz risk in focus",
+                relevance_reason="Geopolitical shock headline.",
+                impact_direction_on_gold="bullish",
+                tags=("iran", "hormuz", "geopolitics"),
+            ),
+        ),
+    )
+    health = build_fixture_provider_health(fixture)
+    evidence = build_evidence_gate_result(fixture, provider_health=health)
+
+    snapshot = DriverAttentionManager().evaluate(
+        fixture=fixture,
+        provider_health=health,
+        evidence_status=evidence.evidence_status,
+    )
+
+    state = snapshot.states["geopolitics"]
+    assert state.current_state == "watching"
+    assert state.activation_reason == "Geopolitical headline exists, but cross-market confirmation is incomplete."
+    assert state.evidence_refs
+
+
+def test_warsh_headline_does_not_trigger_geopolitics_by_substring() -> None:
+    fixture = ScenarioFixture(
+        scenario_id="warsh_not_war",
+        as_of_myt="13-06-2026 21:57",
+        market=MarketMove(
+            symbol="XAUUSD",
+            from_price=4100.0,
+            to_price=4120.0,
+            move_percent=0.49,
+            move_percent_15m=0.49,
+            move_percent_1h=0.49,
+            window_minutes=15,
+            breaks=(),
+        ),
+        cross_asset=CrossAssetSnapshot(
+            dxy_percent=0.0,
+            us10y_bps=0.0,
+            us2y_bps=0.0,
+            wti_percent=0.0,
+            brent_percent=0.0,
+            vix_percent=0.0,
+            spx_percent=0.0,
+            nasdaq_percent=0.0,
+        ),
+        news=(
+            Headline(
+                timestamp_myt="13-06-2026 05:11",
+                source="US Top News and Analysis",
+                title="Call Kevin Warsh the Fed chairman",
+                relevance_reason="Fed leadership headline.",
+                impact_direction_on_gold="unknown",
+                tags=("rss", "fed"),
+            ),
+        ),
+    )
+    health = build_fixture_provider_health(fixture)
+    evidence = build_evidence_gate_result(fixture, provider_health=health)
+
+    snapshot = DriverAttentionManager().evaluate(
+        fixture=fixture,
+        provider_health=health,
+        evidence_status=evidence.evidence_status,
+    )
+
+    assert snapshot.states["geopolitics"].current_state == "dormant"
+    assert snapshot.states["geopolitics"].evidence_refs == ()
 
 
 def test_micro_theme_starts_watching_then_emerging() -> None:

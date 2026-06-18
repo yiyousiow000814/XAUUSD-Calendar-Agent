@@ -28,6 +28,39 @@ DEFAULT_DRIVER_REGISTRY: tuple[DriverDefinition, ...] = (
 )
 
 
+def _has_geopolitical_shock(headlines: tuple, news_titles: str) -> bool:
+    if any("geopolitics" in tag for item in headlines for tag in item.tags):
+        return True
+    return any(
+        _contains_keyword(news_titles, token)
+        for token in (
+            "iran",
+            "israel",
+            "hormuz",
+            "lebanon",
+            "middle east",
+            "red sea",
+            "military",
+            "missile",
+            "attack",
+            "attacks",
+            "strike",
+            "strikes",
+            "war",
+            "ceasefire",
+            "airspace",
+        )
+    )
+
+
+def _contains_keyword(text: str, keyword: str) -> bool:
+    normalized_text = re.sub(r"[^a-z0-9]+", " ", text.lower()).strip()
+    normalized_keyword = re.sub(r"[^a-z0-9]+", " ", keyword.lower()).strip()
+    if not normalized_text or not normalized_keyword:
+        return False
+    return re.search(rf"(?<![a-z0-9]){re.escape(normalized_keyword)}(?![a-z0-9])", normalized_text) is not None
+
+
 _DEFAULT_STATES = {
     "usd": "watching",
     "yields": "watching",
@@ -48,6 +81,8 @@ _DECAY_MINUTES = {
     "micro_theme": 45,
     "background_noise": 30,
 }
+
+_GEO_PRICE_CONFIRMATION_THRESHOLD_PCT = 0.4
 
 _THEME_STOPWORDS = {
     "about",
@@ -141,6 +176,37 @@ def _parse_iso(raw: str, default: datetime) -> datetime:
 
 def _iso(dt: datetime | None) -> str:
     return dt.isoformat() if dt else ""
+
+
+def _evidence_ref(headline: Any, kind: str) -> dict[str, Any]:
+    return {
+        "kind": kind,
+        "title": headline.title,
+        "source": headline.source,
+        "timestamp_myt": headline.timestamp_myt,
+        "relevance_reason": headline.relevance_reason,
+        "impact_direction_on_gold": headline.impact_direction_on_gold,
+        "tags": list(headline.tags),
+    }
+
+
+def _evidence_refs(headlines: tuple[Any, ...], kind: str, limit: int = 3) -> tuple[dict[str, Any], ...]:
+    return tuple(_evidence_ref(item, kind) for item in headlines[:limit] if getattr(item, "title", ""))
+
+
+def _matching_headline_refs(
+    headlines: tuple[Any, ...],
+    keywords: tuple[str, ...],
+    *,
+    kind: str = "news",
+    limit: int = 3,
+) -> tuple[dict[str, Any], ...]:
+    matched = []
+    for headline in headlines:
+        text = f"{headline.title} {' '.join(headline.tags)} {headline.relevance_reason}".lower()
+        if any(_contains_keyword(text, keyword) for keyword in keywords):
+            matched.append(headline)
+    return _evidence_refs(tuple(matched), kind, limit)
 
 
 def _theme_slug(value: str) -> str:
@@ -388,7 +454,6 @@ class DriverAttentionManager:
                 evidence_status=evidence_status,
                 provider_health=provider_health,
             )
-            meaningful_move = abs(fixture.market.move_percent) >= 0.25
             repeated = headline_count >= 2
             multi_source = source_count >= 2
             current_state = "observed"
@@ -398,12 +463,12 @@ class DriverAttentionManager:
             rejection_reason = "Single-source or one-off headline; not enough evidence."
             evidence_summary = f"{headline_count} headline(s) from {source_count} source(s)."
             counter_evidence = confirmation_reason if not confirmed else ""
-            if repeated and multi_source and confirmed and meaningful_move:
+            if repeated and multi_source and confirmed:
                 current_state = "active"
                 relevance_score = 0.76
                 confidence = "medium"
                 promotion_reason = (
-                    "Repeated headlines, multiple sources, cross-asset confirmation, and an XAUUSD reaction."
+                    "Repeated headlines, multiple sources, and cross-asset confirmation."
                 )
                 rejection_reason = ""
                 evidence_summary = f"{evidence_summary} {confirmation_reason}"
@@ -452,6 +517,10 @@ class DriverAttentionManager:
                     "requested_sensor_ids": requested_sensors,
                     "promotion_reason": promotion_reason,
                     "rejection_reason": rejection_reason,
+                    "evidence_refs": (
+                        _evidence_refs(tuple(bucket["headlines"]), "news", 3)
+                        + _evidence_refs(tuple(bucket["calendar_events"]), "calendar", 2)
+                    )[:3],
                 }
             )
             states[theme_id] = self._transition_with_decay(previous, next_state, as_of=as_of)
@@ -487,12 +556,41 @@ class DriverAttentionManager:
             tzinfo=datetime.fromisoformat("2026-01-01T00:00:00+08:00").tzinfo
         )
         news_titles = " ".join(item.title.lower() for item in fixture.news)
-        geo_news = any("geopolitics" in tag for item in fixture.news for tag in item.tags)
+        geo_news = _has_geopolitical_shock(fixture.news, news_titles)
         oil_news = any(
             token in news_titles
             for token in ("oil", "opec", "hormuz", "supply", "sanction", "inventory", "shipping")
         )
         fed_news = any(token in news_titles for token in ("fed", "fomc", "powell", "rates", "cpi", "ppi", "pce", "nfp"))
+        geo_evidence_refs = _matching_headline_refs(
+            fixture.news,
+            (
+                "iran",
+                "israel",
+                "hormuz",
+                "lebanon",
+                "middle east",
+                "red sea",
+                "military",
+                "missile",
+                "attack",
+                "strike",
+                "war",
+                "ceasefire",
+                "airspace",
+            ),
+        )
+        oil_evidence_refs = _matching_headline_refs(
+            fixture.news,
+            ("oil", "opec", "hormuz", "supply", "sanction", "inventory", "shipping", "wti", "brent", "crude"),
+        )
+        fed_evidence_refs = (
+            _matching_headline_refs(
+                fixture.news,
+                ("fed", "fomc", "powell", "rates", "rate", "cpi", "ppi", "pce", "nfp", "payroll", "jobs", "yield"),
+            )
+            + _evidence_refs(fixture.calendar_events, "calendar", 2)
+        )[:3]
         dxy_confirming = evidence_status["dxy"] in {"confirming", "confirms"}
         us10y_confirming = evidence_status["us10y"] in {"confirming", "confirms"}
         us2y_confirming = evidence_status["us2y"] in {"confirming", "confirms"}
@@ -569,6 +667,7 @@ class DriverAttentionManager:
                             "confidence": "medium",
                             "related_news_count": len(fixture.news),
                             "current_evidence_summary": "Oil is no longer background only.",
+                            "evidence_refs": oil_evidence_refs,
                         }
                     )
                 elif oil_news or abs(fixture.cross_asset.wti_percent) >= 1.0 or abs(fixture.cross_asset.brent_percent) >= 1.0:
@@ -581,26 +680,35 @@ class DriverAttentionManager:
                             "last_evidence_at": fixture.as_of_myt,
                             "related_news_count": len(fixture.news),
                             "current_counter_evidence": "No confirmed yield/inflation follow-through yet.",
+                            "evidence_refs": oil_evidence_refs,
                         }
                     )
             elif driver_id == "geopolitics":
+                geo_price_confirming = abs(fixture.market.move_percent) >= _GEO_PRICE_CONFIRMATION_THRESHOLD_PCT
                 if geo_news and (
                     oil_confirming
                     or risk_confirming
-                    or fixture.market.move_percent > 0
+                    or geo_price_confirming
                 ):
+                    if oil_confirming or risk_confirming:
+                        activation_reason = "Timestamped geopolitical headline has cross-market confirmation."
+                        evidence_summary = "Geopolitics is actively repriced across market channels."
+                    else:
+                        activation_reason = "Timestamped geopolitical headline has a material XAUUSD reaction."
+                        evidence_summary = "Geopolitics is actively repriced in XAUUSD, but needs sensor follow-through."
                     current = DriverAttentionState(
                         **{
                             **asdict(base),
                             "current_state": "active",
                             "relevance_score": 0.78,
-                            "activation_reason": "Timestamped geopolitical headline has market confirmation.",
+                            "activation_reason": activation_reason,
                             "last_confirmed_at": fixture.as_of_myt,
                             "last_evidence_at": fixture.as_of_myt,
                             "first_activated_at": previous.first_activated_at if previous else fixture.as_of_myt,
                             "confidence": "medium",
                             "related_news_count": len(fixture.news),
-                            "current_evidence_summary": "Geopolitics is actively repriced.",
+                            "current_evidence_summary": evidence_summary,
+                            "evidence_refs": geo_evidence_refs,
                         }
                     )
                 elif geo_news:
@@ -611,6 +719,7 @@ class DriverAttentionManager:
                             "relevance_score": 0.3,
                             "activation_reason": "Geopolitical headline exists, but cross-market confirmation is incomplete.",
                             "last_evidence_at": fixture.as_of_myt,
+                            "evidence_refs": geo_evidence_refs,
                         }
                     )
             elif driver_id == "risk_sentiment":
@@ -643,6 +752,7 @@ class DriverAttentionManager:
                             "confidence": "medium",
                             "related_calendar_events": len(fixture.calendar_events),
                             "related_news_count": len(fixture.news),
+                            "evidence_refs": fed_evidence_refs,
                         }
                     )
             elif driver_id == "technical_liquidation":

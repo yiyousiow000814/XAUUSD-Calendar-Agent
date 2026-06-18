@@ -1,5 +1,6 @@
 ﻿import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { act } from "react";
 
 vi.mock("../api", () => ({
   backend: {
@@ -316,7 +317,7 @@ describe("Market Agent view switch", () => {
       expect(screen.getByRole("button", { name: /Dashboard/i })).toHaveAttribute("aria-pressed", "true");
       expect(screen.getByRole("heading", { name: "XAUUSD (Spot)" })).toBeInTheDocument();
       expect(screen.getByRole("heading", { name: "Market State" })).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: "Driver Attention (Current)" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: /Macro \/ Micro Watch/i })).toBeInTheDocument();
       expect(screen.getByRole("heading", { name: "Market Replay (Day)" })).toBeInTheDocument();
       expect(screen.queryByRole("heading", { name: "Provider Health" })).not.toBeInTheDocument();
     });
@@ -347,9 +348,6 @@ describe("Market Agent view switch", () => {
       expect(screen.getByRole("navigation", { name: /Market Agent sections/i })).toBeInTheDocument();
     });
 
-    expect(backend.getMarketAgentReplay).not.toHaveBeenCalled();
-    expect(backend.getMarketAgentLiveQuote).not.toHaveBeenCalled();
-    expect(backend.ensureMarketAgentLiveQuoteStream).not.toHaveBeenCalled();
     expect(backend.detectMarketAgentLocalAI).not.toHaveBeenCalled();
     expect(backend.startMarketAgentMonitorLoop).not.toHaveBeenCalled();
     expect(backend.runMarketAgentMonitorOnce).not.toHaveBeenCalled();
@@ -369,7 +367,18 @@ describe("Market Agent view switch", () => {
     expect(vi.mocked(backend.getMarketAgentMonitorStatus).mock.calls).not.toContainEqual([
       { includeActivity: true }
     ]);
-    expect(backend.getMarketAgentReplay).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(backend.getMarketAgentReplay).toHaveBeenCalledTimes(1);
+      expect(backend.getMarketAgentLiveQuote).toHaveBeenCalled();
+      expect(backend.ensureMarketAgentLiveQuoteStream).toHaveBeenCalledTimes(1);
+    }, { timeout: 2500 });
+    const [entryReplayStart, entryReplayEnd, entryReplayMode] = vi.mocked(backend.getMarketAgentReplay).mock.calls[0] ?? [];
+    expect(entryReplayStart).toEqual(expect.any(String));
+    expect(entryReplayEnd).toEqual(expect.any(String));
+    expect(entryReplayMode).toBe("dashboard");
+    const entryWindowMs = new Date(entryReplayEnd as string).getTime() - new Date(entryReplayStart as string).getTime();
+    expect(entryWindowMs).toBeGreaterThanOrEqual(23 * 60 * 60 * 1000);
+    expect(entryWindowMs).toBeLessThanOrEqual(24 * 60 * 60 * 1000 + 5 * 60 * 1000);
     expect(vi.mocked(backend.getMarketAgentLiveQuote).mock.calls.length).toBeGreaterThanOrEqual(1);
     expect(backend.ensureMarketAgentLiveQuoteStream).toHaveBeenCalledTimes(1);
     expect(backend.detectMarketAgentLocalAI).not.toHaveBeenCalled();
@@ -381,8 +390,21 @@ describe("Market Agent view switch", () => {
     fireEvent.click(screen.getByRole("button", { name: /Replay \/ Timeline/i }));
 
     await waitFor(() => {
-      expect(backend.getMarketAgentReplay).toHaveBeenCalledTimes(1);
+      expect(screen.getByRole("heading", { name: "Market Replay" })).toBeInTheDocument();
     }, { timeout: 2500 });
+    await waitFor(() => {
+      expect(backend.getMarketAgentReplay).toHaveBeenCalledTimes(2);
+    }, { timeout: 2500 });
+    expect(vi.mocked(backend.getMarketAgentReplay).mock.calls[1]?.[2]).toBe("full");
+    fireEvent.click(screen.getByRole("button", { name: /^Month$/i }));
+    await waitFor(() => {
+      expect(backend.getMarketAgentReplay).toHaveBeenCalledTimes(3);
+    }, { timeout: 2500 });
+    const [monthReplayStart, monthReplayEnd, monthReplayMode] = vi.mocked(backend.getMarketAgentReplay).mock.calls[2] ?? [];
+    expect(monthReplayMode).toBe("full");
+    const monthWindowMs = new Date(monthReplayEnd as string).getTime() - new Date(monthReplayStart as string).getTime();
+    expect(monthWindowMs).toBeGreaterThanOrEqual(29 * 24 * 60 * 60 * 1000);
+    expect(monthWindowMs).toBeLessThanOrEqual(30 * 24 * 60 * 60 * 1000 + 5 * 60 * 1000);
 
     expect(backend.detectMarketAgentLocalAI).not.toHaveBeenCalled();
 
@@ -411,6 +433,150 @@ describe("Market Agent view switch", () => {
     }, { timeout: 2500 });
   });
 
+  it("keeps the Market Agent dashboard usable while replay refresh is still loading", async () => {
+    let resolveReplay: ((value: Awaited<ReturnType<typeof backend.getMarketAgentReplay>>) => void) | null =
+      null;
+    const slowReplay = new Promise<Awaited<ReturnType<typeof backend.getMarketAgentReplay>>>(
+      (resolve) => {
+        resolveReplay = resolve;
+      }
+    );
+    vi.mocked(backend.getMarketAgentReplay).mockImplementationOnce(() => slowReplay);
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Market Agent/i })).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /Market Agent/i }));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("navigation", { name: /Market Agent sections/i })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "XAUUSD (Spot)" })).toBeInTheDocument();
+      expect(backend.ensureMarketAgentLiveQuoteStream).toHaveBeenCalledTimes(1);
+    }, { timeout: 3000 });
+
+    expect(backend.getMarketAgentReplay).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(backend.getMarketAgentReplay).mock.calls[0]?.[2]).toBe("dashboard");
+
+    await act(async () => {
+      resolveReplay?.({
+        ok: true,
+        available: true,
+        replay: {
+          price_series: [],
+          related_assets: {},
+          news_items: [],
+          calendar_events: [],
+          driver_attention_timeline: [],
+          timeline_events: [],
+          state_transitions: [],
+          alerts: [],
+          suppressed_alerts: []
+        }
+      });
+    });
+  });
+
+  it("keeps the Market Agent dashboard usable while live stream recovery is still loading", async () => {
+    const slowEnsure = new Promise<Awaited<ReturnType<typeof backend.ensureMarketAgentLiveQuoteStream>>>(
+      () => {}
+    );
+    vi.mocked(backend.ensureMarketAgentLiveQuoteStream).mockImplementationOnce(() => slowEnsure);
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Market Agent/i })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Market Agent/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("navigation", { name: /Market Agent sections/i })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "XAUUSD (Spot)" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: /Macro \/ Micro Watch/i })).toBeInTheDocument();
+    }, { timeout: 3000 });
+
+    await waitFor(() => {
+      expect(backend.ensureMarketAgentLiveQuoteStream).toHaveBeenCalledTimes(1);
+    }, { timeout: 2500 });
+  });
+
+  it("throttles dashboard replay refresh while navigating Market Agent sections", async () => {
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Market Agent/i })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Market Agent/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "XAUUSD (Spot)" })).toBeInTheDocument();
+      expect(backend.getMarketAgentReplay).toHaveBeenCalledTimes(1);
+    }, { timeout: 3000 });
+
+    const driverSectionButton = document.querySelector(
+      "[data-market-agent-section='drivers']"
+    );
+    expect(driverSectionButton).toBeInstanceOf(HTMLButtonElement);
+    await act(async () => {
+      fireEvent.click(driverSectionButton as HTMLButtonElement);
+    });
+
+    await waitFor(() => {
+      expect(driverSectionButton).toHaveAttribute("aria-pressed", "true");
+    }, { timeout: 3000 });
+    await act(async () => {
+      await new Promise((resolve) => window.setTimeout(resolve, 350));
+    });
+
+    expect(backend.getMarketAgentReplay).toHaveBeenCalledTimes(1);
+  });
+
+  it("auto-resumes monitoring when the saved monitor status asks for startup", async () => {
+    vi.mocked(backend.getMarketAgentMonitorStatus).mockResolvedValueOnce({
+      ok: true,
+      available: true,
+      running: false,
+      phase: "stopped",
+      autoStart: true,
+      pid: null,
+      intervalSeconds: 45,
+      lastRunAt: null,
+      nextRunAt: null,
+      lastError: "",
+      message: "Monitor loop is stopped."
+    });
+    vi.mocked(backend.startMarketAgentMonitorLoop).mockResolvedValueOnce({
+      ok: true,
+      available: true,
+      running: true,
+      phase: "running",
+      autoStart: true,
+      intervalSeconds: 45,
+      pid: 4242,
+      lastError: "",
+      message: "Monitor loop is running."
+    });
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Market Agent/i })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Market Agent/i }));
+
+    await waitFor(() => {
+      expect(backend.startMarketAgentMonitorLoop).toHaveBeenCalledWith(45);
+    }, { timeout: 3000 });
+  });
+
   it("loads Evidence without triggering replay workspace refresh", async () => {
     vi.mocked(backend.getMarketAgentDriverAttention).mockResolvedValue({
       ok: true,
@@ -434,12 +600,18 @@ describe("Market Agent view switch", () => {
     });
 
     fireEvent.click(screen.getByRole("button", { name: /Market Agent/i }));
+    expect(backend.getMarketAgentSnapshot).not.toHaveBeenCalled();
+    expect(backend.getMarketAgentReplay).not.toHaveBeenCalled();
+    expect(backend.getMarketAgentProviderHealth).not.toHaveBeenCalled();
 
     await waitFor(() => {
       expect(screen.getByRole("navigation", { name: /Market Agent sections/i })).toBeInTheDocument();
     });
 
-    expect(backend.getMarketAgentReplay).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(backend.getMarketAgentReplay).toHaveBeenCalledTimes(1);
+    }, { timeout: 2500 });
+    const replayCallsAfterEntry = vi.mocked(backend.getMarketAgentReplay).mock.calls.length;
 
     fireEvent.click(screen.getByRole("button", { name: /^Evidence$/i }));
 
@@ -447,7 +619,7 @@ describe("Market Agent view switch", () => {
       expect(backend.getMarketAgentEvidenceForRun).toHaveBeenCalledWith(321);
     });
 
-    expect(backend.getMarketAgentReplay).not.toHaveBeenCalled();
+    expect(backend.getMarketAgentReplay).toHaveBeenCalledTimes(replayCallsAfterEntry);
   });
 
   it("keeps Market Agent entry read-only when cTrader is enabled and monitoring is stopped", async () => {
@@ -483,8 +655,11 @@ describe("Market Agent view switch", () => {
       expect(screen.getByRole("navigation", { name: /Market Agent sections/i })).toBeInTheDocument();
     });
 
+    await waitFor(() => {
+      expect(backend.getMarketAgentReplay).toHaveBeenCalledTimes(1);
+      expect(backend.ensureMarketAgentLiveQuoteStream).toHaveBeenCalledTimes(1);
+    }, { timeout: 2500 });
     expect(backend.startMarketAgentMonitorLoop).not.toHaveBeenCalled();
-    expect(backend.ensureMarketAgentLiveQuoteStream).not.toHaveBeenCalled();
     expect(backend.getCTraderQuoteTest).not.toHaveBeenCalled();
     expect(backend.startCTraderConnect).not.toHaveBeenCalled();
     expect(backend.runMarketAgentMonitorOnce).not.toHaveBeenCalled();

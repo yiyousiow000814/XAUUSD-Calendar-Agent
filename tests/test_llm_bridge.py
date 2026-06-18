@@ -21,7 +21,7 @@ def test_llm_bridge_connection_reports_model_missing(monkeypatch) -> None:
         @staticmethod
         def get(url, timeout):
             assert url == "http://127.0.0.1:21434/api/tags"
-            assert timeout == 30
+            assert timeout == 60
             return FakeResponse({"models": [{"name": "other:latest"}]})
 
     monkeypatch.setitem(__import__("sys").modules, "requests", FakeRequests)
@@ -38,7 +38,7 @@ def test_llm_bridge_empty_model_list_reports_model_missing(monkeypatch) -> None:
         @staticmethod
         def get(url, timeout):
             assert url == "http://127.0.0.1:21434/api/tags"
-            assert timeout == 30
+            assert timeout == 60
             return FakeResponse({"models": []})
 
     monkeypatch.setitem(__import__("sys").modules, "requests", FakeRequests)
@@ -69,6 +69,34 @@ def test_llm_bridge_json_response_reports_invalid_json(monkeypatch) -> None:
 
     assert result["ok"] is False
     assert result["status"] == "invalid_json"
+
+
+def test_llm_bridge_reads_utf8_bom_json_payload(monkeypatch) -> None:
+    monkeypatch.setattr(
+        llm_bridge.sys,
+        "stdin",
+        type("FakeStdin", (), {"read": lambda self: '\ufeff{"model":"qwen3.6:latest","timeoutSeconds":10}'})(),
+    )
+
+    payload = llm_bridge._read_payload()
+    config = llm_bridge._config_from_payload(payload)
+
+    assert config.model == "qwen3.6:latest"
+    assert config.timeout_seconds == 10
+
+
+def test_llm_bridge_reads_mojibake_bom_json_payload(monkeypatch) -> None:
+    monkeypatch.setattr(
+        llm_bridge.sys,
+        "stdin",
+        type("FakeStdin", (), {"read": lambda self: 'ï»¿{"model":"qwen3.6:latest","timeoutSeconds":10}'})(),
+    )
+
+    payload = llm_bridge._read_payload()
+    config = llm_bridge._config_from_payload(payload)
+
+    assert config.model == "qwen3.6:latest"
+    assert config.timeout_seconds == 10
 
 
 def test_llm_bridge_main_prints_safe_json(monkeypatch, capsys) -> None:

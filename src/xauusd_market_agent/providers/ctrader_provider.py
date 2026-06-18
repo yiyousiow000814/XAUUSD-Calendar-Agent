@@ -1,6 +1,10 @@
 from __future__ import annotations
 
 import json
+import os
+import subprocess
+import sys
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Callable
@@ -11,6 +15,8 @@ from ..models import ProviderHealth
 from .ctrader_bridge import handle as run_ctrader_cli_command
 
 BridgeRunner = Callable[[str, dict[str, object]], dict[str, object]]
+LiveStreamStarter = Callable[[dict[str, object]], None]
+ProcessChecker = Callable[[int], bool]
 
 
 def _mask_secret(value: str) -> str:
@@ -64,6 +70,62 @@ def _default_bridge_runner(config: CTraderCliConfig) -> BridgeRunner:
     return run
 
 
+def _default_process_checker(pid: int) -> bool:
+    if pid <= 0:
+        return False
+    if os.name == "nt":
+        try:
+            import ctypes
+
+            process_query_limited_information = 0x1000
+            handle = ctypes.windll.kernel32.OpenProcess(
+                process_query_limited_information,
+                False,
+                pid,
+            )
+            if not handle:
+                return False
+            ctypes.windll.kernel32.CloseHandle(handle)
+            return True
+        except Exception:
+            return False
+    try:
+        os.kill(pid, 0)
+        return True
+    except OSError:
+        return False
+
+
+def _default_live_stream_starter(payload: dict[str, object]) -> None:
+    repo_root = Path(__file__).resolve().parents[3]
+    command = [
+        sys.executable,
+        "-m",
+        "src.xauusd_market_agent.providers.ctrader_live_stream",
+        "start",
+    ]
+    startupinfo = None
+    creationflags = 0
+    if os.name == "nt":
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        startupinfo.wShowWindow = 0
+        creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+    process = subprocess.Popen(
+        command,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        text=True,
+        cwd=str(repo_root),
+        startupinfo=startupinfo,
+        creationflags=creationflags,
+    )
+    if process.stdin is not None:
+        process.stdin.write(json.dumps(payload, ensure_ascii=False))
+        process.stdin.close()
+
+
 class CTraderProvider:
     def __init__(
         self,
@@ -71,6 +133,9 @@ class CTraderProvider:
         cli_config: CTraderCliConfig,
         bridge_runner: BridgeRunner | None = None,
         saved_snapshot_path: Path | None = None,
+        live_stream_status_path: Path | None = None,
+        live_stream_starter: LiveStreamStarter | None = None,
+        process_checker: ProcessChecker | None = None,
     ) -> None:
         self.cli_config = cli_config
         self.saved_snapshot_path = (
@@ -78,7 +143,14 @@ class CTraderProvider:
             if saved_snapshot_path is not None
             else Path(cli_config.snapshot_path)
         )
+        self.live_stream_status_path = (
+            Path(live_stream_status_path)
+            if live_stream_status_path is not None
+            else self.saved_snapshot_path.with_name("ctrader_live_stream_status.json")
+        )
         self.bridge_runner = bridge_runner or _default_bridge_runner(cli_config)
+        self.live_stream_starter = live_stream_starter or _default_live_stream_starter
+        self.process_checker = process_checker or _default_process_checker
 
     @classmethod
     def from_market_agent_config(cls, market_config) -> "CTraderProvider":
@@ -122,6 +194,114 @@ class CTraderProvider:
             "quoteStaleAfterSeconds": cfg.quote_stale_after_seconds,
             "cliExecutable": cfg.cli_executable,
         }
+
+    def _live_stream_payload(self) -> dict[str, object]:
+        cfg = self.cli_config
+        return {
+            "accountId": cfg.account_id,
+            "ctid": cfg.ctid,
+            "password": cfg.password,
+            "symbol": cfg.symbol,
+            "symbolId": cfg.symbol_id,
+            "snapshotPath": str(self.saved_snapshot_path),
+            "statusPath": str(self.live_stream_status_path),
+            "quoteStaleAfterSeconds": cfg.quote_stale_after_seconds,
+            "cliExecutable": cfg.cli_executable,
+        }
+
+    def _read_live_stream_status(self) -> dict[str, Any]:
+        try:
+            payload = json.loads(self.live_stream_status_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return {}
+        return payload if isinstance(payload, dict) else {}
+
+    def _mark_live_stream_stopped(self, reason: str) -> None:
+        try:
+            payload = {
+                "ok": False,
+                "running": False,
+                "phase": "stopped",
+                "pid": None,
+                "bridgePid": None,
+                "startedAt": "",
+                "stoppedAt": _now_iso(),
+                "snapshotPath": str(self.saved_snapshot_path),
+                "message": "Live quote stream is stopped.",
+                "lastError": reason,
+            }
+            self.live_stream_status_path.parent.mkdir(parents=True, exist_ok=True)
+            self.live_stream_status_path.write_text(
+                json.dumps(payload, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+        except OSError:
+            return
+
+    def _live_stream_is_running(self) -> bool:
+        status = self._read_live_stream_status()
+        if status.get("running") is not True:
+            return False
+        try:
+            pid = int(status.get("pid") or 0)
+        except (TypeError, ValueError):
+            pid = 0
+        try:
+            bridge_pid = int(status.get("bridgePid") or 0)
+        except (TypeError, ValueError):
+            bridge_pid = 0
+        if not pid or not self.process_checker(pid):
+            self._mark_live_stream_stopped("cTrader live stream supervisor process is not running.")
+            return False
+        if bridge_pid and not self.process_checker(bridge_pid):
+            self._mark_live_stream_stopped("cTrader live stream bridge process is not running.")
+            return False
+        return True
+
+    def _live_stream_snapshot_is_fresh_or_pending(self) -> bool:
+        try:
+            payload = json.loads(self.saved_snapshot_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return True
+        if not isinstance(payload, dict):
+            return False
+        timestamp = str(payload.get("timestamp") or payload.get("server_time") or "").strip()
+        parsed = _parse_quote_timestamp(timestamp, datetime.now().astimezone())
+        if parsed is None:
+            return False
+        classification = classify_xauusd_stale_quote(
+            quote_time=parsed,
+            anchor_time=datetime.now().astimezone(),
+            stale_after_seconds=self.cli_config.quote_stale_after_seconds,
+        )
+        return classification.classification in {"fresh", "stale", "market_closed"}
+
+    def _ensure_live_stream_started(self) -> None:
+        if not self.cli_config.is_ready() or self._live_stream_is_running():
+            return
+        try:
+            self.live_stream_starter(self._live_stream_payload())
+        except Exception:
+            return
+
+    def _wait_for_fresh_live_snapshot(
+        self,
+        anchor_time: datetime,
+        *,
+        previous_timestamp: str = "",
+    ) -> tuple[list[dict[str, Any]], ProviderHealth] | None:
+        deadline = time.monotonic() + max(0.5, float(self.cli_config.quote_timeout_seconds))
+        while time.monotonic() < deadline:
+            fresh_snapshot = self._load_fresh_snapshot(anchor_time)
+            if fresh_snapshot is not None:
+                rows, health = fresh_snapshot
+                # A snapshot that is fresh for this run is usable even if the
+                # quote timestamp matches the last stored file. The monitor may
+                # restart between runs without the market printing a new tick.
+                if health.data_mode == "live_seen" and not health.is_stale:
+                    return rows, health
+            time.sleep(0.25)
+        return None
 
     def _unavailable_health(self, reason: str) -> ProviderHealth:
         return ProviderHealth(
@@ -435,12 +615,39 @@ class CTraderProvider:
             return fresh_snapshot
         if not self.cli_config.quote_bridge_enabled:
             reason = "Waiting for fresh cTrader live stream snapshot."
-            if self.cli_config.allow_saved_snapshot_fallback:
-                rows, health = self._load_saved_snapshot(anchor_time, fallback_error=reason)
-                if rows:
-                    return rows, health
             stale_context = self._load_stale_live_snapshot_context(anchor_time, fallback_error=reason)
             if stale_context is not None:
+                _, stale_health = stale_context
+                if stale_health.metadata.get("stale_classification") == "market_closed":
+                    return stale_context
+            previous_timestamp = ""
+            try:
+                payload = json.loads(self.saved_snapshot_path.read_text(encoding="utf-8"))
+                if isinstance(payload, dict):
+                    previous_timestamp = str(
+                        payload.get("timestamp")
+                        or payload.get("server_time")
+                        or payload.get("data_timestamp")
+                        or ""
+                    )
+            except Exception:
+                previous_timestamp = ""
+            self._ensure_live_stream_started()
+            fresh_after_start = self._wait_for_fresh_live_snapshot(
+                anchor_time,
+                previous_timestamp=previous_timestamp,
+            )
+            if fresh_after_start is not None:
+                return fresh_after_start
+            stream_status = self._read_live_stream_status()
+            stream_phase = str(stream_status.get("phase") or "").strip()
+            if not stream_phase and stream_status.get("running") is True:
+                stream_phase = "running"
+            if stream_phase in {"starting", "waiting_for_first_snapshot", "error", "stopped"}:
+                detail = str(stream_status.get("message") or reason)
+                error = str(stream_status.get("lastError") or "")
+                return [], self._unavailable_health(" ".join(part for part in [detail, error] if part).strip() or reason)
+            if stream_phase == "running" and stale_context is not None:
                 return stale_context
             return [], self._unavailable_health(reason)
         try:
@@ -506,10 +713,15 @@ class CTraderProvider:
         if not isinstance(bars, list):
             return []
         rows: list[dict[str, object]] = []
+        health_is_stale = bool(health_payload.get("is_stale", False))
+        health_data_mode = str(health_payload.get("data_mode", "live_seen"))
+        health_stale_reason = str(health_payload.get("stale_reason", ""))
         for bar in bars:
             if not isinstance(bar, dict):
                 continue
             close = bar.get("close", fallback_quote.get("mid", fallback_quote.get("bid", 0.0)))
+            row_data_mode = health_data_mode if health_is_stale else str(bar.get("data_mode", health_data_mode))
+            row_stale_reason = health_stale_reason if health_is_stale else str(bar.get("stale_reason", health_stale_reason))
             rows.append(
                 {
                     "timestamp": str(bar.get("data_timestamp", bar.get("timestamp", fallback_quote["timestamp"]))),
@@ -523,9 +735,9 @@ class CTraderProvider:
                     "ask": float(bar.get("ask", fallback_quote.get("ask", close))),
                     "source": str(bar.get("source", "cTrader CLI")),
                     "source_type": str(bar.get("source_type", "spot_m1")),
-                    "data_mode": str(bar.get("data_mode", health_payload.get("data_mode", "live_seen"))),
-                    "is_stale": bool(bar.get("is_stale", health_payload.get("is_stale", False))),
-                    "stale_reason": str(bar.get("stale_reason", health_payload.get("stale_reason", ""))),
+                    "data_mode": row_data_mode,
+                    "is_stale": health_is_stale or bool(bar.get("is_stale", False)),
+                    "stale_reason": row_stale_reason,
                 }
             )
         return rows

@@ -52,7 +52,7 @@ type BackendApi = {
   get_event_deep_analysis_usd?: (payload: { eventId: string; anchorDtUtc?: string }) => ApiResult<EventDeepAnalysisResponse>;
   get_predict_release_model_usd?: () => ApiResult<PredictReleaseModelResponse>;
   get_market_agent_snapshot?: (payload: { limit?: number }) => ApiResult<MarketAgentSnapshotResponse>;
-  get_market_agent_replay?: (payload: { start: string; end: string }) => ApiResult<MarketAgentReplayResponse>;
+  get_market_agent_replay?: (payload: { start: string; end: string; mode?: "dashboard" | "full" }) => ApiResult<MarketAgentReplayResponse>;
   get_market_agent_timeline?: (payload: { start: string; end: string }) => ApiResult<MarketAgentTimelineResponse>;
   get_market_agent_provider_health?: (_payload: Record<string, never>) => ApiResult<MarketAgentProviderHealthResponse>;
   inspect_market_agent_runtime?: (_payload: Record<string, never>) => ApiResult<MarketAgentRuntimeInspectResponse>;
@@ -463,6 +463,8 @@ let mockSettings: Settings = {
   logPath: "C:\\\\Users\\\\User\\\\AppData\\\\Roaming\\\\XAUUSDCalendar\\\\logs\\\\app.log"
 };
 
+const mockMarketAgentNowIso = () => new Date().toISOString();
+
 const buildMockMarketAgentSnapshot = (): MarketAgentSnapshotResponse => ({
   ok: true,
   available: true,
@@ -477,9 +479,10 @@ const buildMockMarketAgentSnapshot = (): MarketAgentSnapshotResponse => ({
     risk_driver: null,
     confidence: "high",
     cause_status: "confirmed",
-    last_alert_time: "2026-05-19T08:00:00+08:00",
+    last_alert_time: mockMarketAgentNowIso(),
     last_alert_summary: "Gold remains under pressure.",
-    last_analysis_time: "2026-05-19T08:05:00+08:00",
+    last_analysis_time: mockMarketAgentNowIso(),
+    market_read: buildMockMarketRead(),
     last_notification_level: "level_3",
     state_change_reason: "main_driver usd -> yields",
     invalidation_triggered: false,
@@ -504,6 +507,47 @@ const buildMockMarketAgentSnapshot = (): MarketAgentSnapshotResponse => ({
   ]
 });
 
+const buildMockMarketRead = () => ({
+  status: "current_read",
+  headline: "Yields and dollar pressure keep gold heavy",
+  thesis:
+    "Gold is trading lower while Treasury yields and the dollar stay firm; oil headlines are watched but are not the main driver.",
+  bias: "bearish_gold",
+  driver: "yields",
+  driver_label: "Rates / yields",
+  secondary_driver: "usd",
+  cause_status: "confirmed",
+  confidence: "high",
+  move: {
+    direction: "down",
+    impact_percent: -0.48,
+    window: "15m",
+    detected_at: mockMarketAgentNowIso()
+  },
+  coverage: {
+    live_price: "fresh",
+    recent_history: "ready",
+    sensors: "8 of 8 usable",
+    news: "2 reviewed",
+    calendar: "1 reviewed",
+    ai: "validated"
+  },
+  evidence: {
+    confirming: ["DXY", "US10Y", "US2Y"],
+    missing: [],
+    context_only: ["Oil headlines"],
+    latest_news: ["Markets price higher Treasury yields after hawkish Fed comments"],
+    calendar: ["US session opens"]
+  },
+  continuity:
+    "The prior USD-pressure read has shifted into a broader yields-and-dollar pressure story.",
+  watch_next: [
+    "US yields stay firm into the next US data window",
+    "DXY confirms or fades the pressure on gold",
+    "Oil headlines start moving inflation expectations instead of remaining background context"
+  ]
+});
+
 const buildMockMarketAgentReplay = (): MarketAgentReplayResponse => ({
   ok: true,
   available: true,
@@ -514,7 +558,7 @@ const buildMockMarketAgentReplay = (): MarketAgentReplayResponse => ({
     price_series: [
       {
         symbol: "XAUUSD",
-        data_timestamp: "2026-05-19T07:30:00+08:00",
+        data_timestamp: mockMarketAgentNowIso(),
         close_price: 4521.4,
         bid_price: 4521.15,
         ask_price: 4521.65,
@@ -525,7 +569,7 @@ const buildMockMarketAgentReplay = (): MarketAgentReplayResponse => ({
       },
       {
         symbol: "XAUUSD",
-        data_timestamp: "2026-05-19T08:00:00+08:00",
+        data_timestamp: mockMarketAgentNowIso(),
         close_price: 4504.8,
         bid_price: 4504.52,
         ask_price: 4505.08,
@@ -536,18 +580,18 @@ const buildMockMarketAgentReplay = (): MarketAgentReplayResponse => ({
       }
     ],
     related_assets: {
-      dxy: [{ symbol: "dxy", data_timestamp: "2026-05-19T08:00:00+08:00", change_15m: 0.22, source_type: "proxy", data_mode: "live_seen" }],
-      us10y: [{ symbol: "us10y", data_timestamp: "2026-05-19T08:00:00+08:00", change_15m: 5.1, source_type: "proxy", data_mode: "live_seen" }],
+      dxy: [{ symbol: "dxy", data_timestamp: mockMarketAgentNowIso(), change_15m: 0.22, source_type: "proxy", data_mode: "live_seen" }],
+      us10y: [{ symbol: "us10y", data_timestamp: mockMarketAgentNowIso(), change_15m: 5.1, source_type: "proxy", data_mode: "live_seen" }],
       us2y: [],
-      wti: [{ symbol: "wti", data_timestamp: "2026-05-19T08:00:00+08:00", change_15m: 1.7, source_type: "proxy", data_mode: "live_seen" }],
+      wti: [{ symbol: "wti", data_timestamp: mockMarketAgentNowIso(), change_15m: 1.7, source_type: "proxy", data_mode: "live_seen" }],
       brent: [],
-      vix: [{ symbol: "vix", data_timestamp: "2026-05-19T08:00:00+08:00", change_15m: 2.4, source_type: "proxy", data_mode: "live_seen" }],
-      spx: [{ symbol: "spx", data_timestamp: "2026-05-19T08:00:00+08:00", change_15m: -0.6, source_type: "proxy", data_mode: "live_seen" }],
-      nasdaq: [{ symbol: "nasdaq", data_timestamp: "2026-05-19T08:00:00+08:00", change_15m: -0.8, source_type: "proxy", data_mode: "live_seen" }]
+      vix: [{ symbol: "vix", data_timestamp: mockMarketAgentNowIso(), change_15m: 2.4, source_type: "proxy", data_mode: "live_seen" }],
+      spx: [{ symbol: "spx", data_timestamp: mockMarketAgentNowIso(), change_15m: -0.6, source_type: "proxy", data_mode: "live_seen" }],
+      nasdaq: [{ symbol: "nasdaq", data_timestamp: mockMarketAgentNowIso(), change_15m: -0.8, source_type: "proxy", data_mode: "live_seen" }]
     },
     news_items: [
       {
-        title: "Fed headline pressures yields",
+        title: "Markets price higher Treasury yields after hawkish Fed comments",
         source: "Reuters",
         published_at: "2026-05-19T08:03:00+08:00",
         first_seen_at: "2026-05-19T08:04:00+08:00",
@@ -557,7 +601,7 @@ const buildMockMarketAgentReplay = (): MarketAgentReplayResponse => ({
         impact_percent: -0.21
       },
       {
-        title: "Fed headline pressures yields",
+        title: "Markets price higher Treasury yields after hawkish Fed comments",
         source: "Reuters",
         published_at: "2026-05-19T08:03:00+08:00",
         first_seen_at: "2026-05-19T08:18:00+08:00",
@@ -626,7 +670,15 @@ const buildMockMarketAgentReplay = (): MarketAgentReplayResponse => ({
         event_time: "2026-05-19T08:05:00+08:00",
         event_type: "market_alert",
         label: "Yields pressure",
-        payload: { semantic_type: "breakout", impact_percent: -0.48, direction: "down", data_mode: "proxy", cause_status: "confirmed", main_driver: "yields" }
+        payload: {
+          semantic_type: "breakout",
+          impact_percent: -0.48,
+          direction: "down",
+          data_mode: "proxy",
+          cause_status: "confirmed",
+          main_driver: "yields",
+          market_read: buildMockMarketRead()
+        }
       }
     ],
     state_transitions: [
@@ -676,18 +728,18 @@ const buildMockMarketAgentProviderHealth = (): MarketAgentProviderHealthResponse
       data_mode: "live_seen",
       is_available: true,
       is_stale: false,
-      data_timestamp: "2026-05-19T08:00:00+08:00",
-      fetched_at: "2026-05-19T08:05:02+08:00"
+      data_timestamp: mockMarketAgentNowIso(),
+      fetched_at: mockMarketAgentNowIso()
     },
     {
       provider_key: "us2y",
       source: "US2Y",
-      source_type: "unavailable",
-      data_mode: "unavailable",
-      is_available: false,
+      source_type: "treasury_yield",
+      data_mode: "live_seen",
+      is_available: true,
       is_stale: false,
-      stale_reason: "No reliable free 2Y source configured.",
-      error: "Provider unavailable."
+      data_timestamp: mockMarketAgentNowIso(),
+      fetched_at: mockMarketAgentNowIso()
     },
     {
       provider_key: "calendar",
@@ -765,8 +817,8 @@ const buildMockMarketAgentLLMConfig = (): MarketAgentLLMConfigResponse => ({
     endpoint: "http://127.0.0.1:21434",
     model: "qwen3.5:4b",
     temperature: 0,
-    timeoutSeconds: 30,
-    keepAlive: "0",
+    timeoutSeconds: 60,
+    keepAlive: "5m",
     maxContext: 8192,
     configPath: "user-data/market-agent-llm.json",
     lastStatus: "disabled",
@@ -986,19 +1038,21 @@ const buildMockMarketAgentEvidenceForRun = (monitorRunId: number): MarketAgentEv
       evidence_status: {
         dxy: "confirming",
         us10y: "confirming",
-        us2y: "unavailable",
+        us2y: "confirming",
         oil: "neutral",
         news: "backfilled_news_found"
       },
       cross_asset_confirmation: {
         dxy: "confirming",
         us10y: "confirming",
+        us2y: "confirming",
         oil: "background_only",
         vix_equities: "neutral"
       },
       provider_health: {
         xauusd: { source_type: "spot", data_mode: "live_seen" }
       },
+      market_read: buildMockMarketRead(),
       active_driver_states: [{ driver_id: "yields", current_state: "active" }],
       dormant_driver_states: [{ driver_id: "oil_inflation", current_state: "dormant" }]
     },
@@ -1006,9 +1060,32 @@ const buildMockMarketAgentEvidenceForRun = (monitorRunId: number): MarketAgentEv
       main_driver: "yields",
       cause_status: "likely",
       confidence: "medium_high",
+      market_read: buildMockMarketRead(),
       rejected_driver: "fed_rates",
       rejection_reason: "blocked driver"
     },
+    analysis_history: [
+      {
+        monitor_run_id: 23,
+        run_started_at: "2026-05-19T08:03:00+08:00",
+        analysis_engine: "llm_validated",
+        llm_status: "validated",
+        main_driver: "yields",
+        cause_status: "likely",
+        confidence: "medium_high",
+        summary: "Stored Local AI validated yields as the main XAUUSD driver."
+      },
+      {
+        monitor_run_id: 22,
+        run_started_at: "2026-05-19T07:45:00+08:00",
+        analysis_engine: "llm_validated",
+        llm_status: "validated",
+        main_driver: "usd",
+        cause_status: "possible",
+        confidence: "medium",
+        summary: "Stored Local AI validated USD pressure as the main XAUUSD driver."
+      }
+    ],
     provider_health: buildMockMarketAgentProviderHealth().items,
     driver_attention_states: buildMockMarketAgentDriverAttention().states,
     alerts: buildMockMarketAgentReplay().replay.alerts,
@@ -1039,6 +1116,7 @@ let mockMarketAgentMonitorStatus: MarketAgentMonitorStatusResponse = {
   available: true,
   running: false,
   phase: "stopped",
+  autoStart: false,
   pid: null,
   intervalSeconds: 60,
   lastRunAt: null,
@@ -1130,7 +1208,7 @@ let mockMarketAgentMonitorStatus: MarketAgentMonitorStatusResponse = {
       chainStatus: "ready",
       usableInputs: ["live_xauusd_spot", "xauusd_recent_history", "news_context"],
       missingRequired: [],
-      evidenceStatus: { dxy: "confirming", us10y: "confirming", us2y: "unavailable", oil: "not_confirming" },
+      evidenceStatus: { dxy: "confirming", us10y: "confirming", us2y: "confirming", oil: "not_confirming" },
       allowedCandidateDrivers: ["yields", "usd"],
       blockedDrivers: { oil_inflation: "Oil is background only." },
       jobs: [
@@ -1171,7 +1249,7 @@ let mockMarketAgentMonitorStatus: MarketAgentMonitorStatusResponse = {
           title: "Cause review",
           status: "skipped",
           detail: "Local AI is off for this mock run.",
-          input: "Evidence packet JSON",
+          input: "Evidence review packet",
           output: "Rule fallback remains source of truth"
         },
         {
@@ -1677,7 +1755,11 @@ export const backend = {
     }
     return api.get_market_agent_snapshot({ limit });
   },
-  getMarketAgentReplay: async (start: string, end: string): ApiResult<MarketAgentReplayResponse> => {
+  getMarketAgentReplay: async (
+    start: string,
+    end: string,
+    mode: "dashboard" | "full" = "full"
+  ): ApiResult<MarketAgentReplayResponse> => {
     if (isUiCheckRuntime()) {
       return Promise.resolve(buildMockMarketAgentReplay());
     }
@@ -1688,7 +1770,7 @@ export const backend = {
       }
       return Promise.resolve(buildMockMarketAgentReplay());
     }
-    return api.get_market_agent_replay({ start, end });
+    return api.get_market_agent_replay({ start, end, mode });
   },
   getMarketAgentTimeline: async (start: string, end: string): ApiResult<MarketAgentTimelineResponse> => {
     if (isUiCheckRuntime()) {
@@ -1733,7 +1815,7 @@ export const backend = {
             bid: 4512.34,
             ask: 4512.72,
             mid: 4512.53,
-            timestamp: "2026-05-19T10:15:23+08:00",
+            timestamp: mockMarketAgentNowIso(),
             source: "cTrader",
             source_type: "spot"
           },
@@ -1745,8 +1827,8 @@ export const backend = {
             is_available: true,
             is_stale: false,
             current_value: 4512.53,
-            data_timestamp: "2026-05-19T10:15:23+08:00",
-            fetched_at: "2026-05-19T10:15:23+08:00"
+            data_timestamp: mockMarketAgentNowIso(),
+            fetched_at: mockMarketAgentNowIso()
           },
           status: { running: true, phase: "running" }
         },
@@ -1779,7 +1861,7 @@ export const backend = {
           bid: 4512.34,
           ask: 4512.72,
           mid: 4512.53,
-          timestamp: "2026-05-19T10:15:23+08:00",
+          timestamp: mockMarketAgentNowIso(),
           source: "cTrader",
           source_type: "spot"
         },
@@ -1791,8 +1873,8 @@ export const backend = {
           is_available: true,
           is_stale: false,
           current_value: 4512.53,
-          data_timestamp: "2026-05-19T10:15:23+08:00",
-          fetched_at: "2026-05-19T10:15:23+08:00"
+          data_timestamp: mockMarketAgentNowIso(),
+          fetched_at: mockMarketAgentNowIso()
         },
         status: { running: true, phase: "running" }
       });
@@ -1818,7 +1900,7 @@ export const backend = {
           bid: 4512.34,
           ask: 4512.72,
           mid: 4512.53,
-          timestamp: "2026-05-19T10:15:23+08:00",
+          timestamp: mockMarketAgentNowIso(),
           source: "cTrader",
           source_type: "spot"
         },
@@ -1830,8 +1912,8 @@ export const backend = {
           is_available: true,
           is_stale: false,
           current_value: 4512.53,
-          data_timestamp: "2026-05-19T10:15:23+08:00",
-          fetched_at: "2026-05-19T10:15:23+08:00"
+          data_timestamp: mockMarketAgentNowIso(),
+          fetched_at: mockMarketAgentNowIso()
         },
         status: { running: true, phase: "running" }
       });
@@ -2000,6 +2082,7 @@ export const backend = {
         ok: true,
         running: true,
         phase: "running",
+        autoStart: true,
         pid: 4242,
         intervalSeconds,
         nextRunAt: Date.now() + intervalSeconds * 1000,
@@ -2024,6 +2107,7 @@ export const backend = {
         ok: true,
         running: false,
         phase: "stopped",
+        autoStart: false,
         pid: null,
         nextRunAt: null,
         message: "Monitor loop is stopped."

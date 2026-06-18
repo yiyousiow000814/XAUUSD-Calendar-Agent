@@ -26,10 +26,22 @@ _SYMBOL_SOURCE_TYPE = {
 _HTTP_USER_AGENT = "Mozilla/5.0 (compatible; XAUUSD-Calendar-Agent/1.0)"
 _DEFAULT_LOOKBACK = timedelta(hours=6)
 _RELATED_EMPTY_RETRY_LOOKBACK = timedelta(hours=96)
+_DEFAULT_STALE_AFTER_SECONDS = 600
+_PROXY_STALE_AFTER_SECONDS = {
+    "GC=F": 120,
+    "DX-Y.NYB": 1200,
+    "CL=F": 1200,
+    "BZ=F": 1200,
+    "NQ=F": 1800,
+}
 
 
 def _parse_dt(raw: str) -> datetime:
     return datetime.fromisoformat(raw.replace("Z", "+00:00"))
+
+
+def _stale_after_seconds(symbol: str) -> int:
+    return _PROXY_STALE_AFTER_SECONDS.get(symbol, _DEFAULT_STALE_AFTER_SECONDS)
 
 
 def _to_iso(dt: datetime, target_tz: timezone | None) -> str:
@@ -183,7 +195,7 @@ class YahooChartProvider:
             )
         latest = rows[-1]
         latest_dt = _parse_dt(latest.timestamp)
-        stale = (now - latest_dt).total_seconds() > (600 if symbol != "GC=F" else 120)
+        stale = (now - latest_dt).total_seconds() > _stale_after_seconds(symbol)
         change_15m, change_30m, change_60m = _series_changes(rows, len(rows) - 1)
         latest = MarketBar(
             **{

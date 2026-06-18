@@ -57,16 +57,44 @@ const snapshotsDir = path.join(artifactsRoot, "snapshots");
 const framesDir = path.join(artifactsRoot, "frames");
 const videoDir = path.join(artifactsRoot, "video");
 const reportPath = path.join(artifactsRoot, "report.html");
+const cliOption = (name) => {
+  const prefix = `--${name}=`;
+  const direct = process.argv.find((arg) => arg.startsWith(prefix));
+  if (direct) return direct.slice(prefix.length);
+  const index = process.argv.indexOf(`--${name}`);
+  return index >= 0 ? process.argv[index + 1] : "";
+};
+const hasFlag = (name) => process.argv.includes(`--${name}`);
 // Playwright recordVideo is flaky on some Windows setups (tiny/zoomed captures).
 // Keep it opt-in so the default ui-check artifacts stay reliable.
-// Default on; can be disabled with UI_CHECK_VIDEO=0.
-const enableVideo = (process.env.UI_CHECK_VIDEO || "1").trim() !== "0";
-let baseURL = process.env.UI_BASE_URL || "http://127.0.0.1:4173";
-let shouldStartServer = !process.env.UI_BASE_URL;
+// Enable with UI_CHECK_VIDEO=1 when video artifacts are specifically needed.
+const enableVideo = (process.env.UI_CHECK_VIDEO || "0").trim() === "1";
+const checkFilter = (process.env.UI_CHECK_FILTER || cliOption("filter") || "").trim().toLowerCase();
+const filterTargetsMarketAgent = () =>
+  checkFilter.includes("market agent") ||
+  checkFilter.includes("month replay") ||
+  checkFilter.includes("replay month");
+const isMarketAgentDashboardSmokeOnly = () =>
+  checkFilter === "market agent dashboard smoke" ||
+  checkFilter === "market agent replay switch";
+const baseUrlOption = cliOption("base-url");
+const skipBuild = (process.env.UI_CHECK_SKIP_BUILD || "").trim() === "1" || hasFlag("skip-build");
+const profileChecks = (process.env.UI_CHECK_PROFILE || "").trim() !== "0";
+let baseURL = baseUrlOption || process.env.UI_BASE_URL || "http://127.0.0.1:4173";
+let shouldStartServer = !baseUrlOption && !process.env.UI_BASE_URL;
 const defaultPort = Number.parseInt(process.env.UI_CHECK_PORT || "", 10) || 4183;
 let serverState = null;
 let browser = null;
 let shutdownStarted = false;
+const spawnCommand = (command, args, options = {}) => {
+  if (process.platform === "win32" && command === "npm") {
+    return spawn("cmd.exe", ["/d", "/s", "/c", "npm", ...args], {
+      shell: false,
+      ...options
+    });
+  }
+  return spawn(command, args, { shell: false, ...options });
+};
 
 const shutdown = async (reason) => {
   if (shutdownStarted) return;
@@ -363,7 +391,7 @@ const screenshotMad = (aBuffer, bBuffer) => {
 
 const run = (command, args, options) =>
   new Promise((resolve, reject) => {
-    const child = spawn(command, args, { shell: true, stdio: "inherit", ...options });
+    const child = spawnCommand(command, args, { stdio: "inherit", ...options });
     child.on("exit", (code) => {
       if (code === 0) {
         resolve();
@@ -429,7 +457,7 @@ const isPortFree = async (port) => {
 };
 
 const startServer = async (port) => {
-  const server = spawn(
+  const server = spawnCommand(
     "npm",
     [
       "--prefix",
@@ -441,7 +469,7 @@ const startServer = async (port) => {
       `--port=${port}`,
       "--strictPort"
     ],
-    { cwd: repoRoot, shell: true, stdio: "inherit" }
+    { cwd: repoRoot, stdio: "inherit" }
   );
   await Promise.race([
     waitForPort(port),
@@ -462,7 +490,6 @@ async function stopServer(server) {
   if (process.platform === "win32") {
     await new Promise((resolve) => {
       const killer = spawn("taskkill", ["/PID", String(server.pid), "/T", "/F"], {
-        shell: true,
         stdio: "ignore"
       });
       killer.on("exit", () => resolve());
@@ -1252,7 +1279,10 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
       },
       open_log: () => Promise.resolve({ ok: true }),
       open_path: () => Promise.resolve({ ok: true }),
-      open_url: () => Promise.resolve({ ok: true }),
+      open_url: (url) => {
+        window.__uiCheckOpenedUrls = [...(window.__uiCheckOpenedUrls || []), String(url || "")];
+        return Promise.resolve({ ok: true });
+      },
       add_log: () => Promise.resolve({ ok: true }),
       browse_temporary_path: () => Promise.resolve({ ok: true, path: "" }),
       set_temporary_path: () => Promise.resolve({ ok: true }),
@@ -1328,6 +1358,252 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
           return Promise.resolve({ ok: true });
       },
       set_currency: () => Promise.resolve({ ok: true }),
+      get_market_agent_snapshot: () => Promise.resolve({
+        ok: true,
+        available: true,
+        state_path: "user-data/market_agent_state.json",
+        alerts_path: "user-data/market_agent_alerts.ndjson",
+        timeline_store_path: "user-data/market_agent_timeline.sqlite",
+        timeline_available: true,
+        state: {
+          current_bias: "bearish_gold",
+          main_driver: "yields",
+          secondary_driver: "usd",
+          confidence: "high",
+          cause_status: "confirmed",
+          last_alert_time: new Date().toISOString(),
+          last_analysis_time: new Date().toISOString(),
+          last_alert_summary: "Gold remains under pressure from rates and dollar confirmation.",
+          market_read: {
+            status: "current_read",
+            headline: "Yields and dollar pressure keep gold heavy",
+            thesis: "Gold is trading lower while Treasury yields and the dollar stay firm; oil headlines are watched but are not the main driver.",
+            move: { direction: "down", impact_percent: -0.48, window: "15m", detected_at: new Date().toISOString() },
+            coverage: {
+              live_price: "fresh",
+              recent_history: "ready",
+              sensors: "8 of 8 usable",
+              news: "2 reviewed",
+              calendar: "1 reviewed",
+              ai: "validated"
+            },
+            evidence: {
+              latest_news: ["Markets price higher Treasury yields after hawkish Fed comments"],
+              calendar: ["US session opens"]
+            },
+            continuity: "The prior USD-pressure read has shifted into a broader yields-and-dollar pressure story.",
+            watch_next: [
+              "US yields stay firm into the next US data window",
+              "DXY confirms or fades the pressure on gold"
+            ],
+            analyst_read: {
+              schema: "market_read.v1",
+              conclusion_type: "trade_call",
+              now: "Gold is under pressure because yields and the dollar are confirming the move.",
+              past: [
+                "07:58 Reversal attempt rejected",
+                "08:03 Fed headline lifted yields",
+                "08:05 Yields pressure confirmed"
+              ],
+              next: [
+                "Confirm: yields stay firm into the next US data window",
+                "Confirm: DXY holds the pressure on gold"
+              ],
+              risks: [
+                "Oil headlines are watched but not the main driver"
+              ],
+              trade_call_ready: true,
+              trade_call_blocker: ""
+            }
+          }
+        },
+        alerts: []
+      }),
+      get_market_agent_replay: () => {
+        const marketRead = {
+          status: "current_read",
+          headline: "Yields and dollar pressure keep gold heavy",
+          thesis: "Gold is trading lower while Treasury yields and the dollar stay firm; oil headlines are watched but are not the main driver.",
+          bias: "bearish_gold",
+          driver: "yields",
+          driver_label: "Rates / yields",
+          secondary_driver: "usd",
+          cause_status: "confirmed",
+          confidence: "high",
+          move: { direction: "down", impact_percent: -0.48, window: "15m", detected_at: "2026-05-19T08:05:00+08:00" },
+          coverage: {
+            live_price: "fresh",
+            recent_history: "ready",
+            sensors: "8 of 8 usable",
+            news: "2 reviewed",
+            calendar: "1 reviewed",
+            ai: "validated"
+          },
+          evidence: {
+            confirming: ["DXY", "US10Y", "US2Y"],
+            missing: [],
+            context_only: ["Oil headlines"],
+            latest_news: ["Markets price higher Treasury yields after hawkish Fed comments"],
+            calendar: ["US session opens"]
+          },
+          continuity: "The prior USD-pressure read has shifted into a broader yields-and-dollar pressure story.",
+          watch_next: [
+            "US yields stay firm into the next US data window",
+            "DXY confirms or fades the pressure on gold",
+            "Oil headlines start moving inflation expectations instead of remaining background context"
+          ],
+          analyst_read: {
+            schema: "market_read.v1",
+            conclusion_type: "trade_call",
+            now: "Gold is under pressure because yields and the dollar are confirming the move.",
+            past: [
+              "07:58 Reversal attempt rejected",
+              "08:03 Fed headline lifted yields",
+              "08:05 Yields pressure confirmed"
+            ],
+            next: [
+              "Confirm: yields stay firm into the next US data window",
+              "Confirm: DXY holds the pressure on gold",
+              "Calendar: next US data window"
+            ],
+            risks: [
+              "Oil headlines are watched but not the main driver"
+            ],
+            trade_call_ready: true,
+            trade_call_blocker: ""
+          }
+        };
+        return Promise.resolve({
+          ok: true,
+          available: true,
+          timeline_store_path: "user-data/market_agent_timeline.sqlite",
+          start: "2026-05-19T04:00:00+08:00",
+          end: "2026-05-19T08:30:00+08:00",
+          replay: {
+            price_series: [
+              { symbol: "XAUUSD", data_timestamp: new Date().toISOString(), close_price: 4504.8, source: "cTrader", source_type: "spot", data_mode: "live_seen", is_stale: false }
+            ],
+            related_assets: {
+              dxy: [{ symbol: "dxy", data_timestamp: new Date().toISOString(), change_15m: 0.22, source_type: "proxy", data_mode: "live_seen" }],
+              us10y: [{ symbol: "us10y", data_timestamp: new Date().toISOString(), change_15m: 5.1, source_type: "proxy", data_mode: "live_seen" }],
+              us2y: [{ symbol: "us2y", data_timestamp: new Date().toISOString(), change_15m: 4.4, source_type: "proxy", data_mode: "live_seen" }]
+            },
+            news_items: [
+              {
+                title: "Fed inflation surprise jolts gold before the next rate window",
+                summary_title: "Fed inflation surprise jolts gold",
+                summary_source: "local_ai",
+                source: "Reuters",
+                link: "https://example.test/market-agent/fed-inflation",
+                published_at: "2026-05-19T08:04:00+08:00",
+                included: true,
+                semantic_type: "news",
+                impact_percent: -0.24
+              },
+              {
+                title: "Markets price higher Treasury yields after hawkish Fed comments and dollar strength weighs heavily on bullion",
+                summary_title: "Markets price higher Treasury yields",
+                summary_source: "local_ai",
+                source: "Reuters",
+                link: "https://example.test/market-agent/fed-yields",
+                published_at: "2026-05-19T08:03:00+08:00",
+                included: true,
+                semantic_type: "news",
+                impact_percent: -0.21
+              }
+            ],
+            calendar_events: [
+              { title: "US session opens", scheduled_at: "2026-05-19T08:14:00+08:00", source: "ForexFactory", semantic_type: "session", impact_percent: -0.08 },
+              ...Array.from({ length: 11 }, (_, index) => ({
+                title: `FOMC context marker ${index + 1}`,
+                scheduled_at: `2026-05-19T02:${String(index).padStart(2, "0")}:00+08:00`,
+                source: "Economic Calendar",
+                semantic_type: "calendar",
+                data_mode: "calendar_context"
+              }))
+            ],
+            driver_attention_timeline: [],
+            timeline_events: [
+              {
+                monitor_run_id: 23,
+                event_time: "2026-05-19T08:05:00+08:00",
+                event_type: "market_alert",
+                label: "Yields pressure",
+                payload: { semantic_type: "breakout", impact_percent: -0.48, direction: "down", cause_status: "confirmed", main_driver: "yields", market_read: marketRead }
+              }
+            ],
+            state_transitions: [],
+            alerts: [],
+            suppressed_alerts: []
+          }
+        });
+      },
+      get_market_agent_provider_health: () => Promise.resolve({
+        ok: true,
+        available: true,
+        monitor_run_id: 23,
+        run_started_at: "2026-05-19T08:05:00+08:00",
+        items: [
+          { provider_key: "xauusd", source: "cTrader", source_type: "spot", data_mode: "live_seen", is_available: true, is_stale: false, data_timestamp: new Date().toISOString() },
+          { provider_key: "us2y", source: "US2Y", source_type: "treasury_yield", data_mode: "live_seen", is_available: true, is_stale: false, data_timestamp: new Date().toISOString() }
+        ]
+      }),
+      get_market_agent_driver_attention: () => Promise.resolve({
+        ok: true,
+        available: true,
+        monitor_run_id: 23,
+        run_started_at: "2026-05-19T08:05:00+08:00",
+        states: [
+          { driver_id: "yields", label: "US yields", category: "macro", current_state: "active", priority: "core_structural", relevance_score: 0.91, confidence: "high", impact_percent: -0.48, activation_reason: "US2Y and US10Y confirm pressure.", data_mode: "live_seen" },
+          { driver_id: "usd", label: "DXY", category: "macro", current_state: "active", priority: "core_structural", relevance_score: 0.86, confidence: "high", impact_percent: -0.22, activation_reason: "Dollar strength confirms gold pressure.", data_mode: "live_seen" }
+        ]
+      }),
+      get_market_agent_evidence_for_run: ({ monitorRunId } = {}) => {
+        const runId = Number(monitorRunId || 23);
+        return api.get_market_agent_replay().then((replayResponse) => {
+          const marketRead = replayResponse.replay.timeline_events[0].payload.market_read;
+          return {
+            ok: true,
+            available: true,
+            monitor_run_id: runId,
+            payload: {
+              monitor_run: { monitor_run_id: runId, run_started_at: "2026-05-19T08:05:00+08:00", run_type: "live" },
+              evidence_packet: {
+                allowed_candidate_drivers: ["yields", "usd"],
+                evidence_status: { dxy: "confirming", us10y: "confirming", us2y: "confirming", news: "reviewed" },
+                market_read: marketRead
+              },
+              analysis_result: { main_driver: "yields", cause_status: "confirmed", confidence: "high", market_read: marketRead },
+              analysis_history: [
+                { monitor_run_id: runId, run_started_at: "2026-05-19T08:05:00+08:00", analysis_engine: "llm_validated", llm_status: "validated", main_driver: "yields", cause_status: "confirmed", confidence: "high", summary: "Local AI reviewed price, news, calendar, and cross-market sensors." }
+              ],
+              provider_health: [],
+              driver_attention_states: [],
+              alerts: []
+            }
+          };
+        });
+      },
+      get_market_agent_monitor_status: () => Promise.resolve({
+        ok: true,
+        available: true,
+        running: true,
+        phase: "running",
+        autoStart: true,
+        pid: 1234,
+        intervalSeconds: 60,
+        lastRunAt: "2026-05-19T08:05:00+08:00",
+        nextRunAt: new Date(Date.now() + 59000).toISOString(),
+        lastError: "",
+        message: "Monitoring is running."
+      }),
+      get_market_agent_live_quote: () => Promise.resolve({
+        ok: true,
+        available: true,
+        quote: { symbol: "XAUUSD", bid: 4504.52, ask: 4505.08, timestamp: new Date().toISOString() },
+        status: "live"
+      }),
+      ensure_market_agent_live_quote_stream: () => api.get_market_agent_live_quote(),
       clear_logs: () => Promise.resolve({ ok: true })
     };
 
@@ -2071,6 +2347,7 @@ const assertThemeTransitionSynchronized = async (page, themeKey) => {
 };
 
 const main = async () => {
+  const startedAt = Date.now();
   let phase = "boot";
   const watchdogMs = Number.parseInt(process.env.UI_CHECK_WATCHDOG_MS || "", 10) || 0;
   if (watchdogMs > 0) {
@@ -2080,13 +2357,17 @@ const main = async () => {
     }, watchdogMs).unref?.();
   }
 
-  const allThemes = [
+  const defaultThemes = [
     { key: "dark", mode: "dark" },
-    { key: "light", mode: "light" },
+    { key: "light", mode: "light" }
+  ];
+  const systemThemes = [
     { key: "system-dark", mode: "system", scheme: "dark" },
     { key: "system-light", mode: "system", scheme: "light" }
   ];
-  const requestedTheme = process.env.UI_CHECK_THEME;
+  const includeSystemThemes = (process.env.UI_CHECK_INCLUDE_SYSTEM || "").trim() === "1";
+  const allThemes = includeSystemThemes ? [...defaultThemes, ...systemThemes] : defaultThemes;
+  const requestedTheme = process.env.UI_CHECK_THEME || cliOption("theme");
   const themes = requestedTheme
     ? allThemes.filter((theme) => theme.key === requestedTheme)
     : allThemes;
@@ -2111,6 +2392,10 @@ const main = async () => {
     const workerCount = Math.max(1, Math.min(themeList.length, workerLimit));
     const basePort = parsePort(process.env.UI_CHECK_PORT_BASE) ?? defaultPort;
 
+    if (shouldStartServer && !skipBuild) {
+      await run("npm", ["--prefix", "app/webui", "run", "build"], { cwd: repoRoot });
+    }
+
     const jobs = themeList.map((theme, index) => ({ theme, index }));
     const errors = await runWithPool(jobs, workerCount, async ({ theme, index }) => {
       await new Promise((resolve, reject) => {
@@ -2121,8 +2406,12 @@ const main = async () => {
           UI_CHECK_OUTPUT_TAG: theme.key,
           UI_CHECK_WORKERS: "1",
           UI_CHECK_SKIP_REPORT: "1",
+          UI_CHECK_SKIP_BUILD: "1",
           UI_CHECK_PORT: String(port)
         };
+        if (checkFilter) {
+          childEnv.UI_CHECK_FILTER = checkFilter;
+        }
         if (process.env.UI_CHECK_OUTPUT_DIR) {
           childEnv.UI_CHECK_OUTPUT_DIR = path.join(baseArtifactsRoot, theme.key);
         }
@@ -2168,6 +2457,38 @@ const main = async () => {
       {}
     );
     console.log("UI-CHECK SUMMARY", summary);
+    const slowChecks = mergedChecks
+      .filter((item) => item.status !== "SKIP" && Number.isFinite(item.durationMs))
+      .sort((a, b) => b.durationMs - a.durationMs)
+      .slice(0, 12);
+    if (slowChecks.length) {
+      console.log(
+        "UI-CHECK SLOWEST",
+        JSON.stringify(
+          slowChecks.map((item) => ({
+            theme: item.theme,
+            name: item.name,
+            status: item.status,
+            ms: Math.round(item.durationMs)
+          })),
+          null,
+          2
+        )
+      );
+    }
+    console.log("UI-CHECK TOTAL MS", Date.now() - startedAt);
+    console.log(
+      "UI-CHECK ARTIFACTS",
+      JSON.stringify(
+        {
+          artifactsRoot: baseArtifactsRoot,
+          snapshotsDir: path.join(baseArtifactsRoot, "<theme>", "snapshots"),
+          reportPath: baseReportPath
+        },
+        null,
+        2
+      )
+    );
 
     if (errors.length) {
       const failedThemes = errors
@@ -2178,14 +2499,17 @@ const main = async () => {
     }
   };
 
+  const isolatedSetting = (process.env.UI_CHECK_ISOLATED || "").trim().toLowerCase();
   const useIsolated =
-    !requestedTheme && (process.env.UI_CHECK_ISOLATED || "").trim().toLowerCase() !== "0";
+    !requestedTheme &&
+    (isolatedSetting === "1" || (!checkFilter && isolatedSetting !== "0"));
   if (useIsolated) {
     await runIsolatedThemes(themes);
     return;
   }
 
   await ensureDir(artifactsRoot);
+  await clearDir(artifactsRoot);
   await ensureDir(snapshotsDir);
   await ensureDir(framesDir);
   await clearDir(snapshotsDir);
@@ -2197,18 +2521,43 @@ const main = async () => {
   await fs.rm(reportPath, { force: true });
 
   const checkResults = [];
+  const marketAgentPerfSamplesAll = [];
+  let filterSkippedCount = 0;
+  const checkFilterAliases = {
+    "market agent replay switch": ["market agent dashboard smoke", "market agent page opens from app bar"]
+  };
+  const matchesCheckFilter = (name) => {
+    if (!checkFilter) return true;
+    const normalizedName = name.toLowerCase();
+    if (normalizedName.includes(checkFilter)) return true;
+    return (checkFilterAliases[checkFilter] || []).some((alias) => normalizedName.includes(alias));
+  };
   const runCheck = async (themeKey, name, fn) => {
+    if (!matchesCheckFilter(name)) {
+      filterSkippedCount += 1;
+      return false;
+    }
+    const checkStartedAt = Date.now();
     try {
       await fn();
-      checkResults.push({ theme: themeKey, name, status: "PASS" });
-      console.log(`PASS [${themeKey}] ${name}`);
+      const durationMs = Date.now() - checkStartedAt;
+      checkResults.push({ theme: themeKey, name, status: "PASS", durationMs });
+      console.log(`PASS [${themeKey}] ${name}${profileChecks ? ` (${durationMs}ms)` : ""}`);
+      return true;
     } catch (err) {
-      checkResults.push({ theme: themeKey, name, status: "FAIL", error: err?.message });
-      console.error(`FAIL [${themeKey}] ${name}: ${err?.message || err}`);
+      const durationMs = Date.now() - checkStartedAt;
+      checkResults.push({ theme: themeKey, name, status: "FAIL", durationMs, error: err?.message });
+      console.error(
+        `FAIL [${themeKey}] ${name}${profileChecks ? ` (${durationMs}ms)` : ""}: ${err?.message || err}`
+      );
       throw err;
     }
   };
   const skipCheck = (themeKey, name, reason) => {
+    if (!matchesCheckFilter(name)) {
+      filterSkippedCount += 1;
+      return;
+    }
     checkResults.push({ theme: themeKey, name, status: "SKIP", error: reason });
     console.log(`SKIP [${themeKey}] ${name}: ${reason}`);
   };
@@ -2387,7 +2736,9 @@ const main = async () => {
   const activityPillDiagnostics = [];
   try {
     if (shouldStartServer) {
-      await run("npm", ["--prefix", "app/webui", "run", "build"], { cwd: repoRoot });
+      if (!skipBuild) {
+        await run("npm", ["--prefix", "app/webui", "run", "build"], { cwd: repoRoot });
+      }
       serverState = await startServerWithRetries(defaultPort, 6);
       baseURL = `http://127.0.0.1:${serverState.port}`;
     }
@@ -2439,8 +2790,28 @@ const main = async () => {
     });
     await context.addInitScript(() => {
       window.__UI_CHECK_RUNTIME__ = true;
+      window.__UI_CHECK_PERF__ = { longTasks: [] };
+      try {
+        const observer = new PerformanceObserver((list) => {
+          const target = window.__UI_CHECK_PERF__ || (window.__UI_CHECK_PERF__ = { longTasks: [] });
+          for (const entry of list.getEntries()) {
+            target.longTasks.push({
+              name: entry.name,
+              startTime: entry.startTime,
+              duration: entry.duration
+            });
+          }
+          if (target.longTasks.length > 200) {
+            target.longTasks = target.longTasks.slice(-200);
+          }
+        });
+        observer.observe({ entryTypes: ["longtask"] });
+      } catch {
+        // Long task timing is best-effort; explicit elapsed budgets still run.
+      }
     });
-    await context.addInitScript(({ mode, scheme }) => {
+    const quickSmokeOnly = isMarketAgentDashboardSmokeOnly();
+    await context.addInitScript(({ mode, scheme, quickSmokeOnly: smokeOnly }) => {
       const resolved =
         mode === "system"
           ? scheme ||
@@ -2455,9 +2826,10 @@ const main = async () => {
         // ignore
       }
       document.documentElement.dataset.theme = resolved;
+      window.__UI_CHECK_DASHBOARD_SMOKE_ONLY__ = Boolean(smokeOnly);
       window.__ui_check__ = window.__ui_check__ || {};
-      window.__ui_check__.holdInitOverlayMs = 1500;
-    }, theme);
+      window.__ui_check__.holdInitOverlayMs = smokeOnly ? 0 : 1500;
+    }, { ...theme, quickSmokeOnly });
     const page = await context.newPage();
     const video = enableVideo ? page.video() : null;
     phase = `theme:${theme.key}:server`;
@@ -2469,21 +2841,23 @@ const main = async () => {
       page.waitForSelector("[data-qa='qa:app-shell']", { timeout: 10000 }),
       initOverlay.waitFor({ state: "attached", timeout: 2000 }).catch(() => null)
     ]);
-    try {
-      const initCard = page.locator("[data-qa='qa:card:init']").first();
-      artifacts.push({
-        scenario: "init-overlay",
-        theme: theme.key,
-        state: "loading",
-        path: await captureState(page, "init-overlay", theme.key, "loading", { element: initCard })
-      });
-      await runCheck(theme.key, "Init overlay skeleton contrast", () =>
-        assertInitOverlaySkeletonContrast(page, theme.key)
-      );
-    } catch (err) {
-      skipCheck(theme.key, "Init overlay skeleton contrast", "Overlay not visible");
+    if (!quickSmokeOnly) {
+      try {
+        const initCard = page.locator("[data-qa='qa:card:init']").first();
+        artifacts.push({
+          scenario: "init-overlay",
+          theme: theme.key,
+          state: "loading",
+          path: await captureState(page, "init-overlay", theme.key, "loading", { element: initCard })
+        });
+        await runCheck(theme.key, "Init overlay skeleton contrast", () =>
+          assertInitOverlaySkeletonContrast(page, theme.key)
+        );
+      } catch (err) {
+        skipCheck(theme.key, "Init overlay skeleton contrast", "Overlay not visible");
+      }
+      await page.waitForTimeout(900);
     }
-    await page.waitForTimeout(900);
     phase = `theme:${theme.key}:inject-backend`;
     await injectDesktopBackend(page, theme.mode, false);
     await initOverlay.waitFor({ state: "detached", timeout: 10000 });
@@ -2495,6 +2869,7 @@ const main = async () => {
     await page
       .evaluate(() => (document.fonts?.ready ? document.fonts.ready : null))
       .catch(() => null);
+    const marketAgentPerfSamples = [];
     const activityIdleReady = await page
       .waitForFunction(
         () => {
@@ -2646,7 +3021,8 @@ const main = async () => {
       await page.waitForTimeout(150);
     });
 
-    await runCheck(theme.key, "Market Agent page opens from app bar", async () => {
+    const ranMarketAgentDashboardSmoke = checkFilter
+      ? await runCheck(theme.key, "Market Agent dashboard smoke", async () => {
       const marketAgentButton = page.locator("[data-qa='qa:action:view-market-agent']").first();
       if (!(await marketAgentButton.count())) {
         throw new Error("Market Agent app-bar button not found");
@@ -2654,33 +3030,201 @@ const main = async () => {
       await marketAgentButton.click();
       const marketAgentPage = page.locator("[data-qa='qa:page:market-agent']").first();
       await marketAgentPage.waitFor({ state: "visible", timeout: 4000 });
+      await marketAgentPage.locator("[data-market-agent-section='live']").first().click();
+      const macroMicroDashboard = marketAgentPage.locator("[data-qa='qa:market-agent:macro-micro:dashboard']").first();
+      await macroMicroDashboard.waitFor({ state: "visible", timeout: 4000 });
       await page.waitForFunction(() => {
-        const root = document.querySelector("[data-qa='qa:page:market-agent']");
-        if (!(root instanceof HTMLElement)) return false;
-        const text = root.innerText || root.textContent || "";
-        return (
-          text.includes("Dashboard") &&
-          text.includes("XAUUSD (Spot)") &&
-          text.includes("Market State") &&
-          text.includes("Latest Move") &&
-          text.includes("Evidence Status") &&
-          text.includes("Next Update") &&
-          text.includes("Driver Attention") &&
-          text.includes("(Current)") &&
-          text.includes("Market Replay") &&
-          text.includes("(Day)") &&
-          text.includes("Latest Evidence") &&
-          text.includes("Provider Health")
-        );
-      }, { timeout: 4000 });
+        const focus = document.querySelector("[data-qa='qa:market-agent:macro-micro:dashboard']");
+        const focusText = focus instanceof HTMLElement ? (focus.innerText || focus.textContent || "").toLowerCase() : "";
+        return focusText.includes("big picture") && focusText.includes("small stories");
+      }, null, { timeout: 4000 });
+      if (!isMarketAgentDashboardSmokeOnly()) {
+        await page.waitForFunction(() => {
+          const focus = document.querySelector("[data-qa='qa:market-agent:macro-micro:dashboard']");
+          const focusText = focus instanceof HTMLElement ? focus.innerText || focus.textContent || "" : "";
+          return focusText.includes("Markets price higher Treasury yields") || !/0\s+STORIES/i.test(focusText);
+        }, null, { timeout: 8000 }).catch(() => null);
+      }
+      const smokeProblems = await macroMicroDashboard.evaluate((focus, smokeOnly) => {
+        const problems = [];
+        const text = focus instanceof HTMLElement ? focus.innerText || focus.textContent || "" : "";
+        const lowerText = text.toLowerCase();
+        if (!lowerText.includes("big picture") || !lowerText.includes("small stories")) {
+          problems.push("Macro / Micro Watch sections missing");
+        }
+        if (!smokeOnly && !text.includes("Markets price higher Treasury yields")) {
+          problems.push(`Local AI short headline missing; panel text: ${text.replace(/\s+/g, " ").trim().slice(0, 180)}`);
+        }
+        if (text.includes("after hawkish Fed comments and dollar strength weighs heavily on bullion")) {
+          problems.push("Raw long headline leaked into dashboard smoke panel");
+        }
+        for (const forbidden of ["Blocked", "Watching", "Rule kept", "Accepted input", "No detail recorded", "raw calendar context", "AI/rules"]) {
+          if (text.includes(forbidden)) problems.push(`Dashboard smoke exposes audit-only text: ${forbidden}`);
+        }
+        return problems;
+      }, isMarketAgentDashboardSmokeOnly());
+      if (smokeProblems.length) {
+        throw new Error(smokeProblems.join("; "));
+      }
+      artifacts.push({
+        scenario: "market-agent-dashboard-smoke",
+        theme: theme.key,
+        state: "open",
+        path: await captureState(page, "market-agent-dashboard-smoke", theme.key, "open", {
+          element: macroMicroDashboard
+        })
+      });
+    })
+      : false;
+    if (ranMarketAgentDashboardSmoke && checkFilter === "market agent dashboard smoke") {
+      await context.close();
+      return;
+    }
+
+    await runCheck(theme.key, "Market Agent page opens from app bar", async () => {
+      const openStartedAt = Date.now();
+      const marketAgentButton = page.locator("[data-qa='qa:action:view-market-agent']").first();
+      if (!(await marketAgentButton.count())) {
+        throw new Error("Market Agent app-bar button not found");
+      }
+      await marketAgentButton.click();
+      const marketAgentPage = page.locator("[data-qa='qa:page:market-agent']").first();
+      await marketAgentPage.waitFor({ state: "visible", timeout: 4000 });
+      const shellReadyMs = Date.now() - openStartedAt;
+      await marketAgentPage.locator("[data-market-agent-section='live']").first().click();
+      const macroMicroDashboard = marketAgentPage.locator("[data-qa='qa:market-agent:macro-micro:dashboard']").first();
+      await macroMicroDashboard.waitFor({ state: "visible", timeout: 4000 });
+      await page.waitForFunction(() => {
+        const focus = document.querySelector("[data-qa='qa:market-agent:macro-micro:dashboard']");
+        const focusText = focus instanceof HTMLElement ? (focus.innerText || focus.textContent || "").toLowerCase() : "";
+        return focusText.includes("big picture") && focusText.includes("small stories");
+      }, null, { timeout: 4000 });
+      await page.waitForFunction(() => {
+        const focus = document.querySelector("[data-qa='qa:market-agent:macro-micro:dashboard']");
+        const focusText = focus instanceof HTMLElement ? focus.innerText || focus.textContent || "" : "";
+        return focusText.includes("Markets price higher Treasury yields") || !/0\s+STORIES/i.test(focusText);
+      }, null, { timeout: 8000 }).catch(() => null);
+      const macroMicroReadyMs = Date.now() - openStartedAt;
+      const perfProbe = await page.evaluate(() => {
+        const longTasks = Array.isArray(window.__UI_CHECK_PERF__?.longTasks)
+          ? window.__UI_CHECK_PERF__.longTasks
+          : [];
+        const recent = longTasks.filter((entry) => entry && entry.startTime >= performance.now() - 15000);
+        return {
+          longTaskCount: recent.length,
+          longTaskMaxMs: recent.reduce((max, entry) => Math.max(max, Number(entry.duration) || 0), 0),
+          longTaskTotalMs: recent.reduce((sum, entry) => sum + (Number(entry.duration) || 0), 0)
+        };
+      });
+      const perfSample = {
+        name: "Market Agent page opens from app bar",
+        shellReadyMs,
+        macroMicroReadyMs,
+        ...perfProbe
+      };
+      marketAgentPerfSamples.push(perfSample);
+      marketAgentPerfSamplesAll.push({ theme: theme.key, ...perfSample });
+      const maxShellMs = Number(process.env.UI_CHECK_MARKET_AGENT_SHELL_MS || 2500);
+      const maxReadyMs = Number(process.env.UI_CHECK_MARKET_AGENT_READY_MS || 9000);
+      const maxLongTaskMs = Number(process.env.UI_CHECK_MARKET_AGENT_LONGTASK_MS || 350);
+      const maxLongTaskTotalMs = Number(process.env.UI_CHECK_MARKET_AGENT_LONGTASK_TOTAL_MS || 1600);
+      const perfProblems = [];
+      if (shellReadyMs > maxShellMs) {
+        perfProblems.push(`Market Agent shell took ${shellReadyMs}ms (budget ${maxShellMs}ms)`);
+      }
+      if (macroMicroReadyMs > maxReadyMs) {
+        perfProblems.push(`Macro / Micro data took ${macroMicroReadyMs}ms (budget ${maxReadyMs}ms)`);
+      }
+      if (perfProbe.longTaskMaxMs > maxLongTaskMs) {
+        perfProblems.push(`main thread long task ${Math.round(perfProbe.longTaskMaxMs)}ms (budget ${maxLongTaskMs}ms)`);
+      }
+      if (perfProbe.longTaskTotalMs > maxLongTaskTotalMs) {
+        perfProblems.push(`main thread blocked ${Math.round(perfProbe.longTaskTotalMs)}ms total (budget ${maxLongTaskTotalMs}ms)`);
+      }
+      if (perfProblems.length) {
+        throw new Error(perfProblems.join("; "));
+      }
       const layoutProblems = await page.evaluate(() => {
         const problems = [];
         const root = document.querySelector("[data-qa='qa:page:market-agent']");
         const text = root instanceof HTMLElement ? root.innerText || root.textContent || "" : "";
         const isCurrentPaused =
+          text.includes("AWAITING LIVE PRICE") ||
+          text.includes("REVIEW PENDING") ||
+          text.includes("MARKET CLOSED") ||
           text.includes("CURRENT PAUSED") ||
           text.includes("No driver confirmed yet") ||
           text.includes("No accepted evidence yet");
+        if (text.includes("Market Situation") || text.includes("AI input coverage")) {
+          problems.push("Removed Situation Briefing text is still visible on the Dashboard");
+        }
+        if (document.querySelector(".market-agent-analyst-read") || /Analyst read/i.test(text)) {
+          problems.push("Market Agent dashboard still shows the removed analyst read panel");
+        }
+        if (/\bwindow\.\d+\b/.test(text)) {
+          problems.push("Market Agent text has a missing space after a replay window sentence");
+        }
+        if (/\bwindow\.Raw\b/.test(text)) {
+          problems.push("Market Agent replay empty state joins sentences as window.Raw");
+        }
+        for (const forbiddenFormalText of [
+          "No reviewed move",
+          "market context items reviewed",
+          "market context item reviewed",
+          "News/calendar reviewed",
+          "Reviewed macro news",
+          "Current conclusion is paused",
+          "Evidence packet",
+          "raw calendar context item",
+          "raw news and calendar context item",
+          "Raw news and calendar context",
+          "Raw context is stored",
+          "AI/rules"
+        ]) {
+          if (text.includes(forbiddenFormalText)) {
+            problems.push(`Market Agent dashboard exposes internal raw-context language: ${forbiddenFormalText}`);
+          }
+        }
+        const replayEmpty = document.querySelector(".market-agent-replay-panel .market-agent-replay-empty");
+        if (replayEmpty instanceof HTMLElement) {
+          const emptyText = replayEmpty.textContent || "";
+          if (emptyText.includes("window.Raw")) {
+            problems.push("Market Agent replay empty state joins title and detail text");
+          }
+          const title = replayEmpty.querySelector("strong");
+          const detail = replayEmpty.querySelector("span");
+          if (title instanceof HTMLElement && detail instanceof HTMLElement) {
+            const titleBox = title.getBoundingClientRect();
+            const detailBox = detail.getBoundingClientRect();
+            if (detailBox.top < titleBox.bottom + 2) {
+              problems.push("Market Agent replay empty detail is not visually separated from its title");
+            }
+          }
+        }
+        const freshLastLiveQuote = text.match(/Last live quote\s*\((\d+)s ago\)/i);
+        if (freshLastLiveQuote && Number(freshLastLiveQuote[1]) <= 90) {
+          if (text.includes("cTrader reconnecting")) {
+            problems.push("Fresh cTrader quote is still labeled reconnecting");
+          }
+          if (text.includes("AWAITING LIVE PRICE")) {
+            problems.push("Fresh cTrader quote is still labeled awaiting live price");
+          }
+        }
+        const moveType = document.querySelector(".market-agent-move-card .market-agent-move-type");
+        if (moveType instanceof HTMLElement) {
+          const moveText = moveType.textContent || "";
+          const stateText = document.querySelector(".market-agent-state-value")?.textContent || "";
+          if (/TRENDING\s+(UP|DOWN)/i.test(stateText) && /No move/i.test(moveText)) {
+            problems.push("Market Agent shows a trending state while Latest Move still says No move");
+          }
+          const rect = moveType.getBoundingClientRect();
+          const style = window.getComputedStyle(moveType);
+          const lineHeight = Number.parseFloat(style.lineHeight);
+          const expectedSingleLine = Number.isFinite(lineHeight) ? lineHeight * 1.7 : 44;
+          if (rect.height > expectedSingleLine) {
+            problems.push(`Latest Move label wraps or stacks (${rect.height.toFixed(1)}px high)`);
+          }
+        }
         const parseRgbTriples = (value) =>
           Array.from(String(value || "").matchAll(/rgba?\(([^)]+)\)/g))
             .map((match) =>
@@ -2768,6 +3312,16 @@ const main = async () => {
           });
         };
         const checkTimelineRows = () => {
+          const tagTextOffset = (tag) => {
+            if (!(tag instanceof HTMLElement) || !tag.firstChild) return 0;
+            const range = document.createRange();
+            range.selectNodeContents(tag);
+            const textBox = range.getBoundingClientRect();
+            range.detach();
+            const tagBox = tag.getBoundingClientRect();
+            if (!textBox.height || !tagBox.height) return 0;
+            return Math.abs((textBox.top + textBox.height / 2) - (tagBox.top + tagBox.height / 2));
+          };
           const rows = Array.from(document.querySelectorAll(".market-agent-timeline-track-row")).slice(0, 5);
           rows.forEach((row, index) => {
             const time = row.querySelector("time");
@@ -2805,6 +3359,10 @@ const main = async () => {
             if (tag instanceof HTMLElement) {
               const title = titleRow.querySelector("strong");
               const tagBox = tag.getBoundingClientRect();
+              const textOffset = tagTextOffset(tag);
+              if (textOffset > 2) {
+                problems.push(`Market Agent timeline row ${index + 1} event tag text is not centered (${textOffset.toFixed(1)}px offset)`);
+              }
               if (tagBox.right > rowBox.right + 1) {
                 problems.push(`Market Agent timeline row ${index + 1} event tag escapes row`);
               }
@@ -3052,94 +3610,91 @@ const main = async () => {
             problems.push(`Market Agent cockpit footer bottom edges are misaligned (${bottomSpread.toFixed(1)}px spread)`);
           }
         };
-        const checkDriverTableNumericRhythm = () => {
-          if (isCurrentPaused) return;
+        const checkMacroMicroWatchRhythm = () => {
           const app = document.querySelector("[data-qa='qa:app-shell']");
           const scale =
             app instanceof HTMLElement
               ? Number.parseFloat(window.getComputedStyle(app).zoom || "1")
               : 1;
           const normalize = (value) => value / (Number.isFinite(scale) && scale > 0 ? scale : 1);
-          const rows = Array.from(document.querySelectorAll(".market-agent-attention-table-row")).slice(0, 8);
-          if (rows.length < 3) {
-            problems.push(`Driver Attention table has too few rows for rhythm check (${rows.length})`);
+          const focus = document.querySelector("[data-qa='qa:market-agent:macro-micro:dashboard']");
+          if (!(focus instanceof HTMLElement)) {
+            problems.push("Dashboard is missing the Macro / Micro Watch panel");
             return;
           }
-          if (rows.length < 7) {
-            problems.push(`Driver Attention list is still too sparse for the reference rhythm (${rows.length} rows)`);
+          const text = focus.innerText || focus.textContent || "";
+          const lowerText = text.toLowerCase();
+          if (!text.includes("Markets price higher Treasury yields")) {
+            problems.push(`Macro / Micro Watch does not show the Local AI short headline; panel text: ${text.replace(/\s+/g, " ").trim().slice(0, 240)}`);
           }
-          rows.forEach((row, index) => {
-            if (!(row instanceof HTMLElement)) return;
-            const rowHeight = normalize(row.getBoundingClientRect().height);
-            if (rowHeight < 46) {
-              problems.push(`Driver Attention row ${index + 1} is too compressed (${rowHeight.toFixed(1)}px normalized)`);
+          if (text.includes("after hawkish Fed comments and dollar strength weighs heavily on bullion")) {
+            problems.push("Macro / Micro Watch fell back to a long raw headline instead of the Local AI short headline");
+          }
+          if (!lowerText.includes("big picture") || !lowerText.includes("small stories")) {
+            problems.push("Macro / Micro Watch does not expose the one-glance radar sections");
+          }
+          if (text.includes("Current driver ranking paused") || text.includes("Driver scores hidden") || text.includes("Required price inputs")) {
+            problems.push("Macro / Micro Watch still exposes old paused driver-scoring language");
+          }
+          for (const forbidden of ["Blocked", "Watching", "Allowed", "Rule kept", "Accepted input", "market context items kept", "No detail recorded", "raw calendar context", "needs news, xauusd", "currency not recorded", "impact not recorded", "Macro drivers", "Micro themes"]) {
+            if (text.includes(forbidden)) {
+              problems.push(`Macro / Micro Watch exposes audit-only text: ${forbidden}`);
             }
-            const state = row.querySelector(".market-agent-driver-state");
-            if (state instanceof HTMLElement) {
-              const stateText = (state.textContent || "").trim();
-              if (stateText && stateText !== stateText.toUpperCase()) {
-                problems.push(`Driver Attention state row ${index + 1} is not uppercase (${stateText})`);
-              }
-              const stateStyle = window.getComputedStyle(state);
-              if (stateStyle.justifySelf !== "center" || stateStyle.textAlign !== "center") {
-                problems.push(`Driver Attention state row ${index + 1} is not centered`);
-              }
-              const stateWidth = normalize(state.getBoundingClientRect().width);
-              if (stateWidth < 56) {
-                problems.push(`Driver Attention state row ${index + 1} has an unstable column footprint (${stateWidth.toFixed(1)}px normalized)`);
-              }
+          }
+          const storyLikeLabels = Array.from(focus.querySelectorAll(".market-agent-mm-tape li b, .market-agent-mm-story-list b"))
+            .map((node) => node.textContent?.replace(/\s+/g, " ").trim() || "")
+            .filter(Boolean);
+          const auditOnlyStoryLabels = storyLikeLabels.filter((label) =>
+            /^(Iran|Inflation|Hormuz|Gold|Attack|Airspace)$/i.test(label)
+          );
+          if (auditOnlyStoryLabels.length) {
+            problems.push(`Macro / Micro Watch uses internal theme labels as stories: ${auditOnlyStoryLabels.join(", ")}`);
+          }
+          if (focus.querySelector(".market-agent-attention-table-row")) {
+            problems.push("Macro / Micro Watch still renders the old Driver Attention table rows");
+          }
+          const visibleElement = (node) => {
+            if (!(node instanceof HTMLElement)) return false;
+            const box = node.getBoundingClientRect();
+            return box.width > 0 && box.height > 0 && window.getComputedStyle(node).display !== "none";
+          };
+          const columns = Array.from(focus.querySelectorAll(".market-agent-mm-column")).filter(visibleElement);
+          const rows = Array.from(focus.querySelectorAll(".market-agent-mm-row")).filter(visibleElement);
+          const emptyStates = Array.from(focus.querySelectorAll(".market-agent-mm-empty"));
+          const chips = Array.from(focus.querySelectorAll(".market-agent-mm-story-list em"));
+          const driverPills = Array.from(focus.querySelectorAll(".market-agent-mm-driver-pills em"));
+          if (!chips.length && !driverPills.length && emptyStates.length < 2) {
+            problems.push("Macro / Micro Watch should show radar stories or clear empty states");
+          }
+          if (rows.length) {
+            problems.push("Macro / Micro Watch repeats radar stories as detail rows");
+          }
+          const focusBox = focus.getBoundingClientRect();
+          columns.forEach((column, index) => {
+            if (!(column instanceof HTMLElement)) return;
+            const box = column.getBoundingClientRect();
+            if (box.right > focusBox.right + 1 || box.left < focusBox.left - 1) {
+              problems.push(`Macro / Micro Watch column ${index + 1} escapes the dashboard panel`);
             }
-            const attention = row.querySelector(".market-agent-attention-text");
-            if (attention instanceof HTMLElement) {
-              const attentionStyle = window.getComputedStyle(attention);
-              if (attentionStyle.justifySelf !== "center" || attentionStyle.textAlign !== "center") {
-                problems.push(`Driver Attention attention row ${index + 1} is not centered`);
-              }
-              const attentionWidth = normalize(attention.getBoundingClientRect().width);
-              if (attentionWidth < 44) {
-                problems.push(`Driver Attention attention row ${index + 1} has an unstable column footprint (${attentionWidth.toFixed(1)}px normalized)`);
-              }
+            if (column.scrollWidth > column.clientWidth + 1) {
+              problems.push(`Macro / Micro Watch column ${index + 1} clips horizontally`);
             }
           });
-          const collectCell = (row, selector, label, index) => {
-            const cell = row.querySelector(selector);
-            if (!(cell instanceof HTMLElement)) {
-              problems.push(`Driver Attention row ${index + 1} missing ${label} cell`);
-              return null;
+          rows.slice(0, 8).forEach((row, index) => {
+            if (!(row instanceof HTMLElement)) return;
+            const rowHeight = normalize(row.getBoundingClientRect().height);
+            if (rowHeight < 42) {
+              problems.push(`Macro / Micro Watch row ${index + 1} is too compressed (${rowHeight.toFixed(1)}px normalized)`);
             }
-            return cell;
-          };
-          const inspectNumericCells = (selector, label, alignment) => {
-            const boxes = [];
-            rows.forEach((row, index) => {
-              const cell = collectCell(row, selector, label, index);
-              if (!cell) return;
-              const style = window.getComputedStyle(cell);
-              const box = cell.getBoundingClientRect();
-              boxes.push(box);
-              const normalizedWidth = normalize(box.width);
-              if (label === "impact" && normalizedWidth < 40) {
-                problems.push(`Driver Attention impact row ${index + 1} has an unstable column footprint (${normalizedWidth.toFixed(1)}px normalized)`);
-              }
-              if (style.textAlign !== alignment) {
-                problems.push(`Driver Attention ${label} row ${index + 1} is not ${alignment}-aligned`);
-              }
-              if (!style.fontVariantNumeric.includes("tabular-nums")) {
-                problems.push(`Driver Attention ${label} row ${index + 1} does not use tabular numbers`);
-              }
-            });
-            if (boxes.length >= 3) {
-              const anchors = alignment === "center"
-                ? boxes.map((box) => box.left + box.width / 2)
-                : boxes.map((box) => box.right);
-              const spread = Math.max(...anchors) - Math.min(...anchors);
-              if (spread > 1.5) {
-                problems.push(`Driver Attention ${label} values are not vertically aligned (${spread.toFixed(1)}px spread)`);
-              }
+            const title = row.querySelector(".market-agent-mm-row-head strong");
+            if (!(title instanceof HTMLElement)) {
+              problems.push(`Macro / Micro Watch row ${index + 1} missing title`);
+              return;
             }
-          };
-          inspectNumericCells("[data-market-agent-attention-cell='impact']", "impact", "center");
-          inspectNumericCells("[data-market-agent-attention-cell='score']", "score", "right");
+            if (title.scrollWidth > title.clientWidth + 1) {
+              problems.push(`Macro / Micro Watch row ${index + 1} title clips`);
+            }
+          });
         };
         const staleDashboardLabels = [
           "Live Situation",
@@ -3157,7 +3712,7 @@ const main = async () => {
             problems.push(`stale Market Agent dashboard label still visible: ${label}`);
           }
         }
-        const requiredKpiLabels = ["Data:", "Strength", "Every 60 seconds"];
+        const requiredKpiLabels = ["Data:", "Strength"];
         requiredKpiLabels.forEach((label) => {
           if (!text.includes(label)) {
             problems.push(`Market Agent KPI label missing: ${label}`);
@@ -3169,6 +3724,15 @@ const main = async () => {
             problems.push(`Market Agent price card still shows low-value quote label: ${label}`);
           }
         });
+        const priceCard = document.querySelector(".market-agent-price-card");
+        if (priceCard instanceof HTMLElement) {
+          if (/\([0-2]s ago\)/.test(priceCardText)) {
+            problems.push(`Market Agent live data freshness is too noisy (${priceCardText.trim()})`);
+          }
+          if (priceCard.querySelector(".market-agent-value-pulse")) {
+            problems.push("Market Agent live price card still pulses high-frequency values");
+          }
+        }
         const marketStateCard = document.querySelector(".market-agent-state-card");
         const marketStateValue = marketStateCard?.querySelector(".market-agent-state-value");
         const marketStateSince = marketStateCard?.querySelector("[data-kpi-detail='state-since']");
@@ -3180,8 +3744,8 @@ const main = async () => {
           if (!isCurrentPaused && !/^(TRENDING UP|TRENDING DOWN|RANGEBOUND|UNKNOWN)\s*[↗↘→]?$/.test(stateLabel)) {
             problems.push(`Market Agent Market State label is not uppercase trend language (${stateLabel})`);
           }
-          if (isCurrentPaused && !/^CURRENT PAUSED\s*[•]?$/.test(stateLabel)) {
-            problems.push(`Market Agent paused state label is not clear (${stateLabel})`);
+          if (isCurrentPaused && !/^(AWAITING LIVE PRICE|REVIEW PENDING|MARKET CLOSED|CURRENT PAUSED)\s*[•]?$/.test(stateLabel)) {
+            problems.push(`Market Agent waiting state label is not clear (${stateLabel})`);
           }
           if (/\b(Bearish|Bullish)\b/.test(stateLabel)) {
             problems.push(`Market Agent Market State still uses bearish/bullish wording (${stateLabel})`);
@@ -3203,20 +3767,25 @@ const main = async () => {
           }
         }
         const latestMoveCard = document.querySelector(".market-agent-move-card");
+        const latestMoveType = latestMoveCard?.querySelector(".market-agent-move-type");
         const latestMoveDetected = latestMoveCard?.querySelector("[data-kpi-detail='move-detected']");
         const latestMoveDuration = latestMoveCard?.querySelector("[data-kpi-detail='move-duration']");
         if (!(latestMoveCard instanceof HTMLElement) || !(latestMoveDetected instanceof HTMLElement)) {
           problems.push("Market Agent Latest Move detected row missing");
         } else {
+          const latestMoveLabel = latestMoveType instanceof HTMLElement ? (latestMoveType.textContent || "").trim() : "";
+          if (/^Watching\s*[•]?$/.test(latestMoveLabel)) {
+            problems.push("Market Agent Latest Move exposes placeholder Watching as a result");
+          }
           const detectedLabel = (latestMoveDetected.textContent || "").trim();
-          if (!isCurrentPaused && !/^\d{2}:\d{2}$/.test(detectedLabel)) {
+          if (!isCurrentPaused && detectedLabel !== "--" && !/^\d{2}:\d{2}$/.test(detectedLabel)) {
             problems.push(`Market Agent Latest Move detected row should show only time (${detectedLabel})`);
           }
-          if (!isCurrentPaused && /\d{2}[-/]\d{2}|\d{4}/.test(detectedLabel)) {
+          if (!isCurrentPaused && detectedLabel !== "--" && /\d{2}[-/]\d{2}|\d{4}/.test(detectedLabel)) {
             problems.push(`Market Agent Latest Move detected row still includes a date (${detectedLabel})`);
           }
           const durationLabel = (latestMoveDuration?.textContent || "").trim();
-          if (!isCurrentPaused && !/^\d+(?:d \d+h|h \d+m|m \d{2}s|s)$/.test(durationLabel)) {
+          if (!isCurrentPaused && durationLabel !== "--" && !/^\d+(?:d \d+h|h \d+m|m \d{2}s|s)$/.test(durationLabel)) {
             problems.push(`Market Agent Latest Move duration is not elapsed-time based (${durationLabel})`);
           }
           if (isCurrentPaused && durationLabel !== "--") {
@@ -3278,13 +3847,17 @@ const main = async () => {
         const nextCard = document.querySelector(".market-agent-next-card");
         if (nextCard instanceof HTMLElement) {
           const nextText = nextCard.innerText || nextCard.textContent || "";
-          if (!/\b\d+\ssec\b/i.test(nextText)) {
+          const nextStopped = /\bMonitoring stopped\b/i.test(nextText);
+          if (nextStopped && /Auto monitoring|Every\s+60\s+seconds/i.test(nextText)) {
+            problems.push(`Market Agent Next Update mixes stopped and running labels (${nextText.trim()})`);
+          }
+          if (!nextStopped && !/\b\d+\ssec\b/i.test(nextText)) {
             problems.push(`Market Agent Next Update countdown is not displayed in seconds (${nextText.trim()})`);
           }
           if (/\b\d+\s*m\b/i.test(nextText) || /Every\s+\d+\s*min/i.test(nextText)) {
             problems.push(`Market Agent Next Update still uses minute shorthand (${nextText.trim()})`);
           }
-          if (!nextText.includes("Every 60 seconds")) {
+          if (!nextStopped && !nextText.includes("Every 60 seconds")) {
             problems.push(`Market Agent Next Update interval label is not Every 60 seconds (${nextText.trim()})`);
           }
           const countdown = nextCard.querySelector("[data-qa='qa:market-agent:next-countdown']");
@@ -3299,9 +3872,11 @@ const main = async () => {
           } else {
             problems.push("Market Agent Next Update content wrapper missing");
           }
-          if (!(countdown instanceof HTMLElement)) {
+          if (nextStopped && countdown instanceof HTMLElement) {
+            problems.push("Market Agent Next Update shows a rolling countdown while monitoring is stopped");
+          } else if (!nextStopped && !(countdown instanceof HTMLElement)) {
             problems.push("Market Agent Next Update countdown is missing the rolling digit structure");
-          } else {
+          } else if (countdown instanceof HTMLElement) {
             const digits = Array.from(countdown.querySelectorAll(".market-agent-countdown-digit"));
             const unit = countdown.querySelector(".market-agent-countdown-unit");
             const label = countdown.getAttribute("aria-label") || "";
@@ -3433,12 +4008,15 @@ const main = async () => {
           problems.push("Market Agent Next Update card missing");
         }
         const animatedSelectors = [
-          [".market-agent-price-card .market-agent-value-pulse", "price value"],
-          ...(isCurrentPaused ? [] : [[".market-agent-attention-table-row.market-agent-animated-row", "driver rows"]]),
           ...(document.querySelector(".market-agent-timeline-track-row")
             ? [[".market-agent-timeline-track-row.market-agent-animated-row", "timeline rows"]]
             : []),
-          ...(isCurrentPaused ? [] : [[".market-agent-evidence-feed-row.market-agent-animated-row", "evidence rows"]]),
+          ...(document.querySelector(".market-agent-mm-glance-card")
+            ? [[".market-agent-mm-glance-card", "macro micro cards"]]
+            : []),
+          ...(!isCurrentPaused && document.querySelector(".market-agent-evidence-feed-row")
+            ? [[".market-agent-evidence-feed-row.market-agent-animated-row", "evidence rows"]]
+            : []),
           ...(alertsBadge instanceof HTMLElement ? [[".market-agent-nav-badge", "alerts badge"]] : [])
         ];
         animatedSelectors.forEach(([selector, label]) => {
@@ -3591,9 +4169,6 @@ const main = async () => {
             problems.push("Latest Evidence statuses still use tag badges");
           }
           const statusTexts = Array.from(evidenceFeed.querySelectorAll(".market-agent-evidence-status-text"));
-          if (!isCurrentPaused && statusTexts.length === 0) {
-            problems.push("Latest Evidence statuses are missing colored text labels");
-          }
           statusTexts.forEach((status, index) => {
             if (!(status instanceof HTMLElement)) return;
             const style = window.getComputedStyle(status);
@@ -3627,9 +4202,6 @@ const main = async () => {
           }
         };
         const attentionLabels = Array.from(document.querySelectorAll(".market-agent-attention-text"));
-        if (!isCurrentPaused && attentionLabels.length === 0) {
-          problems.push("Driver Attention labels are still missing text-style markers");
-        }
         if (document.querySelector(".market-agent-attention-badge.market-agent-status-badge")) {
           problems.push("Driver Attention labels still use boxed status badges");
         }
@@ -3699,8 +4271,25 @@ const main = async () => {
           .find((panel) => panel.textContent?.includes("Latest Evidence"));
         if (latestEvidence instanceof HTMLElement) {
           const evidenceText = latestEvidence.innerText || latestEvidence.textContent || "";
+          const evidenceRows = Array.from(latestEvidence.querySelectorAll(".market-agent-evidence-feed-row"));
+          if (evidenceRows.length && evidenceRows.some((row) => !(row instanceof HTMLButtonElement))) {
+            problems.push("Latest Evidence rows are not clickable detail buttons");
+          }
+          evidenceRows.forEach((row, index) => {
+            if (!(row instanceof HTMLElement)) return;
+            const title = row.querySelector("strong")?.textContent?.replace(/\s+/g, " ").trim().toLowerCase() || "";
+            const detail = row.querySelector("div > span")?.textContent?.replace(/\s+/g, " ").trim().toLowerCase() || "";
+            if (title && detail && (title === detail || title.includes(detail) || detail.includes(title))) {
+              problems.push(`Latest Evidence row ${index + 1} repeats the same title and detail text`);
+            }
+          });
           if (/\bConfirming\b/.test(evidenceText)) {
             problems.push("Latest Evidence still exposes raw Confirming status");
+          }
+          for (const forbidden of ["Supporting", "Contrary", "Current conclusion is paused", "Australia - King's Birthday", "raw calendar context", "raw calendar context item", "Raw context is stored", "AI/rules"]) {
+            if (evidenceText.includes(forbidden)) {
+              problems.push(`Latest Evidence exposes audit-only or irrelevant text: ${forbidden}`);
+            }
           }
         } else {
           problems.push("Latest Evidence panel missing");
@@ -3709,7 +4298,7 @@ const main = async () => {
         checkEvidenceStatusRhythm();
         checkKpiCardInternalRhythm();
         checkCockpitFooterAlignment();
-        checkDriverTableNumericRhythm();
+        checkMacroMicroWatchRhythm();
         checkKpiBreathingRoom();
         const bodyOverflowY = document.body.scrollHeight - window.innerHeight;
         const bodyOverflowX = document.body.scrollWidth - window.innerWidth;
@@ -3735,50 +4324,246 @@ const main = async () => {
       if (layoutProblems.length) {
         throw new Error(layoutProblems.join("; "));
       }
-      const readCountdownLabel = async () =>
-        page.locator("[data-qa='qa:market-agent:next-countdown']").first().getAttribute("aria-label");
-      const countdownBefore = await readCountdownLabel();
-      const countdownTickedWithRoll = await page
-        .waitForFunction(
-          (previousLabel) => {
-            const countdown = document.querySelector("[data-qa='qa:market-agent:next-countdown']");
-            const nextLabel = countdown?.getAttribute("aria-label") || "";
-            if (!nextLabel || nextLabel === previousLabel) return false;
-            const active = document.querySelector(".market-agent-countdown-digit.is-changing");
-            if (!(active instanceof HTMLElement)) return false;
-            return ["::before", "::after"].some((pseudo) => {
-              const animationName = window.getComputedStyle(active, pseudo).animationName || "";
-              return animationName.includes("market-agent-countdown");
-            });
-          },
-          countdownBefore,
-          { timeout: 2600 }
-        )
-        .then(() => true)
-        .catch(() => false);
-      const countdownAfter = await readCountdownLabel();
-      if (countdownBefore === countdownAfter) {
-        throw new Error(`Market Agent Next Update countdown is static (${countdownBefore || "empty"})`);
+      const hasRunningCountdown = await page
+        .locator("[data-qa='qa:market-agent:next-countdown']")
+        .first()
+        .count()
+        .then((count) => count > 0);
+      if (hasRunningCountdown) {
+        const readCountdownLabel = async () =>
+          page.locator("[data-qa='qa:market-agent:next-countdown']").first().getAttribute("aria-label");
+        const countdownBefore = await readCountdownLabel();
+        const countdownTickedWithRoll = await page
+          .waitForFunction(
+            (previousLabel) => {
+              const countdown = document.querySelector("[data-qa='qa:market-agent:next-countdown']");
+              const nextLabel = countdown?.getAttribute("aria-label") || "";
+              if (!nextLabel || nextLabel === previousLabel) return false;
+              const active = document.querySelector(".market-agent-countdown-digit.is-changing");
+              if (!(active instanceof HTMLElement)) return false;
+              return ["::before", "::after"].some((pseudo) => {
+                const animationName = window.getComputedStyle(active, pseudo).animationName || "";
+                return animationName.includes("market-agent-countdown");
+              });
+            },
+            countdownBefore,
+            { timeout: 2600 }
+          )
+          .then(() => true)
+          .catch(() => false);
+        const countdownAfter = await readCountdownLabel();
+        if (countdownBefore === countdownAfter) {
+          throw new Error(`Market Agent Next Update countdown is static (${countdownBefore || "empty"})`);
+        }
+        if (!countdownTickedWithRoll) {
+          throw new Error("Market Agent Next Update countdown did not roll individual digits during the tick");
+        }
+        await page
+          .waitForFunction(() => !document.querySelector(".market-agent-countdown-digit.is-changing"), null, { timeout: 600 })
+          .catch(() => null);
       }
-      if (!countdownTickedWithRoll) {
-        throw new Error("Market Agent Next Update countdown did not roll individual digits during the tick");
-      }
-      await page
-        .waitForFunction(() => !document.querySelector(".market-agent-countdown-digit.is-changing"), null, { timeout: 600 })
-        .catch(() => null);
       artifacts.push({
         scenario: "market-agent",
         theme: theme.key,
         state: "open",
         path: await captureState(page, "market-agent", theme.key, "open")
       });
+      const replaySwitchPerfStart = await page.evaluate(() => ({
+        now: performance.now(),
+        count: Array.isArray(window.__UI_CHECK_PERF__?.longTasks)
+          ? window.__UI_CHECK_PERF__.longTasks.length
+          : 0
+      }));
+      const replaySwitchStartedAt = Date.now();
+      await page.locator("[data-market-agent-section='replay']").first().click();
+      await page.locator(".market-agent-replay-surface").first().waitFor({ state: "visible", timeout: 4000 });
+      const replayShellMs = Date.now() - replaySwitchStartedAt;
+      await page.locator("[data-qa='qa:market-agent:timeline-list']").first().waitFor({ state: "visible", timeout: 4000 });
+      await page.waitForFunction(() => {
+        const list = document.querySelector("[data-qa='qa:market-agent:timeline-list']");
+        const text = list instanceof HTMLElement ? list.innerText || list.textContent || "" : "";
+        return !/Loading replay/i.test(text);
+      }, null, { timeout: 4000 });
+      const replayReadyMs = Date.now() - replaySwitchStartedAt;
+      const replaySwitchPerf = await page.evaluate((before) => {
+        const longTasks = Array.isArray(window.__UI_CHECK_PERF__?.longTasks)
+          ? window.__UI_CHECK_PERF__.longTasks
+          : [];
+        const recent = longTasks.slice(before.count).filter((entry) => entry && entry.startTime >= before.now - 10);
+        return {
+          longTaskCount: recent.length,
+          longTaskMaxMs: recent.reduce((max, entry) => Math.max(max, Number(entry.duration) || 0), 0),
+          longTaskTotalMs: recent.reduce((sum, entry) => sum + (Number(entry.duration) || 0), 0)
+        };
+      }, replaySwitchPerfStart);
+      marketAgentPerfSamples.push({
+        name: "Market Agent replay switch",
+        shellReadyMs: replayShellMs,
+        macroMicroReadyMs: replayReadyMs,
+        ...replaySwitchPerf
+      });
+      marketAgentPerfSamplesAll.push({
+        theme: theme.key,
+        name: "Market Agent replay switch",
+        shellReadyMs: replayShellMs,
+        macroMicroReadyMs: replayReadyMs,
+        ...replaySwitchPerf
+      });
+      const replayPerfProblems = [];
+      const maxReplayShellMs = Number(process.env.UI_CHECK_MARKET_AGENT_REPLAY_SHELL_MS || 900);
+      const maxReplayReadyMs = Number(process.env.UI_CHECK_MARKET_AGENT_REPLAY_READY_MS || 5000);
+      const maxReplayLongTaskMs = Number(process.env.UI_CHECK_MARKET_AGENT_REPLAY_LONGTASK_MS || 220);
+      const maxReplayLongTaskTotalMs = Number(process.env.UI_CHECK_MARKET_AGENT_REPLAY_LONGTASK_TOTAL_MS || 700);
+      if (replayShellMs > maxReplayShellMs) {
+        replayPerfProblems.push(`Replay shell took ${replayShellMs}ms (budget ${maxReplayShellMs}ms)`);
+      }
+      if (replayReadyMs > maxReplayReadyMs) {
+        replayPerfProblems.push(`Replay timeline took ${replayReadyMs}ms (budget ${maxReplayReadyMs}ms)`);
+      }
+      if (replaySwitchPerf.longTaskMaxMs > maxReplayLongTaskMs) {
+        replayPerfProblems.push(`Replay switch long task ${Math.round(replaySwitchPerf.longTaskMaxMs)}ms (budget ${maxReplayLongTaskMs}ms)`);
+      }
+      if (replaySwitchPerf.longTaskTotalMs > maxReplayLongTaskTotalMs) {
+        replayPerfProblems.push(`Replay switch blocked ${Math.round(replaySwitchPerf.longTaskTotalMs)}ms total (budget ${maxReplayLongTaskTotalMs}ms)`);
+      }
+      if (replayPerfProblems.length) {
+        throw new Error(replayPerfProblems.join("; "));
+      }
+      await page.locator("[data-market-agent-section='live']").first().click();
+      await page.locator("[data-qa='qa:market-agent:macro-micro:dashboard']").first().waitFor({ state: "visible", timeout: 4000 });
       const originalViewport = page.viewportSize() || { width: 1280, height: 720 };
       await page.setViewportSize({ width: 1024, height: 720 });
       await page.waitForTimeout(250);
       const scaledLayoutProblems = await page.evaluate(() => {
         const problems = [];
         const checkTimelineRows = () => {
+          const tagTextOffset = (tag) => {
+            if (!(tag instanceof HTMLElement) || !tag.firstChild) return 0;
+            const range = document.createRange();
+            range.selectNodeContents(tag);
+            const textBox = range.getBoundingClientRect();
+            range.detach();
+            const tagBox = tag.getBoundingClientRect();
+            if (!textBox.height || !tagBox.height) return 0;
+            return Math.abs((textBox.top + textBox.height / 2) - (tagBox.top + tagBox.height / 2));
+          };
+          const cssPx = (node, value) => {
+            const parsed = Number.parseFloat(value || "");
+            if (Number.isFinite(parsed)) return parsed;
+            if (!(node instanceof HTMLElement) || !value) return NaN;
+            const probe = document.createElement("div");
+            probe.style.position = "absolute";
+            probe.style.visibility = "hidden";
+            probe.style.height = value;
+            node.appendChild(probe);
+            const height = probe.getBoundingClientRect().height;
+            probe.remove();
+            return height;
+          };
+          const translateXFromTransform = (transform) => {
+            if (!transform || transform === "none") return 0;
+            try {
+              return new DOMMatrixReadOnly(transform).m41;
+            } catch {
+              const match = String(transform).match(/matrix\(([^)]+)\)/);
+              if (!match) return 0;
+              const parts = match[1].split(",").map((part) => Number.parseFloat(part.trim()));
+              return Number.isFinite(parts[4]) ? parts[4] : 0;
+            }
+          };
+          const track = document.querySelector(".market-agent-timeline-track");
+          const trackInner = document.querySelector(".market-agent-timeline-track-inner");
+          const panel = document.querySelector(".market-agent-replay-panel");
+          const footer = panel?.querySelector(".market-agent-panel-link-footer");
           const rows = Array.from(document.querySelectorAll(".market-agent-timeline-track-row")).slice(0, 5);
+          if (track instanceof HTMLElement && trackInner instanceof HTMLElement && panel instanceof HTMLElement && rows.length > 0) {
+            const panelLineStyle = window.getComputedStyle(panel, "::before");
+            const trackLineStyle = window.getComputedStyle(track, "::before");
+            const innerLineStyle = window.getComputedStyle(trackInner, "::before");
+            const firstNode = trackInner.querySelector(".market-agent-timeline-node");
+            if (
+              !trackLineStyle.content ||
+              trackLineStyle.content === "none" ||
+              trackLineStyle.display === "none" ||
+              Number.parseFloat(trackLineStyle.width || "0") < 0.5
+            ) {
+              problems.push("scaled Market Agent dashboard replay timeline is not drawn as one continuous track line");
+            }
+            if (panelLineStyle.display !== "none") {
+              problems.push("scaled Market Agent dashboard replay should not draw a hardcoded panel line");
+            }
+            if (innerLineStyle.display !== "none") {
+              problems.push("scaled Market Agent dashboard replay should use one full-height track line, not an inner row-height line");
+            }
+            if (firstNode instanceof HTMLElement) {
+              const trackBoxForLine = track.getBoundingClientRect();
+              const nodeBox = firstNode.getBoundingClientRect();
+              const nodeSize = Number.parseFloat(window.getComputedStyle(firstNode).width || "0");
+              const renderedScale = nodeSize > 0 ? nodeBox.width / nodeSize : 1;
+              const lineLeft = Number.parseFloat(trackLineStyle.left || "NaN");
+              const lineTop = Number.parseFloat(trackLineStyle.top || "NaN");
+              if (Number.isFinite(lineLeft)) {
+                const lineWidth = cssPx(track, trackLineStyle.width);
+                const lineTranslateX = translateXFromTransform(trackLineStyle.transform);
+                const lineCenter =
+                  trackBoxForLine.left +
+                  ((lineLeft + lineTranslateX + (Number.isFinite(lineWidth) ? lineWidth / 2 : 0)) * renderedScale);
+                const nodeCenter = nodeBox.left + nodeBox.width / 2;
+                if (Math.abs(lineCenter - nodeCenter) > 2) {
+                  problems.push(`scaled Market Agent dashboard replay line is not centered on nodes (${lineCenter.toFixed(1)} vs ${nodeCenter.toFixed(1)})`);
+                }
+              }
+              if (Number.isFinite(lineTop)) {
+                const lineStart = trackBoxForLine.top + (lineTop * renderedScale);
+                const nodeCenterY = nodeBox.top + nodeBox.height / 2;
+                if (Math.abs(lineStart - nodeCenterY) > 3) {
+                  problems.push(`scaled Market Agent dashboard replay timeline line should start at first node center (${lineStart.toFixed(1)} vs ${nodeCenterY.toFixed(1)})`);
+                }
+              }
+            }
+            const lastNode = rows[rows.length - 1]?.querySelector(".market-agent-timeline-node");
+            if (lastNode instanceof HTMLElement) {
+              const lineBox = track.getBoundingClientRect();
+              const footerBox = footer instanceof HTMLElement ? footer.getBoundingClientRect() : null;
+              const nodeBox = lastNode.getBoundingClientRect();
+              const nodeSize = Number.parseFloat(window.getComputedStyle(lastNode).width || "0");
+              const renderedScale = nodeSize > 0 ? nodeBox.width / nodeSize : 1;
+              const lineBottom = cssPx(track, trackLineStyle.bottom);
+              const lineEnd = Number.isFinite(lineBottom) ? lineBox.bottom - (lineBottom * renderedScale) : lineBox.bottom;
+              const nodeCenterY = nodeBox.top + nodeBox.height / 2;
+              if (lineEnd < nodeCenterY + 2) {
+                problems.push("scaled Market Agent dashboard replay timeline line stops before the final visible node");
+              }
+              if (footerBox) {
+                if (lineEnd < footerBox.top - 20) {
+                  problems.push(
+                    `scaled Market Agent dashboard replay timeline line leaves a gap before the footer (${lineEnd.toFixed(1)} vs ${footerBox.top.toFixed(1)})`
+                  );
+                }
+                if (lineEnd > footerBox.top + 1) {
+                  problems.push(
+                    `scaled Market Agent dashboard replay timeline line runs through the footer (${lineEnd.toFixed(1)} vs ${footerBox.top.toFixed(1)}, bottom=${String(trackLineStyle.bottom)})`
+                  );
+                }
+              }
+            }
+            if (rows.some((row) => window.getComputedStyle(row, "::before").display !== "none")) {
+              problems.push("scaled Market Agent dashboard replay rows draw separate line segments");
+            }
+            const nodeCenters = rows
+              .map((row) => row.querySelector(".market-agent-timeline-node"))
+              .filter((node) => node instanceof HTMLElement)
+              .map((node) => {
+                const box = node.getBoundingClientRect();
+                return box.top + box.height / 2;
+              });
+            for (let index = 1; index < nodeCenters.length; index += 1) {
+              const gap = nodeCenters[index] - nodeCenters[index - 1];
+              if (gap > 58) {
+                problems.push(`scaled Market Agent dashboard replay row gap is too loose (${gap.toFixed(1)}px)`);
+              }
+            }
+          }
           rows.forEach((row, index) => {
             const time = row.querySelector("time");
             const node = row.querySelector(".market-agent-timeline-node");
@@ -3786,6 +4571,7 @@ const main = async () => {
             const tag = row.querySelector(".market-agent-event-tag");
             if (
               !(row instanceof HTMLElement) ||
+              !(row instanceof HTMLButtonElement) ||
               !(time instanceof HTMLElement) ||
               !(node instanceof HTMLElement) ||
               !(body instanceof HTMLElement)
@@ -3800,14 +4586,33 @@ const main = async () => {
             if (timeBox.right > nodeBox.left - 3) {
               problems.push(`scaled Market Agent timeline row ${index + 1} time overlaps node`);
             }
+            const timeNodeGap = nodeBox.left - timeBox.right;
+            if (timeNodeGap > 12) {
+              problems.push(`scaled Market Agent timeline row ${index + 1} time-to-node gap is too wide (${timeNodeGap.toFixed(1)}px)`);
+            }
+            const timeText = (time.textContent || "").trim();
+            if (/\d{2}[-/]\d{2}/.test(timeText) || /\b(?:AM|PM)\b/i.test(timeText)) {
+              problems.push(`Market Agent dashboard replay time should stay compact (${timeText})`);
+            }
             if (nodeBox.right > bodyBox.left - 3) {
               problems.push(`scaled Market Agent timeline row ${index + 1} node overlaps content`);
+            }
+            const nodeContentGap = bodyBox.left - nodeBox.right;
+            if (nodeContentGap > 18) {
+              problems.push(`scaled Market Agent timeline row ${index + 1} node-to-card gap is too wide (${nodeContentGap.toFixed(1)}px)`);
             }
             if (bodyBox.right > rowBox.right + 1) {
               problems.push(`scaled Market Agent timeline row ${index + 1} content escapes row`);
             }
-            if (tag instanceof HTMLElement && tag.getBoundingClientRect().right > rowBox.right + 1) {
-              problems.push(`scaled Market Agent timeline row ${index + 1} tag escapes row`);
+            if (tag instanceof HTMLElement) {
+              const tagBox = tag.getBoundingClientRect();
+              const textOffset = tagTextOffset(tag);
+              if (tagBox.right > rowBox.right + 1) {
+                problems.push(`scaled Market Agent timeline row ${index + 1} tag escapes row`);
+              }
+              if (textOffset > 2) {
+                problems.push(`scaled Market Agent timeline row ${index + 1} tag text is not centered (${textOffset.toFixed(1)}px offset)`);
+              }
             }
           });
         };
@@ -3894,7 +4699,8 @@ const main = async () => {
           problems.push(`scaled Market Agent KPI cards are not preserving design width (${normalizedKpiWidths.map((width) => width.toFixed(1)).join(", ")}px)`);
         }
         const normalizedPanelHeight = panels.height / (Number.isFinite(viewportScale) && viewportScale > 0 ? viewportScale : 1);
-        if (normalizedPanelHeight < 500) {
+        const minimumPanelHeight = 500;
+        if (normalizedPanelHeight < minimumPanelHeight) {
           problems.push(`scaled Market Agent panels collapsed after normalization (height=${normalizedPanelHeight.toFixed(1)}px)`);
         }
         if (panels.bottom > main.bottom + 2) {
@@ -3908,6 +4714,51 @@ const main = async () => {
       if (scaledLayoutProblems.length) {
         throw new Error(scaledLayoutProblems.join("; "));
       }
+      await page.waitForFunction(() => {
+        const panel = document.querySelector(".market-agent-replay-panel");
+        const text = panel instanceof HTMLElement ? panel.innerText || panel.textContent || "" : "";
+        return /Yields pressure|Markets price higher Treasury yields/i.test(text);
+      }, null, { timeout: 4000 }).catch(() => null);
+      const dashboardReplayFreshnessProblems = await page.evaluate(() => {
+        const panel = document.querySelector(".market-agent-replay-panel");
+        const text = panel instanceof HTMLElement ? panel.innerText || panel.textContent || "" : "";
+        const problems = [];
+        if (!/Yields pressure|Markets price higher Treasury yields/i.test(text)) {
+          problems.push("dashboard replay preview omitted the latest canonical replay markers while older calendar context was present");
+        }
+        if (/FOMC context marker 1\b/i.test(text)) {
+          problems.push("dashboard replay preview showed oldest calendar context before the latest news");
+        }
+        return problems;
+      });
+      if (dashboardReplayFreshnessProblems.length) {
+        throw new Error(dashboardReplayFreshnessProblems.join("; "));
+      }
+      const dashboardReplayRow = page.locator(".market-agent-replay-panel .market-agent-timeline-track-row").first();
+      if ((await dashboardReplayRow.count()) > 0) {
+        await dashboardReplayRow.click();
+        await page.locator(".market-agent-item-detail").first().waitFor({ state: "visible", timeout: 2000 });
+        await page.locator(".market-agent-item-detail").getByRole("button", { name: "Close" }).click();
+        await page.locator(".market-agent-item-detail").first().waitFor({ state: "hidden", timeout: 2000 });
+      }
+      const dashboardEvidenceRow = page.locator(".market-agent-evidence-feed-row").first();
+      if ((await dashboardEvidenceRow.count()) > 0) {
+        await page.evaluate(() => {
+          window.__uiCheckOpenedUrls = [];
+        });
+        await dashboardEvidenceRow.click();
+        await page.locator(".market-agent-item-detail").first().waitFor({ state: "visible", timeout: 2000 });
+        const openOriginal = page.locator(".market-agent-item-detail").getByRole("button", { name: "Open original" });
+        if ((await openOriginal.count()) > 0) {
+          await openOriginal.click();
+          const openedUrls = await page.evaluate(() => window.__uiCheckOpenedUrls || []);
+          if (!openedUrls.includes("https://example.test/market-agent/fed-yields")) {
+            throw new Error(`Open original did not call desktop open_url; opened=${openedUrls.join(",") || "none"}`);
+          }
+        }
+        await page.locator(".market-agent-item-detail").getByRole("button", { name: "Close" }).click();
+        await page.locator(".market-agent-item-detail").first().waitFor({ state: "hidden", timeout: 2000 });
+      }
       artifacts.push({
         scenario: "market-agent-scaled",
         theme: theme.key,
@@ -3917,16 +4768,110 @@ const main = async () => {
       await page.setViewportSize({ width: 1280, height: 1180 });
       await page.locator("[data-market-agent-section='replay']").first().click();
       await page.locator(".market-agent-replay-surface").first().waitFor({ state: "visible", timeout: 4000 });
-      await page.waitForTimeout(250);
+      await page.waitForFunction(() => {
+        const surface = document.querySelector(".market-agent-replay-surface");
+        const text = surface instanceof HTMLElement ? surface.innerText || surface.textContent || "" : "";
+        return (
+          document.querySelectorAll(".market-agent-replay-surface .market-agent-replay-track-row").length > 0 ||
+          (/No accepted market events/i.test(text) && !/Loading replay/i.test(text))
+        );
+      }, null, { timeout: 5000 });
       const tallLayoutProblems = await page.evaluate(() => {
         const problems = [];
         const track = document.querySelector(".market-agent-replay-surface .market-agent-replay-track");
+        const trackInner = document.querySelector(".market-agent-replay-surface .market-agent-replay-track-inner");
         const rows = Array.from(document.querySelectorAll(".market-agent-replay-surface .market-agent-replay-track-row"));
-        if (!(track instanceof HTMLElement) || rows.length === 0) {
+        const replayMinute = (text) => {
+          const trimmed = String(text || "").trim();
+          const dated = trimmed.match(/^(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{2})$/);
+          if (dated) {
+            const [, day, month, hour, minute] = dated;
+            return Number(month) * 31 * 24 * 60 + Number(day) * 24 * 60 + Number(hour) * 60 + Number(minute);
+          }
+          const clock = trimmed.match(/^(\d{1,2}):(\d{2})$/);
+          if (clock) return Number(clock[1]) * 60 + Number(clock[2]);
+          return null;
+        };
+        if (!(track instanceof HTMLElement) || !(trackInner instanceof HTMLElement) || rows.length === 0) {
           problems.push("tall Market Agent replay track missing");
           return problems;
         }
-        const trackBox = track.getBoundingClientRect();
+        const markerTimes = rows
+          .map((row) => replayMinute(row.querySelector("time")?.textContent || ""))
+          .filter((value) => Number.isFinite(value));
+        for (let index = 1; index < markerTimes.length; index += 1) {
+          if (markerTimes[index - 1] < markerTimes[index]) {
+            problems.push("Market Agent replay is not newest-first");
+            break;
+          }
+        }
+        const trackLineStyle = window.getComputedStyle(trackInner, "::before");
+        const firstReplayNode = trackInner.querySelector(".market-agent-replay-node");
+        if (
+          !trackLineStyle.content ||
+          trackLineStyle.content === "none" ||
+          trackLineStyle.display === "none" ||
+          Number.parseFloat(trackLineStyle.width || "0") < 1
+        ) {
+          problems.push("Market Agent replay timeline is not drawn as one continuous track line");
+        }
+        if (firstReplayNode instanceof HTMLElement) {
+          const trackBoxForLine = trackInner.getBoundingClientRect();
+          const nodeBox = firstReplayNode.getBoundingClientRect();
+          const nodeSize = Number.parseFloat(window.getComputedStyle(firstReplayNode).width || "0");
+          const renderedScale = nodeSize > 0 ? nodeBox.width / nodeSize : 1;
+          const lineLeft = Number.parseFloat(trackLineStyle.left || "NaN");
+          const lineTop = Number.parseFloat(trackLineStyle.top || "NaN");
+          if (Number.isFinite(lineLeft)) {
+            const lineCenter = trackBoxForLine.left + (lineLeft * renderedScale);
+            const nodeCenter = nodeBox.left + nodeBox.width / 2;
+            if (Math.abs(lineCenter - nodeCenter) > 2) {
+              problems.push(`Market Agent replay timeline line is not centered on nodes (${lineCenter.toFixed(1)} vs ${nodeCenter.toFixed(1)})`);
+            }
+          }
+          if (Number.isFinite(lineTop)) {
+            const lineStart = trackBoxForLine.top + (lineTop * renderedScale);
+            const nodeCenterY = nodeBox.top + nodeBox.height / 2;
+            if (lineStart > nodeCenterY - 2) {
+              problems.push("Market Agent replay timeline line starts after the first visible node");
+            }
+          }
+        }
+        const lastReplayNode = rows[rows.length - 1]?.querySelector(".market-agent-replay-node");
+        if (lastReplayNode instanceof HTMLElement) {
+          const lineBox = trackInner.getBoundingClientRect();
+          const nodeBox = lastReplayNode.getBoundingClientRect();
+          const nodeSize = Number.parseFloat(window.getComputedStyle(lastReplayNode).width || "0");
+          const renderedScale = nodeSize > 0 ? nodeBox.width / nodeSize : 1;
+          const lineBottom = Number.parseFloat(trackLineStyle.bottom || "NaN");
+          const lineEnd = Number.isFinite(lineBottom) ? lineBox.bottom - (lineBottom * renderedScale) : lineBox.bottom;
+          const nodeCenterY = nodeBox.top + nodeBox.height / 2;
+          if (lineEnd < nodeCenterY + 2) {
+            problems.push("Market Agent replay timeline line stops before the final visible node");
+          }
+        }
+        if (rows.some((row) => !(row instanceof HTMLButtonElement))) {
+          problems.push("Market Agent replay rows are not clickable detail buttons");
+        }
+        const firstAnimatedRow = rows.find((row) => row instanceof HTMLElement);
+        if (firstAnimatedRow instanceof HTMLElement) {
+          const style = window.getComputedStyle(firstAnimatedRow);
+          const hasAnimation = style.animationName && style.animationName !== "none" && style.animationDuration !== "0s";
+          if (!hasAnimation) {
+            problems.push("Market Agent replay rows do not animate when new data appears");
+          }
+        }
+        rows.forEach((row, index) => {
+          const time = row.querySelector("time");
+          const node = row.querySelector(".market-agent-replay-node");
+          if (!(time instanceof HTMLElement) || !(node instanceof HTMLElement)) return;
+          const timeBox = time.getBoundingClientRect();
+          const nodeBox = node.getBoundingClientRect();
+          if (timeBox.right > nodeBox.left - 6 && timeBox.top < nodeBox.bottom && timeBox.bottom > nodeBox.top) {
+            problems.push(`Market Agent replay row ${index + 1} time overlaps the timeline node`);
+          }
+        });
+        const trackBox = trackInner.getBoundingClientRect();
         const lastRow = rows[rows.length - 1];
         if (lastRow instanceof HTMLElement) {
           const lastBox = lastRow.getBoundingClientRect();
@@ -3938,6 +4883,49 @@ const main = async () => {
         const firstBody = track.querySelector(".market-agent-replay-row-body");
         if (firstBody instanceof HTMLElement && firstBody.getBoundingClientRect().width < 150) {
           problems.push(`tall Market Agent replay content column too narrow (${firstBody.getBoundingClientRect().width.toFixed(1)}px)`);
+        }
+        if (track.scrollHeight > track.clientHeight + 24) {
+          track.scrollTop = Math.floor((track.scrollHeight - track.clientHeight) / 2);
+          const scrolledLineStyle = window.getComputedStyle(trackInner, "::before");
+          const scrolledTrackBox = track.getBoundingClientRect();
+          const scrolledInnerBox = trackInner.getBoundingClientRect();
+          const visibleNodes = Array.from(track.querySelectorAll(".market-agent-replay-node"))
+            .filter((node) => node instanceof HTMLElement)
+            .filter((node) => {
+              const box = node.getBoundingClientRect();
+              return box.bottom > scrolledTrackBox.top && box.top < scrolledTrackBox.bottom;
+            });
+          const lineTop = Number.parseFloat(scrolledLineStyle.top || "NaN");
+          const lineBottom = Number.parseFloat(scrolledLineStyle.bottom || "NaN");
+          const lineStart = Number.isFinite(lineTop) ? scrolledInnerBox.top + lineTop : Number.NaN;
+          const lineEnd = Number.isFinite(lineBottom) ? scrolledInnerBox.bottom - lineBottom : Number.NaN;
+          if (
+            !Number.isFinite(lineStart) ||
+            !Number.isFinite(lineEnd) ||
+            lineStart > scrolledTrackBox.top + 2 ||
+            lineEnd < scrolledTrackBox.bottom - 2
+          ) {
+            problems.push("Market Agent replay timeline line does not cover the scrolled viewport");
+          }
+          if (visibleNodes.length) {
+            const lineLeft = Number.parseFloat(scrolledLineStyle.left || "NaN");
+            if (Number.isFinite(lineLeft)) {
+              const firstVisibleNode = visibleNodes[0];
+              const visibleNodeSize = Number.parseFloat(window.getComputedStyle(firstVisibleNode).width || "0");
+              const renderedScale = visibleNodeSize > 0 ? firstVisibleNode.getBoundingClientRect().width / visibleNodeSize : 1;
+              const lineCenter = scrolledInnerBox.left + (lineLeft * renderedScale);
+              const maxDrift = Math.max(
+                ...visibleNodes.map((node) => {
+                  const box = node.getBoundingClientRect();
+                  return Math.abs(lineCenter - (box.left + box.width / 2));
+                })
+              );
+              if (maxDrift > 2) {
+                problems.push(`Market Agent replay scrolled timeline line drifts from nodes (${maxDrift.toFixed(1)}px)`);
+              }
+            }
+          }
+          track.scrollTop = 0;
         }
         const score = document.querySelector(".market-agent-evidence-score");
         const ring = score?.querySelector(".market-agent-score-ring");
@@ -3966,6 +4954,13 @@ const main = async () => {
       if (tallLayoutProblems.length) {
         throw new Error(tallLayoutProblems.join("; "));
       }
+      const fullReplayRow = page.locator(".market-agent-replay-surface .market-agent-replay-track-row").first();
+      if ((await fullReplayRow.count()) > 0) {
+        await fullReplayRow.click();
+        await page.locator(".market-agent-replay-detail").first().waitFor({ state: "visible", timeout: 2000 });
+        await page.locator(".market-agent-replay-detail").getByRole("button", { name: "Close" }).click();
+        await page.locator(".market-agent-replay-detail").first().waitFor({ state: "hidden", timeout: 2000 });
+      }
       artifacts.push({
         scenario: "market-agent-tall",
         theme: theme.key,
@@ -3980,33 +4975,68 @@ const main = async () => {
       const driverFocusProblems = await driverFocus.evaluate((root) => {
         const problems = [];
         const text = root instanceof HTMLElement ? root.innerText || root.textContent || "" : "";
-        const isCurrentPaused =
-          text.includes("No driver confirmed yet") ||
-          text.includes("Waiting for evidence chain") ||
-          text.includes("Driver scores hidden") ||
-          text.includes("Current ranking paused");
-        if (!text.includes("Driver Focus")) {
-          problems.push("Driver Attention page does not present the current focus heading");
+        const lowerText = text.toLowerCase();
+        if (!text.includes("Macro / Micro Watch")) {
+          problems.push("Driver Attention page does not present the Macro / Micro Watch heading");
         }
         if (text.includes("Technical details")) {
           problems.push("Driver Attention still exposes Technical details");
         }
-        if (root.querySelectorAll(".market-agent-driver-card, .market-agent-driver-details").length) {
-          problems.push("Driver Attention still renders the old card/details structure");
+        if (text.includes("Driver scores hidden") || text.includes("Current ranking paused") || text.includes("Required price inputs") || text.includes("Context still watched")) {
+          problems.push("Driver Attention still exposes old paused driver-scoring language");
         }
-        if (!isCurrentPaused && root.querySelectorAll(".market-agent-driver-row").length < 4) {
-          problems.push("Driver Attention signal rows are missing");
+        for (const forbidden of ["Blocked", "Watching", "Allowed", "Rule kept", "Accepted input", "market context items kept", "No detail recorded", "raw calendar context", "needs news, xauusd", "currency not recorded", "impact not recorded", "Macro drivers", "Micro themes"]) {
+          if (text.includes(forbidden)) {
+            problems.push(`Driver Attention exposes audit-only text: ${forbidden}`);
+          }
         }
-        for (const heading of ["Driving Now", "Watch Next", "Background"]) {
-          if (!isCurrentPaused && !text.includes(heading)) {
+        if (root.querySelectorAll(".market-agent-driver-card, .market-agent-driver-details, .market-agent-driver-row").length) {
+          problems.push("Driver Attention still renders the old driver card/details structure");
+        }
+        if (root.querySelectorAll(".market-agent-mm-row, .market-agent-mm-column").length) {
+          problems.push("Driver Attention repeats the radar as lower detail rows");
+        }
+        const pageTapeItems = Array.from(root.querySelectorAll(".market-agent-mm-tape li"));
+        const pageMacroItems = Array.from(root.querySelectorAll(".market-agent-mm-feed article"));
+        if (!pageTapeItems.length && !pageMacroItems.length && !root.querySelectorAll(".market-agent-mm-story-list em, .market-agent-mm-driver-pills em").length && root.querySelectorAll(".market-agent-mm-empty").length < 2) {
+          problems.push("Driver Attention should show radar stories or clear empty states");
+        }
+        const tapeList = root.querySelector(".market-agent-mm-tape ol");
+        if (tapeList instanceof HTMLElement && pageTapeItems.length > 1) {
+          const gridColumns = window.getComputedStyle(tapeList).gridTemplateColumns.split(" ").filter(Boolean);
+          if (gridColumns.length > 1) {
+            problems.push("Driver Attention micro stories should read top-to-bottom, not as horizontal chips");
+          }
+        }
+        const storyTitles = pageTapeItems
+          .map((item) => item.querySelector("b")?.textContent?.replace(/\s+/g, " ").trim().toLowerCase() || "")
+          .filter((title) => title && title !== "no micro story detected");
+        const auditOnlyStoryTitles = storyTitles.filter((title) =>
+          /^(iran|inflation|hormuz|gold|attack|airspace)$/.test(title)
+        );
+        if (auditOnlyStoryTitles.length) {
+          problems.push(`Driver Attention uses internal theme labels as Small Stories: ${Array.from(new Set(auditOnlyStoryTitles)).join(", ")}`);
+        }
+        const duplicateStoryTitles = storyTitles.filter((title, index) => storyTitles.indexOf(title) !== index);
+        if (duplicateStoryTitles.length) {
+          problems.push(`Driver Attention repeats Small Stories headlines: ${Array.from(new Set(duplicateStoryTitles)).join(", ")}`);
+        }
+        const macroLabels = pageMacroItems
+          .map((item) => item.querySelector("span")?.textContent?.replace(/\s+/g, " ").trim().toLowerCase() || "")
+          .filter((label) => label && label !== "macro");
+        const duplicateMacroLabels = macroLabels.filter((label, index) => macroLabels.indexOf(label) !== index);
+        if (duplicateMacroLabels.length) {
+          problems.push(`Driver Attention repeats Big Picture macro drivers: ${Array.from(new Set(duplicateMacroLabels)).join(", ")}`);
+        }
+        for (const heading of ["Big picture", "Small stories"]) {
+          if (!lowerText.includes(heading.toLowerCase())) {
             problems.push(`Driver Attention missing ${heading}`);
           }
         }
-        if (isCurrentPaused && !text.includes("Required price inputs")) {
-          problems.push("Driver Attention paused state should explain the required price inputs");
-        }
-        if (isCurrentPaused && !text.includes("Context still watched")) {
-          problems.push("Driver Attention paused state should keep watched context visible");
+        for (const analystHeading of ["Now", "Next", "Risk"]) {
+          if (!lowerText.includes(analystHeading.toLowerCase())) {
+            problems.push(`Driver Attention missing analyst read section: ${analystHeading}`);
+          }
         }
         return problems;
       });
@@ -4023,15 +5053,36 @@ const main = async () => {
       await page.locator("[data-qa='qa:market-agent:evidence-panel']").first().waitFor({ state: "visible", timeout: 4000 });
       const evidenceChainProblems = await page.evaluate(() => {
         const problems = [];
+        const stack = document.querySelector("[data-qa='qa:market-agent:evidence-stack']");
+        const stackText = stack instanceof HTMLElement ? stack.innerText || stack.textContent || "" : "";
+        if (!(stack instanceof HTMLElement)) {
+          problems.push("Evidence page missing evidence stack");
+        }
+        for (const forbidden of ["Market Situation", "Situation briefing", "AI input coverage", "Macro drivers", "Micro themes"]) {
+          if (stackText.includes(forbidden)) {
+            problems.push(`Evidence page should not show removed Situation Briefing text: ${forbidden}`);
+          }
+        }
+        if (stackText.includes("Context window")) {
+          problems.push("Evidence page still exposes Context window text");
+        }
+        if (/\bwindow\.\d+\b/.test(stackText)) {
+          problems.push("Evidence page text has a missing space after a replay window sentence");
+        }
         const root = document.querySelector("[data-qa='qa:market-agent:evidence-panel']");
         if (!(root instanceof HTMLElement)) {
           problems.push("Evidence panel missing");
           return problems;
         }
+        const evidenceBox = root.getBoundingClientRect();
+        if (evidenceBox.top > window.innerHeight * 0.32) {
+          problems.push("Evidence panel starts too low after Situation Briefing removal");
+        }
         const rootText = root.innerText || root.textContent || "";
         const isCurrentPaused =
-          rootText.includes("No current conclusion") ||
-          rootText.includes("Wait for required inputs");
+          rootText.includes("Trade call pending") ||
+          rootText.includes("Waiting for price history") ||
+          rootText.includes("Current Conclusion");
         const chain = root.querySelector(".market-agent-evidence-chain");
         const decision = root.querySelector(".market-agent-evidence-chain-step.decision");
         const arrows = root.querySelectorAll(".market-agent-evidence-chain-arrow");
@@ -4046,7 +5097,7 @@ const main = async () => {
           [".market-agent-evidence-chain-step.support .market-agent-evidence-step-label", isCurrentPaused ? "Collected Context" : "Support"],
           [".market-agent-evidence-chain-step.decision .market-agent-evidence-step-label", isCurrentPaused ? "Current Conclusion" : "Accepted Driver"],
           [".market-agent-evidence-chain-step.outcome .market-agent-evidence-step-label", isCurrentPaused ? "Next Step" : "Run Decision"],
-          [".market-agent-evidence-branch.rejected > span", isCurrentPaused ? "Blocked" : "Rejected"],
+          [".market-agent-evidence-branch.rejected > span", isCurrentPaused ? "Driver ranking" : "Rejected"],
           [".market-agent-evidence-branch.quality > span", "Data Quality"]
         ];
         for (const [selector, label] of requiredLabels) {
@@ -4124,6 +5175,11 @@ const main = async () => {
         }
         if (buttons.length !== 4) {
           problems.push(`Data Sources setup should expose 4 user actions, found ${buttons.length}`);
+        }
+        const localAIButton = buttons.find((button) => (button.getAttribute("aria-label") || button.textContent || "").includes("Local AI"));
+        const localAIButtonText = localAIButton ? (localAIButton.textContent || "").trim() : "";
+        if (/Needs model/i.test(localAIButtonText)) {
+          problems.push("Data Sources Local AI card shows Needs model before checking the installed/configured model");
         }
         const statusCard = root.querySelector(".market-agent-setup-status-card");
         if (statusCard) {
@@ -4353,7 +5409,11 @@ const main = async () => {
           throw new Error(localAILoadingProblems.join("; "));
         }
       } else {
-        await localAIUseButton.waitFor({ state: "visible", timeout: 2000 });
+        const readyText = providerConfig.getByText(/Local AI is ready|Model ready/i).first();
+        await readyText.waitFor({ state: "visible", timeout: 2000 });
+        if ((await localAIUseButton.count()) > 0) {
+          throw new Error("Auto Local AI still shows the manual Use this model button when a model is ready");
+        }
       }
       artifacts.push({
         scenario: "market-agent-local-ai",
@@ -4399,9 +5459,20 @@ const main = async () => {
       const alertsLayoutProblems = await page.evaluate(() => {
         const problems = [];
         const list = document.querySelector("[data-qa='qa:market-agent:alerts-list']");
+        const summary = document.querySelector(".market-agent-alerts-summary-line");
         if (!(list instanceof HTMLElement)) {
           problems.push("Market Agent Alerts list missing");
           return problems;
+        }
+        if (summary instanceof HTMLElement) {
+          const summaryParts = Array.from(summary.querySelectorAll("strong, span")).filter((node) => node instanceof HTMLElement);
+          const centers = summaryParts.map((node) => {
+            const box = node.getBoundingClientRect();
+            return box.top + box.height / 2;
+          });
+          if (centers.length >= 2 && Math.max(...centers) - Math.min(...centers) > 2.5) {
+            problems.push("Market Agent Alerts summary text is not vertically aligned");
+          }
         }
         const cards = Array.from(list.querySelectorAll(".market-agent-alert-card"));
         if (cards.length < 1) {
@@ -4442,10 +5513,15 @@ const main = async () => {
           if (badgeBox.right > timeBox.left - 6 && badgeBox.top < timeBox.bottom && badgeBox.bottom > timeBox.top) {
             problems.push(`Market Agent alert row ${index + 1} badge overlaps time`);
           }
-          const titleCenter = titleBox.top + titleBox.height / 2;
           const badgeCenter = badgeBox.top + badgeBox.height / 2;
-          if (Math.abs(titleCenter - badgeCenter) > 3) {
-            problems.push(`Market Agent alert row ${index + 1} badge is not vertically centered`);
+          const timeCenter = timeBox.top + timeBox.height / 2;
+          if (Math.abs(badgeCenter - timeCenter) > 2.5) {
+            problems.push(`Market Agent alert row ${index + 1} badge and time are not vertically aligned`);
+          }
+          const cardBox = card.getBoundingClientRect();
+          const cardCenter = cardBox.top + cardBox.height / 2;
+          if (Math.abs(cardCenter - badgeCenter) > 3 || Math.abs(cardCenter - timeCenter) > 3) {
+            problems.push(`Market Agent alert row ${index + 1} right controls are not vertically centered`);
           }
         });
         return problems;
@@ -4467,14 +5543,68 @@ const main = async () => {
       await page.locator("[data-qa='qa:action:view-market-agent']").first().click();
       await page.locator("[data-qa='qa:page:market-agent']").first().waitFor({ state: "visible", timeout: 4000 });
       await page.locator("[data-market-agent-section='replay']").first().click();
+      const replayControlProblems = await page.evaluate(() => {
+        const problems = [];
+        if (document.querySelector("[data-qa='qa:market-agent:range:context']")) {
+          problems.push("Replay range should not expose the internal Context preset");
+        }
+        if (!document.querySelector("[data-qa='qa:market-agent:range:day']")) {
+          problems.push("Replay range is missing Day");
+        }
+        if (!document.querySelector("[data-qa='qa:market-agent:range:month']")) {
+          problems.push("Replay range is missing Month");
+        }
+        return problems;
+      });
+      if (replayControlProblems.length) {
+        throw new Error(replayControlProblems.join("; "));
+      }
       await page.locator("[data-qa='qa:market-agent:range:month']").first().click();
       await page.locator("[data-qa='qa:market-agent:timeline-list']").first().waitFor({ state: "visible", timeout: 4000 });
+      await page.waitForFunction(() => {
+        const list = document.querySelector("[data-qa='qa:market-agent:timeline-list']");
+        const text = list instanceof HTMLElement ? list.innerText || list.textContent || "" : "";
+        return !/Loading replay|Preparing timeline/i.test(text);
+      }, null, { timeout: 4000 });
+      await page.waitForFunction(() => {
+        return document.querySelectorAll(".market-agent-replay-track-row").length > 0;
+      }, null, { timeout: 4000 });
       const replayProblems = await page.evaluate(() => {
         const problems = [];
         const rows = Array.from(document.querySelectorAll(".market-agent-replay-track-row"));
+        const replayMinute = (text) => {
+          const trimmed = String(text || "").trim();
+          const dated = trimmed.match(/^(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{2})$/);
+          if (dated) {
+            const [, day, month, hour, minute] = dated;
+            return Number(month) * 31 * 24 * 60 + Number(day) * 24 * 60 + Number(hour) * 60 + Number(minute);
+          }
+          const clock = trimmed.match(/^(\d{1,2}):(\d{2})$/);
+          if (clock) return Number(clock[1]) * 60 + Number(clock[2]);
+          return null;
+        };
+        const tagTextOffset = (tag) => {
+          if (!(tag instanceof HTMLElement) || !tag.firstChild) return 0;
+          const range = document.createRange();
+            range.selectNodeContents(tag);
+            const textBox = range.getBoundingClientRect();
+            range.detach();
+            const tagBox = tag.getBoundingClientRect();
+            if (!textBox.height || !tagBox.height) return 0;
+            return Math.abs((textBox.top + textBox.height / 2) - (tagBox.top + tagBox.height / 2));
+          };
         if (!rows.length) {
           problems.push("Month replay has no visible rows to inspect");
           return problems;
+        }
+        const markerTimes = rows
+          .map((row) => replayMinute(row.querySelector("time")?.textContent || ""))
+          .filter((value) => Number.isFinite(value));
+        for (let index = 1; index < markerTimes.length; index += 1) {
+          if (markerTimes[index - 1] < markerTimes[index]) {
+            problems.push("Month replay is not newest-first");
+            break;
+          }
         }
         const seen = new Set();
         rows.forEach((row, index) => {
@@ -4501,8 +5631,12 @@ const main = async () => {
             const tagBox = tag.getBoundingClientRect();
             const titleCenter = titleBox.top + titleBox.height / 2;
             const tagCenter = tagBox.top + tagBox.height / 2;
+            const textOffset = tagTextOffset(tag);
             if (Math.abs(titleCenter - tagCenter) > 3) {
               problems.push(`Month replay row ${index + 1} tag is not vertically centered`);
+            }
+            if (textOffset > 2) {
+              problems.push(`Month replay row ${index + 1} tag text is not centered (${textOffset.toFixed(1)}px offset)`);
             }
           }
         });
@@ -4634,7 +5768,7 @@ const main = async () => {
           "Ingest",
           "Process",
           "Storage",
-          "Evidence packet",
+          "Evidence review",
           "AI Analysis",
           "Outputs",
           "Assets",
@@ -4746,15 +5880,18 @@ const main = async () => {
         if (/20\d{2}-\d{2}-\d{2}T\d{2}:\d{2}/.test(text)) {
           problems.push("News history renders raw ISO timestamps");
         }
-        if (!/\d{2}-\d{2}-20\d{2}\s+\d{2}:\d{2}/.test(text)) {
-          problems.push("News history does not render readable dd-mm-yyyy HH:mm timestamps");
+        if (!/\d{2}\s+[A-Z][a-z]{2}\s+20\d{2}\s+\d{2}:\d{2}\s+UTC[+-]\d{2}/.test(text)) {
+          problems.push("News history does not render readable DD Mon YYYY HH:mm UTC offset timestamps");
+        }
+        if (!text.includes("AI summarized") && !text.includes("Rule kept")) {
+          problems.push("News history does not explain whether rows came from Local AI or rule filtering");
         }
         return problems;
       });
       if (newsHistoryFailures.length) {
         throw new Error(newsHistoryFailures.join("; "));
       }
-      await newsDetail.locator(".market-agent-history-record", { hasText: "Fed headline pressures yields" }).first().click();
+      await newsDetail.locator(".market-agent-history-record", { hasText: "Markets price higher Treasury yields" }).first().click();
       await newsDetail.locator(".market-agent-history-modal").first().waitFor({ state: "visible", timeout: 4000 });
       const newsHistoryModalFailures = await page.evaluate(() => {
         const problems = [];
@@ -4763,6 +5900,9 @@ const main = async () => {
         const text = modal.textContent || "";
         if (!text.includes("Captured 2 times")) {
           problems.push("News history modal does not explain merged repeated fetches");
+        }
+        if (!text.includes("AI summarized") && !text.includes("Rule kept")) {
+          problems.push("News history modal does not explain whether the row came from Local AI or rule filtering");
         }
         if (!text.includes("fetches") || !/\b2\b/.test(text)) {
           problems.push("News history modal does not expose fetch count metadata");
@@ -4783,9 +5923,131 @@ const main = async () => {
       });
       await newsDetail.locator(".market-agent-history-modal button", { hasText: "Close" }).first().click();
       await newsDetail.locator(".market-agent-history-modal").first().waitFor({ state: "detached", timeout: 4000 });
+
+      await newsDetail.locator("button[aria-label='Back to signal map']").first().click();
+      await page.locator(".market-agent-signal-node", { hasText: "AI Analysis" }).first().click();
+      const aiDetail = page.locator(".market-agent-causal-mesh").first();
+      await aiDetail.waitFor({ state: "visible", timeout: 4000 });
+      await aiDetail.locator("button", { hasText: /^Ongoing$/ }).first().click();
+      await aiDetail.getByText("What AI is working on now").first().waitFor({ state: "visible", timeout: 4000 });
+      const aiOngoingFailures = await page.evaluate(() => {
+        const problems = [];
+        const detail = document.querySelector(".market-agent-causal-mesh");
+        if (!(detail instanceof HTMLElement)) return ["AI ongoing detail view missing"];
+        const text = detail.textContent || "";
+        if (/20\d{2}-\d{2}-\d{2}T\d{2}:\d{2}/.test(text)) {
+          problems.push("AI ongoing renders raw ISO timestamps");
+        }
+        return problems;
+      });
+      if (aiOngoingFailures.length) {
+        throw new Error(aiOngoingFailures.join("; "));
+      }
+      await aiDetail.locator("button", { hasText: /^History$/ }).first().click();
+      await aiDetail.getByText("Local AI call audit").first().waitFor({ state: "visible", timeout: 4000 });
+      const aiHistoryFailures = await page.evaluate(() => {
+        const problems = [];
+        const detail = document.querySelector(".market-agent-causal-mesh");
+        if (!(detail instanceof HTMLElement)) return ["AI Analysis detail view missing"];
+        const text = detail.textContent || "";
+        const rows = Array.from(detail.querySelectorAll(".market-agent-history-row")).filter(
+          (row) => row instanceof HTMLElement
+        );
+        if (!text.includes("Local AI call audit")) {
+          problems.push("AI history does not show the Local AI call audit heading");
+        }
+        if (/20\d{2}-\d{2}-\d{2}T\d{2}:\d{2}/.test(text)) {
+          problems.push("AI history renders raw ISO timestamps");
+        }
+        if (rows.length) {
+          if (!/\d{2}\s+[A-Z][a-z]{2}\s+20\d{2}\s+\d{2}:\d{2}\s+UTC[+-]\d{2}/.test(text)) {
+            problems.push("AI history does not render readable DD Mon YYYY HH:mm UTC offset timestamps");
+          }
+          if (!text.includes("AI Validated") && !text.includes("Failed")) {
+            problems.push("AI history statuses are not rendered as readable status labels");
+          }
+          if (text.includes("Stored AI analysis")) {
+            problems.push("AI history rows still use the generic Stored AI analysis label");
+          }
+          if (text.includes("Unknown Unconfirmed") || text.includes("UNKNOWN / UNCONFIRMED")) {
+            problems.push("AI history shows unknown/unconfirmed instead of a readable no-trade-call reason");
+          }
+          if (!text.includes("AI step") || !text.includes("Decision")) {
+            problems.push("AI history table does not explain what each AI call decided");
+          }
+          const historyList = detail.querySelector(".market-agent-history-list");
+          if (historyList instanceof HTMLElement) {
+            const style = getComputedStyle(historyList);
+            if (!/(auto|scroll)/.test(style.overflowY)) {
+              problems.push("AI history list is not vertically scrollable");
+            }
+            const lastRow = rows.at(-1);
+            if (lastRow instanceof HTMLElement) {
+              historyList.scrollTop = historyList.scrollHeight;
+              const listRect = historyList.getBoundingClientRect();
+              const rowRect = lastRow.getBoundingClientRect();
+              if (rowRect.top < listRect.top || rowRect.bottom > listRect.bottom) {
+                problems.push("AI history last row is clipped by the bottom chrome");
+              }
+            }
+          } else {
+            problems.push("AI history list container is missing");
+          }
+        } else if (!text.includes("No Local AI call recorded")) {
+          problems.push("AI history has neither rows nor a readable empty state");
+        }
+        return problems;
+      });
+      if (aiHistoryFailures.length) {
+        throw new Error(aiHistoryFailures.join("; "));
+      }
+      artifacts.push({
+        scenario: "market-agent-activity-ai-history",
+        theme: theme.key,
+        state: "readable",
+        path: await captureState(page, "market-agent-activity-ai-history", theme.key, "readable")
+      });
+
+      await aiDetail.locator("button", { hasText: /^Needs$/ }).first().click();
+      await aiDetail.locator(".market-agent-data-requests").first().waitFor({ state: "visible", timeout: 4000 });
+      const aiNeedsFailures = await page.evaluate(() => {
+        const problems = [];
+        const detail = document.querySelector(".market-agent-causal-mesh");
+        if (!(detail instanceof HTMLElement)) return ["AI Analysis needs view missing"];
+        const needs = detail.querySelector(".market-agent-data-requests");
+        if (!(needs instanceof HTMLElement)) return ["AI Analysis needs list missing"];
+        const requests = Array.from(needs.querySelectorAll(".market-agent-data-request")).filter(
+          (request) => request instanceof HTMLElement
+        );
+        for (const request of requests) {
+          const text = (request.textContent || "").replace(/\s+/g, " ").trim();
+          if (/\bWatch only\b/i.test(text) && /\bUnknown\b/i.test(text)) {
+            problems.push("AI Analysis needs shows internal unknown sentinel as a watched theme");
+          }
+          if (/\bWatching\b/i.test(text) && /\bUnknown\b/i.test(text)) {
+            problems.push("AI Analysis needs shows Unknown as a watching target");
+          }
+        }
+        return problems;
+      });
+      if (aiNeedsFailures.length) {
+        throw new Error(aiNeedsFailures.join("; "));
+      }
+      artifacts.push({
+        scenario: "market-agent-activity-ai-needs",
+        theme: theme.key,
+        state: "no-unknown-watch",
+        path: await captureState(page, "market-agent-activity-ai-needs", theme.key, "no-unknown-watch")
+      });
+
       await page.locator("[data-qa='qa:action:view-calendar']").first().click();
       await page.locator("[data-qa='qa:card:next-events']").first().waitFor({ state: "visible", timeout: 4000 });
     });
+
+    if (filterTargetsMarketAgent()) {
+      await context.close();
+      return;
+    }
 
     phase = `theme:${theme.key}:checks`;
     await runCheck(theme.key, "Activity pill label not truncated at idle", async () => {
@@ -7792,6 +9054,8 @@ const main = async () => {
       }
     }
 
+    const waitForTemporaryPathWarningReadable = () => page.waitForTimeout(260);
+
     await page.evaluate(() => {
       window.__ui_check__?.showTemporaryPathWarning?.({
         mode: "settings-close",
@@ -7810,6 +9074,7 @@ const main = async () => {
     await runCheck(theme.key, "Temporary Path warning has transition", () =>
       assertHasTransition(page, "[data-qa='qa:modal:temporary-path-warning']", "Temporary Path warning modal")
     );
+    await waitForTemporaryPathWarningReadable();
     const temporaryPathWarningModal = page.locator("[data-qa='qa:modal:temporary-path-warning']").first();
     if (await temporaryPathWarningModal.count()) {
       artifacts.push({
@@ -7838,7 +9103,7 @@ const main = async () => {
         canReset: true
       });
     });
-    await page.waitForTimeout(80);
+    await waitForTemporaryPathWarningReadable();
     const temporaryPathWarningModalDirty = page.locator("[data-qa='qa:modal:temporary-path-warning']").first();
     if (await temporaryPathWarningModalDirty.count()) {
       artifacts.push({
@@ -7871,6 +9136,7 @@ const main = async () => {
     await runCheck(theme.key, "Temporary Path warning transition (other)", () =>
       assertOpacityTransition(page, "[data-qa='qa:modal-backdrop:temporary-path-warning']", "Temporary Path warning")
     );
+    await waitForTemporaryPathWarningReadable();
     const temporaryPathWarningModalOther = page.locator("[data-qa='qa:modal:temporary-path-warning']").first();
     if (await temporaryPathWarningModalOther.count()) {
       artifacts.push({
@@ -7899,7 +9165,7 @@ const main = async () => {
         canReset: false
       });
     });
-    await page.waitForTimeout(80);
+    await waitForTemporaryPathWarningReadable();
     const temporaryPathWarningModalUnsafe = page.locator("[data-qa='qa:modal:temporary-path-warning']").first();
     if (await temporaryPathWarningModalUnsafe.count()) {
       artifacts.push({
@@ -7928,7 +9194,7 @@ const main = async () => {
         canReset: true
       });
     });
-    await page.waitForTimeout(80);
+    await waitForTemporaryPathWarningReadable();
     const temporaryPathWarningModalNonGit = page.locator("[data-qa='qa:modal:temporary-path-warning']").first();
     if (await temporaryPathWarningModalNonGit.count()) {
       artifacts.push({
@@ -7957,7 +9223,7 @@ const main = async () => {
         canReset: true
       });
     });
-    await page.waitForTimeout(80);
+    await waitForTemporaryPathWarningReadable();
     const temporaryPathWarningModalUnusable = page.locator("[data-qa='qa:modal:temporary-path-warning']").first();
     if (await temporaryPathWarningModalUnusable.count()) {
       artifacts.push({
@@ -8323,7 +9589,9 @@ const main = async () => {
     }
 
     // Capture a visible Current lifecycle in the theme webm (reorder + move to history).
-    await runCurrentTimelineDemo(page);
+    if (matchesCheckFilter("Next Events reorder animation")) {
+      await runCurrentTimelineDemo(page);
+    }
 
     themeResults.push({
       theme: theme.key,
@@ -8332,7 +9600,8 @@ const main = async () => {
       modalScroll,
       autosaveShiftMax,
       selectVisibility,
-      shadowClip
+      shadowClip,
+      marketAgentPerf: marketAgentPerfSamples
     });
 
     await context.close();
@@ -8394,13 +9663,68 @@ const main = async () => {
       },
       {}
     );
+    if (filterSkippedCount) {
+      summary.FILTERED_OUT = filterSkippedCount;
+    }
     console.log("UI-CHECK SUMMARY", summary);
+    const slowChecks = checkResults
+      .filter((item) => item.status !== "SKIP" && Number.isFinite(item.durationMs))
+      .sort((a, b) => b.durationMs - a.durationMs)
+      .slice(0, 12);
+    if (slowChecks.length) {
+      console.log(
+        "UI-CHECK SLOWEST",
+        JSON.stringify(
+          slowChecks.map((item) => ({
+            theme: item.theme,
+            name: item.name,
+            status: item.status,
+            ms: Math.round(item.durationMs)
+          })),
+          null,
+          2
+        )
+      );
+    }
+    if (marketAgentPerfSamplesAll.length) {
+      console.log("UI-CHECK MARKET_AGENT_PERF", JSON.stringify(marketAgentPerfSamplesAll, null, 2));
+    }
     console.log("UI-CHECK METRICS", JSON.stringify(themeResults, null, 2));
+    const totalMs = Date.now() - startedAt;
+    console.log("UI-CHECK TOTAL MS", totalMs);
+    console.log(
+      "UI-CHECK ARTIFACTS",
+      JSON.stringify(
+        {
+          artifactsRoot,
+          snapshotsDir,
+          framesDir,
+          reportPath: process.env.UI_CHECK_SKIP_REPORT ? null : reportPath
+        },
+        null,
+        2
+      )
+    );
 
     const manifestPath = path.join(artifactsRoot, "manifest.json");
     await fs.writeFile(
       manifestPath,
-      JSON.stringify({ artifacts, videos, checkResults, artifactsRoot }, null, 2),
+      JSON.stringify(
+        {
+          artifacts,
+          videos,
+          checkResults,
+          marketAgentPerf: marketAgentPerfSamplesAll,
+          artifactsRoot,
+          snapshotsDir,
+          framesDir,
+          reportPath: process.env.UI_CHECK_SKIP_REPORT ? null : reportPath,
+          filterSkippedCount,
+          totalMs
+        },
+        null,
+        2
+      ),
       "utf-8"
     );
   } finally {

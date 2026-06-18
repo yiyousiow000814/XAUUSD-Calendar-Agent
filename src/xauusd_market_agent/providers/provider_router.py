@@ -13,6 +13,7 @@ from .base import CalendarProvider, MarketDataProvider, NewsProvider, RelatedAss
 from .ctrader_provider import CTraderProvider
 from .forex_factory_provider import ForexFactoryProvider
 from .rss_provider import RSSNewsProvider
+from .trading_economics import TradingEconomicsQuoteProvider, TradingEconomicsUS2YProvider
 from .yahoo_chart import YahooChartProvider
 
 
@@ -23,7 +24,7 @@ _RELATED_SYMBOLS = {
     "brent": "BZ=F",
     "vix": "^VIX",
     "spx": "^GSPC",
-    "nasdaq": "^IXIC",
+    "nasdaq": "NQ=F",
 }
 
 _SPOT_LIVE_MAX_AGE_SECONDS = 300
@@ -104,8 +105,13 @@ class ProviderRouter:
         rss_feeds: list[str] | None = None,
         yahoo_enabled: bool = True,
         csv_fallback_enabled: bool = False,
+        trading_economics_us2y_enabled: bool = True,
+        trading_economics_us2y_cache_path: Path | None = None,
+        trading_economics_quotes_cache_dir: Path | None = None,
         ctrader_saved_snapshot_path: Path | None = None,
         ctrader_provider: CTraderProvider | None = None,
+        calendar_lookback_minutes: int = 60,
+        calendar_forward_minutes: int = 120,
     ) -> None:
         self.market_provider = market_provider
         self.related_assets_provider = related_assets_provider
@@ -119,7 +125,12 @@ class ProviderRouter:
         self.rss_feeds = rss_feeds or []
         self.yahoo_enabled = yahoo_enabled
         self.csv_fallback_enabled = csv_fallback_enabled
+        self.trading_economics_us2y_enabled = trading_economics_us2y_enabled
+        self.trading_economics_us2y_cache_path = trading_economics_us2y_cache_path
+        self.trading_economics_quotes_cache_dir = trading_economics_quotes_cache_dir
         self.ctrader_saved_snapshot_path = ctrader_saved_snapshot_path
+        self.calendar_lookback_minutes = int(calendar_lookback_minutes)
+        self.calendar_forward_minutes = int(calendar_forward_minutes)
         if ctrader_provider is None:
             default_root = (
                 Path(ctrader_saved_snapshot_path).resolve().parent.parent
@@ -146,6 +157,8 @@ class ProviderRouter:
             calendar_provider=ForexFactoryProvider(
                 fixture_path=config.forex_factory_fixture_path,
                 source_url=config.forex_factory_source_url or None,
+                lookback_minutes=config.calendar_lookback_minutes,
+                forward_minutes=config.calendar_forward_minutes,
             )
             if config.forex_factory_fixture_path is not None or config.forex_factory_source_url
             else None,
@@ -157,8 +170,13 @@ class ProviderRouter:
             rss_feeds=config.rss_feeds,
             yahoo_enabled=config.yahoo_enabled,
             csv_fallback_enabled=config.csv_fallback_enabled,
+            trading_economics_us2y_enabled=config.trading_economics_us2y_enabled,
+            trading_economics_us2y_cache_path=config.trading_economics_us2y_cache_path,
+            trading_economics_quotes_cache_dir=config.trading_economics_quotes_cache_dir,
             ctrader_saved_snapshot_path=config.ctrader_saved_snapshot_path,
             ctrader_provider=CTraderProvider.from_market_agent_config(config),
+            calendar_lookback_minutes=config.calendar_lookback_minutes,
+            calendar_forward_minutes=config.calendar_forward_minutes,
         )
 
     def _yahoo(self) -> YahooChartProvider:
@@ -227,12 +245,14 @@ class ProviderRouter:
             "provider_chain_status": chain_status,
             "fallback_reason": self._fallback_reason(chain_status),
         }
+        fallback_reason = self.last_market_provider_meta["fallback_reason"] or "Live XAUUSD provider is unavailable."
         return [], build_provider_health(
             source="XAUUSD",
             source_type="provider_interface",
             data_mode="unavailable",
             is_available=False,
-            stale_reason="No market provider configured.",
+            stale_reason=fallback_reason,
+            error=fallback_reason,
             data_timestamp=anchor_time.isoformat(),
         )
 
@@ -247,17 +267,21 @@ class ProviderRouter:
             health_map: dict[str, ProviderHealth] = {}
             for key, symbol in _RELATED_SYMBOLS.items():
                 series, health = yahoo.fetch_related_asset(symbol, anchor_time)
+                te_rows, te_health = self._fetch_trading_economics_quote(key, anchor_time)
+                if (
+                    te_rows
+                    and te_health is not None
+                    and te_health.is_available
+                    and not te_health.is_stale
+                    and (not health.is_available or health.is_stale)
+                ):
+                    health = te_health
+                    series = te_rows
                 health_map[key] = health
                 rows.extend(self._normalize_related_rows(key, series, health))
-            health_map["us2y"] = build_provider_health(
-                source="US2Y",
-                source_type="provider_interface",
-                data_mode="unavailable",
-                is_available=False,
-                stale_reason="No reliable free US2Y Yahoo proxy is configured.",
-                data_timestamp=anchor_time.isoformat(),
-                raw_source_id="unavailable",
-            )
+            us2y_rows, us2y_health = self._fetch_us2y_context(anchor_time)
+            rows.extend(us2y_rows)
+            health_map.update(us2y_health)
             if health_map:
                 return rows, health_map
         if self.csv_fallback_enabled and self.csv_related_assets_path is not None:
@@ -399,15 +423,9 @@ class ProviderRouter:
                 series, health = yahoo.backfill(symbol, start, end)
                 health_map[key] = health
                 rows.extend(self._normalize_related_rows(key, series, health, data_mode_override="backfilled"))
-            health_map["us2y"] = build_provider_health(
-                source="US2Y",
-                source_type="provider_interface",
-                data_mode="unavailable",
-                is_available=False,
-                stale_reason="No reliable free US2Y Yahoo proxy is configured.",
-                data_timestamp=end.isoformat(),
-                raw_source_id="unavailable",
-            )
+            us2y_rows, us2y_health = self._fetch_us2y_context(end, data_mode_override="backfilled")
+            rows.extend(us2y_rows)
+            health_map.update(us2y_health)
             return rows, health_map
         if self.csv_fallback_enabled and self.csv_related_assets_path is not None:
             return self._load_related_assets_csv_fallback(end, data_mode="backfilled")
@@ -554,6 +572,69 @@ class ProviderRouter:
         }
         return rows, health
 
+    def _has_related_asset_csv_source(self, symbol: str) -> bool:
+        if self.csv_related_assets_dir is not None and self.csv_related_assets_dir.exists():
+            return (self.csv_related_assets_dir / f"{symbol}.csv").exists()
+        return self.csv_related_assets_path is not None and self.csv_related_assets_path.exists()
+
+    def _load_related_asset_csv_fallback_symbols(
+        self,
+        anchor_time: datetime,
+        *,
+        data_mode: str,
+        symbols: tuple[str, ...],
+    ) -> tuple[list[dict[str, Any]], dict[str, ProviderHealth]]:
+        if not self.csv_fallback_enabled:
+            return [], {}
+        available_symbols = tuple(symbol for symbol in symbols if self._has_related_asset_csv_source(symbol))
+        if not available_symbols:
+            return [], {}
+        rows, health = self._load_related_assets_csv_fallback(anchor_time, data_mode=data_mode)
+        wanted = set(available_symbols)
+        return [row for row in rows if row.get("symbol") in wanted], {
+            key: value for key, value in health.items() if key in wanted
+        }
+
+    def _fetch_us2y_context(
+        self,
+        anchor_time: datetime,
+        *,
+        data_mode_override: str | None = None,
+    ) -> tuple[list[dict[str, Any]], dict[str, ProviderHealth]]:
+        if self.trading_economics_us2y_enabled and self.trading_economics_us2y_cache_path is not None:
+            rows, health = TradingEconomicsUS2YProvider(
+                cache_path=self.trading_economics_us2y_cache_path,
+            ).fetch_latest(anchor_time)
+            if rows and health.is_available:
+                if data_mode_override:
+                    rows = [{**row, "data_mode": data_mode_override} for row in rows]
+                    health = replace(health, data_mode=data_mode_override)
+                return rows, {"us2y": health}
+        return self._load_related_asset_csv_fallback_symbols(
+            anchor_time,
+            data_mode=data_mode_override or "stale",
+            symbols=("us2y",),
+        )
+
+    def _fetch_trading_economics_quote(
+        self,
+        symbol: str,
+        anchor_time: datetime,
+    ) -> tuple[list[dict[str, Any]], ProviderHealth | None]:
+        if (
+            not self.trading_economics_us2y_enabled
+            or self.trading_economics_quotes_cache_dir is None
+            or symbol not in {"us10y", "vix", "spx", "nasdaq"}
+        ):
+            return [], None
+        rows, health = TradingEconomicsQuoteProvider(
+            symbol=symbol,
+            cache_path=self.trading_economics_quotes_cache_dir / f"{symbol}.json",
+        ).fetch_latest(anchor_time)
+        if rows and health.is_available:
+            return rows, health
+        return [], None
+
     def _normalize_market_rows(
         self, rows: list[dict[str, Any]], *, data_mode_override: str | None = None
     ) -> list[dict[str, Any]]:
@@ -587,8 +668,8 @@ class ProviderRouter:
         items = load_calendar_events_in_window(
             calendar_dir=self.csv_calendar_dir,
             anchor_time=anchor_time,
-            lookback_minutes=60,
-            forward_minutes=120,
+            lookback_minutes=self.calendar_lookback_minutes,
+            forward_minutes=self.calendar_forward_minutes,
         )
         rows = [
             {
@@ -630,19 +711,30 @@ class ProviderRouter:
                     "calendar_dir": str(self.csv_calendar_dir),
                 },
             )
+        dataset_covers_anchor = bool(
+            coverage
+            and coverage.get("row_count", 0) > 0
+            and coverage.get("start")
+            and coverage.get("end")
+            and coverage["start"] <= anchor_time.date().isoformat() <= coverage["end"]
+        )
+        calendar_available = bool(rows) or dataset_covers_anchor
+        metadata = {
+            **(coverage or {}),
+            "dataset_start": (coverage or {}).get("start", ""),
+            "dataset_end": (coverage or {}).get("end", ""),
+            "calendar_dir": str(self.csv_calendar_dir) if self.csv_calendar_dir else "",
+        }
         return rows, build_provider_health(
             source="Calendar",
             source_type="local_csv_fallback",
-            data_mode=data_mode if rows else "unavailable",
-            is_available=bool(rows),
+            data_mode=data_mode if calendar_available else "unavailable",
+            is_available=calendar_available,
             is_stale=data_mode != "live_seen" and bool(rows),
             stale_reason="CSV fallback is debug/import only." if data_mode != "live_seen" and rows else "",
             current_value=float(len(rows)),
             data_timestamp=rows[-1]["scheduled_at"] if rows else anchor_time.isoformat(),
-            metadata={
-                **(coverage or {}),
-                "calendar_dir": str(self.csv_calendar_dir) if self.csv_calendar_dir else "",
-            },
+            metadata=metadata,
         )
 
     def _calendar_dataset_coverage(self, year: int) -> dict[str, Any] | None:

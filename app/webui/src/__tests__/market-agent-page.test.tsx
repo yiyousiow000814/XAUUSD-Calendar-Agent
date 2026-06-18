@@ -1,7 +1,10 @@
 ﻿import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MarketAgentPage } from "../components/MarketAgentPage";
+import { backend } from "../api";
 import type {
   MarketAgentDriverAttentionResponse,
   MarketAgentEvidenceForRunResponse,
@@ -16,6 +19,9 @@ import type {
   MarketAgentOllamaPullProgress,
   MarketAgentTelegramConfigResponse
 } from "../types";
+
+const marketAgentPageCss = () =>
+  readFileSync(join(process.cwd(), "src/components/MarketAgentPage.css"), "utf8");
 
 const freshProviderTimestamp = () => new Date(Date.now() - 30_000).toISOString();
 
@@ -132,8 +138,8 @@ const llmConfig: MarketAgentLLMConfigResponse = {
     endpoint: "http://127.0.0.1:21434",
     model: "qwen3.5:4b",
     temperature: 0,
-    timeoutSeconds: 30,
-    keepAlive: "0",
+    timeoutSeconds: 60,
+    keepAlive: "5m",
     maxContext: 8192,
     configPath: "user-data/market-agent-llm.json",
     lastStatus: "disabled",
@@ -340,7 +346,7 @@ const replay: MarketAgentReplayResponse = {
       { monitor_run_id: 21, event_time: "2026-05-19T07:56:00+08:00", event_type: "analysis", label: "Range held near session low", payload: { semantic_type: "range", impact_percent: 0.05, main_driver: "unknown" } }
     ],
     state_transitions: [{ monitor_run_id: 23, run_started_at: "2026-05-19T08:05:00+08:00", state_change_reason: "main_driver usd -> yields" }],
-    alerts: [{ monitor_run_id: 23, run_started_at: "2026-05-19T08:05:00+08:00", should_notify: true, notification_level: "level_3", message: "XAUUSD dropped 0.48%", main_driver: "yields", semantic_type: "breakout", impact_percent: -0.48 }],
+    alerts: [{ monitor_run_id: 23, run_started_at: "2026-05-19T08:05:00+08:00", should_notify: true, notification_level: "level_3", message: "XAUUSD dropped 0.48%", main_driver: "yields", semantic_type: "breakout", impact_percent: -0.48, quiet_repeat_count: 2 }],
     suppressed_alerts: [{ monitor_run_id: 24, run_started_at: "2026-05-19T07:20:00+08:00", should_notify: false, notification_level: "level_1", message: "Suppressed duplicate" }]
   }
 };
@@ -361,6 +367,36 @@ const evidence: MarketAgentEvidenceForRunResponse = {
         missing_required: [],
         usable_inputs: ["live_xauusd_spot", "xauusd_recent_history", "news_context"],
         context_only_inputs: ["llm_unavailable"]
+      },
+      market_read: {
+        status: "current_read",
+        headline: "Rates/yields leads the gold read",
+        thesis: "Gold remains under pressure from rising yields and a firmer dollar.",
+        driver: "yields",
+        coverage: {
+          live_price: "fresh",
+          recent_history: "ready",
+          sensors: "8 of 8 usable",
+          news: "1 reviewed",
+          calendar: "1 reviewed",
+          ai: "validated"
+        },
+        evidence: {
+          latest_news: ["Fed headline"],
+          calendar: ["US session opens"]
+        },
+        continuity: "The rates/yields story is continuing from the previous stored read.",
+        watch_next: ["DXY/yields confirmation"],
+        analyst_read: {
+          schema: "market_read.v1",
+          conclusion_type: "market_observation",
+          now: "Gold remains under pressure from rising yields while the dollar stays firm.",
+          past: ["08:00 Fed headline lifted yields"],
+          next: ["Confirm: DXY/yields confirmation", "Calendar: US session opens"],
+          risks: ["US2Y is unavailable; confidence stays limited"],
+          trade_call_ready: false,
+          trade_call_blocker: "Cross-market confirmation is incomplete."
+        }
       }
     },
     analysis_result: {
@@ -369,6 +405,28 @@ const evidence: MarketAgentEvidenceForRunResponse = {
       rejected_driver: "fed_rates",
       rejection_reason: "blocked driver"
     },
+    analysis_history: [
+      {
+        monitor_run_id: 23,
+        run_started_at: "2026-05-19T08:03:00+08:00",
+        analysis_engine: "llm_validated",
+        llm_status: "validated",
+        main_driver: "yields",
+        cause_status: "likely",
+        confidence: "medium_high",
+        summary: "Stored Local AI validated yields as the main XAUUSD driver."
+      },
+      {
+        monitor_run_id: 22,
+        run_started_at: "2026-05-19T07:45:00+08:00",
+        analysis_engine: "llm_validated",
+        llm_status: "validated",
+        main_driver: "usd",
+        cause_status: "possible",
+        confidence: "medium",
+        summary: "Stored Local AI validated USD pressure as the main XAUUSD driver."
+      }
+    ],
     monitor_run: {
       run_started_at: "2026-05-19T08:05:00+08:00",
       data_mode: "backfilled"
@@ -445,6 +503,7 @@ describe("MarketAgentPage", () => {
   });
 
   it("renders a one-screen cockpit dashboard by default", () => {
+    const runningMonitorStatus = { ...monitorStatus, running: true, phase: "running" };
     const { container } = render(
       <MarketAgentPage
         snapshot={snapshot}
@@ -455,7 +514,7 @@ describe("MarketAgentPage", () => {
         driverAttention={driverAttention}
         replay={replay}
         selectedEvidence={evidence}
-        monitorStatus={monitorStatus}
+        monitorStatus={runningMonitorStatus}
         selectedMonitorRunId={23}
         rangePreset="day"
         rangeStartInput="2026-05-19T04:00"
@@ -484,9 +543,9 @@ describe("MarketAgentPage", () => {
         onApplyLLMFallbackPolicy={async () => ({ ok: true, status: "model_ready", model: "qwen3.5:4b" })}
         onStartCTraderConnect={async () => ({ ok: true, status: "waiting_for_live_connector", message: "cTrader account is connected. Live streaming is waiting for the long-running connector snapshot; cTrader CLI cBot streaming is disabled to avoid external algo host windows.", ctrader: providerConfig.ctrader })}
         onTestCTraderBackfill={async () => ({ ok: true, message: "M1 backfill is available." })}
-        onRunMonitorOnce={async () => monitorStatus}
-        onRunBackfillRecovery={async () => ({ ...monitorStatus, phase: "recovery_completed", message: "Backfill recovery completed." })}
-        onStartMonitorLoop={async () => ({ ...monitorStatus, running: true, phase: "running" })}
+        onRunMonitorOnce={async () => runningMonitorStatus}
+        onRunBackfillRecovery={async () => ({ ...runningMonitorStatus, phase: "recovery_completed", message: "Backfill recovery completed." })}
+        onStartMonitorLoop={async () => runningMonitorStatus}
         onStopMonitorLoop={async () => monitorStatus}
       />
     );
@@ -527,20 +586,27 @@ describe("MarketAgentPage", () => {
     expect(nextCountdown?.querySelectorAll(".market-agent-countdown-digit")).toHaveLength(2);
     expect(nextCountdown?.querySelector(".market-agent-countdown-unit")?.textContent).toBe("sec");
     expect(nextCountdown?.querySelector(".market-agent-value-pulse")).not.toBeInTheDocument();
-    expect(container.querySelectorAll(".market-agent-value-pulse").length).toBeGreaterThanOrEqual(8);
+    expect(container.querySelectorAll(".market-agent-value-pulse").length).toBeGreaterThanOrEqual(4);
     expect(container.querySelector(".market-agent-score-ring")).toBeInTheDocument();
     expect(container.querySelector(".market-agent-score-ring.market-agent-score-ring-animated")).not.toBeInTheDocument();
     expect(container.querySelector(".market-agent-score-ring svg.market-agent-score-svg")).toBeInTheDocument();
     expect(container.querySelector(".market-agent-score-progress")).toBeInTheDocument();
     expect(container.querySelector(".market-agent-clock-icon.market-agent-clock-icon-animated")).toBeInTheDocument();
     expect(container.querySelectorAll(".market-agent-animated-row").length).toBeGreaterThanOrEqual(6);
-    expect(screen.getByRole("heading", { name: /Driver Attention \(Current\)/i })).toBeInTheDocument();
-    const driverPanel = screen.getByRole("heading", { name: /Driver Attention \(Current\)/i }).closest("section");
-    expect(driverPanel?.querySelectorAll(".market-agent-attention-table-row")).toHaveLength(8);
-    expect(driverPanel?.querySelector(".market-agent-attention-footer")).not.toBeInTheDocument();
-    expect(within(driverPanel as HTMLElement).getAllByText("ACTIVE")).toHaveLength(2);
-    expect(within(driverPanel as HTMLElement).getByText("-0.65%")).toBeInTheDocument();
-    expect(within(driverPanel as HTMLElement).queryByText("+92.00%")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Analyst read/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Analyst market read/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Macro \/ Micro Watch/i })).toBeInTheDocument();
+    const driverPanel = screen.getByRole("heading", { name: /Macro \/ Micro Watch/i }).closest("section");
+    expect(driverPanel?.querySelectorAll(".market-agent-attention-table-row")).toHaveLength(0);
+    expect(driverPanel?.querySelectorAll(".market-agent-mm-row")).toHaveLength(0);
+    expect(within(driverPanel as HTMLElement).getAllByText(/Rates/i).length).toBeGreaterThan(0);
+    expect(within(driverPanel as HTMLElement).queryByRole("heading", { name: /Macro drivers/i })).not.toBeInTheDocument();
+    expect(within(driverPanel as HTMLElement).queryByRole("heading", { name: /Micro themes/i })).not.toBeInTheDocument();
+    expect(within(driverPanel as HTMLElement).queryByText(/Current driver ranking paused/i)).not.toBeInTheDocument();
+    expect(within(driverPanel as HTMLElement).queryByText(/^Blocked$/i)).not.toBeInTheDocument();
+    expect(within(driverPanel as HTMLElement).queryByText(/^Watching$/i)).not.toBeInTheDocument();
+    expect(within(driverPanel as HTMLElement).queryByText(/^Allowed$/i)).not.toBeInTheDocument();
+    expect(within(driverPanel as HTMLElement).queryByText(/No detail recorded/i)).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Market Replay \(Day\)/i })).toBeInTheDocument();
     expect(Array.from(container.querySelectorAll(".market-agent-timeline-node")).every((node) => node.textContent === "")).toBe(true);
     expect(screen.getByRole("heading", { name: /Latest Evidence/i })).toBeInTheDocument();
@@ -551,12 +617,13 @@ describe("MarketAgentPage", () => {
     expect(screen.getAllByText(/NEWS/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/REVERSAL/i).length).toBeGreaterThan(0);
     expect(screen.queryByText(/RANGE/i)).not.toBeInTheDocument();
-    expect(screen.getAllByText(/SESSION/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/SESSION/i)).not.toBeInTheDocument();
     expect(screen.getAllByText(/Impact:/i).length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: /^Data Sources$/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Activity$/i })).toBeInTheDocument();
     expect(screen.queryByText(/Quick Actions/i)).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Configure Data Sources/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: /Market Situation/i })).not.toBeInTheDocument();
 
     expect(screen.queryByRole("heading", { name: /^Data Sources$/i })).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Access Token/i)).not.toBeInTheDocument();
@@ -565,6 +632,273 @@ describe("MarketAgentPage", () => {
     expect(screen.queryByText("futures_proxy")).not.toBeInTheDocument();
     expect(screen.queryByText("core_structural")).not.toBeInTheDocument();
     expect(screen.queryByText(/No reliable free US2Y source is configured\./i)).not.toBeInTheDocument();
+  });
+
+  it("opens dashboard replay detail before navigating to an evidence run", async () => {
+    const selectedRuns: number[] = [];
+    const { container } = renderMarketAgentPage({ onSelectRun: (id) => selectedRuns.push(id) });
+
+    const firstReplayRow = container.querySelector(".market-agent-timeline-track-row");
+    expect(firstReplayRow).not.toBeNull();
+
+    fireEvent.click(firstReplayRow as HTMLElement);
+
+    expect(selectedRuns).toEqual([]);
+    const dialog = await screen.findByRole("dialog", { name: /Market item detail/i });
+    expect(dialog.textContent).toContain((firstReplayRow as HTMLElement).querySelector("strong")?.textContent ?? "");
+
+    fireEvent.click(within(dialog).getByRole("button", { name: /Open evidence run/i }));
+    expect(selectedRuns.length).toBe(1);
+  });
+
+  it("opens original replay news through the desktop backend", async () => {
+    const openUrl = vi.spyOn(backend, "openUrl").mockResolvedValue({ ok: true });
+    const replayWithNewsUrl: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        timeline_events: [],
+        alerts: [],
+        news_items: [
+          {
+            title: "Fed headline with source link",
+            published_at: "2026-05-19T08:03:00+08:00",
+            source: "Reuters",
+            data_mode: "live_seen",
+            semantic_type: "news",
+            included: true,
+            link: "https://example.test/fed-headline"
+          }
+        ]
+      }
+    };
+    renderMarketAgentPage({ replay: replayWithNewsUrl });
+
+    fireEvent.click(screen.getByRole("button", { name: /Replay \/ Timeline/i }));
+    fireEvent.click(await screen.findByText(/Fed headline with source link/i));
+    const dialog = await screen.findByRole("dialog", { name: /Replay item detail/i });
+    fireEvent.click(within(dialog).getByRole("button", { name: /Open original/i }));
+
+    await waitFor(() => expect(openUrl).toHaveBeenCalledWith("https://example.test/fed-headline"));
+  });
+
+  it("keeps the Evidence page focused on the evidence panel without a situation briefing", () => {
+    const marketBrainProviderHealth: MarketAgentProviderHealthResponse = {
+      ok: true,
+      available: true,
+      monitor_run_id: 422,
+      run_started_at: "2026-06-08T00:36:34+08:00",
+      items: [
+        {
+          provider_key: "xauusd",
+          source: "cTrader",
+          source_type: "spot",
+          data_mode: "stale",
+          is_available: true,
+          is_stale: true,
+          current_value: 3310.22,
+          data_timestamp: "2026-06-07T16:20:33+00:00",
+          fetched_at: "2026-06-08T00:36:30+08:00",
+          stale_reason: "Market is closed. Fresh XAUUSD history is required before current conclusions can resume."
+        },
+        {
+          provider_key: "news",
+          source: "News",
+          source_type: "rss",
+          data_mode: "live_seen",
+          is_available: true,
+          is_stale: false,
+          data_timestamp: "2026-06-07T22:18:00+08:00",
+          fetched_at: "2026-06-08T00:36:30+08:00"
+        },
+        {
+          provider_key: "calendar",
+          source: "Economic Calendar",
+          source_type: "local_csv_fallback",
+          data_mode: "dataset_gap",
+          is_available: false,
+          is_stale: true,
+          data_timestamp: "2026-04-30T23:59:00+08:00",
+          fetched_at: "2026-06-08T00:36:30+08:00",
+          stale_reason: "Economic Calendar dataset ends at 30-04-2026; current run is 08-06-2026."
+        },
+        {
+          provider_key: "dxy",
+          source: "DXY",
+          source_type: "proxy",
+          data_mode: "stale",
+          is_available: true,
+          is_stale: true,
+          stale_reason: "DXY snapshot is stale."
+        },
+        {
+          provider_key: "us10y",
+          source: "US10Y",
+          source_type: "proxy",
+          data_mode: "stale",
+          is_available: true,
+          is_stale: true,
+          stale_reason: "US10Y snapshot is stale."
+        }
+      ]
+    };
+    const marketBrainReplay: MarketAgentReplayResponse = {
+      ...replay,
+      start: "2026-06-05T00:00:00+08:00",
+      end: "2026-06-08T00:36:34+08:00",
+      replay: {
+        ...replay.replay,
+        price_series: [],
+        news_items: [
+          { title: "Fed officials keep rates in focus", published_at: "2026-06-05T18:55:00+08:00", source: "CNBC", summary_source: "local_ai", summary: "Fed rate path remains the main macro theme." },
+          { title: "Oil jumps after supply concern", published_at: "2026-06-06T21:35:00+08:00", source: "MarketWatch", summary: "Oil is watched but asset confirmation is stale." },
+          { title: "Dollar steady before US data", published_at: "2026-06-07T00:38:00+08:00", source: "CNBC" },
+          { title: "Fed balance-sheet comments land", published_at: "2026-06-07T22:18:00+08:00", source: "Federal Reserve" }
+        ],
+        calendar_events: [],
+        related_assets: {
+          dxy: [{ symbol: "dxy", data_timestamp: "2026-06-07T14:00:00+08:00", data_mode: "stale", is_stale: true }],
+          us10y: [{ symbol: "us10y", data_timestamp: "2026-06-07T14:00:00+08:00", data_mode: "stale", is_stale: true }],
+          wti: [{ symbol: "wti", data_timestamp: "2026-06-07T14:00:00+08:00", data_mode: "stale", is_stale: true }]
+        },
+        timeline_events: [],
+        alerts: []
+      }
+    };
+    const marketBrainEvidence: MarketAgentEvidenceForRunResponse = {
+      ...evidence,
+      monitor_run_id: 422,
+      payload: {
+        ...evidence.payload,
+        evidence_packet: {
+          ...evidence.payload.evidence_packet,
+          data_mode: "stale",
+          market_move: { symbol: "XAUUSD", move_percent: 0, window_minutes: 15 },
+          allowed_candidate_drivers: ["fed_rates"],
+          blocked_drivers: {
+            usd: "DXY is stale, so USD cannot confirm the current move.",
+            yields: "US10Y is stale and US2Y is unavailable.",
+            oil_inflation: "Oil headline is present but oil confirmation is stale.",
+            geopolitics: "Headline is present but no cross-asset confirmation passed."
+          },
+          evidence_chain_status: {
+            status: "context_only",
+            can_show_current_conclusion: false,
+            reason: "XAUUSD market is closed; news, calendar, and cross-market context keep updating, and the next trade read resumes when fresh XAUUSD price action returns.",
+            missing_required: ["live_xauusd_spot", "xauusd_recent_history"],
+            usable_inputs: ["news_context"],
+            context_only_inputs: ["calendar_dataset_gap", "stale_cross_assets"],
+            llm_status: "validated"
+          },
+          dynamic_themes: [
+            {
+              driver_id: "theme:fed",
+              label: "Fed theme",
+              current_state: "emerging",
+              relevance_score: 0.52,
+              related_news_count: 4,
+              source_count: 3,
+              current_evidence_summary: "4 headline(s) from 3 source(s); no cross-asset confirmation yet.",
+              requested_sensor_ids: ["us2y", "us10y", "dxy"]
+            },
+            {
+              driver_id: "theme:oil",
+              label: "Oil theme",
+              current_state: "emerging",
+              relevance_score: 0.5,
+              related_news_count: 2,
+              source_count: 2,
+              current_counter_evidence: "WTI confirmation is stale."
+            }
+          ],
+          driver_attention_summary: {
+            active_driver_count: 0,
+            emerging_driver_count: 3,
+            top_driver: "theme:fed"
+          },
+          news: [
+            { timestamp_myt: "2026-06-05T18:55:00+08:00", title: "Fed officials keep rates in focus", source: "CNBC" },
+            { timestamp_myt: "2026-06-06T21:35:00+08:00", title: "Oil jumps after supply concern", source: "MarketWatch" },
+            { timestamp_myt: "2026-06-07T00:38:00+08:00", title: "Dollar steady before US data", source: "CNBC" },
+            { timestamp_myt: "2026-06-07T22:18:00+08:00", title: "Fed balance-sheet comments land", source: "Federal Reserve" }
+          ],
+          calendar_events: []
+        },
+        analysis_result: {
+          analysis_engine: "llm_validated",
+          llm_status: "validated",
+          main_driver: "unknown",
+          cause_status: "unconfirmed",
+          summary: "XAUUSD market is closed; news, calendar, and cross-market context keep updating, and the next trade read resumes when fresh XAUUSD price action returns."
+        },
+        monitor_run: {
+          run_started_at: "2026-06-08T00:36:34+08:00",
+          data_mode: "stale"
+        }
+      }
+    };
+    const marketBrainDriverAttention: MarketAgentDriverAttentionResponse = {
+      ...driverAttention,
+      monitor_run_id: 422,
+      run_started_at: "2026-06-08T00:36:34+08:00",
+      states: [
+        {
+          driver_id: "fed_rates",
+          label: "Fed / rates",
+          current_state: "emerging",
+          priority: "core_structural",
+          relevance_score: 0.45,
+          confidence: "medium",
+          related_news_count: 4,
+          related_calendar_events: 0,
+          activation_reason: "Fed headlines are present, but calendar confirmation is missing.",
+          data_mode: "backfilled"
+        },
+        {
+          driver_id: "theme:fed",
+          label: "Fed theme",
+          current_state: "emerging",
+          priority: "micro_theme",
+          relevance_score: 0.52,
+          confidence: "medium",
+          related_news_count: 4,
+          source_count: 3,
+          current_evidence_summary: "4 headline(s) from 3 source(s); no cross-asset confirmation yet.",
+          data_mode: "backfilled"
+        },
+        {
+          driver_id: "theme:oil",
+          label: "Oil theme",
+          current_state: "emerging",
+          priority: "micro_theme",
+          relevance_score: 0.5,
+          confidence: "medium",
+          related_news_count: 2,
+          source_count: 2,
+          current_counter_evidence: "WTI confirmation is stale.",
+          data_mode: "backfilled"
+        }
+      ]
+    };
+
+    renderMarketAgentPage({
+      activeSection: "evidence",
+      providerHealth: marketBrainProviderHealth,
+      replay: marketBrainReplay,
+      selectedEvidence: marketBrainEvidence,
+      driverAttention: marketBrainDriverAttention
+    });
+
+    expect(screen.queryByRole("region", { name: /Market Situation/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Situation briefing/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/AI input coverage/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^Evidence Panel$/i })).toBeInTheDocument();
+    expect(screen.getByText(/Market read forming/i)).toBeInTheDocument();
+    expect(screen.getByText(/Waiting for price history/i)).toBeInTheDocument();
+    expect(screen.getByText(/Market is closed; news and calendar continue/i)).toBeInTheDocument();
+    expect(screen.queryByText(/^Allowed$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Blocked$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/No detail recorded/i)).not.toBeInTheDocument();
   });
 
   it("does not bounce back to Dashboard when a controlled section changes", async () => {
@@ -668,9 +1002,12 @@ describe("MarketAgentPage", () => {
     expect(within(priceCard).getByText("4,509.00")).toBeInTheDocument();
     expect(within(priceCard).queryByText("4,479.00")).not.toBeInTheDocument();
     expect(within(priceCard).getByText(/^Live$/i)).toBeInTheDocument();
+    expect(within(priceCard).queryByText(/\(0s ago\)/i)).not.toBeInTheDocument();
+    expect(priceCard.querySelector(".market-agent-value-pulse")).not.toBeInTheDocument();
+    expect(priceCard.querySelectorAll(".market-agent-value-stable").length).toBeGreaterThan(0);
   });
 
-  it("labels empty evidence support as contrary instead of market confidence", () => {
+  it("labels empty evidence support as the opposing market direction", () => {
     const zeroSupportEvidence: MarketAgentEvidenceForRunResponse = {
       ...evidence,
       payload: {
@@ -701,9 +1038,10 @@ describe("MarketAgentPage", () => {
     const scoreRing = container.querySelector(".market-agent-score-ring");
     expect(within(scoreRing as HTMLElement).getByText("0")).toBeInTheDocument();
     expect(within(scoreRing as HTMLElement).queryByText("Strong")).not.toBeInTheDocument();
-    expect(within(scoreRing as HTMLElement).getByText("Contrary")).toBeInTheDocument();
+    expect(within(scoreRing as HTMLElement).getByText("Bullish")).toBeInTheDocument();
     expect(container.querySelector(".market-agent-score-progress.is-empty")).toBeInTheDocument();
-    expect(container.querySelector(".market-agent-evidence-footer")?.textContent).toContain("Contrary (0%)");
+    expect(container.querySelector(".market-agent-evidence-footer")?.textContent).toContain("Bullish (0%)");
+    expect(screen.queryByText(/Aligned|Opposing/i)).not.toBeInTheDocument();
   });
 
   it("uses a full ring state when every evidence item supports the move", () => {
@@ -726,10 +1064,129 @@ describe("MarketAgentPage", () => {
     const scoreRing = container.querySelector(".market-agent-score-ring");
     const progress = container.querySelector(".market-agent-score-progress");
     expect(within(scoreRing as HTMLElement).getByText("100")).toBeInTheDocument();
-    expect(within(scoreRing as HTMLElement).getByText("Strong")).toBeInTheDocument();
+    expect(within(scoreRing as HTMLElement).getByText("Bearish")).toBeInTheDocument();
     expect(progress).toHaveClass("is-full");
     expect(progress).not.toHaveAttribute("stroke-dashoffset");
     expect(progress).not.toHaveAttribute("stroke-dasharray");
+  });
+
+  it("hides accepted macro drivers that have no linked market story", () => {
+    const evidenceWithPlaceholderMacro: MarketAgentEvidenceForRunResponse = {
+      ...evidence,
+      payload: {
+        ...evidence.payload,
+        evidence_packet: {
+          ...evidence.payload.evidence_packet,
+          allowed_candidate_drivers: ["oil_inflation", "geopolitics"],
+          blocked_drivers: {}
+        }
+      }
+    };
+    const driverAttentionWithPlaceholderMacro: MarketAgentDriverAttentionResponse = {
+      ...driverAttention,
+      states: [
+        {
+          driver_id: "oil_inflation",
+          label: "Oil / inflation",
+          current_state: "active",
+          priority: "conditional_macro",
+          relevance_score: 0.8,
+          impact_percent: -0.1,
+          confidence: "low",
+          current_evidence_summary: "Inflation risk stays in focus",
+          related_news_count: 10,
+          related_calendar_events: 0,
+          data_mode: "live_seen"
+        },
+        {
+          driver_id: "geopolitics",
+          label: "Geopolitics",
+          current_state: "active",
+          priority: "temporary_event",
+          relevance_score: 0.7,
+          impact_percent: null,
+          confidence: "low",
+          current_evidence_summary: "No linked headline yet.",
+          related_news_count: 0,
+          related_calendar_events: 0,
+          data_mode: "live_seen"
+        }
+      ]
+    };
+
+    renderMarketAgentPage({
+      activeSection: "drivers",
+      selectedEvidence: evidenceWithPlaceholderMacro,
+      driverAttention: driverAttentionWithPlaceholderMacro,
+      replay: {
+        ...replay,
+        replay: {
+          ...replay.replay,
+          news_items: [],
+          calendar_events: []
+        }
+      }
+    });
+
+    expect(screen.queryByText(/No linked headline yet/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Geopolitics$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Accepted .* 0 news .* 0 calendar/i)).not.toBeInTheDocument();
+  });
+
+  it("uses stored evidence refs as the readable market story for active drivers", () => {
+    const evidenceWithAcceptedMacro: MarketAgentEvidenceForRunResponse = {
+      ...evidence,
+      payload: {
+        ...evidence.payload,
+        evidence_packet: {
+          ...evidence.payload.evidence_packet,
+          allowed_candidate_drivers: ["geopolitics"],
+          blocked_drivers: {}
+        }
+      }
+    };
+    const driverAttentionWithEvidenceRefs: MarketAgentDriverAttentionResponse = {
+      ...driverAttention,
+      states: [
+        {
+          driver_id: "geopolitics",
+          label: "Geopolitics",
+          current_state: "active",
+          priority: "temporary_event",
+          relevance_score: 0.78,
+          confidence: "medium",
+          current_evidence_summary: "Geopolitics is actively repriced.",
+          related_news_count: 6,
+          related_calendar_events: 0,
+          evidence_refs: [
+            {
+              kind: "news",
+              title: "Iran escalation keeps Hormuz risk in focus",
+              source: "US Top News and Analysis",
+              timestamp_myt: "13-06-2026 21:57"
+            }
+          ],
+          data_mode: "live_seen"
+        }
+      ]
+    };
+
+    renderMarketAgentPage({
+      activeSection: "drivers",
+      selectedEvidence: evidenceWithAcceptedMacro,
+      driverAttention: driverAttentionWithEvidenceRefs,
+      replay: {
+        ...replay,
+        replay: {
+          ...replay.replay,
+          news_items: [],
+          calendar_events: []
+        }
+      }
+    });
+
+    expect(screen.getByText(/Iran escalation keeps Hormuz risk in focus/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Geopolitics is actively repriced/i)).not.toBeInTheDocument();
   });
 
   it("draws partial evidence score arcs against the real circle circumference", () => {
@@ -902,7 +1359,7 @@ describe("MarketAgentPage", () => {
     expect(container.querySelectorAll(".market-agent-timeline-track-row").length).toBeLessThanOrEqual(12);
   });
 
-  it("keeps raw unanalysed news and paused analysis rows out of replay", () => {
+  it("shows relevant replay news and calendar while keeping paused analysis rows out", () => {
     renderMarketAgentPage({
       replay: {
         ...replay,
@@ -917,9 +1374,18 @@ describe("MarketAgentPage", () => {
               included: true
             },
             {
-              title: "AI summarized Fed headline",
-              summary_title: "Fed Rates",
+              title: "Celebrity retirement story with no market impact",
+              published_at: "2026-05-25T11:05:30+08:00",
+              source: "Lifestyle Feed",
+              data_mode: "live_seen",
+              included: false,
+              filter_reason: "no_market_agent_keyword"
+            },
+            {
+              title: "Trump says Iran deal will be signed Sunday as Hormuz reopening remains uncertain",
+              summary_title: "Trump peace deal Iran",
               summary: "Fed rate comments kept yields in focus.",
+              description: "Trump says the Iran deal will be signed Sunday after Tehran said timing remains uncertain.",
               summary_source: "local_ai",
               published_at: "2026-05-25T11:06:00+08:00",
               source: "Reuters",
@@ -938,8 +1404,24 @@ describe("MarketAgentPage", () => {
                 impact_percent: 0,
                 main_driver: "unknown",
                 cause_status: "unconfirmed",
-                summary: "Current conclusion is paused until live XAUUSD price and recent price history are available."
+                summary: "XAUUSD market is closed; news, calendar, and cross-market context keep updating, and the next trade read resumes when fresh XAUUSD price action returns."
               }
+            }
+          ],
+          calendar_events: [
+            {
+              title: "Michigan Consumer Sentiment (Jun)",
+              scheduled_at: "2026-05-25T22:00:00+08:00",
+              source: "Economic Calendar",
+              data_mode: "live_seen",
+              review_status: "unreviewed_context"
+            },
+            {
+              title: "Australia - King's Birthday",
+              scheduled_at: "2026-05-25T00:00:00+08:00",
+              source: "Economic Calendar",
+              data_mode: "live_seen",
+              impact: "holiday"
             }
           ]
         }
@@ -950,11 +1432,15 @@ describe("MarketAgentPage", () => {
     const replayPanel = document.querySelector(".market-agent-replay-story") as HTMLElement;
     expect(replayPanel).toBeTruthy();
 
-    expect(within(replayPanel).queryByText(/Oil prices tumble/i)).not.toBeInTheDocument();
+    expect(within(replayPanel).getByText(/Oil prices tumble/i)).toBeInTheDocument();
+    expect(within(replayPanel).getByText(/Michigan Consumer Sentiment/i)).toBeInTheDocument();
+    expect(within(replayPanel).queryByText(/Celebrity retirement/i)).not.toBeInTheDocument();
+    expect(within(replayPanel).queryByText(/King's Birthday/i)).not.toBeInTheDocument();
     expect(within(replayPanel).queryByText(/XAUUSD flat 0\.00%/i)).not.toBeInTheDocument();
     expect(within(replayPanel).queryByText(/Suppressed duplicate/i)).not.toBeInTheDocument();
     expect(within(replayPanel).queryByText(/Impact: watching/i)).not.toBeInTheDocument();
-    expect(within(replayPanel).getByText(/Fed Rates/i)).toBeInTheDocument();
+    expect(within(replayPanel).queryByText(/Trump peace deal Iran/i)).not.toBeInTheDocument();
+    expect(within(replayPanel).getByText(/Trump says Iran deal will be signed Sunday/i)).toBeInTheDocument();
   });
 
   it("does not treat an expired cTrader spot payload as live or market closed current evidence", () => {
@@ -981,12 +1467,58 @@ describe("MarketAgentPage", () => {
     expect(screen.getAllByText(/cTrader reconnecting/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Last live quote/i).length).toBeGreaterThan(0);
     expect(screen.queryByText(/Market closed/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/Current driver ranking paused/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/TRENDING DOWN/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/AWAITING LIVE PRICE/i)).not.toBeInTheDocument();
+    expect(screen.getAllByText(/Big picture/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Rates/i).length).toBeGreaterThan(0);
     expect(screen.queryByText(/cTrader \(Spot\)/i)).not.toBeInTheDocument();
     expect(screen.getByText(/4,479\.00/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /^Evidence$/i }));
     expect(screen.getByText(/Collected Context/i)).toBeInTheDocument();
     expect(screen.queryByText(/Xauusd: Live Data/i)).not.toBeInTheDocument();
+  });
+
+  it("treats a fresh cTrader quote timestamp as live even when stale metadata lags behind", () => {
+    const freshTimestamp = freshProviderTimestamp();
+    const freshSpotHealthWithLaggingMetadata: MarketAgentProviderHealthResponse = {
+      ...providerHealth,
+      items: providerHealth.items.map((item) =>
+        item.provider_key === "xauusd"
+          ? {
+              ...item,
+              source: "cTrader",
+              source_type: "spot",
+              data_mode: "stale",
+              is_available: true,
+              is_stale: true,
+              stale_reason: "Live quote snapshot is stale; waiting for fresh cTrader stream.",
+              current_value: 4315.06,
+              data_timestamp: freshTimestamp,
+              fetched_at: freshTimestamp
+            }
+          : item
+      )
+    };
+
+    renderMarketAgentPage({
+      providerHealth: freshSpotHealthWithLaggingMetadata,
+      liveQuote: {
+        ok: true,
+        running: false,
+        phase: "starting",
+        quote: null,
+        provider_health: null
+      },
+      selectedEvidence: { ok: true, available: false, message: "No run selected.", payload: {} }
+    });
+
+    expect(screen.getAllByText(/cTrader \(Spot\)/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/TRENDING DOWN/i)).toBeInTheDocument();
+    expect(screen.queryByText(/OBSERVING PRICE/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/cTrader reconnecting/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/AWAITING LIVE PRICE/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/4,315\.06/i)).toBeInTheDocument();
+    expect(screen.queryByText(/\(0s ago\)/i)).not.toBeInTheDocument();
   });
 
   it("labels a saved cTrader snapshot as waiting instead of market closed", () => {
@@ -1233,7 +1765,7 @@ describe("MarketAgentPage", () => {
     expect(within(liveIngestSection).queryByText(/^cTrader spot freshness$/i)).not.toBeInTheDocument();
   });
 
-  it("hides fixed zero-score dormant drivers from the current driver table", () => {
+  it("hides fixed zero-score dormant drivers from macro and micro watch", () => {
     const dormantOnlyAttention: MarketAgentDriverAttentionResponse = {
       ...driverAttention,
       states: [
@@ -1270,13 +1802,14 @@ describe("MarketAgentPage", () => {
       ]
     };
 
-    renderMarketAgentPage({ driverAttention: dormantOnlyAttention });
+    renderMarketAgentPage({ driverAttention: dormantOnlyAttention, selectedEvidence: null });
 
-    const driverPanel = screen.getByRole("heading", { name: /Driver Attention \(Current\)/i }).closest("section");
-    expect(driverPanel?.querySelectorAll(".market-agent-attention-table-row")).toHaveLength(0);
-    expect(within(driverPanel as HTMLElement).getByText(/No active or watching drivers/i)).toBeInTheDocument();
-    expect(within(driverPanel as HTMLElement).queryByText(/Oil \/ inflation/i)).not.toBeInTheDocument();
+    const driverPanel = screen.getByRole("heading", { name: /Macro \/ Micro Watch/i }).closest("section");
+    expect(driverPanel?.querySelectorAll(".market-agent-mm-row")).toHaveLength(0);
+    expect(driverPanel?.querySelectorAll(".market-agent-mm-glance-card").length).toBeGreaterThanOrEqual(2);
     expect(within(driverPanel as HTMLElement).queryByText(/Geopolitics/i)).not.toBeInTheDocument();
+    expect(within(driverPanel as HTMLElement).queryByText(/Risk sentiment/i)).not.toBeInTheDocument();
+    expect(within(driverPanel as HTMLElement).getAllByText(/Big picture/i).length).toBeGreaterThan(0);
   });
 
   it("does not show local CSV related assets as latest supporting evidence", () => {
@@ -1338,7 +1871,221 @@ describe("MarketAgentPage", () => {
     expect(within(latestEvidencePanel as HTMLElement).queryByText(/^Oil Price Move$/i)).not.toBeInTheDocument();
     expect(within(latestEvidencePanel as HTMLElement).queryByText(/Local CSV fallback/i)).not.toBeInTheDocument();
     fireEvent.click(within(latestEvidencePanel as HTMLElement).getByRole("tab", { name: "Drivers" }));
-    expect(within(latestEvidencePanel as HTMLElement).getByText(/No evidence in this category/i)).toBeInTheDocument();
+    expect(within(latestEvidencePanel as HTMLElement).getByText(/No accepted evidence in this category/i)).toBeInTheDocument();
+  });
+
+  it("shows observed price movement in replay when no accepted market event is ready yet", () => {
+    const priceOnlyReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        price_series: [
+          {
+            symbol: "XAUUSD",
+            data_timestamp: "2026-06-11T08:26:00.0000000Z",
+            close_price: 4105,
+            source_type: "spot",
+            data_mode: "live_seen"
+          },
+          {
+            symbol: "XAUUSD",
+            data_timestamp: "2026-06-11T08:28:00.0000000Z",
+            close_price: 4098,
+            source_type: "spot",
+            data_mode: "live_seen"
+          }
+        ],
+        news_items: [],
+        calendar_events: [],
+        timeline_events: [],
+        alerts: []
+      }
+    };
+    const pendingEvidence: MarketAgentEvidenceForRunResponse = {
+      ...evidence,
+      payload: {
+        ...evidence.payload,
+        evidence_packet: {
+          ...evidence.payload.evidence_packet,
+          evidence_chain_status: {
+            status: "context_only",
+            can_show_current_conclusion: false,
+            reason: "Waiting for recent history review before driver conclusions can be shown.",
+            missing_required: ["xauusd_recent_history"],
+            usable_inputs: ["live_xauusd_spot"],
+            context_only_inputs: ["news_context"]
+          }
+        }
+      }
+    };
+
+    renderMarketAgentPage({ replay: priceOnlyReplay, selectedEvidence: pendingEvidence });
+
+    const replayPanel = screen.getByRole("heading", { name: /Market Replay \(Day\)/i }).closest("section");
+    expect(within(replayPanel as HTMLElement).getByText(/Observed XAUUSD drop/i)).toBeInTheDocument();
+    expect(within(replayPanel as HTMLElement).queryByText(/No accepted market events/i)).not.toBeInTheDocument();
+  });
+
+  it("does not hide valid dashboard replay news before the preview limit", () => {
+    const newsOnlyReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        price_series: [],
+        calendar_events: [],
+        timeline_events: [],
+        month_summary_events: [],
+        alerts: [],
+        news_items: Array.from({ length: 10 }, (_, index) => ({
+          title: `Replay news marker ${index + 1}`,
+          summary: `Market context ${index + 1}`,
+          source: "Reuters",
+          published_at: `2026-06-18T10:${String(index).padStart(2, "0")}:00+08:00`,
+          included: true,
+          data_mode: "live_seen"
+        }))
+      }
+    };
+
+    const { container } = renderMarketAgentPage({ replay: newsOnlyReplay, selectedEvidence: null });
+
+    const replayPanel = screen.getByRole("heading", { name: /Market Replay \(Day\)/i }).closest("section");
+    expect(replayPanel?.querySelectorAll(".market-agent-timeline-track-row")).toHaveLength(10);
+    expect(within(replayPanel as HTMLElement).getByText(/Replay news marker 10/i)).toBeInTheDocument();
+    expect(container.querySelectorAll(".market-agent-timeline-track-row")).toHaveLength(10);
+  });
+
+  it("keeps latest replay news in the dashboard preview when calendar context exceeds the limit", () => {
+    const mixedContextReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        price_series: [],
+        timeline_events: [],
+        month_summary_events: [],
+        alerts: [],
+        news_items: [
+          {
+            title: "Strait of Hormuz reopening may take weeks",
+            summary: "Shipping backlog keeps oil pressure in focus.",
+            source: "US Top News and Analysis",
+            published_at: "2026-06-18T16:10:00+08:00",
+            included: true,
+            data_mode: "live_seen",
+            semantic_type: "news"
+          },
+          {
+            title: "Iran memorandum aimed to end war",
+            summary: "Iran memorandum aimed to end war",
+            source: "US Top News and Analysis",
+            published_at: "2026-06-18T11:09:00+08:00",
+            included: true,
+            data_mode: "live_seen",
+            semantic_type: "news"
+          }
+        ],
+        calendar_events: Array.from({ length: 12 }, (_, index) => ({
+          title: `FOMC calendar context ${index + 1}`,
+          source: "Economic Calendar",
+          scheduled_at: `2026-06-18T02:${String(index).padStart(2, "0")}:00+08:00`,
+          data_mode: "calendar_context",
+          semantic_type: "calendar"
+        }))
+      }
+    };
+
+    renderMarketAgentPage({ replay: mixedContextReplay, selectedEvidence: null });
+
+    const replayPanel = screen.getByRole("heading", { name: /Market Replay \(Day\)/i }).closest("section");
+    expect(replayPanel?.querySelectorAll(".market-agent-timeline-track-row")).toHaveLength(12);
+    expect(within(replayPanel as HTMLElement).getByText(/Strait of Hormuz reopening may take weeks/i)).toBeInTheDocument();
+    expect(within(replayPanel as HTMLElement).getByText(/Iran memorandum aimed to end war/i)).toBeInTheDocument();
+    expect(within(replayPanel as HTMLElement).queryByText(/^FOMC calendar context 1$/i)).not.toBeInTheDocument();
+  });
+
+  it("keeps dashboard replay timeline readable without node halos breaking the line", () => {
+    const css = marketAgentPageCss();
+    const dashboardTrackRule = css.match(/\.market-agent-replay-panel \.market-agent-timeline-track\s*\{[^}]+\}/)?.[0] ?? "";
+    const nodeRule = css.match(/\.market-agent-timeline-node\s*\{[^}]+\}/)?.[0] ?? "";
+
+    expect(dashboardTrackRule).toContain("--ma-timeline-time-col: 56px");
+    expect(nodeRule).not.toContain("0 0 0 3px");
+  });
+
+  it("shows unconfirmed market reads as replay observations instead of hiding them", () => {
+    const observationReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        price_series: [],
+        news_items: [],
+        calendar_events: [],
+        alerts: [],
+        suppressed_alerts: [],
+        timeline_events: [
+          {
+            monitor_run_id: 78,
+            event_time: "2026-06-18T01:15:00+08:00",
+            event_type: "analysis",
+            label: "unknown",
+            payload: {
+              semantic_type: "range",
+              impact_percent: 0.03,
+              main_driver: "unknown",
+              cause_status: "unconfirmed",
+              summary_title: "No confirmed driver; Hormuz risk is the watch item",
+              summary: "Price action is small, but oil and Hormuz headlines remain the next confirmation watch.",
+              market_read: {
+                status: "no_conclusion",
+                headline: "No confirmed driver; Hormuz risk is the watch item",
+                thesis: "Price action is small, but oil and Hormuz headlines remain the next confirmation watch.",
+                driver: "unknown",
+                cause_status: "unconfirmed"
+              }
+            }
+          }
+        ]
+      }
+    };
+
+    renderMarketAgentPage({ replay: observationReplay, selectedEvidence: null });
+
+    const replayPanel = screen.getByRole("heading", { name: /Market Replay \(Day\)/i }).closest("section");
+    expect(within(replayPanel as HTMLElement).getByText(/No confirmed driver; Hormuz risk is the watch item/i)).toBeInTheDocument();
+    expect(within(replayPanel as HTMLElement).queryByText(/No accepted market events/i)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Replay \/ Timeline/i }));
+    expect(screen.getByRole("heading", { name: /^Market Replay$/i })).toBeInTheDocument();
+    expect(screen.getByText(/No confirmed driver; Hormuz risk is the watch item/i)).toBeInTheDocument();
+  });
+
+  it("does not show technical evidence from a different monitor run as current evidence", () => {
+    const mixedReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        timeline_events: [
+          {
+            monitor_run_id: 99,
+            event_time: "2026-06-11T13:35:00+08:00",
+            event_type: "recovery_analysis",
+            label: "reconstructed_move",
+            payload: {
+              semantic_type: "breakout",
+              impact_percent: -0.23,
+              main_driver: "price_action",
+              cause_status: "likely"
+            }
+          }
+        ]
+      }
+    };
+
+    renderMarketAgentPage({ replay: mixedReplay, selectedEvidence: evidence });
+
+    const latestEvidencePanel = screen.getByRole("heading", { name: /Latest Evidence/i }).closest("section");
+    expect(within(latestEvidencePanel as HTMLElement).queryByText(/Technical Breakout/i)).not.toBeInTheDocument();
+    expect(within(latestEvidencePanel as HTMLElement).queryByText(/reconstructed_move/i)).not.toBeInTheDocument();
   });
 
   it("shows a replay unavailable state when the backend omits replay payload", () => {
@@ -1353,6 +2100,52 @@ describe("MarketAgentPage", () => {
     expect(screen.getByRole("heading", { name: /XAUUSD \(Spot\)/i })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /Replay \/ Timeline/i }));
     expect(screen.getByText(/Unable to read market replay price series/i)).toBeInTheDocument();
+  });
+
+  it("keeps month replay populated when no major-turn summary exists", async () => {
+    const replayWithoutMonthSummary: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        month_summary_events: [],
+        timeline_events: [],
+        alerts: [],
+        suppressed_alerts: [],
+        price_series: [],
+        news_items: [
+          {
+            title: "Oil headline remains relevant for gold risk",
+            source: "MarketWatch",
+            published_at: "2026-05-19T07:10:00+08:00",
+            semantic_type: "news",
+            data_mode: "live_seen",
+            included: true
+          }
+        ],
+        calendar_events: [
+          {
+            title: "US PMI release window",
+            source: "Economic Calendar",
+            scheduled_at: "2026-05-19T09:45:00+08:00",
+            semantic_type: "calendar",
+            data_mode: "live_seen"
+          }
+        ]
+      }
+    };
+
+    renderMarketAgentPage({
+      replay: replayWithoutMonthSummary,
+      rangePreset: "month"
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Replay \/ Timeline/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Oil headline remains relevant for gold risk/i)).toBeInTheDocument();
+    });
+    expect(screen.getByText(/US PMI release window/i)).toBeInTheDocument();
+    expect(screen.queryByText(/No replay markers/i)).not.toBeInTheDocument();
   });
 
   it("keeps next update countdown within the monitoring interval", () => {
@@ -1460,6 +2253,7 @@ describe("MarketAgentPage", () => {
     const replayRange = screen.getByRole("group", { name: /Replay range/i });
     const day = within(replayRange).getByRole("button", { name: "Day" });
     const month = within(replayRange).getByRole("button", { name: "Month" });
+    expect(within(replayRange).queryByRole("button", { name: "Context" })).not.toBeInTheDocument();
     expect(day).toHaveAttribute("aria-pressed", "true");
     fireEvent.click(month);
     expect(month).toHaveAttribute("aria-pressed", "true");
@@ -1470,7 +2264,8 @@ describe("MarketAgentPage", () => {
     const newsTab = within(evidenceTabs).getByRole("tab", { name: "News" });
     expect(allTab).toHaveAttribute("aria-selected", "true");
     expect(screen.queryByText(/^Confirming$/i)).not.toBeInTheDocument();
-    expect(screen.getAllByText(/^Supporting$/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/^Supporting$/i)).not.toBeInTheDocument();
+    expect(screen.getAllByText(/^Bearish$/i).length).toBeGreaterThan(0);
     fireEvent.click(newsTab);
     expect(newsTab).toHaveAttribute("aria-selected", "true");
     expect(allTab).toHaveAttribute("aria-selected", "false");
@@ -1538,9 +2333,10 @@ describe("MarketAgentPage", () => {
     expect(screen.getByRole("heading", { name: /^Alerts$/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/Alert summary/i)).toBeInTheDocument();
     expect(screen.getByText(/1 attention item/i)).toBeInTheDocument();
-    expect(screen.getByText(/1 quiet repeat hidden/i)).toBeInTheDocument();
+    expect(screen.getByText(/3 quiet repeats hidden/i)).toBeInTheDocument();
     expect(screen.getByText(/Telegram is off, so nothing is sent there/i)).toBeInTheDocument();
     expect(screen.getByText(/Driver US yields/i)).toBeInTheDocument();
+    expect(screen.getByText(/2 repeats folded/i)).toBeInTheDocument();
     expect(screen.queryByText(/Driver not confirmed/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/^Sent$/i)).not.toBeInTheDocument();
     expect(container.querySelector(".market-agent-alert-lane")).not.toBeInTheDocument();
@@ -1560,9 +2356,15 @@ describe("MarketAgentPage", () => {
     expect(Array.from(container.querySelectorAll(".market-agent-replay-node")).every((node) => node.textContent === "")).toBe(true);
 
     fireEvent.click(screen.getByRole("button", { name: /^Driver Attention$/i }));
-    expect(screen.getByRole("heading", { name: /^Driver Focus$/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /^Driving Now$/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /^Watch Next$/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^Macro \/ Micro Watch$/i })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /^Macro drivers$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /^Micro themes$/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/Big picture/i)).toBeInTheDocument();
+    expect(screen.getByText(/Small stories/i)).toBeInTheDocument();
+    expect(screen.getByText(/^Now$/i)).toBeInTheDocument();
+    expect(screen.getByText(/Gold remains under pressure from rising yields/i)).toBeInTheDocument();
+    expect(screen.getByText(/Confirm: DXY\/yields confirmation/i)).toBeInTheDocument();
+    expect(screen.getByText(/US2Y is unavailable; confidence stays limited/i)).toBeInTheDocument();
     expect(screen.queryByText(/Technical details/i)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /^Evidence$/i }));
@@ -1573,6 +2375,462 @@ describe("MarketAgentPage", () => {
 
     expect(screen.queryByRole("heading", { name: /System Control/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /Logs \/ Settings/i })).not.toBeInTheDocument();
+  });
+
+  it("shows recent sent alert history when the selected replay window has no alerts", () => {
+    const replayWithoutAlerts: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        alerts: [],
+        suppressed_alerts: []
+      }
+    };
+    renderMarketAgentPage({
+      replay: replayWithoutAlerts,
+      snapshot: {
+        ...snapshot,
+        alerts: [
+          {
+            time: "2026-05-19T07:15:00+08:00",
+            notification_level: "level_2",
+            message: "Gold remains under pressure from rising yields.",
+            main_driver: "yields"
+          }
+        ]
+      }
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /^Alerts$/i }));
+
+    expect(screen.getByText(/1 sent \/ 0 reviewed/i)).toBeInTheDocument();
+    expect(screen.getByText(/Gold remains under pressure from rising yields/i)).toBeInTheDocument();
+    expect(screen.getByText(/^Recent$/i)).toBeInTheDocument();
+    expect(screen.queryByText(/No alertable trade call in this window/i)).not.toBeInTheDocument();
+  });
+
+  it("shows reviewed no-send alert decisions when no Telegram alert was sent", () => {
+    const replayWithReviewedDecision: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        alerts: [],
+        suppressed_alerts: [
+          {
+            monitor_run_id: 31,
+            run_started_at: "2026-05-19T07:20:00+08:00",
+            should_notify: false,
+            notification_level: "none",
+            reason: "Analysis result does not require notification."
+          }
+        ]
+      }
+    };
+
+    renderMarketAgentPage({
+      replay: replayWithReviewedDecision,
+      snapshot: {
+        ...snapshot,
+        alerts: []
+      }
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /^Alerts$/i }));
+
+    expect(screen.getByText(/0 sent \/ 1 reviewed/i)).toBeInTheDocument();
+    expect(screen.getByText(/Reviewed: no alert needed/i)).toBeInTheDocument();
+    expect(screen.getByText(/Analysis result does not require notification/i)).toBeInTheDocument();
+    expect(screen.getByText(/^Not sent$/i)).toBeInTheDocument();
+    expect(screen.queryByText(/No alertable trade call in this window/i)).not.toBeInTheDocument();
+  });
+
+  it("shows Macro Micro news as latest-first readable lists", () => {
+    const geopoliticalReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        news_items: [
+          {
+            title: "Iran announces end of military operations against Israel, but warns Lebanon strikes could trigger escalation",
+            summary: "Iran announces an end of military operations against Israel, but warns Lebanon strikes could trigger escalation.",
+            published_at: "2026-08-06T21:41:00+08:00",
+            source: "US Top News and Analysis",
+            data_mode: "backfilled",
+            semantic_type: "news"
+          },
+          {
+            title: "Strait of Hormuz traffic won't return to normal until end of the year, traders say",
+            summary: "Strait of Hormuz traffic remains disrupted and traders expect normal flows only by year-end.",
+            published_at: "2026-08-06T23:48:00+08:00",
+            source: "MarketWatch",
+            data_mode: "backfilled",
+            semantic_type: "news"
+          },
+          {
+            title: "100 days of the Iran war: How global markets and the economy have been affected",
+            summary: "Charts show how the Iran war affected oil, risk sentiment, and global markets.",
+            published_at: "2026-08-06T14:20:00+08:00",
+            source: "US Top News and Analysis",
+            data_mode: "backfilled",
+            semantic_type: "news"
+          }
+        ]
+      }
+    };
+    const { container } = renderMarketAgentPage({
+      replay: geopoliticalReplay,
+      selectedEvidence: null,
+      driverAttention
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /^Driver Attention$/i }));
+
+    expect(screen.getByRole("heading", { name: /^Macro \/ Micro Watch$/i })).toBeInTheDocument();
+    const panel = container.querySelector("[data-qa='qa:market-agent:macro-micro:page']") as HTMLElement;
+    expect(panel).toBeTruthy();
+    const macroRows = Array.from(panel.querySelectorAll(".market-agent-mm-feed article"));
+    const microRows = Array.from(panel.querySelectorAll(".market-agent-mm-tape li"));
+    expect(macroRows.length).toBeGreaterThan(0);
+    expect(microRows).toHaveLength(3);
+    expect(macroRows[0].textContent).toMatch(/Hormuz disruption keeps geopolitical risk active/i);
+    expect(microRows[0].textContent).toMatch(/Strait of Hormuz traffic won't return to normal until end of the year/i);
+    expect(microRows[1].textContent).toMatch(/Iran announces end of military operations against Israel/i);
+    expect(panel.textContent).toMatch(/100 days of the Iran war/i);
+    expect(panel.textContent).toMatch(/MarketWatch.*06 Aug 2026 23:48/i);
+    expect(microRows[0].textContent).not.toEqual(macroRows[0].textContent);
+    expect(panel.textContent).not.toContain("...");
+    expect(container.querySelector(".market-agent-mm-tape ol")).toBeInTheDocument();
+  });
+
+  it("dedupes repeated Macro Micro headlines by story instead of fetch time", () => {
+    const duplicateReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        news_items: [
+          {
+            title: "Kuwait closes airspace, Israel warns of launches from Lebanon after U.S strikes in Iran",
+            published_at: "2026-06-11T11:50:00+08:00",
+            source: "US Top News and Analysis",
+            link: "https://example.test/kuwait-airspace",
+            included: true,
+            data_mode: "live_seen",
+            semantic_type: "news"
+          },
+          {
+            title: "Kuwait closes airspace, Israel warns of launches from Lebanon after U.S strikes in Iran",
+            published_at: "2026-06-11T11:41:00+08:00",
+            source: "US Top News and Analysis",
+            link: "https://example.test/kuwait-airspace",
+            included: true,
+            data_mode: "live_seen",
+            semantic_type: "news"
+          },
+          {
+            title: "Oil jumps as U.S. fresh strikes on Iran raise worries of extended disruption to energy flows",
+            published_at: "2026-06-11T08:28:00+08:00",
+            source: "US Top News and Analysis",
+            included: true,
+            data_mode: "live_seen",
+            semantic_type: "news"
+          }
+        ]
+      }
+    };
+    const { container } = renderMarketAgentPage({
+      replay: duplicateReplay,
+      selectedEvidence: null,
+      driverAttention
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /^Driver Attention$/i }));
+
+    const panel = container.querySelector("[data-qa='qa:market-agent:macro-micro:page']") as HTMLElement;
+    const microRows = Array.from(panel.querySelectorAll(".market-agent-mm-tape li"));
+    expect(within(panel).getByText("2 stories")).toBeInTheDocument();
+    expect(microRows).toHaveLength(2);
+    expect(panel.textContent?.match(/Kuwait closes airspace/g)).toHaveLength(1);
+    expect(panel.textContent).toMatch(/11 Jun 2026 11:50/i);
+    expect(panel.textContent).not.toMatch(/11 Jun 2026 11:41/i);
+  });
+
+  it("groups Macro Micro calendar events by driver instead of repeating internal gaps", () => {
+    const calendarReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        news_items: [],
+        calendar_events: [
+          {
+            title: "Initial Jobless Claims",
+            scheduled_at: "2026-06-18T20:30:00+08:00",
+            source: "Economic Calendar",
+            impact: "Medium",
+            review_status: "included",
+            semantic_type: "calendar"
+          },
+          {
+            title: "Continuing Jobless Claims",
+            scheduled_at: "2026-06-18T20:30:00+08:00",
+            source: "Economic Calendar",
+            impact: "Medium",
+            review_status: "included",
+            semantic_type: "calendar"
+          },
+          {
+            title: "Fed Balance Sheet",
+            scheduled_at: "2026-06-19T04:30:00+08:00",
+            source: "Economic Calendar",
+            impact: "Low",
+            review_status: "included",
+            semantic_type: "calendar"
+          },
+          {
+            title: "Reserve Balances with Federal Reserve Banks",
+            scheduled_at: "2026-06-19T04:30:00+08:00",
+            source: "Economic Calendar",
+            impact: "Low",
+            review_status: "included",
+            semantic_type: "calendar"
+          }
+        ]
+      }
+    };
+    const { container } = renderMarketAgentPage({
+      replay: calendarReplay,
+      selectedEvidence: null,
+      driverAttention
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /^Driver Attention$/i }));
+
+    const panel = container.querySelector("[data-qa='qa:market-agent:macro-micro:page']") as HTMLElement;
+    const macroRows = Array.from(panel.querySelectorAll(".market-agent-mm-feed article"));
+    const labels = macroRows.map((row) => row.querySelector("span")?.textContent?.trim());
+    expect(labels.filter((label) => label === "Fed / rates")).toHaveLength(1);
+    expect(labels.filter((label) => label === "Growth data")).toHaveLength(1);
+    expect(panel.textContent).not.toContain("currency not recorded");
+    expect(panel.textContent).not.toContain("impact not recorded");
+  });
+
+  it("uses Local AI short titles for Macro Micro small stories", () => {
+    const summarizedReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        news_items: [
+          {
+            title: "Oil prices fall nearly 4% after U.S. Energy Secretary says Hormuz ship traffic is increasing and traders reassess regional supply risk",
+            summary_title: "Oil slips on supply relief",
+            summary: "Oil fell as Hormuz traffic normalization reduced one inflation-risk input for gold.",
+            summary_source: "local_ai",
+            published_at: "2026-06-13T23:56:00+08:00",
+            source: "US Top News and Analysis",
+            included: true,
+            data_mode: "live_seen",
+            semantic_type: "news"
+          }
+        ]
+      }
+    };
+    const { container } = renderMarketAgentPage({
+      replay: summarizedReplay,
+      selectedEvidence: null,
+      driverAttention
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /^Driver Attention$/i }));
+
+    const panel = container.querySelector("[data-qa='qa:market-agent:macro-micro:page']") as HTMLElement;
+    const tapeText = panel.querySelector(".market-agent-mm-tape")?.textContent ?? "";
+    expect(tapeText).toMatch(/Oil slips on supply relief/i);
+    expect(tapeText).not.toMatch(/Oil prices fall nearly 4% after U\.S\. Energy Secretary/i);
+  });
+
+  it("does not show chopped fallback headlines in Macro Micro stories", () => {
+    const messyReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        news_items: [
+          {
+            title: "Inflation is set to top 4% for the rest of the year, economists say",
+            published_at: "2026-06-09T21:50:00+08:00",
+            source: "MarketWatch.com - Top Stories",
+            data_mode: "backfilled",
+            semantic_type: "news"
+          },
+          {
+            title: "Oil prices fall as Trump tries to convince producers to increase supply",
+            published_at: "2026-06-09T21:43:00+08:00",
+            source: "US Top News and Analysis",
+            data_mode: "backfilled",
+            semantic_type: "news"
+          },
+          {
+            title: "Markets are pricing in a rate hike by December as inflation remains sticky",
+            published_at: "2026-06-09T20:10:00+08:00",
+            source: "MarketWatch.com - Top Stories",
+            data_mode: "backfilled",
+            semantic_type: "news"
+          },
+          {
+            title: "Strait of Hormuz traffic won't return to normal until end of the year, traders say",
+            summary: "Strait of Hormuz traffic remains disrupted and traders expect normal flows only by year-end.",
+            published_at: "2026-08-06T23:48:00+08:00",
+            source: "US Top News and Analysis",
+            data_mode: "backfilled",
+            semantic_type: "news"
+          },
+          {
+            title: "Iran announces end of military operations against Israel, but warns Lebanon strikes could trigger escalation",
+            published_at: "2026-08-06T21:41:00+08:00",
+            source: "US Top News and Analysis",
+            data_mode: "backfilled",
+            semantic_type: "news"
+          },
+          {
+            title: "100 days of the Iran war: How global markets and the economy have been affected",
+            published_at: "2026-08-06T14:20:00+08:00",
+            source: "US Top News and Analysis",
+            data_mode: "backfilled",
+            semantic_type: "news"
+          }
+        ]
+      }
+    };
+    const { container } = renderMarketAgentPage({
+      replay: messyReplay,
+      selectedEvidence: null,
+      driverAttention
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /^Driver Attention$/i }));
+
+    const panel = container.querySelector("[data-qa='qa:market-agent:macro-micro:page']") as HTMLElement;
+    const microRows = Array.from(panel.querySelectorAll(".market-agent-mm-tape li"));
+    expect(microRows).toHaveLength(6);
+    expect(within(panel).getByText("6 stories")).toBeInTheDocument();
+    expect(microRows.map((row) => row.querySelector("i")?.textContent)).toEqual(["01", "02", "03", "04", "05", "06"]);
+    expect(panel.textContent).toMatch(/Inflation and oil remain active gold drivers/i);
+    expect(panel.textContent).toMatch(/Oil prices fall as Trump tries to convince producers/i);
+    expect(panel.textContent).toMatch(/Markets are pricing in a rate hike by December/i);
+    expect(panel.textContent).not.toMatch(/for the\s*(US Top|MarketWatch)/i);
+    expect(panel.textContent).not.toMatch(/convince\s*US Top/i);
+    expect(panel.textContent).not.toMatch(/by\s*MarketWatch/i);
+    expect(panel.textContent).not.toContain("...");
+    expect(panel.textContent).not.toMatch(/Sep 2026/i);
+  });
+
+  it("keeps Small Stories as news headlines instead of driver theme labels", () => {
+    const themeAttention: MarketAgentDriverAttentionResponse = {
+      ...driverAttention,
+      states: [
+        ...driverAttention.states,
+        {
+          driver_id: "theme:iran",
+          label: "Iran",
+          current_state: "emerging",
+          priority: "temporary_event",
+          relevance_score: 0.94,
+          impact_percent: null,
+          confidence: "low",
+          activation_reason: "3 news / 2 sources / needs news, xauusd",
+          deactivation_reason: "",
+          last_confirmed_at: "",
+          decay_deadline: "",
+          data_mode: "live_seen"
+        },
+        {
+          driver_id: "theme:hormuz",
+          label: "Hormuz",
+          current_state: "watching",
+          priority: "temporary_event",
+          relevance_score: 0.88,
+          impact_percent: null,
+          confidence: "low",
+          activation_reason: "2 news / 1 source / needs news, xauusd",
+          deactivation_reason: "",
+          last_confirmed_at: "",
+          decay_deadline: "",
+          data_mode: "live_seen"
+        }
+      ]
+    };
+    const storyReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        news_items: [
+          {
+            title: "Oil climbs as U.S.-Iran conflict escalates and regional tensions mount",
+            summary: "Oil climbed as regional tensions mounted.",
+            published_at: "2026-06-11T14:40:00+08:00",
+            source: "US Top News and Analysis",
+            data_mode: "live_seen"
+          },
+          {
+            title: "Kuwait closes airspace, Israel warns of launches from Lebanon after U.S strikes in Iran",
+            summary: "Kuwait closed airspace after launches warning.",
+            published_at: "2026-06-11T14:16:00+08:00",
+            source: "US Top News and Analysis",
+            data_mode: "live_seen"
+          }
+        ]
+      }
+    };
+    const { container } = renderMarketAgentPage({
+      replay: storyReplay,
+      selectedEvidence: null,
+      driverAttention: themeAttention
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /^Driver Attention$/i }));
+
+    const panel = container.querySelector("[data-qa='qa:market-agent:macro-micro:page']") as HTMLElement;
+    const tapeText = panel.querySelector(".market-agent-mm-tape")?.textContent ?? "";
+    expect(tapeText).toMatch(/Oil climbs as U\.S\.-Iran conflict escalates/i);
+    expect(tapeText).toMatch(/Kuwait closes airspace/i);
+    expect(tapeText).not.toMatch(/\bIran\b\s*Emerging/i);
+    expect(tapeText).not.toMatch(/\bHormuz\b\s*Watching/i);
+  });
+
+  it("parses ambiguous numeric news dates as day-month-year", () => {
+    const ambiguousDateReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        news_items: [
+          {
+            title: "Oil prices fall nearly 4% after U.S. Energy Secretary says Hormuz ship traffic is increasing",
+            published_at: "09-06-2026 23:56",
+            source: "US Top News and Analysis",
+            data_mode: "live_seen",
+            semantic_type: "news"
+          },
+          {
+            title: "Inflation is set to hit the highest level since 2023 and the Fed is back in the hot seat",
+            published_at: "09-06-2026 21:50",
+            source: "MarketWatch.com - Top Stories",
+            data_mode: "live_seen",
+            semantic_type: "news"
+          }
+        ]
+      }
+    };
+    const { container } = renderMarketAgentPage({
+      replay: ambiguousDateReplay,
+      selectedEvidence: null,
+      driverAttention
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /^Driver Attention$/i }));
+
+    const panel = container.querySelector("[data-qa='qa:market-agent:macro-micro:page']") as HTMLElement;
+    expect(panel).toBeTruthy();
+    expect(panel.textContent).toMatch(/09 Jun 2026 23:56/i);
+    expect(panel.textContent).toMatch(/09 Jun 2026 21:50/i);
+    expect(panel.textContent).not.toMatch(/06 Sep 2026/i);
   });
 
   it("defaults Data Sources to Connect cTrader and Auto Local AI instead of raw setup forms", () => {
@@ -1687,7 +2945,6 @@ describe("MarketAgentPage", () => {
     expect(screen.getByText(/Local AI is ready/i)).toBeInTheDocument();
     expect(screen.getByText(/No download is needed/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Qwen3\.5 4B/i).length).toBeGreaterThan(0);
-    fireEvent.click(screen.getByRole("button", { name: /Use this model/i }));
     await waitFor(() =>
       expect(saveLLM).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -1696,8 +2953,9 @@ describe("MarketAgentPage", () => {
         })
       )
     );
-    expect(await screen.findByRole("button", { name: /Using this model/i })).toBeInTheDocument();
-    expect(screen.getByText(/Qwen3\.5 4B is now the Local AI model/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^Use this model$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^Enable this model$/i })).not.toBeInTheDocument();
+    expect(await screen.findByLabelText(/Using Qwen3\.5 4B/i)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Download Qwen3\.5 4B/i })).not.toBeInTheDocument();
   });
 
@@ -1751,14 +3009,15 @@ describe("MarketAgentPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
     fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
 
-    const appliedButton = screen.getByRole("button", { name: /Using this model/i });
-    expect(appliedButton).toBeDisabled();
+    expect(screen.getByLabelText(/Using Qwen3\.5 4B/i)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /^Use this model$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^Enable this model$/i })).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /^cTrader$/i }));
     fireEvent.click(screen.getByRole("button", { name: /^Local AI$/i }));
 
-    expect(screen.getByRole("button", { name: /Using this model/i })).toBeDisabled();
+    expect(screen.getByLabelText(/Using Qwen3\.5 4B/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^Enable this model$/i })).not.toBeInTheDocument();
   });
 
   it("shows the actual Auto Local AI model when installed model differs from the recommendation", () => {
@@ -1822,7 +3081,7 @@ describe("MarketAgentPage", () => {
 
     expect(screen.getByText(/Local AI is ready/i)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Download Qwen3\.5 4B/i })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Using this model/i })).toBeDisabled();
+    expect(screen.getByLabelText(/Using Qwen3\.5 4B/i)).toBeInTheDocument();
   });
 
   it("renders Local AI pull progress bytes and percent while downloading", () => {
@@ -1939,8 +3198,8 @@ describe("MarketAgentPage", () => {
           endpoint: "http://127.0.0.1:11434",
           model: "qwen3.5:4b",
           temperature: 0,
-          timeoutSeconds: 30,
-          keepAlive: "0",
+          timeoutSeconds: 60,
+          keepAlive: "5m",
           maxContext: 8192
         }
       },
@@ -2009,6 +3268,25 @@ describe("MarketAgentPage", () => {
     expect(lastCheck).not.toHaveTextContent("1779306621");
   });
 
+  it("does not show an auto monitoring countdown when the monitor loop is stopped", () => {
+    renderMarketAgentPage({
+      monitorStatus: {
+        ...monitorStatus,
+        available: true,
+        running: false,
+        phase: "stopped",
+        lastRunAt: "2026-06-13T12:00:00+08:00",
+        nextRunAt: null
+      }
+    });
+
+    const nextUpdateCard = screen.getByRole("heading", { name: /Next Update/i }).closest("article");
+    expect(nextUpdateCard).toHaveTextContent(/Monitoring stopped/i);
+    expect(nextUpdateCard).toHaveTextContent(/Last check/i);
+    expect(nextUpdateCard).not.toHaveTextContent(/Auto monitoring/i);
+    expect(nextUpdateCard).not.toHaveTextContent(/Every 60 seconds/i);
+  });
+
   it("keeps month replay focused on meaningful market turns", () => {
     const noisyReplay: MarketAgentReplayResponse = {
       ...replay,
@@ -2074,7 +3352,7 @@ describe("MarketAgentPage", () => {
     renderMarketAgentPage({ replay: noisyReplay, rangePreset: "month" });
     fireEvent.click(screen.getByRole("button", { name: /Replay \/ Timeline/i }));
 
-    expect(screen.getByText(/Month: Major Turns/i)).toBeInTheDocument();
+    expect(screen.getByText(/Month: Latest First/i)).toBeInTheDocument();
     expect(screen.queryByText(/^backfill$/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/^unknown$/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/^Alert$/i)).not.toBeInTheDocument();
@@ -2085,6 +3363,74 @@ describe("MarketAgentPage", () => {
     expect(screen.queryAllByText(/^yields$/i)).toHaveLength(0);
   });
 
+  it("keeps internal context review status out of replay timelines", () => {
+    const contextReviewReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        timeline_events: [
+          {
+            monitor_run_id: 101,
+            event_time: "2026-06-18T05:28:00+08:00",
+            event_type: "context_review",
+            label: "market_context",
+            payload: {
+              semantic_type: "context_review",
+              trade_conclusion: false,
+              data_mode: "unavailable",
+              summary_title: "Market context reviewed",
+              summary: "A current XAUUSD trade read needs fresh live price and recent price history.",
+              causal_chain: "A current XAUUSD trade read needs fresh live price and recent price history.",
+              main_driver: "unknown",
+              cause_status: "unconfirmed",
+              news_count: 15,
+              calendar_count: 14
+            }
+          },
+          {
+            monitor_run_id: 102,
+            event_time: "2026-06-18T06:02:00+08:00",
+            event_type: "context_review",
+            label: "market_context",
+            payload: {
+              semantic_type: "context_review",
+              trade_conclusion: false,
+              data_mode: "unavailable",
+              summary_title: "Market context reviewed",
+              summary: "A current XAUUSD trade read needs fresh live price and recent price history.",
+              main_driver: "unknown",
+              cause_status: "unconfirmed"
+            }
+          },
+          {
+            monitor_run_id: 103,
+            event_time: "2026-06-18T08:05:00+08:00",
+            event_type: "market_alert",
+            label: "Yields pressure",
+            payload: {
+              semantic_type: "breakout",
+              impact_percent: -0.48,
+              main_driver: "yields",
+              summary: "Treasury yield pressure drove gold lower."
+            }
+          }
+        ]
+      }
+    };
+
+    renderMarketAgentPage({ replay: contextReviewReplay });
+
+    expect(screen.queryByText(/A current XAUUSD trade read needs fresh live price/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Unknown$/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/XAUUSD drop -0\.48%/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Replay \/ Timeline/i }));
+
+    expect(screen.queryByText(/A current XAUUSD trade read needs fresh live price/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Unknown$/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/XAUUSD drop -0\.48%/i)).toBeInTheDocument();
+  });
+
   it("prefers AI-compressed evidence summaries in the dashboard feed", () => {
     const summarizedReplay: MarketAgentReplayResponse = {
       ...replay,
@@ -2093,7 +3439,7 @@ describe("MarketAgentPage", () => {
         news_items: [
           {
             ...replay.replay.news_items[0],
-            summary_title: "Fed Rates Signal",
+            summary_title: "Fed rate signal keeps gold under pressure",
             summary: "Fed headline lifted yields; gold pressure stayed active.",
             title: "Very long raw headline that should not be used when summary exists"
           }
@@ -2119,7 +3465,7 @@ describe("MarketAgentPage", () => {
     renderMarketAgentPage({ replay: summarizedReplay });
 
     const latestEvidencePanel = screen.getByRole("heading", { name: /Latest Evidence/i }).closest("section");
-    expect(within(latestEvidencePanel as HTMLElement).getByText(/Fed Rates Signal/i)).toBeInTheDocument();
+    expect(within(latestEvidencePanel as HTMLElement).getByText(/Fed rate signal keeps gold under pressure/i)).toBeInTheDocument();
     expect(within(latestEvidencePanel as HTMLElement).getByText(/Fed headline lifted yields/i)).toBeInTheDocument();
     expect(within(latestEvidencePanel as HTMLElement).getByText(/DXY strength confirmed USD pressure/i)).toBeInTheDocument();
     expect(within(latestEvidencePanel as HTMLElement).getByText(/US10Y rise confirmed the yield-pressure leg/i)).toBeInTheDocument();
@@ -2168,7 +3514,7 @@ describe("MarketAgentPage", () => {
     expect(screen.queryByText(/Daily marker that month view should hide/i)).not.toBeInTheDocument();
   });
 
-  it("orders replay markers by event time from earliest to latest", () => {
+  it("orders replay markers by event time from newest to oldest", () => {
     const orderedReplay: MarketAgentReplayResponse = {
       ...replay,
       replay: {
@@ -2180,6 +3526,20 @@ describe("MarketAgentPage", () => {
             event_type: "analysis",
             label: "Later yield pressure",
             payload: { semantic_type: "evidence", impact_percent: -0.31, main_driver: "yields" }
+          },
+          {
+            monitor_run_id: 303,
+            event_time: "17-06-2026 21:30",
+            event_type: "analysis",
+            label: "Mixed format evening calendar",
+            payload: { semantic_type: "evidence", impact_percent: -0.22, main_driver: "usd" }
+          },
+          {
+            monitor_run_id: 304,
+            event_time: "2026-06-18T05:26:00+08:00",
+            event_type: "analysis",
+            label: "Next morning stock headline",
+            payload: { semantic_type: "evidence", impact_percent: -0.23, main_driver: "risk_sentiment" }
           },
           {
             monitor_run_id: 300,
@@ -2197,7 +3557,11 @@ describe("MarketAgentPage", () => {
 
     const earlier = screen.getByText(/Earlier dollar pressure/i);
     const later = screen.getByText(/Later yield pressure/i);
-    expect(earlier.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const mixedEvening = screen.getByText(/Mixed format evening calendar/i);
+    const nextMorning = screen.getByText(/Next morning stock headline/i);
+    expect(nextMorning.compareDocumentPosition(mixedEvening) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(mixedEvening.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(later.compareDocumentPosition(earlier) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("applies Local AI fallback policy returned after model installation", async () => {
@@ -2351,11 +3715,11 @@ describe("MarketAgentPage", () => {
     expect(screen.queryByText(/Gold is currently under yield\/USD pressure\./i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Main driver changed from DXY \/ USD to US yields\./i)).not.toBeInTheDocument();
     expect(screen.getByText(/TRENDING DOWN/i)).toBeInTheDocument();
-    expect(screen.queryByText(/^Bearish$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/bearish_gold/i)).not.toBeInTheDocument();
     expect(screen.getAllByText(/Drop/i).length).toBeGreaterThan(0);
     expect(screen.getByText("Move Size")).toBeInTheDocument();
     expect(screen.getAllByText(/US yields/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/WTI Oil/i)).toBeInTheDocument();
+    expect(screen.queryByText(/WTI Oil/i)).not.toBeInTheDocument();
     expect(screen.getAllByText(/cTrader \(Spot\)/i).length).toBeGreaterThan(0);
     expect(screen.queryByText("futures_proxy")).not.toBeInTheDocument();
     expect(screen.queryByText("core_structural")).not.toBeInTheDocument();
@@ -2365,15 +3729,19 @@ describe("MarketAgentPage", () => {
     expect(screen.getByText(/cTrader \(Spot\)/i)).toBeInTheDocument();
     expect(screen.getAllByText(/100%/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/View Full Timeline/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Fed headline/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/US session opens/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Rates/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/US session opens/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Raw details/i)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getAllByRole("button", { name: /Yields pressure/i })[0]);
+    const replayDetail = await screen.findByRole("dialog", { name: /Market item detail/i });
+    expect(replayDetail).toHaveTextContent(/Yields pressure/i);
+    expect(selected).toEqual([]);
+    fireEvent.click(within(replayDetail).getByRole("button", { name: /Open evidence run/i }));
     expect(selected).toEqual([23]);
 
     fireEvent.click(screen.getByRole("button", { name: /^Evidence$/i }));
-    expect(screen.getAllByText(/Allowed drivers/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Accepted candidates/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Fed \/ rates/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/No direct headline/i).length).toBeGreaterThan(0);
     expect(screen.queryByText(/Raw details/i)).not.toBeInTheDocument();
@@ -2777,8 +4145,8 @@ describe("MarketAgentPage", () => {
     fireEvent.click(within(assetsDetail).getByRole("button", { name: /^Needs$/i }));
     expect(within(assetsDetail).getByText(/What is blocking or being watched/i)).toBeInTheDocument();
     expect(within(assetsDetail).getAllByText(/blocking/i).length).toBeGreaterThan(0);
-    expect(within(assetsDetail).getAllByText(/monitored/i).length).toBeGreaterThan(0);
-    expect(within(assetsDetail).getAllByText(/total/i).length).toBeGreaterThan(0);
+    expect(within(assetsDetail).getAllByText(/need refresh/i).length).toBeGreaterThan(0);
+    expect(within(assetsDetail).getAllByText(/watched/i).length).toBeGreaterThan(0);
     expect(within(assetsDetail).getByText(/^Action needed$/i)).toBeInTheDocument();
     expect(within(assetsDetail).getByText(/Provider status not reported/i)).toBeInTheDocument();
     expect(within(assetsDetail).getAllByText(/^US2Y$/i).length).toBeGreaterThan(0);
@@ -2798,10 +4166,12 @@ describe("MarketAgentPage", () => {
     expect(within(newsDetail).getByText(/^Fed headline$/i)).toBeInTheDocument();
     expect(within(newsDetail).getAllByRole("button", { name: /Fed headline history record/i })).toHaveLength(1);
     expect(within(newsDetail).getByText(/^Published$/i)).toBeInTheDocument();
-    expect(within(newsDetail).getAllByText(/\d{2}-\d{2}-2026 \d{2}:\d{2}/).length).toBeGreaterThan(0);
+    expect(within(newsDetail).getAllByText(/\d{2} [A-Z][a-z]{2} 2026 \d{2}:\d{2} UTC/).length).toBeGreaterThan(0);
+    expect(within(newsDetail).getByText(/AI summarized/i)).toBeInTheDocument();
     expect(within(newsDetail).queryByText("2026-05-19T12:03:00+08:00")).not.toBeInTheDocument();
     fireEvent.click(within(newsDetail).getByRole("button", { name: /Fed headline history record/i }));
     const newsHistoryDialog = within(newsDetail).getByRole("dialog", { name: /Fed headline history detail/i });
+    expect(within(newsHistoryDialog).getByText(/AI summarized/i)).toBeInTheDocument();
     expect(within(newsHistoryDialog).getByText(/published_at/i)).toBeInTheDocument();
     expect(within(newsHistoryDialog).getByText(/Captured 2 times/i)).toBeInTheDocument();
     expect(within(newsHistoryDialog).getByText(/^2$/i)).toBeInTheDocument();
@@ -2813,7 +4183,7 @@ describe("MarketAgentPage", () => {
     expect(within(newsDetail).getByText(/MarketWatch Top Stories RSS/i)).toBeInTheDocument();
     expect(within(newsDetail).queryByText(/ForexFactory/i)).not.toBeInTheDocument();
     fireEvent.click(within(newsDetail).getByRole("button", { name: /^Summary$/i }));
-    expect(within(newsDetail).getByText(/News processing \+ Storage \+ Evidence packet/i)).toBeInTheDocument();
+    expect(within(newsDetail).getByText(/News processing \+ Storage \+ Evidence review/i)).toBeInTheDocument();
     fireEvent.click(within(newsDetail).getByRole("button", { name: /^Status$/i }));
     expect(within(newsDetail).getAllByText(/Raw capture/i).length).toBeGreaterThan(0);
     expect(within(newsDetail).getByText(/Dedupe \/ source scoring/i)).toBeInTheDocument();
@@ -2848,9 +4218,16 @@ describe("MarketAgentPage", () => {
     expect(within(aiDetail).queryByRole("row", { name: /Feedback/i })).not.toBeInTheDocument();
     expect(within(aiDetail).getByRole("row", { name: /History/i })).toBeInTheDocument();
     fireEvent.click(within(aiDetail).getByRole("button", { name: /^History$/i }));
-    expect(within(aiDetail).getByRole("heading", { name: /Completed Local AI calls/i })).toBeInTheDocument();
-    expect(within(aiDetail).getByText(/Cause review/i)).toBeInTheDocument();
-    expect(within(aiDetail).getByText(/Display summary/i)).toBeInTheDocument();
+    expect(within(aiDetail).getByRole("heading", { name: /Local AI call audit/i })).toBeInTheDocument();
+    expect(within(aiDetail).getAllByText(/Driver cause review/i).length).toBeGreaterThan(0);
+    expect(within(aiDetail).getByText(/Yields \/ Likely/i)).toBeInTheDocument();
+    expect(within(aiDetail).getByText(/Usd \/ Possible/i)).toBeInTheDocument();
+    expect(within(aiDetail).getByText(/stored Local AI validated analysis result/i)).toBeInTheDocument();
+    expect(within(aiDetail).getAllByText(/AI Validated/i).length).toBeGreaterThan(0);
+    expect(within(aiDetail).getAllByText(/\d{2} [A-Z][a-z]{2} 2026 \d{2}:\d{2} UTC/).length).toBeGreaterThan(0);
+    expect(within(aiDetail).queryByText(/^Cause review$/i)).not.toBeInTheDocument();
+    expect(within(aiDetail).queryByText(/^Display summary$/i)).not.toBeInTheDocument();
+    expect(within(aiDetail).queryByText(/2026-06-08T00:21:07\.718468\+08:00/i)).not.toBeInTheDocument();
     expect(within(aiDetail).queryByText(/Raw: Fed headline -> Summary: no AI summary recorded for this item/i)).not.toBeInTheDocument();
     expect(within(aiDetail).queryByText(/Calendar review/i)).not.toBeInTheDocument();
     expect(within(aiDetail).queryByText(/Asset context/i)).not.toBeInTheDocument();
@@ -2861,7 +4238,11 @@ describe("MarketAgentPage", () => {
     expect(within(aiDetail).queryByText(/AI decisions/i)).not.toBeInTheDocument();
     expect(within(aiDetail).queryByText(/User-facing history/i)).not.toBeInTheDocument();
     fireEvent.click(within(aiDetail).getByRole("button", { name: /^Status$/i }));
-    expect(within(aiDetail).getByText(/Evidence gate decisions/i)).toBeInTheDocument();
+    expect(within(aiDetail).getByText(/Driver gate/i)).toBeInTheDocument();
+    expect(within(aiDetail).getByText(/Input evidence status/i)).toBeInTheDocument();
+    expect(within(aiDetail).getByText(/show what can be used now and what is blocked/i)).toBeInTheDocument();
+    expect(within(aiDetail).getAllByText(/^usable$/i).length).toBeGreaterThan(0);
+    expect(within(aiDetail).getByText(/Not confirming means present but not usable as confirmation/i)).toBeInTheDocument();
     expect(within(aiDetail).getByText(/Driver lifecycle/i)).toBeInTheDocument();
     expect(within(aiDetail).getByText(/LLM analysis/i)).toBeInTheDocument();
     expect(within(aiDetail).getAllByText(/Validator guard/i).length).toBeGreaterThan(0);
@@ -2949,9 +4330,10 @@ describe("MarketAgentPage", () => {
 
     expect(screen.queryByText(/No meaningful XAUUSD move detected/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Using local CSV fallback\. Configure cTrader or Yahoo provider for live monitoring\./i)).not.toBeInTheDocument();
-    expect(screen.getByText(/CURRENT PAUSED/i)).toBeInTheDocument();
+    expect(screen.getByText(/RANGEBOUND/i)).toBeInTheDocument();
+    expect(screen.queryByText(/AWAITING LIVE PRICE/i)).not.toBeInTheDocument();
     expect(screen.getAllByText(/No live price/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Waiting/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Big picture/i).length).toBeGreaterThan(0);
     expect(screen.queryByText("LOCAL_CSV_FALLBACK")).not.toBeInTheDocument();
   });
 
@@ -2963,21 +4345,27 @@ describe("MarketAgentPage", () => {
     });
 
     expect(screen.getAllByText(/No live price/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/CURRENT PAUSED/i)).toBeInTheDocument();
+    expect(screen.getByText(/TRENDING DOWN/i)).toBeInTheDocument();
+    expect(screen.queryByText(/AWAITING LIVE PRICE/i)).not.toBeInTheDocument();
     expect(screen.getAllByText(/Fed headline/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Context/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/US10Y fresh and supporting the move/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Big picture/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Big picture/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Small stories/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/market context item.*reviewed/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/US10Y fresh and supporting the move/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/No accepted evidence yet/i)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /^Driver Attention$/i }));
-    expect(screen.getByText(/Driver scores hidden/i)).toBeInTheDocument();
-    expect(screen.getByText(/Required price inputs/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Live XAUUSD Spot/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/Context still watched/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/US10Y fresh and confirming/i).length).toBeGreaterThan(0);
+    expect(screen.getByRole("heading", { name: /^Macro \/ Micro Watch$/i })).toBeInTheDocument();
+    expect(screen.getAllByText(/Rates/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Driver scores hidden/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Required price inputs/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Context still watched/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Blocked$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Watching$/i)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /^Evidence$/i }));
-    expect(screen.getByText(/No current conclusion/i)).toBeInTheDocument();
+    expect(screen.getByText(/Market read forming/i)).toBeInTheDocument();
     expect(screen.queryByText(/Accepted Driver/i)).not.toBeInTheDocument();
   });
 
@@ -3044,11 +4432,11 @@ describe("MarketAgentPage", () => {
     });
 
     expect(screen.getAllByText(/Market closed/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/Current driver ranking paused/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Big picture/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Fed headline/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/US session opens/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Australia - King's Birthday/i)).not.toBeInTheDocument();
     expect(screen.getByText(/Evidence Status:/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Context only/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/No current conclusion/i).length).toBeGreaterThan(0);
     expect(screen.queryByText(/No accepted evidence yet/i)).not.toBeInTheDocument();
   });
 
@@ -3062,7 +4450,7 @@ describe("MarketAgentPage", () => {
           evidence_chain_status: {
             status: "context_only",
             can_show_current_conclusion: false,
-            reason: "Current conclusion is paused until live XAUUSD price and recent price history are available.",
+            reason: "XAUUSD market is closed; news, calendar, and cross-market context keep updating, and the next trade read resumes when fresh XAUUSD price action returns.",
             missing_required: ["xauusd_recent_history"],
             usable_inputs: ["live_xauusd_spot", "news_context"],
             context_only_inputs: ["llm_unavailable"],
@@ -3078,10 +4466,123 @@ describe("MarketAgentPage", () => {
       selectedEvidence: incompleteEvidence
     });
 
-    expect(screen.getByText(/CURRENT PAUSED/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Current conclusion is paused until live XAUUSD price and recent price history are available/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Current Paused/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/US10Y fresh and supporting the move/i)).toBeInTheDocument();
+    expect(screen.getByText(/TRENDING DOWN/i)).toBeInTheDocument();
+    expect(screen.queryByText(/OBSERVING PRICE/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/No trade call/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^No trade call yet$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Watching$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/No reviewed move/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Current conclusion is paused/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/US10Y fresh and supporting the move/i)).not.toBeInTheDocument();
+  });
+
+  it("uses a stored current market read even when snapshot state is not populated yet", () => {
+    const currentReadEvidence: MarketAgentEvidenceForRunResponse = {
+      ...evidence,
+      payload: {
+        ...evidence.payload,
+        evidence_packet: {
+          ...evidence.payload.evidence_packet,
+          evidence_chain_status: {
+            status: "context_only",
+            can_show_current_conclusion: false,
+            reason: "Current state snapshot has not caught up yet.",
+            missing_required: [],
+            usable_inputs: ["live_xauusd_spot", "xauusd_recent_history", "news_context"],
+            context_only_inputs: []
+          },
+          market_read: {
+            status: "current_read",
+            headline: "Yields are pressuring gold",
+            thesis: "Gold is trading lower as yields and the dollar firm.",
+            driver: "yields",
+            driver_label: "Yields",
+            cause_status: "likely",
+            confidence: "medium",
+            move: {
+              impact_percent: -0.47,
+              detected_at: "2026-05-19T08:08:00+08:00"
+            },
+            evidence: {
+              latest_news: ["Fed headline"],
+              drivers: ["DXY confirming", "US10Y confirming"]
+            }
+          }
+        }
+      }
+    };
+
+    renderMarketAgentPage({
+      snapshot: {
+        ...snapshot,
+        state: {
+          ...snapshot.state,
+          current_bias: "unknown",
+          confidence: "",
+          last_analysis_time: ""
+        }
+      },
+      selectedEvidence: currentReadEvidence
+    });
+
+    expect(screen.getAllByText(/MARKET READ/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Drop/i)).toBeInTheDocument();
+    expect(screen.getByText(/-0\.47%/i)).toBeInTheDocument();
+    expect(screen.queryByText(/REVIEW PENDING/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/No conclusion yet/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Market read forming/i)).not.toBeInTheDocument();
+  });
+
+  it("uses market read latest news when the replay context has not caught up", () => {
+    const marketReadEvidence: MarketAgentEvidenceForRunResponse = {
+      ...evidence,
+      payload: {
+        ...evidence.payload,
+        evidence_packet: {
+          ...evidence.payload.evidence_packet,
+          evidence_chain_status: {
+            status: "ready",
+            can_show_current_conclusion: true,
+            missing_required: [],
+            usable_inputs: ["live_xauusd_spot", "news_context"],
+            context_only_inputs: []
+          },
+          market_read: {
+            status: "current_read",
+            headline: "Oil risk leads the gold read",
+            driver: "oil_inflation",
+            generated_at: "2026-06-13T23:08:00+08:00",
+            evidence: {
+              latest_news: [
+                "Oil prices jump as Middle East supply risk returns",
+                "Iran tensions keep energy markets on alert"
+              ],
+              confirming: ["DXY", "US10Y"]
+            }
+          }
+        }
+      }
+    };
+
+    renderMarketAgentPage({
+      driverAttention: { ok: true, available: true, states: [] },
+      replay: {
+        ...replay,
+        replay: {
+          ...replay.replay,
+          news_items: [],
+          calendar_events: [],
+          timeline_events: []
+        }
+      },
+      selectedEvidence: marketReadEvidence
+    });
+
+    const radar = screen.getByLabelText("Macro Micro Watch");
+    expect(within(radar).queryByText(/No macro story detected/i)).not.toBeInTheDocument();
+    expect(within(radar).queryByText(/No micro story detected/i)).not.toBeInTheDocument();
+    expect(within(radar).getByText(/Oil weakness eases one inflation risk for gold|Oil risk stays in focus|Inflation and oil remain active gold drivers/i)).toBeInTheDocument();
+    expect(within(radar).getByText(/Oil prices jump as Middle East supply risk returns/i)).toBeInTheDocument();
   });
 
   it("shows useful empty states when sqlite-backed data is unavailable", () => {
@@ -3138,7 +4639,8 @@ describe("MarketAgentPage", () => {
     );
 
     expect(screen.getAllByText(/No live price/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Waiting/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/No macro story detected/i)).toBeInTheDocument();
+    expect(screen.getByText(/No micro story detected/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /^Data Sources$/i }));
     expect(screen.getByText(/Provider config unavailable\./i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /^Provider Health$/i }));
@@ -3181,6 +4683,48 @@ describe("MarketAgentPage", () => {
     expect(view.queryByText(/Federal Reserve press feed/i)).not.toBeInTheDocument();
     expect(view.queryByText(/CNBC Top News RSS/i)).not.toBeInTheDocument();
     expect(view.queryByText(/MarketWatch Top Stories RSS/i)).not.toBeInTheDocument();
+  });
+
+  it("treats market-closed cross-market feeds as usable context in Provider Health", () => {
+    renderMarketAgentPage({
+      providerHealth: {
+        ...providerHealth,
+        items: [
+          {
+            provider_key: "xauusd",
+            source: "cTrader",
+            source_type: "spot",
+            data_mode: "stale",
+            is_available: true,
+            is_stale: true,
+            stale_reason: "XAUUSD is inside the weekend closed window; last cTrader quote is context only until the market reopens.",
+            current_value: 4218.7,
+            effective_status: "market_closed_context",
+            usable_as_context: true
+          },
+          ...["dxy", "us10y", "us2y", "wti"].map((provider_key) => ({
+            provider_key,
+            source: provider_key.toUpperCase(),
+            source_type: provider_key === "us2y" ? "yield_quote" : "proxy",
+            data_mode: "live_seen",
+            is_available: true,
+            is_stale: true,
+            stale_reason: "Latest chart point is older than freshness threshold.",
+            effective_status: "market_closed_context",
+            usable_as_context: true
+          }))
+        ]
+      }
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /^Provider Health$/i }));
+    const providerHealthView = screen.getByRole("heading", { name: /^Provider Health$/i }).closest("section");
+    expect(providerHealthView).not.toBeNull();
+    const view = within(providerHealthView as HTMLElement);
+    expect(view.getByText(/Cross-market sensors/i)).toBeInTheDocument();
+    expect(view.getByText(/4 of 4 feeds usable/i)).toBeInTheDocument();
+    expect(view.getByText(/^Context$/i)).toBeInTheDocument();
+    expect(view.queryByText(/^Partial$/i)).not.toBeInTheDocument();
   });
 });
 

@@ -33,11 +33,15 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
   const storageTables = model.storageGroups.flatMap((group) => group.tables);
   const dataRequests = mergeRequests([
     ...model.coreSensors.map((sensor) => sensor.requests),
-    ...model.candidateSensors.map((sensor) => sensor.requests),
-    ...model.discoveredSensors.map((sensor) => sensor.requests)
+    ...model.candidateSensors.map((sensor) => sensor.requests)
   ]);
+  const aiStatus = model.decisionTrace.items.length ? "validated" : cause?.status || "queued";
   const aiTokenRate = cause?.performance?.metrics[0]?.meta.find((item) => item.startsWith("token/s:"))?.replace("token/s:", "").trim();
-  const aiAction = aiTokenRate && !["not available", "not recorded"].includes(aiTokenRate) ? `AI speed ${aiTokenRate} token/s` : cause?.action || "Review evidence";
+  const aiAction = model.decisionTrace.items.length
+    ? "Stored AI analysis available"
+    : aiTokenRate && !["not available", "not recorded"].includes(aiTokenRate)
+      ? `AI speed ${aiTokenRate} token/s`
+      : cause?.action || "Review evidence";
 
   const boardNode = (input: Omit<SignalNode, "tone"> & { tone?: SignalNode["tone"] }): SignalNode => ({
     tone: input.tone ?? "muted",
@@ -54,7 +58,7 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       action: `${price?.action || "Live quote"} + ${history?.action || "history gaps"}`,
       source: "cTrader / Yahoo / local fallback",
       processing: "Assets groups XAUUSD, related watchlist symbols, provider health, live fetches, and history backfill requests.",
-      output: "Asset ingest + Storage + Evidence packet",
+      output: "Asset ingest + Storage + Evidence review",
       storage: ["market_price_bars", "related_asset_bars", "provider_health"],
       ai: "AI may request more lookback or a new sensor candidate, but provider mapping and allowlists decide what can be added.",
       trace: ["assets-source", "asset-ingest", "storage-bus", "evidence-packet", "ai-analysis", "dashboard-output", "replay-output"],
@@ -94,7 +98,7 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       action: news?.action || "Collecting headlines",
       source: news?.source || "App-managed feeds",
       processing: "Raw headlines stay raw at collection, then pass through relevance grouping and summarization before display.",
-      output: "News processing + Storage + Evidence packet",
+      output: "News processing + Storage + Evidence review",
       storage: ["news_items"],
       ai: "AI can summarize display text and help judge relevance after the evidence gate.",
       trace: ["news-source", "news-processing", "storage-bus", "evidence-packet", "ai-analysis", "latest-evidence"],
@@ -117,7 +121,7 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       action: calendar?.action || "Reading calendar context",
       source: calendar?.source || "Existing Economic Calendar",
       processing: "Market Agent reads the existing Economic Calendar and aligns scheduled events to the current XAUUSD move window.",
-      output: "Context window + Evidence packet",
+      output: "Context window + Evidence review",
       storage: ["calendar context snapshot"],
       ai: "AI can summarize visible calendar rows, but does not invent unscheduled events.",
       trace: ["calendar-source", "context-gate", "evidence-packet", "ai-analysis", "latest-evidence"],
@@ -161,7 +165,7 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       action: "Normalize, filter, detect",
       source: "Ingested rows",
       processing: "Assets are normalized and checked for freshness/anomalies; news is deduped, scored, filtered, and summarized; calendar is aligned to event windows.",
-      output: "Storage + Evidence packet",
+      output: "Storage + Evidence review",
       storage: ["related_asset_bars", "news_items", "evidence_packets"],
       ai: "AI helps summarize and discover themes after deterministic gates, not during raw capture.",
       trace: ["ingest-hub", "process-hub", "storage-bus", "evidence-packet", "ai-analysis"],
@@ -204,7 +208,7 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
     }),
     boardNode({
       id: "evidence-packet",
-      label: "Evidence packet",
+      label: "Evidence review",
       lane: "Processing",
       group: "Bounded packet",
       status: evidence?.status || "pending",
@@ -215,7 +219,7 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       storage: ["evidence_packets"],
       ai: "AI can only review what the packet allows.",
       trace: ["process-hub", "storage-bus", "evidence-packet", "ai-analysis", "output-hub"],
-      detail: evidence?.detail || "Evidence packet is the handoff from collected records to analysis.",
+      detail: evidence?.detail || "Evidence review is the handoff from collected records to analysis.",
       tone: evidence?.tone || "working",
       drilldown: mergeSections([evidence?.drilldown])
     }),
@@ -224,9 +228,9 @@ const createBoardNodes = (model: SignalMapModel, allNodes: SignalNode[]) => {
       label: "AI Analysis",
       lane: "AI",
       group: "Review loop",
-      status: cause?.status || "queued",
+      status: aiStatus,
       action: aiAction,
-      source: "Evidence packet + stored context",
+      source: "Evidence review + stored context",
       processing: "Rule baseline runs first, LLM reviews bounded evidence, validator repairs or rejects invalid JSON, then output surfaces update.",
       output: "Dashboard + Latest Evidence + Alert router",
       storage: ["analysis_results"],

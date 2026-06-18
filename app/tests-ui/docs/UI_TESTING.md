@@ -33,9 +33,35 @@ npm run ui:report
 
 ## UI check & watch
 
-`ui-check` runs an interactive scenario suite for every theme (dark/light/system). Each
-scenario is captured per-theme with side-by-side report rows, plus video frames for motion
-verification. Outputs go to `app/tests-ui/artifacts/ui-check/`.
+`ui-check` runs the full interactive scenario suite for dark/light themes by default. Use the
+focused commands first while iterating; save the full run for release or broad UI changes.
+Outputs go to `app/tests-ui/artifacts/ui-check/`.
+
+Fast Market Agent smoke:
+
+```
+npm run ui:check:fast
+```
+
+Fast smoke against an already-built `dist/`:
+
+```
+npm run ui:check:fast:nobuild
+```
+
+Fast smoke against a running Vite dev server on `127.0.0.1:5173`:
+
+```
+npm run ui:check:fast:dev
+```
+
+Focused Market Agent page checks:
+
+```
+npm run ui:check:market-agent
+```
+
+Full visual check:
 
 ```
 npm run ui:check
@@ -64,7 +90,9 @@ set UI_CHECK_PORT_BASE=4183
 npm run ui:check
 ```
 
-Disable isolation (runs all themes in a single process):
+Focused `--filter` runs default to a shared single-process runner so iteration stays fast.
+Enable `UI_CHECK_ISOLATED=1` when debugging theme process isolation. Disable isolation for a
+full unfiltered run with:
 
 ```
 set UI_CHECK_ISOLATED=0
@@ -72,9 +100,33 @@ npm run ui:check
 ```
 
 `ui-watch` watches front-end changes and re-runs `ui-check` automatically.
+It defaults to the fast Market Agent dashboard smoke path so local edits do not trigger a
+full visual regression on every save.
 
 ```
 npm run ui:watch
+```
+
+Use a wider watch mode only when the change touches broader surfaces:
+
+```
+set UI_WATCH_MODE=market-agent
+npm run ui:watch
+```
+
+Run the full regression from watch mode only for release-level changes:
+
+```
+set UI_WATCH_MODE=full
+npm run ui:watch
+```
+
+Each `ui-check` run prints per-check timings, a `UI-CHECK SLOWEST` list, skipped-by-filter
+counts, and total runtime. To hide per-check timing noise:
+
+```
+set UI_CHECK_PROFILE=0
+npm run ui:check:fast
 ```
 
 ## Mandatory visual review checklist (per UI change)

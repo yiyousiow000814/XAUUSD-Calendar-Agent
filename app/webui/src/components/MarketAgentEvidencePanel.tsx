@@ -31,8 +31,53 @@ const formatCompactValue = (value: unknown, fallback = "--") => {
   return formatValue(value, fallback);
 };
 
+const formatUserFacingReason = (value: unknown, fallback: string) => {
+  const text = formatValue(value, fallback);
+  const normalized = text.toLowerCase();
+  if (normalized.includes("market is closed")) {
+    return "Market is closed; news and calendar continue, but no current XAUUSD call is published.";
+  }
+  if (normalized.includes("current conclusion is paused") || normalized.includes("current driver conclusions are paused")) {
+    return "News and calendar are still collected and filtered; live price history is required before publishing a current XAUUSD market conclusion.";
+  }
+  return text;
+};
+
+const formatUserFacingRejectionReason = (value: unknown, fallback: string) => {
+  const text = formatValue(value, fallback);
+  const normalized = text.toLowerCase();
+  if (normalized.includes("blocked driver")) {
+    return "Not enough evidence for current use.";
+  }
+  return text;
+};
+
+const formatMissingInputLabel = (value: unknown, fallback: string) => {
+  const normalized = String(value ?? "").trim().toLowerCase();
+  if (normalized === "evidence_packet" || normalized === "ai_review_inputs") return "AI review inputs";
+  if (normalized === "xauusd_recent_history") return "XAUUSD recent history";
+  if (normalized === "live_xauusd_spot") return "Live XAUUSD spot";
+  return formatDriverLabel(value, fallback);
+};
+
 const entriesOf = (value: Record<string, unknown> | null | undefined): EvidenceEntry[] =>
   value ? Object.entries(value) : [];
+
+const recordList = (value: unknown): Record<string, unknown>[] =>
+  Array.isArray(value) ? value.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object" && !Array.isArray(item)) : [];
+
+const textValue = (value: unknown, fallback = "") => {
+  const text = String(value ?? "").trim();
+  return text || fallback;
+};
+
+const previewTitle = (item: Record<string, unknown>, fallback: string) =>
+  textValue(item.display_title ?? item.ai_title ?? item.summary_title ?? item.title ?? item.summary ?? item.description, fallback);
+
+const isUnknownDriver = (value: unknown) => {
+  const normalized = String(value ?? "").trim().toLowerCase();
+  return !normalized || ["unknown", "unknown_unconfirmed", "unconfirmed", "none"].includes(normalized);
+};
 
 const isUnavailableProvider = (item: Record<string, unknown>) =>
   !item.is_available || item.is_stale || Boolean(item.error);
@@ -105,6 +150,8 @@ export function MarketAgentEvidencePanel({ data, evidenceChainStatus }: MarketAg
   const chainStatus = evidenceChainStatus ?? ((evidencePacket?.evidence_chain_status as Record<string, unknown> | null | undefined) ?? null);
   const canShowConclusion = chainStatus?.can_show_current_conclusion !== false;
   const missingInputs = (Array.isArray(chainStatus?.missing_required) ? chainStatus?.missing_required : []) as unknown[];
+  const packetNewsRows = recordList(evidencePacket?.news);
+  const packetCalendarRows = recordList(evidencePacket?.calendar_events);
 
   const blockedEntries = entriesOf(blockedDrivers);
   const evidenceEntries = entriesOf(evidenceStatus);
@@ -113,14 +160,30 @@ export function MarketAgentEvidencePanel({ data, evidenceChainStatus }: MarketAg
   const activeDriverStates = driverStates.filter((item) =>
     ["active", "watching", "emerging"].includes(String(item.current_state ?? "").toLowerCase())
   );
+  const contextInputEntries: EvidenceEntry[] = [
+    ...packetNewsRows.slice(0, 2).map((item, index): EvidenceEntry => [`News ${index + 1}`, previewTitle(item, "Stored news headline")]),
+    ...packetCalendarRows.slice(0, 2).map((item, index): EvidenceEntry => [`Calendar ${index + 1}`, previewTitle(item, "Stored calendar event")])
+  ];
+  const contextInputCount = packetNewsRows.length + packetCalendarRows.length;
 
-  const mainDriver = canShowConclusion
+  const hasAcceptedDriver = canShowConclusion && !isUnknownDriver(analysis?.main_driver);
+  const mainDriver = hasAcceptedDriver
     ? formatValue(analysis?.main_driver, allowedDrivers[0] ? formatDriverLabel(allowedDrivers[0]) : "No accepted driver")
-    : "No current conclusion";
-  const causeStatus = canShowConclusion ? formatValue(analysis?.cause_status, allowedDrivers.length ? "Evidence accepted" : "Unconfirmed") : "Context only";
+    : canShowConclusion
+      ? "No confirmed driver"
+      : "Market read forming";
+  const causeStatus = canShowConclusion
+    ? formatValue(analysis?.cause_status, allowedDrivers.length ? "Evidence accepted" : "Unconfirmed")
+    : contextInputCount ? "News/calendar kept" : "Context only";
   const confidence = formatValue(analysis?.confidence, "Not scored");
   const rejectedDriver = formatValue(analysis?.rejected_driver, blockedEntries[0]?.[0] ? formatDriverLabel(blockedEntries[0][0]) : "None");
-  const rejectionReason = formatValue(analysis?.rejection_reason, blockedEntries[0]?.[1] ? formatCompactValue(blockedEntries[0][1]) : "No blocked driver recorded");
+  const displayRejectedDriver = canShowConclusion ? rejectedDriver : "Not ranked yet";
+  const rejectionReason = canShowConclusion
+    ? formatUserFacingRejectionReason(
+        analysis?.rejection_reason,
+        blockedEntries[0]?.[1] ? formatCompactValue(blockedEntries[0][1]) : "No unused driver recorded"
+      )
+    : "Current driver ranking waits for price history; unused driver details stay in Activity.";
   const supportingEvidence = uniqueEntries(
     canShowConclusion
       ? [...evidenceEntries, ...confirmationEntries].filter(([, value]) =>
@@ -149,7 +212,7 @@ export function MarketAgentEvidencePanel({ data, evidenceChainStatus }: MarketAg
       <div className="market-agent-surface-header">
         <div>
           <h2>Evidence Panel</h2>
-          <span className="hint">Why this run accepted one driver and rejected weaker explanations</span>
+          <span className="hint">How stored checks become a current driver conclusion</span>
         </div>
         {data?.monitor_run_id ? <MarketAgentStatusBadge label={`run ${data.monitor_run_id}`} tone="info" /> : null}
       </div>
@@ -163,19 +226,19 @@ export function MarketAgentEvidencePanel({ data, evidenceChainStatus }: MarketAg
               <strong>
                 {canShowConclusion
                   ? supportingEvidence.length ? `${supportingEvidence.length} confirming checks` : "No confirming checks"
-                  : contextEvidence.length ? `${contextEvidence.length} context checks` : "Context waiting"}
+                  : contextInputCount ? `${contextInputCount} news/calendar input${contextInputCount === 1 ? "" : "s"}` : contextEvidence.length ? `${contextEvidence.length} context checks` : "Context waiting"}
               </strong>
               {canShowConclusion
                 ? renderInlineEvidence(supportingEvidence, "No confirming cross-asset evidence recorded.", 3)
                 : renderInlineEvidence(
-                    contextEvidence,
-                    "Required inputs are missing, so stored checks are kept as context.",
+                    contextInputEntries.length ? contextInputEntries : contextEvidence,
+                    "News and calendar rows are kept as context until price history is ready.",
                     3
                   )}
               <div className="market-agent-evidence-allowed-row">
-                <span>{canShowConclusion ? "Allowed drivers" : "Candidate drivers"}</span>
+                <span>{canShowConclusion ? "Accepted candidates" : "Candidate drivers"}</span>
                 {canShowConclusion
-                  ? renderBadgeList("Allowed drivers", allowedDrivers, "None")
+                  ? renderBadgeList("Accepted candidates", allowedDrivers, "None")
                   : <span className="market-agent-evidence-muted">Not ranked until required inputs are ready.</span>}
               </div>
             </div>
@@ -183,7 +246,7 @@ export function MarketAgentEvidencePanel({ data, evidenceChainStatus }: MarketAg
             <div className="market-agent-evidence-chain-arrow" aria-hidden="true" />
 
             <div className="market-agent-evidence-chain-step decision">
-              <span className="market-agent-evidence-step-label">{canShowConclusion ? "Accepted Driver" : "Current Conclusion"}</span>
+              <span className="market-agent-evidence-step-label">{hasAcceptedDriver ? "Accepted Driver" : "Current Conclusion"}</span>
               <strong>{mainDriver}</strong>
               <div className="market-agent-evidence-badge-list">
                 <MarketAgentStatusBadge label={causeStatus} tone={statusTone(causeStatus)} />
@@ -195,24 +258,26 @@ export function MarketAgentEvidencePanel({ data, evidenceChainStatus }: MarketAg
             <div className="market-agent-evidence-chain-arrow" aria-hidden="true" />
 
             <div className="market-agent-evidence-chain-step outcome">
-              <span className="market-agent-evidence-step-label">{canShowConclusion ? "Run Decision" : "Next Step"}</span>
-              <strong>{canShowConclusion ? `Use ${mainDriver}` : "Wait for required inputs"}</strong>
+              <span className="market-agent-evidence-step-label">{hasAcceptedDriver ? "Run Decision" : "Next Step"}</span>
+              <strong>{hasAcceptedDriver ? `Use ${mainDriver}` : canShowConclusion ? "No trade call yet" : "Waiting for price history"}</strong>
               <p>
                 {chainStatus?.reason
-                  ? formatValue(chainStatus.reason)
+                  ? formatUserFacingReason(chainStatus.reason, "Required inputs are not ready yet.")
                   : caveatCount
                   ? `${caveatCount} caveat${caveatCount === 1 ? "" : "s"} checked before accepting this explanation.`
-                  : "No blocking caveats recorded."}
+                  : "No caveats recorded."}
               </p>
             </div>
           </section>
 
           <section className="market-agent-evidence-branches" aria-label="Evidence caveats">
             <div className="market-agent-evidence-branch rejected">
-              <span>{canShowConclusion ? "Rejected" : "Blocked"}</span>
-              <strong>{rejectedDriver}</strong>
+              <span>{canShowConclusion ? "Rejected" : "Driver ranking"}</span>
+              <strong>{displayRejectedDriver}</strong>
               <p>{rejectionReason}</p>
-              {renderInlineEvidence(blockedEntries, "No blocked driver recorded.", 3)}
+              {canShowConclusion
+                ? renderInlineEvidence(blockedEntries, "No unused driver recorded.", 3)
+                : <span className="market-agent-evidence-muted">No blocked-driver list is shown until a current market conclusion is ready.</span>}
             </div>
             <div className="market-agent-evidence-branch quality">
               <span>Data Quality</span>
@@ -226,7 +291,7 @@ export function MarketAgentEvidencePanel({ data, evidenceChainStatus }: MarketAg
                   {(missingInputs.length ? missingInputs : ["live_xauusd_spot"]).slice(0, 4).map((item, index) => (
                     <MarketAgentStatusBadge
                       key={`${formatValue(item, "missing")}-${index}`}
-                      label={`${formatDriverLabel(item, `Input ${index + 1}`)}: Waiting`}
+                      label={`${formatMissingInputLabel(item, `Input ${index + 1}`)} missing`}
                       tone="bad"
                     />
                   ))}
@@ -252,11 +317,11 @@ export function MarketAgentEvidencePanel({ data, evidenceChainStatus }: MarketAg
             <div>
               {canShowConclusion && activeDriverLabels.length ? (
                 activeDriverLabels.map((item) => (
-                  <MarketAgentStatusBadge key={item.key} label={`${item.label}: ${item.state}`} tone={item.tone} />
+                  <MarketAgentStatusBadge key={item.key} label={item.label} tone={item.tone} />
                 ))
               ) : (
                 <span className="market-agent-evidence-muted">
-                  {canShowConclusion ? "No active driver context stored for this run." : "Required inputs before driver context is ranked."}
+                  {canShowConclusion ? "No active driver context stored for this run." : "News/calendar context is kept; price history is required before ranking a current driver."}
                 </span>
               )}
             </div>
