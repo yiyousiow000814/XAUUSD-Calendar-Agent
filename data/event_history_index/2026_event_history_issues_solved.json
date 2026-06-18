@@ -1,5 +1,5 @@
 {
-  "generated_at": "17-06-2026 16:44",
+  "generated_at": "18-06-2026 16:44",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -646,8 +646,8 @@
       "date": "2026-06-25",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "229K",
-      "previous_effective": "229K"
+      "prior_actual": "226K",
+      "previous_effective": "226K"
     },
     {
       "issue": "previous_missing_filled",
@@ -658,8 +658,8 @@
       "date": "2026-06-25",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "219.00K",
-      "previous_effective": "219.00K"
+      "prior_actual": "223.25K",
+      "previous_effective": "223.25K"
     },
     {
       "issue": "previous_missing_filled",
@@ -670,8 +670,8 @@
       "date": "2026-06-25",
       "time": "22:30",
       "previous_raw": "",
-      "prior_actual": "108B",
-      "previous_effective": "108B"
+      "prior_actual": "73B",
+      "previous_effective": "73B"
     },
     {
       "issue": "previous_missing_filled",
@@ -682,8 +682,8 @@
       "date": "2026-06-25",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "1,795K",
-      "previous_effective": "1,795K"
+      "prior_actual": "1,810K",
+      "previous_effective": "1,810K"
     },
     {
       "issue": "previous_missing_filled",
@@ -694,8 +694,8 @@
       "date": "2026-06-25",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "3.595%",
-      "previous_effective": "3.595%"
+      "prior_actual": "3.580%",
+      "previous_effective": "3.580%"
     },
     {
       "issue": "previous_missing_filled",
@@ -706,8 +706,8 @@
       "date": "2026-06-25",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "3.610%",
-      "previous_effective": "3.610%"
+      "prior_actual": "3.640%",
+      "previous_effective": "3.640%"
     },
     {
       "issue": "previous_missing_filled",
@@ -718,20 +718,8 @@
       "date": "2026-06-25",
       "time": "19:30",
       "previous_raw": "",
-      "prior_actual": "54.25B",
-      "previous_effective": "54.25B"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::Atlanta Fed GDPNow::none",
-      "cur": "USD",
-      "event": "Atlanta Fed GDPNow  (Q2)",
-      "period": "q2",
-      "date": "2026-06-25",
-      "time": "22:00",
-      "previous_raw": "",
-      "prior_actual": "3.0%",
-      "previous_effective": "3.0%"
+      "prior_actual": "53.12B",
+      "previous_effective": "53.12B"
     },
     {
       "issue": "previous_missing_filled",
@@ -770,18 +758,6 @@
       "previous_effective": "562"
     },
     {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::Atlanta Fed GDPNow::none",
-      "cur": "USD",
-      "event": "Atlanta Fed GDPNow  (Q2)",
-      "period": "q2",
-      "date": "2026-06-17",
-      "time": "23:00",
-      "previous_raw": "",
-      "prior_actual": "2.8%",
-      "previous_effective": "2.8%"
-    },
-    {
       "issue": "stale_missing_actual_dropped",
       "event_id": "ILS::M1 Money Supply::y/y",
       "cur": "ILS",
@@ -789,7 +765,19 @@
       "period": "may",
       "date": "2026-06-14",
       "time": "19:00",
-      "cutoff": "15-06-2026 16:44"
+      "cutoff": "16-06-2026 16:44"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "CAD::Retail Sales::m/m",
+      "cur": "CAD",
+      "event": "Retail Sales (MoM)  (May)",
+      "period": "may",
+      "date": "2026-06-19",
+      "time": "20:30",
+      "previous_raw": "",
+      "prior_actual": "0.6%",
+      "previous_effective": "0.6%"
     }
   ]
 }
