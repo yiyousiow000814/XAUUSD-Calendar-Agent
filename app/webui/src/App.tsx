@@ -506,6 +506,14 @@ export default function App() {
   const marketAgentManualRefreshAtRef = useRef(0);
   const marketAgentLiveQuoteRecoverAtRef = useRef(0);
   const marketAgentLiveQuoteEnsureInFlightRef = useRef(false);
+  const appMountedRef = useRef(true);
+
+  useEffect(() => {
+    appMountedRef.current = true;
+    return () => {
+      appMountedRef.current = false;
+    };
+  }, []);
 
   const withTimeout = useCallback(<T,>(promise: Promise<T>, timeoutMs: number, label: string) => {
     let timer: number | null = null;
@@ -526,9 +534,11 @@ export default function App() {
         8000,
         "backend.getMarketAgentSnapshot()"
       );
+      if (!appMountedRef.current) return null;
       setMarketAgentSnapshot(next);
       return next;
     } catch {
+      if (!appMountedRef.current) return null;
       setMarketAgentSnapshot({
         ok: false,
         available: false,
@@ -544,16 +554,18 @@ export default function App() {
     async (start: string, end: string, mode: "dashboard" | "full" = "full") => {
       try {
         const next = await withTimeout(
-          backend.getMarketAgentReplay(start, end, mode),
-          mode === "dashboard" ? 5000 : 10000,
-          `backend.getMarketAgentReplay(${mode})`
-        );
-        setMarketAgentReplay(next);
-        return next;
-      } catch {
-        setMarketAgentReplay({
-          ok: false,
-          available: false,
+        backend.getMarketAgentReplay(start, end, mode),
+        mode === "dashboard" ? 5000 : 10000,
+        `backend.getMarketAgentReplay(${mode})`
+      );
+      if (!appMountedRef.current) return null;
+      setMarketAgentReplay(next);
+      return next;
+    } catch {
+      if (!appMountedRef.current) return null;
+      setMarketAgentReplay({
+        ok: false,
+        available: false,
           message: "Unable to load market replay.",
           mode,
           replay: {
@@ -581,9 +593,11 @@ export default function App() {
         8000,
         "backend.getMarketAgentProviderHealth()"
       );
+      if (!appMountedRef.current) return null;
       setMarketAgentProviderHealth(next);
       return next;
     } catch {
+      if (!appMountedRef.current) return null;
       setMarketAgentProviderHealth({
         ok: false,
         available: false,

@@ -525,6 +525,7 @@ def test_apply_display_summaries_uses_llm_output_without_losing_raw_rows() -> No
                         "source_index": 0,
                         "summary_title": "Fed rates keep pressure on gold",
                         "summary": "Fed headline lifted yields; gold pressure stayed active.",
+                        "impact_direction_on_gold": "bearish",
                     }
                 ],
                 "calendar": [
@@ -532,6 +533,7 @@ def test_apply_display_summaries_uses_llm_output_without_losing_raw_rows() -> No
                         "source_index": 0,
                         "summary_title": "US Calendar Context",
                         "summary": "US calendar risk stayed in the evidence packet.",
+                        "impact_direction_on_gold": "neutral",
                     }
                 ],
                 "related_assets": {
@@ -557,7 +559,10 @@ def test_apply_display_summaries_uses_llm_output_without_losing_raw_rows() -> No
     assert runtime_context["news_rows"][0]["title"] == "Long raw Fed headline"
     assert runtime_context["news_rows"][0]["summary_title"] == "Fed rates keep pressure on gold"
     assert runtime_context["news_rows"][0]["summary"] == "Fed headline lifted yields; gold pressure stayed active."
+    assert runtime_context["news_rows"][0]["impact_direction_on_gold"] == "bearish"
+    assert runtime_context["news_rows"][0]["impact_direction_source"] == "local_ai"
     assert runtime_context["calendar_rows"][0]["summary_title"] == "US Calendar Context"
+    assert runtime_context["calendar_rows"][0]["impact_direction_on_gold"] == "neutral"
     assert runtime_context["related_asset_bars"][0]["summary"] == "DXY strength confirmed USD pressure on gold."
     assert runtime_context["display_summary_status"] == "summarized"
 
@@ -651,6 +656,7 @@ def test_run_monitored_live_once_persists_display_summaries_to_timeline(tmp_path
                         "source_index": 0,
                         "summary_title": "Yields Lift Dollar",
                         "summary": "Yields and dollar strength keep bearish pressure on XAUUSD.",
+                        "impact_direction_on_gold": "bearish",
                     }
                 ],
             }
@@ -697,6 +703,8 @@ def test_run_monitored_live_once_persists_display_summaries_to_timeline(tmp_path
 
     assert news_payload["summary_title"] == "Yields Lift Dollar"
     assert news_payload["summary_source"] == "local_ai"
+    assert news_payload["impact_direction_on_gold"] == "bearish"
+    assert news_payload["impact_direction_source"] == "local_ai"
     assert analysis_payload["display_summary_status"] == "summarized"
     assert analysis_payload["llm_telemetry"][0]["task"] == "display_summary"
 

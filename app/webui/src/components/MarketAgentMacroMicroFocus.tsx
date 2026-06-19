@@ -110,13 +110,50 @@ const formatDateTime = (value: unknown, fallback = "time not recorded") => {
 const sortRecentFirst = (rows: Record<string, unknown>[]) =>
   [...rows].sort((left, right) => (parseTimestampMs(timestampValue(right)) ?? 0) - (parseTimestampMs(timestampValue(left)) ?? 0));
 
+const marketNewsStoryFingerprint = (value: unknown) => {
+  const stems: Record<string, string> = {
+    loses: "lose",
+    losing: "lose",
+    lost: "lose",
+    falls: "fall",
+    fell: "fall",
+    falling: "fall",
+    jumps: "jump",
+    jumped: "jump",
+    jumping: "jump",
+    rises: "rise",
+    rose: "rise",
+    rising: "rise",
+    extends: "extend",
+    extended: "extend",
+    extending: "extend",
+    changes: "change",
+    changed: "change",
+    changing: "change",
+    announces: "announce",
+    announced: "announce",
+    announcing: "announce"
+  };
+  const stopwords = new Set([
+    "a", "an", "and", "are", "as", "at", "be", "for", "from", "in", "into", "is", "it",
+    "its", "just", "more", "of", "on", "over", "report", "s", "says", "than", "that",
+    "the", "their", "to", "with"
+  ]);
+  const tokens = normalizeMarketAgentValue(String(value ?? "").replace(/short-seller/gi, "short seller"))
+    .split(/[^a-z0-9]+/)
+    .map((token) => stems[token] ?? token)
+    .filter((token) => token && !stopwords.has(token));
+  return tokens.length >= 5 ? tokens.slice(0, 14).join(" ") : "";
+};
+
 const uniqueRows = (rows: Record<string, unknown>[]) => {
   const seen = new Set<string>();
   return sortRecentFirst(rows).filter((row) => {
     const title = row.title ?? row.summary_title ?? row.display_title ?? row.ai_title ?? row.short_title ?? "";
     const link = row.link ?? row.url ?? row.guid ?? "";
     const source = row.source ?? "";
-    const key = normalizeMarketAgentValue(`${title} ${source} ${link}`);
+    const storyKey = marketNewsStoryFingerprint(title);
+    const key = storyKey ? `story:${storyKey}:${normalizeMarketAgentValue(source)}` : normalizeMarketAgentValue(`${title} ${source} ${link}`);
     if (!key || seen.has(key)) return false;
     seen.add(key);
     return true;
@@ -321,7 +358,7 @@ const buildNewsMacroRows = (rows: Record<string, unknown>[]) => {
     const sortedMatches = sortRecentFirst(matches);
     const latest = sortedMatches[0];
     if (!latest) return [];
-    const detail = macroMarketTitle(definition, latest);
+    const detail = summaryTitle(latest, macroMarketTitle(definition, latest));
     const latestTime = formatDateTime(timestampValue(latest));
     return [{
       id: `news-macro-${definition.id}`,
@@ -581,6 +618,24 @@ const macroStoryTitle = (row: MarketAgentDriverRow) => {
   return marketStoryTitle(row);
 };
 
+const genericMacroStoryTitles = new Set([
+  "Dollar pressure is shaping the gold read",
+  "Dollar pressure drives gold",
+  "Rates pressure remains the main gold test",
+  "Rates pressure drives gold",
+  "Inflation and oil remain active gold drivers",
+  "Geopolitical risk remains part of the gold story",
+  "Market driver stays active"
+]);
+
+const dashboardBigPictureTitle = (leadMacro: MarketAgentDriverRow | null, leadStory: MarketAgentDriverRow | null) => {
+  const macroTitle = leadMacro ? macroStoryTitle(leadMacro) : "";
+  if (macroTitle && !genericMacroStoryTitles.has(macroTitle)) return macroTitle;
+  const storyTitle = leadStory ? microStoryTitle(leadStory) : "";
+  if (storyTitle) return storyTitle;
+  return macroTitle || "No macro story detected";
+};
+
 const microStoryTitle = (row: MarketAgentDriverRow) => {
   const title = tidyMarketTitle(row.label);
   if (title && normalizeMarketAgentValue(title) !== "news_headline") return title;
@@ -606,7 +661,8 @@ const dedupeRowsByMarketTitle = (rows: MarketAgentDriverRow[]) => {
 const dedupeRowsByMicroStory = (rows: MarketAgentDriverRow[]) => {
   const seen = new Set<string>();
   return rows.filter((row) => {
-    const key = normalizeMarketAgentValue(microStoryTitle(row));
+    const title = microStoryTitle(row);
+    const key = marketNewsStoryFingerprint(title) || normalizeMarketAgentValue(title);
     if (!key || seen.has(key)) return false;
     seen.add(key);
     return true;
@@ -707,7 +763,18 @@ export function MarketAgentMacroMicroFocus({
   );
   const leadMacro = macroDrivers[0] ?? null;
   const leadStory = microThemes[0] ?? null;
-  const secondaryStories = useMemo(() => microThemes.slice(1, variant === "page" ? 4 : 3), [microThemes, variant]);
+  const dashboardBigTitle = dashboardBigPictureTitle(leadMacro, leadStory);
+  const dashboardMicroThemes = useMemo(
+    () => variant === "page"
+      ? microThemes
+      : microThemes.filter((row) => microStoryTitle(row) !== dashboardBigTitle),
+    [dashboardBigTitle, microThemes, variant]
+  );
+  const dashboardLeadStory = dashboardMicroThemes[0] ?? null;
+  const secondaryStories = useMemo(() => {
+    const rows = variant === "page" ? microThemes : dashboardMicroThemes;
+    return rows.slice(1, variant === "page" ? 4 : 3);
+  }, [dashboardMicroThemes, microThemes, variant]);
   const pageMacroRows = useMemo(() => uniqueMacroDrivers.slice(0, 4), [uniqueMacroDrivers]);
   const pageStories = useMemo(() => storyRows.slice(0, 6), [storyRows]);
   const selectedPacket = asRecord(selectedEvidence?.payload?.evidence_packet);
@@ -828,7 +895,9 @@ export function MarketAgentMacroMicroFocus({
           key={`dashboard-macro-${leadMacro?.id || "empty"}-${macroDrivers.map((row) => row.id).join("|")}`}
         >
           <span>Big picture <em>{compactCountLabel(formalMacroDrivers.length, "driver")}</em></span>
-          <strong className={leadMacro ? undefined : "market-agent-mm-empty"}>{leadMacro ? macroStoryTitle(leadMacro) : "No macro story detected"}</strong>
+          <strong className={leadMacro || leadStory ? undefined : "market-agent-mm-empty"}>
+            {dashboardBigTitle}
+          </strong>
           <div className="market-agent-mm-driver-pills">
             {macroDrivers.length ? macroDrivers.map((row) => (
               <em key={row.id}>{driverPillLabel(row)}</em>
@@ -838,10 +907,10 @@ export function MarketAgentMacroMicroFocus({
         <section
           className="market-agent-mm-glance-card micro"
           aria-label="Small stories"
-          key={`dashboard-micro-${leadStory?.id || "empty"}-${secondaryStories.map((row) => row.id).join("|")}`}
+          key={`dashboard-micro-${dashboardLeadStory?.id || "empty"}-${secondaryStories.map((row) => row.id).join("|")}`}
         >
-          <span>Small stories <em>{compactCountLabel(Math.max(leadStory ? 1 : 0, microThemes.length), "story")}</em></span>
-          <strong className={leadStory ? undefined : "market-agent-mm-empty"}>{leadStory ? storyChipLabel(leadStory) : "No micro story detected"}</strong>
+          <span>Small stories <em>{compactCountLabel(Math.max(dashboardLeadStory ? 1 : 0, dashboardMicroThemes.length), "story")}</em></span>
+          <strong className={dashboardLeadStory ? undefined : "market-agent-mm-empty"}>{dashboardLeadStory ? storyChipLabel(dashboardLeadStory) : "No micro story detected"}</strong>
           <div className="market-agent-mm-story-list">
             {secondaryStories.length ? secondaryStories.map((row) => (
               <em key={row.id} title={row.detail}>

@@ -1073,6 +1073,42 @@ const isReplayCalendarRow = (item: Record<string, unknown>) => {
   ].some((needle) => text.includes(needle));
 };
 
+const marketTimelineStoryFingerprint = (value: unknown) => {
+  const stems: Record<string, string> = {
+    loses: "lose",
+    losing: "lose",
+    lost: "lose",
+    falls: "fall",
+    fell: "fall",
+    falling: "fall",
+    jumps: "jump",
+    jumped: "jump",
+    jumping: "jump",
+    rises: "rise",
+    rose: "rise",
+    rising: "rise",
+    extends: "extend",
+    extended: "extend",
+    extending: "extend",
+    changes: "change",
+    changed: "change",
+    changing: "change",
+    announces: "announce",
+    announced: "announce",
+    announcing: "announce"
+  };
+  const stopwords = new Set([
+    "a", "an", "and", "are", "as", "at", "be", "for", "from", "in", "into", "is", "it",
+    "its", "just", "more", "of", "on", "over", "report", "s", "says", "than", "that",
+    "the", "their", "to", "with"
+  ]);
+  const tokens = normalizeMarketAgentValue(String(value ?? "").replace(/short-seller/gi, "short seller"))
+    .split(/[^a-z0-9]+/)
+    .map((token) => stems[token] ?? token)
+    .filter((token) => token && !stopwords.has(token));
+  return tokens.length >= 5 ? tokens.slice(0, 14).join(" ") : "";
+};
+
 const uniqueTimelineSourceRows = (rows: Record<string, unknown>[], limit: number) => {
   const seen = new Set<string>();
   return [...rows]
@@ -1082,7 +1118,10 @@ const uniqueTimelineSourceRows = (rows: Record<string, unknown>[], limit: number
       const link = String(row.link ?? row.url ?? row.guid ?? "").trim();
       const source = String(row.source ?? "").trim();
       const scheduled = String(row.scheduled_at ?? "").trim();
-      const key = normalizeMarketAgentValue(`${title}|${link || source}|${scheduled && !link ? scheduled : ""}`);
+      const storyKey = marketTimelineStoryFingerprint(title);
+      const key = storyKey
+        ? `story:${storyKey}:${normalizeMarketAgentValue(source)}`
+        : normalizeMarketAgentValue(`${title}|${link || source}|${scheduled && !link ? scheduled : ""}`);
       if (!key || seen.has(key)) return false;
       seen.add(key);
       return true;
@@ -1133,6 +1172,52 @@ const latestPrice = (replay: MarketAgentReplayResponse | null) => {
 const previousPrice = (replay: MarketAgentReplayResponse | null) => {
   const rows = normalizeMarketAgentReplayPayload(replay?.replay).price_series;
   return rows.length > 1 ? rows[rows.length - 2] as Record<string, unknown> : undefined;
+};
+
+const isCTraderSpotPriceRow = (row: Record<string, unknown>) => {
+  const symbol = normalizeMarketAgentValue(row.symbol);
+  const source = normalizeMarketAgentValue(row.source);
+  const sourceType = normalizeMarketAgentValue(row.source_type);
+  const dataMode = normalizeMarketAgentValue(row.data_mode);
+  return (
+    symbol === "xauusd" &&
+    (source.includes("ctrader") || sourceType.includes("spot")) &&
+    dataMode !== "local_csv_fallback" &&
+    dataMode !== "stale" &&
+    dataMode !== "unavailable"
+  );
+};
+
+const latestCTraderSpotPriceRow = (payload: MarketAgentReplayPayload | undefined) =>
+  [...(payload?.price_series ?? [])]
+    .filter(isCTraderSpotPriceRow)
+    .sort((left, right) =>
+      (parseTimestampMs(right.data_timestamp ?? right.timestamp) ?? 0) -
+      (parseTimestampMs(left.data_timestamp ?? left.timestamp) ?? 0)
+    )[0];
+
+const cTraderSpotChangeFromM1 = (
+  currentPrice: number | null,
+  liveQuoteRecord: Record<string, unknown> | undefined,
+  liveQuoteM1Bar: Record<string, unknown> | null,
+  replayPayload: MarketAgentReplayPayload | undefined,
+  nowMs: number
+) => {
+  if (currentPrice === null) return null;
+  const replayBar = latestCTraderSpotPriceRow(replayPayload);
+  const bar = liveQuoteM1Bar ?? replayBar;
+  if (!bar) return null;
+  const quoteTimestamp = liveQuoteRecord?.timestamp ?? liveQuoteRecord?.data_timestamp;
+  const barTimestamp = bar.data_timestamp ?? bar.timestamp ?? quoteTimestamp;
+  const referenceMs = parseTimestampMs(quoteTimestamp) ?? nowMs;
+  const barMs = parseTimestampMs(barTimestamp);
+  if (barMs !== null && Math.abs(referenceMs - barMs) > 180_000) return null;
+  const baseline = numberValue(bar.open ?? bar.open_price);
+  if (baseline === null || baseline === 0) return null;
+  const changeValue = currentPrice - baseline;
+  const changePercent = (changeValue / baseline) * 100;
+  if (!Number.isFinite(changeValue) || !Number.isFinite(changePercent)) return null;
+  return { value: changeValue, percent: changePercent };
 };
 
 const ALERT_NOTICE_STORAGE_KEY = "xauusd:market-agent:seen-alert-ids";
@@ -1340,17 +1425,13 @@ const evidenceStatusLabel = (value: unknown, fallback = "Supporting") => {
 
 type EvidenceDirection = "bullish" | "bearish" | null;
 
-const evidenceDirectionFromBias = (bias: unknown, movePercent: number | null): EvidenceDirection => {
+const evidenceDirectionFromBias = (bias: unknown): EvidenceDirection => {
   const normalized = normalizeMarketAgentValue(bias);
   if (["bullish", "up", "long", "buy", "breakout"].some((token) => normalized.includes(token))) {
     return "bullish";
   }
   if (["bearish", "down", "short", "sell", "drop", "breakdown"].some((token) => normalized.includes(token))) {
     return "bearish";
-  }
-  if (movePercent !== null) {
-    if (movePercent > 0) return "bullish";
-    if (movePercent < 0) return "bearish";
   }
   return null;
 };
@@ -1369,12 +1450,29 @@ const evidenceDirectionText = (direction: EvidenceDirection, fallback: string) =
 
 const displayEvidenceStatusLabel = (status: string, direction: EvidenceDirection) => {
   const normalized = normalizeMarketAgentValue(status);
-  if (normalized === "supporting") return evidenceDirectionText(direction, "Bullish");
+  if (normalized === "supporting") return evidenceDirectionText(direction, "Relevant");
   if (normalized === "contrary" || normalized === "blocked" || normalized === "rejected") {
-    return evidenceDirectionText(oppositeEvidenceDirection(direction), "Bearish");
+    return evidenceDirectionText(oppositeEvidenceDirection(direction), "Against");
   }
   if (normalized === "neutral" || normalized === "context" || normalized === "context_only") return humanizeMarketAgentValue(status);
   return humanizeMarketAgentValue(status);
+};
+
+const evidenceDirectionStatusFromItem = (item: Record<string, unknown> | undefined) => {
+  const normalized = normalizeMarketAgentValue(
+    item?.impact_direction_on_gold ??
+      item?.xauusd_direction ??
+      item?.direction_on_gold ??
+      item?.direction
+  );
+  if (["bullish", "bullish_gold", "positive", "positive_gold", "xauusd_bullish"].includes(normalized)) {
+    return "bullish";
+  }
+  if (["bearish", "bearish_gold", "negative", "negative_gold", "xauusd_bearish"].includes(normalized)) {
+    return "bearish";
+  }
+  if (["neutral", "mixed", "balanced", "two_sided"].includes(normalized)) return "neutral";
+  return "";
 };
 
 const shouldShowEvidenceDetailLine = (title: string, detail: string) => {
@@ -1558,6 +1656,21 @@ const latestRecordByTime = (
       return (parseTimestampMs(rightTime) ?? 0) - (parseTimestampMs(leftTime) ?? 0);
     })[0];
 
+const latestRecordsByTime = (
+  rows: Record<string, unknown>[] | undefined,
+  predicate: (item: Record<string, unknown>) => boolean,
+  timeKeys: string[],
+  limit: number
+) =>
+  [...(rows ?? [])]
+    .filter(predicate)
+    .sort((left, right) => {
+      const leftTime = timeKeys.map((key) => left[key]).find((value) => parseTimestampMs(value) !== null);
+      const rightTime = timeKeys.map((key) => right[key]).find((value) => parseTimestampMs(value) !== null);
+      return (parseTimestampMs(rightTime) ?? 0) - (parseTimestampMs(leftTime) ?? 0);
+    })
+    .slice(0, limit);
+
 const isReviewedNewsEvidence = (item: Record<string, unknown>) => {
   const summarySource = normalizeMarketAgentValue(item.summary_source);
   const reviewStatus = normalizeMarketAgentValue(item.review_status ?? item.evidence_status ?? item.included);
@@ -1627,19 +1740,32 @@ const evidenceItems = (
   const runTime = String(selectedEvidence?.payload?.monitor_run?.run_started_at ?? "");
   const selectedMonitorRunId = numberValue(selectedEvidence?.payload?.monitor_run?.monitor_run_id);
   const rows: DashboardEvidenceRow[] = [];
-  const news = latestRecordByTime(payload?.news_items, isReviewedNewsEvidence, ["published_at", "first_seen_at", "last_seen_at", "timestamp_myt"]);
-  if (news) {
+  const latestNews = latestRecordsByTime(payload?.news_items, isReviewedNewsEvidence, ["published_at", "first_seen_at", "last_seen_at", "timestamp_myt"], 8);
+  const seenNewsStories = new Set<string>();
+  let newsIndex = 0;
+  for (const news of latestNews) {
+    const title = summaryTitle(news, "High Impact News");
+    const source = itemSourceLabel(news, "News feed");
+    const storyKey = marketTimelineStoryFingerprint(title);
+    const dedupeKey = storyKey
+      ? `story:${storyKey}:${normalizeMarketAgentValue(source)}`
+      : normalizeMarketAgentValue(`${title}|${source}|${String(news.link ?? news.url ?? news.guid ?? "")}`);
+    if (dedupeKey && seenNewsStories.has(dedupeKey)) continue;
+    if (dedupeKey) seenNewsStories.add(dedupeKey);
     rows.push({
-      key: `news-${String(news.published_at ?? news.title ?? "latest")}`,
-      title: summaryTitle(news, "High Impact News"),
+      key: `news-${String(news.published_at ?? news.title ?? "latest")}-${newsIndex}`,
+      title,
       detail: summaryText(news, String(news.title ?? news.source ?? "News item")),
-      status: currentConclusionReady ? evidenceStatusLabel(news.included ?? news.data_mode ?? evidenceStatusValue(packet, "news")) : "Rule kept",
+      status: evidenceDirectionStatusFromItem(news) ||
+        (currentConclusionReady ? evidenceStatusLabel(news.included ?? news.data_mode ?? evidenceStatusValue(packet, "news")) : "Rule kept"),
       kind: "news",
       filter: "news",
       time: String(news.published_at ?? news.first_seen_at ?? runTime),
       source: itemSourceLabel(news, "News feed"),
       payload: news
     });
+    newsIndex += 1;
+    if (newsIndex >= 3) break;
   }
 
   const dxyAsset = latestRelatedAsset(payload, "dxy");
@@ -1950,10 +2076,25 @@ function MarketAgentDashboard({
     : null;
   const priceValue = numberValue((hasFreshLiveQuote ? liveQuote?.quote?.mid : null) ?? xauusdHealth?.current_value ?? price?.close_price);
   const previousPriceValue = numberValue(xauusdHealth?.previous_value ?? priorPrice?.close_price ?? liveQuoteM1Bar?.open);
-  const priceChangeValue = numberValue(xauusdHealth?.change_value ?? price?.change_value ?? price?.change ?? price?.change_15m);
-  const computedPriceChange = priceChangeValue ?? (
-    priceValue !== null && previousPriceValue !== null ? priceValue - previousPriceValue : null
-  );
+  const spotHealthRecord = xauusdHealth as Record<string, unknown> | null | undefined;
+  const spotChangeMetadata = objectValue(spotHealthRecord?.metadata);
+  const spotChangeSource = normalizeMarketAgentValue(spotChangeMetadata?.change_source ?? spotHealthRecord?.change_source);
+  const hasNativeSpotChange = ["broker_native", "ctrader_native", "provider_native"].includes(spotChangeSource);
+  const nativeSpotChangeValue = hasNativeSpotChange ? numberValue(spotHealthRecord?.change_value) : null;
+  const nativeSpotChangePercent = hasNativeSpotChange
+    ? numberValue(
+        spotHealthRecord?.change_percent ??
+          spotHealthRecord?.change_pct ??
+          spotChangeMetadata?.change_percent ??
+          spotChangeMetadata?.change_pct ??
+          (spotHealthRecord?.change_unit === "%" ? spotHealthRecord?.change_value : null)
+      )
+    : null;
+  const computedSpotChange = !hasNativeSpotChange
+    ? cTraderSpotChangeFromM1(priceValue, liveQuoteRecord, liveQuoteM1Bar, replayPayload, nowMs)
+    : null;
+  const spotDisplayChangeValue = nativeSpotChangeValue ?? computedSpotChange?.value ?? null;
+  const spotDisplayChangePercent = nativeSpotChangePercent ?? computedSpotChange?.percent ?? null;
   const priceChangePercent =
     numberValue(price?.change_pct ?? price?.change_15m_pct ?? price?.move_percent) ??
     (priceValue !== null && previousPriceValue !== null && previousPriceValue !== 0
@@ -1983,14 +2124,23 @@ function MarketAgentDashboard({
     () => evidenceFilter === "all" ? allEvidence : allEvidence.filter((item) => item.filter === evidenceFilter),
     [allEvidence, evidenceFilter]
   );
+  const evidenceDirection = currentConclusionReady ? evidenceDirectionFromBias(state?.current_bias) : null;
+  const oppositeDirection = oppositeEvidenceDirection(evidenceDirection);
+  const bullishCount = evidence.filter((item) => normalizeMarketAgentValue(item.status) === "bullish").length;
+  const bearishCount = evidence.filter((item) => normalizeMarketAgentValue(item.status) === "bearish").length;
   const supportingCount = evidence.filter((item) =>
-    normalizeMarketAgentValue(item.status) === "supporting"
+    normalizeMarketAgentValue(item.status) === "supporting" ||
+    (evidenceDirection !== null && normalizeMarketAgentValue(item.status) === evidenceDirection)
   ).length;
   const contraryCount = evidence.filter((item) =>
-    ["blocked", "rejected", "contrary"].includes(normalizeMarketAgentValue(item.status))
+    ["blocked", "rejected", "contrary"].includes(normalizeMarketAgentValue(item.status)) ||
+    (oppositeDirection !== null && normalizeMarketAgentValue(item.status) === oppositeDirection)
   ).length;
   const neutralCount = Math.max(0, evidence.length - supportingCount - contraryCount);
-  const evidenceScore = evidence.length ? Math.round((supportingCount / evidence.length) * 100) : 0;
+  const directionalCount = bullishCount + bearishCount;
+  const evidenceScore = evidence.length
+    ? Math.round(((supportingCount || directionalCount) / evidence.length) * 100)
+    : 0;
   const clampedEvidenceScore = currentConclusionReady ? Math.max(0, Math.min(100, evidenceScore)) : 0;
   const isEvidenceScoreEmpty = clampedEvidenceScore <= 0;
   const isEvidenceScoreFull = clampedEvidenceScore >= 100;
@@ -2015,9 +2165,8 @@ function MarketAgentDashboard({
   const latestMoveLabel = moveChange === null
     ? (extractMovePercent(latestAlertMessage) ?? "--")
     : formatPercentChange(moveChange);
-  const evidenceDirection = currentConclusionReady ? evidenceDirectionFromBias(state?.current_bias, moveChange) : null;
-  const supportingEvidenceLabel = evidenceDirectionText(evidenceDirection, "Bullish");
-  const contraryEvidenceLabel = evidenceDirectionText(oppositeEvidenceDirection(evidenceDirection), "Bearish");
+  const supportingEvidenceLabel = evidenceDirectionText(evidenceDirection, "Relevant");
+  const contraryEvidenceLabel = evidenceDirectionText(oppositeDirection, "Against");
   const analysisOpposesCurrentMove = ["contrary", "opposing", "rejected", "blocked"].includes(analysisCauseStatus);
   const evidenceScoreLabel = currentConclusionReady
     ? supportingCount > 0
@@ -2058,7 +2207,7 @@ function MarketAgentDashboard({
       ? hasObservedMove ? latestMove.label : "No conclusion yet"
       : "No live move";
   const pendingStrengthLabel = liveReviewPending ? "No conclusion" : String(chainStatus?.status ?? "Context only");
-  const priceChangeTone = computedPriceChange === null ? "neutral" : computedPriceChange < 0 ? "negative" : "positive";
+  const priceChangeTone = spotDisplayChangeValue === null ? "neutral" : spotDisplayChangeValue < 0 ? "negative" : "positive";
   const marketStrength = formatEvidenceStrength(state?.confidence);
   const stateSinceCompact = formatStateSinceCompactTime(state?.last_analysis_time);
   const stateSinceFull = formatStateSinceTime(state?.last_analysis_time);
@@ -2098,8 +2247,8 @@ function MarketAgentDashboard({
               </MarketAgentValuePulse>
             </strong>
             <span className={`market-agent-price-change ${priceChangeTone}`}>
-              <MarketAgentValuePulse value={`${computedPriceChange ?? "--"}-${priceChangePercent ?? "--"}`} animate={false}>
-                {computedPriceChange !== null ? `${formatSignedPriceChange(computedPriceChange)} (${formatPercentChange(priceChangePercent)})` : ""}
+              <MarketAgentValuePulse value={`${spotDisplayChangeValue ?? "--"}-${spotDisplayChangePercent ?? "--"}`} animate={false}>
+                {spotDisplayChangeValue !== null ? `${formatSignedPriceChange(spotDisplayChangeValue)} (${formatPercentChange(spotDisplayChangePercent)})` : ""}
               </MarketAgentValuePulse>
             </span>
           </div>
@@ -2379,7 +2528,9 @@ function MarketAgentDashboard({
             <span><i /> Evidence Status: <b>{currentConclusionReady ? `${evidenceScoreLabel} (${evidenceScore}%)` : liveReviewPending ? "Market read forming" : "No current conclusion"}</b></span>
             <span>
               {currentConclusionReady
-                ? `${supportingCount} ${supportingEvidenceLabel}, ${neutralCount} Neutral, ${contraryCount} ${contraryEvidenceLabel}`
+                ? directionalCount > 0
+                  ? `${bearishCount} Bearish, ${neutralCount} Neutral, ${bullishCount} Bullish`
+                  : `${supportingCount} ${supportingEvidenceLabel}, ${neutralCount} Neutral, ${contraryCount} ${contraryEvidenceLabel}`
                 : `${allEvidence.length} kept context item${allEvidence.length === 1 ? "" : "s"}`}
             </span>
           </div>

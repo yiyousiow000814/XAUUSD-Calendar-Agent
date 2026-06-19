@@ -36,6 +36,107 @@ def test_timeline_store_migrates_existing_sqlite_to_wal_when_unlocked(tmp_path) 
     assert journal_mode == "wal"
 
 
+def test_timeline_store_skips_duplicate_market_context_rows(tmp_path) -> None:
+    store = TimelineStore(tmp_path / "timeline.sqlite")
+    run_1 = store.record_monitor_run(
+        run_started_at="2026-06-18T12:00:00+08:00",
+        run_type="live",
+        data_mode="live_seen",
+        backfill_required=False,
+        last_successful_run_at=None,
+        no_news_found=False,
+        alert_suppressed_reason="",
+    )
+    run_2 = store.record_monitor_run(
+        run_started_at="2026-06-18T12:01:00+08:00",
+        run_type="live",
+        data_mode="live_seen",
+        backfill_required=False,
+        last_successful_run_at=None,
+        no_news_found=False,
+        alert_suppressed_reason="",
+    )
+    related = {
+        "symbol": "dxy",
+        "data_timestamp": "2026-06-18T12:00:00+08:00",
+        "value": 105.1,
+        "change_unit": "percent",
+        "source": "Yahoo Finance",
+        "source_type": "proxy",
+        "data_mode": "live_seen",
+    }
+    news = {
+        "published_at": "2026-06-18T12:00:00+08:00",
+        "first_seen_at": "2026-06-18T12:00:00+08:00",
+        "is_backfilled": False,
+        "source": "Reuters",
+        "title": "Fed keeps rates steady",
+        "link": "https://example.test/fed",
+        "relevance_reason": "macro",
+        "impact_direction_on_gold": "neutral",
+        "data_mode": "live_seen",
+    }
+    calendar = {
+        "scheduled_at": "2026-06-18T14:00:00+08:00",
+        "source": "Economic Calendar",
+        "title": "Fed Interest Rate Decision",
+        "relevance_reason": "rates",
+        "impact_direction_on_gold": "neutral",
+        "data_mode": "calendar",
+    }
+
+    store.record_related_asset_bars(run_1, [related, dict(related)])
+    store.record_related_asset_bars(run_2, [dict(related)])
+    store.record_news_items(run_1, [news, dict(news)])
+    store.record_news_items(run_2, [dict(news)])
+    store.record_calendar_events(run_1, [calendar, dict(calendar)])
+    store.record_calendar_events(run_2, [dict(calendar)])
+
+    with store._connect() as connection:
+        assert connection.execute("SELECT COUNT(*) FROM related_asset_bars").fetchone()[0] == 1
+        assert connection.execute("SELECT COUNT(*) FROM news_items").fetchone()[0] == 1
+        payload = json.loads(connection.execute("SELECT payload_json FROM news_items").fetchone()[0])
+        assert payload["seen_count"] == 2
+        assert payload["duplicate_count"] == 1
+        assert connection.execute("SELECT COUNT(*) FROM calendar_events").fetchone()[0] == 1
+
+
+def test_storage_cleanup_removes_duplicate_rows_and_records_maintenance(tmp_path) -> None:
+    store = TimelineStore(tmp_path / "timeline.sqlite")
+    with store._connect() as connection:
+        connection.execute(
+            """
+            INSERT INTO related_asset_bars (
+                monitor_run_id, symbol, data_timestamp, value, change_unit, source,
+                source_type, data_mode, payload_json
+            ) VALUES
+                (1, 'dxy', '2026-06-18T12:00:00+08:00', 105.1, 'percent', 'Yahoo', 'proxy', 'live_seen', '{}'),
+                (2, 'dxy', '2026-06-18T12:00:00+08:00', 105.1, 'percent', 'Yahoo', 'proxy', 'live_seen', '{}')
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO news_items (
+                monitor_run_id, published_at, first_seen_at, is_backfilled, source, title,
+                link, relevance_reason, impact_direction_on_gold, data_mode, payload_json
+            ) VALUES
+                (1, '2026-06-18T12:00:00+08:00', '2026-06-18T12:00:00+08:00', 0, 'Reuters', 'Fed keeps rates steady', 'https://example.test/fed', 'macro', 'neutral', 'live_seen', '{}'),
+                (2, '2026-06-18T12:00:00+08:00', '2026-06-18T12:00:00+08:00', 0, 'Reuters', 'Fed keeps rates steady', 'https://example.test/fed', 'macro', 'neutral', 'live_seen', '{}')
+            """
+        )
+        connection.commit()
+
+    result = store.run_storage_cleanup(reason="test", vacuum=False)
+
+    assert result["deleted"]["related_asset_bars_duplicates"] == 1
+    assert result["deleted"]["news_items_duplicates"] == 1
+    with store._connect() as connection:
+        assert connection.execute("SELECT COUNT(*) FROM related_asset_bars").fetchone()[0] == 1
+        assert connection.execute("SELECT COUNT(*) FROM news_items").fetchone()[0] == 1
+        maintenance = connection.execute("SELECT reason, rows_deleted FROM storage_maintenance_runs").fetchone()
+    assert tuple(maintenance) == ("test", 2)
+
+
 class StubLiveMarketProvider:
     def __init__(self, rows):
         self.rows = rows

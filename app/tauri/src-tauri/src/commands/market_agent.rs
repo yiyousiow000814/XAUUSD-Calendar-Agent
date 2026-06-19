@@ -3,7 +3,7 @@ use chrono::{Datelike, FixedOffset, Timelike, Utc};
 use rusqlite::{Connection, OptionalExtension};
 use serde_json::{json, Value};
 use sha1::{Digest, Sha1};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::io::{BufRead, BufReader, Read, Write};
 use std::path::{Path, PathBuf};
@@ -4854,13 +4854,66 @@ fn normalize_news_key_part(value: &str) -> String {
         .to_lowercase()
 }
 
+fn news_story_token_stem(token: &str) -> &str {
+    match token {
+        "loses" | "losing" | "lost" => "lose",
+        "falls" | "fell" | "falling" => "fall",
+        "jumps" | "jumped" | "jumping" => "jump",
+        "rises" | "rose" | "rising" => "rise",
+        "extends" | "extended" | "extending" => "extend",
+        "changes" | "changed" | "changing" => "change",
+        "announces" | "announced" | "announcing" => "announce",
+        _ => token,
+    }
+}
+
+fn news_story_fingerprint(value: &str) -> String {
+    let normalized = normalize_news_key_part(value).replace("short-seller", "short seller");
+    if normalized.is_empty() {
+        return String::new();
+    }
+    let stopwords: HashSet<&str> = [
+        "a", "an", "and", "are", "as", "at", "be", "for", "from", "in", "into", "is", "it", "its",
+        "just", "more", "of", "on", "over", "report", "s", "says", "than", "that", "the", "their",
+        "to", "with",
+    ]
+    .into_iter()
+    .collect();
+    let mut tokens = vec![];
+    for raw in normalized.split(|ch: char| !ch.is_ascii_alphanumeric()) {
+        if raw.is_empty() {
+            continue;
+        }
+        let stemmed = news_story_token_stem(raw);
+        if stopwords.contains(stemmed) {
+            continue;
+        }
+        tokens.push(stemmed.to_string());
+    }
+    if tokens.len() < 5 {
+        return String::new();
+    }
+    tokens.into_iter().take(14).collect::<Vec<_>>().join(" ")
+}
+
 fn news_dedupe_key(item: &Value, fallback_index: usize) -> String {
     let title = normalize_news_key_part(
+        &news_value_text(item, "title").if_empty_then(|| news_value_text(item, "summary_title")),
+    );
+    let story = news_story_fingerprint(
         &news_value_text(item, "title").if_empty_then(|| news_value_text(item, "summary_title")),
     );
     let link = normalize_news_key_part(&news_value_text(item, "link"));
     if title.is_empty() && link.is_empty() {
         return format!("row:{fallback_index}");
+    }
+    if !story.is_empty() {
+        return [
+            "story".to_string(),
+            story,
+            normalize_news_key_part(&news_value_text(item, "source")),
+        ]
+        .join("|");
     }
     [
         title,
@@ -5038,32 +5091,79 @@ fn read_news_items(
         return Ok(vec![]);
     }
     let (range_sql, range_values) = replay_range_where("published_at", start, end);
-    let sql = if limit.is_some() {
-        format!(
+    if let Some(limit) = limit {
+        let limit = limit.max(0) as usize;
+        if limit == 0 {
+            return Ok(vec![]);
+        }
+        let batch_size = ((limit * 8).max(800)) as i64;
+        let max_scan = ((limit * 40).max(batch_size as usize)) as i64;
+        let sql = format!(
             "SELECT id, monitor_run_id, payload_json
              FROM news_items
              WHERE {range_sql}
              ORDER BY published_at DESC, id DESC
-             LIMIT ?"
-        )
-    } else {
-        format!(
-            "SELECT id, monitor_run_id, payload_json
+             LIMIT ? OFFSET ?"
+        );
+        let mut statement = connection.prepare(&sql)?;
+        let mut items = vec![];
+        let mut offset = 0_i64;
+        let mut deduped = vec![];
+        while deduped.len() < limit && offset < max_scan {
+            let mut params: Vec<&dyn rusqlite::ToSql> = range_values
+                .iter()
+                .map(|value| value as &dyn rusqlite::ToSql)
+                .collect();
+            params.push(&batch_size);
+            params.push(&offset);
+            let rows = statement.query_map(rusqlite::params_from_iter(params.iter()), |row| {
+                Ok((
+                    row.get::<_, i64>(0)?,
+                    row.get::<_, i64>(1)?,
+                    row.get::<_, String>(2)?,
+                ))
+            })?;
+            let mut saw_row = false;
+            for row in rows.flatten() {
+                saw_row = true;
+                let (storage_row_id, monitor_run_id, payload_raw) = row;
+                if let Some(mut payload) = parse_json_value(payload_raw) {
+                    repair_news_display_fields(&mut payload);
+                    if let Some(object) = payload.as_object_mut() {
+                        object
+                            .entry("monitor_run_id")
+                            .or_insert_with(|| Value::from(monitor_run_id));
+                        object
+                            .entry("storage_row_id")
+                            .or_insert_with(|| Value::from(storage_row_id));
+                    }
+                    items.push(payload);
+                }
+            }
+            deduped = dedupe_news_items(items.clone());
+            if !saw_row {
+                break;
+            }
+            offset += batch_size;
+        }
+        deduped.sort_by_key(|item| news_timestamp_score(&news_value_text(item, "published_at")));
+        if deduped.len() > limit {
+            deduped = deduped.split_off(deduped.len() - limit);
+        }
+        return Ok(deduped);
+    }
+    let sql = format!(
+        "SELECT id, monitor_run_id, payload_json
              FROM news_items
              WHERE {range_sql}
              ORDER BY published_at, id"
-        )
-    };
+    );
     let mut statement = connection.prepare(&sql)?;
     let mut items = vec![];
-    let mut params: Vec<&dyn rusqlite::ToSql> = range_values
+    let params: Vec<&dyn rusqlite::ToSql> = range_values
         .iter()
         .map(|value| value as &dyn rusqlite::ToSql)
         .collect();
-    let candidate_limit = limit.map(|value| (value.max(1) * 4).max(800));
-    if let Some(candidate_limit) = &candidate_limit {
-        params.push(candidate_limit);
-    }
     let rows = statement.query_map(rusqlite::params_from_iter(params.iter()), |row| {
         Ok((
             row.get::<_, i64>(0)?,
@@ -5086,17 +5186,7 @@ fn read_news_items(
             items.push(payload);
         }
     }
-    if limit.is_some() {
-        items.reverse();
-    }
-    let mut deduped = dedupe_news_items(items);
-    if let Some(limit) = limit {
-        let limit = limit.max(0) as usize;
-        if deduped.len() > limit {
-            deduped = deduped.split_off(deduped.len() - limit);
-        }
-    }
-    Ok(deduped)
+    Ok(dedupe_news_items(items))
 }
 
 fn calendar_dirs_for_root(root: &Path) -> Vec<PathBuf> {
@@ -6911,9 +7001,12 @@ fn read_market_agent_replay_with_mode(
         let sql = format!(
             "SELECT driver_attention_states.payload_json
              FROM driver_attention_states
-             INNER JOIN monitor_runs ON monitor_runs.id = driver_attention_states.monitor_run_id
-             WHERE {range_sql}
-             ORDER BY monitor_runs.run_started_at DESC, driver_attention_states.id DESC
+             WHERE monitor_run_id IN (
+                 SELECT id
+                 FROM monitor_runs
+                 WHERE {range_sql}
+             )
+             ORDER BY monitor_run_id DESC, id DESC
              LIMIT ?"
         );
         let mut params: Vec<&dyn rusqlite::ToSql> = range_values
@@ -8668,6 +8761,71 @@ mod tests {
         assert_eq!(
             news_items[0].get("last_seen_at").and_then(Value::as_str),
             Some("2026-05-19T08:19:00+08:00")
+        );
+    }
+
+    #[test]
+    fn market_replay_dedupes_near_duplicate_news_titles() {
+        let dir = unique_temp_dir("replay-news-near-dedupe");
+        let timeline_path = timeline_path_for_root(&dir);
+        seed_timeline_db(&timeline_path);
+        let connection = Connection::open(&timeline_path).expect("open sqlite");
+        connection
+            .execute("DELETE FROM news_items", [])
+            .expect("clear seeded news rows");
+        for (published_at, title, summary) in [
+            (
+                "2026-06-18T22:34:00+08:00",
+                "A billion-dollar server company loses more than 40% of its value following short-seller report",
+                Value::Null,
+            ),
+            (
+                "2026-06-18T22:35:00+08:00",
+                "A billion-dollar server company just lost more than 40% of its value following a short-seller report",
+                Value::String("Near-duplicate wording should stay one story.".to_string()),
+            ),
+        ] {
+            let mut payload = json!({
+                "title": title,
+                "source": "MarketWatch.com - Top Stories",
+                "published_at": published_at,
+                "first_seen_at": published_at,
+                "included": true,
+                "data_mode": "live_seen"
+            });
+            if let Some(object) = payload.as_object_mut() {
+                if !summary.is_null() {
+                    object.insert("summary".to_string(), summary);
+                    object.insert("summary_source".to_string(), Value::String("Local AI".to_string()));
+                }
+            }
+            connection
+                .execute(
+                    "INSERT INTO news_items (monitor_run_id, published_at, payload_json) VALUES (?1, ?2, ?3)",
+                    params![1, published_at, payload.to_string()],
+                )
+                .expect("insert near duplicate news row");
+        }
+
+        let payload = read_market_agent_replay(
+            &dir,
+            "2026-06-18T22:00:00+08:00",
+            "2026-06-18T23:00:00+08:00",
+        );
+        let news_items = payload
+            .get("replay")
+            .and_then(|replay| replay.get("news_items"))
+            .and_then(Value::as_array)
+            .expect("news items");
+
+        assert_eq!(news_items.len(), 1);
+        assert_eq!(
+            news_items[0].get("summary").and_then(Value::as_str),
+            Some("Near-duplicate wording should stay one story.")
+        );
+        assert_eq!(
+            news_items[0].get("duplicate_count").and_then(Value::as_i64),
+            Some(1)
         );
     }
 

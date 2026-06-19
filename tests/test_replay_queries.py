@@ -583,7 +583,7 @@ def test_replay_keeps_filtered_news_out_of_market_markers_without_losing_audit_f
     assert item["fetched_at"] == "2026-05-19T07:18:00+08:00"
     assert item["summary_source"] == "Local AI"
     assert item["monitor_run_ids"] == [first_run_id, second_run_id]
-    assert len(item["storage_row_ids"]) == 2
+    assert len(item["storage_row_ids"]) == 1
 
 
 def test_replay_dedupes_same_source_headline_across_updated_timestamps(tmp_path) -> None:
@@ -646,6 +646,62 @@ def test_replay_dedupes_same_source_headline_across_updated_timestamps(tmp_path)
     assert item["duplicate_count"] == 1
     assert item["summary"] == "Repeated Iran headline kept once."
     assert item["monitor_run_ids"] == [first_run_id, second_run_id]
+
+
+def test_replay_dedupes_near_duplicate_market_news_titles(tmp_path) -> None:
+    store = TimelineStore(tmp_path / "timeline.sqlite")
+    run_id = store.record_monitor_run(
+        run_started_at="2026-06-18T22:40:00+08:00",
+        run_type="live",
+        data_mode="live_seen",
+        backfill_required=False,
+        last_successful_run_at=None,
+        no_news_found=False,
+        alert_suppressed_reason="",
+    )
+    store.record_news_items(
+        run_id,
+        [
+            {
+                "published_at": "2026-06-18T22:34:00+08:00",
+                "first_seen_at": "2026-06-18T22:34:00+08:00",
+                "backfilled_at": None,
+                "is_backfilled": False,
+                "source": "MarketWatch.com - Top Stories",
+                "title": "A billion-dollar server company loses more than 40% of its value following short-seller report",
+                "link": "",
+                "relevance_reason": "Market risk headline.",
+                "impact_direction_on_gold": "unknown",
+                "data_mode": "live_seen",
+                "included": True,
+                "filter_reason": "",
+            },
+            {
+                "published_at": "2026-06-18T22:34:00+08:00",
+                "first_seen_at": "2026-06-18T22:35:00+08:00",
+                "backfilled_at": None,
+                "is_backfilled": False,
+                "source": "MarketWatch.com - Top Stories",
+                "title": "A billion-dollar server company just lost more than 40% of its value following a short-seller report",
+                "summary": "Near-duplicate wording should stay one story.",
+                "summary_source": "Local AI",
+                "link": "",
+                "relevance_reason": "Market risk headline.",
+                "impact_direction_on_gold": "unknown",
+                "data_mode": "live_seen",
+                "included": True,
+                "filter_reason": "",
+            },
+        ],
+    )
+
+    replay = store.get_market_replay("2026-06-18T22:00:00+08:00", "2026-06-18T23:00:00+08:00")
+
+    assert len(replay["news_items"]) == 1
+    item = replay["news_items"][0]
+    assert item["summary"] == "Near-duplicate wording should stay one story."
+    assert item["seen_count"] == 2
+    assert item["duplicate_count"] == 1
 
 
 def test_replay_removes_keyword_pile_summary_title_from_stored_news(tmp_path) -> None:

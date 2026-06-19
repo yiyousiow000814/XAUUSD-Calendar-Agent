@@ -1890,6 +1890,7 @@
   --ma-timeline-time-col: 116px;
   --ma-timeline-node-size: 12px;
   --ma-timeline-col-gap: 16px;
+  --ma-timeline-axis-x: calc(var(--ma-timeline-time-col) + var(--ma-timeline-col-gap) + (var(--ma-timeline-node-size) * 0.5));
   position: relative;
   gap: 0;
   padding-left: 0;
@@ -1900,10 +1901,10 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  left: calc(var(--ma-timeline-time-col) + var(--ma-timeline-col-gap) + (var(--ma-timeline-node-size) * 0.5));
+  left: var(--ma-timeline-axis-x);
   z-index: 0;
   width: 2px;
-  transform: translateX(-1px);
+  transform: translateX(-50%);
   background: linear-gradient(
     180deg,
     rgba(148, 163, 184, 0.18),
@@ -1931,10 +1932,10 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  left: calc(var(--ma-timeline-time-col) + var(--ma-timeline-col-gap) + (var(--ma-timeline-node-size) * 0.5));
+  left: var(--ma-timeline-axis-x);
   z-index: 0;
   width: 2px;
-  transform: translateX(-1px);
+  transform: translateX(-50%);
   background: linear-gradient(
     180deg,
     rgba(148, 163, 184, 0.2),
@@ -1993,6 +1994,8 @@
 
 .market-agent-timeline-node {
   z-index: 1;
+  justify-self: center;
+  align-self: start;
   display: grid;
   place-items: center;
   width: var(--ma-timeline-node-size);

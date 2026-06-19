@@ -2467,9 +2467,36 @@ def _apply_summary_items(
             rows[index]["summary_title"] = title
             rows[index]["summary_source"] = "local_ai"
             row_applied = True
+        direction = _normalize_gold_impact_direction(
+            item.get("impact_direction_on_gold")
+            or item.get("xauusd_direction")
+            or item.get("direction_on_gold")
+            or item.get("direction")
+        )
+        if direction:
+            current_direction = _normalize_gold_impact_direction(rows[index].get("impact_direction_on_gold"))
+            if direction != "unknown" or not current_direction or current_direction == "unknown":
+                rows[index]["impact_direction_on_gold"] = direction
+                rows[index]["impact_direction_source"] = "local_ai"
+                row_applied = True
         if row_applied:
             applied += 1
     return applied
+
+
+def _normalize_gold_impact_direction(value: Any) -> str:
+    text = str(value or "").strip().lower().replace("-", "_").replace(" ", "_")
+    if not text:
+        return ""
+    if text in {"bullish", "bullish_gold", "positive", "positive_gold", "up", "xauusd_bullish"}:
+        return "bullish"
+    if text in {"bearish", "bearish_gold", "negative", "negative_gold", "down", "xauusd_bearish"}:
+        return "bearish"
+    if text in {"neutral", "mixed", "balanced", "two_sided"}:
+        return "neutral"
+    if text in {"unknown", "unclear", "not_sure", "insufficient", "n_a", "na"}:
+        return "unknown"
+    return ""
 
 
 def _apply_display_summaries(
@@ -3392,6 +3419,10 @@ def run_monitored_live_once(
                     "alert_preflight": alert_preflight,
                 },
             )
+    storage_cleanup = timeline_store.maybe_run_storage_cleanup()
+    storage_summary = timeline_store.get_storage_summary()
+    if storage_cleanup is not None:
+        storage_summary["lastCleanup"] = storage_cleanup
     final_activity = _activity_snapshot(
         provider_health=provider_health,
         news_count=_included_news_count(runtime_context.get("news_rows", [])),
@@ -3415,7 +3446,7 @@ def run_monitored_live_once(
         monitor_run_id=monitor_run_id,
         timeline_store_path=timeline_store.path,
         storage_counts=storage_counts,
-        storage_summary=timeline_store.get_storage_summary(),
+        storage_summary=storage_summary,
         history_window_start=last_successful_run_at,
         history_window_end=anchor.isoformat(),
         selected_market_provider=runtime_context.get("selected_market_provider", "unavailable"),

@@ -391,6 +391,42 @@ const isReplayCalendarRow = (item: Record<string, unknown>) => {
   ].some((needle) => text.includes(needle));
 };
 
+const marketReplayStoryFingerprint = (value: unknown) => {
+  const stems: Record<string, string> = {
+    loses: "lose",
+    losing: "lose",
+    lost: "lose",
+    falls: "fall",
+    fell: "fall",
+    falling: "fall",
+    jumps: "jump",
+    jumped: "jump",
+    jumping: "jump",
+    rises: "rise",
+    rose: "rise",
+    rising: "rise",
+    extends: "extend",
+    extended: "extend",
+    extending: "extend",
+    changes: "change",
+    changed: "change",
+    changing: "change",
+    announces: "announce",
+    announced: "announce",
+    announcing: "announce"
+  };
+  const stopwords = new Set([
+    "a", "an", "and", "are", "as", "at", "be", "for", "from", "in", "into", "is", "it",
+    "its", "just", "more", "of", "on", "over", "report", "s", "says", "than", "that",
+    "the", "their", "to", "with"
+  ]);
+  const tokens = normalizeValue(String(value ?? "").replace(/short-seller/gi, "short seller"))
+    .split(/[^a-z0-9]+/)
+    .map((token) => stems[token] ?? token)
+    .filter((token) => token && !stopwords.has(token));
+  return tokens.length >= 5 ? tokens.slice(0, 14).join(" ") : "";
+};
+
 const uniqueMarketContextRows = (rows: Record<string, unknown>[], limit: number) => {
   const seen = new Set<string>();
   return [...rows]
@@ -400,7 +436,10 @@ const uniqueMarketContextRows = (rows: Record<string, unknown>[], limit: number)
       const link = rawText(row.link ?? row.url ?? row.guid);
       const source = rawText(row.source);
       const scheduled = rawText(row.scheduled_at);
-      const key = normalizeValue(`${title}|${link || source}|${scheduled && !link ? scheduled : ""}`);
+      const storyKey = marketReplayStoryFingerprint(title);
+      const key = storyKey
+        ? `story:${storyKey}:${normalizeValue(source)}`
+        : normalizeValue(`${title}|${link || source}|${scheduled && !link ? scheduled : ""}`);
       if (!key || seen.has(key)) return false;
       seen.add(key);
       return true;

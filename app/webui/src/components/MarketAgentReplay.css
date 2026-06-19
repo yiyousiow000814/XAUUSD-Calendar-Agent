@@ -94,6 +94,7 @@
   --ma-replay-time-col: 124px;
   --ma-replay-node-size: 12px;
   --ma-replay-col-gap: 18px;
+  --ma-replay-axis-x: calc(var(--ma-replay-time-col) + var(--ma-replay-col-gap) + (var(--ma-replay-node-size) * 0.5));
   position: relative;
   flex: 1 1 auto;
   margin-top: 12px;
@@ -167,10 +168,10 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  left: calc(var(--ma-replay-time-col) + var(--ma-replay-col-gap) + (var(--ma-replay-node-size) * 0.5));
+  left: var(--ma-replay-axis-x);
   z-index: 0;
   width: 2px;
-  transform: translateX(-1px);
+  transform: translateX(-50%);
   background: linear-gradient(
     180deg,
     rgba(134, 201, 255, 0.2),
@@ -238,6 +239,8 @@ button.market-agent-replay-track-row {
 .market-agent-replay-node {
   position: relative;
   z-index: 1;
+  justify-self: center;
+  align-self: start;
   display: grid;
   place-items: center;
   width: var(--ma-replay-node-size);

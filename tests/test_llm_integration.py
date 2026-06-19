@@ -366,6 +366,7 @@ def test_local_llm_summarize_display_returns_structured_short_rows(monkeypatch) 
                                 "source_index": 0,
                                 "summary_title": "Fed Rates Signal",
                                 "summary": "Fed headline lifted yields; gold pressure stayed active.",
+                                "impact_direction_on_gold": "bearish",
                             }
                         ],
                         "related_assets": {
@@ -400,8 +401,11 @@ def test_local_llm_summarize_display_returns_structured_short_rows(monkeypatch) 
     prompt = captured["request_json"]["prompt"]  # type: ignore[index]
     assert "short UI summaries" in prompt
     assert "source_index" in prompt
+    assert "impact_direction_on_gold" in prompt
+    assert "not from the current gold price move" in prompt
     assert captured["request_json"]["options"]["num_ctx"] == 4096  # type: ignore[index]
     assert result["news"][0]["summary_title"] == "Fed Rates Signal"
+    assert result["news"][0]["impact_direction_on_gold"] == "bearish"
     assert result["related_assets"]["dxy"][0]["summary"].startswith("DXY strength")
 
 

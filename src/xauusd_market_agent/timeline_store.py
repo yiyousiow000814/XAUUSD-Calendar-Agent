@@ -13,6 +13,7 @@ from .models import DriverAttentionState
 from .providers.calendar_events import is_market_agent_calendar_row
 
 DAY_REPLAY_TIMELINE_ROWS = 240
+DAY_REPLAY_NEWS_ROWS = 360
 DAY_REPLAY_RELATED_ROWS_PER_SYMBOL = 180
 DAY_REPLAY_DRIVER_ROWS = 120
 DAY_REPLAY_STATE_ROWS = 120
@@ -24,6 +25,10 @@ MONTH_REPLAY_TIMELINE_ROWS = 600
 MONTH_REPLAY_DRIVER_ROWS = 600
 MONTH_REPLAY_STATE_ROWS = 240
 MONTH_REPLAY_ALERT_ROWS = 200
+STORAGE_AUTO_CLEANUP_INTERVAL_HOURS = 6
+STORAGE_AUTO_CLEANUP_MIN_BYTES = 1024 * 1024 * 1024
+STORAGE_DEFAULT_RETENTION_DAYS = 45
+STORAGE_AI_RETENTION_DAYS = 21
 
 
 class TimelineStore:
@@ -195,22 +200,92 @@ class TimelineStore:
                     payload_json TEXT NOT NULL,
                     FOREIGN KEY(monitor_run_id) REFERENCES monitor_runs(id)
                 );
+                CREATE TABLE IF NOT EXISTS storage_maintenance_runs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    started_at TEXT NOT NULL,
+                    finished_at TEXT,
+                    reason TEXT NOT NULL,
+                    before_bytes INTEGER NOT NULL,
+                    after_bytes INTEGER,
+                    rows_deleted INTEGER NOT NULL DEFAULT 0,
+                    vacuumed INTEGER NOT NULL DEFAULT 0,
+                    payload_json TEXT NOT NULL
+                );
                 CREATE INDEX IF NOT EXISTS idx_monitor_runs_started_at ON monitor_runs(run_started_at);
                 CREATE INDEX IF NOT EXISTS idx_market_price_symbol_time ON market_price_bars(symbol, data_timestamp);
                 CREATE INDEX IF NOT EXISTS idx_market_price_run ON market_price_bars(monitor_run_id);
                 CREATE INDEX IF NOT EXISTS idx_related_asset_symbol_time ON related_asset_bars(symbol, data_timestamp);
+                CREATE INDEX IF NOT EXISTS idx_related_asset_dedupe
+                    ON related_asset_bars(symbol, data_timestamp, source, source_type);
                 CREATE INDEX IF NOT EXISTS idx_related_asset_run ON related_asset_bars(monitor_run_id);
                 CREATE INDEX IF NOT EXISTS idx_news_published_at ON news_items(published_at);
+                CREATE INDEX IF NOT EXISTS idx_news_dedupe ON news_items(source, title, link, published_at);
                 CREATE INDEX IF NOT EXISTS idx_news_run ON news_items(monitor_run_id);
                 CREATE INDEX IF NOT EXISTS idx_calendar_scheduled_at ON calendar_events(scheduled_at);
+                CREATE INDEX IF NOT EXISTS idx_calendar_dedupe ON calendar_events(scheduled_at, source, title);
                 CREATE INDEX IF NOT EXISTS idx_calendar_run ON calendar_events(monitor_run_id);
                 CREATE INDEX IF NOT EXISTS idx_driver_attention_run ON driver_attention_states(monitor_run_id);
+                CREATE INDEX IF NOT EXISTS idx_driver_attention_driver_run ON driver_attention_states(driver_id, monitor_run_id);
+                CREATE INDEX IF NOT EXISTS idx_state_transitions_run ON state_transitions(monitor_run_id);
+                CREATE INDEX IF NOT EXISTS idx_alerts_run ON alerts(monitor_run_id);
                 CREATE INDEX IF NOT EXISTS idx_timeline_event_time ON timeline_events(event_time);
                 """
             )
 
     def _rows_to_payloads(self, rows: list[sqlite3.Row]) -> list[dict[str, Any]]:
         return [json.loads(str(row["payload_json"])) for row in rows]
+
+    @staticmethod
+    def _chunked(values: list[Any], size: int = 500) -> list[list[Any]]:
+        return [values[index : index + size] for index in range(0, len(values), size)]
+
+    @staticmethod
+    def _dedupe_text(value: Any) -> str:
+        return " ".join(str(value or "").strip().split())
+
+    @classmethod
+    def _related_asset_storage_key(cls, item: dict[str, Any]) -> tuple[str, str, str, str]:
+        return (
+            cls._dedupe_text(item.get("symbol")).lower(),
+            cls._dedupe_text(item.get("data_timestamp")),
+            cls._dedupe_text(item.get("source")).lower(),
+            cls._dedupe_text(item.get("source_type")).lower(),
+        )
+
+    @classmethod
+    def _news_storage_key(cls, item: dict[str, Any]) -> tuple[str, str, str, str]:
+        return (
+            cls._dedupe_text(item.get("source")).lower(),
+            cls._dedupe_text(item.get("title")).lower(),
+            cls._dedupe_text(item.get("link")).lower(),
+            cls._dedupe_text(item.get("published_at")),
+        )
+
+    @classmethod
+    def _calendar_storage_key(cls, item: dict[str, Any]) -> tuple[str, str, str]:
+        return (
+            cls._dedupe_text(item.get("scheduled_at")),
+            cls._dedupe_text(item.get("source")).lower(),
+            cls._dedupe_text(item.get("title")).lower(),
+        )
+
+    @staticmethod
+    def _driver_state_storage_key(driver_id: str, payload: dict[str, Any]) -> tuple[Any, ...]:
+        return (
+            driver_id,
+            payload.get("current_state"),
+            payload.get("priority"),
+            payload.get("relevance_score"),
+            payload.get("confidence"),
+            payload.get("activation_reason"),
+            payload.get("deactivation_reason"),
+            payload.get("first_activated_at"),
+            payload.get("last_confirmed_at"),
+            payload.get("decay_deadline"),
+            json.dumps(payload.get("current_evidence_summary", []), sort_keys=True, ensure_ascii=False),
+            json.dumps(payload.get("current_counter_evidence", []), sort_keys=True, ensure_ascii=False),
+            payload.get("data_mode"),
+        )
 
     @staticmethod
     def _repair_display_text(value: Any) -> Any:
@@ -263,14 +338,89 @@ class TimelineStore:
     def _normalize_news_key_part(value: Any) -> str:
         return " ".join(str(value or "").strip().casefold().split())
 
+    _NEWS_FINGERPRINT_STOPWORDS = {
+        "a",
+        "an",
+        "and",
+        "are",
+        "as",
+        "at",
+        "be",
+        "for",
+        "from",
+        "in",
+        "into",
+        "is",
+        "it",
+        "its",
+        "just",
+        "more",
+        "of",
+        "on",
+        "over",
+        "report",
+        "s",
+        "says",
+        "than",
+        "that",
+        "the",
+        "their",
+        "to",
+        "with",
+    }
+
+    _NEWS_TOKEN_STEMS = {
+        "loses": "lose",
+        "losing": "lose",
+        "lost": "lose",
+        "falls": "fall",
+        "fell": "fall",
+        "falling": "fall",
+        "jumps": "jump",
+        "jumped": "jump",
+        "jumping": "jump",
+        "rises": "rise",
+        "rose": "rise",
+        "rising": "rise",
+        "extends": "extend",
+        "extended": "extend",
+        "extending": "extend",
+        "changes": "change",
+        "changed": "change",
+        "changing": "change",
+        "announces": "announce",
+        "announced": "announce",
+        "announcing": "announce",
+    }
+
+    @classmethod
+    def _news_story_fingerprint(cls, value: Any) -> str:
+        text = cls._normalize_news_key_part(value)
+        if not text:
+            return ""
+        text = text.replace("short-seller", "short seller")
+        tokens = re.findall(r"[a-z0-9]+", text)
+        normalized: list[str] = []
+        for token in tokens:
+            token = cls._NEWS_TOKEN_STEMS.get(token, token)
+            if token in cls._NEWS_FINGERPRINT_STOPWORDS:
+                continue
+            normalized.append(token)
+        if len(normalized) < 5:
+            return ""
+        return " ".join(normalized[:14])
+
     @classmethod
     def _news_dedupe_key(cls, item: dict[str, Any], fallback_index: int) -> tuple[str, str, str, str]:
         title = cls._normalize_news_key_part(item.get("title") or item.get("summary_title"))
+        story = cls._news_story_fingerprint(item.get("title") or item.get("summary_title"))
         source = cls._normalize_news_key_part(item.get("source"))
         published_at = str(item.get("published_at") or "").strip()
         link = cls._normalize_news_key_part(item.get("link"))
         if not title and not link:
             return ("row", str(fallback_index), "", "")
+        if story:
+            return ("story", story, source, "")
         if title and (source or link):
             return (title, source, link, "")
         return (title, source, published_at, link)
@@ -355,7 +505,15 @@ class TimelineStore:
 
     @classmethod
     def _news_seen_at(cls, item: dict[str, Any]) -> str:
-        for key in ("fetched_at", "first_seen_at", "backfilled_at", "published_at"):
+        for key in ("fetched_at", "last_seen_at", "first_seen_at", "backfilled_at", "published_at"):
+            value = item.get(key)
+            if value is not None and str(value).strip():
+                return str(value).strip()
+        return ""
+
+    @classmethod
+    def _news_first_seen_at(cls, item: dict[str, Any]) -> str:
+        for key in ("first_seen_at", "backfilled_at", "published_at"):
             value = item.get(key)
             if value is not None and str(value).strip():
                 return str(value).strip()
@@ -387,15 +545,27 @@ class TimelineStore:
         for key in order:
             group = groups[key]
             best = dict(max(group, key=cls._news_item_preference))
+            first_seen_pairs = [
+                (cls._timestamp_score(cls._news_first_seen_at(item)), cls._news_first_seen_at(item))
+                for item in group
+            ]
+            valid_first_seen_pairs = [pair for pair in first_seen_pairs if pair[1]]
             seen_pairs = [(cls._timestamp_score(cls._news_seen_at(item)), cls._news_seen_at(item)) for item in group]
             valid_seen_pairs = [pair for pair in seen_pairs if pair[1]]
-            first_seen_at = min(valid_seen_pairs, key=lambda pair: pair[0])[1] if valid_seen_pairs else ""
+            first_seen_at = min(valid_first_seen_pairs, key=lambda pair: pair[0])[1] if valid_first_seen_pairs else ""
             last_seen_at = max(valid_seen_pairs, key=lambda pair: pair[0])[1] if valid_seen_pairs else ""
             monitor_run_ids = sorted(
                 {
                     int(run_id)
                     for item in group
-                    for run_id in [item.get("monitor_run_id")]
+                    for run_id in [
+                        item.get("monitor_run_id"),
+                        *(
+                            item.get("monitor_run_ids", [])
+                            if isinstance(item.get("monitor_run_ids"), list)
+                            else []
+                        ),
+                    ]
                     if isinstance(run_id, int)
                 }
             )
@@ -412,8 +582,9 @@ class TimelineStore:
             if last_seen_at:
                 best["last_seen_at"] = last_seen_at
                 best["fetched_at"] = last_seen_at
-            best["seen_count"] = len(group)
-            best["duplicate_count"] = max(0, len(group) - 1)
+            seen_count = sum(max(1, int(item.get("seen_count") or 1)) for item in group)
+            best["seen_count"] = seen_count
+            best["duplicate_count"] = max(0, seen_count - 1)
             if monitor_run_ids:
                 best["monitor_run_ids"] = monitor_run_ids
             if storage_row_ids:
@@ -511,6 +682,207 @@ class TimelineStore:
                 ),
             },
         }
+
+    def _delete_duplicate_rows(
+        self,
+        connection: sqlite3.Connection,
+        *,
+        table: str,
+        group_expression: str,
+    ) -> int:
+        before = int(connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])
+        connection.execute(
+            f"""
+            DELETE FROM {table}
+            WHERE id NOT IN (
+                SELECT MAX(id)
+                FROM {table}
+                GROUP BY {group_expression}
+            )
+            """
+        )
+        after = int(connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])
+        return max(0, before - after)
+
+    def run_storage_cleanup(
+        self,
+        *,
+        reason: str = "manual",
+        retention_days: int = STORAGE_DEFAULT_RETENTION_DAYS,
+        ai_retention_days: int = STORAGE_AI_RETENTION_DAYS,
+        vacuum: bool = False,
+    ) -> dict[str, Any]:
+        started_at = datetime.now(timezone.utc).isoformat()
+        before_bytes = self.path.stat().st_size if self.path.exists() else 0
+        deleted: dict[str, int] = {}
+        with self._connect() as connection:
+            maintenance_id = int(
+                connection.execute(
+                    """
+                    INSERT INTO storage_maintenance_runs (
+                        started_at, reason, before_bytes, payload_json
+                    ) VALUES (?, ?, ?, ?)
+                    """,
+                    (
+                        started_at,
+                        reason,
+                        before_bytes,
+                        json.dumps(
+                            {
+                                "retention_days": retention_days,
+                                "ai_retention_days": ai_retention_days,
+                            },
+                            ensure_ascii=False,
+                        ),
+                    ),
+                ).lastrowid
+            )
+            deleted["related_asset_bars_duplicates"] = self._delete_duplicate_rows(
+                connection,
+                table="related_asset_bars",
+                group_expression="symbol, data_timestamp, COALESCE(source, ''), source_type",
+            )
+            deleted["news_items_duplicates"] = self._delete_duplicate_rows(
+                connection,
+                table="news_items",
+                group_expression="source, title, COALESCE(link, ''), published_at",
+            )
+            deleted["calendar_events_duplicates"] = self._delete_duplicate_rows(
+                connection,
+                table="calendar_events",
+                group_expression="scheduled_at, source, title",
+            )
+            deleted["market_price_bars_duplicates"] = self._delete_duplicate_rows(
+                connection,
+                table="market_price_bars",
+                group_expression="symbol, data_timestamp, COALESCE(source, ''), source_type",
+            )
+            deleted["driver_attention_state_duplicates"] = self._delete_duplicate_rows(
+                connection,
+                table="driver_attention_states",
+                group_expression=(
+                    "driver_id, current_state, priority, relevance_score, confidence, "
+                    "COALESCE(activation_reason, ''), COALESCE(deactivation_reason, ''), "
+                    "COALESCE(first_activated_at, ''), COALESCE(last_confirmed_at, ''), "
+                    "COALESCE(decay_deadline, ''), evidence_summary_json, counter_evidence_json, "
+                    "data_mode, payload_json"
+                ),
+            )
+
+            cutoff = (datetime.now(timezone.utc) - timedelta(days=max(1, retention_days))).isoformat()
+            ai_cutoff = (datetime.now(timezone.utc) - timedelta(days=max(1, ai_retention_days))).isoformat()
+
+            run_ids = [
+                int(row["id"])
+                for row in connection.execute(
+                    "SELECT id FROM monitor_runs WHERE julianday(run_started_at) < julianday(?)",
+                    (cutoff,),
+                ).fetchall()
+            ]
+            ai_run_ids = [
+                int(row["id"])
+                for row in connection.execute(
+                    """
+                    SELECT id
+                    FROM monitor_runs
+                    WHERE julianday(run_started_at) < julianday(?)
+                      AND julianday(run_started_at) >= julianday(?)
+                    """,
+                    (ai_cutoff, cutoff),
+                ).fetchall()
+            ]
+
+            for table in (
+                "provider_health",
+                "market_price_bars",
+                "related_asset_bars",
+                "news_items",
+                "calendar_events",
+                "driver_attention_states",
+                "evidence_packets",
+                "analysis_results",
+                "alerts",
+                "state_transitions",
+                "timeline_events",
+            ):
+                deleted[f"{table}_expired"] = self._delete_rows_for_run_ids(connection, table, run_ids)
+
+            for table in ("evidence_packets", "analysis_results", "state_transitions"):
+                deleted[f"{table}_ai_expired"] = self._delete_rows_for_run_ids(connection, table, ai_run_ids)
+
+            deleted["monitor_runs_expired"] = self._delete_rows_for_run_ids(connection, "monitor_runs", run_ids)
+            total_deleted = sum(deleted.values())
+            connection.execute(
+                """
+                UPDATE storage_maintenance_runs
+                SET finished_at = ?, rows_deleted = ?, payload_json = ?
+                WHERE id = ?
+                """,
+                (
+                    datetime.now(timezone.utc).isoformat(),
+                    total_deleted,
+                    json.dumps({"deleted": deleted}, ensure_ascii=False),
+                    maintenance_id,
+                ),
+            )
+            connection.commit()
+
+        vacuumed = False
+        if vacuum:
+            with self._connect() as connection:
+                free_pages = int(connection.execute("PRAGMA freelist_count").fetchone()[0])
+            if free_pages > 1024:
+                with sqlite3.connect(self.path, timeout=120.0) as connection:
+                    connection.execute("VACUUM")
+                vacuumed = True
+
+        after_bytes = self.path.stat().st_size if self.path.exists() else 0
+        with self._connect() as connection:
+            connection.execute(
+                """
+                UPDATE storage_maintenance_runs
+                SET after_bytes = ?, vacuumed = ?
+                WHERE id = ?
+                """,
+                (after_bytes, int(vacuumed), maintenance_id),
+            )
+            connection.commit()
+        return {
+            "reason": reason,
+            "before_bytes": before_bytes,
+            "after_bytes": after_bytes,
+            "rows_deleted": sum(deleted.values()),
+            "deleted": deleted,
+            "vacuumed": vacuumed,
+        }
+
+    def _delete_rows_for_run_ids(self, connection: sqlite3.Connection, table: str, run_ids: list[int]) -> int:
+        if not run_ids:
+            return 0
+        column = "id" if table == "monitor_runs" else "monitor_run_id"
+        deleted = 0
+        for chunk in self._chunked(run_ids):
+            placeholders = ",".join("?" for _ in chunk)
+            before_changes = connection.total_changes
+            connection.execute(f"DELETE FROM {table} WHERE {column} IN ({placeholders})", chunk)
+            deleted += connection.total_changes - before_changes
+        return deleted
+
+    def maybe_run_storage_cleanup(self) -> dict[str, Any] | None:
+        if not self.path.exists() or self.path.stat().st_size < STORAGE_AUTO_CLEANUP_MIN_BYTES:
+            return None
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT finished_at FROM storage_maintenance_runs ORDER BY id DESC LIMIT 1"
+            ).fetchone()
+        if row is not None and row["finished_at"]:
+            try:
+                last = datetime.fromisoformat(str(row["finished_at"]).replace("Z", "+00:00"))
+                if datetime.now(timezone.utc) - last < timedelta(hours=STORAGE_AUTO_CLEANUP_INTERVAL_HOURS):
+                    return None
+            except ValueError:
+                pass
+        return self.run_storage_cleanup(reason="auto", vacuum=False)
 
     def get_recent_market_price_bars(
         self,
@@ -687,7 +1059,39 @@ class TimelineStore:
     def record_related_asset_bars(self, monitor_run_id: int, bars: list[dict[str, Any]]) -> None:
         if not bars:
             return
+        unique_bars: list[dict[str, Any]] = []
+        seen_keys: set[tuple[str, str, str, str]] = set()
+        for bar in bars:
+            key = self._related_asset_storage_key(bar)
+            if key in seen_keys:
+                continue
+            seen_keys.add(key)
+            unique_bars.append(bar)
         with self._connect() as connection:
+            timestamps = sorted({bar["data_timestamp"] for bar in unique_bars})
+            existing_keys: set[tuple[str, str, str, str]] = set()
+            for chunk in self._chunked(timestamps):
+                placeholders = ",".join("?" for _ in chunk)
+                rows = connection.execute(
+                    f"""
+                    SELECT symbol, data_timestamp, source, source_type
+                    FROM related_asset_bars
+                    WHERE data_timestamp IN ({placeholders})
+                    """,
+                    chunk,
+                ).fetchall()
+                for row in rows:
+                    existing_keys.add(
+                        (
+                            self._dedupe_text(row["symbol"]).lower(),
+                            self._dedupe_text(row["data_timestamp"]),
+                            self._dedupe_text(row["source"]).lower(),
+                            self._dedupe_text(row["source_type"]).lower(),
+                        )
+                    )
+            insert_bars = [bar for bar in unique_bars if self._related_asset_storage_key(bar) not in existing_keys]
+            if not insert_bars:
+                return
             connection.executemany(
                 """
                 INSERT INTO related_asset_bars (
@@ -714,7 +1118,7 @@ class TimelineStore:
                         bar.get("stale_reason", ""),
                         json.dumps(bar, ensure_ascii=False),
                     )
-                    for bar in bars
+                    for bar in insert_bars
                 ],
             )
             connection.commit()
@@ -722,7 +1126,105 @@ class TimelineStore:
     def record_news_items(self, monitor_run_id: int, items: list[dict[str, Any]]) -> None:
         if not items:
             return
+        unique_items: list[dict[str, Any]] = []
+        seen_keys: set[tuple[str, str, str, str]] = set()
+        for item in items:
+            key = self._news_storage_key(item)
+            if key in seen_keys:
+                continue
+            seen_keys.add(key)
+            unique_items.append(item)
         with self._connect() as connection:
+            existing_keys: set[tuple[str, str, str, str]] = set()
+            for item in unique_items:
+                row = connection.execute(
+                    """
+                    SELECT id, payload_json
+                    FROM news_items
+                    WHERE source = ?
+                      AND title = ?
+                      AND COALESCE(link, '') = ?
+                      AND published_at = ?
+                    LIMIT 1
+                    """,
+                    (
+                        item["source"],
+                        item["title"],
+                        item.get("link") or "",
+                        item["published_at"],
+                    ),
+                ).fetchone()
+                if row is not None:
+                    existing_keys.add(self._news_storage_key(item))
+                    try:
+                        existing_payload = json.loads(str(row["payload_json"]))
+                    except json.JSONDecodeError:
+                        existing_payload = {}
+                    if not isinstance(existing_payload, dict):
+                        existing_payload = {}
+                    previous_seen = max(1, int(existing_payload.get("seen_count") or 1))
+                    incoming_seen = max(1, int(item.get("seen_count") or 1))
+                    merged_payload = dict(existing_payload)
+                    if not merged_payload.get("summary") and item.get("summary"):
+                        merged_payload["summary"] = item.get("summary")
+                    if not merged_payload.get("summary_source") and item.get("summary_source"):
+                        merged_payload["summary_source"] = item.get("summary_source")
+                    if not merged_payload.get("filter_reason") and item.get("filter_reason"):
+                        merged_payload["filter_reason"] = item.get("filter_reason")
+                    first_seen_values = [
+                        value
+                        for value in (
+                            merged_payload.get("first_seen_at"),
+                            item.get("first_seen_at"),
+                        )
+                        if value
+                    ]
+                    last_seen_values = [
+                        value
+                        for value in (
+                            merged_payload.get("last_seen_at"),
+                            merged_payload.get("first_seen_at"),
+                            item.get("last_seen_at"),
+                            item.get("first_seen_at"),
+                        )
+                        if value
+                    ]
+                    if first_seen_values:
+                        merged_payload["first_seen_at"] = min(str(value) for value in first_seen_values)
+                    if last_seen_values:
+                        merged_payload["last_seen_at"] = max(str(value) for value in last_seen_values)
+                    run_ids = {
+                        int(run_id)
+                        for run_id in [
+                            *(
+                                existing_payload.get("monitor_run_ids", [])
+                                if isinstance(existing_payload.get("monitor_run_ids"), list)
+                                else []
+                            ),
+                            existing_payload.get("monitor_run_id"),
+                            monitor_run_id,
+                        ]
+                        if isinstance(run_id, int)
+                    }
+                    if run_ids:
+                        merged_payload["monitor_run_ids"] = sorted(run_ids)
+                    merged_payload["seen_count"] = previous_seen + incoming_seen
+                    merged_payload["duplicate_count"] = max(0, int(merged_payload["seen_count"]) - 1)
+                    connection.execute(
+                        """
+                        UPDATE news_items
+                        SET first_seen_at = ?, payload_json = ?
+                        WHERE id = ?
+                        """,
+                        (
+                            merged_payload.get("first_seen_at") or existing_payload.get("first_seen_at") or item["first_seen_at"],
+                            json.dumps(merged_payload, ensure_ascii=False),
+                            row["id"],
+                        ),
+                    )
+            insert_items = [item for item in unique_items if self._news_storage_key(item) not in existing_keys]
+            if not insert_items:
+                return
             connection.executemany(
                 """
                 INSERT INTO news_items (
@@ -745,7 +1247,7 @@ class TimelineStore:
                         item["data_mode"],
                         json.dumps(item, ensure_ascii=False),
                     )
-                    for item in items
+                    for item in insert_items
                 ],
             )
             connection.commit()
@@ -753,7 +1255,31 @@ class TimelineStore:
     def record_calendar_events(self, monitor_run_id: int, items: list[dict[str, Any]]) -> None:
         if not items:
             return
+        unique_items: list[dict[str, Any]] = []
+        seen_keys: set[tuple[str, str, str]] = set()
+        for item in items:
+            key = self._calendar_storage_key(item)
+            if key in seen_keys:
+                continue
+            seen_keys.add(key)
+            unique_items.append(item)
         with self._connect() as connection:
+            existing_keys: set[tuple[str, str, str]] = set()
+            for item in unique_items:
+                row = connection.execute(
+                    """
+                    SELECT 1
+                    FROM calendar_events
+                    WHERE scheduled_at = ? AND source = ? AND title = ?
+                    LIMIT 1
+                    """,
+                    (item["scheduled_at"], item["source"], item["title"]),
+                ).fetchone()
+                if row is not None:
+                    existing_keys.add(self._calendar_storage_key(item))
+            insert_items = [item for item in unique_items if self._calendar_storage_key(item) not in existing_keys]
+            if not insert_items:
+                return
             connection.executemany(
                 """
                 INSERT INTO calendar_events (
@@ -772,7 +1298,7 @@ class TimelineStore:
                         item["data_mode"],
                         json.dumps(item, ensure_ascii=False),
                     )
-                    for item in items
+                    for item in insert_items
                 ],
             )
             connection.commit()
@@ -780,7 +1306,37 @@ class TimelineStore:
     def record_driver_attention_states(self, monitor_run_id: int, states: dict[str, Any]) -> None:
         if not states:
             return
+        unique_states: dict[str, dict[str, Any]] = {}
+        seen_state_keys: set[tuple[Any, ...]] = set()
+        for driver_id, payload in states.items():
+            key = self._driver_state_storage_key(driver_id, payload)
+            if key in seen_state_keys:
+                continue
+            seen_state_keys.add(key)
+            unique_states[driver_id] = payload
         with self._connect() as connection:
+            insert_states: dict[str, dict[str, Any]] = {}
+            for driver_id, payload in unique_states.items():
+                row = connection.execute(
+                    """
+                    SELECT payload_json
+                    FROM driver_attention_states
+                    WHERE driver_id = ?
+                    ORDER BY monitor_run_id DESC, id DESC
+                    LIMIT 1
+                    """,
+                    (driver_id,),
+                ).fetchone()
+                if row is not None:
+                    try:
+                        previous = json.loads(str(row["payload_json"]))
+                    except json.JSONDecodeError:
+                        previous = None
+                    if isinstance(previous, dict) and self._driver_state_storage_key(driver_id, previous) == self._driver_state_storage_key(driver_id, payload):
+                        continue
+                insert_states[driver_id] = payload
+            if not insert_states:
+                return
             connection.executemany(
                 """
                 INSERT INTO driver_attention_states (
@@ -807,7 +1363,7 @@ class TimelineStore:
                         payload["data_mode"],
                         json.dumps(payload, ensure_ascii=False),
                     )
-                    for driver_id, payload in states.items()
+                    for driver_id, payload in insert_states.items()
                 ],
             )
             connection.commit()
@@ -1201,16 +1757,67 @@ class TimelineStore:
                 params,
             ).fetchall()
 
+    def _recent_deduped_payload_rows(
+        self,
+        *,
+        table: str,
+        where_sql: str,
+        params: tuple[Any, ...],
+        group_field: str,
+        order_column: str,
+        max_points: int,
+    ) -> list[sqlite3.Row]:
+        batch_size = max(max_points * 8, 800)
+        max_scan = max(batch_size, max_points * 40)
+        selected: list[sqlite3.Row] = []
+        seen: set[Any] = set()
+        offset = 0
+        with self._connect() as connection:
+            while len(selected) < max_points and offset < max_scan:
+                rows = connection.execute(
+                    f"""
+                    SELECT payload_json, {group_field} AS group_key
+                    FROM {table}
+                    WHERE {where_sql}
+                    ORDER BY {order_column} DESC, id DESC
+                    LIMIT ? OFFSET ?
+                    """,
+                    (*params, batch_size, offset),
+                ).fetchall()
+                if not rows:
+                    break
+                for row in rows:
+                    key = row["group_key"]
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    selected.append(row)
+                    if len(selected) >= max_points:
+                        break
+                offset += batch_size
+        selected.reverse()
+        return selected
+
     def get_price_series(self, symbol: str, start: str, end: str, max_points: int | None = None) -> list[dict[str, Any]]:
         range_sql, range_params = self._range_where("data_timestamp", start, end)
-        rows = self._deduped_payload_rows(
-            table="market_price_bars",
-            where_sql=f"symbol = ? AND {range_sql}",
-            params=(symbol, *range_params),
-            group_fields=("data_timestamp",),
-            order_sql="source.data_timestamp, source.id",
-            max_points=max_points,
-        )
+        if max_points is not None and max_points > 0:
+            rows = self._recent_deduped_payload_rows(
+                table="market_price_bars",
+                where_sql=f"symbol = ? AND {range_sql}",
+                params=(symbol, *range_params),
+                group_field="data_timestamp",
+                order_column="data_timestamp",
+                max_points=max_points,
+            )
+        else:
+            rows = self._deduped_payload_rows(
+                table="market_price_bars",
+                where_sql=f"symbol = ? AND {range_sql}",
+                params=(symbol, *range_params),
+                group_fields=("data_timestamp",),
+                order_sql="source.data_timestamp, source.id",
+                max_points=max_points,
+            )
         return self._rows_to_payloads(rows)
 
     def get_latest_price_anchor_before(self, symbol: str, start: str) -> dict[str, Any] | None:
@@ -1262,14 +1869,24 @@ class TimelineStore:
         max_points: int | None = None,
     ) -> list[dict[str, Any]]:
         range_sql, range_params = self._range_where("data_timestamp", start, end)
-        rows = self._deduped_payload_rows(
-            table="related_asset_bars",
-            where_sql=f"symbol = ? AND {range_sql}",
-            params=(symbol, *range_params),
-            group_fields=("data_timestamp",),
-            order_sql="source.data_timestamp, source.id",
-            max_points=max_points,
-        )
+        if max_points is not None and max_points > 0:
+            rows = self._recent_deduped_payload_rows(
+                table="related_asset_bars",
+                where_sql=f"symbol = ? AND {range_sql}",
+                params=(symbol, *range_params),
+                group_field="data_timestamp",
+                order_column="data_timestamp",
+                max_points=max_points,
+            )
+        else:
+            rows = self._deduped_payload_rows(
+                table="related_asset_bars",
+                where_sql=f"symbol = ? AND {range_sql}",
+                params=(symbol, *range_params),
+                group_fields=("data_timestamp",),
+                order_sql="source.data_timestamp, source.id",
+                max_points=max_points,
+            )
         return self._rows_to_payloads(rows)
 
     @classmethod
@@ -1290,6 +1907,39 @@ class TimelineStore:
         max_points: int | None = None,
     ) -> list[dict[str, Any]]:
         range_sql, range_params = self._range_where("published_at", start, end)
+        rows: list[sqlite3.Row] = []
+        if max_points is not None and max_points > 0:
+            batch_size = max(max_points * 8, 800)
+            max_scan = max(batch_size, max_points * 40)
+            offset = 0
+            deduped: list[dict[str, Any]] = []
+            with self._connect() as connection:
+                while len(deduped) < max_points and offset < max_scan:
+                    batch = connection.execute(
+                        f"""
+                        SELECT id, monitor_run_id, payload_json
+                        FROM news_items
+                        WHERE {range_sql}
+                        ORDER BY published_at DESC, id DESC
+                        LIMIT ? OFFSET ?
+                        """,
+                        (*range_params, batch_size, offset),
+                    ).fetchall()
+                    if not batch:
+                        break
+                    rows.extend(batch)
+                    items: list[dict[str, Any]] = []
+                    for row in rows:
+                        payload = json.loads(str(row["payload_json"]))
+                        payload.setdefault("monitor_run_id", int(row["monitor_run_id"]))
+                        payload.setdefault("storage_row_id", int(row["id"]))
+                        items.append(self._repair_news_display_fields(payload))
+                    deduped = self._dedupe_news_items(items)
+                    if not include_filtered:
+                        deduped = [item for item in deduped if not self._is_filtered_news_item(item)]
+                    offset += batch_size
+            deduped.sort(key=lambda item: self._timestamp_score(item.get("published_at")))
+            return deduped[-max_points:]
         with self._connect() as connection:
             rows = connection.execute(
                 f"""
@@ -1308,8 +1958,6 @@ class TimelineStore:
             items.append(self._repair_news_display_fields(payload))
         deduped = self._dedupe_news_items(items)
         items = deduped if include_filtered else [item for item in deduped if not self._is_filtered_news_item(item)]
-        if max_points is not None and max_points > 0 and len(items) > max_points:
-            return items[-max_points:]
         return items
 
     def get_calendar_events(self, start: str, end: str) -> list[dict[str, Any]]:
@@ -1474,34 +2122,17 @@ class TimelineStore:
     ) -> list[dict[str, Any]]:
         run_where_sql, run_where_params = self._range_where("monitor_runs.run_started_at", start, end)
         with self._connect() as connection:
-            latest_theme_rows = connection.execute(
-                """
-                SELECT driver_attention_states.driver_id, driver_attention_states.current_state
-                FROM driver_attention_states
-                INNER JOIN monitor_runs ON monitor_runs.id = driver_attention_states.monitor_run_id
-                WHERE monitor_runs.run_started_at <= ?
-                  AND driver_attention_states.driver_id LIKE 'theme:%'
-                ORDER BY driver_attention_states.driver_id, monitor_runs.run_started_at DESC, driver_attention_states.id DESC
-                """,
-                (end,),
-            ).fetchall()
-            retired_theme_ids: set[str] = set()
-            seen_theme_ids: set[str] = set()
-            for row in latest_theme_rows:
-                driver_id = str(row["driver_id"])
-                if driver_id in seen_theme_ids:
-                    continue
-                seen_theme_ids.add(driver_id)
-                if str(row["current_state"]) == "retired":
-                    retired_theme_ids.add(driver_id)
             if max_points is not None and max_points > 0:
                 rows = connection.execute(
                     f"""
                     SELECT driver_attention_states.payload_json
                     FROM driver_attention_states
-                    INNER JOIN monitor_runs ON monitor_runs.id = driver_attention_states.monitor_run_id
-                    WHERE {run_where_sql}
-                    ORDER BY monitor_runs.run_started_at DESC, driver_attention_states.id DESC
+                    WHERE monitor_run_id IN (
+                        SELECT id
+                        FROM monitor_runs
+                        WHERE {run_where_sql}
+                    )
+                    ORDER BY monitor_run_id DESC, id DESC
                     LIMIT ?
                     """,
                     (*run_where_params, max_points),
@@ -1519,6 +2150,42 @@ class TimelineStore:
                     run_where_params,
                 ).fetchall()
         payloads = self._rows_to_payloads(rows)
+        theme_ids = sorted(
+            {
+                str(payload.get("driver_id") or "")
+                for payload in payloads
+                if str(payload.get("driver_id") or "").startswith("theme:")
+            }
+        )
+        retired_theme_ids: set[str] = set()
+        if theme_ids:
+            with self._connect() as connection:
+                latest_run = connection.execute(
+                    """
+                    SELECT id
+                    FROM monitor_runs
+                    WHERE run_started_at <= ?
+                    ORDER BY run_started_at DESC, id DESC
+                    LIMIT 1
+                    """,
+                    (end,),
+                ).fetchone()
+                latest_run_id = int(latest_run["id"]) if latest_run is not None else None
+                if latest_run_id is not None:
+                    for theme_id in theme_ids:
+                        row = connection.execute(
+                            """
+                            SELECT current_state
+                            FROM driver_attention_states
+                            WHERE driver_id = ?
+                              AND monitor_run_id <= ?
+                            ORDER BY monitor_run_id DESC, id DESC
+                            LIMIT 1
+                            """,
+                            (theme_id, latest_run_id),
+                        ).fetchone()
+                        if row is not None and str(row["current_state"]) == "retired":
+                            retired_theme_ids.add(theme_id)
         return [
             payload
             for payload in self._dedupe_driver_attention_timeline(payloads)
@@ -1686,7 +2353,7 @@ class TimelineStore:
             long_window = (end_dt - start_dt) > timedelta(hours=48)
         price_max_points = MONTH_REPLAY_PRICE_ROWS if long_window else None
         related_max_points = MONTH_REPLAY_RELATED_ROWS_PER_SYMBOL if long_window else DAY_REPLAY_RELATED_ROWS_PER_SYMBOL
-        news_max_points = MONTH_REPLAY_NEWS_ROWS if long_window else None
+        news_max_points = MONTH_REPLAY_NEWS_ROWS if long_window else DAY_REPLAY_NEWS_ROWS
         timeline_max_points = MONTH_REPLAY_TIMELINE_ROWS if long_window else DAY_REPLAY_TIMELINE_ROWS
         driver_max_points = MONTH_REPLAY_DRIVER_ROWS if long_window else DAY_REPLAY_DRIVER_ROWS
         state_max_points = MONTH_REPLAY_STATE_ROWS if long_window else DAY_REPLAY_STATE_ROWS

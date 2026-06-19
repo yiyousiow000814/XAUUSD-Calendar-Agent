@@ -22,6 +22,8 @@ import type {
 
 const marketAgentPageCss = () =>
   readFileSync(join(process.cwd(), "src/components/MarketAgentPage.css"), "utf8");
+const marketAgentReplayCss = () =>
+  readFileSync(join(process.cwd(), "src/components/MarketAgentReplay.css"), "utf8");
 
 const freshProviderTimestamp = () => new Date(Date.now() - 30_000).toISOString();
 
@@ -1005,6 +1007,283 @@ describe("MarketAgentPage", () => {
     expect(within(priceCard).queryByText(/\(0s ago\)/i)).not.toBeInTheDocument();
     expect(priceCard.querySelector(".market-agent-value-pulse")).not.toBeInTheDocument();
     expect(priceCard.querySelectorAll(".market-agent-value-stable").length).toBeGreaterThan(0);
+  });
+
+  it("does not show replay window movement as cTrader spot change", () => {
+    const liveQuote: MarketAgentLiveQuoteResponse = {
+      ok: true,
+      running: true,
+      phase: "running",
+      message: "Live quote stream is running.",
+      quote: {
+        symbol: "XAUUSD",
+        bid: 4228.3,
+        ask: 4228.35,
+        mid: 4228.9,
+        timestamp: freshProviderTimestamp(),
+        source: "cTrader",
+        source_type: "spot"
+      },
+      provider_health: {
+        provider_key: "xauusd",
+        source: "cTrader",
+        source_type: "spot",
+        data_mode: "live_seen",
+        is_available: true,
+        is_stale: false,
+        current_value: 4228.9,
+        previous_value: null,
+        change_value: null,
+        change_unit: "price",
+        data_timestamp: freshProviderTimestamp(),
+        fetched_at: freshProviderTimestamp()
+      }
+    };
+    const replayWithWindowMove: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        price_series: [
+          {
+            symbol: "XAUUSD",
+            timestamp: "2026-05-19T08:00:00+08:00",
+            data_timestamp: "2026-05-19T08:00:00+08:00",
+            close_price: 4228.9,
+            change_value: 4.66,
+            change_pct: 0.11
+          } as unknown as MarketAgentReplayResponse["replay"]["price_series"][number]
+        ]
+      }
+    };
+
+    renderMarketAgentPage({ liveQuote, replay: replayWithWindowMove });
+
+    const priceCard = screen.getByRole("heading", { name: /XAUUSD \(Spot\)/i }).closest("article") as HTMLElement;
+    expect(within(priceCard).getByText("4,228.90")).toBeInTheDocument();
+    expect(within(priceCard).queryByText(/\+4\.66/)).not.toBeInTheDocument();
+    expect(within(priceCard).queryByText(/\+0\.11%/)).not.toBeInTheDocument();
+  });
+
+  it("calculates the XAUUSD spot card change from fresh cTrader M1 data when native change is missing", () => {
+    const quoteTimestamp = freshProviderTimestamp();
+    const liveQuote: MarketAgentLiveQuoteResponse = {
+      ok: true,
+      running: true,
+      phase: "running",
+      message: "Live quote stream is running.",
+      quote: {
+        symbol: "XAUUSD",
+        bid: 4228.85,
+        ask: 4228.95,
+        mid: 4228.9,
+        timestamp: quoteTimestamp,
+        source: "cTrader",
+        source_type: "spot"
+      },
+      provider_health: {
+        provider_key: "xauusd",
+        source: "cTrader",
+        source_type: "spot",
+        data_mode: "live_seen",
+        is_available: true,
+        is_stale: false,
+        current_value: 4228.9,
+        previous_value: null,
+        change_value: null,
+        change_unit: "price",
+        data_timestamp: quoteTimestamp,
+        fetched_at: quoteTimestamp
+      }
+    };
+    const replayWithFreshCTraderM1: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        price_series: [
+          {
+            symbol: "XAUUSD",
+            source: "cTrader CLI live stream",
+            source_type: "spot_m1",
+            data_mode: "live_seen",
+            timestamp: quoteTimestamp,
+            data_timestamp: quoteTimestamp,
+            open_price: 4227.9,
+            close_price: 4228.9,
+            change_value: 4.66,
+            change_pct: 0.11
+          } as unknown as MarketAgentReplayResponse["replay"]["price_series"][number]
+        ]
+      }
+    };
+
+    renderMarketAgentPage({ liveQuote, replay: replayWithFreshCTraderM1 });
+
+    const priceCard = screen.getByRole("heading", { name: /XAUUSD \(Spot\)/i }).closest("article") as HTMLElement;
+    expect(within(priceCard).getByText("4,228.90")).toBeInTheDocument();
+    expect(within(priceCard).getByText("+1.00 (+0.02%)")).toBeInTheDocument();
+    expect(within(priceCard).queryByText(/\+4\.66/)).not.toBeInTheDocument();
+    expect(within(priceCard).queryByText(/\+0\.11%/)).not.toBeInTheDocument();
+  });
+
+  it("does not derive latest evidence direction from the current XAUUSD move", () => {
+    const neutralSnapshot: MarketAgentSnapshotResponse = {
+      ...snapshot,
+      state: {
+        ...snapshot.state,
+        current_bias: "unknown",
+        confidence: "low",
+        last_analysis_time: "2026-05-19T08:05:00+08:00"
+      }
+    };
+    const multiNewsReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        price_series: [
+          {
+            symbol: "XAUUSD",
+            data_timestamp: "2026-05-19T08:00:00+08:00",
+            close_price: 4520,
+            source_type: "spot",
+            data_mode: "live_seen"
+          },
+          {
+            symbol: "XAUUSD",
+            data_timestamp: "2026-05-19T08:15:00+08:00",
+            close_price: 4510,
+            source_type: "spot",
+            data_mode: "live_seen"
+          }
+        ],
+        news_items: [
+          {
+            title: "Oil prices fall after Strait of Hormuz supply update",
+            published_at: "2026-05-19T08:14:00+08:00",
+            source: "US Top News and Analysis",
+            included: true,
+            semantic_type: "news"
+          },
+          {
+            title: "Iran deal details keep traders focused on shipping",
+            published_at: "2026-05-19T08:10:00+08:00",
+            source: "MarketWatch.com - Top Stories",
+            included: true,
+            semantic_type: "news"
+          },
+          {
+            title: "Fed comments keep dollar attention high",
+            published_at: "2026-05-19T08:06:00+08:00",
+            source: "Reuters",
+            included: true,
+            semantic_type: "news"
+          }
+        ]
+      }
+    };
+
+    renderMarketAgentPage({ snapshot: neutralSnapshot, replay: multiNewsReplay });
+
+    const latestEvidence = screen.getByRole("heading", { name: /Latest Evidence/i }).closest("section");
+    expect(latestEvidence).not.toBeNull();
+    expect(within(latestEvidence as HTMLElement).getByText(/Oil prices fall after Strait of Hormuz supply update/i)).toBeInTheDocument();
+    expect(within(latestEvidence as HTMLElement).getByText(/Iran deal details keep traders focused on shipping/i)).toBeInTheDocument();
+    expect(within(latestEvidence as HTMLElement).queryByText(/^Bearish$/i)).not.toBeInTheDocument();
+    expect(within(latestEvidence as HTMLElement).queryByText(/^Bullish$/i)).not.toBeInTheDocument();
+    expect(within(latestEvidence as HTMLElement).getAllByText(/^Relevant$/i).length).toBeGreaterThan(0);
+
+    const evidenceCard = screen.getByRole("heading", { name: /Evidence Status/i }).closest("article");
+    expect(evidenceCard).not.toBeNull();
+    expect(within(evidenceCard as HTMLElement).queryByText(/^Bearish$/i)).not.toBeInTheDocument();
+    expect(within(evidenceCard as HTMLElement).queryByText(/^Bullish$/i)).not.toBeInTheDocument();
+    expect(within(evidenceCard as HTMLElement).getAllByText(/^Relevant$/i).length).toBeGreaterThan(0);
+  });
+
+  it("shows AI-assigned news direction instead of deriving it from the current XAUUSD move", () => {
+    const directionalReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        price_series: [
+          {
+            symbol: "XAUUSD",
+            data_timestamp: "2026-05-19T08:00:00+08:00",
+            close_price: 4520,
+            source_type: "spot",
+            data_mode: "live_seen"
+          },
+          {
+            symbol: "XAUUSD",
+            data_timestamp: "2026-05-19T08:15:00+08:00",
+            close_price: 4510,
+            source_type: "spot",
+            data_mode: "live_seen"
+          }
+        ],
+        news_items: [
+          {
+            title: "Oil prices fall as supply risks ease",
+            summary: "Lower oil pressure can ease inflation risk for gold.",
+            published_at: "2026-05-19T08:14:00+08:00",
+            source: "US Top News and Analysis",
+            included: true,
+            semantic_type: "news",
+            impact_direction_on_gold: "bullish",
+            impact_direction_source: "local_ai"
+          }
+        ]
+      }
+    };
+
+    renderMarketAgentPage({ replay: directionalReplay });
+
+    const latestEvidence = screen.getByRole("heading", { name: /Latest Evidence/i }).closest("section");
+    expect(latestEvidence).not.toBeNull();
+    const newsRow = within(latestEvidence as HTMLElement)
+      .getByText(/Oil prices fall as supply risks ease/i)
+      .closest("button") as HTMLElement;
+    expect(newsRow).not.toBeNull();
+    expect(within(newsRow).getByText(/^Bullish$/i)).toBeInTheDocument();
+    expect(within(newsRow).queryByText(/^Bearish$/i)).not.toBeInTheDocument();
+  });
+
+  it("dedupes repeated latest evidence news by story", () => {
+    const repeatedNewsReplay: MarketAgentReplayResponse = {
+      ...replay,
+      replay: {
+        ...replay.replay,
+        news_items: [
+          {
+            title: "Markets price higher Treasury yields after hawkish Fed comments",
+            summary: "Repeated mock headline should render once in Latest Evidence.",
+            published_at: "2026-05-19T08:03:00+08:00",
+            first_seen_at: "2026-05-19T08:06:00+08:00",
+            source: "Reuters",
+            included: true,
+            semantic_type: "news"
+          },
+          {
+            title: "Markets price higher Treasury yields after hawkish Fed comments",
+            summary: "Same story arrived again with a later fetch timestamp.",
+            published_at: "2026-05-19T08:03:00+08:00",
+            first_seen_at: "2026-05-19T08:09:00+08:00",
+            source: "Reuters",
+            included: true,
+            semantic_type: "news"
+          }
+        ]
+      }
+    };
+
+    renderMarketAgentPage({ replay: repeatedNewsReplay });
+
+    const latestEvidence = screen.getByRole("heading", { name: /Latest Evidence/i }).closest("section");
+    expect(latestEvidence).not.toBeNull();
+    expect(
+      within(latestEvidence as HTMLElement).getAllByText(/Markets price higher Treasury yields after hawkish Fed comments/i)
+    ).toHaveLength(1);
+    expect(
+      within(latestEvidence as HTMLElement).queryByText(/Same story arrived again with a later fetch timestamp/i)
+    ).not.toBeInTheDocument();
   });
 
   it("labels empty evidence support as the opposing market direction", () => {
@@ -2006,10 +2285,16 @@ describe("MarketAgentPage", () => {
   it("keeps dashboard replay timeline readable without node halos breaking the line", () => {
     const css = marketAgentPageCss();
     const dashboardTrackRule = css.match(/\.market-agent-replay-panel \.market-agent-timeline-track\s*\{[^}]+\}/)?.[0] ?? "";
-    const nodeRule = css.match(/\.market-agent-timeline-node\s*\{[^}]+\}/)?.[0] ?? "";
+    const replayCss = marketAgentReplayCss();
 
     expect(dashboardTrackRule).toContain("--ma-timeline-time-col: 56px");
-    expect(nodeRule).not.toContain("0 0 0 3px");
+    expect(css).toContain("--ma-timeline-axis-x:");
+    expect(css).toContain("left: var(--ma-timeline-axis-x)");
+    expect(css).toContain("justify-self: center");
+    expect(css).not.toContain("0 0 0 3px");
+    expect(replayCss).toContain("--ma-replay-axis-x:");
+    expect(replayCss).toContain("left: var(--ma-replay-axis-x)");
+    expect(replayCss).toContain("justify-self: center");
   });
 
   it("shows unconfirmed market reads as replay observations instead of hiding them", () => {
@@ -2492,7 +2777,7 @@ describe("MarketAgentPage", () => {
     const microRows = Array.from(panel.querySelectorAll(".market-agent-mm-tape li"));
     expect(macroRows.length).toBeGreaterThan(0);
     expect(microRows).toHaveLength(3);
-    expect(macroRows[0].textContent).toMatch(/Hormuz disruption keeps geopolitical risk active/i);
+    expect(macroRows[0].textContent).toMatch(/Strait of Hormuz traffic won't return to normal until end of the year/i);
     expect(microRows[0].textContent).toMatch(/Strait of Hormuz traffic won't return to normal until end of the year/i);
     expect(microRows[1].textContent).toMatch(/Iran announces end of military operations against Israel/i);
     expect(panel.textContent).toMatch(/100 days of the Iran war/i);
@@ -2509,19 +2794,17 @@ describe("MarketAgentPage", () => {
         ...replay.replay,
         news_items: [
           {
-            title: "Kuwait closes airspace, Israel warns of launches from Lebanon after U.S strikes in Iran",
+            title: "A billion-dollar server company loses more than 40% of its value following short-seller report",
             published_at: "2026-06-11T11:50:00+08:00",
-            source: "US Top News and Analysis",
-            link: "https://example.test/kuwait-airspace",
+            source: "MarketWatch.com - Top Stories",
             included: true,
             data_mode: "live_seen",
             semantic_type: "news"
           },
           {
-            title: "Kuwait closes airspace, Israel warns of launches from Lebanon after U.S strikes in Iran",
+            title: "A billion-dollar server company just lost more than 40% of its value following a short-seller report",
             published_at: "2026-06-11T11:41:00+08:00",
-            source: "US Top News and Analysis",
-            link: "https://example.test/kuwait-airspace",
+            source: "MarketWatch.com - Top Stories",
             included: true,
             data_mode: "live_seen",
             semantic_type: "news"
@@ -2547,11 +2830,12 @@ describe("MarketAgentPage", () => {
 
     const panel = container.querySelector("[data-qa='qa:market-agent:macro-micro:page']") as HTMLElement;
     const microRows = Array.from(panel.querySelectorAll(".market-agent-mm-tape li"));
+    const tapeText = panel.querySelector(".market-agent-mm-tape")?.textContent ?? "";
     expect(within(panel).getByText("2 stories")).toBeInTheDocument();
     expect(microRows).toHaveLength(2);
-    expect(panel.textContent?.match(/Kuwait closes airspace/g)).toHaveLength(1);
-    expect(panel.textContent).toMatch(/11 Jun 2026 11:50/i);
-    expect(panel.textContent).not.toMatch(/11 Jun 2026 11:41/i);
+    expect(tapeText.match(/billion-dollar server company/g)).toHaveLength(1);
+    expect(tapeText).toMatch(/11 Jun 2026 11:50/i);
+    expect(tapeText).not.toMatch(/11 Jun 2026 11:41/i);
   });
 
   it("groups Macro Micro calendar events by driver instead of repeating internal gaps", () => {
@@ -2712,7 +2996,7 @@ describe("MarketAgentPage", () => {
     expect(microRows).toHaveLength(6);
     expect(within(panel).getByText("6 stories")).toBeInTheDocument();
     expect(microRows.map((row) => row.querySelector("i")?.textContent)).toEqual(["01", "02", "03", "04", "05", "06"]);
-    expect(panel.textContent).toMatch(/Inflation and oil remain active gold drivers/i);
+    expect(panel.textContent).toMatch(/Inflation is set to top 4% for the rest of the year/i);
     expect(panel.textContent).toMatch(/Oil prices fall as Trump tries to convince producers/i);
     expect(panel.textContent).toMatch(/Markets are pricing in a rate hike by December/i);
     expect(panel.textContent).not.toMatch(/for the\s*(US Top|MarketWatch)/i);
@@ -4581,8 +4865,50 @@ describe("MarketAgentPage", () => {
     const radar = screen.getByLabelText("Macro Micro Watch");
     expect(within(radar).queryByText(/No macro story detected/i)).not.toBeInTheDocument();
     expect(within(radar).queryByText(/No micro story detected/i)).not.toBeInTheDocument();
-    expect(within(radar).getByText(/Oil weakness eases one inflation risk for gold|Oil risk stays in focus|Inflation and oil remain active gold drivers/i)).toBeInTheDocument();
     expect(within(radar).getByText(/Oil prices jump as Middle East supply risk returns/i)).toBeInTheDocument();
+    expect(within(radar).getByText(/Oil prices jump as Middle East supply risk returns/i)).toBeInTheDocument();
+  });
+
+  it("uses a concrete headline for dashboard big picture instead of a generic driver phrase", () => {
+    renderMarketAgentPage({
+      driverAttention: { ok: true, available: true, states: [] },
+      replay: {
+        ...replay,
+        replay: {
+          ...replay.replay,
+          news_items: [
+            {
+              title: "Treasury yields slide as Fed begins monetary policy meeting",
+              summary: "U.S. Treasury yields fell on Tuesday as the Federal Reserve's two-day policy meeting kicked off.",
+              source: "US Top News and Analysis",
+              published_at: "2026-06-17T04:01:00+08:00",
+              included: true,
+              data_mode: "live_seen",
+              semantic_type: "news"
+            }
+          ],
+          calendar_events: [],
+          timeline_events: []
+        }
+      },
+      selectedEvidence: {
+        ...evidence,
+        payload: {
+          ...evidence.payload,
+          evidence_packet: {
+            ...evidence.payload.evidence_packet,
+            market_read: null,
+            allowed_candidate_drivers: []
+          }
+        }
+      }
+    });
+
+    const radar = screen.getByLabelText("Macro Micro Watch");
+    const bigPicture = within(radar).getByLabelText("Big picture");
+    expect(within(bigPicture).getByText(/Treasury yields slide as Fed begins monetary policy meeting/i)).toBeInTheDocument();
+    expect(within(radar).queryByText(/Rates pressure remains the main gold test/i)).not.toBeInTheDocument();
+    expect(within(radar).queryByText(/Dollar pressure is shaping the gold read/i)).not.toBeInTheDocument();
   });
 
   it("shows useful empty states when sqlite-backed data is unavailable", () => {

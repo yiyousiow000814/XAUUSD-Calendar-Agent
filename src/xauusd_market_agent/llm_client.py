@@ -429,13 +429,32 @@ class LocalLLMClient:
             "analysis": self._compact_analysis_for_summary(display_packet.get("analysis")),
             "news": self._compact_rows_for_summary(
                 display_packet.get("news"),
-                fields=("title", "source", "published_at", "timestamp_myt", "summary", "summary_title", "display_summary"),
+                fields=(
+                    "title",
+                    "source",
+                    "published_at",
+                    "timestamp_myt",
+                    "summary",
+                    "summary_title",
+                    "display_summary",
+                    "impact_direction_on_gold",
+                ),
                 limit=6,
                 visible_only=True,
             ),
             "calendar": self._compact_rows_for_summary(
                 display_packet.get("calendar"),
-                fields=("title", "source", "scheduled_at", "timestamp_myt", "impact", "currency", "summary", "summary_title"),
+                fields=(
+                    "title",
+                    "source",
+                    "scheduled_at",
+                    "timestamp_myt",
+                    "impact",
+                    "currency",
+                    "summary",
+                    "summary_title",
+                    "impact_direction_on_gold",
+                ),
                 limit=4,
             ),
             "related_assets": self._compact_rows_for_summary(
@@ -448,7 +467,9 @@ class LocalLLMClient:
             "Create short UI summaries for the XAUUSD Market Agent dashboard. "
             "Use only supplied facts. Do not invent drivers, prices, headlines, or causes. "
             "Return strict JSON only. The JSON may contain news, calendar, and related_assets. "
-            "news and calendar must be arrays of objects with source_index, summary_title, and summary. "
+            "news and calendar must be arrays of objects with source_index, summary_title, summary, "
+            "and impact_direction_on_gold. impact_direction_on_gold must be one of bullish, bearish, neutral, or unknown, "
+            "judged from the item content's expected impact on XAUUSD/gold, not from the current gold price move. "
             "related_assets must be an object keyed by lower-case symbol; each value is an array of "
             "objects with source_index and summary. Keep summary_title 5-11 words, natural, and complete; "
             "it must include the market action or event, not a keyword pile like 'Trump peace deal Iran'. "

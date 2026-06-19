@@ -1490,6 +1490,22 @@ const injectDesktopBackend = async (page, mode, dispatchReadyEvent = true) =>
             },
             news_items: [
               {
+                title: "A billion-dollar server company loses more than 40% of its value following short-seller report",
+                source: "MarketWatch.com - Top Stories",
+                published_at: "2026-05-19T08:06:00+08:00",
+                included: true,
+                semantic_type: "news",
+                impact_percent: -0.18
+              },
+              {
+                title: "A billion-dollar server company just lost more than 40% of its value following a short-seller report",
+                source: "MarketWatch.com - Top Stories",
+                published_at: "2026-05-19T08:06:00+08:00",
+                included: true,
+                semantic_type: "news",
+                impact_percent: -0.18
+              },
+              {
                 title: "Fed inflation surprise jolts gold before the next rate window",
                 summary_title: "Fed inflation surprise jolts gold",
                 summary_source: "local_ai",
@@ -3057,6 +3073,10 @@ const main = async () => {
         }
         if (text.includes("after hawkish Fed comments and dollar strength weighs heavily on bullion")) {
           problems.push("Raw long headline leaked into dashboard smoke panel");
+        }
+        const nearDuplicateCount = (text.match(/billion-dollar server company/gi) || []).length;
+        if (nearDuplicateCount > 1) {
+          problems.push(`Near-duplicate news story rendered ${nearDuplicateCount} times`);
         }
         for (const forbidden of ["Blocked", "Watching", "Rule kept", "Accepted input", "No detail recorded", "raw calendar context", "AI/rules"]) {
           if (text.includes(forbidden)) problems.push(`Dashboard smoke exposes audit-only text: ${forbidden}`);
