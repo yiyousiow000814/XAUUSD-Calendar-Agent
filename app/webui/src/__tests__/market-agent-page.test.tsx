@@ -27,6 +27,13 @@ const marketAgentReplayCss = () =>
 
 const freshProviderTimestamp = () => new Date(Date.now() - 30_000).toISOString();
 
+const formatExpectedMarketAgentDateTime = (value: string) => {
+  const date = new Date(value);
+  const pad2 = (part: number) => String(part).padStart(2, "0");
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return `${pad2(date.getDate())} ${months[date.getMonth()]} ${date.getFullYear()} ${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+};
+
 const snapshot: MarketAgentSnapshotResponse = {
   ok: true,
   available: true,
@@ -2781,7 +2788,7 @@ describe("MarketAgentPage", () => {
     expect(microRows[0].textContent).toMatch(/Strait of Hormuz traffic won't return to normal until end of the year/i);
     expect(microRows[1].textContent).toMatch(/Iran announces end of military operations against Israel/i);
     expect(panel.textContent).toMatch(/100 days of the Iran war/i);
-    expect(panel.textContent).toMatch(/MarketWatch.*06 Aug 2026 23:48/i);
+    expect(panel.textContent).toContain(`MarketWatch • ${formatExpectedMarketAgentDateTime("2026-08-06T23:48:00+08:00")}`);
     expect(microRows[0].textContent).not.toEqual(macroRows[0].textContent);
     expect(panel.textContent).not.toContain("...");
     expect(container.querySelector(".market-agent-mm-tape ol")).toBeInTheDocument();
@@ -2834,8 +2841,8 @@ describe("MarketAgentPage", () => {
     expect(within(panel).getByText("2 stories")).toBeInTheDocument();
     expect(microRows).toHaveLength(2);
     expect(tapeText.match(/billion-dollar server company/g)).toHaveLength(1);
-    expect(tapeText).toMatch(/11 Jun 2026 11:50/i);
-    expect(tapeText).not.toMatch(/11 Jun 2026 11:41/i);
+    expect(tapeText).toContain(formatExpectedMarketAgentDateTime("2026-06-11T11:50:00+08:00"));
+    expect(tapeText).not.toContain(formatExpectedMarketAgentDateTime("2026-06-11T11:41:00+08:00"));
   });
 
   it("groups Macro Micro calendar events by driver instead of repeating internal gaps", () => {
@@ -3839,13 +3846,19 @@ describe("MarketAgentPage", () => {
     renderMarketAgentPage({ replay: orderedReplay, rangePreset: "day" });
     fireEvent.click(screen.getByRole("button", { name: /Replay \/ Timeline/i }));
 
-    const earlier = screen.getByText(/Earlier dollar pressure/i);
-    const later = screen.getByText(/Later yield pressure/i);
-    const mixedEvening = screen.getByText(/Mixed format evening calendar/i);
-    const nextMorning = screen.getByText(/Next morning stock headline/i);
-    expect(nextMorning.compareDocumentPosition(mixedEvening) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(mixedEvening.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(later.compareDocumentPosition(earlier) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const replayRows = Array.from(document.querySelectorAll(".market-agent-replay-track-row"));
+    const rowText = replayRows.map((row) => row.textContent ?? "").join("\n");
+    const nextMorningIndex = replayRows.findIndex((row) => row.textContent?.includes("Next morning stock headline"));
+    const mixedEveningIndex = replayRows.findIndex((row) => row.textContent?.includes("Mixed format evening calendar"));
+    const laterIndex = replayRows.findIndex((row) => row.textContent?.includes("Later yield pressure"));
+    const earlierIndex = replayRows.findIndex((row) => row.textContent?.includes("Earlier dollar pressure"));
+    expect(rowText).toContain("Next morning stock headline");
+    expect(rowText).toContain("Mixed format evening calendar");
+    expect(rowText).toContain("Later yield pressure");
+    expect(rowText).toContain("Earlier dollar pressure");
+    expect(nextMorningIndex).toBeLessThan(mixedEveningIndex);
+    expect(mixedEveningIndex).toBeLessThan(laterIndex);
+    expect(laterIndex).toBeLessThan(earlierIndex);
   });
 
   it("applies Local AI fallback policy returned after model installation", async () => {

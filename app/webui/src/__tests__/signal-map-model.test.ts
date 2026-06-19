@@ -2,6 +2,16 @@ import { describe, expect, it } from "vitest";
 
 import { buildSignalMapModel } from "../components/market-agent-activity/signalMapModel";
 
+const formatExpectedLocalTimestamp = (value: string) => {
+  const date = new Date(value);
+  const pad2 = (part: number) => String(part).padStart(2, "0");
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const offsetMinutes = -date.getTimezoneOffset();
+  const sign = offsetMinutes >= 0 ? "+" : "-";
+  const abs = Math.abs(offsetMinutes);
+  return `${pad2(date.getDate())} ${months[date.getMonth()]} ${date.getFullYear()} ${pad2(date.getHours())}:${pad2(date.getMinutes())} UTC${sign}${pad2(Math.floor(abs / 60))}`;
+};
+
 const emptyReplay = {
   ok: true,
   available: true,
@@ -75,7 +85,7 @@ describe("buildSignalMapModel", () => {
     const rows = priceNode?.drilldown?.[0]?.rows ?? [];
 
     expect(priceNode?.status).toBe("market closed");
-    expect(model.phaseMessage).toContain("31 May 2026 18:27 UTC+08");
+    expect(model.phaseMessage).toContain(formatExpectedLocalTimestamp("2026-05-31T18:27:17.534309+08:00"));
     expect(model.phaseMessage).not.toContain("2026-05-31T18:27:17.534309+08:00");
     expect(rows[0]?.status).toBe("market closed");
     expect(JSON.stringify(rows)).not.toContain("Live cTrader spot is unavailable.");
