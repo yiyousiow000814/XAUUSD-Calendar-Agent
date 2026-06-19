@@ -195,7 +195,7 @@
   align-items: start;
   gap: 10px;
   min-width: 0;
-  padding: 9px 10px 10px;
+  padding: 10px 10px 11px;
   border: 1px solid rgba(134, 148, 168, 0.11);
   border-radius: 7px;
   background: rgba(255, 255, 255, 0.03);
@@ -219,22 +219,24 @@
 
 .market-agent-mm-tape li span {
   display: grid;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
 }
 
 .market-agent-mm-tape li b {
+  display: block;
   color: var(--text);
   font-size: 13px;
   font-weight: 840;
-  line-height: 1.2;
+  line-height: 1.32;
 }
 
 .market-agent-mm-tape li small {
+  display: block;
   color: var(--text-muted);
   font-size: 11px;
   font-weight: 720;
-  line-height: 1.15;
+  line-height: 1.25;
 }
 
 .market-agent-mm-tape li.empty b {
@@ -332,27 +334,30 @@
 .market-agent-mm-story-list em {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
+  align-items: start;
   gap: 10px;
+  min-height: 30px;
   border-radius: 7px;
   background: rgba(103, 171, 255, 0.055);
   animation: market-agent-mm-content-reveal 280ms ease-out both;
 }
 
 .market-agent-mm-story-list b {
+  display: block;
   color: var(--text);
   font-size: 11px;
   font-weight: 820;
-  line-height: 1.15;
+  line-height: 1.28;
 }
 
 .market-agent-mm-story-list span {
+  display: block;
   max-width: 165px;
   color: var(--text-muted);
   font-size: 10px;
   font-style: normal;
   font-weight: 720;
-  line-height: 1;
+  line-height: 1.2;
 }
 
 .market-agent-mm-story-list .more {

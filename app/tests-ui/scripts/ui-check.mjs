@@ -3715,6 +3715,29 @@ const main = async () => {
               problems.push(`Macro / Micro Watch row ${index + 1} title clips`);
             }
           });
+          const storyRows = Array.from(focus.querySelectorAll(".market-agent-mm-tape li, .market-agent-mm-story-list em")).filter(visibleElement);
+          storyRows.slice(0, 8).forEach((row, index) => {
+            if (!(row instanceof HTMLElement)) return;
+            const title = row.querySelector("b");
+            const meta = row.querySelector("small, span");
+            if (!(title instanceof HTMLElement) || !(meta instanceof HTMLElement) || !visibleElement(title) || !visibleElement(meta)) {
+              return;
+            }
+            const titleBox = title.getBoundingClientRect();
+            const metaBox = meta.getBoundingClientRect();
+            const titleStyle = window.getComputedStyle(title);
+            const titleLineHeight = Number.parseFloat(titleStyle.lineHeight);
+            const titleFontSize = Number.parseFloat(titleStyle.fontSize);
+            if (title.scrollWidth > title.clientWidth + 1 || title.scrollHeight > title.clientHeight + 1) {
+              problems.push(`Macro / Micro story ${index + 1} title is clipped`);
+            }
+            if (Number.isFinite(titleLineHeight) && Number.isFinite(titleFontSize) && titleLineHeight < titleFontSize * 1.24) {
+              problems.push(`Macro / Micro story ${index + 1} title line-height is too tight`);
+            }
+            if (metaBox.top - titleBox.bottom < 3) {
+              problems.push(`Macro / Micro story ${index + 1} title and source are too close`);
+            }
+          });
         };
         const staleDashboardLabels = [
           "Live Situation",
