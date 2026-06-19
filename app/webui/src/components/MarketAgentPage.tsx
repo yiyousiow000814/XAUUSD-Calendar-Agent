@@ -1448,14 +1448,19 @@ const evidenceDirectionText = (direction: EvidenceDirection, fallback: string) =
   return fallback;
 };
 
-const displayEvidenceStatusLabel = (status: string, direction: EvidenceDirection) => {
+const displayEvidenceDirection = (status: string, direction: EvidenceDirection): "bullish" | "bearish" | "neutral" => {
   const normalized = normalizeMarketAgentValue(status);
-  if (normalized === "supporting") return evidenceDirectionText(direction, "Relevant");
-  if (normalized === "contrary" || normalized === "blocked" || normalized === "rejected") {
-    return evidenceDirectionText(oppositeEvidenceDirection(direction), "Against");
+  if (normalized === "bullish") return "bullish";
+  if (normalized === "bearish") return "bearish";
+  if (normalized === "supporting" && direction) return direction;
+  if ((normalized === "contrary" || normalized === "blocked" || normalized === "rejected") && direction) {
+    return oppositeEvidenceDirection(direction) ?? "neutral";
   }
-  if (normalized === "neutral" || normalized === "context" || normalized === "context_only") return humanizeMarketAgentValue(status);
-  return humanizeMarketAgentValue(status);
+  return "neutral";
+};
+
+const displayEvidenceStatusLabel = (status: string, direction: EvidenceDirection) => {
+  return evidenceDirectionText(displayEvidenceDirection(status, direction), "Neutral");
 };
 
 const evidenceDirectionStatusFromItem = (item: Record<string, unknown> | undefined) => {
@@ -2125,21 +2130,14 @@ function MarketAgentDashboard({
     [allEvidence, evidenceFilter]
   );
   const evidenceDirection = currentConclusionReady ? evidenceDirectionFromBias(state?.current_bias) : null;
-  const oppositeDirection = oppositeEvidenceDirection(evidenceDirection);
-  const bullishCount = evidence.filter((item) => normalizeMarketAgentValue(item.status) === "bullish").length;
-  const bearishCount = evidence.filter((item) => normalizeMarketAgentValue(item.status) === "bearish").length;
-  const supportingCount = evidence.filter((item) =>
-    normalizeMarketAgentValue(item.status) === "supporting" ||
-    (evidenceDirection !== null && normalizeMarketAgentValue(item.status) === evidenceDirection)
-  ).length;
-  const contraryCount = evidence.filter((item) =>
-    ["blocked", "rejected", "contrary"].includes(normalizeMarketAgentValue(item.status)) ||
-    (oppositeDirection !== null && normalizeMarketAgentValue(item.status) === oppositeDirection)
-  ).length;
-  const neutralCount = Math.max(0, evidence.length - supportingCount - contraryCount);
+  const displayEvidenceDirections = evidence.map((item) => displayEvidenceDirection(item.status, evidenceDirection));
+  const bullishCount = displayEvidenceDirections.filter((direction) => direction === "bullish").length;
+  const bearishCount = displayEvidenceDirections.filter((direction) => direction === "bearish").length;
+  const neutralCount = displayEvidenceDirections.filter((direction) => direction === "neutral").length;
+  const contraryCount = evidenceDirection === "bullish" ? bearishCount : evidenceDirection === "bearish" ? bullishCount : 0;
   const directionalCount = bullishCount + bearishCount;
   const evidenceScore = evidence.length
-    ? Math.round(((supportingCount || directionalCount) / evidence.length) * 100)
+    ? Math.round((Math.max(bullishCount, bearishCount) / evidence.length) * 100)
     : 0;
   const clampedEvidenceScore = currentConclusionReady ? Math.max(0, Math.min(100, evidenceScore)) : 0;
   const isEvidenceScoreEmpty = clampedEvidenceScore <= 0;
@@ -2165,14 +2163,11 @@ function MarketAgentDashboard({
   const latestMoveLabel = moveChange === null
     ? (extractMovePercent(latestAlertMessage) ?? "--")
     : formatPercentChange(moveChange);
-  const supportingEvidenceLabel = evidenceDirectionText(evidenceDirection, "Relevant");
-  const contraryEvidenceLabel = evidenceDirectionText(oppositeDirection, "Against");
-  const analysisOpposesCurrentMove = ["contrary", "opposing", "rejected", "blocked"].includes(analysisCauseStatus);
   const evidenceScoreLabel = currentConclusionReady
-    ? supportingCount > 0
-      ? supportingEvidenceLabel
-      : contraryCount > 0 || analysisOpposesCurrentMove
-        ? contraryEvidenceLabel
+    ? bullishCount > bearishCount
+      ? "Bullish"
+      : bearishCount > bullishCount
+        ? "Bearish"
         : neutralCount > 0
           ? "Neutral"
           : formatEvidenceScoreStrength(clampedEvidenceScore, evidence.length, contraryCount)
@@ -2354,9 +2349,9 @@ function MarketAgentDashboard({
             <div className="market-agent-evidence-counts">
               {currentConclusionReady ? (
                 <>
-                  <span><i className="supporting" /><span>{supportingEvidenceLabel}</span><b><MarketAgentValuePulse value={supportingCount}>{supportingCount}</MarketAgentValuePulse></b></span>
+                  <span><i className="contrary" /><span>Bearish</span><b><MarketAgentValuePulse value={bearishCount}>{bearishCount}</MarketAgentValuePulse></b></span>
                   <span><i className="neutral" /><span>Neutral</span><b><MarketAgentValuePulse value={neutralCount}>{neutralCount}</MarketAgentValuePulse></b></span>
-                  <span><i className="contrary" /><span>{contraryEvidenceLabel}</span><b><MarketAgentValuePulse value={contraryCount}>{contraryCount}</MarketAgentValuePulse></b></span>
+                  <span><i className="supporting" /><span>Bullish</span><b><MarketAgentValuePulse value={bullishCount}>{bullishCount}</MarketAgentValuePulse></b></span>
                 </>
               ) : (
                 <>
@@ -2528,9 +2523,7 @@ function MarketAgentDashboard({
             <span><i /> Evidence Status: <b>{currentConclusionReady ? `${evidenceScoreLabel} (${evidenceScore}%)` : liveReviewPending ? "Market read forming" : "No current conclusion"}</b></span>
             <span>
               {currentConclusionReady
-                ? directionalCount > 0
-                  ? `${bearishCount} Bearish, ${neutralCount} Neutral, ${bullishCount} Bullish`
-                  : `${supportingCount} ${supportingEvidenceLabel}, ${neutralCount} Neutral, ${contraryCount} ${contraryEvidenceLabel}`
+                ? `${bearishCount} Bearish, ${neutralCount} Neutral, ${bullishCount} Bullish`
                 : `${allEvidence.length} kept context item${allEvidence.length === 1 ? "" : "s"}`}
             </span>
           </div>

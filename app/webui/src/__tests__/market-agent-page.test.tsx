@@ -1196,13 +1196,15 @@ describe("MarketAgentPage", () => {
     expect(within(latestEvidence as HTMLElement).getByText(/Iran deal details keep traders focused on shipping/i)).toBeInTheDocument();
     expect(within(latestEvidence as HTMLElement).queryByText(/^Bearish$/i)).not.toBeInTheDocument();
     expect(within(latestEvidence as HTMLElement).queryByText(/^Bullish$/i)).not.toBeInTheDocument();
-    expect(within(latestEvidence as HTMLElement).getAllByText(/^Relevant$/i).length).toBeGreaterThan(0);
+    expect(within(latestEvidence as HTMLElement).getAllByText(/^Neutral$/i).length).toBeGreaterThan(0);
+    expect(within(latestEvidence as HTMLElement).queryByText(/^Relevant$/i)).not.toBeInTheDocument();
+    expect(within(latestEvidence as HTMLElement).queryByText(/^Against$/i)).not.toBeInTheDocument();
 
     const evidenceCard = screen.getByRole("heading", { name: /Evidence Status/i }).closest("article");
     expect(evidenceCard).not.toBeNull();
-    expect(within(evidenceCard as HTMLElement).queryByText(/^Bearish$/i)).not.toBeInTheDocument();
-    expect(within(evidenceCard as HTMLElement).queryByText(/^Bullish$/i)).not.toBeInTheDocument();
-    expect(within(evidenceCard as HTMLElement).getAllByText(/^Relevant$/i).length).toBeGreaterThan(0);
+    expect(within(evidenceCard as HTMLElement).getAllByText(/^Neutral$/i).length).toBeGreaterThan(0);
+    expect(within(evidenceCard as HTMLElement).queryByText(/^Relevant$/i)).not.toBeInTheDocument();
+    expect(within(evidenceCard as HTMLElement).queryByText(/^Against$/i)).not.toBeInTheDocument();
   });
 
   it("shows AI-assigned news direction instead of deriving it from the current XAUUSD move", () => {
@@ -1293,7 +1295,7 @@ describe("MarketAgentPage", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("labels empty evidence support as the opposing market direction", () => {
+  it("labels empty evidence support as neutral instead of inventing direction", () => {
     const zeroSupportEvidence: MarketAgentEvidenceForRunResponse = {
       ...evidence,
       payload: {
@@ -1324,10 +1326,11 @@ describe("MarketAgentPage", () => {
     const scoreRing = container.querySelector(".market-agent-score-ring");
     expect(within(scoreRing as HTMLElement).getByText("0")).toBeInTheDocument();
     expect(within(scoreRing as HTMLElement).queryByText("Strong")).not.toBeInTheDocument();
-    expect(within(scoreRing as HTMLElement).getByText("Bullish")).toBeInTheDocument();
+    expect(within(scoreRing as HTMLElement).getByText("Neutral")).toBeInTheDocument();
     expect(container.querySelector(".market-agent-score-progress.is-empty")).toBeInTheDocument();
-    expect(container.querySelector(".market-agent-evidence-footer")?.textContent).toContain("Bullish (0%)");
+    expect(container.querySelector(".market-agent-evidence-footer")?.textContent).toContain("Neutral (0%)");
     expect(screen.queryByText(/Aligned|Opposing/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Relevant|Against/i)).not.toBeInTheDocument();
   });
 
   it("uses a full ring state when every evidence item supports the move", () => {
