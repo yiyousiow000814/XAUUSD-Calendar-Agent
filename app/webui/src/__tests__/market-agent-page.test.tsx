@@ -3820,7 +3820,7 @@ describe("MarketAgentPage", () => {
           },
           {
             monitor_run_id: 303,
-            event_time: "17-06-2026 21:30",
+            event_time: "17-06-2026 21:30 +08:00",
             event_type: "analysis",
             label: "Mixed format evening calendar",
             payload: { semantic_type: "evidence", impact_percent: -0.22, main_driver: "usd" }
