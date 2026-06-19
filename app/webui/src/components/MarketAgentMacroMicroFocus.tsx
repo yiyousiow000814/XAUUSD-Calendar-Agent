@@ -636,6 +636,87 @@ const dashboardBigPictureTitle = (leadMacro: MarketAgentDriverRow | null, leadSt
   return macroTitle || "No macro story detected";
 };
 
+const analystReadNeedle = (
+  leadMacro: MarketAgentDriverRow | null,
+  leadStory: MarketAgentDriverRow | null,
+  title: string
+) =>
+  normalizeMarketAgentValue(
+    [
+      title,
+      leadMacro?.id,
+      leadMacro?.label,
+      leadMacro?.detail,
+      leadStory?.label,
+      leadStory?.detail
+    ].filter(Boolean).join(" ")
+  );
+
+const missingInputLabels = (chain: Record<string, unknown> | null | undefined) =>
+  (Array.isArray(chain?.missing_required) ? chain?.missing_required : [])
+    .map((item) => normalizeMarketAgentValue(item))
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((item) => {
+      if (item.includes("xauusd") && item.includes("history")) return "recent XAUUSD history";
+      if (item.includes("live") || item.includes("spot")) return "live XAUUSD spot";
+      if (item.includes("ai")) return "Local AI review";
+      if (item.includes("us2y")) return "US2Y";
+      if (item.includes("dxy")) return "DXY";
+      if (item.includes("yield")) return "yield sensors";
+      return item.replace(/_/g, " ");
+    });
+
+const derivedAnalystNext = (
+  leadMacro: MarketAgentDriverRow | null,
+  leadStory: MarketAgentDriverRow | null,
+  title: string
+) => {
+  const needle = analystReadNeedle(leadMacro, leadStory, title);
+  if (needle.includes("yield") || needle.includes("rates") || needle.includes("fed") || needle.includes("dxy") || needle.includes("dollar")) {
+    return ["Watch US yields and DXY; another rise keeps gold pressure alive."];
+  }
+  if (needle.includes("hormuz") || needle.includes("iran") || needle.includes("israel") || needle.includes("geopolitic")) {
+    return ["Watch ceasefire and Hormuz follow-through; renewed disruption can lift gold risk bid."];
+  }
+  if (needle.includes("oil") || needle.includes("brent") || needle.includes("wti")) {
+    return ["Watch oil follow-through; higher energy prices can revive inflation support for gold."];
+  }
+  if (needle.includes("inflation") || needle.includes("cpi") || needle.includes("ppi") || needle.includes("pce")) {
+    return ["Watch the next inflation print; a hot reading keeps rates pressure on gold."];
+  }
+  if (needle.includes("jobs") || needle.includes("payroll") || needle.includes("jobless") || needle.includes("growth") || needle.includes("pmi")) {
+    return ["Watch US growth data; stronger numbers delay Fed easing and can pressure gold."];
+  }
+  if (title && !title.toLowerCase().includes("no macro story")) {
+    return [`Watch whether this story gets fresh confirmation: ${title}`];
+  }
+  return ["Watch for a fresh headline, calendar event, or price break before forming a new gold read."];
+};
+
+const derivedAnalystRisks = (
+  leadMacro: MarketAgentDriverRow | null,
+  leadStory: MarketAgentDriverRow | null,
+  title: string,
+  chain: Record<string, unknown> | null | undefined
+) => {
+  const missing = missingInputLabels(chain);
+  if (missing.length) {
+    return [`Confidence is limited until ${missing.join(" and ")} is available.`];
+  }
+  const needle = analystReadNeedle(leadMacro, leadStory, title);
+  if (needle.includes("hormuz") || needle.includes("iran") || needle.includes("israel") || needle.includes("geopolitic")) {
+    return ["Geopolitical headlines can reverse quickly if officials deny escalation or talks resume."];
+  }
+  if (needle.includes("yield") || needle.includes("rates") || needle.includes("fed") || needle.includes("dxy") || needle.includes("dollar")) {
+    return ["The read weakens if yields or DXY fade instead of confirming the headline."];
+  }
+  if (needle.includes("oil") || needle.includes("inflation")) {
+    return ["Oil and inflation stories can flip if supply relief or softer data arrives."];
+  }
+  return ["Risk is a headline-only read until price and cross-market confirmation agree."];
+};
+
 const microStoryTitle = (row: MarketAgentDriverRow) => {
   const title = tidyMarketTitle(row.label);
   if (title && normalizeMarketAgentValue(title) !== "news_headline") return title;
@@ -725,6 +806,7 @@ export function MarketAgentMacroMicroFocus({
   selectedEvidence,
   replay,
   marketRead,
+  evidenceChainStatus,
   currentConclusionReady,
   variant
 }: MarketAgentMacroMicroFocusProps) {
@@ -797,6 +879,8 @@ export function MarketAgentMacroMicroFocus({
     analystRead?.now,
     leadMacro ? macroStoryTitle(leadMacro) : leadStory ? microStoryTitle(leadStory) : "Market context is being reviewed"
   );
+  const derivedNext = derivedAnalystNext(leadMacro, leadStory, analystNow).slice(0, 2);
+  const derivedRisks = derivedAnalystRisks(leadMacro, leadStory, analystNow, evidenceChainStatus).slice(0, 2);
   const analystNext = textList(analystRead?.next).slice(0, 3);
   const analystRisks = textList(analystRead?.risks).slice(0, 3);
 
@@ -816,7 +900,7 @@ export function MarketAgentMacroMicroFocus({
             <section>
               <span>Next</span>
               <ul>
-                {(analystNext.length ? analystNext : ["Monitor price, news, calendar, and sensor alignment"]).map((item) => (
+                {(analystNext.length ? analystNext : derivedNext).map((item) => (
                   <li key={item}>{item}</li>
                 ))}
               </ul>
@@ -824,7 +908,7 @@ export function MarketAgentMacroMicroFocus({
             <section>
               <span>Risk</span>
               <ul>
-                {(analystRisks.length ? analystRisks : ["No major data-quality risk recorded"]).map((item) => (
+                {(analystRisks.length ? analystRisks : derivedRisks).map((item) => (
                   <li key={item}>{item}</li>
                 ))}
               </ul>

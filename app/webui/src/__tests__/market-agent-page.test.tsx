@@ -4927,6 +4927,58 @@ describe("MarketAgentPage", () => {
     expect(within(radar).queryByText(/Dollar pressure is shaping the gold read/i)).not.toBeInTheDocument();
   });
 
+  it("uses market-forward next and risk text instead of system monitoring filler", () => {
+    renderMarketAgentPage({
+      driverAttention: { ok: true, available: true, states: [] },
+      replay: {
+        ...replay,
+        replay: {
+          ...replay.replay,
+          news_items: [
+            {
+              title: "Oil rebounds as postponed U.S.-Iran talks temper optimism over ceasefire progress",
+              summary: "With immediate supply fears fading and tanker traffic returning to the Strait of Hormuz, traders are watching whether the ceasefire holds.",
+              source: "US Top News and Analysis",
+              published_at: "2026-06-19T14:38:00+08:00",
+              included: true,
+              data_mode: "live_seen",
+              semantic_type: "news"
+            }
+          ],
+          calendar_events: [],
+          timeline_events: []
+        }
+      },
+      selectedEvidence: {
+        ...evidence,
+        payload: {
+          ...evidence.payload,
+          evidence_packet: {
+            ...evidence.payload.evidence_packet,
+            market_read: null,
+            evidence_chain_status: {
+              status: "context_only",
+              can_show_current_conclusion: false,
+              missing_required: ["us2y"],
+              usable_inputs: ["news_context"],
+              context_only_inputs: []
+            },
+            allowed_candidate_drivers: []
+          }
+        }
+      }
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /^Driver Attention$/i }));
+
+    const analystRead = screen.getByLabelText("Analyst read");
+    expect(within(analystRead).getByText(/^Next$/i)).toBeInTheDocument();
+    expect(within(analystRead).getByText(/Watch ceasefire and Hormuz follow-through/i)).toBeInTheDocument();
+    expect(within(analystRead).getByText(/Confidence is limited until US2Y is available/i)).toBeInTheDocument();
+    expect(within(analystRead).queryByText(/Monitor price, news, calendar/i)).not.toBeInTheDocument();
+    expect(within(analystRead).queryByText(/No major data-quality risk recorded/i)).not.toBeInTheDocument();
+  });
+
   it("shows useful empty states when sqlite-backed data is unavailable", () => {
     render(
       <MarketAgentPage
