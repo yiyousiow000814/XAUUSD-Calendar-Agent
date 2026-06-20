@@ -8,3 +8,5 @@ previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2026-04-16,02:00,,
 previous_missing_filled,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2026-05-28,09:30,,0.00,0.00
 previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2026-06-04,02:00,,0.00,0.00
 previous_missing_filled,"INR::FX Reserves, USD::none",INR,"FX Reserves, USD",,2026-06-26,19:30,,671.63B,671.63B
+previous_missing_filled,EUR::French CPI::m/m,EUR,French CPI (MoM)  (Jun),jun,2026-06-30,14:45,,0.1%,0.1%
+previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q2),q2,2026-07-01,23:30,,3.0%,3.0%

@@ -1,5 +1,5 @@
 {
-  "generated_at": "19-06-2026 16:25",
+  "generated_at": "20-06-2026 16:03",
   "patches": [
     {
       "patch": "previous_missing_filled",
@@ -108,6 +108,30 @@
       "previous_raw": "",
       "prior_actual": "671.63B",
       "previous_effective": "671.63B"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "EUR::French CPI::m/m",
+      "cur": "EUR",
+      "event": "French CPI (MoM)  (Jun)",
+      "period": "jun",
+      "date": "2026-06-30",
+      "time": "14:45",
+      "previous_raw": "",
+      "prior_actual": "0.1%",
+      "previous_effective": "0.1%"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::Atlanta Fed GDPNow::none",
+      "cur": "USD",
+      "event": "Atlanta Fed GDPNow  (Q2)",
+      "period": "q2",
+      "date": "2026-07-01",
+      "time": "23:30",
+      "previous_raw": "",
+      "prior_actual": "3.0%",
+      "previous_effective": "3.0%"
     }
   ]
 }
