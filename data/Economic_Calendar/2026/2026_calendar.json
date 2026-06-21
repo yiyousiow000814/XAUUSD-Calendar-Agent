@@ -122584,6 +122584,39 @@
         "Previous":"-10.020B"
     },
     {
+        "Date":"2026-06-21",
+        "Day":"Sunday",
+        "Time":"20:00",
+        "Cur.":"OMR",
+        "Imp.":"Low",
+        "Event":"CPI (MoM)  (May)",
+        "Actual":"0.5%",
+        "Forecast":null,
+        "Previous":"0.1%"
+    },
+    {
+        "Date":"2026-06-21",
+        "Day":"Sunday",
+        "Time":"21:00",
+        "Cur.":"KWD",
+        "Imp.":"Low",
+        "Event":"CPI (MoM)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.65%"
+    },
+    {
+        "Date":"2026-06-21",
+        "Day":"Sunday",
+        "Time":"21:00",
+        "Cur.":"KWD",
+        "Imp.":"Low",
+        "Event":"CPI (YoY)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.57%"
+    },
+    {
         "Date":"2026-06-22",
         "Day":"Monday",
         "Time":"All Day",
@@ -122735,7 +122768,7 @@
         "Event":"M3 Money Supply  (May)",
         "Actual":"",
         "Forecast":null,
-        "Previous":"1,228.5B"
+        "Previous":"1,228,523.0B"
     },
     {
         "Date":"2026-06-22",
@@ -126057,7 +126090,7 @@
         "Event":"M3 Money Supply  (May)",
         "Actual":"",
         "Forecast":null,
-        "Previous":"5,054.0B"
+        "Previous":"5,054,036.0B"
     },
     {
         "Date":"2026-06-26",

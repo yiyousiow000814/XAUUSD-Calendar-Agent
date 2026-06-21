@@ -11143,6 +11143,9 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-06-20,Saturday,11:30,THB,Low,Custom-Based Export Data  (May),,,23.10%
 2026-06-20,Saturday,11:30,THB,Low,Custom-Based Import Data  (May),,,45.00%
 2026-06-20,Saturday,11:30,THB,Low,Custom-Based Trade Data (USD)  (May),,,-10.020B
+2026-06-21,Sunday,20:00,OMR,Low,CPI (MoM)  (May),0.5%,,0.1%
+2026-06-21,Sunday,21:00,KWD,Low,CPI (MoM)  (May),,,0.65%
+2026-06-21,Sunday,21:00,KWD,Low,CPI (YoY)  (May),,,2.57%
 2026-06-22,Monday,All Day,,Holiday,Croatia - Anti-Fascist Struggle Day,,,
 2026-06-22,Monday,09:00,CNY,Medium,China Loan Prime Rate 5Y  (Jun),,3.50%,3.50%
 2026-06-22,Monday,09:15,CNY,Medium,PBoC Loan Prime Rate,,3.00%,3.00%
@@ -11156,7 +11159,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-06-22,Monday,14:00,DKK,Low,Consumer Confidence  (Jun),,,-19.8
 2026-06-22,Monday,14:00,NOK,Low,Credit Indicator (YoY)  (May),,,4.4%
 2026-06-22,Monday,14:00,NOK,Low,M3 Money Supply  (May),,,"3,575.9B"
-2026-06-22,Monday,15:00,CHF,Low,M3 Money Supply  (May),,,"1,228.5B"
+2026-06-22,Monday,15:00,CHF,Low,M3 Money Supply  (May),,,"1,228,523.0B"
 2026-06-22,Monday,15:00,EUR,Low,Lithuania Current Account  (Q1),,,2.6%
 2026-06-22,Monday,15:00,TRY,Low,Consumer Confidence  (Jun),,,85.8
 2026-06-22,Monday,15:30,PLN,Low,Corp. Sector Wages (YoY)  (May),,6.0%,5.4%
@@ -11458,7 +11461,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-06-26,Friday,14:00,DKK,Low,M3 Money Supply  (May),,,"2,085,911.2B"
 2026-06-26,Friday,14:00,NOK,Low,Core Retail Sales (MoM)  (May),,,0.3%
 2026-06-26,Friday,14:00,SEK,Low,Household Lending Growth (YoY)  (May),,,3.0%
-2026-06-26,Friday,14:00,SEK,Low,M3 Money Supply  (May),,,"5,054.0B"
+2026-06-26,Friday,14:00,SEK,Low,M3 Money Supply  (May),,,"5,054,036.0B"
 2026-06-26,Friday,14:00,SEK,Low,PPI (MoM)  (May),,,1.1%
 2026-06-26,Friday,14:00,SEK,Low,PPI (YoY)  (May),,,4.7%
 2026-06-26,Friday,14:30,HUF,Low,Current Account (EUR) (QoQ)  (Q1),,0.400B,0.321B
