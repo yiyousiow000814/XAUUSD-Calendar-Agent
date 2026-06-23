@@ -1,5 +1,5 @@
 {
-  "generated_at": "20-06-2026 16:03",
+  "generated_at": "23-06-2026 16:21",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -638,18 +638,6 @@
       "cutoff": "05-06-2026 11:03"
     },
     {
-      "issue": "previous_missing_filled",
-      "event_id": "INR::FX Reserves, USD::none",
-      "cur": "INR",
-      "event": "FX Reserves, USD",
-      "period": "",
-      "date": "2026-06-26",
-      "time": "19:30",
-      "previous_raw": "",
-      "prior_actual": "671.63B",
-      "previous_effective": "671.63B"
-    },
-    {
       "issue": "stale_missing_actual_dropped",
       "event_id": "ILS::M1 Money Supply::y/y",
       "cur": "ILS",
@@ -682,6 +670,36 @@
       "previous_raw": "",
       "prior_actual": "3.0%",
       "previous_effective": "3.0%"
+    },
+    {
+      "issue": "stale_missing_actual_dropped",
+      "event_id": "THB::Custom-Based Export Data::none",
+      "cur": "THB",
+      "event": "Custom-Based Export Data  (May)",
+      "period": "may",
+      "date": "2026-06-20",
+      "time": "11:30",
+      "cutoff": "21-06-2026 16:21"
+    },
+    {
+      "issue": "stale_missing_actual_dropped",
+      "event_id": "THB::Custom-Based Import Data::none",
+      "cur": "THB",
+      "event": "Custom-Based Import Data  (May)",
+      "period": "may",
+      "date": "2026-06-20",
+      "time": "11:30",
+      "cutoff": "21-06-2026 16:21"
+    },
+    {
+      "issue": "stale_missing_actual_dropped",
+      "event_id": "THB::Custom-Based Trade Data (USD)::none",
+      "cur": "THB",
+      "event": "Custom-Based Trade Data (USD)  (May)",
+      "period": "may",
+      "date": "2026-06-20",
+      "time": "11:30",
+      "cutoff": "21-06-2026 16:21"
     }
   ]
 }

@@ -61,7 +61,9 @@ stale_missing_actual_dropped,RUB::CFTC RUB speculative positions::none,RUB,CFTC 
 stale_missing_actual_dropped,RUB::CFTC RUB speculative positions::none,RUB,CFTC RUB speculative positions,,2026-04-11,04:30,,,,"{""cutoff"": ""05-06-2026 11:03""}"
 stale_missing_actual_dropped,RUB::CFTC RUB speculative positions::none,RUB,CFTC RUB speculative positions,,2026-04-18,04:30,,,,"{""cutoff"": ""05-06-2026 11:03""}"
 stale_missing_actual_dropped,RUB::CFTC RUB speculative positions::none,RUB,CFTC RUB speculative positions,,2026-04-25,04:30,,,,"{""cutoff"": ""05-06-2026 11:03""}"
-previous_missing_filled,"INR::FX Reserves, USD::none",INR,"FX Reserves, USD",,2026-06-26,19:30,,671.63B,671.63B,
 stale_missing_actual_dropped,ILS::M1 Money Supply::y/y,ILS,M1 Money Supply (YoY)  (May),may,2026-06-14,19:00,,,,"{""cutoff"": ""16-06-2026 16:44""}"
 previous_missing_filled,EUR::French CPI::m/m,EUR,French CPI (MoM)  (Jun),jun,2026-06-30,14:45,,0.1%,0.1%,
 previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q2),q2,2026-07-01,23:30,,3.0%,3.0%,
+stale_missing_actual_dropped,THB::Custom-Based Export Data::none,THB,Custom-Based Export Data  (May),may,2026-06-20,11:30,,,,"{""cutoff"": ""21-06-2026 16:21""}"
+stale_missing_actual_dropped,THB::Custom-Based Import Data::none,THB,Custom-Based Import Data  (May),may,2026-06-20,11:30,,,,"{""cutoff"": ""21-06-2026 16:21""}"
+stale_missing_actual_dropped,THB::Custom-Based Trade Data (USD)::none,THB,Custom-Based Trade Data (USD)  (May),may,2026-06-20,11:30,,,,"{""cutoff"": ""21-06-2026 16:21""}"
