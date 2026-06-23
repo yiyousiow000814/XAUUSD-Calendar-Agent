@@ -11121,25 +11121,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-06-19,Friday,21:00,RUB,Low,Central Bank reserves (USD),729.3B,,749.7B
 2026-06-19,Friday,22:30,EUR,Medium,ECB's Lane Speaks,,,
 2026-06-20,Saturday,03:00,ARS,Low,Retail Sales (YoY)  (Apr),21.5%,,20.5%
-2026-06-20,Saturday,03:30,AUD,Medium,CFTC AUD speculative net positions,,,18.2K
-2026-06-20,Saturday,03:30,BRL,Medium,CFTC BRL speculative net positions,,,43.8K
-2026-06-20,Saturday,03:30,CAD,Low,CFTC CAD speculative net positions,,,-120.0K
-2026-06-20,Saturday,03:30,CHF,Low,CFTC CHF speculative net positions,,,-36.7K
-2026-06-20,Saturday,03:30,EUR,Medium,CFTC EUR speculative net positions,,,13.9K
-2026-06-20,Saturday,03:30,GBP,Medium,CFTC GBP speculative net positions,,,-64.2K
-2026-06-20,Saturday,03:30,JPY,Medium,CFTC JPY speculative net positions,,,-145.8K
-2026-06-20,Saturday,03:30,MXN,Low,CFTC MXN speculative net positions,,,63.8K
-2026-06-20,Saturday,03:30,NZD,Low,CFTC NZD speculative net positions,,,-31.6K
-2026-06-20,Saturday,03:30,USD,Low,CFTC Aluminium speculative net positions,,,0.4K
-2026-06-20,Saturday,03:30,USD,Low,CFTC Copper speculative net positions,,,74.5K
-2026-06-20,Saturday,03:30,USD,Low,CFTC Corn speculative net positions,,,103.6K
-2026-06-20,Saturday,03:30,USD,Low,CFTC Natural Gas speculative net positions,,,-194.0K
-2026-06-20,Saturday,03:30,USD,Low,CFTC Soybeans speculative net positions,,,150.5K
-2026-06-20,Saturday,03:30,USD,Low,CFTC Wheat speculative net positions,,,-57.9K
-2026-06-20,Saturday,03:30,USD,Medium,CFTC Crude Oil speculative net positions,,,130.3K
-2026-06-20,Saturday,03:30,USD,Medium,CFTC Gold speculative net positions,,,173.8K
-2026-06-20,Saturday,03:30,USD,Medium,CFTC Nasdaq 100 speculative net positions,,,-1.3K
-2026-06-20,Saturday,03:30,USD,Medium,CFTC S&P 500 speculative net positions,,,-205.6K
 2026-06-20,Saturday,11:30,THB,Low,Custom-Based Export Data  (May),,,23.10%
 2026-06-20,Saturday,11:30,THB,Low,Custom-Based Import Data  (May),,,45.00%
 2026-06-20,Saturday,11:30,THB,Low,Custom-Based Trade Data (USD)  (May),,,-10.020B
@@ -11197,106 +11178,106 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-06-22,Monday,23:30,USD,Low,6-Month Bill Auction,3.840%,,3.680%
 2026-06-23,Tuesday,All Day,,Holiday,Estonia - National Day,,,
 2026-06-23,Tuesday,All Day,,Holiday,Latvia - Midsummer Day,,,
-2026-06-23,Tuesday,03:00,ARS,Low,Unemployment Rate  (Q1),,,7.5%
-2026-06-23,Tuesday,03:30,AUD,Medium,CFTC AUD speculative net positions,,,18.2K
-2026-06-23,Tuesday,03:30,BRL,Medium,CFTC BRL speculative net positions,,,43.8K
-2026-06-23,Tuesday,03:30,CAD,Low,CFTC CAD speculative net positions,,,-120.0K
-2026-06-23,Tuesday,03:30,CHF,Low,CFTC CHF speculative net positions,,,-36.7K
-2026-06-23,Tuesday,03:30,EUR,Medium,CFTC EUR speculative net positions,,,13.9K
-2026-06-23,Tuesday,03:30,GBP,Medium,CFTC GBP speculative net positions,,,-64.2K
-2026-06-23,Tuesday,03:30,JPY,Medium,CFTC JPY speculative net positions,,,-145.8K
-2026-06-23,Tuesday,03:30,MXN,Low,CFTC MXN speculative net positions,,,63.8K
-2026-06-23,Tuesday,03:30,NZD,Low,CFTC NZD speculative net positions,,,-31.6K
-2026-06-23,Tuesday,03:30,USD,Low,CFTC Aluminium speculative net positions,,,0.4K
-2026-06-23,Tuesday,03:30,USD,Low,CFTC Copper speculative net positions,,,74.5K
-2026-06-23,Tuesday,03:30,USD,Low,CFTC Corn speculative net positions,,,103.6K
-2026-06-23,Tuesday,03:30,USD,Low,CFTC Natural Gas speculative net positions,,,-194.0K
-2026-06-23,Tuesday,03:30,USD,Low,CFTC Silver speculative net positions,,,22.2K
-2026-06-23,Tuesday,03:30,USD,Low,CFTC Soybeans speculative net positions,,,150.5K
-2026-06-23,Tuesday,03:30,USD,Low,CFTC Wheat speculative net positions,,,-57.9K
-2026-06-23,Tuesday,03:30,USD,Medium,CFTC Crude Oil speculative net positions,,,130.3K
-2026-06-23,Tuesday,03:30,USD,Medium,CFTC Gold speculative net positions,,,173.8K
-2026-06-23,Tuesday,03:30,USD,Medium,CFTC Nasdaq 100 speculative net positions,,,-1.3K
-2026-06-23,Tuesday,03:30,USD,Medium,CFTC S&P 500 speculative net positions,,,-205.6K
-2026-06-23,Tuesday,05:00,KRW,Low,Consumer Confidence  (Jun),,,106.1
-2026-06-23,Tuesday,07:00,AUD,Low,S&P Global Manufacturing & Services PMI  (Jun),,,48.70
-2026-06-23,Tuesday,07:00,AUD,Low,S&P Global Manufacturing PMI  (Jun),,,50.7
-2026-06-23,Tuesday,07:00,AUD,Low,S&P Global Services PMI  (Jun),,,48.7
-2026-06-23,Tuesday,08:30,JPY,Low,Manufacturing & Services PMI  (Jun),,,51.10
-2026-06-23,Tuesday,08:30,JPY,Low,S&P Global Manufacturing PMI  (Jun),,54.5,54.5
-2026-06-23,Tuesday,08:30,JPY,Medium,S&P Global Services PMI  (Jun),,,50.0
-2026-06-23,Tuesday,11:00,IDR,Low,M2 Money Supply (YoY)  (May),,,9.20%
-2026-06-23,Tuesday,11:30,THB,Low,Custom-Based Export Data  (May),,,23.10%
-2026-06-23,Tuesday,11:30,THB,Low,Custom-Based Import Data  (May),,,45.00%
-2026-06-23,Tuesday,11:30,THB,Low,Custom-Based Trade Data (USD)  (May),,,-10.020B
-2026-06-23,Tuesday,12:00,CZK,Low,Car Registration (MoM)  (May),,,-6.40%
-2026-06-23,Tuesday,12:00,CZK,Low,Car Registration (YoY)  (May),,,5.50%
-2026-06-23,Tuesday,12:00,EUR,Low,Car Registration (MoM)  (May),,,-18.3%
-2026-06-23,Tuesday,12:00,EUR,Low,Car Registration (YoY)  (May),,,-4.8%
-2026-06-23,Tuesday,12:00,EUR,Low,French Car Registration (MoM)  (May),,,-20.3%
-2026-06-23,Tuesday,12:00,EUR,Low,French Car Registration (YoY)  (May),,,-0.3%
-2026-06-23,Tuesday,12:00,EUR,Low,German Car Registration (MoM)  (May),,,-15.3%
-2026-06-23,Tuesday,12:00,EUR,Low,German Car Registration (YoY)  (May),,,2.7%
-2026-06-23,Tuesday,12:00,EUR,Low,Italian Car Registration (MoM)  (May),,,-16.3%
-2026-06-23,Tuesday,12:00,EUR,Low,Italian Car Registration (YoY)  (May),,,11.6%
-2026-06-23,Tuesday,12:00,GBP,Low,Car Registration (MoM)  (May),,,-60.8%
-2026-06-23,Tuesday,12:00,GBP,Low,Car Registration (YoY)  (May),,,24.0%
-2026-06-23,Tuesday,12:00,HUF,Low,Car Registration (MoM)  (May),,,-32.20%
-2026-06-23,Tuesday,12:00,HUF,Low,Car Registration (YoY)  (May),,,9.70%
-2026-06-23,Tuesday,12:00,PLN,Low,Car Registration (MoM)  (May),,,-18.90%
-2026-06-23,Tuesday,12:00,PLN,Low,Car Registration (YoY)  (May),,,10.30%
-2026-06-23,Tuesday,12:00,RON,Low,Car Registration (MoM)  (May),,,-1.70%
-2026-06-23,Tuesday,12:00,RON,Low,Car Registration (YoY)  (May),,,2.10%
-2026-06-23,Tuesday,13:00,INR,Low,HSBC India Manufacturing PMI  (Jun),,,55.0
-2026-06-23,Tuesday,13:00,INR,Low,HSBC India Services PMI  (Jun),,,59.8
-2026-06-23,Tuesday,13:00,INR,Low,HSBC Manufacturing & Services PMI  (Jun),,,59.30
-2026-06-23,Tuesday,13:00,JPY,Medium,BoJ Core CPI (YoY),,1.5%,2.8%
-2026-06-23,Tuesday,13:00,SGD,Low,CPI (MoM)  (May),,,-0.30%
-2026-06-23,Tuesday,13:00,SGD,Medium,CPI (YoY)  (May),,2.0%,1.8%
-2026-06-23,Tuesday,13:00,SGD,Medium,Core CPI (YoY)  (May),,,1.40%
-2026-06-23,Tuesday,14:45,EUR,Low,French Business Survey  (Jun),,,102
-2026-06-23,Tuesday,15:00,MYR,Low,FX Reserves USD,,,130.6B
-2026-06-23,Tuesday,15:00,ZAR,Low,Leading Indicators  (Apr),,,123.00%
-2026-06-23,Tuesday,15:15,EUR,Low,HCOB France Composite PMI  (Jun),,46.0,44.9
-2026-06-23,Tuesday,15:15,EUR,Medium,HCOB France Manufacturing PMI  (Jun),,50.1,49.7
-2026-06-23,Tuesday,15:15,EUR,Medium,HCOB France Services PMI  (Jun),,45.7,44.3
-2026-06-23,Tuesday,15:30,EUR,Low,HCOB Germany Composite PMI  (Jun),,49.9,48.8
-2026-06-23,Tuesday,15:30,EUR,Medium,HCOB Germany Manufacturing PMI  (Jun),,50.2,50.1
-2026-06-23,Tuesday,15:30,EUR,Medium,HCOB Germany Services PMI  (Jun),,49.0,48.1
-2026-06-23,Tuesday,16:00,EUR,Low,Spanish Trade Balance  (Apr),,,-4.40B
-2026-06-23,Tuesday,16:00,EUR,Medium,HCOB Eurozone Composite PMI  (Jun),,49.1,48.5
-2026-06-23,Tuesday,16:00,EUR,Medium,HCOB Eurozone Manufacturing PMI  (Jun),,51.6,51.6
-2026-06-23,Tuesday,16:00,EUR,Medium,HCOB Eurozone Services PMI  (Jun),,48.6,47.7
-2026-06-23,Tuesday,16:00,TWD,Low,Export Orders (YoY)  (May),,,48.1%
-2026-06-23,Tuesday,16:00,TWD,Low,Unemployment Rate  (May),,,3.34%
+2026-06-23,Tuesday,03:00,ARS,Low,Unemployment Rate  (Q1),7.8%,,7.5%
+2026-06-23,Tuesday,03:30,AUD,Medium,CFTC AUD speculative net positions,-4.1K,,18.2K
+2026-06-23,Tuesday,03:30,BRL,Medium,CFTC BRL speculative net positions,41.0K,,43.8K
+2026-06-23,Tuesday,03:30,CAD,Low,CFTC CAD speculative net positions,-132.9K,,-120.0K
+2026-06-23,Tuesday,03:30,CHF,Low,CFTC CHF speculative net positions,-40.1K,,-36.7K
+2026-06-23,Tuesday,03:30,EUR,Medium,CFTC EUR speculative net positions,34.4K,,13.9K
+2026-06-23,Tuesday,03:30,GBP,Medium,CFTC GBP speculative net positions,-71.6K,,-64.2K
+2026-06-23,Tuesday,03:30,JPY,Medium,CFTC JPY speculative net positions,-150.1K,,-145.8K
+2026-06-23,Tuesday,03:30,MXN,Low,CFTC MXN speculative net positions,71.8K,,63.8K
+2026-06-23,Tuesday,03:30,NZD,Low,CFTC NZD speculative net positions,-45.2K,,-31.6K
+2026-06-23,Tuesday,03:30,USD,Low,CFTC Aluminium speculative net positions,0.1K,,0.4K
+2026-06-23,Tuesday,03:30,USD,Low,CFTC Copper speculative net positions,75.3K,,74.5K
+2026-06-23,Tuesday,03:30,USD,Low,CFTC Corn speculative net positions,77.8K,,103.6K
+2026-06-23,Tuesday,03:30,USD,Low,CFTC Natural Gas speculative net positions,-173.5K,,-194.0K
+2026-06-23,Tuesday,03:30,USD,Low,CFTC Silver speculative net positions,24.5K,,22.2K
+2026-06-23,Tuesday,03:30,USD,Low,CFTC Soybeans speculative net positions,117.6K,,150.5K
+2026-06-23,Tuesday,03:30,USD,Low,CFTC Wheat speculative net positions,-50.8K,,-57.9K
+2026-06-23,Tuesday,03:30,USD,Medium,CFTC Crude Oil speculative net positions,124.5K,,130.3K
+2026-06-23,Tuesday,03:30,USD,Medium,CFTC Gold speculative net positions,180.2K,,173.8K
+2026-06-23,Tuesday,03:30,USD,Medium,CFTC Nasdaq 100 speculative net positions,-8.9K,,-1.3K
+2026-06-23,Tuesday,03:30,USD,Medium,CFTC S&P 500 speculative net positions,-194.0K,,-205.6K
+2026-06-23,Tuesday,05:00,KRW,Low,Consumer Confidence  (Jun),106.6,,106.1
+2026-06-23,Tuesday,07:00,AUD,Low,S&P Global Manufacturing & Services PMI  (Jun),49.80,,48.70
+2026-06-23,Tuesday,07:00,AUD,Low,S&P Global Manufacturing PMI  (Jun),51.2,,50.7
+2026-06-23,Tuesday,07:00,AUD,Low,S&P Global Services PMI  (Jun),49.9,,48.7
+2026-06-23,Tuesday,08:30,JPY,Low,Manufacturing & Services PMI  (Jun),52.50,,51.10
+2026-06-23,Tuesday,08:30,JPY,Low,S&P Global Manufacturing PMI  (Jun),54.9,54.5,54.5
+2026-06-23,Tuesday,08:30,JPY,Medium,S&P Global Services PMI  (Jun),51.8,,50.0
+2026-06-23,Tuesday,11:30,IDR,Low,M2 Money Supply (YoY)  (May),10.80%,,9.20%
+2026-06-23,Tuesday,11:35,JPY,Low,5-Year JGB Auction,1.905%,,2.024%
+2026-06-23,Tuesday,12:00,CZK,Low,Car Registration (MoM)  (May),-8.60%,,-6.40%
+2026-06-23,Tuesday,12:00,CZK,Low,Car Registration (YoY)  (May),4.80%,,5.50%
+2026-06-23,Tuesday,12:00,EUR,Low,Car Registration (MoM)  (May),16.4%,,-18.3%
+2026-06-23,Tuesday,12:00,EUR,Low,Car Registration (YoY)  (May),1.1%,,-4.8%
+2026-06-23,Tuesday,12:00,EUR,Low,French Car Registration (MoM)  (May),-7.1%,,-20.3%
+2026-06-23,Tuesday,12:00,EUR,Low,French Car Registration (YoY)  (May),3.7%,,-0.3%
+2026-06-23,Tuesday,12:00,EUR,Low,German Car Registration (MoM)  (May),-3.9%,,-15.3%
+2026-06-23,Tuesday,12:00,EUR,Low,German Car Registration (YoY)  (May),0.1%,,2.7%
+2026-06-23,Tuesday,12:00,EUR,Low,Italian Car Registration (MoM)  (May),-3.3%,,-16.3%
+2026-06-23,Tuesday,12:00,EUR,Low,Italian Car Registration (YoY)  (May),7.6%,,11.6%
+2026-06-23,Tuesday,12:00,GBP,Low,Car Registration (MoM)  (May),7.6%,,-60.8%
+2026-06-23,Tuesday,12:00,GBP,Low,Car Registration (YoY)  (May),7.1%,,24.0%
+2026-06-23,Tuesday,12:00,HUF,Low,Car Registration (MoM)  (May),-2.70%,,-32.20%
+2026-06-23,Tuesday,12:00,HUF,Low,Car Registration (YoY)  (May),5.60%,,9.70%
+2026-06-23,Tuesday,12:00,PLN,Low,Car Registration (MoM)  (May),-4.30%,,-18.90%
+2026-06-23,Tuesday,12:00,PLN,Low,Car Registration (YoY)  (May),6.30%,,10.30%
+2026-06-23,Tuesday,12:00,RON,Low,Car Registration (MoM)  (May),10.20%,,-1.70%
+2026-06-23,Tuesday,12:00,RON,Low,Car Registration (YoY)  (May),6.90%,,2.10%
+2026-06-23,Tuesday,13:00,INR,Low,HSBC India Manufacturing PMI  (Jun),54.5,,55.0
+2026-06-23,Tuesday,13:00,INR,Low,HSBC India Services PMI  (Jun),57.3,,59.8
+2026-06-23,Tuesday,13:00,INR,Low,HSBC Manufacturing & Services PMI  (Jun),57.40,,59.30
+2026-06-23,Tuesday,13:00,JPY,Medium,BoJ Core CPI (YoY),2.7%,,2.8%
+2026-06-23,Tuesday,13:00,SGD,Low,CPI (MoM)  (May),0.70%,,-0.30%
+2026-06-23,Tuesday,13:00,SGD,Medium,CPI (YoY)  (May),1.8%,2.0%,1.8%
+2026-06-23,Tuesday,13:00,SGD,Medium,Core CPI (YoY)  (May),1.40%,1.60%,1.40%
+2026-06-23,Tuesday,14:45,EUR,Low,French Business Survey  (Jun),100,101,102
+2026-06-23,Tuesday,15:00,MYR,Low,FX Reserves USD,130.5B,,130.6B
+2026-06-23,Tuesday,15:00,ZAR,Low,Leading Indicators  (Apr),118.90%,,121.07%
+2026-06-23,Tuesday,15:15,EUR,Low,HCOB France Composite PMI  (Jun),47.6,46.0,44.9
+2026-06-23,Tuesday,15:15,EUR,Medium,HCOB France Manufacturing PMI  (Jun),50.7,50.2,49.7
+2026-06-23,Tuesday,15:15,EUR,Medium,HCOB France Services PMI  (Jun),47.4,45.9,44.3
+2026-06-23,Tuesday,15:30,EUR,Low,HCOB Germany Composite PMI  (Jun),48.0,49.9,48.8
+2026-06-23,Tuesday,15:30,EUR,Medium,HCOB Germany Manufacturing PMI  (Jun),50.0,50.3,50.1
+2026-06-23,Tuesday,15:30,EUR,Medium,HCOB Germany Services PMI  (Jun),46.8,49.0,48.1
+2026-06-23,Tuesday,16:00,EUR,Low,Spanish Trade Balance  (Apr),-5.20B,,-4.40B
+2026-06-23,Tuesday,16:00,EUR,Medium,HCOB Eurozone Composite PMI  (Jun),49.5,49.1,48.5
+2026-06-23,Tuesday,16:00,EUR,Medium,HCOB Eurozone Manufacturing PMI  (Jun),51.3,51.6,51.6
+2026-06-23,Tuesday,16:00,EUR,Medium,HCOB Eurozone Services PMI  (Jun),48.9,48.6,47.7
+2026-06-23,Tuesday,16:00,OMR,Low,Budget Balance  (Mar),-25.0M,,-449.0M
+2026-06-23,Tuesday,16:00,TWD,Low,Export Orders (YoY)  (May),47.2%,,48.1%
+2026-06-23,Tuesday,16:00,TWD,Low,Unemployment Rate  (May),3.32%,,3.34%
 2026-06-23,Tuesday,16:30,EUR,Medium,ECB's Lane Speaks,,,
-2026-06-23,Tuesday,16:30,GBP,Medium,S&P Global Composite PMI  (Jun),,50.6,49.7
-2026-06-23,Tuesday,16:30,GBP,Medium,S&P Global Manufacturing PMI  (Jun),,53.5,53.9
-2026-06-23,Tuesday,16:30,GBP,Medium,S&P Global Services PMI  (Jun),,50.0,49.3
-2026-06-23,Tuesday,16:30,HKD,Low,CPI (MoM)  (May),,,-0.10%
-2026-06-23,Tuesday,16:30,HKD,Low,CPI (YoY)  (May),,,1.70%
+2026-06-23,Tuesday,16:30,GBP,Medium,S&P Global Composite PMI  (Jun),49.4,50.6,49.7
+2026-06-23,Tuesday,16:30,GBP,Medium,S&P Global Manufacturing PMI  (Jun),53.1,53.5,53.9
+2026-06-23,Tuesday,16:30,GBP,Medium,S&P Global Services PMI  (Jun),48.7,50.1,49.3
+2026-06-23,Tuesday,16:30,HKD,Low,CPI (MoM)  (May),0.00%,,-0.10%
+2026-06-23,Tuesday,16:30,HKD,Low,CPI (YoY)  (May),2.00%,,1.70%
 2026-06-23,Tuesday,16:35,EUR,Medium,German Buba Mauderer Speaks,,,
 2026-06-23,Tuesday,16:55,GBP,Low,BoE Breeden Speaks,,,
-2026-06-23,Tuesday,17:30,EUR,Low,German 2-Year Schatz Auction,,,2.590%
-2026-06-23,Tuesday,18:00,GBP,Low,CBI Industrial Trends Orders  (Jun),,-33,-41
+2026-06-23,Tuesday,17:30,EUR,Low,German 2-Year Schatz Auction,2.570%,,2.590%
+2026-06-23,Tuesday,18:00,GBP,Low,CBI Industrial Trends Orders  (Jun),-45,-33,-41
+2026-06-23,Tuesday,18:45,KWD,Low,M2 Money Supply (YoY)  (May),2.69%,,2.21%
 2026-06-23,Tuesday,19:00,BRL,Low,BCB Copom Meeting Minutes,,,
-2026-06-23,Tuesday,20:00,CNY,Low,FDI  (May),,,-10.30%
-2026-06-23,Tuesday,20:00,HUF,Low,Interest Rate Decision  (Jun),,6.00%,6.25%
-2026-06-23,Tuesday,20:00,MXN,Low,Economic Activity (MoM)  (Apr),,,0.40%
-2026-06-23,Tuesday,20:00,MXN,Low,Economic Activity (YoY)  (Apr),,1.90%,1.40%
-2026-06-23,Tuesday,20:00,MXN,Low,Retail Sales (MoM)  (Apr),,,0.1%
-2026-06-23,Tuesday,20:00,MXN,Low,Retail Sales (YoY)  (Apr),,,2.9%
-2026-06-23,Tuesday,20:00,PLN,Low,M3 Money Supply (YoY)  (May),,11.4%,11.3%
-2026-06-23,Tuesday,20:15,USD,Medium,ADP Employment Change Weekly,,,25.50K
-2026-06-23,Tuesday,20:55,USD,Low,Redbook (YoY),,,9.4%
+2026-06-23,Tuesday,20:00,HUF,Low,Interest Rate Decision  (Jun),6.00%,6.00%,6.25%
+2026-06-23,Tuesday,20:00,MXN,Low,Economic Activity (MoM)  (Apr),1.20%,,0.60%
+2026-06-23,Tuesday,20:00,MXN,Low,Economic Activity (YoY)  (Apr),2.30%,1.90%,1.40%
+2026-06-23,Tuesday,20:00,MXN,Low,Retail Sales (MoM)  (Apr),0.8%,,0.1%
+2026-06-23,Tuesday,20:00,MXN,Low,Retail Sales (YoY)  (Apr),4.4%,,2.9%
+2026-06-23,Tuesday,20:00,PLN,Low,M3 Money Supply (YoY)  (May),11.0%,11.4%,11.3%
+2026-06-23,Tuesday,20:15,USD,Medium,ADP Employment Change Weekly,30.75K,,26.50K
+2026-06-23,Tuesday,20:55,USD,Low,Redbook (YoY),10.0%,,9.4%
 2026-06-23,Tuesday,21:00,CAD,Medium,BoC Gov Macklem Speaks,,,
+2026-06-23,Tuesday,21:00,KWD,Low,Bank Lending (YoY)  (May),5.45%,,5.97%
 2026-06-23,Tuesday,21:15,EUR,Medium,ECB's Elderson Speaks,,,
-2026-06-23,Tuesday,21:45,USD,High,S&P Global Manufacturing PMI  (Jun),,54.6,55.1
-2026-06-23,Tuesday,21:45,USD,High,S&P Global Services PMI  (Jun),,51.0,50.7
-2026-06-23,Tuesday,21:45,USD,Medium,S&P Global Composite PMI  (Jun),,,51.5
-2026-06-23,Tuesday,22:00,USD,Low,Richmond Manufacturing Index  (Jun),,8,13
-2026-06-23,Tuesday,22:00,USD,Low,Richmond Manufacturing Shipments  (Jun),,,16
-2026-06-23,Tuesday,22:00,USD,Low,Richmond Services Index  (Jun),,,14
+2026-06-23,Tuesday,21:45,USD,High,S&P Global Manufacturing PMI  (Jun),55.7,54.6,55.1
+2026-06-23,Tuesday,21:45,USD,High,S&P Global Services PMI  (Jun),51.3,51.1,50.7
+2026-06-23,Tuesday,21:45,USD,Medium,S&P Global Composite PMI  (Jun),52.2,,51.5
+2026-06-23,Tuesday,22:00,USD,Low,Richmond Manufacturing Index  (Jun),4,8,13
+2026-06-23,Tuesday,22:00,USD,Low,Richmond Manufacturing Shipments  (Jun),3,,16
+2026-06-23,Tuesday,22:00,USD,Low,Richmond Services Index  (Jun),-1,,14
 2026-06-24,Wednesday,All Day,,Holiday,Estonia - Midsummer Day,,,
 2026-06-24,Wednesday,All Day,,Holiday,Lithuania - St. John's Day,,,
 2026-06-24,Wednesday,All Day,,Holiday,Venezuela - Battle of Carabobo,,,
@@ -11340,17 +11321,17 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-06-24,Wednesday,19:15,CAD,Medium,BoC Senior Deputy Governor Rogers Speaks,,,
 2026-06-24,Wednesday,19:15,GBP,Low,BoE Breeden Speaks,,,
 2026-06-24,Wednesday,19:30,EUR,Medium,German Buba Balz Speaks,,,
-2026-06-24,Wednesday,20:00,MXN,Low,1st Half-Month CPI  (Jun),,,-0.16%
-2026-06-24,Wednesday,20:00,MXN,Low,1st Half-Month Core CPI  (Jun),,,0.13%
+2026-06-24,Wednesday,20:00,MXN,Low,1st Half-Month CPI  (Jun),,0.10%,-0.16%
+2026-06-24,Wednesday,20:00,MXN,Low,1st Half-Month Core CPI  (Jun),,0.20%,0.13%
 2026-06-24,Wednesday,20:30,CAD,Low,Manufacturing Sales (MoM)  (May),,,4.2%
 2026-06-24,Wednesday,20:30,USD,Low,Building Permits (MoM)  (May),,-0.7%,4.4%
 2026-06-24,Wednesday,20:30,USD,Medium,Building Permits  (May),,1.413M,1.423M
-2026-06-24,Wednesday,20:30,USD,Medium,Current Account  (Q1),,-219.0B,-190.7B
+2026-06-24,Wednesday,20:30,USD,Medium,Current Account  (Q1),,-206.0B,-190.7B
 2026-06-24,Wednesday,21:00,CHF,Low,SNB Quarterly Bulletin,,,
 2026-06-24,Wednesday,21:00,EUR,Low,Belgium NBB Business Climate  (Jun),,-12.0,-13.3
-2026-06-24,Wednesday,22:00,USD,High,New Home Sales  (May),,637K,622K
+2026-06-24,Wednesday,22:00,USD,High,New Home Sales  (May),,638K,622K
 2026-06-24,Wednesday,22:00,USD,Medium,New Home Sales (MoM)  (May),,,-6.2%
-2026-06-24,Wednesday,22:30,USD,High,Crude Oil Inventories,,,-8.263M
+2026-06-24,Wednesday,22:30,USD,High,Crude Oil Inventories,,-5.100M,-8.263M
 2026-06-24,Wednesday,22:30,USD,Low,Crude Oil Imports,,,-0.241M
 2026-06-24,Wednesday,22:30,USD,Low,Distillate Fuel Production,,,-0.029M
 2026-06-24,Wednesday,22:30,USD,Low,EIA Refinery Crude Runs  (WoW),,,0.230M
@@ -11438,8 +11419,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-06-25,Thursday,20:30,USD,Medium,PCE Price index (YoY)  (May),,,3.8%
 2026-06-25,Thursday,20:30,USD,Medium,PCE price index (MoM)  (May),,,0.4%
 2026-06-25,Thursday,20:30,USD,Medium,Personal Spending (MoM)  (May),,0.6%,0.5%
-2026-06-25,Thursday,21:00,KWD,Low,Bank Lending (YoY)  (May),,,5.97%
-2026-06-25,Thursday,21:00,KWD,Low,M2 Money Supply (YoY)  (May),,,2.21%
 2026-06-25,Thursday,21:00,RUB,Low,Central Bank reserves (USD),,,729.3B
 2026-06-25,Thursday,22:00,USD,Low,Dallas Fed PCE  (May),,,2.50%
 2026-06-25,Thursday,22:00,USD,Medium,Atlanta Fed GDPNow  (Q2),,3.0%,3.0%
@@ -11508,6 +11487,26 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-06-26,Friday,23:30,USD,Medium,FOMC Member Kashkari Speaks,,,
 2026-06-27,Saturday,01:00,USD,Medium,U.S. Baker Hughes Oil Rig Count,,,433
 2026-06-27,Saturday,01:00,USD,Medium,U.S. Baker Hughes Total Rig Count,,,563
+2026-06-27,Saturday,03:30,AUD,Medium,CFTC AUD speculative net positions,,,-4.1K
+2026-06-27,Saturday,03:30,BRL,Medium,CFTC BRL speculative net positions,,,41.0K
+2026-06-27,Saturday,03:30,CAD,Low,CFTC CAD speculative net positions,,,-132.9K
+2026-06-27,Saturday,03:30,CHF,Low,CFTC CHF speculative net positions,,,-40.1K
+2026-06-27,Saturday,03:30,EUR,Medium,CFTC EUR speculative net positions,,,34.4K
+2026-06-27,Saturday,03:30,GBP,Medium,CFTC GBP speculative net positions,,,-71.6K
+2026-06-27,Saturday,03:30,JPY,Medium,CFTC JPY speculative net positions,,,-150.1K
+2026-06-27,Saturday,03:30,MXN,Low,CFTC MXN speculative net positions,,,71.8K
+2026-06-27,Saturday,03:30,NZD,Low,CFTC NZD speculative net positions,,,-45.2K
+2026-06-27,Saturday,03:30,USD,Low,CFTC Aluminium speculative net positions,,,0.1K
+2026-06-27,Saturday,03:30,USD,Low,CFTC Copper speculative net positions,,,75.3K
+2026-06-27,Saturday,03:30,USD,Low,CFTC Corn speculative net positions,,,77.8K
+2026-06-27,Saturday,03:30,USD,Low,CFTC Natural Gas speculative net positions,,,-173.5K
+2026-06-27,Saturday,03:30,USD,Low,CFTC Silver speculative net positions,,,24.5K
+2026-06-27,Saturday,03:30,USD,Low,CFTC Soybeans speculative net positions,,,117.6K
+2026-06-27,Saturday,03:30,USD,Low,CFTC Wheat speculative net positions,,,-50.8K
+2026-06-27,Saturday,03:30,USD,Medium,CFTC Crude Oil speculative net positions,,,124.5K
+2026-06-27,Saturday,03:30,USD,Medium,CFTC Gold speculative net positions,,,180.2K
+2026-06-27,Saturday,03:30,USD,Medium,CFTC Nasdaq 100 speculative net positions,,,-8.9K
+2026-06-27,Saturday,03:30,USD,Medium,CFTC S&P 500 speculative net positions,,,-194.0K
 2026-06-27,Saturday,09:30,CNY,Low,Chinese Industrial profit YTD  (May),,,18.2%
 2026-06-27,Saturday,21:45,EUR,Medium,ECB's Schnabel Speaks,,,
 2026-06-28,Sunday,18:00,ILS,Low,Industrial Output (MoM)  (Apr),,,-18.1%
@@ -11552,6 +11551,8 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-06-29,Monday,17:00,EUR,Low,Services Sentiment  (Jun),,,2.2
 2026-06-29,Monday,17:30,EUR,Low,Belgium CPI (MoM)  (Jun),,,-0.08%
 2026-06-29,Monday,17:30,EUR,Low,Belgium CPI (YoY)  (Jun),,,4.08%
+2026-06-29,Monday,18:00,EUR,Low,Irish Retail Sales (MoM)  (May),,,-0.2%
+2026-06-29,Monday,18:00,EUR,Low,Irish Retail Sales (YoY)  (May),,,-0.5%
 2026-06-29,Monday,18:00,EUR,Low,Latvian Retail Sales (MoM)  (May),,,-0.40%
 2026-06-29,Monday,18:00,EUR,Low,Latvian Retail Sales (YoY)  (May),,,2.60%
 2026-06-29,Monday,18:30,INR,Low,Cumulative Industrial Production  (Apr),,,4.10%
@@ -11698,7 +11699,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-07-01,Wednesday,03:00,MXN,Low,Fiscal Balance  (May),,,-37.15B
 2026-07-01,Wednesday,07:00,AUD,Low,AIG Construction Index  (Jun),,,-9.9
 2026-07-01,Wednesday,07:00,AUD,Low,AIG Manufacturing Index  (Jun),,,-22.4
-2026-07-01,Wednesday,07:00,AUD,Low,S&P Global Manufacturing PMI  (Jun),,,50.7
+2026-07-01,Wednesday,07:00,AUD,Low,S&P Global Manufacturing PMI  (Jun),,,51.2
 2026-07-01,Wednesday,07:50,JPY,Low,Tankan All Small Industry CAPEX  (Q2),,,-8.1%
 2026-07-01,Wednesday,07:50,JPY,Low,Tankan Large Non-Manufacturers Diffusion Index  (Q2),,,29
 2026-07-01,Wednesday,07:50,JPY,Low,Tankan Small Manufacturers Diffusion Index  (Q2),,,4
@@ -11715,7 +11716,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-07-01,Wednesday,08:00,KRW,Low,Imports (YoY)  (Jun),,,20.7%
 2026-07-01,Wednesday,08:00,KRW,Low,Trade Balance  (Jun),,,27.04B
 2026-07-01,Wednesday,08:30,IDR,Low,S&P Global Manufacturing PMI  (Jun),,,50.0
-2026-07-01,Wednesday,08:30,JPY,Low,S&P Global Manufacturing PMI  (Jun),,,54.5
+2026-07-01,Wednesday,08:30,JPY,Low,S&P Global Manufacturing PMI  (Jun),,,54.9
 2026-07-01,Wednesday,08:30,KRW,Low,S&P Global South Korea Manufacturing PMI  (Jun),,,54.8
 2026-07-01,Wednesday,08:30,MYR,Low,Manufacturing PMI  (Jun),,,49.90
 2026-07-01,Wednesday,08:30,PHP,Low,S&P Global Manufacturing PMI  (Jun),,,50.8
@@ -11733,7 +11734,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-07-01,Wednesday,12:00,IDR,Low,Inflation (YoY)  (Jun),,,3.08%
 2026-07-01,Wednesday,12:00,IDR,Low,Trade Balance  (May),,,0.09B
 2026-07-01,Wednesday,12:30,EUR,Low,Dutch Retail Sales (YoY)  (May),,,3.0%
-2026-07-01,Wednesday,13:00,INR,Low,HSBC India Manufacturing PMI  (Jun),,,55.0
+2026-07-01,Wednesday,13:00,INR,Low,HSBC India Manufacturing PMI  (Jun),,,54.5
 2026-07-01,Wednesday,13:00,JPY,Low,Household Confidence  (Jun),,,33.6
 2026-07-01,Wednesday,14:00,GBP,Medium,Nationwide HPI (MoM)  (Jun),,,-0.6%
 2026-07-01,Wednesday,14:00,GBP,Medium,Nationwide HPI (YoY)  (Jun),,,1.7%
@@ -11747,14 +11748,14 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-07-01,Wednesday,15:30,CHF,Medium,procure.ch Manufacturing PMI  (Jun),,,57.3
 2026-07-01,Wednesday,15:30,CZK,Low,S&P Global Czech Republic Manufacturing PMI  (Jun),,,52.2
 2026-07-01,Wednesday,15:45,EUR,Medium,HCOB Italy Manufacturing PMI  (Jun),,,52.9
-2026-07-01,Wednesday,15:50,EUR,Medium,HCOB France Manufacturing PMI  (Jun),,,49.7
-2026-07-01,Wednesday,15:55,EUR,Medium,HCOB Germany Manufacturing PMI  (Jun),,,50.1
+2026-07-01,Wednesday,15:50,EUR,Medium,HCOB France Manufacturing PMI  (Jun),,,50.7
+2026-07-01,Wednesday,15:55,EUR,Medium,HCOB Germany Manufacturing PMI  (Jun),,,50.0
 2026-07-01,Wednesday,16:00,EUR,Low,Austrian Unemployment Change  (Jun),,,301.7K
 2026-07-01,Wednesday,16:00,EUR,Low,Austrian Unemployment Rate  (Jun),,,7.1%
 2026-07-01,Wednesday,16:00,EUR,Low,Italian Public Deficit  (Q1),,,-1.4%
 2026-07-01,Wednesday,16:00,EUR,Low,S&P Global Greece Manufacturing PMI  (Jun),,,53.3
-2026-07-01,Wednesday,16:00,EUR,Medium,HCOB Eurozone Manufacturing PMI  (Jun),,,51.6
-2026-07-01,Wednesday,16:30,GBP,Medium,S&P Global Manufacturing PMI  (Jun),,,53.9
+2026-07-01,Wednesday,16:00,EUR,Medium,HCOB Eurozone Manufacturing PMI  (Jun),,,51.3
+2026-07-01,Wednesday,16:30,GBP,Medium,S&P Global Manufacturing PMI  (Jun),,,53.1
 2026-07-01,Wednesday,17:00,EUR,High,CPI (YoY)  (Jun),,,3.2%
 2026-07-01,Wednesday,17:00,EUR,Low,"CPI, n.s.a  (Jun)",,,103.13
 2026-07-01,Wednesday,17:00,EUR,Low,Greek Unemployment Rate  (May),,,9.5%
@@ -11767,7 +11768,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-07-01,Wednesday,20:15,USD,High,ADP Nonfarm Employment Change  (Jun),,,122K
 2026-07-01,Wednesday,20:30,CLP,Low,Economic Activity (YoY)  (May),,,-1.2%
 2026-07-01,Wednesday,21:00,BRL,Low,S&P Global Manufacturing PMI  (Jun),,,49.1
-2026-07-01,Wednesday,21:45,USD,High,S&P Global Manufacturing PMI  (Jun),,,55.1
+2026-07-01,Wednesday,21:45,USD,High,S&P Global Manufacturing PMI  (Jun),,,55.7
 2026-07-01,Wednesday,22:00,USD,High,ISM Manufacturing PMI  (Jun),,,54.0
 2026-07-01,Wednesday,22:00,USD,High,ISM Manufacturing Prices  (Jun),,,82.1
 2026-07-01,Wednesday,22:00,USD,Low,ISM Manufacturing New Orders Index  (Jun),,,56.8
